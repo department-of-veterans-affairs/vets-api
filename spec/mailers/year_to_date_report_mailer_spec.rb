@@ -30,6 +30,7 @@ RSpec.describe YearToDateReportMailer, type: %i[mailer aws_helpers] do
             lihan@adhocteam.us
             Turner_Desiree@bah.com
             Delli-Gatti_Michael@bah.com
+            Lucas.Tickner@va.gov
           ]
         )
       end
