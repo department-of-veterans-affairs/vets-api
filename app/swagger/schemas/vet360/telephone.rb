@@ -14,25 +14,20 @@ module Swagger
                    minLength: 3,
                    maxLength: 3,
                    pattern: ::Vet360::Models::Telephone::VALID_AREA_CODE_REGEX.inspect,
-                   description: 'The three-digit code that begins a North American (the U.S., Canada and Mexico) phone number.'
+                   description: 'The three-digit code that begins a North American (the U.S., Canada and Mexico) phone
+                   number.'
           property :country_code,
                    type: :string,
                    enum: ['1'],
                    example: '1',
-                   description: 'First two to four digits of a non- North American phone number that routes the call to country of that phone number.'
-          property :effective_end_date,
-                   type: %i[string null],
-                   format: 'date-time',
-                   example: '2018-04-21T20:09:50Z'
-          property :effective_start_date,
-                   type: %i[string null],
-                   format: 'date-time',
-                   example: '2018-04-21T20:09:50Z'
+                   description: 'First two to four digits of a non- North American phone number that routes the call to
+                   country of that phone number.'
           property :extension,
                    type: :string,
                    example: '101',
                    maxLength: 10,
-                   description: 'One-or-more digit number that must be dialed after reaching a main number, typically at an establishment, in order to reach a specific party.'
+                   description: 'One-or-more digit number that must be dialed after reaching a main number, typically at
+                   an establishment, in order to reach a specific party.'
           property :is_international,
                    type: :boolean,
                    example: false
@@ -47,7 +42,8 @@ module Swagger
           property :is_tty,
                    type: :boolean,
                    example: true,
-                   description: 'Indicates phone number has TTY capability (TeleTypewriter). This allows deaf or hard of hearing individuals to utilize typing versus voice over a phone connection.'
+                   description: 'Indicates phone number has TTY capability (TeleTypewriter). This allows deaf or hard of
+                   hearing individuals to utilize typing versus voice over a phone connection.'
           property :is_voicemailable,
                    type: :boolean,
                    example: true,
@@ -58,7 +54,8 @@ module Swagger
                    minLength: 1,
                    maxLength: 14,
                    pattern: ::Vet360::Models::Telephone::VALID_PHONE_NUMBER_REGEX.inspect,
-                   description: 'Number that follows an area code for a North American phone number, or a country code for a non-North American phone number.'
+                   description: 'Number that follows an area code for a North American phone number, or a country code
+                   for a non-North American phone number.'
           property :phone_type,
                    type: :string,
                    enum: ::Vet360::Models::Telephone::PHONE_TYPES,
@@ -72,7 +69,8 @@ module Swagger
           property :vet360_id,
                    type: :integer,
                    example: 1,
-                   description: 'Unique Identifier of individual within VET360. Created by VET360 after it is validated and accepted. May be considered PII.'
+                   description: 'Unique Identifier of individual within VET360. Created by VET360 after it is validated
+                   and accepted. May be considered PII.'
         end
 
         swagger_schema :PutVet360Telephone do
@@ -86,25 +84,20 @@ module Swagger
                    minLength: 3,
                    maxLength: 3,
                    pattern: ::Vet360::Models::Telephone::VALID_AREA_CODE_REGEX.inspect,
-                   description: 'The three-digit code that begins a North American (the U.S., Canada and Mexico) phone number.'
+                   description: 'The three-digit code that begins a North American (the U.S., Canada and Mexico) phone
+                   number.'
           property :country_code,
                    type: :string,
                    enum: ['1'],
                    example: '1',
-                   description: 'First two to four digits of a non- North American phone number that routes the call to country of that phone number.'
-          property :effective_end_date,
-                   type: %i[string null],
-                   format: 'date-time',
-                   example: '2018-04-21T20:09:50Z'
-          property :effective_start_date,
-                   type: %i[string null],
-                   format: 'date-time',
-                   example: '2018-04-21T20:09:50Z'
+                   description: 'First two to four digits of a non- North American phone number that routes the call to
+                   country of that phone number.'
           property :extension,
                    type: :string,
                    example: '101',
                    maxLength: 10,
-                   description: 'One-or-more digit number that must be dialed after reaching a main number, typically at an establishment, in order to reach a specific party.'
+                   description: 'One-or-more digit number that must be dialed after reaching a main number, typically at
+                   an establishment, in order to reach a specific party.'
           property :is_international,
                    type: :boolean,
                    example: false
@@ -119,7 +112,8 @@ module Swagger
           property :is_tty,
                    type: :boolean,
                    example: true,
-                   description: 'Indicates phone number has TTY capability (TeleTypewriter). This allows deaf or hard of hearing individuals to utilize typing versus voice over a phone connection.'
+                   description: 'Indicates phone number has TTY capability (TeleTypewriter). This allows deaf or hard of
+                   hearing individuals to utilize typing versus voice over a phone connection.'
           property :is_voicemailable,
                    type: :boolean,
                    example: true,
@@ -130,7 +124,8 @@ module Swagger
                    minLength: 1,
                    maxLength: 14,
                    pattern: ::Vet360::Models::Telephone::VALID_PHONE_NUMBER_REGEX.inspect,
-                   description: 'Number that follows an area code for a North American phone number, or a country code for a non-North American phone number.'
+                   description: 'Number that follows an area code for a North American phone number, or a country code
+                   for a non-North American phone number.'
           property :phone_type,
                    type: :string,
                    enum: ::Vet360::Models::Telephone::PHONE_TYPES,
@@ -144,7 +139,8 @@ module Swagger
           property :vet360_id,
                    type: :integer,
                    example: 1,
-                   description: 'Unique Identifier of individual within VET360. Created by VET360 after it is validated and accepted. May be considered PII.'
+                   description: 'Unique Identifier of individual within VET360. Created by VET360 after it is validated
+                   and accepted. May be considered PII.'
         end
       end
     end
