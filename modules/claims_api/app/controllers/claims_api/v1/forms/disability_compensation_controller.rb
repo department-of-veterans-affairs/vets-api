@@ -2,6 +2,7 @@
 
 require_dependency 'claims_api/base_disability_compensation_controller'
 require_dependency 'claims_api/concerns/itf_verification'
+require_dependency 'claims_api/concerns/poa_verfication'
 require 'jsonapi/parser'
 
 module ClaimsApi
@@ -9,6 +10,7 @@ module ClaimsApi
     module Forms
       class DisabilityCompensationController < BaseDisabilityCompensationController
         include ClaimsApi::ItfVerification
+        include ClaimsApi::PoaVerification
         FORM_NUMBER = '526'
         before_action { permit_scopes %w[claim.write] }
         before_action :verify_itf, only: %i[submit_form_526]
