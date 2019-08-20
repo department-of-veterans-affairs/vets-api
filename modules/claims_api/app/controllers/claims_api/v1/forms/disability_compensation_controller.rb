@@ -1,15 +1,17 @@
 # frozen_string_literal: true
 
-require_dependency 'claims_api/base_form_controller'
+require_dependency 'claims_api/base_disability_compensation_controller'
+require_dependency 'claims_api/concerns/itf_verification'
 require 'jsonapi/parser'
 
 module ClaimsApi
   module V1
     module Forms
-      class DisabilityCompensationController < BaseFormController
+      class DisabilityCompensationController < BaseDisabilityCompensationController
+        include ClaimsApi::ItfVerification
         FORM_NUMBER = '526'
         before_action { permit_scopes %w[claim.write] }
-        before_action :verification_itf_expiration, only: %i[submit_form_526]
+        before_action :verify_itf, only: %i[submit_form_526]
         skip_before_action :validate_json_schema, only: %i[upload_supporting_documents]
         skip_before_action :verify_mvi, only: %i[submit_form_526 validate_form_526]
         skip_before_action :log_request, only: %i[validate_form_526]
