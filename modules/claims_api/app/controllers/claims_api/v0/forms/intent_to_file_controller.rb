@@ -8,7 +8,6 @@ module ClaimsApi
       class IntentToFileController < ClaimsApi::BaseFormController
         FORM_NUMBER = '0966'
         skip_before_action(:authenticate)
-        skip_before_action :verify_power_of_attorney
         before_action :check_future_type, only: [:submit_form_0966]
         skip_before_action :validate_json_schema, only: [:active]
 
