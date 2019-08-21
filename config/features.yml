@@ -2,5 +2,6 @@
 features:
   facilityLocatorShowCommunityCares:
     description: >
-      This is a feature flag description.
+      On https://www.va.gov/find-locations/ enable veterans to search for Community care by showing that option in the "Search for" box.
+      This toggle is owned by Rian
     actor: User
