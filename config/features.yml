@@ -1,0 +1,6 @@
+---
+features:
+  facilityLocatorShowCommunityCares:
+    description: >
+      This is a feature flag description.
+    actor: User

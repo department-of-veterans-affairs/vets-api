@@ -1,0 +1,57 @@
+<% if @show_blank_slate %>
+  <div class="jumbotron text-center">
+    <span class="mega-octicon octicon-plus"></span>
+    <span class="mega-octicon octicon-list-unordered"></span>
+    <span class="mega-octicon octicon-zap"></span>
+    <% if Flipper::UI.configuration.fun %>
+      <h4>But I've got a blank space baby...</h4>
+      <p>And I'll flip your features.</p>
+      <div class="embed-responsive embed-responsive-16by9">
+        <iframe class="embed-responsive-item" width="560" height="315" src="https://www.youtube.com/embed/e-ORhEE9VVg" frameborder="0" allowfullscreen></iframe>
+      </div>
+    <% else %>
+      <h4>There aren't any features to configure.</h4>
+      <p>
+        Check the <a href="https://github.com/jnunemaker/flipper#examples">examples</a> to
+        learn how to add one.
+      </p>
+    <% end %>
+  </div>
+<% else %>
+  <div class="card">
+    <h4 class="card-header">Features</h4>
+    <table class="table">
+      <thead>
+        <tr class="d-flex">
+          <th class="col-1">
+            <span class="octicon octicon-squirrel"></span>
+          </th>
+          <th class="col">Feature</th>
+          <th class="col">Enabled Gates</th>
+          <th class="col">Actors</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @features.each do |feature| %>
+          <tr class="d-flex">
+            <td class="col-1">
+              <span class="octicon octicon-squirrel <%= feature.color_class %>"></span>
+            </td>
+            <td class="col">
+              <a href="<%= "#{script_name}/features/#{feature.key}" %>">
+                <%= feature.key %></a>
+                <br>
+                <div><%= yaml_features.dig(feature.key,'description') %></div>
+            </td>
+            <td class="col">
+              <%= feature.pretty_enabled_gate_names %>
+            </td>
+            <td class="col">
+              <%= yaml_features.dig(feature.key, 'actor') %>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+<% end %>
