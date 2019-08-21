@@ -1,13 +1,14 @@
 # frozen_string_literal: true
 
 require_dependency 'claims_api/concerns/request_logging'
+require_dependency 'claims_api/concerns/mvi_verification'
 
 module ClaimsApi
   class ApplicationController < ::OpenidApplicationController
     include ClaimsApi::RequestLogging
+    include ClaimsApi::MviVerification
 
     skip_before_action :set_tags_and_extra_context, raise: false
-    before_action :verify_mvi
 
     private
 
@@ -18,13 +19,6 @@ module ClaimsApi
         vet
       else
         ClaimsApi::Veteran.from_identity(identity: @current_user)
-      end
-    end
-
-    def verify_mvi
-      unless target_veteran.mvi_record?
-        render json: { errors: [{ detail: 'Not found' }] },
-               status: :not_found
       end
     end
   end
