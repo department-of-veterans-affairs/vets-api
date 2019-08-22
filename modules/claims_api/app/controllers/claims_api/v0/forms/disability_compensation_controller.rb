@@ -41,7 +41,7 @@ module ClaimsApi
             claim_document = claim.supporting_documents.build
             claim_document.set_file_data!(document, params[:doc_type], params[:description])
             claim_document.save!
-            ClaimsApi::ClaimEstablisher.perform_async(claim_document.id)
+            ClaimsApi::ClaimUploader.perform_async(claim_document.id)
           end
 
           render json: claim, serializer: ClaimsApi::ClaimDetailSerializer
