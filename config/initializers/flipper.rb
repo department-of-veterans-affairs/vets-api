@@ -35,12 +35,16 @@ end
 #   user.respond_to?(:first_name) && user.first_name == 'HECTOR'
 # end
 
-# Make sure that each feature we reference in code is present in the UI
+#Make sure that each feature we reference in code is present in the UI, as long as we have a Database already
 FLIPPER_FEATURE_CONFIG['features'].each_key do |feature|
-  unless Flipper.exist?(feature)
-    Flipper.add(feature)
-    # default feautures to enabled for development and test only
-    Flipper.enable(feature) if Rails.env.development? || Rails.env.test?
+  begin
+    unless Flipper.exist?(feature)
+      Flipper.add(feature)
+      # default feautures to enabled for development and test only
+      Flipper.enable(feature) if Rails.env.development? || Rails.env.test?
+    end
+  rescue ActiveRecord::NoDatabaseError
+    nil
   end
 end
 
