@@ -42,7 +42,7 @@ module V0
         log_error(saml_response)
         Rails.logger.info("SLO callback response invalid for originating_request_id '#{originating_request_id}'")
       end
-    rescue StandardError => e
+    rescue => e
       log_exception_to_sentry(e, {}, {}, :error)
     ensure
       redirect_to url_service.logout_redirect_url
@@ -58,7 +58,7 @@ module V0
         redirect_to url_service.login_redirect_url(auth: 'fail', code: auth_error_code(saml_response.error_code))
         stats(:failure, saml_response, saml_response.error_instrumentation_code)
       end
-    rescue StandardError => e
+    rescue => e
       log_exception_to_sentry(e, {}, {}, :error)
       redirect_to url_service.login_redirect_url(auth: 'fail', code: '007') unless performed?
       stats(:failed_unknown)
