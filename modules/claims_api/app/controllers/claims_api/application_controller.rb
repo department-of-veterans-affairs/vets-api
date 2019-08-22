@@ -13,7 +13,9 @@ module ClaimsApi
     private
 
     def target_veteran(with_gender: false)
-      if poa_request?
+      headers_to_check = ['HTTP_X_VA_SSN', 'HTTP_X_VA_Consumer-Username', 'HTTP_X_VA_Birth_Date']
+      header_request = (request.headers.to_h.keys & headers_to_check).length.positive?
+      if header_request
         vet = ClaimsApi::Veteran.from_headers(request.headers, with_gender: with_gender)
         vet.loa = @current_user.loa if @current_user
         vet
