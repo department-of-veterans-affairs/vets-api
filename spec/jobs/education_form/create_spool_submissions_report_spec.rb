@@ -26,9 +26,12 @@ RSpec.describe EducationForm::CreateSpoolSubmissionsReport, type: :aws_helpers d
         expect(
           subject.create_csv_array
         ).to eq(
-          [['Claimant Name', 'Veteran Name', 'Confirmation #', 'Time Submitted', 'RPO'],
-           ['Mark Olson', nil, education_benefits_claim_1.confirmation_number, '2017-07-27 00:00:00 UTC', 'eastern'],
-           [nil, 'Mark Olson', education_benefits_claim_2.confirmation_number, '2017-07-27 00:00:00 UTC', 'eastern']]
+          csv_array: [['Claimant Name', 'Veteran Name', 'Confirmation #', 'Time Submitted', 'RPO'],
+                      ['Mark Olson', nil, education_benefits_claim_1.confirmation_number, '2017-07-27 00:00:00 UTC',
+                       'eastern'],
+                      [nil, 'Mark Olson', education_benefits_claim_2.confirmation_number, '2017-07-27 00:00:00 UTC',
+                       'eastern']],
+          stem_exists: false
         )
       end
 
@@ -50,9 +53,10 @@ RSpec.describe EducationForm::CreateSpoolSubmissionsReport, type: :aws_helpers d
 
         it 'should create a csv file' do
           perform
-
+          data = subject.create_csv_array
+          csv_array = data[:csv_array]
           csv_string = CSV.generate do |csv|
-            subject.create_csv_array.each do |row|
+            csv_array.each do |row|
               csv << row
             end
           end

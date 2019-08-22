@@ -3,16 +3,15 @@
 require 'rails_helper'
 
 RSpec.describe ClaimsApi::Veteran, type: :model do
+  let(:headers) do
+    {
+      'X-VA-SSN' => '123456789',
+      'X-VA-First-Name' => 'MARK',
+      'X-VA-Last-Name' => 'WEBB',
+      'X-VA-Birth-Date' => '1928-01-01'
+    }
+  end
   describe 'attributes needed for MVI lookup' do
-    let(:headers) do
-      {
-        'X-VA-SSN' => '123456789',
-        'X-VA-First-Name' => 'MARK',
-        'X-VA-Last-Name' => 'WEBB',
-        'X-VA-Birth-Date' => '1928-01-01'
-      }
-    end
-
     before do
       @veteran = ClaimsApi::Veteran.new
       @veteran.loa = { current: 3, highest: 3 }
@@ -27,19 +26,29 @@ RSpec.describe ClaimsApi::Veteran, type: :model do
       expect(@veteran.valid?).to be(true)
     end
 
-    it 'should alias dslogon_edipi to edipi for MVI' do
-      expect(@veteran.dslogon_edipi).to be(@veteran.edipi)
+    it 'should set edipi if passed in headers' do
+      veteran = ClaimsApi::Veteran.from_headers(headers.merge!('X-VA-EDIPI' => 1337))
+      expect(veteran.edipi).to eq(1337)
+    end
+  end
+
+  describe 'setting edipi from mvi' do
+    let(:mvi_profile_no_edipi) { build(:mvi_profile, edipi: nil) }
+    let(:mvi_profile_with_edipi) { build(:mvi_profile, edipi: 1337) }
+
+    before do
+      @veteran = ClaimsApi::Veteran.new
+      @veteran.loa = { current: 3, highest: 3 }
     end
 
-    it 'should set edipi not passed in headers' do
-      headers['X-VA-EDIPI'] = '12345'
+    it 'should set edipi from mvi when not passed in headers' do
+      allow_any_instance_of(Mvi).to receive(:profile).and_return(mvi_profile_no_edipi)
       veteran = ClaimsApi::Veteran.from_headers(headers)
-      expect(veteran.edipi).to eq('12345')
-    end
-
-    it 'should not set edipi if not passed in headers' do
-      veteran = ClaimsApi::Veteran.from_headers(headers)
-      expect(veteran.edipi).to be(nil)
+      expect(veteran.edipi).to be_nil
+      veteran.loa = { current: 3, highest: 3 }
+      veteran.mvi_record?
+      allow_any_instance_of(Mvi).to receive(:profile).and_return(mvi_profile_with_edipi)
+      expect(veteran.edipi).to eq('1337')
     end
   end
 

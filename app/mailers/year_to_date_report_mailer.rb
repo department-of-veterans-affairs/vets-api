@@ -34,6 +34,7 @@ class YearToDateReportMailer < ApplicationMailer
       lihan@adhocteam.us
       Turner_Desiree@bah.com
       Delli-Gatti_Michael@bah.com
+      Lucas.Tickner@va.gov
     ]
   }.freeze
 

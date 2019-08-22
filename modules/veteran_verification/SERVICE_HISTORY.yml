@@ -136,7 +136,7 @@ components:
             deployments:
               type: array
               items:
-                $ref: #/components/schemas/Deployment
+                $ref: '#/components/schemas/Deployment'
     Deployment:
       description: |
         Deployment during a service history episode
