@@ -21,12 +21,17 @@ class Cookies
   private
 
   def encrypt_api_session_cookie(session)
-    salt = Rails.application.config.action_dispatch.encrypted_cookie_salt
-    signed_salt = Rails.application.config.action_dispatch.encrypted_signed_cookie_salt
+    salt = Rails.application.config.action_dispatch.authenticated_encrypted_cookie_salt # 'authenticated encrypted cookie'
+    encrypted_cookie_cipher = 'aes-256-gcm'
+
     key_generator = ActiveSupport::KeyGenerator.new(Rails.application.secrets.secret_key_base, iterations: 1000)
-    secret = key_generator.generate_key(salt)[0, ActiveSupport::MessageEncryptor.key_len]
-    sign_secret = key_generator.generate_key(signed_salt)
-    encryptor = ActiveSupport::MessageEncryptor.new(secret, sign_secret)
+    key_len = ActiveSupport::MessageEncryptor.key_len(encrypted_cookie_cipher)
+    secret = key_generator.generate_key(salt, key_len)
+
+    # ActiveSupport::MessageEncryptor defaults to `Marshal` if no serializer is provided
+    # Make sure this matches the vets-api config: Rails.application.config.action_dispatch.cookies_serializer
+    encryptor = ActiveSupport::MessageEncryptor.new(secret, cipher: encrypted_cookie_cipher, serializer: nil)
+
     encryptor.encrypt_and_sign(session.to_hash.reverse_merge(session_id: SecureRandom.hex(32)))
   end
 
