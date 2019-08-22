@@ -8,7 +8,6 @@ require 'flipper/flipper_monkey_patch'
 
 FLIPPER_FEATURE_CONFIG = YAML.safe_load(File.read(Rails.root.join('config', 'features.yml')))
 
-
 # Flipper settings will be stored in postgres and cached in memory for 1 minute
 Flipper.configure do |config|
   config.default do
@@ -37,13 +36,13 @@ end
 # end
 
 # Make sure that each feature we reference in code is present in the UI
-# will default to disabled.
-FLIPPER_FEATURE_CONFIG['features'].keys.each do |feature|
+FLIPPER_FEATURE_CONFIG['features'].each_key do |feature|
   unless Flipper.exist?(feature)
     Flipper.add(feature)
-    Flipper.enable(feature) if Rails.env.development?
+    # default feautures to enabled for development and test only
+    Flipper.enable(feature) if Rails.env.development? || Rails.env.test?
   end
 end
 
-# Monkeypatch flipper ui to add descriptions
+# Monkeypatch Flipper::UI to add descriptions
 Flipper::UI::Actions::Features.prepend(FlipperExtensions::FeaturesMonkeyPatch)

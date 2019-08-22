@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module FlipperExtensions
   module FeaturesMonkeyPatch
     def get

@@ -8,7 +8,6 @@
         </th>
         <th class="col">Feature</th>
         <th class="col">Enabled Gates</th>
-        <th class="col">Actors</th>
       </tr>
     </thead>
     <tbody>
@@ -25,9 +24,6 @@
           </td>
           <td class="col">
             <%= feature.pretty_enabled_gate_names %>
-          </td>
-          <td class="col">
-            <%= yaml_features.dig(feature.key, 'actor') %>
           </td>
         </tr>
       <% end %>
