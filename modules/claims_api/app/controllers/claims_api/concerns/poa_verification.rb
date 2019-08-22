@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module ClaimsApi
-  module PoaVerfication
+  module PoaVerification
     extend ActiveSupport::Concern
 
     included do

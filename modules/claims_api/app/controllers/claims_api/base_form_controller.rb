@@ -10,7 +10,6 @@ module ClaimsApi
     # schema endpoint should be wide open
     skip_before_action :validate_json_schema, only: %i[schema]
     skip_before_action :authenticate, only: %i[schema]
-    skip_before_action :verify_power_of_attorney, only: %i[schema]
     skip_before_action :verify_mvi, only: %i[schema]
     skip_before_action :log_request, only: %i[schema]
 
