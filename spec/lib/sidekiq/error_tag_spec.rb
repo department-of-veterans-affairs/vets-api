@@ -3,6 +3,7 @@
 require 'rails_helper'
 
 describe Sidekiq::ErrorTag do
+  # rubocop:disable Style/GlobalVars
   class TestJob
     include Sidekiq::Worker
 
@@ -37,4 +38,5 @@ describe Sidekiq::ErrorTag do
       expect($named_tags[:user_agent]).to eq('banana')
     end
   end
+  # rubocop:enable Style/GlobalVars
 end
