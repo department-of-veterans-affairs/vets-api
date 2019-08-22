@@ -21,6 +21,8 @@ class Cookies
   private
 
   def encrypt_api_session_cookie(session)
+    # much of this code comes from here: https://stackoverflow.com/a/51579296
+
     salt = Rails.application.config.action_dispatch.authenticated_encrypted_cookie_salt # 'authenticated encrypted cookie'
     encrypted_cookie_cipher = 'aes-256-gcm'
 
