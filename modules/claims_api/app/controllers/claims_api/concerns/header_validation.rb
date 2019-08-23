@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module ClaimsApi
   module HeaderValidation
     extend ActiveSupport::Concern
