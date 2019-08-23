@@ -30,6 +30,7 @@ class ApplicationController < ActionController::API
   # Also see AuthenticationAndSSOConcerns for more before filters
   skip_before_action :authenticate, only: %i[cors_preflight routing_error]
   before_action :set_tags_and_extra_context
+  after_action :unset_log_tags
 
   def cors_preflight
     head(:ok)
@@ -118,11 +119,21 @@ class ApplicationController < ActionController::API
       'request_ip' => request.remote_ip,
       'request_agent' => request.user_agent
     }
-    Thread.current['user_uuid'] = current_user&.uuid
 
     Raven.extra_context(request_uuid: request.uuid)
-    Raven.user_context(user_context) if current_user
+
+    if current_user
+      Raven.user_context(user_context)
+      Thread.current['user_uuid'] = current_user.uuid
+    end
+
     Raven.tags_context(tags_context)
+  end
+
+  def unset_log_tags
+    %w[request_id additional_request_attributes user_uuid].each do |attr|
+      Thread.current[attr] = nil
+    end
   end
 
   def user_context
