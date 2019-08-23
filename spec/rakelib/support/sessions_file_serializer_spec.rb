@@ -8,9 +8,16 @@ describe SessionsFileSerializer do
     context 'with a json file' do
       let(:file) { Rails.root.join('spec', 'support', 'rakelib', 'users_serialized.json') }
       let(:sessions) { JSON.parse(described_class.new(file).generate_cookies_sessions) }
+      let(:api_session_cookie) { sessions.first['cookie_header'].match(/[^api_session=](.+);/)[0].chomp(';') }
 
       it 'outputs two sessions' do
         expect(sessions.count).to eq(2)
+      end
+
+      it 'saves two sessions' do
+        post '/v0/status', {}, {}
+        byebug
+        expect(false)
       end
     end
   end

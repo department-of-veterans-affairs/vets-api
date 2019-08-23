@@ -2,7 +2,7 @@
 
 module V0
   class AdminController < ApplicationController
-    skip_before_action :authenticate, only: :status
+    #skip_before_action :authenticate, only: :status
 
     def status
       app_status = {
