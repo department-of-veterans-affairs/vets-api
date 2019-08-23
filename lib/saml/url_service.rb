@@ -42,6 +42,7 @@ module SAML
       VIRTUAL_HOST_MAPPINGS[current_host][:base_redirect]
     end
 
+    # TODO: Does this level up flow still work smoothly after SSOe is put into the flow?
     def login_redirect_url(auth: 'success', code: nil)
       if auth == 'success' && user.loa[:current] < user.loa[:highest]
         verify_url
