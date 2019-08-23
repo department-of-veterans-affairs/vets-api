@@ -21,6 +21,10 @@ saml:
   cert_path: spec/support/certificates/ruby-saml.crt
   key_path: spec/support/certificates/ruby-saml.key
 
+saml_ssoe:
+  cert_path: spec/support/certificates/ruby-saml.crt
+  key_path: spec/support/certificates/ruby-saml.key
+
 
 edu:
   prefill: true
