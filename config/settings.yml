@@ -13,6 +13,15 @@ saml:
   callback_url: http://localhost:3000/auth/saml/callback
   metadata_url: https://api.idmelabs.com/saml/metadata/provider
 
+# Settings for new SAML authentication with SSOe
+saml_ssoe:
+  cert_path: config/certs/vetsgov-localhost.crt
+  cert_new_path: ~
+  key_path: config/certs/vetsgov-localhost.key
+  issuer: https://ssoe-sp-dev.va.gov
+  callback_url: http://localhost:3000/v1/sessions/callback
+  metadata_url: https://api.idmelabs.com/saml/metadata/provider
+
 session_cookie:
   secure: false
 

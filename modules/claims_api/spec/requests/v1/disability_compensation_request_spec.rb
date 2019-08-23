@@ -30,7 +30,7 @@ RSpec.describe 'Disability Claims ', type: :request do
           expect_any_instance_of(klass).to receive(:validate_form526).and_return(true)
           post path, params: data, headers: headers.merge(auth_header)
           parsed = JSON.parse(response.body)
-          expect(parsed['data']['type']).to eq('claims_api_auto_established_claims')
+          expect(parsed['data']['type']).to eq('claims_api_claim')
           expect(parsed['data']['attributes']['status']).to eq('pending')
         end
       end
