@@ -39,7 +39,7 @@ pipeline {
           junit 'log/*.xml'
 
           sh 'echo $GIT_COMMIT # only needed for debugging'
-          sh 'GIT_COMMIT=$(git log | grep -m1 -oE '[^ ]+$')'
+          sh /GIT_COMMIT=$(git log | grep -m1 -oE '[^ ]+$')/
           sh 'echo $GIT_COMMIT # only needed for debugging'
 
           sh './cc-test-reporter after-build -t simplecov --exit-code $? || echo  "Skipping Code Climate coverage upload"'
