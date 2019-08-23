@@ -119,7 +119,12 @@ class ApplicationController < ActionController::API
       'request_agent' => request.user_agent
     }
     Raven.extra_context(request_uuid: request.uuid)
-    Raven.user_context(user_context) if current_user
+
+    if current_user
+      Raven.user_context(user_context)
+      Thread.current['user_uuid'] = current_user.uuid
+    end
+
     Raven.tags_context(tags_context)
   end
 
