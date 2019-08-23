@@ -34,6 +34,13 @@ module VbaDocuments
           key :description, 'Human readable error detail. Only present if status = "error"'
           key :type, :string
         end
+
+        property :updated_at do
+          key :description, 'The last time the submission was updated'
+          key :type, :string
+          key :format, 'date-time'
+          key :example, '2018-07-30T17:31:15.958Z'
+        end
       end
     end
   end

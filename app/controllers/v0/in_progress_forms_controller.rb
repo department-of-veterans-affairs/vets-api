@@ -4,8 +4,6 @@ module V0
   class InProgressFormsController < ApplicationController
     include IgnoreNotFound
 
-    before_action(:tag_rainbows)
-
     def index
       render json: InProgressForm.where(user_uuid: @current_user.uuid)
     end

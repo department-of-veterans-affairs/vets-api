@@ -27,6 +27,27 @@ To start, fetch this code:
 
 A Makefile provides shortcuts for interacting with the docker images. To run vets-api and its redis and postgres 
 dependencies run the following command from within the repo you cloned in the above steps.
+
+### Authentication required for enterprise.contribsys.com
+
+```
+Authentication is required for enterprise.contribsys.com.
+Please supply credentials for this source. You can do this by running:
+ bundle config enterprise.contribsys.com username:password
+ERROR: Service 'vets-api' failed to build: The command '/bin/bash --login -c bundle install -j4' returned a non-zero code: 17
+make: *** [db] Error 1
+```
+
+Sidekiq Enterprise is used for worker rate limiting and additional reliability. Most
+developers can bypass the installation of Sidekiq Enterprise with
+
+- `$ EXCLUDE_SIDEKIQ_ENTERPRISE=true make rebuild`
+
+VA.gov Team Engineers should follow instructions [here](https://github.com/department-of-veterans-affairs/vets.gov-team/blob/master/Products/Platform/Vets-API/Sidekiq%20Enterprise%20Setup.md) to install the enterprise license on their systems.
+
+**DO NOT commit Gemfile modifications that result from local builds without sidekiq enterprise if you do not have it enabled on your development system**
+
+Once you have the `EXCLUDE_SIDEKIQ_ENTERPRISE` set you can run the application with:
 ```
 make up
 ```
@@ -127,29 +148,6 @@ it may be necessary to rebuild the `vets_api` image using the
 following command:
 
 - `make rebuild` - Rebuild the `vets_api` image.
-
-### Authentication required for enterprise.contribsys.com
-
-```
-Authentication is required for enterprise.contribsys.com.
-Please supply credentials for this source. You can do this by running:
- bundle config enterprise.contribsys.com username:password
-ERROR: Service 'vets-api' failed to build: The command '/bin/bash --login -c bundle install -j4' returned a non-zero code: 17
-make: *** [db] Error 1
-```
-
-Sidekiq Enterprise is used for worker rate limiting and additional reliability. Most
-developers can bypass the installation of Sidekiq Enterprise with
-
-- `$ EXCLUDE_SIDEKIQ_ENTERPRISE=true make rebuild`
-
-Vets.gov Team Engineers should follow instructions here: 
-
-https://github.com/department-of-veterans-affairs/vets.gov-team/blob/master/Products/Vets-API/Sidekiq%20Enterprise%20Setup.md
-
-to install the enterprise license on their systems.
-
-**DO NOT commit Gemfile modifications that result from local builds without sidekiq enterprise if you do not have it enabled on your development system**
 
 ## Deployment instructions
 

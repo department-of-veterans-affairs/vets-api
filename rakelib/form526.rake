@@ -6,8 +6,8 @@ require 'set'
 namespace :form526 do
   desc 'Get all submissions within a date period. [<start date: yyyy-mm-dd>,<end date: yyyy-mm-dd>]'
   task :submissions, %i[start_date end_date] => [:environment] do |_, args|
-    def print_row(created_at, updated_at, id, claim_id, complete, version) # rubocop:disable Metrics/ParameterLists
-      printf "%-24s %-24s %-15s %-10s %-10s %s\n", created_at, updated_at, id, claim_id, complete, version
+    def print_row(created_at, updated_at, id, c_id, p_id, complete, version) # rubocop:disable Metrics/ParameterLists
+      printf "%-24s %-24s %-15s %-10s %-10s %-10s %s\n", created_at, updated_at, id, c_id, p_id, complete, version
     end
 
     def print_total(header, total)
@@ -18,7 +18,10 @@ namespace :form526 do
     end_date = args[:end_date]&.to_date || Time.zone.now.utc
 
     puts '------------------------------------------------------------'
-    print_row('created at:', 'updated at:', 'submission id:', 'claim id:', 'workflow complete:', 'form version:')
+    print_row(
+      'created at:', 'updated at:', 'submission id:', 'claim id:',
+      'participant id:', 'workflow complete:', 'form version:'
+    )
 
     submissions = Form526Submission.where(
       'created_at BETWEEN ? AND ?', start_date.beginning_of_day, end_date.end_of_day
@@ -38,7 +41,11 @@ namespace :form526 do
           j.error_message.include?('.serviceError') ? (outage_errors += 1) : (other_errors += 1)
         end
       end
-      print_row(s.created_at, s.updated_at, s.id, s.submitted_claim_id, s.workflow_complete, version)
+      auth_headers = JSON.parse(s.auth_headers_json)
+      print_row(
+        s.created_at, s.updated_at, s.id, s.submitted_claim_id,
+        auth_headers['va_eauth_pid'], s.workflow_complete, version
+      )
     end
 
     total_jobs = submissions.count
@@ -54,6 +61,34 @@ namespace :form526 do
     puts '* Failure Counts for form526 Submission Job (not including uploads/cleanup/etc...) *'
     print_total('Outage Failures: ', outage_errors)
     print_total('Other Failures: ', other_errors)
+  end
+
+  desc 'Show all v1 forms'
+  task show_v1: :environment do
+    def print_row(created_at, updated_at, id)
+      printf "%-24s %-24s %s\n", created_at, updated_at, id
+    end
+
+    def print_total(header, total)
+      printf "%-20s %s\n", header, total
+    end
+
+    progress_forms = InProgressForm.where(form_id: '21-526EZ').order(:created_at)
+
+    puts '------------------------------------------------------------'
+    print_row('created at:', 'updated at:', 'id:')
+
+    total_v1_forms = 0
+    progress_forms.each do |progress_form|
+      form_data = JSON.parse(progress_form.form_data)
+      if form_data['veteran'].present?
+        total_v1_forms += 1
+        print_row(progress_form.created_at, progress_form.updated_at, progress_form.id)
+      end
+    end
+
+    puts '------------------------------------------------------------'
+    print_total('Total V1 forms:', total_v1_forms)
   end
 
   desc 'Get an error report within a given date period. [<start date: yyyy-mm-dd>,<end date: yyyy-mm-dd>]'

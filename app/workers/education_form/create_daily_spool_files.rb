@@ -31,7 +31,7 @@ module EducationForm
         }
       )
     )
-      Sentry::TagRainbows.tag
+
       return false if federal_holiday?
       # Group the formatted records into different regions
       if records.count.zero?

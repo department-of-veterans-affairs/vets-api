@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 
-require 'saml/settings_service'
 require 'sentry_logging'
 
 module SAML

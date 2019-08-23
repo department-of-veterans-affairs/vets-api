@@ -24,7 +24,8 @@ module ClaimsApi
 
     delegate :birls_id, to: :mvi, allow_nil: true
     delegate :participant_id, to: :mvi, allow_nil: true
-    alias_attribute :dslogon_edipi, :edipi
+
+    alias dslogon_edipi edipi
 
     def birth_date
       va_profile[:birth_date]
@@ -48,13 +49,13 @@ module ClaimsApi
     end
 
     def ssn=(new_ssn)
-      raise Common::Exceptions::ParameterMissing 'X-VA-SSN' unless SSN_REGEX.match?(new_ssn)
+      raise Common::Exceptions::ParameterMissing, 'X-VA-SSN' unless SSN_REGEX.match?(new_ssn)
       super(new_ssn)
     end
 
     def va_profile=(new_va_profile)
       matches = Date.parse(new_va_profile.birth_date).iso8601
-      raise Common::Exceptions::ParameterMissing 'X-VA-Birth-Date' unless matches
+      raise Common::Exceptions::ParameterMissing, 'X-VA-Birth-Date' unless matches
       super(new_va_profile)
     end
 
@@ -64,6 +65,10 @@ module ClaimsApi
 
     def authn_context
       'authn'
+    end
+
+    def edipi(edipi_header = nil)
+      @edipi ||= edipi_header.presence || mvi.profile&.edipi
     end
 
     def self.from_headers(headers, with_gender: false)
@@ -78,7 +83,7 @@ module ClaimsApi
       # commenting this out until the new non-veteran oauth flow is ready to replace this
       # veteran.loa = { current: 3, highest: 3 }
       veteran.gender = ensure_header(headers, 'X-VA-Gender') if with_gender
-      veteran.edipi = headers['X-VA-EDIPI'] if headers['X-VA-EDIPI'].present?
+      veteran.edipi(headers['X-VA-EDIPI'])
       veteran
     end
 
