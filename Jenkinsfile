@@ -5,6 +5,7 @@ main_branch = 'master'
 pipeline {
   environment {
     DOCKER_IMAGE = env.BUILD_TAG.replaceAll(/[%\/]/, '')
+    CC_TEST_REPORTER_ID = '0c396adc254b0317e2c3a89a1c929fd61270b133c944d3e9c0f13b3937a7ce45'
   }
 
   options {
@@ -24,6 +25,7 @@ pipeline {
 
     stage('Run tests') {
       steps {
+        sh './cc-test-reporter before-build'
         withCredentials([string(credentialsId: 'sidekiq-enterprise-license', variable: 'BUNDLE_ENTERPRISE__CONTRIBSYS__COM')]) {
           withEnv(['RAILS_ENV=test', 'CI=true']) {
             sh 'make ci'
@@ -35,6 +37,12 @@ pipeline {
           archiveArtifacts artifacts: "coverage/**"
           publishHTML(target: [reportDir: 'coverage', reportFiles: 'index.html', reportName: 'Coverage', keepAll: true])
           junit 'log/*.xml'
+
+          sh 'echo $GIT_COMMIT # only needed for debugging'
+          sh 'GIT_COMMIT=$(git log | grep -m1 -oE '[^ ]+$')'
+          sh 'echo $GIT_COMMIT # only needed for debugging'
+
+          sh './cc-test-reporter after-build -t simplecov --exit-code $? || echo  "Skipping Code Climate coverage upload"'
         }
       }
     }
