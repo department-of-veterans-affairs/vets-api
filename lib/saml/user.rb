@@ -3,6 +3,7 @@
 require 'saml/user_attributes/id_me'
 require 'saml/user_attributes/mhv'
 require 'saml/user_attributes/dslogon'
+require 'saml/user_attributes/ssoe'
 require 'sentry_logging'
 require 'base64'
 
@@ -19,6 +20,7 @@ module SAML
       'dslogon_multifactor' => { loa_current: nil, sign_in: { service_name: 'dslogon' } },
       'dslogon_loa3' => { loa_current: '3', sign_in: { service_name: 'dslogon' } },
       'myhealthevet' => { loa_current: nil, sign_in: { service_name: 'myhealthevet' } },
+      'ssoe' => { loa_current: nil, sign_in: { service_name: 'ssoe' } },
       'dslogon' => { loa_current: nil, sign_in: { service_name: 'dslogon' } }
     }.freeze
     UNKNOWN_AUTHN_CONTEXT = 'unknown'
@@ -77,6 +79,7 @@ module SAML
       raise
     end
 
+    # TODO: validate that the AuthN attribute name for SSOe case is 'ssoe'
     def user_attributes_class
       case authn_context
       when 'myhealthevet', 'myhealthevet_multifactor'
@@ -85,6 +88,8 @@ module SAML
         SAML::UserAttributes::DSLogon
       when 'multifactor', 'dslogon_loa3', 'myhealthevet_loa3', LOA::IDME_LOA3, LOA::IDME_LOA1
         SAML::UserAttributes::IdMe
+      when 'ssoe'
+        SAML::UserAttributes::SSOe
       else
         Raven.tags_context(
           authn_context: authn_context,

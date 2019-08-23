@@ -6,6 +6,7 @@ module ClaimsApi
 
     attribute :status
     attribute :supporting_documents
+    type :claims_api_claim
 
     def supporting_documents
       object.supporting_documents.map do |document|

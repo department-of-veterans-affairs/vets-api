@@ -28,12 +28,13 @@ RSpec.describe ClaimsApi::Veteran, type: :model do
 
     it 'should set edipi if passed in headers' do
       veteran = ClaimsApi::Veteran.from_headers(headers.merge!('X-VA-EDIPI' => 1337))
-      expect(veteran.edipi).to eq('1337')
+      expect(veteran.edipi).to eq(1337)
     end
   end
 
   describe 'setting edipi from mvi' do
-    let(:mvi_profile) { build(:mvi_profile, edipi: 1337) }
+    let(:mvi_profile_no_edipi) { build(:mvi_profile, edipi: nil) }
+    let(:mvi_profile_with_edipi) { build(:mvi_profile, edipi: 1337) }
 
     before do
       @veteran = ClaimsApi::Veteran.new
@@ -41,8 +42,12 @@ RSpec.describe ClaimsApi::Veteran, type: :model do
     end
 
     it 'should set edipi from mvi when not passed in headers' do
-      allow_any_instance_of(Mvi).to receive(:profile).and_return(mvi_profile)
+      allow_any_instance_of(Mvi).to receive(:profile).and_return(mvi_profile_no_edipi)
       veteran = ClaimsApi::Veteran.from_headers(headers)
+      expect(veteran.edipi).to be_nil
+      veteran.loa = { current: 3, highest: 3 }
+      veteran.mvi_record?
+      allow_any_instance_of(Mvi).to receive(:profile).and_return(mvi_profile_with_edipi)
       expect(veteran.edipi).to eq('1337')
     end
   end
