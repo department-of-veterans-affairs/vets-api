@@ -118,13 +118,10 @@ class ApplicationController < ActionController::API
       'request_ip' => request.remote_ip,
       'request_agent' => request.user_agent
     }
+    Thread.current['user_uuid'] = current_user&.uuid
+
     Raven.extra_context(request_uuid: request.uuid)
-
-    if current_user
-      Raven.user_context(user_context)
-      Thread.current['user_uuid'] = current_user.uuid
-    end
-
+    Raven.user_context(user_context) if current_user
     Raven.tags_context(tags_context)
   end
 
