@@ -8,7 +8,6 @@ class SavedClaim::EducationBenefits < SavedClaim
   before_validation(:add_education_benefits_claim)
 
   def self.form_class(form_type)
-    binding.pry
     raise 'Invalid form type' unless EducationBenefitsClaim::FORM_TYPES.include?(form_type)
     "SavedClaim::EducationBenefits::VA#{form_type}".constantize
   end
