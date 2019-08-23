@@ -452,3 +452,18 @@
   - :method: :get
     :path: "/oauth2/default/.well-known/oauth-authorization-server"
     :file_path: "okta/metadata"
+
+# GIS
+- :name: 'GIS'
+  :base_uri: <%= "#{URI(Settings.locators.gis_base_path).host}:#{URI(Settings.locators.gis_base_path).port}" %>
+  :endpoints:
+  # VHA
+  - :method: :get
+    :path: "/FacilitySitePoint_VHA/FeatureServer/0/query/*"
+    :file_path: "gis/vha/facility_batches"
+    :cache_multiple_responses:
+      :uid_location: url
+      :uid_locator:  'resultOffset=(\d+)'
+  - :method: :get
+    :path: "/FacilitySitePoint_VHA/FeatureServer/0?f=json"
+    :file_path: "gis/vha/metadata"
