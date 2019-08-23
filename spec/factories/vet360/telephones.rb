@@ -9,6 +9,7 @@ FactoryBot.define do
     phone_number '5551234'
     phone_type 'MOBILE'
     is_textable true
+    is_text_permitted true
     is_tty true
     is_voicemailable true
     sequence(:id) { |n| n }
@@ -20,11 +21,15 @@ FactoryBot.define do
 
     trait :home do
       phone_type 'HOME'
+      is_textable false
+      is_text_permitted false
     end
 
     trait :work do
       phone_type 'WORK'
       extension '101'
+      is_textable false
+      is_text_permitted false
     end
 
     trait :fax do
@@ -33,6 +38,8 @@ FactoryBot.define do
 
     trait :temporary do
       phone_type 'TEMPORARY'
+      is_textable false
+      is_text_permitted false
     end
   end
 end
