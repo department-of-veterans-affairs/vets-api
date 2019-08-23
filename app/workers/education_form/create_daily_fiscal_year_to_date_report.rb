@@ -214,8 +214,6 @@ module EducationForm
       csv_array += convert_submissions_to_csv_array
       csv_array << ['', ''] + FORM_TYPE_HEADERS
 
-      binding.pry
-
       csv_array
     end
 
