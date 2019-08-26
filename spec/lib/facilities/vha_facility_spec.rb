@@ -87,29 +87,30 @@ module Facilities
 
           it 'should parse services' do
             VCR.use_cassette('facilities/va/vha_facilities_limit_results') do
-              expect(facility.services.keys).to match(%w[last_updated health other])
-              expect(facility.services['last_updated']).to eq('2018-02-09')
-              expect(facility.services['health'].size).to eq(2)
-              expect(facility.services['health'].first.keys).to eq(%w[sl1 sl2])
-              expect(facility.services['health'].first.values).to eq([['PrimaryCare'], []])
-              expect(facility.services['health'].second.keys).to eq(%w[sl1 sl2])
-              expect(facility.services['health'].second.values).to eq([['MentalHealthCare'], []])
-              expect(facility.services['other']).to be_empty
-            end
-          end
+              f1_services = facility.services
+              f2_services = facility_2.services
+              f1_health = f1_services['health']
+              f2_health = f2_services['health']
 
-          it 'should parse services 2' do
-            VCR.use_cassette('facilities/va/vha_facilities_limit_results') do
-              expect(facility_2.services.keys).to match(%w[last_updated health other])
-              expect(facility_2.services['last_updated']).to eq('2018-02-09')
-              expect(facility_2.services['health'].size).to eq(3)
-              expect(facility_2.services['health'].first.keys).to eq(%w[sl1 sl2])
-              expect(facility_2.services['health'].first.values).to eq([['DentalServices'], []])
-              expect(facility_2.services['health'].second.keys).to eq(%w[sl1 sl2])
-              expect(facility_2.services['health'].second.values).to eq([['PrimaryCare'], []])
-              expect(facility_2.services['health'].third.keys).to eq(%w[sl1 sl2])
-              expect(facility_2.services['health'].third.values).to eq([['MentalHealthCare'], []])
-              expect(facility_2.services['other']).to eq(['Online Scheduling'])
+              expect(f1_services.keys).to match(%w[last_updated health other])
+              expect(f1_services['last_updated']).to eq('2018-02-09')
+              expect(f1_health.size).to eq(2)
+              expect(f1_health.first.keys).to eq(%w[sl1 sl2])
+              expect(f1_health.first.values).to eq([['PrimaryCare'], []])
+              expect(f1_health.second.keys).to eq(%w[sl1 sl2])
+              expect(f1_health.second.values).to eq([['MentalHealthCare'], []])
+              expect(f1_services['other']).to be_empty
+
+              expect(f2_services.keys).to match(%w[last_updated health other])
+              expect(f2_services['last_updated']).to eq('2018-02-09')
+              expect(f2_health.size).to eq(3)
+              expect(f2_health.first.keys).to eq(%w[sl1 sl2])
+              expect(f2_health.first.values).to eq([['DentalServices'], []])
+              expect(f2_health.second.keys).to eq(%w[sl1 sl2])
+              expect(f2_health.second.values).to eq([['PrimaryCare'], []])
+              expect(f2_health.third.keys).to eq(%w[sl1 sl2])
+              expect(f2_health.third.values).to eq([['MentalHealthCare'], []])
+              expect(f2_services['other']).to eq(['Online Scheduling'])
             end
           end
         end
