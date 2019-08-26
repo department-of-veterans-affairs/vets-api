@@ -38,6 +38,7 @@ module AuthenticationAndSSOConcerns
       reset_session
     else
       Rails.logger.info('SSO: EXTENDING SESSION', sso_logging_info)
+      Rails.logger.info('User UUID', user_uuid: @current_user.uuid) if @current_user.present?
       extend_session!
     end
 

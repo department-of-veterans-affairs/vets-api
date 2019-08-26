@@ -293,6 +293,15 @@ RSpec.describe ApplicationController, type: :controller do
           expect(response).to have_http_status(200)
         end
 
+        it 'logs user uuid' do
+          allow(Rails.logger).to receive(:info)
+          expect(Rails.logger).to receive(:info).with(
+            'User UUID',
+            user_uuid: user.uuid
+          )
+          get(:test_authentication)
+        end
+
         context 'with a virtual host that is invalid' do
           let(:header_host_value) { 'unsafe_host' }
 
