@@ -19,7 +19,8 @@ module ClaimsApi
           auto_claim = ClaimsApi::AutoEstablishedClaim.create(
             status: ClaimsApi::AutoEstablishedClaim::PENDING,
             auth_headers: auth_headers,
-            form_data: form_attributes
+            form_data: form_attributes,
+            source: source_name
           )
           auto_claim = ClaimsApi::AutoEstablishedClaim.find_by(md5: auto_claim.md5) unless auto_claim.id
           service.validate_form526(auto_claim.form.to_internal)
@@ -59,6 +60,11 @@ module ClaimsApi
         end
 
         private
+
+        def source_name
+          user = poa_request? ? @current_user : target_veteran
+          "#{user.first_name} #{user.last_name}"
+        end
 
         def service(auth_headers)
           if Settings.claims_api.disability_claims_mock_override && !auth_headers['Mock-Override']

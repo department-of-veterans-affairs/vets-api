@@ -7,5 +7,6 @@ Unambiguous status code. Only present if status = "error"
 * `DOC105` - Invalid or unknown id
 * `DOC106` - File size limit exceeded. Each document may be a maximum of 100MB.
 * `DOC107` - Empty payload.
+* `DOC108` - Maximum dimensions exceeded. Height and width must be less than 21 in x 21 in.
 * `DOC201` - Upload server error.
 * `DOC202` - Error during processing by downstream system. Processing failed and could not be retried. Detail field will provide additional details where available.
