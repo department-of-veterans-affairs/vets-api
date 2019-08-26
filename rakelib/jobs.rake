@@ -16,6 +16,11 @@ namespace :jobs do
     Facilities::AccessDataDownload.perform_async
   end
 
+  desc 'Populate facility dental service cache'
+  task pull_facility_dental_service: :environment do
+    Facilities::DentalServiceReloadJob.perform_async
+  end
+
   desc 'Populate/refresh NCA facility location to db cache'
   task pull_nca_data: :environment do
     Facilities::FacilityLocationDownloadJob.perform_async('nca')
