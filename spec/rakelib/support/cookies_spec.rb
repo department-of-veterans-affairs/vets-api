@@ -26,7 +26,6 @@ describe Cookies do
 
     let(:api_session_header) { subject.api_session_header }
     let(:decrypted_api_session_header) do
-      #puts "bill: #{api_session_header.match(/^api_session=(.*)$/).captures.first}"
       decrypt_session_cookie(api_session_header.match(/^api_session=(.*)$/).captures.first)
     end
 

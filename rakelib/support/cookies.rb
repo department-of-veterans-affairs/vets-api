@@ -1,8 +1,8 @@
 # frozen_string_literal: true
+
 require 'rails/session_cookie'
 
 class Cookies
-
   def initialize(session)
     @session = session
     @user = User.find(session.uuid)
@@ -13,7 +13,7 @@ class Cookies
   end
 
   def api_session_header
-    session_options = { key: 'api_session'}
+    session_options = { key: 'api_session' }
     raw_cookie = Rails::SessionCookie::App.new(@session.to_hash.reverse_merge(session_id: SecureRandom.hex(32)), session_options).session_cookie
 
     CGI.unescape(raw_cookie.chomp("\; path=\/\; HttpOnly"))

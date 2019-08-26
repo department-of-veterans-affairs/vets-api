@@ -6,7 +6,7 @@ module AuthenticatedSessionHelper
     token ||= 'abracadabra'
     session_object = Session.create(uuid: user.uuid, token: token)
     session_options = { key: 'api_session', secure: false, http_only: true }
-    byebug
+
     if raw
       Rails::SessionCookie::App.new(session_object.to_hash, session_options).session_cookie
     elsif cookies.is_a?(ActionDispatch::Cookies::CookieJar)

@@ -13,12 +13,6 @@ describe SessionsFileSerializer do
       it 'outputs two sessions' do
         expect(sessions.count).to eq(2)
       end
-
-      it 'saves two sessions' do
-        post '/v0/status', {}, {}
-        byebug
-        expect(false)
-      end
     end
   end
 end

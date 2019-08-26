@@ -25,8 +25,6 @@ module AuthenticationAndSSOConcerns
   def validate_session
     @session_object = Session.find(session[:token])
 
-    byebug
-
     if @session_object.nil?
       Rails.logger.info('SSO: INVALID SESSION', sso_logging_info)
       reset_session
