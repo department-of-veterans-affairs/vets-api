@@ -25,7 +25,6 @@ pipeline {
 
     stage('Run tests') {
       steps {
-        sh './cc-test-reporter before-build'
         withCredentials([string(credentialsId: 'sidekiq-enterprise-license', variable: 'BUNDLE_ENTERPRISE__CONTRIBSYS__COM')]) {
           withEnv(['RAILS_ENV=test', 'CI=true']) {
             sh 'make ci'
@@ -37,10 +36,6 @@ pipeline {
           archiveArtifacts artifacts: "coverage/**"
           publishHTML(target: [reportDir: 'coverage', reportFiles: 'index.html', reportName: 'Coverage', keepAll: true])
           junit 'log/*.xml'
-
-          sh 'echo $GIT_COMMIT # only needed for debugging'
-
-          sh './cc-test-reporter after-build -t simplecov --exit-code $? || echo  "Skipping Code Climate coverage upload"'
         }
       }
     }
