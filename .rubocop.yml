@@ -81,6 +81,10 @@ Metrics/AbcSize:
 Naming/AccessorMethodName:
   Enabled: false
 
+Rails/LexicallyScopedActionFilter:
+  Exclude:
+    - "app/controllers/concerns/filterable.rb"	  	
+
 # Blocks are limited to 25 lines or less
 # removing block length rule for rspec DSL
 Metrics/BlockLength:
