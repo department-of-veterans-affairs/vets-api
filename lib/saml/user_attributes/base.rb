@@ -44,7 +44,7 @@ module SAML
         SAML::User::AUTHN_CONTEXTS.fetch(authn_context)
                                   .fetch(:sign_in)
                                   .merge(account_type: account_type)
-      rescue StandardError
+      rescue
         { service_name: 'unknown', account_type: 'N/A' }
       end
 

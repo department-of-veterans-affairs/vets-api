@@ -152,7 +152,7 @@ module Common
           end
         end
       end
-    rescue StandardError => e
+    rescue => e
       raise e if e.is_a?(Common::Exceptions::BaseError)
       raise Common::Exceptions::InvalidFiltersSyntax.new(nil, detail: 'The syntax for your filters is invalid')
     end

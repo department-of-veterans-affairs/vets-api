@@ -188,7 +188,7 @@ class User < Common::RedisStore
   def can_access_id_card?
     loa3? && edipi.present? &&
       ID_CARD_ALLOWED_STATUSES.include?(veteran_status.title38_status)
-  rescue StandardError # Default to false for any veteran_status error
+  rescue # Default to false for any veteran_status error
     false
   end
 
@@ -251,7 +251,7 @@ class User < Common::RedisStore
 
   def can_access_vet360?
     loa3? && icn.present? && vet360_id.present?
-  rescue StandardError # Default to false for any error
+  rescue # Default to false for any error
     false
   end
 

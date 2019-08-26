@@ -24,7 +24,7 @@ module CentralMail
       Prawn::Document.generate(stamp_path, margin: [0, 0]) do |pdf|
         pdf.draw_text text, at: [x, y], size: 10
       end
-    rescue StandardError => e
+    rescue => e
       Rails.logger.error "Failed to generate datestamp file: #{e.message}"
       raise
     end
@@ -34,7 +34,7 @@ module CentralMail
       PdfFill::Filler::PDF_FORMS.stamp(file_path, stamp_path, out_path)
       File.delete(file_path)
       out_path
-    rescue StandardError
+    rescue
       Common::FileHelpers.delete_file_if_exists(out_path)
       raise
     end

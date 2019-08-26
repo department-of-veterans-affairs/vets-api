@@ -223,7 +223,7 @@ namespace :vet360 do
         vet360_id = response&.person&.vet360_id
 
         results << { icn: icn, vet360_id: vet360_id }
-      rescue StandardError => e
+      rescue => e
         results << { icn: icn, vet360_id: e.message }
       end
     end

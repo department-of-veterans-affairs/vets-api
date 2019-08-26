@@ -48,7 +48,7 @@ module IHub
 
           IHub::Appointments::Response.from(response)
         end
-      rescue StandardError => error
+      rescue => error
         Raven.extra_context(
           message: error.message,
           url: config.base_path

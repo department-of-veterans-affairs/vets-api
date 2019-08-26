@@ -31,7 +31,7 @@ module CentralMail
       else
         raise CentralMailResponseError
       end
-    rescue StandardError
+    rescue
       update_submission('failed')
       raise
     end

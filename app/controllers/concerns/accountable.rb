@@ -10,7 +10,7 @@ module Accountable
   #
   def create_user_account
     Account.cache_or_create_by! @current_user
-  rescue StandardError => error
+  rescue => error
     log error
   end
 

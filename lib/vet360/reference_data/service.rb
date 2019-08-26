@@ -24,7 +24,7 @@ module Vet360
         with_monitoring do
           Vet360::ReferenceData::CountriesResponse.from(perform(:get, 'countries'))
         end
-      rescue StandardError => e
+      rescue => e
         handle_error(e)
       end
 
@@ -36,7 +36,7 @@ module Vet360
         with_monitoring do
           Vet360::ReferenceData::StatesResponse.from(perform(:get, 'states'))
         end
-      rescue StandardError => e
+      rescue => e
         handle_error(e)
       end
 
@@ -48,7 +48,7 @@ module Vet360
         with_monitoring do
           Vet360::ReferenceData::ZipcodesResponse.from(perform(:get, 'zipcode5'))
         end
-      rescue StandardError => e
+      rescue => e
         handle_error(e)
       end
     end

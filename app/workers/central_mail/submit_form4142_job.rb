@@ -36,7 +36,7 @@ module CentralMail
         response = CentralMail::Service.new.upload(processor.request_body)
         handle_service_exception(response) if response.present? && response.status.between?(201, 600)
       end
-    rescue StandardError => error
+    rescue => error
       # Cannot move job straight to dead queue dynamically within an executing job
       # raising error for all the exceptions as sidekiq will then move into dead queue
       # after all retries are exhausted

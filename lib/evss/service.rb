@@ -37,7 +37,7 @@ module EVSS
       with_monitoring(2) do
         yield
       end
-    rescue StandardError => e
+    rescue => e
       handle_error(e)
     end
 

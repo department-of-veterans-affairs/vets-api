@@ -32,7 +32,7 @@ module Search
         response = perform(:get, results_url, query_params)
         Search::ResultsResponse.from(response)
       end
-    rescue StandardError => error
+    rescue => error
       handle_error(error)
     end
 

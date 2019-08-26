@@ -20,7 +20,7 @@ module EVSS
         end
       end
       tracker.set_collection_status('SUCCESS')
-    rescue StandardError
+    rescue
       tracker.set_collection_status('FAILED')
       raise
     end
