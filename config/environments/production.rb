@@ -60,7 +60,6 @@ Rails.application.configure do
     request_id: :request_id,
     remote_ip: :remote_ip,
     user_agent: ->(request) { request.user_agent },
-    user_uuid: ->(_request) { Thread.current['user_uuid'] },
     ref: ->(_request) { AppInfo::GIT_REVISION },
     consumer_id: ->(request) { request.headers['X-Consumer-ID'] },
     consumer_username: ->(request) { request.headers['X-Consumer-Username'] },
