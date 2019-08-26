@@ -126,52 +126,7 @@ module ClaimsApi
         response 200 do
           key :description, '526 response'
           schema do
-            key :type, :object
-            key :required, [:data]
-            property :data do
-              key :type, :object
-              key :required, [:attributes]
-
-              property :id do
-                key :type, :string
-                key :example, '65d0f2d2-d4a0-4a66-b8fe-e9a968a79fd0'
-                key :description, 'Claim UUID until EVSS id is available'
-              end
-
-              property :type do
-                key :type, :string
-                key :example, 'claims_api_auto_established_claims'
-                key :description, 'Required by JSON API standard'
-              end
-
-              property :attributes do
-                key :type, :object
-
-                property :token do
-                  key :type, :string
-                  key :example, '65d0f2d2-d4a0-4a66-b8fe-e9a968a79fd0'
-                  key :description, 'Claim UUID until EVSS id is available'
-                end
-
-                property :status do
-                  key :type, :string
-                  key :example, 'pending'
-                  key :description, 'Current status of the claim (See API description for more details)'
-                  key :enum, %w[
-                    pending
-                    submitted
-                    established
-                    errored
-                  ]
-                end
-
-                property :evss_id do
-                  key :type, :string
-                  key :example, '8347210'
-                  key :description, 'Claim ID from EVSS'
-                end
-              end
-            end
+            key :'$ref', :Claims
           end
         end
         response :default do
@@ -194,7 +149,7 @@ module ClaimsApi
       operation :post do
         key :summary, 'Validates a 526 claim form submission'
         key :description, 'Accepts JSON payload. Full URL, including\nquery parameters.'
-        key :operationId, 'post526Claim'
+        key :operationId, 'post526ClaimValidate'
         key :tags, [
           'Disability'
         ]

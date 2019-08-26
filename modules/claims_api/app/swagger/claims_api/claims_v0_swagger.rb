@@ -9,7 +9,7 @@ module ClaimsApi
       info do
         key :version, '0.0.1'
         key :title, 'Benefits Claims'
-        key :description, File.read(Rails.root.join('modules', 'claims_api', 'app', 'swagger', 'description.md'))
+        key :description, File.read(Rails.root.join('modules', 'claims_api', 'app', 'swagger', 'claims_api', 'description', 'v0.md'))
         key :termsOfService, 'https://developer.va.gov/terms-of-service'
         contact do
           key :name, 'VA API Benefits Team'
