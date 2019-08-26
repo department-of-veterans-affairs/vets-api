@@ -5,9 +5,7 @@ require 'rails_helper'
 RSpec.describe 'Appeals Status', type: :request do
   include SchemaMatchers
 
-  before(:each) do
-    sign_in_as(user)
-  end
+  before(:each) { sign_in_as(user) }
 
   context 'with a loa1 user' do
     let(:user) { FactoryBot.create(:user, :loa1, ssn: '111223333') }
