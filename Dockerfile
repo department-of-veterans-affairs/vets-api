@@ -16,6 +16,7 @@ libgmp-dev \
 clamav \
 imagemagick \
 pdftk \
+curl \
 poppler-utils && \
 freshclam
 
