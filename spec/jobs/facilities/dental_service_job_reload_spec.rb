@@ -26,4 +26,18 @@ RSpec.describe Facilities::DentalServiceReloadJob, type: :job do
     Facilities::DentalServiceReloadJob.new.perform
     expect(FacilityDentalService.find('402HB').local_updated).to be >= now
   end
+
+  it 'deletes removed keys' do
+    Facilities::DentalServiceReloadJob.new.perform
+    expect(FacilityDentalService.find('436GH')).to_not be_nil
+
+    dental_service_data = %(unique_id,facility_type\n402HB,va_health_facility\n436,va_health_facility)
+
+    allow_any_instance_of(
+      Facilities::DentalServiceReloadJob
+    ).to receive(:fetch_dental_service_data).and_return(CSV.parse(dental_service_data, headers: true))
+
+    Facilities::DentalServiceReloadJob.new.perform
+    expect(FacilityDentalService.find('436GH')).to be_nil
+  end
 end
