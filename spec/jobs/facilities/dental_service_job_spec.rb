@@ -5,13 +5,13 @@ require 'rails_helper'
 
 RSpec.describe Facilities::DentalServiceReloadJob, type: :job do
   let(:dental_service_data) do
-    %Q(unique_id,facility_type\n402HB,va_health_facility\n436,va_health_facility\n436GH,va_health_facility)
+    %(unique_id,facility_type\n402HB,va_health_facility\n436,va_health_facility\n436GH,va_health_facility)
   end
 
   before(:each) do
     allow_any_instance_of(
       Facilities::DentalServiceReloadJob
-    ).to receive(:fetch_dental_service_data).and_return(CSV.parse(dental_service_data, { headers: true }))
+    ).to receive(:fetch_dental_service_data).and_return(CSV.parse(dental_service_data, headers: true))
   end
 
   it 'populates facilities' do

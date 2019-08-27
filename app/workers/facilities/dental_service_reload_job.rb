@@ -16,7 +16,7 @@ module Facilities
     include SentryLogging
 
     def fetch_dental_service_data(file)
-      CSV.read(file, { headers: true })
+      CSV.read(file, headers: true)
     end
 
     def update_cache(model, facilities)
@@ -46,8 +46,8 @@ module Facilities
       end
       facilities
     end
-    
-    def update_dental_service_data()
+
+    def update_dental_service_data
       dental_file = Rails.root.join('lib', 'facilities', 'dental_service_data', 'dental_services.csv')
       records = fetch_dental_service_data(dental_file)
       facilities = parse_dental_service_data(records)
@@ -59,7 +59,7 @@ module Facilities
     end
 
     def perform
-      update_dental_service_data()
+      update_dental_service_data
     end
   end
 end
