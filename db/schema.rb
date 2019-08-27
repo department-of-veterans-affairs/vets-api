@@ -19,7 +19,7 @@ ActiveRecord::Schema.define(version: 2019_08_16_120445) do
   enable_extension "postgis"
   enable_extension "uuid-ossp"
 
-  create_table "accounts", force: :cascade do |t|
+  create_table "accounts", id: :serial, force: :cascade do |t|
     t.uuid "uuid", null: false
     t.string "idme_uuid"
     t.string "icn"
@@ -30,7 +30,7 @@ ActiveRecord::Schema.define(version: 2019_08_16_120445) do
     t.index ["uuid"], name: "index_accounts_on_uuid", unique: true
   end
 
-  create_table "async_transactions", force: :cascade do |t|
+  create_table "async_transactions", id: :serial, force: :cascade do |t|
     t.string "type"
     t.string "user_uuid"
     t.string "source_id"
@@ -71,7 +71,7 @@ ActiveRecord::Schema.define(version: 2019_08_16_120445) do
     t.index ["unique_id", "facility_type"], name: "index_base_facilities_on_unique_id_and_facility_type", unique: true
   end
 
-  create_table "beta_registrations", force: :cascade do |t|
+  create_table "beta_registrations", id: :serial, force: :cascade do |t|
     t.string "user_uuid", null: false
     t.string "feature", null: false
     t.datetime "created_at", null: false
@@ -79,7 +79,7 @@ ActiveRecord::Schema.define(version: 2019_08_16_120445) do
     t.index ["user_uuid", "feature"], name: "index_beta_registrations_on_user_uuid_and_feature", unique: true
   end
 
-  create_table "central_mail_submissions", force: :cascade do |t|
+  create_table "central_mail_submissions", id: :serial, force: :cascade do |t|
     t.string "state", default: "pending", null: false
     t.integer "saved_claim_id", null: false
     t.index ["saved_claim_id"], name: "index_central_mail_submissions_on_saved_claim_id"
@@ -107,7 +107,7 @@ ActiveRecord::Schema.define(version: 2019_08_16_120445) do
     t.uuid "auto_established_claim_id", null: false
   end
 
-  create_table "disability_compensation_job_statuses", force: :cascade do |t|
+  create_table "disability_compensation_job_statuses", id: :serial, force: :cascade do |t|
     t.integer "disability_compensation_submission_id", null: false
     t.string "job_id", null: false
     t.string "job_class", null: false
@@ -118,7 +118,7 @@ ActiveRecord::Schema.define(version: 2019_08_16_120445) do
     t.index ["job_id"], name: "index_disability_compensation_job_statuses_on_job_id", unique: true
   end
 
-  create_table "disability_compensation_submissions", force: :cascade do |t|
+  create_table "disability_compensation_submissions", id: :serial, force: :cascade do |t|
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.integer "disability_compensation_id"
@@ -126,7 +126,7 @@ ActiveRecord::Schema.define(version: 2019_08_16_120445) do
     t.boolean "complete", default: false
   end
 
-  create_table "disability_contentions", force: :cascade do |t|
+  create_table "disability_contentions", id: :serial, force: :cascade do |t|
     t.integer "code", null: false
     t.string "medical_term", null: false
     t.string "lay_term"
@@ -137,7 +137,7 @@ ActiveRecord::Schema.define(version: 2019_08_16_120445) do
     t.index ["medical_term"], name: "index_disability_contentions_on_medical_term", using: :gin
   end
 
-  create_table "education_benefits_claims", force: :cascade do |t|
+  create_table "education_benefits_claims", id: :serial, force: :cascade do |t|
     t.datetime "submitted_at"
     t.datetime "processed_at"
     t.datetime "created_at", null: false
@@ -152,7 +152,7 @@ ActiveRecord::Schema.define(version: 2019_08_16_120445) do
     t.index ["submitted_at"], name: "index_education_benefits_claims_on_submitted_at"
   end
 
-  create_table "education_benefits_submissions", force: :cascade do |t|
+  create_table "education_benefits_submissions", id: :serial, force: :cascade do |t|
     t.string "region", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
@@ -171,7 +171,7 @@ ActiveRecord::Schema.define(version: 2019_08_16_120445) do
     t.index ["region", "created_at", "form_type"], name: "index_edu_benefits_subs_ytd"
   end
 
-  create_table "evss_claims", force: :cascade do |t|
+  create_table "evss_claims", id: :serial, force: :cascade do |t|
     t.integer "evss_id", null: false
     t.json "data", null: false
     t.datetime "created_at", null: false
@@ -196,7 +196,7 @@ ActiveRecord::Schema.define(version: 2019_08_16_120445) do
     t.datetime "updated_at", null: false
   end
 
-  create_table "form526_job_statuses", force: :cascade do |t|
+  create_table "form526_job_statuses", id: :serial, force: :cascade do |t|
     t.integer "form526_submission_id", null: false
     t.string "job_id", null: false
     t.string "job_class", null: false
@@ -208,7 +208,7 @@ ActiveRecord::Schema.define(version: 2019_08_16_120445) do
     t.index ["job_id"], name: "index_form526_job_statuses_on_job_id", unique: true
   end
 
-  create_table "form526_opt_ins", force: :cascade do |t|
+  create_table "form526_opt_ins", id: :serial, force: :cascade do |t|
     t.string "user_uuid", null: false
     t.string "encrypted_email", null: false
     t.string "encrypted_email_iv", null: false
@@ -217,7 +217,7 @@ ActiveRecord::Schema.define(version: 2019_08_16_120445) do
     t.index ["user_uuid"], name: "index_form526_opt_ins_on_user_uuid", unique: true
   end
 
-  create_table "form526_submissions", force: :cascade do |t|
+  create_table "form526_submissions", id: :serial, force: :cascade do |t|
     t.string "user_uuid", null: false
     t.integer "saved_claim_id", null: false
     t.integer "submitted_claim_id"
@@ -233,7 +233,7 @@ ActiveRecord::Schema.define(version: 2019_08_16_120445) do
     t.index ["user_uuid"], name: "index_form526_submissions_on_user_uuid"
   end
 
-  create_table "form_attachments", force: :cascade do |t|
+  create_table "form_attachments", id: :serial, force: :cascade do |t|
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.uuid "guid", null: false
@@ -243,7 +243,7 @@ ActiveRecord::Schema.define(version: 2019_08_16_120445) do
     t.index ["guid", "type"], name: "index_form_attachments_on_guid_and_type", unique: true
   end
 
-  create_table "gibs_not_found_users", force: :cascade do |t|
+  create_table "gibs_not_found_users", id: :serial, force: :cascade do |t|
     t.string "edipi", null: false
     t.string "first_name", null: false
     t.string "last_name", null: false
@@ -255,7 +255,7 @@ ActiveRecord::Schema.define(version: 2019_08_16_120445) do
     t.index ["edipi"], name: "index_gibs_not_found_users_on_edipi"
   end
 
-  create_table "health_care_applications", force: :cascade do |t|
+  create_table "health_care_applications", id: :serial, force: :cascade do |t|
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.string "state", default: "pending", null: false
@@ -263,14 +263,14 @@ ActiveRecord::Schema.define(version: 2019_08_16_120445) do
     t.string "timestamp"
   end
 
-  create_table "id_card_announcement_subscriptions", force: :cascade do |t|
+  create_table "id_card_announcement_subscriptions", id: :serial, force: :cascade do |t|
     t.string "email", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["email"], name: "index_id_card_announcement_subscriptions_on_email", unique: true
   end
 
-  create_table "in_progress_forms", force: :cascade do |t|
+  create_table "in_progress_forms", id: :serial, force: :cascade do |t|
     t.string "user_uuid", null: false
     t.string "form_id", null: false
     t.string "encrypted_form_data", null: false
@@ -282,14 +282,14 @@ ActiveRecord::Schema.define(version: 2019_08_16_120445) do
     t.index ["form_id", "user_uuid"], name: "index_in_progress_forms_on_form_id_and_user_uuid", unique: true
   end
 
-  create_table "invalid_letter_address_edipis", force: :cascade do |t|
+  create_table "invalid_letter_address_edipis", id: :serial, force: :cascade do |t|
     t.string "edipi", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["edipi"], name: "index_invalid_letter_address_edipis_on_edipi"
   end
 
-  create_table "maintenance_windows", force: :cascade do |t|
+  create_table "maintenance_windows", id: :serial, force: :cascade do |t|
     t.string "pagerduty_id"
     t.string "external_service"
     t.datetime "start_time"
@@ -302,7 +302,7 @@ ActiveRecord::Schema.define(version: 2019_08_16_120445) do
     t.index ["start_time"], name: "index_maintenance_windows_on_start_time"
   end
 
-  create_table "mhv_accounts", force: :cascade do |t|
+  create_table "mhv_accounts", id: :serial, force: :cascade do |t|
     t.string "user_uuid", null: false
     t.string "account_state", null: false
     t.datetime "registered_at"
@@ -313,7 +313,7 @@ ActiveRecord::Schema.define(version: 2019_08_16_120445) do
     t.index ["user_uuid", "mhv_correlation_id"], name: "index_mhv_accounts_on_user_uuid_and_mhv_correlation_id", unique: true
   end
 
-  create_table "notifications", force: :cascade do |t|
+  create_table "notifications", id: :serial, force: :cascade do |t|
     t.integer "account_id", null: false
     t.integer "subject", null: false
     t.integer "status"
@@ -327,7 +327,7 @@ ActiveRecord::Schema.define(version: 2019_08_16_120445) do
     t.index ["subject"], name: "index_notifications_on_subject"
   end
 
-  create_table "persistent_attachments", force: :cascade do |t|
+  create_table "persistent_attachments", id: :serial, force: :cascade do |t|
     t.uuid "guid"
     t.string "type"
     t.string "form_id"
@@ -341,7 +341,7 @@ ActiveRecord::Schema.define(version: 2019_08_16_120445) do
     t.index ["saved_claim_id"], name: "index_persistent_attachments_on_saved_claim_id"
   end
 
-  create_table "personal_information_logs", force: :cascade do |t|
+  create_table "personal_information_logs", id: :serial, force: :cascade do |t|
     t.jsonb "data", null: false
     t.string "error_class", null: false
     t.datetime "created_at", null: false
@@ -350,7 +350,7 @@ ActiveRecord::Schema.define(version: 2019_08_16_120445) do
     t.index ["error_class"], name: "index_personal_information_logs_on_error_class"
   end
 
-  create_table "preference_choices", force: :cascade do |t|
+  create_table "preference_choices", id: :serial, force: :cascade do |t|
     t.string "code"
     t.string "description"
     t.integer "preference_id"
@@ -359,7 +359,7 @@ ActiveRecord::Schema.define(version: 2019_08_16_120445) do
     t.index ["preference_id"], name: "index_preference_choices_on_preference_id"
   end
 
-  create_table "preferences", force: :cascade do |t|
+  create_table "preferences", id: :serial, force: :cascade do |t|
     t.string "code", null: false
     t.string "title"
     t.datetime "created_at", null: false
@@ -367,7 +367,7 @@ ActiveRecord::Schema.define(version: 2019_08_16_120445) do
     t.index ["code"], name: "index_preferences_on_code", unique: true
   end
 
-  create_table "preneed_submissions", force: :cascade do |t|
+  create_table "preneed_submissions", id: :serial, force: :cascade do |t|
     t.string "tracking_number", null: false
     t.string "application_uuid"
     t.string "return_description", null: false
@@ -378,7 +378,7 @@ ActiveRecord::Schema.define(version: 2019_08_16_120445) do
     t.index ["tracking_number"], name: "index_preneed_submissions_on_tracking_number", unique: true
   end
 
-  create_table "saved_claims", force: :cascade do |t|
+  create_table "saved_claims", id: :serial, force: :cascade do |t|
     t.datetime "created_at"
     t.datetime "updated_at"
     t.string "encrypted_form", null: false
@@ -390,7 +390,7 @@ ActiveRecord::Schema.define(version: 2019_08_16_120445) do
     t.index ["guid"], name: "index_saved_claims_on_guid", unique: true
   end
 
-  create_table "session_activities", force: :cascade do |t|
+  create_table "session_activities", id: :serial, force: :cascade do |t|
     t.uuid "originating_request_id", null: false
     t.string "originating_ip_address", null: false
     t.text "generated_url", null: false
@@ -410,7 +410,7 @@ ActiveRecord::Schema.define(version: 2019_08_16_120445) do
     t.index ["user_uuid"], name: "index_session_activities_on_user_uuid"
   end
 
-  create_table "terms_and_conditions", force: :cascade do |t|
+  create_table "terms_and_conditions", id: :serial, force: :cascade do |t|
     t.string "name"
     t.string "title"
     t.text "terms_content"
@@ -433,7 +433,7 @@ ActiveRecord::Schema.define(version: 2019_08_16_120445) do
     t.index ["user_uuid"], name: "index_terms_and_conditions_acceptances_on_user_uuid"
   end
 
-  create_table "user_preferences", force: :cascade do |t|
+  create_table "user_preferences", id: :serial, force: :cascade do |t|
     t.integer "account_id", null: false
     t.integer "preference_id", null: false
     t.integer "preference_choice_id", null: false
@@ -444,7 +444,7 @@ ActiveRecord::Schema.define(version: 2019_08_16_120445) do
     t.index ["preference_id"], name: "index_user_preferences_on_preference_id"
   end
 
-  create_table "vba_documents_upload_submissions", force: :cascade do |t|
+  create_table "vba_documents_upload_submissions", id: :serial, force: :cascade do |t|
     t.uuid "guid", null: false
     t.string "status", default: "pending", null: false
     t.string "code"
@@ -486,7 +486,7 @@ ActiveRecord::Schema.define(version: 2019_08_16_120445) do
     t.index ["representative_id"], name: "index_veteran_representatives_on_representative_id", unique: true
   end
 
-  create_table "vic_submissions", force: :cascade do |t|
+  create_table "vic_submissions", id: :serial, force: :cascade do |t|
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.string "state", default: "pending", null: false
