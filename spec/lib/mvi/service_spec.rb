@@ -164,12 +164,22 @@ describe MVI::Service do
 
     context 'valid requests' do
       it 'fetches profile when no mhv_icn exists but dslogon_edipi is present' do
-        allow(user).to receive(:dslogon_edipi).and_return('111222333444')
+        allow(user).to receive(:dslogon_edipi).and_return('1025062341')
 
         VCR.use_cassette('mvi/find_candidate/edipi_present') do
           response = subject.find_profile(user)
           expect(response.status).to eq('OK')
-          expect(response.profile).to have_deep_attributes(mvi_profile)
+          expect(response.profile.given_names).to eq(%w[Benjamiin Two])
+          expect(response.profile.family_name).to eq('Chesney')
+          expect(response.profile.full_mvi_ids).to eq(
+            [
+              '1061810166V222862^NI^200M^USVHA^P',
+              '0000001061810166V222862000000^PI^200ESR^USVHA^A',
+              '1025062341^NI^200DOD^USDOD^A',
+              'UNK^PI^200BRLS^USVBA^FAULT',
+              'UNK^PI^200CORP^USVBA^FAULT'
+            ]
+          )
         end
       end
     end
