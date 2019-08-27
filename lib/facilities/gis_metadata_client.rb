@@ -3,11 +3,12 @@
 require 'common/client/base'
 
 module Facilities
-  class GISMetadataClient < Common::Client::Base
-    configuration Facilities::GISMetadataConfiguration
+  class GisMetadataClient < Common::Client::Base
+    configuration Facilities::GisMetadataConfiguration
 
     def get_metadata(facility_type)
-      JSON.parse perform(:get, "#{facility_type}/FeatureServer/0?", f: 'json').body
+      resp = perform(:get, "#{facility_type}/FeatureServer/0?", f: 'json')
+      JSON.parse resp.body
     end
   end
 end

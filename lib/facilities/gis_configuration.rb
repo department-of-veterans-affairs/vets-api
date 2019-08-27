@@ -2,11 +2,11 @@
 
 require 'common/client/configuration/rest'
 require 'common/client/middleware/response/raise_error'
+require 'common/client/middleware/response/facility_validator'
 require 'common/client/middleware/response/facility_parser'
 
 module Facilities
-  # Configuration class used to setup the environment used by client
-  class GisMetadataConfiguration < Common::Client::Configuration::REST
+  class GisConfiguration < Common::Client::Configuration::REST
     def base_path
       Settings.locators.gis_base_path
     end
@@ -26,6 +26,8 @@ module Facilities
 
         conn.response :raise_error, error_prefix: service_name
         conn.response :betamocks
+        conn.response :facility_parser
+        conn.response :facility_validator
 
         conn.adapter Faraday.default_adapter
       end

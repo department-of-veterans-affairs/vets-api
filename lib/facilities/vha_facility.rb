@@ -8,9 +8,9 @@ module Facilities
       def pull_source_data
         gis_type = 'FacilitySitePoint_VHA'
         sort_field = 'Sta_No'
-        metadata = Facilities::GISMetadataClient.new.get_metadata(gis_type)
+        metadata = Facilities::GisMetadataClient.new.get_metadata(gis_type)
         max_record_count = metadata['maxRecordCount']
-        Facilities::GISClient.new.get_all_facilities(gis_type, sort_field, max_record_count).map(&method(:new))
+        Facilities::GisClient.new.get_all_facilities(gis_type, sort_field, max_record_count).map(&method(:new))
       end
 
       def service_list

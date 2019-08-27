@@ -4,8 +4,8 @@ require 'common/client/base'
 
 module Facilities
   # Core class responsible for api interface operations
-  class GISClient < Common::Client::Base
-    configuration Facilities::GISConfiguration
+  class GisClient < Common::Client::Base
+    configuration Facilities::GisConfiguration
 
     def get_all_facilities(facility_type, order_field, max_record_count)
       query_count = 0

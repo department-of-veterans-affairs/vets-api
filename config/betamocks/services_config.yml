@@ -459,11 +459,11 @@
   :endpoints:
   # VHA
   - :method: :get
-    :path: "/FacilitySitePoint_VHA/FeatureServer/0/query/*"
-    :file_path: "gis/vha/facility_batches"
+    :path: "/server/rest/services/VA/FacilitySitePoint_VHA/FeatureServer/0/query"
+    :file_path: "gis/vha/facilities_by_offset"
     :cache_multiple_responses:
-      :uid_location: url
-      :uid_locator:  'resultOffset=(\d+)'
+      :uid_location: query
+      :uid_locator: 'resultOffset'
   - :method: :get
-    :path: "/FacilitySitePoint_VHA/FeatureServer/0?f=json"
+    :path: "/server/rest/services/VA/FacilitySitePoint_VHA/FeatureServer/0"
     :file_path: "gis/vha/metadata"
