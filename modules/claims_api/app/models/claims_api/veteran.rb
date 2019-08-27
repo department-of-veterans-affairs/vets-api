@@ -59,32 +59,17 @@ module ClaimsApi
       super(new_va_profile)
     end
 
+    def edipi=(new_edipi)
+      value = new_edipi || mvi.profile&.edipi
+      super(value)
+    end
+
     def loa3_user
       loa3?
     end
 
     def authn_context
       'authn'
-    end
-
-    def edipi(edipi_header = nil)
-      @edipi ||= edipi_header.presence || mvi.profile&.edipi
-    end
-
-    def self.from_headers(headers, with_gender: false)
-      veteran = new(
-        uuid: ensure_header(headers, 'X-VA-SSN'),
-        ssn: ensure_header(headers, 'X-VA-SSN'),
-        first_name: ensure_header(headers, 'X-VA-First-Name'),
-        last_name: ensure_header(headers, 'X-VA-Last-Name'),
-        va_profile: build_profile(headers),
-        last_signed_in: Time.now.utc
-      )
-      # commenting this out until the new non-veteran oauth flow is ready to replace this
-      # veteran.loa = { current: 3, highest: 3 }
-      veteran.gender = ensure_header(headers, 'X-VA-Gender') if with_gender
-      veteran.edipi(headers['X-VA-EDIPI'])
-      veteran
     end
 
     def self.from_identity(identity:)
@@ -101,15 +86,10 @@ module ClaimsApi
       )
     end
 
-    def self.build_profile(headers)
+    def self.build_profile(birth_date)
       OpenStruct.new(
-        birth_date: ensure_header(headers, 'X-VA-Birth-Date')
+        birth_date: birth_date
       )
-    end
-
-    def self.ensure_header(headers, key)
-      raise Common::Exceptions::ParameterMissing, key unless headers[key]
-      headers[key]
     end
   end
 end
