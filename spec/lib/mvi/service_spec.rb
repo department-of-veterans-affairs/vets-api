@@ -27,7 +27,7 @@ describe MVI::Service do
       :address_austin,
       given_names: %w[Mitchell G],
       vha_facility_ids: [],
-      sec_id: "1008714701",
+      sec_id: '1008714701',
       historical_icns: nil,
       icn_with_aaid: icn_with_aaid,
       full_mvi_ids: [
