@@ -5,7 +5,6 @@ main_branch = 'master'
 pipeline {
   environment {
     DOCKER_IMAGE = env.BUILD_TAG.replaceAll(/[%\/]/, '')
-    CC_TEST_REPORTER_ID = '0c396adc254b0317e2c3a89a1c929fd61270b133c944d3e9c0f13b3937a7ce45'
   }
 
   options {
