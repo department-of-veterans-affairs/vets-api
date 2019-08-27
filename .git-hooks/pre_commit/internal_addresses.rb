@@ -1,5 +1,4 @@
 # frozen_string_literal: true
-
 module Overcommit::Hook::PreCommit
   class InternalAddresses < Base
     def run
@@ -9,9 +8,9 @@ module Overcommit::Hook::PreCommit
       applicable_files.each do |file|
         begin
           contents = File.read(file)
-          errors << "#{file}: Includes 10.X.Y.Z address" if contents.match?(/10\.\d+\.\d+\.\d+/)
-          errors << "#{file}: Includes vaww address" if contents.match?(/vaww\./)
-        rescue StandardError
+          errors << "#{file}: Includes 10.X.Y.Z address" if contents =~ /10\.\d+\.\d+\.\d+/
+          errors << "#{file}: Includes vaww address" if contents =~ /vaww\./
+        rescue
           unparsable << "Could not match against #{file}"
         end
       end
