@@ -31,13 +31,8 @@ class ApplicationController < ActionController::API
   skip_before_action :authenticate, only: %i[cors_preflight routing_error]
   before_action :set_tags_and_extra_context
 
-  def this_method_is_uncovered
-    # do not merge, just want to see coverage in CodeClimate
-    @var = 'foo'
-  end
-
   def cors_preflight
-    head(:ok) # this line is changed
+    head(:ok)
   end
 
   def routing_error
