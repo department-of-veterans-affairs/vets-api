@@ -59,11 +59,6 @@ module ClaimsApi
       super(new_va_profile)
     end
 
-    def edipi=(new_edipi)
-      value = new_edipi || mvi.profile&.edipi
-      super(value)
-    end
-
     def loa3_user
       loa3?
     end
