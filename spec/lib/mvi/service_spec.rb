@@ -257,21 +257,6 @@ describe MVI::Service do
       end
     end
 
-    context 'when a MVI failure response is returned' do
-      it 'should raise a request failure error', :aggregate_failures do
-        invalid_xml = File.read('spec/support/mvi/find_candidate_invalid_request.xml')
-        allow_any_instance_of(MVI::Service).to receive(:create_profile_message).and_return(invalid_xml)
-        expect(subject).to receive(:log_message_to_sentry).with(
-          'MVI Invalid Request', :error
-        )
-        VCR.use_cassette('mvi/find_candidate/failure') do
-          response = subject.find_profile(user)
-
-          server_error_502_expectations_for(response)
-        end
-      end
-    end
-
     context 'with an MVI timeout' do
       let(:base_path) { MVI::Configuration.instance.base_path }
       it 'should raise a service error', :aggregate_failures do
