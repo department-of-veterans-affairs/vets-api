@@ -25,7 +25,7 @@ module Facilities
         # conn.response(:logger, ::Logger.new(STDOUT), bodies: true) unless Rails.env.production?
 
         conn.response :raise_error, error_prefix: service_name
-        conn.response :betamocks
+        # conn.response :betamocks
 
         conn.adapter Faraday.default_adapter
       end
