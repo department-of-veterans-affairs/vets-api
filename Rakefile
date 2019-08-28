@@ -11,6 +11,7 @@ Dir[Rails.root.join('lib', 'tasks', 'support', '**', '*.rb')].each { |f| require
 Rails.application.load_tasks
 
 unless Rails.env.production?
+  require 'pact/tasks'
   require 'rspec/core/rake_task'
   task(:spec).clear
   RSpec::Core::RakeTask.new(:spec) do |t|
