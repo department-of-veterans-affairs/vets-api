@@ -281,7 +281,7 @@ describe MVI::Service do
       let(:base_path) { MVI::Configuration.instance.base_path }
       it 'should raise a service error', :aggregate_failures do
         allow_any_instance_of(Faraday::Connection).to receive(:post).and_raise(Faraday::TimeoutError)
-        expect(Rails.logger).to receive(:error).with('MVI find_profile error: Gateway timeout')
+        expect(Rails.logger).to receive(:warn).with('MVI find_profile error: Gateway timeout')
 
         response = subject.find_profile(user)
 
@@ -294,7 +294,7 @@ describe MVI::Service do
         allow_any_instance_of(MVI::Service).to receive(:create_profile_message).and_return('<nobeuno></nobeuno>')
         expect(subject).to receive(:log_message_to_sentry).with(
           'MVI find_profile error: SOAP HTTP call failed',
-          :error
+          :warn
         )
         VCR.use_cassette('mvi/find_candidate/five_hundred') do
           response = subject.find_profile(user)
@@ -370,7 +370,7 @@ describe MVI::Service do
       it 'raises an Common::Client::Errors::HTTPError', :aggregate_failures do
         expect(subject).to receive(:log_message_to_sentry).with(
           'MVI find_profile error: SOAP service returned internal server error',
-          :error
+          :warn
         )
         VCR.use_cassette('mvi/find_candidate/internal_server_error') do
           response = subject.find_profile(user)
