@@ -280,7 +280,7 @@ describe MVI::Service do
         invalid_xml = File.read('spec/support/mvi/find_candidate_invalid_request.xml')
         allow_any_instance_of(MVI::Service).to receive(:create_profile_message).and_return(invalid_xml)
         expect(subject).to receive(:log_message_to_sentry).with(
-          'MVI Failed Request', :error
+          'MVI Invalid Request', :error
         )
         VCR.use_cassette('mvi/find_candidate/failure') do
           response = subject.find_profile(user)
