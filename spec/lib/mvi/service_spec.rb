@@ -187,24 +187,6 @@ describe MVI::Service do
 
   describe '.find_profile without icn' do
     context 'valid request' do
-      let(:mvi_profile) do
-        build(
-          :mvi_profile_response,
-          :missing_attrs,
-          :address_austin,
-          given_names: %w[Mitchell G],
-          vha_facility_ids: [],
-          sec_id: nil,
-          historical_icns: nil,
-          icn_with_aaid: icn_with_aaid,
-          full_mvi_ids: [
-            '1008714701V416111^NI^200M^USVHA^P',
-            '796122306^PI^200BRLS^USVBA^A',
-            '9100792239^PI^200CORP^USVBA^A'
-          ]
-        )
-      end
-
       before(:each) do
         expect(MVI::Messages::FindProfileMessage).to receive(:new).once.and_call_original
       end
