@@ -40,12 +40,13 @@ module ClaimsApi
         ssn: header('X-VA-SSN'),
         first_name: header('X-VA-First-Name'),
         last_name: header('X-VA-Last-Name'),
-        profile: ClaimsApi::Veteran.build_profile(header('X-VA-Birth-Date')),
+        va_profile: ClaimsApi::Veteran.build_profile(header('X-VA-Birth-Date')),
         last_signed_in: Time.now.utc
       )
       vet.loa = @current_user.loa if @current_user
       vet.gender = header('X-VA-Gender') if with_gender
-      vet.edipi = header('X-VA-EDIPI')
+      vet.mvi_record?
+      vet.edipi = header('X-VA-EDIPI') || vet.mvi.profile&.edipi
       vet
     end
   end
