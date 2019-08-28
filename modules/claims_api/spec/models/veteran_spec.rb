@@ -6,6 +6,7 @@ RSpec.describe ClaimsApi::Veteran, type: :model do
   describe 'attributes needed for MVI lookup' do
     before do
       @veteran = ClaimsApi::Veteran.new
+      @veteran.va_profile = ClaimsApi::Veteran.build_profile('1990-01-01')
       @veteran.loa = { current: 3, highest: 3 }
       @veteran.edipi = '1234567'
     end
@@ -14,7 +15,7 @@ RSpec.describe ClaimsApi::Veteran, type: :model do
       expect(@veteran.loa3_user).to be(true)
     end
 
-    it 'should always be valid for now to meet MVI need' do
+    it 'should only be valid when proper MVI values are exist' do
       expect(@veteran.valid?).to be(true)
     end
   end
