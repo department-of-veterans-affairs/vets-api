@@ -9,8 +9,6 @@ StatsD.backend = if host.present? && port.present?
                    StatsD::Instrument::Backends::LoggerBackend.new(Rails.logger)
                  end
 
-# Initialize session controller metric counters at 0
-
 StatsD.increment(V0::SessionsController::STATSD_SSO_CALLBACK_TOTAL_KEY, 0)
 StatsD.increment(V0::SessionsController::STATSD_LOGIN_NEW_USER_KEY, 0)
 
@@ -101,13 +99,14 @@ StatsD.increment(SentryJob::STATSD_ERROR_KEY, 0)
 # init Search
 StatsD.increment("#{Search::Service::STATSD_KEY_PREFIX}.exceptions", 0, tags: ['exception:429'])
 
+# init GIBFT
+StatsD.increment("#{Gibft::Service::STATSD_KEY_PREFIX}.submit.total", 0)
+StatsD.increment("#{Gibft::Service::STATSD_KEY_PREFIX}.submit.fail", 0)
+
+# This is separate from the services and looks like its automating the controllers inits? Or could?
 ActiveSupport::Notifications.subscribe('process_action.action_controller') do |_, _, _, _, payload|
   tags = ["controller:#{payload.dig(:params, :controller)}", "action:#{payload.dig(:params, :action)}",
-          "status:#{payload[:status]}"]
+    "status:#{payload[:status]}"]
   StatsD.measure('api.request.db_runtime', payload[:db_runtime].to_i, tags: tags)
   StatsD.measure('api.request.view_runtime', payload[:view_runtime].to_i, tags: tags)
 end
-
-# init gibft
-StatsD.increment("#{Gibft::Service::STATSD_KEY_PREFIX}.submit.total", 0)
-StatsD.increment("#{Gibft::Service::STATSD_KEY_PREFIX}.submit.fail", 0)

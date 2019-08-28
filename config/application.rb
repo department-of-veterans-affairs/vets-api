@@ -43,6 +43,7 @@ module VetsAPI
     paths_name = Rails.env.development? ? 'autoload' : 'eager_load'
     config.public_send("#{paths_name}_paths") << Rails.root.join('lib')
     config.eager_load_paths << Rails.root.join('app')
+    config.eager_load_paths << Rails.root.join('lib')
 
     # CORS configuration; see also cors_preflight route
     config.middleware.insert_before 0, Rack::Cors, logger: (-> { Rails.logger }) do
@@ -70,5 +71,13 @@ module VetsAPI
                                    key: 'api_session',
                                    secure: Settings.session_cookie.secure,
                                    http_only: true
+  end
+
+  def perform_redis_statsd_initialization_roster_audit
+    true
+  end
+
+  config.after_initialize do
+    perform_redis_statsd_initialization_roster_audit if true
   end
 end

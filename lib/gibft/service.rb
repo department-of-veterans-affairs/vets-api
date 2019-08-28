@@ -16,6 +16,7 @@ module Gibft
 
     def submit(form)
       client = get_client
+      # This is an example that failed in the RFC
       response_body = with_monitoring do
         client.post('/services/apexrest/educationcomplaint', form).body
       end

@@ -14,14 +14,28 @@ module Common::Client
       increment_total(caller)
     end
 
+    private
+
     def increment_total(caller)
-      StatsD.increment("#{self.class::STATSD_KEY_PREFIX}.#{caller}.total")
+      increment("#{self.class::STATSD_KEY_PREFIX}.#{caller}.total")
     end
 
     def increment_failure(caller, error)
       tags = ["error:#{error.class}"]
       tags << "status:#{error.status}" if error.try(:status)
-      StatsD.increment("#{self.class::STATSD_KEY_PREFIX}.#{caller}.fail", tags: tags)
+
+      increment("#{self.class::STATSD_KEY_PREFIX}.#{caller}.fail", tags: tags)
+    end
+
+    def increment(tag)
+      # TODO this would poll redis for each call of with_monitoring.
+      #      we really only need to do this once, if we had a list of all
+      StatsD.increment(tag, 0) unless metric_is_initialized?(tag)
+      StatsD.increment(tag)
+    end
+
+    def metric_is_initialized?(tag)
+      Redis.current.get(tag + ':initialized').present?
     end
   end
 end
