@@ -1,14 +1,19 @@
 # frozen_string_literal: true
 
 require_dependency 'claims_api/intent_to_file_serializer'
+require_dependency 'claims_api/concerns/poa_verification'
+require_dependency 'claims_api/concerns/itf_verification'
 
 module ClaimsApi
   module V1
     module Forms
       class IntentToFileController < BaseFormController
+        include ClaimsApi::ItfVerification
+        include ClaimsApi::PoaVerification
+
         before_action { permit_scopes %w[claim.write] }
+        before_action :validate_json_schema, only: %i[submit_form_0966]
         before_action :check_future_type, only: [:submit_form_0966]
-        skip_before_action :validate_json_schema, only: [:active]
 
         FORM_NUMBER = '0966'
         def submit_form_0966

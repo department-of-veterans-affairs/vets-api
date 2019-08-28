@@ -115,8 +115,8 @@ class ApplicationController < ActionController::API
   def set_tags_and_extra_context
     Thread.current['request_id'] = request.uuid
     Thread.current['additional_request_attributes'] = {
-      'request_ip' => request.remote_ip,
-      'request_agent' => request.user_agent
+      'remote_ip' => request.remote_ip,
+      'user_agent' => request.user_agent
     }
     Raven.extra_context(request_uuid: request.uuid)
     Raven.user_context(user_context) if current_user

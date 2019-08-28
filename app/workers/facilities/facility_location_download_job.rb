@@ -59,7 +59,7 @@ module Facilities
     end
 
     def klass
-      "Facilities::#{@type.upcase}Facility".constantize
+      BaseFacility::CLASS_MAP[@type]
     end
 
     def updatable_attrs(record)
