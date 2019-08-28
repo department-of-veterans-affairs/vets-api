@@ -68,6 +68,7 @@ gem 'octokit'
 gem 'oj' # Amazon Linux `json` gem causes conflicts, but `multi_json` will prefer `oj` if installed
 gem 'olive_branch'
 gem 'ox'
+gem 'pact'
 gem 'pdf-forms'
 gem 'pdf-reader'
 gem 'pg'
