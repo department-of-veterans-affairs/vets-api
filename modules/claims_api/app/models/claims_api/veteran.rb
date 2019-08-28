@@ -5,6 +5,7 @@ module ClaimsApi
     SSN_REGEX = /\d{3}-\d{2}-\d{4}|\d{9}/
 
     include Virtus.model
+
     %i[ssn
        first_name
        middle_name
@@ -33,7 +34,11 @@ module ClaimsApi
 
     # Virtus doesnt provide a valid? method, but MVI requires it
     def valid?(*)
-      true
+      if edipi.presence && va_profile.presence
+        true
+      else
+        false
+      end
     end
 
     def loa3?
@@ -57,11 +62,6 @@ module ClaimsApi
       matches = Date.parse(new_va_profile.birth_date).iso8601
       raise Common::Exceptions::ParameterMissing, 'X-VA-Birth-Date' unless matches
       super(new_va_profile)
-    end
-
-    def edipi=(new_edipi)
-      value = new_edipi || mvi.profile&.edipi
-      super(value)
     end
 
     def loa3_user
