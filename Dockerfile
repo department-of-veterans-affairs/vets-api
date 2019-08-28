@@ -23,8 +23,8 @@ freshclam
 WORKDIR $APP_PATH
 ADD . /src/vets-api
 
-RUN curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > /src/vets-api/cc-test-reporter
-RUN chmod +x /src/vets-api/cc-test-reporter
+RUN curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > /cc-test-reporter
+RUN chmod +x /cc-test-reporter
 
 COPY ./docker-entrypoint.sh /
 RUN chmod +x /docker-entrypoint.sh
