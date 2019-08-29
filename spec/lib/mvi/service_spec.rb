@@ -51,6 +51,7 @@ describe MVI::Service do
         VCR.use_cassette('mvi/find_candidate/valid_icn_full') do
           response = subject.find_profile(user)
           expect(response.status).to eq('OK')
+          # binding.pry
           expect(response.profile).to have_deep_attributes(mvi_profile)
         end
       end
@@ -210,13 +211,16 @@ describe MVI::Service do
           }
         end
 
-        it 'fetches historical icns when available', run_at: 'Wed, 21 Feb 2018 20:19:01 GMT' do
+        it 'fetches historical icns when available', run_at: 'Thu, 29 Aug 2019 13:56:24 GMT' do
           allow(SecureRandom).to receive(:uuid).and_return('5e819d17-ce9b-4860-929e-f9062836ebd0')
 
           VCR.use_cassette('mvi/find_candidate/historical_icns_with_traits', VCR::MATCH_EVERYTHING) do
             response = subject.find_profile(user)
             expect(response.status).to eq('OK')
-            expect(response.profile['historical_icns']).to eq(%w[1008692852V724999 1008787485V229771])
+            expect(response.profile['historical_icns']).to eq(
+              %w[1008692852V724999 1008787550V443247 1008787485V229771 1008795715V162680
+                 1008795714V030791 1008795629V076564 1008795718V643356]
+            )
           end
         end
       end
@@ -278,10 +282,10 @@ describe MVI::Service do
         )
         VCR.use_cassette('mvi/find_candidate/five_hundred') do
           response = subject.find_profile(user)
-
           server_error_504_expectations_for(response)
         end
       end
+      # TODO: test with new internal error response
     end
 
     context 'when no subject is returned in the response body' do
