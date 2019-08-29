@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2019_07_02_154242) do
+ActiveRecord::Schema.define(version: 2019_08_25_155789) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
@@ -96,6 +96,7 @@ ActiveRecord::Schema.define(version: 2019_07_02_154242) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.string "md5"
+    t.string "source"
   end
 
   create_table "claims_api_supporting_documents", id: :uuid, default: -> { "uuid_generate_v4()" }, force: :cascade do |t|
@@ -480,6 +481,8 @@ ActiveRecord::Schema.define(version: 2019_07_02_154242) do
     t.string "encrypted_dob"
     t.string "encrypted_dob_iv"
     t.string "poa_codes", array: true
+    t.string "user_types", array: true
+    t.index ["representative_id", "first_name", "last_name"], name: "index_vso_id_first_last_name", unique: true
   end
 
   create_table "vic_submissions", id: :serial, force: :cascade do |t|
