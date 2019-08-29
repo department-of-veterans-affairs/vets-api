@@ -19,7 +19,7 @@ describe MVI::AttrService do
             ssn: '796043735'
           )
         )
-        expect(res.profile.icn).to eq('1012832025V743496')
+        expect(res.profile.icn).to eq('1008710003V120120')
       end
     end
   end
