@@ -51,7 +51,6 @@ describe MVI::Service do
         VCR.use_cassette('mvi/find_candidate/valid_icn_full') do
           response = subject.find_profile(user)
           expect(response.status).to eq('OK')
-          # binding.pry
           expect(response.profile).to have_deep_attributes(mvi_profile)
         end
       end
@@ -285,7 +284,6 @@ describe MVI::Service do
           server_error_504_expectations_for(response)
         end
       end
-      # TODO: test with new internal error response
     end
 
     context 'when no subject is returned in the response body' do
