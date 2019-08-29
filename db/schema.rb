@@ -482,7 +482,7 @@ ActiveRecord::Schema.define(version: 2019_08_25_155789) do
     t.string "encrypted_dob_iv"
     t.string "poa_codes", array: true
     t.string "user_types", array: true
-    t.index ["representative_id", "first_name", "last_name"], name: "index_vso_id_first_last_name", unique: true
+    t.index ["representative_id", "first_name", "last_name"], name: "index_vso_grp", unique: true
   end
 
   create_table "vic_submissions", id: :serial, force: :cascade do |t|
