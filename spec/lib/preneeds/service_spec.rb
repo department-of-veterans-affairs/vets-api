@@ -88,19 +88,19 @@ describe Preneeds::Service do
       end
 
       it 'creates a preneeds application', run_at: 'Tue, 21 Nov 2017 22:10:32 GMT' do
-        multipart_matcher = lambda do |request1, request2|
-          new_mimepart = request1.headers['Content-Type'][0].split(';')[1].gsub(' boundary="', '').delete('"')
+        multipart_matcher = lambda do |request_1, request_2|
+          new_mimepart = request_1.headers['Content-Type'][0].split(';')[1].gsub(' boundary="', '').delete('"')
           old_mimepart = '--==_mimepart_5a14a4580_948e2ab145fb50ec722de'
 
-          expect(request1.headers.keys).to eq(request2.headers.keys)
+          expect(request_1.headers.keys).to eq(request_2.headers.keys)
 
-          request1.headers.each do |k, v|
+          request_1.headers.each do |k, v|
             next if k == 'Content-Length'
 
-            match_with_switched_mimeparts(v[0], request2.headers[k][0], old_mimepart, new_mimepart)
+            match_with_switched_mimeparts(v[0], request_2.headers[k][0], old_mimepart, new_mimepart)
           end
 
-          match_with_switched_mimeparts(request1.body, request2.body, old_mimepart, new_mimepart)
+          match_with_switched_mimeparts(request_1.body, request_2.body, old_mimepart, new_mimepart)
         end
 
         expect(SecureRandom).to receive(:hex).twice.and_return(

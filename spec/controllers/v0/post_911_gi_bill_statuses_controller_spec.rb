@@ -22,8 +22,8 @@ RSpec.describe V0::Post911GIBillStatusesController, type: :controller do
         Settings.evss.mock_gi_bill_status = false
       end
 
-      gi_bill200 = { cassette_name: 'evss/gi_bill_status/gi_bill_status' }
-      context 'when EVSS response is 403', vcr: gi_bill200 do
+      gi_bill_200 = { cassette_name: 'evss/gi_bill_status/gi_bill_status' }
+      context 'when EVSS response is 403', vcr: gi_bill_200 do
         it 'should have a response that matches the schema' do
           get :show
           expect(response).to have_http_status(:ok)
@@ -44,8 +44,8 @@ RSpec.describe V0::Post911GIBillStatusesController, type: :controller do
       # this cassette was copied from 'gi_bill_status_500' and manually edited to contain
       # the 'education.chapter33claimant.partner.service.down' error because the EVSS CI
       # environment is not capable of returning this error
-      gi_bill500 = { cassette_name: 'evss/gi_bill_status/gi_bill_status_500_with_err_msg' }
-      context 'when EVSS response is 500 with an error message', vcr: gi_bill500 do
+      gi_bill_500 = { cassette_name: 'evss/gi_bill_status/gi_bill_status_500_with_err_msg' }
+      context 'when EVSS response is 500 with an error message', vcr: gi_bill_500 do
         it 'should respond with 503' do
           get :show
           expect(response).to have_http_status(:service_unavailable)

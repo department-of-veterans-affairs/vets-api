@@ -51,6 +51,9 @@ Style/GuardClause:
 # problems as above.
 Style/Next:
   Enabled: false
+  
+Naming/VariableNumber:
+  Enabled: false
 
 # This forces you to replace things like: `[1, 2, 3].length == 0` with `[1,2,3].empty?`. The problem is that
 # not all things that implement length also implement empty? so you will get errors that cannot be resolved,

@@ -109,12 +109,12 @@ module HCA
       return {} if postal_code.blank?
 
       numeric_zip = postal_code.gsub(/\D/, '')
-      zip_plus4 = numeric_zip[5..8]
-      zip_plus4 = nil if !zip_plus4.nil? && zip_plus4.size != 4
+      zip_plus_4 = numeric_zip[5..8]
+      zip_plus_4 = nil if !zip_plus_4.nil? && zip_plus_4.size != 4
 
       {
         'zipCode' => numeric_zip[0..4],
-        'zipPlus4' => zip_plus4
+        'zipPlus4' => zip_plus_4
       }
     end
 
