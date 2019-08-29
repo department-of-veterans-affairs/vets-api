@@ -5,4 +5,3 @@ class AddVsrType < ActiveRecord::Migration[5.2]
     add_column :veteran_representatives, :user_types, :string, array: true
   end
 end
-  
