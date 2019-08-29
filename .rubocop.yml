@@ -130,7 +130,7 @@ Lint/BooleanSymbol:
 Style/DateTime:
   Exclude:
     - "rakelib/evss.rake"
-    - "lib/evss/auth_headers.rb"
+    - "lib/evss/auth_headers.rb" #DateTime is needed for date formatting here
 
 
 # Skipping for now, should revisit:
