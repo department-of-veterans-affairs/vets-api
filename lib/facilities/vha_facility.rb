@@ -30,7 +30,8 @@ module Facilities
 
       def zip_plus_four(attrs)
         zip = attrs['zip']
-        zip << "-#{attrs['Zip4']}" unless attrs['Zip4'].to_s.strip.empty?
+        zip4_is_empty = attrs['Zip4'].to_s.strip.empty? || attrs['Zip4'].to_s.strip === '0000'
+        zip << "-#{attrs['Zip4']}" unless zip4_is_empty
         zip
       end
 
@@ -54,6 +55,10 @@ module Facilities
         result
       end
 
+      def identifier
+        'Sta_No'
+      end
+
       def attribute_map
         {
           'unique_id' => 'Sta_No',
@@ -64,8 +69,8 @@ module Facilities
                        'patient_advocate' => 'patientadvocatephone',
                        'enrollment_coordinator' => 'enrollmentcoordinatorphone',
                        'pharmacy' => 'pharmacyphone' },
-          'physical' => { 'address_1' => 'Address2', 'address_2' => 'Address3',
-                          'address_3' => 'Address1', 'city' => 'MUNICIPALITY', 'state' => 'STATE',
+          'physical' => { 'address_1' => 'Address2', 'address_2' => 'Address1',
+                          'address_3' => 'Address3', 'city' => 'MUNICIPALITY', 'state' => 'STATE',
                           'zip' => method(:zip_plus_four) },
           'hours' => BaseFacility::HOURS_STANDARD_MAP,
           'access' => { 'health' => method(:wait_time_data) },

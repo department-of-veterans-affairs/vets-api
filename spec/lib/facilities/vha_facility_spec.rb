@@ -41,7 +41,7 @@ module Facilities
             expect(facility.address['physical']).to eq('address_1' => '1501 Roxas Boulevard',
                                                        'address_2' => 'NOX3 Seafront Compound',
                                                        'address_3' => nil, 'city' => 'Pasay City',
-                                                       'state' => 'PI', 'zip' => '01302')
+                                                       'state' => 'PH', 'zip' => '01302')
           end
         end
 
@@ -61,7 +61,7 @@ module Facilities
           it 'should parse services' do
             VCR.use_cassette('facilities/va/vha_facilities_limit_results') do
               expect(facility.services.keys).to match(%w[last_updated health other])
-              expect(facility.services['last_updated']).to eq('2018-02-09')
+              expect(facility.services['last_updated']).to eq('2019-09-07')
               expect(facility.services['health'].size).to eq(2)
               expect(facility.services['health'].first.keys).to eq(%w[sl1 sl2])
               expect(facility.services['health'].first.values).to eq([['MentalHealthCare'], []])
@@ -74,7 +74,7 @@ module Facilities
           it 'should parse services 2' do
             VCR.use_cassette('facilities/va/vha_facilities_limit_results') do
               expect(facility_2.services.keys).to match(%w[last_updated health other])
-              expect(facility_2.services['last_updated']).to eq('2018-02-09')
+              expect(facility_2.services['last_updated']).to eq('2019-09-07')
               expect(facility_2.services['health'].size).to eq(3)
               expect(facility_2.services['health'].first.keys).to eq(%w[sl1 sl2])
               expect(facility_2.services['health'].first.values).to eq([['DentalServices'], []])

@@ -165,7 +165,7 @@ RSpec.describe Facilities::FacilityLocationDownloadJob, type: :job do
   end
 
   describe 'VHA Facilities' do
-    it 'retrieves and persists facilities data' do
+    it 'retrieves and persists facilities data'  do
       VCR.use_cassette('facilities/va/vha_facilities_limit_results') do
         expect(Facilities::VHAFacility.count).to eq(0)
         Facilities::FacilityLocationDownloadJob.new.perform('vha')
@@ -223,7 +223,7 @@ RSpec.describe Facilities::FacilityLocationDownloadJob, type: :job do
     end
 
     it 'has the wait time indicated services' do
-      VCR.use_cassette('facilities/va/vha_facilities_limit_results') do
+      VCR.use_cassette('facilities/va/vha_facilities') do
         Facilities::FacilityLocationDownloadJob.new.perform('vha')
         facility = Facilities::VHAFacility.find('603')
         services = facility.services['health'].map { |service| service['sl1'].first }
