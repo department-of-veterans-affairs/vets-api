@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2019_08_16_120445) do
+ActiveRecord::Schema.define(version: 2019_08_25_155789) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
@@ -481,6 +481,7 @@ ActiveRecord::Schema.define(version: 2019_08_16_120445) do
     t.string "encrypted_dob"
     t.string "encrypted_dob_iv"
     t.string "poa_codes", array: true
+    t.string "user_types", array: true
     t.index ["first_name"], name: "index_veteran_representatives_on_first_name"
     t.index ["last_name"], name: "index_veteran_representatives_on_last_name"
     t.index ["representative_id"], name: "index_veteran_representatives_on_representative_id", unique: true

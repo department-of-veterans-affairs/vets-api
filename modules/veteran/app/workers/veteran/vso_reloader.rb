@@ -17,7 +17,7 @@ module Veteran
     def reload_representatives
       data = fetch_data('orgsexcellist.asp')
       data.each do |hash|
-        find_or_create_representative(hash)
+        find_or_create_vso(hash)
       end
 
       Veteran::Service::Representative.where.not(representative_id: data.map { |h| h['Registration Num'] }).destroy_all
@@ -28,13 +28,15 @@ module Veteran
       array_of_organizations
     end
 
-    def find_or_create_representative(hash)
+    def find_or_create_vso(hash)
       rep = Veteran::Service::Representative.find_or_initialize_by(representative_id: hash['Registration Num'])
       rep.poa_codes ||= []
       rep.poa_codes << hash['POA'].gsub!(/\W/, '')
       rep.first_name = hash['Representative'].split(' ').second
       rep.last_name = hash['Representative'].split(',').first
       rep.phone = hash['Org Phone']
+      rep.user_types ||= []
+      rep.user_types << 'VSO'
       rep.save
     end
 
