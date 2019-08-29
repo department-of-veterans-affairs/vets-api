@@ -34,11 +34,7 @@ module ClaimsApi
 
     # Virtus doesnt provide a valid? method, but MVI requires it
     def valid?(*)
-      if edipi.presence && va_profile.presence
-        true
-      else
-        false
-      end
+      va_profile.present?
     end
 
     def loa3?
