@@ -37,9 +37,9 @@ module Veteran
     end
 
     def find_or_create_attorneys(hash)
-      rep = Veteran::Service::Representative.find_or_initialize_by( representative_id: hash['Registration Num'], 
-                                                                    first_name: hash['First Name'], 
-                                                                    last_name: hash['Last Name'] )
+      rep = Veteran::Service::Representative.find_or_initialize_by(representative_id: hash['Registration Num'],
+                                                                   first_name: hash['First Name'],
+                                                                   last_name: hash['Last Name'])
       rep.poa_codes ||= []
       rep.poa_codes << hash['POA Code'].gsub!(/\W/, '')
       rep.phone = hash['Phone']
@@ -49,9 +49,9 @@ module Veteran
     end
 
     def find_or_create_claim_agents(hash)
-      rep = Veteran::Service::Representative.find_or_initialize_by( representative_id: hash['Registration Num'], 
-                                                                    first_name: hash['First Name'], 
-                                                                    last_name: hash['Last Name'] )
+      rep = Veteran::Service::Representative.find_or_initialize_by(representative_id: hash['Registration Num'],
+                                                                   first_name: hash['First Name'],
+                                                                   last_name: hash['Last Name'])
       rep.poa_codes ||= []
       rep.poa_codes << hash['POA Code'].gsub!(/\W/, '')
       rep.phone = hash['Phone']
@@ -61,9 +61,9 @@ module Veteran
     end
 
     def find_or_create_vso(hash)
-      rep = Veteran::Service::Representative.find_or_initialize_by( representative_id: hash['Registration Num'], 
-                                                                    first_name: hash['Representative'].split(' ').second, 
-                                                                    last_name: hash['Representative'].split(',').first )
+      rep = Veteran::Service::Representative.find_or_initialize_by(representative_id: hash['Registration Num'],
+                                                                   first_name: hash['Representative'].split(' ').second,
+                                                                   last_name: hash['Representative'].split(',').first)
       rep.poa_codes ||= []
       rep.poa_codes << hash['POA'].gsub!(/\W/, '')
       rep.phone = hash['Org Phone']
