@@ -3,7 +3,7 @@
 require 'sidekiq'
 
 module Veteran
-  class VsoReloader
+  class VsoReloader < BaseReloader
     include Sidekiq::Worker
     BASE_URL = 'https://www.va.gov/ogc/apps/accreditation/'
 
@@ -37,25 +37,17 @@ module Veteran
     end
 
     def find_or_create_attorneys(hash)
-      rep = Veteran::Service::Representative.find_or_initialize_by(representative_id: hash['Registration Num'],
-                                                                   first_name: hash['First Name'],
-                                                                   last_name: hash['Last Name'])
-      rep.poa_codes ||= []
+      rep = find_or_initialize(hash)
       rep.poa_codes << hash['POA Code'].gsub!(/\W/, '')
       rep.phone = hash['Phone']
-      rep.user_types ||= []
       rep.user_types << 'attorney'
       rep.save
     end
 
     def find_or_create_claim_agents(hash)
-      rep = Veteran::Service::Representative.find_or_initialize_by(representative_id: hash['Registration Num'],
-                                                                   first_name: hash['First Name'],
-                                                                   last_name: hash['Last Name'])
-      rep.poa_codes ||= []
+      rep = find_or_initialize(hash)
       rep.poa_codes << hash['POA Code'].gsub!(/\W/, '')
       rep.phone = hash['Phone']
-      rep.user_types ||= []
       rep.user_types << 'claim_agents'
       rep.save
     end
