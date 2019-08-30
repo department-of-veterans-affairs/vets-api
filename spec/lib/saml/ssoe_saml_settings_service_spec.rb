@@ -5,6 +5,7 @@ require 'saml/ssoe_settings_service'
 require 'lib/sentry_logging_spec_helper'
 
 RSpec.describe SAML::SSOeSettingsService do
+  before { Settings.saml_ssoe.idp_metadata_file = Rails.root.join('spec', 'support', 'saml', 'test_idp_metadata.xml') }
   describe '.saml_settings' do
     it 'returns a settings instance' do
       expect(SAML::SSOeSettingsService.saml_settings).to be_an_instance_of(OneLogin::RubySaml::Settings)
