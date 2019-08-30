@@ -15,6 +15,8 @@ module Veteran
                                                                    last_name: hash['Last Name'])
       rep.poa_codes ||= []
       rep.user_types ||= []
+      rep.poa_codes << hash['POA Code'].gsub!(/\W/, '')
+      rep.phone = hash['Phone']
       rep
     end
 

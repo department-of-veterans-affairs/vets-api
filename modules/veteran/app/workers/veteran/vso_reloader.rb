@@ -4,7 +4,6 @@ require 'sidekiq'
 
 module Veteran
   class VsoReloader < BaseReloader
-    
     def perform
       array_of_organizations = reload_representatives
       Veteran::Service::Representative.where.not(representative_id: array_of_organizations).destroy_all
@@ -36,16 +35,12 @@ module Veteran
 
     def find_or_create_attorneys(hash)
       rep = find_or_initialize(hash)
-      rep.poa_codes << hash['POA Code'].gsub!(/\W/, '')
-      rep.phone = hash['Phone']
       rep.user_types << 'attorney'
       rep.save
     end
 
     def find_or_create_claim_agents(hash)
       rep = find_or_initialize(hash)
-      rep.poa_codes << hash['POA Code'].gsub!(/\W/, '')
-      rep.phone = hash['Phone']
       rep.user_types << 'claim_agents'
       rep.save
     end
@@ -60,21 +55,6 @@ module Veteran
       rep.user_types ||= []
       rep.user_types << 'veteran_service_officer'
       rep.save
-    end
-
-    def fetch_data(action)
-      page = Faraday.new(url: BASE_URL).post(action, id: 'frmExcelList', name: 'frmExcelList').body
-      doc = Nokogiri::HTML(page)
-      content = CSV.generate(headers: true) do |csv|
-        doc.xpath('//table/tr').each do |row|
-          tarray = []
-          row.xpath('td').each do |cell|
-            tarray << cell.text.scrub
-          end
-          csv << tarray
-        end
-      end
-      CSV.parse(content, headers: :first_row).map(&:to_h)
     end
   end
 end
