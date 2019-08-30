@@ -16,7 +16,7 @@ RSpec.describe Veteran::VsoReloader, type: :job do
       VCR.use_cassette('veteran/ogc_poa_data') do
         Veteran::VsoReloader.new.perform
         expect(Veteran::Service::Representative.count).to eq 23_361
-        expect(Veteran::Service::Organization.count).to eq 3
+        expect(Veteran::Service::Organization.count).to eq 91
       end
     end
   end
