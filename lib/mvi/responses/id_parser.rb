@@ -21,24 +21,26 @@ module MVI
       #              D = Deprecated from a Duplicate
       #              M = Deprecated from a Mismatch
       #              U - Deprecated from an Unlink
-      #              L = pending local merge - This is a value identified for correlations including EDIPI when the identifier has been deprecated/associated to another active ID.
+      #              L = pending local merge - This is a value identified for correlations including EDIPI when the
+      #                   identifier has been deprecated/associated to another active ID.
       #              PCE = Pending Cat Edit correlations (unsure if this should be used, likely not)
 
       def parse(ids)
         ids = ids.map(&:attributes)
-
+        # rubocop:disable LineLength
         {
           icn:              select_ids(select_extension(ids, ICN_REGEX, CORRELATION_ROOT_ID))&.first,
-          sec_id:           select_ids(select_extension(ids, /^\w+\^PN\^200PROV\^USDVA\^(A|P)$/,   CORRELATION_ROOT_ID))&.first,
-          mhv_ids:          select_ids(select_extension(ids, /^\w+\^PI\^200MH.{0,1}\^\w+\^\w+$/, CORRELATION_ROOT_ID)),
-          active_mhv_ids:   select_ids(select_extension(ids, /^\w+\^PI\^200MH.{0,1}\^\w+\^A$/,   CORRELATION_ROOT_ID)),
-          edipi:            select_ids(select_extension(ids, /^\w+\^NI\^200DOD\^USDOD\^\w+$/,    EDIPI_ROOT_ID))&.first,
-          vba_corp_id:      select_ids(select_extension(ids, /^\w+\^PI\^200CORP\^USVBA\^(A|P)$/, CORRELATION_ROOT_ID))&.first,
-          vha_facility_ids: select_facilities(select_extension(ids, /^\w+\^PI\^\w+\^USVHA\^\w+$/,CORRELATION_ROOT_ID)),
-          birls_id:         select_ids(select_extension(ids, /^\w+\^PI\^200BRLS\^USVBA\^(A|P)$/,   CORRELATION_ROOT_ID))&.first,
-          vet360_id:        select_ids(select_extension(ids, /^\w+\^PI\^200VETS\^USDVA\^(A|P)$/,   CORRELATION_ROOT_ID))&.first,
+          sec_id:           select_ids(select_extension(ids, /^\w+\^PN\^200PROV\^USDVA\^(A|P)$/,  CORRELATION_ROOT_ID))&.first,
+          mhv_ids:          select_ids(select_extension(ids, /^\w+\^PI\^200MH.{0,1}\^\w+\^\w+$/,  CORRELATION_ROOT_ID)),
+          active_mhv_ids:   select_ids(select_extension(ids, /^\w+\^PI\^200MH.{0,1}\^\w+\^A$/,    CORRELATION_ROOT_ID)),
+          edipi:            select_ids(select_extension(ids, /^\w+\^NI\^200DOD\^USDOD\^\w+$/,     EDIPI_ROOT_ID))&.first,
+          vba_corp_id:      select_ids(select_extension(ids, /^\w+\^PI\^200CORP\^USVBA\^(A|P)$/,  CORRELATION_ROOT_ID))&.first,
+          vha_facility_ids: select_facilities(select_extension(ids, /^\w+\^PI\^\w+\^USVHA\^\w+$/, CORRELATION_ROOT_ID)),
+          birls_id:         select_ids(select_extension(ids, /^\w+\^PI\^200BRLS\^USVBA\^(A|P)$/,  CORRELATION_ROOT_ID))&.first,
+          vet360_id:        select_ids(select_extension(ids, /^\w+\^PI\^200VETS\^USDVA\^(A|P)$/,  CORRELATION_ROOT_ID))&.first,
           icn_with_aaid: ICNWithAAIDParser.new(full_icn_with_aaid(ids)).without_id_status
         }
+        # rubocop:enable LineLength
       end
 
       def select_ids_with_extension(ids, pattern, root)
