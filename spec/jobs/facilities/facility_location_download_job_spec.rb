@@ -71,7 +71,7 @@ RSpec.describe Facilities::FacilityLocationDownloadJob, type: :job do
           Facilities::FacilityLocationDownloadJob.new.perform('nca')
           count = Facilities::NCAFacility.count
           expect(count).not_to eq(0)
-          allow(BaseFacility).to receive(:pull_source_data).and_return([])
+          allow(Facilities::NCAFacility).to receive(:pull_source_data).and_return([])
           Facilities::FacilityLocationDownloadJob.new.perform('nca')
           expect(Facilities::NCAFacility.count).to eq(count)
         end

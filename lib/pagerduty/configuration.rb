@@ -25,5 +25,13 @@ module PagerDuty
     def service_name
       'PagerDuty'
     end
+
+    def self.service_map
+      Settings.maintenance.services&.to_hash&.invert || {}
+    end
+
+    def self.service_ids
+      Settings.maintenance.services&.to_hash&.values || []
+    end
   end
 end

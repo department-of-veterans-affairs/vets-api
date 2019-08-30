@@ -69,14 +69,17 @@ module EducationForm
       record = model.open_struct_form
       address = routing_address(record, form_type: model.form_type)
 
-      # special case Philippines
-      return :western if address&.country == 'PHL' || model.form_type == '0993'
+      # special case 0993
+      return :western if model.form_type == '0993'
 
       # special case 0994
       return :eastern if model.form_type == '0994'
 
       # special case 1995 STEM
       return :eastern if model.form_type == '1995' && record.isEdithNourseRogersScholarship
+
+      # special case Philippines
+      return :western if address&.country == 'PHL'
 
       check_area(address)
     end

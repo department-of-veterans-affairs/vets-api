@@ -70,7 +70,8 @@ RSpec.describe 'VBA Document Uploads Endpoint', type: :request do
     it 'should return not_found for an expired submission' do
       upload.update(status: 'expired')
       get "/services/vba_documents/v1/uploads/#{upload.guid}"
-      expect(response).to have_http_status(:not_found)
+      expect(response).to have_http_status(:ok)
+      expect(JSON.parse(response.body)['data']['attributes']['status']).to eq('expired')
     end
 
     context 'with vbms complete' do

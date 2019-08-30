@@ -15,8 +15,18 @@ module EducationForm::Forms
       @applicant.newSchool
     end
 
-    def form_type(applicant)
-      FORM_TYPES[applicant.benefit&.to_sym]
+    def form_type
+      FORM_TYPES[@applicant.benefit&.to_sym]
+    end
+
+    def form_benefit
+      return 'STEM' if @applicant.isEdithNourseRogersScholarship
+      @applicant.benefit&.titleize
+    end
+
+    def header_form_type
+      return 'STEM1995' if @applicant.isEdithNourseRogersScholarship
+      'V1995'
     end
   end
 end

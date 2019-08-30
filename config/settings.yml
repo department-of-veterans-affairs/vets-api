@@ -13,6 +13,15 @@ saml:
   callback_url: http://localhost:3000/auth/saml/callback
   metadata_url: https://api.idmelabs.com/saml/metadata/provider
 
+# Settings for new SAML authentication with SSOe
+saml_ssoe:
+  cert_path: config/certs/vetsgov-localhost.crt
+  cert_new_path: ~
+  key_path: config/certs/vetsgov-localhost.key
+  issuer: https://ssoe-sp-dev.va.gov
+  callback_url: http://localhost:3000/v1/sessions/callback
+  metadata_url: https://api.idmelabs.com/saml/metadata/provider
+
 session_cookie:
   secure: false
 
@@ -35,6 +44,7 @@ binaries:
 db_encryption_key: f01ff8ebd1a2b053ad697ae1f0d86adb
 
 database_url: postgis:///vets-api
+test_database_url: postgis:///vets-api-test
 
 relative_url_root: /
 
@@ -335,7 +345,20 @@ github:
 maintenance:
   pagerduty_api_url: https://api.pagerduty.com
   pagerduty_api_token: FAKE
-  services: ~
+  services:
+    appeals: P9S4RFU
+    arcgis: P45YBFA
+    dslogon: P9DJJAV
+    emis: P0HNT0I
+    es: PH7OPR4
+    evss: PZKWB6Y
+    idme: PVWB4R8
+    mvi: PCIPVGJ
+    mhv: PP2ZZ2V
+    search: PRG8HJI
+    tims: PUL8OQ4
+    vet360: PHVOGQ1
+    vic: P7LW3MS
 
 # Note: in addition to enabling / disabling betamocks here, you _must_ also
 # change the 'mock' bool for each service you want to mock in this settings file
@@ -361,3 +384,7 @@ search:
 bing:
   base_api_url: 'https://dev.virtualearth.net/REST/v1/Routes'
   key: fake_key
+
+flipper:
+  username: SUPER_SECRET_USERNAME
+  password: SUPER_SECRET_PASSWORD

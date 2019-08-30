@@ -7,7 +7,7 @@ module PagerDuty
     configuration PagerDuty::Configuration
 
     def get_all
-      return [] if service_ids.blank? # require whitelisted services
+      return [] if PagerDuty::Configuration.service_ids.blank? # require whitelisted services
       raw_mws = get_all_raw
       convert(raw_mws)
     end
@@ -28,7 +28,7 @@ module PagerDuty
     def get_raw(offset = 0)
       query = { 'offset' => offset,
                 'filter' => 'open',
-                'service_ids' => service_ids }
+                'service_ids' => PagerDuty::Configuration.service_ids }
       perform(:get, 'maintenance_windows', query).body
     end
 
@@ -38,7 +38,7 @@ module PagerDuty
         mw['services'].each do |svc|
           window = {
             pagerduty_id: mw['id'],
-            external_service: service_map[svc['id']].to_s,
+            external_service: PagerDuty::Configuration.service_map[svc['id']].to_s,
             start_time: Time.iso8601(mw['start_time']),
             end_time: Time.iso8601(mw['end_time']),
             description: mw['description'] ||= ''
@@ -47,14 +47,6 @@ module PagerDuty
         end
       end
       result
-    end
-
-    def service_map
-      Settings.maintenance.services&.to_hash&.invert || {}
-    end
-
-    def service_ids
-      Settings.maintenance.services&.to_hash&.values || []
     end
   end
 end

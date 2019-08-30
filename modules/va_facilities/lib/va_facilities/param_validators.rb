@@ -30,8 +30,12 @@ module VaFacilities
     def validate_type_and_services_known
       raise Common::Exceptions::InvalidFieldValue.new('type', params[:type]) unless
       BaseFacility::TYPES.include?(params[:type])
-      unknown = params[:services].to_a - BaseFacility::SERVICE_WHITELIST[params[:type]]
+      unknown = params[:services].to_a - facility_klass.service_list
       raise Common::Exceptions::InvalidFieldValue.new('services', unknown) unless unknown.empty?
+    end
+
+    def facility_klass
+      BaseFacility::TYPE_MAP[params[:type]].constantize
     end
   end
 end

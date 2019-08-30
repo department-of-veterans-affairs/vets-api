@@ -273,6 +273,10 @@ class User < Common::RedisStore
     EVSS::CommonService.get_current_info[:poa]
   end
 
+  def flipper_id
+    "User;#{account_uuid}"
+  end
+
   private
 
   def pciu
