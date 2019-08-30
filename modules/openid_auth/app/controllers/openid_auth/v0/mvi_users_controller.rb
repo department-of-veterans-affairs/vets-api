@@ -23,6 +23,26 @@ module OpenidAuth
         process_identity(user_identity)
       end
 
+      def build_identity_from_attributes(user_attributes)
+        puts 'in function'
+        OpenidUserIdentity.new(
+          uuid: user_attributes[:idp_uuid],
+          email: user_attributes[:user_email],
+          first_name: user_attributes[:first_name],
+          last_name: user_attributes[:last_name],
+          gender: user_attributes[:gender]&.chars&.first&.upcase,
+          birth_date: user_attributes[:dob],
+          ssn: user_attributes[:ssn],
+          mhv_icn: user_attributes[:mhv_icn],
+          dslogon_edipi: user_attributes[:dslogon_edipi],
+          loa:
+          {
+            current: user_attributes[:level_of_assurance].to_i,
+            highest: user_attributes[:level_of_assurance].to_i
+          }
+        )
+      end
+      
       private
 
       def process_identity(user_identity)
@@ -45,24 +65,6 @@ module OpenidAuth
         raise Common::Exceptions::ParameterMissing, 'level_of_assurance' unless has_loa
       end
 
-      def build_identity_from_attributes(user_attributes)
-        OpenidUserIdentity.new(
-          uuid: user_attributes[:idp_uuid],
-          email: user_attributes[:user_email],
-          first_name: user_attributes[:first_name],
-          last_name: user_attributes[:last_name],
-          gender: user_attributes[:gender]&.chars&.first&.upcase,
-          birth_date: user_attributes[:dob],
-          ssn: user_attributes[:ssn],
-          mhv_icn: user_attributes[:mhv_icn],
-          dslogon_edipi: user_attributes[:dslogon_edipi],
-          loa:
-          {
-            current: user_attributes[:level_of_assurance].to_i,
-            highest: user_attributes[:level_of_assurance].to_i
-          }
-        )
-      end
 
       def build_identity_from_headers
         OpenidUserIdentity.new(

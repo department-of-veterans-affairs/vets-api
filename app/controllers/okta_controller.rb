@@ -1,20 +1,26 @@
 # frozen_string_literal: true
+require 'openid_auth'
 
 class OktaController < ApplicationController
-  skip_before_action :authenticate, only: [:metadata]
+  include OpenidAuth::V0
+  skip_before_action :authenticate
 
   def metadata
     meta = OneLogin::RubySaml::Metadata.new
     render xml: meta.generate(saml_settings), content_type: 'application/xml'
   end
 
-  # TODO: parse through claims and construct user object
-  # TODO: reference MviUsersController
   def fetch_mvi_profile(json_request)
-    # TODO: pull out info from Okta request for querying MVI
-    user_attributes = JSON.parse(json_request)
-
-    user_identity = build_identity_from_attributes(user_attributes)
+    # TODO: pull out info from Okta request for querying MVI. Put into helper func
+    okta_attributes = json_request.dig(:data, :assertion, :claims)
+    user_attributes = Hash.new
+    okta_attributes.each do |k, v|
+      user_attributes[k] = v[:attributeValues][0][:value]
+    end
+    user_attributes["authn_context"] = json_request[:data][:assertion][:authentication][:authnContext][:authnContextClassRef]
+    
+    binding.pry
+    user_identity = OpenidAuth::V0::MviUsersController.new.build_identity_from_attributes(user_attributes)
     service = MVI::Service.new
     mvi_response = service.find_profile(user_identity)
     raise mvi_response.error if mvi_response.error # TODO: add error logging
@@ -22,29 +28,40 @@ class OktaController < ApplicationController
     #  ^ this response will be in format lib/mvi/models/mvi_profile.rb
   end
 
-  # TODO: receive and parse JSON request, and send commands to modify
   def okta_callback
-    # TODO: parse request params from Okta into usable format
-    # fetch mvi profile using
+    puts request.raw_post.to_json
     fetch_mvi_profile(params)
-    # ^ iterate through profile attributes and construct appropriate Okta response
 
-    # return JSON object
-    return {
+    render json: {
       "commands": [
         {
           "type": "com.okta.assertion.patch",
           "value": [
             {
-              "op": "replace", # or add
-              "path": "path/to/key",
+              "op": "replace",
+              "path": "/claims/first_name/attributeValues/0/value",
+              "value": "New first name"
+            },
+            {
+              "op": "add",
+              "path": "/claims/newValue",
               "value": {
-                "attributeName": "attributeValue"
+                "attributes": {
+                  "NameFormat": "urn:oasis:names:tc:SAML:2.0:attrname-format:basic"
+                },
+                "attributeValues": [
+                  {
+                    "attributes": {
+                      "xsi:type": "xs:string"
+                    },
+                    "value": "Here's a new value"
+                  }
+                ]
               }
             }
           ]
         }
       ]
-    }.to_json
+    }
   end
 end
