@@ -4,9 +4,7 @@ require 'sidekiq'
 
 module Veteran
   class VsoReloader < BaseReloader
-    include Sidekiq::Worker
-    BASE_URL = 'https://www.va.gov/ogc/apps/accreditation/'
-
+    
     def perform
       array_of_organizations = reload_representatives
       Veteran::Service::Representative.where.not(representative_id: array_of_organizations).destroy_all
