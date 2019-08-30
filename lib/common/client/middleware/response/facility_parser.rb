@@ -105,7 +105,7 @@ module Common
             return Date.strptime(attrs['FacilityDataDate'], '%m-%d-%Y').iso8601 if attrs['FacilityDataDate']
 
             # Field for facilities coming from gis.va.gov in unix timestamp
-            Time.at((attrs['LASTUPDATE'] / 1000)).strftime('%Y-%d-%m') if attrs['LASTUPDATE']
+            Time.at((attrs['LASTUPDATE'] / 1000)).strftime('%Y-%m-%d') if attrs['LASTUPDATE']
           end
 
           def services_from_gis(service_map, attrs, id)
@@ -133,7 +133,7 @@ module Common
             services = []
             services << { 'sl1' => ['EmergencyCare'], 'sl2' => [] } if facility_wait_time&.emergency_care&.any?
             services << { 'sl1' => ['UrgentCare'], 'sl2' => [] } if facility_wait_time&.urgent_care&.any?
-            (Facilities::AccessDataDownload::WT_KEY_MAP.values - %w[primary_care mental_health]).each do |service|
+            Facilities::AccessDataDownload::WT_KEY_MAP.each_value do |service|
               services << { 'sl1' => [service.camelize], 'sl2' => [] } if metric_keys.include?(service)
             end
             services
