@@ -453,14 +453,14 @@
     :path: "/oauth2/default/.well-known/oauth-authorization-server"
     :file_path: "okta/metadata"
 
-# GIS
-# - :name: 'GIS'
-  # :base_uri: <%= "#{URI(Settings.locators.gis_base_path).host}:#{URI(Settings.locators.gis_base_path).port}" %>
-  # :endpoints:
-    # # VHA
-    # - :method: :get
-      # :path: "/server/rest/services/VA/FacilitySitePoint_VHA/FeatureServer/0/query"
-      # :file_path: "gis/vha/facilities"
-    # - :method: :get
-      # :path: "/server/rest/services/VA/FacilitySitePoint_VHA/FeatureServer/0"
-      # :file_path: "gis/vha/metadata"
+#GIS
+- :name: 'GIS'
+  :base_uri: <%= "#{URI(Settings.locators.gis_base_path).host}:#{URI(Settings.locators.gis_base_path).port}" %>
+  :endpoints:
+    # VHA
+    - :method: :get
+      :path: "/server/rest/services/VA/FacilitySitePoint_VHA/FeatureServer/0/query"
+      :file_path: "gis/vha/facilities"
+    - :method: :get
+      :path: "/server/rest/services/VA/FacilitySitePoint_VHA/FeatureServer/0"
+      :file_path: "gis/vha/metadata"

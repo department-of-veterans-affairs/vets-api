@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri: http://localhost:7000/server/rest/services/VA/FacilitySitePoint_VHA/FeatureServer/0?f=json
+    uri: https://gis.va.gov/server/rest/services/VA/FacilitySitePoint_VHA/FeatureServer/0?f=json
     body:
       encoding: US-ASCII
       string: ''
@@ -51,7 +51,7 @@ http_interactions:
   recorded_at: Thu, 29 Aug 2019 20:18:35 GMT
 - request:
     method: get
-    uri: http://localhost:7000/server/rest/services/VA/FacilitySitePoint_VHA/FeatureServer/0/query?f=json&inSR=4326&orderByFields=Sta_No&outFields=*&outSR=4326&resultOffset=0&returnCountOnly=false&returnDistinctValues=false&returnGeometry=true&where=1=1
+    uri: 'https://gis.va.gov/server/rest/services/VA/FacilitySitePoint_VHA/FeatureServer/0/query?f=json&inSR=4326&orderByFields=Sta_No&outFields=*&outSR=4326&resultOffset=0&returnCountOnly=false&returnDistinctValues=false&returnGeometry=true&where=1=1'
     body:
       encoding: US-ASCII
       string: ''
