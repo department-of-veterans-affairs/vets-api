@@ -127,6 +127,8 @@ evss:
   letters:
     url: https://csraciapp6.evss.srarad.com
     timeout: 55
+  ppiu:
+    timeout: 30
   pciu:
     timeout: 30
   pciu_address:
