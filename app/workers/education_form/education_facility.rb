@@ -76,7 +76,7 @@ module EducationForm
       return :eastern if model.form_type == '0994'
 
       # special case 1995 STEM
-      return :eastern if model.form_type == '1995S'
+      return :eastern if model.form_type == '1995s'
 
       # special case Philippines
       return :western if address&.country == 'PHL'
@@ -114,7 +114,7 @@ module EducationForm
         record.educationProgram&.address || record.veteranAddress
       when '1990E', '5490', '5495'
         record.educationProgram&.address || record.relativeAddress
-      when '1995', '1995S'
+      when '1995', '1995s'
         record.newSchool&.address || record.veteranAddress
       end
     end

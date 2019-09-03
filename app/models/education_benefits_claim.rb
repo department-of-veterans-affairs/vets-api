@@ -114,7 +114,7 @@ class EducationBenefitsClaim < ApplicationRecord
       return benefits
     when '0994'
       benefits['vettec'] = true
-    when '1995Stem'
+    when '1995s'
       benefits['chapter33'] = true
     else
       benefit = parsed_form['benefit']&.underscore
