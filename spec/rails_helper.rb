@@ -182,7 +182,10 @@ RSpec.configure do |config|
 
   # clean up carrierwave uploads
   # https://github.com/carrierwaveuploader/carrierwave/wiki/How-to:-Cleanup-after-your-Rspec-tests
-  config.after(:all) do
-    FileUtils.rm_rf(Dir[Rails.root.join('spec', 'support', 'uploads')]) if Rails.env.test?
+  at_exit do
+    if ParallelTests.first_process?
+      ParallelTests.wait_for_other_processes_to_finish
+      FileUtils.rm_rf(Dir[Rails.root.join('spec', 'support', 'uploads')]) if Rails.env.test?
+    end
   end
 end
