@@ -40,4 +40,21 @@ RSpec.describe Facilities::DentalServiceReloadJob, type: :job do
     Facilities::DentalServiceReloadJob.new.perform
     expect(FacilityDentalService.find('436GH')).to be_nil
   end
+
+  context 'on error' do
+    before do
+      Settings.sentry.dsn = 'asdf'
+    end
+    after do
+      Settings.sentry.dsn = nil
+    end
+
+    it 'logs dental service error to sentry' do
+      allow_any_instance_of(
+        Facilities::DentalServiceReloadJob
+      ).to receive(:fetch_dental_service_data).and_raise(Facilities::DentalServiceError)
+      expect(Raven).to receive(:capture_exception).with(Facilities::DentalServiceError, level: 'error')
+      Facilities::DentalServiceReloadJob.new.perform
+    end
+  end
 end
