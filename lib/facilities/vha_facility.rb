@@ -30,7 +30,7 @@ module Facilities
 
       def zip_plus_four(attrs)
         zip = attrs['zip']
-        zip4_is_empty = attrs['Zip4'].to_s.strip.empty? || attrs['Zip4'].to_s.strip === '0000'
+        zip4_is_empty = attrs['Zip4'].to_s.strip.empty? || attrs['Zip4'].to_s.strip == '0000'
         zip << "-#{attrs['Zip4']}" unless zip4_is_empty
         zip
       end
@@ -113,7 +113,7 @@ module Facilities
       end
 
       def mapped_fields_list
-        %w[Sta_No NAME CocClassificationID LASTUPDATE Address1 Address2 Address3 MUNICIPALITY STATE 
+        %w[Sta_No NAME CocClassificationID LASTUPDATE Address1 Address2 Address3 MUNICIPALITY STATE
            zip Zip4 Sta_Phone Sta_Fax afterhoursphone
            patientadvocatephone enrollmentcoordinatorphone pharmacyphone Monday
            Tuesday Wednesday Thursday Friday Saturday Sunday]

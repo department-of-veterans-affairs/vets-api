@@ -165,7 +165,7 @@ RSpec.describe Facilities::FacilityLocationDownloadJob, type: :job do
   end
 
   describe 'VHA Facilities' do
-    it 'retrieves and persists facilities data'  do
+    it 'retrieves and persists facilities data' do
       VCR.use_cassette('facilities/va/vha_facilities_limit_results') do
         expect(Facilities::VHAFacility.count).to eq(0)
         Facilities::FacilityLocationDownloadJob.new.perform('vha')

@@ -105,7 +105,7 @@ module Common
             return Date.strptime(attrs['FacilityDataDate'], '%m-%d-%Y').iso8601 if attrs['FacilityDataDate']
 
             # Field for facilities coming from gis.va.gov in unix timestamp
-            Time.at((attrs['LASTUPDATE'] / 1000)).strftime('%Y-%m-%d') if attrs['LASTUPDATE']
+            Time.at((attrs['LASTUPDATE'] / 1000)).utc.strftime('%Y-%m-%d') if attrs['LASTUPDATE']
           end
 
           def services_from_gis(service_map, attrs, id)
