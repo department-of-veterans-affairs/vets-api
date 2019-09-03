@@ -18,10 +18,12 @@ module ClaimsApi
           ClaimsApi::ClaimsModelSwagger,
           ClaimsApi::Form526ModelSwagger,
           ClaimsApi::Form0966ModelSwagger,
+          ClaimsApi::Form2122ModelSwagger,
           ClaimsApi::ErrorModelSwagger,
           ClaimsApi::ClaimsV1ControllerSwagger,
           ClaimsApi::Form526V1ControllerSwagger,
           ClaimsApi::Form0966V1ControllerSwagger,
+          ClaimsApi::Form2122V1ControllerSwagger,
           ClaimsApi::ClaimsV1Swagger
         ].freeze
 
