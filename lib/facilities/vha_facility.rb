@@ -18,16 +18,6 @@ module Facilities
            Gastroenterology Gynecology Ophthalmology Optometry Orthopedics Urology WomensHealth]
       end
 
-      def mh_clinic_phone(attrs)
-        val = attrs['MHClinicPhone']
-        val = attrs['MHPhone'] if val.blank?
-        return '' if val.blank?
-        result = val.to_s
-        result << ' x ' + attrs['Extension'].to_s unless
-          (attrs['Extension']).blank? || (attrs['Extension']).zero?
-        result
-      end
-
       def zip_plus_four(attrs)
         zip = attrs['zip']
         zip4_is_empty = attrs['Zip4'].to_s.strip.empty? || attrs['Zip4'].to_s.strip == '0000'
