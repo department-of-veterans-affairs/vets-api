@@ -26,6 +26,7 @@ class YearToDateReportMailer < ApplicationMailer
       222A.VBAVACO@va.gov
       Ricardo.DaSilva@va.gov
       peter.nastasi@va.gov
+      Lucas.Tickner@va.gov
     ]
   }.freeze
 
@@ -34,7 +35,6 @@ class YearToDateReportMailer < ApplicationMailer
       lihan@adhocteam.us
       Turner_Desiree@bah.com
       Delli-Gatti_Michael@bah.com
-      Lucas.Tickner@va.gov
     ]
   }.freeze
 

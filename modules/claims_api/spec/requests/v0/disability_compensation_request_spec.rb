@@ -28,6 +28,14 @@ RSpec.describe 'Disability Claims ', type: :request do
       end
     end
 
+    it 'should return a unsuccessful response without mvi' do
+      VCR.use_cassette('evss/intent_to_file/active_compensation_future_date') do
+        allow_any_instance_of(ClaimsApi::Veteran).to receive(:mvi_record?).and_return(false)
+        post path, params: data, headers: headers
+        expect(response.status).to eq(404)
+      end
+    end
+
     it 'should return an unsuccessful response with an error message' do
       VCR.use_cassette('evss/intent_to_file/active_compensation') do
         post path, params: data, headers: headers

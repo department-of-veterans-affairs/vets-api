@@ -34,7 +34,13 @@ module V0
     end
 
     def current_user_email
-      current_user.vet360_contact_info&.email&.email_address || current_user.email
+      vet360_email =
+        begin
+          current_user.vet360_contact_info&.email&.email_address
+        rescue StandardError
+          nil
+        end
+      vet360_email || current_user.email
     end
 
     def pay_info

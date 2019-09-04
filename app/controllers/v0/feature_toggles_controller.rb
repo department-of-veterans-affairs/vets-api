@@ -11,7 +11,7 @@ module V0
         features_params = params[:features].split(',')
 
         features = features_params.collect do |feature_name|
-          { name: feature_name, value: Flipper.enabled?(feature_name, @current_user) }
+          { name: feature_name, value: Flipper.enabled?(feature_name.underscore, @current_user) }
         end
       else
         features = []
