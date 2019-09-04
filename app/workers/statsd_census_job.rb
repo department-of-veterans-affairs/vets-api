@@ -5,6 +5,7 @@
 # initialized with a StatsD.increment(stat_key, 0) so they can properly be captured by Grafana#
 class StatsDCensusJob
   KNOWN_STATSD_TAGS = [].freeze
+  STATS_ROSTER_SET = "incremented_metrics"
 
   include Sidekiq::Worker
   sidekiq_options(retry: false)
@@ -17,10 +18,20 @@ class StatsDCensusJob
   private
 
   def initialize_stats_roster
-    Redis.current.set(stats_roster_key, 1)
+    #Redis does not store empty sets
+    #sets also don't store dups, so we don't have to worry about duplicate statsD keys being stored in the SET
   end
 
   def stats_roster_is_in_redis?
+    Redis.current.exists(STATS_ROSTER_SET)
+  end
+  
+  def stats_key_in_redis_set? tag
+    Redis.current.sismember(STATS_ROSTER_SET, tag)
+  end
+  
+  def add_metric_to_stats_roster tag
+    Redis.current.sadd(STATS_ROSTER_SET, tag)
   end
 
   def audit_roster!
@@ -29,6 +40,7 @@ class StatsDCensusJob
     Dir.glob("#{Rails.root}/lib/**/*.rb").grep(/service/).each { |f| require_dependency(f) }
     classes = Common::Client::Base.descendants.map(&:to_s).sort
     statsd_classes = classes.select { |k| k.constantize.constants.include? (:STATSD_KEY_PREFIX) }
+    # add_metric_to_stats_roster( statsd_classes )
     # TODO make sure the with_monitoring part is handled
   end
 end
