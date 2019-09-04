@@ -65,12 +65,12 @@ module Facilities
           'hours' => BaseFacility::HOURS_STANDARD_MAP,
           'access' => { 'health' => method(:wait_time_data) },
           'feedback' => { 'health' => method(:satisfaction_data) },
-          'services' => services_map,
+          'services' => health_services_map,
           'mapped_fields' => mapped_fields_list
         }
       end
 
-      def services_map
+      def health_services_map
         {
           'Audiology' => [],
           'ComplementaryAlternativeMed' => [],

@@ -29,9 +29,9 @@ module Common
             facility.merge!(make_direct_mappings(location, mapping))
             facility.merge!(make_complex_mappings(location, mapping))
             facility.merge!(make_address_mappings(location, mapping))
-            facility.merge!(make_benefits_mappings(location, mapping, facility['unique_id'])) if mapping['benefits']
+            facility.merge!(map_benefits_services(location, mapping, facility['unique_id'])) if mapping['benefits']
             facility.merge!(make_hours_mappings(location, mapping))
-            facility.merge!(make_service_mappings(location, mapping, facility['unique_id'])) if mapping['services']
+            facility.merge!(map_health_services(location, mapping, facility['unique_id'])) if mapping['services']
             facility
           end
 
@@ -54,7 +54,7 @@ module Common
             { 'address' => attributes }
           end
 
-          def make_benefits_mappings(location, mapping, id)
+          def map_benefits_services(location, mapping, id)
             attributes = {}
             attributes['benefits'] = {
               'standard' => clean_benefits(complex_mapping(mapping['benefits'], location['attributes'])),
@@ -77,7 +77,7 @@ module Common
             attributes
           end
 
-          def make_service_mappings(location, mapping, id)
+          def map_health_services(location, mapping, id)
             attributes = {}
             attributes['last_updated'] = services_date(location['attributes'])
             attributes['health'] = services_from_gis(mapping['services'], location['attributes'], id)
