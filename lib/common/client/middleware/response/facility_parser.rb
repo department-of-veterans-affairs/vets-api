@@ -14,7 +14,9 @@ module Common
           private
 
           def parse_body(env)
-            path_part = env.url.path.match(%r(\/([\w]{3}_(Facilities|VetCenters))\/))[1]
+            path_test = env.url.path.match(%r(\/([\w]{3}_(Facilities|VetCenters))\/))
+            path_test = env.url.path.match(/(FacilitySitePoint_\w{3})/) if path_test.nil?
+            path_part = path_test[1]
             facility_map = facility_klass(path_part).attribute_map
             env.body['features'].map { |location_data| build_facility_attributes(location_data, facility_map) }
           end
@@ -27,9 +29,9 @@ module Common
             facility.merge!(make_direct_mappings(location, mapping))
             facility.merge!(make_complex_mappings(location, mapping))
             facility.merge!(make_address_mappings(location, mapping))
-            facility.merge!(make_benefits_mappings(location, mapping, facility['unique_id'])) if mapping['benefits']
+            facility.merge!(map_benefits_services(location, mapping, facility['unique_id'])) if mapping['benefits']
             facility.merge!(make_hours_mappings(location, mapping))
-            facility.merge!(make_service_mappings(location, mapping)) if mapping['services']
+            facility.merge!(map_health_services(location, mapping, facility['unique_id'])) if mapping['services']
             facility
           end
 
@@ -52,7 +54,7 @@ module Common
             { 'address' => attributes }
           end
 
-          def make_benefits_mappings(location, mapping, id)
+          def map_benefits_services(location, mapping, id)
             attributes = {}
             attributes['benefits'] = {
               'standard' => clean_benefits(complex_mapping(mapping['benefits'], location['attributes'])),
@@ -75,10 +77,10 @@ module Common
             attributes
           end
 
-          def make_service_mappings(location, mapping)
+          def map_health_services(location, mapping, id)
             attributes = {}
             attributes['last_updated'] = services_date(location['attributes'])
-            attributes['health'] = services_from_gis(mapping['services'], location['attributes'])
+            attributes['health'] = services_from_gis(mapping['services'], location['attributes'], id)
             attributes['other'] = other_services(location['attributes'])
             { 'services' => attributes }
           end
@@ -99,10 +101,14 @@ module Common
           end
 
           def services_date(attrs)
-            Date.strptime(attrs['FacilityDataDate'], '%m-%d-%Y').iso8601 if attrs['FacilityDataDate']
+            # Field for facilities coming from ArcGIS in string format
+            return Date.strptime(attrs['FacilityDataDate'], '%m-%d-%Y').iso8601 if attrs['FacilityDataDate']
+
+            # Field for facilities coming from gis.va.gov in unix timestamp
+            Time.at((attrs['LASTUPDATE'] / 1000)).utc.strftime('%Y-%m-%d') if attrs['LASTUPDATE']
           end
 
-          def services_from_gis(service_map, attrs)
+          def services_from_gis(service_map, attrs, id)
             return unless service_map
             services = service_map.each_with_object([]) do |(k, v), l|
               next unless attrs[k] == BaseFacility::YES && BaseFacility::APPROVED_SERVICES.include?(k)
@@ -112,7 +118,7 @@ module Common
               end
               l << { 'sl1' => [k], 'sl2' => sl2 }
             end
-            services.concat(services_from_wait_time_data(attrs['StationNumber'].upcase))
+            services.concat(services_from_wait_time_data(id.upcase))
           end
 
           def other_services(attrs)

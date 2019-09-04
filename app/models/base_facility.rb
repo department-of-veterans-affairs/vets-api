@@ -116,7 +116,7 @@ class BaseFacility < ApplicationRecord
   PATHMAP = { 'NCA_Facilities' => Facilities::NCAFacility,
               'VBA_Facilities' => Facilities::VBAFacility,
               'VHA_VetCenters' => Facilities::VCFacility,
-              'VHA_Facilities' => Facilities::VHAFacility }.freeze
+              'FacilitySitePoint_VHA' => Facilities::VHAFacility }.freeze
 
   def facility_type_prefix
     PREFIX_MAP[facility_type]

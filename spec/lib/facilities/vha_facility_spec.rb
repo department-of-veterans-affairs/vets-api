@@ -43,7 +43,7 @@ module Facilities
             expect(facility.address['physical']).to eq('address_1' => '1501 Roxas Boulevard',
                                                        'address_2' => 'NOX3 Seafront Compound',
                                                        'address_3' => nil, 'city' => 'Pasay City',
-                                                       'state' => 'PI', 'zip' => '01302')
+                                                       'state' => 'PH', 'zip' => '01302')
           end
         end
 
@@ -93,7 +93,7 @@ module Facilities
               f2_health = f2_services['health']
 
               expect(f1_services.keys).to match(%w[last_updated health other])
-              expect(f1_services['last_updated']).to eq('2018-02-09')
+              expect(f1_services['last_updated']).to eq('2019-07-09')
               expect(f1_health.size).to eq(2)
               expect(f1_health.first.keys).to eq(%w[sl1 sl2])
               expect(f1_health.first.values).to eq([['PrimaryCare'], []])
@@ -102,15 +102,15 @@ module Facilities
               expect(f1_services['other']).to be_empty
 
               expect(f2_services.keys).to match(%w[last_updated health other])
-              expect(f2_services['last_updated']).to eq('2018-02-09')
-              expect(f2_health.size).to eq(3)
+              expect(f2_services['last_updated']).to eq('2019-07-09')
+              expect(f2_health.size).to eq(2)
+              # expect(f2_health.size).to eq(3)
               expect(f2_health.first.keys).to eq(%w[sl1 sl2])
-              expect(f2_health.first.values).to eq([['DentalServices'], []])
               expect(f2_health.second.keys).to eq(%w[sl1 sl2])
-              expect(f2_health.second.values).to eq([['PrimaryCare'], []])
-              expect(f2_health.third.keys).to eq(%w[sl1 sl2])
-              expect(f2_health.third.values).to eq([['MentalHealthCare'], []])
-              expect(f2_services['other']).to eq(['Online Scheduling'])
+              expect(f2_health.first.values).to eq([['PrimaryCare'], []])
+              expect(f2_health.second.values).to eq([['MentalHealthCare'], []])
+              # expect(f2_health.third.keys).to eq(%w[sl1 sl2])
+              # expect(f2_health.third.values).to eq([['DentalServices'], []])
             end
           end
         end
