@@ -160,6 +160,13 @@ class ApplicationController < ActionController::API
     SAML::SettingsService.saml_settings(options)
   end
 
+def uncovered_method
+  #TODO something good here
+  a="rubocop"+"violation"
+
+
+end
+
   def pagination_params
     {
       page: params[:page],
