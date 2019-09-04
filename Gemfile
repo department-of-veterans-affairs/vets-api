@@ -3,6 +3,7 @@
 source 'https://rubygems.org'
 
 # Modules
+gem 'vaos', path: 'modules/vaos'
 gem 'appeals_api', path: 'modules/appeals_api'
 gem 'claims_api', path: 'modules/claims_api'
 gem 'openid_auth', path: 'modules/openid_auth'

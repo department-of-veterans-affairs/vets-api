@@ -8,6 +8,7 @@ ActiveSupport::Inflector.inflections do |inflect|
   inflect.acronym 'GI'
   inflect.acronym 'IHub'
   inflect.acronym 'PPIU'
+  inflect.acronym 'VAOS'
   inflect.acronym 'VBA'
   inflect.acronym 'VIC'
   inflect.acronym 'PagerDuty'

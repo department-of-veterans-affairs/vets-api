@@ -73,6 +73,12 @@ PATH
       rails (~> 5.2.3)
 
 PATH
+  remote: modules/vaos
+  specs:
+    vaos (0.1.0)
+      rails (~> 5.2.3)
+
+PATH
   remote: modules/vba_documents
   specs:
     vba_documents (0.0.1)
@@ -81,15 +87,15 @@ PATH
       sidekiq
 
 PATH
-  remote: modules/veteran
-  specs:
-    veteran (0.0.1)
-      rails (~> 5.2.3)
-
-PATH
   remote: modules/veteran_verification
   specs:
     veteran_verification (0.0.1)
+      rails (~> 5.2.3)
+
+PATH
+  remote: modules/veteran
+  specs:
+    veteran (0.0.1)
       rails (~> 5.2.3)
 
 GEM
@@ -779,6 +785,7 @@ DEPENDENCIES
   upsert
   utf8-cleaner
   va_facilities!
+  vaos!
   vba_documents!
   vcr
   veteran!
