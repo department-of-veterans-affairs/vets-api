@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require 'json'
-
 require_dependency 'openid_auth/application_controller'
 
 module OpenidAuth
@@ -25,8 +23,7 @@ module OpenidAuth
 
       def fetch_mvi_profile(user_attributes)    
         user_identity = OpenidUserIdentity.new(
-          uuid: user_attributes[:idp_uuid],
-          mhv_icn: user_attributes[:mhv_icn],
+          mhv_icn: user_attributes[:mhv_icn]
         )
 
         mvi_response = MVI::Service.new.find_profile(user_identity)
