@@ -31,6 +31,8 @@ class StatsDCensusJob
   end
   
   def add_metric_to_stats_roster tag
+    #todo set the expire time/TTL for each tag in the set
+    # r.expire("key", seconds)
     Redis.current.sadd(STATS_ROSTER_SET, tag)
   end
 
