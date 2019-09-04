@@ -12,7 +12,7 @@ module Facilities
     end
 
     describe 'pull_source_data' do
-      it 'should pull data from ArcGIS endpoint' do
+      it 'should pull data from a GIS endpoint' do
         VCR.use_cassette('facilities/va/vha_facilities_limit_results') do
           list = VHAFacility.pull_source_data
           expect(list.size).to eq(4)
@@ -56,6 +56,12 @@ module Facilities
         it 'should include zip +4 when available' do
           VCR.use_cassette('facilities/va/vha_facilities_limit_results') do
             expect(facility_2.address['physical']['zip']).to eq('04330-6796')
+          end
+        end
+
+        it 'should include websites for facilities' do
+          VCR.use_cassette('facilities/va/vha_facilities_limit_results') do
+            expect(facility_2.website).to eq('http://www.maine.va.gov/')
           end
         end
 

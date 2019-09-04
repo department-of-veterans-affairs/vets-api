@@ -10,7 +10,16 @@ module Facilities
         sort_field = 'Sta_No'
         metadata = Facilities::GisMetadataClient.new.get_metadata(gis_type)
         max_record_count = metadata['maxRecordCount']
-        Facilities::GisClient.new.get_all_facilities(gis_type, sort_field, max_record_count).map(&method(:new))
+        resp = Facilities::GisClient.new.get_all_facilities(gis_type, sort_field, max_record_count).map(&method(:new))
+        add_websites(resp)
+      end
+
+      def add_websites(facilities)
+        service = Facilities::WebsiteUrlService.new
+        facilities.map do |fac|
+          fac.website = service.find_for_station(fac.unique_id, fac.facility_type)
+          fac
+        end
       end
 
       def service_list
