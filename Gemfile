@@ -76,6 +76,7 @@ gem 'pundit'
 gem 'rack-attack'
 gem 'rack-cors', require: 'rack/cors'
 gem 'rails_semantic_logger', '~> 4.4'
+gem 'rails-session_cookie' # because request and integration specs dont allow for setting session cookie easily
 gem 'redis'
 gem 'redis-namespace'
 gem 'restforce'
@@ -119,7 +120,6 @@ group :test do
   gem 'faker-medical'
   gem 'fakeredis'
   gem 'pdf-inspector'
-  gem 'rails-session_cookie' # because request and integration specs dont allow for setting session cookie easily
   gem 'rspec_junit_formatter'
   gem 'rubocop-junit-formatter'
   gem 'shrine-memory'
