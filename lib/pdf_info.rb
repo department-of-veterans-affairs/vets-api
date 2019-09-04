@@ -42,7 +42,29 @@ module PdfInfo
       self['Pages'].to_i
     end
 
+    def page_size
+      page_size_str = self['Page size']
+      height = page_size_str.split('x')[0].strip.to_i
+      width = page_size_str.split('x')[1].strip.split(' ')[0].to_i
+      {
+        height: height,
+        width: width
+      }
+    end
+
+    def page_size_inches
+      in_pts = page_size
+      {
+        height: convert_pts_to_inches(in_pts[:height]),
+        width: convert_pts_to_inches(in_pts[:width])
+      }
+    end
+
     private
+
+    def convert_pts_to_inches(dimension)
+      dimension / 72.0
+    end
 
     def init_error
       raise PdfInfo::MetadataReadError.new(@exit_status.exitstatus, @stdout.join('\n'))

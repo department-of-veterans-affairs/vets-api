@@ -393,7 +393,7 @@ GEM
       net-ssh (>= 2.6.5)
     net-ssh (4.1.0)
     nio4r (2.3.1)
-    nokogiri (1.10.3)
+    nokogiri (1.10.4)
       mini_portile2 (~> 2.4.0)
     nori (2.6.0)
     notiffany (0.0.8)
@@ -719,7 +719,7 @@ DEPENDENCIES
   memoist
   mini_magick (~> 4.9.4)
   net-sftp
-  nokogiri (~> 1.10, >= 1.10.3)
+  nokogiri (~> 1.10, >= 1.10.4)
   octokit
   oj
   olive_branch

@@ -14,7 +14,6 @@ RSpec.describe EVSS::RetrieveClaimsFromRemoteJob, type: :job do
   describe '#perform' do
     before do
       tracker.set_collection_status('REQUESTED')
-      expect(Sentry::TagRainbows).to receive(:tag)
       expect(tracker.get_collection_status).to eq('REQUESTED')
     end
 

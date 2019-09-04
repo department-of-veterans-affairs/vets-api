@@ -16,7 +16,7 @@ module Common
             if BaseFacility.validate_on_load
               path_part = env.url.path.match(%r(\/([\w]{3}_(Facilities|VetCenters))\/))[1]
 
-              facility_map = BaseFacility::PATHMAP[path_part]
+              facility_map = facility_klass(path_part).attribute_map
               validate(json_body['features'], facility_map)
             end
             json_body
@@ -47,6 +47,10 @@ module Common
 
           def raise_invalid_error(message)
             raise Common::Client::Errors::ParsingError, "invalid source data: #{message}"
+          end
+
+          def facility_klass(path_part)
+            BaseFacility::PATHMAP[path_part]
           end
         end
       end
