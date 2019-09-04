@@ -3,6 +3,8 @@
 host = Settings.statsd.host
 port = Settings.statsd.port
 
+#Todo: do a redis read here. Redis is maintaining a running list of StatsD metric names that we are incrementing.
+
 StatsD.backend = if host.present? && port.present?
                    StatsD::Instrument::Backends::UDPBackend.new("#{host}:#{port}", :datadog)
                  else
