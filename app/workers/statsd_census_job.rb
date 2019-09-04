@@ -3,7 +3,7 @@
 ##
 # This job should be scheduled to run every 30m or so. Its purpose is to ensure all StatsD.increment metrics are
 # initialized with a StatsD.increment(stat_key, 0) so they can properly be captured by Grafana#
-class StatsDCensusJob
+class StatsdCensusJob
   KNOWN_STATSD_TAGS = [].freeze
   STATS_ROSTER_SET = "incremented_metrics"
 

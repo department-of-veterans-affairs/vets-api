@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe StatsDMetricInitializerJob do
+RSpec.describe StatsdCensusJob do
   xit 'should be run on a schedule' do
     # probably start at 30m
     # this will be frequent enough to catch any asg events
