@@ -44,10 +44,13 @@ class StatsdCensusJob
     statsd_classes = classes.select { |k| k.constantize.constants.include? (:STATSD_KEY_PREFIX) }
     # add_metric_to_stats_roster( statsd_classes )
     # TODO make sure the with_monitoring part is handled
+    #Todo update TTL for existing keys update_ttl_for_existing_keys
   end
   
   def update_ttl_for_existing_keys
+    all_keys = Redis.current.smembers(STATS_ROSTER_SET)
     #todo -- Refresh the `TTL` of already-existing entries
+    #we may need to use an ordered set here because you can't set TTL on members of a plain SET
   end
   
 end
