@@ -26,7 +26,8 @@ module Appeals
       private
 
       def json_format_is_valid?(body)
-        JSON::Validator.validate!('lib/appeals/schema/appeals.json', body, strict: false)
+        schema_path = Rails.root.join('lib', 'appeals', 'schema', 'appeals.json').to_s
+        JSON::Validator.validate!(schema_path, body, strict: false)
       end
     end
   end

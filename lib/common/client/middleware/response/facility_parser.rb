@@ -15,7 +15,7 @@ module Common
 
           def parse_body(env)
             path_part = env.url.path.match(%r(\/([\w]{3}_(Facilities|VetCenters))\/))[1]
-            facility_map = BaseFacility::PATHMAP[path_part]
+            facility_map = facility_klass(path_part).attribute_map
             env.body['features'].map { |location_data| build_facility_attributes(location_data, facility_map) }
           end
 
@@ -131,6 +131,10 @@ module Common
               services << { 'sl1' => [service.camelize], 'sl2' => [] } if metric_keys.include?(service)
             end
             services
+          end
+
+          def facility_klass(path_part)
+            BaseFacility::PATHMAP[path_part]
           end
         end
       end

@@ -1,0 +1,32 @@
+<div class="card">
+  <h4 class="card-header">Features</h4>
+  <table class="table">
+    <thead>
+      <tr class="d-flex">
+        <th class="col-1">
+          <span class="octicon octicon-squirrel"></span>
+        </th>
+        <th class="col">Feature</th>
+        <th class="col">Enabled Gates</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @features.each do |feature| %>
+        <tr class="d-flex">
+          <td class="col-1">
+            <span class="octicon octicon-squirrel <%= feature.color_class %>"><br/><%= feature.state %></span>
+          </td>
+          <td class="col">
+            <a href="<%= "#{script_name}/features/#{feature.key}" %>">
+              <%= feature.key %></a>
+              <br>
+              <div><%= yaml_features.dig(feature.key,'description') %></div>
+          </td>
+          <td class="col">
+            <%= feature.pretty_enabled_gate_names %>
+          </td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+</div>
