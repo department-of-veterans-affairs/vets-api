@@ -45,4 +45,9 @@ class StatsdCensusJob
     # add_metric_to_stats_roster( statsd_classes )
     # TODO make sure the with_monitoring part is handled
   end
+  
+  def update_ttl_for_existing_keys
+    #todo -- Refresh the `TTL` of already-existing entries
+  end
+  
 end
