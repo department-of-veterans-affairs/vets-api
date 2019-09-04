@@ -11,8 +11,6 @@ Rails.application.routes.draw do
       to: 'v0/sessions#new',
       constraints: ->(request) { V0::SessionsController::REDIRECT_URLS.include?(request.path_parameters[:type]) }
 
-  post '/auth/okta', to: 'okta#okta_callback'
-
   namespace :v0, defaults: { format: 'json' } do
     resources :appointments, only: :index
     resources :in_progress_forms, only: %i[index show update destroy]
@@ -264,7 +262,6 @@ Rails.application.routes.draw do
   end
 
   root 'v0/example#index', module: 'v0'
-  # root 'oktacontroller' or something similar for the hook to hit this
 
   scope '/internal' do
     mount OpenidAuth::Engine, at: '/auth'
