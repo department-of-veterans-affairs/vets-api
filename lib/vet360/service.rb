@@ -11,6 +11,8 @@ module Vet360
     end
 
     def perform(method, path, body = nil, headers = {})
+      log_dates(body)
+
       Vet360::Stats.increment('total_operations')
       config.base_request_headers.merge(headers)
       response = super(method, path, body, headers)
@@ -23,6 +25,16 @@ module Vet360
     end
 
     private
+
+    def log_dates(body)
+      parsed_body = JSON.parse(body)
+
+      Raven.extra_context(
+        request_dates: parsed_body['bio'].slice('effectiveStartDate', 'effectiveEndDate', 'sourceDate')
+      )
+    rescue StandardError
+      nil
+    end
 
     def handle_error(error)
       case error

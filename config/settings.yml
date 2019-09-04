@@ -13,6 +13,15 @@ saml:
   callback_url: http://localhost:3000/auth/saml/callback
   metadata_url: https://api.idmelabs.com/saml/metadata/provider
 
+# Settings for new SAML authentication with SSOe
+saml_ssoe:
+  idp_metadata_file: /fake/path/to/metadata
+  cert_path: config/certs/vetsgov-localhost.crt
+  cert_new_path: ~
+  key_path: config/certs/vetsgov-localhost.key
+  issuer: https://ssoe-sp-dev.va.gov
+  callback_url: http://localhost:3000/v1/sessions/callback
+
 session_cookie:
   secure: false
 
@@ -35,6 +44,7 @@ binaries:
 db_encryption_key: f01ff8ebd1a2b053ad697ae1f0d86adb
 
 database_url: postgis:///vets-api
+test_database_url: postgis:///vets-api-test
 
 relative_url_root: /
 
@@ -117,6 +127,8 @@ evss:
   letters:
     url: https://csraciapp6.evss.srarad.com
     timeout: 55
+  ppiu:
+    timeout: 30
   pciu:
     timeout: 30
   pciu_address:
@@ -374,3 +386,7 @@ search:
 bing:
   base_api_url: 'https://dev.virtualearth.net/REST/v1/Routes'
   key: fake_key
+
+flipper:
+  username: SUPER_SECRET_USERNAME
+  password: SUPER_SECRET_PASSWORD

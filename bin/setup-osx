@@ -85,7 +85,7 @@ fi
 
 brew services start postgresql
 
-if postgis_installed(); then
+if postgis_installed ; then
     echo "${GREEN} * postgis already installed.${REST}"
 else
     echo "${RED} * Installing postgis. ${RESET}"

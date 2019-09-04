@@ -45,7 +45,7 @@ module Veteran
         doc.xpath('//table/tr').each do |row|
           tarray = []
           row.xpath('td').each do |cell|
-            tarray << cell.text
+            tarray << cell.text.scrub
           end
           csv << tarray
         end

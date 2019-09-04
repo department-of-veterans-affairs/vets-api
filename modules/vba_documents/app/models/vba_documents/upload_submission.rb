@@ -9,15 +9,9 @@ module VBADocuments
 
     IN_FLIGHT_STATUSES = %w[received processing success].freeze
 
-    after_save :report_errors
+    scope :in_flight, -> { where(status: IN_FLIGHT_STATUSES) }
 
-    def self.refresh_and_get_statuses!(guids)
-      submissions = where(guid: guids)
-      in_flights = submissions.select { |sub| sub.send(:status_in_flight?) }
-      refresh_statuses!(in_flights)
-      missing = guids - submissions.map(&:guid)
-      submissions.to_a + missing.map { |id| fake_status(id) }
-    end
+    after_save :report_errors
 
     def self.fake_status(guid)
       empty_submission = OpenStruct.new(guid: guid,

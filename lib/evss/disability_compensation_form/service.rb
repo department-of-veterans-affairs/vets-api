@@ -58,8 +58,7 @@ module EVSS
         with_monitoring_and_error_handling do
           headers = { 'Content-Type' => 'application/json' }
           options = { timeout: Settings.evss.disability_compensation_form.submit_timeout || 355 }
-          raw_response = perform(:post, 'validate', form_content, headers, options)
-          FormSubmitResponse.new(raw_response.status, raw_response)
+          perform(:post, 'validate', form_content, headers, options)
         end
       end
 
