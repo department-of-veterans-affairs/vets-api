@@ -118,7 +118,8 @@ module Common
               end
               l << { 'sl1' => [k], 'sl2' => sl2 }
             end
-            services.concat(services_from_wait_time_data(id.upcase))
+            services_before_dental = services.concat(services_from_wait_time_data(id.upcase))
+            services_before_dental.concat(dental_services(id.upcase))
           end
 
           def other_services(attrs)
@@ -136,6 +137,15 @@ module Common
             Facilities::AccessDataDownload::WT_KEY_MAP.each_value do |service|
               services << { 'sl1' => [service.camelize], 'sl2' => [] } if metric_keys.include?(service)
             end
+            services
+          end
+
+          def dental_services(facility_id)
+            services = []
+            if FacilityDentalService.exists?(facility_id)
+              services << { 'sl1' => ['DentalServices'], 'sl2' => [] }
+            end
+
             services
           end
 
