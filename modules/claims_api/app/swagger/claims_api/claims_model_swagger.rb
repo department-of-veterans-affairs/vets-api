@@ -15,7 +15,7 @@ module ClaimsApi
 
       property :type do
         key :type, :string
-        key :example, 'evss_claims'
+        key :example, 'claims_api_claims'
         key :description, 'Required by JSON API standard'
       end
 
