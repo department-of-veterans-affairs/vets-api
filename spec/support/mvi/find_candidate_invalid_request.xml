@@ -5,7 +5,7 @@
     <idm:PRPA_IN201305UV02 xmlns:idm="http://vaww.oed.oit.va.gov" xmlns:xsi="http://www.w3.org/2001/XMLSchema‐instance" xsi:schemaLocation="urn:hl7‐org:v3 ../../schema/HL7V3/NE2008/multicacheschemas/PRPA_IN201305UV02.xsd" xmlns="urn:hl7‐org:v3" ITSVersion="XML_1.0">
       <id root="1.2.840.114350.1.13.0.1.7.1.1" extension="200VGOV-2c3c0c78-5e44-4ad2-b542-11388c3e45cd"/>
       <creationTime value="20161027055921"/>
-      <versionCode code="3.0"/>
+      <versionCode code="4.1"/>
       <interactionId root="2.16.840.1.113883.1.6" extension="PRPA_IN201305UV02"/>
       <processingCode code="T"/>
       <processingModeCode code="T"/>
