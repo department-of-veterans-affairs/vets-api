@@ -80,7 +80,7 @@ module Common
           def map_health_services(location, mapping, id)
             attributes = {}
             attributes['last_updated'] = services_date(location['attributes'])
-            attributes['health'] = services_from_gis(mapping['services'], location['attributes'], id)
+            attributes['health'] = collect_health_services(id)
             attributes['other'] = other_services(location['attributes'])
             { 'services' => attributes }
           end
@@ -108,18 +108,13 @@ module Common
             Time.at((attrs['LASTUPDATE'] / 1000)).utc.strftime('%Y-%m-%d') if attrs['LASTUPDATE']
           end
 
-          def services_from_gis(service_map, attrs, id)
-            return unless service_map
-            services = service_map.each_with_object([]) do |(k, v), l|
-              next unless attrs[k] == BaseFacility::YES && BaseFacility::APPROVED_SERVICES.include?(k)
-              sl2 = []
-              v.each do |sk|
-                sl2 << sk if attrs[sk] == BaseFacility::YES && BaseFacility::APPROVED_SERVICES.include?(sk)
-              end
-              l << { 'sl1' => [k], 'sl2' => sl2 }
-            end
-            services_before_dental = services.concat(services_from_wait_time_data(id.upcase))
-            services_before_dental.concat(dental_services(id.upcase))
+          def collect_health_services(id)
+            services = []
+
+            services << services_from_wait_time_data(id.upcase)
+            services << dental_services(id.upcase)
+
+            services.flatten
           end
 
           def other_services(attrs)
