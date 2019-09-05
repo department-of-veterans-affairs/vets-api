@@ -5,9 +5,10 @@ module VAOS
     configuration VAOS::Configuration
 
     def get_appointments(user)
-      start_date = Time.now.utc.beginning_of_day + 7.hours
-      end_date = start_date + 4.months + 1.hours
-      url = "/appointments/v1/patients/#{user.icn}/appointments?startDate=#{format_date(start_date)}&endDate=#{format_date(end_date)}&useCache=false&pageSize=0"
+      start_date = (Time.now.utc.beginning_of_day + 7.hours).strftime('%Y-%m-%dT%TZ')
+      end_date = (Time.now.utc.beginning_of_day + 8.hours + 4.months).strftime('%Y-%m-%dT%TZ')
+      url = "/appointments/v1/patients/#{user.icn}/appointments"\
+              "?startDate=#{start_date}&endDate=#{end_date}&useCache=false&pageSize=0"
       response = perform(:get, url, {})
       response.body.deep_symbolize_keys![:data].map { |appointment| VAOS::Appointment.new(appointment) }
     end
@@ -15,7 +16,7 @@ module VAOS
     private
 
     def format_date(date)
-      date.strftime("%Y-%m-%dT%TZ")
+      date
     end
   end
 end

@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require_relative '../../../../app/services/vaos/appointment_service'
 
 module VAOS

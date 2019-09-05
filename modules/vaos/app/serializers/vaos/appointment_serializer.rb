@@ -7,13 +7,13 @@ module VAOS
     include FastJsonapi::ObjectSerializer
 
     attributes :facility_id,
-      :facility,
-      :date_time,
-      :reason,
-      :type,
-      :contact_number,
-      :preferred_contact_time,
-      :status,
-      :pact_team
+               :facility,
+               :date_time,
+               :reason,
+               :type,
+               :contact_number,
+               :preferred_contact_time,
+               :status,
+               :pact_team
   end
 end
