@@ -4,11 +4,11 @@ require_relative '../../../../app/services/vaos/appointment_service'
 module VAOS
   module V0
     class VAOSController < ApplicationController
-      skip_before_action :authenticate
+      before_action { authorize :vaos, :access? }
 
       def get_appointments
-        appointments = appointment_service.get_appointments(@current_user)
-        render json: AppointmentSerializer.new(appointments).serialized_json
+        response = appointment_service.get_appointments(@current_user)
+        render json: VAOS::AppointmentSerializer.new(response)
       end
 
       private

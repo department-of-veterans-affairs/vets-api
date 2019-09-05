@@ -18,6 +18,7 @@ module VAOS
         faraday.request :json
 
         faraday.response :betamocks if mock_enabled?
+        faraday.response :snakecase
         faraday.response :json, content_type: /\bjson$/
         faraday.adapter Faraday.default_adapter
       end
