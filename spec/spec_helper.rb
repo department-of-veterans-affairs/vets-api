@@ -18,7 +18,6 @@ require 'support/vet360/stub_vet360'
 require 'support/okta_users_helpers'
 require 'support/poa_stub'
 require 'pundit/rspec'
-require 'test_prof/recipes/rspec/let_it_be'
 
 # By default run SimpleCov, but allow an environment variable to disable.
 unless ENV['NOCOVERAGE']

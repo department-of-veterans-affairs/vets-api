@@ -151,7 +151,6 @@ group :development, :test do
   gem 'rspec-rails', '~> 3.5'
   gem 'rubocop', '~> 0.52.1', require: false
   gem 'sidekiq', '~> 4.2'
-  gem 'test-prof'
   gem 'timecop'
   gem 'webmock'
   gem 'yard'
