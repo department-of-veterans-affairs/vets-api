@@ -1,57 +1,60 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<env:Envelope xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:xsd="http://www.w3.org/2001/XMLSchema"
-              xmlns:env="http://schemas.xmlsoap.org/soap/envelope/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-  <env:Header/>
-  <env:Body>
-    <idm:PRPA_IN201306UV02 xmlns="urn:hl7-org:v3" xmlns:idm="http://vaww.oed.oit.va.gov" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-                           ITSVersion="XML_1.0" xsi:schemaLocation="urn:hl7-org:v3 ../../schema/HL7V3/NE2008/multicacheschemas/PRPA_IN201306UV02.xsd">
-      <id extension="WSDOC1609141952113042117776554" root="2.16.840.1.113883.4.349"/>
-      <creationTime value="20160914195211"/>
-      <versionCode code="3.0"/>
-      <interactionId extension="PRPA_IN201306UV02" root="2.16.840.1.113883.1.6"/>
-      <processingCode code="T"/>
-      <processingModeCode code="T"/>
-      <acceptAckCode code="NE"/>
-      <receiver typeCode="RCV">
-        <device determinerCode="INSTANCE" classCode="DEV">
-          <id extension="200V" root="2.16.840.1.113883.4.349"/>
-        </device>
-      </receiver>
-      <sender typeCode="SND">
-        <device determinerCode="INSTANCE" classCode="DEV">
-          <id extension="200M" root="2.16.840.1.113883.4.349"/>
-        </device>
-      </sender>
-      <acknowledgement>
-        <typeCode code="AE"/>
-        <targetMessage>
-          <id extension="MCID-12345" root="1.2.840.114350.1.13.0.1.7.1.1"/>
-        </targetMessage>
-        <acknowledgementDetail>
-          <code codeSystem="2.16.840.1.113883.1.11.19640" code="NS260" displayName="Unknown sender"/>
-          <text>Invalid MVI Registration Identification</text>
-        </acknowledgementDetail>
-        <acknowledgementDetail>
-          <text>Invalid MVI Registration Identification</text>
-        </acknowledgementDetail>
-      </acknowledgement>
-      <controlActProcess classCode="CACT" moodCode="EVN">
-        <code codeSystem="2.16.840.1.113883.1.6" code="PRPA_TE201306UV02"/>
-        <queryAck>
-          <queryId extension="18204" root="1.2.840.114350.1.13.28.1.18.5.999"/>
-          <queryResponseCode code="AE"/>
-          <resultCurrentQuantity value="0"/>
-        </queryAck>
-        <queryByParameter>
-          <queryId extension="18204" root="1.2.840.114350.1.13.28.1.18.5.999"/>
-          <statusCode code="new"/>
-          <modifyCode code="MVI.COMP1"/>
-          <initialQuantity value="1"/>
-          <parameterList>
-            <id extension="1001169715V310932^USA" root="2.16.840.1.113883.4.349"/>
-          </parameterList>
-        </queryByParameter>
-      </controlActProcess>
-    </idm:PRPA_IN201306UV02>
-  </env:Body>
+<env:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+    xmlns:env="http://schemas.xmlsoap.org/soap/envelope/" 
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema" 
+    xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/">
+    <env:Header/>
+    <env:Body>
+        <idm:PRPA_IN201306UV02 ITSVersion="XML_1.0" xsi:schemaLocation="urn:hl7-org:v3 ../../schema/HL7V3/NE2008/multicacheschemas/PRPA_IN201306UV02.xsd" 
+            xmlns:idm="http://vaww.oed.oit.va.gov" 
+            xmlns="urn:hl7-org:v3">
+            <id extension="WSDOC1908301530209980941425960" root="2.16.840.1.113883.4.349"/>
+            <creationTime value="20190830153021"/>
+            <versionCode code="4.1"/>
+            <interactionId extension="PRPA_IN201306UV02" root="2.16.840.1.113883.1.6"/>
+            <processingCode code="T"/>
+            <processingModeCode code="T"/>
+            <acceptAckCode code="NE"/>
+            <receiver typeCode="RCV">
+                <device determinerCode="INSTANCE" classCode="DEV">
+                    <id extension="200V" root="2.16.840.1.113883.4.349"/>
+                </device>
+            </receiver>
+            <sender typeCode="SND">
+                <device determinerCode="INSTANCE" classCode="DEV">
+                    <id extension="200M" root="2.16.840.1.113883.4.349"/>
+                </device>
+            </sender>
+            <acknowledgement>
+                <typeCode code="AE"/>
+                <targetMessage>
+                    <id extension="200VGOV-4af4734a-26fd-4f35-9e97-3439b87665c4" root="1.2.840.114350.1.13.0.1.7.1.1"/>
+                </targetMessage>
+                <acknowledgementDetail>
+                    <code codeSystem="2.16.840.1.113883.1.11.19640" code="NS260" displayName="Unknown sender"/>
+                    <text>Invalid MVI Registration Identification</text>
+                </acknowledgementDetail>
+                <acknowledgementDetail>
+                    <text>Invalid MVI Registration Identification</text>
+                </acknowledgementDetail>
+            </acknowledgement>
+            <controlActProcess classCode="CACT" moodCode="EVN">
+                <code codeSystem="2.16.840.1.113883.1.6" code="PRPA_TE201306UV02"/>
+                <queryAck>
+                    <queryId extension="18204" root="1.2.840.114350.1.13.28.1.18.5.999"/>
+                    <queryResponseCode code="AE"/>
+                    <resultCurrentQuantity value="0"/>
+                </queryAck>
+                <queryByParameter>
+                    <queryId extension="18204" root="1.2.840.114350.1.13.28.1.18.5.999"/>
+                    <statusCode code="new"/>
+                    <modifyCode code="MVI.COMP2"/>
+                    <initialQuantity value="1"/>
+                    <parameterList>
+                        <id extension="1001169715V310932^USA" root="2.16.840.1.113883.4.349"/>
+                    </parameterList>
+                </queryByParameter>
+            </controlActProcess>
+        </idm:PRPA_IN201306UV02>
+    </env:Body>
 </env:Envelope>
