@@ -19,6 +19,6 @@ RSpec.describe EducationBenefitsClaimSerializer, type: :serializer do
   end
 
   it "shouldn't include any extra attributes" do
-    expect(attributes.keys).to eq(%w[form regional_office confirmation_number])
+    expect(attributes.keys).to eq(%w[form regional_office confirmation_number form_type])
   end
 end
