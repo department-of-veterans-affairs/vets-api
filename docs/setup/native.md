@@ -59,7 +59,7 @@ the `vets-api` directory, run `./bin/setup-osx && source ~/.bash_profile && cd
     - `echo "DatabaseMirror database.clamav.net" > freshclam.conf`
     - `freshclam -v`
 1. Install [pdftk](https://www.pdflabs.com/tools/pdftk-the-pdf-toolkit/pdftk_server-2.02-mac_osx-10.11-setup.pkg)
-1. Install gem dependencies: `cd vets-api; bundle install`
+1. Install gem dependencies: `cd vets-api; bundle install --without production`
 1. Install overcommit `overcommit --install --sign`
 1. Setup localhost certificates / keys:
    - Create certs directory within config:  `mkdir ./config/certs`
