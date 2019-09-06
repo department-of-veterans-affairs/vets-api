@@ -25,6 +25,22 @@ unless ENV['NOCOVERAGE']
 
   SimpleCov.start 'rails' do
     track_files '**/{app,lib}/**/*.rb'
+
+    add_filter 'app/controllers/concerns/accountable.rb'
+    add_filter 'config/initializers/clamscan.rb'
+    add_filter 'lib/config_helper.rb'
+    add_filter 'lib/feature_flipper.rb'
+    add_filter 'lib/gibft/configuration.rb'
+    add_filter 'lib/ihub/appointments/response.rb'
+    add_filter 'lib/salesforce/configuration.rb'
+    add_filter 'lib/search/response.rb'
+    add_filter 'lib/vet360/exceptions/builder.rb'
+    add_filter 'lib/vet360/response.rb'
+    add_filter 'modules/claims_api/app/controllers/claims_api/v0/forms/disability_compensation_controller.rb'
+    add_filter 'modules/claims_api/app/controllers/claims_api/v1/forms/disability_compensation_controller.rb'
+    add_filter 'modules/va_facilities/lib/va_facilities/engine.rb'
+    add_filter 'version.rb'
+
     add_group 'Policies', 'app/policies'
     add_group 'Serializers', 'app/serializers'
     add_group 'Services', 'app/services'
