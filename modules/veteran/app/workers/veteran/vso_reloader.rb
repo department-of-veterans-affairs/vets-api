@@ -13,25 +13,38 @@ module Veteran
     private
 
     def reload_representatives
+      reload_vso_reps + reload_attorneys + reload_claim_agents
+    end
+
+    def reload_vso_reps
       vso_reps = []
       vso_orgs = fetch_data('orgsexcellist.asp').map do |vso_rep|
         find_or_create_vso(vso_rep)
         vso_reps << vso_rep['Registration Num']
-        { poa: vso_rep['POA'], name: vso_rep['Organization Name'], phone: vso_rep['Org Phone'], state: vso_rep['Org State'] }
+        {
+          poa: vso_rep['POA'],
+          name: vso_rep['Organization Name'],
+          phone: vso_rep['Org Phone'],
+          state: vso_rep['Org State']
+        }
       end
       Veteran::Service::Organization.import(vso_orgs, on_duplicate_key_ignore: true)
 
-      attorneys = fetch_data('attorneyexcellist.asp').map do |attorney|
+      vso_reps
+    end
+
+    def reload_attorneys
+      fetch_data('attorneyexcellist.asp').map do |attorney|
         find_or_create_attorneys(attorney)
         attorney['Registration Num']
       end
+    end
 
-      claim_agents = fetch_data('caexcellist.asp').map do |claim_agent|
+    def reload_claim_agents
+      fetch_data('caexcellist.asp').map do |claim_agent|
         find_or_create_claim_agents(claim_agent)
         claim_agent['Registration Num']
       end
-
-      vso_reps + attorneys + claim_agents
     end
 
     def find_or_create_attorneys(attorney)
