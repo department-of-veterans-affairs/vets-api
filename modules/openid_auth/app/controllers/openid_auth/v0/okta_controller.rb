@@ -51,6 +51,7 @@ module OpenidAuth
 
         render json: {
           "commands": [
+            { "mvi_profile": mvi_profile },
             {
               "type": "com.okta.assertion.patch",
               "value": [
