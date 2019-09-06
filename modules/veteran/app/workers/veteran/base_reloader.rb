@@ -22,10 +22,10 @@ module Veteran
     def fetch_data(action)
       page = Faraday.new(url: BASE_URL).post(action, id: 'frmExcelList', name: 'frmExcelList').body
       doc = Nokogiri::HTML(page)
-      headers = doc.xpath('//table/tr').first.children.children.map(&:text)
+      headers = doc.xpath('//table/tr').first.children.map { |child| child.children.text.scrub }
       doc.xpath('//table/tr').map do |line|
-        row = line.children.children.map { |child| child.text.scrub }
-        Hash[headers.zip(row)] unless headers == row
+        row = line.children.map { |child| child.children.text.scrub }
+        Hash[headers.zip(row)].delete_if { |k, _v| k.blank? } unless headers == row
       end.compact.uniq
     end
   end

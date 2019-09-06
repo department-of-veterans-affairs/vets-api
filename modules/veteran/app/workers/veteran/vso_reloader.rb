@@ -13,7 +13,7 @@ module Veteran
     private
 
     def reload_representatives
-      reload_vso_reps + reload_attorneys + reload_claim_agents
+      reload_attorneys + reload_claim_agents + reload_vso_reps
     end
 
     def reload_vso_reps
