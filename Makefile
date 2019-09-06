@@ -14,7 +14,7 @@ bash:
 
 .PHONY: ci
 ci:
-	@$(BASH_TEST) "bin/rails db:setup db:migrate ci"
+	@$(BASH_TEST) "bin/rails parallel:setup ci"
 
 .PHONY: clean
 clean:

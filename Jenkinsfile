@@ -25,7 +25,7 @@ pipeline {
     stage('Run tests') {
       steps {
         withCredentials([string(credentialsId: 'sidekiq-enterprise-license', variable: 'BUNDLE_ENTERPRISE__CONTRIBSYS__COM')]) {
-          withEnv(['RAILS_ENV=test', 'CI=true']) {
+          withEnv(['RAILS_ENV=test', 'CI=true',  'CC_TEST_REPORTER_ID=0c396adc254b0317e2c3a89a1c929fd61270b133c944d3e9c0f13b3937a7ce45']) {
             sh 'make ci'
           }
         }
