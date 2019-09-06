@@ -351,7 +351,7 @@ RSpec.describe FormProfile, type: :model do
     }
   end
 
-  let(:v22_1995s_expected) do
+  let(:v22_1995_s_expected) do
     {
       'veteranAddress' => {
         'street' => street_check[:street],
@@ -774,6 +774,7 @@ RSpec.describe FormProfile, type: :model do
           22-1990N
           22-1990E
           22-1995
+          22-1995S
           22-5490
           22-5495
           40-10007
