@@ -147,6 +147,7 @@ module ClaimsApi
             key :'$ref', :Form0966Output
           end
         end
+
         response :default do
           key :description, 'unexpected error'
           schema do
@@ -167,7 +168,7 @@ module ClaimsApi
       operation :get do
         key :summary, 'Returns last active 0966 Intent to File form submission'
         key :description, 'Returns last active JSON payload. Full URL, including\nquery parameters.'
-        key :operationId, 'post0966itf'
+        key :operationId, 'get0966itf'
         key :tags, [
           'Intent to File'
         ]
@@ -262,6 +263,7 @@ module ClaimsApi
             key :'$ref', :Form0966Output
           end
         end
+
         response :default do
           key :description, 'unexpected error'
           schema do
