@@ -17,6 +17,7 @@ module ClaimsApi
         property :attributes do
           key :type, :object
           key :description, 'Required by JSON API standard'
+          key :required, %i[poa_code poa_first_name poa_last_name]
   
           property :poa_code do
             key :type, :string
@@ -44,8 +45,8 @@ module ClaimsApi
   
         property :id do
           key :type, :string
-          key :example, 'A01'
-          key :description, 'Power of Attorney ID Code'
+          key :example, '6e47701b-802b-4520-8a41-9af2117a20bd'
+          key :description, 'Power of Attorney Submission UUID'
         end
   
         property :type do
@@ -60,40 +61,53 @@ module ClaimsApi
   
           property :relationship_type do
             key :type, :string
-            key :format, 'datetime'
-            key :example, '2015-08-28T19:52:25.601+00:00'
-            key :description, 'One year from initial intent to file Datetime'
+            key :example, ''
+            key :description, 'Type of relationships'
           end
 
-          property :date_filed do
+          property :date_request_accepted do
             key :type, :string
-            key :format, 'datetime'
-            key :example, '2014-07-28T19:53:45.810+00:00'
-            key :description, 'Datetime intent to file was first called'
-          end
-  
-          property :expiration_date do
-            key :type, :string
-            key :format, 'datetime'
-            key :example, '2015-08-28T19:52:25.601+00:00'
-            key :description, 'One year from initial intent to file Datetime'
-          end
-  
-          property :type do
-            key :type, :string
-            key :example, 'compensation'
-            key :description, 'Type of claim being submitted'
-            key :enum, %w[
-              compensation
-              burial
-              pension
-            ]
+            key :format, 'date'
+            key :example, '2014-07-28'
+            key :description, 'Date request was first accepted'
           end
   
           property :status do
             key :type, :string
-            key :example, 'active'
-            key :description, 'Says if the Intent to File is Active or Expired'
+            key :example, 'accepted'
+            key :description, 'Says if the power of attoreny is submitted or accepted'
+            key :enum, %w[
+              submitted
+              accepted
+            ]
+          end
+
+          property :representative do
+            key :type, :object
+            key :description, 'Information about VSO, Attorney or Claims Agents'
+
+            property :participant_id do
+              key :type, :string
+              key :example, '987654'
+              key :description, 'Participant ID for veteran representative'
+            end
+
+            property :poa_code do
+              key :type, :string
+              key :example, 'A01'
+              key :description, 'Power of Attorney Code being submitted for Veteran'
+            end
+          end
+
+          property :veteran do
+            key :type, :object
+            key :description, 'Information about Veteran'
+
+            property :participant_id do
+              key :type, :string
+              key :example, '14567'
+              key :description, 'Participant ID for veteran'
+            end
           end
         end
       end
