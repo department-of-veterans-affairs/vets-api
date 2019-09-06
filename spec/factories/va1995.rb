@@ -16,17 +16,4 @@ FactoryBot.define do
       form(File.read(Rails.root.join('spec', 'fixtures', 'education_benefits_claims', '1995', 'kitchen_sink.json')))
     end
   end
-
-  factory :va1995_stem, class: SavedClaim::EducationBenefits::VA1995, parent: :education_benefits do
-    form({
-      veteranFullName: {
-        first: 'Mark',
-        last: 'Olson'
-      },
-      veteranSocialSecurityNumber: '111223333',
-      benefit: 'transferOfEntitlement',
-      isEdithNourseRogersScholarship: true,
-      privacyAgreementAccepted: true
-    }.to_json)
-  end
 end

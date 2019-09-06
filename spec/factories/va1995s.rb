@@ -7,7 +7,7 @@ FactoryBot.define do
         first: 'Mark',
         last: 'Olson'
       },
-      veteranSocialSecurityNumber: '111223333',
+      veteranSocialSecurityNumber: '111223334',
       benefit: 'transferOfEntitlement',
       isEdithNourseRogersScholarship: true,
       privacyAgreementAccepted: true
