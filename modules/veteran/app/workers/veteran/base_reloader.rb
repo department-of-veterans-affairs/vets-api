@@ -23,16 +23,10 @@ module Veteran
     def fetch_data(action)
       page = Faraday.new(url: BASE_URL).post(action, id: 'frmExcelList', name: 'frmExcelList').body
       doc = Nokogiri::HTML(page)
-      content = CSV.generate(headers: true) do |csv|
-        doc.xpath('//table/tr').each do |row|
-          tarray = []
-          row.xpath('td').each do |cell|
-            tarray << cell.text.scrub
-          end
-          csv << tarray
-        end
+      headers = doc.xpath('//table/tr').first.children.children.map {|header| header.text }
+      doc.xpath('//table/tr').map do |row|
+        Hash[headers.zip(row.children.children.map {|cell| cell.text})]
       end
-      CSV.parse(content, headers: :first_row).map(&:to_h)
     end
   end
 end
