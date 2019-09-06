@@ -9,14 +9,14 @@ module Veteran
 
     private
 
-    def find_or_initialize(hash)
-      rep = Veteran::Service::Representative.find_or_initialize_by(representative_id: hash['Registration Num'],
-                                                                   first_name: hash['First Name'],
-                                                                   last_name: hash['Last Name'])
+    def find_or_initialize(hash_object)
+      rep = Veteran::Service::Representative.find_or_initialize_by(representative_id: hash_object['Registration Num'],
+                                                                   first_name: hash_object['First Name'],
+                                                                   last_name: hash_object['Last Name'])
       rep.poa_codes ||= []
       rep.user_types ||= []
-      rep.poa_codes << hash['POA Code'].gsub!(/\W/, '')
-      rep.phone = hash['Phone']
+      rep.poa_codes << hash_object['POA Code'].gsub!(/\W/, '')
+      rep.phone = hash_object['Phone']
       rep
     end
 
@@ -25,7 +25,7 @@ module Veteran
       doc = Nokogiri::HTML(page)
       headers = doc.xpath('//table/tr').first.children.children.map {|header| header.text }
       doc.xpath('//table/tr').map do |row|
-        Hash[headers.zip(row.children.children.map {|cell| cell.text})]
+        Hash[headers.zip(row.children.children.map(&:text))]
       end
     end
   end
