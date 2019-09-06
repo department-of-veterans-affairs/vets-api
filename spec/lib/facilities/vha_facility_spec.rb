@@ -94,7 +94,7 @@ module Facilities
               f2_health = f2_services['health']
 
               expect(f1_services.keys).to match(%w[last_updated health other])
-              expect(f1_services['last_updated']).to eq('2019-07-09')
+              expect(f1_services['last_updated']).to eq('2017-03-31')
               expect(f1_health.size).to eq(2)
               expect(f1_health.first.keys).to eq(%w[sl1 sl2])
               expect(f1_health.first.values).to eq([['PrimaryCare'], []])
@@ -103,7 +103,7 @@ module Facilities
               expect(f1_services['other']).to be_empty
 
               expect(f2_services.keys).to match(%w[last_updated health other])
-              expect(f2_services['last_updated']).to eq('2019-07-09')
+              expect(f2_services['last_updated']).to eq('2017-03-31')
               expect(f2_health.size).to eq(3)
               expect(f2_health.first.keys).to eq(%w[sl1 sl2])
               expect(f2_health.second.keys).to eq(%w[sl1 sl2])
