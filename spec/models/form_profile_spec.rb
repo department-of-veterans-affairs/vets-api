@@ -351,6 +351,27 @@ RSpec.describe FormProfile, type: :model do
     }
   end
 
+  let(:v22_1995s_expected) do
+    {
+      'veteranAddress' => {
+        'street' => street_check[:street],
+        'street2' => street_check[:street2],
+        'city' => user.va_profile[:address][:city],
+        'state' => user.va_profile[:address][:state],
+        'country' => user.va_profile[:address][:country],
+        'postal_code' => user.va_profile[:address][:postal_code][0..4]
+      },
+      'veteranFullName' => {
+        'first' => user.first_name&.capitalize,
+        'last' => user.last_name&.capitalize,
+        'suffix' => user.va_profile[:suffix]
+      },
+      'homePhone' => us_phone,
+      'veteranSocialSecurityNumber' => user.ssn,
+      'email' => user.pciu_email
+    }
+  end
+
   let(:v22_5490_expected) do
     {
       'toursOfDuty' => [
