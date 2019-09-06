@@ -26,24 +26,10 @@ module Common::Client
 
       increment("#{self.class::STATSD_KEY_PREFIX}.#{caller}.fail", tags)
     end
-    
-    def add_metric_to_stats_roster key
-     Redis.current.zadd("incremented_metrics", Time.now.to_f, key) 
-     #set the expire/ttl here?
-    end
 
     def increment(key, tags=nil)
-      #Each time we increment a metric, we will add that metric name to our running redis set 
-      # TODO this would poll redis for each call of with_monitoring.
-      #      we really only need to do this once, if we had a list of all
-      add_metric_to_stats_roster(key)
-      StatsD.increment(key, 0, tags: tags) unless metric_is_initialized?(key)
+      StatsDMetric.new(key: key).save
       StatsD.increment(key, tags: tags)
-    end
-
-    def metric_is_initialized?(key)
-      #returns the rank of a key in a set, if nil, key doesn't exist
-      Redis.current.zrank("incremented_metrics", key).present?
     end
   end
 end

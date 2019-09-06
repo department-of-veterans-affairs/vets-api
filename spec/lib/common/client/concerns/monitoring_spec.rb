@@ -3,16 +3,50 @@
 require 'rails_helper'
 
 RSpec.describe Common::Client::Monitoring, type: :model do
-  let (:service) { }
+  module Specs
+    module Common
+      module Client
+        class DefaultConfiguration < ::Common::Client::Configuration::REST
 
-  describe '.with_monitoring' do
-    it 'increments total' do
+          def connection
+            @conn ||= Faraday.new('http://example.com') do |faraday|
+              faraday.adapter Faraday.default_adapter
+            end
+          end
+
+          def service_name
+            'foo'
+          end
+        end
+
+        class DefaultService < ::Common::Client::Base
+          STATSD_KEY_PREFIX = "fooservice"
+          configuration DefaultConfiguration
+          include ::Common::Client::Monitoring
+
+          def request(*args)
+            with_monitoring { super }
+          end
+        end
+      end
+    end
+  end
+
+  let(:service) { Specs::Common::Client::DefaultService.new }
+
+  it 'increments the total' do
+    # VCR.use_cassette('shared/success', VCR::MATCH_EVERYTHING) do
+      key = service.class.const_get('STATSD_KEY_PREFIX') + '.request.total'
+      expect_any_instance_of(StatsD).to receive(:increment).with(key, tags: nil).once
+      service.send(:request, :get, nil)
+    # end
+  end
+
+  context 'when a request fails' do
+    xit 'increments the failure tag' do
     end
 
-    it 'increments failures' do
-    end
-
-    it 'increments by zero if that hasnt happened since app deploy' do
+    xit 'increments the totas' do
     end
   end
 end
