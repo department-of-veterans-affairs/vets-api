@@ -6,6 +6,7 @@ module Veteran
   class VsoReloader < BaseReloader
     def perform
       array_of_organizations = reload_representatives
+      # This Where Not statement is for removing anyone no longer on the lists pulled down from OGC
       Veteran::Service::Representative.where.not(representative_id: array_of_organizations).destroy_all
     end
 
