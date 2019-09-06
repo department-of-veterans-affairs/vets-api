@@ -18,7 +18,9 @@ module Common
             path_test = env.url.path.match(/(FacilitySitePoint_\w{3})/) if path_test.nil?
             path_part = path_test[1]
             facility_map = facility_klass(path_part).attribute_map
-            env.body['features'].map { |location_data| TempFacility.new(location_data, facility_map).build_facility_attributes }
+            env.body['features'].map do |location_data|
+              TempFacility.new(location_data, facility_map).build_facility_attributes
+            end
           end
 
           def facility_klass(path_part)
@@ -32,11 +34,11 @@ module Common
               @location = location_data
               @mapping = facility_map
 
-              @facility = { 
+              @facility = {
                 'address' => {},
                 'services' => {},
                 'lat' => @location['geometry']['y'],
-                'long' => @location['geometry']['x'] 
+                'long' => @location['geometry']['x']
               }
             end
 
@@ -47,24 +49,24 @@ module Common
               @facility['services']['benefits'] = map_benefits_services if @mapping['benefits']
               @facility['hours'] = make_hours_mappings
               @facility['services'] = map_health_services if @mapping['services']
-              
+
               @facility
             end
 
             def make_direct_mappings
-              %w[unique_id name classification website].each_with_object({}) do |name, attributes|
+              %w[unique_id name classification website].each_with_object({}) do |name, _attributes|
                 @facility[name] = strip(@location['attributes'][@mapping[name]])
               end
             end
 
             def make_complex_mappings
-              %w[access feedback phone].each_with_object({}) do |name, attributes|
+              %w[access feedback phone].each_with_object({}) do |name, _attributes|
                 @facility[name] = complex_mapping(name)
               end
             end
 
             def make_address_mappings
-              { 
+              {
                 'physical' => complex_mapping('physical'),
                 'mailing' => complex_mapping('mailing')
               }
@@ -79,11 +81,11 @@ module Common
 
             def calculate_standard_benefits
               cleaned_benefits = clean_benefits(complex_mapping('benefits'))
-              cleaned_benefits << 'Pensions' if has_pensions?
+              cleaned_benefits << 'Pensions' if pensions?
               cleaned_benefits
             end
 
-            def has_pensions?
+            def pensions?
               BaseFacility::PENSION_LOCATIONS.include?(@facility['unique_id'])
             end
 
@@ -111,7 +113,9 @@ module Common
             def complex_mapping(attr_name)
               attrs = @location['attributes']
               item = @mapping[attr_name]
+
               return {} unless item
+
               item.each_with_object({}) do |(key, value), hash|
                 hash[key] = value.respond_to?(:call) ? value.call(attrs) : strip(attrs[value])
               end
@@ -129,9 +133,7 @@ module Common
               id = @facility['unique_id'].upcase
               facility_wait_time = FacilityWaitTime.find(id)
 
-              if facility_wait_time&.source_updated.present?
-                Date.strptime(facility_wait_time&.source_updated).iso8601
-              end
+              Date.strptime(facility_wait_time&.source_updated).iso8601 if facility_wait_time&.source_updated.present?
             end
 
             def collect_health_services
@@ -158,14 +160,11 @@ module Common
 
             def dental_services(facility_id)
               services = []
-              if FacilityDentalService.exists?(facility_id)
-                services << { 'sl1' => ['DentalServices'], 'sl2' => [] }
-              end
+              services << { 'sl1' => ['DentalServices'], 'sl2' => [] } if FacilityDentalService.exists?(facility_id)
 
               services
             end
           end
-
         end
       end
     end
