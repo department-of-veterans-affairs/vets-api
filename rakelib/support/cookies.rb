@@ -14,7 +14,7 @@ class Cookies
 
   def api_session_header
     session_options = { key: 'api_session' }
-    session_data = @session.to_hash.reverse_merge(session_id: SecureRandom.hex(32))
+    session_data = CGI.escape(@session.to_hash.reverse_merge(session_id: SecureRandom.hex(32)))
     raw_cookie = Rails::SessionCookie::App.new(session_data, session_options).session_cookie
 
     CGI.unescape(raw_cookie.chomp("\; path=\/\; HttpOnly"))
