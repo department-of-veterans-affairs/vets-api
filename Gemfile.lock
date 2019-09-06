@@ -33,8 +33,8 @@ GIT
 
 GIT
   remote: https://github.com/department-of-veterans-affairs/vets-json-schema
-  revision: f2ca3aeea6f27e4fb88d646d6388bde7d21f0443
-  branch: bah-1995-stem
+  revision: 8a74f697eba9c4d06951f5f6da4e42af6e21f2d5
+  branch: master
   specs:
     vets_json_schema (3.138.11)
       multi_json (~> 1.0)
