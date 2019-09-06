@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe EducationForm::Forms::VA1995 do
+RSpec.describe EducationForm::Forms::VA1995s do
   let(:education_benefits_claim) { build(:va1995s).education_benefits_claim }
 
   subject { described_class.new(education_benefits_claim) }

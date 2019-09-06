@@ -8,8 +8,4 @@ class EducationBenefitsSubmission < ApplicationRecord
   validates(:form_type, inclusion: EducationBenefitsClaim::FORM_TYPES)
 
   belongs_to(:education_benefits_claim, inverse_of: :education_benefits_submission)
-
-  def benefit_form_type
-    form_type == '1995' && stem ? 'stem1995' : form_type
-  end
 end

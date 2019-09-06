@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module EducationForm::Forms
-  class VA1995 < Base
+  class VA1995s < Base
     def school
       @applicant.newSchool
     end
