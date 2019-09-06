@@ -24,7 +24,7 @@ module Veteran
       doc = Nokogiri::HTML(page)
       headers = doc.xpath('//table/tr').first.children.children.map(&:text)
       doc.xpath('//table/tr').map do |row|
-        Hash[headers.zip(row.children.children.map {|child| child.text.scrub })]
+        Hash[headers.zip(row.children.children.map { |child| child.text.scrub })]
       end
     end
   end
