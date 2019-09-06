@@ -49,13 +49,13 @@ module Veteran
 
     def find_or_create_attorneys(attorney)
       rep = find_or_initialize(attorney)
-      rep.user_types << 'attorney' unless rep.user_types.includes?('attorney')
+      rep.user_types << 'attorney' unless rep.user_types.include?('attorney')
       rep.save
     end
 
     def find_or_create_claim_agents(claim_agent)
       rep = find_or_initialize(claim_agent)
-      rep.user_types << 'claim_agents' unless rep.user_types.includes?('claim_agents')
+      rep.user_types << 'claim_agents' unless rep.user_types.include?('claim_agents')
       rep.save
     end
 
@@ -65,7 +65,7 @@ module Veteran
                                                                    last_name: vso['Representative'].split(',').first)
       rep.poa_codes << vso['POA'].gsub!(/\W/, '')
       rep.phone = vso['Org Phone']
-      rep.user_types << 'veteran_service_officer' unless rep.user_types.includes?('veteran_service_officer')
+      rep.user_types << 'veteran_service_officer' unless rep.user_types.include?('veteran_service_officer')
       rep.save
     end
   end
