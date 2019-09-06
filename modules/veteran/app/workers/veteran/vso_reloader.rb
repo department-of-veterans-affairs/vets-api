@@ -19,6 +19,7 @@ module Veteran
     def reload_vso_reps
       vso_reps = []
       vso_orgs = fetch_data('orgsexcellist.asp').map do |vso_rep|
+        next unless vso_rep['Representative']
         find_or_create_vso(vso_rep)
         vso_reps << vso_rep['Registration Num']
         {
@@ -27,7 +28,7 @@ module Veteran
           phone: vso_rep['Org Phone'],
           state: vso_rep['Org State']
         }
-      end
+      end.compact.uniq
       Veteran::Service::Organization.import(vso_orgs, on_duplicate_key_ignore: true)
 
       vso_reps
@@ -61,8 +62,8 @@ module Veteran
 
     def find_or_create_vso(vso)
       rep = Veteran::Service::Representative.find_or_initialize_by(representative_id: vso['Registration Num'],
-                                                                   first_name: vso['Representative'].split(' ').second,
-                                                                   last_name: vso['Representative'].split(',').first)
+                                                                   first_name: vso['Representative']&.split(' ').second,
+                                                                   last_name: vso['Representative']&.split(',').first)
       rep.poa_codes << vso['POA'].gsub!(/\W/, '')
       rep.phone = vso['Org Phone']
       rep.user_types << 'veteran_service_officer' unless rep.user_types.include?('veteran_service_officer')
