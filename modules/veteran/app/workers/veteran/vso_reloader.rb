@@ -64,7 +64,8 @@ module Veteran
       rep = Veteran::Service::Representative.find_or_initialize_by(representative_id: vso['Registration Num'],
                                                                    first_name: vso['Representative'].split(' ')&.second,
                                                                    last_name: vso['Representative'].split(',')&.first)
-      rep.poa_codes << vso['POA'].gsub!(/\W/, '')
+      poa_code = vso['POA'].gsub!(/\W/, '')
+      rep.poa_codes << poa_code unless rep.user_types.include?(poa_code)
       rep.phone = vso['Org Phone']
       rep.user_types << 'veteran_service_officer' unless rep.user_types.include?('veteran_service_officer')
       rep.save

@@ -13,7 +13,8 @@ module Veteran
       rep = Veteran::Service::Representative.find_or_initialize_by(representative_id: hash_object['Registration Num'],
                                                                    first_name: hash_object['First Name'],
                                                                    last_name: hash_object['Last Name'])
-      rep.poa_codes << hash_object['POA Code'].gsub!(/\W/, '')
+      poa_code = vso['POA'].gsub!(/\W/, '')
+      rep.poa_codes << poa_code unless rep.user_types.include?(poa_code)
       rep.phone = hash_object['Phone']
       rep
     end
@@ -23,7 +24,7 @@ module Veteran
       doc = Nokogiri::HTML(page)
       headers = doc.xpath('//table/tr').first.children.children.map(&:text)
       doc.xpath('//table/tr').map do |row|
-        Hash[headers.zip(row.children.children.map(&:text))]
+        Hash[headers.zip(row.children.children.map {|child| child.text.scrub })]
       end
     end
   end
