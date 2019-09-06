@@ -11,29 +11,24 @@ class StatsdCensusJob
   sidekiq_options(retry: false)
 
   def perform
-    initialize_stats_roster unless stats_roster_is_in_redis?
+    # initialize_stats_roster unless stats_roster_is_in_redis?
     audit_roster!
   end
 
   private
 
-  def initialize_stats_roster
-    #Redis does not store empty sets
-    #sets also don't store dups, so we don't have to worry about duplicate statsD keys being stored in the SET
-  end
-
   def stats_roster_is_in_redis?
     Redis.current.exists(STATS_ROSTER_SET)
   end
   
-  def stats_key_in_redis_set? tag
-    Redis.current.sismember(STATS_ROSTER_SET, tag)
+  def stats_key_in_redis_set? key
+    Redis.current.sismember(STATS_ROSTER_SET, key)
   end
   
-  def add_metric_to_stats_roster tag
+  def add_metric_to_stats_roster keys
     #todo set the expire time/TTL for each tag in the set
     # r.expire("key", seconds)
-    Redis.current.sadd(STATS_ROSTER_SET, tag)
+    keys.each { |key| Redis.current.zadd(STATS_ROSTER_SET, Time.now.to_f, key) } 
   end
 
   def audit_roster!
@@ -42,15 +37,14 @@ class StatsdCensusJob
     Dir.glob("#{Rails.root}/lib/**/*.rb").grep(/service/).each { |f| require_dependency(f) }
     classes = Common::Client::Base.descendants.map(&:to_s).sort
     statsd_classes = classes.select { |k| k.constantize.constants.include? (:STATSD_KEY_PREFIX) }
-    # add_metric_to_stats_roster( statsd_classes )
+    add_metric_to_stats_roster( statsd_classes )
     # TODO make sure the with_monitoring part is handled
     #Todo update TTL for existing keys update_ttl_for_existing_keys
   end
   
   def update_ttl_for_existing_keys
-    all_keys = Redis.current.smembers(STATS_ROSTER_SET)
-    #todo -- Refresh the `TTL` of already-existing entries
-    #we may need to use an ordered set here because you can't set TTL on members of a plain SET
+    all_keys = Redis.current.zrange(STATS_ROSTER_SET, 0, -1)
+    #todo -- Refresh the `TTL` of already-existing entries -- if TTL > 1.week, update
   end
   
 end
