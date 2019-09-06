@@ -79,7 +79,6 @@ RSpec.describe EducationForm::CreateDailyFiscalYearToDateReport, type: :aws_help
       create(:education_benefits_submission, form_type: '0993', created_at: date, region: :western)
       create(:education_benefits_submission, form_type: '0994',
                                              created_at: date, region: :eastern, vettec: true, chapter33: false)
-      create(:education_benefits_submission, form_type: '1995s', created_at: date, region: :eastern, chapter33: true)
     end
 
     context 'with the date variable set' do
@@ -116,8 +115,8 @@ RSpec.describe EducationForm::CreateDailyFiscalYearToDateReport, type: :aws_help
           end
         end
 
-        %i[day].each do |range_type|
-          %i[processed].each do |status|
+        %i[day year].each do |range_type|
+          %i[processed submitted].each do |status|
             context "for the current #{range_type}" do
               let(:range_type) { range_type }
 
