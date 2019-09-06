@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+directories(%w[app lib config spec].select { |d| Dir.exist?(d) ? d : UI.warning("Directory #{d} does not exist") })
+
 guard :rspec, cmd: 'DISABLE_SPRING=y NOCOVERAGE=y bin/rspec' do
   require 'guard/rspec/dsl'
   dsl = Guard::RSpec::Dsl.new(self)
@@ -21,7 +23,7 @@ guard :rspec, cmd: 'DISABLE_SPRING=y NOCOVERAGE=y bin/rspec' do
   watch(dsl.rails.app_controller) { "#{rspec.spec_dir}/controllers" }
 end
 
-guard :rubocop, cli: %w[--auto-correct] do
+guard :rubocop, all_on_start: false, cli: %w[--format fuubar --auto-correct] do
   watch(/.+\.rb$/)
   watch(%r{(?:.+/)?\.rubocop\.yml$}) { |m| File.dirname(m[0]) }
 end
