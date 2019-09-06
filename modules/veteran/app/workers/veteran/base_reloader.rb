@@ -21,7 +21,7 @@ module Veteran
     def fetch_data(action)
       page = Faraday.new(url: BASE_URL).post(action, id: 'frmExcelList', name: 'frmExcelList').body
       doc = Nokogiri::HTML(page)
-      headers = doc.xpath('//table/tr').first.children.children.map {|header| header.text }
+      headers = doc.xpath('//table/tr').first.children.children.map(&:text)
       doc.xpath('//table/tr').map do |row|
         Hash[headers.zip(row.children.children.map(&:text))]
       end
