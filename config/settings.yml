@@ -44,7 +44,13 @@ binaries:
 db_encryption_key: f01ff8ebd1a2b053ad697ae1f0d86adb
 
 database_url: postgis:///vets-api
-test_database_url: postgis:///vets-api-test
+
+# environmen variables get stripped when running parallel tests so we set the db here
+test_database_url: <%= if ENV['CI'] || ENV['TEST_ENV_NUMBER']
+                   "postgis://#{ENV['POSTGRES_USER'] || 'postgres'}:#{ENV['POSTGRES_PASSWORD'] || 'password'}@#{ENV['POSTGRES_HOST'] || 'postgres'}:#{ENV['POSTGRES_PORT'] || '5432'}/#{ENV['POSTGRES_DATABASE]'] || 'vets_api_test'}#{ENV['TEST_ENV_NUMBER']}?pool=4"
+                   else
+                   "postgis:///vets-api-test#{ENV['TEST_ENV_NUMBER']}"
+                   end %>
 
 relative_url_root: /
 
