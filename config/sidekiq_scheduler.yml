@@ -129,7 +129,3 @@ MHV::AccountStatisticsJob:
 ExternalServicesStatusJob:
   every: '1m'
   description: "Checks the current status of all external services through PagerDuty's API"
-
-StatsDCensusJob:
-  every: '30m'
-  description: 'Syncs the bucket names of StatsD counters to redis'
