@@ -33,7 +33,7 @@ class Provider < Common::Base
 
   def add_details(prov_info)
     self.Email = prov_info['Email']
-    self.MainPhone = prov_info['MainPhone']
+    self.MainPhone = prov_info['CareSitePhoneNumber']
     self.OrganizationFax = prov_info['OrganizationFax']
     self.ContactMethod = prov_info['ContactMethod']
     self.ProviderSpecialties = prov_info['ProviderSpecialties']
