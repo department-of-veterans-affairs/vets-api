@@ -3,72 +3,54 @@
 require 'sidekiq'
 
 module Veteran
-  class VsoReloader < BaseReloader
+  class VsoReloader
+    include Sidekiq::Worker
+    BASE_URL = 'https://www.va.gov/ogc/apps/accreditation/'
+
     def perform
       array_of_organizations = reload_representatives
-      # This Where Not statement is for removing anyone no longer on the lists pulled down from OGC
-      Veteran::Service::Representative.where.not(representative_id: array_of_organizations).destroy_all
+      Veteran::Service::Organization.import(array_of_organizations, on_duplicate_key_ignore: true)
     end
 
     private
 
     def reload_representatives
-      reload_attorneys + reload_claim_agents + reload_vso_reps
-    end
-
-    def reload_vso_reps
-      vso_reps = []
-      vso_orgs = fetch_data('orgsexcellist.asp').map do |vso_rep|
-        next unless vso_rep['Representative']
-        find_or_create_vso(vso_rep)
-        vso_reps << vso_rep['Registration Num']
-        {
-          poa: vso_rep['POA'],
-          name: vso_rep['Organization Name'],
-          phone: vso_rep['Org Phone'],
-          state: vso_rep['Org State']
-        }
-      end.compact.uniq
-      Veteran::Service::Organization.import(vso_orgs, on_duplicate_key_ignore: true)
-
-      vso_reps
-    end
-
-    def reload_attorneys
-      fetch_data('attorneyexcellist.asp').map do |attorney|
-        find_or_create_attorneys(attorney)
-        attorney['Registration Num']
+      data = fetch_data('orgsexcellist.asp')
+      data.each do |hash|
+        find_or_create_representative(hash)
       end
+
+      Veteran::Service::Representative.where.not(representative_id: data.map { |h| h['Registration Num'] }).destroy_all
+
+      array_of_organizations = data.map do |h|
+        { poa: h['POA'], name: h['Organization Name'], phone: h['Org Phone'], state: h['Org State'] }
+      end.uniq.compact
+      array_of_organizations
     end
 
-    def reload_claim_agents
-      fetch_data('caexcellist.asp').map do |claim_agent|
-        find_or_create_claim_agents(claim_agent)
-        claim_agent['Registration Num']
+    def find_or_create_representative(hash)
+      rep = Veteran::Service::Representative.find_or_initialize_by(representative_id: hash['Registration Num'])
+      rep.poa_codes ||= []
+      rep.poa_codes << hash['POA'].gsub!(/\W/, '')
+      rep.first_name = hash['Representative'].split(' ').second
+      rep.last_name = hash['Representative'].split(',').first
+      rep.phone = hash['Org Phone']
+      rep.save
+    end
+
+    def fetch_data(action)
+      page = Faraday.new(url: BASE_URL).post(action, id: 'frmExcelList', name: 'frmExcelList').body
+      doc = Nokogiri::HTML(page)
+      content = CSV.generate(headers: true) do |csv|
+        doc.xpath('//table/tr').each do |row|
+          tarray = []
+          row.xpath('td').each do |cell|
+            tarray << cell.text.scrub
+          end
+          csv << tarray
+        end
       end
-    end
-
-    def find_or_create_attorneys(attorney)
-      rep = find_or_initialize(attorney)
-      rep.user_types << 'attorney' unless rep.user_types.include?('attorney')
-      rep.save
-    end
-
-    def find_or_create_claim_agents(claim_agent)
-      rep = find_or_initialize(claim_agent)
-      rep.user_types << 'claim_agents' unless rep.user_types.include?('claim_agents')
-      rep.save
-    end
-
-    def find_or_create_vso(vso)
-      rep = Veteran::Service::Representative.find_or_initialize_by(representative_id: vso['Registration Num'],
-                                                                   first_name: vso['Representative'].split(' ')&.second,
-                                                                   last_name: vso['Representative'].split(',')&.first)
-      poa_code = vso['POA'].gsub!(/\W/, '')
-      rep.poa_codes << poa_code unless rep.user_types.include?(poa_code)
-      rep.phone = vso['Org Phone']
-      rep.user_types << 'veteran_service_officer' unless rep.user_types.include?('veteran_service_officer')
-      rep.save
+      CSV.parse(content, headers: :first_row).map(&:to_h)
     end
   end
 end
