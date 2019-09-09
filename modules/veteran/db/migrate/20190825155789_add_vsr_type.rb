@@ -12,5 +12,5 @@ class AddVsrType < ActiveRecord::Migration[5.2]
     remove_index :veteran_representatives, :first_name
     remove_index :veteran_representatives, :last_name
     add_index :veteran_representatives, %i[representative_id first_name last_name], unique: true, name: 'index_vso_grp'
- end
+  end
 end
