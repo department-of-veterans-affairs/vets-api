@@ -12,11 +12,5 @@ module VAOS
       response = perform(:get, url, {})
       response.body.deep_symbolize_keys![:data].map { |appointment| VAOS::Appointment.new(appointment) }
     end
-
-    private
-
-    def format_date(date)
-      date
-    end
   end
 end
