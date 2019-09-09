@@ -75,7 +75,10 @@ module EducationForm
       # special case 0994
       return :eastern if model.form_type == '0994'
 
-      # special case 1995 STEM
+      # special case 1995 with STEM
+      return :eastern if model.form_type == '1995' && record.isEdithNourseRogersScholarship
+
+      # special case 1995s
       return :eastern if model.form_type == '1995s'
 
       # special case Philippines
