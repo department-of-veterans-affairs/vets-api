@@ -35,18 +35,27 @@ RSpec.describe Common::Client::Monitoring, type: :model do
   let(:service) { Specs::Common::Client::DefaultService.new }
 
   it 'increments the total' do
-    # VCR.use_cassette('shared/success', VCR::MATCH_EVERYTHING) do
+    VCR.use_cassette('shared/success', VCR::MATCH_EVERYTHING) do
       key = service.class.const_get('STATSD_KEY_PREFIX') + '.request.total'
       expect_any_instance_of(StatsD).to receive(:increment).with(key, tags: nil).once
       service.send(:request, :get, nil)
-    # end
+    end
   end
 
   context 'when a request fails' do
-    xit 'increments the failure tag' do
+    VCR.use_cassette('shared/success', VCR::MATCH_EVERYTHING) do
+      xit 'increments the failure tag' do
+
+      end
     end
 
-    xit 'increments the totas' do
+    it 'increments the failure total' do
+      VCR.use_cassette('shared/success', VCR::MATCH_EVERYTHING) do
+        key = service.class.const_get('STATSD_KEY_PREFIX') + '.get_letters.fail'
+        tags = ["error:NilClass"]
+        expect_any_instance_of(StatsD).to receive(:increment).with(key, tags: tags).once
+        service.send(:increment_failure, :get_letters, nil)
+      end
     end
   end
 end
