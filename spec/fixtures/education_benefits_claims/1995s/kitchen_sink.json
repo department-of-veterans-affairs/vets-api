@@ -6,7 +6,7 @@
   },
   "veteranSocialSecurityNumber": "111223333",
   "newSchool": {
-    "name": "school name",
+    "name": "Test School Name",
     "address": {
       "city": "Milwaukee",
       "country": "USA",
