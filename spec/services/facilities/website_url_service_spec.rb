@@ -17,10 +17,9 @@ RSpec.describe Facilities::WebsiteUrlService do
     expect(benefits_url).to eq('http://www.benefits.va.gov/togus/')
   end
 
-  it 'provides an empty string when it does not know about a station id' do
+  it 'provides an nil when it does not know about a station id' do
     service = Facilities::WebsiteUrlService.new
     url = service.find_for_station('fAkE1D', 'va_health_facility')
-    expect(url).to eq('')
+    expect(url).to be_nil
   end
 end
-

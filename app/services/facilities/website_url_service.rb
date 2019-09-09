@@ -18,16 +18,16 @@ module Facilities
     end
 
     def find_for_station(id, type)
-      unique_id = "#{id}_#{FACILITY_TYPES[type]}"
-      entry = @websites[unique_id]
-      entry.nil? ? '' : entry
+      unique_id = "#{BaseFacility::PREFIX_MAP[type]}_#{id}"
+      @websites[unique_id]
     end
 
     private
 
     def map_websites_to_stations(station_websites)
       station_websites.each_with_object({}) do |station, hash|
-        unique_id = "#{station['StationNum']}_#{station['Org']}"
+        org = station['Org'].downcase unless station['Org'].nil?
+        unique_id = "#{org}_#{station['StationNum']}"
         hash[unique_id] = station['Website_URL']
       end
     end
