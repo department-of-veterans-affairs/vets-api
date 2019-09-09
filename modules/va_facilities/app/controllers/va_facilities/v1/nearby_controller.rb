@@ -66,13 +66,8 @@ module VaFacilities
         address_difference = (address_params - param_keys)
         lat_lng_difference = (lat_lng_params - param_keys)
 
-        validate_params = lambda { |difference1, difference2|
-          (difference1.empty? && difference2.any?) || (difference2.empty? && difference1.any?)
-        }
-
-        unless validate_params.call(address_difference, lat_lng_difference)
-          if address_difference.empty? || lat_lng_difference.empty? ||
-             (address_difference != address_params && lat_lng_difference != lat_lng_params)
+        unless valid_params(address_difference, lat_lng_difference)
+          if ambiguous(address_difference, lat_lng_difference, address_params, lat_lng_params)
             raise Common::Exceptions::ParameterMissing.new(detail: AMBIGUOUS_PARAMS_ERR)
           elsif address_difference != address_params
             raise Common::Exceptions::ParameterMissing.new(address_difference.to_s, detail: MISSING_PARAMS_ERR)
@@ -80,6 +75,15 @@ module VaFacilities
             raise Common::Exceptions::ParameterMissing.new(lat_lng_difference.to_s, detail: MISSING_PARAMS_ERR)
           end
         end
+      end
+
+      def valid_params(difference1, difference2)
+        (difference1.empty? && difference2.any?) || (difference2.empty? && difference1.any?)
+      end
+
+      def ambiguous(address_difference, lat_lng_difference, address_params, lat_lng_params)
+        address_difference.empty? || lat_lng_difference.empty? ||
+          (address_difference != address_params && lat_lng_difference != lat_lng_params)
       end
 
       def metadata(resource)
