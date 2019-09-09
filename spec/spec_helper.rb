@@ -57,7 +57,7 @@ unless ENV['NOCOVERAGE']
     add_group 'VAOS', 'modules/vaos/'
     add_filter 'version.rb'
     add_filter 'modules/va_facilities/lib/va_facilities/engine.rb'
-    
+
     SimpleCov.minimum_coverage_by_file 90
     SimpleCov.refuse_coverage_drop
   end
