@@ -60,3 +60,5 @@ config/certs
 
 dump.rdb
 /.project
+.generators
+.rakeTasks
