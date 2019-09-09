@@ -15,8 +15,8 @@ RSpec.describe Veteran::VsoReloader, type: :job do
     it 'should reload data from pulldown' do
       VCR.use_cassette('veteran/ogc_poa_data') do
         Veteran::VsoReloader.new.perform
-        expect(Veteran::Service::Representative.count).to eq 152
-        expect(Veteran::Service::Organization.count).to eq 3
+        expect(Veteran::Service::Representative.count).to eq 22_469
+        expect(Veteran::Service::Organization.count).to eq 91
       end
     end
   end
