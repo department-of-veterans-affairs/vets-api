@@ -11,6 +11,7 @@ RSpec.describe Common::Client::Monitoring, type: :model do
           def connection
             @conn ||= Faraday.new('http://example.com') do |faraday|
               faraday.adapter Faraday.default_adapter
+              faraday.use     Faraday::Response::RaiseError
             end
           end
 
@@ -38,23 +39,16 @@ RSpec.describe Common::Client::Monitoring, type: :model do
     VCR.use_cassette('shared/success', VCR::MATCH_EVERYTHING) do
       key = service.class.const_get('STATSD_KEY_PREFIX') + '.request.total'
       expect_any_instance_of(StatsD).to receive(:increment).with(key, tags: nil).once
-      service.send(:request, :get, nil)
+      service.request( :get, nil )
     end
   end
 
   context 'when a request fails' do
-    VCR.use_cassette('shared/success', VCR::MATCH_EVERYTHING) do
-      xit 'increments the failure tag' do
-
-      end
-    end
-
     it 'increments the failure total' do
-      VCR.use_cassette('shared/success', VCR::MATCH_EVERYTHING) do
-        key = service.class.const_get('STATSD_KEY_PREFIX') + '.get_letters.fail'
-        tags = ["error:NilClass"]
-        expect_any_instance_of(StatsD).to receive(:increment).with(key, tags: tags).once
-        service.send(:increment_failure, :get_letters, nil)
+      VCR.use_cassette('shared/failure', VCR::MATCH_EVERYTHING) do
+        key = service.class.const_get('STATSD_KEY_PREFIX') + '.request.fail'
+        expect_any_instance_of(StatsD).to receive(:increment).twice 
+        expect { service.request( :get, nil ) }.to raise_error
       end
     end
   end
