@@ -4,13 +4,6 @@ require 'csv'
 
 module Facilities
   class WebsiteUrlService
-    FACILITY_TYPES = {
-      'va_benefits_facility' => 'VBA',
-      'va_health_facility' => 'VHA',
-      'va_cemetery' => 'NCA',
-      'vet_center' => 'VC'
-    }.freeze
-
     def initialize
       source = Rails.root.join('lib', 'facilities', 'website_data', 'websites.csv')
       station_websites = CSV.read(source, headers: true)
