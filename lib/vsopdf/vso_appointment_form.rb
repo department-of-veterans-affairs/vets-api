@@ -5,6 +5,9 @@ require 'tempfile'
 require 'securerandom'
 
 class VsoAppointmentForm
+  include Common::Client::Monitoring
+  STATSD_KEY_PREFIX = 'api.vso_appoinment_form'
+
   def initialize(appt)
     @appt = appt
   end
@@ -86,6 +89,6 @@ class VsoAppointmentForm
       "metadata": get_metadata(path).to_json
     }
 
-    conn.post '/VADocument/upload', body
+    with_monitoring { conn.post '/VADocument/upload', body }
   end
 end

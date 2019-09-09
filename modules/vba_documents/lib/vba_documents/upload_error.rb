@@ -13,6 +13,7 @@ module VBADocuments
     DOC105 = 'Invalid or unknown id'
     DOC106 = 'Maximum document size exceeded. Limit is 100MB per document'
     DOC107 = 'Empty payload'
+    DOC108 = 'Maximum page size exceeded. Limit is 21 in x 21 in.'
 
     # DOC2xx errors: server errors either local or downstream
     # not unambiguously related to submitted content

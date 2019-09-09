@@ -26,5 +26,11 @@ describe EVSS::VsoSearch::Service do
     it 'handles errors' do
       it_handles_errors(:get_current_info, response.body)
     end
+
+    it 'sets the correct base headers and empty string for post body' do
+      headers = JSON.parse(File.read('spec/fixtures/evss_vso_search/service_headers.json'))
+      expect(service).to receive(:perform).with(:post, 'getCurrentInfo', '', headers).and_return(response)
+      service.send(*[:get_current_info, response.body].compact)
+    end
   end
 end

@@ -51,6 +51,48 @@ RSpec.describe HealthCareApplication, type: :model do
           effective_date: '2018-01-24T00:00:00.000-09:00'
         )
       end
+
+      context 'with an active duty service member' do
+        let(:ee_data) do
+          {
+            enrollment_status: 'not applicable',
+            application_date: '2018-01-24T00:00:00.000-06:00',
+            enrollment_date: nil,
+            preferred_facility: '987 - CHEY6',
+            ineligibility_reason: 'OTH',
+            primary_eligibility: 'TRICARE',
+            veteran: 'false',
+            effective_date: '2018-01-24T00:00:00.000-09:00'
+          }
+        end
+
+        it 'should return the right parsed_status' do
+          expect(described_class.parsed_ee_data(ee_data, true)[:parsed_status]).to eq(
+            Notification::ACTIVEDUTY
+          )
+        end
+      end
+
+      context 'when the user isnt active duty' do
+        let(:ee_data) do
+          {
+            enrollment_status: 'not applicable',
+            application_date: '2018-01-24T00:00:00.000-06:00',
+            enrollment_date: nil,
+            preferred_facility: '987 - CHEY6',
+            ineligibility_reason: 'OTH',
+            primary_eligibility: 'SC LESS THAN 50%',
+            veteran: 'true',
+            effective_date: '2018-01-24T00:00:00.000-09:00'
+          }
+        end
+
+        it 'should return the right parsed_status' do
+          expect(described_class.parsed_ee_data(ee_data, true)[:parsed_status]).to eq(
+            Notification::NON_MILITARY
+          )
+        end
+      end
     end
 
     context 'with a loa1 user' do
