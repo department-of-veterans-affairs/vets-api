@@ -17,6 +17,7 @@ module ClaimsApi
         ssn: poa_form.auth_headers['X-VA-SSN'],
         poa_code: poa_form.form_data['poaCode']
       )
+      # update status on poa_form
     end
   end
 end
