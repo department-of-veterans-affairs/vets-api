@@ -73,11 +73,4 @@ module VetsAPI
                                    http_only: true
   end
 
-  def perform_redis_statsd_initialization_roster_audit
-    true
-  end
-
-  config.after_initialize do
-    perform_redis_statsd_initialization_roster_audit if true
-  end
 end
