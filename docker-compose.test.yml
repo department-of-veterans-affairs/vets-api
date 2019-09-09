@@ -29,6 +29,7 @@ services:
       POSTGRES_USER: "${POSTGRES_USER:-postgres}"
       POSTGRES_PASSWORD: "${POSTGRES_PASSWORD:-password}"
       CI:
+      DOCKER: "true"
       RAILS_ENV: test
     depends_on:
       - postgres

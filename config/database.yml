@@ -22,7 +22,7 @@ default: &default
   pool: 5
 
 development:
-  url: <%= Settings.test_database_url.split('?').join("#{ENV['TEST_ENV_NUMBER']}?") %>
+  url: <%= Settings.database_url %>
 
   # The specified database role being used to connect to postgres.
   # To create additional roles in postgres see `$ createuser --help`.

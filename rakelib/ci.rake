@@ -15,7 +15,7 @@ namespace :parallel do
     end
     exit_status = begin
                     Rake::Task['parallel:spec']
-                      .invoke(nil, nil, '--pattern spec/**/*_spec.rb,modules/*/spec/**/*_spec.rb', nil)
+                      .invoke(nil, nil, nil, 'modules/*/spec/**/*_spec.rb')
                   rescue SystemExit => e
                     e.status
                   else
