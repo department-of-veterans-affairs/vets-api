@@ -112,3 +112,12 @@ ActiveSupport::Notifications.subscribe('process_action.action_controller') do |_
   StatsD.measure('api.request.db_runtime', payload[:db_runtime].to_i, tags: tags)
   StatsD.measure('api.request.view_runtime', payload[:view_runtime].to_i, tags: tags)
 end
+
+def initialize_statsd_keys_from_redis_store namespace
+  all_keys = namespace.keys
+  all_keys.each do |key|
+    StatsD.increment("#{key}", 0)
+  end
+end
+
+initialize_statsd_keys_from_redis_store(StatsDMetric)
