@@ -9,6 +9,7 @@ RSpec.describe 'Nearby Facilities API endpoint', type: :request do
 
   let(:base_query_path) { '/services/va_facilities/v1/nearby' }
   let(:address_params) { '?street_address=9729%20SE%20222nd%20Dr&city=Damascus&state=OR&zip=97089&drive_time=60' }
+  let(:lat_lng_params) { '?lat=40.204160&lng=-88.435739' }
   let(:no_health) { '?street_address=197%20East%20Main%20Street&city=Fort%20Kent&state=ME&zip=04743&drive_time=60' }
   let(:empty_address) { '?street_address=9729%20SE%20222nd%20Dr&city=Damascus&state=OR&zip=97089&drive_time=1' }
   let(:malformed_address) { '?street_address=9729%20Sbleepblap&city=Damascus&state=OR&zip=97089&drive_time=1' }
@@ -295,6 +296,18 @@ RSpec.describe 'Nearby Facilities API endpoint', type: :request do
     end
     it 'returns 400 for health query with unknown service' do
       get base_query_path + address_params + '&type=health&services[]=OilChange'
+      expect(response).to have_http_status(:bad_request)
+    end
+    it 'returns 400 for ambiguous location request' do
+      get base_query_path + address_params + '&lat=40.3&lng=80.3'
+      expect(response).to have_http_status(:bad_request)
+    end
+    it 'returns 400 for missing lng' do
+      get base_query_path + '?lat=40.3', params: nil, headers: accept_json
+      expect(response).to have_http_status(:bad_request)
+    end
+    it 'returns 400 for missing lat' do
+      get base_query_path + '?lng=40.3', params: nil, headers: accept_json
       expect(response).to have_http_status(:bad_request)
     end
   end

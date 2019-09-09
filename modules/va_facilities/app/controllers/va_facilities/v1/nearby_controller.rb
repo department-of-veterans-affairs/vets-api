@@ -18,9 +18,10 @@ module VaFacilities
       before_action :set_default_format
       before_action :validate_params, only: [:index]
 
-      REQUIRED_PARAMS = %i[street_address city state zip].freeze
       MISSING_PARAMS_ERR =
-        'Must supply street_address, city, state, and zip to query nearby facilities.'
+        'Must supply street_address, city, state, and zip or lat, and lng to query nearby facilities.'
+      AMBIGUOUS_PARAMS_ERR =
+        'Must supply either street_address, city, state, and zip or lat and lng, not both, to query nearby facilities.'
 
       def index
         resource = NearbyFacility.query(params).paginate(page: params[:page],
@@ -51,32 +52,34 @@ module VaFacilities
         validate_street_address
         validate_state_code
         validate_zip
+        validate_lat
+        validate_lng
         validate_drive_time
         validate_no_services_without_type
         validate_type_and_services_known unless params[:type].nil?
       end
 
       def validate_required_params
-        unless REQUIRED_PARAMS.all? { |param| params.key? param }
-          REQUIRED_PARAMS.each do |param|
-            unless params.key? param
-              raise Common::Exceptions::ParameterMissing.new(param.to_s, detail: MISSING_PARAMS_ERR)
-            end
+        param_keys = params.keys.map(&:to_sym)
+        address_params = NearbyFacility::REQUIRED_PARAMS[:address]
+        lat_lng_params = NearbyFacility::REQUIRED_PARAMS[:lat_lng]
+        address_difference = (address_params - param_keys)
+        lat_lng_difference = (lat_lng_params - param_keys)
+
+        validate_params = lambda { |difference1, difference2|
+          (difference1.empty? && difference2.any?) || (difference2.empty? && difference1.any?)
+        }
+
+        unless validate_params.call(address_difference, lat_lng_difference)
+          if address_difference.empty? || lat_lng_difference.empty? ||
+             (address_difference != address_params && lat_lng_difference != lat_lng_params)
+            raise Common::Exceptions::ParameterMissing.new(detail: AMBIGUOUS_PARAMS_ERR)
+          elsif address_difference != address_params
+            raise Common::Exceptions::ParameterMissing.new(address_difference.to_s, detail: MISSING_PARAMS_ERR)
+          elsif lat_lng_difference != lat_lng_params
+            raise Common::Exceptions::ParameterMissing.new(lat_lng_difference.to_s, detail: MISSING_PARAMS_ERR)
           end
         end
-      end
-
-      def validate_street_address
-        if params[:street_address]
-          raise Common::Exceptions::InvalidFieldValue.new('street_address', params[:street_address]) unless
-            params[:street_address].match?(/\d/)
-        end
-      end
-
-      def validate_drive_time
-        Integer(params[:drive_time]) if params[:drive_time]
-      rescue ArgumentError
-        raise Common::Exceptions::InvalidFieldValue.new('drive_time', params[:drive_time])
       end
 
       def metadata(resource)

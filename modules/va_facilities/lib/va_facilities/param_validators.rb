@@ -34,6 +34,31 @@ module VaFacilities
       raise Common::Exceptions::InvalidFieldValue.new('services', unknown) unless unknown.empty?
     end
 
+    def validate_street_address
+      if params[:street_address]
+        raise Common::Exceptions::InvalidFieldValue.new('street_address', params[:street_address]) unless
+            params[:street_address].match?(/\d/)
+      end
+    end
+
+    def validate_drive_time
+      Integer(params[:drive_time]) if params[:drive_time]
+    rescue ArgumentError
+      raise Common::Exceptions::InvalidFieldValue.new('drive_time', params[:drive_time])
+    end
+
+    def validate_lat
+      Float(params[:lat]) if params[:lat]
+    rescue ArgumentError
+      raise Common::Exceptions::InvalidFieldValue.new('lat', params[:lat])
+    end
+
+    def validate_lng
+      Float(params[:lng]) if params[:lng]
+    rescue ArgumentError
+      raise Common::Exceptions::InvalidFieldValue.new('lng', params[:lng])
+    end
+
     def facility_klass
       BaseFacility::TYPE_MAP[params[:type]].constantize
     end
