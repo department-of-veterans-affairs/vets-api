@@ -310,6 +310,14 @@ RSpec.describe 'Nearby Facilities API endpoint', type: :request do
       get base_query_path + '?lng=40.3', params: nil, headers: accept_json
       expect(response).to have_http_status(:bad_request)
     end
+    it 'returns 400 non integer lat' do
+      get base_query_path + '?lat=eighty&lng=40.3', params: nil, headers: accept_json
+      expect(response).to have_http_status(:bad_request)
+    end
+    it 'returns 400 non integer lng' do
+      get base_query_path + '?lat=80.4&lng=forty', params: nil, headers: accept_json
+      expect(response).to have_http_status(:bad_request)
+    end
   end
 
   context 'with an error response from bing' do
