@@ -12,7 +12,6 @@ class NearbyFacility < ApplicationRecord
   class << self
     attr_writer :validate_on_load
 
-
     def query(params)
       return NearbyFacility.none if location_type(params).nil?
       isochrone_response = request_isochrone(params)
