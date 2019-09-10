@@ -13,7 +13,7 @@ Rails.application.routes.draw do
 
   get '/v1/sessions/metadata', to: 'v1/sessions#metadata'
   get '/v1/sessions/logout', to: 'v1/sessions#saml_logout_callback'
-  post '/v1/sessions/callback', to: 'v1/sessions#callback', module: 'v1'
+  post '/v1/sessions/callback', to: 'v1/sessions#saml_callback', module: 'v1'
   get '/v1/sessions/:type/new',
       to: 'v1/sessions#new',
       constraints: ->(request) { V1::SessionsController::REDIRECT_URLS.include?(request.path_parameters[:type]) }

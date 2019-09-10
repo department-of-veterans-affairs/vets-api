@@ -74,9 +74,6 @@ module V1
     private
 
     def saml_settings(options = {})
-      callback_url = URI.parse(Settings.saml_ssoe.callback_url)
-      callback_url.host = request.host
-      options.reverse_merge!(assertion_consumer_service_url: callback_url.to_s)
       SAML::SSOeSettingsService.saml_settings(options)
     end
 
