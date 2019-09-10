@@ -18,14 +18,24 @@ module VaFacilities
       before_action :set_default_format
       before_action :validate_params, only: [:index]
 
+      REQUIRED_PARAMS = {
+        address: %i[street_address city state zip].freeze,
+        lat_lng: %i[lat lng].freeze
+      }.freeze
+      QUERY_INFO = {
+        address: NearbyFacility.method(:query),
+        lat_lng: NearbyFacility.method(:query_by_lat_lng)
+      }.freeze
+
       MISSING_PARAMS_ERR =
         'Must supply street_address, city, state, and zip or lat, and lng to query nearby facilities.'
       AMBIGUOUS_PARAMS_ERR =
         'Must supply either street_address, city, state, and zip or lat and lng, not both, to query nearby facilities.'
 
       def index
-        resource = NearbyFacility.query(params).paginate(page: params[:page],
-                                                         per_page: params[:per_page] || NearbyFacility.per_page)
+        query_method = query_method(params)
+        resource = query_method.call(params).paginate(page: params[:page],
+                                                               per_page: params[:per_page] || NearbyFacility.per_page)
         respond_to do |format|
           format.json do
             render json: resource,
@@ -61,13 +71,13 @@ module VaFacilities
 
       def validate_required_params
         param_keys = params.keys.map(&:to_sym)
-        address_params = NearbyFacility::REQUIRED_PARAMS[:address]
-        lat_lng_params = NearbyFacility::REQUIRED_PARAMS[:lat_lng]
+        address_params = REQUIRED_PARAMS[:address]
+        lat_lng_params = REQUIRED_PARAMS[:lat_lng]
         address_difference = (address_params - param_keys)
         lat_lng_difference = (lat_lng_params - param_keys)
 
-        unless valid_params(address_difference, lat_lng_difference)
-          if ambiguous(address_difference, lat_lng_difference, address_params, lat_lng_params)
+        unless valid_params?(address_difference, lat_lng_difference)
+          if ambiguous?(address_difference, lat_lng_difference, address_params, lat_lng_params)
             raise Common::Exceptions::ParameterMissing.new(detail: AMBIGUOUS_PARAMS_ERR)
           elsif address_difference != address_params
             raise Common::Exceptions::ParameterMissing.new(address_difference.to_s, detail: MISSING_PARAMS_ERR)
@@ -77,13 +87,22 @@ module VaFacilities
         end
       end
 
-      def valid_params(difference1, difference2)
+      def valid_params?(difference1, difference2)
         (difference1.empty? && difference2.any?) || (difference2.empty? && difference1.any?)
       end
 
-      def ambiguous(address_difference, lat_lng_difference, address_params, lat_lng_params)
+      def ambiguous?(address_difference, lat_lng_difference, address_params, lat_lng_params)
         address_difference.empty? || lat_lng_difference.empty? ||
           (address_difference != address_params && lat_lng_difference != lat_lng_params)
+      end
+
+      def query_method(params)
+        obs_fields = params.keys.map(&:to_sym)
+        loc_type = REQUIRED_PARAMS.find do |loc_type, req_field_names|
+          no_missing_fields = (req_field_names - obs_fields).empty?
+          break loc_type if no_missing_fields
+        end
+        QUERY_INFO[loc_type]
       end
 
       def metadata(resource)

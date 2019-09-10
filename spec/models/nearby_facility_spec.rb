@@ -32,7 +32,7 @@ RSpec.describe NearbyFacility, type: :model do
       setup_pdx
       VCR.use_cassette('bing/isochrone/pdx_drive_time_60_lat_lng',
                        match_requests_on: [:method, VCR.request_matchers.uri_without_param(:key)]) do
-        expect(NearbyFacility.query(lat_lng_params).length).to eq(10)
+        expect(NearbyFacility.query_by_lat_lng(lat_lng_params).length).to eq(10)
       end
     end
     it 'should return no facilities when missing params' do

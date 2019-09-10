@@ -4,26 +4,31 @@ require 'facilities/client'
 require 'common/exceptions'
 
 class NearbyFacility < ApplicationRecord
-  REQUIRED_PARAMS = {
-    address: %i[street_address city state zip].freeze,
-    lat_lng: %i[lat lng].freeze
-  }.freeze
+
 
   class << self
     attr_writer :validate_on_load
 
     def query(params)
-      return NearbyFacility.none if location_type(params).nil?
-      isochrone_response = request_isochrone(params)
+      return NearbyFacility.none unless params[:street_address] && params[:city] && params[:state] && params[:zip]
+      waypoint = "#{params[:street_address]} #{params[:city]} #{params[:state]} #{params[:zip]}"
+      isochrone_response = request_isochrone(waypoint, params)
       get_facilities_in_isochrone(params, isochrone_response)
     end
 
-    def request_isochrone(params)
+    def query_by_lat_lng(params)
+      return NearbyFacility.none unless params[:lat] && params[:lng]
+      waypoint = "#{params[:lat]},#{params[:lng]}"
+      isochrone_response = request_isochrone(waypoint, params)
+      get_facilities_in_isochrone(params, isochrone_response)
+    end
+
+    def request_isochrone(waypoint, params)
       params[:drive_time] = '30' unless params[:drive_time]
       # list of all parameters can be found at https://docs.microsoft.com/en-us/bingmaps/rest-services/routes/calculate-an-isochrone#template-parameters
       # we are currently using today at 7:30 AM (local time for the waypoint) for traffic modelling
       query = {
-        waypoint: waypoint(params),
+        waypoint: waypoint,
         maxtime: params[:drive_time],
         timeUnit: 'minute',
         dateTime: '07:30:00',
@@ -84,26 +89,6 @@ class NearbyFacility < ApplicationRecord
 
     def empty_resource_set?(response_body)
       response_body['resourceSets'].size.zero? || response_body['resourceSets'][0]['estimatedTotal'].zero?
-    end
-
-    def waypoint(params)
-      type = location_type(params)
-      values = REQUIRED_PARAMS[type].map { |k| params[k].to_s }
-      case type
-      when :address
-        return values.join(' ')
-      when :lat_lng
-        return values.join(',')
-      else
-        return ''
-      end
-    end
-
-    def location_type(params)
-      REQUIRED_PARAMS.each do |key, value|
-        return key if (value - params.keys.map(&:to_sym)).empty?
-      end
-      nil
     end
 
     def per_page
