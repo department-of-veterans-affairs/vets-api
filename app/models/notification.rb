@@ -58,7 +58,8 @@ class Notification < ApplicationRecord
     pending_unverified: 23,
     rejected_inc_wrongentry: 24,
     rejected_rightentry: 25,
-    rejected_sc_wrongentry: 26
+    rejected_sc_wrongentry: 26,
+    non_military: 27
   }.each_key do |status|
     const_set(status.upcase, status)
   end
