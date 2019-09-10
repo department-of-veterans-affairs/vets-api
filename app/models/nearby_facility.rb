@@ -4,8 +4,6 @@ require 'facilities/client'
 require 'common/exceptions'
 
 class NearbyFacility < ApplicationRecord
-
-
   class << self
     attr_writer :validate_on_load
 

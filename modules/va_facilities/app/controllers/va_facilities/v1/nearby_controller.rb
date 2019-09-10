@@ -35,7 +35,7 @@ module VaFacilities
       def index
         query_method = query_method(params)
         resource = query_method.call(params).paginate(page: params[:page],
-                                                               per_page: params[:per_page] || NearbyFacility.per_page)
+                                                      per_page: params[:per_page] || NearbyFacility.per_page)
         respond_to do |format|
           format.json do
             render json: resource,
@@ -98,11 +98,11 @@ module VaFacilities
 
       def query_method(params)
         obs_fields = params.keys.map(&:to_sym)
-        loc_type = REQUIRED_PARAMS.find do |loc_type, req_field_names|
+        location_type = REQUIRED_PARAMS.find do |loc_type, req_field_names|
           no_missing_fields = (req_field_names - obs_fields).empty?
           break loc_type if no_missing_fields
         end
-        QUERY_INFO[loc_type]
+        QUERY_INFO[location_type]
       end
 
       def metadata(resource)
