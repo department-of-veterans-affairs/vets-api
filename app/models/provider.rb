@@ -24,6 +24,7 @@ class Provider < Common::Base
     provider = Provider.new(prov_loc)
     provider.Name = prov_loc['ProviderName']
     provider.IsAcceptingNewPatients = prov_loc['ProviderAcceptingNewPatients']
+    provider.CareSitePhoneNumber = prov_info['CareSitePhoneNumber']
     provider.AddressStreet = prov_loc['CareSiteAddressStreet']
     provider.AddressCity = prov_loc['CareSiteAddressCity']
     provider.AddressStateProvince = prov_loc['CareSiteAddressState']
@@ -34,7 +35,6 @@ class Provider < Common::Base
   def add_details(prov_info)
     self.Email = prov_info['Email']
     self.MainPhone = prov_info['MainPhone']
-    self.CareSitePhoneNumber = prov_info['CareSitePhoneNumber']
     self.OrganizationFax = prov_info['OrganizationFax']
     self.ContactMethod = prov_info['ContactMethod']
     self.ProviderSpecialties = prov_info['ProviderSpecialties']
