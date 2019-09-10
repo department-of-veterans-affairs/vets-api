@@ -38,7 +38,8 @@ module HCA
         Notification::PENDING_UNVERIFIED,
         Notification::REJECTED_INC_WRONGENTRY,
         Notification::REJECTED_RIGHTENTRY,
-        Notification::REJECTED_SC_WRONGENTRY
+        Notification::REJECTED_SC_WRONGENTRY,
+        Notification::NON_MILITARY
       ].freeze
 
       CATCHALL_CATEGORIES = [
