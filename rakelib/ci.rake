@@ -13,9 +13,12 @@ namespace :parallel do
       puts 'notifying CodeClimate of test run'
       system('/cc-test-reporter before-build')
     end
+
+    # parallel_tests wasn't handling the file regex properly so we're listing every test file
+    test_files = Dir.glob(['spec/**/*_spec.rb', 'modules/*/spec/**/*_spec.rb']).join(" ")
     exit_status = begin
                     Rake::Task['parallel:spec']
-                      .invoke(nil, nil, nil, 'modules/*/spec/**/*_spec.rb')
+                      .invoke(nil, nil, nil, test_files)
                   rescue SystemExit => e
                     e.status
                   else
