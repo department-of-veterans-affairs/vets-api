@@ -21,7 +21,7 @@ describe Cookies do
       # ActiveSupport::MessageEncryptor defaults to `Marshal` if no serializer is provided
       # Make sure this matches the vets-api config: Rails.application.config.action_dispatch.cookies_serializer
       encryptor = ActiveSupport::MessageEncryptor.new(secret, cipher: encrypted_cookie_cipher, serializer: nil)
-      encryptor.decrypt_and_verify(cookie)
+      encryptor.decrypt_and_verify(CGI.unescape(cookie))
     end
 
     let(:api_session_header) { subject.api_session_header }
