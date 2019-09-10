@@ -22,13 +22,7 @@ module V0
     private
 
     def form_type
-      return '1995s' if params[:form_type] == '1995' && form_data['isEdithNourseRogersScholarship'] == true
-
       params[:form_type] || '1990'
-    end
-
-    def form_data
-      JSON.parse(education_benefits_claim_params[:form], object_class: OpenStruct)
     end
 
     def education_benefits_claim_params
