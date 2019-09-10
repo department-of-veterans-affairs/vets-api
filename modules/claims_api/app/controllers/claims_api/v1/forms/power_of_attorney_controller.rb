@@ -21,6 +21,8 @@ module ClaimsApi
             source: source_name
           )
           power_of_attorney = ClaimsApi::PowerOfAttorney.find_by(md5: power_of_attorney.md5) unless power_of_attorney.id
+          power_of_attorney.set_file_data!(documents.first)
+          power_of_attorney.save!
 
           render json: power_of_attorney, serializer: ClaimsApi::PowerOfAttorneySerializer
         end

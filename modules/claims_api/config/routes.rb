@@ -19,6 +19,10 @@ ClaimsApi::Engine.routes.draw do
       get '0966', to: 'intent_to_file#schema'
       post '0966', to: 'intent_to_file#submit_form_0966'
       get '0966/active', to: 'intent_to_file#active'
+      ## 2122 Forms
+      get '2122', to: 'power_of_attorney#schema'
+      post '2122', to: 'power_of_attorney#submit_form_2122'
+      get '2122/status', to: 'power_of_attorney#status'
     end
   end
 
@@ -34,6 +38,10 @@ ClaimsApi::Engine.routes.draw do
       get '0966', to: 'intent_to_file#schema'
       post '0966', to: 'intent_to_file#submit_form_0966'
       get '0966/active', to: 'intent_to_file#active'
+      ## 2122 Forms
+      get '2122', to: 'power_of_attorney#schema'
+      post '2122', to: 'power_of_attorney#submit_form_2122'
+      get '2122/status', to: 'power_of_attorney#status'
     end
   end
 

@@ -74,11 +74,6 @@ module ClaimsApi
             )
           end
         end
-
-        def documents
-          document_keys = params.keys.select { |key| key.include? 'attachment' }
-          params.slice(*document_keys).values
-        end
       end
     end
   end
