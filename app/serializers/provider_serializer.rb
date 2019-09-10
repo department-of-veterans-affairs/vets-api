@@ -39,6 +39,10 @@ class ProviderSerializer < ActiveModel::Serializer
     object.MainPhone
   end
 
+  def caresite_phone
+    object.CareSitePhoneNumber
+  end
+
   def fax
     object.OrganizationFax
   end
