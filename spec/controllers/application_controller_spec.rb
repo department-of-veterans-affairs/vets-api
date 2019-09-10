@@ -7,6 +7,7 @@ require 'lib/sentry_logging_spec_helper'
 RSpec.describe ApplicationController, type: :controller do
   it_behaves_like 'a sentry logger'
   controller do
+    attr_reader :payload
     skip_before_action :authenticate, except: :test_authentication
 
     JSON_ERROR = {
@@ -32,6 +33,11 @@ RSpec.describe ApplicationController, type: :controller do
 
     def test_authentication
       head :ok
+    end
+
+    def append_info_to_payload(payload)
+      super
+      @payload = payload
     end
   end
 
@@ -291,6 +297,11 @@ RSpec.describe ApplicationController, type: :controller do
         it 'returns success' do
           get :test_authentication
           expect(response).to have_http_status(200)
+        end
+
+        it 'appends user uuid to payload' do
+          get(:test_authentication)
+          expect(controller.payload[:user_uuid]).to eq(user.uuid)
         end
 
         context 'with a virtual host that is invalid' do
