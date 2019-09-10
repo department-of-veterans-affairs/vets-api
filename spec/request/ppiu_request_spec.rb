@@ -5,7 +5,7 @@ require 'rails_helper'
 RSpec.describe 'PPIU', type: :request do
   include SchemaMatchers
 
-  before(:each) { sign_in }
+  before(:each) { sign_in(create(:user, :mhv)) }
 
   describe 'GET /v0/ppiu/payment_information' do
     context 'with a valid evss response' do
