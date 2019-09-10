@@ -34,8 +34,9 @@ module VaFacilities
 
       def index
         query_method = query_method(params)
-        resource = query_method.call(params).paginate(page: params[:page],
-                                                      per_page: params[:per_page] || NearbyFacility.per_page)
+        params_hash = params.permit!.to_h.symbolize_keys
+        resource = query_method.call(params_hash).paginate(page: params[:page],
+                                                           per_page: params[:per_page] || NearbyFacility.per_page)
         respond_to do |format|
           format.json do
             render json: resource,

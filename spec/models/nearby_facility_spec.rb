@@ -35,8 +35,11 @@ RSpec.describe NearbyFacility, type: :model do
         expect(NearbyFacility.query_by_lat_lng(lat_lng_params).length).to eq(10)
       end
     end
-    it 'should return no facilities when missing params' do
+    it 'should return no facilities when missing address params' do
       expect(NearbyFacility.query({}).length).to eq(0)
+    end
+    it 'should return no facilities when missing lat/lng params' do
+      expect(NearbyFacility.query_by_lat_lng({}).length).to eq(0)
     end
     it 'should filter by type and service' do
       params = {
