@@ -59,6 +59,15 @@ module VaFacilities
       raise Common::Exceptions::InvalidFieldValue.new('lng', params[:lng])
     end
 
+    def validate_bbox
+      if params[:bbox]
+        raise ArgumentError unless params[:bbox]&.length == 4
+        params[:bbox].each { |x| Float(x) }
+      end
+    rescue ArgumentError
+      raise Common::Exceptions::InvalidFieldValue.new('bbox', params[:bbox])
+    end
+
     def facility_klass
       BaseFacility::TYPE_MAP[params[:type]].constantize
     end

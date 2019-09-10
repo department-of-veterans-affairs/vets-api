@@ -100,15 +100,6 @@ module VaFacilities
         raise Common::Exceptions::InvalidFieldValue.new(param.to_s, params[param])
       end
 
-      def validate_bbox
-        if params[:bbox]
-          raise ArgumentError unless params[:bbox]&.length == 4
-          params[:bbox].each { |x| Float(x) }
-        end
-      rescue ArgumentError
-        raise Common::Exceptions::InvalidFieldValue.new('bbox', params[:bbox])
-      end
-
       def valid_location_query?
         case location_keys
         when [] then true
