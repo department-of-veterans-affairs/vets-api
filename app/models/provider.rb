@@ -11,6 +11,7 @@ class Provider < Common::Base
   attribute :AddressPostalCode, String
   attribute :Email, String
   attribute :MainPhone, String
+  atribute  :CareSitePhoneNumber, String
   attribute :OrganizationFax, String
   attribute :ContactMethod, String
   attribute :IsAcceptingNewPatients, String
