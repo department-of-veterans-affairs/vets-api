@@ -366,8 +366,8 @@ maintenance:
 # change the 'mock' bool for each service you want to mock in this settings file
 betamocks:
   enabled: true
-  recording: true
-  cache_dir: ../vets-api-mockdata
+  recording: false
+  cache_dir: /cache
   services_config: config/betamocks/services_config.yml
 
 faraday_socks_proxy:
