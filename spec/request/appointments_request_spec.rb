@@ -19,7 +19,7 @@ RSpec.describe 'Appointments', type: :request do
           get '/v0/appointments'
 
           expect(response).to have_http_status(:ok)
-          # expect(response).to match_response_schema('appointments_response')
+          expect(response).to match_response_schema('appointments_response')
         end
       end
     end

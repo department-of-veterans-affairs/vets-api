@@ -9,6 +9,12 @@ describe VAOS::Configuration do
     end
   end
 
+  describe '#connection' do
+    it 'returns a connection' do
+      expect(VAOS::Configuration.instance.connection).to_not be_nil
+    end
+  end
+
   describe '#mock_enabled?' do
     context 'when Settings.appeals.mock is true' do
       before { Settings.vaos.mock = 'true' }
