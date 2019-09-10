@@ -654,7 +654,7 @@ RSpec.describe FormProfile, type: :model do
         expect(Rails.env).to receive(:production?).and_return(true)
         expect(user.military_information).to receive(:hca_last_service_branch).and_return('air force').and_raise(error)
         form_profile = described_class.for('1010ez')
-        expect(form_profile).to receive(:log_exception_to_sentry).with(error, {}, backend_service: :emis)
+        expect(form_profile).to receive(:log_exception_to_sentry).with(error, {}, external_service: :emis)
         form_profile.prefill(user)
       end
     end
