@@ -217,7 +217,7 @@ module ClaimsApi
             key :'$ref', :Form2122Output
           end
         end
-        
+
         response :default do
           key :description, 'unexpected error'
           schema do

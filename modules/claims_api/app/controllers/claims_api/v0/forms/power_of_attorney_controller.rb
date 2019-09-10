@@ -7,7 +7,6 @@ module ClaimsApi
   module V0
     module Forms
       class PowerOfAttorneyController < ClaimsApi::BaseFormController
-
         FORM_NUMBER = '2122'
 
         skip_before_action(:authenticate)
@@ -25,9 +24,7 @@ module ClaimsApi
           render json: power_of_attorney, serializer: ClaimsApi::PowerOfAttorneySerializer
         end
 
-        def status_2122
-
-        end
+        def status_2122; end
       end
     end
   end

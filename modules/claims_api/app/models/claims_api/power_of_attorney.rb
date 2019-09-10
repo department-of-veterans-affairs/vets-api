@@ -32,7 +32,7 @@ module ClaimsApi
     end
 
     def uploader
-      @uploader ||= ClaimsApi::PowerOfAttorneyUploader.new(self.id)
+      @uploader ||= ClaimsApi::PowerOfAttorneyUploader.new(id)
     end
   end
 end
