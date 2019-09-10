@@ -3,7 +3,7 @@
 namespace :claims do
   FORM_IDS = [
     '21P-527EZ',  # Pension form
-    '21P-530',    # Burial form
+    '21P-530'     # Burial form
   ].freeze
 
   COLUMNS = %i[

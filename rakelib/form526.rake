@@ -131,6 +131,7 @@ namespace :form526 do
       auth_headers = JSON.parse(s.auth_headers_json)
       s.form526_job_statuses.each do |j|
         next if j.error_class.blank?
+
         # Check if its an EVSS error and parse, otherwise store the entire message
         messages = if j.error_message.include?('=>') && j.error_class != 'Common::Exceptions::BackendServiceException'
                      j.error_message.scan(MSGS_REGEX)

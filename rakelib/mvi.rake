@@ -46,6 +46,7 @@ middle_name="W" last_name="Smith" birth_date="1945-01-25" gender="M" ssn="555443
   desc 'Build mock MVI yaml database for users in given CSV'
   task :mock_database, [:csvfile] => [:environment] do |_, args|
     raise 'No input CSV provided' unless args[:csvfile]
+
     csv = CSV.open(args[:csvfile], headers: true)
     csv.each_with_index do |row, i|
       begin
@@ -204,6 +205,7 @@ end
 
 def validate_date(s)
   raise ArgumentError, 'Date string must be of format YYYY-MM-DD' unless s.match?(/\d{4}-\d{2}-\d{2}/)
+
   Time.parse(s).utc
   true
 rescue => e
