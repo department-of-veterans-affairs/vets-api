@@ -67,5 +67,5 @@ class ProviderSerializer < ActiveModel::Serializer
   end
 
   attributes :unique_id, :name, :address, :email, :phone, :fax, :lat, :long,
-             :pref_contact, :acc_new_patients, :gender, :specialty
+             :pref_contact, :acc_new_patients, :gender, :specialty, :caresite_phone
 end
