@@ -7,7 +7,6 @@ RSpec.describe Common::Client::Monitoring, type: :model do
     module Common
       module Client
         class DefaultConfiguration < ::Common::Client::Configuration::REST
-
           def connection
             @conn ||= Faraday.new('http://example.com') do |faraday|
               faraday.adapter Faraday.default_adapter
@@ -21,7 +20,7 @@ RSpec.describe Common::Client::Monitoring, type: :model do
         end
 
         class DefaultService < ::Common::Client::Base
-          STATSD_KEY_PREFIX = "fooservice"
+          STATSD_KEY_PREFIX = 'fooservice'
           configuration DefaultConfiguration
           include ::Common::Client::Monitoring
 
@@ -39,7 +38,7 @@ RSpec.describe Common::Client::Monitoring, type: :model do
     VCR.use_cassette('shared/success', VCR::MATCH_EVERYTHING) do
       key = service.class.const_get('STATSD_KEY_PREFIX') + '.request.total'
       expect_any_instance_of(StatsD).to receive(:increment).with(key, tags: nil).once
-      service.request( :get, nil )
+      service.request(:get, nil)
     end
   end
 
@@ -47,8 +46,8 @@ RSpec.describe Common::Client::Monitoring, type: :model do
     it 'increments the failure total' do
       VCR.use_cassette('shared/failure', VCR::MATCH_EVERYTHING) do
         key = service.class.const_get('STATSD_KEY_PREFIX') + '.request.fail'
-        expect_any_instance_of(StatsD).to receive(:increment).twice 
-        expect { service.request( :get, nil ) }.to raise_error
+        expect_any_instance_of(StatsD).to receive(:increment).twice
+        expect { service.request(:get, nil) }.to raise_error
       end
     end
   end

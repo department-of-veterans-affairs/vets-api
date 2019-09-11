@@ -76,16 +76,12 @@ StatsD.increment("#{Search::Service::STATSD_KEY_PREFIX}.exceptions", 0, tags: ['
 # This is separate from the services and looks like its automating the controllers inits? Or could?
 ActiveSupport::Notifications.subscribe('process_action.action_controller') do |_, _, _, _, payload|
   tags = ["controller:#{payload.dig(:params, :controller)}", "action:#{payload.dig(:params, :action)}",
-    "status:#{payload[:status]}"]
+          "status:#{payload[:status]}"]
   StatsD.measure('api.request.db_runtime', payload[:db_runtime].to_i, tags: tags)
   StatsD.measure('api.request.view_runtime', payload[:view_runtime].to_i, tags: tags)
 end
 
-def initialize_statsd_keys_from_redis_store(namespace)
-  all_keys = namespace.keys
-  all_keys.each do |key|
-    StatsD.increment("#{key}", 0)
-  end
+all_keys = namespace.keys
+all_keys.each do |key|
+  StatsD.increment(key.to_s, 0)
 end
-
-initialize_statsd_keys_from_redis_store(StatsDMetric)
