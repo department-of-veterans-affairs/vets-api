@@ -27,7 +27,7 @@ module Common::Client
       increment("#{self.class::STATSD_KEY_PREFIX}.#{caller}.fail", tags)
     end
 
-    def increment(key, tags=nil)
+    def increment(key, tags = nil)
       StatsDMetric.new(key: key).save
       StatsD.increment(key, tags: tags)
     end
