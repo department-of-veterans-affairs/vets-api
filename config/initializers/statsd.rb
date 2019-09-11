@@ -73,7 +73,6 @@ StatsD.increment(SentryJob::STATSD_ERROR_KEY, 0)
 # init Search
 StatsD.increment("#{Search::Service::STATSD_KEY_PREFIX}.exceptions", 0, tags: ['exception:429'])
 
-# This is separate from the services and looks like its automating the controllers inits? Or could?
 ActiveSupport::Notifications.subscribe('process_action.action_controller') do |_, _, _, _, payload|
   tags = ["controller:#{payload.dig(:params, :controller)}", "action:#{payload.dig(:params, :action)}",
           "status:#{payload[:status]}"]
@@ -81,7 +80,6 @@ ActiveSupport::Notifications.subscribe('process_action.action_controller') do |_
   StatsD.measure('api.request.view_runtime', payload[:view_runtime].to_i, tags: tags)
 end
 
-all_keys = namespace.keys
-all_keys.each do |key|
+StatsDMetric.keys.each do |key|
   StatsD.increment(key.to_s, 0)
 end
