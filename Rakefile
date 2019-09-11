@@ -14,18 +14,7 @@ unless Rails.env.production?
   require 'rspec/core/rake_task'
   task(:spec).clear
   RSpec::Core::RakeTask.new(:spec) do |t|
-    t.pattern = Dir.glob(
-      [
-        'spec/**/*_spec.rb',
-        'modules/vba_documents/spec/**/*_spec.rb',
-        'modules/appeals_api/spec/**/*_spec.rb',
-        'modules/claims_api/spec/**/*_spec.rb',
-        'modules/va_facilities/spec/**/*_spec.rb',
-        'modules/veteran/spec/**/*_spec.rb',
-        'modules/veteran_verification/spec/**/*_spec.rb',
-        'modules/openid_auth/spec/**/*_spec.rb'
-      ]
-    )
+    t.pattern = Dir.glob(['spec/**/*_spec.rb', 'modules/*/spec/**/*_spec.rb'])
     t.verbose = false
   end
 end
