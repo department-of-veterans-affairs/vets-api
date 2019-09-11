@@ -29,7 +29,11 @@ module Common::Client
 
     def increment(key, tags = nil)
       StatsDMetric.new(key: key).save
-      StatsD.increment(key, tags: tags)
+      if tags.blank?
+        StatsD.increment(key)
+      else
+        StatsD.increment(key, tags: tags)
+      end
     end
   end
 end
