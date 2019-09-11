@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+# rubocop:disable Metrics/ModuleLength
 module VaFacilities
   module ParamValidators
     TYPE_SERVICE_ERR = 'Filtering by services is not allowed unless a facility type is specified'
@@ -9,7 +10,6 @@ module VaFacilities
       'Must supply street_address, city, state, and zip or lat and lng to query nearby facilities.'
     AMBIGUOUS_PARAMS_ERR =
       'Must supply either street_address, city, state, and zip or lat and lng, not both, to query nearby facilities.'
-
 
     def validate_zip
       if params[:zip]
@@ -137,3 +137,4 @@ module VaFacilities
     end
   end
 end
+# rubocop:enable Metrics/ModuleLength
