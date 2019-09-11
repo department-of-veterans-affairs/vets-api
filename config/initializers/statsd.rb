@@ -80,6 +80,7 @@ ActiveSupport::Notifications.subscribe('process_action.action_controller') do |_
   StatsD.measure('api.request.view_runtime', payload[:view_runtime].to_i, tags: tags)
 end
 
-StatsDMetric.keys.each do |key|
+all_keys = StatsDMetric.keys
+all_keys.each do |key|
   StatsD.increment(key.to_s, 0)
 end
