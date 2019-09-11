@@ -27,7 +27,7 @@ module Vet360
 
           Vet360::ContactInformation::PersonTransactionResponse.from(raw_response)
         end
-      rescue StandardError => e
+      rescue => e
         handle_error(e)
       end
 
