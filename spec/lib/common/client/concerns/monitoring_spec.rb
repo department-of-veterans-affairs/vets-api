@@ -46,8 +46,9 @@ RSpec.describe Common::Client::Monitoring, type: :model do
     it 'increments the failure total' do
       VCR.use_cassette('shared/failure', VCR::MATCH_EVERYTHING) do
         key = service.class.const_get('STATSD_KEY_PREFIX') + '.request.fail'
-        expect_any_instance_of(StatsD).to receive(:increment).twice
-        expect { service.request(:get, nil) }.to raise_error
+        allow_any_instance_of(StatsD).to receive(:increment)
+        expect_any_instance_of(StatsD).to receive(:increment).with(key, anything).at_least(:once)
+        expect { service.request(:get, nil) }.to raise_error(Common::Client::Errors::ClientError)
       end
     end
   end
