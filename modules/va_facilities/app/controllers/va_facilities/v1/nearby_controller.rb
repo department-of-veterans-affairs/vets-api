@@ -28,7 +28,7 @@ module VaFacilities
       }.freeze
 
       MISSING_PARAMS_ERR =
-        'Must supply street_address, city, state, and zip or lat, and lng to query nearby facilities.'
+        'Must supply street_address, city, state, and zip or lat and lng to query nearby facilities.'
       AMBIGUOUS_PARAMS_ERR =
         'Must supply either street_address, city, state, and zip or lat and lng, not both, to query nearby facilities.'
 
