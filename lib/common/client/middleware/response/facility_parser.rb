@@ -28,8 +28,6 @@ module Common
           end
 
           class TempFacility
-            attr_accessor :dest_facility, :src_facility, :mapping
-
             def initialize(location_data, facility_map)
               @src_facility = location_data
               @mapping = facility_map
