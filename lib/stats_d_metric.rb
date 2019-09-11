@@ -9,7 +9,4 @@ class StatsDMetric < Common::RedisStore
   attribute :key
 
   validates :key, presence: true
-
-  # statsd-roster:api_external_http_request:vet360:success
-  # statsd-roster:api_external_http_request:vet360:failure
 end
