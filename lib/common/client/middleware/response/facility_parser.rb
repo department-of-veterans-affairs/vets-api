@@ -28,40 +28,40 @@ module Common
           end
 
           class TempFacility
-            attr_accessor :temp_hash, :location, :mapping
+            attr_accessor :dest_facility, :src_facility, :mapping
 
             def initialize(location_data, facility_map)
-              @location = location_data
+              @src_facility = location_data
               @mapping = facility_map
 
-              @temp_hash = {
+              @dest_facility = {
                 'address' => {},
                 'services' => {},
-                'lat' => @location['geometry']['y'],
-                'long' => @location['geometry']['x']
+                'lat' => @src_facility['geometry']['y'],
+                'long' => @src_facility['geometry']['x']
               }
             end
 
             def build_facility_attributes
               make_direct_mappings
               make_complex_mappings
-              @temp_hash['address'] = make_address_mappings
-              @temp_hash['services']['benefits'] = map_benefits_services if @mapping['benefits']
-              @temp_hash['hours'] = make_hours_mappings
-              @temp_hash['services'] = map_health_services if @mapping['services']
+              @dest_facility['address'] = make_address_mappings
+              @dest_facility['services']['benefits'] = map_benefits_services if @mapping['benefits']
+              @dest_facility['hours'] = make_hours_mappings
+              @dest_facility['services'] = map_health_services if @mapping['services']
 
-              @temp_hash
+              @dest_facility
             end
 
             def make_direct_mappings
               %w[unique_id name classification website].each_with_object({}) do |name, _attributes|
-                @temp_hash[name] = strip(@location['attributes'][@mapping[name]])
+                @dest_facility[name] = strip(@src_facility['attributes'][@mapping[name]])
               end
             end
 
             def make_complex_mappings
               %w[access feedback phone].each_with_object({}) do |name, _attributes|
-                @temp_hash[name] = complex_mapping(name)
+                @dest_facility[name] = complex_mapping(name)
               end
             end
 
@@ -75,7 +75,7 @@ module Common
             def map_benefits_services
               {
                 'standard' => calculate_standard_benefits,
-                'other' => @location['attributes']['Other_Services']
+                'other' => @src_facility['attributes']['Other_Services']
               }
             end
 
@@ -86,7 +86,7 @@ module Common
             end
 
             def pensions?
-              BaseFacility::PENSION_LOCATIONS.include?(@temp_hash['unique_id'])
+              BaseFacility::PENSION_LOCATIONS.include?(@dest_facility['unique_id'])
             end
 
             def make_hours_mappings
@@ -111,7 +111,7 @@ module Common
             end
 
             def complex_mapping(attr_name)
-              attrs = @location['attributes']
+              attrs = @src_facility['attributes']
               item = @mapping[attr_name]
 
               return {} unless item
@@ -130,7 +130,7 @@ module Common
             end
 
             def services_date
-              id = @temp_hash['unique_id'].upcase
+              id = @dest_facility['unique_id'].upcase
               facility_wait_time = FacilityWaitTime.find(id)
 
               Date.strptime(facility_wait_time&.source_updated).iso8601 if facility_wait_time&.source_updated.present?
@@ -139,7 +139,7 @@ module Common
             def collect_health_services
               services = []
 
-              id = @temp_hash['unique_id'].upcase
+              id = @dest_facility['unique_id'].upcase
               services << services_from_wait_time_data(id)
               services << dental_services(id)
 
