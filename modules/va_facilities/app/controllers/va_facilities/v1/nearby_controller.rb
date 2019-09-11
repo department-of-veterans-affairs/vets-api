@@ -27,11 +27,6 @@ module VaFacilities
         lat_lng: NearbyFacility.method(:query_by_lat_lng)
       }.freeze
 
-      MISSING_PARAMS_ERR =
-        'Must supply street_address, city, state, and zip or lat and lng to query nearby facilities.'
-      AMBIGUOUS_PARAMS_ERR =
-        'Must supply either street_address, city, state, and zip or lat and lng, not both, to query nearby facilities.'
-
       def index
         query_method = query_method(params)
         params_hash = params.permit!.to_h.symbolize_keys
@@ -59,7 +54,7 @@ module VaFacilities
       private
 
       def validate_params
-        validate_required_params
+        validate_required_params(REQUIRED_PARAMS)
         validate_street_address
         validate_state_code
         validate_zip
@@ -68,33 +63,6 @@ module VaFacilities
         validate_drive_time
         validate_no_services_without_type
         validate_type_and_services_known unless params[:type].nil?
-      end
-
-      def validate_required_params
-        param_keys = params.keys.map(&:to_sym)
-        address_params = REQUIRED_PARAMS[:address]
-        lat_lng_params = REQUIRED_PARAMS[:lat_lng]
-        address_difference = (address_params - param_keys)
-        lat_lng_difference = (lat_lng_params - param_keys)
-
-        unless valid_params?(address_difference, lat_lng_difference)
-          if ambiguous?(address_difference, lat_lng_difference, address_params, lat_lng_params)
-            raise Common::Exceptions::ParameterMissing.new(detail: AMBIGUOUS_PARAMS_ERR)
-          elsif address_difference != address_params
-            raise Common::Exceptions::ParameterMissing.new(address_difference.to_s, detail: MISSING_PARAMS_ERR)
-          elsif lat_lng_difference != lat_lng_params
-            raise Common::Exceptions::ParameterMissing.new(lat_lng_difference.to_s, detail: MISSING_PARAMS_ERR)
-          end
-        end
-      end
-
-      def valid_params?(difference1, difference2)
-        (difference1.empty? && difference2.any?) || (difference2.empty? && difference1.any?)
-      end
-
-      def ambiguous?(address_difference, lat_lng_difference, address_params, lat_lng_params)
-        address_difference.empty? || lat_lng_difference.empty? ||
-          (address_difference != address_params && lat_lng_difference != lat_lng_params)
       end
 
       def query_method(params)

@@ -3,6 +3,13 @@
 module VaFacilities
   module ParamValidators
     TYPE_SERVICE_ERR = 'Filtering by services is not allowed unless a facility type is specified'
+    MISSING_FACILITIES_PARAMS_ERR =
+      'Must supply lat and long, bounding box, zip code, or ids parameter to query facilities data.'
+    MISSING_NEARBY_PARAMS_ERR =
+      'Must supply street_address, city, state, and zip or lat and lng to query nearby facilities.'
+    AMBIGUOUS_PARAMS_ERR =
+      'Must supply either street_address, city, state, and zip or lat and lng, not both, to query nearby facilities.'
+
 
     def validate_zip
       if params[:zip]
@@ -66,6 +73,63 @@ module VaFacilities
       end
     rescue ArgumentError
       raise Common::Exceptions::InvalidFieldValue.new('bbox', params[:bbox])
+    end
+
+    def validate_a_param_exists(require_one_param)
+      lat_and_long = params.key?(:lat) && params.key?(:long)
+
+      if !lat_and_long && require_one_param.none? { |param| params.key? param }
+        require_one_param.each do |param|
+          unless params.key? param
+            raise Common::Exceptions::ParameterMissing.new(param.to_s, detail: MISSING_FACILITIES_PARAMS_ERR)
+          end
+        end
+      end
+    end
+
+    def valid_location_query?
+      case location_keys
+      when [] then true
+      when %i[lat long] then true
+      when [:state]     then true
+      when [:zip]       then true
+      when [:bbox]      then true
+      else
+        # There can only be one
+        render json: {
+          errors: ['You may only use ONE of these distance query parameter sets: lat/long, zip, state, or bbox']
+        },
+               status: 422
+      end
+    end
+
+    def validate_required_params(required_params)
+      param_keys = params.keys.map(&:to_sym)
+      address_params = required_params[:address]
+      lat_lng_params = required_params[:lat_lng]
+      address_difference = (address_params - param_keys)
+      lat_lng_difference = (lat_lng_params - param_keys)
+
+      unless valid_params?(address_difference, lat_lng_difference)
+        if ambiguous?(address_difference, lat_lng_difference, address_params, lat_lng_params)
+          raise Common::Exceptions::ParameterMissing.new(detail: AMBIGUOUS_PARAMS_ERR)
+        elsif address_difference != address_params
+          raise Common::Exceptions::ParameterMissing.new(address_difference.to_s, detail: MISSING_NEARBY_PARAMS_ERR)
+        elsif lat_lng_difference != lat_lng_params
+          raise Common::Exceptions::ParameterMissing.new(lat_lng_difference.to_s, detail: MISSING_NEARBY_PARAMS_ERR)
+        end
+      end
+    end
+
+    private
+
+    def valid_params?(difference1, difference2)
+      (difference1.empty? && difference2.any?) || (difference2.empty? && difference1.any?)
+    end
+
+    def ambiguous?(address_difference, lat_lng_difference, address_params, lat_lng_params)
+      address_difference.empty? || lat_lng_difference.empty? ||
+        (address_difference != address_params && lat_lng_difference != lat_lng_params)
     end
 
     def facility_klass
