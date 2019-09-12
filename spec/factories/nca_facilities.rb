@@ -7,6 +7,7 @@ FactoryBot.define do
     facility_type 'va_cemetery'
     classification 'National Cemetery'
     website 'https://www.cem.va.gov/cems/nchp/ftlogan.asp'
+    mobile nil
     lat 39.6455740260001
     long(-105.052859396)
     location 'POINT(-105.052859396 39.6455740260001)'
@@ -44,6 +45,7 @@ FactoryBot.define do
     facility_type 'va_cemetery'
     classification 'National Cemetery'
     website 'https://www.cem.va.gov/cems/nchp/willamette.asp'
+    mobile nil
     lat 45.4568385960001
     long(-122.540844696)
     location 'POINT(-122.540844696 45.4568385960001)'
@@ -83,6 +85,7 @@ FactoryBot.define do
     facility_type 'va_cemetery'
     classification 'National Cemetery'
     website 'https://www.cem.va.gov/cems/nchp/woodlawn.asp'
+    mobile nil
     lat 42.111095628
     long(-76.8265631089999)
     location 'POINT(-76.8265631089999 42.111095628)'
@@ -121,6 +124,7 @@ FactoryBot.define do
     facility_type 'va_cemetery'
     classification 'Rural'
     website nil
+    mobile nil
     lat 42.7038448500001
     long(-73.72356501)
     location 'POINT(-73.72356501 42.7038448500001)'
@@ -159,6 +163,7 @@ FactoryBot.define do
     facility_type  'va_cemetery'
     classification 'National Cemetery'
     website 'https://www.cem.va.gov/cems/nchp/cypresshills.asp'
+    mobile nil
     lat 40.6859544970001
     long(-73.8812331729999)
     location 'POINT(-73.8812331729999 40.6859544970001)'
@@ -197,6 +202,7 @@ FactoryBot.define do
     facility_type 'va_cemetery'
     classification 'National Cemetery'
     website 'https://www.cem.va.gov/cems/nchp/bath.asp'
+    mobile nil
     lat 42.347251468
     long(-77.350304205)
     location 'POINT(-77.350304205 42.347251468)'
@@ -235,6 +241,7 @@ FactoryBot.define do
     facility_type 'va_cemetery'
     classification 'National Cemetery'
     website 'https://www.cem.va.gov/cems/nchp/geraldbhsolomonsaratoga.asp'
+    mobile nil
     lat 43.026389889
     long(-73.617079936)
     location 'POINT(-73.617079936 43.026389889)'
@@ -273,6 +280,7 @@ FactoryBot.define do
     facility_type 'va_cemetery'
     classification 'National Cemetery'
     website 'https://www.cem.va.gov/cems/nchp/longisland.asp'
+    mobile nil
     lat 40.750563679
     long(-73.401496373)
     location 'POINT(-73.401496373 40.750563679)'

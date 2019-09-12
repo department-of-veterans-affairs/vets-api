@@ -7,6 +7,7 @@ FactoryBot.define do
     facility_type 'va_benefits_facility'
     classification 'OUTBASED'
     website nil
+    mobile nil
     lat 36.8476575
     long(-76.26950512)
     location 'POINT(-76.26950512 36.8476575)'
@@ -47,6 +48,7 @@ FactoryBot.define do
     facility_type 'va_benefits_facility'
     classification 'REGIONAL OFFICE (MAIN BLDG)'
     website 'http://www.benefits.va.gov/portland'
+    mobile nil
     lat 45.51516229
     long(-122.6755173)
     location 'POINT(-122.6755173 45.51516229)'
@@ -89,6 +91,7 @@ FactoryBot.define do
     facility_type 'va_benefits_facility'
     classification 'VOC REHAB AND EMPLOYMENT'
     website nil
+    mobile nil
     lat 45.51516229
     long(-122.6755173)
     location 'POINT(-122.6755173 45.51516229)'
@@ -130,6 +133,7 @@ FactoryBot.define do
     facility_type 'va_benefits_facility'
     classification 'VETSUCCESS ON CAMPUS'
     website nil
+    mobile nil
     lat 45.51144272
     long(-122.6844775)
     location 'POINT(-122.6844775 45.51144272)'
@@ -171,6 +175,7 @@ FactoryBot.define do
     facility_type 'va_benefits_facility'
     classification 'VETSUCCESS ON CAMPUS'
     website nil
+    mobile nil
     lat 45.56273715
     long(-122.6676496)
     location 'POINT(-122.6676496 45.56273715)'
@@ -212,6 +217,7 @@ FactoryBot.define do
     facility_type   'va_benefits_facility'
     classification 'VOC REHAB AND EMPLOYMENT'
     website nil
+    mobile nil
     lat 45.6394162600001
     long(-122.6552874)
     location 'POINT(-122.6552874 45.6394162600001)'
@@ -254,6 +260,7 @@ FactoryBot.define do
     facility_type 'va_benefits_facility'
     classification 'REGIONAL OFFICE (MAIN BLDG)'
     website 'http://www.benefits.va.gov/newyork/'
+    mobile nil
     lat 40.7283928800001
     long(-74.0062199)
     location 'POINT(-74.0062199 40.7283928800001)'
@@ -292,6 +299,7 @@ FactoryBot.define do
     facility_type 'va_benefits_facility'
     classification 'OUTBASED'
     website nil
+    mobile nil
     lat 41.24517788
     long(-73.9264304)
     location 'POINT(-73.9264304 41.24517788)'
@@ -326,6 +334,7 @@ FactoryBot.define do
     facility_type 'va_benefits_facility'
     classification 'OUTBASED'
     website nil
+    mobile nil
     lat 42.65140884
     long(-73.77623285)
     location 'POINT(-73.77623285 42.65140884)'
@@ -360,6 +369,7 @@ FactoryBot.define do
     facility_type 'va_benefits_facility'
     classification 'OUTBASED'
     website nil
+    mobile nil
     lat 40.74498866
     long(-73.4993731499999)
     location 'POINT(-73.4993731499999 40.74498866)'
@@ -393,6 +403,7 @@ FactoryBot.define do
     facility_type 'va_benefits_facility'
     classification 'IDES/PRE-DISCHARGE/CLAIMS INTAKE SITE'
     website nil
+    mobile nil
     lat 41.24517788
     long(-73.9264304)
     location 'POINT(-73.9264304 41.24517788)'
@@ -426,6 +437,7 @@ FactoryBot.define do
     facility_type 'va_benefits_facility'
     classification 'OUTBASED'
     website nil
+    mobile nil
     lat 42.65140884
     long(-73.77623285)
     location 'POINT(-73.77623285 42.65140884)'
@@ -463,6 +475,7 @@ FactoryBot.define do
     facility_type 'va_benefits_facility'
     classification 'OUTBASED'
     website nil
+    mobile nil
     lat 41.54045655
     long(-73.96222125)
     location 'POINT(-73.96222125 41.54045655)'
@@ -500,6 +513,7 @@ FactoryBot.define do
     facility_type 'va_benefits_facility'
     classification 'OUTBASED'
     website nil
+    mobile nil
     lat 41.24517788
     long(-73.9264304)
     location 'POINT(-73.9264304 41.24517788)'
@@ -537,6 +551,7 @@ FactoryBot.define do
     facility_type 'va_benefits_facility'
     classification 'OUTBASED'
     website nil
+    mobile nil
     lat 40.73709039
     long(-73.97694726)
     location 'POINT(-73.97694726 40.73709039)'
@@ -574,6 +589,7 @@ FactoryBot.define do
     facility_type 'va_benefits_facility'
     classification 'OUTBASED'
     website nil
+    mobile nil
     lat 40.73709039
     long(-73.97694726)
     location 'POINT(-73.97694726 40.73709039)'
@@ -612,6 +628,7 @@ FactoryBot.define do
     facility_type 'va_benefits_facility'
     classification 'REGIONAL OFFICE (MAIN BLDG)'
     website 'http://www.benefits.va.gov/newark'
+    mobile nil
     lat 40.7426633600001
     long(-74.17077896)
     location 'POINT(-74.17077896 40.7426633600001)'
@@ -654,6 +671,7 @@ FactoryBot.define do
     facility_type 'va_benefits_facility'
     classification 'VOC REHAB AND EMPLOYMENT'
     website nil
+    mobile nil
     lat 41.2475496100001
     long(-75.8411354799999)
     location 'POINT(-75.8411354799999 41.2475496100001)'
@@ -685,6 +703,7 @@ FactoryBot.define do
     facility_type 'va_benefits_facility'
     classification 'REGIONAL OFFICE (MAIN BLDG)'
     website 'http://www.benefits.va.gov/generic'
+    mobile nil
     lat 45.51516229
     long(-122.6755173)
     location 'POINT(-122.6755173 45.51516229)'
