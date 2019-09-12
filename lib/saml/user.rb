@@ -73,15 +73,15 @@ module SAML
 
     # will be one of AUTHN_CONTEXTS.keys
     def authn_context
-      saml_response.authn_context_text
+      saml_response.authn_context
     rescue StandardError
       Raven.tags_context(controller_name: 'sessions', sign_in_method: 'not-signed-in:error')
       raise
     end
 
-    # Issuer can be used to double check
+    # For future use; can check if issuer matches /eauth\.va\.gov/ for SSOe
     def issuer
-      saml_response.issuer
+      saml_response.issuers[0]
     rescue StandardError
       Raven.tags_context(controller_name: 'sessions', sign_in_method: 'not-signed-in:error')
       raise
@@ -89,6 +89,7 @@ module SAML
 
     # TODO: validate that the AuthN attribute name for SSOe case is 'ssoe'
     # SSOe Issuer value is https://int.eauth.va.gov/FIM/sps/saml20fedCSP/saml20
+    # SSOe AuthnContext currently set to urn:oasis:names:tc:SAML:2.0:ac:classes:Password
     def user_attributes_class
       case authn_context
       when 'myhealthevet', 'myhealthevet_multifactor'
@@ -97,7 +98,7 @@ module SAML
         SAML::UserAttributes::DSLogon
       when 'multifactor', 'dslogon_loa3', 'myhealthevet_loa3', LOA::IDME_LOA3, LOA::IDME_LOA1
         SAML::UserAttributes::IdMe
-      when 'urn:oasis:names:tc:SAML:2.0:ac:classes:Password' # used by SSOe
+      when 'urn:oasis:names:tc:SAML:2.0:ac:classes:Password'
         SAML::UserAttributes::SSOe
       else
         Raven.tags_context(

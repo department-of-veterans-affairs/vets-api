@@ -61,17 +61,14 @@ module SAML
         ERRORS[:unknown]
       end
 
-      def authn_context_text
-        REXML::XPath.first(decrypted_document, '//saml:AuthnContextClassRef')&.text
-      end
-
-      def issuer
-        REXML::XPath.first(decrypted_document, '//saml:Issuer')&.text
+      def authn_context_text(response_doc)
+        REXML::XPath.first(response_doc, '//saml:AuthnContextClassRef')&.text
       end
 
       def authn_context
-        if decrypted_document
-          authn_context_text || SAML::User::UNKNOWN_AUTHN_CONTEXT
+        response_doc = assertion_encrypted? ? decrypted_document : document
+        if response_doc
+          authn_context_text(response_doc) || SAML::User::UNKNOWN_AUTHN_CONTEXT
         else
           SAML::User::UNKNOWN_AUTHN_CONTEXT
         end
