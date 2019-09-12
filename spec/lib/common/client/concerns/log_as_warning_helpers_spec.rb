@@ -10,7 +10,7 @@ describe Common::Client::Concerns::LogAsWarningHelpers do
           def connection
             @conn ||= Faraday.new('http://example.com') do |faraday|
               faraday.adapter Faraday.default_adapter
-               faraday.use    Faraday::Response::RaiseError
+              faraday.use Faraday::Response::RaiseError
             end
           end
 
