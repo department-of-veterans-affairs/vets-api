@@ -254,7 +254,19 @@ describe MVI::Service do
         )
         VCR.use_cassette('mvi/find_candidate/invalid') do
           response = subject.find_profile(user)
+          server_error_502_expectations_for(response)
+        end
+      end
+    end
 
+    context 'when a MVI internal system problem response is returned' do
+      it 'should raise a invalid request error', :aggregate_failures do
+        expect(subject).to receive(:log_message_to_sentry).with(
+          'MVI Failed Request', :error
+        )
+        # See comment in cassette before making changes
+        VCR.use_cassette('mvi/find_candidate/legacy_mvi_system_error_response') do
+          response = subject.find_profile(user)
           server_error_502_expectations_for(response)
         end
       end
