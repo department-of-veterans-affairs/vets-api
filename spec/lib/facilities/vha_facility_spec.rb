@@ -88,6 +88,7 @@ RSpec.describe Facilities::VHAFacility do
           allow(sat_client_stub).to receive(:download).and_return(satisfaction_data)
           allow(wait_client_stub).to receive(:download).and_return(wait_time_data)
           Facilities::AccessDataDownload.new.perform
+          Facilities::DentalServiceReloadJob.new.perform
         end
 
         it 'should parse services' do
@@ -98,7 +99,7 @@ RSpec.describe Facilities::VHAFacility do
             f2_health = f2_services['health']
 
             expect(f1_services.keys).to match(%w[last_updated health other])
-            expect(f1_services['last_updated']).to eq('2019-07-09')
+            expect(f1_services['last_updated']).to eq('2017-03-31')
             expect(f1_health.size).to eq(2)
             expect(f1_health.first.keys).to eq(%w[sl1 sl2])
             expect(f1_health.first.values).to eq([['PrimaryCare'], []])
@@ -107,15 +108,14 @@ RSpec.describe Facilities::VHAFacility do
             expect(f1_services['other']).to be_empty
 
             expect(f2_services.keys).to match(%w[last_updated health other])
-            expect(f2_services['last_updated']).to eq('2019-07-09')
-            expect(f2_health.size).to eq(2)
-            # expect(f2_health.size).to eq(3)
+            expect(f2_services['last_updated']).to eq('2017-03-31')
+            expect(f2_health.size).to eq(3)
             expect(f2_health.first.keys).to eq(%w[sl1 sl2])
             expect(f2_health.second.keys).to eq(%w[sl1 sl2])
             expect(f2_health.first.values).to eq([['PrimaryCare'], []])
             expect(f2_health.second.values).to eq([['MentalHealthCare'], []])
-            # expect(f2_health.third.keys).to eq(%w[sl1 sl2])
-            # expect(f2_health.third.values).to eq([['DentalServices'], []])
+            expect(f2_health.third.keys).to eq(%w[sl1 sl2])
+            expect(f2_health.third.values).to eq([['DentalServices'], []])
           end
         end
       end

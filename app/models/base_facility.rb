@@ -11,10 +11,6 @@ class BaseFacility < ApplicationRecord
 
   YES = 'YES'
 
-  APPROVED_SERVICES = %w[
-    DentalServices
-  ].freeze
-
   HOURS_STANDARD_MAP = DateTime::DAYNAMES.each_with_object({}) { |d, h| h[d] = d }
 
   HEALTH = 'health'
