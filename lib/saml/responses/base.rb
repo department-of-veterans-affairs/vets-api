@@ -65,6 +65,10 @@ module SAML
         REXML::XPath.first(decrypted_document, '//saml:AuthnContextClassRef')&.text
       end
 
+      def issuer
+        REXML::XPath.first(decrypted_document, '//saml:Issuer')&.text
+      end
+
       def authn_context
         if decrypted_document
           authn_context_text || SAML::User::UNKNOWN_AUTHN_CONTEXT

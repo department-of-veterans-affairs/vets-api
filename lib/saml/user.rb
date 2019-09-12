@@ -79,7 +79,16 @@ module SAML
       raise
     end
 
+    # will be one of AUTHN_CONTEXTS.keys
+    def issuer
+      saml_response.issuer
+    rescue StandardError
+      Raven.tags_context(controller_name: 'sessions', sign_in_method: 'not-signed-in:error')
+      raise
+    end
+
     # TODO: validate that the AuthN attribute name for SSOe case is 'ssoe'
+    # SSOe Issuer value is https://int.eauth.va.gov/FIM/sps/saml20fedCSP/saml20
     def user_attributes_class
       case authn_context
       when 'myhealthevet', 'myhealthevet_multifactor'
