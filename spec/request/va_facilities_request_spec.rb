@@ -135,6 +135,7 @@ RSpec.describe 'VA GIS Integration', type: :request do
       provider = json['data'][0]
       expect(provider['attributes']['address']['city']).to eq('MANASSAS')
       expect(provider['attributes']['phone']).to eq('(828) 555-1723')
+      expect(provider['attributes']['caresite_phone']).to eq('(888) 444-1234')
     end
   end
 
