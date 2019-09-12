@@ -64,6 +64,12 @@ RSpec.describe Facilities::VHAFacility do
         end
       end
 
+      it 'should include active status for facilities' do
+        VCR.use_cassette('facilities/va/vha_facilities_limit_results') do
+          expect(facility_2.active_status).to eq('A')
+        end
+      end
+
       context 'services' do
         let(:satisfaction_data) do
           fixture_file_name = "#{::Rails.root}/spec/fixtures/facility_access/satisfaction_data.json"
