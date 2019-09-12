@@ -1,4 +1,13 @@
 GIT
+  remote: https://github.com/annaswims/simplecov
+  revision: 514bd7f461db451776468b82b0ac9fa2b35d22db
+  branch: parallel_test_finish
+  specs:
+    simplecov (0.17.0)
+      docile (~> 1.1)
+      simplecov-html (~> 0.10.0)
+
+GIT
   remote: https://github.com/department-of-veterans-affairs/betamocks
   revision: dfeb140c9571020239807477e34ec58ad2b38b32
   branch: master
@@ -588,10 +597,6 @@ GEM
       rufus-scheduler (~> 3.2)
       sidekiq (>= 3)
       tilt (>= 1.4.0)
-    simplecov (0.17.0)
-      docile (~> 1.1)
-      json (>= 1.8, < 3)
-      simplecov-html (~> 0.10.0)
     simplecov-html (0.10.2)
     slop (3.6.0)
     socksify (1.7.1)
@@ -769,7 +774,7 @@ DEPENDENCIES
   sidekiq-instrument
   sidekiq-pro!
   sidekiq-scheduler (~> 2.0)
-  simplecov
+  simplecov!
   socksify
   spring
   spring-commands-rspec
@@ -796,4 +801,4 @@ DEPENDENCIES
   zero_downtime_migrations
 
 BUNDLED WITH
-  1.17.3
+   1.17.3
