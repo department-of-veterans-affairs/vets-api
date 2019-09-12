@@ -109,7 +109,7 @@ group :development do
   # POSIX systems should have this already, so we're not going to bring it in on other platforms
   gem 'tzinfo-data', platforms: %i[mingw mswin x64_mingw jruby]
   # Access an IRB console on exception pages or by using <%= console %> in views
-  gem 'web-console', '~> 2.0', platforms: :ruby
+  gem 'web-console', platforms: :ruby
 end
 
 group :test do
