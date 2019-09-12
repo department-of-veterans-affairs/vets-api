@@ -6,7 +6,7 @@ require 'active_support/cache'
 require 'flipper/adapters/active_support_cache_store'
 
 # Add new Feature toggles here.  They will be off until toggled int the UI
-FLIPPER_FEATURES = [].freeze
+FLIPPER_FEATURES = ['profileShowDirectDeposit'].freeze
 
 # Flipper settings will be stored in postgres and cached in memory for 1 minute
 Flipper.configure do |config|
