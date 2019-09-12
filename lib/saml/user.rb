@@ -79,7 +79,7 @@ module SAML
       raise
     end
 
-    # will be one of AUTHN_CONTEXTS.keys
+    # Issuer can be used to double check
     def issuer
       saml_response.issuer
     rescue StandardError
@@ -97,7 +97,7 @@ module SAML
         SAML::UserAttributes::DSLogon
       when 'multifactor', 'dslogon_loa3', 'myhealthevet_loa3', LOA::IDME_LOA3, LOA::IDME_LOA1
         SAML::UserAttributes::IdMe
-      when 'ssoe'
+      when 'urn:oasis:names:tc:SAML:2.0:ac:classes:Password' # used by SSOe
         SAML::UserAttributes::SSOe
       else
         Raven.tags_context(
