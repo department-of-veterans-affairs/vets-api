@@ -65,6 +65,7 @@ module SAML
       allow(saml_response).to receive(:attributes).and_return(attributes)
       allow(saml_response).to receive(:validate).and_return(true)
       allow(saml_response).to receive(:decrypted_document).and_return(document_partial(authn_context))
+      allow(saml_response).to receive(:assertion_encrypted?).and_return(true)
       saml_response
     end
     # rubocop:enable Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
