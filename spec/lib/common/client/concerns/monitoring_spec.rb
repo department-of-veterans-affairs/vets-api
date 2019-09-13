@@ -19,7 +19,7 @@ RSpec.describe Common::Client::Monitoring, type: :model do
           end
         end
 
-        class DefaultService < ::Common::Client::Base
+        class TestService < ::Common::Client::Base
           STATSD_KEY_PREFIX = 'fooservice'
           configuration DefaultConfiguration
           include ::Common::Client::Monitoring
@@ -32,7 +32,7 @@ RSpec.describe Common::Client::Monitoring, type: :model do
     end
   end
 
-  let(:service) { Specs::Common::Client::DefaultService.new }
+  let(:service) { Specs::Common::Client::TestService.new }
 
   it 'increments the total' do
     VCR.use_cassette('shared/success', VCR::MATCH_EVERYTHING) do
