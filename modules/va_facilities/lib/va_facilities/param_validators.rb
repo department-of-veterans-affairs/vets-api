@@ -5,7 +5,7 @@ module VaFacilities
   module ParamValidators
     TYPE_SERVICE_ERR = 'Filtering by services is not allowed unless a facility type is specified'
     MISSING_FACILITIES_PARAMS_ERR =
-      'Must supply lat and long, bounding box, zip code, or ids parameter to query facilities data.'
+      'Must supply lat and long, bounding box, zip code, state, or ids parameter to query facilities data.'
     MISSING_NEARBY_PARAMS_ERR =
       'Must supply street_address, city, state, and zip or lat and lng to query nearby facilities.'
     AMBIGUOUS_PARAMS_ERR =
@@ -74,9 +74,7 @@ module VaFacilities
     end
 
     def validate_a_param_exists(require_one_param)
-      lat_and_long = params.key?(:lat) && params.key?(:long)
-
-      if !lat_and_long && require_one_param.none? { |param| params.key? param }
+      if none_required_params_exists?(require_one_param, params)
         require_one_param.each do |param|
           unless params.key? param
             raise Common::Exceptions::ParameterMissing.new(param.to_s, detail: MISSING_FACILITIES_PARAMS_ERR)
@@ -120,6 +118,13 @@ module VaFacilities
     end
 
     private
+
+    def none_required_params_exists?(required_one_param, params)
+      lat_lng = %i[lat long]
+      lat_lng_exists = params.key?(:lat) && params.key?(:long)
+      required_params = required_one_param - lat_lng
+      !lat_lng_exists && required_params.none? { |param| params.key? param }
+    end
 
     def valid_params?(difference1, difference2)
       (difference1.empty? && difference2.any?) || (difference2.empty? && difference1.any?)

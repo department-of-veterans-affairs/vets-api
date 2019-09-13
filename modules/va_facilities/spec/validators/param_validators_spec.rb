@@ -296,8 +296,26 @@ RSpec.describe VaFacilities::ParamValidators do
       expect(@dummy_class.validate_a_param_exists(REQUIRE_ONE_PARAM)).to be_nil
     end
 
-    it 'passes validation when lat is present' do
+    it 'fails validation when lat is present without long' do
       @dummy_class.params = { lat: 40.5 }
+      expect do
+        @dummy_class.validate_a_param_exists(REQUIRE_ONE_PARAM)
+      end.to raise_error(Common::Exceptions::ParameterMissing) { |error|
+        expect(error.message).to eq 'Missing parameter'
+      }
+    end
+
+    it 'fails validation when long is present without lat' do
+      @dummy_class.params = { long: 40.5 }
+      expect do
+        @dummy_class.validate_a_param_exists(REQUIRE_ONE_PARAM)
+      end.to raise_error(Common::Exceptions::ParameterMissing) { |error|
+        expect(error.message).to eq 'Missing parameter'
+      }
+    end
+
+    it 'passes validation when lat and state are present' do
+      @dummy_class.params = { lat: 40.5, state: 'TX' }
       expect(@dummy_class.validate_a_param_exists(REQUIRE_ONE_PARAM)).to be_nil
     end
 
@@ -305,9 +323,48 @@ RSpec.describe VaFacilities::ParamValidators do
       @dummy_class.params = { zip: '75075' }
       expect(@dummy_class.validate_a_param_exists(REQUIRE_ONE_PARAM)).to be_nil
     end
+
+    it 'passes validation when state is present' do
+      @dummy_class.params = { state: 'TX' }
+      expect(@dummy_class.validate_a_param_exists(REQUIRE_ONE_PARAM)).to be_nil
+    end
+
+    it 'passes validation when bbox is present' do
+      @dummy_class.params = { bbox: %w[40.5 50.234 50.234 100.1324] }
+      expect(@dummy_class.validate_a_param_exists(REQUIRE_ONE_PARAM)).to be_nil
+    end
+
+    it 'passes validation when ids are present' do
+      @dummy_class.params = { ids: %w[1 2] }
+      expect(@dummy_class.validate_a_param_exists(REQUIRE_ONE_PARAM)).to be_nil
+    end
+
+    it 'passes validation when all are present' do
+      @dummy_class.params = {
+        bbox: %w[40.5 50.234 50.234 100.1324], long: '45.5', lat: '30.5', zip: '75075', ids: %w[1 2], state: 'TX'
+      }
+      expect(@dummy_class.validate_a_param_exists(REQUIRE_ONE_PARAM)).to be_nil
+    end
+
+    it 'fails validation when params are empty' do
+      @dummy_class.params = {}
+      expect do
+        @dummy_class.validate_a_param_exists(REQUIRE_ONE_PARAM)
+      end.to raise_error(Common::Exceptions::ParameterMissing) { |error|
+        expect(error.message).to eq 'Missing parameter'
+      }
+    end
+
+    it 'fails validation when required params are not present' do
+      @dummy_class.params = { type: 'type' }
+      expect do
+        @dummy_class.validate_a_param_exists(REQUIRE_ONE_PARAM)
+      end.to raise_error(Common::Exceptions::ParameterMissing) { |error|
+        expect(error.message).to eq 'Missing parameter'
+      }
+    end
   end
 
-  # (%i[lat long state zip bbox] & params.keys.map(&:to_sym)).sort
   describe 'location query validation' do
     it 'passes validation when no location query params are found' do
       @dummy_class.params = { type: 'type' }
@@ -317,6 +374,24 @@ RSpec.describe VaFacilities::ParamValidators do
     it 'passes validation when lat and lng are present' do
       @dummy_class.params = { lat: 40.5, long: 40.2 }
       expect(@dummy_class.valid_location_query?).to be_truthy
+    end
+
+    it 'fails when only lat and not long is present' do
+      @dummy_class.params = { lat: 40.5 }
+      expected_hash = { json: { errors: [
+        'You may only use ONE of these distance query parameter sets: lat/long, zip, state, or bbox'
+      ] } }
+      expect(@dummy_class.valid_location_query?)
+        .to include(expected_hash)
+    end
+
+    it 'fails when only lat and not long is present' do
+      @dummy_class.params = { long: 40.5 }
+      expected_hash = { json: { errors: [
+        'You may only use ONE of these distance query parameter sets: lat/long, zip, state, or bbox'
+      ] } }
+      expect(@dummy_class.valid_location_query?)
+        .to include(expected_hash)
     end
 
     it 'passes validation when state is present' do
@@ -341,6 +416,17 @@ RSpec.describe VaFacilities::ParamValidators do
 
     it 'fails validation when multiple location query params are present' do
       @dummy_class.params = { bbox: %w[40.5 50.234 50.234 100.1324], state: 'tx' }
+      expected_hash = { json: { errors: [
+        'You may only use ONE of these distance query parameter sets: lat/long, zip, state, or bbox'
+      ] } }
+      expect(@dummy_class.valid_location_query?)
+        .to include(expected_hash)
+    end
+
+    it 'fails validation when passing in all location queries' do
+      @dummy_class.params = {
+        bbox: %w[40.5 50.234 50.234 100.1324], long: '45.5', lat: '30.5', zip: '75075', state: 'TX'
+      }
       expected_hash = { json: { errors: [
         'You may only use ONE of these distance query parameter sets: lat/long, zip, state, or bbox'
       ] } }
