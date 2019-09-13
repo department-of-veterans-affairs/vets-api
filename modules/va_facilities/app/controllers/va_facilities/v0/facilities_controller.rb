@@ -86,10 +86,6 @@ module VaFacilities
         raise Common::Exceptions::InvalidFieldValue.new(param.to_s, params[param])
       end
 
-      def location_keys
-        (%i[lat long state zip bbox] & params.keys.map(&:to_sym)).sort
-      end
-
       def metadata(resource)
         meta = { pagination: { current_page: resource.current_page,
                                per_page: resource.per_page,

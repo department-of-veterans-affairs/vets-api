@@ -103,7 +103,7 @@ module VaFacilities
       end
     end
 
-    def validate_required_params(required_params)
+    def validate_required_nearby_params(required_params)
       param_keys = params.keys.map(&:to_sym)
       address_params = required_params[:address]
       lat_lng_params = required_params[:lat_lng]
@@ -134,6 +134,10 @@ module VaFacilities
 
     def facility_klass
       BaseFacility::TYPE_MAP[params[:type]].constantize
+    end
+
+    def location_keys
+      (%i[lat long state zip bbox] & params.keys.map(&:to_sym)).sort
     end
   end
 end

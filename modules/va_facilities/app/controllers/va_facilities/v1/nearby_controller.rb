@@ -54,7 +54,7 @@ module VaFacilities
       private
 
       def validate_params
-        validate_required_params(REQUIRED_PARAMS)
+        validate_required_nearby_params(REQUIRED_PARAMS)
         validate_street_address
         validate_state_code
         validate_zip
