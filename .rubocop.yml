@@ -126,7 +126,9 @@ Lint/BooleanSymbol:
   Exclude:
     - "app/swagger/schemas/gibct/institutions.rb" #Swagger blocks defines keys as :true, need to keep as is
 
-# Almost certainly you'll want to use Time since your app is probably dealing with current dates and times and it has support for timezones (system/local and utc), whereas DateTime just has offsets from UTC. However, if you need to deal with dates and times in a historical context you'll want to use DateTime to avoid making the same mistakes as UNESCO
+# Use `Time` when dealing with current dates and times; it has support for timezones (system/local and utc), whereas `DateTime` only supports offsets from UTC.
+# However, if you need to deal with dates and times in a historical context you'll want to use DateTime to avoid making the same mistakes as UNESCO.
+# See: https://www.rubydoc.info/gems/rubocop/RuboCop/Cop/Style/DateTime
 Style/DateTime:
   Exclude:
     - "rakelib/evss.rake"
