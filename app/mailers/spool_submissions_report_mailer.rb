@@ -18,12 +18,12 @@ class SpoolSubmissionsReportMailer < ApplicationMailer
     lihan@adhocteam.us
     Turner_Desiree@bah.com
     Delli-Gatti_Michael@bah.com
+    shay.norton-leonard@va.gov
   ].freeze
 
   STAGING_STEM_RECIPIENTS = %w[
     kyle.pietrosanto@va.gov
     robert.shinners@va.gov
-    shay.norton-leonard@va.gov
     hughes_dustin@bah.com
     sonntag_adam@bah.com
   ].freeze
