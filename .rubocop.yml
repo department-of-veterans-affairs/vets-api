@@ -99,7 +99,8 @@ Metrics/BlockLength:
     - 'app/controllers/v0/apidocs_controller.rb'
 
 # Don't worry about ambiguous blocks in RSpec
-# Still recommended to disable specs in accordance to this lint rule 8/2019
+# Official recommendation from rubocop team is to disable this rule for specs. 
+# See: https://github.com/rubocop-hq/rubocop/issues/4222
 Lint/AmbiguousBlockAssociation:
   Exclude:
     - "spec/**/*"
