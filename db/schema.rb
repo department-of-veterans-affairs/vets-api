@@ -87,7 +87,7 @@ ActiveRecord::Schema.define(version: 2019_09_04_156435) do
     t.index ["state"], name: "index_central_mail_submissions_on_state"
   end
 
-  create_table "claims_api_auto_established_claims", id: :uuid, default: nil, force: :cascade do |t|
+  create_table "claims_api_auto_established_claims", id: :uuid, default: -> { "uuid_generate_v4()" }, force: :cascade do |t|
     t.string "status"
     t.string "encrypted_form_data"
     t.string "encrypted_form_data_iv"
