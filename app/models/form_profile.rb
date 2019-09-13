@@ -192,7 +192,7 @@ class FormProfile
     rescue => e
       if Rails.env.production?
         # fail silently if emis is down
-        log_exception_to_sentry(e, {}, backend_service: :emis)
+        log_exception_to_sentry(e, {}, external_service: :emis)
       else
         raise e
       end

@@ -6,7 +6,6 @@ module Facilities
 
     def perform(type)
       @type = type
-      Raven.tags_context(job: "FacilityLocationDownloadJob:#{type}")
       ActiveRecord::Base.transaction do
         process_changes
         process_deletes
@@ -59,7 +58,7 @@ module Facilities
     end
 
     def klass
-      "Facilities::#{@type.upcase}Facility".constantize
+      BaseFacility::CLASS_MAP[@type]
     end
 
     def updatable_attrs(record)

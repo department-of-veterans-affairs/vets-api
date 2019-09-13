@@ -8,7 +8,7 @@
       "required": ["id", "type", "attributes"],
       "properties": {
         "id": { "type": "string" },
-        "type": { "enum": ["evss_claims"] },
+        "type": { "enum": ["claims_api_claim"] },
         "attributes": {
           "type": "object",
           "required": [

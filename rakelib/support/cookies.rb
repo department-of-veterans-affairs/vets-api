@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'rails/session_cookie'
+
 class Cookies
   def initialize(session)
     @session = session
@@ -11,7 +13,11 @@ class Cookies
   end
 
   def api_session_header
-    "api_session=#{encrypt_api_session_cookie(@session)}"
+    session_options = { key: 'api_session' }
+    session_data = @session.to_hash.reverse_merge(session_id: SecureRandom.hex(32))
+    raw_cookie = Rails::SessionCookie::App.new(session_data, session_options).session_cookie
+
+    raw_cookie.chomp("\; path=\/\; HttpOnly")
   end
 
   def sso_session_header
@@ -19,16 +25,6 @@ class Cookies
   end
 
   private
-
-  def encrypt_api_session_cookie(session)
-    salt = Rails.application.config.action_dispatch.encrypted_cookie_salt
-    signed_salt = Rails.application.config.action_dispatch.encrypted_signed_cookie_salt
-    key_generator = ActiveSupport::KeyGenerator.new(Rails.application.secrets.secret_key_base, iterations: 1000)
-    secret = key_generator.generate_key(salt)[0, ActiveSupport::MessageEncryptor.key_len]
-    sign_secret = key_generator.generate_key(signed_salt)
-    encryptor = ActiveSupport::MessageEncryptor.new(secret, sign_secret)
-    encryptor.encrypt_and_sign(session.to_hash.reverse_merge(session_id: SecureRandom.hex(32)))
-  end
 
   def encrypt_sso_cookie(session, user)
     content = {

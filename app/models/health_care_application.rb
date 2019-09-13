@@ -5,6 +5,7 @@ class HealthCareApplication < ApplicationRecord
   include SentryLogging
 
   FORM_ID = '10-10EZ'
+  ACTIVEDUTY_ELIGIBILITY = 'TRICARE'
 
   attr_accessor(:user)
   attr_accessor(:async_compatible)
@@ -68,10 +69,28 @@ class HealthCareApplication < ApplicationRecord
     end
   end
 
+  def self.determine_active_duty(primary_eligibility, veteran)
+    primary_eligibility == ACTIVEDUTY_ELIGIBILITY && veteran == 'false'
+  end
+
+  def self.determine_non_military(primary_eligibility, veteran, parsed_status)
+    if parsed_status == Notification::ACTIVEDUTY &&
+       !determine_active_duty(primary_eligibility, veteran)
+      Notification::NON_MILITARY
+    else
+      parsed_status
+    end
+  end
+
   def self.parsed_ee_data(ee_data, loa3)
     if loa3
       parsed_status = HCA::EnrollmentEligibility::StatusMatcher.parse(
         ee_data[:enrollment_status], ee_data[:ineligibility_reason]
+      )
+
+      parsed_status = determine_non_military(
+        ee_data[:primary_eligibility], ee_data[:veteran],
+        parsed_status
       )
 
       ee_data.slice(
