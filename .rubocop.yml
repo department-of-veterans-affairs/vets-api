@@ -137,7 +137,6 @@ Style/DateTime:
 
 
 # Skipping for now, should revisit:
-#dependent: destroy issue, don't always want dependent option
 Rails/HasManyOrHasOneDependent:
   Exclude:
     - "app/models/education_benefits_claim.rb"
