@@ -37,6 +37,7 @@ RSpec.describe Common::Client::Monitoring, type: :model do
   it 'increments the total' do
     VCR.use_cassette('shared/success', VCR::MATCH_EVERYTHING) do
       key = service.class.const_get('STATSD_KEY_PREFIX') + '.request.total'
+      expect_any_instance_of(StatsDMetric).to receive(:save).once
       expect_any_instance_of(StatsD).to receive(:increment).with(key).once
       service.request(:get, nil)
     end
