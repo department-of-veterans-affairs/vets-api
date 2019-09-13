@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-directories(%w[app lib config spec].select { |d| Dir.exist?(d) ? d : UI.warning("Directory #{d} does not exist") })
-
 guard :rspec, cmd: 'DISABLE_SPRING=y NOCOVERAGE=y bin/rspec' do
   require 'guard/rspec/dsl'
   dsl = Guard::RSpec::Dsl.new(self)
