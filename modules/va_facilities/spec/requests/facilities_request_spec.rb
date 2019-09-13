@@ -71,7 +71,7 @@ RSpec.describe 'Facilities API endpoint', type: :request do
     it 'responds to GET #index with ids sorted by distance from lat/long' do
       setup_pdx
       get "#{base_query_path}#{ids_query}&lat=45.451913&long=-122.440689", params: nil, headers: accept_json
-      expect(response).to be_success
+      expect(response).to be_successful
       expect(response.body).to be_a(String)
       json = JSON.parse(response.body)
       expect(json['data'].length).to eq(10)
@@ -81,7 +81,7 @@ RSpec.describe 'Facilities API endpoint', type: :request do
     it 'responds to GET #index with zip' do
       setup_pdx
       get base_query_path + zip, params: nil, headers: accept_json
-      expect(response).to be_success
+      expect(response).to be_successful
       expect(response.body).to be_a(String)
       json = JSON.parse(response.body)
       expect(json['data'].length).to eq(4)
@@ -91,7 +91,7 @@ RSpec.describe 'Facilities API endpoint', type: :request do
     it 'responds to GET #index with zip+4' do
       setup_pdx
       get base_query_path + zip + '-3432', params: nil, headers: accept_json
-      expect(response).to be_success
+      expect(response).to be_successful
       expect(response.body).to be_a(String)
       json = JSON.parse(response.body)
       expect(json['data'].length).to eq(4)
@@ -148,7 +148,7 @@ RSpec.describe 'Facilities API endpoint', type: :request do
     it 'responds to GET #index with state code' do
       setup_pdx
       get base_query_path, params: 'state=WA', headers: accept_json
-      expect(response).to be_success
+      expect(response).to be_successful
       expect(response.body).to be_a(String)
       json = JSON.parse(response.body)
       expect(json['data'].length).to eq(2)
