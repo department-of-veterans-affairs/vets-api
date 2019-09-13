@@ -3,11 +3,11 @@
 FactoryBot.define do
   factory :openid_user, class: 'OpenidUser' do
     transient do
-      identity_attrs nil
+      identity_attrs { nil }
     end
 
-    uuid 'b2fab2b5-6af0-45e1-a9e2-394347af91ef'
-    last_signed_in Time.now.utc
+    uuid { 'b2fab2b5-6af0-45e1-a9e2-394347af91ef' }
+    last_signed_in { Time.now.utc }
 
     callback(:after_build, :after_stub) do |user, t|
       if t.identity_attrs

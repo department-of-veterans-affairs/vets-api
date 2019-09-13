@@ -2,8 +2,8 @@
 
 FactoryBot.define do
   factory :evss_claim do
-    user_uuid '1234'
-    evss_id   1
+    user_uuid { '1234' }
+    evss_id   { 1 }
     data      do
       fixture_file_name = "#{::Rails.root}/spec/fixtures/evss_claim/claim-detail.json"
       File.open(fixture_file_name, 'rb') do |f|
