@@ -115,7 +115,7 @@ ActiveRecord::Schema.define(version: 2019_09_04_156435) do
     t.datetime "updated_at", null: false
   end
 
-  create_table "claims_api_supporting_documents", id: :uuid, default: nil, force: :cascade do |t|
+  create_table "claims_api_supporting_documents", id: :uuid, default: -> { "uuid_generate_v4()" }, force: :cascade do |t|
     t.string "encrypted_file_data", null: false
     t.string "encrypted_file_data_iv", null: false
     t.datetime "created_at", null: false
