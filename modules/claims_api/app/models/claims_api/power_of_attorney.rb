@@ -33,5 +33,10 @@ module ClaimsApi
     def uploader
       @uploader ||= ClaimsApi::PowerOfAttorneyUploader.new(id)
     end
+
+    def self.pending?(id)
+      query = where(id: id)
+      query.exists? ? query.first : false
+    end
   end
 end

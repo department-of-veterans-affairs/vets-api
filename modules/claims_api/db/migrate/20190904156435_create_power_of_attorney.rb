@@ -5,7 +5,7 @@ class CreatePowerOfAttorney < ActiveRecord::Migration[5.2]
     enable_extension 'uuid-ossp'
     enable_extension 'pgcrypto'
 
-    create_table :claims_api_power_of_attorney, id: :uuid do |t|
+    create_table :claims_api_power_of_attorneys, id: :uuid do |t|
       t.string :status
       t.string :current_poa
       t.string :encrypted_form_data

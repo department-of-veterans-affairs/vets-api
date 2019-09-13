@@ -87,7 +87,7 @@ ActiveRecord::Schema.define(version: 2019_09_04_156435) do
     t.index ["state"], name: "index_central_mail_submissions_on_state"
   end
 
-  create_table "claims_api_auto_established_claims", id: :uuid, default: -> { "uuid_generate_v4()" }, force: :cascade do |t|
+  create_table "claims_api_auto_established_claims", id: :uuid, default: nil, force: :cascade do |t|
     t.string "status"
     t.string "encrypted_form_data"
     t.string "encrypted_form_data_iv"
@@ -100,7 +100,7 @@ ActiveRecord::Schema.define(version: 2019_09_04_156435) do
     t.string "source"
   end
 
-  create_table "claims_api_power_of_attorney", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+  create_table "claims_api_power_of_attorneys", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.string "status"
     t.string "current_poa"
     t.string "encrypted_form_data"
@@ -115,7 +115,7 @@ ActiveRecord::Schema.define(version: 2019_09_04_156435) do
     t.datetime "updated_at", null: false
   end
 
-  create_table "claims_api_supporting_documents", id: :uuid, default: -> { "uuid_generate_v4()" }, force: :cascade do |t|
+  create_table "claims_api_supporting_documents", id: :uuid, default: nil, force: :cascade do |t|
     t.string "encrypted_file_data", null: false
     t.string "encrypted_file_data_iv", null: false
     t.datetime "created_at", null: false

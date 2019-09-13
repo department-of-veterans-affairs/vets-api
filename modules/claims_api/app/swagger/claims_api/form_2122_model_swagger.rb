@@ -78,7 +78,7 @@ module ClaimsApi
           key :description, 'Says if the power of attoreny is submitted or accepted'
           key :enum, %w[
             submitted
-            accepted
+            approved
           ]
         end
 
