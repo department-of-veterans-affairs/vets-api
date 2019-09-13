@@ -105,7 +105,7 @@ FactoryBot.define do
       end
 
       factory :va1990_western_region do
-        custom_form(
+        custom_form { { 
           'educationProgram' => {
             'address' => {
               'country' => 'USA',
@@ -115,7 +115,7 @@ FactoryBot.define do
               'city' => 'Los Angeles'
             }
           }
-        )
+         } }
       end
     end
   end

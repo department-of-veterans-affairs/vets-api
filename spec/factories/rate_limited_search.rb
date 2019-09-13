@@ -2,6 +2,6 @@
 
 FactoryBot.define do
   factory :rate_limited_search do
-    search_params(Digest::SHA2.hexdigest('1234'))
+    search_params { Digest::SHA2.hexdigest('1234') }
   end
 end

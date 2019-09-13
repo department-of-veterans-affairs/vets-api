@@ -2,7 +2,7 @@
 
 FactoryBot.define do
   factory :va5490, class: SavedClaim::EducationBenefits::VA5490, parent: :education_benefits do
-    form({
+    form { {
       benefit: 'chapter35',
       relationship: 'child',
       veteranSocialSecurityNumber: '111223333',
@@ -11,6 +11,6 @@ FactoryBot.define do
         last: 'Olson'
       },
       privacyAgreementAccepted: true
-    }.to_json)
+    }.to_json }
   end
 end

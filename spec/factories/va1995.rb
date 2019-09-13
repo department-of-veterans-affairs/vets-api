@@ -2,7 +2,7 @@
 
 FactoryBot.define do
   factory :va1995, class: SavedClaim::EducationBenefits::VA1995, parent: :education_benefits do
-    form({
+    form { {
       veteranFullName: {
         first: 'Mark',
         last: 'Olson'
@@ -10,10 +10,10 @@ FactoryBot.define do
       veteranSocialSecurityNumber: '111223333',
       benefit: 'transferOfEntitlement',
       privacyAgreementAccepted: true
-    }.to_json)
+    }.to_json }
 
     factory :va1995_full_form do
-      form(File.read(Rails.root.join('spec', 'fixtures', 'education_benefits_claims', '1995', 'kitchen_sink.json')))
+      form { File.read(Rails.root.join('spec', 'fixtures', 'education_benefits_claims', '1995', 'kitchen_sink.json')) }
     end
   end
 end
