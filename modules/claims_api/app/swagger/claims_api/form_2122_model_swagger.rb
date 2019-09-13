@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module ClaimsApi
-  class Form0966ModelSwagger
+  class Form2122ModelSwagger
     include Swagger::Blocks
 
     swagger_schema :Form2122Input do
