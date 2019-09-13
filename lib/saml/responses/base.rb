@@ -67,11 +67,7 @@ module SAML
 
       def authn_context
         response_doc = assertion_encrypted? ? decrypted_document : document
-        if response_doc
-          authn_context_text(response_doc) || SAML::User::UNKNOWN_AUTHN_CONTEXT
-        else
-          SAML::User::UNKNOWN_AUTHN_CONTEXT
-        end
+        authn_context_text(response_doc)
       end
     end
   end
