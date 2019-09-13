@@ -67,10 +67,8 @@ module VaFacilities
     end
 
     def validate_bbox
-      if params[:bbox]
-        raise ArgumentError unless params[:bbox]&.length == 4
-        params[:bbox].each { |x| Float(x) }
-      end
+      raise ArgumentError unless params[:bbox].nil? || params[:bbox]&.length == 4
+      params[:bbox]&.each { |x| Float(x) }
     rescue ArgumentError
       raise Common::Exceptions::InvalidFieldValue.new('bbox', params[:bbox])
     end
