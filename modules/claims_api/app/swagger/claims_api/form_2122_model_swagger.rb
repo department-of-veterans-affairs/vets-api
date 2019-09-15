@@ -86,16 +86,34 @@ module ClaimsApi
           key :type, :object
           key :description, 'Information about VSO, Attorney or Claims Agents'
 
+          property :poa_code do
+            key :type, :string
+            key :example, 'A01'
+            key :description, 'Power of Attorney Code submitted for Veteran'
+          end
+
+          property :poa_first_name do
+            key :type, :string
+            key :example, 'A01'
+            key :description, 'Power of Attorney representative first name submitted for Veteran'
+          end
+
+          property :poa_last_name do
+            key :type, :string
+            key :example, 'A01'
+            key :description, 'Power of Attorney representative last name submitted for Veteran'
+          end
+
+          property :current_poa do
+            key :type, :string
+            key :example, 'A01'
+            key :description, 'Current or Previous Power of Attorney Code submitted for Veteran'
+          end
+
           property :participant_id do
             key :type, :string
             key :example, '987654'
             key :description, 'Participant ID for veteran representative'
-          end
-
-          property :poa_code do
-            key :type, :string
-            key :example, 'A01'
-            key :description, 'Power of Attorney Code being submitted for Veteran'
           end
         end
 
