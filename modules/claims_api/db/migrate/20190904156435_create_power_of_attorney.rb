@@ -12,8 +12,8 @@ class CreatePowerOfAttorney < ActiveRecord::Migration[5.2]
       t.string :encrypted_form_data_iv
       t.string :encrypted_auth_headers
       t.string :encrypted_auth_headers_iv
-      t.string :encrypted_file_data, null: false
-      t.string :encrypted_file_data_iv, null: false
+      t.string :encrypted_file_data
+      t.string :encrypted_file_data_iv
       t.string :md5
       t.string :source
 
