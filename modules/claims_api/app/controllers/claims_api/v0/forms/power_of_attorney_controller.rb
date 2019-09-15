@@ -26,7 +26,10 @@ module ClaimsApi
           render json: power_of_attorney, serializer: ClaimsApi::PowerOfAttorneySerializer
         end
 
-        def status_2122; end
+        def status
+          power_of_attorney = ClaimsApi::PowerOfAttorney.find_by(id: params[:id])
+          render json: power_of_attorney, serializer: ClaimsApi::PowerOfAttorneySerializer
+        end
       end
     end
   end

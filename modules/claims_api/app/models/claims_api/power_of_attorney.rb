@@ -11,6 +11,18 @@ module ClaimsApi
     before_validation :set_md5
     validates :md5, uniqueness: true
 
+    def date_request_accepted
+      created_at&.to_date.to_s
+    end
+
+    def representative
+      form_data.merge(current_poa: current_poa, participant_id: nil)
+    end
+
+    def veteran
+      { participant_id: nil }
+    end
+
     def set_md5
       headers = auth_headers.except('va_eauth_issueinstant', 'Authorization')
       self.md5 = Digest::MD5.hexdigest form_data.merge(headers).to_json
