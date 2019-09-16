@@ -43,7 +43,7 @@ FLIPPER_FEATURE_CONFIG['features'].each_key do |feature|
       # default feautures to enabled for development and test only
       Flipper.enable(feature) if Rails.env.development? || Rails.env.test?
     end
-  rescue StandardError
+  rescue
     # make sure we can still run rake tasks before table has been created
     nil
   end
