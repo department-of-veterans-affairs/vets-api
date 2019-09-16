@@ -9,7 +9,7 @@ module OpenidAuth
 
       def parse_user_attributes(json_request)
         okta_attributes = json_request.dig(:data, :assertion, :claims)
-        user_attributes = Hash.new
+        user_attributes = {}
         okta_attributes.each do |k, v|
           user_attributes[k.to_sym] = v[:attributeValues][0][:value]
         end
@@ -47,24 +47,24 @@ module OpenidAuth
         render json: {
           "commands": [
             {
-              "type": "com.okta.assertion.patch",
+              "type": 'com.okta.assertion.patch',
               "value": [
                 {
-                  "op": "replace",
-                  "path": "/claims/dslogon_edipi/attributeValues/0/value",
+                  "op": 'replace',
+                  "path": '/claims/dslogon_edipi/attributeValues/0/value',
                   "value": mvi_profile[:edipi]
                 },
                 {
-                  "op": "add",
-                  "path": "/claims/icn_with_aaid",
+                  "op": 'add',
+                  "path": '/claims/icn_with_aaid',
                   "value": {
                     "attributes": {
-                      "NameFormat": "urn:oasis:names:tc:SAML:2.0:attrname-format:basic"
+                      "NameFormat": 'urn:oasis:names:tc:SAML:2.0:attrname-format:basic'
                     },
                     "attributeValues": [
                       {
                         "attributes": {
-                          "xsi:type": "xs:string"
+                          "xsi:type": 'xs:string'
                         },
                         "value": mvi_profile[:icn_with_aaid]
                       }
