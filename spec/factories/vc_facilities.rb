@@ -7,7 +7,6 @@ FactoryBot.define do
     facility_type 'vet_center'
     classification nil
     website nil
-    mobile nil
     lat 40.5528
     long(-105.09)
     location 'POINT(-105.09 40.5528)'
@@ -39,7 +38,6 @@ FactoryBot.define do
     facility_type 'vet_center'
     classification nil
     website nil
-    mobile nil
     lat 45.5338
     long(-122.538)
     location 'POINT(-122.538 45.5338)'

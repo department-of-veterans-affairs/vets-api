@@ -379,6 +379,7 @@ RSpec.describe 'Facilities API endpoint', type: :request do
       expect(response.body).to be_a(String)
       json = JSON.parse(response.body)
       expect(json['data']['attributes']['mobile']).to eq(false)
+      expect(json['data']['attributes']['mobile']).to_not be_nil
     end
 
     it 'responds with null mobile flag for non-VHA facilities' do
