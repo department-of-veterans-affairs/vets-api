@@ -6,11 +6,13 @@ RSpec.describe Common::Client::Monitoring, type: :model do
   module Specs
     module Common
       module Client
-        class DefaultConfiguration < ::Common::Client::Configuration::REST
+        class MonitoringTestConfiguration < ::Common::Client::Configuration::REST
           def connection
             @conn ||= Faraday.new('http://example.com') do |faraday|
+              faraday.use     :breakers
               faraday.use     Faraday::Response::RaiseError
-              faraday.adapter Faraday.default_adapter
+              faraday.use     :remove_cookies
+              faraday.adapter :httpclient
             end
           end
 
@@ -19,9 +21,9 @@ RSpec.describe Common::Client::Monitoring, type: :model do
           end
         end
 
-        class TestService < ::Common::Client::Base
+        class MonitoringTestService < ::Common::Client::Base
           STATSD_KEY_PREFIX = 'fooservice'
-          configuration DefaultConfiguration
+          configuration MonitoringTestConfiguration
           include ::Common::Client::Monitoring
 
           def request(*args)
@@ -32,7 +34,7 @@ RSpec.describe Common::Client::Monitoring, type: :model do
     end
   end
 
-  let(:service) { Specs::Common::Client::TestService.new }
+  let(:service) { Specs::Common::Client::MonitoringTestService.new }
   let(:total_key) { service.class.const_get('STATSD_KEY_PREFIX') + '.request.total' }
   let(:fail_key) { service.class.const_get('STATSD_KEY_PREFIX') + '.request.fail' }
 
