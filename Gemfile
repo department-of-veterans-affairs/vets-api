@@ -75,6 +75,7 @@ gem 'prawn'
 gem 'pundit'
 gem 'rack-attack'
 gem 'rack-cors', require: 'rack/cors'
+gem 'rails-session_cookie'
 gem 'rails_semantic_logger', '~> 4.4'
 gem 'redis'
 gem 'redis-namespace'
@@ -108,7 +109,7 @@ group :development do
   # POSIX systems should have this already, so we're not going to bring it in on other platforms
   gem 'tzinfo-data', platforms: %i[mingw mswin x64_mingw jruby]
   # Access an IRB console on exception pages or by using <%= console %> in views
-  gem 'web-console', '~> 2.0', platforms: :ruby
+  gem 'web-console', platforms: :ruby
 end
 
 group :test do
@@ -119,7 +120,6 @@ group :test do
   gem 'faker-medical'
   gem 'fakeredis'
   gem 'pdf-inspector'
-  gem 'rails-session_cookie' # because request and integration specs dont allow for setting session cookie easily
   gem 'rspec_junit_formatter'
   gem 'rubocop-junit-formatter'
   gem 'shrine-memory'
@@ -134,11 +134,9 @@ group :development, :test do
   gem 'bundler-audit'
   gem 'byebug', platforms: :ruby # Call 'byebug' anywhere in the code to stop execution and get a debugger console
   gem 'database_cleaner'
-  gem 'factory_bot_rails'
+  gem 'factory_bot_rails', '< 4.11'
   gem 'pry-byebug'
   gem 'rainbow' # Used to colorize output for rake tasks
-  # TODO: switch to a version number once that version is released
-  gem 'factory_bot', git: 'https://github.com/thoughtbot/factory_bot', ref: '50eeb67241ea78a6b138eea694a2a25413052f49'
   # CAUTION: faraday_curl may not provide all headers used in the actual faraday request. Be cautious if using this to
   # assist with debugging production issues (https://github.com/department-of-veterans-affairs/vets.gov-team/pull/6262)
   gem 'faraday_curl'
