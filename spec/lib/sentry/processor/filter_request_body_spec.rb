@@ -18,10 +18,17 @@ RSpec.describe Sentry::Processor::FilterRequestBody do
       }
   end
 
-  context 'with data from ppiu' do
-    it 'should filter the request body' do
-      expect(result['request']['data']).to eq(Sentry::Processor::PIISanitizer::FILTER_MASK)
+  def self.expect_filter(filtered)
+    it "should#{filtered ? '' : "n't"} filter the request body" do
+      expect(result['request']['data']).public_send(
+        filtered ? 'to' : 'to_not',
+        eq(Sentry::Processor::PIISanitizer::FILTER_MASK)
+      )
     end
+  end
+
+  context 'with data from ppiu' do
+    expect_filter(true)
   end
 
   context 'with data from another controller' do
@@ -29,8 +36,14 @@ RSpec.describe Sentry::Processor::FilterRequestBody do
       data['tags']['controller_name'] = 'health_care_applications'
     end
 
-    it 'shouldnt filter the request body' do
-      expect(result['request']['data']).to_not eq(Sentry::Processor::PIISanitizer::FILTER_MASK)
+    expect_filter(false)
+  end
+
+  context 'with no request body' do
+    before do
+      data['request'].delete('data')
     end
+
+    expect_filter(false)
   end
 end
