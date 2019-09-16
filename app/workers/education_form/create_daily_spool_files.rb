@@ -82,7 +82,7 @@ module EducationForm
 
         # track and update the records as processed once the file has been successfully written
         track_submissions(region_id)
-        records.each { |r| r.record.update_attribute(:processed_at, Time.zone.now) }
+        records.each { |r| r.record.update_attributes(processed_at: Time.zone.now) }
       end
     ensure
       writer.close

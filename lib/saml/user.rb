@@ -75,7 +75,7 @@ module SAML
     # will be one of AUTHN_CONTEXTS.keys
     def authn_context
       saml_response.authn_context_text
-    rescue StandardError
+    rescue
       Raven.tags_context(controller_name: 'sessions', sign_in_method: 'not-signed-in:error')
       raise
     end

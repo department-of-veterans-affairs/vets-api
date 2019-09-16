@@ -34,7 +34,7 @@ module EVSS
         state: 'success',
         response: res.to_json
       )
-    rescue StandardError
+    rescue
       dependents_application.update_attributes!(
         state: 'failed'
       )

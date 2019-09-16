@@ -28,7 +28,7 @@ namespace :preferences do
       end
 
       p tracking
-    rescue StandardError => e
+    rescue => e
       tracking[:errors] += 1
       message = "While initially seeding Preferences, experienced this error: #{e}"
 
