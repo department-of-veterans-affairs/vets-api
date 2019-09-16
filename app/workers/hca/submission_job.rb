@@ -27,7 +27,7 @@ module HCA
           form: form.to_json,
           google_analytics_client_id: google_analytics_client_id
         )
-      rescue StandardError
+      rescue
         health_care_application.update_attributes!(state: 'error')
         raise
       end
