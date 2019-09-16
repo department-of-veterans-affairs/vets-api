@@ -17,7 +17,7 @@ module EVSS
     rescue ActiveRecord::ConnectionTimeoutError
       set_status(user_uuid, claim_id, 'FAILED')
       raise
-    rescue StandardError
+    rescue
       set_status(user_uuid, claim_id, 'FAILED')
       raise
     end

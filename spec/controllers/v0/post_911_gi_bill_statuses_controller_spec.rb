@@ -60,8 +60,8 @@ RSpec.describe V0::Post911GIBillStatusesController, type: :controller do
         end
       end
 
-      gi_bill_404 = { cassette_name: 'evss/gi_bill_status/vet_not_found' }
-      describe 'when EVSS has no knowledge of user', vcr: gi_bill_404 do
+      gi_bill404 = { cassette_name: 'evss/gi_bill_status/vet_not_found' }
+      describe 'when EVSS has no knowledge of user', vcr: gi_bill404 do
         # special EVSS CI user ssn=796066619
         let(:user) { FactoryBot.create(:user, :loa3, ssn: '796066619', uuid: '89b40886-95e3-4a5b-824e-a4658b707507') }
 
