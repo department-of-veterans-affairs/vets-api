@@ -7,11 +7,6 @@ module OpenidAuth
     class OktaController < ApplicationController
       skip_before_action :authenticate
 
-      def metadata
-        meta = OneLogin::RubySaml::Metadata.new
-        render xml: meta.generate(saml_settings), content_type: 'application/xml'
-      end
-
       def parse_user_attributes(json_request)
         okta_attributes = json_request.dig(:data, :assertion, :claims)
         user_attributes = Hash.new
