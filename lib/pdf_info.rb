@@ -30,7 +30,7 @@ module PdfInfo
     def [](key)
       @internal_hash ||= parse_result
       @internal_hash[key]
-    rescue StandardError => e
+    rescue => e
       raise PdfInfo::MetadataReadError.new(-1, e.message)
     end
 
