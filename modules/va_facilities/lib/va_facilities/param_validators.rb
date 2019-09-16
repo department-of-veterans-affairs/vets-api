@@ -75,7 +75,8 @@ module VaFacilities
 
     def validate_a_param_exists(require_one_param)
       if none_required_params_exists?(require_one_param, params)
-        raise Common::Exceptions::ParameterMissing.new(require_one_param.first.to_s, detail: MISSING_FACILITIES_PARAMS_ERR)
+        raise Common::Exceptions::ParameterMissing.new(require_one_param.first.to_s,
+                                                       detail: MISSING_FACILITIES_PARAMS_ERR)
       end
     end
 

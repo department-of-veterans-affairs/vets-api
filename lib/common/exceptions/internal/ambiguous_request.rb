@@ -2,9 +2,8 @@
 
 module Common
   module Exceptions
-    # Parameter Missing - required parameter was not provided
+    # Ambiguous Request - the parameters passed in could not determine what query to call
     class AmbiguousRequest < BaseError
-
       def initialize(detail)
         @detail = detail
       end
