@@ -5,6 +5,7 @@ module ClaimsApi
     SSN_REGEX = /\d{3}-\d{2}-\d{4}|\d{9}/
 
     include Virtus.model
+
     %i[ssn
        first_name
        middle_name
@@ -25,13 +26,15 @@ module ClaimsApi
     delegate :birls_id, to: :mvi, allow_nil: true
     delegate :participant_id, to: :mvi, allow_nil: true
 
+    alias dslogon_edipi edipi
+
     def birth_date
       va_profile[:birth_date]
     end
 
     # Virtus doesnt provide a valid? method, but MVI requires it
     def valid?(*)
-      true
+      va_profile.present?
     end
 
     def loa3?
@@ -97,15 +100,10 @@ module ClaimsApi
       )
     end
 
-    def self.build_profile(headers)
+    def self.build_profile(birth_date)
       OpenStruct.new(
-        birth_date: ensure_header(headers, 'X-VA-Birth-Date')
+        birth_date: birth_date
       )
-    end
-
-    def self.ensure_header(headers, key)
-      raise Common::Exceptions::ParameterMissing, key unless headers[key]
-      headers[key]
     end
   end
 end

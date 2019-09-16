@@ -119,6 +119,7 @@ Style/RescueStandardError:
     - "lib/mvi/messages/find_profile_message_helpers.rb"
     - "lib/mvi/responses/profile_parser.rb"
     - "lib/saml/settings_service.rb"
+    - "lib/saml/ssoe_settings_service.rb"
     - "rakelib/connectivity.rake"
     - "rakelib/mvi.rake"
     - "rakelib/redis.rake"
@@ -166,7 +167,7 @@ Lint/SafeNavigationChain:
   Exclude:
     - "app/workers/education_form/delete_old_applications.rb"
     - "lib/saml/health_status.rb"
-    - "lib/saml/health_status.rb"
+    - "lib/saml/ssoe_health_status.rb"
 
 # Skipping for now, should revisit:
 Rails/HasManyOrHasOneDependent:
