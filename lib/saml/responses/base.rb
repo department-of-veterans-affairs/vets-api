@@ -62,7 +62,8 @@ module SAML
       end
 
       def authn_context_text
-        REXML::XPath.first(decrypted_document, '//saml:AuthnContextClassRef')&.text
+        response_doc = assertion_encrypted? ? decrypted_document : document
+        REXML::XPath.first(response_doc, '//saml:AuthnContextClassRef')&.text
       end
 
       def authn_context

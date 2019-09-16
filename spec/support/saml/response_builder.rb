@@ -62,6 +62,7 @@ module SAML
         multifactor: multifactor
       )
       saml_response = SAML::Responses::Login.new(document_partial(authn_context).to_s)
+      allow(saml_response).to receive(:assertion_encrypted?).and_return(true)
       allow(saml_response).to receive(:attributes).and_return(attributes)
       allow(saml_response).to receive(:validate).and_return(true)
       allow(saml_response).to receive(:decrypted_document).and_return(document_partial(authn_context))
@@ -294,7 +295,7 @@ module SAML
           'multifactor'        => (authn_context.include?('multifactor') ? [true] : multifactor),
           'level_of_assurance' => level_of_assurance
         )
-      when 'ssoe'
+      when 'urn:oasis:names:tc:SAML:2.0:ac:classes:Password'
         build_ssoe_saml_attributes(
           authn_context: authn_context,
           account_type: account_type,
