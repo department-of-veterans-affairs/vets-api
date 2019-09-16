@@ -33,25 +33,23 @@ RSpec.describe Common::Client::Monitoring, type: :model do
   end
 
   let(:service) { Specs::Common::Client::TestService.new }
-
+  let(:total_key) { service.class.const_get('STATSD_KEY_PREFIX') + '.request.total' }
+  let(:fail_key) { service.class.const_get('STATSD_KEY_PREFIX') + '.request.fail' }
+ 
   it 'increments the total' do
-    VCR.use_cassette('shared/success', VCR::MATCH_EVERYTHING) do
-      key = service.class.const_get('STATSD_KEY_PREFIX') + '.request.total'
-      expect_any_instance_of(StatsDMetric).to receive(:save).once
-      expect_any_instance_of(StatsD).to receive(:increment).with(key).once
+    VCR.use_cassette('shared/success') do
       service.request(:get, nil)
+      redis_key = StatsDMetric.find(total_key)
+      expect(redis_key).to be
     end
   end
 
   context 'when a request fails' do
     it 'increments the failure total' do
-      VCR.use_cassette('shared/failure', VCR::MATCH_EVERYTHING) do
-        fail_key = service.class.const_get('STATSD_KEY_PREFIX') + '.request.fail'
-        total_key = service.class.const_get('STATSD_KEY_PREFIX') + '.request.total'
-        allow_any_instance_of(StatsD).to receive(:increment)
-        expect_any_instance_of(StatsD).to receive(:increment).with(fail_key, anything).once
-        expect_any_instance_of(StatsD).to receive(:increment).with(total_key).once
+      VCR.use_cassette('shared/failure') do
         expect { service.request(:get, nil) }.to raise_error(Common::Client::Errors::ClientError)
+        redis_key = StatsDMetric.find(fail_key)
+        expect(redis_key).to be
       end
     end
   end
