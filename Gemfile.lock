@@ -207,7 +207,6 @@ GEM
     childprocess (1.0.1)
       rake (< 13.0)
     clam_scan (0.0.2)
-    climate_control (0.1.0)
     cliver (0.3.2)
     coderay (1.1.2)
     coercible (1.0.0)
@@ -672,7 +671,6 @@ DEPENDENCIES
   carrierwave-aws
   claims_api!
   clam_scan
-  climate_control
   config
   connect_vbms!
   database_cleaner
