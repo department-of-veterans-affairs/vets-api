@@ -26,7 +26,7 @@ module EVSS
           client.upload(file_body, document_data)
         end
         perform_next(submission_id, uploads) if uploads.present?
-      rescue StandardError => e
+      rescue => e
         # Can't send a job manually to the dead set.
         # Log and re-raise so the job ends up in the dead set and the parent batch is not marked as complete.
         retryable_error_handler(e)

@@ -32,7 +32,7 @@ module EVSS
           document = EVSS::DisabilityCompensationForm::Form8940Document.new(submission)
           upload_to_vbms(submission.auth_headers, document)
         end
-      rescue StandardError => error
+      rescue => error
         # Cannot move job straight to dead queue dynamically within an executing job
         # raising error for all the exceptions as sidekiq will then move into dead queue
         # after all retries are exhausted
