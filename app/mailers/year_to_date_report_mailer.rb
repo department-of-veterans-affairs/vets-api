@@ -35,6 +35,9 @@ class YearToDateReportMailer < ApplicationMailer
       lihan@adhocteam.us
       Turner_Desiree@bah.com
       Delli-Gatti_Michael@bah.com
+      kyle.pietrosanto@va.gov
+      robert.shinners@va.gov
+      shay.norton-leonard@va.gov
     ]
   }.freeze
 
