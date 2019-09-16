@@ -83,7 +83,7 @@ module SAML
     # For future use; can check if issuer matches /eauth\.va\.gov/ for SSOe
     def issuer
       saml_response.issuers[0]
-    rescue StandardError
+    rescue
       Raven.tags_context(controller_name: 'sessions', sign_in_method: 'not-signed-in:error')
       raise
     end
