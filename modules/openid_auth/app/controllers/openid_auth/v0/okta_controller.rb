@@ -16,9 +16,22 @@ module OpenidAuth
         user_attributes
       end
 
-      def fetch_mvi_profile(user_attributes)    
+      def fetch_mvi_profile(user_attributes)
         user_identity = OpenidUserIdentity.new(
-          mhv_icn: user_attributes[:mhv_icn]
+          birth_date: user_attributes[:dob],
+          dslogon_edipi: user_attributes[:dslogon_edipi],
+          email: user_attributes[:user_email],
+          first_name: user_attributes[:first_name],
+          gender: user_attributes[:gender]&.chars&.first&.upcase,
+          last_name: user_attributes[:last_name],
+          loa:
+          {
+            current: user_attributes[:level_of_assurance].to_i,
+            highest: user_attributes[:level_of_assurance].to_i
+          },
+          mhv_icn: user_attributes[:mhv_icn],
+          ssn: user_attributes[:ssn],
+          uuid: user_attributes[:idp_uuid]
         )
 
         mvi_response = MVI::Service.new.find_profile(user_identity)
@@ -27,7 +40,7 @@ module OpenidAuth
         mvi_response[:profile]
       end
 
-      def okta_callback      
+      def okta_callback
         user_attributes = parse_user_attributes(params)
         mvi_profile = fetch_mvi_profile(user_attributes)
 
