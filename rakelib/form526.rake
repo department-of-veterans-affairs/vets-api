@@ -116,7 +116,7 @@ namespace :form526 do
     # errors in a message. Each error will have a `key` and a `text` key. The
     # following regex will group all key/text pairs together that are present in
     # the string.
-    MSGS_REGEX = /key\\"=>\\"(.*?)\\".*?text\\"=>\\"(.*?)\\"/
+    MSGS_REGEX = /key\\"=>\\"(.*?)\\".*?text\\"=>\\"(.*?)\\"/.freeze
 
     start_date = args[:start_date]&.to_date || 30.days.ago.utc
     end_date = args[:end_date]&.to_date || Time.zone.now.utc
@@ -240,10 +240,8 @@ namespace :form526 do
   task update_types: :environment do
     # `update_all` is being used because the `type` field will reset to `SavedClaim::DisabilityCompensation`
     # if a `claim.save` is done
-    # rubocop:disable Rails/SkipsModelValidations
     SavedClaim::DisabilityCompensation.where(type: 'SavedClaim::DisabilityCompensation')
                                       .update_all(type: 'SavedClaim::DisabilityCompensation::Form526IncreaseOnly')
-    # rubocop:enable Rails/SkipsModelValidations
   end
 
   desc 'dry run for migrating existing 526 submissions to the new tables'

@@ -149,12 +149,12 @@ def update_ids(xml, ids)
   Ox.dump(doc)
 end
 
-def updated_ids_element(ids, el)
-  el.nodes << create_element(ids[:icn], :correlation, '%s^NI^200M^USVHA^P') if ids[:icn]
-  el.nodes << create_element(ids[:edipi], :edipi, '%s^NI^200DOD^USDOD^A') if ids[:edipi]
-  el.nodes << create_element(ids[:participant_id], :correlation, '%s^PI^200CORP^USVBA^A') if ids[:participant_id]
-  el.nodes.concat create_multiple_elements(ids[:mhv_ids], '%s^PI^200MH^USVHA^A') if ids[:mhv_ids]
-  el.nodes.concat create_multiple_elements(ids[:vha_facility_ids], '123456^PI^%s^USVHA^A') if ids[:vha_facility_ids]
+def updated_ids_element(ids, elem)
+  elem.nodes << create_element(ids[:icn], :correlation, '%s^NI^200M^USVHA^P') if ids[:icn]
+  elem.nodes << create_element(ids[:edipi], :edipi, '%s^NI^200DOD^USDOD^A') if ids[:edipi]
+  elem.nodes << create_element(ids[:participant_id], :correlation, '%s^PI^200CORP^USVBA^A') if ids[:participant_id]
+  elem.nodes.concat create_multiple_elements(ids[:mhv_ids], '%s^PI^200MH^USVHA^A') if ids[:mhv_ids]
+  elem.nodes.concat create_multiple_elements(ids[:vha_facility_ids], '123456^PI^%s^USVHA^A') if ids[:vha_facility_ids]
 end
 
 def create_element(id, type, pattern)
@@ -203,10 +203,10 @@ def valid_user_vars
   date_valid && name_valid && attrs_valid
 end
 
-def validate_date(s)
-  raise ArgumentError, 'Date string must be of format YYYY-MM-DD' unless s.match?(/\d{4}-\d{2}-\d{2}/)
+def validate_date(str)
+  raise ArgumentError, 'Date string must be of format YYYY-MM-DD' unless str.match?(/\d{4}-\d{2}-\d{2}/)
 
-  Time.parse(s).utc
+  Time.parse(str).utc
   true
 rescue => e
   puts e.message
