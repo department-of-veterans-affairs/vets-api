@@ -166,7 +166,7 @@ Lint/SafeNavigationChain:
   Exclude:
     - "app/workers/education_form/delete_old_applications.rb"
     - "lib/saml/health_status.rb"
-    - "lib/saml/health_status.rb"
+    - "lib/saml/ssoe_health_status.rb"
 
 # Skipping for now, should revisit:
 Rails/HasManyOrHasOneDependent:
