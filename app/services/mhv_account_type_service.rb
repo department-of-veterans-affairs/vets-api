@@ -72,7 +72,7 @@ class MhvAccountTypeService
       bb_client.authenticate
       bb_client.get_eligible_data_classes.members.map(&:name)
     end
-  rescue StandardError => e
+  rescue => e
     log_account_type_heuristic_once(MHV_DOWN_MESSAGE, error_message: e.message)
     nil
   end
