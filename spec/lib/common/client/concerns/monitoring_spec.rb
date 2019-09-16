@@ -9,8 +9,8 @@ RSpec.describe Common::Client::Monitoring, type: :model do
         class DefaultConfiguration < ::Common::Client::Configuration::REST
           def connection
             @conn ||= Faraday.new('http://example.com') do |faraday|
-              faraday.adapter Faraday.default_adapter
               faraday.use     Faraday::Response::RaiseError
+              faraday.adapter Faraday.default_adapter
             end
           end
 
