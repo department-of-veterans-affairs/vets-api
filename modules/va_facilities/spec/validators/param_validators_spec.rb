@@ -5,8 +5,6 @@ require 'rails_helper'
 
 class DummyClass
   require_dependency 'va_facilities/param_validators'
-  require_dependency 'common/exceptions/internal/invalid_field_value'
-  require_dependency 'common/exceptions/internal/parameter_missing'
 
   include VaFacilities::ParamValidators
   attr_accessor :params
@@ -467,8 +465,8 @@ RSpec.describe VaFacilities::ParamValidators do
       }
       expect do
         @dummy_class.validate_required_nearby_params(REQUIRED_PARAMS)
-      end.to raise_error(Common::Exceptions::ParameterMissing) { |error|
-        expect(error.message).to eq 'Missing parameter'
+      end.to raise_error(Common::Exceptions::AmbiguousRequest) { |error|
+        expect(error.message).to eq 'Ambiguous Request'
       }
     end
 

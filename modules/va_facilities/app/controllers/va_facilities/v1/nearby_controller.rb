@@ -28,7 +28,7 @@ module VaFacilities
       }.freeze
 
       def index
-        query_method = query_method(params)
+        query_method = get_query_method(params)
         params_hash = params.permit!.to_h.symbolize_keys
         resource = query_method.call(params_hash).paginate(page: params[:page],
                                                            per_page: params[:per_page] || NearbyFacility.per_page)
@@ -65,7 +65,7 @@ module VaFacilities
         validate_type_and_services_known unless params[:type].nil?
       end
 
-      def query_method(params)
+      def get_query_method(params)
         obs_fields = params.keys.map(&:to_sym)
         location_type = REQUIRED_PARAMS.find do |loc_type, req_field_names|
           no_missing_fields = (req_field_names - obs_fields).empty?
