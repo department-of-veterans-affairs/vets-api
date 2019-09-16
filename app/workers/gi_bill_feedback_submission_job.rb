@@ -12,7 +12,7 @@ class GIBillFeedbackSubmissionJob
     gi_bill_feedback.response = Gibft::Service.new.submit(gi_bill_feedback.transform_form).to_json
     gi_bill_feedback.state = 'success'
     gi_bill_feedback.save!
-  rescue StandardError
+  rescue
     gi_bill_feedback.state = 'failed'
     gi_bill_feedback.save!
     raise

@@ -34,7 +34,7 @@ module EVSS
       rescue EVSS::DisabilityCompensationForm::ServiceException => e
         # retry submitting the form for specific upstream errors
         retry_form526_error_handler!(e)
-      rescue StandardError => e
+      rescue => e
         non_retryable_error_handler(e)
       end
 

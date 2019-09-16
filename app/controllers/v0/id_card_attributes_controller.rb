@@ -33,7 +33,7 @@ module V0
         current_user.veteran_status.title38_status
       rescue EMISRedis::VeteranStatus::RecordNotFound
         nil
-      rescue StandardError => e
+      rescue => e
         log_exception_to_sentry(e)
         raise ::VIC::IDCardAttributeError, ::VIC::IDCardAttributeError::VIC010
       end
