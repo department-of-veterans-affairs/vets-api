@@ -50,7 +50,8 @@ module VaFacilities
         'hours' => object.hours,
         'services' => services(object),
         'satisfaction' => satisfaction(object),
-        'mobile' => object.mobile
+        'mobile' => object.mobile,
+        'active_status' => object.active_status
       }
     end
   end
