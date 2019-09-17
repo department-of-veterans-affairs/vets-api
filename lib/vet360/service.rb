@@ -32,7 +32,7 @@ module Vet360
       Raven.extra_context(
         request_dates: parsed_body['bio'].slice('effectiveStartDate', 'effectiveEndDate', 'sourceDate')
       )
-    rescue StandardError
+    rescue
       nil
     end
 

@@ -57,7 +57,7 @@ module MVI
       log_console_and_sentry("MVI find_profile connection failed: #{e.message}", :warn)
       mvi_profile_exception_response_for('MVI_504', e)
     rescue Common::Client::Errors::ClientError, Common::Exceptions::GatewayTimeout => e
-      log_console_and_sentry("MVI find_profile error: #{e.message}", :error)
+      log_console_and_sentry("MVI find_profile error: #{e.message}", :warn)
       mvi_profile_exception_response_for('MVI_504', e)
     rescue MVI::Errors::Base => e
       mvi_error_handler(user_identity, e)
