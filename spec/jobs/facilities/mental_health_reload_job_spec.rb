@@ -75,12 +75,20 @@ RSpec.describe Facilities::MentalHealthReloadJob, type: :job do
     later = Time.now.utc.iso8601
 
     # This data is the same as above EXCEPT for the phone number for 202A
-    mental_health_data = [{
-      'StationNumber' => '101A', 'MHPhone' => '4071231234', 'MHExt' => '0001', 'Modified' => '2019-08-07'
-    },
-                          {
-                            'StationNumber' => '202A', 'MHPhone' => '3219876543', 'MHExt' => '0002', 'Modified' => '2019-08-07'
-                          }]
+    mental_health_data = [
+      {
+        'StationNumber' => '101A',
+        'MHPhone' => '4071231234',
+        'MHExt' => '0001',
+        'Modified' => '2019-08-07'
+      },
+      {
+        'StationNumber' => '202A',
+        'MHPhone' => '3219876543',
+        'MHExt' => '0002',
+        'Modified' => '2019-08-07'
+      }
+    ]
 
     allow_any_instance_of(
       FakeMentalHealthClient
@@ -97,12 +105,20 @@ RSpec.describe Facilities::MentalHealthReloadJob, type: :job do
   end
 
   it 'cleans up bad extension data' do
-    mental_health_data = [{
-      'StationNumber' => '101A', 'MHPhone' => '4071231234', 'MHExt' => 'NULL', 'Modified' => '2019-08-07'
-    },
-                          {
-                            'StationNumber' => '202A', 'MHPhone' => '3219876543', 'MHExt' => '0', 'Modified' => '2019-08-07'
-                          }]
+    mental_health_data = [
+      {
+        'StationNumber' => '101A',
+        'MHPhone' => '4071231234',
+        'MHExt' => 'NULL',
+        'Modified' => '2019-08-07'
+      },
+      {
+        'StationNumber' => '202A',
+        'MHPhone' => '3219876543',
+        'MHExt' => '0',
+        'Modified' => '2019-08-07'
+      }
+    ]
 
     allow_any_instance_of(
       FakeMentalHealthClient

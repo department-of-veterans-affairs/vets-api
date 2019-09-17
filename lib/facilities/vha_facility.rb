@@ -24,7 +24,6 @@ module Facilities
       end
 
       def add_mental_health(facilities)
-        facilities
         facilities.map do |fac|
           mental_health_data = FacilityMentalHealth.find(fac.unique_id)
 
