@@ -68,5 +68,21 @@ RSpec.describe 'Power of Attorney ', type: :request do
         expect(JSON.parse(response.body)['errors'].size).to eq(1)
       end
     end
+
+    describe '#upload_power_of_attorney_document' do
+      let(:power_of_attorney) { create(:power_of_attorney_without_doc) }
+      let(:params) do
+        { 'attachment': Rack::Test::UploadedFile.new("#{::Rails.root}/modules/claims_api/spec/fixtures/extras.pdf") }
+      end
+
+      it 'should increase the supporting document count' do
+        allow_any_instance_of(ClaimsApi::PowerOfAttorneyUploader).to receive(:store!)
+        expect(power_of_attorney.file_data).to be_nil
+        put("/services/claims/v0/forms/2122/#{power_of_attorney.id}",
+        params: params, headers: headers)
+        power_of_attorney.reload
+        expect(power_of_attorney.file_data).not_to be_nil
+      end
+    end
   end
 end

@@ -22,6 +22,7 @@ ClaimsApi::Engine.routes.draw do
       ## 2122 Forms
       get '2122', to: 'power_of_attorney#schema'
       post '2122', to: 'power_of_attorney#submit_form_2122'
+      put '2122/:id', to: 'power_of_attorney#upload'
       get '2122/:id', to: 'power_of_attorney#status'
     end
   end
@@ -41,6 +42,7 @@ ClaimsApi::Engine.routes.draw do
       ## 2122 Forms
       get '2122', to: 'power_of_attorney#schema'
       post '2122', to: 'power_of_attorney#submit_form_2122'
+      put '2122/:id', to: 'power_of_attorney#upload'
       get '2122/:id', to: 'power_of_attorney#status'
     end
   end
