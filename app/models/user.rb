@@ -249,6 +249,20 @@ class User < Common::RedisStore
     @vet360_contact_info ||= Vet360Redis::ContactInformation.for_user(self)
   end
 
+  def all_emails
+    vet360_email =
+      begin
+        vet360_contact_info&.email&.email_address
+      rescue
+        nil
+      end
+
+    [vet360_email, email]
+      .reject(&:blank?)
+      .map(&:downcase)
+      .uniq
+  end
+
   def can_access_vet360?
     loa3? && icn.present? && vet360_id.present?
   rescue # Default to false for any error
