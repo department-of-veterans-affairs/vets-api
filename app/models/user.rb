@@ -253,7 +253,7 @@ class User < Common::RedisStore
     vet360_email =
       begin
         vet360_contact_info&.email&.email_address
-      rescue StandardError
+      rescue
         nil
       end
 
