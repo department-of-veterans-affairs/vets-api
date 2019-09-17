@@ -241,7 +241,7 @@ RSpec.describe HealthCareApplication, type: :model do
         it 'should send a failure email to the email address provided on the form' do
           expect(health_care_application).to receive(:send_failure_mail).and_call_original
           expect(HCASubmissionFailureMailer).to receive(:build).and_call_original
-          health_care_application.update_attributes!(state: 'failed')
+          health_care_application.update!(state: 'failed')
         end
       end
     end

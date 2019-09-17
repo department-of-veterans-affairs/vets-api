@@ -6,6 +6,6 @@ task :import_conditions, [:csv_path] => [:environment] do |_, args|
 
   CSV.foreach(args[:csv_path], headers: true) do |row|
     condition = DisabilityContention.find_or_create_by(code: row['code'])
-    condition.update_attributes!(medical_term: row['medical_term'], lay_term: row['lay_term'])
+    condition.update!(medical_term: row['medical_term'], lay_term: row['lay_term'])
   end
 end

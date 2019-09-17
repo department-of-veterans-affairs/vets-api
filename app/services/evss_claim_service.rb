@@ -29,7 +29,7 @@ class EVSSClaimService
   def update_from_remote(claim)
     begin
       raw_claim = client.find_claim_by_id(claim.evss_id).body.fetch('claim', {})
-      claim.update_attributes(data: raw_claim)
+      claim.update(data: raw_claim)
       successful_sync = true
     rescue Breakers::OutageException, EVSS::ErrorMiddleware::EVSSBackendServiceError
       successful_sync = false
@@ -66,7 +66,7 @@ class EVSSClaimService
 
   def create_or_update_claim(raw_claim)
     claim = claims_scope.where(evss_id: raw_claim['id']).first_or_initialize(data: {})
-    claim.update_attributes(list_data: raw_claim)
+    claim.update(list_data: raw_claim)
     claim
   end
 end

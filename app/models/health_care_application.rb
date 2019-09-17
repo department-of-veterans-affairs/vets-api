@@ -138,7 +138,7 @@ class HealthCareApplication < ApplicationRecord
   end
 
   def set_result_on_success!(result)
-    update_attributes!(
+    update!(
       state: 'success',
       # this is a string because it overflowed the postgres integer limit in one of the tests
       form_submission_id_string: result[:formSubmissionId].to_s,

@@ -22,13 +22,13 @@ module VIC
       user = user_uuid.present? ? User.find(user_uuid) : nil
       response = @vic_service.submit(parsed_form, user)
 
-      submission.update_attributes!(
+      submission.update!(
         response: response
       )
 
       AttachmentUploadJob.perform_async(response[:case_id], form)
     rescue
-      submission.update_attributes!(state: 'failed')
+      submission.update!(state: 'failed')
       raise
     end
 

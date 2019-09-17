@@ -142,7 +142,7 @@ class EducationBenefitsClaim < ApplicationRecord
   def update_education_benefits_submission_status
     if processed_at.present? && attribute_before_last_save(:processed).nil?
       # old claims don't have an education benefits submission associated
-      education_benefits_submission&.update_attributes!(status: 'processed')
+      education_benefits_submission&.update!(status: 'processed')
     end
   end
 
