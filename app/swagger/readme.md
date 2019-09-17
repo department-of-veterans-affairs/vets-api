@@ -1,5 +1,6 @@
 # Display the Swagger Doc
 - The doc is served from the endpoint: `GET` `v0/apidocs`
+- [Swaggeer docs](https://department-of-veterans-affairs.github.io/va-digital-services-platform-docs/api-reference/#/) are published or can be generated locally.
 
 # Run the Swagger UI Container
 ## Option 1: Run it Locally from Filesystem

@@ -61,7 +61,7 @@ The [Makefile](https://github.com/department-of-veterans-affairs/vets-api/blob/m
 but the following tasks have been aliased to speed development:
 
 ### Running tests
-- `make spec` - Run the entire test suite via the docker image (alias for `rspec spec`)
+- `make spec` - Run the entire test suite via the docker image (alias for `rspec spec`). Test coverage statistics are in `coverage/index.html` or in [CodeClimate](https://codeclimate.com/github/department-of-veterans-affairs/vets-api/code)
 - `make guard` - Run the guard test server that reruns your tests after files are saved. Useful for TDD!
 
 ### Running linters
