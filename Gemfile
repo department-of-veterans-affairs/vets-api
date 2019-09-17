@@ -126,8 +126,8 @@ group :test do
   gem 'rubocop-junit-formatter'
   gem 'shrine-memory'
   # using for, until  https://github.com/colszowka/simplecov/pull/746 is released
-  gem 'simplecov', git: 'https://github.com/annaswims/simplecov', branch: 'parallel_test_finish'
   gem 'vcr'
+  gem 'simplecov'
   gem 'webrick'
 end
 
