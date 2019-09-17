@@ -6,6 +6,31 @@ RSpec.describe User, type: :model do
   let(:loa_one) { { current: LOA::ONE, highest: LOA::ONE } }
   let(:loa_three) { { current: LOA::THREE, highest: LOA::THREE } }
 
+  describe '#all_emails' do
+    let(:user) { build(:user, :loa3) }
+    let(:vet360_email) { user.vet360_contact_info.email.email_address }
+
+    context 'when vet360 is down' do
+      it 'should return user email' do
+        expect(user).to receive(:vet360_contact_info).and_raise('foo')
+
+        expect(user.all_emails).to eq([user.email])
+      end
+    end
+
+    context 'when vet360 email is the same as user email' do
+      it 'should remove the duplicate email' do
+        allow(user).to receive(:email).and_return(vet360_email.upcase)
+
+        expect(user.all_emails).to eq([vet360_email])
+      end
+    end
+
+    it 'should return identity and vet360 emails' do
+      expect(user.all_emails).to eq([vet360_email, user.email])
+    end
+  end
+
   describe '#ssn_mismatch?', :skip_mvi do
     let(:user) { build(:user, :loa3) }
     let(:mvi_profile) { build(:mvi_profile, ssn: 'unmatched-ssn') }
