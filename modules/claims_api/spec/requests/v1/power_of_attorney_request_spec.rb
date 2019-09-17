@@ -64,6 +64,21 @@ RSpec.describe 'Power of Attorney ', type: :request do
       end
     end
 
+    describe '#check status' do
+      let(:power_of_attorney) { create(:power_of_attorney) }
+
+      it 'should increase the supporting document count' do
+        with_okta_user(scopes) do |auth_header|
+          get("/services/claims/v1/forms/2122/#{power_of_attorney.id}",
+          params: nil, headers: headers.merge(auth_header))
+          power_of_attorney.reload
+          parsed = JSON.parse(response.body)
+          expect(parsed['data']['type']).to eq('claims_api_power_of_attorneys')
+          expect(parsed['data']['attributes']['status']).to eq('submitted')
+        end
+      end
+    end
+
     describe '#upload_power_of_attorney_document' do
       let(:power_of_attorney) { create(:power_of_attorney_without_doc) }
       let(:params) do
