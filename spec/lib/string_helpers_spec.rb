@@ -55,10 +55,10 @@ describe StringHelpers do
   context 'heuristics' do
     # rubocop:disable LineLength
     fixtures = [
-      ['319111111', '319111111', { length: [9, 9], only_digits: [true, true], encoding: ['UTF-8', 'UTF-8'], levenshtein_distance: 0 }],
-      ['319121111', '319111111', { length: [9, 9], only_digits: [true, true], encoding: ['UTF-8', 'UTF-8'], levenshtein_distance: 1 }],
-      ['319-11-1111', '319111111', { length: [11, 9], only_digits: [false, true], encoding: ['UTF-8', 'UTF-8'], levenshtein_distance: 2 }],
-      ['319-11-1111', '319-11-1111', { length: [11, 11], only_digits: [false, false], encoding: ['UTF-8', 'UTF-8'], levenshtein_distance: 0 }]
+      ['319111111', '319111111', { length: [9, 9], only_digits: [true, true], encoding: %w[UTF-8 UTF-8], levenshtein_distance: 0 }],
+      ['319121111', '319111111', { length: [9, 9], only_digits: [true, true], encoding: %w[UTF-8 UTF-8], levenshtein_distance: 1 }],
+      ['319-11-1111', '319111111', { length: [11, 9], only_digits: [false, true], encoding: %w[UTF-8 UTF-8], levenshtein_distance: 2 }],
+      ['319-11-1111', '319-11-1111', { length: [11, 11], only_digits: [false, false], encoding: %w[UTF-8 UTF-8], levenshtein_distance: 0 }]
     ]
     # rubocop:enable LineLength
 
