@@ -9,13 +9,13 @@ RSpec.describe Sentry::Processor::FilterRequestBody do
 
   let(:data) do
     {
-      "tags"=>{"controller_name"=>"ppiu", "sign_in_method"=>{"service_name"=>"idme", "acct_type"=>nil}},
-      "request"=>
+      'tags' => { 'controller_name' => 'ppiu', 'sign_in_method' => { 'service_name' => 'idme', 'acct_type' => nil } },
+      'request' =>
        {
-        "data"=>
-         "{\n  \"account_type\": \"Checking\",\n  \"financial_institution_name\": \"Bank of Ad Hoc\",\n  \"account_number\": \"12345678\",\n  \"financial_institution_routing_number\": \"021000021\"\n}\n"
-        }
-      }
+         'data' =>
+          "{\n  \"account_type\": \"Checking\"}"
+       }
+    }
   end
 
   def self.expect_filter(filtered)
