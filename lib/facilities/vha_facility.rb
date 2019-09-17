@@ -11,7 +11,8 @@ module Facilities
         metadata = Facilities::GisMetadataClient.new.get_metadata(gis_type)
         max_record_count = metadata['maxRecordCount']
         resp = Facilities::GisClient.new.get_all_facilities(gis_type, sort_field, max_record_count).map(&method(:new))
-        add_websites(resp)
+        resp_with_websites = add_websites(resp)
+        add_mental_health(resp_with_websites)
       end
 
       def add_websites(facilities)
@@ -19,6 +20,29 @@ module Facilities
         facilities.map do |fac|
           fac.website = service.find_for_station(fac.unique_id, fac.facility_type)
           fac
+        end
+      end
+
+      def add_mental_health(facilities)
+        facilities
+        facilities.map do |fac|
+          mental_health_data = FacilityMentalHealth.find(fac.unique_id)
+
+          if mental_health_data.present?
+            fac.phone['mental_health_clinic'] = format_mh_phone(mental_health_data.mh_phone, mental_health_data.mh_ext)
+          end
+
+          fac
+        end
+      end
+
+      def format_mh_phone(phone, ext)
+        if phone.blank?
+          ''
+        elsif ext.blank?
+          phone
+        else
+          [phone, ext].join(' x ')
         end
       end
 

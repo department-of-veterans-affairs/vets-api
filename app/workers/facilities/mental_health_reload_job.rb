@@ -20,12 +20,18 @@ module Facilities
 
     def update_cache(model, records)
       records.each do |r|
-        attrs = { 
+        ext = if r['Extension'] == '0' || r['Extension'] == 'NULL'
+                nil
+              else
+                r['Extension']
+              end
+
+        attrs = {
           station_number: r['StationNumber'],
           mh_phone: r['MHPhone'],
-          mh_ext: r['Extension'],
+          mh_ext: ext,
           modified: r['Modified'],
-          local_updated: Time.now.utc.iso8601 
+          local_updated: Time.now.utc.iso8601
         }
 
         obj = model.find(r['StationNumber'])
@@ -47,7 +53,7 @@ module Facilities
     def update_mental_health_data
       records = fetch_mental_health_data
       update_cache(FacilityMentalHealth, records)
-      remove_invalid(FacilityMentalHealth, records.map{|r| r['StationNumber']})
+      remove_invalid(FacilityMentalHealth, records.map { |r| r['StationNumber'] })
     rescue Facilities::MentalHealthDownloadError => e
       log_exception_to_sentry(e)
     end

@@ -2,12 +2,11 @@
 
 module Facilities
   class MentalHealthClient < SQL52Client
-
     def download
       @client.execute(select_all_mental_sql_query).to_a
     end
 
-    private 
+    private
 
     def select_all_mental_sql_query
       "SELECT * FROM #{mental_health_table} ORDER BY #{order_by_column} ASC"
@@ -26,5 +25,3 @@ module Facilities
     end
   end
 end
-
-

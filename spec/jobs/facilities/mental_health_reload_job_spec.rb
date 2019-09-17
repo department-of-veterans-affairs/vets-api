@@ -3,22 +3,21 @@
 require 'rails_helper'
 
 RSpec.describe Facilities::MentalHealthReloadJob, type: :job do
-
   class FakeMentalHealthClient
     def download
       [
         {
-          "StationNumber"=>"101A", "MHPhone"=>"4071231234", "Extension"=>"0001", "Modified"=>"2019-08-07",
+          'StationNumber' => '101A', 'MHPhone' => '4071231234', 'Extension' => '0001', 'Modified' => '2019-08-07'
         },
         {
-          "StationNumber"=>"202A", "MHPhone"=>"3211231234", "Extension"=>"0002", "Modified"=>"2019-08-07"
+          'StationNumber' => '202A', 'MHPhone' => '3211231234', 'Extension' => '0002', 'Modified' => '2019-08-07'
         }
       ]
     end
   end
 
   before(:each) do
-    FacilityMentalHealth.keys.map{ |k| FacilityMentalHealth.delete(k) }
+    FacilityMentalHealth.keys.map { |k| FacilityMentalHealth.delete(k) }
 
     allow(
       Facilities::MentalHealthClient
@@ -27,7 +26,7 @@ RSpec.describe Facilities::MentalHealthReloadJob, type: :job do
 
   it 'populates mental health data' do
     now = Time.now.utc.iso8601
-    
+
     Facilities::MentalHealthReloadJob.new.perform
 
     facility = FacilityMentalHealth.find('101A')
@@ -46,15 +45,14 @@ RSpec.describe Facilities::MentalHealthReloadJob, type: :job do
     expect(facility2.local_updated).to be >= now
   end
 
-
   it 'deletes removed keys' do
     Facilities::MentalHealthReloadJob.new.perform
     expect(FacilityMentalHealth.find('101A')).to_not be_nil
     expect(FacilityMentalHealth.find('202A')).to_not be_nil
 
     mental_health_data = [{
-        "StationNumber"=>"202A", "MHPhone"=>"3211231234", "MHExt"=>"0002", "Modified"=>"2019-08-07"
-      }]
+      'StationNumber' => '202A', 'MHPhone' => '3211231234', 'MHExt' => '0002', 'Modified' => '2019-08-07'
+    }]
 
     allow_any_instance_of(
       FakeMentalHealthClient
@@ -77,12 +75,12 @@ RSpec.describe Facilities::MentalHealthReloadJob, type: :job do
     later = Time.now.utc.iso8601
 
     # This data is the same as above EXCEPT for the phone number for 202A
-    mental_health_data =       [{
-          "StationNumber"=>"101A", "MHPhone"=>"4071231234", "MHExt"=>"0001", "Modified"=>"2019-08-07",
-        },
-        {
-          "StationNumber"=>"202A", "MHPhone"=>"3219876543", "MHExt"=>"0002", "Modified"=>"2019-08-07"
-        }]
+    mental_health_data = [{
+      'StationNumber' => '101A', 'MHPhone' => '4071231234', 'MHExt' => '0001', 'Modified' => '2019-08-07'
+    },
+                          {
+                            'StationNumber' => '202A', 'MHPhone' => '3219876543', 'MHExt' => '0002', 'Modified' => '2019-08-07'
+                          }]
 
     allow_any_instance_of(
       FakeMentalHealthClient
@@ -96,6 +94,25 @@ RSpec.describe Facilities::MentalHealthReloadJob, type: :job do
     expect(FacilityMentalHealth.find('101A').local_updated).to be >= now
     expect(FacilityMentalHealth.find('101A').local_updated).to be <= later
     expect(FacilityMentalHealth.find('202A').local_updated).to be >= later
+  end
+
+  it 'cleans up bad extension data' do
+    mental_health_data = [{
+      'StationNumber' => '101A', 'MHPhone' => '4071231234', 'MHExt' => 'NULL', 'Modified' => '2019-08-07'
+    },
+                          {
+                            'StationNumber' => '202A', 'MHPhone' => '3219876543', 'MHExt' => '0', 'Modified' => '2019-08-07'
+                          }]
+
+    allow_any_instance_of(
+      FakeMentalHealthClient
+    ).to receive(:download).and_return(mental_health_data)
+    Facilities::MentalHealthReloadJob.new.perform
+
+    expect(FacilityMentalHealth.find('101A')).to_not be_nil
+    expect(FacilityMentalHealth.find('202A')).to_not be_nil
+    expect(FacilityMentalHealth.find('101A').mh_ext).to eq(nil)
+    expect(FacilityMentalHealth.find('202A').mh_ext).to eq(nil)
   end
 
   context 'on error' do

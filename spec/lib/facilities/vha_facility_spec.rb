@@ -64,6 +64,38 @@ RSpec.describe Facilities::VHAFacility do
         end
       end
 
+      context 'mental health data' do
+        before(:each) do
+          FacilityMentalHealth.keys.map { |k| FacilityMentalHealth.delete(k) }
+
+          attrs1 = {
+            station_number: '358',
+            mh_phone: '4071231234',
+            mh_ext: nil,
+            modified: '2019-08-07',
+            local_updated: Time.now.utc.iso8601
+          }
+
+          attrs2 = {
+            station_number: '402',
+            mh_phone: '3219876543',
+            mh_ext: '0002',
+            modified: '2019-08-07',
+            local_updated: Time.now.utc.iso8601
+          }
+
+          FacilityMentalHealth.create(attrs1)
+          FacilityMentalHealth.create(attrs2)
+        end
+
+        it 'should add mental health info for facilities' do
+          VCR.use_cassette('facilities/va/vha_facilities_limit_results') do
+            expect(facility.phone['mental_health_clinic']).to eq('4071231234')
+            expect(facility_2.phone['mental_health_clinic']).to eq('3219876543 x 0002')
+          end
+        end
+      end
+
       context 'services' do
         let(:satisfaction_data) do
           fixture_file_name = "#{::Rails.root}/spec/fixtures/facility_access/satisfaction_data.json"

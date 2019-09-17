@@ -32,7 +32,7 @@ module Facilities
           model.create(attrs)
         end
       end
-      
+
       logger.info "Updated facility dental service cache for #{facilities.size} facilities"
     end
 
@@ -43,7 +43,7 @@ module Facilities
     end
 
     def parse_dental_service_data(records)
-      records.map{ |r| r['unique_id'] }
+      records.map { |r| r['unique_id'] }
     end
 
     def update_dental_service_data
