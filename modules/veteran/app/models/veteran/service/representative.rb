@@ -13,6 +13,10 @@ module Veteran
       attr_encrypted(:ssn, key: Settings.db_encryption_key)
       attr_encrypted(:dob, key: Settings.db_encryption_key)
 
+      scope :attorneys, -> { where(user_types: ['attorney']) }
+      scope :veteran_service_officers, -> { where(user_types: ['veteran_service_officer']) }
+      scope :claim_agents, -> { where(user_types: ['claim_agents']) }
+
       validates :poa_codes, presence: true
 
       def self.for_user(first_name:, last_name:, ssn: nil, dob: nil)

@@ -7,7 +7,6 @@ module ClaimsApi
   module V0
     module Forms
       class PowerOfAttorneyController < ClaimsApi::BaseFormController
-
         FORM_NUMBER = '2122'
 
         skip_before_action(:authenticate)
@@ -21,12 +20,21 @@ module ClaimsApi
             source: request.headers['X-Consumer-Username']
           )
           power_of_attorney = ClaimsApi::PowerOfAttorney.find_by(md5: power_of_attorney.md5) unless power_of_attorney.id
+          power_of_attorney.save!
 
           render json: power_of_attorney, serializer: ClaimsApi::PowerOfAttorneySerializer
         end
 
-        def status_2122
+        def upload
+          power_of_attorney = ClaimsApi::PowerOfAttorney.find_by(id: params[:id])
+          power_of_attorney.set_file_data!(documents.first, params[:doc_type])
+          power_of_attorney.save!
+          render json: power_of_attorney, serializer: ClaimsApi::PowerOfAttorneySerializer
+        end
 
+        def status
+          power_of_attorney = ClaimsApi::PowerOfAttorney.find_by(id: params[:id])
+          render json: power_of_attorney, serializer: ClaimsApi::PowerOfAttorneySerializer
         end
       end
     end

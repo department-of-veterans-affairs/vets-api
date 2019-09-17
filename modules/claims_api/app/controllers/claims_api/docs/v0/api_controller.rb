@@ -2,8 +2,10 @@
 
 require_dependency 'claims_api/form_526_model_swagger'
 require_dependency 'claims_api/form_0966_model_swagger'
+require_dependency 'claims_api/form_2122_model_swagger'
 require_dependency 'claims_api/form_526_v0_controller_swagger'
 require_dependency 'claims_api/form_0966_v0_controller_swagger'
+require_dependency 'claims_api/form_2122_v0_controller_swagger'
 
 module ClaimsApi
   module Docs

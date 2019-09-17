@@ -9,7 +9,7 @@ module ClaimsApi
     swagger_path '/forms/2122' do
       operation :get do
         key :summary, 'Get 2122 JSON Schema for form'
-        key :description, 'Returns a single JSON schema to auto generate a form'
+        key :description, 'Returns a single 2122 JSON schema to auto generate a form'
         key :operationId, 'get2122JsonSchema'
         key :produces, [
           'application/json'
@@ -217,7 +217,7 @@ module ClaimsApi
             key :'$ref', :Form2122Output
           end
         end
-        
+
         response :default do
           key :description, 'unexpected error'
           schema do

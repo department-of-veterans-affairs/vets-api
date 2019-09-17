@@ -42,7 +42,7 @@ class IdCardAttributes
 
   def title38_status_code
     @user.veteran_status.title38_status || 'UNKNOWN'
-  rescue StandardError
+  rescue
     'UNKNOWN'
   end
 

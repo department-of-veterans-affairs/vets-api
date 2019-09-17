@@ -39,6 +39,10 @@ class ProviderSerializer < ActiveModel::Serializer
     object.MainPhone
   end
 
+  def caresite_phone
+    object.CareSitePhoneNumber
+  end
+
   def fax
     object.OrganizationFax
   end
@@ -63,5 +67,5 @@ class ProviderSerializer < ActiveModel::Serializer
   end
 
   attributes :unique_id, :name, :address, :email, :phone, :fax, :lat, :long,
-             :pref_contact, :acc_new_patients, :gender, :specialty
+             :pref_contact, :acc_new_patients, :gender, :specialty, :caresite_phone
 end
