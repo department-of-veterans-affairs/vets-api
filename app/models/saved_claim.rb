@@ -41,7 +41,7 @@ class SavedClaim < ApplicationRecord
   def process_attachments!
     refs = attachment_keys.map { |key| Array(open_struct_form.send(key)) }.flatten
     files = PersistentAttachment.where(guid: refs.map(&:confirmationCode))
-    files.update_all(saved_claim_id: id)
+    files.find_each { |f| f.update(saved_claim_id: id) }
 
     CentralMail::SubmitSavedClaimJob.perform_async(id)
   end
