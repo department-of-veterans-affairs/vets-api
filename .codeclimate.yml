@@ -41,7 +41,6 @@ plugins:
 exclude_patterns:
   - 'config/'
   - 'db/'
-  - 'features/'
-  - 'script/'
   - '**/spec/'
-  - '**/vendor/'
+  - 'benchmark/'
+  - 'docs/'
