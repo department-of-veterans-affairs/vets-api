@@ -128,7 +128,7 @@ module VaFacilities
     end
 
     def ambiguous?(address_difference, lat_lng_difference, address_params, lat_lng_params)
-      address_difference.empty? || lat_lng_difference.empty? ||
+      (address_difference.empty? && lat_lng_difference.empty?) ||
         (address_difference != address_params && lat_lng_difference != lat_lng_params)
     end
 

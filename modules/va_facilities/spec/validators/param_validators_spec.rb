@@ -5,6 +5,9 @@ require 'rails_helper'
 
 class DummyClass
   require_dependency 'va_facilities/param_validators'
+  require_dependency 'common/exceptions/internal/parameter_missing'
+  require_dependency 'common/exceptions/internal/ambiguous_request'
+  require_dependency 'common/exceptions/internal/invalid_field_value'
 
   include VaFacilities::ParamValidators
   attr_accessor :params
@@ -459,9 +462,20 @@ RSpec.describe VaFacilities::ParamValidators do
       expect(@dummy_class.validate_required_nearby_params(REQUIRED_PARAMS)).to be_nil
     end
 
-    it 'fails validation when ambiguous' do
+    it 'fails validation when ambiguous - both are complete sets' do
       @dummy_class.params = {
         lat: '45.3', lng: '43.3', street_address: '123 main', city: 'plano', state: 'tx', zip: '75075'
+      }
+      expect do
+        @dummy_class.validate_required_nearby_params(REQUIRED_PARAMS)
+      end.to raise_error(Common::Exceptions::AmbiguousRequest) { |error|
+        expect(error.message).to eq 'Ambiguous Request'
+      }
+    end
+
+    it 'fails validation when ambiguous - both are incomplete sets' do
+      @dummy_class.params = {
+        lat: '45.3', street_address: '123 main', state: 'tx', zip: '75075'
       }
       expect do
         @dummy_class.validate_required_nearby_params(REQUIRED_PARAMS)
