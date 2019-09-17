@@ -52,7 +52,7 @@ module Common
             end
 
             def make_direct_mappings
-              %w[unique_id name classification website active_status].each_with_object({}) do |name, _attributes|
+              %w[unique_id name classification website mobile active_status].each_with_object({}) do |name, _attributes|
                 @dest_facility[name] = strip(@src_facility['attributes'][@mapping[name]])
               end
             end

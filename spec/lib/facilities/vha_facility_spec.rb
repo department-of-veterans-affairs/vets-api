@@ -70,6 +70,13 @@ RSpec.describe Facilities::VHAFacility do
         end
       end
 
+      it 'should indicate if a facility is mobile' do
+        VCR.use_cassette('facilities/va/vha_facilities_limit_results') do
+          expect(facility.mobile).to eq(false)
+          expect(facility_2.mobile).to eq(true)
+        end
+      end
+
       context 'services' do
         let(:satisfaction_data) do
           fixture_file_name = "#{::Rails.root}/spec/fixtures/facility_access/satisfaction_data.json"

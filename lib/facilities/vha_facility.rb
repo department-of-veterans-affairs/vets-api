@@ -75,6 +75,7 @@ module Facilities
           'access' => { 'health' => method(:wait_time_data) },
           'feedback' => { 'health' => method(:satisfaction_data) },
           'services' => health_services,
+          'mobile' => 'Mobile',
           'active_status' => 'Pod',
           'mapped_fields' => mapped_fields_list
         }
@@ -114,7 +115,7 @@ module Facilities
 
       def mapped_fields_list
         %w[Sta_No NAME CocClassificationID LASTUPDATE Address1 Address2 Address3 MUNICIPALITY STATE
-           zip Zip4 Sta_Phone Sta_Fax afterhoursphone
+           zip Zip4 Sta_Phone Sta_Fax afterhoursphone Mobile
            patientadvocatephone enrollmentcoordinatorphone pharmacyphone Monday
            Tuesday Wednesday Thursday Friday Saturday Sunday Pod]
       end
