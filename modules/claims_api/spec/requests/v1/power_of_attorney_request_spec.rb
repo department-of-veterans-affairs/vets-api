@@ -37,7 +37,7 @@ RSpec.describe 'Power of Attorney ', type: :request do
         post path, params: data, headers: headers.merge(auth_header)
         parsed = JSON.parse(response.body)
         expect(parsed['data']['type']).to eq('claims_api_power_of_attorneys')
-        expect(parsed['data']['attributes']['status']).to eq('submitted')
+        expect(parsed['data']['attributes']['status']).to eq('pending')
       end
     end
 
@@ -93,6 +93,7 @@ RSpec.describe 'Power of Attorney ', type: :request do
               params: params, headers: headers.merge(auth_header))
           power_of_attorney.reload
           expect(power_of_attorney.file_data).not_to be_nil
+          expect(power_of_attorney.status).to eq('submitted')
         end
       end
     end
