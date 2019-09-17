@@ -28,7 +28,9 @@ module ClaimsApi
         def upload
           power_of_attorney = ClaimsApi::PowerOfAttorney.find_by(id: params[:id])
           power_of_attorney.set_file_data!(documents.first, params[:doc_type])
+          power_of_attorney.status = 'submitted'
           power_of_attorney.save!
+          power_of_attorney.reload
           render json: power_of_attorney, serializer: ClaimsApi::PowerOfAttorneySerializer
         end
 
