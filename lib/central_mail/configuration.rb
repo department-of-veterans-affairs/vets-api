@@ -12,7 +12,7 @@ module CentralMail
 
     def connection
       Faraday.new(base_path) do |faraday|
-        faraday.use :breakers
+        faraday.use     :breakers
 
         faraday.request :multipart
         faraday.request :url_encoded
