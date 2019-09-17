@@ -23,8 +23,16 @@ RSpec.describe 'Disability Claims ', type: :request do
         allow_any_instance_of(klass).to receive(:validate_form526).and_return(true)
         post path, params: data, headers: headers
         parsed = JSON.parse(response.body)
-        expect(parsed['data']['type']).to eq('claims_api_auto_established_claims')
+        expect(parsed['data']['type']).to eq('claims_api_claim')
         expect(parsed['data']['attributes']['status']).to eq('pending')
+      end
+    end
+
+    it 'should return a unsuccessful response without mvi' do
+      VCR.use_cassette('evss/intent_to_file/active_compensation_future_date') do
+        allow_any_instance_of(ClaimsApi::Veteran).to receive(:mvi_record?).and_return(false)
+        post path, params: data, headers: headers
+        expect(response.status).to eq(404)
       end
     end
 
@@ -43,6 +51,17 @@ RSpec.describe 'Disability Claims ', type: :request do
         expect_any_instance_of(klass).to receive(:validate_form526).and_return(true)
         expect(ClaimsApi::ClaimEstablisher).to receive(:perform_async)
         post path, params: data, headers: headers
+      end
+    end
+
+    it 'should set the source' do
+      VCR.use_cassette('evss/intent_to_file/active_compensation_future_date') do
+        klass = EVSS::DisabilityCompensationForm::ServiceAllClaim
+        expect_any_instance_of(klass).to receive(:validate_form526).and_return(true)
+        post path, params: data, headers: headers
+        token = JSON.parse(response.body)['data']['attributes']['token']
+        aec = ClaimsApi::AutoEstablishedClaim.find(token)
+        expect(aec.source).to eq('TestConsumer')
       end
     end
 

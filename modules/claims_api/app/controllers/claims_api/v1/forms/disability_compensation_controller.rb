@@ -1,25 +1,30 @@
 # frozen_string_literal: true
 
-require_dependency 'claims_api/base_form_controller'
+require_dependency 'claims_api/base_disability_compensation_controller'
+require_dependency 'claims_api/concerns/itf_verification'
+require_dependency 'claims_api/concerns/poa_verification'
 require 'jsonapi/parser'
 
 module ClaimsApi
   module V1
     module Forms
-      class DisabilityCompensationController < BaseFormController
+      class DisabilityCompensationController < BaseDisabilityCompensationController
+        include ClaimsApi::ItfVerification
+        include ClaimsApi::PoaVerification
+
         FORM_NUMBER = '526'
+
         before_action { permit_scopes %w[claim.write] }
-        before_action :verification_itf_expiration, only: %i[submit_form_526]
-        skip_before_action :validate_json_schema, only: %i[upload_supporting_documents]
-        skip_before_action :verify_mvi, only: %i[submit_form_526 validate_form_526]
-        skip_before_action :log_request, only: %i[validate_form_526]
+        before_action :validate_json_schema, only: %i[submit_form_526 validate_form_526]
+        before_action :verify_itf, only: %i[submit_form_526]
 
         def submit_form_526
           service = EVSS::DisabilityCompensationForm::ServiceAllClaim.new(auth_headers)
           auto_claim = ClaimsApi::AutoEstablishedClaim.create(
             status: ClaimsApi::AutoEstablishedClaim::PENDING,
             auth_headers: auth_headers,
-            form_data: form_attributes
+            form_data: form_attributes,
+            source: source_name
           )
           auto_claim = ClaimsApi::AutoEstablishedClaim.find_by(md5: auto_claim.md5) unless auto_claim.id
           service.validate_form526(auto_claim.form.to_internal)
@@ -38,7 +43,7 @@ module ClaimsApi
             claim_document = claim.supporting_documents.build
             claim_document.set_file_data!(document, params[:doc_type], params[:description])
             claim_document.save!
-            ClaimsApi::ClaimEstablisher.perform_async(claim_document.id)
+            ClaimsApi::ClaimUploader.perform_async(claim_document.id)
           end
 
           render json: claim, serializer: ClaimsApi::ClaimDetailSerializer
@@ -59,6 +64,11 @@ module ClaimsApi
         end
 
         private
+
+        def source_name
+          user = poa_request? ? @current_user : target_veteran
+          "#{user.first_name} #{user.last_name}"
+        end
 
         def service(auth_headers)
           if Settings.claims_api.disability_claims_mock_override && !auth_headers['Mock-Override']
