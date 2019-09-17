@@ -111,3 +111,8 @@ end
 # init gibft
 StatsD.increment("#{Gibft::Service::STATSD_KEY_PREFIX}.submit.total", 0)
 StatsD.increment("#{Gibft::Service::STATSD_KEY_PREFIX}.submit.fail", 0)
+
+all_keys = StatsDMetric.keys
+all_keys.each do |key|
+  StatsD.increment(key.to_s, 0)
+end
