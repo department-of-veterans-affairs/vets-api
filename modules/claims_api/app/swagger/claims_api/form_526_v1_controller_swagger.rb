@@ -9,7 +9,7 @@ module ClaimsApi
     swagger_path '/forms/526' do
       operation :get do
         key :summary, 'Get 526 JSON Schema for form'
-        key :description, 'Returns a single JSON schema to auto generate a form'
+        key :description, 'Returns a single 526 JSON schema to auto generate a form'
         key :operationId, 'get526JsonSchema'
         key :produces, [
           'application/json'
