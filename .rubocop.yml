@@ -1,3 +1,6 @@
+inherit_from: .rubocop_todo.yml
+
+require: 'rubocop-rails'
 AllCops:
   TargetRailsVersion: 5.2
   TargetRubyVersion: 2.4.5
@@ -6,6 +9,7 @@ AllCops:
     - '**/config.ru'
     - '**/Rakefile'
     - '**/*.rake'
+    - '**/*.rb'
   Exclude:
     - db/schema.rb
     - db/seeds.rb
