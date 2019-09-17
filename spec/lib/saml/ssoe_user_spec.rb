@@ -8,7 +8,7 @@ RSpec.describe SAML::User do
 
   describe 'SSOe' do
     # TODO: change if necessary
-    let(:authn_context) { 'ssoe' }
+    let(:authn_context) { 'urn:oasis:names:tc:SAML:2.0:ac:classes:Password' }
     let(:account_type)  { '1' }
     let(:highest_attained_loa) { '3' }
 
@@ -40,7 +40,7 @@ RSpec.describe SAML::User do
           multifactor: false,
           loa: { current: 1, highest: 3 },
           sign_in: { service_name: 'ssoe', account_type: '3' },
-          authn_context: 'ssoe'
+          authn_context: 'urn:oasis:names:tc:SAML:2.0:ac:classes:Password'
         )
       end
 
@@ -71,7 +71,7 @@ RSpec.describe SAML::User do
           # TODO: validate when/how this attribute is being used
           sign_in: { service_name: 'ssoe', account_type: '3' },
           multifactor: false,
-          authn_context: 'ssoe'
+          authn_context: 'urn:oasis:names:tc:SAML:2.0:ac:classes:Password'
         )
       end
 
