@@ -37,7 +37,7 @@ module V0
       vet360_email =
         begin
           current_user.vet360_contact_info&.email&.email_address
-        rescue 
+        rescue
           nil
         end
       vet360_email || current_user.email
