@@ -402,4 +402,36 @@ RSpec.describe 'Facilities API endpoint', type: :request do
       expect(vc['mobile']).to be_nil
     end
   end
+
+  context 'active_status flag' do
+    it 'responds with a string active_status flag for VHA facilities' do
+      create :vha_648A4
+      get base_query_path + '/vha_648A4', params: nil, headers: accept_json
+      expect(response).to be_successful
+      expect(response.body).to be_a(String)
+      json = JSON.parse(response.body)
+      expect(json['data']['attributes']['active_status']).to eq('A')
+      expect(json['data']['attributes']['active_status']).to_not be_nil
+    end
+
+    it 'responds with null active_status flag for non-VHA facilities' do
+      create :nca_907
+      create :vba_348
+      create :vc_0617V
+
+      get base_query_path + lat_long, params: nil, headers: accept_json
+
+      expect(response).to be_successful
+      expect(response.body).to be_a(String)
+
+      json = JSON.parse(response.body)
+      nca = json['data'][0]
+      vba = json['data'][1]
+      vc = json['data'][2]
+
+      expect(nca['active_status']).to be_nil
+      expect(vba['active_status']).to be_nil
+      expect(vc['active_status']).to be_nil
+    end
+  end
 end
