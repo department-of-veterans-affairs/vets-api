@@ -47,12 +47,12 @@ module EVSS
                          submission.submitted_claim_id, FORM_ID_0781A, parsed_forms['form0781a'])
           end
         end
-      rescue => error
+      rescue => e
         # Cannot move job straight to dead queue dynamically within an executing job
         # raising error for all the exceptions as sidekiq will then move into dead queue
         # after all retries are exhausted
-        retryable_error_handler(error)
-        raise error
+        retryable_error_handler(e)
+        raise e
       end
 
       private
