@@ -17,6 +17,7 @@ module ClaimsApi
 
     def store_dir
       raise 'missing guid' if @guid.blank?
+
       "disability_compensation/#{@guid}"
     end
 

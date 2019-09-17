@@ -19,6 +19,7 @@ module V0
     def latest
       resource = TermsAndConditions.where(name: params[:name]).latest
       raise Common::Exceptions::RecordNotFound, params[:name] if resource.blank?
+
       render(
         json: resource,
         serializer: TermsAndConditionsSerializer
@@ -28,8 +29,10 @@ module V0
     def latest_user_data
       terms = TermsAndConditions.where(name: params[:name]).latest
       raise Common::Exceptions::RecordNotFound, params[:name] if terms.blank?
+
       resource = terms.acceptances.for_user(current_user).first
       raise Common::Exceptions::RecordNotFound, current_user.uuid if resource.blank?
+
       render(
         json: resource,
         serializer: TermsAndConditionsAcceptanceSerializer
@@ -39,6 +42,7 @@ module V0
     def accept_latest
       terms = TermsAndConditions.where(name: params[:name]).latest
       raise Common::Exceptions::RecordNotFound, params[:name] if terms.blank?
+
       resource = TermsAndConditionsAcceptance.new(
         user_uuid: current_user.uuid,
         terms_and_conditions: terms

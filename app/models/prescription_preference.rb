@@ -32,6 +32,7 @@ class PrescriptionPreference < Common::Base
   #
   def mhv_params
     raise Common::Exceptions::ValidationErrors, self unless valid?
+
     { email_address: email_address, rx_flag: rx_flag }
   end
 

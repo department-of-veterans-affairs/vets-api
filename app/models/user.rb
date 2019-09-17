@@ -167,6 +167,7 @@ class User < Common::RedisStore
 
   def ssn_mismatch?
     return false unless loa3? && identity&.ssn && va_profile&.ssn
+
     identity.ssn != va_profile.ssn
   end
 
@@ -246,6 +247,7 @@ class User < Common::RedisStore
 
   def vet360_contact_info
     return nil unless Settings.vet360.contact_information.enabled && vet360_id.present?
+
     @vet360_contact_info ||= Vet360Redis::ContactInformation.for_user(self)
   end
 

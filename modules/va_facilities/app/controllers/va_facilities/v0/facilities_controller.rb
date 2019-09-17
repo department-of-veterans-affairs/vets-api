@@ -53,6 +53,7 @@ module VaFacilities
       def show
         results = BaseFacility.find_facility_by_id(params[:id])
         raise Common::Exceptions::RecordNotFound, params[:id] if results.nil?
+
         respond_to do |format|
           format.json do
             render json: results, serializer: VaFacilities::FacilitySerializer
@@ -103,6 +104,7 @@ module VaFacilities
       def validate_bbox
         if params[:bbox]
           raise ArgumentError unless params[:bbox]&.length == 4
+
           params[:bbox].each { |x| Float(x) }
         end
       rescue ArgumentError

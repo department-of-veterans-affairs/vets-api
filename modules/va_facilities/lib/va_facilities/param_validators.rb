@@ -8,6 +8,7 @@ module VaFacilities
       if params[:zip]
         raise Common::Exceptions::InvalidFieldValue.new('zip', params[:zip]) unless
         params[:zip].match?(/\A\d{5}(-\d{4})?\z/)
+
         zip_plus0 = params[:zip][0...5]
         requested_zip = ZCTA.select { |area| area[0] == zip_plus0 }
         raise Common::Exceptions::InvalidFieldValue.new('zip', params[:zip]) unless
@@ -30,6 +31,7 @@ module VaFacilities
     def validate_type_and_services_known
       raise Common::Exceptions::InvalidFieldValue.new('type', params[:type]) unless
       BaseFacility::TYPES.include?(params[:type])
+
       unknown = params[:services].to_a - facility_klass.service_list
       raise Common::Exceptions::InvalidFieldValue.new('services', unknown) unless unknown.empty?
     end

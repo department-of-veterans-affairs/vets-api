@@ -14,6 +14,7 @@ class V0::Facilities::CcpController < FacilitiesController
     ppms = Facilities::PPMSClient.new
     result = ppms.provider_info(params[:id])
     raise Common::Exceptions::RecordNotFound, params[:id] if result.nil?
+
     services = ppms.provider_services(params[:id])
     result.add_provider_service(services[0]) if services.present?
     render json: result, serializer: ProviderSerializer

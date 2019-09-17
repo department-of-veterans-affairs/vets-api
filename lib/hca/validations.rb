@@ -15,6 +15,7 @@ module HCA
 
     def parse_date(date_string)
       return nil if !date_string.is_a?(String) || date_string.blank?
+
       Date.parse(date_string)
     end
 
@@ -56,6 +57,7 @@ module HCA
     def validate_name(*args)
       formatted_name = validate_string(*args)
       return '' if formatted_name.blank?
+
       formatted_name.upcase
     end
 

@@ -251,7 +251,6 @@ RSpec.describe 'Nearby Facilities API endpoint', type: :request do
       create 'vha_402QA'
       VCR.use_cassette('bing/isochrone/no_health_services_drive_time',
                        match_requests_on: [:method, VCR.request_matchers.uri_without_param(:key)]) do
-
         get base_query_path + no_health, params: nil, headers: accept_json
         expect(response).to be_success
 

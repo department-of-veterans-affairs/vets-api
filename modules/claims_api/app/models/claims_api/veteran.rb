@@ -51,12 +51,14 @@ module ClaimsApi
 
     def ssn=(new_ssn)
       raise Common::Exceptions::ParameterMissing, 'X-VA-SSN' unless SSN_REGEX.match?(new_ssn)
+
       super(new_ssn)
     end
 
     def va_profile=(new_va_profile)
       matches = Date.parse(new_va_profile.birth_date).iso8601
       raise Common::Exceptions::ParameterMissing, 'X-VA-Birth-Date' unless matches
+
       super(new_va_profile)
     end
 

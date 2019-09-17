@@ -73,6 +73,7 @@ module Vet360
 
       def formatted_phone
         return if phone_number.blank?
+
         # TODO: support international numbers
 
         return_val = "(#{area_code}) #{phone_number[0..2]}-#{phone_number[3..7]}"

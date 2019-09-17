@@ -9,6 +9,7 @@ class NearbyFacility < ApplicationRecord
 
     def query(params)
       return NearbyFacility.none unless params[:street_address] && params[:city] && params[:state] && params[:zip]
+
       isochrone_response = request_isochrone(params)
       get_facilities_in_isochrone(params, isochrone_response)
     end

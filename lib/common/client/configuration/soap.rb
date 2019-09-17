@@ -70,6 +70,7 @@ module Common
           # :nocov:
           Rails.logger.warn "Could not load #{service_name} SSL key: #{e.message}"
           raise e if Rails.env.production?
+
           nil
           # :nocov:
         end
