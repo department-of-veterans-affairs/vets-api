@@ -16,7 +16,7 @@ RSpec.describe EVSS::DependentsApplicationJob do
         expect_any_instance_of(EVSS::Dependents::Service).to receive(:retrieve).and_raise('foo')
         begin
           described_class.drain
-        rescue StandardError
+        rescue
           nil
         end
         dependents_application = reload_dependents_application

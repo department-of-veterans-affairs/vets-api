@@ -5,7 +5,8 @@ require 'rails_helper'
 RSpec.describe 'PPIU', type: :request do
   include SchemaMatchers
 
-  before(:each) { sign_in }
+  let(:user) { create(:user, :mhv) }
+  before(:each) { sign_in(user) }
 
   describe 'GET /v0/ppiu/payment_information' do
     context 'with a valid evss response' do
@@ -60,7 +61,10 @@ RSpec.describe 'PPIU', type: :request do
       context 'when the user does have an associated email address' do
         it 'calls a background job to send an email' do
           VCR.use_cassette('evss/ppiu/update_payment_information') do
-            expect(DirectDepositEmailJob).to receive(:perform_async)
+            user.all_emails do |email|
+              expect(DirectDepositEmailJob).to receive(:perform_async).with(email, nil)
+            end
+
             put '/v0/ppiu/payment_information', params: ppiu_request, headers: headers
           end
         end
@@ -75,8 +79,9 @@ RSpec.describe 'PPIU', type: :request do
         end
         it 'should log a message to Sentry' do
           VCR.use_cassette('evss/ppiu/update_payment_information') do
+            expect_any_instance_of(User).to receive(:all_emails).and_return([])
             expect(Raven).to receive(:capture_message).once
-            allow_any_instance_of(V0::PPIUController).to receive(:current_user_email).and_return(nil)
+
             put '/v0/ppiu/payment_information', params: ppiu_request, headers: headers
             expect(response).to have_http_status(:ok)
           end
