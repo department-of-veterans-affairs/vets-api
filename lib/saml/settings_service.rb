@@ -80,7 +80,7 @@ module SAML
         response = connection.get
         raise SAML::InternalServerError, response.status if (400..504).cover? response.status.to_i
         response.body
-      rescue StandardError => e
+      rescue => e
         attempt += 1
         msg = "Failed to load SAML metadata: #{e.message}: try #{attempt} of #{METADATA_RETRIES}"
         if attempt < METADATA_RETRIES
