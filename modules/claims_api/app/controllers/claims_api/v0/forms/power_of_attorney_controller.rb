@@ -14,7 +14,7 @@ module ClaimsApi
 
         def submit_form_2122
           power_of_attorney = ClaimsApi::PowerOfAttorney.create(
-            status: 'submitted',
+            status: 'pending',
             auth_headers: auth_headers,
             form_data: form_attributes,
             source: request.headers['X-Consumer-Username']

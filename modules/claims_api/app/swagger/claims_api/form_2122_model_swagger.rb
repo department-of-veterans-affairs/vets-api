@@ -75,8 +75,9 @@ module ClaimsApi
         property :status do
           key :type, :string
           key :example, 'accepted'
-          key :description, 'Says if the power of attoreny is submitted or accepted'
+          key :description, 'Says if the power of attorney is pending, submitted or accepted'
           key :enum, %w[
+            pending
             submitted
             approved
           ]
