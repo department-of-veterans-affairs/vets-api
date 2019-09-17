@@ -10,7 +10,7 @@ module VeteranVerification
 
       def index
         render json: @current_user, serializer: VeteranVerification::VeteranStatusSerializer
-      rescue StandardError
+      rescue
         raise_error!
       end
 
