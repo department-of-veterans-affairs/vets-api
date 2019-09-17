@@ -70,17 +70,17 @@ RSpec.describe Facilities::VHAFacility do
 
           attrs1 = {
             station_number: '358',
-            mh_phone: '4071231234',
+            mh_phone: '407-123-1234',
             mh_ext: nil,
-            modified: '2019-08-07',
+            modified: '2019-09-06T13:00:00.000',
             local_updated: Time.now.utc.iso8601
           }
 
           attrs2 = {
             station_number: '402',
-            mh_phone: '3219876543',
+            mh_phone: '321-987-6543',
             mh_ext: '0002',
-            modified: '2019-08-07',
+            modified: '2019-09-06T13:00:00.000',
             local_updated: Time.now.utc.iso8601
           }
 
@@ -90,8 +90,8 @@ RSpec.describe Facilities::VHAFacility do
 
         it 'should add mental health info for facilities' do
           VCR.use_cassette('facilities/va/vha_facilities_limit_results') do
-            expect(facility.phone['mental_health_clinic']).to eq('4071231234')
-            expect(facility_2.phone['mental_health_clinic']).to eq('3219876543 x 0002')
+            expect(facility.phone['mental_health_clinic']).to eq('407-123-1234')
+            expect(facility_2.phone['mental_health_clinic']).to eq('321-987-6543 x 0002')
           end
         end
       end

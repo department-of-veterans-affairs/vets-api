@@ -7,10 +7,10 @@ RSpec.describe Facilities::MentalHealthReloadJob, type: :job do
     def download
       [
         {
-          'StationNumber' => '101A', 'MHPhone' => '4071231234', 'Extension' => '0001', 'Modified' => '2019-08-07'
+          'StationNumber' => '101A', 'MHPhone' => '407-123-1234', 'Extension' => '0001', 'Modified' => '2019-09-06T13:00:00.000'
         },
         {
-          'StationNumber' => '202A', 'MHPhone' => '3211231234', 'Extension' => '0002', 'Modified' => '2019-08-07'
+          'StationNumber' => '202A', 'MHPhone' => '321-123-1234', 'Extension' => '0002', 'Modified' => '2019-09-06T13:00:00.000'
         }
       ]
     end
@@ -33,15 +33,15 @@ RSpec.describe Facilities::MentalHealthReloadJob, type: :job do
     facility2 = FacilityMentalHealth.find('202A')
 
     expect(facility.station_number).to eq('101A')
-    expect(facility.mh_phone).to eq('4071231234')
+    expect(facility.mh_phone).to eq('407-123-1234')
     expect(facility.mh_ext).to eq('0001')
-    expect(facility.modified).to eq('2019-08-07')
+    expect(facility.modified).to eq('2019-09-06T13:00:00.000')
     expect(facility.local_updated).to be >= now
 
     expect(facility2.station_number).to eq('202A')
-    expect(facility2.mh_phone).to eq('3211231234')
+    expect(facility2.mh_phone).to eq('321-123-1234')
     expect(facility2.mh_ext).to eq('0002')
-    expect(facility2.modified).to eq('2019-08-07')
+    expect(facility2.modified).to eq('2019-09-06T13:00:00.000')
     expect(facility2.local_updated).to be >= now
   end
 
@@ -51,7 +51,7 @@ RSpec.describe Facilities::MentalHealthReloadJob, type: :job do
     expect(FacilityMentalHealth.find('202A')).to_not be_nil
 
     mental_health_data = [{
-      'StationNumber' => '202A', 'MHPhone' => '3211231234', 'MHExt' => '0002', 'Modified' => '2019-08-07'
+      'StationNumber' => '202A', 'MHPhone' => '321-123-1234', 'MHExt' => '0002', 'Modified' => '2019-09-06T13:00:00.000'
     }]
 
     allow_any_instance_of(
@@ -68,8 +68,8 @@ RSpec.describe Facilities::MentalHealthReloadJob, type: :job do
     Facilities::MentalHealthReloadJob.new.perform
     expect(FacilityMentalHealth.find('101A')).to_not be_nil
     expect(FacilityMentalHealth.find('202A')).to_not be_nil
-    expect(FacilityMentalHealth.find('101A').mh_phone).to eq('4071231234')
-    expect(FacilityMentalHealth.find('202A').mh_phone).to eq('3211231234')
+    expect(FacilityMentalHealth.find('101A').mh_phone).to eq('407-123-1234')
+    expect(FacilityMentalHealth.find('202A').mh_phone).to eq('321-123-1234')
     expect(FacilityMentalHealth.find('101A').local_updated).to be >= now
     expect(FacilityMentalHealth.find('202A').local_updated).to be >= now
     later = Time.now.utc.iso8601
@@ -78,15 +78,15 @@ RSpec.describe Facilities::MentalHealthReloadJob, type: :job do
     mental_health_data = [
       {
         'StationNumber' => '101A',
-        'MHPhone' => '4071231234',
+        'MHPhone' => '407-123-1234',
         'MHExt' => '0001',
-        'Modified' => '2019-08-07'
+        'Modified' => '2019-09-06T13:00:00.000'
       },
       {
         'StationNumber' => '202A',
-        'MHPhone' => '3219876543',
+        'MHPhone' => '321-987-6543',
         'MHExt' => '0002',
-        'Modified' => '2019-08-07'
+        'Modified' => '2019-09-06T13:00:00.000'
       }
     ]
 
@@ -97,8 +97,8 @@ RSpec.describe Facilities::MentalHealthReloadJob, type: :job do
     Facilities::MentalHealthReloadJob.new.perform
     expect(FacilityMentalHealth.find('101A')).to_not be_nil
     expect(FacilityMentalHealth.find('202A')).to_not be_nil
-    expect(FacilityMentalHealth.find('101A').mh_phone).to eq('4071231234')
-    expect(FacilityMentalHealth.find('202A').mh_phone).to eq('3219876543')
+    expect(FacilityMentalHealth.find('101A').mh_phone).to eq('407-123-1234')
+    expect(FacilityMentalHealth.find('202A').mh_phone).to eq('321-987-6543')
     expect(FacilityMentalHealth.find('101A').local_updated).to be >= now
     expect(FacilityMentalHealth.find('101A').local_updated).to be <= later
     expect(FacilityMentalHealth.find('202A').local_updated).to be >= later
@@ -108,15 +108,15 @@ RSpec.describe Facilities::MentalHealthReloadJob, type: :job do
     mental_health_data = [
       {
         'StationNumber' => '101A',
-        'MHPhone' => '4071231234',
+        'MHPhone' => '407-123-1234',
         'MHExt' => 'NULL',
-        'Modified' => '2019-08-07'
+        'Modified' => '2019-09-06T13:00:00.000'
       },
       {
         'StationNumber' => '202A',
-        'MHPhone' => '3219876543',
+        'MHPhone' => '321-987-6543',
         'MHExt' => '0',
-        'Modified' => '2019-08-07'
+        'Modified' => '2019-09-06T13:00:00.000'
       }
     ]
 
