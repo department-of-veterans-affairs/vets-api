@@ -21,7 +21,6 @@ gem 'rails', '~> 5.2.3'
 # Gems with special version/repo needs
 gem 'active_model_serializers', '0.10.4' # breaking changed in 0.10.5 relating to .to_json
 gem 'carrierwave', '~> 0.11' # TODO: explanation
-gem 'sdoc', '~> 0.4.0', group: :doc # TODO: explanation
 gem 'sidekiq-scheduler', '~> 2.0' # TODO: explanation
 
 gem 'aasm'
@@ -118,7 +117,6 @@ end
 group :test do
   gem 'apivore'
   gem 'awrence'
-  gem 'climate_control'
   gem 'faker'
   gem 'faker-medical'
   gem 'fakeredis'

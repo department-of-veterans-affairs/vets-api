@@ -4,7 +4,6 @@ require 'rails_helper'
 require 'support/attr_encrypted_matcher'
 
 RSpec.describe ClaimsApi::PowerOfAttorney, type: :model do
-  let(:auto_form) { build(:power_of_attorney, auth_headers: { some: 'data' }) }
   let(:pending_record) { create(:power_of_attorney) }
 
   describe 'encrypted attributes' do

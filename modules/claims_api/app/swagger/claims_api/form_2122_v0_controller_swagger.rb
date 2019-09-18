@@ -8,8 +8,8 @@ module ClaimsApi
 
     swagger_path '/forms/2122' do
       operation :get do
-        key :summary, 'Get 2122 JSON Schema for form'
         key :description, 'Returns a single 2122 JSON schema to auto generate a form'
+        key :summary, 'Get 2122 JSON Schema for form'
         key :operationId, 'get2122JsonSchema'
         key :produces, [
           'application/json'
@@ -109,7 +109,7 @@ module ClaimsApi
           key :name, 'X-VA-User'
           key :in, :header
           key :description, 'VA username of the person making the request'
-          key :required, true
+          key :required, false
           key :type, :string
         end
 
@@ -146,9 +146,109 @@ module ClaimsApi
       end
     end
 
-    swagger_path '/forms/2122/status' do
+    swagger_path '/forms/2122/{id}' do
+      operation :put do
+        key :summary, 'Upload Power of attorney document'
+        key :description, 'Accpets document binaries as part of a multipart payload.'
+        key :operationId, 'upload526Attachments'
+        key :produces, [
+          'application/json'
+        ]
+        key :tags, [
+          'Power of Attorney'
+        ]
+
+        parameter do
+          key :name, :id
+          key :in, :path
+          key :description, 'UUID given when Disability Claim was submitted'
+          key :required, true
+          key :type, :uuid
+        end
+
+        parameter do
+          key :name, 'apikey'
+          key :in, :header
+          key :description, 'API Key given to access data'
+          key :required, true
+          key :type, :string
+        end
+
+        parameter do
+          key :name, 'X-VA-SSN'
+          key :in, :header
+          key :description, 'SSN of Veteran to fetch'
+          key :required, true
+          key :type, :string
+        end
+
+        parameter do
+          key :name, 'X-VA-First-Name'
+          key :in, :header
+          key :description, 'First Name of Veteran to fetch'
+          key :required, true
+          key :type, :string
+        end
+
+        parameter do
+          key :name, 'X-VA-Last-Name'
+          key :in, :header
+          key :description, 'Last Name of Veteran to fetch'
+          key :required, true
+          key :type, :string
+        end
+
+        parameter do
+          key :name, 'X-VA-Birth-Date'
+          key :in, :header
+          key :description, 'Date of Birth of Veteran to fetch in iso8601 format'
+          key :required, true
+          key :type, :string
+        end
+
+        parameter do
+          key :name, 'X-VA-EDIPI'
+          key :in, :header
+          key :description, 'EDIPI Number of Veteran to fetch'
+          key :required, false
+          key :type, :string
+        end
+
+        parameter do
+          key :name, 'X-VA-User'
+          key :in, :header
+          key :description, 'VA username of the person making the request'
+          key :required, false
+          key :type, :string
+        end
+
+        parameter do
+          key :name, 'attachment'
+          key :in, :formData
+          key :type, :file
+          key :description, 'Attachment contents. Must be provided in PDF format'
+        end
+
+        response 200 do
+          key :description, 'upload response'
+        end
+        response :default do
+          key :description, 'unexpected error'
+          schema do
+            key :type, :object
+            key :required, [:errors]
+            property :errors do
+              key :type, :array
+              items do
+                key :'$ref', :ErrorModel
+              end
+            end
+          end
+        end
+      end
+
       operation :get do
-        key :summary, 'Returns status of Power of Attorney form submission'
+        key :summary, 'Check 2122 Status by ID'
         key :description, 'Returns last active JSON payload. Full URL, including\nquery parameters.'
         key :operationId, 'get2122poa'
         key :tags, [
@@ -207,7 +307,7 @@ module ClaimsApi
           key :name, 'X-VA-User'
           key :in, :header
           key :description, 'VA username of the person making the request'
-          key :required, true
+          key :required, false
           key :type, :string
         end
 

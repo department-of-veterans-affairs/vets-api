@@ -1,8 +1,5 @@
 # frozen_string_literal: true
 
-require_dependency 'claims_api/form_526_model_swagger'
-require_dependency 'claims_api/form_0966_model_swagger'
-require_dependency 'claims_api/form_2122_model_swagger'
 require_dependency 'claims_api/form_526_v1_controller_swagger'
 require_dependency 'claims_api/form_0966_v1_controller_swagger'
 require_dependency 'claims_api/form_2122_v1_controller_swagger'
@@ -10,12 +7,7 @@ require_dependency 'claims_api/form_2122_v1_controller_swagger'
 module ClaimsApi
   module Docs
     module V1
-      class ApiController < ::ApplicationController
-        skip_before_action(:authenticate)
-        # skip_before_action(:log_request)
-        include Swagger::Blocks
-
-        # A list of all classes that have swagger_* declarations.
+      class ApiController < ClaimsApi::Docs::ApiController
         SWAGGERED_CLASSES = [
           ClaimsApi::ClaimsModelSwagger,
           ClaimsApi::Form526ModelSwagger,
