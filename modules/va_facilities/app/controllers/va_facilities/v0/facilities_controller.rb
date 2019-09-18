@@ -19,8 +19,6 @@ module VaFacilities
       before_action :validate_params, only: [:index]
 
       REQUIRE_ONE_PARAM = %i[bbox long lat zip ids state].freeze
-      MISSING_PARAMS_ERR =
-        'Must supply lat and long, bounding box, zip code, or ids parameter to query facilities data.'
 
       def all
         resource = BaseFacility.where.not(facility_type: BaseFacility::DOD_HEALTH).order(:unique_id)
@@ -72,7 +70,7 @@ module VaFacilities
       private
 
       def validate_params
-        validate_a_param_exists
+        validate_a_param_exists(REQUIRE_ONE_PARAM)
         validate_bbox
         validate_state_code
         %i[lat long].each { |param| verify_float(param) } if params.key?(:lat) && params.key?(:long)
@@ -82,51 +80,10 @@ module VaFacilities
         valid_location_query?
       end
 
-      def validate_a_param_exists
-        lat_and_long = params.key?(:lat) && params.key?(:long)
-
-        if !lat_and_long && REQUIRE_ONE_PARAM.none? { |param| params.key? param }
-          REQUIRE_ONE_PARAM.each do |param|
-            unless params.key? param
-              raise Common::Exceptions::ParameterMissing.new(param.to_s, detail: MISSING_PARAMS_ERR)
-            end
-          end
-        end
-      end
-
       def verify_float(param)
         Float(params[param])
       rescue ArgumentError
         raise Common::Exceptions::InvalidFieldValue.new(param.to_s, params[param])
-      end
-
-      def validate_bbox
-        if params[:bbox]
-          raise ArgumentError unless params[:bbox]&.length == 4
-          params[:bbox].each { |x| Float(x) }
-        end
-      rescue ArgumentError
-        raise Common::Exceptions::InvalidFieldValue.new('bbox', params[:bbox])
-      end
-
-      def valid_location_query?
-        case location_keys
-        when [] then true
-        when %i[lat long] then true
-        when [:state]     then true
-        when [:zip]       then true
-        when [:bbox]      then true
-        else
-          # There can only be one
-          render json: {
-            errors: ['You may only use ONE of these distance query parameter sets: lat/long, zip, state, or bbox']
-          },
-                 status: 422
-        end
-      end
-
-      def location_keys
-        (%i[lat long state zip bbox] & params.keys.map(&:to_sym)).sort
       end
 
       def metadata(resource)
