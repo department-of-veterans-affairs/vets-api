@@ -38,13 +38,6 @@ plugins:
     enabled: true
   bundler-audit:
     enabled: true
-  duplication:
-    enabled: true
-    config:
-      languages:
-        ruby:
-          filters:
-            - "(:iter, (:call, nil, :respond_to), (:args, :format), ___)"
 exclude_patterns:
   - 'config/'
   - 'db/'
