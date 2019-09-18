@@ -16,6 +16,11 @@ module Sentry
 
         stringified_data
       end
+
+      private
+
+      def sanitize
+      end
     end
   end
 end
