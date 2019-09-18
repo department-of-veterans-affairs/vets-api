@@ -27,7 +27,7 @@ RSpec.describe Sentry::Processor::FilterRequestBody do
     end
   end
 
-  context 'with data from ppiu' do
+  context 'with data from a controller in FILTERED_CONTROLLER' do
     expect_filter(true)
   end
 
