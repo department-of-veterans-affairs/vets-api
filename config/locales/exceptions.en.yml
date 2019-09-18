@@ -165,6 +165,12 @@ en:
         title: Bing Service Error
         code: 500
         status: 500
+      ambiguous_request:
+        <<: *defaults
+        title: Ambiguous Request
+        detail: "%{detail}"
+        code: 108
+        status: 400
 
 # EXTERNAL EXCEPTIONS
     # This is a Generic Error corresponding to backend services
