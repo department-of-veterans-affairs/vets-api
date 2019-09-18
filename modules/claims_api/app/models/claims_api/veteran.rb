@@ -68,10 +68,6 @@ module ClaimsApi
       'authn'
     end
 
-    def set_edipi(edipi_header)
-      self.edipi = edipi_header.presence || mvi.profile&.edipi
-    end
-
     def self.from_identity(identity:)
       new(
         uuid: identity.uuid,

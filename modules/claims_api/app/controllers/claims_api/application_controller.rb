@@ -62,15 +62,15 @@ module ClaimsApi
         va_profile: ClaimsApi::Veteran.build_profile(header('X-VA-Birth-Date')),
         last_signed_in: Time.now.utc
       )
-      vet.loa = @current_user.loa if @current_user
+      vet.loa = if @current_user
+                  @current_user.loa
+                else
+                  vet.loa = { current: header('X-VA-LOA'), highest: header('X-VA-LOA') }
+                end
       vet.gender = header('X-VA-Gender') if with_gender
       vet.mvi_record?
       vet.edipi = header('X-VA-EDIPI') || vet.mvi.profile&.edipi
       vet
-    end
-
-    def verify_loa
-      header_loa
     end
   end
 end
