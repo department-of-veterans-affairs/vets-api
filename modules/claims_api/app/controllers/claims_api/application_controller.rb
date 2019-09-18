@@ -22,24 +22,30 @@ module ClaimsApi
     end
 
     def target_veteran(with_gender: false)
-      if poa_request?
-        vet = ClaimsApi::Veteran.from_headers(request.headers, with_gender: with_gender)
-        vet.loa = { current: @current_user.present? ? @current_user.loa : header_loa }
-        vet
+      if header_request?
+
+        headers_to_validate = ['X-VA-SSN', 'X-VA-First-Name', 'X-VA-Last-Name', 'X-VA-Birth-Date']
+        headers_to_validate << 'X-VA-Gender' if with_gender
+        headers_to_validate << 'X-VA-LOA' if v0?
+        validate_headers(headers_to_validate)
+        check_loa_level if v0?
+        veteran_from_headers(with_gender: with_gender)
       else
         ClaimsApi::Veteran.from_identity(identity: @current_user)
       end
     end
 
-    def header_loa
-      loa_value = header(key = 'X-VA-LOA') ? header(key) : raise_missing_header(key)
-      unless loa_value == '3'
+    def v0?
+      request.env['PATH_INFO'].downcase.include?('v0')
+    end
+
+    def check_loa_level
+      unless header('X-VA-LOA') == '3'
         render json: [],
                serializer: ActiveModel::Serializer::CollectionSerializer,
                each_serializer: ClaimsApi::ClaimListSerializer,
                status: :unauthorized
       end
-      loa_value
     end
 
     def verify_power_of_attorney

@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+# frozen_string_literal: true
 
 require_dependency 'claims_api/base_form_controller'
 require_dependency 'claims_api/concerns/itf_verification'
@@ -7,8 +8,6 @@ module ClaimsApi
   module V0
     module Forms
       class IntentToFileController < ClaimsApi::BaseFormController
-        FORM_NUMBER = '0966'
-        prepend_before_action :verify_loa, :log_request
         include ClaimsApi::ItfVerification
 
         skip_before_action(:authenticate)

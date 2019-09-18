@@ -72,20 +72,6 @@ module ClaimsApi
       self.edipi = edipi_header.presence || mvi.profile&.edipi
     end
 
-    def self.from_headers(headers, with_gender: false)
-      veteran = new(
-        uuid: ensure_header(headers, 'X-VA-SSN'),
-        ssn: ensure_header(headers, 'X-VA-SSN'),
-        first_name: ensure_header(headers, 'X-VA-First-Name'),
-        last_name: ensure_header(headers, 'X-VA-Last-Name'),
-        va_profile: build_profile(headers),
-        last_signed_in: Time.now.utc
-      )
-      veteran.gender = ensure_header(headers, 'X-VA-Gender') if with_gender
-      veteran.set_edipi(headers['X-VA-EDIPI'])
-      veteran
-    end
-
     def self.from_identity(identity:)
       new(
         uuid: identity.uuid,

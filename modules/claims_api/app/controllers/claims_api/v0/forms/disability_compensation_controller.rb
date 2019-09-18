@@ -11,7 +11,6 @@ module ClaimsApi
         include ClaimsApi::ItfVerification
 
         FORM_NUMBER = '526'
-        prepend_before_action :verify_loa, :log_request
 
         skip_before_action(:authenticate)
         before_action :validate_json_schema, only: %i[submit_form_526 validate_form_526]
