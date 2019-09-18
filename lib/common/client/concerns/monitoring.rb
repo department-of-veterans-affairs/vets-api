@@ -14,14 +14,26 @@ module Common::Client
       increment_total(caller)
     end
 
+    private
+
     def increment_total(caller)
-      StatsD.increment("#{self.class::STATSD_KEY_PREFIX}.#{caller}.total")
+      increment("#{self.class::STATSD_KEY_PREFIX}.#{caller}.total")
     end
 
     def increment_failure(caller, error)
       tags = ["error:#{error.class}"]
       tags << "status:#{error.status}" if error.try(:status)
-      StatsD.increment("#{self.class::STATSD_KEY_PREFIX}.#{caller}.fail", tags: tags)
+
+      increment("#{self.class::STATSD_KEY_PREFIX}.#{caller}.fail", tags)
+    end
+
+    def increment(key, tags = nil)
+      StatsDMetric.new(key: key).save
+      if tags.blank?
+        StatsD.increment(key)
+      else
+        StatsD.increment(key, tags: tags)
+      end
     end
   end
 end
