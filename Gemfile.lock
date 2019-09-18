@@ -207,7 +207,6 @@ GEM
     childprocess (1.0.1)
       rake (< 13.0)
     clam_scan (0.0.2)
-    climate_control (0.1.0)
     cliver (0.3.2)
     coderay (1.1.2)
     coercible (1.0.0)
@@ -477,8 +476,6 @@ GEM
     rb-fsevent (0.10.3)
     rb-inotify (0.10.0)
       ffi (~> 1.0)
-    rdoc (4.2.2)
-      json (~> 1.4)
     redis (3.3.5)
     redis-namespace (1.5.3)
       redis (~> 3.0, >= 3.0.4)
@@ -545,9 +542,6 @@ GEM
       addressable (>= 2.3.5, < 2.6)
       faraday (~> 0.8, < 1.0)
     script_utils (0.0.4)
-    sdoc (0.4.1)
-      json (~> 1.7, >= 1.7.7)
-      rdoc (~> 4.0)
     seedbank (0.5.0)
       rake (>= 10.0)
     semantic_logger (4.5.0)
@@ -672,7 +666,6 @@ DEPENDENCIES
   carrierwave-aws
   claims_api!
   clam_scan
-  climate_control
   config
   connect_vbms!
   database_cleaner
@@ -746,7 +739,6 @@ DEPENDENCIES
   ruby-saml
   rubyzip (>= 1.0.0)
   savon
-  sdoc (~> 0.4.0)
   seedbank
   sentry-raven (= 2.9.0)
   shrine
