@@ -11,6 +11,7 @@ RSpec.describe 'Intent to file', type: :request do
       'X-Consumer-Username': 'TestConsumer',
       'X-VA-User': 'adhoc.test.user',
       'X-VA-Birth-Date': '1986-05-06T00:00:00+00:00',
+      'X-VA-LOA' => '3',
       'X-VA-Gender': 'M' }
   end
   let(:path) { '/services/claims/v0/forms/0966' }
