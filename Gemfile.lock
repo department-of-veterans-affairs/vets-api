@@ -73,15 +73,15 @@ PATH
       sidekiq
 
 PATH
-  remote: modules/veteran
-  specs:
-    veteran (0.0.1)
-      rails (~> 5.2.3)
-
-PATH
   remote: modules/veteran_verification
   specs:
     veteran_verification (0.0.1)
+      rails (~> 5.2.3)
+
+PATH
+  remote: modules/veteran
+  specs:
+    veteran (0.0.1)
       rails (~> 5.2.3)
 
 GEM
