@@ -11,13 +11,6 @@ services:
       - ./data:/var/lib/postgresql/data:cached
     ports:
       - "54320:5432"
-  sql52:
-    image: dsva/vets-api-sql52-stubbed:latest
-    environment:
-      ACCEPT_EULA: "Y"
-      SA_PASSWORD: "password1!"
-    ports:
-      - "1433:1433"
   vets-api:
     build:
       context: .
@@ -32,10 +25,6 @@ services:
     ports:
       - "3000:3000"
     environment:
-      "Settings.sql_52.username": "sql52user"
-      "Settings.sql_52.password": "sql52password!"
-      "Settings.sql_52.hostname": "sql52"
-      "Settings.sql_52.port": "1433"
       "Settings.database_url": "postgis://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-password}@${POSTGRES_HOST:-postgres}:${POSTGRES_PORT:-5432}/${POSTGRES_DATABASE:-vets_api_development}?pool=4"
       "Settings.test_database_url": "postgis://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-password}@${POSTGRES_HOST:-postgres}:${POSTGRES_PORT:-5432}/${POSTGRES_DATABASE:-vets_api_test}?pool=4"
       "Settings.saml.cert_path": "/src/vets-api/config/certs/vetsgov-localhost.crt"

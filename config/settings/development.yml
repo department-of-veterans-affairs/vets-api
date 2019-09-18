@@ -18,9 +18,3 @@ account:
 
 locators:
   mock_gis: true
-
-sql_52:
-  username: sql52user
-  password: sql52password!
-  hostname: localhost
-  port: 1433

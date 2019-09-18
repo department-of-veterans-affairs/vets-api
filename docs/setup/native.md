@@ -100,11 +100,3 @@ the `vets-api` directory, run `./bin/setup-osx && source ~/.bash_profile && cd
 1. Make sure you have the [vets-api-mockdata](https://github.com/department-of-veterans-affairs/vets-api-mockdata) repo locally installed
 
 
-#### SQL52 
-SQL52 is a MS-SQL server and to do local development with it, it requires running a docker image.
-Below are the steps to run SQL52 locally and the local settings for SQL52 are defined in `config/settings/development.yml`
-For more information on this docker image, please refer to:
-https://github.com/department-of-veterans-affairs/vets-api-sql52-stubbed-docker
-
-1. `docker pull dsva/vets-api-sql52-stubbed:latest`
-1. `docker run -e ACCEPT_EULA=Y -e SA_PASSWORD=password1! -p 1433:1433 -d dsva/vets-api-sql52-stubbed:latest`
