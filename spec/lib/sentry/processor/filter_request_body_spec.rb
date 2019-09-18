@@ -5,9 +5,9 @@ require 'rails_helper'
 RSpec.describe Sentry::Processor::FilterRequestBody do
   let(:client) { double('client') }
   let(:processor) { Sentry::Processor::FilterRequestBody.new(client) }
-  let(:result) { processor.process(data) }
+  let(:result) { processor.process(sentry_data) }
 
-  let(:data) do
+  let(:sentry_data) do
     {
       'tags' => { 'controller_name' => 'ppiu', 'sign_in_method' => { 'service_name' => 'idme', 'acct_type' => nil } },
       'request' =>
@@ -33,7 +33,7 @@ RSpec.describe Sentry::Processor::FilterRequestBody do
 
   context 'with data from another controller' do
     before do
-      data['tags']['controller_name'] = 'health_care_applications'
+      sentry_data['tags']['controller_name'] = 'health_care_applications'
     end
 
     expect_filter(false)
@@ -41,7 +41,7 @@ RSpec.describe Sentry::Processor::FilterRequestBody do
 
   context 'with no request body' do
     before do
-      data['request'].delete('data')
+      sentry_data['request'].delete('data')
     end
 
     expect_filter(false)
