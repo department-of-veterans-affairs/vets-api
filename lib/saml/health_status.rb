@@ -42,8 +42,8 @@ module SAML
       def idp_certs_valid?
         return false unless fetch_attempted? && metadata_received?
         begin
-          signing_cert    = SettingsService.merged_saml_settings&.idp_cert_multi[:signing].first
-          encryption_cert = SettingsService.merged_saml_settings&.idp_cert_multi[:encryption].first
+          signing_cert    = SettingsService.merged_saml_settings&.idp_cert_multi&.dig(:signing)&.first
+          encryption_cert = SettingsService.merged_saml_settings&.idp_cert_multi&.dig(:encryption)&.first
 
           formatted_signing_cert    = OneLogin::RubySaml::Utils.format_cert(encryption_cert)
           formatted_encryption_cert = OneLogin::RubySaml::Utils.format_cert(signing_cert)
