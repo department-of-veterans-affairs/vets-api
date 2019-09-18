@@ -46,7 +46,7 @@ module EVSS
       return nil unless @user&.va_profile&.birth_date
       DateTime.parse(@user.va_profile.birth_date).iso8601
     end
-    
+
     # :nocov:
   end
 end
