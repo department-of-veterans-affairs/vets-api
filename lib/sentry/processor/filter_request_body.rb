@@ -6,8 +6,12 @@ module Sentry
       FILTERED_CONTROLLERS = %w[ppiu].freeze
 
       def process(data)
-        stringified_data = data.deep_stringify_keys
+        sanitize(data.deep_stringify_keys)
+      end
 
+      private
+
+      def sanitize(stringified_data)
         if FILTERED_CONTROLLERS.include?(stringified_data.dig('tags', 'controller_name')) &&
            stringified_data.dig('request', 'data').present?
 
@@ -15,11 +19,6 @@ module Sentry
         end
 
         stringified_data
-      end
-
-      private
-
-      def sanitize
       end
     end
   end
