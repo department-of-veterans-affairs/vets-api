@@ -390,3 +390,14 @@ bing:
 flipper:
   username: SUPER_SECRET_USERNAME
   password: SUPER_SECRET_PASSWORD
+
+oit_lighthouse2:
+  sql52:
+    hostname: fake_hostname
+    username: fake_username
+    password: fake_password
+    port: 1433
+    facilities_mental_health:
+      database_name: fake_database_name
+      schema_name: fake_schema_name
+      table_name: fake_table_name

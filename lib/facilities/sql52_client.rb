@@ -10,16 +10,16 @@ module Facilities
 
     def connection_config
       {
-        username: Settings.sql_52.username,
-        password: Settings.sql_52.password,
-        host: Settings.sql_52.hostname,
-        port: Settings.sql_52.port,
+        username: Settings.oit_lighthouse2.sql52.username,
+        password: Settings.oit_lighthouse2.sql52.password,
+        host: Settings.oit_lighthouse2.sql52.hostname,
+        port: Settings.oit_lighthouse2.sql52.port,
         database: database_name
       }
     end
 
     def database_name
-      # fill this out in the subclasses
+      raise NotImplementedError, "Child classes of Facilities::SQL52Client require a database_name method"
     end
   end
 end
