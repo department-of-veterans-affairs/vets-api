@@ -17,11 +17,15 @@ instructions will help you run SQL52 locally:
 1. In `config/settings.local.yml`, you will also need to set these variables
 
 ```yaml
-sql_52:
-  username: sql52user
-  password: sql52password!
-  hostname: localhost
-  port: 1433
+oit_lighthouse2:
+  sql52:
+    hostname: localhost
+    username: sql52user
+    password: sql52password!
+    port: 1433
+    facilities_mental_health:
+      database_name: SQL52
+      table_name: OMHSP_PERC_Share__DOEx__FieldDataEntry_MHPhone
 ```
 
 If you would like to know more about how this image was put together, please
