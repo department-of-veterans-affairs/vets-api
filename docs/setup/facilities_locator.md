@@ -25,6 +25,7 @@ oit_lighthouse2:
     port: 1433
     facilities_mental_health:
       database_name: SQL52
+      schema_name: A01
       table_name: OMHSP_PERC_Share__DOEx__FieldDataEntry_MHPhone
 ```
 
