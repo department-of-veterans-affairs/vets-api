@@ -8,7 +8,7 @@ FactoryBot.define do
     end
 
     after(:build) do |attachment, evaluator|
-      file_path = evaluator.file_path || Rails.root.join('spec', 'fixtures', 'preneeds', 'extras.pdf')
+      file_path = evaluator.file_path || Rails.root.join('spec', 'fixtures', 'default.pdf')
       file_type = evaluator.file_type || 'application/pdf'
 
       attachment.set_file_data!(

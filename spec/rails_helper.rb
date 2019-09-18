@@ -156,6 +156,8 @@ RSpec.configure do |config|
   # arbitrary gems may also be filtered via:
   # config.filter_gems_from_backtrace("gem name")
 
+  config.example_status_persistence_file_path = 'tmp/failed-rspec-examples.txt'
+
   # serializer_spec_helper
   config.include SerializerSpecHelper, type: :serializer
 

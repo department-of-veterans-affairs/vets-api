@@ -7,7 +7,7 @@ RSpec.describe FormAttachment do
 
   describe '#set_file_data!' do
     it 'stores the file and set the file_data' do
-      expect(preneed_attachment.parsed_file_data['filename']).to eq('extras.pdf')
+      expect(preneed_attachment.parsed_file_data['filename']).to eq('default.pdf')
     end
   end
 
