@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: post
-    uri: "<EVSS_BASE_URL>/wss-document-services-web-11.6/rest/persistentPropertiesService/11.6/createUserAccount"
+    uri: "<EVSS_BASE_URL>/wss-common-services-web-11.6/rest/persistentPropertiesService/11.6/createUserAccount"
     body:
       encoding: UTF-8
       string: ''
