@@ -1,5 +1,4 @@
 # frozen_string_literal: true
-# frozen_string_literal: true
 
 require_dependency 'claims_api/base_form_controller'
 require_dependency 'claims_api/concerns/itf_verification'
