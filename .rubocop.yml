@@ -1,3 +1,6 @@
+inherit_from: .rubocop_todo.yml
+
+require: 'rubocop-rails'
 AllCops:
   TargetRailsVersion: 5.2
   TargetRubyVersion: 2.4.5
@@ -6,6 +9,7 @@ AllCops:
     - '**/config.ru'
     - '**/Rakefile'
     - '**/*.rake'
+    - '**/*.rb'
   Exclude:
     - db/schema.rb
     - db/seeds.rb
@@ -99,6 +103,7 @@ Metrics/BlockLength:
     - 'app/controllers/v0/apidocs_controller.rb'
 
 # Don't worry about ambiguous blocks in RSpec
+# Still recommended to disable specs in accordance to this lint rule 8/2019
 # Official recommendation from rubocop team is to disable this rule for specs. 
 # See: https://github.com/rubocop-hq/rubocop/issues/4222
 Lint/AmbiguousBlockAssociation:
@@ -137,6 +142,7 @@ Style/DateTime:
 
 
 # Skipping for now, should revisit:
+#dependent: destroy issue, don't always want dependent option
 Rails/HasManyOrHasOneDependent:
   Exclude:
     - "app/models/education_benefits_claim.rb"
