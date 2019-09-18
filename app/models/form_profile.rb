@@ -111,7 +111,7 @@ class FormProfile
     'FEEDBACK-TOOL' => ::FormProfiles::FeedbackTool
   }.freeze
 
-  APT_REGEX = /\S\s+((apt|apartment|unit|ste|suite).+)/i
+  APT_REGEX = /\S\s+((apt|apartment|unit|ste|suite).+)/i.freeze
 
   attr_accessor :form_id
 
@@ -283,7 +283,7 @@ class FormProfile
   def extract_pciu_data(user, method)
     user&.send(method)
   rescue Common::Exceptions::Forbidden, Common::Exceptions::BackendServiceException
-    return ''
+    ''
   end
 
   def get_us_phone(home_phone)

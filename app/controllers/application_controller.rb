@@ -168,7 +168,7 @@ class ApplicationController < ActionController::API
   end
 
   def render_job_id(jid)
-    render json: { job_id: jid }, status: 202
+    render json: { job_id: jid }, status: :accepted
   end
 
   def append_info_to_payload(payload)
