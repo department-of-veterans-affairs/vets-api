@@ -66,11 +66,6 @@ ActiveRecord::Schema.define(version: 2019_08_16_120445) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.geography "location", limit: {:srid=>4326, :type=>"st_point", :geographic=>true}
-<<<<<<< HEAD
-    t.boolean "mobile"
-    t.string "active_status"
-=======
->>>>>>> parent of 0b46c6a4d... Add active_status column migration
     t.index ["location"], name: "index_base_facilities_on_location", using: :gist
     t.index ["name"], name: "index_base_facilities_on_name", using: :gin
     t.index ["unique_id", "facility_type"], name: "index_base_facilities_on_unique_id_and_facility_type", unique: true
