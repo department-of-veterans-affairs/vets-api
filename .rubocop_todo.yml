@@ -76,9 +76,9 @@ Layout/EmptyLineAfterGuardClause:
 # Offense count: 1
 # Cop supports --auto-correct.
 # Configuration parameters: AllowForAlignment.
-Layout/SpaceAroundOperators:
-  Exclude:
-    - 'lib/vet360/exceptions/builder.rb'
+# Layout/SpaceAroundOperators:
+#   Exclude:
+#     - 'lib/vet360/exceptions/builder.rb'
 
 # Offense count: 5
 # Cop supports --auto-correct.
