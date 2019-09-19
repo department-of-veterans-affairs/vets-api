@@ -466,7 +466,7 @@ describe HCA::EnrollmentSystem do
             }
           ]
         },
-        BigDecimal.new(2065)
+        BigDecimal(2065)
       ]
     ]
   )

@@ -82,10 +82,10 @@ Layout/EmptyLineAfterGuardClause:
 
 # Offense count: 5
 # Cop supports --auto-correct.
-Lint/BigDecimalNew:
-  Exclude:
-    - 'lib/hca/enrollment_system.rb'
-    - 'spec/lib/hca/enrollment_system_spec.rb'
+# Lint/BigDecimalNew:
+#   Exclude:
+#     - 'lib/hca/enrollment_system.rb'
+#     - 'spec/lib/hca/enrollment_system_spec.rb'
 
 # Offense count: 1
 # Cop supports --auto-correct.
