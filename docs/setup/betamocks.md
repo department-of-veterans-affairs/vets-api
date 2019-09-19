@@ -44,39 +44,6 @@ def connection
     conn.adapter Faraday.default_adapter
   end
 end
-the first response middleware listed in the connection block.
-
-```ruby
-def connection
-  @conn ||= Faraday.new(base_path, ssl: ssl_options) do |faraday|
-    faraday.options.timeout = DEFAULT_TIMEOUT
-    faraday.use      :breakers
-    faraday.use      EVSS::ErrorMiddleware
-    faraday.use      Faraday::Response::RaiseError
-    faraday.response :betamocks if Settings.my_service.mock # e.g. Settings.mvi.mock
-    faraday.response :snakecase, symbolize: false
-    faraday.response :json
-  end
-end
-```
-
-However, if you have custom response middleware that changes regularly, it might be worth placing your Betamocks
-middleware underneath. In the following example, Betamocks will only record the response that comes from
-the backing service and not the transformations applied by the FacilityParser and FacilityValidator middleware.
-```ruby
-def connection
-  Faraday.new(base_path, headers: base_request_headers, request: request_options) do |conn|
-    conn.use :breakers
-    conn.request :json
-
-    conn.response :raise_error, error_prefix: service_name
-    conn.response :facility_parser
-    conn.response :facility_validator
-    conn.response :betamocks if Settings.locators.mock_gis
-
-    conn.adapter Faraday.default_adapter
-  end
-end
 ```
 
 2. Add endpoints to be mocked to the services config file.
