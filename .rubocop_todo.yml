@@ -46,9 +46,9 @@ Layout/EmptyLineAfterGuardClause:
 # Cop supports --auto-correct.
 # Configuration parameters: EnforcedStyle.
 # SupportedStyles: empty_lines, no_empty_lines
-Layout/EmptyLinesAroundBlockBody:
-  Exclude:
-    - 'modules/va_facilities/spec/requests/nearby_request_spec.rb'
+# Layout/EmptyLinesAroundBlockBody:
+#   Exclude:
+#     - 'modules/va_facilities/spec/requests/nearby_request_spec.rb'
 
 # Offense count: 8
 # Cop supports --auto-correct.
