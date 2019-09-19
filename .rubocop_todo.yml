@@ -32,10 +32,10 @@ Layout/AlignHash:
 # Offense count: 2
 # Cop supports --auto-correct.
 # Configuration parameters: AllowBorderComment, AllowMarginComment.
-Layout/EmptyComment:
-  Exclude:
-    - 'app/swagger/requests/post911_gi_bill_statuses.rb'
-    - 'spec/jobs/sidekiq_stats_job_spec.rb'
+# Layout/EmptyComment:
+#   Exclude:
+#     - 'app/swagger/requests/post911_gi_bill_statuses.rb'
+#     - 'spec/jobs/sidekiq_stats_job_spec.rb'
 
 # Offense count: 351
 # Cop supports --auto-correct.
