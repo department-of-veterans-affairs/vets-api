@@ -5,8 +5,8 @@ module Common
     module Middleware
       module Response
         class JsonParser < Faraday::Response::Middleware
-          WHITESPACE_REGEX = /\A^\s*$\z/
-          MHV_SUCCESS_REGEX = /^success/i
+          WHITESPACE_REGEX = /\A^\s*$\z/.freeze
+          MHV_SUCCESS_REGEX = /^success/i.freeze
           UNPARSABLE_STATUS_CODES = [204, 301, 302, 304].freeze
 
           def on_complete(env)

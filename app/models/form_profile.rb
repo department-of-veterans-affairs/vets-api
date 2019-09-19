@@ -111,7 +111,7 @@ class FormProfile
     'FEEDBACK-TOOL'  => ::FormProfiles::FeedbackTool
   }.freeze
 
-  APT_REGEX = /\S\s+((apt|apartment|unit|ste|suite).+)/i
+  APT_REGEX = /\S\s+((apt|apartment|unit|ste|suite).+)/i.freeze
 
   attr_accessor :form_id
 
