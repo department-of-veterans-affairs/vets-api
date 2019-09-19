@@ -83,7 +83,7 @@ module Swagger
 
       swagger_schema :Enrollment do
         key :required, [:begin_date]
-        property :begin_date, type: :string, example: '2012-11-01T04:00:00.000+00:00' #
+        property :begin_date, type: :string, example: '2012-11-01T04:00:00.000+00:00'
         property :end_date, type: %i[string null], example: '2012-12-01T05:00:00.000+00:00'
         property :facility_code, type: %i[string null], example: '12345678'
         property :facility_name, type: %i[string null], example: 'Purdue University'
