@@ -343,7 +343,7 @@ RSpec.describe V1::SessionsController, type: :controller do
             identity_compared_with_mvi: {
               length: [9, 9],
               only_digits: [true, true],
-              encoding: ['UTF-8', 'UTF-8'],
+              encoding: %w[UTF-8 UTF-8],
               levenshtein_distance: 8
             }
           )

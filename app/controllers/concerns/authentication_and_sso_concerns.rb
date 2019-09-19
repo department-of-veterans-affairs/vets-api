@@ -133,4 +133,3 @@ module AuthenticationAndSSOConcerns
     }
   end
 end
-# rubocop:enable Metrics/ModuleLength
