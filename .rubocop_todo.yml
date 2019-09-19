@@ -37,12 +37,12 @@ Layout/EmptyLineAfterGuardClause:
 
 # Offense count: 4
 # Cop supports --auto-correct.
-Layout/LeadingBlankLines:
-  Exclude:
-    - 'app/models/facilities_query/facilities_query.rb'
-    - 'app/swagger/requests/cc_providers.rb'
-    - 'modules/claims_api/app/controllers/claims_api/concerns/mvi_verification.rb'
-    - 'spec/factories/military_service_episodes.rb'
+# Layout/LeadingBlankLines:
+#   Exclude:
+#     - 'app/models/facilities_query/facilities_query.rb'
+#     - 'app/swagger/requests/cc_providers.rb'
+#     - 'modules/claims_api/app/controllers/claims_api/concerns/mvi_verification.rb'
+#     - 'spec/factories/military_service_episodes.rb'
 
 # Offense count: 3
 # Cop supports --auto-correct.
