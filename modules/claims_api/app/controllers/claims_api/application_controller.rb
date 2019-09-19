@@ -23,9 +23,7 @@ module ClaimsApi
 
     def target_veteran(with_gender: false)
       if header_request?
-
         headers_to_validate = ['X-VA-SSN', 'X-VA-First-Name', 'X-VA-Last-Name', 'X-VA-Birth-Date']
-        headers_to_validate << 'X-VA-Gender' if with_gender
         headers_to_validate << 'X-VA-LOA' if v0?
         validate_headers(headers_to_validate)
         check_loa_level if v0?
@@ -67,8 +65,8 @@ module ClaimsApi
                 else
                   vet.loa = { current: header('X-VA-LOA'), highest: header('X-VA-LOA') }
                 end
-      vet.gender = header('X-VA-Gender') if with_gender
       vet.mvi_record?
+      vet.gender = header('X-VA-Gender') || vet.mvi.profile&.gender if with_gender
       vet.edipi = header('X-VA-EDIPI') || vet.mvi.profile&.edipi
       vet
     end
