@@ -66,8 +66,6 @@ RSpec.describe Facilities::VHAFacility do
 
       context 'mental health data' do
         before(:each) do
-          FacilityMentalHealth.keys.map { |k| FacilityMentalHealth.delete(k) }
-
           attrs1 = {
             station_number: '358',
             mh_phone: '407-123-1234',

@@ -9,7 +9,7 @@ module Facilities
     private
 
     def select_all_mental_sql_query
-      "SELECT * FROM #{mental_health_schema}.#{mental_health_table} ORDER BY #{order_by_column} ASC"
+      "SELECT * FROM #{mental_health_schema}.#{mental_health_table} ORDER BY StationNumber ASC"
     end
 
     def database_name
@@ -22,10 +22,6 @@ module Facilities
 
     def mental_health_schema
       Settings.oit_lighthouse2.sql52.facilites_mental_health.schema_name
-    end
-
-    def order_by_column
-      'StationNumber'
     end
   end
 end

@@ -17,8 +17,6 @@ RSpec.describe Facilities::MentalHealthReloadJob, type: :job do
   end
 
   before(:each) do
-    FacilityMentalHealth.keys.map { |k| FacilityMentalHealth.delete(k) }
-
     allow(
       Facilities::MentalHealthClient
     ).to receive(:new).and_return(FakeMentalHealthClient.new)
