@@ -242,10 +242,10 @@ Style/RedundantReturn:
 
 # Offense count: 2
 # Cop supports --auto-correct.
-Style/UnneededCondition:
-  Exclude:
-    - 'app/models/okta_redis/model.rb'
-    - 'app/workers/education_form/forms/base.rb'
+# Style/UnneededCondition:
+#   Exclude:
+#     - 'app/models/okta_redis/model.rb'
+#     - 'app/workers/education_form/forms/base.rb'
 
 # Offense count: 1
 # Cop supports --auto-correct.
