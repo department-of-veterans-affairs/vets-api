@@ -393,7 +393,7 @@ flipper:
 
 oit_lighthouse2:
   sql52:
-    hostname: http://vhacdwdwhsql52.vha.med.gov/
+    hostname: vhacdwdwhsql52.vha.med.gov
     username: fake_username
     password: fake_password
     port: 1433
