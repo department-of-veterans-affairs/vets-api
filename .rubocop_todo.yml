@@ -23,11 +23,11 @@ Layout/AlignHash:
 
 # Offense count: 6
 # Cop supports --auto-correct.
-Layout/ClosingParenthesisIndentation:
-  Exclude:
-    - 'modules/vba_documents/spec/lib/object_store_spec.rb'
-    - 'spec/lib/pdf_fill/forms/common_ptsd_spec.rb'
-    - 'spec/lib/vsopdf/vso_appointment_form_spec.rb'
+# Layout/ClosingParenthesisIndentation:
+#   Exclude:
+#     - 'modules/vba_documents/spec/lib/object_store_spec.rb'
+#     - 'spec/lib/pdf_fill/forms/common_ptsd_spec.rb'
+#     - 'spec/lib/vsopdf/vso_appointment_form_spec.rb'
 
 # Offense count: 2
 # Cop supports --auto-correct.
