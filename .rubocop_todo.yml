@@ -17,9 +17,9 @@ Layout/AlignHash:
 
 # Offense count: 3
 # Cop supports --auto-correct.
-Layout/ClosingHeredocIndentation:
-  Exclude:
-    - 'spec/lib/pdf_info/metadata_spec.rb'
+# Layout/ClosingHeredocIndentation:
+#   Exclude:
+#     - 'spec/lib/pdf_info/metadata_spec.rb'
 
 # Offense count: 6
 # Cop supports --auto-correct.
