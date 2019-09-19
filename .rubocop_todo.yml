@@ -15,107 +15,15 @@
 Layout/AlignHash:
   Enabled: false
 
-# Offense count: 3
-# Cop supports --auto-correct.
-# Layout/ClosingHeredocIndentation:
-#   Exclude:
-#     - 'spec/lib/pdf_info/metadata_spec.rb'
-
-# Offense count: 6
-# Cop supports --auto-correct.
-# Layout/ClosingParenthesisIndentation:
-#   Exclude:
-#     - 'modules/vba_documents/spec/lib/object_store_spec.rb'
-#     - 'spec/lib/pdf_fill/forms/common_ptsd_spec.rb'
-#     - 'spec/lib/vsopdf/vso_appointment_form_spec.rb'
-
-# Offense count: 2
-# Cop supports --auto-correct.
-# Configuration parameters: AllowBorderComment, AllowMarginComment.
-# Layout/EmptyComment:
-#   Exclude:
-#     - 'app/swagger/requests/post911_gi_bill_statuses.rb'
-#     - 'spec/jobs/sidekiq_stats_job_spec.rb'
-
 # Offense count: 351
 # Cop supports --auto-correct.
 Layout/EmptyLineAfterGuardClause:
   Enabled: false
 
 # Offense count: 1
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle.
-# SupportedStyles: empty_lines, no_empty_lines
-# Layout/EmptyLinesAroundBlockBody:
-#   Exclude:
-#     - 'modules/va_facilities/spec/requests/nearby_request_spec.rb'
-
-# Offense count: 8
-# Cop supports --auto-correct.
-# Configuration parameters: Width, IgnoredPatterns.
-# Layout/IndentationWidth:
-#   Exclude:
-#     - 'lib/facilities/vba_facility.rb'
-
-# Offense count: 4
-# Cop supports --auto-correct.
-# Layout/LeadingBlankLines:
-#   Exclude:
-#     - 'app/models/facilities_query/facilities_query.rb'
-#     - 'app/swagger/requests/cc_providers.rb'
-#     - 'modules/claims_api/app/controllers/claims_api/concerns/mvi_verification.rb'
-#     - 'spec/factories/military_service_episodes.rb'
-
-# Offense count: 3
-# Cop supports --auto-correct.
-# Layout/RescueEnsureAlignment:
-#   Exclude:
-#     - 'app/controllers/v0/id_card_attributes_controller.rb'
-#     - 'app/models/health_care_application.rb'
-
-# Offense count: 1
-# Cop supports --auto-correct.
-# Configuration parameters: AllowForAlignment.
-# Layout/SpaceAroundOperators:
-#   Exclude:
-#     - 'lib/vet360/exceptions/builder.rb'
-
-# Offense count: 5
-# Cop supports --auto-correct.
-# Lint/BigDecimalNew:
-#   Exclude:
-#     - 'lib/hca/enrollment_system.rb'
-#     - 'spec/lib/hca/enrollment_system_spec.rb'
-
-# Offense count: 1
-# Cop supports --auto-correct.
-# Configuration parameters: Whitelist.
-# Whitelist: present?, blank?, presence, try, try!
-# Lint/SafeNavigationConsistency:
-#   Exclude:
-#     - 'modules/claims_api/app/serializers/claims_api/auto_established_claim_serializer.rb'
-
-# Offense count: 1
 Lint/SafeNavigationWithEmpty:
   Exclude:
     - 'lib/hca/configuration.rb'
-
-# Offense count: 6
-# Cop supports --auto-correct.
-# Lint/UnneededCopDisableDirective:
-#   Exclude:
-#     - 'app/swagger/requests/performance_monitoring.rb'
-#     - 'lib/common/hash_helpers.rb'
-#     - 'lib/evss/pciu/request_body.rb'
-#     - 'modules/vba_documents/spec/jobs/upload_processor_spec.rb'
-#     - 'modules/vba_documents/spec/request/v0/uploads_request_spec.rb'
-#     - 'modules/vba_documents/spec/request/v1/uploads_request_spec.rb'
-
-# Offense count: 1
-# Cop supports --auto-correct.
-# Lint/UnneededCopEnableDirective:
-#   Exclude:
-#     - 'app/controllers/concerns/authentication_and_sso_concerns.rb'
 
 # Offense count: 34
 # Configuration parameters: EnforcedStyleForLeadingUnderscores.
@@ -169,20 +77,6 @@ Naming/UncommunicativeMethodParamName:
 Rails/ActiveRecordAliases:
   Enabled: false
 
-# Offense count: 7
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle.
-# SupportedStyles: numeric, symbolic
-# Rails/HttpStatus:
-#   Exclude:
-#     - 'app/controllers/application_controller.rb'
-#     - 'modules/claims_api/app/controllers/claims_api/concerns/itf_verification.rb'
-#     - 'modules/claims_api/app/controllers/claims_api/v0/forms/intent_to_file_controller.rb'
-#     - 'modules/claims_api/app/controllers/claims_api/v1/forms/intent_to_file_controller.rb'
-#     - 'modules/va_facilities/app/controllers/va_facilities/v0/facilities_controller.rb'
-#     - 'modules/vba_documents/app/controllers/vba_documents/v0/uploads_controller.rb'
-#     - 'modules/vba_documents/app/controllers/vba_documents/v1/uploads_controller.rb'
-
 # Offense count: 3
 Security/Open:
   Exclude:
@@ -199,22 +93,10 @@ Style/AccessModifierDeclarations:
     - 'modules/va_facilities/lib/va_facilities/api_serialization.rb'
     - 'modules/va_facilities/lib/va_facilities/api_serialization_v1.rb'
 
-# Offense count: 45
-# Cop supports --auto-correct.
-# Style/ExpandPathArguments:
-#   Enabled: false
-
 # Offense count: 1
 Style/MultipleComparison:
   Exclude:
     - 'lib/shrine/plugins/storage_from_config.rb'
-
-# Offense count: 25
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle.
-# SupportedStyles: literals, strict
-# Style/MutableConstant:
-#   Enabled: false
 
 # Offense count: 3
 # Cop supports --auto-correct.
@@ -223,52 +105,3 @@ Style/RedundantReturn:
   Exclude:
     - 'app/models/form_profile.rb'
     - 'app/services/evss_claim_service.rb'
-
-# Offense count: 1
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyleForMultiline.
-# SupportedStylesForMultiline: comma, consistent_comma, no_comma
-# Style/TrailingCommaInArrayLiteral:
-#   Exclude:
-#     - 'rakelib/claims.rake'
-
-# Offense count: 1
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyleForMultiline.
-# SupportedStylesForMultiline: comma, consistent_comma, no_comma
-# Style/TrailingCommaInHashLiteral:
-#   Exclude:
-#     - 'config/initializers/shrine.rb'
-
-# Offense count: 2
-# Cop supports --auto-correct.
-# Style/UnneededCondition:
-#   Exclude:
-#     - 'app/models/okta_redis/model.rb'
-#     - 'app/workers/education_form/forms/base.rb'
-
-# Offense count: 1
-# Cop supports --auto-correct.
-# Style/UnneededSort:
-#   Exclude:
-#     - 'modules/vba_documents/lib/vba_documents/object_store.rb'
-
-# Offense count: 20
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle, MinSize, WordRegex.
-# SupportedStyles: percent, brackets
-# Style/WordArray:
-#   Exclude:
-#     - 'app/models/form_profile.rb'
-#     - 'config/application.rb'
-#     - 'modules/claims_api/app/controllers/claims_api/application_controller.rb'
-#     - 'modules/claims_api/app/controllers/claims_api/concerns/poa_verification.rb'
-#     - 'rakelib/claims.rake'
-#     - 'spec/controllers/v0/sessions_controller_spec.rb'
-#     - 'spec/controllers/v1/sessions_controller_spec.rb'
-#     - 'spec/lib/central_mail/service_spec.rb'
-#     - 'spec/lib/facilities/vha_facility_spec.rb'
-#     - 'spec/lib/hca/enrollment_system_spec.rb'
-#     - 'spec/lib/hca/validations_spec.rb'
-#     - 'spec/lib/sentry/processor/pii_sanitizer_processor_spec.rb'
-#     - 'spec/lib/string_helpers_spec.rb'
