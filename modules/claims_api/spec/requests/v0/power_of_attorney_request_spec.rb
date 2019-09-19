@@ -11,7 +11,8 @@ RSpec.describe 'Power of Attorney ', type: :request do
       'X-Consumer-Username': 'TestConsumer',
       'X-VA-User': 'adhoc.test.user',
       'X-VA-Birth-Date': '1986-05-06T00:00:00+00:00',
-      'X-VA-Gender': 'M' }
+      'X-VA-Gender': 'M',
+      'X-VA-LOA': '3' }
   end
 
   describe '#2122' do
