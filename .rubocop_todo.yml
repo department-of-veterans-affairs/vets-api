@@ -228,9 +228,9 @@ Style/RedundantReturn:
 # Cop supports --auto-correct.
 # Configuration parameters: EnforcedStyleForMultiline.
 # SupportedStylesForMultiline: comma, consistent_comma, no_comma
-Style/TrailingCommaInArrayLiteral:
-  Exclude:
-    - 'rakelib/claims.rake'
+# Style/TrailingCommaInArrayLiteral:
+#   Exclude:
+#     - 'rakelib/claims.rake'
 
 # Offense count: 1
 # Cop supports --auto-correct.
