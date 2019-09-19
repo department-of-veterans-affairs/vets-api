@@ -206,7 +206,7 @@
     :file_path: "evss/disability_form/rated_disabilities"
     :cache_multiple_responses:
       :uid_location: header
-      :uid_locator: 'va_eauth_pnid' 
+      :uid_locator: 'va_eauth_pnid'
   - :method: :post
     :path: "/wss-form526-services-web/rest/form526/v1/submit"
     :file_path: "evss/disability_form/submit"
@@ -268,7 +268,7 @@
 
   # VSO Search
   - :method: :post
-    :path: <%= "/wss-common-services-web-#{Settings.evss.versions.common}/rest/vsoSearch/11.0/getCurrentInfo" %>
+    :path: <%= "/wss-common-services-web-#{Settings.evss.versions.common}/rest/vsoSearch/11.6/getCurrentInfo" %>
     :file_path: "evss/vso_search/get_current_info"
     :cache_multiple_responses:
       :uid_location: header
