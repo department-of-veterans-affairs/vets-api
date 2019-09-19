@@ -257,18 +257,18 @@ Style/RedundantReturn:
 # Cop supports --auto-correct.
 # Configuration parameters: EnforcedStyle, MinSize, WordRegex.
 # SupportedStyles: percent, brackets
-Style/WordArray:
-  Exclude:
-    - 'app/models/form_profile.rb'
-    - 'config/application.rb'
-    - 'modules/claims_api/app/controllers/claims_api/application_controller.rb'
-    - 'modules/claims_api/app/controllers/claims_api/concerns/poa_verification.rb'
-    - 'rakelib/claims.rake'
-    - 'spec/controllers/v0/sessions_controller_spec.rb'
-    - 'spec/controllers/v1/sessions_controller_spec.rb'
-    - 'spec/lib/central_mail/service_spec.rb'
-    - 'spec/lib/facilities/vha_facility_spec.rb'
-    - 'spec/lib/hca/enrollment_system_spec.rb'
-    - 'spec/lib/hca/validations_spec.rb'
-    - 'spec/lib/sentry/processor/pii_sanitizer_processor_spec.rb'
-    - 'spec/lib/string_helpers_spec.rb'
+# Style/WordArray:
+#   Exclude:
+#     - 'app/models/form_profile.rb'
+#     - 'config/application.rb'
+#     - 'modules/claims_api/app/controllers/claims_api/application_controller.rb'
+#     - 'modules/claims_api/app/controllers/claims_api/concerns/poa_verification.rb'
+#     - 'rakelib/claims.rake'
+#     - 'spec/controllers/v0/sessions_controller_spec.rb'
+#     - 'spec/controllers/v1/sessions_controller_spec.rb'
+#     - 'spec/lib/central_mail/service_spec.rb'
+#     - 'spec/lib/facilities/vha_facility_spec.rb'
+#     - 'spec/lib/hca/enrollment_system_spec.rb'
+#     - 'spec/lib/hca/validations_spec.rb'
+#     - 'spec/lib/sentry/processor/pii_sanitizer_processor_spec.rb'
+#     - 'spec/lib/string_helpers_spec.rb'
