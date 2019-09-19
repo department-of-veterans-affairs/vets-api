@@ -1,0 +1,20 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "description": "Form 2122 Schema",
+  "type": "object",
+  "required": [
+    "poa_code"
+  ],
+  "properties": {
+    "poa_code": {
+      "type": "string"
+    },
+    "poa_first_name": {
+      "type": "string"
+    },
+    "poa_last_name": {
+      "type": "string"
+    }
+  }
+}
+  

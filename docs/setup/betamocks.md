@@ -26,18 +26,22 @@ without being connect to the VA VPN. By default all users have been mocked for M
 only M. Webb (vets.gov.user+228@gmail.com) will work for the other services unless their mock data has been added.
 
 ## Mocking a Service
-1. Add the Betamocks middleware to the service to be mocked. It should
-be the first response middleware listed in the connection block.
+If a service class implements response middleware, it is important to consider the order in which the middleware is stacked. For further details, refer to the [Faraday API documentation](https://www.rubydoc.info/gems/faraday#Advanced_middleware_usage). 
+
+In the following example, Betamocks will only record the raw response from the backing service, and will not record any transformations applied by the `::FacilityParser` or `::FacilityValidator` middlewares.  
+
 ```ruby
 def connection
-  @conn ||= Faraday.new(base_path, ssl: ssl_options) do |faraday|
-    faraday.options.timeout = DEFAULT_TIMEOUT
-    faraday.use      :breakers
-    faraday.use      EVSS::ErrorMiddleware
-    faraday.use      Faraday::Response::RaiseError
-    faraday.response :betamocks if Settings.my_service.mock # e.g. Settings.mvi.mock
-    faraday.response :snakecase, symbolize: false
-    faraday.response :json
+  Faraday.new(base_path, headers: base_request_headers, request: request_options) do |conn|
+    conn.use :breakers
+    conn.request :json
+    
+    conn.response :raise_error, error_prefix: service_name
+    conn.response :facility_parser
+    conn.response :facility_validator
+    conn.response :betamocks if Settings.locators.mock_gis
+    
+    conn.adapter Faraday.default_adapter
   end
 end
 ```

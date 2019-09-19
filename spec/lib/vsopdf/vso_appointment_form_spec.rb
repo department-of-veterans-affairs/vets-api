@@ -28,7 +28,7 @@ describe VsoAppointmentForm do
                                   organization_representative_name: 'John Smith',
                                   organization_representative_title: 'Director of weird field names',
                                   disclosure_exception_hiv: true
-  ))
+                                ))
 
   it 'should translate a VsoAppointment object' do
     # Spot check the arg translation
