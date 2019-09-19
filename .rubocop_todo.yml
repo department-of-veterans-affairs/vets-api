@@ -91,9 +91,9 @@ Layout/EmptyLineAfterGuardClause:
 # Cop supports --auto-correct.
 # Configuration parameters: Whitelist.
 # Whitelist: present?, blank?, presence, try, try!
-Lint/SafeNavigationConsistency:
-  Exclude:
-    - 'modules/claims_api/app/serializers/claims_api/auto_established_claim_serializer.rb'
+# Lint/SafeNavigationConsistency:
+#   Exclude:
+#     - 'modules/claims_api/app/serializers/claims_api/auto_established_claim_serializer.rb'
 
 # Offense count: 1
 Lint/SafeNavigationWithEmpty:
