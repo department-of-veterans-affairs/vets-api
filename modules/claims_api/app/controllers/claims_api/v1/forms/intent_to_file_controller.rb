@@ -44,7 +44,7 @@ module ClaimsApi
                 }
               ]
             }
-            render json: error, status: 422
+            render json: error, status: :unprocessable_entity
           end
         end
 
