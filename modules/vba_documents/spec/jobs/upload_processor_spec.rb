@@ -45,7 +45,6 @@ RSpec.describe VBADocuments::UploadProcessor, type: :job do
     allow(objstore).to receive(:download)
     allow(version).to receive(:last_modified).and_return(DateTime.now.utc)
   end
-  # rubocop:enable Style/DateTime
 
   describe '#perform' do
     let(:upload) { FactoryBot.create(:upload_submission, :status_uploaded, consumer_name: 'test consumer') }

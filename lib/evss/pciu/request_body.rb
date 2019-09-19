@@ -32,10 +32,10 @@ module EVSS
       end
 
       private
+
       def set_effective_date
         request_attrs.tap { |instance| instance[date_attr] = DateTime.now.utc }
       end
-      # rubocop:enable Style/DateTime
 
       def remove_empty_attrs
         @request_attrs = request_attrs.as_json.delete_if { |_k, v| v.blank? }

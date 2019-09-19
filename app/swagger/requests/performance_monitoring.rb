@@ -88,4 +88,3 @@ module Swagger
   end
 end
 # rubocop:enable Metrics/LineLength
-# rubocop:enable Layout/EmptyLinesAroundArguments

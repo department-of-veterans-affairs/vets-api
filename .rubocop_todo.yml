@@ -113,9 +113,9 @@ Lint/SafeNavigationWithEmpty:
 
 # Offense count: 1
 # Cop supports --auto-correct.
-Lint/UnneededCopEnableDirective:
-  Exclude:
-    - 'app/controllers/concerns/authentication_and_sso_concerns.rb'
+# Lint/UnneededCopEnableDirective:
+#   Exclude:
+#     - 'app/controllers/concerns/authentication_and_sso_concerns.rb'
 
 # Offense count: 34
 # Configuration parameters: EnforcedStyleForLeadingUnderscores.

@@ -135,6 +135,5 @@ RSpec.describe 'VBA Document Uploads Endpoint', type: :request do
       expect(response.status).to eq(200)
       expect(response.headers['Content-Type']).to eq('application/zip')
     end
-    # rubocop:enable Style/DateTime
   end
 end
