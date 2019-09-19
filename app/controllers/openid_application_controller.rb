@@ -10,7 +10,7 @@ require 'jwt'
 
 class OpenidApplicationController < ApplicationController
   before_action :authenticate
-  TOKEN_REGEX = /Bearer /
+  TOKEN_REGEX = /Bearer /.freeze
 
   private
 
