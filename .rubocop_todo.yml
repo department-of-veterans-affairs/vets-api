@@ -236,9 +236,9 @@ Style/RedundantReturn:
 # Cop supports --auto-correct.
 # Configuration parameters: EnforcedStyleForMultiline.
 # SupportedStylesForMultiline: comma, consistent_comma, no_comma
-Style/TrailingCommaInHashLiteral:
-  Exclude:
-    - 'config/initializers/shrine.rb'
+# Style/TrailingCommaInHashLiteral:
+#   Exclude:
+#     - 'config/initializers/shrine.rb'
 
 # Offense count: 2
 # Cop supports --auto-correct.
