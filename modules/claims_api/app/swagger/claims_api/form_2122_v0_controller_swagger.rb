@@ -3,19 +3,19 @@
 require_dependency 'claims_api/form_schemas'
 
 module ClaimsApi
-  class Form0966V1ControllerSwagger
+  class Form2122V0ControllerSwagger
     include Swagger::Blocks
 
-    swagger_path '/forms/0966' do
+    swagger_path '/forms/2122' do
       operation :get do
-        key :operationId, 'get0966JsonSchema'
-        key :summary, 'Get 0966 JSON Schema for form'
-        key :description, 'Returns a single 0966 JSON schema to auto generate a form'
+        key :description, 'Returns a single 2122 JSON schema to auto generate a form'
+        key :summary, 'Get 2122 JSON Schema for form'
+        key :operationId, 'get2122JsonSchema'
         key :produces, [
           'application/json'
         ]
         key :tags, [
-          'Intent to File'
+          'Power of Attorney'
         ]
 
         response 200 do
@@ -28,7 +28,7 @@ module ClaimsApi
               items do
                 key :type, :object
                 key :description, 'Returning Variety of JSON and UI Schema Objects'
-                key :example, ClaimsApi::FormSchemas::SCHEMAS['0966']
+                key :example, ClaimsApi::FormSchemas::SCHEMAS['2122']
               end
             end
           end
@@ -50,17 +50,17 @@ module ClaimsApi
       end
 
       operation :post do
-        key :summary, 'Accepts 0966 Intent to File form submission'
+        key :summary, 'Accepts 2122 Power of Attorney form submission'
         key :description, 'Accepts JSON payload. Full URL, including\nquery parameters.'
-        key :operationId, 'post0966itf'
+        key :operationId, 'post2122poa'
         key :tags, [
-          'Intent to File'
+          'Power of Attorney'
         ]
 
         parameter do
-          key :name, 'bearer_token'
+          key :name, 'apikey'
           key :in, :header
-          key :description, 'Oauth Token of Veteran requesting to access data'
+          key :description, 'API Key given to access data'
           key :required, true
           key :type, :string
         end
@@ -69,7 +69,7 @@ module ClaimsApi
           key :name, 'X-VA-SSN'
           key :in, :header
           key :description, 'SSN of Veteran to fetch'
-          key :required, false
+          key :required, true
           key :type, :string
         end
 
@@ -77,7 +77,7 @@ module ClaimsApi
           key :name, 'X-VA-First-Name'
           key :in, :header
           key :description, 'First Name of Veteran to fetch'
-          key :required, false
+          key :required, true
           key :type, :string
         end
 
@@ -85,7 +85,7 @@ module ClaimsApi
           key :name, 'X-VA-Last-Name'
           key :in, :header
           key :description, 'Last Name of Veteran to fetch'
-          key :required, false
+          key :required, true
           key :type, :string
         end
 
@@ -93,7 +93,7 @@ module ClaimsApi
           key :name, 'X-VA-Birth-Date'
           key :in, :header
           key :description, 'Date of Birth of Veteran to fetch in iso8601 format'
-          key :required, false
+          key :required, true
           key :type, :string
         end
 
@@ -119,34 +119,17 @@ module ClaimsApi
           key :description, 'JSON API Payload of Veteran being submitted'
           key :required, true
           schema do
-            key :type, :object
-            key :required, [:data]
-            property :data do
-              key :type, :object
-              key :required, [:attributes]
-              property :attributes do
-                key :type, :object
-                property :type do
-                  key :type, :string
-                  key :example, 'compensation'
-                  key :description, 'Required by JSON API standard'
-                  key :enum, %w[
-                    compensation
-                    burial
-                    pension
-                  ]
-                end
-              end
-            end
+            key :'$ref', :Form2122Input
           end
         end
 
         response 200 do
           key :description, '0966 response'
           schema do
-            key :'$ref', :Form0966Output
+            key :'$ref', :Form2122Output
           end
         end
+
         response :default do
           key :description, 'unexpected error'
           schema do
@@ -163,19 +146,30 @@ module ClaimsApi
       end
     end
 
-    swagger_path '/forms/0966/active' do
-      operation :get do
-        key :summary, 'Returns last active 0966 Intent to File form submission'
-        key :description, 'Returns last active JSON payload. Full URL, including\nquery parameters.'
-        key :operationId, 'post0966itf'
+    swagger_path '/forms/2122/{id}' do
+      operation :put do
+        key :summary, 'Upload Power of attorney document'
+        key :description, 'Accpets document binaries as part of a multipart payload.'
+        key :operationId, 'upload526Attachments'
+        key :produces, [
+          'application/json'
+        ]
         key :tags, [
-          'Intent to File'
+          'Power of Attorney'
         ]
 
         parameter do
-          key :name, 'bearer_token'
+          key :name, :id
+          key :in, :path
+          key :description, 'UUID given when Disability Claim was submitted'
+          key :required, true
+          key :type, :uuid
+        end
+
+        parameter do
+          key :name, 'apikey'
           key :in, :header
-          key :description, 'Oauth Token of Veteran requesting to access data'
+          key :description, 'API Key given to access data'
           key :required, true
           key :type, :string
         end
@@ -184,7 +178,7 @@ module ClaimsApi
           key :name, 'X-VA-SSN'
           key :in, :header
           key :description, 'SSN of Veteran to fetch'
-          key :required, false
+          key :required, true
           key :type, :string
         end
 
@@ -192,7 +186,7 @@ module ClaimsApi
           key :name, 'X-VA-First-Name'
           key :in, :header
           key :description, 'First Name of Veteran to fetch'
-          key :required, false
+          key :required, true
           key :type, :string
         end
 
@@ -200,7 +194,7 @@ module ClaimsApi
           key :name, 'X-VA-Last-Name'
           key :in, :header
           key :description, 'Last Name of Veteran to fetch'
-          key :required, false
+          key :required, true
           key :type, :string
         end
 
@@ -208,7 +202,7 @@ module ClaimsApi
           key :name, 'X-VA-Birth-Date'
           key :in, :header
           key :description, 'Date of Birth of Veteran to fetch in iso8601 format'
-          key :required, false
+          key :required, true
           key :type, :string
         end
 
@@ -229,39 +223,101 @@ module ClaimsApi
         end
 
         parameter do
-          key :name, 'payload'
-          key :in, :body
-          key :description, 'JSON API Payload of Veteran being submitted'
-          key :required, true
+          key :name, 'attachment'
+          key :in, :formData
+          key :type, :file
+          key :description, 'Attachment contents. Must be provided in PDF format'
+        end
+
+        response 200 do
+          key :description, 'upload response'
+        end
+        response :default do
+          key :description, 'unexpected error'
           schema do
             key :type, :object
-            key :required, [:data]
-            property :data do
-              key :type, :object
-              key :required, [:attributes]
-              property :attributes do
-                key :type, :object
-                property :type do
-                  key :type, :string
-                  key :example, 'compensation'
-                  key :description, 'Required by JSON API standard'
-                  key :enum, %w[
-                    compensation
-                    burial
-                    pension
-                  ]
-                end
+            key :required, [:errors]
+            property :errors do
+              key :type, :array
+              items do
+                key :'$ref', :ErrorModel
               end
             end
           end
         end
+      end
+
+      operation :get do
+        key :summary, 'Check 2122 Status by ID'
+        key :description, 'Returns last active JSON payload. Full URL, including\nquery parameters.'
+        key :operationId, 'get2122poa'
+        key :tags, [
+          'Power of Attorney'
+        ]
+
+        parameter do
+          key :name, 'apikey'
+          key :in, :header
+          key :description, 'API Key given to access data'
+          key :required, true
+          key :type, :string
+        end
+
+        parameter do
+          key :name, 'X-VA-SSN'
+          key :in, :header
+          key :description, 'SSN of Veteran to fetch'
+          key :required, true
+          key :type, :string
+        end
+
+        parameter do
+          key :name, 'X-VA-First-Name'
+          key :in, :header
+          key :description, 'First Name of Veteran to fetch'
+          key :required, true
+          key :type, :string
+        end
+
+        parameter do
+          key :name, 'X-VA-Last-Name'
+          key :in, :header
+          key :description, 'Last Name of Veteran to fetch'
+          key :required, true
+          key :type, :string
+        end
+
+        parameter do
+          key :name, 'X-VA-Birth-Date'
+          key :in, :header
+          key :description, 'Date of Birth of Veteran to fetch in iso8601 format'
+          key :required, true
+          key :type, :string
+        end
+
+        parameter do
+          key :name, 'X-VA-EDIPI'
+          key :in, :header
+          key :description, 'EDIPI Number of Veteran to fetch'
+          key :required, false
+          key :type, :string
+        end
+
+        parameter do
+          key :name, 'X-VA-User'
+          key :in, :header
+          key :description, 'VA username of the person making the request'
+          key :required, false
+          key :type, :string
+        end
 
         response 200 do
-          key :description, '0966 response'
+          key :description, '2122 response'
           schema do
-            key :'$ref', :Form0966Output
+            key :'$ref', :Form2122Output
           end
         end
+
         response :default do
           key :description, 'unexpected error'
           schema do
