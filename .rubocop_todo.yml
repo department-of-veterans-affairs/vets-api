@@ -165,6 +165,7 @@ Naming/UncommunicativeMethodParamName:
 
 # Offense count: 27
 # Cop supports --auto-correct.
+# TODO: Move over to .rubocop.yml
 Rails/ActiveRecordAliases:
   Enabled: false
 
@@ -172,15 +173,15 @@ Rails/ActiveRecordAliases:
 # Cop supports --auto-correct.
 # Configuration parameters: EnforcedStyle.
 # SupportedStyles: numeric, symbolic
-Rails/HttpStatus:
-  Exclude:
-    - 'app/controllers/application_controller.rb'
-    - 'modules/claims_api/app/controllers/claims_api/concerns/itf_verification.rb'
-    - 'modules/claims_api/app/controllers/claims_api/v0/forms/intent_to_file_controller.rb'
-    - 'modules/claims_api/app/controllers/claims_api/v1/forms/intent_to_file_controller.rb'
-    - 'modules/va_facilities/app/controllers/va_facilities/v0/facilities_controller.rb'
-    - 'modules/vba_documents/app/controllers/vba_documents/v0/uploads_controller.rb'
-    - 'modules/vba_documents/app/controllers/vba_documents/v1/uploads_controller.rb'
+# Rails/HttpStatus:
+#   Exclude:
+#     - 'app/controllers/application_controller.rb'
+#     - 'modules/claims_api/app/controllers/claims_api/concerns/itf_verification.rb'
+#     - 'modules/claims_api/app/controllers/claims_api/v0/forms/intent_to_file_controller.rb'
+#     - 'modules/claims_api/app/controllers/claims_api/v1/forms/intent_to_file_controller.rb'
+#     - 'modules/va_facilities/app/controllers/va_facilities/v0/facilities_controller.rb'
+#     - 'modules/vba_documents/app/controllers/vba_documents/v0/uploads_controller.rb'
+#     - 'modules/vba_documents/app/controllers/vba_documents/v1/uploads_controller.rb'
 
 # Offense count: 3
 Security/Open:
