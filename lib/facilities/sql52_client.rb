@@ -19,7 +19,7 @@ module Facilities
     end
 
     def database_name
-      raise NotImplementedError, "Child classes of Facilities::SQL52Client require a database_name method"
+      raise NotImplementedError, 'Child classes of Facilities::SQL52Client require a database_name method'
     end
   end
 end

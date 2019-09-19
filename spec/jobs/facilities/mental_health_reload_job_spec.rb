@@ -7,10 +7,16 @@ RSpec.describe Facilities::MentalHealthReloadJob, type: :job do
     def download
       [
         {
-          'StationNumber' => '101A', 'MHPhone' => '407-123-1234', 'Extension' => '0001', 'Modified' => '2019-09-06T13:00:00.000'
+          'StationNumber' => '101A',
+          'MHPhone' => '407-123-1234',
+          'Extension' => '0001',
+          'Modified' => '2019-09-06T13:00:00.000'
         },
         {
-          'StationNumber' => '202A', 'MHPhone' => '321-123-1234', 'Extension' => '0002', 'Modified' => '2019-09-06T13:00:00.000'
+          'StationNumber' => '202A',
+          'MHPhone' => '321-123-1234',
+          'Extension' => '0002',
+          'Modified' => '2019-09-06T13:00:00.000'
         }
       ]
     end
