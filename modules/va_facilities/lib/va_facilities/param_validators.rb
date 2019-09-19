@@ -92,7 +92,7 @@ module VaFacilities
         render json: {
           errors: ['You may only use ONE of these distance query parameter sets: lat/long, zip, state, or bbox']
         },
-               status: 422
+               status: :unprocessable_entity
       end
     end
 
