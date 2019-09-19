@@ -53,9 +53,9 @@ Layout/EmptyLineAfterGuardClause:
 # Offense count: 8
 # Cop supports --auto-correct.
 # Configuration parameters: Width, IgnoredPatterns.
-Layout/IndentationWidth:
-  Exclude:
-    - 'lib/facilities/vba_facility.rb'
+# Layout/IndentationWidth:
+#   Exclude:
+#     - 'lib/facilities/vba_facility.rb'
 
 # Offense count: 4
 # Cop supports --auto-correct.
