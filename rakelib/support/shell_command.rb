@@ -9,6 +9,7 @@ class ShellCommand
     Open3.popen2e(command) do |_stdin, stdout_and_stderr, thread|
       while (line = stdout_and_stderr.gets)
         puts(line)
+        stdout_and_stderr.flush
       end
 
       success = thread.value.success?
