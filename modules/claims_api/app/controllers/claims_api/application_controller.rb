@@ -23,7 +23,7 @@ module ClaimsApi
 
     def target_veteran(with_gender: false)
       if header_request?
-        headers_to_validate = ['X-VA-SSN', 'X-VA-First-Name', 'X-VA-Last-Name', 'X-VA-Birth-Date']
+        headers_to_validate = %w[X-VA-SSN X-VA-First-Name X-VA-Last-Name X-VA-Birth-Date]
         headers_to_validate << 'X-VA-LOA' if v0?
         validate_headers(headers_to_validate)
         check_loa_level if v0?
