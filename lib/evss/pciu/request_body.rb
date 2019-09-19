@@ -32,8 +32,6 @@ module EVSS
       end
 
       private
-
-      # rubocop:disable Style/DateTime
       def set_effective_date
         request_attrs.tap { |instance| instance[date_attr] = DateTime.now.utc }
       end

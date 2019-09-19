@@ -37,8 +37,6 @@ RSpec.describe VBADocuments::UploadProcessor, type: :job do
     { 'metadata' => invalid_metadata_nonstring,
       'content' => valid_doc }
   end
-
-  # rubocop:disable Style/DateTime
   before(:each) do
     objstore = instance_double(VBADocuments::ObjectStore)
     version = instance_double(Aws::S3::ObjectVersion)

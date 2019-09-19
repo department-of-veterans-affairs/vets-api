@@ -102,14 +102,14 @@ Lint/SafeNavigationWithEmpty:
 
 # Offense count: 6
 # Cop supports --auto-correct.
-Lint/UnneededCopDisableDirective:
-  Exclude:
-    - 'app/swagger/requests/performance_monitoring.rb'
-    - 'lib/common/hash_helpers.rb'
-    - 'lib/evss/pciu/request_body.rb'
-    - 'modules/vba_documents/spec/jobs/upload_processor_spec.rb'
-    - 'modules/vba_documents/spec/request/v0/uploads_request_spec.rb'
-    - 'modules/vba_documents/spec/request/v1/uploads_request_spec.rb'
+# Lint/UnneededCopDisableDirective:
+#   Exclude:
+#     - 'app/swagger/requests/performance_monitoring.rb'
+#     - 'lib/common/hash_helpers.rb'
+#     - 'lib/evss/pciu/request_body.rb'
+#     - 'modules/vba_documents/spec/jobs/upload_processor_spec.rb'
+#     - 'modules/vba_documents/spec/request/v0/uploads_request_spec.rb'
+#     - 'modules/vba_documents/spec/request/v1/uploads_request_spec.rb'
 
 # Offense count: 1
 # Cop supports --auto-correct.
