@@ -1,6 +1,5 @@
 # frozen_string_literal: true
-require 'json'
-require 'pp'
+
 require_dependency 'openid_auth/application_controller'
 
 module OpenidAuth
@@ -53,21 +52,19 @@ module OpenidAuth
       end
 
       def okta_callback
-        puts JSON.pretty_generate(JSON.parse(request.raw_post))
-
         user_attributes = parse_user_attributes(params)
         mvi_profile = fetch_mvi_profile(user_attributes)
 
         create_replace_stanza('dslogon_edipi', mvi_profile[:edipi])
         create_add_stanza('icn_with_aaid', mvi_profile[:icn_with_aaid])
-        
+
         render json: @okta_response
       end
 
       private
 
       def create_replace_stanza(path_variable, value)
-        replace_stanza =  {
+        replace_stanza = {
           "op": 'replace',
           "path": "/claims/#{path_variable}/attributeValues/0/value",
           "value": value
@@ -76,7 +73,9 @@ module OpenidAuth
         @okta_response[:commands][0][:value].push(replace_stanza)
       end
 
-      def create_add_stanza(path_variable, value)#, name_format, type
+      def create_add_stanza(path_variable, value)
+        # TODO: add futher args to specify name_format, type
+
         add_stanza = {
           "op": 'add',
           "path": "/claims/#{path_variable}",
