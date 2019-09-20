@@ -2,6 +2,8 @@
 
 module Facilities
   class VHAFacility < BaseFacility
+    has_many :drivetime_bands
+
     class << self
       attr_writer :validate_on_load
 
