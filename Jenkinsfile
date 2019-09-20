@@ -26,7 +26,6 @@ pipeline {
       steps {
         withCredentials([string(credentialsId: 'sidekiq-enterprise-license', variable: 'BUNDLE_ENTERPRISE__CONTRIBSYS__COM')]) {
           withEnv(['RAILS_ENV=test', 'CI=true']) {
-		  	$stdout.sync = true
             sh 'make ci'
           }
         }
