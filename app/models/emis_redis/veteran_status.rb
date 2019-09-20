@@ -79,9 +79,11 @@ module EMISRedis
     #
     def validated_response
       raise VeteranStatus::NotAuthorized.new(status: 401) if !@user.loa3? || !@user.authorize(:emis, :access?)
+
       response = emis_response('get_veteran_status')
 
       raise VeteranStatus::RecordNotFound.new(status: 404) if response.empty?
+
       response.items.first
     end
   end

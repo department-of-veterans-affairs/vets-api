@@ -17,6 +17,7 @@ module Common
 
           def on_complete(env)
             return if env.success?
+
             @body = env[:body]
             @status = env.status.to_i
             raise_error!

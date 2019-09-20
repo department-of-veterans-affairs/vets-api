@@ -17,8 +17,8 @@
 
 # Offense count: 351
 # Cop supports --auto-correct.
-Layout/EmptyLineAfterGuardClause:
-  Enabled: false
+# Layout/EmptyLineAfterGuardClause:
+#   Enabled: false
 
 # Offense count: 1
 Lint/SafeNavigationWithEmpty:

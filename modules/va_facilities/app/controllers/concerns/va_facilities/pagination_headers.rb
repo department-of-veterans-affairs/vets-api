@@ -43,11 +43,13 @@ module VaFacilities
 
     def prev_page_url
       return nil if @collection.current_page == LINK_FIRST_PAGE
+
       url_for_page(@collection.current_page - LINK_FIRST_PAGE)
     end
 
     def next_page_url
       return nil if @collection.total_pages.zero? || @collection.current_page >= @collection.total_pages
+
       url_for_page(@collection.next_page)
     end
 

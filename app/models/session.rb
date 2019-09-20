@@ -31,6 +31,7 @@ class Session < Common::RedisStore
 
   def expire(ttl)
     return false if invalid?
+
     super(ttl)
   end
 

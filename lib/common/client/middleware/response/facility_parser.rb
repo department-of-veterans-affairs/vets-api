@@ -85,6 +85,7 @@ module Common
 
           def complex_mapping(item, attrs)
             return {} unless item
+
             item.each_with_object({}) do |(key, value), hash|
               hash[key] = value.respond_to?(:call) ? value.call(attrs) : strip(attrs[value])
             end
@@ -104,8 +105,10 @@ module Common
 
           def services_from_gis(service_map, attrs)
             return unless service_map
+
             services = service_map.each_with_object([]) do |(k, v), l|
               next unless attrs[k] == BaseFacility::YES && BaseFacility::APPROVED_SERVICES.include?(k)
+
               sl2 = []
               v.each do |sk|
                 sl2 << sk if attrs[sk] == BaseFacility::YES && BaseFacility::APPROVED_SERVICES.include?(sk)

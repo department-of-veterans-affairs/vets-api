@@ -19,6 +19,7 @@ module Common
           def on_complete(env)
             return if env.success?
             return unless env.response_headers['content-type']&.match?(/\b(xml|html)/)
+
             @status = env.status.to_i
             @body = env.body.delete('%') # strip percentages from html because Sentry uses it for interpolation
 

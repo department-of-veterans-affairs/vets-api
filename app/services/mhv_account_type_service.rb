@@ -85,6 +85,7 @@ class MhvAccountTypeService
 
   def log_account_type_heuristic_once(message, extra_context = {})
     return if @logged
+
     extra_context.merge!(
       uuid: user.uuid,
       mhv_correlation_id: user.mhv_correlation_id,

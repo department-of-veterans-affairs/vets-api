@@ -155,6 +155,7 @@ class FormProfile
     form_id = form_id.downcase if form_id == '1010EZ' # our first form. lessons learned.
     file = Rails.root.join('config', 'form_profile_mappings', "#{form_id}.yml")
     raise IOError, "Form profile mapping file is missing for form id #{form_id}" unless File.exist?(file)
+
     YAML.load_file(file)
   end
 
@@ -181,6 +182,7 @@ class FormProfile
 
   def initialize_military_information(user)
     return {} unless user.authorize :emis, :access?
+
     military_information = user.military_information
     military_information_data = {}
 

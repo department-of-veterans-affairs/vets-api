@@ -91,6 +91,7 @@ module Common
         #
         def breakers_service
           return @service if defined?(@service)
+
           base_uri = URI.parse(base_path)
           matcher = proc do |request_env|
             request_env.url.host == base_uri.host && request_env.url.port == base_uri.port &&

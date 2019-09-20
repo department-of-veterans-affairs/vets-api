@@ -629,6 +629,7 @@ module PdfFill
 
       def replace_phone(hash, key)
         return if hash.try(:[], key).blank?
+
         phone_arr = split_phone(hash[key])
         hash["#{key}AreaCode"] = phone_arr[0]
         hash[key] = phone_arr[1]
@@ -704,6 +705,7 @@ module PdfFill
       def expand_marriages(hash, key)
         marriages = hash[key]
         return if marriages.blank?
+
         other_explanations = []
 
         marriages.each do |marriage|

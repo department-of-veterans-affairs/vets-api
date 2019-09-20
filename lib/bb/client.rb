@@ -57,6 +57,7 @@ module BB
     def post_generate(params)
       form = BB::GenerateReportRequestForm.new(self, params)
       raise Common::Exceptions::ValidationErrors, form unless form.valid?
+
       perform(:post, 'bluebutton/generate', form.params, token_headers).body
     end
 
@@ -83,6 +84,7 @@ module BB
     def cache_key(action)
       return nil unless config.caching_enabled?
       return nil if session.user_id.blank?
+
       "#{session.user_id}:#{action}"
     end
 
