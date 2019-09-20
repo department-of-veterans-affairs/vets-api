@@ -1,11 +1,23 @@
 # frozen_string_literal: true
-
+require 'json'
+require 'pp'
 require_dependency 'openid_auth/application_controller'
 
 module OpenidAuth
   module V0
     class OktaController < ApplicationController
       skip_before_action :authenticate
+
+      def initialize
+        @okta_response = {
+          "commands": [
+            {
+              "type": 'com.okta.assertion.patch',
+              "value": []
+            }
+          ]
+        }
+      end
 
       def parse_user_attributes(json_request)
         okta_attributes = json_request.dig(:data, :assertion, :claims)
@@ -41,40 +53,49 @@ module OpenidAuth
       end
 
       def okta_callback
+        puts JSON.pretty_generate(JSON.parse(request.raw_post))
+
         user_attributes = parse_user_attributes(params)
         mvi_profile = fetch_mvi_profile(user_attributes)
 
-        render json: {
-          "commands": [
-            {
-              "type": 'com.okta.assertion.patch',
-              "value": [
-                {
-                  "op": 'replace',
-                  "path": '/claims/dslogon_edipi/attributeValues/0/value',
-                  "value": mvi_profile[:edipi]
-                },
-                {
-                  "op": 'add',
-                  "path": '/claims/icn_with_aaid',
-                  "value": {
-                    "attributes": {
-                      "NameFormat": 'urn:oasis:names:tc:SAML:2.0:attrname-format:basic'
-                    },
-                    "attributeValues": [
-                      {
-                        "attributes": {
-                          "xsi:type": 'xs:string'
-                        },
-                        "value": mvi_profile[:icn_with_aaid]
-                      }
-                    ]
-                  }
-                }
-              ]
-            }
-          ]
+        create_replace_stanza('dslogon_edipi', mvi_profile[:edipi])
+        create_add_stanza('icn_with_aaid', mvi_profile[:icn_with_aaid])
+        
+        render json: @okta_response
+      end
+
+      private
+
+      def create_replace_stanza(path_variable, value)
+        replace_stanza =  {
+          "op": 'replace',
+          "path": "/claims/#{path_variable}/attributeValues/0/value",
+          "value": value
         }
+
+        @okta_response[:commands][0][:value].push(replace_stanza)
+      end
+
+      def create_add_stanza(path_variable, value)#, name_format, type
+        add_stanza = {
+          "op": 'add',
+          "path": "/claims/#{path_variable}",
+          "value": {
+            "attributes": {
+              "NameFormat": 'urn:oasis:names:tc:SAML:2.0:attrname-format:basic'
+            },
+            "attributeValues": [
+              {
+                "attributes": {
+                  "xsi:type": 'xs:string'
+                },
+                "value": value
+              }
+            ]
+          }
+        }
+
+        @okta_response[:commands][0][:value].push(add_stanza)
       end
     end
   end
