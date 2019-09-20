@@ -112,11 +112,11 @@ RSpec.describe 'Health Care Application Integration', type: %i[request serialize
         let(:enrolled) { Notification::ENROLLED }
         let(:success_response) do
           {
-            application_date:   '2018-12-27T00:00:00.000-06:00',
-            enrollment_date:    '2018-12-27T17:15:39.000-06:00',
+            application_date: '2018-12-27T00:00:00.000-06:00',
+            enrollment_date: '2018-12-27T17:15:39.000-06:00',
             preferred_facility: '988 - DAYT20',
-            effective_date:     '2019-01-02T21:58:55.000-06:00',
-            parsed_status:      enrolled
+            effective_date: '2019-01-02T21:58:55.000-06:00',
+            parsed_status: enrolled
           }
         end
 

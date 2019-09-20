@@ -45,7 +45,7 @@ module V0
       render json: client_response,
              serializer: MessageSerializer,
              include: 'attachments',
-             meta:  {}
+             meta: {}
     end
 
     def destroy
