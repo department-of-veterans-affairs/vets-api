@@ -15,7 +15,7 @@ class ShellCommand
 
       success = thread.value.success?
     end
-    
+
     $stdout.sync = old_sync
     success
   end
