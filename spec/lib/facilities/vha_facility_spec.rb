@@ -25,7 +25,7 @@ module Facilities
         it 'should parse hours correctly' do
           VCR.use_cassette('facilities/va/vha_facilities_limit_results') do
             expect(facility.hours.values).to match_array(
-              ['730AM-430PM', '730AM-430PM', '730AM-430PM', '730AM-430PM', '730AM-430PM', 'Closed', 'Closed']
+              %w[730AM-430PM 730AM-430PM 730AM-430PM 730AM-430PM 730AM-430PM Closed Closed]
             )
           end
         end

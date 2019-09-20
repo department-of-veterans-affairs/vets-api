@@ -5,8 +5,8 @@ module Vet360
     class Address < Base
       include Vet360::Concerns::Defaultable
 
-      VALID_ALPHA_REGEX = /[a-zA-Z ]+/
-      VALID_NUMERIC_REGEX = /[0-9]+/
+      VALID_ALPHA_REGEX = /[a-zA-Z ]+/.freeze
+      VALID_NUMERIC_REGEX = /[0-9]+/.freeze
 
       RESIDENCE      = 'RESIDENCE/CHOICE'
       CORRESPONDENCE = 'CORRESPONDENCE'
