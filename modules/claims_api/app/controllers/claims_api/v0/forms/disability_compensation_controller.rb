@@ -74,26 +74,6 @@ module ClaimsApi
             )
           end
         end
-
-        def documents
-          document_keys = params.keys.select { |key| key.include? 'attachment' }
-          params.slice(*document_keys).values
-        end
-
-        def auth_headers
-          evss_headers = EVSS::DisabilityCompensationAuthHeaders
-                         .new(target_veteran(with_gender: true))
-                         .add_headers(
-                           EVSS::AuthHeaders.new(target_veteran(with_gender: true)).to_h
-                         )
-          if request.headers['Mock-Override'] &&
-             Settings.claims_api.disability_claims_mock_override
-            evss_headers['Mock-Override'] = true
-            Rails.logger.info('ClaimsApi: Mock Override Engaged')
-          end
-
-          evss_headers
-        end
       end
     end
   end
