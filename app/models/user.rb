@@ -288,7 +288,7 @@ class User < Common::RedisStore
   end
 
   def flipper_id
-    "User;#{account_uuid}"
+    "User;#{email || account_uuid}"
   end
 
   private
