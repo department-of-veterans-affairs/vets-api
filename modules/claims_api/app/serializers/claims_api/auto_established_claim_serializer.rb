@@ -7,7 +7,7 @@ module ClaimsApi
     type :claims_api_claim
 
     def id
-      object&.evss_id || object.id
+      object&.evss_id || object&.id
     end
   end
 end
