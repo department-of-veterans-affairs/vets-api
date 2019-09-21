@@ -15,7 +15,7 @@ RSpec.describe 'Return Okta commands for a User from MVI', type: :request, skip_
       let(:req_body) do
         JSON.parse(
           File.read(
-            Rails.root.join('spec', 'fixtures', 'okta', 'okta_callback_request_idme_1567760195.json.json')
+            Rails.root.join('spec', 'fixtures', 'okta', 'okta_callback_request_idme_1567760195.json')
           )
         )
       end
