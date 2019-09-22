@@ -47,12 +47,12 @@ module Common
               @dest_facility['services']['benefits'] = map_benefits_services if @mapping['benefits']
               @dest_facility['hours'] = make_hours_mappings
               @dest_facility['services'] = map_health_services if @mapping['services']
-
+              @dest_facility['classification'] = map_classification if @mapping['classification']
               @dest_facility
             end
 
             def make_direct_mappings
-              %w[unique_id name classification website mobile].each_with_object({}) do |name, _attributes|
+              %w[unique_id name website mobile].each_with_object({}) do |name, _attributes|
                 @dest_facility[name] = strip(@src_facility['attributes'][@mapping[name]])
               end
             end
@@ -61,6 +61,12 @@ module Common
               %w[access feedback phone].each_with_object({}) do |name, _attributes|
                 @dest_facility[name] = complex_mapping(name)
               end
+            end
+
+            def map_classification
+              mapper = get_mapper('classification')
+              src_value = @src_facility['attributes'][@mapping['classification']]
+              mapper.nil? ? src_value : mapper.call(src_value, @src_facility)
             end
 
             def make_address_mappings
@@ -161,6 +167,12 @@ module Common
               services << { 'sl1' => ['DentalServices'], 'sl2' => [] } if FacilityDentalService.exists?(facility_id)
 
               services
+            end
+
+            def get_mapper(key)
+              @mapping['mappers']&.find do |mapping_key, mapper|
+                break mapper if mapping_key.eql?(key)
+              end
             end
           end
         end

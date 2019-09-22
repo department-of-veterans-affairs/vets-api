@@ -71,6 +71,13 @@ RSpec.describe Facilities::VHAFacility do
         end
       end
 
+      it 'should get the correct classification name' do
+        VCR.use_cassette('facilities/va/vha_facilities_limit_results') do
+          expect(facility.classification).to eq('Other Outpatient Services (OOS)')
+          expect(facility_2.classification).to eq('VA Medical Center (VAMC)')
+        end
+      end
+
       context 'services' do
         let(:satisfaction_data) do
           fixture_file_name = "#{::Rails.root}/spec/fixtures/facility_access/satisfaction_data.json"
