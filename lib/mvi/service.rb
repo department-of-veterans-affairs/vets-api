@@ -134,6 +134,7 @@ module MVI
       return message_icn(user_identity) if user_identity.mhv_icn.present? # from SAML::UserAttributes::MHV::BasicLOA3User
       return message_edipi(user_identity) if user_identity.dslogon_edipi.present? && Settings.mvi.edipi_search
       raise Common::Exceptions::ValidationErrors, user_identity unless user_identity.valid?
+
       message_user_attributes(user_identity)
     end
     # rubocop:enable Metrics/LineLength

@@ -44,6 +44,7 @@ module AsyncTransaction
       def self.refresh_transaction_status(user, service, tx_id = nil)
         transaction_record = find_transaction!(user.uuid, tx_id)
         return transaction_record if transaction_record.finished?
+
         api_response = Base.fetch_transaction(transaction_record, service)
         update_transaction_from_api(transaction_record, api_response)
       end

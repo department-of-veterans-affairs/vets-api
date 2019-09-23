@@ -20,6 +20,7 @@ module Facilities
         val = attrs['MHClinicPhone']
         val = attrs['MHPhone'] if val.blank?
         return '' if val.blank?
+
         result = val.to_s
         result << ' x ' + attrs['Extension'].to_s unless
           (attrs['Extension']).blank? || (attrs['Extension']).zero?

@@ -27,6 +27,7 @@ class SupportingEvidenceAttachmentUploader < CarrierWave::Uploader::Base
 
   def store_dir
     raise 'missing guid' if @guid.blank?
+
     "disability_compensation_supporting_form/#{@guid}"
   end
 end

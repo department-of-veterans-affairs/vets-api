@@ -5,6 +5,7 @@ module Common
     def initialize(redis_namespace)
       @redis_namespace = redis_namespace
       raise ArgumentError, 'threshold_ttl must be lower than count_ttl' if threshold_ttl_exceeds_count_ttl?
+
       @redis = Redis::Namespace.new(@redis_namespace['namespace'], redis: Redis.current)
     end
 

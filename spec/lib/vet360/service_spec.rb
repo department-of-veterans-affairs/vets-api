@@ -150,14 +150,14 @@ def body_for(row)
   {
     'messages' => [
       {
-        'code'     => row['Message Code']&.to_s&.strip,
-        'key'      => row['Message Key']&.to_s&.strip,
+        'code' => row['Message Code']&.to_s&.strip,
+        'key' => row['Message Key']&.to_s&.strip,
         'severity' => 'ERROR',
-        'text'     => row['Message Description']&.to_s&.strip
+        'text' => row['Message Description']&.to_s&.strip
       }
     ],
     'tx_audit_id' => '3773cd41-0958-4bbe-a035-16ae353cde03',
-    'status'      => 'REJECTED'
+    'status' => 'REJECTED'
   }
 end
 

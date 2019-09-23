@@ -82,7 +82,7 @@ FactoryBot.define do
 
       sign_in do
         {
-          service_name:  SAML::User::AUTHN_CONTEXTS[authn_context][:sign_in][:service_name]
+          service_name: SAML::User::AUTHN_CONTEXTS[authn_context][:sign_in][:service_name]
         }
       end
 
@@ -95,7 +95,7 @@ FactoryBot.define do
       authn_context 'http://idmanagement.gov/ns/assurance/loa/1/vets'
       sign_in do
         {
-          service_name:  SAML::User::AUTHN_CONTEXTS[authn_context][:sign_in][:service_name]
+          service_name: SAML::User::AUTHN_CONTEXTS[authn_context][:sign_in][:service_name]
         }
       end
 
@@ -109,7 +109,7 @@ FactoryBot.define do
 
       sign_in do
         {
-          service_name:  SAML::User::AUTHN_CONTEXTS[authn_context][:sign_in][:service_name]
+          service_name: SAML::User::AUTHN_CONTEXTS[authn_context][:sign_in][:service_name]
         }
       end
 
