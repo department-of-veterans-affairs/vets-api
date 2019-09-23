@@ -61,6 +61,7 @@ module AuthenticationAndSSOConcerns
     Rails.logger.info('SSO: ApplicationController#should_signout_sso?', sso_logging_info)
     return false unless Settings.sso.cookie_enabled
     return false unless Settings.sso.cookie_signout_enabled
+
     cookies[Settings.sso.cookie_name].blank? && request.host.match(Settings.sso.cookie_domain)
   end
 
@@ -77,6 +78,7 @@ module AuthenticationAndSSOConcerns
   # Sets a cookie "api_session" with all of the key/value pairs from session object.
   def set_api_cookie!
     return unless @session_object
+
     @session_object.to_hash.each { |k, v| session[k] = v }
   end
 
@@ -85,6 +87,7 @@ module AuthenticationAndSSOConcerns
     Rails.logger.info('SSO: ApplicationController#set_sso_cookie!', sso_logging_info)
 
     return unless Settings.sso.cookie_enabled && @session_object.present?
+
     encryptor = SSOEncryptor
     encrypted_value = encryptor.encrypt(ActiveSupport::JSON.encode(sso_cookie_content))
     cookies[Settings.sso.cookie_name] = {
@@ -104,6 +107,7 @@ module AuthenticationAndSSOConcerns
   # https://github.com/department-of-veterans-affairs/vets.gov-team/blob/master/Products/SSO/CookieSpecs-20180906.docx
   def sso_cookie_content
     return nil if @current_user.blank?
+
     {
       'patientIcn' => (@current_user.mhv_icn || @current_user.icn),
       'mhvCorrelationId' => @current_user.mhv_correlation_id,

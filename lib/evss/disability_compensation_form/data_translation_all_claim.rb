@@ -117,6 +117,7 @@ module EVSS
         return if account.account_number.blank?
         return if account.financial_institution_routing_number.blank?
         return if account.financial_institution_name.blank?
+
         true
       end
 
@@ -144,6 +145,7 @@ module EVSS
 
       def military_retired_pay
         return nil if input_form['militaryRetiredPayBranch'].blank?
+
         {
           'receiving' => true,
           'payment' => {
@@ -194,6 +196,7 @@ module EVSS
 
       def translate_confinements
         return nil if input_form['confinements'].blank?
+
         input_form['confinements'].map do |ci|
           {
             'confinementBeginDate' => ci['from'],
@@ -204,6 +207,7 @@ module EVSS
 
       def translate_national_guard_service
         return nil if service_info['reservesNationalGuardService'].blank?
+
         reserves_service_info = service_info['reservesNationalGuardService']
         {
           'title10Activation' => reserves_service_info['title10Activation'],
@@ -217,6 +221,7 @@ module EVSS
 
       def translate_names
         return nil if input_form['alternateNames'].blank?
+
         input_form['alternateNames'].map do |an|
           {
             'firstName' => an['first'],
@@ -236,6 +241,7 @@ module EVSS
           'NOAA' => 'National Oceanic & Atmospheric Administration'
         }
         return branch_map[service_branch] if branch_map.key? service_branch
+
         service_branch
       end
 
@@ -254,6 +260,7 @@ module EVSS
 
       def translate_change_of_address(address)
         return nil if address.blank?
+
         forwarding_address = translate_mailing_address(address)
         forwarding_address['addressChangeType'] = address['effectiveDate']['to'].blank? ? 'PERMANENT' : 'TEMPORARY'
         forwarding_address
@@ -288,6 +295,7 @@ module EVSS
       def get_address_type(address)
         return 'MILITARY' if %w[AA AE AP].include?(address['state'])
         return 'DOMESTIC' if address['country'] == 'USA'
+
         'INTERNATIONAL'
       end
 
@@ -324,6 +332,7 @@ module EVSS
 
       def split_phone_number(phone_number)
         return nil if phone_number.blank?
+
         area_code, number = phone_number.match(/(\d{3})(\d{7})/).captures
         { 'areaCode' => area_code, 'phoneNumber' => number }
       end
@@ -549,6 +558,7 @@ module EVSS
       def application_expiration_date
         return (rad_date + 1.day + 365.days).iso8601 if greater_rad_date?
         return (application_create_date + 365.days).iso8601 if greater_itf_date?
+
         itf.expiration_date.iso8601
       end
 

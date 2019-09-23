@@ -10,6 +10,7 @@ module SAML
         settings = base_settings.dup
         options.each do |option, value|
           next if value.nil?
+
           settings.send("#{option}=", value)
         end
         settings

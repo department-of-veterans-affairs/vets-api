@@ -21,6 +21,7 @@ module V0
     def new
       type = params[:type]
       raise Common::Exceptions::RoutingError, params[:path] unless REDIRECT_URLS.include?(type)
+
       StatsD.increment(STATSD_SSO_NEW_KEY, tags: ["context:#{type}"])
       url = url_service.send("#{type}_url")
       if type == 'slo'
@@ -78,6 +79,7 @@ module V0
 
     def authenticate
       return unless action_name == 'new'
+
       if %w[mfa verify slo].include?(params[:type])
         super
       else

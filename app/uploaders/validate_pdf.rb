@@ -10,6 +10,7 @@ module ValidatePdf
   def validate_pdf(file)
     temp_file = file.tempfile
     return unless temp_file.readpartial(4) == '%PDF'
+
     PDF::Reader.new(temp_file).info
   rescue PDF::Reader::MalformedPDFError
     raise CarrierWave::UploadError, 'PDF is missing an end of file marker'

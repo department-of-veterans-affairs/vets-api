@@ -20,6 +20,7 @@ module PdfFill
       def extract_middle_i(hash, key)
         full_name = hash[key]
         return if full_name.blank?
+
         middle_name = full_name['middle']
         full_name['middleInitial'] = middle_name[0] if middle_name.present?
         full_name
@@ -27,6 +28,7 @@ module PdfFill
 
       def extract_country(address)
         return if address.blank?
+
         country = address['country']
         if country.present? && country.size == 3
           IsoCountryCodes.find(country).alpha2
@@ -39,6 +41,7 @@ module PdfFill
 
       def split_postal_code(address)
         return if address.blank?
+
         postal_code = address['postalCode']
 
         return if postal_code.blank?
@@ -61,6 +64,7 @@ module PdfFill
 
       def validate_date(date)
         return if date.blank?
+
         format_ok = date.match(/\d{4}-\d{2}-\d{2}/)
 
         begin
@@ -74,6 +78,7 @@ module PdfFill
 
       def split_date(date)
         return unless validate_date(date)
+
         s_date = date.split('-')
         {
           'month' => s_date[1],
@@ -84,11 +89,13 @@ module PdfFill
 
       def combine_date_ranges(date_range_array)
         return if date_range_array.nil?
+
         date_range_array.map { |r| 'from: ' + r['from'] + ' to: ' + r['to'] if r }.join("\n")
       end
 
       def address_block(address)
         return if address.nil?
+
         [
           [address['street'], address['street2']].compact.join(' '),
           [address['city'], address['state'], address['postalCode']].compact.join(' '),
@@ -100,6 +107,7 @@ module PdfFill
         value = hash.try(:[], key)
 
         return if value.blank?
+
         hash['checkbox'] = {
           value => true
         }

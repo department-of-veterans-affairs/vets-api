@@ -33,6 +33,7 @@ module Sentry
 
       def sanitized_exception(exception)
         return exception unless contains_email?(exception.message)
+
         clean_exc = exception.class.new(sanitized_string(exception.message))
         clean_exc.set_backtrace(exception.backtrace)
         clean_exc
