@@ -86,7 +86,7 @@ paths:
   #     summary: "DRAFT: Query facilities based on a geographic bounding box and optional attribute filters"
   #     description: |
   #       *This is a draft specification and not an available endpoint.*
-        
+
   #       Retrieve all facilities contained within the specified bounding box. Bounding box is
   #       specified as four parameters lng1, lat1, lng2, lat2. Relative ordering of longitude and
   #       latitude parameters is unimportant.
@@ -437,8 +437,9 @@ paths:
       summary: Query facilities based on drive time from a specified location
       description: |
         Retrieve all facilities contained within an isochrone (a polygon composed of the area 
-        reachable in a certain amount of time from a central location) based on the passed 
-        `street_address`, `city`, `state`, `zip`, and `drive_time` parameters.
+        reachable in a certain amount of time from a central location) based on passing in a
+        combination of `street_address`, `city`, `state`, and `zip` or `lat` and `lng` required
+        parameters along with `drive_time`.
 
         Additionally one can filter the facilities within the isochrone by type and available
         services. Only facilities of type "health" and "benefits" may be filtered by available
@@ -458,31 +459,49 @@ paths:
           in: query
           description: |
             Street address of the location from which drive time will be calculated.
-          required: true
+          required: false
           schema:
             type: string
         - name: city
           in: query
           description: |
             City of the location from which drive time will be calculated.
-          required: true
+          required: false
           schema:
             type: string
         - name: state
           in: query
           description: |
             Two character state code of the location from which drive time will be calculated.
-          required: true
+          required: false
           schema:
             type: string
         - name: zip
           in: query
           description: |
             Zip code of the location from which drive time will be calculated.
-          required: true
+          required: false
           schema:
             type: string
             format: '##### or #####-####'
+        - name: lat
+          in: query
+          description: |
+            Latitude of point to search for nearest VA Facilities.
+          required: false
+          schema:
+            type: number
+            format: float
+        - name: lng
+          in: query
+          description: |
+            Longitude of point to search for nearest VA Facilities.
+          required: false
+          style: form
+          explode: true
+          schema:
+            type: number
+            format: float
         - name: drive_time
           description:  Filter to only include facilities that are within the specified number of drive time minutes from the requested location.
           in: query
@@ -582,6 +601,12 @@ paths:
               schema:
                 type: string
                 example: '<https://dev-api.va.gov/services/va_facilities/v1/facilities?bbox%5B%5D=-120&bbox%5B%5D=40&bbox%5B%5D=-125&bbox%5B%5D=50&page=2&per_page=20>; rel="self", <https://dev-api.va.gov/services/va_facilities/v0/facilities?bbox%5B%5D=-120&bbox%5B%5D=40&bbox%5B%5D=-125&bbox%5B%5D=50&page=1&per_page=20>; rel="first", <https://dev-api.va.gov/services/va_facilities/v0/facilities?bbox%5B%5D=-120&bbox%5B%5D=40&bbox%5B%5D=-125&bbox%5B%5D=50&page=1&per_page=20>; rel="prev", <https://dev-api.va.gov/services/va_facilities/v0/facilities?bbox%5B%5D=-120&bbox%5B%5D=40&bbox%5B%5D=-125&bbox%5B%5D=50&page=3&per_page=20>; rel="next", <https://dev-api.va.gov/services/va_facilities/v0/facilities?bbox%5B%5D=-120&bbox%5B%5D=40&bbox%5B%5D=-125&bbox%5B%5D=50&page=5&per_page=20>; rel="last"'
+        '400':
+          description: Missing Required Or Ambiguous Parameters
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ParameterError"
         '401':
           description: Missing API token
           content:
@@ -608,7 +633,7 @@ paths:
   #     summary: "DRAFT: Retrieve polygons of the drive time bands for facilities"
   #     description: |
   #       *This is a draft specification and not an available endpoint.*
-        
+
   #       Retrieve the polygons used to determine in which drive time band veterans fall into for facilities.
 
   #       Alternatively, one can retrieve a single facility using `/facilities/{id}/drive_time_bands`
@@ -721,8 +746,8 @@ paths:
   #     summary: "DRAFT: Retrieve polygons of the drive time bands for a facility by ID"
   #     description: |
   #       *This is a draft specification and not an available endpoint.*
-        
-  #       Retrieve the polygons used to determine in which drive time band veterans fall into for a specified facility. 
+
+  #       Retrieve the polygons used to determine in which drive time band veterans fall into for a specified facility.
 
   #       Alternatively, one can retrieve drive time bands for all facilities using `/facilities/all/drive_time_bands`.
 
@@ -795,12 +820,12 @@ paths:
   #     summary: "DRAFT: Bulk download of all available facilities"
   #     description: |
   #       *This is a draft specification and not an available endpoint.*
-        
+
   #       Retrieve drive time bands for all available facilities in a single operation, formatted as either a GeoJSON
-  #       FeatureCollection or as a CSV. 
+  #       FeatureCollection or as a CSV.
 
   #       Alternatively, one can retrieve drive time bands for a specific facility using `/facilities/{id}/drive_time_bands`.
-        
+
   #       The facility information returned by `/drive_time_bands` is a small subset of the information returned by `/facilities`.
   #       Please use `/facilities` to see detailed information.
   #     operationId: getAllFacilitiesDriveTimeBands
@@ -970,7 +995,7 @@ components:
           enum: ["Feature"]
           example: Feature
         geometry:
-          $ref: "#/components/schemas/Point" 
+          $ref: "#/components/schemas/Point"
         properties:
           type: object
           properties:
@@ -1114,7 +1139,7 @@ components:
       description: Health care services at a given facility, not all will be included at every facility
       type: array
       items:
-        $ref: "#/components/schemas/HealthService" 
+        $ref: "#/components/schemas/HealthService"
     HealthService:
       type: object
       properties:
@@ -1136,7 +1161,7 @@ components:
             - Urology
             - WomensHealth
         wait_times:
-          $ref: "#/components/schemas/PatientWaitTime" 
+          $ref: "#/components/schemas/PatientWaitTime"
     BenefitsService:
       type: string
       enum:
@@ -1263,7 +1288,7 @@ components:
     #       enum: ["Feature"]
     #       example: Feature
     #     geometry:
-    #       $ref: "#/components/schemas/Point" 
+    #       $ref: "#/components/schemas/Point"
     #     properties:
     #       type: object
     #       properties:
@@ -1291,8 +1316,8 @@ components:
     # COMMENTED OUT WHILE DRIVE TIME BANDS ARE ONLY A DRAFT
     # DriveTimeBands:
     #   description: JSON API-compliant object describing a VA facility and its drive time bands
-    #   allOf: 
-    #     - $ref: "#/components/schemas/FacilityBasic"  
+    #   allOf:
+    #     - $ref: "#/components/schemas/FacilityBasic"
     #     - type: object
     #       properties:
     #         attributes:
@@ -1327,7 +1352,7 @@ components:
     # DriveTimeBandsFeature:
     #   description: |
     #     GeoJSON-complaint Feature object describing a VA Facility's drive time bands.
-    #     The Geometries array includes a Point describing VA Facility's location as its first element, 
+    #     The Geometries array includes a Point describing VA Facility's location as its first element,
     #     followed by Polygons describing drive times bands of increasing size.
     #   type: object
     #   properties:
@@ -1408,8 +1433,8 @@ components:
     # DriveTimeBandsGeometry:
     #   description: GeoJSON-complaint Geometry object describing a VA Facility's location or drive time bands
     #   oneOf:
-    #     - $ref: "#/components/schemas/Point" 
-    #     - $ref: "#/components/schemas/Polygon" 
+    #     - $ref: "#/components/schemas/Point"
+    #     - $ref: "#/components/schemas/Polygon"
     Point:
       description: GeoJSON-complaint Point object
       type: object
@@ -1469,3 +1494,10 @@ components:
         message:
           type: string
           example: "No API key found in request"
+    ParameterError:
+      description: "Missing Or Ambiguous required parameters error"
+      type: object
+      properties:
+        message:
+          type: string
+          example: 'Must supply street_address, city, state, and zip or lat and lng to query nearby facilities.'

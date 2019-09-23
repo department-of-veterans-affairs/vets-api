@@ -5,42 +5,15 @@ require_dependency 'claims_api/json_api_missing_attribute'
 
 module ClaimsApi
   class BaseFormController < ClaimsApi::ApplicationController
-    before_action :validate_json_schema
-
-    STATSD_VALIDATION_FAIL_KEY = 'api.claims_api.526.validation_fail'
-    STATSD_VALIDATION_FAIL_TYPE_KEY = 'api.claims_api.526.validation_fail_type'
-
     # schema endpoint should be wide open
-    skip_before_action :validate_json_schema, only: %i[schema]
     skip_before_action :authenticate, only: %i[schema]
-    skip_before_action :verify_power_of_attorney, only: %i[schema]
     skip_before_action :verify_mvi, only: %i[schema]
-    skip_before_action :log_request, only: %i[schema]
 
     def schema
       render json: { data: [ClaimsApi::FormSchemas::SCHEMAS[self.class::FORM_NUMBER]] }
     end
 
     private
-
-    def verification_itf_expiration
-      active = itf_service.get_active('compensation')
-      if !active['intent_to_file'] || active['intent_to_file'].expiration_date < Time.now.utc
-        error = {
-          errors: [
-            {
-              status: 422,
-              details: 'Intent to File Expiration Date not valid, resubmit ITF.'
-            }
-          ]
-        }
-        render json: error, status: 422
-      end
-    end
-
-    def itf_service
-      EVSS::IntentToFile::Service.new(target_veteran)
-    end
 
     def validate_json_schema
       ClaimsApi::FormSchemas.validate!(self.class::FORM_NUMBER, form_attributes)
@@ -56,30 +29,24 @@ module ClaimsApi
       payload_attributes
     end
 
-    def valid_526_response
-      {
-        data: {
-          type: 'claims_api_auto_established_claim_validation',
-          attributes: {
-            status: 'valid'
-          }
-        }
-      }.to_json
+    def auth_headers
+      evss_headers = EVSS::DisabilityCompensationAuthHeaders
+                     .new(target_veteran(with_gender: true))
+                     .add_headers(
+                       EVSS::AuthHeaders.new(target_veteran(with_gender: true)).to_h
+                     )
+      if request.headers['Mock-Override'] &&
+         Settings.claims_api.disability_claims_mock_override
+        evss_headers['Mock-Override'] = true
+        Rails.logger.info('ClaimsApi: Mock Override Engaged')
+      end
+
+      evss_headers
     end
 
-    def format_526_errors(errors)
-      errors.map do |error|
-        { status: 422, detail: "#{error['key']} #{error['detail']}", source: error['key'] }
-      end
-    end
-
-    def track_526_validation_errors(errors)
-      StatsD.increment STATSD_VALIDATION_FAIL_KEY
-
-      errors.each do |error|
-        key = error['key'].gsub(/\[(.*?)\]/, '')
-        StatsD.increment STATSD_VALIDATION_FAIL_TYPE_KEY, tags: ["key: #{key}"]
-      end
+    def documents
+      document_keys = params.keys.select { |key| key.include? 'attachment' }
+      params.slice(*document_keys).values
     end
   end
 end

@@ -21,7 +21,7 @@ module Facilities
     end
 
     def build_params(order_field, offset)
-      { where: '1=1', inSR: 4326, outSR: 4326, returnGeometry: true,
+      { where: "s_abbr!='VTCR' AND s_abbr!='MVCTR'", inSR: 4326, outSR: 4326, returnGeometry: true,
         returnCountOnly: false, outFields: '*', returnDistinctValues: false,
         orderByFields: order_field, f: 'json', resultOffset: offset }
     end

@@ -4,9 +4,9 @@ require 'flipper'
 require 'flipper/adapters/active_record'
 require 'active_support/cache'
 require 'flipper/adapters/active_support_cache_store'
+require 'flipper/flipper_monkey_patch'
 
-# Add new Feature toggles here.  They will be off until toggled int the UI
-FLIPPER_FEATURES = [].freeze
+FLIPPER_FEATURE_CONFIG = YAML.safe_load(File.read(Rails.root.join('config', 'features.yml')))
 
 # Flipper settings will be stored in postgres and cached in memory for 1 minute
 Flipper.configure do |config|
@@ -35,8 +35,19 @@ end
 #   user.respond_to?(:first_name) && user.first_name == 'HECTOR'
 # end
 
-# Make sure that each feature we reference in code is present in the UI
-# will default to disabled.
-FLIPPER_FEATURES.each do |service|
-  Flipper.add(service) unless Flipper.exist?(service)
+# Make sure that each feature we reference in code is present in the UI, as long as we have a Database already
+FLIPPER_FEATURE_CONFIG['features'].each_key do |feature|
+  begin
+    unless Flipper.exist?(feature)
+      Flipper.add(feature)
+      # default feautures to enabled for development and test only
+      Flipper.enable(feature) if Rails.env.development? || Rails.env.test?
+    end
+  rescue
+    # make sure we can still run rake tasks before table has been created
+    nil
+  end
 end
+
+# Monkeypatch Flipper::UI to add descriptions
+Flipper::UI::Actions::Features.prepend(FlipperExtensions::FeaturesMonkeyPatch)

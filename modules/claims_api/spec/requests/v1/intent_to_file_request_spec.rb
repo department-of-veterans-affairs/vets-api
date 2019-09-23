@@ -16,6 +16,7 @@ RSpec.describe 'Intent to file', type: :request do
   let(:scopes) { %w[claim.write] }
   let(:path) { '/services/claims/v1/forms/0966' }
   let(:data) { { 'data': { 'attributes': { 'type': 'compensation' } } } }
+  let(:schema) { File.read(Rails.root.join('modules', 'claims_api', 'config', 'schemas', '0966.json')) }
 
   before(:each) do
     stub_poa_verification
@@ -23,6 +24,14 @@ RSpec.describe 'Intent to file', type: :request do
   end
 
   describe '#0966' do
+    it 'should return a successful get response with json schema' do
+      with_okta_user(scopes) do |auth_header|
+        get path, headers: headers.merge(auth_header)
+        json_schema = JSON.parse(response.body)['data'][0]
+        expect(json_schema).to eq(JSON.parse(schema))
+      end
+    end
+
     it 'should return a payload with an expiration date' do
       with_okta_user(scopes) do |auth_header|
         VCR.use_cassette('evss/intent_to_file/create_compensation') do
