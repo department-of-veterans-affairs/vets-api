@@ -3,8 +3,12 @@
 require 'rails_helper'
 
 RSpec.describe Sentry::Processor::FilterRequestBody do
-
   context 'with clearer specs' do
+    before(:each) do
+      client = double('client')
+      @processor = Sentry::Processor::FilterRequestBody.new(client)
+    end
+
     it 'filters PII found in a FILTERED_CONTROLLER' do
       sentry_request =
         {
@@ -15,9 +19,7 @@ RSpec.describe Sentry::Processor::FilterRequestBody do
               "{\n  \"account_type\": \"Checking\"}"
            }
         }
-      client = double('client')
-      processor = Sentry::Processor::FilterRequestBody.new(client)
-      result = processor.process(sentry_request)
+      result = @processor.process(sentry_request)
 
       expect(result['request']['data']).to eql(Sentry::Processor::PIISanitizer::FILTER_MASK)
     end
@@ -32,9 +34,7 @@ RSpec.describe Sentry::Processor::FilterRequestBody do
               "{\n  \"account_type\": \"Checking\"}"
            }
         }
-      client = double('client')
-      processor = Sentry::Processor::FilterRequestBody.new(client)
-      result = processor.process(sentry_request)
+      result = @processor.process(sentry_request)
 
       expect(result['request']['data']).not_to eql(Sentry::Processor::PIISanitizer::FILTER_MASK)
       expect(result['request']['data']).to eql("{\n  \"account_type\": \"Checking\"}")
@@ -46,9 +46,7 @@ RSpec.describe Sentry::Processor::FilterRequestBody do
           'tags' => { 'controller_name' => 'ppiu', 'sign_in_method' => { 'service_name' => 'idme', 'acct_type' => nil } },
           'request' => {}
         }
-      client = double('client')
-      processor = Sentry::Processor::FilterRequestBody.new(client)
-      result = processor.process(sentry_request)
+      result = @processor.process(sentry_request)
 
       expect(result['request']['data']).to eql(nil)
     end
