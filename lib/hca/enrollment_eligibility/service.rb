@@ -40,6 +40,14 @@ module HCA
           effective_date: get_xpath(
             response,
             "#{XPATH_PREFIX}enrollmentDeterminationInfo/effectiveDate"
+          ),
+          primary_eligibility: get_xpath(
+            response,
+            "#{XPATH_PREFIX}enrollmentDeterminationInfo/primaryEligibility/type"
+          ),
+          veteran: get_xpath(
+            response,
+            "#{XPATH_PREFIX}enrollmentDeterminationInfo/veteran"
           )
         }
       end

@@ -29,7 +29,7 @@ module EVSS
           raw_response = perform(:get, '')
           EVSS::Letters::LettersResponse.new(raw_response.status, raw_response)
         end
-      rescue StandardError => e
+      rescue => e
         handle_error(e)
       end
 

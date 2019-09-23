@@ -11,12 +11,20 @@ RSpec.describe 'Intent to file', type: :request do
       'X-Consumer-Username': 'TestConsumer',
       'X-VA-User': 'adhoc.test.user',
       'X-VA-Birth-Date': '1986-05-06T00:00:00+00:00',
+      'X-VA-LOA' => '3',
       'X-VA-Gender': 'M' }
   end
   let(:path) { '/services/claims/v0/forms/0966' }
   let(:data) { { 'data': { 'attributes': { 'type': 'compensation' } } } }
+  let(:schema) { File.read(Rails.root.join('modules', 'claims_api', 'config', 'schemas', '0966.json')) }
 
   describe '#0966' do
+    it 'should return a successful get response with json schema' do
+      get path, headers: headers
+      json_schema = JSON.parse(response.body)['data'][0]
+      expect(json_schema).to eq(JSON.parse(schema))
+    end
+
     it 'should return a payload with an expiration date' do
       VCR.use_cassette('evss/intent_to_file/create_compensation') do
         post path, params: data.to_json, headers: headers

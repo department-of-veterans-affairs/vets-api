@@ -9,6 +9,7 @@ RSpec.describe 'Nearby Facilities API endpoint', type: :request do
 
   let(:base_query_path) { '/services/va_facilities/v1/nearby' }
   let(:address_params) { '?street_address=9729%20SE%20222nd%20Dr&city=Damascus&state=OR&zip=97089&drive_time=60' }
+  let(:lat_lng_params) { '?lat=45.451950&lng=-122.435300&drive_time=60' }
   let(:no_health) { '?street_address=197%20East%20Main%20Street&city=Fort%20Kent&state=ME&zip=04743&drive_time=60' }
   let(:empty_address) { '?street_address=9729%20SE%20222nd%20Dr&city=Damascus&state=OR&zip=97089&drive_time=1' }
   let(:malformed_address) { '?street_address=9729%20Sbleepblap&city=Damascus&state=OR&zip=97089&drive_time=1' }
@@ -35,12 +36,25 @@ RSpec.describe 'Nearby Facilities API endpoint', type: :request do
   end
 
   context 'when requesting JSON API format' do
-    it 'responds to GET #index' do
+    it 'responds to GET #index using address' do
       setup_pdx
       VCR.use_cassette('bing/isochrone/pdx_drive_time_60',
                        match_requests_on: [:method, VCR.request_matchers.uri_without_param(:key)]) do
         get base_query_path + address_params, params: nil, headers: accept_json
         expect(response).to be_successful
+        expect(response.body).to be_a(String)
+        json = JSON.parse(response.body)
+        expect(json['data'].length).to eq(10)
+        expect(json['meta']['distances']).to eq([])
+      end
+    end
+
+    it 'responds to GET #index using lat/lng' do
+      setup_pdx
+      VCR.use_cassette('bing/isochrone/pdx_drive_time_60_lat_lng',
+                       match_requests_on: [:method, VCR.request_matchers.uri_without_param(:key)]) do
+        get base_query_path + lat_lng_params, params: nil, headers: accept_json
+        expect(response).to be_success
         expect(response.body).to be_a(String)
         json = JSON.parse(response.body)
         expect(json['data'].length).to eq(10)
@@ -251,7 +265,6 @@ RSpec.describe 'Nearby Facilities API endpoint', type: :request do
       create 'vha_402QA'
       VCR.use_cassette('bing/isochrone/no_health_services_drive_time',
                        match_requests_on: [:method, VCR.request_matchers.uri_without_param(:key)]) do
-
         get base_query_path + no_health, params: nil, headers: accept_json
         expect(response).to be_successful
 
@@ -295,6 +308,26 @@ RSpec.describe 'Nearby Facilities API endpoint', type: :request do
     end
     it 'returns 400 for health query with unknown service' do
       get base_query_path + address_params + '&type=health&services[]=OilChange'
+      expect(response).to have_http_status(:bad_request)
+    end
+    it 'returns 400 for ambiguous location request' do
+      get base_query_path + address_params + '&lat=40.3&lng=80.3'
+      expect(response).to have_http_status(:bad_request)
+    end
+    it 'returns 400 for missing lng' do
+      get base_query_path + '?lat=40.3', params: nil, headers: accept_json
+      expect(response).to have_http_status(:bad_request)
+    end
+    it 'returns 400 for missing lat' do
+      get base_query_path + '?lng=40.3', params: nil, headers: accept_json
+      expect(response).to have_http_status(:bad_request)
+    end
+    it 'returns 400 non integer lat' do
+      get base_query_path + '?lat=eighty&lng=40.3', params: nil, headers: accept_json
+      expect(response).to have_http_status(:bad_request)
+    end
+    it 'returns 400 non integer lng' do
+      get base_query_path + '?lat=80.4&lng=forty', params: nil, headers: accept_json
       expect(response).to have_http_status(:bad_request)
     end
   end

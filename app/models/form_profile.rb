@@ -84,11 +84,11 @@ class FormProfile
 
   MAPPINGS = Dir[Rails.root.join('config', 'form_profile_mappings', '*.yml')].map { |f| File.basename(f, '.*') }
 
-  EDU_FORMS = ['22-1990', '22-1990N', '22-1990E', '22-1995', '22-5490',
-               '22-5495', '22-0993', '22-0994', 'FEEDBACK-TOOL'].freeze
+  EDU_FORMS = %w[22-1990 22-1990N 22-1990E 22-1995 22-1995S 22-5490
+                 22-5495 22-0993 22-0994 FEEDBACK-TOOL].freeze
   EVSS_FORMS = ['21-526EZ'].freeze
   HCA_FORMS = ['1010ez'].freeze
-  PENSION_BURIAL_FORMS = ['21P-530', '21P-527EZ'].freeze
+  PENSION_BURIAL_FORMS = %w[21P-530 21P-527EZ].freeze
   VIC_FORMS = ['VIC'].freeze
 
   FORM_ID_TO_CLASS = {
@@ -98,6 +98,7 @@ class FormProfile
     '22-1990N'       => ::FormProfiles::VA1990n,
     '22-1990E'       => ::FormProfiles::VA1990e,
     '22-1995'        => ::FormProfiles::VA1995,
+    '22-1995S'       => ::FormProfiles::VA1995s,
     '22-5490'        => ::FormProfiles::VA5490,
     '22-5495'        => ::FormProfiles::VA5495,
     '21P-530'        => ::FormProfiles::VA21p530,
@@ -110,7 +111,7 @@ class FormProfile
     'FEEDBACK-TOOL'  => ::FormProfiles::FeedbackTool
   }.freeze
 
-  APT_REGEX = /\S\s+((apt|apartment|unit|ste|suite).+)/i
+  APT_REGEX = /\S\s+((apt|apartment|unit|ste|suite).+)/i.freeze
 
   attr_accessor :form_id
 
@@ -192,7 +193,7 @@ class FormProfile
     rescue => e
       if Rails.env.production?
         # fail silently if emis is down
-        log_exception_to_sentry(e, {}, backend_service: :emis)
+        log_exception_to_sentry(e, {}, external_service: :emis)
       else
         raise e
       end
