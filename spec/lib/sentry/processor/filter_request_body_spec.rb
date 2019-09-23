@@ -3,20 +3,20 @@
 require 'rails_helper'
 
 RSpec.describe Sentry::Processor::FilterRequestBody do
-  context 'with clearer specs' do
+  context 'with PII in the [:request][:data] hash' do
     before(:each) do
       client = double('client')
       @processor = Sentry::Processor::FilterRequestBody.new(client)
     end
 
-    it 'filters PII found in a FILTERED_CONTROLLER' do
+    it 'filters PII for a controller found in FILTERED_CONTROLLER' do
       sentry_request = create_sentry_request_with_pii(controller: 'ppiu')
       result = @processor.process(sentry_request)
 
       expect(result['request']['data']).to eql(Sentry::Processor::PIISanitizer::FILTER_MASK)
     end
 
-    it 'ignores any contoller not specified in FILTERED_CONTROLLER' do
+    it 'does not filter PII for a contoller not included in FILTERED_CONTROLLER' do
       sentry_request = create_sentry_request_with_pii(controller: 'another_controller')
 
       result = @processor.process(sentry_request)
