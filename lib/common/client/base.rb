@@ -72,6 +72,7 @@ module Common
 
           if handlers.include?(Breakers::UptimeMiddleware)
             return connection if handlers.first == Breakers::UptimeMiddleware
+
             raise BreakersImplementationError, 'Breakers should be the first middleware implemented.'
           else
             warn("Breakers is not implemented for service: #{config.service_name}")
@@ -83,6 +84,7 @@ module Common
 
       def perform(method, path, params, headers = nil, options = nil)
         raise NoMethodError, "#{method} not implemented" unless config.request_types.include?(method)
+
         send(method, path, params || {}, headers || {}, options || {})
       end
 

@@ -45,6 +45,7 @@ module MVI
       def select_ids_except(extensions, reject_status)
         # ultaimately, I'd rather have a list complete list of statuses to accept, but for now we can reject
         return nil if extensions.empty?
+
         extensions.map do |e|
           split_extension = e[:extension].split('^')
           split_extension&.first unless split_extension[4] && reject_status.include?(split_extension[4])
@@ -53,11 +54,13 @@ module MVI
 
       def select_ids(extensions)
         return nil if extensions.empty?
+
         extensions.map { |e| e[:extension].split('^')&.first }
       end
 
       def select_facilities(extensions)
         return nil if extensions.empty?
+
         extensions.map { |e| e[:extension].split('^')&.third }
       end
 

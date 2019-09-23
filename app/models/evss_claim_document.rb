@@ -82,6 +82,7 @@ class EVSSClaimDocument < Common::Base
 
   def unencrypted_pdf?
     return unless file_name.match?(/\.pdf$/i)
+
     metadata = PdfInfo::Metadata.read(file_obj.tempfile)
     errors.add(:base, 'PDF must not be encrypted') if metadata.encrypted?
     file_obj.tempfile.rewind
@@ -91,6 +92,7 @@ class EVSSClaimDocument < Common::Base
 
   def normalize_text
     return unless file_name.match?(/\.txt$/i)
+
     text = file_obj.read
     text = text.encode(EVSS_TEXT_ENCODING)
     file_obj.tempfile = Tempfile.new(encoding: EVSS_TEXT_ENCODING)

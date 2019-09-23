@@ -27,6 +27,7 @@ module Facilities
 
     def process_deletes
       return if fresh_by_unique_id.empty? # do not wipe cached data if endpoint returns empty
+
       missing_ids = (existing_by_unique_id.keys - fresh_by_unique_id.keys)
       klass.delete(missing_ids) if missing_ids.any?
     end

@@ -17,6 +17,7 @@ module Common
 
           def on_complete(env)
             return if env.success?
+
             @body = env[:body]
             @status = env.status.to_i
             raise_error!
@@ -44,7 +45,7 @@ module Common
             {
               status: status,
               detail: body['detail'],
-              code:   service_i18n_key,
+              code: service_i18n_key,
               source: body['source']
             }
           end

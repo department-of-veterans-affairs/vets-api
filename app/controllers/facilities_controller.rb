@@ -6,6 +6,7 @@ class FacilitiesController < ApplicationController
   def validate_params
     if params[:bbox]
       raise ArgumentError unless params[:bbox]&.length == 4
+
       params[:bbox].each { |x| Float(x) }
     end
   rescue ArgumentError
