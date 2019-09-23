@@ -26,10 +26,10 @@ RSpec.describe CentralMail::Service do
           match_requests_on: %i[body method uri]
         ) do
           response = described_class.new.status(
-            [
-              '34656d73-7c31-456d-9c49-2024fff1cd47',
-              '4a25588c-9200-4405-a2fd-97f0b0fdf790',
-              'f7725cce-a76e-4d80-ab20-01c63acfcb87'
+            %w[
+              34656d73-7c31-456d-9c49-2024fff1cd47
+              4a25588c-9200-4405-a2fd-97f0b0fdf790
+              f7725cce-a76e-4d80-ab20-01c63acfcb87
             ]
           )
           expect(response.status).to eq(200)

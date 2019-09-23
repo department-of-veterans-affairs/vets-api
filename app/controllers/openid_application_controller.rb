@@ -10,12 +10,13 @@ require 'jwt'
 
 class OpenidApplicationController < ApplicationController
   before_action :authenticate
-  TOKEN_REGEX = /Bearer /
+  TOKEN_REGEX = /Bearer /.freeze
 
   private
 
   def permit_scopes(scopes, actions: [])
     return false unless token_payload
+
     if actions.empty? || Array.wrap(actions).map(&:to_s).include?(action_name)
       render_unauthorized if (Array.wrap(scopes) & token_payload['scp']).empty?
     end
@@ -27,15 +28,18 @@ class OpenidApplicationController < ApplicationController
 
   def authenticate_token
     return false if token.blank?
+
     @session = Session.find(token)
     establish_session if @session.nil?
     return false if @session.nil?
+
     @current_user = OpenidUser.find(@session.uuid)
   end
 
   def token_from_request
     auth_request = request.authorization.to_s
     return unless auth_request[TOKEN_REGEX]
+
     auth_request.sub(TOKEN_REGEX, '').gsub(/^"|"$/, '')
   end
 
@@ -59,6 +63,7 @@ class OpenidApplicationController < ApplicationController
     @token_payload ||= if token
                          pubkey = expected_key(token)
                          return if pubkey.blank?
+
                          JWT.decode(token, pubkey, true, algorithm: 'RS256')[0]
                        end
   end

@@ -17,6 +17,7 @@ class SessionActivity < ApplicationRecord
 
   def initialize_defaults
     return if persisted?
+
     self.status ||= 'incomplete'
   end
 end

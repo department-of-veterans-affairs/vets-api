@@ -38,6 +38,7 @@ module EducationForm::Forms
 
     def disclosure_for(type)
       return if type.blank?
+
       "#{parse_with_template_path("1990-disclosure/_#{type}")}\n"
     end
 
@@ -102,11 +103,13 @@ module EducationForm::Forms
     # N/A is used for "the user wasn't shown this option", which is distinct from Y/N.
     def yesno(bool)
       return 'N/A' if bool.nil?
+
       bool ? 'YES' : 'NO'
     end
 
     def yesno_or_blank(bool)
       return '' if bool.nil?
+
       bool ? 'YES' : 'NO'
     end
 
@@ -116,11 +119,12 @@ module EducationForm::Forms
 
     # is this needed? will it the data come in the correct format? better to have the helper..
     def to_date(date)
-      date ? date : (' ' * 10) # '00/00/0000'.length
+      date || (' ' * 10) # '00/00/0000'.length
     end
 
     def full_name(name)
       return '' if name.nil?
+
       [name.first, name.middle, name.last, name&.suffix].compact.join(' ')
     end
 
@@ -135,6 +139,7 @@ module EducationForm::Forms
 
     def full_address(address, indent: false)
       return '' if address.nil?
+
       seperator = indent ? "\n        " : "\n"
       [
         address.street,
@@ -147,6 +152,7 @@ module EducationForm::Forms
     def hours_and_type(training)
       return_val = training&.hours&.to_s
       return '' if return_val.blank?
+
       hours_type = training&.hoursType
       return_val += " (#{hours_type})" if hours_type.present?
 

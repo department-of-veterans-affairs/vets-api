@@ -180,6 +180,7 @@ module HCA
 
       def category_matcher(statuses, enroll_status)
         return statuses.include?(enroll_status) if statuses.is_a?(Array)
+
         enroll_status == statuses
       end
 
@@ -193,10 +194,12 @@ module HCA
 
       def parse(enrollment_status, ineligibility_reason = '')
         return Notification::NONE_OF_THE_ABOVE if enrollment_status.blank?
+
         enrollment_status = enrollment_status.downcase.strip
 
         CATEGORIES.find { |c| category_matcher(c[:enrollment_status], enrollment_status) }.tap do |category_data|
           next unless category_data
+
           if category_data[:text_matches]
             process_text_match(category_data[:text_matches], ineligibility_reason).tap do |category|
               return category if category.present?

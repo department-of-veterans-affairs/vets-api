@@ -207,8 +207,8 @@ module HCA
     def income_collection_total(income_collection)
       return 0 if income_collection.blank?
 
-      income_collection['income'].reduce(BigDecimal.new(0)) do |sum, collection|
-        sum + BigDecimal.new(collection['amount'].to_s)
+      income_collection['income'].reduce(BigDecimal(0)) do |sum, collection|
+        sum + BigDecimal(collection['amount'].to_s)
       end
     end
 
@@ -240,7 +240,7 @@ module HCA
     # rubocop:disable Metrics/MethodLength
     def resource_to_expense_collection(resource, income_total)
       expense_collection = []
-      expense_total = BigDecimal.new(0)
+      expense_total = BigDecimal(0)
 
       [
         %w[educationExpense 3],
@@ -251,7 +251,7 @@ module HCA
         expense = resource[expense_type[0]]
 
         if expense.present?
-          new_expense_total = expense_total + BigDecimal.new(expense.to_s)
+          new_expense_total = expense_total + BigDecimal(expense.to_s)
           expenses_exceeded = new_expense_total > income_total
 
           if expenses_exceeded

@@ -83,6 +83,7 @@ module EducationForm::Forms
 
     def location
       return '' if @applicant.vetTecProgramLocations.blank?
+
       "#{@applicant.vetTecProgramLocations.city}, #{@applicant.vetTecProgramLocations.state}"
     end
 
@@ -100,17 +101,20 @@ module EducationForm::Forms
     def education_level_name
       return '' if @applicant.highestLevelofEducation.blank?
       return @applicant.otherEducation if @applicant.highestLevelofEducation == 'other'
+
       EDUCATION_TEXT[@applicant.highestLevelofEducation.to_sym]
     end
 
     def course_type_name(course_type)
       return '' if course_type.blank?
+
       COURSE_TYPE_TEXT[course_type.to_sym]
     end
 
     def salary_text
       return 'N/A' if !@applicant.currentHighTechnologyEmployment && !@applicant.currentHighTechnologyEmployment
       return '' if @applicant.currentSalary.blank?
+
       SALARY_TEXT[@applicant.currentSalary.to_sym]
     end
 
@@ -132,6 +136,7 @@ module EducationForm::Forms
     def program_text
       return '' if @applicant.vetTecPrograms.blank? && @applicant.hasSelectedPrograms
       return 'N/A' if @applicant.hasSelectedPrograms.blank?
+
       program_blocks = []
       @applicant.vetTecPrograms.each do |program|
         program_blocks.push(get_program_block(program))
@@ -141,6 +146,7 @@ module EducationForm::Forms
 
     def full_address_with_street3(address, indent: false)
       return '' if address.nil?
+
       seperator = indent ? "\n        " : "\n"
       [
         address.street,
