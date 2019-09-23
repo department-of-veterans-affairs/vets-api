@@ -1,4 +1,3 @@
-$stdout.sync = true
 COMPOSE_DEV  := docker-compose
 COMPOSE_TEST := docker-compose -f docker-compose.test.yml
 BASH         := run --rm --service-ports vets-api bash
