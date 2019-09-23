@@ -10,6 +10,7 @@ module Filterable
   def validate_filter_params!
     if params[:filter].present?
       return true if valid_filters?
+
       raise Common::Exceptions::InvalidFiltersSyntax, filter_query
     end
   end

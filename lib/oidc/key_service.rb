@@ -24,6 +24,7 @@ module OIDC
     def self.refresh(expected_kid)
       @mutex.synchronize do
         break if current_keys[expected_kid].present?
+
         jwks_result = fetch_keys
         new_keys = {}
         jwks_result['keys'].each do |jwks_object|

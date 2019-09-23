@@ -12,6 +12,7 @@ module Preneeds
         #
         def on_complete(env)
           return unless env.response_headers['content-type']&.match?(/\bxml/)
+
           env[:body] = parse(env.body) if env.body.present?
         end
 

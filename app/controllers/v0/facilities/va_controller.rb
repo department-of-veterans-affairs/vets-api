@@ -13,6 +13,7 @@ class V0::Facilities::VaController < FacilitiesController
   # @param services - Optional specialty services filter
   def index
     return provider_locator if params[:type] == 'cc_provider'
+
     facilities
   end
 
@@ -26,6 +27,7 @@ class V0::Facilities::VaController < FacilitiesController
   def show
     results = BaseFacility.find_facility_by_id(params[:id])
     raise Common::Exceptions::RecordNotFound, params[:id] if results.nil?
+
     render json: results, serializer: VAFacilitySerializer
   end
 
@@ -83,6 +85,7 @@ class V0::Facilities::VaController < FacilitiesController
     return if params[:type] == 'cc_provider'
     raise Common::Exceptions::InvalidFieldValue.new('type', params[:type]) unless
       BaseFacility::TYPES.include?(params[:type])
+
     unknown = params[:services].to_a - facility_klass.service_list
     raise Common::Exceptions::InvalidFieldValue.new('services', unknown) unless unknown.empty?
   end
