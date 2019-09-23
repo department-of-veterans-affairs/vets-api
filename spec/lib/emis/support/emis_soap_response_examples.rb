@@ -23,6 +23,7 @@ RSpec.shared_examples 'emis_soap_response' do |example_response_file, response_c
     def verify_item(item, item_tag, schema)
       item_tag.nodes.each do |node|
         next unless node.respond_to?(:value)
+
         field_name = node.value.sub(/NS\d+:/, '')
         verify_item_field(schema, field_name, item, item_tag, node) if schema[field_name]
       end

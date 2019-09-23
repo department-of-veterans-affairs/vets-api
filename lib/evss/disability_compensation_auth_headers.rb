@@ -44,6 +44,7 @@ module EVSS
 
     def iso8601_birth_date
       return nil unless @user&.va_profile&.birth_date
+
       DateTime.parse(@user.va_profile.birth_date).iso8601
     end
 

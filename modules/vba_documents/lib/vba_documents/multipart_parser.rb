@@ -67,6 +67,7 @@ module VBADocuments
                                               detail: 'Unexpected end of payload')
         end
         return result if line == ''
+
         result << line
       end
     end

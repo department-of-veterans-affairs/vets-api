@@ -21,6 +21,7 @@ module EVSS
         with_tracking("Form526 Upload: #{guid}", submission.saved_claim_id, submission.id) do
           file_body = SupportingEvidenceAttachment.find_by(guid: guid)&.get_file&.read
           raise ArgumentError, "supporting evidence attachment with guid #{guid} has no file data" if file_body.nil?
+
           document_data = create_document_data(upload_data)
           client = EVSS::DocumentsService.new(submission.auth_headers)
           client.upload(file_body, document_data)

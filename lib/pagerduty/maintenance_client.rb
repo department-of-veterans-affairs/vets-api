@@ -8,6 +8,7 @@ module PagerDuty
 
     def get_all
       return [] if PagerDuty::Configuration.service_ids.blank? # require whitelisted services
+
       raw_mws = get_all_raw
       convert(raw_mws)
     end

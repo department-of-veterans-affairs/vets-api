@@ -94,17 +94,20 @@ class Message < Common::Base
 
   def total_upload_size
     return 0 if uploads.blank?
+
     uploads.sum(&:size)
   end
 
   def total_upload_size_validation
     return unless total_upload_size > MAX_TOTAL_FILE_SIZE_MB.megabytes
+
     errors.add(:base, "Total size of uploads exceeds #{MAX_TOTAL_FILE_SIZE_MB} MB")
   end
 
   def each_upload_size_validation
     uploads.each do |upload|
       next if upload.size <= MAX_SINGLE_FILE_SIZE_MB.megabytes
+
       errors.add(:base, "The #{upload.original_filename} exceeds file size limit of #{MAX_SINGLE_FILE_SIZE_MB} MB")
     end
   end

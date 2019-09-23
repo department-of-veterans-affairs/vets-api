@@ -9,6 +9,7 @@ module Facilities
         purge_cemeteries
         fetch_cemeteries.xpath('//cems//cem').map do |cemetery|
           next if cemetery['lat'].blank? || cemetery['long'].blank?
+
           Facilities::NCAFacility.create build_attributes(cemetery)
         end
       end
@@ -61,6 +62,7 @@ module Facilities
 
     def parse_address(part1, part2, part3)
       return {} if part1.blank?
+
       if part2.blank?
         part1.match?(/, /) ? city_state_zip(part1) : { 'address_1' => part1 }
       elsif part3.blank?
