@@ -1,0 +1,10 @@
+openapi: '3.0.0'
+info:
+  version: 0.0.1
+  title: Okta Callback
+  description: |
+    Controller to respond to Okta SAML hook. Okta docs at https://developer.okta.com/docs/reference/saml-hook/
+
+  termsOfService: ''
+  contact:
+    name: VA.gov
