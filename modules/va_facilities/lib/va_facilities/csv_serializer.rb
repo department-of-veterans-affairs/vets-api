@@ -19,7 +19,7 @@ module VaFacilities
     def self.headers
       %w[
         id name station_id latitude longitude
-        facility_type classification website mobile
+        facility_type classification website mobile active_status
         physical_address_1 physical_address_2 physical_address_3
         physical_city physical_state physical_zip
         mailing_address_1 mailing_address_2 mailing_address_3
@@ -33,7 +33,7 @@ module VaFacilities
 
     def self.to_row(object)
       result = [id(object), object.name, object.unique_id, object.lat, object.long,
-                object.facility_type, object.classification, object.website, object.mobile]
+                object.facility_type, object.classification, object.website, object.mobile, object.active_status]
       result += address_attrs(object)
       result += phone_attrs(object)
       result += hours_attrs(object)

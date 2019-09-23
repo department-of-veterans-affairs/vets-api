@@ -76,6 +76,7 @@ module Facilities
           'feedback' => { 'health' => method(:satisfaction_data) },
           'services' => health_services,
           'mobile' => 'Mobile',
+          'active_status' => 'Pod',
           'mapped_fields' => mapped_fields_list
         }
       end
@@ -116,7 +117,7 @@ module Facilities
         %w[Sta_No NAME CocClassificationID LASTUPDATE Address1 Address2 Address3 MUNICIPALITY STATE
            zip Zip4 Sta_Phone Sta_Fax afterhoursphone Mobile
            patientadvocatephone enrollmentcoordinatorphone pharmacyphone Monday
-           Tuesday Wednesday Thursday Friday Saturday Sunday]
+           Tuesday Wednesday Thursday Friday Saturday Sunday Pod]
       end
     end
   end

@@ -8,6 +8,7 @@ FactoryBot.define do
     classification 'VA Medical Center (VAMC)'
     website 'http://www.portland.va.gov/locations/vancouver.asp'
     mobile false
+    active_status 'A'
     lat 45.6394162600001
     long(-122.65528736)
     location 'POINT(-122.65528736 45.6394162600001)'
@@ -84,6 +85,7 @@ FactoryBot.define do
     classification 'VA Medical Center (VAMC)'
     website 'http://www.portland.va.gov/'
     mobile false
+    active_status 'A'
     lat 45.4974614500001
     long(-122.68287208)
     location 'POINT(-122.68287208 45.4974614500001)'
@@ -193,6 +195,7 @@ FactoryBot.define do
     classification 'Primary Care CBOC'
     website nil
     mobile false
+    active_status 'A'
     lat 45.52017304
     long(-122.67221794)
     location 'POINT(-122.67221794 45.52017304)'
@@ -250,6 +253,7 @@ FactoryBot.define do
     classification 'Other Outpatient Services (OOS)'
     website nil
     mobile false
+    active_status 'A'
     lat 47.26560990000007
     long(-68.59126328999997)
     location 'POINT(-68.59126328999997, 47.26560990000007)'

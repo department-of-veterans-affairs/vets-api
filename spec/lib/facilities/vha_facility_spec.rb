@@ -64,6 +64,12 @@ RSpec.describe Facilities::VHAFacility do
         end
       end
 
+      it 'should include active status for facilities' do
+        VCR.use_cassette('facilities/va/vha_facilities_limit_results') do
+          expect(facility_2.active_status).to eq('A')
+        end
+      end
+
       it 'should indicate if a facility is mobile' do
         VCR.use_cassette('facilities/va/vha_facilities_limit_results') do
           expect(facility.mobile).to eq(false)
