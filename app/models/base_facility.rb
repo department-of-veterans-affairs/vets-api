@@ -89,6 +89,7 @@ class BaseFacility < ApplicationRecord
     def find_facility_by_id(id)
       type, unique_id = id.split('_')
       return nil unless type && unique_id
+
       facility = "Facilities::#{type.upcase}Facility".constantize.find_by(unique_id: unique_id)
       facility&.hours = facility&.hours&.sort_by { |day, _hours| DAYS[day.capitalize] }.to_h
       facility

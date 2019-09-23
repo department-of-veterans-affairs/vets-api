@@ -198,6 +198,7 @@ module EducationForm
       end
 
       return unless FeatureFlipper.send_edu_report_email?
+
       YearToDateReportMailer.build(filename).deliver_now
     end
   end

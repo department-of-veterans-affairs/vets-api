@@ -15,6 +15,7 @@ module Facilities
         response = perform(:get, "#{facility_type}/FeatureServer/0/query?", params)
         data_collector += response.body
         break if response.body.length < max_record_count
+
         query_count += 1
       end
       data_collector

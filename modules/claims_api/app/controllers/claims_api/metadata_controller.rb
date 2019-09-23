@@ -40,7 +40,7 @@ module ClaimsApi
 
     def healthy_service_response
       {
-        data:  {
+        data: {
           id: 'claims_healthcheck',
           type: 'claims_healthcheck',
           attributes: {

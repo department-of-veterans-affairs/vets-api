@@ -20,6 +20,7 @@ class RateLimitedSearch < Common::RedisStore
 
     if rate_limited_search
       raise RateLimitedError if rate_limited_search.count >= COUNT_LIMIT
+
       rate_limited_search.count += 1
       rate_limited_search.save!
     else

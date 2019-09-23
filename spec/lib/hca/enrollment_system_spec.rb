@@ -9,8 +9,8 @@ describe HCA::EnrollmentSystem do
 
   TEST_ADDRESS = {
     'street' => '123 NW 8th St',
-    'street2' =>  '',
-    'street3' =>  '',
+    'street2' => '',
+    'street3' => '',
     'city' => 'Dulles',
     'country' => 'USA',
     'state' => 'VA',
