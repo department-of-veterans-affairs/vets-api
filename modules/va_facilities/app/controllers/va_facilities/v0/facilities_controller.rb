@@ -51,6 +51,7 @@ module VaFacilities
       def show
         results = BaseFacility.find_facility_by_id(params[:id])
         raise Common::Exceptions::RecordNotFound, params[:id] if results.nil?
+
         respond_to do |format|
           format.json do
             render json: results, serializer: VaFacilities::FacilitySerializer

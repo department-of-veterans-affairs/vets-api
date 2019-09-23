@@ -19,6 +19,7 @@ module Common
           def on_complete(env)
             return if env.success?
             return unless env.response_headers['content-type']&.match?(/\b(xml|html)/)
+
             @status = env.status.to_i
             @body = env.body.delete('%') # strip percentages from html because Sentry uses it for interpolation
 
@@ -33,7 +34,7 @@ module Common
             {
               status: status,
               detail: 'Received an error response that could not be processed',
-              code:   'VA900',
+              code: 'VA900',
               source: 'MHV provided unparsable error response, check logs for original request body.'
             }
           end

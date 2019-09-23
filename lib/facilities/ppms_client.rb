@@ -16,6 +16,7 @@ module Facilities
       qparams = build_params(params)
       response = perform(:get, 'v1.0/ProviderLocator?', qparams)
       return [] if response.body.nil?
+
       bbox_num = params[:bbox].map { |x| Float(x) }
       response.body.select! do |provider|
         provider['Latitude'] > bbox_num[1] && provider['Latitude'] < bbox_num[3] &&
@@ -31,6 +32,7 @@ module Facilities
       qparams = { :$expand => 'ProviderSpecialties' }
       response = perform(:get, "v1.0/Providers(#{identifier})?", qparams)
       return nil if response.body.nil? || response.body[0].nil?
+
       Provider.new response.body[0]
     end
 

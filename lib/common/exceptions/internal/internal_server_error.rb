@@ -8,6 +8,7 @@ module Common
 
       def initialize(exception)
         raise ArgumentError, 'an exception must be provided' unless exception.is_a?(Exception)
+
         @exception = exception
       end
 

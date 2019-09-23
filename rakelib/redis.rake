@@ -127,6 +127,7 @@ def addressee?(addr)
   return false if addr.blank?
   return false if addr.country.blank?
   return false if addr.state.blank?
+
   true
 end
 

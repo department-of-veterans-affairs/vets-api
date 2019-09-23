@@ -9,6 +9,7 @@ class SavedClaim::EducationBenefits < SavedClaim
 
   def self.form_class(form_type)
     raise 'Invalid form type' unless EducationBenefitsClaim::FORM_TYPES.include?(form_type)
+
     "SavedClaim::EducationBenefits::VA#{form_type}".constantize
   end
 

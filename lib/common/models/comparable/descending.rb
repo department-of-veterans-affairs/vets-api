@@ -16,6 +16,7 @@ module Common
       return  0 if !obj && !other.obj
       return  1 unless obj
       return -1 unless other.obj
+
       -(obj <=> other.obj)
     end
   end

@@ -35,6 +35,7 @@ module EVSS
         unless LETTER_TYPES.include? args['letter_type']
           raise ArgumentError, "invalid letter type: #{args['letter_type']}"
         end
+
         super({ name: args['letter_name'], letter_type: args['letter_type'] })
       end
     end

@@ -8,7 +8,7 @@ RSpec.describe 'Return ICN for a User from MVI', type: :request, skip_emis: true
       let(:auth_headers) do
         {
           'apiKey' => 'saml-key',
-          'x-va-idp-uuid' =>  'ae9ff5f4e4b741389904087d94cd19b2',
+          'x-va-idp-uuid' => 'ae9ff5f4e4b741389904087d94cd19b2',
           'x-va-ssn' => '796122306',
           'x-va-dob' => '1949-03-04',
           'x-va-first-name' => 'Edward',
@@ -42,7 +42,7 @@ RSpec.describe 'Return ICN for a User from MVI', type: :request, skip_emis: true
       let(:auth_headers) do
         {
           'apiKey' => 'saml-key',
-          'x-va-idp-uuid' =>  'ae9ff5f4e4b741389904087d94cd19b2',
+          'x-va-idp-uuid' => 'ae9ff5f4e4b741389904087d94cd19b2',
           'x-va-level-of-assurance' => 3,
           'x-va-user-email' => 'test@123.com',
           'x-va-mhv-icn' => '1008714701V416111'
@@ -64,7 +64,7 @@ RSpec.describe 'Return ICN for a User from MVI', type: :request, skip_emis: true
       let(:auth_headers) do
         {
           'apiKey' => 'saml-key',
-          'x-va-idp-uuid' =>  'ae9ff5f4e4b741389904087d94cd19b2',
+          'x-va-idp-uuid' => 'ae9ff5f4e4b741389904087d94cd19b2',
           'x-va-dslogon-edipi' => '7961223060',
           'x-va-ssn' => '796122306',
           'x-va-level-of-assurance' => 3,
@@ -113,7 +113,7 @@ RSpec.describe 'Return ICN for a User from MVI', type: :request, skip_emis: true
       let(:auth_headers) do
         {
           'apiKey' => 'saml-key',
-          'x-va-idp-uuid' =>  'ae9ff5f4e4b741389904087d94cd19b2',
+          'x-va-idp-uuid' => 'ae9ff5f4e4b741389904087d94cd19b2',
           'x-va-ssn' => '796122306',
           'x-va-edipi' => '796122306',
           'x-va-level-of-assurance' => 3,
@@ -144,7 +144,7 @@ RSpec.describe 'Return ICN for a User from MVI', type: :request, skip_emis: true
     context 'looking up with an SSN' do
       let(:req_body) do
         {
-          'idp_uuid' =>  'ae9ff5f4e4b741389904087d94cd19b2',
+          'idp_uuid' => 'ae9ff5f4e4b741389904087d94cd19b2',
           'ssn' => '796122306',
           'dob' => '1949-03-04',
           'first_name' => 'Edward',
@@ -177,7 +177,7 @@ RSpec.describe 'Return ICN for a User from MVI', type: :request, skip_emis: true
     context 'looking up with an icn' do
       let(:req_body) do
         {
-          'idp_uuid' =>  'ae9ff5f4e4b741389904087d94cd19b2',
+          'idp_uuid' => 'ae9ff5f4e4b741389904087d94cd19b2',
           'level_of_assurance' => 3,
           'user_email' => 'test@123.com',
           'mhv_icn' => '1008714701V416111'
@@ -198,7 +198,7 @@ RSpec.describe 'Return ICN for a User from MVI', type: :request, skip_emis: true
     context 'looking up with an edipi' do
       let(:req_body) do
         {
-          'idp_uuid' =>  'ae9ff5f4e4b741389904087d94cd19b2',
+          'idp_uuid' => 'ae9ff5f4e4b741389904087d94cd19b2',
           'dslogon_edipi' => '7961223060',
           'ssn' => '796122306',
           'level_of_assurance' => 3,
@@ -246,7 +246,7 @@ RSpec.describe 'Return ICN for a User from MVI', type: :request, skip_emis: true
     context 'MVI communication issues' do
       let(:req_body) do
         {
-          'idp_uuid' =>  'ae9ff5f4e4b741389904087d94cd19b2',
+          'idp_uuid' => 'ae9ff5f4e4b741389904087d94cd19b2',
           'ssn' => '796122306',
           'edipi' => '796122306',
           'level_of_assurance' => 3,
