@@ -11,6 +11,7 @@ class Provider < Common::Base
   attribute :AddressPostalCode, String
   attribute :Email, String
   attribute :MainPhone, String
+  attribute :CareSitePhoneNumber, String
   attribute :OrganizationFax, String
   attribute :ContactMethod, String
   attribute :IsAcceptingNewPatients, String
@@ -24,6 +25,7 @@ class Provider < Common::Base
     provider = Provider.new(prov_loc)
     provider.Name = prov_loc['ProviderName']
     provider.IsAcceptingNewPatients = prov_loc['ProviderAcceptingNewPatients']
+    provider.CareSitePhoneNumber = prov_loc['CareSitePhoneNumber']
     provider.AddressStreet = prov_loc['CareSiteAddressStreet']
     provider.AddressCity = prov_loc['CareSiteAddressCity']
     provider.AddressStateProvince = prov_loc['CareSiteAddressState']

@@ -10,7 +10,7 @@ require 'jwt'
 
 class OpenidApplicationController < ApplicationController
   before_action :authenticate
-  TOKEN_REGEX = /Bearer /
+  TOKEN_REGEX = /Bearer /.freeze
 
   private
 
@@ -47,7 +47,7 @@ class OpenidApplicationController < ApplicationController
     @current_user = OpenidUser.build_from_identity(identity: user_identity, ttl: ttl)
     @session = build_session(token, token_identifiers.uuid, ttl)
     @session.save && user_identity.save && @current_user.save
-  rescue StandardError => e
+  rescue => e
     Rails.logger.warn(e)
   end
 

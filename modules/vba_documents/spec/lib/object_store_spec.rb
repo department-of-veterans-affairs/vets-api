@@ -66,7 +66,7 @@ RSpec.describe VBADocuments::ObjectStore do
                                                      key: 'foo',
                                                      version_id: '123456',
                                                      response_target: '/tmp/foobar'
-      ))
+                                                   ))
       described_class.new.download(v1, '/tmp/foobar')
     end
   end
