@@ -47,12 +47,12 @@ module Common
               @dest_facility['services']['benefits'] = map_benefits_services if @mapping['benefits']
               @dest_facility['hours'] = make_hours_mappings
               @dest_facility['services'] = map_health_services if @mapping['services']
-
+              @dest_facility['classification'] = map_classification if @mapping['classification']
               @dest_facility
             end
 
             def make_direct_mappings
-              %w[unique_id name classification website mobile active_status].each_with_object({}) do |name, _attributes|
+              %w[unique_id name website mobile active_status].each_with_object({}) do |name, _attributes|
                 @dest_facility[name] = strip(@src_facility['attributes'][@mapping[name]])
               end
             end
@@ -60,6 +60,16 @@ module Common
             def make_complex_mappings
               %w[access feedback phone].each_with_object({}) do |name, _attributes|
                 @dest_facility[name] = complex_mapping(name)
+              end
+            end
+
+            def map_classification
+              facility = @src_facility['attributes']
+              classification_value = @mapping['classification']
+              if classification_value.respond_to?(:call)
+                classification_value.call(facility)
+              else
+                strip(facility[classification_value])
               end
             end
 
