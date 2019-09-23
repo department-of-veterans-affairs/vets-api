@@ -383,6 +383,13 @@ RSpec.describe User, type: :model do
     end
   end
 
+  describe '#flipper_id' do
+    let(:user) { build(:user, :loa3) }
+    it 'should return a unique identifier of email' do
+      expect(user.flipper_id).to eq(user.email)
+    end
+  end
+
   describe '#va_patient?' do
     let(:user) { build(:user, :loa3) }
 
