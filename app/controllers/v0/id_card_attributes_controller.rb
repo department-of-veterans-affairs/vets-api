@@ -39,6 +39,7 @@ module V0
       end
 
       raise ::VIC::IDCardAttributeError, ::VIC::IDCardAttributeError::VIC002 if title38_status.blank?
+
       unless current_user.can_access_id_card?
         raise ::VIC::IDCardAttributeError, ::VIC::IDCardAttributeError::NOT_ELIGIBLE.merge(
           code: "VIC#{title38_status}"

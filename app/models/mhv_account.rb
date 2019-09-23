@@ -149,6 +149,7 @@ class MhvAccount < ApplicationRecord
   #
   def user=(user)
     raise 'Invalid User UUID' unless user.uuid.to_s == user_uuid.to_s
+
     @user = user
     setup
     self.user
@@ -164,6 +165,7 @@ class MhvAccount < ApplicationRecord
     if INELIGIBLE_STATES.include?(to_state)
       tracker = MHVAccountIneligible.find(tracker_id)
       return if tracker && tracker.account_state == to_state
+
       if tracker
         tracker.update(account_state: to_state)
       else
@@ -190,6 +192,7 @@ class MhvAccount < ApplicationRecord
 
   def requires_terms_acceptance?
     return false if account_level == 'Premium'
+
     !terms_and_conditions_accepted?
   end
 

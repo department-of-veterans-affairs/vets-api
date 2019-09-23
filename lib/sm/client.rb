@@ -118,6 +118,7 @@ module SM
         json[:data].concat(page_data[:data])
         json[:metadata].merge(page_data[:metadata])
         break unless page_data[:data].size == MHV_MAXIMUM_PER_PAGE
+
         page += 1
       end
 

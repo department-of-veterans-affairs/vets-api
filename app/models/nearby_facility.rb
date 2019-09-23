@@ -9,6 +9,7 @@ class NearbyFacility < ApplicationRecord
 
     def query(street_address: '', city: '', state: '', zip: '', **params)
       return NearbyFacility.none unless [street_address, city, state, zip].all?(&:present?)
+
       waypoint = "#{street_address} #{city} #{state} #{zip}"
       isochrone_response = request_isochrone(waypoint, params)
       get_facilities_in_isochrone(params, isochrone_response)
@@ -16,6 +17,7 @@ class NearbyFacility < ApplicationRecord
 
     def query_by_lat_lng(lat: '', lng: '', **params)
       return NearbyFacility.none unless [lat, lng].all?(&:present?)
+
       waypoint = "#{lat},#{lng}"
       isochrone_response = request_isochrone(waypoint, params)
       get_facilities_in_isochrone(params, isochrone_response)
