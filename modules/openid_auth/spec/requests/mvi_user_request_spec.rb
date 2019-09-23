@@ -125,7 +125,7 @@ RSpec.describe 'Return ICN for a User from MVI', type: :request, skip_emis: true
         }
       end
       it 'should respond properly when MVI is down' do
-        VCR.use_cassette('mvi/find_candidate/failure') do
+        VCR.use_cassette('mvi/find_candidate/legacy_mvi_system_error_response') do
           get '/internal/auth/v0/mvi-user', params: nil, headers: auth_headers
           expect(response).to have_http_status(:bad_gateway)
         end
@@ -258,7 +258,7 @@ RSpec.describe 'Return ICN for a User from MVI', type: :request, skip_emis: true
         }
       end
       it 'should respond properly when MVI is down' do
-        VCR.use_cassette('mvi/find_candidate/failure') do
+        VCR.use_cassette('mvi/find_candidate/legacy_mvi_system_error_response') do
           post '/internal/auth/v0/mvi-user', params: JSON.generate(req_body), headers: headers
           expect(response).to have_http_status(:bad_gateway)
         end
