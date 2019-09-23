@@ -186,3 +186,29 @@ Style/AccessModifierDeclarations:
     - 'lib/sm/client.rb'
     - 'modules/va_facilities/lib/va_facilities/api_serialization.rb'
     - 'modules/va_facilities/lib/va_facilities/api_serialization_v1.rb'
+
+# The use of variables such as n to represent number, x and y for x-axis and y-axis, el for element, 
+# v for value, i for index, and e for error are all standard abbreviations and should be excluded.
+Naming/UncommunicativeMethodParamName:
+  Exclude:
+    - 'config/initializers/integration_recorder.rb'
+    - 'lib/central_mail/datestamp_pdf.rb'
+    - 'lib/emis/responses/response.rb'
+    - 'lib/mvi/responses/profile_parser.rb'
+    - 'lib/mvi/service.rb'
+    - 'lib/pdf_fill/hash_converter.rb'
+    - 'lib/sentry_logging.rb'
+    - 'modules/vba_documents/app/workers/vba_documents/upload_processor.rb'
+    - 'rakelib/mvi.rake'
+
+# These do not seem to actually be using Kernel#open so should be excluded.
+Security/Open:
+  Exclude:
+    - 'app/workers/evss/disability_compensation_form/evss_document.rb'
+    - 'app/workers/evss/disability_compensation_form/submit_form0781.rb'
+    - 'spec/lib/hca/service_spec.rb'
+
+# Skipping for now, should revisit.
+Naming/UncommunicativeBlockParamName:
+  Exclude:
+    - 'app/models/preneeds/receive_application.rb'
