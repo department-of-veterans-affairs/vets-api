@@ -62,7 +62,7 @@ module Facilities
         {
           'unique_id' => 'Sta_No',
           'name' => 'NAME',
-          'classification' => 'CocClassificationID',
+          'classification' => method(:classification_mapping),
           'phone' => { 'main' => 'Sta_Phone', 'fax' => 'Sta_Fax',
                        'after_hours' => 'afterhoursphone',
                        'patient_advocate' => 'patientadvocatephone',
@@ -76,14 +76,14 @@ module Facilities
           'feedback' => { 'health' => method(:satisfaction_data) },
           'services' => health_services,
           'mobile' => 'Mobile',
-          'mapped_fields' => mapped_fields_list,
-          'mappers' => { 'classification' => method(:classification_mapping) }
+          'mapped_fields' => mapped_fields_list
         }
       end
 
-      def classification_mapping(value, facility)
-        mapped_value = classification_map[value]
-        return facility['attributes']['S_Abbr'] if mapped_value.nil?
+      def classification_mapping(facility)
+        classification_id = facility['CocClassificationID']
+        mapped_value = classification_map[classification_id]
+        return facility['S_Abbr'] if mapped_value.nil?
         mapped_value
       end
 

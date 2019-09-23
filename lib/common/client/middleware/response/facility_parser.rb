@@ -64,9 +64,13 @@ module Common
             end
 
             def map_classification
-              mapper = get_mapper('classification')
-              src_value = @src_facility['attributes'][@mapping['classification']]
-              mapper.nil? ? src_value : mapper.call(src_value, @src_facility)
+              facility = @src_facility['attributes']
+              classification_value = @mapping['classification']
+              if classification_value.respond_to?(:call)
+                classification_value.call(facility)
+              else
+                strip(facility[classification_value])
+              end
             end
 
             def make_address_mappings
@@ -167,12 +171,6 @@ module Common
               services << { 'sl1' => ['DentalServices'], 'sl2' => [] } if FacilityDentalService.exists?(facility_id)
 
               services
-            end
-
-            def get_mapper(key)
-              @mapping['mappers']&.find do |mapping_key, mapper|
-                break mapper if mapping_key.eql?(key)
-              end
             end
           end
         end
