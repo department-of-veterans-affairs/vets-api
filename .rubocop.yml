@@ -147,3 +147,42 @@ Rails/HasManyOrHasOneDependent:
     - "app/models/saved_claim/education_benefits.rb"
     - "app/models/saved_claim.rb"
     - "app/models/terms_and_conditions.rb"
+
+# Using .empty? with the safe navigation operator seems to be the correct call in this situation
+Lint/SafeNavigationWithEmpty:
+  Exclude:
+    - 'lib/hca/configuration.rb'
+
+# The suggestions here don't seem to make sense in most cases. Skip for now.
+Naming/MemoizedInstanceVariableName:
+  Enabled: false
+
+# The suggestions here appear that they would break intended behavior. Skip for now.
+Naming/RescuedExceptionsVariableName:
+  Exclude:
+    - 'app/controllers/concerns/accountable.rb'
+    - 'app/workers/central_mail/submit_form4142_job.rb'
+    - 'app/workers/evss/disability_compensation_form/job_status.rb'
+    - 'app/workers/evss/disability_compensation_form/submit_form0781.rb'
+    - 'app/workers/evss/disability_compensation_form/submit_form8940.rb'
+    - 'lib/benchmark/performance.rb'
+    - 'lib/common/client/concerns/monitoring.rb'
+    - 'lib/common/client/middleware/response/facility_validator.rb'
+    - 'lib/common/client/middleware/response/json_parser.rb'
+    - 'lib/ihub/appointments/service.rb'
+    - 'lib/saml/user_attributes/id_me.rb'
+    - 'lib/search/service.rb'
+    - 'lib/vet360/contact_information/service.rb'
+
+# It was determined these suggestions had the potential to change behavior. 
+Rails/ActiveRecordAliases:
+  Enabled: false
+
+# Use of private inline seems to be for purpose of grouping related methods.
+# Use of module_function inline appears to be correct usage according to Ruby styleguide.
+# Skip for now.
+Style/AccessModifierDeclarations:
+  Exclude:
+    - 'lib/sm/client.rb'
+    - 'modules/va_facilities/lib/va_facilities/api_serialization.rb'
+    - 'modules/va_facilities/lib/va_facilities/api_serialization_v1.rb'
