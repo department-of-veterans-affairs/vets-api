@@ -25,6 +25,7 @@ pipeline {
     stage('Run Danger') {
       steps {
         withCredentials([string(credentialsId: 'danger-github-api-token', variable: 'DANGER_GITHUB_API_TOKEN')]) {
+          sh 'bundle install'
           sh 'bundle exec danger'
         }
       }
