@@ -3,7 +3,7 @@
 declared_trivial = github.pr_title.include? "#trivial"
 
 # Make it more obvious that a PR is a work in progress and shouldn't be merged yet
-warn("PR is classed as Work in Progress") if github.pr_title.include? "WIP" || github.pr_title.include? "WiP"
+warn("PR is classed as Work in Progress") if github.pr_title.include?("WIP") || github.pr_title.include?("WiP")
 
 # Warn when there is a big PR
 warn("Big PR") if git.lines_of_code > 500
