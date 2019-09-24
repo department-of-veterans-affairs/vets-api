@@ -17,7 +17,7 @@ module Facilities
 
     def fetch_dental_service_data(file)
       CSV.read(file, headers: true)
-    rescue StandardError => e
+    rescue => e
       raise DentalServiceError, "Failed to read CSV file: #{file} - caused by: #{e.cause}"
     end
 

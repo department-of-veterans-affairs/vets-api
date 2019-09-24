@@ -15,7 +15,7 @@ module Facilities
     def fetch_mental_health_data
       mental_file = Rails.root.join('lib', 'facilities', 'mental_health_data', 'mental_health_phone_numbers.csv')
       CSV.read(mental_file, headers: true)
-    rescue StandardError => e
+    rescue => e
       raise MentalHealthDownloadError, "Failed to download mental health data: #{e.cause}"
     end
 
