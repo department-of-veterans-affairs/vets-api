@@ -392,3 +392,14 @@ bing:
 flipper:
   username: SUPER_SECRET_USERNAME
   password: SUPER_SECRET_PASSWORD
+
+oit_lighthouse2:
+  sql52:
+    hostname: vhacdwdwhsql52.vha.med.va.gov
+    username: fake_username
+    password: fake_password
+    port: 1433
+    facilities_mental_health:
+      database_name: OIT_Lighthouse2
+      schema_name: App
+      table_name: VHA_Mental_Health_Contact_Info

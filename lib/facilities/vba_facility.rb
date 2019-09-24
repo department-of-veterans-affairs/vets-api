@@ -28,41 +28,41 @@ module Facilities
         'Facility_Number'
       end
 
-        def attribute_map
-          {
-            'unique_id' => 'Facility_Number',
-            'name' => 'Facility_Name',
-            'classification' => 'Facility_Type',
-            'website' => 'Website_URL',
-            'phone' => { 'main' => 'Phone', 'fax' => 'Fax' },
-            'physical' => { 'address_1' => 'Address_1', 'address_2' => 'Address_2',
-                            'address_3' => '', 'city' => 'City', 'state' => 'State',
-                            'zip' => 'Zip' },
-            'hours' => BaseFacility::HOURS_STANDARD_MAP,
-            'benefits' => benefits_services,
-            'mapped_fields' => mapped_fields_list
-          }
-        end
+      def attribute_map
+        {
+          'unique_id' => 'Facility_Number',
+          'name' => 'Facility_Name',
+          'classification' => 'Facility_Type',
+          'website' => 'Website_URL',
+          'phone' => { 'main' => 'Phone', 'fax' => 'Fax' },
+          'physical' => { 'address_1' => 'Address_1', 'address_2' => 'Address_2',
+                          'address_3' => '', 'city' => 'City', 'state' => 'State',
+                          'zip' => 'Zip' },
+          'hours' => BaseFacility::HOURS_STANDARD_MAP,
+          'benefits' => benefits_services,
+          'mapped_fields' => mapped_fields_list
+        }
+      end
 
-        def benefits_services
-          {
-            'ApplyingForBenefits' => 'Applying_for_Benefits',
-            'BurialClaimAssistance' => 'Burial_Claim_assistance',
-            'DisabilityClaimAssistance' => 'Disability_Claim_assistance',
-            'eBenefitsRegistrationAssistance' => 'eBenefits_Registration',
-            'EducationAndCareerCounseling' => 'Education_and_Career_Counseling',
-            'EducationClaimAssistance' => 'Education_Claim_Assistance',
-            'FamilyMemberClaimAssistance' => 'Family_Member_Claim_Assistance',
-            'HomelessAssistance' => 'Homeless_Assistance',
-            'VAHomeLoanAssistance' => 'VA_Home_Loan_Assistance',
-            'InsuranceClaimAssistanceAndFinancialCounseling' => 'Insurance_Claim_Assistance',
-            'IntegratedDisabilityEvaluationSystemAssistance' => 'IDES',
-            'PreDischargeClaimAssistance' => 'Pre_Discharge_Claim_Assistance',
-            'TransitionAssistance' => 'Transition_Assistance',
-            'UpdatingDirectDepositInformation' => 'Updating_Direct_Deposit_Informa',
-            'VocationalRehabilitationAndEmploymentAssistance' => 'Vocational_Rehabilitation_Emplo'
-          }
-        end
+      def benefits_services
+        {
+          'ApplyingForBenefits' => 'Applying_for_Benefits',
+          'BurialClaimAssistance' => 'Burial_Claim_assistance',
+          'DisabilityClaimAssistance' => 'Disability_Claim_assistance',
+          'eBenefitsRegistrationAssistance' => 'eBenefits_Registration',
+          'EducationAndCareerCounseling' => 'Education_and_Career_Counseling',
+          'EducationClaimAssistance' => 'Education_Claim_Assistance',
+          'FamilyMemberClaimAssistance' => 'Family_Member_Claim_Assistance',
+          'HomelessAssistance' => 'Homeless_Assistance',
+          'VAHomeLoanAssistance' => 'VA_Home_Loan_Assistance',
+          'InsuranceClaimAssistanceAndFinancialCounseling' => 'Insurance_Claim_Assistance',
+          'IntegratedDisabilityEvaluationSystemAssistance' => 'IDES',
+          'PreDischargeClaimAssistance' => 'Pre_Discharge_Claim_Assistance',
+          'TransitionAssistance' => 'Transition_Assistance',
+          'UpdatingDirectDepositInformation' => 'Updating_Direct_Deposit_Informa',
+          'VocationalRehabilitationAndEmploymentAssistance' => 'Vocational_Rehabilitation_Emplo'
+        }
+      end
 
       def mapped_fields_list
         %w[Facility_Number Facility_Name Facility_Type Website_URL Lat Long Other_Services

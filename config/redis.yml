@@ -56,6 +56,9 @@ development: &defaults
   facility_dental_service:
     namespace: facility_dental_service
     each_ttl: 2592000
+  facility_mental_health:
+    namespace: facility_mental_health
+    each_ttl: 2592000
   pciu_address_dependencies:
     namespace: pciu-address-dependencies
     each_ttl: 604800

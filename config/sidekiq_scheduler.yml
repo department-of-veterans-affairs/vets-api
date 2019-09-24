@@ -70,6 +70,11 @@ FacilityDentalServiceBulkUpdate:
   class: Facilities::DentalServiceReloadJob
   description: "Download and cache facility access-to-care metric data"
 
+FacilityMentalHealthBulkUpdate:
+  cron: "25 4 * * * America/New_York"
+  class: Facilities::MentalHealthReloadJob
+  description: "Download and cache facility mental health phone number data"
+
 FacilityAccessBulkUpdate:
   cron: "30 4 * * * America/New_York"
   class: Facilities::AccessDataDownload

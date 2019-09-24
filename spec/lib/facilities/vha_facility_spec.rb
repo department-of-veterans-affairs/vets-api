@@ -26,7 +26,7 @@ RSpec.describe Facilities::VHAFacility do
       it 'should parse hours correctly' do
         VCR.use_cassette('facilities/va/vha_facilities_limit_results') do
           expect(facility.hours.values).to match_array(
-            ['730AM-430PM', '730AM-430PM', '730AM-430PM', '730AM-430PM', '730AM-430PM', 'Closed', 'Closed']
+            %w[730AM-430PM 730AM-430PM 730AM-430PM 730AM-430PM 730AM-430PM Closed Closed]
           )
         end
       end
@@ -81,6 +81,36 @@ RSpec.describe Facilities::VHAFacility do
         VCR.use_cassette('facilities/va/vha_facilities_limit_results') do
           expect(facility.classification).to eq('Other Outpatient Services (OOS)')
           expect(facility_2.classification).to eq('VA Medical Center (VAMC)')
+        end
+      end
+
+      context 'mental health data' do
+        before(:each) do
+          attrs1 = {
+            station_number: '358',
+            mh_phone: '407-123-1234',
+            mh_ext: nil,
+            modified: '2019-09-06T13:00:00.000',
+            local_updated: Time.now.utc.iso8601
+          }
+
+          attrs2 = {
+            station_number: '402',
+            mh_phone: '321-987-6543',
+            mh_ext: '0002',
+            modified: '2019-09-06T13:00:00.000',
+            local_updated: Time.now.utc.iso8601
+          }
+
+          FacilityMentalHealth.create(attrs1)
+          FacilityMentalHealth.create(attrs2)
+        end
+
+        it 'should add mental health info for facilities' do
+          VCR.use_cassette('facilities/va/vha_facilities_limit_results') do
+            expect(facility.phone['mental_health_clinic']).to eq('407-123-1234')
+            expect(facility_2.phone['mental_health_clinic']).to eq('321-987-6543 x 0002')
+          end
         end
       end
 
