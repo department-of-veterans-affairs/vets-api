@@ -19,6 +19,7 @@ module EVSS
       #
       def translate
         form['claimantCertification'] = true
+        form['autoCestPDFGenerationDisabled'] ||= false
         form['applicationExpirationDate'] = application_expiration_date
 
         set_banking_info
