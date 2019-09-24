@@ -9,7 +9,7 @@ task :danger do
   require 'rainbow'
 
   puts 'running danger...'
-  danger_result = ShellCommand.run("danger")
+  danger_result = ShellCommand.run('danger')
   puts "\n"
 
   puts "\n"
@@ -19,5 +19,4 @@ task :danger do
     puts Rainbow('Failed. Something went wrong while running danger-ruby').red
     exit!(1)
   end
-
 end
