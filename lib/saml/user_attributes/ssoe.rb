@@ -71,8 +71,9 @@ module SAML
       # TODO: This should be the ID.me highest level of assurance attained;
       # VA IAM team to get this integrated and propagated from ID.me
       # double check attribute name after VA IAM finalizes
+      # TODO: reset this attribute to `level_of_assurance` after IAM adds this
       def loa_highest
-        attributes['level_of_assurance']&.to_i
+        loa_current
       end
 
       # TODO: This is not supported by SSOe. Denotes whether ID.me wallet is MFA
