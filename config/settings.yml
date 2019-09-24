@@ -393,11 +393,11 @@ flipper:
 
 oit_lighthouse2:
   sql52:
-    hostname: vhacdwdwhsql52.vha.med.gov
+    hostname: vhacdwdwhsql52.vha.med.va.gov
     username: fake_username
     password: fake_password
     port: 1433
     facilities_mental_health:
-      database_name: SQL52
+      database_name: OIT_Lighthouse2
       schema_name: A01
       table_name: OMHSP_PERC_Share__DOEx__FieldDataEntry_MHPhone
