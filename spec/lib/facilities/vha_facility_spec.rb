@@ -64,6 +64,26 @@ RSpec.describe Facilities::VHAFacility do
         end
       end
 
+      it 'should include active status for facilities' do
+        VCR.use_cassette('facilities/va/vha_facilities_limit_results') do
+          expect(facility_2.active_status).to eq('A')
+        end
+      end
+
+      it 'should indicate if a facility is mobile' do
+        VCR.use_cassette('facilities/va/vha_facilities_limit_results') do
+          expect(facility.mobile).to eq(false)
+          expect(facility_2.mobile).to eq(true)
+        end
+      end
+
+      it 'should get the correct classification name' do
+        VCR.use_cassette('facilities/va/vha_facilities_limit_results') do
+          expect(facility.classification).to eq('Other Outpatient Services (OOS)')
+          expect(facility_2.classification).to eq('VA Medical Center (VAMC)')
+        end
+      end
+
       context 'mental health data' do
         before(:each) do
           attrs1 = {

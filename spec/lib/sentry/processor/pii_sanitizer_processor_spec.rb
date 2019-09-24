@@ -213,7 +213,7 @@ RSpec.describe Sentry::Processor::PIISanitizer do
       let(:data) { { 'dslogon_idvalue' => ['', nil] } }
 
       it 'filters blank and nil differently' do
-        expect(result['dslogon_idvalue']).to eq(['FILTERED-CLIENTSIDE-BLANK', 'FILTERED-CLIENTSIDE-NIL'])
+        expect(result['dslogon_idvalue']).to eq(%w[FILTERED-CLIENTSIDE-BLANK FILTERED-CLIENTSIDE-NIL])
       end
     end
 
@@ -225,7 +225,7 @@ RSpec.describe Sentry::Processor::PIISanitizer do
                                                   'FILTERED-CLIENTSIDE',
                                                   'FILTERED-CLIENTSIDE-BLANK',
                                                   'FILTERED-CLIENTSIDE-NIL',
-                                                  ['FILTERED-CLIENTSIDE', 'FILTERED-CLIENTSIDE-NIL'],
+                                                  %w[FILTERED-CLIENTSIDE FILTERED-CLIENTSIDE-NIL],
                                                   []
                                                 ])
       end

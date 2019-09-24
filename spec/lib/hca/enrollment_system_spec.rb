@@ -303,7 +303,7 @@ describe HCA::EnrollmentSystem do
     [
       [true, '2135-2'],
       [false, '2186-5'],
-      ['foo', '0000-0']
+      %w[foo 0000-0]
     ]
   )
 
@@ -402,7 +402,7 @@ describe HCA::EnrollmentSystem do
           'isWhite' => true
         },
         {
-          'race' => ['1002-5', '2106-3']
+          'race' => %w[1002-5 2106-3]
         }
       ],
       [
@@ -466,7 +466,7 @@ describe HCA::EnrollmentSystem do
             }
           ]
         },
-        BigDecimal.new(2065)
+        BigDecimal(2065)
       ]
     ]
   )

@@ -11,7 +11,7 @@ module EducationForm
   end
 
   class CreateDailySpoolFiles
-    LIVE_FORM_TYPES = %w[1990 1995 1990e 5490 1990n 5495 0993 0994].map { |t| "22-#{t.upcase}" }.freeze
+    LIVE_FORM_TYPES = %w[1990 1995 1995s 1990e 5490 1990n 5495 0993 0994].map { |t| "22-#{t.upcase}" }.freeze
     include Sidekiq::Worker
     include SentryLogging
     sidekiq_options queue: 'default',
@@ -82,7 +82,7 @@ module EducationForm
 
         # track and update the records as processed once the file has been successfully written
         track_submissions(region_id)
-        records.each { |r| r.record.update_attribute(:processed_at, Time.zone.now) }
+        records.each { |r| r.record.update_attributes(processed_at: Time.zone.now) }
       end
     ensure
       writer.close

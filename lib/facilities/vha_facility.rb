@@ -85,7 +85,7 @@ module Facilities
         {
           'unique_id' => 'Sta_No',
           'name' => 'NAME',
-          'classification' => 'CocClassificationID',
+          'classification' => method(:classification_mapping),
           'phone' => { 'main' => 'Sta_Phone', 'fax' => 'Sta_Fax',
                        'after_hours' => 'afterhoursphone',
                        'patient_advocate' => 'patientadvocatephone',
@@ -98,8 +98,17 @@ module Facilities
           'access' => { 'health' => method(:wait_time_data) },
           'feedback' => { 'health' => method(:satisfaction_data) },
           'services' => health_services,
+          'mobile' => 'Mobile',
+          'active_status' => 'Pod',
           'mapped_fields' => mapped_fields_list
         }
+      end
+
+      def classification_mapping(facility)
+        classification_id = facility['CocClassificationID']
+        mapped_value = classification_map[classification_id]
+        return facility['S_Abbr'] if mapped_value.nil?
+        mapped_value
       end
 
       def health_services
@@ -136,9 +145,23 @@ module Facilities
 
       def mapped_fields_list
         %w[Sta_No NAME CocClassificationID LASTUPDATE Address1 Address2 Address3 MUNICIPALITY STATE
-           zip Zip4 Sta_Phone Sta_Fax afterhoursphone
+           zip Zip4 Sta_Phone Sta_Fax afterhoursphone Mobile
            patientadvocatephone enrollmentcoordinatorphone pharmacyphone Monday
-           Tuesday Wednesday Thursday Friday Saturday Sunday]
+           Tuesday Wednesday Thursday Friday Saturday Sunday Pod]
+      end
+
+      private
+
+      def classification_map
+        {
+          1 => 'VA Medical Center (VAMC)',
+          2 => 'Health Care Center (HCC)',
+          3 => 'Multi-Specialty CBOC',
+          4 => 'Primary Care CBOC',
+          5 => 'Other Outpatient Services (OOS)',
+          7 => 'Residential Care Site (MH RRTP/DRRTP) (Stand-Alone)',
+          8 => 'Extended Care Site (Community Living Center) (Stand-Alone)'
+        }
       end
     end
   end
