@@ -46,7 +46,7 @@ module SAML
 
         begin
           signing_cert    = SettingsService.merged_saml_settings&.idp_cert_multi&.dig(:signing)&.first
-          encryption_cert = SettingsService.merged_saml_settings&.idp_cert_multi.dig(:encryption).first
+          encryption_cert = SettingsService.merged_saml_settings&.idp_cert_multi&.dig(:encryption)&.first
 
           formatted_signing_cert    = OneLogin::RubySaml::Utils.format_cert(encryption_cert)
           formatted_encryption_cert = OneLogin::RubySaml::Utils.format_cert(signing_cert)
