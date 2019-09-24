@@ -42,6 +42,7 @@ module EVSS
       def translate
         output_form['claimantCertification'] = true
         output_form['standardClaim'] = input_form['standardClaim']
+        output_form['autoCestPDFGenerationDisabled'] = input_form['autoCestPDFGenerationDisabled'] || false
         output_form['applicationExpirationDate'] = application_expiration_date
         output_form['overflowText'] = overflow_text
         output_form.compact!
