@@ -402,4 +402,4 @@ oit_lighthouse2:
     facilities_mental_health:
       database_name: OIT_Lighthouse2
       schema_name: App
-      table_name: OMHSP_PERC_Share__DOEx__FieldDataEntry_MHPhone
+      table_name: VHA_Mental_Health_Contact_Info
