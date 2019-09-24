@@ -15,7 +15,7 @@ task :security do
   puts 'running bundle-audit to check for insecure dependencies...'
   exit!(1) unless ShellCommand.run('bundle-audit update')
   # TODO: remove --ignore CVE-2019-5420 after updating to rails 5.2
-  audit_result = ShellCommand.run('bundle-audit check')
+  audit_result = ShellCommand.run('bundle-audit check --ignore CVE-2019-5420')
 
   puts "\n"
   if brakeman_result && audit_result
