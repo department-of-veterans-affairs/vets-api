@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require 'csv'
 require 'common/exceptions'
 require 'sentry_logging'
 
@@ -12,8 +13,8 @@ module Facilities
     include SentryLogging
 
     def fetch_mental_health_data
-      mental_health_client = MentalHealthClient.new
-      mental_health_client.download
+      mental_file = Rails.root.join('lib', 'facilities', 'mental_health_data', 'mental_health_phone_numbers.csv')
+      CSV.read(mental_file, headers: true)
     rescue StandardError => e
       raise MentalHealthDownloadError, "Failed to download mental health data: #{e.cause}"
     end
