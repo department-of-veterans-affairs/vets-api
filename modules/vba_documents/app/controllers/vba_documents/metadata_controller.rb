@@ -40,7 +40,7 @@ module VBADocuments
 
     def healthy_service_response
       {
-        data:  {
+        data: {
           id: 'vba_healthcheck',
           type: 'vba_documents_healthcheck',
           attributes: {

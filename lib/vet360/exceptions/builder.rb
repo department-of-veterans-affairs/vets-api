@@ -122,8 +122,8 @@ module Vet360
         error_codes << {
           code => {
             '<<': '*external_defaults',
-            'title'  => options['title'].presence || title,
-            'code'   => code,
+            'title' => options['title'].presence || title,
+            'code' => code,
             'detail' => options['detail'].presence || detail,
             'status' => options['status'].presence || status
           }

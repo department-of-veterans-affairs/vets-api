@@ -42,6 +42,7 @@ module EducationForm
       if stem_exists || (education_benefits_claim.form_type == '1995' && parsed_form['isEdithNourseRogersScholarship'])
         return true
       end
+
       false
     end
 
@@ -60,6 +61,7 @@ module EducationForm
       end
 
       return unless FeatureFlipper.send_edu_report_email?
+
       SpoolSubmissionsReportMailer.build(filename, stem_exists).deliver_now
     end
   end

@@ -108,6 +108,7 @@ class DependentsApplication < Common::RedisStore
   def self.convert_marriage(current_marriage, last_marriage, spouse_marriages)
     converted = {}
     return converted if current_marriage.blank?
+
     converted.merge!(convert_address(current_marriage['spouseAddress']))
     converted.merge!(convert_name(last_marriage['spouseFullName']))
     converted.merge!(convert_no_ssn(current_marriage['spouseHasNoSsn'], current_marriage['spouseHasNoSsnReason']))
@@ -172,6 +173,7 @@ class DependentsApplication < Common::RedisStore
     ].each do |attrs|
       val = dependent[attrs[1]]
       next if val.nil?
+
       child[attrs[0]] = val
     end
 
@@ -181,6 +183,7 @@ class DependentsApplication < Common::RedisStore
     ].each do |attrs|
       val = dependent[attrs[1]]
       next if val.blank?
+
       child[attrs[0]] = convert_evss_date(val)
     end
 

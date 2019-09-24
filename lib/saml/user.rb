@@ -46,6 +46,7 @@ module SAML
 
     def changing_multifactor?
       return false if authn_context.nil?
+
       authn_context.include?('multifactor')
     end
 

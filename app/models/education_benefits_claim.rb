@@ -32,6 +32,7 @@ class EducationBenefitsClaim < ApplicationRecord
     unless EducationForm::EducationFacility::REGIONS.include?(key)
       raise "Invalid region. Must be one of #{EducationForm::EducationFacility::REGIONS.join(', ')}"
     end
+
     self.regional_processing_office = region
     self.processed_at = nil
     save

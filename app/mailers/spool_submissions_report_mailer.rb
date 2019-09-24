@@ -30,6 +30,7 @@ class SpoolSubmissionsReportMailer < ApplicationMailer
 
   def add_stem_recipients
     return STAGING_STEM_RECIPIENTS.dup if FeatureFlipper.staging_email?
+
     STEM_RECIPIENTS.dup
   end
 
