@@ -105,17 +105,19 @@ FactoryBot.define do
       end
 
       factory :va1990_western_region do
-        custom_form { { 
-          'educationProgram' => {
-            'address' => {
-              'country' => 'USA',
-              'state' => 'CA',
-              'postalCode' => '90212',
-              'street' => '111 Uni Drive',
-              'city' => 'Los Angeles'
+        custom_form {
+          {
+            'educationProgram' => {
+              'address' => {
+                'country' => 'USA',
+                'state' => 'CA',
+                'postalCode' => '90212',
+                'street' => '111 Uni Drive',
+                'city' => 'Los Angeles'
+              }
             }
           }
-         } }
+        }
       end
     end
   end

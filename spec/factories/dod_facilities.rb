@@ -7,16 +7,18 @@ FactoryBot.define do
     facility_type { 'dod_health' }
     lat { 0.0 }
     long { 0.0 }
-    address { { 'mailing' => {},
-            'physical' => {
-              'zip' => nil,
-              'city' => 'Portland',
-              'state' => 'OR',
-              'country' => 'USA',
-              'address_1' => nil,
-              'address_2' => nil,
-              'address_3' => nil
-            } } }
+    address {
+      { 'mailing' => {},
+        'physical' => {
+          'zip' => nil,
+          'city' => 'Portland',
+          'state' => 'OR',
+          'country' => 'USA',
+          'address_1' => nil,
+          'address_2' => nil,
+          'address_3' => nil
+        } }
+    }
   end
   factory :dod_002, class: Facilities::DODFacility do
     unique_id { SecureRandom.uuid }
@@ -24,15 +26,17 @@ FactoryBot.define do
     facility_type { 'dod_health' }
     lat { 0.0 }
     long { 0.0 }
-    address { { 'mailing' => {},
-            'physical' => {
-              'zip' => nil,
-              'city' => 'Portland',
-              'state' => 'OR',
-              'country' => 'USA',
-              'address_1' => nil,
-              'address_2' => nil,
-              'address_3' => nil
-            } } }
+    address {
+      { 'mailing' => {},
+        'physical' => {
+          'zip' => nil,
+          'city' => 'Portland',
+          'state' => 'OR',
+          'country' => 'USA',
+          'address_1' => nil,
+          'address_2' => nil,
+          'address_3' => nil
+        } }
+    }
   end
 end

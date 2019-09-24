@@ -346,7 +346,7 @@ RSpec.describe V1::SessionsController, type: :controller do
 
           callback_tags = ['status:success', "context:#{LOA::IDME_LOA3}"]
 
-          Timecop.freeze(Time.now)
+          Timecop.freeze(Time.current)
           cookie_expiration_time = 30.minutes.from_now.iso8601(0)
           expect { post(:saml_callback) }
             .to trigger_statsd_increment(described_class::STATSD_SSO_CALLBACK_KEY, tags: callback_tags, **once)
@@ -391,7 +391,7 @@ RSpec.describe V1::SessionsController, type: :controller do
         end
 
         it 'has a cookie, but values are nil because loa1 user', :aggregate_failures do
-          Timecop.freeze(Time.now)
+          Timecop.freeze(Time.current)
           cookie_expiration_time = 30.minutes.from_now.iso8601(0)
 
           post :saml_callback
@@ -406,14 +406,14 @@ RSpec.describe V1::SessionsController, type: :controller do
               'expirationTime' => cookie_expiration_time
             )
           Timecop.return
-          end
+        end
 
         # keeping this spec round to easily test out the testing attributes
         xit 'has a cookie, which includes the testing values', :aggregate_failures do
-          Timecop.freeze(Time.now)
+          Timecop.freeze(Time.current)
           with_settings(Settings.sso, testing: true) do
-            cookie_expiration_time = 30.minutes.from_now.iso8601(0)
-              post :saml_callback
+            @cookie_expiration_time = 30.minutes.from_now.iso8601(0)
+            post :saml_callback
           end
 
           expect(cookies['vagov_session_dev']).not_to be_nil
@@ -423,10 +423,10 @@ RSpec.describe V1::SessionsController, type: :controller do
               'mhvCorrelationId' => nil,
               'signIn' => { 'serviceName' => 'idme' },
               'credential_used' => 'id_me',
-              'expirationTime' => cookie_expiration_time
+              'expirationTime' => @cookie_expiration_time
             )
           Timecop.return
-          end
+        end
       end
 
       context 'when user has LOA current 1 and highest 3' do
@@ -441,10 +441,10 @@ RSpec.describe V1::SessionsController, type: :controller do
         end
 
         it 'redirects to identity proof URL', :aggregate_failures do
-          Timecop.freeze(Time.now)
+          Timecop.freeze(Time.current)
           expect_any_instance_of(SAML::URLService).to receive(:verify_url)
           cookie_expiration_time = 30.minutes.from_now.iso8601(0)
-          
+
           post :saml_callback
 
           expect(cookies['vagov_session_dev']).not_to be_nil
