@@ -7,7 +7,7 @@ FactoryBot.define do
       build(:evss_user)
     end
 
-    form { 
+    form {
       {
         privacyAgreementAccepted: true,
         veteranEmail: 'foo@foo.com',
@@ -136,6 +136,6 @@ FactoryBot.define do
           }
         ]
       }.to_json
-     }
+    }
   end
 end

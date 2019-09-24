@@ -3,7 +3,7 @@
 FactoryBot.define do
   factory :gi_bill_feedback do
     state { 'pending' }
-    form { 
+    form {
       {
         privacyAgreementAccepted: true,
         address: {
@@ -58,6 +58,6 @@ FactoryBot.define do
         issueDescription: 'issueDescription',
         issueResolution: 'issueResolution'
       }.to_json
-     }
+    }
   end
 end
