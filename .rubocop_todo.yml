@@ -6,26 +6,19 @@
 # Note that changes in the inspected code, or installation of new
 # versions of RuboCop, may require this file to be generated again.
 
-# Offense count: 3
-# Security/Open:
-#   Exclude:
-#     - 'app/workers/evss/disability_compensation_form/evss_document.rb'
-#     - 'app/workers/evss/disability_compensation_form/submit_form0781.rb'
-#     - 'spec/lib/hca/service_spec.rb'
-
 # The suggestions here appear that they would break intended behavior. Skip for now.
-Naming/RescuedExceptionsVariableName:
-  Exclude:
-    - 'app/controllers/concerns/accountable.rb'
-    - 'app/workers/central_mail/submit_form4142_job.rb'
-    - 'app/workers/evss/disability_compensation_form/job_status.rb'
-    - 'app/workers/evss/disability_compensation_form/submit_form0781.rb'
-    - 'app/workers/evss/disability_compensation_form/submit_form8940.rb'
-    - 'lib/benchmark/performance.rb'
-    - 'lib/common/client/concerns/monitoring.rb'
-    - 'lib/common/client/middleware/response/facility_validator.rb'
-    - 'lib/common/client/middleware/response/json_parser.rb'
-    - 'lib/ihub/appointments/service.rb'
-    - 'lib/saml/user_attributes/id_me.rb'
-    - 'lib/search/service.rb'
-    - 'lib/vet360/contact_information/service.rb'
+# Naming/RescuedExceptionsVariableName:
+#   Exclude:
+#     - 'app/controllers/concerns/accountable.rb'
+#     - 'app/workers/central_mail/submit_form4142_job.rb'
+#     - 'app/workers/evss/disability_compensation_form/job_status.rb'
+#     - 'app/workers/evss/disability_compensation_form/submit_form0781.rb'
+#     - 'app/workers/evss/disability_compensation_form/submit_form8940.rb'
+#     - 'lib/benchmark/performance.rb'
+#     - 'lib/common/client/concerns/monitoring.rb'
+#     - 'lib/common/client/middleware/response/facility_validator.rb'
+#     - 'lib/common/client/middleware/response/json_parser.rb'
+#     - 'lib/ihub/appointments/service.rb'
+#     - 'lib/saml/user_attributes/id_me.rb'
+#     - 'lib/search/service.rb'
+#     - 'lib/vet360/contact_information/service.rb'

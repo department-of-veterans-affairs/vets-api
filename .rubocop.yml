@@ -146,11 +146,6 @@ Rails/HasManyOrHasOneDependent:
     - "app/models/saved_claim.rb"
     - "app/models/terms_and_conditions.rb"
 
-# Using .empty? with the safe navigation operator seems to be the correct call in this situation
-Lint/SafeNavigationWithEmpty:
-  Exclude:
-    - 'lib/hca/configuration.rb'
-
 # The suggestions here don't seem to make sense in most cases. Skip for now.
 Naming/MemoizedInstanceVariableName:
   Enabled: false
