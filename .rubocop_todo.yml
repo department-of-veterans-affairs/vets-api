@@ -7,11 +7,11 @@
 # versions of RuboCop, may require this file to be generated again.
 
 # Offense count: 3
-Security/Open:
-  Exclude:
-    - 'app/workers/evss/disability_compensation_form/evss_document.rb'
-    - 'app/workers/evss/disability_compensation_form/submit_form0781.rb'
-    - 'spec/lib/hca/service_spec.rb'
+# Security/Open:
+#   Exclude:
+#     - 'app/workers/evss/disability_compensation_form/evss_document.rb'
+#     - 'app/workers/evss/disability_compensation_form/submit_form0781.rb'
+#     - 'spec/lib/hca/service_spec.rb'
 
 # The suggestions here appear that they would break intended behavior. Skip for now.
 Naming/RescuedExceptionsVariableName:
