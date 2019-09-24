@@ -9,7 +9,7 @@ task :danger do
   require 'rainbow'
 
   puts 'running danger...'
-  danger_result = ShellCommand.run('danger')
+  danger_result = ShellCommand.run('danger --verbose')
   puts "\n"
 
   puts "\n"
