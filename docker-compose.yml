@@ -17,6 +17,7 @@ services:
       args:
         exclude_sidekiq_ent: "${EXCLUDE_SIDEKIQ_ENTERPRISE:-false}"
         sidekiq_license: "${BUNDLE_ENTERPRISE__CONTRIBSYS__COM}"
+        danger_github_api_token: "${DANGER_GITHUB_API_TOKEN}"
     image: "vets-api:${DOCKER_IMAGE:-latest}"
     volumes:
       - .:/src/vets-api:cached
