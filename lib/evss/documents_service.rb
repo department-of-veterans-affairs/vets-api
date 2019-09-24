@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'evss/base_service'
+require 'pdf-reader'
 
 module EVSS
   class DocumentsService < BaseService
@@ -10,6 +11,7 @@ module EVSS
     DEFAULT_TIMEOUT = 180 # seconds
 
     def upload(file_body, document_data)
+      verify_readability_of file_body
       headers = { 'Content-Type' => 'application/octet-stream' }
       post 'queuedDocumentUploadService/ajaxUploadFile', file_body, headers do |req|
         req.params['systemName'] = SYSTEM_NAME
@@ -25,6 +27,13 @@ module EVSS
 
     def self.breakers_service
       BaseService.create_breakers_service(name: 'EVSS/Documents', url: BASE_URL)
+    end
+
+    private
+
+    verify_readability_of(file_body)
+      file = PDF::Reader.new(file_body)
+      raise Common::Exceptions::UnreadableDocument if file.nil?
     end
   end
 end
