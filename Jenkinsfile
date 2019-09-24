@@ -1,7 +1,6 @@
 dev_branch = 'master'
 staging_branch = 'master'
 main_branch = 'master'
-$stdout.sync = true
 
 pipeline {
   environment {
