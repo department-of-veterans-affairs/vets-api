@@ -6,6 +6,10 @@ ARG exclude_sidekiq_ent
 ENV EXCLUDE_SIDEKIQ_ENTERPRISE=$exclude_sidekiq_ent
 ARG danger_github_api_token
 ENV DANGER_GITHUB_API_TOKEN=$danger_github_api_token
+ARG change_id
+ENV CHANGE_ID=$change_id
+ARG ghprbPullId
+ENV ghprbPullId=$ghprbPullId
 ENV APP_PATH /src/vets-api
 
 RUN groupadd -r vets-api && \
