@@ -239,6 +239,7 @@
       },
       "overflowText": "VA Form 21-4142/4142a has been completed by the applicant and sent to the PMR contractor for processing in accordance with M21-1 III.iii.1.D.2.",
       "claimantCertification": true,
+      "autoCestPDFGenerationDisabled": false,
       "applicationExpirationDate": "2015-08-28T19:53:45+00:00",
       "directDeposit": {
         "accountType": "CHECKING",

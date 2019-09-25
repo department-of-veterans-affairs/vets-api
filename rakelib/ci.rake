@@ -27,3 +27,5 @@ namespace :spec do
     exit exit_status
   end
 end
+
+$stdout.sync = false

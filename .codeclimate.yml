@@ -44,4 +44,5 @@ exclude_patterns:
   - '**/spec/'
   - 'benchmark/'
   - 'docs/'
-  
+  - '.rubocop.yml'
+  - '.rubocop_todo.yml'
