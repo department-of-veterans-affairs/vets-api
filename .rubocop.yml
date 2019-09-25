@@ -120,13 +120,11 @@ Naming/FileName:
 Style/RescueStandardError:
   EnforcedStyle: implicit
 
-# All kinds of issues with this cop right now, so disabling it.
+# All kinds of issues with this cop right now.
 Style/FormatStringToken:
   Exclude:
     - "rakelib/mvi.rake"
 
-
-# Disabling this rule for now. We should consider changing.
 Lint/BooleanSymbol:
   Exclude:
     - "app/swagger/schemas/gibct/institutions.rb" #Swagger blocks defines keys as :true, need to keep as is
@@ -139,7 +137,6 @@ Style/DateTime:
     - "rakelib/evss.rake"
     - "lib/evss/auth_headers.rb" #DateTime is needed for date formatting here
 
-
 # Skipping for now, should revisit:
 Rails/HasManyOrHasOneDependent:
   Exclude:
@@ -147,3 +144,16 @@ Rails/HasManyOrHasOneDependent:
     - "app/models/saved_claim/education_benefits.rb"
     - "app/models/saved_claim.rb"
     - "app/models/terms_and_conditions.rb"
+
+# The suggestions here don't seem to make sense in most cases. Skip for now.
+Naming/MemoizedInstanceVariableName:
+  Enabled: false
+
+# It was determined these suggestions had the potential to change behavior. 
+Rails/ActiveRecordAliases:
+  Enabled: false
+
+# The use of variables such as n to represent number, x and y for x-axis and y-axis, el for element, 
+# v for value, i for index, and e for error are all standard abbreviations and should be excluded.
+Naming/UncommunicativeMethodParamName:
+  Enabled: false
