@@ -29,7 +29,10 @@ pipeline {
           string(credentialsId: 'danger-github-api-token',    variable: 'DANGER_GITHUB_API_TOKEN')
         ]) {
           echo sh(script: 'env|sort', returnStdout: true)
-          withEnv(['RAILS_ENV=test', 'CI=true']) {
+          withEnv(['RAILS_ENV=test', 'CI=true', "CHANGE_ID=${env.BUILD_ID}"]) {
+            echo "INSIDE 1: ${env.BUILD_ID}"
+            echo "INSIDE 2: ${CHANGE_ID}"
+            echo "INSIDE 2: ${env.CHANGE_ID}"
             sh 'make ci'
           }
         }
