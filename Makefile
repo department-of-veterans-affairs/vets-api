@@ -1,3 +1,4 @@
+$stdout.sync = true
 COMPOSE_DEV  := docker-compose
 COMPOSE_TEST := docker-compose -f docker-compose.test.yml
 BASH         := run --rm --service-ports vets-api bash
@@ -7,7 +8,6 @@ SPEC_PATH    := spec/
 
 .PHONY: default
 default: ci
-
 .PHONY: bash
 bash:
 	@$(COMPOSE_DEV) $(BASH)
