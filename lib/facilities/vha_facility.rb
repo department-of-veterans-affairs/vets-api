@@ -110,6 +110,7 @@ module Facilities
         classification_id = facility['CocClassificationID']
         mapped_value = classification_map[classification_id]
         return facility['S_Abbr'] if mapped_value.nil?
+
         mapped_value
       end
 
