@@ -32,8 +32,8 @@ module Search
         response = perform(:get, results_url, query_params)
         Search::ResultsResponse.from(response)
       end
-    rescue => error
-      handle_error(error)
+    rescue => e
+      handle_error(e)
     end
 
     private

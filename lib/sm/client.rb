@@ -160,22 +160,6 @@ module SM
 
       MessageDraft.new(json).as_reply
     end
-
-    private def reply_draft?(id)
-      get_message_history(id).data.present?
-    end
-
-    private def validate_draft(args)
-      draft = MessageDraft.new(args)
-      draft.as_reply if args[:id] && reply_draft?(args[:id])
-      raise Common::Exceptions::ValidationErrors, draft unless draft.valid?
-    end
-
-    private def validate_reply_draft(args)
-      draft = MessageDraft.new(args).as_reply
-      draft.has_message = !args[:id] || reply_draft?(args[:id])
-      raise Common::Exceptions::ValidationErrors, draft unless draft.valid?
-    end
     # @!endgroup
 
     ##
@@ -315,22 +299,6 @@ module SM
       filename = response.response_headers['content-disposition'].gsub(CONTENT_DISPOSITION, '')
       { body: response.body, filename: filename }
     end
-
-    private def validate_create_context(args)
-      if args[:id].present? && reply_draft?(args[:id])
-        draft = MessageDraft.new(args.merge(has_message: true)).as_reply
-        draft.errors.add(:base, 'attempted to use reply draft in send message')
-        raise Common::Exceptions::ValidationErrors, draft
-      end
-    end
-
-    private def validate_reply_context(args)
-      if args[:id].present? && !reply_draft?(args[:id])
-        draft = MessageDraft.new(args)
-        draft.errors.add(:base, 'attempted to use plain draft in send reply')
-        raise Common::Exceptions::ValidationErrors, draft
-      end
-    end
     # @!endgroup
 
     ##
@@ -345,5 +313,39 @@ module SM
       Common::Collection.new(TriageTeam, json)
     end
     # @!endgroup
+
+    private
+
+    def reply_draft?(id)
+      get_message_history(id).data.present?
+    end
+
+    def validate_draft(args)
+      draft = MessageDraft.new(args)
+      draft.as_reply if args[:id] && reply_draft?(args[:id])
+      raise Common::Exceptions::ValidationErrors, draft unless draft.valid?
+    end
+
+    def validate_reply_draft(args)
+      draft = MessageDraft.new(args).as_reply
+      draft.has_message = !args[:id] || reply_draft?(args[:id])
+      raise Common::Exceptions::ValidationErrors, draft unless draft.valid?
+    end
+
+    def validate_create_context(args)
+      if args[:id].present? && reply_draft?(args[:id])
+        draft = MessageDraft.new(args.merge(has_message: true)).as_reply
+        draft.errors.add(:base, 'attempted to use reply draft in send message')
+        raise Common::Exceptions::ValidationErrors, draft
+      end
+    end
+
+    def validate_reply_context(args)
+      if args[:id].present? && !reply_draft?(args[:id])
+        draft = MessageDraft.new(args)
+        draft.errors.add(:base, 'attempted to use plain draft in send reply')
+        raise Common::Exceptions::ValidationErrors, draft
+      end
+    end
   end
 end
