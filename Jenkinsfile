@@ -22,14 +22,6 @@ pipeline {
       }
     }
 
-    stage('Run Danger') {
-      steps {
-        withCredentials([string(credentialsId: 'danger-github-api-token', variable: 'DANGER_GITHUB_API_TOKEN')]) {
-          sh 'bundle exec danger'
-        }
-      }
-    }
-
     stage('Run tests') {
       steps {
         withCredentials([
@@ -66,6 +58,14 @@ pipeline {
         ], wait: false
       }
     }
+
+    // stage('Run Danger') {
+    //   steps {
+    //     withCredentials([string(credentialsId: 'danger-github-api-token', variable: 'DANGER_GITHUB_API_TOKEN')]) {
+    //       sh 'bundle exec danger'
+    //     }
+    //   }
+    // }
 
     stage('Build AMI') {
       when { anyOf { branch dev_branch; branch staging_branch; branch main_branch } }
