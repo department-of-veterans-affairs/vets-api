@@ -21,8 +21,8 @@ module Common
 
           def parse(body = nil)
             Oj.load(body)
-          rescue Oj::Error => error
-            raise Common::Client::Errors::Serialization, error
+          rescue Oj::Error => e
+            raise Common::Client::Errors::Serialization, e
           end
         end
       end
