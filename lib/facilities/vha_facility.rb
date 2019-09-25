@@ -6,11 +6,15 @@ module Facilities
       attr_writer :validate_on_load
 
       def pull_source_data
+        get_all_the_facilities_data.map(&method(:new))
+      end
+
+      def get_all_the_facilities_data
         gis_type = 'FacilitySitePoint_VHA'
         sort_field = 'Sta_No'
         metadata = Facilities::GisMetadataClient.new.get_metadata(gis_type)
         max_record_count = metadata['maxRecordCount']
-        resp = Facilities::GisClient.new.get_all_facilities(gis_type, sort_field, max_record_count).map(&method(:new))
+        resp = Facilities::GisClient.new.get_all_facilities(gis_type, sort_field, max_record_count)
         resp_with_websites = add_websites(resp)
         add_mental_health(resp_with_websites)
       end
@@ -18,18 +22,16 @@ module Facilities
       def add_websites(facilities)
         service = Facilities::WebsiteUrlService.new
         facilities.map do |fac|
-          fac.website = service.find_for_station(fac.unique_id, fac.facility_type)
+          fac['website'] = service.find_for_station(fac['unique_id'], sti_name)
           fac
         end
       end
 
       def add_mental_health(facilities)
         facilities.map do |fac|
-          mental_health_data = FacilityMentalHealth.find(fac.unique_id)
+          mh_data = FacilityMentalHealth.find(fac['unique_id'])
 
-          if mental_health_data.present?
-            fac.phone['mental_health_clinic'] = format_mh_phone(mental_health_data.mh_phone, mental_health_data.mh_ext)
-          end
+          fac['phone']['mental_health_clinic'] = format_mh_phone(mh_data.mh_phone, mh_data.mh_ext) if mh_data.present?
 
           fac
         end

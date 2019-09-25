@@ -21,7 +21,6 @@ namespace :jobs do
     Facilities::DentalServiceReloadJob.perform_async
   end
 
-
   desc 'Populate facility mental health data cache'
   task pull_facility_mental_health_phone: :environment do
     Facilities::MentalHealthReloadJob.perform_async
