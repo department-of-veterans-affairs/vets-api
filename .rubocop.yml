@@ -120,12 +120,11 @@ Naming/FileName:
 Style/RescueStandardError:
   EnforcedStyle: implicit
 
-# All kinds of issues with this cop right now, so disabling it.
+# All kinds of issues with this cop right now.
 Style/FormatStringToken:
   Exclude:
     - "rakelib/mvi.rake"
 
-# Disabling this rule for now. We should consider changing.
 Lint/BooleanSymbol:
   Exclude:
     - "app/swagger/schemas/gibct/institutions.rb" #Swagger blocks defines keys as :true, need to keep as is
@@ -153,14 +152,6 @@ Naming/MemoizedInstanceVariableName:
 # It was determined these suggestions had the potential to change behavior. 
 Rails/ActiveRecordAliases:
   Enabled: false
-
-# Use of private inline seems to be for purpose of grouping related methods.
-# Use of module_function inline appears to be correct usage according to Ruby styleguide.
-# Skip for now.
-Style/AccessModifierDeclarations:
-  Exclude:
-    - 'modules/va_facilities/lib/va_facilities/api_serialization.rb'
-    - 'modules/va_facilities/lib/va_facilities/api_serialization_v1.rb'
 
 # The use of variables such as n to represent number, x and y for x-axis and y-axis, el for element, 
 # v for value, i for index, and e for error are all standard abbreviations and should be excluded.
