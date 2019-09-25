@@ -112,7 +112,7 @@ evss:
   key_path: ~
   root_cert_path: ~
   versions:
-    claims: 3.0
+    claims: 3.6
     common: 11.0
     documents: 3.6
   s3:
