@@ -28,6 +28,7 @@ pipeline {
           string(credentialsId: 'sidekiq-enterprise-license', variable: 'BUNDLE_ENTERPRISE__CONTRIBSYS__COM'),
           string(credentialsId: 'danger-github-api-token',    variable: 'DANGER_GITHUB_API_TOKEN')
         ]) {
+          echo sh(script: 'env|sort', returnStdout: true)
           withEnv(['RAILS_ENV=test', 'CI=true']) {
             sh 'make ci'
           }
