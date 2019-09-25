@@ -6,6 +6,7 @@ class EVSSClaimBaseSerializer < ActiveModel::Serializer
     define_method(name) do
       date = object_data.dig(*names)
       return unless date
+
       Date.strptime(date, format)
     end
   end
@@ -15,6 +16,7 @@ class EVSSClaimBaseSerializer < ActiveModel::Serializer
     define_method(name) do
       s = object_data.dig(*names)
       return unless s
+
       case s.downcase
       when 'yes' then true
       when 'no' then false

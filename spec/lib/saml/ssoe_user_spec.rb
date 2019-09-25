@@ -7,10 +7,9 @@ RSpec.describe SAML::User do
   include SAML::ResponseBuilder
 
   describe 'SSOe' do
-    # TODO: change if necessary
     let(:authn_context) { 'urn:oasis:names:tc:SAML:2.0:ac:classes:Password' }
     let(:account_type)  { '1' }
-    let(:highest_attained_loa) { '3' }
+    let(:highest_attained_loa) { '1' }
 
     let(:saml_response) do
       build_saml_response(
@@ -38,8 +37,8 @@ RSpec.describe SAML::User do
           uuid: '0e1bb5723d7c4f0686f46ca4505642ad',
           email: 'kam+tristanmhv@adhocteam.us',
           multifactor: false,
-          loa: { current: 1, highest: 3 },
-          sign_in: { service_name: 'ssoe', account_type: '3' },
+          loa: { current: 1, highest: 1 },
+          sign_in: { service_name: 'ssoe', account_type: '1' },
           authn_context: 'urn:oasis:names:tc:SAML:2.0:ac:classes:Password'
         )
       end

@@ -616,6 +616,7 @@ RSpec.describe FormProfile, type: :model do
 
       schema.each do |k, v|
         next if k == 'required'
+
         new_schema[k] = v.is_a?(Hash) ? strip_required(v) : v
       end
 

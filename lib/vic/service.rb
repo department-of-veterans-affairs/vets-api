@@ -40,6 +40,7 @@ module VIC
         veteran_address['street2'] = '' if veteran_address['street2'].blank?
         veteran_address['country'].tap do |country|
           next if country.blank?
+
           veteran_address['country'] = IsoCountryCodes.find(country).alpha2
         end
       end
@@ -193,6 +194,7 @@ module VIC
 
       start_time_parsed = Time.zone.parse(start_time)
       raise Timeout::Error if (Time.zone.now - start_time_parsed) > PROCESSING_WAIT
+
       sleep(1)
 
       false

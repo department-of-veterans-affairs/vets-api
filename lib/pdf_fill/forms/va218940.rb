@@ -454,12 +454,14 @@ module PdfFill
 
       def expand_provided_care(provided_care, key)
         return if provided_care.blank?
+
         expand_provided_care_details(provided_care, key)
         expand_provided_care_date_range(provided_care, key)
       end
 
       def expand_provided_care_date_range(provided_care, key)
         return if provided_care.empty?
+
         care_date_ranges = []
         provided_care.each do |care|
           care_date_ranges.push(care['dates']) if care['dates'].present?
@@ -469,6 +471,7 @@ module PdfFill
 
       def expand_provided_care_details(provided_care, key)
         return if provided_care.empty?
+
         care_details = []
         provided_care.each do |care|
           details = {
@@ -482,6 +485,7 @@ module PdfFill
       def expand_ssn
         ssn = @form_data['veteranSocialSecurityNumber']
         return if ssn.blank?
+
         ['', '1', '2'].each do |suffix|
           @form_data["veteranSocialSecurityNumber#{suffix}"] = split_ssn(ssn)
         end
@@ -489,6 +493,7 @@ module PdfFill
 
       def expand_veteran_dob
         return if @form_data['veteranDateOfBirth'].blank?
+
         @form_data['veteranDateOfBirth'] = split_date(@form_data['veteranDateOfBirth'])
       end
 
@@ -499,6 +504,7 @@ module PdfFill
 
       def transform_various_unemployment_fields(unemployability)
         return if unemployability.blank?
+
         collapse_education(unemployability)
         collapse_training(unemployability)
         expand_employment_disability_dates(unemployability)
@@ -516,6 +522,7 @@ module PdfFill
 
       def collapse_education(unemployability)
         return if unemployability['education'].blank?
+
         @form_data['education'] = {
           'value' => unemployability['education']
         }
@@ -544,6 +551,7 @@ module PdfFill
 
       def format_training_overflow(training)
         return if training.blank?
+
         overflow = []
         name = training['name'] || ''
         dates = combine_date_ranges([training['dates']])
@@ -564,6 +572,7 @@ module PdfFill
 
       def format_previous_employer_overflow(previous_employer)
         return if previous_employer.blank?
+
         overflow = []
 
         format_str = [
@@ -626,6 +635,7 @@ module PdfFill
 
       def resolve_applied_employers(unemployability)
         return if unemployability['appliedEmployers'].blank?
+
         unemployability['appliedEmployers'].each do |employer|
           overflow = format_applied_employer_overflow(employer)
           address = combine_full_address(employer['address'])
@@ -639,6 +649,7 @@ module PdfFill
 
       def format_applied_employer_overflow(applied_employer)
         return if applied_employer.blank?
+
         overflow = []
         name = 'Name: ' + applied_employer['name'] || ''
         address = 'Address: ' + combine_full_address(applied_employer['address']) || ''
