@@ -46,6 +46,7 @@ class GIBillFeedback < Common::RedisStore
     transformed['affiliation'] = transformed.delete('service_affiliation')
     transformed.delete('service_date_range').tap do |service_date_range|
       next if service_date_range.blank?
+
       transformed['entered_duty'] = service_date_range['from']
       transformed['release_from_duty'] = service_date_range['to']
     end
@@ -117,6 +118,7 @@ class GIBillFeedback < Common::RedisStore
 
   def transform_school_address(address)
     return if address['street3'].blank?
+
     address['street'] = [address['street'], address['street2']].compact.join(', ')
     address['street2'] = address.delete('street3')
   end

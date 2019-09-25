@@ -72,6 +72,7 @@ module PdfInfo
 
     def force_utf8_encoding(str)
       return str if str.valid_encoding?
+
       reencoded_str = str.encode(Encoding::UTF_16, invalid: :replace, undef: :replace, replace: '')
       reencoded_str.encode!(Encoding::UTF_8)
     end

@@ -121,6 +121,7 @@ class FormProfiles::VA526ez < FormProfile
 
   def initialize_rated_disabilities_information(user)
     return {} unless user.authorize :evss, :access?
+
     service = EVSS::DisabilityCompensationForm::Service.new(
       EVSS::DisabilityCompensationAuthHeaders.new(user).add_headers(EVSS::AuthHeaders.new(user).to_h)
     )
@@ -134,6 +135,7 @@ class FormProfiles::VA526ez < FormProfile
 
   def convert_vets360_address(address)
     return if address.blank?
+
     {
       address_line_1: address.address_line1,
       address_line_2: address.address_line2,

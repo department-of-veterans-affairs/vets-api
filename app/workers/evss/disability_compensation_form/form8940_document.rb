@@ -22,6 +22,7 @@ module EVSS
 
       def parse_8940(parsed_form)
         return '' if parsed_form['unemployability'].empty?
+
         parsed_form.deep_dup
       end
     end

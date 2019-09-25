@@ -20,6 +20,7 @@ module Common
 
       def expired?
         return true if expires_at.nil?
+
         expires_at.to_i <= Time.now.utc.to_i + EXPIRATION_THRESHOLD_SECONDS
       end
 

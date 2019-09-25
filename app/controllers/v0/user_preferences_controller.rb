@@ -35,6 +35,7 @@ module V0
     def destroy_user_preferences!
       code = params[:code]
       raise Common::Exceptions::RecordNotFound, code if Preference.find_by(code: code).blank?
+
       UserPreference.for_preference_and_account(@account.id, code).each(&:destroy!)
     rescue ActiveRecord::RecordNotDestroyed => e
       err = "When destroying UserPreference records for Account #{@account.id} with "\

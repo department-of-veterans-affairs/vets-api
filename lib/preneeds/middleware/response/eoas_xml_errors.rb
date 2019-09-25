@@ -57,7 +57,7 @@ module Preneeds
           {
             status: status,
             detail: detail,
-            code:   'VA900',
+            code: 'VA900',
             source: 'EOAS provided a general error response, check logs for original request body.'
           }
         end

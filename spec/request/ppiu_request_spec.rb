@@ -8,6 +8,17 @@ RSpec.describe 'PPIU', type: :request do
   let(:user) { create(:user, :mhv) }
   before(:each) { sign_in(user) }
 
+  def self.test_unauthorized(verb)
+    context 'with an unauthorized user' do
+      let(:user) { create(:user, :loa3) }
+
+      it 'should return 403' do
+        public_send(verb, '/v0/ppiu/payment_information')
+        expect(response.code).to eq('403')
+      end
+    end
+  end
+
   describe 'GET /v0/ppiu/payment_information' do
     context 'with a valid evss response' do
       let(:ppiu_response) { File.read('spec/support/ppiu/ppiu_response.json') }
@@ -21,6 +32,8 @@ RSpec.describe 'PPIU', type: :request do
         end
       end
     end
+
+    test_unauthorized('get')
 
     context 'with a 403 response' do
       it 'should return a not authorized response' do
@@ -47,6 +60,8 @@ RSpec.describe 'PPIU', type: :request do
     let(:headers) { { 'CONTENT_TYPE' => 'application/json' } }
     let(:ppiu_response) { File.read('spec/support/ppiu/update_ppiu_response.json') }
     let(:ppiu_request) { File.read('spec/support/ppiu/update_ppiu_request.json') }
+
+    test_unauthorized('put')
 
     context 'with a valid evss response' do
       it 'should match the ppiu schema' do

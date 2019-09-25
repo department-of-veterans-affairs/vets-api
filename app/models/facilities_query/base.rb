@@ -16,6 +16,7 @@ module FacilitiesQuery
     def get_facility_data(conditions, type, facility_type, services, additional_data = nil)
       klass = BaseFacility::TYPE_MAP[facility_type].constantize
       return klass.none unless type.blank? || type == facility_type
+
       klass = klass.select(additional_data) if additional_data
       facilities = klass.where(conditions)
       service_conditions = services&.map do |service|

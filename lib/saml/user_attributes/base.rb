@@ -60,6 +60,7 @@ module SAML
 
       def existing_user_identity
         return @_existing_user_identity if defined?(@_existing_user_identity)
+
         @_existing_user_identity = UserIdentity.find(uuid)
       end
 

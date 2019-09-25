@@ -2,7 +2,7 @@
 
 module ClaimsApi
   class Veteran
-    SSN_REGEX = /\d{3}-\d{2}-\d{4}|\d{9}/
+    SSN_REGEX = /\d{3}-\d{2}-\d{4}|\d{9}/.freeze
 
     include Virtus.model
 
@@ -51,12 +51,14 @@ module ClaimsApi
 
     def ssn=(new_ssn)
       raise Common::Exceptions::ParameterMissing, 'X-VA-SSN' unless SSN_REGEX.match?(new_ssn)
+
       super(new_ssn)
     end
 
     def va_profile=(new_va_profile)
       matches = Date.parse(new_va_profile.birth_date).iso8601
       raise Common::Exceptions::ParameterMissing, 'X-VA-Birth-Date' unless matches
+
       super(new_va_profile)
     end
 
