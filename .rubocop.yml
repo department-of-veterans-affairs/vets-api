@@ -159,7 +159,6 @@ Rails/ActiveRecordAliases:
 # Skip for now.
 Style/AccessModifierDeclarations:
   Exclude:
-    - 'lib/sm/client.rb'
     - 'modules/va_facilities/lib/va_facilities/api_serialization.rb'
     - 'modules/va_facilities/lib/va_facilities/api_serialization_v1.rb'
 
