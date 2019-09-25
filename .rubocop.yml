@@ -166,8 +166,3 @@ Style/AccessModifierDeclarations:
 # v for value, i for index, and e for error are all standard abbreviations and should be excluded.
 Naming/UncommunicativeMethodParamName:
   Enabled: false
-
-# Skipping for now, should revisit.
-Naming/UncommunicativeBlockParamName:
-  Exclude:
-    - 'app/models/preneeds/receive_application.rb'
