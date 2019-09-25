@@ -600,6 +600,12 @@ module ClaimsApi
           key :description, 'Determines if claim is considered a Standard Claim.'
         end
 
+        property :autoCestPDFGenerationDisabled do
+          key :type, :boolean
+          key :example, false
+          key :description, 'Allows you to bypass the auto PDF generation and instead upload the Disability form itself through Support Documents.'
+        end
+
         property :applicationExpirationDate do
           key :type, :string
           key :format, 'date-time'

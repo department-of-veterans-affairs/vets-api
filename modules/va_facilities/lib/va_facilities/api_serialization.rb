@@ -2,10 +2,11 @@
 
 module VaFacilities
   module ApiSerialization
+    module_function
+
     def id(object)
       "#{object.facility_type_prefix}_#{object.unique_id}"
     end
-    module_function :id
 
     def services(object)
       result = object.services.dup
@@ -17,14 +18,12 @@ module VaFacilities
       result['benefits'] = result['benefits']['standard'] if result.key?('benefits')
       result
     end
-    module_function :services
 
     def satisfaction(object)
       result = object.feedback.dup
       result['effective_date'] = result['health'].delete('effective_date') if result.key?('health')
       result
     end
-    module_function :satisfaction
 
     def wait_times(object)
       result = object.access.dup
@@ -40,6 +39,5 @@ module VaFacilities
       end
       result
     end
-    module_function :wait_times
   end
 end

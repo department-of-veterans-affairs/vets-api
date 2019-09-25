@@ -22,8 +22,8 @@ module Common
               validate(json_body['features'], facility_map)
             end
             json_body
-          rescue Oj::Error => error
-            raise Common::Client::Errors::ParsingError, error
+          rescue Oj::Error => e
+            raise Common::Client::Errors::ParsingError, e
           end
 
           def validate(locations, map)

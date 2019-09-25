@@ -283,7 +283,7 @@ class FormProfile
   def extract_pciu_data(user, method)
     user&.send(method)
   rescue Common::Exceptions::Forbidden, Common::Exceptions::BackendServiceException
-    return ''
+    ''
   end
 
   def get_us_phone(home_phone)

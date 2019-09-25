@@ -20,10 +20,10 @@ module Vet360
 
           PersonResponse.from(raw_response)
         end
-      rescue Common::Client::Errors::ClientError => error
-        return PersonResponse.new(404, person: nil) if error.status == 404
+      rescue Common::Client::Errors::ClientError => e
+        return PersonResponse.new(404, person: nil) if e.status == 404
 
-        handle_error(error)
+        handle_error(e)
       rescue => e
         handle_error(e)
       end
