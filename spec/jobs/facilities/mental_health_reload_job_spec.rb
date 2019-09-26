@@ -2,7 +2,6 @@
 
 require 'rails_helper'
 require 'csv'
-require 'lib/sentry_logging_spec_helper'
 
 RSpec.describe Facilities::MentalHealthReloadJob, type: :job do
   let(:mental_phone_headers) { %w[StationNumber MHPhone Extension Modified] }
@@ -99,8 +98,19 @@ RSpec.describe Facilities::MentalHealthReloadJob, type: :job do
   end
 
   context 'when encountering an error' do
-    let(:exception) { Facilities::MentalHealthDownloadError }
+    before do
+      Settings.sentry.dsn = 'asdf'
+    end
+    after do
+      Settings.sentry.dsn = nil
+    end
 
-    it_behaves_like 'a sentry logger'
+    it 'logs mental health reload error to sentry' do
+      allow_any_instance_of(
+        Facilities::MentalHealthReloadJob
+      ).to receive(:fetch_mental_health_data).and_raise(Facilities::MentalHealthDownloadError)
+      expect(Raven).to receive(:capture_exception).with(Facilities::MentalHealthDownloadError, level: 'error')
+      Facilities::MentalHealthReloadJob.new.perform
+    end
   end
 end
