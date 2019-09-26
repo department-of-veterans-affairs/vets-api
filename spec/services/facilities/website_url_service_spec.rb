@@ -22,4 +22,10 @@ RSpec.describe Facilities::WebsiteUrlService do
     url = service.find_for_station('fAkE1D', 'va_health_facility')
     expect(url).to be_nil
   end
+
+  it 'handles lowercase in StationNum column' do
+    service = Facilities::WebsiteUrlService.new
+    url = service.find_for_station('589GF', 'va_health_facility')
+    expect(url).to eq('http://www.columbiamo.va.gov/locations/Fort_Leonard_Wood.asp')
+  end
 end
