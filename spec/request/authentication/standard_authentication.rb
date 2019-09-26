@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require 'spec/support/matchers/episode_body_matcher'
 
 # Note these specs MUST be run in order
 RSpec.describe 'authenticating loa3 user', type: :request, order: :defined do
@@ -34,32 +35,6 @@ RSpec.describe 'authenticating loa3 user', type: :request, order: :defined do
   end
 
   private
-
-  RSpec::Matchers.define :match_episode_body do |expected|
-    match do |actual|
-      actual == expected
-    end
-
-    failure_message do |actual|
-      message = "expected that #{actual} would match #{expected}"
-      outputs = [actual, expected].map { |a| pretty(a) }
-      message += "\nDiff:" + differ.diff_as_string(*outputs)
-      message
-    end
-
-    def pretty(output)
-      JSON.pretty_generate(JSON.parse(output))
-    rescue
-      output
-    end
-
-    def differ
-      RSpec::Support::Differ.new(
-        object_preparer: ->(object) { RSpec::Matchers::Composable.surface_descriptions_in(object) },
-        color: RSpec::Matchers.configuration.color?
-      )
-    end
-  end
 
   def make_request(episode)
     params = if episode.method == 'post'
