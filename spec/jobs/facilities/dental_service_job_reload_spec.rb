@@ -2,6 +2,7 @@
 
 require 'csv'
 require 'rails_helper'
+require 'lib/sentry_logging_spec_helper'
 
 RSpec.describe Facilities::DentalServiceReloadJob, type: :job do
   let(:dental_service_data) do
@@ -42,19 +43,8 @@ RSpec.describe Facilities::DentalServiceReloadJob, type: :job do
   end
 
   context 'when encountering an error' do
-    before do
-      Settings.sentry.dsn = 'asdf'
-    end
-    after do
-      Settings.sentry.dsn = nil
-    end
+    let(:exception) { Facilities::DentalServiceError }
 
-    it 'logs dental service error to sentry' do
-      allow_any_instance_of(
-        Facilities::DentalServiceReloadJob
-      ).to receive(:fetch_dental_service_data).and_raise(Facilities::DentalServiceError)
-      expect(Raven).to receive(:capture_exception).with(Facilities::DentalServiceError, level: 'error')
-      Facilities::DentalServiceReloadJob.new.perform
-    end
+    it_behaves_like 'a sentry logger'
   end
 end
