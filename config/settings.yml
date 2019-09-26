@@ -391,6 +391,7 @@ flipper:
   username: SUPER_SECRET_USERNAME
   password: SUPER_SECRET_PASSWORD
 
-vaos:
+va_mobile:
   url: 'https://veteran.apps.va.gov/'
   mock: true
+  key_path: /fake/client/key/path
