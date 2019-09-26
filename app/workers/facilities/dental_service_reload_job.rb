@@ -19,15 +19,15 @@ module Facilities
     end
 
     def update_cache(facilities)
-      facilities.each do |k|
-        attrs = { station_number: k,
+      facilities.each do |facility_id|
+        attrs = { station_number: facility_id,
                   local_updated: Time.now.utc.iso8601 }
-        obj = FacilityDentalService.find_or_build(k)
-        obj.update(attrs)
+        dental_record = FacilityDentalService.find_or_build(facility_id)
+        dental_record.update(attrs)
       end
     end
 
-    def invalidate_removed(facility_keys)
+    def remove_invalid_keys(facility_keys)
       invalidate = FacilityDentalService.keys - facility_keys
       invalidate.each { |x| FacilityDentalService.delete(x) }
     end
@@ -41,7 +41,7 @@ module Facilities
       records = fetch_dental_service_data(dental_file)
       facilities = parse_dental_service_data(records)
       update_cache(facilities)
-      invalidate_removed(facilities)
+      remove_invalid_keys(facilities)
     rescue Facilities::DentalServiceError => e
       log_exception_to_sentry(e)
     end

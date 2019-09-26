@@ -31,8 +31,8 @@ module Facilities
           local_updated: Time.now.utc.iso8601
         }
 
-        obj = FacilityMentalHealth.find_or_build(r['StationNumber'])
-        obj.update(attrs)
+        mental_health_record = FacilityMentalHealth.find_or_build(r['StationNumber'])
+        mental_health_record.update(attrs)
       end
     end
 
