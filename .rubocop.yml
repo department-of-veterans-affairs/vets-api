@@ -1,6 +1,9 @@
 inherit_from: .rubocop_todo.yml
 
-require: 'rubocop-rails'
+require: 
+  - rubocop-rails
+  - rubocop-rspec
+
 AllCops:
   TargetRailsVersion: 5.2
   TargetRubyVersion: 2.4.5

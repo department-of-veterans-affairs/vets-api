@@ -523,6 +523,8 @@ GEM
     rubocop-rails (2.3.2)
       rack (>= 1.1)
       rubocop (>= 0.72.0)
+    rubocop-rspec (1.35.0)
+      rubocop (>= 0.60.0)
     ruby-progressbar (1.10.1)
     ruby-rc4 (0.1.5)
     ruby-saml (1.7.0)
@@ -740,6 +742,7 @@ DEPENDENCIES
   rubocop
   rubocop-junit-formatter
   rubocop-rails
+  rubocop-rspec
   ruby-saml
   rubyzip (>= 1.0.0)
   savon
