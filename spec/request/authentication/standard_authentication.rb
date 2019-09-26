@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'spec/support/matchers/episode_body_matcher'
 
 # Note these specs MUST be run in order
 RSpec.describe 'authenticating loa3 user', type: :request, order: :defined do
