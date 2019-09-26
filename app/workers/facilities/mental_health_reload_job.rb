@@ -21,7 +21,7 @@ module Facilities
 
     def update_cache(records)
       records.each do |r|
-        ext = valid_extension?(r['Extension']) ? r['Extension'] : nil
+        ext = convert_extension(r['Extension'])
 
         attrs = {
           station_number: r['StationNumber'],
@@ -36,8 +36,12 @@ module Facilities
       end
     end
 
-    def valid_extension?(ext)
-      !%w[NULL 0].include?(ext)
+    def convert_extension(ext)
+      if %w[NULL 0].include?(ext)
+        nil
+      else
+        ext
+      end
     end
 
     def remove_invalid(record_keys)
