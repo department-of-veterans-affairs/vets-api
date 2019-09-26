@@ -31,7 +31,7 @@ module EVSS
 
     private
 
-    verify_readability_of(file_body)
+    def verify_readability_of(file_body)
       file = PDF::Reader.new(file_body)
       raise Common::Exceptions::UnreadableDocument if file.nil?
     end
