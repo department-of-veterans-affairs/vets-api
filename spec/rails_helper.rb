@@ -6,7 +6,6 @@ ENV['RACK_ENV'] ||= 'test' # Shrine uses this to determine log levels
 require File.expand_path('../config/environment', __dir__)
 # Prevent database truncation if the environment is production
 abort('The Rails environment is running in production mode!') if Rails.env.production?
-require 'spec_helper'
 require 'statsd-instrument'
 require 'statsd/instrument/matchers'
 require 'rspec/rails'
