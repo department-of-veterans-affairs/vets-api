@@ -28,9 +28,9 @@ pipeline {
           string(credentialsId: 'sidekiq-enterprise-license', variable: 'BUNDLE_ENTERPRISE__CONTRIBSYS__COM'),
           string(credentialsId: 'danger-github-api-token',    variable: 'DANGER_GITHUB_API_TOKEN')
         ]) {
-          //withEnv(['RAILS_ENV=test', 'CI=true', 'CHANGE_ID=env.BUILD_ID', "JENKINS_URL=${env.JENKINS_URL}", "BILL=ryan"]) {
-            sh "RAILS_ENV=test CI=true CHANGE_ID=${env.BUILD_ID} JENKINS_URL=${env.JENKINS_URL} BILL=ryan make ci"
-         //}
+          withEnv(['RAILS_ENV=test', 'CI=true', "CHANGE_IDD=${env.BUILD_ID}", "WUT=${BUILD_ID}", 'BILL=ryan']) {
+            sh 'make ci'
+          }
         }
       }
       post {
