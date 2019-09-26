@@ -7,6 +7,7 @@ done by appending the exported/downloaded certificate to
 
 #### Retrieving Mental Health Phone Numbers
 
-To retrieve mental health phone numbers, please run this rake job:
+To retrieve mental health phone numbers, run the `jobs:pull_facility_mental_health_phone` rake task
+E.g.,
 
 `bundle exec rake jobs:pull_facility_mental_health_phone`
