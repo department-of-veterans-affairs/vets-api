@@ -10,7 +10,7 @@ task :danger do
   require 'rainbow'
 
   puts 'running danger...'
-  
+
   pp ENV
 
   danger_result = ShellCommand.run('danger --verbose')
