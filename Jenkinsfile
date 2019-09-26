@@ -26,16 +26,16 @@ pipeline {
       steps {
 
         script {
-          println "Bill ${env.CHANGE_ID}"
-          def change_id = "CHANGE_ID=${env.BUILD_ID}"
-          println "Bill after: ${change_id}"
+          println "Bill ${env.CHANGE_ID} | ${env.BUILD_ID}"
+          def env_vars = ['RAILS_ENV=test', 'CI=true', "CHANGE_ID=${env.BUILD_ID}"]
+          println env_vars
         }
 
         withCredentials([
           string(credentialsId: 'sidekiq-enterprise-license', variable: 'BUNDLE_ENTERPRISE__CONTRIBSYS__COM'),
           string(credentialsId: 'danger-github-api-token',    variable: 'DANGER_GITHUB_API_TOKEN')
         ]) {
-          withEnv(['RAILS_ENV=test', 'CI=true', change_id]) {
+          withEnv(env_vars) {
             sh 'make ci'
           }
         }
