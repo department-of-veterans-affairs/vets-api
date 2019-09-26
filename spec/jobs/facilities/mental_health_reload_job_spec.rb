@@ -97,7 +97,7 @@ RSpec.describe Facilities::MentalHealthReloadJob, type: :job do
     expect(FacilityMentalHealth.find('202A').mh_ext).to eq(nil)
   end
 
-  context 'on error' do
+  context 'when encountering an error' do
     before do
       Settings.sentry.dsn = 'asdf'
     end

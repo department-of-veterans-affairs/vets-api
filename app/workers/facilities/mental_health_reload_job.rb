@@ -19,13 +19,9 @@ module Facilities
       raise MentalHealthDownloadError, "Failed to download mental health data: #{e.cause}"
     end
 
-    def update_cache(model, records)
+    def update_cache(records)
       records.each do |r|
-        ext = if r['Extension'] == '0' || r['Extension'] == 'NULL'
-                nil
-              else
-                r['Extension']
-              end
+        ext = valid_extension?(r['Extension']) ? r['Extension'] : nil
 
         attrs = {
           station_number: r['StationNumber'],
@@ -35,26 +31,24 @@ module Facilities
           local_updated: Time.now.utc.iso8601
         }
 
-        obj = model.find(r['StationNumber'])
-
-        if obj
-          obj.update(attrs)
-        else
-          model.create(attrs)
-        end
+        obj = FacilityMentalHealth.find_or_build(r['StationNumber'])
+        obj.update(attrs)
       end
     end
 
-    def remove_invalid(model, record_keys)
-      invalid = model.keys - record_keys
-      invalid.each { |x| model.delete(x) }
-      logger.info "Removed #{invalid.size} obsolete entries from cache"
+    def valid_extension?(ext)
+      !%w[NULL 0].include?(ext)
+    end
+
+    def remove_invalid(record_keys)
+      invalid = FacilityMentalHealth.keys - record_keys
+      invalid.each { |x| FacilityMentalHealth.delete(x) }
     end
 
     def update_mental_health_data
       records = fetch_mental_health_data
-      update_cache(FacilityMentalHealth, records)
-      remove_invalid(FacilityMentalHealth, records.map { |r| r['StationNumber'] })
+      update_cache(records)
+      remove_invalid(records.map { |r| r['StationNumber'] })
     rescue Facilities::MentalHealthDownloadError => e
       log_exception_to_sentry(e)
     end

@@ -371,15 +371,17 @@ RSpec.describe 'Facilities API endpoint', type: :request do
     end
   end
 
-  context 'mobile flag' do
+  context 'with mobile flag' do
     it 'responds with a boolean mobile flag for VHA facilities' do
       create :vha_648A4
+
       get base_query_path + '/vha_648A4', params: nil, headers: accept_json
+
       expect(response).to be_successful
       expect(response.body).to be_a(String)
       json = JSON.parse(response.body)
-      expect(json['data']['attributes']['mobile']).to eq(false)
       expect(json['data']['attributes']['mobile']).to_not be_nil
+      expect(json['data']['attributes']['mobile']).to eq(false)
     end
 
     it 'responds with null mobile flag for non-VHA facilities' do
@@ -403,7 +405,7 @@ RSpec.describe 'Facilities API endpoint', type: :request do
     end
   end
 
-  context 'active_status flag' do
+  context 'with active_status flag' do
     it 'responds with a string active_status flag for VHA facilities' do
       create :vha_648A4
       get base_query_path + '/vha_648A4', params: nil, headers: accept_json

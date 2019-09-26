@@ -41,7 +41,7 @@ RSpec.describe Facilities::DentalServiceReloadJob, type: :job do
     expect(FacilityDentalService.find('436GH')).to be_nil
   end
 
-  context 'on error' do
+  context 'when encountering an error' do
     before do
       Settings.sentry.dsn = 'asdf'
     end
