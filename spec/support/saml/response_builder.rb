@@ -62,6 +62,7 @@ module SAML
         multifactor: multifactor
       )
       saml_response = SAML::Responses::Login.new(document_partial(authn_context).to_s)
+      allow(saml_response).to receive(:assertion_encrypted?).and_return(true)
       allow(saml_response).to receive(:attributes).and_return(attributes)
       allow(saml_response).to receive(:validate).and_return(true)
       allow(saml_response).to receive(:decrypted_document).and_return(document_partial(authn_context))
@@ -276,25 +277,25 @@ module SAML
         )
       when LOA::IDME_LOA3, 'dslogon_loa3', 'myhealthevet_loa3'
         OneLogin::RubySaml::Attributes.new(
-          'uuid'               => ['0e1bb5723d7c4f0686f46ca4505642ad'],
-          'email'              => ['kam+tristanmhv@adhocteam.us'],
-          'fname'              => ['Tristan'],
-          'lname'              => ['MHV'],
-          'mname'              => [''],
-          'social'             => ['111223333'],
-          'gender'             => ['male'],
-          'birth_date'         => ['1735-10-30'],
+          'uuid' => ['0e1bb5723d7c4f0686f46ca4505642ad'],
+          'email' => ['kam+tristanmhv@adhocteam.us'],
+          'fname' => ['Tristan'],
+          'lname' => ['MHV'],
+          'mname' => [''],
+          'social' => ['111223333'],
+          'gender' => ['male'],
+          'birth_date' => ['1735-10-30'],
           'level_of_assurance' => ['3'],
-          'multifactor'        => [true] # always true for these types
+          'multifactor' => [true] # always true for these types
         )
       when LOA::IDME_LOA1, 'multifactor'
         OneLogin::RubySaml::Attributes.new(
-          'uuid'               => ['0e1bb5723d7c4f0686f46ca4505642ad'],
-          'email'              => ['kam+tristanmhv@adhocteam.us'],
-          'multifactor'        => (authn_context.include?('multifactor') ? [true] : multifactor),
+          'uuid' => ['0e1bb5723d7c4f0686f46ca4505642ad'],
+          'email' => ['kam+tristanmhv@adhocteam.us'],
+          'multifactor' => (authn_context.include?('multifactor') ? [true] : multifactor),
           'level_of_assurance' => level_of_assurance
         )
-      when 'ssoe'
+      when 'urn:oasis:names:tc:SAML:2.0:ac:classes:Password'
         build_ssoe_saml_attributes(
           authn_context: authn_context,
           account_type: account_type,

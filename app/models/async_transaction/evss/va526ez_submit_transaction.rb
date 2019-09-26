@@ -50,6 +50,7 @@ module AsyncTransaction
       def self.find_transaction(job_id)
         result = VA526ezSubmitTransaction.find_by(transaction_id: job_id)
         return nil if result == []
+
         result
       end
 
@@ -71,6 +72,7 @@ module AsyncTransaction
       #
       def self.update_transaction(job_id, status, response_body = nil)
         raise ArgumentError, "#{status} is not a valid status" unless JOB_STATUS.keys.include?(status)
+
         transaction = VA526ezSubmitTransaction.find_transaction(job_id)
         transaction.update_attributes(
           status: (status == :retrying ? REQUESTED : COMPLETED),

@@ -53,6 +53,7 @@ module Common
 
     def self.fetch(klass, cache_key: nil, ttl: CACHE_DEFAULT_TTL)
       raise 'No Block Given' unless block_given?
+
       if cache_key
         json_string = redis_namespace.get(cache_key)
         if json_string.nil?
@@ -101,6 +102,7 @@ module Common
       verify_filter_keys!(filter)
       result = @data.detect { |item| finder(item, filter) }
       return nil if result.nil?
+
       result.metadata = metadata
       result
     end
@@ -152,8 +154,9 @@ module Common
           end
         end
       end
-    rescue StandardError => e
+    rescue => e
       raise e if e.is_a?(Common::Exceptions::BaseError)
+
       raise Common::Exceptions::InvalidFiltersSyntax.new(nil, detail: 'The syntax for your filters is invalid')
     end
 
@@ -177,6 +180,7 @@ module Common
       params = Array.wrap(params)
       not_allowed = params.select { |p| sort_type_allowed?(p) }.join(', ')
       raise Common::Exceptions::InvalidSortCriteria.new(type.name, not_allowed) unless not_allowed.empty?
+
       convert_fields_to_ordered_hash(params)
     end
 

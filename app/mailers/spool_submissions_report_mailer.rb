@@ -3,33 +3,34 @@
 class SpoolSubmissionsReportMailer < ApplicationMailer
   REPORT_TEXT = 'Spool submissions report'
   RECIPIENTS = %w[
-    lihan@adhocteam.us
     dana.kuykendall@va.gov
-    Jennifer.Waltz2@va.gov
-    shay.norton@va.gov
     Darla.VanNieukerk@va.gov
+    Jennifer.Waltz2@va.gov
+    lihan@adhocteam.us
     Ricardo.DaSilva@va.gov
+    shay.norton@va.gov
   ].freeze
 
   # Will add in Prod STEM recipients once 18815 approved in staging
   STEM_RECIPIENTS = %w[].freeze
 
   STAGING_RECIPIENTS = %w[
+    Delli-Gatti_Michael@bah.com
     lihan@adhocteam.us
     Turner_Desiree@bah.com
-    Delli-Gatti_Michael@bah.com
   ].freeze
 
   STAGING_STEM_RECIPIENTS = %w[
+    hughes_dustin@bah.com
     kyle.pietrosanto@va.gov
     robert.shinners@va.gov
     shay.norton-leonard@va.gov
-    hughes_dustin@bah.com
     sonntag_adam@bah.com
   ].freeze
 
   def add_stem_recipients
     return STAGING_STEM_RECIPIENTS.dup if FeatureFlipper.staging_email?
+
     STEM_RECIPIENTS.dup
   end
 

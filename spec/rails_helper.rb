@@ -72,6 +72,7 @@ VCR.configure do |c|
   c.before_record do |i|
     %i[response request].each do |env|
       next unless i.send(env).headers.keys.include?('Token')
+
       i.send(env).headers.update('Token' => '<SESSION_TOKEN>')
     end
   end

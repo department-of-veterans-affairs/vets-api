@@ -25,6 +25,7 @@ module V0
       id = params[:id].try(:to_i)
       resource = client.get_rx(id)
       raise Common::Exceptions::RecordNotFound, id if resource.blank?
+
       render json: resource,
              serializer: PrescriptionSerializer,
              meta: resource.metadata

@@ -2,7 +2,7 @@
 
 require 'attr_encrypted'
 class EducationBenefitsClaim < ApplicationRecord
-  FORM_TYPES = %w[1990 1995 1990e 5490 5495 1990n 0993 0994].freeze
+  FORM_TYPES = %w[1990 1995 1990e 5490 5495 1990n 0993 0994 1995s].freeze
 
   APPLICATION_TYPES = %w[
     chapter33
@@ -32,6 +32,7 @@ class EducationBenefitsClaim < ApplicationRecord
     unless EducationForm::EducationFacility::REGIONS.include?(key)
       raise "Invalid region. Must be one of #{EducationForm::EducationFacility::REGIONS.join(', ')}"
     end
+
     self.regional_processing_office = region
     self.processed_at = nil
     save
@@ -114,6 +115,8 @@ class EducationBenefitsClaim < ApplicationRecord
       return benefits
     when '0994'
       benefits['vettec'] = true
+    when '1995s'
+      benefits['chapter33'] = true
     else
       benefit = parsed_form['benefit']&.underscore
       benefits[benefit] = true if benefit.present?

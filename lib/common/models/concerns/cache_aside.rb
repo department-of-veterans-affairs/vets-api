@@ -16,6 +16,7 @@ module Common
       unless self < Common::RedisStore
         raise ArgumentError, 'Class composing Common::CacheAside must be a Common::RedisStore'
       end
+
       def self.redis_config_key(key)
         redis_store REDIS_CONFIG[key.to_s]['namespace']
         redis_ttl REDIS_CONFIG[key.to_s]['each_ttl']
@@ -34,6 +35,7 @@ module Common
 
       response = yield
       raise NoMethodError, 'The response class being cached must implement #cache?' unless response.respond_to?(:cache?)
+
       cache(key, response) if response.cache?
       response
     end

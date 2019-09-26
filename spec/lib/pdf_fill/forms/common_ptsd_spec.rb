@@ -46,21 +46,21 @@ describe PdfFill::Forms::CommonPtsd do
     it 'should expand the incident location into three lines one word each' do
       expect(including_class.new.expand_incident_location(
                'incidentLocation' => 'abcdefghijklmnopqrs xxxxxxxxxxxxxxxxxx zzzzzzzzzzzzzzzzzzz'
-      )).to eq(
-        'row0' => 'abcdefghijklmnopqrs',
-        'row1' => 'xxxxxxxxxxxxxxxxxx',
-        'row2' => 'zzzzzzzzzzzzzzzzzzz'
-      )
+             )).to eq(
+               'row0' => 'abcdefghijklmnopqrs',
+               'row1' => 'xxxxxxxxxxxxxxxxxx',
+               'row2' => 'zzzzzzzzzzzzzzzzzzz'
+             )
     end
 
     it 'should expand the incident location into three lines multiple words' do
       expect(including_class.new.expand_incident_location(
                'incidentLocation' => 'abcd defg hijk lmno pqrs xxxx yyyy zzzz aaaa bb cccc dddd eeee ffff ggg'
-      )).to eq(
-        'row0' => 'abcd defg hijk lmno pqrs xxxx',
-        'row1' => 'yyyy zzzz aaaa bb cccc dddd',
-        'row2' => 'eeee ffff ggg'
-      )
+             )).to eq(
+               'row0' => 'abcd defg hijk lmno pqrs xxxx',
+               'row1' => 'yyyy zzzz aaaa bb cccc dddd',
+               'row2' => 'eeee ffff ggg'
+             )
     end
 
     it 'should ignore more than 90 characters' do
@@ -81,22 +81,22 @@ describe PdfFill::Forms::CommonPtsd do
     it 'should expand the incident unit assignment into three lines one word each' do
       expect(including_class.new.expand_incident_unit_assignment(
                'unitAssigned' => 'abcdefghijklmnopqrs xxxxxxxxxxxxxxxxxx zzzzzzzzzzzzzzzzzzz'
-      )).to eq(
-        'row0' => 'abcdefghijklmnopqrs',
-        'row1' => 'xxxxxxxxxxxxxxxxxx',
-        'row2' => 'zzzzzzzzzzzzzzzzzzz'
-      )
+             )).to eq(
+               'row0' => 'abcdefghijklmnopqrs',
+               'row1' => 'xxxxxxxxxxxxxxxxxx',
+               'row2' => 'zzzzzzzzzzzzzzzzzzz'
+             )
     end
 
     it 'should expand the incident unit assignment into three lines multiple words' do
       expect(including_class.new.expand_incident_unit_assignment(
                'unitAssigned' =>
                'abcd defg hijk lmno pqrs xxxx yyyy zzzz aaaa bb cccc dddd eeee ffff ggg'
-      )).to eq(
-        'row0' => 'abcd defg hijk lmno pqrs xxxx',
-        'row1' => 'yyyy zzzz aaaa bb cccc dddd',
-        'row2' => 'eeee ffff ggg'
-      )
+             )).to eq(
+               'row0' => 'abcd defg hijk lmno pqrs xxxx',
+               'row1' => 'yyyy zzzz aaaa bb cccc dddd',
+               'row2' => 'eeee ffff ggg'
+             )
     end
 
     it 'should ignore more than 90 characters' do

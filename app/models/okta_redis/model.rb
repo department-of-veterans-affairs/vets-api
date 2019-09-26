@@ -26,7 +26,7 @@ module OktaRedis
     private
 
     def get_identifier
-      @id ? @id : @user.uuid
+      @id || @user.uuid
     end
 
     def cache_key

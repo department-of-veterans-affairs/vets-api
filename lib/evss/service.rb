@@ -37,7 +37,7 @@ module EVSS
       with_monitoring(2) do
         yield
       end
-    rescue StandardError => e
+    rescue => e
       handle_error(e)
     end
 
@@ -69,6 +69,7 @@ module EVSS
       when Common::Client::Errors::ClientError
         Raven.extra_context(body: error.body)
         raise Common::Exceptions::Forbidden if error.status == 403
+
         raise_backend_exception('EVSS400', self.class, error) if error.status == 400
         raise_backend_exception('EVSS502', self.class, error)
       else
