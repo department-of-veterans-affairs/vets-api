@@ -26,9 +26,9 @@ pipeline {
       steps {
 
         script {
-          puts "Bill ${env.CHANGE_ID}"
+          println "Bill ${env.CHANGE_ID}"
           def change_id = "CHANGE_ID=${env.BUILD_ID}"
-          puts "Bill after: ${change_id}"
+          println "Bill after: ${change_id}"
         }
 
         withCredentials([
