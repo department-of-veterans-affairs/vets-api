@@ -139,6 +139,7 @@ group :development, :test do
   gem 'danger'
   gem 'database_cleaner'
   gem 'factory_bot_rails', '> 5'
+  gem 'factory_trace'
   # CAUTION: faraday_curl may not provide all headers used in the actual faraday request. Be cautious if using this to
   # assist with debugging production issues (https://github.com/department-of-veterans-affairs/vets.gov-team/pull/6262)
   gem 'faraday_curl'
