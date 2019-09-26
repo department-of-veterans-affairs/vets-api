@@ -7,6 +7,8 @@ ENV EXCLUDE_SIDEKIQ_ENTERPRISE=$exclude_sidekiq_ent
 ARG danger_github_api_token
 ENV DANGER_GITHUB_API_TOKEN=$danger_github_api_token
 
+ENV APP_PATH /src/vets-api
+
 
 RUN groupadd -r vets-api && \
 useradd -r -g vets-api vets-api && \
