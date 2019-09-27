@@ -3,9 +3,17 @@
 require 'rails_helper'
 
 describe Vet360::Models::Address do
-  describe '#zip_plus_four' do
-    let(:address) { build(:vet360_address) }
+  let(:address) { build(:vet360_address) }
 
+  describe '#address_validation_req' do
+    it 'should format the address for an address validation request' do
+      # TODO
+      binding.pry; fail
+      address.address_validation_req
+    end
+  end
+
+  describe '#zip_plus_four' do
     context 'with no zipcode' do
       it 'returns nil' do
         address.zip_code = nil
@@ -29,8 +37,6 @@ describe Vet360::Models::Address do
 
   describe 'validation' do
     context 'for any type of address' do
-      let(:address) { build(:vet360_address) }
-
       it 'address_pou is requred', :aggregate_failures do
         expect(address.valid?).to eq(true)
         address.address_pou = ''

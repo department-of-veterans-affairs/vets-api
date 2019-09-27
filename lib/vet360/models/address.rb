@@ -119,6 +119,30 @@ module Vet360
         [zip_code, zip_code_suffix].compact.join('-')
       end
 
+      def address_validation_req
+        Common::HashHelpers.deep_compact({
+          requestAddress: attributes.slice(
+            :address_line1,
+            :address_line2,
+            :address_line3,
+            :city,
+            :international_postal_code
+          ).deep_transform_keys { |k| k.to_s.camelize(:lower) }.merge(
+            addressPOU: @address_pou,
+            requestCountry: {
+              countryCode: @country_code_iso3,
+              countryName: IsoCountryCodes.find(@country_code_iso3).name
+            },
+            stateProvince: {
+              code: @state_code,
+              name: @province
+            },
+            zipCode5: @zip_code,
+            zipCode4: @zip_code_suffix
+          )
+        })
+      end
+
       # Converts a decoded JSON response from Vet360 to an instance of the Address model
       # @param body [Hash] the decoded response body from Vet360
       # @return [Vet360::Models::Address] the model built from the response body
