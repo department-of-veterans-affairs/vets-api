@@ -5,11 +5,16 @@ module Vet360
     class Service < Vet360::Service
       configuration Vet360::AddressValidation::Configuration
 
+      def initialize
+      end
+
       def candidate(address)
-        perform(
+        res = perform(
           :post,
           'candidate',
+          address.address_validation_req
         )
+        binding.pry; fail
       end
     end
   end
