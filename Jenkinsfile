@@ -24,6 +24,7 @@ pipeline {
 
     stage('Print env vars') {
       steps {
+        echo "BILL"
         echo sh(script: 'env|sort', returnStdout: true)
       }
     }
