@@ -24,7 +24,7 @@ pipeline {
 
     stage('Print env vars') {
       steps {
-        echo "BILL"
+        echo "BILL: ${env.CHANGE_ID} : ${env.BUILD_NUMBER}"
         echo sh(script: 'env|sort', returnStdout: true)
       }
     }
