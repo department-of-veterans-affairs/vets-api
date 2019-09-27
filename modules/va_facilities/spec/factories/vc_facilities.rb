@@ -9,7 +9,6 @@ FactoryBot.define do
     website { nil }
     lat { 40.5528 }
     long { -105.09 }
-    location { 'POINT(-105.09 40.5528)' }
     address {
       { 'mailing' => {},
         'physical' => {
@@ -44,7 +43,6 @@ FactoryBot.define do
     website { nil }
     lat { 45.5338 }
     long { -122.538 }
-    location { 'POINT(-122.538 45.5338)' }
     address {
       { 'mailing' => {},
         'physical' => {

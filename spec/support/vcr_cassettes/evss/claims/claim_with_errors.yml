@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: post
-    uri: "<EVSS_BASE_URL>/wss-claims-services-web-3.0/rest/vbaClaimStatusService/getClaimDetailById"
+    uri: "<EVSS_BASE_URL>/wss-claims-services-web-3.6/rest/vbaClaimStatusService/getClaimDetailById"
     body:
       encoding: UTF-8
       string: '{"id":1}'
@@ -41,7 +41,7 @@ http_interactions:
       - '1986-05-06T00:00:00+00:00'
       Va-Eauth-Authorization:
       - '{"authorizationResponse":{"status":"VETERAN","idType":"SSN","id":"796043735","edi":"1007697216","firstName":"WESLEY","lastName":"FORD","birthDate":"1986-05-06T00:00:00+00:00"}}'
-      Va-Eauth-Authenticationauthority: 
+      Va-Eauth-Authenticationauthority:
       - 'eauth'
       Content-Type:
       - application/json
@@ -80,6 +80,6 @@ http_interactions:
             "text" : "Could not retrieve claim status."
           } ]
         }
-    http_version: 
+    http_version:
   recorded_at: Wed, 13 Dec 2017 23:46:11 GMT
 recorded_with: VCR 3.0.3

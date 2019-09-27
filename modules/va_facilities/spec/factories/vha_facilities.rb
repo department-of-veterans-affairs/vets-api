@@ -7,11 +7,8 @@ FactoryBot.define do
     facility_type { 'va_health_facility' }
     classification { 'VA Medical Center (VAMC)' }
     website { 'http://www.portland.va.gov/locations/vancouver.asp' }
-    mobile { false }
-    active_status { 'A' }
     lat { 45.6394162600001 }
     long { -122.65528736 }
-    location { 'POINT(-122.65528736 45.6394162600001)' }
     address {
       { 'mailing' => {},
         'physical' => {
@@ -55,8 +52,8 @@ FactoryBot.define do
     feedback {
       { 'health' => {
         'effective_date' => '2017-08-15',
-        'primary_care_urgent' => 0.8,
-        'primary_care_routine' => 0.84
+        'primary_care_urgent' => '0.8',
+        'primary_care_routine' => '0.84'
       } }
     }
     access {
@@ -98,7 +95,6 @@ FactoryBot.define do
     website { 'http://www.portland.va.gov/' }
     lat { 45.4974614500001 }
     long { -122.68287208 }
-    location { 'POINT(-122.68287208 45.4974614500001)' }
     address {
       { 'mailing' => {},
         'physical' => {
@@ -150,10 +146,10 @@ FactoryBot.define do
     feedback {
       { 'health' => {
         'effective_date' => '2017-08-15',
-        'primary_care_urgent' => 0.73,
-        'primary_care_routine' => 0.82,
-        'specialty_care_urgent' => 0.75,
-        'specialty_care_routine' => 0.82
+        'primary_care_urgent' => '0.73',
+        'primary_care_routine' => '0.82',
+        'specialty_care_urgent' => '0.75',
+        'specialty_care_routine' => '0.82'
       } }
     }
     access {
@@ -216,11 +212,8 @@ FactoryBot.define do
     facility_type { 'va_health_facility' }
     classification { 'Primary Care CBOC' }
     website { nil }
-    mobile { false }
-    active_status { 'A' }
     lat { 45.52017304 }
     long { -122.67221794 }
-    location { 'POINT(-122.67221794 45.52017304)' }
     address {
       { 'mailing' => {},
         'physical' => {
@@ -275,67 +268,6 @@ FactoryBot.define do
           'established' => 2.0
         },
         'effective_date' => '2018-03-05'
-      } }
-    }
-  end
-  factory :vha_402QA, class: Facilities::VHAFacility do
-    unique_id { '402QA' }
-    name { 'Fort Kent VA Clinic' }
-    facility_type { 'va_health_facility' }
-    classification { 'Other Outpatient Services (OOS)' }
-    website { nil }
-    lat { 47.26560990000007 }
-    long { -68.59126328999997 }
-    location { 'POINT(-68.59126328999997, 47.26560990000007)' }
-    address {
-      { 'mailing' => {},
-        'physical' => {
-          'zip' => '04743-1409',
-          'city' => 'Fort Kent',
-          'state' => 'ME',
-          'address_1' => '197 East Main Street',
-          'address_2' => 'Medical Office Building',
-          'address_3' => nil
-        } }
-    }
-    phone {
-      { 'fax' => '207-834-2351 x',
-        'main' => '207-834-1572 x',
-        'pharmacy' => '207-623-5353 x',
-        'after_hours' => '844-750-8426 x',
-        'patient_advocate' => '207-623-5760 x',
-        'mental_health_clinic' => '',
-        'enrollment_coordinator' => '207-623-8411 x5688' }
-    }
-    hours {
-      { 'Friday' => 'Closed',
-        'Monday' => 'Closed',
-        'Sunday' => 'Closed',
-        'Tuesday' => 'Closed',
-        'Saturday' => 'Closed',
-        'Thursday' => '800AM-430PM',
-        'Wednesday' => 'Closed' }
-    }
-    services {
-      { 'other' => [
-        {
-          'sl1' => [
-            'Online Scheduling'
-          ],
-          'sl2' => []
-        }
-      ],
-        'health' => [],
-        'last_updated' => '2019-06-04' }
-    }
-    feedback { { 'health' => {} } }
-    access {
-      { 'health' => {
-        'primary_care' => {
-          'new' => nil,
-          'established' => 4.807692
-        },
-        'effective_date' => '2018-05-27'
       } }
     }
   end
