@@ -126,7 +126,7 @@ module ClaimsApi
         response 200 do
           key :description, '526 response'
           schema do
-            key :'$ref', :Claims
+            key :'$ref', :ClaimsIndex
           end
         end
         response :default do
