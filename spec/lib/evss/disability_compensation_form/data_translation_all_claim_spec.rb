@@ -37,6 +37,7 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
   describe '#overflow_text' do
     context 'when the form has a 4142 and the vet is terminally ill' do
       subject { described_class.new(user, form_content, true) }
+
       let(:form_content) do
         {
           'form526' => {

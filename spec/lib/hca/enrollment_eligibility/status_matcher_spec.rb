@@ -7,6 +7,7 @@ describe HCA::EnrollmentEligibility::StatusMatcher do
     subject do
       described_class.parse(enrollment_status, ineligibility_reason)
     end
+
     let(:ineligibility_reason) { nil }
 
     [

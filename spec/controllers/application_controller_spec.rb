@@ -97,6 +97,7 @@ RSpec.describe ApplicationController, type: :controller do
 
   context 'RecordNotFound' do
     subject { JSON.parse(response.body)['errors'].first }
+
     let(:keys_for_all_env) { %w[title detail code status] }
 
     context 'with Rails.env.test or Rails.env.development' do
@@ -121,6 +122,7 @@ RSpec.describe ApplicationController, type: :controller do
 
   context 'BackendServiceErrorError' do
     subject { JSON.parse(response.body)['errors'].first }
+
     let(:keys_for_production) { %w[title detail code status] }
     let(:keys_for_development) { keys_for_production + ['meta'] }
 
@@ -220,6 +222,7 @@ RSpec.describe ApplicationController, type: :controller do
 
     context 'Pundit::NotAuthorizedError' do
       subject { JSON.parse(response.body)['errors'].first }
+
       let(:keys_for_all_env) { %w[title detail code status] }
 
       context 'with Rails.env.test or Rails.env.development' do

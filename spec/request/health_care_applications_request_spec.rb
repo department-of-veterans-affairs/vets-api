@@ -16,6 +16,7 @@ RSpec.describe 'Health Care Application Integration', type: %i[request serialize
     subject do
       get(healthcheck_v0_health_care_applications_path)
     end
+
     let(:body) do
       { 'formSubmissionId' => 377_609_264,
         'timestamp' => '2016-12-12T08:06:08.423-06:00' }
