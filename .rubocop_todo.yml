@@ -11,15 +11,6 @@
 FactoryBot/AttributeDefinedStatically:
   Enabled: false
 
-# Offense count: 2
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle.
-# SupportedStyles: create_list, n_times
-# FactoryBot/CreateList:
-#   Exclude:
-#     - 'spec/jobs/education_form/create_daily_fiscal_year_to_date_report_spec.rb'
-#     - 'spec/jobs/education_form/create_daily_year_to_date_report_spec.rb'
-
 # Offense count: 250
 RSpec/AnyInstance:
   Enabled: false
@@ -29,12 +20,6 @@ RSpec/Be:
   Exclude:
     - 'spec/lib/common/client/concerns/monitoring_spec.rb'
     - 'spec/request/id_card_attributes_request_spec.rb'
-
-# Offense count: 1
-# Cop supports --auto-correct.
-# RSpec/BeEql:
-#   Exclude:
-#     - 'spec/lib/sentry/processor/filter_request_body_spec.rb'
 
 # Offense count: 28
 RSpec/BeforeAfterAll:
@@ -74,26 +59,6 @@ RSpec/EmptyExampleGroup:
     - 'spec/lib/hca/validations_spec.rb'
     - 'spec/lib/sentry/processor/log_as_warning_processor_spec.rb'
     - 'spec/models/form_profile_spec.rb'
-
-# Offense count: 35
-# Cop supports --auto-correct.
-# RSpec/EmptyLineAfterExampleGroup:
-#   Exclude:
-#     - 'modules/claims_api/spec/models/auto_establish_claim_spec.rb'
-#     - 'modules/claims_api/spec/models/power_of_attorney_spec.rb'
-#     - 'spec/controllers/v0/post_911_gi_bill_statuses_controller_spec.rb'
-#     - 'spec/jobs/education_form/education_facility_spec.rb'
-#     - 'spec/jobs/transactional_email_analytics_job_spec.rb'
-#     - 'spec/lib/common/models/redis_store_spec.rb'
-#     - 'spec/lib/hca/service_spec.rb'
-#     - 'spec/lib/mvi/configuration_spec.rb'
-#     - 'spec/lib/mvi/messages/message_builder_spec.rb'
-#     - 'spec/lib/pdf_fill/forms/va214142_spec.rb'
-#     - 'spec/lib/saml/saml_settings_service_spec.rb'
-#     - 'spec/lib/sentry_logging_spec_helper.rb'
-#     - 'spec/models/mvi_spec.rb'
-#     - 'spec/models/okta_redis/grants_spec.rb'
-#     - 'spec/uploaders/evss_claim_document_uploader_spec.rb'
 
 # Offense count: 229
 # Cop supports --auto-correct.
@@ -188,17 +153,6 @@ RSpec/LeadingSubject:
 # Offense count: 56
 RSpec/LeakyConstantDeclaration:
   Enabled: false
-
-# Offense count: 10
-# Cop supports --auto-correct.
-# RSpec/LetBeforeExamples:
-#   Exclude:
-#     - 'spec/controllers/v0/gi_bill_feedbacks_controller_spec.rb'
-#     - 'spec/controllers/v0/vic/vic_submissions_controller_spec.rb'
-#     - 'spec/lib/mhv_ac/client_spec.rb'
-#     - 'spec/rakelib/vet360_spec.rb'
-#     - 'spec/request/health_records_request_spec.rb'
-#     - 'spec/serializers/evss_claim_detail_serializer_spec.rb'
 
 # Offense count: 25
 RSpec/LetSetup:
