@@ -90,31 +90,37 @@ describe Mvi, skip_mvi: true do
           expect(mvi.edipi).to eq(profile_response.profile.edipi)
         end
       end
+
       describe '#icn' do
         it 'should match the response' do
           expect(mvi.icn).to eq(profile_response.profile.icn)
         end
       end
+
       describe '#icn_with_aaid' do
         it 'should match the response' do
           expect(mvi.icn_with_aaid).to eq(profile_response.profile.icn_with_aaid)
         end
       end
+
       describe '#mhv_correlation_id' do
         it 'should match the response' do
           expect(mvi.mhv_correlation_id).to eq(profile_response.profile.mhv_correlation_id)
         end
       end
+
       describe '#participant_id' do
         it 'should match the response' do
           expect(mvi.participant_id).to eq(profile_response.profile.participant_id)
         end
       end
+
       describe '#historical_icns' do
         it 'should match the response' do
           expect(mvi.historical_icns).to eq(profile_response.profile.historical_icns)
         end
       end
+
       describe '#vet360_id' do
         it 'should match the response' do
           expect(mvi.vet360_id).to eq(profile_response.profile.vet360_id)
@@ -136,21 +142,25 @@ describe Mvi, skip_mvi: true do
           expect(mvi.edipi).to be_nil
         end
       end
+
       describe '#icn' do
         it 'should be nil' do
           expect(mvi.icn).to be_nil
         end
       end
+
       describe '#icn_with_aaid' do
         it 'should be nil' do
           expect(mvi.icn_with_aaid).to be_nil
         end
       end
+
       describe '#mhv_correlation_id' do
         it 'should be nil' do
           expect(mvi.mhv_correlation_id).to be_nil
         end
       end
+
       describe '#participant_id' do
         it 'should be nil' do
           expect(mvi.participant_id).to be_nil

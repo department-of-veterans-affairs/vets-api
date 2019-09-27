@@ -4,10 +4,9 @@ require 'rails_helper'
 require 'support/controller_spec_helper'
 
 RSpec.describe V0::VIC::VICSubmissionsController, type: :controller do
-  it_should_behave_like 'a controller that deletes an InProgressForm', 'vic_submission', 'vic_submission', 'VIC'
-
-  let(:user) { create(:user) }
   let(:form) { build(:vic_submission).form }
+  let(:user) { create(:user) }
+  it_should_behave_like 'a controller that deletes an InProgressForm', 'vic_submission', 'vic_submission', 'VIC'
 
   describe '#create' do
     def send_create
