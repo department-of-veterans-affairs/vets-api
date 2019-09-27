@@ -7,6 +7,6 @@ FactoryBot.define do
     middle { generate(:middle_name) }
     maiden { generate(:maiden_name) }
 
-    suffix 'Jr.'
+    suffix { 'Jr.' }
   end
 end
