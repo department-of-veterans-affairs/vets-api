@@ -18,7 +18,7 @@ pipeline {
   stages {
     stage('Checkout Code') {
       steps {
-        def scmVars = checkout scm
+        checkout scm
       }
     }
 
