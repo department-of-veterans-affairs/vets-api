@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 
-require 'feature_flipper'
 Rails.application.routes.draw do
   match '/v0/*path', to: 'application#cors_preflight', via: [:options]
   match '/services/*path', to: 'application#cors_preflight', via: [:options]
@@ -11,6 +10,13 @@ Rails.application.routes.draw do
   get '/sessions/:type/new',
       to: 'v0/sessions#new',
       constraints: ->(request) { V0::SessionsController::REDIRECT_URLS.include?(request.path_parameters[:type]) }
+
+  get '/v1/sessions/metadata', to: 'v1/sessions#metadata'
+  get '/v1/sessions/logout', to: 'v1/sessions#saml_logout_callback'
+  post '/v1/sessions/callback', to: 'v1/sessions#saml_callback', module: 'v1'
+  get '/v1/sessions/:type/new',
+      to: 'v1/sessions#new',
+      constraints: ->(request) { V1::SessionsController::REDIRECT_URLS.include?(request.path_parameters[:type]) }
 
   namespace :v0, defaults: { format: 'json' } do
     resources :appointments, only: :index
@@ -146,6 +152,7 @@ Rails.application.routes.draw do
       resources :institutions, only: :show, defaults: { format: :json } do
         get :search, on: :collection
         get :autocomplete, on: :collection
+        get :children, on: :member
       end
 
       resources :calculator_constants, only: :index, defaults: { format: :json }
@@ -244,6 +251,7 @@ Rails.application.routes.draw do
     resources :preferences, only: %i[index show], path: 'user/preferences/choices', param: :code
     resources :user_preferences, only: %i[create index], path: 'user/preferences', param: :code
     delete 'user/preferences/:code/delete_all', to: 'user_preferences#delete_all'
+    get 'feature_toggles', to: 'feature_toggles#index'
 
     [
       'profile',
@@ -258,6 +266,13 @@ Rails.application.routes.draw do
         only: %i[show create destroy],
         defaults: { feature: feature }
       )
+    end
+  end
+
+  namespace :v1, defaults: { format: 'json' } do
+    resource :sessions, only: [] do
+      post :saml_callback, to: 'sessions#saml_callback'
+      post :saml_slo_callback, to: 'sessions#saml_slo_callback'
     end
   end
 
@@ -281,6 +296,14 @@ Rails.application.routes.draw do
     require 'sidekiq-scheduler/web'
     mount Sidekiq::Web, at: '/sidekiq'
   end
+
+  require 'feature_flipper'
+  flipper_app = Flipper::UI.app(Flipper.instance) do |builder|
+    builder.use Rack::Auth::Basic do |username, password|
+      username == Settings.flipper.username && password == Settings.flipper.password
+    end
+  end
+  mount flipper_app, at: '/flipper'
 
   # This globs all unmatched routes and routes them as routing errors
   match '*path', to: 'application#routing_error', via: %i[get post put patch delete]

@@ -35,6 +35,7 @@ module Common
     def initialize(attributes = {}, persisted = false)
       undefined = REQ_CLASS_INSTANCE_VARS.select { |class_var| send(class_var).nil? }
       raise NoMethodError, "Required class methods #{undefined.join(', ')} are not defined" if undefined.any?
+
       super(attributes)
       @persisted = persisted
       run_callbacks :initialize
@@ -43,8 +44,10 @@ module Common
     def self.find(redis_key = nil)
       response = redis_namespace.get(redis_key)
       return nil unless response
+
       attributes = Oj.load(response)
       return nil if attributes.blank?
+
       object = new(attributes, true)
       if object.valid?
         object
@@ -78,6 +81,7 @@ module Common
 
     def save
       return false unless valid?
+
       redis_namespace.set(attributes[redis_namespace_key], Oj.dump(attributes))
       expire(redis_namespace_ttl) if defined? redis_namespace_ttl
       @persisted = true

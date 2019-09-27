@@ -123,6 +123,7 @@ module V0
       Swagger::Requests::BurialClaims,
       Swagger::Requests::DisabilityCompensationForm,
       Swagger::Requests::EducationBenefitsClaims,
+      Swagger::Requests::FeatureToggles,
       Swagger::Requests::Gibct::CalculatorConstants,
       Swagger::Requests::Gibct::Institutions,
       Swagger::Requests::HealthCareApplications,

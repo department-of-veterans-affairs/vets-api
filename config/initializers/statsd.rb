@@ -100,3 +100,19 @@ StatsD.increment(SentryJob::STATSD_ERROR_KEY, 0)
 
 # init Search
 StatsD.increment("#{Search::Service::STATSD_KEY_PREFIX}.exceptions", 0, tags: ['exception:429'])
+
+ActiveSupport::Notifications.subscribe('process_action.action_controller') do |_, _, _, _, payload|
+  tags = ["controller:#{payload.dig(:params, :controller)}", "action:#{payload.dig(:params, :action)}",
+          "status:#{payload[:status]}"]
+  StatsD.measure('api.request.db_runtime', payload[:db_runtime].to_i, tags: tags)
+  StatsD.measure('api.request.view_runtime', payload[:view_runtime].to_i, tags: tags)
+end
+
+# init gibft
+StatsD.increment("#{Gibft::Service::STATSD_KEY_PREFIX}.submit.total", 0)
+StatsD.increment("#{Gibft::Service::STATSD_KEY_PREFIX}.submit.fail", 0)
+
+all_keys = StatsDMetric.keys
+all_keys.each do |key|
+  StatsD.increment(key.to_s, 0)
+end

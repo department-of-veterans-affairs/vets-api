@@ -9,7 +9,7 @@ module OpenidAuth
 
       def index
         render json: validated_payload, serializer: OpenidAuth::ValidationSerializer
-      rescue StandardError => e
+      rescue => e
         raise Common::Exceptions::InternalServerError, e
       end
 

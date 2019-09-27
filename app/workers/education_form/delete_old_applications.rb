@@ -5,7 +5,6 @@ module EducationForm
     include Sidekiq::Worker
 
     def perform
-      Sentry::TagRainbows.tag
       edu_claim_ids = []
       saved_claim_ids = []
 
@@ -14,7 +13,7 @@ module EducationForm
                             .where("processed_at < '#{2.months.ago}'")
                             .find_each do |record|
         edu_claim_ids << record.id
-        saved_claim_ids << record&.saved_claim.id
+        saved_claim_ids << record&.saved_claim&.id
       end
 
       edu_claim_ids.compact!

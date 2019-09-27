@@ -5,7 +5,19 @@ require 'rails_helper'
 RSpec.describe 'PPIU', type: :request do
   include SchemaMatchers
 
-  before(:each) { sign_in }
+  let(:user) { create(:user, :mhv) }
+  before(:each) { sign_in(user) }
+
+  def self.test_unauthorized(verb)
+    context 'with an unauthorized user' do
+      let(:user) { create(:user, :loa3) }
+
+      it 'should return 403' do
+        public_send(verb, '/v0/ppiu/payment_information')
+        expect(response.code).to eq('403')
+      end
+    end
+  end
 
   describe 'GET /v0/ppiu/payment_information' do
     context 'with a valid evss response' do
@@ -20,6 +32,8 @@ RSpec.describe 'PPIU', type: :request do
         end
       end
     end
+
+    test_unauthorized('get')
 
     context 'with a 403 response' do
       it 'should return a not authorized response' do
@@ -47,15 +61,27 @@ RSpec.describe 'PPIU', type: :request do
     let(:ppiu_response) { File.read('spec/support/ppiu/update_ppiu_response.json') }
     let(:ppiu_request) { File.read('spec/support/ppiu/update_ppiu_request.json') }
 
+    test_unauthorized('put')
+
     context 'with a valid evss response' do
       it 'should match the ppiu schema' do
         VCR.use_cassette('evss/ppiu/update_payment_information') do
-          expect { put '/v0/ppiu/payment_information', params: ppiu_request, headers: headers }.to change {
-            ActionMailer::Base.deliveries.count
-          }.by(1)
+          put '/v0/ppiu/payment_information', params: ppiu_request, headers: headers
           expect(response).to have_http_status(:ok)
           expect(response).to match_response_schema('payment_information')
           expect(JSON.parse(response.body)).to eq(JSON.parse(ppiu_response))
+        end
+      end
+
+      context 'when the user does have an associated email address' do
+        it 'calls a background job to send an email' do
+          VCR.use_cassette('evss/ppiu/update_payment_information') do
+            user.all_emails do |email|
+              expect(DirectDepositEmailJob).to receive(:perform_async).with(email, nil)
+            end
+
+            put '/v0/ppiu/payment_information', params: ppiu_request, headers: headers
+          end
         end
       end
 
@@ -68,8 +94,9 @@ RSpec.describe 'PPIU', type: :request do
         end
         it 'should log a message to Sentry' do
           VCR.use_cassette('evss/ppiu/update_payment_information') do
+            expect_any_instance_of(User).to receive(:all_emails).and_return([])
             expect(Raven).to receive(:capture_message).once
-            allow_any_instance_of(V0::PPIUController).to receive(:current_user_email).and_return(nil)
+
             put '/v0/ppiu/payment_information', params: ppiu_request, headers: headers
             expect(response).to have_http_status(:ok)
           end

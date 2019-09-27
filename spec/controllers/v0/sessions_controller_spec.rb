@@ -310,15 +310,10 @@ RSpec.describe V0::SessionsController, type: :controller do
         allow(SAML::User).to receive(:new).and_return(saml_user)
       end
 
-      let(:frozen_time) { Time.current }
-      let(:expire_at) { frozen_time + 1800 }
-
       around(:each) do |example|
-        Timecop.freeze(frozen_time)
         Settings.sso.cookie_enabled = true
         example.run
         Settings.sso.cookie_enabled = false
-        Timecop.return
       end
 
       it 'sets the session cookie' do
@@ -343,7 +338,7 @@ RSpec.describe V0::SessionsController, type: :controller do
             identity_compared_with_mvi: {
               length: [9, 9],
               only_digits: [true, true],
-              encoding: ['UTF-8', 'UTF-8'],
+              encoding: %w[UTF-8 UTF-8],
               levenshtein_distance: 8
             }
           )
@@ -351,6 +346,8 @@ RSpec.describe V0::SessionsController, type: :controller do
 
           callback_tags = ['status:success', "context:#{LOA::IDME_LOA3}"]
 
+          Timecop.freeze(Time.current)
+          cookie_expiration_time = 30.minutes.from_now.iso8601(0)
           expect { post(:saml_callback) }
             .to trigger_statsd_increment(described_class::STATSD_SSO_CALLBACK_KEY, tags: callback_tags, **once)
             .and trigger_statsd_increment(described_class::STATSD_SSO_CALLBACK_TOTAL_KEY, **once)
@@ -369,7 +366,8 @@ RSpec.describe V0::SessionsController, type: :controller do
                    'mhvCorrelationId' => loa3_user.mhv_correlation_id,
                    'signIn' => { 'serviceName' => 'idme' },
                    'credential_used' => 'id_me',
-                   'expirationTime' => expire_at.iso8601(0))
+                   'expirationTime' => cookie_expiration_time)
+          Timecop.return
         end
       end
 
@@ -393,7 +391,11 @@ RSpec.describe V0::SessionsController, type: :controller do
         end
 
         it 'has a cookie, but values are nil because loa1 user', :aggregate_failures do
+          Timecop.freeze(Time.current)
+          cookie_expiration_time = 30.minutes.from_now.iso8601(0)
+
           post :saml_callback
+
           expect(cookies['vagov_session_dev']).not_to be_nil
           expect(JSON.parse(decrypter.decrypt(cookies['vagov_session_dev'])))
             .to eq(
@@ -401,13 +403,16 @@ RSpec.describe V0::SessionsController, type: :controller do
               'mhvCorrelationId' => nil,
               'signIn' => { 'serviceName' => 'idme' },
               'credential_used' => 'id_me',
-              'expirationTime' => expire_at.iso8601(0)
+              'expirationTime' => cookie_expiration_time
             )
+          Timecop.return
         end
 
         # keeping this spec round to easily test out the testing attributes
         xit 'has a cookie, which includes the testing values', :aggregate_failures do
+          Timecop.freeze(Time.current)
           with_settings(Settings.sso, testing: true) do
+            @cookie_expiration_time = 30.minutes.from_now.iso8601(0)
             post :saml_callback
           end
 
@@ -418,8 +423,9 @@ RSpec.describe V0::SessionsController, type: :controller do
               'mhvCorrelationId' => nil,
               'signIn' => { 'serviceName' => 'idme' },
               'credential_used' => 'id_me',
-              'expirationTime' => expire_at.iso8601(0)
+              'expirationTime' => @cookie_expiration_time
             )
+          Timecop.return
         end
       end
 
@@ -435,8 +441,12 @@ RSpec.describe V0::SessionsController, type: :controller do
         end
 
         it 'redirects to identity proof URL', :aggregate_failures do
+          Timecop.freeze(Time.current)
           expect_any_instance_of(SAML::URLService).to receive(:verify_url)
+          cookie_expiration_time = 30.minutes.from_now.iso8601(0)
+
           post :saml_callback
+
           expect(cookies['vagov_session_dev']).not_to be_nil
           expect(JSON.parse(decrypter.decrypt(cookies['vagov_session_dev'])))
             .to eq(
@@ -444,8 +454,9 @@ RSpec.describe V0::SessionsController, type: :controller do
               'mhvCorrelationId' => nil,
               'signIn' => { 'serviceName' => 'idme' },
               'credential_used' => 'id_me',
-              'expirationTime' => expire_at.iso8601(0)
+              'expirationTime' => cookie_expiration_time
             )
+          Timecop.return
         end
       end
 

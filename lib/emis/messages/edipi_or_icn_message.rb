@@ -22,6 +22,7 @@ module EMIS
         if (edipi.present? && icn.present?) || (edipi.nil? && icn.nil?)
           raise ArgumentError, 'must include either an EDIPI or ICN, but not both'
         end
+
         @edipi = edipi
         @icn = icn
         @request_name = request_name

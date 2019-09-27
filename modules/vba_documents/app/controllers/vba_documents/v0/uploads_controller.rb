@@ -26,22 +26,21 @@ module VBADocuments
       def show
         submission = VBADocuments::UploadSubmission.find_by(guid: params[:id])
 
-        if Settings.vba_documents.enable_status_override && request.headers['Status-Override']
+        if submission.nil?
+          return render status: :not_found,
+                        json: VBADocuments::UploadSubmission.fake_status(params[:id]),
+                        serializer: VBADocuments::UploadSerializer,
+                        render_location: false
+        elsif Settings.vba_documents.enable_status_override && request.headers['Status-Override']
           submission.status = request.headers['Status-Override']
           submission.save
+        else
+          submission.refresh_status! unless submission.status == 'expired'
         end
 
-        if submission.nil? || submission.status == 'expired'
-          render status: :not_found,
-                 json: VBADocuments::UploadSubmission.fake_status(params[:id]),
-                 serializer: VBADocuments::UploadSerializer,
-                 render_location: false
-        else
-          submission.refresh_status!
-          render json: submission,
-                 serializer: VBADocuments::UploadSerializer,
-                 render_location: false
-        end
+        render json: submission,
+               serializer: VBADocuments::UploadSerializer,
+               render_location: false
       end
 
       def download
@@ -59,7 +58,7 @@ module VBADocuments
       private
 
       def verify_settings
-        render plain: 'Not found', status: 404 unless Settings.vba_documents.enable_download_endpoint
+        render plain: 'Not found', status: :not_found unless Settings.vba_documents.enable_download_endpoint
       end
     end
   end

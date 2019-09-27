@@ -9,7 +9,7 @@ module ClaimsApi
     swagger_path '/forms/0966' do
       operation :get do
         key :summary, 'Get 0966 JSON Schema for form'
-        key :description, 'Returns a single JSON schema to auto generate a form'
+        key :description, 'Returns a single 0966 JSON schema to auto generate a form'
         key :operationId, 'get0966JsonSchema'
         key :produces, [
           'application/json'
@@ -109,7 +109,7 @@ module ClaimsApi
           key :name, 'X-VA-User'
           key :in, :header
           key :description, 'VA username of the person making the request'
-          key :required, true
+          key :required, false
           key :type, :string
         end
 
@@ -147,6 +147,7 @@ module ClaimsApi
             key :'$ref', :Form0966Output
           end
         end
+
         response :default do
           key :description, 'unexpected error'
           schema do
@@ -167,7 +168,7 @@ module ClaimsApi
       operation :get do
         key :summary, 'Returns last active 0966 Intent to File form submission'
         key :description, 'Returns last active JSON payload. Full URL, including\nquery parameters.'
-        key :operationId, 'post0966itf'
+        key :operationId, 'get0966itf'
         key :tags, [
           'Intent to File'
         ]
@@ -262,6 +263,7 @@ module ClaimsApi
             key :'$ref', :Form0966Output
           end
         end
+
         response :default do
           key :description, 'unexpected error'
           schema do

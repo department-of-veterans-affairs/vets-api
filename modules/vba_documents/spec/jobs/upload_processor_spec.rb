@@ -37,8 +37,6 @@ RSpec.describe VBADocuments::UploadProcessor, type: :job do
     { 'metadata' => invalid_metadata_nonstring,
       'content' => valid_doc }
   end
-
-  # rubocop:disable Style/DateTime
   before(:each) do
     objstore = instance_double(VBADocuments::ObjectStore)
     version = instance_double(Aws::S3::ObjectVersion)
@@ -47,10 +45,9 @@ RSpec.describe VBADocuments::UploadProcessor, type: :job do
     allow(objstore).to receive(:download)
     allow(version).to receive(:last_modified).and_return(DateTime.now.utc)
   end
-  # rubocop:enable Style/DateTime
 
   describe '#perform' do
-    let(:upload) { FactoryBot.create(:upload_submission, consumer_name: 'test consumer') }
+    let(:upload) { FactoryBot.create(:upload_submission, :status_uploaded, consumer_name: 'test consumer') }
 
     it 'parses and uploads a valid multipart payload' do
       allow(VBADocuments::MultipartParser).to receive(:parse) { valid_parts }
@@ -239,6 +236,20 @@ RSpec.describe VBADocuments::UploadProcessor, type: :job do
       expect(updated.code).to eq('DOC103')
     end
 
+    context 'with invalid sizes' do
+      %w[21x21 18x22 22x18].each do |invalid_size|
+        it 'sets an error status for invalid size' do
+          allow(VBADocuments::MultipartParser).to receive(:parse) {
+            { 'metadata' => valid_metadata, 'content' => get_fixture("#{invalid_size}.pdf") }
+          }
+          described_class.new.perform(upload.guid)
+          updated = VBADocuments::UploadSubmission.find_by(guid: upload.guid)
+          expect(updated.status).to eq('error')
+          expect(updated.code).to eq('DOC108')
+        end
+      end
+    end
+
     xit 'sets error status for non-PDF attachment parts' do
     end
 
@@ -335,7 +346,7 @@ RSpec.describe VBADocuments::UploadProcessor, type: :job do
         .and_raise(Faraday::TimeoutError.new)
       expect { described_class.new.perform(upload.guid) }.to raise_error(Faraday::TimeoutError)
       updated = VBADocuments::UploadSubmission.find_by(guid: upload.guid)
-      expect(updated.status).to eq('pending')
+      expect(updated.status).to eq('uploaded')
     end
   end
 end

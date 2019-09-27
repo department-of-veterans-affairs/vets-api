@@ -351,6 +351,27 @@ RSpec.describe FormProfile, type: :model do
     }
   end
 
+  let(:v22_1995_s_expected) do
+    {
+      'veteranAddress' => {
+        'street' => street_check[:street],
+        'street2' => street_check[:street2],
+        'city' => user.va_profile[:address][:city],
+        'state' => user.va_profile[:address][:state],
+        'country' => user.va_profile[:address][:country],
+        'postal_code' => user.va_profile[:address][:postal_code][0..4]
+      },
+      'veteranFullName' => {
+        'first' => user.first_name&.capitalize,
+        'last' => user.last_name&.capitalize,
+        'suffix' => user.va_profile[:suffix]
+      },
+      'homePhone' => us_phone,
+      'veteranSocialSecurityNumber' => user.ssn,
+      'email' => user.pciu_email
+    }
+  end
+
   let(:v22_5490_expected) do
     {
       'toursOfDuty' => [
@@ -595,6 +616,7 @@ RSpec.describe FormProfile, type: :model do
 
       schema.each do |k, v|
         next if k == 'required'
+
         new_schema[k] = v.is_a?(Hash) ? strip_required(v) : v
       end
 
@@ -633,7 +655,7 @@ RSpec.describe FormProfile, type: :model do
         expect(Rails.env).to receive(:production?).and_return(true)
         expect(user.military_information).to receive(:hca_last_service_branch).and_return('air force').and_raise(error)
         form_profile = described_class.for('1010ez')
-        expect(form_profile).to receive(:log_exception_to_sentry).with(error, {}, backend_service: :emis)
+        expect(form_profile).to receive(:log_exception_to_sentry).with(error, {}, external_service: :emis)
         form_profile.prefill(user)
       end
     end
@@ -753,6 +775,7 @@ RSpec.describe FormProfile, type: :model do
           22-1990N
           22-1990E
           22-1995
+          22-1995S
           22-5490
           22-5495
           40-10007

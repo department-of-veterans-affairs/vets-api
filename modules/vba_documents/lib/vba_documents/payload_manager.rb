@@ -2,16 +2,22 @@
 
 require_dependency 'vba_documents/multipart_parser'
 require_dependency 'vba_documents/object_store'
+require_dependency 'vba_documents/upload_error'
 
 module VBADocuments
   class PayloadManager
     def self.zip(submission)
       raw_file, = download_raw_file(submission.guid)
-      parsed = VBADocuments::MultipartParser.parse(raw_file.path)
-      files = [
-        { name: 'content.pdf', path: parsed['content'].path },
-        { name: 'metadata.json', path: write_json(submission.guid, parsed).path }
-      ] + attachments(parsed)
+
+      begin
+        parsed = VBADocuments::MultipartParser.parse(raw_file.path)
+        files = [
+          { name: 'content.pdf', path: parsed['content'].path },
+          { name: 'metadata.json', path: write_json(submission.guid, parsed).path }
+        ] + attachments(parsed)
+      rescue VBADocuments::UploadError
+        files = [{ name: 'payload.blob', path: raw_file.path }]
+      end
       zip_file_name = "/tmp/#{submission.guid}.zip"
 
       Zip::File.open(zip_file_name, Zip::File::CREATE) do |zipfile|

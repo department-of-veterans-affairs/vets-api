@@ -68,9 +68,10 @@ module VBADocuments
           upload = VBADocuments::UploadSubmission.where(status: 'pending').find_by(guid: upload_id)
           store = VBADocuments::ObjectStore.new
           raise Common::Exceptions::RecordNotFound, upload_id unless upload && store.bucket.object(upload.guid).exists?
+
           Rails.logger.info('VBADocuments: Processing: ' + upload.inspect)
-          VBADocuments::UploadProcessor.perform_async(upload_id)
           upload.update(status: 'uploaded')
+          VBADocuments::UploadProcessor.perform_async(upload_id)
         end
       end
     end

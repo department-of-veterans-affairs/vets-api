@@ -31,6 +31,12 @@ describe 'gi client' do
     expect(client_response[:data].keys).to contain_exactly(:id, :type, :attributes, :links)
   end
 
+  it 'gets the institution children', :vcr do
+    client_response = client.get_institution_children(id: '20603613')
+    expect(client_response[:data]).to be_an(Array)
+    expect(client_response[:data].first.keys).to contain_exactly(:id, :type, :attributes, :links)
+  end
+
   it 'gets the zipcode rate', :vcr do
     client_response = client.get_zipcode_rate(id: '20001')
     expect(client_response[:data]).to be_a(Hash)

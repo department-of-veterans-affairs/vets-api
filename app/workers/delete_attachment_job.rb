@@ -8,8 +8,6 @@ class DeleteAttachmentJob
   EXPIRATION_TIME = 2.months
 
   def perform
-    Sentry::TagRainbows.tag
-
     FormAttachment.where(
       'created_at < ?', EXPIRATION_TIME.ago
     ).where(

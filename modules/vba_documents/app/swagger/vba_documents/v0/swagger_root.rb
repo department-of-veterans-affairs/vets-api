@@ -9,7 +9,7 @@ module VbaDocuments
         info do
           key :version, '0.0.0'
           key :title, 'Benefits Intake'
-          key :description, File.read(VBADocuments::Engine.root.join('app', 'swagger', 'description.md'))
+          key :description, File.read(VBADocuments::Engine.root.join('app', 'swagger', 'vba_documents', 'v0', 'description.md'))
           contact do
             key :name, 'va.gov'
           end

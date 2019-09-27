@@ -8,6 +8,7 @@ module VBADocuments
 
     def perform
       return unless Settings.vba_documents.s3.enabled
+
       VBADocuments::UploadSubmission.where(status: 'pending').find_each do |upload|
         processed = process(upload)
         expire(upload) unless processed
@@ -19,9 +20,10 @@ module VBADocuments
     def process(upload)
       Rails.logger.info('VBADocuments: Processing: ' + upload.inspect)
       object = bucket.object(upload.guid)
-      return false unless object.exists? && (object.last_modified < 5.minutes.ago)
-      VBADocuments::UploadProcessor.perform_async(upload.guid)
+      return false unless object.exists?
+
       upload.update(status: 'uploaded')
+      VBADocuments::UploadProcessor.perform_async(upload.guid)
       true
     end
 

@@ -7,38 +7,9 @@ RSpec.describe 'VBA Document Uploads Report Endpoint', type: :request do
     let(:upload) { FactoryBot.create(:upload_submission) }
     let(:upload_received) { FactoryBot.create(:upload_submission, status: 'received') }
     let(:upload2_received) { FactoryBot.create(:upload_submission, guid: SecureRandom.uuid, status: 'received') }
-    let(:client_stub) { instance_double('CentralMail::Service') }
-    let(:faraday_response) { instance_double('Faraday::Response') }
-
-    let(:received_element) do
-      [{ "uuid": 'ignored',
-         "status": 'Received',
-         "errorMessage": '',
-         "lastUpdated": '2018-04-25 00:02:39' }]
-    end
-    let(:processing_element) do
-      [{ "uuid": 'ignored',
-         "status": 'In Process',
-         "errorMessage": '',
-         "lastUpdated": '2018-04-25 00:02:39' }]
-    end
-    let(:success_element) do
-      [{ "uuid": 'ignored',
-         "status": 'Success',
-         "errorMessage": '',
-         "lastUpdated": '2018-04-25 00:02:39' }]
-    end
 
     context 'with in-flight submissions' do
-      before(:each) do
-        expect(CentralMail::Service).to receive(:new) { client_stub }
-        expect(client_stub).to receive(:status).and_return(faraday_response)
-      end
-
       it 'should return status of a single upload submissions' do
-        expect(faraday_response).to receive(:success?).and_return(true)
-        received_element[0]['uuid'] = upload_received.guid
-        expect(faraday_response).to receive(:body).at_least(:once).and_return([received_element].to_json)
         params = [upload_received.guid]
         post '/services/vba_documents/v1/uploads/report', params: { ids: params }
         expect(response).to have_http_status(:ok)
@@ -50,11 +21,6 @@ RSpec.describe 'VBA Document Uploads Report Endpoint', type: :request do
       end
 
       it 'should return status of a multiple upload submissions' do
-        expect(faraday_response).to receive(:success?).and_return(true)
-        received_element[0]['uuid'] = upload_received.guid
-        processing_element[0]['uuid'] = upload2_received.guid
-        body = [received_element, processing_element].to_json
-        expect(faraday_response).to receive(:body).at_least(:once).and_return(body)
         params = [upload_received.guid, upload2_received.guid]
         post '/services/vba_documents/v1/uploads/report', params: { ids: params }
         expect(response).to have_http_status(:ok)
@@ -67,10 +33,6 @@ RSpec.describe 'VBA Document Uploads Report Endpoint', type: :request do
       end
 
       it 'should silently skip status not returned from central mail' do
-        expect(faraday_response).to receive(:success?).and_return(true)
-        received_element[0]['uuid'] = upload_received.guid
-        processing_element[0]['uuid'] = upload2_received.guid
-        expect(faraday_response).to receive(:body).at_least(:once).and_return([received_element, []].to_json)
         params = [upload_received.guid, upload2_received.guid]
         post '/services/vba_documents/v1/uploads/report', params: { ids: params }
         expect(response).to have_http_status(:ok)
@@ -81,22 +43,9 @@ RSpec.describe 'VBA Document Uploads Report Endpoint', type: :request do
         expect(ids).to include(upload_received.guid)
         expect(ids).to include(upload2_received.guid)
       end
-
-      it 'should raise an error if gateway unavailable' do
-        expect(faraday_response).to receive(:success?).and_return(false)
-        expect(faraday_response).to receive(:status).and_return(401)
-        expect(faraday_response).to receive(:body).at_least(:once).and_return('Unauthorized')
-        params = [upload_received.guid, upload2_received.guid]
-        post '/services/vba_documents/v1/uploads/report', params: { ids: params }
-        expect(response).to have_http_status(:bad_gateway)
-      end
     end
 
     context 'without in-flight submissions' do
-      before(:each) do
-        expect(CentralMail::Service).not_to receive(:new) { client_stub }
-      end
-
       it 'should not fetch status if no in-flight submissions' do
         params = [upload.guid]
         post '/services/vba_documents/v1/uploads/report', params: { ids: params }
@@ -110,12 +59,14 @@ RSpec.describe 'VBA Document Uploads Report Endpoint', type: :request do
 
       it 'should present error result for non-existent submission' do
         post '/services/vba_documents/v1/uploads/report', params: { ids: ['fake-1234'] }
-        expect(response).to have_http_status(:not_found)
+        expect(response).to have_http_status(:ok)
         json = JSON.parse(response.body)
-        expect(json['errors']).to be_an(Array)
-        expect(json['errors'].size).to eq(1)
-        status = json['errors'][0]
-        expect(status['detail']).to include('fake-1234')
+        expect(json['data']).to be_an(Array)
+        expect(json['data'].size).to eq(1)
+        status = json['data'][0]
+        expect(status['id']).to eq('fake-1234')
+        expect(status['attributes']['guid']).to eq('fake-1234')
+        expect(status['attributes']['code']).to eq('DOC105')
       end
     end
 
@@ -131,7 +82,7 @@ RSpec.describe 'VBA Document Uploads Report Endpoint', type: :request do
       end
 
       it 'should return error if guids parameter has too many elements' do
-        params = Array.new(101, 'abcd-1234')
+        params = Array.new(1001, 'abcd-1234')
         post '/services/vba_documents/v1/uploads/report', params: { ids: params }
         expect(response).to have_http_status(:bad_request)
       end

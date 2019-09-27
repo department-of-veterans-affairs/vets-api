@@ -2,6 +2,7 @@
 
 class BackendStatusSerializer < ActiveModel::Serializer
   attribute :name
+  attribute :service_id
   attribute :is_available
   attribute :uptime_remaining
 

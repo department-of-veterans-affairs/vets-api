@@ -33,6 +33,7 @@ module ExternalServicesRedis
     #     "statuses"    => [
     #       {
     #         "service"                 => "Appeals",
+    #         "service_id"              => "appeals"
     #         "status"                  => "active",
     #         "last_incident_timestamp" => "2019-03-01T02:55:55.000-05:00"
     #       },

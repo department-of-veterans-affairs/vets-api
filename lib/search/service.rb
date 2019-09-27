@@ -32,8 +32,8 @@ module Search
         response = perform(:get, results_url, query_params)
         Search::ResultsResponse.from(response)
       end
-    rescue StandardError => error
-      handle_error(error)
+    rescue => e
+      handle_error(e)
     end
 
     private
@@ -49,11 +49,11 @@ module Search
     #
     def query_params
       {
-        affiliate:  affiliate,
+        affiliate: affiliate,
         access_key: access_key,
-        query:      query,
-        offset:     offset,
-        limit:      limit
+        query: query,
+        offset: offset,
+        limit: limit
       }
     end
 

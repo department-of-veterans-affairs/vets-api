@@ -1,0 +1,13 @@
+---
+# Add a new feture toggle here to ensure that it is initialized in all environments.
+# Features are defaulted to enabled in development and test environments and disabled in all others.
+# The description should contain any relevant information for an admin who may toggle the feature.
+
+features:
+  facility_locator_show_community_cares:
+    description: >
+      On https://www.va.gov/find-locations/ enable veterans to search for Community care by showing that option in the "Search for" box.
+      This toggle is owned by Rian
+  profile_show_direct_deposit:
+    description: >
+      https://www.va.gov/profile/ show Direct Deopsit

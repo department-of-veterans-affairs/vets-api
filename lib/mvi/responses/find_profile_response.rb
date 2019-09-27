@@ -54,6 +54,7 @@ module MVI
         raise MVI::Errors::InvalidRequestError if profile_parser.invalid_request?
         raise MVI::Errors::FailedRequestError if profile_parser.failed_request?
         raise MVI::Errors::RecordNotFound unless profile
+
         FindProfileResponse.new(
           status: RESPONSE_STATUS[:ok],
           profile: profile

@@ -56,5 +56,10 @@ module ClaimsApi
         []
       end
     end
+
+    def self.services_are_healthy?
+      # TODO: we should add check for Okta and SAML Proxies being up as well
+      MVI::Service.service_is_up? && EVSS::Service.service_is_up?
+    end
   end
 end

@@ -41,6 +41,7 @@ describe ExternalServicesRedis::Status do
       expect(service_status[:service]).to be_present
       expect(service_status[:status]).to be_present
       expect(service_status[:last_incident_timestamp]).to be_present
+      expect(service_status[:service_id]).to be_a(String)
     end
 
     context 'when the cache is empty' do

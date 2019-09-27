@@ -5,7 +5,6 @@ module V0
     include IgnoreNotFound
 
     before_action { authorize :evss, :access? }
-    before_action(:tag_rainbows)
 
     def index
       claims, synchronized = service.all
@@ -18,6 +17,7 @@ module V0
     def show
       claim = EVSSClaim.for_user(current_user).find_by(evss_id: params[:id])
       raise Common::Exceptions::RecordNotFound, params[:id] unless claim
+
       claim, synchronized = service.update_from_remote(claim)
       render json: claim, serializer: EVSSClaimDetailSerializer,
              meta: { sync_status: synchronized }

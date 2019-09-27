@@ -11,6 +11,8 @@ module Vet360
     end
 
     def perform(method, path, body = nil, headers = {})
+      log_dates(body)
+
       Vet360::Stats.increment('total_operations')
       config.base_request_headers.merge(headers)
       response = super(method, path, body, headers)
@@ -24,6 +26,16 @@ module Vet360
 
     private
 
+    def log_dates(body)
+      parsed_body = JSON.parse(body)
+
+      Raven.extra_context(
+        request_dates: parsed_body['bio'].slice('effectiveStartDate', 'effectiveEndDate', 'sourceDate')
+      )
+    rescue
+      nil
+    end
+
     def handle_error(error)
       case error
       when Common::Client::Errors::ParsingError # Vet360 sent a non-JSON response
@@ -35,6 +47,7 @@ module Vet360
       when Common::Client::Errors::ClientError
         save_error_details(error)
         raise Common::Exceptions::Forbidden if error.status == 403
+
         raise_invalid_body(error, self.class) unless error.body.is_a?(Hash)
         message = parse_messages(error)&.first
         raise_backend_exception("VET360_#{message['code']}", self.class, error) if message.present?

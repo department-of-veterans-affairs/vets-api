@@ -2,6 +2,9 @@
 
 source 'https://rubygems.org'
 
+ruby '2.4.5'
+
+# Modules
 gem 'appeals_api', path: 'modules/appeals_api'
 gem 'claims_api', path: 'modules/claims_api'
 gem 'openid_auth', path: 'modules/openid_auth'
@@ -18,7 +21,6 @@ gem 'rails', '~> 5.2.3'
 # Gems with special version/repo needs
 gem 'active_model_serializers', '0.10.4' # breaking changed in 0.10.5 relating to .to_json
 gem 'carrierwave', '~> 0.11' # TODO: explanation
-gem 'sdoc', '~> 0.4.0', group: :doc # TODO: explanation
 gem 'sidekiq-scheduler', '~> 2.0' # TODO: explanation
 
 gem 'aasm'
@@ -34,10 +36,18 @@ gem 'clam_scan'
 gem 'config'
 gem 'connect_vbms', git: 'https://github.com/department-of-veterans-affairs/connect_vbms.git', branch: 'master'
 gem 'date_validator'
+gem 'dry-struct'
+gem 'dry-types'
 gem 'faraday'
 gem 'faraday_middleware'
+gem 'fast_jsonapi'
 gem 'fastimage'
 gem 'figaro'
+gem 'flipper'
+gem 'flipper-active_record'
+gem 'flipper-active_support_cache_store'
+gem 'flipper-ui'
+
 gem 'govdelivery-tms', '2.8.4', require: 'govdelivery/tms/mail/delivery_method'
 gem 'gyoku'
 gem 'holidays'
@@ -52,9 +62,9 @@ gem 'levenshtein-ffi'
 gem 'liquid'
 gem 'mail', '2.6.6'
 gem 'memoist'
-gem 'mini_magick'
+gem 'mini_magick', '~> 4.9.4'
 gem 'net-sftp'
-gem 'nokogiri', '~> 1.10', '>= 1.10.3'
+gem 'nokogiri', '~> 1.10', '>= 1.10.4'
 gem 'octokit'
 gem 'oj' # Amazon Linux `json` gem causes conflicts, but `multi_json` will prefer `oj` if installed
 gem 'olive_branch'
@@ -66,6 +76,7 @@ gem 'prawn'
 gem 'pundit'
 gem 'rack-attack'
 gem 'rack-cors', require: 'rack/cors'
+gem 'rails-session_cookie'
 gem 'rails_semantic_logger', '~> 4.4'
 gem 'redis'
 gem 'redis-namespace'
@@ -76,7 +87,6 @@ gem 'savon'
 gem 'sentry-raven', '2.9.0' # don't change gem version unless sentry server is also upgraded
 gem 'shrine'
 gem 'sidekiq-instrument'
-gem 'sidekiq-unique-jobs'
 gem 'staccato'
 gem 'statsd-instrument'
 gem 'swagger-blocks'
@@ -89,6 +99,7 @@ gem 'will_paginate'
 gem 'zero_downtime_migrations'
 
 group :development do
+  gem 'benchmark-ips'
   gem 'guard-rubocop'
   gem 'seedbank'
   gem 'socksify'
@@ -99,18 +110,16 @@ group :development do
   # POSIX systems should have this already, so we're not going to bring it in on other platforms
   gem 'tzinfo-data', platforms: %i[mingw mswin x64_mingw jruby]
   # Access an IRB console on exception pages or by using <%= console %> in views
-  gem 'web-console', '~> 2.0', platforms: :ruby
+  gem 'web-console', platforms: :ruby
 end
 
 group :test do
   gem 'apivore'
   gem 'awrence'
-  gem 'climate_control'
   gem 'faker'
   gem 'faker-medical'
   gem 'fakeredis'
   gem 'pdf-inspector'
-  gem 'rails-session_cookie' # because request and integration specs dont allow for setting session cookie easily
   gem 'rspec_junit_formatter'
   gem 'rubocop-junit-formatter'
   gem 'shrine-memory'
@@ -124,11 +133,10 @@ group :development, :test do
   gem 'brakeman'
   gem 'bundler-audit'
   gem 'byebug', platforms: :ruby # Call 'byebug' anywhere in the code to stop execution and get a debugger console
-  gem 'factory_bot_rails'
+  gem 'database_cleaner'
+  gem 'factory_bot_rails', '> 5'
   gem 'pry-byebug'
   gem 'rainbow' # Used to colorize output for rake tasks
-  # TODO: switch to a version number once that version is released
-  gem 'factory_bot', git: 'https://github.com/thoughtbot/factory_bot', ref: '50eeb67241ea78a6b138eea694a2a25413052f49'
   # CAUTION: faraday_curl may not provide all headers used in the actual faraday request. Be cautious if using this to
   # assist with debugging production issues (https://github.com/department-of-veterans-affairs/vets.gov-team/pull/6262)
   gem 'faraday_curl'
@@ -138,7 +146,9 @@ group :development, :test do
   gem 'rack-test', require: 'rack/test'
   gem 'rack-vcr'
   gem 'rspec-rails', '~> 3.5'
-  gem 'rubocop', '~> 0.52.1', require: false
+  gem 'rubocop', require: false
+  gem 'rubocop-rails'
+  gem 'rubocop-rspec'
   gem 'sidekiq', '~> 4.2'
   gem 'timecop'
   gem 'webmock'

@@ -35,7 +35,7 @@ module EVSS
     def proxy_options
       {
         proxy: {
-          uri:  URI.parse(Settings.faraday_socks_proxy.uri),
+          uri: URI.parse(Settings.faraday_socks_proxy.uri),
           socks: Settings.faraday_socks_proxy.enabled
         }
       }

@@ -51,13 +51,13 @@ module MVI
       end
     rescue Breakers::OutageException => e
       Raven.extra_context(breakers_error_message: e.message)
-      log_console_and_sentry('MVI find_profile connection failed.', :error)
+      log_console_and_sentry('MVI find_profile connection failed.', :warn)
       mvi_profile_exception_response_for('MVI_503', e)
     rescue Faraday::ConnectionFailed => e
-      log_console_and_sentry("MVI find_profile connection failed: #{e.message}", :error)
+      log_console_and_sentry("MVI find_profile connection failed: #{e.message}", :warn)
       mvi_profile_exception_response_for('MVI_504', e)
     rescue Common::Client::Errors::ClientError, Common::Exceptions::GatewayTimeout => e
-      log_console_and_sentry("MVI find_profile error: #{e.message}", :error)
+      log_console_and_sentry("MVI find_profile error: #{e.message}", :warn)
       mvi_profile_exception_response_for('MVI_504', e)
     rescue MVI::Errors::Base => e
       mvi_error_handler(user_identity, e)
@@ -68,6 +68,11 @@ module MVI
       end
     end
     # rubocop:enable Metrics/MethodLength
+
+    def self.service_is_up?
+      last_mvi_outage = Breakers::Outage.find_latest(service: MVI::Configuration.instance.breakers_service)
+      last_mvi_outage.blank? || last_mvi_outage.end_time.present?
+    end
 
     private
 
@@ -129,6 +134,7 @@ module MVI
       return message_icn(user_identity) if user_identity.mhv_icn.present? # from SAML::UserAttributes::MHV::BasicLOA3User
       return message_edipi(user_identity) if user_identity.dslogon_edipi.present? && Settings.mvi.edipi_search
       raise Common::Exceptions::ValidationErrors, user_identity unless user_identity.valid?
+
       message_user_attributes(user_identity)
     end
     # rubocop:enable Metrics/LineLength

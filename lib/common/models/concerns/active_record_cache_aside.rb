@@ -49,6 +49,7 @@ module Common
 
         record = yield
         raise NoMethodError, 'The record class being cached must implement #cache?' unless record.respond_to?(:cache?)
+
         cache_record(key, record) if record.cache?
         record
       end

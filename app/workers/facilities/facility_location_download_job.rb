@@ -6,7 +6,6 @@ module Facilities
 
     def perform(type)
       @type = type
-      Raven.tags_context(job: "FacilityLocationDownloadJob:#{type}")
       ActiveRecord::Base.transaction do
         process_changes
         process_deletes
@@ -28,6 +27,7 @@ module Facilities
 
     def process_deletes
       return if fresh_by_unique_id.empty? # do not wipe cached data if endpoint returns empty
+
       missing_ids = (existing_by_unique_id.keys - fresh_by_unique_id.keys)
       klass.delete(missing_ids) if missing_ids.any?
     end
@@ -59,7 +59,7 @@ module Facilities
     end
 
     def klass
-      "Facilities::#{@type.upcase}Facility".constantize
+      BaseFacility::CLASS_MAP[@type]
     end
 
     def updatable_attrs(record)

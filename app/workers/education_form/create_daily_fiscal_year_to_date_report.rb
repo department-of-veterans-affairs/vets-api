@@ -232,9 +232,9 @@ module EducationForm
     end
 
     def perform
-      Sentry::TagRainbows.tag
       filename = generate_csv
       return unless FeatureFlipper.send_edu_report_email?
+
       YearToDateReportMailer.build(filename).deliver_now
     end
   end

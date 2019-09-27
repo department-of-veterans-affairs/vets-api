@@ -6,6 +6,7 @@ class Shrine
       module AttacherMethods
         def validate_ascii
           return unless get.original_filename.ends_with?('.txt')
+
           text = get.to_io.read.encode('ascii')
           tempfile = Tempfile.new(encoding: 'ascii')
           tempfile.write text

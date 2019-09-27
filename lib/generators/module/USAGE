@@ -1,0 +1,23 @@
+Description:
+    Creates a Rails engine starter app that wires up a service backed endpoint.
+
+Example:
+    rails va new foo
+
+    This will create:
+        modules/foo/app/controllers/foo/v0/foo_controller.rb
+        modules/foo/app/controllers/foo/application_controller.rb
+        modules/foo/app/models/foo/foo.rb
+        modules/foo/app/serializers/foo/foo_serializer.rb
+        modules/foo/app/services/foo/configuration.rb
+        modules/foo/app/services/foo/service.rb
+        modules/foo/lib/foo/engine.rb
+        modules/foo/lib/foo/version.rb
+        modules/foo/lib/tasks/foo_tasks.rake
+        modules/foo/lib/foo.rb
+        modules/foo/bin/rails
+        modules/foo/bin/rails
+        modules/foo/config/routes.rb
+        modules/foo/foo.gemspec
+        modules/foo/Rakefile
+        modules/foo/Gemfile

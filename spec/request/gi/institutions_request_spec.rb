@@ -50,4 +50,14 @@ RSpec.describe 'institutions', type: :request do
 
     expect(response).to be_successful
   end
+
+  it 'responds to GET institution #children' do
+    VCR.use_cassette('gi_client/gets_the_institution_children') do
+      get '/v0/gi/institutions/20603613/children'
+    end
+
+    expect(response).to be_successful
+    expect(response.body).to be_a(String)
+    expect(response).to match_response_schema('gi/institutions')
+  end
 end

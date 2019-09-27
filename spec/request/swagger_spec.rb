@@ -44,12 +44,6 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
       end
 
       describe '/v0/backend_statuses' do
-        context 'without a signed in user' do
-          it 'returns a 401' do
-            expect(subject).to validate(:get, '/v0/backend_statuses', 401)
-          end
-        end
-
         context 'when successful' do
           include_context 'simulating Redis caching of PagerDuty#get_services'
 
@@ -71,6 +65,10 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
     it 'supports listing in-progress forms' do
       expect(subject).to validate(:get, '/v0/in_progress_forms', 200, headers)
       expect(subject).to validate(:get, '/v0/in_progress_forms', 401)
+    end
+
+    it 'supports fetching feature_toggles' do
+      expect(subject).to validate(:get, '/v0/feature_toggles', 200, features: 'facility_locator')
     end
 
     it 'supports fetching maintenance windows' do

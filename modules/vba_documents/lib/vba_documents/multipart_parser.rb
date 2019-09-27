@@ -8,8 +8,8 @@ module VBADocuments
     LINE_BREAK = "\r\n"
 
     def self.parse(infile)
-      validate_size(infile)
       File.open(infile, 'rb') do |input|
+        validate_size(input)
         lines = input.each_line(LINE_BREAK).lazy.each_with_index
 
         parts = {}
@@ -67,6 +67,7 @@ module VBADocuments
                                               detail: 'Unexpected end of payload')
         end
         return result if line == ''
+
         result << line
       end
     end

@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri: "<EVSS_BASE_URL>/wss-claims-services-web-3.0/rest/vbaClaimStatusService/getClaims"
+    uri: "<EVSS_BASE_URL>/wss-claims-services-web-3.6/rest/vbaClaimStatusService/getClaims"
     body:
       encoding: UTF-8
       string: ''
@@ -76,6 +76,6 @@ http_interactions:
             "text" : "Please define your custom text for this error in claims-webparts/ErrorCodeMessages.properties. [Unique ID: 1522946240935]"
           }]
         }
-    http_version: 
+    http_version:
   recorded_at: Tue, 12 Dec 2017 03:09:16 GMT
 recorded_with: VCR 3.0.3

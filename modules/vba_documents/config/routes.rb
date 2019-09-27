@@ -2,6 +2,8 @@
 
 VBADocuments::Engine.routes.draw do
   match '/metadata', to: 'metadata#index', via: [:get]
+  match '/v0/healthcheck', to: 'metadata#healthcheck', via: [:get]
+  match '/v1/healthcheck', to: 'metadata#healthcheck', via: [:get]
   match '/v0/*path', to: 'application#cors_preflight', via: [:options]
   match '/v1/*path', to: 'application#cors_preflight', via: [:options]
 

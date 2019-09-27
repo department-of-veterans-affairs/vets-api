@@ -9,7 +9,7 @@ module ClaimsApi
     swagger_path '/forms/526' do
       operation :get do
         key :summary, 'Get 526 JSON Schema for form'
-        key :description, 'Returns a single JSON schema to auto generate a form'
+        key :description, 'Returns a single 526 JSON schema to auto generate a form'
         key :operationId, 'get526JsonSchema'
         key :produces, [
           'application/json'
@@ -109,7 +109,104 @@ module ClaimsApi
           key :name, 'X-VA-User'
           key :in, :header
           key :description, 'VA username of the person making the request'
+          key :required, false
+          key :type, :string
+        end
+
+        parameter do
+          key :name, 'payload'
+          key :in, :body
+          key :description, 'JSON API Payload of Veteran being submitted'
           key :required, true
+          schema do
+            key :'$ref', :Form526Input
+          end
+        end
+
+        response 200 do
+          key :description, '526 response'
+          schema do
+            key :'$ref', :ClaimsIndex
+          end
+        end
+        response :default do
+          key :description, 'unexpected error'
+          schema do
+            key :type, :object
+            key :required, [:errors]
+            property :errors do
+              key :type, :array
+              items do
+                key :'$ref', :ErrorModel
+              end
+            end
+          end
+        end
+      end
+    end
+
+    swagger_path '/forms/526/validate' do
+      operation :post do
+        key :summary, 'Validates a 526 claim form submission'
+        key :description, 'Accepts JSON payload. Full URL, including\nquery parameters.'
+        key :operationId, 'post526ClaimValidate'
+        key :tags, [
+          'Disability'
+        ]
+
+        parameter do
+          key :name, 'apikey'
+          key :in, :header
+          key :description, 'API Key given to access data'
+          key :required, true
+          key :type, :string
+        end
+
+        parameter do
+          key :name, 'X-VA-SSN'
+          key :in, :header
+          key :description, 'SSN of Veteran to fetch'
+          key :required, true
+          key :type, :string
+        end
+
+        parameter do
+          key :name, 'X-VA-First-Name'
+          key :in, :header
+          key :description, 'First Name of Veteran to fetch'
+          key :required, true
+          key :type, :string
+        end
+
+        parameter do
+          key :name, 'X-VA-Last-Name'
+          key :in, :header
+          key :description, 'Last Name of Veteran to fetch'
+          key :required, true
+          key :type, :string
+        end
+
+        parameter do
+          key :name, 'X-VA-Birth-Date'
+          key :in, :header
+          key :description, 'Date of Birth of Veteran to fetch in iso8601 format'
+          key :required, true
+          key :type, :string
+        end
+
+        parameter do
+          key :name, 'X-VA-EDIPI'
+          key :in, :header
+          key :description, 'EDIPI Number of Veteran to fetch'
+          key :required, false
+          key :type, :string
+        end
+
+        parameter do
+          key :name, 'X-VA-User'
+          key :in, :header
+          key :description, 'VA username of the person making the request'
+          key :required, false
           key :type, :string
         end
 
@@ -128,52 +225,44 @@ module ClaimsApi
           schema do
             key :type, :object
             key :required, [:data]
+
             property :data do
               key :type, :object
               key :required, [:attributes]
 
-              property :id do
-                key :type, :string
-                key :example, '65d0f2d2-d4a0-4a66-b8fe-e9a968a79fd0'
-                key :description, 'Claim UUID until EVSS id is available'
-              end
-
               property :type do
                 key :type, :string
-                key :example, 'claims_api_auto_established_claims'
+                key :example, 'claims_api_auto_established_claims_validation'
                 key :description, 'Required by JSON API standard'
               end
 
               property :attributes do
                 key :type, :object
 
-                property :token do
-                  key :type, :string
-                  key :example, '65d0f2d2-d4a0-4a66-b8fe-e9a968a79fd0'
-                  key :description, 'Claim UUID until EVSS id is available'
-                end
-
                 property :status do
                   key :type, :string
-                  key :example, 'pending'
-                  key :description, 'Current status of the claim (See API description for more details)'
-                  key :enum, %w[
-                    pending
-                    submitted
-                    established
-                    errored
-                  ]
-                end
-
-                property :evss_id do
-                  key :type, :string
-                  key :example, '8347210'
-                  key :description, 'Claim ID from EVSS'
+                  key :example, 'valid'
+                  key :description, 'Return whether or not whether or not the payload is valid'
                 end
               end
             end
           end
         end
+
+        response 422 do
+          key :description, 'Invalid Payload'
+          schema do
+            key :type, :object
+            key :required, [:errors]
+            property :errors do
+              key :type, :array
+              items do
+                key :'$ref', :ErrorModel
+              end
+            end
+          end
+        end
+
         response :default do
           key :description, 'unexpected error'
           schema do
@@ -262,7 +351,7 @@ module ClaimsApi
           key :name, 'X-VA-User'
           key :in, :header
           key :description, 'VA username of the person making the request'
-          key :required, true
+          key :required, false
           key :type, :string
         end
 

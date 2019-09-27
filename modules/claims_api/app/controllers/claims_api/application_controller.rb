@@ -1,62 +1,51 @@
 # frozen_string_literal: true
 
+require_dependency 'claims_api/concerns/mvi_verification'
+require_dependency 'claims_api/concerns/header_validation'
+
 module ClaimsApi
   class ApplicationController < ::OpenidApplicationController
+    include ClaimsApi::MviVerification
+    include ClaimsApi::HeaderValidation
+
     skip_before_action :set_tags_and_extra_context, raise: false
-    before_action :log_request
-    before_action :verify_power_of_attorney, if: :poa_request?
-    before_action :verify_mvi
 
     private
-
-    def log_request
-      if @current_user.present?
-        hashed_ssn = Digest::SHA2.hexdigest @current_user.ssn
-        Rails.logger.info('Claims App Request', 'lookup_identifier' => hashed_ssn)
-      else
-        hashed_ssn = Digest::SHA2.hexdigest ssn
-        Rails.logger.info('Claims App Request',
-                          'consumer' => consumer,
-                          'va_user' => requesting_va_user,
-                          'lookup_identifier' => hashed_ssn)
-      end
-    end
-
-    def log_response(additional_fields = {})
-      logged_info = {
-        'consumer' => consumer,
-        'va_user' => requesting_va_user
-      }.merge(additional_fields)
-      Rails.logger.info('Claims App Response', logged_info)
-    end
-
-    def consumer
-      header(key = 'X-Consumer-Username') ? header(key) : raise_missing_header(key)
-    end
-
-    def ssn
-      header(key = 'X-VA-SSN') ? header(key) : raise_missing_header(key)
-    end
-
-    def requesting_va_user
-      header('X-VA-User') || header('X-Consumer-Username')
-    end
 
     def header(key)
       request.headers[key]
     end
 
-    def raise_missing_header(key)
-      raise Common::Exceptions::ParameterMissing, key
+    def header_request?
+      headers_to_check = %w[HTTP_X_VA_SSN HTTP_X_VA_Consumer-Username HTTP_X_VA_BIRTH_DATE]
+      (request.headers.to_h.keys & headers_to_check).length.positive?
     end
 
     def target_veteran(with_gender: false)
-      if poa_request?
-        vet = ClaimsApi::Veteran.from_headers(request.headers, with_gender: with_gender)
-        vet.loa = @current_user.loa if @current_user
-        vet
+      if header_request?
+        headers_to_validate = %w[X-VA-SSN X-VA-First-Name X-VA-Last-Name X-VA-Birth-Date]
+        headers_to_validate << 'X-VA-LOA' if v0?
+        validate_headers(headers_to_validate)
+        if v0?
+          check_loa_level
+          request.headers['X-VA-User'] = request.headers['X-Consumer-Username'] unless header('X-VA-User')
+        end
+        veteran_from_headers(with_gender: with_gender)
       else
         ClaimsApi::Veteran.from_identity(identity: @current_user)
+      end
+    end
+
+    def v0?
+      request.env['PATH_INFO'].downcase.include?('v0')
+    end
+
+    def check_loa_level
+      unless header('X-VA-LOA') == '3'
+        render json: [],
+               serializer: ActiveModel::Serializer::CollectionSerializer,
+               each_serializer: ClaimsApi::ClaimListSerializer,
+               status: :unauthorized
       end
     end
 
@@ -65,17 +54,24 @@ module ClaimsApi
       verifier.verify(@current_user)
     end
 
-    def verify_mvi
-      unless target_veteran.mvi_record?
-        render json: { errors: [{ detail: 'Not found' }] },
-               status: :not_found
-      end
-    end
-
-    def poa_request?
-      # if any of the required headers are present we should attempt to use headers
-      headers_to_check = ['HTTP_X_VA_SSN', 'HTTP_X_VA_Consumer-Username', 'HTTP_X_VA_Birth_Date']
-      (request.headers.to_h.keys & headers_to_check).length.positive?
+    def veteran_from_headers(with_gender: false)
+      vet = ClaimsApi::Veteran.new(
+        uuid: header('X-VA-SSN'),
+        ssn: header('X-VA-SSN'),
+        first_name: header('X-VA-First-Name'),
+        last_name: header('X-VA-Last-Name'),
+        va_profile: ClaimsApi::Veteran.build_profile(header('X-VA-Birth-Date')),
+        last_signed_in: Time.now.utc
+      )
+      vet.loa = if @current_user
+                  @current_user.loa
+                else
+                  vet.loa = { current: header('X-VA-LOA'), highest: header('X-VA-LOA') }
+                end
+      vet.mvi_record?
+      vet.gender = header('X-VA-Gender') || vet.mvi.profile&.gender if with_gender
+      vet.edipi = header('X-VA-EDIPI') || vet.mvi.profile&.edipi
+      vet
     end
   end
 end

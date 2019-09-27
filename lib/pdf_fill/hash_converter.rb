@@ -51,6 +51,7 @@ module PdfFill
 
     def overflow?(key_data, value)
       return false if value.blank?
+
       value = value.to_s if value.is_a?(Numeric)
 
       limit = key_data.try(:[], :limit)
@@ -61,6 +62,7 @@ module PdfFill
     def add_to_extras(key_data, v, i)
       return if v.blank?
       return if key_data.try(:[], :question_text).blank?
+
       i = nil if key_data[:skip_index]
       v = "$#{v}" if key_data[:dollar]
       v = v.extras_value if v.is_a?(PdfFill::FormValue)
@@ -88,6 +90,7 @@ module PdfFill
     def set_value(v, key_data, i)
       k = key_data[:key]
       return if k.blank?
+
       k = k.gsub(ITERATOR, i.to_s) unless i.nil?
 
       new_value = convert_value(v, key_data)
