@@ -18,7 +18,7 @@ module VBADocuments
     # Obtain the first ObjectVersion for a given key.
     def first_version(key)
       versions = bucket.object_versions(prefix: key)
-      versions.sort_by(&:last_modified).first
+      versions.min_by(&:last_modified)
     end
 
     # Streams the contents of a given ObjectVersion directly to the

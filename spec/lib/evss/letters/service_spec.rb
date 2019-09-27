@@ -39,6 +39,16 @@ describe EVSS::Letters::Service do
           expect { subject.get_letters }.to raise_error(Common::Exceptions::GatewayTimeout)
         end
       end
+
+      context 'with an unknown error from EVSS' do
+        it 'raises a BackendServiceException' do
+          VCR.use_cassette('evss/letters/letters_unexpected_error') do
+            expect { subject.get_letters }.to raise_error(Common::Exceptions::BackendServiceException) do |e|
+              expect(e.message).to match(/EVSS502/)
+            end
+          end
+        end
+      end
     end
 
     describe '#get_letter_beneficiary' do

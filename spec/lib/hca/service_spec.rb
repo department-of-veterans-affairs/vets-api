@@ -42,7 +42,7 @@ describe HCA::Service do
               described_class.new
             end
 
-          json = JSON.parse(open(root.join("#{form}.json")).read)
+          json = JSON.parse(File.open(root.join("#{form}.json")).read)
           expect(json).to match_vets_schema('10-10EZ')
           xml = File.read(root.join("#{form}.xml"))
           expect(service).to receive(:perform) do |_verb, _, body|
@@ -160,6 +160,7 @@ describe HCA::Service do
         )
       end
     end
+
     context 'when there are SSL options' do
       it 'should return the wsdl, cert and key paths' do
         expect(HCA::Configuration.instance.ssl_options).to eq(

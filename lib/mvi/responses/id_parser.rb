@@ -5,7 +5,7 @@ module MVI
     class IdParser
       CORRELATION_ROOT_ID = '2.16.840.1.113883.4.349'
       EDIPI_ROOT_ID = '2.16.840.1.113883.3.42.10001.100001.12'
-      ICN_REGEX = /^\w+\^NI\^\w+\^\w+\^\w+$/
+      ICN_REGEX = /^\w+\^NI\^\w+\^\w+\^\w+$/.freeze
       VET360_ASSIGNING_AUTHORITY_ID = '^NI^200M^USVHA'
 
       # MVI correlation id source id relationships:
@@ -45,6 +45,7 @@ module MVI
       def select_ids_except(extensions, reject_status)
         # ultaimately, I'd rather have a list complete list of statuses to accept, but for now we can reject
         return nil if extensions.empty?
+
         extensions.map do |e|
           split_extension = e[:extension].split('^')
           split_extension&.first unless split_extension[4] && reject_status.include?(split_extension[4])
@@ -53,11 +54,13 @@ module MVI
 
       def select_ids(extensions)
         return nil if extensions.empty?
+
         extensions.map { |e| e[:extension].split('^')&.first }
       end
 
       def select_facilities(extensions)
         return nil if extensions.empty?
+
         extensions.map { |e| e[:extension].split('^')&.third }
       end
 

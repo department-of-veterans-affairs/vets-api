@@ -123,17 +123,20 @@ module EVSS
 
       def vet_not_found?
         return false if @response.nil? || text_response?
+
         @response&.body == {}
       end
 
       def invalid_auth?
         # this one is a text/html response
         return false if @response.nil?
+
         @response&.body&.to_s&.include?('AUTH_INVALID_IDENTITY') || @response&.status == 403
       end
 
       def contains_education_info?
         return false if @response.nil? || text_response?
+
         !vet_not_found? &&
           @response.body.key?('chapter33_education_info') == true &&
           @response.body['chapter33_education_info'] != {}
@@ -141,6 +144,7 @@ module EVSS
 
       def contains_error_messages?
         return false if @response&.body.nil? || text_response?
+
         @response.body.key?('messages') &&
           @response.body['messages'].is_a?(Array) &&
           @response.body['messages'].length.positive?
@@ -148,6 +152,7 @@ module EVSS
 
       def evss_error_key
         return nil if @response&.body.nil?
+
         @response.body.dig('messages', 0, 'key')
       end
 

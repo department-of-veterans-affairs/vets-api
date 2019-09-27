@@ -7,7 +7,7 @@ info:
 
     ## Background
 
-    
+
 
     ## Design
 
@@ -142,4 +142,3 @@ components:
               type: object
               description: |
                 Different VA Identifiers including ICN
-              

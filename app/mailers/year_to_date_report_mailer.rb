@@ -26,14 +26,18 @@ class YearToDateReportMailer < ApplicationMailer
       222A.VBAVACO@va.gov
       Ricardo.DaSilva@va.gov
       peter.nastasi@va.gov
+      Lucas.Tickner@va.gov
     ]
   }.freeze
 
   STAGING_RECIPIENTS = {
     to: %w[
+      delli-gatti_michael@bah.com
+      kyle.pietrosanto@va.gov
       lihan@adhocteam.us
-      Turner_Desiree@bah.com
-      Delli-Gatti_Michael@bah.com
+      robert.shinners@va.gov
+      shay.norton-leonard@va.gov
+      turner_desiree@bah.com
     ]
   }.freeze
 

@@ -34,7 +34,7 @@ info:
 
     ## Reference
 
-    Raw Open API Spec: http://dev-api.va.gov/services/veteran_verification/docs/v0/api
+    Raw Open API Spec: https://api.va.gov/services/veteran_verification/docs/v0/service_history
 
   termsOfService: ''
   contact:
@@ -120,7 +120,7 @@ components:
               description: |
                 Character of discharge from service episode. Possible values are:
 
-                Both "honorable-for-va-purposes" and "dishonorable-for-va-purposes" represent a change in character of discharge based on an administrative decision, for purposes of VA benefits administration. The original character of discharge for other purposes was either "bad-conduct" or "other-than-honorable". "honorable-absence-of-negative-report" represents a an unreported character of service that DoD classifies as honorable.
+                Both "honorable-for-va-purposes" and "dishonorable-for-va-purposes" represent a change in character of discharge based on an administrative decision, for purposes of VA benefits administration. The original character of discharge for other purposes was either "bad-conduct" or "other-than-honorable". "honorable-absence-of-negative-report" represents an unreported character of service that DoD classifies as honorable.
               enum:
                 - honorable
                 - general
@@ -136,7 +136,7 @@ components:
             deployments:
               type: array
               items:
-                $ref: #/components/schemas/Deployment
+                $ref: '#/components/schemas/Deployment'
     Deployment:
       description: |
         Deployment during a service history episode

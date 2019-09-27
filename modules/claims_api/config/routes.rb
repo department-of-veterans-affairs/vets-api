@@ -2,6 +2,8 @@
 
 ClaimsApi::Engine.routes.draw do
   match '/metadata', to: 'metadata#index', via: [:get]
+  match '/v0/healthcheck', to: 'metadata#healthcheck', via: [:get]
+  match '/v1/healthcheck', to: 'metadata#healthcheck', via: [:get]
   match '/v0/*path', to: 'application#cors_preflight', via: [:options]
   match '/v1/*path', to: 'application#cors_preflight', via: [:options]
 
@@ -11,11 +13,17 @@ ClaimsApi::Engine.routes.draw do
       ## 526 Forms
       get '526', to: 'disability_compensation#schema'
       post '526', to: 'disability_compensation#submit_form_526'
+      post '526/validate', to: 'disability_compensation#validate_form_526'
       post '526/:id/attachments', to: 'disability_compensation#upload_supporting_documents'
       ## 0966 Forms
-      get '526', to: 'intent_to_file#schema'
+      get '0966', to: 'intent_to_file#schema'
       post '0966', to: 'intent_to_file#submit_form_0966'
       get '0966/active', to: 'intent_to_file#active'
+      ## 2122 Forms
+      get '2122', to: 'power_of_attorney#schema'
+      post '2122', to: 'power_of_attorney#submit_form_2122'
+      put '2122/:id', to: 'power_of_attorney#upload'
+      get '2122/:id', to: 'power_of_attorney#status'
     end
   end
 
@@ -25,11 +33,17 @@ ClaimsApi::Engine.routes.draw do
       ## 526 Forms
       get '526', to: 'disability_compensation#schema'
       post '526', to: 'disability_compensation#submit_form_526'
+      post '526/validate', to: 'disability_compensation#validate_form_526'
       post '526/:id/attachments', to: 'disability_compensation#upload_supporting_documents'
       ## 0966 Forms
-      get '526', to: 'intent_to_file#schema'
+      get '0966', to: 'intent_to_file#schema'
       post '0966', to: 'intent_to_file#submit_form_0966'
       get '0966/active', to: 'intent_to_file#active'
+      ## 2122 Forms
+      get '2122', to: 'power_of_attorney#schema'
+      post '2122', to: 'power_of_attorney#submit_form_2122'
+      put '2122/:id', to: 'power_of_attorney#upload'
+      get '2122/:id', to: 'power_of_attorney#status'
     end
   end
 

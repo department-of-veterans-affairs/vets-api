@@ -6,8 +6,6 @@ class TransactionalEmailAnalyticsJob
   sidekiq_options(unique_for: 30.minutes, retry: false)
 
   def initialize
-    Sentry::TagRainbows.tag
-
     unless FeatureFlipper.send_email?
       raise Common::Exceptions::ParameterMissing.new(
         'GovDelivery token or server',

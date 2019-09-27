@@ -16,7 +16,6 @@ RSpec.describe EVSS::UpdateClaimFromRemoteJob, type: :job do
     before do
       tracker.claim_id = claim.id
       tracker.set_single_status('REQUESTED')
-      expect(Sentry::TagRainbows).to receive(:tag)
       expect(tracker.get_single_status).to eq('REQUESTED')
     end
 

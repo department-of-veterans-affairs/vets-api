@@ -4,8 +4,6 @@ module V0
   class InProgressFormsController < ApplicationController
     include IgnoreNotFound
 
-    before_action(:tag_rainbows)
-
     def index
       render json: InProgressForm.where(user_uuid: @current_user.uuid)
     end
@@ -30,6 +28,7 @@ module V0
     def destroy
       form = InProgressForm.form_for_user(params[:id], @current_user)
       raise Common::Exceptions::RecordNotFound, params[:id] if form.blank?
+
       form.destroy
       render json: form
     end

@@ -51,11 +51,11 @@ module VetsAPI
         resource '*', headers: :any,
                       methods: :any,
                       credentials: true,
-                      expose: [
-                        'X-RateLimit-Limit',
-                        'X-RateLimit-Remaining',
-                        'X-RateLimit-Reset',
-                        'X-Session-Expiration'
+                      expose: %w[
+                        X-RateLimit-Limit
+                        X-RateLimit-Remaining
+                        X-RateLimit-Reset
+                        X-Session-Expiration
                       ]
       end
     end

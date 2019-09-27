@@ -1,3 +1,9 @@
+inherit_from: .rubocop_todo.yml
+
+require: 
+  - rubocop-rails
+  - rubocop-rspec
+
 AllCops:
   TargetRailsVersion: 5.2
   TargetRubyVersion: 2.4.5
@@ -6,6 +12,7 @@ AllCops:
     - '**/config.ru'
     - '**/Rakefile'
     - '**/*.rake'
+    - '**/*.rb'
   Exclude:
     - db/schema.rb
     - db/seeds.rb
@@ -51,6 +58,9 @@ Style/GuardClause:
 # problems as above.
 Style/Next:
   Enabled: false
+  
+Naming/VariableNumber:
+  Enabled: false
 
 # This forces you to replace things like: `[1, 2, 3].length == 0` with `[1,2,3].empty?`. The problem is that
 # not all things that implement length also implement empty? so you will get errors that cannot be resolved,
@@ -81,6 +91,11 @@ Metrics/AbcSize:
 Naming/AccessorMethodName:
   Enabled: false
 
+Rails/LexicallyScopedActionFilter:
+  Exclude:
+    - "app/controllers/concerns/filterable.rb"	  	
+
+# Blocks are limited to 25 lines or less
 # removing block length rule for rspec DSL
 Metrics/BlockLength:
   Exclude:
@@ -91,6 +106,8 @@ Metrics/BlockLength:
     - 'app/controllers/v0/apidocs_controller.rb'
 
 # Don't worry about ambiguous blocks in RSpec
+# Official recommendation from rubocop team is to disable this rule for specs. 
+# See: https://github.com/rubocop-hq/rubocop/issues/4222
 Lint/AmbiguousBlockAssociation:
   Exclude:
     - "spec/**/*"
@@ -104,69 +121,24 @@ Naming/FileName:
 
 # We should try to use StandardError, but some errors like timeout inherit from Exception (beware)
 Style/RescueStandardError:
-  Exclude:
-    - "app/controllers/v0/id_card_attributes_controller.rb"
-    - "app/controllers/v0/sessions_controller.rb"
-    - "app/models/form_profile.rb"
-    - "app/models/mhv_account.rb"
-    - "app/services/mhv_accounts_service.rb"
-    - "app/uploaders/claim_documentation/uploader.rb"
-    - "app/workers/education_form/create_daily_spool_files.rb"
-    - "lib/common/client/concerns/monitoring.rb"
-    - "lib/common/client/configuration/soap.rb"
-    - "lib/common/exceptions/base_error.rb"
-    - "lib/github/github_service.rb"
-    - "lib/mvi/messages/find_profile_message_helpers.rb"
-    - "lib/mvi/responses/profile_parser.rb"
-    - "lib/saml/settings_service.rb"
-    - "rakelib/connectivity.rake"
-    - "rakelib/mvi.rake"
-    - "rakelib/redis.rake"
-    - "spec/request/authentication/standard_authentication.rb"
+  EnforcedStyle: implicit
 
-# Variable naming style apparently doesn't like: something_2, something_3
-Naming/VariableNumber:
-  Exclude:
-    - "lib/hca/enrollment_system.rb"
-    - "spec/controllers/v0/post_911_gi_bill_statuses_controller_spec.rb"
-    - "spec/lib/preneeds/service_spec.rb"
-
-# All kinds of issues with this cop right now, so disabling it.
+# All kinds of issues with this cop right now.
 Style/FormatStringToken:
   Exclude:
     - "rakelib/mvi.rake"
 
-# This cop has an improvement for false positives in Mixins in future release, Exclude for now.
-# https://github.com/bbatsov/rubocop/issues/5448
-Rails/LexicallyScopedActionFilter:
-  Exclude:
-    - "app/controllers/concerns/filterable.rb"
-    - "app/controllers/v0/sessions_controller.rb"
-
-# Disabling this rule for now. We should consider changing.
 Lint/BooleanSymbol:
   Exclude:
-    - "app/swagger/schemas/gibct/institutions.rb"
-    - "spec/request/breakers_integration_spec.rb"
-    - "spec/request/statsd_middleware_spec.rb"
-    - "spec/support/authenticated_session_helper.rb"
+    - "app/swagger/schemas/gibct/institutions.rb" #Swagger blocks defines keys as :true, need to keep as is
 
-# Should consider enforcing this rule. Disabling for now.
+# Use `Time` when dealing with current dates and times; it has support for timezones (system/local and utc), whereas `DateTime` only supports offsets from UTC.
+# However, if you need to deal with dates and times in a historical context you'll want to use DateTime to avoid making the same mistakes as UNESCO.
+# See: https://www.rubydoc.info/gems/rubocop/RuboCop/Cop/Style/DateTime
 Style/DateTime:
   Exclude:
-    - "lib/common/models/attribute_types/date_time_string.rb"
-    - "lib/evss/auth_headers.rb"
-    - "lib/evss/pciu_address/service.rb"
     - "rakelib/evss.rake"
-    - "rakelib/mvi.rake"
-
-# IMPORTANT: this needs to be changed or handled differently. NoMethodError is not acceptable.
-# Skipping it for now as I dont have time to address.
-Lint/SafeNavigationChain:
-  Exclude:
-    - "app/workers/education_form/delete_old_applications.rb"
-    - "lib/saml/health_status.rb"
-    - "lib/saml/health_status.rb"
+    - "lib/evss/auth_headers.rb" #DateTime is needed for date formatting here
 
 # Skipping for now, should revisit:
 Rails/HasManyOrHasOneDependent:
@@ -176,14 +148,22 @@ Rails/HasManyOrHasOneDependent:
     - "app/models/saved_claim.rb"
     - "app/models/terms_and_conditions.rb"
 
-# Skipping for now, should revisit:
-Rails/SkipsModelValidations:
-  Exclude:
-    - "app/workers/education_form/create_daily_spool_files.rb"
-    - "app/models/saved_claim.rb"
-    - 'spec/**/*.rb'
+# The suggestions here don't seem to make sense in most cases. Skip for now.
+Naming/MemoizedInstanceVariableName:
+  Enabled: false
 
-# Need to revisit why this is necessary:
-Lint/RescueException:
+# It was determined these suggestions had the potential to change behavior. 
+Rails/ActiveRecordAliases:
+  Enabled: false
+
+# The use of variables such as n to represent number, x and y for x-axis and y-axis, el for element, 
+# v for value, i for index, and e for error are all standard abbreviations and should be excluded.
+Naming/UncommunicativeMethodParamName:
+  Enabled: false
+
+# FactoryBot 5.x replaced static factory attributes with dynamic ones. Auto-converting using rubocop-rspec
+# always uses {...} which means a lot of existing factories because invalid. Allowed exception in pr #3300.
+Style/BlockDelimiters:
   Exclude:
-    - 'app/workers/github/create_issue_job.rb'
+    - "spec/factories/*.rb"
+    - "modules/*/spec/factories/*.rb"

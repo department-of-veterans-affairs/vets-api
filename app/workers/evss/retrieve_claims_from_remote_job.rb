@@ -8,7 +8,6 @@ module EVSS
     sidekiq_options retry: false
 
     def perform(user_uuid)
-      Sentry::TagRainbows.tag
       @user = User.find user_uuid
       tracker = EVSSClaimsSyncStatusTracker.find_or_build(user_uuid)
       auth_headers = EVSS::AuthHeaders.new(@user).to_h
@@ -16,12 +15,13 @@ module EVSS
       raw_claims = @client.all_claims.body
       EVSSClaimService::EVSS_CLAIM_KEYS.each_with_object([]) do |key, claim_accum|
         next unless raw_claims[key]
+
         claim_accum << raw_claims[key].map do |raw_claim|
           create_or_update_claim(raw_claim)
         end
       end
       tracker.set_collection_status('SUCCESS')
-    rescue StandardError
+    rescue
       tracker.set_collection_status('FAILED')
       raise
     end

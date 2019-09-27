@@ -23,6 +23,7 @@ module MVI
       def element(name, attrs = nil)
         el = Ox::Element.new(name)
         return el unless attrs
+
         attrs.each { |k, v| k == :text! ? el.replace_text(v) : el[k] = v }
         el
       end

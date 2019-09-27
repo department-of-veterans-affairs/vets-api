@@ -29,12 +29,8 @@ module EVSS
           raw_response = perform(:get, '')
           EVSS::Letters::LettersResponse.new(raw_response.status, raw_response)
         end
-      rescue StandardError => e
-        begin
-          log_edipi if invalid_address_error?(e)
-        ensure
-          handle_error(e)
-        end
+      rescue => e
+        handle_error(e)
       end
 
       ##
@@ -54,8 +50,12 @@ module EVSS
 
       def handle_error(error)
         if error.is_a?(Common::Client::Errors::ClientError) && error.status != 403 && error.body.is_a?(Hash)
-          save_error_details(error)
-          raise EVSS::Letters::ServiceException, error.body
+          begin
+            log_edipi if invalid_address_error?(error)
+          ensure
+            save_error_details(error)
+            raise EVSS::Letters::ServiceException, error.body
+          end
         else
           super(error)
         end
@@ -66,8 +66,7 @@ module EVSS
       end
 
       def invalid_address_error?(error)
-        return false unless error.is_a?(Common::Client::Errors::ClientError)
-        error&.body&.dig('messages')&.any? { |m| m['key'].include? INVALID_ADDRESS_ERROR }
+        error.body.dig('messages')&.any? { |m| m['key'].include? INVALID_ADDRESS_ERROR }
       end
     end
   end

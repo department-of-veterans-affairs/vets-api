@@ -69,16 +69,23 @@ module EducationForm
       record = model.open_struct_form
       address = routing_address(record, form_type: model.form_type)
 
-      # special case Philippines
-      return :western if address&.country == 'PHL' || model.form_type == '0993'
+      # special case 0993
+      return :western if model.form_type == '0993'
 
       # special case 0994
       return :eastern if model.form_type == '0994'
 
-      # special case 1995 STEM
-      return :eastern if model.form_type == '1995' && record.isEdithNourseRogersScholarship
+      # special case 1995 with STEM / 1995s
+      return :eastern if check_stem_routing(model, record)
+
+      # special case Philippines
+      return :western if address&.country == 'PHL'
 
       check_area(address)
+    end
+
+    def self.check_stem_routing(model, record)
+      model.form_type == '1995s' || (model.form_type == '1995' && record.isEdithNourseRogersScholarship)
     end
 
     def self.check_area(address)
@@ -111,7 +118,7 @@ module EducationForm
         record.educationProgram&.address || record.veteranAddress
       when '1990E', '5490', '5495'
         record.educationProgram&.address || record.relativeAddress
-      when '1995'
+      when '1995', '1995s'
         record.newSchool&.address || record.veteranAddress
       end
     end

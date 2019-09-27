@@ -48,14 +48,14 @@ module IHub
 
           IHub::Appointments::Response.from(response)
         end
-      rescue StandardError => error
+      rescue => e
         Raven.extra_context(
-          message: error.message,
+          message: e.message,
           url: config.base_path
         )
         Raven.tags_context(ihub: 'appointments')
 
-        raise error
+        raise e
       end
 
       private

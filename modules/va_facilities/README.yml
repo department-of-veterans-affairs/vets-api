@@ -15,6 +15,8 @@ info:
     - Cemeteries
     - Vet Centers
 
+    To read an FAQ on how wait times are calculated, click the "For more information" link on [this page](https://www.accesstocare.va.gov/PWT/SearchWaitTimes).
+
     ## Design
 
     ### Authorization
@@ -40,9 +42,9 @@ info:
 
     ## Reference
 
-    - [Raw VA Facilities Open API Spec](http://dev-api.va.gov/services/va_facilities/docs/v0/api)
+    - [Raw VA Facilities Open API Spec](https://api.va.gov/services/va_facilities/docs/v0/api)
     - [GeoJSON Format](https://tools.ietf.org/html/rfc7946)
-    - [JSON API Format](http://jsonapi.org/format/)
+    - [JSON API Format](https://jsonapi.org/format/)
 
   termsOfService: ''
   contact:
@@ -85,7 +87,7 @@ paths:
         request with a comma-separated list of ids like `?ids=id1,id2`. When requesting facilities
         in bulk by `id`, the API will return as many ids as it can find matches for and omit any
         ids where there is no match. It will not return an HTTP error code if it is unable to match
-        a requested `id`. Clients may supply ids up to the limit a their HTTP client enforces for
+        a requested `id`. Clients may supply ids up to the limit their HTTP client enforces for
         URI path lengths -- usually 2,048 characters.
 
         One of the `ids` parameter, the `bbox` parameter, or the `lat` and `long` parameters are
@@ -122,7 +124,7 @@ paths:
         - name: state
           in: query
           description: |
-            Two character state code to search for VA Facilities.
+            State code to search for VA Facilities. Except in rare cases, this is two characters.
           required: false
           schema:
             type: string

@@ -11,7 +11,7 @@ require 'statsd-instrument'
 require 'statsd/instrument/matchers'
 require 'rspec/rails'
 require 'webmock/rspec'
-require 'support/factory_girl'
+require 'support/factory_bot'
 require 'support/serializer_spec_helper'
 require 'support/xml_matchers'
 require 'support/validation_helpers'
@@ -72,6 +72,7 @@ VCR.configure do |c|
   c.before_record do |i|
     %i[response request].each do |env|
       next unless i.send(env).headers.keys.include?('Token')
+
       i.send(env).headers.update('Token' => '<SESSION_TOKEN>')
     end
   end

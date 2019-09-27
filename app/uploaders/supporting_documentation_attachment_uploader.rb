@@ -29,6 +29,7 @@ class SupportingDocumentationAttachmentUploader < CarrierWave::Uploader::Base
 
   def store_dir
     raise 'missing guid' if @guid.blank?
+
     "supporting_documentation_attachments/#{@guid}"
   end
 end

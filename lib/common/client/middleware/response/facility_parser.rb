@@ -15,7 +15,7 @@ module Common
 
           def parse_body(env)
             path_part = env.url.path.match(%r(\/([\w]{3}_(Facilities|VetCenters))\/))[1]
-            facility_map = BaseFacility::PATHMAP[path_part]
+            facility_map = facility_klass(path_part).attribute_map
             env.body['features'].map { |location_data| build_facility_attributes(location_data, facility_map) }
           end
 
@@ -85,6 +85,7 @@ module Common
 
           def complex_mapping(item, attrs)
             return {} unless item
+
             item.each_with_object({}) do |(key, value), hash|
               hash[key] = value.respond_to?(:call) ? value.call(attrs) : strip(attrs[value])
             end
@@ -104,8 +105,10 @@ module Common
 
           def services_from_gis(service_map, attrs)
             return unless service_map
+
             services = service_map.each_with_object([]) do |(k, v), l|
               next unless attrs[k] == BaseFacility::YES && BaseFacility::APPROVED_SERVICES.include?(k)
+
               sl2 = []
               v.each do |sk|
                 sl2 << sk if attrs[sk] == BaseFacility::YES && BaseFacility::APPROVED_SERVICES.include?(sk)
@@ -131,6 +134,10 @@ module Common
               services << { 'sl1' => [service.camelize], 'sl2' => [] } if metric_keys.include?(service)
             end
             services
+          end
+
+          def facility_klass(path_part)
+            BaseFacility::PATHMAP[path_part]
           end
         end
       end

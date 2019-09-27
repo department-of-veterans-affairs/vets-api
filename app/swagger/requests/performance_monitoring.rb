@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 # rubocop:disable Metrics/LineLength
-# rubocop:disable Layout/EmptyLinesAroundArguments
 module Swagger
   module Requests
     class PerformanceMonitoring
@@ -89,4 +88,3 @@ module Swagger
   end
 end
 # rubocop:enable Metrics/LineLength
-# rubocop:enable Layout/EmptyLinesAroundArguments

@@ -6,6 +6,7 @@ module Common
     def coerce(value)
       return nil if value.to_s.empty?
       return Time.parse(value).utc.httpdate if value.is_a?(String)
+
       value.httpdate
     end
   end

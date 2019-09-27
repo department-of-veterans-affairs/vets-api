@@ -40,6 +40,8 @@ STATE_CODES = %w[
   OK
   OR
   PA
+  PH
+  PI
   RI
   SC
   SD
@@ -57,4 +59,6 @@ STATE_CODES = %w[
   MP
   GU
   AS
+  GUAM
+  APO
 ].freeze

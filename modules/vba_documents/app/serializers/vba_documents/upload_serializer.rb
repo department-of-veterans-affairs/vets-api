@@ -6,7 +6,7 @@ module VBADocuments
   class UploadSerializer < ActiveModel::Serializer
     type 'document_upload'
 
-    attributes :guid, :status, :code, :detail, :location
+    attributes :guid, :status, :code, :detail, :location, :updated_at
 
     def id
       object.guid
@@ -21,8 +21,9 @@ module VBADocuments
 
     def location
       return nil unless @instance_options[:render_location]
+
       object.get_location
-    rescue StandardError => e
+    rescue => e
       raise Common::Exceptions::InternalServerError, e
     end
   end

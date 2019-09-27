@@ -22,13 +22,24 @@ RSpec.describe 'Disability Claims ', type: :request do
   describe '#526' do
     let(:data) { File.read(Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'form_526_json_api.json')) }
     let(:path) { '/services/claims/v1/forms/526' }
+    let(:schema) { File.read(Rails.root.join('modules', 'claims_api', 'config', 'schemas', '526.json')) }
+
+    it 'should return a successful get response with json schema' do
+      with_okta_user(scopes) do |auth_header|
+        get path, headers: headers.merge(auth_header)
+        json_schema = JSON.parse(response.body)['data'][0]
+        expect(json_schema).to eq(JSON.parse(schema))
+      end
+    end
 
     it 'should return a successful response with all the data' do
       with_okta_user(scopes) do |auth_header|
         VCR.use_cassette('evss/intent_to_file/active_compensation_future_date') do
+          klass = EVSS::DisabilityCompensationForm::ServiceAllClaim
+          expect_any_instance_of(klass).to receive(:validate_form526).and_return(true)
           post path, params: data, headers: headers.merge(auth_header)
           parsed = JSON.parse(response.body)
-          expect(parsed['data']['type']).to eq('claims_api_auto_established_claims')
+          expect(parsed['data']['type']).to eq('claims_api_claim')
           expect(parsed['data']['attributes']['status']).to eq('pending')
         end
       end
@@ -48,8 +59,23 @@ RSpec.describe 'Disability Claims ', type: :request do
     it 'should create the sidekick job' do
       with_okta_user(scopes) do |auth_header|
         VCR.use_cassette('evss/intent_to_file/active_compensation_future_date') do
+          klass = EVSS::DisabilityCompensationForm::ServiceAllClaim
+          expect_any_instance_of(klass).to receive(:validate_form526).and_return(true)
           expect(ClaimsApi::ClaimEstablisher).to receive(:perform_async)
           post path, params: data, headers: headers.merge(auth_header)
+        end
+      end
+    end
+
+    it 'should assign a source' do
+      with_okta_user(scopes) do |auth_header|
+        VCR.use_cassette('evss/intent_to_file/active_compensation_future_date') do
+          klass = EVSS::DisabilityCompensationForm::ServiceAllClaim
+          expect_any_instance_of(klass).to receive(:validate_form526).and_return(true)
+          post path, params: data, headers: headers.merge(auth_header)
+          token = JSON.parse(response.body)['data']['attributes']['token']
+          aec = ClaimsApi::AutoEstablishedClaim.find(token)
+          expect(aec.source).to eq('abraham lincoln')
         end
       end
     end
@@ -58,8 +84,8 @@ RSpec.describe 'Disability Claims ', type: :request do
       with_okta_user(scopes) do |auth_header|
         VCR.use_cassette('evss/intent_to_file/active_compensation_future_date') do
           auth_header_stub = instance_double('EVSS::DisabilityCompensationAuthHeaders')
-          expect(EVSS::DisabilityCompensationAuthHeaders).to receive(:new) { auth_header_stub }
-          expect(auth_header_stub).to receive(:add_headers)
+          expect(EVSS::DisabilityCompensationAuthHeaders).to(receive(:new).twice { auth_header_stub })
+          expect(auth_header_stub).to receive(:add_headers).twice
           post path, params: data, headers: headers.merge(auth_header)
         end
       end
@@ -85,6 +111,52 @@ RSpec.describe 'Disability Claims ', type: :request do
           post path, params: params.to_json, headers: headers.merge(auth_header)
           expect(response.status).to eq(422)
           expect(JSON.parse(response.body)['errors'].size).to eq(2)
+        end
+      end
+    end
+
+    context 'form 526 validation' do
+      it 'should return a successful response when valid' do
+        VCR.use_cassette('evss/disability_compensation_form/form_526_valid_validation') do
+          with_okta_user(scopes) do |auth_header|
+            data = File.read(Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'form_526_json_api.json'))
+            post '/services/claims/v1/forms/526/validate', params: data, headers: headers.merge(auth_header)
+            parsed = JSON.parse(response.body)
+            expect(parsed['data']['type']).to eq('claims_api_auto_established_claim_validation')
+            expect(parsed['data']['attributes']['status']).to eq('valid')
+          end
+        end
+      end
+
+      it 'should return a list of errors when invalid hitting EVSS' do
+        with_okta_user(scopes) do |auth_header|
+          VCR.use_cassette('evss/disability_compensation_form/form_526_invalid_validation') do
+            post '/services/claims/v1/forms/526/validate', params: data, headers: headers.merge(auth_header)
+            parsed = JSON.parse(response.body)
+            expect(response.status).to eq(422)
+            expect(parsed['errors'].size).to eq(2)
+          end
+        end
+      end
+
+      it 'increment counters for statsd' do
+        with_okta_user(scopes) do |auth_header|
+          VCR.use_cassette('evss/disability_compensation_form/form_526_invalid_validation') do
+            expect(StatsD).to receive(:increment).at_least(:once)
+            post '/services/claims/v1/forms/526/validate', params: data, headers: headers.merge(auth_header)
+          end
+        end
+      end
+
+      it 'should return a list of errors when invalid via internal validation' do
+        with_okta_user(scopes) do |auth_header|
+          json_data = JSON.parse data
+          params = json_data
+          params['data']['attributes']['veteran']['currentMailingAddress'] = {}
+          post '/services/claims/v1/forms/526/validate', params: params.to_json, headers: headers.merge(auth_header)
+          parsed = JSON.parse(response.body)
+          expect(response.status).to eq(422)
+          expect(parsed['errors'].size).to eq(6)
         end
       end
     end

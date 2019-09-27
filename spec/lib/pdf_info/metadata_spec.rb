@@ -25,7 +25,7 @@ describe PdfInfo::Metadata do
       File size:      1099807 bytes
       Optimized:      no
       PDF version:    1.3"
-STDOUT
+    STDOUT
   end
 
   let(:good_exit) do
@@ -119,7 +119,7 @@ STDOUT
           File size:      1411924 bytes
           Optimized:      no
           PDF version:    1.6
-          STDOUT
+        STDOUT
       end
 
       describe '#pages' do
@@ -151,7 +151,7 @@ STDOUT
           File size:      1099807 bytes
           Optimized:      no
           PDF version:    1.3"
-STDOUT
+        STDOUT
       end
 
       it 'should return encryption as a boolean' do
