@@ -22,6 +22,13 @@ RSpec.describe 'health records', type: :request do
     sign_in_as(current_user)
   end
 
+  let(:params) do
+    {
+      from_date: 10.years.ago.iso8601,
+      to_date: Time.now.iso8601,
+      data_classes: BB::GenerateReportRequestForm::ELIGIBLE_DATA_CLASSES
+    }
+  end
   context 'forbidden user' do
     let(:current_user) { build(:user) }
 
@@ -52,14 +59,6 @@ RSpec.describe 'health records', type: :request do
     expect(response).to be_successful
     expect(response.body).to be_a(String)
     expect(response).to match_response_schema('eligible_data_classes')
-  end
-
-  let(:params) do
-    {
-      from_date: 10.years.ago.iso8601,
-      to_date: Time.now.iso8601,
-      data_classes: BB::GenerateReportRequestForm::ELIGIBLE_DATA_CLASSES
-    }
   end
 
   it 'responds to POST #create to generate a new report' do

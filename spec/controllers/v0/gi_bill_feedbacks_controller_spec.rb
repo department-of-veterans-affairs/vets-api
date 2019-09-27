@@ -4,15 +4,14 @@ require 'rails_helper'
 require 'support/controller_spec_helper'
 
 RSpec.describe V0::GIBillFeedbacksController, type: :controller do
+  let(:form) { build(:gi_bill_feedback).form }
+  let(:user) { create(:user) }
   it_should_behave_like 'a controller that deletes an InProgressForm',
                         'gi_bill_feedback', 'gi_bill_feedback', GIBillFeedback::FORM_ID
 
   def parsed_body
     JSON.parse(response.body)
   end
-
-  let(:user) { create(:user) }
-  let(:form) { build(:gi_bill_feedback).form }
 
   describe '#create' do
     def send_create
