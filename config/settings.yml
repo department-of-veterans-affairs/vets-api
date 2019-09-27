@@ -91,7 +91,8 @@ vet360:
     enabled: true
     timeout: 30
     mock: false
-
+  address_validation:
+    api_key: '<AV_KEY>'
 
 # Settings for IHub
 ihub:
