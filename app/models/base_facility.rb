@@ -11,7 +11,15 @@ class BaseFacility < ApplicationRecord
 
   YES = 'YES'
 
-  HOURS_STANDARD_MAP = DateTime::DAYNAMES.each_with_object({}) { |d, h| h[d] = d }
+  HOURS_STANDARD_MAP = {
+    'Sunday' => 'Sunday',
+    'Monday' => 'Monday',
+    'Tuesday' => 'Tuesday',
+    'Wednesday' => 'Wednesday',
+    'Thursday' => 'Thursday',
+    'Friday' => 'Friday',
+    'Saturday' => 'Saturday'
+  }.freeze
 
   HEALTH = 'health'
   CEMETERY = 'cemetery'
