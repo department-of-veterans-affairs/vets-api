@@ -184,6 +184,7 @@ module ClaimsApi
             end
           end
         end
+
         response :default do
           key :description, 'unexpected error'
           schema do

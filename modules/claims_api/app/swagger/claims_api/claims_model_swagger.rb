@@ -239,7 +239,7 @@ module ClaimsApi
                 key :description, 'Date of Event'
               end
             end
-            
+
             property :tracked_item do
               key :type, :object
               key :description, 'Record of a tracked item needed or available in VBMS'
@@ -255,26 +255,26 @@ module ClaimsApi
                 key :example, 'Disability Benefits Questionnaire (DBQ) - Veteran Provided'
                 key :description, 'Type of File being submitted/requested'
               end
-                      
+
               property :document_type do
                 key :type, :string
                 key :example, 'L702'
                 key :description, 'Type of document submitted'
               end
-                      
+
               property :filename do
                 key :type, :string
                 key :example, 'DBQ form.pdf'
                 key :description, 'Name of file submitted'
               end
-                      
+
               property :upload_date do
                 key :type, :string
                 key :format, 'date'
                 key :example, '2017-06-01'
                 key :description, 'Date original upload of file occured'
               end
-                      
+
               property :type do
                 key :type, :string
                 key :example, 'other_documents_list'

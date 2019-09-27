@@ -109,7 +109,7 @@ module ClaimsApi
           key :name, 'X-VA-User'
           key :in, :header
           key :description, 'VA username of the person making the request'
-          key :required, true
+          key :required, false
           key :type, :string
         end
 
@@ -206,7 +206,7 @@ module ClaimsApi
           key :name, 'X-VA-User'
           key :in, :header
           key :description, 'VA username of the person making the request'
-          key :required, true
+          key :required, false
           key :type, :string
         end
 
