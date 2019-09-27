@@ -69,8 +69,6 @@ RSpec.describe Facilities::MentalHealthReloadJob, type: :job do
     ).to receive(:fetch_mental_health_data).and_return(CSV::Table.new(mental_health_data))
 
     Facilities::MentalHealthReloadJob.new.perform
-    # expect(FacilityMentalHealth.find('101A')).to_not be_nil
-    # expect(FacilityMentalHealth.find('202A')).to_not be_nil
     expect(FacilityMentalHealth.find('101A').mh_phone).to eq('407-123-1234')
     expect(FacilityMentalHealth.find('202A').mh_phone).to eq('321-987-6543')
     expect(FacilityMentalHealth.find('101A').local_updated).to be >= now
