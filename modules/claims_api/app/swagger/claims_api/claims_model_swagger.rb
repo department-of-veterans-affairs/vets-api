@@ -208,16 +208,87 @@ module ClaimsApi
 
         property :contention_list do
           key :type, :array
-          key :format, :array
           key :description, 'List of contentions being submitted in Claim'
           key :items, type: :string, example: 'abnormal heart (New)'
         end
 
-        property :updated_at do
+        property :va_representative do
           key :type, :string
-          key :format, 'date-time'
-          key :example, '2018-07-30T17:31:15.958Z'
-          key :description, 'Time stamp of last change to the claim'
+          key :example, 'AMERICAN LEGION'
+          key :description, 'Current VA Representative Organization'
+        end
+
+        property :events_timeline do
+          key :type, :array
+          key :description, 'List of events during lifetime of Claim'
+          items do
+            property :single_event do
+              key :type, :object
+              key :description, 'Record of different actions taken'
+
+              property :type do
+                key :type, :string
+                key :example, 'filed'
+                key :description, 'Different types of event statuses'
+              end
+
+              property :date do
+                key :type, :string
+                key :format, 'date'
+                key :example, '2018-07-30'
+                key :description, 'Date of Event'
+              end
+            end
+            
+            property :tracked_item do
+              key :type, :object
+              key :description, 'Record of a tracked item needed or available in VBMS'
+
+              property :tracked_item_id do
+                key :type, :string
+                key :example, '12345'
+                key :description, 'Tracked Item ID given by VBMS'
+              end
+
+              property :file_type do
+                key :type, :string
+                key :example, 'Disability Benefits Questionnaire (DBQ) - Veteran Provided'
+                key :description, 'Type of File being submitted/requested'
+              end
+                      
+              property :document_type do
+                key :type, :string
+                key :example, 'L702'
+                key :description, 'Type of document submitted'
+              end
+                      
+              property :filename do
+                key :type, :string
+                key :example, 'DBQ form.pdf'
+                key :description, 'Name of file submitted'
+              end
+                      
+              property :upload_date do
+                key :type, :string
+                key :format, 'date'
+                key :example, '2017-06-01'
+                key :description, 'Date original upload of file occured'
+              end
+                      
+              property :type do
+                key :type, :string
+                key :example, 'other_documents_list'
+                key :description, 'Type of Tracked Item submitted'
+              end
+
+              property :date do
+                key :type, :string
+                key :format, 'date'
+                key :example, '2017-06-01'
+                key :description, 'Date of Event'
+              end
+            end
+          end
         end
 
         property :status do
