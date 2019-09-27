@@ -32,9 +32,9 @@ RSpec/Be:
 
 # Offense count: 1
 # Cop supports --auto-correct.
-RSpec/BeEql:
-  Exclude:
-    - 'spec/lib/sentry/processor/filter_request_body_spec.rb'
+# RSpec/BeEql:
+#   Exclude:
+#     - 'spec/lib/sentry/processor/filter_request_body_spec.rb'
 
 # Offense count: 28
 RSpec/BeforeAfterAll:
