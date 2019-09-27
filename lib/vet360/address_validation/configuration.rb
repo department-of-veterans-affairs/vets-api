@@ -4,7 +4,7 @@ module Vet360
   module AddressValidation
     class Configuration < Vet360::Configuration
       def base_path
-        "https://dev-api.va.gov/services/address_validation/v1/"
+        "https://#{Settings.hostname}/services/address_validation/v1/"
       end
 
       def base_request_headers
