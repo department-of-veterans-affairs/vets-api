@@ -10,9 +10,9 @@ module ValidatePdf
 
   def validate_pdf(file)
     temp_file = file.tempfile
-    pdf = Origami::PDF.read(temp_file, options = { decrypt: false })
+    pdf = Origami::PDF.read temp_file, { decrypt: false }
     raise CarrierWave::UploadError, 'PDF is encrypted' if pdf.encrypted?
-    rescue Origami::InvalidPDFError
-      raise CarrierWave::UploadError, 'PDF is invalid'
+  rescue Origami::InvalidPDFError
+    raise CarrierWave::UploadError, 'PDF is invalid'
   end
 end
