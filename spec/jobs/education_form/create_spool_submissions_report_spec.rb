@@ -64,6 +64,24 @@ RSpec.describe EducationForm::CreateSpoolSubmissionsReport, type: :aws_helpers d
           expect(File.read(filename)).to eq(csv_string)
         end
 
+        it 'should recognize 1995s as STEM submission' do
+          create(:education_benefits_claim_1995s, processed_at: time.beginning_of_day)
+
+          perform
+          data = subject.create_csv_array
+
+          expect(data[:stem_exists]).to eq(true)
+        end
+
+        it 'should recognize 1995 with STEM data as STEM submission' do
+          create(:education_benefits_claim_1995stem, processed_at: time.beginning_of_day)
+
+          perform
+          data = subject.create_csv_array
+
+          expect(data[:stem_exists]).to eq(true)
+        end
+
         it 'should send an email' do
           expect { perform }.to change {
             ActionMailer::Base.deliveries.count
