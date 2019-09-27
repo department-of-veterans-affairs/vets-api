@@ -143,19 +143,8 @@ RSpec.describe Facilities::VHAFacility do
 
         it 'should parse services' do
           VCR.use_cassette('facilities/va/vha_facilities_limit_results') do
-            f1_services = facility.services
             f2_services = facility_2.services
-            f1_health = f1_services['health']
             f2_health = f2_services['health']
-
-            expect(f1_services.keys).to match(%w[last_updated health other])
-            expect(f1_services['last_updated']).to eq('2017-03-31')
-            expect(f1_health.size).to eq(2)
-            expect(f1_health.first.keys).to eq(%w[sl1 sl2])
-            expect(f1_health.first.values).to eq([['PrimaryCare'], []])
-            expect(f1_health.second.keys).to eq(%w[sl1 sl2])
-            expect(f1_health.second.values).to eq([['MentalHealthCare'], []])
-            expect(f1_services['other']).to be_empty
 
             expect(f2_services.keys).to match(%w[last_updated health other])
             expect(f2_services['last_updated']).to eq('2017-03-31')
@@ -166,6 +155,7 @@ RSpec.describe Facilities::VHAFacility do
             expect(f2_health.second.values).to eq([['MentalHealthCare'], []])
             expect(f2_health.third.keys).to eq(%w[sl1 sl2])
             expect(f2_health.third.values).to eq([['DentalServices'], []])
+            expect(f2_services['other']).to be_empty
           end
         end
       end
