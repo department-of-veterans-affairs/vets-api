@@ -63,29 +63,46 @@ module SAML
       end
 
       def loa_current
+        return mhv_loa_current if mhv_loa_current
+        return dslogon_loa_current if dslogon_loa_current
+
+        @loa_current ||=
+          if authn_context.include?('multifactor')
+            existing_user_identity.loa.fetch(:current, 1).to_i
+          else
+            SAML::User::AUTHN_CONTEXTS.fetch(authn_context).fetch(:loa_current, 1).to_i
+          end
+      rescue NoMethodError, KeyError => e
+        @warnings << "loa_current error: #{e.message}"
+        @loa_current = 1
+      end
+
+      def mhv_loa_current
+        if attributes['mhv_profile']
+          mhv_profile = JSON.parse(attributes['mhv_profile'])
+          mhv_account_type = mhv_profile['accountType']
+          SAML::UserAttributes::MHV::PREMIUM_LOAS.include?(mhv_account_type) ? 3 : 1
+        end
+      end
+
+      def dslogon_loa_current
+        if attributes['dslogon_assurance']
+          dslogon_assurance = attributes['dslogon_assurance']
+          SAML:: UserAttributes::DSLogon::PREMIUM_LOAS.include?(dslogon_assurance) ? 3 : 1
+        end
+      end
+
+      # This is the ID.me highest level of assurance attained
+      def loa_highest
         attributes['va_eauth_credentialassurancelevel']&.to_i
       end
 
-      ### Unsupported attributes
-
-      # TODO: This should be the ID.me highest level of assurance attained;
-      # VA IAM team to get this integrated and propagated from ID.me
-      # double check attribute name after VA IAM finalizes
-      # TODO: reset this attribute to `level_of_assurance` after IAM adds this
-      def loa_highest
-        loa_current
-      end
-
-      # TODO: This is not supported by SSOe. Denotes whether ID.me wallet is MFA
-      # enabled. VA IAM team to get this integrated and propagated from ID.me
-      # Investigate front-end use of this attribute to determine
-      # what this attribute is used for
       def multifactor
         attributes['multifactor']
       end
 
       def account_type
-        attributes['level_of_assurance']
+        loa_current
       end
 
       def sign_in
