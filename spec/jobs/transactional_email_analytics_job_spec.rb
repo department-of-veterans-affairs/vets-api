@@ -56,6 +56,7 @@ RSpec.describe TransactionalEmailAnalyticsJob, type: :job do
         @emails = subject.instance_variable_get(:@all_emails)
       end
     end
+
     context 'last email created_at > time-range start time and 50 emails in collection' do
       it 'should return false' do
         @emails.collection.last.attributes[:created_at] = 1440.minutes.ago.to_s

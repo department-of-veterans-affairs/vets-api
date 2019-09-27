@@ -60,6 +60,7 @@ RSpec.describe Facilities::AccessDataDownload, type: :job do
       before do
         Settings.sentry.dsn = 'asdf'
       end
+
       after do
         Settings.sentry.dsn = nil
       end
@@ -94,6 +95,7 @@ RSpec.describe Facilities::AccessDataDownload, type: :job do
       before do
         Settings.sentry.dsn = 'asdf'
       end
+
       after do
         Settings.sentry.dsn = nil
       end

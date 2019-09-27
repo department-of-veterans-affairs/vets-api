@@ -17,6 +17,7 @@ RSpec.describe SpoolSubmissionsReportMailer, type: %i[mailer aws_helpers] do
       before do
         expect(FeatureFlipper).to receive(:staging_email?).once.and_return(true)
       end
+
       it 'should send the right email' do
         subject
         text = described_class::REPORT_TEXT
@@ -72,6 +73,7 @@ RSpec.describe SpoolSubmissionsReportMailer, type: %i[mailer aws_helpers] do
       before do
         expect(FeatureFlipper).to receive(:staging_email?).twice.and_return(true)
       end
+
       it 'should send the right email' do
         subject
         text = described_class::REPORT_TEXT

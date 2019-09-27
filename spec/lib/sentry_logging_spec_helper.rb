@@ -10,6 +10,7 @@ shared_examples 'a sentry logger' do
 
   context 'with SENTRY_DSN set' do
     before { Settings.sentry.dsn = 'asdf' }
+
     after { Settings.sentry.dsn = nil }
 
     describe '#log_message_to_sentry' do

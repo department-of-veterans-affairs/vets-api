@@ -32,6 +32,7 @@ RSpec.describe SAML::SettingsService do
           status: 500, body: 'bad news bears'
         )
       end
+
       it 'should log three attempts' do
         expect(Rails.logger).to receive(:warn).exactly(2).times.with(/Failed to load SAML metadata: 500: try \d of 3/)
         expect(Rails.logger).to receive(:error).exactly(1).times.with(/Failed to load SAML metadata: 500: try \d of 3/)

@@ -145,9 +145,11 @@ RSpec.describe 'Health Care Application Integration', type: %i[request serialize
       before do
         Settings.sentry.dsn = 'asdf'
       end
+
       after do
         Settings.sentry.dsn = nil
       end
+
       let(:params) do
         {
           form: test_veteran.except('privacyAgreementAccepted').to_json

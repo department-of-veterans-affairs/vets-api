@@ -41,6 +41,7 @@ RSpec.describe 'Messages Integration', type: :request do
 
     context 'not a va patient' do
       before(:each) { get'/v0/messaging/health/messages/categories' }
+
       let(:va_patient) { false }
 
       include_examples 'for non va patient user', authorized: false, message: 'You do not have access to messaging'

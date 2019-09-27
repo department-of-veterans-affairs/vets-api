@@ -39,6 +39,7 @@ RSpec.describe EducationForm::CreateSpoolSubmissionsReport, type: :aws_helpers d
         before do
           expect(FeatureFlipper).to receive(:send_edu_report_email?).once.and_return(true)
         end
+
         after do
           File.delete(filename)
         end

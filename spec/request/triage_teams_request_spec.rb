@@ -38,6 +38,7 @@ RSpec.describe 'Triage Teams Integration', type: :request do
 
     context 'not a va patient' do
       before(:each) { get '/v0/messaging/health/recipients' }
+
       let(:va_patient) { false }
 
       include_examples 'for non va patient user', authorized: false, message: 'You do not have access to messaging'

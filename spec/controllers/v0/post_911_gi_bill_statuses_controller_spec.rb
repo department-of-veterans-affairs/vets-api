@@ -15,6 +15,7 @@ RSpec.describe V0::Post911GIBillStatusesController, type: :controller do
 
   context 'inside working hours' do
     before { Timecop.freeze(noon) }
+
     after { Timecop.return }
 
     context 'without mocked responses' do

@@ -189,6 +189,7 @@ RSpec.describe BaseFacility, type: :model do
 
   describe '#find_facility_by_id' do
     before(:each) { create :vha_648A4 }
+
     it 'should find facility by id' do
       expect(BaseFacility.find_facility_by_id('vha_648A4').id).to eq('648A4')
     end

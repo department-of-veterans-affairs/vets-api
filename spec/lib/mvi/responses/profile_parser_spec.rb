@@ -219,6 +219,7 @@ describe MVI::Responses::ProfileParser do
     let(:body) { Ox.parse(File.read('spec/support/mvi/find_candidate_inactive_mhv_ids.xml')) }
 
     before { Settings.sentry.dsn = 'asdf' }
+
     after { Settings.sentry.dsn = nil }
 
     before(:each) do

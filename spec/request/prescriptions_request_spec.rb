@@ -34,6 +34,7 @@ RSpec.describe 'prescriptions', type: :request do
 
       context 'not a va patient' do
         before(:each) { get '/v0/prescriptions/13651310' }
+
         let(:va_patient) { false }
 
         include_examples 'for non va patient user', authorized: false, message: 'You do not have access to prescriptions'

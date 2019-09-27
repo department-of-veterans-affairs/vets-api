@@ -4,6 +4,7 @@ require 'rails_helper'
 
 describe Vet360::Person::Service, skip_vet360: true do
   before { Timecop.freeze('2018-04-09T17:52:03Z') }
+
   after  { Timecop.return }
 
   describe '#init_vet360_id' do

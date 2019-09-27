@@ -100,6 +100,7 @@ RSpec.describe EducationForm::CreateDailyYearToDateReport, type: :aws_helpers do
       before do
         expect(FeatureFlipper).to receive(:send_edu_report_email?).once.and_return(true)
       end
+
       after do
         File.delete(filename)
       end

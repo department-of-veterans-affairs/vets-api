@@ -89,9 +89,11 @@ RSpec.describe 'PPIU', type: :request do
         before do
           Settings.sentry.dsn = 'asdf'
         end
+
         after do
           Settings.sentry.dsn = nil
         end
+
         it 'should log a message to Sentry' do
           VCR.use_cassette('evss/ppiu/update_payment_information') do
             expect_any_instance_of(User).to receive(:all_emails).and_return([])

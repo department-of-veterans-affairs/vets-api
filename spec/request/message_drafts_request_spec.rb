@@ -43,6 +43,7 @@ RSpec.describe 'Messages Integration', type: :request do
 
     context 'not a va patient' do
       before(:each) { post '/v0/messaging/health/message_drafts', params: params }
+
       let(:va_patient) { false }
 
       include_examples 'for non va patient user', authorized: false, message: 'You do not have access to messaging'

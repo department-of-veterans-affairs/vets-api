@@ -10,6 +10,7 @@ module Facilities
   end
   RSpec.describe VBAFacility do
     before(:each) { BaseFacility.validate_on_load = false }
+
     after(:each) { BaseFacility.validate_on_load = true }
 
     it 'should be a VBAFacility object' do

@@ -17,6 +17,7 @@ describe EVSS::Jwt do
     let(:current_user) { FactoryBot.build(:user, :loa3) }
 
     before { Timecop.freeze(some_random_time) }
+
     after { Timecop.return }
 
     it 'has the right payload' do

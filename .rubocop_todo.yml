@@ -102,8 +102,8 @@ RSpec/EmptyLineAfterFinalLet:
 
 # Offense count: 96
 # Cop supports --auto-correct.
-RSpec/EmptyLineAfterHook:
-  Enabled: false
+# RSpec/EmptyLineAfterHook:
+#   Enabled: false
 
 # Offense count: 25
 # Cop supports --auto-correct.

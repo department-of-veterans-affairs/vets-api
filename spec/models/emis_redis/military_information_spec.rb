@@ -251,6 +251,7 @@ describe EMISRedis::MilitaryInformation, skip_emis: true do
       before do
         allow(subject).to receive(:service_episodes_by_date).and_return([])
       end
+
       it 'should return nil' do
         VCR.use_cassette('emis/get_military_service_episodes/valid') do
           expect(subject.hca_last_service_branch).to be_nil
@@ -286,6 +287,7 @@ describe EMISRedis::MilitaryInformation, skip_emis: true do
       before do
         allow(subject).to receive(:service_episodes_by_date).and_return([])
       end
+
       it 'should return nil' do
         VCR.use_cassette('emis/get_military_service_episodes/valid') do
           expect(subject.last_service_branch).to be_nil

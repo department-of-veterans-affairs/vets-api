@@ -18,6 +18,7 @@ RSpec.describe MhvAccountTypeService do
   subject { described_class.new(user) }
 
   before { Settings.sentry.dsn = 'asdf' }
+
   after { Settings.sentry.dsn = nil }
 
   context 'no mhv_correlation_id' do

@@ -31,6 +31,7 @@ RSpec.describe EVSSClaimServiceAsync do
           claim
           tracker.set_collection_status(result)
         end
+
         it 'returns an array of claims' do
           expect(subject.all).to eq([[claim], result])
         end
@@ -68,6 +69,7 @@ RSpec.describe EVSSClaimServiceAsync do
           tracker.claim_id = claim.id
           tracker.set_single_status(result)
         end
+
         it 'returns an array of claims' do
           expect(subject.update_from_remote(claim)).to eq([claim, result])
         end

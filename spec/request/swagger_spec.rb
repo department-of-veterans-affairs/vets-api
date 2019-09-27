@@ -580,6 +580,7 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
       before(:each) do
         allow(SM::Client).to receive(:new).and_return(authenticated_client)
       end
+
       let(:headers) { { '_headers' => { 'Cookie' => sign_in(mhv_user, nil, true) } } }
 
       describe 'triage teams' do
@@ -1046,6 +1047,7 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
 
     context 'without EVSS mock' do
       before { Settings.evss.mock_gi_bill_status = false }
+
       before { Settings.evss.mock_letters = false }
 
       it 'supports getting EVSS Gi Bill Status' do

@@ -4,7 +4,9 @@ require 'rails_helper'
 module Facilities
   RSpec.describe VHAFacility do
     before(:each) { BaseFacility.validate_on_load = false }
+
     after(:each) { BaseFacility.validate_on_load = true }
+
     it 'should be a VHAFacility object' do
       expect(described_class.new).to be_a(VHAFacility)
     end
