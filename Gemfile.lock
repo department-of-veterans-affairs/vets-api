@@ -749,7 +749,9 @@ DEPENDENCIES
   shrine
   shrine-memory
   sidekiq (~> 4.2)
+  sidekiq-ent!
   sidekiq-instrument
+  sidekiq-pro!
   sidekiq-scheduler (~> 2.0)
   simplecov
   socksify
