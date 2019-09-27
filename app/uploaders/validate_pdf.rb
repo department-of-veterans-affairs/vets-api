@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+require 'origami'
 
 module ValidatePdf
   extend ActiveSupport::Concern
@@ -9,12 +10,9 @@ module ValidatePdf
 
   def validate_pdf(file)
     temp_file = file.tempfile
-    return unless temp_file.readpartial(4) == '%PDF'
-
-    PDF::Reader.new(temp_file).info
-  rescue PDF::Reader::MalformedPDFError
-    raise CarrierWave::UploadError, 'PDF is missing an end of file marker'
-  rescue PDF::Reader::EncryptedPDFError
-    raise CarrierWave::UploadError, 'PDF is encrypted'
+    pdf = Origami::PDF.read(temp_file, options = { decrypt: false })
+    raise CarrierWave::UploadError, 'PDF is encrypted' if pdf.encrypted?
+    rescue Origami::InvalidPDFError
+      raise CarrierWave::UploadError, 'PDF is invalid'
   end
 end
