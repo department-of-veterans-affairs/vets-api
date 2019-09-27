@@ -66,8 +66,9 @@ module SAML
         return mhv_loa_current if mhv_loa_current
         return dslogon_loa_current if dslogon_loa_current
 
+        # TODO: authn_context is currently not passed through by SSOe
         @loa_current ||=
-          if authn_context.include?('multifactor')
+          if existing_user_identity || authn_context.include?('multifactor')
             existing_user_identity.loa.fetch(:current, 1).to_i
           else
             SAML::User::AUTHN_CONTEXTS.fetch(authn_context).fetch(:loa_current, 1).to_i

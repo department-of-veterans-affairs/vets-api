@@ -161,20 +161,18 @@ module SAML
       )
     end
 
-    # TODO: Verify that attributes are available, in particular level_of_assurance and multifactor
     # TODO: fill out method for building SSOe saml atributes
     # TODO: validate attribute names for level of assurance and
     # multifactor after VA IAM integrates into response
     def build_ssoe_saml_attributes(authn_context:, account_type:, level_of_assurance:, multifactor:)
       if account_type == '1'
         OneLogin::RubySaml::Attributes.new(
-          'va_eauth_credentialassurancelevel' => ['1'],
+          'va_eauth_credentialassurancelevel' => level_of_assurance,
           'va_eauth_gender' => [],
           'va_eauth_uid' => ['0e1bb5723d7c4f0686f46ca4505642ad'],
           'va_eauth_dodedipnid' => ['1606997570'],
           'va_eauth_emailaddress' => ['kam+tristanmhv@adhocteam.us'],
           'multifactor' => (authn_context.include?('multifactor') ? [true] : multifactor),
-          'level_of_assurance' => level_of_assurance,
           'va_eauth_birthDate_v1' => [],
           'va_eauth_firstname' => [],
           'va_eauth_lastname' => [],
@@ -186,13 +184,12 @@ module SAML
         )
       else
         OneLogin::RubySaml::Attributes.new(
-          'va_eauth_credentialassurancelevel' => [account_type],
+          'va_eauth_credentialassurancelevel' => level_of_assurance,
           'va_eauth_gender' => ['M'],
           'va_eauth_uid' => ['0e1bb5723d7c4f0686f46ca4505642ad'],
           'va_eauth_dodedipnid' => ['1606997570'],
           'va_eauth_emailaddress' => ['kam+tristanmhv@adhocteam.us'],
           'multifactor' => (authn_context.include?('multifactor') ? [true] : multifactor),
-          'level_of_assurance' => level_of_assurance,
           'va_eauth_birthDate_v1' => ['1735-10-30'],
           'va_eauth_firstname' => ['Tristan'],
           'va_eauth_lastname' => ['MHV'],

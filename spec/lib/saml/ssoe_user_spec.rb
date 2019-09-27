@@ -10,18 +10,19 @@ RSpec.describe SAML::User do
     let(:authn_context) { 'urn:oasis:names:tc:SAML:2.0:ac:classes:Password' }
     let(:account_type)  { '1' }
     let(:highest_attained_loa) { '1' }
+    let(:multifactor) { false }
 
     let(:saml_response) do
       build_saml_response(
         authn_context: authn_context,
         account_type: account_type,
         level_of_assurance: [highest_attained_loa],
-        multifactor: [false]
+        multifactor: [multifactor]
       )
     end
     subject { described_class.new(saml_response) }
 
-    context 'LOA1 user' do
+    context 'IDme LOA1 user' do
       it 'has various important attributes' do
         expect(subject.to_hash).to eq(
           dslogon_edipi: '1606997570',
@@ -38,7 +39,7 @@ RSpec.describe SAML::User do
           email: 'kam+tristanmhv@adhocteam.us',
           multifactor: false,
           loa: { current: 1, highest: 1 },
-          sign_in: { service_name: 'ssoe', account_type: '1' },
+          sign_in: { service_name: 'ssoe', account_type: 1 },
           authn_context: 'urn:oasis:names:tc:SAML:2.0:ac:classes:Password'
         )
       end
@@ -48,11 +49,12 @@ RSpec.describe SAML::User do
       end
     end
 
-    context 'LOA3 user' do
+    context 'IDme LOA3 user' do
       let(:account_type) { '3' }
       let(:highest_attained_loa) { '3' }
 
-      it 'has various important attributes' do
+      # TODO: validate LOA level after SSOe AuthnContext support
+      pending 'has various important attributes' do
         expect(subject.to_hash).to eq(
           birth_date: '1735-10-30',
           dslogon_edipi: '1606997570',
@@ -67,9 +69,8 @@ RSpec.describe SAML::User do
           uuid: '0e1bb5723d7c4f0686f46ca4505642ad',
           email: 'kam+tristanmhv@adhocteam.us',
           loa: { current: 3, highest: 3 },
-          # TODO: validate when/how this attribute is being used
-          sign_in: { service_name: 'ssoe', account_type: '3' },
-          multifactor: false,
+          sign_in: { service_name: 'ssoe', account_type: 3 },
+          multifactor: multifactor,
           authn_context: 'urn:oasis:names:tc:SAML:2.0:ac:classes:Password'
         )
       end
