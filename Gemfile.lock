@@ -86,7 +86,6 @@ PATH
 
 GEM
   remote: https://rubygems.org/
-  remote: https://enterprise.contribsys.com/
   specs:
     Ascii85 (1.0.2)
     aasm (4.12.0)
@@ -211,6 +210,7 @@ GEM
     coderay (1.1.2)
     coercible (1.0.0)
       descendants_tracker (~> 0.0.1)
+    colorize (0.8.1)
     concurrent-ruby (1.1.5)
     config (1.4.0)
       activesupport (>= 3.0)
@@ -398,6 +398,8 @@ GEM
     oj (2.18.2)
     olive_branch (2.0.0)
       rails (>= 4.0)
+    origami (2.1.0)
+      colorize (~> 0.7)
     overcommit (0.49.1)
       childprocess (>= 0.6.3, < 2.0)
       iniparse (~> 1.4)
@@ -565,14 +567,9 @@ GEM
       connection_pool (~> 2.2, >= 2.2.0)
       rack-protection (>= 1.5.0)
       redis (~> 3.2, >= 3.2.1)
-    sidekiq-ent (1.6.1)
-      sidekiq (>= 4.2.9)
-      sidekiq-pro (>= 3.5.0)
     sidekiq-instrument (0.3.0)
       sidekiq (>= 4.2, < 6)
       statsd-instrument (~> 2.0, >= 2.0.4)
-    sidekiq-pro (3.7.0)
-      sidekiq (>= 4.1.5)
     sidekiq-scheduler (2.2.2)
       redis (>= 3, < 5)
       rufus-scheduler (~> 3.2)
@@ -715,6 +712,7 @@ DEPENDENCIES
   oj
   olive_branch
   openid_auth!
+  origami
   overcommit
   ox
   pdf-forms
@@ -751,9 +749,7 @@ DEPENDENCIES
   shrine
   shrine-memory
   sidekiq (~> 4.2)
-  sidekiq-ent!
   sidekiq-instrument
-  sidekiq-pro!
   sidekiq-scheduler (~> 2.0)
   simplecov
   socksify
