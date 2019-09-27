@@ -230,8 +230,12 @@ module ClaimsApi
         end
 
         response 200 do
-          key :description, 'upload response'
+          key :description, '2122 response'
+          schema do
+            key :'$ref', :Form2122Output
+          end
         end
+
         response :default do
           key :description, 'unexpected error'
           schema do
