@@ -44,6 +44,7 @@ describe PdfFill::Forms::Va214142 do
         )
       end
     end
+
     context 'va file number is blank' do
       let(:form_data) do
         {}

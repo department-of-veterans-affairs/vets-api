@@ -31,6 +31,7 @@ describe OktaRedis::Grants, skip_emis: true do
       end
     end
   end
+
   describe 'delete_grant' do
     context 'raises on error' do
       it 'raises' do

@@ -19,9 +19,7 @@ RSpec.describe EducationForm::CreateDailyYearToDateReport, type: :aws_helpers do
 
   context 'with some sample submissions', run_at: '2017-01-04 03:00:00 EDT' do
     before do
-      2.times do
-        create(:education_benefits_submission, status: :processed, created_at: date)
-      end
+      create_list(:education_benefits_submission, 2, status: :processed, created_at: date)
 
       create(
         :education_benefits_submission,

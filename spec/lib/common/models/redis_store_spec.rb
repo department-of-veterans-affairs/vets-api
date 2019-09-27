@@ -41,6 +41,7 @@ describe Common::RedisStore do
         expect(klass.exists?('e66fd7b7-94e0-4748-8063-283f55efb0ea')).to be_truthy
       end
     end
+
     context 'when the model is saved' do
       it 'returns false' do
         expect(klass.exists?('e66fd7b7-94e0-4748-8063-283f55efb0ea')).to be_falsey

@@ -33,15 +33,15 @@ describe 'vet360 rake tasks' do
       Rake::Task['vet360:get_email_transaction_status'].reenable
       Rake.application.invoke_task 'vet360:get_email_transaction_status[1,786efe0e-fd20-4da2-9019-0c00540dba4d]'
     end
+    let :fail_rake_task do
+      Rake::Task['vet360:get_email_transaction_status'].reenable
+      Rake.application.invoke_task 'vet360:get_email_transaction_status[]'
+    end
     it 'runs without errors' do
       expect_any_instance_of(Vet360::ContactInformation::Service).to receive(:get_email_transaction_status)
       VCR.use_cassette('vet360/contact_information/email_transaction_status', VCR::MATCH_EVERYTHING) do
         expect { silently { run_rake_task } }.not_to raise_error
       end
-    end
-    let :fail_rake_task do
-      Rake::Task['vet360:get_email_transaction_status'].reenable
-      Rake.application.invoke_task 'vet360:get_email_transaction_status[]'
     end
 
     it 'aborts' do
