@@ -12,7 +12,7 @@ module Vet360
         res = perform(
           :post,
           'candidate',
-          address.address_validation_req
+          address.address_validation_req.to_json
         )
         binding.pry; fail
       end
