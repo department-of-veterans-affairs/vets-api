@@ -77,23 +77,23 @@ RSpec/EmptyExampleGroup:
 
 # Offense count: 35
 # Cop supports --auto-correct.
-RSpec/EmptyLineAfterExampleGroup:
-  Exclude:
-    - 'modules/claims_api/spec/models/auto_establish_claim_spec.rb'
-    - 'modules/claims_api/spec/models/power_of_attorney_spec.rb'
-    - 'spec/controllers/v0/post_911_gi_bill_statuses_controller_spec.rb'
-    - 'spec/jobs/education_form/education_facility_spec.rb'
-    - 'spec/jobs/transactional_email_analytics_job_spec.rb'
-    - 'spec/lib/common/models/redis_store_spec.rb'
-    - 'spec/lib/hca/service_spec.rb'
-    - 'spec/lib/mvi/configuration_spec.rb'
-    - 'spec/lib/mvi/messages/message_builder_spec.rb'
-    - 'spec/lib/pdf_fill/forms/va214142_spec.rb'
-    - 'spec/lib/saml/saml_settings_service_spec.rb'
-    - 'spec/lib/sentry_logging_spec_helper.rb'
-    - 'spec/models/mvi_spec.rb'
-    - 'spec/models/okta_redis/grants_spec.rb'
-    - 'spec/uploaders/evss_claim_document_uploader_spec.rb'
+# RSpec/EmptyLineAfterExampleGroup:
+#   Exclude:
+#     - 'modules/claims_api/spec/models/auto_establish_claim_spec.rb'
+#     - 'modules/claims_api/spec/models/power_of_attorney_spec.rb'
+#     - 'spec/controllers/v0/post_911_gi_bill_statuses_controller_spec.rb'
+#     - 'spec/jobs/education_form/education_facility_spec.rb'
+#     - 'spec/jobs/transactional_email_analytics_job_spec.rb'
+#     - 'spec/lib/common/models/redis_store_spec.rb'
+#     - 'spec/lib/hca/service_spec.rb'
+#     - 'spec/lib/mvi/configuration_spec.rb'
+#     - 'spec/lib/mvi/messages/message_builder_spec.rb'
+#     - 'spec/lib/pdf_fill/forms/va214142_spec.rb'
+#     - 'spec/lib/saml/saml_settings_service_spec.rb'
+#     - 'spec/lib/sentry_logging_spec_helper.rb'
+#     - 'spec/models/mvi_spec.rb'
+#     - 'spec/models/okta_redis/grants_spec.rb'
+#     - 'spec/uploaders/evss_claim_document_uploader_spec.rb'
 
 # Offense count: 229
 # Cop supports --auto-correct.
