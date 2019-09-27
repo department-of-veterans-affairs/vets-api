@@ -22,6 +22,12 @@ pipeline {
       }
     }
 
+    stage('Print env vars') {
+      steps {
+        echo sh(script: 'env|sort', returnStdout: true)
+      }
+    }
+
     stage('Run tests') {
       steps {
         withCredentials([
