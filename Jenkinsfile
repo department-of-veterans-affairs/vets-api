@@ -18,7 +18,7 @@ pipeline {
   stages {
     stage('Checkout Code') {
       steps {
-        checkout scm
+        def scmVars = checkout scm
       }
     }
 
@@ -26,6 +26,8 @@ pipeline {
       steps {
         echo "BILL: ${env.CHANGE_ID} : ${env.BUILD_NUMBER}"
         echo sh(script: 'env|sort', returnStdout: true)
+
+        sh 'printenv'
       }
     }
 
