@@ -21,9 +21,9 @@ class EVSSClaimService
         create_or_update_claim(raw_claim)
       end
     end.flatten
-    return claims, true
+    [claims, true]
   rescue Breakers::OutageException, EVSS::ErrorMiddleware::EVSSBackendServiceError
-    return claims_scope.all, false
+    [claims_scope.all, false]
   end
 
   def update_from_remote(claim)
