@@ -6,6 +6,7 @@ module Vet360
       configuration Vet360::AddressValidation::Configuration
 
       def city_state_province(zip_code)
+        binding.pry; fail
         perform(:get, "cityStateProvince/#{zip_code}")
         binding.pry; fail
       end
