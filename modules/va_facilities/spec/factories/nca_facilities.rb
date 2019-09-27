@@ -9,7 +9,6 @@ FactoryBot.define do
     website { 'https://www.cem.va.gov/cems/nchp/ftlogan.asp' }
     lat { 39.6455740260001 }
     long { -105.052859396 }
-    location { 'POINT(-105.052859396 39.6455740260001)' }
     address {
       { 'mailing' => {
         'zip' => '80236',
@@ -50,7 +49,6 @@ FactoryBot.define do
     website { 'https://www.cem.va.gov/cems/nchp/willamette.asp' }
     lat { 45.4568385960001 }
     long { -122.540844696 }
-    location { 'POINT(-122.540844696 45.4568385960001)' }
     address {
       { 'mailing' => {
         'zip' => '97086-6937',
@@ -95,7 +93,6 @@ FactoryBot.define do
     website { 'https://www.cem.va.gov/cems/nchp/woodlawn.asp' }
     lat { 42.111095628 }
     long { -76.8265631089999 }
-    location { 'POINT(-76.8265631089999 42.111095628)' }
     address {
       { 'mailing' => {
         'zip' => '14810',
@@ -139,7 +136,6 @@ FactoryBot.define do
     website { nil }
     lat { 42.7038448500001 }
     long { -73.72356501 }
-    location { 'POINT(-73.72356501 42.7038448500001)' }
     address {
       { 'mailing' => {
         'zip' => '12871-1721',
@@ -183,7 +179,6 @@ FactoryBot.define do
     website { 'https://www.cem.va.gov/cems/nchp/cypresshills.asp' }
     lat { 40.6859544970001 }
     long { -73.8812331729999 }
-    location { 'POINT(-73.8812331729999 40.6859544970001)' }
     address {
       { 'mailing' => {
         'zip' => '11208',
@@ -227,7 +222,6 @@ FactoryBot.define do
     website { 'https://www.cem.va.gov/cems/nchp/bath.asp' }
     lat { 42.347251468 }
     long { -77.350304205 }
-    location { 'POINT(-77.350304205 42.347251468)' }
     address {
       { 'mailing' => {
         'zip' => '14810',
@@ -271,7 +265,6 @@ FactoryBot.define do
     website { 'https://www.cem.va.gov/cems/nchp/geraldbhsolomonsaratoga.asp' }
     lat { 43.026389889 }
     long { -73.617079936 }
-    location { 'POINT(-73.617079936 43.026389889)' }
     address {
       { 'mailing' => {
         'zip' => '12871-1721',
@@ -315,7 +308,6 @@ FactoryBot.define do
     website { 'https://www.cem.va.gov/cems/nchp/longisland.asp' }
     lat { 40.750563679 }
     long { -73.401496373 }
-    location { 'POINT(-73.401496373 40.750563679)' }
     address {
       { 'mailing' => {
         'zip' => '11735-1211',

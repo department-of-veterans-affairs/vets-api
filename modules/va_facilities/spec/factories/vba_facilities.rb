@@ -9,7 +9,6 @@ FactoryBot.define do
     website { nil }
     lat { 36.8476575 }
     long { -76.26950512 }
-    location { 'POINT(-76.26950512 36.8476575)' }
     address {
       { 'mailing' => {},
         'physical' => {
@@ -55,7 +54,6 @@ FactoryBot.define do
     website { 'http://www.benefits.va.gov/portland' }
     lat { 45.51516229 }
     long { -122.6755173 }
-    location { 'POINT(-122.6755173 45.51516229)' }
     address {
       { 'mailing' => {},
         'physical' => {
@@ -105,7 +103,6 @@ FactoryBot.define do
     website { nil }
     lat { 45.51516229 }
     long { -122.6755173 }
-    location { 'POINT(-122.6755173 45.51516229)' }
     address {
       { 'mailing' => {},
         'physical' => {
@@ -154,7 +151,6 @@ FactoryBot.define do
     website { nil }
     lat { 45.51144272 }
     long { -122.6844775 }
-    location { 'POINT(-122.6844775 45.51144272)' }
     address {
       { 'mailing' => {},
         'physical' => {
@@ -203,7 +199,6 @@ FactoryBot.define do
     website { nil }
     lat { 45.56273715 }
     long { -122.6676496 }
-    location { 'POINT(-122.6676496 45.56273715)' }
     address {
       { 'mailing' => {},
         'physical' => {
@@ -252,7 +247,6 @@ FactoryBot.define do
     website { nil }
     lat { 45.6394162600001 }
     long { -122.6552874 }
-    location { 'POINT(-122.6552874 45.6394162600001)' }
     address {
       { 'mailing' => {},
         'physical' => {
@@ -302,7 +296,6 @@ FactoryBot.define do
     website { 'http://www.benefits.va.gov/newyork/' }
     lat { 40.7283928800001 }
     long { -74.0062199 }
-    location { 'POINT(-74.0062199 40.7283928800001)' }
     address {
       { 'mailing' => {},
         'physical' =>
@@ -346,7 +339,6 @@ FactoryBot.define do
     website { nil }
     lat { 41.24517788 }
     long { -73.9264304 }
-    location { 'POINT(-73.9264304 41.24517788)' }
     address {
       { 'mailing' => {},
         'physical' =>
@@ -386,7 +378,6 @@ FactoryBot.define do
     website { nil }
     lat { 42.65140884 }
     long { -73.77623285 }
-    location { 'POINT(-73.77623285 42.65140884)' }
     address {
       { 'mailing' => {},
         'physical' =>
@@ -426,7 +417,6 @@ FactoryBot.define do
     website { nil }
     lat { 40.74498866 }
     long { -73.4993731499999 }
-    location { 'POINT(-73.4993731499999 40.74498866)' }
     address {
       { 'mailing' => {},
         'physical' =>
@@ -465,7 +455,6 @@ FactoryBot.define do
     website { nil }
     lat { 41.24517788 }
     long { -73.9264304 }
-    location { 'POINT(-73.9264304 41.24517788)' }
     address {
       { 'mailing' => {},
         'physical' =>
@@ -504,7 +493,6 @@ FactoryBot.define do
     website { nil }
     lat { 42.65140884 }
     long { -73.77623285 }
-    location { 'POINT(-73.77623285 42.65140884)' }
     address {
       { 'mailing' => {},
         'physical' =>
@@ -547,7 +535,6 @@ FactoryBot.define do
     website { nil }
     lat { 41.54045655 }
     long { -73.96222125 }
-    location { 'POINT(-73.96222125 41.54045655)' }
     address {
       { 'mailing' => {},
         'physical' =>
@@ -590,7 +577,6 @@ FactoryBot.define do
     website { nil }
     lat { 41.24517788 }
     long { -73.9264304 }
-    location { 'POINT(-73.9264304 41.24517788)' }
     address {
       { 'mailing' => {},
         'physical' =>
@@ -633,7 +619,6 @@ FactoryBot.define do
     website { nil }
     lat { 40.73709039 }
     long { -73.97694726 }
-    location { 'POINT(-73.97694726 40.73709039)' }
     address {
       { 'mailing' => {},
         'physical' =>
@@ -676,7 +661,6 @@ FactoryBot.define do
     website { nil }
     lat { 40.73709039 }
     long { -73.97694726 }
-    location { 'POINT(-73.97694726 40.73709039)' }
     address {
       { 'mailing' => {},
         'physical' =>
@@ -720,7 +704,6 @@ FactoryBot.define do
     website { 'http://www.benefits.va.gov/newark' }
     lat { 40.7426633600001 }
     long { -74.17077896 }
-    location { 'POINT(-74.17077896 40.7426633600001)' }
     address {
       { 'mailing' => {},
         'physical' =>
@@ -768,7 +751,6 @@ FactoryBot.define do
     website { nil }
     lat { 41.2475496100001 }
     long { -75.8411354799999 }
-    location { 'POINT(-75.8411354799999 41.2475496100001)' }
     address {
       { 'mailing' => {},
         'physical' =>
@@ -796,47 +778,5 @@ FactoryBot.define do
     }
     feedback {}
     access {}
-  end
-  factory :generic_vba, class: Facilities::VBAFacility do
-    sequence :unique_id, &:to_s
-    name { 'Generic Benefits Office' }
-    facility_type { 'va_benefits_facility' }
-    classification { 'REGIONAL OFFICE (MAIN BLDG)' }
-    website { 'http://www.benefits.va.gov/generic' }
-    lat { 45.51516229 }
-    long { -122.6755173 }
-    location { 'POINT(-122.6755173 45.51516229)' }
-    address {
-      { 'mailing' => {},
-        'physical' => {
-          'zip' => '97204',
-          'city' => 'Portland',
-          'state' => 'OR',
-          'address_1' => '100 Generic Street',
-          'address_2' => '',
-          'address_3' => nil
-        } }
-    }
-    phone {
-      { 'fax' => '555-555-5555',
-        'main' => '1-800-555-5555' }
-    }
-    hours {
-      { 'Friday' => '8:00AM-4:00PM',
-        'Monday' => '8:00AM-4:00PM',
-        'Sunday' => 'Closed',
-        'Tuesday' => '8:00AM-4:00PM',
-        'Saturday' => 'Closed',
-        'Thursday' => '8:00AM-4:00PM',
-        'Wednesday' => '8:00AM-4:00PM' }
-    }
-    services {
-      { 'benefits' => {
-        'other' => '',
-        'standard' => ['ApplyingForBenefits']
-      } }
-    }
-    feedback { {} }
-    access { {} }
   end
 end
