@@ -134,7 +134,7 @@ group :development, :test do
   gem 'bundler-audit'
   gem 'byebug', platforms: :ruby # Call 'byebug' anywhere in the code to stop execution and get a debugger console
   gem 'database_cleaner'
-  gem 'factory_bot_rails', '< 4.11'
+  gem 'factory_bot_rails', '> 5'
   gem 'pry-byebug'
   gem 'rainbow' # Used to colorize output for rake tasks
   # CAUTION: faraday_curl may not provide all headers used in the actual faraday request. Be cautious if using this to
@@ -148,6 +148,7 @@ group :development, :test do
   gem 'rspec-rails', '~> 3.5'
   gem 'rubocop', require: false
   gem 'rubocop-rails'
+  gem 'rubocop-rspec'
   gem 'sidekiq', '~> 4.2'
   gem 'timecop'
   gem 'webmock'

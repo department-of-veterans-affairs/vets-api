@@ -44,6 +44,7 @@ RSpec.describe ClaimsApi::PowerOfAttorney, type: :model do
         expect(described_class.pending?('123')).to be(false)
       end
     end
+
     context 'with pending records' do
       it 'should truthy and return the record' do
         result = described_class.pending?(pending_record.id)

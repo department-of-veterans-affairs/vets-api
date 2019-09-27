@@ -2,10 +2,10 @@
 
 FactoryBot.define do
   factory :form526_submission do
-    user_uuid SecureRandom.uuid
+    user_uuid { SecureRandom.uuid }
     saved_claim { create(:va526ez) }
-    submitted_claim_id nil
-    auth_headers_json 'null'
+    submitted_claim_id { nil }
+    auth_headers_json { 'null' }
     form_json do
       File.read("#{::Rails.root}/spec/support/disability_compensation_form/submissions/only_526.json")
     end

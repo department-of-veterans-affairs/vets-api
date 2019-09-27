@@ -147,7 +147,7 @@ module ClaimsApi
     end
 
     swagger_path '/forms/2122/{id}' do
-      operation :post do
+      operation :put do
         key :summary, 'Upload 2122 document'
         key :description, 'Accpets document binaries as part of a multipart payload.'
         key :operationId, 'upload2122Attachment'
@@ -237,8 +237,12 @@ module ClaimsApi
         end
 
         response 200 do
-          key :description, 'upload response'
+          key :description, '2122 response'
+          schema do
+            key :'$ref', :Form2122Output
+          end
         end
+
         response :default do
           key :description, 'unexpected error'
           schema do
