@@ -191,14 +191,14 @@ RSpec/LeakyConstantDeclaration:
 
 # Offense count: 10
 # Cop supports --auto-correct.
-RSpec/LetBeforeExamples:
-  Exclude:
-    - 'spec/controllers/v0/gi_bill_feedbacks_controller_spec.rb'
-    - 'spec/controllers/v0/vic/vic_submissions_controller_spec.rb'
-    - 'spec/lib/mhv_ac/client_spec.rb'
-    - 'spec/rakelib/vet360_spec.rb'
-    - 'spec/request/health_records_request_spec.rb'
-    - 'spec/serializers/evss_claim_detail_serializer_spec.rb'
+# RSpec/LetBeforeExamples:
+#   Exclude:
+#     - 'spec/controllers/v0/gi_bill_feedbacks_controller_spec.rb'
+#     - 'spec/controllers/v0/vic/vic_submissions_controller_spec.rb'
+#     - 'spec/lib/mhv_ac/client_spec.rb'
+#     - 'spec/rakelib/vet360_spec.rb'
+#     - 'spec/request/health_records_request_spec.rb'
+#     - 'spec/serializers/evss_claim_detail_serializer_spec.rb'
 
 # Offense count: 25
 RSpec/LetSetup:
