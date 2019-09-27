@@ -35,6 +35,7 @@ module Facilities
       context 'with single facility' do
         let(:facility) { VBAFacility.pull_source_data.first }
         let(:facility_2) { VBAFacility.pull_source_data.second }
+
         it 'should parse hours correctly' do
           VCR.use_cassette('facilities/va/vba_facilities_limit_results') do
             expect(facility.hours.values).to match_array(

@@ -13,6 +13,7 @@ describe Common::EventRateLimiter do
         'count_ttl' => 604_800
       }
     end
+
     subject { Common::EventRateLimiter.new(config) }
 
     describe '.at_limit?' do

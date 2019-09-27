@@ -21,6 +21,7 @@ RSpec.describe 'Message Attachments Integration', type: :request do
 
   context 'Basic User' do
     let(:mhv_account_type) { 'Basic' }
+
     before(:each) { get '/v0/messaging/health/messages/629999/attachments/629993' }
 
     include_examples 'for user account level', message: 'You do not have access to messaging'
@@ -29,6 +30,7 @@ RSpec.describe 'Message Attachments Integration', type: :request do
 
   context 'Advanced User' do
     let(:mhv_account_type) { 'Advanced' }
+
     before(:each) { get '/v0/messaging/health/messages/629999/attachments/629993' }
 
     include_examples 'for user account level', message: 'You do not have access to messaging'

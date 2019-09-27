@@ -6,6 +6,7 @@ RSpec.describe 'PPIU', type: :request do
   include SchemaMatchers
 
   let(:user) { create(:user, :mhv) }
+
   before(:each) { sign_in(user) }
 
   def self.test_unauthorized(verb)

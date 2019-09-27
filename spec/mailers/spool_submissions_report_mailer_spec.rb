@@ -7,6 +7,7 @@ RSpec.describe SpoolSubmissionsReportMailer, type: %i[mailer aws_helpers] do
     let(:filename) { 'foo' }
     stem_exists = false
     let(:mail) { described_class.build(filename, stem_exists).deliver_now }
+
     subject do
       stub_reports_s3(filename) do
         mail
@@ -63,6 +64,7 @@ RSpec.describe SpoolSubmissionsReportMailer, type: %i[mailer aws_helpers] do
     let(:filename) { 'foo' }
     stem_exists = true
     let(:mail) { described_class.build(filename, stem_exists).deliver_now }
+
     subject do
       stub_reports_s3(filename) do
         mail

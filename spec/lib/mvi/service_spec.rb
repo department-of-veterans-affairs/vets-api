@@ -279,6 +279,7 @@ describe MVI::Service do
 
     context 'with an MVI timeout' do
       let(:base_path) { MVI::Configuration.instance.base_path }
+
       it 'should raise a service error', :aggregate_failures do
         allow_any_instance_of(Faraday::Connection).to receive(:post).and_raise(Faraday::TimeoutError)
         expect(subject).to receive(:log_console_and_sentry).with(

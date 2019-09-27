@@ -229,6 +229,7 @@ RSpec.describe V1::SessionsController, type: :controller do
 
     describe 'POST saml_logout_callback' do
       let(:logout_relay_state_param) { '{"originating_request_id": "blah"}' }
+
       before { SingleLogoutRequest.create(uuid: logout_uuid, token: token) }
 
       context 'saml_logout_response is invalid' do

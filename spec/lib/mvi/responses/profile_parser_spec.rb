@@ -30,6 +30,7 @@ describe MVI::Responses::ProfileParser do
           historical_icns: nil
         )
       end
+
       it 'returns a MviProfile with the parsed attributes' do
         expect(parser.parse).to have_deep_attributes(mvi_profile)
       end
@@ -47,6 +48,7 @@ describe MVI::Responses::ProfileParser do
             historical_icns: nil
           )
         end
+
         it 'should set the names to false' do
           allow(parser).to receive(:get_patient_name).and_return(nil)
           expect(parser.parse).to have_deep_attributes(mvi_profile)
@@ -77,6 +79,7 @@ describe MVI::Responses::ProfileParser do
             ]
           )
         end
+
         it 'should set the address to nil' do
           expect(parser.parse).to have_deep_attributes(mvi_profile)
         end
@@ -103,6 +106,7 @@ describe MVI::Responses::ProfileParser do
             ]
           )
         end
+
         it 'should filter with only first name and retrieve correct MHV id' do
           expect(parser.parse).to have_deep_attributes(mvi_profile)
         end

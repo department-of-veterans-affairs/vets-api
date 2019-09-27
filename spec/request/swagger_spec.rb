@@ -311,6 +311,7 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
     describe 'rx tests' do
       include Rx::ClientHelpers
       let(:headers) { { '_headers' => { 'Cookie' => sign_in(mhv_user, nil, true) } } }
+
       before(:each) do
         allow(Rx::Client).to receive(:new).and_return(authenticated_client)
       end
@@ -895,6 +896,7 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
 
       describe 'health_records' do
         let(:headers) { { '_headers' => { 'Cookie' => sign_in(mhv_user, nil, true) } } }
+
         before(:each) do
           allow(BB::Client).to receive(:new).and_return(authenticated_client)
         end
@@ -1483,6 +1485,7 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
     describe 'user preferences' do
       let(:benefits) { create(:preference, :benefits) }
       let(:account) { Account.first }
+
       before do
         create(
           :user_preference,
@@ -1845,6 +1848,7 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
     describe 'profile/person/status/:transaction_id' do
       let(:user_without_vet360_id) { build(:user_with_suffix, :loa3) }
       let(:headers) { { '_headers' => { 'Cookie' => sign_in(user_without_vet360_id, nil, true) } } }
+
       before do
         allow_any_instance_of(User).to receive(:vet360_id).and_return(nil)
       end

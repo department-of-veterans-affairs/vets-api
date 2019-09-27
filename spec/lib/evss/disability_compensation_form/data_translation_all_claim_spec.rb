@@ -175,6 +175,7 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
 
     context 'when provided military retired data' do
       let(:form_content) { { 'form526' => { 'militaryRetiredPayBranch' => 'Air Force' } } }
+
       it 'should translate the data correctly' do
         expect(subject.send(:translate_service_pay)).to eq 'servicePay' => {
           'militaryRetiredPay' => {

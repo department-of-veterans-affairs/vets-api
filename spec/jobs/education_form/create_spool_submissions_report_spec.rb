@@ -4,6 +4,7 @@ require 'rails_helper'
 
 RSpec.describe EducationForm::CreateSpoolSubmissionsReport, type: :aws_helpers do
   let(:time) { Time.zone.now }
+
   subject do
     described_class.new
   end

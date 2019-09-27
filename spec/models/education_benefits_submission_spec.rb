@@ -8,6 +8,7 @@ RSpec.describe EducationBenefitsSubmission, type: :model do
       region: 'eastern'
     }
   end
+
   subject { described_class.new(attributes) }
 
   describe 'validations' do

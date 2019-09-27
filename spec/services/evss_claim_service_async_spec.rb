@@ -6,6 +6,7 @@ RSpec.describe EVSSClaimServiceAsync do
   let(:user) { FactoryBot.create(:user, :loa3) }
   let(:tracker) { EVSSClaimsSyncStatusTracker.find_or_build(user.uuid) }
   let(:claim) { FactoryBot.create(:evss_claim, user_uuid: user.uuid) }
+
   subject { described_class.new(user) }
 
   describe '#all' do

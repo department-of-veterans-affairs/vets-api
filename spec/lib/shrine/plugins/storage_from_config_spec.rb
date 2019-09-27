@@ -14,6 +14,7 @@ describe Shrine::Plugins::StorageFromConfig do
 
   context 'with local storage settings' do
     let(:settings) { Settings.shrine.local }
+
     it 'returns a filesystem store' do
       expect(instance).to be_a(Shrine::Storage::FileSystem)
       expect(instance.prefix.to_s).to eq("uploads/#{settings.path}/cache")
@@ -22,6 +23,7 @@ describe Shrine::Plugins::StorageFromConfig do
 
   context 'with s3 storage settings' do
     let(:settings) { Settings.shrine.remotes3 }
+
     it 'returns an s3 store' do
       expect(instance).to be_a(Shrine::Storage::S3)
       expect(instance.prefix.to_s).to eq("#{settings.path}/cache")

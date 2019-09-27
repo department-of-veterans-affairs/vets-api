@@ -22,6 +22,7 @@ RSpec.describe 'prescriptions', type: :request do
 
   context 'Basic User' do
     let(:mhv_account_type) { 'Basic' }
+
     before(:each) { get '/v0/prescriptions/13651310' }
 
     include_examples 'for user account level', message: 'You do not have access to prescriptions'

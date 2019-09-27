@@ -5,6 +5,7 @@ require 'rails_helper'
 describe EVSS::Letters::DownloadService do
   describe '.find_by_user' do
     let(:user) { build(:user, :loa3) }
+
     subject { described_class.new(user) }
 
     describe '#download_by_type' do
@@ -57,6 +58,7 @@ describe EVSS::Letters::DownloadService do
              "survivorsAward": false
            }'
         end
+
         it 'downloads a pdf' do
           VCR.use_cassette('evss/letters/download_options') do
             response = subject.download_letter(

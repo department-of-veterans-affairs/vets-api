@@ -24,6 +24,7 @@ module Facilities
         let(:facilities) { VHAFacility.pull_source_data }
         let(:facility) { facilities.first }
         let(:facility_2) { facilities.second }
+
         it 'should parse hours correctly' do
           VCR.use_cassette('facilities/va/vha_facilities_limit_results') do
             expect(facility.hours.values).to match_array(

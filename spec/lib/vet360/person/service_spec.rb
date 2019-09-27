@@ -9,6 +9,7 @@ describe Vet360::Person::Service, skip_vet360: true do
 
   describe '#init_vet360_id' do
     let(:user) { build(:user_with_suffix, :loa3) }
+
     subject { described_class.new(user) }
 
     context 'with a user present, that has a icn_with_aaid, and no passed in ICN' do
@@ -34,6 +35,7 @@ describe Vet360::Person::Service, skip_vet360: true do
     context 'with a passed in ICN' do
       let(:icn) { '1000123456V123456' }
       let(:rake_user) { 'rake_user' }
+
       subject { described_class.new(rake_user) }
 
       it 'returns a status of 200', :aggregate_failures do

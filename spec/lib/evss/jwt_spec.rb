@@ -5,6 +5,7 @@ require 'evss/jwt'
 
 describe EVSS::Jwt do
   let(:some_random_time) { Time.zone.at(1_513_634_300) }
+
   subject(:decrypted_token) do
     JWT.decode(
       described_class.new(current_user).encode,

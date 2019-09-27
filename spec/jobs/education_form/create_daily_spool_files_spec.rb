@@ -114,6 +114,7 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, type: :model, form: :educat
   context '#perform' do
     context 'with a mix of valid and invalid record', run_at: '2016-09-16 03:00:00 EDT' do
       let(:spool_files) { Rails.root.join('tmp', 'spool_files', '*') }
+
       before do
         expect(Rails.env).to receive('development?').once { true }
         application_1606.saved_claim.form = {}.to_json

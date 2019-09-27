@@ -38,6 +38,7 @@ RSpec.describe BaseFacility, type: :model do
         'feedback' => {},
         'access' => {} }
     end
+
     it 'should save and retrieve all attributes and they should match the original object' do
       expect(vc_facility.facility_type).to eq('vet_center')
       attrs.each_key { |k| expect(vc_facility[k]).to eq attrs[k] }
@@ -100,6 +101,7 @@ RSpec.describe BaseFacility, type: :model do
               'mental_health' => { 'new' => 12.0, 'established' => 3.0 },
               'effective_date' => '2018-02-26' } } }
     end
+
     it 'should save and retrieve all attributes and they should match the original object' do
       expect(vha_facility.facility_type).to eq('va_health_facility')
       attrs.each_key { |k| expect(vha_facility[k]).to eq attrs[k] }
@@ -146,6 +148,7 @@ RSpec.describe BaseFacility, type: :model do
         'feedback' => {},
         'access' => {} }
     end
+
     it 'should save and retrieve all attributes and they should match the original object' do
       expect(vba_facility.facility_type).to eq('va_benefits_facility')
       attrs.each_key { |k| expect(vba_facility[k]).to eq attrs[k] }
@@ -179,6 +182,7 @@ RSpec.describe BaseFacility, type: :model do
         'feedback' => {},
         'access' => {} }
     end
+
     it 'should save and retrieve all attributes and they should match the original object' do
       expect(nca_facility.facility_type).to eq('va_cemetery')
       attrs.each_key { |k| expect(nca_facility[k]).to eq attrs[k] }

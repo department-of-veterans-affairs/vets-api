@@ -81,6 +81,7 @@ RSpec.describe 'letters', type: :request do
           'survivorsAward' => false
         }
       end
+
       it 'should download a PDF' do
         VCR.use_cassette('evss/letters/download_options') do
           post '/v0/letters/commissary', params: options
@@ -93,6 +94,7 @@ RSpec.describe 'letters', type: :request do
       let(:user) do
         build(:user, :loa3, first_name: 'John', last_name: 'SMith', birth_date: '1942-02-12', ssn: '799111223')
       end
+
       before do
         user.va_profile.edipi = '1005079999'
         user.va_profile.participant_id = '600039999'
@@ -134,6 +136,7 @@ RSpec.describe 'letters', type: :request do
           'survivorsAward' => false
         }
       end
+
       before do
         user.va_profile.edipi = '1005079124'
         user.va_profile.participant_id = '600036159'

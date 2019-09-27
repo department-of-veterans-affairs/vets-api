@@ -14,6 +14,7 @@ describe MVI::Models::MviProfile do
 
     context 'with a single id' do
       let(:id) { '12345678' }
+
       subject { build(:mvi_profile, mhv_ids: [id]) }
 
       it 'returns the id' do

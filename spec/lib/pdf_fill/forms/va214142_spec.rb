@@ -14,6 +14,7 @@ describe PdfFill::Forms::Va214142 do
   let(:new_form_class) do
     described_class.new(form_data)
   end
+
   def class_form_data
     new_form_class.instance_variable_get(:@form_data)
   end
@@ -32,6 +33,7 @@ describe PdfFill::Forms::Va214142 do
           'vaFileNumber' => '12345678'
         }
       end
+
       it 'should expand the va file number correctly' do
         new_form_class.expand_va_file_number
         expect(
@@ -46,6 +48,7 @@ describe PdfFill::Forms::Va214142 do
       let(:form_data) do
         {}
       end
+
       it 'should return without doing anything' do
         new_form_class.expand_va_file_number
         expect(
@@ -62,6 +65,7 @@ describe PdfFill::Forms::Va214142 do
           'veteranSocialSecurityNumber' => '123456789'
         }
       end
+
       it 'should expand the ssn correctly' do
         new_form_class.expand_ssn
         expect(
@@ -90,6 +94,7 @@ describe PdfFill::Forms::Va214142 do
           }
         }
       end
+
       it 'should expand postal code and country correctly' do
         new_form_class.expand_claimant_address
         expect(
@@ -122,6 +127,7 @@ describe PdfFill::Forms::Va214142 do
           }
         }
       end
+
       it 'should expand veteran full name correctly' do
         new_form_class.expand_veteran_full_name
         expect(
@@ -151,6 +157,7 @@ describe PdfFill::Forms::Va214142 do
           'veteranDateOfBirth' => '1981-11-05'
         }
       end
+
       it 'should expand the birth date correctly' do
         new_form_class.expand_veteran_dob
         expect(
@@ -178,6 +185,7 @@ describe PdfFill::Forms::Va214142 do
           'veteranServiceNumber' => '987654321'
         }
       end
+
       it 'should expand veteran service number correctly' do
         new_form_class.expand_veteran_service_number
         expect(

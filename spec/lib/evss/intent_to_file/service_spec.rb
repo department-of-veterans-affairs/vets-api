@@ -5,6 +5,7 @@ require 'rails_helper'
 describe EVSS::IntentToFile::Service do
   describe '.find_by_user' do
     let(:user) { build(:user, :loa3) }
+
     subject { described_class.new(user) }
 
     describe '#get_intent_to_file' do

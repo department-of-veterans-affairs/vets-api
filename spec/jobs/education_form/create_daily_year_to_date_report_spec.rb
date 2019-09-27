@@ -8,6 +8,7 @@ end
 
 RSpec.describe EducationForm::CreateDailyYearToDateReport, type: :aws_helpers do
   let(:date) { Time.zone.today - 1.day }
+
   subject do
     described_class.new
   end
@@ -106,6 +107,7 @@ RSpec.describe EducationForm::CreateDailyYearToDateReport, type: :aws_helpers do
       end
 
       let(:filename) { "tmp/daily_reports/#{date}.csv" }
+
       subject do
         create_daily_year_to_date_report = described_class.new
 

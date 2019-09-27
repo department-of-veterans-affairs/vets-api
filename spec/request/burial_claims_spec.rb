@@ -51,6 +51,7 @@ RSpec.describe 'Burial Claim Integration', type: %i[request serializer] do
           }
         }
       end
+
       it 'should render success' do
         subject
         expect(JSON.parse(response.body)['data']['attributes'].keys.sort)

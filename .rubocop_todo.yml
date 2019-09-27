@@ -97,8 +97,8 @@ RSpec/EmptyLineAfterExampleGroup:
 
 # Offense count: 229
 # Cop supports --auto-correct.
-RSpec/EmptyLineAfterFinalLet:
-  Enabled: false
+# RSpec/EmptyLineAfterFinalLet:
+#   Enabled: false
 
 # Offense count: 96
 # Cop supports --auto-correct.

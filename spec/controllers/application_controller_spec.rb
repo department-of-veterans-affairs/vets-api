@@ -178,6 +178,7 @@ RSpec.describe ApplicationController, type: :controller do
 
     context 'signed in user' do
       let(:user) { create(:user) }
+
       before do
         controller.instance_variable_set(:@current_user, user)
       end
