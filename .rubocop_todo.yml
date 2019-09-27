@@ -15,10 +15,10 @@ FactoryBot/AttributeDefinedStatically:
 # Cop supports --auto-correct.
 # Configuration parameters: EnforcedStyle.
 # SupportedStyles: create_list, n_times
-FactoryBot/CreateList:
-  Exclude:
-    - 'spec/jobs/education_form/create_daily_fiscal_year_to_date_report_spec.rb'
-    - 'spec/jobs/education_form/create_daily_year_to_date_report_spec.rb'
+# FactoryBot/CreateList:
+#   Exclude:
+#     - 'spec/jobs/education_form/create_daily_fiscal_year_to_date_report_spec.rb'
+#     - 'spec/jobs/education_form/create_daily_year_to_date_report_spec.rb'
 
 # Offense count: 250
 RSpec/AnyInstance:
