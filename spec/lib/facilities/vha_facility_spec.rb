@@ -9,6 +9,16 @@ module Facilities
       expect(described_class.new).to be_a(VHAFacility)
     end
 
+    it 'should be able to have multiple DrivetimeBands' do
+      create :vha_648
+      create :thirty_mins
+      create :sixty_mins
+
+      bands = VHAFacility.first.drivetime_bands
+
+      expect(bands.length).to eq(2)
+    end
+
     describe 'pull_source_data' do
       it 'should pull data from ArcGIS endpoint' do
         VCR.use_cassette('facilities/va/vha_facilities_limit_results') do
