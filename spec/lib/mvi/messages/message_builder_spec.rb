@@ -54,6 +54,7 @@ describe MVI::Messages::MessageBuilder do
           end
         end
       end
+
       context 'in production environments' do
         it 'has a processing code node of P' do
           with_settings(Settings.mvi, processing_code: 'P') do
