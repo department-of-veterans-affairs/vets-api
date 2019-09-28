@@ -2,8 +2,12 @@ The Benefits Intake API allows authorized third-party systems used by Veteran Se
 
 This API provides a secure and efficient alternative to paper or fax document submissions. VBA can begin processing documents submitted through this API immediately, which ultimately allows VA to provide Veterans with claim decisions more quickly.
 
+It also saves users time by reporting documents' status until they reach Veterans Benefits Management System (VBMS), where the documents are reviewed. This eliminates the need for users to switch between systems to manually check whether documents have reached VBMS.
+
+Visit our VA Lighthouse [support portal](https://developer.va.gov/support) for further assistance.
+
 ## Technical Summary
-The Benefits Intake API accepts a payload consisting of a document in PDF format, zero or more optional attachments in PDF format, and some JSON metadata. The metadata describes the document and attachments, and identifies the person for whom it is being submitted. This payload is encoded as multipart/form-data. A unique identifier supplied with the payload can subsequently be used to request the processing status of the uploaded document package.
+The Benefits Intake API accepts a payload consisting of a document in PDF format, zero or more optional attachments in PDF format, and some JSON metadata. The metadata describes the document and attachments, and identifies the person for whom it is being submitted. This payload is encoded as binary multipart/form-data (not base64). A unique identifier supplied with the payload can subsequently be used to request the processing status of the uploaded document package.
 
 API consumers are encouraged to validate the `zipcode` and `fileNumber` fields before submission according to their description in the DocumentUploadMetadata model.
 
