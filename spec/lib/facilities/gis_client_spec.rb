@@ -18,11 +18,11 @@ RSpec.describe Facilities::GisClient do
 
       allow_any_instance_of(Faraday::Connection)
         .to receive(:get).with(anything, has_order_and_offset('field', 0)).and_return(r1)
-      expect(r1).to receive(:env).and_return(double(body: [*1..12]))
+      allow(r1).to receive(:env).and_return(double(body: [*1..12]))
 
       allow_any_instance_of(Faraday::Connection)
         .to receive(:get).with(anything, has_order_and_offset('field', 10)).and_return(r2)
-      expect(r2).to receive(:env).and_return(double(body: [*1..2]))
+      allow(r2).to receive(:env).and_return(double(body: [*1..2]))
 
       data = subject.get_all_facilities('type', 'field', 10)
       expect(data.length).to be(14)
@@ -35,15 +35,15 @@ RSpec.describe Facilities::GisClient do
 
       allow_any_instance_of(Faraday::Connection)
         .to receive(:get).with(anything, has_order_and_offset('field', 0)).and_return(r1)
-      expect(r1).to receive(:env).and_return(double(body: [*1..10]))
+      allow(r1).to receive(:env).and_return(double(body: [*1..10]))
 
       allow_any_instance_of(Faraday::Connection)
         .to receive(:get).with(anything, has_order_and_offset('field', 10)).and_return(r2)
-      expect(r2).to receive(:env).and_return(double(body: [*1..10]))
+      allow(r2).to receive(:env).and_return(double(body: [*1..10]))
 
       allow_any_instance_of(Faraday::Connection)
         .to receive(:get).with(anything, has_order_and_offset('field', 20)).and_return(r3)
-      expect(r3).to receive(:env).and_return(double(body: []))
+      allow(r3).to receive(:env).and_return(double(body: []))
 
       data = subject.get_all_facilities('type', 'field', 10)
       expect(data.length).to be(20)
@@ -54,7 +54,7 @@ RSpec.describe Facilities::GisClient do
 
       allow_any_instance_of(Faraday::Connection)
         .to receive(:get).with(anything, has_order_and_offset('field', 0)).and_return(r1)
-      expect(r1).to receive(:env).and_return(double(body: [*1..5]))
+      allow(r1).to receive(:env).and_return(double(body: [*1..5]))
 
       data = subject.get_all_facilities('type', 'field', 10)
       expect(data.length).to be(5)
