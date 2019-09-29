@@ -30,7 +30,7 @@ module SAML
     end
 
     # rubocop:disable Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
-    def build_saml_response(authn_context:, account_type:, level_of_assurance:, multifactor:, attributes: nil)
+    def build_saml_response(authn_context:, account_type:, level_of_assurance:, multifactor:, attributes: nil, issuer: nil)
       verifying = [LOA::IDME_LOA3, 'myhealthevet_loa3', 'dslogon_loa3'].include?(authn_context)
 
       if authn_context.present?
@@ -59,13 +59,15 @@ module SAML
         authn_context: authn_context,
         account_type: account_type,
         level_of_assurance: verifying ? ['3'] : level_of_assurance,
-        multifactor: multifactor
+        multifactor: multifactor,
+        issuer: issuer
       )
-      saml_response = SAML::Responses::Login.new(document_partial(authn_context).to_s)
+      document_fragment = document_partial(authn_context, issuer)
+      saml_response = SAML::Responses::Login.new(document_fragment.to_s)
       allow(saml_response).to receive(:assertion_encrypted?).and_return(true)
       allow(saml_response).to receive(:attributes).and_return(attributes)
       allow(saml_response).to receive(:validate).and_return(true)
-      allow(saml_response).to receive(:decrypted_document).and_return(document_partial(authn_context))
+      allow(saml_response).to receive(:decrypted_document).and_return(document_fragment)
       saml_response
     end
     # rubocop:enable Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
@@ -144,11 +146,12 @@ module SAML
       )
     end
 
-    def document_partial(authn_context = '')
+    def document_partial(authn_context = '', issuer = 'api.idmelabs.com')
       REXML::Document.new(
         <<-XML
         <?xml version="1.0"?>
         <samlp:Response xmlns:samlp="urn:oasis:names:tc:SAML:2.0:protocol" xmlns:saml="urn:oasis:names:tc:SAML:2.0:assertion">
+          <saml:Issuer>#{issuer}</saml:Issuer>
           <saml:Assertion>
             <saml:AuthnStatement>
               <saml:AuthnContext>
@@ -161,12 +164,9 @@ module SAML
       )
     end
 
-    # TODO: fill out method for building SSOe saml atributes
-    # TODO: validate attribute names for level of assurance and
-    # multifactor after VA IAM integrates into response
     def build_ssoe_saml_attributes(authn_context:, account_type:, level_of_assurance:, multifactor:)
       if account_type == '1'
-        OneLogin::RubySaml::Attributes.new(
+        ssoe_saml_attributes = {
           'va_eauth_credentialassurancelevel' => level_of_assurance,
           'va_eauth_gender' => [],
           'va_eauth_uid' => ['0e1bb5723d7c4f0686f46ca4505642ad'],
@@ -181,9 +181,9 @@ module SAML
           'va_eauth_postalcode' => [],
           'va_eauth_icn' => [],
           'va_eauth_mhvien' => []
-        )
+        }
       else
-        OneLogin::RubySaml::Attributes.new(
+        ssoe_saml_attributes = {
           'va_eauth_credentialassurancelevel' => level_of_assurance,
           'va_eauth_gender' => ['M'],
           'va_eauth_uid' => ['0e1bb5723d7c4f0686f46ca4505642ad'],
@@ -199,8 +199,19 @@ module SAML
           'va_eauth_postalcode' => ['12345'],
           'va_eauth_icn' => ['0000'],
           'va_eauth_mhvien' => ['0000']
-        )
+        }
       end
+
+      case authn_context
+      when 'dslogon', 'dslogon_multifactor'
+        ssoe_saml_attributes['dslogon_assurance'] = 3
+      when 'mhv', 'mhv_multifactor'
+        ssoe_saml_attributes['mhv_profile'] = {
+          'accountType': 'Premium'
+        }.to_json
+      end
+
+      OneLogin::RubySaml::Attributes.new(ssoe_saml_attributes)
     end
 
     def build_mhv_saml_attributes(authn_context:, account_type:, level_of_assurance:, multifactor:)
@@ -256,7 +267,16 @@ module SAML
     end
 
     # rubocop:disable Metrics/CyclomaticComplexity
-    def build_saml_attributes(authn_context:, account_type:, level_of_assurance:, multifactor:)
+    def build_saml_attributes(authn_context:, account_type:, level_of_assurance:, multifactor:, issuer: nil)
+      if issuer&.match(/eauth\.va\.gov/)
+        return build_ssoe_saml_attributes(
+          authn_context: authn_context,
+          account_type: account_type,
+          level_of_assurance: level_of_assurance,
+          multifactor: multifactor
+        )
+      end
+
       case authn_context
       when 'myhealthevet', 'myhealthevet_multifactor'
         build_mhv_saml_attributes(
@@ -291,13 +311,6 @@ module SAML
           'email' => ['kam+tristanmhv@adhocteam.us'],
           'multifactor' => (authn_context.include?('multifactor') ? [true] : multifactor),
           'level_of_assurance' => level_of_assurance
-        )
-      when 'urn:oasis:names:tc:SAML:2.0:ac:classes:Password'
-        build_ssoe_saml_attributes(
-          authn_context: authn_context,
-          account_type: account_type,
-          level_of_assurance: level_of_assurance,
-          multifactor: multifactor
         )
       end
     end
