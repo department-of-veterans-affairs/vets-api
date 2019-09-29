@@ -9,52 +9,46 @@ RSpec.describe Facilities::GisClient do
     end
   end
 
+  let(:faraday_response_offset_0) { double(Faraday::Response.new) }
+  let(:faraday_response_offset_10) { double(Faraday::Response.new) }
+  let(:faraday_response_offset_20) { double(Faraday::Response.new) }
+
   describe 'get_all_facilities' do
     subject { described_class.new }
 
+    before(:each) do
+      allow_any_instance_of(
+        Faraday::Connection
+      ).to receive(:get).with(anything, has_order_and_offset('field', 0)).and_return(faraday_response_offset_0)
+
+      allow_any_instance_of(
+        Faraday::Connection
+      ).to receive(:get).with(anything, has_order_and_offset('field', 10)).and_return(faraday_response_offset_10)
+
+      allow_any_instance_of(
+        Faraday::Connection
+      ).to receive(:get).with(anything, has_order_and_offset('field', 20)).and_return(faraday_response_offset_20)
+    end
+
     it 'passes the correct offset to the query when looping twice' do
-      r1 = double(Faraday::Response.new)
-      r2 = double(Faraday::Response.new)
-
-      allow_any_instance_of(Faraday::Connection)
-        .to receive(:get).with(anything, has_order_and_offset('field', 0)).and_return(r1)
-      allow(r1).to receive(:env).and_return(double(body: [*1..12]))
-
-      allow_any_instance_of(Faraday::Connection)
-        .to receive(:get).with(anything, has_order_and_offset('field', 10)).and_return(r2)
-      allow(r2).to receive(:env).and_return(double(body: [*1..2]))
+      allow(faraday_response_offset_0).to receive(:env).and_return(double(body: [*1..12]))
+      allow(faraday_response_offset_10).to receive(:env).and_return(double(body: [*1..2]))
 
       data = subject.get_all_facilities('type', 'field', 10)
       expect(data.length).to be(14)
     end
 
     it 'passes the correct offset to the query when looping three times' do
-      r1 = double(Faraday::Response.new)
-      r2 = double(Faraday::Response.new)
-      r3 = double(Faraday::Response.new)
-
-      allow_any_instance_of(Faraday::Connection)
-        .to receive(:get).with(anything, has_order_and_offset('field', 0)).and_return(r1)
-      allow(r1).to receive(:env).and_return(double(body: [*1..10]))
-
-      allow_any_instance_of(Faraday::Connection)
-        .to receive(:get).with(anything, has_order_and_offset('field', 10)).and_return(r2)
-      allow(r2).to receive(:env).and_return(double(body: [*1..10]))
-
-      allow_any_instance_of(Faraday::Connection)
-        .to receive(:get).with(anything, has_order_and_offset('field', 20)).and_return(r3)
-      allow(r3).to receive(:env).and_return(double(body: []))
+      allow(faraday_response_offset_0).to receive(:env).and_return(double(body: [*1..10]))
+      allow(faraday_response_offset_10).to receive(:env).and_return(double(body: [*1..10]))
+      allow(faraday_response_offset_20).to receive(:env).and_return(double(body: []))
 
       data = subject.get_all_facilities('type', 'field', 10)
       expect(data.length).to be(20)
     end
 
     it 'passes the correct offset to the query when it does not loop' do
-      r1 = double(Faraday::Response.new)
-
-      allow_any_instance_of(Faraday::Connection)
-        .to receive(:get).with(anything, has_order_and_offset('field', 0)).and_return(r1)
-      allow(r1).to receive(:env).and_return(double(body: [*1..5]))
+      allow(faraday_response_offset_0).to receive(:env).and_return(double(body: [*1..5]))
 
       data = subject.get_all_facilities('type', 'field', 10)
       expect(data.length).to be(5)
