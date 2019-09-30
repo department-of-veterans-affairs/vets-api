@@ -84,6 +84,12 @@ module Facilities
             expect(facility.services['benefits'].values).to match_array(['Readjustment Counseling only', []])
           end
         end
+
+        it 'should get the correct classification name' do
+          VCR.use_cassette('facilities/va/vba_facilities_limit_results') do
+            expect(facility.classification).to eq('OUTBASED')
+          end
+        end
       end
     end
   end
