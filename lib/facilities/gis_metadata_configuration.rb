@@ -19,7 +19,7 @@ module Facilities
       Faraday.new(base_path, headers: base_request_headers, request: request_options) do |conn|
         conn.use :breakers
         conn.request :json
-        
+
         conn.response :betamocks if Settings.locators.mock_gis
         conn.response :raise_error, error_prefix: service_name
 
