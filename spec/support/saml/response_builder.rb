@@ -166,6 +166,7 @@ module SAML
       )
     end
 
+    # rubocop:disable Metrics/CyclomaticComplexity
     def build_ssoe_saml_attributes(authn_context:, account_type:, level_of_assurance:, multifactor:)
       ssoe_saml_attributes = if account_type == '1'
                                {
@@ -206,15 +207,16 @@ module SAML
 
       case authn_context
       when 'dslogon', 'dslogon_multifactor'
-        ssoe_saml_attributes['dslogon_assurance'] = 3
-      when 'mhv', 'mhv_multifactor'
-        ssoe_saml_attributes['mhv_profile'] = {
-          'accountType': 'Premium'
-        }.to_json
+        ssoe_saml_attributes['dslogon_assurance'] = [account_type]
+      when 'myhealthevet', 'myhealthevet_multifactor'
+        ssoe_saml_attributes['mhv_profile'] = (
+          account_type != 'Premium' ? ["{\"accountType\":\"#{account_type}\"}"] : MHV_PREMIUM_ATYPE
+        )
       end
 
       OneLogin::RubySaml::Attributes.new(ssoe_saml_attributes)
     end
+    # rubocop:enable Metrics/CyclomaticComplexity
 
     def build_mhv_saml_attributes(authn_context:, account_type:, level_of_assurance:, multifactor:)
       OneLogin::RubySaml::Attributes.new(

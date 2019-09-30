@@ -50,6 +50,33 @@ RSpec.describe SAML::User do
       end
     end
 
+    context 'MHV non premium user' do
+      let(:authn_context) { 'myhealthevet' }
+      let(:account_type) { '1' }
+      let(:highest_attained_loa) { '3' }
+
+      it 'has various important attributes' do
+        expect(subject.to_hash).to eq(
+          birth_date: nil,
+          authn_context: authn_context,
+          dslogon_edipi: '1606997570',
+          first_name: nil,
+          last_name: nil,
+          middle_name: nil,
+          gender: nil,
+          ssn: nil,
+          zip: nil,
+          mhv_icn: nil,
+          mhv_correlation_id: nil,
+          uuid: '0e1bb5723d7c4f0686f46ca4505642ad',
+          email: 'kam+tristanmhv@adhocteam.us',
+          loa: { current: 1, highest: 3 },
+          sign_in: { service_name: 'myhealthevet', account_type: 1 },
+          multifactor: multifactor
+        )
+      end
+    end
+
     context 'DSLogon non premium user' do
       let(:authn_context) { 'dslogon' }
       let(:account_type) { '1' }
@@ -72,6 +99,33 @@ RSpec.describe SAML::User do
           email: 'kam+tristanmhv@adhocteam.us',
           loa: { current: 1, highest: 3 },
           sign_in: { service_name: 'dslogon', account_type: 1 },
+          multifactor: multifactor
+        )
+      end
+    end
+
+    context 'DSLogon premium user' do
+      let(:authn_context) { 'dslogon' }
+      let(:account_type) { '3' }
+      let(:highest_attained_loa) { '3' }
+
+      it 'has various important attributes' do
+        expect(subject.to_hash).to eq(
+          birth_date: '1735-10-30',
+          authn_context: authn_context,
+          dslogon_edipi: '1606997570',
+          first_name: 'Tristan',
+          last_name: 'MHV',
+          middle_name: '',
+          gender: 'M',
+          ssn: '111223333',
+          zip: '12345',
+          mhv_icn: '0000',
+          mhv_correlation_id: '0000',
+          uuid: '0e1bb5723d7c4f0686f46ca4505642ad',
+          email: 'kam+tristanmhv@adhocteam.us',
+          loa: { current: 3, highest: 3 },
+          sign_in: { service_name: 'dslogon', account_type: 3 },
           multifactor: multifactor
         )
       end
