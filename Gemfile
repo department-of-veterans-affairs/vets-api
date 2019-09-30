@@ -83,7 +83,7 @@ gem 'redis'
 gem 'redis-namespace'
 gem 'restforce'
 gem 'ruby-saml'
-gem 'rubyzip', '>= 1.0.0'
+gem 'rubyzip', '>= 1.3.0'
 gem 'savon'
 gem 'sentry-raven', '2.9.0' # don't change gem version unless sentry server is also upgraded
 gem 'shrine'

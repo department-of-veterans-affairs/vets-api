@@ -41,7 +41,7 @@ RSpec.describe 'Nearby Facilities API endpoint', type: :request do
       VCR.use_cassette('bing/isochrone/pdx_drive_time_60',
                        match_requests_on: [:method, VCR.request_matchers.uri_without_param(:key)]) do
         get base_query_path + address_params, params: nil, headers: accept_json
-        expect(response).to be_success
+        expect(response).to be_successful
         expect(response.body).to be_a(String)
         json = JSON.parse(response.body)
         expect(json['data'].length).to eq(10)
@@ -67,7 +67,7 @@ RSpec.describe 'Nearby Facilities API endpoint', type: :request do
       VCR.use_cassette('bing/isochrone/pdx_drive_time_60',
                        match_requests_on: [:method, VCR.request_matchers.uri_without_param(:key)]) do
         get base_query_path + address_params, params: nil, headers: accept_json
-        expect(response).to be_success
+        expect(response).to be_successful
         json = JSON.parse(response.body)
         expect(json).to have_key('links')
         links = json['links']
@@ -84,7 +84,7 @@ RSpec.describe 'Nearby Facilities API endpoint', type: :request do
       VCR.use_cassette('bing/isochrone/pdx_drive_time_60',
                        match_requests_on: [:method, VCR.request_matchers.uri_without_param(:key)]) do
         get base_query_path + address_params, params: nil, headers: accept_json
-        expect(response).to be_success
+        expect(response).to be_successful
         json = JSON.parse(response.body)
         expect(json).to have_key('meta')
         expect(json['meta']).to have_key('pagination')
@@ -101,7 +101,7 @@ RSpec.describe 'Nearby Facilities API endpoint', type: :request do
       VCR.use_cassette('bing/isochrone/pdx_drive_time_60',
                        match_requests_on: [:method, VCR.request_matchers.uri_without_param(:key)]) do
         get base_query_path + address_params + '&page=2&per_page=3', params: nil, headers: accept_json
-        expect(response).to be_success
+        expect(response).to be_successful
         json = JSON.parse(response.body)
         expect(json['data'].length).to eq(3)
         links = json['links']
@@ -135,7 +135,7 @@ RSpec.describe 'Nearby Facilities API endpoint', type: :request do
       VCR.use_cassette('bing/isochrone/pdx_drive_time_1',
                        match_requests_on: [:method, VCR.request_matchers.uri_without_param(:key)]) do
         get base_query_path + empty_address, params: nil, headers: accept_json
-        expect(response).to be_success
+        expect(response).to be_successful
         json = JSON.parse(response.body)
         expect(json['data'].length).to eq(0)
         links = json['links']
@@ -152,7 +152,7 @@ RSpec.describe 'Nearby Facilities API endpoint', type: :request do
                        match_requests_on: [:method, VCR.request_matchers.uri_without_param(:key)]) do
         get base_query_path + address_params, params: nil, headers: accept_json
 
-        expect(response).to be_success
+        expect(response).to be_successful
         json = JSON.parse(response.body)
         lng = json['data'][0]['attributes']['lng']
         expect(lng).to eq(-122.68287208)
@@ -165,7 +165,7 @@ RSpec.describe 'Nearby Facilities API endpoint', type: :request do
                        match_requests_on: [:method, VCR.request_matchers.uri_without_param(:key)]) do
         get base_query_path + address_params, params: nil, headers: accept_json
 
-        expect(response).to be_success
+        expect(response).to be_successful
         json = JSON.parse(response.body)
         health_service = json['data'][0]['attributes']['services']['health'][0]
 
@@ -183,7 +183,7 @@ RSpec.describe 'Nearby Facilities API endpoint', type: :request do
       VCR.use_cassette('bing/isochrone/pdx_drive_time_60',
                        match_requests_on: [:method, VCR.request_matchers.uri_without_param(:key)]) do
         get base_query_path + address_params, params: nil, headers: accept_geojson
-        expect(response).to be_success
+        expect(response).to be_successful
         expect(response.body).to be_a(String)
         json = JSON.parse(response.body)
         expect(json['type']).to eq('FeatureCollection')
@@ -197,7 +197,7 @@ RSpec.describe 'Nearby Facilities API endpoint', type: :request do
       VCR.use_cassette('bing/isochrone/pdx_drive_time_60',
                        match_requests_on: [:method, VCR.request_matchers.uri_without_param(:key)]) do
         get base_query_path + address_params, params: nil, headers: accept_geojson
-        expect(response).to be_success
+        expect(response).to be_successful
         expect(response.headers['Link']).to be_present
         parsed = parse_link_header(response.headers['Link'])
         expect(parsed).to have_key('self')
@@ -213,7 +213,7 @@ RSpec.describe 'Nearby Facilities API endpoint', type: :request do
       VCR.use_cassette('bing/isochrone/pdx_drive_time_60',
                        match_requests_on: [:method, VCR.request_matchers.uri_without_param(:key)]) do
         get base_query_path + address_params + '&page=2&per_page=3', params: nil, headers: accept_geojson
-        expect(response).to be_success
+        expect(response).to be_successful
         json = JSON.parse(response.body)
         expect(json['type']).to eq('FeatureCollection')
         expect(json['features'].length).to eq(3)
@@ -232,7 +232,7 @@ RSpec.describe 'Nearby Facilities API endpoint', type: :request do
       VCR.use_cassette('bing/isochrone/pdx_drive_time_1',
                        match_requests_on: [:method, VCR.request_matchers.uri_without_param(:key)]) do
         get base_query_path + empty_address, params: nil, headers: accept_geojson
-        expect(response).to be_success
+        expect(response).to be_successful
         json = JSON.parse(response.body)
         expect(json['type']).to eq('FeatureCollection')
         expect(json['features'].length).to eq(0)
@@ -250,7 +250,7 @@ RSpec.describe 'Nearby Facilities API endpoint', type: :request do
                        match_requests_on: [:method, VCR.request_matchers.uri_without_param(:key)]) do
         get base_query_path + address_params, params: nil, headers: accept_geojson
 
-        expect(response).to be_success
+        expect(response).to be_successful
         json = JSON.parse(response.body)
         health_service = json['features'][0]['properties']['services']['health'][0]
 
@@ -266,7 +266,7 @@ RSpec.describe 'Nearby Facilities API endpoint', type: :request do
       VCR.use_cassette('bing/isochrone/no_health_services_drive_time',
                        match_requests_on: [:method, VCR.request_matchers.uri_without_param(:key)]) do
         get base_query_path + no_health, params: nil, headers: accept_json
-        expect(response).to be_success
+        expect(response).to be_successful
 
         json = JSON.parse(response.body)
         health_services = json['data'][0]['attributes']['services']['health']
