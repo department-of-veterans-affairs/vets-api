@@ -24,6 +24,6 @@ module ValidatePdf
 
   def validate_pdf(file)
     temp_file = convert_to_temp_file file
-    validate temp_file
+    validate temp_file unless temp_file.nil?
   end
 end
