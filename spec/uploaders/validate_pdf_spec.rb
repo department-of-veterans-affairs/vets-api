@@ -31,7 +31,9 @@ describe ValidatePdf, uploader_helpers: true do
     let(:file) { Rack::Test::UploadedFile.new('spec/fixtures/files/locked-pdf.pdf', 'application/pdf') }
 
     it 'should raise an error' do
-      expect { store_image }.to raise_error(CarrierWave::UploadError, 'PDF is encrypted')
+      expect { 
+        store_image 
+      }.to raise_error(CarrierWave::UploadError, 'The uploaded PDF file is encrypted and cannot be read')
     end
   end
 
@@ -39,7 +41,7 @@ describe ValidatePdf, uploader_helpers: true do
     let(:file) { Rack::Test::UploadedFile.new('spec/fixtures/files/malformed-pdf.pdf', 'application/pdf') }
 
     it 'should raise an error' do
-      expect { store_image }.to raise_error(CarrierWave::UploadError, 'PDF is missing an end of file marker')
+      expect { store_image }.to raise_error(CarrierWave::UploadError, 'The uploaded PDF file is invalid and cannot be read')
     end
   end
 end
