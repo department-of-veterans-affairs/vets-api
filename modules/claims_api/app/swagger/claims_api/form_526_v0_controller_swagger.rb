@@ -109,7 +109,7 @@ module ClaimsApi
           key :name, 'X-VA-User'
           key :in, :header
           key :description, 'VA username of the person making the request'
-          key :required, true
+          key :required, false
           key :type, :string
         end
 
@@ -126,7 +126,7 @@ module ClaimsApi
         response 200 do
           key :description, '526 response'
           schema do
-            key :'$ref', :Claims
+            key :'$ref', :ClaimsIndex
           end
         end
         response :default do
@@ -206,7 +206,7 @@ module ClaimsApi
           key :name, 'X-VA-User'
           key :in, :header
           key :description, 'VA username of the person making the request'
-          key :required, true
+          key :required, false
           key :type, :string
         end
 

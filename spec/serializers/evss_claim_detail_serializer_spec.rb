@@ -35,6 +35,15 @@ RSpec.describe EVSSClaimDetailSerializer, type: :serializer do
     end
   end
 
+  context 'with HTML in the VA representative field' do
+    let(:evss_claim) do
+      FactoryBot.build(:evss_claim, data: { 'poa': '&lt;VATreatmentCenter&gt;' })
+    end
+    it 'strips the HTML tags' do
+      expect(attributes['va_representative']).to eq('VATreatmentCenter')
+    end
+  end
+
   context 'with different data and list_data' do
     let(:evss_claim) do
       FactoryBot.build(:evss_claim, data: {
