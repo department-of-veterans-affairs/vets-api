@@ -160,6 +160,7 @@ describe HCA::Service do
         )
       end
     end
+
     context 'when there are SSL options' do
       it 'should return the wsdl, cert and key paths' do
         expect(HCA::Configuration.instance.ssl_options).to eq(

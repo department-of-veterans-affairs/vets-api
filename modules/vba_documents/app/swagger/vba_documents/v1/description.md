@@ -4,6 +4,8 @@ This API provides a secure and efficient alternative to paper or fax document su
 
 It also saves users time by reporting documents' status until they reach Veterans Benefits Management System (VBMS), where the documents are reviewed. This eliminates the need for users to switch between systems to manually check whether documents have reached VBMS.
 
+Visit our VA Lighthouse [support portal](https://developer.va.gov/support) for further assistance.
+
 ## Technical Summary
 The Benefits Intake API accepts a payload consisting of a document in PDF format, zero or more optional attachments in PDF format, and some JSON metadata. The metadata describes the document and attachments, and identifies the person for whom it is being submitted. This payload is encoded as binary multipart/form-data (not base64). A unique identifier supplied with the payload can subsequently be used to request the processing status of the uploaded document package.
 
