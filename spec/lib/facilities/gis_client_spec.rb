@@ -31,8 +31,8 @@ RSpec.describe Facilities::GisClient do
     end
 
     it 'passes the correct offset to the query when looping twice' do
-      allow(faraday_response_offset_0).to receive(:env).and_return(double(body: [*1..12]))
-      allow(faraday_response_offset_10).to receive(:env).and_return(double(body: [*1..2]))
+      allow(faraday_response_offset_0).to receive(:env).and_return(double(body: [*1..10]))
+      allow(faraday_response_offset_10).to receive(:env).and_return(double(body: [*1..4]))
 
       data = subject.get_all_facilities('type', 'field', 10)
       expect(data.length).to be(14)
