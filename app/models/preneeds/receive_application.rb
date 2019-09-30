@@ -20,12 +20,18 @@ module Preneeds
     attribute :return_code, Integer
     attribute :application_uuid, String
     attribute :return_description, String
-    attribute :submitted_at, Time, default: ->(_, __) { Time.zone.now }
+    attribute :submitted_at, Time, default: :current_time
 
     # Alias for #tracking_number
     #
     def receive_application_id
       tracking_number
+    end
+
+    # @return [Time] current time
+    #
+    def current_time
+      Time.zone.now
     end
   end
 end

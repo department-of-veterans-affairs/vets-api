@@ -85,8 +85,8 @@ module SAML
           else
             SAML::User::AUTHN_CONTEXTS.fetch(authn_context).fetch(:loa_current, 1).to_i
           end
-      rescue NoMethodError, KeyError => error
-        @warnings << "loa_current error: #{error.message}"
+      rescue NoMethodError, KeyError => e
+        @warnings << "loa_current error: #{e.message}"
         @loa_current = 1 # default to something safe until we can research this
       end
 
