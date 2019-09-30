@@ -7,6 +7,8 @@ FactoryBot.define do
     facility_type { 'va_health_facility' }
     classification { 'VA Medical Center (VAMC)' }
     website { 'http://www.portland.va.gov/locations/vancouver.asp' }
+    mobile { false }
+    active_status { 'A' }
     lat { 45.6394162600001 }
     long { -122.65528736 }
     location { 'POINT(-122.65528736 45.6394162600001)' }
@@ -214,6 +216,8 @@ FactoryBot.define do
     facility_type { 'va_health_facility' }
     classification { 'Primary Care CBOC' }
     website { nil }
+    mobile { false }
+    active_status { 'A' }
     lat { 45.52017304 }
     long { -122.67221794 }
     location { 'POINT(-122.67221794 45.52017304)' }

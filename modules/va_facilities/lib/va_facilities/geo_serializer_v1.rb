@@ -49,7 +49,9 @@ module VaFacilities
         'phone' => object.phone,
         'hours' => object.hours,
         'services' => services(object),
-        'satisfaction' => satisfaction(object)
+        'satisfaction' => satisfaction(object),
+        'mobile' => object.mobile,
+        'active_status' => object.active_status
       }
     end
   end
