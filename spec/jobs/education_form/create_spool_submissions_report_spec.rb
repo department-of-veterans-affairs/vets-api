@@ -4,6 +4,7 @@ require 'rails_helper'
 
 RSpec.describe EducationForm::CreateSpoolSubmissionsReport, type: :aws_helpers do
   let(:time) { Time.zone.now }
+
   subject do
     described_class.new
   end
@@ -35,60 +36,57 @@ RSpec.describe EducationForm::CreateSpoolSubmissionsReport, type: :aws_helpers d
         )
       end
 
-      describe '#perform' do
-        before do
-          expect(FeatureFlipper).to receive(:send_edu_report_email?).once.and_return(true)
-        end
-        after do
-          File.delete(filename)
-        end
+      it 'should check for stem submissions' do
+        data = subject.create_csv_array
+        expect(data[:stem_exists]).to eq(false)
+      end
 
-        let(:filename) { "tmp/spool_reports/#{time.to_date}.csv" }
+      it 'should recognize 1995s as STEM submission' do
+        create(:education_benefits_claim_1995s, processed_at: time.beginning_of_day)
+        data = subject.create_csv_array
+        expect(data[:stem_exists]).to eq(true)
+      end
 
-        def perform
-          stub_reports_s3(filename) do
-            subject.perform
+      it 'should recognize 1995 with STEM data as STEM submission' do
+        create(:education_benefits_claim_1995stem, processed_at: time.beginning_of_day)
+        data = subject.create_csv_array
+        expect(data[:stem_exists]).to eq(true)
+      end
+    end
+
+    describe '#perform' do
+      let(:filename) { "tmp/spool_reports/#{time.to_date}.csv" }
+
+      before do
+        expect(FeatureFlipper).to receive(:send_edu_report_email?).once.and_return(true)
+      end
+      
+      after do
+        File.delete(filename)
+      end
+    
+      def perform
+        stub_reports_s3(filename) do
+          subject.perform
+        end
+      end
+
+      it 'should send an email' do
+        expect { perform }.to change {
+          ActionMailer::Base.deliveries.count
+        }.by(1)
+      end
+
+      it 'should create a csv file' do
+        perform
+        data = subject.create_csv_array
+        csv_array = data[:csv_array]
+        csv_string = CSV.generate do |csv|
+          csv_array.each do |row|
+            csv << row
           end
         end
-
-        it 'should create a csv file' do
-          perform
-          data = subject.create_csv_array
-          csv_array = data[:csv_array]
-          csv_string = CSV.generate do |csv|
-            csv_array.each do |row|
-              csv << row
-            end
-          end
-
-          expect(File.read(filename)).to eq(csv_string)
-        end
-
-        it 'should check for stem submissions' do
-          perform
-          data = subject.create_csv_array
-          expect(data[:stem_exists]).to eq(false)
-        end
-
-        it 'should recognize 1995s as STEM submission' do
-          create(:education_benefits_claim_1995s, processed_at: time.beginning_of_day)
-          perform
-          data = subject.create_csv_array
-          expect(data[:stem_exists]).to eq(true)
-        end
-
-        it 'should recognize 1995 with STEM data as STEM submission' do
-          create(:education_benefits_claim_1995stem, processed_at: time.beginning_of_day)
-          perform
-          data = subject.create_csv_array
-          expect(data[:stem_exists]).to eq(true)
-        end
-
-        it 'should send an email' do
-          expect { perform }.to change {
-            ActionMailer::Base.deliveries.count
-          }.by(1)
-        end
+        expect(File.read(filename)).to eq(csv_string)
       end
     end
   end
