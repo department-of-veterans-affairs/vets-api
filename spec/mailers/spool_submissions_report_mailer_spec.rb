@@ -30,6 +30,7 @@ RSpec.describe SpoolSubmissionsReportMailer, type: %i[mailer aws_helpers] do
           %w[
             Delli-Gatti_Michael@bah.com
             lihan@adhocteam.us
+            neel_darrel@bah.com
             shay.norton-leonard@va.gov
             Turner_Desiree@bah.com
           ]
@@ -86,6 +87,7 @@ RSpec.describe SpoolSubmissionsReportMailer, type: %i[mailer aws_helpers] do
           %w[
             Delli-Gatti_Michael@bah.com
             lihan@adhocteam.us
+            neel_darrel@bah.com
             shay.norton-leonard@va.gov
             Turner_Desiree@bah.com
             hughes_dustin@bah.com
