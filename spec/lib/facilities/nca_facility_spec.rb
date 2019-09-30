@@ -25,6 +25,17 @@ module Facilities
           expect(list.all? { |item| item.is_a?(NCAFacility) })
         end
       end
+
+      context 'with single facility' do
+        let(:facilities) { NCAFacility.pull_source_data }
+        let(:facility) { facilities.first }
+
+        it 'should get the correct classification name' do
+          VCR.use_cassette('facilities/va/nca_facilities') do
+            expect(facility.classification).to eq('Soldiers Lot')
+          end
+        end
+      end
     end
   end
 end
