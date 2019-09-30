@@ -29,6 +29,7 @@ RSpec.describe 'health records', type: :request do
       data_classes: BB::GenerateReportRequestForm::ELIGIBLE_DATA_CLASSES
     }
   end
+
   context 'forbidden user' do
     let(:current_user) { build(:user) }
 

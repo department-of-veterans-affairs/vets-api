@@ -39,6 +39,7 @@ RSpec.describe EVSSClaimDetailSerializer, type: :serializer do
     let(:evss_claim) do
       FactoryBot.build(:evss_claim, data: { 'poa': '&lt;VATreatmentCenter&gt;' })
     end
+
     it 'strips the HTML tags' do
       expect(attributes['va_representative']).to eq('VATreatmentCenter')
     end
@@ -85,6 +86,7 @@ RSpec.describe EVSSClaimDetailSerializer, type: :serializer do
 
   context 'with some phase dates' do
     let(:date_str) { Date.new(2012, 8, 10).to_json[1...-1] }
+
     it 'should not have a phase 1..6 event' do
       (1..6).each do |i|
         expect(attributes['events_timeline'].select { |obj| obj['type'] == "phase#{i}" }.count).to eq 0
