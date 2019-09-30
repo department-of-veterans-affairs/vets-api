@@ -134,7 +134,7 @@ module Common
             end
 
             def strip(value)
-              value.respond_to?(:strip) ? value.strip : value
+              value.try(:strip) || value
             end
 
             def services_date
