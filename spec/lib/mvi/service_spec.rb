@@ -261,15 +261,14 @@ describe MVI::Service do
     end
 
     context 'when a MVI internal system problem response is returned' do
+      let(:body) { File.read('spec/support/mvi/find_candidate_ar_code_database_error_response.xml') }
       it 'should raise a invalid request error', :aggregate_failures do
         expect(subject).to receive(:log_message_to_sentry).with(
           'MVI Failed Request', :error
         )
-        # See comment in cassette before making changes
-        VCR.use_cassette('mvi/find_candidate/legacy_mvi_system_error_response') do
-          response = subject.find_profile(user)
-          server_error_502_expectations_for(response)
-        end
+        stub_request(:post, Settings.mvi.url).to_return(status: 200, body: body)
+        response = subject.find_profile(user)
+        server_error_502_expectations_for(response)
       end
     end
 

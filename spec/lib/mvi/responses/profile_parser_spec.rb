@@ -135,8 +135,7 @@ describe MVI::Responses::ProfileParser do
   end
 
   context 'given a failure response' do
-    # See comment in XML file before making changes
-    let(:body) { Ox.parse(File.read('spec/support/mvi/find_candidate_failure_response.xml')) }
+    let(:body) { Ox.parse(File.read('spec/support/mvi/find_candidate_ar_code_database_error_response.xml')) }
 
     describe '#failed_or_invalid?' do
       it 'should return true' do
