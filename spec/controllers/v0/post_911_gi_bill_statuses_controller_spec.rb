@@ -81,6 +81,7 @@ RSpec.describe V0::Post911GIBillStatusesController, type: :controller do
             .and trigger_statsd_increment(described_class::STATSD_GI_BILL_TOTAL_KEY, **once)
         end
       end
+
       describe 'when EVSS has no info of user' do
         # special EVSS CI user ssn=796066622
         let(:user) { FactoryBot.create(:user, :loa3, ssn: '796066622', uuid: '89b40886-95e3-4a5b-824e-a4658b707508') }

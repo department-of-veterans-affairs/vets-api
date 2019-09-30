@@ -36,7 +36,7 @@ RSpec.describe Sentry::Processor::FilterRequestBody do
         }
       result = @processor.process(sentry_request)
 
-      expect(result['request']['data']).to eql(nil)
+      expect(result['request']['data']).to be(nil)
     end
   end
 
