@@ -4,6 +4,8 @@ require 'flipper'
 require 'flipper/adapters/active_record'
 require 'active_support/cache'
 require 'flipper/adapters/active_support_cache_store'
+require 'flipper/action_patch'
+require 'flipper/configuration_patch'
 require 'flipper/flipper_monkey_patch'
 
 FLIPPER_FEATURE_CONFIG = YAML.safe_load(File.read(Rails.root.join('config', 'features.yml')))
@@ -20,8 +22,12 @@ Flipper.configure do |config|
   end
 end
 
+# Modify Flipper::UI::Configuration to accept a custom view path.
+Flipper::UI::Configuration.prepend(FlipperExtensions::ConfigurationPatch)
+
 # Labeling what flipper calls "actors" as "users" in the UI
 Flipper::UI.configure do |config|
+  config.custom_views_path = Rails.root.join('lib', 'flipper', 'views')
   config.percentage_of_actors.title = 'Percentage of Logged in Users'
   config.percentage_of_actors.description = %(Percentage of users functions independently of percentage of time.
     If you enable 50% of Actors and 25% of Time then the feature will always be enabled for 50% of users and
@@ -48,6 +54,9 @@ FLIPPER_FEATURE_CONFIG['features'].each_key do |feature|
     nil
   end
 end
+
+# Modify Flipper::UI::Action to use custom views if they exist.
+Flipper::UI::Action.prepend(FlipperExtensions::ActionPatch)
 
 # Monkeypatch Flipper::UI to add descriptions
 Flipper::UI::Actions::Features.prepend(FlipperExtensions::FeaturesMonkeyPatch)

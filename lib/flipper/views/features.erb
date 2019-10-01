@@ -1,0 +1,37 @@
+<div class="vads-l-row">
+  <div class="vads-l-col">
+    <table>
+      <caption>Features</caption>
+      <thead>
+        <tr>
+          <th>
+            <span class="octicon octicon-squirrel"></span>
+          </th>
+          <th>Feature</th>
+          <th>Description</th>
+          <th>Enabled Gates</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @features.each do |feature| %>
+          <tr>
+            <td>
+              <span class="octicon octicon-squirrel <%= feature.color_class %>"><br/><%= feature.state %></span>
+            </td>
+            <td>
+              <a href="<%= "#{script_name}/features/#{feature.key}" %>">
+                <%= feature.key %>
+              </a>
+            </td>
+            <td>
+              <%= yaml_features.dig(feature.key,'description') %>
+            </td>
+            <td>
+              <%= feature.pretty_enabled_gate_names %>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+</div>
