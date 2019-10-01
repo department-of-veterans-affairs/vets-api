@@ -117,8 +117,8 @@ RSpec/InstanceVariable:
 # Cop supports --auto-correct.
 # Configuration parameters: EnforcedStyle.
 # SupportedStyles: it_behaves_like, it_should_behave_like
-RSpec/ItBehavesLike:
-  Enabled: false
+# RSpec/ItBehavesLike:
+#   Enabled: false
 
 # Offense count: 1
 RSpec/IteratedExpectation:
