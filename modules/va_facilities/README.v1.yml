@@ -7,7 +7,7 @@ info:
     ## Background
 
     This API provides information about physical VA facilities. Information available includes
-    geographic location, address, phone, hours of operation, and available services. 
+    geographic location, address, phone, hours of operation, and available services.
 
     VA operates several different types of facilities. The types represented in this API include:
     - Health facilities
@@ -74,7 +74,7 @@ paths:
   #     summary: "DRAFT: Query facilities based on a geographic bounding box and optional attribute filters"
   #     description: |
   #       *This is a draft specification and not an available endpoint.*
-        
+
   #       Retrieve all facilities contained within the specified bounding box. Bounding box is
   #       specified as four parameters lng1, lat1, lng2, lat2. Relative ordering of longitude and
   #       latitude parameters is unimportant.
@@ -115,7 +115,7 @@ paths:
   #       - name: zip
   #         in: query
   #         description: |
-  #           Zip code to search for VA Facilities. 
+  #           Zip code to search for VA Facilities.
   #           More detailed zip codes can be passed in, but only the first five digits are used to determine facilities to return.
   #         required: false
   #         schema:
@@ -426,8 +426,8 @@ paths:
         - facilities
       summary: Query facilities based on drive time from a specified location
       description: |
-        Retrieve all facilities contained within an isochrone (a polygon composed of the area 
-        reachable in a certain amount of time from a central location) based on the passed 
+        Retrieve all facilities contained within an isochrone (a polygon composed of the area
+        reachable in a certain amount of time from a central location) based on the passed
         `street_address`, `city`, `state`, `zip`, and `drive_time` parameters.
 
         Additionally one can filter the facilities within the isochrone by type and available
@@ -442,7 +442,7 @@ paths:
         Please use `/facilities` to see detailed information.
       operationId: getNearbyFacilities
       security:
-        - api_key: []
+        - apikey: []
       parameters:
         - name: street_address
           in: query
@@ -598,7 +598,7 @@ paths:
   #     summary: "DRAFT: Retrieve polygons of the drive time bands for facilities"
   #     description: |
   #       *This is a draft specification and not an available endpoint.*
-        
+
   #       Retrieve the polygons used to determine in which drive time band veterans fall into for facilities.
 
   #       Alternatively, one can retrieve a single facility using `/facilities/{id}/drive_time_bands`
@@ -711,8 +711,8 @@ paths:
   #     summary: "DRAFT: Retrieve polygons of the drive time bands for a facility by ID"
   #     description: |
   #       *This is a draft specification and not an available endpoint.*
-        
-  #       Retrieve the polygons used to determine in which drive time band veterans fall into for a specified facility. 
+
+  #       Retrieve the polygons used to determine in which drive time band veterans fall into for a specified facility.
 
   #       Alternatively, one can retrieve drive time bands for all facilities using `/facilities/all/drive_time_bands`.
 
@@ -785,12 +785,12 @@ paths:
   #     summary: "DRAFT: Bulk download of all available facilities"
   #     description: |
   #       *This is a draft specification and not an available endpoint.*
-        
+
   #       Retrieve drive time bands for all available facilities in a single operation, formatted as either a GeoJSON
-  #       FeatureCollection or as a CSV. 
+  #       FeatureCollection or as a CSV.
 
   #       Alternatively, one can retrieve drive time bands for a specific facility using `/facilities/{id}/drive_time_bands`.
-        
+
   #       The facility information returned by `/drive_time_bands` is a small subset of the information returned by `/facilities`.
   #       Please use `/facilities` to see detailed information.
   #     operationId: getAllFacilitiesDriveTimeBands
@@ -952,7 +952,7 @@ components:
           enum: ["Feature"]
           example: Feature
         geometry:
-          $ref: "#/components/schemas/Point" 
+          $ref: "#/components/schemas/Point"
         properties:
           type: object
           properties:
@@ -1088,7 +1088,7 @@ components:
       description: Health care services at a given facility, not all will be included at every facility
       type: array
       items:
-        $ref: "#/components/schemas/HealthService" 
+        $ref: "#/components/schemas/HealthService"
     HealthService:
       type: object
       properties:
@@ -1110,7 +1110,7 @@ components:
             - Urology
             - WomensHealth
         wait_times:
-          $ref: "#/components/schemas/PatientWaitTime" 
+          $ref: "#/components/schemas/PatientWaitTime"
     BenefitsService:
       type: string
       enum:
@@ -1229,7 +1229,7 @@ components:
     #       enum: ["Feature"]
     #       example: Feature
     #     geometry:
-    #       $ref: "#/components/schemas/Point" 
+    #       $ref: "#/components/schemas/Point"
     #     properties:
     #       type: object
     #       properties:
@@ -1249,8 +1249,8 @@ components:
     # COMMENTED OUT WHILE DRIVE TIME BANDS ARE ONLY A DRAFT
     # DriveTimeBands:
     #   description: JSON API-compliant object describing a VA facility and its drive time bands
-    #   allOf: 
-    #     - $ref: "#/components/schemas/FacilityBasic"  
+    #   allOf:
+    #     - $ref: "#/components/schemas/FacilityBasic"
     #     - type: object
     #       properties:
     #         attributes:
@@ -1285,7 +1285,7 @@ components:
     # DriveTimeBandsFeature:
     #   description: |
     #     GeoJSON-complaint Feature object describing a VA Facility's drive time bands.
-    #     The Geometries array includes a Point describing VA Facility's location as its first element, 
+    #     The Geometries array includes a Point describing VA Facility's location as its first element,
     #     followed by Polygons describing drive times bands of increasing size.
     #   type: object
     #   properties:
@@ -1366,8 +1366,8 @@ components:
     # DriveTimeBandsGeometry:
     #   description: GeoJSON-complaint Geometry object describing a VA Facility's location or drive time bands
     #   oneOf:
-    #     - $ref: "#/components/schemas/Point" 
-    #     - $ref: "#/components/schemas/Polygon" 
+    #     - $ref: "#/components/schemas/Point"
+    #     - $ref: "#/components/schemas/Polygon"
     Point:
       description: GeoJSON-complaint Point object
       type: object

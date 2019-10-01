@@ -75,14 +75,11 @@ module ClaimsApi
         }
       ]
 
-      key :components,
-          "securitySchemes": {
-            "api_key": {
-              "type": 'apiKey',
-              "in": 'header',
-              "name": 'X-API-Key'
-            }
-          }
+      security_definition :apikey do
+        key :type, :apiKey
+        key :name, :apikey
+        key :in, :header
+      end
 
       key :host, 'api.va.gov'
       key :basePath, '/services/claims/v0'

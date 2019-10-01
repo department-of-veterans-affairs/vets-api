@@ -50,20 +50,15 @@ module ClaimsApi
       end
 
       operation :post do
+        security do
+          key :apikey, []
+        end
         key :summary, 'Accepts 526 claim form submission'
         key :description, 'Accepts JSON payload. Full URL, including\nquery parameters.'
         key :operationId, 'post526Claim'
         key :tags, [
           'Disability'
         ]
-
-        parameter do
-          key :name, 'apikey'
-          key :in, :header
-          key :description, 'API Key given to access data'
-          key :required, true
-          key :type, :string
-        end
 
         parameter do
           key :name, 'X-VA-SSN'
@@ -147,6 +142,9 @@ module ClaimsApi
 
     swagger_path '/forms/526/validate' do
       operation :post do
+        security do
+          key :apikey, []
+        end
         key :summary, 'Validates a 526 claim form submission'
         key :description, 'Accepts JSON payload. Full URL, including\nquery parameters.'
         key :operationId, 'post526ClaimValidate'
@@ -281,6 +279,9 @@ module ClaimsApi
 
     swagger_path '/forms/526/{id}/attachments' do
       operation :post do
+        security do
+          key :apikey, []
+        end
         key :summary, 'Upload documents in support of a 526 claim'
         key :description, 'Accpets document binaries as part of a multipart payload. Accepts N number of attachments, via attachment1 .. attachmentN'
         key :operationId, 'upload526Attachments'
