@@ -11,13 +11,15 @@ class BaseFacility < ApplicationRecord
 
   YES = 'YES'
 
-  APPROVED_SERVICES = %w[
-    MentalHealthCare
-    PrimaryCare
-    DentalServices
-  ].freeze
-
-  HOURS_STANDARD_MAP = DateTime::DAYNAMES.each_with_object({}) { |d, h| h[d] = d }
+  HOURS_STANDARD_MAP = {
+    'Sunday' => 'Sunday',
+    'Monday' => 'Monday',
+    'Tuesday' => 'Tuesday',
+    'Wednesday' => 'Wednesday',
+    'Thursday' => 'Thursday',
+    'Friday' => 'Friday',
+    'Saturday' => 'Saturday'
+  }.freeze
 
   HEALTH = 'health'
   CEMETERY = 'cemetery'
@@ -119,7 +121,7 @@ class BaseFacility < ApplicationRecord
   PATHMAP = { 'NCA_Facilities' => Facilities::NCAFacility,
               'VBA_Facilities' => Facilities::VBAFacility,
               'VHA_VetCenters' => Facilities::VCFacility,
-              'VHA_Facilities' => Facilities::VHAFacility }.freeze
+              'FacilitySitePoint_VHA' => Facilities::VHAFacility }.freeze
 
   def facility_type_prefix
     PREFIX_MAP[facility_type]
