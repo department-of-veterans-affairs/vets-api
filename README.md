@@ -10,6 +10,7 @@ For frontend, see [vets-website](https://github.com/department-of-veterans-affai
 
 To start, fetch this code:
 
+
 `git clone https://github.com/department-of-veterans-affairs/vets-api.git`
 
 1. Install [Docker for Mac](https://docs.docker.com/docker-for-mac/install/). This will configure both `docker` and `docker-compose`.
