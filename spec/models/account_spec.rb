@@ -21,7 +21,7 @@ RSpec.describe Account, type: :model do
 
       expect do
         Account.create_if_needed!(user)
-      end.to change { Account.count }.by(1)
+      end.to change(Account, :count).by(1)
     end
 
     it 'should not create a second Account' do
@@ -30,7 +30,7 @@ RSpec.describe Account, type: :model do
 
       expect do
         Account.create_if_needed!(user)
-      end.not_to change { Account.count }
+      end.not_to change(Account, :count)
     end
   end
 

@@ -42,7 +42,7 @@ RSpec.describe UserPreferences::Grantor do
       it 'creates UserPreference records' do
         expect do
           set_user_preferences.execute!
-        end.to change { UserPreference.count }.by(4)
+        end.to change(UserPreference, :count).by(4)
       end
 
       it 'creates UserPreference records for the passed user Account' do

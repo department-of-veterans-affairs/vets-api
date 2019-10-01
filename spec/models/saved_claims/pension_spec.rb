@@ -59,7 +59,7 @@ RSpec.describe SavedClaim::Pension, uploader_helpers: true do
     describe '#destroy' do
       it 'also destroys the persistent_attachments' do
         claim.process_attachments!
-        expect { claim.destroy }.to change { PersistentAttachment.count }.by(-2)
+        expect { claim.destroy }.to change(PersistentAttachment, :count).by(-2)
       end
     end
   end
