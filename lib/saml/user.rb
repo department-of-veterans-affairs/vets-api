@@ -83,6 +83,9 @@ module SAML
 
     def issuer
       saml_response.issuer_text
+    rescue
+      Raven.tags_context(controller_name: 'sessions', sign_in_method: 'not-signed-in:error')
+      raise
     end
 
     # SSOe Issuer value is https://int.eauth.va.gov/FIM/sps/saml20fedCSP/saml20
