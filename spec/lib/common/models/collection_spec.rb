@@ -8,6 +8,7 @@ require 'support/author'
 describe Common::Collection do
   let(:klass)       { Author }
   let(:klass_array) { Array.new(25) { |i| attributes_for(:author, id: i + 1) } }
+
   subject { described_class.new(klass, data: klass_array, metadata: { nobel_winner: 'Bob Dylan' }, errors: {}) }
 
   it 'returns a JSON string' do

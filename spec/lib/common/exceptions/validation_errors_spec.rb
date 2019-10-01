@@ -30,6 +30,7 @@ describe Common::Exceptions::ValidationErrors do
       resource.valid?
       resource
     end
+
     subject { described_class.new(resource_with_errors) }
 
     it 'implements #errors which returns an array' do

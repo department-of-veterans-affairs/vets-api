@@ -30,6 +30,7 @@ RSpec.describe Facilities::StateCemeteryReloadJob, type: :job do
          fax="520-638-4899" email="" lat="32.4948489724764" long="-111.270155549049" stationid="413" />
       </cems>)
   end
+
   before(:each) do
     allow_any_instance_of(
       Facilities::StateCemeteryReloadJob

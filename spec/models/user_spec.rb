@@ -194,6 +194,7 @@ RSpec.describe User, type: :model do
       context 'when saml user attributes available, icn is available, and user LOA3' do
         let(:mvi_profile) { build(:mvi_profile) }
         let(:user) { build(:user, :loa3, middle_name: 'J', mhv_icn: mvi_profile.icn) }
+
         before(:each) do
           stub_mvi(mvi_profile)
         end
@@ -243,6 +244,7 @@ RSpec.describe User, type: :model do
       context 'when saml user attributes NOT available, icn is available, and user LOA3' do
         let(:mvi_profile) { build(:mvi_profile) }
         let(:user) { build(:user, :loa3, :mhv_sign_in, mhv_icn: mvi_profile.icn) }
+
         before(:each) { stub_mvi(mvi_profile) }
 
         it 'fetches first_name from MVI' do
@@ -297,6 +299,7 @@ RSpec.describe User, type: :model do
       context 'when saml user attributes NOT available, icn is available, and user NOT LOA3' do
         let(:mvi_profile) { build(:mvi_profile) }
         let(:user) { build(:user, :loa1, :mhv_sign_in, mhv_icn: mvi_profile.icn) }
+
         before(:each) { stub_mvi(mvi_profile) }
 
         it 'fetches first_name from IDENTITY' do
@@ -331,6 +334,7 @@ RSpec.describe User, type: :model do
       context 'when icn is not available from saml data' do
         let(:mvi_profile) { build(:mvi_profile) }
         let(:user) { build(:user, :loa3) }
+
         before(:each) { stub_mvi(mvi_profile) }
 
         it 'fetches first_name from IDENTITY' do
@@ -365,6 +369,7 @@ RSpec.describe User, type: :model do
       describe '#mhv_correlation_id' do
         context 'when mhv ids are nil' do
           let(:user) { build(:user) }
+
           it 'has a mhv correlation id of nil' do
             expect(user.mhv_correlation_id).to be_nil
           end
@@ -373,6 +378,7 @@ RSpec.describe User, type: :model do
         context 'when there are mhv ids' do
           let(:loa3_user) { build(:user, :loa3) }
           let(:mvi_profile) { build(:mvi_profile) }
+
           it 'has a mhv correlation id' do
             stub_mvi(mvi_profile)
             expect(loa3_user.mhv_correlation_id).to eq(mvi_profile.mhv_ids.first)
@@ -385,6 +391,7 @@ RSpec.describe User, type: :model do
 
   describe '#flipper_id' do
     let(:user) { build(:user, :loa3) }
+
     it 'should return a unique identifier of email' do
       expect(user.flipper_id).to eq(user.email)
     end
@@ -407,6 +414,7 @@ RSpec.describe User, type: :model do
 
     context 'when there are no facilities' do
       let(:mvi_profile) { build(:mvi_profile, vha_facility_ids: []) }
+
       it 'is false' do
         expect(user.va_patient?).to be_falsey
       end
@@ -414,6 +422,7 @@ RSpec.describe User, type: :model do
 
     context 'when there are nil facilities' do
       let(:mvi_profile) { build(:mvi_profile, vha_facility_ids: nil) }
+
       it 'is false' do
         expect(user.va_patient?).to be_falsey
       end
@@ -421,6 +430,7 @@ RSpec.describe User, type: :model do
 
     context 'when there are no facilities in the defined range' do
       let(:mvi_profile) { build(:mvi_profile, vha_facility_ids: [200, 759]) }
+
       it 'is false' do
         expect(user.va_patient?).to be_falsey
       end
@@ -428,6 +438,7 @@ RSpec.describe User, type: :model do
 
     context 'when facility is at the bottom edge of range' do
       let(:mvi_profile) { build(:mvi_profile, vha_facility_ids: [450]) }
+
       it 'is true' do
         expect(user.va_patient?).to be_truthy
       end
@@ -435,6 +446,7 @@ RSpec.describe User, type: :model do
 
     context 'when alphanumeric facility is at the bottom edge of range' do
       let(:mvi_profile) { build(:mvi_profile, vha_facility_ids: %w[450MH]) }
+
       it 'is true' do
         expect(user.va_patient?).to be_truthy
       end
@@ -442,6 +454,7 @@ RSpec.describe User, type: :model do
 
     context 'when facility is at the top edge of range' do
       let(:mvi_profile) { build(:mvi_profile, vha_facility_ids: [758]) }
+
       it 'is true' do
         expect(user.va_patient?).to be_truthy
       end
@@ -449,6 +462,7 @@ RSpec.describe User, type: :model do
 
     context 'when alphanumeric facility is at the top edge of range' do
       let(:mvi_profile) { build(:mvi_profile, vha_facility_ids: %w[758MH]) }
+
       it 'is true' do
         expect(user.va_patient?).to be_truthy
       end
@@ -456,6 +470,7 @@ RSpec.describe User, type: :model do
 
     context 'when there are multiple alphanumeric facilities all within defined range' do
       let(:mvi_profile) { build(:mvi_profile, vha_facility_ids: %w[450MH 758MH]) }
+
       it 'is true' do
         expect(user.va_patient?).to be_truthy
       end
@@ -463,6 +478,7 @@ RSpec.describe User, type: :model do
 
     context 'when there are multiple facilities all outside of defined range' do
       let(:mvi_profile) { build(:mvi_profile, vha_facility_ids: %w[449MH 759MH]) }
+
       it 'is false' do
         expect(user.va_patient?).to be_falsey
       end

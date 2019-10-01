@@ -51,6 +51,7 @@ RSpec.describe MhvAccountsService do
     let(:mhv_account) do
       MhvAccount.new(user_uuid: user.uuid, mhv_correlation_id: user.mhv_correlation_id).tap { |m| m.user = user }
     end
+
     subject { described_class.new(mhv_account, user) }
 
     context 'account creation' do

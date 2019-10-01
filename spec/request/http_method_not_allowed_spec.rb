@@ -16,6 +16,7 @@ end
 RSpec.describe HttpMethodNotAllowed, type: :request do
   let(:app) { MockRackApp.new }
   subject { described_class.new(app) }
+
   let(:r) { Rack::MockRequest.new(subject) }
 
   it 'responds with 200 for allowed method' do

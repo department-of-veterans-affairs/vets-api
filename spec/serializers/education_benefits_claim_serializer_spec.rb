@@ -6,6 +6,7 @@ RSpec.describe EducationBenefitsClaimSerializer, type: :serializer do
   let(:education_benefits_claim) { create(:education_benefits_claim) }
   let(:data) { JSON.parse(subject)['data'] }
   let(:attributes) { data['attributes'] }
+
   subject { serialize(education_benefits_claim) }
 
   it 'should include id' do
