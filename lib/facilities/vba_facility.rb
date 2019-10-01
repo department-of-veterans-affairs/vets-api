@@ -39,12 +39,12 @@ module Facilities
                           'address_3' => '', 'city' => 'City', 'state' => 'State',
                           'zip' => 'Zip' },
           'hours' => BaseFacility::HOURS_STANDARD_MAP,
-          'benefits' => benefits_mapping,
+          'benefits' => benefits_services,
           'mapped_fields' => mapped_fields_list
         }
       end
 
-      def benefits_mapping
+      def benefits_services
         {
           'ApplyingForBenefits' => 'Applying_for_Benefits',
           'BurialClaimAssistance' => 'Burial_Claim_assistance',

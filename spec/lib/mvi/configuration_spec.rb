@@ -17,6 +17,7 @@ describe MVI::Configuration do
         expect(MVI::Configuration.instance.ssl_options).to be_nil
       end
     end
+
     context 'when there are SSL options' do
       let(:cert) { instance_double('OpenSSL::X509::Certificate') }
       let(:key) { instance_double('OpenSSL::PKey::RSA') }

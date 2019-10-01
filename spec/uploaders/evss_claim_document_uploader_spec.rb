@@ -28,6 +28,7 @@ RSpec.describe EVSSClaimDocumentUploader do
         end
       end
     end
+
     context 'when uploads are set to nil' do
       it 'should set storage to file' do
         with_settings(Settings.evss.s3, uploads_enabled: nil) do
@@ -35,6 +36,7 @@ RSpec.describe EVSSClaimDocumentUploader do
         end
       end
     end
+
     context 'when uploads are enabled' do
       it 'should set storage to fog' do
         with_settings(Settings.evss.s3, uploads_enabled: true) do
