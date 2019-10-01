@@ -41,7 +41,7 @@ module EducationForm
     def check_claim_for_stem(education_benefits_claim, parsed_form, stem_exists)
       return true if stem_exists
 
-      # Remove when 1995s form type is in prod
+      # TODO: Remove when 1995s form type is in prod
       return true if education_benefits_claim.form_type == '1995' && parsed_form['isEdithNourseRogersScholarship']
 
       education_benefits_claim.form_type == '1995s'
