@@ -16,6 +16,7 @@ RSpec.describe 'Post 911 GI Bill Status', type: :request do
 
   context 'inside working hours' do
     before { Timecop.freeze(noon) }
+
     after { Timecop.return }
 
     context 'with a valid evss response' do
@@ -63,6 +64,7 @@ RSpec.describe 'Post 911 GI Bill Status', type: :request do
 
   context 'outside working hours' do
     before { Timecop.freeze(midnight) }
+
     after { Timecop.return }
 
     it 'should return 503' do

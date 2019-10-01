@@ -41,6 +41,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm0781, type: :job do
                                form_json: form0781,
                                submitted_claim_id: evss_claim_id)
     end
+
     context 'with a successful submission job' do
       it 'queues a job for submit' do
         expect do

@@ -19,6 +19,7 @@ RSpec.describe SAML::User do
         multifactor: [false]
       )
     end
+
     subject { described_class.new(saml_response) }
 
     context 'LOA1 user' do

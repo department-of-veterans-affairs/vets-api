@@ -29,6 +29,7 @@ RSpec.describe 'health records', type: :request do
       data_classes: BB::GenerateReportRequestForm::ELIGIBLE_DATA_CLASSES
     }
   end
+
   context 'forbidden user' do
     let(:current_user) { build(:user) }
 
@@ -100,6 +101,6 @@ RSpec.describe 'health records', type: :request do
       get '/v0/health_records', params: { doc_type: 'txt' }
     end
 
-    expect(response).to have_http_status(503)
+    expect(response).to have_http_status(:service_unavailable)
   end
 end

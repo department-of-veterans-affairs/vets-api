@@ -51,6 +51,7 @@ describe HCA::SOAPParser do
       let(:status) { 503 }
       let(:reraised_error) { Faraday::TimeoutError }
       let(:body) { '<html><body>No Server Available</body></html>' }
+
       it 'raises Faraday::TimeoutError' do
         subject
       end

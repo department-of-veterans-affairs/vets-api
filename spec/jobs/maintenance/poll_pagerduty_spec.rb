@@ -89,6 +89,7 @@ RSpec.describe PagerDuty::PollMaintenanceWindows, type: :job do
     before do
       Settings.sentry.dsn = 'asdf'
     end
+
     after do
       Settings.sentry.dsn = nil
     end

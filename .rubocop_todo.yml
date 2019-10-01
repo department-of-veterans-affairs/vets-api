@@ -62,18 +62,18 @@ RSpec/EmptyExampleGroup:
 
 # Offense count: 229
 # Cop supports --auto-correct.
-RSpec/EmptyLineAfterFinalLet:
-  Enabled: false
+# RSpec/EmptyLineAfterFinalLet:
+#   Enabled: false
 
 # Offense count: 96
 # Cop supports --auto-correct.
-RSpec/EmptyLineAfterHook:
-  Enabled: false
+# RSpec/EmptyLineAfterHook:
+#   Enabled: false
 
 # Offense count: 25
 # Cop supports --auto-correct.
-RSpec/EmptyLineAfterSubject:
-  Enabled: false
+# RSpec/EmptyLineAfterSubject:
+#   Enabled: false
 
 # Offense count: 1105
 # Configuration parameters: Max.
@@ -329,15 +329,15 @@ RSpec/VoidExpect:
 # Cop supports --auto-correct.
 # Configuration parameters: EnforcedStyle.
 # SupportedStyles: numeric, symbolic
-Rails/HttpStatus:
-  Exclude:
-    - 'spec/controllers/application_controller_spec.rb'
-    - 'spec/controllers/v0/beta_registrations_controller_spec.rb'
-    - 'spec/controllers/v0/ccp_controller_spec.rb'
-    - 'spec/controllers/v0/feature_toggles_controller_spec.rb'
-    - 'spec/controllers/v0/preferences_controller_spec.rb'
-    - 'spec/request/folders_request_spec.rb'
-    - 'spec/request/health_records_request_spec.rb'
-    - 'spec/request/in_progress_forms_request_spec.rb'
-    - 'spec/request/messaging_preferences_spec.rb'
-    - 'spec/request/prescriptions_request_spec.rb'
+# Rails/HttpStatus:
+#   Exclude:
+#     - 'spec/controllers/application_controller_spec.rb'
+#     - 'spec/controllers/v0/beta_registrations_controller_spec.rb'
+#     - 'spec/controllers/v0/ccp_controller_spec.rb'
+#     - 'spec/controllers/v0/feature_toggles_controller_spec.rb'
+#     - 'spec/controllers/v0/preferences_controller_spec.rb'
+#     - 'spec/request/folders_request_spec.rb'
+#     - 'spec/request/health_records_request_spec.rb'
+#     - 'spec/request/in_progress_forms_request_spec.rb'
+#     - 'spec/request/messaging_preferences_spec.rb'
+#     - 'spec/request/prescriptions_request_spec.rb'

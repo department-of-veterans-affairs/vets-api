@@ -18,6 +18,7 @@ RSpec.describe SAML::HealthStatus do
         SAML::SettingsService.merged_saml_settings(true)
       end
     end
+
     it '.healthy? returns true' do
       expect(subject.healthy?).to eq(true)
     end
@@ -48,6 +49,7 @@ RSpec.describe SAML::HealthStatus do
         SAML::SettingsService.merged_saml_settings(true)
       end
     end
+
     it '.healthy? returns false' do
       expect(subject.healthy?).to eq(false)
     end
@@ -66,6 +68,7 @@ RSpec.describe SAML::HealthStatus do
         SAML::SettingsService.merged_saml_settings(true)
       end
     end
+
     it '.healthy? returns false' do
       expect(subject.healthy?).to eq(false)
     end

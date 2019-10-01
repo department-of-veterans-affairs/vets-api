@@ -14,6 +14,7 @@ describe Search::Pagination do
           }
       }
     end
+
     subject { described_class.new(raw_body) }
 
     it 'calculates the correct pagination object details', :aggregate_failures do
@@ -34,6 +35,7 @@ describe Search::Pagination do
           }
       }
     end
+
     subject { described_class.new(raw_body) }
 
     it 'calculates the correct pagination object details', :aggregate_failures do
@@ -54,6 +56,7 @@ describe Search::Pagination do
           }
       }
     end
+
     subject { described_class.new(raw_body) }
 
     it 'calculates the correct pagination object details', :aggregate_failures do
@@ -74,6 +77,7 @@ describe Search::Pagination do
           }
       }
     end
+
     subject { described_class.new(raw_body) }
 
     it 'returns the last page of results' do
@@ -91,6 +95,7 @@ describe Search::Pagination do
           }
       }
     end
+
     subject { described_class.new(raw_body) }
 
     it 'sets total_pages to the maximum viewable number of pages' do
