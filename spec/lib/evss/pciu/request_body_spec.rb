@@ -8,6 +8,7 @@ describe EVSS::PCIU::RequestBody do
 
   describe '#set' do
     before { Timecop.freeze now }
+
     after { Timecop.return }
 
     it 'returns string of JSON nested in the passed pciu_key', :aggregate_failures do

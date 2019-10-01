@@ -35,6 +35,7 @@ RSpec.describe V0::InProgressFormsController, type: :request do
 
       context 'when the user is not loa3' do
         let(:user) { loa1_user }
+
         it 'returns a 200' do
           subject
           expect(response).to have_http_status(:ok)
@@ -43,6 +44,7 @@ RSpec.describe V0::InProgressFormsController, type: :request do
 
       context 'when the user is not a test account' do
         let(:user) { build(:user, :loa3, ssn: '000010002') }
+
         it 'returns a 200' do
           subject
           expect(response).to have_http_status(:ok)
@@ -63,6 +65,7 @@ RSpec.describe V0::InProgressFormsController, type: :request do
 
       context 'when the user is not loa3' do
         let(:user) { loa1_user }
+
         it 'returns a 200' do
           get v0_in_progress_form_url(in_progress_form.form_id), params: nil
           expect(response).to have_http_status(:ok)
@@ -100,6 +103,7 @@ RSpec.describe V0::InProgressFormsController, type: :request do
 
       context 'when a form is not found' do
         let(:street_check) { build(:street_check) }
+
         it 'returns pre-fill data' do
           _, phone_response = stub_evss_pciu(user)
 
@@ -135,7 +139,7 @@ RSpec.describe V0::InProgressFormsController, type: :request do
       context 'when a form mapping is not found' do
         it 'returns a 500' do
           get v0_in_progress_form_url('foo'), params: nil
-          expect(response).to have_http_status(500)
+          expect(response).to have_http_status(:internal_server_error)
         end
       end
     end
@@ -148,6 +152,7 @@ RSpec.describe V0::InProgressFormsController, type: :request do
 
         context 'when the user is not loa3' do
           let(:user) { loa1_user }
+
           it 'returns a 200' do
             put v0_in_progress_form_url(new_form.form_id), params: {
               form_data: new_form.form_data,
@@ -181,7 +186,7 @@ RSpec.describe V0::InProgressFormsController, type: :request do
           it 'returns an error response' do
             allow_any_instance_of(InProgressForm).to receive(:update!).and_raise(ActiveRecord::ActiveRecordError)
             put v0_in_progress_form_url(new_form.form_id), params: { form_data: new_form.form_data }
-            expect(response).to have_http_status(500)
+            expect(response).to have_http_status(:internal_server_error)
             expect(Oj.load(response.body)['errors'].first['detail']).to eq('Internal server error')
           end
         end
@@ -207,6 +212,7 @@ RSpec.describe V0::InProgressFormsController, type: :request do
 
       context 'when the user is not loa3' do
         let(:user) { loa1_user }
+
         it 'returns a 200' do
           delete v0_in_progress_form_url(in_progress_form.form_id), params: nil
           expect(response).to have_http_status(:ok)

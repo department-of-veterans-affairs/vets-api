@@ -80,6 +80,7 @@ RSpec.describe EducationForm::Forms::Base, type: :model, form: :education_benefi
 
   context '#full_name' do
     let(:name) { OpenStruct.new(first: 'Mark', last: 'Olson') }
+
     subject { renderer.full_name(name) }
 
     context 'with no middle name' do

@@ -19,6 +19,7 @@ RSpec.describe 'Messaging Preferences Integration', type: :request do
 
   context 'Basic User' do
     let(:mhv_account_type) { 'Basic' }
+
     before(:each) { get '/v0/messaging/health/preferences' }
 
     include_examples 'for user account level', message: 'You do not have access to messaging'
@@ -27,6 +28,7 @@ RSpec.describe 'Messaging Preferences Integration', type: :request do
 
   context 'Advanced User' do
     let(:mhv_account_type) { 'Advanced' }
+
     before(:each) { get '/v0/messaging/health/preferences' }
 
     include_examples 'for user account level', message: 'You do not have access to messaging'
@@ -38,6 +40,7 @@ RSpec.describe 'Messaging Preferences Integration', type: :request do
 
     context 'not a va patient' do
       before(:each) { get'/v0/messaging/health/preferences' }
+
       let(:va_patient) { false }
 
       include_examples 'for non va patient user', authorized: false, message: 'You do not have access to messaging'
@@ -62,7 +65,7 @@ RSpec.describe 'Messaging Preferences Integration', type: :request do
         put '/v0/messaging/health/preferences', params: params
       end
 
-      expect(response).to have_http_status(200)
+      expect(response).to have_http_status(:ok)
       expect(JSON.parse(response.body)['data']['id'])
         .to eq('17126b0821ad0472ae11944e9861f82d6bdd17801433e200e6a760148a4866c3')
       expect(JSON.parse(response.body)['data']['attributes'])

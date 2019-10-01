@@ -28,7 +28,9 @@ RSpec.describe 'Backend Status', type: :request do
     context 'for the gibs service' do
       context 'during offline hours on saturday' do
         before { Timecop.freeze(offline_saturday) }
+
         after { Timecop.return }
+
         it 'indicates the service is unavailable' do
           get v0_backend_status_url('gibs'), params: nil, headers: auth_header
           json = JSON.parse(response.body)
@@ -45,7 +47,9 @@ RSpec.describe 'Backend Status', type: :request do
 
       context 'during online hours on weekday' do
         before { Timecop.freeze(online_weekday) }
+
         after { Timecop.return }
+
         it 'indicates the service is available' do
           get v0_backend_status_url('gibs'), params: nil, headers: auth_header
           json = JSON.parse(response.body)

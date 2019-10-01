@@ -5,6 +5,7 @@ require 'lib/search/shared_examples_for_pagination'
 
 describe Search::Service do
   let(:query) { 'benefits' }
+
   subject { described_class.new(query) }
 
   before do

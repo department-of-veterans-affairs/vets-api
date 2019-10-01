@@ -13,6 +13,7 @@ describe Common::EventRateLimiter do
         'count_ttl' => 604_800
       }
     end
+
     subject { Common::EventRateLimiter.new(config) }
 
     describe '.at_limit?' do
@@ -24,6 +25,7 @@ describe Common::EventRateLimiter do
 
       context 'when the threshold is not exceeded (< 10 in day)' do
         before { 5.times { subject.increment } }
+
         it 'should return false' do
           expect(subject.at_limit?).to be_falsey
         end
@@ -31,6 +33,7 @@ describe Common::EventRateLimiter do
 
       context 'when the threshold is exceeded (> 10 in day)' do
         before { 11.times { subject.increment } }
+
         it 'should return true' do
           expect(subject.at_limit?).to be_truthy
         end
@@ -44,6 +47,7 @@ describe Common::EventRateLimiter do
           Timecop.travel(1.day)
           3.times { subject.increment }
         end
+
         it 'should return false' do
           expect(subject.at_limit?).to be_falsey
         end
@@ -56,6 +60,7 @@ describe Common::EventRateLimiter do
             Timecop.travel(1.day)
           end
         end
+
         it 'should return true' do
           expect(subject.at_limit?).to be_truthy
         end

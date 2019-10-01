@@ -14,6 +14,7 @@ RSpec.describe 'Disability Claims ', type: :request do
       'X-VA-LOA' => '3',
       'X-VA-Gender': 'M' }
   end
+
   describe '#526' do
     let(:data) { File.read(Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'form_526_json_api.json')) }
     let(:path) { '/services/claims/v0/forms/526' }

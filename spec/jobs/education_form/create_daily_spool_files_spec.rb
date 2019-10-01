@@ -14,6 +14,7 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, type: :model, form: :educat
     before do
       allow(Rails.env).to receive('development?').and_return(true)
     end
+
     context 'job only runs on business days', run_at: '2016-12-31 00:00:00 EDT' do
       let(:scheduler) { Rufus::Scheduler.new }
       let(:possible_runs) do
@@ -113,6 +114,7 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, type: :model, form: :educat
   context '#perform' do
     context 'with a mix of valid and invalid record', run_at: '2016-09-16 03:00:00 EDT' do
       let(:spool_files) { Rails.root.join('tmp', 'spool_files', '*') }
+
       before do
         expect(Rails.env).to receive('development?').once { true }
         application_1606.saved_claim.form = {}.to_json
@@ -137,6 +139,7 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, type: :model, form: :educat
       before do
         EducationBenefitsClaim.delete_all
       end
+
       it 'prints a statement and exits', run_at: '2017-02-21 00:00:00 EDT' do
         expect(subject).not_to receive(:write_files)
         expect(subject.logger).to receive(:info).with('No records to process.')
