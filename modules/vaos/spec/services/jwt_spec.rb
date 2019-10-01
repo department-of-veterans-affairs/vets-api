@@ -32,3 +32,4 @@ describe VAOS::JWT do
     end
   end
 end
+
