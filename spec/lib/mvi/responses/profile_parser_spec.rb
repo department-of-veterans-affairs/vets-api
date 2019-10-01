@@ -87,13 +87,13 @@ describe MVI::Responses::ProfileParser do
 
       context 'with no middle name, missing and alternate correlation ids, multiple other_ids' do
         let(:icn_with_aaid) { '1008714701V416111^NI^200M^USVHA' }
-        let(:body) { Ox.parse(File.read('spec/support/mvi/find_candidate_missing_attrs.xml')) }
+        let(:body) { Ox.parse(File.read('spec/support/mvi/find_candidate_missing_attrs_response.xml')) }
         let(:mvi_profile) do
           build(
             :mvi_profile_response,
             :missing_attrs,
             :address_austin,
-            sec_id: nil,
+            sec_id: '1008714701',
             historical_icns: nil,
             mhv_ids: ['1100792239'],
             active_mhv_ids: ['1100792239'],
@@ -102,6 +102,7 @@ describe MVI::Responses::ProfileParser do
               '1008714701V416111^NI^200M^USVHA^P',
               '796122306^PI^200BRLS^USVBA^A',
               '9100792239^PI^200CORP^USVBA^A',
+              '1008714701^PN^200PROV^USDVA^A',
               '1100792239^PI^200MHS^USVHA^A'
             ]
           )
@@ -115,7 +116,7 @@ describe MVI::Responses::ProfileParser do
   end
 
   context 'with no subject element' do
-    let(:body) { Ox.parse(File.read('spec/support/mvi/find_candidate_no_subject.xml')) }
+    let(:body) { Ox.parse(File.read('spec/support/mvi/find_candidate_no_subject_response.xml')) }
     let(:mvi_profile) { build(:mvi_profile_response, :missing_attrs) }
 
     describe '#parse' do
@@ -138,7 +139,7 @@ describe MVI::Responses::ProfileParser do
   end
 
   context 'given a failure response' do
-    let(:body) { Ox.parse(File.read('spec/support/mvi/find_candidate_failure_response.xml')) }
+    let(:body) { Ox.parse(File.read('spec/support/mvi/find_candidate_ar_code_database_error_response.xml')) }
 
     describe '#failed_or_invalid?' do
       it 'should return true' do

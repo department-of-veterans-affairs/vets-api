@@ -126,11 +126,12 @@ RSpec.describe 'Return ICN for a User from MVI', type: :request, skip_emis: true
         }
       end
 
+      let(:body) { File.read('spec/support/mvi/find_candidate_ar_code_database_error_response.xml') }
+
       it 'should respond properly when MVI is down' do
-        VCR.use_cassette('mvi/find_candidate/failure') do
-          get '/internal/auth/v0/mvi-user', params: nil, headers: auth_headers
-          expect(response).to have_http_status(:bad_gateway)
-        end
+        stub_request(:post, Settings.mvi.url).to_return(status: 200, body: body)
+        get '/internal/auth/v0/mvi-user', params: nil, headers: auth_headers
+        expect(response).to have_http_status(:bad_gateway)
       end
     end
   end
@@ -261,11 +262,12 @@ RSpec.describe 'Return ICN for a User from MVI', type: :request, skip_emis: true
         }
       end
 
+      let(:body) { File.read('spec/support/mvi/find_candidate_ar_code_database_error_response.xml') }
+
       it 'should respond properly when MVI is down' do
-        VCR.use_cassette('mvi/find_candidate/failure') do
-          post '/internal/auth/v0/mvi-user', params: JSON.generate(req_body), headers: headers
-          expect(response).to have_http_status(:bad_gateway)
-        end
+        stub_request(:post, Settings.mvi.url).to_return(status: 200, body: body)
+        post '/internal/auth/v0/mvi-user', params: JSON.generate(req_body), headers: headers
+        expect(response).to have_http_status(:bad_gateway)
       end
     end
   end
