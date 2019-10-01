@@ -262,6 +262,7 @@ describe MVI::Service do
 
     context 'when a MVI internal system problem response is returned' do
       let(:body) { File.read('spec/support/mvi/find_candidate_ar_code_database_error_response.xml') }
+
       it 'should raise a invalid request error', :aggregate_failures do
         expect(subject).to receive(:log_message_to_sentry).with(
           'MVI Failed Request', :error
