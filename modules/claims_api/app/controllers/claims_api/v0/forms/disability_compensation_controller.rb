@@ -11,7 +11,6 @@ module ClaimsApi
 
         skip_before_action(:authenticate)
         before_action :validate_json_schema, only: %i[submit_form_526 validate_form_526]
-        before_action :verify_itf, only: %i[submit_form_526]
 
         def submit_form_526
           service = EVSS::DisabilityCompensationForm::ServiceAllClaim.new(auth_headers)
