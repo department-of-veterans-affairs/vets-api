@@ -37,6 +37,7 @@ describe 'bb client' do
 
   context 'with sentry enabled' do
     before { Settings.sentry.dsn = 'asdf' }
+
     after { Settings.sentry.dsn = nil }
 
     it 'logs failed extract statuses', :vcr do

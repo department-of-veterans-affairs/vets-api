@@ -19,7 +19,7 @@ RSpec.describe V0::Facilities::CcpController, type: :controller do
 
   it 'should indicate an invalid parameter' do
     get 'show', params: { id: '12345' }
-    expect(response).to have_http_status(400)
+    expect(response).to have_http_status(:bad_request)
     bod = JSON.parse(response.body)
     expect(bod['errors'].length).to be > 0
     expect(bod['errors'][0]['title']).to eq('Invalid field value')

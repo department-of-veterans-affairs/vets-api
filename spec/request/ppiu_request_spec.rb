@@ -6,6 +6,7 @@ RSpec.describe 'PPIU', type: :request do
   include SchemaMatchers
 
   let(:user) { create(:user, :mhv) }
+
   before(:each) { sign_in(user) }
 
   def self.test_unauthorized(verb)
@@ -89,9 +90,11 @@ RSpec.describe 'PPIU', type: :request do
         before do
           Settings.sentry.dsn = 'asdf'
         end
+
         after do
           Settings.sentry.dsn = nil
         end
+
         it 'should log a message to Sentry' do
           VCR.use_cassette('evss/ppiu/update_payment_information') do
             expect_any_instance_of(User).to receive(:all_emails).and_return([])

@@ -229,6 +229,7 @@ RSpec.describe V1::SessionsController, type: :controller do
 
     describe 'POST saml_logout_callback' do
       let(:logout_relay_state_param) { '{"originating_request_id": "blah"}' }
+
       before { SingleLogoutRequest.create(uuid: logout_uuid, token: token) }
 
       context 'saml_logout_response is invalid' do
@@ -573,6 +574,7 @@ RSpec.describe V1::SessionsController, type: :controller do
 
       context 'when saml response contains multiple errors (known or otherwise)' do
         before { allow(SAML::Responses::Login).to receive(:new).and_return(saml_response_multi_error) }
+
         it 'logs a generic error' do
           expect(controller).to receive(:log_message_to_sentry)
             .with(

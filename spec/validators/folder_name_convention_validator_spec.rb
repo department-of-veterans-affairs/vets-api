@@ -12,6 +12,7 @@ end
 
 describe FolderNameConventionValidator do
   let(:name) { nil }
+
   subject { Validatable.new(name: name) }
 
   context 'without name' do
