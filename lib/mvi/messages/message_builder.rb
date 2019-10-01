@@ -42,7 +42,7 @@ module MVI
       def add_header(message, extension)
         message << element('id', root: '1.2.840.114350.1.13.0.1.7.1.1', extension: "200VGOV-#{SecureRandom.uuid}")
         message << element('creationTime', value: Time.now.utc.strftime('%Y%m%d%H%M%S'))
-        message << element('versionCode', code: '3.0')
+        message << element('versionCode', code: '4.1')
         message << element('interactionId', root: '2.16.840.1.113883.1.6', extension: extension)
         message << element('processingCode', code: processing_code)
         message << element('processingModeCode', code: 'T')

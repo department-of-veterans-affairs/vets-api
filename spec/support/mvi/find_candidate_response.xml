@@ -7,7 +7,7 @@
                            ITSVersion="XML_1.0" xsi:schemaLocation="urn:hl7-org:v3 ../../schema/HL7V3/NE2008/multicacheschemas/PRPA_IN201306UV02.xsd">
       <id extension="WSDOC1609131753362231779394902" root="2.16.840.1.113883.4.349"/>
       <creationTime value="20160913175336"/>
-      <versionCode code="3.0"/>
+      <versionCode code="4.1"/>
       <interactionId extension="PRPA_IN201306UV02" root="2.16.840.1.113883.1.6"/>
       <processingCode code="T"/>
       <processingModeCode code="T"/>
