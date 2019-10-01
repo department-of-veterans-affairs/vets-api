@@ -34,6 +34,7 @@ describe PdfFill::Forms::Va218940 do
           'veteranSocialSecurityNumber' => '123456789'
         }
       end
+
       it 'should expand the ssn correctly' do
         new_form_class.send(:expand_ssn)
         expect(
@@ -58,6 +59,7 @@ describe PdfFill::Forms::Va218940 do
           }
         }
       end
+
       it 'should expand veteran full name correctly' do
         new_form_class.send(:expand_veteran_full_name)
         expect(
@@ -81,6 +83,7 @@ describe PdfFill::Forms::Va218940 do
           'veteranDateOfBirth' => '1981-11-05'
         }
       end
+
       it 'should expand the birth date correctly' do
         new_form_class.send(:expand_veteran_dob)
         expect(
@@ -126,6 +129,7 @@ describe PdfFill::Forms::Va218940 do
           }
         }
       end
+
       it 'should expand veteran address correctly' do
         new_form_class.send(:expand_veteran_address)
         expect(

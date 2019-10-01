@@ -6,6 +6,7 @@ RSpec.describe EVSSClaimService do
   let(:user) { FactoryBot.create(:user, :loa3) }
   let(:client_stub) { instance_double('EVSS::ClaimsService') }
   let(:service) { described_class.new(user) }
+
   subject { service }
 
   context 'when EVSS client times out' do
@@ -83,6 +84,7 @@ RSpec.describe EVSSClaimService do
 
     describe '#update_from_remote' do
       let(:claim) { FactoryBot.build(:evss_claim, user_uuid: user.uuid) }
+
       subject do
         service.update_from_remote(claim)
       end

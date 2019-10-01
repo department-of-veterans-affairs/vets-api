@@ -4,6 +4,7 @@ require 'rails_helper'
 
 RSpec.describe 'routes for Address', type: :routing do
   before(:all) { @cached_enabled_val = Settings.evss.reference_data_service.enabled }
+
   after(:all) do
     # leave the routes in the expected state for future specs
     Settings.evss.reference_data_service.enabled = @cached_enabled_val

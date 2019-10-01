@@ -5,7 +5,9 @@ require 'facilities/bulk_json_client'
 
 RSpec.describe Facilities::VHAFacility do
   before(:each) { BaseFacility.validate_on_load = false }
+
   after(:each) { BaseFacility.validate_on_load = true }
+
   it 'should be a Facilities::VHAFacility object' do
     expect(described_class.new).to be_a(Facilities::VHAFacility)
   end
@@ -23,6 +25,7 @@ RSpec.describe Facilities::VHAFacility do
       let(:facilities) { Facilities::VHAFacility.pull_source_data }
       let(:facility) { facilities.first }
       let(:facility_2) { facilities.second }
+
       it 'should parse hours correctly' do
         VCR.use_cassette('facilities/va/vha_facilities_limit_results') do
           expect(facility.hours.values).to match_array(

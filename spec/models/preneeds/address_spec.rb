@@ -35,6 +35,7 @@ RSpec.describe Preneeds::Address do
 
   context 'with foreign address' do
     let(:params) { attributes_for :foreign_address }
+
     it 'treats nil state as empty string' do
       expect(subject.as_eoas[:state]).to eq('')
     end
