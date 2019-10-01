@@ -73,13 +73,6 @@ RSpec/ExampleWithoutDescription:
 RSpec/ExampleWording:
   Enabled: false
 
-# Offense count: 22
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle.
-# SupportedStyles: method_call, block
-# RSpec/ExpectChange:
-#   Enabled: false
-
 # Offense count: 82
 RSpec/ExpectInHook:
   Enabled: false
@@ -112,13 +105,6 @@ RSpec/HooksBeforeExamples:
 # Configuration parameters: AssignmentOnly.
 RSpec/InstanceVariable:
   Enabled: false
-
-# Offense count: 19
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle.
-# SupportedStyles: it_behaves_like, it_should_behave_like
-# RSpec/ItBehavesLike:
-#   Enabled: false
 
 # Offense count: 1
 RSpec/IteratedExpectation:
@@ -193,24 +179,10 @@ RSpec/NamedSubject:
 RSpec/NestedGroups:
   Max: 7
 
-# Offense count: 147
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle.
-# SupportedStyles: not_to, to_not
-# RSpec/NotToNot:
-#   Enabled: false
-
 # Offense count: 1
 RSpec/OverwritingSetup:
   Exclude:
     - 'spec/request/swagger_spec.rb'
-
-# Offense count: 155
-# Cop supports --auto-correct.
-# Configuration parameters: Strict, EnforcedStyle.
-# SupportedStyles: inflected, explicit
-RSpec/PredicateMatcher:
-  Enabled: false
 
 # Offense count: 9
 # Cop supports --auto-correct.
