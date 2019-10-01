@@ -11,7 +11,7 @@ module ValidatePdf
 
   def convert_to_temp_file(file)
     temp_file = file.tempfile
-    return unless temp_file.readpartial(4) == '%PDF'
+    return unless File.extname(temp_file) == '.pdf'
 
     temp_file
   end
