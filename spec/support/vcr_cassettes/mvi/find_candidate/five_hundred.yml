@@ -7,65 +7,36 @@ http_interactions:
       encoding: UTF-8
       string: "<nobeuno></nobeuno>"
     headers:
-      User-Agent:
-      - Faraday v0.9.2
-      Date:
-      - Fri, 28 Oct 2016 15:32:13 GMT
-      Content-Length:
-      - '19'
+      Accept:
+      - text/xml;charset=UTF-8
       Content-Type:
       - text/xml;charset=UTF-8
+      User-Agent:
+      - Vets.gov Agent
       Soapaction:
       - PRPA_IN201305UV02
+      Date:
+      - Wed, 14 Aug 2019 19:01:58 GMT
+      Content-Length:
+      - '19'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
   response:
     status:
       code: 500
       message: Internal Server Error
     headers:
+      Content-Type:
+      - text/xml
+      X-Backside-Transport:
+      - FAIL FAIL
       Connection:
       - close
-      Date:
-      - Fri, 28 Oct 2016 15:12:01 GMT
-      Content-Length:
-      - '2408'
-      Content-Type:
-      - text/html; charset=UTF-8
-      Set-Cookie:
-      - JSESSIONID=JhcBYTqBYK0phpyLklgpX2kKLxy7ykyhN1J0ptJGq50y2byqKSTh!1604350384;
-        path=/; HttpOnly
-      X-Powered-By:
-      - Servlet/2.5 JSP/2.1
     body:
       encoding: UTF-8
-      string: "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0 Draft//EN\">\n<HTML>\n<HEAD>\n<TITLE>Error
-        500--Internal Server Error</TITLE>\n</HEAD>\n<BODY bgcolor=\"white\">\n<FONT
-        FACE=Helvetica><BR CLEAR=all>\n<TABLE border=0 cellspacing=5><TR><TD><BR CLEAR=all>\n<FONT
-        FACE=\"Helvetica\" COLOR=\"black\" SIZE=\"3\"><H2>Error 500--Internal Server
-        Error</H2>\n</FONT></TD></TR>\n</TABLE>\n<TABLE border=0 width=100% cellpadding=10><TR><TD
-        VALIGN=top WIDTH=100% BGCOLOR=white><FONT FACE=\"Courier New\"><pre>java.lang.NullPointerException\n\tat
-        weblogic.webservice.server.Dispatcher.getOperation(Dispatcher.java:293)\n\tat
-        weblogic.webservice.server.Dispatcher.doDispatch(Dispatcher.java:156)\n\tat
-        weblogic.webservice.server.Dispatcher.dispatch(Dispatcher.java:97)\n\tat weblogic.webservice.server.WebServiceManager.dispatch(WebServiceManager.java:101)\n\tat
-        weblogic.webservice.server.servlet.WebServiceServlet.serverSideInvoke(WebServiceServlet.java:321)\n\tat
-        weblogic.webservice.server.servlet.ServletBase.doPost(ServletBase.java:454)\n\tat
-        weblogic.webservice.server.servlet.WebServiceServlet.doPost(WebServiceServlet.java:292)\n\tat
-        javax.servlet.http.HttpServlet.service(HttpServlet.java:727)\n\tat javax.servlet.http.HttpServlet.service(HttpServlet.java:820)\n\tat
-        weblogic.servlet.internal.StubSecurityHelper$ServletServiceAction.run(StubSecurityHelper.java:227)\n\tat
-        weblogic.servlet.internal.StubSecurityHelper.invokeServlet(StubSecurityHelper.java:125)\n\tat
-        weblogic.servlet.internal.ServletStubImpl.execute(ServletStubImpl.java:301)\n\tat
-        weblogic.servlet.internal.ServletStubImpl.execute(ServletStubImpl.java:184)\n\tat
-        weblogic.servlet.internal.WebAppServletContext$ServletInvocationAction.wrapRun(WebAppServletContext.java:3729)\n\tat
-        weblogic.servlet.internal.WebAppServletContext$ServletInvocationAction.run(WebAppServletContext.java:3696)\n\tat
-        weblogic.security.acl.internal.AuthenticatedSubject.doAs(AuthenticatedSubject.java:321)\n\tat
-        weblogic.security.service.SecurityManager.runAs(SecurityManager.java:120)\n\tat
-        weblogic.servlet.internal.WebAppServletContext.securedExecute(WebAppServletContext.java:2273)\n\tat
-        weblogic.servlet.internal.WebAppServletContext.execute(WebAppServletContext.java:2179)\n\tat
-        weblogic.servlet.internal.ServletRequestImpl.run(ServletRequestImpl.java:1490)\n\tat
-        weblogic.work.ExecuteThread.execute(ExecuteThread.java:256)\n\tat weblogic.work.ExecuteThread.run(ExecuteThread.java:221)\n</pre></FONT></TD></TR>\n</TABLE>\n\n</BODY>\n</HTML>\n"
+      string: |-
+        <?xml version="1.0" encoding="UTF-8"?>
+        <env:Envelope xmlns:env="http://schemas.xmlsoap.org/soap/envelope/"><env:Body><env:Fault><faultcode>DP:0x00d30002</faultcode><faultstring>Rejected.</faultstring><datapower-details><service>WebProxy-MPGW</service><transaction>123578288</transaction><operation>/psim_webservice/dev/IdMWebService</operation><result status="ERROR"><message>https://10.245.155.8:9193/psim_webservice/dev/IdMWebService:1: cvc-wildcard 2: unrecognized element nobeuno</message><details>Client Subject CN: /C=US/ST=DC/L=Washington/O=Department of Veterans' Affairs/OU=VACO IT/CN=mvi-int.vets.gov/emailAddress=vetsgov-devops@listserv.gsa.gov is not Authorized to access the Service API..</details></result></datapower-details></env:Fault></env:Body></env:Envelope>
     http_version: 
-  recorded_at: Fri, 28 Oct 2016 15:32:13 GMT
+  recorded_at: Wed, 14 Aug 2019 19:01:59 GMT
 recorded_with: VCR 3.0.3
