@@ -300,7 +300,7 @@ RSpec.describe ApplicationController, type: :controller do
       context 'with valid session and user' do
         it 'returns success' do
           get :test_authentication
-          expect(response).to have_http_status(200)
+          expect(response).to have_http_status(:ok)
         end
 
         it 'appends user uuid to payload' do
@@ -322,7 +322,7 @@ RSpec.describe ApplicationController, type: :controller do
 
           it 'returns success' do
             get :test_authentication
-            expect(response).to have_http_status(200)
+            expect(response).to have_http_status(:ok)
           end
         end
 
@@ -362,7 +362,7 @@ RSpec.describe ApplicationController, type: :controller do
 
           it 'returns success' do
             get :test_authentication
-            expect(response).to have_http_status(200)
+            expect(response).to have_http_status(:ok)
           end
         end
       end

@@ -136,7 +136,7 @@ RSpec.describe 'prescriptions', type: :request do
             put '/v0/prescriptions/preferences', params: params
           end
 
-          expect(response).to have_http_status(200)
+          expect(response).to have_http_status(:ok)
           expect(JSON.parse(response.body)['data']['id'])
             .to eq('59623c5f11b874409315b05a254a7ace5f6a1b12a21334f7b3ceebe1f1854948')
           expect(JSON.parse(response.body)['data']['attributes'])

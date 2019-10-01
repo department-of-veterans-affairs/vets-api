@@ -113,7 +113,7 @@ RSpec.describe 'Folders Integration', type: :request do
         end
 
         expect(response).to be_successful
-        expect(response).to have_http_status(200)
+        expect(response).to have_http_status(:ok)
         expect(response).to match_response_schema('messages')
       end
     end
