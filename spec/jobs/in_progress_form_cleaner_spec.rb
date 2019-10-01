@@ -32,7 +32,7 @@ RSpec.describe InProgressFormCleaner do
 
       it 'does not delete the record' do
         expect { subject.perform }.to change(InProgressForm, :count).by(0)
-        expect { @form526_active.reload }.to_not raise_exception
+        expect { @form526_active.reload }.not_to raise_exception
       end
     end
 

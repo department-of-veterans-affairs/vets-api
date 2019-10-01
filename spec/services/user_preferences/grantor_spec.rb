@@ -117,7 +117,7 @@ RSpec.describe UserPreferences::Grantor do
         set_user_preferences.execute!
 
         expect(user.account.user_preferences.count).to eq 4
-        expect(existing_user_preference_ids).to_not match_array UserPreference.pluck(:id)
+        expect(existing_user_preference_ids).not_to match_array UserPreference.pluck(:id)
       end
 
       it 'returns the Preference and PreferenceChoices that were associated in the new UserPreferences', :aggregate_failures do

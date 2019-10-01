@@ -197,8 +197,8 @@ RSpec/NestedGroups:
 # Cop supports --auto-correct.
 # Configuration parameters: EnforcedStyle.
 # SupportedStyles: not_to, to_not
-RSpec/NotToNot:
-  Enabled: false
+# RSpec/NotToNot:
+#   Enabled: false
 
 # Offense count: 1
 RSpec/OverwritingSetup:
