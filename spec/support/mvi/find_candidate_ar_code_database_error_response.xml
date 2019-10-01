@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <!--
   This is an 'AR' failure response from MVI.
   An 'AR' response indicates that something is wrong with the MVI service (system down, internal error, etc.)
@@ -5,7 +6,6 @@
   A VCR cassette cannot be generated because
   'AR' responses occur due to issues unrelated to how a request is constructed.
 -->
-<?xml version="1.0" encoding="UTF-8"?>
 <env:Envelope xmlns:env="http://schemas.xmlsoap.org/soap/envelope/" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <env:Header/>
   <env:Body>
