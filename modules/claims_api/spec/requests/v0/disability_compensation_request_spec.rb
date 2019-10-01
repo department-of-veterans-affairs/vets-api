@@ -44,15 +44,6 @@ RSpec.describe 'Disability Claims ', type: :request do
       end
     end
 
-    it 'should return an unsuccessful response with an error message' do
-      VCR.use_cassette('evss/intent_to_file/active_compensation') do
-        post path, params: data, headers: headers
-        parsed = JSON.parse(response.body)
-        expect(response.status).to eq(422)
-        expect(parsed['errors'].first['details']).to eq('Intent to File Expiration Date not valid, resubmit ITF.')
-      end
-    end
-
     it 'should create the sidekick job' do
       VCR.use_cassette('evss/intent_to_file/active_compensation_future_date') do
         klass = EVSS::DisabilityCompensationForm::ServiceAllClaim

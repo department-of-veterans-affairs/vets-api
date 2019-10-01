@@ -1,15 +1,12 @@
 # frozen_string_literal: true
 
 require_dependency 'claims_api/base_disability_compensation_controller'
-require_dependency 'claims_api/concerns/itf_verification'
 require 'jsonapi/parser'
 
 module ClaimsApi
   module V0
     module Forms
       class DisabilityCompensationController < BaseDisabilityCompensationController
-        include ClaimsApi::ItfVerification
-
         FORM_NUMBER = '526'
 
         skip_before_action(:authenticate)
