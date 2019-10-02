@@ -17,7 +17,7 @@ RSpec.describe Facilities::VHAFacility do
     create :thirty_mins
     create :sixty_mins
 
-    bands = VHAFacility.first.drivetime_bands
+    bands = Facilities::VHAFacility.first.drivetime_bands
 
     expect(bands.length).to eq(2)
   end
