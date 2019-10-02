@@ -36,7 +36,7 @@ module Facilities
           'website' => 'Website_URL',
           'phone' => { 'main' => 'Phone', 'fax' => 'Fax' },
           'physical' => { 'address_1' => 'Address_1', 'address_2' => 'Address_2',
-                          'address_3' => '', 'city' => 'City', 'state' => 'State',
+                          'address_3' => '', 'city' => 'CITY', 'state' => 'STATE',
                           'zip' => 'Zip' },
           'hours' => BaseFacility::HOURS_STANDARD_MAP,
           'benefits' => benefits_services,
@@ -66,7 +66,7 @@ module Facilities
 
       def mapped_fields_list
         %w[Facility_Number Facility_Name Facility_Type Website_URL Lat Long Other_Services
-           Address_1 Address_2 City State Zip Phone Fax Monday Tuesday Wednesday Thursday
+           Address_1 Address_2 CITY STATE Zip Phone Fax Monday Tuesday Wednesday Thursday
            Friday Saturday Sunday Applying_for_Benefits Burial_Claim_assistance
            Disability_Claim_assistance eBenefits_Registration Education_and_Career_Counseling
            Education_Claim_Assistance Family_Member_Claim_Assistance Homeless_Assistance
