@@ -19,6 +19,7 @@ RSpec.describe 'Return ICN for a User from MVI', type: :request, skip_emis: true
           'x-va-user-email' => 'test@123.com'
         }
       end
+
       it 'should return the icn data for a user' do
         VCR.use_cassette('mvi/find_candidate/valid_icn_full') do
           get '/internal/auth/v0/mvi-user', params: nil, headers: auth_headers
@@ -124,11 +125,13 @@ RSpec.describe 'Return ICN for a User from MVI', type: :request, skip_emis: true
           'x-va-last-name' => 'Paget'
         }
       end
+
+      let(:body) { File.read('spec/support/mvi/find_candidate_ar_code_database_error_response.xml') }
+
       it 'should respond properly when MVI is down' do
-        VCR.use_cassette('mvi/find_candidate/failure') do
-          get '/internal/auth/v0/mvi-user', params: nil, headers: auth_headers
-          expect(response).to have_http_status(:bad_gateway)
-        end
+        stub_request(:post, Settings.mvi.url).to_return(status: 200, body: body)
+        get '/internal/auth/v0/mvi-user', params: nil, headers: auth_headers
+        expect(response).to have_http_status(:bad_gateway)
       end
     end
   end
@@ -155,6 +158,7 @@ RSpec.describe 'Return ICN for a User from MVI', type: :request, skip_emis: true
           'user_email' => 'test@123.com'
         }
       end
+
       it 'should return the icn data for a user' do
         VCR.use_cassette('mvi/find_candidate/valid_icn_full') do
           post '/internal/auth/v0/mvi-user', params: JSON.generate(req_body), headers: headers
@@ -257,11 +261,13 @@ RSpec.describe 'Return ICN for a User from MVI', type: :request, skip_emis: true
           'last_name' => 'Paget'
         }
       end
+
+      let(:body) { File.read('spec/support/mvi/find_candidate_ar_code_database_error_response.xml') }
+
       it 'should respond properly when MVI is down' do
-        VCR.use_cassette('mvi/find_candidate/failure') do
-          post '/internal/auth/v0/mvi-user', params: JSON.generate(req_body), headers: headers
-          expect(response).to have_http_status(:bad_gateway)
-        end
+        stub_request(:post, Settings.mvi.url).to_return(status: 200, body: body)
+        post '/internal/auth/v0/mvi-user', params: JSON.generate(req_body), headers: headers
+        expect(response).to have_http_status(:bad_gateway)
       end
     end
   end

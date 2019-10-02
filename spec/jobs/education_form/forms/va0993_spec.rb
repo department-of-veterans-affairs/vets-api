@@ -13,6 +13,7 @@ RSpec.describe EducationForm::Forms::VA0993 do
 
   context '#direct_deposit_type' do
     let(:education_benefits_claim) { create(:va0993).education_benefits_claim }
+
     it 'converts internal keys to text' do
       expect(subject.direct_deposit_type('startUpdate')).to eq('Start or Update')
       expect(subject.direct_deposit_type('stop')).to eq('Stop')

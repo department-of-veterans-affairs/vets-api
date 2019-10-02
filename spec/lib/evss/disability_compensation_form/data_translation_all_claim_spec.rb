@@ -37,6 +37,7 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
   describe '#overflow_text' do
     context 'when the form has a 4142 and the vet is terminally ill' do
       subject { described_class.new(user, form_content, true) }
+
       let(:form_content) do
         {
           'form526' => {
@@ -174,6 +175,7 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
 
     context 'when provided military retired data' do
       let(:form_content) { { 'form526' => { 'militaryRetiredPayBranch' => 'Air Force' } } }
+
       it 'should translate the data correctly' do
         expect(subject.send(:translate_service_pay)).to eq 'servicePay' => {
           'militaryRetiredPay' => {
