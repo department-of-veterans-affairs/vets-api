@@ -97,7 +97,7 @@ RSpec.describe 'Account creation and upgrade', type: :request do
                                               message: V0::MhvAccountsController::UPGRADE_ERROR
   end
 
-  shared_context 'a successful POST #create' do
+  shared_examples 'a successful POST #create' do
     it 'creates' do
       VCR.use_cassette('mhv_account_creation/creates_an_account') do
         post v0_mhv_account_path
@@ -111,7 +111,7 @@ RSpec.describe 'Account creation and upgrade', type: :request do
     end
   end
 
-  shared_context 'a successful POST #upgrade' do
+  shared_examples 'a successful POST #upgrade' do
     it 'upgrades' do
       VCR.use_cassette('mhv_account_creation/upgrades_an_account') do
         post '/v0/mhv_account/upgrade'
@@ -125,7 +125,7 @@ RSpec.describe 'Account creation and upgrade', type: :request do
     end
   end
 
-  shared_context 'an unsuccessful POST #create' do
+  shared_examples 'an unsuccessful POST #create' do
     it 'fails to create' do
       VCR.use_cassette('mhv_account_creation/account_creation_unknown_error') do
         post v0_mhv_account_path
@@ -136,7 +136,7 @@ RSpec.describe 'Account creation and upgrade', type: :request do
     end
   end
 
-  shared_context 'an unsuccessful POST #upgrade' do
+  shared_examples 'an unsuccessful POST #upgrade' do
     it 'fails to upgrade' do
       VCR.use_cassette('mhv_account_creation/account_creation_unknown_error') do
         post '/v0/mhv_account/upgrade'
