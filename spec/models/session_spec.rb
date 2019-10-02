@@ -4,6 +4,7 @@ require 'rails_helper'
 
 RSpec.describe Session, type: :model do
   let(:attributes) { { uuid: 'abcd-1234' } }
+
   subject { described_class.new(attributes) }
 
   context 'session without attributes' do

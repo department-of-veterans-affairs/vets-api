@@ -81,6 +81,7 @@ RSpec.describe CentralMail::SubmitForm4142Job, type: :job do
                                form_json: missing_postalcode_form_json,
                                submitted_claim_id: evss_claim_id)
     end
+
     context 'with a client error' do
       it 'raises a central mail response error' do
         VCR.use_cassette('central_mail/submit_4142_400') do

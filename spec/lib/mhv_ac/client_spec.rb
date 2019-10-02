@@ -38,6 +38,7 @@ describe 'mhv account creation' do
     }
   end
   let(:time) { Time.parse('Tue, 09 May 2017 00:00:00 GMT').utc }
+
   it 'fetches a list of states', :vcr do
     client_response = client.get_states
     expect(client_response).to be_a(Hash)

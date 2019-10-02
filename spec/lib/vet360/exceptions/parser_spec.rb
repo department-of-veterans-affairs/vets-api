@@ -21,6 +21,7 @@ describe Vet360::Exceptions::Parser do
   describe '#known?' do
     let(:known_key) { 'VET360_ADDR133' }
     let(:unknown_key) { 'VET360_some_key' }
+
     subject { described_class.instance }
 
     it 'returns true if the passed Vet360 exception key is present in the exception_keys' do

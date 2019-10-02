@@ -140,6 +140,7 @@ describe Preneeds::Service do
 
     context 'with foreign address' do
       let(:burial_form_foreign_address) { build(:burial_form_foreign_address) }
+
       it 'includes the <state> attribute in the request XML' do
         client = Savon.client(wsdl: Settings.preneeds.wsdl)
         soap = client.build_request(

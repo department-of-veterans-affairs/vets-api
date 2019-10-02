@@ -80,7 +80,9 @@ RSpec.describe 'Education Benefits Claims Integration', type: %i[request seriali
           educationBenefitsClaim: { form: nil }
         }
       end
+
       before { Settings.sentry.dsn = 'asdf' }
+
       after { Settings.sentry.dsn = nil }
 
       it 'should render json of the errors' do

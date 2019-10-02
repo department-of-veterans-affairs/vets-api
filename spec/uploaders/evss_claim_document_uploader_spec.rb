@@ -18,6 +18,7 @@ RSpec.describe EVSSClaimDocumentUploader do
 
     document_uploader
   end
+
   subject { document_uploader }
 
   describe 'initialize' do
