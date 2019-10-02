@@ -106,7 +106,7 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, type: :model, form: :educat
       end
 
       it 'contains only windows-style newlines' do
-        expect(subject).to_not match(/([^\r]\n)/)
+        expect(subject).not_to match(/([^\r]\n)/)
       end
     end
   end

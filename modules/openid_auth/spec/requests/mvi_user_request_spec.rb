@@ -84,7 +84,7 @@ RSpec.describe 'Return ICN for a User from MVI', type: :request, skip_emis: true
           expect(response).to have_http_status(:ok)
           expect(response.body).to be_a(String)
           expect(JSON.parse(response.body)['data']['attributes'].keys).to eq(%w[icn first_name last_name])
-          expect(JSON.parse(response.body)['data']['attributes']['icn']).to_not eq(nil)
+          expect(JSON.parse(response.body)['data']['attributes']['icn']).not_to eq(nil)
         end
       end
 
@@ -221,7 +221,7 @@ RSpec.describe 'Return ICN for a User from MVI', type: :request, skip_emis: true
           expect(response).to have_http_status(:ok)
           expect(response.body).to be_a(String)
           expect(JSON.parse(response.body)['data']['attributes'].keys).to eq(%w[icn first_name last_name])
-          expect(JSON.parse(response.body)['data']['attributes']['icn']).to_not eq(nil)
+          expect(JSON.parse(response.body)['data']['attributes']['icn']).not_to eq(nil)
         end
       end
 

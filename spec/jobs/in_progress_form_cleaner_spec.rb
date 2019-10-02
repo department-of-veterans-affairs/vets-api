@@ -18,7 +18,7 @@ RSpec.describe InProgressFormCleaner do
       end
 
       it 'deletes old records' do
-        expect { subject.perform }.to change { InProgressForm.count }.by(-1)
+        expect { subject.perform }.to change(InProgressForm, :count).by(-1)
         expect { @form_expired.reload }.to raise_exception(ActiveRecord::RecordNotFound)
       end
     end
@@ -31,8 +31,8 @@ RSpec.describe InProgressFormCleaner do
       end
 
       it 'does not delete the record' do
-        expect { subject.perform }.to change { InProgressForm.count }.by(0)
-        expect { @form526_active.reload }.to_not raise_exception
+        expect { subject.perform }.to change(InProgressForm, :count).by(0)
+        expect { @form526_active.reload }.not_to raise_exception
       end
     end
 
@@ -44,7 +44,7 @@ RSpec.describe InProgressFormCleaner do
       end
 
       it 'deletes the record' do
-        expect { subject.perform }.to change { InProgressForm.count }.by(-1)
+        expect { subject.perform }.to change(InProgressForm, :count).by(-1)
         expect { @form526_expired.reload }.to raise_exception(ActiveRecord::RecordNotFound)
       end
     end

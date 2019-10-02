@@ -8,7 +8,7 @@ RSpec.describe SavedClaim::Pension, uploader_helpers: true do
 
   let(:instance) { FactoryBot.build(:pension_claim) }
 
-  it_should_behave_like 'saved_claim_with_confirmation_number'
+  it_behaves_like 'saved_claim_with_confirmation_number'
 
   context 'saved claims w/ attachments' do
     stub_virus_scan
@@ -59,7 +59,7 @@ RSpec.describe SavedClaim::Pension, uploader_helpers: true do
     describe '#destroy' do
       it 'also destroys the persistent_attachments' do
         claim.process_attachments!
-        expect { claim.destroy }.to change { PersistentAttachment.count }.by(-2)
+        expect { claim.destroy }.to change(PersistentAttachment, :count).by(-2)
       end
     end
   end

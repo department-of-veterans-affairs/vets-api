@@ -171,7 +171,7 @@ RSpec.describe OpenidApplicationController, type: :controller do
           request.headers['Authorization'] = 'Bearer FakeToken'
           get :index
           expect(response).to be_ok
-          expect(Session.find('FakeToken')).to_not be_nil
+          expect(Session.find('FakeToken')).not_to be_nil
           expect(JSON.parse(response.body)['user']).to eq('vets.gov.user+20@gmail.com')
         end
       end
@@ -201,7 +201,7 @@ RSpec.describe OpenidApplicationController, type: :controller do
           request.headers['Authorization'] = 'Bearer FakeToken'
           get :index
           expect(response).to be_ok
-          expect(Session.find('FakeToken')).to_not be_nil
+          expect(Session.find('FakeToken')).not_to be_nil
           expect(JSON.parse(response.body)['user']).to eq('mhvzack_0@example.com')
           expect(JSON.parse(response.body)['icn']).to eq('10000012345V123457')
           expect(JSON.parse(response.body)['last_name']).to eq('zackariah')
@@ -233,7 +233,7 @@ RSpec.describe OpenidApplicationController, type: :controller do
           request.headers['Authorization'] = 'Bearer FakeToken'
           get :index
           expect(response).to be_ok
-          expect(Session.find('FakeToken')).to_not be_nil
+          expect(Session.find('FakeToken')).not_to be_nil
           expect(JSON.parse(response.body)['user']).to eq('dslogon10923109@example.com')
           expect(JSON.parse(response.body)['icn']).to eq('10000012345V123456')
           expect(JSON.parse(response.body)['last_name']).to eq('WEAVER')
@@ -265,7 +265,7 @@ RSpec.describe OpenidApplicationController, type: :controller do
           request.headers['Authorization'] = 'Bearer FakeToken'
           get :index
           expect(response).to be_ok
-          expect(Session.find('FakeToken')).to_not be_nil
+          expect(Session.find('FakeToken')).not_to be_nil
           expect(JSON.parse(response.body)['user']).to eq('vets.gov.user+20@gmail.com')
           expect(JSON.parse(response.body)['icn']).to eq('10000012345V123458')
           expect(JSON.parse(response.body)['last_name']).to eq('CARROLL')
