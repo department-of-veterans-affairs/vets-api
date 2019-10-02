@@ -25,9 +25,10 @@ end
 # Modify Flipper::UI::Configuration to accept a custom view path.
 Flipper::UI::Configuration.prepend(FlipperExtensions::ConfigurationPatch)
 
-# Labeling what flipper calls "actors" as "users" in the UI
 Flipper::UI.configure do |config|
   config.custom_views_path = Rails.root.join('lib', 'flipper', 'views')
+
+  # Labeling what flipper calls "actors" as "users" in the UI
   config.percentage_of_actors.title = 'Percentage of Logged in Users'
   config.percentage_of_actors.description = %(Percentage of users functions independently of percentage of time.
     If you enable 50% of Actors and 25% of Time then the feature will always be enabled for 50% of users and
