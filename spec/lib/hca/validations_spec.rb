@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 
-require 'spec_helper'
 require 'hca/validations'
 
 frozen_time = '2017-01-04 03:00:00 EDT'
@@ -75,7 +74,7 @@ describe HCA::Validations, run_at: frozen_time do
       [111_111_111, ''],
       ['000111111', ''],
       %w[210438765 210438765],
-      ['210-43-8765', '210438765'],
+      %w[210-43-8765 210438765],
       ['1112233334444', '']
     ]
   )

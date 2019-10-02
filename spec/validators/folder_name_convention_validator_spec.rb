@@ -12,6 +12,7 @@ end
 
 describe FolderNameConventionValidator do
   let(:name) { nil }
+
   subject { Validatable.new(name: name) }
 
   context 'without name' do
@@ -40,7 +41,7 @@ describe FolderNameConventionValidator do
     let(:name) { '' }
 
     it 'is invalid' do
-      expect(subject).to_not be_valid
+      expect(subject).not_to be_valid
     end
   end
 
@@ -48,7 +49,7 @@ describe FolderNameConventionValidator do
     let(:name) { 'abcde 123 !&^@#abc' }
 
     it 'is invalid' do
-      expect(subject).to_not be_valid
+      expect(subject).not_to be_valid
     end
   end
 
@@ -56,7 +57,7 @@ describe FolderNameConventionValidator do
     let(:name) { "abcd \t asds" }
 
     it 'is invalid' do
-      expect(subject).to_not be_valid
+      expect(subject).not_to be_valid
     end
   end
 
@@ -64,7 +65,7 @@ describe FolderNameConventionValidator do
     let(:name) { "abcd \n abcd" }
 
     it 'is invalid' do
-      expect(subject).to_not be_valid
+      expect(subject).not_to be_valid
     end
   end
 end

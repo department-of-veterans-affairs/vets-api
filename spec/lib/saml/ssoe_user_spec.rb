@@ -7,10 +7,9 @@ RSpec.describe SAML::User do
   include SAML::ResponseBuilder
 
   describe 'SSOe' do
-    # TODO: change if necessary
-    let(:authn_context) { 'ssoe' }
+    let(:authn_context) { 'urn:oasis:names:tc:SAML:2.0:ac:classes:Password' }
     let(:account_type)  { '1' }
-    let(:highest_attained_loa) { '3' }
+    let(:highest_attained_loa) { '1' }
 
     let(:saml_response) do
       build_saml_response(
@@ -20,6 +19,7 @@ RSpec.describe SAML::User do
         multifactor: [false]
       )
     end
+
     subject { described_class.new(saml_response) }
 
     context 'LOA1 user' do
@@ -38,14 +38,14 @@ RSpec.describe SAML::User do
           uuid: '0e1bb5723d7c4f0686f46ca4505642ad',
           email: 'kam+tristanmhv@adhocteam.us',
           multifactor: false,
-          loa: { current: 1, highest: 3 },
-          sign_in: { service_name: 'ssoe', account_type: '3' },
-          authn_context: 'ssoe'
+          loa: { current: 1, highest: 1 },
+          sign_in: { service_name: 'ssoe', account_type: '1' },
+          authn_context: 'urn:oasis:names:tc:SAML:2.0:ac:classes:Password'
         )
       end
 
       it 'is not changing multifactor' do
-        expect(subject.changing_multifactor?).to be_falsey
+        expect(subject).not_to be_changing_multifactor
       end
     end
 
@@ -71,12 +71,12 @@ RSpec.describe SAML::User do
           # TODO: validate when/how this attribute is being used
           sign_in: { service_name: 'ssoe', account_type: '3' },
           multifactor: false,
-          authn_context: 'ssoe'
+          authn_context: 'urn:oasis:names:tc:SAML:2.0:ac:classes:Password'
         )
       end
 
       it 'is not changing multifactor' do
-        expect(subject.changing_multifactor?).to be_falsey
+        expect(subject).not_to be_changing_multifactor
       end
     end
   end

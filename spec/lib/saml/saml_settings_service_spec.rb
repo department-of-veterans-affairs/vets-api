@@ -26,12 +26,14 @@ RSpec.describe SAML::SettingsService do
           .to eq('urn:oasis:names:tc:SAML:2.0:nameid-format:persistent')
       end
     end
+
     context 'with metadata 500 responses' do
       before do
         stub_request(:get, Settings.saml.metadata_url).to_return(
           status: 500, body: 'bad news bears'
         )
       end
+
       it 'should log three attempts' do
         expect(Rails.logger).to receive(:warn).exactly(2).times.with(/Failed to load SAML metadata: 500: try \d of 3/)
         expect(Rails.logger).to receive(:error).exactly(1).times.with(/Failed to load SAML metadata: 500: try \d of 3/)
@@ -44,6 +46,7 @@ RSpec.describe SAML::SettingsService do
         expect(a_request(:get, Settings.saml.metadata_url)).to have_been_made.times(9)
       end
     end
+
     context 'when a parsing error occurs' do
       it 'should log and reraise the error' do
         stub_request(:get, Settings.saml.metadata_url).to_return(status: 200, body: '<xml></')

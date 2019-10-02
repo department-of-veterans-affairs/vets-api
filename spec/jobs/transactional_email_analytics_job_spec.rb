@@ -56,18 +56,21 @@ RSpec.describe TransactionalEmailAnalyticsJob, type: :job do
         @emails = subject.instance_variable_get(:@all_emails)
       end
     end
+
     context 'last email created_at > time-range start time and 50 emails in collection' do
       it 'should return false' do
         @emails.collection.last.attributes[:created_at] = 1440.minutes.ago.to_s
         expect(subject.send(:we_should_break?)).to be false
       end
     end
+
     context 'last email created_at < time-range start time' do
       it 'should return true' do
         @emails.collection.last.attributes[:created_at] = 25.hours.ago.to_s
         expect(subject.send(:we_should_break?)).to be true
       end
     end
+
     context 'less than 50 emails were returned by govdelivery' do
       it 'should return true' do
         @emails.collection.delete_at(0)

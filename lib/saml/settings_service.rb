@@ -26,6 +26,7 @@ module SAML
 
           options.each do |option, value|
             next if value.nil?
+
             settings.send("#{option}=", value)
           end
 
@@ -47,6 +48,7 @@ module SAML
       def merged_saml_settings
         metadata = get_metadata
         return nil if metadata.nil?
+
         begin
           merged_settings = OneLogin::RubySaml::IdpMetadataParser.new.parse(metadata, settings: settings)
           merged_settings.name_identifier_format = 'urn:oasis:names:tc:SAML:2.0:nameid-format:persistent'
@@ -79,8 +81,9 @@ module SAML
         attempt ||= 0
         response = connection.get
         raise SAML::InternalServerError, response.status if (400..504).cover? response.status.to_i
+
         response.body
-      rescue StandardError => e
+      rescue => e
         attempt += 1
         msg = "Failed to load SAML metadata: #{e.message}: try #{attempt} of #{METADATA_RETRIES}"
         if attempt < METADATA_RETRIES

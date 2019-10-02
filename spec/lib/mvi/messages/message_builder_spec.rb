@@ -8,6 +8,7 @@ describe MVI::Messages::MessageBuilder do
 
   describe '#build_idm' do
     let(:el) { dummy_class.build_idm('PRPA_IN201305UV02') }
+
     it 'has mvi attributes' do
       expect(el.attributes).to eq(
         'xmlns:idm' => 'http://vaww.oed.oit.va.gov',
@@ -37,7 +38,7 @@ describe MVI::Messages::MessageBuilder do
     end
 
     it 'has a version code node' do
-      expect(message.locate('versionCode').first.attributes).to eq(code: '3.0')
+      expect(message.locate('versionCode').first.attributes).to eq(code: '4.1')
     end
 
     it 'has an interaction id node' do
@@ -54,6 +55,7 @@ describe MVI::Messages::MessageBuilder do
           end
         end
       end
+
       context 'in production environments' do
         it 'has a processing code node of P' do
           with_settings(Settings.mvi, processing_code: 'P') do
@@ -115,6 +117,7 @@ describe MVI::Messages::MessageBuilder do
     context 'with a message' do
       let(:message) { dummy_class.element('foo', text!: 'bar', first: 'John', last: 'Smith') }
       let(:el) { dummy_class.build_envelope }
+
       it 'has soap attributes' do
         expect(el.attributes).to eq(
           'xmlns:soapenc' => 'http://schemas.xmlsoap.org/soap/encoding/',

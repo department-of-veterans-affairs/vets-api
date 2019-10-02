@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'spec_helper'
 require 'hca/enrollment_system'
 
 describe HCA::EnrollmentSystem do
@@ -9,8 +8,8 @@ describe HCA::EnrollmentSystem do
 
   TEST_ADDRESS = {
     'street' => '123 NW 8th St',
-    'street2' =>  '',
-    'street3' =>  '',
+    'street2' => '',
+    'street3' => '',
     'city' => 'Dulles',
     'country' => 'USA',
     'state' => 'VA',
@@ -303,7 +302,7 @@ describe HCA::EnrollmentSystem do
     [
       [true, '2135-2'],
       [false, '2186-5'],
-      ['foo', '0000-0']
+      %w[foo 0000-0]
     ]
   )
 
@@ -402,7 +401,7 @@ describe HCA::EnrollmentSystem do
           'isWhite' => true
         },
         {
-          'race' => ['1002-5', '2106-3']
+          'race' => %w[1002-5 2106-3]
         }
       ],
       [
@@ -466,7 +465,7 @@ describe HCA::EnrollmentSystem do
             }
           ]
         },
-        BigDecimal.new(2065)
+        BigDecimal(2065)
       ]
     ]
   )
@@ -1216,6 +1215,7 @@ describe HCA::EnrollmentSystem do
 
     context 'with a valid future discharge date' do
       let(:discharge_date) { Time.zone.today + 60.days }
+
       subject { described_class.veteran_to_military_service_info(veteran) }
 
       it 'should properly set discharge type and discharge date' do
@@ -1225,6 +1225,7 @@ describe HCA::EnrollmentSystem do
 
     context 'with an edge case future discharge date' do
       let(:discharge_date) { Time.zone.today + 180.days }
+
       subject { described_class.veteran_to_military_service_info(veteran) }
 
       it 'should properly set discharge type and discharge date' do
@@ -1234,6 +1235,7 @@ describe HCA::EnrollmentSystem do
 
     context 'with an invalid future discharge date' do
       let(:discharge_date) { Time.zone.today + 181.days }
+
       subject { described_class.veteran_to_military_service_info(veteran) }
 
       it 'should raise an invalid field exception' do
@@ -1298,6 +1300,7 @@ describe HCA::EnrollmentSystem do
 
       context 'when the user has an icn' do
         let(:auth_type_id) { icn_id }
+
         before do
           expect(current_user).to receive(:icn).and_return(user_id)
         end
@@ -1306,6 +1309,7 @@ describe HCA::EnrollmentSystem do
 
         context 'when the user has an edipi' do
           let(:auth_type_id) { icn_id }
+
           before do
             allow(current_user).to receive(:edipi).and_return('456')
           end
@@ -1316,6 +1320,7 @@ describe HCA::EnrollmentSystem do
 
       context 'when the user has an edipi' do
         let(:auth_type_id) { edipi_id }
+
         before do
           expect(current_user).to receive(:edipi).and_return(user_id)
         end

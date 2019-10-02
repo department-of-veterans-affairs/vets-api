@@ -1,15 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<env:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:env="http://schemas.xmlsoap.org/soap/envelope/"
-              xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/">
+<env:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+  xmlns:env="http://schemas.xmlsoap.org/soap/envelope/" 
+  xmlns:xsd="http://www.w3.org/2001/XMLSchema" 
+  xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/">
   <env:Header/>
   <env:Body>
-    <idm:PRPA_IN201306UV02 ITSVersion="XML_1.0" xsi:schemaLocation="urn:hl7-org:v3 ../../schema/HL7V3/NE2008/multicacheschemas/PRPA_IN201306UV02.xsd"
-                           xmlns:idm="http://vaww.oed.oit.va.gov" xmlns="urn:hl7-org:v3">
-      <id extension="WSDOC1611060614456041732180196" root="2.16.840.1.113883.4.349"/>
-      <creationTime value="20161106061445"/>
-      <versionCode code="3.0"/>
+    <idm:PRPA_IN201306UV02 ITSVersion="XML_1.0" xsi:schemaLocation="urn:hl7-org:v3 ../../schema/HL7V3/NE2008/multicacheschemas/PRPA_IN201306UV02.xsd" 
+      xmlns:idm="http://vaww.oed.oit.va.gov" 
+      xmlns="urn:hl7-org:v3">
+      <id extension="WSDOC1908141602159601500112018" root="2.16.840.1.113883.4.349"/>
+      <creationTime value="20190814160216"/>
+      <versionCode code="4.1"/>
       <interactionId extension="PRPA_IN201306UV02" root="2.16.840.1.113883.1.6"/>
-      <processingCode code="P"/>
+      <processingCode code="T"/>
       <processingModeCode code="T"/>
       <acceptAckCode code="NE"/>
       <receiver typeCode="RCV">
@@ -25,16 +28,8 @@
       <acknowledgement>
         <typeCode code="AA"/>
         <targetMessage>
-          <id extension="200VGOV-2eac6984-3ff7-49ea-8b86-7be8037c0cd4" root="1.2.840.114350.1.13.0.1.7.1.1"/>
+          <id extension="200VGOV-387d3ca5-8074-4aaf-9bda-ed1aa8c83f58" root="1.2.840.114350.1.13.0.1.7.1.1"/>
         </targetMessage>
-        <acknowledgementDetail>
-          <code codeSystemName="MVI" code="130" displayName="IMT"/>
-          <text>Identity Match Threshold</text>
-        </acknowledgementDetail>
-        <acknowledgementDetail>
-          <code codeSystemName="MVI" code="103" displayName="PDT"/>
-          <text>Potential Duplicate Threshold</text>
-        </acknowledgementDetail>
       </acknowledgement>
       <controlActProcess classCode="CACT" moodCode="EVN">
         <code codeSystem="2.16.840.1.113883.1.6" code="PRPA_TE201306UV02"/>
@@ -54,22 +49,14 @@
                 <statusCode code="active"/>
                 <patientPerson>
                   <name use="L">
-                    <given>STEVE</given>
-                    <given>A</given>
-                    <family>RANGER</family>
+                    <given>BENJAMIIN</given>
+                    <given>TWO</given>
+                    <family>CHESNEY</family>
                   </name>
-                  <telecom value="1112223333 p1" use="HP"/>
                   <administrativeGenderCode code="M"/>
-                  <birthTime value="19800101"/>
-                  <addr use="PHYS">
-                    <streetAddressLine>42 MAIN ST</streetAddressLine>
-                    <city>SPRINGFIELD</city>
-                    <state>IL</state>
-                    <postalCode>62722</postalCode>
-                    <country>USA</country>
-                  </addr>
+                  <birthTime value="19701231"/>
                   <asOtherIDs classCode="SSN">
-                    <id extension="111223333" root="2.16.840.1.113883.4.1"/>
+                    <id extension="024018711" root="2.16.840.1.113883.4.1"/>
                     <scopingOrganization determinerCode="INSTANCE" classCode="ORG">
                       <id root="1.2.840.114350.1.13.99997.2.3412"/>
                     </scopingOrganization>
@@ -78,7 +65,7 @@
                 <subjectOf1>
                   <queryMatchObservation classCode="COND" moodCode="EVN">
                     <code code="IHE_PDQ"/>
-                    <value value="169" xsi:type="INT"/>
+                    <value nullFlavor="NA" xsi:type="INT"/>
                   </queryMatchObservation>
                 </subjectOf1>
               </patient>
@@ -98,29 +85,14 @@
         <queryByParameter>
           <queryId extension="18204" root="1.2.840.114350.1.13.28.1.18.5.999"/>
           <statusCode code="new"/>
-          <modifyCode code="MVI.COMP1"/>
+          <modifyCode code="MVI.COMP2"/>
           <initialQuantity value="1"/>
           <parameterList>
-            <livingSubjectAdministrativeGender>
-              <value code="M"/>
-              <semanticsText>Gender</semanticsText>
-            </livingSubjectAdministrativeGender>
-            <livingSubjectBirthTime>
-              <value value="19800101"/>
-              <semanticsText>Date of Birth</semanticsText>
-            </livingSubjectBirthTime>
-            <livingSubjectId>
-              <value extension="111223333" root="2.16.840.1.113883.4.1"/>
-              <semanticsText>SSN</semanticsText>
-            </livingSubjectId>
-            <livingSubjectName>
-              <value use="L">
-                <given>Steve</given>
-                <given>A</given>
-                <family>Ranger</family>
-                <semanticsText>Legal Name</semanticsText>
-              </value>
-            </livingSubjectName>
+            <id extension="1025062341" root="2.16.840.1.113883.3.42.10001.100001.12"/>
+            <otherIDsScopingOrganization>
+              <value extension="VBA" root="2.16.840.1.113883.4.349"/>
+              <semanticsText>MVI.ORCHESTRATION</semanticsText>
+            </otherIDsScopingOrganization>
           </parameterList>
         </queryByParameter>
       </controlActProcess>

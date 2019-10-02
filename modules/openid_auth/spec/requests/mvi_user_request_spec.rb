@@ -8,7 +8,7 @@ RSpec.describe 'Return ICN for a User from MVI', type: :request, skip_emis: true
       let(:auth_headers) do
         {
           'apiKey' => 'saml-key',
-          'x-va-idp-uuid' =>  'ae9ff5f4e4b741389904087d94cd19b2',
+          'x-va-idp-uuid' => 'ae9ff5f4e4b741389904087d94cd19b2',
           'x-va-ssn' => '796122306',
           'x-va-dob' => '1949-03-04',
           'x-va-first-name' => 'Edward',
@@ -19,6 +19,7 @@ RSpec.describe 'Return ICN for a User from MVI', type: :request, skip_emis: true
           'x-va-user-email' => 'test@123.com'
         }
       end
+
       it 'should return the icn data for a user' do
         VCR.use_cassette('mvi/find_candidate/valid_icn_full') do
           get '/internal/auth/v0/mvi-user', params: nil, headers: auth_headers
@@ -42,7 +43,7 @@ RSpec.describe 'Return ICN for a User from MVI', type: :request, skip_emis: true
       let(:auth_headers) do
         {
           'apiKey' => 'saml-key',
-          'x-va-idp-uuid' =>  'ae9ff5f4e4b741389904087d94cd19b2',
+          'x-va-idp-uuid' => 'ae9ff5f4e4b741389904087d94cd19b2',
           'x-va-level-of-assurance' => 3,
           'x-va-user-email' => 'test@123.com',
           'x-va-mhv-icn' => '1008714701V416111'
@@ -64,7 +65,7 @@ RSpec.describe 'Return ICN for a User from MVI', type: :request, skip_emis: true
       let(:auth_headers) do
         {
           'apiKey' => 'saml-key',
-          'x-va-idp-uuid' =>  'ae9ff5f4e4b741389904087d94cd19b2',
+          'x-va-idp-uuid' => 'ae9ff5f4e4b741389904087d94cd19b2',
           'x-va-dslogon-edipi' => '7961223060',
           'x-va-ssn' => '796122306',
           'x-va-level-of-assurance' => 3,
@@ -83,7 +84,7 @@ RSpec.describe 'Return ICN for a User from MVI', type: :request, skip_emis: true
           expect(response).to have_http_status(:ok)
           expect(response.body).to be_a(String)
           expect(JSON.parse(response.body)['data']['attributes'].keys).to eq(%w[icn first_name last_name])
-          expect(JSON.parse(response.body)['data']['attributes']['icn']).to_not eq(nil)
+          expect(JSON.parse(response.body)['data']['attributes']['icn']).not_to eq(nil)
         end
       end
 
@@ -113,7 +114,7 @@ RSpec.describe 'Return ICN for a User from MVI', type: :request, skip_emis: true
       let(:auth_headers) do
         {
           'apiKey' => 'saml-key',
-          'x-va-idp-uuid' =>  'ae9ff5f4e4b741389904087d94cd19b2',
+          'x-va-idp-uuid' => 'ae9ff5f4e4b741389904087d94cd19b2',
           'x-va-ssn' => '796122306',
           'x-va-edipi' => '796122306',
           'x-va-level-of-assurance' => 3,
@@ -124,11 +125,13 @@ RSpec.describe 'Return ICN for a User from MVI', type: :request, skip_emis: true
           'x-va-last-name' => 'Paget'
         }
       end
+
+      let(:body) { File.read('spec/support/mvi/find_candidate_ar_code_database_error_response.xml') }
+
       it 'should respond properly when MVI is down' do
-        VCR.use_cassette('mvi/find_candidate/failure') do
-          get '/internal/auth/v0/mvi-user', params: nil, headers: auth_headers
-          expect(response).to have_http_status(:bad_gateway)
-        end
+        stub_request(:post, Settings.mvi.url).to_return(status: 200, body: body)
+        get '/internal/auth/v0/mvi-user', params: nil, headers: auth_headers
+        expect(response).to have_http_status(:bad_gateway)
       end
     end
   end
@@ -144,7 +147,7 @@ RSpec.describe 'Return ICN for a User from MVI', type: :request, skip_emis: true
     context 'looking up with an SSN' do
       let(:req_body) do
         {
-          'idp_uuid' =>  'ae9ff5f4e4b741389904087d94cd19b2',
+          'idp_uuid' => 'ae9ff5f4e4b741389904087d94cd19b2',
           'ssn' => '796122306',
           'dob' => '1949-03-04',
           'first_name' => 'Edward',
@@ -155,6 +158,7 @@ RSpec.describe 'Return ICN for a User from MVI', type: :request, skip_emis: true
           'user_email' => 'test@123.com'
         }
       end
+
       it 'should return the icn data for a user' do
         VCR.use_cassette('mvi/find_candidate/valid_icn_full') do
           post '/internal/auth/v0/mvi-user', params: JSON.generate(req_body), headers: headers
@@ -177,7 +181,7 @@ RSpec.describe 'Return ICN for a User from MVI', type: :request, skip_emis: true
     context 'looking up with an icn' do
       let(:req_body) do
         {
-          'idp_uuid' =>  'ae9ff5f4e4b741389904087d94cd19b2',
+          'idp_uuid' => 'ae9ff5f4e4b741389904087d94cd19b2',
           'level_of_assurance' => 3,
           'user_email' => 'test@123.com',
           'mhv_icn' => '1008714701V416111'
@@ -198,7 +202,7 @@ RSpec.describe 'Return ICN for a User from MVI', type: :request, skip_emis: true
     context 'looking up with an edipi' do
       let(:req_body) do
         {
-          'idp_uuid' =>  'ae9ff5f4e4b741389904087d94cd19b2',
+          'idp_uuid' => 'ae9ff5f4e4b741389904087d94cd19b2',
           'dslogon_edipi' => '7961223060',
           'ssn' => '796122306',
           'level_of_assurance' => 3,
@@ -217,7 +221,7 @@ RSpec.describe 'Return ICN for a User from MVI', type: :request, skip_emis: true
           expect(response).to have_http_status(:ok)
           expect(response.body).to be_a(String)
           expect(JSON.parse(response.body)['data']['attributes'].keys).to eq(%w[icn first_name last_name])
-          expect(JSON.parse(response.body)['data']['attributes']['icn']).to_not eq(nil)
+          expect(JSON.parse(response.body)['data']['attributes']['icn']).not_to eq(nil)
         end
       end
 
@@ -246,7 +250,7 @@ RSpec.describe 'Return ICN for a User from MVI', type: :request, skip_emis: true
     context 'MVI communication issues' do
       let(:req_body) do
         {
-          'idp_uuid' =>  'ae9ff5f4e4b741389904087d94cd19b2',
+          'idp_uuid' => 'ae9ff5f4e4b741389904087d94cd19b2',
           'ssn' => '796122306',
           'edipi' => '796122306',
           'level_of_assurance' => 3,
@@ -257,11 +261,13 @@ RSpec.describe 'Return ICN for a User from MVI', type: :request, skip_emis: true
           'last_name' => 'Paget'
         }
       end
+
+      let(:body) { File.read('spec/support/mvi/find_candidate_ar_code_database_error_response.xml') }
+
       it 'should respond properly when MVI is down' do
-        VCR.use_cassette('mvi/find_candidate/failure') do
-          post '/internal/auth/v0/mvi-user', params: JSON.generate(req_body), headers: headers
-          expect(response).to have_http_status(:bad_gateway)
-        end
+        stub_request(:post, Settings.mvi.url).to_return(status: 200, body: body)
+        post '/internal/auth/v0/mvi-user', params: JSON.generate(req_body), headers: headers
+        expect(response).to have_http_status(:bad_gateway)
       end
     end
   end

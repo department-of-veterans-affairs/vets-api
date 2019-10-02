@@ -16,7 +16,7 @@ RSpec.describe V0::FeatureTogglesController, type: :controller do
   describe 'GET #show' do
     it 'returns true for enabled flags' do
       get :index, params: { features: @feature_name }
-      expect(response).to have_http_status(200)
+      expect(response).to have_http_status(:ok)
       json_data = JSON.parse(response.body)
 
       expect(json_data['data']['features'].first['value']).to be true
@@ -25,7 +25,7 @@ RSpec.describe V0::FeatureTogglesController, type: :controller do
 
     it 'keeps flags in format recieved' do
       get :index, params: { features: @feature_name.camelize }
-      expect(response).to have_http_status(200)
+      expect(response).to have_http_status(:ok)
       json_data = JSON.parse(response.body)
 
       expect(json_data['data']['features'].first['value']).to be true
@@ -36,7 +36,7 @@ RSpec.describe V0::FeatureTogglesController, type: :controller do
       @feature_name =  'thisIsNotARealFlag'
       get :index, params: { features: @feature_name }
 
-      expect(response).to have_http_status(200)
+      expect(response).to have_http_status(:ok)
       json_data = JSON.parse(response.body)
 
       expect(json_data['data']['features'].first['name']).to eq(@feature_name)

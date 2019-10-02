@@ -38,7 +38,7 @@ describe Mvi, skip_mvi: true do
       end
       it 'should return an :error response but not cache it', :aggregate_failures do
         allow_any_instance_of(MVI::Service).to receive(:find_profile).and_return(profile_response_error)
-        expect(mvi).to_not receive(:save)
+        expect(mvi).not_to receive(:save)
         expect_any_instance_of(MVI::Service).to receive(:find_profile).once
         expect(mvi.status).to eq('SERVER_ERROR')
         expect(mvi.error).to be_present
@@ -58,20 +58,20 @@ describe Mvi, skip_mvi: true do
     context 'when there is cached data' do
       it 'returns the cached data for :ok response', :aggregate_failures do
         mvi.cache(user.uuid, profile_response)
-        expect_any_instance_of(MVI::Service).to_not receive(:find_profile)
+        expect_any_instance_of(MVI::Service).not_to receive(:find_profile)
         expect(mvi.profile).to have_deep_attributes(mvi_profile)
         expect(mvi.error).to be_nil
       end
       it 'returns the cached data for :error response', :aggregate_failures do
         mvi.cache(user.uuid, profile_response_error)
-        expect_any_instance_of(MVI::Service).to_not receive(:find_profile)
+        expect_any_instance_of(MVI::Service).not_to receive(:find_profile)
         expect(mvi.profile).to be_nil
         expect(mvi.error).to be_present
         expect(mvi.error.class).to eq Common::Exceptions::BackendServiceException
       end
       it 'returns the cached data for :not_found response', :aggregate_failures do
         mvi.cache(user.uuid, profile_response_not_found)
-        expect_any_instance_of(MVI::Service).to_not receive(:find_profile)
+        expect_any_instance_of(MVI::Service).not_to receive(:find_profile)
         expect(mvi.profile).to be_nil
         expect(mvi.error).to be_present
         expect(mvi.error.class).to eq Common::Exceptions::BackendServiceException
@@ -90,31 +90,37 @@ describe Mvi, skip_mvi: true do
           expect(mvi.edipi).to eq(profile_response.profile.edipi)
         end
       end
+
       describe '#icn' do
         it 'should match the response' do
           expect(mvi.icn).to eq(profile_response.profile.icn)
         end
       end
+
       describe '#icn_with_aaid' do
         it 'should match the response' do
           expect(mvi.icn_with_aaid).to eq(profile_response.profile.icn_with_aaid)
         end
       end
+
       describe '#mhv_correlation_id' do
         it 'should match the response' do
           expect(mvi.mhv_correlation_id).to eq(profile_response.profile.mhv_correlation_id)
         end
       end
+
       describe '#participant_id' do
         it 'should match the response' do
           expect(mvi.participant_id).to eq(profile_response.profile.participant_id)
         end
       end
+
       describe '#historical_icns' do
         it 'should match the response' do
           expect(mvi.historical_icns).to eq(profile_response.profile.historical_icns)
         end
       end
+
       describe '#vet360_id' do
         it 'should match the response' do
           expect(mvi.vet360_id).to eq(profile_response.profile.vet360_id)
@@ -136,21 +142,25 @@ describe Mvi, skip_mvi: true do
           expect(mvi.edipi).to be_nil
         end
       end
+
       describe '#icn' do
         it 'should be nil' do
           expect(mvi.icn).to be_nil
         end
       end
+
       describe '#icn_with_aaid' do
         it 'should be nil' do
           expect(mvi.icn_with_aaid).to be_nil
         end
       end
+
       describe '#mhv_correlation_id' do
         it 'should be nil' do
           expect(mvi.mhv_correlation_id).to be_nil
         end
       end
+
       describe '#participant_id' do
         it 'should be nil' do
           expect(mvi.participant_id).to be_nil

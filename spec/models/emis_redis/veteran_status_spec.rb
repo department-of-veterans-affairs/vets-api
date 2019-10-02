@@ -5,13 +5,14 @@ require 'common/exceptions'
 
 describe EMISRedis::VeteranStatus, skip_emis: true do
   let(:user) { build(:user, :loa3) }
+
   subject { described_class.for_user(user) }
 
   describe 'veteran?' do
     context 'with a valid response for a veteran' do
       it 'returns true' do
         VCR.use_cassette('emis/get_veteran_status/valid') do
-          expect(subject.veteran?).to be_truthy
+          expect(subject).to be_veteran
         end
       end
     end
@@ -19,7 +20,7 @@ describe EMISRedis::VeteranStatus, skip_emis: true do
     context 'with a valid response for a non-veteran' do
       it 'returns false' do
         VCR.use_cassette('emis/get_veteran_status/valid_non_veteran') do
-          expect(subject.veteran?).to be_falsey
+          expect(subject).not_to be_veteran
         end
       end
     end

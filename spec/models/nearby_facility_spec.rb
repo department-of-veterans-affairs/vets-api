@@ -10,21 +10,36 @@ RSpec.describe NearbyFacility, type: :model do
       'zip': '97089',
       'drive_time': '60' }
   end
+  let(:lat_lng_params) do
+    { 'lat': '45.451950',
+      'lng': '-122.435300',
+      'drive_time': '60' }
+  end
 
   let(:setup_pdx) do
     %w[vc_0617V nca_907 vha_648 vha_648A4 vha_648GI vba_348 vba_348a vba_348d vba_348e vba_348h].map { |id| create id }
   end
 
   describe '#query' do
-    it 'should find facilities' do
+    it 'should find facilities address' do
       setup_pdx
       VCR.use_cassette('bing/isochrone/pdx_drive_time_60',
                        match_requests_on: [:method, VCR.request_matchers.uri_without_param(:key)]) do
         expect(NearbyFacility.query(address_params).length).to eq(10)
       end
     end
-    it 'should return no facilities when missing params' do
+    it 'should find facilities with lat/lng' do
+      setup_pdx
+      VCR.use_cassette('bing/isochrone/pdx_drive_time_60_lat_lng',
+                       match_requests_on: [:method, VCR.request_matchers.uri_without_param(:key)]) do
+        expect(NearbyFacility.query_by_lat_lng(lat_lng_params).length).to eq(10)
+      end
+    end
+    it 'should return no facilities when missing address params' do
       expect(NearbyFacility.query({}).length).to eq(0)
+    end
+    it 'should return no facilities when missing lat/lng params' do
+      expect(NearbyFacility.query_by_lat_lng({}).length).to eq(0)
     end
     it 'should filter by type and service' do
       params = {

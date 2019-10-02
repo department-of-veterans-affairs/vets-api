@@ -10,6 +10,7 @@ shared_examples 'a sentry logger' do
 
   context 'with SENTRY_DSN set' do
     before { Settings.sentry.dsn = 'asdf' }
+
     after { Settings.sentry.dsn = nil }
 
     describe '#log_message_to_sentry' do
@@ -24,6 +25,7 @@ shared_examples 'a sentry logger' do
         subject.log_message_to_sentry('blah', :error, { extra: 'context' }, tags: 'tagging')
       end
     end
+
     describe '#log_exception_to_sentry' do
       it 'warn logs to Rails logger' do
         expect(Rails.logger).to receive(:error).with(exception.message + '.')
@@ -47,6 +49,7 @@ shared_examples 'a sentry logger' do
         subject.log_message_to_sentry('blah', :warn, { extra: 'context' }, tags: 'tagging')
       end
     end
+
     describe '#log_exception_to_sentry' do
       it 'error logs to Rails logger' do
         expect(Rails.logger).to receive(:error).with(exception.message + '.')

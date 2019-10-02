@@ -230,6 +230,7 @@ module PdfFill
 
       def expand_other_information
         return if @form_data['otherInformation'].blank?
+
         @form_data['otherInformation'].map! do |other_info|
           { 'value' => other_info }
         end
@@ -278,6 +279,7 @@ module PdfFill
 
       def combine_full_address(address)
         return '' if address.blank?
+
         combine_hash(
           address,
           %w[
@@ -294,6 +296,7 @@ module PdfFill
 
       def expand_incidents(incidents)
         return if incidents.blank?
+
         incidents.each_with_index do |incident, index|
           format_incident_overflow(incident, index + 1)
           incident['incidentDate'] = expand_incident_date(incident)

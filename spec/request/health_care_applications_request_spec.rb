@@ -16,6 +16,7 @@ RSpec.describe 'Health Care Application Integration', type: %i[request serialize
     subject do
       get(healthcheck_v0_health_care_applications_path)
     end
+
     let(:body) do
       { 'formSubmissionId' => 377_609_264,
         'timestamp' => '2016-12-12T08:06:08.423-06:00' }
@@ -112,11 +113,11 @@ RSpec.describe 'Health Care Application Integration', type: %i[request serialize
         let(:enrolled) { Notification::ENROLLED }
         let(:success_response) do
           {
-            application_date:   '2018-12-27T00:00:00.000-06:00',
-            enrollment_date:    '2018-12-27T17:15:39.000-06:00',
+            application_date: '2018-12-27T00:00:00.000-06:00',
+            enrollment_date: '2018-12-27T17:15:39.000-06:00',
             preferred_facility: '988 - DAYT20',
-            effective_date:     '2019-01-02T21:58:55.000-06:00',
-            parsed_status:      enrolled
+            effective_date: '2019-01-02T21:58:55.000-06:00',
+            parsed_status: enrolled
           }
         end
 
@@ -144,9 +145,11 @@ RSpec.describe 'Health Care Application Integration', type: %i[request serialize
       before do
         Settings.sentry.dsn = 'asdf'
       end
+
       after do
         Settings.sentry.dsn = nil
       end
+
       let(:params) do
         {
           form: test_veteran.except('privacyAgreementAccepted').to_json

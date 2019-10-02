@@ -50,7 +50,7 @@ describe Common::Client::Concerns::LogAsWarningHelpers do
       expect(service).to receive(:connection).and_raise(
         Common::Exceptions::BackendServiceException.new(nil, {}, 500)
       )
-      expect(Raven).to_not receive(:extra_context).with(log_as_warning: true)
+      expect(Raven).not_to receive(:extra_context).with(log_as_warning: true)
 
       expect { service.send(:request, :get, nil) }.to raise_error(
         Common::Exceptions::BackendServiceException

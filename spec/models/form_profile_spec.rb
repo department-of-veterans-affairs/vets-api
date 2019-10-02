@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'support/attr_encrypted_matcher'
 
 RSpec.describe FormProfile, type: :model do
   include SchemaMatchers
@@ -616,6 +615,7 @@ RSpec.describe FormProfile, type: :model do
 
       schema.each do |k, v|
         next if k == 'required'
+
         new_schema[k] = v.is_a?(Hash) ? strip_required(v) : v
       end
 

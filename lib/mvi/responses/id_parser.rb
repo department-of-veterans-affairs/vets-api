@@ -5,7 +5,7 @@ module MVI
     class IdParser
       CORRELATION_ROOT_ID = '2.16.840.1.113883.4.349'
       EDIPI_ROOT_ID = '2.16.840.1.113883.3.42.10001.100001.12'
-      ICN_REGEX = /^\w+\^NI\^\w+\^\w+\^\w+$/
+      ICN_REGEX = /^\w+\^NI\^\w+\^\w+\^\w+$/.freeze
       VET360_ASSIGNING_AUTHORITY_ID = '^NI^200M^USVHA'
 
       # MVI correlation id source id relationships:
@@ -37,7 +37,7 @@ module MVI
           vba_corp_id:      select_ids(select_extension(ids, /^\w+\^PI\^200CORP\^USVBA\^(A|P)$/,  CORRELATION_ROOT_ID))&.first,
           vha_facility_ids: select_facilities(select_extension(ids, /^\w+\^PI\^\w+\^USVHA\^\w+$/, CORRELATION_ROOT_ID)),
           birls_id:         select_ids(select_extension(ids, /^\w+\^PI\^200BRLS\^USVBA\^\w+$/,    CORRELATION_ROOT_ID))&.first,
-          vet360_id:        select_ids(select_extension(ids, /^\w+\^PI\^200VETS\^USDVA\^\w+$/,    CORRELATION_ROOT_ID))&.first,
+          vet360_id:        select_ids(select_extension(ids, /^\w+\^PI\^200VETS\^USDVA\^A$/,      CORRELATION_ROOT_ID))&.first,
           icn_with_aaid: ICNWithAAIDParser.new(full_icn_with_aaid(ids)).without_id_status
         }
         # rubocop:enable LineLength
@@ -51,11 +51,13 @@ module MVI
 
       def select_ids(extensions)
         return nil if extensions.empty?
+
         extensions.map { |e| e[:extension].split('^')&.first }
       end
 
       def select_facilities(extensions)
         return nil if extensions.empty?
+
         extensions.map { |e| e[:extension].split('^')&.third }
       end
 

@@ -6,6 +6,7 @@ RSpec.describe YearToDateReportMailer, type: %i[mailer aws_helpers] do
   describe '#year_to_date_report_email' do
     let(:filename) { 'foo' }
     let(:mail) { described_class.build(filename).deliver_now }
+
     subject do
       stub_reports_s3(filename) do
         mail
@@ -16,6 +17,7 @@ RSpec.describe YearToDateReportMailer, type: %i[mailer aws_helpers] do
       before do
         expect(FeatureFlipper).to receive(:staging_email?).once.and_return(true)
       end
+
       it 'should send the right email' do
         subject
         text = described_class::REPORT_TEXT
@@ -27,9 +29,12 @@ RSpec.describe YearToDateReportMailer, type: %i[mailer aws_helpers] do
 
         expect(mail.to).to eq(
           %w[
+            delli-gatti_michael@bah.com
+            kyle.pietrosanto@va.gov
             lihan@adhocteam.us
-            Turner_Desiree@bah.com
-            Delli-Gatti_Michael@bah.com
+            robert.shinners@va.gov
+            shay.norton-leonard@va.gov
+            turner_desiree@bah.com
           ]
         )
       end

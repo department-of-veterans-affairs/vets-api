@@ -8,7 +8,7 @@ class EVSSClaimDetailSerializer < EVSSClaimBaseSerializer
   end
 
   def va_representative
-    object.data['poa']
+    sanitize_va_representative(object.data['poa'])
   end
 
   def events_timeline
@@ -40,6 +40,11 @@ class EVSSClaimDetailSerializer < EVSSClaimBaseSerializer
 
   private
 
+  def sanitize_va_representative(va_rep)
+    va_rep = ActionView::Base.full_sanitizer.sanitize(va_rep)
+    va_rep&.gsub(/&[^ ;]+;/, '')
+  end
+
   def object_data
     object.data
   end
@@ -47,6 +52,7 @@ class EVSSClaimDetailSerializer < EVSSClaimBaseSerializer
   def create_event_from_string_date(type, *from_keys)
     date = object.data.dig(*from_keys)
     return nil unless date
+
     {
       type: type,
       date: Date.strptime(date, '%m/%d/%Y')
@@ -133,6 +139,7 @@ class EVSSClaimDetailSerializer < EVSSClaimBaseSerializer
   def date_or_nil_from(obj, key, format: '%m/%d/%Y')
     date = obj[key]
     return nil if date.blank?
+
     Date.strptime(date.to_s, format)
   end
 

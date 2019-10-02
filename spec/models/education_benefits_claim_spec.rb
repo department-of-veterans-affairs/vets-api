@@ -93,7 +93,7 @@ RSpec.describe EducationBenefitsClaim, type: :model do
     it 'should create an education benefits submission after submission' do
       expect do
         subject
-      end.to change { EducationBenefitsSubmission.count }.by(1)
+      end.to change(EducationBenefitsSubmission, :count).by(1)
 
       expect(associated_submission).to eq(
         submission_attributes.merge(
@@ -264,7 +264,7 @@ RSpec.describe EducationBenefitsClaim, type: :model do
     it 'sets a record for processing' do
       expect do
         education_benefits_claim.reprocess_at('western')
-      end.to change { education_benefits_claim.regional_processing_office }.from('eastern').to('western')
+      end.to change(education_benefits_claim, :regional_processing_office).from('eastern').to('western')
       expect(education_benefits_claim.processed_at).to be nil
     end
   end
