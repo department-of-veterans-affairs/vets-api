@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'support/attr_encrypted_matcher'
 
 RSpec.describe FormProfile, type: :model do
   include SchemaMatchers
