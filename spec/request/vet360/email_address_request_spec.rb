@@ -60,7 +60,7 @@ RSpec.describe 'email_address', type: :request do
 
       it 'should not invalidate the cache' do
         VCR.use_cassette('vet360/contact_information/post_email_w_id_error') do
-          expect_any_instance_of(Common::RedisStore).to_not receive(:destroy)
+          expect_any_instance_of(Common::RedisStore).not_to receive(:destroy)
 
           post('/v0/profile/email_addresses',
                params: { id: 42, email_address: 'person42@example.com' }.to_json, headers: headers)

@@ -19,7 +19,7 @@ describe Common::EventRateLimiter do
     describe '.at_limit?' do
       context 'with no events' do
         it 'should return false' do
-          expect(subject.at_limit?).to be_falsey
+          expect(subject).not_to be_at_limit
         end
       end
 
@@ -27,7 +27,7 @@ describe Common::EventRateLimiter do
         before { 5.times { subject.increment } }
 
         it 'should return false' do
-          expect(subject.at_limit?).to be_falsey
+          expect(subject).not_to be_at_limit
         end
       end
 
@@ -35,7 +35,7 @@ describe Common::EventRateLimiter do
         before { 11.times { subject.increment } }
 
         it 'should return true' do
-          expect(subject.at_limit?).to be_truthy
+          expect(subject).to be_at_limit
         end
       end
 
@@ -49,7 +49,7 @@ describe Common::EventRateLimiter do
         end
 
         it 'should return false' do
-          expect(subject.at_limit?).to be_falsey
+          expect(subject).not_to be_at_limit
         end
       end
 
@@ -62,7 +62,7 @@ describe Common::EventRateLimiter do
         end
 
         it 'should return true' do
-          expect(subject.at_limit?).to be_truthy
+          expect(subject).to be_at_limit
         end
       end
     end

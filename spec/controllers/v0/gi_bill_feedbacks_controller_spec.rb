@@ -7,8 +7,8 @@ RSpec.describe V0::GIBillFeedbacksController, type: :controller do
   let(:form) { build(:gi_bill_feedback).form }
   let(:user) { create(:user) }
 
-  it_should_behave_like 'a controller that deletes an InProgressForm',
-                        'gi_bill_feedback', 'gi_bill_feedback', GIBillFeedback::FORM_ID
+  it_behaves_like 'a controller that deletes an InProgressForm',
+                  'gi_bill_feedback', 'gi_bill_feedback', GIBillFeedback::FORM_ID
 
   def parsed_body
     JSON.parse(response.body)

@@ -46,7 +46,7 @@ describe EVSS::IntentToFile::ResponseStrategy do
         before { Timecop.freeze(Date.new(2018, 6, 6)) }
 
         it 'should not cache and return the response' do
-          expect(subject.redis_namespace).to_not receive(:set)
+          expect(subject.redis_namespace).not_to receive(:set)
           response = subject.cache_or_service(user.uuid, 'compensation') { service.get_active(itf_type) }
           expect(response).to be_ok
         end
@@ -58,7 +58,7 @@ describe EVSS::IntentToFile::ResponseStrategy do
 
       it 'does not hit service and returns the cached data' do
         subject.cache("#{user.uuid}:compensation", itf_response)
-        expect(service).to_not receive(:get_active)
+        expect(service).not_to receive(:get_active)
         response = subject.cache_or_service(user.uuid, 'compensation') { service.get_active(itf_type) }
         expect(response).to be_ok
       end

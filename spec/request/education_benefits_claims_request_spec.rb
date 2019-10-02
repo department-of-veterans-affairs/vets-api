@@ -27,7 +27,7 @@ RSpec.describe 'Education Benefits Claims Integration', type: %i[request seriali
       end
 
       it 'should create a 1995 form' do
-        expect { subject }.to change { EducationBenefitsClaim.count }.by(1)
+        expect { subject }.to change(EducationBenefitsClaim, :count).by(1)
         expect(EducationBenefitsClaim.last.form_type).to eq(form_type)
       end
 
@@ -53,7 +53,7 @@ RSpec.describe 'Education Benefits Claims Integration', type: %i[request seriali
       end
 
       it 'should create a new model' do
-        expect { subject }.to change { EducationBenefitsClaim.count }.by(1)
+        expect { subject }.to change(EducationBenefitsClaim, :count).by(1)
         expect(EducationBenefitsClaim.last.parsed_form['preferredContactMethod']).to eq('mail')
       end
 

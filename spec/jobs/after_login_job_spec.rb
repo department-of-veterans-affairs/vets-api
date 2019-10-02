@@ -17,7 +17,7 @@ RSpec.describe AfterLoginJob do
       let(:user) { create(:user) }
 
       it 'shouldnt launch CreateUserAccountJob' do
-        expect(EVSS::CreateUserAccountJob).to_not receive(:perform_async)
+        expect(EVSS::CreateUserAccountJob).not_to receive(:perform_async)
         described_class.new.perform('user_uuid' => user.uuid)
       end
     end
