@@ -184,6 +184,7 @@ describe EVSS::DisabilityCompensationForm::DataTranslation do
           }
         )
       end
+
       it 'should delete the "treatments" key' do
         subject.send(:translate_treatments)
         expect(
@@ -207,6 +208,7 @@ describe EVSS::DisabilityCompensationForm::DataTranslation do
           }
         )
       end
+
       it 'should delete the "specialIssues" key' do
         subject.send(:translate_disabilities)
         expect(
@@ -234,6 +236,7 @@ describe EVSS::DisabilityCompensationForm::DataTranslation do
           }
         )
       end
+
       it 'should translate the fields correctly' do
         result_hash = {
           'obligationTermOfServiceFromDate' => '2018-03-29T18:50:03.015Z',
@@ -266,6 +269,7 @@ describe EVSS::DisabilityCompensationForm::DataTranslation do
           }
         )
       end
+
       it 'should delete the "homelessness" key' do
         subject.send(:translate_homelessness)
         expect(
@@ -287,6 +291,7 @@ describe EVSS::DisabilityCompensationForm::DataTranslation do
           }
         )
       end
+
       it 'should add update the "homelessness" key correctly' do
         result_hash = {
           'hasPointOfContact' => false

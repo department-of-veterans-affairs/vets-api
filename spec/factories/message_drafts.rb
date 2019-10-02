@@ -5,6 +5,7 @@ FactoryBot.define do
     id { 573_073 }
     category { 'OTHER' }
     subject { 'Subject 1' }
+
     body { 'Body 1' }
     attachment { false }
     sent_date { '' }

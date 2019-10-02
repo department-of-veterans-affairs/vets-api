@@ -166,6 +166,7 @@ RSpec.describe MhvAccount, type: :model do
     context 'check_account_state' do
       context 'with terms accepted' do
         let(:terms) { create(:terms_and_conditions, latest: true, name: described_class::TERMS_AND_CONDITIONS_NAME) }
+
         before(:each) { create(:terms_and_conditions_acceptance, terms_and_conditions: terms, user_uuid: user.uuid) }
 
         context 'without an existing account' do

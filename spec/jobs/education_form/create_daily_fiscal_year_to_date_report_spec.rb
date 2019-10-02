@@ -8,6 +8,7 @@ end
 
 RSpec.describe EducationForm::CreateDailyFiscalYearToDateReport, type: :aws_helpers do
   let(:date) { Time.zone.today - 1.day }
+
   subject do
     described_class.new
   end
@@ -132,11 +133,13 @@ RSpec.describe EducationForm::CreateDailyFiscalYearToDateReport, type: :aws_help
       before do
         expect(FeatureFlipper).to receive(:send_edu_report_email?).once.and_return(true)
       end
+
       after do
         File.delete(filename)
       end
 
       let(:filename) { "tmp/daily_reports/#{date}.csv" }
+
       subject do
         create_daily_year_to_date_report = described_class.new
 
