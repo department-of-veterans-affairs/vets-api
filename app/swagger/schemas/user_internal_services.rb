@@ -33,18 +33,34 @@ module Swagger
             end
             property :profile, type: :object do
               property :email, type: :string
-              property :first_name, type: :string
-              property :last_name, type: :string
-              property :birth_date, type: :string
-              property :gender, type: :string
-              property :zip, type: :string
-              property :last_signed_in, type: :string
+              property :first_name, type: :string, example: 'Abigail'
+              property :middle_name, type: :string, example: 'Jane'
+              property :last_name, type: :string, example: 'Brown'
+              property :birth_date, type: :string, example: '1900-01-01'
+              property :gender, type: :string, example: 'F'
+              property :zip,
+                       type: :string,
+                       description: "The user's zip code from the identity provider(id.me, Ds Logon) or MVI"
+              property :multifactor,
+                       type: :boolean,
+                       example: true,
+                       description: "ID.me boolean value if the signed-in 'wallet' has multifactor enabled"
+              property :last_signed_in, type: :string, example: '2019-10-02T13:55:54.261Z'
               property :sign_in, type: :object do
-                property :service_name, type: :string
+                property :service_name,
+                         type: :string,
+                         enum: %w[myhealthevet dslogon idme],
+                         example: 'myhealthevet',
+                         description: ''
+                property :account_type,
+                         enum: %w[Basic Premium],
+                         example: 'Basic',
+                         description: 'myhealthevet account_types: Basic, Premium. dslogon account account_types: 1-3'
               end
+              property :verified, type: :boolean, example: true
               property :loa, type: :object do
-                property :current, type: :integer, format: :int32
-                property :highest, type: :integer, format: :int32
+                property :current, type: :integer, format: :int32, example: 3, description: ''
+                property :highest, type: :integer, format: :int32, example: 3, description: ''
               end
             end
             property :prefills_available do

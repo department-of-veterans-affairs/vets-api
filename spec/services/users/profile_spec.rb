@@ -86,20 +86,12 @@ RSpec.describe Users::Profile do
       context 'mhv user' do
         let(:user) { create(:user, :mhv) }
 
-        it 'should include authn_context' do
-          expect(profile[:authn_context]).to eq('myhealthevet')
-        end
-
         it 'should include sign_in' do
           expect(profile[:sign_in]).to eq(service_name: 'myhealthevet')
         end
 
         context 'multifactor' do
           let(:user) { create(:user, :loa1, authn_context: 'myhealthevet_multifactor') }
-
-          it 'should include authn_context' do
-            expect(profile[:authn_context]).to eq('myhealthevet')
-          end
 
           it 'should include sign_in.service_name' do
             expect(profile[:sign_in][:service_name]).to eq('myhealthevet')
@@ -108,10 +100,6 @@ RSpec.describe Users::Profile do
 
         context 'verified' do
           let(:user) { create(:user, :loa1, authn_context: 'myhealthevet_loa3') }
-
-          it 'should include authn_context' do
-            expect(profile[:authn_context]).to eq('myhealthevet')
-          end
 
           it 'should include sign_in.service_name' do
             expect(profile[:sign_in][:service_name]).to eq('myhealthevet')
@@ -122,20 +110,12 @@ RSpec.describe Users::Profile do
       context 'dslogon user' do
         let(:user) { create(:user, :dslogon) }
 
-        it 'should include authn_context' do
-          expect(profile[:authn_context]).to eq('dslogon')
-        end
-
         it 'should include sign_in.service_name' do
           expect(profile[:sign_in]).to eq(service_name: 'dslogon')
         end
 
         context 'multifactor' do
           let(:user) { create(:user, :loa1, authn_context: 'dslogon_multifactor') }
-
-          it 'should include authn_context' do
-            expect(profile[:authn_context]).to eq('dslogon')
-          end
 
           it 'should include sign_in.service_name' do
             expect(profile[:sign_in]).to eq(service_name: 'dslogon')
@@ -144,10 +124,6 @@ RSpec.describe Users::Profile do
 
         context 'verified' do
           let(:user) { create(:user, :loa1, authn_context: 'dslogon_loa3') }
-
-          it 'should include authn_context' do
-            expect(profile[:authn_context]).to eq('dslogon')
-          end
 
           it 'should include sign_in.service_name' do
             expect(profile[:sign_in]).to eq(service_name: 'dslogon')
