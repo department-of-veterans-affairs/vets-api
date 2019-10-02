@@ -166,9 +166,9 @@ RSpec/MultipleExpectations:
 
 # Offense count: 1
 # Cop supports --auto-correct.
-RSpec/MultipleSubjects:
-  Exclude:
-    - 'spec/services/mhv_logging_service_spec.rb'
+# RSpec/MultipleSubjects:
+#   Exclude:
+#     - 'spec/services/mhv_logging_service_spec.rb'
 
 # Offense count: 1702
 # Configuration parameters: IgnoreSharedExamples.
@@ -183,14 +183,6 @@ RSpec/NestedGroups:
 RSpec/OverwritingSetup:
   Exclude:
     - 'spec/request/swagger_spec.rb'
-
-# Offense count: 9
-# Cop supports --auto-correct.
-# RSpec/ReceiveCounts:
-#   Exclude:
-#     - 'spec/lib/saml/saml_settings_service_spec.rb'
-#     - 'spec/lib/sm/client/folders_spec.rb'
-#     - 'spec/models/mhv_account_spec.rb'
 
 # Offense count: 21
 RSpec/RepeatedDescription:
