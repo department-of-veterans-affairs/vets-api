@@ -241,9 +241,9 @@ RSpec/ScatteredSetup:
 
 # Offense count: 4
 # Cop supports --auto-correct.
-RSpec/SharedContext:
-  Exclude:
-    - 'spec/request/mhv_accounts_request_spec.rb'
+# RSpec/SharedContext:
+#   Exclude:
+#     - 'spec/request/mhv_accounts_request_spec.rb'
 
 # Offense count: 65
 RSpec/SubjectStub:
