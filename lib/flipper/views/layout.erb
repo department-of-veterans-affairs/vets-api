@@ -18,10 +18,18 @@
   <body>
     <header class="vads-u-background-color--primary-darkest" role="banner">
       <div class="vads-l-grid-container vads-u-padding-y--3">
-        <a class="vads-u-font-size--xl vads-u-color--white vads-u-text-decoration--none" title="VA.gov Flipper Admin Home" href="/flipper">
-          <strong>VA.gov</strong>
-          <span class="vads-u-margin-left--1 vads-u-font-size--lg">Flipper Admin</span>
-        </a>
+        <div class="vads-l-row vads-u-align-items--center">
+          <a class="vads-l-col vads-u-display--block vads-u-font-size--xl vads-u-color--white vads-u-text-decoration--none" title="VA.gov Flipper Admin Home" href="/flipper">
+            <strong>VA.gov</strong>
+            <span class="vads-u-margin-left--1 vads-u-font-size--lg">Flipper Admin</span>
+          </a>
+
+          <%- if Flipper::UI.configuration.feature_creation_enabled -%>
+          <div class="vads-l-col--2 vads-u-text-align--right">
+            <a class="usa-button vads-u-margin--0" href="<%= script_name %>/features/new">Add Feature</a>
+          </div>
+          <%- end -%>
+        </div>
       </div>
     </header>
     <div class="vads-l-grid-container">
@@ -33,7 +41,7 @@
       </div>
       <%- end -%>
 
-      <div class="vads-l-row vads-u-align-items--center">
+      <div class="vads-l-row">
         <nav aria-label="breadcrumb" aria-live="polite" class="vads-l-col va-nav-breadcrumbs">
           <ul class="va-nav-breadcrumbs-list vads-u-margin--0 vads-u-padding--0">
             <% @breadcrumbs.each do |breadcrumb| %>
@@ -47,12 +55,6 @@
             <% end %>
           </ul>
         </nav>
-
-        <%- if Flipper::UI.configuration.feature_creation_enabled -%>
-        <div class="vads-l-col vads-u-text-align--right">
-          <a class="usa-button-primary va-button-primary vads-u-margin--0" href="<%= script_name %>/features/new">Add Feature</a>
-        </div>
-        <%- end -%>
       </div>
 
       <div class="content">
