@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 shared_examples_for 'saved_claim_with_confirmation_number' do
-  it_should_behave_like 'saved_claim'
+  it_behaves_like 'saved_claim'
 
   it 'responds to #confirmation_number' do
     expect(subject.confirmation_number).to eq(subject.guid)

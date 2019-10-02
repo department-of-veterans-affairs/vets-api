@@ -418,7 +418,7 @@ describe MVI::Service do
             subject.find_profile(user)
             Settings.mvi.pii_logging = false
           end
-        end.to change { PersonalInformationLog.count }.by(1)
+        end.to change(PersonalInformationLog, :count).by(1)
       end
     end
 
