@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'support/attr_encrypted_matcher'
 
 RSpec.describe InProgressForm, type: :model do
   let(:in_progress_form) { build(:in_progress_form) }
