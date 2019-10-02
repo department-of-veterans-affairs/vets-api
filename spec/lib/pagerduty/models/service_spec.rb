@@ -15,7 +15,7 @@ describe PagerDuty::Models::Service do
     it 'validates for the :status to be one of the PagerDuty::Models::Service::STATUSES' do
       invalid_service = build :pagerduty_service, status: 'some status'
 
-      expect(invalid_service).to_not be_valid
+      expect(invalid_service).not_to be_valid
     end
   end
 

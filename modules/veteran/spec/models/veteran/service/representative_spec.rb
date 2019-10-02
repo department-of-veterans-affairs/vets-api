@@ -12,7 +12,7 @@ describe Veteran::Service::Representative, type: :model do
 
     it 'is not valid without a poa' do
       representative = Veteran::Service::Representative.new(poa_codes: nil)
-      expect(representative).to_not be_valid
+      expect(representative).not_to be_valid
     end
   end
 

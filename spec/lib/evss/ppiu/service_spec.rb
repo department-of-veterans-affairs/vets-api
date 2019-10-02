@@ -4,6 +4,7 @@ require 'rails_helper'
 
 describe EVSS::PPIU::Service do
   let(:user) { build(:evss_user) }
+
   subject { described_class.new(user) }
 
   describe '#get_payment_information' do

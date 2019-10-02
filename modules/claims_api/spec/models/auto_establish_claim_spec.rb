@@ -32,6 +32,7 @@ RSpec.describe ClaimsApi::AutoEstablishedClaim, type: :model do
   describe 'evss_id_by_token' do
     context 'with a record' do
       let(:evss_record) { create(:auto_established_claim, evss_id: 123_456) }
+
       it 'returns the evss id of that record' do
         expect(described_class.evss_id_by_token(evss_record.token)).to eq(123_456)
       end
@@ -52,6 +53,7 @@ RSpec.describe ClaimsApi::AutoEstablishedClaim, type: :model do
 
   context 'finding by ID or EVSS ID' do
     let(:evss_record) { create(:auto_established_claim, evss_id: 123_456) }
+
     before do
       evss_record
     end

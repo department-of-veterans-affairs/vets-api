@@ -15,6 +15,7 @@ RSpec.describe V0::Post911GIBillStatusesController, type: :controller do
 
   context 'inside working hours' do
     before { Timecop.freeze(noon) }
+
     after { Timecop.return }
 
     context 'without mocked responses' do
@@ -85,6 +86,7 @@ RSpec.describe V0::Post911GIBillStatusesController, type: :controller do
       describe 'when EVSS has no info of user' do
         # special EVSS CI user ssn=796066622
         let(:user) { FactoryBot.create(:user, :loa3, ssn: '796066622', uuid: '89b40886-95e3-4a5b-824e-a4658b707508') }
+
         it 'renders nil data' do
           VCR.use_cassette('evss/gi_bill_status/vet_with_no_info') do
             get :show
@@ -96,6 +98,7 @@ RSpec.describe V0::Post911GIBillStatusesController, type: :controller do
       describe 'when EVSS partners return invalid data' do
         # special EVSS CI user ssn=301010304
         let(:user) { FactoryBot.create(:user, :loa3, ssn: '301010304', uuid: 'aaaa1a') }
+
         it 'responds with a 422' do
           VCR.use_cassette('evss/gi_bill_status/invalid_partner_data') do
             get :show

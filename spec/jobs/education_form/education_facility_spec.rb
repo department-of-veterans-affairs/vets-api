@@ -20,6 +20,7 @@ RSpec.describe EducationForm::EducationFacility do
 
   describe '#routing_address' do
     let(:form) { OpenStruct.new }
+
     context '22-1990' do
       it 'uses educationProgram over veteranAddress' do
         form.educationProgram = school(eastern_address)
@@ -34,6 +35,7 @@ RSpec.describe EducationForm::EducationFacility do
 
     context '22-1990N' do
       let(:form) { OpenStruct.new(veteranAddress: western_address) }
+
       it 'uses educationProgram over veteranAddress' do
         form.educationProgram = school(central_address)
         expect(described_class.routing_address(form, form_type: '1990n').state).to eq(central_address.state)
@@ -45,6 +47,7 @@ RSpec.describe EducationForm::EducationFacility do
 
     context '22-1995' do
       let(:form) { OpenStruct.new(veteranAddress: western_address) }
+
       it 'uses newSchool over relativeAddress' do
         form.newSchool = school(central_address)
         expect(described_class.routing_address(form, form_type: '1995').state).to eq(central_address.state)
@@ -57,6 +60,7 @@ RSpec.describe EducationForm::EducationFacility do
     %w[1990E 5490 5495].each do |form_type|
       context "22-#{form_type}" do
         let(:form) { OpenStruct.new(relativeAddress: western_address) }
+
         it 'uses educationProgram over relativeAddress' do
           form.educationProgram = school(central_address)
           expect(described_class.routing_address(form, form_type: form_type).state).to eq(central_address.state)

@@ -262,6 +262,7 @@ describe MVI::Service do
 
     context 'when a MVI internal system problem response is returned' do
       let(:body) { File.read('spec/support/mvi/find_candidate_ar_code_database_error_response.xml') }
+
       it 'should raise a invalid request error', :aggregate_failures do
         expect(subject).to receive(:log_message_to_sentry).with(
           'MVI Failed Request', :error
@@ -274,6 +275,7 @@ describe MVI::Service do
 
     context 'with an MVI timeout' do
       let(:base_path) { MVI::Configuration.instance.base_path }
+
       it 'should raise a service error', :aggregate_failures do
         allow_any_instance_of(Faraday::Connection).to receive(:post).and_raise(Faraday::TimeoutError)
         expect(subject).to receive(:log_console_and_sentry).with(
@@ -416,7 +418,7 @@ describe MVI::Service do
             subject.find_profile(user)
             Settings.mvi.pii_logging = false
           end
-        end.to change { PersonalInformationLog.count }.by(1)
+        end.to change(PersonalInformationLog, :count).by(1)
       end
     end
 

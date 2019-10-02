@@ -19,7 +19,7 @@ describe 'Logging Middleware' do
   end
 
   it 'creates a new personal information log record' do
-    expect { client.get('success') }.to change { PersonalInformationLog.count }.by(1)
+    expect { client.get('success') }.to change(PersonalInformationLog, :count).by(1)
     expect(PersonalInformationLog.last.data.keys).to eq(%w[url method request_body response_body])
   end
 
