@@ -1140,7 +1140,7 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
     end
 
     context '/v0/user endpoint with some external service errors' do
-      let(:user) { build(:user, middle_name: "Lee") }
+      let(:user) { build(:user, middle_name: 'Lee') }
       let(:headers) { { '_headers' => { 'Cookie' => sign_in(user, nil, true) } } }
 
       it 'supports getting user with some external errors', skip_mvi: true do
