@@ -212,20 +212,6 @@ RSpec/RepeatedExample:
     - 'modules/vba_documents/spec/request/v0/reports_request_spec.rb'
     - 'modules/vba_documents/spec/request/v1/reports_request_spec.rb'
 
-# Offense count: 16
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle.
-# SupportedStyles: and_return, block
-RSpec/ReturnFromStub:
-  Exclude:
-    - 'spec/jobs/education_form/create_daily_spool_files_spec.rb'
-    - 'spec/lib/evss/intent_to_file/response_strategy_spec.rb'
-    - 'spec/lib/evss/pciu_address/response_strategy_spec.rb'
-    - 'spec/lib/hca/service_spec.rb'
-    - 'spec/lib/mvi/configuration_spec.rb'
-    - 'spec/lib/saml/saml_health_spec.rb'
-    - 'spec/lib/sftp_writer/factory_spec.rb'
-
 # Offense count: 45
 RSpec/ScatteredLet:
   Exclude:
