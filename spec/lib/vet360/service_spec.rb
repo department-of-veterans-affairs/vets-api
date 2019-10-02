@@ -8,6 +8,7 @@ describe Vet360::Service do
   let(:status)  { 400 }
   let(:message) { 'the server responded with status 400' }
   let(:file)    { Rails.root.join('spec', 'support', 'vet360', 'api_response_error_messages.csv') }
+
   subject       { described_class.new(user) }
 
   describe '#handle_error' do
@@ -36,6 +37,7 @@ describe Vet360::Service do
 
     context 'when given a Common::Client::Errors::ParsingError from a Vet360 service call' do
       let(:error) { Common::Client::Errors::ParsingError.new }
+
       it 'logs an error message to sentry', :aggregate_failures do
         expect(Raven).to receive(:extra_context)
 

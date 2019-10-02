@@ -15,9 +15,11 @@ RSpec.describe MhvAccountTypeService do
       va_patient?: true
     )
   end
+
   subject { described_class.new(user) }
 
   before { Settings.sentry.dsn = 'asdf' }
+
   after { Settings.sentry.dsn = nil }
 
   context 'no mhv_correlation_id' do

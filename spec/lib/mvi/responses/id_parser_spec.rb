@@ -11,6 +11,7 @@ describe MVI::Responses::IdParser do
          correlation_id('87654322^PI^200CORP^USVBA^L'),
          correlation_id('12345678^PI^200CORP^USVBA^A')]
       end
+
       it 'matches correctly on all valid ID statuses (i.e. P and A)' do
         expect(MVI::Responses::IdParser.new.parse(vba_corp_ids)[:vba_corp_id]).to eq '12345678'
       end

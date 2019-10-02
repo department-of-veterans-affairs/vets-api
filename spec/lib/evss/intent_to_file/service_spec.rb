@@ -5,6 +5,7 @@ require 'rails_helper'
 describe EVSS::IntentToFile::Service do
   describe '.find_by_user' do
     let(:user) { build(:user, :loa3) }
+
     subject { described_class.new(user) }
 
     describe '#get_intent_to_file' do
@@ -101,6 +102,7 @@ describe EVSS::IntentToFile::Service do
     describe '#create_intent_to_file' do
       context 'with a valid intent to file request' do
         subject { described_class.new(user).create_intent_to_file('compensation') }
+
         it 'returns an active compensation response object' do
           VCR.use_cassette('evss/intent_to_file/create_compensation') do
             response = subject
@@ -134,6 +136,7 @@ describe EVSS::IntentToFile::Service do
 
       context 'with an invalid intent to file type' do
         subject { described_class.new(user).create_intent_to_file('compensation') }
+
         it 'should log an error and raise a ServiceException' do
           VCR.use_cassette('evss/intent_to_file/create_compensation_type_error') do
             expect(StatsD).to receive(:increment).once.with(
@@ -148,6 +151,7 @@ describe EVSS::IntentToFile::Service do
 
       context 'with a partner service error' do
         subject { described_class.new(user).create_intent_to_file('compensation') }
+
         it 'should log an error and raise a ServiceException' do
           VCR.use_cassette('evss/intent_to_file/create_compensation_partner_service_error') do
             expect(StatsD).to receive(:increment).once.with(
@@ -162,6 +166,7 @@ describe EVSS::IntentToFile::Service do
 
       context 'when service returns a 403' do
         subject { described_class.new(user).create_intent_to_file('compensation') }
+
         it 'contains 403 in meta' do
           VCR.use_cassette('evss/intent_to_file/create_compensation_403') do
             expect { subject }.to raise_error(Common::Exceptions::Forbidden)

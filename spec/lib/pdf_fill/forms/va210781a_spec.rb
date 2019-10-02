@@ -14,6 +14,7 @@ describe PdfFill::Forms::Va210781a do
   let(:new_form_class) do
     described_class.new(form_data)
   end
+
   def class_form_data
     new_form_class.instance_variable_get(:@form_data)
   end
@@ -100,6 +101,7 @@ describe PdfFill::Forms::Va210781a do
         ]
       }
     end
+
     it 'should expand other information correctly' do
       new_form_class.send(:expand_other_information)
       expect(

@@ -16,9 +16,9 @@ RSpec.describe Facilities::DentalServiceReloadJob, type: :job do
 
   it 'populates facilities' do
     Facilities::DentalServiceReloadJob.new.perform
-    expect(FacilityDentalService.find('402HB')).to_not be_nil
-    expect(FacilityDentalService.find('436')).to_not be_nil
-    expect(FacilityDentalService.find('436GH')).to_not be_nil
+    expect(FacilityDentalService.find('402HB')).not_to be_nil
+    expect(FacilityDentalService.find('436')).not_to be_nil
+    expect(FacilityDentalService.find('436GH')).not_to be_nil
   end
 
   it 'populates facility data' do
@@ -29,7 +29,7 @@ RSpec.describe Facilities::DentalServiceReloadJob, type: :job do
 
   it 'deletes removed keys' do
     Facilities::DentalServiceReloadJob.new.perform
-    expect(FacilityDentalService.find('436GH')).to_not be_nil
+    expect(FacilityDentalService.find('436GH')).not_to be_nil
 
     dental_service_data = %(unique_id,facility_type\n402HB,va_health_facility\n436,va_health_facility)
 
@@ -45,6 +45,7 @@ RSpec.describe Facilities::DentalServiceReloadJob, type: :job do
     before do
       Settings.sentry.dsn = 'asdf'
     end
+
     after do
       Settings.sentry.dsn = nil
     end
