@@ -97,7 +97,7 @@ RSpec.describe SAML::User do
       end
 
       it 'is not changing multifactor' do
-        expect(subject.changing_multifactor?).to be_falsey
+        expect(subject).not_to be_changing_multifactor
       end
 
       context 'multifactor' do
@@ -122,7 +122,7 @@ RSpec.describe SAML::User do
         end
 
         it 'is changing multifactor' do
-          expect(subject.changing_multifactor?).to be_truthy
+          expect(subject).to be_changing_multifactor
         end
 
         context 'without an already persisted UserIdentity' do
@@ -177,7 +177,7 @@ RSpec.describe SAML::User do
       end
 
       it 'is not changing multifactor' do
-        expect(subject.changing_multifactor?).to be_falsey
+        expect(subject).not_to be_changing_multifactor
       end
 
       context 'multifactor' do
@@ -202,7 +202,7 @@ RSpec.describe SAML::User do
         end
 
         it 'is changing multifactor' do
-          expect(subject.changing_multifactor?).to be_truthy
+          expect(subject).to be_changing_multifactor
         end
       end
     end
@@ -230,7 +230,7 @@ RSpec.describe SAML::User do
       end
 
       it 'is not changing multifactor' do
-        expect(subject.changing_multifactor?).to be_falsey
+        expect(subject).not_to be_changing_multifactor
       end
     end
   end

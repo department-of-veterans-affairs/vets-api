@@ -4,7 +4,7 @@ require 'rails_helper'
 require 'support/controller_spec_helper'
 
 RSpec.describe V0::InProgressFormsController, type: :request do
-  it_should_behave_like 'a controller that does not log 404 to Sentry'
+  it_behaves_like 'a controller that does not log 404 to Sentry'
 
   context 'with a user' do
     let(:loa3_user) { build(:user, :loa3) }
@@ -168,7 +168,7 @@ RSpec.describe V0::InProgressFormsController, type: :request do
               form_data: new_form.form_data,
               metadata: new_form.metadata
             }.to_json, headers: { 'CONTENT_TYPE' => 'application/json' }
-          end.to change { InProgressForm.count }.by(1)
+          end.to change(InProgressForm, :count).by(1)
 
           expect(response).to have_http_status(:ok)
 
@@ -236,7 +236,7 @@ RSpec.describe V0::InProgressFormsController, type: :request do
         end
 
         it 'returns the deleted form id' do
-          expect { subject }.to change { InProgressForm.count }.by(-1)
+          expect { subject }.to change(InProgressForm, :count).by(-1)
           expect(response).to have_http_status(:ok)
         end
       end

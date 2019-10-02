@@ -20,13 +20,13 @@ describe Common::Client::Session do
     it 'returns true if user_id is present' do
       subject = DerivedClass.new(user_id: '1')
       expect(subject.user_id).to eq(1)
-      expect(subject.valid?).to be_truthy
+      expect(subject).to be_valid
     end
 
     it 'returns false if user_id is not present' do
       subject = DerivedClass.new(user_id: '')
       expect(subject.user_id).to be_nil
-      expect(subject.valid?).to be_falsey
+      expect(subject).not_to be_valid
     end
   end
 
@@ -34,19 +34,19 @@ describe Common::Client::Session do
     it 'returns true if expires_at is empty' do
       subject = DerivedClass.new(expires_at: '')
       expect(subject.expires_at).to be_nil
-      expect(subject.expired?).to be_truthy
+      expect(subject).to be_expired
     end
 
     it 'returns true if expires_at is an expired time' do
       subject = DerivedClass.new(expires_at: 'Tue, 10 May 2016 16:40:17 GMT')
       expect(subject.expires_at).to be_a(Time)
-      expect(subject.expired?).to be_truthy
+      expect(subject).to be_expired
     end
 
     it 'returns false if expires_at is not an expired time' do
       subject = DerivedClass.new(expires_at: 'Tue, 10 May 2099 16:40:17 GMT')
       expect(subject.expires_at).to be_a(Time)
-      expect(subject.expired?).to be_falsey
+      expect(subject).not_to be_expired
     end
   end
 

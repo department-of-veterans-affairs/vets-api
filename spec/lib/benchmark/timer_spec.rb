@@ -13,7 +13,7 @@ describe Benchmark::Timer do
   it 'should store current time in Redis' do
     Benchmark::Timer.start('test', 'foo')
 
-    expect(redis.get('benchmark_test_foo')).to_not be_nil
+    expect(redis.get('benchmark_test_foo')).not_to be_nil
     expect(redis.ttl('benchmark_test_foo').positive?).to be true
   end
 
@@ -35,7 +35,7 @@ describe Benchmark::Timer do
     it 'should not log elapsed time to StatsD' do
       msg = 'Could not find benchmark start for test_bar'
       expect(Rails.logger).to receive(:warn).once.with(msg)
-      expect(StatsD).to_not receive(:measure)
+      expect(StatsD).not_to receive(:measure)
 
       Benchmark::Timer.stop('test', 'bar')
     end

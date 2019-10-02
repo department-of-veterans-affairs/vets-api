@@ -64,7 +64,7 @@ RSpec.describe MhvAccount, type: :model do
 
         it 'needs_identity_verification' do
           expect(subject.account_state).to eq('needs_identity_verification')
-          expect(subject.creatable?).to be_falsey
+          expect(subject).not_to be_creatable
         end
       end
 
@@ -73,7 +73,7 @@ RSpec.describe MhvAccount, type: :model do
 
         it 'needs_ssn_resolution' do
           expect(subject.account_state).to eq('needs_ssn_resolution')
-          expect(subject.creatable?).to be_falsey
+          expect(subject).not_to be_creatable
         end
       end
 
@@ -82,7 +82,7 @@ RSpec.describe MhvAccount, type: :model do
 
         it 'needs_va_patient' do
           expect(subject.account_state).to eq('needs_va_patient')
-          expect(subject.creatable?).to be_falsey
+          expect(subject).not_to be_creatable
         end
       end
 
@@ -92,7 +92,7 @@ RSpec.describe MhvAccount, type: :model do
 
         it 'has_deactivated_mhv_ids' do
           expect(subject.account_state).to eq('has_deactivated_mhv_ids')
-          expect(subject.creatable?).to be_falsey
+          expect(subject).not_to be_creatable
         end
       end
 
@@ -102,7 +102,7 @@ RSpec.describe MhvAccount, type: :model do
 
         it 'has_multiple_active_mhv_ids' do
           expect(subject.account_state).to eq('has_multiple_active_mhv_ids')
-          expect(subject.creatable?).to be_falsey
+          expect(subject).not_to be_creatable
         end
       end
 
@@ -111,7 +111,7 @@ RSpec.describe MhvAccount, type: :model do
 
         it 'needs_terms_acceptance' do
           expect(subject.account_state).to eq('needs_terms_acceptance')
-          expect(subject.creatable?).to be_falsey
+          expect(subject).not_to be_creatable
         end
       end
     end
@@ -173,8 +173,8 @@ RSpec.describe MhvAccount, type: :model do
           context 'nothing has been persisted and no mhv_id' do
             it 'has no_account' do
               expect(subject.account_state).to eq('no_account')
-              expect(subject.creatable?).to be_truthy
-              expect(subject.terms_and_conditions_accepted?).to be_truthy
+              expect(subject).to be_creatable
+              expect(subject).to be_terms_and_conditions_accepted
             end
           end
         end
@@ -193,9 +193,9 @@ RSpec.describe MhvAccount, type: :model do
 
               it 'has existing' do
                 expect(subject.account_state).to eq('existing')
-                expect(subject.creatable?).to be_falsey
-                expect(subject.upgradable?).to be_truthy
-                expect(subject.terms_and_conditions_accepted?).to be_truthy
+                expect(subject).not_to be_creatable
+                expect(subject).to be_upgradable
+                expect(subject).to be_terms_and_conditions_accepted
               end
             end
 
@@ -204,9 +204,9 @@ RSpec.describe MhvAccount, type: :model do
 
               it 'has existing' do
                 expect(subject.account_state).to eq('existing')
-                expect(subject.creatable?).to be_falsey
-                expect(subject.upgradable?).to be_truthy
-                expect(subject.terms_and_conditions_accepted?).to be_truthy
+                expect(subject).not_to be_creatable
+                expect(subject).to be_upgradable
+                expect(subject).to be_terms_and_conditions_accepted
               end
             end
 
@@ -215,9 +215,9 @@ RSpec.describe MhvAccount, type: :model do
 
               it 'has existing' do
                 expect(subject.account_state).to eq('existing')
-                expect(subject.creatable?).to be_falsey
-                expect(subject.upgradable?).to be_falsey
-                expect(subject.terms_and_conditions_accepted?).to be_truthy
+                expect(subject).not_to be_creatable
+                expect(subject).not_to be_upgradable
+                expect(subject).to be_terms_and_conditions_accepted
               end
             end
 
@@ -226,9 +226,9 @@ RSpec.describe MhvAccount, type: :model do
 
               it 'has existing' do
                 expect(subject.account_state).to eq('existing')
-                expect(subject.creatable?).to be_falsey
-                expect(subject.upgradable?).to be_falsey
-                expect(subject.terms_and_conditions_accepted?).to be_truthy
+                expect(subject).not_to be_creatable
+                expect(subject).not_to be_upgradable
+                expect(subject).to be_terms_and_conditions_accepted
               end
             end
 
@@ -237,9 +237,9 @@ RSpec.describe MhvAccount, type: :model do
 
               it 'has existing' do
                 expect(subject.account_state).to eq('existing')
-                expect(subject.creatable?).to be_falsey
-                expect(subject.upgradable?).to be_falsey
-                expect(subject.terms_and_conditions_accepted?).to be_truthy
+                expect(subject).not_to be_creatable
+                expect(subject).not_to be_upgradable
+                expect(subject).to be_terms_and_conditions_accepted
               end
             end
           end
@@ -252,9 +252,9 @@ RSpec.describe MhvAccount, type: :model do
             it 'has upgraded' do
               expect(subject.account_state).to eq('upgraded')
               expect(subject.changes[:account_state]).to be_nil
-              expect(subject.creatable?).to be_falsey
-              expect(subject.upgradable?).to be_falsey
-              expect(subject.terms_and_conditions_accepted?).to be_truthy
+              expect(subject).not_to be_creatable
+              expect(subject).not_to be_upgradable
+              expect(subject).to be_terms_and_conditions_accepted
             end
           end
 
@@ -268,18 +268,18 @@ RSpec.describe MhvAccount, type: :model do
               expect_any_instance_of(User).to receive(:mhv_account_type).exactly(1).times.and_return('Premium')
               expect(subject.account_state).to eq('upgraded')
               expect(subject.changes[:account_state]).to be_nil
-              expect(subject.creatable?).to be_falsey
-              expect(subject.upgradable?).to be_falsey
-              expect(subject.terms_and_conditions_accepted?).to be_truthy
+              expect(subject).not_to be_creatable
+              expect(subject).not_to be_upgradable
+              expect(subject).to be_terms_and_conditions_accepted
             end
 
             it 'has upgraded, with account level Error, but it is treated as upgraded therefore not upgradable' do
               expect_any_instance_of(User).to receive(:mhv_account_type).exactly(1).times.and_return('Error')
               expect(subject.account_state).to eq('upgraded')
               expect(subject.changes[:account_state]).to be_nil
-              expect(subject.creatable?).to be_falsey
-              expect(subject.upgradable?).to be_falsey
-              expect(subject.terms_and_conditions_accepted?).to be_truthy
+              expect(subject).not_to be_creatable
+              expect(subject).not_to be_upgradable
+              expect(subject).to be_terms_and_conditions_accepted
             end
           end
 
@@ -292,36 +292,36 @@ RSpec.describe MhvAccount, type: :model do
               expect_any_instance_of(User).to receive(:mhv_account_type).exactly(2).times.and_return('Basic')
               expect(subject.account_state).to eq('registered')
               expect(subject.changes).to be_empty
-              expect(subject.creatable?).to be_falsey
-              expect(subject.upgradable?).to be_truthy
-              expect(subject.terms_and_conditions_accepted?).to be_truthy
+              expect(subject).not_to be_creatable
+              expect(subject).to be_upgradable
+              expect(subject).to be_terms_and_conditions_accepted
             end
 
             it 'has registered, upgradable with account level advanced' do
               expect_any_instance_of(User).to receive(:mhv_account_type).exactly(2).times.and_return('Advanced')
               expect(subject.account_state).to eq('registered')
               expect(subject.changes).to be_empty
-              expect(subject.creatable?).to be_falsey
-              expect(subject.upgradable?).to be_truthy
-              expect(subject.terms_and_conditions_accepted?).to be_truthy
+              expect(subject).not_to be_creatable
+              expect(subject).to be_upgradable
+              expect(subject).to be_terms_and_conditions_accepted
             end
 
             it 'has registered, upgradable with account level nil' do
               expect_any_instance_of(User).to receive(:mhv_account_type).exactly(2).times.and_return(nil)
               expect(subject.account_state).to eq('registered')
               expect(subject.changes).to be_empty
-              expect(subject.creatable?).to be_falsey
-              expect(subject.upgradable?).to be_truthy
-              expect(subject.terms_and_conditions_accepted?).to be_truthy
+              expect(subject).not_to be_creatable
+              expect(subject).to be_upgradable
+              expect(subject).to be_terms_and_conditions_accepted
             end
 
             it 'has registered, NOT upgradable with account level Error' do
               expect_any_instance_of(User).to receive(:mhv_account_type).exactly(2).times.and_return('Error')
               expect(subject.account_state).to eq('registered')
               expect(subject.changes).to be_empty
-              expect(subject.creatable?).to be_falsey
-              expect(subject.upgradable?).to be_falsey
-              expect(subject.terms_and_conditions_accepted?).to be_truthy
+              expect(subject).not_to be_creatable
+              expect(subject).not_to be_upgradable
+              expect(subject).to be_terms_and_conditions_accepted
             end
           end
         end

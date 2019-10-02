@@ -102,7 +102,7 @@ describe Search::Service do
 
       it 'should not log to sentry' do
         VCR.use_cassette('search/exceeds_rate_limit', VCR::MATCH_EVERYTHING) do
-          expect_any_instance_of(described_class).to_not receive(:log_message_to_sentry)
+          expect_any_instance_of(described_class).not_to receive(:log_message_to_sentry)
 
           expect { subject.results }.to raise_error(Common::Exceptions::BackendServiceException)
         end
