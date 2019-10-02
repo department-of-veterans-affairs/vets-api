@@ -299,9 +299,9 @@ Rails.application.routes.draw do
 
   require 'feature_flipper'
   flipper_app = Flipper::UI.app(Flipper.instance) do |builder|
-  # builder.use Rack::Auth::Basic do |username, password|
-  #   username == Settings.flipper.username && password == Settings.flipper.password
-  # end
+    builder.use Rack::Auth::Basic do |username, password|
+      username == Settings.flipper.username && password == Settings.flipper.password
+    end
   end
   mount flipper_app, at: '/flipper'
 
