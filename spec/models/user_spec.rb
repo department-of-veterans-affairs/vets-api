@@ -40,25 +40,25 @@ RSpec.describe User, type: :model do
     end
 
     it 'should return true if user loa3?, and ssns dont match' do
-      expect(user.ssn_mismatch?).to be_truthy
+      expect(user).to be_ssn_mismatch
     end
 
     it 'should return false if user is not loa3?' do
       allow(user).to receive(:loa3?).and_return(false)
-      expect(user.loa3?).to be_falsey
+      expect(user).not_to be_loa3
       expect(user.identity&.ssn).to eq(user.ssn)
       expect(user.va_profile&.ssn).to be_falsey
-      expect(user.ssn_mismatch?).to be_falsey
+      expect(user).not_to be_ssn_mismatch
     end
 
     context 'identity ssn is nil' do
       let(:user) { build(:user, :loa3, ssn: nil) }
 
       it 'should return false' do
-        expect(user.loa3?).to be_truthy
+        expect(user).to be_loa3
         expect(user.identity&.ssn).to be_falsey
         expect(user.va_profile&.ssn).to be_truthy
-        expect(user.ssn_mismatch?).to be_falsey
+        expect(user).not_to be_ssn_mismatch
       end
     end
 
@@ -66,10 +66,10 @@ RSpec.describe User, type: :model do
       let(:mvi_profile) { build(:mvi_profile, ssn: nil) }
 
       it 'should return false' do
-        expect(user.loa3?).to be_truthy
+        expect(user).to be_loa3
         expect(user.identity&.ssn).to be_truthy
         expect(user.va_profile&.ssn).to be_falsey
-        expect(user.ssn_mismatch?).to be_falsey
+        expect(user).not_to be_ssn_mismatch
       end
     end
 
@@ -77,10 +77,10 @@ RSpec.describe User, type: :model do
       let(:mvi_profile) { build(:mvi_profile, ssn: user.ssn) }
 
       it 'should return false if user identity ssn is nil' do
-        expect(user.loa3?).to be_truthy
+        expect(user).to be_loa3
         expect(user.identity&.ssn).to be_truthy
         expect(user.va_profile&.ssn).to be_truthy
-        expect(user.ssn_mismatch?).to be_falsey
+        expect(user).not_to be_ssn_mismatch
       end
     end
   end
@@ -105,7 +105,7 @@ RSpec.describe User, type: :model do
 
       it 'should not allow a blank uuid' do
         loa1_user.uuid = ''
-        expect(loa1_user.valid?).to be_falsey
+        expect(loa1_user).not_to be_valid
         expect(loa1_user.errors[:uuid].size).to be_positive
       end
     end
@@ -138,7 +138,7 @@ RSpec.describe User, type: :model do
     end
 
     it 'has a persisted attribute of false' do
-      expect(subject.persisted?).to be_falsey
+      expect(subject).not_to be_persisted
     end
 
     it 'has nil edipi locally and from IDENTITY' do
@@ -148,7 +148,7 @@ RSpec.describe User, type: :model do
   end
 
   it 'has a persisted attribute of false' do
-    expect(subject.persisted?).to be_falsey
+    expect(subject).not_to be_persisted
   end
 
   describe 'redis persistence' do
@@ -156,7 +156,7 @@ RSpec.describe User, type: :model do
 
     describe '#save' do
       it 'sets persisted flag to true' do
-        expect(subject.persisted?).to be_truthy
+        expect(subject).to be_persisted
       end
 
       it 'sets the ttl countdown' do
@@ -416,7 +416,7 @@ RSpec.describe User, type: :model do
       let(:mvi_profile) { build(:mvi_profile, vha_facility_ids: []) }
 
       it 'is false' do
-        expect(user.va_patient?).to be_falsey
+        expect(user).not_to be_va_patient
       end
     end
 
@@ -424,7 +424,7 @@ RSpec.describe User, type: :model do
       let(:mvi_profile) { build(:mvi_profile, vha_facility_ids: nil) }
 
       it 'is false' do
-        expect(user.va_patient?).to be_falsey
+        expect(user).not_to be_va_patient
       end
     end
 
@@ -432,7 +432,7 @@ RSpec.describe User, type: :model do
       let(:mvi_profile) { build(:mvi_profile, vha_facility_ids: [200, 759]) }
 
       it 'is false' do
-        expect(user.va_patient?).to be_falsey
+        expect(user).not_to be_va_patient
       end
     end
 
@@ -440,7 +440,7 @@ RSpec.describe User, type: :model do
       let(:mvi_profile) { build(:mvi_profile, vha_facility_ids: [450]) }
 
       it 'is true' do
-        expect(user.va_patient?).to be_truthy
+        expect(user).to be_va_patient
       end
     end
 
@@ -448,7 +448,7 @@ RSpec.describe User, type: :model do
       let(:mvi_profile) { build(:mvi_profile, vha_facility_ids: %w[450MH]) }
 
       it 'is true' do
-        expect(user.va_patient?).to be_truthy
+        expect(user).to be_va_patient
       end
     end
 
@@ -456,7 +456,7 @@ RSpec.describe User, type: :model do
       let(:mvi_profile) { build(:mvi_profile, vha_facility_ids: [758]) }
 
       it 'is true' do
-        expect(user.va_patient?).to be_truthy
+        expect(user).to be_va_patient
       end
     end
 
@@ -464,7 +464,7 @@ RSpec.describe User, type: :model do
       let(:mvi_profile) { build(:mvi_profile, vha_facility_ids: %w[758MH]) }
 
       it 'is true' do
-        expect(user.va_patient?).to be_truthy
+        expect(user).to be_va_patient
       end
     end
 
@@ -472,7 +472,7 @@ RSpec.describe User, type: :model do
       let(:mvi_profile) { build(:mvi_profile, vha_facility_ids: %w[450MH 758MH]) }
 
       it 'is true' do
-        expect(user.va_patient?).to be_truthy
+        expect(user).to be_va_patient
       end
     end
 
@@ -480,7 +480,7 @@ RSpec.describe User, type: :model do
       let(:mvi_profile) { build(:mvi_profile, vha_facility_ids: %w[449MH 759MH]) }
 
       it 'is false' do
-        expect(user.va_patient?).to be_falsey
+        expect(user).not_to be_va_patient
       end
     end
 
@@ -488,7 +488,7 @@ RSpec.describe User, type: :model do
       let(:mvi_profile) { build(:mvi_profile, vha_facility_ids: %w[759MM]) }
 
       it 'is true' do
-        expect(user.va_patient?).to be_truthy
+        expect(user).to be_va_patient
       end
     end
 
@@ -496,7 +496,7 @@ RSpec.describe User, type: :model do
       let(:mvi_profile) { build(:mvi_profile, vha_facility_ids: %w[759]) }
 
       it 'is false' do
-        expect(user.va_patient?).to be_falsey
+        expect(user).not_to be_va_patient
       end
     end
   end

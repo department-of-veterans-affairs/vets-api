@@ -12,12 +12,12 @@ RSpec.describe Preneeds::PreneedSubmission, type: :model do
 
     it 'requires a tracking_number' do
       subject.tracking_number = nil
-      expect(subject).to_not be_valid
+      expect(subject).not_to be_valid
     end
 
     it 'requires a return_description' do
       subject.return_description = nil
-      expect(subject).to_not be_valid
+      expect(subject).not_to be_valid
     end
   end
 end

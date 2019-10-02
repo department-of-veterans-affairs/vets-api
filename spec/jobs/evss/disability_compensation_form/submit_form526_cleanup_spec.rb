@@ -22,7 +22,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526Cleanup, type: :jo
       it 'deletes the in progress form' do
         create(:in_progress_form, user_uuid: user.uuid, form_id: '21-526EZ')
         subject.perform_async(submission.id)
-        expect { described_class.drain }.to change { InProgressForm.count }.by(-1)
+        expect { described_class.drain }.to change(InProgressForm, :count).by(-1)
       end
 
       it 'deletes the cached ITF' do

@@ -22,7 +22,7 @@ RSpec.describe Session, type: :model do
     end
 
     it 'has a persisted attribute of false' do
-      expect(subject.persisted?).to be_falsey
+      expect(subject).not_to be_persisted
     end
 
     context 'with a matching user' do
@@ -91,7 +91,7 @@ RSpec.describe Session, type: :model do
 
     context 'save' do
       it 'sets persisted flag to true' do
-        expect(subject.persisted?).to be_truthy
+        expect(subject).to be_persisted
       end
 
       it 'sets the ttl countdown' do
