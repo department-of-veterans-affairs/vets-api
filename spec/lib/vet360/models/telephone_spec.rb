@@ -42,13 +42,13 @@ describe Vet360::Models::Telephone do
       it 'is not valid when set to true' do
         phone = build(:telephone, is_international: true)
 
-        expect(phone).to_not be_valid
+        expect(phone).not_to be_valid
       end
 
       it 'is not valid when nil' do
         phone = build(:telephone, is_international: nil)
 
-        expect(phone).to_not be_valid
+        expect(phone).not_to be_valid
       end
     end
 
@@ -69,14 +69,14 @@ describe Vet360::Models::Telephone do
         invalid_country_codes.each do |invalid_country_code|
           phone = build(:telephone, country_code: invalid_country_code)
 
-          expect(phone).to_not be_valid
+          expect(phone).not_to be_valid
         end
       end
 
       it 'is not valid when nil' do
         phone = build(:telephone, country_code: nil)
 
-        expect(phone).to_not be_valid
+        expect(phone).not_to be_valid
       end
     end
   end

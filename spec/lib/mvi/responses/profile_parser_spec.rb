@@ -16,7 +16,7 @@ describe MVI::Responses::ProfileParser do
 
     describe '#failed_or_invalid?' do
       it 'should return false' do
-        expect(parser.failed_or_invalid?).to be_falsey
+        expect(parser).not_to be_failed_or_invalid
       end
     end
 
@@ -30,6 +30,7 @@ describe MVI::Responses::ProfileParser do
           historical_icns: nil
         )
       end
+
       it 'returns a MviProfile with the parsed attributes' do
         expect(parser.parse).to have_deep_attributes(mvi_profile)
       end
@@ -47,6 +48,7 @@ describe MVI::Responses::ProfileParser do
             historical_icns: nil
           )
         end
+
         it 'should set the names to false' do
           allow(parser).to receive(:get_patient_name).and_return(nil)
           expect(parser.parse).to have_deep_attributes(mvi_profile)
@@ -77,6 +79,7 @@ describe MVI::Responses::ProfileParser do
             ]
           )
         end
+
         it 'should set the address to nil' do
           expect(parser.parse).to have_deep_attributes(mvi_profile)
         end
@@ -84,13 +87,13 @@ describe MVI::Responses::ProfileParser do
 
       context 'with no middle name, missing and alternate correlation ids, multiple other_ids' do
         let(:icn_with_aaid) { '1008714701V416111^NI^200M^USVHA' }
-        let(:body) { Ox.parse(File.read('spec/support/mvi/find_candidate_missing_attrs.xml')) }
+        let(:body) { Ox.parse(File.read('spec/support/mvi/find_candidate_missing_attrs_response.xml')) }
         let(:mvi_profile) do
           build(
             :mvi_profile_response,
             :missing_attrs,
             :address_austin,
-            sec_id: nil,
+            sec_id: '1008714701',
             historical_icns: nil,
             mhv_ids: ['1100792239'],
             active_mhv_ids: ['1100792239'],
@@ -99,10 +102,12 @@ describe MVI::Responses::ProfileParser do
               '1008714701V416111^NI^200M^USVHA^P',
               '796122306^PI^200BRLS^USVBA^A',
               '9100792239^PI^200CORP^USVBA^A',
+              '1008714701^PN^200PROV^USDVA^A',
               '1100792239^PI^200MHS^USVHA^A'
             ]
           )
         end
+
         it 'should filter with only first name and retrieve correct MHV id' do
           expect(parser.parse).to have_deep_attributes(mvi_profile)
         end
@@ -111,7 +116,7 @@ describe MVI::Responses::ProfileParser do
   end
 
   context 'with no subject element' do
-    let(:body) { Ox.parse(File.read('spec/support/mvi/find_candidate_no_subject.xml')) }
+    let(:body) { Ox.parse(File.read('spec/support/mvi/find_candidate_no_subject_response.xml')) }
     let(:mvi_profile) { build(:mvi_profile_response, :missing_attrs) }
 
     describe '#parse' do
@@ -128,18 +133,18 @@ describe MVI::Responses::ProfileParser do
     describe '#failed_or_invalid?' do
       it 'should return true' do
         allow(faraday_response).to receive(:body) { body }
-        expect(parser.failed_or_invalid?).to be_truthy
+        expect(parser).to be_failed_or_invalid
       end
     end
   end
 
   context 'given a failure response' do
-    let(:body) { Ox.parse(File.read('spec/support/mvi/find_candidate_failure_response.xml')) }
+    let(:body) { Ox.parse(File.read('spec/support/mvi/find_candidate_ar_code_database_error_response.xml')) }
 
     describe '#failed_or_invalid?' do
       it 'should return true' do
         allow(faraday_response).to receive(:body) { body }
-        expect(parser.failed_or_invalid?).to be_truthy
+        expect(parser).to be_failed_or_invalid
       end
     end
   end
@@ -153,13 +158,13 @@ describe MVI::Responses::ProfileParser do
 
     describe '#failed_or_invalid?' do
       it 'should return false' do
-        expect(parser.failed_or_invalid?).to be_truthy
+        expect(parser).to be_failed_or_invalid
       end
     end
 
     describe '#multiple_match?' do
       it 'should return true' do
-        expect(parser.multiple_match?).to be_truthy
+        expect(parser).to be_multiple_match
       end
     end
   end
@@ -219,6 +224,7 @@ describe MVI::Responses::ProfileParser do
     let(:body) { Ox.parse(File.read('spec/support/mvi/find_candidate_inactive_mhv_ids.xml')) }
 
     before { Settings.sentry.dsn = 'asdf' }
+
     after { Settings.sentry.dsn = nil }
 
     before(:each) do

@@ -10,4 +10,8 @@ class CreateDrivetimeBands < ActiveRecord::Migration[5.2]
       t.timestamps null: false
     end
   end
+<<<<<<< HEAD
 end
+=======
+end
+>>>>>>> master

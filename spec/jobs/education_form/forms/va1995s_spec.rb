@@ -16,6 +16,7 @@ RSpec.describe EducationForm::Forms::VA1995s do
 
   context '#direct_deposit_type' do
     let(:education_benefits_claim) { create(:va1995s_full_form).education_benefits_claim }
+
     it 'converts internal keys to text' do
       expect(subject.school['name']).to eq('Test School Name')
       expect(subject.form_type).to eq('CH33')

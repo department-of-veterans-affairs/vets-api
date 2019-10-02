@@ -10,6 +10,7 @@ module Facilities
   end
   RSpec.describe VBAFacility do
     before(:each) { BaseFacility.validate_on_load = false }
+
     after(:each) { BaseFacility.validate_on_load = true }
 
     it 'should be a VBAFacility object' do
@@ -34,6 +35,7 @@ module Facilities
       context 'with single facility' do
         let(:facility) { VBAFacility.pull_source_data.first }
         let(:facility_2) { VBAFacility.pull_source_data.second }
+
         it 'should parse hours correctly' do
           VCR.use_cassette('facilities/va/vba_facilities_limit_results') do
             expect(facility.hours.values).to match_array(
@@ -80,6 +82,12 @@ module Facilities
         it 'should parse services' do
           VCR.use_cassette('facilities/va/vba_facilities_limit_results') do
             expect(facility.services['benefits'].values).to match_array(['Readjustment Counseling only', []])
+          end
+        end
+
+        it 'should get the correct classification name' do
+          VCR.use_cassette('facilities/va/vba_facilities_limit_results') do
+            expect(facility.classification).to eq('OUTBASED')
           end
         end
       end

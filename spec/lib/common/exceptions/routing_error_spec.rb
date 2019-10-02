@@ -19,6 +19,7 @@ describe Common::Exceptions::RoutingError do
 
   context 'optional path' do
     subject { described_class.new('some_path') }
+
     it 'the errors object has all relevant keys' do
       expect(subject.errors.first.to_hash)
         .to eq(title: 'Not found',

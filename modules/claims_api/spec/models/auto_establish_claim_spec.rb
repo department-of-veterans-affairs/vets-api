@@ -20,6 +20,7 @@ RSpec.describe ClaimsApi::AutoEstablishedClaim, type: :model do
         expect(described_class.pending?('123')).to be(false)
       end
     end
+
     context 'with pending records' do
       it 'should truthy and return the record' do
         result = described_class.pending?(pending_record.id)
@@ -32,6 +33,7 @@ RSpec.describe ClaimsApi::AutoEstablishedClaim, type: :model do
   describe 'evss_id_by_token' do
     context 'with a record' do
       let(:evss_record) { create(:auto_established_claim, evss_id: 123_456) }
+
       it 'returns the evss id of that record' do
         expect(described_class.evss_id_by_token(evss_record.token)).to eq(123_456)
       end
@@ -42,6 +44,7 @@ RSpec.describe ClaimsApi::AutoEstablishedClaim, type: :model do
         expect(described_class.evss_id_by_token('thisisntatoken')).to be(nil)
       end
     end
+
     context 'with record without evss id' do
       it 'should return nil' do
         expect(described_class.evss_id_by_token(pending_record.token)).to be(nil)
@@ -51,6 +54,7 @@ RSpec.describe ClaimsApi::AutoEstablishedClaim, type: :model do
 
   context 'finding by ID or EVSS ID' do
     let(:evss_record) { create(:auto_established_claim, evss_id: 123_456) }
+
     before do
       evss_record
     end

@@ -11,7 +11,7 @@ RSpec.describe EVSS::DeleteOldClaims do
 
   describe '#perform' do
     it 'deletes old records' do
-      expect { subject.perform }.to change { EVSSClaim.count }.from(3).to(2)
+      expect { subject.perform }.to change(EVSSClaim, :count).from(3).to(2)
       expect { @claim_old.reload }.to raise_exception(ActiveRecord::RecordNotFound)
     end
   end

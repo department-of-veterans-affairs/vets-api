@@ -51,7 +51,7 @@ describe Vet360Redis::ContactInformation do
       it 'returns the cached data', :aggregate_failures do
         contact_info.cache(user.uuid, person_response)
 
-        expect_any_instance_of(Vet360::ContactInformation::Service).to_not receive(:get_person)
+        expect_any_instance_of(Vet360::ContactInformation::Service).not_to receive(:get_person)
         expect(contact_info.response.person).to have_deep_attributes(person)
       end
     end

@@ -6,6 +6,7 @@ RSpec.describe EVSSClaimDetailSerializer, type: :serializer do
   let(:evss_claim) { build(:evss_claim) }
   let(:data) { JSON.parse(subject)['data'] }
   let(:attributes) { data['attributes'] }
+
   subject { serialize(evss_claim, serializer_class: EVSSClaimDetailSerializer) }
 
   it 'should include id' do
@@ -28,8 +29,19 @@ RSpec.describe EVSSClaimDetailSerializer, type: :serializer do
                          }
                        })
     end
+
     it 'strips the HTML tags' do
       expect(attributes['events_timeline'][0]['description']).to eq('this has HTML')
+    end
+  end
+
+  context 'with HTML in the VA representative field' do
+    let(:evss_claim) do
+      FactoryBot.build(:evss_claim, data: { 'poa': '&lt;VATreatmentCenter&gt;' })
+    end
+
+    it 'strips the HTML tags' do
+      expect(attributes['va_representative']).to eq('VATreatmentCenter')
     end
   end
 
@@ -41,6 +53,7 @@ RSpec.describe EVSSClaimDetailSerializer, type: :serializer do
                          'waiver5103_submitted': false
                        })
     end
+
     it 'should not use list_data' do
       expect(attributes['waiver_submitted']).to eq true
     end
@@ -60,6 +73,7 @@ RSpec.describe EVSSClaimDetailSerializer, type: :serializer do
     let(:other_documents) do
       attributes['events_timeline'].select { |obj| obj['type'] == 'other_documents_list' }
     end
+
     it 'should only add documents without a tracked_item_id into other_documents_list' do
       expect(other_documents.count).to eq 1
       expect(other_documents.reject { |obj| obj['tracked_item_id'].nil? }.count).to eq 0
@@ -71,6 +85,8 @@ RSpec.describe EVSSClaimDetailSerializer, type: :serializer do
   end
 
   context 'with some phase dates' do
+    let(:date_str) { Date.new(2012, 8, 10).to_json[1...-1] }
+
     it 'should not have a phase 1..6 event' do
       (1..6).each do |i|
         expect(attributes['events_timeline'].select { |obj| obj['type'] == "phase#{i}" }.count).to eq 0
@@ -79,8 +95,6 @@ RSpec.describe EVSSClaimDetailSerializer, type: :serializer do
     it 'should have a phase 7 event' do
       expect(attributes['events_timeline'].select { |obj| obj['type'] == 'phase7' }.count).to eq 1
     end
-
-    let(:date_str) { Date.new(2012, 8, 10).to_json[1...-1] } # Strip quotes around date string
 
     it 'should have the right date for phase 7' do
       expect(attributes['events_timeline'].select { |obj| obj['type'] == 'phase7' }.first['date']).to eq date_str

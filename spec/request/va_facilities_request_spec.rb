@@ -30,6 +30,7 @@ RSpec.describe 'VA GIS Integration', type: :request do
     ids = %w[vba_310e vba_306f vba_306a vba_306d vba_306g vba_309 vba_306 vba_306b vba_306e vba_306h vba_306i vba_306c]
     ids.map { |id| create id }
   end
+
   it 'responds to GET #show for VHA prefix' do
     create :vha_648A4
     get '/v0/facilities/va/vha_648A4'

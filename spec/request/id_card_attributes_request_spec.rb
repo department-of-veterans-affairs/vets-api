@@ -25,14 +25,14 @@ RSpec.describe 'Requesting ID Card Attributes', type: :request do
       url = json['url']
       expect(url).to be
       traits = json['traits']
-      expect(traits.key?('edipi')).to be_truthy
-      expect(traits.key?('firstname')).to be_truthy
-      expect(traits.key?('lastname')).to be_truthy
-      expect(traits.key?('title38status')).to be_truthy
-      expect(traits.key?('branchofservice')).to be_truthy
-      expect(traits.key?('dischargetype')).to be_truthy
-      expect(traits.key?('timestamp')).to be_truthy
-      expect(traits.key?('signature')).to be_truthy
+      expect(traits).to be_key('edipi')
+      expect(traits).to be_key('firstname')
+      expect(traits).to be_key('lastname')
+      expect(traits).to be_key('title38status')
+      expect(traits).to be_key('branchofservice')
+      expect(traits).to be_key('dischargetype')
+      expect(traits).to be_key('timestamp')
+      expect(traits).to be_key('signature')
     end
 
     it 'should return Bad Gateway if military information not retrievable' do

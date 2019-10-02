@@ -6,6 +6,7 @@ RSpec.describe 'primary phone', type: :request do
   include SchemaMatchers
 
   let(:headers) { { 'Content-Type' => 'application/json', 'Accept' => 'application/json' } }
+
   before(:each) { sign_in }
 
   describe 'GET /v0/profile/primary_phone' do

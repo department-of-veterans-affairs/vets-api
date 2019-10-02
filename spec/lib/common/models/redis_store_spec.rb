@@ -38,12 +38,13 @@ describe Common::RedisStore do
     context 'when the model is not saved' do
       it 'returns true if the given key exists' do
         subject.save
-        expect(klass.exists?('e66fd7b7-94e0-4748-8063-283f55efb0ea')).to be_truthy
+        expect(klass).to exist('e66fd7b7-94e0-4748-8063-283f55efb0ea')
       end
     end
+
     context 'when the model is saved' do
       it 'returns false' do
-        expect(klass.exists?('e66fd7b7-94e0-4748-8063-283f55efb0ea')).to be_falsey
+        expect(klass).not_to exist('e66fd7b7-94e0-4748-8063-283f55efb0ea')
       end
     end
   end
@@ -110,14 +111,14 @@ describe Common::RedisStore do
   describe '#persisted' do
     context 'when the model is not saved' do
       it 'returns false' do
-        expect(subject.persisted?).to be_falsey
+        expect(subject).not_to be_persisted
       end
     end
 
     context 'when the model is saved' do
       it 'returns false' do
         subject.save
-        expect(subject.persisted?).to be_truthy
+        expect(subject).to be_persisted
       end
     end
   end

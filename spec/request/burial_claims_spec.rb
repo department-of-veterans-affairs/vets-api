@@ -19,9 +19,11 @@ RSpec.describe 'Burial Claim Integration', type: %i[request serializer] do
       before do
         Settings.sentry.dsn = 'asdf'
       end
+
       after do
         Settings.sentry.dsn = nil
       end
+
       let(:params) do
         {
           burialClaim: {
@@ -49,6 +51,7 @@ RSpec.describe 'Burial Claim Integration', type: %i[request serializer] do
           }
         }
       end
+
       it 'should render success' do
         subject
         expect(JSON.parse(response.body)['data']['attributes'].keys.sort)
