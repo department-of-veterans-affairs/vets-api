@@ -13,12 +13,12 @@ RSpec.describe EducationForm::Forms::Base, type: :model, form: :education_benefi
   end
 
   describe '#hours_and_type' do
-    let(:training) do
-      {}
-    end
-
     subject do
       renderer.hours_and_type(OpenStruct.new(training))
+    end
+
+    let(:training) do
+      {}
     end
 
     context 'with hours' do
@@ -67,11 +67,11 @@ RSpec.describe EducationForm::Forms::Base, type: :model, form: :education_benefi
   end
 
   describe '#benefit_type' do
-    let(:education_benefits_claim) { create(:va1990e).education_benefits_claim }
-
     subject do
       described_class.new(education_benefits_claim)
     end
+
+    let(:education_benefits_claim) { create(:va1990e).education_benefits_claim }
 
     it 'returns the benefit type shorthand' do
       expect(subject.benefit_type(education_benefits_claim.open_struct_form)).to eq('CH33')
@@ -79,9 +79,9 @@ RSpec.describe EducationForm::Forms::Base, type: :model, form: :education_benefi
   end
 
   context '#full_name' do
-    let(:name) { OpenStruct.new(first: 'Mark', last: 'Olson') }
-
     subject { renderer.full_name(name) }
+
+    let(:name) { OpenStruct.new(first: 'Mark', last: 'Olson') }
 
     context 'with no middle name' do
       it 'does not have extra spaces' do
@@ -98,9 +98,9 @@ RSpec.describe EducationForm::Forms::Base, type: :model, form: :education_benefi
   end
 
   context '#full_address' do
-    let(:address) { application.open_struct_form.veteranAddress }
-
     subject { renderer.full_address(address) }
+
+    let(:address) { application.open_struct_form.veteranAddress }
 
     context 'with a nil address' do
       let(:address) { nil }

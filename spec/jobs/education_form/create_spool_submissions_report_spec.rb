@@ -3,11 +3,11 @@
 require 'rails_helper'
 
 RSpec.describe EducationForm::CreateSpoolSubmissionsReport, type: :aws_helpers do
-  let(:time) { Time.zone.now }
-
   subject do
     described_class.new
   end
+
+  let(:time) { Time.zone.now }
 
   context 'with some sample claims', run_at: '2017-07-27 00:00:00 -0400' do
     let!(:education_benefits_claim_1) do

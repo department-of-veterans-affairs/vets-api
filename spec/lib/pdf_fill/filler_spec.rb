@@ -7,12 +7,12 @@ describe PdfFill::Filler do
   include SchemaMatchers
 
   describe '#combine_extras' do
-    let(:extras_generator) { double }
-    let(:old_file_path) { 'tmp/pdfs/file_path.pdf' }
-
     subject do
       described_class.combine_extras(old_file_path, extras_generator)
     end
+
+    let(:extras_generator) { double }
+    let(:old_file_path) { 'tmp/pdfs/file_path.pdf' }
 
     context 'when extras_generator doesnt have text' do
       it 'returns the old_file_path' do

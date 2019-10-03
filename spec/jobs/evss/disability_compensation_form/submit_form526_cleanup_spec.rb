@@ -5,14 +5,14 @@ require 'sidekiq/testing'
 Sidekiq::Testing.fake!
 
 RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526Cleanup, type: :job do
+  subject { described_class }
+
   before(:each) do
     Sidekiq::Worker.clear_all
   end
 
   let(:user) { FactoryBot.create(:user, :loa3) }
   let(:submission) { create(:form526_submission, user_uuid: user.uuid) }
-
-  subject { described_class }
 
   describe '.perform_async' do
     let(:strategy_class) { EVSS::IntentToFile::ResponseStrategy }
