@@ -152,8 +152,8 @@ describe HCA::Service do
 
     context 'when there are no SSL options' do
       it 'onlies return the wsdl' do
-        allow(HCA::Configuration.instance).to receive(:ssl_cert) { nil }
-        allow(HCA::Configuration.instance).to receive(:ssl_key) { nil }
+        allow(HCA::Configuration.instance).to receive(:ssl_cert).and_return(nil)
+        allow(HCA::Configuration.instance).to receive(:ssl_key).and_return(nil)
         expect(HCA::Configuration.instance.ssl_options).to eq(
           verify: true,
           cert_store: store

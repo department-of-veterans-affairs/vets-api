@@ -12,8 +12,8 @@ describe MVI::Configuration do
       end
 
       it 'returns nil' do
-        allow(MVI::Configuration.instance).to receive(:ssl_cert) { nil }
-        allow(MVI::Configuration.instance).to receive(:ssl_key) { nil }
+        allow(MVI::Configuration.instance).to receive(:ssl_cert).and_return(nil)
+        allow(MVI::Configuration.instance).to receive(:ssl_key).and_return(nil)
         expect(MVI::Configuration.instance.ssl_options).to be_nil
       end
     end
