@@ -265,7 +265,7 @@ RSpec.describe MhvAccount, type: :model do
             end
 
             it 'has upgraded, with account level Premium, but it is treated as upgraded therefore not upgradable' do
-              expect_any_instance_of(User).to receive(:mhv_account_type).exactly(1).times.and_return('Premium')
+              expect_any_instance_of(User).to receive(:mhv_account_type).once.and_return('Premium')
               expect(subject.account_state).to eq('upgraded')
               expect(subject.changes[:account_state]).to be_nil
               expect(subject).not_to be_creatable
@@ -274,7 +274,7 @@ RSpec.describe MhvAccount, type: :model do
             end
 
             it 'has upgraded, with account level Error, but it is treated as upgraded therefore not upgradable' do
-              expect_any_instance_of(User).to receive(:mhv_account_type).exactly(1).times.and_return('Error')
+              expect_any_instance_of(User).to receive(:mhv_account_type).once.and_return('Error')
               expect(subject.account_state).to eq('upgraded')
               expect(subject.changes[:account_state]).to be_nil
               expect(subject).not_to be_creatable
@@ -289,7 +289,7 @@ RSpec.describe MhvAccount, type: :model do
             end
 
             it 'has registered, upgradable with account level basic' do
-              expect_any_instance_of(User).to receive(:mhv_account_type).exactly(2).times.and_return('Basic')
+              expect_any_instance_of(User).to receive(:mhv_account_type).twice.and_return('Basic')
               expect(subject.account_state).to eq('registered')
               expect(subject.changes).to be_empty
               expect(subject).not_to be_creatable
@@ -298,7 +298,7 @@ RSpec.describe MhvAccount, type: :model do
             end
 
             it 'has registered, upgradable with account level advanced' do
-              expect_any_instance_of(User).to receive(:mhv_account_type).exactly(2).times.and_return('Advanced')
+              expect_any_instance_of(User).to receive(:mhv_account_type).twice.and_return('Advanced')
               expect(subject.account_state).to eq('registered')
               expect(subject.changes).to be_empty
               expect(subject).not_to be_creatable
@@ -307,7 +307,7 @@ RSpec.describe MhvAccount, type: :model do
             end
 
             it 'has registered, upgradable with account level nil' do
-              expect_any_instance_of(User).to receive(:mhv_account_type).exactly(2).times.and_return(nil)
+              expect_any_instance_of(User).to receive(:mhv_account_type).twice.and_return(nil)
               expect(subject.account_state).to eq('registered')
               expect(subject.changes).to be_empty
               expect(subject).not_to be_creatable
@@ -316,7 +316,7 @@ RSpec.describe MhvAccount, type: :model do
             end
 
             it 'has registered, NOT upgradable with account level Error' do
-              expect_any_instance_of(User).to receive(:mhv_account_type).exactly(2).times.and_return('Error')
+              expect_any_instance_of(User).to receive(:mhv_account_type).twice.and_return('Error')
               expect(subject.account_state).to eq('registered')
               expect(subject.changes).to be_empty
               expect(subject).not_to be_creatable
