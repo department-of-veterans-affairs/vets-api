@@ -9,7 +9,7 @@ describe 'search', type: :request do
 
   describe 'GET /v0/search' do
     context 'with a 200 response' do
-      it 'should match the search schema', :aggregate_failures do
+      it 'matches the search schema', :aggregate_failures do
         VCR.use_cassette('search/success') do
           get '/v0/search', params: { query: 'benefits' }
 
@@ -18,7 +18,7 @@ describe 'search', type: :request do
         end
       end
 
-      it 'should return an array of hash search results in its body', :aggregate_failures do
+      it 'returns an array of hash search results in its body', :aggregate_failures do
         VCR.use_cassette('search/success') do
           get '/v0/search', params: { query: 'benefits' }
 
@@ -34,7 +34,7 @@ describe 'search', type: :request do
     end
 
     context 'with an empty query string' do
-      it 'should match the errors schema', :aggregate_failures do
+      it 'matches the errors schema', :aggregate_failures do
         VCR.use_cassette('search/empty_query') do
           get '/v0/search', params: { query: '' }
 
@@ -61,7 +61,7 @@ describe 'search', type: :request do
       let(:query_term) { 'benefits' }
 
       context "the endpoint's response" do
-        it 'should return pagination meta data', :aggregate_failures do
+        it 'returns pagination meta data', :aggregate_failures do
           VCR.use_cassette('search/page_1') do
             get '/v0/search', params: { query: query_term, page: 1 }
 
@@ -89,7 +89,7 @@ describe 'search', type: :request do
 
       context 'when the endpoint is being called' do
         context 'with a page' do
-          it 'should pass the page request to the search service object' do
+          it 'passes the page request to the search service object' do
             expect(Search::Service).to receive(:new).with(query_term, '2')
 
             get '/v0/search', params: { query: query_term, page: 2 }
@@ -97,7 +97,7 @@ describe 'search', type: :request do
         end
 
         context 'with no page present' do
-          it 'should pass page=nil to the search service object' do
+          it 'passes page=nil to the search service object' do
             expect(Search::Service).to receive(:new).with(query_term, nil)
 
             get '/v0/search', params: { query: query_term }

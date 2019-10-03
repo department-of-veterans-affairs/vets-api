@@ -41,7 +41,7 @@ describe MVI::Messages::FindProfileMessageEdipi do
           Settings.mvi.vba_orchestration = nil
         end
 
-        it 'should have orchestration related params when enabled' do
+        it 'has orchestration related params when enabled' do
           expect(xml).to eq_text_at_path(
             "#{parameter_list_path}/otherIDsScopingOrganization/semanticsText",
             'MVI.ORCHESTRATION'

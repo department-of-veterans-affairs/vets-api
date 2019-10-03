@@ -51,7 +51,7 @@ describe 'sm client' do
       end
 
       it 'gets a collection of messages', :vcr do
-        expect(client).to receive(:perform).and_call_original.exactly(1).times
+        expect(client).to receive(:perform).and_call_original.once
         messages = client.get_folder_messages(folder_id)
         expect(messages).to be_a(Common::Collection)
         expect(messages.data.size).to eq(10)

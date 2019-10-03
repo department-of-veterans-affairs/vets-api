@@ -18,13 +18,13 @@ RSpec.describe YearToDateReportMailer, type: %i[mailer aws_helpers] do
         expect(FeatureFlipper).to receive(:staging_email?).once.and_return(true)
       end
 
-      it 'should send the right email' do
+      it 'sends the right email' do
         subject
         text = described_class::REPORT_TEXT
         expect(mail.body.encoded).to eq("#{text} (link expires in one week)<br>#{subject}")
         expect(mail.subject).to eq(text)
       end
-      it 'should email the the right staging recipients' do
+      it 'emails the the right staging recipients' do
         subject
 
         expect(mail.to).to eq(
@@ -45,7 +45,7 @@ RSpec.describe YearToDateReportMailer, type: %i[mailer aws_helpers] do
         expect(FeatureFlipper).to receive(:staging_email?).once.and_return(false)
       end
 
-      it 'should email the va stakeholders' do
+      it 'emails the va stakeholders' do
         subject
         expect(mail.to).to eq(
           %w[

@@ -7,7 +7,7 @@ shared_examples_for 'a controller that does not log 404 to Sentry' do
     end
   end
 
-  it 'should not log 404 to sentry' do
+  it 'does not log 404 to sentry' do
     with_routing do |routes|
       @routes = routes
       controller_klass = described_class

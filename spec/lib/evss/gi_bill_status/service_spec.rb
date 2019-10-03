@@ -160,7 +160,7 @@ describe EVSS::GiBillStatus::Service do
           allow_any_instance_of(Faraday::Connection).to receive(:get).and_raise(Faraday::TimeoutError)
         end
 
-        it 'should raise an exception' do
+        it 'raises an exception' do
           expect { subject.get_gi_bill_status }.to raise_error(Common::Exceptions::GatewayTimeout)
         end
       end

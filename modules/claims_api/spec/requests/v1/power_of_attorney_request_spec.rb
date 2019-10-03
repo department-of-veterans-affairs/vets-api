@@ -25,7 +25,7 @@ RSpec.describe 'Power of Attorney ', type: :request do
     let(:path) { '/services/claims/v1/forms/2122' }
     let(:schema) { File.read(Rails.root.join('modules', 'claims_api', 'config', 'schemas', '2122.json')) }
 
-    it 'should return a successful get response with json schema' do
+    it 'returns a successful get response with json schema' do
       with_okta_user(scopes) do |auth_header|
         get path, headers: headers.merge(auth_header)
         json_schema = JSON.parse(response.body)['data'][0]
@@ -33,7 +33,7 @@ RSpec.describe 'Power of Attorney ', type: :request do
       end
     end
 
-    it 'should return a successful response with all the data' do
+    it 'returns a successful response with all the data' do
       with_okta_user(scopes) do |auth_header|
         post path, params: data, headers: headers.merge(auth_header)
         parsed = JSON.parse(response.body)
@@ -42,7 +42,7 @@ RSpec.describe 'Power of Attorney ', type: :request do
       end
     end
 
-    it 'should assign a source' do
+    it 'assigns a source' do
       with_okta_user(scopes) do |auth_header|
         post path, params: data, headers: headers.merge(auth_header)
         token = JSON.parse(response.body)['data']['id']
@@ -54,7 +54,7 @@ RSpec.describe 'Power of Attorney ', type: :request do
     context 'validation' do
       let(:json_data) { JSON.parse data }
 
-      it 'should require poa_code subfield' do
+      it 'requires poa_code subfield' do
         with_okta_user(scopes) do |auth_header|
           params = json_data
           params['data']['attributes']['poa_code'] = nil
@@ -68,7 +68,7 @@ RSpec.describe 'Power of Attorney ', type: :request do
     describe '#check status' do
       let(:power_of_attorney) { create(:power_of_attorney) }
 
-      it 'should increase the supporting document count' do
+      it 'increases the supporting document count' do
         with_okta_user(scopes) do |auth_header|
           get("/services/claims/v1/forms/2122/#{power_of_attorney.id}",
               params: nil, headers: headers.merge(auth_header))
@@ -86,7 +86,7 @@ RSpec.describe 'Power of Attorney ', type: :request do
         { 'attachment': Rack::Test::UploadedFile.new("#{::Rails.root}/modules/claims_api/spec/fixtures/extras.pdf") }
       end
 
-      it 'should increase the supporting document count' do
+      it 'increases the supporting document count' do
         with_okta_user(scopes) do |auth_header|
           allow_any_instance_of(ClaimsApi::PowerOfAttorneyUploader).to receive(:store!)
           expect(power_of_attorney.file_data).to be_nil

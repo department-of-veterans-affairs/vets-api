@@ -15,7 +15,7 @@ describe PdfFill::Filler do
     end
 
     context 'when extras_generator doesnt have text' do
-      it 'should return the old_file_path' do
+      it 'returns the old_file_path' do
         expect(extras_generator).to receive(:text?).once.and_return(false)
 
         expect(subject).to eq(old_file_path)
@@ -27,7 +27,7 @@ describe PdfFill::Filler do
         expect(extras_generator).to receive(:text?).once.and_return(true)
       end
 
-      it 'should generate extras and combine the files' do
+      it 'generates extras and combine the files' do
         file_path = 'tmp/pdfs/file_path_final.pdf'
         expect(extras_generator).to receive(:generate).once.and_return('extras.pdf')
         expect(described_class::PDF_FORMS).to receive(:cat).once.with(
@@ -70,7 +70,7 @@ describe PdfFill::Filler do
               get_fixture("pdf_fill/#{form_id}/#{type}")
             end
 
-            it 'should fill the form correctly' do
+            it 'fills the form correctly' do
               fact_name = form_id == '21P-527EZ' ? :pension_claim : :burial_claim
               saved_claim = create(fact_name, form: form_data.to_json)
 
@@ -117,7 +117,7 @@ describe PdfFill::Filler do
               get_fixture("pdf_fill/#{form_id}/#{type}")
             end
 
-            it 'should fill the form correctly' do
+            it 'fills the form correctly' do
               if type == 'overflow'
                 # compare_pdfs only compares based on filled fields, it doesn't read the extras page
                 the_extras_generator = nil
