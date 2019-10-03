@@ -138,7 +138,7 @@ describe EVSS::PPIU::Service do
             rescue
               EVSS::PPIU::ServiceException
             end
-          end.to change { ppiu_pii_log.count }.by(1)
+          end.to change(ppiu_pii_log, :count).by(1)
         end
 
         expect(ppiu_pii_log.last.data).to eq(
