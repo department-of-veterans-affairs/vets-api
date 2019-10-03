@@ -24,22 +24,23 @@
             <span class="vads-u-margin-left--1 vads-u-font-size--lg">Flipper Admin</span>
           </a>
 
-          <%- if Flipper::UI.configuration.feature_creation_enabled -%>
+          <% if Flipper::UI.configuration.feature_creation_enabled %>
           <div class="vads-l-col--2 vads-u-text-align--right">
             <a class="usa-button vads-u-margin--0" href="<%= script_name %>/features/new">Add Feature</a>
           </div>
-          <%- end -%>
+          <% end %>
         </div>
       </div>
     </header>
-    <div class="vads-l-grid-container">
-      <%- unless Flipper::UI.configuration.banner_text.nil? -%>
+
+    <div class="vads-l-grid-container" style="overflow-wrap: break-word">
+      <% unless Flipper::UI.configuration.banner_text.nil? %>
       <div class="vads-l-row">
         <div class="alert alert-<%= Flipper::UI.configuration.banner_class %> text-center font-weight-bold">
           <%= Flipper::UI.configuration.banner_text %>
         </div>
       </div>
-      <%- end -%>
+      <% end %>
 
       <div class="vads-l-row">
         <nav aria-label="breadcrumb" aria-live="polite" class="vads-l-col va-nav-breadcrumbs">
@@ -57,7 +58,7 @@
         </nav>
       </div>
 
-      <div class="content">
+      <div class="content vads-l-row">
         <%== yield %>
       </div>
     </div>
