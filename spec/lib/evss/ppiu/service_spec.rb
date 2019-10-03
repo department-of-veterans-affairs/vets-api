@@ -133,23 +133,30 @@ describe EVSS::PPIU::Service do
       it 'creates a PII log' do
         VCR.use_cassette('evss/ppiu/update_service_error') do
           expect do
-            subject.update_payment_information(request_payload) rescue EVSS::PPIU::ServiceException
+            begin
+              subject.update_payment_information(request_payload)
+            rescue
+              EVSS::PPIU::ServiceException
+            end
           end.to change { ppiu_pii_log.count }.by(1)
         end
 
         expect(ppiu_pii_log.last.data).to eq(
-          {"user"=>{"uuid"=>user.uuid, "edipi"=>user.edipi},
-           "request"=>
-            {"requests"=>
-              [{"paymentType"=>"CNP",
-                "paymentAccount"=>
-                 {"accountType"=>"Checking",
-                  "accountNumber"=>"****",
-                  "financialInstitutionName"=>"Fake Bank Name",
-                  "financialInstitutionRoutingNumber"=>"021000021"}}]},
-           "response"=>
-            {"messages"=>[{"key"=>"piu.get.cnpaddress.partner.service.failed", "text"=>"Call to partner getCnpAddress failed", "severity"=>"FATAL"}],
-             "responses"=>[]}}
+          'user' => { 'uuid' => user.uuid, 'edipi' => user.edipi },
+          'request' =>
+           { 'requests' =>
+             [{ 'paymentType' => 'CNP',
+                'paymentAccount' =>
+                { 'accountType' => 'Checking',
+                  'accountNumber' => '****',
+                  'financialInstitutionName' => 'Fake Bank Name',
+                  'financialInstitutionRoutingNumber' => '021000021' } }] },
+          'response' =>
+           { 'messages' => [{ 'key' =>
+              'piu.get.cnpaddress.partner.service.failed',
+                              'text' => 'Call to partner getCnpAddress failed',
+                              'severity' => 'FATAL' }],
+             'responses' => [] }
         )
       end
     end
