@@ -4,8 +4,9 @@ require 'rails_helper'
 
 describe EVSS::GiBillStatus::Service do
   describe '.find_by_user' do
-    let(:user) { build(:user, :loa3) }
     subject { described_class.new(user) }
+
+    let(:user) { build(:user, :loa3) }
 
     let(:tz) { ActiveSupport::TimeZone.new(described_class::OPERATING_ZONE) }
     let(:late_time) { tz.parse('1st Feb 2018 23:00:00') }

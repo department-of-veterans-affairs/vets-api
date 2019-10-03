@@ -3,11 +3,11 @@
 require 'rails_helper'
 
 RSpec.describe EducationBenefitsClaimSerializer, type: :serializer do
+  subject { serialize(education_benefits_claim) }
+
   let(:education_benefits_claim) { create(:education_benefits_claim) }
   let(:data) { JSON.parse(subject)['data'] }
   let(:attributes) { data['attributes'] }
-
-  subject { serialize(education_benefits_claim) }
 
   it 'includes id' do
     expect(data['id']).to eq(education_benefits_claim.id.to_s)

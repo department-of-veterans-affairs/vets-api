@@ -107,8 +107,8 @@ RSpec/IteratedExpectation:
 
 # Offense count: 144
 # Cop supports --auto-correct.
-RSpec/LeadingSubject:
-  Enabled: false
+# RSpec/LeadingSubject:
+#   Enabled: false
 
 # Offense count: 56
 RSpec/LeakyConstantDeclaration:

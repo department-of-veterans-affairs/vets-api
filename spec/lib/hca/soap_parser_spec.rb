@@ -6,9 +6,6 @@ describe HCA::SOAPParser do
   let(:parser) { described_class.new }
 
   describe '#on_complete' do
-    let(:reraised_error) { Common::Client::Errors::HTTPError }
-    let(:status) { 200 }
-
     subject do
       env = double
       allow(env).to receive(:url)
@@ -18,6 +15,9 @@ describe HCA::SOAPParser do
 
       expect { parser.on_complete(env) }.to raise_error(reraised_error)
     end
+
+    let(:reraised_error) { Common::Client::Errors::HTTPError }
+    let(:status) { 200 }
 
     context 'with a validation error' do
       let(:reraised_error) { HCA::SOAPParser::ValidationError }
