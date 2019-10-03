@@ -8,18 +8,18 @@ RSpec.describe MHVLoggingService do
 
   let(:logout_service) { described_class.logout(mhv_user) }
 
+  let(:authenticated_client) do
+    MHVLogging::Client.new(session: { user_id: mhv_user.mhv_correlation_id,
+                                      expires_at: Time.current + 60 * 60,
+                                      token: '<SESSION_TOKEN>' })
+  end
+
   before(:each) do
     Sidekiq::Testing.inline!
   end
 
   after(:each) do
     Sidekiq::Testing.fake!
-  end
-
-  let(:authenticated_client) do
-    MHVLogging::Client.new(session: { user_id: mhv_user.mhv_correlation_id,
-                                      expires_at: Time.current + 60 * 60,
-                                      token: '<SESSION_TOKEN>' })
   end
 
   before(:each) do
