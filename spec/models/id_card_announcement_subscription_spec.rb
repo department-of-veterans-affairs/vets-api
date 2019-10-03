@@ -32,7 +32,7 @@ RSpec.describe IdCardAnnouncementSubscription, type: :model do
     end
 
     it 'does not include records without a @va.gov domain' do
-      expect(described_class.va).to_not include(subscription)
+      expect(described_class.va).not_to include(subscription)
     end
   end
 
@@ -45,7 +45,7 @@ RSpec.describe IdCardAnnouncementSubscription, type: :model do
     end
 
     it 'does not include records with a @va.gov domain' do
-      expect(described_class.non_va).to_not include(va_subscription)
+      expect(described_class.non_va).not_to include(va_subscription)
     end
   end
 end

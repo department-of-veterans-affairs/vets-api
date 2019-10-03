@@ -380,7 +380,7 @@ RSpec.describe 'Facilities API endpoint', type: :request do
       expect(response).to be_successful
       expect(response.body).to be_a(String)
       json = JSON.parse(response.body)
-      expect(json['data']['attributes']['mobile']).to_not be_nil
+      expect(json['data']['attributes']['mobile']).not_to be_nil
       expect(json['data']['attributes']['mobile']).to eq(false)
     end
 
@@ -413,7 +413,7 @@ RSpec.describe 'Facilities API endpoint', type: :request do
       expect(response.body).to be_a(String)
       json = JSON.parse(response.body)
       expect(json['data']['attributes']['active_status']).to eq('A')
-      expect(json['data']['attributes']['active_status']).to_not be_nil
+      expect(json['data']['attributes']['active_status']).not_to be_nil
     end
 
     it 'responds with null active_status flag for non-VHA facilities' do

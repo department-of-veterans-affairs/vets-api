@@ -55,9 +55,9 @@ RSpec.describe V0::SessionsController, type: :controller do
 
   def verify_session_cookie
     token = session[:token]
-    expect(token).to_not be_nil
+    expect(token).not_to be_nil
     session_object = Session.find(token)
-    expect(session_object).to_not be_nil
+    expect(session_object).not_to be_nil
     session_object.to_hash.each do |k, v|
       expect(session[k]).to eq(v)
     end
@@ -200,12 +200,12 @@ RSpec.describe V0::SessionsController, type: :controller do
         it 'destroys the user, session, and cookie, persists logout_request object, sets url to SLO url' do
           # these should not have been destroyed yet
           verify_session_cookie
-          expect(User.find(uuid)).to_not be_nil
+          expect(User.find(uuid)).not_to be_nil
 
           # this should not exist yet
           expect(SingleLogoutRequest.find(logout_request.uuid)).to be_nil
           # it has the cookie set
-          expect(cookies['vagov_session_dev']).to_not be_nil
+          expect(cookies['vagov_session_dev']).not_to be_nil
           get(:new, params: { type: 'slo' })
           expect(response.location)
             .to be_an_idme_saml_url('https://api.idmelabs.com/saml/SingleLogoutService?SAMLRequest=')
@@ -218,7 +218,7 @@ RSpec.describe V0::SessionsController, type: :controller do
           expect(cookies['vagov_session_dev']).to be_nil
 
           # this should be created in redis
-          expect(SingleLogoutRequest.find(logout_request.uuid)).to_not be_nil
+          expect(SingleLogoutRequest.find(logout_request.uuid)).not_to be_nil
         end
       end
     end
@@ -259,7 +259,7 @@ RSpec.describe V0::SessionsController, type: :controller do
           it 'redirects to success and destroys nothing' do
             # these should have been destroyed in the initial call to sessions/logout, not in the callback.
             verify_session_cookie
-            expect(User.find(uuid)).to_not be_nil
+            expect(User.find(uuid)).not_to be_nil
             # this will be destroyed
             expect(SingleLogoutRequest.find(successful_logout_response&.in_response_to)).to be_nil
 
@@ -269,7 +269,7 @@ RSpec.describe V0::SessionsController, type: :controller do
               .to redirect_to(logout_redirect_url)
             # these should have been destroyed in the initial call to sessions/logout, not in the callback.
             verify_session_cookie
-            expect(User.find(uuid)).to_not be_nil
+            expect(User.find(uuid)).not_to be_nil
             # this should be destroyed
             expect(SingleLogoutRequest.find(successful_logout_response&.in_response_to)).to be_nil
           end
@@ -288,9 +288,9 @@ RSpec.describe V0::SessionsController, type: :controller do
         it 'redirects to success and destroys only the logout request' do
           # these should have been destroyed in the initial call to sessions/logout, not in the callback.
           verify_session_cookie
-          expect(User.find(uuid)).to_not be_nil
+          expect(User.find(uuid)).not_to be_nil
           # this will be destroyed
-          expect(SingleLogoutRequest.find(successful_logout_response&.in_response_to)).to_not be_nil
+          expect(SingleLogoutRequest.find(successful_logout_response&.in_response_to)).not_to be_nil
 
           msg = "SLO callback response to '1234' for originating_request_id 'blah'"
           expect_logger_msg(:info, msg)
@@ -299,7 +299,7 @@ RSpec.describe V0::SessionsController, type: :controller do
             .to redirect_to(logout_redirect_url)
           # these should have been destroyed in the initial call to sessions/logout, not in the callback.
           verify_session_cookie
-          expect(User.find(uuid)).to_not be_nil
+          expect(User.find(uuid)).not_to be_nil
           # this should be destroyed
           expect(SingleLogoutRequest.find(successful_logout_response&.in_response_to)).to be_nil
         end

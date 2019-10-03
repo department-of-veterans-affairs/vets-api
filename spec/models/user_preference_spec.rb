@@ -86,7 +86,7 @@ describe UserPreference, type: :model do
           preference: preference,
           preference_choice: preference_choice
         )
-      end.to change { UserPreference.count }.by(1)
+      end.to change(UserPreference, :count).by(1)
     end
 
     it 'cannot create a UserPreference with the same PreferenceChoice, for the same user' do

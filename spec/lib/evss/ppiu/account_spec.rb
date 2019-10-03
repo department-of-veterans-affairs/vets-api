@@ -9,7 +9,7 @@ describe EVSS::PPIU::PaymentAccount do
 
       it 'builds a payment account' do
         account = EVSS::PPIU::PaymentAccount.new(payment_account.as_json)
-        expect(account.valid?).to be_truthy
+        expect(account).to be_valid
       end
     end
 
@@ -18,7 +18,7 @@ describe EVSS::PPIU::PaymentAccount do
 
       it 'builds a payment account' do
         account = EVSS::PPIU::PaymentAccount.new(payment_account.as_json)
-        expect(account.valid?).to be_truthy
+        expect(account).to be_valid
       end
     end
 
@@ -27,7 +27,7 @@ describe EVSS::PPIU::PaymentAccount do
 
       it 'reports as invalid and has errors' do
         address = EVSS::PPIU::PaymentAccount.new(payment_account.as_json)
-        expect(address.valid?).to be_falsey
+        expect(address).not_to be_valid
         expect(address.errors.messages).to eq(
           account_number: ["can't be blank"]
         )
@@ -39,7 +39,7 @@ describe EVSS::PPIU::PaymentAccount do
 
       it 'reports as invalid and has errors' do
         address = EVSS::PPIU::PaymentAccount.new(payment_account.as_json)
-        expect(address.valid?).to be_falsey
+        expect(address).not_to be_valid
         expect(address.errors.messages).to eq(
           account_number: ['is invalid']
         )
@@ -51,7 +51,7 @@ describe EVSS::PPIU::PaymentAccount do
 
       it 'reports as invalid and has errors' do
         address = EVSS::PPIU::PaymentAccount.new(payment_account.as_json)
-        expect(address.valid?).to be_falsey
+        expect(address).not_to be_valid
         expect(address.errors.messages).to eq(
           account_type: ['is not included in the list']
         )

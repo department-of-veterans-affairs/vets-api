@@ -54,7 +54,7 @@ RSpec.describe SessionActivity, type: :model do
 
     it 'a model can be valid' do
       session_activity = FactoryBot.build(:session_activity)
-      expect(session_activity.valid?).to be_truthy
+      expect(session_activity).to be_valid
     end
   end
 end

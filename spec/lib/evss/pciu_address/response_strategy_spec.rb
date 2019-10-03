@@ -26,7 +26,7 @@ describe EVSS::PCIUAddress::ResponseStrategy do
     context 'when there is cached data' do
       it 'does not hit service and returns the cached data' do
         subject.cache(:countries, countries_response)
-        expect(service).to_not receive(:get_countries)
+        expect(service).not_to receive(:get_countries)
         response = subject.cache_or_service(:countries) { service.get_countries }
         expect(response).to be_ok
       end

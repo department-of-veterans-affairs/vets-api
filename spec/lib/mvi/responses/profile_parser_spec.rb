@@ -16,7 +16,7 @@ describe MVI::Responses::ProfileParser do
 
     describe '#failed_or_invalid?' do
       it 'should return false' do
-        expect(parser.failed_or_invalid?).to be_falsey
+        expect(parser).not_to be_failed_or_invalid
       end
     end
 
@@ -133,7 +133,7 @@ describe MVI::Responses::ProfileParser do
     describe '#failed_or_invalid?' do
       it 'should return true' do
         allow(faraday_response).to receive(:body) { body }
-        expect(parser.failed_or_invalid?).to be_truthy
+        expect(parser).to be_failed_or_invalid
       end
     end
   end
@@ -144,7 +144,7 @@ describe MVI::Responses::ProfileParser do
     describe '#failed_or_invalid?' do
       it 'should return true' do
         allow(faraday_response).to receive(:body) { body }
-        expect(parser.failed_or_invalid?).to be_truthy
+        expect(parser).to be_failed_or_invalid
       end
     end
   end
@@ -158,13 +158,13 @@ describe MVI::Responses::ProfileParser do
 
     describe '#failed_or_invalid?' do
       it 'should return false' do
-        expect(parser.failed_or_invalid?).to be_truthy
+        expect(parser).to be_failed_or_invalid
       end
     end
 
     describe '#multiple_match?' do
       it 'should return true' do
-        expect(parser.multiple_match?).to be_truthy
+        expect(parser).to be_multiple_match
       end
     end
   end
