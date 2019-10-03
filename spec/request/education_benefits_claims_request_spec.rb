@@ -4,13 +4,13 @@ require 'rails_helper'
 
 RSpec.describe 'Education Benefits Claims Integration', type: %i[request serializer] do
   describe 'POST create' do
-    let(:path) { v0_education_benefits_claims_path }
-
     subject do
       post(path,
            params: params.to_json,
            headers: { 'CONTENT_TYPE' => 'application/json', 'HTTP_X_KEY_INFLECTION' => 'camel' })
     end
+
+    let(:path) { v0_education_benefits_claims_path }
 
     context 'with a form_type passed in' do
       let(:form_type) { '1995' }

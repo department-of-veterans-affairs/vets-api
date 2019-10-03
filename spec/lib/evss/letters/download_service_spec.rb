@@ -4,9 +4,9 @@ require 'rails_helper'
 
 describe EVSS::Letters::DownloadService do
   describe '.find_by_user' do
-    let(:user) { build(:user, :loa3) }
-
     subject { described_class.new(user) }
+
+    let(:user) { build(:user, :loa3) }
 
     describe '#download_by_type' do
       context 'without options' do

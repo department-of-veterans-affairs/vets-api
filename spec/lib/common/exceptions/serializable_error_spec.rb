@@ -3,9 +3,9 @@
 require 'rails_helper'
 
 describe Common::Exceptions::SerializableError do
-  let(:attributes) { nil }
-
   subject { described_class.new(attributes) }
+
+  let(:attributes) { nil }
 
   context 'with no attributes' do
     it 'responds to #to_hash' do

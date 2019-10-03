@@ -3,9 +3,9 @@
 require 'rails_helper'
 
 describe EVSS::DisabilityCompensationForm::Metrics do
-  let(:job_prefix) { 'job.prefix' }
-
   subject { described_class.new('job.prefix') }
+
+  let(:job_prefix) { 'job.prefix' }
 
   describe '#increment_try' do
     it 'increments a statsd counter' do

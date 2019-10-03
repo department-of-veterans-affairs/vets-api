@@ -3,12 +3,12 @@
 require 'rails_helper'
 
 RSpec.describe MessageSerializer, type: :serializer do
+  subject { serialize(message, serializer_class: described_class) }
+
   let(:message) { build :message }
   let(:data) { JSON.parse(subject)['data'] }
   let(:attributes) { data['attributes'] }
   let(:links) { data['links'] }
-
-  subject { serialize(message, serializer_class: described_class) }
 
   it 'includes id' do
     expect(data['id'].to_i).to eq(message.id)

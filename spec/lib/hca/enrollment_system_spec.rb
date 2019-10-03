@@ -1214,9 +1214,9 @@ describe HCA::EnrollmentSystem do
     end
 
     context 'with a valid future discharge date' do
-      let(:discharge_date) { Time.zone.today + 60.days }
-
       subject { described_class.veteran_to_military_service_info(veteran) }
+
+      let(:discharge_date) { Time.zone.today + 60.days }
 
       it 'properlies set discharge type and discharge date' do
         expect(described_class.veteran_to_military_service_info(veteran)).to eq(expected)
@@ -1224,9 +1224,9 @@ describe HCA::EnrollmentSystem do
     end
 
     context 'with an edge case future discharge date' do
-      let(:discharge_date) { Time.zone.today + 180.days }
-
       subject { described_class.veteran_to_military_service_info(veteran) }
+
+      let(:discharge_date) { Time.zone.today + 180.days }
 
       it 'properlies set discharge type and discharge date' do
         expect(described_class.veteran_to_military_service_info(veteran)).to eq(expected)
@@ -1234,9 +1234,9 @@ describe HCA::EnrollmentSystem do
     end
 
     context 'with an invalid future discharge date' do
-      let(:discharge_date) { Time.zone.today + 181.days }
-
       subject { described_class.veteran_to_military_service_info(veteran) }
+
+      let(:discharge_date) { Time.zone.today + 181.days }
 
       it 'raises an invalid field exception' do
         expect { subject }.to raise_error(Common::Exceptions::InvalidFieldValue)

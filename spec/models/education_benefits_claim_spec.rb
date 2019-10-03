@@ -213,6 +213,14 @@ RSpec.describe EducationBenefitsClaim, type: :model do
   end
 
   describe '#copy_from_previous_benefits' do
+    subject do
+      saved_claim = build(:va1990, form: form.to_json)
+
+      education_benefits_claim.instance_variable_set(:@application, saved_claim.open_struct_form)
+      education_benefits_claim.copy_from_previous_benefits
+      education_benefits_claim.open_struct_form
+    end
+
     let(:form) do
       {
         previousBenefits: {
@@ -221,14 +229,6 @@ RSpec.describe EducationBenefitsClaim, type: :model do
           veteranSocialSecurityNumber: '321'
         }
       }
-    end
-
-    subject do
-      saved_claim = build(:va1990, form: form.to_json)
-
-      education_benefits_claim.instance_variable_set(:@application, saved_claim.open_struct_form)
-      education_benefits_claim.copy_from_previous_benefits
-      education_benefits_claim.open_struct_form
     end
 
     context 'when currentSameAsPrevious is false' do
