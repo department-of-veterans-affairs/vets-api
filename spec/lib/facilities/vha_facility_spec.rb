@@ -12,7 +12,7 @@ RSpec.describe Facilities::VHAFacility do
     expect(described_class.new).to be_a(Facilities::VHAFacility)
   end
 
-  it 'should be able to have multiple DrivetimeBands' do
+  it 'is able to have multiple DrivetimeBands' do
     create :vha_648
     create :thirty_mins
     create :sixty_mins
