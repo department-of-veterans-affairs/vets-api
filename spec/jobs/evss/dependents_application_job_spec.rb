@@ -12,7 +12,7 @@ RSpec.describe EVSS::DependentsApplicationJob do
     end
 
     context 'when there is an error' do
-      it 'should set the dependents_application to failed' do
+      it 'sets the dependents_application to failed' do
         expect_any_instance_of(EVSS::Dependents::Service).to receive(:retrieve).and_raise('foo')
         begin
           described_class.drain

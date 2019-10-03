@@ -19,7 +19,7 @@ describe PdfFill::Forms::Va210781a do
     new_form_class.instance_variable_get(:@form_data)
   end
   describe '#merge_fields' do
-    it 'should merge the right fields', run_at: '2016-12-31 00:00:00 EDT' do
+    it 'merges the right fields', run_at: '2016-12-31 00:00:00 EDT' do
       expect(described_class.new(get_fixture('pdf_fill/21-0781a/simple')).merge_fields).to eq(
         get_fixture('pdf_fill/21-0781a/merge_fields')
       )
@@ -27,7 +27,7 @@ describe PdfFill::Forms::Va210781a do
   end
 
   describe '#combine_source_name_address' do
-    it 'should expand sources correctly' do
+    it 'expands sources correctly' do
       incident = {
         'sources' => [{
           'name' => 'Testy T Testerson',
@@ -48,7 +48,7 @@ describe PdfFill::Forms::Va210781a do
       )
     end
 
-    it 'should expand multiple sources correctly' do
+    it 'expands multiple sources correctly' do
       incident = {
         'sources' => [
           {
@@ -84,7 +84,7 @@ describe PdfFill::Forms::Va210781a do
       )
     end
 
-    it 'should handle sources being empty correctly' do
+    it 'handles sources being empty correctly' do
       incident = {}
 
       expect(new_form_class.send(:combine_source_name_address, incident)).to be_nil
@@ -102,7 +102,7 @@ describe PdfFill::Forms::Va210781a do
       }
     end
 
-    it 'should expand other information correctly' do
+    it 'expands other information correctly' do
       new_form_class.send(:expand_other_information)
       expect(
         JSON.parse(class_form_data.to_json)

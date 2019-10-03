@@ -13,7 +13,7 @@ RSpec.describe 'personal_information', type: :request do
 
   describe 'GET /v0/profile/personal_information' do
     context 'with a 200 response' do
-      it 'should match the personal information schema' do
+      it 'matches the personal information schema' do
         VCR.use_cassette('mvi/find_candidate/valid') do
           get '/v0/profile/personal_information'
 
@@ -24,7 +24,7 @@ RSpec.describe 'personal_information', type: :request do
     end
 
     context 'when MVI does not return a gender nor birthday', skip_mvi: true do
-      it 'should match the errors schema', :aggregate_failures do
+      it 'matches the errors schema', :aggregate_failures do
         VCR.use_cassette('mvi/find_candidate/missing_birthday_and_gender') do
           get '/v0/profile/personal_information'
 
@@ -33,7 +33,7 @@ RSpec.describe 'personal_information', type: :request do
         end
       end
 
-      it 'should include the correct error code' do
+      it 'includes the correct error code' do
         VCR.use_cassette('mvi/find_candidate/missing_birthday_and_gender') do
           get '/v0/profile/personal_information'
 

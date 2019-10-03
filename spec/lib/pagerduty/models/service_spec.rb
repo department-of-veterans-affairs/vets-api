@@ -28,7 +28,7 @@ describe PagerDuty::Models::Service do
       expect(external_service.class).to eq PagerDuty::Models::Service
     end
 
-    it 'it strips "External:" from the name' do
+    it 'strips "External:" from the name' do
       expect(external_service.service).to eq 'Appeals'
     end
 

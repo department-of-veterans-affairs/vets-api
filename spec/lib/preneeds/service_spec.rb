@@ -155,7 +155,7 @@ describe Preneeds::Service do
   end
 
   describe 'build_multipart' do
-    it 'should build a multipart request' do
+    it 'builds a multipart request' do
       multipart = subject.send(:build_multipart, double(body: 'foo'), burial_form.attachments)
       expect(multipart.body.parts.map(&:content_type)).to eq(
         [

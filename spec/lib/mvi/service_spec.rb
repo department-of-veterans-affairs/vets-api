@@ -247,7 +247,7 @@ describe MVI::Service do
     end
 
     context 'when a MVI invalid request response is returned' do
-      it 'should raise a invalid request error', :aggregate_failures do
+      it 'raises a invalid request error', :aggregate_failures do
         invalid_xml = File.read('spec/support/mvi/find_candidate_invalid_request.xml')
         allow_any_instance_of(MVI::Service).to receive(:create_profile_message).and_return(invalid_xml)
         expect(subject).to receive(:log_message_to_sentry).with(
@@ -263,7 +263,7 @@ describe MVI::Service do
     context 'when a MVI internal system problem response is returned' do
       let(:body) { File.read('spec/support/mvi/find_candidate_ar_code_database_error_response.xml') }
 
-      it 'should raise a invalid request error', :aggregate_failures do
+      it 'raises a invalid request error', :aggregate_failures do
         expect(subject).to receive(:log_message_to_sentry).with(
           'MVI Failed Request', :error
         )
@@ -276,7 +276,7 @@ describe MVI::Service do
     context 'with an MVI timeout' do
       let(:base_path) { MVI::Configuration.instance.base_path }
 
-      it 'should raise a service error', :aggregate_failures do
+      it 'raises a service error', :aggregate_failures do
         allow_any_instance_of(Faraday::Connection).to receive(:post).and_raise(Faraday::TimeoutError)
         expect(subject).to receive(:log_console_and_sentry).with(
           'MVI find_profile error: Gateway timeout',
@@ -289,7 +289,7 @@ describe MVI::Service do
     end
 
     context 'when a status of 500 is returned' do
-      it 'should raise a request failure error', :aggregate_failures do
+      it 'raises a request failure error', :aggregate_failures do
         allow_any_instance_of(MVI::Service).to receive(:create_profile_message).and_return('<nobeuno></nobeuno>')
         expect(subject).to receive(:log_message_to_sentry).with(
           'MVI find_profile error: SOAP HTTP call failed',
@@ -401,7 +401,7 @@ describe MVI::Service do
 
   describe '.find_profile monitoring' do
     context 'with a successful request' do
-      it 'should increment find_profile total' do
+      it 'increments find_profile total' do
         allow(user).to receive(:mhv_icn)
 
         allow(StatsD).to receive(:increment)
@@ -411,7 +411,7 @@ describe MVI::Service do
         expect(StatsD).to have_received(:increment).with('api.mvi.find_profile.total')
       end
 
-      it 'should log the request and response data' do
+      it 'logs the request and response data' do
         expect do
           VCR.use_cassette('mvi/find_candidate/valid') do
             Settings.mvi.pii_logging = true
@@ -423,7 +423,7 @@ describe MVI::Service do
     end
 
     context 'with an unsuccessful request' do
-      it 'should increment find_profile fail and total', :aggregate_failures do
+      it 'increments find_profile fail and total', :aggregate_failures do
         allow_any_instance_of(Faraday::Connection).to receive(:post).and_raise(Faraday::TimeoutError)
         expect(StatsD).to receive(:increment).once.with(
           'api.mvi.find_profile.fail', tags: ['error:Common::Exceptions::GatewayTimeout']

@@ -37,7 +37,7 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, type: :model, form: :educat
         expect(upcoming_runs.map(&:seconds)).to eq(expected_runs.map(&:seconds))
       end
 
-      it 'should skip observed holidays' do
+      it 'skips observed holidays' do
         possible_runs.each do |day, should_run|
           Timecop.freeze(Time.zone.parse(day.to_s).beginning_of_day) do
             expect(subject.perform).to be(should_run)
@@ -46,13 +46,13 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, type: :model, form: :educat
       end
     end
 
-    it 'should log a message on holidays', run_at: '2017-01-02 03:00:00 EDT' do
+    it 'logs a message on holidays', run_at: '2017-01-02 03:00:00 EDT' do
       expect(subject).not_to receive(:write_files)
       expect(subject.logger).to receive('info').with("Skipping on a Holiday: New Year's Day")
       expect(subject.perform).to be false
     end
 
-    it 'should not skip informal holidays', run_at: '2017-04-01 03:00:00 EDT' do
+    it 'does not skip informal holidays', run_at: '2017-04-01 03:00:00 EDT' do
       # Sanity check that this *is* an informal holiday we're testing
       expect(Holidays.on(Time.zone.today, :us, :informal).first[:name]).to eq("April Fool's Day")
       expect(subject).to receive(:write_files)
@@ -128,7 +128,7 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, type: :model, form: :educat
         expect(EducationBenefitsClaim.unprocessed.pluck(:regional_processing_office).uniq.count).to eq(3)
       end
 
-      it 'it processes the valid messages' do
+      it 'processes the valid messages' do
         expect(subject).to receive(:log_exception_to_sentry).once
         expect { subject.perform }.to change { EducationBenefitsClaim.unprocessed.count }.from(4).to(1)
         expect(Dir[spool_files].count).to eq(3)

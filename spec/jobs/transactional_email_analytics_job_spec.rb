@@ -14,34 +14,34 @@ RSpec.describe TransactionalEmailAnalyticsJob, type: :job do
 
   describe '#perform', run_at: '2018-05-30 18:18:56' do
     context 'GovDelivery token is missing from settings' do
-      it 'should raise an error' do
+      it 'raises an error' do
         allow(FeatureFlipper).to receive(:send_email?).and_return(false)
         expect { subject.perform }.to raise_error(Common::Exceptions::ParameterMissing)
       end
     end
 
     context 'Google Analytics tracking ID is missing from settings' do
-      it 'should raise an error' do
+      it 'raises an error' do
         Settings.google_analytics_tracking_id = nil
         expect { subject.perform }.to raise_error(Common::Exceptions::ParameterMissing)
       end
     end
 
-    it 'should retrieve messages at least once, and stop when loop-break conditions are met' do
+    it 'retrieves messages at least once, and stop when loop-break conditions are met' do
       VCR.use_cassette('govdelivery_emails', allow_playback_repeats: true) do
         expect(subject).to receive(:relevant_emails).twice.and_call_original
         subject.perform
       end
     end
 
-    it 'should process transactional emails for Google Analytics evaluation' do
+    it 'processes transactional emails for Google Analytics evaluation' do
       VCR.use_cassette('govdelivery_emails', allow_playback_repeats: true) do
         expect(subject).to receive(:eval_email).exactly(3).times
         subject.perform
       end
     end
 
-    it 'should send events to Google Analytics' do
+    it 'sends events to Google Analytics' do
       VCR.use_cassette('govdelivery_emails', allow_playback_repeats: true) do
         expect_any_instance_of(Staccato::Tracker).to receive(:event).exactly(4).times
         subject.perform
@@ -58,21 +58,21 @@ RSpec.describe TransactionalEmailAnalyticsJob, type: :job do
     end
 
     context 'last email created_at > time-range start time and 50 emails in collection' do
-      it 'should return false' do
+      it 'returns false' do
         @emails.collection.last.attributes[:created_at] = 1440.minutes.ago.to_s
         expect(subject.send(:we_should_break?)).to be false
       end
     end
 
     context 'last email created_at < time-range start time' do
-      it 'should return true' do
+      it 'returns true' do
         @emails.collection.last.attributes[:created_at] = 25.hours.ago.to_s
         expect(subject.send(:we_should_break?)).to be true
       end
     end
 
     context 'less than 50 emails were returned by govdelivery' do
-      it 'should return true' do
+      it 'returns true' do
         @emails.collection.delete_at(0)
         expect(subject.send(:we_should_break?)).to be true
       end

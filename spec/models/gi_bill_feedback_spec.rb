@@ -6,7 +6,7 @@ RSpec.describe GIBillFeedback, type: :model do
   let(:gi_bill_feedback) { build(:gi_bill_feedback) }
 
   describe '#find' do
-    it 'should be able to find created models' do
+    it 'is able to find created models' do
       gi_bill_feedback.save!
       guid = gi_bill_feedback.guid
 
@@ -15,7 +15,7 @@ RSpec.describe GIBillFeedback, type: :model do
   end
 
   describe '#remove_malformed_options' do
-    it 'should remove malformed options' do
+    it 'removes malformed options' do
       expect(gi_bill_feedback.send(:remove_malformed_options,
                                    'Post-9/11 Ch 33' => true,
                                    'post9::11 ch 33' => true,
@@ -26,7 +26,7 @@ RSpec.describe GIBillFeedback, type: :model do
   end
 
   describe '#transform_malformed_options' do
-    it 'should transform malformed options' do
+    it 'transforms malformed options' do
       expect(gi_bill_feedback.send(:transform_malformed_options,
                                    'post9::11 ch 33' => true,
                                    'MGIB-AD Ch 30' => true,
@@ -45,7 +45,7 @@ RSpec.describe GIBillFeedback, type: :model do
     context 'with no user' do
       let(:user) { nil }
 
-      it 'should transform the form' do
+      it 'transforms the form' do
         form = gi_bill_feedback.parsed_form
         form.delete('socialSecurityNumberLastFour')
         gi_bill_feedback.form = form.to_json
@@ -57,7 +57,7 @@ RSpec.describe GIBillFeedback, type: :model do
     context 'with a user' do
       let(:user) { create(:user) }
 
-      it 'should transform the form to the right format' do
+      it 'transforms the form to the right format' do
         expect(gi_bill_feedback.transform_form).to eq(get_fixture('gibft/transform_form'))
       end
 
@@ -71,7 +71,7 @@ RSpec.describe GIBillFeedback, type: :model do
           gi_bill_feedback.send(:remove_instance_variable, :@parsed_form)
         end
 
-        it 'should transform the malformed options' do
+        it 'transforms the malformed options' do
           expect(gi_bill_feedback.transform_form).to eq(get_fixture('gibft/transform_form'))
         end
       end
@@ -79,7 +79,7 @@ RSpec.describe GIBillFeedback, type: :model do
   end
 
   describe '#create_submission_job' do
-    it 'should not pass in the user if form is anonymous' do
+    it 'does not pass in the user if form is anonymous' do
       form = gi_bill_feedback.parsed_form
       form['onBehalfOf'] = 'Anonymous'
       user = create(:user)

@@ -35,7 +35,7 @@ describe EVSS::IntentToFile::ResponseStrategy do
       context 'with an ITF that does not expire on the current day' do
         before { Timecop.freeze(Date.new(2017, 10, 21)) }
 
-        it 'should cache and return the response' do
+        it 'caches and return the response' do
           expect(subject.redis_namespace).to receive(:set).once
           response = subject.cache_or_service(user.uuid, 'compensation') { service.get_active(itf_type) }
           expect(response).to be_ok
@@ -45,7 +45,7 @@ describe EVSS::IntentToFile::ResponseStrategy do
       context 'with an ITF that expires on the current day' do
         before { Timecop.freeze(Date.new(2018, 6, 6)) }
 
-        it 'should not cache and return the response' do
+        it 'does not cache and return the response' do
           expect(subject.redis_namespace).not_to receive(:set)
           response = subject.cache_or_service(user.uuid, 'compensation') { service.get_active(itf_type) }
           expect(response).to be_ok
