@@ -7,8 +7,8 @@ describe MVI::Configuration do
   describe '.ssl_options' do
     context 'when there are no SSL options' do
       before do
-        allow(MVI::Configuration.instance).to receive(:ssl_cert) { nil }
-        allow(MVI::Configuration.instance).to receive(:ssl_key) { nil }
+        allow(MVI::Configuration.instance).to receive(:ssl_cert).and_return(nil)
+        allow(MVI::Configuration.instance).to receive(:ssl_key).and_return(nil)
       end
 
       it 'returns nil' do

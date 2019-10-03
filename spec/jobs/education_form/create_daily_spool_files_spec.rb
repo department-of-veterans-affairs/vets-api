@@ -116,7 +116,7 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, type: :model, form: :educat
       let(:spool_files) { Rails.root.join('tmp', 'spool_files', '*') }
 
       before do
-        expect(Rails.env).to receive('development?').once { true }
+        expect(Rails.env).to receive('development?').once.and_return(true)
         application_1606.saved_claim.form = {}.to_json
         application_1606.saved_claim.save!(validate: false) # Make this claim super malformed
         FactoryBot.create(:va1990_western_region)
@@ -196,7 +196,7 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, type: :model, form: :educat
       let(:file_path) { "tmp/spool_files/#{filename}" }
 
       before do
-        expect(Rails.env).to receive('development?').once { true }
+        expect(Rails.env).to receive('development?').once.and_return(true)
       end
 
       it 'writes a file to the tmp dir' do
