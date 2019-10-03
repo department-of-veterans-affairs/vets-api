@@ -29,7 +29,7 @@ module EVSS
       #
       def update_payment_information(pay_info)
         body = request_body(pay_info)
-        save_req_body(body)
+        save_sanitized_req_body(body)
 
         with_monitoring_and_error_handling do
           raw_response = perform(:post, 'paymentInformation', body, headers)
@@ -39,7 +39,7 @@ module EVSS
 
       private
 
-      def save_req_body(req_body)
+      def save_sanitized_req_body(req_body)
         req_body = JSON.parse(req_body)
         req_body['requests'].each do |request|
           request['paymentAccount']['accountNumber'] = '****'
