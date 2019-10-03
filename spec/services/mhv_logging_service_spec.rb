@@ -4,9 +4,9 @@ require 'rails_helper'
 require 'support/rx_client_helpers'
 
 RSpec.describe MHVLoggingService do
-  subject(:login_service) { described_class.login(mhv_user) }
+  let(:login_service) { described_class.login(mhv_user) }
 
-  subject(:logout_service) { described_class.logout(mhv_user) }
+  let(:logout_service) { described_class.logout(mhv_user) }
 
   before(:each) do
     Sidekiq::Testing.inline!

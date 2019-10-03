@@ -105,11 +105,6 @@ RSpec/IteratedExpectation:
   Exclude:
     - 'spec/models/user_preference_spec.rb'
 
-# Offense count: 144
-# Cop supports --auto-correct.
-# RSpec/LeadingSubject:
-#   Enabled: false
-
 # Offense count: 56
 RSpec/LeakyConstantDeclaration:
   Enabled: false
@@ -157,12 +152,6 @@ RSpec/MultipleDescribes:
 # Configuration parameters: AggregateFailuresByDefault.
 RSpec/MultipleExpectations:
   Max: 12
-
-# Offense count: 1
-# Cop supports --auto-correct.
-RSpec/MultipleSubjects:
-  Exclude:
-    - 'spec/services/mhv_logging_service_spec.rb'
 
 # Offense count: 1702
 # Configuration parameters: IgnoreSharedExamples.
