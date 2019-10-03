@@ -4,12 +4,12 @@ require 'rails_helper'
 require 'csv'
 
 describe Vet360::Service do
+  subject       { described_class.new(user) }
+
   let(:user)    { build(:user, :loa3) }
   let(:status)  { 400 }
   let(:message) { 'the server responded with status 400' }
   let(:file)    { Rails.root.join('spec', 'support', 'vet360', 'api_response_error_messages.csv') }
-
-  subject       { described_class.new(user) }
 
   describe '#handle_error' do
     before do

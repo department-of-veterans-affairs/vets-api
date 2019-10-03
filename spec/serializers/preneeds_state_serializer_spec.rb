@@ -3,11 +3,11 @@
 require 'rails_helper'
 
 RSpec.describe PreneedsStateSerializer, type: :serializer do
+  subject { serialize(preneeds_state, serializer_class: described_class) }
+
   let(:preneeds_state) { build :preneeds_state }
   let(:data) { JSON.parse(subject)['data'] }
   let(:attributes) { data['attributes'] }
-
-  subject { serialize(preneeds_state, serializer_class: described_class) }
 
   it 'includes id' do
     expect(data['id']).to eq(preneeds_state.id)

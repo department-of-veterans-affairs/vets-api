@@ -3,13 +3,13 @@
 require 'rails_helper'
 
 RSpec.describe EducationBenefitsSubmission, type: :model do
+  subject { described_class.new(attributes) }
+
   let(:attributes) do
     {
       region: 'eastern'
     }
   end
-
-  subject { described_class.new(attributes) }
 
   describe 'validations' do
     it 'validates region is correct' do

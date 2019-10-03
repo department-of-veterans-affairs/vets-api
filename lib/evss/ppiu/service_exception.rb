@@ -4,7 +4,7 @@ require 'evss/service_exception'
 
 module EVSS
   module PPIU
-    class ServiceException < EVSS::ServiceException
+    class ServiceException < EVSS::LoggedServiceException
       ERROR_MAP = {
         fraud: 'evss.ppiu.potential_fraud',
         flashes: 'evss.ppiu.account_flagged',

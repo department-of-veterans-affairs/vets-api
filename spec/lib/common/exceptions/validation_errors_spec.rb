@@ -26,12 +26,12 @@ describe Common::Exceptions::ValidationErrors do
   end
 
   context 'with resource having errors provided' do
+    subject { described_class.new(resource_with_errors) }
+
     let(:resource_with_errors) do
       resource.valid?
       resource
     end
-
-    subject { described_class.new(resource_with_errors) }
 
     it 'implements #errors which returns an array' do
       expect(subject.errors).to be_an(Array)

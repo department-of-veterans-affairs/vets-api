@@ -31,12 +31,12 @@ RSpec.describe HCA::SubmissionJob, type: :job do
   end
 
   describe '#perform' do
-    before do
-      expect(HCA::Service).to receive(:new).with(user_identifier).once.and_return(hca_service)
-    end
-
     subject do
       described_class.new.perform(user_identifier, form, health_care_application.id, '123456789')
+    end
+
+    before do
+      expect(HCA::Service).to receive(:new).with(user_identifier).once.and_return(hca_service)
     end
 
     context 'when submission has an error' do

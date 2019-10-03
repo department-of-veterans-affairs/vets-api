@@ -4,10 +4,10 @@ require 'rails_helper'
 require 'common/exceptions'
 
 describe OktaRedis::App, skip_emis: true do
+  subject { described_class.with_id(from_okta[:id]) }
+
   let(:user) { build(:user, :loa3, uuid: '00u2fqgvbyT23TZNm2p7') }
   let(:from_okta) { { id: '0oa2ey2m6kEL2897N2p7', title: 'TestGrantRevoke' } }
-
-  subject { described_class.with_id(from_okta[:id]) }
 
   %i[id title].each do |body_attr|
     describe body_attr.to_s do

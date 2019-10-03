@@ -3,9 +3,9 @@
 require 'rails_helper'
 
 RSpec.describe EducationForm::Forms::VA1995s do
-  let(:education_benefits_claim) { build(:va1995s).education_benefits_claim }
-
   subject { described_class.new(education_benefits_claim) }
+
+  let(:education_benefits_claim) { build(:va1995s).education_benefits_claim }
 
   # For each sample application we have, format it and compare it against a 'known good'
   # copy of that submission. This technically covers all the helper logic found in the

@@ -3,11 +3,11 @@
 require 'rails_helper'
 
 RSpec.describe ProviderSerializer, type: :serializer do
+  subject { serialize(provider, serializer_class: described_class) }
+
   let(:provider) { build :provider }
   let(:data) { JSON.parse(subject)['data'] }
   let(:attributes) { data['attributes'] }
-
-  subject { serialize(provider, serializer_class: described_class) }
 
   it 'includes id' do
     expect(data['id']).to eq('ccp_' + provider.ProviderIdentifier)

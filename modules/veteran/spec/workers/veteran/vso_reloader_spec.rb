@@ -5,11 +5,11 @@ require 'sidekiq/testing'
 Sidekiq::Testing.fake!
 
 RSpec.describe Veteran::VsoReloader, type: :job do
+  subject { described_class }
+
   before(:each) do
     Sidekiq::Worker.clear_all
   end
-
-  subject { described_class }
 
   describe 'importer' do
     it 'reloads data from pulldown' do

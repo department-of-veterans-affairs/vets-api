@@ -3,11 +3,11 @@
 require 'rails_helper'
 
 RSpec.describe CemeterySerializer, type: :serializer do
+  subject { serialize(cemetery, serializer_class: described_class) }
+
   let(:cemetery) { build :cemetery }
   let(:data) { JSON.parse(subject)['data'] }
   let(:attributes) { data['attributes'] }
-
-  subject { serialize(cemetery, serializer_class: described_class) }
 
   it 'includes id' do
     expect(data['id']).to eq(cemetery.id)
