@@ -5,6 +5,7 @@ require 'facilities/bulk_json_client'
 
 RSpec.describe Facilities::FacilityLocationDownloadJob, type: :job do
   before(:each) { BaseFacility.validate_on_load = false }
+
   after(:each) { BaseFacility.validate_on_load = true }
 
   describe 'NCA Facilities' do
@@ -98,7 +99,7 @@ RSpec.describe Facilities::FacilityLocationDownloadJob, type: :job do
       end
     end
 
-    it 'should indicate Pensions for appropriate facilities' do
+    it 'indicates Pensions for appropriate facilities' do
       VCR.use_cassette('facilities/va/vba_facilities_limit_results') do
         expect(Facilities::VBAFacility.count).to eq(0)
         Facilities::FacilityLocationDownloadJob.new.perform('vba')
@@ -187,7 +188,9 @@ RSpec.describe Facilities::FacilityLocationDownloadJob, type: :job do
 
   context 'with facility validation' do
     before(:each) { BaseFacility.validate_on_load = true }
+
     after(:each) { BaseFacility.validate_on_load = false }
+
     it 'raises an error when trying to retrieve and persist facilities data' do
       VCR.use_cassette('facilities/va/vha_facilities_limit_results') do
         expect { Facilities::FacilityLocationDownloadJob.new.perform('vha') }
@@ -223,7 +226,7 @@ RSpec.describe Facilities::FacilityLocationDownloadJob, type: :job do
     end
 
     it 'has the wait time indicated services' do
-      VCR.use_cassette('facilities/va/vha_facilities_limit_results') do
+      VCR.use_cassette('facilities/va/vha_facilities') do
         Facilities::FacilityLocationDownloadJob.new.perform('vha')
         facility = Facilities::VHAFacility.find('603')
         services = facility.services['health'].map { |service| service['sl1'].first }

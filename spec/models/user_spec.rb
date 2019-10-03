@@ -3,6 +3,8 @@
 require 'rails_helper'
 
 RSpec.describe User, type: :model do
+  subject { described_class.new(build(:user)) }
+
   let(:loa_one) { { current: LOA::ONE, highest: LOA::ONE } }
   let(:loa_three) { { current: LOA::THREE, highest: LOA::THREE } }
 
@@ -11,7 +13,7 @@ RSpec.describe User, type: :model do
     let(:vet360_email) { user.vet360_contact_info.email.email_address }
 
     context 'when vet360 is down' do
-      it 'should return user email' do
+      it 'returns user email' do
         expect(user).to receive(:vet360_contact_info).and_raise('foo')
 
         expect(user.all_emails).to eq([user.email])
@@ -19,14 +21,14 @@ RSpec.describe User, type: :model do
     end
 
     context 'when vet360 email is the same as user email' do
-      it 'should remove the duplicate email' do
+      it 'removes the duplicate email' do
         allow(user).to receive(:email).and_return(vet360_email.upcase)
 
         expect(user.all_emails).to eq([vet360_email])
       end
     end
 
-    it 'should return identity and vet360 emails' do
+    it 'returns identity and vet360 emails' do
       expect(user.all_emails).to eq([vet360_email, user.email])
     end
   end
@@ -39,48 +41,48 @@ RSpec.describe User, type: :model do
       stub_mvi(mvi_profile)
     end
 
-    it 'should return true if user loa3?, and ssns dont match' do
-      expect(user.ssn_mismatch?).to be_truthy
+    it 'returns true if user loa3?, and ssns dont match' do
+      expect(user).to be_ssn_mismatch
     end
 
-    it 'should return false if user is not loa3?' do
+    it 'returns false if user is not loa3?' do
       allow(user).to receive(:loa3?).and_return(false)
-      expect(user.loa3?).to be_falsey
+      expect(user).not_to be_loa3
       expect(user.identity&.ssn).to eq(user.ssn)
       expect(user.va_profile&.ssn).to be_falsey
-      expect(user.ssn_mismatch?).to be_falsey
+      expect(user).not_to be_ssn_mismatch
     end
 
     context 'identity ssn is nil' do
       let(:user) { build(:user, :loa3, ssn: nil) }
 
-      it 'should return false' do
-        expect(user.loa3?).to be_truthy
+      it 'returns false' do
+        expect(user).to be_loa3
         expect(user.identity&.ssn).to be_falsey
         expect(user.va_profile&.ssn).to be_truthy
-        expect(user.ssn_mismatch?).to be_falsey
+        expect(user).not_to be_ssn_mismatch
       end
     end
 
     context 'mvi ssn is nil' do
       let(:mvi_profile) { build(:mvi_profile, ssn: nil) }
 
-      it 'should return false' do
-        expect(user.loa3?).to be_truthy
+      it 'returns false' do
+        expect(user).to be_loa3
         expect(user.identity&.ssn).to be_truthy
         expect(user.va_profile&.ssn).to be_falsey
-        expect(user.ssn_mismatch?).to be_falsey
+        expect(user).not_to be_ssn_mismatch
       end
     end
 
     context 'matched ssn' do
       let(:mvi_profile) { build(:mvi_profile, ssn: user.ssn) }
 
-      it 'should return false if user identity ssn is nil' do
-        expect(user.loa3?).to be_truthy
+      it 'returns false if user identity ssn is nil' do
+        expect(user).to be_loa3
         expect(user.identity&.ssn).to be_truthy
         expect(user.va_profile&.ssn).to be_truthy
-        expect(user.ssn_mismatch?).to be_falsey
+        expect(user).not_to be_ssn_mismatch
       end
     end
   end
@@ -88,11 +90,11 @@ RSpec.describe User, type: :model do
   describe '#can_prefill_emis?' do
     let(:user) { build(:user, :loa3) }
 
-    it 'should return true if user has edipi or icn' do
+    it 'returns true if user has edipi or icn' do
       expect(user.authorize(:emis, :access?)).to eq(true)
     end
 
-    it 'should return false if user doesnt have edipi or icn' do
+    it 'returns false if user doesnt have edipi or icn' do
       expect(user).to receive(:edipi).and_return(nil)
 
       expect(user.authorize(:emis, :access?)).to eq(false)
@@ -103,9 +105,9 @@ RSpec.describe User, type: :model do
     context 'with LOA 1' do
       subject(:loa1_user) { described_class.new(build(:user, loa: loa_one)) }
 
-      it 'should not allow a blank uuid' do
+      it 'does not allow a blank uuid' do
         loa1_user.uuid = ''
-        expect(loa1_user.valid?).to be_falsey
+        expect(loa1_user).not_to be_valid
         expect(loa1_user.errors[:uuid].size).to be_positive
       end
     end
@@ -113,13 +115,11 @@ RSpec.describe User, type: :model do
     context 'with LOA 1, and no highest will raise an exception on UserIdentity' do
       subject(:loa1_user) { described_class.new(build(:user, loa: { current: 1 })) }
 
-      it 'should raise an exception' do
+      it 'raises an exception' do
         expect { loa1_user }.to raise_exception(Common::Exceptions::ValidationErrors)
       end
     end
   end
-
-  subject { described_class.new(build(:user)) }
 
   context 'user without attributes' do
     let(:test_user) { build(:user) }
@@ -138,7 +138,7 @@ RSpec.describe User, type: :model do
     end
 
     it 'has a persisted attribute of false' do
-      expect(subject.persisted?).to be_falsey
+      expect(subject).not_to be_persisted
     end
 
     it 'has nil edipi locally and from IDENTITY' do
@@ -148,7 +148,7 @@ RSpec.describe User, type: :model do
   end
 
   it 'has a persisted attribute of false' do
-    expect(subject.persisted?).to be_falsey
+    expect(subject).not_to be_persisted
   end
 
   describe 'redis persistence' do
@@ -156,7 +156,7 @@ RSpec.describe User, type: :model do
 
     describe '#save' do
       it 'sets persisted flag to true' do
-        expect(subject.persisted?).to be_truthy
+        expect(subject).to be_persisted
       end
 
       it 'sets the ttl countdown' do
@@ -194,6 +194,7 @@ RSpec.describe User, type: :model do
       context 'when saml user attributes available, icn is available, and user LOA3' do
         let(:mvi_profile) { build(:mvi_profile) }
         let(:user) { build(:user, :loa3, middle_name: 'J', mhv_icn: mvi_profile.icn) }
+
         before(:each) do
           stub_mvi(mvi_profile)
         end
@@ -243,6 +244,7 @@ RSpec.describe User, type: :model do
       context 'when saml user attributes NOT available, icn is available, and user LOA3' do
         let(:mvi_profile) { build(:mvi_profile) }
         let(:user) { build(:user, :loa3, :mhv_sign_in, mhv_icn: mvi_profile.icn) }
+
         before(:each) { stub_mvi(mvi_profile) }
 
         it 'fetches first_name from MVI' do
@@ -297,6 +299,7 @@ RSpec.describe User, type: :model do
       context 'when saml user attributes NOT available, icn is available, and user NOT LOA3' do
         let(:mvi_profile) { build(:mvi_profile) }
         let(:user) { build(:user, :loa1, :mhv_sign_in, mhv_icn: mvi_profile.icn) }
+
         before(:each) { stub_mvi(mvi_profile) }
 
         it 'fetches first_name from IDENTITY' do
@@ -331,6 +334,7 @@ RSpec.describe User, type: :model do
       context 'when icn is not available from saml data' do
         let(:mvi_profile) { build(:mvi_profile) }
         let(:user) { build(:user, :loa3) }
+
         before(:each) { stub_mvi(mvi_profile) }
 
         it 'fetches first_name from IDENTITY' do
@@ -365,6 +369,7 @@ RSpec.describe User, type: :model do
       describe '#mhv_correlation_id' do
         context 'when mhv ids are nil' do
           let(:user) { build(:user) }
+
           it 'has a mhv correlation id of nil' do
             expect(user.mhv_correlation_id).to be_nil
           end
@@ -373,6 +378,7 @@ RSpec.describe User, type: :model do
         context 'when there are mhv ids' do
           let(:loa3_user) { build(:user, :loa3) }
           let(:mvi_profile) { build(:mvi_profile) }
+
           it 'has a mhv correlation id' do
             stub_mvi(mvi_profile)
             expect(loa3_user.mhv_correlation_id).to eq(mvi_profile.mhv_ids.first)
@@ -385,7 +391,8 @@ RSpec.describe User, type: :model do
 
   describe '#flipper_id' do
     let(:user) { build(:user, :loa3) }
-    it 'should return a unique identifier of email' do
+
+    it 'returns a unique identifier of email' do
       expect(user.flipper_id).to eq(user.email)
     end
   end
@@ -407,64 +414,73 @@ RSpec.describe User, type: :model do
 
     context 'when there are no facilities' do
       let(:mvi_profile) { build(:mvi_profile, vha_facility_ids: []) }
+
       it 'is false' do
-        expect(user.va_patient?).to be_falsey
+        expect(user).not_to be_va_patient
       end
     end
 
     context 'when there are nil facilities' do
       let(:mvi_profile) { build(:mvi_profile, vha_facility_ids: nil) }
+
       it 'is false' do
-        expect(user.va_patient?).to be_falsey
+        expect(user).not_to be_va_patient
       end
     end
 
     context 'when there are no facilities in the defined range' do
       let(:mvi_profile) { build(:mvi_profile, vha_facility_ids: [200, 759]) }
+
       it 'is false' do
-        expect(user.va_patient?).to be_falsey
+        expect(user).not_to be_va_patient
       end
     end
 
     context 'when facility is at the bottom edge of range' do
       let(:mvi_profile) { build(:mvi_profile, vha_facility_ids: [450]) }
+
       it 'is true' do
-        expect(user.va_patient?).to be_truthy
+        expect(user).to be_va_patient
       end
     end
 
     context 'when alphanumeric facility is at the bottom edge of range' do
       let(:mvi_profile) { build(:mvi_profile, vha_facility_ids: %w[450MH]) }
+
       it 'is true' do
-        expect(user.va_patient?).to be_truthy
+        expect(user).to be_va_patient
       end
     end
 
     context 'when facility is at the top edge of range' do
       let(:mvi_profile) { build(:mvi_profile, vha_facility_ids: [758]) }
+
       it 'is true' do
-        expect(user.va_patient?).to be_truthy
+        expect(user).to be_va_patient
       end
     end
 
     context 'when alphanumeric facility is at the top edge of range' do
       let(:mvi_profile) { build(:mvi_profile, vha_facility_ids: %w[758MH]) }
+
       it 'is true' do
-        expect(user.va_patient?).to be_truthy
+        expect(user).to be_va_patient
       end
     end
 
     context 'when there are multiple alphanumeric facilities all within defined range' do
       let(:mvi_profile) { build(:mvi_profile, vha_facility_ids: %w[450MH 758MH]) }
+
       it 'is true' do
-        expect(user.va_patient?).to be_truthy
+        expect(user).to be_va_patient
       end
     end
 
     context 'when there are multiple facilities all outside of defined range' do
       let(:mvi_profile) { build(:mvi_profile, vha_facility_ids: %w[449MH 759MH]) }
+
       it 'is false' do
-        expect(user.va_patient?).to be_falsey
+        expect(user).not_to be_va_patient
       end
     end
 
@@ -472,7 +488,7 @@ RSpec.describe User, type: :model do
       let(:mvi_profile) { build(:mvi_profile, vha_facility_ids: %w[759MM]) }
 
       it 'is true' do
-        expect(user.va_patient?).to be_truthy
+        expect(user).to be_va_patient
       end
     end
 
@@ -480,7 +496,7 @@ RSpec.describe User, type: :model do
       let(:mvi_profile) { build(:mvi_profile, vha_facility_ids: %w[759]) }
 
       it 'is false' do
-        expect(user.va_patient?).to be_falsey
+        expect(user).not_to be_va_patient
       end
     end
   end

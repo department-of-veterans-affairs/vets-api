@@ -4,7 +4,7 @@ require 'rails_helper'
 
 RSpec.describe VIC::AttachmentUploadJob do
   describe '#perform' do
-    it 'should call send_files' do
+    it 'calls send_files' do
       vic_submission = create(:vic_submission)
       form = vic_submission.form
 

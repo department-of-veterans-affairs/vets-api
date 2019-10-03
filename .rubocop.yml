@@ -1,6 +1,9 @@
 inherit_from: .rubocop_todo.yml
 
-require: 'rubocop-rails'
+require: 
+  - rubocop-rails
+  - rubocop-rspec
+
 AllCops:
   TargetRailsVersion: 5.2
   TargetRubyVersion: 2.4.5
@@ -157,3 +160,10 @@ Rails/ActiveRecordAliases:
 # v for value, i for index, and e for error are all standard abbreviations and should be excluded.
 Naming/UncommunicativeMethodParamName:
   Enabled: false
+
+# FactoryBot 5.x replaced static factory attributes with dynamic ones. Auto-converting using rubocop-rspec
+# always uses {...} which means a lot of existing factories because invalid. Allowed exception in pr #3300.
+Style/BlockDelimiters:
+  Exclude:
+    - "spec/factories/*.rb"
+    - "modules/*/spec/factories/*.rb"

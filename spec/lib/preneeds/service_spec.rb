@@ -140,6 +140,7 @@ describe Preneeds::Service do
 
     context 'with foreign address' do
       let(:burial_form_foreign_address) { build(:burial_form_foreign_address) }
+
       it 'includes the <state> attribute in the request XML' do
         client = Savon.client(wsdl: Settings.preneeds.wsdl)
         soap = client.build_request(
@@ -154,7 +155,7 @@ describe Preneeds::Service do
   end
 
   describe 'build_multipart' do
-    it 'should build a multipart request' do
+    it 'builds a multipart request' do
       multipart = subject.send(:build_multipart, double(body: 'foo'), burial_form.attachments)
       expect(multipart.body.parts.map(&:content_type)).to eq(
         [

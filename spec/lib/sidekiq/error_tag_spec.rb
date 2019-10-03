@@ -23,14 +23,14 @@ describe Sidekiq::ErrorTag do
     ApplicationController.new.send(:set_tags_and_extra_context)
   end
 
-  it 'should tag raven before each sidekiq job' do
+  it 'tags raven before each sidekiq job' do
     TestJob.perform_async
     expect(Raven).to receive(:tags_context).with(request_id: '123')
     expect(Raven).to receive(:tags_context).with(job: 'TestJob')
     TestJob.drain
   end
 
-  it 'should add controller metadata to semantic logger named tags' do
+  it 'adds controller metadata to semantic logger named tags' do
     Sidekiq::Testing.inline! do
       TestJob.perform_async
       expect($named_tags[:request_id]).to eq('123')

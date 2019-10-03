@@ -38,7 +38,7 @@ RSpec.describe UserPreferences::Validator do
       end
 
       it 'does not raise any exceptions' do
-        expect { UserPreferences::Validator.new(requested_user_preferences).of_presence! }.to_not raise_error
+        expect { UserPreferences::Validator.new(requested_user_preferences).of_presence! }.not_to raise_error
       end
 
       it 'returns the original initialized requested_user_preferences' do
