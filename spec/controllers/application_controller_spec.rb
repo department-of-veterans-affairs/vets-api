@@ -64,7 +64,7 @@ RSpec.describe ApplicationController, type: :controller do
       let(:form_id) { in_progress_form.form_id }
 
       context 'without a current user' do
-        it "shouldn't delete the form" do
+        it 'does not delete the form' do
           subject
           expect(model_exists?(in_progress_form)).to be(true)
         end
@@ -75,7 +75,7 @@ RSpec.describe ApplicationController, type: :controller do
           controller.instance_variable_set(:@current_user, user)
         end
 
-        it 'should delete the form' do
+        it 'deletes the form' do
           subject
           expect(model_exists?(in_progress_form)).to be(false)
         end
@@ -89,7 +89,7 @@ RSpec.describe ApplicationController, type: :controller do
         controller.instance_variable_set(:@current_user, user)
       end
 
-      it 'should do nothing' do
+      it 'does nothing' do
         subject
       end
     end

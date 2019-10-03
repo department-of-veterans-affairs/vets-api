@@ -9,11 +9,11 @@ RSpec.describe EVSSClaimDetailSerializer, type: :serializer do
 
   subject { serialize(evss_claim, serializer_class: EVSSClaimDetailSerializer) }
 
-  it 'should include id' do
+  it 'includes id' do
     expect(data['id']).to eq(evss_claim.evss_id.to_s)
   end
 
-  it 'should not include raw HTML' do
+  it 'does not include raw HTML' do
     expect(attributes.to_json.to_s.include?('<')).to be(false)
   end
 
@@ -54,7 +54,7 @@ RSpec.describe EVSSClaimDetailSerializer, type: :serializer do
                        })
     end
 
-    it 'should not use list_data' do
+    it 'does not use list_data' do
       expect(attributes['waiver_submitted']).to eq true
     end
   end
@@ -74,11 +74,11 @@ RSpec.describe EVSSClaimDetailSerializer, type: :serializer do
       attributes['events_timeline'].select { |obj| obj['type'] == 'other_documents_list' }
     end
 
-    it 'should only add documents without a tracked_item_id into other_documents_list' do
+    it 'onlies add documents without a tracked_item_id into other_documents_list' do
       expect(other_documents.count).to eq 1
       expect(other_documents.reject { |obj| obj['tracked_item_id'].nil? }.count).to eq 0
     end
-    it 'should use the upload date for the tracked item' do
+    it 'uses the upload date for the tracked item' do
       tracked_item = attributes['events_timeline'].detect { |event| event['tracked_item_id'] == 211_684 }
       expect(tracked_item['date']).to eq('2016-11-04')
     end
@@ -87,16 +87,16 @@ RSpec.describe EVSSClaimDetailSerializer, type: :serializer do
   context 'with some phase dates' do
     let(:date_str) { Date.new(2012, 8, 10).to_json[1...-1] }
 
-    it 'should not have a phase 1..6 event' do
+    it 'does not have a phase 1..6 event' do
       (1..6).each do |i|
         expect(attributes['events_timeline'].select { |obj| obj['type'] == "phase#{i}" }.count).to eq 0
       end
     end
-    it 'should have a phase 7 event' do
+    it 'has a phase 7 event' do
       expect(attributes['events_timeline'].select { |obj| obj['type'] == 'phase7' }.count).to eq 1
     end
 
-    it 'should have the right date for phase 7' do
+    it 'has the right date for phase 7' do
       expect(attributes['events_timeline'].select { |obj| obj['type'] == 'phase7' }.first['date']).to eq date_str
     end
   end

@@ -47,13 +47,13 @@ describe MVI::Responses::FindProfileResponse do
 
   describe '#ok?' do
     context 'with a successful response' do
-      it 'should be true' do
+      it 'is true' do
         expect(ok_response).to be_ok
       end
     end
 
     context 'with an error response' do
-      it 'should be false' do
+      it 'is false' do
         expect(error_response).not_to be_ok
       end
     end
@@ -61,13 +61,13 @@ describe MVI::Responses::FindProfileResponse do
 
   describe '#not_found?' do
     context 'with a successful response' do
-      it 'should be true' do
+      it 'is true' do
         expect(ok_response).not_to be_not_found
       end
     end
 
     context 'with a not found response' do
-      it 'should be false' do
+      it 'is false' do
         expect(not_found_response).to be_not_found
       end
     end
@@ -75,13 +75,13 @@ describe MVI::Responses::FindProfileResponse do
 
   describe '#server_error?' do
     context 'with a successful response' do
-      it 'should be true' do
+      it 'is true' do
         expect(ok_response).not_to be_server_error
       end
     end
 
     context 'with an error response' do
-      it 'should be false' do
+      it 'is false' do
         expect(error_response).to be_server_error
       end
     end

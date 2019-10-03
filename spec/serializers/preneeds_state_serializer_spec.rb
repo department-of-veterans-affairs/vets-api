@@ -9,31 +9,31 @@ RSpec.describe PreneedsStateSerializer, type: :serializer do
 
   subject { serialize(preneeds_state, serializer_class: described_class) }
 
-  it 'should include id' do
+  it 'includes id' do
     expect(data['id']).to eq(preneeds_state.id)
   end
 
-  it 'should include the preneeds_state_id' do
+  it 'includes the preneeds_state_id' do
     expect(attributes['preneeds_state_id']).to eq(preneeds_state.id)
   end
 
-  it 'should include the code' do
+  it 'includes the code' do
     expect(attributes['code']).to eq(preneeds_state.code)
   end
 
-  it 'should include the first_five_zip' do
+  it 'includes the first_five_zip' do
     expect(attributes['first_five_zip']).to eq(preneeds_state.first_five_zip)
   end
 
-  it 'should include the last_five_zip' do
+  it 'includes the last_five_zip' do
     expect(attributes['last_five_zip']).to eq(preneeds_state.last_five_zip)
   end
 
-  it 'should include the lower_indicator' do
+  it 'includes the lower_indicator' do
     expect(attributes['lower_indicator']).to eq(preneeds_state.lower_indicator)
   end
 
-  it 'should include the name' do
+  it 'includes the name' do
     expect(attributes['name']).to eq(preneeds_state.name)
   end
 end

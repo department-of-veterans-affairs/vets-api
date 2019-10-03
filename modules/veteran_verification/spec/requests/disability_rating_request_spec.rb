@@ -32,7 +32,7 @@ RSpec.describe 'Disability Rating API endpoint', type: :request, skip_emis: true
   end
 
   context 'with valid emis responses' do
-    it 'should return the current users service history with one episode' do
+    it 'returns the current users service history with one episode' do
       with_okta_configured do
         VCR.use_cassette('evss/disability_compensation_form/rated_disabilities') do
           get '/services/veteran_verification/v0/disability_rating', params: nil, headers: auth_header
@@ -45,7 +45,7 @@ RSpec.describe 'Disability Rating API endpoint', type: :request, skip_emis: true
   end
 
   context 'with a 500 response' do
-    it 'should return a bad gateway response' do
+    it 'returns a bad gateway response' do
       with_okta_configured do
         VCR.use_cassette('evss/disability_compensation_form/rated_disabilities_500') do
           get '/services/veteran_verification/v0/disability_rating', params: nil, headers: auth_header
@@ -57,7 +57,7 @@ RSpec.describe 'Disability Rating API endpoint', type: :request, skip_emis: true
   end
 
   context 'with a 403 unauthorized response' do
-    it 'should return a not authorized response' do
+    it 'returns a not authorized response' do
       with_okta_configured do
         VCR.use_cassette('evss/disability_compensation_form/rated_disabilities_403') do
           get '/services/veteran_verification/v0/disability_rating', params: nil, headers: auth_header
@@ -69,7 +69,7 @@ RSpec.describe 'Disability Rating API endpoint', type: :request, skip_emis: true
   end
 
   context 'with a generic 400 response' do
-    it 'should return a bad request response' do
+    it 'returns a bad request response' do
       with_okta_configured do
         VCR.use_cassette('evss/disability_compensation_form/rated_disabilities_400') do
           get '/services/veteran_verification/v0/disability_rating', params: nil, headers: auth_header
