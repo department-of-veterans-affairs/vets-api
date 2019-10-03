@@ -561,6 +561,7 @@ paths:
                     type: object
                     required:
                       - pagination
+                      - facility_drive_time_bands
                     properties:
                       pagination:
                         type: object
@@ -582,6 +583,22 @@ paths:
                           total_pages:
                             type: integer
                             example: 217
+                      facility_drive_time_bands:
+                        type: object
+                        required:
+                          - station_number
+                          - drive_time_band_min
+                          - drive_time_band_max
+                        properties:
+                          station_number:
+                            type: string
+                            example: 101A
+                          drive_time_band_min:
+                            type: integer
+                            example: 10
+                          drive_time_band_max:
+                            type: integer
+                            example: 20
             application/vnd.geo+json:
               schema:
                 required:
