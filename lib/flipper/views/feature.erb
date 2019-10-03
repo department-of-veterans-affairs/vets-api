@@ -4,245 +4,234 @@
   </div>
 <% end %>
 
-<div>
-  <div class="row">
-    <div class="col">
-      <div class="card">
-        <h4 class="card-header">
-          <span class="octicon octicon-squirrel <%= @feature.color_class %>"></span>
-          <%= @feature.key %>
-        </h4>
-        <div class="card-body">
-          <p>
-            <% if @feature.boolean_value %>
-              The feature is enabled for <strong>everyone</strong>. Disable this feature with one click.
-            <% else %>
-              Enable or disable this feature for <strong>everyone</strong> with one click.
-            <% end %>
-          </p>
+<div class="vads-l-col--8">
+  <div class="vads-l-row">
+    <div class="vads-l-col">
+      <h1 class="vads-u-font-size--xl">
+        <%= @feature.key %>
+      </h1>
 
-          <form action="<%= script_name %>/features/<%= @feature.key %>/boolean" method="post">
-            <%== csrf_input_tag %>
+      <p class="vads-u-font-size--sm">
+        <%= yaml_features.dig(@feature.key,'description') %>
+      </p>
 
-            <% unless @feature.boolean_value %>
-              <button type="submit" name="action" value="Enable" class="btn btn-danger" data-toggle="tooltip" title="Enable for everyone">Enable</button>
-            <% end %>
+      <div class="feature">
+        <p>
+          <% if @feature.on? %>
+            This feature is <strong>enabled for everyone</strong>.
+          <% elsif @feature.off? %>
+            This feature is <strong>disabled</strong>.
+          <% else %>
+            This feature is <strong>enabled with certain conditions</strong>.
+          <% end %>
+        </p>
 
-            <button type="submit" name="action" value="Disable" class="btn btn-light" data-toggle="tooltip" <% if @feature.off? %>disabled title="Already disabled for everyone"<% else %>title="Disable for everyone by clearing all percentages, groups and actors."<% end %>>Disable</button>
+        <% if @feature.boolean_value %>
+        <p>Conditional toggles are currently disabled. If you want to conditionally enable this feature, you must first disable the feature for everyone.</p>
+        <% end %>
+
+        <form action="<%= script_name %>/features/<%= @feature.key %>/boolean" method="post">
+          <%== csrf_input_tag %>
+
+          <% if @feature.off? %>
+            <button class="vads-u-margin--0 vads-u-margin-top--1 vads-u-width--auto" type="submit" name="action" value="Enable" title="Enable for everyone">Enable for everyone</button>
+          <% else %>
+            <button class="vads-u-margin--0 vads-u-margin-top--1 vads-u-width--auto" type="submit" name="action" value="Disable" title="Disable for everyone by clearing all percentages, groups and actors.">Disable for everyone</button>
+          <% end %>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <h2 class="vads-u-font-size--lg vads-u-margin-top--0 vads-u-margin-bottom--2">
+    Conditional Toggles
+  </h2>
+
+  <div class="">
+
+    <div class="vads-l-row">
+      <div class="vads-l-col--6">
+        <div class="vads-u-border--1px vads-u-border-color--gray-lighter vads-u-margin-right--1 vads-u-padding--2">
+          <form action="<%= script_name %>/features/<%= @feature.key %>/percentage_of_actors" method="post">
+            <fieldset <% if @feature.boolean_value %>disabled<% end %>>
+              <%== csrf_input_tag %>
+              <label for="percentage-of-users-input" class="vads-u-margin--0">
+                <%= Flipper::UI.configuration.percentage_of_actors.title %>
+              </label>
+              <input id="percentage-of-users-input" type="text" name="value" <% if @feature.percentage_of_actors_value > 0 %>value="<%= @feature.percentage_of_actors_value %>"<% end %>>
+              <button class="vads-u-margin-top--1 vads-u-width--auto" type="submit">Set value</button>
+              <button class="usa-button-secondary vads-u-margin-top--1 vads-u-width--auto" type="submit" name="value" value="0">Clear</button>
+            </fieldset>
           </form>
+          <p class="vads-u-background-color--gray-lightest vads-u-font-size--sm vads-u-padding--2 vads-u-margin-bottom--0">
+          <% if @feature.percentage_of_actors_value > 0 && !@feature.boolean_value %>
+            The feature is enabled for <%= @feature.percentage_of_actors_value %>% of logged in users.
+          <% else %>
+            This feature is not enabled by percentage of logged in users.
+          <% end %>
+          </p>
+        </div>
+      </div>
+      <div class="vads-l-col--6">
+        <div class="vads-u-border--1px vads-u-border-color--gray-lighter vads-u-margin-left--1 vads-u-padding--2">
+          <form action="<%= script_name %>/features/<%= @feature.key %>/percentage_of_time" method="post">
+            <fieldset <% if @feature.boolean_value %>disabled<% end %>>
+              <%== csrf_input_tag %>
+              <label for="percentage-of-time-input" class="vads-u-margin--0">
+                <%= Flipper::UI.configuration.percentage_of_time.title %>
+              </label>
+              <input id="percentage-of-time-input" type="text" name="value" <% if @feature.percentage_of_time_value > 0 %>value="<%= @feature.percentage_of_time_value %>"<% end %>>
+              <button class="vads-u-margin-top--1 vads-u-width--auto" type="submit">Set value</button>
+              <button class="usa-button-secondary vads-u-margin-top--1 vads-u-width--auto" type="submit" name="value" value="0">Clear</button>
+            </fieldset>
+          </form>
+          <p class="vads-u-background-color--gray-lightest vads-u-font-size--sm vads-u-padding--2 vads-u-margin-bottom--0">
+          <% if @feature.percentage_of_time_value > 0 && !@feature.boolean_value %>
+            The feature is enabled <%= @feature.percentage_of_time_value %>% of the time for everyone.
+          <% else %>
+            This feature is not enabled by percentage of time.
+          <% end %>
+          </p>
         </div>
       </div>
     </div>
-  </div>
-  <div class="row">
-    <div class="col-md mb-4 mb-lg-0">
-      <div class="card">
-        <h4 class="card-header"><%= Flipper::UI.configuration.percentage_of_actors.title %></h4>
-        <div class="card-body">
-          <div class="row">
-            <div class="col">
-              <form action="<%= script_name %>/features/<%= @feature.key %>/percentage_of_actors" method="post">
-                <%== csrf_input_tag %>
-                <div class="btn-group">
-                  <% @percentages.each do |number| %>
-                    <input type="submit" name="value" value="<%= number %>%" class="btn btn-light btn-sm" <% if number == @feature.percentage_of_actors_value %>disabled<% end %>>
-                  <% end %>
-                </div>
-              </form>
-            </div>
-          </div>
-          <div class="row">
-            <div class="col">
-              <h5>- or -</h5>
-            </div>
-          </div>
-          <div class="row">
-            <div class="col">
-              <form action="<%= script_name %>/features/<%= @feature.key %>/percentage_of_actors" method="post" class="form-inline">
-                <%== csrf_input_tag %>
-                <input type="text" name="value" <% if @feature.percentage_of_actors_value > 0 %>value="<%= @feature.percentage_of_actors_value %>"<% end %> placeholder="custom (26, 32, etc.)" class="form-control form-control-sm mr-sm-2 mb-2 mb-md-0">
-                <input type="submit" name="action" value="Enable" class="btn btn-light btn-sm">
-              </form>
-            </div>
-          </div>
-          <div class="row">
-            <div class="col">
-              <p class="text-muted"><small><%= Flipper::UI.configuration.percentage_of_actors.description %></small></p>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-    <div class="col-md">
-      <div class="card">
-        <h4 class="card-header"><%= Flipper::UI.configuration.percentage_of_time.title %></h4>
-        <div class="card-body">
-          <div class="row">
-            <div class="col">
-              <form action="<%= script_name %>/features/<%= @feature.key %>/percentage_of_time" method="post">
-                <%== csrf_input_tag %>
-                <div class="btn-group">
-                  <% @percentages.each do |number| %>
-                    <input type="submit" name="value" value="<%= number %>%" class="btn btn-light btn-sm" <% if number == @feature.percentage_of_time_value %>disabled<% end %>>
-                  <% end %>
-                </div>
-              </form>
-            </div>
-          </div>
-          <div class="row">
-            <div class="col">
-              <h5>- or -</h5>
-            </div>
-          </div>
-          <div class="row">
-            <div class="col">
-              <form action="<%= script_name %>/features/<%= @feature.key %>/percentage_of_time" method="post" class="form-inline">
-                <%== csrf_input_tag %>
-                <input type="text" name="value" <% if @feature.percentage_of_time_value > 0 %>value="<%= @feature.percentage_of_time_value %>"<% end %> placeholder="custom (26, 32, etc.)" class="form-control form-control-sm mr-sm-2 mb-2 mb-md-0">
-                <input type="submit" name="action" value="Enable" class="btn btn-light btn-sm">
-              </form>
-            </div>
-          </div>
-          <div class="row">
-            <div class="col">
-              <p class="text-muted"><small><%= Flipper::UI.configuration.percentage_of_time.description %></small></p>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
 
-  <div class="row">
-    <div class="col-md mb-4 mb-md-0">
-      <div class="card">
-        <div class="card-header">
-          <div class="d-flex w-100 justify-content-between align-items-center">
-            <div>
-              <h4><%= Flipper::UI.configuration.groups.title %></h4>
+    <div class="vads-l-row">
+      <div class="vads-l-col">
+        <div class="usa-alert usa-alert-info vads-u-margin-bottom--3">
+          <div class="usa-alert-body">
+            <%= Flipper::UI.configuration.percentage_of_actors.description %>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="vads-l-row">
+      <div class="vads-l-col--6">
+        <div class="vads-u-border--1px vads-u-border-color--gray-lighter vads-u-margin-right--1 vads-u-padding--2">
+          <div class="card-header">
+            <div class="d-flex w-100 justify-content-between align-items-center">
+              <div>
+                <h4><%= Flipper::UI.configuration.groups.title %></h4>
+              </div>
+              <div>
+                <% if @feature.disabled_groups.empty? %>
+                  All groups enabled.
+                <% else %>
+                  <form action="<%= script_name %>/features/<%= @feature.key %>/groups" method="post" class="usa-form">
+                    <%== csrf_input_tag %>
+                    <input type="hidden" name="operation" value="enable">
+                    <select name="value" class="form-control form-control-sm mr-sm-2 mb-2 mb-sm-0">
+                      <option value="">Select a group...</option>
+                      <% @feature.disabled_groups.each do |group| %>
+                        <option value="<%= group.name %>"><%= group.name %></option>
+                      <% end %>
+                    </select>
+                    <input type="submit" value="Add Group" class="btn btn-light btn-sm">
+                  </form>
+                <% end %>
+              </div>
             </div>
-            <div>
-              <% if @feature.disabled_groups.empty? %>
-                All groups enabled.
-              <% else %>
-                <form action="<%= script_name %>/features/<%= @feature.key %>/groups" method="post" class="form-inline">
+          </div>
+          <% if @feature.groups_value.empty? %>
+            <div class="card-body bg-light">
+              <div class="text-center">
+                <h4>No Enabled Groups</h4>
+                <p><%= Flipper::UI.configuration.groups.description %></p>
+              </div>
+            </div>
+          <% else %>
+            <ul class="list-group list-group-flush">
+              <% @feature.groups_value.each do |item| %>
+                <li class="list-group-item">
+                  <div class="d-flex w-100 justify-content-between align-items-center">
+                    <div>
+                      <%= item %>
+                    </div>
+                    <div>
+                      <form action="<%= script_name %>/features/<%= @feature.key %>/groups" method="post">
+                        <%== csrf_input_tag %>
+                        <input type="hidden" name="operation" value="disable">
+                        <input type="hidden" name="value" value="<%= item %>">
+                        <button type="submit" value="Disable" class="btn btn-link btn-sm text-danger" title="Disable <%= item %>">
+                          <span class="octicon octicon-trashcan"></span>
+                        </button>
+                      </form>
+                    </div>
+                  </div>
+                </li>
+              <% end %>
+            </ul>
+          <% end %>
+        </div>
+      </div>
+      <div class="vads-l-col--6">
+        <div class="vads-u-border--1px vads-u-border-color--gray-lighter vads-u-margin-left--1 vads-u-padding--2">
+          <div class="card-header">
+            <div class="d-flex w-100 justify-content-between align-items-center">
+              <div>
+                <h4><%= Flipper::UI.configuration.actors.title %></h4>
+              </div>
+              <div>
+                <form action="<%= script_name %>/features/<%= @feature.key %>/actors" method="post" class="usa-form">
                   <%== csrf_input_tag %>
                   <input type="hidden" name="operation" value="enable">
-                  <select name="value" class="form-control form-control-sm mr-sm-2 mb-2 mb-sm-0">
-                    <option value="">Select a group...</option>
-                    <% @feature.disabled_groups.each do |group| %>
-                      <option value="<%= group.name %>"><%= group.name %></option>
-                    <% end %>
-                  </select>
-                  <input type="submit" value="Add Group" class="btn btn-light btn-sm">
+                  <input type="text" name="value">
+                  <input type="submit" value="Add user">
                 </form>
+              </div>
+            </div>
+          </div>
+          <% if @feature.actors_value.empty? %>
+            <div class="card-body bg-light">
+              <div class="text-center">
+                <h4>No Enabled Actors</h4>
+                <p><%= Flipper::UI.configuration.actors.description %></p>
+              </div>
+            </div>
+          <% else %>
+            <ul class="list-group list-group-flush">
+              <% @feature.actors_value.each do |item| %>
+                <li class="list-group-item">
+                  <div class="d-flex w-100 justify-content-between align-items-center">
+                    <div>
+                      <%= item %>
+                    </div>
+                    <div>
+                      <form action="<%= script_name %>/features/<%= @feature.key %>/actors" method="post" class="usa-form">
+                        <%== csrf_input_tag %>
+                        <input type="hidden" name="operation" value="disable">
+                        <input type="hidden" name="value" value="<%= item %>">
+                        <button type="submit" value="Disable" class="btn btn-link btn-sm text-danger" title="Disable <%= item %>">
+                          <span class="octicon octicon-trashcan"></span>
+                        </button>
+                      </form>
+                    </div>
+                  </div>
+                </li>
               <% end %>
-            </div>
-          </div>
+            </ul>
+          <% end %>
         </div>
-        <% if @feature.groups_value.empty? %>
-          <div class="card-body bg-light">
-            <div class="text-center">
-              <span class="mega-octicon octicon-organization text-muted"></span>
-              <span class="mega-octicon octicon-squirrel text-muted"></span>
-              <span class="mega-octicon octicon-zap text-muted"></span>
-              <h4>No Enabled Groups</h4>
-              <p><%= Flipper::UI.configuration.groups.description %></p>
-            </div>
-          </div>
-        <% else %>
-          <ul class="list-group list-group-flush">
-            <% @feature.groups_value.each do |item| %>
-              <li class="list-group-item">
-                <div class="d-flex w-100 justify-content-between align-items-center">
-                  <div>
-                    <%= item %>
-                  </div>
-                  <div>
-                    <form action="<%= script_name %>/features/<%= @feature.key %>/groups" method="post">
-                      <%== csrf_input_tag %>
-                      <input type="hidden" name="operation" value="disable">
-                      <input type="hidden" name="value" value="<%= item %>">
-                      <button type="submit" value="Disable" class="btn btn-link btn-sm text-danger" data-toggle="tooltip" title="Disable <%= item %>" data-placement="left">
-                        <span class="octicon octicon-trashcan"></span>
-                      </button>
-                    </form>
-                  </div>
-                </div>
-              </li>
-            <% end %>
-          </ul>
-        <% end %>
       </div>
     </div>
-    <div class="col-md">
-      <div class="card">
-        <div class="card-header">
-          <div class="d-flex w-100 justify-content-between align-items-center">
-            <div>
-              <h4><%= Flipper::UI.configuration.actors.title %></h4>
-            </div>
-            <div>
-              <form action="<%= script_name %>/features/<%= @feature.key %>/actors" method="post" class="form-inline">
-                <%== csrf_input_tag %>
-                <input type="hidden" name="operation" value="enable">
-                <input type="text" name="value" placeholder="<%= Flipper::UI.configuration.add_actor_placeholder %>" class="form-control form-control-sm mr-sm-2 mb-2 mb-sm-0">
-                <input type="submit" value="Add Actor" class="btn btn-light btn-sm">
-              </form>
-            </div>
-          </div>
-        </div>
-        <% if @feature.actors_value.empty? %>
-          <div class="card-body bg-light">
-            <div class="text-center">
-              <span class="mega-octicon octicon-person text-muted"></span>
-              <span class="mega-octicon octicon-squirrel text-muted"></span>
-              <span class="mega-octicon octicon-zap text-muted"></span>
-              <h4>No Enabled Actors</h4>
-              <p><%= Flipper::UI.configuration.actors.description %></p>
-            </div>
-          </div>
-        <% else %>
-          <ul class="list-group list-group-flush">
-            <% @feature.actors_value.each do |item| %>
-              <li class="list-group-item">
-                <div class="d-flex w-100 justify-content-between align-items-center">
-                  <div>
-                    <%= item %>
-                  </div>
-                  <div>
-                    <form action="<%= script_name %>/features/<%= @feature.key %>/actors" method="post">
-                      <%== csrf_input_tag %>
-                      <input type="hidden" name="operation" value="disable">
-                      <input type="hidden" name="value" value="<%= item %>">
-                      <button type="submit" value="Disable" class="btn btn-link btn-sm text-danger" data-toggle="tooltip" title="Disable <%= item %>" data-placement="left">
-                        <span class="octicon octicon-trashcan"></span>
-                      </button>
-                    </form>
-                  </div>
-                </div>
-              </li>
-            <% end %>
-          </ul>
-        <% end %>
-      </div>
-    </div>
+
   </div>
 
   <% if Flipper::UI.configuration.feature_removal_enabled %>
-  <div class="row">
-    <div class="col">
-      <div class="card border-danger">
-        <h4 class="card-header bg-danger text-white"><%= Flipper::UI.configuration.delete.title %></h4>
-        <div class="card-body">
+  <div class="vads-l-row">
+    <div class="vads-l-col">
+      <div class="usa-alert usa-alert-warning vads-u-margin-bottom--5">
+        <div class="usa-alert-body">
+          <h4 class="usa-alert-heading"><%= Flipper::UI.configuration.delete.title %></h4>
           <p>
             <%= Flipper::UI.configuration.delete.description %>
           </p>
 
-          <form action="<%= script_name %>/features/<%= @feature.key %>" method="post" onsubmit="return confirm('Are you sure you want to remove this feature from the list of features and disable it for everyone?')">
+          <form action="<%= script_name %>/features/<%= @feature.key %>" method="post" onsubmit="return confirm('Are you sure you want to remove this feature from the list of features and disable it for everyone?')" class="usa-form">
             <%== csrf_input_tag %>
             <input type="hidden" name="_method" value="DELETE">
-            <button type="submit" name="action" value="Delete" class="btn btn-danger" data-toggle="tooltip" title="Remove feature from list of features and disable it." data-placement="right">Delete</button>
+            <button type="submit" name="action" value="Delete" class="vads-u-background-color--secondary vads-u-width--auto vads-u-margin--0 vads-u-margin-top--1" title="Remove feature from list of features and disable it.">Delete feature</button>
           </form>
         </div>
       </div>
