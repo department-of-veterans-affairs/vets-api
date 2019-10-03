@@ -7,11 +7,11 @@ def get_education_form_fixture(filename)
 end
 
 RSpec.describe EducationForm::CreateDailyFiscalYearToDateReport, type: :aws_helpers do
-  let(:date) { Time.zone.today - 1.day }
-
   subject do
     described_class.new
   end
+
+  let(:date) { Time.zone.today - 1.day }
 
   before do
     allow_any_instance_of(EducationBenefitsClaim).to receive(:create_education_benefits_submission)
@@ -81,13 +81,13 @@ RSpec.describe EducationForm::CreateDailyFiscalYearToDateReport, type: :aws_help
     end
 
     context 'with the date variable set' do
+      subject do
+        job_with_date
+      end
+
       let(:job_with_date) do
         job = described_class.new(date)
         job
-      end
-
-      subject do
-        job_with_date
       end
 
       describe '#create_csv_array' do
@@ -130,16 +130,6 @@ RSpec.describe EducationForm::CreateDailyFiscalYearToDateReport, type: :aws_help
     end
 
     describe '#perform' do
-      before do
-        expect(FeatureFlipper).to receive(:send_edu_report_email?).once.and_return(true)
-      end
-
-      after do
-        File.delete(filename)
-      end
-
-      let(:filename) { "tmp/daily_reports/#{date}.csv" }
-
       subject do
         create_daily_year_to_date_report = described_class.new
 
@@ -149,6 +139,16 @@ RSpec.describe EducationForm::CreateDailyFiscalYearToDateReport, type: :aws_help
 
         create_daily_year_to_date_report
       end
+
+      before do
+        expect(FeatureFlipper).to receive(:send_edu_report_email?).once.and_return(true)
+      end
+
+      after do
+        File.delete(filename)
+      end
+
+      let(:filename) { "tmp/daily_reports/#{date}.csv" }
 
       it 'creates a csv file' do
         subject

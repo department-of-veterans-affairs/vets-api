@@ -3,9 +3,9 @@
 require 'rails_helper'
 
 describe EVSS::PCIUAddress::Service do
-  let(:user) { build(:user, :loa3) }
-
   subject { described_class.new(user) }
+
+  let(:user) { build(:user, :loa3) }
 
   describe '#get_address' do
     context 'with a 200 response' do

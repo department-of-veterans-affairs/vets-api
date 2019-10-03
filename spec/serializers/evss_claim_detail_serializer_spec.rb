@@ -3,11 +3,11 @@
 require 'rails_helper'
 
 RSpec.describe EVSSClaimDetailSerializer, type: :serializer do
+  subject { serialize(evss_claim, serializer_class: EVSSClaimDetailSerializer) }
+
   let(:evss_claim) { build(:evss_claim) }
   let(:data) { JSON.parse(subject)['data'] }
   let(:attributes) { data['attributes'] }
-
-  subject { serialize(evss_claim, serializer_class: EVSSClaimDetailSerializer) }
 
   it 'includes id' do
     expect(data['id']).to eq(evss_claim.evss_id.to_s)

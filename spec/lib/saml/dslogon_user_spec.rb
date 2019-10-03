@@ -7,6 +7,8 @@ RSpec.describe SAML::User do
   include SAML::ResponseBuilder
 
   describe 'DS Logon' do
+    subject { described_class.new(saml_response) }
+
     let(:authn_context) { 'dslogon' }
     let(:account_type)  { '1' }
     let(:highest_attained_loa) { '3' }
@@ -19,8 +21,6 @@ RSpec.describe SAML::User do
         multifactor: [false]
       )
     end
-
-    subject { described_class.new(saml_response) }
 
     context 'non-premium user' do
       it 'has various important attributes' do

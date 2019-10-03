@@ -3,13 +3,13 @@
 require 'rails_helper'
 
 RSpec.describe MilitaryRankSerializer, type: :serializer do
+  subject { serialize(military_rank, serializer_class: described_class) }
+
   let(:military_rank_detail) { build :military_rank_detail }
   let(:military_rank) { build :military_rank, military_rank_detail: military_rank_detail }
   let(:data) { JSON.parse(subject)['data'] }
   let(:id) { JSON.parse(subject).keys }
   let(:attributes) { data['attributes'] }
-
-  subject { serialize(military_rank, serializer_class: described_class) }
 
   it 'includes branch_of_service_cd as attribute' do
     expect(attributes['branch_of_service_cd']).to eq(military_rank.branch_of_service_cd)

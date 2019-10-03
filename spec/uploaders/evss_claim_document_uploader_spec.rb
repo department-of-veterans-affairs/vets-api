@@ -3,6 +3,8 @@
 require 'rails_helper'
 
 RSpec.describe EVSSClaimDocumentUploader do
+  subject { document_uploader }
+
   let(:document_uploader) { described_class.new('1234', ['11', nil]) }
   let(:uploader_with_tiff) do
     File.open('spec/fixtures/evss_claim/image.TIF') do |f|
@@ -18,8 +20,6 @@ RSpec.describe EVSSClaimDocumentUploader do
 
     document_uploader
   end
-
-  subject { document_uploader }
 
   describe 'initialize' do
     context 'when uploads are disabled' do

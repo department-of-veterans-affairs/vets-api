@@ -8,12 +8,6 @@ require 'common/client/middleware/response/snakecase'
 require 'common/client/errors'
 
 describe 'GIDS Response Middleware' do
-  let(:message_json) { attributes_for(:message).to_json }
-  let(:gids_error) do
-    '{"errors": [{"status": "404", "title": "Record not found", ' \
-    '"detail": "The record identified by 31800132abc could not be found"}]}'
-  end
-
   subject(:gi_client) do
     Faraday.new do |conn|
       conn.response :snakecase
@@ -25,6 +19,12 @@ describe 'GIDS Response Middleware' do
         stub.get('not-found') { [404, { 'Content-Type' => 'application/json' }, gids_error] }
       end
     end
+  end
+
+  let(:message_json) { attributes_for(:message).to_json }
+  let(:gids_error) do
+    '{"errors": [{"status": "404", "title": "Record not found", ' \
+    '"detail": "The record identified by 31800132abc could not be found"}]}'
   end
 
   it 'raises client response error' do

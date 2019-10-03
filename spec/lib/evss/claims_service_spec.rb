@@ -5,6 +5,8 @@ require 'evss/claims_service'
 require 'evss/auth_headers'
 
 describe EVSS::ClaimsService do
+  subject { claims_service }
+
   let(:current_user) do
     create(:evss_user)
   end
@@ -14,8 +16,6 @@ describe EVSS::ClaimsService do
   end
 
   let(:claims_service) { described_class.new(auth_headers) }
-
-  subject { claims_service }
 
   context 'with headers' do
     let(:evss_id) { 189_625 }

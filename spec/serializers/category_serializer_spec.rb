@@ -3,12 +3,12 @@
 require 'rails_helper'
 
 RSpec.describe CategorySerializer, type: :serializer do
+  subject { serialize(category, serializer_class: described_class) }
+
   let(:category) { build :category }
   let(:data) { JSON.parse(subject)['data'] }
   let(:attributes) { data['attributes'] }
   let(:links) { data['links'] }
-
-  subject { serialize(category, serializer_class: described_class) }
 
   it 'includes id' do
     expect(data['id'].to_i).to eq(category.category_id)
