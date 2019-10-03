@@ -19,7 +19,7 @@ describe EVSS::DisabilityCompensationForm::Form0781 do
     context 'when 781 data is present in the 526 form' do
       let(:expected_output) { JSON.parse(File.read('spec/support/disability_compensation_form/form_0781.json')) }
 
-      it 'should return correctly formatted json to send to async job' do
+      it 'returns correctly formatted json to send to async job' do
         expect(subject.translate).to eq expected_output
       end
     end
@@ -27,7 +27,7 @@ describe EVSS::DisabilityCompensationForm::Form0781 do
     context 'when 781 is not present in the 526 form' do
       let(:form_content) { { 'form526' => {} } }
 
-      it 'should return a nil value' do
+      it 'returns a nil value' do
         expect(subject.translate).to eq nil
       end
     end
@@ -37,7 +37,7 @@ describe EVSS::DisabilityCompensationForm::Form0781 do
     context 'when the form exists and has incidents' do
       let(:incidents) { 'this is a test' }
 
-      it 'should create the form correctly' do
+      it 'creates the form correctly' do
         expect(subject.send(:create_form, incidents)).to eq(
           'additionalIncidentText' => nil,
           'email' => 'test@email.com',
@@ -81,7 +81,7 @@ describe EVSS::DisabilityCompensationForm::Form0781 do
         ]
       end
 
-      it 'should split the incidents on personalAssualt' do
+      it 'splits the incidents on personalAssualt' do
         expect(subject.send(:split_incidents, incidents)).to eq [
           [
             { 'personalAssault' => true, 'test' => 'foo1' },
@@ -98,7 +98,7 @@ describe EVSS::DisabilityCompensationForm::Form0781 do
     context 'when there are no incidents' do
       let(:incidents) { [] }
 
-      it 'should return a nil value' do
+      it 'returns a nil value' do
         expect(subject.send(:split_incidents, incidents)).to eq nil
       end
     end
@@ -115,7 +115,7 @@ describe EVSS::DisabilityCompensationForm::Form0781 do
         }
       end
 
-      it 'should join it into one string' do
+      it 'joins it into one string' do
         expect(subject.send(:join_location, location)).to eq 'Portland, OR, USA, Apt. 1'
       end
     end
@@ -129,7 +129,7 @@ describe EVSS::DisabilityCompensationForm::Form0781 do
         }
       end
 
-      it 'should join it into one string' do
+      it 'joins it into one string' do
         expect(subject.send(:join_location, location)).to eq 'Portland, USA'
       end
     end
@@ -137,7 +137,7 @@ describe EVSS::DisabilityCompensationForm::Form0781 do
     context 'when given no address' do
       let(:location) { {} }
 
-      it 'should join it into one string' do
+      it 'joins it into one string' do
         expect(subject.send(:join_location, location)).to eq ''
       end
     end
@@ -145,7 +145,7 @@ describe EVSS::DisabilityCompensationForm::Form0781 do
 
   describe '#full_name' do
     context 'when the user has a full name' do
-      it 'should return a hash of their name' do
+      it 'returns a hash of their name' do
         expect(subject.send(:full_name)).to eq(
           'first' => 'Beyonce',
           'middle' => nil,

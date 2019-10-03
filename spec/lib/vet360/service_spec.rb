@@ -69,7 +69,7 @@ describe Vet360::Service do
   end
 
   describe '#log_dates' do
-    it 'should log dates in the request' do
+    it 'logs dates in the request' do
       expect(Raven).to receive(:extra_context).with(
         request_dates: {
           'effectiveStartDate' => '2018-06-06T15:35:55.000Z',

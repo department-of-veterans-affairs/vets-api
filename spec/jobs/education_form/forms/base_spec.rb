@@ -28,7 +28,7 @@ RSpec.describe EducationForm::Forms::Base, type: :model, form: :education_benefi
         }
       end
 
-      it 'should output the hours' do
+      it 'outputs the hours' do
         expect(subject).to eq('4')
       end
     end
@@ -41,13 +41,13 @@ RSpec.describe EducationForm::Forms::Base, type: :model, form: :education_benefi
         }
       end
 
-      it 'should output hours and hours_type' do
+      it 'outputs hours and hours_type' do
         expect(subject).to eq('4 (semester)')
       end
     end
 
     context 'without hours' do
-      it 'should return blank string' do
+      it 'returns blank string' do
         expect(subject).to eq('')
       end
     end
@@ -73,7 +73,7 @@ RSpec.describe EducationForm::Forms::Base, type: :model, form: :education_benefi
       described_class.new(education_benefits_claim)
     end
 
-    it 'should return the benefit type shorthand' do
+    it 'returns the benefit type shorthand' do
       expect(subject.benefit_type(education_benefits_claim.open_struct_form)).to eq('CH33')
     end
   end
@@ -84,13 +84,13 @@ RSpec.describe EducationForm::Forms::Base, type: :model, form: :education_benefi
     subject { renderer.full_name(name) }
 
     context 'with no middle name' do
-      it 'should not have extra spaces' do
+      it 'does not have extra spaces' do
         expect(subject).to eq('Mark Olson')
       end
     end
 
     context 'with a middle name' do
-      it 'should be included' do
+      it 'is included' do
         name.middle = 'Middle'
         expect(subject).to eq 'Mark Middle Olson'
       end
@@ -105,13 +105,13 @@ RSpec.describe EducationForm::Forms::Base, type: :model, form: :education_benefi
     context 'with a nil address' do
       let(:address) { nil }
 
-      it 'should return the blank string' do
+      it 'returns the blank string' do
         expect(subject).to eq('')
       end
     end
 
     context 'with no street2' do
-      it 'should format the address correctly' do
+      it 'formats the address correctly' do
         expect(subject).to eq("123 MAIN ST\nMILWAUKEE, WI, 53130\nUSA")
       end
     end
@@ -121,7 +121,7 @@ RSpec.describe EducationForm::Forms::Base, type: :model, form: :education_benefi
         address.state = nil
       end
 
-      it 'should format the address correctly' do
+      it 'formats the address correctly' do
         expect(subject).to eq("123 MAIN ST\nMILWAUKEE, 53130\nUSA")
       end
 
@@ -131,7 +131,7 @@ RSpec.describe EducationForm::Forms::Base, type: :model, form: :education_benefi
           address.postalCode = nil
         end
 
-        it 'should format the address correctly' do
+        it 'formats the address correctly' do
           expect(subject).to eq("123 MAIN ST\n\nUSA")
         end
       end
@@ -142,7 +142,7 @@ RSpec.describe EducationForm::Forms::Base, type: :model, form: :education_benefi
         address.street2 = 'apt 2'
       end
 
-      it 'should format the address correctly' do
+      it 'formats the address correctly' do
         expect(subject).to eq("123 MAIN ST\nAPT 2\nMILWAUKEE, WI, 53130\nUSA")
       end
     end

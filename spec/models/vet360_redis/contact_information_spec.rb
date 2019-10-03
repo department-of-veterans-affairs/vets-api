@@ -35,7 +35,7 @@ describe Vet360Redis::ContactInformation do
 
   describe '#response' do
     context 'when the cache is empty' do
-      it 'should cache and return the response', :aggregate_failures do
+      it 'caches and return the response', :aggregate_failures do
         allow_any_instance_of(
           Vet360::ContactInformation::Service
         ).to receive(:get_person).and_return(person_response)

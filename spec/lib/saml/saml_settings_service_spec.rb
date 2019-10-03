@@ -12,7 +12,7 @@ RSpec.describe SAML::SettingsService do
 
   describe '.saml_settings' do
     context 'with a 200 response', vcr: { cassette_name: 'saml/idp_metadata' } do
-      it 'should only ever make 1 external web call' do
+      it 'onlies ever make 1 external web call' do
         SAML::SettingsService.merged_saml_settings(true)
         SAML::SettingsService.saml_settings
         SAML::SettingsService.saml_settings
@@ -34,12 +34,12 @@ RSpec.describe SAML::SettingsService do
         )
       end
 
-      it 'should log three attempts' do
+      it 'logs three attempts' do
         expect(Rails.logger).to receive(:warn).twice.with(/Failed to load SAML metadata: 500: try \d of 3/)
         expect(Rails.logger).to receive(:error).once.with(/Failed to load SAML metadata: 500: try \d of 3/)
         SAML::SettingsService.merged_saml_settings(true)
       end
-      it 'should keep making GET calls to fetch metadata' do
+      it 'keeps making GET calls to fetch metadata' do
         SAML::SettingsService.merged_saml_settings(true)
         SAML::SettingsService.saml_settings
         SAML::SettingsService.saml_settings
@@ -48,7 +48,7 @@ RSpec.describe SAML::SettingsService do
     end
 
     context 'when a parsing error occurs' do
-      it 'should log and reraise the error' do
+      it 'logs and reraise the error' do
         stub_request(:get, Settings.saml.metadata_url).to_return(status: 200, body: '<xml></')
         expect(Rails.logger).to receive(:error).once
         expect { SAML::SettingsService.merged_saml_settings(true) }.to raise_error(REXML::ParseException)

@@ -17,7 +17,7 @@ describe EVSS::Letters::DownloadService do
           end
         end
 
-        it 'should increment downloads total' do
+        it 'increments downloads total' do
           VCR.use_cassette('evss/letters/download') do
             expect do
               subject.download_letter(EVSS::Letters::Letter::LETTER_TYPES.first)
@@ -30,7 +30,7 @@ describe EVSS::Letters::DownloadService do
             allow_any_instance_of(Faraday::Connection).to receive(:get).and_raise(Faraday::TimeoutError)
           end
 
-          it 'should log increment download fail' do
+          it 'logs increment download fail' do
             expect(StatsD).to receive(:increment).once.with(
               'api.evss.download_letter.fail', tags: ['error:Common::Exceptions::GatewayTimeout']
             )
@@ -69,7 +69,7 @@ describe EVSS::Letters::DownloadService do
           end
         end
 
-        it 'should increment downloads total' do
+        it 'increments downloads total' do
           VCR.use_cassette('evss/letters/download_options') do
             expect do
               subject.download_letter(

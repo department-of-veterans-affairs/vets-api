@@ -10,7 +10,7 @@ RSpec.describe CategorySerializer, type: :serializer do
 
   subject { serialize(category, serializer_class: described_class) }
 
-  it 'should include id' do
+  it 'includes id' do
     expect(data['id'].to_i).to eq(category.category_id)
   end
 

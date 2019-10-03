@@ -23,7 +23,7 @@ RSpec.describe EVSSClaimDocumentUploader do
 
   describe 'initialize' do
     context 'when uploads are disabled' do
-      it 'should set storage to file' do
+      it 'sets storage to file' do
         with_settings(Settings.evss.s3, uploads_enabled: false) do
           expect(subject.class.storage).to eq(CarrierWave::Storage::File)
         end
@@ -31,7 +31,7 @@ RSpec.describe EVSSClaimDocumentUploader do
     end
 
     context 'when uploads are set to nil' do
-      it 'should set storage to file' do
+      it 'sets storage to file' do
         with_settings(Settings.evss.s3, uploads_enabled: nil) do
           expect(subject.class.storage).to eq(CarrierWave::Storage::File)
         end
@@ -39,7 +39,7 @@ RSpec.describe EVSSClaimDocumentUploader do
     end
 
     context 'when uploads are enabled' do
-      it 'should set storage to fog' do
+      it 'sets storage to fog' do
         with_settings(Settings.evss.s3, uploads_enabled: true) do
           expect(subject.class.storage).to eq(CarrierWave::Storage::AWS)
           expect(subject.aws_credentials).to eq(access_key_id: 'EVSS_S3_AWS_ACCESS_KEY_ID_XYZ',
@@ -65,7 +65,7 @@ RSpec.describe EVSSClaimDocumentUploader do
         expect(converted).to receive(:file).and_return(OpenStruct.new(exists?: true))
       end
 
-      it 'should read from converted' do
+      it 'reads from converted' do
         expect(converted).to receive(:read)
         subject.read_for_upload
       end
@@ -77,7 +77,7 @@ RSpec.describe EVSSClaimDocumentUploader do
         expect(converted).to receive(:file).and_return(OpenStruct.new(exists?: false))
       end
 
-      it 'should read from the base file' do
+      it 'reads from the base file' do
         expect(subject).to receive(:read)
         subject.read_for_upload
       end
@@ -85,7 +85,7 @@ RSpec.describe EVSSClaimDocumentUploader do
   end
 
   describe '#final_filename' do
-    it 'should return the right filename' do
+    it 'returns the right filename' do
       [uploader_with_tiff, uploader_with_jpg].each do |uploader|
         expect(uploader.final_filename).to eq('converted_image.TIF.jpg')
       end
@@ -93,7 +93,7 @@ RSpec.describe EVSSClaimDocumentUploader do
   end
 
   describe 'converted version' do
-    it 'should convert tiff files to jpg' do
+    it 'converts tiff files to jpg' do
       expect(MimeMagic.by_magic(uploader_with_tiff.converted.file.read).type).to eq(
         'image/jpeg'
       )
