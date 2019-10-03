@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'support/attr_encrypted_matcher'
 
 RSpec.describe ClaimsApi::PowerOfAttorney, type: :model do
   let(:pending_record) { create(:power_of_attorney) }

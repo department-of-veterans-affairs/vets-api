@@ -14,6 +14,7 @@ RSpec.describe 'Power of Attorney ', type: :request do
       'X-VA-Gender': 'M' }
   end
   let(:scopes) { %w[claim.write] }
+
   before(:each) do
     stub_poa_verification
     stub_mvi

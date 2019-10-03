@@ -86,6 +86,7 @@ describe 'Response Middleware' do
     let(:xml_or_html_response) do
       "BackendServiceException: {:status=>400, :detail=>#{detail}, :code=>#{code}, :source=>#{source}}"
     end
+
     it 'can handle generic html errors' do
       expect { faraday_client.get('mhv-generic-html') }.to raise_error do |error|
         expect(error).to be_a(Common::Exceptions::BackendServiceException)

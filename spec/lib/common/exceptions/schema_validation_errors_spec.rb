@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 
-require 'spec_helper'
 require 'common/exceptions'
 
 describe Common::Exceptions::SchemaValidationErrors do

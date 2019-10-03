@@ -6,6 +6,7 @@ RSpec.describe 'address', type: :request do
   include SchemaMatchers
 
   before(:all) { @cached_enabled_val = Settings.evss.reference_data_service.enabled }
+
   after(:all) do
     # leave the routes in the expected state for future specs
     Settings.evss.reference_data_service.enabled = @cached_enabled_val
@@ -23,6 +24,7 @@ RSpec.describe 'address', type: :request do
       Settings.evss.reference_data_service.enabled = false
       Rails.application.reload_routes!
     end
+
     describe 'GET /v0/address' do
       context 'with a military address' do
         it 'should match the address schema' do
@@ -177,6 +179,7 @@ RSpec.describe 'address', type: :request do
           .to receive(:headers_for_user)
           .and_return(Authorization: 'Bearer abcd12345asd')
       end
+
       it 'should return 502' do
         get '/v0/address/countries'
         expect(response).to have_http_status(:bad_gateway)

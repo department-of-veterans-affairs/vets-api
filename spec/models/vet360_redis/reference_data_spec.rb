@@ -28,7 +28,7 @@ describe Vet360Redis::ReferenceData do
               response_type.new(200, reference_data: [])
             )
 
-            expect_any_instance_of(Vet360::ReferenceData::Service).to_not receive(method)
+            expect_any_instance_of(Vet360::ReferenceData::Service).not_to receive(method)
             expect(subject.public_send(method)).to be_a(response_type)
           end
         end

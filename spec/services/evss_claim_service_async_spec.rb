@@ -6,6 +6,7 @@ RSpec.describe EVSSClaimServiceAsync do
   let(:user) { FactoryBot.create(:user, :loa3) }
   let(:tracker) { EVSSClaimsSyncStatusTracker.find_or_build(user.uuid) }
   let(:claim) { FactoryBot.create(:evss_claim, user_uuid: user.uuid) }
+
   subject { described_class.new(user) }
 
   describe '#all' do
@@ -31,6 +32,7 @@ RSpec.describe EVSSClaimServiceAsync do
           claim
           tracker.set_collection_status(result)
         end
+
         it 'returns an array of claims' do
           expect(subject.all).to eq([[claim], result])
         end
@@ -68,6 +70,7 @@ RSpec.describe EVSSClaimServiceAsync do
           tracker.claim_id = claim.id
           tracker.set_single_status(result)
         end
+
         it 'returns an array of claims' do
           expect(subject.update_from_remote(claim)).to eq([claim, result])
         end

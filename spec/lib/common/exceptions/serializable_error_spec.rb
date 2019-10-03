@@ -4,6 +4,7 @@ require 'rails_helper'
 
 describe Common::Exceptions::SerializableError do
   let(:attributes) { nil }
+
   subject { described_class.new(attributes) }
 
   context 'with no attributes' do
@@ -14,6 +15,7 @@ describe Common::Exceptions::SerializableError do
 
   context 'with arbitrary attributes' do
     let(:attributes) { { cat: 1, dog: 2 } }
+
     it 'responds to #to_hash' do
       expect(subject.to_hash).to eq({})
     end
@@ -26,6 +28,7 @@ describe Common::Exceptions::SerializableError do
         source: 'source', status: '500', meta: 'meta'
       }
     end
+
     it 'responds to #to_hash' do
       expect(subject.to_hash).to eq(attributes)
     end

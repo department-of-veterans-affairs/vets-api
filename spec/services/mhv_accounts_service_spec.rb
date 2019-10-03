@@ -51,6 +51,7 @@ RSpec.describe MhvAccountsService do
     let(:mhv_account) do
       MhvAccount.new(user_uuid: user.uuid, mhv_correlation_id: user.mhv_correlation_id).tap { |m| m.user = user }
     end
+
     subject { described_class.new(mhv_account, user) }
 
     context 'account creation' do
@@ -62,7 +63,7 @@ RSpec.describe MhvAccountsService do
           .and not_trigger_statsd_increment('mhv.account.creation.success')
           .and trigger_statsd_increment('mhv.account.creation.failure')
         expect(mhv_account.account_state).to eq('register_failed')
-        expect(mhv_account.persisted?).to be_truthy
+        expect(mhv_account).to be_persisted
       end
 
       it 'successfully creates' do
@@ -72,7 +73,7 @@ RSpec.describe MhvAccountsService do
           expect(User.find(user.uuid).mhv_correlation_id).to eq('14221465')
           expect(mhv_account.account_state).to eq('registered')
           expect(mhv_account.registered_at).to be_a(Time)
-          expect(mhv_account.persisted?).to be_truthy
+          expect(mhv_account).to be_persisted
         end
       end
     end
@@ -102,7 +103,7 @@ RSpec.describe MhvAccountsService do
                 .and not_trigger_statsd_increment('mhv.account.upgrade.success')
                 .and trigger_statsd_increment('mhv.account.upgrade.failure')
               expect(mhv_account.account_state).to eq('upgrade_failed')
-              expect(mhv_account.persisted?).to be_truthy
+              expect(mhv_account).to be_persisted
               # ensure that the cache was not busted since no action was taken
               expect(common_collection_namespace.exists(edc_cache_key)).to be_truthy
             end
@@ -122,7 +123,7 @@ RSpec.describe MhvAccountsService do
               expect(mhv_account.account_state).to eq('upgraded')
 
               expect(mhv_account.upgraded_at).to be_a(Time)
-              expect(mhv_account.persisted?).to be_truthy
+              expect(mhv_account).to be_persisted
               # ensure that upgrade busts the cache
               expect(common_collection_namespace.exists(edc_cache_key)).to be_falsey
               VCR.use_cassette('mhv_account_type_service/premium') do
@@ -143,7 +144,7 @@ RSpec.describe MhvAccountsService do
             expect { subject.upgrade }.to not_trigger_statsd_increment('mhv.account.upgrade.success')
               .and not_trigger_statsd_increment('mhv.account.upgrade.failure')
             expect(mhv_account.account_state).to eq('existing')
-            expect(mhv_account.persisted?).to be_truthy
+            expect(mhv_account).to be_persisted
             # ensure that the cache was not busted since no action was taken
             expect(common_collection_namespace.exists(edc_cache_key)).to be_truthy
           end

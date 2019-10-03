@@ -6,6 +6,7 @@ require './rakelib/support/cookies.rb'
 describe Cookies do
   let(:user) { create(:user, :loa3) }
   let(:session) { Session.create(uuid: user.uuid, token: 'abracadabra') }
+
   subject { described_class.new(session) }
 
   describe '#api_session_header' do

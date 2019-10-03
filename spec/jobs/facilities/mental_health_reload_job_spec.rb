@@ -36,8 +36,8 @@ RSpec.describe Facilities::MentalHealthReloadJob, type: :job do
 
   it 'deletes removed keys' do
     Facilities::MentalHealthReloadJob.new.perform
-    expect(FacilityMentalHealth.find('101A')).to_not be_nil
-    expect(FacilityMentalHealth.find('202A')).to_not be_nil
+    expect(FacilityMentalHealth.find('101A')).not_to be_nil
+    expect(FacilityMentalHealth.find('202A')).not_to be_nil
 
     allow_any_instance_of(
       Facilities::MentalHealthReloadJob
@@ -45,7 +45,7 @@ RSpec.describe Facilities::MentalHealthReloadJob, type: :job do
 
     Facilities::MentalHealthReloadJob.new.perform
     expect(FacilityMentalHealth.find('101A')).to be_nil
-    expect(FacilityMentalHealth.find('202A')).to_not be_nil
+    expect(FacilityMentalHealth.find('202A')).not_to be_nil
   end
 
   it 'updates modified data' do
@@ -87,8 +87,8 @@ RSpec.describe Facilities::MentalHealthReloadJob, type: :job do
     ).to receive(:fetch_mental_health_data).and_return(CSV::Table.new(mental_health_data))
     Facilities::MentalHealthReloadJob.new.perform
 
-    expect(FacilityMentalHealth.find('101A')).to_not be_nil
-    expect(FacilityMentalHealth.find('202A')).to_not be_nil
+    expect(FacilityMentalHealth.find('101A')).not_to be_nil
+    expect(FacilityMentalHealth.find('202A')).not_to be_nil
     expect(FacilityMentalHealth.find('101A').mh_ext).to eq(nil)
     expect(FacilityMentalHealth.find('202A').mh_ext).to eq(nil)
   end
@@ -97,6 +97,7 @@ RSpec.describe Facilities::MentalHealthReloadJob, type: :job do
     before do
       Settings.sentry.dsn = 'asdf'
     end
+
     after do
       Settings.sentry.dsn = nil
     end

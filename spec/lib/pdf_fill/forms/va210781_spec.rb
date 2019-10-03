@@ -14,6 +14,7 @@ describe PdfFill::Forms::Va210781 do
   let(:new_form_class) do
     described_class.new(form_data)
   end
+
   def class_form_data
     new_form_class.instance_variable_get(:@form_data)
   end
