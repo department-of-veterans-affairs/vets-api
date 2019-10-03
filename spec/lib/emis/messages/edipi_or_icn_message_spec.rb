@@ -36,13 +36,13 @@ describe EMIS::Messages::EdipiOrIcnMessage do
     end
 
     context 'bad arguments' do
-      it 'should throw an argument error with neither identifier' do
+      it 'throws an argument error with neither identifier' do
         expect do
           EMIS::Messages::EdipiOrIcnMessage.new(request_name: 'foo')
         end.to raise_error(ArgumentError, 'must include either an EDIPI or ICN, but not both')
       end
 
-      it 'should throw an argument error with both identifiers' do
+      it 'throws an argument error with both identifiers' do
         expect do
           EMIS::Messages::EdipiOrIcnMessage.new(edipi: 1234, icn: 5678, request_name: 'foo')
         end.to raise_error(ArgumentError, 'must include either an EDIPI or ICN, but not both')

@@ -7,20 +7,20 @@ describe Vet360::Models::Telephone do
     let(:telephone) { build(:telephone) }
 
     context 'with no phone number' do
-      it 'should return nil' do
+      it 'returns nil' do
         telephone.phone_number = nil
         expect(telephone.formatted_phone).to eq(nil)
       end
     end
 
     context 'with no extension' do
-      it 'should return the formatted phone number' do
+      it 'returns the formatted phone number' do
         expect(telephone.formatted_phone).to eq('(303) 555-1234')
       end
     end
 
     context 'with an extension' do
-      it 'should return number with extension' do
+      it 'returns number with extension' do
         telephone.extension = '123'
         expect(telephone.formatted_phone).to eq('(303) 555-1234 Ext. 123')
       end

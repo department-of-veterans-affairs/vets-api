@@ -49,7 +49,7 @@ describe Common::Client::Middleware::Request::RemoveCookies do
       end
     end
 
-    it 'should strip cookies' do
+    it 'strips cookies' do
       VCR.configure do |c|
         c.allow_http_connections_when_no_cassette = true
       end

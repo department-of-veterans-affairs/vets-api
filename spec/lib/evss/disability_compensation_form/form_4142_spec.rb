@@ -19,7 +19,7 @@ describe EVSS::DisabilityCompensationForm::Form4142 do
   subject { described_class.new(user, form_content) }
 
   describe '#translate' do
-    it 'should return correctly formatted json to send to async job' do
+    it 'returns correctly formatted json to send to async job' do
       expect(subject.translate).to eq expected_output
     end
   end

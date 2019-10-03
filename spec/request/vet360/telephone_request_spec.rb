@@ -21,7 +21,7 @@ RSpec.describe 'telephone', type: :request do
     let(:telephone) { build(:telephone, vet360_id: user.vet360_id) }
 
     context 'with a 200 response' do
-      it 'should match the telephone schema', :aggregate_failures do
+      it 'matches the telephone schema', :aggregate_failures do
         VCR.use_cassette('vet360/contact_information/post_telephone_success') do
           post('/v0/profile/telephones', params: telephone.to_json, headers: headers)
 
@@ -40,7 +40,7 @@ RSpec.describe 'telephone', type: :request do
     end
 
     context 'with a 400 response' do
-      it 'should match the errors schema', :aggregate_failures do
+      it 'matches the errors schema', :aggregate_failures do
         telephone.id = 42
 
         VCR.use_cassette('vet360/contact_information/post_telephone_w_id_error') do
@@ -53,7 +53,7 @@ RSpec.describe 'telephone', type: :request do
     end
 
     context 'with a 403 response' do
-      it 'should return a forbidden response' do
+      it 'returns a forbidden response' do
         VCR.use_cassette('vet360/contact_information/post_telephone_status_403') do
           post('/v0/profile/telephones', params: telephone.to_json, headers: headers)
 
@@ -63,7 +63,7 @@ RSpec.describe 'telephone', type: :request do
     end
 
     context 'with a validation issue' do
-      it 'should match the errors schema', :aggregate_failures do
+      it 'matches the errors schema', :aggregate_failures do
         telephone.phone_number = ''
 
         post('/v0/profile/telephones', params: telephone.to_json, headers: headers)
@@ -81,7 +81,7 @@ RSpec.describe 'telephone', type: :request do
     before { telephone.id = 42 }
 
     context 'with a 200 response' do
-      it 'should match the telephone schema', :aggregate_failures do
+      it 'matches the telephone schema', :aggregate_failures do
         VCR.use_cassette('vet360/contact_information/put_telephone_success') do
           put('/v0/profile/telephones', params: telephone.to_json, headers: headers)
 
@@ -100,7 +100,7 @@ RSpec.describe 'telephone', type: :request do
     end
 
     context 'with a validation issue' do
-      it 'should match the errors schema', :aggregate_failures do
+      it 'matches the errors schema', :aggregate_failures do
         telephone.phone_number = ''
 
         put('/v0/profile/telephones', params: telephone.to_json, headers: headers)

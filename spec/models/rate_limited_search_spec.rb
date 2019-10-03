@@ -8,7 +8,7 @@ RSpec.describe RateLimitedSearch do
     let(:hashed_params) { Digest::SHA2.hexdigest(params) }
 
     context 'when an existing search doesnt exist' do
-      it 'should create a new model' do
+      it 'creates a new model' do
         described_class.create_or_increment_count(params)
         expect(described_class.find(hashed_params).count).to eq(1)
       end
@@ -17,13 +17,13 @@ RSpec.describe RateLimitedSearch do
     context 'when an existing search exists' do
       let!(:rate_limited_search) { create(:rate_limited_search) }
 
-      it 'should increment the count' do
+      it 'increments the count' do
         described_class.create_or_increment_count(params)
         expect(described_class.find(hashed_params).count).to eq(2)
       end
 
       context 'when an existing search exists with max count' do
-        it 'should raise a rate limited error' do
+        it 'raises a rate limited error' do
           rate_limited_search.count = 3
           rate_limited_search.save!
 

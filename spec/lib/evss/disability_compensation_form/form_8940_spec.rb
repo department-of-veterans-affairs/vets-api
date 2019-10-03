@@ -14,7 +14,7 @@ describe EVSS::DisabilityCompensationForm::Form8940 do
   subject { described_class.new(user, form_content) }
 
   describe '#translate' do
-    it 'should return correctly formatted json to send to async job' do
+    it 'returns correctly formatted json to send to async job' do
       Rails.logger.info('Form8940 All Claims', JSON.parse(subject.translate).to_json)
       expect(JSON.parse(subject.translate)).to eq expected_output
     end

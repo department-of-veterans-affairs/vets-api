@@ -7,7 +7,7 @@ RSpec.describe AfterLoginJob do
     context 'with a user that has evss access' do
       let(:user) { create(:evss_user) }
 
-      it 'should launch CreateUserAccountJob' do
+      it 'launches CreateUserAccountJob' do
         expect(EVSS::CreateUserAccountJob).to receive(:perform_async).with(EVSS::AuthHeaders.new(user).to_h)
         described_class.new.perform('user_uuid' => user.uuid)
       end

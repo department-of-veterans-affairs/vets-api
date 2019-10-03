@@ -57,7 +57,7 @@ RSpec.describe EducationForm::CreateDailyYearToDateReport, type: :aws_helpers do
       end
 
       describe '#create_csv_array' do
-        it 'should make the right csv array' do
+        it 'makes the right csv array' do
           expect(subject.create_csv_array).to eq(
             get_education_form_fixture('create_csv_array')
           )
@@ -74,7 +74,7 @@ RSpec.describe EducationForm::CreateDailyYearToDateReport, type: :aws_helpers do
           context "for #{status} applications" do
             let(:status) { status }
 
-            it 'should return data about the number of submissions' do
+            it 'returns data about the number of submissions' do
               expect(subject.deep_stringify_keys).to eq(result)
             end
           end
@@ -116,7 +116,7 @@ RSpec.describe EducationForm::CreateDailyYearToDateReport, type: :aws_helpers do
         create_daily_year_to_date_report
       end
 
-      it 'should create a csv file' do
+      it 'creates a csv file' do
         subject
 
         csv_string = CSV.generate do |csv|
@@ -128,7 +128,7 @@ RSpec.describe EducationForm::CreateDailyYearToDateReport, type: :aws_helpers do
         expect(File.read(filename)).to eq(csv_string)
       end
 
-      it 'should send an email' do
+      it 'sends an email' do
         expect { subject }.to change {
           ActionMailer::Base.deliveries.count
         }.by(1)
