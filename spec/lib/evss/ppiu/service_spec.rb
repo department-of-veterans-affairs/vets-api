@@ -125,6 +125,33 @@ describe EVSS::PPIU::Service do
           expect { subject.update_payment_information(request_payload) }.to raise_error(EVSS::PPIU::ServiceException)
         end
       end
+
+      def ppiu_pii_log
+        PersonalInformationLog.where(error_class: EVSS::PPIU::ServiceException.to_s)
+      end
+
+      it 'creates a PII log' do
+        VCR.use_cassette('evss/ppiu/update_service_error') do
+          expect do
+            subject.update_payment_information(request_payload) rescue EVSS::PPIU::ServiceException
+          end.to change { ppiu_pii_log.count }.by(1)
+        end
+
+        expect(ppiu_pii_log.last.data).to eq(
+          {"user"=>{"uuid"=>user.uuid, "edipi"=>user.edipi},
+           "request"=>
+            {"requests"=>
+              [{"paymentType"=>"CNP",
+                "paymentAccount"=>
+                 {"accountType"=>"Checking",
+                  "accountNumber"=>"****",
+                  "financialInstitutionName"=>"Fake Bank Name",
+                  "financialInstitutionRoutingNumber"=>"021000021"}}]},
+           "response"=>
+            {"messages"=>[{"key"=>"piu.get.cnpaddress.partner.service.failed", "text"=>"Call to partner getCnpAddress failed", "severity"=>"FATAL"}],
+             "responses"=>[]}}
+        )
+      end
     end
   end
 end
