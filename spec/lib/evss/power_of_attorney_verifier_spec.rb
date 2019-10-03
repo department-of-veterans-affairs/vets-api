@@ -16,7 +16,7 @@ describe EVSS::PowerOfAttorneyVerifier do
     @veteran.power_of_attorney = PowerOfAttorney.new(ssn: '123456789')
   end
 
-  it 'should not raise an exception if poa matches' do
+  it 'does not raise an exception if poa matches' do
     FactoryBot.create(
       :representative,
       poa_codes: ['A1Q'],
@@ -28,7 +28,7 @@ describe EVSS::PowerOfAttorneyVerifier do
     end.not_to raise_error
   end
 
-  it 'should raise an exception if poa does not matches' do
+  it 'raises an exception if poa does not matches' do
     FactoryBot.create(
       :representative,
       poa_codes: ['B1Q'],
@@ -40,7 +40,7 @@ describe EVSS::PowerOfAttorneyVerifier do
     end.to raise_error(Common::Exceptions::Unauthorized)
   end
 
-  it 'should raise an exception if representitive not found' do
+  it 'raises an exception if representitive not found' do
     expect do
       EVSS::PowerOfAttorneyVerifier.new(user).verify(identity)
     end.to raise_error(Common::Exceptions::Unauthorized)

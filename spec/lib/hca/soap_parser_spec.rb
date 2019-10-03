@@ -23,7 +23,7 @@ describe HCA::SOAPParser do
       let(:reraised_error) { HCA::SOAPParser::ValidationError }
       let(:body) { File.read('spec/fixtures/hca/validation_error.xml') }
 
-      it 'should tag and log validation errors' do
+      it 'tags and log validation errors' do
         expect(StatsD).to receive(:increment).with('api.hca.validation_fail')
         expect(Raven).to receive(:tags_context).with(validation: 'hca')
 
@@ -35,7 +35,7 @@ describe HCA::SOAPParser do
       def self.test_body(body)
         let(:body) { body }
 
-        it 'should not increment statsd' do
+        it 'does not increment statsd' do
           expect(StatsD).not_to receive(:increment).with('api.hca.validation_fail')
 
           subject

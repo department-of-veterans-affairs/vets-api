@@ -28,7 +28,7 @@ RSpec.describe EVSS::RetrieveClaimsFromRemoteJob, type: :job do
     end
 
     describe 'when job has failed (e.g. timeout)' do
-      it 'should set the status to FAILED' do
+      it 'sets the status to FAILED' do
         allow(client_stub).to receive(:all_claims).and_raise(
           EVSS::ErrorMiddleware::EVSSBackendServiceError
         )

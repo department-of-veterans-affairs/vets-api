@@ -10,55 +10,55 @@ RSpec.describe MessageSerializer, type: :serializer do
 
   subject { serialize(message, serializer_class: described_class) }
 
-  it 'should include id' do
+  it 'includes id' do
     expect(data['id'].to_i).to eq(message.id)
   end
 
-  it 'should include the category' do
+  it 'includes the category' do
     expect(attributes['message_id']).to eq(message.id)
   end
 
-  it 'should include the category' do
+  it 'includes the category' do
     expect(attributes['category']).to eq(message.category)
   end
 
-  it 'should include the subject' do
+  it 'includes the subject' do
     expect(attributes['subject']).to eq(message.subject)
   end
 
-  it 'should include the body' do
+  it 'includes the body' do
     expect(attributes['body']).to eq(message.body)
   end
 
-  it 'should include the attachment status' do
+  it 'includes the attachment status' do
     expect(attributes['attachment']).to eq(message.attachment)
   end
 
-  it 'should include the sent date' do
+  it 'includes the sent date' do
     expect(Time.parse(attributes['sent_date']).utc).to eq(message.sent_date.utc)
   end
 
-  it 'should include sender id' do
+  it 'includes sender id' do
     expect(attributes['sender_id']).to eq(message.sender_id)
   end
 
-  it 'should include sender name' do
+  it 'includes sender name' do
     expect(attributes['sender_name']).to eq(message.sender_name)
   end
 
-  it 'should include recipient id' do
+  it 'includes recipient id' do
     expect(attributes['recipient_id']).to eq(message.recipient_id)
   end
 
-  it 'should include recipient name' do
+  it 'includes recipient name' do
     expect(attributes['recipient_name']).to eq(message.recipient_name)
   end
 
-  it 'should include a read reciept' do
+  it 'includes a read reciept' do
     expect(attributes['read_receipt']).to eq(message.read_receipt)
   end
 
-  it 'should include a link to itself' do
+  it 'includes a link to itself' do
     expect(links['self']).to eq(v0_message_url(message.id))
   end
 end

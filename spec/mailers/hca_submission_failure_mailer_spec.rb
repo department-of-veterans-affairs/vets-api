@@ -11,7 +11,7 @@ RSpec.describe HCASubmissionFailureMailer, type: [:mailer] do
   end
 
   describe '#build' do
-    it 'should include all info' do
+    it 'includes all info' do
       expect(subject.subject).to eq("We can't process your health care application")
       expect(subject.to).to eq(['foo@example.com'])
       expect(subject.body.raw_source).to include(

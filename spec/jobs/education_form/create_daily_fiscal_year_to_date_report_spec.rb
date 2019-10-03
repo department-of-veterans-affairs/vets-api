@@ -23,13 +23,13 @@ RSpec.describe EducationForm::CreateDailyFiscalYearToDateReport, type: :aws_help
     end
 
     describe '#fiscal_year' do
-      it 'should return a fiscal year of 2017' do
+      it 'returns a fiscal year of 2017' do
         expect(subject.fiscal_year).to eq(2017)
       end
     end
 
     describe '#beginning_of_fiscal_year' do
-      it 'should return a October 1st, 2016' do
+      it 'returns a October 1st, 2016' do
         expect(subject.beginning_of_fiscal_year).to eq(Date.new(2016, 10))
       end
     end
@@ -41,13 +41,13 @@ RSpec.describe EducationForm::CreateDailyFiscalYearToDateReport, type: :aws_help
     end
 
     describe '#fiscal_year' do
-      it 'should return a fiscal year of 2018' do
+      it 'returns a fiscal year of 2018' do
         expect(subject.fiscal_year).to eq(2018)
       end
     end
 
     describe '#beginning_of_fiscal_year' do
-      it 'should return a October 1st, 2017' do
+      it 'returns a October 1st, 2017' do
         expect(subject.beginning_of_fiscal_year).to eq(Date.new(2017, 10))
       end
     end
@@ -91,7 +91,7 @@ RSpec.describe EducationForm::CreateDailyFiscalYearToDateReport, type: :aws_help
       end
 
       describe '#create_csv_array' do
-        it 'should make the right csv array' do
+        it 'makes the right csv array' do
           expect(subject.create_csv_array).to eq(
             get_education_form_fixture('fiscal_year_create_csv_array')
           )
@@ -108,7 +108,7 @@ RSpec.describe EducationForm::CreateDailyFiscalYearToDateReport, type: :aws_help
           context "for #{status} applications" do
             let(:status) { status }
 
-            it 'should return data about the number of submissions' do
+            it 'returns data about the number of submissions' do
               expect(subject.deep_stringify_keys).to eq(result)
             end
           end
@@ -150,7 +150,7 @@ RSpec.describe EducationForm::CreateDailyFiscalYearToDateReport, type: :aws_help
         create_daily_year_to_date_report
       end
 
-      it 'should create a csv file' do
+      it 'creates a csv file' do
         subject
 
         csv_string = CSV.generate do |csv|
@@ -162,7 +162,7 @@ RSpec.describe EducationForm::CreateDailyFiscalYearToDateReport, type: :aws_help
         expect(File.read(filename)).to eq(csv_string)
       end
 
-      it 'should send an email' do
+      it 'sends an email' do
         expect { subject }.to change {
           ActionMailer::Base.deliveries.count
         }.by(1)

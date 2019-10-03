@@ -24,7 +24,7 @@ RSpec.describe HCA::SubmissionJob, type: :job do
       }
     end
 
-    it 'should set the health_care_application state to failed' do
+    it 'sets the health_care_application state to failed' do
       described_class.new.sidekiq_retries_exhausted_block.call(msg)
       expect(health_care_application.reload.state).to eq('failed')
     end
@@ -49,7 +49,7 @@ RSpec.describe HCA::SubmissionJob, type: :job do
       context 'with a validation error' do
         let(:error) { HCA::SOAPParser::ValidationError }
 
-        it 'should set the record to failed' do
+        it 'sets the record to failed' do
           subject
 
           health_care_application.reload
@@ -57,7 +57,7 @@ RSpec.describe HCA::SubmissionJob, type: :job do
           expect(health_care_application.state).to eq('failed')
         end
 
-        it 'should create a pii log' do
+        it 'creates a pii log' do
           subject
 
           log = PersonalInformationLog.last
@@ -66,7 +66,7 @@ RSpec.describe HCA::SubmissionJob, type: :job do
         end
       end
 
-      it 'should set the health_care_application state to error' do
+      it 'sets the health_care_application state to error' do
         expect { subject }.to raise_error(error)
         health_care_application.reload
 
@@ -80,7 +80,7 @@ RSpec.describe HCA::SubmissionJob, type: :job do
         expect(Rails.logger).to receive(:info).with("SubmissionID=#{result[:formSubmissionId]}")
       end
 
-      it 'should call the service and save the results' do
+      it 'calls the service and save the results' do
         subject
         health_care_application.reload
 

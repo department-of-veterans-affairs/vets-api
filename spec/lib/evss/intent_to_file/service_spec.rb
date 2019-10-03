@@ -19,7 +19,7 @@ describe EVSS::IntentToFile::Service do
           end
         end
 
-        it 'should increment intent_to_file total' do
+        it 'increments intent_to_file total' do
           VCR.use_cassette('evss/intent_to_file/intent_to_file') do
             expect { subject.get_intent_to_file }.to trigger_statsd_increment('api.evss.get_intent_to_file.total')
           end
@@ -31,7 +31,7 @@ describe EVSS::IntentToFile::Service do
           allow_any_instance_of(Faraday::Connection).to receive(:get).and_raise(Faraday::TimeoutError)
         end
 
-        it 'should log an error and raise GatewayTimeout' do
+        it 'logs an error and raise GatewayTimeout' do
           expect(StatsD).to receive(:increment).once.with(
             'api.evss.get_intent_to_file.fail', tags: ['error:Common::Exceptions::GatewayTimeout']
           )
@@ -41,7 +41,7 @@ describe EVSS::IntentToFile::Service do
       end
 
       context 'with a evss internal server error' do
-        it 'should log an error and raise a ServiceException' do
+        it 'logs an error and raise a ServiceException' do
           VCR.use_cassette('evss/intent_to_file/intent_to_file_service_error') do
             expect(StatsD).to receive(:increment).once.with(
               'api.evss.get_intent_to_file.fail', tags: ['error:Common::Client::Errors::ClientError', 'status:500']
@@ -63,7 +63,7 @@ describe EVSS::IntentToFile::Service do
           end
         end
 
-        it 'should increment intent_to_file total' do
+        it 'increments intent_to_file total' do
           VCR.use_cassette('evss/intent_to_file/active_compensation') do
             expect do
               subject.get_active('compensation')
@@ -77,7 +77,7 @@ describe EVSS::IntentToFile::Service do
           allow_any_instance_of(Faraday::Connection).to receive(:get).and_raise(Faraday::TimeoutError)
         end
 
-        it 'should log an error and raise GatewayTimeout' do
+        it 'logs an error and raise GatewayTimeout' do
           expect(StatsD).to receive(:increment).once.with(
             'api.evss.get_active.fail', tags: ['error:Common::Exceptions::GatewayTimeout']
           )
@@ -87,7 +87,7 @@ describe EVSS::IntentToFile::Service do
       end
 
       context 'with a evss partner service invalid error' do
-        it 'should log an error and raise a ServiceException' do
+        it 'logs an error and raise a ServiceException' do
           VCR.use_cassette('evss/intent_to_file/active_compensation_partner_service_invalid') do
             expect(StatsD).to receive(:increment).once.with(
               'api.evss.get_active.fail', tags: ['error:Common::Client::Errors::ClientError', 'status:502']
@@ -111,7 +111,7 @@ describe EVSS::IntentToFile::Service do
           end
         end
 
-        it 'should increment create_intent_to_file total' do
+        it 'increments create_intent_to_file total' do
           VCR.use_cassette('evss/intent_to_file/create_compensation') do
             expect { subject }.to trigger_statsd_increment('api.evss.create_intent_to_file.total')
           end
@@ -123,7 +123,7 @@ describe EVSS::IntentToFile::Service do
           allow_any_instance_of(Faraday::Connection).to receive(:post).and_raise(Faraday::TimeoutError)
         end
 
-        it 'should log an error and raise GatewayTimeout' do
+        it 'logs an error and raise GatewayTimeout' do
           expect(StatsD).to receive(:increment).once.with(
             'api.evss.create_intent_to_file.fail', tags: ['error:Common::Exceptions::GatewayTimeout']
           )
@@ -137,7 +137,7 @@ describe EVSS::IntentToFile::Service do
       context 'with an invalid intent to file type' do
         subject { described_class.new(user).create_intent_to_file('compensation') }
 
-        it 'should log an error and raise a ServiceException' do
+        it 'logs an error and raise a ServiceException' do
           VCR.use_cassette('evss/intent_to_file/create_compensation_type_error') do
             expect(StatsD).to receive(:increment).once.with(
               'api.evss.create_intent_to_file.fail',
@@ -152,7 +152,7 @@ describe EVSS::IntentToFile::Service do
       context 'with a partner service error' do
         subject { described_class.new(user).create_intent_to_file('compensation') }
 
-        it 'should log an error and raise a ServiceException' do
+        it 'logs an error and raise a ServiceException' do
           VCR.use_cassette('evss/intent_to_file/create_compensation_partner_service_error') do
             expect(StatsD).to receive(:increment).once.with(
               'api.evss.create_intent_to_file.fail',
