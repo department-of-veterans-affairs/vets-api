@@ -65,25 +65,16 @@ module EVSS
 
       case error
       when Faraday::ParsingError
-        raise_backend_exception('EVSS502', self.class)
+        raise_backend_exception('EVSS502', "EVSS::#{self.class}")
       when Common::Client::Errors::ClientError
         Raven.extra_context(body: error.body)
         raise Common::Exceptions::Forbidden if error.status == 403
 
-        raise_backend_exception('EVSS400', self.class, error) if error.status == 400
-        raise_backend_exception('EVSS502', self.class, error)
+        raise_backend_exception('EVSS400', "EVSS::#{self.class}", error) if error.status == 400
+        raise_backend_exception('EVSS502', "EVSS::#{self.class}", error)
       else
         raise error
       end
-    end
-
-    def raise_backend_exception(key, source, error = nil)
-      raise Common::Exceptions::BackendServiceException.new(
-        key,
-        { source: "EVSS::#{source}" },
-        error&.status,
-        error&.body
-      )
     end
   end
 end
