@@ -53,14 +53,23 @@ module Swagger
                          example: 'myhealthevet',
                          description: ''
                 property :account_type,
-                         enum: %w[Basic Premium],
+                         enum: %w[Basic Premium 1 2 3],
                          example: 'Basic',
                          description: 'myhealthevet account_types: Basic, Premium. dslogon account account_types: 1-3'
               end
               property :verified, type: :boolean, example: true
               property :loa, type: :object do
-                property :current, type: :integer, format: :int32, example: 3, description: ''
-                property :highest, type: :integer, format: :int32, example: 3, description: ''
+                property :current,
+                         type: :integer,
+                         format: :int32,
+                         example: 3,
+                         description: 'NIST level of assurance, either 1 or 3'
+                property :highest,
+                         type: :integer,
+                         format: :int32,
+                         example: 3,
+                         description: "level of assurance - During the login flow reference 'highest', otherwise, use
+                                       'current'"
               end
             end
             property :prefills_available do
