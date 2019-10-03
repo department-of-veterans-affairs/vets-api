@@ -4,10 +4,10 @@ require 'rails_helper'
 require 'common/exceptions'
 
 describe OktaRedis::App, skip_emis: true do
+  subject { described_class.with_id(from_okta[:id]) }
+
   let(:user) { build(:user, :loa3, uuid: '00u2fqgvbyT23TZNm2p7') }
   let(:from_okta) { { id: '0oa2ey2m6kEL2897N2p7', title: 'TestGrantRevoke' } }
-
-  subject { described_class.with_id(from_okta[:id]) }
 
   %i[id title].each do |body_attr|
     describe body_attr.to_s do
@@ -55,7 +55,7 @@ describe OktaRedis::App, skip_emis: true do
         user.okta_grants.all.map { |grant| grant['_links']['app']['href'].split('/').last }.uniq!
       end
 
-      it 'should use the correct cache key' do
+      it 'uses the correct cache key' do
         with_okta_configured do
           VCR.use_cassette('okta/multiple_apps') do
             app = described_class.with_id(apps[0])
@@ -65,7 +65,7 @@ describe OktaRedis::App, skip_emis: true do
         end
       end
 
-      it 'should have a unique key' do
+      it 'has a unique key' do
         with_okta_configured do
           VCR.use_cassette('okta/multiple_apps') do
             app1 = described_class.with_id(apps[0])
@@ -76,7 +76,7 @@ describe OktaRedis::App, skip_emis: true do
       end
 
       context 'with user assigned' do
-        it 'should not affect the key' do
+        it 'does not affect the key' do
           with_okta_configured do
             VCR.use_cassette('okta/multiple_apps') do
               app = described_class.with_id(apps[0])

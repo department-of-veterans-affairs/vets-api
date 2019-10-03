@@ -60,7 +60,7 @@ RSpec.describe EVSS::FailedClaimsReport, type: :job do
     end
 
     context 'with valid metadata' do
-      it 'should get the document hash from sidekiq' do
+      it 'gets the document hash from sidekiq' do
         expect(
           subject.get_document_hash(
             user_uuid: user_uuid,
@@ -72,7 +72,7 @@ RSpec.describe EVSS::FailedClaimsReport, type: :job do
     end
 
     context 'with no match' do
-      it 'should return nil' do
+      it 'returns nil' do
         expect(
           subject.get_document_hash(
             user_uuid: user_uuid,
@@ -85,7 +85,7 @@ RSpec.describe EVSS::FailedClaimsReport, type: :job do
   end
 
   describe '#perform' do
-    it 'should lookup claims on s3 and send the email' do
+    it 'lookups claims on s3 and send the email' do
       s3 = double
       bucket = double
       objects = [double, double]

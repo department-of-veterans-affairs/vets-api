@@ -5,7 +5,7 @@ http_interactions:
     uri: "<MVI_URL>"
     body:
       encoding: ASCII-8BIT
-      string: !binary |-
+      base64_string: |
         CjxlbnY6RW52ZWxvcGUgeG1sbnM6c29hcGVuYz0iaHR0cDovL3NjaGVtYXMu
         eG1sc29hcC5vcmcvc29hcC9lbmNvZGluZy8iIHhtbG5zOnhzZD0iaHR0cDov
         L3d3dy53My5vcmcvMjAwMS9YTUxTY2hlbWEiIHhtbG5zOmVudj0iaHR0cDov
@@ -21,7 +21,7 @@ http_interactions:
         b290PSIxLjIuODQwLjExNDM1MC4xLjEzLjAuMS43LjEuMSIgZXh0ZW5zaW9u
         PSIyMDBWR09WLTVlODE5ZDE3LWNlOWItNDg2MC05MjllLWY5MDYyODM2ZWJk
         MCIvPgogICAgICA8Y3JlYXRpb25UaW1lIHZhbHVlPSIyMDE4MDIyMTIwMTkw
-        MSIvPgogICAgICA8dmVyc2lvbkNvZGUgY29kZT0iMy4wIi8+CiAgICAgIDxp
+        MSIvPgogICAgICA8dmVyc2lvbkNvZGUgY29kZT0iNC4xIi8+CiAgICAgIDxp
         bnRlcmFjdGlvbklkIHJvb3Q9IjIuMTYuODQwLjEuMTEzODgzLjEuNiIgZXh0
         ZW5zaW9uPSJQUlBBX0lOMjAxMzA1VVYwMiIvPgogICAgICA8cHJvY2Vzc2lu
         Z0NvZGUgY29kZT0iVCIvPgogICAgICA8cHJvY2Vzc2luZ01vZGVDb2RlIGNv
@@ -101,21 +101,19 @@ http_interactions:
       Transfer-Encoding:
       - chunked
       Date:
-      - Wed, 21 Feb 2018 23:59:18 GMT
+      - Wed, 28 Aug 2019 19:54:32 GMT
       Content-Type:
       - text/xml
       Set-Cookie:
-      - JSESSIONID=GGyChTHhzJrvllnfSTyvGtsxyyN8zr8gv5hRbZGQ1V177QMzD24j!232188642;
+      - JSESSIONID=VorZy0FdrKyjq6y9jjQa2Gb8XSMoJ0yD-vaQ1GAek-D_2GJ3zpgm!603826280;
         path=/; HttpOnly
-      X-Powered-By:
-      - Servlet/2.5 JSP/2.1
       X-Global-Transaction-Id:
-      - 659f2fcc5a8e08975992f0d1
+      - 4bae058f5d66dbf8012a58b2
     body:
       encoding: UTF-8
       string: |-
         <?xml version="1.0" encoding="UTF-8"?>
-        <env:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:env="http://schemas.xmlsoap.org/soap/envelope/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/"><env:Header/><env:Body><idm:PRPA_IN201306UV02 ITSVersion="XML_1.0" xsi:schemaLocation="urn:hl7-org:v3 ../../schema/HL7V3/NE2008/multicacheschemas/PRPA_IN201306UV02.xsd" xmlns:idm="http://vaww.oed.oit.va.gov" xmlns="urn:hl7-org:v3"><id extension="WSDOC1802211759225000091358147" root="2.16.840.1.113883.4.349"/><creationTime value="20180221175922"/><versionCode code="3.0"/><interactionId extension="PRPA_IN201306UV02" root="2.16.840.1.113883.1.6"/><processingCode code="T"/><processingModeCode code="T"/><acceptAckCode code="NE"/><receiver typeCode="RCV"><device determinerCode="INSTANCE" classCode="DEV"><id extension="200VGOV" root="2.16.840.1.113883.4.349"/></device></receiver><sender typeCode="SND"><device determinerCode="INSTANCE" classCode="DEV"><id extension="200M" root="2.16.840.1.113883.4.349"/></device></sender><acknowledgement><typeCode code="AA"/><targetMessage><id extension="200VGOV-5e819d17-ce9b-4860-929e-f9062836ebd0" root="1.2.840.114350.1.13.0.1.7.1.1"/></targetMessage><acknowledgementDetail><code codeSystemName="MVI" code="132" displayName="IMT"/><text>Identity Match Threshold</text></acknowledgementDetail><acknowledgementDetail><code codeSystemName="MVI" code="120" displayName="PDT"/><text>Potential Duplicate Threshold</text></acknowledgementDetail></acknowledgement><controlActProcess classCode="CACT" moodCode="EVN"><code codeSystem="2.16.840.1.113883.1.6" code="PRPA_TE201306UV02"/><queryAck><queryId extension="18204" root="1.2.840.114350.1.13.28.1.18.5.999"/><queryResponseCode code="NF"/><resultCurrentQuantity value="0"/></queryAck><queryByParameter><queryId extension="18204" root="1.2.840.114350.1.13.28.1.18.5.999"/><statusCode code="new"/><modifyCode code="MVI.COMP2"/><initialQuantity value="1"/><parameterList><livingSubjectAdministrativeGender><value code="M"/><semanticsText>Gender</semanticsText></livingSubjectAdministrativeGender><livingSubjectBirthTime><value value="19800812"/><semanticsText>Date of Birth</semanticsText></livingSubjectBirthTime><livingSubjectId><value extension="111222333" root="2.16.840.1.113883.4.1"/><semanticsText>SSN</semanticsText></livingSubjectId><livingSubjectName><value use="L"><given>sdf</given><family>sdgsdf</family></value><semanticsText>Legal Name</semanticsText></livingSubjectName></parameterList></queryByParameter></controlActProcess></idm:PRPA_IN201306UV02></env:Body></env:Envelope>
+        <env:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:env="http://schemas.xmlsoap.org/soap/envelope/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/"><env:Header/><env:Body><idm:PRPA_IN201306UV02 ITSVersion="XML_1.0" xsi:schemaLocation="urn:hl7-org:v3 ../../schema/HL7V3/NE2008/multicacheschemas/PRPA_IN201306UV02.xsd" xmlns:idm="http://vaww.oed.oit.va.gov" xmlns="urn:hl7-org:v3"><id extension="WSDOC1908281554321581716085340" root="2.16.840.1.113883.4.349"/><creationTime value="20190828155432"/><versionCode code="4.1"/><interactionId extension="PRPA_IN201306UV02" root="2.16.840.1.113883.1.6"/><processingCode code="T"/><processingModeCode code="T"/><acceptAckCode code="NE"/><receiver typeCode="RCV"><device determinerCode="INSTANCE" classCode="DEV"><id extension="200VGOV" root="2.16.840.1.113883.4.349"/></device></receiver><sender typeCode="SND"><device determinerCode="INSTANCE" classCode="DEV"><id extension="200M" root="2.16.840.1.113883.4.349"/></device></sender><acknowledgement><typeCode code="AA"/><targetMessage><id extension="200VGOV-5e819d17-ce9b-4860-929e-f9062836ebd0" root="1.2.840.114350.1.13.0.1.7.1.1"/></targetMessage><acknowledgementDetail><code codeSystemName="MVI" code="132" displayName="IMT"/><text>Identity Match Threshold</text></acknowledgementDetail><acknowledgementDetail><code codeSystemName="MVI" code="120" displayName="PDT"/><text>Potential Duplicate Threshold</text></acknowledgementDetail></acknowledgement><controlActProcess classCode="CACT" moodCode="EVN"><code codeSystem="2.16.840.1.113883.1.6" code="PRPA_TE201306UV02"/><queryAck><queryId extension="18204" root="1.2.840.114350.1.13.28.1.18.5.999"/><queryResponseCode code="NF"/><resultCurrentQuantity value="0"/></queryAck><queryByParameter><queryId extension="18204" root="1.2.840.114350.1.13.28.1.18.5.999"/><statusCode code="new"/><modifyCode code="MVI.COMP2"/><initialQuantity value="1"/><parameterList><livingSubjectAdministrativeGender><value code="M"/><semanticsText>Gender</semanticsText></livingSubjectAdministrativeGender><livingSubjectBirthTime><value value="19800812"/><semanticsText>Date of Birth</semanticsText></livingSubjectBirthTime><livingSubjectId><value extension="111222333" root="2.16.840.1.113883.4.1"/><semanticsText>SSN</semanticsText></livingSubjectId><livingSubjectName><value use="L"><given>sdf</given><family>sdgsdf</family></value><semanticsText>Legal Name</semanticsText></livingSubjectName></parameterList></queryByParameter></controlActProcess></idm:PRPA_IN201306UV02></env:Body></env:Envelope>
     http_version: 
   recorded_at: Wed, 21 Feb 2018 20:19:01 GMT
 recorded_with: VCR 3.0.3

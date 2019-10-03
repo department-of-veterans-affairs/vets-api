@@ -3,9 +3,9 @@
 require 'rails_helper'
 
 describe IHub::Appointments::Service do
-  let(:user) { build(:user, :loa3) }
-
   subject { described_class.new(user) }
+
+  let(:user) { build(:user, :loa3) }
 
   describe '#appointments' do
     context 'when successful' do

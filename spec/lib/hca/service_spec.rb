@@ -57,7 +57,7 @@ describe HCA::Service do
     end
 
     context 'submitting with attachment' do
-      it 'should work', run_at: 'Fri, 11 Jan 2019 04:56:26 GMT' do
+      it 'works', run_at: 'Fri, 11 Jan 2019 04:56:26 GMT' do
         VCR.use_cassette(
           'hca/submit_with_attachment',
           VCR::MATCH_EVERYTHING.merge(erb: true)
@@ -68,7 +68,7 @@ describe HCA::Service do
       end
 
       context 'with a non-pdf attachment' do
-        it 'should work', run_at: 'Fri, 11 Jan 2019 04:56:26 GMT' do
+        it 'works', run_at: 'Fri, 11 Jan 2019 04:56:26 GMT' do
           hca_attachment = build(:hca_attachment)
           hca_attachment.set_file_data!(
             Rack::Test::UploadedFile.new(
@@ -151,17 +151,18 @@ describe HCA::Service do
     end
 
     context 'when there are no SSL options' do
-      it 'should only return the wsdl' do
-        allow(HCA::Configuration.instance).to receive(:ssl_cert) { nil }
-        allow(HCA::Configuration.instance).to receive(:ssl_key) { nil }
+      it 'onlies return the wsdl' do
+        allow(HCA::Configuration.instance).to receive(:ssl_cert).and_return(nil)
+        allow(HCA::Configuration.instance).to receive(:ssl_key).and_return(nil)
         expect(HCA::Configuration.instance.ssl_options).to eq(
           verify: true,
           cert_store: store
         )
       end
     end
+
     context 'when there are SSL options' do
-      it 'should return the wsdl, cert and key paths' do
+      it 'returns the wsdl, cert and key paths' do
         expect(HCA::Configuration.instance.ssl_options).to eq(
           verify: true,
           cert_store: store,

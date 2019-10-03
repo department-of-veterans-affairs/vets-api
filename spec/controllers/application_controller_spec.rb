@@ -53,18 +53,18 @@ RSpec.describe ApplicationController, type: :controller do
   end
 
   describe '#clear_saved_form' do
-    let(:user) { create(:user) }
-
     subject do
       controller.clear_saved_form(form_id)
     end
+
+    let(:user) { create(:user) }
 
     context 'with a saved form' do
       let!(:in_progress_form) { create(:in_progress_form, user_uuid: user.uuid) }
       let(:form_id) { in_progress_form.form_id }
 
       context 'without a current user' do
-        it "shouldn't delete the form" do
+        it 'does not delete the form' do
           subject
           expect(model_exists?(in_progress_form)).to be(true)
         end
@@ -75,7 +75,7 @@ RSpec.describe ApplicationController, type: :controller do
           controller.instance_variable_set(:@current_user, user)
         end
 
-        it 'should delete the form' do
+        it 'deletes the form' do
           subject
           expect(model_exists?(in_progress_form)).to be(false)
         end
@@ -89,7 +89,7 @@ RSpec.describe ApplicationController, type: :controller do
         controller.instance_variable_set(:@current_user, user)
       end
 
-      it 'should do nothing' do
+      it 'does nothing' do
         subject
       end
     end
@@ -97,6 +97,7 @@ RSpec.describe ApplicationController, type: :controller do
 
   context 'RecordNotFound' do
     subject { JSON.parse(response.body)['errors'].first }
+
     let(:keys_for_all_env) { %w[title detail code status] }
 
     context 'with Rails.env.test or Rails.env.development' do
@@ -121,6 +122,7 @@ RSpec.describe ApplicationController, type: :controller do
 
   context 'BackendServiceErrorError' do
     subject { JSON.parse(response.body)['errors'].first }
+
     let(:keys_for_production) { %w[title detail code status] }
     let(:keys_for_development) { keys_for_production + ['meta'] }
 
@@ -176,6 +178,7 @@ RSpec.describe ApplicationController, type: :controller do
 
     context 'signed in user' do
       let(:user) { create(:user) }
+
       before do
         controller.instance_variable_set(:@current_user, user)
       end
@@ -220,6 +223,7 @@ RSpec.describe ApplicationController, type: :controller do
 
     context 'Pundit::NotAuthorizedError' do
       subject { JSON.parse(response.body)['errors'].first }
+
       let(:keys_for_all_env) { %w[title detail code status] }
 
       context 'with Rails.env.test or Rails.env.development' do
@@ -296,7 +300,7 @@ RSpec.describe ApplicationController, type: :controller do
       context 'with valid session and user' do
         it 'returns success' do
           get :test_authentication
-          expect(response).to have_http_status(200)
+          expect(response).to have_http_status(:ok)
         end
 
         it 'appends user uuid to payload' do
@@ -318,7 +322,7 @@ RSpec.describe ApplicationController, type: :controller do
 
           it 'returns success' do
             get :test_authentication
-            expect(response).to have_http_status(200)
+            expect(response).to have_http_status(:ok)
           end
         end
 
@@ -358,7 +362,7 @@ RSpec.describe ApplicationController, type: :controller do
 
           it 'returns success' do
             get :test_authentication
-            expect(response).to have_http_status(200)
+            expect(response).to have_http_status(:ok)
           end
         end
       end

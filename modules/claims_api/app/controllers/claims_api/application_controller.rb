@@ -26,7 +26,10 @@ module ClaimsApi
         headers_to_validate = %w[X-VA-SSN X-VA-First-Name X-VA-Last-Name X-VA-Birth-Date]
         headers_to_validate << 'X-VA-LOA' if v0?
         validate_headers(headers_to_validate)
-        check_loa_level if v0?
+        if v0?
+          check_loa_level
+          request.headers['X-VA-User'] = request.headers['X-Consumer-Username'] unless header('X-VA-User')
+        end
         veteran_from_headers(with_gender: with_gender)
       else
         ClaimsApi::Veteran.from_identity(identity: @current_user)
