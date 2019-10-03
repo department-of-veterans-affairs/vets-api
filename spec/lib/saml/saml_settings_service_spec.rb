@@ -35,8 +35,8 @@ RSpec.describe SAML::SettingsService do
       end
 
       it 'should log three attempts' do
-        expect(Rails.logger).to receive(:warn).exactly(2).times.with(/Failed to load SAML metadata: 500: try \d of 3/)
-        expect(Rails.logger).to receive(:error).exactly(1).times.with(/Failed to load SAML metadata: 500: try \d of 3/)
+        expect(Rails.logger).to receive(:warn).twice.with(/Failed to load SAML metadata: 500: try \d of 3/)
+        expect(Rails.logger).to receive(:error).once.with(/Failed to load SAML metadata: 500: try \d of 3/)
         SAML::SettingsService.merged_saml_settings(true)
       end
       it 'should keep making GET calls to fetch metadata' do
