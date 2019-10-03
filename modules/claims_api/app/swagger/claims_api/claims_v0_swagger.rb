@@ -81,6 +81,8 @@ module ClaimsApi
         key :in, :header
       end
 
+      key :schemes, ['https']
+
       key :host, 'api.va.gov'
       key :basePath, '/services/claims/v0'
       key :consumes, ['application/json']

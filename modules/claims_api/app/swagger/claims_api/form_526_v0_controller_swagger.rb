@@ -8,6 +8,9 @@ module ClaimsApi
 
     swagger_path '/forms/526' do
       operation :get do
+        security do
+          key :apikey, []
+        end
         key :summary, 'Get 526 JSON Schema for form'
         key :description, 'Returns a single JSON schema to auto generate a form'
         key :operationId, 'get526JsonSchema'
@@ -153,14 +156,6 @@ module ClaimsApi
         ]
 
         parameter do
-          key :name, 'apikey'
-          key :in, :header
-          key :description, 'API Key given to access data'
-          key :required, true
-          key :type, :string
-        end
-
-        parameter do
           key :name, 'X-VA-SSN'
           key :in, :header
           key :description, 'SSN of Veteran to fetch'
@@ -298,14 +293,6 @@ module ClaimsApi
           key :description, 'UUID given when Disability Claim was submitted'
           key :required, true
           key :type, :uuid
-        end
-
-        parameter do
-          key :name, 'apikey'
-          key :in, :header
-          key :description, 'API Key given to access data'
-          key :required, true
-          key :type, :string
         end
 
         parameter do

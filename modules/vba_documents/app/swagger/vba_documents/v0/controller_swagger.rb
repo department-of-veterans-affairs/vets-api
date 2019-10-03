@@ -39,9 +39,6 @@ module VbaDocuments
 
       swagger_path '/path' do
         operation :put do
-          security do
-            key :apikey, []
-          end
           key :summary, 'Accepts document upload.'
           key :description, File.read(VBADocuments::Engine.root.join('app', 'swagger', 'vba_documents', 'document_upload', 'put_description.md'))
           key :operationId, 'putBenefitsDocumentUpload'

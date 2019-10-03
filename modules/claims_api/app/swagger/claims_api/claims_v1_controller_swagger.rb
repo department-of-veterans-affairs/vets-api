@@ -6,6 +6,9 @@ module ClaimsApi
 
     swagger_path '/claims/{id}' do
       operation :get do
+        security do
+          key :bearer_token, []
+        end
         key :summary, 'Find Claim by ID'
         key :description, 'Returns a single claim if the user has access'
         key :operationId, 'findClaimById'
@@ -17,14 +20,6 @@ module ClaimsApi
           key :name, :id
           key :in, :path
           key :description, 'The ID of the claim being requested'
-          key :required, true
-          key :type, :string
-        end
-
-        parameter do
-          key :name, 'bearer_token'
-          key :in, :header
-          key :description, 'Oauth Token of Veteran requesting to access data'
           key :required, true
           key :type, :string
         end
@@ -105,6 +100,9 @@ module ClaimsApi
 
     swagger_path '/claims' do
       operation :get do
+        security do
+          key :bearer_token, []
+        end
         key :summary, 'All Claims'
         key :description, 'Returns all claims from the system that the user has access to'
         key :operationId, 'findClaims'
