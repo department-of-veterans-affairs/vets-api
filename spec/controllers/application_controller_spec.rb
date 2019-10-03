@@ -5,6 +5,17 @@ require 'rx/client'
 require 'lib/sentry_logging_spec_helper'
 
 RSpec.describe ApplicationController, type: :controller do
+  before(:each) do
+    routes.draw do
+      get 'not_authorized' => 'anonymous#not_authorized'
+      get 'record_not_found' => 'anonymous#record_not_found'
+      get 'other_error' => 'anonymous#other_error'
+      get 'client_connection_failed' => 'anonymous#client_connection_failed'
+      get 'client_connection_failed_no_sentry' => 'anonymous#client_connection_failed_no_sentry'
+      get 'test_authentication' => 'anonymous#test_authentication'
+    end
+  end
+
   it_behaves_like 'a sentry logger'
   controller do
     attr_reader :payload
@@ -38,17 +49,6 @@ RSpec.describe ApplicationController, type: :controller do
     def append_info_to_payload(payload)
       super
       @payload = payload
-    end
-  end
-
-  before(:each) do
-    routes.draw do
-      get 'not_authorized' => 'anonymous#not_authorized'
-      get 'record_not_found' => 'anonymous#record_not_found'
-      get 'other_error' => 'anonymous#other_error'
-      get 'client_connection_failed' => 'anonymous#client_connection_failed'
-      get 'client_connection_failed_no_sentry' => 'anonymous#client_connection_failed_no_sentry'
-      get 'test_authentication' => 'anonymous#test_authentication'
     end
   end
 

@@ -83,18 +83,6 @@ RSpec/FilePath:
 RSpec/HookArgument:
   Enabled: false
 
-# Offense count: 10
-# Cop supports --auto-correct.
-RSpec/HooksBeforeExamples:
-  Exclude:
-    - 'spec/controllers/application_controller_spec.rb'
-    - 'spec/jobs/education_form/create_daily_spool_files_spec.rb'
-    - 'spec/lib/central_mail/datestamp_pdf_spec.rb'
-    - 'spec/lib/common/client/middleware/request/remove_cookies_spec.rb'
-    - 'spec/lib/common/event_rate_limiter_spec.rb'
-    - 'spec/middleware/rack_attack_spec.rb'
-    - 'spec/models/form_profile_spec.rb'
-
 # Offense count: 254
 # Configuration parameters: AssignmentOnly.
 RSpec/InstanceVariable:
