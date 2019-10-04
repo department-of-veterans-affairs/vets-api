@@ -88,13 +88,7 @@ module Vet360
 
     def raise_backend_exception(key, source, error = nil)
       report_stats_on(key)
-
-      raise Common::Exceptions::BackendServiceException.new(
-        key,
-        { source: source.to_s },
-        error&.status,
-        error&.body
-      )
+      super
     end
 
     def raise_invalid_body(error, source)
