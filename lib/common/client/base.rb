@@ -54,6 +54,15 @@ module Common
         @configuration ||= configuration.instance
       end
 
+      def raise_backend_exception(key, source, error = nil)
+        raise Common::Exceptions::BackendServiceException.new(
+          key,
+          { source: source.to_s },
+          error&.status,
+          error&.body
+        )
+      end
+
       private
 
       def config
