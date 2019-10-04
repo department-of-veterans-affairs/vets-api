@@ -3,12 +3,12 @@
 require 'rails_helper'
 
 RSpec.describe TransactionalEmailMailer, type: [:mailer] do
-  let(:email) { 'foo@example.com' }
-  let(:google_analytics_client_id) { '123456543' }
-
   subject do
     described_class.build(email, google_analytics_client_id).deliver_now
   end
+
+  let(:email) { 'foo@example.com' }
+  let(:google_analytics_client_id) { '123456543' }
 
   describe 'as a parent class' do
     it 'cannot be called directly due to missing constants' do

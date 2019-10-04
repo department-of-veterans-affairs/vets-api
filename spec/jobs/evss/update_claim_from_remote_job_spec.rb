@@ -3,14 +3,14 @@
 require 'rails_helper'
 
 RSpec.describe EVSS::UpdateClaimFromRemoteJob, type: :job do
+  subject do
+    described_class.new
+  end
+
   let(:user) { create(:user, :loa3) }
   let(:claim) { create(:evss_claim, user_uuid: user.uuid) }
   let(:tracker) { EVSSClaimsSyncStatusTracker.find_or_build(user.uuid) }
   let(:client_stub) { instance_double('EVSS::ClaimsService') }
-
-  subject do
-    described_class.new
-  end
 
   describe '#perform' do
     before do

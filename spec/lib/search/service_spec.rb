@@ -4,9 +4,9 @@ require 'rails_helper'
 require 'lib/search/shared_examples_for_pagination'
 
 describe Search::Service do
-  let(:query) { 'benefits' }
-
   subject { described_class.new(query) }
+
+  let(:query) { 'benefits' }
 
   before do
     allow_any_instance_of(described_class).to receive(:access_key).and_return('TESTKEY')

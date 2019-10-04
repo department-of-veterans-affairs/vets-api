@@ -3,9 +3,9 @@
 require 'rails_helper'
 
 RSpec.describe SupportingEvidenceAttachmentUploader do
-  let(:guid) { '1234' }
-
   subject { described_class.new(guid) }
+
+  let(:guid) { '1234' }
 
   it 'whitelists image, pdf, and text files' do
     expect(subject.extension_white_list).to match_array %w[pdf png gif tiff tif jpeg jpg bmp txt]

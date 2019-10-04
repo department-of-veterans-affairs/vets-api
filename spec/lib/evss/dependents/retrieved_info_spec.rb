@@ -3,9 +3,9 @@
 require 'rails_helper'
 
 describe EVSS::Dependents::RetrievedInfo do
-  let(:user) { build(:user, :loa3) }
-
   subject { described_class.for_user(user) }
+
+  let(:user) { build(:user, :loa3) }
 
   describe '#body' do
     it 'returns the response body' do

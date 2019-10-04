@@ -3,12 +3,12 @@
 require 'rails_helper'
 
 RSpec.describe FolderSerializer, type: :serializer do
+  subject { serialize(folder, serializer_class: described_class) }
+
   let(:folder) { build :folder }
   let(:data) { JSON.parse(subject)['data'] }
   let(:attributes) { data['attributes'] }
   let(:links) { data['links'] }
-
-  subject { serialize(folder, serializer_class: described_class) }
 
   it 'includes id' do
     expect(data['id'].to_i).to eq(folder.id)

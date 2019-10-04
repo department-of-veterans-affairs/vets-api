@@ -4,6 +4,8 @@ require 'rails_helper'
 require 'common/models/redis_store'
 
 describe Common::RedisStore do
+  subject { klass.new(uuid: 'e66fd7b7-94e0-4748-8063-283f55efb0ea', email: 'foo@bar.com') }
+
   let(:klass) do
     Class.new(Common::RedisStore) do
       redis_store 'my_namespace'
@@ -14,8 +16,6 @@ describe Common::RedisStore do
       attribute :email
     end
   end
-
-  subject { klass.new(uuid: 'e66fd7b7-94e0-4748-8063-283f55efb0ea', email: 'foo@bar.com') }
 
   describe 'configuration' do
     it 'has a configured redis namespace instance' do

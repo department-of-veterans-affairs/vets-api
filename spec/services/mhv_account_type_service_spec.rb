@@ -3,6 +3,8 @@
 require 'rails_helper'
 
 RSpec.describe MhvAccountTypeService do
+  subject { described_class.new(user) }
+
   let(:sign_in) { { service_name: 'myhealthevet' } }
   let(:user_identity) { instance_double('UserIdentity', mhv_account_type: nil, sign_in: sign_in) }
   let(:user) do
@@ -15,8 +17,6 @@ RSpec.describe MhvAccountTypeService do
       va_patient?: true
     )
   end
-
-  subject { described_class.new(user) }
 
   before { Settings.sentry.dsn = 'asdf' }
 

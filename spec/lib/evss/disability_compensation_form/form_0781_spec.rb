@@ -4,6 +4,8 @@ require 'rails_helper'
 require 'evss/disability_compensation_form/form0781'
 
 describe EVSS::DisabilityCompensationForm::Form0781 do
+  subject { described_class.new(user, form_content) }
+
   let(:form_content) do
     JSON.parse(File.read('spec/support/disability_compensation_form/all_claims_with_0781_fe_submission.json'))
   end
@@ -12,8 +14,6 @@ describe EVSS::DisabilityCompensationForm::Form0781 do
   before do
     User.create(user)
   end
-
-  subject { described_class.new(user, form_content) }
 
   describe '#translate' do
     context 'when 781 data is present in the 526 form' do

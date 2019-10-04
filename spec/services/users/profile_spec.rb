@@ -27,11 +27,11 @@ RSpec.describe Users::Profile do
   end
 
   describe '#pre_serialize' do
+    subject { Users::Profile.new(user).pre_serialize }
+
     let(:profile) { subject.profile }
     let(:va_profile) { subject.va_profile }
     let(:veteran_status) { subject.veteran_status }
-
-    subject { Users::Profile.new(user).pre_serialize }
 
     it 'does not include ssn anywhere', :aggregate_failures do
       expect(subject.try(:ssn)).to be_nil

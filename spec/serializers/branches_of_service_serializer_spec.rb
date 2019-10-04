@@ -3,11 +3,11 @@
 require 'rails_helper'
 
 RSpec.describe BranchesOfServiceSerializer, type: :serializer do
+  subject { serialize(branch, serializer_class: described_class) }
+
   let(:branch) { build :branches_of_service }
   let(:data) { JSON.parse(subject)['data'] }
   let(:attributes) { data['attributes'] }
-
-  subject { serialize(branch, serializer_class: described_class) }
 
   it 'includes id' do
     expect(data['id']).to eq(branch.id)

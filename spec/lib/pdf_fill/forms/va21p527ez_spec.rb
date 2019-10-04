@@ -84,15 +84,15 @@ describe PdfFill::Forms::Va21p527ez do
   end
 
   describe '#expand_bank_acct' do
+    subject do
+      described_class.new({}).expand_bank_acct(bank_account)
+    end
+
     let(:bank_account) do
       {
         'accountNumber' => '88888888888',
         'routingNumber' => '123456789'
       }
-    end
-
-    subject do
-      described_class.new({}).expand_bank_acct(bank_account)
     end
 
     context 'when bank account is blank' do
@@ -664,12 +664,12 @@ describe PdfFill::Forms::Va21p527ez do
   )
 
   describe '#combine_full_name' do
-    let(:full_name) do
-      form_data['veteranFullName']
-    end
-
     subject do
       described_class.new({}).combine_full_name(full_name)
+    end
+
+    let(:full_name) do
+      form_data['veteranFullName']
     end
 
     context 'with missing fields' do

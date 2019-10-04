@@ -4,6 +4,8 @@ require 'rails_helper'
 
 describe Common::EventRateLimiter do
   context 'with the default evss 526 config' do
+    subject { Common::EventRateLimiter.new(config) }
+
     let(:config) do
       {
         'namespace' => 'evss-526-submit-form-rate-limit',
@@ -13,8 +15,6 @@ describe Common::EventRateLimiter do
         'count_ttl' => 604_800
       }
     end
-
-    subject { Common::EventRateLimiter.new(config) }
 
     describe '.at_limit?' do
       context 'with no events' do
