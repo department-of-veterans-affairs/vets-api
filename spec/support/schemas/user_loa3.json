@@ -46,7 +46,6 @@
                 "loa",
                 "multifactor",
                 "verified",
-                "authn_context",
                 "sign_in"
               ],
               "properties": {
@@ -68,8 +67,7 @@
                 },
                 "multifactor": { "type": "boolean" },
                 "verified": { "type": "boolean" },
-                "authn_context": { "type": [ "string", null ] },
-                "sign_in": { 
+                "sign_in": {
                   "type": "object",
                   "properties":  {
                     "service_name": { "type": "string" }
