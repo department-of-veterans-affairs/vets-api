@@ -62,7 +62,7 @@
         </form>
         <p class="vads-u-background-color--gray-lightest vads-u-font-size--sm vads-u-padding--2 vads-u-margin-bottom--0">
         <% if @feature.percentage_of_actors_value > 0 && !@feature.boolean_value %>
-          The feature is enabled for <%= @feature.percentage_of_actors_value %>% of logged in users.
+          This feature is enabled for <%= @feature.percentage_of_actors_value %>% of logged in users.
         <% else %>
           This feature is not enabled by percentage of logged in users.
         <% end %>
@@ -84,7 +84,7 @@
         </form>
         <p class="vads-u-background-color--gray-lightest vads-u-font-size--sm vads-u-padding--2 vads-u-margin-bottom--0">
         <% if @feature.percentage_of_time_value > 0 && !@feature.boolean_value %>
-          The feature is enabled <%= @feature.percentage_of_time_value %>% of the time for everyone.
+          This feature is enabled <%= @feature.percentage_of_time_value %>% of the time for everyone.
         <% else %>
           This feature is not enabled by percentage of time.
         <% end %>
