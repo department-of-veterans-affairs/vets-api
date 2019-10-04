@@ -6,7 +6,7 @@ RSpec.describe Preneeds::DeleteOldUploads, type: :model do
   let(:job) { described_class.new }
 
   describe '#uuids_to_keep' do
-    it 'should get the uuids of attachments in in progress forms' do
+    it 'gets the uuids of attachments in in progress forms' do
       create(
         :in_progress_form,
         form_id: '40-10007',

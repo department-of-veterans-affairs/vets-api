@@ -14,6 +14,7 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, type: :model, form: :educat
     before do
       allow(Rails.env).to receive('development?').and_return(true)
     end
+
     context 'job only runs on business days', run_at: '2016-12-31 00:00:00 EDT' do
       let(:scheduler) { Rufus::Scheduler.new }
       let(:possible_runs) do
@@ -36,7 +37,7 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, type: :model, form: :educat
         expect(upcoming_runs.map(&:seconds)).to eq(expected_runs.map(&:seconds))
       end
 
-      it 'should skip observed holidays' do
+      it 'skips observed holidays' do
         possible_runs.each do |day, should_run|
           Timecop.freeze(Time.zone.parse(day.to_s).beginning_of_day) do
             expect(subject.perform).to be(should_run)
@@ -45,13 +46,13 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, type: :model, form: :educat
       end
     end
 
-    it 'should log a message on holidays', run_at: '2017-01-02 03:00:00 EDT' do
+    it 'logs a message on holidays', run_at: '2017-01-02 03:00:00 EDT' do
       expect(subject).not_to receive(:write_files)
       expect(subject.logger).to receive('info').with("Skipping on a Holiday: New Year's Day")
       expect(subject.perform).to be false
     end
 
-    it 'should not skip informal holidays', run_at: '2017-04-01 03:00:00 EDT' do
+    it 'does not skip informal holidays', run_at: '2017-04-01 03:00:00 EDT' do
       # Sanity check that this *is* an informal holiday we're testing
       expect(Holidays.on(Time.zone.today, :us, :informal).first[:name]).to eq("April Fool's Day")
       expect(subject).to receive(:write_files)
@@ -105,7 +106,7 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, type: :model, form: :educat
       end
 
       it 'contains only windows-style newlines' do
-        expect(subject).to_not match(/([^\r]\n)/)
+        expect(subject).not_to match(/([^\r]\n)/)
       end
     end
   end
@@ -113,8 +114,9 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, type: :model, form: :educat
   context '#perform' do
     context 'with a mix of valid and invalid record', run_at: '2016-09-16 03:00:00 EDT' do
       let(:spool_files) { Rails.root.join('tmp', 'spool_files', '*') }
+
       before do
-        expect(Rails.env).to receive('development?').once { true }
+        expect(Rails.env).to receive('development?').once.and_return(true)
         application_1606.saved_claim.form = {}.to_json
         application_1606.saved_claim.save!(validate: false) # Make this claim super malformed
         FactoryBot.create(:va1990_western_region)
@@ -126,7 +128,7 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, type: :model, form: :educat
         expect(EducationBenefitsClaim.unprocessed.pluck(:regional_processing_office).uniq.count).to eq(3)
       end
 
-      it 'it processes the valid messages' do
+      it 'processes the valid messages' do
         expect(subject).to receive(:log_exception_to_sentry).once
         expect { subject.perform }.to change { EducationBenefitsClaim.unprocessed.count }.from(4).to(1)
         expect(Dir[spool_files].count).to eq(3)
@@ -137,6 +139,7 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, type: :model, form: :educat
       before do
         EducationBenefitsClaim.delete_all
       end
+
       it 'prints a statement and exits', run_at: '2017-02-21 00:00:00 EDT' do
         expect(subject).not_to receive(:write_files)
         expect(subject.logger).to receive(:info).with('No records to process.')
@@ -193,7 +196,7 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, type: :model, form: :educat
       let(:file_path) { "tmp/spool_files/#{filename}" }
 
       before do
-        expect(Rails.env).to receive('development?').once { true }
+        expect(Rails.env).to receive('development?').once.and_return(true)
       end
 
       it 'writes a file to the tmp dir' do

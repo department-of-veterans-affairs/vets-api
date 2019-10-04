@@ -4,12 +4,13 @@ require 'rails_helper'
 require 'evss/disability_compensation_form/service'
 
 describe EVSS::DisabilityCompensationForm::Service do
-  let(:user) { build(:disabilities_compensation_user) }
   subject do
     described_class.new(
       EVSS::DisabilityCompensationAuthHeaders.new(user).add_headers(EVSS::AuthHeaders.new(user).to_h)
     )
   end
+
+  let(:user) { build(:disabilities_compensation_user) }
 
   describe '#get_rated_disabilities' do
     context 'with a valid evss response' do
@@ -31,7 +32,7 @@ describe EVSS::DisabilityCompensationForm::Service do
         allow_any_instance_of(Faraday::Connection).to receive(:get).and_raise(Faraday::TimeoutError)
       end
 
-      it 'should log an error and raise GatewayTimeout' do
+      it 'logs an error and raise GatewayTimeout' do
         expect(StatsD).to receive(:increment).once.with(
           'api.evss.get_rated_disabilities.fail', tags: ['error:Common::Exceptions::GatewayTimeout']
         )
@@ -45,6 +46,7 @@ describe EVSS::DisabilityCompensationForm::Service do
     let(:valid_form_content) do
       File.read 'spec/support/disability_compensation_form/front_end_submission_with_uploads.json'
     end
+
     context 'with valid input' do
       it 'returns a form submit response object' do
         VCR.use_cassette('evss/disability_compensation_form/submit_form_v2') do
@@ -61,7 +63,7 @@ describe EVSS::DisabilityCompensationForm::Service do
         allow_any_instance_of(Faraday::Connection).to receive(:post).and_raise(Faraday::TimeoutError)
       end
 
-      it 'should log an error and raise GatewayTimeout' do
+      it 'logs an error and raise GatewayTimeout' do
         expect(StatsD).to receive(:increment).once.with(
           'api.evss.submit_form526.fail', tags: ['error:Common::Exceptions::GatewayTimeout']
         )

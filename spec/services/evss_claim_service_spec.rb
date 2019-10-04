@@ -3,10 +3,11 @@
 require 'rails_helper'
 
 RSpec.describe EVSSClaimService do
+  subject { service }
+
   let(:user) { FactoryBot.create(:user, :loa3) }
   let(:client_stub) { instance_double('EVSS::ClaimsService') }
   let(:service) { described_class.new(user) }
-  subject { service }
 
   context 'when EVSS client times out' do
     describe '#all' do
@@ -82,10 +83,11 @@ RSpec.describe EVSSClaimService do
     end
 
     describe '#update_from_remote' do
-      let(:claim) { FactoryBot.build(:evss_claim, user_uuid: user.uuid) }
       subject do
         service.update_from_remote(claim)
       end
+
+      let(:claim) { FactoryBot.build(:evss_claim, user_uuid: user.uuid) }
 
       it 'returns claim' do
         updated_claim, synchronized = subject

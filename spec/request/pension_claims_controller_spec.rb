@@ -19,9 +19,11 @@ RSpec.describe 'Pension Claim Integration', type: %i[request serializer] do
       before do
         Settings.sentry.dsn = 'asdf'
       end
+
       after do
         Settings.sentry.dsn = nil
       end
+
       let(:params) do
         # JSON.parse(response.body)['errors']
         {
@@ -31,7 +33,7 @@ RSpec.describe 'Pension Claim Integration', type: %i[request serializer] do
         }
       end
 
-      it 'should show the validation errors' do
+      it 'shows the validation errors' do
         subject
         expect(response.code).to eq('422')
         expect(
@@ -50,7 +52,8 @@ RSpec.describe 'Pension Claim Integration', type: %i[request serializer] do
           }
         }
       end
-      it 'should render success' do
+
+      it 'renders success' do
         subject
         expect(JSON.parse(response.body)['data']['attributes'].keys.sort)
           .to eq(%w[confirmationNumber form guid regionalOffice submittedAt])

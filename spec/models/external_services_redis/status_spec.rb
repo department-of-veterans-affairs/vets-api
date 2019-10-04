@@ -45,7 +45,7 @@ describe ExternalServicesRedis::Status do
     end
 
     context 'when the cache is empty' do
-      it 'should cache and return the response', :aggregate_failures do
+      it 'caches and return the response', :aggregate_failures do
         expect(external_services).to receive(:cache).once
         expect_any_instance_of(PagerDuty::ExternalServices::Service).to receive(:get_services).once
         expect(external_services.fetch_or_cache.class).to eq PagerDuty::ExternalServices::Response

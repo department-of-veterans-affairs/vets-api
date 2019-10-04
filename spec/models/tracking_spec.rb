@@ -28,12 +28,12 @@ describe Tracking do
     end
 
     context 'it sorts' do
+      subject { [t1, t2, t3, t4] }
+
       let(:t1) { tracking_with_prescription_id }
       let(:t2) { tracking_with_prescription_id }
       let(:t3) { described_class.new(attributes_for(:tracking, prescription_id: '2', shipped_date: Time.now.utc)) }
       let(:t4) { described_class.new(attributes_for(:tracking, :oldest, prescription_id: '3')) }
-
-      subject { [t1, t2, t3, t4] }
 
       it 'sorts by shipped_date by default' do
         expect(subject.sort.map(&:prescription_id))

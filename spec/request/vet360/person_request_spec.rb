@@ -29,7 +29,7 @@ RSpec.describe 'person', type: :request do
     end
 
     context 'with a user that has an icn_with_aaid' do
-      it 'should match the transaction response schema', :aggregate_failures do
+      it 'matches the transaction response schema', :aggregate_failures do
         VCR.use_cassette('vet360/person/init_vet360_id_success', VCR::MATCH_EVERYTHING) do
           post('/v0/profile/initialize_vet360_id', params: empty_body, headers: headers)
 
@@ -38,7 +38,7 @@ RSpec.describe 'person', type: :request do
         end
       end
 
-      it 'should create a new AsyncTransaction::Vet360::InitializePersonTransaction', :aggregate_failures do
+      it 'creates a new AsyncTransaction::Vet360::InitializePersonTransaction', :aggregate_failures do
         VCR.use_cassette('vet360/person/init_vet360_id_success', VCR::MATCH_EVERYTHING) do
           expect do
             post('/v0/profile/initialize_vet360_id', params: empty_body, headers: headers)
@@ -58,7 +58,7 @@ RSpec.describe 'person', type: :request do
     end
 
     context 'with an error response' do
-      it 'should match the errors response schema', :aggregate_failures do
+      it 'matches the errors response schema', :aggregate_failures do
         VCR.use_cassette('vet360/person/init_vet360_id_status_400', VCR::MATCH_EVERYTHING) do
           post('/v0/profile/initialize_vet360_id', params: empty_body, headers: headers)
 
@@ -87,7 +87,7 @@ RSpec.describe 'person', type: :request do
     end
 
     context 'with an error response' do
-      it 'should match the errors response schema', :aggregate_failures do
+      it 'matches the errors response schema', :aggregate_failures do
         transaction = create(
           :initialize_person_transaction,
           :init_vet360_id,
