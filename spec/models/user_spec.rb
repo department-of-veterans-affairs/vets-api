@@ -3,6 +3,8 @@
 require 'rails_helper'
 
 RSpec.describe User, type: :model do
+  subject { described_class.new(build(:user)) }
+
   let(:loa_one) { { current: LOA::ONE, highest: LOA::ONE } }
   let(:loa_three) { { current: LOA::THREE, highest: LOA::THREE } }
 
@@ -11,7 +13,7 @@ RSpec.describe User, type: :model do
     let(:vet360_email) { user.vet360_contact_info.email.email_address }
 
     context 'when vet360 is down' do
-      it 'should return user email' do
+      it 'returns user email' do
         expect(user).to receive(:vet360_contact_info).and_raise('foo')
 
         expect(user.all_emails).to eq([user.email])
@@ -19,14 +21,14 @@ RSpec.describe User, type: :model do
     end
 
     context 'when vet360 email is the same as user email' do
-      it 'should remove the duplicate email' do
+      it 'removes the duplicate email' do
         allow(user).to receive(:email).and_return(vet360_email.upcase)
 
         expect(user.all_emails).to eq([vet360_email])
       end
     end
 
-    it 'should return identity and vet360 emails' do
+    it 'returns identity and vet360 emails' do
       expect(user.all_emails).to eq([vet360_email, user.email])
     end
   end
@@ -39,11 +41,11 @@ RSpec.describe User, type: :model do
       stub_mvi(mvi_profile)
     end
 
-    it 'should return true if user loa3?, and ssns dont match' do
+    it 'returns true if user loa3?, and ssns dont match' do
       expect(user).to be_ssn_mismatch
     end
 
-    it 'should return false if user is not loa3?' do
+    it 'returns false if user is not loa3?' do
       allow(user).to receive(:loa3?).and_return(false)
       expect(user).not_to be_loa3
       expect(user.identity&.ssn).to eq(user.ssn)
@@ -54,7 +56,7 @@ RSpec.describe User, type: :model do
     context 'identity ssn is nil' do
       let(:user) { build(:user, :loa3, ssn: nil) }
 
-      it 'should return false' do
+      it 'returns false' do
         expect(user).to be_loa3
         expect(user.identity&.ssn).to be_falsey
         expect(user.va_profile&.ssn).to be_truthy
@@ -65,7 +67,7 @@ RSpec.describe User, type: :model do
     context 'mvi ssn is nil' do
       let(:mvi_profile) { build(:mvi_profile, ssn: nil) }
 
-      it 'should return false' do
+      it 'returns false' do
         expect(user).to be_loa3
         expect(user.identity&.ssn).to be_truthy
         expect(user.va_profile&.ssn).to be_falsey
@@ -76,7 +78,7 @@ RSpec.describe User, type: :model do
     context 'matched ssn' do
       let(:mvi_profile) { build(:mvi_profile, ssn: user.ssn) }
 
-      it 'should return false if user identity ssn is nil' do
+      it 'returns false if user identity ssn is nil' do
         expect(user).to be_loa3
         expect(user.identity&.ssn).to be_truthy
         expect(user.va_profile&.ssn).to be_truthy
@@ -88,11 +90,11 @@ RSpec.describe User, type: :model do
   describe '#can_prefill_emis?' do
     let(:user) { build(:user, :loa3) }
 
-    it 'should return true if user has edipi or icn' do
+    it 'returns true if user has edipi or icn' do
       expect(user.authorize(:emis, :access?)).to eq(true)
     end
 
-    it 'should return false if user doesnt have edipi or icn' do
+    it 'returns false if user doesnt have edipi or icn' do
       expect(user).to receive(:edipi).and_return(nil)
 
       expect(user.authorize(:emis, :access?)).to eq(false)
@@ -103,7 +105,7 @@ RSpec.describe User, type: :model do
     context 'with LOA 1' do
       subject(:loa1_user) { described_class.new(build(:user, loa: loa_one)) }
 
-      it 'should not allow a blank uuid' do
+      it 'does not allow a blank uuid' do
         loa1_user.uuid = ''
         expect(loa1_user).not_to be_valid
         expect(loa1_user.errors[:uuid].size).to be_positive
@@ -113,13 +115,11 @@ RSpec.describe User, type: :model do
     context 'with LOA 1, and no highest will raise an exception on UserIdentity' do
       subject(:loa1_user) { described_class.new(build(:user, loa: { current: 1 })) }
 
-      it 'should raise an exception' do
+      it 'raises an exception' do
         expect { loa1_user }.to raise_exception(Common::Exceptions::ValidationErrors)
       end
     end
   end
-
-  subject { described_class.new(build(:user)) }
 
   context 'user without attributes' do
     let(:test_user) { build(:user) }
@@ -392,7 +392,7 @@ RSpec.describe User, type: :model do
   describe '#flipper_id' do
     let(:user) { build(:user, :loa3) }
 
-    it 'should return a unique identifier of email' do
+    it 'returns a unique identifier of email' do
       expect(user.flipper_id).to eq(user.email)
     end
   end

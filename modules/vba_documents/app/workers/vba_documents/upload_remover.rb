@@ -7,7 +7,7 @@ module VBADocuments
   class UploadRemover
     include Sidekiq::Worker
 
-    EXPIRATION_TIME = 3.days
+    EXPIRATION_TIME = 10.days
 
     REMOVAL_QUERY = <<-SQL
         status IN ('received', 'processing', 'error', 'success')

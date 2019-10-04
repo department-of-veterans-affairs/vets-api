@@ -13,7 +13,7 @@ describe Common::Exceptions::SchemaValidationErrors do
   context 'with resource having errors provided' do
     subject { described_class.new(['error 1']) }
 
-    it 'should format the errors correctly' do
+    it 'formats the errors correctly' do
       errors = subject.errors
 
       expect(errors.size).to eq(1)

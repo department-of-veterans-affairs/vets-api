@@ -203,7 +203,7 @@ RSpec.describe 'VA GIS Integration', type: :request do
   end
 
   context 'health services' do
-    it 'should include the appropriate services from wait time data' do
+    it 'includes the appropriate services from wait time data' do
       setup_pdx
       get '/v0/facilities/va/vha_648'
       expect(response).to be_successful
@@ -215,7 +215,7 @@ RSpec.describe 'VA GIS Integration', type: :request do
       expect(services['health']).to include('sl1' => ['Optometry'], 'sl2' => [])
     end
 
-    it 'should not include services that have no wait_time_data' do
+    it 'does not include services that have no wait_time_data' do
       setup_pdx
       get '/v0/facilities/va/vha_648A4'
       expect(response).to be_successful

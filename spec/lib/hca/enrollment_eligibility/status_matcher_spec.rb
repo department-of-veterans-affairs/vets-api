@@ -29,7 +29,7 @@ describe HCA::EnrollmentEligibility::StatusMatcher do
       context "when enrollment status is #{test_data[0]}" do
         let(:enrollment_status) { test_data[0] }
 
-        it "should return #{test_data[1]}" do
+        it "returns #{test_data[1]}" do
           expect(subject).to eq(test_data[1])
         end
       end
@@ -63,7 +63,7 @@ describe HCA::EnrollmentEligibility::StatusMatcher do
           context "when text includes #{test_data[0]}" do
             let(:ineligibility_reason) { "abc #{test_data[0]}." }
 
-            it "should return #{test_data[1]}" do
+            it "returns #{test_data[1]}" do
               expect(subject).to eq(test_data[1])
             end
           end

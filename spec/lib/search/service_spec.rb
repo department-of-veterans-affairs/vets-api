@@ -4,9 +4,9 @@ require 'rails_helper'
 require 'lib/search/shared_examples_for_pagination'
 
 describe Search::Service do
-  let(:query) { 'benefits' }
-
   subject { described_class.new(query) }
+
+  let(:query) { 'benefits' }
 
   before do
     allow_any_instance_of(described_class).to receive(:access_key).and_return('TESTKEY')
@@ -90,7 +90,7 @@ describe Search::Service do
         end
       end
 
-      it 'should increment the StatsD exception:429 counter' do
+      it 'increments the StatsD exception:429 counter' do
         VCR.use_cassette('search/exceeds_rate_limit', VCR::MATCH_EVERYTHING) do
           allow_any_instance_of(described_class).to receive(:raise_backend_exception).and_return(nil)
 
@@ -100,7 +100,7 @@ describe Search::Service do
         end
       end
 
-      it 'should not log to sentry' do
+      it 'does not log to sentry' do
         VCR.use_cassette('search/exceeds_rate_limit', VCR::MATCH_EVERYTHING) do
           expect_any_instance_of(described_class).not_to receive(:log_message_to_sentry)
 

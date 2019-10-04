@@ -68,6 +68,7 @@ gem 'nokogiri', '~> 1.10', '>= 1.10.4'
 gem 'octokit'
 gem 'oj' # Amazon Linux `json` gem causes conflicts, but `multi_json` will prefer `oj` if installed
 gem 'olive_branch'
+gem 'origami'
 gem 'ox'
 gem 'pdf-forms'
 gem 'pdf-reader'

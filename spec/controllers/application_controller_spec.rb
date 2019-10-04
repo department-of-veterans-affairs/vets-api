@@ -53,18 +53,18 @@ RSpec.describe ApplicationController, type: :controller do
   end
 
   describe '#clear_saved_form' do
-    let(:user) { create(:user) }
-
     subject do
       controller.clear_saved_form(form_id)
     end
+
+    let(:user) { create(:user) }
 
     context 'with a saved form' do
       let!(:in_progress_form) { create(:in_progress_form, user_uuid: user.uuid) }
       let(:form_id) { in_progress_form.form_id }
 
       context 'without a current user' do
-        it "shouldn't delete the form" do
+        it 'does not delete the form' do
           subject
           expect(model_exists?(in_progress_form)).to be(true)
         end
@@ -75,7 +75,7 @@ RSpec.describe ApplicationController, type: :controller do
           controller.instance_variable_set(:@current_user, user)
         end
 
-        it 'should delete the form' do
+        it 'deletes the form' do
           subject
           expect(model_exists?(in_progress_form)).to be(false)
         end
@@ -89,7 +89,7 @@ RSpec.describe ApplicationController, type: :controller do
         controller.instance_variable_set(:@current_user, user)
       end
 
-      it 'should do nothing' do
+      it 'does nothing' do
         subject
       end
     end
@@ -198,10 +198,10 @@ RSpec.describe ApplicationController, type: :controller do
           }]
         )
         # if authn_context is nil on current_user it means idme
-        expect(Raven).to receive(:tags_context).once.with(
-          controller_name: 'anonymous',
-          sign_in_method: { service_name: 'idme', acct_type: nil }
-        )
+        expect(Raven).to receive(:tags_context).once.with(controller_name: 'anonymous',
+                                                          sign_in_method: 'idme',
+                                                          sign_in_acct_type: nil)
+
         # since user IS signed in, this SHOULD get called
         expect(Raven).to receive(:user_context).with(
           uuid: user.uuid,

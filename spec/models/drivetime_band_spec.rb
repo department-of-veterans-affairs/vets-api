@@ -3,7 +3,7 @@
 require 'rails_helper'
 
 RSpec.describe DrivetimeBand do
-  it 'should belong to a facility' do
+  it 'belongs to a facility' do
     create :vha_648
     create :thirty_mins
 

@@ -15,7 +15,7 @@ describe EVSS::PCIUAddress::ResponseStrategy do
 
   describe '#cache_or_service' do
     context 'when the cache is empty' do
-      it 'should cache and return the response' do
+      it 'caches and return the response' do
         allow(service).to receive(:get_countries).and_return(countries_response)
         expect(subject.redis_namespace).to receive(:set).once
         response = subject.cache_or_service(:countries) { service.get_countries }

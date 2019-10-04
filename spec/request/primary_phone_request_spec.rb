@@ -11,7 +11,7 @@ RSpec.describe 'primary phone', type: :request do
 
   describe 'GET /v0/profile/primary_phone' do
     context 'with a 200 response' do
-      it 'should match the primary phone schema', :aggregate_failures do
+      it 'matches the primary phone schema', :aggregate_failures do
         VCR.use_cassette('evss/pciu/primary_phone') do
           get '/v0/profile/primary_phone'
 
@@ -22,7 +22,7 @@ RSpec.describe 'primary phone', type: :request do
     end
 
     context 'with a 400 response' do
-      it 'should match the errors schema', :aggregate_failures do
+      it 'matches the errors schema', :aggregate_failures do
         VCR.use_cassette('evss/pciu/primary_phone_status_400') do
           get '/v0/profile/primary_phone'
 
@@ -33,7 +33,7 @@ RSpec.describe 'primary phone', type: :request do
     end
 
     context 'with a 403 response' do
-      it 'should return a forbidden response' do
+      it 'returns a forbidden response' do
         VCR.use_cassette('evss/pciu/primary_phone_status_403') do
           get '/v0/profile/primary_phone'
 
@@ -43,7 +43,7 @@ RSpec.describe 'primary phone', type: :request do
     end
 
     context 'with a 500 response' do
-      it 'should match the errors schema', :aggregate_failures do
+      it 'matches the errors schema', :aggregate_failures do
         VCR.use_cassette('evss/pciu/primary_phone_status_500') do
           get '/v0/profile/primary_phone'
 
@@ -58,7 +58,7 @@ RSpec.describe 'primary phone', type: :request do
     let(:phone) { build(:phone_number, :nil_effective_date) }
 
     context 'with a 200 response' do
-      it 'should match the primary phone schema', :aggregate_failures do
+      it 'matches the primary phone schema', :aggregate_failures do
         VCR.use_cassette('evss/pciu/post_primary_phone') do
           post('/v0/profile/primary_phone', params: phone.to_json, headers: headers)
 
@@ -69,7 +69,7 @@ RSpec.describe 'primary phone', type: :request do
     end
 
     context 'with a missing phone number' do
-      it 'should match the errors schema', :aggregate_failures do
+      it 'matches the errors schema', :aggregate_failures do
         phone = build :phone_number, :nil_effective_date, number: ''
 
         post('/v0/profile/primary_phone', params: phone.to_json, headers: headers)
@@ -81,7 +81,7 @@ RSpec.describe 'primary phone', type: :request do
     end
 
     context 'with a number that contains non-numeric characters' do
-      it 'should match the errors schema', :aggregate_failures do
+      it 'matches the errors schema', :aggregate_failures do
         phone = build :phone_number, :nil_effective_date, number: '123-456-7890'
 
         post('/v0/profile/primary_phone', params: phone.to_json, headers: headers)
@@ -93,7 +93,7 @@ RSpec.describe 'primary phone', type: :request do
     end
 
     context 'with a 400 response' do
-      it 'should match the errors schema', :aggregate_failures do
+      it 'matches the errors schema', :aggregate_failures do
         VCR.use_cassette('evss/pciu/post_primary_phone_status_400') do
           post('/v0/profile/primary_phone', params: phone.to_json, headers: headers)
 
@@ -104,7 +104,7 @@ RSpec.describe 'primary phone', type: :request do
     end
 
     context 'with a 403 response' do
-      it 'should return a forbidden response' do
+      it 'returns a forbidden response' do
         VCR.use_cassette('evss/pciu/post_primary_phone_status_403') do
           post('/v0/profile/primary_phone', params: phone.to_json, headers: headers)
 
@@ -114,7 +114,7 @@ RSpec.describe 'primary phone', type: :request do
     end
 
     context 'with a 500 response' do
-      it 'should match the errors schema', :aggregate_failures do
+      it 'matches the errors schema', :aggregate_failures do
         VCR.use_cassette('evss/pciu/post_primary_phone_status_500') do
           post('/v0/profile/primary_phone', params: phone.to_json, headers: headers)
 

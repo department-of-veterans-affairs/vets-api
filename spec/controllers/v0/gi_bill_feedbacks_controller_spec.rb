@@ -39,7 +39,7 @@ RSpec.describe V0::GIBillFeedbacksController, type: :controller do
   end
 
   describe '#show' do
-    it 'should find a gi bill feedback submission by guid' do
+    it 'finds a gi bill feedback submission by guid' do
       gi_bill_feedback = create(:gi_bill_feedback)
       get(:show, params: { id: gi_bill_feedback.guid })
       expect(parsed_body['data']['id']).to eq(gi_bill_feedback.id)

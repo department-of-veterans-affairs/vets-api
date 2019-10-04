@@ -5,6 +5,8 @@ require 'sidekiq/testing'
 Sidekiq::Testing.fake!
 
 RSpec.describe CentralMail::SubmitForm4142Job, type: :job do
+  subject { described_class }
+
   before(:each) do
     Sidekiq::Worker.clear_all
   end
@@ -15,8 +17,6 @@ RSpec.describe CentralMail::SubmitForm4142Job, type: :job do
   end
   let(:evss_claim_id) { 123_456_789 }
   let(:saved_claim) { FactoryBot.create(:va526ez) }
-
-  subject { described_class }
 
   describe '.perform_async' do
     let(:form_json) do

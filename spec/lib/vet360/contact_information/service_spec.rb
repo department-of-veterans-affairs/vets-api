@@ -3,9 +3,9 @@
 require 'rails_helper'
 
 describe Vet360::ContactInformation::Service, skip_vet360: true do
-  let(:user) { build(:user, :loa3) }
-
   subject { described_class.new(user) }
+
+  let(:user) { build(:user, :loa3) }
 
   before do
     allow(user).to receive(:vet360_id).and_return('1')
