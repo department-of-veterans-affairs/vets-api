@@ -8,6 +8,7 @@ describe EVSS::PCIU::RequestBody do
 
   describe '#set' do
     before { Timecop.freeze now }
+
     after { Timecop.return }
 
     it 'returns string of JSON nested in the passed pciu_key', :aggregate_failures do
@@ -27,14 +28,14 @@ describe EVSS::PCIU::RequestBody do
       expect(parsed.keys).to include 'phone'
     end
 
-    it 'should set the passed date_attr to the current DateTime' do
+    it 'sets the passed date_attr to the current DateTime' do
       request_body   = EVSS::PCIU::RequestBody.new(phone, pciu_key: 'phone')
       effective_date = JSON.parse(request_body.set).dig('phone', 'effectiveDate')
 
       expect(effective_date.to_datetime).to eq now.to_datetime
     end
 
-    it 'should remove any empty attributes passed in the request_attrs' do
+    it 'removes any empty attributes passed in the request_attrs' do
       phone        = build :phone_number, :nil_effective_date, extension: ''
       request_body = EVSS::PCIU::RequestBody.new(phone, pciu_key: 'phone')
       extension    = JSON.parse(request_body.set).dig('phone', 'extension')

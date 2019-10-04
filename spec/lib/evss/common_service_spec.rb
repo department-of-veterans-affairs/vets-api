@@ -5,13 +5,13 @@ require 'evss/common_service'
 require 'evss/auth_headers'
 
 describe EVSS::CommonService do
+  subject { described_class.new(auth_headers) }
+
   let(:current_user) { FactoryBot.build(:evss_user) }
 
   let(:auth_headers) do
     EVSS::AuthHeaders.new(current_user).to_h
   end
-
-  subject { described_class.new(auth_headers) }
 
   context 'with headers' do
     it 'posts to create a user account', run_at: 'Thu, 14 Dec 2017 00:00:32 GMT' do

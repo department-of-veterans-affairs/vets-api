@@ -35,7 +35,7 @@ RSpec.describe 'Claim Appeals API endpoint', type: :request do
       end
     end
 
-    it 'should log details about the request' do
+    it 'logs details about the request' do
       VCR.use_cassette('appeals/appeals') do
         allow(Rails.logger).to receive(:info)
         get '/services/appeals/v0/appeals', params: nil, headers: user_headers

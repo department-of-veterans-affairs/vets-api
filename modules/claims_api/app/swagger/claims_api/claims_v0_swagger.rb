@@ -45,6 +45,15 @@ module ClaimsApi
         end
       end
 
+      tag do
+        key :name, 'Power of Attorney'
+        key :description, '2122 Submissions'
+        externalDocs do
+          key :description, 'Find more info here'
+          key :url, 'https://developer.va.gov'
+        end
+      end
+
       key :servers, [
         {
           "url": 'https://dev-api.va.gov/services/claims/{version}',

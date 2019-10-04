@@ -5,7 +5,7 @@ FactoryBot.define do
     saved_claim { build(:burial_claim) }
 
     transient do
-      file_path(nil)
+      file_path { nil }
     end
 
     after(:build) do |pension_burial, evaluator|

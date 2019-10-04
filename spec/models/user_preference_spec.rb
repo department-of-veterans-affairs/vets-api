@@ -4,7 +4,7 @@ require 'rails_helper'
 
 describe UserPreference, type: :model do
   it 'has a valid factory' do
-    user_preference = build(:user_preference)
+    user_preference = create(:user_preference)
     expect(user_preference).to be_valid
   end
 
@@ -86,7 +86,7 @@ describe UserPreference, type: :model do
           preference: preference,
           preference_choice: preference_choice
         )
-      end.to change { UserPreference.count }.by(1)
+      end.to change(UserPreference, :count).by(1)
     end
 
     it 'cannot create a UserPreference with the same PreferenceChoice, for the same user' do

@@ -2,8 +2,8 @@
 
 FactoryBot.define do
   factory :power_of_attorney, class: 'ClaimsApi::PowerOfAttorney' do
-    id SecureRandom.uuid
-    status 'submitted'
+    id { SecureRandom.uuid }
+    status { 'submitted' }
     auth_headers { {} }
     form_data do
       json = JSON.parse(File.read("#{::Rails.root}/modules/claims_api/spec/fixtures/form_2122_json_api.json"))
@@ -21,8 +21,8 @@ FactoryBot.define do
   end
 
   factory :power_of_attorney_without_doc, class: 'ClaimsApi::PowerOfAttorney' do
-    id SecureRandom.uuid
-    status 'pending'
+    id { SecureRandom.uuid }
+    status { 'pending' }
     auth_headers { {} }
     form_data do
       json = JSON.parse(File.read("#{::Rails.root}/modules/claims_api/spec/fixtures/form_2122_json_api.json"))

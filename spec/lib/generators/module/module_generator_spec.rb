@@ -7,6 +7,7 @@ describe ModuleGenerator do
   describe 'create_app' do
     context 'once generated' do
       before(:all) { ModuleGenerator.new(['foo']).create_app }
+
       after(:all) { FileUtils.rm_rf(Dir[Rails.root.join('modules', 'foo')]) }
 
       let(:path) { Rails.root.join('modules', 'foo') }
@@ -40,6 +41,7 @@ describe ModuleGenerator do
   describe 'create_lib' do
     context 'once generated' do
       before(:all) { ModuleGenerator.new(['foo']).create_lib }
+
       after(:all) { FileUtils.rm_rf(Dir[Rails.root.join('modules', 'foo')]) }
 
       let(:path) { Rails.root.join('modules', 'foo', 'lib') }
@@ -65,6 +67,7 @@ describe ModuleGenerator do
   describe 'create_config' do
     context 'once generated' do
       before(:all) { ModuleGenerator.new(['foo']).create_config }
+
       after(:all) { FileUtils.rm_rf(Dir[Rails.root.join('modules', 'foo')]) }
 
       let(:path) { Rails.root.join('modules', 'foo') }

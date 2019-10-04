@@ -20,9 +20,9 @@ describe Common::Client::Configuration::Base do
 
   context '#service_exception' do
     it 'creates an exception class dynamically based on module name' do
-      expect(SomeRandomModule.const_defined?('ServiceException')).to be_falsy
+      expect(SomeRandomModule).not_to be_const_defined('ServiceException')
       expect(subject.service_exception).to eq(SomeRandomModule::ServiceException)
-      expect(SomeRandomModule.const_defined?('ServiceException')).to be_truthy
+      expect(SomeRandomModule).to be_const_defined('ServiceException')
     end
   end
 end

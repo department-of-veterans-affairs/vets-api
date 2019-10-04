@@ -2,6 +2,6 @@
 
 FactoryBot.define do
   factory :id_card_announcement_subscription do
-    email 'test@example.com'
+    email { 'test@example.com' }
   end
 end

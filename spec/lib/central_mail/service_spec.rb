@@ -7,7 +7,7 @@ RSpec.describe CentralMail::Service do
 
   describe '#status' do
     context 'with one uuid' do
-      it 'should retrieve the status' do
+      it 'retrieves the status' do
         VCR.use_cassette(
           'central_mail/status_one_uuid',
           match_requests_on: %i[body method uri]
@@ -20,7 +20,7 @@ RSpec.describe CentralMail::Service do
     end
 
     context 'with multiple uuids' do
-      it 'should retrieve the statuses' do
+      it 'retrieves the statuses' do
         VCR.use_cassette(
           'central_mail/status_multiple_uuids',
           match_requests_on: %i[body method uri]
@@ -41,7 +41,7 @@ RSpec.describe CentralMail::Service do
 
   describe '#upload' do
     context 'with an bad response status' do
-      it 'should increment statsd' do
+      it 'increments statsd' do
         expect(service).to receive(:request).and_return(
           OpenStruct.new(
             success?: false
@@ -54,7 +54,7 @@ RSpec.describe CentralMail::Service do
       end
     end
 
-    it 'should upload a file' do
+    it 'uploads a file' do
       header_matcher = lambda do |r1, r2|
         [r1, r2].each { |r| r.headers.delete('Content-Length') }
         expect(r1.headers).to eq(r2.headers)

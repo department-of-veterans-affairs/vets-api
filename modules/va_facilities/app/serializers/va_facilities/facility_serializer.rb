@@ -13,7 +13,8 @@ module VaFacilities
     end
 
     attributes :name, :facility_type, :classification, :website, :lat, :long,
-               :address, :phone, :hours, :services, :satisfaction, :wait_times
+               :address, :phone, :hours, :services, :satisfaction, :wait_times,
+               :mobile, :active_status
 
     def services
       ApiSerialization.services(object)

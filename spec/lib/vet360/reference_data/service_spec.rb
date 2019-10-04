@@ -6,6 +6,7 @@ describe Vet360::ReferenceData::Service, skip_vet360: true do
   subject { described_class.new }
 
   before { Timecop.freeze('2018-04-09T17:52:03Z') }
+
   after  { Timecop.return }
 
   %w[countries states zipcodes].each do |message|

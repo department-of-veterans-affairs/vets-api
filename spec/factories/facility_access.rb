@@ -2,7 +2,7 @@
 
 FactoryBot.define do
   factory :access_satisfaction, class: 'FacilitySatisfaction' do
-    station_number '648'
+    station_number { '648' }
     metrics do
       {
         primary_care_urgent: 0.71890521049499512,
@@ -11,12 +11,12 @@ FactoryBot.define do
         specialty_care_urgent: 0.68941879272460938
       }
     end
-    source_updated '2017-03-24T21:30:58'
-    local_updated '2017-06-12T21:04:54Z'
+    source_updated { '2017-03-24T21:30:58' }
+    local_updated { '2017-06-12T21:04:54Z' }
   end
 
   factory :access_wait_time, class: 'FacilityWaitTime' do
-    station_number '648'
+    station_number { '648' }
     metrics do
       {
         primary_care: { 'new' => 35.0, 'established' => 9.0 },
@@ -27,7 +27,7 @@ FactoryBot.define do
         urology: { 'new' => 20.0, 'established' => 7.0 }
       }
     end
-    source_updated '2017-03-31T00:00:00'
-    local_updated  '2017-06-12T21:04:58Z'
+    source_updated { '2017-03-31T00:00:00' }
+    local_updated  { '2017-06-12T21:04:58Z' }
   end
 end
