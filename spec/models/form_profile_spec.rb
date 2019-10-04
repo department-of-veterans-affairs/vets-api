@@ -717,12 +717,12 @@ RSpec.describe FormProfile, type: :model do
           }
         end
 
-        it 'prefills 1990' do
-          expect_prefilled('22-1990')
-        end
-
         after do
           Settings.vet360.prefill = false
+        end
+
+        it 'prefills 1990' do
+          expect_prefilled('22-1990')
         end
       end
 
@@ -813,6 +813,10 @@ RSpec.describe FormProfile, type: :model do
               expected_veteran_info['primaryPhone'] = '3035551234'
             end
 
+            after do
+              Settings.vet360.prefill = false
+            end
+
             it 'returns prefilled 21-526EZ' do
               VCR.use_cassette('evss/pciu_address/address_domestic') do
                 VCR.use_cassette('evss/disability_compensation_form/rated_disabilities') do
@@ -821,10 +825,6 @@ RSpec.describe FormProfile, type: :model do
                   end
                 end
               end
-            end
-
-            after do
-              Settings.vet360.prefill = false
             end
           end
 
