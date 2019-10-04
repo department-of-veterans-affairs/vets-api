@@ -12,7 +12,7 @@ RSpec.describe InProgressForm, type: :model do
   end
 
   describe 'validations' do
-    it 'should validate presence of form_data' do
+    it 'validates presence of form_data' do
       expect_attr_valid(in_progress_form, :form_data)
       in_progress_form.form_data = nil
       expect_attr_invalid(in_progress_form, :form_data, "can't be blank")

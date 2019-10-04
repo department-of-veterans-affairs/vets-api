@@ -14,7 +14,7 @@ RSpec.describe 'Requesting ID Card Attributes', type: :request do
   end
 
   describe '#show /v0/id_card/attributes' do
-    it 'should return a signed redirect URL' do
+    it 'returns a signed redirect URL' do
       expect_any_instance_of(EMISRedis::MilitaryInformation)
         .to receive(:service_episodes_by_date).at_least(:once).and_return(service_episodes)
       expect_any_instance_of(EMISRedis::VeteranStatus)
@@ -35,7 +35,7 @@ RSpec.describe 'Requesting ID Card Attributes', type: :request do
       expect(traits).to be_key('signature')
     end
 
-    it 'should return Bad Gateway if military information not retrievable' do
+    it 'returns Bad Gateway if military information not retrievable' do
       expect_any_instance_of(EMISRedis::VeteranStatus)
         .to receive(:title38_status).at_least(:once).and_return('V1')
       expect_any_instance_of(EMISRedis::MilitaryInformation)
@@ -44,7 +44,7 @@ RSpec.describe 'Requesting ID Card Attributes', type: :request do
       expect(response).to have_http_status(:bad_gateway)
     end
 
-    it 'should return VIC002 if title38status is not retrievable' do
+    it 'returns VIC002 if title38status is not retrievable' do
       allow_any_instance_of(EMISRedis::VeteranStatus)
         .to receive(:title38_status).and_return(nil)
       get '/v0/id_card/attributes', headers: auth_header
@@ -53,7 +53,7 @@ RSpec.describe 'Requesting ID Card Attributes', type: :request do
       )
     end
 
-    it 'should return Forbidden for non-veteran user' do
+    it 'returns Forbidden for non-veteran user' do
       allow_any_instance_of(EMISRedis::VeteranStatus)
         .to receive(:title38_status).and_return('V2')
       get '/v0/id_card/attributes', headers: auth_header
@@ -63,7 +63,7 @@ RSpec.describe 'Requesting ID Card Attributes', type: :request do
       )
     end
 
-    it 'should return Forbidden when veteran status not retrievable' do
+    it 'returns Forbidden when veteran status not retrievable' do
       expect_any_instance_of(EMISRedis::VeteranStatus)
         .to receive(:title38_status).and_raise(StandardError)
       get '/v0/id_card/attributes', headers: auth_header

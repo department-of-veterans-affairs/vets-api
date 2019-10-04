@@ -13,9 +13,9 @@ describe MVI::Models::MviProfile do
     end
 
     context 'with a single id' do
-      let(:id) { '12345678' }
-
       subject { build(:mvi_profile, mhv_ids: [id]) }
+
+      let(:id) { '12345678' }
 
       it 'returns the id' do
         expect(subject.mhv_correlation_id).to eq(id)

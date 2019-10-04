@@ -5,6 +5,8 @@ require 'sm/client'
 
 describe 'sm client' do
   describe 'triage_teams' do
+    subject(:client) { @client }
+
     before(:all) do
       VCR.use_cassette 'sm_client/session', record: :new_episodes do
         @client ||= begin
@@ -14,8 +16,6 @@ describe 'sm client' do
         end
       end
     end
-
-    subject(:client) { @client }
 
     it 'gets a collection of triage team recipients', :vcr do
       folders = client.get_triage_teams

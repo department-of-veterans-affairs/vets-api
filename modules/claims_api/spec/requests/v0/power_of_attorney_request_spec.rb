@@ -20,26 +20,26 @@ RSpec.describe 'Power of Attorney ', type: :request do
     let(:path) { '/services/claims/v0/forms/2122' }
     let(:schema) { File.read(Rails.root.join('modules', 'claims_api', 'config', 'schemas', '2122.json')) }
 
-    it 'should return a successful get response with json schema' do
+    it 'returns a successful get response with json schema' do
       get path, headers: headers
       json_schema = JSON.parse(response.body)['data'][0]
       expect(json_schema).to eq(JSON.parse(schema))
     end
 
-    it 'should return a successful response with all the data' do
+    it 'returns a successful response with all the data' do
       post path, params: data, headers: headers
       parsed = JSON.parse(response.body)
       expect(parsed['data']['type']).to eq('claims_api_power_of_attorneys')
       expect(parsed['data']['attributes']['status']).to eq('pending')
     end
 
-    it 'should return a unsuccessful response without mvi' do
+    it 'returns a unsuccessful response without mvi' do
       allow_any_instance_of(ClaimsApi::Veteran).to receive(:mvi_record?).and_return(false)
       post path, params: data, headers: headers
       expect(response.status).to eq(404)
     end
 
-    it 'should set the source' do
+    it 'sets the source' do
       post path, params: data, headers: headers
       token = JSON.parse(response.body)['data']['id']
       poa = ClaimsApi::PowerOfAttorney.find(token)
@@ -52,7 +52,7 @@ RSpec.describe 'Power of Attorney ', type: :request do
         ClaimsApi::PowerOfAttorney.count
       end
 
-      it 'should reject the duplicated request' do
+      it 'rejects the duplicated request' do
         post path, params: data, headers: headers
         expect(count).to eq(ClaimsApi::PowerOfAttorney.count)
       end
@@ -61,7 +61,7 @@ RSpec.describe 'Power of Attorney ', type: :request do
     context 'validation' do
       let(:json_data) { JSON.parse data }
 
-      it 'should require poa_code subfield' do
+      it 'requires poa_code subfield' do
         params = json_data
         params['data']['attributes']['poa_code'] = nil
         post path, params: params.to_json, headers: headers
@@ -73,7 +73,7 @@ RSpec.describe 'Power of Attorney ', type: :request do
     describe '#check status' do
       let(:power_of_attorney) { create(:power_of_attorney) }
 
-      it 'should increase the supporting document count' do
+      it 'increases the supporting document count' do
         get("/services/claims/v0/forms/2122/#{power_of_attorney.id}",
             params: nil, headers: headers)
         power_of_attorney.reload
@@ -89,7 +89,7 @@ RSpec.describe 'Power of Attorney ', type: :request do
         { 'attachment': Rack::Test::UploadedFile.new("#{::Rails.root}/modules/claims_api/spec/fixtures/extras.pdf") }
       end
 
-      it 'should increase the supporting document count' do
+      it 'increases the supporting document count' do
         allow_any_instance_of(ClaimsApi::PowerOfAttorneyUploader).to receive(:store!)
         expect(power_of_attorney.file_data).to be_nil
         put("/services/claims/v0/forms/2122/#{power_of_attorney.id}",

@@ -9,7 +9,7 @@ describe PdfFill::ExtrasGenerator do
   end
 
   describe '#sort_generate_blocks' do
-    it 'should sort the blocks correctly' do
+    it 'sorts the blocks correctly' do
       metadatas = [
         {
           question_num: 1
@@ -55,7 +55,7 @@ describe PdfFill::ExtrasGenerator do
   end
 
   describe '#generate' do
-    it 'should work with unicode chars' do
+    it 'works with unicode chars' do
       subject.add_text(
         'Ǽ',
         question_num: 1,
@@ -66,7 +66,7 @@ describe PdfFill::ExtrasGenerator do
       File.delete(subject.generate)
     end
 
-    it 'should generate the pdf' do
+    it 'generates the pdf' do
       subject.add_text(
         'bar',
         question_num: 1,

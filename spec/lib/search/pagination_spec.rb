@@ -5,6 +5,8 @@ require 'rails_helper'
 describe Search::Pagination do
   # raw_body instance data is determined by the VCR cassets in support/vcr_cassettes/search/*
   context 'when page number is 1' do
+    subject { described_class.new(raw_body) }
+
     let(:raw_body) do
       {
         'web' =>
@@ -15,8 +17,6 @@ describe Search::Pagination do
       }
     end
 
-    subject { described_class.new(raw_body) }
-
     it 'calculates the correct pagination object details', :aggregate_failures do
       expect(subject.object).to include('current_page' => 1)
       expect(subject.object).to include('per_page' => 10)
@@ -26,6 +26,8 @@ describe Search::Pagination do
   end
 
   context 'when page number is 2' do
+    subject { described_class.new(raw_body) }
+
     let(:raw_body) do
       {
         'web' =>
@@ -35,8 +37,6 @@ describe Search::Pagination do
           }
       }
     end
-
-    subject { described_class.new(raw_body) }
 
     it 'calculates the correct pagination object details', :aggregate_failures do
       expect(subject.object).to include('current_page' => 2)
@@ -47,6 +47,8 @@ describe Search::Pagination do
   end
 
   context 'when page number is last page' do
+    subject { described_class.new(raw_body) }
+
     let(:raw_body) do
       {
         'web' =>
@@ -57,8 +59,6 @@ describe Search::Pagination do
       }
     end
 
-    subject { described_class.new(raw_body) }
-
     it 'calculates the correct pagination object details', :aggregate_failures do
       expect(subject.object).to include('current_page' => 9)
       expect(subject.object).to include('per_page' => 10)
@@ -68,6 +68,8 @@ describe Search::Pagination do
   end
 
   context 'when page number given is greater than total pages' do
+    subject { described_class.new(raw_body) }
+
     let(:raw_body) do
       {
         'web' =>
@@ -78,14 +80,14 @@ describe Search::Pagination do
       }
     end
 
-    subject { described_class.new(raw_body) }
-
     it 'returns the last page of results' do
       expect(subject.object).to include('current_page' => 9)
     end
   end
 
   context 'when Search.govs total entries exceed the OFFSET_LIMIT to view them' do
+    subject { described_class.new(raw_body) }
+
     let(:raw_body) do
       {
         'web' =>
@@ -95,8 +97,6 @@ describe Search::Pagination do
           }
       }
     end
-
-    subject { described_class.new(raw_body) }
 
     it 'sets total_pages to the maximum viewable number of pages' do
       expect(subject.object['total_pages']).to eq 99

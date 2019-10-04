@@ -11,7 +11,7 @@ RSpec.describe VIC::SubmissionJob do
       let(:vic_submission) { create(:vic_submission_loa3_user) }
 
       context 'when files arent processed yet', run_at: '2017-01-04 07:00:00 UTC' do
-        it 'should reenqueue the job' do
+        it 'reenqueues the job' do
           expect(described_class).to receive(:perform_async).with(
             vic_submission.id,
             vic_submission.form,
@@ -25,7 +25,7 @@ RSpec.describe VIC::SubmissionJob do
         end
 
         context 'when its been over the time limit' do
-          it 'should raise timeout error' do
+          it 'raises timeout error' do
             expect do
               described_class.new.perform(vic_submission.id, vic_submission.form, user.uuid, '2016-01-04 07:00:00 UTC')
             end.to raise_error(Timeout::Error)
@@ -45,7 +45,7 @@ RSpec.describe VIC::SubmissionJob do
           ProcessFileJob.drain
         end
 
-        it 'should update the vic submission response' do
+        it 'updates the vic submission response' do
           described_class.drain
           vic_submission.reload
 
@@ -55,7 +55,7 @@ RSpec.describe VIC::SubmissionJob do
           )
         end
 
-        it 'should run the upload files job after submission' do
+        it 'runs the upload files job after submission' do
           expect(VIC::AttachmentUploadJob).to receive(:perform_async).with(uuid, vic_submission.form)
           described_class.drain
         end
@@ -63,7 +63,7 @@ RSpec.describe VIC::SubmissionJob do
     end
 
     context 'when the service has an error' do
-      it 'should set the submission to failed' do
+      it 'sets the submission to failed' do
         vic_submission = create(:vic_submission)
         ProcessFileJob.drain
         expect_any_instance_of(VIC::Service).to receive(:submit).and_raise('foo')

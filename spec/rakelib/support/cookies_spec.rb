@@ -4,10 +4,10 @@ require 'rails_helper'
 require './rakelib/support/cookies.rb'
 
 describe Cookies do
+  subject { described_class.new(session) }
+
   let(:user) { create(:user, :loa3) }
   let(:session) { Session.create(uuid: user.uuid, token: 'abracadabra') }
-
-  subject { described_class.new(session) }
 
   describe '#api_session_header' do
     # much of this code comes from here: https://stackoverflow.com/a/51579296
