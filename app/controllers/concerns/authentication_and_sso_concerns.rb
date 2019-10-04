@@ -72,7 +72,7 @@ module AuthenticationAndSSOConcerns
     @session_object.expire(Session.redis_namespace_ttl)
     @current_user&.identity&.expire(UserIdentity.redis_namespace_ttl)
     @current_user&.expire(User.redis_namespace_ttl)
-    set_sso_cookie!
+    set_sso_cookie! unless @current_user&.identity&.sign_in&.fetch(:service_name) == 'ssoe'
   end
 
   # Sets a cookie "api_session" with all of the key/value pairs from session object.
