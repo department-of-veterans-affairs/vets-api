@@ -5,6 +5,8 @@ require 'sidekiq/testing'
 Sidekiq::Testing.fake!
 
 RSpec.describe EVSS::DisabilityCompensationForm::SubmitUploads, type: :job do
+  subject { described_class }
+
   before(:each) do
     Sidekiq::Worker.clear_all
   end
@@ -21,8 +23,6 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitUploads, type: :job do
            saved_claim_id: saved_claim.id,
            submitted_claim_id: '600130094')
   end
-
-  subject { described_class }
 
   describe 'perform' do
     let(:upload_data) { [submission.form[Form526Submission::FORM_526_UPLOADS].first] }

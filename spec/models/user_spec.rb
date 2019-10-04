@@ -3,6 +3,8 @@
 require 'rails_helper'
 
 RSpec.describe User, type: :model do
+  subject { described_class.new(build(:user)) }
+
   let(:loa_one) { { current: LOA::ONE, highest: LOA::ONE } }
   let(:loa_three) { { current: LOA::THREE, highest: LOA::THREE } }
 
@@ -118,8 +120,6 @@ RSpec.describe User, type: :model do
       end
     end
   end
-
-  subject { described_class.new(build(:user)) }
 
   context 'user without attributes' do
     let(:test_user) { build(:user) }

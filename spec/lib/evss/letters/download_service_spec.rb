@@ -4,9 +4,9 @@ require 'rails_helper'
 
 describe EVSS::Letters::DownloadService do
   describe '.find_by_user' do
-    let(:user) { build(:user, :loa3) }
-
     subject { described_class.new(user) }
+
+    let(:user) { build(:user, :loa3) }
 
     describe '#download_by_type' do
       context 'without options' do
@@ -38,6 +38,17 @@ describe EVSS::Letters::DownloadService do
             expect do
               subject.download_letter(EVSS::Letters::Letter::LETTER_TYPES.first)
             end.to raise_error(Common::Exceptions::GatewayTimeout)
+          end
+        end
+
+        context 'when an BackendServiceException occurs' do
+          it 'tests that a backend service exception is raised' do
+            allow_any_instance_of(described_class).to(
+              receive(:download_letter).and_raise(Common::Exceptions::BackendServiceException)
+            )
+            expect do
+              subject.download_letter(EVSS::Letters::Letter::LETTER_TYPES.first)
+            end.to raise_error(Common::Exceptions::BackendServiceException)
           end
         end
       end

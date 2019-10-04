@@ -5,6 +5,8 @@ require 'sm/client'
 
 describe 'sm client' do
   describe 'folders' do
+    subject(:client) { @client }
+
     before(:all) do
       VCR.use_cassette 'sm_client/session', record: :new_episodes do
         @client ||= begin
@@ -14,8 +16,6 @@ describe 'sm client' do
         end
       end
     end
-
-    subject(:client)  { @client }
 
     let(:folder_name) { "test folder #{rand(100..100_000)}" }
     let(:folder_id)   { 0 }

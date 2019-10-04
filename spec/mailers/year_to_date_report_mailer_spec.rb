@@ -4,14 +4,14 @@ require 'rails_helper'
 
 RSpec.describe YearToDateReportMailer, type: %i[mailer aws_helpers] do
   describe '#year_to_date_report_email' do
-    let(:filename) { 'foo' }
-    let(:mail) { described_class.build(filename).deliver_now }
-
     subject do
       stub_reports_s3(filename) do
         mail
       end
     end
+
+    let(:filename) { 'foo' }
+    let(:mail) { described_class.build(filename).deliver_now }
 
     context 'when sending staging emails' do
       before do
@@ -32,6 +32,7 @@ RSpec.describe YearToDateReportMailer, type: %i[mailer aws_helpers] do
             delli-gatti_michael@bah.com
             kyle.pietrosanto@va.gov
             lihan@adhocteam.us
+            neel_darrel@bah.com
             robert.shinners@va.gov
             shay.norton-leonard@va.gov
             turner_desiree@bah.com

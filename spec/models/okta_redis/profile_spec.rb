@@ -4,9 +4,9 @@ require 'rails_helper'
 require 'common/exceptions'
 
 describe OktaRedis::Profile, skip_emis: true do
-  let(:user) { build(:user, :loa3, uuid: '00u2fqgvbyT23TZNm2p7') }
-
   subject { described_class.with_user(user) }
+
+  let(:user) { build(:user, :loa3, uuid: '00u2fqgvbyT23TZNm2p7') }
 
   describe 'id' do
     it "returns the user's okta id" do

@@ -76,14 +76,5 @@ module EVSS
         raise error
       end
     end
-
-    def raise_backend_exception(key, source, error = nil)
-      raise Common::Exceptions::BackendServiceException.new(
-        key,
-        { source: "EVSS::#{source}" },
-        error&.status,
-        error&.body
-      )
-    end
   end
 end

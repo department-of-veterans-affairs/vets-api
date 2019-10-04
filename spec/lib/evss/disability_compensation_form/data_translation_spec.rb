@@ -4,6 +4,8 @@ require 'rails_helper'
 require 'evss/disability_compensation_form/data_translation'
 
 describe EVSS::DisabilityCompensationForm::DataTranslation do
+  subject { described_class.new(user, form_content, false) }
+
   let(:form_content) { JSON.parse(File.read('spec/support/disability_compensation_form/front_end_submission.json')) }
   let(:evss_json) { File.read 'spec/support/disability_compensation_form/evss_submission.json' }
   let(:user) { build(:disabilities_compensation_user) }
@@ -11,8 +13,6 @@ describe EVSS::DisabilityCompensationForm::DataTranslation do
   before do
     User.create(user)
   end
-
-  subject { described_class.new(user, form_content, false) }
 
   describe '#translate' do
     before do

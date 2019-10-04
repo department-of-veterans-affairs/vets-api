@@ -53,11 +53,11 @@ RSpec.describe ApplicationController, type: :controller do
   end
 
   describe '#clear_saved_form' do
-    let(:user) { create(:user) }
-
     subject do
       controller.clear_saved_form(form_id)
     end
+
+    let(:user) { create(:user) }
 
     context 'with a saved form' do
       let!(:in_progress_form) { create(:in_progress_form, user_uuid: user.uuid) }
@@ -198,10 +198,10 @@ RSpec.describe ApplicationController, type: :controller do
           }]
         )
         # if authn_context is nil on current_user it means idme
-        expect(Raven).to receive(:tags_context).once.with(
-          controller_name: 'anonymous',
-          sign_in_method: { service_name: 'idme', acct_type: nil }
-        )
+        expect(Raven).to receive(:tags_context).once.with(controller_name: 'anonymous',
+                                                          sign_in_method: 'idme',
+                                                          sign_in_acct_type: nil)
+
         # since user IS signed in, this SHOULD get called
         expect(Raven).to receive(:user_context).with(
           uuid: user.uuid,

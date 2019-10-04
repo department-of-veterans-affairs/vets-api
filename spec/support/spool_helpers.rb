@@ -7,16 +7,16 @@ module SpoolHelpers
     # rubocop:disable Metrics/MethodLength
     def test_spool_file(form_type, test_name)
       describe "#{form_type} #{test_name} spool test" do
+        subject do
+          described_class.new(education_benefits_claim)
+        end
+
         let(:file_prefix) { "spec/fixtures/education_benefits_claims/#{form_type}/#{test_name}." }
         let(:form_class) { "SavedClaim::EducationBenefits::VA#{form_type}".constantize }
         let(:education_benefits_claim) do
           form_class.create!(
             form: File.read("#{file_prefix}json")
           ).education_benefits_claim
-        end
-
-        subject do
-          described_class.new(education_benefits_claim)
         end
 
         before do

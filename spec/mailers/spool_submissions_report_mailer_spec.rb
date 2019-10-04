@@ -4,15 +4,15 @@ require 'rails_helper'
 
 RSpec.describe SpoolSubmissionsReportMailer, type: %i[mailer aws_helpers] do
   describe '#build' do
-    let(:filename) { 'foo' }
-    stem_exists = false
-    let(:mail) { described_class.build(filename, stem_exists).deliver_now }
-
     subject do
       stub_reports_s3(filename) do
         mail
       end
     end
+
+    let(:filename) { 'foo' }
+    stem_exists = false
+    let(:mail) { described_class.build(filename, stem_exists).deliver_now }
 
     context 'when sending staging emails' do
       before do
@@ -32,6 +32,8 @@ RSpec.describe SpoolSubmissionsReportMailer, type: %i[mailer aws_helpers] do
           %w[
             Delli-Gatti_Michael@bah.com
             lihan@adhocteam.us
+            neel_darrel@bah.com
+            shay.norton-leonard@va.gov
             Turner_Desiree@bah.com
           ]
         )
@@ -61,15 +63,15 @@ RSpec.describe SpoolSubmissionsReportMailer, type: %i[mailer aws_helpers] do
   end
 
   describe '#build_stem' do
-    let(:filename) { 'foo' }
-    stem_exists = true
-    let(:mail) { described_class.build(filename, stem_exists).deliver_now }
-
     subject do
       stub_reports_s3(filename) do
         mail
       end
     end
+
+    let(:filename) { 'foo' }
+    stem_exists = true
+    let(:mail) { described_class.build(filename, stem_exists).deliver_now }
 
     context 'when sending staging emails' do
       before do
@@ -89,11 +91,12 @@ RSpec.describe SpoolSubmissionsReportMailer, type: %i[mailer aws_helpers] do
           %w[
             Delli-Gatti_Michael@bah.com
             lihan@adhocteam.us
+            neel_darrel@bah.com
+            shay.norton-leonard@va.gov
             Turner_Desiree@bah.com
             hughes_dustin@bah.com
             kyle.pietrosanto@va.gov
             robert.shinners@va.gov
-            shay.norton-leonard@va.gov
             sonntag_adam@bah.com
           ]
         )
