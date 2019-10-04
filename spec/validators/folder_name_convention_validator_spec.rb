@@ -11,9 +11,9 @@ class Validatable
 end
 
 describe FolderNameConventionValidator do
-  let(:name) { nil }
-
   subject { Validatable.new(name: name) }
+
+  let(:name) { nil }
 
   context 'without name' do
     it 'is valid' do

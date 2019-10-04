@@ -3,11 +3,11 @@
 require 'rails_helper'
 
 RSpec.describe EducationForm::CreateSpoolSubmissionsReport, type: :aws_helpers do
-  let(:time) { Time.zone.now }
-
   subject do
     described_class.new
   end
+
+  let(:time) { Time.zone.now }
 
   context 'with some sample claims', run_at: '2017-07-27 00:00:00 -0400' do
     let!(:education_benefits_claim_1) do
@@ -23,7 +23,7 @@ RSpec.describe EducationForm::CreateSpoolSubmissionsReport, type: :aws_helpers d
     end
 
     describe '#create_csv_array' do
-      it 'should create the right array' do
+      it 'creates the right array' do
         expect(
           subject.create_csv_array
         ).to eq(
@@ -55,7 +55,6 @@ RSpec.describe EducationForm::CreateSpoolSubmissionsReport, type: :aws_helpers d
     end
 
     describe '#perform' do
-      let(:filename) { "tmp/spool_reports/#{time.to_date}.csv" }
 
       before do
         expect(FeatureFlipper).to receive(:send_edu_report_email?).once.and_return(true)
@@ -64,6 +63,8 @@ RSpec.describe EducationForm::CreateSpoolSubmissionsReport, type: :aws_helpers d
       after do
         File.delete(filename)
       end
+
+      let(:filename) { "tmp/spool_reports/#{time.to_date}.csv" }
 
       def perform
         stub_reports_s3(filename) do

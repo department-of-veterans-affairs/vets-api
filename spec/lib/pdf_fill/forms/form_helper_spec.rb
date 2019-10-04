@@ -6,11 +6,11 @@ describe PdfFill::Forms::FormHelper do
   let(:including_class) { Class.new { include PdfFill::Forms::FormHelper } }
 
   describe '#split_ssn' do
-    it 'should return nil' do
+    it 'returns nil' do
       expect(including_class.new.split_ssn('')).to eq(nil)
     end
 
-    it 'should split the ssn' do
+    it 'splits the ssn' do
       expect(including_class.new.split_ssn('111223333')).to eq('first' => '111', 'second' => '22', 'third' => '3333')
     end
   end
@@ -33,7 +33,7 @@ describe PdfFill::Forms::FormHelper do
       )
     end
 
-    it 'should extract middle initial when there is a middle name' do
+    it 'extracts middle initial when there is a middle name' do
       veteran_full_name = {
         'veteranFullName' => {
           'middle' => 'middle'
@@ -47,7 +47,7 @@ describe PdfFill::Forms::FormHelper do
   end
 
   describe '#extract_country' do
-    it 'should return the correct code for country' do
+    it 'returns the correct code for country' do
       address = {
         'country' => 'USA'
       }
@@ -56,7 +56,7 @@ describe PdfFill::Forms::FormHelper do
   end
 
   describe '#extract_country_if_not_usa' do
-    it 'should return the correct code for country' do
+    it 'returns the correct code for country' do
       address = {
         'country' => 'Ghana'
       }
@@ -65,7 +65,7 @@ describe PdfFill::Forms::FormHelper do
   end
 
   describe '#extract_country_if_not_valid_code' do
-    it 'should return the passed value as country' do
+    it 'returns the passed value as country' do
       address = {
         'country' => 'InvalidCountry'
       }
@@ -74,39 +74,39 @@ describe PdfFill::Forms::FormHelper do
   end
 
   describe '#split_postal_code' do
-    it 'should return nil with blank address' do
+    it 'returns nil with blank address' do
       expect(including_class.new.split_postal_code({})).to eq(nil)
     end
 
-    it 'should return nil with no postal code' do
+    it 'returns nil with no postal code' do
       address = {
         'city' => 'Baltimore'
       }
       expect(including_class.new.split_postal_code(address)).to eq(nil)
     end
 
-    it 'should return nil for blank postal code' do
+    it 'returns nil for blank postal code' do
       address = {
         'postalCode' => ''
       }
       expect(including_class.new.split_postal_code(address)).to eq(nil)
     end
 
-    it 'should split the code correctly with extra characters' do
+    it 'splits the code correctly with extra characters' do
       address = {
         'postalCode' => '12345-0000'
       }
       expect(including_class.new.split_postal_code(address)).to eq('firstFive' => '12345', 'lastFour' => '0000')
     end
 
-    it 'should split the code correctly with 9 digits' do
+    it 'splits the code correctly with 9 digits' do
       address = {
         'postalCode' => '123450000'
       }
       expect(including_class.new.split_postal_code(address)).to eq('firstFive' => '12345', 'lastFour' => '0000')
     end
 
-    it 'should split the code correctly with 5 digits' do
+    it 'splits the code correctly with 5 digits' do
       address = {
         'postalCode' => '12345'
       }
@@ -115,47 +115,47 @@ describe PdfFill::Forms::FormHelper do
   end
 
   describe '#split_date' do
-    it 'should return nil with no date' do
+    it 'returns nil with no date' do
       expect(including_class.new.split_date(nil)).to be_nil
     end
 
-    it 'should return nil if date not correct format (expected yyyy-mm-dd)' do
+    it 'returns nil if date not correct format (expected yyyy-mm-dd)' do
       expect(including_class.new.split_date('11052018')).to be_nil
     end
 
-    it 'should split date correctly' do
+    it 'splits date correctly' do
       expect(including_class.new.split_date('2018-11-05')).to eq('month' => '11', 'day' => '05', 'year' => '2018')
     end
   end
 
   describe '#validate_date' do
-    it 'should return nil with bad data' do
+    it 'returns nil with bad data' do
       expect(including_class.new.validate_date('1234567')).to be_nil
     end
 
-    it 'should return nil with nil date' do
+    it 'returns nil with nil date' do
       expect(including_class.new.validate_date(nil)).to be_nil
     end
 
-    it 'should return nil with impossible date' do
+    it 'returns nil with impossible date' do
       expect(including_class.new.validate_date('2018-01-32')).to be nil
     end
 
-    it 'should return nil with blank date' do
+    it 'returns nil with blank date' do
       expect(including_class.new.validate_date('')).to be_nil
     end
 
-    it 'should return date' do
+    it 'returns date' do
       expect(including_class.new.validate_date('2018-01-01')).to be_truthy
     end
   end
 
   describe '#address_block' do
-    it 'should return nil with nil address' do
+    it 'returns nil with nil address' do
       expect(including_class.new.address_block(nil)).to be_nil
     end
 
-    it 'should return full address block with full address' do
+    it 'returns full address block with full address' do
       address = {
         'street' => '123 Test St.',
         'street2' => '4B',
@@ -167,7 +167,7 @@ describe PdfFill::Forms::FormHelper do
       expect(including_class.new.address_block(address)).to eq("123 Test St. 4B\nTestville SC 12345-6789\nUS")
     end
 
-    it 'should return partial address block with partial address' do
+    it 'returns partial address block with partial address' do
       address = {
         'street' => '123 Test St.',
         'state' => 'SC'

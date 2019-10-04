@@ -4,8 +4,9 @@ require 'rails_helper'
 
 describe EVSS::GiBillStatus::Service do
   describe '.find_by_user' do
-    let(:user) { build(:user, :loa3) }
     subject { described_class.new(user) }
+
+    let(:user) { build(:user, :loa3) }
 
     let(:tz) { ActiveSupport::TimeZone.new(described_class::OPERATING_ZONE) }
     let(:late_time) { tz.parse('1st Feb 2018 23:00:00') }
@@ -160,7 +161,7 @@ describe EVSS::GiBillStatus::Service do
           allow_any_instance_of(Faraday::Connection).to receive(:get).and_raise(Faraday::TimeoutError)
         end
 
-        it 'should raise an exception' do
+        it 'raises an exception' do
           expect { subject.get_gi_bill_status }.to raise_error(Common::Exceptions::GatewayTimeout)
         end
       end

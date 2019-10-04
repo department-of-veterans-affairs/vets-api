@@ -6,10 +6,10 @@ require 'support/url_service_helpers'
 
 RSpec.describe SAML::URLService do
   SAML::URLService::VIRTUAL_HOST_MAPPINGS.each do |vhost_url, values|
+    subject { described_class.new(saml_settings, session: session, user: user, params: params) }
+
     let(:user) { build(:user) }
     let(:session) { Session.create(uuid: user.uuid, token: 'abracadabra') }
-
-    subject { described_class.new(saml_settings, session: session, user: user, params: params) }
 
     around(:each) do |example|
       User.create(user)

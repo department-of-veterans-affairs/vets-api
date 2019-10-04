@@ -7,7 +7,7 @@ describe EMIS::Models::Disability do
     method_name = "get_#{attr}"
 
     describe "##{method_name}" do
-      it 'should return 0 if the field is nil' do
+      it 'returns 0 if the field is nil' do
         expect(
           described_class.new(
             {
