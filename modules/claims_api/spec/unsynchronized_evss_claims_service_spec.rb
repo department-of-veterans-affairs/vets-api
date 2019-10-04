@@ -15,13 +15,13 @@ RSpec.describe 'ClaimsApi::UnsynchronizedEVSSClaimService', type: :model do
     @veteran.power_of_attorney = PowerOfAttorney.new(ssn: '123456789')
   end
 
-  it 'should access a veteran' do
+  it 'accesses a veteran' do
     service = ClaimsApi::UnsynchronizedEVSSClaimService.new user
     expect(service.veteran.veteran_name).to eq('JEFF TERRELL WATSON')
     expect(service.veteran.power_of_attorney.code).to eq('A1Q')
   end
 
-  it 'should not bomb out if power of attorney is called first' do
+  it 'does not bomb out if power of attorney is called first' do
     service = ClaimsApi::UnsynchronizedEVSSClaimService.new user
     expect(service.power_of_attorney.code).to eq('A1Q')
     expect(service.veteran.veteran_name).to eq('JEFF TERRELL WATSON')

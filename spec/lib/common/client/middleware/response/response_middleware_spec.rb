@@ -9,6 +9,24 @@ require 'common/client/middleware/response/mhv_xml_html_errors'
 require 'common/client/errors'
 
 describe 'Response Middleware' do
+  subject(:faraday_client) do
+    Faraday.new do |conn|
+      conn.response :snakecase
+      conn.response :raise_error, error_prefix: 'RX'
+      conn.response :mhv_errors
+      conn.response :mhv_xml_html_errors
+      conn.response :json_parser
+
+      conn.adapter :test do |stub|
+        stub.get('ok') { [200, { 'Content-Type' => 'application/json' }, message_json] }
+        stub.get('not-found') { [404, { 'Content-Type' => 'application/json' }, four_o_four] }
+        stub.get('refill-fail') { [400, { 'Content-Type' => 'application/json' }, i18n_type_error] }
+        stub.get('mhv-generic-html') { [400, { 'Content-Type' => 'application/html' }, mhv_generic_html] }
+        stub.get('mhv-generic-xml') { [400, { 'Content-Type' => 'application/xml' }, mhv_generic_html] }
+      end
+    end
+  end
+
   let(:message_json) { attributes_for(:message).to_json }
   let(:four_o_four) { { "errorCode": 400, "message": 'Record Not Found', "developerMessage": 'blah' }.to_json }
   let(:i18n_type_error) { { "errorCode": 139, "message": 'server response', "developerMessage": 'blah' }.to_json }
@@ -28,24 +46,6 @@ describe 'Response Middleware' do
         </soapenv:Body>
       </soapenv:Envelope>
     )
-  end
-
-  subject(:faraday_client) do
-    Faraday.new do |conn|
-      conn.response :snakecase
-      conn.response :raise_error, error_prefix: 'RX'
-      conn.response :mhv_errors
-      conn.response :mhv_xml_html_errors
-      conn.response :json_parser
-
-      conn.adapter :test do |stub|
-        stub.get('ok') { [200, { 'Content-Type' => 'application/json' }, message_json] }
-        stub.get('not-found') { [404, { 'Content-Type' => 'application/json' }, four_o_four] }
-        stub.get('refill-fail') { [400, { 'Content-Type' => 'application/json' }, i18n_type_error] }
-        stub.get('mhv-generic-html') { [400, { 'Content-Type' => 'application/html' }, mhv_generic_html] }
-        stub.get('mhv-generic-xml') { [400, { 'Content-Type' => 'application/xml' }, mhv_generic_html] }
-      end
-    end
   end
 
   it 'parses json successfully' do
@@ -86,6 +86,7 @@ describe 'Response Middleware' do
     let(:xml_or_html_response) do
       "BackendServiceException: {:status=>400, :detail=>#{detail}, :code=>#{code}, :source=>#{source}}"
     end
+
     it 'can handle generic html errors' do
       expect { faraday_client.get('mhv-generic-html') }.to raise_error do |error|
         expect(error).to be_a(Common::Exceptions::BackendServiceException)

@@ -7,6 +7,7 @@ RSpec.describe SAML::User do
   include SAML::ResponseBuilder
 
   describe 'SSOe' do
+    subject { described_class.new(saml_response) }
     let(:authn_context) { LOA::IDME_LOA1 }
     let(:account_type)  { '1' }
     let(:highest_attained_loa) { '1' }
@@ -21,7 +22,6 @@ RSpec.describe SAML::User do
         issuer: 'https://int.eauth.va.gov/FIM/sps/saml20fedCSP/saml20'
       )
     end
-    subject { described_class.new(saml_response) }
 
     context 'IDme LOA1 user' do
       it 'has various important attributes' do
@@ -46,7 +46,7 @@ RSpec.describe SAML::User do
       end
 
       it 'is not changing multifactor' do
-        expect(subject.changing_multifactor?).to be_falsey
+        expect(subject).not_to be_changing_multifactor
       end
     end
 
