@@ -19,10 +19,12 @@
     <header class="vads-u-background-color--primary-darkest" role="banner">
       <div class="vads-l-grid-container vads-u-padding-y--3">
         <div class="vads-l-row vads-u-align-items--center">
-          <a class="vads-l-col vads-u-display--block vads-u-font-size--xl vads-u-color--white vads-u-text-decoration--none" title="VA.gov Flipper Admin Home" href="/flipper">
-            <strong>VA.gov</strong>
-            <span class="vads-u-margin-left--1 vads-u-font-size--lg" style="font-weight: 300;">Flipper Admin</span>
-          </a>
+          <div class="vads-l-col">
+            <a class="vads-u-font-size--xl vads-u-color--white vads-u-text-decoration--none" title="VA.gov Flipper Admin Home" href="/flipper">
+              <strong>VA.gov</strong>
+              <span class="vads-u-margin-left--1 vads-u-font-size--lg" style="font-weight: 300;">Flipper Admin</span>
+            </a>
+          </div>
 
           <% if Flipper::UI.configuration.feature_creation_enabled %>
           <div class="vads-l-col--2 vads-u-text-align--right">
