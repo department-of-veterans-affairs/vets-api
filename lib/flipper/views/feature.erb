@@ -135,7 +135,7 @@
         <% unless @feature.groups_value.empty? %>
           <ul class="vads-u-margin-bottom--0 vads-u-padding--0">
             <% @feature.groups_value.each do |item| %>
-              <li class="vads-u-border--1px vads-u-border-style--dotted vads-u-padding--2" style="list-style-type: none">
+              <li class="vads-u-border--1px vads-u-border-style--dotted vads-u-padding--2" style="list-style-type: none;">
                 <div class="vads-u-display--flex">
                   <div class="vads-u-flex--1"><%= item %></div>
                   <div class="vads-u-flex--auto vads-u-display--flex vads-u-align-items--center">
@@ -161,7 +161,7 @@
             <%== csrf_input_tag %>
             <label for="actor-input" class="vads-u-margin-top--0"><%= Flipper::UI.configuration.actors.title %></label>
             <input id="actor-input" type="text" name="value">
-            <button class="vads-u-margin-top--1 vads-u-width--auto" type="submit" name="operation" value="enable">Add user</button>
+            <button class="vads-u-margin-top--1 vads-u-width--auto" type="submit" name="operation" value="enable">Enable user</button>
           </fieldset>
         </form>
         <% if @feature.actors_value.empty? %>
@@ -174,7 +174,7 @@
           </p>
           <ul class="vads-u-margin-bottom--0 vads-u-padding--0">
             <% @feature.actors_value.each do |item| %>
-              <li class="vads-u-border--1px vads-u-border-style--dotted vads-u-padding--2" style="list-style-type: none">
+              <li class="vads-u-border--1px vads-u-border-style--dotted vads-u-padding--2" style="list-style-type: none;">
                 <div class="vads-u-display--flex">
                   <div class="vads-u-flex--1"><%= item %></div>
                   <div class="vads-u-flex--auto vads-u-display--flex vads-u-align-items--center">

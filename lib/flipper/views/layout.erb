@@ -21,7 +21,7 @@
         <div class="vads-l-row vads-u-align-items--center">
           <a class="vads-l-col vads-u-display--block vads-u-font-size--xl vads-u-color--white vads-u-text-decoration--none" title="VA.gov Flipper Admin Home" href="/flipper">
             <strong>VA.gov</strong>
-            <span class="vads-u-margin-left--1 vads-u-font-size--lg">Flipper Admin</span>
+            <span class="vads-u-margin-left--1 vads-u-font-size--lg" style="font-weight: 300;">Flipper Admin</span>
           </a>
 
           <% if Flipper::UI.configuration.feature_creation_enabled %>
@@ -33,7 +33,7 @@
       </div>
     </header>
 
-    <div class="vads-l-grid-container" style="overflow-wrap: break-word">
+    <div class="vads-l-grid-container" style="overflow-wrap: break-word;">
       <% unless Flipper::UI.configuration.banner_text.nil? %>
       <div class="vads-l-row">
         <div class="alert alert-<%= Flipper::UI.configuration.banner_class %> text-center font-weight-bold">
