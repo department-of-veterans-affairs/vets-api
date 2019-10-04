@@ -49,6 +49,14 @@ describe Common::Client::Middleware::Request::RemoveCookies do
       end
     end
 
+    after do
+      VCR.configure do |c|
+        c.allow_http_connections_when_no_cassette = false
+      end
+
+      server_thread.kill
+    end
+
     it 'strips cookies' do
       VCR.configure do |c|
         c.allow_http_connections_when_no_cassette = true
@@ -65,14 +73,6 @@ describe Common::Client::Middleware::Request::RemoveCookies do
       end
 
       expect(Specs::RemoveCookies::TestService.new.send(:request, :get, '', nil).body).to eq('[]')
-    end
-
-    after do
-      VCR.configure do |c|
-        c.allow_http_connections_when_no_cassette = false
-      end
-
-      server_thread.kill
     end
   end
 end
