@@ -14,7 +14,7 @@
         <% @features.each do |feature| %>
           <tr>
             <td>
-              <span class="octicon octicon-squirrel <%= feature.color_class %>"><br/><%= feature.state %></span>
+              <%= feature.state.capitalize %>
             </td>
             <td>
               <a href="<%= "#{script_name}/features/#{feature.key}" %>">
