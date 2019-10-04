@@ -12,7 +12,7 @@ RSpec.describe 'service_history', type: :request, skip_emis: true do
   describe 'GET /v0/profile/service_history' do
     context 'with a 200 response' do
       context 'with one military service episode' do
-        it 'should match the service history schema' do
+        it 'matches the service history schema' do
           VCR.use_cassette('emis/get_military_service_episodes/valid') do
             get '/v0/profile/service_history'
 
@@ -39,7 +39,7 @@ RSpec.describe 'service_history', type: :request, skip_emis: true do
       end
 
       context 'with multiple military service episodes' do
-        it 'should match the service history schema' do
+        it 'matches the service history schema' do
           VCR.use_cassette('emis/get_military_service_episodes/valid_multiple_episodes') do
             get '/v0/profile/service_history'
 
@@ -55,14 +55,14 @@ RSpec.describe 'service_history', type: :request, skip_emis: true do
         allow(EMISRedis::MilitaryInformation).to receive_message_chain(:for_user, :service_history) { nil }
       end
 
-      it 'should match the errors schema', :aggregate_failures do
+      it 'matches the errors schema', :aggregate_failures do
         get '/v0/profile/service_history'
 
         expect(response).to have_http_status(:bad_gateway)
         expect(response).to match_response_schema('errors')
       end
 
-      it 'should include the correct error code' do
+      it 'includes the correct error code' do
         get '/v0/profile/service_history'
 
         expect(error_details_for(response, key: 'code')).to eq 'EMIS_HIST502'

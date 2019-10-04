@@ -20,7 +20,7 @@ RSpec.describe 'Documents management', type: :request do
 
   before(:each) { sign_in_as(user) }
 
-  it 'should upload a file' do
+  it 'uploads a file' do
     params = { file: file, tracked_item_id: tracked_item_id, document_type: document_type }
     expect do
       post '/v0/evss_claims/189625/documents', params: params
@@ -29,14 +29,14 @@ RSpec.describe 'Documents management', type: :request do
     expect(JSON.parse(response.body)['job_id']).to eq(EVSS::DocumentUpload.jobs.first['jid'])
   end
 
-  it 'should reject files with invalid document_types' do
+  it 'rejects files with invalid document_types' do
     params = { file: file, tracked_item_id: tracked_item_id, document_type: 'invalid type' }
     post '/v0/evss_claims/189625/documents', params: params
     expect(response.status).to eq(422)
     expect(JSON.parse(response.body)['errors'].first['title']).to eq('Must use a known document type')
   end
 
-  it 'should normalize requests with a null tracked_item_id' do
+  it 'normalizes requests with a null tracked_item_id' do
     params = { file: file, tracked_item_id: 'null', document_type: document_type }
     post '/v0/evss_claims/189625/documents', params: params
     args = EVSS::DocumentUpload.jobs.first['args'][2]
@@ -54,7 +54,7 @@ RSpec.describe 'Documents management', type: :request do
       )
     end
 
-    it 'should reject locked PDFs' do
+    it 'rejects locked PDFs' do
       params = { file: locked_file, tracked_item_id: tracked_item_id, document_type: document_type }
       post '/v0/evss_claims/189625/documents', params: params
       expect(response.status).to eq(422)
@@ -70,7 +70,7 @@ RSpec.describe 'Documents management', type: :request do
       fixture_file_upload(f.path, 'application/pdf')
     end
 
-    it 'should reject a file that is not really a PDF' do
+    it 'rejects a file that is not really a PDF' do
       params = { file: tempfile, tracked_item_id: tracked_item_id, document_type: document_type }
       post '/v0/evss_claims/189625/documents', params: params
       expect(response.status).to eq(422)
@@ -86,7 +86,7 @@ RSpec.describe 'Documents management', type: :request do
       fixture_file_upload(f.path, 'text/plain')
     end
 
-    it 'should reject a text file containing untranslatable characters' do
+    it 'rejects a text file containing untranslatable characters' do
       params = { file: tempfile, tracked_item_id: tracked_item_id, document_type: document_type }
       post '/v0/evss_claims/189625/documents', params: params
       expect(response.status).to eq(422)
@@ -104,7 +104,7 @@ RSpec.describe 'Documents management', type: :request do
       fixture_file_upload(f.path, 'text/plain')
     end
 
-    it 'should accept a text file containing translatable characters' do
+    it 'accepts a text file containing translatable characters' do
       params = { file: tempfile, tracked_item_id: tracked_item_id, document_type: document_type }
       post '/v0/evss_claims/189625/documents', params: params
       expect(response.status).to eq(202)
@@ -122,7 +122,7 @@ RSpec.describe 'Documents management', type: :request do
       fixture_file_upload(f.path, 'text/plain')
     end
 
-    it 'should reject a text file containing binary data' do
+    it 'rejects a text file containing binary data' do
       params = { file: tempfile, tracked_item_id: tracked_item_id, document_type: document_type }
       post '/v0/evss_claims/189625/documents', params: params
       expect(response.status).to eq(422)

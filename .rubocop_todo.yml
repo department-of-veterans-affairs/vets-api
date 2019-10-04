@@ -67,12 +67,6 @@ RSpec/ExampleWithoutDescription:
   Exclude:
     - 'spec/request/va_facilities_request_spec.rb'
 
-# Offense count: 1366
-# Cop supports --auto-correct.
-# Configuration parameters: CustomTransform, IgnoredWords.
-RSpec/ExampleWording:
-  Enabled: false
-
 # Offense count: 82
 RSpec/ExpectInHook:
   Enabled: false
@@ -89,18 +83,6 @@ RSpec/FilePath:
 RSpec/HookArgument:
   Enabled: false
 
-# Offense count: 10
-# Cop supports --auto-correct.
-RSpec/HooksBeforeExamples:
-  Exclude:
-    - 'spec/controllers/application_controller_spec.rb'
-    - 'spec/jobs/education_form/create_daily_spool_files_spec.rb'
-    - 'spec/lib/central_mail/datestamp_pdf_spec.rb'
-    - 'spec/lib/common/client/middleware/request/remove_cookies_spec.rb'
-    - 'spec/lib/common/event_rate_limiter_spec.rb'
-    - 'spec/middleware/rack_attack_spec.rb'
-    - 'spec/models/form_profile_spec.rb'
-
 # Offense count: 254
 # Configuration parameters: AssignmentOnly.
 RSpec/InstanceVariable:
@@ -110,11 +92,6 @@ RSpec/InstanceVariable:
 RSpec/IteratedExpectation:
   Exclude:
     - 'spec/models/user_preference_spec.rb'
-
-# Offense count: 144
-# Cop supports --auto-correct.
-RSpec/LeadingSubject:
-  Enabled: false
 
 # Offense count: 56
 RSpec/LeakyConstantDeclaration:
@@ -164,12 +141,6 @@ RSpec/MultipleDescribes:
 RSpec/MultipleExpectations:
   Max: 12
 
-# Offense count: 1
-# Cop supports --auto-correct.
-RSpec/MultipleSubjects:
-  Exclude:
-    - 'spec/services/mhv_logging_service_spec.rb'
-
 # Offense count: 1702
 # Configuration parameters: IgnoreSharedExamples.
 RSpec/NamedSubject:
@@ -183,14 +154,6 @@ RSpec/NestedGroups:
 RSpec/OverwritingSetup:
   Exclude:
     - 'spec/request/swagger_spec.rb'
-
-# Offense count: 9
-# Cop supports --auto-correct.
-RSpec/ReceiveCounts:
-  Exclude:
-    - 'spec/lib/saml/saml_settings_service_spec.rb'
-    - 'spec/lib/sm/client/folders_spec.rb'
-    - 'spec/models/mhv_account_spec.rb'
 
 # Offense count: 21
 RSpec/RepeatedDescription:
@@ -211,20 +174,6 @@ RSpec/RepeatedExample:
     - 'modules/vba_documents/spec/models/upload_submission_spec.rb'
     - 'modules/vba_documents/spec/request/v0/reports_request_spec.rb'
     - 'modules/vba_documents/spec/request/v1/reports_request_spec.rb'
-
-# Offense count: 16
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle.
-# SupportedStyles: and_return, block
-RSpec/ReturnFromStub:
-  Exclude:
-    - 'spec/jobs/education_form/create_daily_spool_files_spec.rb'
-    - 'spec/lib/evss/intent_to_file/response_strategy_spec.rb'
-    - 'spec/lib/evss/pciu_address/response_strategy_spec.rb'
-    - 'spec/lib/hca/service_spec.rb'
-    - 'spec/lib/mvi/configuration_spec.rb'
-    - 'spec/lib/saml/saml_health_spec.rb'
-    - 'spec/lib/sftp_writer/factory_spec.rb'
 
 # Offense count: 45
 RSpec/ScatteredLet:
@@ -252,12 +201,6 @@ RSpec/ScatteredSetup:
     - 'spec/request/disability_compensation_form_request_spec.rb'
     - 'spec/request/swagger_spec.rb'
     - 'spec/services/mhv_logging_service_spec.rb'
-
-# Offense count: 4
-# Cop supports --auto-correct.
-RSpec/SharedContext:
-  Exclude:
-    - 'spec/request/mhv_accounts_request_spec.rb'
 
 # Offense count: 65
 RSpec/SubjectStub:

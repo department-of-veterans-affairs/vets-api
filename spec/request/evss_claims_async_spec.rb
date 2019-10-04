@@ -49,7 +49,7 @@ RSpec.describe 'EVSS Claims management', type: :request do
                                      user_uuid: user.uuid)
     end
 
-    it 'it returns claim from DB, kicks off job, returns updated claim when job is completed' do
+    it 'returns claim from DB, kicks off job, returns updated claim when job is completed' do
       # initial request
       sign_in_as(evss_user)
       get '/v0/evss_claims_async/600118851'

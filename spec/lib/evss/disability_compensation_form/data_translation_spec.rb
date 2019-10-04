@@ -4,6 +4,8 @@ require 'rails_helper'
 require 'evss/disability_compensation_form/data_translation'
 
 describe EVSS::DisabilityCompensationForm::DataTranslation do
+  subject { described_class.new(user, form_content, false) }
+
   let(:form_content) { JSON.parse(File.read('spec/support/disability_compensation_form/front_end_submission.json')) }
   let(:evss_json) { File.read 'spec/support/disability_compensation_form/evss_submission.json' }
   let(:user) { build(:disabilities_compensation_user) }
@@ -12,14 +14,12 @@ describe EVSS::DisabilityCompensationForm::DataTranslation do
     User.create(user)
   end
 
-  subject { described_class.new(user, form_content, false) }
-
   describe '#translate' do
     before do
       create(:in_progress_form, form_id: VA526ez::FORM_ID, user_uuid: user.uuid)
     end
 
-    it 'should return correctly formatted json to send to EVSS' do
+    it 'returns correctly formatted json to send to EVSS' do
       VCR.use_cassette('evss/ppiu/payment_information') do
         VCR.use_cassette('evss/intent_to_file/active_compensation') do
           VCR.use_cassette('emis/get_military_service_episodes/valid', allow_playback_repeats: true) do
@@ -34,7 +34,7 @@ describe EVSS::DisabilityCompensationForm::DataTranslation do
     context 'when given an a US address' do
       let(:address) { { 'country' => 'USA', 'state' => 'OR' } }
 
-      it 'should return "DOMESTIC"' do
+      it 'returns "DOMESTIC"' do
         expect(subject.send(:get_address_type, address)).to eq 'DOMESTIC'
       end
     end
@@ -42,7 +42,7 @@ describe EVSS::DisabilityCompensationForm::DataTranslation do
     context 'when given a military address' do
       let(:address) { { 'country' => 'USA', 'state' => 'AA' } }
 
-      it 'should return "MILITARY"' do
+      it 'returns "MILITARY"' do
         expect(subject.send(:get_address_type, address)).to eq 'MILITARY'
       end
     end
@@ -50,7 +50,7 @@ describe EVSS::DisabilityCompensationForm::DataTranslation do
     context 'when given an international address' do
       let(:address) { { 'country' => 'MEX' } }
 
-      it 'should return "INTERNATIONAL"' do
+      it 'returns "INTERNATIONAL"' do
         expect(subject.send(:get_address_type, address)).to eq 'INTERNATIONAL'
       end
     end
@@ -58,19 +58,19 @@ describe EVSS::DisabilityCompensationForm::DataTranslation do
 
   describe '#split_zip_code' do
     context 'when given a 5 number zip code' do
-      it 'should return the correct split' do
+      it 'returns the correct split' do
         expect(subject.send(:split_zip_code, '12345')).to eq ['12345', '', nil]
       end
     end
 
     context 'when given a 9 number zip code' do
-      it 'should return the correct split' do
+      it 'returns the correct split' do
         expect(subject.send(:split_zip_code, '123456789')).to eq ['12345', '', '6789']
       end
     end
 
     context 'when given a 9 number zip code with a hyphen' do
-      it 'should return the correct split' do
+      it 'returns the correct split' do
         expect(subject.send(:split_zip_code, '12345-6789')).to eq ['12345', '-', '6789']
       end
     end
@@ -88,7 +88,7 @@ describe EVSS::DisabilityCompensationForm::DataTranslation do
         }
       end
 
-      it 'should transform the address correctly' do
+      it 'transforms the address correctly' do
         result_hash = {
           'type' => 'DOMESTIC',
           'country' => 'USA',
@@ -112,7 +112,7 @@ describe EVSS::DisabilityCompensationForm::DataTranslation do
         }
       end
 
-      it 'should transform the address correctly' do
+      it 'transforms the address correctly' do
         result_hash = {
           'type' => 'MILITARY',
           'country' => 'USA',
@@ -135,7 +135,7 @@ describe EVSS::DisabilityCompensationForm::DataTranslation do
         }
       end
 
-      it 'should transform the address correctly' do
+      it 'transforms the address correctly' do
         result_hash = {
           'type' => 'INTERNATIONAL',
           'country' => 'Mexico',
@@ -150,7 +150,7 @@ describe EVSS::DisabilityCompensationForm::DataTranslation do
 
   describe '#split_phone_number' do
     context 'when given a phone number' do
-      it 'should correctly split the number' do
+      it 'correctlies split the number' do
         result_hash = {
           'phoneNumber' => '1234567',
           'areaCode' => '555'
@@ -162,13 +162,13 @@ describe EVSS::DisabilityCompensationForm::DataTranslation do
 
   describe '#service_branch' do
     context 'when the service branch is NOAA' do
-      it 'should transform it to the correct string' do
+      it 'transforms it to the correct string' do
         expect(subject.send(:service_branch, 'NOAA')).to eq 'National Oceanic & Atmospheric Administration'
       end
     end
 
     context 'when the service branch is not NOAA' do
-      it 'should keep the service branch as is' do
+      it 'keeps the service branch as is' do
         expect(subject.send(:service_branch, 'Navy')).to eq 'Navy'
       end
     end
@@ -185,7 +185,7 @@ describe EVSS::DisabilityCompensationForm::DataTranslation do
         )
       end
 
-      it 'should delete the "treatments" key' do
+      it 'deletes the "treatments" key' do
         subject.send(:translate_treatments)
         expect(
           subject.instance_variable_get(:@form_content).dig('form526', 'treatments')
@@ -209,7 +209,7 @@ describe EVSS::DisabilityCompensationForm::DataTranslation do
         )
       end
 
-      it 'should delete the "specialIssues" key' do
+      it 'deletes the "specialIssues" key' do
         subject.send(:translate_disabilities)
         expect(
           subject.instance_variable_get(:@form_content).dig('form526', 'disabilities', 0, 'specialIssues')
@@ -237,7 +237,7 @@ describe EVSS::DisabilityCompensationForm::DataTranslation do
         )
       end
 
-      it 'should translate the fields correctly' do
+      it 'translates the fields correctly' do
         result_hash = {
           'obligationTermOfServiceFromDate' => '2018-03-29T18:50:03.015Z',
           'obligationTermOfServiceToDate' => '2018-03-29T18:50:03.015Z',
@@ -270,7 +270,7 @@ describe EVSS::DisabilityCompensationForm::DataTranslation do
         )
       end
 
-      it 'should delete the "homelessness" key' do
+      it 'deletes the "homelessness" key' do
         subject.send(:translate_homelessness)
         expect(
           subject.instance_variable_get(:@form_content).dig('form526', 'veteran', 'homelessness')
@@ -292,7 +292,7 @@ describe EVSS::DisabilityCompensationForm::DataTranslation do
         )
       end
 
-      it 'should add update the "homelessness" key correctly' do
+      it 'adds update the "homelessness" key correctly' do
         result_hash = {
           'hasPointOfContact' => false
         }
@@ -304,7 +304,7 @@ describe EVSS::DisabilityCompensationForm::DataTranslation do
     end
 
     context 'when the veteran has a homeless point of contact' do
-      it 'should add update the "homelessness" key correctly' do
+      it 'adds update the "homelessness" key correctly' do
         result_hash = {
           'hasPointOfContact' => true,
           'pointOfContact' => {
@@ -334,7 +334,7 @@ describe EVSS::DisabilityCompensationForm::DataTranslation do
         }
       end
 
-      it 'should set the payment information correctly' do
+      it 'sets the payment information correctly' do
         VCR.use_cassette('evss/ppiu/payment_information') do
           subject.send(:set_banking_info)
           expect(
@@ -353,7 +353,7 @@ describe EVSS::DisabilityCompensationForm::DataTranslation do
         )
       end
 
-      it 'should not set payment information' do
+      it 'does not set payment information' do
         expect(EVSS::PPIU::Service).to receive(:new).once.and_return(response)
         subject.send(:set_banking_info)
         expect(
@@ -374,7 +374,7 @@ describe EVSS::DisabilityCompensationForm::DataTranslation do
         allow(subject).to receive(:rad_date).and_return(now)
       end
 
-      it 'should return the RAD date + 366 days' do
+      it 'returns the RAD date + 366 days' do
         return_date = (now + 366.days).iso8601
         expect(subject.send(:application_expiration_date)).to eq return_date
       end
@@ -400,7 +400,7 @@ describe EVSS::DisabilityCompensationForm::DataTranslation do
           allow(subject).to receive(:itf).and_return(itf)
         end
 
-        it 'should return the application creation date + 365 days' do
+        it 'returns the application creation date + 365 days' do
           return_date = (now + 365.days).iso8601
           expect(subject.send(:application_expiration_date)).to eq return_date
         end
@@ -413,7 +413,7 @@ describe EVSS::DisabilityCompensationForm::DataTranslation do
           allow(subject).to receive(:itf).and_return(itf)
         end
 
-        it 'should return the application creation date + 365 days' do
+        it 'returns the application creation date + 365 days' do
           return_date = (now + 365.days).iso8601
           expect(subject.send(:application_expiration_date)).to eq return_date
         end
@@ -427,7 +427,7 @@ describe EVSS::DisabilityCompensationForm::DataTranslation do
           allow(subject).to receive(:itf).and_return(itf)
         end
 
-        it 'should return the application creation date + 365 days' do
+        it 'returns the application creation date + 365 days' do
           return_date = (past + 365.days).iso8601
           expect(subject.send(:application_expiration_date)).to eq return_date
         end
@@ -441,7 +441,7 @@ describe EVSS::DisabilityCompensationForm::DataTranslation do
           allow(subject).to receive(:itf).and_return(itf)
         end
 
-        it 'should return the application creation date + 365 days' do
+        it 'returns the application creation date + 365 days' do
           expect(subject.send(:application_expiration_date)).to eq itf.expiration_date.iso8601
         end
       end

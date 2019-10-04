@@ -31,7 +31,7 @@ RSpec.describe SAML::HealthStatus do
 
   context 'retrieve not yet attempted' do
     before do
-      allow(subject).to receive(:fetch_attempted?) { false }
+      allow(subject).to receive(:fetch_attempted?).and_return(false)
     end
 
     it '.healthy? returns false' do

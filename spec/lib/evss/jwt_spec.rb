@@ -4,8 +4,6 @@ require 'rails_helper'
 require 'evss/jwt'
 
 describe EVSS::Jwt do
-  let(:some_random_time) { Time.zone.at(1_513_634_300) }
-
   subject(:decrypted_token) do
     JWT.decode(
       described_class.new(current_user).encode,
@@ -13,6 +11,8 @@ describe EVSS::Jwt do
       described_class::SIGNING_ALGORITHM
     )
   end
+
+  let(:some_random_time) { Time.zone.at(1_513_634_300) }
 
   context 'with an LOA3 user at a given time' do
     let(:current_user) { FactoryBot.build(:user, :loa3) }
