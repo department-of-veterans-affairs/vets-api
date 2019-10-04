@@ -7,10 +7,11 @@ def get_education_form_fixture(filename)
 end
 
 RSpec.describe EducationForm::CreateDailyYearToDateReport, type: :aws_helpers do
-  let(:date) { Time.zone.today - 1.day }
   subject do
     described_class.new
   end
+
+  let(:date) { Time.zone.today - 1.day }
 
   before do
     allow_any_instance_of(EducationBenefitsClaim).to receive(:create_education_benefits_submission)
@@ -45,18 +46,18 @@ RSpec.describe EducationForm::CreateDailyYearToDateReport, type: :aws_helpers do
     end
 
     context 'with the date variable set' do
+      subject do
+        job_with_date
+      end
+
       let(:job_with_date) do
         job = described_class.new
         job.instance_variable_set(:@date, date)
         job
       end
 
-      subject do
-        job_with_date
-      end
-
       describe '#create_csv_array' do
-        it 'should make the right csv array' do
+        it 'makes the right csv array' do
           expect(subject.create_csv_array).to eq(
             get_education_form_fixture('create_csv_array')
           )
@@ -73,7 +74,7 @@ RSpec.describe EducationForm::CreateDailyYearToDateReport, type: :aws_helpers do
           context "for #{status} applications" do
             let(:status) { status }
 
-            it 'should return data about the number of submissions' do
+            it 'returns data about the number of submissions' do
               expect(subject.deep_stringify_keys).to eq(result)
             end
           end
@@ -95,14 +96,6 @@ RSpec.describe EducationForm::CreateDailyYearToDateReport, type: :aws_helpers do
     end
 
     describe '#perform' do
-      before do
-        expect(FeatureFlipper).to receive(:send_edu_report_email?).once.and_return(true)
-      end
-      after do
-        File.delete(filename)
-      end
-
-      let(:filename) { "tmp/daily_reports/#{date}.csv" }
       subject do
         create_daily_year_to_date_report = described_class.new
 
@@ -113,7 +106,17 @@ RSpec.describe EducationForm::CreateDailyYearToDateReport, type: :aws_helpers do
         create_daily_year_to_date_report
       end
 
-      it 'should create a csv file' do
+      before do
+        expect(FeatureFlipper).to receive(:send_edu_report_email?).once.and_return(true)
+      end
+
+      after do
+        File.delete(filename)
+      end
+
+      let(:filename) { "tmp/daily_reports/#{date}.csv" }
+
+      it 'creates a csv file' do
         subject
 
         csv_string = CSV.generate do |csv|
@@ -125,7 +128,7 @@ RSpec.describe EducationForm::CreateDailyYearToDateReport, type: :aws_helpers do
         expect(File.read(filename)).to eq(csv_string)
       end
 
-      it 'should send an email' do
+      it 'sends an email' do
         expect { subject }.to change {
           ActionMailer::Base.deliveries.count
         }.by(1)

@@ -59,6 +59,7 @@ describe Shrine::Plugins::ValidateVirusFree do
 
       context 'with a custom error message' do
         let(:message) { 'oh noes!' }
+
         it 'adds an error with a custom error message if clam scan returns not safe' do
           allow(ClamScan::Client).to receive(:scan)
             .and_return(instance_double('ClamScan::Response', safe?: false))

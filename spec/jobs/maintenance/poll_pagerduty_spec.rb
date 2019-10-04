@@ -28,14 +28,14 @@ RSpec.describe PagerDuty::PollMaintenanceWindows, type: :job do
     it 'adds entries to database' do
       allow(client_stub).to receive(:get_all).and_return([maint_hash])
       described_class.new.perform
-      expect(MaintenanceWindow.find_by(pagerduty_id: 'ABCDEF')).to_not be_nil
+      expect(MaintenanceWindow.find_by(pagerduty_id: 'ABCDEF')).not_to be_nil
     end
 
     it 'updates existing entries' do
       allow(client_stub).to receive(:get_all).and_return([maint_hash], [maint_hash_updated])
       described_class.new.perform
       original = MaintenanceWindow.find_by(pagerduty_id: 'ABCDEF')
-      expect(original).to_not be_nil
+      expect(original).not_to be_nil
       expect(original.description).to eq('')
       original_time = original.end_time
       described_class.new.perform
@@ -55,11 +55,11 @@ RSpec.describe PagerDuty::PollMaintenanceWindows, type: :job do
       Timecop.freeze(Date.new(2017, 12, 19)) do
         allow(client_stub).to receive(:get_all).and_return([maint_hash, maint_hash_multi1], [maint_hash_multi1])
         described_class.new.perform
-        expect(MaintenanceWindow.find_by(pagerduty_id: 'ABCDEF')).to_not be_nil
-        expect(MaintenanceWindow.find_by(pagerduty_id: 'ABC123')).to_not be_nil
+        expect(MaintenanceWindow.find_by(pagerduty_id: 'ABCDEF')).not_to be_nil
+        expect(MaintenanceWindow.find_by(pagerduty_id: 'ABC123')).not_to be_nil
         described_class.new.perform
         expect(MaintenanceWindow.find_by(pagerduty_id: 'ABCDEF')).to be_nil
-        expect(MaintenanceWindow.find_by(pagerduty_id: 'ABC123')).to_not be_nil
+        expect(MaintenanceWindow.find_by(pagerduty_id: 'ABC123')).not_to be_nil
       end
     end
 
@@ -68,10 +68,10 @@ RSpec.describe PagerDuty::PollMaintenanceWindows, type: :job do
         allow(client_stub).to receive(:get_all).and_return([maint_hash, maint_hash_multi1, maint_hash_multi2],
                                                            [maint_hash])
         described_class.new.perform
-        expect(MaintenanceWindow.find_by(pagerduty_id: 'ABCDEF')).to_not be_nil
+        expect(MaintenanceWindow.find_by(pagerduty_id: 'ABCDEF')).not_to be_nil
         expect(MaintenanceWindow.where(pagerduty_id: 'ABC123').count).to eq(2)
         described_class.new.perform
-        expect(MaintenanceWindow.find_by(pagerduty_id: 'ABCDEF')).to_not be_nil
+        expect(MaintenanceWindow.find_by(pagerduty_id: 'ABCDEF')).not_to be_nil
         expect(MaintenanceWindow.where(pagerduty_id: 'ABC123').count).to eq(0)
       end
     end
@@ -80,7 +80,7 @@ RSpec.describe PagerDuty::PollMaintenanceWindows, type: :job do
       allow(client_stub).to receive(:get_all).and_return([maint_hash_message])
       described_class.new.perform
       window = MaintenanceWindow.find_by(pagerduty_id: 'ABCDEF')
-      expect(window).to_not be_nil
+      expect(window).not_to be_nil
       expect(window.description).to eq('Sorry, EMIS is unavailable RN\nTry again later')
     end
   end
@@ -89,6 +89,7 @@ RSpec.describe PagerDuty::PollMaintenanceWindows, type: :job do
     before do
       Settings.sentry.dsn = 'asdf'
     end
+
     after do
       Settings.sentry.dsn = nil
     end

@@ -6,7 +6,7 @@ RSpec.describe CentralMail::DeleteOldClaims, uploader_helpers: true, type: :mode
   describe '#perform' do
     stub_virus_scan
 
-    it 'should delete old central mail claims' do
+    it 'deletes old central mail claims' do
       new_attachment_success = create(:pension_burial)
       old_attachment_pending = create(:pension_burial)
       old_attachment_success = create(:pension_burial)

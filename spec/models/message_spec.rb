@@ -34,15 +34,15 @@ RSpec.describe Message do
     describe 'when validating' do
       context 'message or draft' do
         it 'requires recipient_id' do
-          expect(build(:message, recipient_id: '')).to_not be_valid
+          expect(build(:message, recipient_id: '')).not_to be_valid
         end
 
         it 'requires body' do
-          expect(build(:message, body: '')).to_not be_valid
+          expect(build(:message, body: '')).not_to be_valid
         end
 
         it 'requires category' do
-          expect(build(:message, category: '')).to_not be_valid
+          expect(build(:message, category: '')).not_to be_valid
         end
 
         context 'file uploads' do
@@ -60,19 +60,19 @@ RSpec.describe Message do
 
           it 'requires that there be no more than 4 uploads' do
             message = build(:message, uploads: [file1, file2, file3, file4, file5])
-            expect(message).to_not be_valid
+            expect(message).not_to be_valid
             expect(message.errors[:uploads]).to include('has too many files (maximum is 4 files)')
           end
 
           it 'requires that upload file size not exceed 3 MB for any one file' do
             message = build(:message, uploads: [file5])
-            expect(message).to_not be_valid
+            expect(message).not_to be_valid
             expect(message.errors[:base]).to include('The file5.jpg exceeds file size limit of 3.0 MB')
           end
 
           it 'require that total upload size not exceed 6 MB' do
             message = build(:message, uploads: [file1, file2, file3, file4, file5])
-            expect(message).to_not be_valid
+            expect(message).not_to be_valid
             expect(message.errors[:base]).to include('Total size of uploads exceeds 6.0 MB')
           end
         end
@@ -84,7 +84,7 @@ RSpec.describe Message do
         end
 
         it 'requires body' do
-          expect(build(:message, body: '').as_reply).to_not be_valid
+          expect(build(:message, body: '').as_reply).not_to be_valid
         end
 
         it 'requires category' do
@@ -106,7 +106,7 @@ RSpec.describe Message do
         end
 
         it 'requires a body' do
-          expect(build(:message_draft, :with_message, body: '').as_reply).to_not be_valid
+          expect(build(:message_draft, :with_message, body: '').as_reply).not_to be_valid
         end
       end
     end

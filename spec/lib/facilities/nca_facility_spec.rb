@@ -4,21 +4,22 @@ require 'rails_helper'
 module Facilities
   RSpec.describe NCAFacility do
     before(:each) { BaseFacility.validate_on_load = false }
+
     after(:each) { BaseFacility.validate_on_load = true }
 
-    it 'should be an NCAFacility object' do
+    it 'is an NCAFacility object' do
       expect(described_class.new).to be_an(NCAFacility)
     end
 
     describe 'pull_source_data' do
-      it 'should pull data from ArcGIS endpoint' do
+      it 'pulls data from ArcGIS endpoint' do
         VCR.use_cassette('facilities/va/nca_facilities') do
           list = NCAFacility.pull_source_data
           expect(list.size).to eq(10)
         end
       end
 
-      it 'should return an array of NCAFacility objects' do
+      it 'returns an array of NCAFacility objects' do
         VCR.use_cassette('facilities/va/nca_facilities') do
           list = NCAFacility.pull_source_data
           expect(list).to be_an(Array)
@@ -30,7 +31,7 @@ module Facilities
         let(:facilities) { NCAFacility.pull_source_data }
         let(:facility) { facilities.first }
 
-        it 'should get the correct classification name' do
+        it 'gets the correct classification name' do
           VCR.use_cassette('facilities/va/nca_facilities') do
             expect(facility.classification).to eq('Soldiers Lot')
           end

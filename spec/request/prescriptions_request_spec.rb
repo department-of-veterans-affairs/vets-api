@@ -22,6 +22,7 @@ RSpec.describe 'prescriptions', type: :request do
 
   context 'Basic User' do
     let(:mhv_account_type) { 'Basic' }
+
     before(:each) { get '/v0/prescriptions/13651310' }
 
     include_examples 'for user account level', message: 'You do not have access to prescriptions'
@@ -34,6 +35,7 @@ RSpec.describe 'prescriptions', type: :request do
 
       context 'not a va patient' do
         before(:each) { get '/v0/prescriptions/13651310' }
+
         let(:va_patient) { false }
 
         include_examples 'for non va patient user', authorized: false, message: 'You do not have access to prescriptions'
@@ -134,7 +136,7 @@ RSpec.describe 'prescriptions', type: :request do
             put '/v0/prescriptions/preferences', params: params
           end
 
-          expect(response).to have_http_status(200)
+          expect(response).to have_http_status(:ok)
           expect(JSON.parse(response.body)['data']['id'])
             .to eq('59623c5f11b874409315b05a254a7ace5f6a1b12a21334f7b3ceebe1f1854948')
           expect(JSON.parse(response.body)['data']['attributes'])

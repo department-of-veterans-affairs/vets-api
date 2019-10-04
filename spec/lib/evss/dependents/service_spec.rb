@@ -17,7 +17,7 @@ describe EVSS::Dependents::Service do
   end
 
   describe '#retrieve' do
-    it 'should get user details' do
+    it 'gets user details' do
       VCR.use_cassette(
         'evss/dependents/retrieve',
         VCR::MATCH_EVERYTHING
@@ -32,7 +32,7 @@ describe EVSS::Dependents::Service do
   end
 
   describe '#clean_form' do
-    it 'should clean the form request' do
+    it 'cleans the form request' do
       VCR.use_cassette(
         'evss/dependents/clean_form',
         VCR::MATCH_EVERYTHING
@@ -47,7 +47,7 @@ describe EVSS::Dependents::Service do
   end
 
   describe '#validate' do
-    it 'should validate the form' do
+    it 'validates the form' do
       VCR.use_cassette(
         'evss/dependents/validate',
         VCR::MATCH_EVERYTHING
@@ -63,7 +63,7 @@ describe EVSS::Dependents::Service do
   end
 
   describe '#save' do
-    it 'should save the form' do
+    it 'saves the form' do
       VCR.use_cassette(
         'evss/dependents/save',
         VCR::MATCH_EVERYTHING
@@ -79,7 +79,7 @@ describe EVSS::Dependents::Service do
   end
 
   describe '#submit' do
-    it 'should submit the form' do
+    it 'submits the form' do
       VCR.use_cassette(
         'evss/dependents/submit',
         VCR::MATCH_EVERYTHING

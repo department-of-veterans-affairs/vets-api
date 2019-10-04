@@ -6,7 +6,8 @@ require 'support/controller_spec_helper'
 RSpec.describe V0::VIC::VICSubmissionsController, type: :controller do
   let(:form) { build(:vic_submission).form }
   let(:user) { create(:user) }
-  it_should_behave_like 'a controller that deletes an InProgressForm', 'vic_submission', 'vic_submission', 'VIC'
+
+  it_behaves_like 'a controller that deletes an InProgressForm', 'vic_submission', 'vic_submission', 'VIC'
 
   describe '#create' do
     def send_create
@@ -41,7 +42,7 @@ RSpec.describe V0::VIC::VICSubmissionsController, type: :controller do
             form.to_json
           end
 
-          it 'should not associate the vic_submission with a user' do
+          it 'does not associate the vic_submission with a user' do
             expect_any_instance_of(VIC::VICSubmission).not_to receive(:user=)
             send_create
             expect(response.ok?).to eq(true)
@@ -64,7 +65,7 @@ RSpec.describe V0::VIC::VICSubmissionsController, type: :controller do
   end
 
   describe '#show' do
-    it 'should find a vic submission by guid' do
+    it 'finds a vic submission by guid' do
       vic_submission = create(:vic_submission)
       get(:show, params: { id: vic_submission.guid })
       expect(JSON.parse(response.body)['data']['id'].to_i)
