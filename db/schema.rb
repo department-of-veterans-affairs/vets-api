@@ -157,8 +157,7 @@ ActiveRecord::Schema.define(version: 2019_09_20_134906) do
 
   create_table "drivetime_bands", force: :cascade do |t|
     t.string "name"
-    t.integer "min"
-    t.integer "max"
+    t.integer "value"
     t.string "unit"
     t.geography "polygon", limit: {:srid=>4326, :type=>"st_polygon", :geographic=>true}, null: false
     t.string "vha_facility_id", null: false
