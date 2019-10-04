@@ -39,7 +39,6 @@ describe ValidatePdf, uploader_helpers: true do
   context 'with a corrupted PDF' do
     let(:file) { Rack::Test::UploadedFile.new('spec/fixtures/files/malformed-pdf.pdf', 'application/pdf') }
 
-
     it 'should raise an error' do
       expect { store_image }
         .to raise_error(CarrierWave::UploadError, 'The uploaded PDF file is invalid and cannot be read')
