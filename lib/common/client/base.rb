@@ -53,7 +53,7 @@ module Common
       def self.configuration(configuration = nil)
         @configuration ||= configuration.instance
       end
-      
+
       def raise_backend_exception(key, source, error = nil)
         raise Common::Exceptions::BackendServiceException.new(
           key,
