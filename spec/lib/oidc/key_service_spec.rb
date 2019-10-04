@@ -5,7 +5,7 @@ require 'oidc/key_service'
 
 RSpec.describe OIDC::KeyService do
   describe '::fetch_keys' do
-    it 'should pull keys from the specified metadata endpoint' do
+    it 'pulls keys from the specified metadata endpoint' do
       with_settings(
         Settings.oidc,
         auth_server_metadata_url: 'https://example.com/oauth2/default/.well-known/oauth-authorization-server',
@@ -26,12 +26,12 @@ RSpec.describe OIDC::KeyService do
       described_class.instance_variable_set(:@current_key, {})
     end
 
-    it 'should return the current key if it already exists' do
+    it 'returns the current key if it already exists' do
       described_class.current_keys['key'] = 'key'
       expect(described_class.get_key('key')).to eq 'key'
     end
 
-    it 'should download new keys if it does not exist' do
+    it 'downloads new keys if it does not exist' do
       with_settings(
         Settings.oidc,
         auth_server_metadata_url: 'https://example.com/oauth2/default/.well-known/oauth-authorization-server',

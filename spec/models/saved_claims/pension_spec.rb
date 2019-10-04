@@ -8,7 +8,7 @@ RSpec.describe SavedClaim::Pension, uploader_helpers: true do
 
   let(:instance) { FactoryBot.build(:pension_claim) }
 
-  it_should_behave_like 'saved_claim_with_confirmation_number'
+  it_behaves_like 'saved_claim_with_confirmation_number'
 
   context 'saved claims w/ attachments' do
     stub_virus_scan
@@ -49,7 +49,7 @@ RSpec.describe SavedClaim::Pension, uploader_helpers: true do
     end
 
     describe '#process_attachments!' do
-      it 'should set the attachments saved_claim_id' do
+      it 'sets the attachments saved_claim_id' do
         expect(CentralMail::SubmitSavedClaimJob).to receive(:perform_async).with(claim.id)
         claim.process_attachments!
         expect(claim.persistent_attachments.size).to eq(2)
@@ -59,13 +59,13 @@ RSpec.describe SavedClaim::Pension, uploader_helpers: true do
     describe '#destroy' do
       it 'also destroys the persistent_attachments' do
         claim.process_attachments!
-        expect { claim.destroy }.to change { PersistentAttachment.count }.by(-2)
+        expect { claim.destroy }.to change(PersistentAttachment, :count).by(-2)
       end
     end
   end
 
   describe '#email' do
-    it 'should return the users email' do
+    it 'returns the users email' do
       expect(instance.email).to eq('foo@foo.com')
     end
   end

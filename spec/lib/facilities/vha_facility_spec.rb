@@ -8,12 +8,22 @@ RSpec.describe Facilities::VHAFacility do
 
   after(:each) { BaseFacility.validate_on_load = true }
 
-  it 'should be a Facilities::VHAFacility object' do
+  it 'is a Facilities::VHAFacility object' do
     expect(described_class.new).to be_a(Facilities::VHAFacility)
   end
 
+  it 'is able to have multiple DrivetimeBands' do
+    create :vha_648
+    create :thirty_mins
+    create :sixty_mins
+
+    bands = Facilities::VHAFacility.first.drivetime_bands
+
+    expect(bands.length).to eq(2)
+  end
+
   describe 'pull_source_data' do
-    it 'should pull data from a GIS endpoint' do
+    it 'pulls data from a GIS endpoint' do
       VCR.use_cassette('facilities/va/vha_facilities_limit_results') do
         list = Facilities::VHAFacility.pull_source_data
         expect(list.size).to eq(4)
@@ -26,7 +36,7 @@ RSpec.describe Facilities::VHAFacility do
       let(:facility) { facilities.first }
       let(:facility_2) { facilities.second }
 
-      it 'should parse hours correctly' do
+      it 'parses hours correctly' do
         VCR.use_cassette('facilities/va/vha_facilities_limit_results') do
           expect(facility.hours.values).to match_array(
             %w[730AM-430PM 730AM-430PM 730AM-430PM 730AM-430PM 730AM-430PM Closed Closed]
@@ -34,13 +44,13 @@ RSpec.describe Facilities::VHAFacility do
         end
       end
 
-      it 'should parse mailing address correctly' do
+      it 'parses mailing address correctly' do
         VCR.use_cassette('facilities/va/vha_facilities_limit_results') do
           expect(facility.address['mailing']).to eq({})
         end
       end
 
-      it 'should parse mailing address correctly' do
+      it 'parses mailing address correctly' do
         VCR.use_cassette('facilities/va/vha_facilities_limit_results') do
           expect(facility.address['physical']).to eq('address_1' => '1501 Roxas Boulevard',
                                                      'address_2' => 'NOX3 Seafront Compound',
@@ -49,38 +59,38 @@ RSpec.describe Facilities::VHAFacility do
         end
       end
 
-      it 'should include just be 5 digit if zip +4 is empty' do
+      it 'includes just be 5 digit if zip +4 is empty' do
         VCR.use_cassette('facilities/va/vha_facilities_limit_results') do
           expect(facility.address['physical']['zip']).to eq('01302')
         end
       end
 
-      it 'should include zip +4 when available' do
+      it 'includes zip +4 when available' do
         VCR.use_cassette('facilities/va/vha_facilities_limit_results') do
           expect(facility_2.address['physical']['zip']).to eq('04330-6796')
         end
       end
 
-      it 'should include websites for facilities' do
+      it 'includes websites for facilities' do
         VCR.use_cassette('facilities/va/vha_facilities_limit_results') do
           expect(facility_2.website).to eq('http://www.maine.va.gov/')
         end
       end
 
-      it 'should include active status for facilities' do
+      it 'includes active status for facilities' do
         VCR.use_cassette('facilities/va/vha_facilities_limit_results') do
           expect(facility_2.active_status).to eq('A')
         end
       end
 
-      it 'should indicate if a facility is mobile' do
+      it 'indicates if a facility is mobile' do
         VCR.use_cassette('facilities/va/vha_facilities_limit_results') do
           expect(facility.mobile).to eq(false)
           expect(facility_2.mobile).to eq(true)
         end
       end
 
-      it 'should get the correct classification name' do
+      it 'gets the correct classification name' do
         VCR.use_cassette('facilities/va/vha_facilities_limit_results') do
           expect(facility.classification).to eq('Other Outpatient Services (OOS)')
           expect(facility_2.classification).to eq('VA Medical Center (VAMC)')
@@ -109,7 +119,7 @@ RSpec.describe Facilities::VHAFacility do
           FacilityMentalHealth.create(attrs2)
         end
 
-        it 'should add mental health info for facilities' do
+        it 'adds mental health info for facilities' do
           VCR.use_cassette('facilities/va/vha_facilities_limit_results') do
             expect(facility.phone['mental_health_clinic']).to eq('407-123-1234')
             expect(facility_2.phone['mental_health_clinic']).to eq('321-987-6543 x 0002')
@@ -144,7 +154,7 @@ RSpec.describe Facilities::VHAFacility do
           Facilities::DentalServiceReloadJob.new.perform
         end
 
-        it 'should parse services' do
+        it 'parses services' do
           VCR.use_cassette('facilities/va/vha_facilities_limit_results') do
             f2_services = facility_2.services
             f2_health = f2_services['health']

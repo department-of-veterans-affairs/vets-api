@@ -3,13 +3,13 @@
 require 'rails_helper'
 
 RSpec.describe EVSSClaimListSerializer, type: :serializer do
+  subject { serialize(evss_claim, serializer_class: EVSSClaimListSerializer) }
+
   let(:evss_claim) { build(:evss_claim) }
   let(:data) { JSON.parse(subject)['data'] }
   let(:attributes) { data['attributes'] }
 
-  subject { serialize(evss_claim, serializer_class: EVSSClaimListSerializer) }
-
-  it 'should include id' do
+  it 'includes id' do
     expect(data['id']).to eq(evss_claim.evss_id.to_s)
   end
 
@@ -22,7 +22,7 @@ RSpec.describe EVSSClaimListSerializer, type: :serializer do
                        })
     end
 
-    it 'should not use object.data' do
+    it 'does not use object.data' do
       expect(attributes['waiver_submitted']).to eq true
     end
   end

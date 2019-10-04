@@ -7,7 +7,7 @@ shared_examples_for 'a controller that does not log 404 to Sentry' do
     end
   end
 
-  it 'should not log 404 to sentry' do
+  it 'does not log 404 to sentry' do
     with_routing do |routes|
       @routes = routes
       controller_klass = described_class
@@ -39,7 +39,7 @@ shared_examples_for 'a controller that deletes an InProgressForm' do |param_name
           create(:in_progress_form, user_uuid: user.uuid, form_id: form_id)
           expect(controller).to receive(:clear_saved_form).with(form_id).and_call_original
           sign_in_as(user)
-          expect { send_create }.to change { InProgressForm.count }.by(-1)
+          expect { send_create }.to change(InProgressForm, :count).by(-1)
         end
       end
     end

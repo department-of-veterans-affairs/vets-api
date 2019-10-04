@@ -7,8 +7,8 @@ RSpec.describe V0::GIBillFeedbacksController, type: :controller do
   let(:form) { build(:gi_bill_feedback).form }
   let(:user) { create(:user) }
 
-  it_should_behave_like 'a controller that deletes an InProgressForm',
-                        'gi_bill_feedback', 'gi_bill_feedback', GIBillFeedback::FORM_ID
+  it_behaves_like 'a controller that deletes an InProgressForm',
+                  'gi_bill_feedback', 'gi_bill_feedback', GIBillFeedback::FORM_ID
 
   def parsed_body
     JSON.parse(response.body)
@@ -39,7 +39,7 @@ RSpec.describe V0::GIBillFeedbacksController, type: :controller do
   end
 
   describe '#show' do
-    it 'should find a gi bill feedback submission by guid' do
+    it 'finds a gi bill feedback submission by guid' do
       gi_bill_feedback = create(:gi_bill_feedback)
       get(:show, params: { id: gi_bill_feedback.guid })
       expect(parsed_body['data']['id']).to eq(gi_bill_feedback.id)

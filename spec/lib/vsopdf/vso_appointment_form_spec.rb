@@ -30,7 +30,7 @@ describe VsoAppointmentForm do
                                   disclosure_exception_hiv: true
                                 ))
 
-  it 'should translate a VsoAppointment object' do
+  it 'translates a VsoAppointment object' do
     # Spot check the arg translation
     args = form.to_pdf_args
 
@@ -44,7 +44,7 @@ describe VsoAppointmentForm do
     expect(args['F[0].Page_1[0].Dateappt[0]']).to eq('2018-01-02')
   end
 
-  it 'should generate a valid pdf' do
+  it 'generates a valid pdf' do
     path = form.generate_pdf
 
     # Read the pdf and get a hash of the filled fields
@@ -52,7 +52,7 @@ describe VsoAppointmentForm do
     expect(fields['F[0].Page_1[0].nameofvet[0]']).to eq 'Graham Test'
   end
 
-  it 'should generate central mail metadata' do
+  it 'generates central mail metadata' do
     meta = form.get_metadata 'lib/vsopdf/VBA-21-22-ARE.pdf'
     expect(meta[:numberAttachments]).to eq 0
     expect(meta[:veteranFirstName]).to eq 'Graham'
@@ -64,7 +64,7 @@ describe VsoAppointmentForm do
     expect(meta[:receiveDt].match(/\A[\d]{4}-[\d]{2}-[\d]{2} [\d]{2}:[\d]{2}:[\d]{2}\Z/).nil?).to eq false
   end
 
-  it 'should post a pdf to central mail' do
+  it 'posts a pdf to central mail' do
     VCR.use_cassette('vso_appointments/upload') do
       expect(form.send_pdf.status).to eq(200)
     end

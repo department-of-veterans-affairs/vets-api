@@ -10,7 +10,7 @@ RSpec.describe 'VBA Document Uploads Endpoint', type: :request do
   include VBADocuments::Fixtures
 
   describe '#create /v0/uploads' do
-    it 'should return a UUID and location' do
+    it 'returns a UUID and location' do
       with_settings(Settings.vba_documents.location,
                     'prefix': 'https://fake.s3.url/foo/',
                     'replacement': 'https://api.vets.gov/proxy/') do
@@ -30,13 +30,13 @@ RSpec.describe 'VBA Document Uploads Endpoint', type: :request do
       end
     end
 
-    it 'should set consumer name from X-Consumer-Username header' do
+    it 'sets consumer name from X-Consumer-Username header' do
       post '/services/vba_documents/v0/uploads', params: nil, headers: { 'X-Consumer-Username': 'test consumer' }
       upload = VBADocuments::UploadSubmission.order(created_at: :desc).first
       expect(upload.consumer_name).to eq('test consumer')
     end
 
-    it 'should set consumer id from X-Consumer-ID header' do
+    it 'sets consumer id from X-Consumer-ID header' do
       post '/services/vba_documents/v0/uploads',
            params: nil,
            headers: { 'X-Consumer-ID': '29090360-72a8-4b77-b5ea-6ea1c69c7d89' }
@@ -48,7 +48,7 @@ RSpec.describe 'VBA Document Uploads Endpoint', type: :request do
   describe '#show /v0/uploads/{id}' do
     let(:upload) { FactoryBot.create(:upload_submission) }
 
-    it 'should return status of an upload submission' do
+    it 'returns status of an upload submission' do
       get "/services/vba_documents/v0/uploads/#{upload.guid}"
       expect(response).to have_http_status(:ok)
       json = JSON.parse(response.body)
@@ -57,7 +57,7 @@ RSpec.describe 'VBA Document Uploads Endpoint', type: :request do
       expect(json['data']['attributes']['location']).to be_nil
     end
 
-    it 'should return not_found with data for a non-existent submission' do
+    it 'returns not_found with data for a non-existent submission' do
       get '/services/vba_documents/v0/uploads/non_existent_guid'
       expect(response).to have_http_status(:not_found)
       json = JSON.parse(response.body)
@@ -65,7 +65,7 @@ RSpec.describe 'VBA Document Uploads Endpoint', type: :request do
       expect(json['data']['attributes']['status']).to eq('error')
     end
 
-    it 'should return not_found for an expired submission' do
+    it 'returns not_found for an expired submission' do
       upload.update(status: 'expired')
       get "/services/vba_documents/v0/uploads/#{upload.guid}"
       expect(response).to have_http_status(:ok)
@@ -75,13 +75,13 @@ RSpec.describe 'VBA Document Uploads Endpoint', type: :request do
     context 'with vbms complete' do
       let!(:vbms_upload) { FactoryBot.create(:upload_submission, status: 'vbms') }
 
-      it 'should report status of success' do
+      it 'reports status of success' do
         get "/services/vba_documents/v0/uploads/#{vbms_upload.guid}"
         expect(JSON.parse(response.body)['data']['attributes']['status']).to eq('success')
       end
     end
 
-    it 'should allow updating of the status' do
+    it 'allows updating of the status' do
       with_settings(
         Settings.vba_documents,
         enable_status_override: true
@@ -109,13 +109,13 @@ RSpec.describe 'VBA Document Uploads Endpoint', type: :request do
         'content' => valid_doc }
     end
 
-    it "should raise if settings aren't set" do
+    it "raises if settings aren't set" do
       with_settings(Settings.vba_documents, enable_download_endpoint: false) do
         get "/services/vba_documents/v0/uploads/#{upload.guid}/download"
         expect(response.status).to eq(404)
       end
     end
-    it 'should return a 200 with content-type of zip' do
+    it 'returns a 200 with content-type of zip' do
       objstore = instance_double(VBADocuments::ObjectStore)
       version = instance_double(Aws::S3::ObjectVersion)
       allow(VBADocuments::ObjectStore).to receive(:new).and_return(objstore)
@@ -129,7 +129,7 @@ RSpec.describe 'VBA Document Uploads Endpoint', type: :request do
       expect(response.headers['Content-Type']).to eq('application/zip')
     end
 
-    it 'should 200 even with an invalid doc' do
+    it '200S even with an invalid doc' do
       allow(VBADocuments::PayloadManager).to receive(:download_raw_file).and_return(invalid_doc)
       get "/services/vba_documents/v0/uploads/#{upload.guid}/download"
       expect(response.status).to eq(200)

@@ -11,14 +11,14 @@ RSpec.describe SavedClaim::DisabilityCompensation::Form526IncreaseOnly do
 
   describe '#to_submission_data' do
     context 'without a 4142 submission' do
+      subject { described_class.from_hash(form_content) }
+
       let(:form_content) do
         JSON.parse(File.read('spec/support/disability_compensation_form/front_end_submission.json'))
       end
       let(:submission_data) do
         JSON.parse(File.read('spec/support/disability_compensation_form/submissions/only_526.json'))
       end
-
-      subject { described_class.from_hash(form_content) }
 
       it 'returns a hash of submission data' do
         VCR.use_cassette('evss/ppiu/payment_information') do

@@ -3,13 +3,13 @@
 require 'rails_helper'
 
 RSpec.describe EVSS::RetrieveClaimsFromRemoteJob, type: :job do
-  let(:user) { create(:user, :loa3) }
-  let(:tracker) { EVSSClaimsSyncStatusTracker.new(user_uuid: user.uuid) }
-  let(:client_stub) { instance_double('EVSS::ClaimsService') }
-
   subject do
     described_class.new
   end
+
+  let(:user) { create(:user, :loa3) }
+  let(:tracker) { EVSSClaimsSyncStatusTracker.new(user_uuid: user.uuid) }
+  let(:client_stub) { instance_double('EVSS::ClaimsService') }
 
   describe '#perform' do
     before do
@@ -28,7 +28,7 @@ RSpec.describe EVSS::RetrieveClaimsFromRemoteJob, type: :job do
     end
 
     describe 'when job has failed (e.g. timeout)' do
-      it 'should set the status to FAILED' do
+      it 'sets the status to FAILED' do
         allow(client_stub).to receive(:all_claims).and_raise(
           EVSS::ErrorMiddleware::EVSSBackendServiceError
         )

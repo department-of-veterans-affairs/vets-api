@@ -6,7 +6,7 @@ describe VeteranVerification::ServiceHistoryEpisode, skip_emis: true do
   let(:user) { build(:openid_user, identity_attrs: build(:user_identity_attrs, :loa3)) }
 
   describe '#formatted_episodes' do
-    it 'should return service history and deployments' do
+    it 'returns service history and deployments' do
       VCR.use_cassette('emis/get_deployment/valid') do
         VCR.use_cassette('emis/get_military_service_episodes/valid') do
           result = described_class.for_user(user)
@@ -17,7 +17,7 @@ describe VeteranVerification::ServiceHistoryEpisode, skip_emis: true do
       end
     end
 
-    it 'should return service history and deploys when there are multiple episodes' do
+    it 'returns service history and deploys when there are multiple episodes' do
       VCR.use_cassette('emis/get_deployment/valid') do
         VCR.use_cassette('emis/get_military_service_episodes/valid_multiple_episodes') do
           result = described_class.for_user(user)

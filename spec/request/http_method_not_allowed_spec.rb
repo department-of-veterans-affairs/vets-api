@@ -14,8 +14,9 @@ class MockRackApp
 end
 
 RSpec.describe HttpMethodNotAllowed, type: :request do
-  let(:app) { MockRackApp.new }
   subject { described_class.new(app) }
+
+  let(:app) { MockRackApp.new }
 
   let(:r) { Rack::MockRequest.new(subject) }
 

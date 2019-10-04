@@ -19,7 +19,7 @@ describe PdfFill::Forms::Va210781 do
     new_form_class.instance_variable_get(:@form_data)
   end
   describe '#merge_fields' do
-    it 'should merge the right fields', run_at: '2016-12-31 00:00:00 EDT' do
+    it 'merges the right fields', run_at: '2016-12-31 00:00:00 EDT' do
       expect(described_class.new(get_fixture('pdf_fill/21-0781/simple')).merge_fields).to eq(
         get_fixture('pdf_fill/21-0781/merge_fields')
       )
@@ -28,7 +28,7 @@ describe PdfFill::Forms::Va210781 do
 
   # rubocop:disable Metrics/LineLength
   describe '#format_persons_involved' do
-    it 'should handle no data' do
+    it 'handles no data' do
       expect(new_form_class.send(:format_persons_involved, {})).to be_nil
     end
 
@@ -58,13 +58,13 @@ describe PdfFill::Forms::Va210781 do
         }
       ]
     }
-    it 'should format data correctly' do
+    it 'formats data correctly' do
       expect(new_form_class.send(:format_persons_involved, data)).to eq "B B B\nRank: R\nUnit Assigned: abc\nInjury or Death Date: 2000-01-01\nInjury or Death Cause: Killed in Action\n\nB B B\nRank: R\nUnit Assigned: abc\nInjury or Death Date: 2000-01-01\nInjury or Death Cause: Killed in Action"
     end
   end
 
   describe '#format_incident_overflow' do
-    it 'should handle no data' do
+    it 'handles no data' do
       expect(new_form_class.send(:format_incident_overflow, {}, 0)).to be_nil
     end
 
@@ -73,7 +73,7 @@ describe PdfFill::Forms::Va210781 do
       'medalsCitations' => 'ipsum.'
     }
 
-    it 'should format data correctly' do
+    it 'formats data correctly' do
       expect(JSON.parse(new_form_class.send(:format_incident_overflow, data, 0).to_json)).to eq(
         'value' => '',
         'extras_value' => "Incident Number: 0\n\nIncident Date: \n\nDates of Unit Assignment: \n\nIncident Location: \n\n\n\nUnit Assignment During Incident: \n\n\n\nDescription of Incident: \n\nLorem.\n\nMedals Or Citations: \n\nipsum.\n\nPersons Involved: \n\n"
@@ -110,7 +110,7 @@ describe PdfFill::Forms::Va210781 do
         }
       ]
     }
-    it 'should flatten data correctly' do
+    it 'flattens data correctly' do
       expect(new_form_class.send(:expand_persons_involved, data)).to eq(
         'first0' => 'John',
         'first1' => 'Jane',
@@ -161,7 +161,7 @@ describe PdfFill::Forms::Va210781 do
   end
 
   describe '#resolve_cause_injury_death' do
-    it 'should resolve listed cause of death correctly' do
+    it 'resolves listed cause of death correctly' do
       expect(JSON.parse(new_form_class.send(:resolve_cause_injury_death,
                                             { 'injuryDeath' => 'killedInAction' }, 0).to_json)).to eq(
                                               'killedInAction0' => true
@@ -172,7 +172,7 @@ describe PdfFill::Forms::Va210781 do
       'injuryDeath' => 'other',
       'injuryDeathOther' => 'Natural Causes'
     }
-    it 'should resolve other cause of death correctly' do
+    it 'resolves other cause of death correctly' do
       expect(JSON.parse(new_form_class.send(:resolve_cause_injury_death, data, 0).to_json)).to eq(
         'other0' => true,
         'otherText0' => 'Natural Causes'
@@ -189,7 +189,7 @@ describe PdfFill::Forms::Va210781 do
       },
       'rank' => 'Inc 1 Rank 0'
     }
-    it 'should process the identification information correctly' do
+    it 'processes the identification information correctly' do
       expect(JSON.parse(new_form_class.send(:flatten_person_identification, data, 0).to_json)).to eq(
         'first0' => 'Besty',
         'middleInitial0' => 'B',
@@ -203,7 +203,7 @@ describe PdfFill::Forms::Va210781 do
     data = {
       'unitAssigned' => 'abcdefghijklm0 opqrstuvwxyz12340 bpqrstuvwxyz12340'
     }
-    it 'should split the person_unit_assigment correctly' do
+    it 'splits the person_unit_assigment correctly' do
       expect(JSON.parse(new_form_class.send(:split_person_unit_assignment, data, 0).to_json)).to eq(
         'unitAssigned0Row0' => 'abcdefghijklm0',
         'unitAssigned0Row1' => 'opqrstuvwxyz12340',
@@ -216,7 +216,7 @@ describe PdfFill::Forms::Va210781 do
     data = {
       'injuryDeathDate' => '2000-01-01'
     }
-    it 'should expand the injury death date correctly' do
+    it 'expands the injury death date correctly' do
       expect(JSON.parse(new_form_class.send(:expand_injury_death_date, data, 0).to_json)).to eq(
         'injuryDeathDateMonth0' => '01',
         'injuryDeathDateDay0' => '01',

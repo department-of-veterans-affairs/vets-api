@@ -11,12 +11,12 @@ RSpec.describe EducationBenefitsClaim, type: :model do
     method = "is_#{form_type}?"
 
     describe "##{method}" do
-      it "should return false when it's not the right type" do
+      it "returns false when it's not the right type" do
         education_benefits_claim.saved_claim.form_id = 'foo'
         expect(education_benefits_claim.public_send(method)).to eq(false)
       end
 
-      it "should return true when it's the right type" do
+      it "returns true when it's the right type" do
         education_benefits_claim.saved_claim.form_id = "22-#{form_type.upcase}"
         expect(education_benefits_claim.public_send(method)).to eq(true)
       end
@@ -24,13 +24,13 @@ RSpec.describe EducationBenefitsClaim, type: :model do
   end
 
   describe '#form_type' do
-    it 'should return the form type' do
+    it 'returns the form type' do
       expect(education_benefits_claim.form_type).to eq('1990')
     end
   end
 
   describe '#regional_office' do
-    it 'should return the regional office' do
+    it 'returns the regional office' do
       expect(education_benefits_claim.regional_office).to eq(
         "Eastern Region\nVA Regional Office\nP.O. Box 4616\nBuffalo, NY 14240-4616"
       )
@@ -38,7 +38,7 @@ RSpec.describe EducationBenefitsClaim, type: :model do
   end
 
   describe '#confirmation_number' do
-    it 'should let you look up a claim from the confirmation number' do
+    it 'lets you look up a claim from the confirmation number' do
       expect(
         described_class.find(education_benefits_claim.confirmation_number.gsub('V-EBC-', '').to_i)
       ).to eq(education_benefits_claim)
@@ -51,7 +51,7 @@ RSpec.describe EducationBenefitsClaim, type: :model do
       education_benefits_claim
     end
 
-    it 'should update the education_benefits_submission status' do
+    it 'updates the education_benefits_submission status' do
       expect(subject.education_benefits_submission.status).to eq('processed')
     end
 
@@ -90,10 +90,10 @@ RSpec.describe EducationBenefitsClaim, type: :model do
       subject.education_benefits_claim.education_benefits_submission.attributes.except('id', 'created_at', 'updated_at')
     end
 
-    it 'should create an education benefits submission after submission' do
+    it 'creates an education benefits submission after submission' do
       expect do
         subject
-      end.to change { EducationBenefitsSubmission.count }.by(1)
+      end.to change(EducationBenefitsSubmission, :count).by(1)
 
       expect(associated_submission).to eq(
         submission_attributes.merge(
@@ -109,7 +109,7 @@ RSpec.describe EducationBenefitsClaim, type: :model do
         create(:va1995)
       end
 
-      it 'should create a submission' do
+      it 'creates a submission' do
         subject
 
         expect(associated_submission).to eq(
@@ -126,7 +126,7 @@ RSpec.describe EducationBenefitsClaim, type: :model do
         create(:va1995s)
       end
 
-      it 'should create a submission' do
+      it 'creates a submission' do
         subject
 
         expect(associated_submission).to eq(
@@ -144,7 +144,7 @@ RSpec.describe EducationBenefitsClaim, type: :model do
         create(:va1990e)
       end
 
-      it 'should create a submission' do
+      it 'creates a submission' do
         subject
 
         expect(associated_submission).to eq(
@@ -161,7 +161,7 @@ RSpec.describe EducationBenefitsClaim, type: :model do
         create(:va5490)
       end
 
-      it 'should create a submission' do
+      it 'creates a submission' do
         subject
 
         expect(associated_submission).to eq(
@@ -178,7 +178,7 @@ RSpec.describe EducationBenefitsClaim, type: :model do
         create(:va1990n)
       end
 
-      it 'should create a submission' do
+      it 'creates a submission' do
         subject
 
         expect(associated_submission).to eq(
@@ -194,7 +194,7 @@ RSpec.describe EducationBenefitsClaim, type: :model do
         create(:va5495)
       end
 
-      it 'should create a submission' do
+      it 'creates a submission' do
         subject
 
         expect(associated_submission).to eq(
@@ -206,13 +206,21 @@ RSpec.describe EducationBenefitsClaim, type: :model do
       end
     end
 
-    it "shouldn't create a submission after save if it was already submitted" do
+    it 'does not create a submission after save if it was already submitted' do
       subject.education_benefits_claim.update_attributes!(processed_at: Time.zone.now)
       expect(EducationBenefitsSubmission.count).to eq(1)
     end
   end
 
   describe '#copy_from_previous_benefits' do
+    subject do
+      saved_claim = build(:va1990, form: form.to_json)
+
+      education_benefits_claim.instance_variable_set(:@application, saved_claim.open_struct_form)
+      education_benefits_claim.copy_from_previous_benefits
+      education_benefits_claim.open_struct_form
+    end
+
     let(:form) do
       {
         previousBenefits: {
@@ -221,14 +229,6 @@ RSpec.describe EducationBenefitsClaim, type: :model do
           veteranSocialSecurityNumber: '321'
         }
       }
-    end
-
-    subject do
-      saved_claim = build(:va1990, form: form.to_json)
-
-      education_benefits_claim.instance_variable_set(:@application, saved_claim.open_struct_form)
-      education_benefits_claim.copy_from_previous_benefits
-      education_benefits_claim.open_struct_form
     end
 
     context 'when currentSameAsPrevious is false' do
@@ -248,7 +248,7 @@ RSpec.describe EducationBenefitsClaim, type: :model do
         form[:currentSameAsPrevious] = true
       end
 
-      it 'should copy fields from previous benefits' do
+      it 'copies fields from previous benefits' do
         expect(subject.veteranFullName).to eq('joe')
         expect(subject.vaFileNumber).to eq('123')
         expect(subject.veteranSocialSecurityNumber).to eq('321')
@@ -264,7 +264,7 @@ RSpec.describe EducationBenefitsClaim, type: :model do
     it 'sets a record for processing' do
       expect do
         education_benefits_claim.reprocess_at('western')
-      end.to change { education_benefits_claim.regional_processing_office }.from('eastern').to('western')
+      end.to change(education_benefits_claim, :regional_processing_office).from('eastern').to('western')
       expect(education_benefits_claim.processed_at).to be nil
     end
   end

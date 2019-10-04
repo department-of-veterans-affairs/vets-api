@@ -14,16 +14,16 @@ describe ValidatePdf, uploader_helpers: true do
   context 'with a file that is not a PDF' do
     let(:file) { Rack::Test::UploadedFile.new('spec/fixtures/files/va.gif', 'image/gif') }
 
-    it 'should not raise an error' do
-      expect { store_image }.to_not raise_error
+    it 'does not raise an error' do
+      expect { store_image }.not_to raise_error
     end
   end
 
   context 'with a valid PDF' do
     let(:file) { Rack::Test::UploadedFile.new('spec/fixtures/files/doctors-note.pdf', 'application/pdf') }
 
-    it 'should not raise an error' do
-      expect { store_image }.to_not raise_error
+    it 'does not raise an error' do
+      expect { store_image }.not_to raise_error
     end
   end
 
@@ -38,6 +38,7 @@ describe ValidatePdf, uploader_helpers: true do
 
   context 'with a corrupted PDF' do
     let(:file) { Rack::Test::UploadedFile.new('spec/fixtures/files/malformed-pdf.pdf', 'application/pdf') }
+
 
     it 'should raise an error' do
       expect { store_image }
