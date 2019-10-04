@@ -130,8 +130,7 @@ module Vet360
           ).deep_transform_keys { |k| k.to_s.camelize(:lower) }.merge(
             addressPOU: @address_pou,
             requestCountry: {
-              countryCode: @country_code_iso3,
-              countryName: IsoCountryCodes.find(@country_code_iso3).name
+              countryCode: @country_code_iso3
             },
             stateProvince: {
               code: @state_code,
