@@ -71,7 +71,7 @@ module EVSS
         raise Common::Exceptions::Forbidden if error.status == 403
 
         raise_backend_exception('EVSS400', self.class, error) if error.status == 400
-        raise_backend_exception('EVSS502', "#{self.class}", error)
+        raise_backend_exception('EVSS502', self.class, error)
       else
         raise error
       end
