@@ -4,13 +4,13 @@ require 'rails_helper'
 
 RSpec.describe ClaimsApi::SupportingDocument, type: :model do
   describe 'encrypted attribute' do
-    it 'should do the thing' do
+    it 'does the thing' do
       expect(subject).to encrypt_attr(:file_data)
     end
   end
 
   describe '#set_file_data!' do
-    it 'should store the file_data and give me a full evss document' do
+    it 'stores the file_data and give me a full evss document' do
       attachment = build(:supporting_document)
 
       file = Rack::Test::UploadedFile.new(

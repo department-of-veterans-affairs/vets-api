@@ -16,7 +16,7 @@ describe UploaderVirusScan, uploader_helpers: true do
     stub_virus_scan
 
     context 'with no virus' do
-      it 'should run the virus scan' do
+      it 'runs the virus scan' do
         expect(Rails.env).to receive(:production?).and_return(true)
 
         store_image
@@ -31,7 +31,7 @@ describe UploaderVirusScan, uploader_helpers: true do
         }
       end
 
-      it 'should raise an error' do
+      it 'raises an error' do
         expect(Rails.env).to receive(:production?).and_return(true)
         expect(file).to receive(:delete)
 

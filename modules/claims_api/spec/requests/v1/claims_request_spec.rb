@@ -91,7 +91,7 @@ RSpec.describe 'EVSS Claims management', type: :request do
   end
 
   context 'POA verifier' do
-    it 'should user the poa verifier when the header is present' do
+    it 'users the poa verifier when the header is present' do
       with_okta_user(scopes) do |auth_header|
         VCR.use_cassette('evss/claims/claim') do
           verifier_stub = instance_double('EVSS::PowerOfAttorneyVerifier')

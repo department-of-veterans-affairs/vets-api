@@ -67,12 +67,6 @@ RSpec/ExampleWithoutDescription:
   Exclude:
     - 'spec/request/va_facilities_request_spec.rb'
 
-# Offense count: 1366
-# Cop supports --auto-correct.
-# Configuration parameters: CustomTransform, IgnoredWords.
-RSpec/ExampleWording:
-  Enabled: false
-
 # Offense count: 82
 RSpec/ExpectInHook:
   Enabled: false
@@ -113,8 +107,8 @@ RSpec/IteratedExpectation:
 
 # Offense count: 144
 # Cop supports --auto-correct.
-RSpec/LeadingSubject:
-  Enabled: false
+# RSpec/LeadingSubject:
+#   Enabled: false
 
 # Offense count: 56
 RSpec/LeakyConstantDeclaration:

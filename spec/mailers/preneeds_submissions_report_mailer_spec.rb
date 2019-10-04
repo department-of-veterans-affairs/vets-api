@@ -14,7 +14,7 @@ RSpec.describe PreneedsSubmissionsReportMailer, type: [:mailer] do
       ).deliver_now
     end
 
-    it 'should send the right email' do
+    it 'sends the right email' do
       expect(subject.body.raw_source).to eq(File.read('spec/fixtures/preneeds/preneeds_submission_report.html'))
       expect(subject.subject).to eq('Preneeds submissions report')
     end
@@ -24,7 +24,7 @@ RSpec.describe PreneedsSubmissionsReportMailer, type: [:mailer] do
         expect(FeatureFlipper).to receive(:staging_email?).once.and_return(false)
       end
 
-      it 'should email the the right recipients' do
+      it 'emails the the right recipients' do
         expect(subject.to).to eq(
           %w[
             johnny@oddball.io

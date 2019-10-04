@@ -5,17 +5,17 @@ require 'string_helpers'
 
 describe StringHelpers do
   context 'capitalize_only' do
-    it 'should capitalize fooBar to FooBar' do
+    it 'capitalizes fooBar to FooBar' do
       expect(described_class.capitalize_only('fooBar')).to eq('FooBar')
     end
 
-    it 'should capitalize FooBar to FooBar' do
+    it 'capitalizes FooBar to FooBar' do
       expect(described_class.capitalize_only('FooBar')).to eq('FooBar')
     end
   end
 
   describe '#hyphenated_ssn' do
-    it 'should hyphenate the ssn' do
+    it 'hyphenates the ssn' do
       expect(described_class.hyphenated_ssn('111221234')).to eq('111-22-1234')
     end
   end
@@ -34,18 +34,18 @@ describe StringHelpers do
     ]
 
     fixtures.each do |w1, w2, d|
-      it "should calculate a distance of #{d} between #{w1} and #{w2}" do
+      it "calculates a distance of #{d} between #{w1} and #{w2}" do
         expect(described_class.levenshtein_distance(w1, w2)).to eq(d)
         expect(described_class.levenshtein_distance(w2, w1)).to eq(d)
       end
     end
 
-    it 'should raise an error if either argument is nil' do
+    it 'raises an error if either argument is nil' do
       expect { described_class.levenshtein_distance('', nil) }.to raise_error TypeError
       expect { described_class.levenshtein_distance(nil, '') }.to raise_error TypeError
     end
 
-    it 'should raise an error if either argument is something else than a string' do
+    it 'raises an error if either argument is something else than a string' do
       expect { described_class.levenshtein_distance('woah', /woah/) }.to raise_error TypeError
       expect { described_class.levenshtein_distance(5.3, '5.3') }.to raise_error TypeError
       expect { described_class.levenshtein_distance(Object.new, 'Hello') }.to raise_error TypeError
@@ -63,7 +63,7 @@ describe StringHelpers do
     # rubocop:enable LineLength
 
     fixtures.each do |w1, w2, heuristic_hash|
-      it "should return heuristics hash #{heuristic_hash} " do
+      it "returns heuristics hash #{heuristic_hash}" do
         expect(described_class.heuristics(w1, w2)).to eq(heuristic_hash)
       end
     end

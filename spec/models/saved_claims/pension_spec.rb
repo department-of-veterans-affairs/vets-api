@@ -49,7 +49,7 @@ RSpec.describe SavedClaim::Pension, uploader_helpers: true do
     end
 
     describe '#process_attachments!' do
-      it 'should set the attachments saved_claim_id' do
+      it 'sets the attachments saved_claim_id' do
         expect(CentralMail::SubmitSavedClaimJob).to receive(:perform_async).with(claim.id)
         claim.process_attachments!
         expect(claim.persistent_attachments.size).to eq(2)
@@ -65,7 +65,7 @@ RSpec.describe SavedClaim::Pension, uploader_helpers: true do
   end
 
   describe '#email' do
-    it 'should return the users email' do
+    it 'returns the users email' do
       expect(instance.email).to eq('foo@foo.com')
     end
   end

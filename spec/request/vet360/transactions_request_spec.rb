@@ -19,7 +19,7 @@ RSpec.describe 'transactions', type: :request do
 
   describe 'GET /v0/profile/status/:transaction_id' do
     context 'when the requested transaction exists' do
-      it 'it responds with a serialized transaction', :aggregate_failures do
+      it 'responds with a serialized transaction', :aggregate_failures do
         transaction = create(
           :address_transaction,
           user_uuid: user.uuid,
@@ -72,7 +72,7 @@ RSpec.describe 'transactions', type: :request do
 
   describe 'GET /v0/profile/status/' do
     context 'when transaction(s) exists' do
-      it 'it responds with an array of transaction(s)', :aggregate_failures do
+      it 'responds with an array of transaction(s)', :aggregate_failures do
         create(
           :address_transaction,
           user_uuid: user.uuid,

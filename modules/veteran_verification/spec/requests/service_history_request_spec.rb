@@ -8,7 +8,7 @@ RSpec.describe 'Service History API endpoint', type: :request, skip_emis: true d
   let(:scopes) { %w[profile email openid service_history.read] }
 
   context 'with valid emis responses' do
-    it 'should return the current users service history with one episode' do
+    it 'returns the current users service history with one episode' do
       with_okta_user(scopes) do |auth_header|
         VCR.use_cassette('emis/get_deployment/valid') do
           VCR.use_cassette('emis/get_military_service_episodes/valid') do
@@ -21,7 +21,7 @@ RSpec.describe 'Service History API endpoint', type: :request, skip_emis: true d
       end
     end
 
-    it 'should return the current users service history with multiple episodes' do
+    it 'returns the current users service history with multiple episodes' do
       with_okta_user(scopes) do |auth_header|
         VCR.use_cassette('emis/get_deployment/valid') do
           VCR.use_cassette('emis/get_military_service_episodes/valid_multiple_episodes') do
@@ -41,7 +41,7 @@ RSpec.describe 'Service History API endpoint', type: :request, skip_emis: true d
       allow(EMISRedis::MilitaryInformation).to receive_message_chain(:for_user, :service_history) { nil }
     end
 
-    it 'should match the errors schema', :aggregate_failures do
+    it 'matches the errors schema', :aggregate_failures do
       with_okta_user(scopes) do |auth_header|
         get '/services/veteran_verification/v0/service_history', params: nil, headers: auth_header
       end

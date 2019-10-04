@@ -6,9 +6,6 @@ describe HCA::SOAPParser do
   let(:parser) { described_class.new }
 
   describe '#on_complete' do
-    let(:reraised_error) { Common::Client::Errors::HTTPError }
-    let(:status) { 200 }
-
     subject do
       env = double
       allow(env).to receive(:url)
@@ -19,11 +16,14 @@ describe HCA::SOAPParser do
       expect { parser.on_complete(env) }.to raise_error(reraised_error)
     end
 
+    let(:reraised_error) { Common::Client::Errors::HTTPError }
+    let(:status) { 200 }
+
     context 'with a validation error' do
       let(:reraised_error) { HCA::SOAPParser::ValidationError }
       let(:body) { File.read('spec/fixtures/hca/validation_error.xml') }
 
-      it 'should tag and log validation errors' do
+      it 'tags and log validation errors' do
         expect(StatsD).to receive(:increment).with('api.hca.validation_fail')
         expect(Raven).to receive(:tags_context).with(validation: 'hca')
 
@@ -35,7 +35,7 @@ describe HCA::SOAPParser do
       def self.test_body(body)
         let(:body) { body }
 
-        it 'should not increment statsd' do
+        it 'does not increment statsd' do
           expect(StatsD).not_to receive(:increment).with('api.hca.validation_fail')
 
           subject
