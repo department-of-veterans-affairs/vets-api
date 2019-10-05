@@ -9,6 +9,6 @@ describe Veteran::Service::Organization do
 
   it 'is not valid without a poa' do
     organization = Veteran::Service::Organization.new(poa: nil)
-    expect(organization).to_not be_valid
+    expect(organization).not_to be_valid
   end
 end

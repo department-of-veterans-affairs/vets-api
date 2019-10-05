@@ -369,12 +369,12 @@ RSpec.describe VaFacilities::ParamValidators do
   describe 'location query validation' do
     it 'passes validation when no location query params are found' do
       @dummy_class.params = { type: 'type' }
-      expect(@dummy_class.valid_location_query?).to be_truthy
+      expect(@dummy_class).to be_valid_location_query
     end
 
     it 'passes validation when lat and lng are present' do
       @dummy_class.params = { lat: 40.5, long: 40.2 }
-      expect(@dummy_class.valid_location_query?).to be_truthy
+      expect(@dummy_class).to be_valid_location_query
     end
 
     it 'fails when only lat and not long is present' do
@@ -397,22 +397,22 @@ RSpec.describe VaFacilities::ParamValidators do
 
     it 'passes validation when state is present' do
       @dummy_class.params = { state: 'TX' }
-      expect(@dummy_class.valid_location_query?).to be_truthy
+      expect(@dummy_class).to be_valid_location_query
     end
 
     it 'passes validation when zip is present' do
       @dummy_class.params = { zip: '75075' }
-      expect(@dummy_class.valid_location_query?).to be_truthy
+      expect(@dummy_class).to be_valid_location_query
     end
 
     it 'passes validation when bbox is present' do
       @dummy_class.params = { bbox: %w[40.5 50.234 50.234 100.1324] }
-      expect(@dummy_class.valid_location_query?).to be_truthy
+      expect(@dummy_class).to be_valid_location_query
     end
 
     it 'passes validation when location query is with a non location query param' do
       @dummy_class.params = { bbox: %w[40.5 50.234 50.234 100.1324], type: 'type' }
-      expect(@dummy_class.valid_location_query?).to be_truthy
+      expect(@dummy_class).to be_valid_location_query
     end
 
     it 'fails validation when multiple location query params are present' do

@@ -5,15 +5,6 @@ require 'sidekiq/testing'
 Sidekiq::Testing.fake!
 
 RSpec.describe Form526Submission do
-  let(:user) { build(:user, :loa3) }
-  let(:auth_headers) do
-    EVSS::DisabilityCompensationAuthHeaders.new(user).add_headers(EVSS::AuthHeaders.new(user).to_h)
-  end
-  let(:saved_claim) { FactoryBot.create(:va526ez) }
-  let(:form_json) do
-    File.read('spec/support/disability_compensation_form/submissions/only_526.json')
-  end
-
   subject do
     Form526Submission.create(
       user_uuid: user.uuid,
@@ -21,6 +12,15 @@ RSpec.describe Form526Submission do
       auth_headers_json: auth_headers.to_json,
       form_json: form_json
     )
+  end
+
+  let(:user) { build(:user, :loa3) }
+  let(:auth_headers) do
+    EVSS::DisabilityCompensationAuthHeaders.new(user).add_headers(EVSS::AuthHeaders.new(user).to_h)
+  end
+  let(:saved_claim) { FactoryBot.create(:va526ez) }
+  let(:form_json) do
+    File.read('spec/support/disability_compensation_form/submissions/only_526.json')
   end
 
   describe '#start' do

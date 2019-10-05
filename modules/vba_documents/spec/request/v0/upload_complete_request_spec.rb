@@ -39,7 +39,7 @@ RSpec.describe 'VBA Document SNS upload complete notification', type: :request d
     # rubocop:enable LineLength
 
     context 'verified message' do
-      it 'should confirm the subscription' do
+      it 'confirms the subscription' do
         with_settings(Settings.vba_documents.sns,
                       'topic_arn' => 'arn:aws:sns:us-west-2:123456789012:MyTopic',
                       'region' => 'us-gov-west-1') do
@@ -60,7 +60,7 @@ RSpec.describe 'VBA Document SNS upload complete notification', type: :request d
     end
 
     context 'non-verified-message' do
-      it 'should respond with a message verification error' do
+      it 'responds with a message verification error' do
         with_settings(Settings.vba_documents.sns,
                       'topic_arn' => 'arn:aws:sns:us-west-2:123456789012:MyTopic',
                       'region' => 'us-gov-west-1') do
@@ -74,7 +74,7 @@ RSpec.describe 'VBA Document SNS upload complete notification', type: :request d
     end
 
     context 'with incorrect arn' do
-      it 'should respond with a parameter missing error' do
+      it 'responds with a parameter missing error' do
         with_settings(Settings.vba_documents.sns,
                       'topic_arn' => 'arn:aws:sns:us-west-2:123456789012:MyTopic2',
                       'region' => 'us-gov-west-1') do
@@ -123,7 +123,7 @@ RSpec.describe 'VBA Document SNS upload complete notification', type: :request d
     # rubocop:enable LineLength
 
     context 'verified message' do
-      it 'should queue a processor working on the uploaded object-key' do
+      it 'queues a processor working on the uploaded object-key' do
         with_settings(Settings.vba_documents.sns,
                       'topic_arn' => 'arn:aws:sns:us-west-2:123456789012:MyTopic',
                       'region' => 'us-gov-west-1') do
@@ -147,7 +147,7 @@ RSpec.describe 'VBA Document SNS upload complete notification', type: :request d
     end
 
     context 'non-verified-message' do
-      it 'should respond with a message verification error' do
+      it 'responds with a message verification error' do
         with_settings(Settings.vba_documents.sns,
                       'topic_arn' => 'arn:aws:sns:us-west-2:123456789012:MyTopic',
                       'region' => 'us-gov-west-1') do
@@ -161,7 +161,7 @@ RSpec.describe 'VBA Document SNS upload complete notification', type: :request d
     end
 
     context 'with incorrect arn' do
-      it 'should respond with a parameter missing error' do
+      it 'responds with a parameter missing error' do
         with_settings(Settings.vba_documents.sns,
                       'topic_arn' => 'arn:aws:sns:us-west-2:123456789012:MyTopic2',
                       'region' => 'us-gov-west-1') do
@@ -206,7 +206,7 @@ RSpec.describe 'VBA Document SNS upload complete notification', type: :request d
     end
     # rubocop:enable LineLength
 
-    it 'should respond with a parameter missing error' do
+    it 'responds with a parameter missing error' do
       with_settings(Settings.vba_documents.sns,
                     'topic_arn' => 'arn:aws:sns:us-west-2:123456789012:MyTopic',
                     'region' => 'us-gov-west-1') do

@@ -10,7 +10,7 @@ describe VIC::Service, type: :model do
   let(:case_id) { 'case_id' }
 
   describe '#get_oauth_token' do
-    it 'should get the access token from the request', run_at: '2018-02-06 21:51:48 -0500' do
+    it 'gets the access token from the request', run_at: '2018-02-06 21:51:48 -0500' do
       oauth_params = get_fixture('vic/oauth_params').symbolize_keys
       return_val = OpenStruct.new(body: { 'access_token' => 'token' })
       expect(service).to receive(:request).with(:post, '', oauth_params).and_return(return_val)
@@ -24,7 +24,7 @@ describe VIC::Service, type: :model do
       { 'profile_data' => {} }
     end
 
-    it 'should add user data to the request form' do
+    it 'adds user data to the request form' do
       expect(user.veteran_status).to receive(:title38_status).and_return('V1')
       service.add_user_data!(converted_form, user)
       expect(converted_form).to eq(
@@ -40,7 +40,7 @@ describe VIC::Service, type: :model do
     end
 
     context 'when the veteran is not found' do
-      it 'should omit the title 38 status' do
+      it 'omits the title 38 status' do
         expect(user.veteran_status).to receive(:title38_status).and_raise(EMISRedis::VeteranStatus::RecordNotFound)
 
         service.add_user_data!(converted_form, user)
@@ -58,7 +58,7 @@ describe VIC::Service, type: :model do
   end
 
   describe '#convert_form' do
-    it 'should format the form' do
+    it 'formats the form' do
       parsed_form['foo'] = 'bar'
       expect(service.convert_form(parsed_form)).to eq(
         'service_branch' => 'Air Force',
@@ -76,7 +76,7 @@ describe VIC::Service, type: :model do
   end
 
   describe '#all_files_processed?' do
-    it 'should see if the files are processed yet' do
+    it 'sees if the files are processed yet' do
       expect(service.all_files_processed?(parsed_form)).to eq(false)
       ProcessFileJob.drain
       expect(service.all_files_processed?(parsed_form)).to eq(true)
@@ -85,13 +85,13 @@ describe VIC::Service, type: :model do
 
   describe '#combine_files' do
     context 'with no records' do
-      it 'should return nil' do
+      it 'returns nil' do
         expect(service.combine_files([])).to eq(nil)
       end
     end
 
     context 'with one record' do
-      it 'should convert the file' do
+      it 'converts the file' do
         records = [
           create(:supporting_documentation_attachment)
         ]
@@ -105,7 +105,7 @@ describe VIC::Service, type: :model do
     end
 
     context 'with multiple records' do
-      it 'should convert files to pdf and combine them' do
+      it 'converts files to pdf and combine them' do
         records = [
           create(:supporting_documentation_attachment),
           create(:supporting_documentation_attachment)
@@ -121,7 +121,7 @@ describe VIC::Service, type: :model do
   end
 
   describe '#send_files' do
-    it 'should send the files in the form' do
+    it 'sends the files in the form' do
       parsed_form
       ProcessFileJob.drain
       expect(service).to receive(:get_client).and_return(client)
@@ -183,7 +183,7 @@ describe VIC::Service, type: :model do
     end
 
     context 'with a successful upload' do
-      it 'should read the mime type and send the file' do
+      it 'reads the mime type and send the file' do
         call_send_file
 
         expect(model_exists?(attachment)).to eq(false)
@@ -220,14 +220,14 @@ describe VIC::Service, type: :model do
     end
 
     context 'with a user' do
-      it 'should submit the form and attached documents' do
+      it 'submits the form and attached documents' do
         expect(service).to receive(:add_user_data!).with({}, user)
         test_case_id(user)
       end
     end
 
     context 'with no user' do
-      it 'should submit the form' do
+      it 'submits the form' do
         test_case_id(nil)
       end
     end

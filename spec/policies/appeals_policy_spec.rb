@@ -18,7 +18,7 @@ describe AppealsPolicy do
       let(:user) { build(:user, :loa1) }
 
       it 'denies access' do
-        expect(subject).to_not permit(user, :appeals)
+        expect(subject).not_to permit(user, :appeals)
       end
     end
   end

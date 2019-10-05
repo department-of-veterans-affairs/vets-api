@@ -11,7 +11,7 @@ RSpec.describe Preneeds::Attachment do
   end
 
   describe '#as_eoas' do
-    it 'should return the eoas hash' do
+    it 'returns the eoas hash' do
       allow(SecureRandom).to receive(:hex).and_return(hex)
 
       expect(attachment.as_eoas).to eq(

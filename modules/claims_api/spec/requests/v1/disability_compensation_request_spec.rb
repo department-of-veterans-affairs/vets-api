@@ -25,7 +25,7 @@ RSpec.describe 'Disability Claims ', type: :request do
     let(:path) { '/services/claims/v1/forms/526' }
     let(:schema) { File.read(Rails.root.join('modules', 'claims_api', 'config', 'schemas', '526.json')) }
 
-    it 'should return a successful get response with json schema' do
+    it 'returns a successful get response with json schema' do
       with_okta_user(scopes) do |auth_header|
         get path, headers: headers.merge(auth_header)
         json_schema = JSON.parse(response.body)['data'][0]
@@ -33,7 +33,7 @@ RSpec.describe 'Disability Claims ', type: :request do
       end
     end
 
-    it 'should return a successful response with all the data' do
+    it 'returns a successful response with all the data' do
       with_okta_user(scopes) do |auth_header|
         klass = EVSS::DisabilityCompensationForm::ServiceAllClaim
         expect_any_instance_of(klass).to receive(:validate_form526).and_return(true)
@@ -44,7 +44,7 @@ RSpec.describe 'Disability Claims ', type: :request do
       end
     end
 
-    it 'should create the sidekick job' do
+    it 'creates the sidekick job' do
       with_okta_user(scopes) do |auth_header|
         klass = EVSS::DisabilityCompensationForm::ServiceAllClaim
         expect_any_instance_of(klass).to receive(:validate_form526).and_return(true)
@@ -53,7 +53,7 @@ RSpec.describe 'Disability Claims ', type: :request do
       end
     end
 
-    it 'should assign a source' do
+    it 'assigns a source' do
       with_okta_user(scopes) do |auth_header|
         klass = EVSS::DisabilityCompensationForm::ServiceAllClaim
         expect_any_instance_of(klass).to receive(:validate_form526).and_return(true)
@@ -64,7 +64,7 @@ RSpec.describe 'Disability Claims ', type: :request do
       end
     end
 
-    it 'should build the auth headers' do
+    it 'builds the auth headers' do
       with_okta_user(scopes) do |auth_header|
         auth_header_stub = instance_double('EVSS::DisabilityCompensationAuthHeaders')
         expect(EVSS::DisabilityCompensationAuthHeaders).to(receive(:new).twice { auth_header_stub })
@@ -76,7 +76,7 @@ RSpec.describe 'Disability Claims ', type: :request do
     context 'validation' do
       let(:json_data) { JSON.parse data }
 
-      it 'should require currentMailingAddress subfields' do
+      it 'requires currentMailingAddress subfields' do
         with_okta_user(scopes) do |auth_header|
           params = json_data
           params['data']['attributes']['veteran']['currentMailingAddress'] = {}
@@ -86,7 +86,7 @@ RSpec.describe 'Disability Claims ', type: :request do
         end
       end
 
-      it 'should require disability subfields' do
+      it 'requires disability subfields' do
         with_okta_user(scopes) do |auth_header|
           params = json_data
           params['data']['attributes']['disabilities'] = [{}]
@@ -98,7 +98,7 @@ RSpec.describe 'Disability Claims ', type: :request do
     end
 
     context 'form 526 validation' do
-      it 'should return a successful response when valid' do
+      it 'returns a successful response when valid' do
         VCR.use_cassette('evss/disability_compensation_form/form_526_valid_validation') do
           with_okta_user(scopes) do |auth_header|
             data = File.read(Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'form_526_json_api.json'))
@@ -110,7 +110,7 @@ RSpec.describe 'Disability Claims ', type: :request do
         end
       end
 
-      it 'should return a list of errors when invalid hitting EVSS' do
+      it 'returns a list of errors when invalid hitting EVSS' do
         with_okta_user(scopes) do |auth_header|
           VCR.use_cassette('evss/disability_compensation_form/form_526_invalid_validation') do
             post '/services/claims/v1/forms/526/validate', params: data, headers: headers.merge(auth_header)
@@ -130,7 +130,7 @@ RSpec.describe 'Disability Claims ', type: :request do
         end
       end
 
-      it 'should return a list of errors when invalid via internal validation' do
+      it 'returns a list of errors when invalid via internal validation' do
         with_okta_user(scopes) do |auth_header|
           json_data = JSON.parse data
           params = json_data
@@ -150,7 +150,7 @@ RSpec.describe 'Disability Claims ', type: :request do
       { 'attachment': Rack::Test::UploadedFile.new("#{::Rails.root}/modules/claims_api/spec/fixtures/extras.pdf") }
     end
 
-    it 'should increase the supporting document count' do
+    it 'increases the supporting document count' do
       with_okta_user(scopes) do |auth_header|
         allow_any_instance_of(ClaimsApi::SupportingDocumentUploader).to receive(:store!)
         count = auto_claim.supporting_documents.count

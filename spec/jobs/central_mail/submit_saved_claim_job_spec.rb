@@ -44,7 +44,7 @@ RSpec.describe CentralMail::SubmitSavedClaimJob, uploader_helpers: true do
   end
 
   describe '#to_faraday_upload' do
-    it 'should convert a file to faraday upload object' do
+    it 'converts a file to faraday upload object' do
       file_path = 'tmp/foo'
       expect(Faraday::UploadIO).to receive(:new).with(
         file_path,
@@ -55,7 +55,7 @@ RSpec.describe CentralMail::SubmitSavedClaimJob, uploader_helpers: true do
   end
 
   describe '#process_record' do
-    it 'should process a record and add stamps' do
+    it 'processes a record and add stamps' do
       record = double
       datestamp_double1 = double
       datestamp_double2 = double
@@ -75,7 +75,7 @@ RSpec.describe CentralMail::SubmitSavedClaimJob, uploader_helpers: true do
     end
 
     describe '#get_hash_and_pages' do
-      it 'should get sha and number of pages' do
+      it 'gets sha and number of pages' do
         expect(Digest::SHA256).to receive(:file).with('path').and_return(
           OpenStruct.new(hexdigest: 'hexdigest')
         )
@@ -116,12 +116,12 @@ RSpec.describe CentralMail::SubmitSavedClaimJob, uploader_helpers: true do
           claim.send(:remove_instance_variable, :@parsed_form)
         end
 
-        it 'should generate metadata with 00000 for zipcode' do
+        it 'generates metadata with 00000 for zipcode' do
           expect(job.generate_metadata['zipCode']).to eq('00000')
         end
       end
 
-      it 'should generate the metadata', run_at: '2017-01-04 03:00:00 EDT' do
+      it 'generates the metadata', run_at: '2017-01-04 03:00:00 EDT' do
         expect(job.generate_metadata).to eq(
           'veteranFirstName' => 'Test',
           'veteranLastName' => 'User',

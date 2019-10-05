@@ -4,9 +4,10 @@ require 'rails_helper'
 require 'sentry_logging'
 
 shared_examples 'a sentry logger' do
+  subject { class_instance }
+
   let(:class_instance) { described_class.new }
   let(:exception) { StandardError.new }
-  subject { class_instance }
 
   context 'with SENTRY_DSN set' do
     before { Settings.sentry.dsn = 'asdf' }

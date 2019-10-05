@@ -22,7 +22,7 @@ describe Common::ActiveRecordCacheAside do
       end
 
       it 'does not attempt to re-cache the record' do
-        expect(Account).to_not receive(:cache_record)
+        expect(Account).not_to receive(:cache_record)
 
         Account.cache_or_create_by! user
       end

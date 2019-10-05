@@ -3,9 +3,9 @@
 require 'rails_helper'
 
 describe EVSS::ReferenceData::Service do
-  let(:user) { build(:user, :loa3) }
-
   subject { described_class.new(user) }
+
+  let(:user) { build(:user, :loa3) }
 
   describe '#get_countries' do
     context 'with a 200 response' do

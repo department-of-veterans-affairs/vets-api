@@ -20,7 +20,7 @@ RSpec.describe 'Disability Claims ', type: :request do
     let(:path) { '/services/claims/v0/forms/526' }
     let(:schema) { File.read(Rails.root.join('modules', 'claims_api', 'config', 'schemas', '526.json')) }
 
-    it 'should return a successful get response with json schema' do
+    it 'returns a successful get response with json schema' do
       get path, headers: headers
       json_schema = JSON.parse(response.body)['data'][0]
       expect(json_schema).to eq(JSON.parse(schema))
@@ -70,7 +70,7 @@ RSpec.describe 'Disability Claims ', type: :request do
         ClaimsApi::AutoEstablishedClaim.count
       end
 
-      it 'should reject the duplicated request' do
+      it 'rejects the duplicated request' do
         post path, params: data, headers: headers
         expect(count).to eq(ClaimsApi::AutoEstablishedClaim.count)
       end
@@ -79,7 +79,7 @@ RSpec.describe 'Disability Claims ', type: :request do
     context 'validation' do
       let(:json_data) { JSON.parse data }
 
-      it 'should require currentMailingAddress subfields' do
+      it 'requires currentMailingAddress subfields' do
         params = json_data
         params['data']['attributes']['veteran']['currentMailingAddress'] = {}
         post path, params: params.to_json, headers: headers
@@ -87,7 +87,7 @@ RSpec.describe 'Disability Claims ', type: :request do
         expect(JSON.parse(response.body)['errors'].size).to eq(6)
       end
 
-      it 'should require disability subfields' do
+      it 'requires disability subfields' do
         params = json_data
         params['data']['attributes']['disabilities'] = [{}]
         post path, params: params.to_json, headers: headers
@@ -97,7 +97,7 @@ RSpec.describe 'Disability Claims ', type: :request do
     end
 
     context 'form 526 validation' do
-      it 'should return a successful response when valid' do
+      it 'returns a successful response when valid' do
         VCR.use_cassette('evss/disability_compensation_form/form_526_valid_validation') do
           post '/services/claims/v0/forms/526/validate', params: data, headers: headers
           parsed = JSON.parse(response.body)
@@ -106,7 +106,7 @@ RSpec.describe 'Disability Claims ', type: :request do
         end
       end
 
-      it 'should return a list of errors when invalid hitting EVSS' do
+      it 'returns a list of errors when invalid hitting EVSS' do
         VCR.use_cassette('evss/disability_compensation_form/form_526_invalid_validation') do
           post '/services/claims/v0/forms/526/validate', params: data, headers: headers
           parsed = JSON.parse(response.body)
@@ -122,7 +122,7 @@ RSpec.describe 'Disability Claims ', type: :request do
         end
       end
 
-      it 'should return a list of errors when invalid via internal validation' do
+      it 'returns a list of errors when invalid via internal validation' do
         json_data = JSON.parse data
         params = json_data
         params['data']['attributes']['veteran']['currentMailingAddress'] = {}
@@ -140,7 +140,7 @@ RSpec.describe 'Disability Claims ', type: :request do
       { 'attachment': Rack::Test::UploadedFile.new("#{::Rails.root}/modules/claims_api/spec/fixtures/extras.pdf") }
     end
 
-    it 'should increase the supporting document count' do
+    it 'increases the supporting document count' do
       allow_any_instance_of(ClaimsApi::SupportingDocumentUploader).to receive(:store!)
       count = auto_claim.supporting_documents.count
       post "/services/claims/v0/forms/526/#{auto_claim.id}/attachments", params: params, headers: headers

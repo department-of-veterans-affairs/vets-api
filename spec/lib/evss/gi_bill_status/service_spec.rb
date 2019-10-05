@@ -4,8 +4,9 @@ require 'rails_helper'
 
 describe EVSS::GiBillStatus::Service do
   describe '.find_by_user' do
-    let(:user) { build(:user, :loa3) }
     subject { described_class.new(user) }
+
+    let(:user) { build(:user, :loa3) }
 
     let(:tz) { ActiveSupport::TimeZone.new(described_class::OPERATING_ZONE) }
     let(:late_time) { tz.parse('1st Feb 2018 23:00:00') }
@@ -136,7 +137,7 @@ describe EVSS::GiBillStatus::Service do
         it 'returns a valid response object' do
           VCR.use_cassette('evss/gi_bill_status/gi_bill_status_500') do
             response = subject.get_gi_bill_status
-            expect(response).to_not be_ok
+            expect(response).not_to be_ok
             expect(response.response_status).to eq(EVSS::Response::RESPONSE_STATUS[:server_error])
           end
         end
@@ -149,7 +150,7 @@ describe EVSS::GiBillStatus::Service do
         it 'contains 403 in meta' do
           VCR.use_cassette('evss/gi_bill_status/gi_bill_status_403') do
             response = subject.get_gi_bill_status
-            expect(response).to_not be_ok
+            expect(response).not_to be_ok
             expect(response.response_status).to eq(EVSS::Response::RESPONSE_STATUS[:not_authorized])
           end
         end
@@ -160,7 +161,7 @@ describe EVSS::GiBillStatus::Service do
           allow_any_instance_of(Faraday::Connection).to receive(:get).and_raise(Faraday::TimeoutError)
         end
 
-        it 'should raise an exception' do
+        it 'raises an exception' do
           expect { subject.get_gi_bill_status }.to raise_error(Common::Exceptions::GatewayTimeout)
         end
       end
