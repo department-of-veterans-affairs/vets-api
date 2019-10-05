@@ -26,7 +26,7 @@ RSpec.describe 'Disability Claims ', type: :request do
       expect(json_schema).to eq(JSON.parse(schema))
     end
 
-    it 'should return a successful response with all the data' do
+    it 'returns a successful response with all the data' do
       klass = EVSS::DisabilityCompensationForm::ServiceAllClaim
       allow_any_instance_of(klass).to receive(:validate_form526).and_return(true)
       post path, params: data, headers: headers
@@ -35,20 +35,20 @@ RSpec.describe 'Disability Claims ', type: :request do
       expect(parsed['data']['attributes']['status']).to eq('pending')
     end
 
-    it 'should return a unsuccessful response without mvi' do
+    it 'returns a unsuccessful response without mvi' do
       allow_any_instance_of(ClaimsApi::Veteran).to receive(:mvi_record?).and_return(false)
       post path, params: data, headers: headers
       expect(response.status).to eq(404)
     end
 
-    it 'should create the sidekick job' do
+    it 'creates the sidekick job' do
       klass = EVSS::DisabilityCompensationForm::ServiceAllClaim
       expect_any_instance_of(klass).to receive(:validate_form526).and_return(true)
       expect(ClaimsApi::ClaimEstablisher).to receive(:perform_async)
       post path, params: data, headers: headers
     end
 
-    it 'should set the source' do
+    it 'sets the source' do
       klass = EVSS::DisabilityCompensationForm::ServiceAllClaim
       expect_any_instance_of(klass).to receive(:validate_form526).and_return(true)
       post path, params: data, headers: headers
@@ -57,7 +57,7 @@ RSpec.describe 'Disability Claims ', type: :request do
       expect(aec.source).to eq('TestConsumer')
     end
 
-    it 'should build the auth headers' do
+    it 'builds the auth headers' do
       auth_header_stub = instance_double('EVSS::DisabilityCompensationAuthHeaders')
       expect(EVSS::DisabilityCompensationAuthHeaders).to(receive(:new).twice { auth_header_stub })
       expect(auth_header_stub).to receive(:add_headers).twice
