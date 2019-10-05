@@ -27,60 +27,41 @@ RSpec.describe 'Disability Claims ', type: :request do
     end
 
     it 'returns a successful response with all the data' do
-      VCR.use_cassette('evss/intent_to_file/active_compensation_future_date') do
-        klass = EVSS::DisabilityCompensationForm::ServiceAllClaim
-        allow_any_instance_of(klass).to receive(:validate_form526).and_return(true)
-        post path, params: data, headers: headers
-        parsed = JSON.parse(response.body)
-        expect(parsed['data']['type']).to eq('claims_api_claim')
-        expect(parsed['data']['attributes']['status']).to eq('pending')
-      end
+      klass = EVSS::DisabilityCompensationForm::ServiceAllClaim
+      allow_any_instance_of(klass).to receive(:validate_form526).and_return(true)
+      post path, params: data, headers: headers
+      parsed = JSON.parse(response.body)
+      expect(parsed['data']['type']).to eq('claims_api_claim')
+      expect(parsed['data']['attributes']['status']).to eq('pending')
     end
 
     it 'returns a unsuccessful response without mvi' do
-      VCR.use_cassette('evss/intent_to_file/active_compensation_future_date') do
-        allow_any_instance_of(ClaimsApi::Veteran).to receive(:mvi_record?).and_return(false)
-        post path, params: data, headers: headers
-        expect(response.status).to eq(404)
-      end
-    end
-
-    it 'returns an unsuccessful response with an error message' do
-      VCR.use_cassette('evss/intent_to_file/active_compensation') do
-        post path, params: data, headers: headers
-        parsed = JSON.parse(response.body)
-        expect(response.status).to eq(422)
-        expect(parsed['errors'].first['details']).to eq('Intent to File Expiration Date not valid, resubmit ITF.')
-      end
+      allow_any_instance_of(ClaimsApi::Veteran).to receive(:mvi_record?).and_return(false)
+      post path, params: data, headers: headers
+      expect(response.status).to eq(404)
     end
 
     it 'creates the sidekick job' do
-      VCR.use_cassette('evss/intent_to_file/active_compensation_future_date') do
-        klass = EVSS::DisabilityCompensationForm::ServiceAllClaim
-        expect_any_instance_of(klass).to receive(:validate_form526).and_return(true)
-        expect(ClaimsApi::ClaimEstablisher).to receive(:perform_async)
-        post path, params: data, headers: headers
-      end
+      klass = EVSS::DisabilityCompensationForm::ServiceAllClaim
+      expect_any_instance_of(klass).to receive(:validate_form526).and_return(true)
+      expect(ClaimsApi::ClaimEstablisher).to receive(:perform_async)
+      post path, params: data, headers: headers
     end
 
     it 'sets the source' do
-      VCR.use_cassette('evss/intent_to_file/active_compensation_future_date') do
-        klass = EVSS::DisabilityCompensationForm::ServiceAllClaim
-        expect_any_instance_of(klass).to receive(:validate_form526).and_return(true)
-        post path, params: data, headers: headers
-        token = JSON.parse(response.body)['data']['attributes']['token']
-        aec = ClaimsApi::AutoEstablishedClaim.find(token)
-        expect(aec.source).to eq('TestConsumer')
-      end
+      klass = EVSS::DisabilityCompensationForm::ServiceAllClaim
+      expect_any_instance_of(klass).to receive(:validate_form526).and_return(true)
+      post path, params: data, headers: headers
+      token = JSON.parse(response.body)['data']['attributes']['token']
+      aec = ClaimsApi::AutoEstablishedClaim.find(token)
+      expect(aec.source).to eq('TestConsumer')
     end
 
     it 'builds the auth headers' do
-      VCR.use_cassette('evss/intent_to_file/active_compensation_future_date') do
-        auth_header_stub = instance_double('EVSS::DisabilityCompensationAuthHeaders')
-        expect(EVSS::DisabilityCompensationAuthHeaders).to(receive(:new).twice { auth_header_stub })
-        expect(auth_header_stub).to receive(:add_headers).twice
-        post path, params: data, headers: headers
-      end
+      auth_header_stub = instance_double('EVSS::DisabilityCompensationAuthHeaders')
+      expect(EVSS::DisabilityCompensationAuthHeaders).to(receive(:new).twice { auth_header_stub })
+      expect(auth_header_stub).to receive(:add_headers).twice
+      post path, params: data, headers: headers
     end
 
     context 'with the same request already ran' do
