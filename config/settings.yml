@@ -114,7 +114,7 @@ evss:
   versions:
     claims: 3.6
     common: 11.0
-    documents: 3.6
+    documents: 3.7
   s3:
     uploads_enabled: false
     aws_access_key_id: EVSS_S3_AWS_ACCESS_KEY_ID_XYZ
