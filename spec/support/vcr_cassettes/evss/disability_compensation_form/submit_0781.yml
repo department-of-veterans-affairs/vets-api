@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: post
-    uri: "<EVSS_BASE_URL>/wss-document-services-web-3.6/rest/queuedDocumentUploadService/ajaxUploadFile?claimId=123456789&docType=L228&docTypeDescription=VA%20Form%2021-0781%20-%20Statement%20in%20Support%20of%20Claim%20for%20PTSD&qqfile=b480d18c02e22aea90f6f4bf68c57d71.pdf&systemName=vets.gov&trackedItemIds"
+    uri: "<EVSS_BASE_URL>/wss-document-services-web-3.7/rest/queuedDocumentUploadService/ajaxUploadFile?claimId=123456789&docType=L228&docTypeDescription=VA%20Form%2021-0781%20-%20Statement%20in%20Support%20of%20Claim%20for%20PTSD&qqfile=b480d18c02e22aea90f6f4bf68c57d71.pdf&systemName=vets.gov&trackedItemIds"
     body:
       encoding: UTF-8
       base64_string: |
@@ -32671,11 +32671,11 @@ http_interactions:
       encoding: UTF-8
       string: '{"messages":null,"success":true,"vrmUploadSuccess":true,"datetime":"10/23/2018
         12:25:25 EDT"}'
-    http_version: 
+    http_version:
   recorded_at: Tue, 23 Oct 2018 16:25:25 GMT
 - request:
     method: post
-    uri: "<EVSS_BASE_URL>/wss-document-services-web-3.6/rest/queuedDocumentUploadService/ajaxUploadFile?claimId=123456789&docType=L229&docTypeDescription=VA%20Form%2021-0781a%20-%20Statement%20in%20Support%20of%20Claim%20for%20PTSD%20Secondary%20to%20Personal%20Assault&qqfile=3a53a0e91e3716cef70ac734185d6694.pdf&systemName=vets.gov&trackedItemIds"
+    uri: "<EVSS_BASE_URL>/wss-document-services-web-3.7/rest/queuedDocumentUploadService/ajaxUploadFile?claimId=123456789&docType=L229&docTypeDescription=VA%20Form%2021-0781a%20-%20Statement%20in%20Support%20of%20Claim%20for%20PTSD%20Secondary%20to%20Personal%20Assault&qqfile=3a53a0e91e3716cef70ac734185d6694.pdf&systemName=vets.gov&trackedItemIds"
     body:
       encoding: UTF-8
       base64_string: |
@@ -59716,6 +59716,6 @@ http_interactions:
       encoding: UTF-8
       string: '{"messages":null,"success":true,"vrmUploadSuccess":true,"datetime":"10/23/2018
         12:25:38 EDT"}'
-    http_version: 
+    http_version:
   recorded_at: Tue, 23 Oct 2018 16:25:38 GMT
 recorded_with: VCR 3.0.3
