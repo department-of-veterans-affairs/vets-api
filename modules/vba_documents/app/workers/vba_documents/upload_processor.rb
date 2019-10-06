@@ -47,16 +47,20 @@ module VBADocuments
         process_response(response)
         log_submission(metadata)
       rescue VBADocuments::UploadError => e
-        if e.code == 'DOC201' && @retries <= RETRIES
-          UploadProcessor.perform_in(30.minutes, @upload.guid, @retries + 1)
-        else
-          @upload.update(status: 'error', code: e.code, detail: e.detail)
-        end
-        log_error(e)
+        retry_errors(e)
       ensure
         tempfile.close
         close_part_files(parts) if parts.present?
       end
+    end
+
+    def retry_errors(e)
+      if e.code == 'DOC201' && @retries <= RETRIES
+        UploadProcessor.perform_in(30.minutes, @upload.guid, @retries + 1)
+      else
+        @upload.update(status: 'error', code: e.code, detail: e.detail)
+      end
+      log_error(e)
     end
 
     def log_error(e)
