@@ -27,7 +27,9 @@ module VBADocuments
     def perform(guid, retries = 0)
       @retries = retries
       upload = VBADocuments::UploadSubmission.where(status: 'uploaded').find_by(guid: guid)
+      Rails.logger.info("VBADocuments: Start Processing: #{upload.inspect}")
       download_and_process(upload) if upload
+      Rails.logger.info("VBADocuments: Stop Processing: #{upload.inspect}")
     end
 
     private
@@ -35,21 +37,21 @@ module VBADocuments
     def download_and_process(upload)
       tempfile, timestamp = VBADocuments::PayloadManager.download_raw_file(upload.guid)
       begin
-        Rails.logger.info("VBADocuments: Start Processing: #{upload.inspect}")
         parts = VBADocuments::MultipartParser.parse(tempfile.path)
-        validate_parts(parts) && validate_metadata(parts[META_PART_NAME])
+        validate_parts(parts)
+        validate_metadata(parts[META_PART_NAME])
         metadata = perfect_metadata(parts, upload, timestamp)
-        process_response(submit(metadata, parts), upload)
+        response = submit(metadata, parts)
+        process_response(response, upload)
         log_submission(metadata, upload)
       rescue VBADocuments::UploadError => e
-        if e.code == 'DOC201' && @retries < RETRIES
+        if e.code == 'DOC201' && @retries <= RETRIES
           UploadProcessor.perform_in(30.minutes, upload.guid, @retries + 1)
         else
           upload.update(status: 'error', code: e.code, detail: e.detail)
         end
         log_error(e, upload)
       ensure
-        Rails.logger.info("VBADocuments: Stop Processing: #{upload.inspect}")
         tempfile.close
         close_part_files(parts) if parts.present?
       end
