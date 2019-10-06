@@ -26,10 +26,11 @@ module VBADocuments
 
     def perform(guid, retries = 0)
       @retries = retries
-      upload = VBADocuments::UploadSubmission.where(status: 'uploaded').find_by(guid: guid)
-      Rails.logger.info("VBADocuments: Start Processing: #{upload.inspect}")
-      download_and_process(upload) if upload
-      Rails.logger.info("VBADocuments: Stop Processing: #{upload.inspect}")
+      if upload = VBADocuments::UploadSubmission.where(status: 'uploaded').find_by(guid: guid)
+        Rails.logger.info("VBADocuments: Start Processing: #{upload.inspect}")
+        download_and_process(upload)
+        Rails.logger.info("VBADocuments: Stop Processing: #{upload.inspect}")
+      end
     end
 
     private
