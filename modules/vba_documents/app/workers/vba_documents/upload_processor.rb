@@ -10,6 +10,7 @@ module VBADocuments
   class UploadProcessor
     include Sidekiq::Worker
 
+    RETRIES = 3
     META_PART_NAME = 'metadata'
     DOC_PART_NAME = 'content'
     SUBMIT_DOC_PART_NAME = 'document'
@@ -23,7 +24,8 @@ module VBADocuments
     MISSING_ZIP_CODE_ERROR_MSG = 'Missing ZIP Code. ZIP Code must be 5 digits, ' \
       'or 9 digits in XXXXX-XXXX format. Specify \'00000\' for non-US addresses.'
 
-    def perform(guid)
+    def perform(guid, retries = 0)
+      @retries = retries
       upload = VBADocuments::UploadSubmission.where(status: 'uploaded').find_by(guid: guid)
       download_and_process(upload) if upload
     end
@@ -42,8 +44,11 @@ module VBADocuments
         process_response(response, upload)
         log_submission(metadata, upload)
       rescue VBADocuments::UploadError => e
-        upload.update(status: 'error', code: e.code, detail: e.detail)
-        UploadProcessor.perform_in(30.minutes, upload.guid) if e.code == 'DOC201'
+        if e.code == 'DOC201' && @retries < RETRIES
+          UploadProcessor.perform_in(30.minutes, upload.guid, @retries + 1)
+        else
+          upload.update(status: 'error', code: e.code, detail: e.detail)
+        end
         log_error(e, upload)
       ensure
         Rails.logger.info("VBADocuments: Stop Processing: #{upload.inspect}")
