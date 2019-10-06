@@ -37,11 +37,9 @@ module VBADocuments
       begin
         Rails.logger.info("VBADocuments: Start Processing: #{upload.inspect}")
         parts = VBADocuments::MultipartParser.parse(tempfile.path)
-        validate_parts(parts)
-        validate_metadata(parts[META_PART_NAME])
+        validate_parts(parts) && validate_metadata(parts[META_PART_NAME])
         metadata = perfect_metadata(parts, upload, timestamp)
-        response = submit(metadata, parts)
-        process_response(response, upload)
+        process_response(submit(metadata, parts), upload)
         log_submission(metadata, upload)
       rescue VBADocuments::UploadError => e
         if e.code == 'DOC201' && @retries < RETRIES
