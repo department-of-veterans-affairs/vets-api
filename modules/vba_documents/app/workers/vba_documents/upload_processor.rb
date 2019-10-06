@@ -26,57 +26,57 @@ module VBADocuments
 
     def perform(guid, retries = 0)
       @retries = retries
-      upload = VBADocuments::UploadSubmission.where(status: 'uploaded').find_by(guid: guid)
-      if upload
-        Rails.logger.info("VBADocuments: Start Processing: #{upload.inspect}")
-        download_and_process(upload)
-        Rails.logger.info("VBADocuments: Stop Processing: #{upload.inspect}")
+      @upload = VBADocuments::UploadSubmission.where(status: 'uploaded').find_by(guid: guid)
+      if @upload
+        Rails.logger.info("VBADocuments: Start Processing: #{@upload.inspect}")
+        download_and_process
+        Rails.logger.info("VBADocuments: Stop Processing: #{@upload.inspect}")
       end
     end
 
     private
 
-    def download_and_process(upload)
-      tempfile, timestamp = VBADocuments::PayloadManager.download_raw_file(upload.guid)
+    def download_and_process
+      tempfile, timestamp = VBADocuments::PayloadManager.download_raw_file(@upload.guid)
       begin
         parts = VBADocuments::MultipartParser.parse(tempfile.path)
         validate_parts(parts)
         validate_metadata(parts[META_PART_NAME])
-        metadata = perfect_metadata(parts, upload, timestamp)
+        metadata = perfect_metadata(parts, timestamp)
         response = submit(metadata, parts)
-        process_response(response, upload)
-        log_submission(metadata, upload)
+        process_response(response)
+        log_submission(metadata)
       rescue VBADocuments::UploadError => e
         if e.code == 'DOC201' && @retries <= RETRIES
-          UploadProcessor.perform_in(30.minutes, upload.guid, @retries + 1)
+          UploadProcessor.perform_in(30.minutes, @upload.guid, @retries + 1)
         else
-          upload.update(status: 'error', code: e.code, detail: e.detail)
+          @upload.update(status: 'error', code: e.code, detail: e.detail)
         end
-        log_error(e, upload)
+        log_error(e)
       ensure
         tempfile.close
         close_part_files(parts) if parts.present?
       end
     end
 
-    def log_error(e, upload)
+    def log_error(e)
       Rails.logger.info('VBADocuments: Submission failure',
-                        'consumer_id' => upload.consumer_id,
-                        'consumer_username' => upload.consumer_name,
-                        'source' => upload.consumer_name,
-                        'uuid' => upload.guid,
+                        'consumer_id' => @upload.consumer_id,
+                        'consumer_username' => @upload.consumer_name,
+                        'source' => @upload.consumer_name,
+                        'uuid' => @upload.guid,
                         'code' => e.code,
                         'detail' => e.detail)
     end
 
-    def log_submission(metadata, upload)
+    def log_submission(metadata)
       page_total = metadata.select { |k, _| k.to_s.start_with?('numberPages') }.reduce(0) { |sum, (_, v)| sum + v }
       pdf_total = metadata.select { |k, _| k.to_s.start_with?('numberPages') }.count
       Rails.logger.info('VBADocuments: Submission success',
                         'uuid' => metadata['uuid'],
-                        'source' => upload.consumer_name,
-                        'consumer_id' => upload.consumer_id,
-                        'consumer_username' => upload.consumer_name,
+                        'source' => @upload.consumer_name,
+                        'consumer_id' => @upload.consumer_id,
+                        'consumer_username' => @upload.consumer_name,
                         'docType' => metadata['docType'],
                         'pageCount' => page_total,
                         'pdfCount' => pdf_total)
@@ -112,9 +112,9 @@ module VBADocuments
       )
     end
 
-    def process_response(response, upload)
+    def process_response(response)
       if response.success?
-        upload.update(status: 'received')
+        @upload.update(status: 'received')
       else
         map_downstream_error(response.status, response.body)
       end
@@ -178,11 +178,11 @@ module VBADocuments
                                           detail: 'Invalid JSON content')
     end
 
-    def perfect_metadata(parts, upload, timestamp)
+    def perfect_metadata(parts, timestamp)
       metadata = JSON.parse(parts['metadata'])
-      metadata['source'] = "#{upload.consumer_name} via VA API"
+      metadata['source'] = "#{@upload.consumer_name} via VA API"
       metadata['receiveDt'] = timestamp.in_time_zone('US/Central').strftime('%Y-%m-%d %H:%M:%S')
-      metadata['uuid'] = upload.guid
+      metadata['uuid'] = @upload.guid
       check_size(parts[DOC_PART_NAME])
       doc_info = get_hash_and_pages(parts[DOC_PART_NAME], DOC_PART_NAME)
       validate_page_size(doc_info)
