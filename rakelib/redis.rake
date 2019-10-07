@@ -39,19 +39,17 @@ namespace :redis do
       namespace = 'mvi-profile-response'
       redis = Redis.current
       redis.scan_each(match: "#{namespace}:*") do |key|
-        begin
-          resp = Oj.load(redis.get(key))[:response]
-          count += 1
-          mhvu = resp.profile.mhv_ids.present?
-          patient = patient?(resp.profile.vha_facility_ids)
-          mhv_users += 1 if mhvu
-          vha_patients += 1 if patient
-          mhv_non_patient += 1 if mhvu && !patient
-          patient_non_mhv += 1 if patient && !mhvu
-          addressees += 1 if addressee?(resp.profile.address)
-        rescue
-          puts "Couldn't parse #{key}"
-        end
+        resp = Oj.load(redis.get(key))[:response]
+        count += 1
+        mhvu = resp.profile.mhv_ids.present?
+        patient = patient?(resp.profile.vha_facility_ids)
+        mhv_users += 1 if mhvu
+        vha_patients += 1 if patient
+        mhv_non_patient += 1 if mhvu && !patient
+        patient_non_mhv += 1 if patient && !mhvu
+        addressees += 1 if addressee?(resp.profile.address)
+      rescue
+        puts "Couldn't parse #{key}"
       end
 
       puts "Total cached users: #{count}"
@@ -71,18 +69,16 @@ namespace :redis do
       namespace = 'users'
       redis = Redis.current
       redis.scan_each(match: "#{namespace}:*") do |key|
-        begin
-          u = Oj.load(redis.get(key))
-          count += 1
-          loa = u[:loa][:highest]
-          if loa == 3
-            loa3 += 1
-          elsif loa == 1
-            loa1 += 1
-          end
-        rescue
-          puts "Couldn't parse #{key}"
+        u = Oj.load(redis.get(key))
+        count += 1
+        loa = u[:loa][:highest]
+        if loa == 3
+          loa3 += 1
+        elsif loa == 1
+          loa1 += 1
         end
+      rescue
+        puts "Couldn't parse #{key}"
       end
 
       puts "Total logged-in users: #{count}"
@@ -98,13 +94,11 @@ namespace :redis do
       namespace = 'veteran-status-response'
       redis = Redis.current
       redis.scan_each(match: "#{namespace}:*") do |key|
-        begin
-          count += 1
-          resp = Oj.load(redis.get(key))[:response]
-          veteran += 1 if any_veteran_indicator?(resp.items.first)
-        rescue
-          puts "Couldn't parse #{key}"
-        end
+        count += 1
+        resp = Oj.load(redis.get(key))[:response]
+        veteran += 1 if any_veteran_indicator?(resp.items.first)
+      rescue
+        puts "Couldn't parse #{key}"
       end
 
       puts "Total cached EMIS responses: #{count}"

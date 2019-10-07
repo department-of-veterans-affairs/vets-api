@@ -50,17 +50,15 @@ namespace :connectivity do
   desc 'Check EVSS'
   task evss: :environment do
     check 'EVSS', Settings.evss.url do
-      begin
-        EVSS::ClaimsService.new({}).all_claims
-        # Should return an XML 403 response, which Faraday fails parsing,
-        # since it expects JSON
-        puts "EVSS connection super success for #{Settings.evss.url}!"
-      rescue Faraday::ParsingError
-        puts "EVSS connection success for #{Settings.evss.url}."
-      rescue => e
-        puts "EVSS connection unsuccessful for #{Settings.evss.url}!"
-        puts " - Error encountered: `#{e}`"
-      end
+      EVSS::ClaimsService.new({}).all_claims
+      # Should return an XML 403 response, which Faraday fails parsing,
+      # since it expects JSON
+      puts "EVSS connection super success for #{Settings.evss.url}!"
+    rescue Faraday::ParsingError
+      puts "EVSS connection success for #{Settings.evss.url}."
+    rescue => e
+      puts "EVSS connection unsuccessful for #{Settings.evss.url}!"
+      puts " - Error encountered: `#{e}`"
     end
   end
 

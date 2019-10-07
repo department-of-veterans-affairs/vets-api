@@ -49,26 +49,24 @@ middle_name="W" last_name="Smith" birth_date="1945-01-25" gender="M" ssn="555443
 
     csv = CSV.open(args[:csvfile], headers: true)
     csv.each_with_index do |row, i|
-      begin
-        bd = Time.iso8601(row['birth_date']).strftime('%Y-%m-%d')
-        user = User.new(
-          first_name: row['first_name'],
-          last_name: row['last_name'],
-          middle_name: row['middle_name'],
-          birth_date: bd,
-          gender: row['gender'],
-          ssn: row['ssn'],
-          email: row['email'],
-          uuid: SecureRandom.uuid,
-          loa: { current: LOA::THREE, highest: LOA::THREE }
-        )
-        if user.va_profile.nil?
-          puts "Row #{i} #{row['first_name']} #{row['last_name']}: No MVI profile"
-          next
-        end
-      rescue => e
-        puts "Row #{i} #{row['first_name']} #{row['last_name']}: #{e.message}"
+      bd = Time.iso8601(row['birth_date']).strftime('%Y-%m-%d')
+      user = User.new(
+        first_name: row['first_name'],
+        last_name: row['last_name'],
+        middle_name: row['middle_name'],
+        birth_date: bd,
+        gender: row['gender'],
+        ssn: row['ssn'],
+        email: row['email'],
+        uuid: SecureRandom.uuid,
+        loa: { current: LOA::THREE, highest: LOA::THREE }
+      )
+      if user.va_profile.nil?
+        puts "Row #{i} #{row['first_name']} #{row['last_name']}: No MVI profile"
+        next
       end
+    rescue => e
+      puts "Row #{i} #{row['first_name']} #{row['last_name']}: #{e.message}"
     end
   end
 

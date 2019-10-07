@@ -64,11 +64,9 @@ describe Common::Client::Middleware::Request::RemoveCookies do
 
       Timeout.timeout(5) do
         loop do
-          begin
-            break if Specs::RemoveCookies::TestService.new.send(:request, :get, '', nil).status == 200
-          rescue Common::Client::Errors::ClientError
-            next
-          end
+          break if Specs::RemoveCookies::TestService.new.send(:request, :get, '', nil).status == 200
+        rescue Common::Client::Errors::ClientError
+          next
         end
       end
 

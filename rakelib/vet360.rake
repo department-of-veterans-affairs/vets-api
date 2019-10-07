@@ -218,14 +218,12 @@ namespace :vet360 do
     p "#{icns.size} to be initialized"
 
     icns.each do |icn|
-      begin
-        response  = service.init_vet360_id(icn)
-        vet360_id = response&.person&.vet360_id
+      response  = service.init_vet360_id(icn)
+      vet360_id = response&.person&.vet360_id
 
-        results << { icn: icn, vet360_id: vet360_id }
-      rescue => e
-        results << { icn: icn, vet360_id: e.message }
-      end
+      results << { icn: icn, vet360_id: vet360_id }
+    rescue => e
+      results << { icn: icn, vet360_id: e.message }
     end
 
     puts "Results:\n\n#{results}"
