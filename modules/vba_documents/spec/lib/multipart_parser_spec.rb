@@ -91,5 +91,15 @@ RSpec.describe VBADocuments::MultipartParser do
         expect(error.detail).to eq('Empty payload')
       end
     end
+
+    it 'should handle base64' do
+      valid_doc = get_fixture('valid_multipart_base64_pdf.txt')
+      result = described_class.parse(valid_doc)
+      expect(result.size).to eq(2)
+      expect(result).to have_key('metadata')
+      expect(result['metadata']).to be_a(String)
+      expect(result).to have_key('content')
+      expect(result['content']).to be_a(Tempfile)
+    end
   end
 end
