@@ -464,3 +464,15 @@
     - :method: :get
       :path: "/server/rest/services/VA/FacilitySitePoint_VHA/FeatureServer/0"
       :file_path: "gis/vha/metadata"
+
+#DriveTimeBands
+- :name: 'DriveTimeBands'
+  :base_uri: <%= "#{URI(Settings.locators.drive_time_band_base_path).host}:#{URI(Settings.locators.drive_time_band_base_path).port}" %>
+  :endpoints:
+    - :method: :get
+      :path: "/arcgis2/rest/services/Portal/MonthlyVAST_TTB/FeatureServer/0/query"
+      :file_path: "drive_time_band/drive_time_bands"
+    - :method: :get
+      :path: "/arcgis2/rest/services/Portal/MonthlyVAST_TTB/FeatureServer/0/"
+      :file_path: "drive_time_band/metadata"
+
