@@ -8,11 +8,11 @@ module EVSS
     BASE_URL = "#{Settings.evss.url}/wss-common-services-web-#{API_VERSION}/rest/"
 
     def create_user_account
-      post 'persistentPropertiesService/11.0/createUserAccount'
+      post 'persistentPropertiesService/11.6/createUserAccount'
     end
 
     def get_current_info
-      post 'vsoSearch/11.0/getCurrentInfo'
+      post 'vsoSearch/11.6/getCurrentInfo'
     end
 
     def self.breakers_service
