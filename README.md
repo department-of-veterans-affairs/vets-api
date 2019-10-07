@@ -6,6 +6,8 @@ For frontend, see [vets-website](https://github.com/department-of-veterans-affai
 
 ## Base setup
 
+BLAH
+
 **See the [native setup instructions](docs/setup/native.md) if you can't use docker**
 
 To start, fetch this code:
