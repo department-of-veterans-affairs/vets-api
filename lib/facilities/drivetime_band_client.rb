@@ -7,24 +7,17 @@ module Facilities
   class DrivetimeBandClient < Common::Client::Base
     configuration Facilities::DrivetimeBandConfiguration
 
-    def get_all_drivetime_bands(max_record_count)
-      query_count = 0
-      data_collector = []
-      loop do
-        params = build_params(query_count * max_record_count)
-        response = perform(:get, "/arcgis2/rest/services/Portal/MonthlyVAST_TTB/FeatureServer/0/query?", params)
-        data_collector += response.body
-        break if response.body.length < max_record_count
-
-        query_count += 1
-      end
-      data_collector
+    def get_all_drivetime_bands(offset, limit)
+      params = build_params(offset, limit)
+      response = perform(:get, "/arcgis2/rest/services/Portal/MonthlyVAST_TTB/FeatureServer/0/query", params)
+      # definitely should not have to parse like this 
+      JSON.parse(response.body)['features']
     end
 
-    def build_params(offset)
+    def build_params(offset, limit)
       { where: "1=1", inSR: 4326, outSR: 4326, returnGeometry: true,
         returnCountOnly: false, outFields: '*', returnDistinctValues: false,
-        orderByFields: 'Name', f: 'json', resultOffset: offset }
+        orderByFields: 'Name', f: 'json', resultOffset: offset, resultRecordCount: limit }
     end
   end
 end
