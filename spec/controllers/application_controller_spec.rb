@@ -5,7 +5,6 @@ require 'rx/client'
 require 'lib/sentry_logging_spec_helper'
 
 RSpec.describe ApplicationController, type: :controller do
-  it_behaves_like 'a sentry logger'
   controller do
     attr_reader :payload
     skip_before_action :authenticate, except: :test_authentication
@@ -51,6 +50,8 @@ RSpec.describe ApplicationController, type: :controller do
       get 'test_authentication' => 'anonymous#test_authentication'
     end
   end
+
+  it_behaves_like 'a sentry logger'
 
   describe '#clear_saved_form' do
     subject do
