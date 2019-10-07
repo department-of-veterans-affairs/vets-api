@@ -118,4 +118,4 @@ all_keys.each do |key|
 end
 
 # init Facilities Jobs
-StatsD.increment("shared.sidekiq.default.Facilities_InitializingErrorMetric.error", 0)
+StatsD.increment('shared.sidekiq.default.Facilities_InitializingErrorMetric.error', 0)
