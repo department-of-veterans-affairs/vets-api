@@ -4,7 +4,7 @@ This project provides common APIs for applications that live on VA.gov (formerly
 
 For frontend, see [vets-website](https://github.com/department-of-veterans-affairs/vets-website) and [vets-content](https://github.com/department-of-veterans-affairs/vagov-content) repos.
 
-## Base setup 
+## Base setup  
 
 **See the [native setup instructions](docs/setup/native.md) if you can't use docker**
 
