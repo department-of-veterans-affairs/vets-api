@@ -150,11 +150,6 @@ RSpec/NamedSubject:
 RSpec/NestedGroups:
   Max: 7
 
-# Offense count: 1
-RSpec/OverwritingSetup:
-  Exclude:
-    - 'spec/request/swagger_spec.rb'
-
 # Offense count: 21
 RSpec/RepeatedDescription:
   Exclude:
