@@ -4,12 +4,11 @@ require 'common/client/configuration/rest'
 require 'common/client/middleware/response/raise_error'
 
 module Facilities
-  # Configuration class used to setup the environment used by client
-  class DriveTimeBandMetadataConfiguration < Common::Client::Configuration::REST
+  class DrivetimeBandConfiguration < Common::Client::Configuration::REST
     def base_path
       Settings.locators.drive_time_band_base_path
     end
-
+    
     def service_name
       'FL'
     end
@@ -19,8 +18,8 @@ module Facilities
         conn.use :breakers
         conn.request :json
 
-        # conn.response :betamocks if Settings.locators.mock_gis
         conn.response :raise_error, error_prefix: service_name
+        conn.response :betamocks if Settings.locators.mock_gis
 
         conn.adapter Faraday.default_adapter
       end

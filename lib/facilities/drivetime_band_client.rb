@@ -4,8 +4,8 @@ require 'common/client/base'
 
 module Facilities
   # Core class responsible for api interface operations
-  class DriveTimeBandClient < Common::Client::Base
-    configuration Facilities::DriveTimeBandConfiguration
+  class DrivetimeBandClient < Common::Client::Base
+    configuration Facilities::DrivetimeBandConfiguration
 
     def get_all_drive_time_bands(order_field, max_record_count)
       query_count = 0
