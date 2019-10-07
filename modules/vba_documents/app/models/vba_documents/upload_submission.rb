@@ -28,6 +28,7 @@ module VBADocuments
     def self.refresh_statuses!(submissions)
       guids = submissions.map(&:guid)
       return if guids.empty?
+
       response = CentralMail::Service.new.status(guids)
       if response.success?
         statuses = JSON.parse(response.body)
@@ -80,6 +81,7 @@ module VBADocuments
     def rewrite_url(url)
       rewritten = url.sub!(Settings.vba_documents.location.prefix, Settings.vba_documents.location.replacement)
       raise 'Unable to provide document upload location' unless rewritten
+
       rewritten
     end
 

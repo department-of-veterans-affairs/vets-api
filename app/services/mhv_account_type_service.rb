@@ -72,7 +72,7 @@ class MhvAccountTypeService
       bb_client.authenticate
       bb_client.get_eligible_data_classes.members.map(&:name)
     end
-  rescue StandardError => e
+  rescue => e
     log_account_type_heuristic_once(MHV_DOWN_MESSAGE, error_message: e.message)
     nil
   end
@@ -85,6 +85,7 @@ class MhvAccountTypeService
 
   def log_account_type_heuristic_once(message, extra_context = {})
     return if @logged
+
     extra_context.merge!(
       uuid: user.uuid,
       mhv_correlation_id: user.mhv_correlation_id,

@@ -12,7 +12,7 @@ module ClaimsApi
           key :apikey, []
         end
         key :summary, 'Get 0966 JSON Schema for form'
-        key :description, 'Returns a single JSON schema to auto generate a form'
+        key :description, 'Returns a single 0966 JSON schema to auto generate a form'
         key :operationId, 'get0966JsonSchema'
         key :produces, [
           'application/json'
@@ -115,7 +115,7 @@ module ClaimsApi
           key :name, 'X-VA-User'
           key :in, :header
           key :description, 'VA username of the person making the request'
-          key :required, true
+          key :required, false
           key :type, :string
         end
 
@@ -153,6 +153,7 @@ module ClaimsApi
             key :'$ref', :Form0966Output
           end
         end
+
         response :default do
           key :description, 'unexpected error'
           schema do
@@ -271,6 +272,7 @@ module ClaimsApi
             key :'$ref', :Form0966Output
           end
         end
+
         response :default do
           key :description, 'unexpected error'
           schema do

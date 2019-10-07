@@ -56,6 +56,7 @@ module Sentry
           else
             return FILTER_MASK_NIL if unsanitized_value.nil?
             return FILTER_MASK_BLANK if unsanitized_value.blank?
+
             FILTER_MASK
           end
         else
@@ -70,6 +71,7 @@ module Sentry
 
       def parse_json_or_nil(string)
         return unless string.start_with?(*JSON_STARTS_WITH)
+
         JSON.parse(string)
       rescue JSON::ParserError, NoMethodError
         nil

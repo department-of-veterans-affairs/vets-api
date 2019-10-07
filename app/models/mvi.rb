@@ -77,6 +77,7 @@ class Mvi < Common::RedisStore
   # @return [MVI::Models::MviProfile] patient 'golden record' data from MVI
   def profile
     return nil unless user.loa3?
+
     mvi_response&.profile
   end
 
@@ -85,6 +86,7 @@ class Mvi < Common::RedisStore
   # @return [String] the status of the last MVI response
   def status
     return MVI::Responses::FindProfileResponse::RESPONSE_STATUS[:not_authorized] unless user.loa3?
+
     mvi_response.status
   end
 
@@ -93,6 +95,7 @@ class Mvi < Common::RedisStore
   # @return [Common::Exceptions::BackendServiceException]
   def error
     return Common::Exceptions::Unauthorized.new(source: self.class) unless user.loa3?
+
     mvi_response.try(:error)
   end
 

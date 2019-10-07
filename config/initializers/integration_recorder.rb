@@ -80,6 +80,7 @@ if Rails.env.development? && ENV['DUALDECK_INTERACTION']
     c.before_record do |i|
       %i[response request].each do |env|
         next unless i.send(env).headers.keys.include?('Token')
+
         i.send(env).headers.update('Token' => '<SESSION_TOKEN>')
       end
     end
@@ -215,6 +216,7 @@ if Rails.env.development? && ENV['DUALDECK_INTERACTION']
   relative_cassette_path = VCR.configuration.cassette_library_dir.split(Dir.pwd.to_s)[1].sub('/', '')
   full_feature_path = relative_cassette_path + "/#{ENV['DUALDECK_INTERACTION']}"
   raise "Interaciton Exists! #{full_feature_path} or provide different interaction" if File.exist?(full_feature_path)
+
   middleware_options = { replay: false, feature: ENV['DUALDECK_INTERACTION'], insecure_random: true }
   Rails.configuration.middleware.insert(0, DualDeck::RackMiddleware, middleware_options)
 end

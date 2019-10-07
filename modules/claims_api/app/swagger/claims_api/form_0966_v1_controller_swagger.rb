@@ -14,6 +14,8 @@ module ClaimsApi
         key :summary, 'Get 0966 JSON Schema for form'
         key :description, 'Returns a single JSON schema to auto generate a form'
         key :operationId, 'get0966JsonSchema'
+        key :summary, 'Get 0966 JSON Schema for form'
+        key :description, 'Returns a single 0966 JSON schema to auto generate a form'
         key :produces, [
           'application/json'
         ]

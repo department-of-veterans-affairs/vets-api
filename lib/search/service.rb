@@ -32,8 +32,8 @@ module Search
         response = perform(:get, results_url, query_params)
         Search::ResultsResponse.from(response)
       end
-    rescue StandardError => error
-      handle_error(error)
+    rescue => e
+      handle_error(e)
     end
 
     private
@@ -49,11 +49,11 @@ module Search
     #
     def query_params
       {
-        affiliate:  affiliate,
+        affiliate: affiliate,
         access_key: access_key,
-        query:      query,
-        offset:     offset,
-        limit:      limit
+        query: query,
+        offset: offset,
+        limit: limit
       }
     end
 
@@ -111,15 +111,6 @@ module Search
 
       StatsD.increment("#{Search::Service::STATSD_KEY_PREFIX}.exceptions", tags: ['exception:429'])
       raise_backend_exception('SEARCH_429', self.class, error)
-    end
-
-    def raise_backend_exception(key, source, error = nil)
-      raise Common::Exceptions::BackendServiceException.new(
-        key,
-        { source: source.to_s },
-        error&.status,
-        error&.body
-      )
     end
   end
 end

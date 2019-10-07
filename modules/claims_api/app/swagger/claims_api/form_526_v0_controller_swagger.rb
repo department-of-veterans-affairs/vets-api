@@ -12,7 +12,7 @@ module ClaimsApi
           key :apikey, []
         end
         key :summary, 'Get 526 JSON Schema for form'
-        key :description, 'Returns a single JSON schema to auto generate a form'
+        key :description, 'Returns a single 526 JSON schema to auto generate a form'
         key :operationId, 'get526JsonSchema'
         key :produces, [
           'application/json'
@@ -107,7 +107,7 @@ module ClaimsApi
           key :name, 'X-VA-User'
           key :in, :header
           key :description, 'VA username of the person making the request'
-          key :required, true
+          key :required, false
           key :type, :string
         end
 
@@ -124,7 +124,7 @@ module ClaimsApi
         response 200 do
           key :description, '526 response'
           schema do
-            key :'$ref', :Claims
+            key :'$ref', :ClaimsIndex
           end
         end
         response :default do
@@ -199,7 +199,7 @@ module ClaimsApi
           key :name, 'X-VA-User'
           key :in, :header
           key :description, 'VA username of the person making the request'
-          key :required, true
+          key :required, false
           key :type, :string
         end
 
@@ -339,7 +339,7 @@ module ClaimsApi
           key :name, 'X-VA-User'
           key :in, :header
           key :description, 'VA username of the person making the request'
-          key :required, true
+          key :required, false
           key :type, :string
         end
 

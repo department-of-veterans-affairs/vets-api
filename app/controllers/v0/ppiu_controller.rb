@@ -3,6 +3,7 @@
 module V0
   class PPIUController < ApplicationController
     before_action { authorize :evss, :access? }
+    before_action { authorize :ppiu, :access? }
     before_action :validate_pay_info, only: :update
 
     def index
@@ -33,16 +34,6 @@ module V0
       )
     end
 
-    def current_user_email
-      vet360_email =
-        begin
-          current_user.vet360_contact_info&.email&.email_address
-        rescue StandardError
-          nil
-        end
-      vet360_email || current_user.email
-    end
-
     def pay_info
       @pay_info ||= EVSS::PPIU::PaymentAccount.new(ppiu_params)
     end
@@ -55,8 +46,12 @@ module V0
     end
 
     def send_confirmation_email
-      if current_user_email
-        DirectDepositEmailJob.perform_async(current_user_email, params[:ga_client_id])
+      user_emails = current_user.all_emails
+
+      if user_emails.present?
+        user_emails.each do |email|
+          DirectDepositEmailJob.perform_async(email, params[:ga_client_id])
+        end
       else
         log_message_to_sentry(
           'Direct Deposit info update: no email address present for confirmation email',

@@ -23,7 +23,7 @@ RSpec.describe V0::PreferencesController, type: :controller do
       end
 
       it 'returns successful http status' do
-        expect(response).to have_http_status(200)
+        expect(response).to have_http_status(:ok)
       end
 
       it 'matches the response schema' do
@@ -68,7 +68,7 @@ RSpec.describe V0::PreferencesController, type: :controller do
       end
 
       it 'returns successful http status' do
-        expect(response).to have_http_status(200)
+        expect(response).to have_http_status(:ok)
       end
 
       it 'matches the response schema' do

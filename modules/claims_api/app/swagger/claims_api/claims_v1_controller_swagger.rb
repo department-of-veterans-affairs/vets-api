@@ -78,7 +78,7 @@ module ClaimsApi
             key :type, :object
             key :required, [:data]
             property :data do
-              key :'$ref', :Claims
+              key :'$ref', :ClaimsShow
             end
           end
         end
@@ -177,11 +177,12 @@ module ClaimsApi
             property :data do
               key :type, :array
               items do
-                key :'$ref', :Claims
+                key :'$ref', :ClaimsIndex
               end
             end
           end
         end
+
         response :default do
           key :description, 'unexpected error'
           schema do

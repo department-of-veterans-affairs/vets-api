@@ -23,7 +23,7 @@ RSpec.describe 'notifications', type: :request do
     end
 
     context 'when user does *not* have a Notification record for the passed subject' do
-      it 'should match the notification schema', :aggregate_failures do
+      it 'matches the notification schema', :aggregate_failures do
         post '/v0/notifications', params: post_body, headers: headers
 
         expect(response).to have_http_status(:ok)
@@ -47,7 +47,7 @@ RSpec.describe 'notifications', type: :request do
           }.to_json
         end
 
-        it 'should set read_at: Time.current', :aggregate_failures do
+        it 'sets read_at: Time.current', :aggregate_failures do
           post '/v0/notifications', params: post_body, headers: headers
 
           read_at = JSON.parse(response.body).dig('data', 'attributes', 'read_at')
@@ -79,7 +79,7 @@ RSpec.describe 'notifications', type: :request do
         }.to_json
       end
 
-      it 'should return a 422 unprocessable entity', :aggregate_failures do
+      it 'returns a 422 unprocessable entity', :aggregate_failures do
         post '/v0/notifications', params: invalid_post_body, headers: headers
 
         expect(response.status).to eq 422
@@ -94,7 +94,7 @@ RSpec.describe 'notifications', type: :request do
         create :notification, account_id: user.account.id, subject: notification_subject
       end
 
-      it 'should match the schema', :aggregate_failures do
+      it 'matches the schema', :aggregate_failures do
         get "/v0/notifications/#{notification_subject}"
 
         expect(response).to have_http_status(:ok)
@@ -112,7 +112,7 @@ RSpec.describe 'notifications', type: :request do
     end
 
     context 'when the passed subject is not defined in the Notification#subject enum' do
-      it 'should return a 422 unprocessable entity', :aggregate_failures do
+      it 'returns a 422 unprocessable entity', :aggregate_failures do
         get "/v0/notifications/#{invalid_subject}"
 
         expect(response.status).to eq 422
@@ -133,7 +133,7 @@ RSpec.describe 'notifications', type: :request do
         create :notification, subject: notification_subject, account_id: user.account.id
       end
 
-      it 'should match the Notification schema', :aggregate_failures do
+      it 'matches the Notification schema', :aggregate_failures do
         patch "/v0/notifications/#{notification_subject}", params: patch_body, headers: headers
 
         expect(response).to have_http_status(:ok)
@@ -150,7 +150,7 @@ RSpec.describe 'notifications', type: :request do
     end
 
     context 'user does not have a Notification record with the passed subject' do
-      it 'should return a 404 record not found', :aggregate_failures do
+      it 'returns a 404 record not found', :aggregate_failures do
         patch "/v0/notifications/#{notification_subject}", params: patch_body, headers: headers
 
         expect(response.status).to eq 404

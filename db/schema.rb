@@ -10,11 +10,12 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2019_08_25_155789) do
+ActiveRecord::Schema.define(version: 2019_09_20_134906) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
   enable_extension "pg_trgm"
+  enable_extension "pgcrypto"
   enable_extension "plpgsql"
   enable_extension "postgis"
   enable_extension "uuid-ossp"
@@ -66,6 +67,8 @@ ActiveRecord::Schema.define(version: 2019_08_25_155789) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.geography "location", limit: {:srid=>4326, :type=>"st_point", :geographic=>true}
+    t.boolean "mobile"
+    t.string "active_status"
     t.index ["location"], name: "index_base_facilities_on_location", using: :gist
     t.index ["name"], name: "index_base_facilities_on_name", using: :gin
     t.index ["unique_id", "facility_type"], name: "index_base_facilities_on_unique_id_and_facility_type", unique: true
@@ -97,6 +100,21 @@ ActiveRecord::Schema.define(version: 2019_08_25_155789) do
     t.datetime "updated_at", null: false
     t.string "md5"
     t.string "source"
+  end
+
+  create_table "claims_api_power_of_attorneys", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.string "status"
+    t.string "current_poa"
+    t.string "encrypted_form_data"
+    t.string "encrypted_form_data_iv"
+    t.string "encrypted_auth_headers"
+    t.string "encrypted_auth_headers_iv"
+    t.string "encrypted_file_data"
+    t.string "encrypted_file_data_iv"
+    t.string "md5"
+    t.string "source"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
   end
 
   create_table "claims_api_supporting_documents", id: :uuid, default: -> { "uuid_generate_v4()" }, force: :cascade do |t|
@@ -135,6 +153,16 @@ ActiveRecord::Schema.define(version: 2019_08_25_155789) do
     t.index ["code"], name: "index_disability_contentions_on_code", unique: true
     t.index ["lay_term"], name: "index_disability_contentions_on_lay_term", using: :gin
     t.index ["medical_term"], name: "index_disability_contentions_on_medical_term", using: :gin
+  end
+
+  create_table "drivetime_bands", force: :cascade do |t|
+    t.string "name"
+    t.integer "value"
+    t.string "unit"
+    t.geography "polygon", limit: {:srid=>4326, :type=>"st_polygon", :geographic=>true}, null: false
+    t.string "vha_facility_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
   end
 
   create_table "education_benefits_claims", id: :serial, force: :cascade do |t|

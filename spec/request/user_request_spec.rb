@@ -245,7 +245,7 @@ RSpec.describe 'Fetching user data', type: :request do
   end
 
   def stub_mvi_record_not_found
-    stub_mvi_external_request File.read('spec/support/mvi/find_candidate_no_subject.xml')
+    stub_mvi_external_request File.read('spec/support/mvi/find_candidate_no_subject_response.xml')
   end
 
   def stub_mvi_duplicate_record

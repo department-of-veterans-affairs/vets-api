@@ -33,6 +33,7 @@ module RedisForm
 
   def parsed_response
     return if response.blank?
+
     @parsed_response ||= JSON.parse(response)
   end
 

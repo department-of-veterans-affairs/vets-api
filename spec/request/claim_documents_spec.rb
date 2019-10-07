@@ -8,7 +8,8 @@ RSpec.describe 'Claim Document Attachment', type: :request do
       'application/pdf'
     )
   end
-  it 'should upload a file' do
+
+  it 'uploads a file' do
     allow(ClamScan::Client).to receive(:scan)
       .and_return(instance_double('ClamScan::Response', safe?: true))
     params = { file: file, form_id: '21P-527EZ' }

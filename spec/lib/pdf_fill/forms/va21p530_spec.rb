@@ -21,7 +21,7 @@ describe PdfFill::Forms::Va21p530 do
 
   describe '#expand_firm' do
     context 'isEntity not set' do
-      it 'should do nothing' do
+      it 'does nothing' do
         new_form_class.expand_firm
         expect(class_form_data['firmNameAndAddr']).to eq(nil)
       end
@@ -45,7 +45,7 @@ describe PdfFill::Forms::Va21p530 do
         }
       end
 
-      it 'should combine the firm name and addr' do
+      it 'combines the firm name and addr' do
         new_form_class.expand_firm
 
         expect(
@@ -135,7 +135,7 @@ describe PdfFill::Forms::Va21p530 do
     end
 
     context 'with no location of death' do
-      it 'should return nil' do
+      it 'returns nil' do
         expect(subject).to eq(nil)
       end
     end
@@ -149,7 +149,7 @@ describe PdfFill::Forms::Va21p530 do
         }
       end
 
-      it 'should return the translated location' do
+      it 'returns the translated location' do
         expect(subject).to eq('VA MEDICAL CENTER')
       end
     end
@@ -164,7 +164,7 @@ describe PdfFill::Forms::Va21p530 do
         }
       end
 
-      it 'should return the translated location' do
+      it 'returns the translated location' do
         expect(subject).to eq('foo')
       end
     end
@@ -176,7 +176,7 @@ describe PdfFill::Forms::Va21p530 do
     end
 
     context 'with no burial allowance' do
-      it 'should return nil' do
+      it 'returns nil' do
         expect(subject).to eq(nil)
       end
     end
@@ -188,7 +188,7 @@ describe PdfFill::Forms::Va21p530 do
         }
       end
 
-      it 'should expand the checkbox' do
+      it 'expands the checkbox' do
         subject
 
         expect(class_form_data).to eq(
@@ -199,7 +199,7 @@ describe PdfFill::Forms::Va21p530 do
   end
 
   describe '#merge_fields' do
-    it 'should merge the right fields', run_at: '2016-12-31 00:00:00 EDT' do
+    it 'merges the right fields', run_at: '2016-12-31 00:00:00 EDT' do
       expect(described_class.new(get_fixture('pdf_fill/21P-530/kitchen_sink')).merge_fields.to_json).to eq(
         get_fixture('pdf_fill/21P-530/merge_fields').to_json
       )

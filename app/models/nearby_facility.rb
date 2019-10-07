@@ -7,19 +7,28 @@ class NearbyFacility < ApplicationRecord
   class << self
     attr_writer :validate_on_load
 
-    def query(params)
-      return NearbyFacility.none unless params[:street_address] && params[:city] && params[:state] && params[:zip]
-      isochrone_response = request_isochrone(params)
+    def query(street_address: '', city: '', state: '', zip: '', **params)
+      return NearbyFacility.none unless [street_address, city, state, zip].all?(&:present?)
+
+      waypoint = "#{street_address} #{city} #{state} #{zip}"
+      isochrone_response = request_isochrone(waypoint, params)
       get_facilities_in_isochrone(params, isochrone_response)
     end
 
-    def request_isochrone(params)
+    def query_by_lat_lng(lat: '', lng: '', **params)
+      return NearbyFacility.none unless [lat, lng].all?(&:present?)
+
+      waypoint = "#{lat},#{lng}"
+      isochrone_response = request_isochrone(waypoint, params)
+      get_facilities_in_isochrone(params, isochrone_response)
+    end
+
+    def request_isochrone(waypoint, params)
       params[:drive_time] = '30' unless params[:drive_time]
-      address = "#{params[:street_address]} #{params[:city]} #{params[:state]} #{params[:zip]}"
       # list of all parameters can be found at https://docs.microsoft.com/en-us/bingmaps/rest-services/routes/calculate-an-isochrone#template-parameters
       # we are currently using today at 7:30 AM (local time for the waypoint) for traffic modelling
       query = {
-        waypoint: address,
+        waypoint: waypoint,
         maxtime: params[:drive_time],
         timeUnit: 'minute',
         dateTime: '07:30:00',

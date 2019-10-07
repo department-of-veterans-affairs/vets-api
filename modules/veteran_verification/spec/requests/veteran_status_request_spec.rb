@@ -8,7 +8,7 @@ RSpec.describe 'Veteran Status API endpoint', type: :request, skip_emis: true do
   let(:scopes) { %w[profile email openid veteran_status.read] }
 
   context 'with valid emis responses' do
-    it 'should return true if the user is a veteran' do
+    it 'returns true if the user is a veteran' do
       with_okta_user(scopes) do |auth_header|
         VCR.use_cassette('emis/get_veteran_status/valid') do
           get '/services/veteran_verification/v0/status', params: nil, headers: auth_header
@@ -19,7 +19,7 @@ RSpec.describe 'Veteran Status API endpoint', type: :request, skip_emis: true do
       end
     end
 
-    it 'should return not_confirmed if the user is not a veteran' do
+    it 'returns not_confirmed if the user is not a veteran' do
       with_okta_user(scopes) do |auth_header|
         VCR.use_cassette('emis/get_veteran_status/valid_non_veteran') do
           get '/services/veteran_verification/v0/status', params: nil, headers: auth_header
@@ -36,7 +36,7 @@ RSpec.describe 'Veteran Status API endpoint', type: :request, skip_emis: true do
       allow(EMISRedis::MilitaryInformation).to receive_message_chain(:for_user, :veteran_status) { nil }
     end
 
-    it 'should match the errors schema', :aggregate_failures do
+    it 'matches the errors schema', :aggregate_failures do
       with_okta_user(scopes) do |auth_header|
         get '/services/veteran_verification/v0/status', params: nil, headers: auth_header
 

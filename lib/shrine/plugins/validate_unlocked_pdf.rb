@@ -8,6 +8,7 @@ class Shrine
       module AttacherMethods
         def validate_unlocked_pdf
           return unless get.mime_type == Mime[:pdf].to_s
+
           cached_path = get.download
           metadata = PdfInfo::Metadata.read(cached_path)
           errors << I18n.t('uploads.pdf.locked') if metadata.encrypted?

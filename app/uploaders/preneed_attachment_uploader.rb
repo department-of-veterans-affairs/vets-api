@@ -30,6 +30,7 @@ class PreneedAttachmentUploader < CarrierWave::Uploader::Base
 
   def store_dir
     raise 'missing guid' if @guid.blank?
+
     "preneed_attachments/#{@guid}"
   end
 

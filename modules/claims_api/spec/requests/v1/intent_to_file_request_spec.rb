@@ -16,6 +16,7 @@ RSpec.describe 'Intent to file', type: :request do
   let(:scopes) { %w[claim.write] }
   let(:path) { '/services/claims/v1/forms/0966' }
   let(:data) { { 'data': { 'attributes': { 'type': 'compensation' } } } }
+  let(:schema) { File.read(Rails.root.join('modules', 'claims_api', 'config', 'schemas', '0966.json')) }
 
   before(:each) do
     stub_poa_verification
@@ -23,7 +24,15 @@ RSpec.describe 'Intent to file', type: :request do
   end
 
   describe '#0966' do
-    it 'should return a payload with an expiration date' do
+    it 'returns a successful get response with json schema' do
+      with_okta_user(scopes) do |auth_header|
+        get path, headers: headers.merge(auth_header)
+        json_schema = JSON.parse(response.body)['data'][0]
+        expect(json_schema).to eq(JSON.parse(schema))
+      end
+    end
+
+    it 'returns a payload with an expiration date' do
       with_okta_user(scopes) do |auth_header|
         VCR.use_cassette('evss/intent_to_file/create_compensation') do
           post path, params: data.to_json, headers: headers.merge(auth_header)
@@ -33,7 +42,7 @@ RSpec.describe 'Intent to file', type: :request do
       end
     end
 
-    it "should fail if passed a type that doesn't exist" do
+    it "fails if passed a type that doesn't exist" do
       with_okta_user(scopes) do |auth_header|
         data[:data][:attributes][:type] = 'failingtesttype'
         post path, params: data.to_json, headers: headers.merge(auth_header)
@@ -41,7 +50,7 @@ RSpec.describe 'Intent to file', type: :request do
       end
     end
 
-    it 'should fail if none is passed in' do
+    it 'fails if none is passed in' do
       with_okta_user(scopes) do |auth_header|
         VCR.use_cassette('evss/intent_to_file/create_compensation') do
           post path, headers: headers.merge(auth_header)
@@ -50,7 +59,7 @@ RSpec.describe 'Intent to file', type: :request do
       end
     end
 
-    it 'should fail if none is passed in as non-poa request' do
+    it 'fails if none is passed in as non-poa request' do
       with_okta_user(scopes) do |auth_header|
         VCR.use_cassette('evss/intent_to_file/create_compensation') do
           post path, headers: auth_header, params: ''
@@ -61,7 +70,7 @@ RSpec.describe 'Intent to file', type: :request do
   end
 
   describe '#active' do
-    it 'should return the latest itf of a type' do
+    it 'returns the latest itf of a type' do
       with_okta_user(scopes) do |auth_header|
         VCR.use_cassette('evss/intent_to_file/active_compensation') do
           get "#{path}/active", params: { type: 'compensation' }, headers: headers.merge(auth_header)
@@ -71,7 +80,7 @@ RSpec.describe 'Intent to file', type: :request do
       end
     end
 
-    it 'should fail if none is passed in for poa request' do
+    it 'fails if none is passed in for poa request' do
       with_okta_user(scopes) do |auth_header|
         VCR.use_cassette('evss/intent_to_file/active_compensation') do
           get "#{path}/active", headers: headers.merge(auth_header)
@@ -80,7 +89,7 @@ RSpec.describe 'Intent to file', type: :request do
       end
     end
 
-    it 'should fail if none is passed in for non-poa request' do
+    it 'fails if none is passed in for non-poa request' do
       with_okta_user(scopes) do |auth_header|
         VCR.use_cassette('evss/intent_to_file/active_compensation') do
           get "#{path}/active", headers: auth_header, params: ''

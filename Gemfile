@@ -2,6 +2,8 @@
 
 source 'https://rubygems.org'
 
+ruby '2.4.5'
+
 # Modules
 gem 'appeals_api', path: 'modules/appeals_api'
 gem 'claims_api', path: 'modules/claims_api'
@@ -19,7 +21,6 @@ gem 'rails', '~> 5.2.3'
 # Gems with special version/repo needs
 gem 'active_model_serializers', '0.10.4' # breaking changed in 0.10.5 relating to .to_json
 gem 'carrierwave', '~> 0.11' # TODO: explanation
-gem 'sdoc', '~> 0.4.0', group: :doc # TODO: explanation
 gem 'sidekiq-scheduler', '~> 2.0' # TODO: explanation
 
 gem 'aasm'
@@ -64,9 +65,9 @@ gem 'memoist'
 gem 'mini_magick', '~> 4.9.4'
 gem 'net-sftp'
 gem 'nokogiri', '~> 1.10', '>= 1.10.4'
-gem 'octokit'
 gem 'oj' # Amazon Linux `json` gem causes conflicts, but `multi_json` will prefer `oj` if installed
 gem 'olive_branch'
+gem 'origami'
 gem 'ox'
 gem 'pdf-forms'
 gem 'pdf-reader'
@@ -81,7 +82,7 @@ gem 'redis'
 gem 'redis-namespace'
 gem 'restforce'
 gem 'ruby-saml'
-gem 'rubyzip', '>= 1.0.0'
+gem 'rubyzip', '>= 1.3.0'
 gem 'savon'
 gem 'sentry-raven', '2.9.0' # don't change gem version unless sentry server is also upgraded
 gem 'shrine'
@@ -115,7 +116,6 @@ end
 group :test do
   gem 'apivore'
   gem 'awrence'
-  gem 'climate_control'
   gem 'faker'
   gem 'faker-medical'
   gem 'fakeredis'
@@ -134,7 +134,7 @@ group :development, :test do
   gem 'bundler-audit'
   gem 'byebug', platforms: :ruby # Call 'byebug' anywhere in the code to stop execution and get a debugger console
   gem 'database_cleaner'
-  gem 'factory_bot_rails', '< 4.11'
+  gem 'factory_bot_rails', '> 5'
   gem 'pry-byebug'
   gem 'rainbow' # Used to colorize output for rake tasks
   # CAUTION: faraday_curl may not provide all headers used in the actual faraday request. Be cautious if using this to
@@ -146,7 +146,9 @@ group :development, :test do
   gem 'rack-test', require: 'rack/test'
   gem 'rack-vcr'
   gem 'rspec-rails', '~> 3.5'
-  gem 'rubocop', '~> 0.52.1', require: false
+  gem 'rubocop', require: false
+  gem 'rubocop-rails'
+  gem 'rubocop-rspec'
   gem 'sidekiq', '~> 4.2'
   gem 'timecop'
   gem 'webmock'
