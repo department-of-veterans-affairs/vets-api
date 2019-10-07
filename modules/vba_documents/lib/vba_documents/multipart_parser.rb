@@ -10,23 +10,27 @@ module VBADocuments
       if base64_encoded(infile)
         create_file_from_base64(infile)
       else
-        File.open(infile, 'rb') do |input|
-          validate_size(input)
-          lines = input.each_line(LINE_BREAK).lazy.each_with_index
+        parse_file(infile)
+      end
+    end
 
-          parts = {}
-          separator = lines.next[0].chomp(LINE_BREAK)
+    def self.parse_file(infile)
+      File.open(infile, 'rb') do |input|
+        validate_size(input)
+        lines = input.each_line(LINE_BREAK).lazy.each_with_index
 
-          loop do
-            headers = consume_headers(lines, separator)
-            partname = get_partname(headers)
-            content_type = get_content_type(headers)
-            body, moreparts = consume_body(lines, separator, content_type)
-            parts[partname] = body
-            break unless moreparts
-          end
-          parts
+        parts = {}
+        separator = lines.next[0].chomp(LINE_BREAK)
+
+        loop do
+          headers = consume_headers(lines, separator)
+          partname = get_partname(headers)
+          content_type = get_content_type(headers)
+          body, moreparts = consume_body(lines, separator, content_type)
+          parts[partname] = body
+          break unless moreparts
         end
+        parts
       end
     end
 
