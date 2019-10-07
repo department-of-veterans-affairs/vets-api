@@ -99,7 +99,7 @@ RSpec.describe Facilities::FacilityLocationDownloadJob, type: :job do
       end
     end
 
-    it 'should indicate Pensions for appropriate facilities' do
+    it 'indicates Pensions for appropriate facilities' do
       VCR.use_cassette('facilities/va/vba_facilities_limit_results') do
         expect(Facilities::VBAFacility.count).to eq(0)
         Facilities::FacilityLocationDownloadJob.new.perform('vba')

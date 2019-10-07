@@ -5,6 +5,8 @@ require 'sm/client'
 
 describe 'sm client' do
   describe 'folders' do
+    subject(:client) { @client }
+
     before(:all) do
       VCR.use_cassette 'sm_client/session', record: :new_episodes do
         @client ||= begin
@@ -14,8 +16,6 @@ describe 'sm client' do
         end
       end
     end
-
-    subject(:client)  { @client }
 
     let(:folder_name) { "test folder #{rand(100..100_000)}" }
     let(:folder_id)   { 0 }
@@ -51,7 +51,7 @@ describe 'sm client' do
       end
 
       it 'gets a collection of messages', :vcr do
-        expect(client).to receive(:perform).and_call_original.exactly(1).times
+        expect(client).to receive(:perform).and_call_original.once
         messages = client.get_folder_messages(folder_id)
         expect(messages).to be_a(Common::Collection)
         expect(messages.data.size).to eq(10)

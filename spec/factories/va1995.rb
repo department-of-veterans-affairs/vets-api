@@ -17,5 +17,19 @@ FactoryBot.define do
     factory :va1995_full_form do
       form { File.read(Rails.root.join('spec', 'fixtures', 'education_benefits_claims', '1995', 'kitchen_sink.json')) }
     end
+
+    factory :va1995_with_stem do
+      form {
+        File.read(
+          Rails.root.join(
+            'spec',
+            'fixtures',
+            'education_benefits_claims',
+            '1995',
+            'kitchen_sink_stem.json'
+          )
+        )
+      }
+    end
   end
 end

@@ -5,7 +5,7 @@ require 'rails_helper'
 describe HCA::EnrollmentEligibility::Service do
   describe '#lookup_user' do
     context 'with a user that has an ineligibility_reason' do
-      it 'should get the ineligibility_reason', run_at: 'Wed, 13 Feb 2019 09:20:47 GMT' do
+      it 'gets the ineligibility_reason', run_at: 'Wed, 13 Feb 2019 09:20:47 GMT' do
         VCR.use_cassette(
           'hca/ee/lookup_user_ineligibility_reason',
           VCR::MATCH_EVERYTHING.merge(erb: true)
@@ -26,7 +26,7 @@ describe HCA::EnrollmentEligibility::Service do
       end
     end
 
-    it 'should lookup the user through the hca ee api', run_at: 'Fri, 08 Feb 2019 02:50:45 GMT' do
+    it 'lookups the user through the hca ee api', run_at: 'Fri, 08 Feb 2019 02:50:45 GMT' do
       VCR.use_cassette(
         'hca/ee/lookup_user',
         VCR::MATCH_EVERYTHING.merge(erb: true)

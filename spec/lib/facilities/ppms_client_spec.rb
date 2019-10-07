@@ -5,7 +5,7 @@ module Facilities
   RSpec.describe PPMSClient do
     let(:bbox_bounds) { [-79, 38, -77, 39] }
 
-    it 'should be an PPMSClient object' do
+    it 'is an PPMSClient object' do
       expect(described_class.new).to be_an(PPMSClient)
     end
 
@@ -19,7 +19,7 @@ module Facilities
           allow_any_instance_of(Faraday::Connection).to receive(:get).and_raise(Faraday::TimeoutError)
         end
 
-        it 'should log an error and raise GatewayTimeout' do
+        it 'logs an error and raise GatewayTimeout' do
           expect do
             PPMSClient.new.provider_locator('bbox': bbox_bounds)
           end.to raise_error(Common::Exceptions::GatewayTimeout)
@@ -37,7 +37,7 @@ module Facilities
         end
       end
 
-      it 'should find at least one provider' do
+      it 'finds at least one provider' do
         VCR.use_cassette('facilities/va/ppms', match_requests_on: [regex_matcher]) do
           r = PPMSClient.new.provider_locator('bbox': [-79, 38, -77, 39])
           expect(r.length).to be > 0
@@ -46,7 +46,7 @@ module Facilities
         end
       end
 
-      it 'should return a Provider shape' do
+      it 'returns a Provider shape' do
         VCR.use_cassette('facilities/va/ppms', match_requests_on: [regex_matcher]) do
           r = PPMSClient.new.provider_info(1_427_435_759)
           expect(r['ProviderIdentifier']).not_to be(nil)
@@ -55,7 +55,7 @@ module Facilities
         end
       end
 
-      it 'should return some Specialties' do
+      it 'returns some Specialties' do
         VCR.use_cassette('facilities/va/ppms', match_requests_on: [regex_matcher]) do
           r = PPMSClient.new.specialties
           expect(r.length).to be > 0
@@ -63,7 +63,7 @@ module Facilities
         end
       end
 
-      it 'should return a CareSite' do
+      it 'returns a CareSite' do
         VCR.use_cassette('facilities/va/ppms', match_requests_on: [regex_matcher]) do
           r = PPMSClient.new.provider_caresites(1_427_435_759)
           expect(r.length).to be > 0
@@ -71,7 +71,7 @@ module Facilities
         end
       end
 
-      it 'should return Services' do
+      it 'returns Services' do
         VCR.use_cassette('facilities/va/ppms', match_requests_on: [regex_matcher]) do
           r = PPMSClient.new.provider_services(1_427_435_759)
           expect(r.length).to be > 0
@@ -80,7 +80,7 @@ module Facilities
         end
       end
 
-      it 'should edit the parameters' do
+      it 'edits the parameters' do
         params = PPMSClient.new.build_params('bbox': [73, -60, 74, -61])
         Rails.logger.info(params)
         expect(params[:radius]).to be > 35

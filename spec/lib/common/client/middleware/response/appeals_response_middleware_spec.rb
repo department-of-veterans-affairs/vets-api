@@ -8,12 +8,6 @@ require 'common/client/middleware/response/snakecase'
 require 'common/client/errors'
 
 describe 'Appeals Response Middleware' do
-  let(:message_json) { attributes_for(:message).to_json }
-  let(:caseflow_error) do
-    '{"errors": [{"status": "404", "title": "Veteran not found", ' \
-    '"detail": "A veteran with that SSN was not found in our systems."}]}'
-  end
-
   subject(:appeals_client) do
     Faraday.new do |conn|
       conn.response :snakecase
@@ -25,6 +19,12 @@ describe 'Appeals Response Middleware' do
         stub.get('not-found') { [404, { 'Content-Type' => 'application/json' }, caseflow_error] }
       end
     end
+  end
+
+  let(:message_json) { attributes_for(:message).to_json }
+  let(:caseflow_error) do
+    '{"errors": [{"status": "404", "title": "Veteran not found", ' \
+    '"detail": "A veteran with that SSN was not found in our systems."}]}'
   end
 
   it 'raises client response error' do

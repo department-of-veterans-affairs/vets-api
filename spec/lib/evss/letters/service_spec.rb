@@ -4,9 +4,9 @@ require 'rails_helper'
 
 describe EVSS::Letters::Service do
   describe '.find_by_user' do
-    let(:user) { build(:user, :loa3) }
-
     subject { described_class.new(user) }
+
+    let(:user) { build(:user, :loa3) }
 
     describe '#get_letters' do
       context 'with a valid evss response' do
@@ -20,7 +20,7 @@ describe EVSS::Letters::Service do
           end
         end
 
-        it 'should increment letters total' do
+        it 'increments letters total' do
           VCR.use_cassette('evss/letters/letters') do
             expect { subject.get_letters }.to trigger_statsd_increment('api.evss.get_letters.total')
           end
@@ -32,7 +32,7 @@ describe EVSS::Letters::Service do
           allow_any_instance_of(Faraday::Connection).to receive(:get).and_raise(Faraday::TimeoutError)
         end
 
-        it 'should log an error and raise GatewayTimeout' do
+        it 'logs an error and raise GatewayTimeout' do
           expect(StatsD).to receive(:increment).once.with(
             'api.evss.get_letters.fail', tags: ['error:Common::Exceptions::GatewayTimeout']
           )
@@ -62,7 +62,7 @@ describe EVSS::Letters::Service do
         end
       end
 
-      it 'should increment beneficiary total' do
+      it 'increments beneficiary total' do
         VCR.use_cassette('evss/letters/beneficiary') do
           expect { subject.get_letter_beneficiary }.to trigger_statsd_increment(
             'api.evss.get_letter_beneficiary.total'
@@ -75,7 +75,7 @@ describe EVSS::Letters::Service do
           allow_any_instance_of(Faraday::Connection).to receive(:get).and_raise(Faraday::TimeoutError)
         end
 
-        it 'should log an error and raise GatewayTimeout' do
+        it 'logs an error and raise GatewayTimeout' do
           expect(StatsD).to receive(:increment).once.with(
             'api.evss.get_letter_beneficiary.fail', tags: ['error:Common::Exceptions::GatewayTimeout']
           )
