@@ -113,7 +113,7 @@ evss:
   root_cert_path: ~
   versions:
     claims: 3.6
-    common: 11.0
+    common: 11.6
     documents: 3.7
   s3:
     uploads_enabled: false

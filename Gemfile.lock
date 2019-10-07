@@ -328,7 +328,9 @@ GEM
     fugit (1.2.1)
       et-orbi (~> 1.1, >= 1.1.8)
       raabro (~> 1.1)
-    git (1.5.0)
+    fuubar (2.4.1)
+      rspec-core (~> 3.0)
+      ruby-progressbar (~> 1.4)
     globalid (0.4.2)
       activesupport (>= 4.2.0)
     govdelivery-tms (2.8.4)
@@ -727,6 +729,7 @@ DEPENDENCIES
   flipper-active_support_cache_store
   flipper-ui
   foreman
+  fuubar
   govdelivery-tms (= 2.8.4)
   guard-rspec (~> 4.7)
   guard-rubocop
