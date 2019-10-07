@@ -16,7 +16,7 @@ RSpec.describe V0::DependentsApplicationsController do
   describe '#show' do
     let(:dependents_application) { create(:dependents_application) }
 
-    it 'should return a dependents application' do
+    it 'returns a dependents application' do
       id = dependents_application.id
       get(:show, params: { id: id })
       expect(JSON.parse(response.body)['data']['id']).to eq id
@@ -37,7 +37,7 @@ RSpec.describe V0::DependentsApplicationsController do
         }
       end
 
-      it 'should validate successfully' do
+      it 'validates successfully' do
         subject
         expect(response.code).to eq('200')
       end
@@ -52,7 +52,7 @@ RSpec.describe V0::DependentsApplicationsController do
         }
       end
 
-      it 'should show the validation errors' do
+      it 'shows the validation errors' do
         subject
 
         expect(response.code).to eq('422')

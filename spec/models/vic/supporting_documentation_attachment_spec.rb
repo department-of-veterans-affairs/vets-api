@@ -8,7 +8,7 @@ RSpec.describe VIC::SupportingDocumentationAttachment do
       create(:supporting_documentation_attachment)
     end
 
-    it 'should use the new filename to get the file' do
+    it 'uses the new filename to get the file' do
       ProcessFileJob.drain
       expect(attachment.get_file.exists?).to eq(true)
     end

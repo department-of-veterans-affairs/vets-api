@@ -19,7 +19,7 @@ describe PdfFill::Forms::Va214142 do
     new_form_class.instance_variable_get(:@form_data)
   end
   describe '#merge_fields' do
-    it 'should merge the right fields', run_at: '2016-12-31 00:00:00 EDT' do
+    it 'merges the right fields', run_at: '2016-12-31 00:00:00 EDT' do
       expect(described_class.new(get_fixture('pdf_fill/21-4142/kitchen_sink')).merge_fields.to_json).to eq(
         get_fixture('pdf_fill/21-4142/merge_fields').to_json
       )
@@ -34,7 +34,7 @@ describe PdfFill::Forms::Va214142 do
         }
       end
 
-      it 'should expand the va file number correctly' do
+      it 'expands the va file number correctly' do
         new_form_class.expand_va_file_number
         expect(
           JSON.parse(class_form_data.to_json)
@@ -50,7 +50,7 @@ describe PdfFill::Forms::Va214142 do
         {}
       end
 
-      it 'should return without doing anything' do
+      it 'returns without doing anything' do
         new_form_class.expand_va_file_number
         expect(
           JSON.parse(class_form_data.to_json)
@@ -67,7 +67,7 @@ describe PdfFill::Forms::Va214142 do
         }
       end
 
-      it 'should expand the ssn correctly' do
+      it 'expands the ssn correctly' do
         new_form_class.expand_ssn
         expect(
           JSON.parse(class_form_data.to_json)
@@ -96,7 +96,7 @@ describe PdfFill::Forms::Va214142 do
         }
       end
 
-      it 'should expand postal code and country correctly' do
+      it 'expands postal code and country correctly' do
         new_form_class.expand_claimant_address
         expect(
           JSON.parse(class_form_data.to_json)
@@ -129,7 +129,7 @@ describe PdfFill::Forms::Va214142 do
         }
       end
 
-      it 'should expand veteran full name correctly' do
+      it 'expands veteran full name correctly' do
         new_form_class.expand_veteran_full_name
         expect(
           JSON.parse(class_form_data.to_json)
@@ -159,7 +159,7 @@ describe PdfFill::Forms::Va214142 do
         }
       end
 
-      it 'should expand the birth date correctly' do
+      it 'expands the birth date correctly' do
         new_form_class.expand_veteran_dob
         expect(
           JSON.parse(class_form_data.to_json)
@@ -187,7 +187,7 @@ describe PdfFill::Forms::Va214142 do
         }
       end
 
-      it 'should expand veteran service number correctly' do
+      it 'expands veteran service number correctly' do
         new_form_class.expand_veteran_service_number
         expect(
           JSON.parse(class_form_data.to_json)
@@ -200,7 +200,7 @@ describe PdfFill::Forms::Va214142 do
   end
 
   describe '#combine_date_ranges' do
-    it 'should combine multiple date ranges correctly' do
+    it 'combines multiple date ranges correctly' do
       date_ranges = [
         {
           'from' => '1980-1-1',
@@ -215,7 +215,7 @@ describe PdfFill::Forms::Va214142 do
         "from: 1980-1-1 to: 1985-1-1\nfrom: 1986-1-1 to: 1987-1-1"
       )
     end
-    it 'should show a single date range correctly' do
+    it 'shows a single date range correctly' do
       date_ranges = [
         {
           'from' => '1980-1-1',
@@ -226,14 +226,14 @@ describe PdfFill::Forms::Va214142 do
         'from: 1980-1-1 to: 1985-1-1'
       )
     end
-    it 'should handle no date ranges' do
+    it 'handles no date ranges' do
       date_ranges = []
       expect(new_form_class.combine_date_ranges(date_ranges)).to eq('')
     end
   end
 
   describe '#expand_provider_date_range' do
-    it 'should expand the provider date range correctly' do
+    it 'expands the provider date range correctly' do
       providers = [
         {
           'providerFacilityName' => 'provider 1',
@@ -286,7 +286,7 @@ describe PdfFill::Forms::Va214142 do
   end
 
   describe '#expand_provider_address' do
-    it 'should expand the provider address correctly' do
+    it 'expands the provider address correctly' do
       providers = [
         {
           'providerFacilityName' => 'provider 1',
@@ -345,7 +345,7 @@ describe PdfFill::Forms::Va214142 do
   end
 
   describe '#expand_provider_extras' do
-    it 'should expand the provider address and treatment datescorrectly' do
+    it 'expands the provider address and treatment datescorrectly' do
       providers = [
         {
           'providerFacilityName' => 'provider 1',

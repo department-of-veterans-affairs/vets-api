@@ -4,9 +4,15 @@ require 'rails_helper'
 require 'support/rx_client_helpers'
 
 RSpec.describe MHVLoggingService do
-  subject(:login_service) { described_class.login(mhv_user) }
+  let(:login_service) { described_class.login(mhv_user) }
 
-  subject(:logout_service) { described_class.logout(mhv_user) }
+  let(:logout_service) { described_class.logout(mhv_user) }
+
+  let(:authenticated_client) do
+    MHVLogging::Client.new(session: { user_id: mhv_user.mhv_correlation_id,
+                                      expires_at: Time.current + 60 * 60,
+                                      token: '<SESSION_TOKEN>' })
+  end
 
   before(:each) do
     Sidekiq::Testing.inline!
@@ -14,12 +20,6 @@ RSpec.describe MHVLoggingService do
 
   after(:each) do
     Sidekiq::Testing.fake!
-  end
-
-  let(:authenticated_client) do
-    MHVLogging::Client.new(session: { user_id: mhv_user.mhv_correlation_id,
-                                      expires_at: Time.current + 60 * 60,
-                                      token: '<SESSION_TOKEN>' })
   end
 
   before(:each) do

@@ -11,7 +11,7 @@ RSpec.describe SavedClaim::Burial do
   it_behaves_like 'saved_claim_with_confirmation_number'
 
   describe '#email' do
-    it 'should return the users email' do
+    it 'returns the users email' do
       expect(instance.email).to eq('foo@foo.com')
     end
   end

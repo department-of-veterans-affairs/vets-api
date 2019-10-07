@@ -11,17 +11,17 @@ RSpec.describe ClaimsApi::Veteran, type: :model do
       @veteran.edipi = '1234567'
     end
 
-    it 'should delagate loa_user to loa3?' do
+    it 'delagates loa_user to loa3?' do
       expect(@veteran.loa3_user).to be(true)
     end
 
-    it 'should only be valid when proper MVI values are exist' do
+    it 'onlies be valid when proper MVI values are exist' do
       expect(@veteran.valid?).to be(true)
     end
   end
 
   describe 'setting target veteran by oauth' do
-    it 'should instantiate from the oauth user' do
+    it 'instantiates from the oauth user' do
       identity = FactoryBot.create(:openid_user, identity_attrs: build(:user_identity_attrs, :loa3))
       veteran = ClaimsApi::Veteran.from_identity(identity: identity)
       expect(veteran.first_name).to eq(identity.first_name)

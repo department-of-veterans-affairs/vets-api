@@ -87,7 +87,7 @@ RSpec.describe 'Backend Status', type: :request do
     context 'happy path' do
       include_context 'simulating Redis caching of PagerDuty#get_services'
 
-      it 'should match the backend_statuses schema', :aggregate_failures do
+      it 'matches the backend_statuses schema', :aggregate_failures do
         get '/v0/backend_statuses'
 
         expect(response).to have_http_status(:ok)
