@@ -20,7 +20,6 @@ module ClaimsApi
           key :name, :id
           key :in, :path
           key :description, 'The ID of the claim being requested'
-          key :example, ''
           key :required, true
           key :type, :string
         end
