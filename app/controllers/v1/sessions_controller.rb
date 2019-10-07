@@ -153,7 +153,6 @@ module V1
     def set_cookies
       Rails.logger.info('SSO: LOGIN', sso_logging_info)
       set_api_cookie!
-      set_sso_cookie! # Sets a cookie "vagov_session_<env>" with attributes needed for SSO.
     end
 
     def after_login_actions
