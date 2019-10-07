@@ -8,7 +8,7 @@ module Facilities
     def base_path
       Settings.locators.drive_time_band_base_path
     end
-    
+
     def service_name
       'FL'
     end
