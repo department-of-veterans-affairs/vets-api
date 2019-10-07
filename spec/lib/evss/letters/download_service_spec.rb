@@ -40,6 +40,17 @@ describe EVSS::Letters::DownloadService do
             end.to raise_error(Common::Exceptions::GatewayTimeout)
           end
         end
+
+        context 'when an BackendServiceException occurs' do
+          it 'tests that a backend service exception is raised' do
+            allow_any_instance_of(described_class).to(
+              receive(:download_letter).and_raise(Common::Exceptions::BackendServiceException)
+            )
+            expect do
+              subject.download_letter(EVSS::Letters::Letter::LETTER_TYPES.first)
+            end.to raise_error(Common::Exceptions::BackendServiceException)
+          end
+        end
       end
 
       context 'with options' do
