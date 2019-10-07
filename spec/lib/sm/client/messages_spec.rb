@@ -3,7 +3,7 @@
 require 'rails_helper'
 require 'sm/client'
 
-describe SM::Client do
+describe 'sm client' do
   describe 'messages' do
     before(:all) do
       VCR.use_cassette 'sm_client/session', record: :new_episodes do

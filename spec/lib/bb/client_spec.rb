@@ -3,7 +3,7 @@
 require 'rails_helper'
 require 'bb/client'
 
-describe BB::Client do
+describe 'bb client' do
   let(:eligible_data_classes) do
     %w[ seiactivityjournal seiallergies seidemographics familyhealthhistory
         seifoodjournal healthcareproviders healthinsurance seiimmunizations

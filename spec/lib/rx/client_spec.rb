@@ -3,7 +3,7 @@
 require 'rails_helper'
 require 'rx/client'
 
-describe Rx::Client do
+describe 'RX Client' do
   before(:all) do
     VCR.use_cassette 'rx_client/session', record: :new_episodes do
       @client ||= begin

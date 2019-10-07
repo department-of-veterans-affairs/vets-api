@@ -3,7 +3,7 @@
 require 'rails_helper'
 require 'common/client/middleware/logging'
 
-describe Common::Client::Middleware::Logging do
+describe 'Logging Middleware' do
   subject(:client) do
     Faraday.new do |conn|
       conn.use :logging, type_key
