@@ -3,7 +3,7 @@
 require 'rails_helper'
 require 'mhv_ac/client'
 
-describe MHVAC::Client do
+describe 'mhv account creation' do
   let(:client) { MHVAC::Client.new }
   # If building this for a different user, you will need to fetch an ICN to do so you will need to pass the following:
   # bundle exec rake mvi:find first_name="Hector" middle_name="J" last_name="Allen" _

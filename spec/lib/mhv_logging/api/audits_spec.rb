@@ -3,7 +3,7 @@
 require 'rails_helper'
 require 'mhv_logging/client'
 
-describe MHVLogging::Client do
+describe 'mhv logging client' do
   describe 'audits' do
     before(:all) do
       VCR.use_cassette 'mhv_logging_client/session', record: :new_episodes do
