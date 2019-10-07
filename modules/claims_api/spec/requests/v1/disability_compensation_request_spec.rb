@@ -35,60 +35,41 @@ RSpec.describe 'Disability Claims ', type: :request do
 
     it 'returns a successful response with all the data' do
       with_okta_user(scopes) do |auth_header|
-        VCR.use_cassette('evss/intent_to_file/active_compensation_future_date') do
-          klass = EVSS::DisabilityCompensationForm::ServiceAllClaim
-          expect_any_instance_of(klass).to receive(:validate_form526).and_return(true)
-          post path, params: data, headers: headers.merge(auth_header)
-          parsed = JSON.parse(response.body)
-          expect(parsed['data']['type']).to eq('claims_api_claim')
-          expect(parsed['data']['attributes']['status']).to eq('pending')
-        end
-      end
-    end
-
-    it 'returns an unsuccessful response with an error message' do
-      with_okta_user(scopes) do |auth_header|
-        VCR.use_cassette('evss/intent_to_file/active_compensation') do
-          post path, params: data, headers: headers.merge(auth_header)
-          parsed = JSON.parse(response.body)
-          expect(response.status).to eq(422)
-          expect(parsed['errors'].first['details']).to eq('Intent to File Expiration Date not valid, resubmit ITF.')
-        end
+        klass = EVSS::DisabilityCompensationForm::ServiceAllClaim
+        expect_any_instance_of(klass).to receive(:validate_form526).and_return(true)
+        post path, params: data, headers: headers.merge(auth_header)
+        parsed = JSON.parse(response.body)
+        expect(parsed['data']['type']).to eq('claims_api_claim')
+        expect(parsed['data']['attributes']['status']).to eq('pending')
       end
     end
 
     it 'creates the sidekick job' do
       with_okta_user(scopes) do |auth_header|
-        VCR.use_cassette('evss/intent_to_file/active_compensation_future_date') do
-          klass = EVSS::DisabilityCompensationForm::ServiceAllClaim
-          expect_any_instance_of(klass).to receive(:validate_form526).and_return(true)
-          expect(ClaimsApi::ClaimEstablisher).to receive(:perform_async)
-          post path, params: data, headers: headers.merge(auth_header)
-        end
+        klass = EVSS::DisabilityCompensationForm::ServiceAllClaim
+        expect_any_instance_of(klass).to receive(:validate_form526).and_return(true)
+        expect(ClaimsApi::ClaimEstablisher).to receive(:perform_async)
+        post path, params: data, headers: headers.merge(auth_header)
       end
     end
 
     it 'assigns a source' do
       with_okta_user(scopes) do |auth_header|
-        VCR.use_cassette('evss/intent_to_file/active_compensation_future_date') do
-          klass = EVSS::DisabilityCompensationForm::ServiceAllClaim
-          expect_any_instance_of(klass).to receive(:validate_form526).and_return(true)
-          post path, params: data, headers: headers.merge(auth_header)
-          token = JSON.parse(response.body)['data']['attributes']['token']
-          aec = ClaimsApi::AutoEstablishedClaim.find(token)
-          expect(aec.source).to eq('abraham lincoln')
-        end
+        klass = EVSS::DisabilityCompensationForm::ServiceAllClaim
+        expect_any_instance_of(klass).to receive(:validate_form526).and_return(true)
+        post path, params: data, headers: headers.merge(auth_header)
+        token = JSON.parse(response.body)['data']['attributes']['token']
+        aec = ClaimsApi::AutoEstablishedClaim.find(token)
+        expect(aec.source).to eq('abraham lincoln')
       end
     end
 
     it 'builds the auth headers' do
       with_okta_user(scopes) do |auth_header|
-        VCR.use_cassette('evss/intent_to_file/active_compensation_future_date') do
-          auth_header_stub = instance_double('EVSS::DisabilityCompensationAuthHeaders')
-          expect(EVSS::DisabilityCompensationAuthHeaders).to(receive(:new).twice { auth_header_stub })
-          expect(auth_header_stub).to receive(:add_headers).twice
-          post path, params: data, headers: headers.merge(auth_header)
-        end
+        auth_header_stub = instance_double('EVSS::DisabilityCompensationAuthHeaders')
+        expect(EVSS::DisabilityCompensationAuthHeaders).to(receive(:new).twice { auth_header_stub })
+        expect(auth_header_stub).to receive(:add_headers).twice
+        post path, params: data, headers: headers.merge(auth_header)
       end
     end
 
