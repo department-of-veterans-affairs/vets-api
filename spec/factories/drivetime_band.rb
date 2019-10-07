@@ -11,7 +11,8 @@ FactoryBot.define do
 
     vha_facility_id { '648' }
     name { 'drive_time_band_30' }
-    value { 30 }
+    min { 20 }
+    max { 30 }
     unit { 'minutes' }
     polygon { wkt_polygon_30 }
   end
@@ -23,7 +24,8 @@ FactoryBot.define do
 
     vha_facility_id { '648' }
     name { 'drive_time_band_^0' }
-    value { 60 }
+    min { 50 }
+    max { 60 }
     unit { 'minutes' }
     polygon { wkt_polygon_60 }
   end
