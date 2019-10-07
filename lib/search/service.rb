@@ -112,14 +112,5 @@ module Search
       StatsD.increment("#{Search::Service::STATSD_KEY_PREFIX}.exceptions", tags: ['exception:429'])
       raise_backend_exception('SEARCH_429', self.class, error)
     end
-
-    def raise_backend_exception(key, source, error = nil)
-      raise Common::Exceptions::BackendServiceException.new(
-        key,
-        { source: source.to_s },
-        error&.status,
-        error&.body
-      )
-    end
   end
 end
