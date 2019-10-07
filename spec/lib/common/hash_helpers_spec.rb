@@ -4,7 +4,7 @@ require 'rails_helper'
 
 describe Common::HashHelpers do
   describe '#deep_compact' do
-    it 'should deep compact a hash' do
+    it 'deeps compact a hash' do
       hash = {
         a: '',
         b: nil,
@@ -18,7 +18,7 @@ describe Common::HashHelpers do
       )
     end
 
-    it 'should compact nested arrays' do
+    it 'compacts nested arrays' do
       hash = {
         a: [
           nil,

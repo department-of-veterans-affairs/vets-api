@@ -4,6 +4,8 @@ require 'rails_helper'
 
 RSpec.describe Users::Services do
   describe '#authorizations' do
+    subject { Users::Services.new(user).authorizations }
+
     let(:user) { build :user, :loa3 }
     let(:beta_feature_preferences) { 'preferences' }
     let(:beta_feature_admin) { 'admin' }
@@ -12,8 +14,6 @@ RSpec.describe Users::Services do
       create :beta_registration, user_uuid: user.uuid, feature: beta_feature_preferences
       create :beta_registration, user_uuid: user.uuid, feature: beta_feature_admin
     end
-
-    subject { Users::Services.new(user).authorizations }
 
     it 'returns an array of services authorized to the initialized user', :aggregate_failures do
       expect(subject.class).to eq Array

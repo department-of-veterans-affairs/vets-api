@@ -45,6 +45,6 @@ RSpec.describe 'Beta Registration Endpoint', type: :request do
 
   it 'is reflected in beta_switch' do
     post '/v0/beta_registration/veteran_id_card'
-    expect(dummy_class.beta_enabled?(user.uuid, 'veteran_id_card')).to be_truthy
+    expect(dummy_class).to be_beta_enabled(user.uuid, 'veteran_id_card')
   end
 end

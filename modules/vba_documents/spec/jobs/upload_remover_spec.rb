@@ -17,17 +17,17 @@ RSpec.describe VBADocuments::UploadRemover, type: :job do
   end
 
   describe '#perform' do
-    describe 'when the record is older than 3 days' do
-      let(:upload) { FactoryBot.create(:upload_submission, status: 'received', created_at: Time.zone.now - 4.days) }
+    describe 'when the record is older than 10 days' do
+      let(:upload) { FactoryBot.create(:upload_submission, status: 'received', created_at: 11.days.ago) }
 
-      it 'should delete the s3 object' do
+      it 'deletes the s3 object' do
         with_settings(Settings.vba_documents.s3, 'enabled': true) do
           expect(@objstore).to receive(:delete).with(upload.guid)
           described_class.new.perform
         end
       end
 
-      it 'should set s3_deleted to true' do
+      it 'sets s3_deleted to true' do
         with_settings(Settings.vba_documents.s3, 'enabled': true) do
           allow(@objstore).to receive(:delete).with(upload.guid)
           described_class.new.perform
@@ -38,9 +38,9 @@ RSpec.describe VBADocuments::UploadRemover, type: :job do
     end
 
     describe 'when record status is error' do
-      let(:upload) { FactoryBot.create(:upload_submission, status: 'error', created_at: Time.zone.now - 4.days) }
+      let(:upload) { FactoryBot.create(:upload_submission, status: 'error', created_at: 11.days.ago) }
 
-      it 'should delete the s3 object' do
+      it 'deletes the s3 object' do
         with_settings(Settings.vba_documents.s3, 'enabled': true) do
           expect(@objstore).to receive(:delete).with(upload.guid)
           described_class.new.perform
@@ -51,9 +51,9 @@ RSpec.describe VBADocuments::UploadRemover, type: :job do
     describe 'when the record is not 3 days old' do
       let(:upload) { FactoryBot.create(:upload_submission, status: 'received') }
 
-      it 'should do nothing' do
+      it 'does nothing' do
         with_settings(Settings.vba_documents.s3, 'enabled': true) do
-          expect(@objstore).to_not receive(:delete).with(upload.guid)
+          expect(@objstore).not_to receive(:delete).with(upload.guid)
           described_class.new.perform
           upload.reload
           expect(upload.s3_deleted).to be_falsy

@@ -19,6 +19,7 @@ describe Common::Exceptions::InternalServerError do
 
   context 'with valid exception provided' do
     subject { described_class.new(StandardError.new('some message')) }
+
     let(:environment) { 'production' }
     let(:env) { ActiveSupport::StringInquirer.new(environment) }
 

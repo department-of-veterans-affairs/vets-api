@@ -23,7 +23,7 @@ describe EMISRedis::Model do
         expect(response).to receive(:error).and_return('error')
       end
 
-      it 'should raise the response error' do
+      it 'raises the response error' do
         expect { call_emis_response }.to raise_error('error')
       end
     end
@@ -37,13 +37,13 @@ describe EMISRedis::Model do
         end
       end
 
-      it 'should cache by method name' do
+      it 'caches by method name' do
         expect(model).to receive(:response_from_redis_or_service).with(:foo2).and_return(response2)
         call_emis_response
         expect(model.send(:emis_response, :foo2)).to eq(response2)
       end
 
-      it 'should return response' do
+      it 'returns response' do
         expect(call_emis_response).to eq(response)
       end
     end

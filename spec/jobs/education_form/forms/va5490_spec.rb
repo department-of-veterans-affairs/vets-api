@@ -4,13 +4,13 @@ require 'rails_helper'
 
 RSpec.describe EducationForm::Forms::VA5490 do
   context 'method tests' do
-    let(:education_benefits_claim) { create(:va5490).education_benefits_claim }
-
     subject do
       education_benefits_claim.instance_variable_set(:@application, nil)
       education_benefits_claim.saved_claim.instance_variable_set(:@application, nil)
       described_class.new(education_benefits_claim)
     end
+
+    let(:education_benefits_claim) { create(:va5490).education_benefits_claim }
 
     before do
       allow_any_instance_of(described_class).to receive(:format)

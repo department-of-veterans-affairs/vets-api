@@ -62,7 +62,7 @@ RSpec.describe 'Validated Token API endpoint', type: :request, skip_emis: true d
       user.save
     end
 
-    it 'should return true if the user is a veteran' do
+    it 'returns true if the user is a veteran' do
       with_okta_configured do
         get '/internal/auth/v0/validation', params: nil, headers: auth_header
         expect(response).to have_http_status(:ok)
@@ -73,7 +73,7 @@ RSpec.describe 'Validated Token API endpoint', type: :request, skip_emis: true d
   end
 
   context 'when token is unauthorized' do
-    it 'should return an unauthorized for bad token', :aggregate_failures do
+    it 'returns an unauthorized for bad token', :aggregate_failures do
       with_okta_configured do
         get '/internal/auth/v0/validation', params: nil, headers: auth_header
 
@@ -90,7 +90,7 @@ RSpec.describe 'Validated Token API endpoint', type: :request, skip_emis: true d
       user.save
     end
 
-    it 'should return a server error if serialization fails', :aggregate_failures do
+    it 'returns a server error if serialization fails', :aggregate_failures do
       allow_any_instance_of(OpenidAuth::ValidationSerializer).to receive(:attributes).and_raise(StandardError, 'random')
       with_okta_configured do
         get '/internal/auth/v0/validation', params: nil, headers: auth_header
@@ -100,7 +100,7 @@ RSpec.describe 'Validated Token API endpoint', type: :request, skip_emis: true d
       end
     end
 
-    it 'should return a not found when va profile returns not found', :aggregate_failures do
+    it 'returns a not found when va profile returns not found', :aggregate_failures do
       allow_any_instance_of(OpenidUser).to receive(:va_profile_status).and_return('NOT_FOUND')
       with_okta_configured do
         get '/internal/auth/v0/validation', params: nil, headers: auth_header
@@ -110,7 +110,7 @@ RSpec.describe 'Validated Token API endpoint', type: :request, skip_emis: true d
       end
     end
 
-    it 'should return a server error when va profile returns server error', :aggregate_failures do
+    it 'returns a server error when va profile returns server error', :aggregate_failures do
       allow_any_instance_of(OpenidUser).to receive(:va_profile_status).and_return('SERVER_ERROR')
       with_okta_configured do
         get '/internal/auth/v0/validation', params: nil, headers: auth_header

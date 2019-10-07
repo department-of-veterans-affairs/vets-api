@@ -1,14 +1,11 @@
 # frozen_string_literal: true
 
 require_dependency 'claims_api/base_form_controller'
-require_dependency 'claims_api/concerns/itf_verification'
 
 module ClaimsApi
   module V0
     module Forms
       class IntentToFileController < ClaimsApi::BaseFormController
-        include ClaimsApi::ItfVerification
-
         skip_before_action(:authenticate)
         before_action :validate_json_schema, only: %i[submit_form_0966]
         before_action :check_future_type, only: [:submit_form_0966]
@@ -49,6 +46,10 @@ module ClaimsApi
 
         def form_type
           form_attributes['type']
+        end
+
+        def itf_service
+          EVSS::IntentToFile::Service.new(target_veteran)
         end
       end
     end

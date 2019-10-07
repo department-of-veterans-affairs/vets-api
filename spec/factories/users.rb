@@ -2,24 +2,24 @@
 
 FactoryBot.define do
   factory :user, class: 'User' do
-    uuid 'b2fab2b5-6af0-45e1-a9e2-394347af91ef'
-    last_signed_in Time.now.utc
+    uuid { 'b2fab2b5-6af0-45e1-a9e2-394347af91ef' }
+    last_signed_in { Time.now.utc }
     transient do
-      authn_context 'http://idmanagement.gov/ns/assurance/loa/1/vets'
-      email 'abraham.lincoln@vets.gov'
-      first_name 'abraham'
-      middle_name nil
-      last_name 'lincoln'
-      gender 'M'
-      birth_date '1809-02-12'
-      zip '17325'
-      ssn '796111863'
-      mhv_icn nil
-      multifactor false
-      mhv_correlation_id nil
-      mhv_account_type nil
-      dslogon_edipi nil
-      va_patient nil
+      authn_context { 'http://idmanagement.gov/ns/assurance/loa/1/vets' }
+      email { 'abraham.lincoln@vets.gov' }
+      first_name { 'abraham' }
+      middle_name { nil }
+      last_name { 'lincoln' }
+      gender { 'M' }
+      birth_date { '1809-02-12' }
+      zip { '17325' }
+      ssn { '796111863' }
+      mhv_icn { nil }
+      multifactor { false }
+      mhv_correlation_id { nil }
+      mhv_account_type { nil }
+      dslogon_edipi { nil }
+      va_patient { nil }
 
       sign_in do
         {
@@ -56,25 +56,25 @@ FactoryBot.define do
 
     # This is used by the response_builder helper to build a user from saml attributes
     trait :response_builder do
-      authn_context nil
-      uuid nil
+      authn_context { nil }
+      uuid { nil }
       last_signed_in { Faker::Time.between(2.years.ago, 1.week.ago, :all) }
       mhv_last_signed_in { Faker::Time.between(1.week.ago, 1.minute.ago, :all) }
-      email nil
-      first_name nil
-      last_name nil
-      gender nil
-      zip nil
-      birth_date nil
-      ssn nil
-      multifactor nil
-      mhv_account_type nil
-      va_patient nil
-      loa nil
+      email { nil }
+      first_name { nil }
+      last_name { nil }
+      gender { nil }
+      zip { nil }
+      birth_date { nil }
+      ssn { nil }
+      multifactor { nil }
+      mhv_account_type { nil }
+      va_patient { nil }
+      loa { nil }
     end
 
     trait :accountable do
-      authn_context 'http://idmanagement.gov/ns/assurance/loa/3/vets'
+      authn_context { 'http://idmanagement.gov/ns/assurance/loa/3/vets' }
       uuid { SecureRandom.uuid }
       callback(:after_build) do |user|
         create(:account, idme_uuid: user.uuid)
@@ -92,7 +92,7 @@ FactoryBot.define do
     end
 
     trait :loa1 do
-      authn_context 'http://idmanagement.gov/ns/assurance/loa/1/vets'
+      authn_context { 'http://idmanagement.gov/ns/assurance/loa/1/vets' }
       sign_in do
         {
           service_name: SAML::User::AUTHN_CONTEXTS[authn_context][:sign_in][:service_name]
@@ -105,7 +105,7 @@ FactoryBot.define do
     end
 
     trait :loa3 do
-      authn_context 'http://idmanagement.gov/ns/assurance/loa/3/vets'
+      authn_context { 'http://idmanagement.gov/ns/assurance/loa/3/vets' }
 
       sign_in do
         {
@@ -119,10 +119,10 @@ FactoryBot.define do
     end
 
     factory :evss_user, traits: [:loa3] do
-      first_name('WESLEY')
-      last_name('FORD')
-      last_signed_in(Time.zone.parse('2017-12-07T00:55:09Z'))
-      ssn('796043735')
+      first_name { 'WESLEY' }
+      last_name { 'FORD' }
+      last_signed_in { Time.zone.parse('2017-12-07T00:55:09Z') }
+      ssn { '796043735' }
 
       after(:build) do
         stub_mvi(
@@ -138,10 +138,10 @@ FactoryBot.define do
     end
 
     factory :unauthorized_evss_user, traits: [:loa3] do
-      first_name('WESLEY')
-      last_name('FORD')
-      last_signed_in(Time.zone.parse('2017-12-07T00:55:09Z'))
-      ssn('796043735')
+      first_name { 'WESLEY' }
+      last_name { 'FORD' }
+      last_signed_in { Time.zone.parse('2017-12-07T00:55:09Z') }
+      ssn { '796043735' }
 
       after(:build) do
         stub_mvi(
@@ -157,11 +157,11 @@ FactoryBot.define do
     end
 
     factory :disabilities_compensation_user, traits: [:loa3] do
-      first_name('Beyonce')
-      last_name('Knowles')
-      gender('F')
-      last_signed_in(Time.zone.parse('2017-12-07T00:55:09Z'))
-      ssn('796068949')
+      first_name { 'Beyonce' }
+      last_name { 'Knowles' }
+      gender { 'F' }
+      last_signed_in { Time.zone.parse('2017-12-07T00:55:09Z') }
+      ssn { '796068949' }
 
       after(:build) do
         stub_mvi(build(:mvi_profile, birls_id: '796068948'))
@@ -169,15 +169,15 @@ FactoryBot.define do
     end
 
     factory :blank_gender_user do
-      gender('')
+      gender { '' }
     end
 
     factory :user_with_suffix, traits: [:loa3] do
-      first_name('Jack')
-      middle_name('Robert')
-      last_name('Smith')
-      last_signed_in(Time.zone.parse('2017-12-07T00:55:09Z'))
-      ssn('796043735')
+      first_name { 'Jack' }
+      middle_name { 'Robert' }
+      last_name { 'Smith' }
+      last_signed_in { Time.zone.parse('2017-12-07T00:55:09Z') }
+      ssn { '796043735' }
 
       after(:build) do
         stub_mvi(
@@ -193,35 +193,35 @@ FactoryBot.define do
     end
 
     trait :mhv_sign_in do
-      authn_context 'myhealthevet'
-      mhv_account_type 'Basic'
-      email 'abraham.lincoln@vets.gov'
-      first_name nil
-      middle_name nil
-      last_name nil
-      gender nil
-      birth_date nil
-      zip nil
-      ssn nil
-      mhv_icn '12345'
-      multifactor false
+      authn_context { 'myhealthevet' }
+      mhv_account_type { 'Basic' }
+      email { 'abraham.lincoln@vets.gov' }
+      first_name { nil }
+      middle_name { nil }
+      last_name { nil }
+      gender { nil }
+      birth_date { nil }
+      zip { nil }
+      ssn { nil }
+      mhv_icn { '12345' }
+      multifactor { false }
     end
 
     trait :mhv do
-      authn_context 'myhealthevet'
-      uuid 'b2fab2b5-6af0-45e1-a9e2-394347af91ef'
+      authn_context { 'myhealthevet' }
+      uuid { 'b2fab2b5-6af0-45e1-a9e2-394347af91ef' }
       last_signed_in { Faker::Time.between(2.years.ago, 1.week.ago, :all) }
       mhv_last_signed_in { Faker::Time.between(1.week.ago, 1.minute.ago, :all) }
       email { Faker::Internet.email }
       first_name { Faker::Name.first_name }
       last_name { Faker::Name.last_name }
-      gender 'M'
+      gender { 'M' }
       zip { Faker::Address.postcode }
       birth_date { Faker::Time.between(40.years.ago, 10.years.ago, :all) }
-      ssn '796111864'
-      multifactor true
-      mhv_account_type 'Premium'
-      va_patient true
+      ssn { '796111864' }
+      multifactor { true }
+      mhv_account_type { 'Premium' }
+      va_patient { true }
 
       sign_in do
         {
@@ -250,24 +250,24 @@ FactoryBot.define do
     end
 
     trait :mhv_not_logged_in do
-      mhv_last_signed_in nil
+      mhv_last_signed_in { nil }
     end
 
     trait :dslogon do
-      authn_context 'dslogon'
-      uuid 'b2fab2b5-6af0-45e1-a9e2-394347af91ef'
+      authn_context { 'dslogon' }
+      uuid { 'b2fab2b5-6af0-45e1-a9e2-394347af91ef' }
       last_signed_in { Faker::Time.between(2.years.ago, 1.week.ago, :all) }
-      mhv_last_signed_in nil
+      mhv_last_signed_in { nil }
       email { Faker::Internet.email }
       first_name { Faker::Name.first_name }
       last_name { Faker::Name.last_name }
-      gender 'M'
+      gender { 'M' }
       zip { Faker::Address.postcode }
       birth_date { Faker::Time.between(40.years.ago, 10.years.ago, :all) }
-      ssn '796111864'
-      multifactor true
-      mhv_account_type nil
-      va_patient true
+      ssn { '796111864' }
+      multifactor { true }
+      mhv_account_type { nil }
+      va_patient { true }
 
       sign_in do
         {

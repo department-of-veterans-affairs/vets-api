@@ -5,12 +5,13 @@ require 'rails_helper'
 RSpec.describe Folder do
   describe 'validations on name' do
     subject { described_class.new(params) }
+
     before(:each) { subject.valid? }
 
     context 'with name set to nil' do
       let(:params) { { name: nil } }
 
-      it 'should have errors for presence of name' do
+      it 'has errors for presence of name' do
         expect(subject.errors[:name].first).to eq('can\'t be blank')
       end
     end
@@ -18,7 +19,7 @@ RSpec.describe Folder do
     context 'with name exeeding 50 characters' do
       let(:params) { { name: 'a' * 51 } }
 
-      it 'should have errors for length of name exceeding 50' do
+      it 'has errors for length of name exceeding 50' do
         expect(subject.errors[:name].first).to eq('is too long (maximum is 50 characters)')
       end
     end
@@ -26,7 +27,7 @@ RSpec.describe Folder do
     context 'with name having non alphanumeric characters' do
       let(:params) { { name: 'name!' } }
 
-      it 'should have errors for not being alphanumeric' do
+      it 'has errors for not being alphanumeric' do
         expect(subject.errors[:name].first).to eq('is not alphanumeric (letters, numbers, or spaces)')
       end
     end
@@ -34,7 +35,7 @@ RSpec.describe Folder do
     context 'with name having control characters' do
       let(:params) { { name: "name \n name" } }
 
-      it 'should have errors for illegal characters' do
+      it 'has errors for illegal characters' do
         expect(subject.errors[:name].first).to eq('contains illegal characters')
       end
     end

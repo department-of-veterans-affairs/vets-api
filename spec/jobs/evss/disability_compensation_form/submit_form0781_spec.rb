@@ -5,6 +5,8 @@ require 'sidekiq/testing'
 Sidekiq::Testing.fake!
 
 RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm0781, type: :job do
+  subject { described_class }
+
   before(:each) do
     Sidekiq::Worker.clear_all
   end
@@ -16,8 +18,6 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm0781, type: :job do
   let(:evss_claim_id) { 123_456_789 }
   let(:saved_claim) { FactoryBot.create(:va526ez) }
   let(:form0781) { File.read 'spec/support/disability_compensation_form/submissions/with_0781.json' }
-
-  subject { described_class }
 
   VCR.configure do |c|
     c.default_cassette_options = {
@@ -41,6 +41,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm0781, type: :job do
                                form_json: form0781,
                                submitted_claim_id: evss_claim_id)
     end
+
     context 'with a successful submission job' do
       it 'queues a job for submit' do
         expect do

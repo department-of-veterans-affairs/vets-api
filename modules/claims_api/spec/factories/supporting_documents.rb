@@ -2,7 +2,7 @@
 
 FactoryBot.define do
   factory :supporting_document, class: ClaimsApi::SupportingDocument do
-    id SecureRandom.uuid
+    id { SecureRandom.uuid }
     auto_established_claim
 
     after(:build) do |supporting_document|

@@ -112,9 +112,9 @@ evss:
   key_path: ~
   root_cert_path: ~
   versions:
-    claims: 3.0
+    claims: 3.6
     common: 11.0
-    documents: 3.6
+    documents: 3.7
   s3:
     uploads_enabled: false
     aws_access_key_id: EVSS_S3_AWS_ACCESS_KEY_ID_XYZ
@@ -180,14 +180,16 @@ hca:
 
 # Settings for the facility locator
 locators:
-  vha: https://services3.arcgis.com/aqgBd3l68G8hEFFE/ArcGIS/rest/services/VHA_Facilities/FeatureServer/0
+  vha: https://gis.va.gov/server/rest/services/VA/FacilitySitePoint_VHA/FeatureServer/0/
   nca: https://services3.arcgis.com/aqgBd3l68G8hEFFE/ArcGIS/rest/services/NCA_Facilities/FeatureServer/0
   vba: https://services3.arcgis.com/aqgBd3l68G8hEFFE/ArcGIS/rest/services/VBA_Facilities/FeatureServer/0
   vc: https://services3.arcgis.com/aqgBd3l68G8hEFFE/ArcGIS/rest/services/VHA_VetCenters/FeatureServer/0
   vha_access_satisfaction: https://www.accesstopwt.va.gov/
   vha_access_waittime: https://www.accesstocare.va.gov/
   base_path: https://services3.arcgis.com/aqgBd3l68G8hEFFE/ArcGIS/rest/services/
+  gis_base_path: https://gis.va.gov/server/rest/services/VA
   providers_enabled: false
+  mock_gis: false
 
 ppms:
   url: https://some.fakesite.com

@@ -4,6 +4,8 @@ require 'rails_helper'
 
 describe Common::EventRateLimiter do
   context 'with the default evss 526 config' do
+    subject { Common::EventRateLimiter.new(config) }
+
     let(:config) do
       {
         'namespace' => 'evss-526-submit-form-rate-limit',
@@ -13,26 +15,29 @@ describe Common::EventRateLimiter do
         'count_ttl' => 604_800
       }
     end
-    subject { Common::EventRateLimiter.new(config) }
+
+    after(:each) { Timecop.return }
 
     describe '.at_limit?' do
       context 'with no events' do
-        it 'should return false' do
-          expect(subject.at_limit?).to be_falsey
+        it 'returns false' do
+          expect(subject).not_to be_at_limit
         end
       end
 
       context 'when the threshold is not exceeded (< 10 in day)' do
         before { 5.times { subject.increment } }
-        it 'should return false' do
-          expect(subject.at_limit?).to be_falsey
+
+        it 'returns false' do
+          expect(subject).not_to be_at_limit
         end
       end
 
       context 'when the threshold is exceeded (> 10 in day)' do
         before { 11.times { subject.increment } }
-        it 'should return true' do
-          expect(subject.at_limit?).to be_truthy
+
+        it 'returns true' do
+          expect(subject).to be_at_limit
         end
       end
 
@@ -44,8 +49,9 @@ describe Common::EventRateLimiter do
           Timecop.travel(1.day)
           3.times { subject.increment }
         end
-        it 'should return false' do
-          expect(subject.at_limit?).to be_falsey
+
+        it 'returns false' do
+          expect(subject).not_to be_at_limit
         end
       end
 
@@ -56,14 +62,15 @@ describe Common::EventRateLimiter do
             Timecop.travel(1.day)
           end
         end
-        it 'should return true' do
-          expect(subject.at_limit?).to be_truthy
+
+        it 'returns true' do
+          expect(subject).to be_at_limit
         end
       end
     end
 
     describe '.increment' do
-      it 'should increment both threshold and count', :aggregate_failures do
+      it 'increments both threshold and count', :aggregate_failures do
         expect(subject.instance_variable_get(:@redis).get(:threshold).to_i).to eq(0)
         expect(subject.instance_variable_get(:@redis).get(:count).to_i).to eq(0)
         subject.increment
@@ -71,7 +78,5 @@ describe Common::EventRateLimiter do
         expect(subject.instance_variable_get(:@redis).get(:count).to_i).to eq(1)
       end
     end
-
-    after(:each) { Timecop.return }
   end
 end

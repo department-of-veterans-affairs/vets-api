@@ -66,9 +66,9 @@ gem 'memoist'
 gem 'mini_magick', '~> 4.9.4'
 gem 'net-sftp'
 gem 'nokogiri', '~> 1.10', '>= 1.10.4'
-gem 'octokit'
 gem 'oj' # Amazon Linux `json` gem causes conflicts, but `multi_json` will prefer `oj` if installed
 gem 'olive_branch'
+gem 'origami'
 gem 'ox'
 gem 'pdf-forms'
 gem 'pdf-reader'
@@ -83,7 +83,7 @@ gem 'redis'
 gem 'redis-namespace'
 gem 'restforce'
 gem 'ruby-saml'
-gem 'rubyzip', '>= 1.0.0'
+gem 'rubyzip', '>= 1.3.0'
 gem 'savon'
 gem 'sentry-raven', '2.9.0' # don't change gem version unless sentry server is also upgraded
 gem 'shrine'
@@ -135,7 +135,7 @@ group :development, :test do
   gem 'bundler-audit'
   gem 'byebug', platforms: :ruby # Call 'byebug' anywhere in the code to stop execution and get a debugger console
   gem 'database_cleaner'
-  gem 'factory_bot_rails', '< 4.11'
+  gem 'factory_bot_rails', '> 5'
   gem 'pry-byebug'
   gem 'rainbow' # Used to colorize output for rake tasks
   # CAUTION: faraday_curl may not provide all headers used in the actual faraday request. Be cautious if using this to
@@ -149,6 +149,7 @@ group :development, :test do
   gem 'rspec-rails', '~> 3.5'
   gem 'rubocop', require: false
   gem 'rubocop-rails'
+  gem 'rubocop-rspec'
   gem 'sidekiq', '~> 4.2'
   gem 'timecop'
   gem 'webmock'

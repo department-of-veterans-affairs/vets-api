@@ -8,7 +8,6 @@ SPEC_PATH    := spec/
 
 .PHONY: default
 default: ci
-
 .PHONY: bash
 bash:
 	@$(COMPOSE_DEV) $(BASH)

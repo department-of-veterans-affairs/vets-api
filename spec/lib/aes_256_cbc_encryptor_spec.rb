@@ -4,9 +4,10 @@ require 'rails_helper'
 require 'aes_256_cbc_encryptor'
 
 describe Aes256CbcEncryptor do
+  subject { described_class.new(hex_secret, hex_iv) }
+
   let(:hex_secret)       { 'EC121FF80513AE58ED478D5C5787075BF53C35733BFA55ABB18F323A3AD8EDE5' }
   let(:hex_iv)           { '00ABEB85AB5C293F15DDF1647449A00C' }
-  subject { described_class.new(hex_secret, hex_iv) }
 
   context 'invalid secret' do
     let(:hex_secret) { 'EC121FF80513AE58ED478D5C5787075BF53C35733B' }
