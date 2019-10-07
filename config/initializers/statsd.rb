@@ -116,3 +116,6 @@ all_keys = StatsDMetric.keys
 all_keys.each do |key|
   StatsD.increment(key.to_s, 0)
 end
+
+# init Facilities Jobs
+StatsD.increment('shared.sidekiq.default.Facilities_InitializingErrorMetric.error', 0)
