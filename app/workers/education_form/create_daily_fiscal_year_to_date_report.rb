@@ -13,12 +13,8 @@ module EducationForm
       daily_processed: 0
     }.freeze
 
-    FORM_TYPE_HEADERS = EducationBenefitsClaim::FORM_TYPES.map do |form_type|
-      if form_type == '1995s'
-        ['22-1995 STEM', '', '']
-      else
-        ["22-#{form_type}", '', '']
-      end
+    FORM_TYPE_HEADERS = EducationBenefitsClaim::FORM_HEADERS.map do |form_header|
+      [form_header.to_s, '', '']
     end.flatten.freeze
 
     OCTOBER = 10
