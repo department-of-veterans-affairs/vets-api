@@ -13,10 +13,10 @@ describe Vet360::AddressValidation::Service do
       address.zip_code = '21152'
 
       VCR.use_cassette(
-        'vet360/address_validation/candidate_one_match',
-        record: :once
+        'vet360/address_validation/candidate_one_match'
       ) do
         res = described_class.new.candidate(address)
+        binding.pry; fail
       end
     end
   end
