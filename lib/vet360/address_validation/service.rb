@@ -14,6 +14,7 @@ module Vet360
           'candidate',
           address.address_validation_req.to_json
         )
+        CandidateResponse.new(res.body)
       end
     end
   end
