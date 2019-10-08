@@ -289,7 +289,7 @@ RSpec.describe 'VA GIS Integration', type: :request do
       let(:error_detail) { JSON.parse(response.body)['errors'].first['detail'] }
 
       context 'with an invalid type' do
-        it '' do
+        it do
           get '/v0/facilities/suggested?name_part=por&type[]=foo'
           expect(response).to have_http_status(:bad_request)
           expect(error_detail).to eq('"["foo"]" is not a valid value for "type"')
@@ -297,7 +297,7 @@ RSpec.describe 'VA GIS Integration', type: :request do
       end
 
       context 'with one valid and one invalid type' do
-        it '' do
+        it do
           get '/v0/facilities/suggested?name_part=por&type[]=foo&type[]=health'
           expect(response).to have_http_status(:bad_request)
           expect(error_detail).to eq('"["foo", "health"]" is not a valid value for "type"')
@@ -305,7 +305,7 @@ RSpec.describe 'VA GIS Integration', type: :request do
       end
 
       context 'when type is missing' do
-        it '' do
+        it do
           get '/v0/facilities/suggested?name_part=xxx'
           expect(response).to have_http_status(:bad_request)
           expect(error_detail).to eq('The required parameter "type", is missing')
@@ -313,7 +313,7 @@ RSpec.describe 'VA GIS Integration', type: :request do
       end
 
       context 'when name_part is missing' do
-        it '' do
+        it do
           get '/v0/facilities/suggested?&type[]=health'
           expect(response).to have_http_status(:bad_request)
           expect(error_detail).to eq('The required parameter "name_part", is missing')
