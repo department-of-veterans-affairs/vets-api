@@ -3,12 +3,21 @@
 require 'rails_helper'
 
 describe Vet360::AddressValidation::Service do
+  let(:address) { build(:vet360_address) }
+
   describe '#candidate' do
     it 'should return suggested addresses for a given address' do
-      VCR.configure do |c|
-        c.allow_http_connections_when_no_cassette = true
+      address.address_line1 = '5 Stoddard Ct'
+      address.city = 'Sparks Glencoe'
+      address.state_code = 'MD'
+      address.zip_code = '21152'
+
+      VCR.use_cassette(
+        'vet360/address_validation/candidate_one_match',
+        record: :once
+      ) do
+        res = described_class.new.candidate(address)
       end
-      described_class.new.candidate(build(:vet360_address))
     end
   end
 end
