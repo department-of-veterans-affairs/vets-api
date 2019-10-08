@@ -60,13 +60,6 @@ RSpec/EmptyExampleGroup:
 RSpec/ExampleLength:
   Enabled: false
 
-# Offense count: 4
-# Configuration parameters: EnforcedStyle.
-# SupportedStyles: always_allow, single_line_only, disallow
-RSpec/ExampleWithoutDescription:
-  Exclude:
-    - 'spec/request/va_facilities_request_spec.rb'
-
 # Offense count: 82
 RSpec/ExpectInHook:
   Enabled: false
