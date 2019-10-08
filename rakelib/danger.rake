@@ -11,12 +11,10 @@ task :danger do
 
   puts 'running danger...'
 
-  pp ENV
-
   danger_result = ShellCommand.run('danger --verbose')
-  puts "\n"
 
-  puts "\n"
+  puts "\n\n"
+  
   if danger_result
     puts Rainbow('Danger ran successfully.').green
   else
