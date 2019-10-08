@@ -1,6 +1,7 @@
 class CreateDrivetimeBands < ActiveRecord::Migration[5.2]
   def change
     create_table :drivetime_bands do |t|
+      # wut wut
       t.string :name
       t.integer :value
       t.string :unit
