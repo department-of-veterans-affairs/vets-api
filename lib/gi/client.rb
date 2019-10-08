@@ -11,7 +11,7 @@ module GI
     def get_institution_autocomplete_suggestions(params = {})
       perform(:get, 'institutions/autocomplete', params, nil).body
     end
-    
+
     def get_institution_program_autocomplete_suggestions(params = {})
       perform(:get, 'institution_programs/autocomplete', params, nil).body
     end
