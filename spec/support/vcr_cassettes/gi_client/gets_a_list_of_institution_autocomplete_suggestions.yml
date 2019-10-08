@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri: <GIDS_URL>/v0/institutions/autocomplete?term=university
+    uri: "<GIDS_URL>/v0/institutions/autocomplete?term=university"
     body:
       encoding: US-ASCII
       string: ''
@@ -20,57 +20,33 @@ http_interactions:
       code: 200
       message: OK
     headers:
-      Server:
-      - openresty
-      Date:
-      - Fri, 17 Feb 2017 20:28:50 GMT
-      Content-Type:
-      - application/json; charset=utf-8
-      Transfer-Encoding:
-      - chunked
-      Connection:
-      - keep-alive
-      Cache-Control:
-      - max-age=0, private, must-revalidate
-      Etag:
-      - W/"2f7d88a77c6ef2f45bded241791cf148"
-      Vary:
-      - Origin
-      X-Content-Type-Options:
-      - nosniff
       X-Frame-Options:
       - SAMEORIGIN
+      X-Content-Type-Options:
+      - nosniff
+      Cache-Control:
+      - no-cache, no-store, max-age=0, must-revalidate
+      Pragma:
+      - no-cache
+      Expires:
+      - 2018-10-08 18:42:20 UTC
+      Content-Type:
+      - application/json; charset=utf-8
       X-Request-Id:
-      - 94b161cb-22ab-4d38-a4ba-148256b8c8aa
+      - 4f8622d4-64b3-48c9-92b0-66ad1257930d
       X-Runtime:
-      - '0.012820'
-      X-Xss-Protection:
-      - 1; mode=block
-      Access-Control-Allow-Credentials:
-      - 'true'
-      Strict-Transport-Security:
-      - max-age=31536000; includeSubDomains; preload
-      Content-Security-Policy-Report-Only:
-      - default-src 'self'; script-src 'self' https://dap.digitalgov.gov https://www.google-analytics.com
-        http://www.google-analytics.com https://search.usa.gov http://search.usa.gov
-        https://*.uservoice.com https://www.googletagmanager.com 'unsafe-inline';
-        style-src 'self' https://fonts.googleapis.com https://search.usa.gov http://search.usa.gov
-        'unsafe-inline'; img-src 'self' https://www.google-analytics.com https://api.mapbox.com
-        https://d15vqlr7iz6e8x.cloudfront.net; font-src 'self' https://fonts.gstatic.com;
-        connect-src 'self' http://localhost:4000 https://*.vets.gov; media-src 'none';
-        object-src 'none'; child-src https://www.googletagmanager.com https://*.uservoice.com;
-        form-action 'self' https://search.vets.gov; block-all-mixed-content; reflected-xss
-        filter; base-uri http://*.vets.gov; manifest-src 'none'; frame-ancestors 'none';
-        referrer origin;
+      - '0.055982'
+      Vary:
+      - Origin
+      Transfer-Encoding:
+      - chunked
     body:
-      encoding: ASCII-8BIT
-      string: '{"data":[{"id":30919,"value":"11803607","label":"UNIVERSITY OF CONNECTICUT-MBA
-        STAMFORD CAMPUS"},{"id":31064,"value":"11803119","label":"UNIVERSITY OF MAINE
-        AT FORT KENT-UMPI BRANCH"},{"id":31063,"value":"11001619","label":"UNIVERSITY
-        OF MAINE AT FORT KENT"},{"id":31582,"value":"11000849","label":"UNIVERSITY
-        OF WISCONSIN-STEVENS POINT"},{"id":30787,"value":"11965135","label":"UNIVERSITY
-        OF AKRON MAIN CAMPUS"},{"id":30865,"value":"11802505","label":"UNIVERSITY
-        OF CALIFORNIA-DAVIS EXT"}],"links":{"self":"https://dev.vets.gov/gids/v0/institutions/autocomplete?term=university"},"meta":{"version":1,"term":"university"}}'
-    http_version:
-  recorded_at: Fri, 17 Feb 2017 20:28:50 GMT
+      encoding: UTF-8
+      string: '{"data":[{"id":8589,"value":"11989132","label":"UNIVERSITY AT BUFFALO"},{"id":34026,"value":"15632232","label":"UNIVERSITY
+        AT BUFFALO-EOC"},{"id":12103,"value":"15594325","label":"UNIVERSITY CITY SR.
+        HIGH"},{"id":33536,"value":"11300074","label":"UNIVERSITY COLLEGE CORK"},{"id":33320,"value":"11107074","label":"UNIVERSITY
+        COLLEGE DUBLIN"},{"id":33161,"value":"11100274","label":"UNIVERSITY COLLEGE
+        LONDON"}],"meta":{"version":{"number":1,"created_at":"2019-10-08T17:43:01.614Z","preview":false},"term":"university"},"links":{"self":"http://localhost:3000/v0/institutions/autocomplete?term=university"}}'
+    http_version: 
+  recorded_at: Tue, 08 Oct 2019 18:42:20 GMT
 recorded_with: VCR 3.0.3
