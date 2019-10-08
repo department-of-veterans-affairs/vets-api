@@ -12,7 +12,7 @@ module EducationForm
     }.freeze
 
     FORM_TYPE_HEADERS = EducationBenefitsClaim::FORM_HEADERS.map do |form_header|
-      [form_header.to_s, '', '']
+      [form_header, '', '']
     end.flatten.freeze
 
     def build_submission_relation(range_type, region, form_type, status)
