@@ -14,6 +14,8 @@ module SAML
       'http://127.0.0.1:3000' => { base_redirect: 'http://127.0.0.1:3001' }
     }.freeze
 
+    SSOE_LOGOUT_URL = 'https://int.eauth.va.gov/pkmslogout'
+
     LOGIN_REDIRECT_PARTIAL = '/auth/login/callback'
     LOGOUT_REDIRECT_PARTIAL = '/logout/'
 
@@ -120,6 +122,11 @@ module SAML
       SingleLogoutRequest.create(uuid: logout_request.uuid, token: session.token)
       Rails.logger.info "New SP SLO having logout_request '#{logout_request.uuid}' for userid '#{session.uuid}'"
       logout_request.create(url_settings, RelayState: relay_state_params)
+    end
+
+    # logout URL for SSOe
+    def ssoe_slo_url
+
     end
 
     private

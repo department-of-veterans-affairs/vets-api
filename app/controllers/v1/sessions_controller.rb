@@ -24,13 +24,22 @@ module V1
 
       StatsD.increment(STATSD_SSO_NEW_KEY, tags: ["context:#{type}"])
       url = url_service.send("#{type}_url")
+
       if type == 'slo'
         Rails.logger.info('SSO: LOGOUT', sso_logging_info)
         reset_session
+      elsif type == 'ssoe_slo'
+        Rails.logger.info('SSOe: LOGOUT', sso_logging_info)
+        redirect_to SAML::URLService::SSOE_LOGOUT_URL and return
       end
       # clientId must be added at the end or the URL will be invalid for users using various "Do not track"
       # extensions with their browser.
       redirect_to params[:client_id].present? ? url + "&clientId=#{params[:client_id]}" : url
+    end
+
+    def ssoe_slo_callback
+      reset_session
+      redirect_to url_service.base_redirect_url
     end
 
     def saml_logout_callback

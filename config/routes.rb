@@ -273,6 +273,7 @@ Rails.application.routes.draw do
     resource :sessions, only: [] do
       post :saml_callback, to: 'sessions#saml_callback'
       post :saml_slo_callback, to: 'sessions#saml_slo_callback'
+      get :ssoe_slo_callback, to: 'sessions#ssoe_slo_callback'
     end
   end
 
