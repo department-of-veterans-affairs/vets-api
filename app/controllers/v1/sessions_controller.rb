@@ -153,7 +153,7 @@ module V1
     def set_cookies
       Rails.logger.info('SSO: LOGIN', sso_logging_info)
       set_api_cookie!
-      set_sso_cookie! unless @current_user&.identity&.sign_in&.fetch(:service_name) == 'ssoe'
+      set_sso_cookie!
     end
 
     def after_login_actions
