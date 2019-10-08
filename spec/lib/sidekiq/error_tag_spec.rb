@@ -12,7 +12,7 @@ describe Sidekiq::ErrorTag do
     end
   end
 
-  before(:each) do
+  before do
     allow_any_instance_of(ApplicationController).to receive(:request).and_return(
       OpenStruct.new(
         uuid: '123',

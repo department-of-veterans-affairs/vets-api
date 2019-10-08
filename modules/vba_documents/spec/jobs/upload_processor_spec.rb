@@ -38,7 +38,7 @@ RSpec.describe VBADocuments::UploadProcessor, type: :job do
       'content' => valid_doc }
   end
 
-  before(:each) do
+  before do
     objstore = instance_double(VBADocuments::ObjectStore)
     version = instance_double(Aws::S3::ObjectVersion)
     allow(VBADocuments::ObjectStore).to receive(:new).and_return(objstore)
