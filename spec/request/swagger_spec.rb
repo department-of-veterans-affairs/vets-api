@@ -1404,7 +1404,6 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
     describe 'preferences' do
       let(:preference) { create(:preference) }
       let(:route) { '/v0/user/preferences/choices' }
-      let(:preference) { create :preference }
       let(:choice) { create :preference_choice, preference: preference }
       let(:request_body) do
         [
