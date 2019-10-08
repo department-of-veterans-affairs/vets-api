@@ -5,7 +5,6 @@ require 'rx/client'
 require 'lib/sentry_logging_spec_helper'
 
 RSpec.describe ApplicationController, type: :controller do
-  it_behaves_like 'a sentry logger'
   controller do
     attr_reader :payload
     skip_before_action :authenticate, except: :test_authentication
@@ -51,6 +50,8 @@ RSpec.describe ApplicationController, type: :controller do
       get 'test_authentication' => 'anonymous#test_authentication'
     end
   end
+
+  it_behaves_like 'a sentry logger'
 
   describe '#clear_saved_form' do
     subject do
@@ -198,10 +199,10 @@ RSpec.describe ApplicationController, type: :controller do
           }]
         )
         # if authn_context is nil on current_user it means idme
-        expect(Raven).to receive(:tags_context).once.with(
-          controller_name: 'anonymous',
-          sign_in_method: { service_name: 'idme', acct_type: nil }
-        )
+        expect(Raven).to receive(:tags_context).once.with(controller_name: 'anonymous',
+                                                          sign_in_method: 'idme',
+                                                          sign_in_acct_type: nil)
+
         # since user IS signed in, this SHOULD get called
         expect(Raven).to receive(:user_context).with(
           uuid: user.uuid,

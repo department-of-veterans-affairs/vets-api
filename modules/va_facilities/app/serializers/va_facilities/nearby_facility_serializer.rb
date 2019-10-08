@@ -14,7 +14,8 @@ module VaFacilities
 
     attribute :long, key: :lng
     attributes :name, :facility_type, :classification, :website, :lat,
-               :address, :phone, :hours, :services, :satisfaction
+               :address, :phone, :hours, :services, :satisfaction,
+               :mobile, :active_status
 
     def services
       ApiSerializationV1.services(object)

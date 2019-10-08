@@ -65,7 +65,6 @@ gem 'memoist'
 gem 'mini_magick', '~> 4.9.4'
 gem 'net-sftp'
 gem 'nokogiri', '~> 1.10', '>= 1.10.4'
-gem 'octokit'
 gem 'oj' # Amazon Linux `json` gem causes conflicts, but `multi_json` will prefer `oj` if installed
 gem 'olive_branch'
 gem 'origami'
@@ -136,16 +135,17 @@ group :development, :test do
   gem 'byebug', platforms: :ruby # Call 'byebug' anywhere in the code to stop execution and get a debugger console
   gem 'database_cleaner'
   gem 'factory_bot_rails', '> 5'
-  gem 'pry-byebug'
-  gem 'rainbow' # Used to colorize output for rake tasks
   # CAUTION: faraday_curl may not provide all headers used in the actual faraday request. Be cautious if using this to
   # assist with debugging production issues (https://github.com/department-of-veterans-affairs/vets.gov-team/pull/6262)
   gem 'faraday_curl'
   gem 'foreman'
+  gem 'fuubar'
   gem 'guard-rspec', '~> 4.7'
   gem 'overcommit'
+  gem 'pry-byebug'
   gem 'rack-test', require: 'rack/test'
   gem 'rack-vcr'
+  gem 'rainbow' # Used to colorize output for rake tasks
   gem 'rspec-rails', '~> 3.5'
   gem 'rubocop', require: false
   gem 'rubocop-rails'
