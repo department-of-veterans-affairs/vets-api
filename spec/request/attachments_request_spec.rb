@@ -14,7 +14,7 @@ RSpec.describe 'Message Attachments Integration', type: :request do
   let(:inbox_id) { 0 }
   let(:message_id) { 573_302 }
 
-  before(:each) do
+  before do
     allow(SM::Client).to receive(:new).and_return(authenticated_client)
     sign_in_as(current_user)
   end
@@ -22,7 +22,7 @@ RSpec.describe 'Message Attachments Integration', type: :request do
   context 'Basic User' do
     let(:mhv_account_type) { 'Basic' }
 
-    before(:each) { get '/v0/messaging/health/messages/629999/attachments/629993' }
+    before { get '/v0/messaging/health/messages/629999/attachments/629993' }
 
     include_examples 'for user account level', message: 'You do not have access to messaging'
     include_examples 'for non va patient user', authorized: false, message: 'You do not have access to messaging'
@@ -31,7 +31,7 @@ RSpec.describe 'Message Attachments Integration', type: :request do
   context 'Advanced User' do
     let(:mhv_account_type) { 'Advanced' }
 
-    before(:each) { get '/v0/messaging/health/messages/629999/attachments/629993' }
+    before { get '/v0/messaging/health/messages/629999/attachments/629993' }
 
     include_examples 'for user account level', message: 'You do not have access to messaging'
     include_examples 'for non va patient user', authorized: false, message: 'You do not have access to messaging'
@@ -41,7 +41,7 @@ RSpec.describe 'Message Attachments Integration', type: :request do
     let(:mhv_account_type) { 'Premium' }
 
     context 'not a va patient' do
-      before(:each) { get '/v0/messaging/health/messages/629999/attachments/629993' }
+      before { get '/v0/messaging/health/messages/629999/attachments/629993' }
 
       let(:va_patient) { false }
 

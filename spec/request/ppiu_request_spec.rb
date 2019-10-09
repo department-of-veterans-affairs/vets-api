@@ -7,7 +7,7 @@ RSpec.describe 'PPIU', type: :request do
 
   let(:user) { create(:user, :mhv) }
 
-  before(:each) { sign_in(user) }
+  before { sign_in(user) }
 
   def self.test_unauthorized(verb)
     context 'with an unauthorized user' do

@@ -229,7 +229,7 @@ RSpec.describe 'VA GIS Integration', type: :request do
   end
 
   describe '/v0/facilities/suggested/:facility_type' do
-    before(:each) { setup_pdx }
+    before { setup_pdx }
 
     context 'when facilities are found' do
       let(:facilites) { JSON.parse(response.body)['data'] }

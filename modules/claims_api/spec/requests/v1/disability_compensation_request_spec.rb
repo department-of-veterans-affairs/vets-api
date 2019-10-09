@@ -15,7 +15,7 @@ RSpec.describe 'Disability Claims ', type: :request do
   end
   let(:scopes) { %w[claim.write] }
 
-  before(:each) do
+  before do
     stub_poa_verification
     stub_mvi
   end

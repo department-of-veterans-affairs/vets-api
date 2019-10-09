@@ -18,7 +18,7 @@ RSpec.describe V0::ExampleController, type: :controller do
   context 'when logged in' do
     let(:test_user) { FactoryBot.build(:user) }
 
-    before(:each) do
+    before do
       sign_in_as(test_user)
     end
 

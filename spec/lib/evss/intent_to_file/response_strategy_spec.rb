@@ -24,11 +24,11 @@ describe EVSS::IntentToFile::ResponseStrategy do
     )
   end
 
-  after(:each) { Timecop.return }
+  after { Timecop.return }
 
   describe '#cache_or_service' do
     context 'when the cache is empty' do
-      before(:each) { allow(service).to receive(:get_active).with(itf_type).and_return(itf_response) }
+      before { allow(service).to receive(:get_active).with(itf_type).and_return(itf_response) }
 
       context 'with an ITF that does not expire on the current day' do
         before { Timecop.freeze(Date.new(2017, 10, 21)) }

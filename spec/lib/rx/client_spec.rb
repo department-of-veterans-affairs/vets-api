@@ -47,7 +47,7 @@ describe 'RX Client' do
   end
 
   shared_examples 'prescriptions' do |caching_enabled|
-    before(:each) do
+    before do
       Settings.mhv.rx.collection_caching_enabled = caching_enabled
     end
 

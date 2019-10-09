@@ -8,7 +8,7 @@ RSpec.describe Facilities::DentalServiceReloadJob, type: :job do
     %(unique_id,facility_type\n402HB,va_health_facility\n436,va_health_facility\n436GH,va_health_facility)
   end
 
-  before(:each) do
+  before do
     allow_any_instance_of(
       Facilities::DentalServiceReloadJob
     ).to receive(:fetch_dental_service_data).and_return(CSV.parse(dental_service_data, headers: true))
