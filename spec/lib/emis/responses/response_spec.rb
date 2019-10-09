@@ -8,7 +8,7 @@ describe EMIS::Responses::Response do
   let(:body) { Ox.parse(File.read('spec/support/emis/errorResponse.xml')) }
   let(:response) { EMIS::Responses::Response.new(faraday_response) }
 
-  before(:each) do
+  before do
     allow(faraday_response).to receive(:body) { body }
   end
 

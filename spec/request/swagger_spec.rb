@@ -26,7 +26,7 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
   subject { Apivore::SwaggerChecker.instance_for('/v0/apidocs.json') }
 
   let(:rubysaml_settings) { build(:rubysaml_settings) }
-  let(:mhv_user) { build(:user, :mhv) }
+  let(:mhv_user) { build(:user, :mhv, middle_name: 'Bob') }
 
   before do
     create(:account, idme_uuid: mhv_user.uuid)
@@ -312,7 +312,7 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
       include Rx::ClientHelpers
       let(:headers) { { '_headers' => { 'Cookie' => sign_in(mhv_user, nil, true) } } }
 
-      before(:each) do
+      before do
         allow(Rx::Client).to receive(:new).and_return(authenticated_client)
       end
 
@@ -578,7 +578,7 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
         ]
       end
 
-      before(:each) do
+      before do
         allow(SM::Client).to receive(:new).and_return(authenticated_client)
       end
 
@@ -897,7 +897,7 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
       describe 'health_records' do
         let(:headers) { { '_headers' => { 'Cookie' => sign_in(mhv_user, nil, true) } } }
 
-        before(:each) do
+        before do
           allow(BB::Client).to receive(:new).and_return(authenticated_client)
         end
 
@@ -1144,7 +1144,7 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
     end
 
     context '/v0/user endpoint with some external service errors' do
-      let(:user) { build(:user) }
+      let(:user) { build(:user, middle_name: 'Lee') }
       let(:headers) { { '_headers' => { 'Cookie' => sign_in(user, nil, true) } } }
 
       it 'supports getting user with some external errors', skip_mvi: true do
@@ -1404,7 +1404,6 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
     describe 'preferences' do
       let(:preference) { create(:preference) }
       let(:route) { '/v0/user/preferences/choices' }
-      let(:preference) { create :preference }
       let(:choice) { create :preference_choice, preference: preference }
       let(:request_body) do
         [

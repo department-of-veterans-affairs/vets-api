@@ -5,6 +5,8 @@ require 'bb/generate_report_request_form'
 require 'bb/client'
 
 describe BB::GenerateReportRequestForm do
+  subject { described_class.new(bb_client, attributes) }
+
   let(:eligible_data_classes) do
     BB::GenerateReportRequestForm::ELIGIBLE_DATA_CLASSES
   end
@@ -22,9 +24,7 @@ describe BB::GenerateReportRequestForm do
 
   let(:attributes) { {} }
 
-  subject { described_class.new(bb_client, attributes) }
-
-  before(:each) { allow(subject).to receive(:eligible_data_classes).and_return(eligible_data_classes) }
+  before { allow(subject).to receive(:eligible_data_classes).and_return(eligible_data_classes) }
 
   context 'with null attributes' do
     it 'responds to params' do

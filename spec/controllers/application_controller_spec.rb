@@ -5,7 +5,6 @@ require 'rx/client'
 require 'lib/sentry_logging_spec_helper'
 
 RSpec.describe ApplicationController, type: :controller do
-  it_behaves_like 'a sentry logger'
   controller do
     attr_reader :payload
     skip_before_action :authenticate, except: :test_authentication
@@ -41,7 +40,7 @@ RSpec.describe ApplicationController, type: :controller do
     end
   end
 
-  before(:each) do
+  before do
     routes.draw do
       get 'not_authorized' => 'anonymous#not_authorized'
       get 'record_not_found' => 'anonymous#record_not_found'
@@ -52,19 +51,21 @@ RSpec.describe ApplicationController, type: :controller do
     end
   end
 
-  describe '#clear_saved_form' do
-    let(:user) { create(:user) }
+  it_behaves_like 'a sentry logger'
 
+  describe '#clear_saved_form' do
     subject do
       controller.clear_saved_form(form_id)
     end
+
+    let(:user) { create(:user) }
 
     context 'with a saved form' do
       let!(:in_progress_form) { create(:in_progress_form, user_uuid: user.uuid) }
       let(:form_id) { in_progress_form.form_id }
 
       context 'without a current user' do
-        it "shouldn't delete the form" do
+        it 'does not delete the form' do
           subject
           expect(model_exists?(in_progress_form)).to be(true)
         end
@@ -75,7 +76,7 @@ RSpec.describe ApplicationController, type: :controller do
           controller.instance_variable_set(:@current_user, user)
         end
 
-        it 'should delete the form' do
+        it 'deletes the form' do
           subject
           expect(model_exists?(in_progress_form)).to be(false)
         end
@@ -89,7 +90,7 @@ RSpec.describe ApplicationController, type: :controller do
         controller.instance_variable_set(:@current_user, user)
       end
 
-      it 'should do nothing' do
+      it 'does nothing' do
         subject
       end
     end
@@ -198,10 +199,10 @@ RSpec.describe ApplicationController, type: :controller do
           }]
         )
         # if authn_context is nil on current_user it means idme
-        expect(Raven).to receive(:tags_context).once.with(
-          controller_name: 'anonymous',
-          sign_in_method: { service_name: 'idme', acct_type: nil }
-        )
+        expect(Raven).to receive(:tags_context).once.with(controller_name: 'anonymous',
+                                                          sign_in_method: 'idme',
+                                                          sign_in_acct_type: nil)
+
         # since user IS signed in, this SHOULD get called
         expect(Raven).to receive(:user_context).with(
           uuid: user.uuid,
@@ -281,7 +282,7 @@ RSpec.describe ApplicationController, type: :controller do
       let(:header_auth_value) { ActionController::HttpAuthentication::Token.encode_credentials(token) }
       let(:sso_cookie_value)  { 'bar' }
 
-      before(:each) do
+      before do
         Settings.sso.cookie_enabled = true
         session_object = Session.create(uuid: user.uuid, token: token)
         User.create(user)
@@ -293,7 +294,7 @@ RSpec.describe ApplicationController, type: :controller do
         request.cookies[Settings.sso.cookie_name] = sso_cookie_value
       end
 
-      after(:each) do
+      after do
         Settings.sso.cookie_enabled = false
       end
 
@@ -330,7 +331,7 @@ RSpec.describe ApplicationController, type: :controller do
           let(:header_host_value) { 'localhost' }
           let(:sso_cookie_value)  { nil }
 
-          around(:each) do |example|
+          around do |example|
             original_value = Settings.sso.cookie_signout_enabled
             Settings.sso.cookie_signout_enabled = true
             example.run
@@ -346,14 +347,14 @@ RSpec.describe ApplicationController, type: :controller do
         end
 
         context 'with a virtual host that matches sso cookie domain, but sso cookie destroyed: disabled' do
-          before(:each) do
+          before do
             Settings.sso.cookie_signout_enabled = nil
           end
 
           let(:header_host_value) { 'localhost' }
           let(:sso_cookie_value)  { nil }
 
-          around(:each) do |example|
+          around do |example|
             original_value = Settings.sso.cookie_signout_enabled
             Settings.sso.cookie_signout_enabled = false
             example.run

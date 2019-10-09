@@ -46,20 +46,20 @@ describe PdfInfo::Metadata do
     wait_thr
   end
 
-  before(:each) do
+  before do
     allow(Open3).to receive(:popen2e).and_yield('', result, good_exit)
   end
 
   describe '::read' do
     context 'when passed a string' do
-      it 'should shell out with the string as the file path' do
+      it 'shells out with the string as the file path' do
         expect(Open3).to receive(:popen2e).with(%w[pdfinfo argv0], '/tmp/file.pdf').and_yield('', result, good_exit)
         described_class.read('/tmp/file.pdf')
       end
     end
 
     context 'when passed a file' do
-      it 'should shell out with the file object path' do
+      it 'shells out with the file object path' do
         file = double(File)
         allow(file).to receive(:path).and_return('/tmp/file.pdf')
         expect(Open3).to receive(:popen2e).with(%w[pdfinfo argv0], '/tmp/file.pdf').and_yield('', result, good_exit)
@@ -68,7 +68,7 @@ describe PdfInfo::Metadata do
     end
 
     context 'when the command errors' do
-      it 'should raise a PdfInfo::MetadataReadError' do
+      it 'raises a PdfInfo::MetadataReadError' do
         expect(Open3).to receive(:popen2e).with(%w[pdfinfo argv0], '/tmp/file.pdf').and_yield('', result, bad_exit)
         expect { described_class.read('/tmp/file.pdf') }.to raise_error(PdfInfo::MetadataReadError, /pdfinfo exited/)
       end
@@ -76,7 +76,7 @@ describe PdfInfo::Metadata do
   end
 
   describe '#[]' do
-    it 'should fetch a key from the parsed result' do
+    it 'fetches a key from the parsed result' do
       metadata = described_class.read('/tmp/file.pdf')
       expect(metadata['Title']).to be_nil
       expect(metadata['Pages']).to eq('4')
@@ -85,14 +85,14 @@ describe PdfInfo::Metadata do
   end
 
   describe '#pages' do
-    it 'should return pages as an int' do
+    it 'returns pages as an int' do
       metadata = described_class.read('/tmp/file.pdf')
       expect(metadata.pages).to eq(4)
     end
   end
 
   describe '#encrypted?' do
-    it 'should return encryption as a boolean' do
+    it 'returns encryption as a boolean' do
       metadata = described_class.read('/tmp/file.pdf')
       expect(metadata.encrypted?).to be false
     end
@@ -123,7 +123,7 @@ describe PdfInfo::Metadata do
       end
 
       describe '#pages' do
-        it 'should return pages as an int' do
+        it 'returns pages as an int' do
           metadata = described_class.read('/tmp/file.pdf')
           expect(metadata.pages).to eq(1)
         end
@@ -154,7 +154,7 @@ describe PdfInfo::Metadata do
         STDOUT
       end
 
-      it 'should return encryption as a boolean' do
+      it 'returns encryption as a boolean' do
         metadata = described_class.read('/tmp/file.pdf')
         expect(metadata.encrypted?).to be true
       end

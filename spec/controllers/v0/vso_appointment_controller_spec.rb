@@ -4,7 +4,7 @@ require 'rails_helper'
 
 RSpec.describe V0::VsoAppointmentsController, type: :controller do
   context 'before login' do
-    it 'should reject a post' do
+    it 'rejects a post' do
       post :create, params: { 'beep': 'boop' }
       expect(response).to have_http_status(:unauthorized)
     end
@@ -13,16 +13,16 @@ RSpec.describe V0::VsoAppointmentsController, type: :controller do
   context 'after auth' do
     let(:user) { build(:user) }
 
-    before(:each) do
+    before do
       sign_in_as(user)
     end
 
-    it 'should reject an incomplete post' do
+    it 'rejects an incomplete post' do
       post :create, params: { "beep": 'boop' }
       expect(response).to have_http_status(:bad_request)
     end
 
-    it 'should balk at a bunch of garbage values' do
+    it 'balks at a bunch of garbage values' do
       payload = {}
       VsoAppointment.attribute_set.each { |attr| payload[attr.name.to_s] = 'beep' }
       %w[claimant_full_name veteran_full_name claimant_address].each do |attr|
@@ -33,7 +33,7 @@ RSpec.describe V0::VsoAppointmentsController, type: :controller do
       expect(response).to have_http_status(:bad_request)
     end
 
-    it 'should accept a basic example' do
+    it 'accepts a basic example' do
       VCR.use_cassette('vso_appointments/upload') do
         # fill in everything with junk by default
         payload = {}

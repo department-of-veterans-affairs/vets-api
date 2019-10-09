@@ -4,9 +4,9 @@ require 'rails_helper'
 require 'common/exceptions'
 
 describe EMISRedis::VeteranStatus, skip_emis: true do
-  let(:user) { build(:user, :loa3) }
-
   subject { described_class.for_user(user) }
+
+  let(:user) { build(:user, :loa3) }
 
   describe 'veteran?' do
     context 'with a valid response for a veteran' do

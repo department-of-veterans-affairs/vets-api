@@ -10,12 +10,12 @@ describe MVI::Responses::ProfileParser do
   context 'given a valid response' do
     let(:body) { Ox.parse(File.read('spec/support/mvi/find_candidate_response.xml')) }
 
-    before(:each) do
+    before do
       allow(faraday_response).to receive(:body) { body }
     end
 
     describe '#failed_or_invalid?' do
-      it 'should return false' do
+      it 'returns false' do
         expect(parser).not_to be_failed_or_invalid
       end
     end
@@ -49,7 +49,7 @@ describe MVI::Responses::ProfileParser do
           )
         end
 
-        it 'should set the names to false' do
+        it 'sets the names to false' do
           allow(parser).to receive(:get_patient_name).and_return(nil)
           expect(parser.parse).to have_deep_attributes(mvi_profile)
         end
@@ -80,7 +80,7 @@ describe MVI::Responses::ProfileParser do
           )
         end
 
-        it 'should set the address to nil' do
+        it 'sets the address to nil' do
           expect(parser.parse).to have_deep_attributes(mvi_profile)
         end
       end
@@ -108,7 +108,7 @@ describe MVI::Responses::ProfileParser do
           )
         end
 
-        it 'should filter with only first name and retrieve correct MHV id' do
+        it 'filters with only first name and retrieve correct MHV id' do
           expect(parser.parse).to have_deep_attributes(mvi_profile)
         end
       end
@@ -131,7 +131,7 @@ describe MVI::Responses::ProfileParser do
     let(:body) { Ox.parse(File.read('spec/support/mvi/find_candidate_invalid_response.xml')) }
 
     describe '#failed_or_invalid?' do
-      it 'should return true' do
+      it 'returns true' do
         allow(faraday_response).to receive(:body) { body }
         expect(parser).to be_failed_or_invalid
       end
@@ -142,7 +142,7 @@ describe MVI::Responses::ProfileParser do
     let(:body) { Ox.parse(File.read('spec/support/mvi/find_candidate_ar_code_database_error_response.xml')) }
 
     describe '#failed_or_invalid?' do
-      it 'should return true' do
+      it 'returns true' do
         allow(faraday_response).to receive(:body) { body }
         expect(parser).to be_failed_or_invalid
       end
@@ -152,18 +152,18 @@ describe MVI::Responses::ProfileParser do
   context 'given a multiple match' do
     let(:body) { Ox.parse(File.read('spec/support/mvi/find_candidate_multiple_match_response.xml')) }
 
-    before(:each) do
+    before do
       allow(faraday_response).to receive(:body) { body }
     end
 
     describe '#failed_or_invalid?' do
-      it 'should return false' do
+      it 'returns false' do
         expect(parser).to be_failed_or_invalid
       end
     end
 
     describe '#multiple_match?' do
-      it 'should return true' do
+      it 'returns true' do
         expect(parser).to be_multiple_match
       end
     end
@@ -190,7 +190,7 @@ describe MVI::Responses::ProfileParser do
       )
     end
 
-    before(:each) do
+    before do
       allow(faraday_response).to receive(:body) { body }
     end
 
@@ -211,7 +211,7 @@ describe MVI::Responses::ProfileParser do
       )
     end
 
-    before(:each) do
+    before do
       allow(faraday_response).to receive(:body) { body }
     end
 
@@ -227,7 +227,7 @@ describe MVI::Responses::ProfileParser do
 
     after { Settings.sentry.dsn = nil }
 
-    before(:each) do
+    before do
       allow(faraday_response).to receive(:body) { body }
     end
 

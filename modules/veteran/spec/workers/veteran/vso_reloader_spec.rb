@@ -5,14 +5,14 @@ require 'sidekiq/testing'
 Sidekiq::Testing.fake!
 
 RSpec.describe Veteran::VsoReloader, type: :job do
-  before(:each) do
+  subject { described_class }
+
+  before do
     Sidekiq::Worker.clear_all
   end
 
-  subject { described_class }
-
   describe 'importer' do
-    it 'should reload data from pulldown' do
+    it 'reloads data from pulldown' do
       VCR.use_cassette('veteran/ogc_poa_data') do
         Veteran::VsoReloader.new.perform
         expect(Veteran::Service::Representative.count).to eq 435

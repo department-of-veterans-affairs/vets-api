@@ -7,6 +7,8 @@ RSpec.describe SAML::User do
   include SAML::ResponseBuilder
 
   describe 'ID.me' do
+    subject { described_class.new(saml_response) }
+
     let(:authn_context) { LOA::IDME_LOA1 }
     let(:account_type)  { 'N/A' }
     let(:highest_attained_loa) { '1' }
@@ -19,8 +21,6 @@ RSpec.describe SAML::User do
         multifactor: [false]
       )
     end
-
-    subject { described_class.new(saml_response) }
 
     context 'handles invalid authn_contexts' do
       context 'no decrypted document' do

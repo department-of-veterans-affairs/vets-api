@@ -31,27 +31,27 @@ RSpec.describe Facilities::StateCemeteryReloadJob, type: :job do
       </cems>)
   end
 
-  before(:each) do
+  before do
     allow_any_instance_of(
       Facilities::StateCemeteryReloadJob
     ).to receive(:fetch_cemeteries).and_return(Nokogiri::XML(cemetery_data))
   end
 
-  it 'should purge existing state cemetery data' do
+  it 'purges existing state cemetery data' do
     create :nca_888, classification: 'State Cemetery'
     expect(Facilities::NCAFacility.count).to eq(1)
     Facilities::StateCemeteryReloadJob.new.perform
     expect(Facilities::NCAFacility.where(unique_id: '888').count).to eq(0)
   end
 
-  it 'should not change other cemetery data' do
+  it 'does not change other cemetery data' do
     create :nca_888
     expect(Facilities::NCAFacility.count).to eq(1)
     Facilities::StateCemeteryReloadJob.new.perform
     expect(Facilities::NCAFacility.where(unique_id: '888').count).to eq(1)
   end
 
-  it 'should load state cemetery data from our data file' do
+  it 'loads state cemetery data from our data file' do
     Facilities::StateCemeteryReloadJob.new.perform
     cemetery = Facilities::NCAFacility.first
     expect(cemetery.unique_id).to eq('s1001')
@@ -67,7 +67,7 @@ RSpec.describe Facilities::StateCemeteryReloadJob, type: :job do
     expect(cemetery.phone['fax']).to eq('251-626-9204')
   end
 
-  it 'should make addresses an empty hash if address data is blank' do
+  it 'makes addresses an empty hash if address data is blank' do
     Facilities::StateCemeteryReloadJob.new.perform
     cemetery = Facilities::NCAFacility.first
     expect(cemetery.address['mailing'].class).to eq(Hash)

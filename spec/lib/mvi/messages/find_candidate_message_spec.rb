@@ -74,13 +74,13 @@ describe MVI::Messages::FindProfileMessage do
       end
 
       context 'orchestration' do
-        around(:each) do |example|
+        around do |example|
           Settings.mvi.vba_orchestration = true
           example.run
           Settings.mvi.vba_orchestration = nil
         end
 
-        it 'should have orchestration related params when enabled' do
+        it 'has orchestration related params when enabled' do
           expect(xml).to eq_text_at_path(
             "#{parameter_list_path}/otherIDsScopingOrganization/semanticsText",
             'MVI.ORCHESTRATION'
@@ -112,7 +112,7 @@ describe MVI::Messages::FindProfileMessage do
     end
 
     context 'missing arguments' do
-      it 'should throw an argument error' do
+      it 'throws an argument error' do
         expect do
           MVI::Messages::FindProfileMessage.new(%w[John William], 'Smith', Time.new(1980, 1, 1).utc)
         end.to raise_error(ArgumentError, 'wrong number of arguments (given 3, expected 4..5)')

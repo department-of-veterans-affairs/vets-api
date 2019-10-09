@@ -6,10 +6,10 @@ require 'common/models/collection'
 require 'support/author'
 
 describe Common::Collection do
+  subject { described_class.new(klass, data: klass_array, metadata: { nobel_winner: 'Bob Dylan' }, errors: {}) }
+
   let(:klass)       { Author }
   let(:klass_array) { Array.new(25) { |i| attributes_for(:author, id: i + 1) } }
-
-  subject { described_class.new(klass, data: klass_array, metadata: { nobel_winner: 'Bob Dylan' }, errors: {}) }
 
   it 'returns a JSON string' do
     expect(subject.to_json).to be_a(String)
@@ -301,7 +301,7 @@ describe Common::Collection do
     end
 
     context 'already cached values' do
-      before(:each) do
+      before do
         described_class.cache(loaded_data.serialize, 'authors_key', 1000)
       end
 

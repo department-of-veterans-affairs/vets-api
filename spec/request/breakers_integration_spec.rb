@@ -19,7 +19,7 @@ RSpec.describe 'breakers', type: :request do
   end
   let(:user) { build(:user, :mhv) }
 
-  before(:each) do
+  before do
     allow_any_instance_of(ApplicationController).to receive(:validate_session).and_return(true)
     allow_any_instance_of(ApplicationController).to receive(:current_user).and_return(user)
     allow_any_instance_of(Rx::Client).to receive(:get_session).and_return(session)
@@ -67,6 +67,7 @@ RSpec.describe 'breakers', type: :request do
       stub_varx_request(:get, 'mhv-api/patient/v1/prescription/getactiverx', active_rxs, status_code: 200)
       response = get '/v0/prescriptions'
       expect(response).to eq(200)
+      Timecop.return
     end
   end
 

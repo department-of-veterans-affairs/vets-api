@@ -6,7 +6,7 @@ RSpec.describe V0::Post911GIBillStatusesController, type: :controller do
   include SchemaMatchers
 
   let(:user) { FactoryBot.create(:user, :loa3) }
-  before(:each) { sign_in_as(user) }
+  before { sign_in_as(user) }
 
   let(:once) { { times: 1, value: 1 } }
 
@@ -25,7 +25,7 @@ RSpec.describe V0::Post911GIBillStatusesController, type: :controller do
 
       gi_bill_200 = { cassette_name: 'evss/gi_bill_status/gi_bill_status' }
       context 'when EVSS response is 403', vcr: gi_bill_200 do
-        it 'should have a response that matches the schema' do
+        it 'has a response that matches the schema' do
           get :show
           expect(response).to have_http_status(:ok)
           expect(response).to match_response_schema('post911_gi_bill_status', strict: false)
@@ -47,7 +47,7 @@ RSpec.describe V0::Post911GIBillStatusesController, type: :controller do
       # environment is not capable of returning this error
       gi_bill_500 = { cassette_name: 'evss/gi_bill_status/gi_bill_status_500_with_err_msg' }
       context 'when EVSS response is 500 with an error message', vcr: gi_bill_500 do
-        it 'should respond with 503' do
+        it 'responds with 503' do
           get :show
           expect(response).to have_http_status(:service_unavailable)
         end
@@ -55,7 +55,7 @@ RSpec.describe V0::Post911GIBillStatusesController, type: :controller do
 
       gi_bill_unauthorized = { cassette_name: 'evss/gi_bill_status/unauthorized' }
       context 'when EVSS response is http-500 unauthorized', vcr: gi_bill_unauthorized do
-        it 'should respond with 403' do
+        it 'responds with 403' do
           get :show
           expect(response).to have_http_status(:forbidden)
         end

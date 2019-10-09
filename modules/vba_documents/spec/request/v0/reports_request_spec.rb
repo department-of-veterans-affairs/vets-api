@@ -30,7 +30,7 @@ RSpec.describe 'VBA Document Uploads Report Endpoint', type: :request do
     end
 
     context 'with in-flight submissions' do
-      it 'should return status of a single upload submissions' do
+      it 'returns status of a single upload submissions' do
         params = [upload_received.guid]
         post '/services/vba_documents/v0/uploads/report', params: { ids: params }
         expect(response).to have_http_status(:ok)
@@ -41,7 +41,7 @@ RSpec.describe 'VBA Document Uploads Report Endpoint', type: :request do
         expect(ids).to include(upload_received.guid)
       end
 
-      it 'should return status of a multiple upload submissions' do
+      it 'returns status of a multiple upload submissions' do
         params = [upload_received.guid, upload2_received.guid]
         post '/services/vba_documents/v0/uploads/report', params: { ids: params }
         expect(response).to have_http_status(:ok)
@@ -53,7 +53,7 @@ RSpec.describe 'VBA Document Uploads Report Endpoint', type: :request do
         expect(ids).to include(upload2_received.guid)
       end
 
-      it 'should silently skip status not returned from central mail' do
+      it 'silentlies skip status not returned from central mail' do
         params = [upload_received.guid, upload2_received.guid]
         post '/services/vba_documents/v0/uploads/report', params: { ids: params }
         expect(response).to have_http_status(:ok)
@@ -67,11 +67,11 @@ RSpec.describe 'VBA Document Uploads Report Endpoint', type: :request do
     end
 
     context 'without in-flight submissions' do
-      before(:each) do
+      before do
         expect(CentralMail::Service).not_to receive(:new) { client_stub }
       end
 
-      it 'should not fetch status if no in-flight submissions' do
+      it 'does not fetch status if no in-flight submissions' do
         params = [upload.guid]
         post '/services/vba_documents/v0/uploads/report', params: { ids: params }
         expect(response).to have_http_status(:ok)
@@ -82,7 +82,7 @@ RSpec.describe 'VBA Document Uploads Report Endpoint', type: :request do
         expect(ids).to include(upload.guid)
       end
 
-      it 'should present error result for non-existent submission' do
+      it 'presents error result for non-existent submission' do
         post '/services/vba_documents/v0/uploads/report', params: { ids: ['fake-1234'] }
         expect(response).to have_http_status(:ok)
         json = JSON.parse(response.body)
@@ -96,17 +96,17 @@ RSpec.describe 'VBA Document Uploads Report Endpoint', type: :request do
     end
 
     context 'with invalid parameters' do
-      it 'should return error if no guids parameter' do
+      it 'returns error if no guids parameter' do
         post '/services/vba_documents/v0/uploads/report', params: { foo: 'bar' }
         expect(response).to have_http_status(:bad_request)
       end
 
-      it 'should return error if guids parameter not a list' do
+      it 'returns error if guids parameter not a list' do
         post '/services/vba_documents/v0/uploads/report', params: { ids: 'bar' }
         expect(response).to have_http_status(:bad_request)
       end
 
-      it 'should return error if guids parameter has too many elements' do
+      it 'returns error if guids parameter has too many elements' do
         params = Array.new(1001, 'abcd-1234')
         post '/services/vba_documents/v0/uploads/report', params: { ids: params }
         expect(response).to have_http_status(:bad_request)

@@ -10,7 +10,7 @@ describe Vet360Redis::ReferenceData do
     %i[countries states zipcodes].each do |method|
       context "##{method}" do
         context 'when the cache is empty' do
-          it 'should cache and return the response', :aggregate_failures do
+          it 'caches and return the response', :aggregate_failures do
             VCR.use_cassette("vet360/reference_data/#{method}", VCR::MATCH_EVERYTHING) do
               expect(subject.redis_namespace).to receive(:set).once
               response = subject.public_send(method)

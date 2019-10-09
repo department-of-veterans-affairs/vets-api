@@ -22,6 +22,7 @@ describe Common::Client::Middleware::Request::SOAPHeaders do
         'Soapaction' => 'PRPA_IN201305UV02',
         'User-Agent' => 'Faraday v0.9.2'
       )
+      Timecop.return
     end
   end
 end

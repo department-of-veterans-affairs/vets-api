@@ -10,7 +10,7 @@ RSpec.describe V0::InProgressFormsController, type: :request do
     let(:loa3_user) { build(:user, :loa3) }
     let(:loa1_user) { build(:user, :loa1) }
 
-    before(:each) do
+    before do
       sign_in_as(user)
       enabled_forms = FormProfile.prefill_enabled_forms << 'FAKEFORM'
       allow(FormProfile).to receive(:prefill_enabled_forms).and_return(enabled_forms)
@@ -25,13 +25,13 @@ RSpec.describe V0::InProgressFormsController, type: :request do
     end
 
     describe '#index' do
-      let(:user) { loa3_user }
-      let!(:in_progress_form_edu) { FactoryBot.create(:in_progress_form, form_id: '22-1990', user_uuid: user.uuid) }
-      let!(:in_progress_form_hca) { FactoryBot.create(:in_progress_form, form_id: '1010ez', user_uuid: user.uuid) }
-
       subject do
         get v0_in_progress_forms_url, params: nil
       end
+
+      let(:user) { loa3_user }
+      let!(:in_progress_form_edu) { FactoryBot.create(:in_progress_form, form_id: '22-1990', user_uuid: user.uuid) }
+      let!(:in_progress_form_hca) { FactoryBot.create(:in_progress_form, form_id: '1010ez', user_uuid: user.uuid) }
 
       context 'when the user is not loa3' do
         let(:user) { loa1_user }

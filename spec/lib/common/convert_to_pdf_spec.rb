@@ -36,7 +36,7 @@ describe Common::ConvertToPdf, uploader_helpers: true do
     context 'with a pdf file' do
       let(:file) { create(:pension_burial, file_path: 'spec/fixtures/pdf_fill/extras.pdf').file }
 
-      it 'should still be pdf and not run convert' do
+      it 'stills be pdf and not run convert' do
         expect(MiniMagick::Tool::Convert).not_to receive(:new)
         test_converted_to_pdf
       end

@@ -9,7 +9,7 @@ RSpec.describe ExportBreakerStatus do
     end
     let(:metric) { "api.external_service.#{service.name}.up" }
 
-    before(:each) do
+    before do
       # Reset breakers before each test
       Breakers.client.redis_connection.redis.flushdb
     end
@@ -34,6 +34,7 @@ RSpec.describe ExportBreakerStatus do
         Timecop.freeze(now)
         service.latest_outage.end!
         expect { subject.perform }.to trigger_statsd_gauge(metric, value: 1)
+        Timecop.return
       end
     end
   end
