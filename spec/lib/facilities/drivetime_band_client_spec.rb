@@ -12,7 +12,7 @@ RSpec.describe Facilities::DrivetimeBandClient do
   let(:faraday_response_offset_0) { double(Faraday::Response.new) }
   let(:faraday_response_offset_10) { double(Faraday::Response.new) }
 
-  describe 'get_all_drivetime_bands' do
+  describe 'get_drivetime_bands' do
     subject { described_class.new }
 
     before(:each) do
@@ -29,10 +29,10 @@ RSpec.describe Facilities::DrivetimeBandClient do
       allow(faraday_response_offset_0).to receive(:env).and_return(double(body: { features: [*1..10] }.to_json))
       allow(faraday_response_offset_10).to receive(:env).and_return(double(body: { features: [*1..4] }.to_json))
 
-      first_response = subject.get_all_drivetime_bands(0, 10)
+      first_response = subject.get_drivetime_bands(0, 10)
       expect(first_response.length).to be(10)
 
-      second_response = subject.get_all_drivetime_bands(10, 10)
+      second_response = subject.get_drivetime_bands(10, 10)
       expect(second_response.length).to be(4)
     end
   end
