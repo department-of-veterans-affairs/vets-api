@@ -14,8 +14,6 @@ module SAML
       'http://127.0.0.1:3000' => { base_redirect: 'http://127.0.0.1:3001' }
     }.freeze
 
-    SSOE_LOGOUT_URL = 'https://int.eauth.va.gov/pkmslogout'
-
     LOGIN_REDIRECT_PARTIAL = '/auth/login/callback'
     LOGOUT_REDIRECT_PARTIAL = '/logout/'
 
@@ -126,7 +124,7 @@ module SAML
 
     # logout URL for SSOe
     def ssoe_slo_url
-      SSOE_LOGOUT_URL
+      Settings.saml_ssoe.logout_url
     end
 
     private

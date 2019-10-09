@@ -30,7 +30,7 @@ module V1
         reset_session
       elsif type == 'ssoe_slo'
         Rails.logger.info('SSOe: LOGOUT', sso_logging_info)
-        redirect_to(url_service.send(:ssoe_slo_url)) && return
+        reset_session
       end
       # clientId must be added at the end or the URL will be invalid for users using various "Do not track"
       # extensions with their browser.
@@ -38,7 +38,6 @@ module V1
     end
 
     def ssoe_slo_callback
-      reset_session
       redirect_to url_service.base_redirect_url
     end
 
