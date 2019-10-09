@@ -307,11 +307,7 @@ RSpec.describe V1::SessionsController, type: :controller do
     end
 
     describe 'POST saml_callback' do
-      before do
-        allow(SAML::User).to receive(:new).and_return(saml_user)
-      end
-
-      around do |example|
+      around(:each) do |example|
         Settings.sso.cookie_enabled = true
         example.run
         Settings.sso.cookie_enabled = false
