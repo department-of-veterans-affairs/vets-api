@@ -8,7 +8,7 @@ describe EMIS::Responses::GetDeploymentResponse do
   let(:body) { Ox.parse(File.read('spec/support/emis/getDeploymentResponse.xml')) }
   let(:response) { EMIS::Responses::GetDeploymentResponse.new(faraday_response) }
 
-  before(:each) do
+  before do
     allow(faraday_response).to receive(:body) { body }
   end
 

@@ -5,7 +5,7 @@ RSpec.shared_examples 'emis_soap_response' do |example_response_file, response_c
   let(:body) { Ox.parse(File.read(example_response_file)) }
   let(:response) { response_class.new(faraday_response) }
 
-  before(:each) do
+  before do
     allow(faraday_response).to receive(:body) { body }
   end
 

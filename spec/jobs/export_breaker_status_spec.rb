@@ -9,7 +9,7 @@ RSpec.describe ExportBreakerStatus do
     end
     let(:metric) { "api.external_service.#{service.name}.up" }
 
-    before(:each) do
+    before do
       # Reset breakers before each test
       Breakers.client.redis_connection.redis.flushdb
     end

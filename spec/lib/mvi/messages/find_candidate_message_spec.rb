@@ -74,7 +74,7 @@ describe MVI::Messages::FindProfileMessage do
       end
 
       context 'orchestration' do
-        around(:each) do |example|
+        around do |example|
           Settings.mvi.vba_orchestration = true
           example.run
           Settings.mvi.vba_orchestration = nil

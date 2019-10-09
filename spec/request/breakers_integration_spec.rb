@@ -19,7 +19,7 @@ RSpec.describe 'breakers', type: :request do
   end
   let(:user) { build(:user, :mhv) }
 
-  before(:each) do
+  before do
     allow_any_instance_of(ApplicationController).to receive(:validate_session).and_return(true)
     allow_any_instance_of(ApplicationController).to receive(:current_user).and_return(user)
     allow_any_instance_of(Rx::Client).to receive(:get_session).and_return(session)

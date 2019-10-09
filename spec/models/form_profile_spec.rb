@@ -577,7 +577,7 @@ RSpec.describe FormProfile, type: :model do
     }
   end
 
-  before(:each) do
+  before do
     described_class.instance_variable_set(:@mappings, nil)
   end
 
