@@ -13,7 +13,7 @@ RSpec/AnyInstance:
 # Offense count: 3
 RSpec/Be:
   Exclude:
-    - 'spec/lib/common/client/concerns/monitoring_spec.rb'
+    - 'spec/lib/common/client/monitoring_spec.rb'
     - 'spec/request/id_card_attributes_request_spec.rb'
 
 # Offense count: 28
@@ -67,7 +67,8 @@ RSpec/ExpectInHook:
 # Offense count: 70
 # Configuration parameters: CustomTransform, IgnoreMethods.
 RSpec/FilePath:
-  Enabled: false
+  Exclude:
+    - 'modules/**/*'
 
 # Offense count: 222
 # Cop supports --auto-correct.
