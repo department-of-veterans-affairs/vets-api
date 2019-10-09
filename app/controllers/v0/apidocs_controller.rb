@@ -181,6 +181,7 @@ module V0
       Swagger::Schemas::Gibct::CalculatorConstants,
       Swagger::Schemas::Gibct::Institutions,
       Swagger::Schemas::Gibct::InstitutionPrograms,
+      Swagger::Schemas::Gibct::Meta,
       Swagger::Schemas::Health::Folders,
       Swagger::Schemas::Health::Links,
       Swagger::Schemas::Health::Messages,

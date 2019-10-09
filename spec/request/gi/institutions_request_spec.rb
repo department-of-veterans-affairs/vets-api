@@ -53,7 +53,7 @@ RSpec.describe 'institutions', type: :request do
 
   it 'responds to GET institution #children' do
     VCR.use_cassette('gi_client/gets_the_institution_children') do
-      get '/v0/gi/institutions/20603613/children'
+      get '/v0/gi/institutions/10086018/children'
     end
 
     expect(response).to be_successful

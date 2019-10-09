@@ -6,13 +6,6 @@ module Swagger
       class InstitutionPrograms
         include Swagger::Blocks
 
-        STATES = %i[
-          AK AL AR AS AZ CA CO CT DC DE FL FM GA GU HI IA
-          ID IL IN KS KY LA MA MD ME MH MI MN MO MP MS MT
-          NC ND NE BH NJ NM NV NY OH OK OR PA PR PW RI SC
-          SD TN TX UT VA VI VT WA WI WV WY
-        ].freeze
-
         swagger_schema :GibctInstitutionProgramsAutocomplete do
           key :required, %i[data meta links]
 
@@ -69,13 +62,7 @@ module Swagger
           key :type, :object
           key :required, %i[version term]
 
-          property :version, type: :object do
-            key :required, %i[number created_at preview]
-
-            property :number, type: :integer
-            property :created_at, type: :string
-            property :preview, type: :boolean
-          end
+          property :version, '$ref': :GibctVersion
           property :term, type: :string
         end
 
@@ -83,13 +70,7 @@ module Swagger
           key :type, :object
           key :required, %i[version count facets]
 
-          property :version, type: :object do
-            key :required, %i[number created_at preview]
-
-            property :number, type: :integer
-            property :created_at, type: :string
-            property :preview, type: :boolean
-          end
+          property :version, '$ref': :GibctVersion
 
           property :count, type: :integer
           property :facets, type: :object do
@@ -102,19 +83,8 @@ module Swagger
               property :corr, type: :integer
             end
 
-            property :state, type: :object do
-              STATES.each { |state| property state, type: :integer }
-            end
-
-            property :country, type: :array do
-              items do
-                key :type, :object
-                key :required, %i[name count]
-
-                property :name, type: :string
-                property :count, type: :integer
-              end
-            end
+            property :state, '$ref': :GibctState
+            property :country, '$ref': :GibctCountry
           end
         end
 
