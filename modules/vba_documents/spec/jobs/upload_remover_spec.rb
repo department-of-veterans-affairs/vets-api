@@ -8,7 +8,7 @@ require 'vba_documents/upload_remover'
 RSpec.describe VBADocuments::UploadRemover, type: :job do
   include VBADocuments::Fixtures
 
-  before(:each) do
+  before do
     @objstore = instance_double(VBADocuments::ObjectStore)
     @s3_object = instance_double(Aws::S3::Object)
     allow(VBADocuments::ObjectStore).to receive(:new).and_return(@objstore)

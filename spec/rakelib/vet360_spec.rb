@@ -9,7 +9,7 @@ describe 'vet360 rake tasks' do
     Rake::Task.define_task(:environment)
   end
 
-  before :each do
+  before do
     # Prevents cross-pollination between tests
     ENV['VET360_RAKE_DATA'] = nil
   end

@@ -27,7 +27,7 @@ RSpec.describe 'EVSS Claims management', type: :request do
   end
   let(:scopes) { %w[claim.read] }
 
-  before(:each) do
+  before do
     stub_poa_verification
     stub_mvi
   end

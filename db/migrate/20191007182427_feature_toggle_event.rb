@@ -1,5 +1,3 @@
-# frozen_string_literal: true
-
 class FeatureToggleEvent < ActiveRecord::Migration[5.2]
   def change
     create_table(:feature_toggle_events) do |t|

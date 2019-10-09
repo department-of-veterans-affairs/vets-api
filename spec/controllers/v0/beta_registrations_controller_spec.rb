@@ -13,7 +13,7 @@ RSpec.describe V0::BetaRegistrationsController, type: :controller do
   context 'when logged in' do
     let(:user) { build(:user) }
 
-    before(:each) do
+    before do
       sign_in_as(user)
     end
 

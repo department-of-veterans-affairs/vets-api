@@ -59,7 +59,7 @@ describe VBADocuments::UploadSubmission, type: :model do
     [[]].to_json
   end
 
-  before(:each) do
+  before do
     allow(CentralMail::Service).to receive(:new) { client_stub }
   end
 
