@@ -106,6 +106,7 @@ RSpec.describe 'terms_and_conditions', type: :request do
           post "/v0/terms_and_conditions/#{terms2.name}/versions/latest/user_data"
           json = JSON.parse(response.body)
           expect(Time.zone.parse(json['data']['attributes']['created_at']).to_i).to eq(start_time.to_i)
+          Timecop.return
         end
       end
     end
