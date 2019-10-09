@@ -28,6 +28,8 @@ RSpec.describe StatsdMiddleware, type: :request do
     Timecop.freeze(now)
   end
 
+  after { Timecop.return }
+
   it 'sends status data to statsd' do
     stub_varx_request(:get, 'mhv-api/patient/v1/prescription/gethistoryrx', history_rxs, status_code: 200)
     tags = %w[controller:v0/prescriptions action:index status:200]

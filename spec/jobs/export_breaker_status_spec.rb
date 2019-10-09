@@ -34,6 +34,7 @@ RSpec.describe ExportBreakerStatus do
         Timecop.freeze(now)
         service.latest_outage.end!
         expect { subject.perform }.to trigger_statsd_gauge(metric, value: 1)
+        Timecop.return
       end
     end
   end
