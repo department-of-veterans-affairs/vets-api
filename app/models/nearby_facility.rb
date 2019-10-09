@@ -87,9 +87,9 @@ class NearbyFacility < ApplicationRecord
 
     def parse_location(response_json)
       response_json.try(:[], 'resourceSets')
-          &.first
+                    &.first
                    .try(:[], 'resources')
-          &.first
+                    &.first
                    .try(:[], 'point')
                    .try(:[], 'coordinates')
     end
