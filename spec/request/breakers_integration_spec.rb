@@ -67,6 +67,7 @@ RSpec.describe 'breakers', type: :request do
       stub_varx_request(:get, 'mhv-api/patient/v1/prescription/getactiverx', active_rxs, status_code: 200)
       response = get '/v0/prescriptions'
       expect(response).to eq(200)
+      Timecop.return
     end
   end
 
