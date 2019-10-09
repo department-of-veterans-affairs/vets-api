@@ -14,7 +14,7 @@ task :danger do
   danger_result = ShellCommand.run('danger --verbose')
 
   puts "\n\n"
-  
+
   if danger_result
     puts Rainbow('Danger ran successfully.').green
   else
