@@ -38,7 +38,7 @@ RSpec.describe VBADocuments::UploadProcessor, type: :job do
       'content' => valid_doc }
   end
 
-  before(:each) do
+  before do
     objstore = instance_double(VBADocuments::ObjectStore)
     version = instance_double(Aws::S3::ObjectVersion)
     allow(VBADocuments::ObjectStore).to receive(:new).and_return(objstore)
@@ -355,6 +355,7 @@ RSpec.describe VBADocuments::UploadProcessor, type: :job do
         Timecop.freeze(Time.zone.now)
         described_class.new.perform(upload.guid)
         expect(described_class.jobs.last['at']).to eq(30.minutes.from_now.to_f)
+        Timecop.return
       end
     end
 

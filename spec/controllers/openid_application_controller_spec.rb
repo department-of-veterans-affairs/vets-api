@@ -22,7 +22,7 @@ RSpec.describe OpenidApplicationController, type: :controller do
   end
 
   describe '#permit_scopes' do
-    before(:each) do
+    before do
       request.headers['Authorization'] = 'Bearer FakeToken'
     end
 
@@ -162,7 +162,7 @@ RSpec.describe OpenidApplicationController, type: :controller do
     end
 
     context 'with a valid jwt supplied and no session' do
-      before(:each) do
+      before do
         allow(JWT).to receive(:decode).and_return(token)
       end
 
@@ -184,7 +184,7 @@ RSpec.describe OpenidApplicationController, type: :controller do
               family_name: 'zackariah')
       end
 
-      before(:each) do
+      before do
         allow(JWT).to receive(:decode).and_return(token)
         stub_mvi(mvi_profile)
       end
@@ -219,7 +219,7 @@ RSpec.describe OpenidApplicationController, type: :controller do
               family_name: 'WEAVER')
       end
 
-      before(:each) do
+      before do
         allow(JWT).to receive(:decode).and_return(token)
         stub_mvi(mvi_profile)
       end
@@ -251,7 +251,7 @@ RSpec.describe OpenidApplicationController, type: :controller do
               family_name: 'CARROLL')
       end
 
-      before(:each) do
+      before do
         allow(JWT).to receive(:decode).and_return(token)
         stub_mvi(mvi_profile)
       end
