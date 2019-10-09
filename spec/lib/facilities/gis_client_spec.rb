@@ -16,7 +16,7 @@ RSpec.describe Facilities::GisClient do
   describe 'get_all_facilities' do
     subject { described_class.new }
 
-    before(:each) do
+    before do
       allow_any_instance_of(
         Faraday::Connection
       ).to receive(:get).with(anything, has_order_and_offset('field', 0)).and_return(faraday_response_offset_0)

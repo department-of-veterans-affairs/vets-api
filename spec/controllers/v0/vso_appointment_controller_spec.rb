@@ -13,7 +13,7 @@ RSpec.describe V0::VsoAppointmentsController, type: :controller do
   context 'after auth' do
     let(:user) { build(:user) }
 
-    before(:each) do
+    before do
       sign_in_as(user)
     end
 

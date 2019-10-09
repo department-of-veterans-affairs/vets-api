@@ -81,7 +81,7 @@ describe Mvi, skip_mvi: true do
 
   describe 'correlation ids' do
     context 'with a succesful response' do
-      before(:each) do
+      before do
         allow_any_instance_of(MVI::Service).to receive(:find_profile).and_return(profile_response)
       end
 
@@ -129,7 +129,7 @@ describe Mvi, skip_mvi: true do
     end
 
     context 'with an error response' do
-      before(:each) do
+      before do
         allow_any_instance_of(MVI::Service).to receive(:find_profile).and_return(profile_response_error)
       end
 

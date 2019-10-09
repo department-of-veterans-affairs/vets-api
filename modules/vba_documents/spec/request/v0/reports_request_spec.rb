@@ -67,7 +67,7 @@ RSpec.describe 'VBA Document Uploads Report Endpoint', type: :request do
     end
 
     context 'without in-flight submissions' do
-      before(:each) do
+      before do
         expect(CentralMail::Service).not_to receive(:new) { client_stub }
       end
 
