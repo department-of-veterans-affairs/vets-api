@@ -38,7 +38,6 @@ module Swagger
             property :count, type: :integer
           end
         end
-
       end
     end
   end
