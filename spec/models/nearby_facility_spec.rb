@@ -73,7 +73,7 @@ RSpec.describe NearbyFacility, type: :model do
       json = JSON.parse('{"resourceSets": [{"resources": [{"point": {"coordinates": [1,2]}}]}]}')
       result = NearbyFacility.parse_location(json)
       result.should_not be_nil
-      result.should match_array([1,2])
+      result.should match_array([1, 2])
     end
 
     it 'returns nil and not throw an exception when resourceSets is not defined' do
@@ -99,6 +99,5 @@ RSpec.describe NearbyFacility, type: :model do
       result = NearbyFacility.parse_location(json)
       result.should be_nil
     end
-
   end
 end
