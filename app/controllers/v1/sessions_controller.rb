@@ -38,7 +38,7 @@ module V1
     end
 
     def ssoe_slo_callback
-      redirect_to url_service.base_redirect_url
+      redirect_to url_service.logout_redirect_url
     end
 
     def saml_logout_callback
