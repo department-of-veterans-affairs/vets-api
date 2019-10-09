@@ -13,7 +13,7 @@ describe UserPreference, type: :model do
     let(:account) { create(:account) }
     let(:account_id) { account.id }
 
-    before(:each) do
+    before do
       allow_any_instance_of(User).to receive(:account).and_return(OpenStruct.new(id: account_id))
     end
 

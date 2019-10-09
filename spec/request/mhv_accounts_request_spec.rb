@@ -44,7 +44,7 @@ RSpec.describe 'Account creation and upgrade', type: :request do
 
   let(:terms) { create(:terms_and_conditions, latest: true, name: MhvAccount::TERMS_AND_CONDITIONS_NAME) }
 
-  before(:each) do
+  before do
     stub_mvi(mvi_profile)
     sign_in_as(user)
   end
@@ -164,7 +164,7 @@ RSpec.describe 'Account creation and upgrade', type: :request do
     it_behaves_like 'non va patient'
 
     context 'without an account' do
-      around(:each) do |example|
+      around do |example|
         VCR.use_cassette('mhv_account_type_service/advanced') do
           example.run
         end
@@ -182,7 +182,7 @@ RSpec.describe 'Account creation and upgrade', type: :request do
       context 'that is existing' do
         %w[Basic Advanced].each do |type|
           context type do
-            around(:each) do |example|
+            around do |example|
               # by wrapping these cassettes, we're ensuring that after a successful upgrade, the serialized
               VCR.use_cassette('mhv_account_type_service/premium') do # account level is 'Premium'
                 VCR.use_cassette("mhv_account_type_service/#{type.downcase}") do
@@ -202,7 +202,7 @@ RSpec.describe 'Account creation and upgrade', type: :request do
 
         %w[Premium Error Unknown].each do |type|
           context type do
-            around(:each) do |example|
+            around do |example|
               VCR.use_cassette("mhv_account_type_service/#{type.downcase}") do
                 example.run
               end
@@ -220,12 +220,12 @@ RSpec.describe 'Account creation and upgrade', type: :request do
       end
 
       context 'that is registered' do
-        before(:each) do
+        before do
           MhvAccount.create(user_uuid: user.uuid, mhv_correlation_id: mhv_ids.first,
                             account_state: 'registered', registered_at: Time.current)
         end
 
-        around(:each) do |example|
+        around do |example|
           # by wrapping these cassettes, we're ensuring that after a successful upgrade, the serialized
           VCR.use_cassette('mhv_account_type_service/premium') do # account level is 'Premium'
             VCR.use_cassette('mhv_account_type_service/advanced') do
@@ -243,12 +243,12 @@ RSpec.describe 'Account creation and upgrade', type: :request do
       end
 
       context 'that is upgraded' do
-        before(:each) do
+        before do
           MhvAccount.create(user_uuid: user.uuid, mhv_correlation_id: mhv_ids.first,
                             account_state: 'upgraded', upgraded_at: Time.current)
         end
 
-        around(:each) do |example|
+        around do |example|
           VCR.use_cassette('mhv_account_type_service/premium') do
             example.run
           end
@@ -262,12 +262,12 @@ RSpec.describe 'Account creation and upgrade', type: :request do
       end
 
       context 'that is upgraded has registered_at but does not have upgraded at' do
-        before(:each) do
+        before do
           MhvAccount.create(user_uuid: user.uuid, mhv_correlation_id: mhv_ids.first,
                             account_state: 'upgraded', registered_at: Time.current, upgraded_at: nil)
         end
 
-        around(:each) do |example|
+        around do |example|
           VCR.use_cassette('mhv_account_type_service/premium') do
             example.run
           end

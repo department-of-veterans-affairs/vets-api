@@ -22,7 +22,7 @@ class DummyClass
 end
 
 RSpec.describe VaFacilities::ParamValidators do
-  before(:each) do
+  before do
     @dummy_class = DummyClass.new
   end
 

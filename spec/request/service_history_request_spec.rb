@@ -7,7 +7,7 @@ RSpec.describe 'service_history', type: :request, skip_emis: true do
   include SchemaMatchers
   include ErrorDetails
 
-  before(:each) { sign_in }
+  before { sign_in }
 
   describe 'GET /v0/profile/service_history' do
     context 'with a 200 response' do

@@ -7,7 +7,7 @@ Sidekiq::Testing.fake!
 RSpec.describe Veteran::VsoReloader, type: :job do
   subject { described_class }
 
-  before(:each) do
+  before do
     Sidekiq::Worker.clear_all
   end
 

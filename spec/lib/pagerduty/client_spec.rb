@@ -13,11 +13,11 @@ describe PagerDuty::MaintenanceClient do
     VCR.turn_on!
   end
 
-  before(:each) do
+  before do
     Settings.maintenance.services = { evss: 'ABCDEF', mhv: 'BCDEFG' }
   end
 
-  after(:each) do
+  after do
     Settings.maintenance.services = nil
   end
 

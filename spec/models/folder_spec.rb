@@ -6,7 +6,7 @@ RSpec.describe Folder do
   describe 'validations on name' do
     subject { described_class.new(params) }
 
-    before(:each) { subject.valid? }
+    before { subject.valid? }
 
     context 'with name set to nil' do
       let(:params) { { name: nil } }
