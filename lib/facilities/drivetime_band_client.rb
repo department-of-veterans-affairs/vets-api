@@ -7,7 +7,7 @@ module Facilities
   class DrivetimeBandClient < Common::Client::Base
     configuration Facilities::DrivetimeBandConfiguration
 
-    def get_all_drivetime_bands(offset, limit)
+    def get_drivetime_bands(offset, limit)
       params = build_params(offset, limit)
       response = perform(:get, '/arcgis2/rest/services/Portal/MonthlyVAST_TTB/FeatureServer/0/query', params)
       JSON.parse(response.body)['features']
