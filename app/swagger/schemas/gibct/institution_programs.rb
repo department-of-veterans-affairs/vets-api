@@ -43,9 +43,9 @@ module Swagger
               property :type, type: :string, enum: ['institution_programs']
               property :attributes do
                 key :required, %i[facility_code description]
-    
+
                 property :program_type, type: :string,
-                          enum: ['IHL', 'NCD', 'OJT', 'FLGT', 'CORR']
+                                        enum: %w[IHL NCD OJT FLGT CORR]
                 property :description, type: :string
                 property :length_in_hours, type: :string
                 property :facility_code, type: :string
@@ -98,7 +98,7 @@ module Swagger
               property :ihl, type: :integer
               property :ncd, type: :integer
               property :ojt, type: :integer
-              property :'flgt', type: :integer
+              property :flgt, type: :integer
               property :corr, type: :integer
             end
 

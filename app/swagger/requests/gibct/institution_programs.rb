@@ -27,12 +27,15 @@ module Swagger
 
         swagger_path '/v0/gi/institution_programs/search' do
           operation :get do
-            key :description, 'Retrieves institution programs with a partial match for names, or match of city or facility code'
+            key :description, 'Retrieves institution programs with partial match'
             key :operationId, 'gibctInstitutionProgramsSearch'
             key :tags, %w[gi_bill_institutions]
 
-            parameter name: :term, in: :query,
-                      required: false, type: :string, description: '(partial) institution program name, city, or facility code'
+            parameter name: :term,
+                      in: :query,
+                      required: false,
+                      type: :string,
+                      description: '(partial) institution program name, city, or facility code'
 
             response 200 do
               key :description, 'search response'
