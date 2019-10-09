@@ -231,6 +231,7 @@ RSpec.describe 'Fetching user data', type: :request do
         .and not_trigger_statsd_increment('api.external_http_request.MVI.failed')
       expect(response.status).to eq(200)
       expect(MVI::Configuration.instance.breakers_service.latest_outage.ended?).to eq(true)
+      Timecop.return
     end
   end
 
