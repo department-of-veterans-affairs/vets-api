@@ -26,7 +26,7 @@ RSpec.describe 'Disability Rating API endpoint', type: :request, skip_emis: true
   let(:auth_header) { { 'Authorization' => "Bearer #{token}" } }
   let(:user) { create(:openid_user, identity_attrs: build(:user_identity_attrs, :loa3)) }
 
-  before(:each) do
+  before do
     allow(JWT).to receive(:decode).and_return(jwt)
     Session.create(uuid: user.uuid, token: token)
   end

@@ -5,7 +5,7 @@ require 'rails_helper'
 RSpec.describe 'Connected Applications API endpoint', type: :request do
   let(:user) { build(:user, :loa3, uuid: '00u2fqgvbyT23TZNm2p7') }
 
-  before(:each) { sign_in_as(user) }
+  before { sign_in_as(user) }
 
   context 'with valid response from okta' do
     it 'returns list of grants by app' do

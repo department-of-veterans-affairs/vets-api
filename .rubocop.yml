@@ -167,3 +167,7 @@ Style/BlockDelimiters:
   Exclude:
     - "spec/factories/*.rb"
     - "modules/*/spec/factories/*.rb"
+
+# With specs in several different places, this should remain disabled unless or until we put all specs under the main specs directory.
+RSpec/FilePath:
+  Enabled: false

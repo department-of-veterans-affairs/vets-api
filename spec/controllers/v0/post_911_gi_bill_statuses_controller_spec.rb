@@ -6,7 +6,7 @@ RSpec.describe V0::Post911GIBillStatusesController, type: :controller do
   include SchemaMatchers
 
   let(:user) { FactoryBot.create(:user, :loa3) }
-  before(:each) { sign_in_as(user) }
+  before { sign_in_as(user) }
 
   let(:once) { { times: 1, value: 1 } }
 

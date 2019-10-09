@@ -18,7 +18,7 @@ RSpec.describe FacilitiesQuery do
     end
 
     describe ' with pdx setup' do
-      before(:each) do
+      before do
         %w[vc_0617V nca_907 vha_648 vha_648A4 vha_648GI vba_348
            vba_348a vba_348d vba_348e vba_348h dod_001 dod_002].map { |id| create id }
       end

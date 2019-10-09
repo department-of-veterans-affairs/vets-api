@@ -10,7 +10,7 @@ RSpec.describe V0::InProgressFormsController, type: :request do
     let(:loa3_user) { build(:user, :loa3) }
     let(:loa1_user) { build(:user, :loa1) }
 
-    before(:each) do
+    before do
       sign_in_as(user)
       enabled_forms = FormProfile.prefill_enabled_forms << 'FAKEFORM'
       allow(FormProfile).to receive(:prefill_enabled_forms).and_return(enabled_forms)
