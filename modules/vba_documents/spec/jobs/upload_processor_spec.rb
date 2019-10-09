@@ -355,6 +355,7 @@ RSpec.describe VBADocuments::UploadProcessor, type: :job do
         Timecop.freeze(Time.zone.now)
         described_class.new.perform(upload.guid)
         expect(described_class.jobs.last['at']).to eq(30.minutes.from_now.to_f)
+        Timecop.return
       end
     end
 
