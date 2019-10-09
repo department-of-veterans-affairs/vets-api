@@ -14,6 +14,7 @@ module V1
     STATSD_SSO_CALLBACK_TOTAL_KEY = 'api.auth.login_callback.total'
     STATSD_SSO_CALLBACK_FAILED_KEY = 'api.auth.login_callback.failed'
     STATSD_LOGIN_NEW_USER_KEY = 'api.auth.new_user'
+    STATSD_MHV_COOKIE_NO_ACCOUNT_KEY = 'api.auth.mhv_cookie.no_user'
 
     # Collection Action: auth is required for certain types of requests
     # @type is set automatically by the routes in config/routes.rb
@@ -107,6 +108,8 @@ module V1
       if user_session_form.valid?
         @current_user, @session_object = user_session_form.persist
         set_cookies
+        # track users who need to re-login on MHV
+        StatsD.increment(STATSD_MHV_COOKIE_NO_ACCOUNT_KEY) unless @current_user.mhv_correlation_id
         after_login_actions
         redirect_to url_service.login_redirect_url
         stats(:success, saml_response)
