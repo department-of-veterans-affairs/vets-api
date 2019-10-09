@@ -126,7 +126,7 @@ module SAML
 
     # logout URL for SSOe
     def ssoe_slo_url
-
+      SSOE_LOGOUT_URL
     end
 
     private
