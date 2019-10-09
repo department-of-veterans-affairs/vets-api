@@ -98,6 +98,12 @@ module V0
       if user_session_form.valid?
         @current_user, @session_object = user_session_form.persist
         set_cookies
+        # track users who need to re-login on MHV
+        unless @current_user.mhv_correlation_id
+          StatsD.increment(
+            V1::SessionsController::STATSD_MHV_COOKIE_NO_ACCOUNT_KEY
+          )
+        end
         after_login_actions
         redirect_to url_service.login_redirect_url
         stats(:success, saml_response)
