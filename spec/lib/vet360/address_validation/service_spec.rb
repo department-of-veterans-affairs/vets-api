@@ -6,6 +6,8 @@ describe Vet360::AddressValidation::Service do
   let(:address) { build(:vet360_address) }
 
   describe '#candidate' do
+    # TODO multiple suggestions
+    # TODO business address
     context 'with an invalid address' do
       it 'should return an error' do
         address.address_line1 = 'sdfdsfsdf'
