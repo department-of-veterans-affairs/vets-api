@@ -11,6 +11,27 @@ RSpec.describe V0::Profile::AddressValidationController, type: :controller do
   end
 
   describe '#create' do
+    context 'with an invalid address' do
+      it 'should return an error' do
+        address.address_line1 = 'sdfdsfsdf'
+
+        VCR.use_cassette(
+          'vet360/address_validation/candidate_no_match',
+          VCR::MATCH_EVERYTHING
+        ) do
+          post(:create, params: address.to_h)
+          expect(JSON.parse(response.body)).to eq(
+            {"errors"=>
+              [{"title"=>"Address Validation Error",
+                "detail"=>[{"code"=>"ADDRVAL108", "key"=>"CandidateAddressNotFound", "severity"=>"INFO", "text"=>"No Candidate Address Found "}],
+                "code"=>"VET360_AV_ERROR",
+                "status"=>"400"}]}
+          )
+          expect(response.status).to eq(400)
+        end
+      end
+    end
+
     context 'with a found address' do
       it 'should return suggested addresses for a given address' do
         address.address_line1 = '5 Stoddard Ct'

@@ -15,9 +15,18 @@ module Vet360
             'candidate',
             address.address_validation_req.to_json
           )
-        rescue => e
-          handle_error(e)
+        rescue Common::Client::Errors::ClientError => error
+          save_error_details(error)
+          raise_invalid_body(error, self.class) unless error.body.is_a?(Hash)
+
+          raise Common::Exceptions::BackendServiceException.new(
+            'VET360_AV_ERROR',
+            {
+              detail: error.body['messages']
+            }
+          )
         end
+
         CandidateResponse.new(res.body)
       end
     end
