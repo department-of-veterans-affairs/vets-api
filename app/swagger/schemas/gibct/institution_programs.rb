@@ -37,19 +37,20 @@ module Swagger
               property :attributes do
                 key :required, %i[facility_code description]
 
-                property :program_type, type: :string,
+                property :program_type, type: %i[null string],
                                         enum: %w[IHL NCD OJT FLGT CORR]
                 property :description, type: :string
-                property :length_in_hours, type: :string
+                property :length_in_hours, type: %i[null string]
+                property :length_in_weeks, type: %i[null integer]
                 property :facility_code, type: :string
                 property :institution_name, type: :string
-                property :city, type: :string
-                property :state, type: :string
-                property :country, type: :string
-                property :preferred_provider, type: :boolean
-                property :tuition_amount, type: :integer
-                property :va_bah, type: :number
-                property :dod_bah, type: :integer
+                property :city, type: %i[null string]
+                property :state, type: %i[null string]
+                property :country, type: %i[null string]
+                property :preferred_provider, type: %i[null boolean]
+                property :tuition_amount, type: %i[null integer]
+                property :va_bah, type: %i[null number]
+                property :dod_bah, type: %i[null integer]
               end
             end
           end

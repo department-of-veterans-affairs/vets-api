@@ -43,6 +43,7 @@
               "program_type": { "type": ["null", "string"] },
               "description": { "type": "string" },
               "length_in_hours": { "type": ["null", "string"] },
+              "length_in_weeks": { "type": ["null", "integer"] },
               "facility_code": { "type": "string" },
               "institution_name": { "type": ["string"] },
               "institution_city": { "type": ["null", "string"] },
