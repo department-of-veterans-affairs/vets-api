@@ -7,20 +7,20 @@ describe Vet360::Models::Telephone do
     let(:telephone) { build(:telephone) }
 
     context 'with no phone number' do
-      it 'should return nil' do
+      it 'returns nil' do
         telephone.phone_number = nil
         expect(telephone.formatted_phone).to eq(nil)
       end
     end
 
     context 'with no extension' do
-      it 'should return the formatted phone number' do
+      it 'returns the formatted phone number' do
         expect(telephone.formatted_phone).to eq('(303) 555-1234')
       end
     end
 
     context 'with an extension' do
-      it 'should return number with extension' do
+      it 'returns number with extension' do
         telephone.extension = '123'
         expect(telephone.formatted_phone).to eq('(303) 555-1234 Ext. 123')
       end
@@ -42,13 +42,13 @@ describe Vet360::Models::Telephone do
       it 'is not valid when set to true' do
         phone = build(:telephone, is_international: true)
 
-        expect(phone).to_not be_valid
+        expect(phone).not_to be_valid
       end
 
       it 'is not valid when nil' do
         phone = build(:telephone, is_international: nil)
 
-        expect(phone).to_not be_valid
+        expect(phone).not_to be_valid
       end
     end
 
@@ -69,14 +69,14 @@ describe Vet360::Models::Telephone do
         invalid_country_codes.each do |invalid_country_code|
           phone = build(:telephone, country_code: invalid_country_code)
 
-          expect(phone).to_not be_valid
+          expect(phone).not_to be_valid
         end
       end
 
       it 'is not valid when nil' do
         phone = build(:telephone, country_code: nil)
 
-        expect(phone).to_not be_valid
+        expect(phone).not_to be_valid
       end
     end
   end

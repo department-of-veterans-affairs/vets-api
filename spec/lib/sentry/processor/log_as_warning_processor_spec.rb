@@ -71,6 +71,7 @@ RSpec.describe Sentry::Processor::LogAsWarning do
 
   context 'for all other errors' do
     let(:exception) { NoMethodError.to_s }
+
     it 'does not change the :level' do
       expect(processor.process(data)['level']).to eq(40)
     end

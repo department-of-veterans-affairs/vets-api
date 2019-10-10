@@ -34,6 +34,7 @@ describe Shrine::Plugins::ValidateUnlockedPdf do
 
     context 'with a valid pdf' do
       let(:file) { good_pdf }
+
       it 'does not add any errors' do
         expect { instance.validate_unlocked_pdf }.not_to change { instance.errors.count }
       end
@@ -41,6 +42,7 @@ describe Shrine::Plugins::ValidateUnlockedPdf do
 
     context 'with a locked pdf' do
       let(:file) { locked_pdf }
+
       it 'adds an error' do
         expect { instance.validate_unlocked_pdf }.to change { instance.errors.count }.from(0).to(1)
         expect(instance.errors.first).to eq I18n.t('uploads.pdf.locked')
@@ -49,6 +51,7 @@ describe Shrine::Plugins::ValidateUnlockedPdf do
 
     context 'with a malformed or invalid pdf' do
       let(:file) { malformed_pdf }
+
       it 'adds an error' do
         expect { instance.validate_unlocked_pdf }.to change { instance.errors.count }.from(0).to(1)
         expect(instance.errors.first).to eq I18n.t('uploads.pdf.invalid')

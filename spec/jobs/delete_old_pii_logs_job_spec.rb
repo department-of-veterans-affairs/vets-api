@@ -8,7 +8,7 @@ RSpec.describe DeleteOldPiiLogsJob, type: :model do
 
   describe '#perform' do
     it 'deletes old records' do
-      expect { subject.perform }.to change { PersonalInformationLog.count }.from(2).to(1)
+      expect { subject.perform }.to change(PersonalInformationLog, :count).from(2).to(1)
       expect(model_exists?(new_log)).to eq(true)
     end
   end

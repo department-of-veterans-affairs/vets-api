@@ -8,11 +8,11 @@ RSpec.describe PersonalInformationLog do
   end
 
   describe '#decoded_data' do
-    it 'should simply return data when not a logged request/response' do
+    it 'simplies return data when not a logged request/response' do
       expect(pi_log.decoded_data).to eq(pi_log.data)
     end
 
-    it 'should return decoded request/response values when present' do
+    it 'returns decoded request/response values when present' do
       pi_log.data.merge!('request_body' => Base64.encode64('special request'),
                          'response_body' => Base64.encode64('nominal response'))
       expect(pi_log.data['request_body']).not_to eq('special request')

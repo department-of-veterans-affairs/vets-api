@@ -5,14 +5,14 @@ require 'sidekiq/testing'
 Sidekiq::Testing.fake!
 
 RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526Cleanup, type: :job do
-  before(:each) do
+  subject { described_class }
+
+  before do
     Sidekiq::Worker.clear_all
   end
 
   let(:user) { FactoryBot.create(:user, :loa3) }
   let(:submission) { create(:form526_submission, user_uuid: user.uuid) }
-
-  subject { described_class }
 
   describe '.perform_async' do
     let(:strategy_class) { EVSS::IntentToFile::ResponseStrategy }
@@ -22,7 +22,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526Cleanup, type: :jo
       it 'deletes the in progress form' do
         create(:in_progress_form, user_uuid: user.uuid, form_id: '21-526EZ')
         subject.perform_async(submission.id)
-        expect { described_class.drain }.to change { InProgressForm.count }.by(-1)
+        expect { described_class.drain }.to change(InProgressForm, :count).by(-1)
       end
 
       it 'deletes the cached ITF' do

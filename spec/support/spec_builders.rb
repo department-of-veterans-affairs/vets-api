@@ -12,7 +12,7 @@ module SpecBuilders
           return_val = test_datum[1]
 
           context "with an input of #{args.join(',')}" do
-            it "should return #{return_val}" do
+            it "returns #{return_val}" do
               actual = klass.send(method, *args)
 
               expect(actual).to eq(return_val)

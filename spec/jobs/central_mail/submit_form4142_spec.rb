@@ -5,7 +5,9 @@ require 'sidekiq/testing'
 Sidekiq::Testing.fake!
 
 RSpec.describe CentralMail::SubmitForm4142Job, type: :job do
-  before(:each) do
+  subject { described_class }
+
+  before do
     Sidekiq::Worker.clear_all
   end
 
@@ -15,8 +17,6 @@ RSpec.describe CentralMail::SubmitForm4142Job, type: :job do
   end
   let(:evss_claim_id) { 123_456_789 }
   let(:saved_claim) { FactoryBot.create(:va526ez) }
-
-  subject { described_class }
 
   describe '.perform_async' do
     let(:form_json) do
@@ -81,6 +81,7 @@ RSpec.describe CentralMail::SubmitForm4142Job, type: :job do
                                form_json: missing_postalcode_form_json,
                                submitted_claim_id: evss_claim_id)
     end
+
     context 'with a client error' do
       it 'raises a central mail response error' do
         VCR.use_cassette('central_mail/submit_4142_400') do

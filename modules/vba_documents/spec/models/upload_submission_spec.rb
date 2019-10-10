@@ -59,17 +59,17 @@ describe VBADocuments::UploadSubmission, type: :model do
     [[]].to_json
   end
 
-  before(:each) do
+  before do
     allow(CentralMail::Service).to receive(:new) { client_stub }
   end
 
   describe 'consumer_name' do
-    it 'should return unknown when no name is set' do
+    it 'returns unknown when no name is set' do
       upload = FactoryBot.create(:upload_submission, consumer_name: nil)
       expect(upload.consumer_name).to eq('unknown')
     end
 
-    it 'should return name when set' do
+    it 'returns name when set' do
       upload = FactoryBot.create(:upload_submission, consumer_name: 'test consumer')
       expect(upload.consumer_name).to eq('test consumer')
     end
@@ -188,7 +188,7 @@ describe VBADocuments::UploadSubmission, type: :model do
       expect(updated.status).to eq('received')
     end
 
-    it 'should report an error to Statsd when changed to error' do
+    it 'reports an error to Statsd when changed to error' do
       expect(StatsD).to receive(:increment)
       upload_processing.status = 'error'
       upload_processing.save

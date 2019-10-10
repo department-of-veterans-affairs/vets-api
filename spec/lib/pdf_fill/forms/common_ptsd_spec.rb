@@ -6,7 +6,7 @@ describe PdfFill::Forms::CommonPtsd do
   let(:including_class) { Class.new { include PdfFill::Forms::CommonPtsd } }
 
   describe '#expand_ssn' do
-    it 'should expand the ssn correctly' do
+    it 'expands the ssn correctly' do
       expect(
         JSON.parse(including_class.new.expand_ssn('veteranSocialSecurityNumber' => '123456789').to_json)
       ).to eq(
@@ -18,7 +18,7 @@ describe PdfFill::Forms::CommonPtsd do
   end
 
   describe '#expand_veteran_dob' do
-    it 'should expand the birth date correctly' do
+    it 'expands the birth date correctly' do
       expect(
         JSON.parse(including_class.new.expand_veteran_dob(
           'veteranDateOfBirth' => '1981-11-05'
@@ -32,7 +32,7 @@ describe PdfFill::Forms::CommonPtsd do
   end
 
   describe '#expand_incident_date' do
-    it 'should expand the incident date correctly' do
+    it 'expands the incident date correctly' do
       expect(including_class.new.expand_incident_date('incidentDate' => '2000-01-01')).to eq(
         'month' => '01',
         'day' => '01',
@@ -43,7 +43,7 @@ describe PdfFill::Forms::CommonPtsd do
 
   # rubocop:disable Metrics/LineLength
   describe '#expand_incident_location' do
-    it 'should expand the incident location into three lines one word each' do
+    it 'expands the incident location into three lines one word each' do
       expect(including_class.new.expand_incident_location(
                'incidentLocation' => 'abcdefghijklmnopqrs xxxxxxxxxxxxxxxxxx zzzzzzzzzzzzzzzzzzz'
              )).to eq(
@@ -53,7 +53,7 @@ describe PdfFill::Forms::CommonPtsd do
              )
     end
 
-    it 'should expand the incident location into three lines multiple words' do
+    it 'expands the incident location into three lines multiple words' do
       expect(including_class.new.expand_incident_location(
                'incidentLocation' => 'abcd defg hijk lmno pqrs xxxx yyyy zzzz aaaa bb cccc dddd eeee ffff ggg'
              )).to eq(
@@ -63,7 +63,7 @@ describe PdfFill::Forms::CommonPtsd do
              )
     end
 
-    it 'should ignore more than 90 characters' do
+    it 'ignores more than 90 characters' do
       expect(JSON.parse(including_class.new.expand_incident_location(
         'incidentLocation' => 'abcdefghijklmno pqrstuvwxyz1234 abcdefghinopq rstuvwxyz1234 abcdefghijklmnopqrst uvwxyz1234'
       ).to_json)).to eq(
@@ -78,7 +78,7 @@ describe PdfFill::Forms::CommonPtsd do
   # rubocop:enable Metrics/LineLength
 
   describe '#expand incident_unit_assignment' do
-    it 'should expand the incident unit assignment into three lines one word each' do
+    it 'expands the incident unit assignment into three lines one word each' do
       expect(including_class.new.expand_incident_unit_assignment(
                'unitAssigned' => 'abcdefghijklmnopqrs xxxxxxxxxxxxxxxxxx zzzzzzzzzzzzzzzzzzz'
              )).to eq(
@@ -88,7 +88,7 @@ describe PdfFill::Forms::CommonPtsd do
              )
     end
 
-    it 'should expand the incident unit assignment into three lines multiple words' do
+    it 'expands the incident unit assignment into three lines multiple words' do
       expect(including_class.new.expand_incident_unit_assignment(
                'unitAssigned' =>
                'abcd defg hijk lmno pqrs xxxx yyyy zzzz aaaa bb cccc dddd eeee ffff ggg'
@@ -99,7 +99,7 @@ describe PdfFill::Forms::CommonPtsd do
              )
     end
 
-    it 'should ignore more than 90 characters' do
+    it 'ignores more than 90 characters' do
       expect(JSON.parse(including_class.new.expand_incident_unit_assignment(
         'unitAssigned' =>
         'abcdefghijklmno pqrstuvwxyz1234 abcdefghinopq rstuvwxyz1234 abcdefghijklmnopqrst uvwxyz1234'
@@ -114,7 +114,7 @@ describe PdfFill::Forms::CommonPtsd do
   end
 
   describe '#expand_incident_date' do
-    it 'should expand the incident date correctly' do
+    it 'expands the incident date correctly' do
       expect(including_class.new.expand_incident_date('incidentDate' => '2000-01-01')).to eq(
         'month' => '01',
         'day' => '01',
@@ -127,7 +127,7 @@ describe PdfFill::Forms::CommonPtsd do
     context 'when there is a full date' do
       let(:date) { '2099-12-01' }
 
-      it 'should return the year, month, and day' do
+      it 'returns the year, month, and day' do
         expect(including_class.new.split_approximate_date(date)).to include(
           'year' => '2099',
           'month' => '12',
@@ -139,7 +139,7 @@ describe PdfFill::Forms::CommonPtsd do
     context 'when there is a partial date (year and month)' do
       let(:date) { '2099-12-XX' }
 
-      it 'should return the year and month' do
+      it 'returns the year and month' do
         expect(including_class.new.split_approximate_date(date)).to include(
           'year' => '2099',
           'month' => '12'
@@ -150,7 +150,7 @@ describe PdfFill::Forms::CommonPtsd do
     context 'when there is a partial date (year only)' do
       let(:date) { '2099-XX-XX' }
 
-      it 'should return the year' do
+      it 'returns the year' do
         expect(including_class.new.split_approximate_date(date)).to include(
           'year' => '2099'
         )
@@ -160,7 +160,7 @@ describe PdfFill::Forms::CommonPtsd do
     context 'when there is no year' do
       let(:date) { 'XXXX-01-31' }
 
-      it 'should return the year' do
+      it 'returns the year' do
         expect(including_class.new.split_approximate_date(date)).to include(
           'month' => '01',
           'day' => '31'

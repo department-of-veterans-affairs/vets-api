@@ -55,10 +55,10 @@ describe Vet360::Stats do
       it 'does not increment the StatsD Vet360 posts_and_puts counters', :aggregate_failures do
         response = raw_vet360_transaction_response('RECEIVED')
 
-        expect { described_class.increment_transaction_results(response) }.to_not trigger_statsd_increment(
+        expect { described_class.increment_transaction_results(response) }.not_to trigger_statsd_increment(
           "#{statsd_prefix}.posts_and_puts.success"
         )
-        expect { described_class.increment_transaction_results(response) }.to_not trigger_statsd_increment(
+        expect { described_class.increment_transaction_results(response) }.not_to trigger_statsd_increment(
           "#{statsd_prefix}.posts_and_puts.failure"
         )
       end
@@ -66,10 +66,10 @@ describe Vet360::Stats do
 
     context 'when response body is nil' do
       it 'does not increment the StatsD Vet360 posts_and_puts counters', :aggregate_failures do
-        expect { described_class.increment_transaction_results(nil) }.to_not trigger_statsd_increment(
+        expect { described_class.increment_transaction_results(nil) }.not_to trigger_statsd_increment(
           "#{statsd_prefix}.posts_and_puts.success"
         )
-        expect { described_class.increment_transaction_results(nil) }.to_not trigger_statsd_increment(
+        expect { described_class.increment_transaction_results(nil) }.not_to trigger_statsd_increment(
           "#{statsd_prefix}.posts_and_puts.failure"
         )
       end

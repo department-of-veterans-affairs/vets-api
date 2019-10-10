@@ -30,8 +30,8 @@ module MVI
       # MVI response code options.
       EXTERNAL_RESPONSE_CODES = {
         success: 'AA',
-        failure: 'AE',
-        invalid_request: 'AR'
+        failure: 'AR',
+        invalid_request: 'AE'
       }.freeze
 
       # Creates a new parser instance.

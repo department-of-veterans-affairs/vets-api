@@ -2,7 +2,7 @@
 
 FactoryBot.define do
   factory :triage_team do
-    relation_type 'PATIENT'
+    relation_type { 'PATIENT' }
     sequence :triage_team_id do |n|
       n
     end

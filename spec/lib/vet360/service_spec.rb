@@ -4,11 +4,12 @@ require 'rails_helper'
 require 'csv'
 
 describe Vet360::Service do
+  subject       { described_class.new(user) }
+
   let(:user)    { build(:user, :loa3) }
   let(:status)  { 400 }
   let(:message) { 'the server responded with status 400' }
   let(:file)    { Rails.root.join('spec', 'support', 'vet360', 'api_response_error_messages.csv') }
-  subject       { described_class.new(user) }
 
   describe '#handle_error' do
     before do
@@ -36,6 +37,7 @@ describe Vet360::Service do
 
     context 'when given a Common::Client::Errors::ParsingError from a Vet360 service call' do
       let(:error) { Common::Client::Errors::ParsingError.new }
+
       it 'logs an error message to sentry', :aggregate_failures do
         expect(Raven).to receive(:extra_context)
 
@@ -67,7 +69,7 @@ describe Vet360::Service do
   end
 
   describe '#log_dates' do
-    it 'should log dates in the request' do
+    it 'logs dates in the request' do
       expect(Raven).to receive(:extra_context).with(
         request_dates: {
           'effectiveStartDate' => '2018-06-06T15:35:55.000Z',

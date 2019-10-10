@@ -15,7 +15,7 @@ RSpec.describe 'EVSS Claims management', type: :request do
     'X-VA-LOA' => '3'
   }.freeze
 
-  before(:each) do
+  before do
     stub_mvi
   end
 
@@ -89,7 +89,7 @@ RSpec.describe 'EVSS Claims management', type: :request do
   end
 
   context 'POA verifier' do
-    it 'should user the poa verifier when the header is present' do
+    it 'users the poa verifier when the header is present' do
       VCR.use_cassette('evss/claims/claim') do
         get(
           '/services/claims/v0/claims/d5536c5c-0465-4038-a368-1a9d9daf65c9',
@@ -118,7 +118,7 @@ RSpec.describe 'EVSS Claims management', type: :request do
       end
     end
 
-    it 'should return error if loa is not 3' do
+    it 'returns error if loa is not 3' do
       VCR.use_cassette('evss/claims/claims') do
         get '/services/claims/v0/claims', params: nil, headers: VALID_HEADERS.merge('X-VA-LOA' => 2)
         expect(response).to have_http_status(:unauthorized)

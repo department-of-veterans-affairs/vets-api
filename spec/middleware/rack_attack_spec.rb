@@ -9,10 +9,18 @@ RSpec.describe Rack::Attack do
     Rails.application
   end
 
+  before do
+    Rack::Attack.cache.store.flushdb
+  end
+
+  before(:all) do
+    Rack::Attack.cache.store = Rack::Attack::StoreProxy::RedisStoreProxy.new(Redis.current)
+  end
+
   describe '#throttled_response' do
     it 'adds X-RateLimit-* headers to the response' do
       post '/v0/limited', headers: { 'REMOTE_ADDR' => '1.2.3.4' }
-      expect(last_response.status).to_not eq(429)
+      expect(last_response.status).not_to eq(429)
 
       post '/v0/limited', headers: { 'REMOTE_ADDR' => '1.2.3.4' }
       expect(last_response.status).to eq(429)
@@ -30,7 +38,7 @@ RSpec.describe Rack::Attack do
     before do
       limit.times do
         post endpoint, headers: headers
-        expect(last_response.status).to_not eq(429)
+        expect(last_response.status).not_to eq(429)
       end
 
       post endpoint, headers: headers
@@ -62,13 +70,5 @@ RSpec.describe Rack::Attack do
         expect(last_response.status).to eq(429)
       end
     end
-  end
-
-  before(:all) do
-    Rack::Attack.cache.store = Rack::Attack::StoreProxy::RedisStoreProxy.new(Redis.current)
-  end
-
-  before(:each) do
-    Rack::Attack.cache.store.flushdb
   end
 end

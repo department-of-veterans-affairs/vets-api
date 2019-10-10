@@ -55,9 +55,9 @@ RSpec.describe V1::SessionsController, type: :controller do
 
   def verify_session_cookie
     token = session[:token]
-    expect(token).to_not be_nil
+    expect(token).not_to be_nil
     session_object = Session.find(token)
-    expect(session_object).to_not be_nil
+    expect(session_object).not_to be_nil
     session_object.to_hash.each do |k, v|
       expect(session[k]).to eq(v)
     end
@@ -68,7 +68,7 @@ RSpec.describe V1::SessionsController, type: :controller do
     expect(Rails.logger).to receive(level).with(msg)
   end
 
-  before(:each) do
+  before do
     request.host = request_host
     allow(SAML::SSOeSettingsService).to receive(:saml_settings).and_return(rubysaml_settings)
     allow(SAML::Responses::Login).to receive(:new).and_return(valid_saml_response)
@@ -161,7 +161,7 @@ RSpec.describe V1::SessionsController, type: :controller do
     describe 'new' do
       context 'all routes' do
         %w[mhv dslogon idme mfa verify slo].each do |type|
-          around(:each) do |example|
+          around do |example|
             Settings.sso.cookie_enabled = true
             example.run
             Settings.sso.cookie_enabled = false
@@ -190,7 +190,7 @@ RSpec.describe V1::SessionsController, type: :controller do
         cookies['vagov_session_dev'] = 'bar'
       end
 
-      around(:each) do |example|
+      around do |example|
         Settings.sso.cookie_enabled = true
         example.run
         Settings.sso.cookie_enabled = false
@@ -200,12 +200,12 @@ RSpec.describe V1::SessionsController, type: :controller do
         it 'destroys the user, session, and cookie, persists logout_request object, sets url to SLO url' do
           # these should not have been destroyed yet
           verify_session_cookie
-          expect(User.find(uuid)).to_not be_nil
+          expect(User.find(uuid)).not_to be_nil
 
           # this should not exist yet
           expect(SingleLogoutRequest.find(logout_request.uuid)).to be_nil
           # it has the cookie set
-          expect(cookies['vagov_session_dev']).to_not be_nil
+          expect(cookies['vagov_session_dev']).not_to be_nil
           get(:new, params: { type: 'slo' })
           expect(response.location)
             .to be_an_idme_saml_url('https://api.idmelabs.com/saml/SingleLogoutService?SAMLRequest=')
@@ -218,7 +218,7 @@ RSpec.describe V1::SessionsController, type: :controller do
           expect(cookies['vagov_session_dev']).to be_nil
 
           # this should be created in redis
-          expect(SingleLogoutRequest.find(logout_request.uuid)).to_not be_nil
+          expect(SingleLogoutRequest.find(logout_request.uuid)).not_to be_nil
         end
       end
     end
@@ -229,6 +229,7 @@ RSpec.describe V1::SessionsController, type: :controller do
 
     describe 'POST saml_logout_callback' do
       let(:logout_relay_state_param) { '{"originating_request_id": "blah"}' }
+
       before { SingleLogoutRequest.create(uuid: logout_uuid, token: token) }
 
       context 'saml_logout_response is invalid' do
@@ -258,7 +259,7 @@ RSpec.describe V1::SessionsController, type: :controller do
           it 'redirects to success and destroys nothing' do
             # these should have been destroyed in the initial call to sessions/logout, not in the callback.
             verify_session_cookie
-            expect(User.find(uuid)).to_not be_nil
+            expect(User.find(uuid)).not_to be_nil
             # this will be destroyed
             expect(SingleLogoutRequest.find(successful_logout_response&.in_response_to)).to be_nil
 
@@ -268,7 +269,7 @@ RSpec.describe V1::SessionsController, type: :controller do
               .to redirect_to(logout_redirect_url)
             # these should have been destroyed in the initial call to sessions/logout, not in the callback.
             verify_session_cookie
-            expect(User.find(uuid)).to_not be_nil
+            expect(User.find(uuid)).not_to be_nil
             # this should be destroyed
             expect(SingleLogoutRequest.find(successful_logout_response&.in_response_to)).to be_nil
           end
@@ -287,9 +288,9 @@ RSpec.describe V1::SessionsController, type: :controller do
         it 'redirects to success and destroys only the logout request' do
           # these should have been destroyed in the initial call to sessions/logout, not in the callback.
           verify_session_cookie
-          expect(User.find(uuid)).to_not be_nil
+          expect(User.find(uuid)).not_to be_nil
           # this will be destroyed
-          expect(SingleLogoutRequest.find(successful_logout_response&.in_response_to)).to_not be_nil
+          expect(SingleLogoutRequest.find(successful_logout_response&.in_response_to)).not_to be_nil
 
           msg = "SLO callback response to '1234' for originating_request_id 'blah'"
           expect_logger_msg(:info, msg)
@@ -298,7 +299,7 @@ RSpec.describe V1::SessionsController, type: :controller do
             .to redirect_to(logout_redirect_url)
           # these should have been destroyed in the initial call to sessions/logout, not in the callback.
           verify_session_cookie
-          expect(User.find(uuid)).to_not be_nil
+          expect(User.find(uuid)).not_to be_nil
           # this should be destroyed
           expect(SingleLogoutRequest.find(successful_logout_response&.in_response_to)).to be_nil
         end
@@ -306,19 +307,10 @@ RSpec.describe V1::SessionsController, type: :controller do
     end
 
     describe 'POST saml_callback' do
-      before(:each) do
-        allow(SAML::User).to receive(:new).and_return(saml_user)
-      end
-
-      let(:frozen_time) { Time.current }
-      let(:expire_at) { frozen_time + 1800 }
-
-      around(:each) do |example|
-        Timecop.freeze(frozen_time)
+      around do |example|
         Settings.sso.cookie_enabled = true
         example.run
         Settings.sso.cookie_enabled = false
-        Timecop.return
       end
 
       it 'sets the session cookie' do
@@ -351,6 +343,8 @@ RSpec.describe V1::SessionsController, type: :controller do
 
           callback_tags = ['status:success', "context:#{LOA::IDME_LOA3}"]
 
+          Timecop.freeze(Time.current)
+          cookie_expiration_time = 30.minutes.from_now.iso8601(0)
           expect { post(:saml_callback) }
             .to trigger_statsd_increment(described_class::STATSD_SSO_CALLBACK_KEY, tags: callback_tags, **once)
             .and trigger_statsd_increment(described_class::STATSD_SSO_CALLBACK_TOTAL_KEY, **once)
@@ -369,7 +363,8 @@ RSpec.describe V1::SessionsController, type: :controller do
                    'mhvCorrelationId' => loa3_user.mhv_correlation_id,
                    'signIn' => { 'serviceName' => 'idme' },
                    'credential_used' => 'id_me',
-                   'expirationTime' => expire_at.iso8601(0))
+                   'expirationTime' => cookie_expiration_time)
+          Timecop.return
         end
       end
 
@@ -393,7 +388,11 @@ RSpec.describe V1::SessionsController, type: :controller do
         end
 
         it 'has a cookie, but values are nil because loa1 user', :aggregate_failures do
+          Timecop.freeze(Time.current)
+          cookie_expiration_time = 30.minutes.from_now.iso8601(0)
+
           post :saml_callback
+
           expect(cookies['vagov_session_dev']).not_to be_nil
           expect(JSON.parse(decrypter.decrypt(cookies['vagov_session_dev'])))
             .to eq(
@@ -401,13 +400,16 @@ RSpec.describe V1::SessionsController, type: :controller do
               'mhvCorrelationId' => nil,
               'signIn' => { 'serviceName' => 'idme' },
               'credential_used' => 'id_me',
-              'expirationTime' => expire_at.iso8601(0)
+              'expirationTime' => cookie_expiration_time
             )
+          Timecop.return
         end
 
         # keeping this spec round to easily test out the testing attributes
         xit 'has a cookie, which includes the testing values', :aggregate_failures do
+          Timecop.freeze(Time.current)
           with_settings(Settings.sso, testing: true) do
+            @cookie_expiration_time = 30.minutes.from_now.iso8601(0)
             post :saml_callback
           end
 
@@ -418,8 +420,9 @@ RSpec.describe V1::SessionsController, type: :controller do
               'mhvCorrelationId' => nil,
               'signIn' => { 'serviceName' => 'idme' },
               'credential_used' => 'id_me',
-              'expirationTime' => expire_at.iso8601(0)
+              'expirationTime' => @cookie_expiration_time
             )
+          Timecop.return
         end
       end
 
@@ -435,8 +438,12 @@ RSpec.describe V1::SessionsController, type: :controller do
         end
 
         it 'redirects to identity proof URL', :aggregate_failures do
+          Timecop.freeze(Time.current)
           expect_any_instance_of(SAML::URLService).to receive(:verify_url)
+          cookie_expiration_time = 30.minutes.from_now.iso8601(0)
+
           post :saml_callback
+
           expect(cookies['vagov_session_dev']).not_to be_nil
           expect(JSON.parse(decrypter.decrypt(cookies['vagov_session_dev'])))
             .to eq(
@@ -444,8 +451,9 @@ RSpec.describe V1::SessionsController, type: :controller do
               'mhvCorrelationId' => nil,
               'signIn' => { 'serviceName' => 'idme' },
               'credential_used' => 'id_me',
-              'expirationTime' => expire_at.iso8601(0)
+              'expirationTime' => cookie_expiration_time
             )
+          Timecop.return
         end
       end
 
@@ -562,6 +570,7 @@ RSpec.describe V1::SessionsController, type: :controller do
 
       context 'when saml response contains multiple errors (known or otherwise)' do
         before { allow(SAML::Responses::Login).to receive(:new).and_return(saml_response_multi_error) }
+
         it 'logs a generic error' do
           expect(controller).to receive(:log_message_to_sentry)
             .with(

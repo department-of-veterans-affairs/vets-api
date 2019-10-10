@@ -20,7 +20,7 @@ describe Shrine::Plugins::ValidateVirusFree do
 
     let(:instance) { klass.new }
 
-    before(:each) do
+    before do
       allow_any_instance_of(klass).to receive(:get)
         .and_return(instance_double('Shrine::UploadedFile', download: instance_double('File', path: 'foo/bar.jpg')))
 
@@ -59,6 +59,7 @@ describe Shrine::Plugins::ValidateVirusFree do
 
       context 'with a custom error message' do
         let(:message) { 'oh noes!' }
+
         it 'adds an error with a custom error message if clam scan returns not safe' do
           allow(ClamScan::Client).to receive(:scan)
             .and_return(instance_double('ClamScan::Response', safe?: false))
