@@ -9,11 +9,15 @@ module Vet360
       end
 
       def candidate(address)
-        res = perform(
-          :post,
-          'candidate',
-          address.address_validation_req.to_json
-        )
+        begin
+          res = perform(
+            :post,
+            'candidate',
+            address.address_validation_req.to_json
+          )
+        rescue => e
+          handle_error(e)
+        end
         CandidateResponse.new(res.body)
       end
     end
