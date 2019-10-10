@@ -513,7 +513,16 @@ paths:
           required: false
           schema:
             type: integer
-            default: 60
+            enum:
+              - 10
+              - 20
+              - 30
+              - 40
+              - 50
+              - 60
+              - 70
+              - 80
+              - 90
         - name: type
           description: Optional facility type search filter
           in: query
