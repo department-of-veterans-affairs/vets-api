@@ -31,7 +31,10 @@ module V1
         reset_session
       elsif type == 'ssoe_slo'
         Rails.logger.info('SSOe: LOGOUT', sso_logging_info)
-        reset_session
+if type == 'slo' || type == 'ssoe_slo'
+  Rails.logger.info("LOGOUT of type #{type}", sso_logging_info)
+  reset_session
+end
       end
       # clientId must be added at the end or the URL will be invalid for users using various "Do not track"
       # extensions with their browser.
