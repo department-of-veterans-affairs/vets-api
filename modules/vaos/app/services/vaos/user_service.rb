@@ -13,13 +13,9 @@ module VAOS
     private
 
     def create_session(user)
-      url = "/users/v2/session"
+      url = "/users/v2/session?processRules=true"
       token = JWT.new(user).token
-      response = perform(:post, url, token, {'Content-Type' => 'text/plain'})
-      puts response
-    rescue => e
-      puts e.backtrace
-      puts e.message
+      perform(:post, url, token, {'Content-Type' => 'text/plain', 'Referer' => 'https://api.va.gov'})
     end
   end
 end
