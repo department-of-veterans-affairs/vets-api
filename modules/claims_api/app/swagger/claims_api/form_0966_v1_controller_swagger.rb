@@ -170,7 +170,7 @@ module ClaimsApi
         end
         key :summary, 'Returns last active 0966 Intent to File form submission'
         key :description, 'Returns last active JSON payload. Full URL, including\nquery parameters.'
-        key :operationId, 'post0966itf'
+        key :operationId, 'active0966itf'
         key :tags, [
           'Intent to File'
         ]
