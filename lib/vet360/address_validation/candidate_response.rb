@@ -12,7 +12,7 @@ module Vet360
         end
       end
 
-      def to_json
+      def to_json(*args)
         @candidate_addresses.to_json
       end
     end

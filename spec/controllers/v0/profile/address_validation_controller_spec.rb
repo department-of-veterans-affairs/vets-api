@@ -23,7 +23,25 @@ RSpec.describe V0::Profile::AddressValidationController, type: :controller do
           VCR::MATCH_EVERYTHING
         ) do
           post(:create, params: address.to_h)
-          binding.pry; fail
+          expect(JSON.parse(response.body)).to eq(
+            [{"address"=>
+             {"address_line1"=>"5 Stoddard Ct",
+              "address_type"=>"DOMESTIC",
+              "city"=>"Sparks Glencoe",
+              "country_name"=>"USA",
+              "country_code_iso3"=>"USA",
+              "county_code"=>"24005",
+              "county_name"=>"Baltimore",
+              "state_code"=>"MD",
+              "zip_code"=>"21152",
+              "zip_code_suffix"=>"9367"},
+            "address_meta_data"=>
+             {"confidence_score"=>100.0,
+              "address_type"=>"Domestic",
+              "delivery_point_validation"=>"CONFIRMED",
+              "residential_delivery_indicator"=>"RESIDENTIAL",
+              "validation_key"=>-2025296286}}]
+          )
         end
       end
     end

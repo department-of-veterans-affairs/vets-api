@@ -120,7 +120,7 @@ module Vet360
       end
 
       def address_validation_req
-        Common::HashHelpers.deep_compact({
+        Common::HashHelpers.deep_remove_blanks({
           requestAddress: attributes.slice(
             :address_line1,
             :address_line2,
