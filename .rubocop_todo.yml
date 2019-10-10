@@ -64,18 +64,6 @@ RSpec/ExampleLength:
 RSpec/ExpectInHook:
   Enabled: false
 
-# Offense count: 70
-# Configuration parameters: CustomTransform, IgnoreMethods.
-RSpec/FilePath:
-  Enabled: false
-
-# Offense count: 222
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle.
-# SupportedStyles: implicit, each, example
-RSpec/HookArgument:
-  Enabled: false
-
 # Offense count: 254
 # Configuration parameters: AssignmentOnly.
 RSpec/InstanceVariable:

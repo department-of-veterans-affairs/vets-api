@@ -312,7 +312,7 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
       include Rx::ClientHelpers
       let(:headers) { { '_headers' => { 'Cookie' => sign_in(mhv_user, nil, true) } } }
 
-      before(:each) do
+      before do
         allow(Rx::Client).to receive(:new).and_return(authenticated_client)
       end
 
@@ -578,7 +578,7 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
         ]
       end
 
-      before(:each) do
+      before do
         allow(SM::Client).to receive(:new).and_return(authenticated_client)
       end
 
@@ -897,7 +897,7 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
       describe 'health_records' do
         let(:headers) { { '_headers' => { 'Cookie' => sign_in(mhv_user, nil, true) } } }
 
-        before(:each) do
+        before do
           allow(BB::Client).to receive(:new).and_return(authenticated_client)
         end
 

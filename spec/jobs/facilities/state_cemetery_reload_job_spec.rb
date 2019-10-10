@@ -31,7 +31,7 @@ RSpec.describe Facilities::StateCemeteryReloadJob, type: :job do
       </cems>)
   end
 
-  before(:each) do
+  before do
     allow_any_instance_of(
       Facilities::StateCemeteryReloadJob
     ).to receive(:fetch_cemeteries).and_return(Nokogiri::XML(cemetery_data))

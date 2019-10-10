@@ -9,7 +9,7 @@ RSpec.describe Rack::Attack do
     Rails.application
   end
 
-  before(:each) do
+  before do
     Rack::Attack.cache.store.flushdb
   end
 

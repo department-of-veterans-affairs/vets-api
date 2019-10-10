@@ -11,11 +11,11 @@ RSpec.describe PagerDuty::PollMaintenanceWindows, type: :job do
   let(:maint_hash_multi2) { FactoryBot.build(:maintenance_hash_multi2) }
   let(:maint_hash_message) { FactoryBot.build(:maintenance_hash_with_message) }
 
-  before(:each) do
+  before do
     allow(PagerDuty::MaintenanceClient).to receive(:new) { client_stub }
   end
 
-  after(:each) do
+  after do
     MaintenanceWindow.delete_all
   end
 

@@ -9,7 +9,7 @@ RSpec.describe 'Fetching user data', type: :request do
   context 'GET /v0/user - when an LOA 3 user is logged in' do
     let(:mhv_user) { build(:user, :mhv) }
 
-    before(:each) do
+    before do
       allow_any_instance_of(MhvAccountTypeService).to receive(:mhv_account_type).and_return('Premium')
       mhv_account = double('MhvAccount', creatable?: false, upgradable?: false, account_state: 'upgraded')
       allow(MhvAccount).to receive(:find_or_initialize_by).and_return(mhv_account)
@@ -91,7 +91,7 @@ RSpec.describe 'Fetching user data', type: :request do
   end
 
   context 'GET /v0/user - when an LOA 1 user is logged in', :skip_mvi do
-    before(:each) do
+    before do
       sign_in_as(new_user(:loa1))
       get v0_user_url, params: nil
     end
@@ -125,7 +125,7 @@ RSpec.describe 'Fetching user data', type: :request do
   end
 
   context 'GET /v0/user - MVI Integration', :skip_mvi do
-    before(:each) do
+    before do
       sign_in_as(new_user(:loa3))
     end
 

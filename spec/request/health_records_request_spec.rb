@@ -17,7 +17,7 @@ RSpec.describe 'health records', type: :request do
 
   let(:current_user) { build(:user, :mhv, va_patient: false, mhv_account_type: 'Basic') }
 
-  before(:each) do
+  before do
     allow(BB::Client).to receive(:new).and_return(authenticated_client)
     sign_in_as(current_user)
   end
