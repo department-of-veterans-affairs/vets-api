@@ -26,7 +26,7 @@ module V1
       StatsD.increment(STATSD_SSO_NEW_KEY, tags: ["context:#{type}"])
       url = url_service.send("#{type}_url")
 
-      if type == 'slo' || type == 'ssoe_slo'
+      if %w[slo ssoe_slo].include?(type)
         Rails.logger.info("LOGOUT of type #{type}", sso_logging_info)
         reset_session
       end
