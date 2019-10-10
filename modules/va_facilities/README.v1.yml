@@ -513,6 +513,7 @@ paths:
           required: false
           schema:
             type: integer
+            default: 90
             enum:
               - 10
               - 20
