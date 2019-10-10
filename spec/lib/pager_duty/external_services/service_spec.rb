@@ -7,7 +7,7 @@ describe PagerDuty::ExternalServices::Service do
 
   describe '#get_services' do
     let(:response) do
-      VCR.use_cassette('pagerduty/external_services/get_services', VCR::MATCH_EVERYTHING) do
+      VCR.use_cassette('pager_duty/external_services/get_services', VCR::MATCH_EVERYTHING) do
         subject.get_services
       end
     end
@@ -27,7 +27,7 @@ describe PagerDuty::ExternalServices::Service do
 
     context 'when PagerDuty returns an unknown service status' do
       it 'raises an exception', :aggregate_failures do
-        VCR.use_cassette('pagerduty/external_services/get_services_invalid_status', VCR::MATCH_EVERYTHING) do
+        VCR.use_cassette('pager_duty/external_services/get_services_invalid_status', VCR::MATCH_EVERYTHING) do
           expect { subject.get_services }.to raise_error do |e|
             expect(e.class).to eq Common::Exceptions::ValidationErrors
             expect(e.status_code).to eq 422
@@ -39,7 +39,7 @@ describe PagerDuty::ExternalServices::Service do
 
     context 'when the PagerDuty API rate limit has been exceeded' do
       it 'raises an exception', :aggregate_failures do
-        VCR.use_cassette('pagerduty/external_services/get_services_429', VCR::MATCH_EVERYTHING) do
+        VCR.use_cassette('pager_duty/external_services/get_services_429', VCR::MATCH_EVERYTHING) do
           expect { subject.get_services }.to raise_error do |e|
             expect(e.class).to eq PagerDuty::ServiceException
             expect(e.status_code).to eq 429

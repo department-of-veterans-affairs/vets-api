@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'pagerduty/maintenance_client'
+require 'pager_duty/maintenance_client'
 
 module PagerDuty
   class PollMaintenanceWindows
