@@ -11,7 +11,8 @@ describe Vet360::AddressValidation::Service do
         address.address_line1 = 'sdfdsfsdf'
 
         VCR.use_cassette(
-          'vet360/address_validation/candidate_no_match',
+          'vet360/address_validation/candidate_no_match1',
+          record: :once
         ) do
           res = described_class.new.candidate(address)
         end
