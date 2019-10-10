@@ -7,7 +7,7 @@ require 'saml/responses/logout'
 
 module V1
   class SessionsController < ApplicationController
-    REDIRECT_URLS = %w[signup mhv dslogon idme mfa verify slo].freeze
+    REDIRECT_URLS = %w[signup mhv dslogon idme mfa verify slo ssoe_slo].freeze
 
     STATSD_SSO_NEW_KEY = 'api.auth.new'
     STATSD_SSO_CALLBACK_KEY = 'api.auth.saml_callback'
@@ -25,13 +25,18 @@ module V1
 
       StatsD.increment(STATSD_SSO_NEW_KEY, tags: ["context:#{type}"])
       url = url_service.send("#{type}_url")
-      if type == 'slo'
-        Rails.logger.info('SSO: LOGOUT', sso_logging_info)
+
+      if %w[slo ssoe_slo].include?(type)
+        Rails.logger.info("LOGOUT of type #{type}", sso_logging_info)
         reset_session
       end
       # clientId must be added at the end or the URL will be invalid for users using various "Do not track"
       # extensions with their browser.
       redirect_to params[:client_id].present? ? url + "&clientId=#{params[:client_id]}" : url
+    end
+
+    def ssoe_slo_callback
+      redirect_to url_service.logout_redirect_url
     end
 
     def saml_logout_callback
