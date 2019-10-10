@@ -5,7 +5,7 @@ http_interactions:
     uri: https://dev-api.va.gov/services/address_validation/v1/candidate
     body:
       encoding: UTF-8
-      string: '{"requestAddress":{"addressLine1":"sdfdsfsdf","city":"Washington","addressPOU":"RESIDENCE/CHOICE","requestCountry":{"countryCode":"USA"},"stateProvince":{"code":"DC"},"zipCode5":"20011"}}'
+      string: '{"requestAddress":{"addressLine1":"sdfdsfsdf","city":"Washington","requestCountry":{"countryCode":"USA"},"stateProvince":{"code":"DC"},"zipCode5":"20011"}}'
     headers:
       Accept:
       - application/json
@@ -25,7 +25,7 @@ http_interactions:
       message: ''
     headers:
       Date:
-      - Thu, 10 Oct 2019 09:46:23 GMT
+      - Thu, 10 Oct 2019 10:45:56 GMT
       Content-Type:
       - application/json;charset=UTF-8
       Transfer-Encoding:
@@ -41,7 +41,7 @@ http_interactions:
       Pragma:
       - no-cache
       Vet360txauditid:
-      - a7f8f275-799c-41ef-8fec-047aa513ed4a
+      - 17acb301-9a6b-497a-bec1-6a8f70429853
       Via:
       - kong/1.2.2
       X-Content-Type-Options:
@@ -49,9 +49,9 @@ http_interactions:
       X-Frame-Options:
       - DENY
       X-Kong-Proxy-Latency:
-      - '6'
+      - '1'
       X-Kong-Upstream-Latency:
-      - '102'
+      - '141'
       X-Ratelimit-Limit-Edge-Gateway-Address-Validation-Vagovli-Address-V1-Candidate-Address:
       - '500'
       X-Ratelimit-Limit-Minute:
@@ -77,5 +77,5 @@ http_interactions:
       string: '{"messages":[{"code":"ADDRVAL108","key":"CandidateAddressNotFound","severity":"INFO","text":"No
         Candidate Address Found "}]}'
     http_version: 
-  recorded_at: Thu, 10 Oct 2019 09:46:23 GMT
+  recorded_at: Thu, 10 Oct 2019 10:45:56 GMT
 recorded_with: VCR 3.0.3
