@@ -80,6 +80,9 @@ development: &defaults
   external_service_statuses_response:
     namespace: external-service-statuses-response
     each_ttl: 60 # 1 minute
+  va_mobile_session:
+    namespace: va-mobile-session
+    each_ttl: 1800
 
 test:
   <<: *defaults

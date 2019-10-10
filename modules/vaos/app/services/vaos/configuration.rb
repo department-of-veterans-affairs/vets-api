@@ -3,7 +3,7 @@
 module VAOS
   class Configuration < Common::Client::Configuration::REST
     def base_path
-      Settings.vaos.url
+      Settings.va_mobile.url
     end
 
     def service_name
@@ -25,7 +25,7 @@ module VAOS
     end
 
     def mock_enabled?
-      [true, 'true'].include?(Settings.vaos.mock)
+      false
     end
   end
 end

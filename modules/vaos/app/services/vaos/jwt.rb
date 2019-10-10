@@ -14,15 +14,21 @@ module VAOS
     private
 
     def payload
+      now = Time.now
       {
+        authenticated: true,
         sub: @user.icn,
         idType: 'ICN',
+        iss: 'gov.va.vaos',
         firstName: @user.first_name,
         lastName: @user.last_name,
-        iss: 'gov.va.api',
-        exp: Time.now.utc.to_i + 4 * 3600,
-        nbf: Time.now.utc.to_i - 3600,
-        jti: Digest::MD5.hexdigest(Time.now.utc.to_s)
+        authenticationAuthority: 'gov.va.iam.ssoe.v1',
+        jti: SecureRandom.uuid,
+        nbf: now.utc.to_i - 60,
+        exp: now.utc.to_i + 3600,
+        version: 1.0,
+        userType: 'VETERAN',
+        'vamf.auth.roles' => ['veteran']
       }
     end
 
