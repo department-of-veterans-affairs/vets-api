@@ -26,15 +26,9 @@ module V1
       StatsD.increment(STATSD_SSO_NEW_KEY, tags: ["context:#{type}"])
       url = url_service.send("#{type}_url")
 
-      if type == 'slo'
-        Rails.logger.info('SSO: LOGOUT', sso_logging_info)
+      if type == 'slo' || type == 'ssoe_slo'
+        Rails.logger.info("LOGOUT of type #{type}", sso_logging_info)
         reset_session
-      elsif type == 'ssoe_slo'
-        Rails.logger.info('SSOe: LOGOUT', sso_logging_info)
-if type == 'slo' || type == 'ssoe_slo'
-  Rails.logger.info("LOGOUT of type #{type}", sso_logging_info)
-  reset_session
-end
       end
       # clientId must be added at the end or the URL will be invalid for users using various "Do not track"
       # extensions with their browser.
