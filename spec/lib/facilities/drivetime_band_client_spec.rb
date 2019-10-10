@@ -15,7 +15,7 @@ RSpec.describe Facilities::DrivetimeBandClient do
   describe 'get_drivetime_bands' do
     subject { described_class.new }
 
-    before(:each) do
+    before do
       allow_any_instance_of(
         Faraday::Connection
       ).to receive(:get).with(anything, has_offset_and_limit(0, 10)).and_return(faraday_response_offset_0)
