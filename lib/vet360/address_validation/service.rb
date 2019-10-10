@@ -10,6 +10,7 @@ module Vet360
 
       def candidate(address)
         begin
+          binding.pry; fail
           res = perform(
             :post,
             'candidate',
