@@ -21,6 +21,7 @@ saml_ssoe:
   key_path: config/certs/vetsgov-localhost.key
   issuer: https://ssoe-sp-dev.va.gov
   callback_url: http://localhost:3000/v1/sessions/callback
+  logout_url: https://int.eauth.va.gov/pkmslogout
 
 session_cookie:
   secure: false
