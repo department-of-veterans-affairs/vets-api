@@ -128,7 +128,6 @@ module Vet360
             :city,
             :international_postal_code
           ).deep_transform_keys { |k| k.to_s.camelize(:lower) }.merge(
-            addressPOU: @address_pou,
             requestCountry: {
               countryCode: @country_code_iso3
             },

@@ -5,7 +5,7 @@ http_interactions:
     uri: https://dev-api.va.gov/services/address_validation/v1/candidate
     body:
       encoding: UTF-8
-      string: '{"requestAddress":{"addressLine1":"5 Stoddard Ct","city":"Sparks Glencoe","addressPOU":"RESIDENCE/CHOICE","requestCountry":{"countryCode":"USA"},"stateProvince":{"code":"MD"},"zipCode5":"21152"}}'
+      string: '{"requestAddress":{"addressLine1":"5 Stoddard Ct","city":"Sparks Glencoe","requestCountry":{"countryCode":"USA"},"stateProvince":{"code":"MD"},"zipCode5":"21152"}}'
     headers:
       Accept:
       - application/json
@@ -25,7 +25,7 @@ http_interactions:
       message: ''
     headers:
       Date:
-      - Tue, 08 Oct 2019 12:32:08 GMT
+      - Thu, 10 Oct 2019 10:40:08 GMT
       Content-Type:
       - application/json;charset=UTF-8
       Transfer-Encoding:
@@ -42,7 +42,7 @@ http_interactions:
       - no-cache
       - no-cache
       Vet360txauditid:
-      - bf1cae1f-56e0-469e-b6af-b254d3e43a84
+      - be41b125-9e40-487f-814a-fdfcc4750270
       Via:
       - kong/1.2.2
       X-Content-Type-Options:
@@ -50,9 +50,9 @@ http_interactions:
       X-Frame-Options:
       - DENY
       X-Kong-Proxy-Latency:
-      - '6'
+      - '18'
       X-Kong-Upstream-Latency:
-      - '123'
+      - '118'
       X-Ratelimit-Limit-Edge-Gateway-Address-Validation-Vagovli-Address-V1-Candidate-Address:
       - '500'
       X-Ratelimit-Limit-Minute:
@@ -78,7 +78,7 @@ http_interactions:
     body:
       encoding: ASCII-8BIT
       string: '{"candidateAddresses":[{"address":{"county":{"name":"Baltimore","countyFipsCode":"24005"},"stateProvince":{"name":"Maryland","code":"MD"},"country":{"name":"USA","code":"USA","fipsCode":"US","iso2Code":"US","iso3Code":"USA"},"addressLine1":"5
-        Stoddard Ct","city":"Sparks Glencoe","zipCode5":"21152","zipCode4":"9367"},"geocode":{"calcDate":"2019-10-08T12:32:08+00:00","locationPrecision":31.0,"latitude":39.532499,"longitude":-76.647183},"addressMetaData":{"confidenceScore":100.0,"addressType":"Domestic","deliveryPointValidation":"CONFIRMED","residentialDeliveryIndicator":"RESIDENTIAL","validationKey":-2025296286}}]}'
+        Stoddard Ct","city":"Sparks Glencoe","zipCode5":"21152","zipCode4":"9367"},"geocode":{"calcDate":"2019-10-10T10:40:08+00:00","locationPrecision":31.0,"latitude":39.532499,"longitude":-76.647183},"addressMetaData":{"confidenceScore":100.0,"addressType":"Domestic","deliveryPointValidation":"CONFIRMED","residentialDeliveryIndicator":"RESIDENTIAL","validationKey":-2025296286}}]}'
     http_version: 
-  recorded_at: Tue, 08 Oct 2019 12:32:08 GMT
+  recorded_at: Thu, 10 Oct 2019 10:40:08 GMT
 recorded_with: VCR 3.0.3
