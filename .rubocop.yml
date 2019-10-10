@@ -176,3 +176,5 @@ RSpec/FilePath:
     - 'spec/lib/saml/*_user_spec.rb'
     - 'spec/lib/ihub/appointments/service_spec.rb'
     - 'spec/request/in_progress_forms_request_spec.rb'
+    - 'spec/jobs/pagerduty/**/*'
+    - 'spec/lib/pagerduty/**/*'

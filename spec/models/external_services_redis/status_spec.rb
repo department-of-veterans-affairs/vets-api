@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'support/pager_duty/services/spec_setup'
+require 'support/pagerduty/services/spec_setup'
 
 describe ExternalServicesRedis::Status do
   include_context 'simulating Redis caching of PagerDuty#get_services'

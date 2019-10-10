@@ -8,7 +8,7 @@ require 'rx/client'
 require 'support/rx_client_helpers'
 require 'bb/client'
 require 'support/bb_client_helpers'
-require 'support/pager_duty/services/spec_setup'
+require 'support/pagerduty/services/spec_setup'
 
 RSpec.describe 'API doc validations', type: :request do
   context 'json validation' do
@@ -54,7 +54,7 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
 
         context 'when the PagerDuty API rate limit has been exceeded' do
           it 'returns a 429 with error details' do
-            VCR.use_cassette('pager_duty/external_services/get_services_429') do
+            VCR.use_cassette('pagerduty/external_services/get_services_429') do
               expect(subject).to validate(:get, '/v0/backend_statuses', 429, headers)
             end
           end

@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'support/pager_duty/services/valid'
-require 'support/page_duty/services/invalid'
+require 'support/pagerduty/services/valid'
+require 'support/pagerduty/services/invalid'
 
 describe PagerDuty::Models::Service do
   let(:pagerduty_service) { build :pagerduty_service }

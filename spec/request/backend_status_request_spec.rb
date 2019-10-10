@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'support/pager_duty/services/spec_setup'
+require 'support/pagerduty/services/spec_setup'
 
 RSpec.describe 'Backend Status', type: :request do
   include SchemaMatchers
@@ -97,7 +97,7 @@ RSpec.describe 'Backend Status', type: :request do
 
     context 'when the PagerDuty API rate limit has been exceeded' do
       it 'returns a 429 error', :aggregate_failures do
-        VCR.use_cassette('pager_duty/external_services/get_services_429', VCR::MATCH_EVERYTHING) do
+        VCR.use_cassette('pagerduty/external_services/get_services_429', VCR::MATCH_EVERYTHING) do
           get '/v0/backend_statuses'
 
           body = JSON.parse(response.body)

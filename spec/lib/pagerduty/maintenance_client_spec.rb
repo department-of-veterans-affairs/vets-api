@@ -22,7 +22,7 @@ describe PagerDuty::MaintenanceClient do
   end
 
   context 'with single page of results' do
-    let(:body) { File.read('spec/support/pager_duty/maintenance_windows_simple.json') }
+    let(:body) { File.read('spec/support/pagerduty/maintenance_windows_simple.json') }
 
     it 'gets open maintenance windows' do
       stub_request(:get, 'https://api.pagerduty.com/maintenance_windows')
@@ -53,8 +53,8 @@ describe PagerDuty::MaintenanceClient do
   end
 
   context 'with multiple pages of results' do
-    let(:body1) { File.read('spec/support/pager_duty/maintenance_windows_page_1.json') }
-    let(:body2) { File.read('spec/support/pager_duty/maintenance_windows_page_2.json') }
+    let(:body1) { File.read('spec/support/pagerduty/maintenance_windows_page_1.json') }
+    let(:body2) { File.read('spec/support/pagerduty/maintenance_windows_page_2.json') }
 
     it 'gets open maintenance windows' do
       stub_request(:get, 'https://api.pagerduty.com/maintenance_windows')
