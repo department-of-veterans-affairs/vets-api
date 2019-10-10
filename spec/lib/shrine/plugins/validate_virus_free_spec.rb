@@ -20,7 +20,7 @@ describe Shrine::Plugins::ValidateVirusFree do
 
     let(:instance) { klass.new }
 
-    before(:each) do
+    before do
       allow_any_instance_of(klass).to receive(:get)
         .and_return(instance_double('Shrine::UploadedFile', download: instance_double('File', path: 'foo/bar.jpg')))
 

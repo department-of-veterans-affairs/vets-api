@@ -15,7 +15,7 @@ RSpec.describe 'prescriptions', type: :request do
     build(:user, :mhv, authn_context: LOA::IDME_LOA3, va_patient: va_patient, mhv_account_type: mhv_account_type)
   end
 
-  before(:each) do
+  before do
     allow(Rx::Client).to receive(:new).and_return(authenticated_client)
     sign_in_as(current_user)
   end
@@ -23,7 +23,7 @@ RSpec.describe 'prescriptions', type: :request do
   context 'Basic User' do
     let(:mhv_account_type) { 'Basic' }
 
-    before(:each) { get '/v0/prescriptions/13651310' }
+    before { get '/v0/prescriptions/13651310' }
 
     include_examples 'for user account level', message: 'You do not have access to prescriptions'
     include_examples 'for non va patient user', authorized: false, message: 'You do not have access to prescriptions'
@@ -34,7 +34,7 @@ RSpec.describe 'prescriptions', type: :request do
       let(:mhv_account_type) { account_level }
 
       context 'not a va patient' do
-        before(:each) { get '/v0/prescriptions/13651310' }
+        before { get '/v0/prescriptions/13651310' }
 
         let(:va_patient) { false }
 

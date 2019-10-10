@@ -10,7 +10,7 @@ describe MVI::Responses::ProfileParser do
   context 'given a valid response' do
     let(:body) { Ox.parse(File.read('spec/support/mvi/find_candidate_response.xml')) }
 
-    before(:each) do
+    before do
       allow(faraday_response).to receive(:body) { body }
     end
 
@@ -152,7 +152,7 @@ describe MVI::Responses::ProfileParser do
   context 'given a multiple match' do
     let(:body) { Ox.parse(File.read('spec/support/mvi/find_candidate_multiple_match_response.xml')) }
 
-    before(:each) do
+    before do
       allow(faraday_response).to receive(:body) { body }
     end
 
@@ -190,7 +190,7 @@ describe MVI::Responses::ProfileParser do
       )
     end
 
-    before(:each) do
+    before do
       allow(faraday_response).to receive(:body) { body }
     end
 
@@ -211,7 +211,7 @@ describe MVI::Responses::ProfileParser do
       )
     end
 
-    before(:each) do
+    before do
       allow(faraday_response).to receive(:body) { body }
     end
 
@@ -227,7 +227,7 @@ describe MVI::Responses::ProfileParser do
 
     after { Settings.sentry.dsn = nil }
 
-    before(:each) do
+    before do
       allow(faraday_response).to receive(:body) { body }
     end
 

@@ -4,7 +4,7 @@ require 'rails_helper'
 
 RSpec.describe DisabilityContention, type: :model do
   describe '.suggested' do
-    before(:each) do
+    before do
       create(:disability_contention_arrhythmia)
       create(:disability_contention_arteriosclerosis)
       create(:disability_contention_arthritis)

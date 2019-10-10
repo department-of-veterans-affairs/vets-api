@@ -56,7 +56,7 @@ RSpec.describe 'Validated Token API endpoint', type: :request, skip_emis: true d
   let(:user) { OpenidUser.new(build(:user_identity_attrs, :loa3)) }
 
   context 'with valid responses' do
-    before(:each) do
+    before do
       allow(JWT).to receive(:decode).and_return(jwt)
       Session.create(token: token, uuid: user.uuid)
       user.save
@@ -84,7 +84,7 @@ RSpec.describe 'Validated Token API endpoint', type: :request, skip_emis: true d
   end
 
   context 'when a response is invalid' do
-    before(:each) do
+    before do
       allow(JWT).to receive(:decode).and_return(jwt)
       Session.create(uuid: user.uuid, token: token)
       user.save
