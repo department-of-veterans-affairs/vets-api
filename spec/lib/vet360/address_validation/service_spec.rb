@@ -14,7 +14,7 @@ describe Vet360::AddressValidation::Service do
           'vet360/address_validation/candidate_no_match',
           VCR::MATCH_EVERYTHING
         ) do
-          res = described_class.new.candidate(address)
+          expect { described_class.new.candidate(address) }.to raise_error(Common::Exceptions::BackendServiceException)
         end
       end
     end
