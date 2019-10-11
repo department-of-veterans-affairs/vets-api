@@ -68,7 +68,7 @@ RSpec.describe V0::SessionsController, type: :controller do
     expect(Rails.logger).to receive(level).with(msg)
   end
 
-  before(:each) do
+  before do
     request.host = request_host
     allow(SAML::SettingsService).to receive(:saml_settings).and_return(rubysaml_settings)
     allow(SAML::Responses::Login).to receive(:new).and_return(valid_saml_response)
@@ -161,7 +161,7 @@ RSpec.describe V0::SessionsController, type: :controller do
     describe 'new' do
       context 'all routes' do
         %w[mhv dslogon idme mfa verify slo].each do |type|
-          around(:each) do |example|
+          around do |example|
             Settings.sso.cookie_enabled = true
             example.run
             Settings.sso.cookie_enabled = false
@@ -190,7 +190,7 @@ RSpec.describe V0::SessionsController, type: :controller do
         cookies['vagov_session_dev'] = 'bar'
       end
 
-      around(:each) do |example|
+      around do |example|
         Settings.sso.cookie_enabled = true
         example.run
         Settings.sso.cookie_enabled = false
@@ -307,7 +307,7 @@ RSpec.describe V0::SessionsController, type: :controller do
     end
 
     describe 'POST saml_callback' do
-      around(:each) do |example|
+      around do |example|
         Settings.sso.cookie_enabled = true
         example.run
         Settings.sso.cookie_enabled = false

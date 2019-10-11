@@ -31,7 +31,7 @@ RSpec.describe 'terms_and_conditions', type: :request do
   end
 
   context 'with some acceptances' do
-    before(:each) do
+    before do
       sign_in_as(current_user)
     end
 
@@ -71,7 +71,7 @@ RSpec.describe 'terms_and_conditions', type: :request do
   end
 
   context 'with no acceptances' do
-    before(:each) do
+    before do
       sign_in_as(current_user)
     end
 

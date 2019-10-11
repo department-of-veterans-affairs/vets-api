@@ -122,6 +122,11 @@ module SAML
       logout_request.create(url_settings, RelayState: relay_state_params)
     end
 
+    # logout URL for SSOe
+    def ssoe_slo_url
+      Settings.saml_ssoe.logout_url
+    end
+
     private
 
     def initialize_query_params(params)
