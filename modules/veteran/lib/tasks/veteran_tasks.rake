@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 namespace :veteran do
   desc 'Reload VSO Information'
   task reload_vso_data: :environment do
