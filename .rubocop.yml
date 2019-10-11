@@ -178,3 +178,7 @@ RSpec/FilePath:
     - 'spec/request/in_progress_forms_request_spec.rb'
     - 'spec/jobs/pagerduty/**/*'
     - 'spec/lib/pagerduty/**/*'
+
+# Was determined that using described_class makes the code less readable.
+RSpec/DescribedClass:
+  Enabled: false

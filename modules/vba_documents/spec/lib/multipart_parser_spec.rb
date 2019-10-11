@@ -39,7 +39,7 @@ RSpec.describe VBADocuments::MultipartParser do
       end
     end
 
-    it 'raises on a malformed multipart payload' do
+    it 'raises on a multipart with truncated content' do
       invalid_doc = get_fixture('invalid_multipart_truncated.blob')
       expect { described_class.parse(invalid_doc) }.to raise_error do |error|
         expect(error).to be_a(VBADocuments::UploadError)
