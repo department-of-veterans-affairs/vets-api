@@ -1,6 +1,4 @@
 # frozen_string_literal: true
-
-# rubocop:disable Metrics/BlockLength
 namespace :veteran do
   desc 'Reload VSO Information'
   task reload_vso_data: :environment do
@@ -28,4 +26,3 @@ namespace :veteran do
     )
   end
 end
-# rubocop:enable Metrics/BlockLength
