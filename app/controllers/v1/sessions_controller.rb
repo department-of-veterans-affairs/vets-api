@@ -7,13 +7,14 @@ require 'saml/responses/logout'
 
 module V1
   class SessionsController < ApplicationController
-    REDIRECT_URLS = %w[signup mhv dslogon idme mfa verify slo].freeze
+    REDIRECT_URLS = %w[signup mhv dslogon idme mfa verify slo ssoe_slo].freeze
 
     STATSD_SSO_NEW_KEY = 'api.auth.new'
     STATSD_SSO_CALLBACK_KEY = 'api.auth.saml_callback'
     STATSD_SSO_CALLBACK_TOTAL_KEY = 'api.auth.login_callback.total'
     STATSD_SSO_CALLBACK_FAILED_KEY = 'api.auth.login_callback.failed'
     STATSD_LOGIN_NEW_USER_KEY = 'api.auth.new_user'
+    STATSD_MHV_COOKIE_NO_ACCOUNT_KEY = 'api.auth.mhv_cookie.no_user'
 
     # Collection Action: auth is required for certain types of requests
     # @type is set automatically by the routes in config/routes.rb
@@ -24,13 +25,18 @@ module V1
 
       StatsD.increment(STATSD_SSO_NEW_KEY, tags: ["context:#{type}"])
       url = url_service.send("#{type}_url")
-      if type == 'slo'
-        Rails.logger.info('SSO: LOGOUT', sso_logging_info)
+
+      if %w[slo ssoe_slo].include?(type)
+        Rails.logger.info("LOGOUT of type #{type}", sso_logging_info)
         reset_session
       end
       # clientId must be added at the end or the URL will be invalid for users using various "Do not track"
       # extensions with their browser.
       redirect_to params[:client_id].present? ? url + "&clientId=#{params[:client_id]}" : url
+    end
+
+    def ssoe_slo_callback
+      redirect_to url_service.logout_redirect_url
     end
 
     def saml_logout_callback
@@ -107,6 +113,8 @@ module V1
       if user_session_form.valid?
         @current_user, @session_object = user_session_form.persist
         set_cookies
+        # track users who need to re-login on MHV
+        StatsD.increment(STATSD_MHV_COOKIE_NO_ACCOUNT_KEY) unless @current_user.mhv_correlation_id
         after_login_actions
         redirect_to url_service.login_redirect_url
         stats(:success, saml_response)
