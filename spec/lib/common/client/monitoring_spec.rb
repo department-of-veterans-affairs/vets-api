@@ -42,7 +42,7 @@ RSpec.describe Common::Client::Monitoring, type: :model do
     VCR.use_cassette('shared/success') do
       service.request(:get, nil)
       redis_key = StatsDMetric.find(total_key)
-      expect(redis_key).to be
+      expect(redis_key).to be_truthy
     end
   end
 
@@ -51,7 +51,7 @@ RSpec.describe Common::Client::Monitoring, type: :model do
       VCR.use_cassette('shared/failure') do
         expect { service.request(:get, nil) }.to raise_error(Common::Client::Errors::ClientError)
         redis_key = StatsDMetric.find(fail_key)
-        expect(redis_key).to be
+        expect(redis_key).to be_truthy
       end
     end
   end
