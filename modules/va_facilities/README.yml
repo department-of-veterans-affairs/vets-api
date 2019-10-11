@@ -7,7 +7,7 @@ info:
     ## Background
 
     This API provides information about physical VA facilities. Information available includes
-    geographic location, address, phone, hours of operation, and available services. 
+    geographic location, address, phone, hours of operation, and available services.
 
     VA operates several different types of facilities, the types represented in this API include:
     - Health facilities
@@ -110,7 +110,7 @@ paths:
         information in the "Link" header.
       operationId: getFacilitiesByLocation
       security:
-        - api_key: []
+        - apikey: []
       parameters:
         - name: ids
           description: |
@@ -127,7 +127,7 @@ paths:
         - name: zip
           in: query
           description: |
-            Zip code to search for VA Facilities. 
+            Zip code to search for VA Facilities.
             More detailed zip codes can be passed in, but only the first five digits are used to determine facilities to return.
           required: false
           schema:
@@ -309,7 +309,7 @@ paths:
       summary: Retrieve a specific facility by ID
       operationId: getFacilityById
       security:
-        - api_key: []
+        - apikey: []
       parameters:
         - in: path
           name: id
@@ -375,7 +375,7 @@ paths:
         available services, patient satisfaction, and patient wait time data.
       operationId: getAllFacilities
       security:
-        - api_key: []
+        - apikey: []
       parameters:
         - in: header
           name: Accept
