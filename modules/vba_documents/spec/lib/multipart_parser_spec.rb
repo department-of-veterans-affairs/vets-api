@@ -93,7 +93,7 @@ RSpec.describe VBADocuments::MultipartParser do
     end
 
     it 'handles a base64 payload' do
-      valid_doc = get_fixture('valid_multipart_base64_pdf.txt')
+      valid_doc = get_fixture('base64')
       result = described_class.parse(valid_doc)
       expect(result.size).to eq(2)
       expect(result).to have_key('metadata')
