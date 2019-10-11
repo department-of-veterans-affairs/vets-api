@@ -22,7 +22,7 @@ RSpec.describe OIDC::KeyService do
   end
 
   describe '::get_key' do
-    after(:each) do
+    after do
       described_class.instance_variable_set(:@current_key, {})
     end
 

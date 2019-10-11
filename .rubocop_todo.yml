@@ -13,7 +13,7 @@ RSpec/AnyInstance:
 # Offense count: 3
 RSpec/Be:
   Exclude:
-    - 'spec/lib/common/client/concerns/monitoring_spec.rb'
+    - 'spec/lib/common/client/monitoring_spec.rb'
     - 'spec/request/id_card_attributes_request_spec.rb'
 
 # Offense count: 28
@@ -60,38 +60,14 @@ RSpec/EmptyExampleGroup:
 RSpec/ExampleLength:
   Enabled: false
 
-# Offense count: 4
-# Configuration parameters: EnforcedStyle.
-# SupportedStyles: always_allow, single_line_only, disallow
-RSpec/ExampleWithoutDescription:
-  Exclude:
-    - 'spec/request/va_facilities_request_spec.rb'
-
 # Offense count: 82
 RSpec/ExpectInHook:
-  Enabled: false
-
-# Offense count: 70
-# Configuration parameters: CustomTransform, IgnoreMethods.
-RSpec/FilePath:
-  Enabled: false
-
-# Offense count: 222
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle.
-# SupportedStyles: implicit, each, example
-RSpec/HookArgument:
   Enabled: false
 
 # Offense count: 254
 # Configuration parameters: AssignmentOnly.
 RSpec/InstanceVariable:
   Enabled: false
-
-# Offense count: 1
-RSpec/IteratedExpectation:
-  Exclude:
-    - 'spec/models/user_preference_spec.rb'
 
 # Offense count: 56
 RSpec/LeakyConstantDeclaration:
@@ -150,11 +126,6 @@ RSpec/NamedSubject:
 RSpec/NestedGroups:
   Max: 7
 
-# Offense count: 1
-RSpec/OverwritingSetup:
-  Exclude:
-    - 'spec/request/swagger_spec.rb'
-
 # Offense count: 21
 RSpec/RepeatedDescription:
   Exclude:
@@ -180,7 +151,7 @@ RSpec/ScatteredLet:
   Exclude:
     - 'spec/controllers/openid_application_controller_spec.rb'
     - 'spec/controllers/v0/dependents_applications_controller_spec.rb'
-    - 'spec/controllers/v0/post_911_gi_bill_statuses_controller_spec.rb'
+    - 'spec/controllers/v0/post911_gi_bill_statuses_controller_spec.rb'
     - 'spec/lib/bb/client_spec.rb'
     - 'spec/lib/evss/auth_headers_spec.rb'
     - 'spec/lib/evss/gi_bill_status/service_spec.rb'
@@ -212,7 +183,7 @@ RSpec/SubjectStub:
     - 'spec/lib/common/models/redis_store_spec.rb'
     - 'spec/lib/evss/disability_compensation_form/data_translation_all_claim_spec.rb'
     - 'spec/lib/evss/disability_compensation_form/data_translation_spec.rb'
-    - 'spec/lib/saml/saml_health_spec.rb'
+    - 'spec/lib/saml/health_status_spec.rb'
     - 'spec/lib/sm/client/folders_spec.rb'
     - 'spec/models/emis_redis/military_information_spec.rb'
     - 'spec/models/session_spec.rb'

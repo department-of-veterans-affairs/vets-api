@@ -46,7 +46,7 @@ describe PdfInfo::Metadata do
     wait_thr
   end
 
-  before(:each) do
+  before do
     allow(Open3).to receive(:popen2e).and_yield('', result, good_exit)
   end
 
