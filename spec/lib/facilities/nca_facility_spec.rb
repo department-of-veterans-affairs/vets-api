@@ -23,7 +23,7 @@ module Facilities
         VCR.use_cassette('facilities/va/nca_facilities') do
           list = NCAFacility.pull_source_data
           expect(list).to be_an(Array)
-          expect(list.all? { |item| item.is_a?(NCAFacility) })
+          expect(list.all? { |item| item.is_a?(NCAFacility) }).to be true
         end
       end
 
