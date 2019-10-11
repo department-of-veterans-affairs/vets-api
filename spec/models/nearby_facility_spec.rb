@@ -72,32 +72,32 @@ RSpec.describe NearbyFacility, type: :model do
     it 'extracts coordinates' do
       json = JSON.parse('{"resourceSets": [{"resources": [{"point": {"coordinates": [1,2]}}]}]}')
       result = NearbyFacility.parse_location(json)
-      result.should_not be_nil
-      result.should match_array([1, 2])
+      expect(result).not_to be_nil
+      expect(result).to match_array([1, 2])
     end
 
     it 'returns nil and not throw an exception when resourceSets is not defined' do
       json = JSON.parse('{"dfsfasf": [{"resources": [{"point": {"coordinates": [1,2]}}]}]}')
       result = NearbyFacility.parse_location(json)
-      result.should be_nil
+      expect(result).to be_nil
     end
 
     it 'returns nil and not throw an exception when resources is not defined' do
       json = JSON.parse('{"resourceSets": [{"resourcesadf": [{"point": {"coordinates": [1,2]}}]}]}')
       result = NearbyFacility.parse_location(json)
-      result.should be_nil
+      expect(result).to be_nil
     end
 
     it 'returns nil and not throw an exception when point is not defined' do
       json = JSON.parse('{"resourceSets": [{"resources": [{"podfsfint": {"coordinates": [1,2]}}]}]}')
       result = NearbyFacility.parse_location(json)
-      result.should be_nil
+      expect(result).to be_nil
     end
 
     it 'returns nil and not throw an exception when coordinates is not defined' do
       json = JSON.parse('{"resourceSets": [{"resources": [{"point": {"dfsfdsf": [1,2]}}]}]}')
       result = NearbyFacility.parse_location(json)
-      result.should be_nil
+      expect(result).to be_nil
     end
   end
 end
