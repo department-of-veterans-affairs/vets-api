@@ -5,8 +5,8 @@ require_dependency 'claims_api/concerns/header_validation'
 
 module ClaimsApi
   class ApplicationController < ::OpenidApplicationController
-    include ClaimsApi::MviVerification
     include ClaimsApi::HeaderValidation
+    include ClaimsApi::MviVerification
 
     skip_before_action :set_tags_and_extra_context, raise: false
 
@@ -69,7 +69,7 @@ module ClaimsApi
                   vet.loa = { current: header('X-VA-LOA'), highest: header('X-VA-LOA') }
                 end
       vet.mvi_record?
-      vet.gender = header('X-VA-Gender') || vet.mvi.profile&.gender
+      vet.gender = header('X-VA-Gender') || vet.mvi.profile&.gender if with_gender
       vet.edipi = header('X-VA-EDIPI') || vet.mvi.profile&.edipi
       vet
     end
