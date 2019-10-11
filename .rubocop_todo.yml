@@ -24,13 +24,6 @@ RSpec/ContextWording:
 RSpec/DescribeClass:
   Enabled: false
 
-# Offense count: 390
-# Cop supports --auto-correct.
-# Configuration parameters: SkipBlocks, EnforcedStyle.
-# SupportedStyles: described_class, explicit
-RSpec/DescribedClass:
-  Enabled: false
-
 # Offense count: 21
 # Configuration parameters: CustomIncludeMethods.
 RSpec/EmptyExampleGroup:
@@ -119,18 +112,6 @@ RSpec/NamedSubject:
 # Offense count: 459
 RSpec/NestedGroups:
   Max: 7
-
-# Offense count: 21
-RSpec/RepeatedDescription:
-  Exclude:
-    - 'modules/va_facilities/spec/validators/param_validators_spec.rb'
-    - 'modules/vba_documents/spec/lib/multipart_parser_spec.rb'
-    - 'modules/vba_documents/spec/models/upload_submission_spec.rb'
-    - 'spec/lib/facilities/vba_facility_spec.rb'
-    - 'spec/lib/facilities/vha_facility_spec.rb'
-    - 'spec/request/beta_registration_spec.rb'
-    - 'spec/request/swagger_spec.rb'
-    - 'spec/serializers/message_serializer_spec.rb'
 
 # Offense count: 8
 RSpec/RepeatedExample:
