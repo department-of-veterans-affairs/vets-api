@@ -12,6 +12,8 @@ module MVI
       # {source id}^{id type}^{assigning facility}^{assigning authority}^{id status}
       # id type - NI = national identifier
       #           PI = patient identifier
+      #           EI - employee identifier
+      #           PN = patient number
 
       # id status -  A = Active (only applies to correlation IDs)
       #              P = Permanent (only applies to ICNs)
