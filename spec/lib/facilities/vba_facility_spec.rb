@@ -28,7 +28,7 @@ module Facilities
         VCR.use_cassette('facilities/va/vba_facilities_limit_results') do
           list = VBAFacility.pull_source_data
           expect(list).to be_an(Array)
-          expect(list.all? { |item| item.is_a?(VBAFacility) })
+          expect(list.all? { |item| item.is_a?(VBAFacility) }).to be true
         end
       end
 

@@ -197,10 +197,10 @@ RSpec/VerifiedDoubles:
   Enabled: false
 
 # Offense count: 5
-RSpec/VoidExpect:
-  Exclude:
-    - 'spec/lib/facilities/nca_facility_spec.rb'
-    - 'spec/lib/facilities/vba_facility_spec.rb'
-    - 'spec/lib/facilities/vc_facility_spec.rb'
-    - 'spec/lib/facilities/vha_facility_spec.rb'
-    - 'spec/models/async_transaction/base_spec.rb'
+# RSpec/VoidExpect:
+#   Exclude:
+#     - 'spec/lib/facilities/nca_facility_spec.rb'
+#     - 'spec/lib/facilities/vba_facility_spec.rb'
+#     - 'spec/lib/facilities/vc_facility_spec.rb'
+#     - 'spec/lib/facilities/vha_facility_spec.rb'
+#     - 'spec/models/async_transaction/base_spec.rb'

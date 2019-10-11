@@ -27,7 +27,7 @@ RSpec.describe Facilities::VHAFacility do
       VCR.use_cassette('facilities/va/vha_facilities_limit_results') do
         list = Facilities::VHAFacility.pull_source_data
         expect(list.size).to eq(4)
-        expect(list.all? { |item| item.is_a?(Facilities::VHAFacility) })
+        expect(list.all? { |item| item.is_a?(Facilities::VHAFacility) }).to be true
       end
     end
 
