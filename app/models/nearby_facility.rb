@@ -86,12 +86,11 @@ class NearbyFacility < ApplicationRecord
     end
 
     def parse_location(response_json)
-      response_json.try(:[], 'resourceSets')
-                    &.first
-                   .try(:[], 'resources')
-                    &.first
-                   .try(:[], 'point')
-                   .try(:[], 'coordinates')
+      response_json.dig('resourceSets')
+          &.first
+          &.dig('resources')
+          &.first
+          &.dig('point', 'coordinates')
     end
 
     def parse_isochrone(response_json)
