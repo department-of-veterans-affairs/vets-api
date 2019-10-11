@@ -15,7 +15,7 @@ RSpec.describe 'EVSS Claims management', type: :request do
     'X-VA-LOA' => '3'
   }.freeze
 
-  before(:each) do
+  before do
     stub_mvi
   end
 

@@ -167,3 +167,14 @@ Style/BlockDelimiters:
   Exclude:
     - "spec/factories/*.rb"
     - "modules/*/spec/factories/*.rb"
+
+# Excluding modules specs for now and a few that may need to be revisited.
+RSpec/FilePath:
+  Exclude:
+    - 'modules/**/*'
+    - 'spec/lib/common/models/**/*'
+    - 'spec/lib/saml/*_user_spec.rb'
+    - 'spec/lib/ihub/appointments/service_spec.rb'
+    - 'spec/request/in_progress_forms_request_spec.rb'
+    - 'spec/jobs/pagerduty/**/*'
+    - 'spec/lib/pagerduty/**/*'

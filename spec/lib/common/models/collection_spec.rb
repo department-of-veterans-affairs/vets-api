@@ -301,7 +301,7 @@ describe Common::Collection do
     end
 
     context 'already cached values' do
-      before(:each) do
+      before do
         described_class.cache(loaded_data.serialize, 'authors_key', 1000)
       end
 
