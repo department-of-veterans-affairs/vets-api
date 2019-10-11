@@ -14,7 +14,7 @@ module VAOS
     private
 
     def payload
-      now = Time.now
+      now = Time.zone.now
       {
         authenticated: true,
         sub: @user.icn,

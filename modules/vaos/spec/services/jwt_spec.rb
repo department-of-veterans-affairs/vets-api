@@ -3,8 +3,9 @@
 require 'rails_helper'
 
 describe VAOS::JWT do
-  let(:user) { build(:user, :mhv) }
   subject { VAOS::JWT.new(user) }
+
+  let(:user) { build(:user, :mhv) }
 
   describe '.new' do
     it 'creates a VAOS::JWT instance' do
@@ -21,4 +22,3 @@ describe VAOS::JWT do
     end
   end
 end
-

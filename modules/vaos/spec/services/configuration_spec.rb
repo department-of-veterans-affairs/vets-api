@@ -11,22 +11,24 @@ describe VAOS::Configuration do
 
   describe '#connection' do
     it 'returns a connection' do
-      expect(VAOS::Configuration.instance.connection).to_not be_nil
+      expect(VAOS::Configuration.instance.connection).not_to be_nil
     end
   end
 
   describe '#mock_enabled?' do
-    context 'when Settings.appeals.mock is true' do
-      before { Settings.vaos.mock = 'true' }
+    context 'when Settings.va_mobile.mock is true' do
+      before { Settings.va_mobile.mock = 'true' }
+
       it 'returns true' do
-        expect(VAOS::Configuration.instance.mock_enabled?).to be_truthy
+        expect(VAOS::Configuration.instance).to be_mock_enabled
       end
     end
 
-    context 'when Settings.appeals.mock is false' do
-      before { Settings.vaos.mock = 'false' }
+    context 'when Settings.va_mobile.mock is false' do
+      before { Settings.va_mobile.mock = 'false' }
+
       it 'returns false' do
-        expect(VAOS::Configuration.instance.mock_enabled?).to be_falsey
+        expect(VAOS::Configuration.instance).not_to be_mock_enabled
       end
     end
   end

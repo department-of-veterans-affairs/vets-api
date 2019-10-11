@@ -25,7 +25,7 @@ module VAOS
     end
 
     def mock_enabled?
-      false
+      [true, 'true'].include?(Settings.va_mobile.mock)
     end
   end
 end
