@@ -636,14 +636,14 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
         end
 
         context 'unsuccessful calls' do
-          it 'supports folder error messages' do
+          it 'supports get a single folder id error messages' do
             VCR.use_cassette('sm_client/folders/gets_a_single_folder_id_error') do
               expect(subject).to validate(:get, '/v0/messaging/health/folders/{id}', 404,
                                           headers.merge('id' => '1000'))
             end
           end
 
-          it 'supports folder error messages' do
+          it 'supports deletea folder id folder error messages' do
             VCR.use_cassette('sm_client/folders/deletes_a_folder_id_error') do
               expect(subject).to validate(:delete, '/v0/messaging/health/folders/{id}', 404,
                                           headers.merge('id' => '1000'))
@@ -1248,7 +1248,7 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
           end
         end
 
-        it 'supports getting a list of facilities' do
+        it 'supports getting a single facility' do
           create :vha_648A4
           expect(subject).to validate(:get, '/v0/facilities/va/{id}', 200, 'id' => 'vha_648A4')
         end

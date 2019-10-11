@@ -10,12 +10,6 @@
 RSpec/AnyInstance:
   Enabled: false
 
-# Offense count: 3
-RSpec/Be:
-  Exclude:
-    - 'spec/lib/common/client/concerns/monitoring_spec.rb'
-    - 'spec/request/id_card_attributes_request_spec.rb'
-
 # Offense count: 28
 RSpec/BeforeAfterAll:
   Enabled: false
@@ -28,13 +22,6 @@ RSpec/ContextWording:
 
 # Offense count: 21
 RSpec/DescribeClass:
-  Enabled: false
-
-# Offense count: 390
-# Cop supports --auto-correct.
-# Configuration parameters: SkipBlocks, EnforcedStyle.
-# SupportedStyles: described_class, explicit
-RSpec/DescribedClass:
   Enabled: false
 
 # Offense count: 21
@@ -126,18 +113,6 @@ RSpec/NamedSubject:
 RSpec/NestedGroups:
   Max: 7
 
-# Offense count: 21
-RSpec/RepeatedDescription:
-  Exclude:
-    - 'modules/va_facilities/spec/validators/param_validators_spec.rb'
-    - 'modules/vba_documents/spec/lib/multipart_parser_spec.rb'
-    - 'modules/vba_documents/spec/models/upload_submission_spec.rb'
-    - 'spec/lib/facilities/vba_facility_spec.rb'
-    - 'spec/lib/facilities/vha_facility_spec.rb'
-    - 'spec/request/beta_registration_spec.rb'
-    - 'spec/request/swagger_spec.rb'
-    - 'spec/serializers/message_serializer_spec.rb'
-
 # Offense count: 8
 RSpec/RepeatedExample:
   Exclude:
@@ -151,7 +126,7 @@ RSpec/ScatteredLet:
   Exclude:
     - 'spec/controllers/openid_application_controller_spec.rb'
     - 'spec/controllers/v0/dependents_applications_controller_spec.rb'
-    - 'spec/controllers/v0/post_911_gi_bill_statuses_controller_spec.rb'
+    - 'spec/controllers/v0/post911_gi_bill_statuses_controller_spec.rb'
     - 'spec/lib/bb/client_spec.rb'
     - 'spec/lib/evss/auth_headers_spec.rb'
     - 'spec/lib/evss/gi_bill_status/service_spec.rb'
@@ -183,7 +158,7 @@ RSpec/SubjectStub:
     - 'spec/lib/common/models/redis_store_spec.rb'
     - 'spec/lib/evss/disability_compensation_form/data_translation_all_claim_spec.rb'
     - 'spec/lib/evss/disability_compensation_form/data_translation_spec.rb'
-    - 'spec/lib/saml/saml_health_spec.rb'
+    - 'spec/lib/saml/health_status_spec.rb'
     - 'spec/lib/sm/client/folders_spec.rb'
     - 'spec/models/emis_redis/military_information_spec.rb'
     - 'spec/models/session_spec.rb'
@@ -195,12 +170,3 @@ RSpec/SubjectStub:
 # Configuration parameters: IgnoreNameless, IgnoreSymbolicNames.
 RSpec/VerifiedDoubles:
   Enabled: false
-
-# Offense count: 5
-RSpec/VoidExpect:
-  Exclude:
-    - 'spec/lib/facilities/nca_facility_spec.rb'
-    - 'spec/lib/facilities/vba_facility_spec.rb'
-    - 'spec/lib/facilities/vc_facility_spec.rb'
-    - 'spec/lib/facilities/vha_facility_spec.rb'
-    - 'spec/models/async_transaction/base_spec.rb'
