@@ -10,12 +10,6 @@
 RSpec/AnyInstance:
   Enabled: false
 
-# Offense count: 3
-RSpec/Be:
-  Exclude:
-    - 'spec/lib/common/client/monitoring_spec.rb'
-    - 'spec/request/id_card_attributes_request_spec.rb'
-
 # Offense count: 28
 RSpec/BeforeAfterAll:
   Enabled: false
@@ -195,12 +189,3 @@ RSpec/SubjectStub:
 # Configuration parameters: IgnoreNameless, IgnoreSymbolicNames.
 RSpec/VerifiedDoubles:
   Enabled: false
-
-# Offense count: 5
-# RSpec/VoidExpect:
-#   Exclude:
-#     - 'spec/lib/facilities/nca_facility_spec.rb'
-#     - 'spec/lib/facilities/vba_facility_spec.rb'
-#     - 'spec/lib/facilities/vc_facility_spec.rb'
-#     - 'spec/lib/facilities/vha_facility_spec.rb'
-#     - 'spec/models/async_transaction/base_spec.rb'
