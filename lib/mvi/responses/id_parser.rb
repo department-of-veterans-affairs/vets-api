@@ -13,8 +13,8 @@ module MVI
       # id type - NI = national identifier
       #           PI = patient identifier
 
-      # id status -  A = Active
-      #              P = Permanent
+      # id status -  A = Active (only applies to correlation IDs)
+      #              P = Permanent (only applies to ICNs)
 
       # Should definitely NOT be using id_status
       #              H = Deprecated due to local merge
@@ -30,13 +30,13 @@ module MVI
         # rubocop:disable LineLength
         {
           icn:              select_ids(select_extension(ids, ICN_REGEX,                           CORRELATION_ROOT_ID))&.first,
-          sec_id:           select_ids(select_extension(ids, /^\w+\^PN\^200PROV\^USDVA\^\w+$/,    CORRELATION_ROOT_ID))&.first,
+          sec_id:           select_ids(select_extension(ids, /^\w+\^PN\^200PROV\^USDVA\^A$/,    CORRELATION_ROOT_ID))&.first,
           mhv_ids:          select_ids(select_extension(ids, /^\w+\^PI\^200MH.{0,1}\^\w+\^\w+$/,  CORRELATION_ROOT_ID)),
           active_mhv_ids:   select_ids(select_extension(ids, /^\w+\^PI\^200MH.{0,1}\^\w+\^A$/,    CORRELATION_ROOT_ID)),
-          edipi:            select_ids(select_extension(ids, /^\w+\^NI\^200DOD\^USDOD\^\w+$/,     EDIPI_ROOT_ID))&.first,
-          vba_corp_id:      select_ids(select_extension(ids, /^\w+\^PI\^200CORP\^USVBA\^(A|P)$/,  CORRELATION_ROOT_ID))&.first,
-          vha_facility_ids: select_facilities(select_extension(ids, /^\w+\^PI\^\w+\^USVHA\^\w+$/, CORRELATION_ROOT_ID)),
-          birls_id:         select_ids(select_extension(ids, /^\w+\^PI\^200BRLS\^USVBA\^\w+$/,    CORRELATION_ROOT_ID))&.first,
+          edipi:            select_ids(select_extension(ids, /^\w+\^NI\^200DOD\^USDOD\^A$/,     EDIPI_ROOT_ID))&.first,
+          vba_corp_id:      select_ids(select_extension(ids, /^\w+\^PI\^200CORP\^USVBA\^A$/,  CORRELATION_ROOT_ID))&.first,
+          vha_facility_ids: select_facilities(select_extension(ids, /^\w+\^PI\^\w+\^USVHA\^A$/, CORRELATION_ROOT_ID)),
+          birls_id:         select_ids(select_extension(ids, /^\w+\^PI\^200BRLS\^USVBA\^A$/,    CORRELATION_ROOT_ID))&.first,
           vet360_id:        select_ids(select_extension(ids, /^\w+\^PI\^200VETS\^USDVA\^A$/,      CORRELATION_ROOT_ID))&.first,
           icn_with_aaid: ICNWithAAIDParser.new(full_icn_with_aaid(ids)).without_id_status
         }
