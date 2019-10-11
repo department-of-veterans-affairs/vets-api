@@ -36,7 +36,7 @@ module VBADocuments
 
     def self.base64_encoded(infile)
       file_type = `file -I #{infile.path}`.gsub(/\n/, '').split(':').first
-      file_type.include?('base64')
+      file_type&.include?('base64')
     end
 
     def self.create_file_from_base64(infile)
