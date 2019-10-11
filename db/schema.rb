@@ -83,9 +83,6 @@ ActiveRecord::Schema.define(version: 2019_10_07_182427) do
     t.index ["user_uuid", "feature"], name: "index_beta_registrations_on_user_uuid_and_feature", unique: true
   end
 
-  create_table "catalogs", id: :integer, default: nil, force: :cascade do |t|
-  end
-
   create_table "central_mail_submissions", id: :serial, force: :cascade do |t|
     t.string "state", default: "pending", null: false
     t.integer "saved_claim_id", null: false
