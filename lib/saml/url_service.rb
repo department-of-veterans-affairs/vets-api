@@ -133,7 +133,7 @@ module SAML
       @query_params = {}
 
       if params[:action] == 'saml_callback'
-        @type = JSON.parse(params[:RelayState])['type'] if params[:RelayState]
+        @type = JSON.parse(params[:RelayState])['type'] if params[:RelayState].present?
       end
     end
 
