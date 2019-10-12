@@ -36,15 +36,16 @@ module VBADocuments
 
     def self.base64_encoded(infile)
       content = File.read(infile)
-      content.start_with?('data:application/pdf;base64,')
+      content.start_with?('data:multipart/form-data;base64,')
     end
 
     def self.create_file_from_base64(infile)
-      content = File.read(infile)
+      content = File.read(infile.path)
       FileUtils.mkdir_p '/tmp/vets-api'
-      contents = content.sub %r{data:((pdf|application)/.{3,}),}, ''
+      contents = content.sub %r{data:((multipart)/.{3,}),}, ''
       decoded_data = Base64.decode64(contents)
-      filename = "temp_upload_#{Time.zone.now.to_i}.pdf"
+      filename = "temp_upload_#{Time.zone.now.to_i}"
+
       File.open("/tmp/vets-api/#{filename}", 'wb') do |f|
         f.write(decoded_data)
       end

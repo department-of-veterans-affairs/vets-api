@@ -27,7 +27,7 @@ RSpec.describe Facilities::VHAFacility do
       VCR.use_cassette('facilities/va/vha_facilities_limit_results') do
         list = Facilities::VHAFacility.pull_source_data
         expect(list.size).to eq(4)
-        expect(list.all? { |item| item.is_a?(Facilities::VHAFacility) })
+        expect(list.all? { |item| item.is_a?(Facilities::VHAFacility) }).to be true
       end
     end
 
@@ -50,7 +50,7 @@ RSpec.describe Facilities::VHAFacility do
         end
       end
 
-      it 'parses mailing address correctly' do
+      it 'parses physical address correctly' do
         VCR.use_cassette('facilities/va/vha_facilities_limit_results') do
           expect(facility.address['physical']).to eq('address_1' => '1501 Roxas Boulevard',
                                                      'address_2' => 'NOX3 Seafront Compound',
