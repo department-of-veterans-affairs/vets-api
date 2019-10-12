@@ -6,7 +6,7 @@ require 'common/exceptions'
 describe Vet360Redis::ContactInformation do
   let(:user) { build :user, :loa3 }
   let(:contact_info) { Vet360Redis::ContactInformation.for_user(user) }
-  let(:person) { build :person, telephones: telephones }
+  let(:person) { build :person, telephones: telephones, permissions: permissions }
   let(:telephones) do
     [
       build(:telephone),
@@ -14,6 +14,12 @@ describe Vet360Redis::ContactInformation do
       build(:telephone, :work),
       build(:telephone, :temporary),
       build(:telephone, :fax)
+    ]
+  end
+  let(:permissions) do
+    [
+      build(:permission),
+      build(:permission, :text)
     ]
   end
 
@@ -135,6 +141,15 @@ describe Vet360Redis::ContactInformation do
           expect(contact_info.fax_number.class).to eq Vet360::Models::Telephone
         end
       end
+
+      describe '#text_permission' do
+        it 'returns the users text permission object', :aggregate_failures do
+          permission = permission_for Vet360::Models::Permission::TEXT
+
+          expect(contact_info.text_permission).to eq permission
+          expect(contact_info.text_permission.class).to eq Vet360::Models::Permission
+        end
+      end
     end
 
     context 'with an error response' do
@@ -207,6 +222,14 @@ describe Vet360Redis::ContactInformation do
           )
         end
       end
+
+      describe '#text_permission' do
+        it 'raises a Common::Exceptions::BackendServiceException error' do
+          expect { contact_info.text_permission }.to raise_error(
+            Common::Exceptions::BackendServiceException
+          )
+        end
+      end
     end
 
     context 'with an empty respose body' do
@@ -270,6 +293,12 @@ describe Vet360Redis::ContactInformation do
           expect(contact_info.fax_number).to be_nil
         end
       end
+
+      describe '#text_permission' do
+        it 'returns nil' do
+          expect(contact_info.text_permission).to be_nil
+        end
+      end
     end
   end
 end
@@ -280,4 +309,8 @@ end
 
 def phone_for(phone_type)
   person.telephones.find { |telephone| telephone.phone_type == phone_type }
+end
+
+def permission_for(permission_type)
+  person.permissions.find { |permission| permission.permission_type == permission_type }
 end

@@ -87,7 +87,8 @@ module Users
         home_phone: person.home_phone,
         work_phone: person.work_phone,
         temporary_phone: person.temporary_phone,
-        fax_number: person.fax_number
+        fax_number: person.fax_number,
+        text_permission: person.text_permission
       }
     rescue => e
       scaffold.errors << Users::ExceptionHandler.new(e, 'Vet360').serialize_error
