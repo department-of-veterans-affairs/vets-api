@@ -12,7 +12,6 @@ services:
       context: .
       args:
         sidekiq_license: "${BUNDLE_ENTERPRISE__CONTRIBSYS__COM}"
-        danger_github_api_token: "${DANGER_GITHUB_API_TOKEN}"
     image: "vets-api:${DOCKER_IMAGE:-latest}"
     volumes:
       - ".:/src/vets-api"
@@ -33,11 +32,8 @@ services:
       RAILS_ENV: test
       CC_TEST_REPORTER_ID: '0c396adc254b0317e2c3a89a1c929fd61270b133c944d3e9c0f13b3937a7ce45'
       CHANGE_ID:           "${CHANGE_ID}"
-      JENKINS_URL:         "${JENKINS_URL}"
       GIT_URL:             "${GIT_URL}"
-      GIT_BRANCH:          "${GIT_BRANCH}"
-      GIT_COMMIT:          "${GIT_COMMIT}"
-      GIT_PREVIOUS_COMMIT: "${GIT_PREVIOUS_COMMIT}"
+      DANGER_GITHUB_API_TOKEN: "${DANGER_GITHUB_API_TOKEN}"
     depends_on:
       - postgres
       - redis
