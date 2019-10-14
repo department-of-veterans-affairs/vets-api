@@ -14,7 +14,7 @@ RSpec.describe MessageSerializer, type: :serializer do
     expect(data['id'].to_i).to eq(message.id)
   end
 
-  it 'includes the category' do
+  it 'includes the message id' do
     expect(attributes['message_id']).to eq(message.id)
   end
 
