@@ -1,17 +1,17 @@
-puts "UHHH #{RUBY_VERSION} "
-
-failure("Big PR") if git.lines_of_code > 1
+MAX_PR_SIZE = 1
+failure("PR is exceeds ${MAX_PR_SIZE} LoC. Consider breaking up into multiple smaller ones.") if git.lines_of_code > MAX_PR_SIZE
 
 
 all_touched_files  = git.added_files + git.modified_files + git.deleted_files
-modified_db_files  = all_touched_files.select { |filepath| filepath.include? "db/" }
-modified_app_files = all_touched_files.select { |filepath| filepath.include? "app/" }
+db_files  = all_touched_files.select { |filepath| filepath.include? "db/" }
+app_files = all_touched_files.select { |filepath| filepath.include? "app/" }
 
-if !modified_db_files.empty? && !modified_app_files.empty?
-  msg = "Modified files in db/ and app/ inside the same PR!\n\n**db files**"
-  modified_db_files.each { |file| msg += "\n- #{file}" }
+if !db_files.empty? && !app_files.empty?
+  msg = "Modified files in db/ and app/ inside the same PR:\n\n**db files**"
+  db_files.each { |file| msg += "\n- #{file}" }
   msg += "\n\n**app files**"
-  modified_app_files.each { |file| msg += "\n- #{file}" }
+  app_files.each { |file| msg += "\n- #{file}" }
+  msg += "\n\nIt's recommended to make db changes in their own PR since migrations do not run automatically with vets-api deployments. Make sure application code is backwards compatible with the DB before and after migrations have been run."
 
   failure(msg.strip)
 end
