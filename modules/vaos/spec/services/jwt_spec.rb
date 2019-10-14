@@ -4,6 +4,7 @@ require 'rails_helper'
 
 describe VAOS::JWT do
   subject { VAOS::JWT.new(user) }
+
   let(:user) { build(:user, :mhv) }
 
   describe '#token' do
