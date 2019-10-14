@@ -7,7 +7,7 @@ module MVI
       DOD_ROOT_OID = '2.16.840.1.113883.3.42.10001.100001.12'
       ICN_REGEX = /^\w+\^NI\^200M\^USVHA\^\w+$/.freeze
       PERMANENT_ICN_REGEX = /^\w+\^NI\^200M\^USVHA\^P$/.freeze
-      VET360_ASSIGNING_AUTHORITY_ID = '^NI^200M^USVHA'
+      ICN_ASSIGNING_AUTHORITY_ID = '^NI^200M^USVHA'
 
       # MVI correlation id source id relationships:
       # {source id}^{id type}^{assigning facility}^{assigning authority}^{id status}
