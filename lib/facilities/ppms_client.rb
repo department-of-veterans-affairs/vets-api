@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'common/client/base'
+require 'facilities/ppms_response'
 
 module Facilities
   # Core class responsible for api interface operations
@@ -16,15 +17,7 @@ module Facilities
       qparams = build_params(params)
       response = perform(:get, 'v1.0/ProviderLocator?', qparams)
       return [] if response.body.nil?
-
-      bbox_num = params[:bbox].map { |x| Float(x) }
-      response.body.select! do |provider|
-        provider['Latitude'] > bbox_num[1] && provider['Latitude'] < bbox_num[3] &&
-          provider['Longitude'] > bbox_num[0] && provider['Longitude'] < bbox_num[2]
-      end
-      response.body.map do |provider|
-        Provider.from_provloc provider
-      end
+      Facilities::PPMSResponse.from_provider_locator(response, params)
     end
 
     # https://dev.dws.ppms.va.gov/swagger/ui/index#!/Providers/Providers_Get_0
@@ -32,24 +25,23 @@ module Facilities
       qparams = { :$expand => 'ProviderSpecialties' }
       response = perform(:get, "v1.0/Providers(#{identifier})?", qparams)
       return nil if response.body.nil? || response.body[0].nil?
-
-      Provider.new response.body[0]
+      Facilities::PPMSResponse.new(response.body[0], response.status).new_provider
     end
 
     def provider_caresites(site_name)
       response = perform(:get, 'v1.0/CareSites()?', name: "'#{site_name}'")
-      response.body
+      Facilities::PPMSResponse.new(response.body, response.status).get_body
     end
 
     def provider_services(identifier)
       response = perform(:get, "v1.0/Providers(#{identifier})/ProviderServices", {})
-      response.body
+      Facilities::PPMSResponse.new(response.body, response.status).get_body
     end
 
     # https://dev.dws.ppms.va.gov/swagger/ui/index#!/Specialties/Specialties_Get_0
     def specialties
       response = perform(:get, 'v1.0/Specialties', {})
-      response.body
+      Facilities::PPMSResponse.new(response.body, response.status).get_body
     end
 
     def build_params(params)
