@@ -388,7 +388,7 @@ search:
   url: https://search.usa.gov/api/v2
 
 bing:
-  base_api_url: 'https://dev.virtualearth.net/REST/v1/Routes'
+  base_api_url: 'https://dev.virtualearth.net/REST/v1'
   key: fake_key
 
 flipper:
