@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'facilities/ppms_response'
+require 'facilities/ppms/response'
 
-describe Facilities::PPMSResponse do
+describe Facilities::PPMS::Response do
   
   let(:caresites_response_body) do 
     [
@@ -172,14 +172,14 @@ describe Facilities::PPMSResponse do
       "ProviderSpecialties"=>[]}
   end
   
-  let(:response) { Facilities::PPMSResponse.new(response_body, 200) }
+  let(:response) { Facilities::PPMS::Response.new(response_body, 200) }
   let(:new_provider) {response.new_provider }
-  let(:provider_carsites_response) { Facilities::PPMSResponse.new(caresites_response_body, 200) }
-  let(:provider_services_response) { Facilities::PPMSResponse.new(services_response_body, 200) }
-  let(:provider_specialties_response) { Facilities::PPMSResponse.new(specialties_response_body, 200) }
+  let(:provider_carsites_response) { Facilities::PPMS::Response.new(caresites_response_body, 200) }
+  let(:provider_services_response) { Facilities::PPMS::Response.new(services_response_body, 200) }
+  let(:provider_specialties_response) { Facilities::PPMS::Response.new(specialties_response_body, 200) }
   
   let(:faraday_response) { instance_double('Faraday::Response') }
-  let(:provider_locator_response) { Facilities::PPMSResponse.from_provider_locator(faraday_response,  {:bbox=>[-79, 38, -77, 39]}) }
+  let(:provider_locator_response) { Facilities::PPMS::Response.from_provider_locator(faraday_response,  {:bbox=>[-79, 38, -77, 39]}) }
   
   
 

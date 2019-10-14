@@ -39,7 +39,7 @@ class V0::Facilities::VaController < FacilitiesController
   end
 
   def provider_locator
-    ppms = Facilities::PPMSClient.new
+    ppms = Facilities::PPMS::Client.new
     providers = ppms.provider_locator(params)
     page = 1
     page = Integer(params[:page]) if params[:page]
