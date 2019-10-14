@@ -9,7 +9,7 @@ module MVI
       VET360_ASSIGNING_AUTHORITY_ID = '^NI^200M^USVHA'
 
       # MVI correlation id source id relationships:
-      # {source id}^{id type}^{assigning facility}^{assigning authority}^{id status}
+      # {source id}^{id type}^{assigning authority}^{assigning facility}^{id status}
       # id type - NI = national identifier
       #           PI = patient identifier
       #           EI - employee identifier
