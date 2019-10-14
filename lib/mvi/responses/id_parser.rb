@@ -41,7 +41,7 @@ module MVI
           vha_facility_ids: select_facilities(select_extension(ids, /^\w+\^PI\^\w+\^USVHA\^\w+$/, CORRELATION_ROOT_ID)),
           birls_id:         select_ids(select_extension(ids, /^\w+\^PI\^200BRLS\^USVBA\^A$/,    CORRELATION_ROOT_ID))&.first,
           vet360_id:        select_ids(select_extension(ids, /^\w+\^PI\^200VETS\^USDVA\^A$/,      CORRELATION_ROOT_ID))&.first,
-          icn_with_aaid: ICNWithAAIDParser.new(full_icn_with_aaid(ids)).without_id_status
+          icn_with_aaid:    ICNWithAAIDParser.new(full_icn_with_aaid(ids)).without_id_status
         }
         # rubocop:enable LineLength
       end
