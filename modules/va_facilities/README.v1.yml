@@ -7,7 +7,7 @@ info:
     ## Background
 
     This API provides information about physical VA facilities. Information available includes
-    geographic location, address, phone, hours of operation, and available services. 
+    geographic location, address, phone, hours of operation, and available services.
 
     VA operates several different types of facilities. The types represented in this API include:
     - Health facilities
@@ -39,7 +39,7 @@ info:
 
     ### Mobile Facilities
 
-    VHA has a set of mobile facilities that move regularly within a region. 
+    VHA has a set of mobile facilities that move regularly within a region.
     If a facility comes back from this API with `"mobile": "true"`, the latitude/longitude and address should be considered inaccurate.
     To get the exact current location, end consumers should contact the mobile facility directly.
 
@@ -127,7 +127,7 @@ paths:
   #       - name: zip
   #         in: query
   #         description: |
-  #           Zip code to search for VA Facilities. 
+  #           Zip code to search for VA Facilities.
   #           More detailed zip codes can be passed in, but only the first five digits are used to determine facilities to return.
   #         required: false
   #         schema:
@@ -436,7 +436,7 @@ paths:
         - facilities
       summary: Query facilities based on drive time from a specified location
       description: |
-        Retrieve all facilities contained within an isochrone (a polygon composed of the area 
+        Retrieve all facilities contained within an isochrone (a polygon composed of the area
         reachable in a certain amount of time from a central location) based on passing in a
         combination of `street_address`, `city`, `state`, and `zip` or `lat` and `lng` required
         parameters along with `drive_time`.
@@ -453,7 +453,7 @@ paths:
         Please use `/facilities` to see detailed information.
       operationId: getNearbyFacilities
       security:
-        - api_key: []
+        - apikey: []
       parameters:
         - name: street_address
           in: query
