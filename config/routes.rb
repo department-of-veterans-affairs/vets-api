@@ -114,11 +114,9 @@ Rails.application.routes.draw do
       get :show, controller: 'health_record_contents', on: :collection
     end
 
-    resources :appeals, only: [:index]
-
-    scope :decision_reviews do
+    resources :appeals, only: [:index] do
       resources :higher_level_reviews, only: %i[show create], defaults: { format: :json } do
-        get 'intake_status/:intake_id', to: 'higher_level_review#intake_status'
+        get 'intake_status/:intake_id', to: 'appeals#intake_status'
       end
     end
 

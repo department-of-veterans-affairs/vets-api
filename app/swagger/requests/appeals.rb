@@ -59,6 +59,42 @@ module Swagger
           end
         end
       end
+
+      swagger_path '/v0/appeals/higher_level_review/{uuid}' do
+        operation :get do
+
+          key :description, 'This endpoint returns the details of a specific Higher Level Review. This endpoint is also referred to as the Show endpoint'
+          key :operationId, 'showHigherLevelReview'
+          key :tags, %w[higher_level_reviews]
+
+          parameter do
+            key :name, :uuid
+            key :in, :path
+            key :description, "UUID of a higher level review"
+            key :required, true
+
+            schema do
+              property :data,
+                       type: :string,
+                       format: :uuid,
+                       pattern: '^[0-9a-fA-F]{8}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{12}$'
+
+            end
+          end
+
+          response 200 do
+            key :description, 'Response is OK'
+            schema do
+              key :'$ref', :HigherLevelReview
+            end
+          end
+
+          
+        end
+      end
+
+      swagger_path 'v0/appeals/higher_level_review/intake_status/{intake_id}' do
+      end
     end
   end
 end
