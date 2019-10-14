@@ -9,7 +9,7 @@ module ClaimsApi
 
       def verify_mvi
         unless target_veteran.mvi_record?
-          render json: { errors: [{ detail: 'Not found' }] },
+          render json: { errors: [{ detail: 'MVI user not found' }] },
                  status: :not_found
         end
       end
