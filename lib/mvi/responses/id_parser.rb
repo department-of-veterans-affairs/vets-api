@@ -4,7 +4,7 @@ module MVI
   module Responses
     class IdParser
       VA_ROOT_OID = '2.16.840.1.113883.4.349'
-      EDIPI_ROOT_ID = '2.16.840.1.113883.3.42.10001.100001.12'
+      DOD_ROOT_OID = '2.16.840.1.113883.3.42.10001.100001.12'
       ICN_REGEX = /^\w+\^NI\^200M\^USVHA\^\w+$/.freeze
       PERMANENT_ICN_REGEX = /^\w+\^NI\^200M\^USVHA\^P$/.freeze
       VET360_ASSIGNING_AUTHORITY_ID = '^NI^200M^USVHA'
@@ -36,7 +36,7 @@ module MVI
           sec_id:           select_ids(select_extension(ids, /^\w+\^PN\^200PROV\^USDVA\^A$/,    VA_ROOT_OID))&.first,
           mhv_ids:          select_ids(select_extension(ids, /^\w+\^PI\^200MH.{0,1}\^\w+\^\w+$/,  VA_ROOT_OID)),
           active_mhv_ids:   select_ids(select_extension(ids, /^\w+\^PI\^200MH.{0,1}\^\w+\^A$/,    VA_ROOT_OID)),
-          edipi:            select_ids(select_extension(ids, /^\w+\^NI\^200DOD\^USDOD\^A$/,     EDIPI_ROOT_ID))&.first,
+          edipi:            select_ids(select_extension(ids, /^\w+\^NI\^200DOD\^USDOD\^A$/,     DOD_ROOT_OID))&.first,
           vba_corp_id:      select_ids(select_extension(ids, /^\w+\^PI\^200CORP\^USVBA\^A$/,  VA_ROOT_OID))&.first,
           vha_facility_ids: select_facilities(select_extension(ids, /^\w+\^PI\^\w+\^USVHA\^\w+$/, VA_ROOT_OID)),
           birls_id:         select_ids(select_extension(ids, /^\w+\^PI\^200BRLS\^USVBA\^A$/,    VA_ROOT_OID))&.first,
