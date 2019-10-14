@@ -1,5 +1,5 @@
 MAX_PR_SIZE = 1
-warn("PR is exceeds ${MAX_PR_SIZE} LoC. Consider breaking up into multiple smaller ones.") if git.lines_of_code > MAX_PR_SIZE
+warn("PR is exceeds #{MAX_PR_SIZE} LoC. Consider breaking up into multiple smaller ones.") if git.lines_of_code > MAX_PR_SIZE
 
 
 all_touched_files  = git.added_files + git.modified_files + git.deleted_files
