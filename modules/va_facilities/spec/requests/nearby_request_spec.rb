@@ -478,7 +478,7 @@ RSpec.describe 'Nearby Facilities API endpoint', type: :request do
         'server' => 'Microsoft-IIS/10.0'
       }
 
-      stub_request(:get, /#{Settings.bing.base_api_url}/)
+      stub_request(:get, %r{#{Settings.bing.base_api_url}/Locations})
         .to_return(status: 200, body: JSON.generate(fake_response_body), headers:
           fake_response_headers)
 
