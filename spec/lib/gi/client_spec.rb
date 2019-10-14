@@ -3,7 +3,7 @@
 require 'rails_helper'
 require 'gi/client'
 
-describe 'gi client' do
+describe GI::Client do
   let(:client) { GI::Client.new }
 
   it 'gets a list of autocomplete suggestions', :vcr do

@@ -21,10 +21,6 @@ RSpec/ContextWording:
   Enabled: false
 
 # Offense count: 21
-RSpec/DescribeClass:
-  Enabled: false
-
-# Offense count: 21
 # Configuration parameters: CustomIncludeMethods.
 RSpec/EmptyExampleGroup:
   Exclude:
@@ -138,15 +134,6 @@ RSpec/ScatteredLet:
     - 'spec/request/health_records_request_spec.rb'
     - 'spec/request/http_method_not_allowed_spec.rb'
     - 'spec/request/swagger_spec.rb'
-
-# Offense count: 10
-# RSpec/ScatteredSetup:
-#   Exclude:
-#     - 'spec/lib/mvi/responses/profile_parser_spec.rb'
-#     - 'spec/models/form_profile_spec.rb'
-#     - 'spec/request/disability_compensation_form_request_spec.rb'
-#     - 'spec/request/swagger_spec.rb'
-#     - 'spec/services/mhv_logging_service_spec.rb'
 
 # Offense count: 65
 RSpec/SubjectStub:

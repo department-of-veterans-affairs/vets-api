@@ -3,7 +3,7 @@
 require 'rails_helper'
 require 'sm/client'
 
-describe 'sm client' do
+describe SM::Client do
   describe 'folders' do
     subject(:client) { @client }
 

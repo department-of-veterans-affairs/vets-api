@@ -3,7 +3,7 @@
 require 'rails_helper'
 require 'rake'
 
-describe 'vet360 rake tasks' do
+describe Vet360::ContactInformation::Service do
   before :all do
     Rake.application.rake_require '../rakelib/vet360'
     Rake::Task.define_task(:environment)
