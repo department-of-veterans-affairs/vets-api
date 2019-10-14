@@ -27,15 +27,14 @@ http_interactions:
       Content-Type:
       - application/json; charset=utf-8
       Date:
-      - Thu, 13 Sep 2018 02:16:30 GMT
+      - Mon, 14 Oct 2019 18:52:58 GMT
       Etag:
-      - W/"c740cd937737ec25c05c833fee222c7f"
+      - W/"79b6d717c67d8981f4ff3a154df543f4"
       Server:
       - Apache
       Status:
       - 200 OK
       Strict-Transport-Security:
-      - max-age=31536000; includeSubdomains; preload
       - max-age=31536000; includeSubdomains; preload
       Via:
       - 1.1 proxy3.us-east-1.prod.infr.search.usa.gov:8443
@@ -44,100 +43,17 @@ http_interactions:
       X-Frame-Options:
       - SAMEORIGIN
       X-Request-Id:
-      - '09de91a6-945a-484d-ab8a-7fa0b4dfe678'
+      - 1306827f-2255-428d-a845-e9304d5ac855
       X-Xss-Protection:
       - 1; mode=block
       Content-Length:
-      - '8720'
+      - '5406'
       Connection:
       - keep-alive
     body:
       encoding: ASCII-8BIT
-      string: '{
-        "query": "benefits",
-        "web": {
-          "total": 85,
-          "next_offset": 10,
-          "spelling_correction": null,
-          "results":
-            [{
-                            "title": "Apply for education benefits",
-                              "url": "https://www.vets.gov/education/apply-for-education-benefits/application/1995/introduction",
-                          "snippet": "Use your VA education benefits to pay for college or training programs. Find...documents youll need to apply for benefits, and start your online application...Manage your health & benefits Find VA locations Home Education Apply for Education...Education Benefits Manage your education benefits Equal to VA Form 22-1995 (Request",
-                "publication_date": null
-            },
-            {
-                            "title": "Education Benefits",
-                              "url": "https://www.vets.gov/education/",
-                          "snippet": "Find out which VA education benefits you may qualify for through the GI Bill...Education Benefits We offer Veterans, Servicemembers, and their families education...education benefits like help paying tuition, help finding the right school or",
-                "publication_date": null
-            },
-            {
-                            "title": "Apply for education benefits",
-                              "url": "https://www.vets.gov/education/apply-for-education-benefits/application/1995/",
-                          "snippet": "Use your VA education benefits to pay for college or training programs. Find...documents youll need to apply for benefits, and start your online application...Home Education Apply for Education Benefits Please wait while we load the application",
-                "publication_date": null
-            },
-            {
-                            "title": "Apply for education benefits",
-                              "url": "https://www.vets.gov/education/apply-for-education-benefits/application/5490/",
-                          "snippet": "Use your VA education benefits to pay for college or training programs. Find...documents youll need to apply for benefits, and start your online application...Home Education Apply for Education Benefits Please wait while we load the application",
-                "publication_date": null
-            },
-            {
-                            "title": "Apply for education benefits",
-                              "url": "https://www.vets.gov/education/apply-for-education-benefits/application/5495/",
-                          "snippet": "Use your VA education benefits to pay for college or training programs. Find...documents youll need to apply for benefits, and start your online application...Home Education Apply for Education Benefits Please wait while we load the application",
-                "publication_date": null
-            },
-            {
-                            "title": "Apply for education benefits",
-                              "url": "https://www.vets.gov/education/apply-for-education-benefits/application/1990/",
-                          "snippet": "Use your VA education benefits to pay for college or training programs. Find...documents youll need to apply for benefits, and start your online application...Home Education Apply for Education Benefits Please wait while we load the application",
-                "publication_date": null
-            },
-            {
-                            "title": "Apply for education benefits",
-                              "url": "https://www.vets.gov/education/apply-for-education-benefits/application/1990N/",
-                          "snippet": "Use your VA education benefits to pay for college or training programs. Find...documents youll need to apply for benefits, and start your online application...Home Education Apply for Education Benefits Please wait while we load the application",
-                "publication_date": null
-            },
-            {
-                            "title": "Apply for education benefits",
-                              "url": "https://www.vets.gov/education/apply-for-education-benefits/application/1990/introduction",
-                          "snippet": "Use your VA education benefits to pay for college or training programs. Find...documents youll need to apply for benefits, and start your online application...Home Education Apply for Education Benefits Please wait while we load the application",
-                "publication_date": null
-            },
-            {
-                            "title": "Apply for education benefits",
-                              "url": "https://www.vets.gov/education/apply-for-education-benefits/application/1990E",
-                          "snippet": "Use your VA education benefits to pay for college or training programs. Find...documents youll need to apply for benefits, and start your online application...Home Education Apply for Education Benefits Please wait while we load the application",
-                "publication_date": null
-            },
-            {
-                            "title": "Apply for education benefits",
-                              "url": "https://www.vets.gov/education/apply-for-education-benefits/application/1990E/",
-                          "snippet": "Use your VA education benefits to pay for college or training programs. Find...documents youll need to apply for benefits, and start your online application...Home Education Apply for Education Benefits Please wait while we load the application",
-                "publication_date": null
-            }]
-        },
-        "text_best_bets": [],
-        "graphic_best_bets": [],
-        "health_topics": [],
-        "job_openings": [],
-        "recent_tweets": [
-          {
-            "text": "What is VA compensation? Many people don’t fully understand the intent, purpose, or process behind this benefit. He… https://t.co/3OWDjaEqh6",
-            "url": "https://twitter.com/VAVetBenefits/status/1040228111646949377",
-            "name": "Veterans Benefits",
-            "screen_name": "VAVetBenefits",
-            "profile_image_url": "https://pbs.twimg.com/profile_images/344513261572743396/a9fcce7feb947b2ec498491c6c6d6985_normal.png",
-            "created_at": "2018-09-13T13:18:02+00:00"
-          }
-        ],
-        "federal_register_documents": [],
-        "related_search_terms": []
-      }'
+      string: !binary |-
+        eyJxdWVyeSI6ImJlbmVmaXRzIiwid2ViIjp7InRvdGFsIjo1OTk5NywibmV4dF9vZmZzZXQiOjEwLCJzcGVsbGluZ19jb3JyZWN0aW9uIjpudWxsLCJyZXN1bHRzIjpbeyJ0aXRsZSI6Ik1hbmFnZSBZb3VyIENvbXBlbnNhdGlvbiDugIBCZW5lZml0c+6AgSAtIFZBL0RvRCBlQmVuZWZpdHMiLCJ1cmwiOiJodHRwczovL3d3dy5lYmVuZWZpdHMudmEuZ292L2ViZW5lZml0cy9tYW5hZ2UvY29tcGVuc2F0aW9uIiwic25pcHBldCI6Ii4uLnN0YXJ0cyBoZXJlLiBNYW5hZ2UgWW91ciBDb21wZW5zYXRpb24g7oCAQmVuZWZpdHPugIEgQ29tcGVuc2F0aW9uIENsYWltIFN0YXR1cyBDaGVjayB0aGUuLi5pbmZvcm1hdGlvbiBmb3IgeW91ciBWQSBjb21wZW5zYXRpb24g7oCAYmVuZWZpdHPugIEuIG15UGF5IERGQVMgbXlQYXkgc2luZ2xlIHNpZ24gb24gZnJvbSIsInB1YmxpY2F0aW9uX2RhdGUiOm51bGx9LHsidGl0bGUiOiJWZXRlcmFucyDugIBCZW5lZml0c+6AgSBBZG1pbmlzdHJhdGlvbiBIb21lIiwidXJsIjoiaHR0cHM6Ly9iZW5lZml0cy52YS5nb3YvYmVuZWZpdHMvIiwic25pcHBldCI6IlZldGVyYW5zIO6AgEJlbmVmaXRz7oCBIEFkbWluaXN0cmF0aW9uIHByb3ZpZGVzIGZpbmFuY2lhbCBhbmQgb3RoZXIgZm9ybXMgb2YgYXNzaXN0YW5jZS4uLmRlcGVuZGVudHMuIFRoaXMgcGFnZSBwcm92aWRlcyBsaW5rcyB0byDugIBiZW5lZml07oCBIGluZm9ybWF0aW9uIGFuZCBzZXJ2aWNlcy4uLi5leHBhbmQgYSBtYWluIG1lbnUgb3B0aW9uIChIZWFsdGgsIO6AgEJlbmVmaXRz7oCBLCBldGMpLiAzLiBUbyBlbnRlciBhbmQgYWN0aXZhdGUgdGhlLi4uRGF0ZXMgRnVsbHkgRGV2ZWxvcGVkIENsYWltcyBBcHBseSDugIBCZW5lZml07oCBIFJhdGVzIEFkZCBhIERlcGVuZGVudCBFZHVjYXRpb24gJiIsInB1YmxpY2F0aW9uX2RhdGUiOm51bGx9LHsidGl0bGUiOiJEb3dubG9hZCBWQSDugIBiZW5lZml07oCBIGxldHRlcnMgfCBWZXRlcmFucyBBZmZhaXJzIiwidXJsIjoiaHR0cHM6Ly93d3cudmEuZ292L3JlY29yZHMvZG93bmxvYWQtdmEtbGV0dGVycy8iLCJzbmlwcGV0IjoiRG93bmxvYWQgeW91ciBWQSDugIBCZW5lZml07oCBIFN1bW1hcnkgTGV0dGVyIChzb21ldGltZXMgY2FsbGVkIGEgVkEgYXdhcmQgbGV0dGVyKS4uLmxldHRlcikgYW5kIG90aGVyIO6AgGJlbmVmaXTugIEgbGV0dGVycyBhbmQgZG9jdW1lbnRzIG9ubGluZS4uLi5zZWN0aW9uIERvd25sb2FkIFZBIO6AgGJlbmVmaXTugIEgbGV0dGVycyBUbyByZWNlaXZlIHNvbWUg7oCAYmVuZWZpdHPugIEsIFZldGVyYW5zIG5lZWQgYSBsZXR0ZXIuLi5zdGF0dXMuIEFjY2VzcyBhbmQgZG93bmxvYWQgeW91ciBWQSDugIBCZW5lZml07oCBIFN1bW1hcnkgTGV0dGVyIChzb21ldGltZXMgY2FsbGVkIGEiLCJwdWJsaWNhdGlvbl9kYXRlIjoiMjAxOS0wOC0yNyJ9LHsidGl0bGUiOiJWQS5nb3YgSG9tZSB8IFZldGVyYW5zIEFmZmFpcnMiLCJ1cmwiOiJodHRwczovL3d3dy52YS5nb3YvIiwic25pcHBldCI6IkFwcGx5IGZvciBhbmQgbWFuYWdlIHRoZSBWQSDugIBiZW5lZml0c+6AgSBhbmQgc2VydmljZXMgeW914oCZdmUgZWFybmVkIGFzIGEgVmV0ZXJhbi4uLkFjY2VzcyBhbmQgbWFuYWdlIHlvdXIgVkEg7oCAYmVuZWZpdHPugIEgYW5kIGhlYWx0aCBjYXJlIEhlYWx0aCBjYXJlIFJlZmlsbCBhbmQgdHJhY2suLi5FZHVjYXRpb24gQ2hlY2sgeW91ciBQb3N0LTkvMTEgR0kgQmlsbMKuIO6AgGJlbmVmaXRz7oCBIFZpZXcgeW91ciBwYXltZW50IGhpc3RvcnkgQ2hhbmdlIHlvdXIiLCJwdWJsaWNhdGlvbl9kYXRlIjpudWxsfSx7InRpdGxlIjoiRmVkZXJhbCDugIBCZW5lZml0c+6AgSBmb3IgVmV0ZXJhbnMsIERlcGVuZGVudHMgYW5kIFN1cnZpdm9ycyAtIE9mZmljZSBvZiBQdWJsaWMgYW5kIEludGVyZ292ZXJubWVudGFsIEFmZmFpcnMiLCJ1cmwiOiJodHRwczovL3d3dy52YS5nb3Yvb3BhL3B1YmxpY2F0aW9ucy9iZW5lZml0c19ib29rLmFzcCIsInNuaXBwZXQiOiIuLi5wb3B1bGFyIHB1YmxpY2F0aW9uLCB0aGUgRmVkZXJhbCDugIBCZW5lZml0c+6AgSBmb3IgVmV0ZXJhbnMsIERlcGVuZGVudHMgYW5kIFN1cnZpdm9ycy4uLnByb2dyYW1zIGFuZCDugIBiZW5lZml0c+6AgSwgaW5jbHVkaW5nIGNvbXBlbnNhdGlvbiBhbmQgcGVuc2lvbiDugIBiZW5lZml0c+6AgSwgaGVhbHRoIGNhcmUuLi5leHBhbmQgYSBtYWluIG1lbnUgb3B0aW9uIChIZWFsdGgsIO6AgEJlbmVmaXRz7oCBLCBldGMpLiAzLiBUbyBlbnRlciBhbmQgYWN0aXZhdGUgdGhlLi4uYW5kIENsaW5pY3MgVmV0IENlbnRlcnMgUmVnaW9uYWwg7oCAQmVuZWZpdHPugIEgT2ZmaWNlcyBSZWdpb25hbCBMb2FuIENlbnRlcnMgQ2VtZXRlcnkiLCJwdWJsaWNhdGlvbl9kYXRlIjpudWxsfSx7InRpdGxlIjoiVmV0ZXJhbnMgSGVhbHRoIO6AgEJlbmVmaXRz7oCBIEhhbmRib29rIC0gSGVhbHRoIO6AgEJlbmVmaXRz7oCBIiwidXJsIjoiaHR0cHM6Ly93d3cudmEuZ292L2hlYWx0aGJlbmVmaXRzL3ZoYmgvIiwic25pcHBldCI6IlZldGVyYW5zIEhlYWx0aCDugIBCZW5lZml0c+6AgSBIYW5kYm9vay4uLmV4cGFuZCBhIG1haW4gbWVudSBvcHRpb24gKEhlYWx0aCwg7oCAQmVuZWZpdHPugIEsIGV0YykuIDMuIFRvIGVudGVyIGFuZCBhY3RpdmF0ZSB0aGUuLi5hbmQgQ2xpbmljcyBWZXQgQ2VudGVycyBSZWdpb25hbCDugIBCZW5lZml0c+6AgSBPZmZpY2VzIFJlZ2lvbmFsIExvYW4gQ2VudGVycyBDZW1ldGVyeSIsInB1YmxpY2F0aW9uX2RhdGUiOm51bGx9LHsidGl0bGUiOiJJIGFtIGEgRGVwZW5kZW50IG9yIFN1cnZpdm9yIC0gVVMgRGVwYXJ0bWVudCBvZiBWZXRlcmFucyBBZmZhaXJzIiwidXJsIjoiaHR0cHM6Ly93d3cudmEuZ292L29wYS9wZXJzb25hL2RlcGVuZGVudF9zdXJ2aXZvci5hc3AiLCJzbmlwcGV0IjoiVGhpcyBpcyBhIHN1bW1hcnkgcGFnZSBmb3IgVkEg7oCAYmVuZWZpdHPugIEgZm9yIENhcmVnaXZlcnMgYW5kIEZhbWlseSBNZW1iZXJzLi4uZXhwYW5kIGEgbWFpbiBtZW51IG9wdGlvbiAoSGVhbHRoLCDugIBCZW5lZml0c+6AgSwgZXRjKS4gMy4gVG8gZW50ZXIgYW5kIGFjdGl2YXRlIHRoZS4uLkNsaW5pY2lhbi9SZXNlYXJjaGVyL1RyYWluZWUgRm9yIFZldGVyYW5zIO6AgEJlbmVmaXTugIEgSW5mb3JtYXRpb24gQWdlbnQgT3JhbmdlIFBvc3QgVHJhdW1hdGljIiwicHVibGljYXRpb25fZGF0ZSI6bnVsbH0seyJ0aXRsZSI6IkNoYW5nZSB5b3VyIFZBIGRpcmVjdCBkZXBvc2l0IGluZm9ybWF0aW9uIHwgVmV0ZXJhbnMgQWZmYWlycyIsInVybCI6Imh0dHBzOi8vd3d3LnZhLmdvdi9jaGFuZ2UtZGlyZWN0LWRlcG9zaXQvIiwic25pcHBldCI6Ii4uLmNvbXBlbnNhdGlvbiwgcGVuc2lvbiwgb3IgZWR1Y2F0aW9uIO6AgGJlbmVmaXRz7oCBIG9ubGluZS4gU2lnbiBpbiBvciByZWdpc3RlciBmb3IgYS4uLmFuZCBjb250YWN0IGluZm9ybWF0aW9uIGZvciBjZXJ0YWluIO6AgGJlbmVmaXRz7oCBIG9ubGluZS4gWW914oCZbGwgbmVlZCB0byBzaWduIGluIHRvLi4uZUJlbmVmaXRzIHRvIGNoYW5nZSB5b3VyIGluZm9ybWF0aW9uIFdoYXQg7oCAYmVuZWZpdO6AgSBpbmZvcm1hdGlvbiBjYW4gSSBjaGFuZ2Ugd2l0aCB0aGlzIiwicHVibGljYXRpb25fZGF0ZSI6IjIwMTktMDgtMDkifSx7InRpdGxlIjoiQXBwbHkgLSBWQS9Eb0QgZUJlbmVmaXRzIiwidXJsIjoiaHR0cHM6Ly93d3cuZWJlbmVmaXRzLnZhLmdvdi9lYmVuZWZpdHMvYXBwbHkiLCJzbmlwcGV0IjoiU2VhcmNoIENvbnRlbnQgc3RhcnRzIGhlcmUuIEFwcGx5IGZvciDugIBCZW5lZml0c+6AgSBNYW5hZ2UgWW91ciBWQSBSZXByZXNlbnRhdGl2ZSBOZWVkLi4ucHJlcGFyZSBhbmQgc3VibWl0IHlvdXIgY2xhaW1zIGZvciBWQSDugIBiZW5lZml0c+6AgS4gQ29tcGVuc2F0aW9uIENvbXBlbnNhdGlvbiBEaXNhYmlsaXR5IiwicHVibGljYXRpb25fZGF0ZSI6bnVsbH0seyJ0aXRsZSI6IlZBIEFpZCBhbmQgQXR0ZW5kYW5jZSDugIBiZW5lZml0c+6AgSBhbmQgSG91c2Vib3VuZCBhbGxvd2FuY2UgfCBWZXRlcmFucyBBZmZhaXJzIiwidXJsIjoiaHR0cHM6Ly93d3cudmEuZ292L3BlbnNpb24vYWlkLWF0dGVuZGFuY2UtaG91c2Vib3VuZC8iLCJzbmlwcGV0IjoiQWlkIGFuZCBBdHRlbmRhbmNlIG9yIEhvdXNlYm91bmQg7oCAYmVuZWZpdHPugIEgZm9yIFZldGVyYW5zIGFuZCBzdXJ2aXZpbmcgc3BvdXNlcy4uLnRoaXMgc2VjdGlvbiBWQSBBaWQgYW5kIEF0dGVuZGFuY2Ug7oCAYmVuZWZpdHPugIEgYW5kIEhvdXNlYm91bmQgYWxsb3dhbmNlIFZBIEFpZCBhbmQuLi5hbmQgQXR0ZW5kYW5jZSBvciBIb3VzZWJvdW5kIO6AgGJlbmVmaXRz7oCBIHByb3ZpZGUgbW9udGhseSBwYXltZW50cyBhZGRlZCB0byB0aGUgYW1vdW50IiwicHVibGljYXRpb25fZGF0ZSI6IjIwMTktMDgtMDgifV19LCJ0ZXh0X2Jlc3RfYmV0cyI6W3siaWQiOjE0MTk0MiwidGl0bGUiOiJWQSBIb21lIFBhZ2UiLCJ1cmwiOiJodHRwczovL3d3dy52YS5nb3YvIiwiZGVzY3JpcHRpb24iOiJFeHBsb3JlLCBhY2Nlc3MsIGFuZCBtYW5hZ2UgeW91ciBWQSDugIBiZW5lZml0c+6AgSBhbmQgaGVhbHRoIGNhcmUuIn0seyJpZCI6MTM5OTY3LCJ0aXRsZSI6IkNIQU1QVkEg7oCAQmVuZWZpdHPugIEiLCJ1cmwiOiJodHRwczovL3d3dy52YS5nb3YvaGVhbHRoLWNhcmUvZmFtaWx5LWNhcmVnaXZlci1iZW5lZml0cy9jaGFtcHZhLyIsImRlc2NyaXB0aW9uIjoiQ0hBTVBWQSDugIBiZW5lZml0c+6AgSBjb3ZlciB0aGUgY29zdCBvZiBoZWFsdGggY2FyZSBmb3IgdGhlIHNwb3VzZSwgc3Vydml2aW5nIHNwb3VzZSwgb3IgY2hpbGQgb2YgYSBWZXRlcmFuIHdobyBoYXMgZGlzYWJpbGl0aWVzIG9yIHdobyBpcyBkZWNlYXNlZC4ifV0sImdyYXBoaWNfYmVzdF9iZXRzIjpbXSwiaGVhbHRoX3RvcGljcyI6W10sImpvYl9vcGVuaW5ncyI6W10sInJlY2VudF90d2VldHMiOlt7InRleHQiOiJUaGUg7oCAYmVuZWZpdHPugIEgb2YgYSB2ZWdldGFyaWFuIG1lYWw6IFdoZXJl4oCZcyB0aGUgYmVlZj8gaHR0cHM6Ly90LmNvLzlVUEJ4YVByYmwgdmlhICNWQW50YWdlUG9pbnQiLCJ1cmwiOiJodHRwczovL3R3aXR0ZXIuY29tL0RlcHRWZXRBZmZhaXJzL3N0YXR1cy8xMTgzNzUyMzI2MjQ0Mzg0NzcwIiwibmFtZSI6IlZldGVyYW5zIEFmZmFpcnMiLCJzY3JlZW5fbmFtZSI6IkRlcHRWZXRBZmZhaXJzIiwicHJvZmlsZV9pbWFnZV91cmwiOiJodHRwczovL3Bicy50d2ltZy5jb20vcHJvZmlsZV9pbWFnZXMvMzQ0NTEzMjYxNTY1OTg0NDU1L2E5ZmNjZTdmZWI5NDdiMmVjNDk4NDkxYzZjNmQ2OTg1X25vcm1hbC5wbmciLCJjcmVhdGVkX2F0IjoiMjAxOS0xMC0xNFQxNDozMjowMiswMDowMCJ9XSwiZmVkZXJhbF9yZWdpc3Rlcl9kb2N1bWVudHMiOltdLCJyZWxhdGVkX3NlYXJjaF90ZXJtcyI6W119
     http_version:
-  recorded_at: Thu, 13 Sep 2018 02:16:30 GMT
+  recorded_at: Mon, 14 Oct 2019 18:52:58 GMT
 recorded_with: VCR 3.0.3
