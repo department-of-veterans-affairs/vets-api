@@ -8,6 +8,14 @@ module Vet360
       def initialize
       end
 
+      def validate(address)
+        res = perform(
+          :post,
+          'validate',
+          address.address_validation_req.to_json
+        )
+      end
+
       def candidate(address)
         begin
           res = perform(
