@@ -395,5 +395,5 @@ flipper:
 
 va_mobile:
   url: 'https://veteran.apps.va.gov/'
-  mock: true
+  mock: fals
   key_path: /fake/client/key/path

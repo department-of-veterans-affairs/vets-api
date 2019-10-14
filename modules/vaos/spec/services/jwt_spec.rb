@@ -4,14 +4,7 @@ require 'rails_helper'
 
 describe VAOS::JWT do
   subject { VAOS::JWT.new(user) }
-
   let(:user) { build(:user, :mhv) }
-
-  describe '.new' do
-    it 'creates a VAOS::JWT instance' do
-      expect(subject).to be_an_instance_of(VAOS::JWT)
-    end
-  end
 
   describe '#token' do
     it 'encodes a payload' do
