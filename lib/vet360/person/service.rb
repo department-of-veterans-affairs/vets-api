@@ -10,7 +10,7 @@ module Vet360
       include ERB::Util
 
       AAID = MVI::Responses::IdParser::VET360_ASSIGNING_AUTHORITY_ID
-      OID  = MVI::Responses::IdParser::CORRELATION_ROOT_ID
+      OID  = MVI::Responses::IdParser::VA_ROOT_OID
 
       configuration Vet360::ContactInformation::Configuration
 

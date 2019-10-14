@@ -91,7 +91,7 @@ def ids_in(body)
 end
 
 def correlation_id(extension)
-  OpenStruct.new(attributes: { extension: extension, root: MVI::Responses::IdParser::CORRELATION_ROOT_ID })
+  OpenStruct.new(attributes: { extension: extension, root: MVI::Responses::IdParser::VA_ROOT_OID })
 end
 
 def expect_valid_icn_with_aaid_from_parsed_xml(xml_file:, expected_icn_with_aaid:)

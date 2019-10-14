@@ -132,7 +132,7 @@ def update_ids(xml, ids)
 
   el.nodes.delete_if do |n|
     [
-      MVI::Responses::IdParser::CORRELATION_ROOT_ID,
+      MVI::Responses::IdParser::VA_ROOT_OID,
       MVI::Responses::IdParser::EDIPI_ROOT_ID
     ].include? n.attributes[:root]
   end
@@ -170,7 +170,7 @@ end
 def create_root_id(type)
   el = Ox::Element.new('id')
   edipi_root = MVI::Responses::IdParser::EDIPI_ROOT_ID
-  correlation_root = MVI::Responses::IdParser::CORRELATION_ROOT_ID
+  correlation_root = MVI::Responses::IdParser::VA_ROOT_OID
   el[:root] = type == :edipi ? edipi_root : correlation_root
   el
 end
