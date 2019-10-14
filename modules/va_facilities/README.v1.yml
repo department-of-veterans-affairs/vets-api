@@ -885,7 +885,7 @@ paths:
   #               $ref: "#/components/schemas/APIError"
 components:
   securitySchemes:
-    api_key:
+    apikey:
       type: apiKey
       name: apikey
       in: header

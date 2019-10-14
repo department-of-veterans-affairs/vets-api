@@ -42,7 +42,7 @@ info:
 
     ### Mobile Facilities
 
-    VHA has a set of mobile facilities that move regularly within a region. 
+    VHA has a set of mobile facilities that move regularly within a region.
     If a facility comes back from this API with `"mobile": "true"`, the latitude/longitude and address should be considered inaccurate.
     To get the exact current location, end consumers should contact the mobile facility directly.
 
@@ -429,7 +429,7 @@ paths:
                 $ref: "#/components/schemas/APIError"
 components:
   securitySchemes:
-    api_key:
+    apikey:
       type: apiKey
       name: apikey
       in: header
