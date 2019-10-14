@@ -24,8 +24,8 @@ module VAOS
         lastName: @user.last_name,
         authenticationAuthority: 'gov.va.iam.ssoe.v1',
         jti: SecureRandom.uuid,
-        nbf: now.utc.to_i - 60,
-        exp: now.utc.to_i + 3600,
+        nbf: 1.minute.ago.to_i,
+        exp: 1.hour.from_now.to_i,
         version: 1.0,
         userType: 'VETERAN',
         'vamf.auth.roles' => ['veteran']
