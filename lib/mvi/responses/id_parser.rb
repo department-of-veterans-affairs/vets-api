@@ -5,7 +5,8 @@ module MVI
     class IdParser
       CORRELATION_ROOT_ID = '2.16.840.1.113883.4.349'
       EDIPI_ROOT_ID = '2.16.840.1.113883.3.42.10001.100001.12'
-      ICN_REGEX = /^\w+\^NI\^200M\^USVHA\^P$/.freeze
+      ICN_REGEX = /^\w+\^NI\^200M\^USVHA\^\w+$/.freeze
+      PERMANENT_ICN_REGEX = /^\w+\^NI\^200M\^USVHA\^P$/.freeze
       VET360_ASSIGNING_AUTHORITY_ID = '^NI^200M^USVHA'
 
       # MVI correlation id source id relationships:
@@ -31,7 +32,7 @@ module MVI
         ids = ids.map(&:attributes)
         # rubocop:disable LineLength
         {
-          icn:              select_ids(select_extension(ids, ICN_REGEX,                           CORRELATION_ROOT_ID))&.first,
+          icn:              select_ids(select_extension(ids, PERMANENT_ICN_REGEX,               CORRELATION_ROOT_ID))&.first,
           sec_id:           select_ids(select_extension(ids, /^\w+\^PN\^200PROV\^USDVA\^A$/,    CORRELATION_ROOT_ID))&.first,
           mhv_ids:          select_ids(select_extension(ids, /^\w+\^PI\^200MH.{0,1}\^\w+\^\w+$/,  CORRELATION_ROOT_ID)),
           active_mhv_ids:   select_ids(select_extension(ids, /^\w+\^PI\^200MH.{0,1}\^\w+\^A$/,    CORRELATION_ROOT_ID)),
@@ -70,7 +71,7 @@ module MVI
       end
 
       def full_icn_with_aaid(ids)
-        select_extension(ids, ICN_REGEX, CORRELATION_ROOT_ID)&.first&.dig(:extension)
+        select_extension(ids, PERMANENT_ICN_REGEX, CORRELATION_ROOT_ID)&.first&.dig(:extension)
       end
     end
   end
