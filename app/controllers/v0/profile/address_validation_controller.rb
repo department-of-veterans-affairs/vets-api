@@ -2,7 +2,7 @@ module V0
   module Profile
     class AddressValidationController < ApplicationController
       def create
-        render(json: service.candidate(Vet360::Models::Address.new(address_params)))
+        render(json: service.address_suggestions(Vet360::Models::Address.new(address_params)))
       end
 
       private

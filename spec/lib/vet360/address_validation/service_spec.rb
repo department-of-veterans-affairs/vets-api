@@ -20,12 +20,7 @@ describe Vet360::AddressValidation::Service do
   end
 
   let(:multiple_match_addr) do
-    base_address.address_line1 = '37 1st st'
-    base_address.city = 'Brooklyn'
-    base_address.state_code = 'NY'
-    base_address.zip_code = '11249'
-
-    base_address
+    build(:vet360_address, :multiple_matches)
   end
 
   describe '#address_suggestions' do

@@ -16,14 +16,25 @@ RSpec.describe V0::Profile::AddressValidationController, type: :controller do
         address.address_line1 = 'sdfdsfsdf'
 
         VCR.use_cassette(
-          'vet360/address_validation/candidate_no_match',
+          'vet360/address_validation/validate_no_match',
           VCR::MATCH_EVERYTHING
         ) do
           post(:create, params: address.to_h)
+
           expect(JSON.parse(response.body)).to eq(
             {"errors"=>
               [{"title"=>"Address Validation Error",
-                "detail"=>[{"code"=>"ADDRVAL108", "key"=>"CandidateAddressNotFound", "severity"=>"INFO", "text"=>"No Candidate Address Found "}],
+                "detail"=>
+                 {"address"=>
+                   {"state_province"=>{"name"=>"District Of Colunbia", "code"=>"DC"},
+                    "country"=>{"name"=>"USA", "code"=>"USA", "fips_code"=>"US", "iso2_code"=>"US", "iso3_code"=>"USA"},
+                    "address_line1"=>"Sdfdsfsdf",
+                    "city"=>"Washington",
+                    "zip_code5"=>"20011"},
+                  "geocode"=>{"calc_date"=>"2019-10-15T07:21:23+00:00", "location_precision"=>0.0, "latitude"=>38.9525, "longitude"=>-77.0202},
+                  "address_meta_data"=>
+                   {"confidence_score"=>0.0, "address_type"=>"Unknown", "delivery_point_validation"=>"MISSING_ZIP", "validation_key"=>1008171488},
+                  "messages"=>[{"code"=>"ADDRVAL112", "key"=>"AddressCouldNotBeFound", "severity"=>"ERROR", "text"=>"The Address could not be found"}]},
                 "code"=>"VET360_AV_ERROR",
                 "status"=>"400"}]}
           )
