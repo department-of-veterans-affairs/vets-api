@@ -183,7 +183,7 @@ RSpec/FilePath:
 RSpec/DescribedClass:
   Enabled: false
 
-# 
+# Excluding these for now. May need to be revisited.
 RSpec/DescribeClass:
   Exclude:
     - 'spec/lib/mhv_ac/client_spec.rb'
@@ -194,3 +194,9 @@ RSpec/DescribeClass:
     - 'spec/request/health_care_applications_request_spec.rb'
     - 'spec/request/pension_claims_controller_spec.rb'
     - 'spec/request/swagger_spec.rb'
+    - 'spec/lib/sm/client/preferences_spec.rb'
+    - 'spec/lib/sm/client/triage_teams_spec.rb'
+    - 'spec/lib/sm/client/messages_spec.rb'
+    - 'spec/lib/bb/client_spec.rb'
+    - 'spec/lib/gi/client_spec.rb'
+    - 'spec/lib/sm/client/folders_spec.rb'
