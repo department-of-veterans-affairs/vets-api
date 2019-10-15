@@ -223,13 +223,12 @@ describe MVI::Responses::ProfileParser do
   context 'with inactive MHV ID edge cases' do
     let(:body) { Ox.parse(File.read('spec/support/mvi/find_candidate_inactive_mhv_ids.xml')) }
 
-    before { Settings.sentry.dsn = 'asdf' }
-
-    after { Settings.sentry.dsn = nil }
-
     before do
+      Settings.sentry.dsn = 'asdf'
       allow(faraday_response).to receive(:body) { body }
     end
+
+    after { Settings.sentry.dsn = nil }
 
     it 'logs warning about inactive IDs' do
       msg1 = 'Inactive MHV correlation IDs present'
