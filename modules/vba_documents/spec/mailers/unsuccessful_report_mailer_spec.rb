@@ -7,7 +7,7 @@ RSpec.describe VBADocuments::UnsuccessfulReportMailer, type: [:mailer] do
 
   describe '#build' do
     subject do
-      described_class.build([error_upload], 7.days.ago, Time.zone.today).deliver_now
+      described_class.build([error_upload], 7.days.ago, Time.zone.now).deliver_now
     end
 
     it 'sends the email' do

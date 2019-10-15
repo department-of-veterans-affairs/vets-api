@@ -9,7 +9,7 @@ module VBADocuments
     def perform
       if Settings.vba_documents.unsuccessful_report_enabled
         from = 7.days.ago
-        to = Time.zone.today
+        to = Time.zone.now
         submissions = VBADocuments::UploadSubmission.where(
           created_at: from..to,
           status: %w[error expired]
