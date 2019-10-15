@@ -10,9 +10,15 @@ class NearbyFacility < ApplicationRecord
     def query(street_address: '', city: '', state: '', zip: '', **params)
       return NearbyFacility.none unless [street_address, city, state, zip].all?(&:present?)
 
-      waypoint = "#{street_address} #{city} #{state} #{zip}"
-      isochrone_response = request_isochrone(waypoint, params)
-      get_facilities_in_isochrone(params, isochrone_response)
+      address = "#{street_address} #{city} #{state} #{zip}"
+      location_response = request_location(address)
+      if location_response.present?
+        params[:lat] = location_response[0]
+        params[:lng] = location_response[1]
+        query_by_lat_lng(params)
+      else
+        NearbyFacility.none
+      end
     end
 
     def query_by_lat_lng(lat: '', lng: '', **params)
@@ -36,11 +42,23 @@ class NearbyFacility < ApplicationRecord
         key: Settings.bing.key
       }
 
-      response = Faraday.get "#{Settings.bing.base_api_url}/Isochrones", query
+      response = Faraday.get "#{Settings.bing.base_api_url}/Routes/Isochrones", query
       response_body = JSON.parse(response.body)
       handle_bing_errors(response_body, response.headers)
 
       response_body
+    end
+
+    def request_location(address)
+      query = {
+        q: address,
+        key: Settings.bing.key
+      }
+      response = Faraday.get "#{Settings.bing.base_api_url}/Locations", query
+      response_body = JSON.parse(response.body)
+      handle_bing_errors(response_body, response.headers)
+
+      parse_location(response_body)
     end
 
     def get_facilities_in_isochrone(params, isochrone_response)
@@ -65,6 +83,14 @@ class NearbyFacility < ApplicationRecord
     def make_linestring(polygon)
       # convert array of latitude and longitude points into a string of comma-separated longitude and latitude points
       polygon.map { |point| "#{point[1]} #{point[0]}" }.join(',')
+    end
+
+    def parse_location(response_json)
+      response_json.dig('resourceSets')
+          &.first
+          &.dig('resources')
+          &.first
+          &.dig('point', 'coordinates')
     end
 
     def parse_isochrone(response_json)
