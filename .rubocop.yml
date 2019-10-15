@@ -169,8 +169,19 @@ Style/BlockDelimiters:
     - "spec/factories/*.rb"
     - "modules/*/spec/factories/*.rb"
 
-# With specs in several different places, this should remain disabled unless or until we put all specs under the main specs directory.
+# Excluding modules specs for now and a few that may need to be revisited.
 RSpec/FilePath:
+  Exclude:
+    - 'modules/**/*'
+    - 'spec/lib/common/models/**/*'
+    - 'spec/lib/saml/*_user_spec.rb'
+    - 'spec/lib/ihub/appointments/service_spec.rb'
+    - 'spec/request/in_progress_forms_request_spec.rb'
+    - 'spec/jobs/pagerduty/**/*'
+    - 'spec/lib/pagerduty/**/*'
+
+# Was determined that using described_class makes the code less readable.
+RSpec/DescribedClass:
   Enabled: false
 
 # Excluding these for now. May need to be revisited.
