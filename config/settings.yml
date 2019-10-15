@@ -281,6 +281,7 @@ preneeds:
 
 # Settings for VBA Document upload service module
 vba_documents:
+  unsuccessful_report_enabled: false
   location:
     prefix:  http://some.fakesite.com/path
     replacement: http://another.fakesite.com/rewrittenpath
