@@ -7,6 +7,8 @@ require 'flipper/adapters/active_support_cache_store'
 require 'flipper/action_patch'
 require 'flipper/configuration_patch'
 
+require 'flipper/instrumentation/event_subscriber'
+
 FLIPPER_FEATURE_CONFIG = YAML.safe_load(File.read(Rails.root.join('config', 'features.yml')))
 
 # Flipper settings will be stored in postgres and cached in memory for 1 minute
@@ -15,9 +17,9 @@ Flipper.configure do |config|
     activerecord_adapter = Flipper::Adapters::ActiveRecord.new
     cache = ActiveSupport::Cache::MemoryStore.new
     adapter = Flipper::Adapters::ActiveSupportCacheStore.new(activerecord_adapter, cache, expires_in: 1.minute)
-
+    instrumented = Flipper::Adapters::Instrumented.new(adapter, instrumenter: ActiveSupport::Notifications)
     # pass adapter to handy DSL instance
-    Flipper.new(adapter)
+    Flipper.new(instrumented, instrumenter: ActiveSupport::Notifications)
   end
 end
 
