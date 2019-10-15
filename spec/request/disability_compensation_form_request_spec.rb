@@ -111,9 +111,6 @@ RSpec.describe 'Disability compensation form', type: :request do
       before do
         allow(EVSS::DisabilityCompensationForm::SubmitForm526IncreaseOnly).to receive(:perform_async).and_return(jid)
         allow(EVSS::DisabilityCompensationForm::SubmitForm526AllClaim).to receive(:perform_async).and_return(jid)
-      end
-
-      before do
         create(:in_progress_form, form_id: VA526ez::FORM_ID, user_uuid: user.uuid)
       end
 
