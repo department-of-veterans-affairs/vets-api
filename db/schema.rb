@@ -10,7 +10,8 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2019_10_04_164703) do
+
+ActiveRecord::Schema.define(version: 2019_10_07_182427) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
@@ -209,6 +210,17 @@ ActiveRecord::Schema.define(version: 2019_10_04_164703) do
     t.json "list_data", default: {}, null: false
     t.boolean "requested_decision", default: false, null: false
     t.index ["user_uuid"], name: "index_evss_claims_on_user_uuid"
+  end
+
+  create_table "feature_toggle_events", force: :cascade do |t|
+    t.string "feature_name"
+    t.string "operation"
+    t.string "gate_name"
+    t.string "value"
+    t.string "user"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["feature_name"], name: "index_feature_toggle_events_on_feature_name"
   end
 
   create_table "flipper_features", force: :cascade do |t|

@@ -24,7 +24,7 @@ describe BB::GenerateReportRequestForm do
 
   let(:attributes) { {} }
 
-  before(:each) { allow(subject).to receive(:eligible_data_classes).and_return(eligible_data_classes) }
+  before { allow(subject).to receive(:eligible_data_classes).and_return(eligible_data_classes) }
 
   context 'with null attributes' do
     it 'responds to params' do

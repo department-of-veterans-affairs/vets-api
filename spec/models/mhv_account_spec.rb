@@ -45,11 +45,11 @@ RSpec.describe MhvAccount, type: :model do
   let(:active_mhv_ids) { mhv_ids }
   let(:vha_facility_ids) { ['450'] }
 
-  before(:each) do
+  before do
     stub_mvi(mvi_profile)
   end
 
-  around(:each) do |example|
+  around do |example|
     with_settings(Settings.mhv, facility_range: [[358, 718], [720, 758]]) do
       example.run
     end
@@ -167,7 +167,7 @@ RSpec.describe MhvAccount, type: :model do
       context 'with terms accepted' do
         let(:terms) { create(:terms_and_conditions, latest: true, name: described_class::TERMS_AND_CONDITIONS_NAME) }
 
-        before(:each) { create(:terms_and_conditions_acceptance, terms_and_conditions: terms, user_uuid: user.uuid) }
+        before { create(:terms_and_conditions_acceptance, terms_and_conditions: terms, user_uuid: user.uuid) }
 
         context 'without an existing account' do
           context 'nothing has been persisted and no mhv_id' do
@@ -183,7 +183,7 @@ RSpec.describe MhvAccount, type: :model do
           let(:mhv_ids) { %w[14221465] }
 
           context 'nothing has been persisted with current mhv id' do
-            before(:each) do
+            before do
               allow_any_instance_of(MhvAccountTypeService)
                 .to receive(:mhv_account_type).and_return(account_type)
             end
@@ -245,7 +245,7 @@ RSpec.describe MhvAccount, type: :model do
           end
 
           context 'previously upgraded' do
-            before(:each) do
+            before do
               create(:mhv_account, :upgraded, user_uuid: user.uuid, mhv_correlation_id: user.mhv_correlation_id)
             end
 
@@ -259,7 +259,7 @@ RSpec.describe MhvAccount, type: :model do
           end
 
           context 'previously registered but somehow upgraded because of account level' do
-            before(:each) do
+            before do
               create(:mhv_account, :upgraded, upgraded_at: nil, user_uuid: user.uuid,
                                               mhv_correlation_id: user.mhv_correlation_id)
             end
@@ -284,7 +284,7 @@ RSpec.describe MhvAccount, type: :model do
           end
 
           context 'previously registered' do
-            before(:each) do
+            before do
               create(:mhv_account, :registered, user_uuid: user.uuid, mhv_correlation_id: user.mhv_correlation_id)
             end
 

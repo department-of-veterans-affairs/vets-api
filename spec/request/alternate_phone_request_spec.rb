@@ -7,7 +7,7 @@ RSpec.describe 'alternate phone', type: :request do
 
   let(:headers) { { 'Content-Type' => 'application/json', 'Accept' => 'application/json' } }
 
-  before(:each) { sign_in }
+  before { sign_in }
 
   describe 'GET /v0/profile/alternate_phone' do
     context 'with a 200 response' do

@@ -64,7 +64,7 @@ paths:
       summary: Retrieve appeals status for the Veteran with the supplied ssn
       operationId: getAppealStatus
       security:
-        - api_key: []
+        - apikey: []
       parameters:
         - in: header
           name: X-VA-SSN
@@ -101,7 +101,7 @@ paths:
           description: invalid SSN
 components:
   securitySchemes:
-    api_key:
+    apikey:
       type: apiKey
       name: apikey
       in: query

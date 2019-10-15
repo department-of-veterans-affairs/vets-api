@@ -4,7 +4,7 @@ require 'rails_helper'
 require 'vba_documents/object_store'
 
 RSpec.describe VBADocuments::ObjectStore do
-  before(:each) do
+  before do
     @resource = instance_double(Aws::S3::Resource)
     @client = instance_double(Aws::S3::Client)
     @bucket = instance_double(Aws::S3::Bucket)

@@ -10,7 +10,7 @@ RSpec.describe 'email', type: :request do
   let(:user) { build(:user, :loa3) }
   let(:headers) { { 'Content-Type' => 'application/json', 'Accept' => 'application/json' } }
 
-  before(:each) { sign_in_as(user) }
+  before { sign_in_as(user) }
 
   describe 'GET /v0/profile/email' do
     context 'with a 200 response' do
