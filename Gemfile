@@ -35,7 +35,6 @@ gem 'carrierwave-aws'
 gem 'clam_scan'
 gem 'config'
 gem 'connect_vbms', git: 'https://github.com/department-of-veterans-affairs/connect_vbms.git', branch: 'master'
-gem 'danger'
 gem 'date_validator'
 gem 'dry-struct'
 gem 'dry-types'
@@ -134,6 +133,7 @@ group :development, :test do
   gem 'brakeman'
   gem 'bundler-audit'
   gem 'byebug', platforms: :ruby # Call 'byebug' anywhere in the code to stop execution and get a debugger console
+  gem 'danger'
   gem 'database_cleaner'
   gem 'factory_bot_rails', '> 5'
   # CAUTION: faraday_curl may not provide all headers used in the actual faraday request. Be cautious if using this to
