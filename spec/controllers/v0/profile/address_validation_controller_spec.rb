@@ -5,6 +5,9 @@ require 'rails_helper'
 RSpec.describe V0::Profile::AddressValidationController, type: :controller do
   let(:user) { FactoryBot.build(:user) }
   let(:address) { build(:vet360_address) }
+  let(:multiple_match_addr) do
+    build(:vet360_address, :multiple_matches)
+  end
 
   before(:each) do
     sign_in_as(user)
@@ -45,35 +48,46 @@ RSpec.describe V0::Profile::AddressValidationController, type: :controller do
 
     context 'with a found address' do
       it 'should return suggested addresses for a given address' do
-        address.address_line1 = '5 Stoddard Ct'
-        address.city = 'Sparks Glencoe'
-        address.state_code = 'MD'
-        address.zip_code = '21152'
-
         VCR.use_cassette(
-          'vet360/address_validation/candidate_one_match',
+          'vet360/address_validation/validate_match',
           VCR::MATCH_EVERYTHING
         ) do
-          post(:create, params: address.to_h)
-          expect(JSON.parse(response.body)).to eq(
-            [{"address"=>
-             {"address_line1"=>"5 Stoddard Ct",
-              "address_type"=>"DOMESTIC",
-              "city"=>"Sparks Glencoe",
-              "country_name"=>"USA",
-              "country_code_iso3"=>"USA",
-              "county_code"=>"24005",
-              "county_name"=>"Baltimore",
-              "state_code"=>"MD",
-              "zip_code"=>"21152",
-              "zip_code_suffix"=>"9367"},
-            "address_meta_data"=>
-             {"confidence_score"=>100.0,
-              "address_type"=>"Domestic",
-              "delivery_point_validation"=>"CONFIRMED",
-              "residential_delivery_indicator"=>"RESIDENTIAL",
-              "validation_key"=>-2025296286}}]
-          )
+          VCR.use_cassette(
+            'vet360/address_validation/candidate_multiple_matches',
+            VCR::MATCH_EVERYTHING
+          ) do
+            post(:create, params: multiple_match_addr.to_h)
+            expect(JSON.parse(response.body)).to eq(
+              {"addresses"=>
+                [{"address"=>
+                   {"address_line1"=>"37 N 1st St",
+                    "address_type"=>"DOMESTIC",
+                    "city"=>"Brooklyn",
+                    "country_name"=>"USA",
+                    "country_code_iso3"=>"USA",
+                    "county_code"=>"36047",
+                    "county_name"=>"Kings",
+                    "state_code"=>"NY",
+                    "zip_code"=>"11249",
+                    "zip_code_suffix"=>"3939"},
+                  "address_meta_data"=>{"confidence_score"=>100.0, "address_type"=>"Domestic", "delivery_point_validation"=>"UNDELIVERABLE"}},
+                 {"address"=>
+                   {"address_line1"=>"37 S 1st St",
+                    "address_type"=>"DOMESTIC",
+                    "city"=>"Brooklyn",
+                    "country_name"=>"USA",
+                    "country_code_iso3"=>"USA",
+                    "county_code"=>"36047",
+                    "county_name"=>"Kings",
+                    "state_code"=>"NY",
+                    "zip_code"=>"11249",
+                    "zip_code_suffix"=>"4101"},
+                  "address_meta_data"=>
+                   {"confidence_score"=>100.0, "address_type"=>"Domestic", "delivery_point_validation"=>"CONFIRMED", "residential_delivery_indicator"=>"MIXED"}}],
+               "validation_key"=>609319007}
+            )
+            expect(response.status).to eq(200)
+          end
         end
       end
     end
