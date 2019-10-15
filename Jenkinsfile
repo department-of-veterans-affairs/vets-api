@@ -33,7 +33,7 @@ pipeline {
           string(credentialsId: 'danger-github-api-token',    variable: 'DANGER_GITHUB_API_TOKEN')
         ]) {
           withEnv(['RAILS_ENV=test', 'CI=true']) {
-            sh 'LC_ALL="en_US.UTF-8" make ci'
+            sh 'make ci'
           }
         }
       }
