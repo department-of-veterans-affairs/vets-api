@@ -12,7 +12,7 @@ Gem::Specification.new do |spec|
   spec.authors     = ['Alastair Dawson']
   spec.email       = ['alastair.j.dawson@gmail.com']
   spec.homepage    = 'https://api.va.gov'
-  spec.summary     = 'VAOS Interface'
+  spec.summary     = 'VAOS API'
   spec.description = 'VOAS (VA Online Scheduling) is part of VAMF (VA Mobile Framework) and allows veterans to make and manage appointments for care'
   spec.license     = 'MIT'
 
