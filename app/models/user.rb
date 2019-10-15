@@ -162,7 +162,7 @@ class User < Common::RedisStore
   # See also lib/saml/user_attributes/dslogon.rb
   # See also lib/saml/user_attributes/mhv
   def loa3?
-    loa[:current] == LOA::THREE
+    loa[:current].try(:to_i) == LOA::THREE
   end
 
   def ssn_mismatch?
