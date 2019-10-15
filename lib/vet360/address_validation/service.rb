@@ -8,32 +8,28 @@ module Vet360
       def initialize
       end
 
-      def validate(address)
-        begin
-          res = perform(
-            :post,
-            'validate',
-            address.address_validation_req.to_json
-          )
-        rescue => error
-          handle_error(error)
-        end
+      def address_suggestions(address)
+        validate_res = validate(address)
+        validation_key = validate_res['address_meta_data']['validation_key']
+        candidate_res = candidate(address)
 
-        res
+        AddressSuggestionsResponse.new(candidate_res, validation_key)
       end
 
-      def candidate(address)
-        begin
-          res = perform(
-            :post,
-            'candidate',
-            address.address_validation_req.to_json
-          )
-        rescue => error
-          handle_error(error)
-        end
+      %w(validate candidate).each do |endpoint|
+        define_method(endpoint) do |address|
+          begin
+            res = perform(
+              :post,
+              endpoint,
+              address.address_validation_req.to_json
+            )
+          rescue => error
+            handle_error(error)
+          end
 
-        CandidateResponse.new(res.body)
+          res.body
+        end
       end
 
       private
