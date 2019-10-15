@@ -1,6 +1,6 @@
 # PR too big
 MAX_PR_SIZE = 250
-failure("PR is exceeds #{MAX_PR_SIZE} LoC. Consider breaking up into multiple smaller ones.") if git.lines_of_code > MAX_PR_SIZE
+warn("PR is exceeds `#{MAX_PR_SIZE}` LoC. Consider breaking up into multiple smaller ones.") if git.lines_of_code > MAX_PR_SIZE
 
 
 # simultaneous migration & app code warning
@@ -9,7 +9,7 @@ db_files  = all_touched_files.select { |filepath| filepath.include? "db/" }
 app_files = all_touched_files.select { |filepath| filepath.include? "app/" }
 
 if !db_files.empty? && !app_files.empty?
-  msg = "Modified files in db/ and app/ inside the same PR!\n\n**db file(s)**"
+  msg = "Modified files in `db/` and `app/` inside the same PR!\n\n**db file(s)**"
   db_files.each { |file| msg += "\n- #{file}" }
   msg += "\n\n**app file(s)**"
   app_files.each { |file| msg += "\n- #{file}" }
@@ -18,5 +18,5 @@ if !db_files.empty? && !app_files.empty?
   # resolves exception... encode': "\xE2" on US-ASCII (Encoding::InvalidByteSequenceError)
   msg.scrub!('_')
 
-  failure(msg)
+  warn(msg)
 end
