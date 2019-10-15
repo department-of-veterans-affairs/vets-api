@@ -18,8 +18,7 @@ describe Vet360Redis::ContactInformation do
   end
   let(:permissions) do
     [
-      build(:permission),
-      build(:permission, :text)
+      build(:permission)
     ]
   end
 
