@@ -386,15 +386,6 @@ RSpec.describe VaFacilities::ParamValidators do
         .to include(expected_hash)
     end
 
-    it 'fails when only lat and not long is present' do
-      @dummy_class.params = { long: 40.5 }
-      expected_hash = { json: { errors: [
-        'You may only use ONE of these distance query parameter sets: lat/long, zip, state, or bbox'
-      ] } }
-      expect(@dummy_class.valid_location_query?)
-        .to include(expected_hash)
-    end
-
     it 'passes validation when state is present' do
       @dummy_class.params = { state: 'TX' }
       expect(@dummy_class).to be_valid_location_query
