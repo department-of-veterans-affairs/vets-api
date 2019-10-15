@@ -9,8 +9,22 @@ module MVI
       PERMANENT_ICN_REGEX = /^\w+\^NI\^200M\^USVHA\^P$/.freeze
       ICN_ASSIGNING_AUTHORITY_ID = '^NI^200M^USVHA'
 
-      # MVI correlation id source id relationships:
+      # Used to parse IDs found in an MVI 1306 response at the
+      # //controlActProcess/subject/registrationEvent/subject1/patient/id path.
+      #
+      # All IDs adhere to the following pattern:
       # {source id}^{id type}^{assigning facility}^{assigning authority}^{id status}
+      #
+      # IDs can either be considered an ICN (Integration Control Number) or Correlation ID.
+      # The ICN is the unique ID for the MVI service.
+      # Correlation IDs correlate to other services (Vet360, Birls, edipi, etc)
+      #
+      # An ICN following the PERMANENT_ICN_REGEX pattern will always be present.
+      # ICNs with ID statuses other than 'P' will never be present.
+      # Those are located at another path. See Responses::HistoricalIcnParser
+      # Other correlation IDs are likely but not guaranteed to exist.
+      # Correlation IDs can have any of the ID Statuses listed below.
+      #
       # id type - NI = national identifier
       #           PI = patient identifier
       #           EI - employee identifier
