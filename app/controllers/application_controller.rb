@@ -7,6 +7,7 @@ require 'saml/settings_service'
 require 'sentry_logging'
 require 'aes_256_cbc_encryptor'
 
+# random change to app/
 class ApplicationController < ActionController::API
   include AuthenticationAndSSOConcerns
   include SentryLogging

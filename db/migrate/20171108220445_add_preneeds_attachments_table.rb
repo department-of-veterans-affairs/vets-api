@@ -1,4 +1,5 @@
 class AddPreneedsAttachmentsTable < ActiveRecord::Migration[4.2]
+  # random change to db/
   def change
     create_table "preneed_attachments" do |t|
       t.timestamps(null: false)
