@@ -1,6 +1,6 @@
 inherit_from: .rubocop_todo.yml
 
-require:
+require: 
   - rubocop-rails
   - rubocop-rspec
 
@@ -58,7 +58,7 @@ Style/GuardClause:
 # problems as above.
 Style/Next:
   Enabled: false
-
+  
 Naming/VariableNumber:
   Enabled: false
 
@@ -93,7 +93,7 @@ Naming/AccessorMethodName:
 
 Rails/LexicallyScopedActionFilter:
   Exclude:
-    - "app/controllers/concerns/filterable.rb"
+    - "app/controllers/concerns/filterable.rb"	  	
 
 # Blocks are limited to 25 lines or less
 # removing block length rule for rspec DSL
@@ -107,7 +107,7 @@ Metrics/BlockLength:
     - 'modules/*/spec/**/*.rb'
 
 # Don't worry about ambiguous blocks in RSpec
-# Official recommendation from rubocop team is to disable this rule for specs.
+# Official recommendation from rubocop team is to disable this rule for specs. 
 # See: https://github.com/rubocop-hq/rubocop/issues/4222
 Lint/AmbiguousBlockAssociation:
   Exclude:
@@ -153,11 +153,11 @@ Rails/HasManyOrHasOneDependent:
 Naming/MemoizedInstanceVariableName:
   Enabled: false
 
-# It was determined these suggestions had the potential to change behavior.
+# It was determined these suggestions had the potential to change behavior. 
 Rails/ActiveRecordAliases:
   Enabled: false
 
-# The use of variables such as n to represent number, x and y for x-axis and y-axis, el for element,
+# The use of variables such as n to represent number, x and y for x-axis and y-axis, el for element, 
 # v for value, i for index, and e for error are all standard abbreviations and should be excluded.
 Naming/UncommunicativeMethodParamName:
   Enabled: false
@@ -169,17 +169,6 @@ Style/BlockDelimiters:
     - "spec/factories/*.rb"
     - "modules/*/spec/factories/*.rb"
 
-# Excluding modules specs for now and a few that may need to be revisited.
+# With specs in several different places, this should remain disabled unless or until we put all specs under the main specs directory.
 RSpec/FilePath:
-  Exclude:
-    - 'modules/**/*'
-    - 'spec/lib/common/models/**/*'
-    - 'spec/lib/saml/*_user_spec.rb'
-    - 'spec/lib/ihub/appointments/service_spec.rb'
-    - 'spec/request/in_progress_forms_request_spec.rb'
-    - 'spec/jobs/pagerduty/**/*'
-    - 'spec/lib/pagerduty/**/*'
-
-# Was determined that using described_class makes the code less readable.
-RSpec/DescribedClass:
   Enabled: false
