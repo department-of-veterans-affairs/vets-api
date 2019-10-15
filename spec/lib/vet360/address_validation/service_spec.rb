@@ -3,19 +3,42 @@
 require 'rails_helper'
 
 describe Vet360::AddressValidation::Service do
-  let(:address) { build(:vet360_address) }
+  let(:address) do
+    address = build(:vet360_address)
+    address.address_line1 = '5 Stoddard Ct'
+    address.city = 'Sparks Glencoe'
+    address.state_code = 'MD'
+    address.zip_code = '21152'
+    address
+  end
 
-  describe '#candidate' do
-    # TODO business address
+  let(:invalid_address) do
+    address = build(:vet360_address)
+    address.address_line1 = 'sdfdsfsdf'
+    address
+  end
+
+  describe '#validate' do
     context 'with an invalid address' do
       it 'should return an error' do
-        address.address_line1 = 'sdfdsfsdf'
+        VCR.use_cassette(
+          'vet360/address_validation/validate_no_match',
+          record: :once
+        ) do
+          described_class.new.validate(invalid_address)
+        end
+      end
+    end
+  end
 
+  describe '#candidate' do
+    context 'with an invalid address' do
+      it 'should return an error' do
         VCR.use_cassette(
           'vet360/address_validation/candidate_no_match',
           VCR::MATCH_EVERYTHING
         ) do
-          expect { described_class.new.candidate(address) }.to raise_error(Common::Exceptions::BackendServiceException)
+          expect { described_class.new.candidate(invalid_address) }.to raise_error(Common::Exceptions::BackendServiceException)
         end
       end
     end
@@ -71,11 +94,6 @@ describe Vet360::AddressValidation::Service do
       end
 
       it 'should return suggested addresses for a given address' do
-        address.address_line1 = '5 Stoddard Ct'
-        address.city = 'Sparks Glencoe'
-        address.state_code = 'MD'
-        address.zip_code = '21152'
-
         VCR.use_cassette(
           'vet360/address_validation/candidate_one_match',
           VCR::MATCH_EVERYTHING
