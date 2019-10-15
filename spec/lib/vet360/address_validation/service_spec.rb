@@ -90,7 +90,8 @@ describe Vet360::AddressValidation::Service do
     context 'with a found address' do
       it 'should return suggested address' do
         VCR.use_cassette(
-          'vet360/address_validation/validate_match'
+          'vet360/address_validation/validate_match',
+          VCR::MATCH_EVERYTHING
         ) do
           described_class.new.validate(multiple_match_addr)
         end
