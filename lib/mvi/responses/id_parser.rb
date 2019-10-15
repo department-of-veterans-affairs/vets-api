@@ -27,19 +27,22 @@ module MVI
       #
       # id type - NI = national identifier
       #           PI = patient identifier
-      #           EI - employee identifier
+      #           EI = employee identifier
       #           PN = patient number
 
       # id status -  A = Active (only applies to correlation IDs)
       #              P = Permanent (only applies to ICNs)
 
       # Should definitely NOT be using id_status
-      #              H = Deprecated due to local merge
+      #              H = Deprecated due to local merge. This is a value identified for correlations including EDIPI
+      #                  when the identifier has been deprecated/associated to another active ID.
       #              D = Deprecated from a Duplicate
       #              M = Deprecated from a Mismatch
-      #              U - Deprecated from an Unlink
-      #              L = pending local merge - This is a value identified for correlations including EDIPI when the
-      #                   identifier has been deprecated/associated to another active ID.
+      #              U = Deprecated from an Unlink
+      #              L = Local merge pending.  This is used to support the marking of active records as pending a merge,
+      #                  so that systems that have a large number of local dups can apply business rules to highlight
+      #                  1 active and mark the others if applicable with this new status.  This will allow business
+      #                  processes to utilize the 1 active
       #              PCE = Pending Cat Edit correlations (unsure if this should be used, likely not)
 
       def parse(ids)
