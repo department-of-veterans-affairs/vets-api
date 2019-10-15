@@ -10,8 +10,9 @@ task :danger do
   require 'rainbow'
 
   puts 'running danger...'
+  puts "External encoding = #{Encoding.default_external}"
 
-  danger_result = ShellCommand.run('danger --verbose')
+  danger_result = ShellCommand.run('LANG=en_US.UTF-8 danger --verbose')
 
   puts "\n\n"
 
