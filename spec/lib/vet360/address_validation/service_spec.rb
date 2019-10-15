@@ -3,19 +3,29 @@
 require 'rails_helper'
 
 describe Vet360::AddressValidation::Service do
+  let(:base_address) { build(:vet360_address) }
+
   let(:address) do
-    address = build(:vet360_address)
-    address.address_line1 = '5 Stoddard Ct'
-    address.city = 'Sparks Glencoe'
-    address.state_code = 'MD'
-    address.zip_code = '21152'
-    address
+    base_address.address_line1 = '5 Stoddard Ct'
+    base_address.city = 'Sparks Glencoe'
+    base_address.state_code = 'MD'
+    base_address.zip_code = '21152'
+
+    base_address
   end
 
   let(:invalid_address) do
-    address = build(:vet360_address)
-    address.address_line1 = 'sdfdsfsdf'
-    address
+    base_address.address_line1 = 'sdfdsfsdf'
+    base_address
+  end
+
+  let(:multiple_match_addr) do
+    base_address.address_line1 = '37 1st st'
+    base_address.city = 'Brooklyn'
+    base_address.state_code = 'NY'
+    base_address.zip_code = '11249'
+
+    base_address
   end
 
   describe '#validate' do
@@ -26,6 +36,17 @@ describe Vet360::AddressValidation::Service do
           VCR::MATCH_EVERYTHING
         ) do
           expect { described_class.new.validate(invalid_address) }.to raise_error(Common::Exceptions::BackendServiceException)
+        end
+      end
+    end
+
+    context 'with a found address' do
+      it 'should return suggested address' do
+        VCR.use_cassette(
+          'vet360/address_validation/validate_match',
+          record: :once
+        ) do
+          described_class.new.validate(multiple_match_addr)
         end
       end
     end
@@ -46,16 +67,11 @@ describe Vet360::AddressValidation::Service do
     context 'with a found address' do
       context 'with multiple matches' do
         it 'should return suggested addresses for a given address' do
-          address.address_line1 = '37 1st st'
-          address.city = 'Brooklyn'
-          address.state_code = 'NY'
-          address.zip_code = '11249'
-
           VCR.use_cassette(
             'vet360/address_validation/candidate_multiple_matches',
             VCR::MATCH_EVERYTHING
           ) do
-            res = described_class.new.candidate(address)
+            res = described_class.new.candidate(multiple_match_addr)
 
             expect(JSON.parse(res.to_json)).to eq(
               [{"address"=>
