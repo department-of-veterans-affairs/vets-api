@@ -183,3 +183,21 @@ RSpec/FilePath:
 # Was determined that using described_class makes the code less readable.
 RSpec/DescribedClass:
   Enabled: false
+
+# Excluding these for now. May need to be revisited.
+RSpec/DescribeClass:
+  Exclude:
+    - 'spec/lib/mhv_ac/client_spec.rb'
+    - 'spec/lib/mhv_logging/api/audits_spec.rb'
+    - 'spec/rakelib/vet360_spec.rb'
+    - 'spec/request/burial_claims_spec.rb'
+    - 'spec/request/education_benefits_claims_request_spec.rb'
+    - 'spec/request/health_care_applications_request_spec.rb'
+    - 'spec/request/pension_claims_controller_spec.rb'
+    - 'spec/request/swagger_spec.rb'
+    - 'spec/lib/sm/client/preferences_spec.rb'
+    - 'spec/lib/sm/client/triage_teams_spec.rb'
+    - 'spec/lib/sm/client/messages_spec.rb'
+    - 'spec/lib/bb/client_spec.rb'
+    - 'spec/lib/gi/client_spec.rb'
+    - 'spec/lib/sm/client/folders_spec.rb'

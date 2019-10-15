@@ -1048,9 +1048,10 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
     end
 
     context 'without EVSS mock' do
-      before { Settings.evss.mock_gi_bill_status = false }
-
-      before { Settings.evss.mock_letters = false }
+      before do
+        Settings.evss.mock_gi_bill_status = false
+        Settings.evss.mock_letters = false
+      end
 
       it 'supports getting EVSS Gi Bill Status' do
         Timecop.freeze(ActiveSupport::TimeZone.new('Eastern Time (US & Canada)').parse('1st Feb 2018 12:15:06'))
