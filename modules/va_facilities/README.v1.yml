@@ -445,9 +445,8 @@ paths:
         services. Only facilities of type "health" and "benefits" may be filtered by available
         services.
 
-        Results of this operation are paginated. JSON responses include pagination information
-        in the standard JSON API "links" and "meta" elements. GeoJSON responses include pagination
-        information in the "Link" header.
+        Results of this operation are paginated. Responses include pagination information
+        in the standard JSON API "links" and "meta" elements.
 
         Also in the "meta" element is information about the drive time band that the requested location 
         fell within for each the facility included in the response. The values of drive_time_band_min and 
@@ -616,12 +615,6 @@ paths:
                               related:
                                 type: string
                                 example: facilities?id=vha_688
-          headers:
-            Link:
-              description: GitHub-style pagination information. Only present for GeoJSON-format responses.
-              schema:
-                type: string
-                example: '<https://dev-api.va.gov/services/va_facilities/v1/facilities?bbox%5B%5D=-120&bbox%5B%5D=40&bbox%5B%5D=-125&bbox%5B%5D=50&page=2&per_page=20>; rel="self", <https://dev-api.va.gov/services/va_facilities/v0/facilities?bbox%5B%5D=-120&bbox%5B%5D=40&bbox%5B%5D=-125&bbox%5B%5D=50&page=1&per_page=20>; rel="first", <https://dev-api.va.gov/services/va_facilities/v0/facilities?bbox%5B%5D=-120&bbox%5B%5D=40&bbox%5B%5D=-125&bbox%5B%5D=50&page=1&per_page=20>; rel="prev", <https://dev-api.va.gov/services/va_facilities/v0/facilities?bbox%5B%5D=-120&bbox%5B%5D=40&bbox%5B%5D=-125&bbox%5B%5D=50&page=3&per_page=20>; rel="next", <https://dev-api.va.gov/services/va_facilities/v0/facilities?bbox%5B%5D=-120&bbox%5B%5D=40&bbox%5B%5D=-125&bbox%5B%5D=50&page=5&per_page=20>; rel="last"'
         '400':
           description: Missing Required Or Ambiguous Parameters
           content:
