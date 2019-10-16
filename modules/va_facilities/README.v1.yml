@@ -570,7 +570,7 @@ paths:
                   data:
                     type: array
                     items:
-                      $ref: "#/components/schemas/Facility"
+                      $ref: "#/components/schemas/NearbyFacility"
                   meta:
                     description: "Metadata about the response"
                     type: object
@@ -598,35 +598,24 @@ paths:
                           total_pages:
                             type: integer
                             example: 217
-                      facility_drive_time_bands:
+                  relationships:
+                    type: object
+                    required:
+                      - va_facilities
+                    properties:
+                      va_facilities:
                         type: object
                         required:
-                          - station_number
-                          - drive_time_band_min
-                          - drive_time_band_max
+                          - links
                         properties:
-                          id:
-                            type: string
-                            example: vha_688
-                          drive_time_band_min:
-                            type: integer
-                            example: 10
-                          drive_time_band_max:
-                            type: integer
-                            example: 20
-            application/vnd.geo+json:
-              schema:
-                required:
-                  - type
-                  - features
-                properties:
-                  type:
-                    type: string
-                    enum: ["FeatureCollection"]
-                  features:
-                    type: array
-                    items:
-                      $ref: "#/components/schemas/FacilityFeature"
+                          links:
+                            type: object
+                            required:
+                              - related
+                            properties:
+                              related:
+                                type: string
+                                example: facilities?id=vha_688
           headers:
             Link:
               description: GitHub-style pagination information. Only present for GeoJSON-format responses.
@@ -922,337 +911,383 @@ components:
       name: apikey
       in: header
   schemas:
-    Facility:
-      description: JSON API-compliant object describing a VA facility
+    NearbyFacility:
+      description: JSON API-compliant object describing a nearby VA facility
       type: object
       required:
         - id
         - type
         - attributes
+        - relationships
       properties:
         id:
           type: string
           example: vha_688
         type:
           type: string
-          enum: ["va_facilities"]
+          enum: ["nearby_facility"]
         attributes:
           type: object
           required:
-            - name
-            - facility_type
-            - lat
-            - lng
+            - drive_time_band_min
+            - drive_time_band_max
           properties:
-            name:
+            drive_time_band_min:
               type: string
-              example: Washington VA Medical Center
-            facility_type:
+              example: 10
+            drive_time_band_max:
               type: string
-              enum:
-                - va_health_facility
-                - va_benefits_facility
-                - va_cemetery
-                - vet_center
-            classification:
-              type: string
-              example: VA Medical Center (VAMC)
-            lat:
-              description: Facility latitude
-              type: number
-              format: float
-              example: 38.9311137
-            lng:
-              description: Facility longitude
-              type: number
-              format: float
-              example: -77.0109110499999
-            website:
-              type: string
-              format: url
-              example: http://www.washingtondc.va.gov
-            address:
-              type: object
-              properties:
-                mailing:
-                  $ref: "#/components/schemas/Address"
-                physical:
-                  $ref: "#/components/schemas/Address"
-            phone:
-              $ref: "#/components/schemas/PhoneNumbers"
-            hours:
-              $ref: "#/components/schemas/Hours"
-            services:
-              type: object
-              properties:
-                other:
-                  type: array
-                  items:
-                    type: string
-                    enum:
-                      - "Online Scheduling"
-                health:
-                  $ref: "#/components/schemas/HealthServices"
-                benefits:
-                  type: array
-                  items:
-                    $ref: "#/components/schemas/BenefitsService"
-                last_updated:
-                  type: string
-                  format: date
-                  example: "2018-01-01"
-            satisfaction:
-              type: object
-              properties:
-                health:
-                  $ref: "#/components/schemas/PatientSatisfaction"
-                effective_date:
-                  type: string
-                  format: date
-                  example: "2018-01-01"
-            mobile:
-              type: boolean
-              example: false
-            active_status:
-              type: string
-              enum:
-                - "A"
-                - "T"
-    FacilityFeature:
-      description: GeoJSON-complaint Feature object describing a VA Facility
-      type: object
-      properties:
-        type:
-          type: string
-          enum: ["Feature"]
-          example: Feature
-        geometry:
-          $ref: "#/components/schemas/Point"
-        properties:
+              example: 20
+        relationships:
           type: object
+          required:
+            - va_facilities
           properties:
-            name:
-              type: string
-              example: Washington VA Medical Center
-            id:
-              type: string
-              example: vha_688
-            facility_type:
-              type: string
-              enum:
-                - va_health_facility
-                - va_benefits_facility
-                - va_cemetery
-                - vet_center
-            classification:
-              type: string
-              example: VA Medical Center (VAMC)
-            website:
-              type: string
-              format: url
-              example: http://www.washingtondc.va.gov
-            address:
+            va_facilities:
               type: object
+              required:
+                - links
               properties:
-                mailing:
-                  $ref: "#/components/schemas/Address"
-                physical:
-                  $ref: "#/components/schemas/Address"
-            phone:
-              $ref: "#/components/schemas/PhoneNumbers"
-            hours:
-              $ref: "#/components/schemas/Hours"
-            services:
-              type: object
-              properties:
-                other:
-                  type: array
-                  items:
-                    type: string
-                    enum:
-                      - "Online Scheduling"
-                health:
-                  $ref: "#/components/schemas/HealthServices"
-                benefits:
-                  type: array
-                  items:
-                    $ref: "#/components/schemas/BenefitsService"
-                last_updated:
-                  type: string
-                  format: date
-                  example: "2018-01-01"
-            satisfaction:
-              type: object
-              properties:
-                health:
-                  $ref: "#/components/schemas/PatientSatisfaction"
-                effective_date:
-                  type: string
-                  format: date
-                  example: "2018-01-01"
-            mobile:
-              type: boolean
-              example: false
-            active_status:
-              type: string
-              enum:
-                - "A"
-                - "T"
-    Address:
-      type: object
-      properties:
-        address_1:
-          type: string
-          example: "50 Irving Street, Northwest"
-        address_2:
-          type: string
-        address_3:
-          type: string
-        city:
-          type: string
-          example: "Washington"
-        state:
-          type: string
-          example: "DC"
-        zip:
-          type: string
-          example: "20422-0001"
-    PhoneNumbers:
-      type: object
-      properties:
-        main:
-          type: string
-          example: "202-555-1212"
-        fax:
-          type: string
-          example: "202-555-1212"
-        pharmacy:
-          type: string
-          example: "202-555-1212"
-        after_hours:
-          type: string
-          example: "202-555-1212"
-        patient_advocate:
-          type: string
-          example: "202-555-1212"
-        mental_health_clinic:
-          type: string
-          example: "202-555-1212"
-        enrollment_coordinator:
-          type: string
-          example: "202-555-1212"
-    Hours:
-      description: |
-        Standard hours of operation. Currently formatted as descriptive text suitable for display, with no guarantee of a standard parseable format. Hours of operation may vary due to holidays or other events.
-      type: object
-      properties:
-        Monday:
-          type: string
-          example: "9AM-5PM"
-        Tuesday:
-          type: string
-          example: "9AM-5PM"
-        Wednesday:
-          type: string
-          example: "9AM-5PM"
-        Thursday:
-          type: string
-          example: "9AM-5PM"
-        Friday:
-          type: string
-          example: "9AM-5PM"
-        Saturday:
-          type: string
-          example: "Closed"
-        Sunday:
-          type: string
-          example: "Closed"
-    HealthServices:
-      description: Health care services at a given facility, not all will be included at every facility
-      type: array
-      items:
-        $ref: "#/components/schemas/HealthService"
-    HealthService:
-      type: object
-      properties:
-        service:
-          type: string
-          enum:
-            - PrimaryCare
-            - MentalHealthCare
-            - UrgentCare
-            - EmergencyCare
-            - Audiology
-            - Cardiology
-            - Dermatology
-            - Gastroenterology
-            - Gynecology
-            - Ophthalmology
-            - Optometry
-            - Orthopedics
-            - Urology
-            - WomensHealth
-        wait_times:
-          $ref: "#/components/schemas/PatientWaitTime"
-    BenefitsService:
-      type: string
-      enum:
-        - ApplyingForBenefits
-        - BurialClaimAssistance
-        - DisabilityClaimAssistance
-        - eBenefitsRegistrationAssistance
-        - EducationAndCareerCounseling
-        - EducationClaimAssistance
-        - FamilyMemberClaimAssistance
-        - HomelessAssistance
-        - InsuranceClaimAssistanceAndFinancialCounseling
-        - IntegratedDisabilityEvaluationSystemAssistance
-        - Pensions
-        - PreDischargeClaimAssistance
-        - TransitionAssistance
-        - UpdatingDirectDepositInformation
-        - VAHomeLoanAssistance
-        - VocationalRehabilitationAndEmploymentAssistance
-    PatientSatisfaction:
-      description: Veteran-reported satisfaction scores for health care services
-      type: object
-      properties:
-        primary_care_urgent:
-          description: "% of Veterans who say they usually or always get an appointment when they need care right away at a primary care location"
-          type: number
-          format: float
-          example: 0.85
-        primary_care_routine:
-          description: "% of Veterans who say they usually or always get an appointment when they need it at a primary care location"
-          type: number
-          format: float
-          example: 0.85
-        specialty_care_urgent:
-          description: "% of Veterans who say they usually or always get an appointment when they need care right away at a specialty location"
-          type: number
-          format: float
-          example: 0.85
-        specialty_care_routine:
-          description: "% of Veterans who say they usually or always get an appointment when they need it at a specialty location"
-          type: number
-          format: float
-          example: 0.85
-    PatientWaitTime:
-      description: Expected wait times for new and established patients for a given health care service
-      type: object
-      properties:
-        new:
-          description: The average number of days a Veteran who hasn’t been to this location has to wait for a non-urgent appointment
-          type: integer
-          example: 10
-        established:
-          description: The average number of days a patient who has already been to this location has to wait for a non-urgent appointment
-          type: integer
-          example: 5
-        effective_date:
-          type: string
-          format: date
-          example: "2018-01-01"
+                links:
+                  type: object
+                  required:
+                    - related
+                  properties:
+                    related:
+                      type: string
+                      example: facilities/vha_688
+    # COMMENTED OUT WHILE FACILITIES v1 ARE ONLY A DRAFT
+    # Facility:
+    #   description: JSON API-compliant object describing a VA facility
+    #   type: object
+    #   required:
+    #     - id
+    #     - type
+    #     - attributes
+    #   properties:
+    #     id:
+    #       type: string
+    #       example: vha_688
+    #     type:
+    #       type: string
+    #       enum: ["va_facilities"]
+    #     attributes:
+    #       type: object
+    #       required:
+    #         - name
+    #         - facility_type
+    #         - lat
+    #         - lng
+    #       properties:
+    #         name:
+    #           type: string
+    #           example: Washington VA Medical Center
+    #         facility_type:
+    #           type: string
+    #           enum:
+    #             - va_health_facility
+    #             - va_benefits_facility
+    #             - va_cemetery
+    #             - vet_center
+    #         classification:
+    #           type: string
+    #           example: VA Medical Center (VAMC)
+    #         lat:
+    #           description: Facility latitude
+    #           type: number
+    #           format: float
+    #           example: 38.9311137
+    #         lng:
+    #           description: Facility longitude
+    #           type: number
+    #           format: float
+    #           example: -77.0109110499999
+    #         website:
+    #           type: string
+    #           format: url
+    #           example: http://www.washingtondc.va.gov
+    #         address:
+    #           type: object
+    #           properties:
+    #             mailing:
+    #               $ref: "#/components/schemas/Address"
+    #             physical:
+    #               $ref: "#/components/schemas/Address"
+    #         phone:
+    #           $ref: "#/components/schemas/PhoneNumbers"
+    #         hours:
+    #           $ref: "#/components/schemas/Hours"
+    #         services:
+    #           type: object
+    #           properties:
+    #             other:
+    #               type: array
+    #               items:
+    #                 type: string
+    #                 enum:
+    #                   - "Online Scheduling"
+    #             health:
+    #               $ref: "#/components/schemas/HealthServices"
+    #             benefits:
+    #               type: array
+    #               items:
+    #                 $ref: "#/components/schemas/BenefitsService"
+    #             last_updated:
+    #               type: string
+    #               format: date
+    #               example: "2018-01-01"
+    #         satisfaction:
+    #           type: object
+    #           properties:
+    #             health:
+    #               $ref: "#/components/schemas/PatientSatisfaction"
+    #             effective_date:
+    #               type: string
+    #               format: date
+    #               example: "2018-01-01"
+    #         mobile:
+    #           type: boolean
+    #           example: false
+    #         active_status:
+    #           type: string
+    #           enum:
+    #             - "A"
+    #             - "T"
+    # FacilityFeature:
+    #   description: GeoJSON-complaint Feature object describing a VA Facility
+    #   type: object
+    #   properties:
+    #     type:
+    #       type: string
+    #       enum: ["Feature"]
+    #       example: Feature
+    #     geometry:
+    #       $ref: "#/components/schemas/Point"
+    #     properties:
+    #       type: object
+    #       properties:
+    #         name:
+    #           type: string
+    #           example: Washington VA Medical Center
+    #         id:
+    #           type: string
+    #           example: vha_688
+    #         facility_type:
+    #           type: string
+    #           enum:
+    #             - va_health_facility
+    #             - va_benefits_facility
+    #             - va_cemetery
+    #             - vet_center
+    #         classification:
+    #           type: string
+    #           example: VA Medical Center (VAMC)
+    #         website:
+    #           type: string
+    #           format: url
+    #           example: http://www.washingtondc.va.gov
+    #         address:
+    #           type: object
+    #           properties:
+    #             mailing:
+    #               $ref: "#/components/schemas/Address"
+    #             physical:
+    #               $ref: "#/components/schemas/Address"
+    #         phone:
+    #           $ref: "#/components/schemas/PhoneNumbers"
+    #         hours:
+    #           $ref: "#/components/schemas/Hours"
+    #         services:
+    #           type: object
+    #           properties:
+    #             other:
+    #               type: array
+    #               items:
+    #                 type: string
+    #                 enum:
+    #                   - "Online Scheduling"
+    #             health:
+    #               $ref: "#/components/schemas/HealthServices"
+    #             benefits:
+    #               type: array
+    #               items:
+    #                 $ref: "#/components/schemas/BenefitsService"
+    #             last_updated:
+    #               type: string
+    #               format: date
+    #               example: "2018-01-01"
+    #         satisfaction:
+    #           type: object
+    #           properties:
+    #             health:
+    #               $ref: "#/components/schemas/PatientSatisfaction"
+    #             effective_date:
+    #               type: string
+    #               format: date
+    #               example: "2018-01-01"
+    #         mobile:
+    #           type: boolean
+    #           example: false
+    #         active_status:
+    #           type: string
+    #           enum:
+    #             - "A"
+    #             - "T"
+    # Address:
+    #   type: object
+    #   properties:
+    #     address_1:
+    #       type: string
+    #       example: "50 Irving Street, Northwest"
+    #     address_2:
+    #       type: string
+    #     address_3:
+    #       type: string
+    #     city:
+    #       type: string
+    #       example: "Washington"
+    #     state:
+    #       type: string
+    #       example: "DC"
+    #     zip:
+    #       type: string
+    #       example: "20422-0001"
+    # PhoneNumbers:
+    #   type: object
+    #   properties:
+    #     main:
+    #       type: string
+    #       example: "202-555-1212"
+    #     fax:
+    #       type: string
+    #       example: "202-555-1212"
+    #     pharmacy:
+    #       type: string
+    #       example: "202-555-1212"
+    #     after_hours:
+    #       type: string
+    #       example: "202-555-1212"
+    #     patient_advocate:
+    #       type: string
+    #       example: "202-555-1212"
+    #     mental_health_clinic:
+    #       type: string
+    #       example: "202-555-1212"
+    #     enrollment_coordinator:
+    #       type: string
+    #       example: "202-555-1212"
+    # Hours:
+    #   description: |
+    #     Standard hours of operation. Currently formatted as descriptive text suitable for display, with no guarantee of a standard parseable format. Hours of operation may vary due to holidays or other events.
+    #   type: object
+    #   properties:
+    #     Monday:
+    #       type: string
+    #       example: "9AM-5PM"
+    #     Tuesday:
+    #       type: string
+    #       example: "9AM-5PM"
+    #     Wednesday:
+    #       type: string
+    #       example: "9AM-5PM"
+    #     Thursday:
+    #       type: string
+    #       example: "9AM-5PM"
+    #     Friday:
+    #       type: string
+    #       example: "9AM-5PM"
+    #     Saturday:
+    #       type: string
+    #       example: "Closed"
+    #     Sunday:
+    #       type: string
+    #       example: "Closed"
+    # HealthServices:
+    #   description: Health care services at a given facility, not all will be included at every facility
+    #   type: array
+    #   items:
+    #     $ref: "#/components/schemas/HealthService"
+    # HealthService:
+    #   type: object
+    #   properties:
+    #     service:
+    #       type: string
+    #       enum:
+    #         - PrimaryCare
+    #         - MentalHealthCare
+    #         - UrgentCare
+    #         - EmergencyCare
+    #         - Audiology
+    #         - Cardiology
+    #         - Dermatology
+    #         - Gastroenterology
+    #         - Gynecology
+    #         - Ophthalmology
+    #         - Optometry
+    #         - Orthopedics
+    #         - Urology
+    #         - WomensHealth
+    #     wait_times:
+    #       $ref: "#/components/schemas/PatientWaitTime"
+    # BenefitsService:
+    #   type: string
+    #   enum:
+    #     - ApplyingForBenefits
+    #     - BurialClaimAssistance
+    #     - DisabilityClaimAssistance
+    #     - eBenefitsRegistrationAssistance
+    #     - EducationAndCareerCounseling
+    #     - EducationClaimAssistance
+    #     - FamilyMemberClaimAssistance
+    #     - HomelessAssistance
+    #     - InsuranceClaimAssistanceAndFinancialCounseling
+    #     - IntegratedDisabilityEvaluationSystemAssistance
+    #     - Pensions
+    #     - PreDischargeClaimAssistance
+    #     - TransitionAssistance
+    #     - UpdatingDirectDepositInformation
+    #     - VAHomeLoanAssistance
+    #     - VocationalRehabilitationAndEmploymentAssistance
+    # PatientSatisfaction:
+    #   description: Veteran-reported satisfaction scores for health care services
+    #   type: object
+    #   properties:
+    #     primary_care_urgent:
+    #       description: "% of Veterans who say they usually or always get an appointment when they need care right away at a primary care location"
+    #       type: number
+    #       format: float
+    #       example: 0.85
+    #     primary_care_routine:
+    #       description: "% of Veterans who say they usually or always get an appointment when they need it at a primary care location"
+    #       type: number
+    #       format: float
+    #       example: 0.85
+    #     specialty_care_urgent:
+    #       description: "% of Veterans who say they usually or always get an appointment when they need care right away at a specialty location"
+    #       type: number
+    #       format: float
+    #       example: 0.85
+    #     specialty_care_routine:
+    #       description: "% of Veterans who say they usually or always get an appointment when they need it at a specialty location"
+    #       type: number
+    #       format: float
+    #       example: 0.85
+    # PatientWaitTime:
+    #   description: Expected wait times for new and established patients for a given health care service
+    #   type: object
+    #   properties:
+    #     new:
+    #       description: The average number of days a Veteran who hasn’t been to this location has to wait for a non-urgent appointment
+    #       type: integer
+    #       example: 10
+    #     established:
+    #       description: The average number of days a patient who has already been to this location has to wait for a non-urgent appointment
+    #       type: integer
+    #       example: 5
+    #     effective_date:
+    #       type: string
+    #       format: date
+    #       example: "2018-01-01"
     # COMMENTED OUT WHILE NEARBY USES FACILTIY AND FACILITYFEATURE
     # FacilityBasic:
     #   description: JSON API-compliant object describing a VA facility with only basic details
