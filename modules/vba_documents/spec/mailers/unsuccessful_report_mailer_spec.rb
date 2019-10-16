@@ -23,6 +23,7 @@ RSpec.describe VBADocuments::UnsuccessfulReportMailer, type: [:mailer] do
           alex.teal@oddball.io
           aubrey.suter@adhocteam.us
           trista.rowan@adhocteam.us
+          valerie.hase@va.gov
         ]
       )
     end
