@@ -42,9 +42,9 @@ module SAML
       VIRTUAL_HOST_MAPPINGS[current_host][:base_redirect]
     end
 
-    # TODO: Does this level up flow still work smoothly after SSOe is put into the flow?
-    def login_redirect_url(auth: 'success', code: nil)
-      if auth == 'success' && user.loa[:current] < user.loa[:highest]
+    # TODO: SSOe does not currently support upleveling due to missing AuthN attribute support
+    def login_redirect_url(auth: 'success', code: nil, skip_uplevel: false)
+      if auth == 'success' && user.loa[:current] < user.loa[:highest] && !skip_uplevel
         verify_url
       else
         @query_params[:type] = type if type
