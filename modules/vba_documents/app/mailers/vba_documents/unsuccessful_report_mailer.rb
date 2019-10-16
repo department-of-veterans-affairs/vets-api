@@ -10,6 +10,7 @@ module VBADocuments
       ryan.link@oddball.io
       aubrey.suter@adhocteam.us
       trista.rowan@adhocteam.us
+      valerie.hase@va.gov
     ].freeze
 
     def build(unsuccessful_submissions, date_from, date_to)
