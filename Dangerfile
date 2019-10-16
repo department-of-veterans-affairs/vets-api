@@ -1,9 +1,10 @@
-# PR too big
+# Warn if a pull request is too big
 MAX_PR_SIZE = 250
-warn("PR is exceeds `#{MAX_PR_SIZE}` LoC. Consider breaking up into multiple smaller ones.") if git.lines_of_code > MAX_PR_SIZE
+if git.lines_of_code > MAX_PR_SIZE
+  warn("PR is exceeds `#{MAX_PR_SIZE}` LoC. Consider breaking up into multiple smaller ones.")
+end
 
-
-# simultaneous migration & app code warning
+# Warn when a PR includes a simultaneous DB migration and application code changes
 all_touched_files  = git.added_files + git.modified_files + git.deleted_files
 db_files  = all_touched_files.select { |filepath| filepath.include? "db/" }
 app_files = all_touched_files.select { |filepath| filepath.include? "app/" }
