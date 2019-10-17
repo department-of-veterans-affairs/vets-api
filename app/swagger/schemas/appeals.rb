@@ -53,6 +53,15 @@ module Swagger
             property :alerts do
               key :'$ref', :HigherLevelReviewAlerts
             end
+            property :events do
+              key :type, :array
+              items do
+                key :type, :object
+                property :type do
+                  key :'$ref', :HigherLevelReviewEvents
+                end
+              end
+            end
           end
           property :relationships do
             key :'$ref', :HigherLevelReviewRelationships
@@ -84,7 +93,9 @@ module Swagger
       end
 
       swagger_schema :HigherLevelReviewRelationships do
-        
+      end
+
+      swagger_schema :HigherLevelReviewEvents do
       end
     end
   end
