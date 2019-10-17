@@ -5,13 +5,7 @@ module ClaimsApi
     extend ActiveSupport::Concern
     included do
       def validate_documents_page_size
-        errors = documents.reduce([]) do |memo, doc|
-          if valid_page_size?(doc)
-            memo
-          else
-            memo << json_api_page_size_error(doc)
-          end
-        end
+        errors = documents.reduce([]) { |cur, doc| valid_page_size?(doc) ? cur : cur << json_api_page_size_error(doc) }
         render json: { errors: errors }, status: 422 unless errors.empty?
       end
 
