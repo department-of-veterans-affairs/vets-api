@@ -107,8 +107,7 @@ FacilityLocationBulkUpdateVHA:
 FacilityLocationVHADriveTime:
   cron: "55 4 * * * America/New_York"
   class: Facilities::PSSGDownload
-  args: ['vha']
-  description: "Download and store facility location data"
+  description: "Download and store drive time bands"
 
 MaintenanceWindowRefresh:
   cron: "*/3 * * * * America/New_York"
