@@ -23,7 +23,8 @@
                   "processed",
                   "attempted",
                   "submitted",
-                  "canceled"
+                  "canceled",
+                  "not_yet_submitted"
                 ]
               }
             }
