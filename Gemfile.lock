@@ -23,6 +23,16 @@ GIT
       xmlenc
 
 GIT
+  remote: https://github.com/department-of-veterans-affairs/lighthouse-bgs.git
+  revision: ecd50e7adc5ababf5ca09994e55cf7d78ae6fe94
+  branch: master
+  specs:
+    lighthouse_bgs (0.2)
+      httpclient
+      nokogiri (>= 1.8.5)
+      savon (~> 2.12)
+
+GIT
   remote: https://github.com/department-of-veterans-affairs/puma-plugin-statsd
   revision: 6faba90147cf6fbb6c1a6a0c6cd3ae88e888ca73
   branch: master
@@ -570,12 +580,12 @@ GEM
       fugit (~> 1.1, >= 1.1.6)
     safe_shell (1.0.3)
     safe_yaml (1.0.5)
-    savon (2.11.1)
+    savon (2.12.0)
       akami (~> 1.2)
       builder (>= 2.1.2)
       gyoku (~> 1.2)
       httpi (~> 2.3)
-      nokogiri (>= 1.4.0)
+      nokogiri (>= 1.8.1)
       nori (~> 2.4)
       wasabi (~> 3.4)
     sawyer (0.8.2)
@@ -744,6 +754,7 @@ DEPENDENCIES
   jsonapi-parser
   jwt
   levenshtein-ffi
+  lighthouse_bgs!
   liquid
   mail (= 2.6.6)
   memoist
