@@ -1,6 +1,14 @@
 # Warn if a pull request is too big
+binding.pry
+
+exclusions = ["Gemfile.lock", ".json", "spec/fixtures/", ".txt"]
+dup_git = git.diff.stats.dup
+dup_stats[:files].delete_if { |key| exclusions.any? { |exclusion| key.include?(exclusion) } }
+lines_of_code = 0
+dup_stats[:files].each { |file, stats| lines_of_code += (stats[:insertions] + stats[:deletions]) }
+
 MAX_PR_SIZE = 250
-if git.lines_of_code > MAX_PR_SIZE
+if lines_of_code > MAX_PR_SIZE
   warn("PR is exceeds `#{MAX_PR_SIZE}` LoC. Consider breaking up into multiple smaller ones.")
 end
 
