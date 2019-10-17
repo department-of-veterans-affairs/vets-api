@@ -17,12 +17,13 @@ module Facilities
     def create_and_save_drive_time_data(drive_time_data)
       attributes = drive_time_data&.dig('attributes')
 
-      vha_id = extract_vha_id(attributes)
+      id = extract_id(attributes)
+      vha_id = "vha_#{id}"
       facility = BaseFacility.find_facility_by_id(vha_id)
       return if facility.nil?
 
       begin
-        drive_time_band = facility.drivetime_bands.find_or_initialize_by(vha_facility_id: extract_id(attributes))
+        drive_time_band = facility.drivetime_bands.find_or_initialize_by(vha_facility_id: id)
         drive_time_band.min = attributes&.dig('FromBreak')
         drive_time_band.max = attributes&.dig('ToBreak')
         drive_time_band.name = attributes&.dig('Name')
@@ -37,10 +38,6 @@ module Facilities
     def extract_id(attributes)
       name = attributes&.dig('Name')
       name.partition(':')&.first&.strip!
-    end
-
-    def extract_vha_id(attributes)
-      'vha_' + extract_id(attributes)
     end
 
     def extract_polygon(drive_time_data)
