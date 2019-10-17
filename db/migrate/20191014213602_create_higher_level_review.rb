@@ -6,6 +6,7 @@ class CreateHigherLevelReview < ActiveRecord::Migration[5.2]
       t.boolean :same_office
       t.boolean :legacy_opt_in_approved
       t.string :benefit_type
+      t.uuid :uuid
       t.references :account
       t.timestamps null: false
     end

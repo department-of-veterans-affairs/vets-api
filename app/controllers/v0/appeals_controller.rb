@@ -32,8 +32,8 @@ module V0
     end
 
     def set_higher_level_review
-      @higher_level_review = HigherLevelReview.for_user(current_user).find_by(higher_level_review_id: params[:id])
-      raise Common::Exceptions::RecordNotFound, params[:higher_level_review_id] unless higher_level_review
+      @higher_level_review = HigherLevelReview.for_user(current_user).find_by(uuid: params[:id])
+      raise Common::Exceptions::RecordNotFound, params[:id] unless @higher_level_review
     end
 
     def service
