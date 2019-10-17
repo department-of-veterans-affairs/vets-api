@@ -130,6 +130,11 @@ VBADocuments::UploadStatusBatch:
   class: VBADocuments::UploadStatusBatch
   description: "Cache Statuses for VBA Documents"
 
+VBADocuments::ReportUnsuccessfulSubmissions:
+  cron: "0 * * * 1 America/New_York"
+  class: VBADocuments::ReportUnsuccessfulSubmissions
+  description: "Weekly report of unsuccessful submissions"
+
 TransactionalEmailAnalyticsJob:
   cron: "0 1 * * * America/New_York"
   description: "posts Transactional email (HCA Failure and Direct Deposit Update) sends and failures to Google Analytics"
