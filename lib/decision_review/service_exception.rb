@@ -3,7 +3,7 @@
 require 'common/exceptions/external/backend_service_exception'
 
 module DecisionReview
-  # Custom exception that maps EVSS 526 errors to error details defined in config/locales/exceptions.en.yml
+  # Custom exception that maps Decision Review errors to error details defined in config/locales/exceptions.en.yml
   #
   class ServiceException < Common::Exceptions::BackendServiceException
     include SentryLogging
