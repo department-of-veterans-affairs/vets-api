@@ -1,11 +1,9 @@
 # Warn if a pull request is too big
 binding.pry
-
-exclusions = ["Gemfile.lock", ".json", "spec/fixtures/", ".txt"]
-dup_git = git.diff.stats.dup
-dup_stats[:files].delete_if { |key| exclusions.any? { |exclusion| key.include?(exclusion) } }
-lines_of_code = 0
-dup_stats[:files].each { |file, stats| lines_of_code += (stats[:insertions] + stats[:deletions]) }
+  
+EXCLUSIONS = ["Gemfile.lock", ".json", "spec/fixtures/", ".txt"]
+changed_files = git.diff.stats[:files].reject { |key| EXCLUSIONS.any? { |exclusion| key.include?(exclusion) } }
+lines_of_code = changed_files.sum { |file, changes| lines_of_code += (changes[:insertions] + changes[:deletions]) }
 
 MAX_PR_SIZE = 250
 if lines_of_code > MAX_PR_SIZE
