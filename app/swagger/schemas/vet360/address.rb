@@ -35,8 +35,13 @@ module Swagger
           property :zip_code,
                    type: :string,
                    example: '38843',
+                   minLength: 5,
                    maxLength: 5
-          property :zip_code_suffix, type: :string, example: '1234'
+          property :zip_code_suffix,
+                   type: :string,
+                   example: '1234',
+                   minLength: 4,
+                   maxLength: 4
         end
 
         swagger_schema :PostVet360DomesticAddress do
