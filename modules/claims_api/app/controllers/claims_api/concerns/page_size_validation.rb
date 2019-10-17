@@ -5,7 +5,7 @@ module ClaimsApi
     extend ActiveSupport::Concern
     included do
       def validate_documents_page_size
-        errors = documents.reduce([]) do |memo, doc| 
+        errors = documents.reduce([]) do |memo, doc|
           if valid_page_size?(doc)
             memo
           else
