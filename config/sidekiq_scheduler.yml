@@ -104,6 +104,12 @@ FacilityLocationBulkUpdateVHA:
   args: ['vha']
   description: "Download and store facility location data"
 
+FacilityLocationVHADriveTime:
+  cron: "55 4 * * * America/New_York"
+  class: Facilities::PSSGDownload
+  args: ['vha']
+  description: "Download and store facility location data"
+
 MaintenanceWindowRefresh:
   cron: "*/3 * * * * America/New_York"
   class: PagerDuty::PollMaintenanceWindows

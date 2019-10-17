@@ -52,7 +52,12 @@ namespace :jobs do
   end
 
   desc 'Populate/refresh All facility location types to db cache'
-  task pull_all_facility_location_data: %i[pull_nca_data pull_vba_data pull_vc_data pull_vha_data] do
+  task pull_all_facility_location_data: %i[pull_nca_data pull_vba_data pull_vc_data pull_vha_data pull_drive_time_bands] do
     # run all dependencies
+  end
+
+  desc 'Populate/refresh Drive time bands'
+  task pull_drive_time_bands: :environment do
+    Facilities::PSSGDownload.perform_async
   end
 end
