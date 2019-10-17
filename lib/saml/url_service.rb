@@ -122,13 +122,18 @@ module SAML
       logout_request.create(url_settings, RelayState: relay_state_params)
     end
 
+    # logout URL for SSOe
+    def ssoe_slo_url
+      Settings.saml_ssoe.logout_url
+    end
+
     private
 
     def initialize_query_params(params)
       @query_params = {}
 
       if params[:action] == 'saml_callback'
-        @type = JSON.parse(params[:RelayState])['type'] if params[:RelayState]
+        @type = JSON.parse(params[:RelayState])['type'] if params[:RelayState].present?
       end
     end
 

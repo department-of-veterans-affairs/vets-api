@@ -28,7 +28,10 @@ pipeline {
 
     stage('Run tests') {
       steps {
-        withCredentials([string(credentialsId: 'sidekiq-enterprise-license', variable: 'BUNDLE_ENTERPRISE__CONTRIBSYS__COM')]) {
+        withCredentials([
+          string(credentialsId: 'sidekiq-enterprise-license', variable: 'BUNDLE_ENTERPRISE__CONTRIBSYS__COM'),
+          string(credentialsId: 'danger-github-api-token',    variable: 'DANGER_GITHUB_API_TOKEN')
+        ]) {
           withEnv(['RAILS_ENV=test', 'CI=true']) {
             sh 'make ci'
           }

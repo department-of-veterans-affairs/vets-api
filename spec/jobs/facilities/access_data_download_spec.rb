@@ -29,7 +29,7 @@ RSpec.describe Facilities::AccessDataDownload, type: :job do
     let(:sat_client_stub) { instance_double('Facilities::AccessSatisfactionClient') }
     let(:wait_client_stub) { instance_double('Facilities::AccessWaitTimeClient') }
 
-    before(:each) do
+    before do
       allow(Facilities::AccessSatisfactionClient).to receive(:new) { sat_client_stub }
       allow(Facilities::AccessWaitTimeClient).to receive(:new) { wait_client_stub }
     end

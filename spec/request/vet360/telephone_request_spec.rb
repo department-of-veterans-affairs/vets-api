@@ -8,12 +8,12 @@ RSpec.describe 'telephone', type: :request do
   let(:user) { build(:user, :loa3) }
   let(:headers) { { 'Content-Type' => 'application/json', 'Accept' => 'application/json' } }
 
-  before(:each) do
+  before do
     Timecop.freeze(Time.zone.local(2018, 6, 6, 15, 35, 55))
     sign_in_as(user)
   end
 
-  after(:each) do
+  after do
     Timecop.return
   end
 

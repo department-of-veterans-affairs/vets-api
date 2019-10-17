@@ -11,7 +11,7 @@ RSpec.describe SAML::URLService do
     let(:user) { build(:user) }
     let(:session) { Session.create(uuid: user.uuid, token: 'abracadabra') }
 
-    around(:each) do |example|
+    around do |example|
       User.create(user)
       Timecop.freeze('2018-04-09T17:52:03Z')
       Thread.current['request_id'] = '123'

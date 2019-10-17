@@ -22,7 +22,7 @@ class DummyClass
 end
 
 RSpec.describe VaFacilities::ParamValidators do
-  before(:each) do
+  before do
     @dummy_class = DummyClass.new
   end
 
@@ -379,15 +379,6 @@ RSpec.describe VaFacilities::ParamValidators do
 
     it 'fails when only lat and not long is present' do
       @dummy_class.params = { lat: 40.5 }
-      expected_hash = { json: { errors: [
-        'You may only use ONE of these distance query parameter sets: lat/long, zip, state, or bbox'
-      ] } }
-      expect(@dummy_class.valid_location_query?)
-        .to include(expected_hash)
-    end
-
-    it 'fails when only lat and not long is present' do
-      @dummy_class.params = { long: 40.5 }
       expected_hash = { json: { errors: [
         'You may only use ONE of these distance query parameter sets: lat/long, zip, state, or bbox'
       ] } }

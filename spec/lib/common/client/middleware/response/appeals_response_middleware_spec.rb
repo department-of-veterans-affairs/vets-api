@@ -7,7 +7,7 @@ require 'common/client/middleware/response/raise_error'
 require 'common/client/middleware/response/snakecase'
 require 'common/client/errors'
 
-describe 'Appeals Response Middleware' do
+describe Common::Client::Middleware::Response do
   subject(:appeals_client) do
     Faraday.new do |conn|
       conn.response :snakecase

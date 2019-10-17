@@ -7,7 +7,7 @@ Sidekiq::Testing.fake!
 RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526Cleanup, type: :job do
   subject { described_class }
 
-  before(:each) do
+  before do
     Sidekiq::Worker.clear_all
   end
 
