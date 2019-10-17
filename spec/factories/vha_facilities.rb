@@ -24,13 +24,13 @@ FactoryBot.define do
         } }
     }
     phone {
-      { 'fax' => '360-690-0864 x',
-        'main' => '360-759-1901 x',
-        'pharmacy' => '503-273-5183 x',
-        'after_hours' => '360-696-4061 x',
-        'patient_advocate' => '503-273-5308 x',
+      { 'fax' => '360-690-0864',
+        'main' => '360-759-1901',
+        'pharmacy' => '503-273-5183',
+        'after_hours' => '360-696-4061',
+        'patient_advocate' => '503-273-5308',
         'mental_health_clinic' => '503-273-5187',
-        'enrollment_coordinator' => '503-273-5069 x' }
+        'enrollment_coordinator' => '503-273-5069' }
     }
     hours {
       { 'Friday' => '730AM-430PM',
@@ -111,13 +111,13 @@ FactoryBot.define do
         } }
     }
     phone {
-      { 'fax' => '503-273-5319 x',
-        'main' => '503-721-1498 x',
-        'pharmacy' => '503-273-5183 x',
-        'after_hours' => '503-220-8262 x',
-        'patient_advocate' => '503-273-5308 x',
+      { 'fax' => '503-273-5319',
+        'main' => '503-721-1498',
+        'pharmacy' => '503-273-5183',
+        'after_hours' => '503-220-8262',
+        'patient_advocate' => '503-273-5308',
         'mental_health_clinic' => '503-273-5187',
-        'enrollment_coordinator' => '503-273-5069 x' }
+        'enrollment_coordinator' => '503-273-5069' }
     }
     hours {
       { 'Friday' => '24/7',
@@ -233,13 +233,13 @@ FactoryBot.define do
         } }
     }
     phone {
-      { 'fax' => '503-808-1900 x',
-        'main' => '503-808-1256 x',
-        'pharmacy' => '503-273-5183 x',
-        'after_hours' => '800-273-8255 x',
-        'patient_advocate' => '503-273-5308 x',
+      { 'fax' => '503-808-1900',
+        'main' => '503-808-1256',
+        'pharmacy' => '503-273-5183',
+        'after_hours' => '800-273-8255',
+        'patient_advocate' => '503-273-5308',
         'mental_health_clinic' => '',
-        'enrollment_coordinator' => '503-273-5069 x' }
+        'enrollment_coordinator' => '503-273-5069' }
     }
     hours {
       { 'Friday' => '800AM-430PM',
@@ -299,11 +299,11 @@ FactoryBot.define do
         } }
     }
     phone {
-      { 'fax' => '207-834-2351 x',
-        'main' => '207-834-1572 x',
-        'pharmacy' => '207-623-5353 x',
-        'after_hours' => '844-750-8426 x',
-        'patient_advocate' => '207-623-5760 x',
+      { 'fax' => '207-834-2351',
+        'main' => '207-834-1572',
+        'pharmacy' => '207-623-5353',
+        'after_hours' => '844-750-8426',
+        'patient_advocate' => '207-623-5760',
         'mental_health_clinic' => '',
         'enrollment_coordinator' => '207-623-8411 x5688' }
     }
