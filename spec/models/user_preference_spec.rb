@@ -13,7 +13,7 @@ describe UserPreference, type: :model do
     let(:account) { create(:account) }
     let(:account_id) { account.id }
 
-    before(:each) do
+    before do
       allow_any_instance_of(User).to receive(:account).and_return(OpenStruct.new(id: account_id))
     end
 
@@ -56,10 +56,8 @@ describe UserPreference, type: :model do
         results = UserPreference.all_preferences_with_choices(account_id)
 
         expect(results.size).to eq 2
-        results.each do |result|
-          expect(result).to have_key(:preference)
-          expect(result).to have_key(:user_preferences)
-        end
+        expect(results).to all(have_key(:preference))
+        expect(results).to all(have_key(:user_preferences))
       end
     end
   end

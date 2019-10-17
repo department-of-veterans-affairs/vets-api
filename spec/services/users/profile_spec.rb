@@ -267,7 +267,7 @@ RSpec.describe Users::Profile do
       end
 
       context 'when a veteran status is not found' do
-        before(:each) do
+        before do
           allow_any_instance_of(
             EMISRedis::VeteranStatus
           ).to receive(:veteran?).and_raise(EMISRedis::VeteranStatus::RecordNotFound.new(status: 404))
@@ -292,7 +292,7 @@ RSpec.describe Users::Profile do
       end
 
       context 'when a veteran status call returns an error' do
-        before(:each) do
+        before do
           allow_any_instance_of(
             EMISRedis::VeteranStatus
           ).to receive(:veteran?).and_raise(Common::Client::Errors::ClientError.new(nil, 503))

@@ -18,7 +18,7 @@ RSpec.describe 'Documents management', type: :request do
   end
   let(:user) { FactoryBot.create(:user, :loa3) }
 
-  before(:each) { sign_in_as(user) }
+  before { sign_in_as(user) }
 
   it 'uploads a file' do
     params = { file: file, tracked_item_id: tracked_item_id, document_type: document_type }

@@ -55,6 +55,7 @@ module VbaDocuments
         operation :put do
           key :summary, 'Accepts document upload.'
           key :description, File.read(VBADocuments::Engine.root.join('app', 'swagger', 'vba_documents', 'document_upload', 'put_description.md'))
+          key :operationId, 'putBenefitsDocumentUpload'
 
           key :tags, [
             'document_uploads'

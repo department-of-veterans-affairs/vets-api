@@ -19,7 +19,8 @@ module EVSS
         data: {
           user: {
             uuid: user.uuid,
-            edipi: user.edipi
+            edipi: user.edipi,
+            ssn: user.ssn
           },
           request: req_body,
           response: res_body

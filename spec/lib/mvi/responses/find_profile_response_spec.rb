@@ -11,7 +11,7 @@ describe MVI::Responses::FindProfileResponse do
   let(:error_response) { MVI::Responses::FindProfileResponse.with_server_error }
   let(:not_found_response) { MVI::Responses::FindProfileResponse.with_not_found }
 
-  before(:each) do
+  before do
     allow(faraday_response).to receive(:body) { body }
   end
 
