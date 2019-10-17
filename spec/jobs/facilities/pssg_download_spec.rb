@@ -46,7 +46,7 @@ RSpec.describe Facilities::PSSGDownload, type: :job do
   end
 
   describe 'no matching facility' do
-    it 'populates facility with drive time data' do
+    it 'has no drive time data in the database' do
       subject.perform
       expect(BaseFacility.find_facility_by_id('vha_648A4')).to be_nil
       expect(DrivetimeBand.find_by(name: '648A4 : 0 - 10')).to be_nil
