@@ -4,9 +4,9 @@ require 'rails_helper'
 require 'facilities/bulk_json_client'
 
 RSpec.describe Facilities::VHAFacility do
-  before(:each) { BaseFacility.validate_on_load = false }
+  before { BaseFacility.validate_on_load = false }
 
-  after(:each) { BaseFacility.validate_on_load = true }
+  after { BaseFacility.validate_on_load = true }
 
   it 'is a Facilities::VHAFacility object' do
     expect(described_class.new).to be_a(Facilities::VHAFacility)
@@ -27,7 +27,7 @@ RSpec.describe Facilities::VHAFacility do
       VCR.use_cassette('facilities/va/vha_facilities_limit_results') do
         list = Facilities::VHAFacility.pull_source_data
         expect(list.size).to eq(4)
-        expect(list.all? { |item| item.is_a?(Facilities::VHAFacility) })
+        expect(list.all? { |item| item.is_a?(Facilities::VHAFacility) }).to be true
       end
     end
 
@@ -50,7 +50,7 @@ RSpec.describe Facilities::VHAFacility do
         end
       end
 
-      it 'parses mailing address correctly' do
+      it 'parses physical address correctly' do
         VCR.use_cassette('facilities/va/vha_facilities_limit_results') do
           expect(facility.address['physical']).to eq('address_1' => '1501 Roxas Boulevard',
                                                      'address_2' => 'NOX3 Seafront Compound',
@@ -98,7 +98,7 @@ RSpec.describe Facilities::VHAFacility do
       end
 
       context 'with mental health data' do
-        before(:each) do
+        before do
           attrs1 = {
             station_number: '358',
             mh_phone: '407-123-1234',
@@ -145,7 +145,7 @@ RSpec.describe Facilities::VHAFacility do
         let(:sat_client_stub) { instance_double('Facilities::AccessSatisfactionClient') }
         let(:wait_client_stub) { instance_double('Facilities::AccessWaitTimeClient') }
 
-        before(:each) do
+        before do
           allow(Facilities::AccessSatisfactionClient).to receive(:new) { sat_client_stub }
           allow(Facilities::AccessWaitTimeClient).to receive(:new) { wait_client_stub }
           allow(sat_client_stub).to receive(:download).and_return(satisfaction_data)

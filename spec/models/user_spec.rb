@@ -37,7 +37,7 @@ RSpec.describe User, type: :model do
     let(:user) { build(:user, :loa3) }
     let(:mvi_profile) { build(:mvi_profile, ssn: 'unmatched-ssn') }
 
-    before(:each) do
+    before do
       stub_mvi(mvi_profile)
     end
 
@@ -152,7 +152,7 @@ RSpec.describe User, type: :model do
   end
 
   describe 'redis persistence' do
-    before(:each) { subject.save }
+    before { subject.save }
 
     describe '#save' do
       it 'sets persisted flag to true' do
@@ -195,7 +195,7 @@ RSpec.describe User, type: :model do
         let(:mvi_profile) { build(:mvi_profile) }
         let(:user) { build(:user, :loa3, middle_name: 'J', mhv_icn: mvi_profile.icn) }
 
-        before(:each) do
+        before do
           stub_mvi(mvi_profile)
         end
 
@@ -245,7 +245,7 @@ RSpec.describe User, type: :model do
         let(:mvi_profile) { build(:mvi_profile) }
         let(:user) { build(:user, :loa3, :mhv_sign_in, mhv_icn: mvi_profile.icn) }
 
-        before(:each) { stub_mvi(mvi_profile) }
+        before { stub_mvi(mvi_profile) }
 
         it 'fetches first_name from MVI' do
           expect(user.first_name).to be(user.va_profile.given_names.first)
@@ -300,7 +300,7 @@ RSpec.describe User, type: :model do
         let(:mvi_profile) { build(:mvi_profile) }
         let(:user) { build(:user, :loa1, :mhv_sign_in, mhv_icn: mvi_profile.icn) }
 
-        before(:each) { stub_mvi(mvi_profile) }
+        before { stub_mvi(mvi_profile) }
 
         it 'fetches first_name from IDENTITY' do
           expect(user.first_name).to be_nil
@@ -335,7 +335,7 @@ RSpec.describe User, type: :model do
         let(:mvi_profile) { build(:mvi_profile) }
         let(:user) { build(:user, :loa3) }
 
-        before(:each) { stub_mvi(mvi_profile) }
+        before { stub_mvi(mvi_profile) }
 
         it 'fetches first_name from IDENTITY' do
           expect(user.first_name).to be(user.identity.first_name)
@@ -400,11 +400,11 @@ RSpec.describe User, type: :model do
   describe '#va_patient?' do
     let(:user) { build(:user, :loa3) }
 
-    before(:each) do
+    before do
       stub_mvi(mvi_profile)
     end
 
-    around(:each) do |example|
+    around do |example|
       with_settings(Settings.mhv, facility_range: [[450, 758]]) do
         with_settings(Settings.mhv, facility_specific: ['759MM']) do
           example.run

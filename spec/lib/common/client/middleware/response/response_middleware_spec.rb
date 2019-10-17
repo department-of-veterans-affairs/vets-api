@@ -8,7 +8,7 @@ require 'common/client/middleware/response/snakecase'
 require 'common/client/middleware/response/mhv_xml_html_errors'
 require 'common/client/errors'
 
-describe 'Response Middleware' do
+describe Common::Client::Middleware::Response do
   subject(:faraday_client) do
     Faraday.new do |conn|
       conn.response :snakecase

@@ -65,7 +65,7 @@ RSpec.describe 'Disability compensation form', type: :request do
   end
 
   describe 'Post /v0/disability_compensation_form/suggested_conditions/:name_part' do
-    before(:each) do
+    before do
       create(:disability_contention_arrhythmia)
       create(:disability_contention_arteriosclerosis)
       create(:disability_contention_arthritis)
@@ -93,13 +93,13 @@ RSpec.describe 'Disability compensation form', type: :request do
   end
 
   describe 'Post /v0/disability_compensation_form/submit' do
-    before(:each) do
+    before do
       VCR.insert_cassette('emis/get_military_service_episodes/valid')
       VCR.insert_cassette('evss/ppiu/payment_information')
       VCR.insert_cassette('evss/intent_to_file/active_compensation')
     end
 
-    after(:each) do
+    after do
       VCR.eject_cassette('emis/get_military_service_episodes/valid')
       VCR.eject_cassette('evss/ppiu/payment_information')
       VCR.eject_cassette('evss/intent_to_file/active_compensation')
@@ -108,12 +108,9 @@ RSpec.describe 'Disability compensation form', type: :request do
     context 'with a valid 200 evss response' do
       let(:jid) { "JID-#{SecureRandom.base64}" }
 
-      before(:each) do
+      before do
         allow(EVSS::DisabilityCompensationForm::SubmitForm526IncreaseOnly).to receive(:perform_async).and_return(jid)
         allow(EVSS::DisabilityCompensationForm::SubmitForm526AllClaim).to receive(:perform_async).and_return(jid)
-      end
-
-      before do
         create(:in_progress_form, form_id: VA526ez::FORM_ID, user_uuid: user.uuid)
       end
 

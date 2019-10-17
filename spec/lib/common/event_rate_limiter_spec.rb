@@ -16,7 +16,7 @@ describe Common::EventRateLimiter do
       }
     end
 
-    after(:each) { Timecop.return }
+    after { Timecop.return }
 
     describe '.at_limit?' do
       context 'with no events' do
