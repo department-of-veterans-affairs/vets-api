@@ -5,8 +5,7 @@ module Vet360
     class Service < Vet360::Service
       configuration Vet360::AddressValidation::Configuration
 
-      def initialize
-      end
+      def initialize; end
 
       def address_suggestions(address)
         validate_res = validate(address)
@@ -16,7 +15,7 @@ module Vet360
         AddressSuggestionsResponse.new(candidate_res, validation_key)
       end
 
-      %w(validate candidate).each do |endpoint|
+      %w[validate candidate].each do |endpoint|
         define_method(endpoint) do |address|
           begin
             res = perform(
@@ -24,8 +23,8 @@ module Vet360
               endpoint,
               address.address_validation_req.to_json
             )
-          rescue => error
-            handle_error(error)
+          rescue => e
+            handle_error(e)
           end
 
           res.body
@@ -42,9 +41,7 @@ module Vet360
 
         raise Common::Exceptions::BackendServiceException.new(
           'VET360_AV_ERROR',
-          {
-            detail: error.body
-          }
+          detail: error.body
         )
       end
     end

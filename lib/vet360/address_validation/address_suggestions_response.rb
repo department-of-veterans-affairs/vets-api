@@ -15,7 +15,7 @@ module Vet360
         }
       end
 
-      def to_json(*args)
+      def to_json(*_args)
         @response.to_json
       end
     end

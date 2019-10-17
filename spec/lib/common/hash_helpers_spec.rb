@@ -20,7 +20,7 @@ describe Common::HashHelpers do
       }
 
       expect(described_class.deep_remove_blanks(hash)).to eq(
-        {:a=>[false, {:a=>1, :c=>false}]}
+        a: [false, { a: 1, c: false }]
       )
     end
   end

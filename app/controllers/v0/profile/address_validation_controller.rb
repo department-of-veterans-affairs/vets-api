@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module V0
   module Profile
     class AddressValidationController < ApplicationController

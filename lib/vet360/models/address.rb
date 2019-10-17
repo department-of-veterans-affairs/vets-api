@@ -120,7 +120,7 @@ module Vet360
       end
 
       def address_validation_req
-        Common::HashHelpers.deep_remove_blanks({
+        Common::HashHelpers.deep_remove_blanks(
           requestAddress: attributes.slice(
             :address_line1,
             :address_line2,
@@ -138,7 +138,7 @@ module Vet360
             zipCode5: @zip_code,
             zipCode4: @zip_code_suffix
           )
-        })
+        )
       end
 
       # Converts a decoded JSON response from Vet360 to an instance of the Address model

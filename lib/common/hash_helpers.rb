@@ -48,9 +48,7 @@ module Common
     end
 
     def deep_compact(hash)
-      deep_remove_helper(hash) do |v|
-        v.nil?
-      end
+      deep_remove_helper(hash, &:nil?)
     end
   end
 end
