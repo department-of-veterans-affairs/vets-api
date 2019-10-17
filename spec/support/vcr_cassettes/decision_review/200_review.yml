@@ -1,0 +1,172 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: https://dev-api.va.gov/services/appeals/v3/decision_review/higher_level_reviews/1234567890
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Apikey:
+      - abcd1234abcd1234abcd1234abcd1234abcd1234
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: Accepted
+    headers:
+      Date:
+      - Wed, 16 Oct 2019 17:32:35 GMT
+      Content-Type:
+      - application/json; charset=utf-8
+      Connection:
+      - keep-alive
+      Access-Control-Allow-Origin:
+      - "*"
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubDomains
+      - max-age=31536000; includeSubDomains; preload
+      Via:
+      - kong/1.2.2
+      X-Content-Type-Options:
+      - nosniff
+      X-Frame-Options:
+      - SAMEORIGIN
+      X-Kong-Proxy-Latency:
+      - '1'
+      X-Kong-Upstream-Latency:
+      - '3247'
+      X-Ratelimit-Limit-Minute:
+      - '60'
+      X-Ratelimit-Remaining-Minute:
+      - '59'
+      X-Request-Id:
+      - 74544469-e248-4c47-9990-f2b73df1adbc
+      X-Runtime:
+      - '2.915770'
+      X-Xss-Protection:
+      - 1; mode=block
+      Set-Cookie:
+      - TS016f4012=01c8917e489bd94c458c7d912c84d5687517e29ca330455ef805bd0b2a59fc1209855490fefca99758ffa2b78b4d81713baa552053;
+        Max-Age=900; Path=/
+    body:
+      encoding: UTF-8
+      string: |-
+        {
+          "data": {
+            "id": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+            "type": "HigherLevelReview",
+            "attributes": {
+              "status": "string",
+              "aoj": "string",
+              "programArea": "string",
+              "benefitType": "compensation",
+              "description": "string",
+              "receiptDate": "2019-10-16",
+              "informalConference": true,
+              "sameOffice": true,
+              "legacyOptInApproved": true,
+              "alerts": [
+                {
+                  "type": "AmaPostDecision",
+                  "details": {
+                    "decisionDate": "2019-10-16",
+                    "availableOptions": [
+                      "string"
+                    ],
+                    "dueDate": "2019-10-16"
+                  }
+                }
+              ],
+              "events": [
+                {
+                  "type": "hlr_request_event",
+                  "date": "2019-10-16"
+                }
+              ]
+            },
+            "relationships": {
+              "veteran": {
+                "data": {
+                  "type": "Veteran",
+                  "id": "string"
+                }
+              },
+              "claimant": {
+                "data": {
+                  "type": "Claimant",
+                  "id": "string"
+                }
+              },
+              "requestIssues": {
+                "data": [
+                  {
+                    "type": "RequestIssue",
+                    "id": 0
+                  }
+                ]
+              },
+              "decisionIssues": {
+                "data": [
+                  {
+                    "type": "DecisionIssue",
+                    "id": 0
+                  }
+                ]
+              }
+            }
+          },
+          "included": [
+            {
+              "type": "DecisionIssue",
+              "id": 0,
+              "attributes": {
+                "approxDecisionDate": "2019-10-16",
+                "decisionText": "string",
+                "description": "string",
+                "disposition": "string",
+                "finalized": true
+              }
+            },
+            {
+              "type": "RequestIssue",
+              "id": 0,
+              "attributes": {
+                "active": true,
+                "statusDescription": "string",
+                "diagnosticCode": "string",
+                "ratingIssueId": "string",
+                "ratingIssueProfileDate": "2019-10-16",
+                "ratingDecisionReferenceId": "string",
+                "description": "string",
+                "contentionText": "string",
+                "approxDecisionDate": "2019-10-16",
+                "category": "string",
+                "notes": "string",
+                "isUnidentified": true,
+                "rampClaimId": "string",
+                "legacyAppealId": "string",
+                "legacyAppealIssueId": 0,
+                "ineligibleReason": "string",
+                "ineligibleDueToId": 0,
+                "decisionReviewTitle": "string",
+                "titleOfActiveReview": "string",
+                "decisionIssueId": 0,
+                "withdrawalDate": "2019-10-16",
+                "contestedIssueDescription": "string",
+                "endProductCleared": true,
+                "endProductCode": "string"
+              }
+            }
+          ]
+        }
+    http_version:
+  recorded_at: Wed, 16 Oct 2019 17:32:26 GMT
+recorded_with: VCR 3.0.3
