@@ -7,8 +7,8 @@ RSpec.describe VaFacilities::NearbyFacilitySerializer, type: :serializer do
 
   let(:thirty) { create(:thirty_mins) }
   let(:data) { JSON.parse(subject)['data'] }
-  let(:attributes) { JSON.parse(subject)['data']['attributes'] }
-  let(:relationships) { JSON.parse(subject)['data']['relationships'] }
+  let(:attributes) { data['attributes'] }
+  let(:relationships) { data['relationships'] }
   let(:vha_648) { create(:vha_648) }
 
   before { vha_648 }
