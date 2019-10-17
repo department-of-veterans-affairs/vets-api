@@ -1,28 +1,25 @@
 # frozen_string_literal: true
 
-require_dependency 'va_facilities/api_serialization_v1'
-
 module VaFacilities
   class NearbyFacilitySerializer < ActiveModel::Serializer
-    include ApiSerialization
-
-    type 'va_facilities'
+    BASE_PATH = '/services/va_facilities/v0'
 
     def id
-      ApiSerialization.id(object)
+      "vha_#{object.vha_facility_id}"
     end
 
-    attribute :long, key: :lng
-    attributes :name, :facility_type, :classification, :website, :lat,
-               :address, :phone, :hours, :services, :satisfaction,
-               :mobile, :active_status
-
-    def services
-      ApiSerializationV1.services(object)
+    belongs_to :va_facilities do
+      include_data false
+      link(:related) { "#{BASE_PATH}/facilities/vha_#{object.vha_facility_id}" }
     end
 
-    def satisfaction
-      ApiSerializationV1.satisfaction(object)
+    belongs_to :drivetime_band do
+      include_data false
+      link(:related) { "#{BASE_PATH}/drivetime_bands/#{object.id}" }
     end
+
+    type('nearby_facility')
+    attribute :min, key: :drivetime_band_min
+    attribute :max, key: :drivetime_band_max
   end
 end

@@ -4,7 +4,6 @@ require 'will_paginate/array'
 
 require_dependency 'va_facilities/application_controller'
 require_dependency 'va_facilities/pagination_headers'
-require_dependency 'va_facilities/geo_serializer_v1'
 require_dependency 'va_facilities/csv_serializer'
 require_dependency 'va_facilities/param_validators'
 
@@ -28,19 +27,15 @@ module VaFacilities
       }.freeze
 
       def index
-        query_method = get_query_method(params)
-        params_hash = params.permit!.to_h.symbolize_keys
-        resource = query_method.call(params_hash).paginate(page: params[:page],
-                                                           per_page: params[:per_page] || NearbyFacility.per_page)
+        # New implementation to replace this
+        resource = DrivetimeBand.where(vha_facility_id: '648').paginate(page: params[:page],
+                                                                      per_page: params[:per_page] || NearbyFacility.per_page)
         respond_to do |format|
           format.json do
             render json: resource,
                    each_serializer: VaFacilities::NearbyFacilitySerializer,
-                   meta: metadata(resource)
-          end
-          format.geojson do
-            response.headers['Link'] = link_header(resource)
-            render geojson: VaFacilities::GeoSerializerV1.to_geojson(resource)
+                   meta: metadata(resource),
+                   relationships: relationships(resource)
           end
         end
       end
@@ -74,12 +69,27 @@ module VaFacilities
         QUERY_INFO[location_type]
       end
 
+      def relationships(resource)
+        ids = resource.map(&:vha_facility_id).join(',')
+
+        {
+          va_facilities: {
+            links: {
+              related: "test/fac/link#{ids}"
+            }
+          }
+        }
+      end
+
       def metadata(resource)
-        { pagination: { current_page: resource.current_page,
-                        per_page: resource.per_page,
-                        total_pages: resource.total_pages,
-                        total_entries: resource.total_entries },
-          distances: [] }
+        {
+          pagination: {
+            current_page: resource.current_page,
+            per_page: resource.per_page,
+            total_pages: resource.total_pages,
+            total_entries: resource.total_entries
+          }
+        }
       end
     end
   end
