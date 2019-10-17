@@ -529,6 +529,8 @@ GEM
     rgeo-activerecord (6.1.0)
       activerecord (~> 5.0)
       rgeo (>= 1.0.0)
+    rgeo-geojson (2.1.1)
+      rgeo (>= 1.0.0)
     rspec (3.9.0)
       rspec-core (~> 3.9.0)
       rspec-expectations (~> 3.9.0)
@@ -782,6 +784,7 @@ DEPENDENCIES
   redis
   redis-namespace
   restforce
+  rgeo-geojson
   rspec-rails (~> 3.5)
   rspec_junit_formatter
   rubocop
