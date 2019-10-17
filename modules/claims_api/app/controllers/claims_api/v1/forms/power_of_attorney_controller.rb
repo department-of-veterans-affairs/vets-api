@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require_dependency 'claims_api/concerns/poa_verification'
+require_dependency 'claims_api/concerns/page_size_validation'
 
 module ClaimsApi
   module V1
@@ -10,6 +11,7 @@ module ClaimsApi
 
         before_action { permit_scopes %w[claim.write] }
         before_action :validate_json_schema, only: %i[submit_form_2122]
+        before_action :validate_documents_page_size, only: %i[upload]
 
         FORM_NUMBER = '2122'
 
