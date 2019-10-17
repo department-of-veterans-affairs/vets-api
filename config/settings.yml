@@ -101,6 +101,11 @@ ihub:
     mock: true
   in_production: false
 
+# Settings for Decision Reviews
+decision_review:
+  url: https://dev-api.va.gov/services/appeals/v3/decision_review
+  api_key: abcd1234abcd1234abcd1234abcd1234abcd1234
+  mock: false
 
 # Settings for EVSS
 evss:
