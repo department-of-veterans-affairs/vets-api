@@ -8,6 +8,7 @@ module ClaimsApi
     module Forms
       class PowerOfAttorneyController < ClaimsApi::BaseFormController
         include ClaimsApi::PoaVerification
+        include ClaimsApi::PageSizeValidation
 
         before_action { permit_scopes %w[claim.write] }
         before_action :validate_json_schema, only: %i[submit_form_2122]
