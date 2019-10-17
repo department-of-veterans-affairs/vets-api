@@ -7,9 +7,14 @@ describe Vet360::Models::Address do
 
   describe '#address_validation_req' do
     it 'should format the address for an address validation request' do
-      # TODO
-      binding.pry; fail
-      address.address_validation_req
+      expect(address.address_validation_req).to eq(
+        {:requestAddress=>
+          {"addressLine1"=>"140 Rock Creek Rd",
+           "city"=>"Washington",
+           :requestCountry=>{:countryCode=>"USA"},
+           :stateProvince=>{:code=>"DC"},
+           :zipCode5=>"20011"}}
+      )
     end
   end
 
