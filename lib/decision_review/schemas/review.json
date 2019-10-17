@@ -1,0 +1,394 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "type": "object",
+  "required": ["data", "included"],
+  "properties": {
+    "data": {
+      "type": "object",
+      "required": [
+        "id",
+        "type",
+        "attributes",
+        "relationships"
+      ],
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "type": {
+          "enum": [
+            "HigherLevelReview"
+          ]
+        },
+        "attributes": {
+          "type": "object",
+          "required": [
+            "status",
+            "aoj",
+            "program_area",
+            "benefit_type",
+            "description",
+            "receipt_date",
+            "informal_conference",
+            "same_office",
+            "legacy_opt_in_approved",
+            "alerts",
+            "events"
+          ],
+          "properties": {
+            "status": {
+              "type": "string"
+            },
+            "aoj": {
+              "type": ["string", "null"]
+            },
+            "program_area": {
+              "type": "string"
+            },
+            "benefit_type": {
+              "type": {
+                "enum": [
+                  "compensation",
+                  "pension",
+                  "fiduciary",
+                  "insurance",
+                  "education",
+                  "voc_rehab",
+                  "loan_guaranty",
+                  "vha",
+                  "nca"
+                ]
+              }
+            },
+            "description": {
+              "type": ["string", "null"]
+            },
+            "receipt_date": {
+              "type": ["string", "null"]
+            },
+            "informal_conference": {
+              "type": ["boolean", "null"]
+            },
+            "same_office": {
+              "type": ["boolean", "null"]
+            },
+            "legacy_opt_in_approved": {
+              "type": ["boolean", "null"]
+            },
+            "alerts": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": ["type", "details"],
+                "properties": {
+                  "type": {
+                    "enum": ["AmaPostDecision"]
+                  },
+                  "details": {
+                    "type": "object",
+                    "required": [
+                      "decision_date",
+                      "available_options",
+                      "due_date"
+                    ],
+                    "properties": {
+                      "decision_date": {
+                        "type": ["string", "null"]
+                      },
+                      "available_options": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        }
+                      },
+                      "due_date": {
+                        "type": ["string", "null"]
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "events": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": ["type", "date"],
+                "properties": {
+                  "type": {
+                    "type": {
+                      "enum": [
+                        "hlr_request_event",
+                        "hlr_decision_event",
+                        "hlr_dta_error_event",
+                        "dta_decision_event",
+                        "hlr_other_close_event"
+                      ]
+                    }
+                  },
+                  "date": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "relationships": {
+          "type": "object",
+          "required": [
+            "veteran",
+            "claimant",
+            "request_issues",
+            "decision_issues"
+          ],
+          "properties": {
+            "veteran": {
+              "type": "object",
+              "required": ["data"],
+              "properties": {
+                "data": {
+                  "type": "object",
+                  "required": ["type", "id"],
+                  "properties": {
+                    "type": {
+                      "enum": ["Veteran"]
+                    },
+                    "id": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            },
+            "claimant": {
+              "type": "object",
+              "required": ["data"],
+              "properties": {
+                "data": {
+                  "type": "object",
+                  "required": ["type", "id"],
+                  "properties": {
+                    "type": {
+                      "enum": ["Claimant"]
+                    },
+                    "id": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            },
+            "request_issues": {
+              "type": "object",
+              "required": ["data"],
+              "properties": {
+                "data": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": ["type", "id"],
+                    "properties": {
+                      "type": {
+                        "enum": ["RequestIssue"]
+                      },
+                      "id": {
+                        "type": "integer"
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "decision_issues": {
+              "type": "object",
+              "required": ["data"],
+              "properties": {
+                "data": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": ["type", "id"],
+                    "properties": {
+                      "type": {
+                        "enum": ["DecisionIssue"]
+                      },
+                      "id": {
+                        "type": "integer"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "included": {
+      "type": "array",
+      "items": {
+        "anyOf": [
+          {
+            "type": "object",
+            "required": ["id", "type", "attributes"],
+            "properties": {
+              "id": {
+                "type": "integer"
+              },
+              "type": {
+                "type": {
+                  "enum": ["DecisionIssue"]
+                }
+              },
+              "attributes": {
+                "type": "object",
+                "required": [
+                  "approx_decision_date",
+                  "decision_text",
+                  "description",
+                  "disposition",
+                  "finalized"
+                ],
+                "properties": {
+                  "approx_decision_date": {
+                    "type": ["string", "null"]
+                  },
+                  "decision_text": {
+                    "type": ["string", "null"]
+                  },
+                  "description": {
+                    "type": "string"
+                  },
+                  "disposition": {
+                    "type": ["string", "null"]
+                  },
+                  "finalized": {
+                    "type": "boolean"
+                  }
+                }
+              }
+            }
+          },
+          {
+            "type": "object",
+            "required": ["id", "type", "attributes"],
+            "properties": {
+              "id": {
+                "type": "integer"
+              },
+              "type": {
+                "type": {
+                  "enum": ["RequestIssue"]
+                }
+              },
+              "attributes": {
+                "type": "object",
+                "required": [
+                  "active",
+                  "status_description",
+                  "diagnostic_code",
+                  "rating_issue_id",
+                  "rating_issue_profile_date",
+                  "rating_decision_reference_id",
+                  "description",
+                  "contention_text",
+                  "approx_decision_date",
+                  "category",
+                  "notes",
+                  "is_unidentified",
+                  "ramp_claim_id",
+                  "legacy_appeal_id",
+                  "legacy_appeal_issue_id",
+                  "ineligible_reason",
+                  "ineligible_due_to_id",
+                  "decision_review_title",
+                  "title_of_active_review",
+                  "decision_issue_id",
+                  "withdrawal_date",
+                  "contested_issue_description",
+                  "end_product_cleared",
+                  "end_product_code"
+                ],
+                "properties": {
+                  "active": {
+                    "type": "boolean"
+                  },
+                  "status_description": {
+                    "type": "string"
+                  },
+                  "diagnostic_code": {
+                    "type": ["string", "null"]
+                  },
+                  "rating_issue_id": {
+                    "type": ["string", "null"]
+                  },
+                  "rating_issue_profile_date": {
+                    "type": ["string", "null"]
+                  },
+                  "rating_decision_reference_id": {
+                    "type": ["string", "null"]
+                  },
+                  "description": {
+                    "type": ["string", "null"]
+                  },
+                  "contention_text": {
+                    "type": "string"
+                  },
+                  "approx_decision_date": {
+                    "type": "string"
+                  },
+                  "category": {
+                    "type": ["string", "null"]
+                  },
+                  "notes": {
+                    "type": ["string", "null"]
+                  },
+                  "is_unidentified": {
+                    "type": ["boolean", "null"]
+                  },
+                  "ramp_claim_id": {
+                    "type": ["string", "null"]
+                  },
+                  "legacy_appeal_id": {
+                    "type": ["string", "null"]
+                  },
+                  "legacy_appeal_issue_id": {
+                    "type": ["integer", "null"]
+                  },
+                  "ineligible_reason": {
+                    "type": ["string", "null"]
+                  },
+                  "ineligible_due_to_id": {
+                    "type": ["integer", "null"]
+                  },
+                  "decision_review_title": {
+                    "type": ["string", "null"]
+                  },
+                  "title_of_active_review": {
+                    "type": ["string", "null"]
+                  },
+                  "decision_issue_id": {
+                    "type": ["integer", "null"]
+                  },
+                  "withdrawal_date": {
+                    "type": ["string", "null"]
+                  },
+                  "contested_issue_description": {
+                    "type": ["string", "null"]
+                  },
+                  "end_product_cleared": {
+                    "type": ["boolean", "null"]
+                  },
+                  "end_product_code": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        ]
+      }
+    }
+  }
+}
