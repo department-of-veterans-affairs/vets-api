@@ -8,7 +8,7 @@ module Swagger
       include Swagger::Blocks
 
       swagger_path '/v0/profile/address_validation' do
-      operation :post do
+        operation :post do
           extend Swagger::Responses::AuthenticationError
 
           key :description, 'Outputs address suggestions'
@@ -19,10 +19,51 @@ module Swagger
 
           parameter :authorization
 
+          key :produces, ['application/json']
+          key :consumes, ['application/json']
+
+          parameter do
+            key :name, :address
+            key :in, :body
+            key :description, 'Address input'
+            key :required, true
+
+            schema do
+              key :type, :object
+              key :required, [:address]
+
+              property(:address) do
+                key :'$ref', :Vet360AddressSuggestion
+              end
+            end
+          end
+
           response 200 do
             key :description, 'Response is OK'
             schema do
-              key :'$ref', :AsyncTransactionVet360
+              key :type, :object
+              property(:validation_key, type: :integer)
+
+              property(:addresses) do
+                key :type, :array
+
+                items do
+                  key :type, :object
+
+                  property(:address) do
+                    key :'$ref', :Vet360AddressSuggestion
+                  end
+
+                  property(:address_meta_data) do
+                    key :type, :object
+
+                    property(:confidence_score, type: :number)
+                    property(:address_type, type: :string)
+                    property(:delivery_point_validation, type: :string)
+                    property(:residential_delivery_indicator, type: :string)
+                  end
+                end
+              end
             end
           end
         end
