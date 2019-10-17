@@ -24,6 +24,7 @@ module Facilities
 
       begin
         drive_time_band = facility.drivetime_bands.find_or_initialize_by(vha_facility_id: id)
+        drive_time_band.unit = 'minutes'
         drive_time_band.min = attributes&.dig('FromBreak')
         drive_time_band.max = attributes&.dig('ToBreak')
         drive_time_band.name = attributes&.dig('Name')
