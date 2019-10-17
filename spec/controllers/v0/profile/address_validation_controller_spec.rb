@@ -22,7 +22,7 @@ RSpec.describe V0::Profile::AddressValidationController, type: :controller do
           'vet360/address_validation/validate_no_match',
           VCR::MATCH_EVERYTHING
         ) do
-          post(:create, params: address.to_h)
+          post(:create, params: { address: address.to_h })
 
           expect(JSON.parse(response.body)).to eq(
             {"errors"=>
@@ -56,7 +56,7 @@ RSpec.describe V0::Profile::AddressValidationController, type: :controller do
             'vet360/address_validation/candidate_multiple_matches',
             VCR::MATCH_EVERYTHING
           ) do
-            post(:create, params: multiple_match_addr.to_h)
+            post(:create, params: { address: multiple_match_addr.to_h })
             expect(JSON.parse(response.body)).to eq(
               {"addresses"=>
                 [{"address"=>

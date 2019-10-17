@@ -7,6 +7,27 @@ module Swagger
     class Profile
       include Swagger::Blocks
 
+      swagger_path '/v0/profile/address_validation' do
+      operation :post do
+          extend Swagger::Responses::AuthenticationError
+
+          key :description, 'Outputs address suggestions'
+          key :operationId, 'postVet360AddressValidation'
+          key :tags, %w[
+            profile
+          ]
+
+          parameter :authorization
+
+          response 200 do
+            key :description, 'Response is OK'
+            schema do
+              key :'$ref', :AsyncTransactionVet360
+            end
+          end
+        end
+      end
+
       swagger_path '/v0/profile/addresses' do
         operation :post do
           extend Swagger::Responses::AuthenticationError

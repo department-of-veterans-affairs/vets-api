@@ -8,7 +8,7 @@ module V0
       private
 
       def address_params
-        params.permit(
+        params.require(:address).permit(
           :address_line1,
           :address_line2,
           :address_line3,
