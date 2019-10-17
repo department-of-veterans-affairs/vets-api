@@ -22,8 +22,8 @@ module ClaimsApi
       def json_api_page_size_error(document)
         {
           status: 422,
-          source: document.original_file_name,
-          details: "#{document.original_file_name} exceeds the maximum page dimensions of 11 in x 11 in"
+          source: document.original_filename,
+          details: "#{document.original_filename} exceeds the maximum page dimensions of 11 in x 11 in"
         }
       end
     end
