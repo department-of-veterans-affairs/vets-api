@@ -6,11 +6,11 @@ require 'sidekiq/testing'
 Sidekiq::Testing.fake!
 
 RSpec.describe ClaimsApi::PoaUpdater, type: :job do
-  before(:each) do
+  subject { described_class }
+
+  before do
     Sidekiq::Worker.clear_all
   end
-
-  subject { described_class }
 
   let(:user) { FactoryBot.create(:user, :loa3) }
   let(:auth_headers) do
@@ -24,8 +24,8 @@ RSpec.describe ClaimsApi::PoaUpdater, type: :job do
     poa
   end
 
-#   it "updates the form's status" do
-#     binding.pry
-#     # subject.new.perform(poa.id, _)
-#   end
+  #   it "updates the form's status" do
+  #     binding.pry
+  #     # subject.new.perform(poa.id, _)
+  #   end
 end
