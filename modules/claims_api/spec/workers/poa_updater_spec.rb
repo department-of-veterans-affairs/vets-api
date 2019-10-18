@@ -19,16 +19,16 @@ RSpec.describe ClaimsApi::PoaUpdater, type: :job do
     headers
   end
 
-  let!(:poa) do
+  let(:poa) do
     poa = create(:power_of_attorney)
     poa.auth_headers = auth_headers
     poa.save
     poa
   end
 
-    it "updates the form's status" do
-      subject.new.perform(poa.id)
-      poa.reload
-      expect(poa.status).to eq('updated')
-    end
+  it "updates the form's status" do
+    subject.new.perform(poa.id)
+    poa.reload
+    expect(poa.status).to eq('updated')
+  end
 end
