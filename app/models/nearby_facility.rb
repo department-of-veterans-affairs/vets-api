@@ -72,9 +72,7 @@ class NearbyFacility < ApplicationRecord
         # find all facilities that lie inside of the polygon
         conditions = "ST_Intersects(#{make_polygon}, ST_MakePoint(long, lat))"
         facilities_query_base_instance = FacilitiesQuery::Base.new(params)
-        BaseFacility::TYPES.flat_map do |facility_type|
-          facilities_query_base_instance.get_facility_data(conditions, params[:type], facility_type, params[:services])
-        end
+        Array.new facilities_query_base_instance.get_facility_data(conditions, params[:type], params[:type], params[:services])
       else
         NearbyFacility.none
       end
