@@ -28,7 +28,7 @@ module Facilities
         VCR.use_cassette('facilities/va/vba_facilities_limit_results') do
           list = VBAFacility.pull_source_data
           expect(list).to be_an(Array)
-          expect(list.all? { |item| item.is_a?(VBAFacility) })
+          expect(list.all? { |item| item.is_a?(VBAFacility) }).to be true
         end
       end
 
@@ -44,6 +44,7 @@ module Facilities
             )
           end
         end
+
         it 'parses hours correctly 2' do
           VCR.use_cassette('facilities/va/vba_facilities_limit_results') do
             expect(facility_2.hours.values).to match_array(
@@ -58,7 +59,7 @@ module Facilities
           end
         end
 
-        it 'parses mailing address correctly' do
+        it 'parses physical address correctly' do
           VCR.use_cassette('facilities/va/vba_facilities_limit_results') do
             expect(facility.address['physical']).to eq('address_1' => '5310 1/2 Warrensville Center Road',
                                                        'address_2' => '',
@@ -73,13 +74,13 @@ module Facilities
           end
         end
 
-        it 'parses services' do
+        it 'parses benefits keys' do
           VCR.use_cassette('facilities/va/vba_facilities_limit_results') do
             expect(facility.services['benefits'].keys).to match_array(%w[other standard])
           end
         end
 
-        it 'parses services' do
+        it 'parses benefits values' do
           VCR.use_cassette('facilities/va/vba_facilities_limit_results') do
             expect(facility.services['benefits'].values).to match_array(['Readjustment Counseling only', []])
           end
