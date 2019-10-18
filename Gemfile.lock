@@ -75,6 +75,12 @@ PATH
       rails (~> 5.2.3)
 
 PATH
+  remote: modules/vaos
+  specs:
+    vaos (0.1.0)
+      rails (~> 5.2.3)
+
+PATH
   remote: modules/vba_documents
   specs:
     vba_documents (0.0.1)
@@ -533,6 +539,8 @@ GEM
     rgeo-activerecord (6.1.0)
       activerecord (~> 5.0)
       rgeo (>= 1.0.0)
+    rgeo-geojson (2.1.1)
+      rgeo (>= 1.0.0)
     rspec (3.9.0)
       rspec-core (~> 3.9.0)
       rspec-expectations (~> 3.9.0)
@@ -787,6 +795,7 @@ DEPENDENCIES
   redis
   redis-namespace
   restforce
+  rgeo-geojson
   rspec-rails (~> 3.5)
   rspec_junit_formatter
   rubocop
@@ -818,6 +827,7 @@ DEPENDENCIES
   upsert
   utf8-cleaner
   va_facilities!
+  vaos!
   vba_documents!
   vcr
   veteran!
