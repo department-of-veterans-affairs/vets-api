@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'sidekiq'
-require 'lighthouse-bgs'
+require 'lighthouse_bgs'
 
 module ClaimsApi
   class PoaUpdater
@@ -11,7 +11,7 @@ module ClaimsApi
       poa_form = ClaimsApi::PowerOfAttorney.find(power_of_attorney_id)
       service = LighthouseBGS::Services.new
       response = service.vet_record.update_birls_record(
-        ssn: poa_form.auth_headers['X-VA-SSN'],
+        ssn: poa_form.auth_headers['va_eauth_pnid'],
         poa_code: poa_form.form_data['poaCode']
       )
 

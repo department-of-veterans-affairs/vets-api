@@ -14,7 +14,9 @@ RSpec.describe ClaimsApi::PoaUpdater, type: :job do
 
   let(:user) { FactoryBot.create(:user, :loa3) }
   let(:auth_headers) do
-    EVSS::DisabilityCompensationAuthHeaders.new(user).add_headers(EVSS::AuthHeaders.new(user).to_h)
+    headers = EVSS::DisabilityCompensationAuthHeaders.new(user).add_headers(EVSS::AuthHeaders.new(user).to_h)
+    headers['va_eauth_pnid'] = '796104437'
+    headers
   end
 
   let!(:poa) do
@@ -24,8 +26,9 @@ RSpec.describe ClaimsApi::PoaUpdater, type: :job do
     poa
   end
 
-  #   it "updates the form's status" do
-  #     binding.pry
-  #     # subject.new.perform(poa.id, _)
-  #   end
+    it "updates the form's status" do
+      subject.new.perform(poa.id)
+      poa.reload
+      expect(poa.status).to eq('updated')
+    end
 end
