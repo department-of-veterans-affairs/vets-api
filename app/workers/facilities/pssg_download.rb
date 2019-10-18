@@ -18,8 +18,7 @@ module Facilities
       attributes = drive_time_data&.dig('attributes')
 
       id = extract_id(attributes)
-      vha_id = "vha_#{id}"
-      facility = BaseFacility.find_facility_by_id(vha_id)
+      facility = Facilities::VHAFacility.find_by(unique_id: id)
       return if facility.nil?
 
       begin
@@ -37,8 +36,8 @@ module Facilities
     end
 
     def extract_id(attributes)
-      name = attributes&.dig('Name')
-      name.partition(':')&.first&.strip!
+      name = attributes&.dig('Sta_No')
+      name&.strip
     end
 
     def extract_polygon(drive_time_data)
