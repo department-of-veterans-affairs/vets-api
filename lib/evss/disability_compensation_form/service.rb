@@ -39,6 +39,17 @@ module EVSS
         end
       end
 
+      # GETs a user's total combined disability rating
+      #
+      # @return [EVSS::DisabilityCompensationForm::TotalRatingResponse] Response with a total combined disability rating
+      #
+      def get_total_rating
+        with_monitoring_and_error_handling do
+          raw_response = perform(:get, 'ratedDisabilities')
+          TotalRatingResponse.new(raw_response.status, raw_response)
+        end
+      end
+
       # POSTs a 526 form to the EVSS submit endpoint. EVSS is bound to VBMSs response times and, therefore,
       # the timeout has to be extended to ~6 minutes to match their upstream timeout.
       #
