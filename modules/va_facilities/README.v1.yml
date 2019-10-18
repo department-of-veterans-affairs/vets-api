@@ -434,15 +434,14 @@ paths:
     get:
       tags:
         - facilities
-      summary: Query facilities based on drive time from a specified location
+      summary: Query health facilities based on drive time from a specified location
       description: |
-        Retrieve all facilities contained within an isochrone (a polygon composed of the area
+        Retrieve all health facilities contained within an isochrone (a polygon composed of the area
         reachable in a certain amount of time from a central location) based on passing in a
         combination of `street_address`, `city`, `state`, and `zip` or `lat` and `lng` required
         parameters along with `drive_time`.
 
-        Additionally one can filter the facilities within the isochrone by type and available
-        services. Only facilities of type "health" and "benefits" may be filtered by available
+        Additionally one can filter the facilities within the isochrone by available
         services.
 
         Results of this operation are paginated. JSON responses include pagination information
@@ -509,17 +508,6 @@ paths:
           schema:
             type: integer
             default: 60
-        - name: type
-          description: Optional facility type search filter
-          in: query
-          required: false
-          schema:
-            type: string
-            enum:
-              - health
-              - cemetery
-              - benefits
-              - vet_center
         - name: services[]
           description: Optional facility service search filter
           in: query
