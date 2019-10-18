@@ -38,7 +38,7 @@ module Swagger
               end
             end
             property :id, type: :string, example: nil
-            property :type, type: :string, example: 'evss_disability_compensation_form_total_combined_disability_response'
+            property :type, type: :string, example: 'evss_disability_compensation_form_total_rating_response'
           end
         end
 

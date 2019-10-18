@@ -8,7 +8,7 @@ module EVSS
     # Model that contains an array*** of a veteran's parsed total combined disability rating
     #
     # @!attribute rated_disabilities
-    #   @return [Array***<EVSS::DisabilityCompensationForm::TotalCombinedDisability>] The total combined disability rating
+    #   @return [Array***<EVSS::DisabilityCompensationForm::TotalRating>] The total combined disability rating
     #
     class TotalRatingResponse < EVSS::Response
       attribute :rated_disabilities, Array[EVSS::DisabilityCompensationForm::RatedDisability]
