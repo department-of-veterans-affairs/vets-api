@@ -39,7 +39,7 @@ RSpec.describe Facilities::PSSGDownload, type: :job do
       expect(BaseFacility.find_facility_by_id('vha_648A4').drivetime_bands[0].name).to eql('648A4 : 0 - 10')
       expect(BaseFacility.find_facility_by_id('vha_648A4').drivetime_bands[0].unit).to eql('minutes')
       expect(DrivetimeBand.find_by(vha_facility_id: '648A4').name).to eql('648A4 : 0 - 10')
-      expect(DrivetimeBand.find_by(vha_facility_id: '648A4').polygon.to_s).to_not eql(existing_drive_time.polygon.to_s)
+      expect(DrivetimeBand.find_by(vha_facility_id: '648A4').polygon).not_to eq(existing_drive_time.polygon)
     end
 
     it 'populates facility with drive time data' do
@@ -61,7 +61,7 @@ RSpec.describe Facilities::PSSGDownload, type: :job do
       expect(BaseFacility.find_facility_by_id('vha_648A4').drivetime_bands.size).to be(1)
       expect(BaseFacility.find_facility_by_id('vha_648A4').drivetime_bands[0].name).to eql('648A4 : 0 - 10')
       expect(BaseFacility.find_facility_by_id('vha_648A4').drivetime_bands[0].unit).to eql('minutes')
-      expect(DrivetimeBand.find_by(vha_facility_id: '648A4').polygon.to_s).to eql(existing_drive_time.polygon.to_s)
+      expect(DrivetimeBand.find_by(vha_facility_id: '648A4').polygon).to eq(existing_drive_time.polygon)
     end
   end
 
