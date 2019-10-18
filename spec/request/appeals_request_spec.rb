@@ -2,10 +2,38 @@
 
 require 'rails_helper'
 
-RSpec.describe 'Appeals Status', type: :request do
+RSpec.describe 'Appeals', type: :request do
   include SchemaMatchers
 
   before { sign_in_as(user) }
+
+  describe 'show higher level review' do
+    uuid = 1234567890
+
+    context 'with an loa1 user' do
+      let(:user) { FactoryBot.create(:user, :loa1, ssn: '111223333') }
+
+      it 'returns a forbidden error' do
+        get "/v0/appeals/higher_level_reviews/#{uuid}"
+        expect(response).to have_http_status(:forbidden)
+      end
+    end
+
+    context 'with an loa3 user' do
+      let(:user) { FactoryBot.create(:user, :loa1, ssn: '111223333') }
+      
+      context 'with a valid response' do
+        it 'returns a successful response' do
+          VCR.use_cassette('appeals/higher_level_review') do
+            get "/v0/appeals/higher_level_reviews/#{uuid}"
+            expect(response).to have_http_status(:ok)
+            expect(response.body).to be_a(String)
+            expect(response).to match_response_schema('higher_level_review')
+          end
+        end
+      end
+    end
+  end
 
   context 'with a loa1 user' do
     let(:user) { FactoryBot.create(:user, :loa1, ssn: '111223333') }
@@ -109,5 +137,7 @@ RSpec.describe 'Appeals Status', type: :request do
         end
       end
     end
+
+
   end
 end

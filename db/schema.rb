@@ -10,8 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-
-ActiveRecord::Schema.define(version: 2019_10_07_182427) do
+ActiveRecord::Schema.define(version: 2019_10_14_213602) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
@@ -302,6 +301,19 @@ ActiveRecord::Schema.define(version: 2019_10_07_182427) do
     t.string "state", default: "pending", null: false
     t.string "form_submission_id_string"
     t.string "timestamp"
+  end
+
+  create_table "higher_level_reviews", force: :cascade do |t|
+    t.date "receipt_date"
+    t.boolean "informal_conference"
+    t.boolean "same_office"
+    t.boolean "legacy_opt_in_approved"
+    t.string "benefit_type"
+    t.uuid "uuid"
+    t.bigint "account_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["account_id"], name: "index_higher_level_reviews_on_account_id"
   end
 
   create_table "id_card_announcement_subscriptions", id: :serial, force: :cascade do |t|
