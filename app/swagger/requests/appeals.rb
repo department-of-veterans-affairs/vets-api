@@ -63,7 +63,7 @@ module Swagger
       swagger_path '/v0/appeals/higher_level_reviews/{uuid}' do
         operation :get do
 
-          key :description, 'This endpoint returns the details of a specific Higher Level Review. This endpoint is also referred to as the Show endpoint'
+          key :description, 'This endpoint returns the details of a specific Higher Level Review'
           key :operationId, 'showHigherLevelReview'
           key :tags, %w[higher_level_reviews]
 
@@ -106,26 +106,6 @@ module Swagger
       end
 
       swagger_path 'v0/appeals/higher_level_review/intake_status/{intake_id}' do
-      end
-
-      swagger_path 'v0/appeals/higher_level_reviews' do
-        operation :post do
-
-          key :description, 'Creates a higher level review submission'
-          key :operationId, 'postHigherLevelReview'
-          key :tags, %w[higher_level_reviews]
-
-          parameter do
-            key :name, :higher_level_review
-            key :in, :body
-            key :description, 'Creates a higher level review submission'
-            key :required, true
-          end
-
-          response 202 do
-          end
-
-        end
       end
     end
   end
