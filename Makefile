@@ -19,7 +19,7 @@ ci:
 .PHONY: clean
 clean:
 	rm -r data || true
-	$(COMPOSE_TEST) run vets-api rm -r coverage log tmp || true
+	$(COMPOSE_TEST) run vets-api rm -r coverage log tmp .git || true
 	$(COMPOSE_TEST) down
 
 .PHONY: console

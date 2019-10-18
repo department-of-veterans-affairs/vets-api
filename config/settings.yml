@@ -281,6 +281,7 @@ preneeds:
 
 # Settings for VBA Document upload service module
 vba_documents:
+  unsuccessful_report_enabled: false
   location:
     prefix:  http://some.fakesite.com/path
     replacement: http://another.fakesite.com/rewrittenpath
@@ -388,9 +389,14 @@ search:
   url: https://search.usa.gov/api/v2
 
 bing:
-  base_api_url: 'https://dev.virtualearth.net/REST/v1/Routes'
+  base_api_url: 'https://dev.virtualearth.net/REST/v1'
   key: fake_key
 
 flipper:
   username: SUPER_SECRET_USERNAME
   password: SUPER_SECRET_PASSWORD
+
+va_mobile:
+  url: 'https://veteran.apps.va.gov/'
+  mock: false
+  key_path: /fake/client/key/path
