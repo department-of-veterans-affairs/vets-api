@@ -28,8 +28,14 @@ module VaFacilities
 
       def index
         # New implementation to replace this
-        resource = DrivetimeBand.where(vha_facility_id: '648').paginate(page: params[:page],
-                                                                      per_page: params[:per_page] || NearbyFacility.per_page)
+        bands = DrivetimeBand.select(:name, :id, :vha_facility_id, :unit, :min, :max)
+                             .where('ST_Intersects(polygon, ST_MakePoint(:lng,:lat)) AND max < :max',
+                                    lng: params[:lng],
+                                    lat: params[:lat],
+                                    max: params[:drive_time])
+
+        resource = bands.paginate(page: nil, per_page: 20)
+
         respond_to do |format|
           format.json do
             render json: resource,
