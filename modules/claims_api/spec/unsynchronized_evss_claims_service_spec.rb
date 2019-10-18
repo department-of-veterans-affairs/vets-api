@@ -3,7 +3,7 @@
 require 'rails_helper'
 require 'claims_api/unsynchronized_evss_claims_service'
 
-RSpec.describe 'ClaimsApi::UnsynchronizedEVSSClaimService', type: :model do
+RSpec.describe ClaimsApi::UnsynchronizedEVSSClaimService, type: :model do
   let(:user) { FactoryBot.create(:user, :loa3) }
   let(:auth_headers) { EVSS::AuthHeaders.new(user).to_h }
 

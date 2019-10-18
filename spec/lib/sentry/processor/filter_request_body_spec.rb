@@ -4,7 +4,7 @@ require 'rails_helper'
 
 RSpec.describe Sentry::Processor::FilterRequestBody do
   context 'with PII in the [:request][:data] hash' do
-    before(:each) do
+    before do
       client = double('client')
       @processor = Sentry::Processor::FilterRequestBody.new(client)
     end

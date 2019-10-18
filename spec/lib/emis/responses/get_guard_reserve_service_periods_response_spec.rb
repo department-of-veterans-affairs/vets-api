@@ -8,7 +8,7 @@ describe EMIS::Responses::GetGuardReserveServicePeriodsResponse do
   let(:body) { Ox.parse(File.read('spec/support/emis/getGuardReserveServicePeriodsResponse.xml')) }
   let(:response) { EMIS::Responses::GetGuardReserveServicePeriodsResponse.new(faraday_response) }
 
-  before(:each) do
+  before do
     allow(faraday_response).to receive(:body) { body }
   end
 

@@ -8,7 +8,7 @@ describe EMIS::Responses::GetDisabilitiesResponse do
   let(:body) { Ox.parse(File.read('spec/support/emis/getDisabilitiesResponse.xml')) }
   let(:response) { EMIS::Responses::GetDisabilitiesResponse.new(faraday_response) }
 
-  before(:each) do
+  before do
     allow(faraday_response).to receive(:body) { body }
   end
 

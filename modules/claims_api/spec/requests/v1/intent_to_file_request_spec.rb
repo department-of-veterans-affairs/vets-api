@@ -18,7 +18,7 @@ RSpec.describe 'Intent to file', type: :request do
   let(:data) { { 'data': { 'attributes': { 'type': 'compensation' } } } }
   let(:schema) { File.read(Rails.root.join('modules', 'claims_api', 'config', 'schemas', '0966.json')) }
 
-  before(:each) do
+  before do
     stub_poa_verification
     stub_mvi
   end
