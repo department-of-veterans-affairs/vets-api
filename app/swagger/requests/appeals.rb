@@ -106,6 +106,8 @@ module Swagger
       end
 
       swagger_path 'v0/appeals/higher_level_review/intake_status/{intake_id}' do
+        operation :get do
+        end
       end
     end
   end
