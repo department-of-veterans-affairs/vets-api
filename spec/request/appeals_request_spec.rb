@@ -7,11 +7,19 @@ RSpec.describe 'Appeals', type: :request do
 
   before { sign_in_as(user) }
 
-  describe 'show higher level review' do
-    uuid = 1234567890
+  uuid = '1234567890'
+  ssn = '111223333'
 
+  %w[loa1 loa3].each do |user|
+    define_method("with_#{user}_user") do |options*|
+      using_ssn = options[:without_ssn] ? nil : ssn
+      let(:user) { FactoryBot.create(:user, user.to_sym, ssn: using_ssn) }
+    end
+  end
+
+  describe 'show higher level review' do
     context 'with an loa1 user' do
-      let(:user) { FactoryBot.create(:user, :loa1, ssn: '111223333') }
+      with_loa1_user
 
       it 'returns a forbidden error' do
         get "/v0/appeals/higher_level_reviews/#{uuid}"
@@ -20,7 +28,7 @@ RSpec.describe 'Appeals', type: :request do
     end
 
     context 'with an loa3 user' do
-      let(:user) { FactoryBot.create(:user, :loa1, ssn: '111223333') }
+      with_loa3_user
       
       context 'with a valid response' do
         it 'returns a successful response' do
@@ -35,8 +43,34 @@ RSpec.describe 'Appeals', type: :request do
     end
   end
 
+  describe 'show intake status' do
+    context 'using loa1 user' do
+      with_loa1_user
+
+      it 'returns a forbidden error' do
+        get "/v0/appeals/higher_level_reviews/intake_status/#{uuid}"
+        expect(response).to have_http_status(:forbidden)
+      end
+    end
+
+    context 'using loa3 user' do
+      with_loa3_user
+
+      context 'with a valid response' do
+        it 'returns a successful response' do
+          VCR.use_cassette('appeals/intake_status') do
+            get "/v0/appeals/higher_level_reviews/intake_status/#{uuid}"
+            expect(response).to have_http_status(:ok)
+            expect(response.body).to be_a(String)
+            expect(response).to match_response_schema('intake_status')
+          end
+        end
+      end
+    end
+  end
+
   context 'with a loa1 user' do
-    let(:user) { FactoryBot.create(:user, :loa1, ssn: '111223333') }
+    with_loa1_user
 
     it 'returns a forbidden error' do
       get '/v0/appeals'
@@ -45,7 +79,7 @@ RSpec.describe 'Appeals', type: :request do
   end
 
   context 'with a loa3 user without a ssn' do
-    let(:user) { FactoryBot.create(:user, :loa1, ssn: nil) }
+    with_loa3_user without_ssn: true
 
     it 'returns a forbidden error' do
       get '/v0/appeals'
@@ -54,7 +88,7 @@ RSpec.describe 'Appeals', type: :request do
   end
 
   context 'with a loa3 user' do
-    let(:user) { FactoryBot.create(:user, :loa3, ssn: '111223333') }
+    with_loa3_user
 
     context 'with a valid response' do
       it 'returns a successful response' do
@@ -137,7 +171,5 @@ RSpec.describe 'Appeals', type: :request do
         end
       end
     end
-
-
   end
 end
