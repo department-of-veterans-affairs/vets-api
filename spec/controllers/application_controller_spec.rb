@@ -5,7 +5,6 @@ require 'rx/client'
 require 'lib/sentry_logging_spec_helper'
 
 RSpec.describe ApplicationController, type: :controller do
-  it_behaves_like 'a sentry logger'
   controller do
     attr_reader :payload
     skip_before_action :authenticate, except: :test_authentication
@@ -41,7 +40,7 @@ RSpec.describe ApplicationController, type: :controller do
     end
   end
 
-  before(:each) do
+  before do
     routes.draw do
       get 'not_authorized' => 'anonymous#not_authorized'
       get 'record_not_found' => 'anonymous#record_not_found'
@@ -51,6 +50,8 @@ RSpec.describe ApplicationController, type: :controller do
       get 'test_authentication' => 'anonymous#test_authentication'
     end
   end
+
+  it_behaves_like 'a sentry logger'
 
   describe '#clear_saved_form' do
     subject do
@@ -281,7 +282,7 @@ RSpec.describe ApplicationController, type: :controller do
       let(:header_auth_value) { ActionController::HttpAuthentication::Token.encode_credentials(token) }
       let(:sso_cookie_value)  { 'bar' }
 
-      before(:each) do
+      before do
         Settings.sso.cookie_enabled = true
         session_object = Session.create(uuid: user.uuid, token: token)
         User.create(user)
@@ -293,7 +294,7 @@ RSpec.describe ApplicationController, type: :controller do
         request.cookies[Settings.sso.cookie_name] = sso_cookie_value
       end
 
-      after(:each) do
+      after do
         Settings.sso.cookie_enabled = false
       end
 
@@ -330,7 +331,7 @@ RSpec.describe ApplicationController, type: :controller do
           let(:header_host_value) { 'localhost' }
           let(:sso_cookie_value)  { nil }
 
-          around(:each) do |example|
+          around do |example|
             original_value = Settings.sso.cookie_signout_enabled
             Settings.sso.cookie_signout_enabled = true
             example.run
@@ -346,14 +347,14 @@ RSpec.describe ApplicationController, type: :controller do
         end
 
         context 'with a virtual host that matches sso cookie domain, but sso cookie destroyed: disabled' do
-          before(:each) do
+          before do
             Settings.sso.cookie_signout_enabled = nil
           end
 
           let(:header_host_value) { 'localhost' }
           let(:sso_cookie_value)  { nil }
 
-          around(:each) do |example|
+          around do |example|
             original_value = Settings.sso.cookie_signout_enabled
             Settings.sso.cookie_signout_enabled = false
             example.run

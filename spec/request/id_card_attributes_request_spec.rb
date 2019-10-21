@@ -23,7 +23,7 @@ RSpec.describe 'Requesting ID Card Attributes', type: :request do
       expect(response).to have_http_status(:ok)
       json = JSON.parse(response.body)
       url = json['url']
-      expect(url).to be
+      expect(url).to be_truthy
       traits = json['traits']
       expect(traits).to be_key('edipi')
       expect(traits).to be_key('firstname')

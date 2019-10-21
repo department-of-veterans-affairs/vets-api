@@ -16,6 +16,8 @@ describe Common::EventRateLimiter do
       }
     end
 
+    after { Timecop.return }
+
     describe '.at_limit?' do
       context 'with no events' do
         it 'returns false' do
@@ -76,7 +78,5 @@ describe Common::EventRateLimiter do
         expect(subject.instance_variable_get(:@redis).get(:count).to_i).to eq(1)
       end
     end
-
-    after(:each) { Timecop.return }
   end
 end

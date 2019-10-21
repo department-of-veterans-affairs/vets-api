@@ -10,6 +10,10 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, type: :model, form: :educat
   end
   let(:line_break) { EducationForm::WINDOWS_NOTEPAD_LINEBREAK }
 
+  after(:all) do
+    FileUtils.remove_dir('tmp/spool_files')
+  end
+
   context 'scheduling' do
     before do
       allow(Rails.env).to receive('development?').and_return(true)
@@ -199,6 +203,10 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, type: :model, form: :educat
         expect(Rails.env).to receive('development?').once.and_return(true)
       end
 
+      after do
+        File.delete(file_path)
+      end
+
       it 'writes a file to the tmp dir' do
         expect(EducationBenefitsClaim.unprocessed).not_to be_empty
         subject.perform
@@ -209,10 +217,6 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, type: :model, form: :educat
         expect(contents).to include(second_record.education_benefits_claim.confirmation_number)
         expect(contents).to include(application_1606.confirmation_number)
         expect(EducationBenefitsClaim.unprocessed).to be_empty
-      end
-
-      after do
-        File.delete(file_path)
       end
     end
 
@@ -242,9 +246,5 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, type: :model, form: :educat
         expect(EducationBenefitsClaim.unprocessed).to be_empty
       end
     end
-  end
-
-  after(:all) do
-    FileUtils.remove_dir('tmp/spool_files')
   end
 end

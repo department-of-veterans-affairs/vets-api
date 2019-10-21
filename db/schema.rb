@@ -10,7 +10,8 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2019_09_20_134906) do
+
+ActiveRecord::Schema.define(version: 2019_10_07_182427) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
@@ -157,12 +158,13 @@ ActiveRecord::Schema.define(version: 2019_09_20_134906) do
 
   create_table "drivetime_bands", force: :cascade do |t|
     t.string "name"
-    t.integer "value"
     t.string "unit"
     t.geography "polygon", limit: {:srid=>4326, :type=>"st_polygon", :geographic=>true}, null: false
     t.string "vha_facility_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.integer "min"
+    t.integer "max"
   end
 
   create_table "education_benefits_claims", id: :serial, force: :cascade do |t|
@@ -208,6 +210,17 @@ ActiveRecord::Schema.define(version: 2019_09_20_134906) do
     t.json "list_data", default: {}, null: false
     t.boolean "requested_decision", default: false, null: false
     t.index ["user_uuid"], name: "index_evss_claims_on_user_uuid"
+  end
+
+  create_table "feature_toggle_events", force: :cascade do |t|
+    t.string "feature_name"
+    t.string "operation"
+    t.string "gate_name"
+    t.string "value"
+    t.string "user"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["feature_name"], name: "index_feature_toggle_events_on_feature_name"
   end
 
   create_table "flipper_features", force: :cascade do |t|

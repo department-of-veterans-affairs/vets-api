@@ -10,6 +10,7 @@ ActiveSupport::Inflector.inflections do |inflect|
   inflect.acronym 'PagerDuty'
   inflect.acronym 'PPIU'
   inflect.acronym 'SSOe'
+  inflect.acronym 'VAOS'
   inflect.acronym 'VBA'
   inflect.acronym 'VIC'
   inflect.uncountable 'terms_and_conditions'

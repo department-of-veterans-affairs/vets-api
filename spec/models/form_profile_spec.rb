@@ -11,6 +11,7 @@ RSpec.describe FormProfile, type: :model do
     user.va_profile.suffix = 'Jr.'
     user.va_profile.address.country = 'USA'
     stub_evss_pciu(user)
+    described_class.instance_variable_set(:@mappings, nil)
   end
 
   let(:street_check) { build(:street_check) }
@@ -577,10 +578,6 @@ RSpec.describe FormProfile, type: :model do
     }
   end
 
-  before(:each) do
-    described_class.instance_variable_set(:@mappings, nil)
-  end
-
   describe '#get_us_phone' do
     def self.test_get_us_phone(phone, expected)
       it "returns #{expected}" do
@@ -717,12 +714,12 @@ RSpec.describe FormProfile, type: :model do
           }
         end
 
-        it 'prefills 1990' do
-          expect_prefilled('22-1990')
-        end
-
         after do
           Settings.vet360.prefill = false
+        end
+
+        it 'prefills 1990' do
+          expect_prefilled('22-1990')
         end
       end
 
@@ -813,6 +810,10 @@ RSpec.describe FormProfile, type: :model do
               expected_veteran_info['primaryPhone'] = '3035551234'
             end
 
+            after do
+              Settings.vet360.prefill = false
+            end
+
             it 'returns prefilled 21-526EZ' do
               VCR.use_cassette('evss/pciu_address/address_domestic') do
                 VCR.use_cassette('evss/disability_compensation_form/rated_disabilities') do
@@ -821,10 +822,6 @@ RSpec.describe FormProfile, type: :model do
                   end
                 end
               end
-            end
-
-            after do
-              Settings.vet360.prefill = false
             end
           end
 

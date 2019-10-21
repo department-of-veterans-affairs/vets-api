@@ -3,7 +3,7 @@
 require 'rails_helper'
 require 'rx/client'
 
-describe 'RX Client' do
+describe Rx::Client do
   before(:all) do
     VCR.use_cassette 'rx_client/session', record: :new_episodes do
       @client ||= begin
@@ -47,7 +47,7 @@ describe 'RX Client' do
   end
 
   shared_examples 'prescriptions' do |caching_enabled|
-    before(:each) do
+    before do
       Settings.mhv.rx.collection_caching_enabled = caching_enabled
     end
 

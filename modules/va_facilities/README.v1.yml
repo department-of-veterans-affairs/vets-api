@@ -22,6 +22,14 @@ info:
 
     API requests are authorized through a symmetric API token, provided in an HTTP header with name `apikey`.
 
+    ### Active Status
+    
+    VHA facilities can be temporarily deactivated for a variety of reasons. If a facility comes back from this API with `"active_status": "T"`, it is not currently operating. `"active_status": "A"` indicates normal operations at a facility.
+    
+    ### Mobile Facilities
+    
+    VHA has a set of mobile facilities that move regularly within a region. If a facility comes back from this API with `"mobile": "true"`, the latitude/longitude and address should be considered inaccurate. To get the exact current location, please call the number listed.
+
     ## Reference
 
     - [Raw VA Facilities Open API Spec](https://api.va.gov/services/va_facilities/docs/v1/api)
@@ -99,7 +107,7 @@ paths:
   #       - name: zip
   #         in: query
   #         description: |
-  #           Zip code to search for VA Facilities. 
+  #           Zip code to search for VA Facilities.
   #           More detailed zip codes can be passed in, but only the first five digits are used to determine facilities to return.
   #         required: false
   #         schema:
@@ -408,7 +416,7 @@ paths:
         - facilities
       summary: Query which VA health (VHA) facilities are nearby, given a specified location and desired drive time
       description: |
-        Retrieve all facilities contained within an isochrone (a polygon composed of the area 
+        Retrieve all facilities contained within an isochrone (a polygon composed of the area
         reachable in a certain amount of time from a central location) based on passing in a
         combination of `street_address`, `city`, `state`, and `zip` or `lat` and `lng` required
         parameters along with `drive_time`.
@@ -429,7 +437,7 @@ paths:
         Please use `/facilities` to see detailed information.
       operationId: getNearbyFacilities
       security:
-        - api_key: []
+        - apikey: []
       parameters:
         - name: street_address
           in: query
@@ -871,7 +879,7 @@ paths:
   #               $ref: "#/components/schemas/APIError"
 components:
   securitySchemes:
-    api_key:
+    apikey:
       type: apiKey
       name: apikey
       in: header

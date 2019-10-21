@@ -143,7 +143,7 @@ describe HCA::Service do
   end
 
   describe '.options' do
-    before(:each) do
+    before do
       allow(HCA::Configuration.instance).to receive(:ssl_cert) { cert }
       allow(HCA::Configuration.instance).to receive(:ssl_key) { key }
       stub_const('HCA::Configuration::CERT_STORE', store)

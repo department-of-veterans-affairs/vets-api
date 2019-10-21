@@ -8,7 +8,7 @@ RSpec.describe Facilities::MentalHealthReloadJob, type: :job do
   let(:facility1) { CSV::Row.new(mental_phone_headers, ['101A', '407-123-1234', '0001', '2019-09-06T13:00:00.000']) }
   let(:facility2) { CSV::Row.new(mental_phone_headers, ['202A', '321-123-1234', '0002', '2019-09-06T13:00:00.000']) }
 
-  before(:each) do
+  before do
     allow_any_instance_of(
       Facilities::MentalHealthReloadJob
     ).to receive(:fetch_mental_health_data).and_return(CSV::Table.new([facility1, facility2]))

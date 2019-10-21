@@ -59,7 +59,7 @@ describe VBADocuments::UploadSubmission, type: :model do
     [[]].to_json
   end
 
-  before(:each) do
+  before do
     allow(CentralMail::Service).to receive(:new) { client_stub }
   end
 
@@ -127,17 +127,6 @@ describe VBADocuments::UploadSubmission, type: :model do
       expect(client_stub).to receive(:status).and_return(faraday_response)
       expect(faraday_response).to receive(:success?).and_return(true)
       expect(faraday_response).to receive(:body).at_least(:once).and_return(error_body)
-      upload_received.refresh_status!
-      updated = VBADocuments::UploadSubmission.find_by(guid: upload_received.guid)
-      expect(updated.status).to eq('error')
-      expect(updated.code).to eq('DOC202')
-      expect(updated.detail).to include('Invalid splines')
-    end
-
-    it 'updates error status from downstream' do
-      expect(client_stub).to receive(:status).and_return(faraday_response)
-      expect(faraday_response).to receive(:success?).and_return(true)
-      expect(faraday_response).to receive(:body).at_least(:once).and_return(processing_error_body)
       upload_received.refresh_status!
       updated = VBADocuments::UploadSubmission.find_by(guid: upload_received.guid)
       expect(updated.status).to eq('error')

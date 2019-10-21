@@ -122,7 +122,8 @@ module AuthenticationAndSSOConcerns
     {
       'myhealthevet' => 'my_healthe_vet',
       'dslogon' => 'ds_logon',
-      'idme' => 'id_me'
+      'idme' => 'id_me',
+      'ssoe' => 'ssoe'
     }.fetch(@current_user.identity.sign_in.fetch(:service_name))
   end
 

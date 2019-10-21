@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 Rails.application.routes.draw do
+  mount VAOS::Engine, at: '/vaos'
   match '/v0/*path', to: 'application#cors_preflight', via: [:options]
   match '/services/*path', to: 'application#cors_preflight', via: [:options]
 
@@ -17,6 +18,7 @@ Rails.application.routes.draw do
   get '/v1/sessions/:type/new',
       to: 'v1/sessions#new',
       constraints: ->(request) { V1::SessionsController::REDIRECT_URLS.include?(request.path_parameters[:type]) }
+  get '/v1/sessions/ssoe_logout', to: 'v1/sessions#ssoe_slo_callback'
 
   namespace :v0, defaults: { format: 'json' } do
     resources :appointments, only: :index

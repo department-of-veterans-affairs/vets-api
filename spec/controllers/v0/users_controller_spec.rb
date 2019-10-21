@@ -15,7 +15,7 @@ RSpec.describe V0::UsersController, type: :controller do
   context 'when logged in as an LOA1 user' do
     let(:user) { build(:user, :loa1) }
 
-    before :each do
+    before do
       sign_in_as(user)
       create(:in_progress_form, user_uuid: user.uuid, form_id: 'edu-1990')
     end
