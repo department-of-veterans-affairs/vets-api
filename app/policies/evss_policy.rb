@@ -16,7 +16,7 @@ EVSSPolicy = Struct.new(:user, :evss) do
   end
 
   def form526_attrs?
-    user.present? && user.birls_id.present? && evss_attrs?
+    evss_attrs? && user.birls_id.present?
   end
 
   def log_success
