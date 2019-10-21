@@ -140,6 +140,24 @@ describe DecisionReview::Service do
         end
       end
     end
+
+    context 'with a decision response that does not exist' do
+      it 'returns a 404 error' do
+        VCR.use_cassette('decision_review/404_get_intake_status') do
+          expect(StatsD).to receive(:increment).once.with(
+            'api.decision_review.get_higher_level_reviews_intake_status.fail', tags: [
+              'error:Common::Client::Errors::ClientError', 'status:404'
+            ]
+          )
+          expect(StatsD).to receive(:increment).once.with(
+            'api.decision_review.get_higher_level_reviews_intake_status.total'
+          )
+          expect { subject.get_higher_level_reviews_intake_status('1234') }.to raise_error(
+            DecisionReview::ServiceException
+          )
+        end
+      end
+    end
   end
 
   describe '#get_higher_level_reviews' do
