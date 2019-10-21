@@ -81,6 +81,17 @@ module MVI
       # rubocop:enable Metrics/MethodLength
       # rubocop:enable Metrics/AbcSize
 
+      # TODO: remove when Flipper toggle is removed.
+      def select_ids_except(extensions, reject_status)
+        # ultaimately, I'd rather have a list complete list of statuses to accept, but for now we can reject
+        return nil if extensions.empty?
+
+        extensions.map do |e|
+          split_extension = e[:extension].split('^')
+          split_extension&.first unless split_extension[4] && reject_status.include?(split_extension[4])
+        end.compact
+      end
+
       def select_ids_with_extension(ids, pattern, root)
         select_ids(select_extension(ids, pattern, root))
       end
