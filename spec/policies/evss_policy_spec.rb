@@ -24,6 +24,10 @@ describe EVSSPolicy do
       it 'denies access' do
         expect(subject).not_to permit(user, :evss)
       end
+  
+      it 'denies access when no user given' do
+        expect(subject).not_to permit(nil, :evss)
+      end
 
       it 'increments the StatsD failure counter' do
         expect { EVSSPolicy.new(user, :evss).access? }.to trigger_statsd_increment('api.evss.policy.failure')
@@ -49,6 +53,10 @@ describe EVSSPolicy do
 
       it 'denies access' do
         expect(subject).not_to permit(user, :evss)
+      end
+
+      it 'denies access when no user given' do
+        expect(subject).not_to permit(nil, :evss)
       end
 
       it 'increments the StatsD failure counter' do
