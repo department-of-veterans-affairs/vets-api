@@ -24,6 +24,10 @@ class Rack::Attack
     req.ip if req.path == '/v0/vic/vic_submissions' && req.post?
   end
 
+  throttle('evss_claims_async', limit: 10, period: 1.minute) do |req|
+    req.ip if req.path == '/v0/evss_claims_async'
+  end
+
   # Source: https://github.com/kickstarter/rack-attack#x-ratelimit-headers-for-well-behaved-clients
   Rack::Attack.throttled_response = lambda do |env|
     rate_limit = env['rack.attack.match_data']

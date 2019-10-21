@@ -70,5 +70,14 @@ RSpec.describe Rack::Attack do
         expect(last_response.status).to eq(429)
       end
     end
+
+    context 'evss claims' do
+      let(:limit) { 10 }
+      let(:endpoint) { '/v0/evss_claims_async' }
+
+      it 'limits requests' do
+        expect(last_response.status).to eq(429)
+      end
+    end
   end
 end
