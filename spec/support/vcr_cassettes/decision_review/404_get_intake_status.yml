@@ -1,0 +1,69 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: https://dev-api.va.gov/services/appeals/v3/decision_review/higher_level_reviews/intake_status/1234
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Apikey:
+      - bGf6MbOUCFAMTA1Sw6k6s3woh31ggDy0
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 404
+      message: Not Found
+    headers:
+      Date:
+      - Mon, 21 Oct 2019 18:07:41 GMT
+      Content-Type:
+      - text/html; charset=utf-8
+      Connection:
+      - keep-alive
+      Access-Control-Allow-Origin:
+      - "*"
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubDomains
+      - max-age=31536000; includeSubDomains; preload
+      Via:
+      - kong/1.2.2
+      X-Content-Type-Options:
+      - nosniff
+      X-Frame-Options:
+      - SAMEORIGIN
+      X-Kong-Proxy-Latency:
+      - '1'
+      X-Kong-Upstream-Latency:
+      - '444'
+      X-Ratelimit-Limit-Minute:
+      - '60'
+      X-Ratelimit-Remaining-Minute:
+      - '59'
+      X-Request-Id:
+      - c91d2662-9f95-4257-8d48-0d4af1f226ea
+      X-Runtime:
+      - '0.011551'
+      X-Xss-Protection:
+      - 1; mode=block
+      Cache-Control:
+      - ''
+      Set-Cookie:
+      - TS016f4012=0119a2687fcf301643bb27f0f3045c6828e8ca72634317f8014ffebdb34d99da2ce5f560acd9b0a6eb54e7e90f05f2c7dea2e90b70;
+        Max-Age=900; Path=/
+      Transfer-Encoding:
+      - chunked
+    body:
+      encoding: ASCII-8BIT
+      string: '{"errors":[{"status":404,"code":"decision_review_not_found","title":"Unable
+       to find a Decision Review using specified UUID"}]}'
+    http_version:
+  recorded_at: Mon, 21 Oct 2019 18:07:41 GMT
+recorded_with: VCR 3.0.3
