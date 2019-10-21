@@ -3,7 +3,7 @@
   "description": "Form 2122 Schema",
   "type": "object",
   "required": [
-    "poa_code"
+    "poaCode"
   ],
   "properties": {
     "poaCode": {
