@@ -11,7 +11,6 @@ class SpoolSubmissionsReportMailer < ApplicationMailer
     shay.norton@va.gov
   ].freeze
 
-  # Will add in Prod STEM recipients once 18815 approved in staging
   STEM_RECIPIENTS = %w[
     kyle.pietrosanto@va.gov
     robert.shinners@va.gov
