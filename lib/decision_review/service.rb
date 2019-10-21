@@ -41,7 +41,7 @@ module DecisionReview
     #
     # @param uuid [uuid] The intake uuid provided from the response of creating a new Higher Level Review
     # @return [DecisionReview::Responses::Response] Response object that includes the body,
-    #                                               status, and schem avalidations.
+    #                                               status, and schema avalidations.
     #
     def get_higher_level_reviews_intake_status(uuid)
       with_monitoring_and_error_handling do
@@ -55,7 +55,7 @@ module DecisionReview
     #
     # @param uuid [uuid] The intake uuid provided from the response of creating a new Higher Level Review
     # @return [DecisionReview::Responses::Response] Response object that includes the body,
-    #                                               status, and schem avalidations.
+    #                                               status, and schema avalidations.
     #
     def get_higher_level_reviews(uuid)
       with_monitoring_and_error_handling do
