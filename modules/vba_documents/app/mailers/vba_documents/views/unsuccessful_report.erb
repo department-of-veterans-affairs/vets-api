@@ -15,13 +15,15 @@
   </thead>
   <tbody>
     <% @unsuccessful_submissions.each do |submission| %>
-      <td><%= submission.guid %></td>
-      <td><%= submission.consumer_name %></td>
-      <td><%= submission.status %></td>
-      <td><%= submission.code %></td>
-      <td><%= submission.detail %></td>
-      <td><%= submission.created_at %></td>
-      <td><%= submission.updated_at %></td>
+      <tr>
+        <td><%= submission.guid %></td>
+        <td><%= submission.consumer_name %></td>
+        <td><%= submission.status %></td>
+        <td><%= submission.code %></td>
+        <td><%= submission.detail %></td>
+        <td><%= submission.created_at %></td>
+        <td><%= submission.updated_at %></td>
+      </tr>
     <% end %>
   </tbody>
 </table>
