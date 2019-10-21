@@ -5,7 +5,9 @@
       "FacilityID": 29,
       "Name": "648A4 : 0 - 10",
       "FromBreak": 0,
-      "ToBreak": 10
+      "ToBreak": 10,
+      "Sta_No": "648A4",
+      "TravelTimeBand": "0 - 10"
     },
     "geometry": {
       "rings": [

@@ -17,9 +17,8 @@ module Facilities
     def create_and_save_drive_time_data(drive_time_data)
       attributes = drive_time_data&.dig('attributes')
 
-      id = extract_id(attributes)
-      vha_id = "vha_#{id}"
-      facility = BaseFacility.find_facility_by_id(vha_id)
+      id = attributes&.dig('Sta_No')&.strip
+      facility = Facilities::VHAFacility.find_by(unique_id: id)
       return if facility.nil?
 
       begin
@@ -34,11 +33,6 @@ module Facilities
       rescue => e
         logger.error e.message
       end
-    end
-
-    def extract_id(attributes)
-      name = attributes&.dig('Name')
-      name.partition(':')&.first&.strip!
     end
 
     def extract_polygon(drive_time_data)
