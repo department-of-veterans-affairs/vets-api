@@ -5,6 +5,7 @@ class BackendServices
     constants.map do |const|
       val = const_get const
       next unless val.is_a?(String)
+
       val
     end.compact
   end

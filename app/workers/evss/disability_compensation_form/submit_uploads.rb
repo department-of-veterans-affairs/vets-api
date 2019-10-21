@@ -21,12 +21,13 @@ module EVSS
         with_tracking("Form526 Upload: #{guid}", submission.saved_claim_id, submission.id) do
           file_body = SupportingEvidenceAttachment.find_by(guid: guid)&.get_file&.read
           raise ArgumentError, "supporting evidence attachment with guid #{guid} has no file data" if file_body.nil?
+
           document_data = create_document_data(upload_data)
           client = EVSS::DocumentsService.new(submission.auth_headers)
           client.upload(file_body, document_data)
         end
         perform_next(submission_id, uploads) if uploads.present?
-      rescue StandardError => e
+      rescue => e
         # Can't send a job manually to the dead set.
         # Log and re-raise so the job ends up in the dead set and the parent batch is not marked as complete.
         retryable_error_handler(e)

@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require_dependency 'claims_api/base_disability_compensation_controller'
-require_dependency 'claims_api/concerns/itf_verification'
 require_dependency 'claims_api/concerns/poa_verification'
 require 'jsonapi/parser'
 
@@ -9,14 +8,12 @@ module ClaimsApi
   module V1
     module Forms
       class DisabilityCompensationController < BaseDisabilityCompensationController
-        include ClaimsApi::ItfVerification
         include ClaimsApi::PoaVerification
 
         FORM_NUMBER = '526'
 
         before_action { permit_scopes %w[claim.write] }
         before_action :validate_json_schema, only: %i[submit_form_526 validate_form_526]
-        before_action :verify_itf, only: %i[submit_form_526]
 
         def submit_form_526
           service = EVSS::DisabilityCompensationForm::ServiceAllClaim.new(auth_headers)
@@ -80,26 +77,6 @@ module ClaimsApi
               auth_headers
             )
           end
-        end
-
-        def documents
-          document_keys = params.keys.select { |key| key.include? 'attachment' }
-          params.slice(*document_keys).values
-        end
-
-        def auth_headers
-          evss_headers = EVSS::DisabilityCompensationAuthHeaders
-                         .new(target_veteran(with_gender: true))
-                         .add_headers(
-                           EVSS::AuthHeaders.new(target_veteran(with_gender: true)).to_h
-                         )
-          if request.headers['Mock-Override'] &&
-             Settings.claims_api.disability_claims_mock_override
-            evss_headers['Mock-Override'] = true
-            Rails.logger.info('ClaimsApi: Mock Override Engaged')
-          end
-
-          evss_headers
         end
       end
     end

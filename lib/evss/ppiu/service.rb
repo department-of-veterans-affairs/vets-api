@@ -28,18 +28,30 @@ module EVSS
       # @return [EVSS::PPIU::PaymentInformationResponse] Response with a users updated payment information
       #
       def update_payment_information(pay_info)
+        body = request_body(pay_info)
+        save_sanitized_req_body(body)
+
         with_monitoring_and_error_handling do
-          raw_response = perform(:post, 'paymentInformation', request_body(pay_info), headers)
+          raw_response = perform(:post, 'paymentInformation', body, headers)
           PaymentInformationResponse.new(raw_response.status, raw_response)
         end
       end
 
       private
 
+      def save_sanitized_req_body(req_body)
+        req_body = JSON.parse(req_body)
+        req_body['requests'].each do |request|
+          request['paymentAccount']['accountNumber'] = '****'
+        end
+
+        @sanitized_req_body = req_body
+      end
+
       def handle_error(error)
         if error.is_a?(Common::Client::Errors::ClientError) && error.status != 403 && error.body.is_a?(Hash)
           save_error_details(error)
-          raise EVSS::PPIU::ServiceException, error.body
+          raise EVSS::PPIU::ServiceException.new(error.body, @user, @sanitized_req_body)
         else
           super(error)
         end

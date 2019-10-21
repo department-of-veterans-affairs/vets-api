@@ -22,7 +22,7 @@ RSpec.describe OpenidApplicationController, type: :controller do
   end
 
   describe '#permit_scopes' do
-    before(:each) do
+    before do
       request.headers['Authorization'] = 'Bearer FakeToken'
     end
 
@@ -35,7 +35,7 @@ RSpec.describe OpenidApplicationController, type: :controller do
         end
       end
 
-      it 'should permit access when token has allowed scopes' do
+      it 'permits access when token has allowed scopes' do
         with_okta_configured do
           allow(JWT).to receive(:decode).and_return(token)
           get :index
@@ -43,7 +43,7 @@ RSpec.describe OpenidApplicationController, type: :controller do
         end
       end
 
-      it 'should reject access when the does not have the allowed scopes' do
+      it 'rejects access when the does not have the allowed scopes' do
         with_okta_configured do
           new_token = token
           new_token[0]['scp'] = ['bad_scope']
@@ -67,7 +67,7 @@ RSpec.describe OpenidApplicationController, type: :controller do
         end
       end
 
-      it 'should permit access to one action with the correct scope' do
+      it 'permits access to one action with the correct scope' do
         with_okta_configured do
           allow(JWT).to receive(:decode).and_return(token)
           get :index
@@ -75,7 +75,7 @@ RSpec.describe OpenidApplicationController, type: :controller do
         end
       end
 
-      it 'should reject access to one action without the correct scope' do
+      it 'rejects access to one action without the correct scope' do
         with_okta_configured do
           new_token = token
           new_token[0]['scp'] = %w[openid]
@@ -85,7 +85,7 @@ RSpec.describe OpenidApplicationController, type: :controller do
         end
       end
 
-      it 'should permit access to all actions when the correct scope is provided' do
+      it 'permits access to all actions when the correct scope is provided' do
         with_okta_configured do
           new_token = token
           new_token[0]['scp'] = %w[openid]
@@ -97,7 +97,7 @@ RSpec.describe OpenidApplicationController, type: :controller do
         end
       end
 
-      it 'should reject access to all actions when the incorrect scope is provided' do
+      it 'rejects access to all actions when the incorrect scope is provided' do
         with_okta_configured do
           new_token = token
           new_token[0]['scp'] = %w[profile]
@@ -109,7 +109,7 @@ RSpec.describe OpenidApplicationController, type: :controller do
         end
       end
 
-      it 'should permit access if at least one of the allowed scopes is provided' do
+      it 'permits access if at least one of the allowed scopes is provided' do
         with_okta_configured do
           new_token = token
           new_token[0]['scp'] = %w[email]
@@ -119,7 +119,7 @@ RSpec.describe OpenidApplicationController, type: :controller do
         end
       end
 
-      it 'should permit access if all the allowed scopes are provided' do
+      it 'permits access if all the allowed scopes are provided' do
         with_okta_configured do
           new_token = token
           new_token[0]['scp'] = %w[email openid]
@@ -129,7 +129,7 @@ RSpec.describe OpenidApplicationController, type: :controller do
         end
       end
 
-      it 'should reject access if none of the allowed scopes are provided' do
+      it 'rejects access if none of the allowed scopes are provided' do
         with_okta_configured do
           new_token = token
           new_token[0]['scp'] = %w[profile va_profile]
@@ -155,23 +155,23 @@ RSpec.describe OpenidApplicationController, type: :controller do
     end
 
     context 'with no jwt supplied' do
-      it 'should return 401' do
+      it 'returns 401' do
         get :index
         expect(response.status).to eq(401)
       end
     end
 
     context 'with a valid jwt supplied and no session' do
-      before(:each) do
+      before do
         allow(JWT).to receive(:decode).and_return(token)
       end
 
-      it 'should return 200 and add the user to the session' do
+      it 'returns 200 and add the user to the session' do
         with_okta_configured do
           request.headers['Authorization'] = 'Bearer FakeToken'
           get :index
           expect(response).to be_ok
-          expect(Session.find('FakeToken')).to_not be_nil
+          expect(Session.find('FakeToken')).not_to be_nil
           expect(JSON.parse(response.body)['user']).to eq('vets.gov.user+20@gmail.com')
         end
       end
@@ -184,7 +184,7 @@ RSpec.describe OpenidApplicationController, type: :controller do
               family_name: 'zackariah')
       end
 
-      before(:each) do
+      before do
         allow(JWT).to receive(:decode).and_return(token)
         stub_mvi(mvi_profile)
       end
@@ -192,7 +192,7 @@ RSpec.describe OpenidApplicationController, type: :controller do
       let(:okta_response) { FactoryBot.build(:okta_mhv_response) }
       let(:faraday_response) { instance_double('Faraday::Response') }
 
-      it 'should return 200 and add user to session' do
+      it 'returns 200 and add user to session' do
         with_okta_configured do
           allow_any_instance_of(Okta::Service).to receive(:user).and_return(faraday_response)
           allow(faraday_response).to receive(:success?).and_return(true)
@@ -201,7 +201,7 @@ RSpec.describe OpenidApplicationController, type: :controller do
           request.headers['Authorization'] = 'Bearer FakeToken'
           get :index
           expect(response).to be_ok
-          expect(Session.find('FakeToken')).to_not be_nil
+          expect(Session.find('FakeToken')).not_to be_nil
           expect(JSON.parse(response.body)['user']).to eq('mhvzack_0@example.com')
           expect(JSON.parse(response.body)['icn']).to eq('10000012345V123457')
           expect(JSON.parse(response.body)['last_name']).to eq('zackariah')
@@ -219,12 +219,12 @@ RSpec.describe OpenidApplicationController, type: :controller do
               family_name: 'WEAVER')
       end
 
-      before(:each) do
+      before do
         allow(JWT).to receive(:decode).and_return(token)
         stub_mvi(mvi_profile)
       end
 
-      it 'should return 200 and add user to session' do
+      it 'returns 200 and add user to session' do
         with_okta_configured do
           allow_any_instance_of(Okta::Service).to receive(:user).and_return(faraday_response)
           allow(faraday_response).to receive(:success?).and_return(true)
@@ -233,7 +233,7 @@ RSpec.describe OpenidApplicationController, type: :controller do
           request.headers['Authorization'] = 'Bearer FakeToken'
           get :index
           expect(response).to be_ok
-          expect(Session.find('FakeToken')).to_not be_nil
+          expect(Session.find('FakeToken')).not_to be_nil
           expect(JSON.parse(response.body)['user']).to eq('dslogon10923109@example.com')
           expect(JSON.parse(response.body)['icn']).to eq('10000012345V123456')
           expect(JSON.parse(response.body)['last_name']).to eq('WEAVER')
@@ -251,12 +251,12 @@ RSpec.describe OpenidApplicationController, type: :controller do
               family_name: 'CARROLL')
       end
 
-      before(:each) do
+      before do
         allow(JWT).to receive(:decode).and_return(token)
         stub_mvi(mvi_profile)
       end
 
-      it 'should return 200 and add user to session' do
+      it 'returns 200 and add user to session' do
         with_okta_configured do
           allow_any_instance_of(Okta::Service).to receive(:user).and_return(faraday_response)
           allow(faraday_response).to receive(:success?).and_return(true)
@@ -265,7 +265,7 @@ RSpec.describe OpenidApplicationController, type: :controller do
           request.headers['Authorization'] = 'Bearer FakeToken'
           get :index
           expect(response).to be_ok
-          expect(Session.find('FakeToken')).to_not be_nil
+          expect(Session.find('FakeToken')).not_to be_nil
           expect(JSON.parse(response.body)['user']).to eq('vets.gov.user+20@gmail.com')
           expect(JSON.parse(response.body)['icn']).to eq('10000012345V123458')
           expect(JSON.parse(response.body)['last_name']).to eq('CARROLL')

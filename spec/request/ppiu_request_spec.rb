@@ -5,13 +5,26 @@ require 'rails_helper'
 RSpec.describe 'PPIU', type: :request do
   include SchemaMatchers
 
-  before(:each) { sign_in }
+  let(:user) { create(:user, :mhv) }
+
+  before { sign_in(user) }
+
+  def self.test_unauthorized(verb)
+    context 'with an unauthorized user' do
+      let(:user) { create(:user, :loa3) }
+
+      it 'returns 403' do
+        public_send(verb, '/v0/ppiu/payment_information')
+        expect(response.code).to eq('403')
+      end
+    end
+  end
 
   describe 'GET /v0/ppiu/payment_information' do
     context 'with a valid evss response' do
       let(:ppiu_response) { File.read('spec/support/ppiu/ppiu_response.json') }
 
-      it 'should match the ppiu schema' do
+      it 'matches the ppiu schema' do
         VCR.use_cassette('evss/ppiu/payment_information') do
           get '/v0/ppiu/payment_information'
           expect(response).to have_http_status(:ok)
@@ -21,8 +34,10 @@ RSpec.describe 'PPIU', type: :request do
       end
     end
 
+    test_unauthorized('get')
+
     context 'with a 403 response' do
-      it 'should return a not authorized response' do
+      it 'returns a not authorized response' do
         VCR.use_cassette('evss/ppiu/forbidden') do
           get '/v0/ppiu/payment_information'
           expect(response).to have_http_status(:forbidden)
@@ -32,7 +47,7 @@ RSpec.describe 'PPIU', type: :request do
     end
 
     context 'with a 500 server error type' do
-      it 'should return a service error response' do
+      it 'returns a service error response' do
         VCR.use_cassette('evss/ppiu/service_error') do
           get '/v0/ppiu/payment_information'
           expect(response).to have_http_status(:service_unavailable)
@@ -47,8 +62,10 @@ RSpec.describe 'PPIU', type: :request do
     let(:ppiu_response) { File.read('spec/support/ppiu/update_ppiu_response.json') }
     let(:ppiu_request) { File.read('spec/support/ppiu/update_ppiu_request.json') }
 
+    test_unauthorized('put')
+
     context 'with a valid evss response' do
-      it 'should match the ppiu schema' do
+      it 'matches the ppiu schema' do
         VCR.use_cassette('evss/ppiu/update_payment_information') do
           put '/v0/ppiu/payment_information', params: ppiu_request, headers: headers
           expect(response).to have_http_status(:ok)
@@ -60,7 +77,10 @@ RSpec.describe 'PPIU', type: :request do
       context 'when the user does have an associated email address' do
         it 'calls a background job to send an email' do
           VCR.use_cassette('evss/ppiu/update_payment_information') do
-            expect(DirectDepositEmailJob).to receive(:perform_async)
+            user.all_emails do |email|
+              expect(DirectDepositEmailJob).to receive(:perform_async).with(email, nil)
+            end
+
             put '/v0/ppiu/payment_information', params: ppiu_request, headers: headers
           end
         end
@@ -70,13 +90,16 @@ RSpec.describe 'PPIU', type: :request do
         before do
           Settings.sentry.dsn = 'asdf'
         end
+
         after do
           Settings.sentry.dsn = nil
         end
-        it 'should log a message to Sentry' do
+
+        it 'logs a message to Sentry' do
           VCR.use_cassette('evss/ppiu/update_payment_information') do
+            expect_any_instance_of(User).to receive(:all_emails).and_return([])
             expect(Raven).to receive(:capture_message).once
-            allow_any_instance_of(V0::PPIUController).to receive(:current_user_email).and_return(nil)
+
             put '/v0/ppiu/payment_information', params: ppiu_request, headers: headers
             expect(response).to have_http_status(:ok)
           end
@@ -93,7 +116,7 @@ RSpec.describe 'PPIU', type: :request do
         }.to_json
       end
 
-      it 'should return a validation error' do
+      it 'returns a validation error' do
         put '/v0/ppiu/payment_information', params: ppiu_request, headers: headers
         expect(response).to have_http_status(:unprocessable_entity)
         expect(response).to match_response_schema('errors')
@@ -101,7 +124,7 @@ RSpec.describe 'PPIU', type: :request do
     end
 
     context 'with a 403 response' do
-      it 'should return a not authorized response' do
+      it 'returns a not authorized response' do
         VCR.use_cassette('evss/ppiu/update_forbidden') do
           put '/v0/ppiu/payment_information', params: ppiu_request, headers: headers
           expect(response).to have_http_status(:forbidden)
@@ -111,7 +134,7 @@ RSpec.describe 'PPIU', type: :request do
     end
 
     context 'with a 500 server error type' do
-      it 'should return a service error response' do
+      it 'returns a service error response' do
         VCR.use_cassette('evss/ppiu/update_service_error') do
           put '/v0/ppiu/payment_information', params: ppiu_request, headers: headers
           expect(response).to have_http_status(:service_unavailable)
@@ -121,7 +144,7 @@ RSpec.describe 'PPIU', type: :request do
     end
 
     context 'with a 500 server error type pertaining to potential fraud' do
-      it 'should return a service error response', :aggregate_failures do
+      it 'returns a service error response', :aggregate_failures do
         VCR.use_cassette('evss/ppiu/update_fraud') do
           put '/v0/ppiu/payment_information', params: ppiu_request, headers: headers
           expect(response).to have_http_status(:unprocessable_entity)
@@ -132,7 +155,7 @@ RSpec.describe 'PPIU', type: :request do
     end
 
     context 'with a 500 server error type pertaining to the account being flagged' do
-      it 'should return a service error response', :aggregate_failures do
+      it 'returns a service error response', :aggregate_failures do
         VCR.use_cassette('evss/ppiu/update_flagged') do
           put '/v0/ppiu/payment_information', params: ppiu_request, headers: headers
           expect(response).to have_http_status(:unprocessable_entity)

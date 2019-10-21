@@ -53,7 +53,7 @@ module Users
 
     def account
       { account_uuid: user.account_uuid }
-    rescue StandardError => e
+    rescue => e
       scaffold.errors << Users::ExceptionHandler.new(e, 'Account').serialize_error
       nil
     end
@@ -71,9 +71,7 @@ module Users
         loa: user.loa,
         multifactor: user.multifactor,
         verified: user.loa3?,
-        sign_in: user.identity.sign_in,
-        # FIXME: this wont be necessary after FE makes appropriate changes
-        authn_context: user.authn_context.scan(/(myhealthevet|dslogon)/).flatten[0]
+        sign_in: user.identity.sign_in
       }
     end
 
@@ -91,7 +89,7 @@ module Users
         temporary_phone: person.temporary_phone,
         fax_number: person.fax_number
       }
-    rescue StandardError => e
+    rescue => e
       scaffold.errors << Users::ExceptionHandler.new(e, 'Vet360').serialize_error
       nil
     end
@@ -119,7 +117,7 @@ module Users
         is_veteran: user.veteran?,
         served_in_military: user.served_in_military?
       }
-    rescue StandardError => e
+    rescue => e
       scaffold.errors << Users::ExceptionHandler.new(e, 'EMIS').serialize_error
       nil
     end

@@ -27,7 +27,7 @@ class Shrine
             when 'local'
               Shrine::Storage::FileSystem.new('tmp', prefix: File.join('uploads', config.path.to_s, name.to_s))
             when 's3'
-              sanitized_config = config.to_h.delete_if { |k, _| k == :type || k == :path || k == :upload_options }
+              sanitized_config = config.to_h.delete_if { |k, _| %i[type path upload_options].include?(k) }
               Shrine::Storage::S3.new(
                 bucket: config.bucket,
                 prefix: File.join(config.path.to_s, name.to_s),

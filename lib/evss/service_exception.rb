@@ -18,6 +18,7 @@ module EVSS
       # in case of multiple errors highest priority code is the one set for the http response
       key = self.class::ERROR_MAP.select { |k, _v| messages_has_key?(k) }
       return key.values.first unless key.empty?
+
       self.class::ERROR_MAP[:default]
     end
 

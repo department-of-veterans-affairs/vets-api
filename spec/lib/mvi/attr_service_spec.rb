@@ -4,7 +4,7 @@ require 'rails_helper'
 
 describe MVI::AttrService do
   describe '#find_profile' do
-    it 'should allow searching mvi with user attributes', run_at: 'Fri, 04 Jan 2019 20:33:04 GMT' do
+    it 'allows searching mvi with user attributes', run_at: 'Thu, 29 Aug 2019 17:45:03 GMT' do
       allow(SecureRandom).to receive(:uuid).and_return('c3fa0769-70cb-419a-b3a6-d2563e7b8502')
 
       VCR.use_cassette(

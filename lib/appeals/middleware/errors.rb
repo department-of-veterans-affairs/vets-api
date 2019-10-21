@@ -16,6 +16,7 @@ module Appeals
       #
       def on_complete(env)
         return if env.success?
+
         env[:body]['code'] = env.status
         env[:body]['source'] = 'Appeals Caseflow'
       end

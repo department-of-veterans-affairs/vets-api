@@ -2,12 +2,12 @@
 
 FactoryBot.define do
   factory :dependents_application do
-    state('pending')
+    state { 'pending' }
     user do
       build(:evss_user)
     end
 
-    form(
+    form {
       {
         privacyAgreementAccepted: true,
         veteranEmail: 'foo@foo.com',
@@ -136,6 +136,6 @@ FactoryBot.define do
           }
         ]
       }.to_json
-    )
+    }
   end
 end

@@ -11,8 +11,9 @@ describe Common::Exceptions::InvalidPaginationParams do
   end
 
   context 'with pagination params provided' do
-    let(:invalid_pagination_parms) { { 'page' => 'abc', 'per_page' => 10 } }
     subject { described_class.new(invalid_pagination_parms) }
+
+    let(:invalid_pagination_parms) { { 'page' => 'abc', 'per_page' => 10 } }
 
     it 'implements #errors which returns an array' do
       expect(subject.errors).to be_an(Array)
@@ -28,8 +29,9 @@ describe Common::Exceptions::InvalidPaginationParams do
   end
 
   context 'with pagination params provided and optional detail' do
-    let(:invalid_pagination_parms) { { 'page' => 'abc', 'per_page' => 10 } }
     subject { described_class.new(invalid_pagination_parms, detail: 'optional details') }
+
+    let(:invalid_pagination_parms) { { 'page' => 'abc', 'per_page' => 10 } }
 
     it 'implements #errors which returns an array' do
       expect(subject.errors).to be_an(Array)

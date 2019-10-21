@@ -7,10 +7,10 @@ class UserSessionForm
                                    tag: :validations_failed,
                                    short_message: 'on User/Session Validation',
                                    level: :error },
-             saml_replay_valid_session:  { code: '002',
-                                           tag: :saml_replay_valid_session,
-                                           short_message: 'SamlResponse is too late but user has current session',
-                                           level: :warn } }.freeze
+             saml_replay_valid_session: { code: '002',
+                                          tag: :saml_replay_valid_session,
+                                          short_message: 'SamlResponse is too late but user has current session',
+                                          level: :warn } }.freeze
 
   attr_reader :user, :user_identity, :session
 
@@ -59,11 +59,11 @@ class UserSessionForm
   def errors_context
     errors_hash.merge(
       uuid: @user.uuid,
-      user:   {
+      user: {
         valid: @user&.valid?,
         errors: @user&.errors&.full_messages
       },
-      session:   {
+      session: {
         valid: @session.valid?,
         errors: @session.errors&.full_messages
       },

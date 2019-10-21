@@ -28,7 +28,9 @@ RSpec.describe 'Backend Status', type: :request do
     context 'for the gibs service' do
       context 'during offline hours on saturday' do
         before { Timecop.freeze(offline_saturday) }
+
         after { Timecop.return }
+
         it 'indicates the service is unavailable' do
           get v0_backend_status_url('gibs'), params: nil, headers: auth_header
           json = JSON.parse(response.body)
@@ -45,7 +47,9 @@ RSpec.describe 'Backend Status', type: :request do
 
       context 'during online hours on weekday' do
         before { Timecop.freeze(online_weekday) }
+
         after { Timecop.return }
+
         it 'indicates the service is available' do
           get v0_backend_status_url('gibs'), params: nil, headers: auth_header
           json = JSON.parse(response.body)
@@ -78,12 +82,12 @@ RSpec.describe 'Backend Status', type: :request do
   end
 
   describe 'GET /v0/backend_statuses' do
-    before(:each) { sign_in_as(user) }
+    before { sign_in_as(user) }
 
     context 'happy path' do
       include_context 'simulating Redis caching of PagerDuty#get_services'
 
-      it 'should match the backend_statuses schema', :aggregate_failures do
+      it 'matches the backend_statuses schema', :aggregate_failures do
         get '/v0/backend_statuses'
 
         expect(response).to have_http_status(:ok)

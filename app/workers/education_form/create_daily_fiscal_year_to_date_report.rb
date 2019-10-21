@@ -13,8 +13,8 @@ module EducationForm
       daily_processed: 0
     }.freeze
 
-    FORM_TYPE_HEADERS = EducationBenefitsClaim::FORM_TYPES.map do |form_type|
-      ["22-#{form_type}", '', '']
+    FORM_TYPE_HEADERS = EducationBenefitsClaim::FORM_HEADERS.map do |form_header|
+      [form_header, '', '']
     end.flatten.freeze
 
     OCTOBER = 10
@@ -234,6 +234,7 @@ module EducationForm
     def perform
       filename = generate_csv
       return unless FeatureFlipper.send_edu_report_email?
+
       YearToDateReportMailer.build(filename).deliver_now
     end
   end

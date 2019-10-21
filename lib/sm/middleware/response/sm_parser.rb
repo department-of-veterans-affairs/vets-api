@@ -14,6 +14,7 @@ module SM
         #
         def on_complete(env)
           return unless env.response_headers['content-type']&.match?(/\bjson/)
+
           env[:body] = parse(env.body) if env.body.present?
         end
 
@@ -69,6 +70,7 @@ module SM
 
         def normalize_message(object)
           return object if object.blank?
+
           if object.is_a?(Array)
             object.map { |a| fix_attachments(a) }
           else
@@ -78,6 +80,7 @@ module SM
 
         def fix_attachments(message_json)
           return message_json.except(:attachments) if message_json[:attachments].blank?
+
           message_id = message_json[:id]
           attachments = Array.wrap(message_json[:attachments])
           # remove the outermost object name for attachment and inject message_id

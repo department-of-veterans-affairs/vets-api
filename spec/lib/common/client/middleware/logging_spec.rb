@@ -3,10 +3,7 @@
 require 'rails_helper'
 require 'common/client/middleware/logging'
 
-describe 'Logging Middleware' do
-  let(:type_key) { 'razzledaz' }
-  let(:response_data) { 'muchado' }
-
+describe Common::Client::Middleware::Logging do
   subject(:client) do
     Faraday.new do |conn|
       conn.use :logging, type_key
@@ -18,8 +15,11 @@ describe 'Logging Middleware' do
     end
   end
 
+  let(:type_key) { 'razzledaz' }
+  let(:response_data) { 'muchado' }
+
   it 'creates a new personal information log record' do
-    expect { client.get('success') }.to change { PersonalInformationLog.count }.by(1)
+    expect { client.get('success') }.to change(PersonalInformationLog, :count).by(1)
     expect(PersonalInformationLog.last.data.keys).to eq(%w[url method request_body response_body])
   end
 

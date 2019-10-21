@@ -16,7 +16,7 @@ RSpec.configure do |config|
     DatabaseCleaner.start
   end
 
-  config.before(:each) do |example|
+  config.before do |example|
     next if example.metadata[:cleaner_for_context]
 
     DatabaseCleaner.strategy =
@@ -29,7 +29,7 @@ RSpec.configure do |config|
     DatabaseCleaner.start
   end
 
-  config.after(:each) do |example|
+  config.after do |example|
     next if example.metadata[:cleaner_for_context]
 
     DatabaseCleaner.clean

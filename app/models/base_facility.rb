@@ -11,13 +11,15 @@ class BaseFacility < ApplicationRecord
 
   YES = 'YES'
 
-  APPROVED_SERVICES = %w[
-    MentalHealthCare
-    PrimaryCare
-    DentalServices
-  ].freeze
-
-  HOURS_STANDARD_MAP = DateTime::DAYNAMES.each_with_object({}) { |d, h| h[d] = d }
+  HOURS_STANDARD_MAP = {
+    'Sunday' => 'Sunday',
+    'Monday' => 'Monday',
+    'Tuesday' => 'Tuesday',
+    'Wednesday' => 'Wednesday',
+    'Thursday' => 'Thursday',
+    'Friday' => 'Friday',
+    'Saturday' => 'Saturday'
+  }.freeze
 
   HEALTH = 'health'
   CEMETERY = 'cemetery'
@@ -89,6 +91,7 @@ class BaseFacility < ApplicationRecord
     def find_facility_by_id(id)
       type, unique_id = id.split('_')
       return nil unless type && unique_id
+
       facility = "Facilities::#{type.upcase}Facility".constantize.find_by(unique_id: unique_id)
       facility&.hours = facility&.hours&.sort_by { |day, _hours| DAYS[day.capitalize] }.to_h
       facility
@@ -118,7 +121,7 @@ class BaseFacility < ApplicationRecord
   PATHMAP = { 'NCA_Facilities' => Facilities::NCAFacility,
               'VBA_Facilities' => Facilities::VBAFacility,
               'VHA_VetCenters' => Facilities::VCFacility,
-              'VHA_Facilities' => Facilities::VHAFacility }.freeze
+              'FacilitySitePoint_VHA' => Facilities::VHAFacility }.freeze
 
   def facility_type_prefix
     PREFIX_MAP[facility_type]

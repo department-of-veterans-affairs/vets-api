@@ -1,3 +1,7 @@
+require: 
+  - rubocop-rails
+  - rubocop-rspec
+
 AllCops:
   TargetRailsVersion: 5.2
   TargetRubyVersion: 2.4.5
@@ -6,6 +10,7 @@ AllCops:
     - '**/config.ru'
     - '**/Rakefile'
     - '**/*.rake'
+    - '**/*.rb'
   Exclude:
     - db/schema.rb
     - db/seeds.rb
@@ -51,6 +56,9 @@ Style/GuardClause:
 # problems as above.
 Style/Next:
   Enabled: false
+  
+Naming/VariableNumber:
+  Enabled: false
 
 # This forces you to replace things like: `[1, 2, 3].length == 0` with `[1,2,3].empty?`. The problem is that
 # not all things that implement length also implement empty? so you will get errors that cannot be resolved,
@@ -81,6 +89,11 @@ Metrics/AbcSize:
 Naming/AccessorMethodName:
   Enabled: false
 
+Rails/LexicallyScopedActionFilter:
+  Exclude:
+    - "app/controllers/concerns/filterable.rb"	  	
+
+# Blocks are limited to 25 lines or less
 # removing block length rule for rspec DSL
 Metrics/BlockLength:
   Exclude:
@@ -89,8 +102,11 @@ Metrics/BlockLength:
     - 'config/**/*.rb'
     - 'app/swagger/**/*.rb'
     - 'app/controllers/v0/apidocs_controller.rb'
+    - 'modules/*/spec/**/*.rb'
 
 # Don't worry about ambiguous blocks in RSpec
+# Official recommendation from rubocop team is to disable this rule for specs. 
+# See: https://github.com/rubocop-hq/rubocop/issues/4222
 Lint/AmbiguousBlockAssociation:
   Exclude:
     - "spec/**/*"
@@ -104,70 +120,24 @@ Naming/FileName:
 
 # We should try to use StandardError, but some errors like timeout inherit from Exception (beware)
 Style/RescueStandardError:
-  Exclude:
-    - "app/controllers/v0/id_card_attributes_controller.rb"
-    - "app/controllers/v0/sessions_controller.rb"
-    - "app/models/form_profile.rb"
-    - "app/models/mhv_account.rb"
-    - "app/services/mhv_accounts_service.rb"
-    - "app/uploaders/claim_documentation/uploader.rb"
-    - "app/workers/education_form/create_daily_spool_files.rb"
-    - "lib/common/client/concerns/monitoring.rb"
-    - "lib/common/client/configuration/soap.rb"
-    - "lib/common/exceptions/base_error.rb"
-    - "lib/github/github_service.rb"
-    - "lib/mvi/messages/find_profile_message_helpers.rb"
-    - "lib/mvi/responses/profile_parser.rb"
-    - "lib/saml/settings_service.rb"
-    - "lib/saml/ssoe_settings_service.rb"
-    - "rakelib/connectivity.rake"
-    - "rakelib/mvi.rake"
-    - "rakelib/redis.rake"
-    - "spec/request/authentication/standard_authentication.rb"
+  EnforcedStyle: implicit
 
-# Variable naming style apparently doesn't like: something_2, something_3
-Naming/VariableNumber:
-  Exclude:
-    - "lib/hca/enrollment_system.rb"
-    - "spec/controllers/v0/post_911_gi_bill_statuses_controller_spec.rb"
-    - "spec/lib/preneeds/service_spec.rb"
-
-# All kinds of issues with this cop right now, so disabling it.
+# All kinds of issues with this cop right now.
 Style/FormatStringToken:
   Exclude:
     - "rakelib/mvi.rake"
 
-# This cop has an improvement for false positives in Mixins in future release, Exclude for now.
-# https://github.com/bbatsov/rubocop/issues/5448
-Rails/LexicallyScopedActionFilter:
-  Exclude:
-    - "app/controllers/concerns/filterable.rb"
-    - "app/controllers/v0/sessions_controller.rb"
-
-# Disabling this rule for now. We should consider changing.
 Lint/BooleanSymbol:
   Exclude:
-    - "app/swagger/schemas/gibct/institutions.rb"
-    - "spec/request/breakers_integration_spec.rb"
-    - "spec/request/statsd_middleware_spec.rb"
-    - "spec/support/authenticated_session_helper.rb"
+    - "app/swagger/schemas/gibct/institutions.rb" #Swagger blocks defines keys as :true, need to keep as is
 
-# Should consider enforcing this rule. Disabling for now.
+# Use `Time` when dealing with current dates and times; it has support for timezones (system/local and utc), whereas `DateTime` only supports offsets from UTC.
+# However, if you need to deal with dates and times in a historical context you'll want to use DateTime to avoid making the same mistakes as UNESCO.
+# See: https://www.rubydoc.info/gems/rubocop/RuboCop/Cop/Style/DateTime
 Style/DateTime:
   Exclude:
-    - "lib/common/models/attribute_types/date_time_string.rb"
-    - "lib/evss/auth_headers.rb"
-    - "lib/evss/pciu_address/service.rb"
     - "rakelib/evss.rake"
-    - "rakelib/mvi.rake"
-
-# IMPORTANT: this needs to be changed or handled differently. NoMethodError is not acceptable.
-# Skipping it for now as I dont have time to address.
-Lint/SafeNavigationChain:
-  Exclude:
-    - "app/workers/education_form/delete_old_applications.rb"
-    - "lib/saml/health_status.rb"
-    - "lib/saml/ssoe_health_status.rb"
+    - "lib/evss/auth_headers.rb" #DateTime is needed for date formatting here
 
 # Skipping for now, should revisit:
 Rails/HasManyOrHasOneDependent:
@@ -177,14 +147,172 @@ Rails/HasManyOrHasOneDependent:
     - "app/models/saved_claim.rb"
     - "app/models/terms_and_conditions.rb"
 
-# Skipping for now, should revisit:
-Rails/SkipsModelValidations:
-  Exclude:
-    - "app/workers/education_form/create_daily_spool_files.rb"
-    - "app/models/saved_claim.rb"
-    - 'spec/**/*.rb'
+# The suggestions here don't seem to make sense in most cases. Skip for now.
+Naming/MemoizedInstanceVariableName:
+  Enabled: false
 
-# Need to revisit why this is necessary:
-Lint/RescueException:
+# It was determined these suggestions had the potential to change behavior. 
+Rails/ActiveRecordAliases:
+  Enabled: false
+
+# The use of variables such as n to represent number, x and y for x-axis and y-axis, el for element, 
+# v for value, i for index, and e for error are all standard abbreviations and should be excluded.
+Naming/UncommunicativeMethodParamName:
+  Enabled: false
+
+# FactoryBot 5.x replaced static factory attributes with dynamic ones. Auto-converting using rubocop-rspec
+# always uses {...} which means a lot of existing factories because invalid. Allowed exception in pr #3300.
+Style/BlockDelimiters:
   Exclude:
-    - 'app/workers/github/create_issue_job.rb'
+    - "spec/factories/*.rb"
+    - "modules/*/spec/factories/*.rb"
+
+# Excluding modules specs for now and a few that may need to be revisited.
+RSpec/FilePath:
+  Exclude:
+    - 'modules/**/*'
+    - 'spec/lib/common/models/**/*'
+    - 'spec/lib/saml/*_user_spec.rb'
+    - 'spec/lib/ihub/appointments/service_spec.rb'
+    - 'spec/request/in_progress_forms_request_spec.rb'
+    - 'spec/jobs/pagerduty/**/*'
+    - 'spec/lib/pagerduty/**/*'
+
+# Was determined that using described_class makes the code less readable.
+RSpec/DescribedClass:
+  Enabled: false
+
+# Excluding these for now. May need to be revisited.
+RSpec/DescribeClass:
+  Exclude:
+    - 'spec/lib/mhv_ac/client_spec.rb'
+    - 'spec/lib/mhv_logging/api/audits_spec.rb'
+    - 'spec/rakelib/vet360_spec.rb'
+    - 'spec/request/burial_claims_spec.rb'
+    - 'spec/request/education_benefits_claims_request_spec.rb'
+    - 'spec/request/health_care_applications_request_spec.rb'
+    - 'spec/request/pension_claims_controller_spec.rb'
+    - 'spec/request/swagger_spec.rb'
+    - 'spec/lib/sm/client/preferences_spec.rb'
+    - 'spec/lib/sm/client/triage_teams_spec.rb'
+    - 'spec/lib/sm/client/messages_spec.rb'
+    - 'spec/lib/bb/client_spec.rb'
+    - 'spec/lib/gi/client_spec.rb'
+    - 'spec/lib/sm/client/folders_spec.rb'
+
+# Determined to be too benign and/or numerous to justify changing
+RSpec/AnyInstance:
+  Enabled: false
+
+# Determined to be too benign and/or numerous to justify changing
+RSpec/BeforeAfterAll:
+  Enabled: false
+
+# Determined to be too benign and/or numerous to justify changing
+RSpec/ContextWording:
+  Enabled: false
+
+# Determined to be too benign and/or numerous to justify changing
+RSpec/ExampleLength:
+  Enabled: false
+
+# Determined to be too benign and/or numerous to justify changing
+RSpec/ExpectInHook:
+  Enabled: false
+
+# Determined to be too benign and/or numerous to justify changing
+RSpec/InstanceVariable:
+  Enabled: false
+
+# Determined to be too benign and/or numerous to justify changing
+RSpec/LeakyConstantDeclaration:
+  Enabled: false
+
+# Determined to be too benign and/or numerous to justify changing
+RSpec/MessageSpies:
+  Enabled: false
+
+# Determined to be too benign and/or numerous to justify changing
+RSpec/NamedSubject:
+  Enabled: false
+
+# Determined to be too benign and/or numerous to justify changing
+RSpec/VerifiedDoubles:
+  Enabled: false
+
+# Determined to be too benign and/or numerous to justify changing
+RSpec/MultipleExpectations:
+  Enabled: false
+
+# Determined to be too benign and/or numerous to justify changing
+RSpec/NestedGroups:
+  Enabled: false
+
+# This seems to generate a lot of false positives
+RSpec/EmptyExampleGroup:
+  Enabled: false
+
+# This seems to generate a lot of false positives
+RSpec/LetSetup:
+  Enabled: false
+
+# Might be worth revisiting at some point
+RSpec/MessageChain:
+  Exclude:
+    - 'modules/veteran_verification/spec/requests/service_history_request_spec.rb'
+    - 'modules/veteran_verification/spec/requests/veteran_status_request_spec.rb'
+    - 'spec/lib/vet360/service_spec.rb'
+    - 'spec/request/service_history_request_spec.rb'
+    - 'spec/request/swagger_spec.rb'
+
+# These instances seem to be necessary
+RSpec/MultipleDescribes:
+  Exclude:
+    - 'spec/jobs/evss/document_upload_spec.rb'
+    - 'spec/jobs/evss/request_decision_spec.rb'
+    - 'spec/lib/emis/veteran_status_service_spec.rb'
+    - 'spec/request/swagger_spec.rb'
+
+# These instances seem to be false positives
+RSpec/RepeatedExample:
+  Exclude:
+    - 'modules/vba_documents/spec/jobs/upload_processor_spec.rb'
+    - 'modules/vba_documents/spec/models/upload_submission_spec.rb'
+    - 'modules/vba_documents/spec/request/v0/reports_request_spec.rb'
+    - 'modules/vba_documents/spec/request/v1/reports_request_spec.rb'
+
+# Might be worth revisiting at some point
+RSpec/ScatteredLet:
+  Exclude:
+    - 'spec/controllers/openid_application_controller_spec.rb'
+    - 'spec/controllers/v0/dependents_applications_controller_spec.rb'
+    - 'spec/controllers/v0/post911_gi_bill_statuses_controller_spec.rb'
+    - 'spec/lib/bb/client_spec.rb'
+    - 'spec/lib/evss/auth_headers_spec.rb'
+    - 'spec/lib/evss/gi_bill_status/service_spec.rb'
+    - 'spec/lib/sentry/processor/log_as_warning_processor_spec.rb'
+    - 'spec/mailers/spool_submissions_report_mailer_spec.rb'
+    - 'spec/models/form_profile_spec.rb'
+    - 'spec/models/vet360_redis/contact_information_spec.rb'
+    - 'spec/request/health_care_applications_request_spec.rb'
+    - 'spec/request/health_records_request_spec.rb'
+    - 'spec/request/http_method_not_allowed_spec.rb'
+    - 'spec/request/swagger_spec.rb'
+
+# Might be worth revisiting at some point
+RSpec/SubjectStub:
+  Exclude:
+    - 'spec/jobs/education_form/create_daily_spool_files_spec.rb'
+    - 'spec/jobs/education_form/forms/va1990_spec.rb'
+    - 'spec/jobs/transactional_email_analytics_job_spec.rb'
+    - 'spec/lib/bb/generate_report_request_form_spec.rb'
+    - 'spec/lib/common/models/redis_store_spec.rb'
+    - 'spec/lib/evss/disability_compensation_form/data_translation_all_claim_spec.rb'
+    - 'spec/lib/evss/disability_compensation_form/data_translation_spec.rb'
+    - 'spec/lib/saml/health_status_spec.rb'
+    - 'spec/lib/sm/client/folders_spec.rb'
+    - 'spec/models/emis_redis/military_information_spec.rb'
+    - 'spec/models/session_spec.rb'
+    - 'spec/services/evss_claim_service_spec.rb'
+    - 'spec/services/mhv_accounts_service_spec.rb'
+    - 'spec/uploaders/evss_claim_document_uploader_spec.rb'

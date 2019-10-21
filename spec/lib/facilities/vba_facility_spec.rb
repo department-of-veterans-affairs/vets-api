@@ -9,32 +9,34 @@ module Facilities
     end
   end
   RSpec.describe VBAFacility do
-    before(:each) { BaseFacility.validate_on_load = false }
-    after(:each) { BaseFacility.validate_on_load = true }
+    before { BaseFacility.validate_on_load = false }
 
-    it 'should be a VBAFacility object' do
+    after { BaseFacility.validate_on_load = true }
+
+    it 'is a VBAFacility object' do
       expect(described_class.new).to be_a(VBAFacility)
     end
 
     describe 'pull_source_data' do
-      it 'should pull data from ArcGIS endpoint' do
+      it 'pulls data from ArcGIS endpoint' do
         VCR.use_cassette('facilities/va/vba_facilities_limit_results') do
           list = VBAFacility.pull_source_data
           expect(list.size).to eq(6)
         end
       end
-      it 'should return an array of VBAFacility objects' do
+      it 'returns an array of VBAFacility objects' do
         VCR.use_cassette('facilities/va/vba_facilities_limit_results') do
           list = VBAFacility.pull_source_data
           expect(list).to be_an(Array)
-          expect(list.all? { |item| item.is_a?(VBAFacility) })
+          expect(list.all? { |item| item.is_a?(VBAFacility) }).to be true
         end
       end
 
       context 'with single facility' do
         let(:facility) { VBAFacility.pull_source_data.first }
         let(:facility_2) { VBAFacility.pull_source_data.second }
-        it 'should parse hours correctly' do
+
+        it 'parses hours correctly' do
           VCR.use_cassette('facilities/va/vba_facilities_limit_results') do
             expect(facility.hours.values).to match_array(
               ['8:00AM-4:30PM', '8:00AM-4:30PM', '8:00AM-4:30PM', '8:00AM-4:30PM',
@@ -42,7 +44,8 @@ module Facilities
             )
           end
         end
-        it 'should parse hours correctly 2' do
+
+        it 'parses hours correctly 2' do
           VCR.use_cassette('facilities/va/vba_facilities_limit_results') do
             expect(facility_2.hours.values).to match_array(
               %w[Closed Closed Closed Closed Closed Closed Closed]
@@ -50,13 +53,13 @@ module Facilities
           end
         end
 
-        it 'should parse mailing address correctly' do
+        it 'parses mailing address correctly' do
           VCR.use_cassette('facilities/va/vba_facilities_limit_results') do
             expect(facility.address['mailing']).to eq({})
           end
         end
 
-        it 'should parse mailing address correctly' do
+        it 'parses physical address correctly' do
           VCR.use_cassette('facilities/va/vba_facilities_limit_results') do
             expect(facility.address['physical']).to eq('address_1' => '5310 1/2 Warrensville Center Road',
                                                        'address_2' => '',
@@ -65,21 +68,27 @@ module Facilities
           end
         end
 
-        it 'should parse services' do
+        it 'parses services' do
           VCR.use_cassette('facilities/va/vba_facilities_limit_results') do
             expect(facility.services.keys).to match_array(['benefits'])
           end
         end
 
-        it 'should parse services' do
+        it 'parses benefits keys' do
           VCR.use_cassette('facilities/va/vba_facilities_limit_results') do
             expect(facility.services['benefits'].keys).to match_array(%w[other standard])
           end
         end
 
-        it 'should parse services' do
+        it 'parses benefits values' do
           VCR.use_cassette('facilities/va/vba_facilities_limit_results') do
             expect(facility.services['benefits'].values).to match_array(['Readjustment Counseling only', []])
+          end
+        end
+
+        it 'gets the correct classification name' do
+          VCR.use_cassette('facilities/va/vba_facilities_limit_results') do
+            expect(facility.classification).to eq('OUTBASED')
           end
         end
       end

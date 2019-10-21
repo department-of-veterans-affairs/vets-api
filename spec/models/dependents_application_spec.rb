@@ -6,7 +6,7 @@ RSpec.describe DependentsApplication, type: :model do
   let(:dependents_application) { create(:dependents_application) }
 
   describe '.filter_children' do
-    it 'should filter children to match dependents' do
+    it 'filters children to match dependents' do
       dependents = [
         {
           'childSocialSecurityNumber' => '111223333'
@@ -29,7 +29,7 @@ RSpec.describe DependentsApplication, type: :model do
 
   describe '.transform_form' do
     context 'spouse and children have ssns' do
-      it 'should merge the evss and submitted forms' do
+      it 'merges the evss and submitted forms' do
         form = described_class.transform_form(dependents_application.parsed_form, get_fixture('dependents/retrieve'))
         expect(form).to eq(get_fixture('dependents/transform_form'))
       end
@@ -57,7 +57,7 @@ RSpec.describe DependentsApplication, type: :model do
         dependents_application.save!
       end
 
-      it 'should merge the forms' do
+      it 'merges the forms' do
         form = described_class.transform_form(dependents_application.parsed_form, get_fixture('dependents/retrieve'))
         expect(form).to eq(get_fixture('dependents/no_ssn_transform'))
       end
@@ -65,12 +65,12 @@ RSpec.describe DependentsApplication, type: :model do
   end
 
   describe '#user_can_access_evss' do
-    it 'should not allow users who dont have evss access' do
+    it 'does not allow users who dont have evss access' do
       dependents_application = DependentsApplication.new(user: create(:user))
       expect_attr_invalid(dependents_application, :user, 'must have evss access')
     end
 
-    it 'should allow evss users' do
+    it 'allows evss users' do
       dependents_application = DependentsApplication.new(user: create(:evss_user))
       expect_attr_valid(dependents_application, :user)
     end

@@ -45,6 +45,7 @@ module V0
     def submission_status
       job_status = Form526JobStatus.where(job_id: params[:job_id]).first
       raise Common::Exceptions::RecordNotFound, params[:job_id] unless job_status
+
       render json: job_status, serializer: Form526JobStatusSerializer
     end
 
