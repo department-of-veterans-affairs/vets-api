@@ -45,7 +45,7 @@ module DecisionReview
     #
     def get_higher_level_reviews_intake_status(uuid)
       with_monitoring_and_error_handling do
-        raw_response = perform(:get, "higher_level_reviews/intake_status/#{uuid}", nil)
+        raw_response = perform(:get, "intake_statuses/#{uuid}", nil)
         DecisionReview::Responses::Response.new(raw_response.status, raw_response.body, 'intake_status')
       end
     end
