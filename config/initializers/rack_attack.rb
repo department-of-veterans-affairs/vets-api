@@ -24,7 +24,7 @@ class Rack::Attack
     req.ip if req.path == '/v0/vic/vic_submissions' && req.post?
   end
 
-  throttle('evss_claims_async', limit: 10, period: 1.minute) do |req|
+  throttle('evss_claims_async', limit: 10, period: 60) do |req|
     req.ip if req.path == '/v0/evss_claims_async'
   end
 
