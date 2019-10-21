@@ -9,8 +9,8 @@ module Vet360
       include Common::Client::Monitoring
       include ERB::Util
 
-      AAID = MVI::Responses::IdParser::VET360_ASSIGNING_AUTHORITY_ID
-      OID  = MVI::Responses::IdParser::CORRELATION_ROOT_ID
+      AAID = MVI::Responses::IdParser::ICN_ASSIGNING_AUTHORITY_ID
+      OID  = MVI::Responses::IdParser::VA_ROOT_OID
 
       configuration Vet360::ContactInformation::Configuration
 
