@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri: https://dev-api.va.gov/services/appeals/v3/decision_review/higher_level_reviews/intake_status/1234567890
+    uri: https://dev-api.va.gov/services/appeals/v3/decision_review/intake_statuses/1234567890
     body:
       encoding: UTF-8
       string: ''
