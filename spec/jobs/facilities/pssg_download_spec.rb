@@ -73,4 +73,10 @@ RSpec.describe Facilities::PSSGDownload, type: :job do
       expect(DrivetimeBand.find_by(name: '648A4 : 0 - 10')).to be_nil
     end
   end
+
+  it 'raises a PSSGDownloadError when an exception is raised' do
+    allow(pssg_client_stub).to receive(:get_drivetime_bands).and_raise(StandardError.new('error'))
+
+    expect { subject.perform }.to raise_error(Facilities::PSSGDownloadError, 'error')
+  end
 end
