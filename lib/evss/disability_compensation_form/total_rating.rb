@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'common/models/base'
-require 'evss/disability_compensation_form/special_issue'
 
 module EVSS
   module DisabilityCompensationForm
@@ -35,27 +34,22 @@ module EVSS
       include ActiveModel::Serialization
       include Virtus.model
 
-      attribute :decision_code, String
-      attribute :decision_text, String
-      attribute :diagnostic_code, Integer
-      attribute :name, String
+      #attribute :name, String
       attribute :effective_date, DateTime
-      attribute :rated_disability_id, String
-      attribute :rating_decision_id, String
-      attribute :rating_percentage, Integer
-      attribute :related_disability_date, DateTime
-      attribute :special_issues, Array[EVSS::DisabilityCompensationForm::SpecialIssue]
+      attribute :rating_record, Integer
+      attribute :some_text, String
 
       def initialize(attrs)
         super(attrs)
-        self.name = attrs['diagnostic_text']
+        #self.name = attrs['diagnostic_text']
       end
-
+=begin
       # @return [String] Shorthand for rated_disability_id
       #
       def id
         rated_disability_id
       end
+=end
     end
   end
 end

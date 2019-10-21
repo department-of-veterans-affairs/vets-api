@@ -10,7 +10,7 @@ module Swagger
           extend Swagger::Responses::AuthenticationError
 
           key :description, 'Get the total combined disability rating for a veteran'
-          key :operationId, 'getRatedDisabilities'
+          key :operationId, 'getTotalRating'
           key :tags, %w[form_526]
 
           parameter :authorization
