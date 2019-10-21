@@ -10,58 +10,94 @@ RSpec.describe VaFacilities::CsvSerializer do
   let(:nca_facility) { build :nca_888 }
 
   def compare_row_to_facility(row, facility)
+    compare_simple_keys(row, facility)
+
+    compare_phone(row, facility)
+    compare_address('physical', row, facility)
+    compare_address('mailing', row, facility)
+
     expect(row['id']).to eq([facility.facility_type_prefix, facility.unique_id].join('_'))
-    expect(row['name']).to eq(facility.name)
     expect(row['station_id']).to eq(facility.unique_id)
     expect(row['latitude'].to_f).to eq(facility.lat)
     expect(row['longitude'].to_f).to eq(facility.long)
-    expect(row['facility_type']).to eq(facility.facility_type)
-    expect(row['classification']).to eq(facility.classification)
-    expect(row['website']).to eq(facility.website)
     expect(row['mobile'].to_s).to eq(facility.mobile.to_s)
-    expect(row['active_status']).to eq(facility.active_status)
+  end
 
-    expect(row['physical_address_1']).to eq(facility.address['physical']['address_1'])
-    expect(row['physical_address_2']).to eq(facility.address['physical']['address_2'])
-    expect(row['physical_address_3']).to eq(facility.address['physical']['address_3'])
-    expect(row['physical_city']).to eq(facility.address['physical']['city'])
-    expect(row['physical_state']).to eq(facility.address['physical']['state'])
-    expect(row['physical_zip']).to eq(facility.address['physical']['zip'])
+  def compare_simple_keys(row, facility)
+    simple_keys = %w[
+      name
+      facility_type
+      classification
+      website
+      active_status
+    ]
 
-    expect(row['mailing_address_1']).to eq(facility.address['mailing']['address_1'])
-    expect(row['mailing_address_2']).to eq(facility.address['mailing']['address_2'])
-    expect(row['mailing_address_3']).to eq(facility.address['mailing']['address_3'])
-    expect(row['mailing_city']).to eq(facility.address['mailing']['city'])
-    expect(row['mailing_state']).to eq(facility.address['mailing']['state'])
-    expect(row['mailing_zip']).to eq(facility.address['mailing']['zip'])
+    simple_keys.each do |key|
+      expect(row[key]).to eq facility.send(key.to_sym)
+    end
+  end
 
-    expect(row['phone_main']).to eq(facility.phone['main'])
-    expect(row['phone_fax']).to eq(facility.phone['fax'])
-    expect(row['phone_mental_health_clinic']).to eq(facility.phone['mental_health_clinic'])
-    expect(row['phone_pharmacy']).to eq(facility.phone['pharmacy'])
-    expect(row['phone_after_hours']).to eq(facility.phone['after_hours'])
-    expect(row['phone_patient_advocate']).to eq(facility.phone['patient_advocate'])
-    expect(row['phone_enrollment_coordinator']).to eq(facility.phone['enrollment_coordinator'])
+  def compare_phone(row, facility)
+    phone_keys = %w[
+      main
+      fax
+      mental_health_clinic
+      pharmacy
+      after_hours
+      patient_advocate
+      enrollment_coordinator
+    ]
+
+    phone_keys.each do |key|
+      expect(row["phone_#{key}"]).to eq(facility.phone[key])
+    end
+  end
+
+  def compare_address(address_type, row, facility)
+    address_keys = %w[
+      address_1
+      address_2
+      address_3
+      city
+      state
+      zip
+    ]
+
+    address_keys.each do |addr_key|
+      expect(row["#{address_type}_#{addr_key}"]).to eq(facility.address[address_type][addr_key])
+    end
   end
 
   def compare_facility_hours(row, facility)
-    expect(row['hours_monday']).to eq(facility.hours['Monday'])
-    expect(row['hours_tuesday']).to eq(facility.hours['Tuesday'])
-    expect(row['hours_wednesday']).to eq(facility.hours['Wednesday'])
-    expect(row['hours_thursday']).to eq(facility.hours['Thursday'])
-    expect(row['hours_friday']).to eq(facility.hours['Friday'])
-    expect(row['hours_saturday']).to eq(facility.hours['Saturday'])
-    expect(row['hours_sunday']).to eq(facility.hours['Sunday'])
+    capitalized_days = %w[
+      Monday
+      Tuesday
+      Wednesday
+      Thursday
+      Friday
+      Saturday
+      Sunday
+    ]
+
+    capitalized_days.each do |day|
+      expect(row["hours_#{day.downcase}"]).to eq(facility.hours[day])
+    end
   end
 
   def compare_vc_facility_hours(row, facility)
-    expect(row['hours_monday']).to eq(facility.hours['monday'])
-    expect(row['hours_tuesday']).to eq(facility.hours['tuesday'])
-    expect(row['hours_wednesday']).to eq(facility.hours['wednesday'])
-    expect(row['hours_thursday']).to eq(facility.hours['thursday'])
-    expect(row['hours_friday']).to eq(facility.hours['friday'])
-    expect(row['hours_saturday']).to eq(facility.hours['saturday'])
-    expect(row['hours_sunday']).to eq(facility.hours['sunday'])
+    vc_days = %w[
+      monday
+      tuesday
+      wednesday
+      thursday
+      friday
+      saturday
+      sunday
+    ]
+
+    vc_days.each do |day|
+      expect(row["hours_#{day}"]).to eq(facility.hours[day])
+    end
   end
 
   it 'uses preset headers' do
