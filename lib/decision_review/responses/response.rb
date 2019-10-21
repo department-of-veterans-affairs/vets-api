@@ -10,7 +10,7 @@ module DecisionReview
     # with a validation check that it matches the expected schema.
     #
     # @!attribute body
-    #   @return [String] Validated response body.
+    #   @return [Hash] Validated response body.
     # @!attribute status
     #   @return [Integer] The HTTP status code.
     #
