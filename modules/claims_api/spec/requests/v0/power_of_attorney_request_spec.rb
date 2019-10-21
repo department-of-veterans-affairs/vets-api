@@ -41,7 +41,6 @@ RSpec.describe 'Power of Attorney ', type: :request do
 
     it 'sets the source' do
       post path, params: data, headers: headers
-      binding.pry
       token = JSON.parse(response.body)['data']['id']
       poa = ClaimsApi::PowerOfAttorney.find(token)
       expect(poa.source).to eq('TestConsumer')
