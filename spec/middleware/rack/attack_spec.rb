@@ -72,7 +72,7 @@ RSpec.describe Rack::Attack do
     end
 
     context 'evss claims' do
-      let(:limit) { 10 }
+      let(:limit) { 12 }
       let(:endpoint) { '/v0/evss_claims_async' }
 
       it 'limits requests' do
