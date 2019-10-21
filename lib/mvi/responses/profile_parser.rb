@@ -93,8 +93,8 @@ module MVI
       def build_mvi_profile(patient)
         name = parse_name(get_patient_name(patient))
         full_mvi_ids = get_extensions(patient.locate('id'))
-        correlation_ids = MVI::Responses::IdParser.new.parse(patient.locate('id'))
-        log_inactive_mhv_ids(correlation_ids[:mhv_ids].to_a, correlation_ids[:active_mhv_ids].to_a)
+        parsed_mvi_ids = MVI::Responses::IdParser.new.parse(patient.locate('id'))
+        log_inactive_mhv_ids(parsed_mvi_ids[:mhv_ids].to_a, parsed_mvi_ids[:active_mhv_ids].to_a)
         MVI::Models::MviProfile.new(
           given_names: name[:given],
           family_name: name[:family],
@@ -105,17 +105,17 @@ module MVI
           address: parse_address(patient),
           home_phone: parse_phone(patient),
           full_mvi_ids: full_mvi_ids,
-          icn: correlation_ids[:icn],
-          mhv_ids: correlation_ids[:mhv_ids],
-          active_mhv_ids: correlation_ids[:active_mhv_ids],
-          edipi: sanitize_edipi(correlation_ids[:edipi]),
-          participant_id: sanitize_participant_id(correlation_ids[:vba_corp_id]),
-          vha_facility_ids: correlation_ids[:vha_facility_ids],
-          sec_id: correlation_ids[:sec_id],
-          birls_id: sanitize_birls_id(correlation_ids[:birls_id]),
-          vet360_id: correlation_ids[:vet360_id],
+          icn: parsed_mvi_ids[:icn],
+          mhv_ids: parsed_mvi_ids[:mhv_ids],
+          active_mhv_ids: parsed_mvi_ids[:active_mhv_ids],
+          edipi: sanitize_edipi(parsed_mvi_ids[:edipi]),
+          participant_id: sanitize_participant_id(parsed_mvi_ids[:vba_corp_id]),
+          vha_facility_ids: parsed_mvi_ids[:vha_facility_ids],
+          sec_id: parsed_mvi_ids[:sec_id],
+          birls_id: sanitize_birls_id(parsed_mvi_ids[:birls_id]),
+          vet360_id: parsed_mvi_ids[:vet360_id],
           historical_icns: MVI::Responses::HistoricalIcnParser.new(@original_body).get_icns,
-          icn_with_aaid: correlation_ids[:icn_with_aaid]
+          icn_with_aaid: parsed_mvi_ids[:icn_with_aaid]
         )
       end
       # rubocop:enable MethodLength
