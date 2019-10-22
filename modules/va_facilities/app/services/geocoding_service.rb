@@ -3,14 +3,12 @@
 require 'common/exceptions'
 
 class GeocodingService
-  def query(street_address: '', city: '', state: '', zip: '')
+  def query(street_address, city, state, zip)
     return nil unless [street_address, city, state, zip].all?(&:present?)
 
     address = "#{street_address} #{city} #{state} #{zip}"
     location_response = request_location(address)
-    if location_response.present?
-      return { lat: location_response[0], lng: location_response[1] }
-    end
+    { lat: location_response[0], lng: location_response[1] } if location_response.present?
   end
 
   def request_location(address)

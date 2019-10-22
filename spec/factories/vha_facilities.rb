@@ -339,4 +339,66 @@ FactoryBot.define do
       } }
     }
   end
+  factory :vha_402, class: Facilities::VHAFacility do
+    unique_id { '402' }
+    name { 'Togus VA Medical Center' }
+    facility_type { 'va_health_facility' }
+    classification { 'VA Medical Center (VAMC)' }
+    website { 'http://www.maine.va.gov' }
+    lat { 44.284246575344135 }
+    long { -69.6942654433762 }
+    location { 'POINT(-68.59126328999997, 47.26560990000007)' }
+    address {
+      { 'mailing' => {},
+        'physical' => {
+          'zip' => '04330-6796',
+          'city' => 'Augusta',
+          'state' => 'ME',
+          'address_1' => '1 VA Center',
+          'address_2' => nil,
+          'address_3' => nil
+        } }
+    }
+    phone {
+      { 'fax' => '207-623-5792',
+        'main' => '207-623-8411',
+        'pharmacy' => '207-623-8411 x5770',
+        'after_hours' => '207-623-8411',
+        'patient_advocate' => '207-623-5760',
+        'mental_health_clinic' => '207-623-8411 x 5515',
+        'enrollment_coordinator' => '207-623-8411 x5688' }
+    }
+    hours {
+      { 'Friday' => '24/7',
+        'Monday' => '24/7',
+        'Sunday' => '24/7',
+        'Tuesday' => '24/7',
+        'Saturday' => '24/7',
+        'Thursday' => '24/7',
+        'Wednesday' => '24/7' }
+    }
+    services {
+      { 'other' =>  [], 'health' => [{ 'sl1' => ['EmergencyCare'], 'sl2' => [] }, { 'sl1' => ['UrgentCare'], 'sl2' => [] }, { 'sl1' => ['PrimaryCare'], 'sl2' => [] }, { 'sl1' => ['MentalHealthCare'], 'sl2' => [] }, { 'sl1' => ['WomensHealth'], 'sl2' => [] }, { 'sl1' => ['Audiology'], 'sl2' => [] }, { 'sl1' => ['Cardiology'], 'sl2' => [] }, { 'sl1' => ['Dermatology'], 'sl2' => [] }, { 'sl1' => ['Gastroenterology'], 'sl2' => [] }, { 'sl1' => ['Gynecology'], 'sl2' => [] }, { 'sl1' => ['Ophthalmology'], 'sl2' => [] }, { 'sl1' => ['Optometry'], 'sl2' => [] }, { 'sl1' => ['Orthopedics'], 'sl2' => [] }, { 'sl1' => ['Urology'], 'sl2' => [] }, { 'sl1' => ['SpecialtyCare'], 'sl2' => [] }, { 'sl1' => ['DentalServices'], 'sl2' => [] }], 'last_updated' => '2019-09-23' }
+    }
+    feedback {
+      {
+        'health' => {
+          'effective_date' => '2019-06-20',
+          'primary_care_urgent' => 0.94,
+          'primary_care_routine' => 0.95,
+          'specialty_care_urgent' => 0.91,
+          'specialty_care_routine' => 0.95
+        }
+      }
+    }
+    access {
+      { 'health' => { 'urology' => { 'new' => 11.142857, 'established' => 3.593495 }, 'audiology' => { 'new' => 27.527522, 'established' => 9.957081 }, 'optometry' => { 'new' => 30.669811, 'established' => 11.257545 }, 'cardiology' => { 'new' => 21.179487, 'established' => 11.151228 }, 'gynecology' => { 'new' => 25.933333, 'established' => 3.090909 }, 'dermatology' => { 'new' => 11.788235, 'established' => 11.934065 }, 'orthopedics' => { 'new' => 25.678571, 'established' => 5.913752 }, 'primary_care' => { 'new' => 21.470588, 'established' => 6.781284 }, 'ophthalmology' => { 'new' => 2.75, 'established' => 4.083333 }, 'womens_health' => { 'new' => 33.333333, 'established' => 3.173652 }, 'effective_date' => '2019-09-23', 'specialty_care' => { 'new' => 20.455762, 'established' => 7.955693 }, 'gastroenterology' => { 'new' => 26.425, 'established' => 6.798657 }, 'mental_health_care' => { 'new' => 10.421052, 'established' => 1.727656 } } }
+    }
+    mobile {
+      false
+    }
+    active_status {
+      'A'
+    }
+  end
 end

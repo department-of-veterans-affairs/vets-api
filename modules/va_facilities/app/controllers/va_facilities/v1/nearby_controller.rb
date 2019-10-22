@@ -21,18 +21,14 @@ module VaFacilities
         address: %i[street_address city state zip].freeze,
         lat_lng: %i[lat lng].freeze
       }.freeze
-      QUERY_INFO = {
-        address: NearbyFacility.method(:query),
-        lat_lng: NearbyFacility.method(:query_by_lat_lng)
-      }.freeze
 
       def index
-        resource = DrivetimeBand.select(:name, :id, :vha_facility_id, :unit, :min, :max)
-                                .where('ST_Intersects(polygon, ST_MakePoint(:lng,:lat)) AND max < :max',
-                                       lng: params[:lng],
-                                       lat: params[:lat],
-                                       max: params[:drive_time])
-                                .paginate(page: nil, per_page: 20).load
+        lat_lng = get_lat_lng(params)
+        params[:drive_time] = '30' unless params[:drive_time]
+
+        resource = DrivetimeBand.find_within_max_distance(lat_lng[:lat], lat_lng[:lng], params[:drive_time])
+                                .paginate(page: params[:page],
+                                          per_page: params[:per_page] || 20).load
 
         respond_to do |format|
           format.json do
@@ -64,13 +60,19 @@ module VaFacilities
         validate_type_and_services_known unless params[:type].nil?
       end
 
-      def get_query_method(params)
+      def get_lat_lng(params)
+
         obs_fields = params.keys.map(&:to_sym)
         location_type = REQUIRED_PARAMS.find do |loc_type, req_field_names|
           no_missing_fields = (req_field_names - obs_fields).empty?
           break loc_type if no_missing_fields
         end
-        QUERY_INFO[location_type]
+
+        if location_type.eql? :address
+          return GeocodingService.new.query(params[:street_address], params[:city], params[:state], params[:zip])
+        else
+          return params.slice(:lat, :lng)
+        end
       end
 
       def relationships(resource)
