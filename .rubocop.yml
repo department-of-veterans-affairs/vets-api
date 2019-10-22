@@ -102,6 +102,7 @@ Metrics/BlockLength:
     - 'config/**/*.rb'
     - 'app/swagger/**/*.rb'
     - 'app/controllers/v0/apidocs_controller.rb'
+    - 'modules/*/spec/**/*.rb'
 
 # Don't worry about ambiguous blocks in RSpec
 # Official recommendation from rubocop team is to disable this rule for specs. 
