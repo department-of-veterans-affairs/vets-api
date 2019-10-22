@@ -24,8 +24,6 @@ Flipper.configure do |config|
   end
 end
 
-
-
 # Modify Flipper::UI::Configuration to accept a custom view path.
 Flipper::UI::Configuration.prepend(FlipperExtensions::ConfigurationPatch)
 
@@ -47,7 +45,6 @@ end
 #   user.respond_to?(:first_name) && user.first_name == 'HECTOR'
 # end
 
-#
 Flipper::UI.configuration.feature_creation_enabled = false
 # Make sure that each feature we reference in code is present in the UI, as long as we have a Database already
 FLIPPER_FEATURE_CONFIG['features'].each_key do |feature|
