@@ -12,7 +12,7 @@ RSpec.describe GeocodingService do
     }
 
     VCR.use_cassette('bing/geocoding/vha_402',
-                      match_requests_on: [:method, VCR.request_matchers.uri_without_param(:key)]) do
+                     match_requests_on: [:method, VCR.request_matchers.uri_without_param(:key)]) do
       resp = subject.query(address)
       expect(resp[:lat]).to eq(44.27874833)
       expect(resp[:lng]).to eq(-69.70363833)

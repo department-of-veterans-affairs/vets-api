@@ -26,9 +26,12 @@ module VaFacilities
         lat_lng = get_lat_lng(params)
         params[:drive_time] = '30' unless params[:drive_time]
 
-        resource = DrivetimeBand.find_within_max_distance(lat_lng[:lat], lat_lng[:lng], params[:drive_time])
-                                .paginate(page: params[:page],
-                                          per_page: params[:per_page] || 20).load
+        resource = if lat_lng.present?
+                     DrivetimeBand.find_within_max_distance(lat_lng[:lat], lat_lng[:lng], params[:drive_time])
+                                  .paginate(page: params[:page], per_page: params[:per_page] || per_page).load
+                   else
+                     DrivetimeBand.none
+                   end
 
         respond_to do |format|
           format.json do
@@ -48,6 +51,10 @@ module VaFacilities
 
       private
 
+      def per_page
+        20
+      end
+
       def validate_params
         validate_required_nearby_params(REQUIRED_PARAMS)
         validate_street_address
@@ -61,7 +68,6 @@ module VaFacilities
       end
 
       def get_lat_lng(params)
-
         obs_fields = params.keys.map(&:to_sym)
         location_type = REQUIRED_PARAMS.find do |loc_type, req_field_names|
           no_missing_fields = (req_field_names - obs_fields).empty?
@@ -69,9 +75,9 @@ module VaFacilities
         end
 
         if location_type.eql? :address
-          return GeocodingService.new.query(params[:street_address], params[:city], params[:state], params[:zip])
+          GeocodingService.new.query(params[:street_address], params[:city], params[:state], params[:zip])
         else
-          return params.slice(:lat, :lng)
+          params.slice(:lat, :lng)
         end
       end
 
@@ -90,10 +96,10 @@ module VaFacilities
       def metadata(resource)
         {
           pagination: {
-            current_page: resource.current_page,
-            per_page: resource.per_page,
-            total_pages: resource.total_pages,
-            total_entries: resource.total_entries
+            current_page: resource&.try(:current_page),
+            per_page: resource&.try(:per_page),
+            total_pages: resource&.try(:total_pages),
+            total_entries: resource&.try(:total_entries)
           }
         }
       end
