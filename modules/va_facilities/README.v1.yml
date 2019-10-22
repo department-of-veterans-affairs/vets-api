@@ -429,9 +429,9 @@ paths:
         in the standard JSON API "links" and "meta" elements.
 
         Also in the "meta" element is information about the drive time band that the requested location 
-        fell within for each the facility included in the response. The values of drive_time_band_min and 
-        drive_time_band_max are in minutes. For example, a facility returned with a matched drive_time_band_min 
-        of 10 and drive_time_band_max of 20 is a 10 to 20 minute drive from the requested location.
+        fell within for each the facility included in the response. The values of drivetime_band_min and 
+        drivetime_band_max are in minutes. For example, a facility returned with a matched drivetime_band_min 
+        of 10 and drivetime_band_max of 20 is a 10 to 20 minute drive from the requested location.
 
         The facility information returned by `/nearby` is a small subset of the information returned by `/facilities`.
         Please use `/facilities` to see detailed information.
@@ -555,7 +555,7 @@ paths:
                     type: object
                     required:
                       - pagination
-                      - facility_drive_time_bands
+                      - facility_drivetime_bands
                     properties:
                       pagination:
                         type: object
@@ -902,13 +902,13 @@ components:
         attributes:
           type: object
           required:
-            - drive_time_band_min
-            - drive_time_band_max
+            - drivetime_band_min
+            - drivetime_band_max
           properties:
-            drive_time_band_min:
+            drivetime_band_min:
               type: string
               example: 10
-            drive_time_band_max:
+            drivetime_band_max:
               type: string
               example: 20
         relationships:
