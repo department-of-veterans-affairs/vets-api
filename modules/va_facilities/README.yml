@@ -19,9 +19,15 @@ info:
 
     ## Design
 
+    ### Base URLs
+    
+    The base URLs for the VA Facilities API in the various environments are:
+    - Development: `https://dev-api.va.gov/services/va_facilities/v0`
+    - Production: `https://api.va.gov/services/va_facilities/v0`
+
     ### Authorization
 
-    API requests are authorized through a symmetric API token, provided in an HTTP header with name "apikey".
+    API requests are authorized through a symmetric API token, provided in an HTTP header with name `apikey`.
 
     ### Response Formats
 
@@ -40,17 +46,13 @@ info:
     - The list of available services in the `services` element is only applicable to VA health and
       benefits facilities.
 
-    ### Mobile Facilities
-
-    VHA has a set of mobile facilities that move regularly within a region.
-    If a facility comes back from this API with `"mobile": "true"`, the latitude/longitude and address should be considered inaccurate.
-    To get the exact current location, end consumers should contact the mobile facility directly.
-
     ### Active Status
-
-    VHA facilities can be temporarily closed for a variety of reasons.
-    If a facility comes back from this API with `"active_status": "T"`, it is not currently operating.
-    `"active_status": "A"` indicates normal operations at a facility.
+    
+    Facilities can be temporarily deactivated for a variety of reasons. If a facility comes back from this API with `"active_status": "T"`, it is not currently operating. `"active_status": "A"` indicates normal operations at a facility.
+    
+    ### Mobile Facilities
+    
+    The mobile health facilities move regularly within a region. If a facility comes back from this API with `"mobile": "true"`, the latitude/longitude and address could be inaccurate. To get the exact current location, please call the number listed.
 
     ## Reference
 
@@ -64,22 +66,22 @@ info:
 tags:
   - name: facilities
     description: VA Facilities API
-servers:
-  - url: https://dev-api.va.gov/services/va_facilities/{version}
-    description: VA.gov API development environment
-    variables:
-      version:
-        default: v0
-  - url: https://staging-api.va.gov/services/va_facilities/{version}
-    description: VA.gov API staging environment
-    variables:
-      version:
-        default: v0
-  - url: https://api.va.gov/services/va_facilities/{version}
-    description: VA.gov API production environment
-    variables:
-      version:
-        default: v0
+# servers:
+#   - url: https://dev-api.va.gov/services/va_facilities/{version}
+#     description: VA.gov API development environment
+#     variables:
+#       version:
+#         default: v0
+#   - url: https://staging-api.va.gov/services/va_facilities/{version}
+#     description: VA.gov API staging environment
+#     variables:
+#       version:
+#         default: v0
+#   - url: https://api.va.gov/services/va_facilities/{version}
+#     description: VA.gov API production environment
+#     variables:
+#       version:
+#         default: v0
 paths:
   /facilities:
     get:
