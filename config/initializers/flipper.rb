@@ -16,7 +16,8 @@ Flipper.configure do |config|
   config.default do
     activerecord_adapter = Flipper::Adapters::ActiveRecord.new
     cache = ActiveSupport::Cache::MemoryStore.new
-    adapter = Flipper::Adapters::ActiveSupportCacheStore.new(activerecord_adapter, cache, expires_in: 1.minute)
+    cached_adapter = Flipper::Adapters::ActiveSupportCacheStore.new(activerecord_adapter, cache, expires_in: 1.minute)
+    adapter = Rails.env.development? || Rails.env.test? ? activerecord_adapter : cached_adapter
     instrumented = Flipper::Adapters::Instrumented.new(adapter, instrumenter: ActiveSupport::Notifications)
     # pass adapter to handy DSL instance
     Flipper.new(instrumented, instrumenter: ActiveSupport::Notifications)
