@@ -71,8 +71,11 @@ class NearbyFacility < ApplicationRecord
         make_polygon = "ST_MakePolygon(ST_GeomFromText('LINESTRING(#{linestring})'))"
         # find all facilities that lie inside of the polygon
         conditions = "ST_Intersects(#{make_polygon}, ST_MakePoint(long, lat))"
-        facilities_query_base_instance = FacilitiesQuery::Base.new(params)
-        [facilities_query_base_instance.get_facility_data(conditions, params[:type], params[:type], params[:services])]
+        params[:type] ||= 'health'
+        FacilitiesQuery::Base.new(params).get_facility_data(conditions,
+                                                            params[:type],
+                                                            params[:type],
+                                                            params[:services]).to_a
       else
         NearbyFacility.none
       end
