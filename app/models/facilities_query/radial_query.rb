@@ -21,7 +21,7 @@ module FacilitiesQuery
     def build_distance_result_set(lat, long, type, services, ids, limit = nil)
       conditions = limit.nil? ? {} : "where distance < #{limit}"
       ids_map = ids_for_types(ids) unless ids.nil?
-      BaseFacility::TYPES.flat_map do |facility_type|
+      result_set = BaseFacility::TYPES.flat_map do |facility_type|
         facilities = get_facility_data(
           conditions,
           type,
@@ -33,8 +33,9 @@ module FacilitiesQuery
           ids_for_type = ids_map[BaseFacility::PREFIX_MAP[BaseFacility::TYPE_NAME_MAP[facility_type]]]
           facilities = facilities.where(unique_id: ids_for_type)
         end
-        facilities.order('distance')
+        facilities
       end
+      result_set.sort_by &:distance
     end
     # rubocop:enable Metrics/ParameterLists
 
