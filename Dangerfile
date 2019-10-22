@@ -1,6 +1,6 @@
 # Warn if a pull request is too big
 MAX_PR_SIZE = 250
-EXCLUSIONS = ['Gemfile.lock', '.json', 'spec/fixtures/', '.txt']
+EXCLUSIONS = ['Gemfile.lock', '.json', 'spec/fixtures/', '.txt', 'spec/support/vcr_cassettes/']
 
 # takes form {"some/file.rb"=>{:insertions=>4, :deletions=>1}}
 changed_files = git.diff.stats[:files]
