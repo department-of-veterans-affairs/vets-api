@@ -18,7 +18,7 @@ describe VAOSPolicy do
       let(:user) { build(:user, :loa1) }
 
       it 'denies access' do
-        expect(subject).to_not permit(user, :vaos)
+        expect(subject).not_to permit(user, :vaos)
       end
     end
   end

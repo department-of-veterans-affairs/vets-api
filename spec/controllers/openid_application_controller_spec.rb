@@ -56,9 +56,9 @@ RSpec.describe OpenidApplicationController, type: :controller do
 
     context 'with complex scopes' do
       controller do
-        before_action { permit_scopes 'profile', actions: :index }
-        before_action { permit_scopes 'openid', actions: %i[show update] }
-        before_action { permit_scopes %w[email openid], actions: %i[destroy] }
+        before_action { permit_scopes 'profile', endpoints: :index }
+        before_action { permit_scopes 'openid', endpoints: %i[show update] }
+        before_action { permit_scopes %w[email openid], endpoints: %i[destroy] }
 
         %i[index show update destroy].each do |method|
           define_method method do

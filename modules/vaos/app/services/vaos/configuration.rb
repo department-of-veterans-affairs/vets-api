@@ -11,16 +11,30 @@ module VAOS
     end
 
     def connection
-      Faraday.new(base_path, headers: base_request_headers, request: request_options) do |faraday|
-        faraday.use :breakers
-        faraday.use Faraday::Response::RaiseError
+      Faraday.new(base_path, headers: base_request_headers, request: request_options) do |conn|
+        conn.use :breakers
+        conn.use Faraday::Response::RaiseError
 
-        faraday.request :json
+        conn.request :json
 
-        faraday.response :betamocks if mock_enabled?
-        faraday.response :snakecase
-        faraday.response :json, content_type: /\bjson$/
-        faraday.adapter Faraday.default_adapter
+        conn.response :betamocks if mock_enabled?
+        conn.response :snakecase
+        conn.response :json, content_type: /\bjson$/
+        conn.adapter Faraday.default_adapter
+      end
+    end
+
+    def parallel_connection
+      Faraday.new(base_path, headers: base_request_headers, request: request_options) do |conn|
+        conn.use :breakers
+        conn.use Faraday::Response::RaiseError
+
+        conn.request :json
+
+        conn.response :betamocks if mock_enabled?
+        conn.response :snakecase
+        conn.response :json, content_type: /\bjson$/
+        conn.adapter :typhoeus
       end
     end
 

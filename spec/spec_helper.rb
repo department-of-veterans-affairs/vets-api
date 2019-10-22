@@ -3,14 +3,10 @@
 require 'fakeredis/rspec'
 require 'support/mvi/stub_mvi'
 require 'support/spec_builders'
-require 'support/schema_matchers'
+require 'support/matchers'
 require 'support/spool_helpers'
 require 'support/fixture_helpers'
 require 'support/spec_temp_files'
-require 'support/have_deep_attributes_matcher'
-require 'support/be_a_uuid'
-require 'support/impl_matchers'
-require 'support/negated_matchers'
 require 'support/sidekiq/batch'
 require 'support/stub_emis'
 require 'support/stub_evss_pciu'
@@ -55,8 +51,6 @@ unless ENV['NOCOVERAGE']
     add_group 'VeteranVerification', 'modules/veteran_verification/'
     add_group 'OpenidAuth', 'modules/openid_auth/'
     add_group 'VAOS', 'modules/vaos/'
-    add_filter 'version.rb'
-    add_filter 'modules/va_facilities/lib/va_facilities/engine.rb'
 
     SimpleCov.minimum_coverage_by_file 90
     SimpleCov.refuse_coverage_drop

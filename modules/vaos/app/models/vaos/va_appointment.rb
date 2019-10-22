@@ -3,7 +3,7 @@
 require 'common/models/resource'
 
 module VAOS
-  class Appointment < Common::Resource
+  class VAAppointment < Common::Resource
     ContactTimes = Types::Strict::String.enum('morning', 'afternoon', 'evening')
     Statuses = Types::Strict::String.enum('pending', 'booked')
 

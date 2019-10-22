@@ -455,7 +455,7 @@
 
 # VAOS
 - :name: 'VAOS'
-  :base_uri: <%= "#{URI(Settings.vaos.url).host}:#{URI(Settings.vaos.url).port}" %>
+  :base_uri: <%= "#{URI(Settings.va_mobile.url).host}:#{URI(Settings.va_mobile.url).port}" %>
   :endpoints:
   - :method: :get
     :path: "/appointments/v1/patients/*/appointments"

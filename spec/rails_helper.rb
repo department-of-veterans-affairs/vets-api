@@ -51,6 +51,7 @@ end
 VCR::MATCH_EVERYTHING = { match_requests_on: %i[method uri headers body] }.freeze
 
 VCR.configure do |c|
+  c.debug_logger = File.open('/Users/alastairdawson/Desktop/debug.txt', 'w')
   c.cassette_library_dir = 'spec/support/vcr_cassettes'
   c.hook_into :webmock
   c.configure_rspec_metadata!
@@ -180,4 +181,6 @@ RSpec.configure do |config|
   config.after(:all) do
     FileUtils.rm_rf(Dir[Rails.root.join('spec', 'support', 'uploads')]) if Rails.env.test?
   end
+
+  config.fuubar_auto_refresh = false
 end
