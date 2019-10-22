@@ -271,6 +271,20 @@ describe Vet360::ContactInformation::Service, skip_vet360: true do
     end
 
     context 'when not successful' do
+      context 'when there is an address error' do
+        before do
+          allow(user).to receive(:vet360_id).and_return('1133902')
+        end
+
+        let(:transaction_id) { 'd8cd4a73-6241-46fe-95a4-e0776f8f6f64' }
+
+        it 'should log the error to pii logs' do
+          VCR.use_cassette('vet360/contact_information/address_transaction_addr_not_found', record: :once) do
+            subject.get_address_transaction_status(transaction_id)
+          end
+        end
+      end
+
       let(:transaction_id) { 'd47b3d96-9ddd-42be-ac57-8e564aa38029' }
 
       it 'returns a status of 404' do
