@@ -42,7 +42,7 @@ module Vet360
                   'originating_source_system',
                   'source_system_user',
                   'effective_start_date',
-                  'vet360_id',
+                  'vet360_id'
                 ),
                 errors: @response_body['tx_messages']
               }
