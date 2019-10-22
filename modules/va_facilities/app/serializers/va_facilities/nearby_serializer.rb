@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module VaFacilities
-  class NearbyFacilitySerializer < ActiveModel::Serializer
+  class NearbySerializer < ActiveModel::Serializer
     BASE_PATH = '/services/va_facilities/v0'
 
     def id

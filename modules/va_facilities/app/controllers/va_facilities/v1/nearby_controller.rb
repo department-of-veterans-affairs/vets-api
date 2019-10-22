@@ -27,19 +27,17 @@ module VaFacilities
       }.freeze
 
       def index
-        # New implementation to replace this
-        bands = DrivetimeBand.select(:name, :id, :vha_facility_id, :unit, :min, :max)
-                             .where('ST_Intersects(polygon, ST_MakePoint(:lng,:lat)) AND max < :max',
-                                    lng: params[:lng],
-                                    lat: params[:lat],
-                                    max: params[:drive_time])
-
-        resource = bands.paginate(page: nil, per_page: 20)
+        resource = DrivetimeBand.select(:name, :id, :vha_facility_id, :unit, :min, :max)
+                                .where('ST_Intersects(polygon, ST_MakePoint(:lng,:lat)) AND max < :max',
+                                       lng: params[:lng],
+                                       lat: params[:lat],
+                                       max: params[:drive_time])
+                                .paginate(page: nil, per_page: 20).load
 
         respond_to do |format|
           format.json do
             render json: resource,
-                   each_serializer: VaFacilities::NearbyFacilitySerializer,
+                   each_serializer: VaFacilities::NearbySerializer,
                    meta: metadata(resource),
                    relationships: relationships(resource)
           end

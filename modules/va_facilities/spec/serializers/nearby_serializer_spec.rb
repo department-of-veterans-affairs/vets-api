@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe VaFacilities::NearbyFacilitySerializer, type: :serializer do
+RSpec.describe VaFacilities::NearbySerializer, type: :serializer do
   subject { serialize(thirty, serializer_class: described_class) }
 
   let(:thirty) { create(:thirty_mins) }
