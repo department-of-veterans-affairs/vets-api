@@ -11,6 +11,7 @@ RSpec.describe FormProfile, type: :model do
     user.va_profile.suffix = 'Jr.'
     user.va_profile.address.country = 'USA'
     stub_evss_pciu(user)
+    described_class.instance_variable_set(:@mappings, nil)
   end
 
   let(:street_check) { build(:street_check) }
@@ -575,10 +576,6 @@ RSpec.describe FormProfile, type: :model do
         'to' => '2007-04-02'
       }
     }
-  end
-
-  before do
-    described_class.instance_variable_set(:@mappings, nil)
   end
 
   describe '#get_us_phone' do
