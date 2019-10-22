@@ -142,7 +142,8 @@ describe EVSS::PPIU::Service do
         end
 
         expect(ppiu_pii_log.last.data).to eq(
-          'user' => { 'uuid' => user.uuid, 'edipi' => user.edipi },
+          'user' => { 'uuid' => user.uuid, 'edipi' => user.edipi,
+                      'ssn' => user.ssn },
           'request' =>
            { 'requests' =>
              [{ 'paymentType' => 'CNP',
