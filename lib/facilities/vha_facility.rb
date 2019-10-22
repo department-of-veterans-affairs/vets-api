@@ -18,8 +18,7 @@ module Facilities
         max_record_count = metadata['maxRecordCount']
         resp = Facilities::GisClient.new.get_all_facilities(gis_type, sort_field, max_record_count)
         resp_with_websites = add_websites(resp)
-        resp_with_mental_health = add_mental_health(resp_with_websites)
-        format_phone_numbers(resp_with_mental_health)
+        add_mental_health(resp_with_websites)
       end
 
       def add_websites(facilities)
@@ -40,17 +39,6 @@ module Facilities
         end
       end
 
-      def format_phone_numbers(facilities)
-        facilities.map do |fac|
-          fac['phone'].keys.each do |phone_type|
-            full_phone = fac['phone'][phone_type]
-            fac['phone'][phone_type] = remove_blank_extensions(full_phone) if full_phone.present?
-          end
-
-          fac
-        end
-      end
-
       def format_mh_phone(phone, ext)
         if phone.blank?
           ''
@@ -58,15 +46,6 @@ module Facilities
           phone
         else
           [phone, ext].join(' x ')
-        end
-      end
-
-      def remove_blank_extensions(full_phone_number)
-        phone, ext = full_phone_number.split('x')
-        if ext.blank?
-          phone.strip
-        else
-          full_phone_number
         end
       end
 
