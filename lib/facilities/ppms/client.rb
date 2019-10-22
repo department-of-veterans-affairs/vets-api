@@ -18,6 +18,7 @@ module Facilities
         qparams = build_params(params)
         response = perform(:get, 'v1.0/ProviderLocator?', qparams)
         return [] if response.body.nil?
+
         Facilities::PPMS::Response.from_provider_locator(response, params)
       end
 
@@ -26,6 +27,7 @@ module Facilities
         qparams = { :$expand => 'ProviderSpecialties' }
         response = perform(:get, "v1.0/Providers(#{identifier})?", qparams)
         return nil if response.body.nil? || response.body[0].nil?
+
         Facilities::PPMS::Response.new(response.body[0], response.status).new_provider
       end
 
