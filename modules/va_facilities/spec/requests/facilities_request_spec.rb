@@ -58,7 +58,7 @@ RSpec.describe 'Facilities API endpoint', type: :request do
       expect(json['meta']['distances']).to eq([])
     end
 
-    it 'responds to GET #index with lat/long sorted by distance' do
+    it 'responds to GET #index with lat/long sorted by distance ascending' do
       setup_pdx
       get base_query_path + lat_long, params: nil, headers: accept_json
       expect(response).to be_successful
@@ -70,7 +70,7 @@ RSpec.describe 'Facilities API endpoint', type: :request do
       expect(json['meta']['distances']).to eq(sorted_distances)
     end
 
-    it 'responds to GET #index with ids sorted by distance from lat/long' do
+    it 'responds to GET #index with ids and lat/long sorted by distance ascending' do
       setup_pdx
       get "#{base_query_path}#{ids_query}&lat=45.451913&long=-122.440689", params: nil, headers: accept_json
       expect(response).to be_successful
