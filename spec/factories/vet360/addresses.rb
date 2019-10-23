@@ -35,5 +35,12 @@ FactoryBot.define do
     trait :military_overseas do
       address_type { Vet360::Models::Address::MILITARY }
     end
+
+    trait :multiple_matches do
+      address_line1 { '37 1st st' }
+      city { 'Brooklyn' }
+      state_code { 'NY' }
+      zip_code { '11249' }
+    end
   end
 end
