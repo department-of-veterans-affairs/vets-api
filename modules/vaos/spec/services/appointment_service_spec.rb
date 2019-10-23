@@ -23,7 +23,7 @@ describe VAOS::AppointmentService do
     context 'when the upstream server returns a 500' do
       it 'raises a backend exception' do
         VCR.use_cassette('vaos/appointments/get_appointments_500', match_requests_on: %i[host path method]) do
-          expect{ subject.get_va_appointments(user, start_date, end_date) }.to raise_error(
+          expect { subject.get_va_appointments(user, start_date, end_date) }.to raise_error(
             Common::Exceptions::BackendServiceException
           )
         end
@@ -44,7 +44,7 @@ describe VAOS::AppointmentService do
     context 'when the upstream server returns a 500' do
       it 'raises a backend exception' do
         VCR.use_cassette('vaos/appointments/get_cc_appointments_500', match_requests_on: %i[host path method]) do
-          expect{ subject.get_cc_appointments(user, start_date, end_date) }.to raise_error(
+          expect { subject.get_cc_appointments(user, start_date, end_date) }.to raise_error(
             Common::Exceptions::BackendServiceException
           )
         end
