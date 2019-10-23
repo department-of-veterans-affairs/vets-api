@@ -184,7 +184,6 @@ RSpec.describe 'Nearby Facilities API endpoint', type: :request do
         expect(response).to be_successful
         expect(response.body).to be_a(String)
         json = JSON.parse(response.body)
-        puts json
         expect(json['data'].length).to eq(3)
         expect(json['meta']['distances']).to eq([])
       end
