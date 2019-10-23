@@ -21,7 +21,7 @@ http_interactions:
         message: OK
       headers:
         Date:
-          - Wed, 04 Sep 2019 17:02:11 GMT
+          - Wed, 22 Oct 2019 15:34:01 GMT
         Content-Type:
           - application/json
         Content-Length:
@@ -60,39 +60,374 @@ http_interactions:
         encoding: UTF-8
         string: |-
           {
-            "data" : [
-                       {
-                         "id": "123",
-                         "facilityId": "888",
-                         "facility": {
-                           "id": "888",
-                           "name": "Washington VA Medical Center",
-                           "type": "VAMC",
-                           "address": "50 Irving St NW",
-                           "city": "Washington",
-                           "state": "DC",
-                           "directScheduleEnabled": true,
-                           "parentSiteCode": 688
-                         },
-                         "dateTime": "2019-08-29T12:00:00Z",
-                         "reason": "Routine/Follow-up",
-                         "type": "Office Visit",
-                         "contactNumber": "+1-908-477-1720",
-                         "preferredContactTime": "evening",
-                         "status": "pending",
-                         "pactTeam": {
-                           "teamSid": "1400018881",
-                           "teamName": "Green-four",
-                           "staff": [
-                             {
-                               "name": "McBride, Samantha M",
-                               "title": "Registered Nurse (RN)"
-                             }
-                           ]
-                         }
-                       }
-                     ]
+            "data": {
+              "result": {
+                "partial": false,
+                "sources": [
+                  "VVS",
+                  "dfn-983",
+                  "dfn-984"
+                ],
+                "pageCount": 1,
+                "currentPage": 1
+              },
+              "appointmentList": [
+                {
+                  "startDate": "2019-10-30T20:00:00Z",
+                  "clinicId": "308",
+                  "clinicFriendlyName": "Green Team Clinic1",
+                  "facilityId": "983",
+                  "patientIcn": "1012845943V900681",
+                  "communityCare": false,
+                  "vdsAppointments": [
+                    {
+                      "appointmentLength": "20",
+                      "appointmentTime": "2019-10-30T20:00:00Z",
+                      "clinic": {
+                        "name": "CHY PC KILPATRICK",
+                        "askForCheckIn": false,
+                        "facilityCode": "983"
+                      },
+                      "patientId": "7216690",
+                      "type": "REGULAR",
+                      "currentStatus": "FUTURE",
+                      "bookingNote": "Testing"
+                    }
+                  ]
+                },
+                {
+                  "startDate": "2019-11-11T13:00:00Z",
+                  "clinicId": "945",
+                  "clinicFriendlyName": "C&P BEV AUDIO FTC",
+                  "facilityId": "983",
+                  "patientIcn": "1012845943V900681",
+                  "communityCare": false,
+                  "vvsAppointments": [
+                    {
+                      "id": "MOBILEANY-201906-026",
+                      "appointmentKind": "MOBILE_ANY",
+                      "sourceSystem": "SM",
+                      "dateTime": "2019-11-11T13:00:00Z",
+                      "desiredDate": "2019-04-06T16:00:00Z",
+                      "duration": 15,
+                      "status": {
+                        "description": "F",
+                        "code": "FUTURE"
+                      },
+                      "schedulingRequestType": "NEXT_AVAILABLE_APPT",
+                      "type": "REGULAR",
+                      "bookingNotes": "2018-02-14T22:00-MOBILE_ANY",
+                      "instruction": "this is a test of instruction",
+                      "instructionsOther": false,
+                      "patients": {
+                        "patient": [
+                          {
+                            "id": {
+                              "assigningAuthority": "ICN",
+                              "uniqueId": "1012845943V900681"
+                            },
+                            "name": {
+                              "firstName": "Cecil",
+                              "lastName": "Morgan"
+                            },
+                            "contactInformation": {
+                              "mobile": "1234567890",
+                              "preferredEmail": "test@123.com",
+                              "timeZone": "10"
+                            },
+                            "location": {
+                              "type": "NonVA",
+                              "facility": {
+                                "name": "CHEYENNE VAMC",
+                                "siteCode": "442",
+                                "timeZone": "10"
+                              },
+                              "clinic": {
+                                "ien": "442",
+                                "name": "CHY PC PRINCE"
+                              }
+                            },
+                            "patientAppointment": true,
+                            "virtualMeetingRoom": {
+                              "conference": "patientConference",
+                              "pin": "12345",
+                              "url": "http://patientConference.com"
+                            }
+                          }
+                        ]
+                      },
+                      "providers": {
+                        "provider": [
+                          {
+                            "name": {
+                              "firstName": "provider firstName",
+                              "lastName": "provider lastName",
+                              "middleInitial": "provider middleInitial"
+                            },
+                            "id": {
+                              "assigningAuthority": "dfn-983",
+                              "uniqueId": "1013047827"
+                            },
+                            "contactInformation": {
+                              "mobile": "9912567890",
+                              "preferredEmail": "Farid.KhafajiZadeh@va.gov",
+                              "timeZone": "10"
+                            },
+                            "location": {
+                              "type": "VA",
+                              "facility": {
+                                "name": "ENLOW Recheck",
+                                "siteCode": "983",
+                                "timeZone": "10"
+                              },
+                              "clinic": {
+                                "ien": "945",
+                                "name": "C&P BEV AUDIO FTC"
+                              }
+                            },
+                            "virtualMeetingRoom": {
+                              "conference": "providerConference",
+                              "pin": "4321",
+                              "url": "http://provider.com"
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  ],
+                  "vdsAppointments": [
+                    {
+                      "appointmentTime": "2019-11-11T13:00:00Z",
+                      "clinic": {
+                        "name": "ZZFTC C&P AUDIO BEV",
+                        "askForCheckIn": false,
+                        "facilityCode": "983"
+                      },
+                      "patientId": "7216690",
+                      "type": "REGULAR",
+                      "currentStatus": "CANCELLED BY PATIENT"
+                    }
+                  ]
+                },
+                {
+                  "startDate": "2019-11-13T16:00:00Z",
+                  "clinicId": "1053",
+                  "facilityId": "983",
+                  "patientIcn": "1012845943V900681",
+                  "communityCare": false,
+                  "vvsAppointments": [
+                    {
+                      "id": "559c088b-b076-4333-901e-43fd968f4500",
+                      "appointmentKind": "MOBILE_ANY",
+                      "sourceSystem": "SM",
+                      "dateTime": "2019-11-13T16:00:00Z",
+                      "desiredDate": "2019-11-28T07:00:00Z",
+                      "duration": 15,
+                      "status": {
+                        "description": "F",
+                        "code": "FUTURE"
+                      },
+                      "type": "REGULAR",
+                      "bookingNotes": "testing",
+                      "instructionsOther": false,
+                      "patients": {
+                        "patient": [
+                          {
+                            "id": {
+                              "assigningAuthority": "ICN",
+                              "uniqueId": "1012845943V900681"
+                            },
+                            "name": {
+                              "firstName": "CECIL",
+                              "lastName": "MORGAN"
+                            },
+                            "contactInformation": {
+                              "mobile": "7666666666",
+                              "preferredEmail": "Vilasini.reddy@va.gov"
+                            },
+                            "location": {
+                              "type": "NonVA",
+                              "facility": {
+                                "name": "CHEYENNE VAMC",
+                                "siteCode": "983",
+                                "timeZone": "10"
+                              }
+                            },
+                            "patientAppointment": true,
+                            "virtualMeetingRoom": {
+                              "conference": "VVC3951170",
+                              "pin": "4359244478#",
+                              "url": "https://care2.evn.va.gov/vvc-app/?join=1&media=1&escalate=1&conference=VVC3951170@care2.evn.va.gov&pin=4359244478#"
+                            }
+                          }
+                        ]
+                      },
+                      "providers": {
+                        "provider": [
+                          {
+                            "name": {
+                              "firstName": "provider first",
+                              "lastName": "provider"
+                            },
+                            "id": {
+                              "assigningAuthority": "DFN-983",
+                              "uniqueId": "7216690"
+                            },
+                            "contactInformation": {
+                              "mobile": "8888888888",
+                              "preferredEmail": "marcy.nadeau@va.gov",
+                              "timeZone": "10"
+                            },
+                            "location": {
+                              "type": "VA",
+                              "facility": {
+                                "name": "CHEYENNE VAMC",
+                                "siteCode": "983",
+                                "timeZone": "10"
+                              },
+                              "clinic": {
+                                "ien": "1053",
+                                "name": "SIDNEY NURSE"
+                              }
+                            },
+                            "virtualMeetingRoom": {
+                              "conference": "VVC3951170",
+                              "pin": "8725538#",
+                              "url": "https://care2.evn.va.gov/vvc-app/?name=provider%2Cprovider+first&join=1&media=1&escalate=1&conference=VVC3951170@care2.evn.va.gov&pin=8725538#"
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  ],
+                  "vdsAppointments": [
+                    {
+                      "appointmentLength": "15",
+                      "appointmentTime": "2019-11-13T16:00:00Z",
+                      "clinic": {
+                        "name": "SIDNEY NURSE",
+                        "askForCheckIn": false,
+                        "facilityCode": "983"
+                      },
+                      "patientId": "7216690",
+                      "type": "REGULAR",
+                      "currentStatus": "FUTURE",
+                      "bookingNote": "Video fm: SM See email for details testing"
+                    }
+                  ]
+                },
+                {
+                  "startDate": "2019-11-18T17:00:00Z",
+                  "clinicId": "945",
+                  "clinicFriendlyName": "C&P BEV AUDIO FTC",
+                  "facilityId": "983",
+                  "patientIcn": "1012845943V900681",
+                  "communityCare": false,
+                  "vdsAppointments": [
+                    {
+                      "appointmentLength": "60",
+                      "appointmentTime": "2019-11-18T17:00:00Z",
+                      "clinic": {
+                        "name": "ZZFTC C&P AUDIO BEV",
+                        "askForCheckIn": false,
+                        "facilityCode": "983"
+                      },
+                      "patientId": "7216690",
+                      "type": "REGULAR",
+                      "currentStatus": "FUTURE"
+                    }
+                  ]
+                },
+                {
+                  "startDate": "2020-01-02T19:46:00Z",
+                  "facilityId": "983",
+                  "patientIcn": "1012845943V900681",
+                  "communityCare": false,
+                  "vvsAppointments": [
+                    {
+                      "id": "6ebb6f5c-a7cc-4de6-9778-ffcecd1001f2",
+                      "appointmentKind": "ADHOC",
+                      "sourceSystem": "SM",
+                      "dateTime": "2020-01-02T19:46:00Z",
+                      "duration": 20,
+                      "status": {
+                        "description": "F",
+                        "code": "FUTURE"
+                      },
+                      "schedulingRequestType": "NEXT_AVAILABLE_APPT",
+                      "type": "REGULAR",
+                      "instructionsOther": false,
+                      "patients": {
+                        "patient": [
+                          {
+                            "id": {
+                              "assigningAuthority": "ICN",
+                              "uniqueId": "1012845943V900681"
+                            },
+                            "name": {
+                              "firstName": "CECIL",
+                              "lastName": "MORGAN"
+                            },
+                            "contactInformation": {
+                              "mobile": "7666666666",
+                              "preferredEmail": "samatha.girla@va.gov"
+                            },
+                            "location": {
+                              "type": "NonVA",
+                              "facility": {
+                                "name": "CHEYENNE VAMC",
+                                "siteCode": "983",
+                                "timeZone": "10"
+                              }
+                            },
+                            "patientAppointment": true,
+                            "virtualMeetingRoom": {
+                              "conference": "VVC3115308",
+                              "pin": "8834615054#",
+                              "url": "https://care2.evn.va.gov/vvc-app/?join=1&media=1&escalate=1&conference=VVC3115308@care2.evn.va.gov&pin=8834615054#"
+                            }
+                          }
+                        ]
+                      },
+                      "providers": {
+                        "provider": [
+                          {
+                            "name": {
+                              "firstName": "Vilasini",
+                              "lastName": "Reddy"
+                            },
+                            "id": {
+                              "assigningAuthority": "DFN-983",
+                              "uniqueId": "7216690"
+                            },
+                            "contactInformation": {
+                              "mobile": "8888888888",
+                              "preferredEmail": "vilasini.reddy@va.gov",
+                              "timeZone": "10"
+                            },
+                            "location": {
+                              "type": "VA",
+                              "facility": {
+                                "name": "CHEYENNE VAMC",
+                                "siteCode": "983",
+                                "timeZone": "10"
+                              }
+                            },
+                            "virtualMeetingRoom": {
+                              "conference": "VVC3115308",
+                              "pin": "2430632#",
+                              "url": "https://care2.evn.va.gov/vvc-app/?name=Reddy%2CVilasini&join=1&media=1&escalate=1&conference=VVC3115308@care2.evn.va.gov&pin=2430632#"
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  ]
+                }
+              ],
+              "numAppointments": 5
+            }
           }
         http_version:
-    recorded_at: Wed, 04 Sep 2019 17:02:11 GMT
+    recorded_at: Wed, 22 Oct 2019 15:34:01 GMT
 recorded_with: VCR 3.0.3

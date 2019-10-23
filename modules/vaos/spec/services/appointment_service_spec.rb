@@ -14,7 +14,7 @@ describe VAOS::AppointmentService do
         VCR.use_cassette('vaos/appointments/get_appointments', match_requests_on: %i[host path method]) do
           VCR.use_cassette('vaos/appointments/get_cc_appointments_empty', match_requests_on: %i[host path method]) do
             response = subject.get_appointments(user)
-            expect(response[:va_appointments].size).to eq(1)
+            expect(response[:va_appointments].size).to eq(5)
             expect(response[:cc_appointments].size).to eq(0)
           end
         end
@@ -26,7 +26,7 @@ describe VAOS::AppointmentService do
         VCR.use_cassette('vaos/appointments/get_appointments', match_requests_on: %i[host path method]) do
           VCR.use_cassette('vaos/appointments/get_cc_appointments_500', match_requests_on: %i[host path method]) do
             response = subject.get_appointments(user)
-            expect(response[:va_appointments].size).to eq(1)
+            expect(response[:va_appointments].size).to eq(5)
             expect(response[:cc_appointments]).to be_nil
             expect(response[:errors]).to eq(
               [{ endpoint: :get_cc_appointments, message: 'the server responded with status 500', status: 500 }]

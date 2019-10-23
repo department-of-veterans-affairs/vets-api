@@ -12,7 +12,7 @@ module VAOS
       @errors = []
       config.parallel_connection.in_parallel do
         app_response[:va_appointments] = make_request(:get_va_appointments) do |response|
-          response.body.deep_symbolize_keys![:data].map { |appointment| VAOS::VAAppointment.new(appointment) }
+          response.body.dig(:data, :appointment_list)
         end
         app_response[:cc_appointments] = make_request(:get_cc_appointments) do |_response|
           # TODO(AJD): implement CC response parsing
