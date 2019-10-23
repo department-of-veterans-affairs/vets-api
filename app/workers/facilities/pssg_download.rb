@@ -32,16 +32,25 @@ module Facilities
       name = attributes&.dig('Name')
       drive_time_band = facility.drivetime_bands.find_or_initialize_by(vha_facility_id: id, name: name)
       drive_time_band.unit = 'minutes'
-      drive_time_band.min = attributes&.dig('FromBreak')
-      drive_time_band.max = attributes&.dig('ToBreak')
+      drive_time_band.min = round_band(attributes&.dig('FromBreak'))
+      drive_time_band.max = round_band(attributes&.dig('ToBreak'))
       drive_time_band.name = name
       begin
+        return if drive_time_data['geometry']['rings'].size == 0 
         drive_time_band.polygon = extract_polygon(drive_time_data)
         drive_time_band.save
         facility.save
         puts "Success: #{name}"
       rescue RGeo::Error::InvalidGeometry => e
         puts "Error: #{name} #{e}"
+      end
+    end
+
+    def round_band(band)
+      if band%10 == 0 
+        band
+      else
+        (band.to_i/10)*10
       end
     end
 
