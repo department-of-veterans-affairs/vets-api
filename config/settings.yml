@@ -398,6 +398,13 @@ flipper:
   username: SUPER_SECRET_USERNAME
   password: SUPER_SECRET_PASSWORD
 
+bgs:
+  application: ~
+  client_station_id: ~
+  client_username: ~
+  mock_response_location: ~
+  mock_responses: ~
+
 va_mobile:
   url: 'https://veteran.apps.va.gov/'
   mock: false
