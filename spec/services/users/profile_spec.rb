@@ -27,13 +27,13 @@ RSpec.describe Users::Profile do
   end
 
   describe '#pre_serialize' do
+    subject { Users::Profile.new(user).pre_serialize }
+
     let(:profile) { subject.profile }
     let(:va_profile) { subject.va_profile }
     let(:veteran_status) { subject.veteran_status }
 
-    subject { Users::Profile.new(user).pre_serialize }
-
-    it 'should not include ssn anywhere', :aggregate_failures do
+    it 'does not include ssn anywhere', :aggregate_failures do
       expect(subject.try(:ssn)).to be_nil
       expect(subject.profile['ssn']).to be_nil
       expect(subject.va_profile['ssn']).to be_nil
@@ -48,13 +48,13 @@ RSpec.describe Users::Profile do
     end
 
     context '#in_progress_forms' do
-      it 'should include metadata' do
+      it 'includes metadata' do
         expect(subject.in_progress_forms[0][:metadata]).to eq(in_progress_form.metadata)
       end
     end
 
     context '#account' do
-      it 'should include account uuid' do
+      it 'includes account uuid' do
         expect(subject.account[:account_uuid]).to eq(user.account_uuid)
       end
     end
@@ -62,22 +62,22 @@ RSpec.describe Users::Profile do
     context '#profile' do
       # --- positive tests ---
       context 'idme user' do
-        it 'should include authn_context' do
+        it 'includes authn_context' do
           expect(profile[:authn_context]).to eq(nil)
         end
 
-        it 'should include sign_in' do
+        it 'includes sign_in' do
           expect(profile[:sign_in]).to eq(service_name: 'idme')
         end
 
         context 'multifactor' do
           let(:user) { create(:user, :loa1, authn_context: 'multifactor') }
 
-          it 'should include authn_context' do
+          it 'includes authn_context' do
             expect(profile[:authn_context]).to eq(nil)
           end
 
-          it 'should include sign_in.service_name' do
+          it 'includes sign_in.service_name' do
             expect(profile[:sign_in][:service_name]).to eq('idme')
           end
         end
@@ -86,22 +86,14 @@ RSpec.describe Users::Profile do
       context 'mhv user' do
         let(:user) { create(:user, :mhv) }
 
-        it 'should include authn_context' do
-          expect(profile[:authn_context]).to eq('myhealthevet')
-        end
-
-        it 'should include sign_in' do
+        it 'includes sign_in' do
           expect(profile[:sign_in]).to eq(service_name: 'myhealthevet')
         end
 
         context 'multifactor' do
           let(:user) { create(:user, :loa1, authn_context: 'myhealthevet_multifactor') }
 
-          it 'should include authn_context' do
-            expect(profile[:authn_context]).to eq('myhealthevet')
-          end
-
-          it 'should include sign_in.service_name' do
+          it 'includes sign_in.service_name' do
             expect(profile[:sign_in][:service_name]).to eq('myhealthevet')
           end
         end
@@ -109,11 +101,7 @@ RSpec.describe Users::Profile do
         context 'verified' do
           let(:user) { create(:user, :loa1, authn_context: 'myhealthevet_loa3') }
 
-          it 'should include authn_context' do
-            expect(profile[:authn_context]).to eq('myhealthevet')
-          end
-
-          it 'should include sign_in.service_name' do
+          it 'includes sign_in.service_name' do
             expect(profile[:sign_in][:service_name]).to eq('myhealthevet')
           end
         end
@@ -122,22 +110,14 @@ RSpec.describe Users::Profile do
       context 'dslogon user' do
         let(:user) { create(:user, :dslogon) }
 
-        it 'should include authn_context' do
-          expect(profile[:authn_context]).to eq('dslogon')
-        end
-
-        it 'should include sign_in.service_name' do
+        it 'includes sign_in.service_name' do
           expect(profile[:sign_in]).to eq(service_name: 'dslogon')
         end
 
         context 'multifactor' do
           let(:user) { create(:user, :loa1, authn_context: 'dslogon_multifactor') }
 
-          it 'should include authn_context' do
-            expect(profile[:authn_context]).to eq('dslogon')
-          end
-
-          it 'should include sign_in.service_name' do
+          it 'includes sign_in.service_name' do
             expect(profile[:sign_in]).to eq(service_name: 'dslogon')
           end
         end
@@ -145,81 +125,77 @@ RSpec.describe Users::Profile do
         context 'verified' do
           let(:user) { create(:user, :loa1, authn_context: 'dslogon_loa3') }
 
-          it 'should include authn_context' do
-            expect(profile[:authn_context]).to eq('dslogon')
-          end
-
-          it 'should include sign_in.service_name' do
+          it 'includes sign_in.service_name' do
             expect(profile[:sign_in]).to eq(service_name: 'dslogon')
           end
         end
       end
 
-      it 'should include email' do
+      it 'includes email' do
         expect(profile[:email]).to eq(user.email)
       end
 
-      it 'should include first_name' do
+      it 'includes first_name' do
         expect(profile[:first_name]).to eq(user.first_name)
       end
 
-      it 'should include middle_name' do
+      it 'includes middle_name' do
         expect(profile[:middle_name]).to eq(user.middle_name)
       end
 
-      it 'should include last_name' do
+      it 'includes last_name' do
         expect(profile[:last_name]).to eq(user.last_name)
       end
 
-      it 'should include birth_date' do
+      it 'includes birth_date' do
         expect(profile[:birth_date]).to eq(user.birth_date)
       end
 
-      it 'should include gender' do
+      it 'includes gender' do
         expect(profile[:gender]).to eq(user.gender)
       end
 
-      it 'should include zip' do
+      it 'includes zip' do
         expect(profile[:zip]).to eq(user.zip)
       end
 
-      it 'should include last_signed_in' do
+      it 'includes last_signed_in' do
         expect(profile[:last_signed_in].httpdate).to eq(user.last_signed_in.httpdate)
       end
 
       # --- negative tests ---
-      it 'should not include uuid in the profile' do
+      it 'does not include uuid in the profile' do
         expect(profile[:uuid]).to be_nil
       end
 
-      it 'should not include edipi in the profile' do
+      it 'does not include edipi in the profile' do
         expect(profile[:edipi]).to be_nil
       end
 
-      it 'should not include participant_id in the profile' do
+      it 'does not include participant_id in the profile' do
         expect(profile[:participant_id]).to be_nil
       end
     end
 
     context '#va_profile' do
       context 'when user.mvi is not nil' do
-        it 'should include birth_date' do
+        it 'includes birth_date' do
           expect(va_profile[:birth_date]).to eq(user.va_profile[:birth_date])
         end
 
-        it 'should include family_name' do
+        it 'includes family_name' do
           expect(va_profile[:family_name]).to eq(user.va_profile[:family_name])
         end
 
-        it 'should include gender' do
+        it 'includes gender' do
           expect(va_profile[:gender]).to eq(user.va_profile[:gender])
         end
 
-        it 'should include given_names' do
+        it 'includes given_names' do
           expect(va_profile[:given_names]).to eq(user.va_profile[:given_names])
         end
 
-        it 'should include status' do
+        it 'includes status' do
           expect(va_profile[:status]).to eq('OK')
         end
 
@@ -273,15 +249,15 @@ RSpec.describe Users::Profile do
 
     context '#veteran_status' do
       context 'when a veteran status is succesfully returned' do
-        it 'should include is_veteran' do
+        it 'includes is_veteran' do
           expect(veteran_status[:is_veteran]).to eq(user.veteran?)
         end
 
-        it 'should include status' do
+        it 'includes status' do
           expect(veteran_status[:status]).to eq('OK')
         end
 
-        it 'should include served_in_military' do
+        it 'includes served_in_military' do
           expect(veteran_status[:served_in_military]).to eq(user.served_in_military?)
         end
 
@@ -291,7 +267,7 @@ RSpec.describe Users::Profile do
       end
 
       context 'when a veteran status is not found' do
-        before(:each) do
+        before do
           allow_any_instance_of(
             EMISRedis::VeteranStatus
           ).to receive(:veteran?).and_raise(EMISRedis::VeteranStatus::RecordNotFound.new(status: 404))
@@ -316,7 +292,7 @@ RSpec.describe Users::Profile do
       end
 
       context 'when a veteran status call returns an error' do
-        before(:each) do
+        before do
           allow_any_instance_of(
             EMISRedis::VeteranStatus
           ).to receive(:veteran?).and_raise(Common::Client::Errors::ClientError.new(nil, 503))
@@ -372,7 +348,7 @@ RSpec.describe Users::Profile do
       context 'with an loa1 user' do
         let(:user) { build(:user, :loa1) }
 
-        it 'should return an empty hash', :aggregate_failures do
+        it 'returns an empty hash', :aggregate_failures do
           expect(user.vet360_contact_info).to be_nil
           expect(subject.vet360_contact_information).to eq({})
         end
@@ -382,7 +358,7 @@ RSpec.describe Users::Profile do
         let(:user) { build(:user, :loa3) }
         let(:vet360_info) { subject.vet360_contact_information }
 
-        it 'should be populated', :aggregate_failures do
+        it 'is populated', :aggregate_failures do
           expect(user.vet360_contact_info).not_to be_nil
           expect(vet360_info[:email]).to be_present
           expect(vet360_info[:residential_address]).to be_present

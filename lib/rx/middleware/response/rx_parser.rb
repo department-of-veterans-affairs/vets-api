@@ -17,6 +17,7 @@ module Rx
           # If POST for prescriptions is successful message body is irrelevant
           # if it was not successul an exception would have already been raised
           return if env.method == :post
+
           env[:body] = parse(env.body) if env.body.present?
         end
 
@@ -48,16 +49,19 @@ module Rx
 
         def parsed_prescription
           return nil unless @parsed_json.keys.include?(:refill_status)
+
           @parsed_json
         end
 
         def parsed_prescription_list
           return nil unless @parsed_json.keys.include?(:prescription_list)
+
           @parsed_json[:prescription_list]
         end
 
         def parsed_tracking_object
           return nil unless @parsed_json.keys.include?(:tracking_info)
+
           infos, base = @parsed_json.partition { |k, _| k == :tracking_info }
           Hash[infos][:tracking_info].map do |tracking_info|
             tracking_info[:other_prescriptions] = tracking_info.delete(:other_prescription_list_included)

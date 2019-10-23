@@ -15,14 +15,15 @@ RSpec.describe 'Folders Integration', type: :request do
   let(:va_patient) { true }
   let(:current_user) { build(:user, :mhv, va_patient: va_patient, mhv_account_type: mhv_account_type) }
 
-  before(:each) do
+  before do
     allow(SM::Client).to receive(:new).and_return(authenticated_client)
     sign_in_as(current_user)
   end
 
   context 'Basic User' do
     let(:mhv_account_type) { 'Basic' }
-    before(:each) { get '/v0/messaging/health/folders' }
+
+    before { get '/v0/messaging/health/folders' }
 
     include_examples 'for user account level', message: 'You do not have access to messaging'
     include_examples 'for non va patient user', authorized: false, message: 'You do not have access to messaging'
@@ -30,7 +31,8 @@ RSpec.describe 'Folders Integration', type: :request do
 
   context 'Advanced User' do
     let(:mhv_account_type) { 'Advanced' }
-    before(:each) { get '/v0/messaging/health/folders' }
+
+    before { get '/v0/messaging/health/folders' }
 
     include_examples 'for user account level', message: 'You do not have access to messaging'
     include_examples 'for non va patient user', authorized: false, message: 'You do not have access to messaging'
@@ -40,7 +42,8 @@ RSpec.describe 'Folders Integration', type: :request do
     let(:mhv_account_type) { 'Premium' }
 
     context 'not a va patient' do
-      before(:each) { get'/v0/messaging/health/folders' }
+      before { get '/v0/messaging/health/folders' }
+
       let(:va_patient) { false }
 
       include_examples 'for non va patient user', authorized: false, message: 'You do not have access to messaging'
@@ -110,7 +113,7 @@ RSpec.describe 'Folders Integration', type: :request do
         end
 
         expect(response).to be_successful
-        expect(response).to have_http_status(200)
+        expect(response).to have_http_status(:ok)
         expect(response).to match_response_schema('messages')
       end
     end

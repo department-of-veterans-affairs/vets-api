@@ -19,10 +19,11 @@ describe Common::Exceptions::InternalServerError do
 
   context 'with valid exception provided' do
     subject { described_class.new(StandardError.new('some message')) }
+
     let(:environment) { 'production' }
     let(:env) { ActiveSupport::StringInquirer.new(environment) }
 
-    before(:each) { stub_const('Rails', double('Rails', env: env)) }
+    before { stub_const('Rails', double('Rails', env: env)) }
 
     context 'with environment = production' do
       it 'implements #errors which returns an array' do

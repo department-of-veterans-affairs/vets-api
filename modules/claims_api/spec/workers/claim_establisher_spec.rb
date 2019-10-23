@@ -5,11 +5,11 @@ require 'sidekiq/testing'
 Sidekiq::Testing.fake!
 
 RSpec.describe ClaimsApi::ClaimEstablisher, type: :job do
-  before(:each) do
+  subject { described_class }
+
+  before do
     Sidekiq::Worker.clear_all
   end
-
-  subject { described_class }
 
   let(:user) { FactoryBot.create(:user, :loa3) }
   let(:auth_headers) do

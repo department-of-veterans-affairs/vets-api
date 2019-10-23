@@ -31,14 +31,15 @@ module V0
 
       title38_status = begin
         current_user.veteran_status.title38_status
-      rescue EMISRedis::VeteranStatus::RecordNotFound
-        nil
-      rescue StandardError => e
-        log_exception_to_sentry(e)
-        raise ::VIC::IDCardAttributeError, ::VIC::IDCardAttributeError::VIC010
+                       rescue EMISRedis::VeteranStatus::RecordNotFound
+                         nil
+                       rescue => e
+                         log_exception_to_sentry(e)
+                         raise ::VIC::IDCardAttributeError, ::VIC::IDCardAttributeError::VIC010
       end
 
       raise ::VIC::IDCardAttributeError, ::VIC::IDCardAttributeError::VIC002 if title38_status.blank?
+
       unless current_user.can_access_id_card?
         raise ::VIC::IDCardAttributeError, ::VIC::IDCardAttributeError::NOT_ELIGIBLE.merge(
           code: "VIC#{title38_status}"

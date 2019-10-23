@@ -32,7 +32,7 @@ RSpec.describe Preneeds::SubmissionsReport, type: :job do
   end
 
   describe '#perform', run_at: '2018-05-30 18:18:56' do
-    it 'should query PersonalInformationLog for info' do
+    it 'queries PersonalInformationLog for info' do
       expect(PreneedsSubmissionsReportMailer).to receive(:build).with(
         start_date: '2018-05-23',
         end_date: '2018-05-29',

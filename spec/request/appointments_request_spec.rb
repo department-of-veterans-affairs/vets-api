@@ -14,7 +14,7 @@ RSpec.describe 'Appointments', type: :request do
 
   describe 'GET /v0/appointments' do
     context 'with a 200 response' do
-      it 'should match the appointments schema' do
+      it 'matches the appointments schema' do
         VCR.use_cassette('ihub/appointments/success') do
           get '/v0/appointments'
 
@@ -29,7 +29,7 @@ RSpec.describe 'Appointments', type: :request do
         allow_any_instance_of(User).to receive(:icn).and_return(nil)
       end
 
-      it 'should match the errors schema', :aggregate_failures do
+      it 'matches the errors schema', :aggregate_failures do
         get '/v0/appointments'
 
         expect(response).to have_http_status(:bad_gateway)
@@ -38,7 +38,7 @@ RSpec.describe 'Appointments', type: :request do
     end
 
     context 'when iHub experiences an error' do
-      it 'should match the errors schema', :aggregate_failures do
+      it 'matches the errors schema', :aggregate_failures do
         VCR.use_cassette('ihub/appointments/error_occurred') do
           get '/v0/appointments'
 

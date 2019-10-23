@@ -8,6 +8,7 @@ module PdfFill
       def expand_ssn(hash)
         ssn = hash['veteranSocialSecurityNumber']
         return hash if ssn.blank?
+
         ['', '1', '2'].each do |suffix|
           hash["veteranSocialSecurityNumber#{suffix}"] = split_ssn(ssn)
         end
@@ -17,12 +18,14 @@ module PdfFill
       def expand_veteran_dob(hash)
         veteran_date_of_birth = hash['veteranDateOfBirth']
         return if veteran_date_of_birth.blank?
+
         split_date(veteran_date_of_birth)
       end
 
       def expand_incident_date(incident)
         incident_date = incident['incidentDate']
         return if incident_date.blank?
+
         split_approximate_date(incident_date)
       end
 
@@ -106,6 +109,7 @@ module PdfFill
 
       def format_incident(incident, index)
         return if incident.blank?
+
         incident_overflow = ["Incident Number: #{index}"]
 
         incident_date = incident['incidentDate'] || ''

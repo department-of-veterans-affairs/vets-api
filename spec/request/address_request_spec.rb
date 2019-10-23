@@ -6,6 +6,7 @@ RSpec.describe 'address', type: :request do
   include SchemaMatchers
 
   before(:all) { @cached_enabled_val = Settings.evss.reference_data_service.enabled }
+
   after(:all) do
     # leave the routes in the expected state for future specs
     Settings.evss.reference_data_service.enabled = @cached_enabled_val
@@ -23,9 +24,10 @@ RSpec.describe 'address', type: :request do
       Settings.evss.reference_data_service.enabled = false
       Rails.application.reload_routes!
     end
+
     describe 'GET /v0/address' do
       context 'with a military address' do
-        it 'should match the address schema' do
+        it 'matches the address schema' do
           VCR.use_cassette('evss/pciu_address/address') do
             get '/v0/address'
             expect(response).to have_http_status(:ok)
@@ -35,7 +37,7 @@ RSpec.describe 'address', type: :request do
       end
 
       context 'with a domestic address' do
-        it 'should match the address schema' do
+        it 'matches the address schema' do
           # domestic and international addresses are manually edited as EVSS CI only includes one military response
           VCR.use_cassette('evss/pciu_address/address_domestic') do
             get '/v0/address'
@@ -46,7 +48,7 @@ RSpec.describe 'address', type: :request do
       end
 
       context 'with an international address' do
-        it 'should match the address schema' do
+        it 'matches the address schema' do
           # domestic and international addresses are manually edited as EVSS CI only includes one military response
           VCR.use_cassette('evss/pciu_address/address_international') do
             get '/v0/address'
@@ -57,7 +59,7 @@ RSpec.describe 'address', type: :request do
       end
 
       context 'with a 500 response' do
-        it 'should match the errors schema' do
+        it 'matches the errors schema' do
           VCR.use_cassette('evss/pciu_address/address_500') do
             get '/v0/address'
             expect(response).to have_http_status(:bad_gateway)
@@ -71,7 +73,7 @@ RSpec.describe 'address', type: :request do
       context 'with a 200 response' do
         let(:domestic_address) { build(:pciu_domestic_address) }
 
-        it 'should match the address schema' do
+        it 'matches the address schema' do
           VCR.use_cassette('evss/pciu_address/address_update') do
             put '/v0/address', params: domestic_address.to_json, headers: headers
             expect(response).to have_http_status(:ok)
@@ -83,7 +85,7 @@ RSpec.describe 'address', type: :request do
       context 'with a 422 response' do
         let(:domestic_address) { build(:pciu_domestic_address, address_one: nil, country_name: nil) }
 
-        it 'should match the errors schema' do
+        it 'matches the errors schema' do
           VCR.use_cassette('evss/pciu_address/address_500') do
             put '/v0/address', params: domestic_address.to_json, headers: headers
             expect(response).to have_http_status(:unprocessable_entity)
@@ -96,7 +98,7 @@ RSpec.describe 'address', type: :request do
         let(:long_address) { '140 Rock Creek Church Rd NW upon the Potomac' }
         let(:domestic_address) { build(:pciu_domestic_address, address_one: long_address) }
 
-        it 'should match the errors schema' do
+        it 'matches the errors schema' do
           VCR.use_cassette('evss/pciu_address/address_update_invalid_format') do
             put '/v0/address', params: domestic_address.to_json, headers: headers
             expect(response).to have_http_status(:unprocessable_entity)
@@ -106,7 +108,7 @@ RSpec.describe 'address', type: :request do
       end
 
       context 'with a 500 response' do
-        it 'should match the errors schema' do
+        it 'matches the errors schema' do
           VCR.use_cassette('evss/pciu_address/address_500') do
             get '/v0/address'
             expect(response).to have_http_status(:bad_gateway)
@@ -118,7 +120,7 @@ RSpec.describe 'address', type: :request do
 
     describe 'GET /v0/address/states' do
       context 'with a 200 response' do
-        it 'should match the states schema' do
+        it 'matches the states schema' do
           VCR.use_cassette('evss/pciu_address/states') do
             get '/v0/address/states'
             expect(response).to have_http_status(:ok)
@@ -130,7 +132,7 @@ RSpec.describe 'address', type: :request do
 
     describe 'GET /v0/address/countries' do
       context 'with a 200 response' do
-        it 'should match the countries schema' do
+        it 'matches the countries schema' do
           VCR.use_cassette('evss/pciu_address/countries') do
             get '/v0/address/countries'
             expect(response).to have_http_status(:ok)
@@ -149,7 +151,7 @@ RSpec.describe 'address', type: :request do
 
     describe 'GET /v0/address/countries' do
       context 'with a 200 response' do
-        it 'should match the countries schema' do
+        it 'matches the countries schema' do
           VCR.use_cassette('evss/reference_data/countries') do
             get '/v0/address/countries'
             expect(response).to have_http_status(:ok)
@@ -161,7 +163,7 @@ RSpec.describe 'address', type: :request do
 
     describe 'GET /v0/address/states' do
       context 'with a 200 response' do
-        it 'should match the states schema' do
+        it 'matches the states schema' do
           VCR.use_cassette('evss/reference_data/states') do
             get '/v0/address/states'
             expect(response).to have_http_status(:ok)
@@ -177,7 +179,8 @@ RSpec.describe 'address', type: :request do
           .to receive(:headers_for_user)
           .and_return(Authorization: 'Bearer abcd12345asd')
       end
-      it 'should return 502' do
+
+      it 'returns 502' do
         get '/v0/address/countries'
         expect(response).to have_http_status(:bad_gateway)
       end

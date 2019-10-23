@@ -46,10 +46,11 @@ middle_name="W" last_name="Smith" birth_date="1945-01-25" gender="M" ssn="555443
   desc 'Build mock MVI yaml database for users in given CSV'
   task :mock_database, [:csvfile] => [:environment] do |_, args|
     raise 'No input CSV provided' unless args[:csvfile]
+
     csv = CSV.open(args[:csvfile], headers: true)
     csv.each_with_index do |row, i|
       begin
-        bd = DateTime.iso8601(row['birth_date']).strftime('%Y-%m-%d')
+        bd = Time.iso8601(row['birth_date']).strftime('%Y-%m-%d')
         user = User.new(
           first_name: row['first_name'],
           last_name: row['last_name'],
@@ -131,8 +132,8 @@ def update_ids(xml, ids)
 
   el.nodes.delete_if do |n|
     [
-      MVI::Responses::IdParser::CORRELATION_ROOT_ID,
-      MVI::Responses::IdParser::EDIPI_ROOT_ID
+      MVI::Responses::IdParser::VA_ROOT_OID,
+      MVI::Responses::IdParser::DOD_ROOT_OID
     ].include? n.attributes[:root]
   end
 
@@ -168,8 +169,8 @@ end
 
 def create_root_id(type)
   el = Ox::Element.new('id')
-  edipi_root = MVI::Responses::IdParser::EDIPI_ROOT_ID
-  correlation_root = MVI::Responses::IdParser::CORRELATION_ROOT_ID
+  edipi_root = MVI::Responses::IdParser::DOD_ROOT_OID
+  correlation_root = MVI::Responses::IdParser::VA_ROOT_OID
   el[:root] = type == :edipi ? edipi_root : correlation_root
   el
 end
@@ -204,6 +205,7 @@ end
 
 def validate_date(s)
   raise ArgumentError, 'Date string must be of format YYYY-MM-DD' unless s.match?(/\d{4}-\d{2}-\d{2}/)
+
   Time.parse(s).utc
   true
 rescue => e

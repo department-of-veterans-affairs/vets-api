@@ -4,7 +4,7 @@ require 'rails_helper'
 
 RSpec.describe 'VBA Document Uploads Documentation Endpoint', type: :request do
   describe '#get /docs/v0/api' do
-    it 'should return swagger JSON' do
+    it 'returns swagger JSON' do
       get '/services/vba_documents/docs/v0/api'
       expect(response).to have_http_status(:ok)
       JSON.parse(response.body)

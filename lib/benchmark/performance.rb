@@ -23,8 +23,8 @@ module Benchmark
     def self.track(key, duration, tags:)
       Whitelist.new(tags).authorize!
       StatsD.measure(key&.underscore, duration, tags: tags)
-    rescue ArgumentError => error
-      raise Common::Exceptions::ParameterMissing.new('Missing parameter', detail: error&.message)
+    rescue ArgumentError => e
+      raise Common::Exceptions::ParameterMissing.new('Missing parameter', detail: e&.message)
     end
 
     # Calls StatsD.measure with benchmark data for the passed page and metric.

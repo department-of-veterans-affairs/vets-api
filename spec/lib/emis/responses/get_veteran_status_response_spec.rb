@@ -8,7 +8,7 @@ describe EMIS::Responses::GetVeteranStatusResponse do
   let(:body) { Ox.parse(File.read('spec/support/emis/getVeteranStatusResponse.xml')) }
   let(:response) { EMIS::Responses::GetVeteranStatusResponse.new(faraday_response) }
 
-  before(:each) do
+  before do
     allow(faraday_response).to receive(:body) { body }
   end
 

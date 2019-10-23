@@ -39,10 +39,12 @@ module EducationForm
     end
 
     def check_claim_for_stem(education_benefits_claim, parsed_form, stem_exists)
-      if stem_exists || (education_benefits_claim.form_type == '1995' && parsed_form['isEdithNourseRogersScholarship'])
-        return true
-      end
-      false
+      return true if stem_exists
+
+      # TODO: Remove when 1995s form type is in prod
+      return true if education_benefits_claim.form_type == '1995' && parsed_form['isEdithNourseRogersScholarship']
+
+      education_benefits_claim.form_type == '1995s'
     end
 
     def perform
@@ -60,6 +62,7 @@ module EducationForm
       end
 
       return unless FeatureFlipper.send_edu_report_email?
+
       SpoolSubmissionsReportMailer.build(filename, stem_exists).deliver_now
     end
   end

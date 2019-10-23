@@ -11,8 +11,8 @@ module Vet360
       def initialize
         @known_exceptions = Vet360::Exceptions::Parser.instance.known_exceptions
         @stats = initial_stats
-        @error_codes  = []
-        @needs_title  = []
+        @error_codes = []
+        @needs_title = []
         @needs_detail = []
       end
 
@@ -122,8 +122,8 @@ module Vet360
         error_codes << {
           code => {
             '<<': '*external_defaults',
-            'title'  => options['title'].presence || title,
-            'code'   => code,
+            'title' => options['title'].presence || title,
+            'code' => code,
             'detail' => options['detail'].presence || detail,
             'status' => options['status'].presence || status
           }

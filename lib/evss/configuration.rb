@@ -19,6 +19,7 @@ module EVSS
 
     def ssl_options
       return { verify: false } if !cert? && (Rails.env.development? || Rails.env.test?)
+
       if cert?
         {
           version: :TLSv1_2,
