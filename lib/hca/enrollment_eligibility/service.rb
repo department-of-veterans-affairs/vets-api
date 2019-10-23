@@ -58,6 +58,7 @@ module HCA
       def get_xpath(response, xpath)
         node = response.locate(xpath)
         return if node.blank?
+
         node[0].nodes[0]
       end
 

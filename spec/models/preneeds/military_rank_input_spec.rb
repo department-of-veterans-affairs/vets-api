@@ -5,6 +5,7 @@ require 'rails_helper'
 RSpec.describe Preneeds::MilitaryRankInput do
   context 'with valid attributes' do
     subject { described_class.new(params) }
+
     let(:params) do
       { branch_of_service: 'AF', start_date: '1947-09-18T00:00:00-04:00', end_date: '1947-09-18T00:00:00-04:00' }
     end

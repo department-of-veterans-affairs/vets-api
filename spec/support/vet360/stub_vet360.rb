@@ -3,7 +3,7 @@
 def stub_vet360(person = nil)
   person ||= build(
     :person,
-    addresses:  [
+    addresses: [
       build(:vet360_address, id: 123),
       build(:vet360_address, address_pou: Vet360::Models::Address::CORRESPONDENCE, id: 124)
     ],

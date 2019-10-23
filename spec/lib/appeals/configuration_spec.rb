@@ -19,15 +19,17 @@ describe Appeals::Configuration do
   describe '#mock_enabled?' do
     context 'when Settings.appeals.mock is true' do
       before { Settings.appeals.mock = 'true' }
+
       it 'returns true' do
-        expect(Appeals::Configuration.instance.mock_enabled?).to be_truthy
+        expect(Appeals::Configuration.instance).to be_mock_enabled
       end
     end
 
     context 'when Settings.appeals.mock is false' do
       before { Settings.appeals.mock = 'false' }
+
       it 'returns false' do
-        expect(Appeals::Configuration.instance.mock_enabled?).to be_falsey
+        expect(Appeals::Configuration.instance).not_to be_mock_enabled
       end
     end
   end

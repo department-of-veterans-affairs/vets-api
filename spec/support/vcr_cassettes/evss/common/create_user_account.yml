@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: post
-    uri: "<EVSS_BASE_URL>/wss-common-services-web-11.0/rest/persistentPropertiesService/11.0/createUserAccount"
+    uri: "<EVSS_BASE_URL>/wss-common-services-web-11.6/rest/persistentPropertiesService/11.6/createUserAccount"
     body:
       encoding: UTF-8
       string: ''
@@ -41,7 +41,7 @@ http_interactions:
       - '1986-05-06T00:00:00+00:00'
       Va-Eauth-Authorization:
       - '{"authorizationResponse":{"status":"VETERAN","idType":"SSN","id":"796043735","edi":"1007697216","firstName":"WESLEY","lastName":"FORD","birthDate":"1986-05-06T00:00:00+00:00"}}'
-      Va-Eauth-Authenticationauthority: 
+      Va-Eauth-Authenticationauthority:
       - 'eauth'
       Content-Type:
       - application/json
@@ -79,6 +79,6 @@ http_interactions:
           "lastLoginTime" : 1512608109000,
           "userAccountId" : 106355
         }
-    http_version: 
+    http_version:
   recorded_at: Thu, 14 Dec 2017 00:00:32 GMT
 recorded_with: VCR 3.0.3

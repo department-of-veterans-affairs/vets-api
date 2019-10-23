@@ -31,7 +31,7 @@ RSpec.describe 'terms_and_conditions', type: :request do
   end
 
   context 'with some acceptances' do
-    before(:each) do
+    before do
       sign_in_as(current_user)
     end
 
@@ -71,7 +71,7 @@ RSpec.describe 'terms_and_conditions', type: :request do
   end
 
   context 'with no acceptances' do
-    before(:each) do
+    before do
       sign_in_as(current_user)
     end
 
@@ -106,6 +106,7 @@ RSpec.describe 'terms_and_conditions', type: :request do
           post "/v0/terms_and_conditions/#{terms2.name}/versions/latest/user_data"
           json = JSON.parse(response.body)
           expect(Time.zone.parse(json['data']['attributes']['created_at']).to_i).to eq(start_time.to_i)
+          Timecop.return
         end
       end
     end

@@ -22,6 +22,7 @@ module V0
         )
       )
       raise Common::Exceptions::ValidationErrors, address unless address.valid?
+
       response = service.update_address(address)
 
       render json: response,

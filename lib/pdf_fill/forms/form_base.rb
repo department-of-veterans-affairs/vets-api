@@ -17,6 +17,7 @@ module PdfFill
 
       def combine_name_addr(hash, address_key: 'address', name_key: 'name', combined_key: 'nameAndAddr')
         return if hash.try(:[], address_key).blank?
+
         extras_address = combine_name_addr_extras(hash, name_key, address_key)
 
         hash['combinedAddr'] = combine_full_address(hash[address_key])
@@ -29,6 +30,7 @@ module PdfFill
       def combine_both_addr(hash, key)
         original_addr = hash[key]
         return if original_addr.blank?
+
         extras_address = combine_full_address_extras(original_addr)
         address = combine_full_address(original_addr)
 
@@ -100,6 +102,7 @@ module PdfFill
 
       def expand_date_range(hash, key)
         return if hash.blank?
+
         date_range = hash[key]
         return if date_range.blank?
 

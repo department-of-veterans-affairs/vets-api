@@ -4,8 +4,9 @@ require 'rails_helper'
 require 'common/exceptions'
 
 describe OktaRedis::Grants, skip_emis: true do
-  let(:user) { build(:user, :loa3, uuid: '00u2fqgvbyT23TZNm2p7') }
   subject { described_class.with_user(user) }
+
+  let(:user) { build(:user, :loa3, uuid: '00u2fqgvbyT23TZNm2p7') }
 
   describe 'all' do
     context 'with response from okta' do
@@ -30,6 +31,7 @@ describe OktaRedis::Grants, skip_emis: true do
       end
     end
   end
+
   describe 'delete_grant' do
     context 'raises on error' do
       it 'raises' do

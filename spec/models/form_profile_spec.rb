@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'support/attr_encrypted_matcher'
 
 RSpec.describe FormProfile, type: :model do
   include SchemaMatchers
@@ -12,6 +11,7 @@ RSpec.describe FormProfile, type: :model do
     user.va_profile.suffix = 'Jr.'
     user.va_profile.address.country = 'USA'
     stub_evss_pciu(user)
+    described_class.instance_variable_set(:@mappings, nil)
   end
 
   let(:street_check) { build(:street_check) }
@@ -578,13 +578,9 @@ RSpec.describe FormProfile, type: :model do
     }
   end
 
-  before(:each) do
-    described_class.instance_variable_set(:@mappings, nil)
-  end
-
   describe '#get_us_phone' do
     def self.test_get_us_phone(phone, expected)
-      it "should return #{expected}" do
+      it "returns #{expected}" do
         expect(form_profile.send(:get_us_phone, phone)).to eq(expected)
       end
     end
@@ -616,6 +612,7 @@ RSpec.describe FormProfile, type: :model do
 
       schema.each do |k, v|
         next if k == 'required'
+
         new_schema[k] = v.is_a?(Hash) ? strip_required(v) : v
       end
 
@@ -648,7 +645,7 @@ RSpec.describe FormProfile, type: :model do
     end
 
     context 'when emis is down', skip_emis: true do
-      it 'should log the error to sentry' do
+      it 'logs the error to sentry' do
         can_prefill_emis(true)
         error = RuntimeError.new('foo')
         expect(Rails.env).to receive(:production?).and_return(true)
@@ -717,12 +714,12 @@ RSpec.describe FormProfile, type: :model do
           }
         end
 
-        it 'should prefill 1990' do
-          expect_prefilled('22-1990')
-        end
-
         after do
           Settings.vet360.prefill = false
+        end
+
+        it 'prefills 1990' do
+          expect_prefilled('22-1990')
         end
       end
 
@@ -733,7 +730,7 @@ RSpec.describe FormProfile, type: :model do
           expect(user).to receive(:authorize).with(:evss, :access?).and_return(true).at_least(:once)
         end
 
-        it 'should prefill 0994' do
+        it 'prefills 0994' do
           expect_prefilled('22-0994')
         end
       end
@@ -751,7 +748,7 @@ RSpec.describe FormProfile, type: :model do
           }
         end
 
-        it 'should prefill 0994 with emis and payment information' do
+        it 'prefills 0994 with emis and payment information' do
           VCR.use_cassette('evss/pciu_address/address_domestic') do
             VCR.use_cassette('evss/disability_compensation_form/rated_disabilities') do
               VCR.use_cassette('evss/ppiu/payment_information') do
@@ -813,6 +810,10 @@ RSpec.describe FormProfile, type: :model do
               expected_veteran_info['primaryPhone'] = '3035551234'
             end
 
+            after do
+              Settings.vet360.prefill = false
+            end
+
             it 'returns prefilled 21-526EZ' do
               VCR.use_cassette('evss/pciu_address/address_domestic') do
                 VCR.use_cassette('evss/disability_compensation_form/rated_disabilities') do
@@ -821,10 +822,6 @@ RSpec.describe FormProfile, type: :model do
                   end
                 end
               end
-            end
-
-            after do
-              Settings.vet360.prefill = false
             end
           end
 

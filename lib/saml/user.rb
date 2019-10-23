@@ -21,7 +21,7 @@ module SAML
       'dslogon_loa3' => { loa_current: '3', sign_in: { service_name: 'dslogon' } },
       'myhealthevet' => { loa_current: nil, sign_in: { service_name: 'myhealthevet' } },
       # SSOe context
-      'urn:oasis:names:tc:SAML:2.0:ac:classes:Password' => { loa_current: nil, sign_in: { service_name: 'ssoe' } },
+      'urn:oasis:names:tc:SAML:2.0:ac:classes:Password' => { loa_current: '1', sign_in: { service_name: 'ssoe' } },
       'dslogon' => { loa_current: nil, sign_in: { service_name: 'dslogon' } }
     }.freeze
     UNKNOWN_AUTHN_CONTEXT = 'unknown'
@@ -46,6 +46,7 @@ module SAML
 
     def changing_multifactor?
       return false if authn_context.nil?
+
       authn_context.include?('multifactor')
     end
 
@@ -80,18 +81,18 @@ module SAML
       raise
     end
 
-    # For future use; can check if issuer matches /eauth\.va\.gov/ for SSOe
     def issuer
-      saml_response.issuers[0]
+      saml_response.issuer_text
     rescue
       Raven.tags_context(controller_name: 'sessions', sign_in_method: 'not-signed-in:error')
       raise
     end
 
-    # TODO: validate that the AuthN attribute name for SSOe case is 'ssoe'
     # SSOe Issuer value is https://int.eauth.va.gov/FIM/sps/saml20fedCSP/saml20
     # SSOe AuthnContext currently set to urn:oasis:names:tc:SAML:2.0:ac:classes:Password
     def user_attributes_class
+      return SAML::UserAttributes::SSOe if issuer&.match(/eauth\.va\.gov/)
+
       case authn_context
       when 'myhealthevet', 'myhealthevet_multifactor'
         SAML::UserAttributes::MHV
@@ -99,8 +100,6 @@ module SAML
         SAML::UserAttributes::DSLogon
       when 'multifactor', 'dslogon_loa3', 'myhealthevet_loa3', LOA::IDME_LOA3, LOA::IDME_LOA1
         SAML::UserAttributes::IdMe
-      when 'urn:oasis:names:tc:SAML:2.0:ac:classes:Password'
-        SAML::UserAttributes::SSOe
       else
         Raven.tags_context(
           authn_context: authn_context,

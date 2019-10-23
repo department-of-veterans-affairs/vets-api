@@ -11,25 +11,22 @@ class SpoolSubmissionsReportMailer < ApplicationMailer
     shay.norton@va.gov
   ].freeze
 
-  # Will add in Prod STEM recipients once 18815 approved in staging
-  STEM_RECIPIENTS = %w[].freeze
+  STEM_RECIPIENTS = %w[
+    kyle.pietrosanto@va.gov
+    robert.shinners@va.gov
+  ].freeze
 
   STAGING_RECIPIENTS = %w[
-    Delli-Gatti_Michael@bah.com
     lihan@adhocteam.us
-    Turner_Desiree@bah.com
+    shay.norton-leonard@va.gov
   ].freeze
 
   STAGING_STEM_RECIPIENTS = %w[
-    hughes_dustin@bah.com
-    kyle.pietrosanto@va.gov
-    robert.shinners@va.gov
-    shay.norton-leonard@va.gov
-    sonntag_adam@bah.com
   ].freeze
 
   def add_stem_recipients
     return STAGING_STEM_RECIPIENTS.dup if FeatureFlipper.staging_email?
+
     STEM_RECIPIENTS.dup
   end
 

@@ -162,11 +162,12 @@ class User < Common::RedisStore
   # See also lib/saml/user_attributes/dslogon.rb
   # See also lib/saml/user_attributes/mhv
   def loa3?
-    loa[:current] == LOA::THREE
+    loa[:current].try(:to_i) == LOA::THREE
   end
 
   def ssn_mismatch?
     return false unless loa3? && identity&.ssn && va_profile&.ssn
+
     identity.ssn != va_profile.ssn
   end
 
@@ -246,6 +247,7 @@ class User < Common::RedisStore
 
   def vet360_contact_info
     return nil unless Settings.vet360.contact_information.enabled && vet360_id.present?
+
     @vet360_contact_info ||= Vet360Redis::ContactInformation.for_user(self)
   end
 
@@ -288,7 +290,7 @@ class User < Common::RedisStore
   end
 
   def flipper_id
-    "User;#{account_uuid}"
+    email || account_uuid
   end
 
   private

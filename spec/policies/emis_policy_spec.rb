@@ -18,7 +18,7 @@ describe EMISPolicy do
       let(:user) { build(:user, :loa1) }
 
       it 'denies access' do
-        expect(subject).to_not permit(user, :emis)
+        expect(subject).not_to permit(user, :emis)
       end
     end
   end

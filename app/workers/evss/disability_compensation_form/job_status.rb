@@ -35,8 +35,8 @@ module EVSS
             'Form526 Exhausted', submission_id: submission_id, job_id: jid, error_message: error_message
           )
           Metrics.new(STATSD_KEY_PREFIX).increment_exhausted
-        rescue => error
-          Rails.logger.error('error tracking job exhausted', error: error, class: klass)
+        rescue => e
+          Rails.logger.error('error tracking job exhausted', error: e, class: klass)
         end
       end
 
@@ -62,8 +62,8 @@ module EVSS
         upsert_job_status(Form526JobStatus::STATUS[:try])
         log_info('try')
         metrics.increment_try
-      rescue => error
-        Rails.logger.error('error tracking job try', error: error, class: klass)
+      rescue => e
+        Rails.logger.error('error tracking job try', error: e, class: klass)
       end
 
       # Metrics and logging for when the job succeeds
@@ -72,8 +72,8 @@ module EVSS
         upsert_job_status(Form526JobStatus::STATUS[:success])
         log_info('success')
         metrics.increment_success
-      rescue => error
-        Rails.logger.error('error tracking job success', error: error, class: klass)
+      rescue => e
+        Rails.logger.error('error tracking job success', error: e, class: klass)
       end
 
       # Metrics and logging for any retryable errors that occurred.

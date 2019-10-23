@@ -6,8 +6,8 @@ module VBADocuments
   class Engine < ::Rails::Engine
     isolate_namespace VBADocuments
 
-    config.autoload_paths << File.expand_path('../lib/', __FILE__) if Rails.env.development?
-    config.eager_load_paths << File.expand_path('../lib/', __FILE__) unless Rails.env.development?
+    config.autoload_paths << File.expand_path('lib', __dir__) if Rails.env.development?
+    config.eager_load_paths << File.expand_path('lib', __dir__) unless Rails.env.development?
 
     initializer :append_migrations do |app|
       unless app.root.to_s.match? root.to_s
@@ -23,7 +23,7 @@ module VBADocuments
       g.factory_bot dir: 'spec/factories'
     end
     initializer 'vba_documents.factories', after: 'factory_bot.set_factory_paths' do
-      FactoryBot.definition_file_paths << File.expand_path('../../../spec/factories', __FILE__) if defined?(FactoryBot)
+      FactoryBot.definition_file_paths << File.expand_path('../../spec/factories', __dir__) if defined?(FactoryBot)
     end
   end
 end

@@ -5,7 +5,7 @@ require 'rails_helper'
 RSpec.describe Notification, type: :model do
   describe 'validations' do
     it 'has a valid factory' do
-      notification = build :notification
+      notification = create(:notification)
 
       expect(notification).to be_valid
     end

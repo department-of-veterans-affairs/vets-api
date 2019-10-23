@@ -4,7 +4,7 @@ require 'rails_helper'
 require 'vba_documents/object_store'
 
 RSpec.describe VBADocuments::ObjectStore do
-  before(:each) do
+  before do
     @resource = instance_double(Aws::S3::Resource)
     @client = instance_double(Aws::S3::Client)
     @bucket = instance_double(Aws::S3::Bucket)
@@ -66,7 +66,7 @@ RSpec.describe VBADocuments::ObjectStore do
                                                      key: 'foo',
                                                      version_id: '123456',
                                                      response_target: '/tmp/foobar'
-      ))
+                                                   ))
       described_class.new.download(v1, '/tmp/foobar')
     end
   end

@@ -23,6 +23,16 @@ GIT
       xmlenc
 
 GIT
+  remote: https://github.com/department-of-veterans-affairs/lighthouse-bgs.git
+  revision: ecd50e7adc5ababf5ca09994e55cf7d78ae6fe94
+  branch: master
+  specs:
+    lighthouse_bgs (0.2)
+      httpclient
+      nokogiri (>= 1.8.5)
+      savon (~> 2.12)
+
+GIT
   remote: https://github.com/department-of-veterans-affairs/puma-plugin-statsd
   revision: 6faba90147cf6fbb6c1a6a0c6cd3ae88e888ca73
   branch: master
@@ -62,6 +72,12 @@ PATH
   remote: modules/va_facilities
   specs:
     va_facilities (0.0.1)
+      rails (~> 5.2.3)
+
+PATH
+  remote: modules/vaos
+  specs:
+    vaos (0.1.0)
       rails (~> 5.2.3)
 
 PATH
@@ -184,7 +200,7 @@ GEM
       thread_safe (~> 0.3, >= 0.3.1)
     benchmark-ips (2.7.2)
     bindex (0.8.1)
-    brakeman (4.4.0)
+    brakeman (4.6.1)
     breakers (0.2.4)
       faraday (>= 0.7.4, < 0.10)
       multi_json (~> 1.0)
@@ -204,23 +220,43 @@ GEM
       carrierwave (>= 0.7, < 2.0)
     case_transform (0.2)
       activesupport
-    childprocess (1.0.1)
-      rake (< 13.0)
+    childprocess (3.0.0)
+    claide (1.0.3)
+    claide-plugins (0.9.2)
+      cork
+      nap
+      open4 (~> 1.3)
     clam_scan (0.0.2)
-    climate_control (0.1.0)
     cliver (0.3.2)
     coderay (1.1.2)
     coercible (1.0.0)
       descendants_tracker (~> 0.0.1)
+    colored2 (3.1.2)
+    colorize (0.8.1)
     concurrent-ruby (1.1.5)
     config (1.4.0)
       activesupport (>= 3.0)
       deep_merge (~> 1.1.1)
     connection_pool (2.2.2)
     content_disposition (1.0.0)
+    cork (0.3.0)
+      colored2 (~> 3.1)
     crack (0.4.3)
       safe_yaml (~> 1.0.0)
     crass (1.0.4)
+    danger (6.1.0)
+      claide (~> 1.0)
+      claide-plugins (>= 0.9.2)
+      colored2 (~> 3.1)
+      cork (~> 0.1)
+      faraday (~> 0.9)
+      faraday-http-cache (~> 2.0)
+      git (~> 1.5)
+      kramdown (~> 2.0)
+      kramdown-parser-gfm (~> 1.0)
+      no_proxy_fix
+      octokit (~> 4.7)
+      terminal-table (~> 1)
     database_cleaner (1.7.0)
     date_validator (0.9.0)
       activemodel
@@ -259,17 +295,17 @@ GEM
       dry-logic (~> 1.0, >= 1.0.2)
     encryptor (3.0.0)
     equalizer (0.0.11)
-    erubi (1.8.0)
+    erubi (1.9.0)
     erubis (2.7.0)
     et-orbi (1.2.1)
       tzinfo
     ethon (0.10.1)
       ffi (>= 1.3.0)
-    factory_bot (4.10.0)
-      activesupport (>= 3.0.0)
-    factory_bot_rails (4.10.0)
-      factory_bot (~> 4.10.0)
-      railties (>= 3.0.0)
+    factory_bot (5.1.1)
+      activesupport (>= 4.2.0)
+    factory_bot_rails (5.1.1)
+      factory_bot (~> 5.1.0)
+      railties (>= 4.2.0)
     faker (1.6.3)
       i18n (~> 0.5)
     faker-medical (0.5.2)
@@ -278,6 +314,8 @@ GEM
       redis (~> 3.0)
     faraday (0.9.2)
       multipart-post (>= 1.2, < 3)
+    faraday-http-cache (2.0.0)
+      faraday (~> 0.8)
     faraday_curl (0.0.2)
       faraday (>= 0.9.0)
     faraday_middleware (0.12.2)
@@ -306,6 +344,10 @@ GEM
     fugit (1.2.1)
       et-orbi (~> 1.1, >= 1.1.8)
       raabro (~> 1.1)
+    fuubar (2.4.1)
+      rspec-core (~> 3.0)
+      ruby-progressbar (~> 1.4)
+    git (1.5.0)
     globalid (0.4.2)
       activesupport (>= 4.2.0)
     govdelivery-tms (2.8.4)
@@ -346,6 +388,7 @@ GEM
     iconv (1.0.4)
     iniparse (1.4.4)
     iso_country_codes (0.7.8)
+    jaro_winkler (1.5.3)
     jmespath (1.4.0)
     json (1.8.6)
     json-schema (2.8.1)
@@ -356,6 +399,9 @@ GEM
     jsonapi-parser (0.1.1.beta3)
     jsonapi-renderer (0.1.1.beta1)
     jwt (2.1.0)
+    kramdown (2.1.0)
+    kramdown-parser-gfm (1.1.0)
+      kramdown (~> 2.0)
     levenshtein-ffi (1.1.0)
       ffi (~> 1.9)
     liquid (4.0.0)
@@ -363,7 +409,7 @@ GEM
       rb-fsevent (~> 0.9, >= 0.9.4)
       rb-inotify (~> 0.9, >= 0.9.7)
       ruby_dep (~> 1.2)
-    loofah (2.2.3)
+    loofah (2.3.0)
       crass (~> 1.0.2)
       nokogiri (>= 1.5.9)
     lumberjack (1.0.13)
@@ -379,27 +425,32 @@ GEM
     mimemagic (0.3.2)
     mini_magick (4.9.4)
     mini_portile2 (2.4.0)
-    minitest (5.11.3)
+    minitest (5.12.2)
     multi_json (1.13.1)
     multipart-post (2.0.0)
+    nap (1.1.0)
     nenv (0.3.0)
     net-sftp (2.1.2)
       net-ssh (>= 2.6.5)
     net-ssh (4.1.0)
     nio4r (2.3.1)
+    no_proxy_fix (0.1.2)
     nokogiri (1.10.4)
       mini_portile2 (~> 2.4.0)
     nori (2.6.0)
     notiffany (0.1.3)
       nenv (~> 0.1)
       shellany (~> 0.0)
-    octokit (4.7.0)
+    octokit (4.14.0)
       sawyer (~> 0.8.0, >= 0.5.3)
     oj (2.18.2)
     olive_branch (2.0.0)
       rails (>= 4.0)
-    overcommit (0.49.1)
-      childprocess (>= 0.6.3, < 2.0)
+    open4 (1.3.4)
+    origami (2.1.0)
+      colorize (~> 0.7)
+    overcommit (0.51.0)
+      childprocess (>= 0.6.3, < 4)
       iniparse (~> 1.4)
     ox (2.8.2)
     parallel (1.17.0)
@@ -418,7 +469,6 @@ GEM
       ruby-rc4
       ttfunk
     pg (0.19.0)
-    powerpack (0.1.2)
     prawn (2.2.2)
       pdf-core (~> 0.7.0)
       ttfunk (~> 1.5)
@@ -459,8 +509,8 @@ GEM
     rails-dom-testing (2.0.3)
       activesupport (>= 4.2.0)
       nokogiri (>= 1.6)
-    rails-html-sanitizer (1.2.0)
-      loofah (~> 2.2, >= 2.2.2)
+    rails-html-sanitizer (1.3.0)
+      loofah (~> 2.3)
     rails-session_cookie (0.2.2)
       rails (>= 4.0)
     rails_semantic_logger (4.4.0)
@@ -473,12 +523,10 @@ GEM
       rake (>= 0.8.7)
       thor (>= 0.19.0, < 2.0)
     rainbow (3.0.0)
-    rake (12.3.3)
+    rake (13.0.0)
     rb-fsevent (0.10.3)
     rb-inotify (0.10.0)
       ffi (~> 1.0)
-    rdoc (4.2.2)
-      json (~> 1.4)
     redis (3.3.5)
     redis-namespace (1.5.3)
       redis (~> 3.0, >= 3.0.4)
@@ -491,63 +539,67 @@ GEM
     rgeo-activerecord (6.1.0)
       activerecord (~> 5.0)
       rgeo (>= 1.0.0)
-    rspec (3.8.0)
-      rspec-core (~> 3.8.0)
-      rspec-expectations (~> 3.8.0)
-      rspec-mocks (~> 3.8.0)
-    rspec-core (3.8.2)
-      rspec-support (~> 3.8.0)
-    rspec-expectations (3.8.4)
+    rgeo-geojson (2.1.1)
+      rgeo (>= 1.0.0)
+    rspec (3.9.0)
+      rspec-core (~> 3.9.0)
+      rspec-expectations (~> 3.9.0)
+      rspec-mocks (~> 3.9.0)
+    rspec-core (3.9.0)
+      rspec-support (~> 3.9.0)
+    rspec-expectations (3.9.0)
       diff-lcs (>= 1.2.0, < 2.0)
-      rspec-support (~> 3.8.0)
-    rspec-mocks (3.8.1)
+      rspec-support (~> 3.9.0)
+    rspec-mocks (3.9.0)
       diff-lcs (>= 1.2.0, < 2.0)
-      rspec-support (~> 3.8.0)
-    rspec-rails (3.8.2)
+      rspec-support (~> 3.9.0)
+    rspec-rails (3.9.0)
       actionpack (>= 3.0)
       activesupport (>= 3.0)
       railties (>= 3.0)
-      rspec-core (~> 3.8.0)
-      rspec-expectations (~> 3.8.0)
-      rspec-mocks (~> 3.8.0)
-      rspec-support (~> 3.8.0)
-    rspec-support (3.8.2)
+      rspec-core (~> 3.9.0)
+      rspec-expectations (~> 3.9.0)
+      rspec-mocks (~> 3.9.0)
+      rspec-support (~> 3.9.0)
+    rspec-support (3.9.0)
     rspec_junit_formatter (0.2.3)
       builder (< 4)
       rspec-core (>= 2, < 4, != 2.12.0)
-    rubocop (0.52.1)
+    rubocop (0.74.0)
+      jaro_winkler (~> 1.5.1)
       parallel (~> 1.10)
-      parser (>= 2.4.0.2, < 3.0)
-      powerpack (~> 0.1)
+      parser (>= 2.6)
       rainbow (>= 2.2.2, < 4.0)
       ruby-progressbar (~> 1.7)
-      unicode-display_width (~> 1.0, >= 1.0.1)
+      unicode-display_width (>= 1.4.0, < 1.7)
     rubocop-junit-formatter (0.1.3)
+    rubocop-rails (2.3.2)
+      rack (>= 1.1)
+      rubocop (>= 0.72.0)
+    rubocop-rspec (1.35.0)
+      rubocop (>= 0.60.0)
     ruby-progressbar (1.10.1)
     ruby-rc4 (0.1.5)
     ruby-saml (1.7.0)
       nokogiri (>= 1.5.10)
     ruby_dep (1.5.0)
-    rubyzip (1.2.2)
+    rubyzip (2.0.0)
     rufus-scheduler (3.6.0)
       fugit (~> 1.1, >= 1.1.6)
     safe_shell (1.0.3)
     safe_yaml (1.0.5)
-    savon (2.11.1)
+    savon (2.12.0)
       akami (~> 1.2)
       builder (>= 2.1.2)
       gyoku (~> 1.2)
       httpi (~> 2.3)
-      nokogiri (>= 1.4.0)
+      nokogiri (>= 1.8.1)
       nori (~> 2.4)
       wasabi (~> 3.4)
-    sawyer (0.8.1)
-      addressable (>= 2.3.5, < 2.6)
-      faraday (~> 0.8, < 1.0)
+    sawyer (0.8.2)
+      addressable (>= 2.3.5)
+      faraday (> 0.8, < 2.0)
     script_utils (0.0.4)
-    sdoc (0.4.1)
-      json (~> 1.7, >= 1.7.7)
-      rdoc (~> 4.0)
     seedbank (0.5.0)
       rake (>= 10.0)
     semantic_logger (4.5.0)
@@ -579,7 +631,7 @@ GEM
       rufus-scheduler (~> 3.2)
       sidekiq (>= 3)
       tilt (>= 1.4.0)
-    simplecov (0.17.0)
+    simplecov (0.17.1)
       docile (~> 1.1)
       json (>= 1.8, < 3)
       simplecov-html (~> 0.10.0)
@@ -598,6 +650,8 @@ GEM
     staccato (0.5.1)
     statsd-instrument (2.1.2)
     swagger-blocks (2.0.0)
+    terminal-table (1.8.0)
+      unicode-display_width (~> 1.1, >= 1.1.1)
     thor (0.19.4)
     thread_safe (0.3.6)
     tilt (2.0.9)
@@ -625,7 +679,7 @@ GEM
       activemodel (>= 5.0)
       bindex (>= 0.4.0)
       railties (>= 5.0)
-    webmock (3.7.2)
+    webmock (3.7.6)
       addressable (>= 2.3.6)
       crack (>= 0.3.2)
       hashdiff (>= 0.4.0, < 2.0.0)
@@ -672,14 +726,14 @@ DEPENDENCIES
   carrierwave-aws
   claims_api!
   clam_scan
-  climate_control
   config
   connect_vbms!
+  danger
   database_cleaner
   date_validator
   dry-struct
   dry-types
-  factory_bot_rails (< 4.11)
+  factory_bot_rails (> 5)
   faker
   faker-medical
   fakeredis
@@ -694,6 +748,7 @@ DEPENDENCIES
   flipper-active_support_cache_store
   flipper-ui
   foreman
+  fuubar
   govdelivery-tms (= 2.8.4)
   guard-rspec (~> 4.7)
   guard-rubocop
@@ -707,16 +762,17 @@ DEPENDENCIES
   jsonapi-parser
   jwt
   levenshtein-ffi
+  lighthouse_bgs!
   liquid
   mail (= 2.6.6)
   memoist
   mini_magick (~> 4.9.4)
   net-sftp
   nokogiri (~> 1.10, >= 1.10.4)
-  octokit
   oj
   olive_branch
   openid_auth!
+  origami
   overcommit
   ox
   pdf-forms
@@ -739,14 +795,16 @@ DEPENDENCIES
   redis
   redis-namespace
   restforce
+  rgeo-geojson
   rspec-rails (~> 3.5)
   rspec_junit_formatter
-  rubocop (~> 0.52.1)
+  rubocop
   rubocop-junit-formatter
+  rubocop-rails
+  rubocop-rspec
   ruby-saml
-  rubyzip (>= 1.0.0)
+  rubyzip (>= 1.3.0)
   savon
-  sdoc (~> 0.4.0)
   seedbank
   sentry-raven (= 2.9.0)
   shrine
@@ -769,6 +827,7 @@ DEPENDENCIES
   upsert
   utf8-cleaner
   va_facilities!
+  vaos!
   vba_documents!
   vcr
   veteran!

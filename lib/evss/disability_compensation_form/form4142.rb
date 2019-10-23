@@ -21,6 +21,7 @@ module EVSS
       #
       def translate
         return nil unless @final_output
+
         @final_output['vaFileNumber'] = @user.ssn
         @final_output['veteranSocialSecurityNumber'] = @user.ssn
         @final_output['veteranFullName'] = full_name

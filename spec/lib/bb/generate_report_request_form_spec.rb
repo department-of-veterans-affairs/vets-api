@@ -5,6 +5,8 @@ require 'bb/generate_report_request_form'
 require 'bb/client'
 
 describe BB::GenerateReportRequestForm do
+  subject { described_class.new(bb_client, attributes) }
+
   let(:eligible_data_classes) do
     BB::GenerateReportRequestForm::ELIGIBLE_DATA_CLASSES
   end
@@ -22,9 +24,7 @@ describe BB::GenerateReportRequestForm do
 
   let(:attributes) { {} }
 
-  subject { described_class.new(bb_client, attributes) }
-
-  before(:each) { allow(subject).to receive(:eligible_data_classes).and_return(eligible_data_classes) }
+  before { allow(subject).to receive(:eligible_data_classes).and_return(eligible_data_classes) }
 
   context 'with null attributes' do
     it 'responds to params' do
@@ -33,7 +33,7 @@ describe BB::GenerateReportRequestForm do
     end
 
     it 'returns valid false with errors' do
-      expect(subject.valid?).to be_falsey
+      expect(subject).not_to be_valid
       expect(subject.errors.full_messages)
         .to eq([
                  'From date is not a date',
@@ -55,7 +55,7 @@ describe BB::GenerateReportRequestForm do
 
     # This spec can be added again in the future if desired, but for now leave as MHV error
     xit 'returns valid false with errors' do
-      expect(subject.valid?).to be_falsey
+      expect(subject).not_to be_valid
       expect(subject.errors.full_messages)
         .to eq(['From date must be before to date'])
     end
@@ -75,7 +75,7 @@ describe BB::GenerateReportRequestForm do
 
     # TODO: See: https://github.com/department-of-veterans-affairs/vets.gov-team/issues/3777
     it 'returns valid false' do
-      expect(subject.valid?).to be_truthy # be_falsey
+      expect(subject).to be_valid # be_falsey
       expect(subject.errors.full_messages)
         .to be_empty # eq(['Invalid data classes: blah, blahblah'])
     end
@@ -98,7 +98,7 @@ describe BB::GenerateReportRequestForm do
     end
 
     it 'returns valid true' do
-      expect(subject.valid?).to be_truthy
+      expect(subject).to be_valid
     end
   end
 end

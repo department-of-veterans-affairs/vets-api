@@ -3,14 +3,10 @@
 require 'fakeredis/rspec'
 require 'support/mvi/stub_mvi'
 require 'support/spec_builders'
-require 'support/schema_matchers'
+require 'support/matchers'
 require 'support/spool_helpers'
 require 'support/fixture_helpers'
 require 'support/spec_temp_files'
-require 'support/have_deep_attributes_matcher'
-require 'support/be_a_uuid'
-require 'support/impl_matchers'
-require 'support/negated_matchers'
 require 'support/sidekiq/batch'
 require 'support/stub_emis'
 require 'support/stub_evss_pciu'
@@ -26,6 +22,7 @@ unless ENV['NOCOVERAGE']
   SimpleCov.start 'rails' do
     track_files '**/{app,lib}/**/*.rb'
 
+    add_filter 'lib/mvi/responses/id_parser.rb' # TODO: remove when removing Flipper toggle in file.
     add_filter 'app/controllers/concerns/accountable.rb'
     add_filter 'config/initializers/clamscan.rb'
     add_filter 'lib/config_helper.rb'
@@ -33,6 +30,7 @@ unless ENV['NOCOVERAGE']
     add_filter 'lib/gibft/configuration.rb'
     add_filter 'lib/ihub/appointments/response.rb'
     add_filter 'lib/salesforce/configuration.rb'
+    add_filter 'lib/vet360/address_validation/configuration.rb'
     add_filter 'lib/search/response.rb'
     add_filter 'lib/vet360/exceptions/builder.rb'
     add_filter 'lib/vet360/response.rb'
@@ -53,6 +51,9 @@ unless ENV['NOCOVERAGE']
     add_group 'VBADocuments', 'modules/vba_documents/'
     add_group 'Veteran', 'modules/veteran/'
     add_group 'VeteranVerification', 'modules/veteran_verification/'
+    add_group 'OpenidAuth', 'modules/openid_auth/'
+    add_group 'VAOS', 'modules/vaos/'
+
     SimpleCov.minimum_coverage_by_file 90
     SimpleCov.refuse_coverage_drop
   end

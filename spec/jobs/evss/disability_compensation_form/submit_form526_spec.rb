@@ -5,7 +5,9 @@ require 'sidekiq/testing'
 Sidekiq::Testing.fake!
 
 RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526, type: :job do
-  before(:each) do
+  subject { described_class }
+
+  before do
     Sidekiq::Worker.clear_all
   end
 
@@ -13,8 +15,6 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526, type: :job do
   let(:auth_headers) do
     EVSS::DisabilityCompensationAuthHeaders.new(user).add_headers(EVSS::AuthHeaders.new(user).to_h)
   end
-
-  subject { described_class }
 
   describe '.perform_async' do
     let(:saved_claim) { FactoryBot.create(:va526ez) }
