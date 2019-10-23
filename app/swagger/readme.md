@@ -1,8 +1,9 @@
 # Display the Swagger Doc
 - The doc is served from the endpoint: `GET` `v0/apidocs`
-- [Swaggeer docs](https://department-of-veterans-affairs.github.io/va-digital-services-platform-docs/api-reference/#/) are published or can be generated locally.
 
-# Run the Swagger UI Container
+# View Swagger Deployed to DEV
+- [We host the SwaggerUI here](https://department-of-veterans-affairs.github.io/va-digital-services-platform-docs/api-reference/#/) 
+# Run the Swagger UI Locally
 ## Option 1: Run it Locally from Filesystem
 _Note: This option doesn't work in Chrome because Chrome doesn't allow a null CORS Origin. Use Safari or use Option 2 or 3 below._
 1. Add `null` to `web_origin` in your `settings.local.yml`:
@@ -32,11 +33,3 @@ devd .                          # ("brew install devd" to install)
 5. Open `http://localhost:8000` in your browser
 6. Paste `http://localhost:3000/v0/apidocs` into the search box and click "Explore"
 
-## Option 3: Use PetStore
-1. Add `http://petstore.swagger.io/` to `web_origin` in your `settings.local.yml`
-```
-# For CORS requests; separate multiple origins with a comma
-web_origin: http://localhost:3000,http://localhost:3001,http://petstore.swagger.io
-```
-2. Navigate to http://petstore.swagger.io/
-3. Paste `http://localhost:3000/v0/apidocs` into the search box and click "Explore"
