@@ -19,7 +19,7 @@ module ClaimsApi
         before_action :validate_documents_page_size, only: %i[upload_supporting_documents]
 
         def submit_form_526
-          service = EVSS::DisabilityCompensationForm::ServiceAllClaim.new(auth_headers)
+          service_object = service(auth_headers)
           auto_claim = ClaimsApi::AutoEstablishedClaim.create(
             status: ClaimsApi::AutoEstablishedClaim::PENDING,
             auth_headers: auth_headers,
@@ -27,7 +27,7 @@ module ClaimsApi
             source: source_name
           )
           auto_claim = ClaimsApi::AutoEstablishedClaim.find_by(md5: auto_claim.md5) unless auto_claim.id
-          service.validate_form526(auto_claim.form.to_internal)
+          service_object.validate_form526(auto_claim.form.to_internal)
 
           ClaimsApi::ClaimEstablisher.perform_async(auto_claim.id)
 
@@ -68,18 +68,6 @@ module ClaimsApi
         def source_name
           user = poa_request? ? @current_user : target_veteran
           "#{user.first_name} #{user.last_name}"
-        end
-
-        def service(auth_headers)
-          if Settings.claims_api.disability_claims_mock_override && !auth_headers['Mock-Override']
-            ClaimsApi::DisabilityCompensation::MockOverrideService.new(
-              auth_headers
-            )
-          else
-            EVSS::DisabilityCompensationForm::ServiceAllClaim.new(
-              auth_headers
-            )
-          end
         end
       end
     end
