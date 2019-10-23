@@ -20,21 +20,28 @@ RSpec.describe ClaimsApi::PoaUpdater, type: :job do
     headers
   end
 
-  let(:poa) do
+  it "updates the form's status" do
+    poa = create_poa
+    create_mock_lighthouse_service
+    subject.new.perform(poa.id)
+    poa.reload
+    expect(poa.status).to eq('updated')
+  end
+
+  private
+
+  def create_poa
     poa = create(:power_of_attorney)
     poa.auth_headers = auth_headers
     poa.save
     poa
   end
 
-  it "updates the form's status" do
+  def create_mock_lighthouse_service
     vet_record_stub = LighthouseBGS::Services.new.vet_record
     allow(vet_record_stub).to receive(:update_birls_record).and_return('return_code' => 'BMOD0001')
     service_double = instance_double('LighthouseBGS::Services')
     expect(service_double).to receive(:vet_record).and_return(vet_record_stub)
     expect(LighthouseBGS::Services).to receive(:new).and_return(service_double)
-    subject.new.perform(poa.id)
-    poa.reload
-    expect(poa.status).to eq('updated')
   end
 end
