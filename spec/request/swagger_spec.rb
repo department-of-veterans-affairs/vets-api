@@ -1707,6 +1707,28 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
         end
       end
 
+      it 'supports the address validation api' do
+        expect(subject).to validate(:post, '/v0/profile/address_validation', 401)
+
+        address = build(:vet360_address, :multiple_matches)
+        VCR.use_cassette(
+          'vet360/address_validation/validate_match',
+          VCR::MATCH_EVERYTHING
+        ) do
+          VCR.use_cassette(
+            'vet360/address_validation/candidate_multiple_matches',
+            VCR::MATCH_EVERYTHING
+          ) do
+            expect(subject).to validate(
+              :post,
+              '/v0/profile/address_validation',
+              200,
+              headers.merge('_data' => { address: address.to_h })
+            )
+          end
+        end
+      end
+
       it 'supports posting vet360 address data' do
         expect(subject).to validate(:post, '/v0/profile/addresses', 401)
 

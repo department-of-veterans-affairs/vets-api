@@ -48,6 +48,7 @@ module Common
               @dest_facility['hours'] = make_hours_mappings
               @dest_facility['services'] = map_health_services if @mapping['services']
               @dest_facility['classification'] = map_classification if @mapping['classification']
+              @dest_facility['phone'] = make_phone_mappings
               @dest_facility
             end
 
@@ -58,8 +59,28 @@ module Common
             end
 
             def make_complex_mappings
-              %w[access feedback phone].each_with_object({}) do |name, _attributes|
+              %w[access feedback].each_with_object({}) do |name, _attributes|
                 @dest_facility[name] = complex_mapping(name)
+              end
+            end
+
+            def make_phone_mappings
+              phone_mapping = complex_mapping('phone')
+
+              phone_mapping.keys.each do |phone_type|
+                full_phone = phone_mapping[phone_type]
+                phone_mapping[phone_type] = remove_blank_extensions(full_phone) if full_phone.present?
+              end
+
+              phone_mapping
+            end
+
+            def remove_blank_extensions(full_phone_number)
+              phone, ext = full_phone_number.split('x')
+              if ext.blank?
+                phone.strip
+              else
+                full_phone_number
               end
             end
 
