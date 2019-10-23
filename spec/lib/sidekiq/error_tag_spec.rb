@@ -7,7 +7,7 @@ describe Sidekiq::ErrorTag do
   class TestJob
     include Sidekiq::Worker
 
-    def make_request
+    def perform
       $named_tags = Sidekiq::Logging.logger.named_tags
     end
   end
