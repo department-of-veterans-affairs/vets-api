@@ -4,8 +4,20 @@ require 'rails_helper'
 require 'facilities/ppms/response'
 
 describe Facilities::PPMS::Response do
-  let(:provider_locator_body) { JSON.parse(YAML.load_file('spec/support/vcr_cassettes/facilities/va/ppms.yml')['http_interactions'][0]['response']['body']['string'])['value'] }
-  let(:response_body) { JSON.parse(YAML.load_file('spec/support/vcr_cassettes/facilities/va/ppms.yml')['http_interactions'][3]['response']['body']['string'])['value'][0] }
+  let(:provider_locator_body) do
+    JSON.parse(
+      YAML.load_file(
+        'spec/support/vcr_cassettes/facilities/va/ppms.yml'
+      )['http_interactions'][0]['response']['body']['string']
+    )['value']
+  end
+  let(:response_body) do
+    JSON.parse(
+      YAML.load_file(
+        'spec/support/vcr_cassettes/facilities/va/ppms.yml'
+      )['http_interactions'][3]['response']['body']['string']
+    )['value'][0]
+  end
   let(:response) { Facilities::PPMS::Response.new(response_body, 200) }
   let(:bbox) { { bbox: [-79, 38, -77, 39] } }
   let(:faraday_response) { instance_double('Faraday::Response') }
