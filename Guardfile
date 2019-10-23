@@ -21,7 +21,7 @@ guard :rspec, cmd: 'DISABLE_SPRING=y NOCOVERAGE=y bin/rspec' do
   watch(dsl.rails.app_controller) { "#{rspec.spec_dir}/controllers" }
 end
 
-guard :rubocop, cli: %w[--auto-correct] do
+guard :rubocop, all_on_start: false, cli: %w[--auto-correct --format fuubar] do
   watch(/.+\.rb$/)
   watch(%r{(?:.+/)?\.rubocop\.yml$}) { |m| File.dirname(m[0]) }
 end

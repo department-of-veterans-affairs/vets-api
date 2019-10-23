@@ -20,7 +20,7 @@ describe PdfFill::Forms::Va218940 do
   end
 
   describe '#merge_fields' do
-    it 'should merge the right fields', run_at: '2016-12-31 00:00:00 EDT' do
+    it 'merges the right fields', run_at: '2016-12-31 00:00:00 EDT' do
       expect(JSON.parse(described_class.new(get_fixture('pdf_fill/21-8940/kitchen_sink')).merge_fields.to_json)).to eq(
         get_fixture('pdf_fill/21-8940/merge_fields')
       )
@@ -34,7 +34,8 @@ describe PdfFill::Forms::Va218940 do
           'veteranSocialSecurityNumber' => '123456789'
         }
       end
-      it 'should expand the ssn correctly' do
+
+      it 'expands the ssn correctly' do
         new_form_class.send(:expand_ssn)
         expect(
           JSON.parse(class_form_data.to_json)
@@ -58,7 +59,8 @@ describe PdfFill::Forms::Va218940 do
           }
         }
       end
-      it 'should expand veteran full name correctly' do
+
+      it 'expands veteran full name correctly' do
         new_form_class.send(:expand_veteran_full_name)
         expect(
           JSON.parse(class_form_data.to_json)
@@ -81,7 +83,8 @@ describe PdfFill::Forms::Va218940 do
           'veteranDateOfBirth' => '1981-11-05'
         }
       end
-      it 'should expand the birth date correctly' do
+
+      it 'expands the birth date correctly' do
         new_form_class.send(:expand_veteran_dob)
         expect(
           JSON.parse(class_form_data.to_json)
@@ -101,7 +104,7 @@ describe PdfFill::Forms::Va218940 do
       unemployability = {
         'disabilityPreventingEmployment' => 'Disability Text'
       }
-      it 'should expand the serviceConnectedDisability correctly' do
+      it 'expands the serviceConnectedDisability correctly' do
         new_form_class.send(:expand_service_connected_disability, unemployability)
         expect(
           JSON.parse(class_form_data.to_json)
@@ -126,7 +129,8 @@ describe PdfFill::Forms::Va218940 do
           }
         }
       end
-      it 'should expand veteran address correctly' do
+
+      it 'expands veteran address correctly' do
         new_form_class.send(:expand_veteran_address)
         expect(
           JSON.parse(class_form_data.to_json)
@@ -153,7 +157,7 @@ describe PdfFill::Forms::Va218940 do
         'underDoctorHopitalCarePast12M' => true
       }
 
-      it 'should expand veteran address correctly' do
+      it 'expands veteran address correctly' do
         new_form_class.send(:expand_doctors_care_or_hospitalized, unemployability)
         expect(
           JSON.parse(class_form_data.to_json)
@@ -168,7 +172,7 @@ describe PdfFill::Forms::Va218940 do
       unemployability = {
         'underDoctorHopitalCarePast12M' => false
       }
-      it 'should expand veteran address correctly' do
+      it 'expands veteran address correctly' do
         new_form_class.send(:expand_doctors_care_or_hospitalized, unemployability)
         expect(
           JSON.parse(class_form_data.to_json)
@@ -187,7 +191,7 @@ describe PdfFill::Forms::Va218940 do
           'dates' => 'From 1994-01-01 to 1995-01-01'
         }
       ]
-      it 'should expand the doctorsCare date range correctly' do
+      it 'expands the doctorsCare date range correctly' do
         new_form_class.send(:expand_provided_care_date_range, provided_care, 'doctorsCare')
         expect(
           JSON.parse(class_form_data.to_json)
@@ -207,7 +211,7 @@ describe PdfFill::Forms::Va218940 do
           'dates' => 'From to 1994-01-01 to 1995-01-01'
         }
       ]
-      it 'should expand the doctorsCare date range correctly' do
+      it 'expands the doctorsCare date range correctly' do
         new_form_class.send(:expand_provided_care_date_range, provided_care, 'doctorsCare')
         expect(
           JSON.parse(class_form_data.to_json)
@@ -242,7 +246,7 @@ describe PdfFill::Forms::Va218940 do
           }
         }
       ]
-      it 'should expand the doctorsCare name and address correctly' do
+      it 'expands the doctorsCare name and address correctly' do
         new_form_class.send(:expand_provided_care_details, provided_care, 'doctorsCare')
         expect(
           JSON.parse(class_form_data.to_json)
@@ -279,7 +283,7 @@ describe PdfFill::Forms::Va218940 do
           }
         }
       ]
-      it 'should expand the doctorsCare name and address correctly' do
+      it 'expands the doctorsCare name and address correctly' do
         new_form_class.send(:expand_provided_care, provided_care, 'doctorsCare')
         expect(
           JSON.parse(class_form_data.to_json)

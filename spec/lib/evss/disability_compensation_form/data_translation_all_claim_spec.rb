@@ -4,6 +4,8 @@ require 'rails_helper'
 require 'evss/disability_compensation_form/data_translation_all_claim'
 
 describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
+  subject { described_class.new(user, form_content, false) }
+
   let(:form_content) { { 'form526' => {} } }
   let(:evss_json) { File.read 'spec/support/disability_compensation_form/all_claims_evss_submission.json' }
   let(:user) { build(:disabilities_compensation_user) }
@@ -11,8 +13,6 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
   before do
     User.create(user)
   end
-
-  subject { described_class.new(user, form_content, false) }
 
   describe '#translate' do
     before do
@@ -23,7 +23,7 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
       JSON.parse(File.read('spec/support/disability_compensation_form/all_claims_fe_submission.json'))
     end
 
-    it 'should return correctly formatted json to send to EVSS' do
+    it 'returns correctly formatted json to send to EVSS' do
       VCR.use_cassette('evss/ppiu/payment_information') do
         VCR.use_cassette('evss/intent_to_file/active_compensation') do
           VCR.use_cassette('emis/get_military_service_episodes/valid', allow_playback_repeats: true) do
@@ -37,6 +37,7 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
   describe '#overflow_text' do
     context 'when the form has a 4142 and the vet is terminally ill' do
       subject { described_class.new(user, form_content, true) }
+
       let(:form_content) do
         {
           'form526' => {
@@ -45,7 +46,7 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
         }
       end
 
-      it 'should add the correct overflow text' do
+      it 'adds the correct overflow text' do
         expect(subject.send(:overflow_text)).to eq "Corporate Flash Details\n" \
           "This applicant has indicated that they're terminally ill.\n" \
           'VA Form 21-4142/4142a has been completed by the applicant and sent to the ' \
@@ -56,7 +57,7 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
     context 'when the form only has a 4142' do
       subject { described_class.new(user, form_content, true) }
 
-      it 'should add the correct overflow text' do
+      it 'adds the correct overflow text' do
         expect(subject.send(:overflow_text)).to eq 'VA Form 21-4142/4142a has been completed ' \
           'by the applicant and sent to the ' \
           'PMR contractor for processing in accordance with M21-1 III.iii.1.D.2.'
@@ -72,7 +73,7 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
         }
       end
 
-      it 'should add the correct overflow text' do
+      it 'adds the correct overflow text' do
         expect(subject.send(:overflow_text)).to eq "Corporate Flash Details\n" \
           "This applicant has indicated that they're terminally ill.\n"
       end
@@ -87,7 +88,7 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
         }
       end
 
-      it 'should add the correct overflow text' do
+      it 'adds the correct overflow text' do
         expect(subject.send(:overflow_text)).to eq nil
       end
     end
@@ -106,7 +107,7 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
         }
       end
 
-      it 'should translate the data correctly' do
+      it 'translates the data correctly' do
         expect(subject.send(:translate_banking_info)).to eq 'directDeposit' => {
           'accountType' => 'CHECKING',
           'accountNumber' => '1234567890',
@@ -118,7 +119,7 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
 
     context 'when not provided banking info' do
       context 'and the PPIU service has the account info' do
-        it 'should gather the banking info from the PPIU service' do
+        it 'gathers the banking info from the PPIU service' do
           VCR.use_cassette('evss/ppiu/payment_information') do
             expect(subject.send(:translate_banking_info)).to eq 'directDeposit' => {
               'accountType' => 'CHECKING',
@@ -139,7 +140,7 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
           )
         end
 
-        it 'should not set payment information' do
+        it 'does not set payment information' do
           expect(EVSS::PPIU::Service).to receive(:new).once.and_return(response)
           expect(subject.send(:translate_banking_info)).to eq({})
         end
@@ -149,7 +150,7 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
 
   describe '#translate_service_pay' do
     context 'when no relevant data is provided' do
-      it 'should return an empty hash' do
+      it 'returns an empty hash' do
         expect(subject.send(:translate_service_pay)).to eq({})
       end
     end
@@ -164,7 +165,7 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
         }
       end
 
-      it 'should translate the data correctly' do
+      it 'translates the data correctly' do
         expect(subject.send(:translate_service_pay)).to eq 'servicePay' => {
           'waiveVABenefitsToRetainTrainingPay' => true,
           'waiveVABenefitsToRetainRetiredPay' => true
@@ -174,7 +175,8 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
 
     context 'when provided military retired data' do
       let(:form_content) { { 'form526' => { 'militaryRetiredPayBranch' => 'Air Force' } } }
-      it 'should translate the data correctly' do
+
+      it 'translates the data correctly' do
         expect(subject.send(:translate_service_pay)).to eq 'servicePay' => {
           'militaryRetiredPay' => {
             'receiving' => true,
@@ -197,7 +199,7 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
         }
       end
 
-      it 'should translate the data correctly' do
+      it 'translates the data correctly' do
         expect(subject.send(:translate_service_pay)).to eq 'servicePay' => {
           'separationPay' => {
             'received' => true,
@@ -225,7 +227,7 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
         }
       end
 
-      it 'should translate the data correctly' do
+      it 'translates the data correctly' do
         expect(subject.send(:separation_pay)).to eq(
           'received' => true,
           'payment' => {
@@ -249,7 +251,7 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
         }
       end
 
-      it 'should not translate separation pay' do
+      it 'does not translate separation pay' do
         expect(subject.send(:separation_pay)).to eq nil
       end
     end
@@ -264,7 +266,7 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
         }
       end
 
-      it 'should not translate separation pay' do
+      it 'does not translate separation pay' do
         expect(subject.send(:separation_pay)).to eq nil
       end
     end
@@ -278,7 +280,7 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
         }
       end
 
-      it 'should translate the data correctly' do
+      it 'translates the data correctly' do
         expect(subject.send(:separation_pay)).to eq('received' => true)
       end
     end
@@ -297,7 +299,7 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
         }
       end
 
-      it 'should translate the data correctly' do
+      it 'translates the data correctly' do
         expect(subject.send(:translate_service_info)).to eq 'serviceInformation' => {
           'servicePeriods' => [],
           'servedInCombatZone' => true
@@ -324,7 +326,7 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
         }
       end
 
-      it 'should translate the data correctly' do
+      it 'translates the data correctly' do
         expect(subject.send(:translate_service_info)).to eq 'serviceInformation' => {
           'servicePeriods' => [
             {
@@ -354,7 +356,7 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
         }
       end
 
-      it 'should translate the data correctly' do
+      it 'translates the data correctly' do
         expect(subject.send(:translate_service_info)).to eq 'serviceInformation' => {
           'servicePeriods' => [],
           'confinements' => [
@@ -392,7 +394,7 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
         }
       end
 
-      it 'should translate the data correctly' do
+      it 'translates the data correctly' do
         expect(subject.send(:translate_service_info)).to eq 'serviceInformation' => {
           'servicePeriods' => [],
           'reservesNationalGuardService' => {
@@ -431,7 +433,7 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
         }
       end
 
-      it 'should translate the data correctly' do
+      it 'translates the data correctly' do
         expect(subject.send(:translate_service_info)).to eq 'serviceInformation' => {
           'servicePeriods' => [],
           'alternateNames' => [
@@ -448,7 +450,7 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
 
   describe '#service_branch' do
     context 'when the service branch is on the branch map list' do
-      it 'should transform it to the correct string' do
+      it 'transforms it to the correct string' do
         expect(subject.send(:service_branch, 'Air Force Reserve')).to eq 'Air Force Reserves'
         expect(subject.send(:service_branch, 'Army Reserve')).to eq 'Army Reserves'
         expect(subject.send(:service_branch, 'Coast Guard Reserve')).to eq 'Coast Guard Reserves'
@@ -459,7 +461,7 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
     end
 
     context 'when the service branch is not on the branch map' do
-      it 'should keep the service branch as is' do
+      it 'keeps the service branch as is' do
         expect(subject.send(:service_branch, 'Navy')).to eq 'Navy'
       end
     end
@@ -480,7 +482,7 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
         }
       end
 
-      it 'should translate the data correctly' do
+      it 'translates the data correctly' do
         expect(subject.send(:translate_veteran)).to eq 'veteran' => {
           'currentMailingAddress' => {
             'type' => 'INTERNATIONAL'
@@ -510,7 +512,7 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
         }
       end
 
-      it 'should translate the data correctly' do
+      it 'translates the data correctly' do
         expect(subject.send(:translate_veteran)).to eq 'veteran' => {
           'currentMailingAddress' => {
             'addressLine1' => '1234 Couch Street',
@@ -540,7 +542,7 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
         }
       end
 
-      it 'should translate the data correctly' do
+      it 'translates the data correctly' do
         expect(subject.send(:translate_veteran)).to eq 'veteran' => {
           'currentMailingAddress' => {
             'addressLine1' => '1234 Couch Strasse',
@@ -568,7 +570,7 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
         }
       end
 
-      it 'should translate the data correctly' do
+      it 'translates the data correctly' do
         expect(subject.send(:translate_veteran)).to eq 'veteran' => {
           'currentMailingAddress' => {
             'addressLine1' => '1234 Couch Strasse',
@@ -601,7 +603,7 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
         }
       end
 
-      it 'should translate the data correctly' do
+      it 'translates the data correctly' do
         expect(subject.send(:translate_veteran)).to eq 'veteran' => {
           'currentMailingAddress' => {
             'type' => 'INTERNATIONAL'
@@ -634,7 +636,7 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
         }
       end
 
-      it 'should set the address as TEMPORARY' do
+      it 'sets the address as TEMPORARY' do
         expect(subject.send(:translate_change_of_address, address)).to eq(
           'addressChangeType' => 'TEMPORARY',
           'beginningDate' => '2018-02-01',
@@ -653,7 +655,7 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
         }
       end
 
-      it 'should set the address as PERMANENT' do
+      it 'sets the address as PERMANENT' do
         expect(subject.send(:translate_change_of_address, address)).to eq(
           'addressChangeType' => 'PERMANENT',
           'beginningDate' => '2018-02-01',
@@ -665,19 +667,19 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
 
   describe '#split_zip_code' do
     context 'when given a 5 number zip code' do
-      it 'should return the correct split' do
+      it 'returns the correct split' do
         expect(subject.send(:split_zip_code, '12345')).to eq ['12345', '', nil]
       end
     end
 
     context 'when given a 9 number zip code' do
-      it 'should return the correct split' do
+      it 'returns the correct split' do
         expect(subject.send(:split_zip_code, '123456789')).to eq ['12345', '', '6789']
       end
     end
 
     context 'when given a 9 number zip code with a hyphen' do
-      it 'should return the correct split' do
+      it 'returns the correct split' do
         expect(subject.send(:split_zip_code, '12345-6789')).to eq ['12345', '-', '6789']
       end
     end
@@ -714,7 +716,7 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
           }
         end
 
-        it 'should translate the data correctly' do
+        it 'translates the data correctly' do
           expect(subject.send(:translate_homelessness)).to eq(
             'pointOfContact' => {
               'pointOfContactName' => 'Steve Stevington',
@@ -746,7 +748,7 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
           }
         end
 
-        it 'should translate the data correctly' do
+        it 'translates the data correctly' do
           expect(subject.send(:translate_homelessness)).to eq(
             'pointOfContact' => {
               'pointOfContactName' => 'Steve Stevington',
@@ -779,7 +781,7 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
         }
       end
 
-      it 'should translate the data correctly' do
+      it 'translates the data correctly' do
         expect(subject.send(:translate_homelessness)).to eq(
           'pointOfContact' => {
             'pointOfContactName' => 'Steve Stevington',
@@ -799,7 +801,7 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
 
   describe '#translate_treatments' do
     context 'when no treatment centers are provided' do
-      it 'should return an empty hash' do
+      it 'returns an empty hash' do
         expect(subject.send(:translate_treatments)).to eq({})
       end
     end
@@ -827,7 +829,7 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
         }
       end
 
-      it 'should translate the data correctly' do
+      it 'translates the data correctly' do
         expect(subject.send(:translate_treatments)).to eq 'treatments' => [
           {
             'startDate' => {
@@ -874,7 +876,7 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
         }
       end
 
-      it 'should translate the data correctly' do
+      it 'translates the data correctly' do
         expect(subject.send(:translate_treatments)).to eq 'treatments' => [
           {
             'startDate' => {
@@ -912,7 +914,7 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
         }
       end
 
-      it 'should translate only the preexisting disabilities' do
+      it 'translates only the preexisting disabilities' do
         expect(subject.send(:translate_disabilities)).to eq 'disabilities' => [
           {
             'diagnosticCode' => 9999,
@@ -946,7 +948,7 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
         }
       end
 
-      it 'should not translate the disability with NONE action type' do
+      it 'does not translate the disability with NONE action type' do
         expect(subject.send(:translate_disabilities)).to eq 'disabilities' => [
           {
             'diagnosticCode' => 9999,
@@ -983,7 +985,7 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
         }
       end
 
-      it 'should translate the NONE action type disability and its secondary disability' do
+      it 'translates the NONE action type disability and its secondary disability' do
         expect(subject.send(:translate_disabilities)).to eq 'disabilities' => [
           {
             'diagnosticCode' => 9999,
@@ -1022,7 +1024,7 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
         }
       end
 
-      it 'should translate only the NEW disabilities' do
+      it 'translates only the NEW disabilities' do
         expect(subject.send(:translate_new_primary_disabilities, [])).to eq [
           {
             'disabilityActionType' => 'NEW',
@@ -1053,7 +1055,7 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
         }
       end
 
-      it 'should translate only the WORSENED disabilities' do
+      it 'translates only the WORSENED disabilities' do
         expect(subject.send(:translate_new_primary_disabilities, [])).to eq [
           {
             'disabilityActionType' => 'NEW',
@@ -1086,7 +1088,7 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
         }
       end
 
-      it 'should translate only the VA disabilities' do
+      it 'translates only the VA disabilities' do
         expect(subject.send(:translate_new_primary_disabilities, [])).to eq [
           {
             'disabilityActionType' => 'NEW',
@@ -1151,7 +1153,7 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
         ]
       end
 
-      it 'should translate SECONDARY disability to a current disability' do
+      it 'translates SECONDARY disability to a current disability' do
         expect(subject.send(:translate_new_secondary_disabilities, disability)).to eq [
           {
             'diagnosticCode' => 9999,
@@ -1208,7 +1210,7 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
         }
       end
 
-      it 'should translate only the NEW disabilities' do
+      it 'translates only the NEW disabilities' do
         expect(subject.send(:translate_new_primary_disabilities, [])).to eq [
           {
             'disabilityActionType' => 'NEW',
@@ -1227,7 +1229,7 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
         let(:condition4) { 'this-is,only.a-test' }
         let(:condition5) { 'this ¢is onÈly a töest' }
 
-        it 'should scrub out any illegal characters' do
+        it 'scrubs out any illegal characters' do
           expect(subject.send(:scrub_disability_condition, condition1)).to eq 'this is only a test'
           expect(subject.send(:scrub_disability_condition, condition2)).to eq 'this is only a test'
           expect(subject.send(:scrub_disability_condition, condition3)).to eq '\'this\' is (only) a test'
@@ -1241,7 +1243,7 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
       context 'when there is a full date' do
         let(:date) { '2099-12-01' }
 
-        it 'should return the year, month, and day' do
+        it 'returns the year, month, and day' do
           expect(subject.send(:approximate_date, date)).to include(
             'year' => '2099',
             'month' => '12',
@@ -1253,7 +1255,7 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
       context 'when there is a partial date (year and month)' do
         let(:date) { '2099-12-XX' }
 
-        it 'should return the year and month' do
+        it 'returns the year and month' do
           expect(subject.send(:approximate_date, date)).to include(
             'year' => '2099',
             'month' => '12'
@@ -1264,7 +1266,7 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
       context 'when there is a partial date (year only)' do
         let(:date) { '2099-XX-XX' }
 
-        it 'should return the year' do
+        it 'returns the year' do
           expect(subject.send(:approximate_date, date)).to include(
             'year' => '2099'
           )
@@ -1274,7 +1276,7 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
       context 'when there is no date' do
         let(:date) { '' }
 
-        it 'should return the year' do
+        it 'returns the year' do
           expect(subject.send(:approximate_date, date)).to eq nil
         end
       end
@@ -1292,7 +1294,7 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
         allow(subject).to receive(:rad_date).and_return(now)
       end
 
-      it 'should return the RAD date + 366 days' do
+      it 'returns the RAD date + 366 days' do
         return_date = (now + 366.days).iso8601
         expect(subject.send(:application_expiration_date)).to eq return_date
       end
@@ -1318,7 +1320,7 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
           allow(subject).to receive(:itf).and_return(itf)
         end
 
-        it 'should return the application creation date + 365 days' do
+        it 'returns the application creation date + 365 days' do
           return_date = (now + 365.days).iso8601
           expect(subject.send(:application_expiration_date)).to eq return_date
         end
@@ -1331,7 +1333,7 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
           allow(subject).to receive(:itf).and_return(itf)
         end
 
-        it 'should return the application creation date + 365 days' do
+        it 'returns the application creation date + 365 days' do
           return_date = (now + 365.days).iso8601
           expect(subject.send(:application_expiration_date)).to eq return_date
         end
@@ -1345,7 +1347,7 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
           allow(subject).to receive(:itf).and_return(itf)
         end
 
-        it 'should return the application creation date + 365 days' do
+        it 'returns the application creation date + 365 days' do
           return_date = (past + 365.days).iso8601
           expect(subject.send(:application_expiration_date)).to eq return_date
         end
@@ -1359,7 +1361,7 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
           allow(subject).to receive(:itf).and_return(itf)
         end
 
-        it 'should return the application creation date + 365 days' do
+        it 'returns the application creation date + 365 days' do
           expect(subject.send(:application_expiration_date)).to eq itf.expiration_date.iso8601
         end
       end

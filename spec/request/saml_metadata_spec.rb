@@ -4,7 +4,8 @@ require 'rails_helper'
 
 RSpec.describe 'SAML Metadata', type: :request do
   let(:rubysaml_settings) { FactoryBot.build(:rubysaml_settings) }
-  before(:each) do
+
+  before do
     allow_any_instance_of(ApplicationController).to receive(:saml_settings).and_return(rubysaml_settings)
   end
 
@@ -20,7 +21,8 @@ RSpec.describe 'SAML Metadata', type: :request do
 
   context 'when a new cert exists for rollover' do
     let(:rubysaml_settings) { FactoryBot.build(:rubysaml_settings, :rollover_cert) }
-    before(:each) do
+
+    before do
       allow_any_instance_of(ApplicationController).to receive(:saml_settings).and_return(rubysaml_settings)
     end
 

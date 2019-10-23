@@ -7,6 +7,8 @@ RSpec.describe SAML::User do
   include SAML::ResponseBuilder
 
   describe 'ID.me' do
+    subject { described_class.new(saml_response) }
+
     let(:authn_context) { LOA::IDME_LOA1 }
     let(:account_type)  { 'N/A' }
     let(:highest_attained_loa) { '1' }
@@ -19,7 +21,6 @@ RSpec.describe SAML::User do
         multifactor: [false]
       )
     end
-    subject { described_class.new(saml_response) }
 
     context 'handles invalid authn_contexts' do
       context 'no decrypted document' do
@@ -96,7 +97,7 @@ RSpec.describe SAML::User do
       end
 
       it 'is not changing multifactor' do
-        expect(subject.changing_multifactor?).to be_falsey
+        expect(subject).not_to be_changing_multifactor
       end
 
       context 'multifactor' do
@@ -121,7 +122,7 @@ RSpec.describe SAML::User do
         end
 
         it 'is changing multifactor' do
-          expect(subject.changing_multifactor?).to be_truthy
+          expect(subject).to be_changing_multifactor
         end
 
         context 'without an already persisted UserIdentity' do
@@ -176,7 +177,7 @@ RSpec.describe SAML::User do
       end
 
       it 'is not changing multifactor' do
-        expect(subject.changing_multifactor?).to be_falsey
+        expect(subject).not_to be_changing_multifactor
       end
 
       context 'multifactor' do
@@ -201,7 +202,7 @@ RSpec.describe SAML::User do
         end
 
         it 'is changing multifactor' do
-          expect(subject.changing_multifactor?).to be_truthy
+          expect(subject).to be_changing_multifactor
         end
       end
     end
@@ -229,7 +230,7 @@ RSpec.describe SAML::User do
       end
 
       it 'is not changing multifactor' do
-        expect(subject.changing_multifactor?).to be_falsey
+        expect(subject).not_to be_changing_multifactor
       end
     end
   end

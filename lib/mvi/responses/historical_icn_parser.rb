@@ -19,7 +19,7 @@ module MVI
         IdParser.new.select_ids_with_extension(
           @body.locate(HISTORICAL_ICN_XPATH),
           IdParser::ICN_REGEX,
-          IdParser::CORRELATION_ROOT_ID
+          IdParser::VA_ROOT_OID
         ) || []
       end
     end

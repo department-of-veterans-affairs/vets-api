@@ -19,7 +19,7 @@ RSpec.describe 'dismissed statuses', type: :request do
         create :notification, :dismissed_status, account_id: user.account.id, read_at: Time.current
       end
 
-      it 'should match the dismissed_statuses schema', :aggregate_failures do
+      it 'matches the dismissed_statuses schema', :aggregate_failures do
         get "/v0/notifications/dismissed_statuses/#{notification_subject}"
 
         expect(response).to have_http_status(:ok)
@@ -47,7 +47,7 @@ RSpec.describe 'dismissed statuses', type: :request do
     end
 
     context 'when user does *not* have a Notification record for the passed subject' do
-      it 'should match the dismissed status schema', :aggregate_failures do
+      it 'matches the dismissed status schema', :aggregate_failures do
         post '/v0/notifications/dismissed_statuses', params: post_body, headers: headers
 
         expect(response).to have_http_status(:ok)
@@ -78,7 +78,7 @@ RSpec.describe 'dismissed statuses', type: :request do
         }.to_json
       end
 
-      it 'should return a 422 unprocessable entity', :aggregate_failures do
+      it 'returns a 422 unprocessable entity', :aggregate_failures do
         post '/v0/notifications/dismissed_statuses', params: invalid_post_body, headers: headers
 
         expect(response.status).to eq 422
@@ -96,7 +96,7 @@ RSpec.describe 'dismissed statuses', type: :request do
         }.to_json
       end
 
-      it 'should return a 422 unprocessable entity', :aggregate_failures do
+      it 'returns a 422 unprocessable entity', :aggregate_failures do
         post '/v0/notifications/dismissed_statuses', params: invalid_post_body, headers: headers
 
         expect(response.status).to eq 422
@@ -118,7 +118,7 @@ RSpec.describe 'dismissed statuses', type: :request do
         create :notification, :dismissed_status, account_id: user.account.id, read_at: Time.current
       end
 
-      it 'should match the dismissed status schema', :aggregate_failures do
+      it 'matches the dismissed status schema', :aggregate_failures do
         patch "/v0/notifications/dismissed_statuses/#{notification_subject}", params: patch_body, headers: headers
 
         expect(response).to have_http_status(:ok)
@@ -137,7 +137,7 @@ RSpec.describe 'dismissed statuses', type: :request do
     end
 
     context 'user does not have a Notification record with the passed subject' do
-      it 'should return a 404 record not found', :aggregate_failures do
+      it 'returns a 404 record not found', :aggregate_failures do
         patch "/v0/notifications/dismissed_statuses/#{notification_subject}", params: patch_body, headers: headers
 
         expect(response.status).to eq 404

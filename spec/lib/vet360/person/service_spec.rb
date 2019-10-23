@@ -4,11 +4,13 @@ require 'rails_helper'
 
 describe Vet360::Person::Service, skip_vet360: true do
   before { Timecop.freeze('2018-04-09T17:52:03Z') }
+
   after  { Timecop.return }
 
   describe '#init_vet360_id' do
-    let(:user) { build(:user_with_suffix, :loa3) }
     subject { described_class.new(user) }
+
+    let(:user) { build(:user_with_suffix, :loa3) }
 
     context 'with a user present, that has a icn_with_aaid, and no passed in ICN' do
       it 'returns a status of 200', :aggregate_failures do
@@ -31,9 +33,10 @@ describe Vet360::Person::Service, skip_vet360: true do
     end
 
     context 'with a passed in ICN' do
+      subject { described_class.new(rake_user) }
+
       let(:icn) { '1000123456V123456' }
       let(:rake_user) { 'rake_user' }
-      subject { described_class.new(rake_user) }
 
       it 'returns a status of 200', :aggregate_failures do
         VCR.use_cassette('vet360/person/init_vet360_id_success', VCR::MATCH_EVERYTHING) do

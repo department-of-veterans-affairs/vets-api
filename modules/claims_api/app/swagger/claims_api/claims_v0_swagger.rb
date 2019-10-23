@@ -45,6 +45,15 @@ module ClaimsApi
         end
       end
 
+      tag do
+        key :name, 'Power of Attorney'
+        key :description, '2122 Submissions'
+        externalDocs do
+          key :description, 'Find more info here'
+          key :url, 'https://developer.va.gov'
+        end
+      end
+
       key :servers, [
         {
           "url": 'https://dev-api.va.gov/services/claims/{version}',
@@ -75,14 +84,13 @@ module ClaimsApi
         }
       ]
 
-      key :components,
-          "securitySchemes": {
-            "api_key": {
-              "type": 'apiKey',
-              "in": 'header',
-              "name": 'X-API-Key'
-            }
-          }
+      security_definition :apikey do
+        key :type, :apiKey
+        key :name, :apikey
+        key :in, :header
+      end
+
+      key :schemes, ['https']
 
       key :host, 'api.va.gov'
       key :basePath, '/services/claims/v0'

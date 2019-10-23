@@ -21,7 +21,7 @@ RSpec.describe 'address', type: :request do
     let(:address) { build(:vet360_address, vet360_id: user.vet360_id) }
 
     context 'with a 200 response' do
-      it 'should match the address schema', :aggregate_failures do
+      it 'matches the address schema', :aggregate_failures do
         VCR.use_cassette('vet360/contact_information/post_address_success') do
           post('/v0/profile/addresses', params: address.to_json, headers: headers)
 
@@ -40,7 +40,7 @@ RSpec.describe 'address', type: :request do
     end
 
     context 'with a 400 response' do
-      it 'should match the errors schema', :aggregate_failures do
+      it 'matches the errors schema', :aggregate_failures do
         VCR.use_cassette('vet360/contact_information/post_address_w_id_error') do
           post('/v0/profile/addresses', params: address.to_json, headers: headers)
 
@@ -66,7 +66,7 @@ RSpec.describe 'address', type: :request do
     end
 
     context 'with a 403 response' do
-      it 'should return a forbidden response' do
+      it 'returns a forbidden response' do
         VCR.use_cassette('vet360/contact_information/post_address_status_403') do
           post('/v0/profile/addresses', params: address.to_json, headers: headers)
 
@@ -76,7 +76,7 @@ RSpec.describe 'address', type: :request do
     end
 
     context 'with a validation issue' do
-      it 'should match the errors schema', :aggregate_failures do
+      it 'matches the errors schema', :aggregate_failures do
         address.address_pou = ''
 
         post('/v0/profile/addresses', params: address.to_json, headers: headers)
@@ -92,7 +92,7 @@ RSpec.describe 'address', type: :request do
     let(:address) { build(:vet360_address, vet360_id: user.vet360_id) }
 
     context 'with a 200 response' do
-      it 'should match the email address schema', :aggregate_failures do
+      it 'matches the email address schema', :aggregate_failures do
         VCR.use_cassette('vet360/contact_information/put_address_success') do
           put('/v0/profile/addresses', params: address.to_json, headers: headers)
 
@@ -111,7 +111,7 @@ RSpec.describe 'address', type: :request do
     end
 
     context 'with a validation issue' do
-      it 'should match the errors schema', :aggregate_failures do
+      it 'matches the errors schema', :aggregate_failures do
         address.address_pou = ''
 
         put('/v0/profile/addresses', params: address.to_json, headers: headers)

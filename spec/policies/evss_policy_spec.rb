@@ -22,7 +22,7 @@ describe EVSSPolicy do
       let(:user) { build(:unauthorized_evss_user, :loa3) }
 
       it 'denies access' do
-        expect(subject).to_not permit(user, :evss)
+        expect(subject).not_to permit(user, :evss)
       end
 
       it 'increments the StatsD failure counter' do
@@ -48,7 +48,7 @@ describe EVSSPolicy do
       let(:user) { build(:unauthorized_evss_user, :loa3) }
 
       it 'denies access' do
-        expect(subject).to_not permit(user, :evss)
+        expect(subject).not_to permit(user, :evss)
       end
 
       it 'increments the StatsD failure counter' do

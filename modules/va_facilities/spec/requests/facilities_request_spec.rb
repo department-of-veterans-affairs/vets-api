@@ -58,7 +58,7 @@ RSpec.describe 'Facilities API endpoint', type: :request do
       expect(json['meta']['distances']).to eq([])
     end
 
-    it 'responds to GET #index with lat/long' do
+    it 'responds to GET #index with lat/long sorted by distance ascending' do
       setup_pdx
       get base_query_path + lat_long, params: nil, headers: accept_json
       expect(response).to be_successful
@@ -66,22 +66,26 @@ RSpec.describe 'Facilities API endpoint', type: :request do
       json = JSON.parse(response.body)
       expect(json['data'].length).to eq(10)
       expect(json['meta']['distances'].length).to eq(10)
+      sorted_distances = json['meta']['distances'].sort_by { |obj| obj['distance'] }
+      expect(json['meta']['distances']).to eq(sorted_distances)
     end
 
-    it 'responds to GET #index with ids sorted by distance from lat/long' do
+    it 'responds to GET #index with ids and lat/long sorted by distance ascending' do
       setup_pdx
       get "#{base_query_path}#{ids_query}&lat=45.451913&long=-122.440689", params: nil, headers: accept_json
-      expect(response).to be_success
+      expect(response).to be_successful
       expect(response.body).to be_a(String)
       json = JSON.parse(response.body)
       expect(json['data'].length).to eq(10)
       expect(json['meta']['distances'].length).to eq(10)
+      sorted_distances = json['meta']['distances'].sort_by { |obj| obj['distance'] }
+      expect(json['meta']['distances']).to eq(sorted_distances)
     end
 
     it 'responds to GET #index with zip' do
       setup_pdx
       get base_query_path + zip, params: nil, headers: accept_json
-      expect(response).to be_success
+      expect(response).to be_successful
       expect(response.body).to be_a(String)
       json = JSON.parse(response.body)
       expect(json['data'].length).to eq(4)
@@ -91,7 +95,7 @@ RSpec.describe 'Facilities API endpoint', type: :request do
     it 'responds to GET #index with zip+4' do
       setup_pdx
       get base_query_path + zip + '-3432', params: nil, headers: accept_json
-      expect(response).to be_success
+      expect(response).to be_successful
       expect(response.body).to be_a(String)
       json = JSON.parse(response.body)
       expect(json['data'].length).to eq(4)
@@ -148,7 +152,7 @@ RSpec.describe 'Facilities API endpoint', type: :request do
     it 'responds to GET #index with state code' do
       setup_pdx
       get base_query_path, params: 'state=WA', headers: accept_json
-      expect(response).to be_success
+      expect(response).to be_successful
       expect(response.body).to be_a(String)
       json = JSON.parse(response.body)
       expect(json['data'].length).to eq(2)
@@ -368,6 +372,72 @@ RSpec.describe 'Facilities API endpoint', type: :request do
       )
 
       expect(response).to have_http_status(:unprocessable_entity)
+    end
+  end
+
+  context 'with mobile flag' do
+    it 'responds with a boolean mobile flag for VHA facilities' do
+      create :vha_648A4
+
+      get base_query_path + '/vha_648A4', params: nil, headers: accept_json
+
+      expect(response).to be_successful
+      expect(response.body).to be_a(String)
+      json = JSON.parse(response.body)
+      expect(json['data']['attributes']['mobile']).not_to be_nil
+      expect(json['data']['attributes']['mobile']).to eq(false)
+    end
+
+    it 'responds with null mobile flag for non-VHA facilities' do
+      create :nca_907
+      create :vba_348
+      create :vc_0617V
+
+      get base_query_path + lat_long, params: nil, headers: accept_json
+
+      expect(response).to be_successful
+      expect(response.body).to be_a(String)
+
+      json = JSON.parse(response.body)
+      nca = json['data'][0]
+      vba = json['data'][1]
+      vc = json['data'][2]
+
+      expect(nca['mobile']).to be_nil
+      expect(vba['mobile']).to be_nil
+      expect(vc['mobile']).to be_nil
+    end
+  end
+
+  context 'with active_status flag' do
+    it 'responds with a string active_status flag for VHA facilities' do
+      create :vha_648A4
+      get base_query_path + '/vha_648A4', params: nil, headers: accept_json
+      expect(response).to be_successful
+      expect(response.body).to be_a(String)
+      json = JSON.parse(response.body)
+      expect(json['data']['attributes']['active_status']).to eq('A')
+      expect(json['data']['attributes']['active_status']).not_to be_nil
+    end
+
+    it 'responds with null active_status flag for non-VHA facilities' do
+      create :nca_907
+      create :vba_348
+      create :vc_0617V
+
+      get base_query_path + lat_long, params: nil, headers: accept_json
+
+      expect(response).to be_successful
+      expect(response.body).to be_a(String)
+
+      json = JSON.parse(response.body)
+      nca = json['data'][0]
+      vba = json['data'][1]
+      vc = json['data'][2]
+
+      expect(nca['active_status']).to be_nil
+      expect(vba['active_status']).to be_nil
+      expect(vc['active_status']).to be_nil
     end
   end
 end

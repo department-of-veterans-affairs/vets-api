@@ -26,6 +26,7 @@ module Common
         @sortable_attributes ||= begin
           Hash[attribute_set.map do |attribute|
             next unless attribute.options[:sortable]
+
             sortable = attribute.options[:sortable].is_a?(Hash) ? attribute.options[:sortable] : { order: 'ASC' }
             if sortable[:default]
               @default_sort ||= sortable[:order] == 'DESC' ? "-#{attribute.name}" : attribute.name.to_s

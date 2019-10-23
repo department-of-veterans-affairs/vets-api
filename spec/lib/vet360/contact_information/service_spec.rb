@@ -3,8 +3,9 @@
 require 'rails_helper'
 
 describe Vet360::ContactInformation::Service, skip_vet360: true do
-  let(:user) { build(:user, :loa3) }
   subject { described_class.new(user) }
+
+  let(:user) { build(:user, :loa3) }
 
   before do
     allow(user).to receive(:vet360_id).and_return('1')
@@ -47,6 +48,7 @@ describe Vet360::ContactInformation::Service, skip_vet360: true do
 
   describe '#post_email' do
     let(:email) { build(:email, vet360_id: user.vet360_id, source_system_user: user.icn) }
+
     context 'when successful' do
       it 'returns a status of 200' do
         VCR.use_cassette('vet360/contact_information/post_email_success', VCR::MATCH_EVERYTHING) do
@@ -74,6 +76,7 @@ describe Vet360::ContactInformation::Service, skip_vet360: true do
 
   describe '#put_email' do
     let(:email) { build(:email, vet360_id: user.vet360_id, source_system_user: user.icn) }
+
     context 'when successful' do
       it 'returns a status of 200' do
         VCR.use_cassette('vet360/contact_information/put_email_success', VCR::MATCH_EVERYTHING) do
@@ -89,6 +92,7 @@ describe Vet360::ContactInformation::Service, skip_vet360: true do
 
   describe '#post_address' do
     let(:address) { build(:vet360_address, vet360_id: user.vet360_id, source_system_user: user.icn) }
+
     context 'when successful' do
       it 'returns a status of 200' do
         VCR.use_cassette('vet360/contact_information/post_address_success', VCR::MATCH_EVERYTHING) do
@@ -123,6 +127,7 @@ describe Vet360::ContactInformation::Service, skip_vet360: true do
 
   describe '#put_address' do
     let(:address) { build(:vet360_address, vet360_id: user.vet360_id, source_system_user: user.icn) }
+
     context 'when successful' do
       it 'returns a status of 200' do
         VCR.use_cassette('vet360/contact_information/put_address_success', VCR::MATCH_EVERYTHING) do
@@ -141,6 +146,7 @@ describe Vet360::ContactInformation::Service, skip_vet360: true do
 
   describe '#put_telephone' do
     let(:telephone) { build(:telephone, vet360_id: user.vet360_id, source_system_user: user.icn) }
+
     context 'when successful' do
       it 'returns a status of 200' do
         VCR.use_cassette('vet360/contact_information/put_telephone_success', VCR::MATCH_EVERYTHING) do
@@ -156,6 +162,7 @@ describe Vet360::ContactInformation::Service, skip_vet360: true do
 
   describe '#post_telephone' do
     let(:telephone) { build(:telephone, vet360_id: user.vet360_id, id: nil, source_system_user: user.icn) }
+
     context 'when successful' do
       it 'returns a status of 200' do
         VCR.use_cassette('vet360/contact_information/post_telephone_success', VCR::MATCH_EVERYTHING) do
@@ -182,6 +189,7 @@ describe Vet360::ContactInformation::Service, skip_vet360: true do
   describe '#get_telephone_transaction_status' do
     context 'when successful' do
       let(:transaction_id) { 'a50193df-f4d5-4b6a-b53d-36fed2db1a15' }
+
       it 'returns a status of 200' do
         VCR.use_cassette('vet360/contact_information/telephone_transaction_status', VCR::MATCH_EVERYTHING) do
           response = subject.get_telephone_transaction_status(transaction_id)
@@ -194,6 +202,7 @@ describe Vet360::ContactInformation::Service, skip_vet360: true do
 
     context 'when not successful' do
       let(:transaction_id) { 'd47b3d96-9ddd-42be-ac57-8e564aa38029' }
+
       it 'returns a status of 404' do
         VCR.use_cassette('vet360/contact_information/telephone_transaction_status_error', VCR::MATCH_EVERYTHING) do
           expect { subject.get_telephone_transaction_status(transaction_id) }.to raise_error do |e|
@@ -250,6 +259,7 @@ describe Vet360::ContactInformation::Service, skip_vet360: true do
   describe '#get_address_transaction_status' do
     context 'when successful' do
       let(:transaction_id) { '0faf342f-5966-4d3f-8b10-5e9f911d07d2' }
+
       it 'returns a status of 200' do
         VCR.use_cassette('vet360/contact_information/address_transaction_status', VCR::MATCH_EVERYTHING) do
           response = subject.get_address_transaction_status(transaction_id)
@@ -262,6 +272,7 @@ describe Vet360::ContactInformation::Service, skip_vet360: true do
 
     context 'when not successful' do
       let(:transaction_id) { 'd47b3d96-9ddd-42be-ac57-8e564aa38029' }
+
       it 'returns a status of 404' do
         VCR.use_cassette('vet360/contact_information/address_transaction_status_error', VCR::MATCH_EVERYTHING) do
           expect { subject.get_address_transaction_status(transaction_id) }.to raise_error do |e|

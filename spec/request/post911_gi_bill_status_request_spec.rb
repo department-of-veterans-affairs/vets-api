@@ -16,6 +16,7 @@ RSpec.describe 'Post 911 GI Bill Status', type: :request do
 
   context 'inside working hours' do
     before { Timecop.freeze(noon) }
+
     after { Timecop.return }
 
     context 'with a valid evss response' do
@@ -31,7 +32,7 @@ RSpec.describe 'Post 911 GI Bill Status', type: :request do
     # TODO(AJD): this use case happens, 500 status but unauthorized message
     # check with evss that they shouldn't be returning 403 instead
     context 'with an 500 unauthorized response' do
-      it 'should return a forbidden response' do
+      it 'returns a forbidden response' do
         VCR.use_cassette('evss/gi_bill_status/unauthorized') do
           get v0_post911_gi_bill_status_url, params: nil
           expect(response).to have_http_status(:forbidden)
@@ -41,7 +42,7 @@ RSpec.describe 'Post 911 GI Bill Status', type: :request do
 
     # TODO: - is this a real scenario?
     context 'with a 403 response' do
-      it 'should return a forbidden response' do
+      it 'returns a forbidden response' do
         VCR.use_cassette('evss/gi_bill_status/gi_bill_status_403') do
           get v0_post911_gi_bill_status_url, params: nil
           expect(response).to have_http_status(:forbidden)
@@ -52,7 +53,7 @@ RSpec.describe 'Post 911 GI Bill Status', type: :request do
     # a 500 and does not contain one of the errors defined in:
     # https://csraciapp6.evss.srarad.com/wss-education-services-web/swagger-ui/ext-docs/education-error-keys.html
     context 'with an undefined 500 evss response' do
-      it 'should return internal server error' do
+      it 'returns internal server error' do
         VCR.use_cassette('evss/gi_bill_status/gi_bill_status_500') do
           get v0_post911_gi_bill_status_url, params: nil
           expect(response).to have_http_status(:internal_server_error)
@@ -63,13 +64,14 @@ RSpec.describe 'Post 911 GI Bill Status', type: :request do
 
   context 'outside working hours' do
     before { Timecop.freeze(midnight) }
+
     after { Timecop.return }
 
-    it 'should return 503' do
+    it 'returns 503' do
       get v0_post911_gi_bill_status_url, params: nil
       expect(response).to have_http_status(:service_unavailable)
     end
-    it 'should include a Retry-After header' do
+    it 'includes a Retry-After header' do
       get v0_post911_gi_bill_status_url, params: nil
       expect(response.headers).to include('Retry-After')
     end

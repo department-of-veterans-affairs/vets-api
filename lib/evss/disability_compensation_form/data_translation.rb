@@ -19,6 +19,7 @@ module EVSS
       #
       def translate
         form['claimantCertification'] = true
+        form['autoCestPDFGenerationDisabled'] ||= false
         form['applicationExpirationDate'] = application_expiration_date
 
         set_banking_info
@@ -123,6 +124,7 @@ module EVSS
         data = veteran['homelessness']
         return veteran.delete('homelessness') if data['isHomeless'].blank?
         return veteran['homelessness'] = { 'hasPointOfContact' => false } if data['pointOfContact'].blank?
+
         veteran['homelessness'] = {
           'hasPointOfContact' => true,
           'pointOfContact' => {
@@ -142,6 +144,7 @@ module EVSS
           'NOAA' => 'National Oceanic & Atmospheric Administration'
         }
         return branch_map[service_branch] if branch_map.key? service_branch
+
         service_branch
       end
 
@@ -173,6 +176,7 @@ module EVSS
         return if account.account_number.blank?
         return if account.financial_institution_routing_number.blank?
         return if account.financial_institution_name.blank?
+
         true
       end
 
@@ -227,6 +231,7 @@ module EVSS
       def get_address_type(address)
         return 'MILITARY' if %w[AA AE AP].include?(address['state'])
         return 'DOMESTIC' if address['country'] == 'USA'
+
         'INTERNATIONAL'
       end
 
@@ -266,6 +271,7 @@ module EVSS
       def application_expiration_date
         return (rad_date + 1.day + 365.days).iso8601 if greater_rad_date?
         return (application_create_date + 365.days).iso8601 if greater_itf_date?
+
         itf.expiration_date.iso8601
       end
 

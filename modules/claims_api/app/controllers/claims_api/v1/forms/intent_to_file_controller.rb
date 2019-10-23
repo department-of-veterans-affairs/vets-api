@@ -2,13 +2,11 @@
 
 require_dependency 'claims_api/intent_to_file_serializer'
 require_dependency 'claims_api/concerns/poa_verification'
-require_dependency 'claims_api/concerns/itf_verification'
 
 module ClaimsApi
   module V1
     module Forms
       class IntentToFileController < BaseFormController
-        include ClaimsApi::ItfVerification
         include ClaimsApi::PoaVerification
 
         before_action { permit_scopes %w[claim.write] }
@@ -44,12 +42,16 @@ module ClaimsApi
                 }
               ]
             }
-            render json: error, status: 422
+            render json: error, status: :unprocessable_entity
           end
         end
 
         def form_type
           form_attributes['type']
+        end
+
+        def itf_service
+          EVSS::IntentToFile::Service.new(target_veteran)
         end
       end
     end

@@ -48,14 +48,14 @@ module IHub
 
           IHub::Appointments::Response.from(response)
         end
-      rescue StandardError => error
+      rescue => e
         Raven.extra_context(
-          message: error.message,
+          message: e.message,
           url: config.base_path
         )
         Raven.tags_context(ihub: 'appointments')
 
-        raise error
+        raise e
       end
 
       private
@@ -64,7 +64,7 @@ module IHub
         if @user.icn.blank?
           error = Common::Client::Errors::ClientError.new('User has no ICN', 500, 'User has no ICN')
 
-          raise_backend_exception!('IHUB_102', self.class, error)
+          raise_backend_exception('IHUB_102', self.class, error)
         end
       end
 
@@ -92,7 +92,7 @@ module IHub
       def report_error!(response)
         if response.body&.dig('error_occurred')
           log_error(response)
-          raise_backend_exception!('IHUB_101', self.class, response)
+          raise_backend_exception('IHUB_101', self.class, response)
         end
       end
 
@@ -101,15 +101,6 @@ module IHub
           response_body: response.body.merge('status_code' => response.status)
         )
         Raven.tags_context(ihub: 'appointments_error_occurred')
-      end
-
-      def raise_backend_exception!(key, source, error = nil)
-        raise Common::Exceptions::BackendServiceException.new(
-          key,
-          { source: source.to_s },
-          error&.status,
-          error&.body
-        )
       end
     end
   end

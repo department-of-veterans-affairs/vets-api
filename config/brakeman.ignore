@@ -1,25 +1,38 @@
 {
   "ignored_warnings": [
     {
-      "warning_type": "File Access",
-      "warning_code": 16,
-      "fingerprint": "3ef9b86159537a2d9f2231f094acd66acf6543ebded519ff688b56e91cc02965",
-      "message": "Parameter value used in file name",
-      "file": "app/controllers/content/vic_local_uploads_controller.rb",
-      "line": 14,
-      "link": "http://brakemanscanner.org/docs/warning_types/file_access/",
-      "code": "send_file(Rails.root.join(\"public\", sanitize(params[:path])), :disposition => \"inline\")",
+      "warning_type": "Missing Encryption",
+      "warning_code": 109,
+      "fingerprint": "6a26086cd2400fbbfb831b2f8d7291e320bcc2b36984d2abc359e41b3b63212b",
+      "check_name": "ForceSSL",
+      "message": "The application does not force use of HTTPS: `config.force_ssl` is not enabled",
+      "file": "config/environments/production.rb",
+      "line": 1,
+      "link": "https://brakemanscanner.org/docs/warning_types/missing_encryption/",
+      "code": null,
       "render_path": null,
-      "location": {
-        "type": "method",
-        "class": "Content::VICLocalUploadsController",
-        "method": "find_file"
-      },
-      "user_input": "params[:path]",
-      "confidence": "Weak",
-      "note": ""
+      "location": null,
+      "user_input": null,
+      "confidence": "High",
+      "note": "SSL is handled on our endpoints, not in the code."
+    },
+    {
+      "warning_type": "Remote Code Execution",
+      "warning_code": 110,
+      "fingerprint": "d882f63ce96c28fb6c6e0982f2a171460e4b933bfd9b9a5421dca21eef3f76da",
+      "check_name": "CookieSerialization",
+      "message": "Use of unsafe cookie serialization strategy `:marshal` might lead to remote code execution",
+      "file": "config/initializers/cookies_serializer.rb",
+      "line": 7,
+      "link": "https://brakemanscanner.org/docs/warning_types/unsafe_deserialization",
+      "code": "Rails.application.config.action_dispatch.cookies_serializer = :marshal",
+      "render_path": null,
+      "location": null,
+      "user_input": null,
+      "confidence": "Medium",
+      "note": "We are using the cookie serialization default from Rails 4.x"
     }
   ],
-  "updated": "2018-02-08 09:52:28 -0800",
-  "brakeman_version": "3.4.1"
+  "updated": "2019-09-30 16:21:49 -0400",
+  "brakeman_version": "4.6.1"
 }

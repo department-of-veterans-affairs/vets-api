@@ -35,7 +35,7 @@ describe Vet360Redis::ContactInformation do
 
   describe '#response' do
     context 'when the cache is empty' do
-      it 'should cache and return the response', :aggregate_failures do
+      it 'caches and return the response', :aggregate_failures do
         allow_any_instance_of(
           Vet360::ContactInformation::Service
         ).to receive(:get_person).and_return(person_response)
@@ -51,7 +51,7 @@ describe Vet360Redis::ContactInformation do
       it 'returns the cached data', :aggregate_failures do
         contact_info.cache(user.uuid, person_response)
 
-        expect_any_instance_of(Vet360::ContactInformation::Service).to_not receive(:get_person)
+        expect_any_instance_of(Vet360::ContactInformation::Service).not_to receive(:get_person)
         expect(contact_info.response.person).to have_deep_attributes(person)
       end
     end
