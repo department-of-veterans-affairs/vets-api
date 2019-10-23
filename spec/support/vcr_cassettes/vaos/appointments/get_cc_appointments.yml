@@ -1,0 +1,64 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: https://veteran.apps.va.gov/appointments/v1/patients/1000123456V123456/appointments?Referer=https://api.va.gov&X-VAMF-JWT=eyJhbGciOiJSUzUxMiJ9.eyJhdXRoZW50aWNhdGVkIjp0cnVlLCJzdWIiOiIxMDAwMTIzNDU2VjEyMzQ1NiIsImlkVHlwZSI6IklDTiIsImlzcyI6Imdvdi52YS52YW9zIiwiZmlyc3ROYW1lIjoiRHVzdHkiLCJsYXN0TmFtZSI6IkViZXJ0IiwiYXV0aGVudGljYXRpb25BdXRob3JpdHkiOiJnb3YudmEuaWFtLnNzb2UudjEiLCJqdGkiOiIzY2NhZDYxOC04YWFkLTRjMWItODM4Ni05MDk3NzMxNWNlZTUiLCJuYmYiOjE1NzE4NzE5ODcsImV4cCI6MTU3MTg3NTY0NywidmVyc2lvbiI6MS4wLCJ1c2VyVHlwZSI6IlZFVEVSQU4iLCJ2YW1mLmF1dGgucm9sZXMiOlsidmV0ZXJhbiJdfQ.I41Eklsn20VTlZW8ffzCdlmXvOlsz85bWQGVyMrI1e5WqUYLS7oxJYDbNI7Wv8DvJtELWXpT8A5YHDjkxa5uFqSlExGyd2AGxFJV_esPrkwJPTh1I9GwL53X5VrqXTom4zyXxLdZF2LlXtkI0jcbCaFi0_6zxmRL7zqYoh20fC37ktN_Wrrg32rZevcArZRDOWSGkoeEVlqFWEA9WUyi7AVoqCOmWsiA9izO4Os_edyWk0s8qJGj1DqP5T2txlxJXCEkzT-Y_SUXg_aQfiMUukr-6227Pgog-h5sCpnThUppGhyK8Md29NgTNb2RVxwnCzjB5X-uf4ynRZz1oeb2i6UAWl-IUjNHj-S22HWxWpHvXQStFFOXJz4opEHhwDqXSFBVNZuVTiiwH5IbC9Q1c4BCFC9J4kDHq6knqoeajYYDDzBmiCkgaSdqC9XSgE8Q6NVxjeVRQp_fSmzBtkT8RmkXN9-bFpFeQm8q5z1d_iYY1EpebZKCCJ82pHmWQrMGtvTRXeR3qQyBp43YLOmwWhop-_MFoFp5KaS5o1gY6ESBkSsGVpb0oYdbjwUHtS1Qhz4DdWH9zSE5UBV75OZu6TSYa8dJfk8X2fhJEfohhTK0Y9pYjb9oDq6jsusmsEQagVmyaAb88FOiRPHdY77ZjxrWi3-cGSIsFYkWoRDxJVY&endDate=2020-02-23T08:00:00Z&pageSize=0&startDate=2019-10-23T07:00:00Z&useCache=false
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 403
+      message: Forbidden
+    headers:
+      Date:
+      - Wed, 23 Oct 2019 23:07:28 GMT
+      Content-Type:
+      - text/plain
+      Content-Length:
+      - '52'
+      Connection:
+      - keep-alive
+      X-B3-Parentspanid:
+      - d665521dada8b4c8
+      X-Vamf-Version:
+      - 1.10.0
+      X-B3-Traceid:
+      - 28395740e1294864
+      Access-Control-Allow-Headers:
+      - x-vamf-jwt
+      X-Vamf-Build:
+      - 6b55567
+      X-B3-Sampled:
+      - '0'
+      X-Vamf-Timestamp:
+      - '2019-09-18T18:29:46+0000'
+      Access-Control-Allow-Origin:
+      - "*"
+      X-B3-Spanid:
+      - e4f3c6fa5dc47ad0
+      Access-Control-Allow-Methods:
+      - GET,OPTIONS
+      Access-Control-Max-Age:
+      - '3600'
+      Set-Cookie:
+      - TS016f4012=01c8917e48ad432cbe82effcf551bb35e4b3eb497eea8d841417227f2cb93b4c60f2603b16d1cece8cb3f2284edf9eee2d361216e34f7d01a88c2028eea8719c06a6b165802bb704e62dcb1f35f2ef5a6eb648e1f9;
+        Max-Age=900; Path=/
+      - vamfjwtv3=eyJ6aXAiOiJERUYiLCJjdHkiOiJKV1QiLCJlbmMiOiJBMjU2Q0JDLUhTNTEyIiwiYWxnIjoiUlNBLU9BRVAtMjU2In0.X8KylAchkHuoJlEWzSTIivP8o3242zdAWWl5sOQFyLiBu9fnhG_-x1PJLo20DpD8Ys7WkBQQOITMN4k2DSvdZWcwxr-nGDJef2UuxIjEO0x1Stv_-F2Pm9tcCNu5Viy7DsqbHQ2zLLtlRfXETyutbYPskoDfd9SciBWLVk4Bmog5p-tYOg9-nskILBxVuu-VNdUO54ur-0V88nmRmdEtl0r2uHoeyw2hseRU7Ri2HE7Z5xORgEvZegr3ntVlfC-oja7QVWr3zH5nSv7xp7Qjt73z9xBJubOosWRsYw2rdqlFYdvecEszR2W7kK7td1_pz6r4Cc0NgfMlWqd1XLVD0A.don4-gvt9VGsFIYcmAJdbg.W993I6ENnkWo9YKy6A-3xt9sHptWxlgzg00HNCvjZs1U3yZwP3SzGRPfA0fjV31MFU9DumYtZldpFN3adIcl3rGPU9jZZAMjCXN5O5SPnmbkH2e9aQiHT-3FZhGOiOHkZ4othMMoqY0M6RXrQF_dLu1tQdhUqpGdWWhDlJ6UYsx6DuiZqGie1zRUNwaV-CDG4bUZkzccFOUIEhocmbJ_JvaSMxE85FUhs6I_tT_higBpi13NUR7A5m_IMOKuqF5gUnNHcAtlpy46KHvVkwiXlKggYgOorVjCYJ4sNrc4UGCf325uQFxAzOdS0oCLu0ApJJ4EgmHmrMPUwiDT80NGgWeQ2GeZ_7xeeZrRyVhpeWVO0gLA3l_9GDqARBOQ4QD9fy1iPvDYcJB1gaB664YDNBEJBoxZDjTv26H6zVRA6Fnv6oAYNOpznDf6-yv2yNC7QaKcwV0YiomETnekigMOSvzJQpFyWChqhGnEKSHxcE2GudDvfNJjRoKAvYej-1obrMEzwatvrGg00J-JOnm3Gn2nD6XuOYsPOyWgzcVykGGqbgBaXVQr9MiK25OXeJplqFHNUVPIYYP3ekY72MZA24QipB7NN8wLTrm44bDwKor5hdwrqwOmaIkmOwUiW2nx0Zcj0e7BUHnRmUSjK9reUS4o4Wdn3_CO3d60JK4xKAo.DMDsZU6ZQhUFrulAmsmX7zHKAqLBY7QWBcUQahn5Pmw;
+        path=/;max-age=900; HttpOnly
+      - vamftimeoutv1=1571872948; path=/
+    body:
+      encoding: UTF-8
+      string: User is not authorized to access requested resource.
+    http_version: 
+  recorded_at: Wed, 23 Oct 2019 23:07:28 GMT
+recorded_with: VCR 3.0.3
