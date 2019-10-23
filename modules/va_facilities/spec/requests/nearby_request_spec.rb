@@ -44,7 +44,7 @@ RSpec.describe 'Nearby Facilities API endpoint', type: :request do
         expect(response).to be_successful
         expect(response.body).to be_a(String)
         json = JSON.parse(response.body)
-        expect(json['data'].length).to eq(10)
+        expect(json['data'].length).to eq(3)
         expect(json['meta']['distances']).to eq([])
       end
     end
@@ -57,7 +57,7 @@ RSpec.describe 'Nearby Facilities API endpoint', type: :request do
         expect(response).to be_success
         expect(response.body).to be_a(String)
         json = JSON.parse(response.body)
-        expect(json['data'].length).to eq(10)
+        expect(json['data'].length).to eq(3)
         expect(json['meta']['distances']).to eq([])
       end
     end
@@ -97,7 +97,7 @@ RSpec.describe 'Nearby Facilities API endpoint', type: :request do
     end
 
     it 'paginates according to parameters' do
-      setup_pdx
+      create_list(:generic_vha, 10)
       VCR.use_cassette('bing/isochrone/pdx_drive_time_60',
                        match_requests_on: [:method, VCR.request_matchers.uri_without_param(:key)]) do
         get base_query_path + address_params + '&page=2&per_page=3', params: nil, headers: accept_json
@@ -116,7 +116,7 @@ RSpec.describe 'Nearby Facilities API endpoint', type: :request do
     end
 
     it 'defaults to the NearbyFacility pagination per_page if no param is provided' do
-      create_list(:generic_vba, 30)
+      create_list(:generic_vha, 30)
       VCR.use_cassette('bing/isochrone/pdx_drive_time_60',
                        match_requests_on: [:method, VCR.request_matchers.uri_without_param(:key)]) do
         get base_query_path + address_params, params: nil, headers: accept_json
@@ -175,6 +175,19 @@ RSpec.describe 'Nearby Facilities API endpoint', type: :request do
         expect(health_service['wait_times']['effective_date']).to eq('2018-03-05')
       end
     end
+
+    it 'only queries health facilities ignoring type paramater' do
+      setup_pdx
+      VCR.use_cassette('bing/isochrone/pdx_drive_time_60',
+                       match_requests_on: [:method, VCR.request_matchers.uri_without_param(:key)]) do
+        get base_query_path + address_params + '&type=benefits', params: nil, headers: accept_json
+        expect(response).to be_successful
+        expect(response.body).to be_a(String)
+        json = JSON.parse(response.body)
+        expect(json['data'].length).to eq(3)
+        expect(json['meta']['distances']).to eq([])
+      end
+    end
   end
 
   context 'when requesting GeoJSON format' do
@@ -187,7 +200,7 @@ RSpec.describe 'Nearby Facilities API endpoint', type: :request do
         expect(response.body).to be_a(String)
         json = JSON.parse(response.body)
         expect(json['type']).to eq('FeatureCollection')
-        expect(json['features'].length).to eq(10)
+        expect(json['features'].length).to eq(3)
         expect(response.headers['Content-Type']).to eq 'application/vnd.geo+json; charset=utf-8'
       end
     end
@@ -209,7 +222,7 @@ RSpec.describe 'Nearby Facilities API endpoint', type: :request do
     end
 
     it 'paginates according to parameters' do
-      setup_pdx
+      create_list(:generic_vha, 10)
       VCR.use_cassette('bing/isochrone/pdx_drive_time_60',
                        match_requests_on: [:method, VCR.request_matchers.uri_without_param(:key)]) do
         get base_query_path + address_params + '&page=2&per_page=3', params: nil, headers: accept_geojson
@@ -298,16 +311,8 @@ RSpec.describe 'Nearby Facilities API endpoint', type: :request do
       get base_query_path + address_params + '&drive_time=sixty', params: nil, headers: accept_json
       expect(response).to have_http_status(:bad_request)
     end
-    it 'returns 400 for invalid type parameter' do
-      get base_query_path + address_params + '&type=bogus'
-      expect(response).to have_http_status(:bad_request)
-    end
-    it 'returns 400 for query with services but no type' do
-      get base_query_path + address_params + '&services[]=EyeCare'
-      expect(response).to have_http_status(:bad_request)
-    end
-    it 'returns 400 for health query with unknown service' do
-      get base_query_path + address_params + '&type=health&services[]=OilChange'
+    it 'returns 400 for an unknown health service' do
+      get base_query_path + address_params + '&services[]=OilChange'
       expect(response).to have_http_status(:bad_request)
     end
     it 'returns 400 for ambiguous location request' do
@@ -478,7 +483,7 @@ RSpec.describe 'Nearby Facilities API endpoint', type: :request do
         'server' => 'Microsoft-IIS/10.0'
       }
 
-      stub_request(:get, /#{Settings.bing.base_api_url}/)
+      stub_request(:get, %r{#{Settings.bing.base_api_url}/Locations})
         .to_return(status: 200, body: JSON.generate(fake_response_body), headers:
           fake_response_headers)
 
