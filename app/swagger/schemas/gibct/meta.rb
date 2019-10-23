@@ -17,9 +17,9 @@ module Swagger
           key :type, :object
           key :required, %i[number created_at preview]
 
-          property :number, type: :integer
-          property :created_at, type: :string
-          property :preview, type: :boolean
+          property :number, type: :integer, example: 1
+          property :created_at, type: :string, example: '2019-10-23T14:4:34.582Z'
+          property :preview, type: :boolean, example: false
         end
 
         swagger_schema :GibctState do
@@ -34,8 +34,8 @@ module Swagger
             key :type, :object
             key :required, %i[name count]
 
-            property :name, type: :string
-            property :count, type: :integer
+            property :name, type: :string, example: 'USA'
+            property :count, type: :integer, example: 1
           end
         end
       end
