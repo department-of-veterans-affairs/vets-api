@@ -18,13 +18,15 @@ module ClaimsApi
 
         def submit_form_2122
           power_of_attorney = ClaimsApi::PowerOfAttorney.create(
-            status: 'pending',
+            status: ClaimsApi::PowerOfAttorney::PENDING,
             auth_headers: auth_headers,
             form_data: form_attributes,
             source: source_name
           )
           power_of_attorney = ClaimsApi::PowerOfAttorney.find_by(md5: power_of_attorney.md5) unless power_of_attorney.id
           power_of_attorney.save!
+
+          ClaimsApi::PoaUpdater.perform_async(power_of_attorney.id)
 
           render json: power_of_attorney, serializer: ClaimsApi::PowerOfAttorneySerializer
         end
