@@ -13,11 +13,6 @@ module VaFacilities
       link(:related) { "#{BASE_PATH}/facilities/vha_#{object.vha_facility_id}" }
     end
 
-    belongs_to :drivetime_band do
-      include_data false
-      link(:related) { "#{BASE_PATH}/drivetime_bands/#{object.id}" }
-    end
-
     type('nearby_facility')
     attribute :min, key: :drivetime_band_min
     attribute :max, key: :drivetime_band_max

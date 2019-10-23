@@ -33,9 +33,4 @@ RSpec.describe VaFacilities::NearbySerializer, type: :serializer do
     fac_path = "#{VaFacilities::NearbySerializer::BASE_PATH}/facilities/vha_#{vha_648.unique_id}"
     expect(relationships['va_facilities']['links']['related']).to eq(fac_path)
   end
-
-  it 'returns a relationship link to its drivetime band' do
-    band_path = "#{VaFacilities::NearbySerializer::BASE_PATH}/drivetime_bands/#{thirty.id}"
-    expect(relationships['drivetime_band']['links']['related']).to eq(band_path)
-  end
 end
