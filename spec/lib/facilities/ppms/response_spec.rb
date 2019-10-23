@@ -75,64 +75,7 @@ describe Facilities::PPMS::Response do
     ]
   end
 
-  let(:response_body) do
-    {
-      'Id' => 0,
-      'ProviderIdentifier' => '1427435759',
-      'ProviderIdentifierType' => 'Npi',
-      'Name' => 'DOCTOR PARTNERS',
-      'ProviderType' => 'GroupPracticeOrAgency',
-      'QualityRankingTotalScore' => 0,
-      'QualityRankingLastUpdated' => nil,
-      'MainPhone' => '(828) 555-1723',
-      'Email' => nil,
-      'Address' => "111 MAIN ST\r\nMANASSAS,VA 20111",
-      'AddressStreet' => '111 MAIN ST',
-      'AddressCity' => 'MANASSAS',
-      'AddressStateProvince' => 'VA',
-      'AddressPostalCode' => '20111',
-      'AddressCounty' => nil,
-      'AddressCountry' => nil,
-      'ProviderStatusReason' => 'Active',
-      'DoDAffiliation' => false,
-      'VaAcademicAffiliate' => false,
-      'PrimaryCarePhysician' => false,
-      'HighPerformance' => false,
-      'Fqhc' => false,
-      'AccountableCareOrganization' => false,
-      'IsAcceptingNewPatients' => false,
-      'ProviderEthnicity' => 'Unknown',
-      'ProviderGender' => 'Male',
-      'Religion' => nil,
-      'OrganizationId' => nil,
-      'ServiceProviderType' => 'None',
-      'SpecialInstruction' => nil,
-      'OwnedCareSiteName' => nil,
-      'OrganizationFax' => '(540) 665-0411',
-      'OrganizationStatus' => 'Active',
-      'IsExternal' => false,
-      'InternalType' => '0',
-      'LicensingJuristicion' => nil,
-      'CanCreateHealthCareOrders' => false,
-      'InternalAppointmentStatus' => 'FullTime',
-      'ExternalHealthProviderType' => 'CommunityHospital',
-      'OnLeie' => false,
-      'ExternalInstitutionDeaNumber' => nil,
-      'ExternalLeieCheckDate' => nil,
-      'ValidationSource' => nil,
-      'ContactMethod' => 'Any',
-      'BulkEmails' => true,
-      'BulkMails' => false,
-      'Emails' => true,
-      'Mails' => true,
-      'PhoneCalls' => true,
-      'Faxes' => true,
-      'ModifiedOnDate' => '2018-08-02T04:27:10Z',
-      'TerminationDate' => '0001-01-01T00:00:00Z',
-      'ProviderSpecialties' => []
-    }
-  end
-
+  let(:response_body) { File.read('spec/fixtures/facilities/response_body.rb') }
   let(:response) { Facilities::PPMS::Response.new(response_body, 200) }
   let(:bbox) { { bbox: [-79, 38, -77, 39] } }
   let(:faraday_response) { instance_double('Faraday::Response') }
