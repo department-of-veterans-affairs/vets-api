@@ -339,4 +339,92 @@ FactoryBot.define do
       } }
     }
   end
+  factory :generic_vha, class: Facilities::VHAFacility do
+    sequence :unique_id, &:to_s
+    name { 'Generic Health Office' }
+    facility_type { 'va_health_facility' }
+    classification { 'VA Medical Center (VAMC)' }
+    website { 'http://www.health.va.gov/generic' }
+    mobile { false }
+    active_status { 'A' }
+    lat { 45.6394162600001 }
+    long { -122.65528736 }
+    location { 'POINT(-122.65528736 45.6394162600001)' }
+    address {
+      { 'mailing' => {},
+        'physical' => {
+          'zip' => '98661-3753',
+          'city' => 'Vancouver',
+          'state' => 'WA',
+          'address_1' => '100 Generic Street',
+          'address_2' => nil,
+          'address_3' => nil
+        } }
+    }
+    phone {
+      { 'fax' => '555-555-5555 x',
+        'main' => '555-555-5555 x',
+        'pharmacy' => '555-555-5555 x',
+        'after_hours' => '555-555-5555 x',
+        'patient_advocate' => '555-555-5555 x',
+        'mental_health_clinic' => '555-555-5555',
+        'enrollment_coordinator' => '555-555-5555 x' }
+    }
+    hours {
+      { 'Friday' => '730AM-430PM',
+        'Monday' => '730AM-430PM',
+        'Sunday' => '-',
+        'Tuesday' => '730AM-630PM',
+        'Saturday' => '800AM-1000AM',
+        'Thursday' => '730AM-430PM',
+        'Wednesday' => '730AM-430PM' }
+    }
+    services {
+      { 'health' => [
+        { 'sl1' => ['DentalServices'],
+          'sl2' => [] },
+        { 'sl1' => ['MentalHealthCare'],
+          'sl2' => [] },
+        { 'sl1' => ['PrimaryCare'],
+          'sl2' => [] }
+      ],
+        'last_updated' => '2018-03-15' }
+    }
+    feedback {
+      { 'health' => {
+        'effective_date' => '2017-08-15',
+        'primary_care_urgent' => 0.8,
+        'primary_care_routine' => 0.84
+      } }
+    }
+    access {
+      { 'health' => {
+        'audiology' => {
+          'new' => 35.0,
+          'established' => 18.0
+        },
+        'optometry' => {
+          'new' => 38.0,
+          'established' => 22.0
+        },
+        'dermatology' => {
+          'new' => 4.0,
+          'established' => nil
+        },
+        'ophthalmology' => {
+          'new' => 1.0,
+          'established' => 4.0
+        },
+        'primary_care' => {
+          'new' => 34.0,
+          'established' => 5.0
+        },
+        'mental_health' => {
+          'new' => 12.0,
+          'established' => 3.0
+        },
+        'effective_date' => '2018-02-26'
+      } }
+    }
+  end
 end
