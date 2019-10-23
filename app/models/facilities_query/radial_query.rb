@@ -35,7 +35,7 @@ module FacilitiesQuery
         end
         facilities
       end
-      result_set.sort_by &:distance
+      result_set.sort_by(&:distance)
     end
     # rubocop:enable Metrics/ParameterLists
 
