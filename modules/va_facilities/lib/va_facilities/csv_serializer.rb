@@ -26,7 +26,7 @@ module VaFacilities
         mailing_city mailing_state mailing_zip
         phone_main phone_fax phone_mental_health_clinic phone_pharmacy phone_after_hours
         phone_patient_advocate phone_enrollment_coordinator
-        hours_monday hours_tuesay hours_wednesday hours_thursday hours_friday
+        hours_monday hours_tuesday hours_wednesday hours_thursday hours_friday
         hours_saturday hours_sunday
       ]
     end
@@ -57,7 +57,11 @@ module VaFacilities
 
     def self.hours_attrs(object)
       hours = object.hours
-      %w[monday tuesday wednesday thursday friday saturday sunday].map { |day| hours[day] }
+      if object.facility_type_prefix == 'vc'
+        %w[monday tuesday wednesday thursday friday saturday sunday].map { |day| hours[day] }
+      else
+        %w[Monday Tuesday Wednesday Thursday Friday Saturday Sunday].map { |day| hours[day] }
+      end
     end
   end
 end
