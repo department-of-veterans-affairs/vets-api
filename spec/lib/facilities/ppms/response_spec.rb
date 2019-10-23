@@ -4,18 +4,6 @@ require 'rails_helper'
 require 'facilities/ppms/response'
 
 describe Facilities::PPMS::Response do
-  let(:caresites_response_body) do
-    [
-      {
-        'Name' => '123 Main Street,Manassas,VA,20111',
-        'Id' => '62bdd2b1-9dd1-e8111-12346324daqe4',
-        'Latitude' => 38.8,
-        'Longitude' => -76.6,
-        'Street' => '123 Main Street'
-      }
-    ]
-  end
-
   let(:provider_locator_body) do
     [
       {
@@ -87,65 +75,6 @@ describe Facilities::PPMS::Response do
     ]
   end
 
-  let(:services_response_body) do
-    [
-      {
-        'Name' => 'Danzer,Hal  - Obstetrics & Gynecology    ',
-        'AffiliationName' => 'TriWest',
-        'ProviderName' => 'Danzer,Hal ',
-        'ProviderAgreementName' => nil,
-        'SpecialtyName' => 'Obstetrics & Gynecology   ',
-        'ProviderSpecialtyName' => nil,
-        'CareSiteLocationAddress' => 'SOUTHERN CALIF REPRODUCTIVE CTR MED GRP INC',
-        'Longitude' => -122.5,
-        'Latitude' => 45.8,
-        'CareSiteAddressStreet' => '123 test street',
-        'CareSiteAddressZipCode' => '11111',
-        'CareSiteAddressCity' => 'Testville',
-        'CareSiteAddressState' => 'VA',
-        'CareSitePhoneNumber' => '(888) 444-1234',
-        'OrganiztionGroupName' => nil,
-        'DescriptionOfService' => nil,
-        'Limitation' => nil
-      },
-      {
-        'Name' => 'Danzer,Hal  - Obstetrics & Gynecology - Reproductive Endocrinology  ',
-        'AffiliationName' => 'TriWest',
-        'ProviderName' => 'Danzer,Hal ',
-        'ProviderAgreementName' => nil,
-        'SpecialtyName' => 'Obstetrics & Gynecology - Reproductive Endocrinology ',
-        'ProviderSpecialtyName' => nil,
-        'CareSiteLocationAddress' => 'SOUTHERN CALIF REPRODUCTIVE CTR MED GRP INC',
-        'CareSitePhoneNumber' => nil,
-        'OrganiztionGroupName' => nil,
-        'DescriptionOfService' => nil,
-        'Limitation' => nil
-      }
-    ]
-  end
-
-  let(:specialties_response_body) do
-    [
-      {
-        'SpecialtyCode' => '101Y00000X', 'Name' => 'Counselor   ',
-        'Grouping' => 'Behavioral Health & Social Service Providers',
-        'Classification' => 'Counselor',
-        'Specialization' => nil,
-        'SpecialtyDescription' => "A provider who is trained and educated in the performance of behavior health services
-         through interpersonal communications and analysis.
-         Training and education at the specialty level usually requires a master’s
-         degree and clinical experience and supervision for licensure or certification."
-      },
-      {
-        'SpecialtyCode' => '101YA0400X',
-        'Name' => 'Counselor - Addiction (Substance Use Disorder) ',
-        'Grouping' => 'Behavioral Health & Social Service Providers',
-        'Classification' => 'Counselor',
-        'Specialization' => 'Addiction (Substance Use Disorder)', 'SpecialtyDescription' => 'Definition to come...'
-      }
-    ]
-  end
-
   let(:response_body) do
     {
       'Id' => 0,
@@ -205,54 +134,34 @@ describe Facilities::PPMS::Response do
   end
 
   let(:response) { Facilities::PPMS::Response.new(response_body, 200) }
-  let(:new_provider) { response.new_provider }
-  let(:provider_carsites_response) { Facilities::PPMS::Response.new(caresites_response_body, 200) }
-  let(:provider_services_response) { Facilities::PPMS::Response.new(services_response_body, 200) }
-  let(:provider_specialties_response) { Facilities::PPMS::Response.new(specialties_response_body, 200) }
   let(:bbox) { { bbox: [-79, 38, -77, 39] } }
-
   let(:faraday_response) { instance_double('Faraday::Response') }
   let(:provider_locator_response) { Facilities::PPMS::Response.from_provider_locator(faraday_response, bbox) }
+  let(:mapped_provider_list) { Facilities::PPMS::Response.map_provider_list(provider_locator_body) }
+
+  before do
+    allow(faraday_response).to receive(:body) { provider_locator_body }
+    allow(faraday_response).to receive(:status).and_return(200)
+  end
 
   describe 'getting data' do
     context 'with a successful response' do
       it 'has the proper response object attributes' do
         expect(response).not_to be(nil)
-        expect(response.body).not_to be(nil)
-        expect(response.get_body).not_to be(nil)
+        expect(response.body).to eq(response_body)
+        expect(response.get_body).to eq(response_body)
         expect(response.status).to eq(200)
       end
 
-      it 'has the proper caresites identifiers' do
-        expect(provider_carsites_response).not_to be(nil)
-        expect(provider_carsites_response.body).not_to be(nil)
-        expect(provider_carsites_response.status).to eq(200)
+      it 'has the proper provider locator response' do
+        expect(provider_locator_response).not_to be(nil)
+        expect(provider_locator_response.count).to eq(1)
+        expect(provider_locator_response[0]['Name']).to eq('DOCTOR PARTNERS OF SHENANDOAH VALLEY')
       end
 
-      it 'has the proper provider services identifiers' do
-        expect(provider_services_response).not_to be(nil)
-        expect(provider_services_response.body).not_to be(nil)
-        expect(provider_services_response.status).to eq(200)
-      end
-
-      it 'has the proper provider specialties identifiers' do
-        expect(provider_specialties_response).not_to be(nil)
-        expect(provider_specialties_response.body).not_to be(nil)
-        expect(provider_specialties_response.status).to eq(200)
-      end
-
-      it 'has the proper provider locator identifiers' do
-        allow(faraday_response).to receive(:body) { provider_locator_body }
-        allow(faraday_response).to receive(:status).and_return(200)
-        expect(faraday_response.body.length).to be > 0
-        expect(faraday_response.body[0]['Latitude']).to be > 45
-        expect(faraday_response.body[0]['Longitude']).to be < -122
-      end
-
-      it 'has the proper provider_info identifiers' do
-        expect(new_provider['ProviderIdentifier']).not_to be(nil)
-        expect(new_provider['MainPhone']).not_to be(nil)
-        expect(new_provider['Name']).not_to be(nil)
+      it 'has the proper mapped provider list' do
+        expect(mapped_provider_list).not_to be(nil)
+        expect(mapped_provider_list.count).to eq(3)
       end
     end
   end
