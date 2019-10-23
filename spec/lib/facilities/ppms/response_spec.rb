@@ -75,7 +75,7 @@ describe Facilities::PPMS::Response do
     ]
   end
 
-  let(:response_body) { File.read('spec/fixtures/facilities/response_body.rb') }
+  let(:response_body) { JSON.parse(YAML.load_file('spec/support/vcr_cassettes/facilities/va/ppms.yml')['http_interactions'][3]['response']['body']['string'])['value'][0] }
   let(:response) { Facilities::PPMS::Response.new(response_body, 200) }
   let(:bbox) { { bbox: [-79, 38, -77, 39] } }
   let(:faraday_response) { instance_double('Faraday::Response') }
