@@ -15,6 +15,7 @@ module Facilities
       begin
         download_data
       rescue => e
+        puts "Big fail #{e.message}"
         raise PSSGDownloadError, e.message
       end
     end
@@ -34,9 +35,14 @@ module Facilities
       drive_time_band.min = attributes&.dig('FromBreak')
       drive_time_band.max = attributes&.dig('ToBreak')
       drive_time_band.name = name
-      drive_time_band.polygon = extract_polygon(drive_time_data)
-      drive_time_band.save
-      facility.save
+      begin
+        drive_time_band.polygon = extract_polygon(drive_time_data)
+        drive_time_band.save
+        facility.save
+        puts "Success: #{name}"
+      rescue RGeo::Error::InvalidGeometry => e
+        puts "Error: #{name} #{e}"
+      end
     end
 
     def extract_polygon(drive_time_data)
