@@ -427,13 +427,13 @@ paths:
         Results of this operation are paginated. Responses include pagination information
         in the standard JSON API "links" and "meta" elements.
 
-        Also in the "meta" element is information about the drive time band that the requested location 
+        The "attributes" element has information about the drivetime band that the requested location 
         fell within for each the facility included in the response. The values of drivetime_band_min and 
         drivetime_band_max are in minutes. For example, a facility returned with a matched drivetime_band_min 
         of 10 and drivetime_band_max of 20 is a 10 to 20 minute drive from the requested location.
 
-        The facility information returned by `/nearby` is a small subset of the information returned by `/facilities`.
-        Please use `/facilities` to see detailed information.
+        This endpoint does not return facility information. To retrieve details for facilities found by `/nearby`, 
+        follow the relationship links and check documentation for `/facilities`.
       operationId: getNearbyFacilities
       security:
         - apikey: []
@@ -554,7 +554,6 @@ paths:
                     type: object
                     required:
                       - pagination
-                      - facility_drivetime_bands
                     properties:
                       pagination:
                         type: object
