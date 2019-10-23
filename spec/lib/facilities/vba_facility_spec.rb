@@ -53,6 +53,17 @@ module Facilities
           end
         end
 
+        it 'parses phone correctly' do
+          VCR.use_cassette('facilities/va/vba_facilities_limit_results') do
+            expect(facility.phone.values).to match_array(
+              %w[
+                216-707-7901
+                216-707-7902
+              ]
+            )
+          end
+        end
+
         it 'parses mailing address correctly' do
           VCR.use_cassette('facilities/va/vba_facilities_limit_results') do
             expect(facility.address['mailing']).to eq({})
