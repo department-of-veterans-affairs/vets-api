@@ -92,7 +92,9 @@ vet360:
     enabled: true
     timeout: 30
     mock: false
-
+  address_validation:
+    hostname: 'dev-api.va.gov'
+    api_key: '<AV_KEY>'
 
 # Settings for IHub
 ihub:
@@ -281,6 +283,7 @@ preneeds:
 
 # Settings for VBA Document upload service module
 vba_documents:
+  unsuccessful_report_enabled: false
   location:
     prefix:  http://some.fakesite.com/path
     replacement: http://another.fakesite.com/rewrittenpath
@@ -394,3 +397,15 @@ bing:
 flipper:
   username: SUPER_SECRET_USERNAME
   password: SUPER_SECRET_PASSWORD
+
+bgs:
+  application: ~
+  client_station_id: ~
+  client_username: ~
+  mock_response_location: ~
+  mock_responses: ~
+
+va_mobile:
+  url: 'https://veteran.apps.va.gov/'
+  mock: false
+  key_path: /fake/client/key/path

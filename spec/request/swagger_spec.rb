@@ -1048,9 +1048,10 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
     end
 
     context 'without EVSS mock' do
-      before { Settings.evss.mock_gi_bill_status = false }
-
-      before { Settings.evss.mock_letters = false }
+      before do
+        Settings.evss.mock_gi_bill_status = false
+        Settings.evss.mock_letters = false
+      end
 
       it 'supports getting EVSS Gi Bill Status' do
         Timecop.freeze(ActiveSupport::TimeZone.new('Eastern Time (US & Canada)').parse('1st Feb 2018 12:15:06'))
@@ -1703,6 +1704,28 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
             200,
             headers.merge('_data' => telephone.as_json)
           )
+        end
+      end
+
+      it 'supports the address validation api' do
+        expect(subject).to validate(:post, '/v0/profile/address_validation', 401)
+
+        address = build(:vet360_address, :multiple_matches)
+        VCR.use_cassette(
+          'vet360/address_validation/validate_match',
+          VCR::MATCH_EVERYTHING
+        ) do
+          VCR.use_cassette(
+            'vet360/address_validation/candidate_multiple_matches',
+            VCR::MATCH_EVERYTHING
+          ) do
+            expect(subject).to validate(
+              :post,
+              '/v0/profile/address_validation',
+              200,
+              headers.merge('_data' => { address: address.to_h })
+            )
+          end
         end
       end
 

@@ -6,14 +6,13 @@ module MVI
     # an ID status, and parses it to meet Vet360's icn_with_aaid design constraints.
     #
     class ICNWithAAIDParser
-      INVALID_ID_STATUSES = %w[H PCE].freeze
-
       attr_reader :extension
 
       # @param extension [String] A full ICN with an Assigning Authority ID,
       #   and an ID status (i.e. '12345678901234567^NI^200M^USVHA^P').
       #   This structure of five sections is enforced by the IdParser::ICN_REGEX.
       #   The five sections are: ID^TYPE^SOURCE^ISSUER^IDSTATUS
+      #   A valid ICN will have a TYPE of 'NI', SOURCE of '200M', ISSUER of 'USVHA' and IDSTATUS of 'P'
       #
       def initialize(extension)
         @extension = extension
@@ -28,16 +27,12 @@ module MVI
       #
       def without_id_status
         return if extension.nil?
-        return if invalid_id_status?
+        return unless id_status == 'P'
 
         trim_id_status
       end
 
       private
-
-      def invalid_id_status?
-        INVALID_ID_STATUSES.include? id_status
-      end
 
       def id_status
         identifiers.last
