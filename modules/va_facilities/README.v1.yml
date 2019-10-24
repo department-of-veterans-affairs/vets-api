@@ -398,7 +398,7 @@ paths:
     get:
       tags:
         - facilities
-      summary: Retrieve all facilities reachable by driving within the specified time period
+      summary: Retrieve all VA health facilities reachable by driving within the specified time period
       description: |
         Retrieve all VA health facilities that are located within a specified drive time from a specified location
         based on passing in a combination of `street_address`, `city`, `state`, and `zip` or `lat` and `lng` required
@@ -412,9 +412,9 @@ paths:
         in the standard JSON API "links" and "meta" elements.
 
         The "attributes" element has information about the drivetime band that the requested location 
-        fell within for each the facility included in the response. The values of drivetime_band_min and 
-        drivetime_band_max are in minutes. For example, a facility returned with a matched drivetime_band_min 
-        of 10 and drivetime_band_max of 20 is a 10 to 20 minute drive from the requested location.
+        fell within for each the facility included in the response. The values of min_time and 
+        max_time are in minutes. For example, a facility returned with a matched min_time 
+        of 10 and max_time of 20 is a 10 to 20 minute drive from the requested location.
 
         This endpoint does not return facility information. To retrieve details for facilities found by `/nearby`, 
         follow the relationship links and check documentation for `/facilities`.
@@ -884,13 +884,13 @@ components:
         attributes:
           type: object
           required:
-            - drivetime_band_min
-            - drivetime_band_max
+            - min_time
+            - max_time
           properties:
-            drivetime_band_min:
+            min_time:
               type: string
               example: 10
-            drivetime_band_max:
+            max_time:
               type: string
               example: 20
         relationships:
