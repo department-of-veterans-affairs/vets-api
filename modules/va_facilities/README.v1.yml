@@ -484,17 +484,6 @@ paths:
               - 70
               - 80
               - 90
-        - name: type
-          description: Optional facility type search filter
-          in: query
-          required: false
-          schema:
-            type: string
-            enum:
-              - health
-              - cemetery
-              - benefits
-              - vet_center
         - name: services[]
           description: Optional facility service search filter
           in: query
