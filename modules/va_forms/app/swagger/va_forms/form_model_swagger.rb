@@ -60,6 +60,23 @@ module VaForms
           key :example, '2018-06-04'
           key :description, 'Date in YYYY-MM-DD for the last revision of the form'
         end
+
+        property :versions do
+          key :type, :object
+
+          property :sha256 do
+            key :type, :string
+            key :example, '5fe171299ece147e8b456961a38e17f1391026f26e9e170229317bc95d9827b7'
+            key :description, 'sha256 of the revision'
+          end
+
+          property :revision_on do
+            key :type, :string
+            key :format, 'date'
+            key :example, '2018-06-04'
+            key :description, 'Date in YYYY-MM-DD of the revision'
+          end
+        end
       end
     end
   end

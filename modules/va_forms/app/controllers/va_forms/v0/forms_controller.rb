@@ -15,7 +15,7 @@ module VaForms
       def show
         forms = Form.find_by form_name: params[:id]
         render json: forms,
-               serializer: VaForms::FormListSerializer
+               serializer: VaForms::FormDetailSerializer
       end
     end
   end

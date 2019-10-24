@@ -2,6 +2,8 @@
 
 module VaForms
   class Form < ApplicationRecord
+    has_paper_trail
+
     validates :title, presence: true
     validates :form_name, presence: true, uniqueness: true
     validates :url, presence: true
@@ -52,7 +54,12 @@ module VaForms
       form.title = title
       issued_string = line.css('td:nth-child(3)').text
       form.first_issued_on = Date.strptime(issued_string, '%m/%d/%y') if issued_string.present?
-      form.last_revision_on = line.css('td:nth-child(4)').text
+      revision = line.css('td:nth-child(4)').text
+      form.last_revision_on = if revision.present?
+                                Date.strptime(revision, '%m/%d/%y')
+                              else
+                                form.last_revision_on = form.issued_on
+                              end
       form.pages = line.css('td:nth-child(5)').text
       form.url = url.starts_with?('http') ? url : get_full_url(url)
       form.sha256 = get_sha256(form.url)

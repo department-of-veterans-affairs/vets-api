@@ -70,6 +70,7 @@ gem 'oj' # Amazon Linux `json` gem causes conflicts, but `multi_json` will prefe
 gem 'olive_branch'
 gem 'origami'
 gem 'ox'
+gem 'paper_trail'
 gem 'pdf-forms'
 gem 'pdf-reader'
 gem 'pg'

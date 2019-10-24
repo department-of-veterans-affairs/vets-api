@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2019_10_16_160008) do
+ActiveRecord::Schema.define(version: 2019_10_23_192330) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
@@ -508,6 +508,17 @@ ActiveRecord::Schema.define(version: 2019_10_16_160008) do
     t.uuid "consumer_id"
     t.index ["guid"], name: "index_vba_documents_upload_submissions_on_guid"
     t.index ["status"], name: "index_vba_documents_upload_submissions_on_status"
+  end
+
+  create_table "versions", force: :cascade do |t|
+    t.string "item_type", null: false
+    t.bigint "item_id", null: false
+    t.string "event", null: false
+    t.string "whodunnit"
+    t.text "object"
+    t.datetime "created_at"
+    t.text "object_changes"
+    t.index ["item_type", "item_id"], name: "index_versions_on_item_type_and_item_id"
   end
 
   create_table "veteran_organizations", id: false, force: :cascade do |t|
