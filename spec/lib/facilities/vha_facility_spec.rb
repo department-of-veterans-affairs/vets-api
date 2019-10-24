@@ -44,6 +44,21 @@ RSpec.describe Facilities::VHAFacility do
         end
       end
 
+      it 'parses phone correctly' do
+        VCR.use_cassette('facilities/va/vha_facilities_limit_results') do
+          expect(facility.phone.values).to match_array(
+            [
+              '000-000-0000',
+              '632-310-5962',
+              '632-550-3888',
+              '632-550-3888 x3716',
+              '632-550-3888 x3780',
+              '632-550-3888 x5029'
+            ]
+          )
+        end
+      end
+
       it 'parses mailing address correctly' do
         VCR.use_cassette('facilities/va/vha_facilities_limit_results') do
           expect(facility.address['mailing']).to eq({})

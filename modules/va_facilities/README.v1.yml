@@ -404,9 +404,7 @@ paths:
         based on passing in a combination of `street_address`, `city`, `state`, and `zip` or `lat` and `lng` required
         parameters along with `drive_time`.
 
-        Additionally one can filter the facilities within the isochrone by type and available
-        services. Only facilities of type "health" and "benefits" may be filtered by available
-        services.
+        Additionally one can filter the facilities within the drive time by available services.
 
         Results of this operation are paginated. Responses include pagination information
         in the standard JSON API "links" and "meta" elements.
