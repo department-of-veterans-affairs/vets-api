@@ -16,6 +16,7 @@ module VaFacilities
       include VaFacilities::ParamValidators
       skip_before_action(:authenticate)
       before_action :set_default_format
+      before_action :set_facility_type
       before_action :validate_params, only: [:index]
 
       REQUIRED_PARAMS = {
@@ -49,6 +50,10 @@ module VaFacilities
 
       def set_default_format
         request.format = :json if params[:format].nil? && request.headers['HTTP_ACCEPT'].nil?
+      end
+
+      def set_facility_type
+        params[:type] = 'health'
       end
 
       private

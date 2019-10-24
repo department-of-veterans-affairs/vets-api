@@ -36,7 +36,7 @@ FactoryBot.define do
     # rubocop:enable Metrics/LineLength
 
     vha_facility_id { '648A4' }
-    name { 'drive_time_band_^0' }
+    name { '648A4 : 0 - 10' }
     min { 50 }
     max { 60 }
     unit { 'minutes' }
