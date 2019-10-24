@@ -1,0 +1,81 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: https://dev-api.va.gov/services/address_validation/v1/validate
+    body:
+      encoding: UTF-8
+      string: '{"requestAddress":{"addressLine1":"sdfdsfsdf","city":"Washington","requestCountry":{"countryCode":"USA"},"stateProvince":{"code":"DC"},"zipCode5":"20011"}}'
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Cufsystemname:
+      - VETSGOV
+      Apikey:
+      - "<AV_KEY>"
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 400
+      message: ''
+    headers:
+      Date:
+      - Tue, 15 Oct 2019 07:21:23 GMT
+      Content-Type:
+      - application/json;charset=UTF-8
+      Content-Length:
+      - '599'
+      Connection:
+      - keep-alive
+      Server:
+      - openresty
+      Access-Control-Allow-Origin:
+      - "*"
+      Expires:
+      - '0'
+      Pragma:
+      - no-cache
+      Vet360txauditid:
+      - 366c052a-e6fb-483c-8941-52b6095c48ad
+      Via:
+      - kong/1.2.2
+      X-Content-Type-Options:
+      - nosniff
+      X-Frame-Options:
+      - DENY
+      X-Kong-Proxy-Latency:
+      - '6'
+      X-Kong-Upstream-Latency:
+      - '272'
+      X-Ratelimit-Limit-Edge-Gateway-Address-Validation-Vagovli-Address-V1-Validate-Address:
+      - '500'
+      X-Ratelimit-Limit-Minute:
+      - '60'
+      X-Ratelimit-Remaining-Edge-Gateway-Address-Validation-Vagovli-Address-V1-Validate-Address:
+      - '499'
+      X-Ratelimit-Remaining-Minute:
+      - '59'
+      X-Ratelimit-Reset-Edge-Gateway-Address-Validation-Vagovli-Address-V1-Validate-Address:
+      - '60000'
+      X-Ratelimit-Sla-Limit-Edge-Gateway-Address-Validation-Vagovli-Address-V1-Validate-Address:
+      - '250'
+      X-Ratelimit-Sla-Remaining-Edge-Gateway-Address-Validation-Vagovli-Address-V1-Validate-Address:
+      - '249'
+      X-Ua-Compatible:
+      - IE-edge,chrome=1
+      X-Xss-Protection:
+      - 1; mode=block
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubDomains; preload
+    body:
+      encoding: UTF-8
+      string: '{"address":{"stateProvince":{"name":"District Of Colunbia","code":"DC"},"country":{"name":"USA","code":"USA","fipsCode":"US","iso2Code":"US","iso3Code":"USA"},"addressLine1":"Sdfdsfsdf","city":"Washington","zipCode5":"20011"},"geocode":{"calcDate":"2019-10-15T07:21:23+00:00","locationPrecision":0.0,"latitude":38.9525,"longitude":-77.0202},"addressMetaData":{"confidenceScore":0.0,"addressType":"Unknown","deliveryPointValidation":"MISSING_ZIP","validationKey":1008171488},"messages":[{"code":"ADDRVAL112","key":"AddressCouldNotBeFound","severity":"ERROR","text":"The
+        Address could not be found"}]}'
+    http_version: 
+  recorded_at: Tue, 15 Oct 2019 07:21:23 GMT
+recorded_with: VCR 3.0.3

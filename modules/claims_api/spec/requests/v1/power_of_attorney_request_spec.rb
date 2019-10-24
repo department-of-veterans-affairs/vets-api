@@ -57,7 +57,7 @@ RSpec.describe 'Power of Attorney ', type: :request do
       it 'requires poa_code subfield' do
         with_okta_user(scopes) do |auth_header|
           params = json_data
-          params['data']['attributes']['poa_code'] = nil
+          params['data']['attributes']['poaCode'] = nil
           post path, params: params.to_json, headers: headers.merge(auth_header)
           expect(response.status).to eq(422)
           expect(JSON.parse(response.body)['errors'].size).to eq(1)
