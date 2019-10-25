@@ -11,11 +11,11 @@ describe VAOS::AppointmentService do
   before { allow(File).to receive(:read).and_return(rsa_private) }
 
   describe '#get_va_appointments' do
-    context 'with 5 va appointments' do
+    context 'with 12 va appointments' do
       it 'returns an array of size 5' do
         VCR.use_cassette('vaos/appointments/get_appointments', match_requests_on: %i[host path method]) do
           response = subject.get_va_appointments(user, start_date, end_date)
-          expect(response[:data].size).to eq(5)
+          expect(response[:data].size).to eq(12)
         end
       end
     end
@@ -32,6 +32,15 @@ describe VAOS::AppointmentService do
   end
 
   describe '#get_cc_appointments' do
+    context 'with 17 cc appointments' do
+      it 'returns an array of size 0' do
+        VCR.use_cassette('vaos/appointments/get_cc_appointments', match_requests_on: %i[host path method]) do
+          response = subject.get_cc_appointments(user, start_date, end_date)
+          expect(response[:data].size).to eq(17)
+        end
+      end
+    end
+
     context 'with 0 cc appointments' do
       it 'returns an array of size 0' do
         VCR.use_cassette('vaos/appointments/get_cc_appointments_empty', match_requests_on: %i[host path method]) do

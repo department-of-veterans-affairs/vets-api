@@ -66,162 +66,115 @@ http_interactions:
                 "sources": [
                   "VVS",
                   "dfn-983",
-                  "dfn-984"
+                  "dfn-984",
+                  "dfn-989",
+                  "dfn-979"
                 ],
                 "pageCount": 1,
                 "currentPage": 1
               },
               "appointmentList": [
                 {
-                  "startDate": "2019-10-30T20:00:00Z",
-                  "clinicId": "308",
-                  "clinicFriendlyName": "Green Team Clinic1",
+                  "startDate": "2019-10-24T17:00:00Z",
+                  "clinicId": "408",
                   "facilityId": "983",
-                  "patientIcn": "1012845943V900681",
+                  "patientIcn": "1012853550V207686",
                   "communityCare": false,
                   "vdsAppointments": [
                     {
-                      "appointmentLength": "20",
-                      "appointmentTime": "2019-10-30T20:00:00Z",
+                      "appointmentLength": "60",
+                      "appointmentTime": "2019-10-24T17:00:00Z",
                       "clinic": {
-                        "name": "CHY PC KILPATRICK",
+                        "name": "OPTOMETRY - GRUBBS",
                         "askForCheckIn": false,
                         "facilityCode": "983"
                       },
-                      "patientId": "7216690",
+                      "patientId": "7219295",
                       "type": "REGULAR",
-                      "currentStatus": "FUTURE",
-                      "bookingNote": "Testing"
+                      "currentStatus": "NO ACTION TAKEN/TODAY",
+                      "bookingNote": "Testing the direct schedule"
                     }
                   ]
                 },
                 {
-                  "startDate": "2019-11-11T13:00:00Z",
+                  "startDate": "2019-10-28T15:00:00Z",
                   "clinicId": "945",
                   "clinicFriendlyName": "C&P BEV AUDIO FTC",
                   "facilityId": "983",
-                  "patientIcn": "1012845943V900681",
+                  "patientIcn": "1012853550V207686",
                   "communityCare": false,
-                  "vvsAppointments": [
-                    {
-                      "id": "MOBILEANY-201906-026",
-                      "appointmentKind": "MOBILE_ANY",
-                      "sourceSystem": "SM",
-                      "dateTime": "2019-11-11T13:00:00Z",
-                      "desiredDate": "2019-04-06T16:00:00Z",
-                      "duration": 15,
-                      "status": {
-                        "description": "F",
-                        "code": "FUTURE"
-                      },
-                      "schedulingRequestType": "NEXT_AVAILABLE_APPT",
-                      "type": "REGULAR",
-                      "bookingNotes": "2018-02-14T22:00-MOBILE_ANY",
-                      "instruction": "this is a test of instruction",
-                      "instructionsOther": false,
-                      "patients": {
-                        "patient": [
-                          {
-                            "id": {
-                              "assigningAuthority": "ICN",
-                              "uniqueId": "1012845943V900681"
-                            },
-                            "name": {
-                              "firstName": "Cecil",
-                              "lastName": "Morgan"
-                            },
-                            "contactInformation": {
-                              "mobile": "1234567890",
-                              "preferredEmail": "test@123.com",
-                              "timeZone": "10"
-                            },
-                            "location": {
-                              "type": "NonVA",
-                              "facility": {
-                                "name": "CHEYENNE VAMC",
-                                "siteCode": "442",
-                                "timeZone": "10"
-                              },
-                              "clinic": {
-                                "ien": "442",
-                                "name": "CHY PC PRINCE"
-                              }
-                            },
-                            "patientAppointment": true,
-                            "virtualMeetingRoom": {
-                              "conference": "patientConference",
-                              "pin": "12345",
-                              "url": "http://patientConference.com"
-                            }
-                          }
-                        ]
-                      },
-                      "providers": {
-                        "provider": [
-                          {
-                            "name": {
-                              "firstName": "provider firstName",
-                              "lastName": "provider lastName",
-                              "middleInitial": "provider middleInitial"
-                            },
-                            "id": {
-                              "assigningAuthority": "dfn-983",
-                              "uniqueId": "1013047827"
-                            },
-                            "contactInformation": {
-                              "mobile": "9912567890",
-                              "preferredEmail": "Farid.KhafajiZadeh@va.gov",
-                              "timeZone": "10"
-                            },
-                            "location": {
-                              "type": "VA",
-                              "facility": {
-                                "name": "ENLOW Recheck",
-                                "siteCode": "983",
-                                "timeZone": "10"
-                              },
-                              "clinic": {
-                                "ien": "945",
-                                "name": "C&P BEV AUDIO FTC"
-                              }
-                            },
-                            "virtualMeetingRoom": {
-                              "conference": "providerConference",
-                              "pin": "4321",
-                              "url": "http://provider.com"
-                            }
-                          }
-                        ]
-                      }
-                    }
-                  ],
                   "vdsAppointments": [
                     {
-                      "appointmentTime": "2019-11-11T13:00:00Z",
+                      "appointmentLength": "60",
+                      "appointmentTime": "2019-10-28T15:00:00Z",
                       "clinic": {
                         "name": "ZZFTC C&P AUDIO BEV",
                         "askForCheckIn": false,
                         "facilityCode": "983"
                       },
-                      "patientId": "7216690",
-                      "type": "REGULAR",
-                      "currentStatus": "CANCELLED BY PATIENT"
+                      "patientId": "7219295",
+                      "type": "CLASS II DENTAL",
+                      "currentStatus": "FUTURE"
                     }
                   ]
                 },
                 {
-                  "startDate": "2019-11-13T16:00:00Z",
+                  "startDate": "2019-10-30T14:00:00Z",
+                  "clinicId": "408",
+                  "facilityId": "983",
+                  "patientIcn": "1012853550V207686",
+                  "communityCare": false,
+                  "vdsAppointments": [
+                    {
+                      "appointmentLength": "60",
+                      "appointmentTime": "2019-10-30T14:00:00Z",
+                      "clinic": {
+                        "name": "OPTOMETRY - GRUBBS",
+                        "askForCheckIn": false,
+                        "facilityCode": "983"
+                      },
+                      "patientId": "7219295",
+                      "type": "REGULAR",
+                      "currentStatus": "FUTURE",
+                      "bookingNote": "RR"
+                    }
+                  ]
+                },
+                {
+                  "startDate": "2019-10-30T20:20:00Z",
+                  "clinicId": "308",
+                  "clinicFriendlyName": "Green Team Clinic1",
+                  "facilityId": "983",
+                  "patientIcn": "1012853550V207686",
+                  "communityCare": false,
+                  "vdsAppointments": [
+                    {
+                      "appointmentLength": "20",
+                      "appointmentTime": "2019-10-30T20:20:00Z",
+                      "clinic": {
+                        "name": "CHY PC KILPATRICK",
+                        "askForCheckIn": false,
+                        "facilityCode": "983"
+                      },
+                      "patientId": "7219295",
+                      "type": "REGULAR",
+                      "currentStatus": "FUTURE"
+                    }
+                  ]
+                },
+                {
+                  "startDate": "2019-11-06T15:30:00Z",
                   "clinicId": "1053",
                   "facilityId": "983",
-                  "patientIcn": "1012845943V900681",
+                  "patientIcn": "1012853550V207686",
                   "communityCare": false,
                   "vvsAppointments": [
                     {
-                      "id": "559c088b-b076-4333-901e-43fd968f4500",
+                      "id": "48a76fdd-03f6-4941-b136-0cb474362629",
                       "appointmentKind": "MOBILE_ANY",
                       "sourceSystem": "SM",
-                      "dateTime": "2019-11-13T16:00:00Z",
-                      "desiredDate": "2019-11-28T07:00:00Z",
+                      "dateTime": "2019-11-06T15:30:00Z",
+                      "desiredDate": "2019-10-25T06:00:00Z",
                       "duration": 15,
                       "status": {
                         "description": "F",
@@ -235,15 +188,15 @@ http_interactions:
                           {
                             "id": {
                               "assigningAuthority": "ICN",
-                              "uniqueId": "1012845943V900681"
+                              "uniqueId": "1012853550V207686"
                             },
                             "name": {
-                              "firstName": "CECIL",
-                              "lastName": "MORGAN"
+                              "firstName": "TRISTAN",
+                              "lastName": "GPTESTSYSTWO"
                             },
                             "contactInformation": {
-                              "mobile": "7666666666",
-                              "preferredEmail": "Vilasini.reddy@va.gov"
+                              "mobile": "4444444444",
+                              "preferredEmail": "marcy.nadeau@va.gov"
                             },
                             "location": {
                               "type": "NonVA",
@@ -255,9 +208,9 @@ http_interactions:
                             },
                             "patientAppointment": true,
                             "virtualMeetingRoom": {
-                              "conference": "VVC3951170",
-                              "pin": "4359244478#",
-                              "url": "https://care2.evn.va.gov/vvc-app/?join=1&media=1&escalate=1&conference=VVC3951170@care2.evn.va.gov&pin=4359244478#"
+                              "conference": "VVC4261787",
+                              "pin": "7965484475#",
+                              "url": "https://care2.evn.va.gov/vvc-app/?join=1&media=1&escalate=1&conference=VVC4261787@care2.evn.va.gov&pin=7965484475#"
                             }
                           }
                         ]
@@ -266,12 +219,12 @@ http_interactions:
                         "provider": [
                           {
                             "name": {
-                              "firstName": "provider first",
-                              "lastName": "provider"
+                              "firstName": "Provider First Name",
+                              "lastName": "Provider Last Name"
                             },
                             "id": {
                               "assigningAuthority": "DFN-983",
-                              "uniqueId": "7216690"
+                              "uniqueId": "7219295"
                             },
                             "contactInformation": {
                               "mobile": "8888888888",
@@ -291,9 +244,9 @@ http_interactions:
                               }
                             },
                             "virtualMeetingRoom": {
-                              "conference": "VVC3951170",
-                              "pin": "8725538#",
-                              "url": "https://care2.evn.va.gov/vvc-app/?name=provider%2Cprovider+first&join=1&media=1&escalate=1&conference=VVC3951170@care2.evn.va.gov&pin=8725538#"
+                              "conference": "VVC4261787",
+                              "pin": "1409269#",
+                              "url": "https://care2.evn.va.gov/vvc-app/?name=Provider+Last+Name%2CProvider+First+Name&join=1&media=1&escalate=1&conference=VVC4261787@care2.evn.va.gov&pin=1409269#"
                             }
                           }
                         ]
@@ -303,13 +256,13 @@ http_interactions:
                   "vdsAppointments": [
                     {
                       "appointmentLength": "15",
-                      "appointmentTime": "2019-11-13T16:00:00Z",
+                      "appointmentTime": "2019-11-06T15:30:00Z",
                       "clinic": {
                         "name": "SIDNEY NURSE",
                         "askForCheckIn": false,
                         "facilityCode": "983"
                       },
-                      "patientId": "7216690",
+                      "patientId": "7219295",
                       "type": "REGULAR",
                       "currentStatus": "FUTURE",
                       "bookingNote": "Video fm: SM See email for details testing"
@@ -317,115 +270,159 @@ http_interactions:
                   ]
                 },
                 {
-                  "startDate": "2019-11-18T17:00:00Z",
-                  "clinicId": "945",
-                  "clinicFriendlyName": "C&P BEV AUDIO FTC",
+                  "startDate": "2019-11-12T17:30:00Z",
+                  "clinicId": "1111",
+                  "clinicFriendlyName": "OEF/OIF",
                   "facilityId": "983",
-                  "patientIcn": "1012845943V900681",
+                  "patientIcn": "1012853550V207686",
+                  "communityCare": false,
+                  "vdsAppointments": [
+                    {
+                      "appointmentLength": "30",
+                      "appointmentTime": "2019-11-12T17:30:00Z",
+                      "clinic": {
+                        "name": "CHY MOVE NUTRITION INDIVIDUAL",
+                        "askForCheckIn": false,
+                        "facilityCode": "983"
+                      },
+                      "patientId": "7219295",
+                      "type": "REGULAR",
+                      "currentStatus": "FUTURE",
+                      "bookingNote": "test"
+                    }
+                  ]
+                },
+                {
+                  "startDate": "2019-11-14T14:00:00Z",
+                  "clinicId": "4213",
+                  "facilityId": "984",
+                  "patientIcn": "1012853550V207686",
+                  "communityCare": false,
+                  "vdsAppointments": [
+                    {
+                      "appointmentTime": "2019-11-14T14:00:00Z",
+                      "clinic": {
+                        "name": "MARCY'S TELEHEALTH",
+                        "askForCheckIn": false,
+                        "facilityCode": "984"
+                      },
+                      "patientId": "552161765",
+                      "type": "REGULAR",
+                      "currentStatus": "CANCELLED BY PATIENT"
+                    }
+                  ]
+                },
+                {
+                  "startDate": "2019-11-14T20:00:00Z",
+                  "clinicId": "1313",
+                  "facilityId": "984",
+                  "patientIcn": "1012853550V207686",
                   "communityCare": false,
                   "vdsAppointments": [
                     {
                       "appointmentLength": "60",
-                      "appointmentTime": "2019-11-18T17:00:00Z",
+                      "appointmentTime": "2019-11-14T20:00:00Z",
                       "clinic": {
-                        "name": "ZZFTC C&P AUDIO BEV",
+                        "name": "DAY NUTRITION",
                         "askForCheckIn": false,
-                        "facilityCode": "983"
+                        "facilityCode": "984"
                       },
-                      "patientId": "7216690",
+                      "patientId": "552161765",
+                      "type": "REGULAR",
+                      "currentStatus": "FUTURE",
+                      "bookingNote": "test"
+                    }
+                  ]
+                },
+                {
+                  "startDate": "2019-12-26T13:00:00Z",
+                  "clinicId": "1184",
+                  "clinicFriendlyName": "C&P OPTOMETRY",
+                  "facilityId": "984",
+                  "patientIcn": "1012853550V207686",
+                  "communityCare": false,
+                  "vdsAppointments": [
+                    {
+                      "appointmentLength": "30",
+                      "appointmentTime": "2019-12-26T13:00:00Z",
+                      "clinic": {
+                        "name": "C&P OPTOMETRY",
+                        "askForCheckIn": false,
+                        "facilityCode": "984"
+                      },
+                      "patientId": "552161765",
+                      "type": "REGULAR",
+                      "currentStatus": "FUTURE",
+                      "bookingNote": "test"
+                    }
+                  ]
+                },
+                {
+                  "startDate": "2020-01-02T20:00:00Z",
+                  "clinicId": "1313",
+                  "facilityId": "984",
+                  "patientIcn": "1012853550V207686",
+                  "communityCare": false,
+                  "vdsAppointments": [
+                    {
+                      "appointmentLength": "60",
+                      "appointmentTime": "2020-01-02T20:00:00Z",
+                      "clinic": {
+                        "name": "DAY NUTRITION",
+                        "askForCheckIn": false,
+                        "facilityCode": "984"
+                      },
+                      "patientId": "552161765",
                       "type": "REGULAR",
                       "currentStatus": "FUTURE"
                     }
                   ]
                 },
                 {
-                  "startDate": "2020-01-02T19:46:00Z",
-                  "facilityId": "983",
-                  "patientIcn": "1012845943V900681",
+                  "startDate": "2020-01-02T21:00:00Z",
+                  "clinicId": "1313",
+                  "facilityId": "984",
+                  "patientIcn": "1012853550V207686",
                   "communityCare": false,
-                  "vvsAppointments": [
+                  "vdsAppointments": [
                     {
-                      "id": "6ebb6f5c-a7cc-4de6-9778-ffcecd1001f2",
-                      "appointmentKind": "ADHOC",
-                      "sourceSystem": "SM",
-                      "dateTime": "2020-01-02T19:46:00Z",
-                      "duration": 20,
-                      "status": {
-                        "description": "F",
-                        "code": "FUTURE"
+                      "appointmentLength": "60",
+                      "appointmentTime": "2020-01-02T21:00:00Z",
+                      "clinic": {
+                        "name": "DAY NUTRITION",
+                        "askForCheckIn": false,
+                        "facilityCode": "984"
                       },
-                      "schedulingRequestType": "NEXT_AVAILABLE_APPT",
+                      "patientId": "552161765",
                       "type": "REGULAR",
-                      "instructionsOther": false,
-                      "patients": {
-                        "patient": [
-                          {
-                            "id": {
-                              "assigningAuthority": "ICN",
-                              "uniqueId": "1012845943V900681"
-                            },
-                            "name": {
-                              "firstName": "CECIL",
-                              "lastName": "MORGAN"
-                            },
-                            "contactInformation": {
-                              "mobile": "7666666666",
-                              "preferredEmail": "samatha.girla@va.gov"
-                            },
-                            "location": {
-                              "type": "NonVA",
-                              "facility": {
-                                "name": "CHEYENNE VAMC",
-                                "siteCode": "983",
-                                "timeZone": "10"
-                              }
-                            },
-                            "patientAppointment": true,
-                            "virtualMeetingRoom": {
-                              "conference": "VVC3115308",
-                              "pin": "8834615054#",
-                              "url": "https://care2.evn.va.gov/vvc-app/?join=1&media=1&escalate=1&conference=VVC3115308@care2.evn.va.gov&pin=8834615054#"
-                            }
-                          }
-                        ]
+                      "currentStatus": "FUTURE",
+                      "bookingNote": "test"
+                    }
+                  ]
+                },
+                {
+                  "startDate": "2020-02-03T15:00:00Z",
+                  "clinicId": "455",
+                  "facilityId": "983",
+                  "patientIcn": "1012853550V207686",
+                  "communityCare": false,
+                  "vdsAppointments": [
+                    {
+                      "appointmentLength": "60",
+                      "appointmentTime": "2020-02-03T15:00:00Z",
+                      "clinic": {
+                        "name": "CHY PC CASSIDY",
+                        "askForCheckIn": false,
+                        "facilityCode": "983"
                       },
-                      "providers": {
-                        "provider": [
-                          {
-                            "name": {
-                              "firstName": "Vilasini",
-                              "lastName": "Reddy"
-                            },
-                            "id": {
-                              "assigningAuthority": "DFN-983",
-                              "uniqueId": "7216690"
-                            },
-                            "contactInformation": {
-                              "mobile": "8888888888",
-                              "preferredEmail": "vilasini.reddy@va.gov",
-                              "timeZone": "10"
-                            },
-                            "location": {
-                              "type": "VA",
-                              "facility": {
-                                "name": "CHEYENNE VAMC",
-                                "siteCode": "983",
-                                "timeZone": "10"
-                              }
-                            },
-                            "virtualMeetingRoom": {
-                              "conference": "VVC3115308",
-                              "pin": "2430632#",
-                              "url": "https://care2.evn.va.gov/vvc-app/?name=Reddy%2CVilasini&join=1&media=1&escalate=1&conference=VVC3115308@care2.evn.va.gov&pin=2430632#"
-                            }
-                          }
-                        ]
-                      }
+                      "patientId": "7219295",
+                      "type": "CLASS II DENTAL",
+                      "currentStatus": "FUTURE"
                     }
                   ]
                 }
               ],
-              "numAppointments": 5
+              "numAppointments": 12
             }
           }
         http_version:
