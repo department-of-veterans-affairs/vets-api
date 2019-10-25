@@ -35,15 +35,9 @@ module Facilities
       drive_time_band.min = round_band(attributes&.dig('FromBreak'))
       drive_time_band.max = round_band(attributes&.dig('ToBreak'))
       drive_time_band.name = name
-      begin
-        return if drive_time_data['geometry']['rings'].size == 0 
-        drive_time_band.polygon = extract_polygon(drive_time_data)
-        drive_time_band.save
-        facility.save
-        puts "Success: #{name}"
-      rescue RGeo::Error::InvalidGeometry => e
-        puts "Error: #{name} #{e}"
-      end
+      drive_time_band.polygon = extract_polygon(drive_time_data)
+      drive_time_band.save
+      facility.save
     end
 
     def round_band(band)
@@ -56,6 +50,7 @@ module Facilities
 
     def extract_polygon(drive_time_data)
       rings = drive_time_data&.dig('geometry', 'rings')
+      return if rings.blank?
       geojson = "{\"type\":\"Polygon\",\"coordinates\":#{rings}}"
       RGeo::GeoJSON.decode(geojson)
     end
@@ -63,11 +58,12 @@ module Facilities
     def download_data
       offset = 0
       loop do
-        response = @drivetime_band_client.get_drivetime_bands(offset, 1)
-        break if response.blank?
+        response = @drivetime_band_client.get_drivetime_bands(offset, 30)
 
+        break if response.blank?
+        
         response.each(&method(:create_and_save_drive_time_data))
-        offset += 1
+        offset += 30
       end
     end
   end
