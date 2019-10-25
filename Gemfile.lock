@@ -23,6 +23,16 @@ GIT
       xmlenc
 
 GIT
+  remote: https://github.com/department-of-veterans-affairs/lighthouse-bgs.git
+  revision: ecd50e7adc5ababf5ca09994e55cf7d78ae6fe94
+  branch: master
+  specs:
+    lighthouse_bgs (0.2)
+      httpclient
+      nokogiri (>= 1.8.5)
+      savon (~> 2.12)
+
+GIT
   remote: https://github.com/department-of-veterans-affairs/puma-plugin-statsd
   revision: 6faba90147cf6fbb6c1a6a0c6cd3ae88e888ca73
   branch: master
@@ -233,7 +243,7 @@ GEM
       colored2 (~> 3.1)
     crack (0.4.3)
       safe_yaml (~> 1.0.0)
-    crass (1.0.4)
+    crass (1.0.5)
     danger (6.1.0)
       claide (~> 1.0)
       claide-plugins (>= 0.9.2)
@@ -399,7 +409,7 @@ GEM
       rb-fsevent (~> 0.9, >= 0.9.4)
       rb-inotify (~> 0.9, >= 0.9.7)
       ruby_dep (~> 1.2)
-    loofah (2.3.0)
+    loofah (2.3.1)
       crass (~> 1.0.2)
       nokogiri (>= 1.5.9)
     lumberjack (1.0.13)
@@ -578,12 +588,12 @@ GEM
       fugit (~> 1.1, >= 1.1.6)
     safe_shell (1.0.3)
     safe_yaml (1.0.5)
-    savon (2.11.1)
+    savon (2.12.0)
       akami (~> 1.2)
       builder (>= 2.1.2)
       gyoku (~> 1.2)
       httpi (~> 2.3)
-      nokogiri (>= 1.4.0)
+      nokogiri (>= 1.8.1)
       nori (~> 2.4)
       wasabi (~> 3.4)
     sawyer (0.8.2)
@@ -752,6 +762,7 @@ DEPENDENCIES
   jsonapi-parser
   jwt
   levenshtein-ffi
+  lighthouse_bgs!
   liquid
   mail (= 2.6.6)
   memoist

@@ -11,14 +11,14 @@ module V0
       def create
         write_to_vet360_and_render_transaction!(
           'address',
-          strip_effective_end_date(address_params)
+          address_params
         )
       end
 
       def update
         write_to_vet360_and_render_transaction!(
           'address',
-          strip_effective_end_date(address_params),
+          address_params,
           http_verb: 'put'
         )
       end
@@ -47,7 +47,6 @@ module V0
           :country_code_iso3,
           :county_code,
           :county_name,
-          :effective_end_date,
           :effective_start_date,
           :id,
           :international_postal_code,
