@@ -25,6 +25,16 @@ module ClaimsApi
       end.flatten
     end
 
+    def count
+      raw_claims = client.all_claims.body
+      EVSS_CLAIM_KEYS.each_with_object([]) do |key, claim_accum|
+        next unless raw_claims[key]
+        claim_accum << raw_claims[key].map do |raw_claim|
+          raw_claim['id']
+        end
+      end.flatten.count
+    end
+
     def update_from_remote(evss_id)
       raw_claim = client.find_claim_by_id(evss_id).body.fetch('claim', {})
       create_claim(evss_id, :data, raw_claim)
