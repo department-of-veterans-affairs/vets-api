@@ -9,6 +9,8 @@ module VaForms
     validates :url, presence: true
     validates :sha256, presence: true
 
+    before_save :set_revision
+
     BASE_URL = 'https://www.va.gov'
 
     def self.refresh!(current_page = 0)
@@ -23,30 +25,29 @@ module VaForms
       doc = Nokogiri::HTML(page)
       next_button = doc.css('input[name=Next10]')
       last_page = next_button.first.attributes['disabled'].present?
-      parse_doc(doc)
+      parse_page(doc)
       refresh!(current_page) unless last_page
     end
 
-    def self.parse_doc(doc)
-      doc.xpath('//table/tr').each do |line|
-        if line.css('a').try(:first) && (url = line.css('a').first['href'])
-          next if url.starts_with?('#')
+    def self.parse_page(doc)
+      doc.xpath('//table/tr').each do |row|
+        parse_table_row(row)
+      end
+    end
 
-          begin
-            parse_line(line, url)
-          rescue OpenURI::HTTPError
-            next
-          rescue SocketError
-            next
-          rescue
-            Rails.logger.warn "VA Forms could not open #{url}"
-            next
-          end
+    def self.parse_table_row(row)
+      if row.css('a').try(:first) && (url = row.css('a').first['href'])
+        return if url.starts_with?('#')
+
+        begin
+          parse_form_row(row, url)
+        rescue
+          Rails.logger.warn "VA Forms could not open #{url}"
         end
       end
     end
 
-    def self.parse_line(line, url)
+    def self.parse_form_row(line, url)
       title = line.css('font').text
       form_name = line.css('a').first.text
       form = VaForms::Form.find_or_initialize_by form_name: form_name
@@ -54,12 +55,7 @@ module VaForms
       form.title = title
       issued_string = line.css('td:nth-child(3)').text
       form.first_issued_on = Date.strptime(issued_string, '%m/%d/%y') if issued_string.present?
-      revision = line.css('td:nth-child(4)').text
-      form.last_revision_on = if revision.present?
-                                Date.strptime(revision, '%m/%d/%y')
-                              else
-                                form.last_revision_on = form.issued_on
-                              end
+      form.last_revision_on = line.css('td:nth-child(4)').text
       form.pages = line.css('td:nth-child(5)').text
       form.url = url.starts_with?('http') ? url : get_full_url(url)
       form.sha256 = get_sha256(form.url)
@@ -79,6 +75,12 @@ module VaForms
 
     def self.get_full_url(url)
       "https://www.va.gov/vaforms/#{url.gsub('./', '')}" if url.include?('/va') || url.include?('/medical')
+    end
+
+    private
+
+    def set_revision
+      self.last_revision_on = first_issued_on if last_revision_on.blank?
     end
   end
 end
