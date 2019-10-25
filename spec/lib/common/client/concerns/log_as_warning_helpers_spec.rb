@@ -1,24 +1,13 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require './spec/support/default_configuration_helper'
 
 describe Common::Client::Concerns::LogAsWarningHelpers do
   module Specs
     module Common
       module Client
-        class DefaultConfiguration < ::Common::Client::Configuration::REST
-          def connection
-            @conn ||= Faraday.new('http://example.com') do |faraday|
-              faraday.adapter Faraday.default_adapter
-            end
-          end
-
-          def service_name
-            'foo'
-          end
-        end
-
-        class DefaultService < ::Common::Client::Base
+        class TestService < ::Common::Client::Base
           configuration DefaultConfiguration
           include ::Common::Client::Concerns::LogAsWarningHelpers
 
@@ -30,7 +19,7 @@ describe Common::Client::Concerns::LogAsWarningHelpers do
     end
   end
 
-  let(:service) { Specs::Common::Client::DefaultService.new }
+  let(:service) { Specs::Common::Client::TestService.new }
 
   context 'when request raises a 503 backend service exception' do
     it 'sets log_as_warning in raven extra context' do

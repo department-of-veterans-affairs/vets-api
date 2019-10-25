@@ -1,30 +1,16 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require './spec/support/default_configuration_helper'
 
 RSpec.describe Common::Client::Monitoring, type: :model do
   module Specs
     module Common
       module Client
-        class MonitoringTestConfiguration < ::Common::Client::Configuration::REST
-          def connection
-            @conn ||= Faraday.new('http://example.com') do |faraday|
-              faraday.use     :breakers
-              faraday.use     Faraday::Response::RaiseError
-              faraday.use     :remove_cookies
-              faraday.adapter :httpclient
-            end
-          end
-
-          def service_name
-            'foo'
-          end
-        end
-
         class MonitoringTestService < ::Common::Client::Base
           STATSD_KEY_PREFIX = 'fooservice'
-          configuration MonitoringTestConfiguration
           include ::Common::Client::Monitoring
+          configuration DefaultConfiguration
 
           def request(*args)
             with_monitoring { super }

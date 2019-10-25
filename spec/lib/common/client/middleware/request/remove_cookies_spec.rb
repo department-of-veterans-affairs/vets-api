@@ -1,25 +1,14 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require './spec/support/default_configuration_helper'
 
 describe Common::Client::Middleware::Request::RemoveCookies do
   module Specs
     module RemoveCookies
-      class TestConfiguration < ::Common::Client::Configuration::REST
-        def port
-          3010
-        end
-
-        def service_name
-          'TestClient'
-        end
-
-        def connection
-          @conn ||= Faraday.new("http://127.0.0.1:#{port}") do |faraday|
-            faraday.use :breakers
-            faraday.use :remove_cookies
-            faraday.adapter :httpclient
-          end
+      class TestConfiguration < Specs::Common::Client::DefaultConfiguration
+        def use_example_path
+          false
         end
       end
 
