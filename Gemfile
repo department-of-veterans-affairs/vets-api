@@ -15,8 +15,8 @@ gem 'veteran', path: 'modules/veteran'
 gem 'veteran_verification', path: 'modules/veteran_verification'
 
 # Anchored versions, do not change
-gem 'puma', '~> 3.12.0'
-gem 'puma-plugin-statsd', git: 'https://github.com/department-of-veterans-affairs/puma-plugin-statsd', branch: 'master'
+gem 'puma', '~> 4.2.1'
+gem 'puma-plugin-statsd', '~> 0.1.0'
 gem 'rails', '~> 5.2.3'
 
 # Gems with special version/repo needs
