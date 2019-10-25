@@ -29,6 +29,7 @@ module ClaimsApi
       raw_claims = client.all_claims.body
       EVSS_CLAIM_KEYS.each_with_object([]) do |key, claim_accum|
         next unless raw_claims[key]
+
         claim_accum << raw_claims[key].map do |raw_claim|
           raw_claim['id']
         end
