@@ -1,6 +1,14 @@
 # Warn if a pull request is too big
 MAX_PR_SIZE = 250
-if git.lines_of_code > MAX_PR_SIZE
+EXCLUSIONS = ['Gemfile.lock', '.json', 'spec/fixtures/', '.txt', 'spec/support/vcr_cassettes/']
+
+# takes form {"some/file.rb"=>{:insertions=>4, :deletions=>1}}
+changed_files = git.diff.stats[:files]
+
+filtered_changed_files = changed_files.reject { |key| EXCLUSIONS.any? { |exclusion| key.include?(exclusion) } }
+lines_of_code = filtered_changed_files.sum { |_file, changes| (changes[:insertions] + changes[:deletions]) }
+
+if lines_of_code > MAX_PR_SIZE
   warn("PR is exceeds `#{MAX_PR_SIZE}` LoC. Consider breaking up into multiple smaller ones.")
 end
 
