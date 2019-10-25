@@ -217,7 +217,7 @@ module Swagger
 
       swagger_schema :IntakeStatus do
         key :type, :object
-        key :description, 'An accepted Decision Review still needs to be processed '\ 
+        key :description, 'An accepted Decision Review still needs to be processed '\
                           'before the Decision Review can be accessed'
         property :data, type: :object do
           property :id, type: :string
