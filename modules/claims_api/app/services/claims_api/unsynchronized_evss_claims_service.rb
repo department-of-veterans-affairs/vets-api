@@ -34,6 +34,8 @@ module ClaimsApi
           raw_claim['id']
         end
       end.flatten.count
+    rescue EVSS::ErrorMiddleware::EVSSError => e
+      0
     end
 
     def update_from_remote(evss_id)

@@ -16,6 +16,7 @@ module ClaimsApi
 
         before_action { permit_scopes %w[claim.write] }
         before_action :validate_json_schema, only: %i[submit_form_526 validate_form_526]
+        before_action :validate_initial_claim, only: %i[submit_form_526 validate_form_526]
         before_action :validate_documents_page_size, only: %i[upload_supporting_documents]
 
         def submit_form_526
@@ -68,6 +69,20 @@ module ClaimsApi
         def source_name
           user = poa_request? ? @current_user : target_veteran
           "#{user.first_name} #{user.last_name}"
+        end
+
+        def validate_initial_claim
+          if claims_service.count == 0 && form_attributes['autoCestPDFGenerationDisabled'] == false
+            error = {
+              errors: [
+                {
+                  status: 422,
+                  details: "Veteran appears to have no claims, autoCestPDFGenerationDisabled is required to be set to true for Initial Claim"
+                }
+              ]
+            }
+            render json: error, status: :unprocessable_entity
+          end
         end
       end
     end
