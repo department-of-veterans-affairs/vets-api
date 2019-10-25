@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'spec_helper'
 require 'hca/enrollment_system'
 
 describe HCA::EnrollmentSystem do
@@ -9,8 +8,8 @@ describe HCA::EnrollmentSystem do
 
   TEST_ADDRESS = {
     'street' => '123 NW 8th St',
-    'street2' =>  '',
-    'street3' =>  '',
+    'street2' => '',
+    'street3' => '',
     'city' => 'Dulles',
     'country' => 'USA',
     'state' => 'VA',
@@ -245,7 +244,7 @@ describe HCA::EnrollmentSystem do
 
   describe '#format_address' do
     context 'with no zipcode' do
-      it 'should format addr correctly' do
+      it 'formats addr correctly' do
         test_address.delete('postalCode')
         expect(described_class.format_address(test_address)).to eq(
           'city' => 'Dulles',
@@ -256,7 +255,7 @@ describe HCA::EnrollmentSystem do
       end
     end
 
-    it 'should format the address correctly' do
+    it 'formats the address correctly' do
       expect(described_class.format_address(test_address)).to eq(
         'city' => 'Dulles',
         'country' => 'USA',
@@ -272,7 +271,7 @@ describe HCA::EnrollmentSystem do
         test_address['country'] = 'COM'
       end
 
-      it 'should format the address correctly' do
+      it 'formats the address correctly' do
         expect(described_class.format_address(test_address)).to eq(
           'city' => 'Dulles',
           'country' => 'COM',
@@ -303,7 +302,7 @@ describe HCA::EnrollmentSystem do
     [
       [true, '2135-2'],
       [false, '2186-5'],
-      ['foo', '0000-0']
+      %w[foo 0000-0]
     ]
   )
 
@@ -402,7 +401,7 @@ describe HCA::EnrollmentSystem do
           'isWhite' => true
         },
         {
-          'race' => ['1002-5', '2106-3']
+          'race' => %w[1002-5 2106-3]
         }
       ],
       [
@@ -466,7 +465,7 @@ describe HCA::EnrollmentSystem do
             }
           ]
         },
-        BigDecimal.new(2065)
+        BigDecimal(2065)
       ]
     ]
   )
@@ -1007,7 +1006,7 @@ describe HCA::EnrollmentSystem do
       }
     end
 
-    it 'should return the right hash' do
+    it 'returns the right hash' do
       %w[
         association_collection
         demographics_info
@@ -1140,21 +1139,21 @@ describe HCA::EnrollmentSystem do
       described_class.veteran_to_save_submit_form(test_veteran, nil).with_indifferent_access
     end
 
-    it 'should return the right result' do
+    it 'returns the right result' do
       Timecop.freeze(Date.new(2015, 10, 21)) do
         expect(subject).to eq(test_result)
       end
     end
 
     context 'with attachments' do
-      it 'should create the right result', run_at: '2019-01-11 14:19:04 -0800' do
+      it 'creates the right result', run_at: '2019-01-11 14:19:04 -0800' do
         health_care_application = build(:hca_app_with_attachment)
         result = described_class.veteran_to_save_submit_form(health_care_application.parsed_form, nil)
         expect(result.to_json).to eq(get_fixture('hca/result_with_attachment').to_json)
       end
     end
 
-    it "shouldn't modify the form template" do
+    it 'does not modify the form template' do
       subject
 
       expect(described_class::FORM_TEMPLATE).to eq(
@@ -1215,28 +1214,31 @@ describe HCA::EnrollmentSystem do
     end
 
     context 'with a valid future discharge date' do
-      let(:discharge_date) { Time.zone.today + 60.days }
       subject { described_class.veteran_to_military_service_info(veteran) }
 
-      it 'should properly set discharge type and discharge date' do
+      let(:discharge_date) { Time.zone.today + 60.days }
+
+      it 'properlies set discharge type and discharge date' do
         expect(described_class.veteran_to_military_service_info(veteran)).to eq(expected)
       end
     end
 
     context 'with an edge case future discharge date' do
-      let(:discharge_date) { Time.zone.today + 180.days }
       subject { described_class.veteran_to_military_service_info(veteran) }
 
-      it 'should properly set discharge type and discharge date' do
+      let(:discharge_date) { Time.zone.today + 180.days }
+
+      it 'properlies set discharge type and discharge date' do
         expect(described_class.veteran_to_military_service_info(veteran)).to eq(expected)
       end
     end
 
     context 'with an invalid future discharge date' do
-      let(:discharge_date) { Time.zone.today + 181.days }
       subject { described_class.veteran_to_military_service_info(veteran) }
 
-      it 'should raise an invalid field exception' do
+      let(:discharge_date) { Time.zone.today + 181.days }
+
+      it 'raises an invalid field exception' do
         expect { subject }.to raise_error(Common::Exceptions::InvalidFieldValue)
       end
     end
@@ -1244,7 +1246,7 @@ describe HCA::EnrollmentSystem do
 
   describe '#build_form_for_user' do
     def self.should_return_template
-      it 'should return the form template' do
+      it 'returns the form template' do
         expect(subject).to eq(described_class::FORM_TEMPLATE)
       end
     end
@@ -1261,7 +1263,7 @@ describe HCA::EnrollmentSystem do
 
     context 'with a user' do
       def self.should_return_user_id
-        it 'should include the user id in the authentication level' do
+        it 'includes the user id in the authentication level' do
           expect(subject).to eq(form_with_user)
         end
       end
@@ -1298,6 +1300,7 @@ describe HCA::EnrollmentSystem do
 
       context 'when the user has an icn' do
         let(:auth_type_id) { icn_id }
+
         before do
           expect(current_user).to receive(:icn).and_return(user_id)
         end
@@ -1306,6 +1309,7 @@ describe HCA::EnrollmentSystem do
 
         context 'when the user has an edipi' do
           let(:auth_type_id) { icn_id }
+
           before do
             allow(current_user).to receive(:edipi).and_return('456')
           end
@@ -1316,6 +1320,7 @@ describe HCA::EnrollmentSystem do
 
       context 'when the user has an edipi' do
         let(:auth_type_id) { edipi_id }
+
         before do
           expect(current_user).to receive(:edipi).and_return(user_id)
         end

@@ -8,8 +8,8 @@ FactoryBot.define do
     #   )
     # end
     transient do
-      file_path(nil)
-      file_type(nil)
+      file_path { nil }
+      file_type { nil }
     end
 
     after(:build) do |attachment, evaluator|

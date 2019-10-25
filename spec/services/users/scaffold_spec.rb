@@ -3,9 +3,9 @@
 require 'rails_helper'
 
 RSpec.describe Users::Scaffold do
-  let(:http_ok) { 200 }
-
   subject { Users::Scaffold.new([], http_ok) }
+
+  let(:http_ok) { 200 }
 
   context 'an instance of Scaffold' do
     it 'has #errors as the first parameter' do

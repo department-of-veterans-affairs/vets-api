@@ -39,7 +39,7 @@ RSpec.describe VBADocuments::MultipartParser do
       end
     end
 
-    it 'raises on a malformed multipart payload' do
+    it 'raises on a multipart with truncated content' do
       invalid_doc = get_fixture('invalid_multipart_truncated.blob')
       expect { described_class.parse(invalid_doc) }.to raise_error do |error|
         expect(error).to be_a(VBADocuments::UploadError)
@@ -90,6 +90,16 @@ RSpec.describe VBADocuments::MultipartParser do
         expect(error.code).to eq('DOC107')
         expect(error.detail).to eq('Empty payload')
       end
+    end
+
+    it 'handles a base64 payload' do
+      valid_doc = get_fixture('base_64')
+      result = described_class.parse(valid_doc)
+      expect(result.size).to eq(2)
+      expect(result).to have_key('metadata')
+      expect(result['metadata']).to be_a(String)
+      expect(result).to have_key('content')
+      expect(result['content']).to be_a(Tempfile)
     end
   end
 end

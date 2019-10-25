@@ -35,12 +35,12 @@ describe Prescription do
   end
 
   context 'it sorts' do
+    subject { [p1, p2, p3, p4] }
+
     let(:p1) { described_class.new(prescription_attributes) }
     let(:p2) { described_class.new(prescription_attributes) }
     let(:p3) { described_class.new(attributes_for(:prescription, prescription_id: '2', refill_date: Time.now.utc)) }
     let(:p4) { described_class.new(attributes_for(:prescription, prescription_id: '3', refill_data: 1.year.ago.utc)) }
-
-    subject { [p1, p2, p3, p4] }
 
     it 'sorts by prescription_id by default' do
       expect(subject.sort.map(&:prescription_id))

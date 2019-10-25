@@ -9,7 +9,7 @@ RSpec.describe LogMetrics do
 
   let(:test_uploader) { LogMetricsUploader.new }
 
-  it 'should log metrics of uploaded file' do
+  it 'logs metrics of uploaded file' do
     expect(StatsD).to receive(:measure).with(
       'api.upload.log_metrics_uploader.size',
       90_537,

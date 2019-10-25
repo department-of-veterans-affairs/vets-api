@@ -42,12 +42,12 @@ module EVSS
       end
     end
 
-    # rubocop:disable all
     def iso8601_birth_date
       return nil unless @user&.va_profile&.birth_date
+
       DateTime.parse(@user.va_profile.birth_date).iso8601
     end
-    # rubocop:enable all
+
     # :nocov:
   end
 end

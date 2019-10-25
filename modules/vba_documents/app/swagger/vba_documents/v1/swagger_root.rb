@@ -60,6 +60,7 @@ module VbaDocuments
           key :in, :header
         end
 
+        key :schemes, ['https']
         key :host, 'api.va.gov'
         key :basePath, '/services/vba_documents/v1'
         key :consumes, ['application/json']

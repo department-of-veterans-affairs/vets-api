@@ -19,21 +19,21 @@ module VaFacilities
     def self.headers
       %w[
         id name station_id latitude longitude
-        facility_type classification website
+        facility_type classification website mobile active_status
         physical_address_1 physical_address_2 physical_address_3
         physical_city physical_state physical_zip
         mailing_address_1 mailing_address_2 mailing_address_3
         mailing_city mailing_state mailing_zip
         phone_main phone_fax phone_mental_health_clinic phone_pharmacy phone_after_hours
         phone_patient_advocate phone_enrollment_coordinator
-        hours_monday hours_tuesay hours_wednesday hours_thursday hours_friday
+        hours_monday hours_tuesday hours_wednesday hours_thursday hours_friday
         hours_saturday hours_sunday
       ]
     end
 
     def self.to_row(object)
       result = [id(object), object.name, object.unique_id, object.lat, object.long,
-                object.facility_type, object.classification, object.website]
+                object.facility_type, object.classification, object.website, object.mobile, object.active_status]
       result += address_attrs(object)
       result += phone_attrs(object)
       result += hours_attrs(object)
@@ -57,7 +57,11 @@ module VaFacilities
 
     def self.hours_attrs(object)
       hours = object.hours
-      %w[monday tuesday wednesday thursday friday saturday sunday].map { |day| hours[day] }
+      if object.facility_type_prefix == 'vc'
+        %w[monday tuesday wednesday thursday friday saturday sunday].map { |day| hours[day] }
+      else
+        %w[Monday Tuesday Wednesday Thursday Friday Saturday Sunday].map { |day| hours[day] }
+      end
     end
   end
 end

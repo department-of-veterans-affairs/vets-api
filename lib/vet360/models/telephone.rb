@@ -5,8 +5,8 @@ module Vet360
     class Telephone < Base
       include Vet360::Concerns::Defaultable
 
-      VALID_AREA_CODE_REGEX = /[0-9]+/
-      VALID_PHONE_NUMBER_REGEX = /[^a-zA-Z]+/
+      VALID_AREA_CODE_REGEX = /[0-9]+/.freeze
+      VALID_PHONE_NUMBER_REGEX = /[^a-zA-Z]+/.freeze
 
       MOBILE      = 'MOBILE'
       HOME        = 'HOME'
@@ -73,6 +73,7 @@ module Vet360
 
       def formatted_phone
         return if phone_number.blank?
+
         # TODO: support international numbers
 
         return_val = "(#{area_code}) #{phone_number[0..2]}-#{phone_number[3..7]}"

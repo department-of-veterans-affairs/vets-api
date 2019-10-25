@@ -3,7 +3,9 @@
 require 'attr_encrypted'
 class EducationBenefitsClaim < ApplicationRecord
   FORM_TYPES = %w[1990 1995 1990e 5490 5495 1990n 0993 0994 1995s].freeze
-
+  FORM_HEADERS = [
+    '22-1990', '22-1995', '22-1990e', '22-5490', '22-5495', '22-1990n', '22-0993', '22-0994', '22-1995 STEM'
+  ].freeze
   APPLICATION_TYPES = %w[
     chapter33
     chapter1607
@@ -32,6 +34,7 @@ class EducationBenefitsClaim < ApplicationRecord
     unless EducationForm::EducationFacility::REGIONS.include?(key)
       raise "Invalid region. Must be one of #{EducationForm::EducationFacility::REGIONS.join(', ')}"
     end
+
     self.regional_processing_office = region
     self.processed_at = nil
     save

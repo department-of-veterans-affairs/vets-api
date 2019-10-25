@@ -44,6 +44,7 @@ module SentryLogging
     # valid raven levels: debug, info, warning, error, fatal
     level = level.to_s
     return 'warning' if level == 'warn'
+
     level
   end
 

@@ -20,6 +20,7 @@ module Veteran
       vso_reps = []
       vso_orgs = fetch_data('orgsexcellist.asp').map do |vso_rep|
         next unless vso_rep['Representative']
+
         find_or_create_vso(vso_rep)
         vso_reps << vso_rep['Registration Num']
         {

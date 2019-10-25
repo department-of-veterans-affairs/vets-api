@@ -1,0 +1,81 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: https://dev-api.va.gov/services/address_validation/v1/candidate
+    body:
+      encoding: UTF-8
+      string: '{"requestAddress":{"addressLine1":"sdfdsfsdf","city":"Washington","requestCountry":{"countryCode":"USA"},"stateProvince":{"code":"DC"},"zipCode5":"20011"}}'
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Cufsystemname:
+      - VETSGOV
+      Apikey:
+      - "<AV_KEY>"
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 404
+      message: ''
+    headers:
+      Date:
+      - Thu, 10 Oct 2019 10:45:56 GMT
+      Content-Type:
+      - application/json;charset=UTF-8
+      Transfer-Encoding:
+      - chunked
+      Connection:
+      - keep-alive
+      Server:
+      - openresty
+      Access-Control-Allow-Origin:
+      - "*"
+      Expires:
+      - '0'
+      Pragma:
+      - no-cache
+      Vet360txauditid:
+      - 17acb301-9a6b-497a-bec1-6a8f70429853
+      Via:
+      - kong/1.2.2
+      X-Content-Type-Options:
+      - nosniff
+      X-Frame-Options:
+      - DENY
+      X-Kong-Proxy-Latency:
+      - '1'
+      X-Kong-Upstream-Latency:
+      - '141'
+      X-Ratelimit-Limit-Edge-Gateway-Address-Validation-Vagovli-Address-V1-Candidate-Address:
+      - '500'
+      X-Ratelimit-Limit-Minute:
+      - '60'
+      X-Ratelimit-Remaining-Edge-Gateway-Address-Validation-Vagovli-Address-V1-Candidate-Address:
+      - '499'
+      X-Ratelimit-Remaining-Minute:
+      - '59'
+      X-Ratelimit-Reset-Edge-Gateway-Address-Validation-Vagovli-Address-V1-Candidate-Address:
+      - '60000'
+      X-Ratelimit-Sla-Limit-Edge-Gateway-Address-Validation-Vagovli-Address-V1-Candidate-Address:
+      - '250'
+      X-Ratelimit-Sla-Remaining-Edge-Gateway-Address-Validation-Vagovli-Address-V1-Candidate-Address:
+      - '249'
+      X-Ua-Compatible:
+      - IE-edge,chrome=1
+      X-Xss-Protection:
+      - 1; mode=block
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubDomains; preload
+    body:
+      encoding: ASCII-8BIT
+      string: '{"messages":[{"code":"ADDRVAL108","key":"CandidateAddressNotFound","severity":"INFO","text":"No
+        Candidate Address Found "}]}'
+    http_version: 
+  recorded_at: Thu, 10 Oct 2019 10:45:56 GMT
+recorded_with: VCR 3.0.3

@@ -250,6 +250,7 @@ module PdfFill
       def expand_va_file_number
         va_file_number = @form_data['vaFileNumber']
         return if va_file_number.blank?
+
         ['', '1'].each do |suffix|
           @form_data["vaFileNumber#{suffix}"] = va_file_number
         end
@@ -258,6 +259,7 @@ module PdfFill
       def expand_ssn
         ssn = @form_data['veteranSocialSecurityNumber']
         return if ssn.blank?
+
         ['', '1', '2', '3'].each do |suffix|
           @form_data["veteranSocialSecurityNumber#{suffix}"] = split_ssn(ssn)
         end
@@ -277,6 +279,7 @@ module PdfFill
       def expand_veteran_dob
         veteran_date_of_birth = @form_data['veteranDateOfBirth']
         return if veteran_date_of_birth.blank?
+
         ['', '1'].each do |suffix|
           @form_data["veteranDateOfBirth#{suffix}"] = split_date(veteran_date_of_birth)
         end
@@ -285,6 +288,7 @@ module PdfFill
       def expand_veteran_service_number
         veteran_service_number = @form_data['veteranServiceNumber']
         return if veteran_service_number.blank?
+
         if veteran_service_number
           ['', '1'].each do |suffix|
             @form_data["veteranServiceNumber#{suffix}"] = veteran_service_number
@@ -333,6 +337,7 @@ module PdfFill
 
       def expand_providers(providers)
         return if providers.blank?
+
         expand_provider_extras(providers)
         expand_provider_address(providers)
         expand_provider_date_range(providers)

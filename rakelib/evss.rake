@@ -36,6 +36,7 @@ namespace :evss do
   desc 'export EDIPIs users with invalid addresss, usage: rake evss:export_invalid_address_edipis[/export/path.csv]'
   task :export_invalid_address_edipis, [:csv_path] => [:environment] do |_, args|
     raise 'No CSV path provided' unless args[:csv_path]
+
     CSV.open(args[:csv_path], 'wb') do |csv|
       csv << %w[edipi created_at]
       InvalidLetterAddressEdipi.find_each do |i|
@@ -50,6 +51,7 @@ namespace :evss do
   desc 'export post 911 not found users for the last week, usage: rake evss:export_post_911_not_found[/export/path.csv]'
   task :export_post_911_not_found, [:file_path] => [:environment] do |_, args|
     raise 'No JSON file path provided' unless args[:file_path]
+
     File.open(args[:file_path], 'w+') do |f|
       PersonalInformationLog.where(error_class: 'EVSS::GiBillStatus::NotFound').last_week.find_each do |error|
         f.puts(error.data.to_json)

@@ -3,8 +3,9 @@
 require 'rails_helper'
 
 describe EVSS::PPIU::Service do
-  let(:user) { build(:evss_user) }
   subject { described_class.new(user) }
+
+  let(:user) { build(:evss_user) }
 
   describe '#get_payment_information' do
     context 'with a valid evss response' do
@@ -123,6 +124,41 @@ describe EVSS::PPIU::Service do
           expect(StatsD).to receive(:increment).once.with('api.evss.update_payment_information.total')
           expect { subject.update_payment_information(request_payload) }.to raise_error(EVSS::PPIU::ServiceException)
         end
+      end
+
+      def ppiu_pii_log
+        PersonalInformationLog.where(error_class: EVSS::PPIU::ServiceException.to_s)
+      end
+
+      it 'creates a PII log' do
+        VCR.use_cassette('evss/ppiu/update_service_error') do
+          expect do
+            begin
+              subject.update_payment_information(request_payload)
+            rescue
+              EVSS::PPIU::ServiceException
+            end
+          end.to change(ppiu_pii_log, :count).by(1)
+        end
+
+        expect(ppiu_pii_log.last.data).to eq(
+          'user' => { 'uuid' => user.uuid, 'edipi' => user.edipi,
+                      'ssn' => user.ssn },
+          'request' =>
+           { 'requests' =>
+             [{ 'paymentType' => 'CNP',
+                'paymentAccount' =>
+                { 'accountType' => 'Checking',
+                  'accountNumber' => '****',
+                  'financialInstitutionName' => 'Fake Bank Name',
+                  'financialInstitutionRoutingNumber' => '021000021' } }] },
+          'response' =>
+           { 'messages' => [{ 'key' =>
+              'piu.get.cnpaddress.partner.service.failed',
+                              'text' => 'Call to partner getCnpAddress failed',
+                              'severity' => 'FATAL' }],
+             'responses' => [] }
+        )
       end
     end
   end

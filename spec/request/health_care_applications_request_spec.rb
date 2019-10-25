@@ -16,13 +16,14 @@ RSpec.describe 'Health Care Application Integration', type: %i[request serialize
     subject do
       get(healthcheck_v0_health_care_applications_path)
     end
+
     let(:body) do
       { 'formSubmissionId' => 377_609_264,
         'timestamp' => '2016-12-12T08:06:08.423-06:00' }
     end
     let(:es_stub) { double(health_check: { up: true }) }
 
-    it 'should call ES' do
+    it 'calls ES' do
       VCR.use_cassette('hca/health_check', match_requests_on: [:body]) do
         subject
         expect(JSON.parse(response.body)).to eq(body)
@@ -53,7 +54,7 @@ RSpec.describe 'Health Care Application Integration', type: %i[request serialize
         }
       end
 
-      it 'should return the enrollment status data' do
+      it 'returns the enrollment status data' do
         expect(HealthCareApplication).to receive(:user_icn).and_return('123')
         expect(HealthCareApplication).to receive(:enrollment_status).with(
           '123', nil
@@ -65,7 +66,7 @@ RSpec.describe 'Health Care Application Integration', type: %i[request serialize
       end
 
       context 'when the request is rate limited' do
-        it 'should return 429' do
+        it 'returns 429' do
           expect(HCA::RateLimitedSearch).to receive(
             :create_rate_limited_searches
           ).and_raise(RateLimitedSearch::RateLimitedError)
@@ -88,7 +89,7 @@ RSpec.describe 'Health Care Application Integration', type: %i[request serialize
           allow_any_instance_of(User).to receive(:icn).and_return(nil)
         end
 
-        it 'should return 404' do
+        it 'returns 404' do
           get(enrollment_status_v0_health_care_applications_path,
               params: { userAttributes: build(:health_care_application).parsed_form })
           expect(response.status).to eq(404)
@@ -96,7 +97,7 @@ RSpec.describe 'Health Care Application Integration', type: %i[request serialize
       end
 
       context 'with user passed attributes' do
-        it 'should return the enrollment status data' do
+        it 'returns the enrollment status data' do
           expect(HealthCareApplication).to receive(:enrollment_status).with(
             current_user.icn, true
           ).and_return(success_response)
@@ -112,15 +113,15 @@ RSpec.describe 'Health Care Application Integration', type: %i[request serialize
         let(:enrolled) { Notification::ENROLLED }
         let(:success_response) do
           {
-            application_date:   '2018-12-27T00:00:00.000-06:00',
-            enrollment_date:    '2018-12-27T17:15:39.000-06:00',
+            application_date: '2018-12-27T00:00:00.000-06:00',
+            enrollment_date: '2018-12-27T17:15:39.000-06:00',
             preferred_facility: '988 - DAYT20',
-            effective_date:     '2019-01-02T21:58:55.000-06:00',
-            parsed_status:      enrolled
+            effective_date: '2019-01-02T21:58:55.000-06:00',
+            parsed_status: enrolled
           }
         end
 
-        it 'should return the enrollment status data' do
+        it 'returns the enrollment status data' do
           allow_any_instance_of(User).to receive(:icn).and_return('1013032368V065534')
 
           VCR.use_cassette('hca/ee/lookup_user', erb: true) do
@@ -144,16 +145,18 @@ RSpec.describe 'Health Care Application Integration', type: %i[request serialize
       before do
         Settings.sentry.dsn = 'asdf'
       end
+
       after do
         Settings.sentry.dsn = nil
       end
+
       let(:params) do
         {
           form: test_veteran.except('privacyAgreementAccepted').to_json
         }
       end
 
-      it 'should show the validation errors' do
+      it 'shows the validation errors' do
         subject
 
         expect(response.code).to eq('422')
@@ -184,7 +187,7 @@ RSpec.describe 'Health Care Application Integration', type: %i[request serialize
             params[:async_compatible] = true
           end
 
-          it 'should submit async' do
+          it 'submits async' do
             subject
             body = JSON.parse(response.body)
             expect(body).to eq(
@@ -197,7 +200,7 @@ RSpec.describe 'Health Care Application Integration', type: %i[request serialize
           end
         end
 
-        it 'should render success', run_at: '2017-01-31' do
+        it 'renders success', run_at: '2017-01-31' do
           VCR.use_cassette('hca/submit_anon', match_requests_on: [:body]) do
             subject
             expect(JSON.parse(response.body)).to eq(body)
@@ -218,7 +221,7 @@ RSpec.describe 'Health Care Application Integration', type: %i[request serialize
             'success' => true }
         end
 
-        it 'should render success and delete the saved form', run_at: '2017-01-31' do
+        it 'renders success and delete the saved form', run_at: '2017-01-31' do
           VCR.use_cassette('hca/submit_auth', match_requests_on: [:body]) do
             expect_any_instance_of(ApplicationController).to receive(:clear_saved_form).with('1010ez').once
             subject
@@ -250,7 +253,7 @@ RSpec.describe 'Health Care Application Integration', type: %i[request serialize
           }
         end
 
-        it 'should raise an invalid field value error' do
+        it 'raises an invalid field value error' do
           VCR.use_cassette('hca/submit_anon', match_requests_on: [:body]) do
             subject
             expect(JSON.parse(response.body)).to eq(body)
@@ -268,7 +271,7 @@ RSpec.describe 'Health Care Application Integration', type: %i[request serialize
         context 'with a validation error' do
           let(:error) { HCA::SOAPParser::ValidationError.new }
 
-          it 'should render error message' do
+          it 'renders error message' do
             subject
 
             expect(response.code).to eq('422')
@@ -291,7 +294,7 @@ RSpec.describe 'Health Care Application Integration', type: %i[request serialize
             Settings.sentry.dsn = nil
           end
 
-          it 'should render error message' do
+          it 'renders error message' do
             expect(Raven).to receive(:capture_exception).with(error, level: 'error').once
 
             subject

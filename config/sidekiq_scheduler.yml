@@ -65,6 +65,16 @@ PreneedsReport:
   class: Preneeds::SubmissionsReport
   description: "Notify stakeholders about PreNeed submission stats"
 
+FacilityDentalServiceBulkUpdate:
+  cron: "25 4 * * * America/New_York"
+  class: Facilities::DentalServiceReloadJob
+  description: "Download and cache facility access-to-care metric data"
+
+FacilityMentalHealthBulkUpdate:
+  cron: "25 4 * * * America/New_York"
+  class: Facilities::MentalHealthReloadJob
+  description: "Download and cache facility mental health phone number data"
+
 FacilityAccessBulkUpdate:
   cron: "30 4 * * * America/New_York"
   class: Facilities::AccessDataDownload
@@ -94,6 +104,11 @@ FacilityLocationBulkUpdateVHA:
   args: ['vha']
   description: "Download and store facility location data"
 
+FacilityLocationVHADriveTime:
+  cron: "55 4 * * * America/New_York"
+  class: Facilities::PSSGDownload
+  description: "Download and store drive time bands"
+
 MaintenanceWindowRefresh:
   cron: "*/3 * * * * America/New_York"
   class: PagerDuty::PollMaintenanceWindows
@@ -113,6 +128,11 @@ VBADocuments::UploadStatusBatch:
   every: "60m"
   class: VBADocuments::UploadStatusBatch
   description: "Cache Statuses for VBA Documents"
+
+VBADocuments::ReportUnsuccessfulSubmissions:
+  cron: "0 0 * * 1 America/New_York"
+  class: VBADocuments::ReportUnsuccessfulSubmissions
+  description: "Weekly report of unsuccessful submissions"
 
 TransactionalEmailAnalyticsJob:
   cron: "0 1 * * * America/New_York"

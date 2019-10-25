@@ -415,6 +415,7 @@ module PdfFill
       # potential leading 'c' to ensure the file number will fit into the form without overflow.
       def extract_va_file_number(va_file_number)
         return va_file_number if va_file_number.blank? || va_file_number.length < 10
+
         va_file_number.sub(/^[Cc]/, '')
       end
 

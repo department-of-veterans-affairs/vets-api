@@ -29,7 +29,7 @@ RSpec.describe Facilities::AccessDataDownload, type: :job do
     let(:sat_client_stub) { instance_double('Facilities::AccessSatisfactionClient') }
     let(:wait_client_stub) { instance_double('Facilities::AccessWaitTimeClient') }
 
-    before(:each) do
+    before do
       allow(Facilities::AccessSatisfactionClient).to receive(:new) { sat_client_stub }
       allow(Facilities::AccessWaitTimeClient).to receive(:new) { wait_client_stub }
     end
@@ -39,8 +39,8 @@ RSpec.describe Facilities::AccessDataDownload, type: :job do
       allow(wait_client_stub).to receive(:download).and_return(wait_time_data)
 
       described_class.new.perform
-      expect(FacilitySatisfaction.find('438GD')).to_not be_nil
-      expect(FacilityWaitTime.find('648GA')).to_not be_nil
+      expect(FacilitySatisfaction.find('438GD')).not_to be_nil
+      expect(FacilityWaitTime.find('648GA')).not_to be_nil
     end
 
     it 'invalidates removed fields' do
@@ -50,7 +50,7 @@ RSpec.describe Facilities::AccessDataDownload, type: :job do
       allow(wait_client_stub).to receive(:download).and_return(wait_time_data)
 
       described_class.new.perform
-      expect(FacilitySatisfaction.find('438GD')).to_not be_nil
+      expect(FacilitySatisfaction.find('438GD')).not_to be_nil
 
       described_class.new.perform
       expect(FacilitySatisfaction.find('438GD')).to be_nil
@@ -60,6 +60,7 @@ RSpec.describe Facilities::AccessDataDownload, type: :job do
       before do
         Settings.sentry.dsn = 'asdf'
       end
+
       after do
         Settings.sentry.dsn = nil
       end
@@ -94,6 +95,7 @@ RSpec.describe Facilities::AccessDataDownload, type: :job do
       before do
         Settings.sentry.dsn = 'asdf'
       end
+
       after do
         Settings.sentry.dsn = nil
       end

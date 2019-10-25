@@ -16,6 +16,7 @@ class AfterLoginJob
   def perform(opt)
     user_uuid = opt['user_uuid']
     return if user_uuid.blank?
+
     @current_user = User.find(user_uuid)
     return if @current_user.blank?
 

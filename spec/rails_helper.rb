@@ -6,14 +6,12 @@ ENV['RACK_ENV'] ||= 'test' # Shrine uses this to determine log levels
 require File.expand_path('../config/environment', __dir__)
 # Prevent database truncation if the environment is production
 abort('The Rails environment is running in production mode!') if Rails.env.production?
-require 'spec_helper'
 require 'statsd-instrument'
 require 'statsd/instrument/matchers'
 require 'rspec/rails'
 require 'webmock/rspec'
-require 'support/factory_girl'
+require 'support/factory_bot'
 require 'support/serializer_spec_helper'
-require 'support/xml_matchers'
 require 'support/validation_helpers'
 require 'support/model_helpers'
 require 'support/authenticated_session_helper'
@@ -73,9 +71,11 @@ VCR.configure do |c|
   c.filter_sensitive_data('<PD_TOKEN>') { Settings.maintenance.pagerduty_api_token }
   c.filter_sensitive_data('<OKTA_TOKEN>') { Settings.oidc.base_api_token }
   c.filter_sensitive_data('<EE_PASS>') { Settings.hca.ee.pass }
+  c.filter_sensitive_data('<AV_KEY>') { Settings.vet360.address_validation.api_key }
   c.before_record do |i|
     %i[response request].each do |env|
       next unless i.send(env).headers.keys.include?('Token')
+
       i.send(env).headers.update('Token' => '<SESSION_TOKEN>')
     end
   end
@@ -172,7 +172,7 @@ RSpec.configure do |config|
     end
   end
 
-  config.before(:each) do |example|
+  config.before do |example|
     stub_mvi unless example.metadata[:skip_mvi]
     stub_emis unless example.metadata[:skip_emis]
     stub_vet360 unless example.metadata[:skip_vet360]

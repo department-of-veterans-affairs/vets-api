@@ -31,6 +31,10 @@ services:
       CI:
       DOCKER: "true"
       RAILS_ENV: test
+      CHANGE_ID:           "${CHANGE_ID}"
+      GIT_URL:             "${GIT_URL}"
+      JENKINS_URL:         "${JENKINS_URL}"
+      DANGER_GITHUB_API_TOKEN: "${DANGER_GITHUB_API_TOKEN}"
     depends_on:
       - postgres
       - redis

@@ -21,12 +21,14 @@ RSpec.describe StatsdMiddleware, type: :request do
   let(:user) { build(:user, :mhv) }
   let(:now) { Time.current }
 
-  before(:each) do
+  before do
     allow_any_instance_of(ApplicationController).to receive(:validate_session).and_return(true)
     allow_any_instance_of(ApplicationController).to receive(:current_user).and_return(user)
     allow_any_instance_of(Rx::Client).to receive(:get_session).and_return(session)
     Timecop.freeze(now)
   end
+
+  after { Timecop.return }
 
   it 'sends status data to statsd' do
     stub_varx_request(:get, 'mhv-api/patient/v1/prescription/gethistoryrx', history_rxs, status_code: 200)

@@ -3,26 +3,26 @@
 module SAML
   module Responses
     module Base
-      ERRORS = { clicked_deny:   { code: '001',
-                                   tag: :clicked_deny,
-                                   short_message: 'Subject did not consent to attribute release',
-                                   level: :warn },
-                 auth_too_late:  { code: '005',
-                                   tag: :auth_too_late,
-                                   short_message: 'Current time is on or after NotOnOrAfter condition',
-                                   level: :warn },
+      ERRORS = { clicked_deny: { code: '001',
+                                 tag: :clicked_deny,
+                                 short_message: 'Subject did not consent to attribute release',
+                                 level: :warn },
+                 auth_too_late: { code: '005',
+                                  tag: :auth_too_late,
+                                  short_message: 'Current time is on or after NotOnOrAfter condition',
+                                  level: :warn },
                  auth_too_early: { code: '003',
                                    tag: :auth_too_early,
                                    short_message: 'Current time is earlier than NotBefore condition',
                                    level: :error },
-                 blank:           { code: '007',
-                                    tag: :blank,
-                                    short_message: 'Blank response',
-                                    level: :error },
-                 unknown:         { code: '007',
-                                    tag: :unknown,
-                                    short_message: 'Other SAML Response Error(s)',
-                                    level: :error } }.freeze
+                 blank: { code: '007',
+                          tag: :blank,
+                          short_message: 'Blank response',
+                          level: :error },
+                 unknown: { code: '007',
+                            tag: :unknown,
+                            short_message: 'Other SAML Response Error(s)',
+                            level: :error } }.freeze
 
       def normalized_errors
         @normalized_errors ||= []
@@ -59,6 +59,11 @@ module SAML
           return ERRORS[key] if error_message.include?(ERRORS[key][:short_message])
         end
         ERRORS[:unknown]
+      end
+
+      def issuer_text
+        response_doc = assertion_encrypted? ? decrypted_document : document
+        REXML::XPath.first(response_doc, '//saml:Issuer')&.text
       end
 
       def authn_context_text

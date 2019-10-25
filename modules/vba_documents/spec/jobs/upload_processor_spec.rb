@@ -38,8 +38,7 @@ RSpec.describe VBADocuments::UploadProcessor, type: :job do
       'content' => valid_doc }
   end
 
-  # rubocop:disable Style/DateTime
-  before(:each) do
+  before do
     objstore = instance_double(VBADocuments::ObjectStore)
     version = instance_double(Aws::S3::ObjectVersion)
     allow(VBADocuments::ObjectStore).to receive(:new).and_return(objstore)
@@ -47,7 +46,6 @@ RSpec.describe VBADocuments::UploadProcessor, type: :job do
     allow(objstore).to receive(:download)
     allow(version).to receive(:last_modified).and_return(DateTime.now.utc)
   end
-  # rubocop:enable Style/DateTime
 
   describe '#perform' do
     let(:upload) { FactoryBot.create(:upload_submission, :status_uploaded, consumer_name: 'test consumer') }
@@ -317,13 +315,31 @@ RSpec.describe VBADocuments::UploadProcessor, type: :job do
         allow(faraday_response).to receive(:success?).and_return(false)
       end
 
-      it 'sets error status for downstream server error' do
+      it 'does not set error status for downstream server error' do
         capture_body = nil
         expect(client_stub).to receive(:upload) { |arg|
           capture_body = arg
           faraday_response
         }
         described_class.new.perform(upload.guid)
+        expect(capture_body).to be_a(Hash)
+        expect(capture_body).to have_key('metadata')
+        expect(capture_body).to have_key('document')
+        metadata = JSON.parse(capture_body['metadata'])
+        expect(metadata['uuid']).to eq(upload.guid)
+        updated = VBADocuments::UploadSubmission.find_by(guid: upload.guid)
+        expect(updated.status).not_to eq('error')
+        expect(updated.code).not_to eq('DOC201')
+      end
+
+      it 'sets error status for downstream server error after retries' do
+        capture_body = nil
+        after_retries = 4
+        expect(client_stub).to receive(:upload) { |arg|
+          capture_body = arg
+          faraday_response
+        }
+        described_class.new.perform(upload.guid, after_retries)
         expect(capture_body).to be_a(Hash)
         expect(capture_body).to have_key('metadata')
         expect(capture_body).to have_key('document')
@@ -339,6 +355,7 @@ RSpec.describe VBADocuments::UploadProcessor, type: :job do
         Timecop.freeze(Time.zone.now)
         described_class.new.perform(upload.guid)
         expect(described_class.jobs.last['at']).to eq(30.minutes.from_now.to_f)
+        Timecop.return
       end
     end
 

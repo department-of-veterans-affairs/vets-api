@@ -2,7 +2,7 @@
 
 desc 'Runs the continuous integration scripts'
 
-task ci: %i[lint security parallel:spec_with_codeclimate_coverage]
+task ci: %i[lint security danger parallel:spec_with_codeclimate_coverage]
 
 task default: :ci
 
@@ -32,3 +32,5 @@ namespace :parallel do
     exit exit_status
   end
 end
+
+$stdout.sync = false

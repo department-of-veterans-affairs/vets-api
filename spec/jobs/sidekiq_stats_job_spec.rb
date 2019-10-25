@@ -3,5 +3,4 @@
 require 'rails_helper'
 
 RSpec.describe SidekiqStatsJob, type: :job do
-  #
 end

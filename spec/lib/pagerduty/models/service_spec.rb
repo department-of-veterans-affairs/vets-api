@@ -15,7 +15,7 @@ describe PagerDuty::Models::Service do
     it 'validates for the :status to be one of the PagerDuty::Models::Service::STATUSES' do
       invalid_service = build :pagerduty_service, status: 'some status'
 
-      expect(invalid_service).to_not be_valid
+      expect(invalid_service).not_to be_valid
     end
   end
 
@@ -28,7 +28,7 @@ describe PagerDuty::Models::Service do
       expect(external_service.class).to eq PagerDuty::Models::Service
     end
 
-    it 'it strips "External:" from the name' do
+    it 'strips "External:" from the name' do
       expect(external_service.service).to eq 'Appeals'
     end
 

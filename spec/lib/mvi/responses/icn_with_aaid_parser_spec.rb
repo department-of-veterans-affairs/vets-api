@@ -11,11 +11,6 @@ describe MVI::Responses::ICNWithAAIDParser do
             '12345678901234567^NI^200M^USVHA^P',
             '12345678901234567^NI^200M^USVHA'
           )
-
-          expect_correct_response_from_without_id_status(
-            '12345678901234567^NI^200M^USVHA^A',
-            '12345678901234567^NI^200M^USVHA'
-          )
         end
       end
 

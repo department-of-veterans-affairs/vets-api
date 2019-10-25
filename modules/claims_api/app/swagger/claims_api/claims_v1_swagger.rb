@@ -45,6 +45,15 @@ module ClaimsApi
         end
       end
 
+      tag do
+        key :name, 'Power of Attorney'
+        key :description, '2122 Submissions'
+        externalDocs do
+          key :description, 'Find more info here'
+          key :url, 'https://developer.va.gov'
+        end
+      end
+
       key :servers, [
         {
           "url": 'https://dev-api.va.gov/services/claims/{version}',
@@ -75,13 +84,14 @@ module ClaimsApi
         }
       ]
 
-      key :components,
-          "securitySchemes": {
-            "bearer_token": {
-              "type": 'http',
-              "scheme": 'bearer'
-            }
-          }
+      security_definition :bearer_token do
+        key :type, :http
+        key :name, :bearer_token
+        key :scheme, :bearer
+        key :bearerFormat, :JWT
+      end
+
+      key :schemes, ['https']
 
       key :host, 'api.va.gov'
       key :basePath, '/services/claims/v1'
