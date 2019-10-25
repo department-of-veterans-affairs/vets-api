@@ -3,18 +3,17 @@
   "description": "Form 2122 Schema",
   "type": "object",
   "required": [
-    "poa_code"
+    "poaCode"
   ],
   "properties": {
-    "poa_code": {
+    "poaCode": {
       "type": "string"
     },
-    "poa_first_name": {
+    "poaFirstName": {
       "type": "string"
     },
-    "poa_last_name": {
+    "poaLastName": {
       "type": "string"
     }
   }
 }
-  

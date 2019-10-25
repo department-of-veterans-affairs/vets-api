@@ -37,7 +37,7 @@ module ClaimsApi
                      )
       if request.headers['Mock-Override'] &&
          Settings.claims_api.disability_claims_mock_override
-        evss_headers['Mock-Override'] = true
+        evss_headers['Mock-Override'] = request.headers['Mock-Override']
         Rails.logger.info('ClaimsApi: Mock Override Engaged')
       end
 
