@@ -6,7 +6,9 @@ module V0
     before_action :validate_name_part, only: [:suggested_conditions]
 
     def total_rating
-      response = service.get_total_rating
+      total_rating_service = EVSS::DisabilityCompensationForm::ServiceTotalRating.new(auth_headers)
+      response = total_rating_service.get_total_rating
+      #response = service.get_total_rating
       render json: response,
              serializer: TotalRatingSerializer
     end

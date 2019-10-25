@@ -16,7 +16,6 @@ module Swagger
           property :some_text, type: :string, example: 'Dummy Data'
         end
 
-
       end
     end
   end

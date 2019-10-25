@@ -45,7 +45,7 @@ module EVSS
       #
       def get_total_rating
         with_monitoring_and_error_handling do
-          raw_response = perform(:get, 'totalRating')
+          raw_response = perform(:get, 'findRatingInfoPID')
           TotalRatingResponse.new(raw_response.status, raw_response)
         end
       end

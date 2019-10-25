@@ -196,6 +196,12 @@
 
   # Disability Compensation Form
   - :method: :get
+    :path: "/wss-common-services-web-11.6/rest/ratingInfoService/11.6/findRatingInfoPID"
+    :file_path: "evss/disability_form/total_rating"
+    :cache_multiple_responses:
+      :uid_location: header
+      :uid_locator: 'va_eauth_pnid'
+  - :method: :get
     :path: "/wss-form526-services-web/rest/form526/v1/ratedDisabilities"
     :file_path: "evss/disability_form/rated_disabilities"
     :cache_multiple_responses:
@@ -471,7 +477,7 @@
   :endpoints:
     - :method: :get
       :path: "/arcgis2/rest/services/Portal/MonthlyVAST_TTB/FeatureServer/0/*"
-      :file_path: "pssg/drivetime_bands" 
+      :file_path: "pssg/drivetime_bands"
       :cache_multiple_responses:
         :uid_location: query
         :uid_locator:  resultOffset
