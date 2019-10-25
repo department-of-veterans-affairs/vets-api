@@ -33,15 +33,6 @@ GIT
       savon (~> 2.12)
 
 GIT
-  remote: https://github.com/department-of-veterans-affairs/puma-plugin-statsd
-  revision: 6faba90147cf6fbb6c1a6a0c6cd3ae88e888ca73
-  branch: master
-  specs:
-    puma-plugin-statsd (0.0.1)
-      json
-      puma (~> 3.12)
-
-GIT
   remote: https://github.com/department-of-veterans-affairs/vets-json-schema
   revision: 8a74f697eba9c4d06951f5f6da4e42af6e21f2d5
   branch: master
@@ -479,7 +470,11 @@ GEM
       byebug (~> 11.0)
       pry (~> 0.10)
     public_suffix (3.1.1)
-    puma (3.12.0)
+    puma (4.2.1)
+      nio4r (~> 2.0)
+    puma-plugin-statsd (0.1.0)
+      json
+      puma (>= 3.12, < 5)
     pundit (1.1.0)
       activesupport (>= 3.0.0)
     raabro (1.1.6)
@@ -781,8 +776,8 @@ DEPENDENCIES
   pg
   prawn
   pry-byebug
-  puma (~> 3.12.0)
-  puma-plugin-statsd!
+  puma (~> 4.2.1)
+  puma-plugin-statsd (~> 0.1.0)
   pundit
   rack-attack
   rack-cors
