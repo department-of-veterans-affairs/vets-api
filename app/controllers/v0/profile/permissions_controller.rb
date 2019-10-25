@@ -11,14 +11,14 @@ module V0
       def create
         write_to_vet360_and_render_transaction!(
           'permission',
-          strip_effective_end_date(permission_params)
+          permission_params
         )
       end
 
       def update
         write_to_vet360_and_render_transaction!(
           'permission',
-          strip_effective_end_date(permission_params),
+          permission_params,
           http_verb: 'put'
         )
       end
@@ -26,7 +26,7 @@ module V0
       def destroy
         write_to_vet360_and_render_transaction!(
           'permission',
-          add_effective_end_date(permission_params),
+          permission_params,
           http_verb: 'put'
         )
       end
@@ -36,7 +36,6 @@ module V0
       def permission_params
         params.permit(
           :effective_start_date,
-          :effective_end_date,
           :id,
           :permission_type,
           :permission_value,

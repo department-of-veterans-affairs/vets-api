@@ -84,7 +84,7 @@ describe 'vet360 rake tasks' do
       Rake.application.invoke_task 'vet360:get_permission_transaction_status[1,a50193df-f4d5-4b6a-b53d-36fed2db1a15]'
     end
 
-    it 'runs without errors' do
+    xit 'runs without errors' do
       expect_any_instance_of(Vet360::ContactInformation::Service).to receive(:get_permission_transaction_status)
       VCR.use_cassette('vet360/contact_information/permission_transaction_status', VCR::MATCH_EVERYTHING) do
         expect { silently { run_rake_task } }.not_to raise_error
@@ -159,7 +159,7 @@ describe 'vet360 rake tasks' do
       Rake.application.invoke_task 'vet360:put_permission'
     end
 
-    it 'runs without errors' do
+    xit 'runs without errors' do
       expect_any_instance_of(Vet360::ContactInformation::Service).to receive(:put_permission)
       VCR.use_cassette('vet360/contact_information/put_permission_success', VCR::MATCH_EVERYTHING) do
         expect { silently { run_rake_task } }.not_to raise_error
@@ -234,7 +234,7 @@ describe 'vet360 rake tasks' do
       Rake.application.invoke_task 'vet360:post_permission'
     end
 
-    it 'runs without errors' do
+    xit 'runs without errors' do
       expect_any_instance_of(Vet360::ContactInformation::Service).to receive(:post_permission)
       VCR.use_cassette('vet360/contact_information/post_permission_success', VCR::MATCH_EVERYTHING) do
         expect { silently { run_rake_task } }.not_to raise_error

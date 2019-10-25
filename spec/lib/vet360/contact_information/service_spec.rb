@@ -190,7 +190,7 @@ describe Vet360::ContactInformation::Service, skip_vet360: true do
     let(:permission) { build(:permission, vet360_id: user.vet360_id, source_system_user: user.icn) }
 
     context 'when successful' do
-      it 'returns a status of 200' do
+      xit 'returns a status of 200' do
         VCR.use_cassette('vet360/contact_information/put_permission_success', VCR::MATCH_EVERYTHING) do
           permission.id = 1299
           permission.permission_value = true
@@ -206,7 +206,7 @@ describe Vet360::ContactInformation::Service, skip_vet360: true do
     let(:permission) { build(:permission, vet360_id: user.vet360_id, id: nil, source_system_user: user.icn) }
 
     context 'when successful' do
-      it 'returns a status of 200' do
+      xit 'returns a status of 200' do
         VCR.use_cassette('vet360/contact_information/post_permission_success', VCR::MATCH_EVERYTHING) do
           response = subject.post_permission(permission)
           expect(response).to be_ok
@@ -215,7 +215,7 @@ describe Vet360::ContactInformation::Service, skip_vet360: true do
     end
 
     context 'when an ID is included' do
-      it 'raises an exception' do
+      xit 'raises an exception' do
         VCR.use_cassette('vet360/contact_information/post_permission_w_id_error', VCR::MATCH_EVERYTHING) do
           permission.id = 42
           expect { subject.post_permission(permission) }.to raise_error do |e|
@@ -331,7 +331,7 @@ describe Vet360::ContactInformation::Service, skip_vet360: true do
     context 'when successful' do
       let(:transaction_id) { 'a50193df-f4d5-4b6a-b53d-36fed2db1a15' }
 
-      it 'returns a status of 200' do
+      xit 'returns a status of 200' do
         VCR.use_cassette('vet360/contact_information/permission_transaction_status', VCR::MATCH_EVERYTHING) do
           response = subject.get_permission_transaction_status(transaction_id)
           expect(response).to be_ok
@@ -344,7 +344,7 @@ describe Vet360::ContactInformation::Service, skip_vet360: true do
     context 'when not successful' do
       let(:transaction_id) { 'd47b3d96-9ddd-42be-ac57-8e564aa38029' }
 
-      it 'returns a status of 404' do
+      xit 'returns a status of 404' do
         VCR.use_cassette('vet360/contact_information/permission_transaction_status_error', VCR::MATCH_EVERYTHING) do
           expect { subject.get_permission_transaction_status(transaction_id) }.to raise_error do |e|
             expect(e).to be_a(Common::Exceptions::BackendServiceException)
