@@ -72,12 +72,12 @@ module ClaimsApi
         end
 
         def validate_initial_claim
-          if claims_service.count == 0 && form_attributes['autoCestPDFGenerationDisabled'] == false
+          if claims_service.count.zero? && form_attributes['autoCestPDFGenerationDisabled'] == false
             error = {
               errors: [
                 {
                   status: 422,
-                  details: "Veteran appears to have no claims, autoCestPDFGenerationDisabled is required to be set to true for Initial Claim"
+                  details: 'Veteran has no claims, autoCestPDFGenerationDisabled requires true for Initial Claim'
                 }
               ]
             }
