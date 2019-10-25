@@ -127,21 +127,14 @@ module Swagger
             property :type, type: :string, enum: %w[Claimant]
           end
         end
-        property :requestIssues, type: :object do
-          property :data, type: :array do
-            items do
-              key :type, :object
-              property :type, type: :string, enum: %w[RequestIssue]
-              property :id, type: :integer
-            end
-          end
-        end
-        property :decisionIssues, type: :object do
-          property :data, type: :array do
-            items do
-              key :type, :object
-              property :type, type: :string, enum: %w[DecisionIssue]
-              property :id, type: :integer
+        [:requestIssues, :decisionIssues].each do |prop|
+          property prop, type: :object do
+            property :data, type: :array do
+              items do
+                key :type, :object
+                property :type, type: :string, enum: [prop.to_s.titleize.delete(' ')[0..-2]]
+                property :id, type: :integer
+              end
             end
           end
         end
@@ -219,6 +212,47 @@ module Swagger
               end
             end
           end
+        end
+      end
+
+      swagger_schema :IntakeStatus do
+        key :type, :object
+        key :description, 'An accepted Decision Review still needs to be processed before the Decision Review can be accessed'
+        property :data, type: :object do
+          property :id, type: :string
+          property :type, type: :string, description: 'Will be Intake Status'
+          property :attributes, type: :object do
+            property :status, type: :string do
+              key :enum, %w[
+                processed
+                canceled
+                attempted
+                submitted
+                not_yet_submitted
+              ]
+              key :description, 
+                '`not_yet_submitted` - The DecisionReview has not been submitted yet.
+                `submitted` - The DecisionReview is in the queue to be attempted.
+                `attempted` - Processing of the DecisionReview is being attempted.
+                `canceled` - The DecisionReview has been successfully canceled.
+                `processed` - The DecisionReview has been processed and transmitted to the appropriate government agency.'
+            end
+          end
+        end
+      end
+
+      swagger_schema :UUID do
+        key :type, :string
+        key :format, :uuid
+        key :pattern, "^[0-9a-fA-F]{8}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{12}$"
+      end
+
+      swagger_schema :AppealsErrors do
+        key :type, :object
+        items do
+          key :type, :object
+          property :title, type: :string
+          property :detail, type: :string
         end
       end
     end
