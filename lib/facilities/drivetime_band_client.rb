@@ -11,6 +11,12 @@ module Facilities
       params = build_params(offset, limit)
       response = perform(:get, '/arcgis2/rest/services/Portal/MonthlyVAST_TTB/FeatureServer/0/query', params)
       JSON.parse(response.body)['features']
+  
+      response_body = JSON.parse(response.body)
+
+      raise Facilities::PSSGDownloadError, response_body['error'] if response_body.has_key?('error')
+
+      response_body['features']
     end
 
     def build_params(offset, limit)
