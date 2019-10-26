@@ -1,17 +1,17 @@
 # frozen_string_literal: true
 
 require 'evss/response'
-require 'evss/disability_compensation_form/total_rating'
+require 'evss/disability_compensation_form/rating_info'
 
 module EVSS
   module DisabilityCompensationForm
     # Model that contains an array*** of a veteran's parsed total combined disability rating
     #
     # @!attribute rated_disabilities
-    #   @return [Array***<EVSS::DisabilityCompensationForm::TotalRating>] The total combined disability rating
+    #   @return [Array***<EVSS::DisabilityCompensationForm::RatingInfo>] The total combined disability rating
     #
-    class TotalRatingResponse < EVSS::Response
-      attribute :total_rating, Array[EVSS::DisabilityCompensationForm::TotalRating]
+    class RatingInfoResponse < EVSS::Response
+      attribute :rating_info, Array[EVSS::DisabilityCompensationForm::RatingInfo]
 
       def initialize(status, response = nil)
         super(status, response.body) if response

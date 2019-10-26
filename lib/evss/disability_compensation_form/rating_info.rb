@@ -30,7 +30,7 @@ module EVSS
     #   @return [Array<EVSS::DisabilityCompensationForm::SpecialIssue>] List of complicating issues
     #     e.g. ['POW', 'PTSD_1']
     #
-    class TotalRating
+    class RatingInfo
       include ActiveModel::Serialization
       include Virtus.model
 
@@ -43,13 +43,6 @@ module EVSS
         super(attrs)
         #self.name = attrs['diagnostic_text']
       end
-=begin
-      # @return [String] Shorthand for rated_disability_id
-      #
-      def id
-        rated_disability_id
-      end
-=end
     end
   end
 end

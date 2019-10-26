@@ -3,10 +3,10 @@
 module Swagger
   module Schemas
     module Form526
-      class TotalRating
+      class RatingInfo
         include Swagger::Blocks
 
-        swagger_schema :TotalRating do
+        swagger_schema :RatingInfo do
           key :required,
               %i[effective_date
                  rating_record

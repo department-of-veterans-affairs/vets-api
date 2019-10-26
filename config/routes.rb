@@ -36,7 +36,7 @@ Rails.application.routes.draw do
     end
 
     resource :disability_compensation_form, only: [] do
-      get 'total_rating'
+      get 'find_rating_info_pid'
       get 'rated_disabilities'
       post 'submit'
       post 'submit_all_claim'

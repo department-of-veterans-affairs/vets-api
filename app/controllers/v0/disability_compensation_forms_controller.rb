@@ -5,12 +5,11 @@ module V0
     before_action { authorize :evss, :access? }
     before_action :validate_name_part, only: [:suggested_conditions]
 
-    def total_rating
-      total_rating_service = EVSS::DisabilityCompensationForm::ServiceTotalRating.new(auth_headers)
-      response = total_rating_service.get_total_rating
-      #response = service.get_total_rating
+    def find_rating_info_pid
+      rating_info_service = EVSS::DisabilityCompensationForm::ServiceRatingInfo.new(auth_headers)
+      response = rating_info_service.get_rating_info
       render json: response,
-             serializer: TotalRatingSerializer
+             serializer: RatingInfoSerializer
     end
 
     def rated_disabilities

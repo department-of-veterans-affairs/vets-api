@@ -177,7 +177,7 @@ module V0
       Swagger::Schemas::Form526::RatedDisabilities,
       Swagger::Schemas::Form526::SubmitDisabilityForm,
       Swagger::Schemas::Form526::SuggestedConditions,
-      Swagger::Schemas::Form526::TotalRating,
+      Swagger::Schemas::Form526::FindRatingInfoPid,
       Swagger::Schemas::Gibct::CalculatorConstants,
       Swagger::Schemas::Gibct::Institutions,
       Swagger::Schemas::Health::Folders,

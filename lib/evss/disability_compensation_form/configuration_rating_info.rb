@@ -2,10 +2,9 @@
 
 module EVSS
   module DisabilityCompensationForm
-    # Configuration for the all claims version of the 526 form. When all claims is deployed live on production
-    # it will live on the same service again as the rest of the end points and `alternate_service_name` can be removed
+    # Configuration for the findRatingInfoPID service
     #
-    class ConfigurationTotalRating < EVSS::DisabilityCompensationForm::Configuration
+    class ConfigurationRatingInfo < EVSS::DisabilityCompensationForm::Configuration
       # :nocov:
       def base_path
         "#{Settings.evss.url}/wss-common-services-web-11.6/rest/ratingInfoService/11.6"
@@ -16,7 +15,7 @@ module EVSS
       # @return [Boolean] Should the service use mock data in lower environments.
       #
       def mock_enabled?
-        Settings.evss.mock_total_rating || false
+        Settings.evss.mock_rating_info || false
       end
     end
   end

@@ -41,12 +41,12 @@ module EVSS
 
       # GETs a user's total combined disability rating
       #
-      # @return [EVSS::DisabilityCompensationForm::TotalRatingResponse] Response with a total combined disability rating
+      # @return [EVSS::DisabilityCompensationForm::RatingInfoResponse] Response with a total combined disability rating
       #
-      def get_total_rating
+      def get_rating_info
         with_monitoring_and_error_handling do
           raw_response = perform(:get, 'findRatingInfoPID')
-          TotalRatingResponse.new(raw_response.status, raw_response)
+          RatingInfoResponse.new(raw_response.status, raw_response)
         end
       end
 

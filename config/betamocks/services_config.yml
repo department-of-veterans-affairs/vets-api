@@ -197,7 +197,7 @@
   # Disability Compensation Form
   - :method: :get
     :path: "/wss-common-services-web-11.6/rest/ratingInfoService/11.6/findRatingInfoPID"
-    :file_path: "evss/disability_form/total_rating"
+    :file_path: "evss/disability_form/find_rating_info_pid"
     :cache_multiple_responses:
       :uid_location: header
       :uid_locator: 'va_eauth_pnid'
