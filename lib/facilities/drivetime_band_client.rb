@@ -3,6 +3,9 @@
 require 'common/client/base'
 
 module Facilities
+  class DrivetimeBandDownloadError < StandardError
+  end
+
   # Core class responsible for api interface operations
   class DrivetimeBandClient < Common::Client::Base
     configuration Facilities::DrivetimeBandConfiguration
@@ -14,7 +17,10 @@ module Facilities
 
       response_body = JSON.parse(response.body)
 
-      raise Facilities::PSSGDownloadError, response_body['error'] if response_body.key?('error')
+      if response_body.key?('error')
+        raise Facilities::DrivetimeBandDownloadError,
+              "Error in request at offset #{offset} and limit #{limit}. Cause: #{response_body['error']}"
+      end
 
       response_body['features']
     end
