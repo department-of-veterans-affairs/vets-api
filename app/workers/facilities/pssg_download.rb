@@ -11,7 +11,7 @@ module Facilities
     include SentryLogging
 
     def perform
-      @drivetime_band_client = Facilities::DrivetimeBandClient.new
+      @drivetime_band_client = Facilities::DrivetimeBands::Client.new
       begin
         download_data
       rescue => e
