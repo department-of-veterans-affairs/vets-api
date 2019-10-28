@@ -19,7 +19,39 @@ module Vet360
       end
     end
 
-    class AddressTransactionResponse < TransactionResponse; end
+    class AddressTransactionResponse < TransactionResponse
+      ERROR_STATUS = 'COMPLETED_FAILURE'
+      extend SentryLogging
+
+      def self.from(*args)
+        return_val = super
+
+        log_error
+
+        return_val
+      end
+
+      def self.log_error
+        if @response_body['tx_status'] == ERROR_STATUS
+          PersonalInformationLog.create(
+            error_class: 'Vet360::ContactInformation::AddressTransactionResponseError',
+            data:
+              {
+                address: @response_body['tx_push_input'].except(
+                  'address_id',
+                  'originating_source_system',
+                  'source_system_user',
+                  'effective_start_date',
+                  'vet360_id'
+                ),
+                errors: @response_body['tx_messages']
+              }
+          )
+        end
+      rescue => e
+        log_exception_to_sentry(e)
+      end
+    end
     class EmailTransactionResponse < TransactionResponse; end
     class PersonTransactionResponse < TransactionResponse; end
     class TelephoneTransactionResponse < TransactionResponse; end
