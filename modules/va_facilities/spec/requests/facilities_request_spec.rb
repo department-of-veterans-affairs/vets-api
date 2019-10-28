@@ -66,7 +66,7 @@ RSpec.describe 'Facilities API endpoint', type: :request do
       json = JSON.parse(response.body)
       expect(json['data'].length).to eq(10)
       expect(json['meta']['distances'].length).to eq(10)
-      sorted_distances = json['meta']['distances'].sort_by { |obj| obj['distance'] }
+      sorted_distances = json['meta']['distances'].sort_by.with_index { |obj, i| [obj['distance'], i] }
       expect(json['meta']['distances']).to eq(sorted_distances)
     end
 
@@ -78,7 +78,7 @@ RSpec.describe 'Facilities API endpoint', type: :request do
       json = JSON.parse(response.body)
       expect(json['data'].length).to eq(10)
       expect(json['meta']['distances'].length).to eq(10)
-      sorted_distances = json['meta']['distances'].sort_by { |obj| obj['distance'] }
+      sorted_distances = json['meta']['distances'].sort_by.with_index { |obj, i| [obj['distance'], i] }
       expect(json['meta']['distances']).to eq(sorted_distances)
     end
 
