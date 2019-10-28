@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require_dependency 'vaos/application_controller'
 
 module VAOS
@@ -24,9 +25,9 @@ module VAOS
       end
 
       def validate_params
-        raise Common::Exceptions::ParameterMissing.new('type') if params[:type].blank?
-        raise Common::Exceptions::ParameterMissing.new('start_date') if params[:start_date].blank?
-        raise Common::Exceptions::ParameterMissing.new('end_date') if params[:end_date].blank?
+        raise Common::Exceptions::ParameterMissing, 'type' if params[:type].blank?
+        raise Common::Exceptions::ParameterMissing, 'start_date' if params[:start_date].blank?
+        raise Common::Exceptions::ParameterMissing, 'end_date' if params[:end_date].blank?
       end
 
       def start_date
