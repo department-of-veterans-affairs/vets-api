@@ -23,6 +23,9 @@ module Facilities
 
     def create_and_save_drive_time_data(drive_time_data)
       attributes = drive_time_data&.dig('attributes')
+      rings = drive_time_data&.dig('geometry', 'rings')
+
+      return if rings.blank?
 
       id = attributes&.dig('Sta_No')&.strip
       facility = Facilities::VHAFacility.find_by(unique_id: id)
@@ -34,7 +37,8 @@ module Facilities
       drive_time_band.min = round_band(attributes&.dig('FromBreak'))
       drive_time_band.max = round_band(attributes&.dig('ToBreak'))
       drive_time_band.name = name
-      drive_time_band.polygon = extract_polygon(drive_time_data)
+
+      drive_time_band.polygon = extract_polygon(rings)
       drive_time_band.save
       facility.save
     end
@@ -47,10 +51,7 @@ module Facilities
       end
     end
 
-    def extract_polygon(drive_time_data)
-      rings = drive_time_data&.dig('geometry', 'rings')
-      return if rings.blank?
-
+    def extract_polygon(rings)
       geojson = "{\"type\":\"Polygon\",\"coordinates\":#{rings}}"
       RGeo::GeoJSON.decode(geojson)
     end
