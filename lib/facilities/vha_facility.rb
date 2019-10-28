@@ -14,7 +14,7 @@ module Facilities
       def get_all_the_facilities_data
         gis_type = 'FacilitySitePoint_VHA'
         sort_field = 'Sta_No'
-        metadata = Facilities::GisMetadataClient.new.get_metadata(gis_type)
+        metadata = Facilities::Gis::MetadataClient.new.get_metadata(gis_type)
         max_record_count = metadata['maxRecordCount']
         resp = Facilities::Gis::Client.new.get_all_facilities(gis_type, sort_field, max_record_count)
         resp_with_websites = add_websites(resp)
