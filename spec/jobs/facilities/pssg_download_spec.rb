@@ -73,5 +73,4 @@ RSpec.describe Facilities::PSSGDownload, type: :job do
       expect(DrivetimeBand.find_by(name: '648A4 : 0 - 10')).to be_nil
     end
   end
-
 end

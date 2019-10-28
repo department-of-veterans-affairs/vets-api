@@ -4,7 +4,6 @@ require 'rgeo/geo_json'
 require 'sentry_logging'
 
 module Facilities
-
   class PSSGDownload
     include Sidekiq::Worker
     include SentryLogging
