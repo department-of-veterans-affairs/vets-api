@@ -16,7 +16,7 @@ module Facilities
         sort_field = 'Sta_No'
         metadata = Facilities::GisMetadataClient.new.get_metadata(gis_type)
         max_record_count = metadata['maxRecordCount']
-        resp = Facilities::GisClient.new.get_all_facilities(gis_type, sort_field, max_record_count)
+        resp = Facilities::Gis::Client.new.get_all_facilities(gis_type, sort_field, max_record_count)
         resp_with_websites = add_websites(resp)
         add_mental_health(resp_with_websites)
       end
