@@ -1,10 +1,9 @@
 # frozen_string_literal: true
 
 require 'rgeo/geo_json'
+require 'sentry_logging'
 
 module Facilities
-  class PSSGDownloadError < StandardError
-  end
 
   class PSSGDownload
     include Sidekiq::Worker
@@ -15,7 +14,7 @@ module Facilities
       begin
         download_data
       rescue => e
-        raise PSSGDownloadError, e.message
+        log_exception_to_sentry(e)
       end
     end
 
