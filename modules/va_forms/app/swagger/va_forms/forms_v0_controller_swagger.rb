@@ -18,6 +18,31 @@ module ClaimsApi
         key :tags, [
           'Forms'
         ]
+
+        response 200 do
+          key :description, 'VaForms index response'
+          schema do
+            key :type, :object
+            key :required, [:data]
+            property :data do
+              key :'$ref', :FormsIndex
+            end
+          end
+        end
+
+        response :default do
+          key :description, 'unexpected error'
+          schema do
+            key :type, :object
+            key :required, [:errors]
+            property :errors do
+              key :type, :array
+              items do
+                key :'$ref', :ErrorModel
+              end
+            end
+          end
+        end
       end
     end
 
@@ -38,6 +63,31 @@ module ClaimsApi
           key :description, 'The VA form_name of the form being requested'
           key :required, true
           key :type, :string
+        end
+
+        response 200 do
+          key :description, 'VaForm response'
+          schema do
+            key :type, :object
+            key :required, [:data]
+            property :data do
+              key :'$ref', :FormsShow
+            end
+          end
+        end
+
+        response :default do
+          key :description, 'unexpected error'
+          schema do
+            key :type, :object
+            key :required, [:errors]
+            property :errors do
+              key :type, :array
+              items do
+                key :'$ref', :ErrorModel
+              end
+            end
+          end
         end
       end
     end
