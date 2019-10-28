@@ -15,7 +15,6 @@ module Facilities
       begin
         download_data
       rescue => e
-        puts "Big fail #{e.message}"
         raise PSSGDownloadError, e.message
       end
     end
