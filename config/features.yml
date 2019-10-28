@@ -11,9 +11,9 @@ features:
   profile_show_direct_deposit:
     description: >
       https://www.va.gov/profile/ show Direct Deposit
-  profile_show_notifications:
+  profile_show_receive_text_notifications:
     description: >
-      https://www.va.gov/profile/ show Notifications
+      https://www.va.gov/profile/ show Receive Text Notifications
   mvi_id_parser:
     description: >
       logic changes for parsing IDs from MVI responses
