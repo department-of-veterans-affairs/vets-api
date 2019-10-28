@@ -105,7 +105,7 @@ RSpec.describe 'vaos appointments', type: :request do
 
         expect(response).to have_http_status(:success)
         expect(response.body).to be_a(String)
-        # expect(response).to match_response_schema('vaos/va_appointments')
+        expect(response).to match_response_schema('vaos/va_appointments')
       end
     end
 
@@ -115,7 +115,7 @@ RSpec.describe 'vaos appointments', type: :request do
 
         expect(response).to have_http_status(:success)
         expect(response.body).to be_a(String)
-        # expect(response).to match_response_schema('vaos/cc_appointments')
+        expect(response).to match_response_schema('vaos/cc_appointments')
       end
     end
   end
