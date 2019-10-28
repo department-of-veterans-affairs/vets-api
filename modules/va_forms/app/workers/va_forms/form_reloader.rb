@@ -40,8 +40,7 @@ module VaForms
 
         begin
           parse_form_row(row, url)
-        rescue => e
-          puts e.inspect
+        rescue
           Rails.logger.warn "VA Forms could not open #{url}"
         end
       end
@@ -76,6 +75,5 @@ module VaForms
     def get_full_url(url)
       "https://www.va.gov/vaforms/#{url.gsub('./', '')}" if url.include?('/va') || url.include?('/medical')
     end
-
   end
 end
