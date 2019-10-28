@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
 module VaForms
-  class ApplicationController < ::OpenidApplicationController
+  class ApplicationController < ::ApplicationController
   end
 end
