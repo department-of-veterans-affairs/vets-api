@@ -1796,7 +1796,7 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
         end
       end
 
-      xit 'supports posting vet360 permission data' do
+      it 'supports posting vet360 permission data' do
         expect(subject).to validate(:post, '/v0/profile/permissions', 401)
 
         VCR.use_cassette('vet360/contact_information/post_permission_success') do
@@ -1811,7 +1811,7 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
         end
       end
 
-      xit 'supports putting vet360 permission data' do
+      it 'supports putting vet360 permission data' do
         expect(subject).to validate(:put, '/v0/profile/permissions', 401)
 
         VCR.use_cassette('vet360/contact_information/put_permission_success') do
@@ -1826,7 +1826,7 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
         end
       end
 
-      xit 'supports deleting vet360 permission data' do
+      it 'supports deleting vet360 permission data' do
         expect(subject).to validate(:delete, '/v0/profile/permissions', 401)
 
         VCR.use_cassette('vet360/contact_information/delete_permission_success') do
