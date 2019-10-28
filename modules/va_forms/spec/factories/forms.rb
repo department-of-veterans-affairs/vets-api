@@ -5,7 +5,7 @@ FactoryBot.define do
     form_name { '526ez' }
     url { 'https://va.gov/va_form/21-526ez.pdf' }
     title { 'Disability Compensation' }
-    first_issued_on { Time.zone.today }
+    first_issued_on { Time.zone.today - 1.day }
     last_revision_on { Time.zone.today }
     pages { 2 }
     sha256 { 'somelongsha' }

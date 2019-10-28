@@ -2,6 +2,6 @@
 
 namespace :va_forms do
   task fetch_latest: :environment do
-    VaForms::Form.refresh!
+    VaForms::FormReloader.new.perform
   end
 end
