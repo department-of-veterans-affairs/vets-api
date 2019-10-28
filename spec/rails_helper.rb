@@ -101,6 +101,8 @@ FactoryBot::SyntaxRunner.class_eval do
 end
 
 RSpec.configure do |config|
+  config.fuubar_auto_refresh = false # or else pry doesn't work right
+  
   # Remove this line if you're not using ActiveRecord or ActiveRecord fixtures
   config.fixture_path = Rails.root.join('spec', 'fixtures')
 

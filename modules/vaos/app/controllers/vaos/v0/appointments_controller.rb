@@ -4,21 +4,41 @@ require_dependency 'vaos/application_controller'
 module VAOS
   module V0
     class AppointmentsController < ApplicationController
+      before_action :validate_params
+
       def index
-        response = if params[:type] == 'cc'
-          va_mobile_service.get_cc_appointments(current_user, date_range)
+        case params[:type]
+        when 'cc'
+          render json: appointment_service.get_cc_appointments(current_user, start_date, end_date)
+        when 'va'
+          render json: appointment_service.get_va_appointments(current_user, start_date, end_date)
         else
-          va_mobile_service.get_va_appointments(current_user, date_range)
+          raise Common::Exceptions::InvalidFieldValue.new('type', params[:type])
         end
-        render json: VAOS::AppointmentSerializer.new(response)
       end
 
       private
 
-      def date_range
-        raise Common::Exceptions::ParameterMissing, 'start_date' if params[:start_date].blank?
-        raise Common::Exceptions::ParameterMissing, 'end_date' if params[:end_date].blank?
-        { start_date: params[:start_date], end_date: params[:end_date] }
+      def appointment_service
+        AppointmentService.new
+      end
+
+      def validate_params
+        raise Common::Exceptions::ParameterMissing.new('type') if params[:type].blank?
+        raise Common::Exceptions::ParameterMissing.new('start_date') if params[:start_date].blank?
+        raise Common::Exceptions::ParameterMissing.new('end_date') if params[:end_date].blank?
+      end
+
+      def start_date
+        Date.parse(params[:start_date])
+      rescue ArgumentError
+        raise Common::Exceptions::InvalidFieldValue.new('start_date', params[:start_date])
+      end
+
+      def end_date
+        Date.parse(params[:end_date])
+      rescue ArgumentError
+        raise Common::Exceptions::InvalidFieldValue.new('end_date', params[:end_date])
       end
     end
   end
