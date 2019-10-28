@@ -34,7 +34,7 @@ module ClaimsApi
           raw_claim['id']
         end
       end.flatten.count
-    rescue EVSS::ErrorMiddleware::EVSSError => e
+    rescue EVSS::ErrorMiddleware::EVSSError
       0
     end
 
