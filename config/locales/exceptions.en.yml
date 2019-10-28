@@ -474,12 +474,23 @@ en:
         code: 'SEARCH_429'
         detail: 'Exceeded Search.gov rate limit'
         status: 429
+      VAOS_502:
+        <<: *external_defaults
+        title: Bad Gateway
+        code: 'VAOS_502'
+        detail: 'Received an an invalid response from the upstream server'
+        status: 502
       VET360_502:
         <<: *external_defaults
         title: Bad Gateway
         code: 'VET360_502'
         detail: 'Received an an invalid response from the upstream server'
         status: 502
+      VET360_AV_ERROR:
+        <<: *external_defaults
+        title: Address Validation Error
+        code: VET360_AV_ERROR
+        status: 400
       VET360_ADDR101:
         <<: *external_defaults
         title: Address Type Size

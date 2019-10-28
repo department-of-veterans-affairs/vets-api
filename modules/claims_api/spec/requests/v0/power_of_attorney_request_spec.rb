@@ -63,7 +63,7 @@ RSpec.describe 'Power of Attorney ', type: :request do
 
       it 'requires poa_code subfield' do
         params = json_data
-        params['data']['attributes']['poa_code'] = nil
+        params['data']['attributes']['poaCode'] = nil
         post path, params: params.to_json, headers: headers
         expect(response.status).to eq(422)
         expect(JSON.parse(response.body)['errors'].size).to eq(1)

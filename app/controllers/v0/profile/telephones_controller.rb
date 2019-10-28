@@ -11,14 +11,14 @@ module V0
       def create
         write_to_vet360_and_render_transaction!(
           'telephone',
-          strip_effective_end_date(telephone_params)
+          telephone_params
         )
       end
 
       def update
         write_to_vet360_and_render_transaction!(
           'telephone',
-          strip_effective_end_date(telephone_params),
+          telephone_params,
           http_verb: 'put'
         )
       end
@@ -39,7 +39,6 @@ module V0
           :country_code,
           :extension,
           :effective_start_date,
-          :effective_end_date,
           :id,
           :is_international,
           :is_textable,

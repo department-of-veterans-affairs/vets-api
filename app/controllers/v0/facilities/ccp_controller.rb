@@ -4,7 +4,7 @@ class V0::Facilities::CcpController < FacilitiesController
   before_action :validate_id, only: [:show]
 
   def show
-    ppms = Facilities::PPMSClient.new
+    ppms = Facilities::PPMS::Client.new
     result = ppms.provider_info(params[:id])
     raise Common::Exceptions::RecordNotFound, params[:id] if result.nil?
 
@@ -14,7 +14,7 @@ class V0::Facilities::CcpController < FacilitiesController
   end
 
   def services
-    ppms = Facilities::PPMSClient.new
+    ppms = Facilities::PPMS::Client.new
     result = ppms.specialties
     render json: result
   end
