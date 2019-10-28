@@ -40,16 +40,17 @@ module Facilities
     end
 
     def round_band(band)
-      if band%10 == 0 
+      if (band % 10).zero?
         band
       else
-        (band.to_i/10)*10
+        (band.to_i / 10) * 10
       end
     end
 
     def extract_polygon(drive_time_data)
       rings = drive_time_data&.dig('geometry', 'rings')
       return if rings.blank?
+
       geojson = "{\"type\":\"Polygon\",\"coordinates\":#{rings}}"
       RGeo::GeoJSON.decode(geojson)
     end
@@ -60,7 +61,7 @@ module Facilities
         response = @drivetime_band_client.get_drivetime_bands(offset, 30)
 
         break if response.blank?
-        
+
         response.each(&method(:create_and_save_drive_time_data))
         offset += 30
       end
