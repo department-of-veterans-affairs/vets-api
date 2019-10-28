@@ -317,6 +317,7 @@ module PdfFill
 
       def expand_incidents(incidents)
         return if incidents.blank?
+
         incidents.each_with_index do |incident, index|
           format_incident_overflow(incident, index + 1)
           incident['incidentDate'] = expand_incident_date(incident)
@@ -351,6 +352,7 @@ module PdfFill
       def expand_injury_death_date(person_involved, index)
         injury_date = person_involved['injuryDeathDate']
         return if injury_date.blank?
+
         s_date = split_approximate_date(injury_date)
         person_involved["injuryDeathDateMonth#{index}"] = s_date['month']
         person_involved["injuryDeathDateDay#{index}"] = s_date['day']

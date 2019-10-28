@@ -3,15 +3,15 @@
 FactoryBot.define do
   factory :session_activity do
     originating_request_id { SecureRandom.uuid }
-    originating_ip_address { '0.0.0.0' }
-    name 'idme'
-    status 'incomplete'
-    user_uuid nil
-    sign_in_service_name nil
-    sign_in_account_type nil
-    multifactor_enabled nil
-    idme_verified nil
-    duration nil
-    additional_data { { originating_user_agent: 'Rails Testing' } }
+    originating_ip_address { '200.200.200.200' }
+    name { 'signup' }
+    status { 'incomplete' }
+    user_uuid { SecureRandom.uuid }
+    sign_in_service_name { 'idme' }
+    sign_in_account_type { nil }
+    multifactor_enabled { false }
+    idme_verified { false }
+    duration { 200 }
+    additional_data {}
   end
 end

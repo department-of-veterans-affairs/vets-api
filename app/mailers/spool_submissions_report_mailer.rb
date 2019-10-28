@@ -3,30 +3,45 @@
 class SpoolSubmissionsReportMailer < ApplicationMailer
   REPORT_TEXT = 'Spool submissions report'
   RECIPIENTS = %w[
-    lihan@adhocteam.us
     dana.kuykendall@va.gov
-    Jennifer.Waltz2@va.gov
-    shay.norton@va.gov
     Darla.VanNieukerk@va.gov
+    Jennifer.Waltz2@va.gov
+    lihan@adhocteam.us
     Ricardo.DaSilva@va.gov
+    shay.norton@va.gov
   ].freeze
+
+  STEM_RECIPIENTS = %w[
+    kyle.pietrosanto@va.gov
+    robert.shinners@va.gov
+  ].freeze
+
   STAGING_RECIPIENTS = %w[
     lihan@adhocteam.us
-    Turner_Desiree@bah.com
-    Delli-Gatti_Michael@bah.com
+    shay.norton-leonard@va.gov
   ].freeze
 
-  def build(report_file)
-    url = Reports::Uploader.get_s3_link(report_file)
+  STAGING_STEM_RECIPIENTS = %w[
+  ].freeze
 
+  def add_stem_recipients
+    return STAGING_STEM_RECIPIENTS.dup if FeatureFlipper.staging_email?
+
+    STEM_RECIPIENTS.dup
+  end
+
+  def build(report_file, stem_exists)
+    url = Reports::Uploader.get_s3_link(report_file)
     opt = {}
 
     opt[:to] =
       if FeatureFlipper.staging_email?
-        STAGING_RECIPIENTS.clone
+        STAGING_RECIPIENTS.dup
       else
-        RECIPIENTS.clone
+        RECIPIENTS.dup
       end
+
+    opt[:to] << add_stem_recipients if stem_exists
 
     mail(
       opt.merge(

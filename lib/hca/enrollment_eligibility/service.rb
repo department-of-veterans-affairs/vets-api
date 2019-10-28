@@ -40,6 +40,14 @@ module HCA
           effective_date: get_xpath(
             response,
             "#{XPATH_PREFIX}enrollmentDeterminationInfo/effectiveDate"
+          ),
+          primary_eligibility: get_xpath(
+            response,
+            "#{XPATH_PREFIX}enrollmentDeterminationInfo/primaryEligibility/type"
+          ),
+          veteran: get_xpath(
+            response,
+            "#{XPATH_PREFIX}enrollmentDeterminationInfo/veteran"
           )
         }
       end
@@ -50,6 +58,7 @@ module HCA
       def get_xpath(response, xpath)
         node = response.locate(xpath)
         return if node.blank?
+
         node[0].nodes[0]
       end
 

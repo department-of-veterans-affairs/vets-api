@@ -3,6 +3,7 @@
 require 'saml/user_attributes/id_me'
 require 'saml/user_attributes/mhv'
 require 'saml/user_attributes/dslogon'
+require 'saml/user_attributes/ssoe'
 require 'sentry_logging'
 require 'base64'
 
@@ -19,6 +20,8 @@ module SAML
       'dslogon_multifactor' => { loa_current: nil, sign_in: { service_name: 'dslogon' } },
       'dslogon_loa3' => { loa_current: '3', sign_in: { service_name: 'dslogon' } },
       'myhealthevet' => { loa_current: nil, sign_in: { service_name: 'myhealthevet' } },
+      # SSOe context
+      'urn:oasis:names:tc:SAML:2.0:ac:classes:Password' => { loa_current: '1', sign_in: { service_name: 'ssoe' } },
       'dslogon' => { loa_current: nil, sign_in: { service_name: 'dslogon' } }
     }.freeze
     UNKNOWN_AUTHN_CONTEXT = 'unknown'
@@ -43,6 +46,7 @@ module SAML
 
     def changing_multifactor?
       return false if authn_context.nil?
+
       authn_context.include?('multifactor')
     end
 
@@ -72,12 +76,23 @@ module SAML
     # will be one of AUTHN_CONTEXTS.keys
     def authn_context
       saml_response.authn_context_text
-    rescue StandardError
+    rescue
       Raven.tags_context(controller_name: 'sessions', sign_in_method: 'not-signed-in:error')
       raise
     end
 
+    def issuer
+      saml_response.issuer_text
+    rescue
+      Raven.tags_context(controller_name: 'sessions', sign_in_method: 'not-signed-in:error')
+      raise
+    end
+
+    # SSOe Issuer value is https://int.eauth.va.gov/FIM/sps/saml20fedCSP/saml20
+    # SSOe AuthnContext currently set to urn:oasis:names:tc:SAML:2.0:ac:classes:Password
     def user_attributes_class
+      return SAML::UserAttributes::SSOe if issuer&.match(/eauth\.va\.gov/)
+
       case authn_context
       when 'myhealthevet', 'myhealthevet_multifactor'
         SAML::UserAttributes::MHV

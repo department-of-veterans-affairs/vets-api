@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: post
-    uri: "<EVSS_BASE_URL>/wss-claims-services-web-3.0/rest/vbaClaimStatusService/getClaimDetailById"
+    uri: "<EVSS_BASE_URL>/wss-claims-services-web-3.6/rest/vbaClaimStatusService/getClaimDetailById"
     body:
       encoding: UTF-8
       string: '{"id":1}'

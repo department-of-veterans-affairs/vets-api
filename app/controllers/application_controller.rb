@@ -31,10 +31,6 @@ class ApplicationController < ActionController::API
   skip_before_action :authenticate, only: %i[cors_preflight routing_error]
   before_action :set_tags_and_extra_context
 
-  def tag_rainbows
-    Sentry::TagRainbows.tag
-  end
-
   def cors_preflight
     head(:ok)
   end
@@ -119,8 +115,8 @@ class ApplicationController < ActionController::API
   def set_tags_and_extra_context
     Thread.current['request_id'] = request.uuid
     Thread.current['additional_request_attributes'] = {
-      'request_ip' => request.remote_ip,
-      'request_agent' => request.user_agent
+      'remote_ip' => request.remote_ip,
+      'user_agent' => request.user_agent
     }
     Raven.extra_context(request_uuid: request.uuid)
     Raven.user_context(user_context) if current_user
@@ -137,18 +133,14 @@ class ApplicationController < ActionController::API
   end
 
   def tags_context
-    {
-      controller_name: controller_name,
-      sign_in_method: sign_in_method_for_tag
-    }
-  end
-
-  def sign_in_method_for_tag
-    if current_user.present?
-      # account_type is filtered by sentry, becasue in other contexts it refers to a bank account type
-      current_user.identity.sign_in.merge(acct_type: current_user.identity.sign_in[:account_type])
-    else
-      'not-signed-in'
+    { controller_name: controller_name }.tap do |tags|
+      if current_user.present?
+        tags[:sign_in_method] = current_user.identity.sign_in[:service_name]
+        # account_type is filtered by sentry, becasue in other contexts it refers to a bank account type
+        tags[:sign_in_acct_type] = current_user.identity.sign_in[:account_type]
+      else
+        tags[:sign_in_method] = 'not-signed-in'
+      end
     end
   end
 
@@ -172,11 +164,12 @@ class ApplicationController < ActionController::API
   end
 
   def render_job_id(jid)
-    render json: { job_id: jid }, status: 202
+    render json: { job_id: jid }, status: :accepted
   end
 
   def append_info_to_payload(payload)
     super
     payload[:session] = Session.obscure_token(session[:token]) if session && session[:token]
+    payload[:user_uuid] = current_user.uuid if current_user.present?
   end
 end

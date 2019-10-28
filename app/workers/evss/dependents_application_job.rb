@@ -8,7 +8,6 @@ module EVSS
 
     # rubocop:disable Metrics/MethodLength
     def perform(app_id, form, user_uuid)
-      Sentry::TagRainbows.tag
       @app_id = app_id
       user = User.find(user_uuid)
       service = Dependents::Service.new(user)
@@ -35,7 +34,7 @@ module EVSS
         state: 'success',
         response: res.to_json
       )
-    rescue StandardError
+    rescue
       dependents_application.update_attributes!(
         state: 'failed'
       )

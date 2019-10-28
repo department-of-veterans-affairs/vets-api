@@ -17,6 +17,7 @@ module BB
           # If POST is successful message body is irrelevant
           # if it was not successul an exception would have already been raised
           return if env.method == :post
+
           env[:body] = parse(env.body) if env.body.present?
         end
 
@@ -48,11 +49,13 @@ module BB
 
         def parsed_extract_status_list
           return nil unless @parsed_json.keys.include?(:facility_extract_status_list)
+
           @parsed_json[:facility_extract_status_list]
         end
 
         def parsed_health_record_types
           return nil unless @parsed_json.keys.include?(:data_classes)
+
           @parsed_json[:data_classes].uniq.sort.map { |dc| { name: dc } }
         end
       end

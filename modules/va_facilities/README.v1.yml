@@ -7,7 +7,7 @@ info:
     ## Background
 
     This API provides information about physical VA facilities. Information available includes
-    geographic location, address, phone, hours of operation, and available services. 
+    geographic location, address, phone, hours of operation, and available services.
 
     VA operates several different types of facilities. The types represented in this API include:
     - Health facilities
@@ -36,6 +36,18 @@ info:
       VA health facilities.
     - The list of available services in the `services` element is only applicable to VA health and
       benefits facilities.
+
+    ### Mobile Facilities
+
+    VHA has a set of mobile facilities that move regularly within a region.
+    If a facility comes back from this API with `"mobile": "true"`, the latitude/longitude and address should be considered inaccurate.
+    To get the exact current location, end consumers should contact the mobile facility directly.
+
+    ### Active Status
+
+    VHA facilities can be temporarily closed for a variety of reasons.
+    If a facility comes back from this API with `"active_status": "T"`, it is not currently operating.
+    `"active_status": "A"` indicates normal operations at a facility.
 
     ## Reference
 
@@ -74,7 +86,7 @@ paths:
   #     summary: "DRAFT: Query facilities based on a geographic bounding box and optional attribute filters"
   #     description: |
   #       *This is a draft specification and not an available endpoint.*
-        
+
   #       Retrieve all facilities contained within the specified bounding box. Bounding box is
   #       specified as four parameters lng1, lat1, lng2, lat2. Relative ordering of longitude and
   #       latitude parameters is unimportant.
@@ -115,7 +127,7 @@ paths:
   #       - name: zip
   #         in: query
   #         description: |
-  #           Zip code to search for VA Facilities. 
+  #           Zip code to search for VA Facilities.
   #           More detailed zip codes can be passed in, but only the first five digits are used to determine facilities to return.
   #         required: false
   #         schema:
@@ -397,11 +409,9 @@ paths:
   #             schema:
   #               type: string
   #               example: |
-  #                 id,name,station_id,latitude,longitude,facility_type,classification,website,physical_address_1,physical_address_2,physical_address_3,physical_city,physical_state,physical_zip,mailing_address_1,mailing_address_2,mailing_address_3,mailing_city,mailing_state,mailing_zip,phone_main,phone_fax,phone_mental_health_clinic,phone_pharmacy,phone_after_hours,phone_patient_advocate,phone_enrollment_coordinator,hours_monday,hours_tuesay,hours_wednesday,hours_thursday,hours_friday,hours_saturday,hours_sunday
-  #                 vc_0101V,Boston Vet Center,0101V,42.3445959000001,-71.0361051099999,vet_center,,,7 Drydock Avenue,Suite 2070,,Boston,MA,02210,,,,,,,857-203-6461 x,,,,,,,800AM-700PM,800AM-800PM,800AM-700PM,800AM-800PM,800AM-600PM,-,-
-  #                 vba_362b,Houston Regional Benefit Office at Frank Tejeda Outpatient Clinic,362b,29.51690196,-98.59601936,va_benefits_facility,Outbased,NULL,5788 Eckhert Road,,,San Antonio,TX,78240,,,,,,,210-699-5040,210-699-5079,,,,,,,,,,,,
-  #                 vha_402GC,Rumford VA Clinic,402GC,44.55185578,-70.55746856,va_health_facility,Primary Care CBOC,http://www.maine.va.gov/locations/rumford.asp,431 Franklin Street,,,Rumford,ME,04276-2100,,,,,,,207-369-3200 x,207-369-3277 x,207-369-3200 x 3200,207-623-8411 x5770,866-757-7503 x,207-623-5760 x,207-626-4743 x,,,,,,,
-  #                 nca_800,Alton National Cemetery,800,38.8905166870001,-90.1630421139999,va_cemetery,National Cemetery,https://www.cem.va.gov/cems/nchp/alton.asp,600 Pearl St,,,Alton,IL,62002,2900 Sheridan Rd,,,St. Louis,MO,63125,314-845-8320,314-845-8355,,,,,,,,,,,,
+  #                 id,name,station_id,latitude,longitude,facility_type,classification,website,physical_address_1,physical_address_2,physical_address_3,physical_city,physical_state,physical_zip,mailing_address_1,mailing_address_2,mailing_address_3,mailing_city,mailing_state,mailing_zip,phone_main,phone_fax,phone_mental_health_clinic,phone_pharmacy,phone_after_hours,phone_patient_advocate,phone_enrollment_coordinator,hours_monday,hours_tuesay,hours_wednesday,hours_thursday,hours_friday,hours_saturday,hours_sunday,mobile
+  #                 vc_0101V,Boston Vet Center,0101V,42.3445959000001,-71.0361051099999,vet_center,,,7 Drydock Avenue,Suite 2070,,Boston,MA,2210,,,,,,,857-203-6461 x,,,,,,,800AM-700PM,800AM-800PM,800AM-700PM,800AM-800PM,800AM-600PM,-,-,false
+  #                 vba_362b,Houston Regional Benefit Office at Frank Tejeda Outpatient Clinic,362b,29.51690196,-98.59601936,va_benefits_facility,Outbased,NULL,5788 Eckhert Road,,,San Antonio,TX,78240,,,,,,,210-699-5040,210-699-5079,,,,,,,,,,,,,false
   #       '401':
   #         description: Missing API token
   #         content:
@@ -424,14 +434,14 @@ paths:
     get:
       tags:
         - facilities
-      summary: Query facilities based on drive time from a specified location
+      summary: Query health facilities based on drive time from a specified location
       description: |
-        Retrieve all facilities contained within an isochrone (a polygon composed of the area 
-        reachable in a certain amount of time from a central location) based on the passed 
-        `street_address`, `city`, `state`, `zip`, and `drive_time` parameters.
+        Retrieve all health facilities contained within an isochrone (a polygon composed of the area
+        reachable in a certain amount of time from a central location) based on passing in a
+        combination of `street_address`, `city`, `state`, and `zip` or `lat` and `lng` required
+        parameters along with `drive_time`.
 
-        Additionally one can filter the facilities within the isochrone by type and available
-        services. Only facilities of type "health" and "benefits" may be filtered by available
+        Additionally one can filter the facilities within the isochrone by available
         services.
 
         Results of this operation are paginated. JSON responses include pagination information
@@ -442,37 +452,55 @@ paths:
         Please use `/facilities` to see detailed information.
       operationId: getNearbyFacilities
       security:
-        - api_key: []
+        - apikey: []
       parameters:
         - name: street_address
           in: query
           description: |
             Street address of the location from which drive time will be calculated.
-          required: true
+          required: false
           schema:
             type: string
         - name: city
           in: query
           description: |
             City of the location from which drive time will be calculated.
-          required: true
+          required: false
           schema:
             type: string
         - name: state
           in: query
           description: |
             Two character state code of the location from which drive time will be calculated.
-          required: true
+          required: false
           schema:
             type: string
         - name: zip
           in: query
           description: |
             Zip code of the location from which drive time will be calculated.
-          required: true
+          required: false
           schema:
             type: string
             format: '##### or #####-####'
+        - name: lat
+          in: query
+          description: |
+            Latitude of point to search for nearest VA Facilities.
+          required: false
+          schema:
+            type: number
+            format: float
+        - name: lng
+          in: query
+          description: |
+            Longitude of point to search for nearest VA Facilities.
+          required: false
+          style: form
+          explode: true
+          schema:
+            type: number
+            format: float
         - name: drive_time
           description:  Filter to only include facilities that are within the specified number of drive time minutes from the requested location.
           in: query
@@ -480,17 +508,6 @@ paths:
           schema:
             type: integer
             default: 60
-        - name: type
-          description: Optional facility type search filter
-          in: query
-          required: false
-          schema:
-            type: string
-            enum:
-              - health
-              - cemetery
-              - benefits
-              - vet_center
         - name: services[]
           description: Optional facility service search filter
           in: query
@@ -572,6 +589,12 @@ paths:
               schema:
                 type: string
                 example: '<https://dev-api.va.gov/services/va_facilities/v1/facilities?bbox%5B%5D=-120&bbox%5B%5D=40&bbox%5B%5D=-125&bbox%5B%5D=50&page=2&per_page=20>; rel="self", <https://dev-api.va.gov/services/va_facilities/v0/facilities?bbox%5B%5D=-120&bbox%5B%5D=40&bbox%5B%5D=-125&bbox%5B%5D=50&page=1&per_page=20>; rel="first", <https://dev-api.va.gov/services/va_facilities/v0/facilities?bbox%5B%5D=-120&bbox%5B%5D=40&bbox%5B%5D=-125&bbox%5B%5D=50&page=1&per_page=20>; rel="prev", <https://dev-api.va.gov/services/va_facilities/v0/facilities?bbox%5B%5D=-120&bbox%5B%5D=40&bbox%5B%5D=-125&bbox%5B%5D=50&page=3&per_page=20>; rel="next", <https://dev-api.va.gov/services/va_facilities/v0/facilities?bbox%5B%5D=-120&bbox%5B%5D=40&bbox%5B%5D=-125&bbox%5B%5D=50&page=5&per_page=20>; rel="last"'
+        '400':
+          description: Missing Required Or Ambiguous Parameters
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ParameterError"
         '401':
           description: Missing API token
           content:
@@ -598,7 +621,7 @@ paths:
   #     summary: "DRAFT: Retrieve polygons of the drive time bands for facilities"
   #     description: |
   #       *This is a draft specification and not an available endpoint.*
-        
+
   #       Retrieve the polygons used to determine in which drive time band veterans fall into for facilities.
 
   #       Alternatively, one can retrieve a single facility using `/facilities/{id}/drive_time_bands`
@@ -711,8 +734,8 @@ paths:
   #     summary: "DRAFT: Retrieve polygons of the drive time bands for a facility by ID"
   #     description: |
   #       *This is a draft specification and not an available endpoint.*
-        
-  #       Retrieve the polygons used to determine in which drive time band veterans fall into for a specified facility. 
+
+  #       Retrieve the polygons used to determine in which drive time band veterans fall into for a specified facility.
 
   #       Alternatively, one can retrieve drive time bands for all facilities using `/facilities/all/drive_time_bands`.
 
@@ -785,12 +808,12 @@ paths:
   #     summary: "DRAFT: Bulk download of all available facilities"
   #     description: |
   #       *This is a draft specification and not an available endpoint.*
-        
+
   #       Retrieve drive time bands for all available facilities in a single operation, formatted as either a GeoJSON
-  #       FeatureCollection or as a CSV. 
+  #       FeatureCollection or as a CSV.
 
   #       Alternatively, one can retrieve drive time bands for a specific facility using `/facilities/{id}/drive_time_bands`.
-        
+
   #       The facility information returned by `/drive_time_bands` is a small subset of the information returned by `/facilities`.
   #       Please use `/facilities` to see detailed information.
   #     operationId: getAllFacilitiesDriveTimeBands
@@ -850,7 +873,7 @@ paths:
   #               $ref: "#/components/schemas/APIError"
 components:
   securitySchemes:
-    api_key:
+    apikey:
       type: apiKey
       name: apikey
       in: header
@@ -943,6 +966,14 @@ components:
                   type: string
                   format: date
                   example: "2018-01-01"
+            mobile:
+              type: boolean
+              example: false
+            active_status:
+              type: string
+              enum:
+                - "A"
+                - "T"
     FacilityFeature:
       description: GeoJSON-complaint Feature object describing a VA Facility
       type: object
@@ -952,7 +983,7 @@ components:
           enum: ["Feature"]
           example: Feature
         geometry:
-          $ref: "#/components/schemas/Point" 
+          $ref: "#/components/schemas/Point"
         properties:
           type: object
           properties:
@@ -1015,6 +1046,14 @@ components:
                   type: string
                   format: date
                   example: "2018-01-01"
+            mobile:
+              type: boolean
+              example: false
+            active_status:
+              type: string
+              enum:
+                - "A"
+                - "T"
     Address:
       type: object
       properties:
@@ -1088,7 +1127,7 @@ components:
       description: Health care services at a given facility, not all will be included at every facility
       type: array
       items:
-        $ref: "#/components/schemas/HealthService" 
+        $ref: "#/components/schemas/HealthService"
     HealthService:
       type: object
       properties:
@@ -1110,7 +1149,7 @@ components:
             - Urology
             - WomensHealth
         wait_times:
-          $ref: "#/components/schemas/PatientWaitTime" 
+          $ref: "#/components/schemas/PatientWaitTime"
     BenefitsService:
       type: string
       enum:
@@ -1220,6 +1259,14 @@ components:
     #               $ref: "#/components/schemas/Address"
     #             physical:
     #               $ref: "#/components/schemas/Address"
+    #         mobile:
+    #           type: boolean
+    #           example: false
+    #         active_status:
+    #           type: string
+    #           enum:
+    #             - "A"
+    #             - "T"
     # FacilityFeatureBasic:
     #   description: GeoJSON-complaint Feature object describing a VA Facility with only basic details
     #   type: object
@@ -1229,7 +1276,7 @@ components:
     #       enum: ["Feature"]
     #       example: Feature
     #     geometry:
-    #       $ref: "#/components/schemas/Point" 
+    #       $ref: "#/components/schemas/Point"
     #     properties:
     #       type: object
     #       properties:
@@ -1246,11 +1293,19 @@ components:
     #               $ref: "#/components/schemas/Address"
     #             physical:
     #               $ref: "#/components/schemas/Address"
+    #         mobile:
+    #           type: boolean
+    #           example: false
+    #         active_status:
+    #           type: string
+    #           enum:
+    #             - "A"
+    #             - "T"
     # COMMENTED OUT WHILE DRIVE TIME BANDS ARE ONLY A DRAFT
     # DriveTimeBands:
     #   description: JSON API-compliant object describing a VA facility and its drive time bands
-    #   allOf: 
-    #     - $ref: "#/components/schemas/FacilityBasic"  
+    #   allOf:
+    #     - $ref: "#/components/schemas/FacilityBasic"
     #     - type: object
     #       properties:
     #         attributes:
@@ -1285,7 +1340,7 @@ components:
     # DriveTimeBandsFeature:
     #   description: |
     #     GeoJSON-complaint Feature object describing a VA Facility's drive time bands.
-    #     The Geometries array includes a Point describing VA Facility's location as its first element, 
+    #     The Geometries array includes a Point describing VA Facility's location as its first element,
     #     followed by Polygons describing drive times bands of increasing size.
     #   type: object
     #   properties:
@@ -1366,8 +1421,8 @@ components:
     # DriveTimeBandsGeometry:
     #   description: GeoJSON-complaint Geometry object describing a VA Facility's location or drive time bands
     #   oneOf:
-    #     - $ref: "#/components/schemas/Point" 
-    #     - $ref: "#/components/schemas/Polygon" 
+    #     - $ref: "#/components/schemas/Point"
+    #     - $ref: "#/components/schemas/Polygon"
     Point:
       description: GeoJSON-complaint Point object
       type: object
@@ -1427,3 +1482,10 @@ components:
         message:
           type: string
           example: "No API key found in request"
+    ParameterError:
+      description: "Missing Or Ambiguous required parameters error"
+      type: object
+      properties:
+        message:
+          type: string
+          example: 'Must supply street_address, city, state, and zip or lat and lng to query nearby facilities.'

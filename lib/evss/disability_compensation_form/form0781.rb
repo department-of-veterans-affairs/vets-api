@@ -57,6 +57,7 @@ module EVSS
 
       def split_incidents(incidents)
         return nil if incidents.blank?
+
         incidents.partition { |incident| incident['personalAssault'] }
       end
 

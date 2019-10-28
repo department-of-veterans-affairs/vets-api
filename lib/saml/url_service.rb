@@ -42,8 +42,10 @@ module SAML
       VIRTUAL_HOST_MAPPINGS[current_host][:base_redirect]
     end
 
-    def login_redirect_url(auth: 'success', code: nil)
-      if auth == 'success' && user.loa[:current] < user.loa[:highest]
+    # TODO: SSOe does not currently support upleveling due to missing AuthN attribute support
+    # rubocop:disable Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
+    def login_redirect_url(auth: 'success', code: nil, skip_uplevel: false)
+      if auth == 'success' && user.loa[:current] < user.loa[:highest] && !skip_uplevel
         verify_url
       else
         @query_params[:type] = type if type
@@ -52,6 +54,7 @@ module SAML
         add_query("#{base_redirect_url}#{LOGIN_REDIRECT_PARTIAL}", query_params)
       end
     end
+    # rubocop:enable Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
 
     def logout_redirect_url
       "#{base_redirect_url}#{LOGOUT_REDIRECT_PARTIAL}"
@@ -121,13 +124,18 @@ module SAML
       logout_request.create(url_settings, RelayState: relay_state_params)
     end
 
+    # logout URL for SSOe
+    def ssoe_slo_url
+      Settings.saml_ssoe.logout_url
+    end
+
     private
 
     def initialize_query_params(params)
       @query_params = {}
 
       if params[:action] == 'saml_callback'
-        @type = JSON.parse(params[:RelayState])['type'] if params[:RelayState]
+        @type = JSON.parse(params[:RelayState])['type'] if params[:RelayState].present?
       end
     end
 

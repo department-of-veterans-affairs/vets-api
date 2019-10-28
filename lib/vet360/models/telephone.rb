@@ -5,8 +5,8 @@ module Vet360
     class Telephone < Base
       include Vet360::Concerns::Defaultable
 
-      VALID_AREA_CODE_REGEX = /[0-9]+/
-      VALID_PHONE_NUMBER_REGEX = /[^a-zA-Z]+/
+      VALID_AREA_CODE_REGEX = /[0-9]+/.freeze
+      VALID_PHONE_NUMBER_REGEX = /[^a-zA-Z]+/.freeze
 
       MOBILE      = 'MOBILE'
       HOME        = 'HOME'
@@ -73,6 +73,7 @@ module Vet360
 
       def formatted_phone
         return if phone_number.blank?
+
         # TODO: support international numbers
 
         return_val = "(#{area_code}) #{phone_number[0..2]}-#{phone_number[3..7]}"
@@ -86,6 +87,7 @@ module Vet360
       #
       # @return [String] JSON-encoded string suitable for requests to Vet360
       #
+      # rubocop:disable Metrics/MethodLength
       def in_json
         {
           bio: {
@@ -99,8 +101,8 @@ module Vet360
             sourceDate: @source_date,
             sourceSystemUser: @source_system_user,
             telephoneId: @id,
-            # textMessageCapableInd: @is_textable,
-            # textMessagePermInd: @is_text_permitted,
+            textMessageCapableInd: @is_textable,
+            textMessagePermInd: @is_text_permitted,
             ttyInd: @is_tty,
             vet360Id: @vet360_id,
             voiceMailAcceptableInd: @is_voicemailable,
@@ -109,6 +111,7 @@ module Vet360
           }
         }.to_json
       end
+      # rubocop:enable Metrics/MethodLength
 
       # Converts a decoded JSON response from Vet360 to an instance of the Telephone model
       # @param body [Hash] the decoded response body from Vet360
@@ -121,8 +124,8 @@ module Vet360
           extension: body['phone_number_ext'],
           id: body['telephone_id'],
           is_international: body['international_indicator'],
-          # is_textable: body['text_message_capable_ind'],
-          # is_text_permitted: body['text_message_perm_ind'],
+          is_textable: body['text_message_capable_ind'],
+          is_text_permitted: body['text_message_perm_ind'],
           is_voicemailable: body['voice_mail_acceptable_ind'],
           phone_number: body['phone_number'],
           phone_type: body['phone_type'],

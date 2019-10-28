@@ -4,8 +4,10 @@ namespace :swagger do
   desc 'Given a json schema file generates a swagger block: `bundle exec rake swagger:generate_block[letters.json]`'
   task :generate_block, [:json_schema_file] => [:environment] do |_, args|
     raise IOError, 'No json-schema file provided' unless args[:json_schema_file]
+
     schema_path = Rails.root.join('spec', 'support', 'schemas', args[:json_schema_file])
     raise IOError, "No json-schema file at #{schema_path}" unless File.exist? schema_path
+
     schema = File.read(schema_path)
     json = JSON.parse(schema)
     puts "\n-----START BLOCK-----\n\n"
@@ -17,6 +19,7 @@ end
 
 def render_properties(json, indent = 0)
   return unless json.respond_to?(:key?) && json.key?('properties')
+
   json['properties'].each do |key, value|
     render_property(key, value, indent)
     render_required(value, indent + 1)
@@ -74,6 +77,7 @@ def render_type(type, enum)
   type = [*type].map(&:to_sym)
   type = [:object] if type == %i[object null] # [object, null] is valid json-schema but swagger throws error
   return type if type.count > 1
+
   if enum
     ":string, enum: %w(#{enum.map { |x| x }.join(' ')})"
   else

@@ -3,8 +3,30 @@
 require 'rails_helper'
 
 describe Common::HashHelpers do
+  describe '#deep_remove_blanks' do
+    it 'recursively removes blanks' do
+      hash = {
+        a: [
+          nil,
+          '',
+          false,
+          {
+            a: 1,
+            b: nil,
+            c: false,
+            d: ' '
+          }
+        ]
+      }
+
+      expect(described_class.deep_remove_blanks(hash)).to eq(
+        a: [false, { a: 1, c: false }]
+      )
+    end
+  end
+
   describe '#deep_compact' do
-    it 'should deep compact a hash' do
+    it 'deeps compact a hash' do
       hash = {
         a: '',
         b: nil,
@@ -18,7 +40,7 @@ describe Common::HashHelpers do
       )
     end
 
-    it 'should compact nested arrays' do
+    it 'compacts nested arrays' do
       hash = {
         a: [
           nil,

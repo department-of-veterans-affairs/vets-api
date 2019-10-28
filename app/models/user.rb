@@ -162,11 +162,12 @@ class User < Common::RedisStore
   # See also lib/saml/user_attributes/dslogon.rb
   # See also lib/saml/user_attributes/mhv
   def loa3?
-    loa[:current] == LOA::THREE
+    loa[:current].try(:to_i) == LOA::THREE
   end
 
   def ssn_mismatch?
     return false unless loa3? && identity&.ssn && va_profile&.ssn
+
     identity.ssn != va_profile.ssn
   end
 
@@ -188,7 +189,7 @@ class User < Common::RedisStore
   def can_access_id_card?
     loa3? && edipi.present? &&
       ID_CARD_ALLOWED_STATUSES.include?(veteran_status.title38_status)
-  rescue StandardError # Default to false for any veteran_status error
+  rescue # Default to false for any veteran_status error
     false
   end
 
@@ -246,12 +247,27 @@ class User < Common::RedisStore
 
   def vet360_contact_info
     return nil unless Settings.vet360.contact_information.enabled && vet360_id.present?
+
     @vet360_contact_info ||= Vet360Redis::ContactInformation.for_user(self)
+  end
+
+  def all_emails
+    vet360_email =
+      begin
+        vet360_contact_info&.email&.email_address
+      rescue
+        nil
+      end
+
+    [vet360_email, email]
+      .reject(&:blank?)
+      .map(&:downcase)
+      .uniq
   end
 
   def can_access_vet360?
     loa3? && icn.present? && vet360_id.present?
-  rescue StandardError # Default to false for any error
+  rescue # Default to false for any error
     false
   end
 
@@ -271,6 +287,10 @@ class User < Common::RedisStore
 
   def power_of_attorney
     EVSS::CommonService.get_current_info[:poa]
+  end
+
+  def flipper_id
+    email || account_uuid
   end
 
   private

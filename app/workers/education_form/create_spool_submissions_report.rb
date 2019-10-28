@@ -16,15 +16,18 @@ module EducationForm
     end
 
     def create_csv_array
-      csv_array = []
-      csv_array << ['Claimant Name', 'Veteran Name', 'Confirmation #', 'Time Submitted', 'RPO']
+      data = {
+        csv_array: [],
+        stem_exists: false
+      }
+      data[:csv_array] << ['Claimant Name', 'Veteran Name', 'Confirmation #', 'Time Submitted', 'RPO']
 
       EducationBenefitsClaim.where(
         processed_at: processed_at_range
       ).find_each do |education_benefits_claim|
         parsed_form = education_benefits_claim.parsed_form
-
-        csv_array << [
+        data[:stem_exists] = check_claim_for_stem(education_benefits_claim, parsed_form, data[:stem_exists])
+        data[:csv_array] << [
           format_name(parsed_form['relativeFullName']),
           format_name(parsed_form['veteranFullName']),
           education_benefits_claim.confirmation_number,
@@ -32,25 +35,35 @@ module EducationForm
           education_benefits_claim.regional_processing_office
         ]
       end
+      data
+    end
 
-      csv_array
+    def check_claim_for_stem(education_benefits_claim, parsed_form, stem_exists)
+      return true if stem_exists
+
+      # TODO: Remove when 1995s form type is in prod
+      return true if education_benefits_claim.form_type == '1995' && parsed_form['isEdithNourseRogersScholarship']
+
+      education_benefits_claim.form_type == '1995s'
     end
 
     def perform
-      Sentry::TagRainbows.tag
       @time = Time.zone.now
       folder = 'tmp/spool_reports'
       FileUtils.mkdir_p(folder)
       filename = "#{folder}/#{@time.to_date}.csv"
-
+      csv_array_data = create_csv_array
+      stem_exists = csv_array_data[:stem_exists]
+      csv_array = csv_array_data[:csv_array]
       CSV.open(filename, 'wb') do |csv|
-        create_csv_array.each do |row|
+        csv_array.each do |row|
           csv << row
         end
       end
 
       return unless FeatureFlipper.send_edu_report_email?
-      SpoolSubmissionsReportMailer.build(filename).deliver_now
+
+      SpoolSubmissionsReportMailer.build(filename, stem_exists).deliver_now
     end
   end
 end

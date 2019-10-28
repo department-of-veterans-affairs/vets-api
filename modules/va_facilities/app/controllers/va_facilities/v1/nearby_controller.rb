@@ -16,15 +16,23 @@ module VaFacilities
       include VaFacilities::ParamValidators
       skip_before_action(:authenticate)
       before_action :set_default_format
+      before_action :set_facility_type
       before_action :validate_params, only: [:index]
 
-      REQUIRED_PARAMS = %i[street_address city state zip].freeze
-      MISSING_PARAMS_ERR =
-        'Must supply street_address, city, state, and zip to query nearby facilities.'
+      REQUIRED_PARAMS = {
+        address: %i[street_address city state zip].freeze,
+        lat_lng: %i[lat lng].freeze
+      }.freeze
+      QUERY_INFO = {
+        address: NearbyFacility.method(:query),
+        lat_lng: NearbyFacility.method(:query_by_lat_lng)
+      }.freeze
 
       def index
-        resource = NearbyFacility.query(params).paginate(page: params[:page],
-                                                         per_page: params[:per_page] || NearbyFacility.per_page)
+        query_method = get_query_method(params)
+        params_hash = params.permit!.to_h.symbolize_keys
+        resource = query_method.call(params_hash).paginate(page: params[:page],
+                                                           per_page: params[:per_page] || NearbyFacility.per_page)
         respond_to do |format|
           format.json do
             render json: resource,
@@ -44,39 +52,31 @@ module VaFacilities
         request.format = :json if params[:format].nil? && request.headers['HTTP_ACCEPT'].nil?
       end
 
+      def set_facility_type
+        params[:type] = 'health'
+      end
+
       private
 
       def validate_params
-        validate_required_params
+        validate_required_nearby_params(REQUIRED_PARAMS)
         validate_street_address
         validate_state_code
         validate_zip
+        validate_lat
+        validate_lng
         validate_drive_time
         validate_no_services_without_type
         validate_type_and_services_known unless params[:type].nil?
       end
 
-      def validate_required_params
-        unless REQUIRED_PARAMS.all? { |param| params.key? param }
-          REQUIRED_PARAMS.each do |param|
-            unless params.key? param
-              raise Common::Exceptions::ParameterMissing.new(param.to_s, detail: MISSING_PARAMS_ERR)
-            end
-          end
+      def get_query_method(params)
+        obs_fields = params.keys.map(&:to_sym)
+        location_type = REQUIRED_PARAMS.find do |loc_type, req_field_names|
+          no_missing_fields = (req_field_names - obs_fields).empty?
+          break loc_type if no_missing_fields
         end
-      end
-
-      def validate_street_address
-        if params[:street_address]
-          raise Common::Exceptions::InvalidFieldValue.new('street_address', params[:street_address]) unless
-            params[:street_address].match?(/\d/)
-        end
-      end
-
-      def validate_drive_time
-        Integer(params[:drive_time]) if params[:drive_time]
-      rescue ArgumentError
-        raise Common::Exceptions::InvalidFieldValue.new('drive_time', params[:drive_time])
+        QUERY_INFO[location_type]
       end
 
       def metadata(resource)

@@ -6,7 +6,7 @@ RSpec.describe 'Form526 Opt In Endpoint', type: :request do
   let(:user) { build(:user, :loa3) }
   let(:email) { { 'email' => 'test@adhocteam.us' } }
 
-  before(:each) { sign_in }
+  before { sign_in }
 
   it 'returns a 200' do
     post '/v0/form526_opt_in', params: email

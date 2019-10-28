@@ -44,6 +44,7 @@ module EVSS
 
       def initialize(args)
         raise ArgumentError, "invalid status type: #{args['status']}" unless STATUS_TYPES.include? args['status']
+
         super(args)
       end
 

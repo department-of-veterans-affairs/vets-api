@@ -7,6 +7,7 @@ module EVSS
     # sets the base path and a service name for breakers and metrics.
     #
     class Configuration < EVSS::Configuration
+      self.read_timeout = Settings.evss.ppiu.timeout || 30
       ##
       # @return [String] Base path for PPIU URLs.
       #

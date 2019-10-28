@@ -96,6 +96,7 @@
             "waiveVABenefitsToRetainTrainingPay": true
         },
         "standardClaim": false,
+        "autoCestPDFGenerationDisabled": false,
         "treatments": [
             {
                 "center": {

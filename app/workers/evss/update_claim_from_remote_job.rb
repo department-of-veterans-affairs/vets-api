@@ -8,7 +8,6 @@ module EVSS
     sidekiq_options retry: false
 
     def perform(user_uuid, claim_id)
-      Sentry::TagRainbows.tag
       user = User.find user_uuid
       claim = EVSSClaim.find claim_id
       auth_headers = EVSS::AuthHeaders.new(user).to_h
@@ -18,7 +17,7 @@ module EVSS
     rescue ActiveRecord::ConnectionTimeoutError
       set_status(user_uuid, claim_id, 'FAILED')
       raise
-    rescue StandardError
+    rescue
       set_status(user_uuid, claim_id, 'FAILED')
       raise
     end

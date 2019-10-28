@@ -39,31 +39,31 @@ describe MviPolicy do
         it 'is not queryable without a ssn' do
           user.identity.ssn = nil
 
-          expect(subject).to_not permit(user, :mvi)
+          expect(subject).not_to permit(user, :mvi)
         end
 
         it 'is not queryable without a first_name' do
           user.identity.first_name = nil
 
-          expect(subject).to_not permit(user, :mvi)
+          expect(subject).not_to permit(user, :mvi)
         end
 
         it 'is not queryable without a last_name' do
           user.identity.last_name = nil
 
-          expect(subject).to_not permit(user, :mvi)
+          expect(subject).not_to permit(user, :mvi)
         end
 
         it 'is not queryable without a birth_date' do
           user.identity.birth_date = nil
 
-          expect(subject).to_not permit(user, :mvi)
+          expect(subject).not_to permit(user, :mvi)
         end
 
         it 'is not queryable without a gender' do
           user.identity.gender = nil
 
-          expect(subject).to_not permit(user, :mvi)
+          expect(subject).not_to permit(user, :mvi)
         end
       end
     end

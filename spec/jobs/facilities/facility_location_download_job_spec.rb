@@ -4,8 +4,9 @@ require 'rails_helper'
 require 'facilities/bulk_json_client'
 
 RSpec.describe Facilities::FacilityLocationDownloadJob, type: :job do
-  before(:each) { BaseFacility.validate_on_load = false }
-  after(:each) { BaseFacility.validate_on_load = true }
+  before { BaseFacility.validate_on_load = false }
+
+  after { BaseFacility.validate_on_load = true }
 
   describe 'NCA Facilities' do
     it 'retrieves and persists facilities data' do
@@ -71,7 +72,7 @@ RSpec.describe Facilities::FacilityLocationDownloadJob, type: :job do
           Facilities::FacilityLocationDownloadJob.new.perform('nca')
           count = Facilities::NCAFacility.count
           expect(count).not_to eq(0)
-          allow(BaseFacility).to receive(:pull_source_data).and_return([])
+          allow(Facilities::NCAFacility).to receive(:pull_source_data).and_return([])
           Facilities::FacilityLocationDownloadJob.new.perform('nca')
           expect(Facilities::NCAFacility.count).to eq(count)
         end
@@ -98,7 +99,7 @@ RSpec.describe Facilities::FacilityLocationDownloadJob, type: :job do
       end
     end
 
-    it 'should indicate Pensions for appropriate facilities' do
+    it 'indicates Pensions for appropriate facilities' do
       VCR.use_cassette('facilities/va/vba_facilities_limit_results') do
         expect(Facilities::VBAFacility.count).to eq(0)
         Facilities::FacilityLocationDownloadJob.new.perform('vba')
@@ -186,8 +187,10 @@ RSpec.describe Facilities::FacilityLocationDownloadJob, type: :job do
   end
 
   context 'with facility validation' do
-    before(:each) { BaseFacility.validate_on_load = true }
-    after(:each) { BaseFacility.validate_on_load = false }
+    before { BaseFacility.validate_on_load = true }
+
+    after { BaseFacility.validate_on_load = false }
+
     it 'raises an error when trying to retrieve and persist facilities data' do
       VCR.use_cassette('facilities/va/vha_facilities_limit_results') do
         expect { Facilities::FacilityLocationDownloadJob.new.perform('vha') }
@@ -214,7 +217,7 @@ RSpec.describe Facilities::FacilityLocationDownloadJob, type: :job do
     let(:sat_client_stub) { instance_double('Facilities::AccessSatisfactionClient') }
     let(:wait_client_stub) { instance_double('Facilities::AccessWaitTimeClient') }
 
-    before(:each) do
+    before do
       allow(Facilities::AccessSatisfactionClient).to receive(:new) { sat_client_stub }
       allow(Facilities::AccessWaitTimeClient).to receive(:new) { wait_client_stub }
       allow(sat_client_stub).to receive(:download).and_return(satisfaction_data)
@@ -223,7 +226,7 @@ RSpec.describe Facilities::FacilityLocationDownloadJob, type: :job do
     end
 
     it 'has the wait time indicated services' do
-      VCR.use_cassette('facilities/va/vha_facilities_limit_results') do
+      VCR.use_cassette('facilities/va/vha_facilities') do
         Facilities::FacilityLocationDownloadJob.new.perform('vha')
         facility = Facilities::VHAFacility.find('603')
         services = facility.services['health'].map { |service| service['sl1'].first }

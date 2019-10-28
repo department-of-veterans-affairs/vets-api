@@ -92,6 +92,7 @@ RSpec.describe AsyncTransaction::Vet360::Base, type: :model do
 
     let(:user) { build(:user, :loa3) }
     let(:address) { build(:vet360_address, vet360_id: user.vet360_id, source_system_user: user.icn) }
+
     it 'returns an instance with the user uuid', :aggregate_failures do
       VCR.use_cassette('vet360/contact_information/post_address_success', VCR::MATCH_EVERYTHING) do
         service = Vet360::ContactInformation::Service.new(user)

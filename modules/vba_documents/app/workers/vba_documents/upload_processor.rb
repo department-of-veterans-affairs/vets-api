@@ -10,66 +10,77 @@ module VBADocuments
   class UploadProcessor
     include Sidekiq::Worker
 
+    RETRIES = 3
     META_PART_NAME = 'metadata'
     DOC_PART_NAME = 'content'
     SUBMIT_DOC_PART_NAME = 'document'
     REQUIRED_KEYS = %w[veteranFirstName veteranLastName fileNumber zipCode].freeze
-    FILE_NUMBER_REGEX = /^\d{8,9}$/
+    FILE_NUMBER_REGEX = /^\d{8,9}$/.freeze
     MAX_PART_SIZE = 100_000_000 # 100MB
-    INVALID_ZIP_CODE_ERROR_REGEX = /Invalid zipCode/
-    MISSING_ZIP_CODE_ERROR_REGEX = /Missing zipCode/
+    INVALID_ZIP_CODE_ERROR_REGEX = /Invalid zipCode/.freeze
+    MISSING_ZIP_CODE_ERROR_REGEX = /Missing zipCode/.freeze
     INVALID_ZIP_CODE_ERROR_MSG = 'Invalid ZIP Code. ZIP Code must be 5 digits, ' \
       'or 9 digits in XXXXX-XXXX format. Specify \'00000\' for non-US addresses.'
     MISSING_ZIP_CODE_ERROR_MSG = 'Missing ZIP Code. ZIP Code must be 5 digits, ' \
       'or 9 digits in XXXXX-XXXX format. Specify \'00000\' for non-US addresses.'
 
-    def perform(guid)
-      upload = VBADocuments::UploadSubmission.where(status: 'uploaded').find_by(guid: guid)
-      download_and_process(upload) if upload
+    def perform(guid, retries = 0)
+      @retries = retries
+      @upload = VBADocuments::UploadSubmission.where(status: 'uploaded').find_by(guid: guid)
+      if @upload
+        Rails.logger.info("VBADocuments: Start Processing: #{@upload.inspect}")
+        download_and_process
+        Rails.logger.info("VBADocuments: Stop Processing: #{@upload.inspect}")
+      end
     end
 
     private
 
-    def download_and_process(upload)
-      tempfile, timestamp = VBADocuments::PayloadManager.download_raw_file(upload.guid)
+    def download_and_process
+      tempfile, timestamp = VBADocuments::PayloadManager.download_raw_file(@upload.guid)
       begin
-        Rails.logger.info("VBADocuments: Start Processing: #{upload.inspect}")
         parts = VBADocuments::MultipartParser.parse(tempfile.path)
         validate_parts(parts)
         validate_metadata(parts[META_PART_NAME])
-        metadata = perfect_metadata(parts, upload, timestamp)
+        metadata = perfect_metadata(parts, timestamp)
         response = submit(metadata, parts)
-        process_response(response, upload)
-        log_submission(metadata, upload)
+        process_response(response)
+        log_submission(metadata)
       rescue VBADocuments::UploadError => e
-        upload.update(status: 'error', code: e.code, detail: e.detail)
-        UploadProcessor.perform_in(30.minutes, upload.guid) if e.code == 'DOC201'
-        log_error(e, upload)
+        retry_errors(e)
       ensure
-        Rails.logger.info("VBADocuments: Stop Processing: #{upload.inspect}")
         tempfile.close
         close_part_files(parts) if parts.present?
       end
     end
 
-    def log_error(e, upload)
+    def retry_errors(e)
+      if e.code == 'DOC201' && @retries <= RETRIES
+        UploadProcessor.perform_in(30.minutes, @upload.guid, @retries + 1)
+      else
+        @upload.update(status: 'error', code: e.code, detail: e.detail)
+      end
+      log_error(e)
+    end
+
+    def log_error(e)
       Rails.logger.info('VBADocuments: Submission failure',
-                        'consumer_id' => upload.consumer_id,
-                        'consumer_username' => upload.consumer_name,
-                        'source' => upload.consumer_name,
-                        'uuid' => upload.guid,
+                        'consumer_id' => @upload.consumer_id,
+                        'consumer_username' => @upload.consumer_name,
+                        'source' => @upload.consumer_name,
+                        'uuid' => @upload.guid,
                         'code' => e.code,
                         'detail' => e.detail)
     end
 
-    def log_submission(metadata, upload)
+    def log_submission(metadata)
       page_total = metadata.select { |k, _| k.to_s.start_with?('numberPages') }.reduce(0) { |sum, (_, v)| sum + v }
       pdf_total = metadata.select { |k, _| k.to_s.start_with?('numberPages') }.count
       Rails.logger.info('VBADocuments: Submission success',
                         'uuid' => metadata['uuid'],
-                        'source' => upload.consumer_name,
-                        'consumer_id' => upload.consumer_id,
-                        'consumer_username' => upload.consumer_name,
+                        'source' => @upload.consumer_name,
+                        'consumer_id' => @upload.consumer_id,
+                        'consumer_username' => @upload.consumer_name,
                         'docType' => metadata['docType'],
                         'pageCount' => page_total,
                         'pdfCount' => pdf_total)
@@ -105,9 +116,9 @@ module VBADocuments
       )
     end
 
-    def process_response(response, upload)
+    def process_response(response)
       if response.success?
-        upload.update(status: 'received')
+        @upload.update(status: 'received')
       else
         map_downstream_error(response.status, response.body)
       end
@@ -171,24 +182,33 @@ module VBADocuments
                                           detail: 'Invalid JSON content')
     end
 
-    def perfect_metadata(parts, upload, timestamp)
+    def perfect_metadata(parts, timestamp)
       metadata = JSON.parse(parts['metadata'])
-      metadata['source'] = "#{upload.consumer_name} via VA API"
+      metadata['source'] = "#{@upload.consumer_name} via VA API"
       metadata['receiveDt'] = timestamp.in_time_zone('US/Central').strftime('%Y-%m-%d %H:%M:%S')
-      metadata['uuid'] = upload.guid
+      metadata['uuid'] = @upload.guid
       check_size(parts[DOC_PART_NAME])
       doc_info = get_hash_and_pages(parts[DOC_PART_NAME], DOC_PART_NAME)
+      validate_page_size(doc_info)
       metadata['hashV'] = doc_info[:hash]
       metadata['numberPages'] = doc_info[:pages]
       attachment_names = parts.keys.select { |k| k.match(/attachment\d+/) }
       metadata['numberAttachments'] = attachment_names.size
       attachment_names.each_with_index do |att, i|
         att_info = get_hash_and_pages(parts[att], att)
+        validate_page_size(att_info)
         check_size(parts[att])
         metadata["ahash#{i + 1}"] = att_info[:hash]
         metadata["numberPages#{i + 1}"] = att_info[:pages]
       end
       metadata
+    end
+
+    def validate_page_size(doc_info)
+      if doc_info[:size][:height] >= 21 || doc_info[:size][:width] >= 21
+        raise VBADocuments::UploadError.new(code: 'DOC108',
+                                            detail: VBADocuments::UploadError::DOC108)
+      end
     end
 
     def check_size(file_path)
@@ -199,9 +219,11 @@ module VBADocuments
     end
 
     def get_hash_and_pages(file_path, part)
+      metadata = PdfInfo::Metadata.read(file_path)
       {
         hash: Digest::SHA256.file(file_path).hexdigest,
-        pages: PdfInfo::Metadata.read(file_path).pages
+        pages: metadata.pages,
+        size: metadata.page_size_inches
       }
     rescue PdfInfo::MetadataReadError
       raise VBADocuments::UploadError.new(code: 'DOC103',

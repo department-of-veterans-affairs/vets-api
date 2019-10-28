@@ -4,7 +4,7 @@ This project provides common APIs for applications that live on VA.gov (formerly
 
 For frontend, see [vets-website](https://github.com/department-of-veterans-affairs/vets-website) and [vets-content](https://github.com/department-of-veterans-affairs/vagov-content) repos.
 
-## Base setup
+## Base setup  
 
 **See the [native setup instructions](docs/setup/native.md) if you can't use docker**
 
@@ -43,11 +43,7 @@ developers can bypass the installation of Sidekiq Enterprise with
 
 - `$ EXCLUDE_SIDEKIQ_ENTERPRISE=true make rebuild`
 
-Vets.gov Team Engineers should follow instructions here: 
-
-https://github.com/department-of-veterans-affairs/vets.gov-team/blob/master/Products/Vets-API/Sidekiq%20Enterprise%20Setup.md
-
-to install the enterprise license on their systems.
+VA.gov Team Engineers should follow instructions [here](https://github.com/department-of-veterans-affairs/vets.gov-team/blob/master/Products/Platform/Vets-API/Sidekiq%20Enterprise%20Setup.md) to install the enterprise license on their systems.
 
 **DO NOT commit Gemfile modifications that result from local builds without sidekiq enterprise if you do not have it enabled on your development system**
 

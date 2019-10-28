@@ -9,7 +9,7 @@ module ClaimsApi
       info do
         key :version, '0.0.1'
         key :title, 'Benefits Claims'
-        key :description, File.read(Rails.root.join('modules', 'claims_api', 'app', 'swagger', 'description.md'))
+        key :description, File.read(Rails.root.join('modules', 'claims_api', 'app', 'swagger', 'claims_api', 'description', 'v0.md'))
         key :termsOfService, 'https://developer.va.gov/terms-of-service'
         contact do
           key :name, 'VA API Benefits Team'
@@ -39,6 +39,15 @@ module ClaimsApi
       tag do
         key :name, 'Intent to File'
         key :description, '0966 Submissions'
+        externalDocs do
+          key :description, 'Find more info here'
+          key :url, 'https://developer.va.gov'
+        end
+      end
+
+      tag do
+        key :name, 'Power of Attorney'
+        key :description, '2122 Submissions'
         externalDocs do
           key :description, 'Find more info here'
           key :url, 'https://developer.va.gov'
@@ -75,14 +84,13 @@ module ClaimsApi
         }
       ]
 
-      key :components,
-          "securitySchemes": {
-            "api_key": {
-              "type": 'apiKey',
-              "in": 'header',
-              "name": 'X-API-Key'
-            }
-          }
+      security_definition :apikey do
+        key :type, :apiKey
+        key :name, :apikey
+        key :in, :header
+      end
+
+      key :schemes, ['https']
 
       key :host, 'api.va.gov'
       key :basePath, '/services/claims/v0'

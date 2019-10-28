@@ -15,6 +15,7 @@ module V0
     STATSD_SSO_CALLBACK_FAILED_KEY = 'api.auth.login_callback.failed'
     STATSD_LOGIN_NEW_USER_KEY = 'api.auth.new_user'
     UNKNOWN_RELAYSTATE_ATTR = 'UNKNOWN'
+    STATSD_MHV_COOKIE_NO_ACCOUNT_KEY = 'api.auth.mhv_cookie.no_user'
 
     # Collection Action: auth is required for certain types of requests
     # @type is set automatically by the routes in config/routes.rb
@@ -25,6 +26,8 @@ module V0
       unless SessionActivity::SESSION_ACTIVITY_TYPES.include?(type)
         raise Common::Exceptions::RoutingError, params[:path]
       end
+      
+      raise Common::Exceptions::RoutingError, params[:path] unless REDIRECT_URLS.include?(type)
 
       StatsD.increment(STATSD_SSO_NEW_KEY, tags: ["context:#{type}"])
       url = url_service.send("#{type}_url")
@@ -58,7 +61,7 @@ module V0
         Rails.logger.info("SLO callback response invalid for originating_request_id '#{originating_request_id}'")
         session_activity&.update_fail(sa_metadata)
       end
-    rescue StandardError => e
+    rescue => e
       log_exception_to_sentry(e, {}, {}, :error)
     ensure
       redirect_to url_service.logout_redirect_url
@@ -78,7 +81,7 @@ module V0
         stats(:failure, saml_response, saml_response.error_instrumentation_code)
         session_activity.update_fail(sa_metadata)
       end
-    rescue StandardError => e
+    rescue => e
       log_exception_to_sentry(e, {}, {}, :error)
       redirect_to url_service.login_redirect_url(auth: 'fail', code: '007') unless performed?
       stats(:failed_unknown)
@@ -106,6 +109,7 @@ module V0
 
     def authenticate
       return unless action_name == 'new'
+
       if %w[mfa verify slo].include?(params[:type])
         super
       else
@@ -132,6 +136,8 @@ module V0
       if user_session_form.valid?
         @current_user, @session_object = user_session_form.persist
         set_cookies
+        # track users who need to re-login on MHV
+        StatsD.increment(STATSD_MHV_COOKIE_NO_ACCOUNT_KEY) unless @current_user.mhv_correlation_id
         after_login_actions
         redirect_to url_service.login_redirect_url
         stats(:success, saml_response)

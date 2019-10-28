@@ -3,8 +3,8 @@
 FactoryBot.define do
   factory :supporting_documentation_attachment, class: VIC::SupportingDocumentationAttachment do
     transient do
-      file_path(nil)
-      file_type(nil)
+      file_path { nil }
+      file_type { nil }
     end
 
     after(:build) do |attachment, evaluator|

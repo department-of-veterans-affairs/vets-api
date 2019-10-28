@@ -14,6 +14,7 @@ module Common
               if response.is_a?(Net::HTTPClientError) || response.is_a?(Net::HTTPServerError)
                 raise Common::Client::Errors::ClientError, "Streaming request failed: #{response.code}"
               end
+
               header_callback.call response.canonical_each
               response.read_body do |chunk|
                 yielder << chunk

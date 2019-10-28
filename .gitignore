@@ -36,6 +36,7 @@ config/application.yml
 /config/evss/*.pdf
 
 .idea/
+.vscode/
 
 # And byebug's history file
 .byebug_history
@@ -59,3 +60,5 @@ config/certs
 
 dump.rdb
 /.project
+.generators
+.rakeTasks

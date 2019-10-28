@@ -3,7 +3,7 @@
 require 'rails_helper'
 
 RSpec.describe VBADocuments::UploadScanner, type: :job do
-  before(:each) do
+  before do
     s3_client = instance_double(Aws::S3::Resource)
     allow(Aws::S3::Resource).to receive(:new).and_return(s3_client)
     @s3_bucket = instance_double(Aws::S3::Bucket)

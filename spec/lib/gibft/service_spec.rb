@@ -27,7 +27,7 @@ describe Gibft::Service, type: :model do
       )
     end
 
-    it 'should submit the form' do
+    it 'submits the form' do
       expect(service.submit({})).to eq('case_id' => 'case_id', 'case_number' => 'case_number')
     end
   end

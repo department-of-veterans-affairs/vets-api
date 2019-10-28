@@ -206,7 +206,7 @@
     :file_path: "evss/disability_form/rated_disabilities"
     :cache_multiple_responses:
       :uid_location: header
-      :uid_locator: 'va_eauth_pnid' 
+      :uid_locator: 'va_eauth_pnid'
   - :method: :post
     :path: "/wss-form526-services-web/rest/form526/v1/submit"
     :file_path: "evss/disability_form/submit"
@@ -268,7 +268,7 @@
 
   # VSO Search
   - :method: :post
-    :path: <%= "/wss-common-services-web-#{Settings.evss.versions.common}/rest/vsoSearch/11.0/getCurrentInfo" %>
+    :path: <%= "/wss-common-services-web-#{Settings.evss.versions.common}/rest/vsoSearch/11.6/getCurrentInfo" %>
     :file_path: "evss/vso_search/get_current_info"
     :cache_multiple_responses:
       :uid_location: header
@@ -452,3 +452,28 @@
   - :method: :get
     :path: "/oauth2/default/.well-known/oauth-authorization-server"
     :file_path: "okta/metadata"
+
+#GIS
+- :name: 'GIS'
+  :base_uri: <%= "#{URI(Settings.locators.gis_base_path).host}:#{URI(Settings.locators.gis_base_path).port}" %>
+  :endpoints:
+    # VHA
+    - :method: :get
+      :path: "/server/rest/services/VA/FacilitySitePoint_VHA/FeatureServer/0/query"
+      :file_path: "gis/vha/facilities"
+    - :method: :get
+      :path: "/server/rest/services/VA/FacilitySitePoint_VHA/FeatureServer/0"
+      :file_path: "gis/vha/metadata"
+
+#PSSG
+- :name: 'PSSG'
+  :base_uri: <%= "#{URI(Settings.locators.drive_time_band_base_path).host}:#{URI(Settings.locators.drive_time_band_base_path).port}" %>
+  :endpoints:
+    - :method: :get
+      :path: "/arcgis2/rest/services/Portal/MonthlyVAST_TTB/FeatureServer/0/*"
+      :file_path: "pssg/drivetime_bands" 
+      :cache_multiple_responses:
+        :uid_location: query
+        :uid_locator:  resultOffset
+
+

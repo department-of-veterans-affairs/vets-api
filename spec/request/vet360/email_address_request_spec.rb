@@ -21,7 +21,7 @@ RSpec.describe 'email_address', type: :request do
     let(:email) { build(:email, vet360_id: user.vet360_id) }
 
     context 'with a 200 response' do
-      it 'should match the email address schema', :aggregate_failures do
+      it 'matches the email address schema', :aggregate_failures do
         VCR.use_cassette('vet360/contact_information/post_email_success') do
           post('/v0/profile/email_addresses', params: { email_address: 'test@example.com' }.to_json, headers: headers)
 
@@ -48,7 +48,7 @@ RSpec.describe 'email_address', type: :request do
     end
 
     context 'with a 400 response' do
-      it 'should match the errors schema', :aggregate_failures do
+      it 'matches the errors schema', :aggregate_failures do
         VCR.use_cassette('vet360/contact_information/post_email_w_id_error') do
           post('/v0/profile/email_addresses',
                params: { id: 42, email_address: 'person42@example.com' }.to_json, headers: headers)
@@ -58,9 +58,9 @@ RSpec.describe 'email_address', type: :request do
         end
       end
 
-      it 'should not invalidate the cache' do
+      it 'does not invalidate the cache' do
         VCR.use_cassette('vet360/contact_information/post_email_w_id_error') do
-          expect_any_instance_of(Common::RedisStore).to_not receive(:destroy)
+          expect_any_instance_of(Common::RedisStore).not_to receive(:destroy)
 
           post('/v0/profile/email_addresses',
                params: { id: 42, email_address: 'person42@example.com' }.to_json, headers: headers)
@@ -69,7 +69,7 @@ RSpec.describe 'email_address', type: :request do
     end
 
     context 'with a 403 response' do
-      it 'should return a forbidden response' do
+      it 'returns a forbidden response' do
         VCR.use_cassette('vet360/contact_information/post_email_status_403') do
           post('/v0/profile/email_addresses', params: { email_address: 'test@example.com' }.to_json, headers: headers)
 
@@ -79,7 +79,7 @@ RSpec.describe 'email_address', type: :request do
     end
 
     context 'with a validation issue' do
-      it 'should match the errors schema', :aggregate_failures do
+      it 'matches the errors schema', :aggregate_failures do
         post('/v0/profile/email_addresses', params: { email_address: '' }.to_json, headers: headers)
 
         expect(response).to have_http_status(:unprocessable_entity)
@@ -93,7 +93,7 @@ RSpec.describe 'email_address', type: :request do
     let(:email) { build(:email, vet360_id: user.vet360_id) }
 
     context 'with a 200 response' do
-      it 'should match the email address schema', :aggregate_failures do
+      it 'matches the email address schema', :aggregate_failures do
         VCR.use_cassette('vet360/contact_information/put_email_success') do
           put('/v0/profile/email_addresses',
               params: { id: 42, email_address: 'person42@example.com' }.to_json, headers: headers)
@@ -123,7 +123,7 @@ RSpec.describe 'email_address', type: :request do
     end
 
     context 'with a validation issue' do
-      it 'should match the errors schema', :aggregate_failures do
+      it 'matches the errors schema', :aggregate_failures do
         put('/v0/profile/email_addresses', params: { email_address: '' }.to_json, headers: headers)
 
         expect(response).to have_http_status(:unprocessable_entity)
@@ -134,7 +134,9 @@ RSpec.describe 'email_address', type: :request do
 
     context 'when effective_end_date is included' do
       let(:email) do
-        build(:email, vet360_id: '1', email_address: 'person42@example.com')
+        build(:email, vet360_id: '1',
+                      email_address: 'person42@example.com',
+                      effective_end_date: '2019-04-09T11:52:03.000-06:00')
       end
       let(:id_in_cassette) { 42 }
 

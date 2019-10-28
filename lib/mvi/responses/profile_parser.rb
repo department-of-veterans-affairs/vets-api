@@ -30,8 +30,8 @@ module MVI
       # MVI response code options.
       EXTERNAL_RESPONSE_CODES = {
         success: 'AA',
-        failure: 'AE',
-        invalid_request: 'AR'
+        failure: 'AR',
+        invalid_request: 'AE'
       }.freeze
 
       # Creates a new parser instance.
@@ -70,6 +70,7 @@ module MVI
       def multiple_match?
         acknowledgement_detail = locate_element(@original_body, ACKNOWLEDGEMENT_DETAIL_XPATH)
         return false unless acknowledgement_detail
+
         acknowledgement_detail.nodes.first == MULTIPLE_MATCHES_FOUND
       end
 
@@ -79,8 +80,10 @@ module MVI
       def parse
         subject = locate_element(@original_body, SUBJECT_XPATH)
         return nil unless subject
+
         patient = locate_element(subject, PATIENT_XPATH)
         return nil unless patient
+
         build_mvi_profile(patient)
       end
 
@@ -90,8 +93,8 @@ module MVI
       def build_mvi_profile(patient)
         name = parse_name(get_patient_name(patient))
         full_mvi_ids = get_extensions(patient.locate('id'))
-        correlation_ids = MVI::Responses::IdParser.new.parse(patient.locate('id'))
-        log_inactive_mhv_ids(correlation_ids[:mhv_ids].to_a, correlation_ids[:active_mhv_ids].to_a)
+        parsed_mvi_ids = MVI::Responses::IdParser.new.parse(patient.locate('id'))
+        log_inactive_mhv_ids(parsed_mvi_ids[:mhv_ids].to_a, parsed_mvi_ids[:active_mhv_ids].to_a)
         MVI::Models::MviProfile.new(
           given_names: name[:given],
           family_name: name[:family],
@@ -102,17 +105,17 @@ module MVI
           address: parse_address(patient),
           home_phone: parse_phone(patient),
           full_mvi_ids: full_mvi_ids,
-          icn: correlation_ids[:icn],
-          mhv_ids: correlation_ids[:mhv_ids],
-          active_mhv_ids: correlation_ids[:active_mhv_ids],
-          edipi: sanitize_edipi(correlation_ids[:edipi]),
-          participant_id: sanitize_participant_id(correlation_ids[:vba_corp_id]),
-          vha_facility_ids: correlation_ids[:vha_facility_ids],
-          sec_id: correlation_ids[:sec_id],
-          birls_id: sanitize_birls_id(correlation_ids[:birls_id]),
-          vet360_id: correlation_ids[:vet360_id],
+          icn: parsed_mvi_ids[:icn],
+          mhv_ids: parsed_mvi_ids[:mhv_ids],
+          active_mhv_ids: parsed_mvi_ids[:active_mhv_ids],
+          edipi: sanitize_edipi(parsed_mvi_ids[:edipi]),
+          participant_id: sanitize_participant_id(parsed_mvi_ids[:vba_corp_id]),
+          vha_facility_ids: parsed_mvi_ids[:vha_facility_ids],
+          sec_id: parsed_mvi_ids[:sec_id],
+          birls_id: sanitize_birls_id(parsed_mvi_ids[:birls_id]),
+          vet360_id: parsed_mvi_ids[:vet360_id],
           historical_icns: MVI::Responses::HistoricalIcnParser.new(@original_body).get_icns,
-          icn_with_aaid: correlation_ids[:icn_with_aaid]
+          icn_with_aaid: parsed_mvi_ids[:icn_with_aaid]
         )
       end
       # rubocop:enable MethodLength
@@ -125,6 +128,7 @@ module MVI
 
       def log_inactive_mhv_ids(mhv_ids, active_mhv_ids)
         return if mhv_ids.blank?
+
         if (mhv_ids - active_mhv_ids).present?
           log_message_to_sentry('Inactive MHV correlation IDs present', :info,
                                 ids: mhv_ids)
@@ -145,6 +149,7 @@ module MVI
 
       def sanitize_edipi(edipi)
         return if edipi.nil?
+
         # Get rid of invalid values like 'UNK'
         sanitized_result = edipi.match(/\d{10}/)&.to_s
         Rails.logger.info "Edipi sanitized was: '#{edipi}' now: '#{sanitized_result}'." unless sanitized_result == edipi
@@ -153,6 +158,7 @@ module MVI
 
       def sanitize_participant_id(participant_id)
         return if participant_id.nil?
+
         # Get rid of non-digit characters like 'UNK'/'ASKU'
         sanitized_result = participant_id.match(/\d+/)&.to_s
         if sanitized_result != participant_id
@@ -163,6 +169,7 @@ module MVI
 
       def sanitize_birls_id(birls_id)
         return if birls_id.nil?
+
         # Get rid of non-digit characters like 'UNK'/'ASKU'
         sanitized_result = birls_id.match(/\d+/)&.to_s
         if sanitized_result != birls_id
@@ -190,6 +197,7 @@ module MVI
         other_ids = [other_ids] unless other_ids.is_a? Array
         ssn_element = select_ssn_element(other_ids)
         return nil unless ssn_element
+
         ssn_element.attributes[:extension]
       rescue => e
         Rails.logger.warn "MVI::Response.parse_ssn failed: #{e.message}"
@@ -199,6 +207,7 @@ module MVI
       def parse_address(patient)
         el = locate_element(patient, ADDRESS_XPATH)
         return nil unless el
+
         address_hash = el.nodes.map { |n| { n.value.snakecase.to_sym => n.nodes.first } }.reduce({}, :merge)
         address_hash[:street] = address_hash.delete :street_address_line
         MVI::Models::MviProfileAddress.new(address_hash)
@@ -207,6 +216,7 @@ module MVI
       def parse_phone(patient)
         el = locate_element(patient, PHONE)
         return nil unless el
+
         el.attributes[:value]
       end
 
@@ -219,6 +229,7 @@ module MVI
 
       def locate_element(el, path)
         return nil unless el
+
         el.locate(path)&.first
       end
     end

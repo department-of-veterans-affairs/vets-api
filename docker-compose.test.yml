@@ -15,8 +15,10 @@ services:
     image: "vets-api:${DOCKER_IMAGE:-latest}"
     volumes:
       - ".:/src/vets-api"
+      - bundle:/bundle
     environment:
       "Settings.database_url": "postgis://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-password}@${POSTGRES_HOST:-postgres}:${POSTGRES_PORT:-5432}/${POSTGRES_DATABASE:-vets_api_development}?pool=4"
+      "Settings.test_database_url": "postgis://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-password}@${POSTGRES_HOST:-postgres}:${POSTGRES_PORT:-5432}/${POSTGRES_DATABASE:-vets_api_test}?pool=4"
       "Settings.saml.cert_path": "/src/vets-api/spec/support/certificates/ruby-saml.crt"
       "Settings.saml.key_path": "/src/vets-api/spec/support/certificates/ruby-saml.key"
       "Settings.redis.host": "redis"
@@ -27,10 +29,17 @@ services:
       POSTGRES_USER: "${POSTGRES_USER:-postgres}"
       POSTGRES_PASSWORD: "${POSTGRES_PASSWORD:-password}"
       CI:
-      RAILS_ENV:
+      RAILS_ENV: test
+      CC_TEST_REPORTER_ID: '0c396adc254b0317e2c3a89a1c929fd61270b133c944d3e9c0f13b3937a7ce45'
+      CHANGE_ID:           "${CHANGE_ID}"
+      GIT_URL:             "${GIT_URL}"
+      JENKINS_URL:         "${JENKINS_URL}"
+      DANGER_GITHUB_API_TOKEN: "${DANGER_GITHUB_API_TOKEN}"
     depends_on:
       - postgres
       - redis
     links:
       - postgres
       - redis
+volumes:
+  bundle:

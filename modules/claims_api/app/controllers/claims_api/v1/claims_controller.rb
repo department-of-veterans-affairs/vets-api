@@ -2,10 +2,12 @@
 
 require_dependency 'claims_api/application_controller'
 require_dependency 'claims_api/unsynchronized_evss_claims_service'
+require_dependency 'claims_api/concerns/poa_verification'
 
 module ClaimsApi
   module V1
     class ClaimsController < ApplicationController
+      include ClaimsApi::PoaVerification
       before_action { permit_scopes %w[claim.read] }
 
       def index

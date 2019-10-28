@@ -16,5 +16,12 @@ class SessionActivity < ApplicationRecord
     define_method("update_#{status}") do |metadata|
       update(metadata.merge(status: status))
     end
+
+  private
+
+  def initialize_defaults
+    return if persisted?
+
+    self.status ||= 'incomplete'
   end
 end

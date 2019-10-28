@@ -29,6 +29,7 @@ module OpenidAuth
         service = MVI::Service.new
         mvi_response = service.find_profile(user_identity)
         raise mvi_response.error if mvi_response.error
+
         render json: mvi_response, serializer: MviLookupSerializer
       end
 

@@ -6,7 +6,7 @@ FactoryBot.define do
       n
     end
 
-    category 'OTHER'
+    category { 'OTHER' }
     sequence :subject do |n|
       "Subject #{n}"
     end
@@ -15,12 +15,12 @@ FactoryBot.define do
       "Body #{n}"
     end
 
-    attachment false
-    sent_date 'Thu, 11 Jul 2013 20:25:54 GMT'
-    sender_id 1
-    sender_name 'Sender 1'
-    recipient_id 613_586
-    recipient_name 'Recipient 1'
-    read_receipt 'READ'
+    attachment { false }
+    sent_date { 'Thu, 11 Jul 2013 20:25:54 GMT' }
+    sender_id { 1 }
+    sender_name { 'Sender 1' }
+    recipient_id { 613_586 }
+    recipient_name { 'Recipient 1' }
+    read_receipt { 'READ' }
   end
 end

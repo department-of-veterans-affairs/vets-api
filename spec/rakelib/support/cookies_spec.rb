@@ -4,19 +4,25 @@ require 'rails_helper'
 require './rakelib/support/cookies.rb'
 
 describe Cookies do
-  let(:user) { create(:user, :loa3) }
-  let(:session) { Session.create(uuid: user.uuid, token: 'abracadabra') }
   subject { described_class.new(session) }
 
+  let(:user) { create(:user, :loa3) }
+  let(:session) { Session.create(uuid: user.uuid, token: 'abracadabra') }
+
   describe '#api_session_header' do
+    # much of this code comes from here: https://stackoverflow.com/a/51579296
     def decrypt_session_cookie(cookie)
-      salt = Rails.application.config.action_dispatch.encrypted_cookie_salt
-      signed_salt = Rails.application.config.action_dispatch.encrypted_signed_cookie_salt
+      salt = Rails.application.config.action_dispatch.authenticated_encrypted_cookie_salt
+      encrypted_cookie_cipher = 'aes-256-gcm'
+
       key_generator = ActiveSupport::KeyGenerator.new(Rails.application.secrets.secret_key_base, iterations: 1000)
-      secret = key_generator.generate_key(salt)[0, ActiveSupport::MessageEncryptor.key_len]
-      sign_secret = key_generator.generate_key(signed_salt)
-      encryptor = ActiveSupport::MessageEncryptor.new(secret, sign_secret)
-      encryptor.decrypt_and_verify(cookie)
+      key_len = ActiveSupport::MessageEncryptor.key_len(encrypted_cookie_cipher)
+      secret = key_generator.generate_key(salt, key_len)
+
+      # ActiveSupport::MessageEncryptor defaults to `Marshal` if no serializer is provided
+      # Make sure this matches the vets-api config: Rails.application.config.action_dispatch.cookies_serializer
+      encryptor = ActiveSupport::MessageEncryptor.new(secret, cipher: encrypted_cookie_cipher, serializer: nil)
+      encryptor.decrypt_and_verify(CGI.unescape(cookie))
     end
 
     let(:api_session_header) { subject.api_session_header }
@@ -25,15 +31,15 @@ describe Cookies do
     end
 
     it 'includes the uuid' do
-      expect(decrypted_api_session_header[:uuid]).to eq(session.uuid)
+      expect(decrypted_api_session_header['uuid']).to eq(session.uuid)
     end
 
     it 'includes the token' do
-      expect(decrypted_api_session_header[:token]).to eq(session.token)
+      expect(decrypted_api_session_header['token']).to eq(session.token)
     end
 
     it 'includes the created_at date' do
-      expect(decrypted_api_session_header[:created_at]).to eq(session.created_at)
+      expect(decrypted_api_session_header['created_at']).to eq(session.created_at)
     end
   end
 

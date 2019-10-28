@@ -59,17 +59,17 @@ describe VBADocuments::UploadSubmission, type: :model do
     [[]].to_json
   end
 
-  before(:each) do
+  before do
     allow(CentralMail::Service).to receive(:new) { client_stub }
   end
 
   describe 'consumer_name' do
-    it 'should return unknown when no name is set' do
+    it 'returns unknown when no name is set' do
       upload = FactoryBot.create(:upload_submission, consumer_name: nil)
       expect(upload.consumer_name).to eq('unknown')
     end
 
-    it 'should return name when set' do
+    it 'returns name when set' do
       upload = FactoryBot.create(:upload_submission, consumer_name: 'test consumer')
       expect(upload.consumer_name).to eq('test consumer')
     end
@@ -134,17 +134,6 @@ describe VBADocuments::UploadSubmission, type: :model do
       expect(updated.detail).to include('Invalid splines')
     end
 
-    it 'updates error status from downstream' do
-      expect(client_stub).to receive(:status).and_return(faraday_response)
-      expect(faraday_response).to receive(:success?).and_return(true)
-      expect(faraday_response).to receive(:body).at_least(:once).and_return(processing_error_body)
-      upload_received.refresh_status!
-      updated = VBADocuments::UploadSubmission.find_by(guid: upload_received.guid)
-      expect(updated.status).to eq('error')
-      expect(updated.code).to eq('DOC202')
-      expect(updated.detail).to include('Invalid splines')
-    end
-
     it 'skips downstream status check if not yet submitted' do
       expect(client_stub).not_to receive(:status)
       upload_pending.refresh_status!
@@ -188,7 +177,7 @@ describe VBADocuments::UploadSubmission, type: :model do
       expect(updated.status).to eq('received')
     end
 
-    it 'should report an error to Statsd when changed to error' do
+    it 'reports an error to Statsd when changed to error' do
       expect(StatsD).to receive(:increment)
       upload_processing.status = 'error'
       upload_processing.save

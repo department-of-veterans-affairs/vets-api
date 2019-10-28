@@ -11,8 +11,8 @@ module EducationForm
       daily_processed: 0
     }.freeze
 
-    FORM_TYPE_HEADERS = EducationBenefitsClaim::FORM_TYPES.map do |form_type|
-      ["22-#{form_type}", '', '']
+    FORM_TYPE_HEADERS = EducationBenefitsClaim::FORM_HEADERS.map do |form_header|
+      [form_header, '', '']
     end.flatten.freeze
 
     def build_submission_relation(range_type, region, form_type, status)
@@ -185,7 +185,6 @@ module EducationForm
     end
 
     def perform
-      Sentry::TagRainbows.tag
       # use yesterday as the date otherwise we will miss applications that are submitted after the report is run
       @date = Time.zone.today - 1.day
       folder = 'tmp/daily_reports'
@@ -199,6 +198,7 @@ module EducationForm
       end
 
       return unless FeatureFlipper.send_edu_report_email?
+
       YearToDateReportMailer.build(filename).deliver_now
     end
   end

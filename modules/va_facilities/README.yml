@@ -7,7 +7,7 @@ info:
     ## Background
 
     This API provides information about physical VA facilities. Information available includes
-    geographic location, address, phone, hours of operation, and available services. 
+    geographic location, address, phone, hours of operation, and available services.
 
     VA operates several different types of facilities, the types represented in this API include:
     - Health facilities
@@ -15,11 +15,19 @@ info:
     - Cemeteries
     - Vet Centers
 
+    To read an FAQ on how wait times are calculated, click the "For more information" link on [this page](https://www.accesstocare.va.gov/PWT/SearchWaitTimes).
+
     ## Design
+
+    ### Base URLs
+    
+    The base URLs for the VA Facilities API in the various environments are:
+    - Development: `https://dev-api.va.gov/services/va_facilities/v0`
+    - Production: `https://api.va.gov/services/va_facilities/v0`
 
     ### Authorization
 
-    API requests are authorized through a symmetric API token, provided in an HTTP header with name "apikey".
+    API requests are authorized through a symmetric API token, provided in an HTTP header with name `apikey`.
 
     ### Response Formats
 
@@ -38,6 +46,14 @@ info:
     - The list of available services in the `services` element is only applicable to VA health and
       benefits facilities.
 
+    ### Active Status
+    
+    Facilities can be temporarily deactivated for a variety of reasons. If a facility comes back from this API with `"active_status": "T"`, it is not currently operating. `"active_status": "A"` indicates normal operations at a facility.
+    
+    ### Mobile Facilities
+    
+    The mobile health facilities move regularly within a region. If a facility comes back from this API with `"mobile": "true"`, the latitude/longitude and address could be inaccurate. To get the exact current location, please call the number listed.
+
     ## Reference
 
     - [Raw VA Facilities Open API Spec](https://api.va.gov/services/va_facilities/docs/v0/api)
@@ -50,22 +66,6 @@ info:
 tags:
   - name: facilities
     description: VA Facilities API
-servers:
-  - url: https://dev-api.va.gov/services/va_facilities/{version}
-    description: VA.gov API development environment
-    variables:
-      version:
-        default: v0
-  - url: https://staging-api.va.gov/services/va_facilities/{version}
-    description: VA.gov API staging environment
-    variables:
-      version:
-        default: v0
-  - url: https://api.va.gov/services/va_facilities/{version}
-    description: VA.gov API production environment
-    variables:
-      version:
-        default: v0
 paths:
   /facilities:
     get:
@@ -96,7 +96,7 @@ paths:
         information in the "Link" header.
       operationId: getFacilitiesByLocation
       security:
-        - api_key: []
+        - apikey: []
       parameters:
         - name: ids
           description: |
@@ -113,7 +113,7 @@ paths:
         - name: zip
           in: query
           description: |
-            Zip code to search for VA Facilities. 
+            Zip code to search for VA Facilities.
             More detailed zip codes can be passed in, but only the first five digits are used to determine facilities to return.
           required: false
           schema:
@@ -295,7 +295,7 @@ paths:
       summary: Retrieve a specific facility by ID
       operationId: getFacilityById
       security:
-        - api_key: []
+        - apikey: []
       parameters:
         - in: path
           name: id
@@ -361,7 +361,7 @@ paths:
         available services, patient satisfaction, and patient wait time data.
       operationId: getAllFacilities
       security:
-        - api_key: []
+        - apikey: []
       parameters:
         - in: header
           name: Accept
@@ -391,11 +391,10 @@ paths:
               schema:
                 type: string
                 example: |
-                  id,name,station_id,latitude,longitude,facility_type,classification,website,physical_address_1,physical_address_2,physical_address_3,physical_city,physical_state,physical_zip,mailing_address_1,mailing_address_2,mailing_address_3,mailing_city,mailing_state,mailing_zip,phone_main,phone_fax,phone_mental_health_clinic,phone_pharmacy,phone_after_hours,phone_patient_advocate,phone_enrollment_coordinator,hours_monday,hours_tuesay,hours_wednesday,hours_thursday,hours_friday,hours_saturday,hours_sunday
-                  vc_0101V,Boston Vet Center,0101V,42.3445959000001,-71.0361051099999,vet_center,,,7 Drydock Avenue,Suite 2070,,Boston,MA,02210,,,,,,,857-203-6461 x,,,,,,,800AM-700PM,800AM-800PM,800AM-700PM,800AM-800PM,800AM-600PM,-,-
-                  vba_362b,Houston Regional Benefit Office at Frank Tejeda Outpatient Clinic,362b,29.51690196,-98.59601936,va_benefits_facility,Outbased,NULL,5788 Eckhert Road,,,San Antonio,TX,78240,,,,,,,210-699-5040,210-699-5079,,,,,,,,,,,,
-                  vha_402GC,Rumford VA Clinic,402GC,44.55185578,-70.55746856,va_health_facility,Primary Care CBOC,http://www.maine.va.gov/locations/rumford.asp,431 Franklin Street,,,Rumford,ME,04276-2100,,,,,,,207-369-3200 x,207-369-3277 x,207-369-3200 x 3200,207-623-8411 x5770,866-757-7503 x,207-623-5760 x,207-626-4743 x,,,,,,,
-                  nca_800,Alton National Cemetery,800,38.8905166870001,-90.1630421139999,va_cemetery,National Cemetery,https://www.cem.va.gov/cems/nchp/alton.asp,600 Pearl St,,,Alton,IL,62002,2900 Sheridan Rd,,,St. Louis,MO,63125,314-845-8320,314-845-8355,,,,,,,,,,,,
+                  id,name,station_id,latitude,longitude,facility_type,classification,website,physical_address_1,physical_address_2,physical_address_3,physical_city,physical_state,physical_zip,mailing_address_1,mailing_address_2,mailing_address_3,mailing_city,mailing_state,mailing_zip,phone_main,phone_fax,phone_mental_health_clinic,phone_pharmacy,phone_after_hours,phone_patient_advocate,phone_enrollment_coordinator,hours_monday,hours_tuesay,hours_wednesday,hours_thursday,hours_friday,hours_saturday,hours_sunday,mobile,active_status
+                  vc_0101V,Boston Vet Center,0101V,42.3445959000001,-71.0361051099999,vet_center,,,7 Drydock Avenue,Suite 2070,,Boston,MA,2210,,,,,,,857-203-6461 x,,,,,,,800AM-700PM,800AM-800PM,800AM-700PM,800AM-800PM,800AM-600PM,-,-,,
+                  vba_362b,Houston Regional Benefit Office at Frank Tejeda Outpatient Clinic,362b,29.51690196,-98.59601936,va_benefits_facility,Outbased,NULL,5788 Eckhert Road,,,San Antonio,TX,78240,,,,,,,210-699-5040,210-699-5079,,,,,,,,,,,,,,
+                  vha_459GH,Saipan VA Clinic,459GH,15.216794,145.729385,va_health_facility,Other Outpatient Services (OOS),,Marina Heights Business Park - Garapan,Medical Associates of the Pacific,MH-II Building Suite 100 and 206,Saipan,MP,96950-9998,,,,,,,670-322-0035 x,670-322-0038 x,"",800-465-8387 x,800-214-1306 x,670-322-0035 x,808-433-7600 x,,,,,,,,false,A
         '401':
           description: Missing API token
           content:
@@ -416,7 +415,7 @@ paths:
                 $ref: "#/components/schemas/APIError"
 components:
   securitySchemes:
-    api_key:
+    apikey:
       type: apiKey
       name: apikey
       in: header
@@ -522,6 +521,14 @@ components:
                   type: string
                   format: date
                   example: "2018-01-01"
+            mobile:
+              type: boolean
+              example: false
+            active_status:
+              type: string
+              enum:
+                - "A"
+                - "T"
     FacilityFeature:
       description: GeoJSON-complaint Feature object describing a VA Facility
       type: object
@@ -620,6 +627,14 @@ components:
                   type: string
                   format: date
                   example: "2018-01-01"
+            mobile:
+              type: boolean
+              example: false
+            active_status:
+              type: string
+              enum:
+                - "A"
+                - "T"
     Address:
       type: object
       properties:

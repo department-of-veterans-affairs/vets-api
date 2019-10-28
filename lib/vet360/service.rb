@@ -32,7 +32,7 @@ module Vet360
       Raven.extra_context(
         request_dates: parsed_body['bio'].slice('effectiveStartDate', 'effectiveEndDate', 'sourceDate')
       )
-    rescue StandardError
+    rescue
       nil
     end
 
@@ -47,6 +47,7 @@ module Vet360
       when Common::Client::Errors::ClientError
         save_error_details(error)
         raise Common::Exceptions::Forbidden if error.status == 403
+
         raise_invalid_body(error, self.class) unless error.body.is_a?(Hash)
         message = parse_messages(error)&.first
         raise_backend_exception("VET360_#{message['code']}", self.class, error) if message.present?
@@ -87,13 +88,7 @@ module Vet360
 
     def raise_backend_exception(key, source, error = nil)
       report_stats_on(key)
-
-      raise Common::Exceptions::BackendServiceException.new(
-        key,
-        { source: source.to_s },
-        error&.status,
-        error&.body
-      )
+      super
     end
 
     def raise_invalid_body(error, source)

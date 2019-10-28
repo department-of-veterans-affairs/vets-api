@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 Rails.application.routes.draw do
+  mount VAOS::Engine, at: '/vaos'
   match '/v0/*path', to: 'application#cors_preflight', via: [:options]
   match '/services/*path', to: 'application#cors_preflight', via: [:options]
 
@@ -10,6 +11,14 @@ Rails.application.routes.draw do
   get '/sessions/:type/new',
       to: 'v0/sessions#new',
       constraints: ->(request) { SessionActivity::SESSION_ACTIVITY_TYPES.include?(request.path_parameters[:type]) }
+
+  get '/v1/sessions/metadata', to: 'v1/sessions#metadata'
+  get '/v1/sessions/logout', to: 'v1/sessions#saml_logout_callback'
+  post '/v1/sessions/callback', to: 'v1/sessions#saml_callback', module: 'v1'
+  get '/v1/sessions/:type/new',
+      to: 'v1/sessions#new',
+      constraints: ->(request) { V1::SessionsController::REDIRECT_URLS.include?(request.path_parameters[:type]) }
+  get '/v1/sessions/ssoe_logout', to: 'v1/sessions#ssoe_slo_callback'
 
   namespace :v0, defaults: { format: 'json' } do
     resources :appointments, only: :index
@@ -203,6 +212,7 @@ Rails.application.routes.draw do
       resource :addresses, only: %i[create update destroy]
       resource :email_addresses, only: %i[create update destroy]
       resource :telephones, only: %i[create update destroy]
+      resources :address_validation, only: :create
       post 'initialize_vet360_id', to: 'persons#initialize_vet360_id'
       get 'person/status/:transaction_id', to: 'persons#status', as: 'person/status'
       get 'status/:transaction_id', to: 'transactions#status'
@@ -244,6 +254,7 @@ Rails.application.routes.draw do
     resources :preferences, only: %i[index show], path: 'user/preferences/choices', param: :code
     resources :user_preferences, only: %i[create index], path: 'user/preferences', param: :code
     delete 'user/preferences/:code/delete_all', to: 'user_preferences#delete_all'
+    get 'feature_toggles', to: 'feature_toggles#index'
 
     [
       'profile',
@@ -258,6 +269,13 @@ Rails.application.routes.draw do
         only: %i[show create destroy],
         defaults: { feature: feature }
       )
+    end
+  end
+
+  namespace :v1, defaults: { format: 'json' } do
+    resource :sessions, only: [] do
+      post :saml_callback, to: 'sessions#saml_callback'
+      post :saml_slo_callback, to: 'sessions#saml_slo_callback'
     end
   end
 

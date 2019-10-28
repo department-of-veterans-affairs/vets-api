@@ -3,20 +3,19 @@
 require 'rails_helper'
 
 RSpec.describe EVSS::UpdateClaimFromRemoteJob, type: :job do
+  subject do
+    described_class.new
+  end
+
   let(:user) { create(:user, :loa3) }
   let(:claim) { create(:evss_claim, user_uuid: user.uuid) }
   let(:tracker) { EVSSClaimsSyncStatusTracker.find_or_build(user.uuid) }
   let(:client_stub) { instance_double('EVSS::ClaimsService') }
 
-  subject do
-    described_class.new
-  end
-
   describe '#perform' do
     before do
       tracker.claim_id = claim.id
       tracker.set_single_status('REQUESTED')
-      expect(Sentry::TagRainbows).to receive(:tag)
       expect(tracker.get_single_status).to eq('REQUESTED')
     end
 
@@ -34,7 +33,7 @@ RSpec.describe EVSS::UpdateClaimFromRemoteJob, type: :job do
     end
 
     context 'when a standard error occurs' do
-      it 'should set the status to FAILED', :aggregate_failures do
+      it 'sets the status to FAILED', :aggregate_failures do
         allow(client_stub).to receive(:find_claim_by_id).and_raise(
           EVSS::ErrorMiddleware::EVSSBackendServiceError
         )
@@ -50,7 +49,7 @@ RSpec.describe EVSS::UpdateClaimFromRemoteJob, type: :job do
     end
 
     context 'when an active record error occurs' do
-      it 'should set the status to FAILED', :aggregate_failures do
+      it 'sets the status to FAILED', :aggregate_failures do
         expect(User).to receive(:find).with(user.uuid).once.and_return(user)
         allow(EVSSClaim).to receive(:find).and_raise(ActiveRecord::ConnectionTimeoutError)
         expect_any_instance_of(EVSSClaimsSyncStatusTracker).to(

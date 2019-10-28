@@ -43,7 +43,7 @@ describe 'user_preferences', type: :request do
     ]
   end
 
-  before(:each) { sign_in_as(user) }
+  before { sign_in_as(user) }
 
   describe 'POST /v0/user/preferences' do
     it 'returns the expected shape of attributes', :aggregate_failures do
