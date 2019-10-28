@@ -11,3 +11,6 @@ features:
   profile_show_direct_deposit:
     description: >
       https://www.va.gov/profile/ show Direct Deposit
+  va_online_scheduling:
+    description: >
+      https://www.va.gov/vaos/appointments show VA Online Scheduling

@@ -1,0 +1,61 @@
+{
+  "$schema" : "http://json-schema.org/draft-04/schema#",
+  "type": "object",
+  "required": ["id", "type", "attributes"],
+  "properties": {
+    "id": { "type": "string" },
+    "type": { "enum": ["va_appointments"] },
+    "attributes": {
+      "type": "object",
+      "required": [
+        "facility_id",
+        "facility",
+        "date_time",
+        "reason",
+        "type",
+        "contact_number",
+        "preferred_contact_time",
+        "status",
+        "pact_team"],
+      "properties": {
+        "facility_id": { "type": "string" },
+        "facility": {
+          "type": "object"
+          "required": ["id", "name", "type", "address", "city", "state", "direct_schedule_enabled", "parent_site_code"],
+          "properties": {
+            "id": { "type": "string" },
+            "name": { "type": "string" },
+            "type": { "type": "string" },
+            "address": { "type": "string" },
+            "city": { "type": "string" },
+            "state": { "type": "string" },
+            "direct_schedule_enabled": { "type": "boolean" },
+            "parent_site_code": { "type": "integer" }
+          }
+        },
+        "date_time": { "type": "string", "format": "date" },
+        "reason": { "type": "string" },
+        "type": { "type": "string" },
+        "contact_number": { "type": "string" },
+        "preferred_contact_time": { "type": "string", "enum": ["morning", "afternoon", "evening"] },
+        "status": { "type": "string", "enum": ["pending", "booked" },
+        "pact_team": {
+          "type": "object",
+          "required": ["team_sid", "team_name", "staff"],
+          "properties": {
+            "team_sid": { "type": "string" },
+            "team_name": { "type": "string" },
+            "staff": {
+              "type": "object",
+              "required": ["name", "title"],
+              "properties": {
+                "name": { "type": "string" },
+                "title": { "type": "string" }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
