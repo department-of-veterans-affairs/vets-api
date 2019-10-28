@@ -53,11 +53,6 @@ module Vet360
       render json: transaction, serializer: AsyncTransaction::BaseSerializer
     end
 
-    def strip_effective_end_date(params)
-      params[:effective_end_date] = nil
-      params
-    end
-
     def add_effective_end_date(params)
       params[:effective_end_date] = Time.now.utc.iso8601
       params
