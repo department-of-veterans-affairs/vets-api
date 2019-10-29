@@ -55,6 +55,7 @@ FactoryBot.define do
       vet360_id { '1' }
       source_system_user { '1234' }
       source_date { Time.now.utc.iso8601 }
+      effective_start_date { Time.now.utc.iso8601 }
     end
   end
 end
