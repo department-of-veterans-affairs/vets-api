@@ -91,6 +91,56 @@ module Swagger
         end
       end
 
+      swagger_schema :HigherLevelReviewParameters do
+        key :type, :object
+        key :required, %i[data]
+        property :data, type: :object do
+          key :required, %i[type attributes relationships]
+          property :type, type: :string, enum: %w[HigherLevelReview]
+          property :attributes, type: :object do
+            key :required, %i[
+              receipt_date
+              informal_conference
+              same_office
+              legacy_opt_in_approved
+              benefit_type
+            ]
+            property :receipt_date, type: :string, format: :date
+            property :informal_conference, type: :boolean
+            property :same_office, type: :boolean
+            property :legacy_opt_in_approved, type: :boolean
+            property :benefit_type do
+              key :'$ref', :BenefitType
+            end
+          end
+          property :relationships, type: :object do
+            key :required, %i[veteran]
+            property :veteran, type: :object do
+              key :required, %i[data]
+              property :data, type: :object do
+                key :required, %i[type id]
+                property :type, type: :string, enum: %w[Veteran]
+                property :id, type: :string
+              end
+            end
+            property :claimaint, type: :object do
+              key :required, %i[data]
+              property :data, type: :object do
+                key :required, %i[type id meta]
+                property :type, type: :string, enum: %w[Claimaint]
+                property :id, type: :string
+                property :meta, type: :object do
+                  key :required, %i[payee_code]
+                  property :payee_code do
+                    key :'$ref', :PayeeCode
+                  end
+                end
+              end
+            end
+          end
+        end
+      end
+
       swagger_schema :HigherLevelReviewAlerts do
         key :type, :array
         items do
@@ -255,6 +305,38 @@ module Swagger
           property :title, type: :string
           property :detail, type: :string
         end
+      end
+
+      swagger_schema :BenefitType do
+        key :type, :string
+        key :enum, %w[
+          compensation
+          pension
+          fiduciary
+          insurance
+          education
+          voc_rehab
+          loan_guaranty
+          vha
+          nca
+        ]
+      end
+
+      swagger_schema :PayeeCode do
+        key :type, :string
+        key :enum, generate_int_enum(0, 99)
+      end
+
+      private
+
+      def generate_int_enum(lower_bound, upper_bound)
+        arr = []
+        (lower_bound..upper_bound).each do |int|
+          int = int.to_s
+          int = "0#{int}" if int.length == 1
+          arr.push(int)
+        end
+        arr
       end
     end
   end
