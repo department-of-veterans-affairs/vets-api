@@ -42,5 +42,18 @@ FactoryBot.define do
       state_code { 'NY' }
       zip_code { '11249' }
     end
+
+    trait :override do
+      address_pou { Vet360::Models::Address::CORRESPONDENCE }
+      id { 108347 }
+      address_line1 { '1226 IMPERIAL BEND DR' }
+      city { 'HOUSTON' }
+      state_code { 'TX' }
+      zip_code { '77073' }
+      validation_key { 338234938 }
+      vet360_id { '1' }
+      source_system_user { '1234' }
+      source_date { Time.now.utc.iso8601 }
+    end
   end
 end

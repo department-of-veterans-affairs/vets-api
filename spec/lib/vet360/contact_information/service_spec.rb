@@ -129,20 +129,13 @@ describe Vet360::ContactInformation::Service, skip_vet360: true do
     let(:address) { build(:vet360_address, vet360_id: user.vet360_id, source_system_user: user.icn) }
 
     context 'with a validation key' do
+      let(:address) { build(:vet360_address, :override) }
+
       it 'will override the address error', run_at: '2019-10-29 01:12:06 +0000' do
         VCR.use_cassette(
           'vet360/contact_information/put_address_override',
           VCR::MATCH_EVERYTHING
         ) do
-          address.address_pou = 'CORRESPONDENCE'
-          address.id = 108347
-          address.address_line1 = '1226 IMPERIAL BEND DR'
-          address.city = 'HOUSTON'
-          address.state_code = 'TX'
-          address.zip_code = '77073'
-          address.validation_key = 338234938
-          address.source_date = Time.now.utc.iso8601
-
           response = subject.put_address(address)
           expect(response.status).to eq(200)
           expect(response.transaction.id).to eq('ba427f0a-dcab-475a-8137-71223d008048')
