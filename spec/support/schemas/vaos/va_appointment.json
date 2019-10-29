@@ -7,46 +7,20 @@
     "type": { "type": "string", "enum": ["va_appointments"] },
     "attributes": {
       "type": "object",
-      "anyOf": [
-        {
-          "required": [
-            "start_date",
-            "clinic_id",
-            "facility_id",
-            "community_care",
-            "vds_appointments"
-          ]
-        },
-        {
-          "required": [
-            "start_date",
-            "clinic_id",
-            "facility_id",
-            "community_care",
-            "vvs_appointments"
-          ]
-        }
-      ],
       "properties": {
         "start_date": { "type": "string", "format": "date-time" },
         "clinic_id": { "type": "string" },
+        "clinic_friendly_name": { "type": ["string", null] },
         "facility_id": { "type": "string" },
         "community_care": { "type": "boolean" },
         "vds_appointments": {
           "type": "array",
+          "optional": true,
           "uniqueItems": true,
           "items": {
             "type": "object",
-            "required": [
-              "appointment_length",
-              "appointment_time",
-              "clinic",
-              "type",
-              "current_status",
-              "booking_note"
-            ],
             "properties": {
-              "appointment_length": { "type": "string" },
+              "appointment_length": { "type": ["string", null] },
               "appointment_time": { "type": "string", "format": "date-time" },
               "clinic": {
                 "type": "object",
@@ -59,29 +33,16 @@
               },
               "type": { "type": "string" },
               "current_status": { "type": "string" },
-              "booking_note": { "type": "string" }
+              "booking_note": { "type": ["string", null] }
             }
           }
         },
         "vvs_appointments": {
           "type": "array",
+          "optional": true,
           "uniqueItems": true,
           "items": {
             "type": "object",
-            "required": [
-              "id",
-              "appointment_kind",
-              "source_system",
-              "date_time",
-              "desired_date",
-              "duration",
-              "status",
-              "type",
-              "booking_notes",
-              "instructions_other",
-              "patients",
-              "providers"
-            ],
             "properties": {
               "id": { "type": "string" },
               "appointment_kind": { "type": "string" },
@@ -102,7 +63,6 @@
               "instructions_other": { "type": "boolean" },
               "patients": {
                 "type": "array",
-                "minItems": 1,
                 "uniqueItems": true,
                 "items": {
                   "$ref": "patient.json"
@@ -110,7 +70,6 @@
               },
               "providers": {
                 "type": "array",
-                "minItems": 1,
                 "uniqueItems": true,
                 "items": {
                   "$ref": "provider.json"
