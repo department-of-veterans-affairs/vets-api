@@ -127,6 +127,26 @@ describe Vet360::ContactInformation::Service, skip_vet360: true do
 
   describe '#put_address' do
     let(:address) { build(:vet360_address, vet360_id: user.vet360_id, source_system_user: user.icn) }
+    context 'with a validation key' do
+      it 'will override the address error', run_at: '2019-10-29 01:12:06 +0000' do
+        VCR.configure do |c|
+          c.allow_http_connections_when_no_cassette = true
+        end
+        binding.pry; fail
+        VCR.use_cassette('vet360/contact_information/put_address_override',
+          record: :once
+        ) do
+          address.id = 38843
+          address.address_line1 = '1226 IMPERIAL BEND DR'
+          address.city = 'HOUSTON'
+          address.state_code = 'TX'
+          address.zip_code = '77073'
+          address.source_date = Time.now.utc.iso8601
+
+          response = subject.put_address(address)
+        end
+      end
+    end
 
     context 'when successful' do
       it 'returns a status of 200' do
