@@ -51,7 +51,7 @@ FactoryBot.define do
       city { 'HOUSTON' }
       state_code { 'TX' }
       zip_code { '77073' }
-      validation_key { 338234938 }
+      validation_key { 1997450416 }
       vet360_id { '1' }
       source_system_user { '1234' }
       source_date { Time.now.utc.iso8601 }
