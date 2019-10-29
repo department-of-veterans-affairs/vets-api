@@ -2,6 +2,6 @@
 
 VAOSPolicy = Struct.new(:user, :vaos) do
   def access?
-    user.loa3?
+    Flipper.enabled?('va_online_scheduling', user) && user.loa3?
   end
 end
