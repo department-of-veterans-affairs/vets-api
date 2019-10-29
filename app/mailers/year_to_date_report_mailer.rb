@@ -33,7 +33,6 @@ class YearToDateReportMailer < ApplicationMailer
   STAGING_RECIPIENTS = {
     to: %w[
       lihan@adhocteam.us
-      shay.norton-leonard@va.gov
     ]
   }.freeze
 
