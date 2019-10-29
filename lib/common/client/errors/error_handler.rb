@@ -21,7 +21,7 @@ module Common
         end
 
         def transformed_error
-          # TODO: 🦆 this is an example, the interface should be the same but the implementation can differ
+          # TODO: this is an example, the interface should be the same but the implementation can differ
           case error
           when Pundit::NotAuthorizedError
             Common::Exceptions::Forbidden.new(detail: 'User does not have access to the requested resource') # 403
