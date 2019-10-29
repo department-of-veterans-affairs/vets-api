@@ -108,6 +108,21 @@ RSpec.describe 'address', type: :request do
           end.to change(AsyncTransaction::Vet360::AddressTransaction, :count).from(0).to(1)
         end
       end
+
+      context 'with a validation key' do
+        let(:address) { build(:vet360_address, :override) }
+
+        before do
+          allow_any_instance_of(User).to receive(:vet360_id).and_return('1')
+          allow_any_instance_of(User).to receive(:icn).and_return('1234')
+        end
+
+        it 'should be successful' do
+          VCR.use_cassette('vet360/contact_information/put_address_override2', record: :once) do
+            put('/v0/profile/addresses', params: address.to_json, headers: headers)
+          end
+        end
+      end
     end
 
     context 'with a validation issue' do

@@ -47,6 +47,7 @@ FactoryBot.define do
       address_pou { Vet360::Models::Address::CORRESPONDENCE }
       id { 108347 }
       address_line1 { '1226 IMPERIAL BEND DR' }
+      address_line2 { 'c/o foo' }
       city { 'HOUSTON' }
       state_code { 'TX' }
       zip_code { '77073' }
