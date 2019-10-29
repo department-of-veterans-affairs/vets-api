@@ -36,6 +36,7 @@ services:
       POSTGRES_PORT: "${POSTGRES_PORT:-5432}"
       POSTGRES_USER: "${POSTGRES_USER:-postgres}"
       POSTGRES_PASSWORD: "${POSTGRES_PASSWORD:-password}"
+      JENKINS_URL: "${JENKINS_URL}"
     depends_on:
       - postgres
       - redis
