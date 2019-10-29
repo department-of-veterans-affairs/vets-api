@@ -20,6 +20,7 @@ module Common
           super(error)
         end
 
+        # rubocop:disable Metrics/CyclomaticComplexity
         def transformed_error
           # TODO: this is an example, the interface should be the same but the implementation can differ
           case error
@@ -40,6 +41,7 @@ module Common
             Common::Exceptions::InternalServerError.new(error)
           end
         end
+        # rubocop:enable Metrics/CyclomaticComplexity
       end
     end
   end
