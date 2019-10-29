@@ -2,14 +2,6 @@
 
 require 'pact/provider/rspec'
 
-require './spec/rails_helper'
-require './spec/support/authenticated_session_helper'
-require './spec/service_consumers/provider_states'
-
-Pact.configure do |config|
-  config.include AuthenticatedSessionHelper
-end
-
 Pact.service_provider "VA.gov API" do
   honours_pact_with 'VA.gov' do
 
