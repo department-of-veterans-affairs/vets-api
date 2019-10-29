@@ -89,11 +89,7 @@ module SentryLogging
   )
     level = 'info' if client_error?(extra_context[:va_exception_errors])
     level = normalize_level(level)
-    if Settings.sentry.dsn.present?
-      Raven.extra_context(extra_context) if non_nil_hash?(extra_context)
-      Raven.tags_context(tags_context) if non_nil_hash?(tags_context)
-      Raven.capture_exception(exception.cause.presence || exception, level: level)
-    end
+    raven_context_and_exception_capture(extra_context, tags_context, exception, level) if Settings.sentry.dsn.present?
 
     if exception.is_a? Common::Exceptions::BackendServiceException
       rails_logger(level, exception.message, exception.errors, exception.backtrace)
@@ -101,6 +97,12 @@ module SentryLogging
       rails_logger(level, "#{exception.message}.")
     end
     rails_logger(level, exception.backtrace.join("\n")) unless exception.backtrace.nil?
+  end
+
+  def raven_context_and_exception_capture(extra_context, tags_context, exception, level)
+    Raven.extra_context(extra_context) if non_nil_hash?(extra_context)
+    Raven.tags_context(tags_context) if non_nil_hash?(tags_context)
+    Raven.capture_exception(exception.cause.presence || exception, level: level)
   end
 
   def normalize_level(level)
