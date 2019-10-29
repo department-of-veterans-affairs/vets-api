@@ -1,4 +1,5 @@
 class FeatureToggleEvent < ActiveRecord::Migration[5.2]
+  # fake change
   def change
     create_table(:feature_toggle_events) do |t|
       t.string(:feature_name)
