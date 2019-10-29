@@ -56,6 +56,7 @@ module VAOS
       end
     end
 
+    # rubocop:disable Metrics/MethodLength
     def sanitize_array_values(appointment)
       appointment.except(:patient_icn)        # remove ICN
                  .reverse_merge(
@@ -67,9 +68,9 @@ module VAOS
         case k
         when :vds_appointments
           [k, v.map do |vds|
-            vds.reverse_merge(booking_note: nil, appointment_length: nil) # make array consistent
-               .except(:patient_id)                                       # remove patient identifiers
-            end]
+                vds.reverse_merge(booking_note: nil, appointment_length: nil) # make array consistent
+                   .except(:patient_id)                                       # remove patient identifiers
+              end]
         when :vvs_appointments
           [k, v.map do |vvs|
                 vvs.merge( # flatten the structure of patients and providers and remove patient identifiers
@@ -82,6 +83,7 @@ module VAOS
         end
       end
     end
+    # rubocop:enable Metrics/MethodLength
 
     # TODO: need underlying APIs to support pagination consistently
     def pagination(per_page, page)
