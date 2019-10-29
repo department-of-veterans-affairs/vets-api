@@ -45,7 +45,7 @@ module Facilities
       if (band % 10).zero?
         band
       else
-        (band.to_i / 10) * 10
+        (band.to_i / 10 + 1) * 10
       end
     end
 

@@ -18,9 +18,9 @@ RSpec.describe Facilities::PSSGDownload, type: :job do
 
   let(:drive_time_data_648A4_floats) do
     bands = drive_time_data_648A4
-    bands.first['attributes']['Name'] = '648A4 : 0.12345678 - 12.1234567'
-    bands.first['attributes']['FromBreak'] = 0.12345678
-    bands.first['attributes']['ToBreak'] = 12.1234567
+    bands.first['attributes']['Name'] = '648A4 : 0 - 1.21234567'
+    bands.first['attributes']['FromBreak'] = 0
+    bands.first['attributes']['ToBreak'] = 1.21234567
     bands
   end
 
@@ -74,9 +74,9 @@ RSpec.describe Facilities::PSSGDownload, type: :job do
       expect(bands.size).to be(1)
       expect(bands[0].min).to eq(0)
       expect(bands[0].max).to eq(10)
-      expect(bands[0].name).to eql('648A4 : 0.12345678 - 12.1234567')
+      expect(bands[0].name).to eql('648A4 : 0 - 1.21234567')
       expect(bands[0].unit).to eql('minutes')
-      expect(DrivetimeBand.find_by(vha_facility_id: '648A4').name).to eql('648A4 : 0.12345678 - 12.1234567')
+      expect(DrivetimeBand.find_by(vha_facility_id: '648A4').name).to eql('648A4 : 0 - 1.21234567')
     end
 
     it 'does not populate facility with drive time data when there are no rings' do
