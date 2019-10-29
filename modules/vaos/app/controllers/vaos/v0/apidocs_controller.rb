@@ -72,7 +72,7 @@ module VAOS
       SWAGGERED_CLASSES = [
         VAOS::Requests::Systems,
         VAOS::Schemas::Systems,
-        VAOS::Schemas::Errors,
+        Swagger::Schemas::Errors,
         self
       ].freeze
 
