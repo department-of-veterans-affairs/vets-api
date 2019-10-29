@@ -8,12 +8,13 @@ RSpec.describe 'systems', type: :request do
   let(:rsa_private) { OpenSSL::PKey::RSA.generate 4096 }
 
   before do
+    Flipper.enable('va_online_scheduling')
     sign_in_as(user)
     allow_any_instance_of(VAOS::JWT).to receive(:rsa_private).and_return(rsa_private)
   end
 
   context 'with a loa1 user' do
-    let(:user) { FactoryBot.create(:user, :loa1, ssn: '111223333') }
+    let(:user) { FactoryBot.create(:user, :loa1) }
 
     it 'returns a forbidden error' do
       get '/services/vaos/v0/systems'
