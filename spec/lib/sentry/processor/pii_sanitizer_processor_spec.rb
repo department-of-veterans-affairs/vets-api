@@ -68,43 +68,43 @@ RSpec.describe Sentry::Processor::PIISanitizer do
       }
     end
 
-    it 'should filter zipcode' do
+    it 'filters zipcode' do
       expect(result[:zipCode]).to eq('FILTERED-CLIENTSIDE')
     end
 
-    it 'should filter fileNumber' do
+    it 'filters fileNumber' do
       expect(result[:fileNumber]).to eq('FILTERED-CLIENTSIDE')
     end
 
-    it 'should filter address data' do
+    it 'filters address data' do
       result[:veteran_address].each_value { |v| expect(v).to eq('FILTERED-CLIENTSIDE') }
     end
 
-    it 'should filter direct deposit data' do
+    it 'filters direct deposit data' do
       result[:directDeposit].each_value { |v| expect(v).to eq('FILTERED-CLIENTSIDE') }
     end
 
-    it 'should filter gender data' do
+    it 'filters gender data' do
       expect(result[:gender]).to eq('FILTERED-CLIENTSIDE')
     end
 
-    it 'should filter phone data' do
+    it 'filters phone data' do
       expect(result[:phone]).to eq('FILTERED-CLIENTSIDE')
     end
 
-    it 'should filter json blobs' do
+    it 'filters json blobs' do
       expect(result[:json]).to include('FILTERED-CLIENTSIDE')
     end
 
-    it 'should filter arrays' do
+    it 'filters arrays' do
       expect(result[:array_of_json].first).to include('FILTERED-CLIENTSIDE')
     end
 
-    it 'should filter EVSS va_eauth_birthdate data' do
+    it 'filters EVSS va_eauth_birthdate data' do
       expect(result[:va_eauth_birthdate]).to eq('FILTERED-CLIENTSIDE')
     end
 
-    it 'should filter EVSS va_eauth_pnid data' do
+    it 'filters EVSS va_eauth_pnid data' do
       expect(result[:va_eauth_pnid]).to eq('FILTERED-CLIENTSIDE')
     end
   end
@@ -128,31 +128,31 @@ RSpec.describe Sentry::Processor::PIISanitizer do
       }
     end
 
-    it 'should filter address data' do
+    it 'filters address data' do
       result['veteranAddress'].each_value { |v| expect(v).to eq('FILTERED-CLIENTSIDE') }
     end
 
-    it 'should filter gender data' do
+    it 'filters gender data' do
       expect(result['gender']).to eq('FILTERED-CLIENTSIDE')
     end
 
-    it 'should filter phone data' do
+    it 'filters phone data' do
       expect(result['phone']).to eq('FILTERED-CLIENTSIDE')
     end
 
-    it 'should filter json blobs' do
+    it 'filters json blobs' do
       expect(result['json']).to include('FILTERED-CLIENTSIDE')
     end
 
-    it 'should filter arrays' do
+    it 'filters arrays' do
       expect(result['arrayOfJson'].first).to include('FILTERED-CLIENTSIDE')
     end
 
-    it 'should filter EVSS va_eauth_birthdate data' do
+    it 'filters EVSS va_eauth_birthdate data' do
       expect(result['va_eauth_birthdate']).to eq('FILTERED-CLIENTSIDE')
     end
 
-    it 'should filter EVSS va_eauth_pnid data' do
+    it 'filters EVSS va_eauth_pnid data' do
       expect(result['va_eauth_pnid']).to eq('FILTERED-CLIENTSIDE')
     end
   end
@@ -213,7 +213,7 @@ RSpec.describe Sentry::Processor::PIISanitizer do
       let(:data) { { 'dslogon_idvalue' => ['', nil] } }
 
       it 'filters blank and nil differently' do
-        expect(result['dslogon_idvalue']).to eq(['FILTERED-CLIENTSIDE-BLANK', 'FILTERED-CLIENTSIDE-NIL'])
+        expect(result['dslogon_idvalue']).to eq(%w[FILTERED-CLIENTSIDE-BLANK FILTERED-CLIENTSIDE-NIL])
       end
     end
 
@@ -225,7 +225,7 @@ RSpec.describe Sentry::Processor::PIISanitizer do
                                                   'FILTERED-CLIENTSIDE',
                                                   'FILTERED-CLIENTSIDE-BLANK',
                                                   'FILTERED-CLIENTSIDE-NIL',
-                                                  ['FILTERED-CLIENTSIDE', 'FILTERED-CLIENTSIDE-NIL'],
+                                                  %w[FILTERED-CLIENTSIDE FILTERED-CLIENTSIDE-NIL],
                                                   []
                                                 ])
       end

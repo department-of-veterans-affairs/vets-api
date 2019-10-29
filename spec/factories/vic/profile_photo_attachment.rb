@@ -3,8 +3,8 @@
 FactoryBot.define do
   factory :profile_photo_attachment, class: VIC::ProfilePhotoAttachment do
     transient do
-      file_path(nil)
-      file_type(nil)
+      file_path { nil }
+      file_type { nil }
     end
 
     after(:build) do |attachment, evaluator|

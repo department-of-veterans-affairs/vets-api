@@ -21,8 +21,9 @@ module VBADocuments
 
     def location
       return nil unless @instance_options[:render_location]
+
       object.get_location
-    rescue StandardError => e
+    rescue => e
       raise Common::Exceptions::InternalServerError, e
     end
   end

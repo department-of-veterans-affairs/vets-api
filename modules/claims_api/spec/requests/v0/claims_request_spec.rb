@@ -11,10 +11,11 @@ RSpec.describe 'EVSS Claims management', type: :request do
     'X-VA-First-Name' => 'Test',
     'X-VA-Last-Name' => 'Consumer',
     'X-VA-Birth-Date' => '11-11-1111',
-    'X-Consumer-Username' => 'TestConsumer'
+    'X-Consumer-Username' => 'TestConsumer',
+    'X-VA-LOA' => '3'
   }.freeze
 
-  before(:each) do
+  before do
     stub_mvi
   end
 
@@ -25,6 +26,7 @@ RSpec.describe 'EVSS Claims management', type: :request do
       'X-VA-EDIPI' => '1007697216',
       'X-Consumer-Username' => 'TestConsumer',
       'X-VA-User' => 'adhoc.test.user',
+      'X-VA-LOA' => '3',
       'X-VA-Birth-Date' => '1986-05-06T00:00:00+00:00' }
   end
 
@@ -70,7 +72,7 @@ RSpec.describe 'EVSS Claims management', type: :request do
             'X-VA-SSN' => '796043735', 'X-VA-First-Name' => 'WESLEY',
             'X-VA-Last-Name' => 'FORD', 'X-VA-EDIPI' => '1007697216',
             'X-Consumer-Username' => 'TestConsumer', 'X-VA-User' => 'adhoc.test.user',
-            'X-VA-Birth-Date' => '1986-05-06T00:00:00+00:00'
+            'X-VA-Birth-Date' => '1986-05-06T00:00:00+00:00', 'X-VA-LOA' => '3'
           }
         )
         expect(response).to match_response_schema('claims_api/claim')
@@ -87,7 +89,7 @@ RSpec.describe 'EVSS Claims management', type: :request do
   end
 
   context 'POA verifier' do
-    it 'should user the poa verifier when the header is present' do
+    it 'users the poa verifier when the header is present' do
       VCR.use_cassette('evss/claims/claim') do
         get(
           '/services/claims/v0/claims/d5536c5c-0465-4038-a368-1a9d9daf65c9',
@@ -113,6 +115,13 @@ RSpec.describe 'EVSS Claims management', type: :request do
             expect(response).to have_http_status(:bad_request)
           end
         end
+      end
+    end
+
+    it 'returns error if loa is not 3' do
+      VCR.use_cassette('evss/claims/claims') do
+        get '/services/claims/v0/claims', params: nil, headers: VALID_HEADERS.merge('X-VA-LOA' => 2)
+        expect(response).to have_http_status(:unauthorized)
       end
     end
   end

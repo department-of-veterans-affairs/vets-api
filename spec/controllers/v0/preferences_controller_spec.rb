@@ -17,13 +17,13 @@ RSpec.describe V0::PreferencesController, type: :controller do
     end
 
     context 'when logged in as an LOA1 user' do
-      before(:each) do
+      before do
         sign_in_as(build(:user, :loa1))
         get :show, params: { code: preference.code }
       end
 
       it 'returns successful http status' do
-        expect(response).to have_http_status(200)
+        expect(response).to have_http_status(:ok)
       end
 
       it 'matches the response schema' do
@@ -62,13 +62,13 @@ RSpec.describe V0::PreferencesController, type: :controller do
     end
 
     context 'when logged in as an LOA1 user' do
-      before(:each) do
+      before do
         sign_in_as(build(:user, :loa1))
         get :index
       end
 
       it 'returns successful http status' do
-        expect(response).to have_http_status(200)
+        expect(response).to have_http_status(:ok)
       end
 
       it 'matches the response schema' do

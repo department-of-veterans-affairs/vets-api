@@ -66,3 +66,7 @@ search:
 
 vba_documents:
   enable_download_endpoint: true
+
+bgs:
+  mock_response_location: /cache/bgs
+  mock_responses: true

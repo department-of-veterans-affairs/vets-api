@@ -7,7 +7,6 @@ class YearToDateReportMailer < ApplicationMailer
     to: %w[
       Christopher.Marino2@va.gov
       224B.VBAVACO@va.gov
-      rodney.alexander@va.gov
       Carolyn.McCollam@va.gov
       shay.norton@va.gov
       Christina.DiTucci@va.gov
@@ -17,7 +16,6 @@ class YearToDateReportMailer < ApplicationMailer
       John.McNeal@va.gov
       Anne.kainic@va.gov
       ian@adhocteam.us
-      dan.hoicowitz.va@gmail.com
       Darla.VanNieukerk@va.gov
       Brandon.Scott2@va.gov
       224C.VBAVACO@va.gov
@@ -26,15 +24,16 @@ class YearToDateReportMailer < ApplicationMailer
       222A.VBAVACO@va.gov
       Ricardo.DaSilva@va.gov
       peter.nastasi@va.gov
+      Lucas.Tickner@va.gov
+      kyle.pietrosanto@va.gov
+      robert.shinners@va.gov
     ]
   }.freeze
 
   STAGING_RECIPIENTS = {
     to: %w[
       lihan@adhocteam.us
-      Turner_Desiree@bah.com
-      Delli-Gatti_Michael@bah.com
-      Lucas.Tickner@va.gov
+      shay.norton-leonard@va.gov
     ]
   }.freeze
 

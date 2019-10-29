@@ -6,6 +6,9 @@ module ClaimsApi
 
     swagger_path '/claims/{id}' do
       operation :get do
+        security do
+          key :apikey, []
+        end
         key :summary, 'Find Claim by ID'
         key :description, 'Returns a single claim if the user has access'
         key :operationId, 'findClaimById'
@@ -22,17 +25,10 @@ module ClaimsApi
         end
 
         parameter do
-          key :name, 'apikey'
-          key :in, :header
-          key :description, 'API Key given to access data'
-          key :required, true
-          key :type, :string
-        end
-
-        parameter do
           key :name, 'X-VA-SSN'
           key :in, :header
           key :description, 'SSN of Veteran to fetch'
+          key :example, '123121234'
           key :required, true
           key :type, :string
         end
@@ -41,6 +37,7 @@ module ClaimsApi
           key :name, 'X-VA-First-Name'
           key :in, :header
           key :description, 'First Name of Veteran to fetch'
+          key :example, 'John'
           key :required, true
           key :type, :string
         end
@@ -49,6 +46,7 @@ module ClaimsApi
           key :name, 'X-VA-Last-Name'
           key :in, :header
           key :description, 'Last Name of Veteran to fetch'
+          key :example, 'Doe'
           key :required, true
           key :type, :string
         end
@@ -57,6 +55,7 @@ module ClaimsApi
           key :name, 'X-VA-Birth-Date'
           key :in, :header
           key :description, 'Date of Birth of Veteran to fetch in iso8601 format'
+          key :example, '1954-12-15'
           key :required, true
           key :type, :string
         end
@@ -73,6 +72,7 @@ module ClaimsApi
           key :name, 'X-VA-User'
           key :in, :header
           key :description, 'VA username of the person making the request'
+          key :example, 'lighthouse'
           key :required, true
           key :type, :string
         end
@@ -83,10 +83,11 @@ module ClaimsApi
             key :type, :object
             key :required, [:data]
             property :data do
-              key :'$ref', :Claims
+              key :'$ref', :ClaimsShow
             end
           end
         end
+
         response :default do
           key :description, 'unexpected error'
           schema do
@@ -105,6 +106,10 @@ module ClaimsApi
 
     swagger_path '/claims' do
       operation :get do
+        security do
+          key :apikey, []
+        end
+
         key :summary, 'All Claims'
         key :description, 'Returns all claims from the system that the user has access to'
         key :operationId, 'findClaims'
@@ -116,17 +121,10 @@ module ClaimsApi
         ]
 
         parameter do
-          key :name, 'apikey'
-          key :in, :header
-          key :description, 'API Key given to access data'
-          key :required, true
-          key :type, :string
-        end
-
-        parameter do
           key :name, 'X-VA-SSN'
           key :in, :header
           key :description, 'SSN of Veteran to fetch'
+          key :example, '123121234'
           key :required, true
           key :type, :string
         end
@@ -135,6 +133,7 @@ module ClaimsApi
           key :name, 'X-VA-First-Name'
           key :in, :header
           key :description, 'First Name of Veteran to fetch'
+          key :example, 'John'
           key :required, true
           key :type, :string
         end
@@ -143,6 +142,7 @@ module ClaimsApi
           key :name, 'X-VA-Last-Name'
           key :in, :header
           key :description, 'Last Name of Veteran to fetch'
+          key :example, 'Doe'
           key :required, true
           key :type, :string
         end
@@ -151,6 +151,7 @@ module ClaimsApi
           key :name, 'X-VA-Birth-Date'
           key :in, :header
           key :description, 'Date of Birth of Veteran to fetch in iso8601 format'
+          key :example, '1954-12-15'
           key :required, true
           key :type, :string
         end
@@ -167,6 +168,7 @@ module ClaimsApi
           key :name, 'X-VA-User'
           key :in, :header
           key :description, 'VA username of the person making the request'
+          key :example, 'lighthouse'
           key :required, false
           key :type, :string
         end
@@ -179,11 +181,12 @@ module ClaimsApi
             property :data do
               key :type, :array
               items do
-                key :'$ref', :Claims
+                key :'$ref', :ClaimsIndex
               end
             end
           end
         end
+
         response :default do
           key :description, 'unexpected error'
           schema do

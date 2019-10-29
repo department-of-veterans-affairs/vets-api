@@ -44,6 +44,7 @@ module SentryLogging
     # valid raven levels: debug, info, warning, error, fatal
     level = level.to_s
     return 'warning' if level == 'warn'
+
     level
   end
 
@@ -65,10 +66,15 @@ module SentryLogging
   private
 
   def client_error?(va_exception_errors)
-    va_exception_errors.present? && va_exception_errors.detect { |h| client_error_status?(h[:status]) }.present?
+    va_exception_errors.present? &&
+      va_exception_errors.detect { |h| client_error_status?(h[:status]) || evss_503?(h[:code], h[:status]) }.present?
   end
 
   def client_error_status?(status)
     (400..499).cover?(status.to_i)
+  end
+
+  def evss_503?(code, status)
+    (code == 'EVSS503' && status.to_i == 503)
   end
 end

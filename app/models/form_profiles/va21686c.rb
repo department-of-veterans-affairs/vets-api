@@ -107,6 +107,7 @@ class FormProfiles::VA21686c < FormProfile
 
   def prefill(user)
     return {} unless user.authorize :evss, :access?
+
     @veteran_information = initialize_veteran_information(user)
     super(user)
   end
@@ -156,11 +157,13 @@ class FormProfiles::VA21686c < FormProfile
 
   def convert_ssn(ssn)
     return unless ssn
+
     ssn.tr('^0-9', '')
   end
 
   def convert_phone(phone)
     return unless phone
+
     "#{phone['areaNbr']}#{phone['phoneNbr']}".tr('^0-9', '')
   end
 
@@ -182,11 +185,13 @@ class FormProfiles::VA21686c < FormProfile
 
   def detect_file_number(file_number)
     return if file_number.nil? || file_number.match(/^\d{3}-\d{2}-\d{4}$/)
+
     file_number
   end
 
   def prefill_marriage(marriage)
     return unless marriage
+
     VA21686c::FormMarriage.new(
       {
         date_of_marriage: convert_date(marriage['marriageDate']),
@@ -213,11 +218,13 @@ class FormProfiles::VA21686c < FormProfile
 
   def convert_date(date)
     return unless date
+
     Time.strptime(date.to_s, '%Q').utc.to_date.to_s
   end
 
   def prefill_dependents(children)
     return [] if children.blank?
+
     children.map do |child|
       VA21686c::FormDependent.new(
         {
@@ -250,6 +257,7 @@ class FormProfiles::VA21686c < FormProfile
 
   def prefill_address(address)
     return unless address
+
     address = VA21686c::FormAddress.new(
       {
         address_type: address['addressLocality'],
@@ -266,6 +274,7 @@ class FormProfiles::VA21686c < FormProfile
       }.compact
     )
     return if address.attributes.values.uniq.all? { |x| ['DOMESTIC', ''].include? x }
+
     address
   end
 end

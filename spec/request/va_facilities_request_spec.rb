@@ -30,6 +30,7 @@ RSpec.describe 'VA GIS Integration', type: :request do
     ids = %w[vba_310e vba_306f vba_306a vba_306d vba_306g vba_309 vba_306 vba_306b vba_306e vba_306h vba_306i vba_306c]
     ids.map { |id| create id }
   end
+
   it 'responds to GET #show for VHA prefix' do
     create :vha_648A4
     get '/v0/facilities/va/vha_648A4'
@@ -135,6 +136,7 @@ RSpec.describe 'VA GIS Integration', type: :request do
       provider = json['data'][0]
       expect(provider['attributes']['address']['city']).to eq('MANASSAS')
       expect(provider['attributes']['phone']).to eq('(828) 555-1723')
+      expect(provider['attributes']['caresite_phone']).to eq('(888) 444-1234')
     end
   end
 
@@ -201,7 +203,7 @@ RSpec.describe 'VA GIS Integration', type: :request do
   end
 
   context 'health services' do
-    it 'should include the appropriate services from wait time data' do
+    it 'includes the appropriate services from wait time data' do
       setup_pdx
       get '/v0/facilities/va/vha_648'
       expect(response).to be_successful
@@ -213,7 +215,7 @@ RSpec.describe 'VA GIS Integration', type: :request do
       expect(services['health']).to include('sl1' => ['Optometry'], 'sl2' => [])
     end
 
-    it 'should not include services that have no wait_time_data' do
+    it 'does not include services that have no wait_time_data' do
       setup_pdx
       get '/v0/facilities/va/vha_648A4'
       expect(response).to be_successful
@@ -227,7 +229,7 @@ RSpec.describe 'VA GIS Integration', type: :request do
   end
 
   describe '/v0/facilities/suggested/:facility_type' do
-    before(:each) { setup_pdx }
+    before { setup_pdx }
 
     context 'when facilities are found' do
       let(:facilites) { JSON.parse(response.body)['data'] }
@@ -287,7 +289,7 @@ RSpec.describe 'VA GIS Integration', type: :request do
       let(:error_detail) { JSON.parse(response.body)['errors'].first['detail'] }
 
       context 'with an invalid type' do
-        it '' do
+        it do
           get '/v0/facilities/suggested?name_part=por&type[]=foo'
           expect(response).to have_http_status(:bad_request)
           expect(error_detail).to eq('"["foo"]" is not a valid value for "type"')
@@ -295,7 +297,7 @@ RSpec.describe 'VA GIS Integration', type: :request do
       end
 
       context 'with one valid and one invalid type' do
-        it '' do
+        it do
           get '/v0/facilities/suggested?name_part=por&type[]=foo&type[]=health'
           expect(response).to have_http_status(:bad_request)
           expect(error_detail).to eq('"["foo", "health"]" is not a valid value for "type"')
@@ -303,7 +305,7 @@ RSpec.describe 'VA GIS Integration', type: :request do
       end
 
       context 'when type is missing' do
-        it '' do
+        it do
           get '/v0/facilities/suggested?name_part=xxx'
           expect(response).to have_http_status(:bad_request)
           expect(error_detail).to eq('The required parameter "type", is missing')
@@ -311,7 +313,7 @@ RSpec.describe 'VA GIS Integration', type: :request do
       end
 
       context 'when name_part is missing' do
-        it '' do
+        it do
           get '/v0/facilities/suggested?&type[]=health'
           expect(response).to have_http_status(:bad_request)
           expect(error_detail).to eq('The required parameter "name_part", is missing')

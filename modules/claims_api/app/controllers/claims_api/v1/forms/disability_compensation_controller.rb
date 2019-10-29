@@ -1,21 +1,25 @@
 # frozen_string_literal: true
 
-require_dependency 'claims_api/base_form_controller'
+require_dependency 'claims_api/base_disability_compensation_controller'
+require_dependency 'claims_api/concerns/poa_verification'
+require_dependency 'claims_api/concerns/page_size_validation'
 require 'jsonapi/parser'
 
 module ClaimsApi
   module V1
     module Forms
-      class DisabilityCompensationController < BaseFormController
+      class DisabilityCompensationController < BaseDisabilityCompensationController
+        include ClaimsApi::PoaVerification
+        include ClaimsApi::PageSizeValidation
+
         FORM_NUMBER = '526'
+
         before_action { permit_scopes %w[claim.write] }
-        before_action :verification_itf_expiration, only: %i[submit_form_526]
-        skip_before_action :validate_json_schema, only: %i[upload_supporting_documents]
-        skip_before_action :verify_mvi, only: %i[submit_form_526 validate_form_526]
-        skip_before_action :log_request, only: %i[validate_form_526]
+        before_action :validate_json_schema, only: %i[submit_form_526 validate_form_526]
+        before_action :validate_documents_page_size, only: %i[upload_supporting_documents]
 
         def submit_form_526
-          service = EVSS::DisabilityCompensationForm::ServiceAllClaim.new(auth_headers)
+          service_object = service(auth_headers)
           auto_claim = ClaimsApi::AutoEstablishedClaim.create(
             status: ClaimsApi::AutoEstablishedClaim::PENDING,
             auth_headers: auth_headers,
@@ -23,7 +27,7 @@ module ClaimsApi
             source: source_name
           )
           auto_claim = ClaimsApi::AutoEstablishedClaim.find_by(md5: auto_claim.md5) unless auto_claim.id
-          service.validate_form526(auto_claim.form.to_internal)
+          service_object.validate_form526(auto_claim.form.to_internal)
 
           ClaimsApi::ClaimEstablisher.perform_async(auto_claim.id)
 
@@ -39,7 +43,7 @@ module ClaimsApi
             claim_document = claim.supporting_documents.build
             claim_document.set_file_data!(document, params[:doc_type], params[:description])
             claim_document.save!
-            ClaimsApi::ClaimEstablisher.perform_async(claim_document.id)
+            ClaimsApi::ClaimUploader.perform_async(claim_document.id)
           end
 
           render json: claim, serializer: ClaimsApi::ClaimDetailSerializer
@@ -64,38 +68,6 @@ module ClaimsApi
         def source_name
           user = poa_request? ? @current_user : target_veteran
           "#{user.first_name} #{user.last_name}"
-        end
-
-        def service(auth_headers)
-          if Settings.claims_api.disability_claims_mock_override && !auth_headers['Mock-Override']
-            ClaimsApi::DisabilityCompensation::MockOverrideService.new(
-              auth_headers
-            )
-          else
-            EVSS::DisabilityCompensationForm::ServiceAllClaim.new(
-              auth_headers
-            )
-          end
-        end
-
-        def documents
-          document_keys = params.keys.select { |key| key.include? 'attachment' }
-          params.slice(*document_keys).values
-        end
-
-        def auth_headers
-          evss_headers = EVSS::DisabilityCompensationAuthHeaders
-                         .new(target_veteran(with_gender: true))
-                         .add_headers(
-                           EVSS::AuthHeaders.new(target_veteran(with_gender: true)).to_h
-                         )
-          if request.headers['Mock-Override'] &&
-             Settings.claims_api.disability_claims_mock_override
-            evss_headers['Mock-Override'] = true
-            Rails.logger.info('ClaimsApi: Mock Override Engaged')
-          end
-
-          evss_headers
         end
       end
     end

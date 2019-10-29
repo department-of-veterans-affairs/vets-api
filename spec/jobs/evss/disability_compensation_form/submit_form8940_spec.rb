@@ -5,7 +5,9 @@ require 'sidekiq/testing'
 Sidekiq::Testing.fake!
 
 RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm8940, type: :job do
-  before(:each) do
+  subject { described_class }
+
+  before do
     Sidekiq::Worker.clear_all
   end
 
@@ -14,8 +16,6 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm8940, type: :job do
     EVSS::DisabilityCompensationAuthHeaders.new(user).add_headers(EVSS::AuthHeaders.new(user).to_h)
   end
   let(:form8940) { File.read 'spec/support/disability_compensation_form/form_8940.json' }
-
-  subject { described_class }
 
   VCR.configure do |c|
     c.default_cassette_options = {

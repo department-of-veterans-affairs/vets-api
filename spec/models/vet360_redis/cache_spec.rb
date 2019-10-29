@@ -24,7 +24,7 @@ describe Vet360Redis::Cache do
       end
 
       it 'does not call #destroy' do
-        expect_any_instance_of(Common::RedisStore).to_not receive(:destroy)
+        expect_any_instance_of(Common::RedisStore).not_to receive(:destroy)
 
         Vet360Redis::Cache.invalidate(user)
       end

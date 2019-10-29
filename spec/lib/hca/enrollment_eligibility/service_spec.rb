@@ -5,7 +5,7 @@ require 'rails_helper'
 describe HCA::EnrollmentEligibility::Service do
   describe '#lookup_user' do
     context 'with a user that has an ineligibility_reason' do
-      it 'should get the ineligibility_reason', run_at: 'Wed, 13 Feb 2019 09:20:47 GMT' do
+      it 'gets the ineligibility_reason', run_at: 'Wed, 13 Feb 2019 09:20:47 GMT' do
         VCR.use_cassette(
           'hca/ee/lookup_user_ineligibility_reason',
           VCR::MATCH_EVERYTHING.merge(erb: true)
@@ -18,13 +18,15 @@ describe HCA::EnrollmentEligibility::Service do
             enrollment_date: nil,
             preferred_facility: '987 - CHEY6',
             ineligibility_reason: 'for testing',
-            effective_date: '2019-01-25T09:04:04.000-06:00'
+            effective_date: '2019-01-25T09:04:04.000-06:00',
+            primary_eligibility: 'HUMANITARIAN EMERGENCY',
+            veteran: 'false'
           )
         end
       end
     end
 
-    it 'should lookup the user through the hca ee api', run_at: 'Fri, 08 Feb 2019 02:50:45 GMT' do
+    it 'lookups the user through the hca ee api', run_at: 'Fri, 08 Feb 2019 02:50:45 GMT' do
       VCR.use_cassette(
         'hca/ee/lookup_user',
         VCR::MATCH_EVERYTHING.merge(erb: true)
@@ -37,7 +39,9 @@ describe HCA::EnrollmentEligibility::Service do
           enrollment_date: '2018-12-27T17:15:39.000-06:00',
           preferred_facility: '988 - DAYT20',
           ineligibility_reason: nil,
-          effective_date: '2019-01-02T21:58:55.000-06:00'
+          effective_date: '2019-01-02T21:58:55.000-06:00',
+          primary_eligibility: 'SC LESS THAN 50%',
+          veteran: 'true'
         )
       end
     end

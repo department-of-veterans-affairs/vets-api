@@ -27,7 +27,7 @@ describe PdfFill::Forms::Va21p527ez do
   end
 
   describe '#expand_expected_incomes' do
-    it 'should create an expectedIncomes array' do
+    it 'creates an expectedIncomes array' do
       expect(described_class.new(
         'expectedIncome' => {
           'salary' => 1
@@ -44,7 +44,7 @@ describe PdfFill::Forms::Va21p527ez do
   end
 
   describe '#expand_monthly_incomes' do
-    it 'should create monthlyIncomes array' do
+    it 'creates monthlyIncomes array' do
       expect(described_class.new(
         'monthlyIncome' => {
           'socialSecurity' => 1
@@ -65,7 +65,7 @@ describe PdfFill::Forms::Va21p527ez do
   end
 
   describe '#expand_net_worths' do
-    it 'should create an netWorths array' do
+    it 'creates an netWorths array' do
       expect(described_class.new(
         'netWorth' => {
           'bank' => 1
@@ -84,6 +84,10 @@ describe PdfFill::Forms::Va21p527ez do
   end
 
   describe '#expand_bank_acct' do
+    subject do
+      described_class.new({}).expand_bank_acct(bank_account)
+    end
+
     let(:bank_account) do
       {
         'accountNumber' => '88888888888',
@@ -91,14 +95,10 @@ describe PdfFill::Forms::Va21p527ez do
       }
     end
 
-    subject do
-      described_class.new({}).expand_bank_acct(bank_account)
-    end
-
     context 'when bank account is blank' do
       let(:bank_account) { nil }
 
-      it 'should return nil' do
+      it 'returns nil' do
         expect(subject).to eq(nil)
       end
     end
@@ -108,7 +108,7 @@ describe PdfFill::Forms::Va21p527ez do
         bank_account['accountType'] = 'savings'
       end
 
-      it 'should return savings account values' do
+      it 'returns savings account values' do
         expect(subject).to eq(
           'hasChecking' => false, 'hasSavings' => true, 'savingsAccountNumber' => '88888888888'
         )
@@ -120,7 +120,7 @@ describe PdfFill::Forms::Va21p527ez do
         bank_account['accountType'] = 'checking'
       end
 
-      it 'should return checking account values' do
+      it 'returns checking account values' do
         expect(subject).to eq(
           'hasChecking' => true, 'hasSavings' => false, 'checkingAccountNumber' => '88888888888'
         )
@@ -204,10 +204,10 @@ describe PdfFill::Forms::Va21p527ez do
           },
           :a
         ],
-        { a:   [{ 'spouseFullName' => 'spouse1 Olson',
-                  'otherExplanation' => 'other',
-                  'reasonForSeparation' => 'Marriage has not been terminated',
-                  'otherExplanations' => 'other' }] }
+        { a: [{ 'spouseFullName' => 'spouse1 Olson',
+                'otherExplanation' => 'other',
+                'reasonForSeparation' => 'Marriage has not been terminated',
+                'otherExplanations' => 'other' }] }
       ]
     ]
   )
@@ -271,7 +271,7 @@ describe PdfFill::Forms::Va21p527ez do
   )
 
   describe '#expand_jobs' do
-    it 'should expand the jobs data' do
+    it 'expands the jobs data' do
       expect(
         JSON.parse(
           described_class.new({}).expand_jobs(
@@ -495,7 +495,7 @@ describe PdfFill::Forms::Va21p527ez do
   )
 
   describe '#combine_name_addr' do
-    it 'should combine name addr in both formats' do
+    it 'combines name addr in both formats' do
       expect(
         JSON.parse(
           basic_class.combine_name_addr(
@@ -562,7 +562,7 @@ describe PdfFill::Forms::Va21p527ez do
   )
 
   describe '#expand_children' do
-    it 'should format children correctly' do
+    it 'formats children correctly' do
       expect(
         JSON.parse(
           described_class.new({}).expand_children(
@@ -664,12 +664,12 @@ describe PdfFill::Forms::Va21p527ez do
   )
 
   describe '#combine_full_name' do
-    let(:full_name) do
-      form_data['veteranFullName']
-    end
-
     subject do
       described_class.new({}).combine_full_name(full_name)
+    end
+
+    let(:full_name) do
+      form_data['veteranFullName']
     end
 
     context 'with missing fields' do
@@ -678,7 +678,7 @@ describe PdfFill::Forms::Va21p527ez do
         full_name.delete('suffix')
       end
 
-      it 'should combine a full name' do
+      it 'combines a full name' do
         expect(subject).to eq('john smith')
       end
     end
@@ -686,18 +686,18 @@ describe PdfFill::Forms::Va21p527ez do
     context 'with nil full name' do
       let(:full_name) { nil }
 
-      it 'should return nil' do
+      it 'returns nil' do
         expect(subject).to eq(nil)
       end
     end
 
-    it 'should combine a full name' do
+    it 'combines a full name' do
       expect(subject).to eq('john middle smith Sr.')
     end
   end
 
   describe '#merge_fields' do
-    it 'should merge the right fields', run_at: '2016-12-31 00:00:00 EDT' do
+    it 'merges the right fields', run_at: '2016-12-31 00:00:00 EDT' do
       expect(described_class.new(form_data).merge_fields.to_json).to eq(
         get_fixture('pdf_fill/21P-527EZ/merge_fields').to_json
       )

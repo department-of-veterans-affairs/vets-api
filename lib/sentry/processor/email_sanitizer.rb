@@ -4,7 +4,7 @@ module Sentry
   module Processor
     class EmailSanitizer < Raven::Processor
       # source: https://stackoverflow.com/a/27194235
-      EMAIL_REGEX = /\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}\b/i
+      EMAIL_REGEX = /\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}\b/i.freeze
 
       # largely duplicated code from from the raven-ruby lib as recommended in their doc
       # https://github.com/getsentry/raven-ruby/blob/master/lib/raven/processor/utf8conversion.rb#L9
@@ -33,6 +33,7 @@ module Sentry
 
       def sanitized_exception(exception)
         return exception unless contains_email?(exception.message)
+
         clean_exc = exception.class.new(sanitized_string(exception.message))
         clean_exc.set_backtrace(exception.backtrace)
         clean_exc

@@ -53,10 +53,10 @@ RSpec.describe AsyncTransaction::EVSS::VA526ezSubmitTransaction, type: :model do
     end
     it 'finds only 526ez transactions for a user' do
       expect(
-        AsyncTransaction::EVSS::VA526ezSubmitTransaction.find_transactions(user.uuid).all? do |t|
-          t.class == AsyncTransaction::EVSS::VA526ezSubmitTransaction
-        end
-      ).to be_truthy
+        AsyncTransaction::EVSS::VA526ezSubmitTransaction.find_transactions(user.uuid)
+      ).to be_all do |t|
+        t.class == AsyncTransaction::EVSS::VA526ezSubmitTransaction
+      end
     end
   end
 

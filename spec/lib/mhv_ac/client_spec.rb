@@ -9,18 +9,13 @@ describe 'mhv account creation' do
   # bundle exec rake mvi:find first_name="Hector" middle_name="J" last_name="Allen" _
   #                           birth_date="1932-02-05" gender="M" ssn="796126859"
 
-  it 'fetches a list of states', :vcr do
-    client_response = client.get_states
-    expect(client_response).to be_a(Hash)
+  let(:upgrade_params) do
+    {
+      user_id: '14221465',
+      form_signed_date_time: time.httpdate,
+      terms_version: 'v3.4'
+    }
   end
-
-  it 'fetches a list of countries', :vcr do
-    client_response = client.get_countries
-    expect(client_response).to be_a(Hash)
-  end
-
-  let(:time) { Time.parse('Tue, 09 May 2017 00:00:00 GMT').utc }
-
   let(:user_params) do
     {
       icn: '1012667122V019349',
@@ -42,13 +37,16 @@ describe 'mhv account creation' do
       terms_version: 'v3.2'
     }
   end
+  let(:time) { Time.parse('Tue, 09 May 2017 00:00:00 GMT').utc }
 
-  let(:upgrade_params) do
-    {
-      user_id: '14221465',
-      form_signed_date_time: time.httpdate,
-      terms_version: 'v3.4'
-    }
+  it 'fetches a list of states', :vcr do
+    client_response = client.get_states
+    expect(client_response).to be_a(Hash)
+  end
+
+  it 'fetches a list of countries', :vcr do
+    client_response = client.get_countries
+    expect(client_response).to be_a(Hash)
   end
 
   it 'creates an account', :vcr do
@@ -61,12 +59,12 @@ describe 'mhv account creation' do
     expect(client_response).to be_a(Hash)
   end
 
-  it 'should not create an account if one already exists', :vcr do
+  it 'does not create an account if one already exists', :vcr do
     expect { client.post_register(user_params) }
       .to raise_error(Common::Exceptions::BackendServiceException)
   end
 
-  it 'should not upgrade an account if one already exists', :vcr do
+  it 'does not upgrade an account if one already exists', :vcr do
     expect { client.post_upgrade(upgrade_params) }
       .to raise_error(Common::Exceptions::BackendServiceException)
   end

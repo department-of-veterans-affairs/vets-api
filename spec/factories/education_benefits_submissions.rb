@@ -2,8 +2,8 @@
 
 FactoryBot.define do
   factory :education_benefits_submission do
-    region('eastern')
-    chapter33(true)
+    region { 'eastern' }
+    chapter33 { true }
 
     after(:build) do |education_benefits_submission|
       # have to do it this way otherwise 2 submissions get created because of education benefits claim callback

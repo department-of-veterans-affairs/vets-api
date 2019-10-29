@@ -3,15 +3,16 @@
 require 'rails_helper'
 
 RSpec.describe EducationBenefitsSubmission, type: :model do
+  subject { described_class.new(attributes) }
+
   let(:attributes) do
     {
       region: 'eastern'
     }
   end
-  subject { described_class.new(attributes) }
 
   describe 'validations' do
-    it 'should validate region is correct' do
+    it 'validates region is correct' do
       subject.region = 'western'
       expect_attr_valid(subject, :region)
 
@@ -19,8 +20,8 @@ RSpec.describe EducationBenefitsSubmission, type: :model do
       expect_attr_invalid(subject, :region, 'is not included in the list')
     end
 
-    it 'should validate form_type' do
-      %w[1995 1990 1990e 0993 0994].each do |form_type|
+    it 'validates form_type' do
+      %w[1995 1990 1990e 0993 0994 1995s].each do |form_type|
         subject.form_type = form_type
         expect_attr_valid(subject, form_type)
       end

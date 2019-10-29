@@ -6,11 +6,11 @@ module ClaimsApi
   module V0
     module Forms
       class IntentToFileController < ClaimsApi::BaseFormController
-        FORM_NUMBER = '0966'
         skip_before_action(:authenticate)
-        skip_before_action :verify_power_of_attorney
+        before_action :validate_json_schema, only: %i[submit_form_0966]
         before_action :check_future_type, only: [:submit_form_0966]
-        skip_before_action :validate_json_schema, only: [:active]
+
+        FORM_NUMBER = '0966'
 
         def submit_form_0966
           response = itf_service.create_intent_to_file(form_type)
@@ -40,12 +40,16 @@ module ClaimsApi
                 }
               ]
             }
-            render json: error, status: 422
+            render json: error, status: :unprocessable_entity
           end
         end
 
         def form_type
           form_attributes['type']
+        end
+
+        def itf_service
+          EVSS::IntentToFile::Service.new(target_veteran)
         end
       end
     end

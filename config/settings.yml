@@ -15,12 +15,13 @@ saml:
 
 # Settings for new SAML authentication with SSOe
 saml_ssoe:
+  idp_metadata_file: /fake/path/to/metadata
   cert_path: config/certs/vetsgov-localhost.crt
   cert_new_path: ~
   key_path: config/certs/vetsgov-localhost.key
   issuer: https://ssoe-sp-dev.va.gov
   callback_url: http://localhost:3000/v1/sessions/callback
-  metadata_url: https://api.idmelabs.com/saml/metadata/provider
+  logout_url: https://int.eauth.va.gov/pkmslogout
 
 session_cookie:
   secure: false
@@ -91,7 +92,9 @@ vet360:
     enabled: true
     timeout: 30
     mock: false
-
+  address_validation:
+    hostname: 'dev-api.va.gov'
+    api_key: '<AV_KEY>'
 
 # Settings for IHub
 ihub:
@@ -112,9 +115,9 @@ evss:
   key_path: ~
   root_cert_path: ~
   versions:
-    claims: 3.0
-    common: 11.0
-    documents: 3.6
+    claims: 3.6
+    common: 11.6
+    documents: 3.7
   s3:
     uploads_enabled: false
     aws_access_key_id: EVSS_S3_AWS_ACCESS_KEY_ID_XYZ
@@ -127,6 +130,8 @@ evss:
   letters:
     url: https://csraciapp6.evss.srarad.com
     timeout: 55
+  ppiu:
+    timeout: 30
   pciu:
     timeout: 30
   pciu_address:
@@ -178,14 +183,17 @@ hca:
 
 # Settings for the facility locator
 locators:
-  vha: https://services3.arcgis.com/aqgBd3l68G8hEFFE/ArcGIS/rest/services/VHA_Facilities/FeatureServer/0
+  vha: https://gis.va.gov/server/rest/services/VA/FacilitySitePoint_VHA/FeatureServer/0/
   nca: https://services3.arcgis.com/aqgBd3l68G8hEFFE/ArcGIS/rest/services/NCA_Facilities/FeatureServer/0
   vba: https://services3.arcgis.com/aqgBd3l68G8hEFFE/ArcGIS/rest/services/VBA_Facilities/FeatureServer/0
   vc: https://services3.arcgis.com/aqgBd3l68G8hEFFE/ArcGIS/rest/services/VHA_VetCenters/FeatureServer/0
   vha_access_satisfaction: https://www.accesstopwt.va.gov/
   vha_access_waittime: https://www.accesstocare.va.gov/
   base_path: https://services3.arcgis.com/aqgBd3l68G8hEFFE/ArcGIS/rest/services/
+  gis_base_path: https://gis.va.gov/server/rest/services/VA
+  drive_time_band_base_path: https://vhanflwebgistst.v08.med.va.gov
   providers_enabled: false
+  mock_gis: false
 
 ppms:
   url: https://some.fakesite.com
@@ -275,6 +283,7 @@ preneeds:
 
 # Settings for VBA Document upload service module
 vba_documents:
+  unsuccessful_report_enabled: false
   location:
     prefix:  http://some.fakesite.com/path
     replacement: http://another.fakesite.com/rewrittenpath
@@ -382,9 +391,21 @@ search:
   url: https://search.usa.gov/api/v2
 
 bing:
-  base_api_url: 'https://dev.virtualearth.net/REST/v1/Routes'
+  base_api_url: 'https://dev.virtualearth.net/REST/v1'
   key: fake_key
 
 flipper:
   username: SUPER_SECRET_USERNAME
   password: SUPER_SECRET_PASSWORD
+
+bgs:
+  application: ~
+  client_station_id: ~
+  client_username: ~
+  mock_response_location: ~
+  mock_responses: ~
+
+va_mobile:
+  url: 'https://veteran.apps.va.gov/'
+  mock: false
+  key_path: /fake/client/key/path
