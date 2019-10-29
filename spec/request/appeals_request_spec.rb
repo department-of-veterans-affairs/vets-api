@@ -8,18 +8,15 @@ RSpec.describe 'Appeals', type: :request do
   before { sign_in_as(user) }
 
   uuid = '1234567890'
-  ssn = '111223333'
 
-  %w[loa1 loa3].each do |user|
-    define_method("with_#{user}_user") do |options*|
-      using_ssn = options[:without_ssn] ? nil : ssn
-      let(:user) { FactoryBot.create(:user, user.to_sym, ssn: using_ssn) }
-    end
+  shared_context 'with user' do |options|
+    using_ssn = options[:without_ssn] ? nil : '111223333'
+    let(:user) { FactoryBot.create(:user, options[:user], ssn: using_ssn )}
   end
 
   describe 'show higher level review' do
     context 'with an loa1 user' do
-      with_loa1_user
+      include_context 'with user', user: :loa1
 
       it 'returns a forbidden error' do
         get "/v0/appeals/higher_level_reviews/#{uuid}"
@@ -28,7 +25,7 @@ RSpec.describe 'Appeals', type: :request do
     end
 
     context 'with an loa3 user' do
-      with_loa3_user
+      include_context 'with user', user: :loa3
       
       context 'with a valid response' do
         it 'returns a successful response' do
@@ -45,7 +42,7 @@ RSpec.describe 'Appeals', type: :request do
 
   describe 'show intake status' do
     context 'using loa1 user' do
-      with_loa1_user
+      include_context 'with user', user: :loa1
 
       it 'returns a forbidden error' do
         get "/v0/appeals/higher_level_reviews/intake_status/#{uuid}"
@@ -54,7 +51,7 @@ RSpec.describe 'Appeals', type: :request do
     end
 
     context 'using loa3 user' do
-      with_loa3_user
+      include_context 'with user', user: :loa3
 
       context 'with a valid response' do
         it 'returns a successful response' do
@@ -70,7 +67,7 @@ RSpec.describe 'Appeals', type: :request do
   end
 
   context 'with a loa1 user' do
-    with_loa1_user
+    include_context 'with user', user: :loa1
 
     it 'returns a forbidden error' do
       get '/v0/appeals'
@@ -79,7 +76,7 @@ RSpec.describe 'Appeals', type: :request do
   end
 
   context 'with a loa3 user without a ssn' do
-    with_loa3_user without_ssn: true
+    include_context 'with user', user: :loa3, without_ssn: true
 
     it 'returns a forbidden error' do
       get '/v0/appeals'
@@ -88,7 +85,7 @@ RSpec.describe 'Appeals', type: :request do
   end
 
   context 'with a loa3 user' do
-    with_loa3_user
+    include_context 'with user', user: :loa3, without_ssn: true
 
     context 'with a valid response' do
       it 'returns a successful response' do

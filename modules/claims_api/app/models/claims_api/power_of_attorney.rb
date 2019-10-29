@@ -8,6 +8,10 @@ module ClaimsApi
     attr_encrypted(:auth_headers, key: Settings.db_encryption_key, marshal: true, marshaler: ClaimsApi::JsonMarshal)
     attr_encrypted(:file_data, key: Settings.db_encryption_key, marshal: true, marshaler: ClaimsApi::JsonMarshal)
 
+    PENDING = 'pending'
+    UPDATED = 'updated'
+    ERRORED = 'errored'
+
     before_validation :set_md5
     validates :md5, uniqueness: true
 

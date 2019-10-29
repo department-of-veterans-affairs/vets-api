@@ -22,7 +22,6 @@ unless ENV['NOCOVERAGE']
   SimpleCov.start 'rails' do
     track_files '**/{app,lib}/**/*.rb'
 
-    add_filter 'lib/mvi/responses/id_parser.rb' # TODO: remove when removing Flipper toggle in file.
     add_filter 'app/controllers/concerns/accountable.rb'
     add_filter 'config/initializers/clamscan.rb'
     add_filter 'lib/config_helper.rb'
@@ -30,6 +29,7 @@ unless ENV['NOCOVERAGE']
     add_filter 'lib/gibft/configuration.rb'
     add_filter 'lib/ihub/appointments/response.rb'
     add_filter 'lib/salesforce/configuration.rb'
+    add_filter 'lib/vet360/address_validation/configuration.rb'
     add_filter 'lib/search/response.rb'
     add_filter 'lib/vet360/exceptions/builder.rb'
     add_filter 'lib/vet360/response.rb'

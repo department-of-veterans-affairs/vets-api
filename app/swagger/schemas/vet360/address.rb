@@ -6,6 +6,44 @@ module Swagger
       class Address
         include Swagger::Blocks
 
+        swagger_schema :Vet360AddressSuggestion do
+          key :type, :object
+          key :required, %i[
+            address_line1
+            city
+            country_code_iso3
+          ]
+          property :address_line1,
+                   type: :string,
+                   example: '1493 Martin Luther King Rd',
+                   maxLength: 100
+          property :address_line2, type: :string, maxLength: 100
+          property :address_line3, type: :string, maxLength: 100
+          property :city, type: :string, example: 'Fulton', maxLength: 100
+          property :country_code_iso3,
+                   type: :string,
+                   example: 'USA',
+                   minLength: 3,
+                   maxLength: 3
+          property :international_postal_code, type: :string, example: '12345'
+          property :province, type: :string
+          property :state_code,
+                   type: :string,
+                   example: 'MS',
+                   minLength: 2,
+                   maxLength: 2
+          property :zip_code,
+                   type: :string,
+                   example: '38843',
+                   minLength: 5,
+                   maxLength: 5
+          property :zip_code_suffix,
+                   type: :string,
+                   example: '1234',
+                   minLength: 4,
+                   maxLength: 4
+        end
+
         swagger_schema :PostVet360DomesticAddress do
           key :required, %i[
             address_line1
