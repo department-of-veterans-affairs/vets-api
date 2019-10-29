@@ -3,5 +3,6 @@
 VAOS::Engine.routes.draw do
   namespace :v0, defaults: { format: 'json' } do
     get 'systems', to: 'vaos#get_systems'
+    get 'api', to: 'api#index'
   end
 end
