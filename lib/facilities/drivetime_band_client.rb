@@ -13,8 +13,6 @@ module Facilities
     def get_drivetime_bands(offset, limit)
       params = build_params(offset, limit)
       response = perform(:get, '/arcgis2/rest/services/Portal/MonthlyVAST_TTB/FeatureServer/0/query', params)
-      JSON.parse(response.body)['features']
-
       response_body = JSON.parse(response.body)
 
       if response_body.key?('error')

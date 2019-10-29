@@ -56,13 +56,14 @@ module Facilities
 
     def download_data
       offset = 0
+      limit = 30
       loop do
-        response = @drivetime_band_client.get_drivetime_bands(offset, 30)
+        response = @drivetime_band_client.get_drivetime_bands(offset, limit)
 
         break if response.blank?
 
         response.each(&method(:create_and_save_drive_time_data))
-        offset += 30
+        offset += limit
       end
     end
   end
