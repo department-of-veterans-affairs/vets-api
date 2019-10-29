@@ -1,6 +1,3 @@
-## Native Setup
-
-If you can run docker, use the [Base Setup](/README.md#base-setup) instructions. Reach out to the #devops slack channel if you need to use these.
 
 ## Developer Setup
 
@@ -59,7 +56,7 @@ the `vets-api` directory, run `./bin/setup-osx && source ~/.bash_profile && cd
     - `echo "DatabaseMirror database.clamav.net" > freshclam.conf`
     - `freshclam -v`
 1. Install [pdftk](https://www.pdflabs.com/tools/pdftk-the-pdf-toolkit/pdftk_server-2.02-mac_osx-10.11-setup.pkg)
-1. Install gem dependencies: `cd vets-api; bundle install --without production`
+2. Install gem dependencies: `cd vets-api; bundle install`
 - More information about installing *with* Sidekiq Enterprise as well as our credentials are on the internal system here: https://github.com/department-of-veterans-affairs/vets-api#authentication-required-for-enterprisecontribsyscom
 1. Install overcommit `overcommit --install --sign`
 1. Setup localhost certificates / keys:
@@ -72,7 +69,13 @@ the `vets-api` directory, run `./bin/setup-osx && source ~/.bash_profile && cd
    - `touch ./config/certs/vetsgov-localhost.key`
 1. Create dev database: `bundle exec rake db:setup`
 1. Go to the file `config/settings/development.yml` in your local vets-api. Switch the commented out lines pertaining to the cache_dir: uncomment out line 14 (what you use for running the app via Rails), and comment out line 15 (what you use for running the app via Docker).
+1. Make sure you have the [vets-api-mockdata](https://github.com/department-of-veterans-affairs/vets-api-mockdata) repo locally installed, preferably in a parallel directory to `vets-api`.
 1. Make sure you have the [vets-api-mockdata](https://github.com/department-of-veterans-affairs/vets-api-mockdata) repo locally installed
+2. Create a `config/settings.local.yml` file for your local configuration overrides. Add this key pointing to your `vets-api-mockdata` directory. 
+```
+betamocks:
+  cache_dir: ../vets-api-mockdata
+```
 
 #### Alternative (Ubuntu 18.04 LTS)
 1. Install Postgres, PostGIS, Redis, ImageMagick, Poppler, ClamAV, etc
@@ -97,7 +100,9 @@ the `vets-api` directory, run `./bin/setup-osx && source ~/.bash_profile && cd
        - `touch ./config/certs/vetsgov-localhost.crt`
        - `touch ./config/certs/vetsgov-localhost.key`
 1. Create dev database: `bundle exec rake db:setup`
-1. Go to the file `config/settings/development.yml` in your local vets-api. Switch the commented out lines pertaining to the cache_dir: uncomment out line 12 (what you use for running the app via Rails), and comment out line 13 (what you use for running the app via Docker).
-1. Make sure you have the [vets-api-mockdata](https://github.com/department-of-veterans-affairs/vets-api-mockdata) repo locally installed
-
-
+1. Make sure you have the [vets-api-mockdata](https://github.com/department-of-veterans-affairs/vets-api-mockdata) repo locally installed, preferably in a parallel directory to `vets-api`.
+1. Create a `config/settings.local.yml` file for your local configuration overrides. Add this key pointing to your `vets-api-mockdata` directory. 
+```
+betamocks:
+  cache_dir: ../vets-api-mockdata
+```
