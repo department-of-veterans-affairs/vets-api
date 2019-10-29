@@ -16,6 +16,7 @@ class SessionActivity < ApplicationRecord
     define_method("update_#{status}") do |metadata|
       update(metadata.merge(status: status))
     end
+  end
 
   private
 
