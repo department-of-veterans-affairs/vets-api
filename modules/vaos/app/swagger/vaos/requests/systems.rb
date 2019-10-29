@@ -17,7 +17,7 @@ module VAOS
 
           response 200 do
             key :description,
-              'The list of systems the user is registered in'
+                'The list of systems the user is registered in'
             schema do
               key :'$ref', :Systems
             end

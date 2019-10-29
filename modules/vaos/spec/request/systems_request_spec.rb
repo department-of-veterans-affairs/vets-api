@@ -6,8 +6,11 @@ RSpec.describe 'systems', type: :request do
   include SchemaMatchers
 
   let(:rsa_private) { OpenSSL::PKey::RSA.generate 4096 }
-  before(:each) { sign_in_as(user) }
-  before { allow_any_instance_of(VAOS::JWT).to receive(:rsa_private).and_return(rsa_private) }
+
+  before do
+    sign_in_as(user)
+    allow_any_instance_of(VAOS::JWT).to receive(:rsa_private).and_return(rsa_private)
+  end
 
   context 'with a loa1 user' do
     let(:user) { FactoryBot.create(:user, :loa1, ssn: '111223333') }

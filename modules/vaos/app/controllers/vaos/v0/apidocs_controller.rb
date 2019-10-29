@@ -2,7 +2,7 @@
 
 module VAOS
   module V0
-    class ApiController < ApplicationController
+    class ApidocsController < ApplicationController
       include Swagger::Blocks
       skip_before_action :authenticate
 
@@ -57,16 +57,16 @@ module VAOS
         end
 
         parameter :optional_page_number, name: :page, in: :query, required: false, type: :integer,
-          description: 'Page of results, greater than 0 (default: 1)'
+                                         description: 'Page of results, greater than 0 (default: 1)'
 
         parameter :optional_page_length, name: :per_page, in: :query, required: false, type: :integer,
-          description: 'number of results, between 1 and 99 (default: 10)'
+                                         description: 'number of results, between 1 and 99 (default: 10)'
 
         parameter :optional_sort, name: :sort, in: :query, required: false, type: :string,
-          description: "Comma separated sort field(s), prepend with '-' for descending"
+                                  description: "Comma separated sort field(s), prepend with '-' for descending"
 
         parameter :optional_filter, name: :filter, in: :query, required: false, type: :string,
-          description: 'Filter on refill_status: [[refill_status][logical operator]=status]'
+                                    description: 'Filter on refill_status: [[refill_status][logical operator]=status]'
       end
 
       SWAGGERED_CLASSES = [
