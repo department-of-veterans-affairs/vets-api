@@ -6,6 +6,8 @@ BASH_DEV     := $(COMPOSE_DEV) $(BASH) -c
 BASH_TEST    := $(COMPOSE_TEST) $(BASH) --login -c
 SPEC_PATH    := spec/
 
+# docker-compose -f docker-compose.test.yml run --rm --service-ports vets-api bash --login -c bin/rails db:setup db:migrate ci
+
 .PHONY: default
 default: ci
 .PHONY: bash
@@ -45,6 +47,26 @@ lint:
 .PHONY: migrate
 migrate:
 	@$(BASH_TEST) "bin/rails db:migrate"
+
+.PHONY: test_db
+test_db:
+	@$(BASH_TEST) "bin/rails db:setup db:migrate"	
+
+.PHONY: lint_ci
+lint_ci:
+	@$(BASH_TEST) "bin/rails lint"
+
+.PHONY: security_ci
+security_ci:
+	@$(BASH_TEST) "bin/rails security"
+
+.PHONY: danger
+danger:
+	@$(BASH_TEST) "bin/rails danger"
+
+.PHONY: spec_ci
+spec_ci:
+	@$(BASH_TEST) "bin/rails spec:with_codeclimate_coverage"
 
 .PHONY: rebuild
 rebuild: down

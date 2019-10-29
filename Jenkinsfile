@@ -26,15 +26,58 @@ pipeline {
       }
     }
 
-    stage('Run tests') {
+    stage('Build Docker Images'){
       steps {
         withCredentials([
           string(credentialsId: 'sidekiq-enterprise-license', variable: 'BUNDLE_ENTERPRISE__CONTRIBSYS__COM'),
           string(credentialsId: 'danger-github-api-token',    variable: 'DANGER_GITHUB_API_TOKEN')
         ]) {
           withEnv(['RAILS_ENV=test', 'CI=true']) {
-            sh 'make ci'
+            sh 'docker-compose -f docker-compose.test.yml build'
           }
+        }
+      }
+    }
+
+    // stage('Prepare Docker Env Variables') {
+    //   steps {
+    //     sh 'rm -f .env'
+    //     sh 'touch .env'
+    //     sh 'echo "BUNDLE_ENTERPRISE__CONTRIBSYS__COM=$BUNDLE_ENTERPRISE__CONTRIBSYS__COM" >> .env'
+    //     sh 'echo "DANGER_GITHUB_API_TOKEN=$DANGER_GITHUB_API_TOKEN" >> .env'
+    //     sh 'echo "DANGER_GITHUB_API_TOKEN=$DANGER_GITHUB_API_TOKEN" >> .env'
+    //   }
+    // }
+
+    stage('Setup Testing DB') {
+      steps {
+        withEnv(['RAILS_ENV=test', 'CI=true']) {
+          sh 'make test_db'
+        }
+      }
+    }
+
+    stage('Lint') {
+      steps {
+        withEnv(['RAILS_ENV=test', 'CI=true']) {
+          sh 'make lint_ci'
+        }
+      }
+    }
+
+    stage('Security Scan') {
+      steps {
+        withEnv(['RAILS_ENV=test', 'CI=true']) {
+          sh 'make security_ci'
+        }
+      }
+    }
+
+    stage('Run tests') {
+      steps {
+        withEnv(['RAILS_ENV=test', 'CI=true']) {
+          sh 'make spec_ci'
+          //sh 'docker-compose run -e BUNDLE_ENTERPRISE__CONTRIBSYS__COM=$BUNDLE_ENTERPRISE__CONTRIBSYS__COM -e RAILS_ENV=test -e CI=true vets-api bash -c "bin/rails lint"'
         }
       }
       post {
@@ -46,68 +89,81 @@ pipeline {
       }
     }
 
-    stage('Review') {
-      when { not { branch 'master' } }
-
+    stage('Danger Bot'){
       steps {
-        build job: 'deploys/vets-review-instance-deploy', parameters: [
-          stringParam(name: 'devops_branch', value: 'master'),
-          stringParam(name: 'api_branch', value: env.THE_BRANCH),
-          stringParam(name: 'web_branch', value: 'master'),
-          stringParam(name: 'source_repo', value: 'vets-api'),
-        ], wait: false
-      }
-    }
-
-    stage('Build AMI') {
-      when { anyOf { branch dev_branch; branch staging_branch; branch main_branch } }
-
-      steps {
-        // hack to get the commit hash, some plugin is swallowing git variables and I can't figure out which one
-        script {
-          commit = sh(returnStdout: true, script: "git rev-parse HEAD").trim()
+        withCredentials([
+          string(credentialsId: 'danger-github-api-token',    variable: 'DANGER_GITHUB_API_TOKEN')
+        ]) {
+          withEnv(['RAILS_ENV=test', 'CI=true']) {
+            sh 'make danger'
+          }
         }
-
-        build job: 'builds/vets-api', parameters: [
-          booleanParam(name: 'notify_slack', value: true),
-          stringParam(name: 'ref', value: commit),
-          booleanParam(name: 'release', value: false),
-        ], wait: true
       }
     }
 
-    stage('Deploy dev') {
-      when { branch dev_branch }
+  //   stage('Review') {
+  //     when { not { branch 'master' } }
 
-      steps {
-        build job: 'deploys/vets-api-server-vagov-dev', parameters: [
-          booleanParam(name: 'notify_slack', value: true),
-          stringParam(name: 'ref', value: commit),
-        ], wait: false
+  //     steps {
+  //       build job: 'deploys/vets-review-instance-deploy', parameters: [
+  //         stringParam(name: 'devops_branch', value: 'master'),
+  //         stringParam(name: 'api_branch', value: env.THE_BRANCH),
+  //         stringParam(name: 'web_branch', value: 'master'),
+  //         stringParam(name: 'source_repo', value: 'vets-api'),
+  //       ], wait: false
+  //     }
+  //   }
 
-        build job: 'deploys/vets-api-worker-vagov-dev', parameters: [
-          booleanParam(name: 'notify_slack', value: true),
-          stringParam(name: 'ref', value: commit),
-        ], wait: false
-      }
-    }
+  //   stage('Build AMI') {
+  //     when { anyOf { branch dev_branch; branch staging_branch; branch main_branch } }
 
-    stage('Deploy staging') {
-      when { branch staging_branch }
+  //     steps {
+  //       // hack to get the commit hash, some plugin is swallowing git variables and I can't figure out which one
+  //       script {
+  //         commit = sh(returnStdout: true, script: "git rev-parse HEAD").trim()
+  //       }
 
-      steps {
-        build job: 'deploys/vets-api-server-vagov-staging', parameters: [
-          booleanParam(name: 'notify_slack', value: true),
-          stringParam(name: 'ref', value: commit),
-        ], wait: false
+  //       build job: 'builds/vets-api', parameters: [
+  //         booleanParam(name: 'notify_slack', value: true),
+  //         stringParam(name: 'ref', value: commit),
+  //         booleanParam(name: 'release', value: false),
+  //       ], wait: true
+  //     }
+  //   }
 
-        build job: 'deploys/vets-api-worker-vagov-staging', parameters: [
-          booleanParam(name: 'notify_slack', value: true),
-          stringParam(name: 'ref', value: commit),
-        ], wait: false
-      }
-    }
-  }
+  //   stage('Deploy dev') {
+  //     when { branch dev_branch }
+
+  //     steps {
+  //       build job: 'deploys/vets-api-server-vagov-dev', parameters: [
+  //         booleanParam(name: 'notify_slack', value: true),
+  //         stringParam(name: 'ref', value: commit),
+  //       ], wait: false
+
+  //       build job: 'deploys/vets-api-worker-vagov-dev', parameters: [
+  //         booleanParam(name: 'notify_slack', value: true),
+  //         stringParam(name: 'ref', value: commit),
+  //       ], wait: false
+  //     }
+  //   }
+
+  //   stage('Deploy staging') {
+  //     when { branch staging_branch }
+
+  //     steps {
+  //       build job: 'deploys/vets-api-server-vagov-staging', parameters: [
+  //         booleanParam(name: 'notify_slack', value: true),
+  //         stringParam(name: 'ref', value: commit),
+  //       ], wait: false
+
+  //       build job: 'deploys/vets-api-worker-vagov-staging', parameters: [
+  //         booleanParam(name: 'notify_slack', value: true),
+  //         stringParam(name: 'ref', value: commit),
+  //       ], wait: false
+  //     }
+  //   }
+  // }
+
   post {
     always {
       sh 'make clean'
