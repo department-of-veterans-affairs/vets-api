@@ -20,8 +20,8 @@ RSpec.describe 'Flipper UI', type: :request do
     end
 
     it 'records the admin user when a toggle value is chaged' do
-      Flipper.enable('mvi_id_parser')
-      post '/flipper/features/mvi_id_parser/boolean',
+      Flipper.disable('facility_locator_show_community_cares')
+      post '/flipper/features/facility_locator_show_community_cares/boolean',
            params: { 'action' => 'Enable', 'authenticity_token' => token },
            session: { 'rack.session' => session }
       assert_response :redirect
