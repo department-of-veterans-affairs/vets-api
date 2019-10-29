@@ -9,7 +9,7 @@ describe VAOS::SystemsService do
   before { allow(File).to receive(:read).and_return(rsa_private) }
 
   describe '#get_systems' do
-    context 'with 12 va appointments' do
+    context 'with 10 system identifiers' do
       it 'returns an array of size 10' do
         VCR.use_cassette('vaos/systems/get_systems', match_requests_on: %i[host path method]) do
           response = subject.get_systems(user)
