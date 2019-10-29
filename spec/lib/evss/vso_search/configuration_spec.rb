@@ -5,7 +5,8 @@ require 'rails_helper'
 describe EVSS::VsoSearch::Configuration do
   describe '#base_path' do
     it 'has a base path' do
-      base_path = "#{Settings.evss.url}/wss-common-services-web-#{Settings.evss.versions.common}/rest/vsoSearch/11.6/"
+      version = Settings.evss.versions.common
+      base_path = "#{Settings.evss.url}/wss-common-services-web-#{version}/rest/vsoSearch/#{version}/"
       expect(described_class.instance.base_path).to eq(base_path)
     end
   end
