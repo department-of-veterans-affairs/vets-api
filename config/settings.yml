@@ -397,6 +397,8 @@ bing:
 flipper:
   admin_user_emails:
     - anna@adhoc.team
+    - johnny@oddball.io
+    - travis.hilton@oddball.io
 
 bgs:
   application: ~
