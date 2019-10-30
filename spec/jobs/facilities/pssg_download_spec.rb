@@ -108,4 +108,27 @@ RSpec.describe Facilities::PSSGDownload, type: :job do
       expect(DrivetimeBand.find_by(name: '648A4 : 0 - 10')).to be_nil
     end
   end
+
+  context 'when encountering an error' do
+    before do
+      Settings.sentry.dsn = 'asdf'
+      create :vha_648A4
+    end
+
+    after do
+      Settings.sentry.dsn = nil
+    end
+
+    it 'logs pssg download error to sentry' do
+      allow(pssg_client_stub).to receive(:get_drivetime_bands).with(0, 30).and_return(drive_time_data_648A4)
+      allow_any_instance_of(
+        Facilities::PSSGDownload
+      ).to receive(:extract_polygon).with(any_args).and_raise(RGeo::Error::InvalidGeometry)
+
+      expect(Raven).to receive(:capture_exception).with(RGeo::Error::InvalidGeometry, level: 'error')
+      expect(Raven).to receive(:extra_context).with('Band name' => drive_time_data_648A4[0]['attributes']['Name'])
+
+      subject.perform
+    end
+  end
 end
