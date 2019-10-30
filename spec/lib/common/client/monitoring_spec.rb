@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require './spec/support/default_configuration_helper'
 
 RSpec.describe Common::Client::Monitoring, type: :model do
   module Specs

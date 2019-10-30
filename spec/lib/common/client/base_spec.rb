@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require './spec/support/default_configuration_helper'
 
 describe Common::Client::Base do
   module Specs
