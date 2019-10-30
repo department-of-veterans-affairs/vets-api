@@ -1,0 +1,24 @@
+ 4536/4536 |==================================================== 100 =====================================================>| Time: 00:07:37
+DEPRECATION WARNING: traits is deprecated and will be removed from factory_bot 6.0 (called from call at /Users/johnpaul/work/oddball/vets-api/.bundle/gems/factory_trace-0.3.2/lib/factory_trace/preprocessors/extract_defined.rb:8)
+total number of unique used factories & traits: 223
+total number of unique unused factories & traits: 20
+unused factory configuration
+unused factory disability_compensation_submission
+unused factory access_satisfaction
+unused factory access_wait_time
+unused trait system_folder of factory folder
+unused trait with_counts of factory folder
+unused factory id_card_announcement_subscription
+unused factory maintenance_window
+unused factory nca_gis_record_v1
+unused factory nca_gis_record_v2
+unused factory mhv_user_identity
+unused factory dslogon_user_identity
+unused factory mhv_user_identity_attrs
+unused factory dslogon_user_identity_attrs
+unused factory va0994_minimum_form
+unused factory vet360_message
+unused factory vha_gis_record
+unused factory vha_gis_record_v3
+unused factory invalid_auto_established_claim
+unused global trait loa3
