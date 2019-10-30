@@ -49,7 +49,7 @@ module Swagger
               property :authn_context,
                        enum: ['dslogon', 'dslogon_loa3', 'dslogon_multifactor', 'myhealthevet', 'myhealthevet_loa3',
                               'myhealthevet_multifactor', LOA::IDME_LOA1, LOA::IDME_LOA3],
-                       example: 'LOA::IDME_LOA3',
+                       example: 'myhealthevet_loa3',
                        description: 'The login method of a user.
                                      If a user logs in using a DS Logon Username and password and then goes through
                                      identity verification with id.me their login type would be dslogon_loa3.
