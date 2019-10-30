@@ -46,6 +46,15 @@ module Swagger
                        example: true,
                        description: "ID.me boolean value if the signed-in 'wallet' has multifactor enabled"
               property :last_signed_in, type: :string, example: '2019-10-02T13:55:54.261Z'
+              property :authn_context,
+                       enum: ['dslogon', 'dslogon_loa3', 'dslogon_multifactor', 'myhealthevet', 'myhealthevet_loa3',
+                              'myhealthevet_multifactor', LOA::IDME_LOA1, LOA::IDME_LOA3],
+                       example: 'LOA::IDME_LOA3',
+                       description: 'The login method of a user.
+                                     If a user logs in using a DS Logon Username and password and then goes through
+                                     identity verification with id.me their login type would be dslogon_loa3.
+                                     or if they logged in with dslogon and added multifactor authentication through
+                                     id.me their authn_context would be dslogon_multifactor'
               property :sign_in, type: :object do
                 property :service_name,
                          type: :string,
@@ -57,15 +66,6 @@ module Swagger
                          enum: %w[Basic Premium 1 2 3],
                          example: 'Basic',
                          description: 'myhealthevet account_types: Basic, Premium. dslogon account account_types: 1-3'
-                property :authn_context,
-                         enum: ['dslogon', 'dslogon_loa3', 'dslogon_multifactor', 'myhealthevet', 'myhealthevet_loa3',
-                                'myhealthevet_multifactor', LOA::IDME_LOA1, LOA::IDME_LOA3],
-                         example: 'LOA::IDME_LOA3',
-                         description: 'The login method of a user.
-                                       If a user logs in using a DS Logon Username and password and then goes through
-                                       identity verification with id.me their login type would be dslogon_loa3.
-                                       or if they logged in with dslogon and added multifactor authentication through
-                                       id.me their authn_context would be dslogon_multifactor'
               end
               property :verified, type: :boolean, example: true
               property :loa, type: :object do
