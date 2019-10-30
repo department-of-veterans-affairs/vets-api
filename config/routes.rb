@@ -291,6 +291,7 @@ Rails.application.routes.draw do
     mount ClaimsApi::Engine, at: '/claims'
     mount VaFacilities::Engine, at: '/va_facilities'
     mount Veteran::Engine, at: '/veteran'
+    mount VaForms::Engine, at: '/va_forms'
     mount VeteranVerification::Engine, at: '/veteran_verification'
   end
 
@@ -300,13 +301,7 @@ Rails.application.routes.draw do
     mount Sidekiq::Web, at: '/sidekiq'
   end
 
-  require 'feature_flipper'
-  flipper_app = Flipper::UI.app(Flipper.instance) do |builder|
-    builder.use Rack::Auth::Basic do |username, password|
-      username == Settings.flipper.username && password == Settings.flipper.password
-    end
-  end
-  mount flipper_app, at: '/flipper'
+  mount Flipper::UI.app(Flipper.instance) => '/flipper', constraints: Flipper::AdminUserConstraint.new
 
   # This globs all unmatched routes and routes them as routing errors
   match '*path', to: 'application#routing_error', via: %i[get post put patch delete]
