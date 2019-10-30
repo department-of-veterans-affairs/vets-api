@@ -396,8 +396,10 @@ bing:
   key: fake_key
 
 flipper:
-  username: SUPER_SECRET_USERNAME
-  password: SUPER_SECRET_PASSWORD
+  admin_user_emails:
+    - anna@adhoc.team
+    - johnny@oddball.io
+    - travis.hilton@oddball.io
 
 bgs:
   application: ~
