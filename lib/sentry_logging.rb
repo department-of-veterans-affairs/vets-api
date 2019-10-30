@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+# rubocop:disable Metrics/ModuleLength
 module SentryLogging
   SKIP_SENTRY_EXCEPTION_TYPES = [
     Common::Exceptions::Unauthorized,
@@ -144,3 +145,4 @@ module SentryLogging
     (code == 'EVSS503' && status.to_i == 503)
   end
 end
+# rubocop:enable Metrics/ModuleLength
