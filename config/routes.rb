@@ -291,6 +291,7 @@ Rails.application.routes.draw do
     mount ClaimsApi::Engine, at: '/claims'
     mount VaFacilities::Engine, at: '/va_facilities'
     mount Veteran::Engine, at: '/veteran'
+    mount VaForms::Engine, at: '/va_forms'
     mount VeteranVerification::Engine, at: '/veteran_verification'
   end
 
