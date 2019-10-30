@@ -2,10 +2,10 @@
 
 module VAOS
   module V0
-    class VAOSController < ApplicationController
+    class SystemsController < ApplicationController
       before_action { authorize :vaos, :access? }
 
-      def get_systems
+      def index
         response = systems_service.get_systems(current_user)
         render json: VAOS::SystemSerializer.new(response)
       end
