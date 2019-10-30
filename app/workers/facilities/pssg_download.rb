@@ -13,7 +13,7 @@ module Facilities
       begin
         download_data
       rescue => e
-        log_exception_to_sentry(e)
+        log_exception_to_sentry(e, 'Band name' => @band_name)
       end
     end
 
@@ -35,7 +35,7 @@ module Facilities
       drive_time_band.min = round_band(attributes&.dig('FromBreak'))
       drive_time_band.max = round_band(attributes&.dig('ToBreak'))
       drive_time_band.name = name
-
+      @band_name = name
       drive_time_band.polygon = extract_polygon(rings)
       drive_time_band.save
       facility.save
