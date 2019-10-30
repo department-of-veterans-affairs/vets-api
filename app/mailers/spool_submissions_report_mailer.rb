@@ -18,7 +18,6 @@ class SpoolSubmissionsReportMailer < ApplicationMailer
 
   STAGING_RECIPIENTS = %w[
     lihan@adhocteam.us
-    shay.norton-leonard@va.gov
   ].freeze
 
   STAGING_STEM_RECIPIENTS = %w[
