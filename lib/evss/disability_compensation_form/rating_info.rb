@@ -34,14 +34,15 @@ module EVSS
       include ActiveModel::Serialization
       include Virtus.model
 
-      #attribute :name, String
+      # attribute :name, String
       attribute :effective_date, DateTime
       attribute :rating_record, Integer
       attribute :some_text, String
+      # attribute :user_percent_of_disability, Integer
 
       def initialize(attrs)
         super(attrs)
-        #self.name = attrs['diagnostic_text']
+        # self.name = attrs['diagnostic_text']
       end
     end
   end

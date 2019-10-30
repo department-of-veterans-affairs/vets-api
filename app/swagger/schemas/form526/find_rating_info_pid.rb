@@ -16,7 +16,6 @@ module Swagger
           property :some_text, type: :string, example: 'Dummy Data'
           property :user_percent_of_disability, type: :integer, example: '90'
         end
-
       end
     end
   end

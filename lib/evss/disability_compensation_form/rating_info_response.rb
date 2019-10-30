@@ -11,7 +11,7 @@ module EVSS
     #   @return [Array***<EVSS::DisabilityCompensationForm::RatingInfo>] The total combined disability rating
     #
     class RatingInfoResponse < EVSS::Response
-      #attribute :rating_info, Array[EVSS::DisabilityCompensationForm::RatingInfo]
+      # attribute :rating_info, Array[EVSS::DisabilityCompensationForm::RatingInfo]
       attribute :user_percent_of_disability, Integer
 
       def initialize(status, response = nil)
