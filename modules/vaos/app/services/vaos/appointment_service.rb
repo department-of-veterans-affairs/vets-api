@@ -61,18 +61,18 @@ module VAOS
     def get_va_appointments_url(icn, start_date, end_date, pagination_params)
       "/appointments/v1/patients/#{icn}/appointments"\
           "?startDate=#{date_format(start_date)}&endDate=#{date_format(end_date)}&useCache=false" +
-          pagination_partial_url(pagination_params)
+        pagination_partial_url(pagination_params)
     end
 
     def get_cc_appointments_url(icn, start_date, end_date, pagination_params)
       '/VeteranAppointmentRequestService/v4/rest/direct-scheduling/'\
           "patient/ICN/#{icn}/booked-cc-appointments"\
           "?startDate=#{date_format(start_date)}&endDate=#{date_format(end_date)}&useCache=false" +
-          pagination_partial_url(pagination_params)
+        pagination_partial_url(pagination_params)
     end
 
     def pagination_partial_url(pagination_params)
-      if pagination_params[:per_page] && pagination_params[:per_page].positive?
+      if pagination_params[:per_page]&.positive?
         "&pageSize=#{pagination_params[:per_page]}&page=#{pagination_params[:page]}"
       else
         "&pageSize=#{pagination_params[:per_page] || 0}"

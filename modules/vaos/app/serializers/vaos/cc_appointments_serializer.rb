@@ -16,6 +16,5 @@ module VAOS
                :instructions_to_veteran,
                :appointment_time,
                :time_zone
-
   end
 end

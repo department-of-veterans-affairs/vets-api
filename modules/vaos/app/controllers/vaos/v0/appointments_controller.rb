@@ -8,7 +8,7 @@ module VAOS
       before_action :validate_params
 
       def index
-        render json: each_serializer.new(appointments[:data], { meta: appointments[:meta] })
+        render json: each_serializer.new(appointments[:data], meta: appointments[:meta])
       end
 
       private

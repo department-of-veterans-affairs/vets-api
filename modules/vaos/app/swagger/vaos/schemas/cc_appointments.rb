@@ -6,12 +6,12 @@ module VAOS
       include Swagger::Blocks
 
       swagger_schema :Appointments do
-        key :required, [:data, :meta]
+        key :required, %i[data meta]
 
         property :data, type: :array do
           items do
-            key :id, type: :string,
-            key :type, type: :string, enum: %w[cc_appointments],
+            key :id, type: :string
+            key :type, type: :string, enum: %w[cc_appointments]
             key :attributes, type: :object do
               key :'$ref', :CCAppointment
             end
@@ -21,7 +21,7 @@ module VAOS
         property :meta, type: :object do
           key :required, [:pagination]
           property :pagination, type: :object do
-            key :required, [:current_page, :per_page, :total_pages, :total_entries]
+            key :required, %i[current_page per_page total_pages total_entries]
             property :current_page, type: :integer, example: 2
             property :per_page, type: :integer, example: 10
             property :total_pages, type: :integer, example: 4
@@ -54,6 +54,7 @@ module VAOS
           property :appointment_time, type: :string
           property :time_zone, type: :string
         end
+      end
     end
   end
 end

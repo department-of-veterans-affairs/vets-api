@@ -6,7 +6,7 @@ module VAOS
       include Swagger::Blocks
 
       swagger_schema :Appointments do
-        key :required, [:data, :meta]
+        key :required, %i[data meta]
 
         property :data, type: :array, uniqueItems: true do
           items do
@@ -17,7 +17,7 @@ module VAOS
         property :meta, type: :object do
           key :required, [:pagination]
           property :pagination, type: :object do
-            key :required, [:current_page, :per_page, :total_pages, :total_entries]
+            key :required, %i[current_page per_page total_pages total_entries]
             property :current_page, type: :integer, example: 2
             property :per_page, type: :integer, example: 10
             property :total_pages, type: :integer, example: 4
@@ -45,6 +45,7 @@ module VAOS
                 property :name, type: :string
                 property :ask_for_check_in, type: :boolean
                 property :facility_code, type: :string
+              end
               property :type, type: :string
               property :current_status, type: :string
               property :booking_note, %i[string null]

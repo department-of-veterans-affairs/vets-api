@@ -14,7 +14,7 @@ module VAOS
 
     attribute :vds_appointments do |object|
       Array.wrap(object&.vds_appointments).map do |vds|
-        vds.except(:patient_id)                                      # remove patient identifiers
+        vds.except(:patient_id) # remove patient identifiers
            .reverse_merge(booking_note: nil, appointment_length: nil) # make array consistent
       end
     end

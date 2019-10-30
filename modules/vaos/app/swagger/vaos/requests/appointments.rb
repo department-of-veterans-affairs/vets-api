@@ -21,11 +21,11 @@ module VAOS
             key :required, true
             key :type, :string
             key :enum, %w[va cc]
-            key :description, <<-TYPE
-Type of appointment:
-  * `va` - VA Appointments
-  * `cc` - ComunityCares Appointments
-TYPE
+            key :description, <<~TYPE
+              Type of appointment:
+                * `va` - VA Appointments
+                * `cc` - ComunityCares Appointments
+            TYPE
           end
 
           parameter do
