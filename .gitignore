@@ -29,12 +29,6 @@ config/application.yml
 .ruby-gemset
 .rbenv-gemsets
 
-# Ignore mock responses
-/config/mvi_schema/mock_mvi_responses.yml
-/config/mvi_schema/mock_gi_bill_status_response.yml
-/config/evss/mock_letters_response.yml
-/config/evss/*.pdf
-
 .idea/
 .vscode/
 
