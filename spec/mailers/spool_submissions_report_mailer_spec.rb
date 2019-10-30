@@ -31,7 +31,6 @@ RSpec.describe SpoolSubmissionsReportMailer, type: %i[mailer aws_helpers] do
         expect(mail.to).to eq(
           %w[
             lihan@adhocteam.us
-            shay.norton-leonard@va.gov
           ]
         )
       end
@@ -87,7 +86,6 @@ RSpec.describe SpoolSubmissionsReportMailer, type: %i[mailer aws_helpers] do
         expect(mail.to).to eq(
           %w[
             lihan@adhocteam.us
-            shay.norton-leonard@va.gov
           ]
         )
       end
