@@ -85,7 +85,26 @@ module Swagger
               key :'$ref', :HigherLevelReviewParameters
             end
           end
-          
+
+          response 202 do
+            key :description, 'Accepted'
+            header 'Content-Location' do
+              schema do
+                key :type, :string
+                key :format, :url
+              end
+              key :description, 'Link to check status of intake for HigherLevelReview'
+            end
+            content 'application/vnd.api+json' do
+              schema do
+                key :'$ref', :IntakeStatus
+              end
+            end
+          end
+
+          response 400 do
+            key :description, 
+          end
         end
       end
 
