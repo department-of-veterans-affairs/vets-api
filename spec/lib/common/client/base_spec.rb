@@ -6,11 +6,9 @@ describe Common::Client::Base do
   module Specs
     module Common
       module Client
-        class TestConfiguration < ::Common::Client::Configuration::REST
-          def connection
-            @conn ||= Faraday.new('http://example.com') do |faraday|
-              faraday.adapter :httpclient
-            end
+        class TestConfiguration < DefaultConfiguration
+          def adapter_only
+            true
           end
         end
 
