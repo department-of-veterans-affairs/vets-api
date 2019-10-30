@@ -123,10 +123,12 @@ RSpec.describe 'Disability Claims ', type: :request do
       it 'returns a list of errors when invalid hitting EVSS' do
         with_okta_user(scopes) do |auth_header|
           VCR.use_cassette('evss/disability_compensation_form/form_526_invalid_validation') do
-            post '/services/claims/v1/forms/526/validate', params: data, headers: headers.merge(auth_header)
-            parsed = JSON.parse(response.body)
-            expect(response.status).to eq(422)
-            expect(parsed['errors'].size).to eq(2)
+            VCR.use_cassette('evss/claims/claims') do
+              post '/services/claims/v1/forms/526/validate', params: data, headers: headers.merge(auth_header)
+              parsed = JSON.parse(response.body)
+              expect(response.status).to eq(422)
+              expect(parsed['errors'].size).to eq(2)
+            end
           end
         end
       end
