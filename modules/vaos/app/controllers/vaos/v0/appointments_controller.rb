@@ -8,20 +8,30 @@ module VAOS
       before_action :validate_params
 
       def index
-        case params[:type]
-        when 'cc'
-          render json: appointment_service.get_cc_appointments(current_user, start_date, end_date)
-        when 'va'
-          render json: appointment_service.get_va_appointments(current_user, start_date, end_date)
-        else
-          raise Common::Exceptions::InvalidFieldValue.new('type', params[:type])
-        end
+        binding.pry
+        render json: each_serializer.new(appointments[:data], { meta: appointments[:meta] })
       end
 
       private
 
       def appointment_service
         AppointmentService.new
+      end
+
+      def appointments
+        @appointments ||=
+          case params[:type]
+          when 'cc'
+            appointment_service.get_cc_appointments(current_user, start_date, end_date, pagination_params)
+          when 'va'
+            appointment_service.get_va_appointments(current_user, start_date, end_date, pagination_params)
+          else
+            raise Common::Exceptions::InvalidFieldValue.new('type', params[:type])
+          end
+      end
+
+      def each_serializer
+        "VAOS::#{params[:type].upcase}AppointmentsSerializer".constantize
       end
 
       def validate_params

@@ -8,7 +8,7 @@ describe VAOS::AppointmentService do
   let(:end_date) { Time.now.utc.beginning_of_day + 8.hours + 4.months }
   let(:rsa_private) { OpenSSL::PKey::RSA.generate 4096 }
 
-  before { allow(File).to receive(:read).and_return(rsa_private) }
+  before { allow_any_instance_of(VAOS::JWT).to receive(:cert).and_return(rsa_private) }
 
   describe '#get_va_appointments' do
     context 'with 12 va appointments' do
