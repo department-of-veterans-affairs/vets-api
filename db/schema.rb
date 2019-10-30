@@ -10,6 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
+
 ActiveRecord::Schema.define(version: 2019_10_07_182427) do
 
   # These are extensions that must be enabled in order to support this database
@@ -80,9 +81,6 @@ ActiveRecord::Schema.define(version: 2019_10_07_182427) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["user_uuid", "feature"], name: "index_beta_registrations_on_user_uuid_and_feature", unique: true
-  end
-
-  create_table "catalogs", id: :integer, default: nil, force: :cascade do |t|
   end
 
   create_table "central_mail_submissions", id: :serial, force: :cascade do |t|
