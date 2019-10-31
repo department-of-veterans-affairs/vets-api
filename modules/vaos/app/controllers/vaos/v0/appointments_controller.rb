@@ -27,8 +27,8 @@ module VAOS
       end
 
       def validate_params
-        raise Common::Exceptions::ParameterMissing, 'type' if params[:type].blank?
-        raise Common::Exceptions::InvalidFieldValue.new('type', params[:type]) unless %w[va cc].include?(params[:type])
+        raise Common::Exceptions::ParameterMissing, 'type' if type.blank?
+        raise Common::Exceptions::InvalidFieldValue.new('type', type) unless %w[va cc].include?(type)
         raise Common::Exceptions::ParameterMissing, 'start_date' if params[:start_date].blank?
         raise Common::Exceptions::ParameterMissing, 'end_date' if params[:end_date].blank?
       end
