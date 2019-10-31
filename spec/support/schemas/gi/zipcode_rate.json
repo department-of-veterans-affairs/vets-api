@@ -21,8 +21,8 @@
             "zip_code": { "type": "string" },
             "mha_code": { "type": ["string", "null"] },
             "mha_name": { "type": ["string", "null"] },
-            "mha_rate": { "type": ["float", "null"] },
-            "mha_rate_grandfathered": { "type": ["float", "null"] }
+            "mha_rate": { "type": ["number", "null"] },
+            "mha_rate_grandfathered": { "type": ["number", "null"] }
           }
         }
       }
