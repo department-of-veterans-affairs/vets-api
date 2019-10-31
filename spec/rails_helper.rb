@@ -102,8 +102,6 @@ FactoryBot::SyntaxRunner.class_eval do
 end
 
 RSpec.configure do |config|
-  config.fuubar_auto_refresh = false # or else pry doesn't work right
-
   # Remove this line if you're not using ActiveRecord or ActiveRecord fixtures
   config.fixture_path = Rails.root.join('spec', 'fixtures')
 
@@ -184,4 +182,7 @@ RSpec.configure do |config|
   config.after(:all) do
     FileUtils.rm_rf(Dir[Rails.root.join('spec', 'support', 'uploads')]) if Rails.env.test?
   end
+
+  # Make pry work again.
+  config.fuubar_auto_refresh = false
 end
