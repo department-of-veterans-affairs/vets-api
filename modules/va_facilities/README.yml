@@ -66,6 +66,17 @@ info:
 tags:
   - name: facilities
     description: VA Facilities API
+servers:
+- url: https://dev-api.va.gov/services/va_facilities/{version}
+  description: Development
+  variables:
+    version:
+      default: v0
+- url: https://api.va.gov/services/va_facilities/{version}
+  description: Production
+  variables:
+    version:
+      default: v0
 paths:
   /facilities:
     get:
