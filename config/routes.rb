@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 Rails.application.routes.draw do
-  mount VAOS::Engine, at: '/vaos'
   match '/v0/*path', to: 'application#cors_preflight', via: [:options]
   match '/services/*path', to: 'application#cors_preflight', via: [:options]
 
@@ -298,6 +297,7 @@ Rails.application.routes.draw do
     mount Veteran::Engine, at: '/veteran'
     mount VaForms::Engine, at: '/va_forms'
     mount VeteranVerification::Engine, at: '/veteran_verification'
+    mount VAOS::Engine, at: '/vaos'
   end
 
   if Rails.env.development? || Settings.sidekiq_admin_panel
