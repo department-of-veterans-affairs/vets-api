@@ -14,12 +14,12 @@ module VAOS
       private
 
       def appointment_service
-        AppointmentService.new
+        VAOS::AppointmentService.for_user(current_user)
       end
 
       def appointments
         @appointments ||=
-          appointment_service.get_appointments(current_user, type, start_date, end_date, pagination_params)
+          appointment_service.get_appointments(type, start_date, end_date, pagination_params)
       end
 
       def each_serializer

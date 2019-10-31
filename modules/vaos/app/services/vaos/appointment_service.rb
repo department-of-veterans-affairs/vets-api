@@ -8,11 +8,19 @@ module VAOS
 
     STATSD_KEY_PREFIX = 'api.vaos'
 
-    def get_appointments(user, type, start_date, end_date, pagination_params = {})
-      with_monitoring do
-        url = get_appointments_url(user, type, start_date, end_date, pagination_params)
+    attr_accessor :user
 
-        response = perform(:get, url, headers(user))
+    def self.for_user(user)
+      as = VAOS::AppointmentService.new
+      as.user = user
+      as
+    end
+
+    def get_appointments(type, start_date, end_date, pagination_params = {})
+      with_monitoring do
+        url = get_appointments_url(type, start_date, end_date, pagination_params)
+
+        response = perform(:get, url, headers)
         {
           data: deserialized_appointments(response.body, type),
           meta: pagination(pagination_params)
@@ -45,28 +53,35 @@ module VAOS
       }
     end
 
-    def get_appointments_url(user, type, start_date, end_date, pagination_params)
-      url = if type == 'va'
-              "/appointments/v1/patients/#{user.icn}/appointments"\
-                  "?startDate=#{date_format(start_date)}&endDate=#{date_format(end_date)}&useCache=false"
-            else
-              '/VeteranAppointmentRequestService/v4/rest/direct-scheduling/'\
-                  "patient/ICN/#{user.icn}/booked-cc-appointments"\
-                  "?startDate=#{date_format(start_date)}&endDate=#{date_format(end_date)}&useCache=false"
-            end
+    def get_appointments_url(type, start_date, end_date, pagination_params)
+      url = get_appointments_base_url(type)
+      url += get_appointments_date_url(start_date, end_date)
+      url += get_appointments_pagination_url(pagination_params)
+      url
+    end
 
-      if pagination_params[:per_page]&.positive?
-        url + "&pageSize=#{pagination_params[:per_page]}&page=#{pagination_params[:page]}"
+    def get_appointments_base_url(type)
+      if type == 'va'
+        "/appointments/v1/patients/#{user.icn}/appointments"
       else
-        url + "&pageSize=#{pagination_params[:per_page] || 0}"
+        "/VeteranAppointmentRequestService/v4/rest/direct-scheduling/patient/ICN/#{user.icn}/booked-cc-appointments"
       end
+    end
+
+    def get_appointments_date_url(start_date, end_date)
+      "?startDate=#{date_format(start_date)}&endDate=#{date_format(end_date)}&useCache=false"
+    end
+
+    def get_appointments_pagination_url(pagination_params)
+      return "&pageSize=#{pagination_params[:per_page] || 0}" unless pagination_params[:per_page]&.positive?
+      "&pageSize=#{pagination_params[:per_page]}&page=#{pagination_params[:page]}"
     end
 
     def date_format(date)
       date.strftime('%Y-%m-%dT%TZ')
     end
 
-    def headers(user)
+    def headers
       { 'Referer' => 'https://api.va.gov', 'X-VAMF-JWT' => VAOS::JWT.new(user).token }
     end
   end
