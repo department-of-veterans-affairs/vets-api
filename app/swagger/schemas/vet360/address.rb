@@ -44,6 +44,19 @@ module Swagger
                    maxLength: 4
         end
 
+        %i[
+          PostVet360DomesticAddress
+          PutVet360DomesticAddress
+          PostVet360InternationalAddress
+          PutVet360InternationalAddress
+          PostVet360MilitaryOverseasAddress
+          PutVet360MilitaryOverseasAddress
+        ].each do |schema|
+          swagger_schema schema do
+            property :validation_key, type: :integer
+          end
+        end
+
         swagger_schema :PostVet360DomesticAddress do
           key :required, %i[
             address_line1
