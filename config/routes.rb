@@ -156,6 +156,11 @@ Rails.application.routes.draw do
         get :children, on: :member
       end
 
+      resources :institution_programs, only: :index, defaults: { format: :json } do
+        get :search, on: :collection
+        get :autocomplete, on: :collection
+      end
+
       resources :calculator_constants, only: :index, defaults: { format: :json }
       resources :zipcode_rates, only: :show, defaults: { format: :json }
     end
