@@ -41,7 +41,7 @@ RSpec.describe 'vaos appointments', type: :request do
 
     context 'without a type' do
       it 'has a parameter missing exception' do
-        get '/services/vaos/v0/appointments'
+        get '/services/vaos/v0/appointments', params: params.except(:type)
         expect(response).to have_http_status(:bad_request)
         expect(response.body).to be_a(String)
         expect(JSON.parse(response.body)['errors'].first['detail'])
