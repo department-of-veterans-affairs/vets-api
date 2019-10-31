@@ -13,7 +13,7 @@ module Facilities
       begin
         download_data
       rescue => e
-        log_exception_to_sentry(e)
+        log_exception_to_sentry(e, 'Band name' => @band_name)
       end
     end
 
@@ -23,10 +23,15 @@ module Facilities
       attributes = drive_time_data&.dig('attributes')
       rings = drive_time_data&.dig('geometry', 'rings')
 
+      # temporary logging
+      Rails.logger.info "PSSG Band not downloaded: Missing rings: #{attributes&.dig('Name')}" if rings.blank?
       return if rings.blank?
 
       id = attributes&.dig('Sta_No')&.strip
       facility = Facilities::VHAFacility.find_by(unique_id: id)
+
+      # temporary logging
+      Rails.logger.info "PSSG Band not downloaded: Facility #{id} dne. Band #{attributes&.dig('Name')}" if facility.nil?
       return if facility.nil?
 
       name = attributes&.dig('Name')
@@ -35,8 +40,10 @@ module Facilities
       drive_time_band.min = round_band(attributes&.dig('FromBreak'))
       drive_time_band.max = round_band(attributes&.dig('ToBreak'))
       drive_time_band.name = name
-
+      @band_name = name
       drive_time_band.polygon = extract_polygon(rings)
+
+      Rails.logger.info "PSSG Band successfully saved: #{name}" # temporary logging
       drive_time_band.save
       facility.save
     end
