@@ -15,7 +15,7 @@ module VAOS
         end
 
         property :meta, type: :object do
-          key: :'ref', :Pagination
+          key :'$ref', :Pagination
         end
       end
 
