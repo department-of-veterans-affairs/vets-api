@@ -24,8 +24,6 @@ module VAOS
             appointment_service.get_cc_appointments(current_user, start_date, end_date, pagination_params)
           when 'va'
             appointment_service.get_va_appointments(current_user, start_date, end_date, pagination_params)
-          else
-            raise Common::Exceptions::InvalidFieldValue.new('type', params[:type])
           end
       end
 
@@ -35,6 +33,7 @@ module VAOS
 
       def validate_params
         raise Common::Exceptions::ParameterMissing, 'type' if params[:type].blank?
+        raise Common::Exceptions::InvalidFieldValue.new('type', params[:type]) unless %w[va cc].include?(params[:type])
         raise Common::Exceptions::ParameterMissing, 'start_date' if params[:start_date].blank?
         raise Common::Exceptions::ParameterMissing, 'end_date' if params[:end_date].blank?
       end
