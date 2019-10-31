@@ -17,3 +17,6 @@ features:
   mvi_id_parser:
     description: >
       logic changes for parsing IDs from MVI responses
+  va_online_scheduling:
+    description: >
+      Allows veterans to schedule, request and track VA and Community Care appointments
