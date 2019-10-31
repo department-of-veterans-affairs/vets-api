@@ -49,14 +49,14 @@ module VAOS
           response 200 do
             key :description, 'The list of VA appointments'
             schema do
-              key :'$ref', :Appointments
+              key :'$ref', :VAAppointments
             end
           end
 
           response 200 do
             key :description, 'The list of CommunityCares appointments'
             schema do
-              key :'$ref', :Appointments
+              key :'$ref', :CCAppointments
             end
           end
 

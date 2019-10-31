@@ -72,6 +72,9 @@ module VAOS
       SWAGGERED_CLASSES = [
         VAOS::Requests::Systems,
         VAOS::Schemas::Systems,
+        VAOS::Requests::Appointments,
+        VAOS::Schemas::CCAppointments,
+        VAOS::Schemas::VAAppointments,
         Swagger::Schemas::Errors,
         self
       ].freeze

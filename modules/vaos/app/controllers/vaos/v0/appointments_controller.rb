@@ -19,12 +19,7 @@ module VAOS
 
       def appointments
         @appointments ||=
-          case params[:type]
-          when 'cc'
-            appointment_service.get_cc_appointments(current_user, start_date, end_date, pagination_params)
-          when 'va'
-            appointment_service.get_va_appointments(current_user, start_date, end_date, pagination_params)
-          end
+          appointment_service.get_appointments(current_user, type, start_date, end_date, pagination_params)
       end
 
       def each_serializer
@@ -36,6 +31,10 @@ module VAOS
         raise Common::Exceptions::InvalidFieldValue.new('type', params[:type]) unless %w[va cc].include?(params[:type])
         raise Common::Exceptions::ParameterMissing, 'start_date' if params[:start_date].blank?
         raise Common::Exceptions::ParameterMissing, 'end_date' if params[:end_date].blank?
+      end
+
+      def type
+        params[:type]
       end
 
       def start_date
