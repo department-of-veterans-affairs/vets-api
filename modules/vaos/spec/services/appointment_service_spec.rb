@@ -3,13 +3,14 @@
 require 'rails_helper'
 
 describe VAOS::AppointmentService do
+  subject { described_class.for_user(user) }
+
   let(:user) { build(:user, :mhv) }
   let(:start_date) { Time.now.utc.beginning_of_day + 7.hours }
   let(:end_date) { Time.now.utc.beginning_of_day + 8.hours + 4.months }
   let(:rsa_private) { OpenSSL::PKey::RSA.generate 4096 }
 
   before { allow_any_instance_of(VAOS::JWT).to receive(:cert).and_return(rsa_private) }
-  subject { described_class.for_user(user) }
 
   describe '#get_appointments of type va' do
     let(:type) { 'va' }

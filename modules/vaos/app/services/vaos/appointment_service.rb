@@ -74,6 +74,7 @@ module VAOS
 
     def get_appointments_pagination_url(pagination_params)
       return "&pageSize=#{pagination_params[:per_page] || 0}" unless pagination_params[:per_page]&.positive?
+
       "&pageSize=#{pagination_params[:per_page]}&page=#{pagination_params[:page]}"
     end
 
