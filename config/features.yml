@@ -19,4 +19,4 @@ features:
       logic changes for parsing IDs from MVI responses
   va_online_scheduling:
     description: >
-      https://www.va.gov/vaos/appointments show VA Online Scheduling
+      Allows veterans to schedule, request and track VA and Community Care appointments

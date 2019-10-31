@@ -7,5 +7,7 @@ VAOS::Engine.routes.draw do
 
   namespace :v0, defaults: { format: 'json' } do
     resources :appointments, only: %i[index]
+    resources :systems, only: :index
+    get 'api', to: 'apidocs#index'
   end
 end
