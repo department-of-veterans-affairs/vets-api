@@ -8,9 +8,6 @@
         "count": {
           "type" : "integer"
         },
-        "facets": {
-          "type": "object"
-        },
         "version": {
           "type": "object",
           "properties": {
