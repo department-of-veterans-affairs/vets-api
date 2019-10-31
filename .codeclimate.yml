@@ -27,6 +27,8 @@ checks:
   similar-code:
     config:
       threshold: # language-specific defaults. an override will affect all languages.
+    exclude_patterns:
+    - '*/engine.rb'
   identical-code:
     config:
       threshold: # language-specific defaults. an override will affect all languages.
