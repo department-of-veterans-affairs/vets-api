@@ -1,5 +1,4 @@
 # frozen_string_literal: true
-
 require_relative '../vaos/concerns/headers'
 
 module VAOS
@@ -84,12 +83,5 @@ module VAOS
     def date_format(date)
       date.strftime('%Y-%m-%dT%TZ')
     end
-<<<<<<< HEAD
-
-    def headers
-      { 'Referer' => 'https://api.va.gov', 'X-VAMF-JWT' => VAOS::JWT.new(user).token }
-    end
-=======
->>>>>>> master
   end
 end
