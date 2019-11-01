@@ -57,17 +57,17 @@ module Facilities
       if facility.drivetime_bands.exists?(vha_facility_id: id, name: @band_name)
         Rails.logger.info "PSSG Band not updated: Facility #{id}. Band #{attributes&.dig('Name')}"
       else
-      drive_time_band = facility.drivetime_bands.new(vha_facility_id: id, name: @band_name)
-      drive_time_band.unit = 'minutes'
-      drive_time_band.min = round_band(attributes&.dig('FromBreak'))
-      drive_time_band.max = round_band(attributes&.dig('ToBreak'))
-      drive_time_band.name = @band_name
-      drive_time_band.polygon = extract_polygon(rings)
+        drive_time_band = facility.drivetime_bands.new(vha_facility_id: id, name: @band_name)
+        drive_time_band.unit = 'minutes'
+        drive_time_band.min = round_band(attributes&.dig('FromBreak'))
+        drive_time_band.max = round_band(attributes&.dig('ToBreak'))
+        drive_time_band.name = @band_name
+        drive_time_band.polygon = extract_polygon(rings)
 
-      Rails.logger.info "PSSG Band successfully saved: #{@band_name}" # temporary logging
-      drive_time_band.save
-      facility.save
-    end
+        Rails.logger.info "PSSG Band successfully saved: #{@band_name}" # temporary logging
+        drive_time_band.save
+        facility.save
+      end
     end
 
     def download_data
