@@ -20,21 +20,23 @@ module Facilities
     private
 
     def create_and_save_drive_time_data(drive_time_data)
-      attributes = drive_time_data&.dig('attributes')
-      rings = drive_time_data&.dig('geometry', 'rings')
+      @attributes = drive_time_data&.dig('attributes')
+      @rings = drive_time_data&.dig('geometry', 'rings')
 
       # temporary logging
-      Rails.logger.info "PSSG Band not downloaded: Missing rings: #{attributes&.dig('Name')}" if rings.blank?
-      return if rings.blank?
+      Rails.logger.info "PSSG Band not downloaded: Missing rings: #{@attributes&.dig('Name')}" if @rings.blank?
+      return if @rings.blank?
 
-      @id = attributes&.dig('Sta_No')&.strip
+      @id = @attributes&.dig('Sta_No')&.strip
       facility = Facilities::VHAFacility.find_by(unique_id: @id)
 
       # temporary logging
-      Rails.logger.info "PSSG Band not downloaded: Facility #{@id} dne. Band #{attributes&.dig('Name')}" if facility.nil?
+      if facility.nil?
+        Rails.logger.info "PSSG Band not downloaded: Facility #{@id} dne. Band #{@attributes&.dig('Name')}"
+      end
       return if facility.nil?
 
-      @band_name = attributes&.dig('Name')
+      @band_name = @attributes&.dig('Name')
 
       insert_or_update_band(facility)
     end
@@ -55,14 +57,14 @@ module Facilities
 
     def insert_or_update_band(facility)
       if facility.drivetime_bands.exists?(vha_facility_id: @id, name: @band_name)
-        Rails.logger.info "PSSG Band not updated: Facility #{@id}. Band #{attributes&.dig('Name')}"
+        Rails.logger.info "PSSG Band not updated: Facility #{@id}. Band #{@attributes&.dig('Name')}"
       else
         drive_time_band = facility.drivetime_bands.new(vha_facility_id: @id, name: @band_name)
         drive_time_band.unit = 'minutes'
-        drive_time_band.min = round_band(attributes&.dig('FromBreak'))
-        drive_time_band.max = round_band(attributes&.dig('ToBreak'))
+        drive_time_band.min = round_band(@attributes&.dig('FromBreak'))
+        drive_time_band.max = round_band(@attributes&.dig('ToBreak'))
         drive_time_band.name = @band_name
-        drive_time_band.polygon = extract_polygon(rings)
+        drive_time_band.polygon = extract_polygon(@rings)
 
         Rails.logger.info "PSSG Band successfully saved: #{@band_name}" # temporary logging
         drive_time_band.save
