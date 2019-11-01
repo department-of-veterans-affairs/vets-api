@@ -24,7 +24,7 @@ module VAOS
             key :description, <<~TYPE
               Type of appointment:
                 * `va` - VA Appointments
-                * `cc` - ComunityCares Appointments
+                * `cc` - CommunityCares Appointments
             TYPE
           end
 

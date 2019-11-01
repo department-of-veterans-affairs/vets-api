@@ -41,7 +41,7 @@ module VAOS
               end
               property :type, type: :string
               property :current_status, type: :string
-              property :booking_note, %i[string null]
+              property :booking_note, type: %i[string null]
             end
           end
         end
