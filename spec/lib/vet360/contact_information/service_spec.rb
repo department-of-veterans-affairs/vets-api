@@ -128,6 +128,21 @@ describe Vet360::ContactInformation::Service, skip_vet360: true do
   describe '#put_address' do
     let(:address) { build(:vet360_address, vet360_id: user.vet360_id, source_system_user: user.icn) }
 
+    context 'with a validation key' do
+      let(:address) { build(:vet360_address, :override) }
+
+      it 'will override the address error', run_at: '2019-10-28 18:59:37 -0700' do
+        VCR.use_cassette(
+          'vet360/contact_information/put_address_override',
+          VCR::MATCH_EVERYTHING
+        ) do
+          response = subject.put_address(address)
+          expect(response.status).to eq(200)
+          expect(response.transaction.id).to eq('2e8a9043-dec2-4a4e-bf77-186e46773ffa')
+        end
+      end
+    end
+
     context 'when successful' do
       it 'returns a status of 200' do
         VCR.use_cassette('vet360/contact_information/put_address_success', VCR::MATCH_EVERYTHING) do

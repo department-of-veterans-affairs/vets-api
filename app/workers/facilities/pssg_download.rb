@@ -58,7 +58,8 @@ module Facilities
 
     def extract_polygon(rings)
       geojson = "{\"type\":\"Polygon\",\"coordinates\":#{rings}}"
-      RGeo::GeoJSON.decode(geojson)
+      spherical_factory = RGeo::Geographic.spherical_factory(srid: 4326, uses_lenient_assertions: true)
+      RGeo::GeoJSON.decode(geojson, geo_factory: spherical_factory)
     end
 
     def download_data
