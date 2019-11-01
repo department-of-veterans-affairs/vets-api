@@ -41,17 +41,17 @@ module Facilities
         Rails.logger.info "PSSG Band not updated: Facility #{id}. Band #{attributes&.dig('Name')}"
       else
         drive_time_band = facility.drivetime_bands.new(vha_facility_id: id, name: name)
-      drive_time_band.unit = 'minutes'
-      drive_time_band.min = round_band(attributes&.dig('FromBreak'))
-      drive_time_band.max = round_band(attributes&.dig('ToBreak'))
-      drive_time_band.name = name
-      @band_name = name
-      drive_time_band.polygon = extract_polygon(rings)
+        drive_time_band.unit = 'minutes'
+        drive_time_band.min = round_band(attributes&.dig('FromBreak'))
+        drive_time_band.max = round_band(attributes&.dig('ToBreak'))
+        drive_time_band.name = name
+        @band_name = name
+        drive_time_band.polygon = extract_polygon(rings)
 
-      Rails.logger.info "PSSG Band successfully saved: #{name}" # temporary logging
-      drive_time_band.save
-      facility.save
-    end
+        Rails.logger.info "PSSG Band successfully saved: #{name}" # temporary logging
+        drive_time_band.save
+        facility.save
+      end
     end
     # rubocop:enable Metrics/MethodLength
 
