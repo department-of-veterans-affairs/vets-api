@@ -36,11 +36,7 @@ module Facilities
 
       @band_name = attributes&.dig('Name')
 
-      if facility.drivetime_bands.exists?(vha_facility_id: id, name: @band_name)
-        Rails.logger.info "PSSG Band not updated: Facility #{id}. Band #{attributes&.dig('Name')}"
-      else
-        insert_band(facility)
-      end
+      insert_or_update_band(facility)
     end
 
     def round_band(band)
@@ -57,7 +53,10 @@ module Facilities
       RGeo::GeoJSON.decode(geojson, geo_factory: spherical_factory)
     end
 
-    def insert_band(facility)
+    def insert_or_update_band(facility)
+      if facility.drivetime_bands.exists?(vha_facility_id: id, name: @band_name)
+        Rails.logger.info "PSSG Band not updated: Facility #{id}. Band #{attributes&.dig('Name')}"
+      else
       drive_time_band = facility.drivetime_bands.new(vha_facility_id: id, name: @band_name)
       drive_time_band.unit = 'minutes'
       drive_time_band.min = round_band(attributes&.dig('FromBreak'))
@@ -68,6 +67,7 @@ module Facilities
       Rails.logger.info "PSSG Band successfully saved: #{@band_name}" # temporary logging
       drive_time_band.save
       facility.save
+    end
     end
 
     def download_data
