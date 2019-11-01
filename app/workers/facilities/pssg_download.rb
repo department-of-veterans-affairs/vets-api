@@ -35,7 +35,10 @@ module Facilities
       return if facility.nil?
 
       name = attributes&.dig('Name')
-      drive_time_band = facility.drivetime_bands.find_or_initialize_by(vha_facility_id: id, name: name)
+      if facility.drivetime_bands.exists?(vha_facility_id: id, name: name)
+        Rails.logger.info "PSSG Band not updated: Facility #{id}. Band #{attributes&.dig('Name')}"
+      else
+        drive_time_band = facility.drivetime_bands.new(vha_facility_id: id, name: name)
       drive_time_band.unit = 'minutes'
       drive_time_band.min = round_band(attributes&.dig('FromBreak'))
       drive_time_band.max = round_band(attributes&.dig('ToBreak'))
@@ -46,6 +49,7 @@ module Facilities
       Rails.logger.info "PSSG Band successfully saved: #{name}" # temporary logging
       drive_time_band.save
       facility.save
+    end
     end
 
     def round_band(band)
