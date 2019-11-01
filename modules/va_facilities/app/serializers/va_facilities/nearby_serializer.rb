@@ -8,13 +8,13 @@ module VaFacilities
       "vha_#{object.vha_facility_id}"
     end
 
-    belongs_to :va_facilities do
+    belongs_to :va_facility do
       include_data false
       link(:related) { "#{BASE_PATH}/facilities/vha_#{object.vha_facility_id}" }
     end
 
     type('nearby_facility')
-    attribute :min, key: :drivetime_band_min
-    attribute :max, key: :drivetime_band_max
+    attribute :min, key: :min_time
+    attribute :max, key: :max_time
   end
 end

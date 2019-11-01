@@ -22,21 +22,22 @@ RSpec.describe 'Nearby Facilities API endpoint', type: :request do
         get base_query_path,
             params: { street_address: '1 VA Center', city: 'Augusta', state: 'ME', zip: '04330', drive_time: '20' },
             headers: { 'HTTP_ACCEPT' => 'application/json' }
-            
+
         expect(response).to be_successful
         expect(response.body).to be_a(String)
-        
+
         json = JSON.parse(response.body)
         nearby_result = json['data'].first
-        
+
         expect(json['data'].length).to eq(1)
-        expect(nearby_result['attributes']['drivetime_band_min']).to eq(0)
-        expect(nearby_result['attributes']['drivetime_band_max']).to eq(10)
+        expect(nearby_result['attributes']['min_time']).to eq(0)
+        expect(nearby_result['attributes']['max_time']).to eq(10)
         expect(nearby_result['id']).to eq('vha_402')
-        expect(nearby_result['relationships']['va_facilities']['links']['related'])
+        expect(nearby_result['relationships']['va_facility']['links']['related'])
           .to eql('/services/va_facilities/v0/facilities/vha_402')
         expect(json['meta']['pagination'])
           .to include('current_page' => 1, 'per_page' => 20, 'total_pages' => 1, 'total_entries' => 1)
+        expect(json['links']['related']).to eq('/services/va_facilities/v0/facilities?ids=vha_402')
       end
     end
 
@@ -50,15 +51,16 @@ RSpec.describe 'Nearby Facilities API endpoint', type: :request do
 
       json = JSON.parse(response.body)
       nearby_result = json['data'].first
-      
+
       expect(json['data'].length).to eq(1)
-      expect(nearby_result['attributes']['drivetime_band_min']).to eq(0)
-      expect(nearby_result['attributes']['drivetime_band_max']).to eq(10)
+      expect(nearby_result['attributes']['min_time']).to eq(0)
+      expect(nearby_result['attributes']['max_time']).to eq(10)
       expect(nearby_result['id']).to eq('vha_402')
-      expect(nearby_result['relationships']['va_facilities']['links']['related'])
+      expect(nearby_result['relationships']['va_facility']['links']['related'])
         .to eql('/services/va_facilities/v0/facilities/vha_402')
       expect(json['meta']['pagination'])
         .to include('current_page' => 1, 'per_page' => 20, 'total_pages' => 1, 'total_entries' => 1)
+      expect(json['links']['related']).to eq('/services/va_facilities/v0/facilities?ids=vha_402')
     end
   end
 

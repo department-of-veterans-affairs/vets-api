@@ -22,15 +22,15 @@ RSpec.describe VaFacilities::NearbySerializer, type: :serializer do
   end
 
   it 'returns a drivetime_band_min attribute' do
-    expect(attributes['drivetime_band_min']).to eq(20)
+    expect(attributes['min_time']).to eq(20)
   end
 
   it 'returns a drivetime_band_max attribute' do
-    expect(attributes['drivetime_band_max']).to eq(30)
+    expect(attributes['max_time']).to eq(30)
   end
 
   it 'returns a relationship link to its facility' do
     fac_path = "#{VaFacilities::NearbySerializer::BASE_PATH}/facilities/vha_#{vha_648.unique_id}"
-    expect(relationships['va_facilities']['links']['related']).to eq(fac_path)
+    expect(relationships['va_facility']['links']['related']).to eq(fac_path)
   end
 end

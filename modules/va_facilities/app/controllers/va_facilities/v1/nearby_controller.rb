@@ -38,7 +38,7 @@ module VaFacilities
             render json: resource,
                    each_serializer: VaFacilities::NearbySerializer,
                    meta: metadata(resource),
-                   relationships: relationships(resource)
+                   links: relationships(resource)
           end
         end
       end
@@ -82,15 +82,8 @@ module VaFacilities
       end
 
       def relationships(resource)
-        ids = resource.map(&:vha_facility_id).join(',')
-
-        {
-          va_facilities: {
-            links: {
-              related: "test/fac/link#{ids}"
-            }
-          }
-        }
+        ids = resource.map { |band| "vha_#{band.vha_facility_id}" }.join(',')
+        { related: "/services/va_facilities/v0/facilities?ids=#{ids}" }
       end
 
       def metadata(resource)
