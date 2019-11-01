@@ -6,13 +6,6 @@ module Swagger
       class Institutions
         include Swagger::Blocks
 
-        STATES = %i[
-          ak al ar as az ca co ct dc de fl fm ga gu hi ia
-          id il in ks ky la ma md me mh mi mn mo mp ms mt
-          nc nd ne nh nj nm nv ny oh ok or pa pr pw ri sc
-          sd tn tx ut va vi vt wa wi wv wy
-        ].freeze
-
         swagger_schema :GibctInstitutionsAutocomplete do
           key :required, %i[data meta links]
 
@@ -67,7 +60,7 @@ module Swagger
               key :$ref, :GibctInstitutionBase
 
               property :type, type: :string,
-                              enum: ['ojt', 'private', 'foreign', 'correspondence', 'flight', 'for profit', 'public']
+                              enum: ['OJT', 'PRIVATE', 'FOREIGN', 'CORRESPONDENCE', 'FLIGHT', 'FOR PROFIT', 'PUBLIC']
               property :flight, type: :boolean
               property :correspondence, type: :boolean
               property :cross, type: %i[null string]
@@ -98,11 +91,11 @@ module Swagger
               property :repayment_rate_all_students, type: %i[null number]
               property :avg_stu_loan_debt, type: %i[null number]
               property :calendar, type: %i[null string]
-              property :online_all, type: %i[null string]
+              property :online_all, type: %i[null boolean]
               property :p911_tuition_fees, type: :number
               property :p911_recipients, type: :integer
-              property :p911_yellow_ribbon, type: :number
-              property :p911_yr_recipients, type: :integer
+              property :p911_yellow_ribbon, type: %i[null number]
+              property :p911_yr_recipients, type: %i[null integer]
               property :accredited, type: :boolean
               property :accreditation_type, type: %i[null string]
               property :accreditation_status, type: %i[null string]
@@ -117,7 +110,7 @@ module Swagger
                 property :student_loans_by_fac_code, type: :integer
                 property :grades_by_fac_code, type: :integer
                 property :credit_transfer_by_fac_code, type: :integer
-                property :credit_job_by_fac_code, type: :integer
+                property :credit_job_by_fac_code, type: %i[null integer]
                 property :job_by_fac_code, type: :integer
                 property :transcript_by_fac_code, type: :integer
                 property :other_by_fac_code, type: :integer
@@ -145,7 +138,7 @@ module Swagger
           key :type, :object
           key :required, %i[version term]
 
-          property :version, type: :integer
+          property :version, '$ref': :GibctVersion
           property :term, type: :string
         end
 
@@ -153,20 +146,15 @@ module Swagger
           key :type, :object
           key :required, %i[version count facets]
 
-          property :version, type: :object do
-            key :required, %i[number created_at preview]
-
-            property :number, type: :integer
-            property :created_at, type: :string
-            property :preview, type: :boolean
-          end
-
+          property :version, '$ref': :GibctVersion
           property :count, type: :integer
           property :facets, type: :object do
             key :required, %i[
               category type state country student_vet_group
               yellow_ribbon_scholarship principles_of_excellence
-              eight_keys_to_veteran_success
+              eight_keys_to_veteran_success stem_offered
+              independent_study online_only distance_learning
+              priority_enrollment
             ]
 
             property :category, type: :object do
@@ -177,8 +165,6 @@ module Swagger
             end
 
             property :type, type: :object do
-              key :required, [:correspondence, :flight, :foreign, :'for profit', :ojt, :private, :public]
-
               property :correspondence, type: :integer
               property :flight, type: :integer
               property :foreign, type: :integer
@@ -188,22 +174,8 @@ module Swagger
               property :public, type: :integer
             end
 
-            property :state, type: :object do
-              key :required, STATES
-
-              STATES.each { |state| property state, type: :integer }
-            end
-
-            property :country, type: :array do
-              items do
-                key :type, :object
-                key :required, %i[name count]
-
-                property :name, type: :string
-                property :count, type: :integer
-              end
-            end
-
+            property :state, '$ref': :GibctState
+            property :country, '$ref': :GibctCountry
             property :student_vet_group, '$ref': :null_boolean_counts
             property :yellow_ribbon_scholarship, '$ref': :null_boolean_counts
             property :principles_of_excellence, '$ref': :null_boolean_counts
@@ -215,7 +187,7 @@ module Swagger
           key :type, :object
           key :required, [:version]
 
-          property :version, type: :integer
+          property :version, '$ref': :GibctVersion
         end
 
         swagger_schema :GibctInstitutionsSearchLinks do
