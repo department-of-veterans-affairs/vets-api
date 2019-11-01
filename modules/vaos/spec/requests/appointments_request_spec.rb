@@ -9,7 +9,7 @@ RSpec.describe 'vaos appointments', type: :request do
   before do
     Flipper.enable('va_online_scheduling')
     sign_in_as(current_user)
-    allow_any_instance_of(VAOS::JWT).to receive(:cert).and_return(rsa_private)
+    allow_any_instance_of(VAOS::JWT).to receive(:rsa_private).and_return(rsa_private)
   end
 
   context 'loa1 user with flipper enabled' do
