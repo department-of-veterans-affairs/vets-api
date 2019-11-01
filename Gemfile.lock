@@ -66,6 +66,14 @@ PATH
       rails (~> 5.2.3)
 
 PATH
+  remote: modules/va_forms
+  specs:
+    va_forms (0.0.1)
+      faraday
+      nokogiri
+      paper_trail
+      rails (~> 5.2.3)
+      sidekiq
   remote: modules/vaos
   specs:
     vaos (0.1.0)
@@ -80,15 +88,15 @@ PATH
       sidekiq
 
 PATH
-  remote: modules/veteran_verification
-  specs:
-    veteran_verification (0.0.1)
-      rails (~> 5.2.3)
-
-PATH
   remote: modules/veteran
   specs:
     veteran (0.0.1)
+      rails (~> 5.2.3)
+
+PATH
+  remote: modules/veteran_verification
+  specs:
+    veteran_verification (0.0.1)
       rails (~> 5.2.3)
 
 GEM
@@ -444,6 +452,9 @@ GEM
       childprocess (>= 0.6.3, < 4)
       iniparse (~> 1.4)
     ox (2.8.2)
+    paper_trail (10.3.1)
+      activerecord (>= 4.2)
+      request_store (~> 1.1)
     parallel (1.17.0)
     parser (2.6.4.0)
       ast (~> 2.4.0)
@@ -525,6 +536,8 @@ GEM
     redis (3.3.5)
     redis-namespace (1.5.3)
       redis (~> 3.0, >= 3.0.4)
+    request_store (1.4.1)
+      rack (>= 1.4)
     restforce (3.0.0)
       faraday (>= 0.9.0, <= 1.0)
       faraday_middleware (>= 0.8.8, <= 1.0)
@@ -770,6 +783,7 @@ DEPENDENCIES
   origami
   overcommit
   ox
+  paper_trail
   pdf-forms
   pdf-inspector
   pdf-reader
@@ -822,6 +836,7 @@ DEPENDENCIES
   upsert
   utf8-cleaner
   va_facilities!
+  va_forms!
   vaos!
   vba_documents!
   vcr
@@ -835,9 +850,6 @@ DEPENDENCIES
   will_paginate
   yard
   zero_downtime_migrations
-
-RUBY VERSION
-   ruby 2.4.5p335
 
 BUNDLED WITH
    1.17.3

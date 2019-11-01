@@ -7,7 +7,6 @@ module VAOS
     end
 
     def token
-      rsa_private = OpenSSL::PKey::RSA.new(cert)
       ::JWT.encode(payload, rsa_private, 'RS512')
     end
 
@@ -31,8 +30,8 @@ module VAOS
       }
     end
 
-    def cert
-      File.read(Settings.va_mobile.key_path)
+    def rsa_private
+      OpenSSL::PKey::RSA.new(File.read(Settings.va_mobile.key_path))
     end
   end
 end
