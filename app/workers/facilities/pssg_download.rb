@@ -19,8 +19,6 @@ module Facilities
 
     private
 
-    # this method is still under development, will remove this exception later
-    # rubocop:disable Metrics/MethodLength
     def create_and_save_drive_time_data(drive_time_data)
       attributes = drive_time_data&.dig('attributes')
       rings = drive_time_data&.dig('geometry', 'rings')
@@ -36,24 +34,14 @@ module Facilities
       Rails.logger.info "PSSG Band not downloaded: Facility #{id} dne. Band #{attributes&.dig('Name')}" if facility.nil?
       return if facility.nil?
 
-      name = attributes&.dig('Name')
-      if facility.drivetime_bands.exists?(vha_facility_id: id, name: name)
+      @band_name = attributes&.dig('Name')
+
+      if facility.drivetime_bands.exists?(vha_facility_id: id, name: @band_name)
         Rails.logger.info "PSSG Band not updated: Facility #{id}. Band #{attributes&.dig('Name')}"
       else
-        drive_time_band = facility.drivetime_bands.new(vha_facility_id: id, name: name)
-        drive_time_band.unit = 'minutes'
-        drive_time_band.min = round_band(attributes&.dig('FromBreak'))
-        drive_time_band.max = round_band(attributes&.dig('ToBreak'))
-        drive_time_band.name = name
-        @band_name = name
-        drive_time_band.polygon = extract_polygon(rings)
-
-        Rails.logger.info "PSSG Band successfully saved: #{name}" # temporary logging
-        drive_time_band.save
-        facility.save
+        insert_band(facility)
       end
     end
-    # rubocop:enable Metrics/MethodLength
 
     def round_band(band)
       if (band % 10).zero?
@@ -67,6 +55,19 @@ module Facilities
       geojson = "{\"type\":\"Polygon\",\"coordinates\":#{rings}}"
       spherical_factory = RGeo::Geographic.spherical_factory(srid: 4326, uses_lenient_assertions: true)
       RGeo::GeoJSON.decode(geojson, geo_factory: spherical_factory)
+    end
+
+    def insert_band(facility)
+      drive_time_band = facility.drivetime_bands.new(vha_facility_id: id, name: @band_name)
+      drive_time_band.unit = 'minutes'
+      drive_time_band.min = round_band(attributes&.dig('FromBreak'))
+      drive_time_band.max = round_band(attributes&.dig('ToBreak'))
+      drive_time_band.name = @band_name
+      drive_time_band.polygon = extract_polygon(rings)
+
+      Rails.logger.info "PSSG Band successfully saved: #{@band_name}" # temporary logging
+      drive_time_band.save
+      facility.save
     end
 
     def download_data
