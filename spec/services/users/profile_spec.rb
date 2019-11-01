@@ -63,7 +63,7 @@ RSpec.describe Users::Profile do
       # --- positive tests ---
       context 'idme user' do
         it 'includes authn_context' do
-          expect(profile[:authn_context]).to eq(nil)
+          expect(profile[:authn_context]).to eq(LOA::IDME_LOA3)
         end
 
         it 'includes sign_in' do
@@ -74,7 +74,7 @@ RSpec.describe Users::Profile do
           let(:user) { create(:user, :loa1, authn_context: 'multifactor') }
 
           it 'includes authn_context' do
-            expect(profile[:authn_context]).to eq(nil)
+            expect(profile[:authn_context]).to eq('multifactor')
           end
 
           it 'includes sign_in.service_name' do
