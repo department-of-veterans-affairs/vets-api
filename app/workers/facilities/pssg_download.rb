@@ -19,6 +19,8 @@ module Facilities
 
     private
 
+    # this method is still under development, will remove this exception later
+    # rubocop:disable Metrics/MethodLength
     def create_and_save_drive_time_data(drive_time_data)
       attributes = drive_time_data&.dig('attributes')
       rings = drive_time_data&.dig('geometry', 'rings')
@@ -51,6 +53,7 @@ module Facilities
       facility.save
     end
     end
+    # rubocop:enable Metrics/MethodLength
 
     def round_band(band)
       if (band % 10).zero?
