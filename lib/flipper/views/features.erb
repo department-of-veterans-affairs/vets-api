@@ -17,9 +17,13 @@
               <%= feature.state.capitalize %>
             </td>
             <td>
-              <a href="<%= "#{script_name}/features/#{feature.key}" %>">
-                <%= feature.key %>
-              </a>
+              <% if Thread.current[:flipper_user_email_for_log].present?%>
+                <a href="<%= "#{script_name}/features/#{feature.key}" %>">
+                  <%= feature.key %>
+                </a>
+              <%else%>
+                  <%= feature.key %>
+              <% end %>
             </td>
             <td>
               <%= yaml_features.dig(feature.key,'description') %>

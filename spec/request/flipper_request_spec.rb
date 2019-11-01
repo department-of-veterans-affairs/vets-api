@@ -12,14 +12,16 @@ RSpec.describe 'Flipper UI', type: :request do
 
     it 'Displays list of features' do
       get '/flipper/features', params: nil
+      expect(response.body).to include('flipper/features')
       assert_response :success
     end
   end
 
   context 'Unautenticted' do
-    it 'feature route is unavailable' do
+    it 'feature route is read only' do
       get '/flipper/features', params: nil
-      assert_response :missing
+      assert_response :success
+      expect(response.body).not_to include('flipper/features')
     end
   end
 end
