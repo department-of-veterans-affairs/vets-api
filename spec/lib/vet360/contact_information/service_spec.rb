@@ -385,7 +385,7 @@ describe Vet360::ContactInformation::Service, skip_vet360: true do
 
   describe '#get_permission_transaction_status' do
     context 'when successful' do
-      let(:transaction_id) { 'a50193df-f4d5-4b6a-b53d-36fed2db1a15' }
+      let(:transaction_id) { '670a1de2-54ac-4712-997c-d8e27e0f84c9' }
 
       it 'returns a status of 200' do
         VCR.use_cassette('vet360/contact_information/permission_transaction_status', VCR::MATCH_EVERYTHING) do

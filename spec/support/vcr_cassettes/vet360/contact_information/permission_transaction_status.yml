@@ -1,0 +1,54 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: https://internal-dsva-vagov-staging-fwdproxy-1821450725.us-gov-west-1.elb.amazonaws.com:4433/person-mdm-cuf-person-hub/cuf/person/contact-information/v1/1/permissions/status/670a1de2-54ac-4712-997c-d8e27e0f84c9
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Cufsystemname:
+      - VETSGOV
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: ''
+    headers:
+      Date:
+      - Sat, 02 Nov 2019 01:34:46 GMT
+      Expires:
+      - '0'
+      Vet360txauditid:
+      - 408060a1-e3d6-4e0f-80cd-229d2ef55c17
+      X-Frame-Options:
+      - DENY
+      Pragma:
+      - no-cache
+      X-Content-Type-Options:
+      - nosniff
+      - nosniff
+      X-Xss-Protection:
+      - 1; mode=block
+      Cache-Control:
+      - no-cache, no-store, max-age=0, must-revalidate
+      X-Ua-Compatible:
+      - IE-edge,chrome=1
+      Content-Type:
+      - application/json;charset=UTF-8
+      Transfer-Encoding:
+      - chunked
+    body:
+      encoding: UTF-8
+      string: '{"txAuditId":"670a1de2-54ac-4712-997c-d8e27e0f84c9","status":"COMPLETED_SUCCESS","txStatus":"COMPLETED_FAILURE","txType":"PUSH","txInteractionType":"ATTENDED","txPushInput":{"permissionType":"TextPermission","permissionValue":true,"sourceDate":"2019-09-23T17:52:03Z","originatingSourceSystem":"VETSGOV","sourceSystemUser":"1234","vet360Id":1},"txMessages":[{"code":"PERM301","key":"PermissionType","severity":"ERROR","text":"Cannot
+        insert a record for a permission type that already exists."}]}'
+    http_version:
+  recorded_at: Sat, 02 Nov 2019 01:34:46 GMT
+recorded_with: VCR 3.0.3
