@@ -219,7 +219,7 @@ describe Vet360::ContactInformation::Service, skip_vet360: true do
   end
 
   describe '#post_permission' do
-    let(:permission) { build(:permission, vet360_id: user.vet360_id, id: nil, source_system_user: user.icn) }
+    let(:permission) { build(:permission, vet360_id: 9419, id: nil, source_system_user: user.icn) }
 
     context 'when successful' do
       it 'returns a status of 200' do
@@ -386,7 +386,7 @@ describe Vet360::ContactInformation::Service, skip_vet360: true do
 
   describe '#get_permission_transaction_status' do
     context 'when successful' do
-      let(:transaction_id) { '670a1de2-54ac-4712-997c-d8e27e0f84c9' }
+      let(:transaction_id) { '863406dc-223d-4e0b-ba3b-81f872d1af15' }
 
       it 'returns a status of 200' do
         VCR.use_cassette('vet360/contact_information/permission_transaction_status', VCR::MATCH_EVERYTHING) do

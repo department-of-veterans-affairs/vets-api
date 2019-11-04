@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: post
-    uri: https://int.vet360.va.gov/person-mdm-cuf-person-hub/cuf/person/contact-information/v1/permissions
+    uri: https://internal-dsva-vagov-staging-fwdproxy-1821450725.us-gov-west-1.elb.amazonaws.com:4433/person-mdm-cuf-person-hub/cuf/person/contact-information/v1/permissions
     body:
       encoding: UTF-8
       string: '{"bio":{"originatingSourceSystem":"VETSGOV","permissionType":"TextPermission","permissionValue":true,"sourceDate":"2019-09-23T11:52:03.000-06:00","sourceSystemUser":"1234","permissionId":null,"vet360Id":"1","effectiveStartDate":null,"effectiveEndDate":null}}'
@@ -23,11 +23,11 @@ http_interactions:
       message: ''
     headers:
       Date:
-      - Sat, 02 Nov 2019 01:24:33 GMT
+      - Mon, 04 Nov 2019 22:16:40 GMT
       Expires:
       - '0'
       Vet360txauditid:
-      - b793d7a1-5351-4089-b113-09a5a3978c2c
+      - 2f946dfa-fa74-4bc3-a044-e8bf2fe063aa
       X-Frame-Options:
       - DENY
       Pragma:
@@ -47,7 +47,7 @@ http_interactions:
       - chunked
     body:
       encoding: UTF-8
-      string: '{"txAuditId":"670a1de2-54ac-4712-997c-d8e27e0f84c9","status":"RECEIVED"}'
+      string: '{"txAuditId":"863406dc-223d-4e0b-ba3b-81f872d1af15","status":"RECEIVED"}'
     http_version:
-  recorded_at: Sat, 02 Nov 2019 01:24:33 GMT
+  recorded_at: Mon, 04 Nov 2019 22:16:40 GMT
 recorded_with: VCR 3.0.3
