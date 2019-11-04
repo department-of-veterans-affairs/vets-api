@@ -75,7 +75,7 @@ pipeline {
 
     stage('Danger Bot'){
       steps {
-        sh 'danger --verbose'
+        sh 'make danger'
       }
     }
   }

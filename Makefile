@@ -62,7 +62,7 @@ security_ci:
 
 .PHONY: danger
 danger:
-	@$(BASH_TEST) "bin/rails danger"
+	@$(BASH_TEST) "danger --verbose"
 
 .PHONY: spec_ci
 spec_ci:
