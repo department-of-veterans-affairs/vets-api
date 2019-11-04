@@ -5,6 +5,7 @@ module VAOS
     include Swagger::Blocks
     skip_before_action :authenticate
 
+    # rubocop:disable Metrics/BlockLength
     swagger_root do
       key :swagger, '2.0'
       info do
@@ -67,6 +68,7 @@ module VAOS
       parameter :optional_filter, name: :filter, in: :query, required: false, type: :string,
                                   description: 'Filter on refill_status: [[refill_status][logical operator]=status]'
     end
+    # rubocop:enable Metrics/BlockLength
 
     SWAGGERED_CLASSES = [
       VAOS::Requests::Systems,
