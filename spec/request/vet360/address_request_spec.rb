@@ -7,9 +7,10 @@ RSpec.describe 'address', type: :request do
 
   let(:user) { build(:user, :loa3) }
   let(:headers) { { 'Content-Type' => 'application/json', 'Accept' => 'application/json' } }
+  let(:frozen_time) { Time.zone.local(2018, 6, 6, 15, 35, 55) }
 
   before do
-    Timecop.freeze(Time.zone.local(2018, 6, 6, 15, 35, 55))
+    Timecop.freeze(frozen_time)
     sign_in_as(user)
   end
 
@@ -106,6 +107,27 @@ RSpec.describe 'address', type: :request do
           expect do
             put('/v0/profile/addresses', params: address.to_json, headers: headers)
           end.to change(AsyncTransaction::Vet360::AddressTransaction, :count).from(0).to(1)
+        end
+      end
+
+      context 'with a validation key' do
+        let(:address) { build(:vet360_address, :override) }
+        let(:frozen_time) { Time.zone.parse('2019-10-28 18:59:37 -0700') }
+
+        before do
+          allow_any_instance_of(User).to receive(:vet360_id).and_return('1')
+          allow_any_instance_of(User).to receive(:icn).and_return('1234')
+          Settings.virtual_hosts << 'www.example.com'
+        end
+
+        it 'is successful' do
+          VCR.use_cassette('vet360/contact_information/put_address_override', VCR::MATCH_EVERYTHING) do
+            put('/v0/profile/addresses', params: address.to_json, headers: headers)
+
+            expect(JSON.parse(response.body)['data']['attributes']['transaction_id']).to eq(
+              '2e8a9043-dec2-4a4e-bf77-186e46773ffa'
+            )
+          end
         end
       end
     end

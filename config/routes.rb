@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 Rails.application.routes.draw do
-  mount VAOS::Engine, at: '/vaos'
   match '/v0/*path', to: 'application#cors_preflight', via: [:options]
   match '/services/*path', to: 'application#cors_preflight', via: [:options]
 
@@ -158,6 +157,11 @@ Rails.application.routes.draw do
         get :children, on: :member
       end
 
+      resources :institution_programs, only: :index, defaults: { format: :json } do
+        get :search, on: :collection
+        get :autocomplete, on: :collection
+      end
+
       resources :calculator_constants, only: :index, defaults: { format: :json }
       resources :zipcode_rates, only: :show, defaults: { format: :json }
     end
@@ -294,6 +298,7 @@ Rails.application.routes.draw do
     mount Veteran::Engine, at: '/veteran'
     mount VaForms::Engine, at: '/va_forms'
     mount VeteranVerification::Engine, at: '/veteran_verification'
+    mount VAOS::Engine, at: '/vaos'
   end
 
   if Rails.env.development? || Settings.sidekiq_admin_panel
