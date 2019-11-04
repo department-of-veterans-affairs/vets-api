@@ -15,6 +15,7 @@ module VaFacilities
       include VaFacilities::ParamValidators
       skip_before_action(:authenticate)
       before_action :set_default_format
+      before_action :set_type
       before_action :validate_params, only: [:index]
 
       REQUIRED_PARAMS = {
@@ -25,9 +26,11 @@ module VaFacilities
       def index
         lat_lng = get_lat_lng(params)
         params[:drive_time] = '30' unless params[:drive_time]
+        eligible_facilities = Facilities::VHAFacility.with_services(params[:services]) if params[:services]
 
         resource = if lat_lng.present?
-                     DrivetimeBand.find_within_max_distance(lat_lng[:lat], lat_lng[:lng], params[:drive_time])
+                     DrivetimeBand.find_within_max_distance(lat_lng[:lat], lat_lng[:lng],
+                                                            params[:drive_time], eligible_facilities)
                                   .paginate(page: params[:page], per_page: params[:per_page] || per_page).load
                    else
                      DrivetimeBand.none
@@ -53,6 +56,10 @@ module VaFacilities
 
       def per_page
         20
+      end
+
+      def set_type
+        params[:type] = 'health'
       end
 
       def validate_params

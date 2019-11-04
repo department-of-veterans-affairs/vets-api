@@ -14,8 +14,8 @@ RSpec.describe Facilities::VHAFacility do
 
   it 'is able to have multiple DrivetimeBands' do
     create :vha_648
-    create :thirty_mins
-    create :sixty_mins
+    create :ten_mins_648
+    create :twenty_mins_648
 
     bands = Facilities::VHAFacility.first.drivetime_bands
 
@@ -172,6 +172,18 @@ RSpec.describe Facilities::VHAFacility do
           end
         end
       end
+    end
+  end
+
+  describe 'with_services' do
+    it 'returns a list of ids that provide the selected services' do
+      create :vha_648A4
+      create :vha_648
+      create :vha_648GI
+
+      result = Facilities::VHAFacility.with_services(['UrgentCare'])
+      expect(result.length).to eq(1)
+      expect(result.first).to eq('648')
     end
   end
 end

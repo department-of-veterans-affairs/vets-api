@@ -81,6 +81,14 @@ module Facilities
         result
       end
 
+      def with_services(services)
+        conditions = services.map do |service|
+          "services->'health' @> '[{\"sl1\":[\"#{service}\"]}]'"
+        end.join(' OR ')
+
+        select(:unique_id).where(conditions).pluck(:unique_id)
+      end
+
       def identifier
         'Sta_No'
       end

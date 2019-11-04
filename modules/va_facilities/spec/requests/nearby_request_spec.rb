@@ -4,23 +4,24 @@ require 'rails_helper'
 
 RSpec.describe 'Nearby Facilities API endpoint', type: :request do
   let(:base_query_path) { '/services/va_facilities/v1/nearby' }
-  let(:drivetime_bands) do
-    create :ten_mins_402
-    create :twenty_mins_402
-    create :thirty_mins_402
-  end
-
-  before do
-    create :vha_402
-    drivetime_bands
+  let(:create_bands) do
+    create :vha_648
+    create :vha_648GI
+    create :ten_mins_648
+    create :twenty_mins_648
+    create :ten_mins_648GI
+    create :twenty_mins_648GI
   end
 
   describe 'get drive time' do
     it 'can be retrieved with an address' do
-      VCR.use_cassette('bing/geocoding/vha_402',
+      create_bands
+
+      VCR.use_cassette('bing/geocoding/vha_648',
                        match_requests_on: [:method, VCR.request_matchers.uri_without_param(:key)]) do
         get base_query_path,
-            params: { street_address: '1 VA Center', city: 'Augusta', state: 'ME', zip: '04330', drive_time: '20' },
+            params: { street_address: '3710 Southwest US Veterans Hospital Road',
+                      city: 'Portland', state: 'OR', zip: '97239', drive_time: '10' },
             headers: { 'HTTP_ACCEPT' => 'application/json' }
 
         expect(response).to be_successful
@@ -32,18 +33,20 @@ RSpec.describe 'Nearby Facilities API endpoint', type: :request do
         expect(json['data'].length).to eq(1)
         expect(nearby_result['attributes']['min_time']).to eq(0)
         expect(nearby_result['attributes']['max_time']).to eq(10)
-        expect(nearby_result['id']).to eq('vha_402')
+        expect(nearby_result['id']).to eq('vha_648')
         expect(nearby_result['relationships']['va_facility']['links']['related'])
-          .to eql('/services/va_facilities/v0/facilities/vha_402')
+          .to eql('/services/va_facilities/v0/facilities/vha_648')
         expect(json['meta']['pagination'])
           .to include('current_page' => 1, 'per_page' => 20, 'total_pages' => 1, 'total_entries' => 1)
-        expect(json['links']['related']).to eq('/services/va_facilities/v0/facilities?ids=vha_402')
+        expect(json['links']['related']).to eq('/services/va_facilities/v0/facilities?ids=vha_648')
       end
     end
 
     it 'can be retrieved with a lat/lng' do
+      create_bands
+
       get base_query_path,
-          params: { lat: 44.27874833, lng: -69.70363833, drive_time: '20' },
+          params: { lat: 45.4967668, lng: -122.6832211, drive_time: '10' },
           headers: { 'HTTP_ACCEPT' => 'application/json' }
 
       expect(response).to be_successful
@@ -55,12 +58,37 @@ RSpec.describe 'Nearby Facilities API endpoint', type: :request do
       expect(json['data'].length).to eq(1)
       expect(nearby_result['attributes']['min_time']).to eq(0)
       expect(nearby_result['attributes']['max_time']).to eq(10)
-      expect(nearby_result['id']).to eq('vha_402')
+      expect(nearby_result['id']).to eq('vha_648')
       expect(nearby_result['relationships']['va_facility']['links']['related'])
-        .to eql('/services/va_facilities/v0/facilities/vha_402')
+        .to eql('/services/va_facilities/v0/facilities/vha_648')
       expect(json['meta']['pagination'])
         .to include('current_page' => 1, 'per_page' => 20, 'total_pages' => 1, 'total_entries' => 1)
-      expect(json['links']['related']).to eq('/services/va_facilities/v0/facilities?ids=vha_402')
+      expect(json['links']['related']).to eq('/services/va_facilities/v0/facilities?ids=vha_648')
+    end
+
+    it 'can be filtered by services' do
+      create_bands
+
+      get base_query_path,
+          params: { lat: 45.4967668, lng: -122.6832211,
+                    drive_time: '20', 'services[]': 'EmergencyCare' },
+          headers: { 'HTTP_ACCEPT' => 'application/json' }
+
+      expect(response).to be_successful
+      expect(response.body).to be_a(String)
+
+      json = JSON.parse(response.body)
+      nearby_result = json['data'].first
+
+      expect(json['data'].length).to eq(1)
+      expect(nearby_result['attributes']['min_time']).to eq(0)
+      expect(nearby_result['attributes']['max_time']).to eq(10)
+      expect(nearby_result['id']).to eq('vha_648')
+      expect(nearby_result['relationships']['va_facility']['links']['related'])
+        .to eql('/services/va_facilities/v0/facilities/vha_648')
+      expect(json['meta']['pagination'])
+        .to include('current_page' => 1, 'per_page' => 20, 'total_pages' => 1, 'total_entries' => 1)
+      expect(json['links']['related']).to eq('/services/va_facilities/v0/facilities?ids=vha_648')
     end
   end
 
