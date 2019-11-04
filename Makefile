@@ -6,8 +6,6 @@ BASH_DEV     := $(COMPOSE_DEV) $(BASH) -c
 BASH_TEST    := $(COMPOSE_TEST) $(BASH) --login -c
 SPEC_PATH    := spec/
 
-# docker-compose -f docker-compose.test.yml run --rm --service-ports vets-api bash --login -c bin/rails db:setup db:migrate ci
-
 .PHONY: default
 default: ci
 .PHONY: bash
