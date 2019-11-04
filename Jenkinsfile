@@ -75,7 +75,9 @@ pipeline {
 
     stage('Danger Bot'){
       steps {
-        sh 'make danger'
+        withCredentials([string(credentialsId: 'danger-github-api-token',    variable: 'DANGER_GITHUB_API_TOKEN')]) {
+          sh 'make danger'
+        }
       }
     }
   }
