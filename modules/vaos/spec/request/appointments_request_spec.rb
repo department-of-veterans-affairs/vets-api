@@ -16,7 +16,7 @@ RSpec.describe 'vaos appointments', type: :request do
     let(:current_user) { build(:user, :loa1) }
 
     it 'does not have access' do
-      get '/services/vaos/v0/appointments'
+      get '/v0/vaos/appointments'
       expect(response).to have_http_status(:forbidden)
       expect(JSON.parse(response.body)['errors'].first['detail'])
         .to eq('You do not have access to online scheduling')
@@ -32,7 +32,7 @@ RSpec.describe 'vaos appointments', type: :request do
     context 'with flipper disabled' do
       it 'does not have access' do
         Flipper.disable('va_online_scheduling')
-        get '/services/vaos/v0/appointments'
+        get '/v0/vaos/appointments'
         expect(response).to have_http_status(:forbidden)
         expect(JSON.parse(response.body)['errors'].first['detail'])
           .to eq('You do not have access to online scheduling')
@@ -41,7 +41,7 @@ RSpec.describe 'vaos appointments', type: :request do
 
     context 'without a type' do
       it 'has a parameter missing exception' do
-        get '/services/vaos/v0/appointments', params: params.except(:type)
+        get '/v0/vaos/appointments', params: params.except(:type)
         expect(response).to have_http_status(:bad_request)
         expect(response.body).to be_a(String)
         expect(JSON.parse(response.body)['errors'].first['detail'])
@@ -51,7 +51,7 @@ RSpec.describe 'vaos appointments', type: :request do
 
     context 'without a start_date' do
       it 'has a parameter missing exception' do
-        get '/services/vaos/v0/appointments', params: params.except(:start_date)
+        get '/v0/vaos/appointments', params: params.except(:start_date)
         expect(response).to have_http_status(:bad_request)
         expect(response.body).to be_a(String)
         expect(JSON.parse(response.body)['errors'].first['detail'])
@@ -61,7 +61,7 @@ RSpec.describe 'vaos appointments', type: :request do
 
     context 'without an end_date' do
       it 'has a parameter missing exception' do
-        get '/services/vaos/v0/appointments', params: params.except(:end_date)
+        get '/v0/vaos/appointments', params: params.except(:end_date)
         expect(response).to have_http_status(:bad_request)
         expect(response.body).to be_a(String)
         expect(JSON.parse(response.body)['errors'].first['detail'])
@@ -71,7 +71,7 @@ RSpec.describe 'vaos appointments', type: :request do
 
     context 'with an invalid type' do
       it 'has an invalid field type exception' do
-        get '/services/vaos/v0/appointments', params: params.merge(type: 'invalid')
+        get '/v0/vaos/appointments', params: params.merge(type: 'invalid')
         expect(response).to have_http_status(:bad_request)
         expect(response.body).to be_a(String)
         expect(JSON.parse(response.body)['errors'].first['detail'])
@@ -81,7 +81,7 @@ RSpec.describe 'vaos appointments', type: :request do
 
     context 'with an invalid start_date' do
       it 'has an invalid field type exception' do
-        get '/services/vaos/v0/appointments', params: params.merge(start_date: 'invalid')
+        get '/v0/vaos/appointments', params: params.merge(start_date: 'invalid')
         expect(response).to have_http_status(:bad_request)
         expect(response.body).to be_a(String)
         expect(JSON.parse(response.body)['errors'].first['detail'])
@@ -91,7 +91,7 @@ RSpec.describe 'vaos appointments', type: :request do
 
     context 'with an invalid end_date' do
       it 'has an invalid field type exception' do
-        get '/services/vaos/v0/appointments', params: params.merge(end_date: 'invalid')
+        get '/v0/vaos/appointments', params: params.merge(end_date: 'invalid')
         expect(response).to have_http_status(:bad_request)
         expect(response.body).to be_a(String)
         expect(JSON.parse(response.body)['errors'].first['detail'])
@@ -101,7 +101,7 @@ RSpec.describe 'vaos appointments', type: :request do
 
     it 'has access and returns va appointments' do
       VCR.use_cassette('vaos/appointments/get_appointments', match_requests_on: %i[host path method]) do
-        get '/services/vaos/v0/appointments', params: params
+        get '/v0/vaos/appointments', params: params
 
         expect(response).to have_http_status(:success)
         expect(response.body).to be_a(String)
@@ -111,7 +111,7 @@ RSpec.describe 'vaos appointments', type: :request do
 
     it 'has access and returns cc appointments' do
       VCR.use_cassette('vaos/appointments/get_cc_appointments', match_requests_on: %i[host path method]) do
-        get '/services/vaos/v0/appointments', params: params.merge(type: 'cc')
+        get '/v0/vaos/appointments', params: params.merge(type: 'cc')
 
         expect(response).to have_http_status(:success)
         expect(response.body).to be_a(String)

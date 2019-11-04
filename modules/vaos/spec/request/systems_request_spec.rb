@@ -7,7 +7,7 @@ RSpec.describe 'systems', type: :request do
 
   let(:rsa_private) { OpenSSL::PKey::RSA.generate 4096 }
 
-  before do
+  before(:each) do
     Flipper.enable('va_online_scheduling')
     sign_in_as(user)
     allow_any_instance_of(VAOS::JWT).to receive(:rsa_private).and_return(rsa_private)
@@ -17,8 +17,10 @@ RSpec.describe 'systems', type: :request do
     let(:user) { FactoryBot.create(:user, :loa1) }
 
     it 'returns a forbidden error' do
-      get '/services/vaos/v0/systems'
+      get '/v0/vaos/systems'
       expect(response).to have_http_status(:forbidden)
+      expect(JSON.parse(response.body)['errors'].first['detail'])
+        .to eq('You do not have access to online scheduling')
     end
   end
 
@@ -28,7 +30,7 @@ RSpec.describe 'systems', type: :request do
     context 'with a valid GET systems response' do
       it 'returns a 200 with the correct schema' do
         VCR.use_cassette('vaos/systems/get_systems', match_requests_on: %i[host path method]) do
-          get '/services/vaos/v0/systems'
+          get '/v0/vaos/systems'
           expect(response).to have_http_status(:ok)
           expect(response.body).to be_a(String)
           expect(response).to match_response_schema('vaos/systems')
