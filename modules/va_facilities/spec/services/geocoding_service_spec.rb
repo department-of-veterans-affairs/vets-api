@@ -8,7 +8,7 @@ RSpec.describe GeocodingService do
     city = 'Augusta'
     state = 'ME'
     zip = '04330'
-    
+
     VCR.use_cassette('bing/geocoding/vha_402',
                      match_requests_on: [:method, VCR.request_matchers.uri_without_param(:key)]) do
       resp = subject.query(street_address, city, state, zip)

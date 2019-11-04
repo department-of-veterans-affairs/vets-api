@@ -19,7 +19,7 @@ class GeocodingService
     response = Faraday.get "#{Settings.bing.base_api_url}/Locations", query
     response_body = JSON.parse(response.body)
     handle_bing_errors(response_body, response.headers)
-    
+
     parse_location(response_body)
   end
 
