@@ -10,8 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-
-ActiveRecord::Schema.define(version: 2019_10_07_182427) do
+ActiveRecord::Schema.define(version: 2019_10_23_192330) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
@@ -485,6 +484,18 @@ ActiveRecord::Schema.define(version: 2019_10_07_182427) do
     t.index ["preference_id"], name: "index_user_preferences_on_preference_id"
   end
 
+  create_table "va_forms_forms", force: :cascade do |t|
+    t.string "form_name"
+    t.string "url"
+    t.string "title"
+    t.date "first_issued_on"
+    t.date "last_revision_on"
+    t.integer "pages"
+    t.string "sha256"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
   create_table "vba_documents_upload_submissions", id: :serial, force: :cascade do |t|
     t.uuid "guid", null: false
     t.string "status", default: "pending", null: false
@@ -497,6 +508,17 @@ ActiveRecord::Schema.define(version: 2019_10_07_182427) do
     t.uuid "consumer_id"
     t.index ["guid"], name: "index_vba_documents_upload_submissions_on_guid"
     t.index ["status"], name: "index_vba_documents_upload_submissions_on_status"
+  end
+
+  create_table "versions", force: :cascade do |t|
+    t.string "item_type", null: false
+    t.bigint "item_id", null: false
+    t.string "event", null: false
+    t.string "whodunnit"
+    t.text "object"
+    t.datetime "created_at"
+    t.text "object_changes"
+    t.index ["item_type", "item_id"], name: "index_versions_on_item_type_and_item_id"
   end
 
   create_table "veteran_organizations", id: false, force: :cascade do |t|
