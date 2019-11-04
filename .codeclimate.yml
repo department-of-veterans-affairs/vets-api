@@ -48,4 +48,4 @@ exclude_patterns:
   - 'docs/'
   - '.rubocop.yml'
   - '.rubocop_todo.yml'
-  - 'modules/*/app/controllers/*/apidocs_controller.rb'
+  - 'modules/vaos/app/controllers/vaos/apidocs_controller.rb'
