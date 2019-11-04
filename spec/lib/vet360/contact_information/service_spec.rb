@@ -203,6 +203,7 @@ describe Vet360::ContactInformation::Service, skip_vet360: true do
 
   describe '#put_permission' do
     let(:permission) { build(:permission, vet360_id: user.vet360_id, source_system_user: user.icn) }
+    # TODO: fix permission id
 
     context 'when successful' do
       it 'returns a status of 200' do
@@ -236,7 +237,7 @@ describe Vet360::ContactInformation::Service, skip_vet360: true do
           expect { subject.post_permission(permission) }.to raise_error do |e|
             expect(e).to be_a(Common::Exceptions::BackendServiceException)
             expect(e.status_code).to eq(400)
-            expect(e.errors.first.code).to eq('VET360_XXXXXX') # TODO: MT what/where will this code come from?
+            expect(e.errors.first.code).to eq('VA900')
           end
         end
       end

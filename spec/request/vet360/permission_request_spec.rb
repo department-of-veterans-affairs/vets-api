@@ -41,7 +41,7 @@ RSpec.describe 'permission', type: :request do
 
     context 'with a 400 response' do
       it 'matches the errors schema', :aggregate_failures do
-        permission.id = 42
+        permission.id = 45
 
         VCR.use_cassette('vet360/contact_information/post_permission_w_id_error') do
           post('/v0/profile/permissionss', params: permission.to_json, headers: headers)
