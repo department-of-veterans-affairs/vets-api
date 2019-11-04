@@ -92,7 +92,9 @@ vet360:
     enabled: true
     timeout: 30
     mock: false
-
+  address_validation:
+    hostname: 'dev-api.va.gov'
+    api_key: '<AV_KEY>'
 
 # Settings for IHub
 ihub:
@@ -393,8 +395,19 @@ bing:
   key: fake_key
 
 flipper:
-  username: SUPER_SECRET_USERNAME
-  password: SUPER_SECRET_PASSWORD
+  admin_user_emails:
+    - anna@adhoc.team
+    - johnny@oddball.io
+    - travis.hilton@oddball.io
+    - rian.fowler@adhoc.team
+    - rianfowler@outlook.com
+
+bgs:
+  application: ~
+  client_station_id: ~
+  client_username: ~
+  mock_response_location: ~
+  mock_responses: ~
 
 va_mobile:
   url: 'https://veteran.apps.va.gov/'

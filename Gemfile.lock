@@ -23,13 +23,14 @@ GIT
       xmlenc
 
 GIT
-  remote: https://github.com/department-of-veterans-affairs/puma-plugin-statsd
-  revision: 6faba90147cf6fbb6c1a6a0c6cd3ae88e888ca73
+  remote: https://github.com/department-of-veterans-affairs/lighthouse-bgs.git
+  revision: ecd50e7adc5ababf5ca09994e55cf7d78ae6fe94
   branch: master
   specs:
-    puma-plugin-statsd (0.0.1)
-      json
-      puma (~> 3.12)
+    lighthouse_bgs (0.2)
+      httpclient
+      nokogiri (>= 1.8.5)
+      savon (~> 2.12)
 
 GIT
   remote: https://github.com/department-of-veterans-affairs/vets-json-schema
@@ -63,6 +64,16 @@ PATH
   specs:
     va_facilities (0.0.1)
       rails (~> 5.2.3)
+
+PATH
+  remote: modules/va_forms
+  specs:
+    va_forms (0.0.1)
+      faraday
+      nokogiri
+      paper_trail
+      rails (~> 5.2.3)
+      sidekiq
 
 PATH
   remote: modules/vaos
@@ -233,7 +244,7 @@ GEM
       colored2 (~> 3.1)
     crack (0.4.3)
       safe_yaml (~> 1.0.0)
-    crass (1.0.4)
+    crass (1.0.5)
     danger (6.1.0)
       claide (~> 1.0)
       claide-plugins (>= 0.9.2)
@@ -399,7 +410,7 @@ GEM
       rb-fsevent (~> 0.9, >= 0.9.4)
       rb-inotify (~> 0.9, >= 0.9.7)
       ruby_dep (~> 1.2)
-    loofah (2.3.0)
+    loofah (2.3.1)
       crass (~> 1.0.2)
       nokogiri (>= 1.5.9)
     lumberjack (1.0.13)
@@ -443,6 +454,9 @@ GEM
       childprocess (>= 0.6.3, < 4)
       iniparse (~> 1.4)
     ox (2.8.2)
+    paper_trail (10.3.1)
+      activerecord (>= 4.2)
+      request_store (~> 1.1)
     parallel (1.17.0)
     parser (2.6.4.0)
       ast (~> 2.4.0)
@@ -469,7 +483,11 @@ GEM
       byebug (~> 11.0)
       pry (~> 0.10)
     public_suffix (3.1.1)
-    puma (3.12.0)
+    puma (4.2.1)
+      nio4r (~> 2.0)
+    puma-plugin-statsd (0.1.0)
+      json
+      puma (>= 3.12, < 5)
     pundit (1.1.0)
       activesupport (>= 3.0.0)
     raabro (1.1.6)
@@ -520,6 +538,8 @@ GEM
     redis (3.3.5)
     redis-namespace (1.5.3)
       redis (~> 3.0, >= 3.0.4)
+    request_store (1.4.1)
+      rack (>= 1.4)
     restforce (3.0.0)
       faraday (>= 0.9.0, <= 1.0)
       faraday_middleware (>= 0.8.8, <= 1.0)
@@ -578,12 +598,12 @@ GEM
       fugit (~> 1.1, >= 1.1.6)
     safe_shell (1.0.3)
     safe_yaml (1.0.5)
-    savon (2.11.1)
+    savon (2.12.0)
       akami (~> 1.2)
       builder (>= 2.1.2)
       gyoku (~> 1.2)
       httpi (~> 2.3)
-      nokogiri (>= 1.4.0)
+      nokogiri (>= 1.8.1)
       nori (~> 2.4)
       wasabi (~> 3.4)
     sawyer (0.8.2)
@@ -752,6 +772,7 @@ DEPENDENCIES
   jsonapi-parser
   jwt
   levenshtein-ffi
+  lighthouse_bgs!
   liquid
   mail (= 2.6.6)
   memoist
@@ -764,14 +785,15 @@ DEPENDENCIES
   origami
   overcommit
   ox
+  paper_trail
   pdf-forms
   pdf-inspector
   pdf-reader
   pg
   prawn
   pry-byebug
-  puma (~> 3.12.0)
-  puma-plugin-statsd!
+  puma (~> 4.2.1)
+  puma-plugin-statsd (~> 0.1.0)
   pundit
   rack-attack
   rack-cors
@@ -816,6 +838,7 @@ DEPENDENCIES
   upsert
   utf8-cleaner
   va_facilities!
+  va_forms!
   vaos!
   vba_documents!
   vcr

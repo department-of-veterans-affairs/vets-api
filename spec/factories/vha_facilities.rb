@@ -24,13 +24,13 @@ FactoryBot.define do
         } }
     }
     phone {
-      { 'fax' => '360-690-0864 x',
-        'main' => '360-759-1901 x',
-        'pharmacy' => '503-273-5183 x',
-        'after_hours' => '360-696-4061 x',
-        'patient_advocate' => '503-273-5308 x',
+      { 'fax' => '360-690-0864',
+        'main' => '360-759-1901',
+        'pharmacy' => '503-273-5183',
+        'after_hours' => '360-696-4061',
+        'patient_advocate' => '503-273-5308',
         'mental_health_clinic' => '503-273-5187',
-        'enrollment_coordinator' => '503-273-5069 x' }
+        'enrollment_coordinator' => '503-273-5069' }
     }
     hours {
       { 'Friday' => '730AM-430PM',
@@ -111,13 +111,13 @@ FactoryBot.define do
         } }
     }
     phone {
-      { 'fax' => '503-273-5319 x',
-        'main' => '503-721-1498 x',
-        'pharmacy' => '503-273-5183 x',
-        'after_hours' => '503-220-8262 x',
-        'patient_advocate' => '503-273-5308 x',
+      { 'fax' => '503-273-5319',
+        'main' => '503-721-1498',
+        'pharmacy' => '503-273-5183',
+        'after_hours' => '503-220-8262',
+        'patient_advocate' => '503-273-5308',
         'mental_health_clinic' => '503-273-5187',
-        'enrollment_coordinator' => '503-273-5069 x' }
+        'enrollment_coordinator' => '503-273-5069' }
     }
     hours {
       { 'Friday' => '24/7',
@@ -233,13 +233,13 @@ FactoryBot.define do
         } }
     }
     phone {
-      { 'fax' => '503-808-1900 x',
-        'main' => '503-808-1256 x',
-        'pharmacy' => '503-273-5183 x',
-        'after_hours' => '800-273-8255 x',
-        'patient_advocate' => '503-273-5308 x',
+      { 'fax' => '503-808-1900',
+        'main' => '503-808-1256',
+        'pharmacy' => '503-273-5183',
+        'after_hours' => '800-273-8255',
+        'patient_advocate' => '503-273-5308',
         'mental_health_clinic' => '',
-        'enrollment_coordinator' => '503-273-5069 x' }
+        'enrollment_coordinator' => '503-273-5069' }
     }
     hours {
       { 'Friday' => '800AM-430PM',
@@ -275,6 +275,155 @@ FactoryBot.define do
           'established' => 2.0
         },
         'effective_date' => '2018-03-05'
+      } }
+    }
+  end
+  factory :vha_402QA, class: Facilities::VHAFacility do
+    unique_id { '402QA' }
+    name { 'Fort Kent VA Clinic' }
+    facility_type { 'va_health_facility' }
+    classification { 'Other Outpatient Services (OOS)' }
+    website { nil }
+    lat { 47.26560990000007 }
+    long { -68.59126328999997 }
+    location { 'POINT(-68.59126328999997, 47.26560990000007)' }
+    address {
+      { 'mailing' => {},
+        'physical' => {
+          'zip' => '04743-1409',
+          'city' => 'Fort Kent',
+          'state' => 'ME',
+          'address_1' => '197 East Main Street',
+          'address_2' => 'Medical Office Building',
+          'address_3' => nil
+        } }
+    }
+    phone {
+      { 'fax' => '207-834-2351',
+        'main' => '207-834-1572',
+        'pharmacy' => '207-623-5353',
+        'after_hours' => '844-750-8426',
+        'patient_advocate' => '207-623-5760',
+        'mental_health_clinic' => '',
+        'enrollment_coordinator' => '207-623-8411 x5688' }
+    }
+    hours {
+      { 'Friday' => 'Closed',
+        'Monday' => 'Closed',
+        'Sunday' => 'Closed',
+        'Tuesday' => 'Closed',
+        'Saturday' => 'Closed',
+        'Thursday' => '800AM-430PM',
+        'Wednesday' => 'Closed' }
+    }
+    services {
+      { 'other' => [
+        {
+          'sl1' => [
+            'Online Scheduling'
+          ],
+          'sl2' => []
+        }
+      ],
+        'health' => [],
+        'last_updated' => '2019-06-04' }
+    }
+    feedback { { 'health' => {} } }
+    access {
+      { 'health' => {
+        'primary_care' => {
+          'new' => nil,
+          'established' => 4.807692
+        },
+        'effective_date' => '2018-05-27'
+      } }
+    }
+  end
+  factory :generic_vha, class: Facilities::VHAFacility do
+    sequence :unique_id, &:to_s
+    name { 'Generic Health Office' }
+    facility_type { 'va_health_facility' }
+    classification { 'VA Medical Center (VAMC)' }
+    website { 'http://www.health.va.gov/generic' }
+    mobile { false }
+    active_status { 'A' }
+    lat { 45.6394162600001 }
+    long { -122.65528736 }
+    location { 'POINT(-122.65528736 45.6394162600001)' }
+    address {
+      { 'mailing' => {},
+        'physical' => {
+          'zip' => '98661-3753',
+          'city' => 'Vancouver',
+          'state' => 'WA',
+          'address_1' => '100 Generic Street',
+          'address_2' => nil,
+          'address_3' => nil
+        } }
+    }
+    phone {
+      { 'fax' => '555-555-5555 x',
+        'main' => '555-555-5555 x',
+        'pharmacy' => '555-555-5555 x',
+        'after_hours' => '555-555-5555 x',
+        'patient_advocate' => '555-555-5555 x',
+        'mental_health_clinic' => '555-555-5555',
+        'enrollment_coordinator' => '555-555-5555 x' }
+    }
+    hours {
+      { 'Friday' => '730AM-430PM',
+        'Monday' => '730AM-430PM',
+        'Sunday' => '-',
+        'Tuesday' => '730AM-630PM',
+        'Saturday' => '800AM-1000AM',
+        'Thursday' => '730AM-430PM',
+        'Wednesday' => '730AM-430PM' }
+    }
+    services {
+      { 'health' => [
+        { 'sl1' => ['DentalServices'],
+          'sl2' => [] },
+        { 'sl1' => ['MentalHealthCare'],
+          'sl2' => [] },
+        { 'sl1' => ['PrimaryCare'],
+          'sl2' => [] }
+      ],
+        'last_updated' => '2018-03-15' }
+    }
+    feedback {
+      { 'health' => {
+        'effective_date' => '2017-08-15',
+        'primary_care_urgent' => 0.8,
+        'primary_care_routine' => 0.84
+      } }
+    }
+    access {
+      { 'health' => {
+        'audiology' => {
+          'new' => 35.0,
+          'established' => 18.0
+        },
+        'optometry' => {
+          'new' => 38.0,
+          'established' => 22.0
+        },
+        'dermatology' => {
+          'new' => 4.0,
+          'established' => nil
+        },
+        'ophthalmology' => {
+          'new' => 1.0,
+          'established' => 4.0
+        },
+        'primary_care' => {
+          'new' => 34.0,
+          'established' => 5.0
+        },
+        'mental_health' => {
+          'new' => 12.0,
+          'established' => 3.0
+        },
+        'effective_date' => '2018-02-26'
       } }
     }
   end
