@@ -60,18 +60,18 @@ pipeline {
       }
     }
 
-    stage('Run tests') {
-      steps {
-        sh 'make spec_ci'
-      }
-      post {
-        success {
-          archiveArtifacts artifacts: "coverage/**"
-          publishHTML(target: [reportDir: 'coverage', reportFiles: 'index.html', reportName: 'Coverage', keepAll: true])
-          junit 'log/*.xml'
-        }
-      }
-    }
+    // stage('Run tests') {
+    //   steps {
+    //     sh 'make spec_ci'
+    //   }
+    //   post {
+    //     success {
+    //       archiveArtifacts artifacts: "coverage/**"
+    //       publishHTML(target: [reportDir: 'coverage', reportFiles: 'index.html', reportName: 'Coverage', keepAll: true])
+    //       junit 'log/*.xml'
+    //     }
+    //   }
+    // }
 
     stage('Danger Bot'){
       steps {
