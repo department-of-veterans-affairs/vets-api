@@ -152,7 +152,7 @@ describe 'vet360 rake tasks' do
   describe 'rake vet360:put_permission' do
     let :run_rake_task do
       data = '{"originating_source_system":"VET360-TEST-PARTNER","permission_type":"TextPermission",'\
-      '"permission_value":true,"source_date":"2019-00-23T20:09:50.000-06:00","permission_id":42,'\
+      '"permission_value":true,"source_date":"2019-09-23T20:09:50.000-06:00","permission_id":42,'\
       '"vet360_id":"1"}'
       ENV['VET360_RAKE_DATA'] = data
       Rake::Task['vet360:put_permission'].reenable
@@ -227,7 +227,7 @@ describe 'vet360 rake tasks' do
   describe 'rake vet360:post_permission' do
     let :run_rake_task do
       data = '{"originating_source_system":"VET360-TEST-PARTNER","permission_type":"TextPermission",'\
-      '"permission_value":true,"source_date":"2019-00-23T20:09:50.000-06:00","permission_id":null,'\
+      '"permission_value":true,"source_date":"2019-09-23T20:09:50.000-06:00","permission_id":null,'\
       '"vet360_id":"1"}'
       ENV['VET360_RAKE_DATA'] = data
       Rake::Task['vet360:post_permission'].reenable
