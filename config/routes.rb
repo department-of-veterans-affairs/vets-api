@@ -298,8 +298,9 @@ Rails.application.routes.draw do
     mount Veteran::Engine, at: '/veteran'
     mount VaForms::Engine, at: '/va_forms'
     mount VeteranVerification::Engine, at: '/veteran_verification'
-    mount VAOS::Engine, at: '/vaos'
   end
+
+  mount VAOS::Engine, at: '/v0/vaos'
 
   if Rails.env.development? || Settings.sidekiq_admin_panel
     require 'sidekiq/web'

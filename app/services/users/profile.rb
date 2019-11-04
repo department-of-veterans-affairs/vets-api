@@ -71,7 +71,8 @@ module Users
         loa: user.loa,
         multifactor: user.multifactor,
         verified: user.loa3?,
-        sign_in: user.identity.sign_in
+        sign_in: user.identity.sign_in,
+        authn_context: user.authn_context
       }
     end
 
