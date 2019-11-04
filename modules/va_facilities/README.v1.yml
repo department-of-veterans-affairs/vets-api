@@ -557,24 +557,25 @@ paths:
                           total_pages:
                             type: integer
                             example: 217
-                  relationships:
+                  links:
                     type: object
                     required:
                       - va_facilities
                     properties:
-                      va_facilities:
-                        type: object
-                        required:
-                          - links
-                        properties:
-                          links:
-                            type: object
-                            required:
-                              - related
-                            properties:
-                              related:
-                                type: string
-                                example: facilities?id=vha_688
+                      related:
+                        type: string
+                        example: /services/va_facilities/v0/facilities?id=vha_688
+                      self:
+                        type: string
+                      first:
+                        type: string
+                      prev:
+                        type: string
+                      next:
+                        type: string
+                      last:
+                        type: string
+
         '400':
           description: Missing Required Or Ambiguous Parameters
           content:
@@ -894,9 +895,9 @@ components:
         relationships:
           type: object
           required:
-            - va_facilities
+            - va_facility
           properties:
-            va_facilities:
+            va_facility:
               type: object
               required:
                 - links
@@ -908,7 +909,7 @@ components:
                   properties:
                     related:
                       type: string
-                      example: facilities/vha_688
+                      example: /services/va_facilities/v0/facilities/vha_688
     # COMMENTED OUT WHILE FACILITIES v1 ARE ONLY A DRAFT
     # Facility:
     #   description: JSON API-compliant object describing a VA facility
