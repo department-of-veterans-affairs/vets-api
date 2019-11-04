@@ -29,8 +29,7 @@ pipeline {
     stage('Run tests') {
       steps {
         withCredentials([
-          string(credentialsId: 'sidekiq-enterprise-license', variable: 'BUNDLE_ENTERPRISE__CONTRIBSYS__COM'),
-          string(credentialsId: 'danger-github-api-token',    variable: 'DANGER_GITHUB_API_TOKEN')
+          string(credentialsId: 'sidekiq-enterprise-license', variable: 'BUNDLE_ENTERPRISE__CONTRIBSYS__COM')
         ]) {
           withEnv(['RAILS_ENV=test', 'CI=true']) {
             sh 'make ci'
@@ -43,6 +42,12 @@ pipeline {
           publishHTML(target: [reportDir: 'coverage', reportFiles: 'index.html', reportName: 'Coverage', keepAll: true])
           junit 'log/*.xml'
         }
+      }
+    }
+
+    stage('Run Danger Bot') {
+      steps {
+        sh 'make danger'
       }
     }
 
