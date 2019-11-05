@@ -115,13 +115,14 @@ RSpec.describe 'permission', type: :request do
 
   describe 'DELETE /v0/profile/permissions' do
     let(:permission) do
-      build(:permission, vet360_id: user.vet360_id)
+      build(:permission, vet360_id: user.vet360_id, source_date: '2019-10-23T11:52:03-06:00')
     end
     let(:id_in_cassette) { 361 }
 
     before do
       allow_any_instance_of(User).to receive(:icn).and_return('64762895576664260')
       permission.id = id_in_cassette
+      Settings.virtual_hosts << 'www.example.com'
     end
 
     context 'when the method is DELETE' do
@@ -130,6 +131,7 @@ RSpec.describe 'permission', type: :request do
           # The cassette we're using includes the effectiveEndDate in the body.
           # So this test will not pass if it's missing
           delete('/v0/profile/permissions', params: permission.to_json, headers: headers)
+
           expect(response).to have_http_status(:ok)
           expect(response).to match_response_schema('vet360/transaction_response')
         end
