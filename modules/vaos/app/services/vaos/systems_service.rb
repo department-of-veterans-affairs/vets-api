@@ -13,7 +13,7 @@ module VAOS
 
     def get_systems(user)
       with_monitoring do
-        response = perform(:get, '/mvi/v1/patients/session/identifiers.json', headers(user))
+        response = perform(:get, '/mvi/v1/patients/session/identifiers.json', nil, headers(user))
         response.body.map { |system| OpenStruct.new(system) }
       end
     rescue Common::Client::Errors::ClientError => e
