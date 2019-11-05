@@ -7,9 +7,10 @@ RSpec.describe 'permission', type: :request do
 
   let(:user) { build(:user, :loa3) }
   let(:headers) { { 'Content-Type' => 'application/json', 'Accept' => 'application/json' } }
+  let(:frozen_time) { Time.zone.local(2019, 11, 0o5, 16, 49, 18) }
 
   before do
-    Timecop.freeze(Time.zone.local(2019, 9, 23, 11, 52, 0o3))
+    Timecop.freeze(frozen_time)
     sign_in_as(user)
   end
 
@@ -115,7 +116,7 @@ RSpec.describe 'permission', type: :request do
 
   describe 'DELETE /v0/profile/permissions' do
     let(:permission) do
-      build(:permission, vet360_id: user.vet360_id, source_date: '2019-10-23T11:52:03-06:00')
+      build(:permission, vet360_id: user.vet360_id, source_date: '2019-11-05T16:49:18Z')
     end
     let(:id_in_cassette) { 361 }
 
