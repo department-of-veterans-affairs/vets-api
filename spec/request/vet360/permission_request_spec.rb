@@ -117,7 +117,7 @@ RSpec.describe 'permission', type: :request do
     let(:permission) do
       build(:permission, vet360_id: user.vet360_id)
     end
-    let(:id_in_cassette) { 42 }
+    let(:id_in_cassette) { 361 }
 
     before do
       allow_any_instance_of(User).to receive(:icn).and_return('64762895576664260')
