@@ -1,4 +1,6 @@
 $stdout.sync = true
+export VETS_API_ID  := $(shell id -u)
+
 COMPOSE_DEV  := docker-compose
 COMPOSE_TEST := docker-compose -f docker-compose.test.yml
 BASH         := run --rm --service-ports vets-api bash
@@ -8,6 +10,7 @@ SPEC_PATH    := spec/
 
 .PHONY: default
 default: ci
+
 .PHONY: bash
 bash:
 	@$(COMPOSE_DEV) $(BASH)
@@ -18,8 +21,8 @@ ci:
 
 .PHONY: clean
 clean:
-	rm -r data || true
-	$(COMPOSE_TEST) run vets-api rm -r coverage log tmp .git || true
+	#rm -r data || true
+	#$(COMPOSE_TEST) run vets-api rm -r coverage log tmp .git || true
 	$(COMPOSE_TEST) down
 
 .PHONY: console

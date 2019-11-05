@@ -7,8 +7,9 @@
 ###
 FROM ruby:2.4.9-slim-stretch AS base
 
-RUN groupadd -r vets-api && \
-    useradd -r -m -d /srv/vets-api -g vets-api vets-api
+ARG userid=993
+RUN groupadd -g $userid -r vets-api && \
+    useradd -u $userid -r -m -d /srv/vets-api -g vets-api vets-api
 RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
     dumb-init clamav imagemagick pdftk curl poppler-utils
 WORKDIR /srv/vets-api
@@ -35,6 +36,7 @@ RUN curl -sSL -o /usr/local/bin/cc-test-reporter https://codeclimate.com/downloa
     cc-test-reporter --version
 RUN freshclam
 COPY --chown=vets-api:vets-api docker-entrypoint.sh .
+USER vets-api
 ENTRYPOINT ["/usr/bin/dumb-init", "--", "./docker-entrypoint.sh"]
 
 ###
@@ -44,13 +46,17 @@ ENTRYPOINT ["/usr/bin/dumb-init", "--", "./docker-entrypoint.sh"]
 FROM development AS builder
 # XXX: move modules/ to seperate repos so we can only copy Gemfile* and install a slim layer
 ARG bundler_opts
-COPY . .
-RUN bundle install --binstubs="${BUNDLE_PATH}/bin" $bundler_opts
+COPY --chown=vets-api:vets-api . .
+USER vets-api
+# --no-cache doesn't do the right thing, so trim it during build
+# https://github.com/bundler/bundler/issues/6680
+RUN bundle install --binstubs="${BUNDLE_PATH}/bin" $bundler_opts && \
+    find ${BUNDLE_PATH}/cache - type f -name \*gem -delete
 
 ###
 # prod stage; default if no target given
 # to build prod you probably want options like below to get a good build
-# --build-arg rails_env=production --build-arg bundler_opts="--without=dev --without=test --no-cache"
+# --build-arg rails_env=production --build-arg bundler_opts="--no-cache --without development test"
 # prod
 ###
 FROM base AS production
