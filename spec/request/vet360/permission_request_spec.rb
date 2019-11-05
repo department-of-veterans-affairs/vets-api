@@ -7,7 +7,7 @@ RSpec.describe 'permission', type: :request do
 
   let(:user) { build(:user, :loa3) }
   let(:headers) { { 'Content-Type' => 'application/json', 'Accept' => 'application/json' } }
-  let(:frozen_time) { Time.zone.local(2019, 11, 0o5, 16, 49, 18) }
+  let(:frozen_time) { Time.zone.local(2019, 11, 5, 16, 49, 18) }
 
   before do
     Timecop.freeze(frozen_time)
