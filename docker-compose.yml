@@ -18,6 +18,7 @@ services:
       args:
         exclude_sidekiq_ent: "${EXCLUDE_SIDEKIQ_ENTERPRISE:-false}"
         sidekiq_license: "${BUNDLE_ENTERPRISE__CONTRIBSYS__COM}"
+        userid: "${VETS_API_ID}"
     image: "vets-api:${DOCKER_IMAGE:-latest}"
     volumes:
       - .:/srv/vets-api:cached

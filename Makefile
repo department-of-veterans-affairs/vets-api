@@ -11,19 +11,26 @@ SPEC_PATH    := spec/
 .PHONY: default
 default: ci
 
-.PHONY: bash
-bash:
-	@$(COMPOSE_DEV) $(BASH)
-
 .PHONY: ci
 ci:
 	@$(BASH_TEST) "bin/rails db:setup db:migrate ci"
 
-.PHONY: clean
-clean:
-	#rm -r data || true
-	#$(COMPOSE_TEST) run vets-api rm -r coverage log tmp .git || true
+.PHONEY: ci-down
+ci-down:
 	$(COMPOSE_TEST) down
+
+.PHONY: ci-clean
+ci-clean:
+	$(COMPOSE_TEST) run vets-api git clean -fdx || true
+	$(COMPOSE_TEST) down
+
+.PHONY: ci-spec
+ci-spec:
+	@$(BASH_TEST) "bin/rspec ${SPEC_PATH}"
+
+.PHONY: bash
+bash:
+	@$(COMPOSE_DEV) $(BASH)
 
 .PHONY: console
 console:
@@ -51,7 +58,7 @@ lint:
 
 .PHONY: migrate
 migrate:
-	@$(BASH_TEST) "bin/rails db:migrate"
+	@$(BASH_DEV) "bin/rails db:migrate"
 
 .PHONY: rebuild
 rebuild: down
@@ -67,7 +74,7 @@ server:
 
 .PHONY: spec
 spec:
-	@$(BASH_TEST) "bin/rspec ${SPEC_PATH}"
+	@$(BASH_DEV) "bin/rspec ${SPEC_PATH}"
 
 .PHONY: up
 up: db
