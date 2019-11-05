@@ -12,6 +12,7 @@ RSpec.describe 'permission', type: :request do
   before do
     Timecop.freeze(frozen_time)
     sign_in_as(user)
+    Settings.virtual_hosts << 'www.example.com'
   end
 
   after do
@@ -19,7 +20,7 @@ RSpec.describe 'permission', type: :request do
   end
 
   describe 'POST /v0/profile/permissions' do
-    let(:permission) { build(:permission, vet360_id: user.vet360_id) }
+    let(:permission) { build(:permission, vet360_id: user.vet360_id, id: nil) }
 
     context 'with a 200 response' do
       it 'matches the permission schema', :aggregate_failures do
@@ -123,7 +124,6 @@ RSpec.describe 'permission', type: :request do
     before do
       allow_any_instance_of(User).to receive(:icn).and_return('64762895576664260')
       permission.id = id_in_cassette
-      Settings.virtual_hosts << 'www.example.com'
     end
 
     context 'when the method is DELETE' do
