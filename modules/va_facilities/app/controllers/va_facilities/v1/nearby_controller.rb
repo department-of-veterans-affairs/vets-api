@@ -16,7 +16,10 @@ module VaFacilities
       skip_before_action(:authenticate)
       before_action :set_default_format
       before_action :set_facility_type
+      before_action :set_default_drivetime
       before_action :validate_params, only: [:index]
+
+      PER_PAGE = 20
 
       REQUIRED_PARAMS = {
         address: %i[street_address city state zip].freeze,
@@ -25,13 +28,12 @@ module VaFacilities
 
       def index
         lat_lng = get_lat_lng(params)
-        params[:drive_time] = '30' unless params[:drive_time]
         eligible_facilities = Facilities::VHAFacility.with_services(params[:services]) if params[:services]
 
         resource = if lat_lng.present?
                      DrivetimeBand.find_within_max_distance(lat_lng[:lat], lat_lng[:lng],
                                                             params[:drive_time], eligible_facilities)
-                                  .paginate(page: params[:page], per_page: params[:per_page] || per_page).load
+                                  .paginate(page: params[:page], per_page: params[:per_page] || PER_PAGE).load
                    else
                      DrivetimeBand.none
                    end
@@ -56,11 +58,11 @@ module VaFacilities
         params[:type] = 'health'
       end
 
-      private
-
-      def per_page
-        20
+      def set_default_drivetime
+        params[:drive_time] = '30' unless params[:drive_time]
       end
+
+      private
 
       def validate_params
         validate_required_nearby_params(REQUIRED_PARAMS)

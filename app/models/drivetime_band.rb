@@ -8,7 +8,7 @@ class DrivetimeBand < ApplicationRecord
       query = 'ST_Intersects(polygon, ST_MakePoint(:lng,:lat)) AND max <= :max'
       params = { lng: lng, lat: lat, max: drive_time }
 
-      unless ids.nil?
+      if ids.present?
         query = "#{query} AND vha_facility_id IN (:ids)"
         params[:ids] = ids
       end

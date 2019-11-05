@@ -21,11 +21,11 @@ RSpec.describe VaFacilities::NearbySerializer, type: :serializer do
     expect(data['type']).to eq('nearby_facility')
   end
 
-  it 'returns a drivetime_band_min attribute' do
+  it 'returns a min_time attribute' do
     expect(attributes['min_time']).to eq(20)
   end
 
-  it 'returns a drivetime_band_max attribute' do
+  it 'returns a max_time attribute' do
     expect(attributes['max_time']).to eq(30)
   end
 
