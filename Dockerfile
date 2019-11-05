@@ -35,7 +35,6 @@ RUN curl -sSL -o /usr/local/bin/cc-test-reporter https://codeclimate.com/downloa
     cc-test-reporter --version
 RUN freshclam
 COPY --chown=vets-api:vets-api docker-entrypoint.sh .
-USER vets-api
 ENTRYPOINT ["/usr/bin/dumb-init", "--", "./docker-entrypoint.sh"]
 
 ###
@@ -45,7 +44,7 @@ ENTRYPOINT ["/usr/bin/dumb-init", "--", "./docker-entrypoint.sh"]
 FROM development AS builder
 # XXX: move modules/ to seperate repos so we can only copy Gemfile* and install a slim layer
 ARG bundler_opts
-COPY --chown=vets-api:vets-api . .
+COPY . .
 RUN bundle install --binstubs="${BUNDLE_PATH}/bin" $bundler_opts
 
 ###
@@ -58,6 +57,6 @@ FROM base AS production
 
 ENV RAILS_ENV=production
 COPY --from=builder $BUNDLE_PATH $BUNDLE_PATH
-COPY --from=builder /srv/vets-api ./
+COPY --from=builder --chown=vets-api:vets-api /srv/vets-api ./
 USER vets-api
 ENTRYPOINT ["/usr/bin/dumb-init", "--", "./docker-entrypoint.sh"]
