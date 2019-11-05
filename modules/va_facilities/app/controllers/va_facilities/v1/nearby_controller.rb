@@ -83,11 +83,11 @@ module VaFacilities
           break loc_type if no_missing_fields
         end
 
+        lat_lng = params.slice(:lat, :lng)
         if location_type.eql? :address
-          GeocodingService.new.query(params[:street_address], params[:city], params[:state], params[:zip])
-        else
-          params.slice(:lat, :lng)
+          lat_lng = GeocodingService.new.query(params[:street_address], params[:city], params[:state], params[:zip])
         end
+        lat_lng
       end
 
       def relationships(resource)
