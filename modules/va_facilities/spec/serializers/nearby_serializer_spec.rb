@@ -3,9 +3,9 @@
 require 'rails_helper'
 
 RSpec.describe VaFacilities::NearbySerializer, type: :serializer do
-  subject { serialize(thirty, serializer_class: described_class) }
+  subject { serialize(ten_min_band, serializer_class: described_class) }
 
-  let(:thirty) { create(:thirty_mins) }
+  let(:ten_min_band) { create(:ten_mins_648) }
   let(:data) { JSON.parse(subject)['data'] }
   let(:attributes) { data['attributes'] }
   let(:relationships) { data['relationships'] }
@@ -22,11 +22,11 @@ RSpec.describe VaFacilities::NearbySerializer, type: :serializer do
   end
 
   it 'returns a min_time attribute' do
-    expect(attributes['min_time']).to eq(20)
+    expect(attributes['min_time']).to eq(0)
   end
 
   it 'returns a max_time attribute' do
-    expect(attributes['max_time']).to eq(30)
+    expect(attributes['max_time']).to eq(10)
   end
 
   it 'returns a relationship link to its facility' do
