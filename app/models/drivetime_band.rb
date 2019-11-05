@@ -5,7 +5,7 @@ class DrivetimeBand < ApplicationRecord
 
   class << self
     def find_within_max_distance(lat, lng, drive_time, ids)
-      query = 'ST_Intersects(polygon, ST_MakePoint(:lng,:lat)) AND max <= :max'
+      query = 'max <= :max AND ST_Intersects(polygon, ST_MakePoint(:lng,:lat))'
       params = { lng: lng, lat: lat, max: drive_time }
 
       if ids.present?
