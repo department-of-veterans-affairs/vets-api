@@ -5,7 +5,7 @@ require 'rails_helper'
 RSpec.describe 'permission', type: :request do
   include SchemaMatchers
 
-  let(:user) { build(:user, :loa3) }
+  let(:user) { build(:vets360_user) }
   let(:headers) { { 'Content-Type' => 'application/json', 'Accept' => 'application/json' } }
   let(:frozen_time) { Time.zone.local(2019, 11, 5, 16, 49, 18) }
 

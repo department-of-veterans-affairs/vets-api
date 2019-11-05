@@ -118,6 +118,17 @@ FactoryBot.define do
       end
     end
 
+    factory :vets360_user, traits: [:loa3] do
+      after(:build) do
+        stub_mvi(
+          build(
+            :mvi_profile,
+            vet360_id: '1'
+          )
+        )
+      end
+    end
+
     factory :evss_user, traits: [:loa3] do
       first_name { 'WESLEY' }
       last_name { 'FORD' }
