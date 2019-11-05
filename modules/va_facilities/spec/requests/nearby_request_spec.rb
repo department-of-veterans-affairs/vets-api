@@ -180,6 +180,5 @@ RSpec.describe 'Nearby Facilities API endpoint', type: :request do
         c.allow_http_connections_when_no_cassette = false
       end
     end
-
   end
 end
