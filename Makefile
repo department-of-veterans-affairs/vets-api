@@ -1,5 +1,5 @@
 $stdout.sync = true
-export VETS_API_ID  := $(shell id -u)
+export VETS_API_USER_ID  := $(shell id -u)
 
 COMPOSE_DEV  := docker-compose
 COMPOSE_TEST := docker-compose -f docker-compose.test.yml

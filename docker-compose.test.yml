@@ -13,7 +13,7 @@ services:
       target: development
       args:
         sidekiq_license: "${BUNDLE_ENTERPRISE__CONTRIBSYS__COM}"
-        userid: "${VETS_API_ID}"
+        userid: "${VETS_API_USER_ID}"
     image: "vets-api:${DOCKER_IMAGE:-latest}"
     volumes:
       - ".:/srv/vets-api"
