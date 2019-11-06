@@ -28,10 +28,7 @@ pipeline {
 
     stage('Run tests') {
       steps {
-        withCredentials([
-          string(credentialsId: 'sidekiq-enterprise-license', variable: 'BUNDLE_ENTERPRISE__CONTRIBSYS__COM'),
-          string(credentialsId: 'danger-github-api-token',    variable: 'DANGER_GITHUB_API_TOKEN')
-        ]) {
+        withCredentials([string(credentialsId: 'sidekiq-enterprise-license', variable: 'BUNDLE_ENTERPRISE__CONTRIBSYS__COM')]) {
           withEnv(['RAILS_ENV=test', 'CI=true']) {
             sh 'make ci'
           }
@@ -42,6 +39,14 @@ pipeline {
           archiveArtifacts artifacts: "coverage/**"
           publishHTML(target: [reportDir: 'coverage', reportFiles: 'index.html', reportName: 'Coverage', keepAll: true])
           junit 'log/*.xml'
+        }
+      }
+    }
+
+    stage('Run Danger Bot') {
+      steps {
+        withCredentials([string(credentialsId: 'danger-github-api-token',    variable: 'DANGER_GITHUB_API_TOKEN')]) {
+          sh 'make danger'
         }
       }
     }
