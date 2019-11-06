@@ -4,9 +4,8 @@ require 'rails_helper'
 
 describe VAOS::SystemsService do
   let(:user) { build(:user, :mhv) }
-  let(:rsa_private) { OpenSSL::PKey::RSA.generate 4096 }
 
-  before { allow(File).to receive(:read).and_return(rsa_private) }
+  before { allow_any_instance_of(VAOS::UserService).to receive(:session).and_return('stubbed_token') }
 
   describe '#get_systems' do
     context 'with 10 system identifiers' do
