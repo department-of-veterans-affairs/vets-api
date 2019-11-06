@@ -1,6 +1,4 @@
 # Warn if a pull request is too big
-require 'pry'
-
 MAX_PR_SIZE = 250
 EXCLUSIONS = ['Gemfile.lock', '.json', 'spec/fixtures/', '.txt', 'spec/support/vcr_cassettes/']
 
@@ -25,7 +23,6 @@ if lines_of_code > MAX_PR_SIZE
     #{excluded_changed_files.to_yaml.gsub("---\n", "").chomp}
     ```
   HTML
-  binding.pry
   warn(msg)
 end
 
