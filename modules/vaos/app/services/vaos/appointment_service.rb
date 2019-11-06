@@ -23,7 +23,7 @@ module VAOS
       with_monitoring do
         url = get_appointments_url(type, start_date, end_date, pagination_params)
 
-        response = perform(:get, url, headers(user))
+        response = perform(:get, url, nil, headers(user))
         {
           data: deserialized_appointments(response.body, type),
           meta: pagination(pagination_params)
