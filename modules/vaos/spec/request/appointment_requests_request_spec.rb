@@ -39,16 +39,6 @@ RSpec.describe 'vaos appointment requests', type: :request do
       end
     end
 
-    context 'without a type' do
-      it 'has a parameter missing exception' do
-        get '/v0/vaos/appointment_requests', params: params.except(:type)
-        expect(response).to have_http_status(:bad_request)
-        expect(response.body).to be_a(String)
-        expect(JSON.parse(response.body)['errors'].first['detail'])
-          .to eq('The required parameter "type", is missing')
-      end
-    end
-
     context 'without a start_date' do
       it 'has a parameter missing exception' do
         get '/v0/vaos/appointment_requests', params: params.except(:start_date)
@@ -66,16 +56,6 @@ RSpec.describe 'vaos appointment requests', type: :request do
         expect(response.body).to be_a(String)
         expect(JSON.parse(response.body)['errors'].first['detail'])
           .to eq('The required parameter "end_date", is missing')
-      end
-    end
-
-    context 'with an invalid type' do
-      it 'has an invalid field type exception' do
-        get '/v0/vaos/appointment_requests', params: params.merge(type: 'invalid')
-        expect(response).to have_http_status(:bad_request)
-        expect(response.body).to be_a(String)
-        expect(JSON.parse(response.body)['errors'].first['detail'])
-          .to eq('"invalid" is not a valid value for "type"')
       end
     end
 
