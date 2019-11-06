@@ -1,5 +1,5 @@
-tmp/
-data/
-log/*
 .git
 coverage/
+data/
+log/*
+tmp/
