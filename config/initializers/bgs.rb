@@ -8,6 +8,8 @@ LighthouseBGS.configure do |config|
   config.client_station_id = Settings.bgs.client_station_id
   config.client_username = Settings.bgs.client_username
   config.env = Rails.env.to_s
+  config.external_uuid = Settings.bgs.external_uuid
+  config.external_key = Settings.bgs.external_key
   config.mock_response_location = Settings.bgs.mock_response_location
   config.mock_responses = Settings.bgs.mock_responses
 end

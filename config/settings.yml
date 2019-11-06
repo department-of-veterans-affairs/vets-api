@@ -406,6 +406,8 @@ bgs:
   application: ~
   client_station_id: ~
   client_username: ~
+  external_uuid: ~
+  external_key: ~
   mock_response_location: ~
   mock_responses: ~
 
