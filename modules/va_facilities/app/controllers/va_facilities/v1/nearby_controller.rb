@@ -78,9 +78,8 @@ module VaFacilities
 
       def get_lat_lng(params)
         obs_fields = params.keys.map(&:to_sym)
-        location_type = REQUIRED_PARAMS.find do |loc_type, req_field_names|
-          no_missing_fields = (req_field_names - obs_fields).empty?
-          break loc_type if no_missing_fields
+        location_type = REQUIRED_PARAMS.keys.find do |loc_type|
+          (REQUIRED_PARAMS[loc_type] - obs_fields).empty?
         end
 
         lat_lng = params.slice(:lat, :lng)
@@ -98,10 +97,10 @@ module VaFacilities
       def metadata(resource)
         {
           pagination: {
-            current_page: resource&.try(:current_page),
-            per_page: resource&.try(:per_page),
-            total_pages: resource&.try(:total_pages),
-            total_entries: resource&.try(:total_entries)
+            current_page: resource.try(:current_page),
+            per_page: resource.try(:per_page),
+            total_pages: resource.try(:total_pages),
+            total_entries: resource.try(:total_entries)
           }
         }
       end
