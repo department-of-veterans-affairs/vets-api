@@ -19,7 +19,7 @@ module VAOS
       rs
     end
 
-    def get_requests
+    def get_requests(start_date, end_date, pagination_params)
       with_monitoring do
         response = perform(:get, get_appointment_requests_url, headers(user))
 
