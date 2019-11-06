@@ -4,123 +4,29 @@
   "properties": {
     "meta": {
       "type": "object",
-      "required": ["version", "count", "facets"],
       "properties": {
+        "count": {
+          "type" : "integer"
+        },
+        "facets": {
+          "type": "object"
+        },
         "version": {
           "type": "object",
-          "required": ["number", "created_at", "preview"],
           "properties": {
-            "number": { "type": "integer" },
-            "created_at": { "type": "string" },
-            "preview": { "type": "boolean "}
-          }
-        },
-        "count": { "type": "integer" },
-        "facets": {
-          "type": "object",
-          "required": [
-            "category", "type", "state", "country", "student_vet_group",
-            "yellow_ribbon_scholarship", "principles_of_excellence",
-            "eight_keys_to_veteran_success"
-          ],
-          "properties": {
-            "category": {
-              "type": "object",
-              "required": ["school", "employer"],
-              "properties": {
-                "school": { "type": "integer" },
-                "employer": { "type": "integer" }
-              }
+            "number": {
+              "type": "number"
             },
-            "type": {
-              "type": "object",
-              "properties": {
-                "correspondence": { "type": "integer" },
-                "flight": { "type": "integer" },
-                "foreign": { "type": "integer" },
-                "for profit": { "type": "integer" },
-                "ojt": { "type": "integer" },
-                "private": { "type": "integer" },
-                "public": { "type": "integer" }
-              }
+            "created_at": {
+              "type": "string"
             },
-            "state": {
-              "type": "object",
-              "required": [
-                "ak","al","ar","as","az","ca","co","ct","dc","de","fl","fm","ga","gu","hi","ia",
-                "id","il","in","ks","ky","la","ma","md","me","mh","mi","mn","mo","mp","ms","mt",
-                "nc","nd","ne","nh","nj","nm","nv","ny","oh","ok","or","pa","pr","pw","ri","sc",
-                "sd","tn","tx","ut","va","vi","vt","wa","wi","wv","wy"
-              ],
-              "properties": {
-                "ak": { "type": "integer" }, "al": { "type": "integer" }, "ar": { "type": "integer" },
-                "as": { "type": "integer" }, "az": { "type": "integer" }, "ca": { "type": "integer" },
-                "co": { "type": "integer" }, "ct": { "type": "integer" }, "dc": { "type": "integer" },
-                "de": { "type": "integer" }, "fl": { "type": "integer" }, "fm": { "type": "integer" },
-                "ga": { "type": "integer" }, "gu": { "type": "integer" }, "hi": { "type": "integer" },
-                "ia": { "type": "integer" }, "id": { "type": "integer" }, "il": { "type": "integer" },
-                "in": { "type": "integer" }, "ks": { "type": "integer" }, "ky": { "type": "integer" },
-                "la": { "type": "integer" }, "ma": { "type": "integer" }, "md": { "type": "integer" },
-                "me": { "type": "integer" }, "mh": { "type": "integer" }, "mi": { "type": "integer" },
-                "mn": { "type": "integer" }, "mo": { "type": "integer" }, "mp": { "type": "integer" },
-                "ms": { "type": "integer" }, "mt": { "type": "integer" }, "nc": { "type": "integer" },
-                "nd": { "type": "integer" }, "ne": { "type": "integer" }, "nh": { "type": "integer" },
-                "nj": { "type": "integer" }, "nm": { "type": "integer" }, "nv": { "type": "integer" },
-                "ny": { "type": "integer" }, "oh": { "type": "integer" }, "ok": { "type": "integer" },
-                "or": { "type": "integer" }, "pa": { "type": "integer" }, "pr": { "type": "integer" },
-                "pw": { "type": "integer" }, "ri": { "type": "integer" }, "sc": { "type": "integer" },
-                "sd": { "type": "integer" }, "tn": { "type": "integer" }, "tx": { "type": "integer" },
-                "ut": { "type": "integer" }, "va": { "type": "integer" }, "vi": { "type": "integer" },
-                "vt": { "type": "integer" }, "wa": { "type": "integer" }, "wi": { "type": "integer" },
-                "wv": { "type": "integer" }, "wy": { "type": "integer" }
-              }
-            },
-            "country": {
-              "type": "array",
-              "items": {
-                "type": "object",
-                "required": ["name", "count"],
-                "properties": {
-                  "name": { "type": "string" },
-                  "count": { "type": "integer" }
-                }
-              }
-            },
-            "student_vet_group": {
-              "type": "object",
-              "required": ["true", "false"],
-              "properties": {
-                "true": { "type": ["null", "integer"] },
-                "false": { "type": ["null", "integer"] }
-              }
-            },
-            "yellow_ribbon_scholarship": {
-              "type": "object",
-              "required": ["true", "false"],
-              "properties": {
-                "true": { "type": ["null", "integer"] },
-                "false": { "type": ["null", "integer"] }
-              }
-            },
-            "principles_of_excellence": {
-              "type": "object",
-              "required": ["true", "false"],
-              "properties": {
-                "true": { "type": ["null", "integer"] },
-                "false": { "type": ["null", "integer"] }
-              }
-            },
-            "eight_keys_to_veteran_success": {
-              "type": "object",
-              "required": ["true", "false"],
-              "properties": {
-                "true": { "type": ["null", "integer"] },
-                "false": { "type": ["null", "integer"] }
-              }
+            "preview": {
+              "type": "boolean"
             }
           }
         }
-      }
+      },
+      "required": ["version"]
     },
     "data": {
       "type": "array",
@@ -139,11 +45,27 @@
               "type": {
                 "type": "string",
                 "enum": [
-                  "OJT", "PRIVATE", "FOREIGN",
-                  "CORRESPONDENCE", "FLIGHT",
-                  "FOR PROFIT", "PUBLIC"
+                  "OJT",
+                  "PRIVATE",
+                  "FOREIGN",
+                  "CORRESPONDENCE",
+                  "FLIGHT",
+                  "FOR PROFIT",
+                  "PUBLIC"
                 ]
               },
+              "address_1": { "type": ["null", "string"] },
+              "address_2": { "type": ["null", "string"] },
+              "address_3": { "type": ["null", "string"] },
+              "physical_city": { "type": ["null", "string"] },
+              "physical_state": { "type": ["null", "string"] },
+              "physical_country": { "type": ["null", "string"] },
+              "physical_zip": { "type": ["null", "string"] },
+              "online_only": { "type": ["null", "boolean"] },
+              "closure109": { "type": ["null", "boolean"] },
+              "preferred_provider": { "type": ["null", "boolean"] },
+              "distance_learning": { "type": ["null", "boolean"] },
+              "dod_bah": { "type": ["null", "integer"] },
               "city": { "type": ["null", "string"] },
               "state": { "type": ["null", "string"] },
               "zip": { "type": ["null", "string"] },
@@ -162,16 +84,56 @@
               "student_veteran": { "type": ["null", "boolean"] },
               "yr": { "type": ["null", "boolean"] },
               "poe": { "type": ["null", "boolean"] },
-              "eight_keys": { "type": ["null", "boolean"] }
-            }
+              "eight_keys": { "type": ["null", "boolean"] },
+              "school_closing": { "type": ["null", "boolean"] },
+              "stem_offered": { "type": ["null", "boolean"] },
+              "independent_study": { "type": ["null", "boolean"] },
+              "priority_enrollment": { "type": ["null", "boolean"] },
+              "vet_tec_provider": { "type": "boolean" },
+              "parent_facility_code_id": { "type": ["null", "string"] },
+              "campus_type": { "type": ["null", "string"] }
+            },
+            "required": [
+              "name",
+              "facility_code",
+              "type",
+              "city",
+              "state",
+              "zip",
+              "country",
+              "locale_type",
+              "highest_degree",
+              "student_count",
+              "caution_flag",
+              "caution_flag_reason",
+              "created_at",
+              "updated_at",
+              "bah",
+              "tuition_in_state",
+              "tuition_out_of_state",
+              "books",
+              "student_veteran",
+              "yr",
+              "poe",
+              "eight_keys",
+              "school_closing",
+              "stem_offered",
+              "independent_study",
+              "priority_enrollment",
+              "vet_tec_provider",
+              "parent_facility_code_id",
+              "campus_type"
+            ]
           },
           "links": {
             "type": "object",
             "properties": {
               "self": { "type": "string" }
-            }
+            },
+            "required": ["self"]
           }
-        }
+        },
+        "required": ["id", "type", "attributes", "links"]
       }
     },
     "links": {
@@ -183,18 +145,8 @@
         "next": { "type": ["null", "string"] },
         "last": { "type": "string" }
       },
-      "required": [
-        "self",
-        "first",
-        "prev",
-        "next",
-        "last"
-      ]
+      "required": ["self", "first", "prev", "next", "last"]
     }
   },
-  "required": [
-    "meta",
-    "data",
-    "links"
-  ]
+  "required": ["meta", "data", "links"]
 }

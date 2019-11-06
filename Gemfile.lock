@@ -66,6 +66,16 @@ PATH
       rails (~> 5.2.3)
 
 PATH
+  remote: modules/va_forms
+  specs:
+    va_forms (0.0.1)
+      faraday
+      nokogiri
+      paper_trail
+      rails (~> 5.2.3)
+      sidekiq
+
+PATH
   remote: modules/vaos
   specs:
     vaos (0.1.0)
@@ -446,6 +456,7 @@ GEM
       childprocess (>= 0.6.3, < 4)
       iniparse (~> 1.4)
     ox (2.8.2)
+<<<<<<< HEAD
     pact (1.42.0)
       json (> 1.8.5)
       pact-mock_service (~> 3.0)
@@ -471,6 +482,9 @@ GEM
       randexp (~> 0.1.7)
       rspec (>= 2.14)
       term-ansicolor (~> 1.0)
+    paper_trail (10.3.1)
+      activerecord (>= 4.2)
+      request_store (~> 1.1)
     parallel (1.17.0)
     parser (2.6.4.0)
       ast (~> 2.4.0)
@@ -553,6 +567,8 @@ GEM
     redis (3.3.5)
     redis-namespace (1.5.3)
       redis (~> 3.0, >= 3.0.4)
+    request_store (1.4.1)
+      rack (>= 1.4)
     restforce (3.0.0)
       faraday (>= 0.9.0, <= 1.0)
       faraday_middleware (>= 0.8.8, <= 1.0)
@@ -802,6 +818,7 @@ DEPENDENCIES
   overcommit
   ox
   pact
+  paper_trail
   pdf-forms
   pdf-inspector
   pdf-reader
@@ -854,6 +871,7 @@ DEPENDENCIES
   upsert
   utf8-cleaner
   va_facilities!
+  va_forms!
   vaos!
   vba_documents!
   vcr

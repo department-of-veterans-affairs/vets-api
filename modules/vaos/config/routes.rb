@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 VAOS::Engine.routes.draw do
-  namespace :v0, defaults: { format: 'json' } do
-    get 'appointments', to: 'vaos#get_appointments'
-  end
+  resources :appointments, only: %i[index], defaults: { format: :json }
+  resources :systems, only: :index, defaults: { format: :json }
+  get 'api', to: 'apidocs#index', defaults: { format: :json }
 end
