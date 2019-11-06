@@ -26,6 +26,10 @@ clean:
 console:
 	@$(BASH_DEV) "bundle exec rails c"
 
+.PHONY: danger
+danger:
+	@$(BASH_TEST) "bundle exec danger --verbose"
+
 .PHONY: db
 db:
 	@$(BASH_DEV) "bin/rails db:setup db:migrate"
