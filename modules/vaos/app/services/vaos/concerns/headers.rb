@@ -7,7 +7,11 @@ module VAOS
     private
 
     def headers(user)
-      { 'Referer' => 'https://api.va.gov', 'X-VAMF-JWT' => VAOS::JWT.new(user).token }
+      { 'Referer' => 'https://api.va.gov', 'X-VAMF-JWT' => user_service.session(user) }
+    end
+
+    def user_service
+      VAOS::UserService.new
     end
   end
 end
