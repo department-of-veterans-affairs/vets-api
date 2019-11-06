@@ -8,4 +8,264 @@ class AppointmentSerializer < ActiveModel::Serializer
   def id
     nil
   end
+  # long lines
+  #
+  #
+  #
+  #
+  # long lines
+  #
+  #
+  #
+  #
+  # long lines
+  #
+  #
+  #
+  #
+  # long lines
+  #
+  #
+  #
+  #
+  # long lines
+  #
+  #
+  #
+  #
+  # long lines
+  #
+  #
+  #
+  #
+  # long lines
+  #
+  #
+  #
+  #
+  # long lines
+  #
+  #
+  #
+  #
+  # long lines
+  #
+  #
+  #
+  #
+  # long lines
+  #
+  #
+  #
+  #
+  # long lines
+  #
+  #
+  #
+  #
+  # long lines
+  #
+  #
+  #
+  #
+  # long lines
+  #
+  #
+  #
+  #
+  # long lines
+  #
+  #
+  #
+  #
+  # long lines
+  #
+  #
+  #
+  #
+  # long lines
+  #
+  #
+  #
+  #
+  # long lines
+  #
+  #
+  #
+  #
+  # long lines
+  #
+  #
+  #
+  #
+  # long lines
+  #
+  #
+  #
+  #
+  # long lines
+  #
+  #
+  #
+  #
+  # long lines
+  #
+  #
+  #
+  #
+  # long lines
+  #
+  #
+  #
+  #
+  # long lines
+  #
+  #
+  #
+  #
+  # long lines
+  #
+  #
+  #
+  #
+  # long lines
+  #
+  #
+  #
+  #
+  # long lines
+  #
+  #
+  #
+  #
+  # long lines
+  #
+  #
+  #
+  #
+  # long lines
+  #
+  #
+  #
+  #
+  # long lines
+  #
+  #
+  #
+  #
+  # long lines
+  #
+  #
+  #
+  #
+  # long lines
+  #
+  #
+  #
+  #
+  # long lines
+  #
+  #
+  #
+  #
+  # long lines
+  #
+  #
+  #
+  #
+  # long lines
+  #
+  #
+  #
+  #
+  # long lines
+  #
+  #
+  #
+  #
+  # long lines
+  #
+  #
+  #
+  #
+  # long lines
+  #
+  #
+  #
+  #
+  # long lines
+  #
+  #
+  #
+  #
+  # long lines
+  #
+  #
+  #
+  #
+  # long lines
+  #
+  #
+  #
+  #
+  # long lines
+  #
+  #
+  #
+  #
+  # long lines
+  #
+  #
+  #
+  #
+  # long lines
+  #
+  #
+  #
+  #
+  # long lines
+  #
+  #
+  #
+  #
+  # long lines
+  #
+  #
+  #
+  #
+  # long lines
+  #
+  #
+  #
+  #
+  # long lines
+  #
+  #
+  #
+  #
+  # long lines
+  #
+  #
+  #
+  #
+  # long lines
+  #
+  #
+  #
+  #
+  # long lines
+  #
+  #
+  #
+  #
+  # long lines
+  #
+  #
+  #
+  #
+  # long lines
+  #
+  #
+  #
+  #
 end

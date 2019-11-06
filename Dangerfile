@@ -1,4 +1,6 @@
 # Warn if a pull request is too big
+require 'pry'
+
 MAX_PR_SIZE = 250
 EXCLUSIONS = ['Gemfile.lock', '.json', 'spec/fixtures/', '.txt', 'spec/support/vcr_cassettes/']
 
@@ -9,7 +11,8 @@ filtered_changed_files = changed_files.reject { |key| EXCLUSIONS.any? { |exclusi
 lines_of_code = filtered_changed_files.sum { |_file, changes| (changes[:insertions] + changes[:deletions]) }
 
 if lines_of_code > MAX_PR_SIZE
-  warn("PR is exceeds `#{MAX_PR_SIZE}` LoC. Consider breaking up into multiple smaller ones.")
+  binding.pry
+  warn("You changed `#{filtered_changed_lines}` LOC which exceeds the recommended maximum of `#{MAX_PR_SIZE}`. Consider breaking PR up into multiple smaller ones.")
 end
 
 # Warn when a PR includes a simultaneous DB migration and application code changes
