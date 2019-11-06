@@ -8,8 +8,11 @@ module Flipper
         # We've set this in a thread because we want to log who has made a change in
         # Flipper::Instrumentation::EventSubscriber but at that point we don't have access to the request or session
         # objects at that point and the request goint to a simple rack app.
-        Thread.current[:flipper_user_email_for_log] = user.email
+        Thread.current[:flipper_user_email_for_log] = user&.email
         user
+      else
+        Thread.current[:flipper_user_email_for_log] = nil
+        nil
       end
     end
 
