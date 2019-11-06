@@ -23,7 +23,7 @@ pipeline {
     stage('Checkout Code & Set Job Name') {
       steps {
         script {
-          currentBuild.displayName = THE_BRANCH
+          currentBuild.projectName = THE_BRANCH
         }
         checkout scm
       }
