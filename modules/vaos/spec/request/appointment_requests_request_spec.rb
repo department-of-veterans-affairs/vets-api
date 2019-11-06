@@ -27,7 +27,7 @@ RSpec.describe 'vaos appointment requests', type: :request do
     let(:current_user) { build(:user, :mhv) }
     let(:start_date) { Time.now.utc.beginning_of_day + 7.hours }
     let(:end_date) { Time.now.utc.beginning_of_day + 8.hours + 4.months }
-    let(:params) { { type: 'va', start_date: start_date, end_date: end_date } }
+    let(:params) { { start_date: start_date, end_date: end_date } }
 
     context 'with flipper disabled' do
       it 'does not have access' do

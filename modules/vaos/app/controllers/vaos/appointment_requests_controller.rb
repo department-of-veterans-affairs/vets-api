@@ -18,7 +18,7 @@ module VAOS
 
     def requests
       @requests ||=
-        appointment_requests_service.get_requests(start_date, end_date, pagination_params)
+        appointment_requests_service.get_requests(start_date, end_date)
     end
 
     def validate_params
