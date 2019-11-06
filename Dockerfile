@@ -28,7 +28,7 @@ ENV BUNDLE_ENTERPRISE__CONTRIBSYS__COM=$sidekiq_license
 ENV EXCLUDE_SIDEKIQ_ENTERPRISE=$exclude_sidekiq_ent
 ENV RAILS_ENV=$rails_env
 
-# only extra dev/build opts go here, common packages go in base 🖕
+# only extra dev/build opts go here, common packages go in base 👆
 RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
     git build-essential libxml2-dev libxslt-dev libpq-dev
 RUN curl -sSL -o /usr/local/bin/cc-test-reporter https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 && \
