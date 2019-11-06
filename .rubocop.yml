@@ -1,4 +1,4 @@
-require: 
+require:
   - rubocop-rails
   - rubocop-rspec
 
@@ -56,7 +56,7 @@ Style/GuardClause:
 # problems as above.
 Style/Next:
   Enabled: false
-  
+
 Naming/VariableNumber:
   Enabled: false
 
@@ -91,7 +91,7 @@ Naming/AccessorMethodName:
 
 Rails/LexicallyScopedActionFilter:
   Exclude:
-    - "app/controllers/concerns/filterable.rb"	  	
+    - "app/controllers/concerns/filterable.rb"
 
 # Blocks are limited to 25 lines or less
 # removing block length rule for rspec DSL
@@ -104,10 +104,9 @@ Metrics/BlockLength:
     - 'app/controllers/v0/apidocs_controller.rb'
     - 'modules/*/spec/**/*.rb'
     - 'modules/*/app/swagger/**/*.rb'
-    - 'modules/*/app/controllers/*/v0/apidocs_controller.rb'
 
 # Don't worry about ambiguous blocks in RSpec
-# Official recommendation from rubocop team is to disable this rule for specs. 
+# Official recommendation from rubocop team is to disable this rule for specs.
 # See: https://github.com/rubocop-hq/rubocop/issues/4222
 Lint/AmbiguousBlockAssociation:
   Exclude:
@@ -153,11 +152,11 @@ Rails/HasManyOrHasOneDependent:
 Naming/MemoizedInstanceVariableName:
   Enabled: false
 
-# It was determined these suggestions had the potential to change behavior. 
+# It was determined these suggestions had the potential to change behavior.
 Rails/ActiveRecordAliases:
   Enabled: false
 
-# The use of variables such as n to represent number, x and y for x-axis and y-axis, el for element, 
+# The use of variables such as n to represent number, x and y for x-axis and y-axis, el for element,
 # v for value, i for index, and e for error are all standard abbreviations and should be excluded.
 Naming/UncommunicativeMethodParamName:
   Enabled: false
