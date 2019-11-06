@@ -15,7 +15,7 @@ module VAOS
     private
 
     def headers
-      {'Content-Type' => 'text/plain', 'Referer' => 'https://api.va.gov'}
+      { 'Content-Type' => 'text/plain', 'Referer' => 'https://api.va.gov' }
     end
   end
 end
