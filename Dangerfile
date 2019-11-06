@@ -11,7 +11,7 @@ lines_of_code = filtered_changed_files.sum { |_file, changes| (changes[:insertio
 
 if lines_of_code > MAX_PR_SIZE
   msg = <<~HTML
-    Big PR! You changed: `#{lines_of_code}` > `#{MAX_PR_SIZE}`. Consider breaking PR up into multiple smaller ones.
+    Big PR! You changed: `#{lines_of_code}` > `#{MAX_PR_SIZE}` LoC. Consider breaking PR up into multiple smaller ones.
 
     **Calculation Summary**
     ```yaml
