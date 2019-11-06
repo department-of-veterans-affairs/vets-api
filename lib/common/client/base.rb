@@ -102,6 +102,7 @@ module Common
         raise_not_authenticated if headers.keys.include?('Token') && headers['Token'].nil?
         connection.send(method.to_sym, path, params) do |request|
           request.headers.update(headers)
+          puts request.headers
           options.each { |option, value| request.options.send("#{option}=", value) }
         end.env
       rescue Common::Exceptions::BackendServiceException => e
