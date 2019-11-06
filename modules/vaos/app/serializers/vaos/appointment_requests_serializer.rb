@@ -10,7 +10,12 @@ module VAOS
 
     set_type :appointment_requests
 
+    attribute :facility do |object|
+      object.facility.reverse_merge(type: nil, address: nil)
+    end
+
     attributes :last_updated_at,
+               :created_date,
                :appointment_date,
                :appointment_time,
                :option_date1,
@@ -48,12 +53,6 @@ module VAOS
                :self_uri,
                :self_link,
                :object_type,
-               :link,
-               :created_date
-
-     attribute :facility do |object|
-      object.facility.reverse_merge(type: nil, address: nil)
-     end
-
-   end
+               :link
+  end
 end

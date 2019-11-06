@@ -19,7 +19,7 @@ module VAOS
       rs
     end
 
-    def get_requests(start_date, end_date, pagination_params)
+    def get_requests(_start_date, _end_date, _pagination_params)
       with_monitoring do
         response = perform(:get, get_appointment_requests_url, headers(user))
 
@@ -40,7 +40,7 @@ module VAOS
       url
     end
 
-    # TODO find out if this api supports pagination and other parameters
+    # TODO: find out if this api supports pagination and other parameters
     def pagination
       {
         pagination: {
