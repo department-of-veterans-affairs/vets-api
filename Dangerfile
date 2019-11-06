@@ -7,12 +7,26 @@ EXCLUSIONS = ['Gemfile.lock', '.json', 'spec/fixtures/', '.txt', 'spec/support/v
 # takes form {"some/file.rb"=>{:insertions=>4, :deletions=>1}}
 changed_files = git.diff.stats[:files]
 
+excluded_changed_files = changed_files.select { |key| EXCLUSIONS.any? { |exclusion| key.include?(exclusion) } }
 filtered_changed_files = changed_files.reject { |key| EXCLUSIONS.any? { |exclusion| key.include?(exclusion) } }
 lines_of_code = filtered_changed_files.sum { |_file, changes| (changes[:insertions] + changes[:deletions]) }
 
 if lines_of_code > MAX_PR_SIZE
+  msg = <<~HTML
+    Big PR! You changed: `#{lines_of_code}` > `#{MAX_PR_SIZE}`. Consider breaking PR up into multiple smaller ones.
+
+    **Calculation Summary**
+    ```yaml
+    #{filtered_changed_files.to_yaml.gsub("---\n", "").chomp}
+    ```
+
+    **Exclusions**
+    ```yaml
+    #{excluded_changed_files.to_yaml.gsub("---\n", "").chomp}
+    ```
+  HTML
   binding.pry
-  warn("You changed `#{filtered_changed_lines}` LOC which exceeds the recommended maximum of `#{MAX_PR_SIZE}`. Consider breaking PR up into multiple smaller ones.")
+  warn(msg)
 end
 
 # Warn when a PR includes a simultaneous DB migration and application code changes
