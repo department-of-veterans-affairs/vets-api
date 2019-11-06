@@ -21,7 +21,7 @@ module VAOS
 
     def get_requests(start_date = nil, end_date = nil)
       with_monitoring do
-        response = perform(:get, get_appointment_requests_url, headers(user))
+        response = perform(:get, get_appointment_requests_url(start_date, end_date), headers(user))
 
         {
           data: response.body[:appointment_requests].map { |request| OpenStruct.new(request) },
