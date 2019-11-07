@@ -13,7 +13,7 @@ module SentryLogging
   # rubocop:disable Metrics/PerceivedComplexity
   def log_error(error)
     if skip_sentry_exception_types.include?(error.class)
-      Rails.logger.error error.message.to_s, backtrace: error.backtrace
+      rails_logger(error.message.to_s, backtrace: error.backtrace)
     else
       extra = error.respond_to?(:errors) ? { errors: error.errors.map(&:to_hash) } : {}
       if error.is_a?(Common::Exceptions::BackendServiceException)
