@@ -8,19 +8,24 @@ module VAOS
       cached = SessionStore.find(user.uuid)
       return cached.token if cached
 
-      create_session(user)
+      token = get_session_token(user)
+      SessionStore.new(user_uuid: user.uuid, token: token).save
+      token
     end
 
     private
 
-    def create_session(user)
+    def get_session_token(user)
       url = '/users/v2/session?processRules=true'
       token = VAOS::JWT.new(user).token
       response = perform(:post, url, token)
-      if response&.body
-        SessionStore.new(user_uuid: user.uuid, token: response.body).save
-        response.body
-      end
+      raise Common::Exceptions::BackendServiceException.new('VAOS_502', source: self.class) unless body?(response)
+
+      response.body
+    end
+
+    def body?(response)
+      response&.body && response.body.present?
     end
   end
 end
