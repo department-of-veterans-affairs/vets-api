@@ -19,11 +19,6 @@ ci:
 ci-down:
 	$(COMPOSE_TEST) down
 
-.PHONY: ci-clean
-ci-clean:
-	$(COMPOSE_TEST) run vets-api git clean -fdx || true
-	$(COMPOSE_TEST) down
-
 .PHONY: ci-spec
 ci-spec:
 	@$(BASH_TEST) "bin/rspec ${SPEC_PATH}"
