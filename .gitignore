@@ -43,6 +43,7 @@ config/application.yml
 tmp/
 data/
 log/*
+.bash_history
 .cache
 .local
 
