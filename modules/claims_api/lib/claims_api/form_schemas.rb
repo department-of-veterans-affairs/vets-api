@@ -21,6 +21,7 @@ module ClaimsApi
       schema_validator = JSONSchemer.schema(SCHEMAS[form])
       errors = schema_validator.validate(payload).to_a
       raise ClaimsApi::JsonApiMissingAttribute, errors unless errors.empty?
+
       true
     end
   end
