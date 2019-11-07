@@ -44,4 +44,4 @@ services:
       - postgres
       - redis
 volumes:
-  bundle:
+  test_bundle:

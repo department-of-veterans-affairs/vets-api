@@ -46,4 +46,4 @@ services:
       - redis
 volumes:
   db-data:
-  bundle:
+  dev_bundle:
