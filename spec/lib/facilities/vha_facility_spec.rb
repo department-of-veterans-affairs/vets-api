@@ -191,14 +191,14 @@ RSpec.describe Facilities::VHAFacility do
   end
 
   describe 'with_services' do
-    it 'returns a list of ids that provide the selected services' do
+    it 'returns a list of facilities that provide the selected services' do
       create :vha_648A4
       create :vha_648
       create :vha_648GI
 
       result = Facilities::VHAFacility.with_services(['UrgentCare'])
       expect(result.length).to eq(1)
-      expect(result.first).to eq('648')
+      expect(result.first.unique_id).to eq('648')
     end
   end
 end

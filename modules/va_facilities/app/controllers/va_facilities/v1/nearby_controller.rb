@@ -28,22 +28,22 @@ module VaFacilities
 
       def index
         lat_lng = get_lat_lng(params)
-        eligible_facilities = Facilities::VHAFacility.with_services(params[:services]) if params[:services]
+        eligible_ids = Facilities::VHAFacility.with_services(params[:services]).pluck(:unique_id) if params[:services]
 
-        resource = if lat_lng.present?
-                     DrivetimeBand.find_within_max_distance(lat_lng[:lat], lat_lng[:lng],
-                                                            params[:drive_time], eligible_facilities)
-                                  .paginate(page: params[:page], per_page: params[:per_page] || PER_PAGE).load
-                   else
-                     DrivetimeBand.none
-                   end
+        bands = if lat_lng.present?
+                  DrivetimeBand.find_within_max_distance(lat_lng[:lat], lat_lng[:lng],
+                                                         params[:drive_time], eligible_ids)
+                               .paginate(page: params[:page], per_page: params[:per_page] || PER_PAGE).load
+                else
+                  DrivetimeBand.none
+                end
 
         respond_to do |format|
           format.json do
-            render json: resource,
+            render json: bands,
                    each_serializer: VaFacilities::NearbySerializer,
-                   meta: metadata(resource),
-                   links: relationships(resource)
+                   meta: metadata(bands),
+                   links: relationships(bands)
           end
         end
       end

@@ -86,7 +86,7 @@ module Facilities
           "services->'health' @> '[{\"sl1\":[\"#{service}\"]}]'"
         end.join(' OR ')
 
-        select(:unique_id).where(conditions).pluck(:unique_id)
+        where(conditions)
       end
 
       def identifier

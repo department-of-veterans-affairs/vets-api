@@ -4,6 +4,17 @@ require 'rails_helper'
 
 RSpec.describe 'Nearby Facilities API endpoint', type: :request do
   let(:base_query_path) { '/services/va_facilities/v1/nearby' }
+  let(:address_params) do
+    {
+      street_address: '3710 Southwest US Veterans Hospital Road',
+      city: 'Portland',
+      state: 'OR',
+      zip: '97239'
+    }
+  end
+  let(:coord_params) { { lat: 45.4967668, lng: -122.6832211 } }
+  let(:accept_json) { { 'HTTP_ACCEPT' => 'application/json' } }
+  let(:error) { JSON.parse(response.body) }
   let(:create_bands) do
     create :vha_648
     create :vha_648GI
@@ -178,6 +189,53 @@ RSpec.describe 'Nearby Facilities API endpoint', type: :request do
 
       VCR.configure do |c|
         c.allow_http_connections_when_no_cassette = false
+      end
+    end
+
+    context 'with invalid request parameters' do
+      it 'returns 400 for missing street_address' do
+        get base_query_path, params: { city: 'Baltimore', state: 'MD', zip: '21230' }, headers: accept_json
+        expect(response).to have_http_status(:bad_request)
+      end
+      it 'returns 400 for missing city' do
+        get base_query_path, params: { street: '2400 Fort Ave', state: 'MD', zip: '21230' }, headers: accept_json
+        expect(response).to have_http_status(:bad_request)
+      end
+      it 'returns 400 for missing state' do
+        get base_query_path, params: { street: '2400 Fort Ave', city: 'Baltimore', zip: '21230' }, headers: accept_json
+        expect(response).to have_http_status(:bad_request)
+      end
+      it 'returns 400 for missing zip' do
+        get base_query_path, params: { street: '2400 Fort Ave', city: 'Baltimore', state: 'MD' }, headers: accept_json
+        expect(response).to have_http_status(:bad_request)
+      end
+      it 'returns 400 for non-integer drive_time' do
+        get base_query_path, params: coord_params.merge(drive_time: 'sixty'), headers: accept_json
+        expect(response).to have_http_status(:bad_request)
+      end
+      it 'returns 400 for an unknown health service' do
+        get base_query_path, params: coord_params.merge('services[]': 'OilChange'), headers: accept_json
+        expect(response).to have_http_status(:bad_request)
+      end
+      it 'returns 400 for ambiguous location request' do
+        get base_query_path, params: coord_params.merge(address_params), headers: accept_json
+        expect(response).to have_http_status(:bad_request)
+      end
+      it 'returns 400 for missing lng' do
+        get base_query_path, params: { lat: 40.3 }, headers: accept_json
+        expect(response).to have_http_status(:bad_request)
+      end
+      it 'returns 400 for missing lat' do
+        get base_query_path, params: { lng: 40.3 }, headers: accept_json
+        expect(response).to have_http_status(:bad_request)
+      end
+      it 'returns 400 non integer lat' do
+        get base_query_path, params: { lat: 'eighty', lng: 40.3 }, headers: accept_json
+        expect(response).to have_http_status(:bad_request)
+      end
+      it 'returns 400 non integer lng' do
+        get base_query_path, params: { lat: 80.4, lng: 'forty' }, headers: accept_json
+        expect(response).to have_http_status(:bad_request)
       end
     end
   end
