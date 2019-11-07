@@ -48,9 +48,9 @@ describe VAOS::UserService do
       context 'when the session is fetched before 15m' do
         it 'does not call perform to request a new token' do
           VAOS::SessionStore.new(user_uuid: user.uuid, token: token).save
-          Timecop.travel(Time.now + 11.minutes)
+          Timecop.travel(Time.zone.now + 11.minutes)
           VCR.use_cassette('vaos/users/post_session') do
-            expect(subject).to_not receive(:perform)
+            expect(subject).not_to receive(:perform)
             subject.session(user)
           end
           Timecop.return
@@ -60,7 +60,7 @@ describe VAOS::UserService do
       context 'when the session is fetched after 15m' do
         it 'calls perform to request a new token' do
           VAOS::SessionStore.new(user_uuid: user.uuid, token: token).save
-          Timecop.travel(Time.now + 15.minutes)
+          Timecop.travel(Time.zone.now + 15.minutes)
           VCR.use_cassette('vaos/users/post_session') do
             expect(subject).to receive(:perform).once.and_return(response)
             subject.session(user)
