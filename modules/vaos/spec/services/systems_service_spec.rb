@@ -30,7 +30,7 @@ describe VAOS::SystemsService do
 
   describe '#get_facilities' do
     context 'with 141 facilities' do
-      it 'returns an array of size 10' do
+      it 'returns an array of size 141' do
         VCR.use_cassette('vaos/systems/get_facilities', match_requests_on: %i[host path method]) do
           response = subject.get_facilities(user, 688)
           expect(response.size).to eq(141)

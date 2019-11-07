@@ -37,11 +37,14 @@ RSpec.describe 'facilities', type: :request do
     end
 
     context 'when the facility code param is missing' do
-      it 'returns a 200 with the correct schema' do
+      let(:json) { JSON.parse(response.body) }
+
+      it 'returns a 400 with missing param info' do
         VCR.use_cassette('vaos/systems/get_facilities', match_requests_on: %i[host path method]) do
           get '/v0/vaos/facilities'
 
           expect(response).to have_http_status(:bad_request)
+          expect(json['errors'].first['detail']).to eq('The required parameter "facility_code", is missing')
         end
       end
     end
