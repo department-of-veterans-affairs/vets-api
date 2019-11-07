@@ -32,8 +32,8 @@ describe VAOS::SystemsService do
     context 'with 10 system identifiers' do
       it 'returns an array of size 10' do
         VCR.use_cassette('vaos/systems/get_facilities', match_requests_on: %i[host path method]) do
-          response = subject.get_systems(user)
-          expect(response.size).to eq(10)
+          response = subject.get_facilities(user, 688)
+          expect(response.size).to eq(141)
         end
       end
     end
@@ -41,7 +41,7 @@ describe VAOS::SystemsService do
     context 'when the upstream server returns a 500' do
       it 'raises a backend exception' do
         VCR.use_cassette('vaos/systems/get_facilities_500', match_requests_on: %i[host path method]) do
-          expect { subject.get_systems(user) }.to raise_error(
+          expect { subject.get_facilities(user, 688) }.to raise_error(
             Common::Exceptions::BackendServiceException
           )
         end

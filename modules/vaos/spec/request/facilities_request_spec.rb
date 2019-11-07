@@ -25,14 +25,23 @@ RSpec.describe 'facilities', type: :request do
   context 'with a loa3 user' do
     let(:user) { FactoryBot.create(:user, :loa3, ssn: '111223333') }
 
-    context 'with a valid GET systems response' do
+    context 'with a valid GET facilities response' do
       it 'returns a 200 with the correct schema' do
-        VCR.use_cassette('vaos/facilities/get_facilities', match_requests_on: %i[host path method]) do
-          get '/v0/vaos/facilities'
-          puts response.body
+        VCR.use_cassette('vaos/systems/get_facilities', match_requests_on: %i[host path method]) do
+          get '/v0/vaos/facilities', params: { facility_code: 688 }
+
           expect(response).to have_http_status(:ok)
-          expect(response.body).to be_a(String)
           expect(response).to match_response_schema('vaos/facilities')
+        end
+      end
+    end
+
+    context 'when the facility code param is missing' do
+      it 'returns a 200 with the correct schema' do
+        VCR.use_cassette('vaos/systems/get_facilities', match_requests_on: %i[host path method]) do
+          get '/v0/vaos/facilities'
+
+          expect(response).to have_http_status(:bad_request)
         end
       end
     end
