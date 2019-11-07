@@ -3,7 +3,7 @@
 #      https://github.com/department-of-veterans-affairs/va.gov-team/issues/3032
 
 ###
-# shared configs for all child images, reuse these layers yo
+# shared build/settings for all child images, reuse these layers yo
 ###
 FROM ruby:2.4.5-slim-stretch AS base
 
@@ -15,8 +15,10 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
 WORKDIR /srv/vets-api
 
 ###
-# dev step; use --target=development to stop here
-# you will need to mount your source to /srv/vets-api to do anything useful here
+# dev stage; use --target=development to stop here
+# Be sure to pass required ARGs as `--build-arg`
+# This stage useful for mounting your local checkout with compose
+# into the container to dev against.
 ###
 FROM base AS development
 
@@ -41,7 +43,11 @@ ENTRYPOINT ["/usr/bin/dumb-init", "--", "./docker-entrypoint.sh"]
 
 ###
 # build stage; use --target=builder to stop here
-# This is basically development with the app copied in and built
+# Also be sure to add build-args from development stage above
+#
+# This is development with the app copied in and built.  The build results are used in
+# prod below, but also useful if you want to have a container with the app and not
+# mount your local checkout.
 ###
 FROM development AS builder
 # XXX: move modules/ to seperate repos so we can only copy Gemfile* and install a slim layer
@@ -56,8 +62,8 @@ RUN bundle install --binstubs="${BUNDLE_PATH}/bin" $bundler_opts && \
 ###
 # prod stage; default if no target given
 # to build prod you probably want options like below to get a good build
-# --build-arg rails_env=production --build-arg bundler_opts="--no-cache --without development test"
-# prod
+# --build-arg sidekiq_license="$BUNDLE_ENTERPRISE__CONTRIBSYS__COM" --build-arg rails_env=production --build-arg bundler_opts="--no-cache --without development test"
+# This inherits from base again to avoid bringing in extra built time binary packages
 ###
 FROM base AS production
 
