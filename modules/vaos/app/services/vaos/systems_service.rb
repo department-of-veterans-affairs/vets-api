@@ -13,8 +13,18 @@ module VAOS
 
     def get_systems(user)
       with_monitoring do
-        response = perform(:get, '/mvi/v1/patients/session/identifiers.json', headers(user))
+        response = perform(:get, '/mvi/v1/patients/session/identifiers.json', nil, headers(user))
         response.body.map { |system| OpenStruct.new(system) }
+      end
+    rescue Common::Client::Errors::ClientError => e
+      raise_backend_exception('VAOS_502', self.class, e)
+    end
+
+    def get_facilities(user, facility_code)
+      with_monitoring do
+        url = '/var/VeteranAppointmentRequestService/v4/rest/direct-scheduling/parent-sites'
+        response = perform(:get, url, { 'facility-code' => facility_code }, headers(user))
+        response.body.map { |facility| OpenStruct.new(facility) }
       end
     rescue Common::Client::Errors::ClientError => e
       raise_backend_exception('VAOS_502', self.class, e)
