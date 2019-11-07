@@ -67,7 +67,7 @@ module VAOS
       if type == 'va'
         "/appointments/v1/patients/#{user.icn}/appointments"
       else
-        "/VeteranAppointmentRequestService/v4/rest/direct-scheduling/patient/ICN/#{user.icn}/booked-cc-appointments"
+        "/var/VeteranAppointmentRequestService/v4/rest/direct-scheduling/patient/ICN/#{user.icn}/booked-cc-appointments"
       end
     end
 
