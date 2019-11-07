@@ -23,7 +23,7 @@ services:
     volumes:
       - .:/srv/vets-api:cached
       - "../vets-api-mockdata:/cache"
-      - bundle:/usr/local/bundle
+      - dev_bundle:/usr/local/bundle
     ports:
       - "3000:3000"
     environment:

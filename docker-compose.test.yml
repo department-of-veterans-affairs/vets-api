@@ -17,7 +17,7 @@ services:
     image: "vets-api:${DOCKER_IMAGE:-latest}"
     volumes:
       - ".:/srv/vets-api"
-      - bundle:/usr/local/bundle
+      - test_bundle:/usr/local/bundle
     environment:
       "Settings.database_url": "postgis://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-password}@${POSTGRES_HOST:-postgres}:${POSTGRES_PORT:-5432}/${POSTGRES_DATABASE:-vets_api_development}?pool=4"
       "Settings.test_database_url": "postgis://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-password}@${POSTGRES_HOST:-postgres}:${POSTGRES_PORT:-5432}/${POSTGRES_DATABASE:-vets_api_test}?pool=4"
