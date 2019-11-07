@@ -11,13 +11,13 @@ lines_of_code = filtered_changed_files.sum { |_file, changes| (changes[:insertio
 
 if lines_of_code > MAX_PR_SIZE
   msg = <<~HTML
-    Big PR! You changed: `#{lines_of_code}` > `#{MAX_PR_SIZE}` LoC. Consider breaking PR up into multiple smaller ones.
+    You changed `#{lines_of_code}` LoC. This exceeds our desired maximum of `#{MAX_PR_SIZE}`. Big PRs are difficult to review and often become stale. Consider breaking this PR up into smaller ones.
 
     **Calculation Summary**
     - #{filtered_changed_files.collect { |key, val| "#{key} (+#{val[:insertions]}/-#{val[:deletions]} )" }.join("\n- ")}
 
     **Exclusions**
-    - #{excluded_changed_files.collect { |key, val| "#{key} (+#{val[:insertions]}/-#{val[:deletions]} )" }.join("\n- ").chomp}
+    - #{excluded_changed_files.collect { |key, val| "#{key} (+#{val[:insertions]}/-#{val[:deletions]} )" }.join("\n- ")}
   HTML
   warn(msg)
 end
