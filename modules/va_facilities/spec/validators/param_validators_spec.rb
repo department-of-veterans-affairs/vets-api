@@ -461,6 +461,9 @@ RSpec.describe VaFacilities::ParamValidators do
         @dummy_class.validate_required_nearby_params(REQUIRED_PARAMS)
       end.to raise_error(Common::Exceptions::AmbiguousRequest) { |error|
         expect(error.message).to eq 'Ambiguous Request'
+        expect(
+          error.errors[0].detail[:detail]
+        ).to eq VaFacilities::ParamValidators::AMBIGUOUS_PARAMS_ERR
       }
     end
 

@@ -6,6 +6,7 @@
 
 # Ignore bundler config.
 /.bundle
+.envrc
 
 # Ignore the default SQLite database.
 /db/*.sqlite3
@@ -42,6 +43,9 @@ config/application.yml
 tmp/
 data/
 log/*
+.bash_history
+.cache
+.local
 
 config/settings.local.yml
 config/settings/*.local.yml
