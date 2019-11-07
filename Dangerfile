@@ -14,14 +14,10 @@ if lines_of_code > MAX_PR_SIZE
     Big PR! You changed: `#{lines_of_code}` > `#{MAX_PR_SIZE}` LoC. Consider breaking PR up into multiple smaller ones.
 
     **Calculation Summary**
-    ```yaml
-    #{filtered_changed_files.to_yaml.gsub("---\n", "").chomp}
-    ```
+    - #{filtered_changed_files.collect { |key, val| "#{key} (+#{val[:insertions]}/-#{val[:deletions]} )" }.join("\n- ")}
 
     **Exclusions**
-    ```yaml
-    #{excluded_changed_files.to_yaml.gsub("---\n", "").chomp}
-    ```
+    - #{excluded_changed_files.collect { |key, val| "#{key} (+#{val[:insertions]}/-#{val[:deletions]} )" }.join("\n- ")}
   HTML
   warn(msg)
 end
