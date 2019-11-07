@@ -104,11 +104,19 @@ RSpec.describe 'Nearby Facilities API endpoint', type: :request do
   end
 
   describe 'bing errors' do
-    it 'handles an empty result set from bing' do
+    before do
       VCR.configure do |c|
         c.allow_http_connections_when_no_cassette = true
       end
+    end
 
+    after do
+      VCR.configure do |c|
+        c.allow_http_connections_when_no_cassette = false
+      end
+    end
+
+    it 'handles an empty result set from bing' do
       fake_response_body = {
         "authenticationResultCode": 'ValidCredentials',
         "brandLogoUri": 'blah',
@@ -129,7 +137,7 @@ RSpec.describe 'Nearby Facilities API endpoint', type: :request do
 
       stub_request(:get, %r{#{Settings.bing.base_api_url}/Locations})
         .to_return(status: 200, body: JSON.generate(fake_response_body), headers:
-              fake_response_headers)
+                   fake_response_headers)
 
       get base_query_path,
           params: { street_address: '1 VA Center', city: 'Augusta', state: 'ME', zip: '04330', drive_time: '20' },
@@ -140,18 +148,10 @@ RSpec.describe 'Nearby Facilities API endpoint', type: :request do
       json = JSON.parse(response.body)
       expect(json['data']).to be_empty
       expect(json['meta']).to have_key('pagination')
-
-      VCR.configure do |c|
-        c.allow_http_connections_when_no_cassette = false
-      end
     end
 
     it 'handles a rate limiting error from bing' do
       create_bands
-
-      VCR.configure do |c|
-        c.allow_http_connections_when_no_cassette = true
-      end
 
       fake_response_body = {
         "authenticationResultCode": 'ValidCredentials',
@@ -186,57 +186,53 @@ RSpec.describe 'Nearby Facilities API endpoint', type: :request do
       expect(error['title']).to eq('Bing Service Error')
       expect(error['status']).to eq('500')
       expect(error['detail'].first).to eq('Too many requests')
-
-      VCR.configure do |c|
-        c.allow_http_connections_when_no_cassette = false
-      end
     end
+  end
 
-    context 'with invalid request parameters' do
-      it 'returns 400 for missing street_address' do
-        get base_query_path, params: { city: 'Baltimore', state: 'MD', zip: '21230' }, headers: accept_json
-        expect(response).to have_http_status(:bad_request)
-      end
-      it 'returns 400 for missing city' do
-        get base_query_path, params: { street: '2400 Fort Ave', state: 'MD', zip: '21230' }, headers: accept_json
-        expect(response).to have_http_status(:bad_request)
-      end
-      it 'returns 400 for missing state' do
-        get base_query_path, params: { street: '2400 Fort Ave', city: 'Baltimore', zip: '21230' }, headers: accept_json
-        expect(response).to have_http_status(:bad_request)
-      end
-      it 'returns 400 for missing zip' do
-        get base_query_path, params: { street: '2400 Fort Ave', city: 'Baltimore', state: 'MD' }, headers: accept_json
-        expect(response).to have_http_status(:bad_request)
-      end
-      it 'returns 400 for non-integer drive_time' do
-        get base_query_path, params: coord_params.merge(drive_time: 'sixty'), headers: accept_json
-        expect(response).to have_http_status(:bad_request)
-      end
-      it 'returns 400 for an unknown health service' do
-        get base_query_path, params: coord_params.merge('services[]': 'OilChange'), headers: accept_json
-        expect(response).to have_http_status(:bad_request)
-      end
-      it 'returns 400 for ambiguous location request' do
-        get base_query_path, params: coord_params.merge(address_params), headers: accept_json
-        expect(response).to have_http_status(:bad_request)
-      end
-      it 'returns 400 for missing lng' do
-        get base_query_path, params: { lat: 40.3 }, headers: accept_json
-        expect(response).to have_http_status(:bad_request)
-      end
-      it 'returns 400 for missing lat' do
-        get base_query_path, params: { lng: 40.3 }, headers: accept_json
-        expect(response).to have_http_status(:bad_request)
-      end
-      it 'returns 400 non integer lat' do
-        get base_query_path, params: { lat: 'eighty', lng: 40.3 }, headers: accept_json
-        expect(response).to have_http_status(:bad_request)
-      end
-      it 'returns 400 non integer lng' do
-        get base_query_path, params: { lat: 80.4, lng: 'forty' }, headers: accept_json
-        expect(response).to have_http_status(:bad_request)
-      end
+  describe 'with invalid request parameters' do
+    it 'returns 400 for missing street_address' do
+      get base_query_path, params: { city: 'Baltimore', state: 'MD', zip: '21230' }, headers: accept_json
+      expect(response).to have_http_status(:bad_request)
+    end
+    it 'returns 400 for missing city' do
+      get base_query_path, params: { street: '2400 Fort Ave', state: 'MD', zip: '21230' }, headers: accept_json
+      expect(response).to have_http_status(:bad_request)
+    end
+    it 'returns 400 for missing state' do
+      get base_query_path, params: { street: '2400 Fort Ave', city: 'Baltimore', zip: '21230' }, headers: accept_json
+      expect(response).to have_http_status(:bad_request)
+    end
+    it 'returns 400 for missing zip' do
+      get base_query_path, params: { street: '2400 Fort Ave', city: 'Baltimore', state: 'MD' }, headers: accept_json
+      expect(response).to have_http_status(:bad_request)
+    end
+    it 'returns 400 for non-integer drive_time' do
+      get base_query_path, params: coord_params.merge(drive_time: 'sixty'), headers: accept_json
+      expect(response).to have_http_status(:bad_request)
+    end
+    it 'returns 400 for an unknown health service' do
+      get base_query_path, params: coord_params.merge('services[]': 'OilChange'), headers: accept_json
+      expect(response).to have_http_status(:bad_request)
+    end
+    it 'returns 400 for ambiguous location request' do
+      get base_query_path, params: coord_params.merge(address_params), headers: accept_json
+      expect(response).to have_http_status(:bad_request)
+    end
+    it 'returns 400 for missing lng' do
+      get base_query_path, params: { lat: 40.3 }, headers: accept_json
+      expect(response).to have_http_status(:bad_request)
+    end
+    it 'returns 400 for missing lat' do
+      get base_query_path, params: { lng: 40.3 }, headers: accept_json
+      expect(response).to have_http_status(:bad_request)
+    end
+    it 'returns 400 non integer lat' do
+      get base_query_path, params: { lat: 'eighty', lng: 40.3 }, headers: accept_json
+      expect(response).to have_http_status(:bad_request)
+    end
+    it 'returns 400 non integer lng' do
+      get base_query_path, params: { lat: 80.4, lng: 'forty' }, headers: accept_json
+      expect(response).to have_http_status(:bad_request)
     end
   end
 end

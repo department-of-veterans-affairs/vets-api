@@ -17,50 +17,56 @@ RSpec.describe GeocodingService do
     end
   end
 
-  it 'raises an exception about an overloaded Bing server' do
-    VCR.configure do |c|
-      c.allow_http_connections_when_no_cassette = true
+  describe 'handling exceptions' do
+    before do
+      VCR.configure do |c|
+        c.allow_http_connections_when_no_cassette = true
+      end
     end
 
-    fake_response_body = {
-      "resourceSets": [],
-      "statusCode": '200',
-      "statusDescription": 'OK'
-    }
-
-    fake_response_headers = {
-      'cache-control' => 'no-cache',
-      'transfer-encoding' => 'chunked',
-      'content-type' => 'application/json; charset=utf-8',
-      'vary' => 'Accept-Encoding',
-      'server' => 'Microsoft-IIS/10.0',
-      'x-ms-bm-ws-info' => '1'
-    }
-
-    stub_request(:get, %r{#{Settings.bing.base_api_url}/Locations})
-      .to_return(status: 200, body: JSON.generate(fake_response_body), headers:
-                 fake_response_headers)
-
-    expect do
-      subject.query(street_address, city, state, zip)
-    end.to raise_error(Common::Exceptions::BingServiceError)
-  end
-
-  it 'raises an exception if any errors occur' do
-    VCR.configure do |c|
-      c.allow_http_connections_when_no_cassette = true
+    after do
+      VCR.configure do |c|
+        c.allow_http_connections_when_no_cassette = false
+      end
     end
 
-    fake_response_body = { 'errors': ['An error happened!'] }
+    it 'raises an exception about an overloaded Bing server' do
+      fake_response_body = {
+        "resourceSets": [],
+        "statusCode": '200',
+        "statusDescription": 'OK'
+      }
 
-    fake_response_headers = { 'content-type' => 'application/json; charset=utf-8' }
+      fake_response_headers = {
+        'cache-control' => 'no-cache',
+        'transfer-encoding' => 'chunked',
+        'content-type' => 'application/json; charset=utf-8',
+        'vary' => 'Accept-Encoding',
+        'server' => 'Microsoft-IIS/10.0',
+        'x-ms-bm-ws-info' => '1'
+      }
 
-    stub_request(:get, %r{#{Settings.bing.base_api_url}/Locations})
-      .to_return(status: 200, body: JSON.generate(fake_response_body), headers:
-                 fake_response_headers)
+      stub_request(:get, %r{#{Settings.bing.base_api_url}/Locations})
+        .to_return(status: 200, body: JSON.generate(fake_response_body), headers:
+                   fake_response_headers)
 
-    expect do
-      subject.query(street_address, city, state, zip)
-    end.to raise_error(Common::Exceptions::BingServiceError)
+      expect do
+        subject.query(street_address, city, state, zip)
+      end.to raise_error(Common::Exceptions::BingServiceError)
+    end
+
+    it 'raises an exception if any errors occur' do
+      fake_response_body = { 'errors': ['An error happened!'] }
+
+      fake_response_headers = { 'content-type' => 'application/json; charset=utf-8' }
+
+      stub_request(:get, %r{#{Settings.bing.base_api_url}/Locations})
+        .to_return(status: 200, body: JSON.generate(fake_response_body), headers:
+                   fake_response_headers)
+
+      expect do
+        subject.query(street_address, city, state, zip)
+      end.to raise_error(Common::Exceptions::BingServiceError)
+    end
   end
 end
