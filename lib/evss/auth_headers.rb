@@ -2,8 +2,9 @@
 
 module EVSS
   class AuthHeaders
-    def initialize(user)
+    def initialize(user, transaction_id)
       @user = user
+      @transaction_id = transaction_id
     end
 
     def to_h
@@ -23,7 +24,8 @@ module EVSS
         'va_eauth_pnid' => @user.ssn,
         'va_eauth_birthdate' => iso8601_birth_date,
         'va_eauth_authorization' => eauth_json,
-        'va_eauth_authenticationauthority' => 'eauth'
+        'va_eauth_authenticationauthority' => 'eauth',
+        'va_eauth_service_transaction_id' => @transaction_id
       )
     end
 

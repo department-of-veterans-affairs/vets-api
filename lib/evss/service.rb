@@ -10,7 +10,8 @@ module EVSS
 
     def initialize(user)
       @user = user
-      @headers = headers_for_user(@user)
+      @transaction_id = create_transaction_id
+      @headers = headers_for_user(@user, @transaction_id)
     end
 
     def perform(method, path, body = nil, headers = {}, options = {})
@@ -41,8 +42,12 @@ module EVSS
       handle_error(e)
     end
 
-    def headers_for_user(user)
-      EVSS::AuthHeaders.new(user).to_h
+    def create_transaction_id
+      "vagov-#{SecureRandom.uuid}"
+    end
+
+    def headers_for_user(user, transaction_id)
+      EVSS::AuthHeaders.new(user, transaction_id).to_h
     end
 
     def save_error_details(error)
@@ -53,14 +58,16 @@ module EVSS
       Raven.extra_context(
         url: config.base_path,
         message: error.message,
-        body: error.body
+        body: error.body,
+        transaction_id: @transaction_id
       )
     end
 
     def handle_error(error)
       Raven.extra_context(
         message: error.message,
-        url: config.base_path
+        url: config.base_path,
+        transaction_id: @transaction_id
       )
 
       case error
