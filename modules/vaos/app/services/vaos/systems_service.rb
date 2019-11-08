@@ -33,7 +33,11 @@ module VAOS
     def get_facility_clinics(user, facility_id, type_of_care_id, system_id)
       with_monitoring do
         url = "/var/VeteranAppointmentRequestService/v4/rest/clinical-services/patient/ICN/#{user.icn}/clinics"
-        url_params = { 'three-digit-code' => facility_id, 'clinical-service' => type_of_care_id, 'institution-code' => system_id }
+        url_params = {
+          'three-digit-code' => facility_id,
+          'clinical-service' => type_of_care_id,
+          'institution-code' => system_id
+        }
         response = perform(:get, url, url_params, headers(user))
         response.body.map { |clinic| OpenStruct.new(clinic) }
       end
