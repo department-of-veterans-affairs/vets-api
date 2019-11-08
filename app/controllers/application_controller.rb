@@ -40,11 +40,12 @@ class ApplicationController < ActionController::API
   attr_reader :current_user
 
   rescue_from 'StandardError' do |error|
-    handler = Common::Client::Errors::ErrorHandler.new(error)
-    handler.log_error
+    set_empty_auth_header if error.is_a?(Common::Exceptions::Unauthorized)
 
+    handler = Common::Client::Errors::ErrorHandler.new(error)
     va_exception = handler.va_exception
-    set_empty_auth_header if va_exception.is_a?(Common::Exceptions::Unauthorized)
+
+    handler.log_error
 
     render json: { errors: va_exception.errors }, status: va_exception.status_code
   end
