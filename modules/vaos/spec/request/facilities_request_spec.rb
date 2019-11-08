@@ -67,7 +67,7 @@ RSpec.describe 'facilities', type: :request do
     context 'with a loa3 user' do
       let(:user) { build(:user, :mhv) }
 
-      context 'with a valid GET facilities response' do
+      context 'with a valid GET response' do
         it 'returns a 200 with the correct schema' do
           VCR.use_cassette('vaos/systems/get_facility_clinics', match_requests_on: %i[host path method]) do
             get '/v0/vaos/facilities/984/clinics', params: { type_of_care_id: '323', system_id: '984GA' }
@@ -78,7 +78,7 @@ RSpec.describe 'facilities', type: :request do
         end
       end
 
-      context 'when the facility code param is missing' do
+      context 'when a param is missing' do
         let(:json) { JSON.parse(response.body) }
 
         it 'returns a 400 with missing param type_of_care_id' do
