@@ -12,9 +12,9 @@ module FlipperExtensions
 
       raise "Template does not exist: #{path}" unless path.exist?
 
-      contents = path.read
-      compiled = Flipper::UI::Eruby.new(contents)
-      compiled.result proc {}.binding
+      # rubocop:disable Lint/Eval
+      eval(Erubi::Engine.new(path.read, escape: true).src)
+      # rubocop:enable Lint/Eval
     end
 
     def custom_views_path
