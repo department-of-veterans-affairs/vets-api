@@ -8,7 +8,7 @@ require_dependency 'va_facilities/csv_serializer'
 require_dependency 'va_facilities/param_validators'
 
 module VaFacilities
-  module V1
+  module V0
     class NearbyController < ApplicationController
       include ActionController::MimeResponds
       include VaFacilities::PaginationHeaders
