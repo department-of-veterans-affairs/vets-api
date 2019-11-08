@@ -752,10 +752,10 @@ DEPENDENCIES
   fast_jsonapi
   fastimage
   figaro
-  flipper (= 0.17.1)
-  flipper-active_record (= 0.17.1)
-  flipper-active_support_cache_store (= 0.17.1)
-  flipper-ui (= 0.17.1)
+  flipper (~> 0.17.1)
+  flipper-active_record (~> 0.17.1)
+  flipper-active_support_cache_store (~> 0.17.1)
+  flipper-ui (~> 0.17.1)
   foreman
   fuubar
   govdelivery-tms (= 2.8.4)
