@@ -17,6 +17,15 @@
       "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
       "maxLength": 20
     },
+    "addressType": {
+      "type": "string",
+      "default": "DOMESTIC",
+      "enum": [
+        "INTERNATIONAL",
+        "MILITARY",
+        "DOMESTIC"
+      ]
+    },
     "date": {
       "type": "string",
       "pattern": "^(\\d{4}|XXXX)-(0[1-9]|1[0-2]|XX)-(0[1-9]|[1-2][0-9]|3[0-1]|XX)$"
@@ -34,14 +43,6 @@
         },
         "currentMailingAddress": {
           "type": "object",
-          "required": [
-            "addressLine1",
-            "city",
-            "country",
-            "zipFirstFive",
-            "type",
-            "state"
-          ],
           "properties": {
             "addressLine1": {
               "$ref": "#/definitions/addressLine"
@@ -63,28 +64,77 @@
             "zipLastFour": {
               "type": "string"
             },
-            "type": {
+            "internationalPostalCode": {
               "type": "string"
+            },
+            "type": {
+              "$ref": "#/definitions/addressType"
             },
             "state": {
               "type": "string"
             }
-          }
+          },
+          "allOf": [
+            {
+              "if": {
+                "properties": {
+                  "type": {
+                    "const": "INTERNATIONAL"
+                  }
+                }
+              },
+              "then": {
+                "required": [
+                  "addressLine1",
+                  "city",
+                  "country",
+                  "type",
+                  "internationalPostalCode"
+                ]
+              }
+            },
+            {
+              "if": {
+                "properties": {
+                  "type": {
+                    "const": "DOMESTIC"
+                  }
+                }
+              },
+              "then": {
+                "required": [
+                  "addressLine1",
+                  "city",
+                  "country",
+                  "zipFirstFive",
+                  "type",
+                  "state"
+                ]
+              }
+            },
+            {
+              "if": {
+                "properties": {
+                  "type": {
+                    "const": "MILITARY"
+                  }
+                }
+              },
+              "then": {
+                "required": [
+                  "addressLine1",
+                  "country",
+                  "zipFirstFive",
+                  "militaryStateCode",
+                  "militaryPostOfficeTypeCode",
+                  "type"
+                ]
+              }
+            }
+          ]
         },
         "changeOfAddress": {
           "type": "object",
-          "required": [
-            "beginningDate",
-            "addressChangeType",
-            "addressLine1",
-            "addressLine2",
-            "city",
-            "country",
-            "zipFirstFive",
-            "zipLastFour",
-            "type",
-            "state"
-          ],
           "properties": {
             "beginningDate": {
               "type": "string"
@@ -110,13 +160,86 @@
             "zipLastFour": {
               "type": "string"
             },
+            "internationalPostalCode": {
+              "type": "string"
+            },
             "type": {
+              "$ref": "#/definitions/addressType"
+            },
+            "militaryStateCode": {
+              "type": "string"
+            },
+            "militaryPostOfficeTypeCode": {
               "type": "string"
             },
             "state": {
               "type": "string"
             }
-          }
+          },
+          "allOf": [
+            {
+              "if": {
+                "properties": {
+                  "type": {
+                    "const": "INTERNATIONAL"
+                  }
+                }
+              },
+              "then": {
+                "required": [
+                  "beginningDate",
+                  "addressChangeType",
+                  "addressLine1",
+                  "city",
+                  "country",
+                  "type",
+                  "internationalPostalCode"
+                ]
+              }
+            },
+            {
+              "if": {
+                "properties": {
+                  "type": {
+                    "const": "DOMESTIC"
+                  }
+                }
+              },
+              "then": {
+                "required": [
+                  "beginningDate",
+                  "addressChangeType",
+                  "addressLine1",
+                  "city",
+                  "country",
+                  "zipFirstFive",
+                  "type",
+                  "state"
+                ]
+              }
+            },
+            {
+              "if": {
+                "properties": {
+                  "type": {
+                    "const": "MILITARY"
+                  }
+                }
+              },
+              "then": {
+                "required": [
+                  "beginningDate",
+                  "addressChangeType",
+                  "addressLine1",
+                  "country",
+                  "zipFirstFive",
+                  "militaryStateCode",
+                  "militaryPostOfficeTypeCode",
+                  "type"
+                ]
+              }
+            }
+          ]
         },
         "homelessness": {
           "type": "object",
