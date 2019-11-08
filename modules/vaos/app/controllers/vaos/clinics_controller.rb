@@ -6,7 +6,10 @@ module VAOS
   class ClinicsController < ApplicationController
     def index
       response = systems_service.get_facility_clinics(
-        current_user, params[:facility_id], params[:type_of_care_id], params[:system_id]
+        current_user,
+        clinics_params[:facility_id],
+        clinics_params[:type_of_care_id],
+        clinics_params[:system_id]
       )
       render json: VAOS::ClinicSerializer.new(response)
     end
