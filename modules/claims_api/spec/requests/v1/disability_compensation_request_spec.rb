@@ -82,7 +82,7 @@ RSpec.describe 'Disability Claims ', type: :request do
           params['data']['attributes']['veteran']['currentMailingAddress'] = {}
           post path, params: params.to_json, headers: headers.merge(auth_header)
           expect(response.status).to eq(422)
-          expect(JSON.parse(response.body)['errors'].size).to eq(6)
+          expect(JSON.parse(response.body)['errors'].size).to eq(5)
         end
       end
 
