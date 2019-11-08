@@ -837,6 +837,51 @@ components:
               enum:
                 - "A"
                 - "T"
+    NearbyFacility:
+      description: JSON API-compliant object describing a nearby VA facility
+      type: object
+      required:
+        - id
+        - type
+        - attributes
+        - relationships
+      properties:
+        id:
+          type: string
+          example: vha_688
+        type:
+          type: string
+          enum: ["nearby_facility"]
+        attributes:
+          type: object
+          required:
+            - min_time
+            - max_time
+          properties:
+            min_time:
+              type: string
+              example: 10
+            max_time:
+              type: string
+              example: 20
+        relationships:
+          type: object
+          required:
+            - va_facility
+          properties:
+            va_facility:
+              type: object
+              required:
+                - links
+              properties:
+                links:
+                  type: object
+                  required:
+                    - related
+                  properties:
+                    related:
+                      type: string
+                      example: /services/va_facilities/v0/facilities/vha_688
     Address:
       type: object
       properties:
