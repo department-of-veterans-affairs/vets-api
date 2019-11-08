@@ -140,7 +140,7 @@ RSpec.describe 'Disability Claims ', type: :request do
         post '/services/claims/v0/forms/526/validate', params: params.to_json, headers: headers
         parsed = JSON.parse(response.body)
         expect(response.status).to eq(422)
-        expect(parsed['errors'].size).to eq(6)
+        expect(parsed['errors'].size).to eq(5)
       end
     end
   end
