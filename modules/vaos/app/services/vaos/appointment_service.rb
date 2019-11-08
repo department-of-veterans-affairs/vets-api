@@ -1,33 +1,33 @@
 # frozen_string_literal: true
 
+require_relative '../vaos/concerns/headers'
+
 module VAOS
   class AppointmentService < Common::Client::Base
     include Common::Client::Monitoring
+    include SentryLogging
+    include VAOS::Headers
 
     configuration VAOS::Configuration
 
     STATSD_KEY_PREFIX = 'api.vaos'
 
-    def get_va_appointments(user, start_date, end_date)
-      with_monitoring do
-        url = get_va_appointments_url(user.icn, start_date, end_date)
-        response = perform(:get, url, headers(user))
-        {
-          data: response.body.dig(:data, :appointment_list),
-          meta: nil
-        }
-      end
-    rescue Common::Client::Errors::ClientError => e
-      raise_backend_exception('VAOS_502', self.class, e)
+    attr_accessor :user
+
+    def self.for_user(user)
+      as = VAOS::AppointmentService.new
+      as.user = user
+      as
     end
 
-    def get_cc_appointments(user, start_date, end_date)
+    def get_appointments(type, start_date, end_date, pagination_params = {})
       with_monitoring do
-        url = get_cc_appointments_url(user.icn, start_date, end_date)
-        response = perform(:get, url, headers(user))
+        url = get_appointments_url(type, start_date, end_date, pagination_params)
+
+        response = perform(:get, url, nil, headers(user))
         {
-          data: response.body[:booked_appointment_collections].first[:booked_cc_appointments],
-          meta: nil
+          data: deserialized_appointments(response.body, type),
+          meta: pagination(pagination_params)
         }
       end
     rescue Common::Client::Errors::ClientError => e
@@ -36,23 +36,57 @@ module VAOS
 
     private
 
-    def get_va_appointments_url(icn, start_date, end_date)
-      "/appointments/v1/patients/#{icn}/appointments"\
-          "?startDate=#{date_format(start_date)}&endDate=#{date_format(end_date)}&useCache=false&pageSize=0"
+    def deserialized_appointments(json_hash, type)
+      if type == 'va'
+        json_hash.dig(:data, :appointment_list).map { |appointments| OpenStruct.new(appointments) }
+      else
+        json_hash[:booked_appointment_collections].first[:booked_cc_appointments]
+                                                  .map { |appointments| OpenStruct.new(appointments) }
+      end
+    rescue => e
+      log_message_to_sentry(e.message, :warn, invalid_json: json_hash, appointments_type: type)
+      []
     end
 
-    def get_cc_appointments_url(icn, start_date, end_date)
-      '/VeteranAppointmentRequestService/v4/rest/direct-scheduling/'\
-          "patient/ICN/#{icn}/booked-cc-appointments"\
-          "?startDate=#{date_format(start_date)}&endDate=#{date_format(end_date)}&useCache=false&pageSize=0"
+    # TODO: need underlying APIs to support pagination consistently
+    def pagination(pagination_params)
+      {
+        pagination: {
+          current_page: pagination_params[:page] || 0,
+          per_page: pagination_params[:per_page] || 0,
+          total_pages: 0, # underlying api doesn't provide this; how do you build a pagination UI without it?
+          total_entries: 0 # underlying api doesn't provide this.
+        }
+      }
+    end
+
+    def get_appointments_url(type, start_date, end_date, pagination_params)
+      url = get_appointments_base_url(type)
+      url += get_appointments_date_url(start_date, end_date)
+      url += get_appointments_pagination_url(pagination_params)
+      url
+    end
+
+    def get_appointments_base_url(type)
+      if type == 'va'
+        "/appointments/v1/patients/#{user.icn}/appointments"
+      else
+        "/var/VeteranAppointmentRequestService/v4/rest/direct-scheduling/patient/ICN/#{user.icn}/booked-cc-appointments"
+      end
+    end
+
+    def get_appointments_date_url(start_date, end_date)
+      "?startDate=#{date_format(start_date)}&endDate=#{date_format(end_date)}&useCache=false"
+    end
+
+    def get_appointments_pagination_url(pagination_params)
+      return "&pageSize=#{pagination_params[:per_page] || 0}" unless pagination_params[:per_page]&.positive?
+
+      "&pageSize=#{pagination_params[:per_page]}&page=#{pagination_params[:page]}"
     end
 
     def date_format(date)
       date.strftime('%Y-%m-%dT%TZ')
-    end
-
-    def headers(user)
-      { 'Referer' => 'https://api.va.gov', 'X-VAMF-JWT' => VAOS::JWT.new(user).token }
     end
   end
 end

@@ -4,7 +4,6 @@ require 'will_paginate/array'
 
 require_dependency 'va_facilities/application_controller'
 require_dependency 'va_facilities/pagination_headers'
-require_dependency 'va_facilities/geo_serializer_v1'
 require_dependency 'va_facilities/csv_serializer'
 require_dependency 'va_facilities/param_validators'
 
@@ -17,31 +16,34 @@ module VaFacilities
       skip_before_action(:authenticate)
       before_action :set_default_format
       before_action :set_facility_type
+      before_action :set_default_drivetime
       before_action :validate_params, only: [:index]
+
+      PER_PAGE = 20
 
       REQUIRED_PARAMS = {
         address: %i[street_address city state zip].freeze,
         lat_lng: %i[lat lng].freeze
       }.freeze
-      QUERY_INFO = {
-        address: NearbyFacility.method(:query),
-        lat_lng: NearbyFacility.method(:query_by_lat_lng)
-      }.freeze
 
       def index
-        query_method = get_query_method(params)
-        params_hash = params.permit!.to_h.symbolize_keys
-        resource = query_method.call(params_hash).paginate(page: params[:page],
-                                                           per_page: params[:per_page] || NearbyFacility.per_page)
+        lat_lng = get_lat_lng(params)
+        eligible_ids = Facilities::VHAFacility.with_services(params[:services]).pluck(:unique_id) if params[:services]
+
+        bands = if lat_lng.present?
+                  DrivetimeBand.find_within_max_distance(lat_lng[:lat], lat_lng[:lng],
+                                                         params[:drive_time], eligible_ids)
+                               .paginate(page: params[:page], per_page: params[:per_page] || PER_PAGE).load
+                else
+                  DrivetimeBand.none
+                end
+
         respond_to do |format|
           format.json do
-            render json: resource,
-                   each_serializer: VaFacilities::NearbyFacilitySerializer,
-                   meta: metadata(resource)
-          end
-          format.geojson do
-            response.headers['Link'] = link_header(resource)
-            render geojson: VaFacilities::GeoSerializerV1.to_geojson(resource)
+            render json: bands,
+                   each_serializer: VaFacilities::NearbySerializer,
+                   meta: metadata(bands),
+                   links: relationships(bands)
           end
         end
       end
@@ -54,6 +56,10 @@ module VaFacilities
 
       def set_facility_type
         params[:type] = 'health'
+      end
+
+      def set_default_drivetime
+        params[:drive_time] = '30' unless params[:drive_time]
       end
 
       private
@@ -70,21 +76,33 @@ module VaFacilities
         validate_type_and_services_known unless params[:type].nil?
       end
 
-      def get_query_method(params)
+      def get_lat_lng(params)
         obs_fields = params.keys.map(&:to_sym)
-        location_type = REQUIRED_PARAMS.find do |loc_type, req_field_names|
-          no_missing_fields = (req_field_names - obs_fields).empty?
-          break loc_type if no_missing_fields
+        location_type = REQUIRED_PARAMS.keys.find do |loc_type|
+          (REQUIRED_PARAMS[loc_type] - obs_fields).empty?
         end
-        QUERY_INFO[location_type]
+
+        lat_lng = params.slice(:lat, :lng)
+        if location_type.eql? :address
+          lat_lng = GeocodingService.new.query(params[:street_address], params[:city], params[:state], params[:zip])
+        end
+        lat_lng
+      end
+
+      def relationships(resource)
+        ids = resource.map { |band| "vha_#{band.vha_facility_id}" }.join(',')
+        { related: "/services/va_facilities/v0/facilities?ids=#{ids}" }
       end
 
       def metadata(resource)
-        { pagination: { current_page: resource.current_page,
-                        per_page: resource.per_page,
-                        total_pages: resource.total_pages,
-                        total_entries: resource.total_entries },
-          distances: [] }
+        {
+          pagination: {
+            current_page: resource.try(:current_page),
+            per_page: resource.try(:per_page),
+            total_pages: resource.try(:total_pages),
+            total_entries: resource.try(:total_entries)
+          }
+        }
       end
     end
   end
