@@ -5,6 +5,7 @@ require_relative '../vaos/concerns/headers'
 module VAOS
   class AppointmentRequestsService < Common::Client::Base
     include Common::Client::Monitoring
+    include SentryLogging
     include VAOS::Headers
 
     configuration VAOS::Configuration
@@ -24,7 +25,7 @@ module VAOS
         response = perform(:get, get_appointment_requests_url(start_date, end_date), headers(user))
 
         {
-          data: response.body[:appointment_requests].map { |request| OpenStruct.new(request) },
+          data: deserialize(response.body),
           meta: pagination
         }
       end
@@ -33,6 +34,13 @@ module VAOS
     end
 
     private
+
+    def deserialize(json_hash)
+      json_hash[:appointment_requests].map { |request| OpenStruct.new(request) }
+    rescue => e
+      log_message_to_sentry(e.message, :warn, invalid_json: json_hash)
+      []
+    end
 
     def get_appointment_requests_url(start_date = nil, end_date = nil)
       url = '/var/VeteranAppointmentRequestService/v4/rest/appointment-service'

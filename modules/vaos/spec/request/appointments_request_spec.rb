@@ -37,6 +37,19 @@ RSpec.describe 'vaos appointments', type: :request do
       end
     end
 
+    context 'without icn', skip_mvi: true do
+      before { stub_mvi_not_found }
+
+      let(:current_user) { build(:user, :mhv, mhv_icn: nil) }
+
+      it 'does not have access' do
+        get '/v0/vaos/appointments'
+        expect(response).to have_http_status(:forbidden)
+        expect(JSON.parse(response.body)['errors'].first['detail'])
+          .to eq('No patient ICN found')
+      end
+    end
+
     context 'without a type' do
       it 'has a parameter missing exception' do
         get '/v0/vaos/appointments', params: params.except(:type)
