@@ -94,6 +94,17 @@ RSpec.describe 'Disability Claims ', type: :request do
         expect(response.status).to eq(422)
         expect(JSON.parse(response.body)['errors'].size).to eq(2)
       end
+
+      it 'requires international postal code when address type is international' do
+        params = json_data
+        mailing_address = params['data']['attributes']['veteran']['currentMailingAddress']
+        mailing_address['type'] = 'INTERNATIONAL'
+        params['data']['attributes']['veteran']['currentMailingAddress'] = mailing_address
+
+        post path, params: params.to_json, headers: headers
+        expect(response.status).to eq(422)
+        expect(JSON.parse(response.body)['errors'].size).to eq(1)
+      end
     end
 
     context 'form 526 validation' do
