@@ -424,6 +424,189 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/APIError"
+  /nearby:
+    get:
+      tags:
+        - facilities
+      summary: Query health facilities based on drive time from a specified location
+      description: |
+        Retrieve all health facilities contained within an isochrone (a polygon composed of the area
+        reachable in a certain amount of time from a central location) based on passing in a
+        combination of `street_address`, `city`, `state`, and `zip` or `lat` and `lng` required
+        parameters along with `drive_time`.
+
+        Additionally one can filter the facilities within the isochrone by available
+        services.
+
+        Results of this operation are paginated. JSON responses include pagination information
+        in the standard JSON API "links" and "meta" elements. GeoJSON responses include pagination
+        information in the "Link" header.
+
+        The facility information returned by `/nearby` is a small subset of the information returned by `/facilities`.
+        Please use `/facilities` to see detailed information.
+      operationId: getNearbyFacilities
+      security:
+        - apikey: []
+      parameters:
+        - name: street_address
+          in: query
+          description: |
+            Street address of the location from which drive time will be calculated.
+          required: false
+          schema:
+            type: string
+        - name: city
+          in: query
+          description: |
+            City of the location from which drive time will be calculated.
+          required: false
+          schema:
+            type: string
+        - name: state
+          in: query
+          description: |
+            Two character state code of the location from which drive time will be calculated.
+          required: false
+          schema:
+            type: string
+        - name: zip
+          in: query
+          description: |
+            Zip code of the location from which drive time will be calculated.
+          required: false
+          schema:
+            type: string
+            format: '##### or #####-####'
+        - name: lat
+          in: query
+          description: |
+            Latitude of point to search for nearest VA Facilities.
+          required: false
+          schema:
+            type: number
+            format: float
+        - name: lng
+          in: query
+          description: |
+            Longitude of point to search for nearest VA Facilities.
+          required: false
+          style: form
+          explode: true
+          schema:
+            type: number
+            format: float
+        - name: drive_time
+          description:  Filter to only include facilities that are within the specified number of drive time minutes from the requested location.
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 60
+        - name: services[]
+          description: Optional facility service search filter
+          in: query
+          style: form
+          explode: true
+          schema:
+            type: array
+            items:
+              type: string
+        - name: page
+          description: Page of results to return per paginated response.
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 1
+        - name: per_page
+          description: Number of results to return per paginated response.
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 30
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                required:
+                  - data
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Facility"
+                  meta:
+                    description: "Metadata about the response"
+                    type: object
+                    required:
+                      - pagination
+                    properties:
+                      pagination:
+                        type: object
+                        required:
+                          - current_page
+                          - per_page
+                          - total_entries
+                          - total_pages
+                        properties:
+                          current_page:
+                            type: integer
+                            example: 1
+                          per_page:
+                            type: integer
+                            example: 10
+                          total_entries:
+                            type: integer
+                            example: 2162
+                          total_pages:
+                            type: integer
+                            example: 217
+            application/vnd.geo+json:
+              schema:
+                required:
+                  - type
+                  - features
+                properties:
+                  type:
+                    type: string
+                    enum: ["FeatureCollection"]
+                  features:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/FacilityFeature"
+          headers:
+            Link:
+              description: GitHub-style pagination information. Only present for GeoJSON-format responses.
+              schema:
+                type: string
+                example: '<https://dev-api.va.gov/services/va_facilities/v1/facilities?bbox%5B%5D=-120&bbox%5B%5D=40&bbox%5B%5D=-125&bbox%5B%5D=50&page=2&per_page=20>; rel="self", <https://dev-api.va.gov/services/va_facilities/v0/facilities?bbox%5B%5D=-120&bbox%5B%5D=40&bbox%5B%5D=-125&bbox%5B%5D=50&page=1&per_page=20>; rel="first", <https://dev-api.va.gov/services/va_facilities/v0/facilities?bbox%5B%5D=-120&bbox%5B%5D=40&bbox%5B%5D=-125&bbox%5B%5D=50&page=1&per_page=20>; rel="prev", <https://dev-api.va.gov/services/va_facilities/v0/facilities?bbox%5B%5D=-120&bbox%5B%5D=40&bbox%5B%5D=-125&bbox%5B%5D=50&page=3&per_page=20>; rel="next", <https://dev-api.va.gov/services/va_facilities/v0/facilities?bbox%5B%5D=-120&bbox%5B%5D=40&bbox%5B%5D=-125&bbox%5B%5D=50&page=5&per_page=20>; rel="last"'
+        '400':
+          description: Missing Required Or Ambiguous Parameters
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ParameterError"
+        '401':
+          description: Missing API token
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthorizationError"
+        '403':
+          description: Invalid API token
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthorizationError"
+        '406':
+          description: Requested format unacceptable
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/APIError"
 components:
   securitySchemes:
     apikey:
@@ -817,3 +1000,10 @@ components:
         message:
           type: string
           example: "No API key found in request"
+    ParameterError:
+      description: "Missing Or Ambiguous required parameters error"
+      type: object
+      properties:
+        message:
+          type: string
+          example: 'Must supply street_address, city, state, and zip or lat and lng to query nearby facilities.'
