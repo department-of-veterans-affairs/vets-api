@@ -5,6 +5,7 @@ require_relative '../vaos/concerns/headers'
 module VAOS
   class AppointmentService < Common::Client::Base
     include Common::Client::Monitoring
+    include SentryLogging
     include VAOS::Headers
 
     configuration VAOS::Configuration
@@ -42,6 +43,9 @@ module VAOS
         json_hash[:booked_appointment_collections].first[:booked_cc_appointments]
                                                   .map { |appointments| OpenStruct.new(appointments) }
       end
+    rescue => e
+      log_message_to_sentry(e.message, :warn, invalid_json: json_hash, appointments_type: type)
+      []
     end
 
     # TODO: need underlying APIs to support pagination consistently
