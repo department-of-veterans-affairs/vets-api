@@ -413,3 +413,4 @@ va_mobile:
   url: 'https://veteran.apps.va.gov/'
   mock: false
   key_path: /fake/client/key/path
+  timeout: 30
