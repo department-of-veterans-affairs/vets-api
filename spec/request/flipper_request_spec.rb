@@ -14,7 +14,7 @@ RSpec.describe 'Flipper UI', type: :request do
 
   after(:all) { Rails.application.reload_routes! }
 
-  context 'Authenticated with LOA3 admin user' do
+  context 'when authenticated with LOA3 admin user' do
     let(:user) { build(:user, :loa3) }
 
     before do
@@ -37,7 +37,7 @@ RSpec.describe 'Flipper UI', type: :request do
     end
   end
 
-  context 'Unauthenticted' do
+  context 'when unauthenticted' do
     it 'feature route is read only' do
       get '/flipper/features', params: nil
       assert_response :success
