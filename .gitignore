@@ -6,6 +6,7 @@
 
 # Ignore bundler config.
 /.bundle
+.envrc
 
 # Ignore the default SQLite database.
 /db/*.sqlite3
@@ -29,12 +30,6 @@ config/application.yml
 .ruby-gemset
 .rbenv-gemsets
 
-# Ignore mock responses
-/config/mvi_schema/mock_mvi_responses.yml
-/config/mvi_schema/mock_gi_bill_status_response.yml
-/config/evss/mock_letters_response.yml
-/config/evss/*.pdf
-
 .idea/
 .vscode/
 
@@ -48,6 +43,9 @@ config/application.yml
 tmp/
 data/
 log/*
+.bash_history
+.cache
+.local
 
 config/settings.local.yml
 config/settings/*.local.yml

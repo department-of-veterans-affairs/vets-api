@@ -39,6 +39,7 @@ module Vet360
       attribute :state_code, String
       attribute :transaction_id, String
       attribute :updated_at, Common::ISO8601Time
+      attribute :validation_key, Integer
       attribute :vet360_id, String
       attribute :zip_code, String
       attribute :zip_code_suffix, String
@@ -146,34 +147,41 @@ module Vet360
       # @return [Vet360::Models::Address] the model built from the response body
       # rubocop:disable Metrics/MethodLength
       def in_json
+        address_attributes = {
+          addressId: @id,
+          addressLine1: @address_line1,
+          addressLine2: @address_line2,
+          addressLine3: @address_line3,
+          addressPOU: @address_pou,
+          addressType: @address_type,
+          cityName: @city,
+          countryCodeISO2: @country_code_iso2,
+          countryCodeISO3: @country_code_iso3,
+          countryName: @country_name,
+          county: {
+            countyCode: @county_code,
+            countyName: @county_name
+          },
+          intPostalCode: @international_postal_code,
+          provinceName: @province,
+          stateCode: @state_code,
+          zipCode5: @zip_code,
+          zipCode4: @zip_code_suffix,
+          originatingSourceSystem: SOURCE_SYSTEM,
+          sourceSystemUser: @source_system_user,
+          sourceDate: @source_date,
+          vet360Id: @vet360_id,
+          effectiveStartDate: @effective_start_date,
+          effectiveEndDate: @effective_end_date
+        }
+
+        if @validation_key.present?
+          address_attributes[:validationKey] = @validation_key
+          address_attributes[:overrideIndicator] = true
+        end
+
         {
-          bio: {
-            addressId: @id,
-            addressLine1: @address_line1,
-            addressLine2: @address_line2,
-            addressLine3: @address_line3,
-            addressPOU: @address_pou,
-            addressType: @address_type,
-            cityName: @city,
-            countryCodeISO2: @country_code_iso2,
-            countryCodeISO3: @country_code_iso3,
-            countryName: @country_name,
-            county: {
-              countyCode: @county_code,
-              countyName: @county_name
-            },
-            intPostalCode: @international_postal_code,
-            provinceName: @province,
-            stateCode: @state_code,
-            zipCode5: @zip_code,
-            zipCode4: @zip_code_suffix,
-            originatingSourceSystem: SOURCE_SYSTEM,
-            sourceSystemUser: @source_system_user,
-            sourceDate: @source_date,
-            vet360Id: @vet360_id,
-            effectiveStartDate: @effective_start_date,
-            effectiveEndDate: @effective_end_date
-          }
+          bio: address_attributes
         }.to_json
       end
       # rubocop:enable Metrics/MethodLength

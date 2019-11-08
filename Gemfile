@@ -9,6 +9,7 @@ gem 'appeals_api', path: 'modules/appeals_api'
 gem 'claims_api', path: 'modules/claims_api'
 gem 'openid_auth', path: 'modules/openid_auth'
 gem 'va_facilities', path: 'modules/va_facilities'
+gem 'va_forms', path: 'modules/va_forms'
 gem 'vaos', path: 'modules/vaos'
 gem 'vba_documents', path: 'modules/vba_documents'
 gem 'veteran', path: 'modules/veteran'
@@ -71,6 +72,7 @@ gem 'oj' # Amazon Linux `json` gem causes conflicts, but `multi_json` will prefe
 gem 'olive_branch'
 gem 'origami'
 gem 'ox'
+gem 'paper_trail'
 gem 'pdf-forms'
 gem 'pdf-reader'
 gem 'pg'
@@ -133,7 +135,7 @@ end
 
 group :development, :test do
   gem 'awesome_print', '~> 1.8' # Pretty print your Ruby objects in full color and with proper indentation
-  gem 'brakeman'
+  gem 'brakeman', '~> 4.7'
   gem 'bundler-audit'
   gem 'byebug', platforms: :ruby # Call 'byebug' anywhere in the code to stop execution and get a debugger console
   gem 'danger'
