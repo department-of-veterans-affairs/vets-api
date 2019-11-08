@@ -8,7 +8,7 @@ describe VAOS::AppointmentRequestsService do
   let(:user) { build(:user, :mhv) }
   let(:rsa_private) { OpenSSL::PKey::RSA.generate 4096 }
 
-  before { allow_any_instance_of(VAOS::JWT).to receive(:rsa_private).and_return(rsa_private) }
+  before { allow_any_instance_of(VAOS::UserService).to receive(:session).and_return('stubbed_token') }
 
   describe '#get_requests' do
     context 'with 12 va appointments' do

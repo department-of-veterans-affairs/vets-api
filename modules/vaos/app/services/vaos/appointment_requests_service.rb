@@ -37,7 +37,7 @@ module VAOS
     def get_appointment_requests_url(start_date = nil, end_date = nil)
       url = '/var/VeteranAppointmentRequestService/v4/rest/appointment-service'
       url += "/patient/ICN/#{user.icn}/appointments"
-      url += get_date_url(start_date, end_date).empty? ? '' : "?#{get_date_url(start_date, end_date)}"
+      url += get_date_url(start_date, end_date).empty? ? '' : "?#{get_date_url(start_date, end_date).to_query}"
       url
     end
 
