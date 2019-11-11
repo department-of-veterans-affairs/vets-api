@@ -32,7 +32,7 @@ pipeline {
     stage('Build Docker Images'){
       steps {
         withCredentials([string(credentialsId: 'sidekiq-enterprise-license', variable: 'BUNDLE_ENTERPRISE__CONTRIBSYS__COM')]) {
-          sh 'docker-compose -f docker-compose.test.yml build'
+          sh 'make ci-build'
         }
       }
     }

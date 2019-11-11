@@ -27,6 +27,10 @@ ci-spec:
 bash:
 	@$(COMPOSE_DEV) $(BASH)
 
+.PHONEY: ci-build
+ci-down:
+	$(COMPOSE_TEST) build
+
 .PHONY: console
 console:
 	@$(BASH_DEV) "bundle exec rails c"
