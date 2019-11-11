@@ -37,7 +37,7 @@
     </table>
 
     <% if Thread.current[:flipper_user_email_for_log].blank? %>
-      <a href ="<%=SAML::URLService::VIRTUAL_HOST_MAPPINGS[request.base_url][:base_redirect] %>">Sign in</a> with an identity-verified admin account to exit feagure toggles.
+      <a href ="<%= SAML::URLService::VIRTUAL_HOST_MAPPINGS.dig(request.base_url, :base_redirect) %>">Sign in</a> with an identity-verified admin account to exit feagure toggles.
     <% end %>
   </div>
 </div>
