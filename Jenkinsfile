@@ -142,7 +142,7 @@ pipeline {
 
   post {
     always {
-      sh 'make clean'
+      sh 'make ci-down'
       deleteDir() /* clean up our workspace */
     }
     failure {

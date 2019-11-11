@@ -13,8 +13,33 @@ module VAOS
 
     def get_systems(user)
       with_monitoring do
-        response = perform(:get, '/mvi/v1/patients/session/identifiers.json', headers(user))
+        response = perform(:get, '/mvi/v1/patients/session/identifiers.json', nil, headers(user))
         response.body.map { |system| OpenStruct.new(system) }
+      end
+    rescue Common::Client::Errors::ClientError => e
+      raise_backend_exception('VAOS_502', self.class, e)
+    end
+
+    def get_facilities(user, facility_code)
+      with_monitoring do
+        url = '/var/VeteranAppointmentRequestService/v4/rest/direct-scheduling/parent-sites'
+        response = perform(:get, url, { 'facility-code' => facility_code }, headers(user))
+        response.body.map { |facility| OpenStruct.new(facility) }
+      end
+    rescue Common::Client::Errors::ClientError => e
+      raise_backend_exception('VAOS_502', self.class, e)
+    end
+
+    def get_facility_clinics(user, facility_id, type_of_care_id, system_id)
+      with_monitoring do
+        url = "/var/VeteranAppointmentRequestService/v4/rest/clinical-services/patient/ICN/#{user.icn}/clinics"
+        url_params = {
+          'three-digit-code' => facility_id,
+          'clinical-service' => type_of_care_id,
+          'institution-code' => system_id
+        }
+        response = perform(:get, url, url_params, headers(user))
+        response.body.map { |clinic| OpenStruct.new(clinic) }
       end
     rescue Common::Client::Errors::ClientError => e
       raise_backend_exception('VAOS_502', self.class, e)
