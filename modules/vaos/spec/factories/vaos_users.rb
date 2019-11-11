@@ -3,13 +3,13 @@ FactoryBot.modify do
     trait :vaos do
       authn_context { 'http://idmanagement.gov/ns/assurance/loa/1/vets' }
       uuid { SecureRandom.uuid }
-      last_signed_in { Faker::Time.between(2.years.ago, 1.week.ago, :all) }
-      mhv_last_signed_in { Faker::Time.between(1.week.ago, 1.minute.ago, :all) }
+      last_signed_in { Time.now.utc }
+      mhv_last_signed_in { Time.now.utc }
       email { 'vets.gov.user+228@gmail.com' }
       first_name { 'JUDY' }
       last_name { 'MORRISON' }
       gender { 'F' }
-      zip { Faker::Address.postcode }
+      zip { '12345' }
       birth_date { '1953-04-01' }
       ssn { '796061976' }
 
@@ -24,7 +24,7 @@ FactoryBot.modify do
       after(:build) do |_user, t|
         stub_mvi(
           build(
-            :mvi_profile
+            :mvi_profile,
             full_mvi_ids: %w[
               1012845331V153043^NI^200M^USVHA^P
               1259897978^NI^200DOD^USDOD^A
@@ -39,7 +39,10 @@ FactoryBot.modify do
             icn: '1012845331V153043',
             icn_with_aaid: '1012845331V153043^NI^200M^USVHA',
             mhv_ids: [],
-            vha_facility_ids: t.va_patient ? %w[983 984 200ESR] : []
+            vha_facility_ids: t.va_patient ? %w[983 984 200ESR] : [],
+            gender: 'F',
+            birth_date: '1953-04-01',
+            ssn: '796061976'
           )
         )
       end
