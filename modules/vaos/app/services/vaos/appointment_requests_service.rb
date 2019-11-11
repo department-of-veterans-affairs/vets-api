@@ -22,7 +22,7 @@ module VAOS
 
     def get_requests(start_date = nil, end_date = nil)
       with_monitoring do
-        response = perform(:get, get_appointment_requests_url(start_date, end_date), headers(user))
+        response = perform(:get, get_appointment_requests_url, date_params(start_date, end_date), headers(user))
 
         {
           data: deserialize(response.body),
@@ -42,19 +42,16 @@ module VAOS
       []
     end
 
-    def get_appointment_requests_url(start_date = nil, end_date = nil)
-      url = '/var/VeteranAppointmentRequestService/v4/rest/appointment-service'
-      url += "/patient/ICN/#{user.icn}/appointments"
-      url += get_date_url(start_date, end_date).empty? ? '' : "?#{get_date_url(start_date, end_date).to_query}"
-      url
+    def get_appointment_requests_url
+      "/var/VeteranAppointmentRequestService/v4/rest/appointment-service/patient/ICN/#{user.icn}/appointments"
     end
 
-    def get_date_url(start_date, end_date)
-      { startDate: date_format(start_date), endDate: date_format(end_date) }
+    def date_params(start_date, end_date)
+      { startDate: date_format(start_date), endDate: date_format(end_date) }.compact
     end
 
     def date_format(date)
-      date&.strftime('%Y-%m-%dT%TZ')
+      date&.strftime('%d/%m/%Y')
     end
 
     # TODO: find out if this api supports pagination and other parameters
