@@ -138,7 +138,6 @@ pipeline {
       }
     }
   }
-  }
 
   post {
     always {
