@@ -9,13 +9,6 @@ module VaFacilities
         meta: {
           versions: [
             {
-              version: '1.0.0',
-              internal_only: false,
-              status: VERSION_STATUS[:draft],
-              path: '/services/va_facilities/docs/v1/api',
-              healthcheck: '/services/va_facilities/v1/healthcheck'
-            },
-            {
               version: '0.0.1',
               internal_only: false,
               status: VERSION_STATUS[:current],

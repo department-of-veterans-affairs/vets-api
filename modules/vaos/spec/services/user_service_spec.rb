@@ -8,6 +8,7 @@ describe VAOS::UserService do
   describe '#session' do
     let(:rsa_private) { OpenSSL::PKey::RSA.generate 4096 }
     let(:token) { 'abc123' }
+    let(:response) { double('response', body: token) }
 
     before { allow(File).to receive(:read).and_return(rsa_private) }
 
@@ -31,7 +32,6 @@ describe VAOS::UserService do
 
       context 'when there is no saved session token' do
         it 'makes a call out to the the VAOS user service once' do
-          response = double('response', body: token)
           VCR.use_cassette('vaos/users/post_session') do
             expect(subject).to receive(:perform).once.and_return(response)
             subject.session(user)
@@ -42,6 +42,30 @@ describe VAOS::UserService do
           VCR.use_cassette('vaos/users/post_session') do
             expect(subject.session(user)).to be_a(String)
           end
+        end
+      end
+
+      context 'when the session is fetched before 15m' do
+        it 'does not call perform to request a new token' do
+          VAOS::SessionStore.new(user_uuid: user.uuid, token: token).save
+          Timecop.travel(Time.zone.now + 11.minutes)
+          VCR.use_cassette('vaos/users/post_session') do
+            expect(subject).not_to receive(:perform)
+            subject.session(user)
+          end
+          Timecop.return
+        end
+      end
+
+      context 'when the session is fetched after 15m' do
+        it 'calls perform to request a new token' do
+          VAOS::SessionStore.new(user_uuid: user.uuid, token: token).save
+          Timecop.travel(Time.zone.now + 15.minutes)
+          VCR.use_cassette('vaos/users/post_session') do
+            expect(subject).to receive(:perform).once.and_return(response)
+            subject.session(user)
+          end
+          Timecop.return
         end
       end
     end

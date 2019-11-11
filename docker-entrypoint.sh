@@ -1,7 +1,5 @@
-#!/bin/bash
+#!/bin/bash -e
 
-set -e
-
-bundle check || bundle install --binstubs="$BUNDLE_BIN"
+bundle check || bundle install --binstubs="${BUNDLE_PATH}/bin"
 
 exec "$@"
