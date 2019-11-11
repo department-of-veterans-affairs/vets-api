@@ -1,0 +1,156 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: https://internal-dsva-vagov-staging-fwdproxy-1821450725.us-gov-west-1.elb.amazonaws.com:4463/users/v2/session?processRules=true
+    body:
+      encoding: US-ASCII
+      string: eyJhbGciOiJSUzUxMiJ9.eyJhdXRoZW50aWNhdGVkIjp0cnVlLCJzdWIiOiIxMDEyODQ1MzMxVjE1MzA0MyIsImlkVHlwZSI6IklDTiIsImlzcyI6Imdvdi52YS52YW9zIiwiZmlyc3ROYW1lIjoiSlVEWSIsImxhc3ROYW1lIjoiTU9SUklTT04iLCJhdXRoZW50aWNhdGlvbkF1dGhvcml0eSI6Imdvdi52YS5pYW0uc3NvZS52MSIsImp0aSI6ImRiZTI5YTU5LWZhYzMtNDNkZi1iMDJmLTJmMzU5MzY1MTNjYiIsIm5iZiI6MTU3MzUxNTUzNiwiZXhwIjoxNTczNTE5MTk2LCJ2ZXJzaW9uIjoxLjAsInVzZXJUeXBlIjoiVkVURVJBTiIsInZhbWYuYXV0aC5yb2xlcyI6WyJ2ZXRlcmFuIl19.ZF8R_lGisomWZBmwAF6nfCEpwXO4EoOalrmHade_zPt0h2_bni6DCmH_i1gGGYWqUYnvogCXEJl97_kAsFGXaB3YWgJU29OTKhy9InYqtvVGgmTO9p-yaK8_67kt222_ScyND1WIAqhS26KYz3Ap7foqOp81GZNhuz7xHkTjtzKFPB0jKLMtHwxgbIpIMUX_AeT8KEcmwuIOBW9p6nV8s6bpcbNMoGdH85dkFHarE7Tm6LwGHkuUJM58f3kP0ClbuiaR6o8eiybUk_7DIVs1uzHdwsM7pjkghKkdSuZ2OxrUKjXDk4bP3fc8rt14BHVgdNZzDWt8qN2Vc2Qdho0g_kQhz-sfcfdmD8YlEmkBfq0cM8QIhZLbJXEG4VGJJJnerL1h0ccYGKiN7XnhnkzJkwr9qNxo9CMUUwDnTxqvegbu-5X5FTnrX_umhS7vuOQktTViN8Y9fX0GEgtPwRjfduiqvOPG2ckyP4PzaTTb0fCbUxbrPk00uNjFUHJfJ8o6Bbsnru5OE-UUZi1yREbhXbKGXMy6ZqTDpBPvVVVR1_4DJQgAE6vujJN6qk09qXZkQO2J1Y-1u1nUARmm98Vq9raN84GhD0cgOgiEZjT0YuQROOGVtMyrddILThNCGu8267trym6AABo_6Q-0c_zZYIm_3nSzBu0OrFKXEx6Wv_w
+    headers:
+      Content-Type:
+      - text/plain
+      Referer:
+      - https://api.va.gov
+      User-Agent:
+      - Faraday v0.9.2
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Mon, 11 Nov 2019 23:39:57 GMT
+      Content-Type:
+      - text/plain
+      Content-Length:
+      - '1448'
+      Server:
+      - openresty
+      X-B3-Parentspanid:
+      - 69d5e875f66f9855
+      X-Vamf-Version:
+      - 2.7.0
+      Cache-Control:
+      - no-store
+      X-B3-Traceid:
+      - 69d5e875f66f9855
+      Access-Control-Allow-Headers:
+      - x-vamf-jwt
+      X-Vamf-Build:
+      - b5e8e69
+      X-B3-Sampled:
+      - '0'
+      X-Vamf-Timestamp:
+      - '2019-11-04T22:14:18+0000'
+      Access-Control-Allow-Origin:
+      - "*.va.gov"
+      X-B3-Spanid:
+      - a0aca76af587a837
+      Access-Control-Allow-Methods:
+      - GET,OPTIONS
+      Access-Control-Max-Age:
+      - '3600'
+      Strict-Transport-Security:
+      - max-age=63072000; includeSubDomains; preload
+    body:
+      encoding: UTF-8
+      string: eyJhbGciOiJSUzUxMiJ9.eyJsYXN0TmFtZSI6Ik1PUlJJU09OIiwic3ViIjoiMTAxMjg0NTMzMVYxNTMwNDMiLCJhdXRoZW50aWNhdGVkIjp0cnVlLCJhdXRoZW50aWNhdGlvbkF1dGhvcml0eSI6Imdvdi52YS52YW9zIiwiaWRUeXBlIjoiSUNOIiwiaXNzIjoiZ292LnZhLnZhbWYudXNlcnNlcnZpY2UudjEiLCJ2YW1mLmF1dGgucmVzb3VyY2VzIjpbIl4uKihcLyk_c2l0ZVtzXT9cLyhkZm4tKT85ODRcL3BhdGllbnRbc10_XC81NTIxNjEwNTBcL2FwcG9pbnRtZW50cyhcLy4qKT8kIiwiXi4qKFwvKT9zaXRlW3NdP1wvKGRmbi0pPzk4M1wvcGF0aWVudFtzXT9cLzcyMTY2OTFcL2FwcG9pbnRtZW50cyhcLy4qKT8kIiwiXi4qKFwvKT9wYXRpZW50W3NdP1wvKElDTlwvKT8xMDEyODQ1MzMxVjE1MzA0MyhcLy4qKT8kIl0sInZlcnNpb24iOjIuMSwidmlzdGFJZHMiOlt7InBhdGllbnRJZCI6IjU1MjE2MTA1MCIsInNpdGVJZCI6Ijk4NCJ9LHsicGF0aWVudElkIjoiNzIxNjY5MSIsInNpdGVJZCI6Ijk4MyJ9XSwiZmlyc3ROYW1lIjoiSlVEWSIsInN0YWZmRGlzY2xhaW1lckFjY2VwdGVkIjp0cnVlLCJuYmYiOjE1NzM1MTU0MTcsInNzdCI6MTU3MzUxNTU5NiwicGF0aWVudCI6eyJmaXJzdE5hbWUiOiJKVURZIiwibGFzdE5hbWUiOiJNT1JSSVNPTiIsImljbiI6IjEwMTI4NDUzMzFWMTUzMDQzIn0sInVzZXJUeXBlIjoiVkVURVJBTiIsInZhbWYuYXV0aC5yb2xlcyI6WyJ2ZXRlcmFuIl0sInJpZ2h0T2ZBY2Nlc3NBY2NlcHRlZCI6dHJ1ZSwiZXhwIjoxNTczNTE2NDk3LCJqdGkiOiJkYmUyOWE1OS1mYWMzLTQzZGYtYjAyZi0yZjM1OTM2NTEzY2IiLCJsb2EiOjJ9.R_aok9VmMB8qMajlA8bvAr3RczzkabBdnHmmy0lg54RHfZNlbTKGcEmUalKarWziX1Iub3US31UhOvsCkBYUQeSmgjWAKb5FzERx2LWplLdPMcB2p9U7sttT6pJ7ZZ8QDo7nejvbEIDlUtHJh0b7LiBH1FkS3mpNyr4KAIAwiFerebjLGks3_XPN7tgnxbAHKylUQaGO4muf_i4TcgiC8rWbEqVQsN43Tn0X21CXJ2Y4004MbAD37Mpe7xOED9PxNtGaYpgunImZryN10XaDg9t4NZHk6xWFq6ZQ7zWC83MP_eYo0JZGM9MCbum1zX7JoWqzehjHGgjNkfnrJ4WjBg
+    http_version: 
+  recorded_at: Mon, 11 Nov 2019 23:39:57 GMT
+- request:
+    method: get
+    uri: https://internal-dsva-vagov-staging-fwdproxy-1821450725.us-gov-west-1.elb.amazonaws.com:4463/var/VeteranAppointmentRequestService/v4/rest/appointment-service/patient/ICN/1012845331V153043/appointments/system/var/id/1123/messages?Referer=https://api.va.gov&X-VAMF-JWT=eyJhbGciOiJSUzUxMiJ9.eyJsYXN0TmFtZSI6Ik1PUlJJU09OIiwic3ViIjoiMTAxMjg0NTMzMVYxNTMwNDMiLCJhdXRoZW50aWNhdGVkIjp0cnVlLCJhdXRoZW50aWNhdGlvbkF1dGhvcml0eSI6Imdvdi52YS52YW9zIiwiaWRUeXBlIjoiSUNOIiwiaXNzIjoiZ292LnZhLnZhbWYudXNlcnNlcnZpY2UudjEiLCJ2YW1mLmF1dGgucmVzb3VyY2VzIjpbIl4uKihcLyk_c2l0ZVtzXT9cLyhkZm4tKT85ODRcL3BhdGllbnRbc10_XC81NTIxNjEwNTBcL2FwcG9pbnRtZW50cyhcLy4qKT8kIiwiXi4qKFwvKT9zaXRlW3NdP1wvKGRmbi0pPzk4M1wvcGF0aWVudFtzXT9cLzcyMTY2OTFcL2FwcG9pbnRtZW50cyhcLy4qKT8kIiwiXi4qKFwvKT9wYXRpZW50W3NdP1wvKElDTlwvKT8xMDEyODQ1MzMxVjE1MzA0MyhcLy4qKT8kIl0sInZlcnNpb24iOjIuMSwidmlzdGFJZHMiOlt7InBhdGllbnRJZCI6IjU1MjE2MTA1MCIsInNpdGVJZCI6Ijk4NCJ9LHsicGF0aWVudElkIjoiNzIxNjY5MSIsInNpdGVJZCI6Ijk4MyJ9XSwiZmlyc3ROYW1lIjoiSlVEWSIsInN0YWZmRGlzY2xhaW1lckFjY2VwdGVkIjp0cnVlLCJuYmYiOjE1NzM1MTU0MTcsInNzdCI6MTU3MzUxNTU5NiwicGF0aWVudCI6eyJmaXJzdE5hbWUiOiJKVURZIiwibGFzdE5hbWUiOiJNT1JSSVNPTiIsImljbiI6IjEwMTI4NDUzMzFWMTUzMDQzIn0sInVzZXJUeXBlIjoiVkVURVJBTiIsInZhbWYuYXV0aC5yb2xlcyI6WyJ2ZXRlcmFuIl0sInJpZ2h0T2ZBY2Nlc3NBY2NlcHRlZCI6dHJ1ZSwiZXhwIjoxNTczNTE2NDk3LCJqdGkiOiJkYmUyOWE1OS1mYWMzLTQzZGYtYjAyZi0yZjM1OTM2NTEzY2IiLCJsb2EiOjJ9.R_aok9VmMB8qMajlA8bvAr3RczzkabBdnHmmy0lg54RHfZNlbTKGcEmUalKarWziX1Iub3US31UhOvsCkBYUQeSmgjWAKb5FzERx2LWplLdPMcB2p9U7sttT6pJ7ZZ8QDo7nejvbEIDlUtHJh0b7LiBH1FkS3mpNyr4KAIAwiFerebjLGks3_XPN7tgnxbAHKylUQaGO4muf_i4TcgiC8rWbEqVQsN43Tn0X21CXJ2Y4004MbAD37Mpe7xOED9PxNtGaYpgunImZryN10XaDg9t4NZHk6xWFq6ZQ7zWC83MP_eYo0JZGM9MCbum1zX7JoWqzehjHGgjNkfnrJ4WjBg
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 404
+      message: Not Found
+    headers:
+      Date:
+      - Mon, 11 Nov 2019 23:39:57 GMT
+      Content-Type:
+      - text/html;charset=utf-8
+      Content-Length:
+      - '1010'
+      Server:
+      - openresty
+      Content-Language:
+      - en
+    body:
+      encoding: UTF-8
+      string: '<!DOCTYPE html><html><head><title>Apache Tomcat/8.0.46 - Error report</title><style
+        type="text/css">H1 {font-family:Tahoma,Arial,sans-serif;color:white;background-color:#525D76;font-size:22px;}
+        H2 {font-family:Tahoma,Arial,sans-serif;color:white;background-color:#525D76;font-size:16px;}
+        H3 {font-family:Tahoma,Arial,sans-serif;color:white;background-color:#525D76;font-size:14px;}
+        BODY {font-family:Tahoma,Arial,sans-serif;color:black;background-color:white;}
+        B {font-family:Tahoma,Arial,sans-serif;color:white;background-color:#525D76;}
+        P {font-family:Tahoma,Arial,sans-serif;background:white;color:black;font-size:12px;}A
+        {color : black;}A.name {color : black;}.line {height: 1px; background-color:
+        #525D76; border: none;}</style> </head><body><h1>HTTP Status 404 - Not Found</h1><div
+        class="line"></div><p><b>type</b> Status report</p><p><b>message</b> <u>Not
+        Found</u></p><p><b>description</b> <u>The requested resource is not available.</u></p><hr
+        class="line"><h3>Apache Tomcat/8.0.46</h3></body></html>'
+    http_version: 
+  recorded_at: Mon, 11 Nov 2019 23:39:57 GMT
+- request:
+    method: get
+    uri: https://internal-dsva-vagov-staging-fwdproxy-1821450725.us-gov-west-1.elb.amazonaws.com:4463/var/VeteranAppointmentRequestService/v4/rest/appointment-service/patient/ICN/1012845331V153043/appointments/system/var/id/8a4886886e4c8e22016e5be79a040002/messages?Referer=https://api.va.gov&X-VAMF-JWT=eyJhbGciOiJSUzUxMiJ9.eyJsYXN0TmFtZSI6Ik1PUlJJU09OIiwic3ViIjoiMTAxMjg0NTMzMVYxNTMwNDMiLCJhdXRoZW50aWNhdGVkIjp0cnVlLCJhdXRoZW50aWNhdGlvbkF1dGhvcml0eSI6Imdvdi52YS52YW9zIiwiaWRUeXBlIjoiSUNOIiwiaXNzIjoiZ292LnZhLnZhbWYudXNlcnNlcnZpY2UudjEiLCJ2YW1mLmF1dGgucmVzb3VyY2VzIjpbIl4uKihcLyk_c2l0ZVtzXT9cLyhkZm4tKT85ODRcL3BhdGllbnRbc10_XC81NTIxNjEwNTBcL2FwcG9pbnRtZW50cyhcLy4qKT8kIiwiXi4qKFwvKT9zaXRlW3NdP1wvKGRmbi0pPzk4M1wvcGF0aWVudFtzXT9cLzcyMTY2OTFcL2FwcG9pbnRtZW50cyhcLy4qKT8kIiwiXi4qKFwvKT9wYXRpZW50W3NdP1wvKElDTlwvKT8xMDEyODQ1MzMxVjE1MzA0MyhcLy4qKT8kIl0sInZlcnNpb24iOjIuMSwidmlzdGFJZHMiOlt7InBhdGllbnRJZCI6IjU1MjE2MTA1MCIsInNpdGVJZCI6Ijk4NCJ9LHsicGF0aWVudElkIjoiNzIxNjY5MSIsInNpdGVJZCI6Ijk4MyJ9XSwiZmlyc3ROYW1lIjoiSlVEWSIsInN0YWZmRGlzY2xhaW1lckFjY2VwdGVkIjp0cnVlLCJuYmYiOjE1NzM1MTU0MTcsInNzdCI6MTU3MzUxNTU5NiwicGF0aWVudCI6eyJmaXJzdE5hbWUiOiJKVURZIiwibGFzdE5hbWUiOiJNT1JSSVNPTiIsImljbiI6IjEwMTI4NDUzMzFWMTUzMDQzIn0sInVzZXJUeXBlIjoiVkVURVJBTiIsInZhbWYuYXV0aC5yb2xlcyI6WyJ2ZXRlcmFuIl0sInJpZ2h0T2ZBY2Nlc3NBY2NlcHRlZCI6dHJ1ZSwiZXhwIjoxNTczNTE2NDk3LCJqdGkiOiJkYmUyOWE1OS1mYWMzLTQzZGYtYjAyZi0yZjM1OTM2NTEzY2IiLCJsb2EiOjJ9.R_aok9VmMB8qMajlA8bvAr3RczzkabBdnHmmy0lg54RHfZNlbTKGcEmUalKarWziX1Iub3US31UhOvsCkBYUQeSmgjWAKb5FzERx2LWplLdPMcB2p9U7sttT6pJ7ZZ8QDo7nejvbEIDlUtHJh0b7LiBH1FkS3mpNyr4KAIAwiFerebjLGks3_XPN7tgnxbAHKylUQaGO4muf_i4TcgiC8rWbEqVQsN43Tn0X21CXJ2Y4004MbAD37Mpe7xOED9PxNtGaYpgunImZryN10XaDg9t4NZHk6xWFq6ZQ7zWC83MP_eYo0JZGM9MCbum1zX7JoWqzehjHGgjNkfnrJ4WjBg
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 404
+      message: Not Found
+    headers:
+      Date:
+      - Mon, 11 Nov 2019 23:45:06 GMT
+      Content-Type:
+      - text/html;charset=utf-8
+      Content-Length:
+      - '1010'
+      Server:
+      - openresty
+      Content-Language:
+      - en
+    body:
+      encoding: UTF-8
+      string: '<!DOCTYPE html><html><head><title>Apache Tomcat/8.0.46 - Error report</title><style
+        type="text/css">H1 {font-family:Tahoma,Arial,sans-serif;color:white;background-color:#525D76;font-size:22px;}
+        H2 {font-family:Tahoma,Arial,sans-serif;color:white;background-color:#525D76;font-size:16px;}
+        H3 {font-family:Tahoma,Arial,sans-serif;color:white;background-color:#525D76;font-size:14px;}
+        BODY {font-family:Tahoma,Arial,sans-serif;color:black;background-color:white;}
+        B {font-family:Tahoma,Arial,sans-serif;color:white;background-color:#525D76;}
+        P {font-family:Tahoma,Arial,sans-serif;background:white;color:black;font-size:12px;}A
+        {color : black;}A.name {color : black;}.line {height: 1px; background-color:
+        #525D76; border: none;}</style> </head><body><h1>HTTP Status 404 - Not Found</h1><div
+        class="line"></div><p><b>type</b> Status report</p><p><b>message</b> <u>Not
+        Found</u></p><p><b>description</b> <u>The requested resource is not available.</u></p><hr
+        class="line"><h3>Apache Tomcat/8.0.46</h3></body></html>'
+    http_version: 
+  recorded_at: Mon, 11 Nov 2019 23:45:06 GMT
+recorded_with: VCR 3.0.3
