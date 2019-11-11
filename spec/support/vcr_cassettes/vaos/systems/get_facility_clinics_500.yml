@@ -2,7 +2,7 @@
 http_interactions:
   - request:
       method: get
-      uri: https://veteran.apps.va.gov/var/VeteranAppointmentRequestService/v4/rest/direct-scheduling/patient/ICN/1000123456V123456/booked-cc-appointments?endDate=2020-02-22T08:00:00Z&pageSize=0&startDate=2019-10-22T07:00:00Z&useCache=false
+      uri: https://veteran.apps.va.gov/var/VeteranAppointmentRequestService/v4/rest/clinical-services/patient/ICN/1000123456V123456/clinics?clinical-service&institution-code=984GA&three-digit-code=984
       body:
         encoding: US-ASCII
         string: ''
@@ -21,11 +21,11 @@ http_interactions:
         message: Internal Server Error
       headers:
         Date:
-          - Mon, 21 Oct 2019 19:00:18 GMT
+          - Fri, 08 Nov 2019 00:51:58 GMT
         Content-Type:
           - text/html; charset=UTF-8
         Content-Length:
-          - '128'
+          - '1293'
         Connection:
           - keep-alive
         X-B3-Parentspanid:
@@ -60,5 +60,5 @@ http_interactions:
         encoding: UTF-8
         string: '<html>\r\n<head><title>500 Internal Server Error</title></head>\r\n<body>\r\n<center><h1>500 Internal Server Error/html>\r\n'
         http_version:
-    recorded_at: Wed, 04 Sep 2019 17:02:11 GMT
+    recorded_at: Fri, 08 Nov 2019 00:51:58 GMT
 recorded_with: VCR 3.0.3

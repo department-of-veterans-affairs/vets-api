@@ -3,7 +3,7 @@
 require 'rails_helper'
 
 RSpec.describe 'Nearby Facilities API endpoint', type: :request do
-  let(:base_query_path) { '/services/va_facilities/v1/nearby' }
+  let(:base_query_path) { '/services/va_facilities/v0/nearby' }
   let(:address_params) do
     {
       street_address: '3710 Southwest US Veterans Hospital Road',

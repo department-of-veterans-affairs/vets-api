@@ -201,7 +201,7 @@ GEM
       thread_safe (~> 0.3, >= 0.3.1)
     benchmark-ips (2.7.2)
     bindex (0.8.1)
-    brakeman (4.6.1)
+    brakeman (4.7.1)
     breakers (0.2.4)
       faraday (>= 0.7.4, < 0.10)
       multi_json (~> 1.0)
@@ -727,7 +727,7 @@ DEPENDENCIES
   aws-sdk-sns (~> 1)
   benchmark-ips
   betamocks!
-  brakeman
+  brakeman (~> 4.7)
   breakers
   bundler-audit
   byebug
