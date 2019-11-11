@@ -28,7 +28,7 @@ bash:
 	@$(COMPOSE_DEV) $(BASH)
 
 .PHONEY: ci-build
-ci-down:
+ci-build:
 	$(COMPOSE_TEST) build
 
 .PHONY: console
