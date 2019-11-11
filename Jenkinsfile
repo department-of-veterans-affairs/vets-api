@@ -39,25 +39,25 @@ pipeline {
 
     stage('Setup Testing DB') {
       steps {
-        sh 'make test_db'
+        sh 'make ci-db'
       }
     }
 
     stage('Lint') {
       steps {
-        sh 'make lint_ci'
+        sh 'make ci-lint'
       }
     }
 
     stage('Security Scan') {
       steps {
-        sh 'make security_ci'
+        sh 'make ci-security'
       }
     }
 
     stage('Run tests') {
       steps {
-        sh 'make spec_ci'
+        sh 'make ci-spec'
       }
       post {
         success {
@@ -68,7 +68,7 @@ pipeline {
       }
     }
 
-    stage('Danger Bot'){
+    stage('Run Danger Bot') {
       steps {
         withCredentials([string(credentialsId: 'danger-github-api-token',    variable: 'DANGER_GITHUB_API_TOKEN')]) {
           sh 'make danger'
@@ -138,7 +138,6 @@ pipeline {
       }
     }
   }
-
   post {
     always {
       sh 'make ci-down'

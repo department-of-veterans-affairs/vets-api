@@ -19,10 +19,6 @@ ci:
 ci-down:
 	$(COMPOSE_TEST) down
 
-.PHONY: ci-spec
-ci-spec:
-	@$(BASH_TEST) "bin/rspec ${SPEC_PATH}"
-
 .PHONY: bash
 bash:
 	@$(COMPOSE_DEV) $(BASH)
@@ -30,6 +26,22 @@ bash:
 .PHONEY: ci-build
 ci-build:
 	$(COMPOSE_TEST) build
+
+.PHONY: ci-db
+ci-db:
+	@$(BASH_TEST) "bin/rails db:setup db:migrate"	
+
+.PHONY: ci-lint
+ci-lint:
+	@$(BASH_TEST) "bin/rails lint"
+
+.PHONY: ci-security
+ci-security:
+	@$(BASH_TEST) "bin/rails security"
+
+.PHONY: ci-spec
+ci-spec:
+	@$(BASH_TEST) "bin/rails spec:with_codeclimate_coverage"
 
 .PHONY: console
 console:
@@ -58,26 +70,6 @@ lint:
 .PHONY: migrate
 migrate:
 	@$(BASH_DEV) "bin/rails db:migrate"
-
-.PHONY: test_db
-test_db:
-	@$(BASH_TEST) "bin/rails db:setup db:migrate"	
-
-.PHONY: lint_ci
-lint_ci:
-	@$(BASH_TEST) "bin/rails lint"
-
-.PHONY: security_ci
-security_ci:
-	@$(BASH_TEST) "bin/rails security"
-
-.PHONY: danger
-danger:
-	@$(BASH_TEST) "bundle exec danger --verbose"
-
-.PHONY: spec_ci
-spec_ci:
-	@$(BASH_TEST) "bin/rails spec:with_codeclimate_coverage"
 
 .PHONY: rebuild
 rebuild: down
