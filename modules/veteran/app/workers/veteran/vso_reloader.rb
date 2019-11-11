@@ -10,10 +10,19 @@ module Veteran
       Veteran::Service::Representative.where.not(representative_id: array_of_organizations).destroy_all
     end
 
-    private
+    def reload_attorneys
+      fetch_data('attorneyexcellist.asp').map do |attorney|
+        find_or_create_attorneys(attorney)
 
-    def reload_representatives
-      reload_attorneys + reload_claim_agents + reload_vso_reps
+        attorney['Registration Num']
+      end
+    end
+
+    def reload_claim_agents
+      fetch_data('caexcellist.asp').map do |claim_agent|
+        find_or_create_claim_agents(claim_agent)
+        claim_agent['Registration Num']
+      end
     end
 
     def reload_vso_reps
@@ -24,7 +33,7 @@ module Veteran
         find_or_create_vso(vso_rep)
         vso_reps << vso_rep['Registration Num']
         {
-          poa: vso_rep['POA'],
+          poa: vso_rep['POA'].gsub(/\W/, ''),
           name: vso_rep['Organization Name'],
           phone: vso_rep['Org Phone'],
           state: vso_rep['Org State']
@@ -35,18 +44,10 @@ module Veteran
       vso_reps
     end
 
-    def reload_attorneys
-      fetch_data('attorneyexcellist.asp').map do |attorney|
-        find_or_create_attorneys(attorney)
-        attorney['Registration Num']
-      end
-    end
+    private
 
-    def reload_claim_agents
-      fetch_data('caexcellist.asp').map do |claim_agent|
-        find_or_create_claim_agents(claim_agent)
-        claim_agent['Registration Num']
-      end
+    def reload_representatives
+      reload_attorneys + reload_claim_agents + reload_vso_reps
     end
 
     def find_or_create_attorneys(attorney)
@@ -65,8 +66,9 @@ module Veteran
       rep = Veteran::Service::Representative.find_or_initialize_by(representative_id: vso['Registration Num'],
                                                                    first_name: vso['Representative'].split(' ')&.second,
                                                                    last_name: vso['Representative'].split(',')&.first)
-      poa_code = vso['POA'].gsub!(/\W/, '')
-      rep.poa_codes << poa_code unless rep.user_types.include?(poa_code)
+      poa_code = vso['POA'].gsub(/\W/, '')
+      rep.poa_codes << poa_code unless rep.poa_codes.include?(poa_code)
+
       rep.phone = vso['Org Phone']
       rep.user_types << 'veteran_service_officer' unless rep.user_types.include?('veteran_service_officer')
       rep.save

@@ -13,7 +13,7 @@ module EVSS
       # @return [String] Base path for VSO search URLs.
       #
       def base_path
-        "#{Settings.evss.url}/wss-common-services-web-#{API_VERSION}/rest/vsoSearch/11.0/"
+        "#{Settings.evss.url}/wss-common-services-web-#{API_VERSION}/rest/vsoSearch/#{API_VERSION}/"
       end
 
       ##
