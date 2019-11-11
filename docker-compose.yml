@@ -21,7 +21,7 @@ services:
         userid: "${VETS_API_USER_ID}"
     image: "vets-api:${DOCKER_IMAGE:-latest}"
     volumes:
-      - .:/srv/vets-api:cached
+      - .:/srv/vets-api/src:cached
       - "../vets-api-mockdata:/cache"
       - dev_bundle:/usr/local/bundle
     ports:

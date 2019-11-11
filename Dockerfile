@@ -11,8 +11,9 @@ ARG userid=993
 RUN groupadd -g $userid -r vets-api && \
     useradd -u $userid -r -m -d /srv/vets-api -g vets-api vets-api
 RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
-    dumb-init clamav imagemagick pdftk curl poppler-utils
-WORKDIR /srv/vets-api
+    dumb-init clamav clamdscan clamav-daemon imagemagick pdftk curl poppler-utils
+RUN mkdir -p /srv/vets-api/{clamav/database,secure,src} && chown -R vets-api:vets-api /srv/vets-api
+WORKDIR /srv/vets-api/src
 
 ###
 # dev stage; use --target=development to stop here
@@ -69,6 +70,6 @@ FROM base AS production
 
 ENV RAILS_ENV=production
 COPY --from=builder $BUNDLE_PATH $BUNDLE_PATH
-COPY --from=builder --chown=vets-api:vets-api /srv/vets-api ./
+COPY --from=builder --chown=vets-api:vets-api /srv/vets-api/src ./
 USER vets-api
 ENTRYPOINT ["/usr/bin/dumb-init", "--", "./docker-entrypoint.sh"]

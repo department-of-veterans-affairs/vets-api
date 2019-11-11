@@ -145,7 +145,6 @@ group :development, :test do
   # CAUTION: faraday_curl may not provide all headers used in the actual faraday request. Be cautious if using this to
   # assist with debugging production issues (https://github.com/department-of-veterans-affairs/vets.gov-team/pull/6262)
   gem 'faraday_curl'
-  gem 'foreman'
   gem 'fuubar'
   gem 'guard-rspec', '~> 4.7'
   gem 'overcommit'
