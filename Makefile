@@ -89,5 +89,4 @@ spec:
 
 .PHONY: up
 up: db
-	@$(BASH_DEV) "rm -f tmp/pids/server.pid && foreman start"
-
+	@$(BASH_DEV) "rm -f tmp/pids/server.pid && foreman start -m all=1,clamd=0"
