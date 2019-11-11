@@ -4,13 +4,12 @@ require 'rails_helper'
 
 describe VAOS::MessagesService do
   let(:user) { build(:user, :vaos) }
-  let(:request_id) { '1123' }
+  let(:request_id) { '8a4886886e4c8e22016e5be79a040002' }
   subject { described_class.new(user, request_id) }
 
   # before { allow_any_instance_of(VAOS::UserService).to receive(:session).and_return('stubbed_token') }
   around(:each) do |example|
     VCR.use_cassette('vaos/messages/user_session', record: :new_episodes) do
-      stub_mvi(mvi_profile, icn: )
       example.run
     end
   end

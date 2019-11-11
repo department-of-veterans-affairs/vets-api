@@ -25,17 +25,7 @@ FactoryBot.modify do
         stub_mvi(
           build(
             :mvi_profile,
-            full_mvi_ids: %w[
-              1012845331V153043^NI^200M^USVHA^P
-              1259897978^NI^200DOD^USDOD^A
-              0000027819^PN^200PROV^USDVA^A
-              7216691^PI^983^USVHA^A
-              552161050^PI^984^USVHA^A
-              63807^PI^200VETS^USDVA^A
-              0000001012845331V153043000000^PI^200ESR^USVHA^A
-              UNK^PI^200BRLS^USVBA^FAULT
-              UNK^PI^200CORP^USVBA^FAULT
-            ],
+            full_mvi_ids: %w[1012845331V153043^NI^200M^USVHA^P],
             icn: '1012845331V153043',
             icn_with_aaid: '1012845331V153043^NI^200M^USVHA',
             mhv_ids: [],
