@@ -29,9 +29,8 @@ module ClaimsApi
     end
 
     def claims_count
-      EVSS_CLAIM_KEYS.reduce(0) do |sum, key| 
-        next unless raw_claims[key]
-        sum + raw_claims[key].count
+      EVSS_CLAIM_KEYS.reduce(0) do |sum, key|
+        sum + (raw_claims[key].try(:count) || 0)
       end
     rescue EVSS::ErrorMiddleware::EVSSError
       0
