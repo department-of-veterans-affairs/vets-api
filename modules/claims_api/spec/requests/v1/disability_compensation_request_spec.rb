@@ -90,7 +90,7 @@ RSpec.describe 'Disability Claims ', type: :request do
           params['data']['attributes']['veteran']['currentMailingAddress'] = {}
           post path, params: params.to_json, headers: headers.merge(auth_header)
           expect(response.status).to eq(422)
-          expect(JSON.parse(response.body)['errors'].size).to eq(6)
+          expect(JSON.parse(response.body)['errors'].size).to eq(5)
         end
       end
 
@@ -101,6 +101,19 @@ RSpec.describe 'Disability Claims ', type: :request do
           post path, params: params.to_json, headers: headers.merge(auth_header)
           expect(response.status).to eq(422)
           expect(JSON.parse(response.body)['errors'].size).to eq(2)
+        end
+      end
+
+      it 'requires international postal code when address type is international' do
+        with_okta_user(scopes) do |auth_header|
+          params = json_data
+          mailing_address = params['data']['attributes']['veteran']['currentMailingAddress']
+          mailing_address['type'] = 'INTERNATIONAL'
+          params['data']['attributes']['veteran']['currentMailingAddress'] = mailing_address
+
+          post path, params: params.to_json, headers: headers.merge(auth_header)
+          expect(response.status).to eq(422)
+          expect(JSON.parse(response.body)['errors'].size).to eq(1)
         end
       end
     end
@@ -150,7 +163,7 @@ RSpec.describe 'Disability Claims ', type: :request do
           post '/services/claims/v1/forms/526/validate', params: params.to_json, headers: headers.merge(auth_header)
           parsed = JSON.parse(response.body)
           expect(response.status).to eq(422)
-          expect(parsed['errors'].size).to eq(6)
+          expect(parsed['errors'].size).to eq(5)
         end
       end
     end
