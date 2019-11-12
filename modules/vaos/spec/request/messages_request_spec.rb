@@ -4,6 +4,7 @@ require 'rails_helper'
 RSpec.describe 'vaos appointment request messages', type: :request do
   include SchemaMatchers
 
+  let(:request_id) { '8a4886886e4c8e22016e5bee49c30007' }
   let(:rsa_private) { OpenSSL::PKey::RSA.generate 4096 }
 
   before do
@@ -24,7 +25,7 @@ RSpec.describe 'vaos appointment request messages', type: :request do
   end
 
   context 'loa3 user' do
-    let(:current_user) { build(:user, :mhv) }
+    let(:current_user) { build(:user, :vaos) }
 
     context 'with flipper disabled' do
       it 'does not have access' do
@@ -36,7 +37,7 @@ RSpec.describe 'vaos appointment request messages', type: :request do
       end
     end
 
-    it 'has access and returns messages' do
+    it 'has access and returns messages', :skip_mvi do
       VCR.use_cassette('vaos/messages/get_messages', match_requests_on: %i[host path method]) do
         get "/v0/vaos/appointment_requests/#{request_id}/messages"
 

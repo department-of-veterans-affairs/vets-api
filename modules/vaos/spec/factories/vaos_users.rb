@@ -51,6 +51,9 @@ FactoryBot.modify do
           profile: profile
         )
         mvi.instance_variable_set(:@mvi_response, profile_response)
+        mvi.send(:do_cached_with, key: user.uuid) do
+          profile_response
+        end
         user.instance_variable_set(:@mvi, mvi)
       end
     end
