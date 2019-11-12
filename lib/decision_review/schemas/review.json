@@ -290,7 +290,7 @@
                   "diagnostic_code",
                   "rating_issue_id",
                   "rating_issue_profile_date",
-                  "rating_decision_reference_id",
+                  "rating_decision_id",
                   "description",
                   "contention_text",
                   "approx_decision_date",
