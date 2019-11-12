@@ -14,11 +14,16 @@ describe Common::Client::Errors::ErrorHandler do
   let(:client_error) { Common::Client::Errors::ClientError }
 
   describe '#log_error' do
-    subject { described_class.new(internal_server_error) }
-
-    xit 'calls the super class' do
-      allow_any_instance_of(SentryLogging).to receive(:log_error).and_return(true)
+    subject { described_class.new(client_error.new) }
+    
+    it 'calls instance log error method' do
+      allow_any_instance_of(described_class).to receive(:log_error).and_return(true)
       expect(subject.log_error).to be(true)
+    end
+    
+    #TODO not sure if testing super is even possible behavior to test?
+    it 'calls the super log error' do
+      allow_any_instance_of(SentryLogging).to receive(:log_error).and_return(true)
     end
 
     context 'when ancestor does not implement `#log_error`' do
