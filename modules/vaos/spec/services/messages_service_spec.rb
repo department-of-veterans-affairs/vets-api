@@ -4,7 +4,7 @@ require 'rails_helper'
 
 describe VAOS::MessagesService do
   let(:user) { build(:user, :vaos) }
-  let(:request_id) { '8a4886886e4c8e22016e5be79a040002' }
+  let(:request_id) { '8a4886886e4c8e22016e5bee49c30007' }
   subject { described_class.for_user(user) }
 
   before { allow_any_instance_of(VAOS::UserService).to receive(:session).and_return('stubbed_token') }

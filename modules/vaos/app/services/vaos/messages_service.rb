@@ -43,8 +43,8 @@ module VAOS
     end
 
     def messages_url(request_id)
-      "/var/VeteranAppointmentRequestService/v4/rest/appointment-service/patient/ICN/#{user.icn}/appointments" +
-      "/system/var/id/#{request_id}/messages"
+      "/var/VeteranAppointmentRequestService/v4/rest/appointment-service/patient/ICN/#{user.icn}" +
+      "/appointment-requests/system/var/id/#{request_id}/messages"
     end
 
     def headers
