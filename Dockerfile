@@ -12,9 +12,14 @@ SHELL ["/bin/bash", "-c"]
 RUN groupadd -g $userid -r vets-api && \
     useradd -u $userid -r -m -d /srv/vets-api -g vets-api vets-api
 RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
-    dumb-init clamav clamdscan clamav-daemon imagemagick pdftk curl poppler-utils libpq5
-RUN mkdir -p /srv/vets-api/{clamav/database,secure,src} && chown -R vets-api:vets-api /srv/vets-api
-WORKDIR /srv/vets-api/src
+    dumb-init clamav clamdscan clamav-daemon imagemagick pdftk curl poppler-utils libpq5 vim
+# The pki work below is for parity with the non-docker BRD deploys to mount certs into 
+# the container, we need to get rid of it and refactor the configuration bits into 
+# something more continer friendly in a later bunch of work
+RUN mkdir -p /srv/vets-api/{clamav/database,pki/tls,secure,src} && \
+    chown -R vets-api:vets-api /srv/vets-api && \
+    ln -s /srv/vets-api/pki /etc/pki
+WORKDIR /srv/vets-api/
 
 ###
 # dev stage; use --target=development to stop here
