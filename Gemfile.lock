@@ -326,6 +326,8 @@ GEM
     ffi (1.11.1)
     figaro (1.1.1)
       thor (~> 0.14)
+    filelock (1.1.1)
+    find_a_port (1.0.1)
     flipper (0.17.1)
     flipper-active_record (0.17.1)
       activerecord (>= 4.2, < 7)
