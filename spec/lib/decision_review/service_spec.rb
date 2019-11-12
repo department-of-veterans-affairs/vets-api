@@ -164,7 +164,7 @@ describe DecisionReview::Service do
     context 'with a valid decision review response' do
       it 'returns an review response object' do
         VCR.use_cassette('decision_review/200_review') do
-          response = subject.get_higher_level_reviews('1234567890')
+          response = subject.get_higher_level_reviews('418f8cbf-2510-4dd3-9af1-0b581689b18e')
           expect(response).to be_ok
           expect(response).to be_an DecisionReview::Responses::Response
         end
