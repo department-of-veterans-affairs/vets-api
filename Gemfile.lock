@@ -297,7 +297,6 @@ GEM
     encryptor (3.0.0)
     equalizer (0.0.11)
     erubi (1.9.0)
-    erubis (2.7.0)
     et-orbi (1.2.1)
       tzinfo
     ethon (0.10.1)
@@ -327,16 +326,16 @@ GEM
     ffi (1.11.1)
     figaro (1.1.1)
       thor (~> 0.14)
-    flipper (0.16.2)
-    flipper-active_record (0.16.2)
-      activerecord (>= 3.2, < 6)
-      flipper (~> 0.16.2)
-    flipper-active_support_cache_store (0.16.2)
-      activesupport (>= 3.2, < 6)
-      flipper (~> 0.16.2)
-    flipper-ui (0.16.2)
-      erubis (~> 2.7.0)
-      flipper (~> 0.16.2)
+    flipper (0.17.1)
+    flipper-active_record (0.17.1)
+      activerecord (>= 4.2, < 7)
+      flipper (~> 0.17.1)
+    flipper-active_support_cache_store (0.17.1)
+      activesupport (>= 4.2, < 7)
+      flipper (~> 0.17.1)
+    flipper-ui (0.17.1)
+      erubi (>= 1.0.0, < 2.0.0)
+      flipper (~> 0.17.1)
       rack (>= 1.4, < 3)
       rack-protection (>= 1.5.3, < 2.1.0)
     foreman (0.85.0)
@@ -495,7 +494,7 @@ GEM
     rack-attack (5.0.1)
       rack
     rack-cors (0.4.1)
-    rack-protection (2.0.5)
+    rack-protection (2.0.7)
       rack
     rack-test (1.1.0)
       rack (>= 1.0, < 3)
@@ -753,10 +752,10 @@ DEPENDENCIES
   fast_jsonapi
   fastimage
   figaro
-  flipper
-  flipper-active_record
-  flipper-active_support_cache_store
-  flipper-ui
+  flipper (~> 0.17.1)
+  flipper-active_record (~> 0.17.1)
+  flipper-active_support_cache_store (~> 0.17.1)
+  flipper-ui (~> 0.17.1)
   foreman
   fuubar
   govdelivery-tms (= 2.8.4)
