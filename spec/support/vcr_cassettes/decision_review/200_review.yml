@@ -2,9 +2,9 @@
 http_interactions:
 - request:
     method: get
-    uri: https://dev-api.va.gov/services/appeals/v3/decision_review/higher_level_reviews/1234567890
+    uri: https://dev-api.va.gov/services/appeals/v3/decision_review/higher_level_reviews/418f8cbf-2510-4dd3-9af1-0b581689b18e
     body:
-      encoding: UTF-8
+      encoding: US-ASCII
       string: ''
     headers:
       Accept:
@@ -14,22 +14,24 @@ http_interactions:
       User-Agent:
       - Vets.gov Agent
       Apikey:
-      - abcd1234abcd1234abcd1234abcd1234abcd1234
+      - bGf6MbOUCFAMTA1Sw6k6s3woh31ggDy0
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
   response:
     status:
       code: 200
-      message: Accepted
+      message: OK
     headers:
       Date:
-      - Wed, 16 Oct 2019 17:32:35 GMT
+      - Mon, 11 Nov 2019 22:59:50 GMT
       Content-Type:
       - application/json; charset=utf-8
       Connection:
       - keep-alive
       Access-Control-Allow-Origin:
       - "*"
+      Etag:
+      - W/"065d12e56a30935e37c01dbc4b87de2a"
       Strict-Transport-Security:
       - max-age=31536000; includeSubDomains
       - max-age=31536000; includeSubDomains; preload
@@ -42,131 +44,35 @@ http_interactions:
       X-Kong-Proxy-Latency:
       - '1'
       X-Kong-Upstream-Latency:
-      - '3247'
+      - '3737'
       X-Ratelimit-Limit-Minute:
       - '60'
       X-Ratelimit-Remaining-Minute:
       - '59'
       X-Request-Id:
-      - 74544469-e248-4c47-9990-f2b73df1adbc
+      - 7a7c392c-ed22-4a06-9b7b-adf6a24913a0
       X-Runtime:
-      - '2.915770'
+      - '3.049491'
       X-Xss-Protection:
       - 1; mode=block
+      Cache-Control:
+      - no-cache, no-store
+      Pragma:
+      - no-cache
       Set-Cookie:
-      - TS016f4012=01c8917e489bd94c458c7d912c84d5687517e29ca330455ef805bd0b2a59fc1209855490fefca99758ffa2b78b4d81713baa552053;
+      - TS016f4012=01c8917e4869bacf9685111902a84288808184f1c029a572034722d77fab844bc62d8e98e16a96644db05b716ad4c200a517f4e8bd;
         Max-Age=900; Path=/
+      Transfer-Encoding:
+      - chunked
     body:
-      encoding: UTF-8
-      string: |-
-        {
-          "data": {
-            "id": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
-            "type": "HigherLevelReview",
-            "attributes": {
-              "status": "string",
-              "aoj": "string",
-              "programArea": "string",
-              "benefitType": "compensation",
-              "description": "string",
-              "receiptDate": "2019-10-16",
-              "informalConference": true,
-              "sameOffice": true,
-              "legacyOptInApproved": true,
-              "alerts": [
-                {
-                  "type": "AmaPostDecision",
-                  "details": {
-                    "decisionDate": "2019-10-16",
-                    "availableOptions": [
-                      "string"
-                    ],
-                    "dueDate": "2019-10-16"
-                  }
-                }
-              ],
-              "events": [
-                {
-                  "type": "hlr_request_event",
-                  "date": "2019-10-16"
-                }
-              ]
-            },
-            "relationships": {
-              "veteran": {
-                "data": {
-                  "type": "Veteran",
-                  "id": "string"
-                }
-              },
-              "claimant": {
-                "data": {
-                  "type": "Claimant",
-                  "id": "string"
-                }
-              },
-              "requestIssues": {
-                "data": [
-                  {
-                    "type": "RequestIssue",
-                    "id": 0
-                  }
-                ]
-              },
-              "decisionIssues": {
-                "data": [
-                  {
-                    "type": "DecisionIssue",
-                    "id": 0
-                  }
-                ]
-              }
-            }
-          },
-          "included": [
-            {
-              "type": "DecisionIssue",
-              "id": 0,
-              "attributes": {
-                "approxDecisionDate": "2019-10-16",
-                "decisionText": "string",
-                "description": "string",
-                "disposition": "string",
-                "finalized": true
-              }
-            },
-            {
-              "type": "RequestIssue",
-              "id": 0,
-              "attributes": {
-                "active": true,
-                "statusDescription": "string",
-                "diagnosticCode": "string",
-                "ratingIssueId": "string",
-                "ratingIssueProfileDate": "2019-10-16",
-                "ratingDecisionReferenceId": "string",
-                "description": "string",
-                "contentionText": "string",
-                "approxDecisionDate": "2019-10-16",
-                "category": "string",
-                "notes": "string",
-                "isUnidentified": true,
-                "rampClaimId": "string",
-                "legacyAppealId": "string",
-                "legacyAppealIssueId": 0,
-                "ineligibleReason": "string",
-                "ineligibleDueToId": 0,
-                "decisionReviewTitle": "string",
-                "titleOfActiveReview": "string",
-                "decisionIssueId": 0,
-                "withdrawalDate": "2019-10-16",
-                "contestedIssueDescription": "string",
-                "endProductCleared": true,
-                "endProductCode": "string"
-              }
-            }
-          ]
-        }
+      encoding: ASCII-8BIT
+      string: '{"data":{"id":"418f8cbf-2510-4dd3-9af1-0b581689b18e","type":"HigherLevelReview","attributes":{"status":"hlr_closed","aoj":"vba","description":"1
+        compensation issue","benefitType":"compensation","receiptDate":"2019-05-25","informalConference":true,"sameOffice":false,"legacyOptInApproved":true,"alerts":[],"events":[{"type":"hlr_request","date":"2019-05-25"}],"programArea":"compensation"},"relationships":{"veteran":{"data":{"id":"2140","type":"Veteran"}},"claimant":{"data":{"id":"3178","type":"Claimant"}},"decisionIssues":{"data":[]},"requestIssues":{"data":[{"id":3515,"type":"RequestIssue"}]}}},"included":[{"id":"3178","type":"Claimant","attributes":{"firstName":"WILLARD","middleName":null,"lastName":"LEIKER","payeeCode":null,"relationshipType":"Veteran"}},{"id":"3515","type":"RequestIssue","attributes":{"diagnosticCode":null,"description":"Some
+        text here.","contentionText":"Some text here.","notes":"not sure if this is
+        on file","isUnidentified":false,"rampClaimId":null,"withdrawalDate":null,"contestedIssueDescription":"Some
+        text here.","endProductCode":"030HLRR","active":false,"ineligible":{"dueToId":3514,"reason":"duplicate_of_rating_issue_in_active_review","titleOfActiveReview":"Higher-Level
+        Review"},"statusDescription":"Compensation issue","ratingIssueId":null,"ratingIssueProfileDate":null,"ratingDecisionId":null,"approxDecisionDate":"2019-07-25","category":null,"legacyAppealId":null,"legacyAppealIssueId":null,"decisionReviewTitle":"Higher-Level
+        Review","decisionIssueId":205,"endProductCleared":null}},{"id":"2140","type":"Veteran","attributes":{"firstName":"WILLARD","middleName":null,"lastName":"LEIKER","nameSuffix":null,"fileNumber":"700062010","ssn":"700062010","participantId":"600285627"}}]}'
     http_version:
-  recorded_at: Wed, 16 Oct 2019 17:32:26 GMT
+  recorded_at: Mon, 11 Nov 2019 22:59:49 GMT
 recorded_with: VCR 3.0.3
