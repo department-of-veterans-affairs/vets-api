@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'faker/medical'
 
 FactoryBot.modify do
@@ -14,7 +16,7 @@ FactoryBot.modify do
       zip { '12345' }
       birth_date { '1953-04-01' }
       ssn { '796061976' }
-      va_patient { true}
+      va_patient { true }
 
       loa do
         {
@@ -28,7 +30,7 @@ FactoryBot.modify do
         profile = build(
           :mvi_profile,
           given_names: %w[Judy Snow],
-          family_name: "Morrison",
+          family_name: 'Morrison',
           suffix: nil,
           address: nil,
           home_phone: nil,

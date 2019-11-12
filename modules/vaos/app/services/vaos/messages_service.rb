@@ -36,15 +36,15 @@ module VAOS
     private
 
     def deserialize(json_hash)
-      json_hash[:messages].map { |request| OpenStruct.new(request) }
+      json_hash[:appointment_request_message].map { |request| OpenStruct.new(request) }
     rescue => e
       log_message_to_sentry(e.message, :warn, invalid_json: json_hash)
       []
     end
 
     def messages_url(request_id)
-      "/var/VeteranAppointmentRequestService/v4/rest/appointment-service/patient/ICN/#{user.icn}" +
-      "/appointment-requests/system/var/id/#{request_id}/messages"
+      "/var/VeteranAppointmentRequestService/v4/rest/appointment-service/patient/ICN/#{user.icn}" \
+        "/appointment-requests/system/var/id/#{request_id}/messages"
     end
 
     def headers
