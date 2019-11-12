@@ -453,7 +453,6 @@ GEM
       childprocess (>= 0.6.3, < 4)
       iniparse (~> 1.4)
     ox (2.8.2)
-<<<<<<< HEAD
     pact (1.42.0)
       json (> 1.8.5)
       pact-mock_service (~> 3.0)
