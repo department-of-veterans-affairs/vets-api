@@ -10,12 +10,14 @@ module VAOS
 
     configuration VAOS::Configuration
 
-    attr_reader :user, :request_id
+    attr_accessor :user
 
     STATSD_KEY_PREFIX = 'api.vaos'
 
     def self.for_user(user)
-      @user = user
+      rs = VAOS::MessagesService.new
+      rs.user = user
+      rs
     end
 
     def get_messages(request_id)
