@@ -1,4 +1,4 @@
-# Vets API [![Build Status](https://dev.vets.gov/jenkins/buildStatus/icon?job=testing/vets-api/master)](http://jenkins.vetsgov-internal/job/department-of-veterans-affairs/job/vets-api/job/master/) [![Yard Docs](http://img.shields.io/badge/yard-docs-blue.svg)](https://www.rubydoc.info/github/department-of-veterans-affairs/vets-api)
+# Vets API [![Build Status](https://dev.vets.gov/jenkins/buildStatus/icon?job=testing/vets-api/master)](http://jenkins.vetsgov-internal/job/department-of-veterans-affairs/job/vets-api/job/master/) [![Swagger](https://img.shields.io/swagger/valid/2.0/https/api.va.gov/v0/apidocs)](https://department-of-veterans-affairs.github.io/va-digital-services-platform-docs/api-reference/#/) [![Yard Docs](http://img.shields.io/badge/yard-docs-blue.svg)](https://www.rubydoc.info/github/department-of-veterans-affairs/vets-api)
 
 This project provides common APIs for applications that live on VA.gov (formerly vets.gov APIs). 
 
@@ -39,7 +39,7 @@ make: *** [db] Error 1
 ```
 
 Sidekiq Enterprise is used for worker rate limiting and additional reliability. Most
-developers can bypass the installation of Sidekiq Enterprise with
+developers can bypass the installation of Sidekiq Enterprise wit
 
 - `$ EXCLUDE_SIDEKIQ_ENTERPRISE=true make rebuild`
 
