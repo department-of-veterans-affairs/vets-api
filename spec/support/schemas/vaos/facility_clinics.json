@@ -1,0 +1,51 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "type": "object",
+  "required": [
+    "data"
+  ],
+  "properties": {
+    "data": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "type",
+          "attributes"
+        ],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string"
+          },
+          "attributes": {
+            "type": "object",
+            "required": [
+              "site_code",
+              "clinic_id",
+              "clinic_name",
+              "clinic_friendly_location_name"
+            ],
+            "properties": {
+              "site_code": {
+                "type": "integer"
+              },
+              "clinic_id": {
+                "type": "integer"
+              },
+              "clinic_name": {
+                "type": "string"
+              },
+              "clinic_friendly_location_name": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
