@@ -19,6 +19,7 @@ require 'support/aws_helpers'
 require 'support/request_helper'
 require 'support/uploader_helpers'
 require 'common/exceptions'
+require './spec/support/default_configuration_helper'
 
 WebMock.disable_net_connect!(allow_localhost: true)
 
@@ -67,6 +68,7 @@ VCR.configure do |c|
   c.filter_sensitive_data('<PD_TOKEN>') { Settings.maintenance.pagerduty_api_token }
   c.filter_sensitive_data('<OKTA_TOKEN>') { Settings.oidc.base_api_token }
   c.filter_sensitive_data('<EE_PASS>') { Settings.hca.ee.pass }
+  c.filter_sensitive_data('<AV_KEY>') { Settings.vet360.address_validation.api_key }
   c.before_record do |i|
     %i[response request].each do |env|
       next unless i.send(env).headers.keys.include?('Token')
@@ -167,7 +169,7 @@ RSpec.configure do |config|
     end
   end
 
-  config.before(:each) do |example|
+  config.before do |example|
     stub_mvi unless example.metadata[:skip_mvi]
     stub_emis unless example.metadata[:skip_emis]
     stub_vet360 unless example.metadata[:skip_vet360]
@@ -180,4 +182,6 @@ RSpec.configure do |config|
   config.after(:all) do
     FileUtils.rm_rf(Dir[Rails.root.join('spec', 'support', 'uploads')]) if Rails.env.test?
   end
+
+  config.fuubar_auto_refresh = false
 end

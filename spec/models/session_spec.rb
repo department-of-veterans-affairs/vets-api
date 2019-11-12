@@ -30,13 +30,13 @@ RSpec.describe Session, type: :model do
       let(:expry_time) { start_time + 1800 }
       let(:user) { create(:user, :mhv, uuid: attributes[:uuid]) }
 
-      before(:each) do
+      before do
         Timecop.freeze(start_time)
         user
         subject.save # persisting it to freeze the ttl
       end
 
-      after(:each) do
+      after do
         Timecop.return
       end
 
@@ -47,7 +47,7 @@ RSpec.describe Session, type: :model do
   end
 
   describe 'redis persistence' do
-    before(:each) { subject.save }
+    before { subject.save }
 
     context 'expire' do
       it 'extends a session' do

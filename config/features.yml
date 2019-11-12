@@ -10,4 +10,10 @@ features:
       This toggle is owned by Rian
   profile_show_direct_deposit:
     description: >
-      https://www.va.gov/profile/ show Direct Deopsit
+      https://www.va.gov/profile/ show Direct Deposit
+  profile_show_receive_text_notifications:
+    description: >
+      https://www.va.gov/profile/ show Receive Text Notifications
+  va_online_scheduling:
+    description: >
+      Allows veterans to schedule, request and track VA and Community Care appointments

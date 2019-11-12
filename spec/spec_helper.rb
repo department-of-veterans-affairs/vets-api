@@ -29,6 +29,7 @@ unless ENV['NOCOVERAGE']
     add_filter 'lib/gibft/configuration.rb'
     add_filter 'lib/ihub/appointments/response.rb'
     add_filter 'lib/salesforce/configuration.rb'
+    add_filter 'lib/vet360/address_validation/configuration.rb'
     add_filter 'lib/search/response.rb'
     add_filter 'lib/vet360/exceptions/builder.rb'
     add_filter 'lib/vet360/response.rb'
@@ -49,6 +50,9 @@ unless ENV['NOCOVERAGE']
     add_group 'VBADocuments', 'modules/vba_documents/'
     add_group 'Veteran', 'modules/veteran/'
     add_group 'VeteranVerification', 'modules/veteran_verification/'
+    add_group 'OpenidAuth', 'modules/openid_auth/'
+    add_group 'VAOS', 'modules/vaos/'
+
     SimpleCov.minimum_coverage_by_file 90
     SimpleCov.refuse_coverage_drop
   end

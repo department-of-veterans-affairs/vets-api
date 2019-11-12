@@ -8,6 +8,9 @@ module ClaimsApi
 
     swagger_path '/forms/526' do
       operation :get do
+        security do
+          key :apikey, []
+        end
         key :summary, 'Get 526 JSON Schema for form'
         key :description, 'Returns a single 526 JSON schema to auto generate a form'
         key :operationId, 'get526JsonSchema'
@@ -50,20 +53,15 @@ module ClaimsApi
       end
 
       operation :post do
+        security do
+          key :apikey, []
+        end
         key :summary, 'Accepts 526 claim form submission'
         key :description, 'Accepts JSON payload. Full URL, including\nquery parameters.'
         key :operationId, 'post526Claim'
         key :tags, [
           'Disability'
         ]
-
-        parameter do
-          key :name, 'apikey'
-          key :in, :header
-          key :description, 'API Key given to access data'
-          key :required, true
-          key :type, :string
-        end
 
         parameter do
           key :name, 'X-VA-SSN'
@@ -147,20 +145,15 @@ module ClaimsApi
 
     swagger_path '/forms/526/validate' do
       operation :post do
+        security do
+          key :apikey, []
+        end
         key :summary, 'Validates a 526 claim form submission'
         key :description, 'Accepts JSON payload. Full URL, including\nquery parameters.'
         key :operationId, 'post526ClaimValidate'
         key :tags, [
           'Disability'
         ]
-
-        parameter do
-          key :name, 'apikey'
-          key :in, :header
-          key :description, 'API Key given to access data'
-          key :required, true
-          key :type, :string
-        end
 
         parameter do
           key :name, 'X-VA-SSN'
@@ -281,6 +274,9 @@ module ClaimsApi
 
     swagger_path '/forms/526/{id}/attachments' do
       operation :post do
+        security do
+          key :apikey, []
+        end
         key :summary, 'Upload documents in support of a 526 claim'
         key :description, 'Accpets document binaries as part of a multipart payload. Accepts N number of attachments, via attachment1 .. attachmentN'
         key :operationId, 'upload526Attachments'
@@ -297,14 +293,6 @@ module ClaimsApi
           key :description, 'UUID given when Disability Claim was submitted'
           key :required, true
           key :type, :uuid
-        end
-
-        parameter do
-          key :name, 'apikey'
-          key :in, :header
-          key :description, 'API Key given to access data'
-          key :required, true
-          key :type, :string
         end
 
         parameter do
@@ -359,14 +347,14 @@ module ClaimsApi
           key :name, 'attachment1'
           key :in, :formData
           key :type, :file
-          key :description, 'Attachment contents. Must be provided in PDF format'
+          key :description, 'Attachment contents. Must be provided in PDF format and less than 11 in x 11 in'
         end
 
         parameter do
           key :name, 'attachment2'
           key :in, :formData
           key :type, :file
-          key :description, 'Attachment contents. Must be provided in PDF format'
+          key :description, 'Attachment contents. Must be provided in PDF format and less than 11 in x 11 in'
         end
 
         response 200 do

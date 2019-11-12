@@ -1,4 +1,6 @@
 $stdout.sync = true
+export VETS_API_USER_ID  := $(shell id -u)
+
 COMPOSE_DEV  := docker-compose
 COMPOSE_TEST := docker-compose -f docker-compose.test.yml
 BASH         := run --rm --service-ports vets-api bash
@@ -8,23 +10,30 @@ SPEC_PATH    := spec/
 
 .PHONY: default
 default: ci
-.PHONY: bash
-bash:
-	@$(COMPOSE_DEV) $(BASH)
 
 .PHONY: ci
 ci:
 	@$(BASH_TEST) "bin/rails db:setup db:migrate ci"
 
-.PHONY: clean
-clean:
-	rm -r data || true
-	$(COMPOSE_TEST) run vets-api rm -r coverage log tmp || true
+.PHONEY: ci-down
+ci-down:
 	$(COMPOSE_TEST) down
+
+.PHONY: ci-spec
+ci-spec:
+	@$(BASH_TEST) "bin/rspec ${SPEC_PATH}"
+
+.PHONY: bash
+bash:
+	@$(COMPOSE_DEV) $(BASH)
 
 .PHONY: console
 console:
 	@$(BASH_DEV) "bundle exec rails c"
+
+.PHONY: danger
+danger:
+	@$(BASH_TEST) "bundle exec danger --verbose"
 
 .PHONY: db
 db:
@@ -44,7 +53,7 @@ lint:
 
 .PHONY: migrate
 migrate:
-	@$(BASH_TEST) "bin/rails db:migrate"
+	@$(BASH_DEV) "bin/rails db:migrate"
 
 .PHONY: rebuild
 rebuild: down
@@ -60,7 +69,7 @@ server:
 
 .PHONY: spec
 spec:
-	@$(BASH_TEST) "bin/rspec ${SPEC_PATH}"
+	@$(BASH_DEV) "bin/rspec ${SPEC_PATH}"
 
 .PHONY: up
 up: db

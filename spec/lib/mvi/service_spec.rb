@@ -41,7 +41,7 @@ describe MVI::Service do
   end
 
   describe '.find_profile with icn', run_at: 'Wed, 21 Feb 2018 20:19:01 GMT' do
-    before(:each) do
+    before do
       expect(MVI::Messages::FindProfileMessageIcn).to receive(:new).once.and_call_original
     end
 
@@ -153,13 +153,13 @@ describe MVI::Service do
   end
 
   describe '.find_profile with edipi', run_at: 'Wed, 21 Feb 2018 20:19:01 GMT' do
-    around(:each) do |example|
+    around do |example|
       Settings.mvi.edipi_search = true
       example.run
       Settings.mvi.edipi_search = false
     end
 
-    before(:each) do
+    before do
       expect(MVI::Messages::FindProfileMessageEdipi).to receive(:new).once.and_call_original
     end
 
@@ -188,7 +188,7 @@ describe MVI::Service do
 
   describe '.find_profile without icn' do
     context 'valid request' do
-      before(:each) do
+      before do
         expect(MVI::Messages::FindProfileMessage).to receive(:new).once.and_call_original
       end
 
@@ -303,7 +303,7 @@ describe MVI::Service do
     end
 
     context 'when no subject is returned in the response body' do
-      before(:each) do
+      before do
         expect(MVI::Messages::FindProfileMessage).to receive(:new).once.and_call_original
       end
 
@@ -361,7 +361,7 @@ describe MVI::Service do
     end
 
     context 'when MVI returns 500 but VAAFI sends 200' do
-      before(:each) do
+      before do
         expect(MVI::Messages::FindProfileMessage).to receive(:new).once.and_call_original
       end
 
@@ -381,7 +381,7 @@ describe MVI::Service do
     end
 
     context 'when MVI multiple match failure response' do
-      before(:each) do
+      before do
         expect(MVI::Messages::FindProfileMessage).to receive(:new).once.and_call_original
       end
 

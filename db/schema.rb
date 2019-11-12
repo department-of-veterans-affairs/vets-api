@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2019_09_20_134906) do
+ActiveRecord::Schema.define(version: 2019_11_06_190228) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
@@ -157,12 +157,14 @@ ActiveRecord::Schema.define(version: 2019_09_20_134906) do
 
   create_table "drivetime_bands", force: :cascade do |t|
     t.string "name"
-    t.integer "value"
     t.string "unit"
     t.geography "polygon", limit: {:srid=>4326, :type=>"st_polygon", :geographic=>true}, null: false
     t.string "vha_facility_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.integer "min"
+    t.integer "max"
+    t.index ["polygon"], name: "index_drivetime_bands_on_polygon", using: :gist
   end
 
   create_table "education_benefits_claims", id: :serial, force: :cascade do |t|
@@ -208,6 +210,17 @@ ActiveRecord::Schema.define(version: 2019_09_20_134906) do
     t.json "list_data", default: {}, null: false
     t.boolean "requested_decision", default: false, null: false
     t.index ["user_uuid"], name: "index_evss_claims_on_user_uuid"
+  end
+
+  create_table "feature_toggle_events", force: :cascade do |t|
+    t.string "feature_name"
+    t.string "operation"
+    t.string "gate_name"
+    t.string "value"
+    t.string "user"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["feature_name"], name: "index_feature_toggle_events_on_feature_name"
   end
 
   create_table "flipper_features", force: :cascade do |t|
@@ -472,6 +485,18 @@ ActiveRecord::Schema.define(version: 2019_09_20_134906) do
     t.index ["preference_id"], name: "index_user_preferences_on_preference_id"
   end
 
+  create_table "va_forms_forms", force: :cascade do |t|
+    t.string "form_name"
+    t.string "url"
+    t.string "title"
+    t.date "first_issued_on"
+    t.date "last_revision_on"
+    t.integer "pages"
+    t.string "sha256"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
   create_table "vba_documents_upload_submissions", id: :serial, force: :cascade do |t|
     t.uuid "guid", null: false
     t.string "status", default: "pending", null: false
@@ -484,6 +509,17 @@ ActiveRecord::Schema.define(version: 2019_09_20_134906) do
     t.uuid "consumer_id"
     t.index ["guid"], name: "index_vba_documents_upload_submissions_on_guid"
     t.index ["status"], name: "index_vba_documents_upload_submissions_on_status"
+  end
+
+  create_table "versions", force: :cascade do |t|
+    t.string "item_type", null: false
+    t.bigint "item_id", null: false
+    t.string "event", null: false
+    t.string "whodunnit"
+    t.text "object"
+    t.datetime "created_at"
+    t.text "object_changes"
+    t.index ["item_type", "item_id"], name: "index_versions_on_item_type_and_item_id"
   end
 
   create_table "veteran_organizations", id: false, force: :cascade do |t|

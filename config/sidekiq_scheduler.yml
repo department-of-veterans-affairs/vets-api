@@ -104,6 +104,11 @@ FacilityLocationBulkUpdateVHA:
   args: ['vha']
   description: "Download and store facility location data"
 
+FacilityLocationVHADriveTime:
+  cron: "55 4 * * * America/New_York"
+  class: Facilities::PSSGDownload
+  description: "Download and store drive time bands"
+
 MaintenanceWindowRefresh:
   cron: "*/3 * * * * America/New_York"
   class: PagerDuty::PollMaintenanceWindows
@@ -124,6 +129,11 @@ VBADocuments::UploadStatusBatch:
   class: VBADocuments::UploadStatusBatch
   description: "Cache Statuses for VBA Documents"
 
+VBADocuments::ReportUnsuccessfulSubmissions:
+  cron: "0 0 * * 1 America/New_York"
+  class: VBADocuments::ReportUnsuccessfulSubmissions
+  description: "Weekly report of unsuccessful submissions"
+
 TransactionalEmailAnalyticsJob:
   cron: "0 1 * * * America/New_York"
   description: "posts Transactional email (HCA Failure and Direct Deposit Update) sends and failures to Google Analytics"
@@ -139,3 +149,8 @@ MHV::AccountStatisticsJob:
 ExternalServicesStatusJob:
   every: '1m'
   description: "Checks the current status of all external services through PagerDuty's API"
+
+VaForms::FetchLatest:
+  cron: "0 0 * * * America/New_York"
+  class: VaForms::FormReloader
+  description: "Fetches latest VA Forms"

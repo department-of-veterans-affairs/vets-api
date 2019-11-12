@@ -41,7 +41,7 @@ module ClaimsApi
     end
 
     def check_loa_level
-      unless header('X-VA-LOA') == '3'
+      unless header('X-VA-LOA').try(:to_i) == 3
         render json: [],
                serializer: ActiveModel::Serializer::CollectionSerializer,
                each_serializer: ClaimsApi::ClaimListSerializer,
@@ -66,7 +66,10 @@ module ClaimsApi
       vet.loa = if @current_user
                   @current_user.loa
                 else
-                  vet.loa = { current: header('X-VA-LOA'), highest: header('X-VA-LOA') }
+                  vet.loa = {
+                    current: header('X-VA-LOA').try(:to_i),
+                    highest: header('X-VA-LOA').try(:to_i)
+                  }
                 end
       vet.mvi_record?
       vet.gender = header('X-VA-Gender') || vet.mvi.profile&.gender if with_gender

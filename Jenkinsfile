@@ -43,6 +43,14 @@ pipeline {
       }
     }
 
+    stage('Run Danger Bot') {
+      steps {
+        withCredentials([string(credentialsId: 'danger-github-api-token',    variable: 'DANGER_GITHUB_API_TOKEN')]) {
+          sh 'make danger'
+        }
+      }
+    }
+
     stage('Review') {
       when { not { branch 'master' } }
 
@@ -107,7 +115,7 @@ pipeline {
   }
   post {
     always {
-      sh 'make clean'
+      sh 'make ci-down'
       deleteDir() /* clean up our workspace */
     }
     failure {

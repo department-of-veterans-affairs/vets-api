@@ -1,0 +1,43 @@
+<div class="vads-l-row">
+  <div class="vads-l-col">
+    <table class="vads-u-margin-top--0">
+      <caption class="vads-u-font-size--xl">Features</caption>
+      <thead>
+        <tr>
+          <th>Status</th>
+          <th>Feature</th>
+          <th>Description</th>
+          <th>Enabled Gates</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @features.each do |feature| %>
+          <tr>
+            <td>
+              <%= feature.state.capitalize %>
+            </td>
+            <td>
+              <% if Thread.current[:flipper_user_email_for_log].present?%>
+                <a href="<%= "#{script_name}/features/#{feature.key}" %>">
+                  <%= feature.key %>
+                </a>
+              <%else%>
+                  <%= feature.key %>
+              <% end %>
+            </td>
+            <td>
+              <%= yaml_features.dig(feature.key,'description') %>
+            </td>
+            <td>
+              <%= feature.pretty_enabled_gate_names %>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+
+    <% if Thread.current[:flipper_user_email_for_log].blank? %>
+      <a href ="<%= SAML::URLService::VIRTUAL_HOST_MAPPINGS.dig(request.base_url, :base_redirect) %>">Sign in</a> with an identity-verified admin account to exit feagure toggles.
+    <% end %>
+  </div>
+</div>

@@ -46,7 +46,8 @@
                 "loa",
                 "multifactor",
                 "verified",
-                "sign_in"
+                "sign_in",
+                "authn_context"
               ],
               "properties": {
                 "email": { "type": "string"},
@@ -72,7 +73,8 @@
                   "properties":  {
                     "service_name": { "type": "string" }
                   }
-                }
+                },
+                "authn_context": { "type": "string" }
               }
             },
             "va_profile": {

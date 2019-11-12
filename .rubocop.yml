@@ -1,6 +1,4 @@
-inherit_from: .rubocop_todo.yml
-
-require: 
+require:
   - rubocop-rails
   - rubocop-rspec
 
@@ -57,7 +55,7 @@ Style/GuardClause:
 # problems as above.
 Style/Next:
   Enabled: false
-  
+
 Naming/VariableNumber:
   Enabled: false
 
@@ -92,7 +90,7 @@ Naming/AccessorMethodName:
 
 Rails/LexicallyScopedActionFilter:
   Exclude:
-    - "app/controllers/concerns/filterable.rb"	  	
+    - "app/controllers/concerns/filterable.rb"
 
 # Blocks are limited to 25 lines or less
 # removing block length rule for rspec DSL
@@ -103,9 +101,11 @@ Metrics/BlockLength:
     - 'config/**/*.rb'
     - 'app/swagger/**/*.rb'
     - 'app/controllers/v0/apidocs_controller.rb'
+    - 'modules/*/spec/**/*.rb'
+    - 'modules/*/app/swagger/**/*.rb'
 
 # Don't worry about ambiguous blocks in RSpec
-# Official recommendation from rubocop team is to disable this rule for specs. 
+# Official recommendation from rubocop team is to disable this rule for specs.
 # See: https://github.com/rubocop-hq/rubocop/issues/4222
 Lint/AmbiguousBlockAssociation:
   Exclude:
@@ -151,11 +151,11 @@ Rails/HasManyOrHasOneDependent:
 Naming/MemoizedInstanceVariableName:
   Enabled: false
 
-# It was determined these suggestions had the potential to change behavior. 
+# It was determined these suggestions had the potential to change behavior.
 Rails/ActiveRecordAliases:
   Enabled: false
 
-# The use of variables such as n to represent number, x and y for x-axis and y-axis, el for element, 
+# The use of variables such as n to represent number, x and y for x-axis and y-axis, el for element,
 # v for value, i for index, and e for error are all standard abbreviations and should be excluded.
 Naming/UncommunicativeMethodParamName:
   Enabled: false
@@ -166,3 +166,153 @@ Style/BlockDelimiters:
   Exclude:
     - "spec/factories/*.rb"
     - "modules/*/spec/factories/*.rb"
+
+# Excluding modules specs for now and a few that may need to be revisited.
+RSpec/FilePath:
+  Exclude:
+    - 'modules/**/*'
+    - 'spec/lib/common/models/**/*'
+    - 'spec/lib/saml/*_user_spec.rb'
+    - 'spec/lib/ihub/appointments/service_spec.rb'
+    - 'spec/request/in_progress_forms_request_spec.rb'
+    - 'spec/jobs/pagerduty/**/*'
+    - 'spec/lib/pagerduty/**/*'
+
+# Was determined that using described_class makes the code less readable.
+RSpec/DescribedClass:
+  Enabled: false
+
+# Excluding these for now. May need to be revisited.
+RSpec/DescribeClass:
+  Exclude:
+    - 'spec/lib/mhv_ac/client_spec.rb'
+    - 'spec/lib/mhv_logging/api/audits_spec.rb'
+    - 'spec/rakelib/vet360_spec.rb'
+    - 'spec/request/burial_claims_spec.rb'
+    - 'spec/request/education_benefits_claims_request_spec.rb'
+    - 'spec/request/health_care_applications_request_spec.rb'
+    - 'spec/request/pension_claims_controller_spec.rb'
+    - 'spec/request/swagger_spec.rb'
+    - 'spec/lib/sm/client/preferences_spec.rb'
+    - 'spec/lib/sm/client/triage_teams_spec.rb'
+    - 'spec/lib/sm/client/messages_spec.rb'
+    - 'spec/lib/bb/client_spec.rb'
+    - 'spec/lib/gi/client_spec.rb'
+    - 'spec/lib/sm/client/folders_spec.rb'
+
+# Determined to be too benign and/or numerous to justify changing
+RSpec/AnyInstance:
+  Enabled: false
+
+# Determined to be too benign and/or numerous to justify changing
+RSpec/BeforeAfterAll:
+  Enabled: false
+
+# Determined to be too benign and/or numerous to justify changing
+RSpec/ContextWording:
+  Enabled: false
+
+# Determined to be too benign and/or numerous to justify changing
+RSpec/ExampleLength:
+  Enabled: false
+
+# Determined to be too benign and/or numerous to justify changing
+RSpec/ExpectInHook:
+  Enabled: false
+
+# Determined to be too benign and/or numerous to justify changing
+RSpec/InstanceVariable:
+  Enabled: false
+
+# Determined to be too benign and/or numerous to justify changing
+RSpec/LeakyConstantDeclaration:
+  Enabled: false
+
+# Determined to be too benign and/or numerous to justify changing
+RSpec/MessageSpies:
+  Enabled: false
+
+# Determined to be too benign and/or numerous to justify changing
+RSpec/NamedSubject:
+  Enabled: false
+
+# Determined to be too benign and/or numerous to justify changing
+RSpec/VerifiedDoubles:
+  Enabled: false
+
+# Determined to be too benign and/or numerous to justify changing
+RSpec/MultipleExpectations:
+  Enabled: false
+
+# Determined to be too benign and/or numerous to justify changing
+RSpec/NestedGroups:
+  Enabled: false
+
+# This seems to generate a lot of false positives
+RSpec/EmptyExampleGroup:
+  Enabled: false
+
+# This seems to generate a lot of false positives
+RSpec/LetSetup:
+  Enabled: false
+
+# Might be worth revisiting at some point
+RSpec/MessageChain:
+  Exclude:
+    - 'modules/veteran_verification/spec/requests/service_history_request_spec.rb'
+    - 'modules/veteran_verification/spec/requests/veteran_status_request_spec.rb'
+    - 'spec/lib/vet360/service_spec.rb'
+    - 'spec/request/service_history_request_spec.rb'
+    - 'spec/request/swagger_spec.rb'
+
+# These instances seem to be necessary
+RSpec/MultipleDescribes:
+  Exclude:
+    - 'spec/jobs/evss/document_upload_spec.rb'
+    - 'spec/jobs/evss/request_decision_spec.rb'
+    - 'spec/lib/emis/veteran_status_service_spec.rb'
+    - 'spec/request/swagger_spec.rb'
+
+# These instances seem to be false positives
+RSpec/RepeatedExample:
+  Exclude:
+    - 'modules/vba_documents/spec/jobs/upload_processor_spec.rb'
+    - 'modules/vba_documents/spec/models/upload_submission_spec.rb'
+    - 'modules/vba_documents/spec/request/v0/reports_request_spec.rb'
+    - 'modules/vba_documents/spec/request/v1/reports_request_spec.rb'
+
+# Might be worth revisiting at some point
+RSpec/ScatteredLet:
+  Exclude:
+    - 'spec/controllers/openid_application_controller_spec.rb'
+    - 'spec/controllers/v0/dependents_applications_controller_spec.rb'
+    - 'spec/controllers/v0/post911_gi_bill_statuses_controller_spec.rb'
+    - 'spec/lib/bb/client_spec.rb'
+    - 'spec/lib/evss/auth_headers_spec.rb'
+    - 'spec/lib/evss/gi_bill_status/service_spec.rb'
+    - 'spec/lib/sentry/processor/log_as_warning_processor_spec.rb'
+    - 'spec/mailers/spool_submissions_report_mailer_spec.rb'
+    - 'spec/models/form_profile_spec.rb'
+    - 'spec/models/vet360_redis/contact_information_spec.rb'
+    - 'spec/request/health_care_applications_request_spec.rb'
+    - 'spec/request/health_records_request_spec.rb'
+    - 'spec/request/http_method_not_allowed_spec.rb'
+    - 'spec/request/swagger_spec.rb'
+
+# Might be worth revisiting at some point
+RSpec/SubjectStub:
+  Exclude:
+    - 'spec/jobs/education_form/create_daily_spool_files_spec.rb'
+    - 'spec/jobs/education_form/forms/va1990_spec.rb'
+    - 'spec/jobs/transactional_email_analytics_job_spec.rb'
+    - 'spec/lib/bb/generate_report_request_form_spec.rb'
+    - 'spec/lib/common/models/redis_store_spec.rb'
+    - 'spec/lib/evss/disability_compensation_form/data_translation_all_claim_spec.rb'
+    - 'spec/lib/evss/disability_compensation_form/data_translation_spec.rb'
+    - 'spec/lib/saml/health_status_spec.rb'
+    - 'spec/lib/sm/client/folders_spec.rb'
+    - 'spec/models/emis_redis/military_information_spec.rb'
+    - 'spec/models/session_spec.rb'
+    - 'spec/services/evss_claim_service_spec.rb'
+    - 'spec/services/mhv_accounts_service_spec.rb'
+    - 'spec/uploaders/evss_claim_document_uploader_spec.rb'

@@ -17,6 +17,7 @@ Rails.application.routes.draw do
   get '/v1/sessions/:type/new',
       to: 'v1/sessions#new',
       constraints: ->(request) { V1::SessionsController::REDIRECT_URLS.include?(request.path_parameters[:type]) }
+  get '/v1/sessions/ssoe_logout', to: 'v1/sessions#ssoe_slo_callback'
 
   namespace :v0, defaults: { format: 'json' } do
     resources :appointments, only: :index
@@ -155,6 +156,11 @@ Rails.application.routes.draw do
         get :children, on: :member
       end
 
+      resources :institution_programs, only: :index, defaults: { format: :json } do
+        get :search, on: :collection
+        get :autocomplete, on: :collection
+      end
+
       resources :calculator_constants, only: :index, defaults: { format: :json }
       resources :zipcode_rates, only: :show, defaults: { format: :json }
     end
@@ -210,6 +216,7 @@ Rails.application.routes.draw do
       resource :addresses, only: %i[create update destroy]
       resource :email_addresses, only: %i[create update destroy]
       resource :telephones, only: %i[create update destroy]
+      resources :address_validation, only: :create
       post 'initialize_vet360_id', to: 'persons#initialize_vet360_id'
       get 'person/status/:transaction_id', to: 'persons#status', as: 'person/status'
       get 'status/:transaction_id', to: 'transactions#status'
@@ -288,8 +295,11 @@ Rails.application.routes.draw do
     mount ClaimsApi::Engine, at: '/claims'
     mount VaFacilities::Engine, at: '/va_facilities'
     mount Veteran::Engine, at: '/veteran'
+    mount VaForms::Engine, at: '/va_forms'
     mount VeteranVerification::Engine, at: '/veteran_verification'
   end
+
+  mount VAOS::Engine, at: '/v0/vaos'
 
   if Rails.env.development? || Settings.sidekiq_admin_panel
     require 'sidekiq/web'
@@ -297,13 +307,7 @@ Rails.application.routes.draw do
     mount Sidekiq::Web, at: '/sidekiq'
   end
 
-  require 'feature_flipper'
-  flipper_app = Flipper::UI.app(Flipper.instance) do |builder|
-    builder.use Rack::Auth::Basic do |username, password|
-      username == Settings.flipper.username && password == Settings.flipper.password
-    end
-  end
-  mount flipper_app, at: '/flipper'
+  mount Flipper::UI.app(Flipper.instance) => '/flipper', constraints: Flipper::AdminUserConstraint.new
 
   # This globs all unmatched routes and routes them as routing errors
   match '*path', to: 'application#routing_error', via: %i[get post put patch delete]

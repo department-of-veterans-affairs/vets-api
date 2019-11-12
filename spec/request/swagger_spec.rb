@@ -312,7 +312,7 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
       include Rx::ClientHelpers
       let(:headers) { { '_headers' => { 'Cookie' => sign_in(mhv_user, nil, true) } } }
 
-      before(:each) do
+      before do
         allow(Rx::Client).to receive(:new).and_return(authenticated_client)
       end
 
@@ -578,7 +578,7 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
         ]
       end
 
-      before(:each) do
+      before do
         allow(SM::Client).to receive(:new).and_return(authenticated_client)
       end
 
@@ -636,14 +636,14 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
         end
 
         context 'unsuccessful calls' do
-          it 'supports folder error messages' do
+          it 'supports get a single folder id error messages' do
             VCR.use_cassette('sm_client/folders/gets_a_single_folder_id_error') do
               expect(subject).to validate(:get, '/v0/messaging/health/folders/{id}', 404,
                                           headers.merge('id' => '1000'))
             end
           end
 
-          it 'supports folder error messages' do
+          it 'supports deletea folder id folder error messages' do
             VCR.use_cassette('sm_client/folders/deletes_a_folder_id_error') do
               expect(subject).to validate(:delete, '/v0/messaging/health/folders/{id}', 404,
                                           headers.merge('id' => '1000'))
@@ -897,7 +897,7 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
       describe 'health_records' do
         let(:headers) { { '_headers' => { 'Cookie' => sign_in(mhv_user, nil, true) } } }
 
-        before(:each) do
+        before do
           allow(BB::Client).to receive(:new).and_return(authenticated_client)
         end
 
@@ -999,7 +999,7 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
       describe 'institutions' do
         describe 'autocomplete' do
           it 'supports autocomplete of institution names' do
-            VCR.use_cassette('gi_client/gets_a_list_of_autocomplete_suggestions') do
+            VCR.use_cassette('gi_client/gets_a_list_of_institution_autocomplete_suggestions') do
               expect(subject).to validate(
                 :get, '/v0/gi/institutions/autocomplete', 200, '_query_string' => 'term=university'
               )
@@ -1009,7 +1009,7 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
 
         describe 'search' do
           it 'supports autocomplete of institution names' do
-            VCR.use_cassette('gi_client/gets_search_results') do
+            VCR.use_cassette('gi_client/gets_institution_search_results') do
               expect(subject).to validate(
                 :get, '/v0/gi/institutions/search', 200, '_query_string' => 'name=illinois'
               )
@@ -1021,7 +1021,7 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
           context 'successful calls' do
             it 'supports showing institution details' do
               VCR.use_cassette('gi_client/gets_the_institution_details') do
-                expect(subject).to validate(:get, '/v0/gi/institutions/{id}', 200, 'id' => '20603613')
+                expect(subject).to validate(:get, '/v0/gi/institutions/{id}', 200, 'id' => '11900146')
               end
             end
           end
@@ -1045,12 +1045,35 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
           end
         end
       end
+
+      describe 'institution programs' do
+        describe 'autocomplete' do
+          it 'supports autocomplete of institution names' do
+            VCR.use_cassette('gi_client/gets_a_list_of_institution_program_autocomplete_suggestions') do
+              expect(subject).to validate(
+                :get, '/v0/gi/institution_programs/autocomplete', 200, '_query_string' => 'term=code'
+              )
+            end
+          end
+        end
+
+        describe 'search' do
+          it 'supports autocomplete of institution names' do
+            VCR.use_cassette('gi_client/gets_institution_program_search_results') do
+              expect(subject).to validate(
+                :get, '/v0/gi/institution_programs/search', 200, '_query_string' => 'name=code'
+              )
+            end
+          end
+        end
+      end
     end
 
     context 'without EVSS mock' do
-      before { Settings.evss.mock_gi_bill_status = false }
-
-      before { Settings.evss.mock_letters = false }
+      before do
+        Settings.evss.mock_gi_bill_status = false
+        Settings.evss.mock_letters = false
+      end
 
       it 'supports getting EVSS Gi Bill Status' do
         Timecop.freeze(ActiveSupport::TimeZone.new('Eastern Time (US & Canada)').parse('1st Feb 2018 12:15:06'))
@@ -1248,7 +1271,7 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
           end
         end
 
-        it 'supports getting a list of facilities' do
+        it 'supports getting a single facility' do
           create :vha_648A4
           expect(subject).to validate(:get, '/v0/facilities/va/{id}', 200, 'id' => 'vha_648A4')
         end
@@ -1404,7 +1427,6 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
     describe 'preferences' do
       let(:preference) { create(:preference) }
       let(:route) { '/v0/user/preferences/choices' }
-      let(:preference) { create :preference }
       let(:choice) { create :preference_choice, preference: preference }
       let(:request_body) do
         [
@@ -1704,6 +1726,28 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
             200,
             headers.merge('_data' => telephone.as_json)
           )
+        end
+      end
+
+      it 'supports the address validation api' do
+        expect(subject).to validate(:post, '/v0/profile/address_validation', 401)
+
+        address = build(:vet360_address, :multiple_matches)
+        VCR.use_cassette(
+          'vet360/address_validation/validate_match',
+          VCR::MATCH_EVERYTHING
+        ) do
+          VCR.use_cassette(
+            'vet360/address_validation/candidate_multiple_matches',
+            VCR::MATCH_EVERYTHING
+          ) do
+            expect(subject).to validate(
+              :post,
+              '/v0/profile/address_validation',
+              200,
+              headers.merge('_data' => { address: address.to_h })
+            )
+          end
         end
       end
 

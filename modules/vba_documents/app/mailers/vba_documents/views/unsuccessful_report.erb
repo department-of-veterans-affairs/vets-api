@@ -1,0 +1,29 @@
+<h1>Unsuccessful Submissions </h1>
+<hr />
+<h3>From <%= @date_from %> -- <%= @date_to %> </h3>
+<table>
+  <thead>
+    <tr>
+      <th>GUID</th>
+      <th>Consumer Name</th>
+      <th>Status</th>
+      <th>Code</th>
+      <th>Detail</th>
+      <th>Created At</th>
+      <th>Updated At</th>
+    </tr>
+  </thead>
+  <tbody>
+    <% @unsuccessful_submissions.each do |submission| %>
+      <tr>
+        <td><%= submission.guid %></td>
+        <td><%= submission.consumer_name %></td>
+        <td><%= submission.status %></td>
+        <td><%= submission.code %></td>
+        <td><%= submission.detail %></td>
+        <td><%= submission.created_at %></td>
+        <td><%= submission.updated_at %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>

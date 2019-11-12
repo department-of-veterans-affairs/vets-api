@@ -35,5 +35,27 @@ FactoryBot.define do
     trait :military_overseas do
       address_type { Vet360::Models::Address::MILITARY }
     end
+
+    trait :multiple_matches do
+      address_line1 { '37 1st st' }
+      city { 'Brooklyn' }
+      state_code { 'NY' }
+      zip_code { '11249' }
+    end
+
+    trait :override do
+      address_pou { Vet360::Models::Address::CORRESPONDENCE }
+      id { 108_347 }
+      address_line1 { '1494 Martin Luther King Rd' }
+      address_line2 { 'c/o foo' }
+      city { 'Fulton' }
+      state_code { 'MS' }
+      zip_code { '38843' }
+      validation_key { 713_117_306 }
+      vet360_id { '1' }
+      source_system_user { '1234' }
+      source_date { Time.now.utc.iso8601 }
+      effective_start_date { Time.now.utc.iso8601 }
+    end
   end
 end

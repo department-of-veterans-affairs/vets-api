@@ -8,7 +8,7 @@ describe EMIS::Responses::GetCombatPayResponse do
   let(:body) { Ox.parse(File.read('spec/support/emis/getCombatPayResponse.xml')) }
   let(:response) { EMIS::Responses::GetCombatPayResponse.new(faraday_response) }
 
-  before(:each) do
+  before do
     allow(faraday_response).to receive(:body) { body }
   end
 
