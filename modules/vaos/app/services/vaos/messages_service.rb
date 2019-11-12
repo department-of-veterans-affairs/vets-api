@@ -14,14 +14,13 @@ module VAOS
 
     STATSD_KEY_PREFIX = 'api.vaos'
 
-    def initialize(user, request_id)
+    def self.for_user(user)
       @user = user
-      @request_id = request_id
     end
 
-    def get_messages
+    def get_messages(request_id)
       with_monitoring do
-        response = perform(:get, messages_url, headers)
+        response = perform(:get, messages_url(request_id), headers)
 
         {
           data: deserialize(response.body),
@@ -41,7 +40,7 @@ module VAOS
       []
     end
 
-    def messages_url
+    def messages_url(request_id)
       "/var/VeteranAppointmentRequestService/v4/rest/appointment-service/patient/ICN/#{user.icn}/appointments" +
       "/system/var/id/#{request_id}/messages"
     end
