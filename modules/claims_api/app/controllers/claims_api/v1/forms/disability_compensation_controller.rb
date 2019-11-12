@@ -72,7 +72,7 @@ module ClaimsApi
         end
 
         def validate_initial_claim
-          if claims_service.count.zero? && form_attributes['autoCestPDFGenerationDisabled'] == false
+          if claims_service.claims_count.zero? && form_attributes['autoCestPDFGenerationDisabled'] == false
             error = {
               errors: [
                 {

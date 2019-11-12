@@ -14,8 +14,11 @@ module ClaimsApi
       @user = user
     end
 
+    def raw_claims
+      @raw_claims ||= client.all_claims.body
+    end
+
     def all
-      raw_claims = client.all_claims.body
       EVSS_CLAIM_KEYS.each_with_object([]) do |key, claim_accum|
         next unless raw_claims[key]
 
@@ -25,15 +28,11 @@ module ClaimsApi
       end.flatten
     end
 
-    def count
-      raw_claims = client.all_claims.body
-      EVSS_CLAIM_KEYS.each_with_object([]) do |key, claim_accum|
+    def claims_count
+      EVSS_CLAIM_KEYS.reduce(0) do |sum, key| 
         next unless raw_claims[key]
-
-        claim_accum << raw_claims[key].map do |raw_claim|
-          raw_claim['id']
-        end
-      end.flatten.count
+        sum + raw_claims[key].count
+      end
     rescue EVSS::ErrorMiddleware::EVSSError
       0
     end
