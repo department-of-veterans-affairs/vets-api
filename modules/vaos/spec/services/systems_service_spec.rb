@@ -72,7 +72,7 @@ describe VAOS::SystemsService do
 
   describe '#get_cancel_reasons' do
     context 'with a 200 response' do
-      it 'returns an array of size 1' do
+      it 'returns an array of size 6' do
         VCR.use_cassette('vaos/systems/get_cancel_reasons', match_requests_on: %i[host path method]) do
           response = subject.get_cancel_reasons(user, '984')
           expect(response.size).to eq(6)

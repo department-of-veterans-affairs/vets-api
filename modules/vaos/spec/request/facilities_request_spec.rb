@@ -102,7 +102,7 @@ RSpec.describe 'facilities', type: :request do
     end
   end
 
-  describe '/v0/vaos/facility/:id/cancel_reasons' do
+  describe '/v0/vaos/facilities/:id/cancel_reasons' do
     context 'with a loa1 user' do
       let(:user) { FactoryBot.create(:user, :loa1) }
 
