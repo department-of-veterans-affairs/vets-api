@@ -26,13 +26,6 @@ describe Common::Client::Errors::ErrorHandler do
       allow_any_instance_of(SentryLogging).to receive(:log_error).and_return(true)
       expect(subject.log_error).to be(true)
     end
-
-    context 'when ancestor does not implement `#log_error`' do
-      xit 'raises a NotImplementedError' do
-        expect(subject.log_error).to raise_error(NotImplementedError)
-        pending 'this logic is not yet implemented'
-      end
-    end
   end
 
   describe '#transformed_error' do
