@@ -7,6 +7,7 @@ VAOS::Engine.routes.draw do
     resources :systems, only: :index
     resources :facilities, only: :index do
       resources :clinics, only: :index
+      resources :cancel_reasons, only: :index
     end
     get 'api', to: 'apidocs#index'
   end
