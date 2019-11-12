@@ -15,7 +15,7 @@ default: ci
 ci:
 	@$(BASH_TEST) "bin/rails db:setup db:migrate ci"
 
-.PHONEY: ci-down
+.PHONY: ci-down
 ci-down:
 	$(COMPOSE_TEST) down
 
@@ -23,7 +23,7 @@ ci-down:
 bash:
 	@$(COMPOSE_DEV) $(BASH)
 
-.PHONEY: ci-build
+.PHONY: ci-build
 ci-build:
 	$(COMPOSE_TEST) build
 
