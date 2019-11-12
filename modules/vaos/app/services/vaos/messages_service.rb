@@ -22,7 +22,7 @@ module VAOS
 
     def get_messages(request_id)
       with_monitoring do
-        response = perform(:get, messages_url(request_id), headers)
+        response = perform(:get, messages_url(request_id), nil, headers)
 
         {
           data: deserialize(response.body),
