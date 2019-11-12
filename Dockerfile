@@ -5,7 +5,7 @@
 ###
 # shared build/settings for all child images, reuse these layers yo
 ###
-FROM ruby:2.4.5-slim-stretch AS base
+FROM ruby:2.5.7-slim-stretch AS base
 
 ARG userid=993
 RUN groupadd -g $userid -r vets-api && \
