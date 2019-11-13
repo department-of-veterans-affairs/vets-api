@@ -1,0 +1,49 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "type": "object",
+  "properties": {
+    "data": {
+      "type": "array",
+      "items": [
+        { 
+          "type": "object",
+          "properties": {
+            "id": { "type": "string" },
+            "type": { "type": "string" },
+            "attributes": {
+              "type": "object",
+              "properties": {
+                "surrogate_identifier": { "type": "object" },
+                "message_text": { "type": "string" },
+                "message_date_time": { "type": "string" },
+                "sender_id": { "type": "string" },
+                "appointment_request_id": { "type": "string" },
+                "date": { "type": "string" },
+                "assigning_authority": { "type": "string" },
+                "system_id": { "type": "string" }
+              },
+              "required": [
+                "surrogate_identifier",
+                "message_text",
+                "message_date_time",
+                "sender_id",
+                "appointment_request_id",
+                "date",
+                "assigning_authority",
+                "system_id"
+              ]
+            }
+          },
+          "required": [
+            "id",
+            "type",
+            "attributes"
+          ]
+        }
+      ]
+    }
+  },
+  "required": [
+    "data"
+  ]
+}
