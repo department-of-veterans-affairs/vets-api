@@ -101,4 +101,32 @@ RSpec.describe 'facilities', type: :request do
       end
     end
   end
+
+  describe '/v0/vaos/facilities/:id/cancel_reasons' do
+    context 'with a loa1 user' do
+      let(:user) { FactoryBot.create(:user, :loa1) }
+
+      it 'returns a forbidden error' do
+        get '/v0/vaos/facilities/984/cancel_reasons'
+        expect(response).to have_http_status(:forbidden)
+        expect(JSON.parse(response.body)['errors'].first['detail'])
+          .to eq('You do not have access to online scheduling')
+      end
+    end
+
+    context 'with a loa3 user' do
+      let(:user) { build(:user, :mhv) }
+
+      context 'with a valid GET response' do
+        it 'returns a 200 with the correct schema' do
+          VCR.use_cassette('vaos/systems/get_cancel_reasons', match_requests_on: %i[host path method]) do
+            get '/v0/vaos/facilities/984/cancel_reasons'
+
+            expect(response).to have_http_status(:ok)
+            expect(response).to match_response_schema('vaos/facility_cancel_reasons')
+          end
+        end
+      end
+    end
+  end
 end
