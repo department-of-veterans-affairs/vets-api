@@ -40,7 +40,7 @@ module VBADocuments
     end
 
     def self.create_file_from_base64(infile)
-      content = File.read(infile.path)
+      content = File.read(infile)
       FileUtils.mkdir_p '/tmp/vets-api'
       contents = content.sub %r{data:((multipart)/.{3,}),}, ''
       decoded_data = Base64.decode64(contents)
