@@ -51,6 +51,8 @@ class OpenidApplicationController < ApplicationController
     @current_user = OpenidUser.build_from_identity(identity: user_identity, ttl: ttl)
     @session = build_session(token, token_identifiers.uuid, ttl)
     @session.save && user_identity.save && @current_user.save
+  rescue JWT::ExpiredSignature
+    raise JWT::ExpiredSignature
   rescue => e
     Rails.logger.warn(e)
   end
