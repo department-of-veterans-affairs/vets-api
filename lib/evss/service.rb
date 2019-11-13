@@ -10,12 +10,12 @@ module EVSS
 
     def initialize(user)
       @user = user
-      @transaction_id = create_transaction_id
-      @headers = headers_for_user(@user, @transaction_id)
+      @headers = EVSS::AuthHeaders.new(user)
+      @transaction_id = @headers.transaction_id
     end
 
     def perform(method, path, body = nil, headers = {}, options = {})
-      merged_headers = @headers.merge(headers)
+      merged_headers = @headers.to_h.merge(headers)
       super(method, path, body, merged_headers, options)
     end
 
@@ -40,14 +40,6 @@ module EVSS
       end
     rescue => e
       handle_error(e)
-    end
-
-    def create_transaction_id
-      "vagov-#{SecureRandom.uuid}"
-    end
-
-    def headers_for_user(user, transaction_id)
-      EVSS::AuthHeaders.new(user, transaction_id).to_h
     end
 
     def save_error_details(error)

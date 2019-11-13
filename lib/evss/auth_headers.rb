@@ -2,9 +2,11 @@
 
 module EVSS
   class AuthHeaders
-    def initialize(user, transaction_id)
+    attr_reader :transaction_id
+
+    def initialize(user)
       @user = user
-      @transaction_id = transaction_id
+      @transaction_id = create_transaction_id
     end
 
     def to_h
@@ -30,6 +32,10 @@ module EVSS
     end
 
     private
+
+    def create_transaction_id
+      "vagov-#{SecureRandom.uuid}"
+    end
 
     def sanitize(headers)
       headers.transform_values! do |value|
