@@ -64,18 +64,6 @@ RSpec.describe 'Disability Claims ', type: :request do
       post path, params: data, headers: headers
     end
 
-    context 'with the same request already ran' do
-      let!(:count) do
-        post path, params: data, headers: headers
-        ClaimsApi::AutoEstablishedClaim.count
-      end
-
-      it 'rejects the duplicated request' do
-        post path, params: data, headers: headers
-        expect(count).to eq(ClaimsApi::AutoEstablishedClaim.count)
-      end
-    end
-
     context 'validation' do
       let(:json_data) { JSON.parse data }
 
