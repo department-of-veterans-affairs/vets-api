@@ -51,7 +51,7 @@ module VAOS
     end
 
     def date_format(date)
-      date&.strftime('%d/%m/%Y')
+      date&.strftime('%m/%d/%Y')
     end
 
     # TODO: find out if this api supports pagination and other parameters
