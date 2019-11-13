@@ -20,9 +20,19 @@ describe VAOS::SystemsService do
     context 'when the upstream server returns a 500' do
       it 'raises a backend exception' do
         VCR.use_cassette('vaos/systems/get_systems_500', match_requests_on: %i[host path method]) do
-          expect { subject.get_systems(user) }.to raise_error(
-            Common::Exceptions::BackendServiceException
-          )
+          expect { subject.get_systems(user) }.to trigger_statsd_increment(
+            'api.vaos.get_systems.fail', times: 1, value: 1
+          ).and raise_error(Common::Exceptions::BackendServiceException)
+        end
+      end
+    end
+
+    context 'when the upstream server returns a 403' do
+      it 'raises a backend exception' do
+        VCR.use_cassette('vaos/systems/get_systems_403', match_requests_on: %i[host path method]) do
+          expect { subject.get_systems(user) }.to trigger_statsd_increment(
+            'api.vaos.get_systems.fail', times: 1, value: 1
+          ).and raise_error(Common::Exceptions::BackendServiceException)
         end
       end
     end

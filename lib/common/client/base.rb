@@ -111,7 +111,7 @@ module Common
         )
       rescue Timeout::Error, Faraday::TimeoutError
         Raven.extra_context(service_name: config.service_name, url: config.base_path)
-        raise Common::Exceptions::GatewayTimeout
+        raise Common::Exceptions::GatewayTimeout.new(source: self.class)
       rescue Faraday::ClientError => e
         error_class = case e
                       when Faraday::ParsingError
