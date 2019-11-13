@@ -8,9 +8,8 @@ describe VAOS::AppointmentService do
   let(:user) { build(:user, :mhv) }
   let(:start_date) { Time.now.utc.beginning_of_day + 7.hours }
   let(:end_date) { Time.now.utc.beginning_of_day + 8.hours + 4.months }
-  let(:rsa_private) { OpenSSL::PKey::RSA.generate 4096 }
 
-  before { allow_any_instance_of(VAOS::JWT).to receive(:rsa_private).and_return(rsa_private) }
+  before { allow_any_instance_of(VAOS::UserService).to receive(:session).and_return('stubbed_token') }
 
   describe '#get_appointments of type va' do
     let(:type) { 'va' }

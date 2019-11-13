@@ -4,12 +4,10 @@ require 'rails_helper'
 RSpec.describe 'vaos appointments', type: :request do
   include SchemaMatchers
 
-  let(:rsa_private) { OpenSSL::PKey::RSA.generate 4096 }
-
   before do
     Flipper.enable('va_online_scheduling')
     sign_in_as(current_user)
-    allow_any_instance_of(VAOS::JWT).to receive(:rsa_private).and_return(rsa_private)
+    allow_any_instance_of(VAOS::UserService).to receive(:session).and_return('stubbed_token')
   end
 
   context 'loa1 user with flipper enabled' do
@@ -36,6 +34,19 @@ RSpec.describe 'vaos appointments', type: :request do
         expect(response).to have_http_status(:forbidden)
         expect(JSON.parse(response.body)['errors'].first['detail'])
           .to eq('You do not have access to online scheduling')
+      end
+    end
+
+    context 'without icn', skip_mvi: true do
+      before { stub_mvi_not_found }
+
+      let(:current_user) { build(:user, :mhv, mhv_icn: nil) }
+
+      it 'does not have access' do
+        get '/v0/vaos/appointments'
+        expect(response).to have_http_status(:forbidden)
+        expect(JSON.parse(response.body)['errors'].first['detail'])
+          .to eq('No patient ICN found')
       end
     end
 

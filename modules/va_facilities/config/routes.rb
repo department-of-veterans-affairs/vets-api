@@ -9,9 +9,6 @@ VaFacilities::Engine.routes.draw do
     resources :facilities, only: %i[index show] do
       get 'all', on: :collection
     end
-  end
-
-  namespace :v1 do
     resources :nearby, only: [:index]
   end
 
