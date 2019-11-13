@@ -46,12 +46,22 @@ module Swagger
                        example: true,
                        description: "ID.me boolean value if the signed-in 'wallet' has multifactor enabled"
               property :last_signed_in, type: :string, example: '2019-10-02T13:55:54.261Z'
+              property :authn_context,
+                       enum: ['dslogon', 'dslogon_loa3', 'dslogon_multifactor', 'myhealthevet', 'myhealthevet_loa3',
+                              'myhealthevet_multifactor', LOA::IDME_LOA1, LOA::IDME_LOA3],
+                       example: 'myhealthevet_loa3',
+                       description: 'The login method of a user.
+                                     If a user logs in using a DS Logon Username and password and then goes through
+                                     identity verification with id.me their login type would be dslogon_loa3.
+                                     or if they logged in with dslogon and added multifactor authentication through
+                                     id.me their authn_context would be dslogon_multifactor'
               property :sign_in, type: :object do
                 property :service_name,
                          type: :string,
                          enum: %w[myhealthevet dslogon idme],
                          example: 'myhealthevet',
-                         description: ''
+                         description: 'The name of the service that the user used for the beginning of the
+                                       authentication process (username + password)'
                 property :account_type,
                          enum: %w[Basic Premium 1 2 3],
                          example: 'Basic',

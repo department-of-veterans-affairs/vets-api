@@ -53,7 +53,8 @@ RSpec.describe Facilities::PSSGDownload, type: :job do
       expect(BaseFacility.find_facility_by_id('vha_648A4').drivetime_bands[0].name).to eql('648A4 : 0 - 10')
       expect(BaseFacility.find_facility_by_id('vha_648A4').drivetime_bands[0].unit).to eql('minutes')
       expect(DrivetimeBand.find_by(vha_facility_id: '648A4').name).to eql('648A4 : 0 - 10')
-      expect(DrivetimeBand.find_by(vha_facility_id: '648A4').polygon.to_s).not_to eql(existing_drive_time.polygon.to_s)
+      # updates are currently turned off once they are working this should be `.not_to eql`
+      expect(DrivetimeBand.find_by(vha_facility_id: '648A4').polygon.to_s).to eql(existing_drive_time.polygon.to_s)
     end
 
     it 'populates facility with drive time data' do
@@ -106,6 +107,29 @@ RSpec.describe Facilities::PSSGDownload, type: :job do
       subject.perform
       expect(BaseFacility.find_facility_by_id('vha_648A4')).to be_nil
       expect(DrivetimeBand.find_by(name: '648A4 : 0 - 10')).to be_nil
+    end
+  end
+
+  context 'when encountering an error' do
+    before do
+      Settings.sentry.dsn = 'asdf'
+      create :vha_648A4
+    end
+
+    after do
+      Settings.sentry.dsn = nil
+    end
+
+    it 'logs pssg download error to sentry' do
+      allow(pssg_client_stub).to receive(:get_drivetime_bands).with(0, 30).and_return(drive_time_data_648A4)
+      allow_any_instance_of(
+        Facilities::PSSGDownload
+      ).to receive(:extract_polygon).with(any_args).and_raise(RGeo::Error::InvalidGeometry)
+
+      expect(Raven).to receive(:capture_exception).with(RGeo::Error::InvalidGeometry, level: 'error')
+      expect(Raven).to receive(:extra_context).with('Band name' => drive_time_data_648A4[0]['attributes']['Name'])
+
+      subject.perform
     end
   end
 end
