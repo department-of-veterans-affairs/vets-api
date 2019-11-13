@@ -32,7 +32,7 @@ class ApplicationController < ActionController::API
   before_action :set_tags_and_extra_context
 
   def cors_preflight
-    head(:ok)
+    head(:ok) 
   end
 
   def routing_error
