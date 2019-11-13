@@ -5,7 +5,9 @@
 <!-- Please describe testing done to verify the changes. -->
 
 ## Testing planned
-<!-- Please describe testing planned. -->
+<!-- Please describe testing planned.
+If UI-testable (i.e., testable manually on Staging by QA, either via the browser or REST API-client), provide link to open QA-request ticket \[issue-template coming soon].
+Also, if applicable, list any new/updated automated tests that will run in CI/CD pipelines. -->
 
 ## Acceptance Criteria (Definition of Done)
 
