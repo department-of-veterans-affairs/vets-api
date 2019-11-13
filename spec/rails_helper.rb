@@ -182,6 +182,4 @@ RSpec.configure do |config|
   config.after(:all) do
     FileUtils.rm_rf(Dir[Rails.root.join('spec', 'support', 'uploads')]) if Rails.env.test?
   end
-
-  config.fuubar_auto_refresh = false
 end
