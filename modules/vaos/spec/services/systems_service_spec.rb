@@ -32,7 +32,7 @@ describe VAOS::SystemsService do
     context 'with 141 facilities' do
       it 'returns an array of size 141' do
         VCR.use_cassette('vaos/systems/get_facilities', match_requests_on: %i[host path method]) do
-          response = subject.get_facilities(user, 688)
+          response = subject.get_facilities(user, '688')
           expect(response.size).to eq(141)
         end
       end
@@ -41,7 +41,49 @@ describe VAOS::SystemsService do
     context 'when the upstream server returns a 500' do
       it 'raises a backend exception' do
         VCR.use_cassette('vaos/systems/get_facilities_500', match_requests_on: %i[host path method]) do
-          expect { subject.get_facilities(user, 688) }.to raise_error(
+          expect { subject.get_facilities(user, '688') }.to raise_error(
+            Common::Exceptions::BackendServiceException
+          )
+        end
+      end
+    end
+  end
+
+  describe '#get_facility_clinics' do
+    context 'with 1 clinic' do
+      it 'returns an array of size 1' do
+        VCR.use_cassette('vaos/systems/get_facility_clinics', match_requests_on: %i[host path method]) do
+          response = subject.get_facility_clinics(user, '984', '323', '984GA')
+          expect(response.size).to eq(1)
+        end
+      end
+    end
+
+    context 'when the upstream server returns a 500' do
+      it 'raises a backend exception' do
+        VCR.use_cassette('vaos/systems/get_facility_clinics_500', match_requests_on: %i[host path method]) do
+          expect { subject.get_facility_clinics(user, '984', '323', '984GA') }.to raise_error(
+            Common::Exceptions::BackendServiceException
+          )
+        end
+      end
+    end
+  end
+
+  describe '#get_cancel_reasons' do
+    context 'with a 200 response' do
+      it 'returns an array of size 6' do
+        VCR.use_cassette('vaos/systems/get_cancel_reasons', match_requests_on: %i[host path method]) do
+          response = subject.get_cancel_reasons(user, '984')
+          expect(response.size).to eq(6)
+        end
+      end
+    end
+
+    context 'when the upstream server returns a 500' do
+      it 'raises a backend exception' do
+        VCR.use_cassette('vaos/systems/get_cancel_reasons_500', match_requests_on: %i[host path method]) do
+          expect { subject.get_cancel_reasons(user, '984') }.to raise_error(
             Common::Exceptions::BackendServiceException
           )
         end
