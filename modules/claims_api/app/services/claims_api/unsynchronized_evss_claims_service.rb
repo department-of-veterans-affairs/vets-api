@@ -14,8 +14,11 @@ module ClaimsApi
       @user = user
     end
 
+    def raw_claims
+      @raw_claims ||= client.all_claims.body
+    end
+
     def all
-      raw_claims = client.all_claims.body
       EVSS_CLAIM_KEYS.each_with_object([]) do |key, claim_accum|
         next unless raw_claims[key]
 
@@ -23,6 +26,14 @@ module ClaimsApi
           create_claim(raw_claim['id'], :list_data, raw_claim)
         end
       end.flatten
+    end
+
+    def claims_count
+      EVSS_CLAIM_KEYS.reduce(0) do |sum, key|
+        sum + (raw_claims[key].try(:count) || 0)
+      end
+    rescue EVSS::ErrorMiddleware::EVSSError
+      0
     end
 
     def update_from_remote(evss_id)
