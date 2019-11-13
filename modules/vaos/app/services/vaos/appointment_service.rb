@@ -22,9 +22,9 @@ module VAOS
 
     def get_appointments(type, start_date, end_date, pagination_params = {})
       with_monitoring do
-        url = get_appointments_url(type, start_date, end_date, pagination_params)
+        url = get_appointments_base_url(type)
 
-        response = perform(:get, url, nil, headers(user))
+        response = perform(:get, url, params(start_date, end_date, pagination_params), headers(user))
         {
           data: deserialized_appointments(response.body, type),
           meta: pagination(pagination_params)
@@ -60,13 +60,6 @@ module VAOS
       }
     end
 
-    def get_appointments_url(type, start_date, end_date, pagination_params)
-      url = get_appointments_base_url(type)
-      url += get_appointments_date_url(start_date, end_date)
-      url += get_appointments_pagination_url(pagination_params)
-      url
-    end
-
     def get_appointments_base_url(type)
       if type == 'va'
         "/appointments/v1/patients/#{user.icn}/appointments"
@@ -75,14 +68,24 @@ module VAOS
       end
     end
 
-    def get_appointments_date_url(start_date, end_date)
-      "?startDate=#{date_format(start_date)}&endDate=#{date_format(end_date)}&useCache=false"
+    def params(start_date, end_date, pagination_params)
+      date_params(start_date, end_date).merge(page_params(pagination_params)).merge(other_params).compact
     end
 
-    def get_appointments_pagination_url(pagination_params)
-      return "&pageSize=#{pagination_params[:per_page] || 0}" unless pagination_params[:per_page]&.positive?
+    def date_params(start_date, end_date)
+      { startDate: date_format(start_date), endDate: date_format(end_date) }
+    end
 
-      "&pageSize=#{pagination_params[:per_page]}&page=#{pagination_params[:page]}"
+    def page_params(pagination_params)
+      if pagination_params[:per_page]&.positive?
+        { pageSize: pagination_params[:per_page], page: pagination_params[:page] }
+      else
+        { pageSize: pagination_params[:per_page] || 0 }
+      end
+    end
+
+    def other_params(use_cache = false)
+      { useCache: use_cache }
     end
 
     def date_format(date)
