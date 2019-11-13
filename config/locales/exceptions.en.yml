@@ -486,12 +486,6 @@ en:
         code: 'VAOS_502'
         detail: 'Received an an invalid response from the upstream server'
         status: 502
-      VAOS_504:
-        <<: *external_defaults
-        title: Gateway Timeout
-        code: 'VAOS_504'
-        detail: 'Did not receive a timely response from an upstream server'
-        status: 504
       VET360_502:
         <<: *external_defaults
         title: Bad Gateway
