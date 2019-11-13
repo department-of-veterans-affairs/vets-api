@@ -2,7 +2,6 @@
 
 module Common
   module Client
-    ##
     # This class is responsible for providing a public interface with which to perform common error handling tasks.
     class ErrorHandler
       extend SentryLogging
