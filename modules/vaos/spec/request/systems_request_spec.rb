@@ -29,7 +29,7 @@ RSpec.describe 'systems', type: :request do
       it 'returns a 200 with the correct schema' do
         VCR.use_cassette('vaos/systems/get_systems', match_requests_on: %i[host path method]) do
           get '/v0/vaos/systems'
-          puts response.body
+
           expect(response).to have_http_status(:ok)
           expect(response.body).to be_a(String)
           expect(response).to match_response_schema('vaos/systems')
@@ -66,7 +66,7 @@ RSpec.describe 'systems', type: :request do
       it 'returns a VAOS 500 error response' do
         VCR.use_cassette('vaos/systems/get_systems_500', match_requests_on: %i[host path method]) do
           get '/v0/vaos/systems'
-          puts response.body
+
           expect(response).to have_http_status(:bad_gateway)
           expect(JSON.parse(response.body)['errors'].first['code']).to eq('VAOS_502')
           expect(response).to match_response_schema('errors')
@@ -78,7 +78,7 @@ RSpec.describe 'systems', type: :request do
       it 'returns the default VA900 response' do
         VCR.use_cassette('vaos/systems/get_systems_420', match_requests_on: %i[host path method]) do
           get '/v0/vaos/systems'
-          puts response.body
+
           expect(response).to have_http_status(:bad_request)
           expect(JSON.parse(response.body)['errors'].first['code']).to eq('VA900')
           expect(response).to match_response_schema('errors')
