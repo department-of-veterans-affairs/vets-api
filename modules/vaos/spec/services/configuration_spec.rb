@@ -34,7 +34,7 @@ describe VAOS::Configuration do
   end
 
   describe '#read_timeout' do
-    it 'has a default timeout of 30 seconds' do
+    it 'has a default timeout of 15 seconds' do
       expect(VAOS::Configuration.instance.read_timeout).to eq(15)
     end
   end
