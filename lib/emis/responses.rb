@@ -15,7 +15,6 @@ require_dependency 'emis/responses/get_retirement_pay_response'
 require_dependency 'emis/responses/get_separation_pay_response'
 require_dependency 'emis/responses/get_unit_information_response'
 require_dependency 'emis/responses/get_veteran_status_response'
-require_dependency 'emis/responses/get_pay_grade_history_response'
 
 module EMIS
   module Responses

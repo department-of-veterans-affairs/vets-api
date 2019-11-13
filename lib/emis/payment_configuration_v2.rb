@@ -5,7 +5,7 @@ require 'common/client/configuration/soap'
 module EMIS
   # Configuration for {EMIS::PaymentService}
   # includes API URL and breakers service name.
-  class PaymentV2Configuration < Configuration
+  class PaymentConfigurationV2 < Configuration
     # Payment Service URL
     # @return [String] Payment Service URL
     def base_path

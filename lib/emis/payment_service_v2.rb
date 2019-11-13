@@ -3,7 +3,7 @@
 module EMIS
   # HTTP Client for EMIS Payment Service requests.
   class PaymentServiceV2 < Service
-    configuration EMIS::PaymentV2Configuration
+    configuration EMIS::PaymentConfigurationV2
 
     create_endpoints(
       %i[
