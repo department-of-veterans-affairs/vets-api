@@ -4,6 +4,8 @@ source 'https://rubygems.org'
 
 ruby '2.4.5'
 
+gem 'rubocop-thread_safety'
+
 # Modules
 gem 'appeals_api', path: 'modules/appeals_api'
 gem 'claims_api', path: 'modules/claims_api'
