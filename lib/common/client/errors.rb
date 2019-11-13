@@ -10,11 +10,15 @@ module Common
         attr_accessor :status
         attr_accessor :body
 
+        alias status_code status
+
         def initialize(message = nil, status = nil, body = nil)
           super(message)
           @status = status
           @body = body
         end
+
+        def errors; end
       end
 
       class NotAuthenticated < ClientError; end

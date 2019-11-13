@@ -13,4 +13,13 @@ Raven.configure do |config|
   config.async = lambda { |event|
     SentryJob.perform_async(event)
   }
+
+  # appends to { Raven::Configuration::IGNORE_DEFAULT }
+  # @see https://docs.sentry.io/clients/ruby/config/
+  config.excluded_exceptions += %w[
+    Common::Exceptions::Unauthorized
+    Common::Exceptions::RoutingError
+    Common::Exceptions::Forbidden
+    Breakers::OutageException
+  ]
 end
