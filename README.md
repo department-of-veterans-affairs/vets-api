@@ -1,6 +1,6 @@
 # Vets API [![Build Status](https://dev.vets.gov/jenkins/buildStatus/icon?job=testing/vets-api/master)](http://jenkins.vetsgov-internal/job/department-of-veterans-affairs/job/vets-api/job/master/)
 
-This project provides common APIs for applications that live on VA.gov (formerly vets.gov APIs). 
+This project provides common APIs for applications that live on VA.gov (formerly vets.gov APIs).
 
 For frontend, see [vets-website](https://github.com/department-of-veterans-affairs/vets-website) and [vets-content](https://github.com/department-of-veterans-affairs/vagov-content) repos.
 
