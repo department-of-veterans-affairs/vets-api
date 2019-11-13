@@ -7,23 +7,22 @@ module VAOS
         def on_complete(env)
           return if env.success?
 
-          caller = "VAOS.#{caller_locations(14, 1)[0].label}"
           Raven.extra_context(message: env.body, url: env.url)
           case env.status
           when 403
             raise Common::Exceptions::BackendServiceException.new(
               'VAOS_403',
-              source: caller
+              source: self.class
             )
-          when 500
+          when 500..510
             raise Common::Exceptions::BackendServiceException.new(
               'VAOS_502',
-              source: caller
+              source: self.class
             )
           else
             raise Common::Exceptions::BackendServiceException.new(
               'VA900',
-              source: caller
+              source: self.class
             )
           end
         end
