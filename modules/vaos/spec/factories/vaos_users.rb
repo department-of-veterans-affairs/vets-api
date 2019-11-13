@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require 'faker/medical'
-
 FactoryBot.modify do
   factory :user do
     trait :vaos do
