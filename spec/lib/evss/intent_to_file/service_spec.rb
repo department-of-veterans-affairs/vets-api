@@ -33,7 +33,7 @@ describe EVSS::IntentToFile::Service do
 
         it 'logs an error and raise GatewayTimeout' do
           expect(StatsD).to receive(:increment).once.with(
-            'api.evss.get_intent_to_file.fail', tags: ['error:Common::Exceptions::GatewayTimeout']
+            'api.evss.get_intent_to_file.fail', tags: ['error:Common::Exceptions::GatewayTimeout', 'status:504']
           )
           expect(StatsD).to receive(:increment).once.with('api.evss.get_intent_to_file.total')
           expect { subject.get_intent_to_file }.to raise_error(Common::Exceptions::GatewayTimeout)
@@ -79,7 +79,7 @@ describe EVSS::IntentToFile::Service do
 
         it 'logs an error and raise GatewayTimeout' do
           expect(StatsD).to receive(:increment).once.with(
-            'api.evss.get_active.fail', tags: ['error:Common::Exceptions::GatewayTimeout']
+            'api.evss.get_active.fail', tags: ['error:Common::Exceptions::GatewayTimeout', 'status:504']
           )
           expect(StatsD).to receive(:increment).once.with('api.evss.get_active.total')
           expect { subject.get_active('compensation') }.to raise_error(Common::Exceptions::GatewayTimeout)
@@ -125,7 +125,7 @@ describe EVSS::IntentToFile::Service do
 
         it 'logs an error and raise GatewayTimeout' do
           expect(StatsD).to receive(:increment).once.with(
-            'api.evss.create_intent_to_file.fail', tags: ['error:Common::Exceptions::GatewayTimeout']
+            'api.evss.create_intent_to_file.fail', tags: ['error:Common::Exceptions::GatewayTimeout', 'status:504']
           )
           expect(StatsD).to receive(:increment).once.with('api.evss.create_intent_to_file.total')
           expect do

@@ -426,7 +426,7 @@ describe MVI::Service do
       it 'increments find_profile fail and total', :aggregate_failures do
         allow_any_instance_of(Faraday::Connection).to receive(:post).and_raise(Faraday::TimeoutError)
         expect(StatsD).to receive(:increment).once.with(
-          'api.mvi.find_profile.fail', tags: ['error:Common::Exceptions::GatewayTimeout']
+          'api.mvi.find_profile.fail', tags: ['error:Common::Exceptions::GatewayTimeout', 'status:504']
         )
         expect(StatsD).to receive(:increment).once.with('api.mvi.find_profile.total')
         response = subject.find_profile(user)

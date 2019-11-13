@@ -32,7 +32,7 @@ describe EVSS::Letters::DownloadService do
 
           it 'logs increment download fail' do
             expect(StatsD).to receive(:increment).once.with(
-              'api.evss.download_letter.fail', tags: ['error:Common::Exceptions::GatewayTimeout']
+              'api.evss.download_letter.fail', tags: ['error:Common::Exceptions::GatewayTimeout', 'status:504']
             )
             expect(StatsD).to receive(:increment).once.with('api.evss.download_letter.total')
             expect do

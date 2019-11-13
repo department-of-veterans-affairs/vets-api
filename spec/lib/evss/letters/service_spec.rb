@@ -34,7 +34,7 @@ describe EVSS::Letters::Service do
 
         it 'logs an error and raise GatewayTimeout' do
           expect(StatsD).to receive(:increment).once.with(
-            'api.evss.get_letters.fail', tags: ['error:Common::Exceptions::GatewayTimeout']
+            'api.evss.get_letters.fail', tags: ['error:Common::Exceptions::GatewayTimeout', 'status:504']
           )
           expect(StatsD).to receive(:increment).once.with('api.evss.get_letters.total')
           expect { subject.get_letters }.to raise_error(Common::Exceptions::GatewayTimeout)
@@ -77,7 +77,7 @@ describe EVSS::Letters::Service do
 
         it 'logs an error and raise GatewayTimeout' do
           expect(StatsD).to receive(:increment).once.with(
-            'api.evss.get_letter_beneficiary.fail', tags: ['error:Common::Exceptions::GatewayTimeout']
+            'api.evss.get_letter_beneficiary.fail', tags: ['error:Common::Exceptions::GatewayTimeout', 'status:504']
           )
           expect(StatsD).to receive(:increment).once.with('api.evss.get_letter_beneficiary.total')
           expect { subject.get_letter_beneficiary }.to raise_error(Common::Exceptions::GatewayTimeout)

@@ -34,7 +34,7 @@ describe EVSS::DisabilityCompensationForm::Service do
 
       it 'logs an error and raise GatewayTimeout' do
         expect(StatsD).to receive(:increment).once.with(
-          'api.evss.get_rated_disabilities.fail', tags: ['error:Common::Exceptions::GatewayTimeout']
+          'api.evss.get_rated_disabilities.fail', tags: ['error:Common::Exceptions::GatewayTimeout', 'status:504']
         )
         expect(StatsD).to receive(:increment).once.with('api.evss.get_rated_disabilities.total')
         expect { subject.get_rated_disabilities }.to raise_error(Common::Exceptions::GatewayTimeout)
@@ -65,7 +65,7 @@ describe EVSS::DisabilityCompensationForm::Service do
 
       it 'logs an error and raise GatewayTimeout' do
         expect(StatsD).to receive(:increment).once.with(
-          'api.evss.submit_form526.fail', tags: ['error:Common::Exceptions::GatewayTimeout']
+          'api.evss.submit_form526.fail', tags: ['error:Common::Exceptions::GatewayTimeout', 'status:504']
         )
         expect(StatsD).to receive(:increment).once.with('api.evss.submit_form526.total')
         expect { subject.submit_form526(valid_form_content) }.to raise_error(Common::Exceptions::GatewayTimeout)
