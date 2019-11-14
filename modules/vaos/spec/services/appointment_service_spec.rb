@@ -11,6 +11,20 @@ describe VAOS::AppointmentService do
 
   before { allow_any_instance_of(VAOS::UserService).to receive(:session).and_return('stubbed_token') }
 
+  describe '#put_cancel_appointment' do
+    it 'cancels an appointment' do
+      VCR.use_cassette('vaos/appointments/put_cancel_appointment', record: :new_episodes) do
+        request_id = ''
+        binding.pry
+
+        response = subject.put_cancel_request(request_id)
+
+        binding.pry
+        expect(response[:data].size).to eq(40)
+      end
+    end
+  end
+
   describe '#get_appointments of type va' do
     let(:type) { 'va' }
 
