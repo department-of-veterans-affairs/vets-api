@@ -6,8 +6,8 @@ module ClaimsApi
   class ClaimUploader
     include Sidekiq::Worker
 
-    def perform(document_id)
-      document = ClaimsApi::SupportingDocument.find_by(id: document_id) || ClaimsApi::AutoEstablishedClaim.pending?(document_id)
+    def perform(uuid)
+      document = ClaimsApi::SupportingDocument.find_by(id: uuid) || ClaimsApi::AutoEstablishedClaim.pending?(uuid)
       auto_claim = document.try(:auto_established_claim) || document
       auth_headers = auto_claim.auth_headers
       uploader = document.uploader

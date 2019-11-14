@@ -39,13 +39,12 @@ module ClaimsApi
         end
 
         def upload_form_526
-          service_object = service(auth_headers)
-          pending_claim = ClaimsApi::AutoEstablishedClaim.pending?(params[:id]))
+          pending_claim = ClaimsApi::AutoEstablishedClaim.pending?(params[:id])
           pending_claim.set_file_data!(documents.first, params[:doc_type])
           pending_claim.save!
-          
+
           ClaimsApi::ClaimUploader.perform_async(pending_claim.id)
-          
+
           render json: auto_claim, serializer: ClaimsApi::AutoEstablishedClaimSerializer
         end
 
