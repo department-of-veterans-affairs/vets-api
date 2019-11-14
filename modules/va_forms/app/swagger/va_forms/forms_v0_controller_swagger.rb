@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
-module ClaimsApi
-  class ClaimsV0ControllerSwagger
+module VaForms
+  class FormsV0ControllerSwagger
     include Swagger::Blocks
     swagger_path '/forms' do
       operation :get do
