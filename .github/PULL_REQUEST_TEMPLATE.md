@@ -6,8 +6,10 @@
 
 ## Testing planned
 <!-- Please describe testing planned.
-If UI-testable (i.e., testable manually on Staging by QA, either via the browser or REST API-client), provide link to open QA-request ticket \[issue-template coming soon].
-Also, if applicable, list any new/updated automated tests that will run in CI/CD pipelines. -->
+Provide link to QA Test-Plan ticket \[issue-template coming soon].
+Also, if UI-testable (i.e., testable manually on Staging by QA, either via the browser or REST API-client), provide link to QA test-request ticket \[issue-template coming soon]. -->
+
+<!-- Link to QA Process docs coming soon. -->
 
 ## Acceptance Criteria (Definition of Done)
 
@@ -20,5 +22,7 @@ Also, if applicable, list any new/updated automated tests that will run in CI/CD
 - [ ] Appropriate logging
 - [ ] Swagger docs have been updated, if applicable
 - [ ] Provide link to originating GitHub issue, or connected to it via ZenHub
+- [ ] Provide link to the QA Test-Plan ticket.
+- [ ] Provide link the QA Test-Request ticket.
 - [ ] Does not contain any sensitive information (i.e. PII/credentials/internal URLs/etc., in logging, hardcoded, or in specs)
 - [ ] Provide which alerts would indicate a problem with this functionality (if applicable)
