@@ -240,7 +240,9 @@ emis:
   mock: true
   host: https://vaausvrsapp81.aac.va.gov
   veteran_status_url: /VIERSService/eMIS/v1/VeteranStatusService
-  payment_url: /VIERSService/eMIS/v1/PaymentService
+  payment_url: 
+    v1: /VIERSService/eMIS/v1/PaymentService
+    v2: /VIERSService/eMIS/v2/PaymentService
   military_information_url: /VIERSService/eMIS/v1/MilitaryInformationService
   client_cert_path: /fake/client/cert/path
   client_key_path: /fake/client/key/path
@@ -255,8 +257,15 @@ emis:
     soap_namespaces:
       xmlns:v11: http://viers.va.gov/cdi/eMIS/RequestResponse/MilitaryInfo/v1
   payment:
-    soap_namespaces:
-      xmlns:v11: http://viers.va.gov/cdi/eMIS/RequestResponse/Payment/v1
+    v1:
+      soap_namespaces:
+        xmlns:v11: http://viers.va.gov/cdi/eMIS/RequestResponse/Payment/v1
+    v2:
+      soap_namespaces:
+        xmlns:v1: http://viers.va.gov/cdi/CDI/commonService/v2
+        xmlns:v12: http://viers.va.gov/cdi/eMIS/RequestResponse/v2 
+        xmlns:v13: http://viers.va.gov/cdi/eMIS/commonService/v2 
+        xmlns:v11: http://viers.va.gov/cdi/eMIS/RequestResponse/Payment/v2
   veteran_status:
     soap_namespaces:
       xmlns:v11: http://viers.va.gov/cdi/eMIS/RequestResponse/VetStatus/v1
@@ -401,6 +410,11 @@ flipper:
     - travis.hilton@oddball.io
     - rian.fowler@adhoc.team
     - rianfowler@outlook.com
+    - jbalboni@gmail.com
+    - jeff@adhocteam.us
+    - kam@adhocteam.us
+    - alastair@adhocteam.us
+    - narin@adhocteam.us
 
 bgs:
   application: ~
@@ -413,3 +427,4 @@ va_mobile:
   url: 'https://veteran.apps.va.gov/'
   mock: false
   key_path: /fake/client/key/path
+  timeout: 15
