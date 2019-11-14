@@ -5,25 +5,6 @@ module Swagger
     class DisabilityCompensationForm
       include Swagger::Blocks
 
-      swagger_path '/v0/disability_compensation_form/find_rating_info_pid' do
-        operation :get do
-          extend Swagger::Responses::AuthenticationError
-
-          key :description, 'Get the total combined disability rating for a veteran'
-          key :operationId, 'getRatingInfoPid'
-          key :tags, %w[form_526]
-
-          parameter :authorization
-
-          response 200 do
-            key :description, 'Response is OK'
-            schema do
-              key :'$ref', :RatingInfo
-            end
-          end
-        end
-      end
-
       swagger_path '/v0/disability_compensation_form/rated_disabilities' do
         operation :get do
           extend Swagger::Responses::AuthenticationError
@@ -140,6 +121,25 @@ module Swagger
             key :description, 'Returns the status of a given submission'
             schema do
               key :'$ref', :JobStatus
+            end
+          end
+        end
+      end
+
+      swagger_path '/v0/disability_compensation_form/find_rating_info_pid' do
+        operation :post do
+          extend Swagger::Responses::AuthenticationError
+
+          key :description, 'Get the total combined disability rating for a veteran'
+          key :operationId, 'findRatingInfoPid'
+          key :tags, %w[form_526]
+
+          parameter :authorization
+
+          response 200 do
+            key :description, 'Response is OK'
+            schema do
+              key :'$ref', :RatingInfo
             end
           end
         end

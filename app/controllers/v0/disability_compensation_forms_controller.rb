@@ -5,13 +5,6 @@ module V0
     before_action { authorize :evss, :access? }
     before_action :validate_name_part, only: [:suggested_conditions]
 
-    def find_rating_info_pid
-      rating_info_service = EVSS::DisabilityCompensationForm::ServiceRatingInfo.new(auth_headers)
-      response = rating_info_service.get_rating_info
-      render json: response,
-             serializer: RatingInfoSerializer
-    end
-
     def rated_disabilities
       response = service.get_rated_disabilities
       render json: response,
@@ -54,6 +47,13 @@ module V0
       raise Common::Exceptions::RecordNotFound, params[:job_id] unless job_status
 
       render json: job_status, serializer: Form526JobStatusSerializer
+    end
+
+    def find_rating_info_pid
+      rating_info_service = EVSS::DisabilityCompensationForm::ServiceRatingInfo.new(auth_headers)
+      response = rating_info_service.get_rating_info
+      render json: response,
+             serializer: RatingInfoSerializer
     end
 
     private
