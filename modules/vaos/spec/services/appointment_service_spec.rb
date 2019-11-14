@@ -6,8 +6,8 @@ describe VAOS::AppointmentService do
   subject { described_class.for_user(user) }
 
   let(:user) { build(:user, :mhv) }
-  let(:start_date) { Time.parse('2019-11-14T07:00:00Z') }
-  let(:end_date) { Time.parse('2020-03-14T08:00:00Z') }
+  let(:start_date) { Time.zone.parse('2019-11-14T07:00:00Z') }
+  let(:end_date) { Time.zone.parse('2020-03-14T08:00:00Z') }
 
   before { allow_any_instance_of(VAOS::UserService).to receive(:session).and_return('stubbed_token') }
 
