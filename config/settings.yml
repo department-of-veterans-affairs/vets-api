@@ -401,6 +401,11 @@ flipper:
     - travis.hilton@oddball.io
     - rian.fowler@adhoc.team
     - rianfowler@outlook.com
+    - jbalboni@gmail.com
+    - jeff@adhocteam.us
+    - kam@adhocteam.us
+    - alastair@adhocteam.us
+    - narin@adhocteam.us
 
 bgs:
   application: ~
@@ -413,3 +418,4 @@ va_mobile:
   url: 'https://veteran.apps.va.gov/'
   mock: false
   key_path: /fake/client/key/path
+  timeout: 15
