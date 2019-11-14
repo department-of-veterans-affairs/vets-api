@@ -70,7 +70,7 @@ RSpec.describe 'facilities', type: :request do
       context 'with a valid GET response' do
         it 'returns a 200 with the correct schema' do
           VCR.use_cassette('vaos/systems/get_facility_clinics', match_requests_on: %i[host path method]) do
-            get '/v0/vaos/facilities/984/clinics', params: { type_of_care_id: '323', system_id: '984GA' }
+            get '/v0/vaos/facilities/983/clinics', params: { type_of_care_id: '323', system_id: '983' }
 
             expect(response).to have_http_status(:ok)
             expect(response).to match_response_schema('vaos/facility_clinics')
@@ -84,7 +84,7 @@ RSpec.describe 'facilities', type: :request do
         it 'returns a 400 with missing param type_of_care_id' do
           VCR.use_cassette('vaos/systems/get_facility_clinics', match_requests_on: %i[host path method]) do
             get '/v0/vaos/facilities/984/clinics', params: { system_id: '984GA' }
-            puts response.body
+
             expect(response).to have_http_status(:bad_request)
             expect(json['errors'].first['detail']).to eq('The required parameter "type_of_care_id", is missing')
           end
