@@ -46,8 +46,6 @@ module VAOS
         response = perform(:get, url, nil, headers(user))
         response.body[:cancel_reasons_list].map { |reason| OpenStruct.new(reason) }
       end
-    rescue Common::Client::Errors::ClientError => e
-      raise_backend_exception('VAOS_502', self.class, e)
     end
   end
 end
