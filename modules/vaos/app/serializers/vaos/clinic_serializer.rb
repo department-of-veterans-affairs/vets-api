@@ -10,6 +10,14 @@ module VAOS
     attributes :site_code,
                :clinic_id,
                :clinic_name,
-               :clinic_friendly_location_name
+               :clinic_friendly_location_name,
+               :primary_stop_code,
+               :secondary_stop_code,
+               :direct_scheduling_flag,
+               :display_to_patient_flag,
+               :institution_name,
+               :institution_code,
+               :object_type,
+               :link
   end
 end
