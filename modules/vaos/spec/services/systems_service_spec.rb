@@ -74,7 +74,7 @@ describe VAOS::SystemsService do
       it 'returns an array of size 1' do
         VCR.use_cassette('vaos/systems/get_facility_clinics', match_requests_on: %i[host path method]) do
           response = subject.get_facility_clinics(user, '984', '323', '984GA')
-          expect(response.size).to eq(1)
+          expect(response.size).to eq(4)
         end
       end
     end
