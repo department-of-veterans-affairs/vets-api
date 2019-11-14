@@ -4,6 +4,7 @@ require 'webmock'
 include WebMock::API
 
 WebMock.enable!
+WebMock.allow_net_connect!
 
 Pact.provider_states_for 'VA.gov' do
   provider_state 'enrollment service is up' do
