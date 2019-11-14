@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+# rubocop:disable Metrics/ModuleLength
 module SentryLogging
   # rubocop:disable Metrics/CyclomaticComplexity
   # rubocop:disable Metrics/PerceivedComplexity
@@ -71,7 +72,7 @@ module SentryLogging
     level = normalize_level(level)
 
     log_to_rails(exception, level)
-    
+
     if Settings.sentry.dsn.present?
       set_context(extra_context, tags_context)
       Raven.capture_exception(exception.cause.presence || exception, level: level)
@@ -129,3 +130,4 @@ module SentryLogging
     (code == 'EVSS503' && status.to_i == 503)
   end
 end
+# rubocop:enable Metrics/ModuleLength
