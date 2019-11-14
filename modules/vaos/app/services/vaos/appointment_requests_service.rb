@@ -33,18 +33,6 @@ module VAOS
       raise_backend_exception('VAOS_502', self.class, e)
     end
 
-    def put_cancel_request(request_id)
-      with_monitoring do
-        binding.pry
-        response = perform(:put, put_appointment_requests_url(request_id), nil, headers(user))
-
-        binding.pry
-        response
-      end
-    rescue Common::Client::Errors::ClientError => e
-      raise_backend_exception('VAOS_502', self.class, e)
-    end
-
     private
 
     def deserialize(json_hash)
@@ -56,11 +44,6 @@ module VAOS
 
     def get_appointment_requests_url
       "/var/VeteranAppointmentRequestService/v4/rest/appointment-service/patient/ICN/#{user.icn}/appointments"
-    end
-
-    def put_appointment_requests_url(request_id)
-      "/var/VeteranAppointmentRequestService/v4/rest/appointment-service/patient/ICN/#{user.icn}" \
-        "/appointment-requests/system/var/id/#{request_id}"
     end
 
     def date_params(start_date, end_date)
