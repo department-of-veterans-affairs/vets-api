@@ -12,7 +12,9 @@ module EVSS
     #
     class RatingInfoResponse < EVSS::Response
       # attribute :rating_info, Array[EVSS::DisabilityCompensationForm::RatingInfo]
-      attribute :user_percent_of_disability, Integer
+      attribute :disability_decision_type_name, String
+      attribute :service_connected_combined_degree, String
+      attribute :user_percent_of_disability, String
 
       def initialize(status, response = nil)
         super(status, response.body) if response

@@ -37,7 +37,6 @@ module EVSS
       attribute :disability_decision_type_name, String
       attribute :service_connected_combined_degree, String
       attribute :user_percent_of_disability, String
-
     end
   end
 end
