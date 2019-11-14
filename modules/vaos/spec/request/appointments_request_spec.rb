@@ -23,8 +23,8 @@ RSpec.describe 'vaos appointments', type: :request do
 
   context 'loa3 user' do
     let(:current_user) { build(:user, :mhv) }
-    let(:start_date) { Time.now.utc.beginning_of_day + 7.hours }
-    let(:end_date) { Time.now.utc.beginning_of_day + 8.hours + 4.months }
+    let(:start_date) { Time.zone.parse('2019-11-14T07:00:00Z') }
+    let(:end_date) { Time.zone.parse('2020-03-14T08:00:00Z') }
     let(:params) { { type: 'va', start_date: start_date, end_date: end_date } }
 
     context 'with flipper disabled' do
