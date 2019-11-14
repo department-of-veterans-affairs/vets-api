@@ -60,9 +60,10 @@ module SentryLogging
     level = normalize_level(level)
     formatted_message = extra_context.empty? ? message : message + ' : ' + extra_context.to_s
     rails_logger(level, formatted_message)
-
-    set_context(extra_context, tags_context)
-    Raven.capture_message(message, level: level)
+    if Settings.sentry.dsn.present?
+      set_context(extra_context, tags_context)
+      Raven.capture_message(message, level: level)
+    end
   end
 
   def log_exception_to_sentry(exception, extra_context = {}, tags_context = {}, level = 'error')
@@ -70,9 +71,11 @@ module SentryLogging
     level = normalize_level(level)
 
     log_to_rails(exception, level)
-
-    set_context(extra_context, tags_context)
-    Raven.capture_exception(exception.cause.presence || exception, level: level)
+    
+    if Settings.sentry.dsn.present?
+      set_context(extra_context, tags_context)
+      Raven.capture_exception(exception.cause.presence || exception, level: level)
+    end
   end
 
   def log_to_rails(exception, level = 'error')
