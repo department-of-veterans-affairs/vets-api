@@ -4,6 +4,8 @@ module Common
   module Exceptions
     # Service Outage - Breakers is reporting an outage on a backend system
     class ServiceOutage < BaseError
+      alias_method :status, :status_code
+      
       def initialize(outage = nil, options = {})
         @outage = outage
         @detail = options[:detail] || i18n_field(:detail, service: @outage.service.name, since: @outage.start_time)
