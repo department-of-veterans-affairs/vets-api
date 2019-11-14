@@ -196,12 +196,6 @@
 
   # Disability Compensation Form
   - :method: :get
-    :path: "/wss-common-services-web-11.6/rest/ratingInfoService/11.6/findRatingInfoPID"
-    :file_path: "evss/disability_form/find_rating_info_pid"
-    :cache_multiple_responses:
-      :uid_location: header
-      :uid_locator: 'va_eauth_pnid'
-  - :method: :get
     :path: "/wss-form526-services-web/rest/form526/v1/ratedDisabilities"
     :file_path: "evss/disability_form/rated_disabilities"
     :cache_multiple_responses:
@@ -228,6 +222,12 @@
   - :method: :post
     :path: <%= "/#{Settings.evss.alternate_service_name}/rest/form526/v2/validate" %>
     :file_path: "evss/disability_form/form526_validate"
+    :cache_multiple_responses:
+      :uid_location: header
+      :uid_locator: 'va_eauth_pnid'
+  - :method: :post
+    :path: <%= "/wss-common-services-web-#{Settings.evss.versions.common}/rest/ratingInfoService/#{Settings.evss.versions.common}/findRatingInfoPID" %>
+    :file_path: "evss/disability_form/find_rating_info_pid"
     :cache_multiple_responses:
       :uid_location: header
       :uid_locator: 'va_eauth_pnid'

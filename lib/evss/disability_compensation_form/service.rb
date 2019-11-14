@@ -44,8 +44,10 @@ module EVSS
       # @return [EVSS::DisabilityCompensationForm::RatingInfoResponse] Response with a total combined disability rating
       #
       def get_rating_info
+        body = { 'participantId' => @headers['va_eauth_pid']}
+
         with_monitoring_and_error_handling do
-          raw_response = perform(:get, 'findRatingInfoPID')
+          raw_response = perform(:post, 'findRatingInfoPID', body.to_json)
           RatingInfoResponse.new(raw_response.status, raw_response)
         end
       end

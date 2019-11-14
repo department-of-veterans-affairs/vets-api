@@ -5,9 +5,11 @@ module EVSS
     # Configuration for the findRatingInfoPID service
     #
     class ConfigurationRatingInfo < EVSS::DisabilityCompensationForm::Configuration
+      API_VERSION = Settings.evss.versions.common
+
       # :nocov:
       def base_path
-        "#{Settings.evss.url}/wss-common-services-web-11.6/rest/ratingInfoService/11.6"
+        "#{Settings.evss.url}/wss-common-services-web-#{API_VERSION}/rest/ratingInfoService/#{API_VERSION}"
       end
       # :nocov:
 
