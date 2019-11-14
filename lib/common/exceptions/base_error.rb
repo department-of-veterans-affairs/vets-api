@@ -4,6 +4,8 @@ module Common
   module Exceptions
     # Base error class all others inherit from
     class BaseError < StandardError
+      attr_accessor :cause
+
       def errors
         raise NotImplementedError, 'Subclass of Error must implement errors method'
       end
@@ -11,6 +13,7 @@ module Common
       def status_code
         errors&.first&.status&.to_i
       end
+      alias status status_code
 
       def message
         i18n_data[:title]

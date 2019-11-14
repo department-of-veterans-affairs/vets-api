@@ -5,7 +5,6 @@ module Common
     # Parameter Missing - required parameter was not provided
     class ParameterMissing < BaseError
       attr_reader :param
-      alias_method :status, :status_code
 
       def initialize(param, options = {})
         @param = param

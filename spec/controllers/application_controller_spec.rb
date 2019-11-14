@@ -177,7 +177,7 @@ RSpec.describe ApplicationController, type: :controller do
       expect(JSON.parse(response.body)['errors'].first['title']).to eq('Service unavailable')
     end
 
-    context 'signed in user' do
+    context 'when a user is signed in' do
       let(:user) { create(:user) }
 
       before do
@@ -212,7 +212,6 @@ RSpec.describe ApplicationController, type: :controller do
           Faraday::ConnectionFailed,
           level: 'error'
         )
-        pending 'hmm'
         with_settings(Settings.sentry, dsn: 'T') do
           get :client_connection_failed
         end
@@ -239,7 +238,6 @@ RSpec.describe ApplicationController, type: :controller do
           Pundit::NotAuthorizedError,
           level: 'info'
         )
-        pending 'hmm'
         expect(Raven).to receive(:extra_context).once.with(
           va_exception_errors: [{
             title: 'Forbidden',

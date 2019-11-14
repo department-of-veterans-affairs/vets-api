@@ -73,13 +73,13 @@ class ApplicationController < ActionController::API
   rescue_from StandardError do |error|
     exc = Common::Exceptions::InternalServerError.new(error)
     handle_error(exc)
-    render json: { errors: exc.errors }, status: exc.status_code
+    render json: { errors: exc.errors }, status: exc.status
   end
 
   rescue_from Common::Exceptions::BaseError do |exc|
     set_empty_auth_header if exc.is_a?(Common::Exceptions::Unauthorized)
     handle_error(exc)
-    render json: { errors: exc.errors }, status: exc.status_code
+    render_error(exc)
   end
 
   rescue_from ActionController::ParameterMissing do |error|
@@ -100,14 +100,14 @@ class ApplicationController < ActionController::API
     render_error(exc)
   end
 
-  rescue_from Common::Client::Errors::ClientError do |_error|
-    exc = Common::Exceptions::ServiceOutage.new(nil, detail: 'Backend Service Outage')
+  rescue_from Common::Client::Errors::ClientError do |error|
+    exc = Common::Exceptions::ServiceOutage.new(nil, cause: error.cause, detail: 'Backend Service Outage')
     handle_error(exc)
     render_error(exc)
   end
 
-  rescue_from Pundit::NotAuthorizedError do |_error|
-    exc = Common::Exceptions::Forbidden.new(detail: 'User does not have access to the requested resource')
+  rescue_from Pundit::NotAuthorizedError do |error|
+    exc = Common::Exceptions::Forbidden.new(cause: error, detail: 'User does not have access to the requested resource')
     handle_error(exc)
     render_error(exc)
   end

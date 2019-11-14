@@ -4,9 +4,8 @@ module Common
   module Exceptions
     # Forbidden - We may eventually want different variations on this with distinct MinorCodes
     class Forbidden < BaseError
-      alias_method :status, :status_code
-      
       def initialize(options = {})
+        @cause  = options[:cause]
         @detail = options[:detail]
         @source = options[:source]
       end

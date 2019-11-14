@@ -119,9 +119,8 @@ module Common
                       else
                         Common::Client::Errors::ClientError
                       end
-
         response_hash = e.response&.to_hash
-        client_error = error_class.new(e.message, response_hash&.dig(:status), response_hash&.dig(:body))
+        client_error = error_class.new(e, message: e.message, status: response_hash&.dig(:status), body: response_hash&.dig(:body))
         raise client_error
       end
 

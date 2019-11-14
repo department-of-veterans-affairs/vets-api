@@ -52,7 +52,7 @@ module Common
       private
 
       def render_overides
-        { status: status, detail: detail, code: code, source: source }
+        { status: status_code, detail: detail, code: code, source: source }
       end
 
       # REQUIRED - This is the i18n code returned from raise_error middleware. If it exists in
@@ -70,7 +70,7 @@ module Common
       # then 400 explicitly it will default to 400. IT WILL NOT DEFAULT to whatever
       # was provided by the backend service, because the backend service response
       # might not always be relevant
-      def status
+      def status_code
         i18n_data[:status].presence || 400
       end
 
@@ -89,7 +89,7 @@ module Common
 
       def validate_arguments!
         raise ArgumentError, "i18n key (#{@key}) is invalid" unless I18n.exists?(i18n_key)
-        raise ArgumentError, "status (#{status}) is not in range" unless status.between?(400, 599)
+        raise ArgumentError, "status (#{status_code}) is not in range" unless status_code.between?(400, 599)
       end
 
       def i18n_key
