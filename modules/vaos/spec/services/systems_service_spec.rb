@@ -15,14 +15,34 @@ describe VAOS::SystemsService do
           expect(response.size).to eq(10)
         end
       end
+
+      it 'increments metrics total' do
+        VCR.use_cassette('vaos/systems/get_systems', match_requests_on: %i[host path method]) do
+          expect { subject.get_systems(user) }.to trigger_statsd_increment(
+            'api.vaos.get_systems.total', times: 1, value: 1
+          )
+        end
+      end
     end
 
     context 'when the upstream server returns a 500' do
       it 'raises a backend exception' do
         VCR.use_cassette('vaos/systems/get_systems_500', match_requests_on: %i[host path method]) do
-          expect { subject.get_systems(user) }.to raise_error(
-            Common::Exceptions::BackendServiceException
-          )
+          expect { subject.get_systems(user) }.to trigger_statsd_increment(
+            'api.vaos.get_systems.total', times: 1, value: 1
+          ).and trigger_statsd_increment(
+            'api.vaos.get_systems.fail', times: 1, value: 1
+          ).and raise_error(Common::Exceptions::BackendServiceException)
+        end
+      end
+    end
+
+    context 'when the upstream server returns a 403' do
+      it 'raises a backend exception' do
+        VCR.use_cassette('vaos/systems/get_systems_403', match_requests_on: %i[host path method]) do
+          expect { subject.get_systems(user) }.to trigger_statsd_increment(
+            'api.vaos.get_systems.fail', times: 1, value: 1
+          ).and raise_error(Common::Exceptions::BackendServiceException)
         end
       end
     end
@@ -54,7 +74,7 @@ describe VAOS::SystemsService do
       it 'returns an array of size 1' do
         VCR.use_cassette('vaos/systems/get_facility_clinics', match_requests_on: %i[host path method]) do
           response = subject.get_facility_clinics(user, '984', '323', '984GA')
-          expect(response.size).to eq(1)
+          expect(response.size).to eq(4)
         end
       end
     end
