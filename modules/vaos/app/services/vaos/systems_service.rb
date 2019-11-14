@@ -16,8 +16,6 @@ module VAOS
         response = perform(:get, '/mvi/v1/patients/session/identifiers.json', nil, headers(user))
         response.body.map { |system| OpenStruct.new(system) }
       end
-    rescue Common::Client::Errors::ClientError => e
-      raise_backend_exception('VAOS_502', self.class, e)
     end
 
     def get_facilities(user, facility_code)
@@ -26,8 +24,6 @@ module VAOS
         response = perform(:get, url, { 'facility-code' => facility_code }, headers(user))
         response.body.map { |facility| OpenStruct.new(facility) }
       end
-    rescue Common::Client::Errors::ClientError => e
-      raise_backend_exception('VAOS_502', self.class, e)
     end
 
     def get_facility_clinics(user, facility_id, type_of_care_id, system_id)
@@ -41,8 +37,6 @@ module VAOS
         response = perform(:get, url, url_params, headers(user))
         response.body.map { |clinic| OpenStruct.new(clinic) }
       end
-    rescue Common::Client::Errors::ClientError => e
-      raise_backend_exception('VAOS_502', self.class, e)
     end
 
     def get_cancel_reasons(user, facility_id)
@@ -52,8 +46,6 @@ module VAOS
         response = perform(:get, url, nil, headers(user))
         response.body[:cancel_reasons_list].map { |reason| OpenStruct.new(reason) }
       end
-    rescue Common::Client::Errors::ClientError => e
-      raise_backend_exception('VAOS_502', self.class, e)
     end
   end
 end
