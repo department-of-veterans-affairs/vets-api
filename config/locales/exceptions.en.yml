@@ -474,6 +474,12 @@ en:
         code: 'SEARCH_429'
         detail: 'Exceeded Search.gov rate limit'
         status: 429
+      VAOS_403:
+        <<: *external_defaults
+        title: Forbidden
+        code: 'VAOS_403'
+        detail: 'This user is forbidden from performing requests on the upstream server'
+        status: 403
       VAOS_502:
         <<: *external_defaults
         title: Bad Gateway
