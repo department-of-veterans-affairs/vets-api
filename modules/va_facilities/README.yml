@@ -859,10 +859,10 @@ components:
             - max_time
           properties:
             min_time:
-              type: string
+              type: integer
               example: 10
             max_time:
-              type: string
+              type: integer
               example: 20
         relationships:
           type: object
