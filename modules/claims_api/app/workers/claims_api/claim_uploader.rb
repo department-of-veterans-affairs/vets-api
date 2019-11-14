@@ -6,14 +6,14 @@ module ClaimsApi
   class ClaimUploader
     include Sidekiq::Worker
 
-    def perform(supporting_document_id)
-      supporting_document = ClaimsApi::SupportingDocument.find_by(id: supporting_document_id)
-      auto_claim = supporting_document.auto_established_claim
+    def perform(document_id)
+      document = ClaimsApi::SupportingDocument.find_by(id: document_id) || ClaimsApi::AutoEstablishedClaim.pending?(document_id)
+      auto_claim = document.try(:auto_established_claim) || document
       auth_headers = auto_claim.auth_headers
-      uploader = supporting_document.uploader
-      uploader.retrieve_from_store!(supporting_document.file_data['filename'])
+      uploader = document.uploader
+      uploader.retrieve_from_store!(document.file_data['filename'])
       file_body = uploader.read
-      service(auth_headers).upload(file_body, supporting_document)
+      service(auth_headers).upload(file_body, document)
       uploader.remove!
     end
 
