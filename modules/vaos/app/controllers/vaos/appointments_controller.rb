@@ -37,13 +37,13 @@ module VAOS
     end
 
     def start_date
-      Time.zone.parse(params[:start_date])
+      DateTime.parse(params[:start_date])
     rescue ArgumentError
       raise Common::Exceptions::InvalidFieldValue.new('start_date', params[:start_date])
     end
 
     def end_date
-      Time.zone.parse(params[:end_date])
+      DateTime.parse(params[:end_date])
     rescue ArgumentError
       raise Common::Exceptions::InvalidFieldValue.new('end_date', params[:end_date])
     end
