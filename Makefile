@@ -55,6 +55,10 @@ danger:
 db:
 	@$(BASH_DEV) "bin/rails db:setup db:migrate"
 
+.PHONY: docker-clean
+docker-clean:
+	@$(COMPOSE_DEV) down --rmi all --volumes
+
 .PHONY: down
 down:
 	@$(COMPOSE_DEV) down
