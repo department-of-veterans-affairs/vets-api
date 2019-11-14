@@ -61,7 +61,7 @@ module SentryLogging
     formatted_message = extra_context.empty? ? message : message + ' : ' + extra_context.to_s
     rails_logger(level, formatted_message)
 
-    set_context(tags_context, extra_context)
+    set_context(extra_context, tags_context)
     Raven.capture_message(message, level: level)
   end
 
