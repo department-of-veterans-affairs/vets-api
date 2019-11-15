@@ -2,7 +2,6 @@
 
 module EVSS
   class BaseHeaders
-
     def initialize(user)
       @user = user
     end
