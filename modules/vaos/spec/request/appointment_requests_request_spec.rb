@@ -4,8 +4,6 @@ require 'rails_helper'
 RSpec.describe 'vaos appointment requests', type: :request do
   include SchemaMatchers
 
-  let(:rsa_private) { OpenSSL::PKey::RSA.generate 4096 }
-
   before do
     Flipper.enable('va_online_scheduling')
     sign_in_as(current_user)
@@ -25,8 +23,8 @@ RSpec.describe 'vaos appointment requests', type: :request do
 
   context 'loa3 user' do
     let(:current_user) { build(:user, :mhv) }
-    let(:start_date) { Time.now.utc.beginning_of_day + 7.hours }
-    let(:end_date) { Time.now.utc.beginning_of_day + 8.hours + 4.months }
+    let(:start_date) { Date.parse('2019-08-20') }
+    let(:end_date) { Date.parse('2020-08-22') }
     let(:params) { { start_date: start_date, end_date: end_date } }
 
     context 'with flipper disabled' do
@@ -80,7 +78,7 @@ RSpec.describe 'vaos appointment requests', type: :request do
     end
 
     it 'has access and returns va appointments' do
-      VCR.use_cassette('vaos/appointment_requests/get_requests', match_requests_on: %i[host path method]) do
+      VCR.use_cassette('vaos/appointment_requests/get_requests_with_params', match_requests_on: %i[method uri]) do
         get '/v0/vaos/appointment_requests', params: params
 
         expect(response).to have_http_status(:success)
