@@ -90,15 +90,15 @@ PATH
       sidekiq
 
 PATH
-  remote: modules/veteran_verification
-  specs:
-    veteran_verification (0.0.1)
-      rails (~> 5.2.3)
-
-PATH
   remote: modules/veteran
   specs:
     veteran (0.0.1)
+      rails (~> 5.2.3)
+
+PATH
+  remote: modules/veteran_verification
+  specs:
+    veteran_verification (0.0.1)
       rails (~> 5.2.3)
 
 GEM
@@ -851,9 +851,6 @@ DEPENDENCIES
   will_paginate
   yard
   zero_downtime_migrations
-
-RUBY VERSION
-   ruby 2.4.5p335
 
 BUNDLED WITH
    1.17.3
