@@ -100,6 +100,8 @@ ActiveRecord::Schema.define(version: 2019_11_06_190228) do
     t.datetime "updated_at", null: false
     t.string "md5"
     t.string "source"
+    t.string "encrypted_file_data"
+    t.string "encrypted_file_data_iv"
   end
 
   create_table "claims_api_power_of_attorneys", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
