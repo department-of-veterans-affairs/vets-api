@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module EVSS
   class BaseHeaders
     attr_reader :transaction_id

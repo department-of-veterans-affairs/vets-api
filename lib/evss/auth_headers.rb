@@ -4,7 +4,6 @@ require 'evss/base_headers'
 
 module EVSS
   class AuthHeaders < EVSS::BaseHeaders
-
     def to_h
       @headers ||= sanitize(
         'va_eauth_csid' => 'DSLogon',

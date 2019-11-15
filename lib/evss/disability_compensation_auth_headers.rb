@@ -8,9 +8,9 @@ module EVSS
 
     def add_headers(auth_headers)
       auth_headers.merge(
-        'va_eauth_authorization' => eauth_json, 
+        'va_eauth_authorization' => eauth_json,
         'va_eauth_service_transaction_id' => @transaction_id
-    )
+      )
     end
 
     private
