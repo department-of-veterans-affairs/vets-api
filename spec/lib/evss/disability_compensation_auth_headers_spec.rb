@@ -12,16 +12,12 @@ describe EVSS::DisabilityCompensationAuthHeaders do
 
   # rubocop:disable all
   it 'includes gender in the headers' do
-    expect(valid_headers.add_headers(auth_headers)).to include(
+    expect(valid_headers.add_headers(auth_headers)).to eq(
       'foo' => 'bar',
       'va_eauth_authorization' =>
         '{"authorizationResponse":{"status":"VETERAN","idType":"SSN","id":"796111863","edi":null,"firstName":"abraham","lastName":"lincoln","birthDate":null,"gender":"MALE"}}')
   end
   # rubocop:enable all
-
-  it 'includes transaction id' do
-    expect(valid_headers.add_headers(auth_headers)).to include('va_eauth_service_transaction_id')
-  end
 
   it 'raises an error if gender is not included' do
     expect { invalid_headers.add_headers(auth_headers) }.to raise_error(Common::Exceptions::UnprocessableEntity)
