@@ -10,10 +10,9 @@ module Common
         attr_accessor :status
         attr_accessor :body
 
-        alias status_code status
-
-        def initialize(message = nil, status = nil, body = nil)
+        def initialize(error = nil, message: nil, status: nil, body: nil)
           super(message)
+          @cause = error
           @status = status
           @body = body
         end
@@ -26,10 +25,6 @@ module Common
       class ParsingError < ClientError; end
 
       class HTTPError < ClientError
-        def initialize(message = nil, status = nil, body = nil)
-          super
-        end
-
         alias code status
       end
     end

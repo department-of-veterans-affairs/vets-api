@@ -48,7 +48,7 @@ describe Common::Client::Concerns::LogAsWarningHelpers do
 
   context 'when a request raises a 503 HTTPError error' do
     it 'sets log_as_warning in raven extra context' do
-      expect(service).to receive(:connection).and_raise(Common::Client::Errors::HTTPError.new(nil, 503))
+      expect(service).to receive(:connection).and_raise(Common::Client::Errors::HTTPError.new(nil, status: 503))
 
       expect(Raven).to receive(:extra_context).with(log_as_warning: true)
 

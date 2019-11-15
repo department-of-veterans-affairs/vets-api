@@ -295,7 +295,7 @@ RSpec.describe Users::Profile do
         before do
           allow_any_instance_of(
             EMISRedis::VeteranStatus
-          ).to receive(:veteran?).and_raise(Common::Client::Errors::ClientError.new(nil, 503))
+          ).to receive(:veteran?).and_raise(Common::Client::Errors::ClientError.new(nil, status: 503))
         end
 
         it 'sets veteran_status to nil' do
@@ -382,7 +382,7 @@ RSpec.describe Users::Profile do
 
         before do
           allow_any_instance_of(User).to receive(:vet360_contact_info).and_raise(
-            Common::Client::Errors::ClientError.new(message, 503, error_body)
+            Common::Client::Errors::ClientError.new(nil, message: message, status: 503, body: error_body)
           )
         end
 

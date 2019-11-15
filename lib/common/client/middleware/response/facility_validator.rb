@@ -23,7 +23,7 @@ module Common
             end
             json_body
           rescue Oj::Error => e
-            raise Common::Client::Errors::ParsingError, e
+            raise Common::Client::Errors::ParsingError.new(e, message: e)
           end
 
           def validate(locations, map)
@@ -48,7 +48,7 @@ module Common
           end
 
           def raise_invalid_error(message)
-            raise Common::Client::Errors::ParsingError, "invalid source data: #{message}"
+            raise Common::Client::Errors::ParsingError.new(nil, message: "invalid source data: #{message}")
           end
 
           def facility_klass(path_part)

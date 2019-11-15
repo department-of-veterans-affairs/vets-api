@@ -19,7 +19,7 @@ RSpec.describe Users::ExceptionHandler do
 
   describe '#serialize_error' do
     context 'with a Common::Client::Errors::ClientError' do
-      let(:error) { Common::Client::Errors::ClientError.new(message, 503, error_body) }
+      let(:error) { Common::Client::Errors::ClientError.new(nil, message: message, status: 503, body: error_body) }
       let(:results) { Users::ExceptionHandler.new(error, service).serialize_error }
 
       it 'returns a serialized version of the error' do

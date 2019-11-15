@@ -49,6 +49,15 @@ module Common
         MESSAGE
       end
 
+      # REQUIRED - This is the http status code.
+      # unless you've specified that you want the status code to be something other
+      # then 400 explicitly it will default to 400. IT WILL NOT DEFAULT to whatever
+      # was provided by the backend service, because the backend service response
+      # might not always be relevant
+      def status_code
+        i18n_data[:status].presence || 400
+      end
+
       private
 
       def render_overides
@@ -63,15 +72,6 @@ module Common
         else
           'VA900'
         end
-      end
-
-      # REQUIRED - This is the http status code.
-      # unless you've specified that you want the status code to be something other
-      # then 400 explicitly it will default to 400. IT WILL NOT DEFAULT to whatever
-      # was provided by the backend service, because the backend service response
-      # might not always be relevant
-      def status_code
-        i18n_data[:status].presence || 400
       end
 
       # OPTIONAL - This is the detail or message that is rendered in JSON response

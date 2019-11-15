@@ -11,16 +11,20 @@ module Common
               doc = parse_doc(env.body)
               if doc_includes_error?(doc)
                 log_error_details(env)
-                raise Common::Client::Errors::HTTPError.new('SOAP service returned internal server error', 500)
+                handle_error('SOAP service returned internal server error', 500)
               end
               env.body = doc
             else
               log_error_details(env)
-              raise Common::Client::Errors::HTTPError.new('SOAP HTTP call failed', env.status)
+              handle_error('SOAP HTTP call failed', env.status)
             end
           end
 
           private
+
+          def handle_error(message = nil, status = nil)
+            raise Common::Client::Errors::HTTPError.new(nil, message: message, status: status)
+          end
 
           def log_error_details(env)
             Raven.extra_context(

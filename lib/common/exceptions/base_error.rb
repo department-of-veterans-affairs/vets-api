@@ -10,10 +10,10 @@ module Common
         raise NotImplementedError, 'Subclass of Error must implement errors method'
       end
 
-      def status_code
+      def status
         errors&.first&.status&.to_i
       end
-      alias status status_code
+      alias status_code status
 
       def message
         i18n_data[:title]

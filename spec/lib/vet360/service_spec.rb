@@ -20,7 +20,10 @@ describe Vet360::Service do
       it 'maps the Vet360 error code to the appropriate vets-api error message', :aggregate_failures do
         CSV.foreach(file, headers: true) do |row|
           row   = strip_row_headers(row)
-          error = Common::Client::Errors::ClientError.new(message, status, body_for(row))
+          error = Common::Client::Errors::ClientError.new(nil,
+                                                          message: message,
+                                                          status: status,
+                                                          body: body_for(row))
           code  = row['Message Code']&.strip
 
           next if code.blank?
@@ -57,7 +60,10 @@ describe Vet360::Service do
     context 'when error.body is not a Hash' do
       it 'raises a VET360_502', :aggregate_failures do
         invalid_body = '<html>Some response body</html>'
-        error        = Common::Client::Errors::ClientError.new('some message', 502, invalid_body)
+        error = Common::Client::Errors::ClientError.new(nil,
+                                                        message: 'some message',
+                                                        status: 502,
+                                                        body: invalid_body)
 
         expect { subject.send('handle_error', error) }.to raise_error do |e|
           expect(e.errors.first.code).to eq('VET360_502')

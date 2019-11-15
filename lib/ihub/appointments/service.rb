@@ -62,7 +62,8 @@ module IHub
 
       def icn_present!
         if @user.icn.blank?
-          error = Common::Client::Errors::ClientError.new('User has no ICN', 500, 'User has no ICN')
+          no_icn = 'User has no ICN'
+          error = Common::Client::Errors::ClientError.new(nil, message: no_icn, status: 500, body: no_icn)
 
           raise_backend_exception('IHUB_102', self.class, error)
         end
