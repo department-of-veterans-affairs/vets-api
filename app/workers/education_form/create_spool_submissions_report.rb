@@ -38,7 +38,7 @@ module EducationForm
       data
     end
 
-    def check_claim_for_stem(education_benefits_claim, parsed_form, stem_exists)
+    def check_claim_for_stem(education_benefits_claim, _parsed_form, stem_exists)
       return true if stem_exists
 
       education_benefits_claim.form_type == '1995s'
