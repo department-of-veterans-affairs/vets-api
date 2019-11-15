@@ -12,7 +12,7 @@ module VAOS
     private
 
     def preference_service
-      VAOS::PreferenceService.new
+      VAOS::PreferencesService.new
     end
   end
 end

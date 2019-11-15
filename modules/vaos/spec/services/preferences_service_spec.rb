@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-describe VAOS::PreferenceService do
+describe VAOS::PreferencesService do
   let(:user) { build(:user, :mhv) }
 
   before { allow_any_instance_of(VAOS::UserService).to receive(:session).and_return('stubbed_token') }
