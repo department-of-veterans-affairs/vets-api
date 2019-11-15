@@ -9,7 +9,7 @@
 Provide link to QA Test-Plan ticket \[issue-template coming soon].
 Also, if UI-testable (i.e., testable manually on Staging by QA, either via the browser or REST API-client), provide link to QA test-request ticket \[issue-template coming soon]. -->
 
-<!-- Link to QA Process docs coming soon. -->
+See [VSA QA Process](https://github.com/department-of-veterans-affairs/va.gov-team/blob/master/teams/vsa/teams/qa/vsa-qa-process.md) for more info on Engineering/QA collaboration/engagement.
 
 ## Acceptance Criteria (Definition of Done)
 
