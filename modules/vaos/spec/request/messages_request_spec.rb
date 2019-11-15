@@ -38,7 +38,7 @@ RSpec.describe 'vaos appointment request messages', type: :request do
     end
 
     it 'has access and returns messages', :skip_mvi do
-      VCR.use_cassette('vaos/messages/get_messages', match_requests_on: %i[host path method]) do
+      VCR.use_cassette('vaos/messages/get_messages', match_requests_on: %i[method uri]) do
         get "/v0/vaos/appointment_requests/#{request_id}/messages"
 
         expect(response).to have_http_status(:success)

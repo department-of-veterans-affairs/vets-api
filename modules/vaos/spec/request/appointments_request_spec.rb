@@ -23,8 +23,8 @@ RSpec.describe 'vaos appointments', type: :request do
 
   context 'loa3 user' do
     let(:current_user) { build(:user, :mhv) }
-    let(:start_date) { Time.now.utc.beginning_of_day + 7.hours }
-    let(:end_date) { Time.now.utc.beginning_of_day + 8.hours + 4.months }
+    let(:start_date) { Time.zone.parse('2019-11-14T07:00:00Z') }
+    let(:end_date) { Time.zone.parse('2020-03-14T08:00:00Z') }
     let(:params) { { type: 'va', start_date: start_date, end_date: end_date } }
 
     context 'with flipper disabled' do
@@ -111,7 +111,7 @@ RSpec.describe 'vaos appointments', type: :request do
     end
 
     it 'has access and returns va appointments' do
-      VCR.use_cassette('vaos/appointments/get_appointments', match_requests_on: %i[host path method]) do
+      VCR.use_cassette('vaos/appointments/get_appointments', match_requests_on: %i[method uri]) do
         get '/v0/vaos/appointments', params: params
 
         expect(response).to have_http_status(:success)
@@ -121,7 +121,7 @@ RSpec.describe 'vaos appointments', type: :request do
     end
 
     it 'has access and returns cc appointments' do
-      VCR.use_cassette('vaos/appointments/get_cc_appointments', match_requests_on: %i[host path method]) do
+      VCR.use_cassette('vaos/appointments/get_cc_appointments', match_requests_on: %i[method uri]) do
         get '/v0/vaos/appointments', params: params.merge(type: 'cc')
 
         expect(response).to have_http_status(:success)
