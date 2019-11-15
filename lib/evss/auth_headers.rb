@@ -4,6 +4,13 @@ require 'evss/base_headers'
 
 module EVSS
   class AuthHeaders < EVSS::BaseHeaders
+    attr_reader :transaction_id
+
+    def initialize(user)
+      @transaction_id = create_transaction_id
+      super(user)
+    end
+
     def to_h
       @headers ||= sanitize(
         'va_eauth_csid' => 'DSLogon',
@@ -27,6 +34,10 @@ module EVSS
     end
 
     private
+
+    def create_transaction_id
+      "vagov-#{SecureRandom.uuid}"
+    end
 
     def sanitize(headers)
       headers.transform_values! do |value|
