@@ -5,7 +5,7 @@ require 'common/models/form'
 
 module VAOS
   class CancelForm < Common::Form
-    attribute :appointment_time, VAOS::DateTime
+    attribute :appointment_time, VAOS::AppointmentTime
     attribute :clinic_id, String
     attribute :cancel_reason, String
     attribute :cancel_code, String
@@ -16,6 +16,7 @@ module VAOS
 
     def params
       raise Common::Exceptions::ValidationErrors, self unless valid?
+
       attributes
     end
   end

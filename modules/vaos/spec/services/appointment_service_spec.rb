@@ -12,15 +12,24 @@ describe VAOS::AppointmentService do
   before { allow_any_instance_of(VAOS::UserService).to receive(:session).and_return('stubbed_token') }
 
   describe '#put_cancel_appointment' do
-    it 'cancels an appointment' do
-      VCR.use_cassette('vaos/appointments/put_cancel_appointment', record: :new_episodes) do
-        request_id = ''
-        binding.pry
+    let(:request_body) do
+      {
+        appointment_time: '11/15/19 20:00:00',
+        clinic_id: '408',
+        cancel_reason: 'whatever',
+        cancel_code: '5',
+        remarks: nil,
+        clinic_name: nil
+      }
+    end
 
-        response = subject.put_cancel_request(request_id)
-
-        binding.pry
-        expect(response[:data].size).to eq(40)
+    context 'when appointment cannot be cancelled' do
+      it 'returns the bad request with detail in errors' do
+        VCR.use_cassette('vaos/appointments/put_cancel_appointment_400', record: :new_episodes) do
+          expect { subject.put_cancel_appointment(request_body) }.to raise_error(
+            Common::Exceptions::BackendServiceException
+          )
+        end
       end
     end
   end

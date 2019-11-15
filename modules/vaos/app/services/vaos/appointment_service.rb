@@ -80,7 +80,7 @@ module VAOS
     end
 
     def put_appointment_url
-      "/var/VeteranAppointmentRequestService/v4/rest/direct-scheduling/site/983/patient/ICN/" \
+      '/var/VeteranAppointmentRequestService/v4/rest/direct-scheduling/site/983/patient/ICN/' \
         "#{user.icn}/cancel-appointment"
     end
 
