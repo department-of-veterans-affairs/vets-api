@@ -30,8 +30,6 @@ module VAOS
           meta: pagination(pagination_params)
         }
       end
-    rescue Common::Client::Errors::ClientError => e
-      raise_backend_exception('VAOS_502', self.class, e)
     end
 
     def put_cancel_appointment(request_object_body)

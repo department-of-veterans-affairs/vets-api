@@ -5,9 +5,9 @@ module VAOS
     def connection
       Faraday.new(base_path, headers: headers, request: request_options) do |conn|
         conn.use :breakers
-        conn.use Faraday::Response::RaiseError
 
         conn.response :betamocks if mock_enabled?
+        conn.response :vaos_errors
         conn.adapter Faraday.default_adapter
       end
     end
