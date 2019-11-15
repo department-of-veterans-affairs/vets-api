@@ -5,13 +5,13 @@ require_dependency 'vaos/application_controller'
 module VAOS
   class PreferencesController < ApplicationController
     def index
-      response = preference_service.get_preferences(current_user)
+      response = preferences_service.get_preferences(current_user)
       render json: VAOS::PreferenceSerializer.new(response)
     end
 
     private
 
-    def preference_service
+    def preferences_service
       VAOS::PreferencesService.new
     end
   end
