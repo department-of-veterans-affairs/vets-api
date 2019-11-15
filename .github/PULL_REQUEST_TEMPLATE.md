@@ -21,8 +21,9 @@ See [VSA QA Process](https://github.com/department-of-veterans-affairs/va.gov-te
 
 - [ ] Appropriate logging
 - [ ] Swagger docs have been updated, if applicable
+- [ ] A link has been provided to the Pre-Launch Checklist
 - [ ] Provide link to originating GitHub issue, or connected to it via ZenHub
-- [ ] Provide link to the QA Test-Plan ticket.
-- [ ] Provide link the QA Test-Request ticket.
+- [ ] Provide link to the VSA-QA Test Plan ticket (use the VSA-QA Test Plan Issue Template to create the ticket within va.gov-team repo).
+- [ ] Provide link the VSA-QA Test Request ticket \[issue-template coming soon].
 - [ ] Does not contain any sensitive information (i.e. PII/credentials/internal URLs/etc., in logging, hardcoded, or in specs)
 - [ ] Provide which alerts would indicate a problem with this functionality (if applicable)
