@@ -9,6 +9,9 @@ pipeline {
     // for PRs, BRANCH_NAME = PR-<ID>. for branches in the remote w/o a PR, BRANCH_NAME = <the name of the branch>
     // THE_BRANCH is a hack to normalize this value depending on if Jenkins "discovered" using "branch" or "pull-request"
     THE_BRANCH = "${env.CHANGE_BRANCH != null ? env.CHANGE_BRANCH : env.BRANCH_NAME}"
+
+    CI = "true"
+    RAILS_ENV = "test"
   }
 
   options {
@@ -26,13 +29,35 @@ pipeline {
       }
     }
 
-    stage('Run tests') {
+    stage('Build Docker Images'){
       steps {
         withCredentials([string(credentialsId: 'sidekiq-enterprise-license', variable: 'BUNDLE_ENTERPRISE__CONTRIBSYS__COM')]) {
-          withEnv(['RAILS_ENV=test', 'CI=true']) {
-            sh 'make ci'
-          }
+          sh 'make ci-build'
         }
+      }
+    }
+
+    stage('Setup Testing DB') {
+      steps {
+        sh 'make ci-db'
+      }
+    }
+
+    stage('Lint') {
+      steps {
+        sh 'make ci-lint'
+      }
+    }
+
+    stage('Security Scan') {
+      steps {
+        sh 'make ci-security'
+      }
+    }
+
+    stage('Run tests') {
+      steps {
+        sh 'make ci-spec'
       }
       post {
         success {
