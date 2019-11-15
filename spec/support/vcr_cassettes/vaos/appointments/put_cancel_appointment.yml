@@ -1,0 +1,438 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: https://internal-dsva-vagov-staging-fwdproxy-1821450725.us-gov-west-1.elb.amazonaws.com:4463/users/v2/session?processRules=true
+    body:
+      encoding: US-ASCII
+      string: eyJhbGciOiJSUzUxMiJ9.eyJhdXRoZW50aWNhdGVkIjp0cnVlLCJzdWIiOiIxMDEyODQ1MzMxVjE1MzA0MyIsImlkVHlwZSI6IklDTiIsImlzcyI6Imdvdi52YS52YW9zIiwiZmlyc3ROYW1lIjoiSlVEWSIsImxhc3ROYW1lIjoiTU9SUklTT04iLCJhdXRoZW50aWNhdGlvbkF1dGhvcml0eSI6Imdvdi52YS5pYW0uc3NvZS52MSIsImp0aSI6IjBiYjllMWNiLWE0ODUtNDRhOC04YjU1LTY5NDZiOTljNTgxOCIsIm5iZiI6MTU3Mzg0MTMzNiwiZXhwIjoxNTczODQ0OTk2LCJ2ZXJzaW9uIjoxLjAsInVzZXJUeXBlIjoiVkVURVJBTiIsInZhbWYuYXV0aC5yb2xlcyI6WyJ2ZXRlcmFuIl19.gGGwTOt_5JOeU7w7-uduHu49ebXMibJf8WyL7VfEYPdGFywqZSWnruYaqX37Jx8Aqzz7EzYXswoSZbr5-Qxr8wXh4HSzRVVF64kEag7kiSrHOb9oE8eqT68RVYwK0HWBWYWThxoZXM1jf-_WOafM67gMj1E8XSu8RjlRTgS_p51uLTiJPPJB0JaauzOqXth7Td_ntjDXToJ1tl-ezOzWIjlyLfMSiDcIDIxo2IMnCMY5BQ9_7IdiFj3xg-ivkIy_HGaHE-EC7HiSchZBMQVBqFn386wJSvGKPN4aLjqG51CoGvShNkCf5VS2OwXCi0T7oSRtsTM3q6Faf3td3a3Y8Q-hhG1LZePme0xfQzDoOYc1w_17bCVfciGgJA5RVdYs1yZNI3PKNdGP6m72DMDleKylb3reTzbuGIdYMMSLH0pEnNUu2ETwHN7xT7BHlj9g9oVBGeGPBR_wT9TXonX7S3jyEsfMrS5sBmfE9ESgBypeVGWrwgQ9QjdSm9cLbBahzTV265KPi0LOAcSRCFPEzSklFDgRgWzEURDMWpAEInduWP-ZXqroqwJR2L-HYsrlFUx4CtGu-CLAaHVApHXXWjdfhFYTHxt8Q0WmwTFWXNjNV4DKmMmlPBVNH97hCdZHChhPBr7EKzP8tZ_ZCwOyUWe3ATThPEFihkmlQ1HsKuU
+    headers:
+      Content-Type:
+      - text/plain
+      Referer:
+      - https://api.va.gov
+      User-Agent:
+      - Faraday v0.9.2
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Fri, 15 Nov 2019 18:09:56 GMT
+      Content-Type:
+      - text/plain
+      Content-Length:
+      - '1448'
+      Server:
+      - openresty
+      X-B3-Parentspanid:
+      - 9b655ddac5279f3d
+      X-Vamf-Version:
+      - 2.7.0
+      Cache-Control:
+      - no-store
+      X-B3-Traceid:
+      - 9b655ddac5279f3d
+      Access-Control-Allow-Headers:
+      - x-vamf-jwt
+      X-Vamf-Build:
+      - b5e8e69
+      X-B3-Sampled:
+      - '0'
+      X-Vamf-Timestamp:
+      - '2019-11-04T22:14:18+0000'
+      Access-Control-Allow-Origin:
+      - "*.va.gov"
+      X-B3-Spanid:
+      - dc79b92bec9ce2d3
+      Access-Control-Allow-Methods:
+      - GET,OPTIONS
+      Access-Control-Max-Age:
+      - '3600'
+      Strict-Transport-Security:
+      - max-age=63072000; includeSubDomains; preload
+    body:
+      encoding: UTF-8
+      string: eyJhbGciOiJSUzUxMiJ9.eyJsYXN0TmFtZSI6Ik1PUlJJU09OIiwic3ViIjoiMTAxMjg0NTMzMVYxNTMwNDMiLCJhdXRoZW50aWNhdGVkIjp0cnVlLCJhdXRoZW50aWNhdGlvbkF1dGhvcml0eSI6Imdvdi52YS52YW9zIiwiaWRUeXBlIjoiSUNOIiwiaXNzIjoiZ292LnZhLnZhbWYudXNlcnNlcnZpY2UudjEiLCJ2YW1mLmF1dGgucmVzb3VyY2VzIjpbIl4uKihcLyk_c2l0ZVtzXT9cLyhkZm4tKT85ODRcL3BhdGllbnRbc10_XC81NTIxNjEwNTBcL2FwcG9pbnRtZW50cyhcLy4qKT8kIiwiXi4qKFwvKT9zaXRlW3NdP1wvKGRmbi0pPzk4M1wvcGF0aWVudFtzXT9cLzcyMTY2OTFcL2FwcG9pbnRtZW50cyhcLy4qKT8kIiwiXi4qKFwvKT9wYXRpZW50W3NdP1wvKElDTlwvKT8xMDEyODQ1MzMxVjE1MzA0MyhcLy4qKT8kIl0sInZlcnNpb24iOjIuMSwidmlzdGFJZHMiOlt7InBhdGllbnRJZCI6IjU1MjE2MTA1MCIsInNpdGVJZCI6Ijk4NCJ9LHsicGF0aWVudElkIjoiNzIxNjY5MSIsInNpdGVJZCI6Ijk4MyJ9XSwiZmlyc3ROYW1lIjoiSlVEWSIsInN0YWZmRGlzY2xhaW1lckFjY2VwdGVkIjp0cnVlLCJuYmYiOjE1NzM4NDEyMTYsInNzdCI6MTU3Mzg0MTM5NiwicGF0aWVudCI6eyJmaXJzdE5hbWUiOiJKVURZIiwibGFzdE5hbWUiOiJNT1JSSVNPTiIsImljbiI6IjEwMTI4NDUzMzFWMTUzMDQzIn0sInVzZXJUeXBlIjoiVkVURVJBTiIsInZhbWYuYXV0aC5yb2xlcyI6WyJ2ZXRlcmFuIl0sInJpZ2h0T2ZBY2Nlc3NBY2NlcHRlZCI6dHJ1ZSwiZXhwIjoxNTczODQyMjk2LCJqdGkiOiIwYmI5ZTFjYi1hNDg1LTQ0YTgtOGI1NS02OTQ2Yjk5YzU4MTgiLCJsb2EiOjJ9.S6f-KCgADErhYVhcOcpa1K1Bm8oe7LpKbi09VehNp5KvA57Eg7Z-B3m3LDnvUnWkAg1Da8h3JVph4h4H5oSlALURuKB5FeQOXiARkfrHpIq0nuHWBQbeaIOqsHiAswT4U1xGPQk0Q2zmsumJXviBl1ffoLJXQih6UQy1do1MMBskCL1YcJzaO6MaYl5kuDKdo3wtXg9xMYd0MEBSeyKEynvdXcH80BIFdz6gMQZt4DXRM4iCPldW9DRbEp0mOIV7vdXFx_8q0atILAABes891HOygXsBPAGvL7sDTw8PMD04Yz__2NKefRBXOmtjGj28D9Yv6PEKcP3TYrt29-FO9A
+    http_version: 
+  recorded_at: Fri, 15 Nov 2019 18:09:56 GMT
+- request:
+    method: put
+    uri: https://internal-dsva-vagov-staging-fwdproxy-1821450725.us-gov-west-1.elb.amazonaws.com:4463/var/VeteranAppointmentRequestService/v4/rest/direct-scheduling/site/983/patient/ICN/1012845331V153043/cancel-appointment
+    body:
+      encoding: UTF-8
+      string: '{"appointmentTime":"11/15/2019 13:00:00","clinicId":"408","cancelReason":"5","cancelCode":"PC","remarks":"","clinicName":"CHY
+        OPT VAR1","patientIdentifier":{"uniqueId":"1012845331V153043","assigningAuthority":"ICN"}}'
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Referer:
+      - https://api.va.gov
+      X-Vamf-Jwt:
+      - eyJhbGciOiJSUzUxMiJ9.eyJsYXN0TmFtZSI6Ik1PUlJJU09OIiwic3ViIjoiMTAxMjg0NTMzMVYxNTMwNDMiLCJhdXRoZW50aWNhdGVkIjp0cnVlLCJhdXRoZW50aWNhdGlvbkF1dGhvcml0eSI6Imdvdi52YS52YW9zIiwiaWRUeXBlIjoiSUNOIiwiaXNzIjoiZ292LnZhLnZhbWYudXNlcnNlcnZpY2UudjEiLCJ2YW1mLmF1dGgucmVzb3VyY2VzIjpbIl4uKihcLyk_c2l0ZVtzXT9cLyhkZm4tKT85ODRcL3BhdGllbnRbc10_XC81NTIxNjEwNTBcL2FwcG9pbnRtZW50cyhcLy4qKT8kIiwiXi4qKFwvKT9zaXRlW3NdP1wvKGRmbi0pPzk4M1wvcGF0aWVudFtzXT9cLzcyMTY2OTFcL2FwcG9pbnRtZW50cyhcLy4qKT8kIiwiXi4qKFwvKT9wYXRpZW50W3NdP1wvKElDTlwvKT8xMDEyODQ1MzMxVjE1MzA0MyhcLy4qKT8kIl0sInZlcnNpb24iOjIuMSwidmlzdGFJZHMiOlt7InBhdGllbnRJZCI6IjU1MjE2MTA1MCIsInNpdGVJZCI6Ijk4NCJ9LHsicGF0aWVudElkIjoiNzIxNjY5MSIsInNpdGVJZCI6Ijk4MyJ9XSwiZmlyc3ROYW1lIjoiSlVEWSIsInN0YWZmRGlzY2xhaW1lckFjY2VwdGVkIjp0cnVlLCJuYmYiOjE1NzM4NDEyMTYsInNzdCI6MTU3Mzg0MTM5NiwicGF0aWVudCI6eyJmaXJzdE5hbWUiOiJKVURZIiwibGFzdE5hbWUiOiJNT1JSSVNPTiIsImljbiI6IjEwMTI4NDUzMzFWMTUzMDQzIn0sInVzZXJUeXBlIjoiVkVURVJBTiIsInZhbWYuYXV0aC5yb2xlcyI6WyJ2ZXRlcmFuIl0sInJpZ2h0T2ZBY2Nlc3NBY2NlcHRlZCI6dHJ1ZSwiZXhwIjoxNTczODQyMjk2LCJqdGkiOiIwYmI5ZTFjYi1hNDg1LTQ0YTgtOGI1NS02OTQ2Yjk5YzU4MTgiLCJsb2EiOjJ9.S6f-KCgADErhYVhcOcpa1K1Bm8oe7LpKbi09VehNp5KvA57Eg7Z-B3m3LDnvUnWkAg1Da8h3JVph4h4H5oSlALURuKB5FeQOXiARkfrHpIq0nuHWBQbeaIOqsHiAswT4U1xGPQk0Q2zmsumJXviBl1ffoLJXQih6UQy1do1MMBskCL1YcJzaO6MaYl5kuDKdo3wtXg9xMYd0MEBSeyKEynvdXcH80BIFdz6gMQZt4DXRM4iCPldW9DRbEp0mOIV7vdXFx_8q0atILAABes891HOygXsBPAGvL7sDTw8PMD04Yz__2NKefRBXOmtjGj28D9Yv6PEKcP3TYrt29-FO9A
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 400
+      message: Bad Request
+    headers:
+      Date:
+      - Fri, 15 Nov 2019 18:09:57 GMT
+      Content-Type:
+      - application/json;charset=UTF-8
+      Content-Length:
+      - '217'
+      Server:
+      - openresty
+    body:
+      encoding: UTF-8
+      string: This appointment cannot be cancelled using VA Online Scheduling.  Please
+        contact the site directly to cancel your appointment. <a class="external-link"
+        href="https://www.va.gov/find-locations/">VA Facility Locator</a>
+    http_version: 
+  recorded_at: Fri, 15 Nov 2019 18:09:57 GMT
+- request:
+    method: get
+    uri: https://internal-dsva-vagov-staging-fwdproxy-1821450725.us-gov-west-1.elb.amazonaws.com:4463/appointments/v1/patients/1012845331V153043/appointments?endDate=2019-11-17T18:11:18Z&pageSize=0&startDate=2019-11-15T18:11:18Z&useCache=false
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Referer:
+      - https://api.va.gov
+      X-Vamf-Jwt:
+      - eyJhbGciOiJSUzUxMiJ9.eyJsYXN0TmFtZSI6Ik1PUlJJU09OIiwic3ViIjoiMTAxMjg0NTMzMVYxNTMwNDMiLCJhdXRoZW50aWNhdGVkIjp0cnVlLCJhdXRoZW50aWNhdGlvbkF1dGhvcml0eSI6Imdvdi52YS52YW9zIiwiaWRUeXBlIjoiSUNOIiwiaXNzIjoiZ292LnZhLnZhbWYudXNlcnNlcnZpY2UudjEiLCJ2YW1mLmF1dGgucmVzb3VyY2VzIjpbIl4uKihcLyk_c2l0ZVtzXT9cLyhkZm4tKT85ODRcL3BhdGllbnRbc10_XC81NTIxNjEwNTBcL2FwcG9pbnRtZW50cyhcLy4qKT8kIiwiXi4qKFwvKT9zaXRlW3NdP1wvKGRmbi0pPzk4M1wvcGF0aWVudFtzXT9cLzcyMTY2OTFcL2FwcG9pbnRtZW50cyhcLy4qKT8kIiwiXi4qKFwvKT9wYXRpZW50W3NdP1wvKElDTlwvKT8xMDEyODQ1MzMxVjE1MzA0MyhcLy4qKT8kIl0sInZlcnNpb24iOjIuMSwidmlzdGFJZHMiOlt7InBhdGllbnRJZCI6IjU1MjE2MTA1MCIsInNpdGVJZCI6Ijk4NCJ9LHsicGF0aWVudElkIjoiNzIxNjY5MSIsInNpdGVJZCI6Ijk4MyJ9XSwiZmlyc3ROYW1lIjoiSlVEWSIsInN0YWZmRGlzY2xhaW1lckFjY2VwdGVkIjp0cnVlLCJuYmYiOjE1NzM4NDEyMTYsInNzdCI6MTU3Mzg0MTM5NiwicGF0aWVudCI6eyJmaXJzdE5hbWUiOiJKVURZIiwibGFzdE5hbWUiOiJNT1JSSVNPTiIsImljbiI6IjEwMTI4NDUzMzFWMTUzMDQzIn0sInVzZXJUeXBlIjoiVkVURVJBTiIsInZhbWYuYXV0aC5yb2xlcyI6WyJ2ZXRlcmFuIl0sInJpZ2h0T2ZBY2Nlc3NBY2NlcHRlZCI6dHJ1ZSwiZXhwIjoxNTczODQyMjk2LCJqdGkiOiIwYmI5ZTFjYi1hNDg1LTQ0YTgtOGI1NS02OTQ2Yjk5YzU4MTgiLCJsb2EiOjJ9.S6f-KCgADErhYVhcOcpa1K1Bm8oe7LpKbi09VehNp5KvA57Eg7Z-B3m3LDnvUnWkAg1Da8h3JVph4h4H5oSlALURuKB5FeQOXiARkfrHpIq0nuHWBQbeaIOqsHiAswT4U1xGPQk0Q2zmsumJXviBl1ffoLJXQih6UQy1do1MMBskCL1YcJzaO6MaYl5kuDKdo3wtXg9xMYd0MEBSeyKEynvdXcH80BIFdz6gMQZt4DXRM4iCPldW9DRbEp0mOIV7vdXFx_8q0atILAABes891HOygXsBPAGvL7sDTw8PMD04Yz__2NKefRBXOmtjGj28D9Yv6PEKcP3TYrt29-FO9A
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Fri, 15 Nov 2019 18:11:20 GMT
+      Content-Type:
+      - application/json
+      Content-Length:
+      - '738'
+      Server:
+      - openresty
+      X-B3-Parentspanid:
+      - 4c3003f177790fb0
+      X-Vamf-Version:
+      - 1.10.0
+      X-B3-Traceid:
+      - d188cb994e019292
+      Access-Control-Allow-Headers:
+      - x-vamf-jwt
+      X-Vamf-Build:
+      - 6b55567
+      X-B3-Sampled:
+      - '0'
+      X-Vamf-Timestamp:
+      - '2019-09-18T18:29:46+0000'
+      Access-Control-Allow-Origin:
+      - "*"
+      X-B3-Spanid:
+      - b36118d807158178
+      Access-Control-Allow-Methods:
+      - GET,OPTIONS
+      Access-Control-Max-Age:
+      - '3600'
+      Strict-Transport-Security:
+      - max-age=63072000; includeSubDomains; preload
+    body:
+      encoding: UTF-8
+      string: |-
+        {
+          "data" : {
+            "result" : {
+              "partial" : false,
+              "sources" : [ "VVS", "dfn-983", "dfn-984" ],
+              "pageCount" : 1,
+              "currentPage" : 1
+            },
+            "appointmentList" : [ {
+              "startDate" : "2019-11-15T20:00:00Z",
+              "clinicId" : "408",
+              "facilityId" : "983",
+              "patientIcn" : "1012845331V153043",
+              "communityCare" : false,
+              "vdsAppointments" : [ {
+                "appointmentTime" : "2019-11-15T20:00:00Z",
+                "clinic" : {
+                  "name" : "CHY OPT VAR1",
+                  "askForCheckIn" : false,
+                  "facilityCode" : "983"
+                },
+                "patientId" : "7216691",
+                "type" : "REGULAR",
+                "currentStatus" : "CANCELLED BY PATIENT"
+              } ]
+            } ],
+            "numAppointments" : 1
+          }
+        }
+    http_version: 
+  recorded_at: Fri, 15 Nov 2019 18:11:20 GMT
+- request:
+    method: get
+    uri: https://internal-dsva-vagov-staging-fwdproxy-1821450725.us-gov-west-1.elb.amazonaws.com:4463/appointments/v1/patients/1012845331V153043/appointments?endDate=2019-11-20T18:11:45Z&pageSize=0&startDate=2019-11-15T18:11:45Z&useCache=false
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Referer:
+      - https://api.va.gov
+      X-Vamf-Jwt:
+      - eyJhbGciOiJSUzUxMiJ9.eyJsYXN0TmFtZSI6Ik1PUlJJU09OIiwic3ViIjoiMTAxMjg0NTMzMVYxNTMwNDMiLCJhdXRoZW50aWNhdGVkIjp0cnVlLCJhdXRoZW50aWNhdGlvbkF1dGhvcml0eSI6Imdvdi52YS52YW9zIiwiaWRUeXBlIjoiSUNOIiwiaXNzIjoiZ292LnZhLnZhbWYudXNlcnNlcnZpY2UudjEiLCJ2YW1mLmF1dGgucmVzb3VyY2VzIjpbIl4uKihcLyk_c2l0ZVtzXT9cLyhkZm4tKT85ODRcL3BhdGllbnRbc10_XC81NTIxNjEwNTBcL2FwcG9pbnRtZW50cyhcLy4qKT8kIiwiXi4qKFwvKT9zaXRlW3NdP1wvKGRmbi0pPzk4M1wvcGF0aWVudFtzXT9cLzcyMTY2OTFcL2FwcG9pbnRtZW50cyhcLy4qKT8kIiwiXi4qKFwvKT9wYXRpZW50W3NdP1wvKElDTlwvKT8xMDEyODQ1MzMxVjE1MzA0MyhcLy4qKT8kIl0sInZlcnNpb24iOjIuMSwidmlzdGFJZHMiOlt7InBhdGllbnRJZCI6IjU1MjE2MTA1MCIsInNpdGVJZCI6Ijk4NCJ9LHsicGF0aWVudElkIjoiNzIxNjY5MSIsInNpdGVJZCI6Ijk4MyJ9XSwiZmlyc3ROYW1lIjoiSlVEWSIsInN0YWZmRGlzY2xhaW1lckFjY2VwdGVkIjp0cnVlLCJuYmYiOjE1NzM4NDEyMTYsInNzdCI6MTU3Mzg0MTM5NiwicGF0aWVudCI6eyJmaXJzdE5hbWUiOiJKVURZIiwibGFzdE5hbWUiOiJNT1JSSVNPTiIsImljbiI6IjEwMTI4NDUzMzFWMTUzMDQzIn0sInVzZXJUeXBlIjoiVkVURVJBTiIsInZhbWYuYXV0aC5yb2xlcyI6WyJ2ZXRlcmFuIl0sInJpZ2h0T2ZBY2Nlc3NBY2NlcHRlZCI6dHJ1ZSwiZXhwIjoxNTczODQyMjk2LCJqdGkiOiIwYmI5ZTFjYi1hNDg1LTQ0YTgtOGI1NS02OTQ2Yjk5YzU4MTgiLCJsb2EiOjJ9.S6f-KCgADErhYVhcOcpa1K1Bm8oe7LpKbi09VehNp5KvA57Eg7Z-B3m3LDnvUnWkAg1Da8h3JVph4h4H5oSlALURuKB5FeQOXiARkfrHpIq0nuHWBQbeaIOqsHiAswT4U1xGPQk0Q2zmsumJXviBl1ffoLJXQih6UQy1do1MMBskCL1YcJzaO6MaYl5kuDKdo3wtXg9xMYd0MEBSeyKEynvdXcH80BIFdz6gMQZt4DXRM4iCPldW9DRbEp0mOIV7vdXFx_8q0atILAABes891HOygXsBPAGvL7sDTw8PMD04Yz__2NKefRBXOmtjGj28D9Yv6PEKcP3TYrt29-FO9A
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Fri, 15 Nov 2019 18:11:47 GMT
+      Content-Type:
+      - application/json
+      Content-Length:
+      - '3111'
+      Server:
+      - openresty
+      X-B3-Parentspanid:
+      - 959b0c518ff0f5f0
+      X-Vamf-Version:
+      - 1.10.0
+      X-B3-Traceid:
+      - 6b1abc2f49d98300
+      Access-Control-Allow-Headers:
+      - x-vamf-jwt
+      X-Vamf-Build:
+      - 6b55567
+      X-B3-Sampled:
+      - '0'
+      X-Vamf-Timestamp:
+      - '2019-09-18T18:29:46+0000'
+      Access-Control-Allow-Origin:
+      - "*"
+      X-B3-Spanid:
+      - ae6986ea249368ef
+      Access-Control-Allow-Methods:
+      - GET,OPTIONS
+      Access-Control-Max-Age:
+      - '3600'
+      Strict-Transport-Security:
+      - max-age=63072000; includeSubDomains; preload
+    body:
+      encoding: UTF-8
+      string: |-
+        {
+          "data" : {
+            "result" : {
+              "partial" : false,
+              "sources" : [ "VVS", "dfn-983", "dfn-984" ],
+              "pageCount" : 1,
+              "currentPage" : 1
+            },
+            "appointmentList" : [ {
+              "startDate" : "2019-11-15T20:00:00Z",
+              "clinicId" : "408",
+              "facilityId" : "983",
+              "patientIcn" : "1012845331V153043",
+              "communityCare" : false,
+              "vdsAppointments" : [ {
+                "appointmentTime" : "2019-11-15T20:00:00Z",
+                "clinic" : {
+                  "name" : "CHY OPT VAR1",
+                  "askForCheckIn" : false,
+                  "facilityCode" : "983"
+                },
+                "patientId" : "7216691",
+                "type" : "REGULAR",
+                "currentStatus" : "CANCELLED BY PATIENT"
+              } ]
+            }, {
+              "startDate" : "2019-11-18T15:00:00Z",
+              "clinicId" : "408",
+              "facilityId" : "983",
+              "patientIcn" : "1012845331V153043",
+              "communityCare" : false,
+              "vdsAppointments" : [ {
+                "appointmentLength" : "60",
+                "appointmentTime" : "2019-11-18T15:00:00Z",
+                "clinic" : {
+                  "name" : "CHY OPT VAR1",
+                  "askForCheckIn" : false,
+                  "facilityCode" : "983"
+                },
+                "patientId" : "7216691",
+                "type" : "REGULAR",
+                "currentStatus" : "FUTURE",
+                "bookingNote" : "test visual field"
+              } ]
+            }, {
+              "startDate" : "2019-11-18T16:00:00Z",
+              "clinicId" : "437",
+              "clinicFriendlyName" : "VISUAL FIELD",
+              "facilityId" : "983",
+              "patientIcn" : "1012845331V153043",
+              "communityCare" : false,
+              "vdsAppointments" : [ {
+                "appointmentLength" : "30",
+                "appointmentTime" : "2019-11-18T16:00:00Z",
+                "clinic" : {
+                  "name" : "CHY VISUAL FIELD",
+                  "askForCheckIn" : false,
+                  "facilityCode" : "983"
+                },
+                "patientId" : "7216691",
+                "type" : "REGULAR",
+                "currentStatus" : "FUTURE",
+                "bookingNote" : "checking prohi"
+              } ]
+            }, {
+              "startDate" : "2019-11-20T15:00:00Z",
+              "clinicId" : "408",
+              "facilityId" : "983",
+              "patientIcn" : "1012845331V153043",
+              "communityCare" : false,
+              "vdsAppointments" : [ {
+                "appointmentLength" : "60",
+                "appointmentTime" : "2019-11-20T15:00:00Z",
+                "clinic" : {
+                  "name" : "CHY OPT VAR1",
+                  "askForCheckIn" : false,
+                  "facilityCode" : "983"
+                },
+                "patientId" : "7216691",
+                "type" : "REGULAR",
+                "currentStatus" : "FUTURE",
+                "bookingNote" : "TEST"
+              } ]
+            }, {
+              "startDate" : "2019-11-20T17:00:00Z",
+              "clinicId" : "437",
+              "clinicFriendlyName" : "VISUAL FIELD",
+              "facilityId" : "983",
+              "patientIcn" : "1012845331V153043",
+              "communityCare" : false,
+              "vdsAppointments" : [ {
+                "appointmentLength" : "30",
+                "appointmentTime" : "2019-11-20T17:00:00Z",
+                "clinic" : {
+                  "name" : "CHY VISUAL FIELD",
+                  "askForCheckIn" : false,
+                  "facilityCode" : "983"
+                },
+                "patientId" : "7216691",
+                "type" : "REGULAR",
+                "currentStatus" : "FUTURE"
+              } ]
+            } ],
+            "numAppointments" : 5
+          }
+        }
+    http_version: 
+  recorded_at: Fri, 15 Nov 2019 18:11:47 GMT
+- request:
+    method: put
+    uri: https://internal-dsva-vagov-staging-fwdproxy-1821450725.us-gov-west-1.elb.amazonaws.com:4463/var/VeteranAppointmentRequestService/v4/rest/direct-scheduling/site/983/patient/ICN/1012845331V153043/cancel-appointment
+    body:
+      encoding: UTF-8
+      string: '{"appointmentTime":"11/20/2019 17:00:00","clinicId":"437","cancelReason":"5","cancelCode":"PC","remarks":"","clinicName":"CHY
+        VISUAL FIELD","patientIdentifier":{"uniqueId":"1012845331V153043","assigningAuthority":"ICN"}}'
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Referer:
+      - https://api.va.gov
+      X-Vamf-Jwt:
+      - eyJhbGciOiJSUzUxMiJ9.eyJsYXN0TmFtZSI6Ik1PUlJJU09OIiwic3ViIjoiMTAxMjg0NTMzMVYxNTMwNDMiLCJhdXRoZW50aWNhdGVkIjp0cnVlLCJhdXRoZW50aWNhdGlvbkF1dGhvcml0eSI6Imdvdi52YS52YW9zIiwiaWRUeXBlIjoiSUNOIiwiaXNzIjoiZ292LnZhLnZhbWYudXNlcnNlcnZpY2UudjEiLCJ2YW1mLmF1dGgucmVzb3VyY2VzIjpbIl4uKihcLyk_c2l0ZVtzXT9cLyhkZm4tKT85ODRcL3BhdGllbnRbc10_XC81NTIxNjEwNTBcL2FwcG9pbnRtZW50cyhcLy4qKT8kIiwiXi4qKFwvKT9zaXRlW3NdP1wvKGRmbi0pPzk4M1wvcGF0aWVudFtzXT9cLzcyMTY2OTFcL2FwcG9pbnRtZW50cyhcLy4qKT8kIiwiXi4qKFwvKT9wYXRpZW50W3NdP1wvKElDTlwvKT8xMDEyODQ1MzMxVjE1MzA0MyhcLy4qKT8kIl0sInZlcnNpb24iOjIuMSwidmlzdGFJZHMiOlt7InBhdGllbnRJZCI6IjU1MjE2MTA1MCIsInNpdGVJZCI6Ijk4NCJ9LHsicGF0aWVudElkIjoiNzIxNjY5MSIsInNpdGVJZCI6Ijk4MyJ9XSwiZmlyc3ROYW1lIjoiSlVEWSIsInN0YWZmRGlzY2xhaW1lckFjY2VwdGVkIjp0cnVlLCJuYmYiOjE1NzM4NDEyMTYsInNzdCI6MTU3Mzg0MTM5NiwicGF0aWVudCI6eyJmaXJzdE5hbWUiOiJKVURZIiwibGFzdE5hbWUiOiJNT1JSSVNPTiIsImljbiI6IjEwMTI4NDUzMzFWMTUzMDQzIn0sInVzZXJUeXBlIjoiVkVURVJBTiIsInZhbWYuYXV0aC5yb2xlcyI6WyJ2ZXRlcmFuIl0sInJpZ2h0T2ZBY2Nlc3NBY2NlcHRlZCI6dHJ1ZSwiZXhwIjoxNTczODQyMjk2LCJqdGkiOiIwYmI5ZTFjYi1hNDg1LTQ0YTgtOGI1NS02OTQ2Yjk5YzU4MTgiLCJsb2EiOjJ9.S6f-KCgADErhYVhcOcpa1K1Bm8oe7LpKbi09VehNp5KvA57Eg7Z-B3m3LDnvUnWkAg1Da8h3JVph4h4H5oSlALURuKB5FeQOXiARkfrHpIq0nuHWBQbeaIOqsHiAswT4U1xGPQk0Q2zmsumJXviBl1ffoLJXQih6UQy1do1MMBskCL1YcJzaO6MaYl5kuDKdo3wtXg9xMYd0MEBSeyKEynvdXcH80BIFdz6gMQZt4DXRM4iCPldW9DRbEp0mOIV7vdXFx_8q0atILAABes891HOygXsBPAGvL7sDTw8PMD04Yz__2NKefRBXOmtjGj28D9Yv6PEKcP3TYrt29-FO9A
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Fri, 15 Nov 2019 18:16:01 GMT
+      Content-Length:
+      - '0'
+      Server:
+      - openresty
+      Strict-Transport-Security:
+      - max-age=63072000; includeSubDomains; preload
+    body:
+      encoding: UTF-8
+      string: ''
+    http_version: 
+  recorded_at: Fri, 15 Nov 2019 18:16:01 GMT
+- request:
+    method: put
+    uri: https://internal-dsva-vagov-staging-fwdproxy-1821450725.us-gov-west-1.elb.amazonaws.com:4463/var/VeteranAppointmentRequestService/v4/rest/direct-scheduling/site/983/patient/ICN/1012845331V153043/cancel-appointment
+    body:
+      encoding: UTF-8
+      string: '{"appointmentTime":"11/15/19 20:00:00","clinicId":"408","cancelReason":"whatever","cancelCode":"5","remarks":null,"clinicName":null,"patientIdentifier":{"uniqueId":"1012845331V153043","assigningAuthority":"ICN"}}'
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Referer:
+      - https://api.va.gov
+      X-Vamf-Jwt:
+      - eyJhbGciOiJSUzUxMiJ9.eyJsYXN0TmFtZSI6Ik1PUlJJU09OIiwic3ViIjoiMTAxMjg0NTMzMVYxNTMwNDMiLCJhdXRoZW50aWNhdGVkIjp0cnVlLCJhdXRoZW50aWNhdGlvbkF1dGhvcml0eSI6Imdvdi52YS52YW9zIiwiaWRUeXBlIjoiSUNOIiwiaXNzIjoiZ292LnZhLnZhbWYudXNlcnNlcnZpY2UudjEiLCJ2YW1mLmF1dGgucmVzb3VyY2VzIjpbIl4uKihcLyk_c2l0ZVtzXT9cLyhkZm4tKT85ODRcL3BhdGllbnRbc10_XC81NTIxNjEwNTBcL2FwcG9pbnRtZW50cyhcLy4qKT8kIiwiXi4qKFwvKT9zaXRlW3NdP1wvKGRmbi0pPzk4M1wvcGF0aWVudFtzXT9cLzcyMTY2OTFcL2FwcG9pbnRtZW50cyhcLy4qKT8kIiwiXi4qKFwvKT9wYXRpZW50W3NdP1wvKElDTlwvKT8xMDEyODQ1MzMxVjE1MzA0MyhcLy4qKT8kIl0sInZlcnNpb24iOjIuMSwidmlzdGFJZHMiOlt7InBhdGllbnRJZCI6IjU1MjE2MTA1MCIsInNpdGVJZCI6Ijk4NCJ9LHsicGF0aWVudElkIjoiNzIxNjY5MSIsInNpdGVJZCI6Ijk4MyJ9XSwiZmlyc3ROYW1lIjoiSlVEWSIsInN0YWZmRGlzY2xhaW1lckFjY2VwdGVkIjp0cnVlLCJuYmYiOjE1NzM4NDEyMTYsInNzdCI6MTU3Mzg0MTM5NiwicGF0aWVudCI6eyJmaXJzdE5hbWUiOiJKVURZIiwibGFzdE5hbWUiOiJNT1JSSVNPTiIsImljbiI6IjEwMTI4NDUzMzFWMTUzMDQzIn0sInVzZXJUeXBlIjoiVkVURVJBTiIsInZhbWYuYXV0aC5yb2xlcyI6WyJ2ZXRlcmFuIl0sInJpZ2h0T2ZBY2Nlc3NBY2NlcHRlZCI6dHJ1ZSwiZXhwIjoxNTczODQyMjk2LCJqdGkiOiIwYmI5ZTFjYi1hNDg1LTQ0YTgtOGI1NS02OTQ2Yjk5YzU4MTgiLCJsb2EiOjJ9.S6f-KCgADErhYVhcOcpa1K1Bm8oe7LpKbi09VehNp5KvA57Eg7Z-B3m3LDnvUnWkAg1Da8h3JVph4h4H5oSlALURuKB5FeQOXiARkfrHpIq0nuHWBQbeaIOqsHiAswT4U1xGPQk0Q2zmsumJXviBl1ffoLJXQih6UQy1do1MMBskCL1YcJzaO6MaYl5kuDKdo3wtXg9xMYd0MEBSeyKEynvdXcH80BIFdz6gMQZt4DXRM4iCPldW9DRbEp0mOIV7vdXFx_8q0atILAABes891HOygXsBPAGvL7sDTw8PMD04Yz__2NKefRBXOmtjGj28D9Yv6PEKcP3TYrt29-FO9A
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 400
+      message: Bad Request
+    headers:
+      Date:
+      - Fri, 15 Nov 2019 18:17:07 GMT
+      Content-Type:
+      - application/json;charset=UTF-8
+      Content-Length:
+      - '217'
+      Server:
+      - openresty
+    body:
+      encoding: UTF-8
+      string: This appointment cannot be cancelled using VA Online Scheduling.  Please
+        contact the site directly to cancel your appointment. <a class="external-link"
+        href="https://www.va.gov/find-locations/">VA Facility Locator</a>
+    http_version: 
+  recorded_at: Fri, 15 Nov 2019 18:17:07 GMT
+recorded_with: VCR 3.0.3
