@@ -5,13 +5,17 @@ require 'evss/disability_compensation_form/rating_info'
 
 module EVSS
   module DisabilityCompensationForm
-    # Model that contains an array*** of a veteran's parsed total combined disability rating
+    # Model for findRatingInfoPID response.
+    # The findRatingInfoPID service returns information about all the veteran's rated disabilities.
     #
-    # @!attribute rated_disabilities
-    #   @return [Array***<EVSS::DisabilityCompensationForm::RatingInfo>] The total combined disability rating
+    # @!attribute disability_decision_type_name
+    #   @return [String] The disability decision type (ex. Service Connected)
+    # @!attribute service_connected_combined_degree
+    #   @return [String] Service connected combined degree rating (ex. 90)
+    # @!attribute user_percent_of_disability
+    #   @return [String] User percent of disability rating (ex. 90)
     #
     class RatingInfoResponse < EVSS::Response
-      # attribute :rating_info, Array[EVSS::DisabilityCompensationForm::RatingInfo]
       attribute :disability_decision_type_name, String
       attribute :service_connected_combined_degree, String
       attribute :user_percent_of_disability, String
