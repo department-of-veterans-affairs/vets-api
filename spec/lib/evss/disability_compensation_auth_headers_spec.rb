@@ -20,7 +20,7 @@ describe EVSS::DisabilityCompensationAuthHeaders do
   # rubocop:enable all
 
   it 'includes transaction id' do
-    expect(valid_headers).to include('va_eauth_service_transaction_id')
+    expect(valid_headers.add_headers(auth_headers)).to include('va_eauth_service_transaction_id')
   end
 
   it 'raises an error if gender is not included' do
