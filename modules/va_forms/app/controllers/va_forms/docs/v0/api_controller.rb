@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require_dependency 'va_forms/v0/swagger_root'
-# require_dependency 'va_forms/forms_v0_controller_swagger'
 
 module VaForms
   module Docs
