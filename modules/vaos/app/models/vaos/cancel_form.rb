@@ -12,7 +12,7 @@ module VAOS
     attribute :remarks, String
     attribute :clinic_name, String
 
-    validates :appointment_time, :clinic_id, :cancel_reason, :cancel_code, presence: true
+    validates :appointment_time, :cancel_code, presence: true
 
     def params
       raise Common::Exceptions::ValidationErrors, self unless valid?
