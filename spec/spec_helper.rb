@@ -23,6 +23,7 @@ unless ENV['NOCOVERAGE']
     track_files '**/{app,lib}/**/*.rb'
 
     add_filter 'app/controllers/concerns/accountable.rb'
+    add_filter 'app/controllers/concerns/ignore_not_found.rb' # @todo remove this before merging
     add_filter 'config/initializers/clamscan.rb'
     add_filter 'lib/config_helper.rb'
     add_filter 'lib/feature_flipper.rb'
