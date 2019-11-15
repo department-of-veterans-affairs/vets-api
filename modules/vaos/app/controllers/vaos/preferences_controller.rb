@@ -6,7 +6,7 @@ module VAOS
   class PreferencesController < ApplicationController
     def index
       response = preferences_service.get_preferences(current_user)
-      render json: VAOS::PreferenceSerializer.new(response)
+      render json: VAOS::PreferencesSerializer.new(response)
     end
 
     private

@@ -3,7 +3,7 @@
 require 'fast_jsonapi'
 
 module VAOS
-  class PreferenceSerializer
+  class PreferencesSerializer
     include FastJsonapi::ObjectSerializer
 
     attributes :notification_frequency,
