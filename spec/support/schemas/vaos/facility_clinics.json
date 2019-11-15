@@ -27,20 +27,52 @@
               "site_code",
               "clinic_id",
               "clinic_name",
-              "clinic_friendly_location_name"
+              "clinic_friendly_location_name",
+              "primary_stop_code",
+              "secondary_stop_code",
+              "direct_scheduling_flag",
+              "display_to_patient_flag",
+              "institution_name",
+              "institution_code",
+              "object_type",
+              "link"
             ],
             "properties": {
               "site_code": {
-                "type": "integer"
+                "type": "string"
               },
               "clinic_id": {
-                "type": "integer"
+                "type": "string"
               },
               "clinic_name": {
                 "type": "string"
               },
               "clinic_friendly_location_name": {
                 "type": "string"
+              },
+              "primary_stop_code": {
+                "type": "string"
+              },
+              "secondary_stop_code": {
+                "type": "string"
+              },
+              "direct_scheduling_flag": {
+                "type": "string"
+              },
+              "display_to_patient_flag": {
+                "type": "string"
+              },
+              "institution_name": {
+                "type": "string"
+              },
+              "institution_code": {
+                "type": "string"
+              },
+              "object_type": {
+                "type": "string"
+              },
+              "link": {
+                "type": "array"
               }
             }
           }
