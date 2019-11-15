@@ -36,7 +36,7 @@ describe VAOS::CancelForm, type: :model do
 
     it 'coerces params to correct types' do
       expect(subject.params).to eq(
-        appointment_time: '11/13/19 20:19:12',
+        appointment_time: '11/13/2019 20:19:12',
         clinic_id: '455',
         cancel_reason: '5',
         cancel_code: 'PC',

@@ -5,10 +5,10 @@ module VAOS
   class AppointmentTime < Virtus::Attribute
     def coerce(value)
       return nil if value.to_s.empty?
-      return value.strftime('%D %T') if value.is_a?(Time)
+      return value.strftime('%m/%d/%Y %T') if value.is_a?(Time)
 
       if value.is_a?(String)
-        return Time.zone.parse(value).strftime('%D %T') if value.include?('-')
+        return Time.zone.parse(value).strftime('%m/%d/%Y %T') if value.include?('-')
       end
 
       value
