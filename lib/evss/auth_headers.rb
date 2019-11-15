@@ -1,13 +1,9 @@
 # frozen_string_literal: true
 
-module EVSS
-  class AuthHeaders
-    attr_reader :transaction_id
+require 'evss/base_headers'
 
-    def initialize(user)
-      @user = user
-      @transaction_id = create_transaction_id
-    end
+module EVSS
+  class AuthHeaders < EVSS::BaseHeaders
 
     def to_h
       @headers ||= sanitize(
@@ -33,10 +29,6 @@ module EVSS
 
     private
 
-    def create_transaction_id
-      "vagov-#{SecureRandom.uuid}"
-    end
-
     def sanitize(headers)
       headers.transform_values! do |value|
         value.nil? ? '' : value
@@ -55,12 +47,6 @@ module EVSS
           birthDate: iso8601_birth_date
         }
       }.to_json
-    end
-
-    def iso8601_birth_date
-      return nil unless @user&.va_profile&.birth_date
-
-      DateTime.parse(@user.va_profile.birth_date).iso8601
     end
   end
 end
