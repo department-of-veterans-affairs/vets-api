@@ -112,11 +112,13 @@ pipeline {
       steps {
         build job: 'deploys/vets-api-server-vagov-dev', parameters: [
           booleanParam(name: 'notify_slack', value: true),
+          booleanParam(name: 'migration_status', value: true),
           stringParam(name: 'ref', value: commit),
         ], wait: false
 
         build job: 'deploys/vets-api-worker-vagov-dev', parameters: [
           booleanParam(name: 'notify_slack', value: true),
+          booleanParam(name: 'migration_status', value: false),
           stringParam(name: 'ref', value: commit),
         ], wait: false
       }
@@ -128,11 +130,13 @@ pipeline {
       steps {
         build job: 'deploys/vets-api-server-vagov-staging', parameters: [
           booleanParam(name: 'notify_slack', value: true),
+          booleanParam(name: 'migration_status', value: true),
           stringParam(name: 'ref', value: commit),
         ], wait: false
 
         build job: 'deploys/vets-api-worker-vagov-staging', parameters: [
           booleanParam(name: 'notify_slack', value: true),
+          booleanParam(name: 'migration_status', value: false),
           stringParam(name: 'ref', value: commit),
         ], wait: false
       }
