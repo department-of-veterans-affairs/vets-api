@@ -9,6 +9,13 @@ module VAOS
 
           Raven.extra_context(message: env.body, url: env.url)
           case env.status
+          when 400
+            raise Common::Exceptions::BackendServiceException.new(
+              'VAOS_400',
+              title: 'Bad Request',
+              detail: env.body,
+              source: self.class
+            )
           when 403
             raise Common::Exceptions::BackendServiceException.new(
               'VAOS_403',
