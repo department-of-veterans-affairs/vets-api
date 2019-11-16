@@ -4,7 +4,7 @@ require 'socket'
 
 LighthouseBGS.configure do |config|
   config.application = Settings.bgs.application
-  config.client_ip = Socket.ip_address_list.detect(&:ipv4_private?).ip_address
+  config.client_ip = Socket.ip_address_list.detect(&:ipv4_private?)&.ip_address
   config.client_station_id = Settings.bgs.client_station_id
   config.client_username = Settings.bgs.client_username
   config.env = Rails.env.to_s

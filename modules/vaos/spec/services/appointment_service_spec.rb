@@ -9,7 +9,7 @@ describe VAOS::AppointmentService do
   let(:start_date) { Time.zone.parse('2019-11-14T07:00:00Z') }
   let(:end_date) { Time.zone.parse('2020-03-14T08:00:00Z') }
 
-#  before { allow_any_instance_of(VAOS::UserService).to receive(:session).and_return('stubbed_token') }
+  before { allow_any_instance_of(VAOS::UserService).to receive(:session).and_return('stubbed_token') }
 
   describe '#put_cancel_appointment' do
     context 'when appointment cannot be cancelled' do
@@ -25,7 +25,7 @@ describe VAOS::AppointmentService do
       end
 
       it 'returns the bad request with detail in errors' do
-        VCR.use_cassette('vaos/appointments/put_cancel_appointment_400', record: :new_episodes) do
+        VCR.use_cassette('vaos/appointments/put_cancel_appointment_400', match_requests_on: %i[method uri]) do
           expect { subject.put_cancel_appointment(request_body) }.to raise_error(
             Common::Exceptions::BackendServiceException
           )
@@ -36,20 +36,19 @@ describe VAOS::AppointmentService do
     context 'when appointment can be cancelled' do
       let(:request_body) do
         {
-          appointment_time: '11/15/19 20:00:00',
-          clinic_id: '408',
-          cancel_reason: 'whatever',
-          cancel_code: '5',
-          remarks: nil,
-          clinic_name: nil
+          appointment_time: '11/15/2019 13:00:00',
+          clinic_id: '437',
+          cancel_reason: '5',
+          cancel_code: 'PC',
+          remarks: '',
+          clinic_name: 'CHY OPT VAR1'
         }
       end
 
       it 'cancels the appointment' do
-        VCR.use_cassette('vaos/appointments/put_cancel_appointment', record: :new_episodes) do
-          binding.pry
+        VCR.use_cassette('vaos/appointments/put_cancel_appointment', match_requests_on: %i[method uri]) do
           response = subject.put_cancel_appointment(request_body)
-          binding.pry
+          expect(response).to be_an_instance_of(String).and be_empty
         end
       end
     end

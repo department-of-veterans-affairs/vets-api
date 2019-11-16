@@ -37,9 +37,8 @@ module VAOS
       params.merge!(patient_identifier: { unique_id: user.icn, assigning_authority: 'ICN' })
 
       with_monitoring do
-        response = perform(:put, put_appointment_url, params, headers(user))
-
-        response
+        perform(:put, put_appointment_url, params, headers(user))
+        ''
       end
     rescue Common::Client::Errors::ClientError => e
       raise_backend_exception('VAOS_502', self.class, e)

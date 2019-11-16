@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-RSpec.describe 'vaos appointments', type: :request do
+RSpec.describe 'vaos appointments', type: :request, skip_mvi: true do
   include SchemaMatchers
 
   before do
@@ -22,7 +22,7 @@ RSpec.describe 'vaos appointments', type: :request do
   end
 
   context 'loa3 user' do
-    let(:current_user) { build(:user, :mhv) }
+    let(:current_user) { build(:user, :vaos) }
     let(:start_date) { Time.zone.parse('2019-11-14T07:00:00Z') }
     let(:end_date) { Time.zone.parse('2020-03-14T08:00:00Z') }
     let(:params) { { type: 'va', start_date: start_date, end_date: end_date } }
@@ -37,7 +37,7 @@ RSpec.describe 'vaos appointments', type: :request do
       end
     end
 
-    context 'without icn', skip_mvi: true do
+    context 'without icn' do
       before { stub_mvi_not_found }
 
       let(:current_user) { build(:user, :mhv, mhv_icn: nil) }
