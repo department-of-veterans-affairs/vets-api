@@ -57,25 +57,6 @@ RSpec.describe 'Disability Claims ', type: :request do
       expect(aec.source).to eq('TestConsumer')
     end
 
-    it 'builds the auth headers' do
-      auth_header_stub = instance_double('EVSS::DisabilityCompensationAuthHeaders')
-      expect(EVSS::DisabilityCompensationAuthHeaders).to(receive(:new).twice { auth_header_stub })
-      expect(auth_header_stub).to receive(:add_headers).twice
-      post path, params: data, headers: headers
-    end
-
-    context 'with the same request already ran' do
-      let!(:count) do
-        post path, params: data, headers: headers
-        ClaimsApi::AutoEstablishedClaim.count
-      end
-
-      it 'rejects the duplicated request' do
-        post path, params: data, headers: headers
-        expect(count).to eq(ClaimsApi::AutoEstablishedClaim.count)
-      end
-    end
-
     context 'validation' do
       let(:json_data) { JSON.parse data }
 
