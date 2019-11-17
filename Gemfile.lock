@@ -443,7 +443,7 @@ GEM
     net-ssh (4.1.0)
     nio4r (2.3.1)
     no_proxy_fix (0.1.2)
-    nokogiri (1.10.4)
+    nokogiri (1.10.5)
       mini_portile2 (~> 2.4.0)
     nori (2.6.0)
     notiffany (0.1.3)
@@ -788,7 +788,7 @@ DEPENDENCIES
   memoist
   mini_magick (~> 4.9.4)
   net-sftp
-  nokogiri (~> 1.10, >= 1.10.4)
+  nokogiri (~> 1.10, >= 1.10.5)
   oj
   olive_branch
   openid_auth!
