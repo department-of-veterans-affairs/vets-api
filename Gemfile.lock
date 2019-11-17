@@ -501,7 +501,8 @@ GEM
     rack (2.0.7)
     rack-attack (5.0.1)
       rack
-    rack-cors (0.4.1)
+    rack-cors (1.0.6)
+      rack (>= 1.6.0)
     rack-protection (2.0.7)
       rack
     rack-test (1.1.0)
