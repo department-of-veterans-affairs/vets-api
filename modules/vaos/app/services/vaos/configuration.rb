@@ -20,9 +20,9 @@ module VAOS
         conn.request :camelcase
         conn.request :json
 
-        if ENV['VAOS_DEBUG']
-          conn.request(:curl, ::Logger.new(STDOUT), :warn) unless Rails.env.production?
-          conn.response(:logger, ::Logger.new(STDOUT), bodies: true) unless Rails.env.production?
+        if ENV['VAOS_DEBUG'] && !Rails.env.production?
+          conn.request(:curl, ::Logger.new(STDOUT), :warn)
+          conn.response(:logger, ::Logger.new(STDOUT), bodies: true)
         end
 
         conn.response :betamocks if mock_enabled?
