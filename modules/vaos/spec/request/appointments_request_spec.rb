@@ -207,7 +207,6 @@ RSpec.describe 'vaos appointments', type: :request, skip_mvi: true do
             put '/v0/vaos/appointments/cancel', params: request_body
 
             expect(response).to have_http_status(:success)
-            binding.pry
             expect(response.body).to be_an_instance_of(String).and be_empty
           end
         end
