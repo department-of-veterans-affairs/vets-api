@@ -45,7 +45,7 @@ module ClaimsApi
 
           ClaimsApi::ClaimUploader.perform_async(pending_claim.id)
 
-          render json: auto_claim, serializer: ClaimsApi::AutoEstablishedClaimSerializer
+          render json: pending_claim, serializer: ClaimsApi::AutoEstablishedClaimSerializer
         end
 
         def upload_supporting_documents
