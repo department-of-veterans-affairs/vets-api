@@ -4,16 +4,15 @@ module Common
   module Exceptions
     # Internal Server Error - all exceptions not readily accounted fall into this tier
     class InternalServerError < BaseError
-      attr_reader :exception
-
+      attr_reader :error
+      
       def initialize(exception)
-        raise ArgumentError, 'an exception must be provided' unless exception.is_a?(Exception)
-
-        @exception = exception
+        super(exception)
+        raise ArgumentError, 'an exception must be provided' unless error.is_a?(Exception)
       end
 
       def errors
-        meta = { exception: exception.message, backtrace: exception.backtrace } unless ::Rails.env.production?
+        meta = { exception: error.message, backtrace: error.backtrace } unless ::Rails.env.production?
         Array(SerializableError.new(i18n_data.merge(meta: meta)))
       end
     end
