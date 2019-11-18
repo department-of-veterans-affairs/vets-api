@@ -18,6 +18,19 @@ module VAOS
       end
     end
 
+    def get_system_facilities(user, system_id, parent_code, type_of_care_id)
+      with_monitoring do
+        url = '/var/VeteranAppointmentRequestService/v4/rest/direct-scheduling/institutions'
+        url_params = {
+          'facility-code' => system_id,
+          'parent-code' => parent_code,
+          'clinical-service' => type_of_care_id
+        }
+        response = perform(:get, url, url_params, headers(user))
+        response.body.map { |system| OpenStruct.new(system) }
+      end
+    end
+
     def get_facilities(user, facility_code)
       with_monitoring do
         url = '/var/VeteranAppointmentRequestService/v4/rest/direct-scheduling/parent-sites'
