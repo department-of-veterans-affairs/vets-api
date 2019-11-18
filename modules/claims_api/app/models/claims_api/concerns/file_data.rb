@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module ClaimsApi
-  module FileDataValidation
+  module FileData
     extend ActiveSupport::Concern
 
     included do

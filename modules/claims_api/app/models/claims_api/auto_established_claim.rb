@@ -2,11 +2,11 @@
 
 require_dependency 'claims_api/form_526'
 require_dependency 'claims_api/json_marshal'
-require_dependency 'claims_api/concerns/file_data_validation'
+require_dependency 'claims_api/concerns/file_data'
 
 module ClaimsApi
   class AutoEstablishedClaim < ApplicationRecord
-    include FileDataValidation
+    include FileData
     attr_encrypted(:form_data, key: Settings.db_encryption_key, marshal: true, marshaler: ClaimsApi::JsonMarshal)
     attr_encrypted(:auth_headers, key: Settings.db_encryption_key, marshal: true, marshaler: ClaimsApi::JsonMarshal)
 

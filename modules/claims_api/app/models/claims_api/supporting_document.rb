@@ -1,11 +1,11 @@
 # frozen_string_literal: true
 
 require_dependency 'claims_api/json_marshal'
-require_dependency 'claims_api/concerns/file_data_validation'
+require_dependency 'claims_api/concerns/file_data'
 
 module ClaimsApi
   class SupportingDocument < ApplicationRecord
-    include FileDataValidation
+    include FileData
 
     belongs_to :auto_established_claim
     validates :auto_established_claim_id, presence: true
