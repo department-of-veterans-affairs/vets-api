@@ -18,7 +18,7 @@ module ClaimsApi
       def description
         file_data['description']
       end
-  
+
       def set_file_data!(file_data, doc_type, description = nil)
         uploader.store!(file_data)
         self.file_data = { filename: uploader.filename,
