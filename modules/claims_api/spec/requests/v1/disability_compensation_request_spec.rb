@@ -168,7 +168,7 @@ RSpec.describe 'Disability Claims ', type: :request do
       with_okta_user(scopes) do |auth_header|
         allow_any_instance_of(ClaimsApi::SupportingDocumentUploader).to receive(:store!)
         put("/services/claims/v1/forms/526/#{auto_claim.id}",
-              params: params, headers: headers.merge(auth_header))
+            params: params, headers: headers.merge(auth_header))
         auto_claim.reload
         expect(auto_claim.file_data).to be_truthy
       end
