@@ -5,6 +5,10 @@ module Common
     # Base error class all others inherit from
     class BaseError < StandardError
       attr_accessor :cause
+      
+      def initialize(error = nil)
+        @error = error
+      end
 
       def errors
         raise NotImplementedError, 'Subclass of Error must implement errors method'

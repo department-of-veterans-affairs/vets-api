@@ -95,13 +95,13 @@ class ApplicationController < ActionController::API
   end
 
   rescue_from Breakers::OutageException do |error|
-    exc = Common::Exceptions::ServiceOutage.new(error.outage)
+    exc = Common::Exceptions::ServiceOutage.new(error)
     handle_error(exc)
     render_error(exc)
   end
 
   rescue_from Common::Client::Errors::ClientError do |error|
-    exc = Common::Exceptions::ServiceOutage.new(nil, cause: error.cause, detail: 'Backend Service Outage')
+    exc = Common::Exceptions::ServiceOutage.new(error, detail: 'Backend Service Outage')
     handle_error(exc)
     render_error(exc)
   end
