@@ -789,7 +789,7 @@ DEPENDENCIES
   memoist
   mini_magick (~> 4.9.4)
   net-sftp
-  nokogiri (~> 1.10, >= 1.10.5)
+  nokogiri (~> 1.10, >= 1.10.4)
   oj
   olive_branch
   openid_auth!
