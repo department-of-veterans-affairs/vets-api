@@ -6,10 +6,7 @@ module VAOS
     def coerce(value)
       return nil if value.to_s.empty?
       return value.strftime('%m/%d/%Y %T') if value.is_a?(Time)
-
-      if value.is_a?(String)
-        return Time.zone.parse(value).strftime('%m/%d/%Y %T') if value.include?('-')
-      end
+      return Time.zone.parse(value).strftime('%m/%d/%Y %T') if value.is_a?(String) && value.include?('-')
 
       value
     end
