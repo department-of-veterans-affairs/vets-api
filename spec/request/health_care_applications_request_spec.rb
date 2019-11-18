@@ -294,11 +294,14 @@ RSpec.describe 'Health Care Application Integration', type: %i[request serialize
             Settings.sentry.dsn = nil
           end
 
-          xit 'renders error message' do
-            # expect(Raven).to receive(:capture_exception).twice
-            pending 'see comment'
+          it 'renders error message' do
+            expect(Raven).to receive(:capture_exception).with(error, level: 'error').once
             # This test is failing because app/models/health_care_application.rb:38 is raising a
             # BackendServiceException which is then caught in ApplicationController and logged again
+            
+            #@note -- skip_sentry_exception_types in the health_care_applications_controller previously appended      
+            #Common::Exceptions::BackendServiceException. Since the refactor, 
+            #this exception type is not being appended, therefore exceptions are being logged twice. See SentryLogging.rb line 8
 
             subject
 
