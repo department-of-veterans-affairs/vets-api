@@ -1,7 +1,11 @@
 # frozen_string_literal: true
 
+require_relative './middleware/response/errors'
+
 module VAOS
   class Configuration < Common::Client::Configuration::REST
+    self.read_timeout = Settings.va_mobile.timeout || 15
+
     def base_path
       Settings.va_mobile.url
     end
@@ -16,13 +20,15 @@ module VAOS
         conn.request :camelcase
         conn.request :json
 
-        conn.request(:curl, ::Logger.new(STDOUT), :warn) unless Rails.env.production?
-        conn.response(:logger, ::Logger.new(STDOUT), bodies: true) unless Rails.env.production?
+        if ENV['VAOS_DEBUG'] && !Rails.env.production?
+          conn.request(:curl, ::Logger.new(STDOUT), :warn)
+          conn.response(:logger, ::Logger.new(STDOUT), bodies: true)
+        end
 
         conn.response :betamocks if mock_enabled?
         conn.response :snakecase
-        conn.response :raise_error, error_prefix: service_name
-        conn.response :json_parser
+        conn.response :json, content_type: /\bjson$/
+        conn.response :vaos_errors # vaos errors are rarely JSON, this needs to be lower in middleware stack
         conn.adapter Faraday.default_adapter
       end
     end
