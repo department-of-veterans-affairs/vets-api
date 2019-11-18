@@ -20,7 +20,7 @@ describe EVSS::Dependents::Service do
     it 'gets user details' do
       VCR.use_cassette(
         'evss/dependents/retrieve',
-        VCR::MATCH_EVERYTHING
+        match_requests_on: %i[host path method]
       ) do
         returns_form(service.retrieve.body)
       end
@@ -35,7 +35,7 @@ describe EVSS::Dependents::Service do
     it 'cleans the form request' do
       VCR.use_cassette(
         'evss/dependents/clean_form',
-        VCR::MATCH_EVERYTHING
+        match_requests_on: %i[host path method]
       ) do
         returns_form(service.clean_form(get_fixture('dependents/retrieve')))
       end
@@ -50,7 +50,7 @@ describe EVSS::Dependents::Service do
     it 'validates the form' do
       VCR.use_cassette(
         'evss/dependents/validate',
-        VCR::MATCH_EVERYTHING
+        match_requests_on: %i[host path method]
       ) do
         res = service.validate(get_fixture('dependents/clean_form'))
         expect(res['errors']).to eq([])
@@ -66,7 +66,7 @@ describe EVSS::Dependents::Service do
     it 'saves the form' do
       VCR.use_cassette(
         'evss/dependents/save',
-        VCR::MATCH_EVERYTHING
+        match_requests_on: %i[host path method]
       ) do
         res = service.save(get_fixture('dependents/clean_form'))
         expect(res['formId']).to eq(380_682)
@@ -82,7 +82,7 @@ describe EVSS::Dependents::Service do
     it 'submits the form' do
       VCR.use_cassette(
         'evss/dependents/submit',
-        VCR::MATCH_EVERYTHING
+        match_requests_on: %i[host path method]
       ) do
         res = service.submit(get_fixture('dependents/clean_form'), 380_682)
         expect(res['submit686Response']['confirmationNumber']).to eq('600138364')

@@ -70,17 +70,6 @@ RSpec.describe 'Disability Claims ', type: :request do
       end
     end
 
-    it 'builds the auth headers' do
-      with_okta_user(scopes) do |auth_header|
-        VCR.use_cassette('evss/claims/claims') do
-          auth_header_stub = instance_double('EVSS::DisabilityCompensationAuthHeaders')
-          expect(EVSS::DisabilityCompensationAuthHeaders).to(receive(:new).twice { auth_header_stub })
-          expect(auth_header_stub).to receive(:add_headers).twice
-          post path, params: data, headers: headers.merge(auth_header)
-        end
-      end
-    end
-
     context 'validation' do
       let(:json_data) { JSON.parse data }
 
