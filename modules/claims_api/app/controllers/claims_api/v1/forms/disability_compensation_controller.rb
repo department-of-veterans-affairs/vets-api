@@ -38,16 +38,6 @@ module ClaimsApi
           render json: { errors: format_errors(e.details) }, status: :unprocessable_entity
         end
 
-        def upload_form_526
-          pending_claim = ClaimsApi::AutoEstablishedClaim.pending?(params[:id])
-          pending_claim.set_file_data!(documents.first, params[:doc_type])
-          pending_claim.save!
-
-          ClaimsApi::ClaimUploader.perform_async(pending_claim.id)
-
-          render json: pending_claim, serializer: ClaimsApi::AutoEstablishedClaimSerializer
-        end
-
         def upload_supporting_documents
           claim = ClaimsApi::AutoEstablishedClaim.get_by_id_or_evss_id(params[:id])
           documents.each do |document|
