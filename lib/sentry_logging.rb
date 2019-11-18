@@ -6,7 +6,7 @@ module SentryLogging
   # rubocop:disable Metrics/PerceivedComplexity
   def log_error(error)
     if Raven::Configuration::IGNORE_DEFAULT.include?(error.class)
-      rails_logger(error.message.to_s, backtrace: error.backtrace)
+      rails_logger(:error, error.message.to_s, nil, backtrace: error.backtrace)
     else
       extra = error.respond_to?(:errors) ? { errors: error.errors.map(&:to_hash) } : {}
       if error.is_a?(Common::Exceptions::BackendServiceException)

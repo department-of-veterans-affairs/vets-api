@@ -5,6 +5,8 @@ module V0
     FORM_ID = '1010ez'
 
     skip_before_action(:authenticate)
+    before_action(:append_to_skip_sentry_exception_types)
+    after_action(:remove_from_skip_sentry_exception_types)
 
     def create
       validate_session
@@ -44,9 +46,17 @@ module V0
     end
 
     private
+    
+    def sentry_skip_types
+      [Common::Exceptions::BackendServiceException]
+    end
 
-    def skip_sentry_exception_types
-      super + [Common::Exceptions::BackendServiceException]
+    def append_to_skip_sentry_exception_types
+      Raven::Configuration::IGNORE_DEFAULT += sentry_skip_types
+    end
+    
+    def remove_from_skip_sentry_exception_types
+      Raven::Configuration::IGNORE_DEFAULT -= sentry_skip_types
     end
   end
 end
