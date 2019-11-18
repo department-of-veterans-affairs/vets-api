@@ -28,7 +28,7 @@ module VAOS
         conn.response :betamocks if mock_enabled?
         conn.response :snakecase
         conn.response :json, content_type: /\bjson$/
-        conn.response :vaos_errors # vaos errors are rarely JSON, this needs to be lower in middleware stack
+        conn.response :vaos_errors
         conn.adapter Faraday.default_adapter
       end
     end
