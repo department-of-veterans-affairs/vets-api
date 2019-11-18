@@ -405,15 +405,19 @@ bing:
 
 flipper:
   admin_user_emails:
+    - alastair@adhocteam.us
     - anna@adhoc.team
-    - johnny@oddball.io
-    - travis.hilton@oddball.io
-    - rian.fowler@adhoc.team
-    - rianfowler@outlook.com
     - jbalboni@gmail.com
     - jeff@adhocteam.us
+    - johnny@oddball.io
     - kam@adhocteam.us
-    - alastair@adhocteam.us
+    - lauren.alexanderson@va.gov
+    - mark.greenburg@adhocteam.us
+    - narin@adhocteam.us
+    - rian.fowler@adhoc.team
+    - rianfowler@outlook.com
+    - ryan.thurlwell@va.gov
+    - travis.hilton@oddball.io
     - n.ratana@gmail.com
 
 bgs:
