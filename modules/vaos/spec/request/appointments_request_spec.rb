@@ -190,7 +190,7 @@ RSpec.describe 'vaos appointments', type: :request, skip_mvi: true do
         end
       end
 
-      context 'when appointment can be canncelled' do
+      context 'when appointment can be cancelled' do
         let(:request_body) do
           {
             appointment_time: '11/15/2019 13:00:00',
