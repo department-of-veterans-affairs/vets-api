@@ -23,10 +23,11 @@ describe Vet360::AddressValidation::Service do
     build(:vet360_address, :multiple_matches)
   end
 
+  # describe '#address_suggestions', :focus => true do
   describe '#address_suggestions' do
     context 'with a found address' do
       it 'returns suggested addresses' do
-        VCR.use_cassette(
+        VCR.use_cassette( 
           'vet360/address_validation/validate_match',
           VCR::MATCH_EVERYTHING
         ) do
@@ -66,6 +67,55 @@ describe Vet360::AddressValidation::Service do
                   { 'confidence_score' => 100.0, 'address_type' => 'Domestic',
                     'delivery_point_validation' => 'CONFIRMED', 'residential_delivery_indicator' => 'MIXED' } }],
               'validation_key' => 609_319_007
+            )
+          end
+        end
+      end
+    end
+
+    # context 'with an address containing a severity of "ERROR"' do
+    context 'with an address containing a severity of "ERROR"', :focus => true do
+      it 'returns suggested addresses stripped of validation keys' do
+        VCR.use_cassette( 
+          'vet360/address_validation/validate_match_with_error',
+          VCR::MATCH_EVERYTHING
+        ) do
+          VCR.use_cassette(
+            'vet360/address_validation/candidate_multiple_matches',
+            VCR::MATCH_EVERYTHING
+          ) do
+            res = described_class.new.address_suggestions(multiple_match_addr)
+            expect(JSON.parse(res.to_json)).to eq(
+              'addresses' =>
+               [{ 'address' =>
+                  { 'address_line1' => '37 N 1st St',
+                    'address_type' => 'DOMESTIC',
+                    'city' => 'Brooklyn',
+                    'country_name' => 'USA',
+                    'country_code_iso3' => 'USA',
+                    'county_code' => '36047',
+                    'county_name' => 'Kings',
+                    'state_code' => 'NY',
+                    'zip_code' => '11249',
+                    'zip_code_suffix' => '3939' },
+                  'address_meta_data' => { 'confidence_score' => 100.0,
+                                           'address_type' => 'Domestic',
+                                           'delivery_point_validation' => 'UNDELIVERABLE' } },
+                { 'address' =>
+                  { 'address_line1' => '37 S 1st St',
+                    'address_type' => 'DOMESTIC',
+                    'city' => 'Brooklyn',
+                    'country_name' => 'USA',
+                    'country_code_iso3' => 'USA',
+                    'county_code' => '36047',
+                    'county_name' => 'Kings',
+                    'state_code' => 'NY',
+                    'zip_code' => '11249',
+                    'zip_code_suffix' => '4101' },
+                  'address_meta_data' =>
+                  { 'confidence_score' => 100.0, 'address_type' => 'Domestic',
+                    'delivery_point_validation' => 'CONFIRMED', 'residential_delivery_indicator' => 'MIXED' } }],
+              'validation_key' => nil
             )
           end
         end
