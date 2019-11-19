@@ -46,18 +46,6 @@ RSpec.describe 'Power of Attorney ', type: :request do
       expect(poa.source).to eq('TestConsumer')
     end
 
-    context 'with the same request already ran' do
-      let!(:count) do
-        post path, params: data, headers: headers
-        ClaimsApi::PowerOfAttorney.count
-      end
-
-      it 'rejects the duplicated request' do
-        post path, params: data, headers: headers
-        expect(count).to eq(ClaimsApi::PowerOfAttorney.count)
-      end
-    end
-
     context 'validation' do
       let(:json_data) { JSON.parse data }
 
