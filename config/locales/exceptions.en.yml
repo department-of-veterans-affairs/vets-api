@@ -474,6 +474,12 @@ en:
         code: 'SEARCH_429'
         detail: 'Exceeded Search.gov rate limit'
         status: 429
+      VAOS_400:
+        <<: *external_defaults
+        title: Bad Request
+        code: 'VAOS_400'
+        detail: # deliberarly left nil to reference response.body which is unparsable string (not json)
+        status: 400
       VAOS_403:
         <<: *external_defaults
         title: Forbidden
