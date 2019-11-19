@@ -2,7 +2,9 @@
 
 VAOS::Engine.routes.draw do
   defaults format: :json do
-    resources :appointments, only: :index
+    resources :appointments, only: :index do
+      put 'cancel', on: :collection
+    end
     resources :appointment_requests, only: :index do
       resources :messages, only: :index
     end
