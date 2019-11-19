@@ -26,7 +26,7 @@ describe Vet360::AddressValidation::Service do
   describe '#address_suggestions' do
     context 'with a found address' do
       it 'returns suggested addresses' do
-        VCR.use_cassette( 
+        VCR.use_cassette(
           'vet360/address_validation/validate_match',
           VCR::MATCH_EVERYTHING
         ) do
