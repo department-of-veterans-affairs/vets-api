@@ -6,7 +6,7 @@ require 'common/client/middleware/response/facility_parser'
 
 module Facilities
   module Metadata
-  # Configuration class used to setup the environment used by client
+    # Configuration class used to setup the environment used by client
     class Configuration < Common::Client::Configuration::REST
       def base_path
         Settings.locators.base_path

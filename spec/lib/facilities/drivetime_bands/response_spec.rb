@@ -4,7 +4,6 @@ require 'rails_helper'
 require 'facilities/ppms/response'
 
 describe Facilities::DrivetimeBands::Response do
-
   # let(:response_body) do
   #
   #   JSON.parse(
@@ -13,9 +12,9 @@ describe Facilities::DrivetimeBands::Response do
   # end
   #
   let(:response_body) do
-      YAML.load_file(
-        'spec/support/vcr_cassettes/facilities/va/vha_648A4.yml'
-      )['http_interactions'][0]['response']['body']['string']
+    YAML.load_file(
+      'spec/support/vcr_cassettes/facilities/va/vha_648A4.yml'
+    )['http_interactions'][0]['response']['body']['string']
   end
 
   let(:response) { Facilities::DrivetimeBands::Response.new(response_body) }

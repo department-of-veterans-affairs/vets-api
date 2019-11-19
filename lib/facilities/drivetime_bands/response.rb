@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'common/models/base'
 
 module Facilities
@@ -8,7 +10,7 @@ module Facilities
       def initialize(body)
         self.body = body
       end
-      
+
       def get_features
         JSON.parse(body)['features']
       end

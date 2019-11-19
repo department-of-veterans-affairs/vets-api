@@ -6,7 +6,7 @@ require 'common/client/middleware/response/facility_parser'
 
 module Facilities
   module Gis
-  # Configuration class used to setup the environment used by client
+    # Configuration class used to setup the environment used by client
     class MetadataConfiguration < Common::Client::Configuration::REST
       def base_path
         Settings.locators.gis_base_path

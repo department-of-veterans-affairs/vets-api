@@ -43,7 +43,7 @@ module VAOS
     rescue Common::Client::Errors::ClientError => e
       raise_backend_exception('VAOS_502', self.class, e)
     end
-    
+
     private
 
     def deserialized_appointments(json_hash, type)
