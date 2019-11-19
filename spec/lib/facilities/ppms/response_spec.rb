@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'facilities/ppms/response'
 
 describe Facilities::PPMS::Response do
   let(:provider_locator_body) do
