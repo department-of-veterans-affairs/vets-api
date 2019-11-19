@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require_dependency 'claims_api/application_controller'
-require_dependency 'claims_api/unsynchronized_evss_claims_service'
 
 module ClaimsApi
   module V0
@@ -9,7 +8,7 @@ module ClaimsApi
       skip_before_action(:authenticate)
 
       def index
-        claims = service.all
+        claims = claims_service.all
         render json: claims,
                serializer: ActiveModel::Serializer::CollectionSerializer,
                each_serializer: ClaimsApi::ClaimListSerializer
@@ -40,12 +39,8 @@ module ClaimsApi
       private
 
       def fetch_and_render_evss_claim(id)
-        claim = service.update_from_remote(id)
+        claim = claims_service.update_from_remote(id)
         render json: claim, serializer: ClaimsApi::ClaimDetailSerializer
-      end
-
-      def service
-        ClaimsApi::UnsynchronizedEVSSClaimService.new(target_veteran)
       end
     end
   end

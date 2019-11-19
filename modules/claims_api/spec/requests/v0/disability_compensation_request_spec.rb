@@ -57,25 +57,6 @@ RSpec.describe 'Disability Claims ', type: :request do
       expect(aec.source).to eq('TestConsumer')
     end
 
-    it 'builds the auth headers' do
-      auth_header_stub = instance_double('EVSS::DisabilityCompensationAuthHeaders')
-      expect(EVSS::DisabilityCompensationAuthHeaders).to(receive(:new).twice { auth_header_stub })
-      expect(auth_header_stub).to receive(:add_headers).twice
-      post path, params: data, headers: headers
-    end
-
-    context 'with the same request already ran' do
-      let!(:count) do
-        post path, params: data, headers: headers
-        ClaimsApi::AutoEstablishedClaim.count
-      end
-
-      it 'rejects the duplicated request' do
-        post path, params: data, headers: headers
-        expect(count).to eq(ClaimsApi::AutoEstablishedClaim.count)
-      end
-    end
-
     context 'validation' do
       let(:json_data) { JSON.parse data }
 
@@ -84,7 +65,7 @@ RSpec.describe 'Disability Claims ', type: :request do
         params['data']['attributes']['veteran']['currentMailingAddress'] = {}
         post path, params: params.to_json, headers: headers
         expect(response.status).to eq(422)
-        expect(JSON.parse(response.body)['errors'].size).to eq(6)
+        expect(JSON.parse(response.body)['errors'].size).to eq(5)
       end
 
       it 'requires disability subfields' do
@@ -93,6 +74,17 @@ RSpec.describe 'Disability Claims ', type: :request do
         post path, params: params.to_json, headers: headers
         expect(response.status).to eq(422)
         expect(JSON.parse(response.body)['errors'].size).to eq(2)
+      end
+
+      it 'requires international postal code when address type is international' do
+        params = json_data
+        mailing_address = params['data']['attributes']['veteran']['currentMailingAddress']
+        mailing_address['type'] = 'INTERNATIONAL'
+        params['data']['attributes']['veteran']['currentMailingAddress'] = mailing_address
+
+        post path, params: params.to_json, headers: headers
+        expect(response.status).to eq(422)
+        expect(JSON.parse(response.body)['errors'].size).to eq(1)
       end
     end
 
@@ -129,7 +121,7 @@ RSpec.describe 'Disability Claims ', type: :request do
         post '/services/claims/v0/forms/526/validate', params: params.to_json, headers: headers
         parsed = JSON.parse(response.body)
         expect(response.status).to eq(422)
-        expect(parsed['errors'].size).to eq(6)
+        expect(parsed['errors'].size).to eq(5)
       end
     end
   end

@@ -9,14 +9,15 @@ gem 'appeals_api', path: 'modules/appeals_api'
 gem 'claims_api', path: 'modules/claims_api'
 gem 'openid_auth', path: 'modules/openid_auth'
 gem 'va_facilities', path: 'modules/va_facilities'
+gem 'va_forms', path: 'modules/va_forms'
 gem 'vaos', path: 'modules/vaos'
 gem 'vba_documents', path: 'modules/vba_documents'
 gem 'veteran', path: 'modules/veteran'
 gem 'veteran_verification', path: 'modules/veteran_verification'
 
 # Anchored versions, do not change
-gem 'puma', '~> 3.12.0'
-gem 'puma-plugin-statsd', git: 'https://github.com/department-of-veterans-affairs/puma-plugin-statsd', branch: 'master'
+gem 'puma', '~> 4.2.1'
+gem 'puma-plugin-statsd', '~> 0.1.0'
 gem 'rails', '~> 5.2.3'
 
 # Gems with special version/repo needs
@@ -44,10 +45,11 @@ gem 'faraday_middleware'
 gem 'fast_jsonapi'
 gem 'fastimage'
 gem 'figaro'
-gem 'flipper'
-gem 'flipper-active_record'
-gem 'flipper-active_support_cache_store'
-gem 'flipper-ui'
+gem 'flipper', '~> 0.17.1'
+gem 'flipper-active_record', '~> 0.17.1'
+gem 'flipper-active_support_cache_store', '~> 0.17.1'
+gem 'flipper-ui', '~> 0.17.1'
+gem 'lighthouse_bgs', git: 'https://github.com/department-of-veterans-affairs/lighthouse-bgs.git', branch: 'master'
 
 gem 'govdelivery-tms', '2.8.4', require: 'govdelivery/tms/mail/delivery_method'
 gem 'gyoku'
@@ -57,6 +59,7 @@ gem 'ice_nine'
 gem 'iconv'
 gem 'iso_country_codes'
 gem 'json-schema'
+gem 'json_schemer'
 gem 'jsonapi-parser'
 gem 'jwt'
 gem 'levenshtein-ffi'
@@ -70,6 +73,7 @@ gem 'oj' # Amazon Linux `json` gem causes conflicts, but `multi_json` will prefe
 gem 'olive_branch'
 gem 'origami'
 gem 'ox'
+gem 'paper_trail'
 gem 'pdf-forms'
 gem 'pdf-reader'
 gem 'pg'
@@ -132,7 +136,7 @@ end
 
 group :development, :test do
   gem 'awesome_print', '~> 1.8' # Pretty print your Ruby objects in full color and with proper indentation
-  gem 'brakeman'
+  gem 'brakeman', '~> 4.7'
   gem 'bundler-audit'
   gem 'byebug', platforms: :ruby # Call 'byebug' anywhere in the code to stop execution and get a debugger console
   gem 'danger'
