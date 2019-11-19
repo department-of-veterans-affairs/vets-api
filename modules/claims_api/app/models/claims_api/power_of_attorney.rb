@@ -51,8 +51,7 @@ module ClaimsApi
     end
 
     def self.pending?(id)
-      query = where(id: id)
-      query.exists? ? query.first : false
+      where(id: id).any?
     end
   end
 end

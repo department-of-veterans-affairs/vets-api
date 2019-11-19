@@ -19,19 +19,19 @@ module ClaimsApi
         key :description, 'Required by JSON API standard'
         key :required, %i[poa_code poa_first_name poa_last_name]
 
-        property :poa_code do
+        property :poaCode do
           key :type, :string
           key :example, 'A01'
           key :description, 'Power of Attorney Code being submitted for Veteran'
         end
 
-        property :poa_first_name do
+        property :poaFirstName do
           key :type, :string
           key :example, 'Bob'
           key :description, 'First Name of person in organization being associated with Power of Attorney'
         end
 
-        property :poa_last_name do
+        property :poaLastName do
           key :type, :string
           key :example, 'Jones'
           key :description, 'Last Name of person in organization being associated with Power of Attorney'
