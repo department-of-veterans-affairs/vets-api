@@ -23,7 +23,6 @@ describe Vet360::AddressValidation::Service do
     build(:vet360_address, :multiple_matches)
   end
 
-  # describe '#address_suggestions', :focus => true do
   describe '#address_suggestions' do
     context 'with a found address' do
       it 'returns suggested addresses' do
@@ -73,8 +72,7 @@ describe Vet360::AddressValidation::Service do
       end
     end
 
-    # context 'with an address containing a severity of "ERROR"' do
-    context 'with an address containing a severity of "ERROR"', :focus => true do
+    context 'with an address containing a message with severity of "ERROR"' do
       it 'returns suggested addresses stripped of validation keys' do
         VCR.use_cassette( 
           'vet360/address_validation/validate_match_with_error',
