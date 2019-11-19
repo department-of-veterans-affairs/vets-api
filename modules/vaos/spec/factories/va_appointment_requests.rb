@@ -33,7 +33,6 @@ FactoryBot.define do
     second_request  { false }
     provider_name { 'zztest stadd01' }
     text_messaging_allowed  { true }
-    text_messaging_phone_number { '555-222-3242' }
     requested_phone_call  { true }
     type_of_care_id { '502' }
   end
