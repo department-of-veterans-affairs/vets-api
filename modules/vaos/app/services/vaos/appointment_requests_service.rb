@@ -35,7 +35,6 @@ module VAOS
       params = VAOS::Patient.new(request_object_body).params
       params.merge!(patient_identifier: { unique_id: user.icn, assigning_authority: 'ICN' })
 
-      binding.pry
       with_monitoring do
         perform(:put, put_appointment_url, params, headers(user))
         ''
