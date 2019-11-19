@@ -101,6 +101,30 @@ RSpec.describe 'systems', type: :request do
           end
         end
       end
+
+      context 'when parent_code is missing' do
+        it 'returns an error message with the missing param' do
+          VCR.use_cassette('vaos/systems/get_system_facilities', match_requests_on: %i[method uri]) do
+            get '/v0/vaos/systems/688/facilities', params: { type_of_care_id: '323' }
+
+            expect(response).to have_http_status(:bad_request)
+            expect(JSON.parse(response.body)['errors'].first['detail'])
+              .to eq('The required parameter "parent_code", is missing')
+          end
+        end
+      end
+
+      context 'when type_of_care_id is missing' do
+        it 'returns an error message with the missing param' do
+          VCR.use_cassette('vaos/systems/get_system_facilities', match_requests_on: %i[method uri]) do
+            get '/v0/vaos/systems/688/facilities', params: { parent_code: '688' }
+
+            expect(response).to have_http_status(:bad_request)
+            expect(JSON.parse(response.body)['errors'].first['detail'])
+              .to eq('The required parameter "type_of_care_id", is missing')
+          end
+        end
+      end
     end
   end
 end
