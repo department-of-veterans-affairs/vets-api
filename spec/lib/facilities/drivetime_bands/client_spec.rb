@@ -36,4 +36,24 @@ RSpec.describe Facilities::DrivetimeBands::Client do
       expect(second_response.length).to be(4)
     end
   end
+
+  describe 'error handling' do
+    subject { described_class.new }
+
+    let(:faraday_error_response) { double(Faraday::Response.new) }
+
+    before do
+      allow_any_instance_of(
+        Faraday::Connection
+      ).to receive(:get).with(anything, has_offset_and_limit(0, 10)).and_return(faraday_error_response)
+    end
+
+    it 'raises PSSGDownload error when error is present in the body' do
+      allow(faraday_error_response).to receive(:env).and_return(double(body: { error: 'Error in download' }.to_json))
+
+      expect do
+        subject.get_drivetime_bands(0, 10)
+      end.to raise_error Facilities::DrivetimeBands::DrivetimeBandDownloadError
+    end
+  end
 end

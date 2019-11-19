@@ -1,0 +1,464 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: https://veteran.apps.va.gov/var/VeteranAppointmentRequestService/v4/rest/direct-scheduling/patient/ICN/1000123456V123456/booked-cc-appointments?endDate=2020-03-14T08:00:00Z&pageSize=0&startDate=2019-11-14T07:00:00Z&useCache=false
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+        - application/json
+      Content-Type:
+        - application/json
+      User-Agent:
+        - Vets.gov Agent
+      Accept-Encoding:
+        - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Wed, 23 Oct 2019 23:07:28 GMT
+      Content-Type:
+        - application/json
+      Content-Length:
+      - '52'
+      Connection:
+      - keep-alive
+      X-B3-Parentspanid:
+      - d665521dada8b4c8
+      X-Vamf-Version:
+      - 1.10.0
+      X-B3-Traceid:
+      - 28395740e1294864
+      Access-Control-Allow-Headers:
+      - x-vamf-jwt
+      X-Vamf-Build:
+      - 6b55567
+      X-B3-Sampled:
+      - '0'
+      X-Vamf-Timestamp:
+      - '2019-09-18T18:29:46+0000'
+      Access-Control-Allow-Origin:
+      - "*"
+      X-B3-Spanid:
+      - e4f3c6fa5dc47ad0
+      Access-Control-Allow-Methods:
+      - GET,OPTIONS
+      Access-Control-Max-Age:
+      - '3600'
+      Set-Cookie:
+      - TS016f4012=01c8917e48ad432cbe82effcf551bb35e4b3eb497eea8d841417227f2cb93b4c60f2603b16d1cece8cb3f2284edf9eee2d361216e34f7d01a88c2028eea8719c06a6b165802bb704e62dcb1f35f2ef5a6eb648e1f9;
+        Max-Age=900; Path=/
+      - vamfjwtv3=eyJ6aXAiOiJERUYiLCJjdHkiOiJKV1QiLCJlbmMiOiJBMjU2Q0JDLUhTNTEyIiwiYWxnIjoiUlNBLU9BRVAtMjU2In0.X8KylAchkHuoJlEWzSTIivP8o3242zdAWWl5sOQFyLiBu9fnhG_-x1PJLo20DpD8Ys7WkBQQOITMN4k2DSvdZWcwxr-nGDJef2UuxIjEO0x1Stv_-F2Pm9tcCNu5Viy7DsqbHQ2zLLtlRfXETyutbYPskoDfd9SciBWLVk4Bmog5p-tYOg9-nskILBxVuu-VNdUO54ur-0V88nmRmdEtl0r2uHoeyw2hseRU7Ri2HE7Z5xORgEvZegr3ntVlfC-oja7QVWr3zH5nSv7xp7Qjt73z9xBJubOosWRsYw2rdqlFYdvecEszR2W7kK7td1_pz6r4Cc0NgfMlWqd1XLVD0A.don4-gvt9VGsFIYcmAJdbg.W993I6ENnkWo9YKy6A-3xt9sHptWxlgzg00HNCvjZs1U3yZwP3SzGRPfA0fjV31MFU9DumYtZldpFN3adIcl3rGPU9jZZAMjCXN5O5SPnmbkH2e9aQiHT-3FZhGOiOHkZ4othMMoqY0M6RXrQF_dLu1tQdhUqpGdWWhDlJ6UYsx6DuiZqGie1zRUNwaV-CDG4bUZkzccFOUIEhocmbJ_JvaSMxE85FUhs6I_tT_higBpi13NUR7A5m_IMOKuqF5gUnNHcAtlpy46KHvVkwiXlKggYgOorVjCYJ4sNrc4UGCf325uQFxAzOdS0oCLu0ApJJ4EgmHmrMPUwiDT80NGgWeQ2GeZ_7xeeZrRyVhpeWVO0gLA3l_9GDqARBOQ4QD9fy1iPvDYcJB1gaB664YDNBEJBoxZDjTv26H6zVRA6Fnv6oAYNOpznDf6-yv2yNC7QaKcwV0YiomETnekigMOSvzJQpFyWChqhGnEKSHxcE2GudDvfNJjRoKAvYej-1obrMEzwatvrGg00J-JOnm3Gn2nD6XuOYsPOyWgzcVykGGqbgBaXVQr9MiK25OXeJplqFHNUVPIYYP3ekY72MZA24QipB7NN8wLTrm44bDwKor5hdwrqwOmaIkmOwUiW2nx0Zcj0e7BUHnRmUSjK9reUS4o4Wdn3_CO3d60JK4xKAo.DMDsZU6ZQhUFrulAmsmX7zHKAqLBY7QWBcUQahn5Pmw;
+        path=/;max-age=900; HttpOnly
+      - vamftimeoutv1=1571872948; path=/
+    body:
+      encoding: UTF-8
+      string: |-
+        {
+          "bookedAppointmentCollections": [
+          {
+            "collectionName": "bookedCCAppointments",
+            "bookedCCAppointments": [
+            {
+              "appointmentRequestId": "8a48912a6c2409b9016c29cbeed0006a",
+              "patientIdentifier": {
+                "uniqueId": "1012853550V207686",
+                "assigningAuthority": "ICN"
+              },
+              "distanceEligibleConfirmed": true,
+              "name": {
+                "firstName": "",
+                "lastName": ""
+              },
+              "providerPractice": "test",
+              "providerPhone": "(321) 230-0328",
+              "address": {
+                "street": "test",
+                "city": "test",
+                "state": "MA",
+                "zipCode": "32826"
+              },
+              "instructionsToVeteran": "",
+              "appointmentTime": "09/20/2020 16:29:00",
+              "timeZone": "-04:00 EDT"
+            },
+            {
+              "appointmentRequestId": "8a48912a6d02b0fc016d20b2aba40016",
+              "patientIdentifier": {
+                "uniqueId": "1012853550V207686",
+                "assigningAuthority": "ICN"
+              },
+              "distanceEligibleConfirmed": true,
+              "name": {
+                "firstName": "Samatha",
+                "lastName": "Girla"
+              },
+              "providerPractice": "test clinic 1",
+              "providerPhone": "(703) 652-0990",
+              "address": {
+                "street": "1234 test st",
+                "city": "her",
+                "state": "VA",
+                "zipCode": "20171"
+              },
+              "instructionsToVeteran": "",
+              "appointmentTime": "04/15/2020 16:29:00",
+              "timeZone": "-06:00 MDT"
+            },
+            {
+              "appointmentRequestId": "8a48912a6d02b0fc016d20b699f3001e",
+              "patientIdentifier": {
+                "uniqueId": "1012853550V207686",
+                "assigningAuthority": "ICN"
+              },
+              "distanceEligibleConfirmed": true,
+              "name": {
+                "firstName": "samatha",
+                "lastName": "girla"
+              },
+              "providerPractice": "test",
+              "providerPhone": "(703) 652-0000",
+              "address": {
+                "street": "1234 test st",
+                "city": "herndon",
+                "state": "VA",
+                "zipCode": "20171"
+              },
+              "instructionsToVeteran": "",
+              "appointmentTime": "09/12/2019 16:36:00",
+              "timeZone": "-04:00 EDT"
+            },
+            {
+              "appointmentRequestId": "8a48912a6c2409b9016c25358b30000f",
+              "patientIdentifier": {
+                "uniqueId": "1012853550V207686",
+                "assigningAuthority": "ICN"
+              },
+              "distanceEligibleConfirmed": true,
+              "name": {
+                "firstName": "RP",
+                "lastName": "Test"
+              },
+              "providerPractice": "RR",
+              "providerPhone": "(301) 916-1234",
+              "address": {
+                "street": "Newcut rd",
+                "city": "clarksburg",
+                "state": "MD",
+                "zipCode": "20871"
+              },
+              "instructionsToVeteran": "",
+              "appointmentTime": "09/16/2019 17:05:00",
+              "timeZone": "-04:00 EDT"
+            },
+            {
+              "appointmentRequestId": "8a48e8d66d650ead016d686dce6f0009",
+              "patientIdentifier": {
+                "uniqueId": "1012853550V207686",
+                "assigningAuthority": "ICN"
+              },
+              "distanceEligibleConfirmed": true,
+              "name": {
+                "firstName": "Samatha",
+                "lastName": "Girla"
+              },
+              "providerPractice": "Test",
+              "providerPhone": "(703) 653-0000",
+              "address": {
+                "street": "123 Test st",
+                "city": "herndon",
+                "state": "VA",
+                "zipCode": "20171"
+              },
+              "instructionsToVeteran": "",
+              "appointmentTime": "10/24/2020 14:11:00",
+              "timeZone": "-04:00 EDT"
+            },
+            {
+              "appointmentRequestId": "8a48e8d66d650ead016d686ca3ef0002",
+              "patientIdentifier": {
+                "uniqueId": "1012853550V207686",
+                "assigningAuthority": "ICN"
+              },
+              "distanceEligibleConfirmed": true,
+              "name": {
+                "firstName": "samatha",
+                "lastName": "girla"
+              },
+              "providerPractice": "test",
+              "providerPhone": "(703) 652-0000",
+              "address": {
+                "street": "123 test st",
+                "city": "herndon",
+                "state": "VA",
+                "zipCode": "20171"
+              },
+              "instructionsToVeteran": "",
+              "appointmentTime": "09/25/2019 21:15:00",
+              "timeZone": "-04:00 EDT"
+            },
+            {
+              "appointmentRequestId": "8a48e71b6d8d64cb016d8dfdf3b8000f",
+              "patientIdentifier": {
+                "uniqueId": "1012853550V207686",
+                "assigningAuthority": "ICN"
+              },
+              "distanceEligibleConfirmed": true,
+              "name": {
+                "firstName": "Provider First Name",
+                "lastName": "Provider Last Name"
+              },
+              "providerPractice": "Practice Name",
+              "providerPhone": "(788) 888-8888",
+              "address": {
+                "street": "1 Provider Street Address",
+                "city": "Provider City",
+                "state": "CO",
+                "zipCode": "80503"
+              },
+              "instructionsToVeteran": "Instructions to Veteran",
+              "appointmentTime": "12/01/2019 14:00:00",
+              "timeZone": "-05:00 EST"
+            },
+            {
+              "appointmentRequestId": "8a48e71b6d9fc277016da6ccf17d000a",
+              "patientIdentifier": {
+                "uniqueId": "1012853550V207686",
+                "assigningAuthority": "ICN"
+              },
+              "distanceEligibleConfirmed": true,
+              "name": {
+                "firstName": "John",
+                "lastName": "Smith"
+              },
+              "providerPractice": "Smith Family Practice",
+              "providerPhone": "(212) 555-1234",
+              "address": {
+                "street": "123 Somewhere Avenue",
+                "city": "New York",
+                "state": "NY",
+                "zipCode": "10003"
+              },
+              "instructionsToVeteran": "Please bring a copy of your records.",
+              "appointmentTime": "10/07/2019 16:30:00",
+              "timeZone": "-04:00 EDT"
+            },
+            {
+              "appointmentRequestId": "8a48e71b6d9fc277016dabfcc54b0022",
+              "patientIdentifier": {
+                "uniqueId": "1012853550V207686",
+                "assigningAuthority": "ICN"
+              },
+              "distanceEligibleConfirmed": true,
+              "name": {
+                "firstName": "Provider First Name",
+                "lastName": "Provider Last"
+              },
+              "providerPractice": "Practice Name",
+              "providerPhone": "(888) 888-8888",
+              "address": {
+                "street": "One Test Street Address",
+                "city": "Denver",
+                "state": "CO",
+                "zipCode": "80503"
+              },
+              "instructionsToVeteran": "Please let us know if this will work for you. Thank you.",
+              "appointmentTime": "10/17/2019 13:32:00",
+              "timeZone": "-04:00 EDT"
+            },
+            {
+              "appointmentRequestId": "8a48e71b6daf03fe016db61c8281000b",
+              "patientIdentifier": {
+                "uniqueId": "1012853550V207686",
+                "assigningAuthority": "ICN"
+              },
+              "distanceEligibleConfirmed": true,
+              "name": {
+                "firstName": "John",
+                "lastName": "Smith"
+              },
+              "providerPractice": "Smith Family Practice",
+              "providerPhone": "(212) 555-1234",
+              "address": {
+                "street": "123 Somewhere Avenue",
+                "city": "New York",
+                "state": "NY",
+                "zipCode": "10003"
+              },
+              "instructionsToVeteran": "Please bring a copy of your records",
+              "appointmentTime": "10/17/2019 14:44:00",
+              "timeZone": "-04:00 EDT"
+            },
+            {
+              "appointmentRequestId": "8a48e71b6daf03fe016db63901870015",
+              "patientIdentifier": {
+                "uniqueId": "1012853550V207686",
+                "assigningAuthority": "ICN"
+              },
+              "distanceEligibleConfirmed": true,
+              "name": {
+                "firstName": "RP",
+                "lastName": "Test"
+              },
+              "providerPractice": "RR",
+              "providerPhone": "(301) 916-1234",
+              "address": {
+                "street": "1001 newcut rd",
+                "city": "Clarksburg",
+                "state": "MD",
+                "zipCode": "20871"
+              },
+              "instructionsToVeteran": "",
+              "appointmentTime": "10/10/2019 16:15:00",
+              "timeZone": "-04:00 EDT"
+            },
+            {
+              "appointmentRequestId": "8a48e71b6daf03fe016db70162670019",
+              "patientIdentifier": {
+                "uniqueId": "1012853550V207686",
+                "assigningAuthority": "ICN"
+              },
+              "distanceEligibleConfirmed": true,
+              "name": {
+                "firstName": "John",
+                "lastName": "Smith"
+              },
+              "providerPractice": "Smith Family Practice",
+              "providerPhone": "(212) 555-1234",
+              "address": {
+                "street": "123 Somewhere Place",
+                "city": "New York",
+                "state": "NY",
+                "zipCode": "10003"
+              },
+              "instructionsToVeteran": "Please bring a copy of your records.",
+              "appointmentTime": "10/14/2019 18:52:00",
+              "timeZone": "-04:00 EDT"
+            },
+            {
+              "appointmentRequestId": "8a48e71b6daf03fe016db637f8e10012",
+              "patientIdentifier": {
+                "uniqueId": "1012853550V207686",
+                "assigningAuthority": "ICN"
+              },
+              "distanceEligibleConfirmed": true,
+              "name": {
+                "firstName": "",
+                "lastName": ""
+              },
+              "providerPractice": "VILASINI",
+              "providerPhone": "(999) 999-9999",
+              "address": {
+                "street": "1234 MAIN ST",
+                "city": "TAMPA",
+                "state": "FL",
+                "zipCode": "33333"
+              },
+              "instructionsToVeteran": "",
+              "appointmentTime": "10/25/2019 20:15:00",
+              "timeZone": "-04:00 EDT"
+            },
+            {
+              "appointmentRequestId": "8a48e74d6ddcc733016dee83238b000a",
+              "patientIdentifier": {
+                "uniqueId": "1012853550V207686",
+                "assigningAuthority": "ICN"
+              },
+              "distanceEligibleConfirmed": true,
+              "name": {
+                "firstName": "Rp",
+                "lastName": "Test"
+              },
+              "providerPractice": "rr",
+              "providerPhone": "(301) 916-1212",
+              "address": {
+                "street": "1001 Newcut Rd",
+                "city": "clarksburge",
+                "state": "MD",
+                "zipCode": "20871"
+              },
+              "instructionsToVeteran": "",
+              "appointmentTime": "10/23/2019 13:35:00",
+              "timeZone": "-04:00 EDT"
+            },
+            {
+              "appointmentRequestId": "8a48e71b6daf03fe016dd4b034e60030",
+              "patientIdentifier": {
+                "uniqueId": "1012853550V207686",
+                "assigningAuthority": "ICN"
+              },
+              "distanceEligibleConfirmed": true,
+              "name": {
+                "firstName": "RP",
+                "lastName": "test"
+              },
+              "providerPractice": "RR",
+              "providerPhone": "(301) 916-1212",
+              "address": {
+                "street": "100 newcut rd",
+                "city": "clarsburg",
+                "state": "MD",
+                "zipCode": "20871"
+              },
+              "instructionsToVeteran": "",
+              "appointmentTime": "10/23/2019 13:49:00",
+              "timeZone": "-04:00 EDT"
+            },
+            {
+              "appointmentRequestId": "8a48e74d6ddcc733016def960918001b",
+              "patientIdentifier": {
+                "uniqueId": "1012853550V207686",
+                "assigningAuthority": "ICN"
+              },
+              "distanceEligibleConfirmed": true,
+              "name": {
+                "firstName": "RP",
+                "lastName": "tste"
+              },
+              "providerPractice": "RR",
+              "providerPhone": "(301) 916-1212",
+              "address": {
+                "street": "1 newcut rd",
+                "city": "clarksburg",
+                "state": "MD",
+                "zipCode": "20983"
+              },
+              "instructionsToVeteran": "",
+              "appointmentTime": "11/19/2020 20:25:00",
+              "timeZone": "-05:00 EST"
+            },
+            {
+              "appointmentRequestId": "8a48e74d6ddcc733016def88900a0012",
+              "patientIdentifier": {
+                "uniqueId": "1012853550V207686",
+                "assigningAuthority": "ICN"
+              },
+              "distanceEligibleConfirmed": true,
+              "name": {
+                "firstName": "RP",
+                "lastName": "test"
+              },
+              "providerPractice": "RR",
+              "providerPhone": "(301) 916-1212",
+              "address": {
+                "street": "skylard rd",
+                "city": "germantown",
+                "state": "MD",
+                "zipCode": "20983"
+              },
+              "instructionsToVeteran": "",
+              "appointmentTime": "10/29/2019 17:04:00",
+              "timeZone": "-04:00 EDT"
+            }
+            ]
+          }
+          ]
+        }
+    http_version:
+  recorded_at: Wed, 23 Oct 2019 23:07:28 GMT
+recorded_with: VCR 3.0.3

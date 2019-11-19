@@ -4,14 +4,24 @@ require 'common/client/base'
 
 module Facilities
   module DrivetimeBands
-  # Core class responsible for api interface operations
+    class DrivetimeBandDownloadError < StandardError
+    end
+
+    # Core class responsible for api interface operations
     class Client < Common::Client::Base
       configuration Facilities::DrivetimeBands::Configuration
 
       def get_drivetime_bands(offset, limit)
         params = build_params(offset, limit)
         response = perform(:get, '/arcgis2/rest/services/Portal/MonthlyVAST_TTB/FeatureServer/0/query', params)
-        Facilities::DrivetimeBands::Response.new(response.body).get_features
+        response_body = JSON.parse(response.body)
+
+        if response_body.key?('error')
+          raise Facilities::DrivetimeBands::DrivetimeBandDownloadError,
+                "Error in request at offset #{offset} and limit #{limit}. Cause: #{response_body['error']}"
+        end
+
+        response_body['features']
       end
 
       def build_params(offset, limit)
