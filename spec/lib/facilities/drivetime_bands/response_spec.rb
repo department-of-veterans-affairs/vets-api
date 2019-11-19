@@ -18,8 +18,7 @@ describe Facilities::DrivetimeBands::Response do
   end
 
   let(:response) { Facilities::DrivetimeBands::Response.new(response_body) }
-  let(:parsed_json) { response.parse_json }
-  let(:get_features) { response.get_features(parsed_json) }
+  let(:get_features) { response.get_features }
 
   describe 'getting data' do
     context 'with a successful response' do
