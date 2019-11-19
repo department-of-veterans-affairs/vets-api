@@ -10,12 +10,12 @@ module Facilities
       def initialize(body)
         self.body = body
       end
-      
+
       def parse_json
         JSON.parse(body)
       end
-      
-      def get_features json_parsed_body
+
+      def get_features(json_parsed_body)
         json_parsed_body['features']
       end
     end

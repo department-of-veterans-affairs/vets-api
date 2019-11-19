@@ -16,7 +16,7 @@ module Facilities
         response = perform(:get, '/arcgis2/rest/services/Portal/MonthlyVAST_TTB/FeatureServer/0/query', params)
         drivetime_band_response = Facilities::DrivetimeBands::Response.new(response.body)
         response_body = drivetime_band_response.parse_json
-  
+
         if response_body.key?('error')
           raise Facilities::DrivetimeBands::DrivetimeBandDownloadError,
                 "Error in request at offset #{offset} and limit #{limit}. Cause: #{response_body['error']}"
