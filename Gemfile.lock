@@ -27,7 +27,7 @@ GIT
   revision: b2977c17132b842d5dd9c9f7913a0c083a598fd4
   branch: master
   specs:
-    lighthouse_bgs (0.3.0)
+    lighthouse_bgs (0.3.1)
       httpclient
       nokogiri (>= 1.8.5)
       savon (~> 2.12)
