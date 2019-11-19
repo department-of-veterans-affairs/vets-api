@@ -39,6 +39,18 @@ module VAOS
       end
     end
 
+    def get_facility_limits(user, facility_id, type_of_care_id)
+      with_monitoring do
+        url = "/VeteranAppointmentRequestService/v4/rest/direct-scheduling/patient/ICN/#{user.icn}/request-limit"
+        url_params = {
+          'three-digit-code' => facility_id,
+          'clinical-service' => type_of_care_id
+        }
+        response = perform(:get, url, url_params, headers(user))
+        response.body.map { |clinic| OpenStruct.new(clinic) }
+      end
+    end
+
     def get_cancel_reasons(user, facility_id)
       with_monitoring do
         url = "/var/VeteranAppointmentRequestService/v4/rest/direct-scheduling/site/#{facility_id}" \
