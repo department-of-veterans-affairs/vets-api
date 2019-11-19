@@ -14,7 +14,7 @@ describe VAOS::AppointmentRequestsService do
       let(:request_body)  { build(:va_appointment_request) }
 
       it 'returns the bad request with detail in errors' do
-        VCR.use_cassette('vaos/appointment_requests/put_cancel_appointment_request_400', match_requests_on: %i[method uri]) do
+        VCR.use_cassette('vaos/appointment_requests/put_cancel_request_400', match_requests_on: %i[method uri]) do
           expect { subject.put_cancel_appointment_request(request_body) }.to raise_error(
             Common::Exceptions::BackendServiceException
           )
@@ -26,7 +26,7 @@ describe VAOS::AppointmentRequestsService do
       let(:request_body)  { build(:va_appointment_request) }
 
       it 'cancels the appointment_request' do
-        VCR.use_cassette('vaos/appointment_requests/put_cancel_appointment_request', match_requests_on: %i[method uri]) do
+        VCR.use_cassette('vaos/appointment_requests/put_cancel_request', match_requests_on: %i[method uri]) do
           response = subject.put_cancel_appointment_request(request_body)
           expect(response).to be_an_instance_of(String).and be_empty
         end
