@@ -27,7 +27,10 @@ module VAOS
           'clinical-service' => type_of_care_id
         }
         response = perform(:get, url, url_params, headers(user))
-        response.body.map { |system| OpenStruct.new(system) }
+        response.body.map do |system|
+          institution = system.delete(:institution)
+          OpenStruct.new(system.merge!(institution))
+        end
       end
     end
 

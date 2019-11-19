@@ -7,7 +7,7 @@ VAOS::Engine.routes.draw do
       resources :messages, only: :index
     end
     resources :systems, only: :index do
-      resources :facilities, only: :index
+      resources :facilities, only: :index, controller: 'direct_scheduling_facilities'
     end
     resources :facilities, only: :index do
       resources :clinics, only: :index
