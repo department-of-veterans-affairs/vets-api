@@ -21,10 +21,10 @@ module VAOS
     end
 
     def get_appointments(type, start_date, end_date, pagination_params = {})
-      with_monitoring do
-        url = get_appointments_base_url(type)
+      params = date_params(start_date, end_date).merge(page_params(pagination_params)).merge(other_params).compact
 
-        response = perform(:get, url, params(start_date, end_date, pagination_params), headers(user))
+      with_monitoring do
+        response = perform(:get, get_appointments_base_url(type), params, headers(user))
         {
           data: deserialized_appointments(response.body, type),
           meta: pagination(pagination_params)
@@ -32,6 +32,18 @@ module VAOS
       end
     end
 
+    def put_cancel_appointment(request_object_body)
+      params = VAOS::CancelForm.new(request_object_body).params
+      params.merge!(patient_identifier: { unique_id: user.icn, assigning_authority: 'ICN' })
+
+      with_monitoring do
+        perform(:put, put_appointment_url, params, headers(user))
+        ''
+      end
+    rescue Common::Client::Errors::ClientError => e
+      raise_backend_exception('VAOS_502', self.class, e)
+    end
+    
     private
 
     def deserialized_appointments(json_hash, type)
@@ -66,8 +78,9 @@ module VAOS
       end
     end
 
-    def params(start_date, end_date, pagination_params)
-      date_params(start_date, end_date).merge(page_params(pagination_params)).merge(other_params).compact
+    def put_appointment_url
+      '/var/VeteranAppointmentRequestService/v4/rest/direct-scheduling/site/983/patient/ICN/' \
+        "#{user.icn}/cancel-appointment"
     end
 
     def date_params(start_date, end_date)
