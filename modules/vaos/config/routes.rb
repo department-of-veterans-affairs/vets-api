@@ -9,7 +9,7 @@ VAOS::Engine.routes.draw do
       resources :messages, only: :index
     end
     resources :systems, only: :index do
-      resources :facilities, only: :index, controller: 'direct_scheduling_facilities'
+      resources :direct_scheduling_facilities, only: :index
     end
     resources :facilities, only: :index do
       resources :clinics, only: :index
@@ -19,3 +19,4 @@ VAOS::Engine.routes.draw do
     get 'api', to: 'apidocs#index'
   end
 end
+3
