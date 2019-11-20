@@ -24,6 +24,7 @@ RSpec.describe 'systems', type: :request do
 
   context 'with a loa3 user' do
     let(:user) { FactoryBot.create(:user, :loa3, ssn: '111223333') }
+    let(:error_code) { JSON.parse(response.body)['errors'].first['code'] }
 
     describe 'GET /v0/vaos/systems' do
       context 'with a valid GET systems response' do
@@ -44,7 +45,7 @@ RSpec.describe 'systems', type: :request do
             get '/v0/vaos/systems'
 
             expect(response).to have_http_status(:forbidden)
-            expect(JSON.parse(response.body)['errors'].first['code']).to eq('VAOS_403')
+            expect(error_code).to eq('VAOS_403')
             expect(response).to match_response_schema('errors')
           end
         end
@@ -59,7 +60,7 @@ RSpec.describe 'systems', type: :request do
           VCR.use_cassette('vaos/systems/get_systems', match_requests_on: %i[method uri]) do
             get '/v0/vaos/systems'
             expect(response).to have_http_status(:gateway_timeout)
-            expect(JSON.parse(response.body)['errors'].first['code']).to eq('504')
+            expect(error_code).to eq('504')
           end
         end
       end
@@ -70,7 +71,7 @@ RSpec.describe 'systems', type: :request do
             get '/v0/vaos/systems'
 
             expect(response).to have_http_status(:bad_gateway)
-            expect(JSON.parse(response.body)['errors'].first['code']).to eq('VAOS_502')
+            expect(error_code).to eq('VAOS_502')
             expect(response).to match_response_schema('errors')
           end
         end
@@ -82,7 +83,7 @@ RSpec.describe 'systems', type: :request do
             get '/v0/vaos/systems'
 
             expect(response).to have_http_status(:bad_request)
-            expect(JSON.parse(response.body)['errors'].first['code']).to eq('VA900')
+            expect(error_code).to eq('VA900')
             expect(response).to match_response_schema('errors')
           end
         end
