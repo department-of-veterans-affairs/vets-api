@@ -10,6 +10,7 @@ RSpec.describe ClaimsApi::AutoEstablishedClaim, type: :model do
     it 'does the thing' do
       expect(subject).to encrypt_attr(:form_data)
       expect(subject).to encrypt_attr(:auth_headers)
+      expect(subject).to encrypt_attr(:file_data)
     end
   end
 
@@ -64,6 +65,24 @@ RSpec.describe ClaimsApi::AutoEstablishedClaim, type: :model do
 
     it 'finds by evss id' do
       expect(described_class.get_by_id_or_evss_id(123_456).id).to eq(evss_record.id)
+    end
+  end
+
+  describe '#set_file_data!' do
+    it 'stores the file_data and give me a full evss document' do
+      file = Rack::Test::UploadedFile.new(
+        "#{::Rails.root}/modules/claims_api/spec/fixtures/extras.pdf"
+      )
+
+      auto_form.set_file_data!(file, 'docType')
+      auto_form.save!
+      auto_form.reload
+
+      expect(auto_form.file_data).to have_key('filename')
+      expect(auto_form.file_data).to have_key('doc_type')
+
+      expect(auto_form.file_name).to eq(auto_form.file_data['filename'])
+      expect(auto_form.document_type).to eq(auto_form.file_data['doc_type'])
     end
   end
 end

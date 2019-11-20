@@ -158,13 +158,23 @@ RSpec.describe 'Disability Claims ', type: :request do
     end
   end
 
-  describe '#upload_supporting_documents' do
+  describe '#upload_documents' do
     let(:auto_claim) { create(:auto_established_claim) }
     let(:params) do
       { 'attachment': Rack::Test::UploadedFile.new("#{::Rails.root}/modules/claims_api/spec/fixtures/extras.pdf") }
     end
 
-    it 'increases the supporting document count' do
+    it 'upload 526 form through PUT' do
+      with_okta_user(scopes) do |auth_header|
+        allow_any_instance_of(ClaimsApi::SupportingDocumentUploader).to receive(:store!)
+        put("/services/claims/v1/forms/526/#{auto_claim.id}",
+            params: params, headers: headers.merge(auth_header))
+        auto_claim.reload
+        expect(auto_claim.file_data).to be_truthy
+      end
+    end
+
+    it 'upload support docs and increases the supporting document count' do
       with_okta_user(scopes) do |auth_header|
         allow_any_instance_of(ClaimsApi::SupportingDocumentUploader).to receive(:store!)
         count = auto_claim.supporting_documents.count
