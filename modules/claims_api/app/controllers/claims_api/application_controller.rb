@@ -2,6 +2,7 @@
 
 require_dependency 'claims_api/concerns/mvi_verification'
 require_dependency 'claims_api/concerns/header_validation'
+require_dependency 'claims_api/unsynchronized_evss_claims_service'
 
 module ClaimsApi
   class ApplicationController < ::OpenidApplicationController
@@ -11,6 +12,10 @@ module ClaimsApi
     skip_before_action :set_tags_and_extra_context, raise: false
 
     private
+
+    def claims_service
+      ClaimsApi::UnsynchronizedEVSSClaimService.new(target_veteran)
+    end
 
     def header(key)
       request.headers[key]
