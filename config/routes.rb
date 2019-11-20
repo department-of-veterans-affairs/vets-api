@@ -41,7 +41,7 @@ Rails.application.routes.draw do
       get 'submission_status/:job_id', to: 'disability_compensation_forms#submission_status', as: 'submission_status'
       get 'user_submissions'
       get 'suggested_conditions'
-      post 'find_rating_info_pid'
+      get 'find_rating_info_pid'
     end
 
     resource :upload_supporting_evidence, only: :create

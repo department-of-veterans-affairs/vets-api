@@ -127,7 +127,7 @@ module Swagger
       end
 
       swagger_path '/v0/disability_compensation_form/find_rating_info_pid' do
-        operation :post do
+        operation :get do
           extend Swagger::Responses::AuthenticationError
 
           key :description, 'Get the total combined disability rating for a veteran'
