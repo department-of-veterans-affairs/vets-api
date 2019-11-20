@@ -1,0 +1,36 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "definitions": {},
+  "properties": {
+    "data": {
+      "properties": {
+        "attributes": {
+          "properties": {
+            "date_of_future_exam": {
+              "type": "string"
+            },
+            "disability_decision_type_name": {
+              "type": "string"
+            },
+
+            "service_connected_combined_degree": {
+              "type": "string"
+            },
+            "user_percent_of_disability": {
+              "type": "string"
+            }
+          },
+          "type": "object"
+        },
+        "id": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string"
+        }
+      },
+      "type": "object"
+    }
+  },
+  "type": "object"
+}
