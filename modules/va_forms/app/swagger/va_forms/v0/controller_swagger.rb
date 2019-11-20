@@ -32,18 +32,12 @@ module VaForms
             end
           end
 
-          response :default do
-            key :description, 'unexpected error'
-            schema do
-              key :type, :object
-              key :required, [:errors]
-              property :errors do
-                key :type, :array
-                items do
-                  key :'$ref', :ErrorModel
-                end
-              end
-            end
+          response 401 do
+            key :description, 'Unauthorized Request'
+          end
+
+          response 403 do
+            key :description, 'Bad API Token'
           end
         end
       end
@@ -73,23 +67,17 @@ module VaForms
               key :type, :object
               key :required, [:data]
               property :data do
-                key :'$ref', :FormsShow
+                key :'$ref', :FormShow
               end
             end
           end
 
-          response :default do
-            key :description, 'unexpected error'
-            schema do
-              key :type, :object
-              key :required, [:errors]
-              property :errors do
-                key :type, :array
-                items do
-                  key :'$ref', :ErrorModel
-                end
-              end
-            end
+          response 401 do
+            key :description, 'Unauthorized Request'
+          end
+
+          response 403 do
+            key :description, 'Bad API Token'
           end
         end
       end
