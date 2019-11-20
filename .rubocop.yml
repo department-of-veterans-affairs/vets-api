@@ -68,6 +68,8 @@ Style/ZeroLengthPredicate:
 
 Metrics/LineLength:
   Max: 120
+  Exclude:
+    - 'Gemfile'
 
 Rails:
   Enabled: true
@@ -317,8 +319,3 @@ RSpec/SubjectStub:
     - 'spec/services/evss_claim_service_spec.rb'
     - 'spec/services/mhv_accounts_service_spec.rb'
     - 'spec/uploaders/evss_claim_document_uploader_spec.rb'
-
-#Gemfile VA links can make the length too long
-Metrics/LineLength:
-  Exclude:
-    - 'Gemfile'
