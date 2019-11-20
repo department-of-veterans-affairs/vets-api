@@ -22,7 +22,7 @@ describe EVSS::DocumentsService do
 
   context 'with headers' do
     it 'uploads documents', run_at: 'Fri, 05 Jan 2018 00:12:00 GMT' do
-      VCR.use_cassette('evss/documents/upload', VCR::MATCH_EVERYTHING) do
+      VCR.use_cassette('evss/documents/upload', match_requests_on: %i[host path method]) do
         demo_file_name = "#{::Rails.root}/spec/fixtures/files/doctors-note.pdf"
         File.open(demo_file_name, 'rb') do |f|
           response = subject.upload(f, document_data)

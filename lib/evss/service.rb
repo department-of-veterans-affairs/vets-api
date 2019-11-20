@@ -10,11 +10,12 @@ module EVSS
 
     def initialize(user)
       @user = user
-      @headers = headers_for_user(@user)
+      @headers = EVSS::AuthHeaders.new(user)
+      @transaction_id = @headers.transaction_id
     end
 
     def perform(method, path, body = nil, headers = {}, options = {})
-      merged_headers = @headers.merge(headers)
+      merged_headers = @headers.to_h.merge(headers)
       super(method, path, body, merged_headers, options)
     end
 
@@ -41,10 +42,6 @@ module EVSS
       handle_error(e)
     end
 
-    def headers_for_user(user)
-      EVSS::AuthHeaders.new(user).to_h
-    end
-
     def save_error_details(error)
       Raven.tags_context(
         external_service: self.class.to_s.underscore
@@ -53,14 +50,16 @@ module EVSS
       Raven.extra_context(
         url: config.base_path,
         message: error.message,
-        body: error.body
+        body: error.body,
+        transaction_id: @transaction_id
       )
     end
 
     def handle_error(error)
       Raven.extra_context(
         message: error.message,
-        url: config.base_path
+        url: config.base_path,
+        transaction_id: @transaction_id
       )
 
       case error
