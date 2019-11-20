@@ -2,7 +2,7 @@
 http_interactions:
   - request:
       method: get
-      uri: https://veteran.apps.va.gov/var/VeteranAppointmentRequestService/v4/rest/direct-scheduling/patient/ICN/1012845331V153043/booked-cc-appointments?endDate=2020-03-14T08:00:00Z&pageSize=0&startDate=2019-11-14T07:00:00Z&useCache=false
+      uri: https://veteran.apps.va.gov/var/VeteranAppointmentRequestService/v4/rest/patient/ICN/1000123456V123456/preference
       body:
         encoding: US-ASCII
         string: ''
@@ -21,11 +21,11 @@ http_interactions:
         message: OK
       headers:
         Date:
-          - Mon, 21 Oct 2019 19:00:18 GMT
+          - Thu, 14 Nov 2019 21:22:27 GMT
         Content-Type:
           - application/json
         Content-Length:
-          - '128'
+          - '1293'
         Connection:
           - keep-alive
         X-B3-Parentspanid:
@@ -60,15 +60,31 @@ http_interactions:
         encoding: UTF-8
         string: |-
           {
-            "bookedAppointmentCollections": [
-              {
-                "collectionName": "bookedCCAppointments",
-                "bookedCCAppointments": [
-
-                ]
-              }
-            ]
+            "dataIdentifier" : { },
+            "patientIdentifier" : {
+              "uniqueId" : "1259897978",
+              "assigningAuthority" : "EDIPI"
+            },
+            "surrogateIdentifier" : { },
+            "notificationFrequency" : "Never",
+            "emailAllowed" : true,
+            "emailAddress" : "abraham.lincoln@va.gov",
+            "textMsgAllowed" : false,
+            "patientId" : "1259897978",
+            "assigningAuthority" : "EDIPI",
+            "selfUri" : "/var/VeteranAppointmentRequestService/v4/rest/patient/EDIPI/1259897978/preference",
+            "selfLink" : {
+              "rel" : "self",
+              "href" : "/var/VeteranAppointmentRequestService/v4/rest/patient/EDIPI/1259897978/preference",
+              "objectType" : "AtomLink"
+            },
+            "objectType" : "VARPatientPreference",
+            "link" : [ {
+              "rel" : "self",
+              "href" : "/var/VeteranAppointmentRequestService/v4/rest/patient/EDIPI/1259897978/preference",
+              "objectType" : "AtomLink"
+            } ]
           }
         http_version:
-    recorded_at: Wed, 04 Sep 2019 17:02:11 GMT
+    recorded_at: Thu, 14 Nov 2019 21:22:27 GMT
 recorded_with: VCR 3.0.3
