@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 OpenSSL::SSL::VERIFY_PEER = OpenSSL::SSL::VERIFY_NONE
 if Settings.vbms.present?
   ENV['CONNECT_VBMS_BASE_URL'] = Settings.vbms.vbms_base_url
