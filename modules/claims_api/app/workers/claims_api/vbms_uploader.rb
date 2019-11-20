@@ -23,6 +23,10 @@ module ClaimsApi
         vbms_document_series_ref_id: upload_response.upload_document_response[:@document_series_ref_id]
       )
     rescue VBMS::Unknown
+      rescue_vbms_error(power_of_attorney)
+    end
+
+    def rescue_vbms_error(power_of_attorney)
       power_of_attorney.vbms_upload_failure_count = power_of_attorney.vbms_upload_failure_count + 1
       power_of_attorney.vbms_error_message = 'An unknown error has occurred when uploading document'
       if power_of_attorney.vbms_upload_failure_count < 5
