@@ -18,7 +18,8 @@ module Facilities
 
         if drivetime_band_response.parsed_json.key?('error')
           raise Facilities::DrivetimeBands::DrivetimeBandDownloadError,
-                "Error in request at offset #{offset} and limit #{limit}. Cause: #{drivetime_band_response.parsed_json['error']}"
+                "Error in request at offset #{offset} and limit #{limit}.
+                Cause: #{drivetime_band_response.parsed_json['error']}"
         end
 
         drivetime_band_response.get_features
