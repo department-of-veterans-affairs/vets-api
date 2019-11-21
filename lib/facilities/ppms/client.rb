@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'common/client/base'
-require 'facilities/ppms/response'
 
 module Facilities
   module PPMS
