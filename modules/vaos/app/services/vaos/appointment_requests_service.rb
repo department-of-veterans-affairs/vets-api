@@ -56,6 +56,11 @@ module VAOS
       "/var/VeteranAppointmentRequestService/v4/rest/appointment-service/patient/ICN/#{user.icn}/appointments"
     end
 
+    def put_appointment_request_url(id)
+      "/var/VeteranAppointmentRequestService/v4/rest/appointment-service/patient/ICN/#{user.icn}/appointments/" \
+      "system/var/id/#{id}"
+    end
+
     def date_params(start_date, end_date)
       { startDate: date_format(start_date), endDate: date_format(end_date) }.compact
     end
