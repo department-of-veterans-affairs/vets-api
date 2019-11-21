@@ -11,6 +11,8 @@ module VAOS
     configuration VAOS::Configuration
 
     STATSD_KEY_PREFIX = 'api.vaos'
+    APPT_DATE_FMT = '%Y-%m-%dT%TZ'
+    AVAILABLE_APPT_DATE_FMT = '%Y-%m-%dT%TZ'
 
     attr_accessor :user
 
@@ -21,7 +23,7 @@ module VAOS
     end
 
     def get_appointments(type, start_date, end_date, pagination_params = {})
-      params = date_params(start_date, end_date).merge(page_params(pagination_params)).merge(other_params).compact
+      params = appointment_date_params(start_date, end_date).merge(page_params(pagination_params)).merge(other_params).compact
 
       with_monitoring do
         response = perform(:get, get_appointments_base_url(type), params, headers(user))
@@ -29,6 +31,20 @@ module VAOS
           data: deserialized_appointments(response.body, type),
           meta: pagination(pagination_params)
         }
+      end
+    end
+
+    def get_available_appointments(facility_id, start_date, end_date, clinic_ids)
+      with_monitoring do
+        url = available_appointments_url(facility_id)
+        url_params = {
+          'startDate' => start_date,
+          'endDate' => end_date,
+          'clinicIds' => clinic_ids
+        }
+        response = perform(:get, url, url_params, headers(user))
+        binding.pry
+        response.body[:cancel_reasons_list].map { |reason| OpenStruct.new(reason) }
       end
     end
 
@@ -45,6 +61,11 @@ module VAOS
     end
 
     private
+
+    def available_appointments_url(facility_id)
+      "/var/VeteranAppointmentRequestService/v4/rest/direct-scheduling/site/#{facility_id}" \
+        "/patient/ICN/#{user.icn}/available-appointment-slots"
+    end
 
     def deserialized_appointments(json_hash, type)
       if type == 'va'
@@ -83,7 +104,7 @@ module VAOS
         "#{user.icn}/cancel-appointment"
     end
 
-    def date_params(start_date, end_date)
+    def appointment_date_params(start_date, end_date)
       { startDate: date_format(start_date), endDate: date_format(end_date) }
     end
 

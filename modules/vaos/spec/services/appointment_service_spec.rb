@@ -108,4 +108,25 @@ describe VAOS::AppointmentService do
       end
     end
   end
+
+  describe '#get_available_appointments' do
+    context 'with a 200 response' do
+      it 'returns an array of size 6' do
+        VCR.use_cassette('vaos/systems/get_facility_appointments', match_requests_on: %i[method uri]) do
+          response = subject.get_available_appointments(user, '688', )
+          expect(response.size).to eq(6)
+        end
+      end
+    end
+
+    context 'when the upstream server returns a 500' do
+      it 'raises a backend exception' do
+        VCR.use_cassette('vaos/systems/get_facility_appointments', match_requests_on: %i[method uri]) do
+          expect { subject.get_cancel_reasons(user, '984') }.to raise_error(
+            Common::Exceptions::BackendServiceException
+          )
+        end
+      end
+    end
+  end
 end
