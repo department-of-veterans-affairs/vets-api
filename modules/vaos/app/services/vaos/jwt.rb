@@ -33,7 +33,7 @@ module VAOS
           edipid: @user.mvi&.profile&.edipi,
           ssn: @user.mvi&.profile&.ssn,
         },
-        version: 1.0,
+        version: 2.1,
         userType: 'VETERAN',
         'vamf.auth.roles' => ['veteran']
       }
