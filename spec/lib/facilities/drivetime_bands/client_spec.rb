@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe Facilities::DrivetimeBandClient do
+RSpec.describe Facilities::DrivetimeBands::Client do
   RSpec::Matchers.define :has_offset_and_limit do |offset, limit|
     match do |params|
       params[:resultRecordCount].eql?(limit) && params[:resultOffset].eql?(offset)
@@ -53,7 +53,7 @@ RSpec.describe Facilities::DrivetimeBandClient do
 
       expect do
         subject.get_drivetime_bands(0, 10)
-      end.to raise_error Facilities::DrivetimeBandDownloadError
+      end.to raise_error Facilities::DrivetimeBands::DrivetimeBandDownloadError
     end
   end
 end
