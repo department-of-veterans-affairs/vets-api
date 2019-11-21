@@ -427,6 +427,8 @@ bgs:
   client_username: ~
   mock_response_location: ~
   mock_responses: ~
+  external_uid: ~
+  external_key: ~
 
 va_mobile:
   url: 'https://veteran.apps.va.gov/'
