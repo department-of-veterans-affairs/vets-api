@@ -486,9 +486,9 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
       end
 
       it 'supports getting rating info' do
-        expect(subject).to validate(:post, '/v0/disability_compensation_form/find_rating_info_pid', 401)
+        expect(subject).to validate(:get, '/v0/disability_compensation_form/find_rating_info_pid', 401)
         VCR.use_cassette('evss/disability_compensation_form/find_rating_info_pid') do
-          expect(subject).to validate(:post, '/v0/disability_compensation_form/find_rating_info_pid', 200, headers)
+          expect(subject).to validate(:get, '/v0/disability_compensation_form/find_rating_info_pid', 200, headers)
         end
       end
     end

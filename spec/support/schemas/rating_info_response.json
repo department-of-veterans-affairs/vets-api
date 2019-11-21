@@ -6,13 +6,6 @@
       "properties": {
         "attributes": {
           "properties": {
-            "date_of_future_exam": {
-              "type": "string"
-            },
-            "disability_decision_type_name": {
-              "type": "string"
-            },
-
             "service_connected_combined_degree": {
               "type": "string"
             },
