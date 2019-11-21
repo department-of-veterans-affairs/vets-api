@@ -18,8 +18,8 @@ module VAOS
         sub: @user.icn,
         idType: 'ICN',
         iss: 'gov.va.vaos',
-        firstName: @user.first_name, # from SAML assertion unless MHV sign in user (MVI).
-        lastName: @user.last_name, # from SAML assertion unless MHV sign in user (MVI)
+        firstName: @user.mvi&.profile&.given_names&.first, # from MVI not SAML assertion
+        lastName: @user.mvi&.profile&.family_name, # from MVI not SAML assertion
         authenticationAuthority: 'gov.va.iam.ssoe.v1',
         jti: SecureRandom.uuid, # TODO: need to capture this in logs as part of a middleware for each action invoked
         nbf: 1.minute.ago.to_i,
