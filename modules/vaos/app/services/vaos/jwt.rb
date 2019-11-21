@@ -14,35 +14,30 @@ module VAOS
 
     def payload
       {
-        lastName: @user.mvi&.profile&.family_name, # from MVI not SAML assertion
-        sub: @user.icn,
         authenticated: true,
-        authenticationAuthority: 'gov.va.iam.ssoe.v1',
+        sub: @user.icn,
         idType: 'ICN',
         iss: 'gov.va.vaos',
-        'vamf.auth.resources' => [
-          "^.*(/)?patient[s]?/EDIPI/#{@user.edipi}(/.*)?$",
-          "^.*(/)?patient[s]?/(ICN/)?#{@user.icn}(/.*)?$"
-        ],
-        version: 2.1,
         firstName: @user.mvi&.profile&.given_names&.first, # from MVI not SAML assertion
+        lastName: @user.mvi&.profile&.family_name, # from MVI not SAML assertion
+        authenticationAuthority: 'gov.va.iam.ssoe.v1',
+        jti: SecureRandom.uuid, # TODO: need to capture this in logs as part of a middleware for each action invoked
         nbf: 1.minute.ago.to_i,
-        sst: 1.minute.ago.to_i + 180,
-        patient: {
-          firstName: @user.mvi&.profile&.given_names&.first,
+        exp: 15.minutes.from_now.to_i,
+        sst: 1.minute.ago.to_i + 50,
+        version: 2.1,
+	attributes: {
+	  firstName: @user.mvi&.profile&.given_names&.first,
           lastName: @user.mvi&.profile&.family_name,
           gender: gender(@user.mvi&.profile&.gender),
           dob: @user.mvi&.profile&.birth_date,
           dateOfBirth: @user.mvi&.profile&.birth_date,
           edipid: @user.mvi&.profile&.edipi,
           ssn: @user.mvi&.profile&.ssn
-        },
-        'vamf.auth.roles' => ['veteran'],
-        exp: 14.minutes.from_now.to_i,
-        jti: SecureRandom.uuid, # TODO: need to capture this in logs as part of a middleware for each action invoked
-        loa: @user.loa[:current]
+	}
       }
     end
+
 
     def gender(type)
       return '' unless type.is_a?(String)
