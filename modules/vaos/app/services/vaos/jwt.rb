@@ -26,15 +26,15 @@ module VAOS
         exp: 15.minutes.from_now.to_i,
         sst: 1.minute.ago.to_i + 50,
         version: 2.1,
-	attributes: {
-	  firstName: @user.mvi&.profile&.given_names&.first,
+        attributes: {
+          firstName: @user.mvi&.profile&.given_names&.first,
           lastName: @user.mvi&.profile&.family_name,
           gender: gender(@user.mvi&.profile&.gender),
           dob: @user.mvi&.profile&.birth_date,
           dateOfBirth: @user.mvi&.profile&.birth_date,
           edipid: @user.mvi&.profile&.edipi,
           ssn: @user.mvi&.profile&.ssn
-	}
+	      }
       }
     end
 
