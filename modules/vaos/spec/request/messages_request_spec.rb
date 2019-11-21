@@ -5,7 +5,6 @@ RSpec.describe 'vaos appointment request messages', type: :request do
   include SchemaMatchers
 
   let(:request_id) { '8a4886886e4c8e22016e5bee49c30007' }
-  let(:rsa_private) { OpenSSL::PKey::RSA.generate 4096 }
 
   before do
     Flipper.enable('va_online_scheduling')
@@ -38,7 +37,7 @@ RSpec.describe 'vaos appointment request messages', type: :request do
     end
 
     it 'has access and returns messages', :skip_mvi do
-      VCR.use_cassette('vaos/messages/get_messages', match_requests_on: %i[host path method]) do
+      VCR.use_cassette('vaos/messages/get_messages', match_requests_on: %i[method uri]) do
         get "/v0/vaos/appointment_requests/#{request_id}/messages"
 
         expect(response).to have_http_status(:success)
