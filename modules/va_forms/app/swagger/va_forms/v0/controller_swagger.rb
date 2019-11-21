@@ -21,6 +21,14 @@ module VaForms
             'Forms'
           ]
 
+          parameter do
+            key :name, :query
+            key :in, :query
+            key :description, 'Query the form number as well as title'
+            key :required, false 
+            key :type, :string
+          end
+
           response 200 do
             key :description, 'VaForms index response'
             schema do
@@ -42,7 +50,7 @@ module VaForms
         end
       end
 
-      swagger_path '/forms/{id}' do
+      swagger_path '/forms/{form_name}' do
         operation :get do
           security do
             key :apikey, []

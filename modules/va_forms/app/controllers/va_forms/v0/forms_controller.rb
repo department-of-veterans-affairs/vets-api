@@ -20,11 +20,8 @@ module VaForms
       private
 
       def get_forms
-        if params[:form_number].present? || params[:keyword].present?
-          result = Form
-          result = result.where('name like ?', "%#{params[:form_number]}%") if params[:form_number].present?
-          result = result.where('title like ?', "%#{params[:keyword]}%") if params[:keyword].present?
-          result
+        if params[:query].present?
+          Form.where('name like ? OR title like ?', "%#{params[:query]}%", "%#{params[:query]}%")
         else
           Form.all
         end
