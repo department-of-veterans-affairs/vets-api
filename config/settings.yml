@@ -240,7 +240,7 @@ emis:
   mock: true
   host: https://vaausvrsapp81.aac.va.gov
   veteran_status_url: /VIERSService/eMIS/v1/VeteranStatusService
-  payment_url: 
+  payment_url:
     v1: /VIERSService/eMIS/v1/PaymentService
     v2: /VIERSService/eMIS/v2/PaymentService
   military_information_url: /VIERSService/eMIS/v1/MilitaryInformationService
@@ -263,8 +263,8 @@ emis:
     v2:
       soap_namespaces:
         xmlns:v1: http://viers.va.gov/cdi/CDI/commonService/v2
-        xmlns:v12: http://viers.va.gov/cdi/eMIS/RequestResponse/v2 
-        xmlns:v13: http://viers.va.gov/cdi/eMIS/commonService/v2 
+        xmlns:v12: http://viers.va.gov/cdi/eMIS/RequestResponse/v2
+        xmlns:v13: http://viers.va.gov/cdi/eMIS/commonService/v2
         xmlns:v11: http://viers.va.gov/cdi/eMIS/RequestResponse/Payment/v2
   veteran_status:
     soap_namespaces:
@@ -405,15 +405,20 @@ bing:
 
 flipper:
   admin_user_emails:
+    - alastair@adhocteam.us
     - anna@adhoc.team
-    - johnny@oddball.io
-    - travis.hilton@oddball.io
-    - rian.fowler@adhoc.team
-    - rianfowler@outlook.com
+    - erik@adhocteam.us
     - jbalboni@gmail.com
     - jeff@adhocteam.us
+    - johnny@oddball.io
     - kam@adhocteam.us
-    - alastair@adhocteam.us
+    - lauren.alexanderson@va.gov
+    - mark.greenburg@adhocteam.us
+    - narin@adhocteam.us
+    - rian.fowler@adhoc.team
+    - rianfowler@outlook.com
+    - ryan.thurlwell@va.gov
+    - travis.hilton@oddball.io
     - n.ratana@gmail.com
 
 bgs:
@@ -422,6 +427,8 @@ bgs:
   client_username: ~
   mock_response_location: ~
   mock_responses: ~
+  external_uid: ~
+  external_key: ~
 
 va_mobile:
   url: 'https://veteran.apps.va.gov/'
