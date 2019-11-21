@@ -20,9 +20,14 @@ module VAOS
         authenticationAuthority: 'gov.va.iam.ssoe.v1',
         idType: 'ICN',
         iss: 'gov.va.vaos',
+        'vamf.auth.resources': => [
+          "^.*(/)?patient[s]?/EDIPI/#{@user.edipi}(/.*)?$",
+          "^.*(/)?patient[s]?/(ICN/)?#{@user.icn}(/.*)?$"
+        ],
         version: 2.1,
         firstName: @user.mvi&.profile&.given_names&.first, # from MVI not SAML assertion
         nbf: 1.minute.ago.to_i,
+        sst: 1.minute.ago.to_i + 180
         patient: {
           firstName: @user.mvi&.profile&.given_names&.first,
           lastName: @user.mvi&.profile&.family_name,
@@ -33,7 +38,7 @@ module VAOS
           ssn: @user.mvi&.profile&.ssn
         },
         'vamf.auth.roles' => ['veteran'],
-        exp: 1.hour.from_now.to_i,
+        exp: 14.minutes.from_now.to_i,
         jti: SecureRandom.uuid, # TODO: need to capture this in logs as part of a middleware for each action invoked
         loa: @user.loa[:current]
       }
