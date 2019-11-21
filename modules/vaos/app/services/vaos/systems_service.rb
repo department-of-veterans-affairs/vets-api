@@ -41,13 +41,13 @@ module VAOS
 
     def get_facility_limits(user, facility_id, type_of_care_id)
       with_monitoring do
-        url = "/VeteranAppointmentRequestService/v4/rest/direct-scheduling/patient/ICN/#{user.icn}/request-limit"
+        url = "/var/VeteranAppointmentRequestService/v4/rest/direct-scheduling/patient/ICN/#{user.icn}/request-limit"
         url_params = {
-          'three-digit-code' => facility_id,
+          'institution-code' => facility_id,
           'clinical-service' => type_of_care_id
         }
         response = perform(:get, url, url_params, headers(user))
-        response.body.map { |clinic| OpenStruct.new(clinic) }
+        OpenStruct.new(response.body.merge!(id: facility_id))
       end
     end
 

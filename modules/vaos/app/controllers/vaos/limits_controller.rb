@@ -5,13 +5,13 @@ require_dependency 'vaos/application_controller'
 module VAOS
   class LimitsController < ApplicationController
     def index
-      response = systems_service.get_facility_clinics(
+      response = systems_service.get_facility_limits(
         current_user,
-        clinics_params[:facility_id],
-        clinics_params[:type_of_care_id]
+        limit_params[:facility_id],
+        limit_params[:type_of_care_id]
       )
 
-      render json: VAOS::ClinicSerializer.new(response)
+      render json: VAOS::LimitSerializer.new(response)
     end
 
     private
@@ -20,7 +20,7 @@ module VAOS
       VAOS::SystemsService.new
     end
 
-    def clinics_params
+    def limit_params
       params.require(:facility_id)
       params.require(:type_of_care_id)
       params.permit(
