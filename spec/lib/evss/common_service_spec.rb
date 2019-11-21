@@ -15,7 +15,7 @@ describe EVSS::CommonService do
 
   context 'with headers' do
     it 'posts to create a user account', run_at: 'Thu, 14 Dec 2017 00:00:32 GMT' do
-      VCR.use_cassette('evss/common/create_user_account', VCR::MATCH_EVERYTHING) do
+      VCR.use_cassette('evss/common/create_user_account', match_requests_on: %i[host path method]) do
         response = subject.create_user_account
         expect(response).to be_success
       end
