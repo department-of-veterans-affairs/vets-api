@@ -19,7 +19,7 @@ module VAOS
     end
 
     def limit_params
-      params.require([:facility_id, :type_of_care_id])
+      params.require(%i[facility_id type_of_care_id])
       params.permit(
         :facility_id,
         :type_of_care_id
