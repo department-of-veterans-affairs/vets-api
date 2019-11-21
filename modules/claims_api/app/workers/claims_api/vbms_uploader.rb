@@ -30,7 +30,7 @@ module ClaimsApi
       power_of_attorney.vbms_upload_failure_count = power_of_attorney.vbms_upload_failure_count + 1
       power_of_attorney.vbms_error_message = 'An unknown error has occurred when uploading document'
       if power_of_attorney.vbms_upload_failure_count < 5
-        self.class.perform_in(30.minutes, power_of_attorney_id)
+        self.class.perform_in(30.minutes, power_of_attorney.id)
       else
         power_of_attorney.status = 'failed'
       end
