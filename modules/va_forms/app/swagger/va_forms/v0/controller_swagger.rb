@@ -25,7 +25,7 @@ module VaForms
             key :name, :query
             key :in, :query
             key :description, 'Query the form number as well as title'
-            key :required, false 
+            key :required, false
             key :type, :string
           end
 
