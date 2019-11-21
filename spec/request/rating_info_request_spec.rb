@@ -36,6 +36,7 @@ RSpec.describe 'rating info', type: :request do
 
     context 'with a 403 unauthorized response' do
       let(:user) { build(:unauthorized_evss_user, :loa3) }
+
       it 'returns a not authorized response' do
         VCR.use_cassette('evss/disability_compensation_form/find_rating_info_pid_403') do
           get('/v0/disability_compensation_form/find_rating_info_pid', params: nil, headers: headers)
