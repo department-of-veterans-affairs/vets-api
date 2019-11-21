@@ -20,7 +20,7 @@ module VAOS
         authenticationAuthority: 'gov.va.iam.ssoe.v1',
         idType: 'ICN',
         iss: 'gov.va.vaos',
-        'vamf.auth.resources': => [
+        'vamf.auth.resources' => [
           "^.*(/)?patient[s]?/EDIPI/#{@user.edipi}(/.*)?$",
           "^.*(/)?patient[s]?/(ICN/)?#{@user.icn}(/.*)?$"
         ],
