@@ -15,15 +15,6 @@ module VaForms
           end
         end
 
-        tag do
-          key :name, 'va_forms'
-          key :description, 'VA Form information API'
-          externalDocs do
-            key :description, 'Find more info here'
-            key :url, 'https://developer.va.gov'
-          end
-        end
-
         key :servers, [
           {
             "url": 'https://dev-api.va.gov/services/va_forms/{version}',
