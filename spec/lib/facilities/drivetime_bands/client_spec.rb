@@ -53,7 +53,7 @@ RSpec.describe Facilities::DrivetimeBands::Client do
 
       expect do
         subject.get_drivetime_bands(0, 10)
-      end.to raise_error Facilities::DrivetimeBands::DrivetimeBandDownloadError
+      end.to raise_error Facilities::DrivetimeBands::DownloadError
     end
   end
 end
