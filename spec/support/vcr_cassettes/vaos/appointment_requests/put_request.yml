@@ -1,69 +1,8 @@
 ---
 http_interactions:
 - request:
-    method: post
-    uri: https://internal-dsva-vagov-staging-fwdproxy-1821450725.us-gov-west-1.elb.amazonaws.com:4463/users/v2/session?processRules=true
-    body:
-      encoding: US-ASCII
-      string: eyJhbGciOiJSUzUxMiJ9.eyJhdXRoZW50aWNhdGVkIjp0cnVlLCJzdWIiOiIxMDEyODQ1MzMxVjE1MzA0MyIsImlkVHlwZSI6IklDTiIsImlzcyI6Imdvdi52YS52YW9zIiwiZmlyc3ROYW1lIjoiSnVkeSIsImxhc3ROYW1lIjoiTW9ycmlzb24iLCJhdXRoZW50aWNhdGlvbkF1dGhvcml0eSI6Imdvdi52YS5pYW0uc3NvZS52MSIsImp0aSI6IjRlZDkzMmUyLWE3NWYtNDZmMS1iMGE5LTFhYTQ5MzBiMWZkNSIsIm5iZiI6MTU3NDQyOTIxNywiZXhwIjoxNTc0NDMwMTc3LCJzc3QiOjE1NzQ0MjkyNjcsInZlcnNpb24iOjIuMSwiZ2VuZGVyIjoiRkVNQUxFIiwiZG9iIjoiMTk1My0wNC0wMSIsImRhdGVPZkJpcnRoIjoiMTk1My0wNC0wMSIsImVkaXBpZCI6IjEyNTk4OTc5NzgiLCJzc24iOiI3OTYwNjE5NzYifQ.WyNu63gsILdJ48OJzrwkeHm-s7aHv_QcL88Kj102f-gp9MwtzvdqAA4bFLP4XOqLva3ynMbhAK0xGc0mfXhax1UgoGwov1DaFOjulPIryZWmC90jRD8mTp-TF-1969MUi0od6Z5NTc46itTlCw-fQB7igS14MzVyI7whGIPIqbzlpdM_D9HLIhnprYxZBqgDCfZKShdLV7yV_yXuQR4DbIeiFlw8mkeI9izlVlaNUUd3F8D1q2ZBNpPW553Ggodv3ITYS1Knn3V-nmn_s8yEVuKIWRb-8ucI9e-KHVO6Gr_JybmhPIhvvIvz4pXD-qPylt6bbZ1eFoJOE8hpHJYXzTVroKf0_EHZxVdF3bzuCgBKS9bcHV82dJ0MZlUB7K7usOLFm_E1mOBInhnnGODCs_S1U9mjS86oNQxCRhqSwvfxHnNY2ajFbx91Uo7MR2k7mCcRBiP6UbAHDFTDR1hQVVo5IdHlFe8jbsIpIkrGtIgE4rlaBzLwHL7egcANMMBFwr3Xs3L-XAqClSHSlBF5XWDIcmLmSla6Bqs9pEgUnPsIWYRX-W3MR5_WSMFcxPD0QAaZSoY8KZ8QSmj3VAEDh0kM7qK7kmKGnSd5ZrTQNS0ie6DYoErPvfWoVNXQhPg4sHKZtcuIojf4F1vOsrWXUtE-HpNcdtmSzswpZK1bWfo
-    headers:
-      Content-Type:
-      - text/plain
-      Referer:
-      - https://api.va.gov
-      User-Agent:
-      - Faraday v0.9.2
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Date:
-      - Fri, 22 Nov 2019 13:27:58 GMT
-      Content-Type:
-      - text/plain
-      Content-Length:
-      - '1668'
-      Server:
-      - openresty
-      X-B3-Parentspanid:
-      - ce7d6af38b380130
-      X-Vamf-Version:
-      - 2.7.1
-      Cache-Control:
-      - no-store
-      X-B3-Traceid:
-      - ce7d6af38b380130
-      Access-Control-Allow-Headers:
-      - x-vamf-jwt
-      X-Vamf-Build:
-      - 88a512a
-      X-B3-Sampled:
-      - '0'
-      X-Vamf-Timestamp:
-      - '2019-11-15T21:22:19+0000'
-      Access-Control-Allow-Origin:
-      - "*.va.gov"
-      X-B3-Spanid:
-      - b082ff2e3c68d980
-      Access-Control-Allow-Methods:
-      - GET,OPTIONS
-      Access-Control-Max-Age:
-      - '3600'
-      Strict-Transport-Security:
-      - max-age=63072000; includeSubDomains; preload
-    body:
-      encoding: UTF-8
-      string: eyJhbGciOiJSUzUxMiJ9.eyJsYXN0TmFtZSI6Ik1vcnJpc29uIiwic3ViIjoiMTAxMjg0NTMzMVYxNTMwNDMiLCJhdXRoZW50aWNhdGVkIjp0cnVlLCJhdXRoZW50aWNhdGlvbkF1dGhvcml0eSI6Imdvdi52YS52YW9zIiwiaWRUeXBlIjoiSUNOIiwiZ2VuZGVyIjoiRkVNQUxFIiwiaXNzIjoiZ292LnZhLnZhbWYudXNlcnNlcnZpY2UudjEiLCJ2YW1mLmF1dGgucmVzb3VyY2VzIjpbIl4uKihcLyk_c2l0ZVtzXT9cLyhkZm4tKT85ODRcL3BhdGllbnRbc10_XC81NTIxNjEwNTBcL2FwcG9pbnRtZW50cyhcLy4qKT8kIiwiXi4qKFwvKT9zaXRlW3NdP1wvKGRmbi0pPzk4M1wvcGF0aWVudFtzXT9cLzcyMTY2OTFcL2FwcG9pbnRtZW50cyhcLy4qKT8kIiwiXi4qKFwvKT9wYXRpZW50W3NdP1wvKElDTlwvKT8xMDEyODQ1MzMxVjE1MzA0MyhcLy4qKT8kIl0sImRhdGVPZkJpcnRoIjoiMTk1My0wNC0wMSIsInZlcnNpb24iOjIuMSwiZWRpcGlkIjoiMTI1OTg5Nzk3OCIsInZpc3RhSWRzIjpbeyJwYXRpZW50SWQiOiI1NTIxNjEwNTAiLCJzaXRlSWQiOiI5ODQifSx7InBhdGllbnRJZCI6IjcyMTY2OTEiLCJzaXRlSWQiOiI5ODMifV0sInNzbiI6Ijc5NjA2MTk3NiIsImZpcnN0TmFtZSI6Ikp1ZHkiLCJzdGFmZkRpc2NsYWltZXJBY2NlcHRlZCI6dHJ1ZSwibmJmIjoxNTc0NDI5MDk4LCJzc3QiOjE1NzQ0MjkyNzgsInBhdGllbnQiOnsiZmlyc3ROYW1lIjoiSnVkeSIsImxhc3ROYW1lIjoiTW9ycmlzb24iLCJnZW5kZXIiOiJGRU1BTEUiLCJpY24iOiIxMDEyODQ1MzMxVjE1MzA0MyIsImRvYiI6IjE5NTMtMDQtMDEiLCJkYXRlT2ZCaXJ0aCI6IjE5NTMtMDQtMDEiLCJzc24iOiI3OTYwNjE5NzYifSwiZG9iIjoiMTk1My0wNC0wMSIsInZhbWYuYXV0aC5yb2xlcyI6WyJ2ZXRlcmFuIl0sInJpZ2h0T2ZBY2Nlc3NBY2NlcHRlZCI6dHJ1ZSwiZXhwIjoxNTc0NDMwMTc4LCJqdGkiOiI0ZWQ5MzJlMi1hNzVmLTQ2ZjEtYjBhOS0xYWE0OTMwYjFmZDUiLCJsb2EiOjJ9.n_YSkFVvTLblCngHr4_G2tECDnRtefEOFJD-ZO76-Vq8SdU9XLBFzbNDl1g0WT_S-plIkDOHIraL49dTHaLm3ay_OdFqeKBNzZmBlUhy2IGftBbQKOo3KNo1nhwJZeCQC8g-e_5wfYQM55fxkeEdAc6rfqYtb-zqIZ4ZRnzhaIwBIhrozFkEihHWN3NrCOF7UWGXXugaV1jqtbgLfGCySoFoDU7tgsh2_c6JSQGLjDqQ0w92L9q-asf85gto6LH3IRI67FfwL4ysnxN-kNTo2-mPF0UwHU4r3A01nbK0fohny-d8TLnrqovvw_mZf4WEn4AsvTSmWAhYMqGJfNuryw
-    http_version: 
-  recorded_at: Fri, 22 Nov 2019 13:27:58 GMT
-- request:
     method: put
-    uri: https://internal-dsva-vagov-staging-fwdproxy-1821450725.us-gov-west-1.elb.amazonaws.com:4463/var/VeteranAppointmentRequestService/v4/rest/appointment-service/patient/ICN/1012845331V153043/appointments/system/var/id/8a4886886e4c8e22016e92be77cb00f9
+    uri: https://veteran.apps.va.gov/var/VeteranAppointmentRequestService/v4/rest/appointment-service/patient/ICN/1012845331V153043/appointments/system/var/id/8a4886886e4c8e22016e92be77cb00f9
     body:
       encoding: UTF-8
       string: '{"phoneNumber":"(111) 111-1111","optionDate1":"11/29/2019","optionTime1":"AM","optionDate2":"No
@@ -209,6 +148,6 @@ http_interactions:
           } ],
           "createdDate" : "11/22/2019 05:53:00"
         }
-    http_version: 
+    http_version:
   recorded_at: Fri, 22 Nov 2019 13:27:59 GMT
 recorded_with: VCR 3.0.3
