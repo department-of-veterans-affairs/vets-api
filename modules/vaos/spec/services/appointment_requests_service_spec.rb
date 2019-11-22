@@ -11,6 +11,37 @@ describe VAOS::AppointmentRequestsService do
 
   before { allow_any_instance_of(VAOS::UserService).to receive(:session).and_return('stubbed_token') }
 
+  describe '#post_request' do
+    context 'with valid creation attributes from factory' do
+      let(:user) { build(:user, :vaos) }
+      let(:appointment_request_params) { build(:appointment_request_form, :creation, user: user) }
+
+      it 'creates a new appointment request' do
+        VCR.user_cassette('vaos/appointment_requests/post_request'), record: :new_episodes do
+          response = subject.post_request(appointment_request_form.params)
+          binding.pry
+          expect(response).to have_http_status(:created)
+        end
+      end
+    end
+  end
+
+  describe "put_request" do
+    context 'with valid cancelation attributes from factory' do
+      let(:user) { build(:user, :vaos) }
+      let(:id) { 'banana' }
+      let(:appointment_request_params) { build(:appointment_request_form, :cancelation, user: user, id: id) }
+
+      it 'creates a new appointment request' do
+        VCR.user_cassette('vaos/appointment_requests/put_request'), record: :new_episodes do
+          response = subject.put_request(appointment_request_form.params)
+          binding.pry
+          expect(response).to have_http_status(:success)
+        end
+      end
+    end
+  end
+
   describe '#get_requests' do
     context 'without data params' do
       it 'returns an array of size 40' do
