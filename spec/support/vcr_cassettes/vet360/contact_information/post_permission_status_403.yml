@@ -1,11 +1,11 @@
 ---
 http_interactions:
     - request:
-          method: put
+          method: post
           uri: https://internal-dsva-vagov-staging-fwdproxy-1821450725.us-gov-west-1.elb.amazonaws.com:4433/person-mdm-cuf-person-hub/cuf/person/contact-information/v1/permissions
           body:
               encoding: UTF-8
-              string: '{"bio":{"originatingSourceSystem":"VETSGOV","permissionType":"TextPermission","permissionValue":true,"sourceDate":"2019-11-05T16:49:18.000Z","sourceSystemUser":"99894064981269761","permissionId":401,"vet360Id":"1411684","effectiveStartDate":"2019-11-05T16:49:18.000Z","effectiveEndDate":null}}'
+              string: '{"bio":{"originatingSourceSystem":"VETSGOV","permissionType":"TextPermission","permissionValue":true,"sourceDate":"2019-11-05T16:49:18.000Z","sourceSystemUser":"69983515349476277","permissionId":null,"vet360Id":"1411684","effectiveStartDate":"2019-11-05T16:49:18.000Z","effectiveEndDate":null}}'
           headers:
               Accept:
                   - application/json
@@ -23,11 +23,11 @@ http_interactions:
               message: ''
           headers:
               Date:
-                  - Fri, 22 Nov 2019 18:24:49 GMT
+                  - Fri, 22 Nov 2019 19:05:40 GMT
               Expires:
                   - '0'
               Vet360txauditid:
-                  - bb6126a5-8e78-4930-86ea-05d0a4b5a221
+                  - 47149b7c-55b8-4e85-81dd-91efa0fa76e1
               X-Frame-Options:
                   - DENY
               Pragma:
@@ -47,12 +47,7 @@ http_interactions:
                   - chunked
           body:
               encoding: UTF-8
-              string:
-                  '{"messages":[{"code":"CORE104","key":"_CUF_NO_CHANGES_DETECTED","severity":"INFO","text":"Your
-                  request was received and processed without error, however no differences were
-                  detected between current data and the data you sent.  This message is informational
-                  only, please verify your request if you believe you sent actual changes that
-                  should be applied."}],"txAuditId":"f5df243e-38ec-486e-a7de-cdd73ba244e4","status":"COMPLETED_NO_CHANGES_DETECTED"}'
+              string: '{"txAuditId":"143430cc-e1c4-48b7-be9a-edbfad5e4514","status":"RECEIVED"}'
           http_version:
       recorded_at: Tue, 05 Nov 2019 16:49:18 GMT
 recorded_with: VCR 3.0.3

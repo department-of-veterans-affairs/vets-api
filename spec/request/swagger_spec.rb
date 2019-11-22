@@ -1815,7 +1815,7 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
         expect(subject).to validate(:put, '/v0/profile/permissions', 401)
 
         VCR.use_cassette('vet360/contact_information/put_permission_success') do
-          permission = build(:permission, id: 45)
+          permission = build(:permission, id: 401)
 
           expect(subject).to validate(
             :put,
@@ -1830,7 +1830,7 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
         expect(subject).to validate(:delete, '/v0/profile/permissions', 401)
 
         VCR.use_cassette('vet360/contact_information/delete_permission_success') do
-          permission = build(:permission, id: 45) # TODO: ID
+          permission = build(:permission, id: 361) # TODO: ID
 
           expect(subject).to validate(
             :delete,
