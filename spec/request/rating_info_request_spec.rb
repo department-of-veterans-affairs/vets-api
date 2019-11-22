@@ -17,7 +17,6 @@ RSpec.describe 'rating info', type: :request do
         VCR.use_cassette('evss/disability_compensation_form/find_rating_info_pid') do
           get '/v0/disability_compensation_form/find_rating_info_pid'
           expect(response).to have_http_status(:ok)
-          # expect(response).to match_response_schema('rating_info_response')
         end
       end
     end

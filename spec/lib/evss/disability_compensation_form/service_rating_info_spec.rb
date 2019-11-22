@@ -19,7 +19,7 @@ describe EVSS::DisabilityCompensationForm::ServiceRatingInfo do
           response = subject.get_rating_info
           expect(response).to be_ok
           expect(response).to be_an EVSS::DisabilityCompensationForm::RatingInfoResponse
-          expect(response.user_percent_of_disability).to be_an String
+          expect(response.user_percent_of_disability).to be_a String
           expect(response.user_percent_of_disability).to eq ''
         end
       end
