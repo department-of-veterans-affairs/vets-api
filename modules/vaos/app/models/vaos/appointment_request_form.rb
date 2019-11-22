@@ -49,6 +49,8 @@ module VAOS
     def initialize(user, json_hash)
       @user = user
       @id = json_hash[:id]
+      @unique_id = @id
+      @appointment_request_id = @id
       super(json_hash)
     end
 
@@ -77,7 +79,7 @@ module VAOS
       @appointment_request_detail_code = Array.wrap(array_of_detail_codes).map do |code|
         {
           user_id: @user.icn,
-          detail_code: { code: code }
+          detail_code: { code: (code.is_a?(Hash) ? code[:detail_code][:code] : code)  }
         }
       end
     end

@@ -30,7 +30,9 @@ describe VAOS::AppointmentRequestsService do
     context 'with valid cancelation attributes from factory' do
       let(:user) { build(:user, :vaos) }
       let(:id) { '8a4886886e4c8e22016e92be77cb00f9' }
-      let(:appointment_request_params) { build(:appointment_request_form, :cancelation, user: user, id: id).params }
+      let(:date) { Time.zone.parse('2019-11-22 10:53:05 +0000') }
+      let(:appointment_request_params) { build(:appointment_request_form, :cancelation, user: user, id: id, date: date).params }
+
 
       it 'creates a new appointment request' do
         VCR.use_cassette('vaos/appointment_requests/put_request', record: :new_episodes) do
