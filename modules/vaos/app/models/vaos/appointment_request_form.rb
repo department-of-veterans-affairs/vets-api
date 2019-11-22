@@ -43,7 +43,7 @@ module VAOS
     attribute :surrogate_identifier, Hash, default: {}
     attribute :facility, Hash
     attribute :patient, Hash, default: { inpatient: false, text_messaging_allowed: false } # This setter is overriden
-    attribute :best_time_to_call, Array[String]
+    attribute :best_timeto_call, Array[String]
     attribute :appointment_request_detail_code, Array[String] # This setter is overriden
 
     def initialize(user, json_hash)
