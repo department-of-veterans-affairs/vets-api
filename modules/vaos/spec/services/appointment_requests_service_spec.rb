@@ -5,11 +5,7 @@ require 'rails_helper'
 describe VAOS::AppointmentRequestsService do
   subject { described_class.for_user(user) }
 
-  let(:user) { build(:user, :mhv) }
-  let(:start_date) { Date.parse('2019-08-20') }
-  let(:end_date) { Date.parse('2020-08-22') }
-
-  #  before { allow_any_instance_of(VAOS::UserService).to receive(:session).and_return('stubbed_token') }
+  before { allow_any_instance_of(VAOS::UserService).to receive(:session).and_return('stubbed_token') }
 
   describe '#post_request' do
     context 'with valid creation attributes from factory' do
@@ -19,7 +15,8 @@ describe VAOS::AppointmentRequestsService do
       it 'creates a new appointment request' do
         VCR.use_cassette('vaos/appointment_requests/post_request', record: :new_episodes) do
           response = subject.post_request(appointment_request_params)
-          expect(response).to have_http_status(:created)
+          expect(response[:data].unique_id).to eq('8a4886886e4c8e22016e92be77cb00f9')
+          expect(response[:data].appointment_request_detail_code).to be_empty
         end
       end
     end
@@ -47,17 +44,22 @@ describe VAOS::AppointmentRequestsService do
         ).params
       end
 
-      it 'creates a new appointment request' do
+      it 'cancels a pending appointment request' do
         VCR.use_cassette('vaos/appointment_requests/put_request', record: :new_episodes) do
-          binding.pry
           response = subject.put_request(id, appointment_request_params)
-          expect(response).to have_http_status(:success)
+          expect(response[:data].unique_id).to eq('8a4886886e4c8e22016e92be77cb00f9')
+          expect(response[:data].appointment_request_detail_code.first[:created_date])
+            .to eq('11/22/2019 08:27:58')
         end
       end
     end
   end
 
   describe '#get_requests' do
+    let(:user) { build(:user, :mhv) }
+    let(:start_date) { Date.parse('2019-08-20') }
+    let(:end_date) { Date.parse('2020-08-22') }
+
     context 'without data params' do
       it 'returns an array of size 40' do
         VCR.use_cassette('vaos/appointment_requests/get_requests', match_requests_on: %i[method uri]) do

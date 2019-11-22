@@ -8,7 +8,6 @@ module VAOS
           return if env.success?
 
           Raven.extra_context(message: env.body, url: env.url)
-          binding.pry
           case env.status
           when 400
             error_400(env.body)
