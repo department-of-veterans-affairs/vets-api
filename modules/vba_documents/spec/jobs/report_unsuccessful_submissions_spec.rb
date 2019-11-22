@@ -10,15 +10,15 @@ RSpec.describe VBADocuments::ReportUnsuccessfulSubmissions, type: :job do
       with_settings(Settings.vba_documents,
                     unsuccessful_report_enabled: true) do
         Timecop.freeze
-        from = 7.days.ago
         to = Time.zone.now
+        from = to.monday? ? 7.days.ago : 1.day.ago
         expect(VBADocuments::UnsuccessfulReportMailer).to receive(:build).once.with(
           VBADocuments::UploadSubmission.where(
             created_at: from..to,
             status: %w[error expired]
           ),
-          7.days.ago,
-          Time.zone.now
+          from,
+          to
         ).and_return(double.tap do |mailer|
                        expect(mailer).to receive(:deliver_now).once
                      end)
