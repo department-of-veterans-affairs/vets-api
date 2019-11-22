@@ -22,11 +22,33 @@ module VAOS
 
     def get_requests(start_date = nil, end_date = nil)
       with_monitoring do
-        response = perform(:get, get_appointment_requests_url, date_params(start_date, end_date), headers(user))
+        response = perform(:get, url, date_params(start_date, end_date), headers(user))
 
         {
           data: deserialize(response.body),
           meta: pagination
+        }
+      end
+    end
+
+    def post_request(request_object_body)
+      with_monitoring do
+        params = VAOS::AppointmentRequestForm.new(request_object_body).params
+        response = perform(:post, url, params, headers(user))
+        binding.pry
+        {
+          data: OpenStruct.new(response.body)
+        }
+      end
+    end
+
+    def put_request(request_object_body)
+      with_monitoring do
+        params = VAOS::AppointmentRequestForm.new(request_object_body).params
+        response = perform(:put, url(id), params, headers(user))
+        binding.pry
+        {
+          data: OpenStruct.new(response.body)
         }
       end
     end
@@ -40,8 +62,12 @@ module VAOS
       []
     end
 
-    def get_appointment_requests_url
-      "/var/VeteranAppointmentRequestService/v4/rest/appointment-service/patient/ICN/#{user.icn}/appointments"
+    def url(id = nil)
+      if id
+        url + "/system/var/id/#{id}"
+      else
+        "/var/VeteranAppointmentRequestService/v4/rest/appointment-service/patient/ICN/#{user.icn}/appointments"
+      end
     end
 
     def date_params(start_date, end_date)
