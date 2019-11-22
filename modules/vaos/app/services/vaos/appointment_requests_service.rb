@@ -33,7 +33,7 @@ module VAOS
 
     def post_request(request_object_body)
       with_monitoring do
-        params = VAOS::AppointmentRequestForm.new(request_object_body).params
+        params = VAOS::AppointmentRequestForm.new(user, request_object_body).params
         response = perform(:post, url, params, headers(user))
         binding.pry
         {
@@ -44,7 +44,7 @@ module VAOS
 
     def put_request(request_object_body)
       with_monitoring do
-        params = VAOS::AppointmentRequestForm.new(request_object_body).params
+        params = VAOS::AppointmentRequestForm.new(user, request_object_body).params
         response = perform(:put, url(id), params, headers(user))
         binding.pry
         {

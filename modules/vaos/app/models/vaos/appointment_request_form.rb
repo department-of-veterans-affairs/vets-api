@@ -53,7 +53,7 @@ module VAOS
     end
 
     def facility=(values_hash)
-      @facility = values_hash.empty? {} : values_hash.merge(object_type: 'Facility').compact
+      @facility = values_hash.empty? ? {} : values_hash.merge(object_type: 'Facility').compact
     end
 
     def patient=(values_hash)
