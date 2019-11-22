@@ -54,41 +54,10 @@ module ClaimsApi
         end
       end
 
-      key :servers, [
-        {
-          "url": 'https://dev-api.va.gov/services/claims/{version}',
-          "description": 'VA.gov API development environment',
-          "variables": {
-            "version": {
-              "default": 'v0'
-            }
-          }
-        },
-        {
-          "url": 'https://staging-api.va.gov/services/claims/{version}',
-          "description": 'VA.gov API staging environment',
-          "variables": {
-            "version": {
-              "default": 'v0'
-            }
-          }
-        },
-        {
-          "url": 'https://api.va.gov/services/claims/{version}',
-          "description": 'VA.gov API production environment',
-          "variables": {
-            "version": {
-              "default": 'v0'
-            }
-          }
-        }
-      ]
-
       security_definition :bearer_token do
-        key :type, :http
-        key :name, :bearer_token
-        key :scheme, :bearer
-        key :bearerFormat, :JWT
+        key :type, :apiKey
+        key :name, :Authorization
+        key :in, :header
       end
 
       key :schemes, ['https']
