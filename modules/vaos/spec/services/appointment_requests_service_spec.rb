@@ -29,13 +29,13 @@ describe VAOS::AppointmentRequestsService do
   describe "put_request" do
     context 'with valid cancelation attributes from factory' do
       let(:user) { build(:user, :vaos) }
-      let(:id) { 'banana' }
+      let(:id) { '8a4886886e4c8e22016e92be77cb00f9' }
       let(:appointment_request_params) { build(:appointment_request_form, :cancelation, user: user, id: id).params }
 
       it 'creates a new appointment request' do
         VCR.use_cassette('vaos/appointment_requests/put_request', record: :new_episodes) do
           binding.pry
-          response = subject.put_request(appointment_request_params)
+          response = subject.put_request(id, appointment_request_params)
           expect(response).to have_http_status(:success)
         end
       end

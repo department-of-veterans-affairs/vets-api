@@ -42,9 +42,9 @@ module VAOS
       end
     end
 
-    def put_request(request_object_body)
+    def put_request(id, request_object_body)
       with_monitoring do
-        params = VAOS::AppointmentRequestForm.new(user, request_object_body).params
+        params = VAOS::AppointmentRequestForm.new(user, request_object_body.merge(id: id)).params
         response = perform(:put, url(id), params, headers(user))
         binding.pry
         {

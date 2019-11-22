@@ -58,6 +58,8 @@ FactoryBot.define do
     end
 
     trait :cancelation do
+      creation
+
       appointment_request_detail_code { ['DETCODE8'] }
       status { 'Cancelled' }
     end
