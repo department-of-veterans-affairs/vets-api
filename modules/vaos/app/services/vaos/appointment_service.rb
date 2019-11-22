@@ -37,13 +37,8 @@ module VAOS
     def get_available_appointments(facility_id, start_date, end_date, clinic_ids)
       with_monitoring do
         url = available_appointments_url(facility_id)
-        url_params = {
-          'startDate' => start_date,
-          'endDate' => end_date,
-          'clinicIds' => clinic_ids
-        }
+        url_params = available_appointment_params(start_date, end_date, clinic_ids)
         response = perform(:get, url, url_params, headers(user))
-        binding.pry
         response.body[:cancel_reasons_list].map { |reason| OpenStruct.new(reason) }
       end
     end
@@ -72,7 +67,7 @@ module VAOS
         json_hash.dig(:data, :appointment_list).map { |appointments| OpenStruct.new(appointments) }
       else
         json_hash[:booked_appointment_collections].first[:booked_cc_appointments]
-                                                  .map { |appointments| OpenStruct.new(appointments) }
+          .map { |appointments| OpenStruct.new(appointments) }
       end
     rescue => e
       log_message_to_sentry(e.message, :warn, invalid_json: json_hash, appointments_type: type)
@@ -105,7 +100,18 @@ module VAOS
     end
 
     def appointment_date_params(start_date, end_date)
-      { startDate: date_format(start_date), endDate: date_format(end_date) }
+      {
+        startDate: start_date.strftime(APPT_DATE_FMT),
+        endDate: end_date.strftime(APPT_DATE_FMT)
+      }
+    end
+
+    def available_appointment_params(start_date, end_date, clinic_ids)
+      {
+        startDate: start_date.strftime(AVAILABLE_APPT_DATE_FMT),
+        endDate: end_date.strftime(AVAILABLE_APPT_DATE_FMT),
+        clinicIds: clinic_ids
+      }
     end
 
     def page_params(pagination_params)
@@ -118,10 +124,6 @@ module VAOS
 
     def other_params(use_cache = false)
       { useCache: use_cache }
-    end
-
-    def date_format(date)
-      date.strftime('%Y-%m-%dT%TZ')
     end
   end
 end
