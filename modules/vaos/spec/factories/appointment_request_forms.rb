@@ -57,7 +57,7 @@ FactoryBot.define do
       end
     end
 
-    trait :cancelation do
+    trait :cancellation do
       creation
 
       appointment_request_detail_code { ['DETCODE8'] }

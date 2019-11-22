@@ -23,7 +23,7 @@ describe VAOS::AppointmentRequestsService do
   end
 
   describe 'put_request' do
-    context 'with valid cancelation attributes from factory' do
+    context 'with valid cancellation attributes from factory' do
       let(:user) { build(:user, :vaos) }
       let(:id) { '8a4886886e4c8e22016e92be77cb00f9' }
       let(:date) { Time.zone.parse('2019-11-22 10:53:05 +0000') }
@@ -33,7 +33,7 @@ describe VAOS::AppointmentRequestsService do
       let(:appointment_request_params) do
         build(
           :appointment_request_form,
-          :cancelation,
+          :cancellation,
           user: user,
           id: id,
           date: date,
