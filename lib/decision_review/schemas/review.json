@@ -193,7 +193,7 @@
                         "enum": ["RequestIssue"]
                       },
                       "id": {
-                        "type": "integer"
+                        "type": "string"
                       }
                     }
                   }
@@ -214,7 +214,7 @@
                         "enum": ["DecisionIssue"]
                       },
                       "id": {
-                        "type": "integer"
+                        "type": "string"
                       }
                     }
                   }
@@ -234,7 +234,115 @@
             "required": ["id", "type", "attributes"],
             "properties": {
               "id": {
-                "type": "integer"
+                "type": "string"
+              },
+              "type": {
+                "type": {
+                  "enum": ["Veteran"]
+                }
+              },
+              "attributes": {
+                "type": "object",
+                "required": [
+                  "firstName",
+                  "middleName",
+                  "lastName",
+                  "nameSuffix",
+                  "fileNumber",
+                  "ssn",
+                  "participantId"
+                ],
+                "properties": {
+                  "firstName": {
+                    "type": ["string", "null"]
+                  },
+                  "middleName": {
+                    "type": ["string", "null"]
+                  },
+                  "lastName": {
+                    "type": ["string", "null"]
+                  },
+                  "nameSuffix": {
+                    "type": ["string", "null"]
+                  },
+                  "fileNumber": {
+                    "type": "string"
+                  },
+                  "ssn": {
+                    "type": ["string", "null"]
+                  },
+                  "participantId": {
+                    "type": ["string", "null"]
+                  }
+                }
+              }
+            }
+          },
+          {
+            "type": "object",
+            "required": ["id", "type", "attributes"],
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "type": {
+                "type": {
+                  "enum": ["Claimant"]
+                }
+              },
+              "attributes": {
+                "type": "object",
+                "required": [
+                  "firstName",
+                  "middleName",
+                  "lastName",
+                  "payeeCode",
+                  "relationshipType"
+                ],
+                "properties": {
+                  "firstName": {
+                    "type": ["string", "null"]
+                  },
+                  "middleName": {
+                    "type": ["string", "null"]
+                  },
+                  "lastName": {
+                    "type": ["string", "null"]
+                  },
+                  "payeeCode": {
+                    "type": {
+                      "enum": [
+                        "00", "01", "02", "03", "04",
+                        "05", "06", "07", "08", "09",
+                        "10", "11", "12", "13", "14",
+                        "15", "16", "17", "18", "19",
+                        "20", "21", "22", "23", "24",
+                        "25", "26", "27", "28", "29",
+                        "30", "31", "32", "33", "34",
+                        "35", "36", "37", "38", "39",
+                        "41", "42", "43", "44", "45",
+                        "46", "47", "48", "49", "50",
+                        "60", "70", "71", "72", "73",
+                        "74", "75", "76", "77", "78",
+                        "80", "81", "82", "83", "84",
+                        "85", "86", "87", "88", "89",
+                        "99", null
+                      ]
+                    }
+                  },
+                  "relationshipType": {
+                    "type": ["string", "null"]
+                  }
+                }
+              }
+            }
+          },
+          {
+            "type": "object",
+            "required": ["id", "type", "attributes"],
+            "properties": {
+              "id": {
+                "type": "string"
               },
               "type": {
                 "type": {
@@ -275,7 +383,7 @@
             "required": ["id", "type", "attributes"],
             "properties": {
               "id": {
-                "type": "integer"
+                "type": "string"
               },
               "type": {
                 "type": {
