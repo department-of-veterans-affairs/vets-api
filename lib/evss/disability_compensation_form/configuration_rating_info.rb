@@ -7,11 +7,9 @@ module EVSS
     class ConfigurationRatingInfo < EVSS::DisabilityCompensationForm::Configuration
       API_VERSION = Settings.evss.versions.common
 
-      # :nocov:
       def base_path
         "#{Settings.evss.url}/wss-common-services-web-#{API_VERSION}/rest/ratingInfoService/#{API_VERSION}"
       end
-      # :nocov:
 
       ##
       # @return [Boolean] Should the service use mock data in lower environments.
