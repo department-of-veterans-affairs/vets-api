@@ -21,7 +21,7 @@ describe Facilities::DrivetimeBands::Response do
       end
 
       it 'has the proper features' do
-        expect(get_features).not_to be(nil)
+        expect(get_features).to eq(JSON.parse(response_body)['features'])
       end
     end
   end
