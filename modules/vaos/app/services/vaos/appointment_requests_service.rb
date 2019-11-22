@@ -35,7 +35,7 @@ module VAOS
       with_monitoring do
         params = VAOS::AppointmentRequestForm.new(user, request_object_body).params
         response = perform(:post, url, params, headers(user))
-        binding.pry
+
         {
           data: OpenStruct.new(response.body)
         }
@@ -46,7 +46,7 @@ module VAOS
       with_monitoring do
         params = VAOS::AppointmentRequestForm.new(user, request_object_body.merge(id: id)).params
         response = perform(:put, url(id), params, headers(user))
-        binding.pry
+
         {
           data: OpenStruct.new(response.body)
         }

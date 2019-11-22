@@ -37,7 +37,7 @@ FactoryBot.define do
       has_provider_new_message { true }
       provider_seen_appointment_request { false }
       best_timeto_call { ['Morning'] }
-      appointment_request_detail_code { }
+      appointment_request_detail_code {}
 
       facility do
         {
