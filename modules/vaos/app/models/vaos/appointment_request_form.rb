@@ -96,15 +96,15 @@ module VAOS
     # The incoming appointment request detail code could be nil, could include an array of codes only, or it could
     # be the array of hashes below.
     def appointment_request_detail_code=(values)
-      @appointment_request_detail_code = if values&.first&.fetch(:detail_code, nil)
-                                           values
+      @appointment_request_detail_code = if values.first.is_a?(String)
+                                            Array.wrap(values).map do |code|
+                                              {
+                                                user_id: @user.icn,
+                                                detail_code: { code: code }
+                                              }
+                                            end
                                          else
-                                           Array.wrap(values).map do |code|
-                                             {
-                                               user_id: @user.icn,
-                                               detail_code: { code: code }
-                                             }
-                                           end
+                                           values
                                          end
     end
 
