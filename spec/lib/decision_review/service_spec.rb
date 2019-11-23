@@ -17,14 +17,20 @@ describe DecisionReview::Service do
                 'informalConference' => true,
                 'sameOffice' => false,
                 'legacyOptInApproved' => true,
-                'benefitType' => 'compensation'
-              },
-              'relationships' => {
+                'benefitType' => 'compensation',
                 'veteran' => {
-                  'data' => {
-                    'type' => 'Veteran',
-                    'id' => '888451301'
-                  }
+                  'fileNumberOrSsn' => '123456789',
+                  'addressLine1' => '123 Street St',
+                  'addressLine2' => 'Apt 4',
+                  'city' => 'Chicago',
+                  'stateProvinceCode' => 'IL',
+                  'zipPostalCode' => '60652',
+                  'phoneNumber' => '4432924565',
+                  'emailAddress' => 'someone@example.com'
+                },
+                'claimant' => {
+                  'participantId' => '44444444',
+                  'payeeCode' => '10'
                 }
               }
             },
@@ -161,12 +167,30 @@ describe DecisionReview::Service do
   end
 
   describe '#get_higher_level_reviews' do
-    context 'with a valid decision review response' do
+    context 'with a valid higher review response' do
       it 'returns an review response object' do
         VCR.use_cassette('decision_review/200_review') do
-          response = subject.get_higher_level_reviews('418f8cbf-2510-4dd3-9af1-0b581689b18e')
+          response = subject.get_higher_level_reviews('4bc96bee-c6a3-470e-b222-66a47629dc20')
           expect(response).to be_ok
           expect(response).to be_an DecisionReview::Responses::Response
+        end
+      end
+    end
+
+    context 'with a higher review response id that does not exist' do
+      it 'returns a 404 error' do
+        VCR.use_cassette('decision_review/404_review') do
+          expect(StatsD).to receive(:increment).once.with(
+            'api.decision_review.get_higher_level_reviews.fail', tags: [
+              'error:Common::Client::Errors::ClientError', 'status:404'
+            ]
+          )
+          expect(StatsD).to receive(:increment).once.with(
+            'api.decision_review.get_higher_level_reviews.total'
+          )
+          expect { subject.get_higher_level_reviews('1234') }.to raise_error(
+            DecisionReview::ServiceException
+          )
         end
       end
     end
