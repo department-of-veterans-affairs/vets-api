@@ -4,13 +4,23 @@ require_dependency 'vaos/application_controller'
 
 module VAOS
   class AppointmentsController < ApplicationController
-    before_action :validate_params
+    before_action :validate_params, only: :index
 
     def index
       render json: each_serializer.new(appointments[:data], meta: appointments[:meta])
     end
 
+    # not sure whether to use standard update action here, seeing as appointments don't have legitimate id.
+    def cancel
+      appointment_service.put_cancel_appointment(cancel_params)
+      head :no_content
+    end
+
     private
+
+    def cancel_params
+      params.permit(:appointment_time, :clinic_id, :cancel_reason, :cancel_code, :remarks, :clinic_name)
+    end
 
     def appointment_service
       VAOS::AppointmentService.for_user(current_user)
@@ -37,13 +47,13 @@ module VAOS
     end
 
     def start_date
-      Date.parse(params[:start_date])
+      DateTime.parse(params[:start_date]).in_time_zone
     rescue ArgumentError
       raise Common::Exceptions::InvalidFieldValue.new('start_date', params[:start_date])
     end
 
     def end_date
-      Date.parse(params[:end_date])
+      DateTime.parse(params[:end_date]).in_time_zone
     rescue ArgumentError
       raise Common::Exceptions::InvalidFieldValue.new('end_date', params[:end_date])
     end

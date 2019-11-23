@@ -437,7 +437,7 @@ paths:
         Results of this operation are paginated. Responses include pagination information
         in the standard JSON API "links" and "meta" elements.
         The "attributes" element has information about the drivetime band that the requested location 
-        fell within for each the facility included in the response. The values of min_time and 
+        fell within for each facility included in the response. The values of min_time and 
         max_time are in minutes. For example, a facility returned with a matched min_time 
         of 10 and max_time of 20 is a 10 to 20 minute drive from the requested location.
         This endpoint does not return facility information. To retrieve details for facilities found by `/nearby`, 
@@ -859,10 +859,10 @@ components:
             - max_time
           properties:
             min_time:
-              type: string
+              type: integer
               example: 10
             max_time:
-              type: string
+              type: integer
               example: 20
         relationships:
           type: object
