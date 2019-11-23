@@ -228,7 +228,7 @@
     "included": {
       "type": "array",
       "items": {
-        "anyOf": [
+        "oneOf": [
           {
             "type": "object",
             "required": ["id", "type", "attributes"],
@@ -244,34 +244,34 @@
               "attributes": {
                 "type": "object",
                 "required": [
-                  "firstName",
-                  "middleName",
-                  "lastName",
-                  "nameSuffix",
-                  "fileNumber",
+                  "first_name",
+                  "middle_name",
+                  "last_name",
+                  "name_suffix",
+                  "file_number",
                   "ssn",
-                  "participantId"
+                  "participant_id"
                 ],
                 "properties": {
-                  "firstName": {
+                  "first_name": {
                     "type": ["string", "null"]
                   },
-                  "middleName": {
+                  "middle_name": {
                     "type": ["string", "null"]
                   },
-                  "lastName": {
+                  "last_name": {
                     "type": ["string", "null"]
                   },
-                  "nameSuffix": {
+                  "name_suffix": {
                     "type": ["string", "null"]
                   },
-                  "fileNumber": {
+                  "file_number": {
                     "type": "string"
                   },
                   "ssn": {
                     "type": ["string", "null"]
                   },
-                  "participantId": {
+                  "participant_id": {
                     "type": ["string", "null"]
                   }
                 }
@@ -293,23 +293,23 @@
               "attributes": {
                 "type": "object",
                 "required": [
-                  "firstName",
-                  "middleName",
-                  "lastName",
-                  "payeeCode",
-                  "relationshipType"
+                  "first_name",
+                  "middle_name",
+                  "last_name",
+                  "payee_code",
+                  "relationship_type"
                 ],
                 "properties": {
-                  "firstName": {
+                  "first_name": {
                     "type": ["string", "null"]
                   },
-                  "middleName": {
+                  "middle_name": {
                     "type": ["string", "null"]
                   },
-                  "lastName": {
+                  "last_name": {
                     "type": ["string", "null"]
                   },
-                  "payeeCode": {
+                  "payee_code": {
                     "type": {
                       "enum": [
                         "00", "01", "02", "03", "04",
@@ -330,7 +330,7 @@
                       ]
                     }
                   },
-                  "relationshipType": {
+                  "relationship_type": {
                     "type": ["string", "null"]
                   }
                 }
@@ -408,15 +408,13 @@
                   "ramp_claim_id",
                   "legacy_appeal_id",
                   "legacy_appeal_issue_id",
-                  "ineligible_reason",
-                  "ineligible_due_to_id",
                   "decision_review_title",
-                  "title_of_active_review",
                   "decision_issue_id",
                   "withdrawal_date",
                   "contested_issue_description",
                   "end_product_cleared",
-                  "end_product_code"
+                  "end_product_code",
+                  "ineligible"
                 ],
                 "properties": {
                   "active": {
@@ -464,16 +462,7 @@
                   "legacy_appeal_issue_id": {
                     "type": ["integer", "null"]
                   },
-                  "ineligible_reason": {
-                    "type": ["string", "null"]
-                  },
-                  "ineligible_due_to_id": {
-                    "type": ["integer", "null"]
-                  },
                   "decision_review_title": {
-                    "type": ["string", "null"]
-                  },
-                  "title_of_active_review": {
                     "type": ["string", "null"]
                   },
                   "decision_issue_id": {
@@ -490,6 +479,25 @@
                   },
                   "end_product_code": {
                     "type": "string"
+                  },
+                  "ineligible": {
+                    "type": ["object", "null"],
+                    "required": [
+                      "due_to_id",
+                      "reason",
+                      "title_of_active_review"
+                    ],
+                    "properties": {
+                      "due_to_id": {
+                        "type": "integer"
+                      },
+                      "reason": {
+                        "type": "string"
+                      },
+                      "title_of_active_review": {
+                        "type": "string"
+                      }
+                    }
                   }
                 }
               }
