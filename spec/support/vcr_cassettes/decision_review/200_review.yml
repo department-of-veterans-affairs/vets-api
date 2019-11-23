@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri: https://dev-api.va.gov/services/appeals/v3/decision_review/higher_level_reviews/418f8cbf-2510-4dd3-9af1-0b581689b18e
+    uri: https://dev-api.va.gov/services/appeals/v3/decision_review/higher_level_reviews/4bc96bee-c6a3-470e-b222-66a47629dc20
     body:
       encoding: US-ASCII
       string: ''
@@ -14,7 +14,7 @@ http_interactions:
       User-Agent:
       - Vets.gov Agent
       Apikey:
-      - bGf6MbOUCFAMTA1Sw6k6s3woh31ggDy0
+      - abcd1234abcd1234abcd1234abcd1234abcd1234
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
   response:
@@ -23,7 +23,7 @@ http_interactions:
       message: OK
     headers:
       Date:
-      - Mon, 11 Nov 2019 22:59:50 GMT
+      - Fri, 22 Nov 2019 22:57:55 GMT
       Content-Type:
       - application/json; charset=utf-8
       Connection:
@@ -31,7 +31,7 @@ http_interactions:
       Access-Control-Allow-Origin:
       - "*"
       Etag:
-      - W/"065d12e56a30935e37c01dbc4b87de2a"
+      - W/"d007e863ef32711c2efe07a644667be4"
       Strict-Transport-Security:
       - max-age=31536000; includeSubDomains
       - max-age=31536000; includeSubDomains; preload
@@ -44,15 +44,15 @@ http_interactions:
       X-Kong-Proxy-Latency:
       - '1'
       X-Kong-Upstream-Latency:
-      - '3737'
+      - '2490'
       X-Ratelimit-Limit-Minute:
       - '60'
       X-Ratelimit-Remaining-Minute:
       - '59'
       X-Request-Id:
-      - 7a7c392c-ed22-4a06-9b7b-adf6a24913a0
+      - a4929381-02cd-4700-9c70-e1be2725f4ba
       X-Runtime:
-      - '3.049491'
+      - '2.169886'
       X-Xss-Protection:
       - 1; mode=block
       Cache-Control:
@@ -60,19 +60,13 @@ http_interactions:
       Pragma:
       - no-cache
       Set-Cookie:
-      - TS016f4012=01c8917e4869bacf9685111902a84288808184f1c029a572034722d77fab844bc62d8e98e16a96644db05b716ad4c200a517f4e8bd;
+      - TS016f4012=01c8917e487bbf38c00f14ca80f4784d99a3d50aa7a8d286fc2ec7369620d39329b185854384eb94e09090c3f636c0aa0d4179b75e;
         Max-Age=900; Path=/
       Transfer-Encoding:
       - chunked
     body:
       encoding: ASCII-8BIT
-      string: '{"data":{"id":"418f8cbf-2510-4dd3-9af1-0b581689b18e","type":"HigherLevelReview","attributes":{"status":"hlr_closed","aoj":"vba","description":"1
-        compensation issue","benefitType":"compensation","receiptDate":"2019-05-25","informalConference":true,"sameOffice":false,"legacyOptInApproved":true,"alerts":[],"events":[{"type":"hlr_request","date":"2019-05-25"}],"programArea":"compensation"},"relationships":{"veteran":{"data":{"id":"2140","type":"Veteran"}},"claimant":{"data":{"id":"3178","type":"Claimant"}},"decisionIssues":{"data":[]},"requestIssues":{"data":[{"id":3515,"type":"RequestIssue"}]}}},"included":[{"id":"3178","type":"Claimant","attributes":{"firstName":"WILLARD","middleName":null,"lastName":"LEIKER","payeeCode":null,"relationshipType":"Veteran"}},{"id":"3515","type":"RequestIssue","attributes":{"diagnosticCode":null,"description":"Some
-        text here.","contentionText":"Some text here.","notes":"not sure if this is
-        on file","isUnidentified":false,"rampClaimId":null,"withdrawalDate":null,"contestedIssueDescription":"Some
-        text here.","endProductCode":"030HLRR","active":false,"ineligible":{"dueToId":3514,"reason":"duplicate_of_rating_issue_in_active_review","titleOfActiveReview":"Higher-Level
-        Review"},"statusDescription":"Compensation issue","ratingIssueId":null,"ratingIssueProfileDate":null,"ratingDecisionId":null,"approxDecisionDate":"2019-07-25","category":null,"legacyAppealId":null,"legacyAppealIssueId":null,"decisionReviewTitle":"Higher-Level
-        Review","decisionIssueId":205,"endProductCleared":null}},{"id":"2140","type":"Veteran","attributes":{"firstName":"WILLARD","middleName":null,"lastName":"LEIKER","nameSuffix":null,"fileNumber":"700062010","ssn":"700062010","participantId":"600285627"}}]}'
+      string: '{"data":{"id":"4bc96bee-c6a3-470e-b222-66a47629dc20","type":"HigherLevelReview","attributes":{"status":"hlr_closed","aoj":"vba","description":"1 compensation issue","benefitType":"compensation","receiptDate":"2019-05-25","informalConference":true,"sameOffice":false,"legacyOptInApproved":true,"alerts":[],"events":[{"type":"hlr_request","date":"2019-05-25"}],"programArea":"compensation"},"relationships":{"veteran":{"data":{"id":"2140","type":"Veteran"}},"claimant":{"data":{"id":"3228","type":"Claimant"}},"decisionIssues":{"data":[]},"requestIssues":{"data":[{"id":"3553","type":"RequestIssue"}]}}},"included":[{"id":"3228","type":"Claimant","attributes":{"firstName":"WILLARD","middleName":null,"lastName":"LEIKER","payeeCode":null,"relationshipType":"Veteran"}},{"id":"3553","type":"RequestIssue","attributes":{"diagnosticCode":null,"description":"Some text here.","contentionText":"Some text here.","notes":"not sure if this is on file","isUnidentified":false,"rampClaimId":null,"withdrawalDate":null,"contestedIssueDescription":"Some text here.","endProductCode":"030HLRR","active":false,"ineligible":{"dueToId":3514,"reason":"duplicate_of_rating_issue_in_active_review","titleOfActiveReview":"Higher-Level Review"},"statusDescription":"Compensation issue","ratingIssueId":null,"ratingIssueProfileDate":null,"ratingDecisionId":null,"approxDecisionDate":"2019-07-25","category":null,"legacyAppealId":null,"legacyAppealIssueId":null,"decisionReviewTitle":"Higher-LevelReview","decisionIssueId":205,"endProductCleared":null}},{"id":"2140","type":"Veteran","attributes":{"firstName":"WILLARD","middleName":null,"lastName":"LEIKER","nameSuffix":null,"fileNumber":"700062010","ssn":"700062010","participantId":"600285627"}}]}'
     http_version:
-  recorded_at: Mon, 11 Nov 2019 22:59:49 GMT
+  recorded_at: Fri, 22 Nov 2019 22:57:54 GMT
 recorded_with: VCR 3.0.3
