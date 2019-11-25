@@ -7,6 +7,7 @@ describe VAOS::JWT do
 
   let(:user) { build(:user, :vaos) }
   let(:rsa_private) { OpenSSL::PKey::RSA.generate(4096) }
+  # JWT REGEX has 3 base64 url encoded parts (header, payload signature) and more importantly is non empty.
   let(:jwt_regex) { %r{^[A-Za-z0-9\-_=]+\.[A-Za-z0-9\-_=]+\.?[A-Za-z0-9\-_.+/=]*$} }
 
   describe '#token' do
