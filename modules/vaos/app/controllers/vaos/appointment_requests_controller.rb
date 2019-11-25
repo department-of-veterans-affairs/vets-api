@@ -6,7 +6,7 @@ module VAOS
   class AppointmentRequestsController < ApplicationController
     before_action :validate_params, only: :index
 
-    MASSASSIGN_PARAMS_PUT = %i[
+    MASS_ASSIGN_PARAMS_PUT = %i[
       email phone_number option_date1 option_time1 option_date2 option_time2 option_date3 option_time3
       status appointment_type visit_type text_messaging_allowed phone_number purpose_of_visit
       other_purpose_of_visit purpose_of_visit provider_id second_request second_request_submitted
@@ -15,7 +15,7 @@ module VAOS
       last_updated_date facility patient best_timeto_call appointment_request_detail_code
     ].freeze
 
-    MASSASSIGN_PARAMS_POST = MASSASSIGN_PARAMS_PUT - %i[created_date last_access_date last_updated_date]
+    MASS_ASSIGN_PARAMS_POST = MASS_ASSIGN_PARAMS_PUT - %i[created_date last_access_date last_updated_date]
 
     def index
       response = appointment_requests_service.get_requests(start_date, end_date)
@@ -23,12 +23,12 @@ module VAOS
     end
 
     def create
-      response = appointment_requests_service.post_request params.permit(*MASSASSIGN_PARAMS_POST)
+      response = appointment_requests_service.post_request(params.permit(*MASS_ASSIGN_PARAMS_POST))
       render json: AppointmentRequestsSerializer.new(response[:data]), status: :created
     end
 
     def update
-      response = appointment_requests_service.put_request(id, params.permit(*MASSASSIGN_PARAMS_PUT))
+      response = appointment_requests_service.put_request(id, params.permit(*MASS_ASSIGN_PARAMS_PUT))
       render json: AppointmentRequestsSerializer.new(response[:data])
     end
 
