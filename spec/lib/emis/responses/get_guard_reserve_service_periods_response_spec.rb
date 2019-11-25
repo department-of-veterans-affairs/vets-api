@@ -25,43 +25,43 @@ describe EMIS::Responses::GetGuardReserveServicePeriodsResponse do
       end
 
       it 'has the proper segment identifier' do
-        expect(response.items.first.segment_identifier).to eq('3')
+        expect(response.items.first.segment_identifier).to be_a(String).and eq('3')
       end
 
       it 'has the proper begin date' do
-        expect(response.items.first.begin_date).to eq(Date.parse('2007-05-22'))
+        expect(response.items.first.begin_date).to be_a(Date).and eq(Date.parse('2007-05-22'))
       end
 
       it 'has the proper end date' do
-        expect(response.items.first.end_date).to eq(Date.parse('2008-06-05'))
+        expect(response.items.first.end_date).to be_a(Date).and eq(Date.parse('2008-06-05'))
       end
 
       it 'has the proper termination reason' do
-        expect(response.items.first.termination_reason).to eq('C')
+        expect(response.items.first.termination_reason).to be_a(String).and eq('C')
       end
 
       it 'has the proper zone character of service code' do
-        expect(response.items.first.character_of_service_code).to eq('H')
+        expect(response.items.first.character_of_service_code).to be_a(String).and eq('H')
       end
 
       it 'has the correct narrative reason for separation code' do
-        expect(response.items.first.narrative_reason_for_separation_code).to eq('999')
+        expect(response.items.first.narrative_reason_for_separation_code).to be_a(String).and eq('999')
       end
 
       it 'has the right statute code' do
-        expect(response.items.first.statute_code).to eq('C')
+        expect(response.items.first.statute_code).to be_a(String).and eq('C')
       end
 
       it 'has the right project code' do
-        expect(response.items.first.project_code).to eq('9GF')
+        expect(response.items.first.project_code).to be_a(String).and eq('9GF')
       end
 
       it 'has the right post 911 GIBill loss category code' do
-        expect(response.items.first.post_911_gibill_loss_category_code).to eq('06')
+        expect(response.items.first.post_911_gibill_loss_category_code).to be_a(String).and eq('06')
       end
 
       it 'has the right training indicator code' do
-        expect(response.items.first.training_indicator_code).to eq('N')
+        expect(response.items.first.training_indicator_code).to be_a(String).and eq('N')
       end
     end
   end
