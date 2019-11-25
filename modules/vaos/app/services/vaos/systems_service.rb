@@ -18,10 +18,11 @@ module VAOS
       end
     end
 
-    def get_facilities(user, facility_code)
+    def get_facilities(user, facility_codes)
       with_monitoring do
         url = '/var/VeteranAppointmentRequestService/v4/rest/direct-scheduling/parent-sites'
-        response = perform(:get, url, { 'facility-code' => facility_code }, headers(user))
+        options = { params_encoder: Faraday::FlatParamsEncoder }
+        response = perform(:get, url, { 'facility-code' => facility_codes }, headers(user), options)
         response.body.map { |facility| OpenStruct.new(facility) }
       end
     end
