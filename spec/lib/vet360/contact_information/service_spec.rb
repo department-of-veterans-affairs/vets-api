@@ -218,7 +218,7 @@ describe Vet360::ContactInformation::Service, skip_vet360: true do
   end
 
   describe '#post_permission' do
-    let(:permission) { build(:permission, vet360_id: 9419, id: nil, source_system_user: user.icn) }
+    let(:permission) { build(:permission, vet360_id: user.vet360_id, id: nil, source_system_user: user.icn) }
 
     context 'when successful' do
       it 'returns a status of 200' do
@@ -232,7 +232,7 @@ describe Vet360::ContactInformation::Service, skip_vet360: true do
     context 'when an ID is included' do
       it 'raises an exception' do
         VCR.use_cassette('vet360/contact_information/post_permission_w_id_error', VCR::MATCH_EVERYTHING) do
-          permission.id = 42
+          permission.id = 401
           expect { subject.post_permission(permission) }.to raise_error do |e|
             expect(e).to be_a(Common::Exceptions::BackendServiceException)
             expect(e.status_code).to eq(400)
