@@ -57,25 +57,6 @@ RSpec.describe 'Disability Claims ', type: :request do
       expect(aec.source).to eq('TestConsumer')
     end
 
-    it 'builds the auth headers' do
-      auth_header_stub = instance_double('EVSS::DisabilityCompensationAuthHeaders')
-      expect(EVSS::DisabilityCompensationAuthHeaders).to(receive(:new).twice { auth_header_stub })
-      expect(auth_header_stub).to receive(:add_headers).twice
-      post path, params: data, headers: headers
-    end
-
-    context 'with the same request already ran' do
-      let!(:count) do
-        post path, params: data, headers: headers
-        ClaimsApi::AutoEstablishedClaim.count
-      end
-
-      it 'rejects the duplicated request' do
-        post path, params: data, headers: headers
-        expect(count).to eq(ClaimsApi::AutoEstablishedClaim.count)
-      end
-    end
-
     context 'validation' do
       let(:json_data) { JSON.parse data }
 
@@ -145,13 +126,20 @@ RSpec.describe 'Disability Claims ', type: :request do
     end
   end
 
-  describe '#upload_supporting_documents' do
+  describe '#upload_documents' do
     let(:auto_claim) { create(:auto_established_claim) }
     let(:params) do
       { 'attachment': Rack::Test::UploadedFile.new("#{::Rails.root}/modules/claims_api/spec/fixtures/extras.pdf") }
     end
 
-    it 'increases the supporting document count' do
+    it 'upload 526 form through PUT' do
+      allow_any_instance_of(ClaimsApi::SupportingDocumentUploader).to receive(:store!)
+      put "/services/claims/v0/forms/526/#{auto_claim.id}", params: params, headers: headers
+      auto_claim.reload
+      expect(auto_claim.file_data).to be_truthy
+    end
+
+    it 'upload support docs and increases the supporting document count' do
       allow_any_instance_of(ClaimsApi::SupportingDocumentUploader).to receive(:store!)
       count = auto_claim.supporting_documents.count
       post "/services/claims/v0/forms/526/#{auto_claim.id}/attachments", params: params, headers: headers

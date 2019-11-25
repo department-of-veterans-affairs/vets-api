@@ -22,15 +22,35 @@ module VAOS
 
     def get_requests(start_date = nil, end_date = nil)
       with_monitoring do
-        response = perform(:get, get_appointment_requests_url, date_params(start_date, end_date), headers(user))
+        response = perform(:get, url, date_params(start_date, end_date), headers(user))
 
         {
           data: deserialize(response.body),
           meta: pagination
         }
       end
-    rescue Common::Client::Errors::ClientError => e
-      raise_backend_exception('VAOS_502', self.class, e)
+    end
+
+    def post_request(request_object_body)
+      with_monitoring do
+        params = VAOS::AppointmentRequestForm.new(user, request_object_body).params
+        response = perform(:post, url, params, headers(user))
+
+        {
+          data: OpenStruct.new(response.body)
+        }
+      end
+    end
+
+    def put_request(id, request_object_body)
+      with_monitoring do
+        params = VAOS::AppointmentRequestForm.new(user, request_object_body.merge(id: id)).params
+        response = perform(:put, url(id), params, headers(user))
+
+        {
+          data: OpenStruct.new(response.body)
+        }
+      end
     end
 
     private
@@ -42,8 +62,12 @@ module VAOS
       []
     end
 
-    def get_appointment_requests_url
-      "/var/VeteranAppointmentRequestService/v4/rest/appointment-service/patient/ICN/#{user.icn}/appointments"
+    def url(id = nil)
+      if id
+        url + "/system/var/id/#{id}"
+      else
+        "/var/VeteranAppointmentRequestService/v4/rest/appointment-service/patient/ICN/#{user.icn}/appointments"
+      end
     end
 
     def date_params(start_date, end_date)
@@ -51,7 +75,7 @@ module VAOS
     end
 
     def date_format(date)
-      date&.strftime('%d/%m/%Y')
+      date&.strftime('%m/%d/%Y')
     end
 
     # TODO: find out if this api supports pagination and other parameters

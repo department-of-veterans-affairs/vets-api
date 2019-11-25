@@ -24,36 +24,6 @@ module VbaDocuments
           end
         end
 
-        key :servers, [
-          {
-            "url": 'https://dev-api.va.gov/services/vba_documents/{version}',
-            "description": 'VA.gov API development environment',
-            "variables": {
-              "version": {
-                "default": 'v1'
-              }
-            }
-          },
-          {
-            "url": 'https://staging-api.va.gov/services/vba_documents/{version}',
-            "description": 'VA.gov API staging environment',
-            "variables": {
-              "version": {
-                "default": 'v1'
-              }
-            }
-          },
-          {
-            "url": 'https://api.va.gov/services/vba_documents/{version}',
-            "description": 'VA.gov API production environment',
-            "variables": {
-              "version": {
-                "default": 'v1'
-              }
-            }
-          }
-        ]
-
         security_definition :apikey do
           key :type, :apiKey
           key :name, :apikey
