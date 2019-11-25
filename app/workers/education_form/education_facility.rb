@@ -76,16 +76,12 @@ module EducationForm
       return :eastern if model.form_type == '0994'
 
       # special case 1995s
-      return :eastern if check_stem_routing(model)
+      return :eastern if model.form_type == '1995s'
 
       # special case Philippines
       return :western if address&.country == 'PHL'
 
       check_area(address)
-    end
-
-    def self.check_stem_routing(model)
-      model.form_type == '1995s'
     end
 
     def self.check_area(address)
