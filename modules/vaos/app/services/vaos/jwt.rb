@@ -28,7 +28,7 @@ module VAOS
         firstName: first_name,
         lastName: last_name,
         authenticationAuthority: AUTHORITY,
-        jti: SecureRandom.uuid, # TODO: need to capture this in logs as part of a middleware for each action invoked
+        jti: SecureRandom.uuid,
         nbf: 1.minute.ago.to_i,
         exp: 15.minutes.from_now.to_i,
         sst: 1.minute.ago.to_i + 50,

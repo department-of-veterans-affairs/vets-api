@@ -7,7 +7,7 @@ module VAOS
   class AppointmentRequestForm < Common::Form
     attribute :email, String
     attribute :phone_number, String
-    attribute :option_date1, String # TODO: ideally these would be better abstracted as an array for a FE consumer
+    attribute :option_date1, String
     attribute :option_time1, String
     attribute :option_date2, String
     attribute :option_time2, String
@@ -55,7 +55,7 @@ module VAOS
       @appointment_request_id = @id # ensure these are the same (and the FE doesn't have to pass in redundant data)
       @unique_id = @id # ensure these are the same (and the FE doesn't have to pass in redundant data)
       @date = Time.current.strftime('%Y-%m-%dT%H:%M:%S.%L%z') if @id.blank? # only set for create in proper format
-      @patient_id = edipi # TODO: discover if the patient_id ever comes from elsewhere or if it is always EDIPI
+      @patient_id = edipi
       super(json_hash)
     end
 
@@ -109,7 +109,6 @@ module VAOS
     end
 
     def params
-      # TODO: FE to do discovery on possible validations we might add.
       raise Common::Exceptions::ValidationErrors, self unless valid?
 
       params = attributes.compact
