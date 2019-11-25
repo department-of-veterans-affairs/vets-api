@@ -6,7 +6,7 @@ module VaForms
       include Swagger::Blocks
 
       swagger_schema :FormsIndex do
-        key :description, 'A listing of available forms and their location frovided by the VA'
+        key :description, 'A listing of available VA forms and their location.'
         property :id do
           key :description, 'JSON API identifier'
           key :type, :string
@@ -65,7 +65,7 @@ module VaForms
       end
 
       swagger_schema :FormShow do
-        key :description, 'A listing of available forms and their location frovided by the VA'
+        key :description, 'Data for a particular VA form, including form version history.'
         property :id do
           key :description, 'JSON API identifier'
           key :type, :string
