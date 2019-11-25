@@ -37,7 +37,7 @@ describe EMIS::Responses::GetDeploymentResponse do
       end
 
       it 'has the proper project code' do
-        expect(response.items.first.project_code).to be_a(String).and eq('9GF') 
+        expect(response.items.first.project_code).to be_a(String).and eq('9GF')
       end
 
       it 'has the proper termination reason' do
