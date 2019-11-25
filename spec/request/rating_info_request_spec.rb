@@ -21,26 +21,6 @@ RSpec.describe 'rating info', type: :request do
       end
     end
 
-    context 'with a 400 response' do
-      it 'returns a bad gateway response' do
-        VCR.use_cassette('evss/disability_compensation_form/find_rating_info_pid_400') do
-          get '/v0/disability_compensation_form/find_rating_info_pid'
-          expect(response).to have_http_status(:bad_request)
-          expect(response).to match_response_schema('evss_errors', strict: false)
-        end
-      end
-    end
-
-    context 'with a generic 500 response' do
-      it 'returns a bad request response' do
-        VCR.use_cassette('evss/disability_compensation_form/find_rating_info_pid_500') do
-          get '/v0/disability_compensation_form/find_rating_info_pid'
-          expect(response).to have_http_status(:bad_gateway)
-          expect(response).to match_response_schema('evss_errors', strict: false)
-        end
-      end
-    end
-
     context 'with a 403 unauthorized response' do
       let(:user) { build(:unauthorized_evss_user, :loa3) }
 

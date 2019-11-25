@@ -50,7 +50,7 @@ module V0
     end
 
     def find_rating_info_pid
-      rating_info_service = EVSS::DisabilityCompensationForm::ServiceRatingInfo.new(auth_headers)
+      rating_info_service = EVSS::CommonService.new(auth_headers)
       response = rating_info_service.get_rating_info
       render json: response,
              serializer: RatingInfoSerializer

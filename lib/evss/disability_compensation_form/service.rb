@@ -40,20 +40,6 @@ module EVSS
         end
       end
 
-      # GETs a user's total combined disability rating
-      #
-      # @return [EVSS::DisabilityCompensationForm::RatingInfoResponse] Response with a total combined disability rating
-      #
-      def get_rating_info
-        with_monitoring_and_error_handling do
-          msg_body = { 'participantId' => @headers['va_eauth_pid'] }
-          headers = { 'Content-Type' => 'application/json' }
-          options = { timeout: 60 }
-          raw_response = perform(:post, 'findRatingInfoPID', msg_body.to_json, headers, options)
-          RatingInfoResponse.new(raw_response.status, raw_response)
-        end
-      end
-
       # POSTs a 526 form to the EVSS submit endpoint. EVSS is bound to VBMSs response times and, therefore,
       # the timeout has to be extended to ~6 minutes to match their upstream timeout.
       #
