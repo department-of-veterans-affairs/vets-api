@@ -22,7 +22,11 @@ module ClaimsApi
     end
 
     def header_request?
-      headers_to_check = %w[HTTP_X_VA_SSN HTTP_X_VA_Consumer-Username HTTP_X_VA_BIRTH_DATE HTTP_X_VA_FIRST_NAME HTTP_X_VA_LAST_NAME]
+      headers_to_check = %w[HTTP_X_VA_SSN
+                            HTTP_X_VA_Consumer-Username
+                            HTTP_X_VA_BIRTH_DATE
+                            HTTP_X_VA_FIRST_NAME
+                            HTTP_X_VA_LAST_NAME]
       (request.headers.to_h.keys & headers_to_check).length.positive?
     end
 
