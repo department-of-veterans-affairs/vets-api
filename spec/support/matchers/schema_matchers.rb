@@ -10,8 +10,8 @@ module SchemaMatchers
     JSON::Validator.validate!(schema_path.to_s, json, { strict: true }.merge(opts))
   end
 
-  matcher :match_schema do |schema_name|
-    match { |json| valid_against_schema?(json, schema_name) }
+  matcher :match_schema do |schema_name, opts = {}|
+    match { |json| valid_against_schema?(json, schema_name, opts) }
   end
 
   matcher :match_response_schema do |schema_name, opts = {}|
