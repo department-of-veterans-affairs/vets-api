@@ -434,7 +434,7 @@ GEM
     mini_portile2 (2.4.0)
     minitest (5.12.2)
     multi_json (1.13.1)
-    multipart-post (2.1.1)
+    multipart-post (2.0.0)
     nap (1.1.0)
     nenv (0.3.0)
     net-sftp (2.1.2)
