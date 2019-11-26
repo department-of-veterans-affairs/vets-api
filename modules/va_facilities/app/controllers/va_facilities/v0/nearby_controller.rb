@@ -30,7 +30,9 @@ module VaFacilities
         lat_lng = get_lat_lng(params)
         eligible_ids = Facilities::VHAFacility.with_services(params[:services]).pluck(:unique_id) if params[:services]
 
-        bands = if lat_lng.present?
+        bands = if temporary_service_exceptions_exist?(params[:services])
+                  DrivetimeBand.none
+                elsif lat_lng.present?
                   DrivetimeBand.find_within_max_distance(lat_lng[:lat], lat_lng[:lng],
                                                          params[:drive_time], eligible_ids)
                                .paginate(page: params[:page], per_page: params[:per_page] || PER_PAGE).load
@@ -49,6 +51,12 @@ module VaFacilities
       end
 
       protected
+
+      def temporary_service_exceptions_exist?(services)
+        return false if services.nil?
+
+        services.include?('Podiatry') || services.include?('Nutrition')
+      end
 
       def set_default_format
         request.format = :json if params[:format].nil? && request.headers['HTTP_ACCEPT'].nil?
@@ -73,7 +81,22 @@ module VaFacilities
         validate_lng
         validate_drive_time
         validate_no_services_without_type
-        validate_type_and_services_known unless params[:type].nil?
+        temp_validate_type_and_services_known unless params[:type].nil?
+      end
+
+      def temp_validate_type_and_services_known
+        raise Common::Exceptions::InvalidFieldValue.new('type', params[:type]) unless
+        BaseFacility::TYPES.include?(params[:type])
+
+        # These services are temporarily allowed while we wait to transition to a new srouce for services.
+        # The Community Care Eligibility Team needs these services available, and we are the part of the
+        # stack that will change in the future, thus this exception. This will rever to the validations in
+        # params_validators.rb in the future.
+        temporary_service_exceptions = %w[Podiatry Nutrition]
+
+        unknown = params[:services].to_a - facility_klass.service_list - temporary_service_exceptions
+
+        raise Common::Exceptions::InvalidFieldValue.new('services', unknown) unless unknown.empty?
       end
 
       def get_lat_lng(params)

@@ -57,7 +57,7 @@
             "link"
           ]
         },
-        "email": { "type": "string" },
+        "email": { "type": ["string", null] },
         "text_messaging_allowed": { "type": "boolean" },
         "phone_number": { "type": "string" },
         "purpose_of_visit": { "type": "string" },
@@ -81,12 +81,8 @@
               ]
             },
             "ssn": { "type": "string" },
-            "inpatient": {
-              "type": "boolean"
-            },
-            "text_messaging_allowed": {
-              "type": "boolean"
-            },
+            "inpatient": { "type": "boolean" },
+            "text_messaging_allowed": { "type": "boolean", "required": false },
             "id": { "type": "string" },
             "object_type": { "type": "string" },
             "link": {

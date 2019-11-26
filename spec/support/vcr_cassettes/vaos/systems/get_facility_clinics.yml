@@ -2,7 +2,7 @@
 http_interactions:
   - request:
       method: get
-      uri: https://veteran.apps.va.gov/var/VeteranAppointmentRequestService/v4/rest/clinical-services/patient/ICN/1000123456V123456/clinics?clinical-service=323&institution-code=984GA&three-digit-code=984
+      uri: https://veteran.apps.va.gov/var/VeteranAppointmentRequestService/v4/rest/clinical-services/patient/ICN/1000123456V123456/clinics?clinical-service=323&institution-code=983&three-digit-code=983
       body:
         encoding: US-ASCII
         string: ''
@@ -59,14 +59,59 @@ http_interactions:
       body:
         encoding: UTF-8
         string: |-
-          [
-            {
-              "siteCode": 984,
-              "clinicId": 2276,
-              "clinicName": "DC/PACT GREEN FOUR",
-              "clinicFriendlyLocationName": "GREEN VASSALL"
-            }
-          ]
+          [ {
+                      "siteCode" : "983",
+                      "clinicId" : "308",
+                      "clinicName" : "CHY PC KILPATRICK",
+                      "clinicFriendlyLocationName" : "Green Team Clinic1",
+                      "primaryStopCode" : "323",
+                      "secondaryStopCode" : "",
+                      "directSchedulingFlag" : "Y",
+                      "displayToPatientFlag" : "Y",
+                      "institutionName" : "CHYSHR-Cheyenne VA Medical Center",
+                      "institutionCode" : "983",
+                      "objectType" : "CdwClinic",
+                      "link" : [ ]
+                    }, {
+                      "siteCode" : "983",
+                      "clinicId" : "455",
+                      "clinicName" : "CHY PC CASSIDY",
+                      "clinicFriendlyLocationName" : "",
+                      "primaryStopCode" : "323",
+                      "secondaryStopCode" : "",
+                      "directSchedulingFlag" : "Y",
+                      "displayToPatientFlag" : "Y",
+                      "institutionName" : "CHYSHR-Cheyenne VA Medical Center",
+                      "institutionCode" : "983",
+                      "objectType" : "CdwClinic",
+                      "link" : [ ]
+                    }, {
+                      "siteCode" : "983",
+                      "clinicId" : "457",
+                      "clinicName" : "MCINTYRE PC",
+                      "clinicFriendlyLocationName" : "Green Team Clinic2",
+                      "primaryStopCode" : "323",
+                      "secondaryStopCode" : "117",
+                      "directSchedulingFlag" : "Y",
+                      "displayToPatientFlag" : "Y",
+                      "institutionName" : "CHYSHR-Cheyenne VA Medical Center",
+                      "institutionCode" : "983",
+                      "objectType" : "CdwClinic",
+                      "link" : [ ]
+                    }, {
+                      "siteCode" : "983",
+                      "clinicId" : "848",
+                      "clinicName" : "CHY PC VAR2",
+                      "clinicFriendlyLocationName" : "CHY PC VAR2",
+                      "primaryStopCode" : "323",
+                      "secondaryStopCode" : "",
+                      "directSchedulingFlag" : "Y",
+                      "displayToPatientFlag" : "Y",
+                      "institutionName" : "CHYSHR-Cheyenne VA Medical Center",
+                      "institutionCode" : "983",
+                      "objectType" : "CdwClinic",
+                      "link" : [ ]
+                    } ]
         http_version:
     recorded_at: Fri, 08 Nov 2019 00:51:58 GMT
 recorded_with: VCR 3.0.3
