@@ -45,6 +45,7 @@ module V0
       page = 1
       page = search_params['page'] if params[:page]
       raise Common::Exceptions::InvalidPaginationParams if Integer(page) > 99
+
       sanitize search_params['page']
     end
   end
