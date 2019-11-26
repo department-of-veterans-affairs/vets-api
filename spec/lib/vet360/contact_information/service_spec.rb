@@ -236,7 +236,7 @@ describe Vet360::ContactInformation::Service, skip_vet360: true do
           expect { subject.post_permission(permission) }.to raise_error do |e|
             expect(e).to be_a(Common::Exceptions::BackendServiceException)
             expect(e.status_code).to eq(400)
-            expect(e.errors.first.code).to eq('VA900')
+            expect(e.errors.first.code).to eq('VET360_PERM101')
           end
         end
       end

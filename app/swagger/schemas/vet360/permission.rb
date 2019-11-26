@@ -30,7 +30,7 @@ module Swagger
         end
 
         swagger_schema :PutVet360Permission do
-          key :required, %i[permission_type permission_value]
+          key :required, %i[id permission_type permission_value]
           property :id,
                    type: :integer,
                    example: 1

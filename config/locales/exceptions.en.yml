@@ -1605,6 +1605,12 @@ en:
         code: VET360_PHON305
         detail: Cannot update record if phoneType is not matching
         status: 400
+      VET360_PERM101:
+        <<: *external_defaults
+        title: Permission ID Not Null
+        code: VET360_PERM101
+        detail: Permission ID must be null
+        status: 400
 
   evss:
     external_service_unavailable:
