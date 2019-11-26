@@ -7,10 +7,10 @@
         "attributes": {
           "properties": {
             "service_connected_combined_degree": {
-              "type": "string"
+              "type": "integer"
             },
             "user_percent_of_disability": {
-              "type": "string"
+              "type": "integer"
             }
           },
           "type": "object"
