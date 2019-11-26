@@ -2,7 +2,7 @@
 http_interactions:
   - request:
       method: get
-      uri: https://veteran.apps.va.gov/var/VeteranAppointmentRequestService/v4/rest/direct-scheduling/site/688/patient/ICN/1015977112V032151/available-appointment-slots?startDate=11%2F22%2F2019&endDate=02%2F19%2F2020&clinicIds=2276&_=1574361074012
+      uri: https://veteran.apps.va.gov/var/VeteranAppointmentRequestService/v4/rest/direct-scheduling/site/688/patient/ICN/1000123456V123456/available-appointment-slots?clinicIds=2276&endDate=02/19/2020&startDate=11/22/2019
       body:
         encoding: US-ASCII
         string: ''

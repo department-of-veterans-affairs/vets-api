@@ -110,4 +110,32 @@ describe VAOS::SystemsService do
       end
     end
   end
+
+  describe '#get_available_appointments' do
+    let(:start_date) { DateTime.new(2019, 11, 22) }
+    let(:end_date) { DateTime.new(2020, 2, 19) }
+
+    context 'with a 200 response' do
+      let(:clinic_id) { '2276' }
+      it 'lists available times by facility with coerced dates' do
+        VCR.use_cassette('vaos/systems/get_facility_available_appointments', match_requests_on: %i[method uri]) do
+          response = subject.get_facility_available_appointments(user, '688', start_date, end_date, clinic_id)
+          clinic = response.first
+          first_available_time = clinic.appointment_time_slot.first
+          expect(clinic.clinic_id).to eq(clinic_id)
+          expect(first_available_time.start_date_time.to_s).to eq('2019-12-02T13:30:00+00:00')
+        end
+      end
+    end
+
+    context 'when the upstream server returns a 500' do
+      it 'raises a backend exception' do
+        VCR.use_cassette('vaos/systems/get_facility_appointments', match_requests_on: %i[method uri]) do
+          expect { subject.get_cancel_reasons(user, '984') }.to raise_error(
+            Common::Exceptions::BackendServiceException
+          )
+        end
+      end
+    end
+  end
 end
