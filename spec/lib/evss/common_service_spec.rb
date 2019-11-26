@@ -32,4 +32,17 @@ describe EVSS::CommonService do
       expect(response).to eq true
     end
   end
+
+  describe '#get_rating_info' do
+    context 'with a valid evss response' do
+      it 'returns a rating info response object' do
+        VCR.use_cassette('evss/disability_compensation_form/rating_info') do
+          response = subject.get_rating_info
+          expect(response).to be_ok
+          expect(response).to be_an EVSS::DisabilityCompensationForm::RatingInfoResponse
+          expect(response.user_percent_of_disability).to eq nil
+        end
+      end
+    end
+  end
 end
