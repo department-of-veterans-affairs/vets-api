@@ -8,8 +8,8 @@ module Swagger
 
         swagger_schema :RatingInfo do
           property :disability_decision_type_name, type: :string, example: 'Service Connected'
-          property :service_connected_combined_degree, type: :string, example: '90'
-          property :user_percent_of_disability, type: :string, example: '90'
+          property :service_connected_combined_degree, type: :integer, example: 90
+          property :user_percent_of_disability, type: :integer, example: 90
         end
       end
     end

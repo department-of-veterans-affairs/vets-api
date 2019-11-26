@@ -10,17 +10,17 @@ module EVSS
     # @!attribute disability_decision_type_name
     #   @return [String] The disability decision type (ex. Service Connected)
     # @!attribute service_connected_combined_degree
-    #   @return [String] Service connected combined degree rating (ex. 90)
+    #   @return [Integer] Service connected combined degree rating (ex. 90)
     # @!attribute user_percent_of_disability
-    #   @return [String] User percent of disability rating (ex. 90)
+    #   @return [Integer] User percent of disability rating (ex. 90)
     #
     class RatingInfo
       include ActiveModel::Serialization
       include Virtus.model
 
       attribute :disability_decision_type_name, String
-      attribute :service_connected_combined_degree, String
-      attribute :user_percent_of_disability, String
+      attribute :service_connected_combined_degree, Integer
+      attribute :user_percent_of_disability, Integer
     end
   end
 end
