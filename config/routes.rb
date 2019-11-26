@@ -36,11 +36,12 @@ Rails.application.routes.draw do
 
     resource :disability_compensation_form, only: [] do
       get 'rated_disabilities'
+      get 'rating_info'
+      get 'submission_status/:job_id', to: 'disability_compensation_forms#submission_status', as: 'submission_status'
       post 'submit'
       post 'submit_all_claim'
-      get 'submission_status/:job_id', to: 'disability_compensation_forms#submission_status', as: 'submission_status'
-      get 'user_submissions'
       get 'suggested_conditions'
+      get 'user_submissions'
     end
 
     resource :upload_supporting_evidence, only: :create
@@ -297,8 +298,9 @@ Rails.application.routes.draw do
     mount Veteran::Engine, at: '/veteran'
     mount VaForms::Engine, at: '/va_forms'
     mount VeteranVerification::Engine, at: '/veteran_verification'
-    mount VAOS::Engine, at: '/vaos'
   end
+
+  mount VAOS::Engine, at: '/v0/vaos'
 
   if Rails.env.development? || Settings.sidekiq_admin_panel
     require 'sidekiq/web'

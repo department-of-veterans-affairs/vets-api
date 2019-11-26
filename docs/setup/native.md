@@ -68,6 +68,12 @@ the `vets-api` directory, run `./bin/setup-osx && source ~/.bash_profile && cd
      commands will provide basic functionality, such as for running unit tests:
    - `touch ./config/certs/vetsgov-localhost.crt`
    - `touch ./config/certs/vetsgov-localhost.key`
+   
+   - *NOTE:* using `touch` to create blank cert and key files means that local authentication with IDme will not work
+   
+   [certificate]: https://github.com/department-of-veterans-affairs/vets.gov-team/blob/master/Products/Identity/Login/IDme/development-certificates/vetsgov-localhost.crt
+   [key]: https://github.com/department-of-veterans-affairs/vets.gov-team/blob/master/Products/Identity/Login/IDme/development-certificates/vetsgov-localhost.key
+
 13. Create dev database: `bundle exec rake db:setup`
 14. Go to the file `config/settings/development.yml` in your local vets-api. Switch the commented out lines pertaining to the cache_dir: uncomment out line 14 (what you use for running the app via Rails), and comment out line 15 (what you use for running the app via Docker).
 15. Make sure you have the [vets-api-mockdata](https://github.com/department-of-veterans-affairs/vets-api-mockdata) repo locally installed, preferably in a parallel directory to `vets-api`.

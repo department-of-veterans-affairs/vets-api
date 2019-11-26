@@ -5,14 +5,59 @@ require 'rails_helper'
 describe VAOS::JWT do
   subject { VAOS::JWT.new(user) }
 
-  let(:user) { build(:user, :mhv) }
+  let(:user) { build(:user, :vaos) }
+  let(:rsa_private) { OpenSSL::PKey::RSA.generate(4096) }
+  # JWT REGEX has 3 base64 url encoded parts (header, payload signature) and more importantly is non empty.
+  let(:jwt_regex) { %r{^[A-Za-z0-9\-_=]+\.[A-Za-z0-9\-_=]+\.?[A-Za-z0-9\-_.+/=]*$} }
 
   describe '#token' do
-    it 'encodes a payload' do
-      rsa_private = OpenSSL::PKey::RSA.generate 4096
-      allow(File).to receive(:read).and_return(rsa_private)
-      decoded = JWT.decode(subject.token, rsa_private.public_key, true, algorithm: 'RS512').first
-      expect(decoded['firstName']).to eq(user.first_name)
+    before { allow(File).to receive(:read).and_return(rsa_private) }
+
+    it 'returns a JWT string' do
+      expect(subject.token).to be_a(String).and match(jwt_regex)
+    end
+
+    context 'decoded payload' do
+      let(:decoded_payload) { JWT.decode(subject.token, rsa_private.public_key, true, algorithm: 'RS512').first }
+
+      it 'includes a sub from MVI' do
+        expect(decoded_payload['sub']).to eq('1012845331V153043')
+      end
+
+      it 'includes a firstName from MVI' do
+        expect(decoded_payload['firstName']).to eq('Judy')
+      end
+
+      it 'includes a lastName from MVI' do
+        expect(decoded_payload['lastName']).to eq('Morrison')
+      end
+
+      it 'includes a gender DERIVED from MVI' do
+        expect(decoded_payload['gender']).to eq('FEMALE')
+      end
+
+      it 'includes a dob from MVI' do
+        expect(decoded_payload['dob']).to eq('1953-04-01')
+      end
+
+      it 'includes a dateOfBirth from MVI' do
+        expect(decoded_payload['dateOfBirth']).to eq('1953-04-01')
+      end
+
+      it 'includes a edipid from MVI' do
+        expect(decoded_payload['edipid']).to eq('1259897978')
+      end
+
+      it 'includes a ssn from MVI' do
+        expect(decoded_payload['ssn']).to eq('796061976')
+      end
+
+      it 'includes keys' do
+        expect(decoded_payload.keys).to contain_exactly(
+          'authenticated', 'sub', 'idType', 'iss', 'firstName', 'lastName', 'authenticationAuthority', 'jti', 'nbf',
+          'exp', 'sst', 'version', 'gender', 'dob', 'dateOfBirth', 'edipid', 'ssn'
+        )
+      end
     end
   end
 end
