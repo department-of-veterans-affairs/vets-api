@@ -11,11 +11,11 @@ RSpec.describe 'rating info', type: :request do
     sign_in_as(user)
   end
 
-  describe 'GET /v0/disability_compensation_form/find_rating_info_pid' do
+  describe 'GET /v0/disability_compensation_form/rating_info' do
     context 'with a valid 200 evss response' do
       it 'matches the rating info schema' do
-        VCR.use_cassette('evss/disability_compensation_form/find_rating_info_pid') do
-          get '/v0/disability_compensation_form/find_rating_info_pid'
+        VCR.use_cassette('evss/disability_compensation_form/rating_info') do
+          get '/v0/disability_compensation_form/rating_info'
           expect(response).to have_http_status(:ok)
         end
       end
@@ -25,8 +25,8 @@ RSpec.describe 'rating info', type: :request do
       let(:user) { build(:unauthorized_evss_user, :loa3) }
 
       it 'returns a forbidden response' do
-        VCR.use_cassette('evss/disability_compensation_form/find_rating_info_pid_403') do
-          get '/v0/disability_compensation_form/find_rating_info_pid'
+        VCR.use_cassette('evss/disability_compensation_form/rating_info_403') do
+          get '/v0/disability_compensation_form/rating_info'
           expect(response).to have_http_status(:forbidden)
           expect(response).to match_response_schema('evss_errors', strict: false)
         end

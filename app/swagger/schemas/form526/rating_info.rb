@@ -3,7 +3,7 @@
 module Swagger
   module Schemas
     module Form526
-      class FindRatingInfoPid
+      class RatingInfo
         include Swagger::Blocks
 
         swagger_schema :RatingInfo do

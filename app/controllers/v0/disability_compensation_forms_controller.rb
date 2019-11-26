@@ -49,7 +49,7 @@ module V0
       render json: job_status, serializer: Form526JobStatusSerializer
     end
 
-    def find_rating_info_pid
+    def rating_info
       rating_info_service = EVSS::CommonService.new(auth_headers)
       response = rating_info_service.get_rating_info
       render json: response,
