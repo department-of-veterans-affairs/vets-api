@@ -9,7 +9,7 @@ module EMIS
     # Payment Service URL
     # @return [String] Payment Service URL
     def base_path
-      URI.join(Settings.emis.host, Settings.emis.payment_url).to_s
+      URI.join(Settings.emis.host, Settings.emis.payment_url.v1).to_s
     end
 
     # :nocov:
