@@ -17,6 +17,8 @@ describe EVSS::ClaimsService do
 
   let(:claims_service) { described_class.new(auth_headers) }
 
+  let(:transaction_id) { auth_headers.transaction_id }
+
   context 'with headers' do
     let(:evss_id) { 189_625 }
 
@@ -31,7 +33,11 @@ describe EVSS::ClaimsService do
     end
 
     it 'posts a 5103 waiver', run_at: 'Tue, 12 Dec 2017 03:21:11 GMT' do
-      VCR.use_cassette('evss/claims/set_5103_waiver', match_requests_on: %i[host path method]) do
+      VCR.use_cassette(
+        'evss/claims/set_5103_waiver', 
+        erb: { transaction_id: transaction_id}, 
+        match_requests_on: VCR::MATCH_EVERYTHING
+      ) do
         response = subject.request_decision(evss_id)
         expect(response).to be_success
       end
