@@ -59,8 +59,8 @@ RSpec.describe 'Disability Claims ', type: :request do
 
     it 'builds the auth headers' do
       auth_header_stub = instance_double('EVSS::DisabilityCompensationAuthHeaders')
-      expect(EVSS::DisabilityCompensationAuthHeaders).to(receive(:new).twice { auth_header_stub })
-      expect(auth_header_stub).to receive(:add_headers).twice
+      expect(EVSS::DisabilityCompensationAuthHeaders).to(receive(:new).once { auth_header_stub })
+      expect(auth_header_stub).to receive(:add_headers).once
       post path, params: data, headers: headers
     end
 
