@@ -2,10 +2,10 @@
 http_interactions:
     - request:
           method: put
-          uri: https://int.vet360.va.gov/person-mdm-cuf-person-hub/cuf/person/contact-information/v1/permissions
+          uri: https://internal-dsva-vagov-staging-fwdproxy-1821450725.us-gov-west-1.elb.amazonaws.com:4433/person-mdm-cuf-person-hub/cuf/person/contact-information/v1/permissions
           body:
               encoding: UTF-8
-              string: '{"bio":{"originatingSourceSystem":"VETSGOV","permissionType":"TextPermission","permissionValue":true,"sourceDate":"2019-11-05T16:49:18.000Z","sourceSystemUser":"99894064981269761","permissionId":401,"vet360Id":"1411684","effectiveStartDate":"2019-11-05T16:49:18.000Z","effectiveEndDate":null}}'
+              string: '{"bio":{"originatingSourceSystem":"VETSGOV","permissionType":"TextPermission","permissionValue":true,"sourceDate":"2019-09-23T11:52:03.000-06:00","sourceSystemUser":"1234","permissionId":401,"vet360Id":"1411684","effectiveStartDate":null,"effectiveEndDate":null}}'
           headers:
               Accept:
                   - application/json
@@ -23,11 +23,11 @@ http_interactions:
               message: ''
           headers:
               Date:
-                  - Fri, 22 Nov 2019 18:24:49 GMT
+                  - Tue, 26 Nov 2019 21:56:28 GMT
               Expires:
                   - '0'
               Vet360txauditid:
-                  - bb6126a5-8e78-4930-86ea-05d0a4b5a221
+                  - 2d0fb8bc-a102-41b2-ab48-d68c363707bc
               X-Frame-Options:
                   - DENY
               Pragma:
@@ -48,11 +48,15 @@ http_interactions:
           body:
               encoding: UTF-8
               string:
-                  '{"messages":[{"code":"CORE104","key":"_CUF_NO_CHANGES_DETECTED","severity":"INFO","text":"Your
+                  '{"messages":[{"code":"CORE110","key":"_CUF_SOURCE_DATE_VERSION_VIOLATION","severity":"WARN","text":"Source
+                  dates are outdated for Type PermissionDio with a ID of 401.  Previous source
+                  date was 2019-11-05 16:49:18.0 but received new source date of Mon Sep 23
+                  17:52:03 UTC 2019.  Source dates may not be null, and new must be greater
+                  than the previous.  Please correct your request and try again!"},{"code":"CORE104","key":"_CUF_NO_CHANGES_DETECTED","severity":"INFO","text":"Your
                   request was received and processed without error, however no differences were
                   detected between current data and the data you sent.  This message is informational
                   only, please verify your request if you believe you sent actual changes that
-                  should be applied."}],"txAuditId":"f5df243e-38ec-486e-a7de-cdd73ba244e4","status":"COMPLETED_NO_CHANGES_DETECTED"}'
+                  should be applied."}],"txAuditId":"83c7d34a-7d88-439e-b4eb-62157d0d74b3","status":"COMPLETED_NO_CHANGES_DETECTED"}'
           http_version:
-      recorded_at: Tue, 05 Nov 2019 16:49:18 GMT
+      recorded_at: Tue, 26 Nov 2019 21:56:28 GMT
 recorded_with: VCR 3.0.3
