@@ -81,7 +81,7 @@ describe 'vet360 rake tasks' do
   describe 'rake vet360:get_permission_transaction_status' do
     let :run_rake_task do
       Rake::Task['vet360:get_permission_transaction_status'].reenable
-      Rake.application.invoke_task 'vet360:get_permission_transaction_status[1,a50193df-f4d5-4b6a-b53d-36fed2db1a15]'
+      Rake.application.invoke_task 'vet360:get_permission_transaction_status[1,b1b06a34-c6a8-412e-82e7-df09d84862f3]'
     end
 
     it 'runs without errors' do
