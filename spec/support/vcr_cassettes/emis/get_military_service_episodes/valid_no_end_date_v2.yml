@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: post
-    uri: https://localhost:4438/VIERSService/eMIS/v2/MilitaryInformationService
+    uri: https://vaausvrsapp81.aac.va.gov/VIERSService/eMIS/v2/MilitaryInformationService
     body:
       encoding: ASCII-8BIT
       string: |2
@@ -12,7 +12,7 @@ http_interactions:
             <v1:inputHeaderInfo>
               <v1:userId>vets.gov</v1:userId>
               <v1:sourceSystemName>vets.gov</v1:sourceSystemName>
-              <v1:transactionId>54587363-5378-4fd2-ae4d-467e53e94729</v1:transactionId>
+              <v1:transactionId>ea50de1c-ca26-4512-8c14-3b24351eb3c0</v1:transactionId>
             </v1:inputHeaderInfo>
           </soap:Header>
           <soap:Body>
@@ -32,9 +32,9 @@ http_interactions:
       User-Agent:
       - Vets.gov Agent
       Soapaction:
-      - http://viers.va.gov/cdi/eMIS/getMilitaryServiceEpisodes/v1
+      - http://viers.va.gov/cdi/eMIS/getMilitaryServiceEpisodes/v2
       Date:
-      - Mon, 25 Nov 2019 20:52:00 GMT
+      - Wed, 27 Nov 2019 19:14:35 GMT
       Content-Length:
       - '949'
       Accept-Encoding:
@@ -45,7 +45,7 @@ http_interactions:
       message: OK
     headers:
       Date:
-      - Mon, 25 Nov 2019 20:52:01 GMT
+      - Wed, 27 Nov 2019 19:14:36 GMT
       Server:
       - Apache/2.4.6 (Red Hat Enterprise Linux)
       Content-Length:
@@ -58,7 +58,7 @@ http_interactions:
       encoding: UTF-8
       string: <?xml version="1.0" encoding="utf-8"?><NS1:Envelope xmlns:NS1="http://www.w3.org/2003/05/soap-envelope"><NS1:Header><NS2:essResponseCode
         xmlns:NS2="http://va.gov/ess/message/v1">Success</NS2:essResponseCode><NS3:inputHeaderInfo
-        xmlns:NS3="http://viers.va.gov/cdi/CDI/commonService/v2"><NS3:userId>vets.gov</NS3:userId><NS3:sourceSystemName>vets.gov</NS3:sourceSystemName><NS3:transactionId>54587363-5378-4fd2-ae4d-467e53e94729</NS3:transactionId></NS3:inputHeaderInfo></NS1:Header><NS1:Body><NS4:eMISserviceEpisodeResponse
+        xmlns:NS3="http://viers.va.gov/cdi/CDI/commonService/v2"><NS3:userId>vets.gov</NS3:userId><NS3:sourceSystemName>vets.gov</NS3:sourceSystemName><NS3:transactionId>ea50de1c-ca26-4512-8c14-3b24351eb3c0</NS3:transactionId></NS3:inputHeaderInfo></NS1:Header><NS1:Body><NS4:eMISserviceEpisodeResponse
         xmlns:NS4="http://viers.va.gov/cdi/eMIS/RequestResponse/MilitaryInfo/v2"><NS5:militaryServiceEpisode
         xmlns:NS5="http://viers.va.gov/cdi/eMIS/RequestResponse/v2"><NS6:edipi xmlns:NS6="http://viers.va.gov/cdi/eMIS/commonService/v2">1005123832</NS6:edipi><NS7:keyData
         xmlns:NS7="http://viers.va.gov/cdi/eMIS/commonService/v2"><NS7:personnelOrganizationCode>11</NS7:personnelOrganizationCode><NS7:personnelCategoryTypeCode>A</NS7:personnelCategoryTypeCode><NS7:personnelSegmentIdentifier>2</NS7:personnelSegmentIdentifier></NS7:keyData><NS8:militaryServiceEpisodeData
@@ -68,5 +68,5 @@ http_interactions:
         xmlns:NS11="http://viers.va.gov/cdi/eMIS/commonService/v2"><NS11:personnelOrganizationCode>11</NS11:personnelOrganizationCode><NS11:personnelCategoryTypeCode>A</NS11:personnelCategoryTypeCode><NS11:personnelSegmentIdentifier>1</NS11:personnelSegmentIdentifier></NS11:keyData><NS12:militaryServiceEpisodeData
         xmlns:NS12="http://viers.va.gov/cdi/eMIS/commonService/v2"><NS12:serviceEpisodeStartDate>1983-02-23</NS12:serviceEpisodeStartDate><NS12:serviceEpisodeEndDate>1988-10-04</NS12:serviceEpisodeEndDate><NS12:serviceEpisodeTerminationReason>S</NS12:serviceEpisodeTerminationReason><NS12:branchOfServiceCode>A</NS12:branchOfServiceCode><NS12:personnelStatusChangeTransactionTypeCode>343</NS12:personnelStatusChangeTransactionTypeCode><NS12:narrativeReasonForSeparationCode>999</NS12:narrativeReasonForSeparationCode><NS12:narrativeReasonForSeparationTxt>UNKNOWN</NS12:narrativeReasonForSeparationTxt><NS12:mgadLossCategoryCode>11</NS12:mgadLossCategoryCode><NS12:payPlanCode>MO</NS12:payPlanCode><NS12:payGradeCode>03</NS12:payGradeCode><NS12:serviceRankNameCode>CPT</NS12:serviceRankNameCode><NS12:serviceRankNameTxt>Captain</NS12:serviceRankNameTxt><NS12:payGradeDate>1983-02-23</NS12:payGradeDate><NS12:activeDutyServiceAgreementQuantity>1</NS12:activeDutyServiceAgreementQuantity></NS12:militaryServiceEpisodeData></NS9:militaryServiceEpisode></NS4:eMISserviceEpisodeResponse></NS1:Body></NS1:Envelope>
     http_version: 
-  recorded_at: Mon, 25 Nov 2019 20:52:00 GMT
+  recorded_at: Wed, 27 Nov 2019 19:14:35 GMT
 recorded_with: VCR 3.0.3
