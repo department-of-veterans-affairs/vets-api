@@ -33,7 +33,7 @@ RSpec.describe ClaimsApi::AutoEstablishedClaim, type: :model do
   describe 'translate form_data' do
     it 'checks an active claim date' do
       payload = JSON.parse(pending_record.to_internal)
-      expect(payload['form526']['claimDate']).to eq("1990-01-03")
+      expect(payload['form526']['claimDate']).to eq('1990-01-03')
     end
 
     it 'adds an active claim date' do
