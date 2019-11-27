@@ -10,8 +10,8 @@ module SAML
       'https://api.va.gov' => { base_redirect: 'https://www.va.gov' },
       'https://staging-api.va.gov' => { base_redirect: 'https://staging.va.gov' },
       'https://dev-api.va.gov' => { base_redirect: 'https://dev.va.gov' },
-      'http://localhost:3000' => { base_redirect: 'http://localhost:3001' },
-      'http://127.0.0.1:3000' => { base_redirect: 'http://127.0.0.1:3001' }
+      'http://localhost:3000' => { base_redirect: 'http://10.0.2.2:3001' },
+      'http://127.0.0.1:3000' => { base_redirect: 'http://10.0.2.2:3001' }
     }.freeze
 
     LOGIN_REDIRECT_PARTIAL = '/auth/login/callback'
