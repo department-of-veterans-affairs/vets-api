@@ -64,6 +64,23 @@ RSpec.describe 'Disability Claims ', type: :request do
       post path, params: data, headers: headers
     end
 
+    context 'with the same request already ran' do
+      let!(:count) do
+        VCR.use_cassette('evss/disability_compensation_form/form_526_valid_validation') do
+          post path, params: data, headers: headers
+        end
+
+        ClaimsApi::AutoEstablishedClaim.count
+      end
+
+      it 'rejects the duplicated request' do
+        VCR.use_cassette('evss/disability_compensation_form/form_526_valid_validation') do
+          post path, params: data, headers: headers
+          expect(count).to eq(ClaimsApi::AutoEstablishedClaim.count)
+        end
+      end
+    end
+
     context 'validation' do
       let(:json_data) { JSON.parse data }
 
