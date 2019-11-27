@@ -18,7 +18,7 @@ module EMIS
     # Military Information Service breakers name
     # @return [String] Military Information Service breakers name
     def service_name
-      'EmisMilitaryInformation'
+      'EmisMilitaryInformationV2'
     end
     # :nocov:
   end
