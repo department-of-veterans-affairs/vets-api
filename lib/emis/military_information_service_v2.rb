@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'emis/service'
-require 'emis/military_information_configuration'
+require 'emis/military_information_configuration_v2'
 
 module EMIS
   # HTTP Client for EMIS Military Information Service requests.
@@ -10,7 +10,7 @@ module EMIS
 
     create_endpoints(
       [
-        [:get_military_service_episodes, 'serviceEpisodeRequest']
+        [:get_military_service_episodes_v2, 'serviceEpisodeRequest']
       ]
     )
 
