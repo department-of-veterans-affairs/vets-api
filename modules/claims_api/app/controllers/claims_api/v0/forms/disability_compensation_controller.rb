@@ -46,6 +46,10 @@ module ClaimsApi
 
           render json: claim, serializer: ClaimsApi::ClaimDetailSerializer
         end
+
+        def validate_form_526
+          super
+        end
       end
     end
   end
