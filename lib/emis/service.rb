@@ -19,7 +19,10 @@ module EMIS
     #
     # @param endpoints [Array<String, Symbol, Array<String, Symbol>>] An array of endpoints,
     #  either a string or symbol if the method name and endpoint path (converted to camelcase)
-    #  are the same or an Array containing the method name and endpoint path
+    #  are the same or an Array containing the method name, endpoint path,
+    #  and optional version of response and soapaction
+    #
+    # rubocop:disable Metrics/MethodLength
     def self.create_endpoints(endpoints)
       endpoints.each do |endpoint|
         operation = nil
@@ -27,21 +30,26 @@ module EMIS
         if endpoint.is_a?(Array)
           request_name = endpoint[1]
           operation = endpoint[0].to_s
+          version = endpoint[2] || ''
         else
           operation = endpoint.to_s
           request_name = "#{endpoint.to_s.camelize(:lower).sub(/^get/, '').camelize(:lower)}Request"
+          version = ''
         end
         define_method(operation) do |edipi: nil, icn: nil|
-          make_request(
+          parameters = {
             edipi: edipi,
             icn: icn,
             request_name: request_name,
             operation: operation,
-            response_type: "EMIS::Responses::#{operation.camelize}Response".constantize
-          )
+            response_type: "EMIS::Responses::#{operation.camelize}Response#{version.upcase}".constantize
+          }
+          parameters[:version] = version unless version.empty?
+          make_request(parameters)
         end
       end
     end
+    # rubocop:enable Metrics/MethodLength
 
     protected
 
@@ -52,9 +60,12 @@ module EMIS
     # @param response_type [EMIS::Responses] EMIS Response class
     # @param operation [String] API path endpoint
     # @param request_name [String] Request name used in XML request body
+    # @param version [String] Version for soapaction
     #
     # @return [EMIS::Responses] Whatever +response_type+ was passed in will be returned
-    def make_request(edipi: nil, icn: nil, response_type:, operation:, request_name:)
+    #
+    # rubocop:disable Metrics/ParameterLists
+    def make_request(edipi: nil, icn: nil, response_type:, operation:, request_name:, version: 'V1')
       message = create_edipi_or_icn_message(
         edipi: edipi,
         icn: icn,
@@ -65,7 +76,7 @@ module EMIS
           :post,
           '',
           message,
-          soapaction: "http://viers.va.gov/cdi/eMIS/#{operation.camelize(:lower)}/v1"
+          soapaction: "http://viers.va.gov/cdi/eMIS/#{operation.camelize(:lower)}/#{version.downcase}"
         )
       end
       response_type.new(raw_response)
@@ -78,6 +89,7 @@ module EMIS
       EMIS::Responses::ErrorResponse.new(e)
       # :nocov:
     end
+    # rubocop:enable Metrics/ParameterLists
 
     # Creates a SOAP request body that includes user identifiers to send to the EMIS API
     #
