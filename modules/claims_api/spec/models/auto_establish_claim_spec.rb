@@ -30,6 +30,13 @@ RSpec.describe ClaimsApi::AutoEstablishedClaim, type: :model do
     end
   end
 
+  describe 'translate form_data' do
+    it 'should add an active claim date' do
+      pending_record.form_data.delete("claimDate")
+      expect(JSON.parse(pending_record.to_internal)["form526"]["claimDate"]).to eq(pending_record.created_at.to_date.to_s)
+    end
+  end
+
   describe 'evss_id_by_token' do
     context 'with a record' do
       let(:evss_record) { create(:auto_established_claim, evss_id: 123_456) }
