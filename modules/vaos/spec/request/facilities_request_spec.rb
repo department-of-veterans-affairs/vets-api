@@ -186,7 +186,7 @@ RSpec.describe 'facilities', type: :request do
         end
       end
 
-      context 'when end is missing' do
+      context 'when end_date is missing' do
         it 'returns a 400 with missing param end_date' do
           VCR.use_cassette('vaos/systems/get_facility_clinics', match_requests_on: %i[method uri]) do
             get "/v0/vaos/facilities/#{facility_id}/available_appointments", params: {
@@ -233,7 +233,7 @@ RSpec.describe 'facilities', type: :request do
         end
       end
 
-      context 'when end is an invalid date' do
+      context 'when end_date is an invalid date' do
         let(:end_date) { '2019-35-11T00:00:00+00:00' }
 
         it 'returns a 400 with invalid date format' do
