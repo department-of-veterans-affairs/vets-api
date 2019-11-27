@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'faker'
+require 'faker/medical'
 
 street = '49119 Jadon Mills'
 street2 = 'Apt. 832'
