@@ -16,7 +16,6 @@ module VAOS
     attribute :primary_stop_code, Types::String
     attribute :secondary_stop_code, Types::String
     attribute :list_size, Types::Integer
-    attribute :object_type, Types::String
     attribute :empty, Types::Bool
     attribute :appointment_time_slot, Types::Array.of(VAOS::AppointmentTimeSlot)
   end
