@@ -18,6 +18,6 @@ module VAOS
     attribute :list_size, Types::Integer
     attribute :object_type, Types::String
     attribute :empty, Types::Bool
-    attribute :appointment_time_slot, Types::Array.of(VAOS::AppointmentSlot)
+    attribute :appointment_time_slot, Types::Array.of(VAOS::AppointmentTimeSlot)
   end
 end

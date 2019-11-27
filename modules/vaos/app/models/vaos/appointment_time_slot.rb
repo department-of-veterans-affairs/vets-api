@@ -3,7 +3,7 @@
 require 'common/models/resource'
 
 module VAOS
-  class AppointmentSlot < Common::Resource
+  class AppointmentTimeSlot < Common::Resource
     transform_types do |type|
       case type.name
       when :start_date_time || :end_date_time

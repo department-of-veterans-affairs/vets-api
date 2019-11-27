@@ -46,7 +46,7 @@ module VAOS
         url = "/var/VeteranAppointmentRequestService/v4/rest/direct-scheduling/site/#{facility_id}" \
                 "/patient/ICN/#{user.icn}/cancel-reasons-list"
         response = perform(:get, url, nil, headers(user))
-        response.body.map { |reason| OpenStruct.new(reason) }
+        response.body[:cancel_reasons_list].map { |reason| OpenStruct.new(reason) }
       end
     end
 
@@ -54,7 +54,8 @@ module VAOS
       with_monitoring do
         url = available_appointments_url(user.icn, facility_id)
         url_params = available_appointments_params(start_date, end_date, clinic_ids)
-        response = perform(:get, url, url_params, headers(user))
+        options = { params_encoder: Faraday::FlatParamsEncoder }
+        response = perform(:get, url, url_params, headers(user), options)
         response.body.map { |fa| VAOS::FacilityAvailability.new(fa) }
       end
     end

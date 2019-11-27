@@ -112,17 +112,18 @@ describe VAOS::SystemsService do
   end
 
   describe '#get_available_appointments' do
+    let(:facility_id) { '688' }
     let(:start_date) { DateTime.new(2019, 11, 22) }
     let(:end_date) { DateTime.new(2020, 2, 19) }
+    let(:clinic_ids) { ['2276'] }
 
     context 'with a 200 response' do
-      let(:clinic_id) { '2276' }
       it 'lists available times by facility with coerced dates' do
         VCR.use_cassette('vaos/systems/get_facility_available_appointments', match_requests_on: %i[method uri]) do
-          response = subject.get_facility_available_appointments(user, '688', start_date, end_date, clinic_id)
+          response = subject.get_facility_available_appointments(user, facility_id, start_date, end_date, clinic_ids)
           clinic = response.first
           first_available_time = clinic.appointment_time_slot.first
-          expect(clinic.clinic_id).to eq(clinic_id)
+          expect(clinic.clinic_id).to eq(clinic_ids.first)
           expect(first_available_time.start_date_time.to_s).to eq('2019-12-02T13:30:00+00:00')
         end
       end
