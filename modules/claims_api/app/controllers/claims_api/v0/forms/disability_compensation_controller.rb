@@ -25,7 +25,7 @@ module ClaimsApi
             source: request.headers['X-Consumer-Username']
           )
           auto_claim = ClaimsApi::AutoEstablishedClaim.find_by(md5: auto_claim.md5) unless auto_claim.id
-          service_object.validate_form526(auto_claim.form.to_internal)
+          service_object.validate_form526(auto_claim.to_internal)
 
           ClaimsApi::ClaimEstablisher.perform_async(auto_claim.id)
 
@@ -54,7 +54,7 @@ module ClaimsApi
             auth_headers: auth_headers,
             form_data: form_attributes
           )
-          service.validate_form526(auto_claim.form.to_internal)
+          service.validate_form526(auto_claim.to_internal)
           render json: valid_526_response
         rescue EVSS::ErrorMiddleware::EVSSError => e
           track_526_validation_errors(e.details)
