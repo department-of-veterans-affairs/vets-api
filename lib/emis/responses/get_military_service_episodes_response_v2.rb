@@ -6,7 +6,7 @@ require 'emis/responses/response'
 module EMIS
   module Responses
     # EMIS military service episodes response
-    class GetMilitaryServiceEpisodesV2Response < EMIS::Responses::Response
+    class GetMilitaryServiceEpisodesResponseV2 < EMIS::Responses::Response
       # (see EMIS::Responses::GetCombatPayResponse#item_tag_name)
       def item_tag_name
         'militaryServiceEpisode'
