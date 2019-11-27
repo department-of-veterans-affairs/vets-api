@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require_relative '../vaos/concerns/headers'
-# require_relative ''
 
 module VAOS
   class SystemsService < Common::Client::Base
