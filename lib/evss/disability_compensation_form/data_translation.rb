@@ -19,7 +19,6 @@ module EVSS
       #
       def translate
         form['claimantCertification'] = true
-        # form['claimDate'] ||= application_create_date.try(:to_date).try(:to_s)
         form['autoCestPDFGenerationDisabled'] ||= false
         form['applicationExpirationDate'] = application_expiration_date
 
