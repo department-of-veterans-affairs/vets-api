@@ -36,7 +36,7 @@ http_interactions:
       va-eauth-authorization:
       - '{"authorizationResponse":{"status":"VETERAN","idType":"SSN","id":"796068949","edi":"4789224336","firstName":"Beyonce","lastName":"Knowles","birthDate":"1959-10-24T00:00:00+00:00","gender":"FEMALE"}}'
       va-eauth-service-transaction-id:
-      - <%= transaction_id %>
+      - 'vagov-123456789'
       Content-Type:
       - application/json
       Accept-Encoding:
