@@ -4,8 +4,6 @@ source 'https://rubygems.org'
 
 ruby '2.4.5'
 
-gem 'rubocop-thread_safety'
-
 # Modules
 gem 'appeals_api', path: 'modules/appeals_api'
 gem 'claims_api', path: 'modules/claims_api'
@@ -158,6 +156,7 @@ group :development, :test do
   gem 'rubocop', require: false
   gem 'rubocop-rails'
   gem 'rubocop-rspec'
+  gem 'rubocop-thread_safety'
   gem 'sidekiq', '~> 4.2'
   gem 'timecop'
   gem 'webmock'
