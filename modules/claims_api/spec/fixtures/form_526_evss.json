@@ -44,7 +44,8 @@
       }
     ],
     "claimantCertification": true,
-    "autoCestPDFGenerationDisabled": false
+    "autoCestPDFGenerationDisabled": false,
+    "claimDate": "1999-01-02"
   },
   "form526_uploads": [
     

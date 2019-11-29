@@ -11,6 +11,7 @@ module VAOS
         clinics_params[:type_of_care_id],
         clinics_params[:system_id]
       )
+
       render json: VAOS::ClinicSerializer.new(response)
     end
 

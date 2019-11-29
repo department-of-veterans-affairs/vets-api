@@ -7,7 +7,6 @@ RSpec.describe 'VBA Documents Metadata Endpoint', type: :request do
     it 'returns metadata JSON' do
       get '/services/vba_documents/metadata'
       expect(response).to have_http_status(:ok)
-      JSON.parse(response.body)
     end
   end
 

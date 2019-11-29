@@ -150,7 +150,7 @@ module ClaimsApi
       operation :put do
         key :summary, 'Upload Power of attorney document'
         key :description, 'Accpets document binaries as part of a multipart payload.'
-        key :operationId, 'upload526Attachments'
+        key :operationId, 'upload2122Attachments'
         key :produces, [
           'application/json'
         ]
@@ -161,7 +161,7 @@ module ClaimsApi
         parameter do
           key :name, :id
           key :in, :path
-          key :description, 'UUID given when Disability Claim was submitted'
+          key :description, 'UUID given when Power of Attorney was submitted'
           key :required, true
           key :type, :uuid
         end
