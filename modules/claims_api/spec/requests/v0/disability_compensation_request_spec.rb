@@ -67,7 +67,7 @@ RSpec.describe 'Disability Claims ', type: :request do
     context 'with the same request already ran' do
       let!(:count) do
         VCR.use_cassette(
-          'evss/disability_compensation_form/form_526_valid_validation',
+          'evss/disability_compensation_form/submit_form_v2',
           match_requests_on: %i[method uri body]
         ) do
           post path, params: data, headers: headers
@@ -78,7 +78,7 @@ RSpec.describe 'Disability Claims ', type: :request do
 
       it 'rejects the duplicated request' do
         VCR.use_cassette(
-          'evss/disability_compensation_form/form_526_valid_validation',
+          'evss/disability_compensation_form/submit_form_v2',
           match_requests_on: %i[method uri body]
         ) do
           post path, params: data, headers: headers
