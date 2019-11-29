@@ -17,7 +17,7 @@ describe EVSS::ClaimsService do
 
   let(:claims_service) { described_class.new(auth_headers) }
 
-  let(:transaction_id) { auth_headers.transaction_id }
+  let(:transaction_id) { auth_headers['va_eauth_service_transaction_id'] }
 
   context 'with headers' do
     let(:evss_id) { 189_625 }
