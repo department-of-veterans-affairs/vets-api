@@ -44,7 +44,7 @@ http_interactions:
       Va-Eauth-Authenticationauthority:
       - 'eauth'
       Va-Eauth-Service-Transaction-Id:
-      - <%= headers[:va_eauth_service_transaction_id] %>
+      - <%= transaction_id %>
   response:
     status:
       code: 200

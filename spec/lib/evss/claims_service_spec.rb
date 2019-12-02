@@ -23,7 +23,11 @@ describe EVSS::ClaimsService do
     let(:evss_id) { 189_625 }
 
     it 'gets claims', run_at: 'Tue, 12 Dec 2017 03:09:06 GMT' do
-      VCR.use_cassette('evss/claims/claims', match_requests_on: %i[host path method]) do
+      VCR.use_cassette(
+        'evss/claims/claims',
+        erb: { transaction_id: transaction_id },
+        match_requests_on: %i[method uri headers body]
+      ) do
         response = subject.all_claims
         expect(response).to be_success
       end
