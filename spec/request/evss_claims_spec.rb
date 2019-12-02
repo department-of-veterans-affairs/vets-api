@@ -23,7 +23,7 @@ RSpec.describe 'EVSS Claims management', type: :request do
     sign_in_as(evss_user)
     VCR.use_cassette('evss/claims/claims', match_requests_on: %i[host uri path method body]) do
       get '/v0/evss_claims'
-      expect(response.status).to match_response_schema('evss_claim')
+      expect(response).to match_response_schema('evss_claims')
     end
   end
 
