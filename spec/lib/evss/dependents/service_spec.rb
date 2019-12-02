@@ -5,6 +5,7 @@ require 'rails_helper'
 describe EVSS::Dependents::Service do
   let(:user) { create(:evss_user) }
   let(:service) { described_class.new(user) }
+  let(:transaction_id) { service.transaction_id }
 
   def returns_form(response)
     expect(response['submitProcess'].present?).to eq(true)
@@ -20,6 +21,7 @@ describe EVSS::Dependents::Service do
     it 'gets user details' do
       VCR.use_cassette(
         'evss/dependents/retrieve',
+        erb: { transaction_id: transaction_id }
         match_requests_on: %i[host path method]
       ) do
         returns_form(service.retrieve.body)

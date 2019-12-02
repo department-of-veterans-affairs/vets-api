@@ -8,14 +8,16 @@ describe EVSS::CommonService do
   subject { described_class.new(auth_headers) }
 
   let(:current_user) { FactoryBot.build(:evss_user) }
-
-  let(:auth_headers) do
-    EVSS::AuthHeaders.new(current_user).to_h
-  end
+  let(:auth_headers) { EVSS::AuthHeaders.new(current_user).to_h }
+  let(:transaction_id) { auth_headers['va_eauth_service_transaction_id'] }
 
   context 'with headers' do
     it 'posts to create a user account', run_at: 'Thu, 14 Dec 2017 00:00:32 GMT' do
-      VCR.use_cassette('evss/common/create_user_account', match_requests_on: %i[host path method]) do
+      VCR.use_cassette(
+        'evss/common/create_user_account',
+        erb: { transaction_id: transaction_id },
+        match_requests_on: %i[host path method]
+      ) do
         response = subject.create_user_account
         expect(response).to be_success
       end

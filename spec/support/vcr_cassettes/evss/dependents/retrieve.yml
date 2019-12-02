@@ -38,7 +38,7 @@ http_interactions:
       va-eauth-authenticationauthority: 
       - 'eauth'
       va_eauth_service_transaction_id:
-      - 'vagov-91f85064-0877-40be-aae1-f5668338ca30'
+      - <%= transaction_id %>
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
