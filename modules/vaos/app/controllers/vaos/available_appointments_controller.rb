@@ -6,7 +6,7 @@ module VAOS
   class AvailableAppointmentsController < ApplicationController
     def index
       response = systems_service.get_facility_available_appointments(
-        current_user, facility_id, start_date, end_date, clinic_ids
+        facility_id, start_date, end_date, clinic_ids
       )
 
       render json: VAOS::AvailabilitySerializer.new(response)
@@ -15,7 +15,7 @@ module VAOS
     private
 
     def systems_service
-      VAOS::SystemsService.new
+      VAOS::SystemsService.new(current_user)
     end
 
     def appt_params
