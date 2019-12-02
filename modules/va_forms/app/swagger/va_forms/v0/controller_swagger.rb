@@ -21,6 +21,14 @@ module VaForms
             'Forms'
           ]
 
+          parameter do
+            key :name, :query
+            key :in, :query
+            key :description, 'Query the form number as well as title'
+            key :required, false
+            key :type, :string
+          end
+
           response 200 do
             key :description, 'VaForms index response'
             schema do
@@ -32,23 +40,17 @@ module VaForms
             end
           end
 
-          response :default do
-            key :description, 'unexpected error'
-            schema do
-              key :type, :object
-              key :required, [:errors]
-              property :errors do
-                key :type, :array
-                items do
-                  key :'$ref', :ErrorModel
-                end
-              end
-            end
+          response 401 do
+            key :description, 'Unauthorized Request'
+          end
+
+          response 403 do
+            key :description, 'Bad API Token'
           end
         end
       end
 
-      swagger_path '/forms/{id}' do
+      swagger_path '/forms/{form_name}' do
         operation :get do
           security do
             key :apikey, []
@@ -73,23 +75,17 @@ module VaForms
               key :type, :object
               key :required, [:data]
               property :data do
-                key :'$ref', :FormsShow
+                key :'$ref', :FormShow
               end
             end
           end
 
-          response :default do
-            key :description, 'unexpected error'
-            schema do
-              key :type, :object
-              key :required, [:errors]
-              property :errors do
-                key :type, :array
-                items do
-                  key :'$ref', :ErrorModel
-                end
-              end
-            end
+          response 401 do
+            key :description, 'Unauthorized Request'
+          end
+
+          response 403 do
+            key :description, 'Bad API Token'
           end
         end
       end

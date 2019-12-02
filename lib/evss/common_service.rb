@@ -15,6 +15,13 @@ module EVSS
       post 'vsoSearch/11.6/getCurrentInfo'
     end
 
+    def get_rating_info
+      msg_body = { 'participantId' => @headers['va_eauth_pid'] }
+      headers = { 'Content-Type' => 'application/json' }
+      raw_response = post 'ratingInfoService/11.6/findRatingInfoPID', msg_body.to_json, headers
+      EVSS::DisabilityCompensationForm::RatingInfoResponse.new(raw_response.status, raw_response)
+    end
+
     def self.breakers_service
       BaseService.create_breakers_service(name: 'EVSS/Common', url: BASE_URL)
     end

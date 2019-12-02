@@ -10,4 +10,7 @@ LighthouseBGS.configure do |config|
   config.env = Rails.env.to_s
   config.mock_response_location = Settings.bgs.mock_response_location
   config.mock_responses = Settings.bgs.mock_responses
+  config.external_uid = Settings.bgs.external_uid
+  config.external_key = Settings.bgs.external_key
+  config.forward_proxy_url = Settings.bgs.url
 end
