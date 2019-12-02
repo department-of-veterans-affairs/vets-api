@@ -65,32 +65,30 @@ describe VAOS::AppointmentRequestsService do
           response = subject.get_requests
           request_with_cc = response[:data][40]
           expect(request_with_cc.cc_appointment_request).to eq(
-            {
-              :data_identifier => {},
-              :patient_identifier => {},
-              :surrogate_identifier => {},
-              :has_veteran_new_message => false,
-              :preferred_zip_code => "20171",
-              :preferred_state => "VA",
-              :preferred_city => "her",
-              :preferred_language => "English",
-              :distance_willing_to_travel => 25,
-              :distance_eligible => false,
-              :office_hours => ["Evenings"],
-              :preferred_providers => [
-                {
-                  :first_name => "Vilasini",
-                  :last_name => "Reddy",
-                  :practice_name => "Test clinic 2",
-                  :address => {},
-                  :preferred_order => 0,
-                  :object_type => "Provider",
-                  :link => []
-                }
-              ],
-              :object_type => "CCAppointmentRequest",
-              :link => []
-            }
+            data_identifier: {},
+            patient_identifier: {},
+            surrogate_identifier: {},
+            has_veteran_new_message: false,
+            preferred_zip_code: '20171',
+            preferred_state: 'VA',
+            preferred_city: 'her',
+            preferred_language: 'English',
+            distance_willing_to_travel: 25,
+            distance_eligible: false,
+            office_hours: ['Evenings'],
+            preferred_providers: [
+              {
+                first_name: 'Vilasini',
+                last_name: 'Reddy',
+                practice_name: 'Test clinic 2',
+                address: {},
+                preferred_order: 0,
+                object_type: 'Provider',
+                link: []
+              }
+            ],
+            object_type: 'CCAppointmentRequest',
+            link: []
           )
         end
       end
