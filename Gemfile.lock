@@ -642,7 +642,7 @@ GEM
     sidekiq-instrument (0.3.0)
       sidekiq (>= 4.2, < 6)
       statsd-instrument (~> 2.0, >= 2.0.4)
-    sidekiq-pro (3.7.1)
+    sidekiq-pro (3.7.0)
       sidekiq (>= 4.1.5)
     sidekiq-scheduler (2.2.2)
       redis (>= 3, < 5)
