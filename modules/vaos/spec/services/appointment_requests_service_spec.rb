@@ -39,8 +39,7 @@ describe VAOS::AppointmentRequestsService do
           date: date,
           created_date: created_date,
           last_access_date: last_access_date,
-          last_updated_date:
-            last_updated_date
+          last_updated_date: last_updated_date
         ).params
       end
 
