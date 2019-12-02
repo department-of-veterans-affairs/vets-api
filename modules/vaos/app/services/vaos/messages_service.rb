@@ -31,6 +31,17 @@ module VAOS
       end
     end
 
+    def post_message(request_id, request_object_body)
+      with_monitoring do
+        params = VAOS::MessageForm.new(user, request_object_body).params
+        response = perform(:post, messages_url(request_id), params, headers(user))
+
+        {
+          data: OpenStruct.new(response.body)
+        }
+      end
+    end
+
     private
 
     def deserialize(json_hash)
