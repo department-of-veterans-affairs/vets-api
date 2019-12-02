@@ -15,7 +15,7 @@ describe EVSS::CommonService do
 
   context 'with headers' do
     it 'posts to create a user account', run_at: 'Thu, 14 Dec 2017 00:00:32 GMT' do
-      VCR.use_cassette('evss/common/create_user_account', VCR::MATCH_EVERYTHING) do
+      VCR.use_cassette('evss/common/create_user_account', match_requests_on: %i[host path method]) do
         response = subject.create_user_account
         expect(response).to be_success
       end
@@ -30,6 +30,19 @@ describe EVSS::CommonService do
       allow_any_instance_of(EVSS::BaseService).to receive(:post).and_return(true)
       response = subject.get_current_info
       expect(response).to eq true
+    end
+  end
+
+  describe '#get_rating_info' do
+    context 'with a valid evss response' do
+      it 'returns a rating info response object' do
+        VCR.use_cassette('evss/disability_compensation_form/rating_info') do
+          response = subject.get_rating_info
+          expect(response).to be_ok
+          expect(response).to be_an EVSS::DisabilityCompensationForm::RatingInfoResponse
+          expect(response.user_percent_of_disability).to eq nil
+        end
+      end
     end
   end
 end

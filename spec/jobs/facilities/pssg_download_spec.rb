@@ -31,10 +31,10 @@ RSpec.describe Facilities::PSSGDownload, type: :job do
     end
   end
 
-  let(:pssg_client_stub) { instance_double('Facilities::DrivetimeBandClient') }
+  let(:pssg_client_stub) { instance_double('Facilities::DrivetimeBands::Client') }
 
   before do
-    allow(Facilities::DrivetimeBandClient).to receive(:new, &method(:pssg_client_stub))
+    allow(Facilities::DrivetimeBands::Client).to receive(:new, &method(:pssg_client_stub))
     allow(pssg_client_stub).to receive(:get_drivetime_bands).and_return([])
   end
 

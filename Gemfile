@@ -45,12 +45,11 @@ gem 'faraday_middleware'
 gem 'fast_jsonapi'
 gem 'fastimage'
 gem 'figaro'
-gem 'flipper'
-gem 'flipper-active_record'
-gem 'flipper-active_support_cache_store'
-gem 'flipper-ui'
-gem 'lighthouse_bgs', git: 'https://github.com/department-of-veterans-affairs/lighthouse-bgs.git', branch: 'master'
-
+gem 'flipper', '~> 0.17.1'
+gem 'flipper-active_record', '~> 0.17.1'
+gem 'flipper-active_support_cache_store', '~> 0.17.1'
+gem 'flipper-ui', '~> 0.17.1'
+gem 'foreman'
 gem 'govdelivery-tms', '2.8.4', require: 'govdelivery/tms/mail/delivery_method'
 gem 'gyoku'
 gem 'holidays'
@@ -59,9 +58,11 @@ gem 'ice_nine'
 gem 'iconv'
 gem 'iso_country_codes'
 gem 'json-schema'
+gem 'json_schemer'
 gem 'jsonapi-parser'
 gem 'jwt'
 gem 'levenshtein-ffi'
+gem 'lighthouse_bgs', git: 'https://github.com/department-of-veterans-affairs/lighthouse-bgs.git', branch: 'master'
 gem 'liquid'
 gem 'mail', '2.6.6'
 gem 'memoist'
@@ -135,7 +136,7 @@ end
 
 group :development, :test do
   gem 'awesome_print', '~> 1.8' # Pretty print your Ruby objects in full color and with proper indentation
-  gem 'brakeman'
+  gem 'brakeman', '~> 4.7'
   gem 'bundler-audit'
   gem 'byebug', platforms: :ruby # Call 'byebug' anywhere in the code to stop execution and get a debugger console
   gem 'danger'
@@ -144,7 +145,6 @@ group :development, :test do
   # CAUTION: faraday_curl may not provide all headers used in the actual faraday request. Be cautious if using this to
   # assist with debugging production issues (https://github.com/department-of-veterans-affairs/vets.gov-team/pull/6262)
   gem 'faraday_curl'
-  gem 'foreman'
   gem 'fuubar'
   gem 'guard-rspec', '~> 4.7'
   gem 'overcommit'
