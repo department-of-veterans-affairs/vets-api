@@ -22,7 +22,7 @@ describe EVSS::Dependents::Service do
       VCR.use_cassette(
         'evss/dependents/retrieve',
         erb: { transaction_id: transaction_id },
-        VCR::MATCH_EVERYTHING
+        match_requests_on: %i[uri method headers body]
       ) do
         returns_form(service.retrieve.body)
       end
