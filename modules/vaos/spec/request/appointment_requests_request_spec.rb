@@ -122,7 +122,7 @@ RSpec.describe 'vaos appointment requests', type: :request do
         last_access_date: last_access_date,
         last_updated_date:
         last_updated_date
-      ).params
+      ).params.merge(appointment_request_detail_code: ['DETCODE8'])
     end
 
     it 'creates a new appointment request' do
