@@ -51,7 +51,7 @@ end
 
 VCR::MATCH_EVERYTHING = { match_requests_on: %i[method uri headers body] }.freeze
 
-class VCR
+module VCR
   def self.all_matches
     %i[method uri headers body]
   end
