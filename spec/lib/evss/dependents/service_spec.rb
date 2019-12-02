@@ -22,7 +22,7 @@ describe EVSS::Dependents::Service do
       VCR.use_cassette(
         'evss/dependents/retrieve',
         erb: { transaction_id: transaction_id },
-        match_requests_on: %i[host path method]
+        VCR::MATCH_EVERYTHING
       ) do
         returns_form(service.retrieve.body)
       end
@@ -37,7 +37,8 @@ describe EVSS::Dependents::Service do
     it 'cleans the form request' do
       VCR.use_cassette(
         'evss/dependents/clean_form',
-        match_requests_on: %i[host path method]
+        erb: { transaction_id: transaction_id }, 
+        match_requests_on: %i[uri method headers body]
       ) do
         returns_form(service.clean_form(get_fixture('dependents/retrieve')))
       end
