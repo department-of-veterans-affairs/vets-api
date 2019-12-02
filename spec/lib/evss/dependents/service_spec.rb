@@ -21,7 +21,7 @@ describe EVSS::Dependents::Service do
     it 'gets user details' do
       VCR.use_cassette(
         'evss/dependents/retrieve',
-        erb: { transaction_id: transaction_id }
+        erb: { transaction_id: transaction_id },
         match_requests_on: %i[host path method]
       ) do
         returns_form(service.retrieve.body)
