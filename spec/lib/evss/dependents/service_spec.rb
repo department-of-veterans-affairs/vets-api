@@ -88,7 +88,7 @@ describe EVSS::Dependents::Service do
       VCR.use_cassette(
         'evss/dependents/submit',
         erb: { transaction_id: transaction_id },
-        match_requests_on: VCR.match_all
+        match_requests_on: VCR.all_matches
       ) do
         res = service.submit(get_fixture('dependents/clean_form'), 380_682)
         expect(res['submit686Response']['confirmationNumber']).to eq('600138364')
