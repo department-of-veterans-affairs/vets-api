@@ -64,7 +64,7 @@ describe VAOS::AppointmentRequestsService do
       it 'returns an array of size 40' do
         VCR.use_cassette('vaos/appointment_requests/get_requests', match_requests_on: %i[method uri]) do
           response = subject.get_requests
-          expect(response[:data].size).to eq(40)
+          expect(response[:data].size).to eq(42)
         end
       end
     end

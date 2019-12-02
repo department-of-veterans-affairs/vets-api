@@ -199,6 +199,12 @@
         "booked_appt_date_time": { "type": ["string", null] },
         "type_of_care_id": { "type": "string" },
         "friendly_location_name": { "type": ["string", null] },
+        "cc_appointment_request": {
+          "oneOf": [
+            {"type": "null"},
+            {"$ref": "cc_appointment_request.json"}
+          ]
+        },
         "patient_id": { "type": "string" },
         "appointment_request_id": { "type": "string" },
         "date": { "type": "string" },

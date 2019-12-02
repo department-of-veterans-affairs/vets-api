@@ -44,6 +44,7 @@ module VAOS
                :booked_appt_date_time,
                :type_of_care_id,
                :friendly_location_name,
+               :cc_appointment_request,
                :patient_id,
                :appointment_request_id,
                :date,
