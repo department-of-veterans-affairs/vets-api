@@ -51,6 +51,12 @@ end
 
 VCR::MATCH_EVERYTHING = { match_requests_on: %i[method uri headers body] }.freeze
 
+class VCR
+  def self.all_matches
+    %i[method uri headers body]
+  end
+end
+
 VCR.configure do |c|
   c.cassette_library_dir = 'spec/support/vcr_cassettes'
   c.hook_into :webmock
