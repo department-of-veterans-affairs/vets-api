@@ -125,6 +125,25 @@ module Swagger
           end
         end
       end
+
+      swagger_path '/v0/disability_compensation_form/rating_info' do
+        operation :get do
+          extend Swagger::Responses::AuthenticationError
+
+          key :description, 'Get the total combined disability rating for a veteran'
+          key :operationId, 'getRatingInfo'
+          key :tags, %w[form_526]
+
+          parameter :authorization
+
+          response 200 do
+            key :description, 'Response is OK'
+            schema do
+              key :'$ref', :RatingInfo
+            end
+          end
+        end
+      end
     end
   end
 end
