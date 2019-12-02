@@ -30,7 +30,6 @@ module VAOS
     end
 
     def update
-      binding.pry
       response = appointment_requests_service.put_request(id, put_params)
       render json: AppointmentRequestsSerializer.new(response[:data])
     end
