@@ -21,9 +21,9 @@ RSpec.describe 'EVSS Claims management', type: :request do
 
   it 'lists all Claims', run_at: 'Tue, 12 Dec 2017 03:09:06 GMT' do
     sign_in_as(evss_user)
-    VCR.use_cassette('evss/claims/claims', match_requests_on: %i[host path method]) do
+    VCR.use_cassette('evss/claims/claims', match_requests_on: %i[host uri path method body]) do
       get '/v0/evss_claims'
-      expect(response.status).to eq(200)
+      expect(response.status).to match_response_schema('evss_claim')
     end
   end
 
@@ -44,9 +44,8 @@ RSpec.describe 'EVSS Claims management', type: :request do
 
     it 'shows a single Claim', run_at: 'Wed, 13 Dec 2017 03:28:23 GMT' do
       sign_in_as(evss_user)
-      VCR.use_cassette('evss/claims/claim', match_requests_on: %i[path]) do
+      VCR.use_cassette('evss/claims/claim', match_requests_on: %i[host uri path method body]) do
         get '/v0/evss_claims/600118851'
-        puts(response.body)
         expect(response).to match_response_schema('evss_claim')
       end
     end
