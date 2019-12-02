@@ -432,3 +432,14 @@ va_mobile:
   mock: false
   key_path: /fake/client/key/path
   timeout: 15
+
+vbms:
+  url: "https://internal-dsva-vagov-dev-fwdproxy-1893365470.us-gov-west-1.elb.amazonaws.com:4449"
+  saml: "vetsapi.client.vbms.aide.oit.va.gov.saml-token.xml"
+  keypass: "{{ lookup('credstash', 'vbms.dev.key_password') }}"
+  ca_cert: VBMS-Client-Signing-CA.crt
+  cert: vetsapi.client.vbms.aide.oit.va.gov.crt
+  client_keyfile: vetsapi.client.vbms.aide.oit.va.gov.p12
+  server_cert: vbms.aide.oit.va.gov.crt
+  environment_directory: /srv/vets-api/secret
+
