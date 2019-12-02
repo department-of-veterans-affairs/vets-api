@@ -5,8 +5,8 @@ module VAOS
     def index
       response = systems_service.get_facility_limits(
         current_user,
-        limit_params[:facility_id],
-        limit_params[:type_of_care_id]
+        facility_id,
+        type_of_care_id
       )
 
       render json: VAOS::LimitSerializer.new(response)
@@ -18,12 +18,12 @@ module VAOS
       VAOS::SystemsService.new
     end
 
-    def limit_params
-      params.require(%i[facility_id type_of_care_id])
-      params.permit(
-        :facility_id,
-        :type_of_care_id
-      )
+    def facility_id
+			params.require(:facility_id)
+    end
+
+    def type_of_care_id
+      params.require(:type_of_care_id)
     end
   end
 end
