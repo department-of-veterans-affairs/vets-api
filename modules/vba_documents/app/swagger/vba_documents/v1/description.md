@@ -62,7 +62,7 @@ Base64 is an encoding scheme that converts binary data into text format, so that
 
 Base64 can be used to encode binary multipart/form-data it in its entirety, in order to bypass certain false positives encountered as the VA firewall scans for attack signatures. If your PDF file uploads are failing, causing your GUIDs to expire before a PDF is received, you might consider encoding the entire payload in base64.
 
-After encoding your payload you'll be required to preface your base64 string with `data:application/pdf;base64,` in order to allow our system to distinguish the type of file you upload so your final string payload would look something like `data:application/pdf;base64,(encryption string)==` making sure that at the end of your payload you close it off with the standard == marker.
+After encoding your payload, you'll be required to preface your base64 string with `data:application/pdf;base64,` in order to allow our system to distinguish the file type. Your final string payload would look something like `data:application/pdf;base64,(encryption string)==` and close with the standard == marker.
 
 ## Reference
 Raw Open API Spec: https://api.va.gov/services/vba_documents/docs/v1/api
