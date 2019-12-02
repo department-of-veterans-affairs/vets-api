@@ -606,6 +606,13 @@ module ClaimsApi
           key :description, 'Allows you to bypass the auto PDF generation and instead upload the Disability form itself through Support Documents.'
         end
 
+        property :claimDate do
+          key :type, :string
+          key :format, 'date'
+          key :example, '2018-08-28'
+          key :description, 'Date when claim is being submitted to the VA'
+        end
+
         property :applicationExpirationDate do
           key :type, :string
           key :format, 'date-time'
