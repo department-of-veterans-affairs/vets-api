@@ -125,6 +125,8 @@ RSpec.describe 'vaos appointment requests', type: :request do
       ).params
     end
 
+    let(:post_params) { params.merge(appointment_request_detail_code: ['DETCODE8']) }
+
     it 'creates a new appointment request' do
       VCR.use_cassette('vaos/appointment_requests/put_request', match_requests_on: %i[method uri]) do
         put "/v0/vaos/appointment_requests/#{id}", params: params
