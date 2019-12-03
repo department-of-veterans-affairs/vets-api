@@ -42,10 +42,6 @@ module V0
     # @see https://api.rubyonrails.org/v4.2/classes/ActionView/Helpers/SanitizeHelper.html#method-i-sanitize
     #
     def page
-      page = 1
-      page = search_params['page'] if params[:page]
-      raise Common::Exceptions::InvalidPaginationParams if Integer(page) > 99
-
       sanitize search_params['page']
     end
   end
