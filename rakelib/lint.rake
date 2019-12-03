@@ -18,7 +18,7 @@ task :lint do
          end
 
   puts 'running rubocop...'
-  byebug
+
   rubocop_result = ShellCommand.run("rubocop #{opts} --color")
 
   puts "\n"
