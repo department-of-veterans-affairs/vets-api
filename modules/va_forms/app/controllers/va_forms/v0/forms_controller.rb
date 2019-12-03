@@ -6,8 +6,7 @@ module VaForms
       skip_before_action(:authenticate)
 
       def index
-        forms = Form.all
-        render json: forms,
+        render json: get_forms,
                serializer: ActiveModel::Serializer::CollectionSerializer,
                each_serializer: VaForms::FormListSerializer
       end
@@ -16,6 +15,16 @@ module VaForms
         forms = Form.find_by form_name: params[:id]
         render json: forms,
                serializer: VaForms::FormDetailSerializer
+      end
+
+      private
+
+      def get_forms
+        if params[:query].present?
+          Form.where('form_name ilike ? OR title ilike ?', "%#{params[:query]}%", "%#{params[:query]}%")
+        else
+          Form.all
+        end
       end
     end
   end
