@@ -28,33 +28,14 @@
             "address": { "type": ["string", null] },
             "state": { "type": "string" },
             "city": { "type": "string" },
-            "parent_site_code": { "type": "string" },
-            "object_type": { "type": "string" },
-            "link": {
-              "type": "array",
-              "items": {
-                "type": "object",
-                "properties": {
-                  "rel": { "type": "string" },
-                  "href": { "type": "string" },
-                  "object_type": { "type": "string"}
-                },
-                "required": [
-                  "rel",
-                  "href",
-                  "object_type"
-                ]
-              }
-            }
+            "parent_site_code": { "type": "string" }
           },
           "required": [
             "name",
             "facility_code",
             "state",
             "city",
-            "parent_site_code",
-            "object_type",
-            "link"
+            "parent_site_code"
           ]
         },
         "email": { "type": ["string", null] },
@@ -67,53 +48,12 @@
         "patient": {
           "type": "object",
           "properties": {
-            "display_name": { "type": "string" },
-            "first_name": { "type": "string" },
-            "last_name": { "type": "string" },
-            "date_of_birth": { "type": "string" },
-            "patient_identifier": {
-              "type": "object",
-              "properties": {
-                "unique_id": { "type": "string" }
-              },
-              "required": [
-                "unique_id"
-              ]
-            },
-            "ssn": { "type": "string" },
             "inpatient": { "type": "boolean" },
-            "text_messaging_allowed": { "type": "boolean", "required": false },
-            "id": { "type": "string" },
-            "object_type": { "type": "string" },
-            "link": {
-              "type": "array",
-              "items": {
-                "type": "object",
-                "properties": {
-                  "rel": { "type": "string" },
-                  "href": { "type": "string" },
-                  "object_type": { "type": "string"}
-                },
-                "required": [
-                  "rel",
-                  "href",
-                  "object_type"
-                ]
-              }
-            }
+            "text_messaging_allowed": { "type": "boolean", "required": false }
           },
           "required": [
-            "display_name",
-            "first_name",
-            "last_name",
-            "date_of_birth",
-            "patient_identifier",
-            "ssn",
             "inpatient",
-            "text_messaging_allowed",
-            "id",
-            "object_type",
-            "link"
+            "text_messaging_allowed"
           ]
         },
         "best_timeto_call": {
@@ -135,59 +75,19 @@
                   "properties": {
                     "code": { "type": "string" },
                     "provider_message": { "type": "string" },
-                    "veteran_message": { "type": "string" },
-                    "object_type": { "type": "string" },
-                    "link": {
-                      "type": "array",
-                      "items": {
-                        "type": "object",
-                        "properties": {
-                          "rel": { "type": "string" },
-                          "href": { "type": "string" },
-                          "object_type": { "type": "string"}
-                        },
-                        "required": [
-                          "rel",
-                          "href",
-                          "object_type"
-                        ]
-                      }
-                    }
+                    "veteran_message": { "type": "string" }
                   },
                   "required": [
                     "code",
                     "provider_message",
-                    "veteran_message",
-                    "object_type",
-                    "link"
+                    "veteran_message"
                   ]
-                },
-                "user_id": { "type": "string" },
-                "object_type": { "type": "string" },
-                "link": {
-                  "type": "array",
-                  "items": {
-                    "type": "object",
-                    "properties": {
-                      "rel": { "type": "string" },
-                      "href": { "type": "string" },
-                      "object_type": { "type": "string" }
-                    },
-                    "required": [
-                      "rel",
-                      "href",
-                      "object_type"
-                    ]
-                  }
                 }
               },
               "required": [
                 "appointment_request_detail_code_id",
                 "created_date",
-                "detail_code",
-                "user_id",
-                "object_type",
-                "link"
+                "detail_code"
               ]
             }
           ]
@@ -199,90 +99,8 @@
         "booked_appt_date_time": { "type": ["string", null] },
         "type_of_care_id": { "type": "string" },
         "friendly_location_name": { "type": ["string", null] },
-        "patient_id": { "type": "string" },
-        "appointment_request_id": { "type": "string" },
         "date": { "type": "string" },
         "assigning_authority": { "type": "string" },
-        "unique_id": { "type": "string" },
-        "system_id": { "type": "string" },
-        "self_uri": { "type": "string" },
-        "self_link": {
-          "type": "object",
-          "properties": {
-            "rel": { "type": "string" },
-            "href": { "type": "string" },
-            "object_type": { "type": "string"}
-          },
-          "required": [
-            "rel",
-            "href",
-            "object_type"
-          ]
-        },
-        "object_type": { "type": "string" },
-        "link": {
-          "type": "array",
-          "items": [
-            {
-              "type": "object",
-              "properties": {
-                "rel": { "type": "string" },
-                "href": { "type": "string" },
-                "object_type": { "type": "string" }
-              },
-              "required": [
-                "rel",
-                "href",
-                "object_type"
-              ]
-            },
-            {
-              "type": "object",
-              "properties": {
-                "rel": { "type": "string" },
-                "title": { "type": "string" },
-                "href": { "type": "string" },
-                "object_type": { "type": "string" }
-              },
-              "required": [
-                "rel",
-                "title",
-                "href",
-                "object_type"
-              ]
-            },
-            {
-              "type": "object",
-              "properties": {
-                "rel": { "type": "string" },
-                "title": { "type": "string" },
-                "href": { "type": "string" },
-                "object_type": { "type": "string" }
-              },
-              "required": [
-                "rel",
-                "title",
-                "href",
-                "object_type"
-              ]
-            },
-            {
-              "type": "object",
-              "properties": {
-                "rel": { "type": "string" },
-                "title": { "type": "string" },
-                "href": { "type": "string" },
-                "object_type": { "type": "string" }
-              },
-              "required": [
-                "rel",
-                "title",
-                "href",
-                "object_type"
-              ]
-            }
-          ]
-        },
         "created_date": { "type": "string" }
       },
       "required": [
@@ -316,16 +134,8 @@
         "booked_appt_date_time",
         "type_of_care_id",
         "friendly_location_name",
-        "patient_id",
-        "appointment_request_id",
         "date",
         "assigning_authority",
-        "unique_id",
-        "system_id",
-        "self_uri",
-        "self_link",
-        "object_type",
-        "link",
         "created_date"
       ]
     }

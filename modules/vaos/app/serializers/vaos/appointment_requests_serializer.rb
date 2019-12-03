@@ -4,14 +4,23 @@ module VAOS
   class AppointmentRequestsSerializer
     include FastJsonapi::ObjectSerializer
 
-    set_id do |object|
-      object.data_identifier[:unique_id]
-    end
+    set_id(&:appointment_request_id)
 
     set_type :appointment_requests
 
     attribute :facility do |object|
-      object.facility.reverse_merge(type: nil, address: nil)
+      object.facility.reverse_merge(type: nil, address: nil).except(:link, :object_type)
+    end
+
+    attribute :patient do |object|
+      object.patient.slice(:inpatient, :text_messaging_allowed)
+    end
+
+    attribute :appointment_request_detail_code do |object|
+      Array.wrap(object.appointment_request_detail_code).map do |element|
+        element.slice(:appointment_request_detail_code_id, :created_date)
+               .merge(detail_code: element[:detail_code].slice(:code, :provider_message, :veteran_message))
+      end
     end
 
     attributes :last_updated_at,
@@ -34,9 +43,7 @@ module VAOS
                :provider_id,
                :second_request,
                :second_request_submitted,
-               :patient,
                :best_timeto_call,
-               :appointment_request_detail_code,
                :has_veteran_new_message,
                :has_provider_new_message,
                :provider_seen_appointment_request,
@@ -44,15 +51,7 @@ module VAOS
                :booked_appt_date_time,
                :type_of_care_id,
                :friendly_location_name,
-               :patient_id,
-               :appointment_request_id,
                :date,
-               :assigning_authority,
-               :unique_id,
-               :system_id,
-               :self_uri,
-               :self_link,
-               :object_type,
-               :link
+               :assigning_authority
   end
 end
