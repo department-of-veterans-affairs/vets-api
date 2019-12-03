@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 module Facilities
   module Metadata
     # Configuration class used to setup the environment used by client
