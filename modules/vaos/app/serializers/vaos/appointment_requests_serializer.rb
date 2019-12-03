@@ -17,9 +17,9 @@ module VAOS
     end
 
     attribute :appointment_request_detail_code do |object|
-      Array.wrap(object.appointment_request_detail_code).map do |element|
-        element.slice(:appointment_request_detail_code_id, :created_date)
-               .merge(detail_code: element[:detail_code].slice(:code, :provider_message, :veteran_message))
+      object.appointment_request_detail_code.map do |ardc|
+        ardc[:detail_code].except!(:link, :object_type)
+        ardc.except(:user_id, :link, :object_type)
       end
     end
 
