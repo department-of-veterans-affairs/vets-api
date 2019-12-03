@@ -15,10 +15,9 @@ task :lint do
             --format clang"
           else
             '--display-cop-names --auto-correct'
-         end
+          end
 
   puts 'running rubocop...'
-
   rubocop_result = ShellCommand.run("rubocop #{opts} --color")
 
   puts "\n"
