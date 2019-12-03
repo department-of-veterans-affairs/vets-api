@@ -83,7 +83,7 @@ RSpec.describe 'vaos appointment requests', type: :request do
           get '/v0/vaos/appointment_requests', params: params
           expect(response).to have_http_status(:success)
           expect(response.body).to be_a(String)
-          expect(response).to match_response_schema('vaos/appointment_requests', strict: false)
+          expect(response).to match_response_schema('vaos/appointment_requests')
         end
       end
     end
@@ -98,7 +98,7 @@ RSpec.describe 'vaos appointment requests', type: :request do
         post '/v0/vaos/appointment_requests', params: params
         expect(response).to have_http_status(:created)
         expect(response.body).to be_a(String)
-        expect(json_body_for(response)).to match_schema('vaos/appointment_request', strict: false)
+        expect(json_body_for(response)).to match_schema('vaos/appointment_request')
       end
     end
   end
@@ -131,7 +131,7 @@ RSpec.describe 'vaos appointment requests', type: :request do
         put "/v0/vaos/appointment_requests/#{id}", params: params
         expect(response).to have_http_status(:success)
         expect(response.body).to be_a(String)
-        expect(json_body_for(response)).to match_schema('vaos/appointment_request', strict: false)
+        expect(json_body_for(response)).to match_schema('vaos/appointment_request')
       end
     end
   end
