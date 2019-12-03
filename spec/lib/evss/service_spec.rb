@@ -21,9 +21,9 @@ describe EVSS::Service do
   describe '#save_error_details' do
     it 'sets the tags_context and extra_context' do
       expect(Raven).to receive(:tags_context).with(external_service: 'evss/foo/service')
-      expect(Raven).to receive(:extra_context).with(	
-        message: 'Common::Client::Errors::ClientError',	
-        url: '/',	
+      expect(Raven).to receive(:extra_context).with(
+        message: 'Common::Client::Errors::ClientError',
+        url: '/',
         body: nil,
         transaction_id: transaction_id
       )
