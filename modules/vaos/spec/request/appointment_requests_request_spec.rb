@@ -81,7 +81,6 @@ RSpec.describe 'vaos appointment requests', type: :request do
       it 'has access and returns va appointments' do
         VCR.use_cassette('vaos/appointment_requests/get_requests_with_params', match_requests_on: %i[method uri]) do
           get '/v0/vaos/appointment_requests', params: params
-
           expect(response).to have_http_status(:success)
           expect(response.body).to be_a(String)
           expect(response).to match_response_schema('vaos/appointment_requests', strict: false)
