@@ -7,7 +7,6 @@ module ClaimsApi
   module V1
     module Forms
       class PowerOfAttorneyController < ClaimsApi::BaseFormController
-        include ClaimsApi::PoaVerification
         include ClaimsApi::PageSizeValidation
 
         before_action { permit_scopes %w[claim.write] }
