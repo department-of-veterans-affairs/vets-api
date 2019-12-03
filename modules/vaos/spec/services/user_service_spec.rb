@@ -7,7 +7,7 @@ describe VAOS::UserService do
   let(:user) { build(:user, :mhv) }
 
   describe '#session' do
-    let(:rsa_private) { OpenSSL::PKey::RSA.new(read_fixture_file 'open_ssl_rsa_private.pem') }
+    let(:rsa_private) { OpenSSL::PKey::RSA.new(read_fixture_file('open_ssl_rsa_private.pem')) }
     let(:token) { 'abc123' }
     let(:response) { double('response', body: token) }
 

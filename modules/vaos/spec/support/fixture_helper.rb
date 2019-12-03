@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 def fixture_file_path(filename)
   VAOS::Engine.root.join("spec/fixtures/#{filename}").to_s
 end
