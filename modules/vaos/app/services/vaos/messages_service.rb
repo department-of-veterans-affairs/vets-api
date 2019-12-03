@@ -33,11 +33,12 @@ module VAOS
 
     def post_message(request_id, request_object_body)
       with_monitoring do
-        params = VAOS::MessageForm.new(user, request_object_body).params
+        params = VAOS::MessageForm.new(request_object_body).params
         response = perform(:post, messages_url(request_id), params, headers(user))
 
         {
-          data: OpenStruct.new(response.body)
+          data: deserialize(response.body),
+          meta: {}
         }
       end
     end
