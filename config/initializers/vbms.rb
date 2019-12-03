@@ -1,9 +1,8 @@
 # frozen_string_literal: true
 
 # OpenSSL::SSL::VERIFY_PEER = OpenSSL::SSL::VERIFY_NONE
-Rails.logger.warn "RAILS ENV IS #{Rails.env}"
 if Settings.vbms.present?
-  ENV['CONNECT_VBMS_BASE_URL'] = Settings.vbms.vbms_base_url
+  ENV['CONNECT_VBMS_BASE_URL'] = Settings.vbms.url
   ENV['CONNECT_VBMS_CACERT'] = Settings.vbms.vbms_ca_cert
   ENV['CONNECT_VBMS_CERT'] = Settings.vbms.cert
   ENV['CONNECT_VBMS_CLIENT_KEYFILE'] = Settings.vbms.client_keyfile
