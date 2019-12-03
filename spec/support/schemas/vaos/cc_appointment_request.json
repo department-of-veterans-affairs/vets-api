@@ -3,27 +3,18 @@
   "type": "object",
   "required": [
     "data_identifier",
-    "patient_identifier",
-    "surrogate_identifier",
     "has_veteran_new_message",
     "preferred_state",
     "preferred_city",
     "preferred_language",
+    "preferred_zip_code",
     "distance_willing_to_travel",
     "distance_eligible",
     "office_hours",
-    "preferred_providers",
-    "object_type",
-    "link"
+    "preferred_providers"
   ],
   "properties": {
     "data_identifier": {
-      "type": "object"
-    },
-    "patient_identifier": {
-      "type": "object"
-    },
-    "surrogate_identifier": {
       "type": "object"
     },
     "has_veteran_new_message": {
@@ -33,6 +24,9 @@
       "type": "string"
     },
     "preferred_city": {
+      "type": "string"
+    },
+    "preferred_zip_code": {
       "type": "string"
     },
     "preferred_language": {
@@ -87,12 +81,6 @@
           }
         }
       }
-    },
-    "object_type": {
-      "type": "string"
-    },
-    "link": {
-      "type": "array"
     }
   }
 }
