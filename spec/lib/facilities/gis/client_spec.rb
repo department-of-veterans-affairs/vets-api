@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe Facilities::GisClient do
+RSpec.describe Facilities::Gis::Client do
   RSpec::Matchers.define :has_order_and_offset do |order, offset|
     match do |params|
       params[:orderByFields].eql?(order) && params[:resultOffset].eql?(offset)
