@@ -19,7 +19,7 @@ module VAOS
     end
 
     def facility_id
-			params.require(:facility_id)
+      params.require(:facility_id)
     end
 
     def type_of_care_id
