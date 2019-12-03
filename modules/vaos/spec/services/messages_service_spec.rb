@@ -8,7 +8,7 @@ describe VAOS::MessagesService do
   let(:user) { build(:user, :vaos) }
   let(:request_id) { '8a4886886e4c8e22016e5bee49c30007' }
 
-  before { allow_any_instance_of(VAOS::UserService).to receive(:session).and_return('stubbed_token') }
+  # before { allow_any_instance_of(VAOS::UserService).to receive(:session).and_return('stubbed_token') }
 
   describe '#get_messages', :skip_mvi do
     it 'returns an array of size 1' do
@@ -34,6 +34,21 @@ describe VAOS::MessagesService do
         expect { subject.get_messages(request_id) }.to raise_error(
           Common::Exceptions::BackendServiceException
         )
+      end
+    end
+  end
+
+  describe '#post_message', :skip_mvi do
+    context 'when message is valid' do
+      let(:appointment_request_id) { } # need to update this with something valid on staging to record cassette.
+      let(:request_body) { message_text: 'I want to see doctor Jeckyl please.' }
+
+      it 'creates a new message' do
+        VCR.use_cassette('vaos/messages/post_message', record: :new_episodes) do
+          response = subject.post_message(appointment_request_id, request_body)
+          binding.pry
+          expect(response).to be_an_instance_of(String).and be_empty
+        end
       end
     end
   end
