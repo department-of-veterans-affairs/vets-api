@@ -12,4 +12,5 @@ LighthouseBGS.configure do |config|
   config.mock_responses = Settings.bgs.mock_responses
   config.external_uid = Settings.bgs.external_uid
   config.external_key = Settings.bgs.external_key
+  config.forward_proxy_url = Settings.bgs.url
 end
