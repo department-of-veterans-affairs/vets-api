@@ -15,7 +15,7 @@ module VAOS
       :option_date1, :option_time1, :option_date2, :option_time2, :option_date3, :option_time3, :status,
       :appointment_type, :visit_type, :phone_number, :email, :purpose_of_visit, :other_purpose_of_visit,
       :provider_id, :provider_name, :second_request, :second_request_submitted, :requested_phone_call, :type_of_care_id,
-      :best_timeto_call, facility: %i[name facility_code state city parent_site_code object_type],
+      best_timeto_call: [], facility: %i[name facility_code state city parent_site_code object_type],
                          appointment_request_detail_code: [], patient: %i[inpatient text_messaging_allowed]
     ].freeze
 
