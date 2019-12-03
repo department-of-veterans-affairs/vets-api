@@ -66,8 +66,6 @@ describe VAOS::AppointmentRequestsService do
           request_with_cc = response[:data][40]
           expect(request_with_cc.cc_appointment_request).to eq(
             data_identifier: {},
-            patient_identifier: {},
-            surrogate_identifier: {},
             has_veteran_new_message: false,
             preferred_zip_code: '20171',
             preferred_state: 'VA',
@@ -86,9 +84,7 @@ describe VAOS::AppointmentRequestsService do
                 object_type: 'Provider',
                 link: []
               }
-            ],
-            object_type: 'CCAppointmentRequest',
-            link: []
+            ]
           )
         end
       end
