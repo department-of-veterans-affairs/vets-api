@@ -140,4 +140,32 @@ RSpec.describe 'facilities', type: :request do
       end
     end
   end
+
+  describe 'GET /v0/vaos/facilities/:facility_id/limits' do
+    let(:user) { build(:user, :mhv) }
+
+    context 'with a valid GET facility limits response' do
+      it 'returns a 200 with the correct schema' do
+        VCR.use_cassette('vaos/systems/get_facility_limits', match_requests_on: %i[method uri]) do
+          get '/v0/vaos/facilities/688/limits', params: { type_of_care_id: '323' }
+
+          expect(response).to have_http_status(:ok)
+          expect(response.body).to be_a(String)
+          expect(response).to match_response_schema('vaos/facility_limits')
+        end
+      end
+    end
+
+    context 'when type_of_care_id is missing' do
+      it 'returns an error message with the missing param' do
+        VCR.use_cassette('vaos/systems/get_facility_limits', match_requests_on: %i[method uri]) do
+          get '/v0/vaos/facilities/688/limits'
+
+          expect(response).to have_http_status(:bad_request)
+          expect(JSON.parse(response.body)['errors'].first['detail'])
+            .to eq('The required parameter "type_of_care_id", is missing')
+        end
+      end
+    end
+  end
 end

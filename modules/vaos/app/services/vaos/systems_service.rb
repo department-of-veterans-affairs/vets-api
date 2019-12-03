@@ -18,6 +18,22 @@ module VAOS
       end
     end
 
+    def get_system_facilities(user, system_id, parent_code, type_of_care_id)
+      with_monitoring do
+        url = '/var/VeteranAppointmentRequestService/v4/rest/direct-scheduling/institutions'
+        url_params = {
+          'facility-code' => system_id,
+          'parent-code' => parent_code,
+          'clinical-service' => type_of_care_id
+        }
+        response = perform(:get, url, url_params, headers(user))
+        response.body.map do |system|
+          institution = system.delete(:institution)
+          OpenStruct.new(system.merge!(institution))
+        end
+      end
+    end
+
     def get_facilities(user, facility_codes)
       with_monitoring do
         url = '/var/VeteranAppointmentRequestService/v4/rest/direct-scheduling/parent-sites'
@@ -37,6 +53,18 @@ module VAOS
         }
         response = perform(:get, url, url_params, headers(user))
         response.body.map { |clinic| OpenStruct.new(clinic) }
+      end
+    end
+
+    def get_facility_limits(user, facility_id, type_of_care_id)
+      with_monitoring do
+        url = "/var/VeteranAppointmentRequestService/v4/rest/direct-scheduling/patient/ICN/#{user.icn}/request-limit"
+        url_params = {
+          'institution-code' => facility_id,
+          'clinical-service' => type_of_care_id
+        }
+        response = perform(:get, url, url_params, headers(user))
+        OpenStruct.new(response.body.merge!(id: facility_id))
       end
     end
 
