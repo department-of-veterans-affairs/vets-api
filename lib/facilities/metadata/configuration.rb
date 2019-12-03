@@ -1,9 +1,4 @@
 # frozen_string_literal: true
-
-require 'common/client/configuration/rest'
-require 'common/client/middleware/response/raise_error'
-require 'common/client/middleware/response/facility_parser'
-
 module Facilities
   module Metadata
     # Configuration class used to setup the environment used by client
