@@ -16,7 +16,7 @@ describe EVSS::CommonService do
       VCR.use_cassette(
         'evss/common/create_user_account',
         erb: { transaction_id: transaction_id },
-        match_requests_on: %i[host path method]
+        match_requests_on: VCR.all_matches
       ) do
         response = subject.create_user_account
         expect(response).to be_success

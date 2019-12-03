@@ -13,7 +13,7 @@ describe EVSS::ErrorMiddleware do
   it 'raises the proper error', run_at: 'Wed, 13 Dec 2017 23:45:40 GMT' do
     VCR.use_cassette(
       'evss/claims/claim_with_errors',
-      match_requests_on: %i[host path method]
+      match_requests_on: VCR.all_matches
     ) do
       expect { claims_service.find_claim_by_id 1 }.to raise_exception(described_class::EVSSError)
     end

@@ -26,7 +26,7 @@ describe EVSS::ClaimsService do
       VCR.use_cassette(
         'evss/claims/claims',
         erb: { transaction_id: transaction_id },
-        match_requests_on: %i[method uri headers body]
+        match_requests_on: VCR.all_matches
       ) do
         response = subject.all_claims
         expect(response).to be_success
@@ -37,7 +37,7 @@ describe EVSS::ClaimsService do
       VCR.use_cassette(
         'evss/claims/set_5103_waiver',
         erb: { transaction_id: transaction_id },
-        match_requests_on: %i[method uri headers body]
+        match_requests_on: VCR.all_matches
       ) do
         response = subject.request_decision(evss_id)
         expect(response).to be_success
