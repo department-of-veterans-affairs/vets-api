@@ -23,6 +23,9 @@ RSpec.describe ClaimsApi::VbmsUploader, type: :job do
     let(:power_of_attorney) { create(:power_of_attorney) }
 
     it 'responds properly when there is a 500 error' do
+      Rails.logger.warn '----VBMS SETTINGS---'
+      Rails.logger.warn Settings.vbms.present?
+      Rails.logger.warn Settings.vbms.inspect
       VCR.use_cassette('vbms/document_upload_500') do
         subject.new.perform(power_of_attorney.id)
         power_of_attorney.reload
