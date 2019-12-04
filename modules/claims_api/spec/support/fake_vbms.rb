@@ -3,7 +3,6 @@
 require_relative './claims_api_fixtures'
 
 class FakeVbms
-
   attr_accessor :client
 
   delegate :send_request, to: :client
@@ -21,5 +20,4 @@ class FakeVbms
       proxy_base_url: use_forward_proxy ? 'http://localhost:3000' : nil
     )
   end
-
 end
