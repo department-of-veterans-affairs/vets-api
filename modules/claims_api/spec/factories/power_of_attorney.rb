@@ -4,7 +4,7 @@ FactoryBot.define do
   factory :power_of_attorney, class: 'ClaimsApi::PowerOfAttorney' do
     id { SecureRandom.uuid }
     status { 'submitted' }
-    auth_headers { {} }
+    auth_headers { { 'va_eauth_pnid': '796378881' } }
     form_data do
       json = JSON.parse(File.read("#{::Rails.root}/modules/claims_api/spec/fixtures/form_2122_json_api.json"))
       json['data']['attributes']
