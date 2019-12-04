@@ -25,7 +25,7 @@ module ClaimsApi
           power_of_attorney = ClaimsApi::PowerOfAttorney.find_by(md5: power_of_attorney.md5) unless power_of_attorney.id
           power_of_attorney.save!
 
-          # This job only occurs when a Veteran submits a PoA request, they are not required to submit a document to VBMS.
+          # This job only occurs when a Veteran submits a PoA request, they are not required to submit a document.
           ClaimsApi::PoaUpdater.perform_async(power_of_attorney.id) unless poa_request?
 
           render json: power_of_attorney, serializer: ClaimsApi::PowerOfAttorneySerializer
@@ -34,7 +34,7 @@ module ClaimsApi
         def upload
           power_of_attorney = ClaimsApi::PowerOfAttorney.find_by(id: params[:id])
 
-          # This job only occurs when a Representative submits a PoA request to ensure they've also uploaded a document as well.
+          # This job only occurs when a Representative submits a PoA request to ensure they've also uploaded a document.
           ClaimsApi::PoaUpdater.perform_async(power_of_attorney.id) if poa_request?
 
           power_of_attorney.set_file_data!(documents.first, params[:doc_type])
@@ -42,7 +42,7 @@ module ClaimsApi
           power_of_attorney.save!
           power_of_attorney.reload
 
-          # This job will trigger whether submission is from a Veteran or Representative in the event a document is needed.
+          # This job will trigger whether submission is from a Veteran or Representative when a document is sent.
           ClaimsApi::VbmsUploader.perform_async(power_of_attorney.id)
           render json: power_of_attorney, serializer: ClaimsApi::PowerOfAttorneySerializer
         end
