@@ -6,7 +6,7 @@ module Facilities
       attr_writer :validate_on_load
 
       def pull_source_data
-        metadata = Facilities::MetadataClient.new.get_metadata(arcgis_type)
+        metadata = Facilities::Metadata::Client.new.get_metadata(arcgis_type)
         max_record_count = metadata['maxRecordCount']
         Facilities::Client.new.get_all_facilities(arcgis_type, sort_field, max_record_count).map(&method(:new))
       end
