@@ -25,7 +25,7 @@ module ClaimsApi
           power_of_attorney = ClaimsApi::PowerOfAttorney.find_by(md5: power_of_attorney.md5) unless power_of_attorney.id
           power_of_attorney.save!
 
-          ClaimsApi::PoaUpdater.perform_async(power_of_attorney.id)
+          ClaimsApi::PoaUpdater.perform_async(power_of_attorney.id) unless poa_request?
 
           render json: power_of_attorney, serializer: ClaimsApi::PowerOfAttorneySerializer
         end
@@ -36,6 +36,7 @@ module ClaimsApi
           power_of_attorney.status = 'submitted'
           power_of_attorney.save!
           power_of_attorney.reload
+          ClaimsApi::PoaUpdater.perform_async(power_of_attorney.id) if poa_request?
           render json: power_of_attorney, serializer: ClaimsApi::PowerOfAttorneySerializer
         end
 
