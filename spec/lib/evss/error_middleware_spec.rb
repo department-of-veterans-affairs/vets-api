@@ -10,7 +10,10 @@ describe EVSS::ErrorMiddleware do
   let(:claims_service) { EVSS::ClaimsService.new(auth_headers) }
 
   it 'raises the proper error', run_at: 'Wed, 13 Dec 2017 23:45:40 GMT' do
-    VCR.use_cassette('evss/claims/claim_with_errors', VCR::MATCH_EVERYTHING) do
+    VCR.use_cassette(
+      'evss/claims/claim_with_errors',
+      match_requests_on: %i[host path method]
+    ) do
       expect { claims_service.find_claim_by_id 1 }.to raise_exception(described_class::EVSSError)
     end
   end
