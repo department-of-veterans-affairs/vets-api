@@ -16,7 +16,7 @@ module VAOS
     end
 
     def facilities_params
-      params.require(:facility_code)
+      params.require(:facility_codes)
     end
   end
 end
