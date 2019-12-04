@@ -37,6 +37,7 @@ module ClaimsApi
           power_of_attorney.save!
           power_of_attorney.reload
           ClaimsApi::PoaUpdater.perform_async(power_of_attorney.id) if poa_request?
+          ClaimsApi::VbmsUploader.perform_async(power_of_attorney.id)
           render json: power_of_attorney, serializer: ClaimsApi::PowerOfAttorneySerializer
         end
 
