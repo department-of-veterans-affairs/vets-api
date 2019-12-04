@@ -8,7 +8,9 @@ VAOS::Engine.routes.draw do
     resources :appointment_requests, only: %i[index create update] do
       resources :messages, only: :index
     end
-    resources :systems, only: :index
+    resources :systems, only: :index do
+      resources :direct_scheduling_facilities, only: :index
+    end
     resources :facilities, only: :index do
       resources :clinics, only: :index
       resources :cancel_reasons, only: :index
@@ -18,3 +20,4 @@ VAOS::Engine.routes.draw do
     get 'api', to: 'apidocs#index'
   end
 end
+3
