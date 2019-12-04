@@ -9,7 +9,7 @@ module ClaimsApi
     def perform(auto_claim_id)
       auto_claim = ClaimsApi::AutoEstablishedClaim.find(auto_claim_id)
 
-      form_data = auto_claim.form.to_internal
+      form_data = auto_claim.to_internal
       auth_headers = auto_claim.auth_headers
 
       begin

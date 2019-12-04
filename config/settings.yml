@@ -104,6 +104,11 @@ ihub:
     mock: true
   in_production: false
 
+# Settings for Decision Reviews
+decision_review:
+  url: https://dev-api.va.gov/services/appeals/v3/decision_review
+  api_key: abcd1234abcd1234abcd1234abcd1234abcd1234
+  mock: false
 
 # Settings for EVSS
 evss:
@@ -160,6 +165,8 @@ evss:
 # Settings for GI Bill Data Service
 gids:
   url: https://dev.va.gov/gids
+  open_timeout: 1
+  read_timeout: 1
 
 mvi_hca:
   url: http://example.com
@@ -240,7 +247,7 @@ emis:
   mock: true
   host: https://vaausvrsapp81.aac.va.gov
   veteran_status_url: /VIERSService/eMIS/v1/VeteranStatusService
-  payment_url: 
+  payment_url:
     v1: /VIERSService/eMIS/v1/PaymentService
     v2: /VIERSService/eMIS/v2/PaymentService
   military_information_url: /VIERSService/eMIS/v1/MilitaryInformationService
@@ -263,8 +270,8 @@ emis:
     v2:
       soap_namespaces:
         xmlns:v1: http://viers.va.gov/cdi/CDI/commonService/v2
-        xmlns:v12: http://viers.va.gov/cdi/eMIS/RequestResponse/v2 
-        xmlns:v13: http://viers.va.gov/cdi/eMIS/commonService/v2 
+        xmlns:v12: http://viers.va.gov/cdi/eMIS/RequestResponse/v2
+        xmlns:v13: http://viers.va.gov/cdi/eMIS/commonService/v2
         xmlns:v11: http://viers.va.gov/cdi/eMIS/RequestResponse/Payment/v2
   veteran_status:
     soap_namespaces:
@@ -407,6 +414,7 @@ flipper:
   admin_user_emails:
     - alastair@adhocteam.us
     - anna@adhoc.team
+    - erik@adhocteam.us
     - jbalboni@gmail.com
     - jeff@adhocteam.us
     - johnny@oddball.io
