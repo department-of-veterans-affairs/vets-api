@@ -1,6 +1,6 @@
 --color
 --require spec_helper
---format Fuubar
+--format progress
 <% if ENV['CI'] %>
 --format RspecJunitFormatter
 --out log/rspec.xml
