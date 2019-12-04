@@ -19,7 +19,7 @@ module VAOS
     end
 
     def appt_params
-      params.require([:facility_id, :start_date, :end_date, :clinic_ids])
+      params.require(%i[facility_id start_date end_date clinic_ids])
       params.permit(
         :facility_id,
         :start_date,
