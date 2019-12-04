@@ -292,4 +292,56 @@ RSpec.describe 'facilities', type: :request do
       end
     end
   end
+
+  describe 'GET /v0/vaos/facilities/:facility_id/visits/:schedule_type' do
+    let(:user) { build(:user, :mhv) }
+
+    context 'with a valid GET facility visits response' do
+      it 'returns a 200 with the correct schema' do
+        VCR.use_cassette('vaos/systems/get_facility_visits', match_requests_on: %i[method uri]) do
+          get '/v0/vaos/facilities/688/visits/direct', params: { system_id: '688', type_of_care_id: '323' }
+          puts response.body
+          expect(response).to have_http_status(:ok)
+          expect(response.body).to be_a(String)
+          expect(response).to match_response_schema('vaos/facility_visits')
+        end
+      end
+    end
+
+    context 'when schedule_type is invalid' do
+      it 'returns an error message with the missing param' do
+        VCR.use_cassette('vaos/systems/get_facility_visits', match_requests_on: %i[method uri]) do
+          get '/v0/vaos/facilities/688/visits/foo', params: { system_id: '688', type_of_care_id: '323' }
+
+          expect(response).to have_http_status(:bad_request)
+          expect(JSON.parse(response.body)['errors'].first['detail'])
+            .to eq('"foo" is not a valid value for "schedule_type"')
+        end
+      end
+    end
+
+    context 'when system_id is missing' do
+      it 'returns an error message with the missing param' do
+        VCR.use_cassette('vaos/systems/get_facility_visits', match_requests_on: %i[method uri]) do
+          get '/v0/vaos/facilities/688/visits/foo', params: { type_of_care_id: '323' }
+
+          expect(response).to have_http_status(:bad_request)
+          expect(JSON.parse(response.body)['errors'].first['detail'])
+            .to eq('The required parameter "system_id", is missing')
+        end
+      end
+    end
+
+    context 'when type_of_care_id is missing' do
+      it 'returns an error message with the missing param' do
+        VCR.use_cassette('vaos/systems/get_facility_visits', match_requests_on: %i[method uri]) do
+          get '/v0/vaos/facilities/688/visits/foo', params: { system_id: '688' }
+
+          expect(response).to have_http_status(:bad_request)
+          expect(JSON.parse(response.body)['errors'].first['detail'])
+            .to eq('The required parameter "type_of_care_id", is missing')
+        end
+      end
+    end
+  end
 end

@@ -52,9 +52,9 @@ module VAOS
       with_monitoring do
         url = "/var/VeteranAppointmentRequestService/v4/rest/clinical-services/patient/ICN/#{@user.icn}/clinics"
         url_params = {
-          'three-digit-code' => facility_id,
+          'three-digit-code' => system_id,
           'clinical-service' => type_of_care_id,
-          'institution-code' => system_id
+          'institution-code' => facility_id
         }
         response = perform(:get, url, url_params, headers(@user))
         response.body.map { |clinic| OpenStruct.new(clinic) }
@@ -89,6 +89,19 @@ module VAOS
         options = { params_encoder: Faraday::FlatParamsEncoder }
         response = perform(:get, url, url_params, headers(@user), options)
         response.body.map { |fa| VAOS::FacilityAvailability.new(fa) }
+      end
+    end
+
+    def get_facility_visits(system_id, facility_id, type_of_care_id, schedule_type)
+      with_monitoring do
+        url = "/var/VeteranAppointmentRequestService/v4/rest/direct-scheduling/site/#{system_id}" \
+                "/patient/ICN/#{@user.icn}/#{schedule_type}-eligibility/visited-in-past-months"
+        url_params = {
+          'institution-code' => facility_id,
+          'clinical-service' => type_of_care_id
+        }
+        response = perform(:get, url, url_params, headers(@user))
+        OpenStruct.new(response.body)
       end
     end
 
