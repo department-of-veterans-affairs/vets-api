@@ -47,7 +47,7 @@
                 "type": "string"
               },
               "appointment_length": {
-                "type": "string"
+                "type": "integer"
               },
               "clinic_display_start_time": {
                 "type": "string"
@@ -62,7 +62,7 @@
                 "type": "boolean"
               },
               "max_overbooks_per_day": {
-                "type": "string"
+                "type": "integer"
               },
               "has_user_access_to_clinic": {
                 "type": "boolean"

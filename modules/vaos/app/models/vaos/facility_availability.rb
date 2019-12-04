@@ -1,22 +1,22 @@
 # frozen_string_literal: true
 
-require 'common/models/resource'
+require 'common/models/base'
 
 module VAOS
-  class FacilityAvailability < Common::Resource
-    attribute :clinic_id, Types::String
-    attribute :clinic_name, Types::String
-    attribute :appointment_length, Types::Integer
-    attribute :clinic_display_start_time, Types::String
-    attribute :display_increments, Types::String
-    attribute :stop_code, Types::String
-    attribute :ask_for_check_in, Types::Bool
-    attribute :max_overbooks_per_day, Types::Integer
-    attribute :has_user_access_to_clinic, Types::Bool
-    attribute :primary_stop_code, Types::String
-    attribute :secondary_stop_code, Types::String
-    attribute :list_size, Types::Integer
-    attribute :empty, Types::Bool
-    attribute :appointment_time_slot, Types::Array.of(VAOS::AppointmentTimeSlot)
+  class FacilityAvailability < Common::Base
+    attribute :clinic_id, String
+    attribute :clinic_name, String
+    attribute :appointment_length, Integer
+    attribute :clinic_display_start_time, String
+    attribute :display_increments, String
+    attribute :stop_code, String
+    attribute :ask_for_check_in, Boolean
+    attribute :max_overbooks_per_day, Integer
+    attribute :has_user_access_to_clinic, Boolean
+    attribute :primary_stop_code, String
+    attribute :secondary_stop_code, String
+    attribute :list_size, Integer
+    attribute :empty, Boolean
+    attribute :appointment_time_slot, Array[VAOS::AppointmentTimeSlot]
   end
 end

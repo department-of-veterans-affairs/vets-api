@@ -23,10 +23,27 @@ module VAOS
       end
     end
 
-    def get_facilities(facility_code)
+    def get_system_facilities(system_id, parent_code, type_of_care_id)
+      with_monitoring do
+        url = '/var/VeteranAppointmentRequestService/v4/rest/direct-scheduling/institutions'
+        url_params = {
+          'facility-code' => system_id,
+          'parent-code' => parent_code,
+          'clinical-service' => type_of_care_id
+        }
+        response = perform(:get, url, url_params, headers(@user))
+        response.body.map do |system|
+          institution = system.delete(:institution)
+          OpenStruct.new(system.merge!(institution))
+        end
+      end
+    end
+
+    def get_facilities(facility_codes)
       with_monitoring do
         url = '/var/VeteranAppointmentRequestService/v4/rest/direct-scheduling/parent-sites'
-        response = perform(:get, url, { 'facility-code' => facility_code }, headers(@user))
+        options = { params_encoder: Faraday::FlatParamsEncoder }
+        response = perform(:get, url, { 'facility-code' => facility_codes }, headers(@user), options)
         response.body.map { |facility| OpenStruct.new(facility) }
       end
     end
@@ -41,6 +58,18 @@ module VAOS
         }
         response = perform(:get, url, url_params, headers(@user))
         response.body.map { |clinic| OpenStruct.new(clinic) }
+      end
+    end
+
+    def get_facility_limits(facility_id, type_of_care_id)
+      with_monitoring do
+        url = "/var/VeteranAppointmentRequestService/v4/rest/direct-scheduling/patient/ICN/#{@user.icn}/request-limit"
+        url_params = {
+          'institution-code' => facility_id,
+          'clinical-service' => type_of_care_id
+        }
+        response = perform(:get, url, url_params, headers(@user))
+        OpenStruct.new(response.body.merge!(id: facility_id))
       end
     end
 
