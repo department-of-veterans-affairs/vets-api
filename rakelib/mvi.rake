@@ -43,6 +43,54 @@ middle_name="W" last_name="Smith" birth_date="1945-01-25" gender="M" ssn="555443
     end
   end
 
+  desc 'Given a CSV with ICNs, append attributes needed to stage the user as ID.me LOA3' do
+    task idme_saml_stage_attributes: [:csvfile] => :environment do |_, args|
+      raise 'No input CSV provided' unless args[:csvfile]
+
+      CSV.open(args[:csvfile] + '.out', 'w', write_headers: true) do |dest|
+        existing_headers = CSV.open(args[:csvfile], &:readline)
+        appended_headers = %w[first_name middle_name last_name gender birth_date ssn address]
+        CSV.open(args[:csvfile], headers: true) do |source|
+          dest << (existing_headers + appended_headers)
+          source.each_with_index do |row, i|
+            user_identity = UserIdentity.new(
+              uuid: SecureRandom.uuid,
+              email: 'fakeemail@needed_for_object_validation.gov',
+              mhv_icn: row['icn'], # hack because the presence of this attribute results in ICN based MVI lookup
+              loa: {
+                current: LOA::THREE,
+                highest: LOA::THREE
+              }
+            )
+
+            # Not accidentally persisting any users, user_identities, or caching MVI by doing it this way.
+            user = User.new(uuid: user_identity.uuid)
+            user.instance_variable_set(:@identity, user_identity)
+            mvi = Mvi.for_user(user)
+            response = mvi.send(:mvi_service).find_profile(user_identity)
+
+            appended_headers.each do |column_name|
+              case column_name
+              when 'address'
+                row['address'] = response.profile.address.to_json
+              when 'first_name'
+                row['first_name'] = response.profile.given_names.first
+              when 'middle_name'
+                row['middle_name'] = response.profile.given_names.to_a[1..-1]&.join(' ')
+              when 'last_name'
+                row['last_name'] = response.profile.family_name
+              else
+                row[column_name] = user.send(column_name.to_sym)
+              end
+            end
+
+            dest << row
+          end
+        end
+      end
+    end
+  end
+
   desc 'Build mock MVI yaml database for users in given CSV'
   task :mock_database, [:csvfile] => [:environment] do |_, args|
     raise 'No input CSV provided' unless args[:csvfile]
