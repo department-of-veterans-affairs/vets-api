@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require_relative './claims_api_fixtures'
-
 class FakeVbms
   attr_accessor :client
 
