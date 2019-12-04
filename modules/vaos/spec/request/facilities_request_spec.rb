@@ -141,6 +141,130 @@ RSpec.describe 'facilities', type: :request do
     end
   end
 
+  describe '/v0/vaos/facilities/:id/available_appointments' do
+    let(:facility_id) { '688' }
+    let(:start_date) { DateTime.new(2019, 11, 22).to_s }
+    let(:end_date) { DateTime.new(2020, 2, 19).to_s }
+    let(:clinic_ids) { ['2276'] }
+    let(:params) do
+    end
+
+    context 'with a loa1 user' do
+      let(:user) { FactoryBot.create(:user, :loa1) }
+
+      it 'returns a forbidden error' do
+        get "/v0/vaos/facilities/#{facility_id}/cancel_reasons", params: {
+          start_date: start_date,
+          end_date: end_date,
+          clinic_ids: clinic_ids
+        }
+        expect(response).to have_http_status(:forbidden)
+        expect(JSON.parse(response.body)['errors'].first['detail'])
+          .to eq('You do not have access to online scheduling')
+      end
+    end
+
+    context 'with a loa3 user' do
+      let(:user) { build(:user, :mhv) }
+      let(:json) { JSON.parse(response.body) }
+
+      context 'with a valid GET response' do
+        it 'returns a 200 with the correct schema' do
+          VCR.use_cassette('vaos/systems/get_facility_available_appointments', match_requests_on: %i[method uri]) do
+            get "/v0/vaos/facilities/#{facility_id}/available_appointments", params: {
+              start_date: start_date,
+              end_date: end_date,
+              clinic_ids: clinic_ids
+            }
+
+            expect(response).to have_http_status(:ok)
+            expect(response).to match_response_schema('vaos/facility_available_appointments')
+          end
+        end
+      end
+
+      context 'when start_date is missing' do
+        it 'returns a 400 with missing param start_date' do
+          VCR.use_cassette('vaos/systems/get_facility_clinics', match_requests_on: %i[method uri]) do
+            get "/v0/vaos/facilities/#{facility_id}/available_appointments", params: {
+              end_date: end_date,
+              clinic_ids: clinic_ids
+            }
+
+            expect(response).to have_http_status(:bad_request)
+            expect(json['errors'].first['detail']).to eq('The required parameter "start_date", is missing')
+          end
+        end
+      end
+
+      context 'when end_date is missing' do
+        it 'returns a 400 with missing param end_date' do
+          VCR.use_cassette('vaos/systems/get_facility_clinics', match_requests_on: %i[method uri]) do
+            get "/v0/vaos/facilities/#{facility_id}/available_appointments", params: {
+              start_date: start_date,
+              clinic_ids: clinic_ids
+            }
+
+            expect(response).to have_http_status(:bad_request)
+            expect(json['errors'].first['detail']).to eq('The required parameter "end_date", is missing')
+          end
+        end
+      end
+
+      context 'when clinic_ids is missing' do
+        it 'returns a 400 with missing param clinic_ids' do
+          VCR.use_cassette('vaos/systems/get_facility_clinics', match_requests_on: %i[method uri]) do
+            get "/v0/vaos/facilities/#{facility_id}/available_appointments", params: {
+              start_date: start_date,
+              end_date: end_date
+            }
+
+            expect(response).to have_http_status(:bad_request)
+            expect(json['errors'].first['detail']).to eq('The required parameter "clinic_ids", is missing')
+          end
+        end
+      end
+
+      context 'when start_date is an invalid date' do
+        let(:start_date) { '2019-22-11T00:00:00+00:00' }
+
+        it 'returns a 400 with invalid date format' do
+          VCR.use_cassette('vaos/systems/get_facility_clinics', match_requests_on: %i[method uri]) do
+            get "/v0/vaos/facilities/#{facility_id}/available_appointments", params: {
+              start_date: start_date,
+              end_date: end_date,
+              clinic_ids: clinic_ids
+            }
+
+            expect(response).to have_http_status(:bad_request)
+            expect(json['errors'].first['detail']).to eq(
+              '"2019-22-11T00:00:00+00:00" is not a valid value for "start_date"'
+            )
+          end
+        end
+      end
+
+      context 'when end_date is an invalid date' do
+        let(:end_date) { '2019-35-11T00:00:00+00:00' }
+
+        it 'returns a 400 with invalid date format' do
+          VCR.use_cassette('vaos/systems/get_facility_clinics', match_requests_on: %i[method uri]) do
+            get "/v0/vaos/facilities/#{facility_id}/available_appointments", params: {
+              start_date: start_date,
+              end_date: end_date,
+              clinic_ids: clinic_ids
+            }
+
+            expect(response).to have_http_status(:bad_request)
+            expect(json['errors'].first['detail']).to eq(
+              '"2019-35-11T00:00:00+00:00" is not a valid value for "end_date"'
+            )
+          end
+        end
+      end
+    end
+  end
+
   describe 'GET /v0/vaos/facilities/:facility_id/limits' do
     let(:user) { build(:user, :mhv) }
 

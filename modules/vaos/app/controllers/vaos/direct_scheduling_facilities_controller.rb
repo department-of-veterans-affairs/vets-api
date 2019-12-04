@@ -6,7 +6,6 @@ module VAOS
   class DirectSchedulingFacilitiesController < ApplicationController
     def index
       response = systems_service.get_system_facilities(
-        current_user,
         facilities_params[:system_id],
         facilities_params[:parent_code],
         facilities_params[:type_of_care_id]
@@ -18,7 +17,7 @@ module VAOS
     private
 
     def systems_service
-      VAOS::SystemsService.new
+      VAOS::SystemsService.new(current_user)
     end
 
     def facilities_params
