@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: post
-    uri: https://localhost:4449/vbms-efolder-svc/upload-v1/eFolderUploadService
+    uri: http://test.endpoint.url//vbms-efolder-svc/upload-v1/eFolderUploadService
     body:
       encoding: UTF-8
       string: |
