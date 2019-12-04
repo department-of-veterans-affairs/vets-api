@@ -4,7 +4,7 @@ require 'common/client/base'
 
 module Facilities
   module Gis
-    class MetadataClient < Facilities::MetadataClient
+    class MetadataClient < Facilities::Metadata::Client
       configuration Facilities::Gis::MetadataConfiguration
     end
   end
