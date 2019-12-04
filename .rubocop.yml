@@ -70,6 +70,8 @@ Style/ZeroLengthPredicate:
 
 Metrics/LineLength:
   Max: 120
+  Exclude:
+    - 'Gemfile'
 
 Rails:
   Enabled: true
