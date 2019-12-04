@@ -55,13 +55,14 @@ RSpec.describe OpenidApplicationController, type: :controller do
 
       it 'rejects access when expired' do
         with_okta_configured do
-          new_token = token
-          new_token[0]['iat'] = Time.current.utc.to_i - 7200
-          new_token[0]['exp'] = Time.current.utc.to_i - 3600
-          allow(JWT).to receive(:decode).and_return(new_token)
+          exp_token = token
+          exp_token[0]['iat'] = Time.current.utc.to_i - 7200
+          exp_token[0]['exp'] = Time.current.utc.to_i - 3600
+          allow(JWT).to receive(:decode).and_return(exp_token)
           get :index
-          expect(response.status).to eq(401)
-          expect(response.body).to eq("Token is expired")
+          expect(response.status).to eq(403)
+          errors = JSON.parse(response.body)['errors']
+          expect(errors[0]['detail']).to eq("Token has expired. Refresh for a new token")
         end
       end
     end
@@ -170,14 +171,6 @@ RSpec.describe OpenidApplicationController, type: :controller do
       it 'returns 401' do
         get :index
         expect(response.status).to eq(401)
-      end
-    end
-
-    context 'with an expired token' do
-      it 'returns a 401 and a message to refresh token' do
-        get :index
-        expect(response.status).to eq(401)
-        expect(response.body).to eq("Token has expired")
       end
     end
 

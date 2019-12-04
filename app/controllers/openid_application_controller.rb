@@ -11,6 +11,11 @@ require 'jwt'
 class OpenidApplicationController < ApplicationController
   before_action :authenticate
   TOKEN_REGEX = /Bearer /.freeze
+  class ValidationError < StandardError
+  end
+
+  class ExpiredTokenError < StandardError
+  end
 
   private
 
@@ -52,7 +57,9 @@ class OpenidApplicationController < ApplicationController
     @session = build_session(token, token_identifiers.uuid, ttl)
     @session.save && user_identity.save && @current_user.save
   rescue JWT::ExpiredSignature
-    raise JWT::ExpiredSignature
+    raise ExpiredTokenError
+  rescue ExpiredTokenError
+    raise ExpiredTokenError
   rescue => e
     Rails.logger.warn(e)
   end
@@ -71,10 +78,10 @@ class OpenidApplicationController < ApplicationController
   end
 
   def validate_token
-    raise 'Validation error: no payload to validate' unless token_payload
-    raise 'Validation error: issuer' unless token_payload['iss'] == Settings.oidc.issuer
-    raise 'Validation error: audience' unless token_payload['aud'] == Settings.oidc.audience
-    raise 'Validation error: ttl' unless token_payload['exp'] >= Time.current.utc.to_i
+    raise ValidationError, 'Validation error: no payload to validate' unless token_payload
+    raise ValidationError, 'Validation error: issuer' unless token_payload['iss'] == Settings.oidc.issuer
+    raise ValidationError, 'Validation error: audience' unless token_payload['aud'] == Settings.oidc.audience
+    raise ExpiredTokenError unless token_payload['exp'] >= Time.current.utc.to_i
   end
 
   def fetch_profile(uid)

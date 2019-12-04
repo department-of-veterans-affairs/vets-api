@@ -87,7 +87,7 @@ class ApplicationController < ActionController::API
       case exception
       when Pundit::NotAuthorizedError
         Common::Exceptions::Forbidden.new(detail: 'User does not have access to the requested resource')
-      when JWT::ExpiredSignature
+      when OpenidApplicationController::ExpiredTokenError
         Common::Exceptions::Forbidden.new(detail: 'Token has expired. Refresh for a new token')
       when ActionController::ParameterMissing
         Common::Exceptions::ParameterMissing.new(exception.param)
