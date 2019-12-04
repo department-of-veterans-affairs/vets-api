@@ -26,10 +26,21 @@ RSpec.describe 'facilities', type: :request do
     context 'with a loa3 user' do
       let(:user) { build(:user, :mhv) }
 
-      context 'with a valid GET facilities response' do
+      context 'with a single valid facility code' do
         it 'returns a 200 with the correct schema' do
           VCR.use_cassette('vaos/systems/get_facilities', match_requests_on: %i[method uri]) do
-            get '/v0/vaos/facilities', params: { facility_code: 688 }
+            get '/v0/vaos/facilities', params: { facility_codes: 688 }
+
+            expect(response).to have_http_status(:ok)
+            expect(response).to match_response_schema('vaos/facilities')
+          end
+        end
+      end
+
+      context 'with a multiple valid facility codes' do
+        it 'returns a 200 with the correct schema' do
+          VCR.use_cassette('vaos/systems/get_facilities_multiple') do
+            get '/v0/vaos/facilities', params: { facility_codes: [983, 984] }
 
             expect(response).to have_http_status(:ok)
             expect(response).to match_response_schema('vaos/facilities')
@@ -45,7 +56,7 @@ RSpec.describe 'facilities', type: :request do
             get '/v0/vaos/facilities'
 
             expect(response).to have_http_status(:bad_request)
-            expect(json['errors'].first['detail']).to eq('The required parameter "facility_code", is missing')
+            expect(json['errors'].first['detail']).to eq('The required parameter "facility_codes", is missing')
           end
         end
       end
