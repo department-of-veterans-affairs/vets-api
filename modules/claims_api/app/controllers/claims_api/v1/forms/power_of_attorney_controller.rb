@@ -7,7 +7,6 @@ module ClaimsApi
   module V1
     module Forms
       class PowerOfAttorneyController < ClaimsApi::BaseFormController
-        include ClaimsApi::PoaVerification
         include ClaimsApi::PageSizeValidation
 
         before_action { permit_scopes %w[claim.write] }
@@ -26,17 +25,24 @@ module ClaimsApi
           power_of_attorney = ClaimsApi::PowerOfAttorney.find_by(md5: power_of_attorney.md5) unless power_of_attorney.id
           power_of_attorney.save!
 
-          ClaimsApi::PoaUpdater.perform_async(power_of_attorney.id)
+          # This job only occurs when a Veteran submits a PoA request, they are not required to submit a document.
+          ClaimsApi::PoaUpdater.perform_async(power_of_attorney.id) unless poa_request?
 
           render json: power_of_attorney, serializer: ClaimsApi::PowerOfAttorneySerializer
         end
 
         def upload
           power_of_attorney = ClaimsApi::PowerOfAttorney.find_by(id: params[:id])
+
+          # This job only occurs when a Representative submits a PoA request to ensure they've also uploaded a document.
+          ClaimsApi::PoaUpdater.perform_async(power_of_attorney.id) if poa_request?
+
           power_of_attorney.set_file_data!(documents.first, params[:doc_type])
           power_of_attorney.status = 'submitted'
           power_of_attorney.save!
           power_of_attorney.reload
+
+          # This job will trigger whether submission is from a Veteran or Representative when a document is sent.
           ClaimsApi::VbmsUploader.perform_async(power_of_attorney.id)
           render json: power_of_attorney, serializer: ClaimsApi::PowerOfAttorneySerializer
         end
