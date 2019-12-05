@@ -118,6 +118,10 @@ ActiveRecord::Schema.define(version: 2019_12_04_152342) do
     t.string "source"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "vbms_new_document_version_ref_id"
+    t.string "vbms_document_series_ref_id"
+    t.string "vbms_error_message"
+    t.integer "vbms_upload_failure_count", default: 0
   end
 
   create_table "claims_api_supporting_documents", id: :uuid, default: -> { "uuid_generate_v4()" }, force: :cascade do |t|

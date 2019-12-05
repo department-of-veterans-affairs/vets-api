@@ -10,7 +10,7 @@ module EMIS
     # Military Information Service URL
     # @return [String] Military Information Service URL
     def base_path
-      URI.join(Settings.emis.host, Settings.emis.military_information_url).to_s
+      URI.join(Settings.emis.host, Settings.emis.military_information_url.v1).to_s
     end
 
     # :nocov:
