@@ -44,7 +44,7 @@ middle_name="W" last_name="Smith" birth_date="1945-01-25" gender="M" ssn="555443
   end
 
   desc 'Given a CSV with ICNs, append attributes needed to stage the user as ID.me LOA3' do
-    task idme_saml_stage_attributes: [:csvfile] => :environment do |_, args|
+    task :idme_saml_stage_attributes, [:csvfile] => [:environment] do |_, args|
       raise 'No input CSV provided' unless args[:csvfile]
 
       CSV.open(args[:csvfile] + '.out', 'w', write_headers: true) do |dest|
@@ -52,18 +52,18 @@ middle_name="W" last_name="Smith" birth_date="1945-01-25" gender="M" ssn="555443
         appended_headers = %w[first_name middle_name last_name gender birth_date ssn address]
         CSV.open(args[:csvfile], headers: true) do |source|
           dest << (existing_headers + appended_headers)
-          source.each_with_index do |row, i|
+          source.each do |row|
             user_identity = UserIdentity.new(
               uuid: SecureRandom.uuid,
               email: 'fakeemail@needed_for_object_validation.gov',
-              mhv_icn: row['icn'], # hack because the presence of this attribute results in ICN based MVI lookup
+              mhv_icn: row['icn'], # HACK: because the presence of this attribute results in ICN based MVI lookup
               loa: {
                 current: LOA::THREE,
                 highest: LOA::THREE
               }
             )
 
-            # Not accidentally persisting any users, user_identities, or caching MVI by doing it this way.
+            # Not persisting any users, user_identities, or caching MVI by doing it this way.
             user = User.new(uuid: user_identity.uuid)
             user.instance_variable_set(:@identity, user_identity)
             mvi = Mvi.for_user(user)
@@ -80,7 +80,7 @@ middle_name="W" last_name="Smith" birth_date="1945-01-25" gender="M" ssn="555443
               when 'last_name'
                 row['last_name'] = response.profile.family_name
               else
-                row[column_name] = user.send(column_name.to_sym)
+                row[column_name] = response.profile.send(column_name.to_sym)
               end
             end
 
