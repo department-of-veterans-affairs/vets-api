@@ -26,7 +26,7 @@
             "duration_in_months"
           ],
           "properties": {
-            "has_visited_in_past_monthss": {
+            "has_visited_in_past_months": {
               "type": "boolean"
             },
             "duration_in_months": {

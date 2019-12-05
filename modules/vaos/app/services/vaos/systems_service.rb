@@ -52,9 +52,9 @@ module VAOS
       with_monitoring do
         url = "/var/VeteranAppointmentRequestService/v4/rest/clinical-services/patient/ICN/#{@user.icn}/clinics"
         url_params = {
-          'three-digit-code' => system_id,
+          'three-digit-code' => facility_id,
           'clinical-service' => type_of_care_id,
-          'institution-code' => facility_id
+          'institution-code' => system_id
         }
         response = perform(:get, url, url_params, headers(@user))
         response.body.map { |clinic| OpenStruct.new(clinic) }
@@ -101,7 +101,7 @@ module VAOS
           'clinical-service' => type_of_care_id
         }
         response = perform(:get, url, url_params, headers(@user))
-        OpenStruct.new(response.body)
+        OpenStruct.new(response.body.merge(id: SecureRandom.uuid))
       end
     end
 

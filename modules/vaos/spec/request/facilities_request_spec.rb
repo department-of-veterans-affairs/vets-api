@@ -300,7 +300,7 @@ RSpec.describe 'facilities', type: :request do
       it 'returns a 200 with the correct schema' do
         VCR.use_cassette('vaos/systems/get_facility_visits', match_requests_on: %i[method uri]) do
           get '/v0/vaos/facilities/688/visits/direct', params: { system_id: '688', type_of_care_id: '323' }
-          puts response.body
+
           expect(response).to have_http_status(:ok)
           expect(response.body).to be_a(String)
           expect(response).to match_response_schema('vaos/facility_visits')
@@ -309,7 +309,7 @@ RSpec.describe 'facilities', type: :request do
     end
 
     context 'when schedule_type is invalid' do
-      it 'returns an error message with the missing param' do
+      it 'returns an error message with the invalid param' do
         VCR.use_cassette('vaos/systems/get_facility_visits', match_requests_on: %i[method uri]) do
           get '/v0/vaos/facilities/688/visits/foo', params: { system_id: '688', type_of_care_id: '323' }
 

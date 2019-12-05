@@ -6,8 +6,7 @@ module VAOS
   class FacilityVisitSerializer
     include FastJsonapi::ObjectSerializer
 
-    set_id :institution_code
-    attributes :has_visited_in_past_monthss,
-      :duration_in_months
+    attributes :has_visited_in_past_months,
+               :duration_in_months
   end
 end
