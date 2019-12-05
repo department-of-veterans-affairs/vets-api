@@ -207,7 +207,7 @@ describe VAOS::SystemsService do
 
   describe '#get_facility_visits' do
     context 'with a 200 response for direct visits that is false' do
-      it 'returns facility visit information' do
+      it 'returns facility information showing no visits' do
         VCR.use_cassette('vaos/systems/get_facility_visits', match_requests_on: %i[method uri]) do
           response = subject.get_facility_visits('688', '688', '323', 'direct')
           expect(response.has_visited_in_past_months).to be_falsey
@@ -217,7 +217,7 @@ describe VAOS::SystemsService do
     end
 
     context 'with a 200 response for request visits that is true' do
-      it 'returns facility visit information' do
+      it 'returns facility information showing a past visit' do
         VCR.use_cassette('vaos/systems/get_facility_visits_request', match_requests_on: %i[method uri]) do
           response = subject.get_facility_visits('688', '688', '323', 'request')
           expect(response.has_visited_in_past_months).to be_truthy

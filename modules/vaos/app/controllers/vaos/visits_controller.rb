@@ -2,7 +2,7 @@
 
 module VAOS
   class VisitsController < ApplicationController
-    SCHEDULE_TYPES = %w(direct request)
+    SCHEDULE_TYPES = %w[direct request].freeze
 
     def index
       response = systems_service.get_facility_visits(system_id, facility_id, type_of_care_id, schedule_type)
