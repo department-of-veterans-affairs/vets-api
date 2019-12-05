@@ -99,8 +99,7 @@ module Facilities
           'name' => 'NAME',
           'classification' => method(:classification_mapping),
           'phone' => { 'main' => 'Sta_Phone', 'fax' => 'Sta_Fax',
-                       'after_hours' => 'afterhoursphone',
-                       'patient_advocate' => 'patientadvocatephone',
+                       'after_hours' => 'afterhoursphone', 'patient_advocate' => 'patientadvocatephone',
                        'enrollment_coordinator' => 'enrollmentcoordinatorphone',
                        'pharmacy' => 'pharmacyphone' },
           'physical' => { 'address_1' => 'Address2', 'address_2' => 'Address1',
@@ -111,6 +110,7 @@ module Facilities
           'feedback' => { 'health' => method(:satisfaction_data) },
           'services' => health_services,
           'mobile' => 'Mobile',
+          'visn' => 'Visn',
           'active_status' => 'Pod',
           'mapped_fields' => mapped_fields_list
         }
@@ -158,7 +158,7 @@ module Facilities
 
       def mapped_fields_list
         %w[Sta_No NAME CocClassificationID LASTUPDATE Address1 Address2 Address3 MUNICIPALITY STATE
-           zip Zip4 Sta_Phone Sta_Fax afterhoursphone Mobile
+           zip Zip4 Sta_Phone Sta_Fax afterhoursphone Mobile Visn
            patientadvocatephone enrollmentcoordinatorphone pharmacyphone Monday
            Tuesday Wednesday Thursday Friday Saturday Sunday Pod]
       end
