@@ -24,30 +24,48 @@
           "attributes": {
             "type": "object",
             "required": [
-              "site_code",
               "clinic_id",
               "clinic_name",
-              "clinic_friendly_location_name",
+              "appointment_length",
+              "clinic_display_start_time",
+              "display_increments",
+              "stop_code",
+              "ask_for_check_in",
+              "max_overbooks_per_day",
+              "has_user_access_to_clinic",
               "primary_stop_code",
               "secondary_stop_code",
-              "direct_scheduling_flag",
-              "display_to_patient_flag",
-              "institution_name",
-              "institution_code",
-              "object_type"
+              "list_size",
+              "empty",
+              "appointment_time_slot"
             ],
             "properties": {
-              "site_code": {
-                "type": "string"
-              },
               "clinic_id": {
                 "type": "string"
               },
               "clinic_name": {
                 "type": "string"
               },
-              "clinic_friendly_location_name": {
+              "appointment_length": {
+                "type": "integer"
+              },
+              "clinic_display_start_time": {
                 "type": "string"
+              },
+              "display_increments": {
+                "type": "string"
+              },
+              "stop_code": {
+                "type": "string"
+              },
+              "ask_for_check_in": {
+                "type": "boolean"
+              },
+              "max_overbooks_per_day": {
+                "type": "integer"
+              },
+              "has_user_access_to_clinic": {
+                "type": "boolean"
               },
               "primary_stop_code": {
                 "type": "string"
@@ -55,20 +73,17 @@
               "secondary_stop_code": {
                 "type": "string"
               },
-              "direct_scheduling_flag": {
-                "type": "string"
+              "list_size": {
+                "type": "integer"
               },
-              "display_to_patient_flag": {
-                "type": "string"
+              "empty": {
+                "type": "boolean"
               },
-              "institution_name": {
-                "type": "string"
-              },
-              "institution_code": {
-                "type": "string"
-              },
-              "object_type": {
-                "type": "string"
+              "appointment_time_slot": {
+                "type": "array",
+                "items": {
+                  "$ref": "appointment_time_slot.json"
+                }
               }
             }
           }
