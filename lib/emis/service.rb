@@ -21,21 +21,9 @@ module EMIS
     #  either a string or symbol if the method name and endpoint path (converted to camelcase)
     #  are the same or an Array containing the method name, endpoint path,
     #  and optional version of response and soapaction
-    #
-    # rubocop:disable Metrics/MethodLength
     def self.create_endpoints(endpoints)
       endpoints.each do |endpoint|
-        operation = nil
-        request_name = nil
-        if endpoint.is_a?(Array)
-          request_name = endpoint[1]
-          operation = endpoint[0].to_s
-          version = endpoint[2] || ''
-        else
-          operation = endpoint.to_s
-          request_name = "#{endpoint.to_s.camelize(:lower).sub(/^get/, '').camelize(:lower)}Request"
-          version = ''
-        end
+        operation, request_name, version = get_endpoint_attributes(endpoint)
         define_method(operation) do |edipi: nil, icn: nil|
           parameters = {
             edipi: edipi,
@@ -49,7 +37,30 @@ module EMIS
         end
       end
     end
-    # rubocop:enable Metrics/MethodLength
+
+    # Helper for extracting endpoint attributes from the endpoint configuration
+    #
+    # @param endpoint [String, Symbol, Array<String, Symbol>]
+    #  Either a string or symbol if the method name and endpoint path (converted to camelcase)
+    #  are the same or an Array containing the method name, endpoint path,
+    #  and optional version of response and soapaction
+    #
+    # @return [Array<String, Symbol>] An array containing the method name, endpoint path,
+    #  and version of response and soapaction
+    def self.get_endpoint_attributes(endpoint)
+      operation = nil
+      request_name = nil
+      if endpoint.is_a?(Array)
+        operation = endpoint[0].to_s
+        request_name = endpoint[1]
+        version = endpoint[2] || ''
+      else
+        operation = endpoint.to_s
+        request_name = "#{endpoint.to_s.camelize(:lower).sub(/^get/, '').camelize(:lower)}Request"
+        version = ''
+      end
+      [operation, request_name, version]
+    end
 
     protected
 
