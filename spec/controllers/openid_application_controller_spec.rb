@@ -60,9 +60,9 @@ RSpec.describe OpenidApplicationController, type: :controller do
           exp_token[0]['exp'] = Time.current.utc.to_i - 3600
           allow(JWT).to receive(:decode).and_return(exp_token)
           get :index
-          expect(response.status).to eq(403)
+          expect(response.status).to eq(401)
           errors = JSON.parse(response.body)['errors']
-          expect(errors[0]['detail']).to eq("Token has expired. Refresh for a new token")
+          expect(errors[0]['detail']).to eq("Validation error: token has expired")
         end
       end
     end

@@ -177,6 +177,12 @@ en:
         detail: "%{detail}"
         code: 108
         status: 400
+      token_validation_error:
+        <<: *defaults
+        title: Token Validation Error
+        detail: "%{detail}"
+        code: 401
+        status: 401
 
 # EXTERNAL EXCEPTIONS
     # This is a Generic Error corresponding to backend services
