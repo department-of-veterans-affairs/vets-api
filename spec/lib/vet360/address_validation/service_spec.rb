@@ -3,7 +3,7 @@
 require 'rails_helper'
 
 describe Vet360::AddressValidation::Service do
-  let(:base_address) { build(:vet360_address) }
+  let(:base_address) { build(:vet360_validation_address) }
 
   let(:address) do
     base_address.address_line1 = '5 Stoddard Ct'
@@ -20,7 +20,7 @@ describe Vet360::AddressValidation::Service do
   end
 
   let(:multiple_match_addr) do
-    build(:vet360_address, :multiple_matches)
+    build(:vet360_validation_address, :multiple_matches)
   end
 
   describe '#address_suggestions' do
