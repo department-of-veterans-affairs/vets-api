@@ -250,7 +250,9 @@ emis:
   payment_url:
     v1: /VIERSService/eMIS/v1/PaymentService
     v2: /VIERSService/eMIS/v2/PaymentService
-  military_information_url: /VIERSService/eMIS/v1/MilitaryInformationService
+  military_information_url:
+    v1: /VIERSService/eMIS/v1/MilitaryInformationService
+    v2: /VIERSService/eMIS/v2/MilitaryInformationService
   client_cert_path: /fake/client/cert/path
   client_key_path: /fake/client/key/path
   soap_namespaces:
@@ -261,8 +263,15 @@ emis:
     xmlns:v12: http://viers.va.gov/cdi/eMIS/RequestResponse/v1
     xmlns:v13: http://viers.va.gov/cdi/eMIS/commonService/v1
   military_information:
-    soap_namespaces:
-      xmlns:v11: http://viers.va.gov/cdi/eMIS/RequestResponse/MilitaryInfo/v1
+    v1:
+      soap_namespaces:
+        xmlns:v11: http://viers.va.gov/cdi/eMIS/RequestResponse/MilitaryInfo/v1
+    v2:
+      soap_namespaces:
+        xmlns:v1: http://viers.va.gov/cdi/CDI/commonService/v2
+        xmlns:v12: http://viers.va.gov/cdi/eMIS/RequestResponse/v2 
+        xmlns:v13: http://viers.va.gov/cdi/eMIS/commonService/v2 
+        xmlns:v11: http://viers.va.gov/cdi/eMIS/RequestResponse/MilitaryInfo/v2
   payment:
     v1:
       soap_namespaces:
