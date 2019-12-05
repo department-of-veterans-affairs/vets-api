@@ -733,7 +733,7 @@ components:
                 - "T"
             visn:
               type: string
-              example: '20'
+              example: "20"
     FacilityFeature:
       description: GeoJSON-complaint Feature object describing a VA Facility
       type: object
@@ -842,7 +842,7 @@ components:
                 - "T"
             visn:
               type: string
-              example: '20'
+              example: "20"
     NearbyFacility:
       description: JSON API-compliant object describing a nearby VA facility
       type: object
