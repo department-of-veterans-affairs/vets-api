@@ -55,14 +55,14 @@ RSpec.describe CentralMail::Service do
     end
 
     it 'uploads a file' do
-      header_matcher = lambda do |r1, r2|
-        [r1, r2].each { |r| r.headers.delete('Content-Length') }
+      multipart_request_matcher = lambda do |r1, r2|
+        normalized_multipart_request(r1) == normalized_multipart_request(r2)
         expect(r1.headers).to eq(r2.headers)
       end
 
       VCR.use_cassette(
         'central_mail/upload',
-        match_requests_on: [header_matcher, :body, :method, :uri]
+        match_requests_on: [multipart_request_matcher, :method, :uri]
       ) do
         response = described_class.new.upload(
           metadata: get_fixture('pension/metadata').to_json,
