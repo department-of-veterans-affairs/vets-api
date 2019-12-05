@@ -157,6 +157,32 @@ http_interactions:
                 "typeOfCareId": "CR1",
                 "reasonForVisit": "Allergies",
                 "friendlyLocationName": "CHYSHR-Cheyenne VA Medical Center",
+                "ccAppointmentRequest": {
+                    "dataIdentifier": {},
+                    "patientIdentifier": {},
+                    "surrogateIdentifier": {},
+                    "hasVeteranNewMessage": false,
+                    "preferredZipCode": "20171",
+                    "preferredState": "VA",
+                    "preferredCity": "her",
+                    "preferredLanguage": "English",
+                    "distanceWillingToTravel": 25,
+                    "distanceEligible": false,
+                    "officeHours": [
+                        "Evenings"
+                    ],
+                    "preferredProviders": [{
+                        "firstName": "Vilasini",
+                        "lastName": "Reddy",
+                        "practiceName": "Test clinic 2",
+                        "address": {},
+                        "preferredOrder": 0,
+                        "objectType": "Provider",
+                        "link": []
+                    }],
+                    "objectType": "CCAppointmentRequest",
+                    "link": []
+                },
                 "patientId": "1249652616",
                 "appointmentRequestId": "8a48912a6cab0202016cba350cd10054",
                 "date": "2019-08-22T10:42:14.000+0000",

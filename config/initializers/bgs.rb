@@ -2,6 +2,7 @@
 
 require 'socket'
 
+# OpenSSL::SSL::VERIFY_PEER = OpenSSL::SSL::VERIFY_NONE
 LighthouseBGS.configure do |config|
   config.application = Settings.bgs.application
   config.client_ip = Socket.ip_address_list.detect(&:ipv4_private?).ip_address
@@ -12,4 +13,5 @@ LighthouseBGS.configure do |config|
   config.mock_responses = Settings.bgs.mock_responses
   config.external_uid = Settings.bgs.external_uid
   config.external_key = Settings.bgs.external_key
+  config.forward_proxy_url = Settings.bgs.url
 end
