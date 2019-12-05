@@ -233,6 +233,7 @@ Rails.application.routes.draw do
     end
 
     resources :search, only: :index
+    resources :va_forms, only: :index
 
     get 'profile/mailing_address', to: 'addresses#show'
     put 'profile/mailing_address', to: 'addresses#update'
