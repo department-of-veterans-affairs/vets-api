@@ -37,7 +37,7 @@ module VAOS
         response = perform(:post, url, params, headers(user))
 
         {
-          data: OpenStruct.new(response.body)
+          data: OpenStruct.new(filter_cc_appointment_data(response.body))
         }
       end
     end
@@ -48,7 +48,7 @@ module VAOS
         response = perform(:put, url(id), params, headers(user))
 
         {
-          data: OpenStruct.new(response.body)
+          data: OpenStruct.new(filter_cc_appointment_data(response.body))
         }
       end
     end
@@ -56,10 +56,22 @@ module VAOS
     private
 
     def deserialize(json_hash)
-      json_hash[:appointment_requests].map { |request| OpenStruct.new(request) }
+      json_hash[:appointment_requests].map do |request|
+        filter_cc_appointment_data(request)
+        OpenStruct.new(request)
+      end
     rescue => e
       log_message_to_sentry(e.message, :warn, invalid_json: json_hash)
       []
+    end
+
+    def filter_cc_appointment_data(request)
+      return request if request[:cc_appointment_request].nil?
+
+      request[:cc_appointment_request].except!(
+        :patient_identifier, :surrogate_identifier, :object_type, :link
+      )
+      request
     end
 
     def url(id = nil)
