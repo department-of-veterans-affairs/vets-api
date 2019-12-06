@@ -11,7 +11,7 @@ RSpec.describe 'Appeals', type: :request do
 
   shared_context 'with user' do |options|
     using_ssn = options[:without_ssn] ? nil : '111223333'
-    let(:user) { FactoryBot.create(:user, options[:user], ssn: using_ssn )}
+    let(:user) { FactoryBot.create(:user, options[:user], ssn: using_ssn) }
   end
 
   describe 'show higher level review' do
@@ -26,7 +26,7 @@ RSpec.describe 'Appeals', type: :request do
 
     context 'with an loa3 user' do
       include_context 'with user', user: :loa3
-      
+
       context 'with a valid response' do
         it 'returns a successful response' do
           VCR.use_cassette('appeals/higher_level_review') do
