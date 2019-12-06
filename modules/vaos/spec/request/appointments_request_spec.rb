@@ -136,7 +136,6 @@ RSpec.describe 'vaos appointments', type: :request, skip_mvi: true do
       it 'has access and returns cc appointments' do
         VCR.use_cassette('vaos/appointments/get_cc_appointments', match_requests_on: %i[method uri]) do
           get '/v0/vaos/appointments', params: params.merge(type: 'cc')
-
           expect(response).to have_http_status(:success)
           expect(response.body).to be_a(String)
           expect(response).to match_response_schema('vaos/cc_appointments')
