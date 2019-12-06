@@ -24,7 +24,7 @@ GIT
 
 GIT
   remote: https://github.com/department-of-veterans-affairs/lighthouse-bgs.git
-  revision: 9c7bb7add3f4515ccc851f4edbdf60563dd1775f
+  revision: 5ce604bed5a32081b744de80270c3c1b9283dd9f
   branch: master
   specs:
     lighthouse_bgs (0.4.0)
@@ -440,9 +440,9 @@ GEM
     net-sftp (2.1.2)
       net-ssh (>= 2.6.5)
     net-ssh (4.1.0)
-    nio4r (2.3.1)
+    nio4r (2.5.2)
     no_proxy_fix (0.1.2)
-    nokogiri (1.10.5)
+    nokogiri (1.10.7)
       mini_portile2 (~> 2.4.0)
     nori (2.6.0)
     notiffany (0.1.3)
@@ -489,7 +489,7 @@ GEM
       byebug (~> 11.0)
       pry (~> 0.10)
     public_suffix (3.1.1)
-    puma (4.2.1)
+    puma (4.3.1)
       nio4r (~> 2.0)
     puma-plugin-statsd (0.1.0)
       json
@@ -804,7 +804,7 @@ DEPENDENCIES
   pg
   prawn
   pry-byebug
-  puma (~> 4.2.1)
+  puma (~> 4.3.1)
   puma-plugin-statsd (~> 0.1.0)
   pundit
   rack-attack
