@@ -22,7 +22,7 @@ module Forms
     end
 
     def base_path
-      "#{Settings.lighthouse.url}va_forms/v0/forms"
+      "#{Settings.lighthouse.url}va_forms/v0/"
     end
 
     def service_name

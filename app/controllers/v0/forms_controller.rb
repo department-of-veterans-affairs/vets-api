@@ -8,5 +8,10 @@ module V0
       response = Forms::Service.new.get_all
       render json: response.body
     end
+
+    def healthcheck
+      response = Forms::Service.new.healthcheck
+      render json: response.body
+    end
   end
 end

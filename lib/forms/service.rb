@@ -9,7 +9,11 @@ module Forms
     configuration Forms::Configuration
 
     def get_all
-      perform(:get, '', nil)
+      perform(:get, 'forms', nil)
+    end
+
+    def healthcheck
+      perform(:get, 'healthcheck', nil)
     end
 
     private
