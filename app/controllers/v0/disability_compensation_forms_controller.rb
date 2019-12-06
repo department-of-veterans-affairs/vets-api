@@ -49,6 +49,13 @@ module V0
       render json: job_status, serializer: Form526JobStatusSerializer
     end
 
+    def rating_info
+      rating_info_service = EVSS::CommonService.new(auth_headers)
+      response = rating_info_service.get_rating_info
+      render json: response,
+             serializer: RatingInfoSerializer
+    end
+
     private
 
     def create_submission(saved_claim)

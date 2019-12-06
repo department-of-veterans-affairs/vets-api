@@ -66,7 +66,7 @@ RSpec.describe 'Facilities API endpoint', type: :request do
       json = JSON.parse(response.body)
       expect(json['data'].length).to eq(10)
       expect(json['meta']['distances'].length).to eq(10)
-      sorted_distances = json['meta']['distances'].sort_by { |obj| obj['distance'] }
+      sorted_distances = json['meta']['distances'].sort_by.with_index { |obj, i| [obj['distance'], i] }
       expect(json['meta']['distances']).to eq(sorted_distances)
     end
 
@@ -78,7 +78,7 @@ RSpec.describe 'Facilities API endpoint', type: :request do
       json = JSON.parse(response.body)
       expect(json['data'].length).to eq(10)
       expect(json['meta']['distances'].length).to eq(10)
-      sorted_distances = json['meta']['distances'].sort_by { |obj| obj['distance'] }
+      sorted_distances = json['meta']['distances'].sort_by.with_index { |obj, i| [obj['distance'], i] }
       expect(json['meta']['distances']).to eq(sorted_distances)
     end
 
@@ -375,7 +375,7 @@ RSpec.describe 'Facilities API endpoint', type: :request do
     end
   end
 
-  context 'with mobile flag' do
+  context 'VHA-exclusive fields' do
     it 'responds with a boolean mobile flag for VHA facilities' do
       create :vha_648A4
 
@@ -407,9 +407,7 @@ RSpec.describe 'Facilities API endpoint', type: :request do
       expect(vba['mobile']).to be_nil
       expect(vc['mobile']).to be_nil
     end
-  end
 
-  context 'with active_status flag' do
     it 'responds with a string active_status flag for VHA facilities' do
       create :vha_648A4
       get base_query_path + '/vha_648A4', params: nil, headers: accept_json
@@ -438,6 +436,35 @@ RSpec.describe 'Facilities API endpoint', type: :request do
       expect(nca['active_status']).to be_nil
       expect(vba['active_status']).to be_nil
       expect(vc['active_status']).to be_nil
+    end
+
+    it 'responds with a string visn for VHA facilities' do
+      create :vha_648A4
+      get base_query_path + '/vha_648A4', params: nil, headers: accept_json
+      expect(response).to be_successful
+      expect(response.body).to be_a(String)
+      json = JSON.parse(response.body)
+      expect(json['data']['attributes']['visn']).to eq('20')
+    end
+
+    it 'responds with null visn for non-VHA facilities' do
+      create :nca_907
+      create :vba_348
+      create :vc_0617V
+
+      get base_query_path + lat_long, params: nil, headers: accept_json
+
+      expect(response).to be_successful
+      expect(response.body).to be_a(String)
+
+      json = JSON.parse(response.body)
+      nca = json['data'][0]
+      vba = json['data'][1]
+      vc = json['data'][2]
+
+      expect(nca['visn']).to be_nil
+      expect(vba['visn']).to be_nil
+      expect(vc['visn']).to be_nil
     end
   end
 end

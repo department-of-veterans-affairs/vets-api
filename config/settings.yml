@@ -104,6 +104,11 @@ ihub:
     mock: true
   in_production: false
 
+# Settings for Decision Reviews
+decision_review:
+  url: https://dev-api.va.gov/services/appeals/v3/decision_review
+  api_key: abcd1234abcd1234abcd1234abcd1234abcd1234
+  mock: false
 
 # Settings for EVSS
 evss:
@@ -160,6 +165,8 @@ evss:
 # Settings for GI Bill Data Service
 gids:
   url: https://dev.va.gov/gids
+  open_timeout: 1
+  read_timeout: 1
 
 mvi_hca:
   url: http://example.com
@@ -240,8 +247,12 @@ emis:
   mock: true
   host: https://vaausvrsapp81.aac.va.gov
   veteran_status_url: /VIERSService/eMIS/v1/VeteranStatusService
-  payment_url: /VIERSService/eMIS/v1/PaymentService
-  military_information_url: /VIERSService/eMIS/v1/MilitaryInformationService
+  payment_url:
+    v1: /VIERSService/eMIS/v1/PaymentService
+    v2: /VIERSService/eMIS/v2/PaymentService
+  military_information_url:
+    v1: /VIERSService/eMIS/v1/MilitaryInformationService
+    v2: /VIERSService/eMIS/v2/MilitaryInformationService
   client_cert_path: /fake/client/cert/path
   client_key_path: /fake/client/key/path
   soap_namespaces:
@@ -252,11 +263,25 @@ emis:
     xmlns:v12: http://viers.va.gov/cdi/eMIS/RequestResponse/v1
     xmlns:v13: http://viers.va.gov/cdi/eMIS/commonService/v1
   military_information:
-    soap_namespaces:
-      xmlns:v11: http://viers.va.gov/cdi/eMIS/RequestResponse/MilitaryInfo/v1
+    v1:
+      soap_namespaces:
+        xmlns:v11: http://viers.va.gov/cdi/eMIS/RequestResponse/MilitaryInfo/v1
+    v2:
+      soap_namespaces:
+        xmlns:v1: http://viers.va.gov/cdi/CDI/commonService/v2
+        xmlns:v12: http://viers.va.gov/cdi/eMIS/RequestResponse/v2 
+        xmlns:v13: http://viers.va.gov/cdi/eMIS/commonService/v2 
+        xmlns:v11: http://viers.va.gov/cdi/eMIS/RequestResponse/MilitaryInfo/v2
   payment:
-    soap_namespaces:
-      xmlns:v11: http://viers.va.gov/cdi/eMIS/RequestResponse/Payment/v1
+    v1:
+      soap_namespaces:
+        xmlns:v11: http://viers.va.gov/cdi/eMIS/RequestResponse/Payment/v1
+    v2:
+      soap_namespaces:
+        xmlns:v1: http://viers.va.gov/cdi/CDI/commonService/v2
+        xmlns:v12: http://viers.va.gov/cdi/eMIS/RequestResponse/v2
+        xmlns:v13: http://viers.va.gov/cdi/eMIS/commonService/v2
+        xmlns:v11: http://viers.va.gov/cdi/eMIS/RequestResponse/Payment/v2
   veteran_status:
     soap_namespaces:
       xmlns:v11: http://viers.va.gov/cdi/eMIS/RequestResponse/VetStatus/v1
@@ -395,8 +420,22 @@ bing:
   key: fake_key
 
 flipper:
-  username: SUPER_SECRET_USERNAME
-  password: SUPER_SECRET_PASSWORD
+  admin_user_emails:
+    - alastair@adhocteam.us
+    - anna@adhoc.team
+    - erik@adhocteam.us
+    - jbalboni@gmail.com
+    - jeff@adhocteam.us
+    - johnny@oddball.io
+    - kam@adhocteam.us
+    - lauren.alexanderson@va.gov
+    - mark.greenburg@adhocteam.us
+    - narin@adhocteam.us
+    - rian.fowler@adhoc.team
+    - rianfowler@outlook.com
+    - ryan.thurlwell@va.gov
+    - travis.hilton@oddball.io
+    - n.ratana@gmail.com
 
 bgs:
   application: ~
@@ -404,8 +443,21 @@ bgs:
   client_username: ~
   mock_response_location: ~
   mock_responses: ~
+  external_uid: ~
+  external_key: ~
 
 va_mobile:
   url: 'https://veteran.apps.va.gov/'
   mock: false
   key_path: /fake/client/key/path
+  timeout: 15
+
+vbms:
+  url: "https://internal-dsva-vagov-dev-fwdproxy-1893365470.us-gov-west-1.elb.amazonaws.com:4449"
+  saml: "vetsapi.client.vbms.aide.oit.va.gov.saml-token.xml"
+  keypass: "{{ lookup('credstash', 'vbms.dev.key_password') }}"
+  ca_cert: VBMS-Client-Signing-CA.crt
+  cert: vetsapi.client.vbms.aide.oit.va.gov.crt
+  client_keyfile: vetsapi.client.vbms.aide.oit.va.gov.p12
+  server_cert: vbms.aide.oit.va.gov.crt
+  environment_directory: /srv/vets-api/secret

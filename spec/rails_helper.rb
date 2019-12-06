@@ -16,9 +16,11 @@ require 'support/validation_helpers'
 require 'support/model_helpers'
 require 'support/authenticated_session_helper'
 require 'support/aws_helpers'
+require 'support/vcr_multipart_matcher_helper'
 require 'support/request_helper'
 require 'support/uploader_helpers'
 require 'common/exceptions'
+require './spec/support/default_configuration_helper'
 
 WebMock.disable_net_connect!(allow_localhost: true)
 
