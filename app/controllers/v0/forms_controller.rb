@@ -7,13 +7,13 @@ module V0
     def index
       response = Forms::Client.new.get_all
       render json: response.body,
-        status: response.status
+             status: response.status
     end
 
     def healthcheck
       response = Forms::Client.new.healthcheck
       render json: response.body,
-        status: response.status
+             status: response.status
     end
   end
 end
