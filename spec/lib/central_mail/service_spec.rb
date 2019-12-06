@@ -56,7 +56,7 @@ RSpec.describe CentralMail::Service do
 
     it 'uploads a file' do
       multipart_request_matcher = lambda do |r1, r2|
-        normalized_multipart_request(r1) == normalized_multipart_request(r2)
+        [r1, r2].each { |r| normalized_multipart_request(r) }
         expect(r1.headers).to eq(r2.headers)
       end
 
