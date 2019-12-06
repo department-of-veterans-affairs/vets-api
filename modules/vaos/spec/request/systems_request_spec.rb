@@ -135,7 +135,7 @@ RSpec.describe 'systems', type: :request do
         it 'returns a 200 with the correct schema' do
           VCR.use_cassette('vaos/systems/get_system_pact', match_requests_on: %i[method uri]) do
             get '/v0/vaos/systems/688/pact'
-            puts response.body
+
             expect(response).to have_http_status(:ok)
             expect(response.body).to be_a(String)
             expect(response).to match_response_schema('vaos/system_pact')
