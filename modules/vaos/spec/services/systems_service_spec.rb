@@ -212,15 +212,15 @@ describe VAOS::SystemsService do
           response = subject.get_system_pact('688')
           expect(response.size).to eq(6)
           expect(response.first.to_h).to eq(
-            facility_id: "688",
-            possible_primary: "Y",
-            provider_position: "GREEN-FOUR PHYSICIAN",
-            provider_sid: "3780868",
-            staff_name: "VASSALL,NATALIE M",
-            team_name: "GREEN-FOUR",
-            team_purpose: "PRIMARY CARE",
-            team_sid: "1400018881",
-            title: "PHYSICIAN-ATTENDING"
+            facility_id: '688',
+            possible_primary: 'Y',
+            provider_position: 'GREEN-FOUR PHYSICIAN',
+            provider_sid: '3780868',
+            staff_name: 'VASSALL,NATALIE M',
+            team_name: 'GREEN-FOUR',
+            team_purpose: 'PRIMARY CARE',
+            team_sid: '1400018881',
+            title: 'PHYSICIAN-ATTENDING'
           )
         end
       end
