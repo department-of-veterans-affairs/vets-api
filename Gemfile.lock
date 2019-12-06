@@ -1,12 +1,12 @@
 GIT
   remote: https://github.com/department-of-veterans-affairs/betamocks
-  revision: dfeb140c9571020239807477e34ec58ad2b38b32
+  revision: 23ac096038e443812664a2917eb54bce667bceb5
   branch: master
   specs:
-    betamocks (0.6.0)
+    betamocks (0.7.0)
       activesupport (>= 4.2, <= 6.0)
       adler32
-      faraday (>= 0.7.4, <= 0.12.2)
+      faraday (>= 0.7.4, <= 0.17.0)
 
 GIT
   remote: https://github.com/department-of-veterans-affairs/connect_vbms.git
@@ -202,8 +202,8 @@ GEM
     benchmark-ips (2.7.2)
     bindex (0.8.1)
     brakeman (4.7.1)
-    breakers (0.2.4)
-      faraday (>= 0.7.4, < 0.10)
+    breakers (0.3.0)
+      faraday (>= 0.7.4, < 0.18)
       multi_json (~> 1.0)
     builder (3.2.3)
     bundler-audit (0.6.1)
@@ -314,7 +314,7 @@ GEM
       faker
     fakeredis (0.5.0)
       redis (~> 3.0)
-    faraday (0.9.2)
+    faraday (0.17.0)
       multipart-post (>= 1.2, < 3)
     faraday-http-cache (2.0.0)
       faraday (~> 0.8)
@@ -434,13 +434,13 @@ GEM
     mini_portile2 (2.4.0)
     minitest (5.13.0)
     multi_json (1.13.1)
-    multipart-post (2.0.0)
+    multipart-post (2.1.1)
     nap (1.1.0)
     nenv (0.3.0)
     net-sftp (2.1.2)
       net-ssh (>= 2.6.5)
     net-ssh (4.1.0)
-    nio4r (2.3.1)
+    nio4r (2.5.2)
     no_proxy_fix (0.1.2)
     nokogiri (1.10.7)
       mini_portile2 (~> 2.4.0)
@@ -489,7 +489,7 @@ GEM
       byebug (~> 11.0)
       pry (~> 0.10)
     public_suffix (3.1.1)
-    puma (4.2.1)
+    puma (4.3.1)
       nio4r (~> 2.0)
     puma-plugin-statsd (0.1.0)
       json
@@ -804,7 +804,7 @@ DEPENDENCIES
   pg
   prawn
   pry-byebug
-  puma (~> 4.2.1)
+  puma (~> 4.3.1)
   puma-plugin-statsd (~> 0.1.0)
   pundit
   rack-attack
