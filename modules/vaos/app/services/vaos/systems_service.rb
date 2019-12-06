@@ -92,6 +92,15 @@ module VAOS
       end
     end
 
+    def get_system_pact(system_id)
+      with_monitoring do
+        url = "/var/VeteranAppointmentRequestService/v4/rest/direct-scheduling/site/#{system_id}" \
+                "/patient/ICN/#{@user.icn}/pact-team"
+        response = perform(:get, url, nil, headers(@user))
+        response.body.map { |pact| OpenStruct.new(pact) }
+      end
+    end
+
     private
 
     def available_appointments_url(facility_id)

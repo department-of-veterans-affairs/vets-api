@@ -10,6 +10,7 @@ VAOS::Engine.routes.draw do
     end
     resources :systems, only: :index do
       resources :direct_scheduling_facilities, only: :index
+      resources :pact, only: :index
     end
     resources :facilities, only: :index do
       resources :clinics, only: :index
@@ -21,4 +22,3 @@ VAOS::Engine.routes.draw do
     get 'api', to: 'apidocs#index'
   end
 end
-3

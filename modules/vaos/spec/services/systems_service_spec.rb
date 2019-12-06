@@ -204,4 +204,36 @@ describe VAOS::SystemsService do
       end
     end
   end
+
+  describe '#get_system_pact' do
+    context 'with a 200 response' do
+      it 'returns pact info' do
+        VCR.use_cassette('vaos/systems/get_system_pact', match_requests_on: %i[method uri]) do
+          response = subject.get_system_pact('688')
+          expect(response.size).to eq(6)
+          expect(response.first.to_h).to eq(
+            facility_id: "688",
+            possible_primary: "Y",
+            provider_position: "GREEN-FOUR PHYSICIAN",
+            provider_sid: "3780868",
+            staff_name: "VASSALL,NATALIE M",
+            team_name: "GREEN-FOUR",
+            team_purpose: "PRIMARY CARE",
+            team_sid: "1400018881",
+            title: "PHYSICIAN-ATTENDING"
+          )
+        end
+      end
+    end
+
+    context 'when the upstream server returns a 500' do
+      it 'raises a backend exception' do
+        VCR.use_cassette('vaos/systems/get_system_pact_500', match_requests_on: %i[method uri]) do
+          expect { subject.get_system_pact('688') }.to raise_error(
+            Common::Exceptions::BackendServiceException
+          )
+        end
+      end
+    end
+  end
 end
