@@ -26,7 +26,7 @@ module Forms
     end
 
     def service_name
-      'VaForms'
+      'Forms'
     end
   end
 end
