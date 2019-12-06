@@ -9,15 +9,6 @@ GIT
       faraday (>= 0.7.4, <= 0.17.0)
 
 GIT
-  remote: https://github.com/department-of-veterans-affairs/breakers
-  revision: 58867d91607a4e43fd642d091a0eabd107233d1c
-  branch: master
-  specs:
-    breakers (0.3.0)
-      faraday (>= 0.7.4, < 0.18)
-      multi_json (~> 1.0)
-
-GIT
   remote: https://github.com/department-of-veterans-affairs/connect_vbms.git
   revision: bebad55f8723f091c7d41522178b11999f574499
   branch: master
@@ -211,6 +202,9 @@ GEM
     benchmark-ips (2.7.2)
     bindex (0.8.1)
     brakeman (4.7.1)
+    breakers (0.3.0)
+      faraday (>= 0.7.4, < 0.18)
+      multi_json (~> 1.0)
     builder (3.2.3)
     bundler-audit (0.6.1)
       bundler (>= 1.2.0, < 3)
@@ -746,7 +740,7 @@ DEPENDENCIES
   benchmark-ips
   betamocks!
   brakeman (~> 4.7)
-  breakers!
+  breakers
   bundler-audit
   byebug
   carrierwave (~> 0.11)
