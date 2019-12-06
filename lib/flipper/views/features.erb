@@ -17,7 +17,7 @@
               <%= feature.state.capitalize %>
             </td>
             <td>
-              <% if Thread.current[:flipper_user_email_for_log].present?%>
+              <% if Thread.current[:flipper_user_email_for_log].present? || Rails.env.development? %>
                 <a href="<%= "#{script_name}/features/#{feature.key}" %>">
                   <%= feature.key %>
                 </a>
@@ -36,8 +36,8 @@
       </tbody>
     </table>
 
-    <% if Thread.current[:flipper_user_email_for_log].blank? %>
-      <a href ="<%= SAML::URLService::VIRTUAL_HOST_MAPPINGS.dig(request.base_url, :base_redirect) %>">Sign in</a> with an identity-verified admin account to exit feagure toggles.
+    <% if Thread.current[:flipper_user_email_for_log].blank? &&  !Rails.env.development? %>
+      <a href ="<%= SAML::URLService::VIRTUAL_HOST_MAPPINGS.dig(request.base_url, :base_redirect) %>">Sign in</a> with an identity-verified admin account to edit feagure toggles.
     <% end %>
   </div>
 </div>
