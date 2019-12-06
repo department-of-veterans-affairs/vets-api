@@ -52,7 +52,8 @@ module VaFacilities
         'satisfaction' => satisfaction(object),
         'wait_times' => wait_times(object),
         'mobile' => object.mobile,
-        'active_status' => object.active_status
+        'active_status' => object.active_status,
+        'visn' => object.visn
       }
     end
   end
