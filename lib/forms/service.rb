@@ -8,11 +8,6 @@ module Forms
 
     configuration Forms::Configuration
 
-    def initialize
-      # @query = query
-      # @page = page.to_i
-    end
-
     def get_all
       perform(:get, '', nil)
     end
