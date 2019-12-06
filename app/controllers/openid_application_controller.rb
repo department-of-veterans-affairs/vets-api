@@ -69,10 +69,23 @@ class OpenidApplicationController < ApplicationController
   end
 
   def validate_token
-    raise Common::Exceptions::TokenValidationError.new(detail: 'Validation error: no payload to validate') unless token_payload
-    raise Common::Exceptions::TokenValidationError.new(detail: 'Validation error: issuer') unless token_payload['iss'] == Settings.oidc.issuer
-    raise Common::Exceptions::TokenValidationError.new(detail: 'Validation error: audience') unless token_payload['aud'] == Settings.oidc.audience
-    raise Common::Exceptions::TokenValidationError.new(detail: 'Validation error: token has expired') unless token_payload['exp'] >= Time.current.utc.to_i
+    error_klass = Common::Exceptions::TokenValidationError
+    raise error_klass.new(detail: 'Validation error: no payload to validate') unless token_payload
+    raise error_klass.new(detail: 'Validation error: issuer') unless valid_issuer?
+    raise error_klass.new(detail: 'Validation error: audience') unless valid_audience?
+    raise error_klass.new(detail: 'Validation error: token has expired') unless valid_expiration?
+  end
+
+  def valid_issuer?
+    token_payload['iss'] == Settings.oidc.issuer
+  end
+
+  def valid_audience?
+    token_payload['aud'] == Settings.oidc.audience
+  end
+
+  def valid_expiration?
+    token_payload['exp'] >= Time.current.utc.to_i
   end
 
   def fetch_profile(uid)

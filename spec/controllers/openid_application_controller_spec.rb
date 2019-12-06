@@ -62,7 +62,7 @@ RSpec.describe OpenidApplicationController, type: :controller do
           get :index
           expect(response.status).to eq(401)
           errors = JSON.parse(response.body)['errors']
-          expect(errors[0]['detail']).to eq("Validation error: token has expired")
+          expect(errors[0]['detail']).to eq('Validation error: token has expired')
         end
       end
     end
