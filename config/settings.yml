@@ -443,8 +443,8 @@ va_mobile:
   key_path: /fake/client/key/path
   timeout: 15
 
-va_forms:
-  url: https://api.va.gov/services/va_forms/v0/forms
+lighthouse:
+  url: https://api.va.gov/services/
   api_key: fake_key
 
 vbms:

@@ -18,11 +18,11 @@ module VaForms
     end
 
     def self.base_request_headers
-      super.merge('apiKey' => Settings.va_forms.api_key)
+      super.merge('apiKey' => Settings.lighthouse.api_key)
     end
 
     def base_path
-      Settings.va_forms.url
+      "#{Settings.lighthouse.url}va_forms/v0/forms"
     end
 
     def service_name
