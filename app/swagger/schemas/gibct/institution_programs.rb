@@ -37,33 +37,33 @@ module Swagger
               property :attributes do
                 key :required, %i[facility_code description]
 
-                property :program_type, type: :string, example: 'NCD',
+                property :program_type, type: %i[null string], enum: %w[IHL NCD OJT FLGT CORR],
                                         description: 'The classification of the program, ex: IHL, NCD, OJT'
-                property :description, type: :string, example: 'Computer Science',
+                property :description, type: :string, example: 'COMPUTER SCIENCE',
                                        description: 'Program name'
-                property :length_in_hours, type: :string, example: '680',
+                property :length_in_hours, type: %i[null string], example: '680',
                                            description: 'Length of program (in hours)'
-                property :length_in_weeks, type: :integer, example: 12,
+                property :length_in_weeks, type: %i[null integer], example: 12,
                                            description: 'Length of program (in weeks)'
                 property :facility_code, type: :string, example: '1X12345',
                                          description: 'Program institution facility code'
                 property :institution_name, type: :string, example: 'CODE PLACE',
                                             description: 'Program institution name'
-                property :city, type: :string, example: 'ANYTOWN',
+                property :city, type: %i[null string], example: 'ANYTOWN',
                                 description: 'Program institution physical city location'
-                property :state, type: :string, example: 'WA',
+                property :state, type: %i[null string], example: 'WA',
                                  description: 'Program institution physical state location'
-                property :country, type: :string, example: 'USA',
+                property :country, type: %i[null string], example: 'USA',
                                    description: 'Program institution physical country location'
-                property :preferred_provider, type: :boolean, example: FALSE,
+                property :preferred_provider, type: %i[null boolean], example: false,
                                               description: 'Program institution preferred provider indicator;
-                                                            a provider that takes on the costs of the veterans
-                                                            education if the requirements are not met'
-                property :tuition_amount, type: :integer, example: 1000,
+                                              a provider that takes on the costs of the veterans
+                                              education if the requirements are not met'
+                property :tuition_amount, type: %i[null integer], example: 1000,
                                           description: 'Program tuition amount'
-                property :va_bah, type: :number, example: 220,
+                property :va_bah, type: %i[null integer], example: 220,
                                   description: 'VA Basic Allowance for Housing'
-                property :dod_bah, type: :integer, example: 200,
+                property :dod_bah, type: %i[null integer], example: 200,
                                    description: 'DOD Basic Allowance for Housing'
               end
             end
