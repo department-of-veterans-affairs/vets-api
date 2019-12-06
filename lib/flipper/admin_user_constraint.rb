@@ -19,7 +19,7 @@ module Flipper
     def matches?(request)
       current_user = current_user_rack(request)
       (current_user && Settings.flipper.admin_user_emails.include?(current_user.email) && current_user.loa3?) ||
-        request.method == 'GET'
+        request.method == 'GET' || Rails.env.development?
     end
   end
 end
