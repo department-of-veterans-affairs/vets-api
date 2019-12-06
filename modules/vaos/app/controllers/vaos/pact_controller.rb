@@ -3,7 +3,6 @@
 module VAOS
   class PactController < ApplicationController
     def index
-      binding.pry
       response = systems_service.get_system_pact(system_id)
       render json: VAOS::SystemPactSerializer.new(response)
     end

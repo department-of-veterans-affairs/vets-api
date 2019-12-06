@@ -7,8 +7,7 @@ module VAOS
     include FastJsonapi::ObjectSerializer
 
     set_id :provider_sid
-    attributes :unique_id,
-               :facility_id,
+    attributes :facility_id,
                :possible_primary,
                :provider_position,
                :provider_sid,
