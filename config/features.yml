@@ -29,3 +29,6 @@ features:
   va_online_scheduling_direct:
     description: >
       Allows veterans to directly schedule VA appointments
+  gi_vet_tec_program_provider_filters:
+    description: >
+      Allows veterans to filter VET TEC programs by provider
