@@ -153,6 +153,7 @@ module V0
       Swagger::Requests::User,
       Swagger::Requests::VAFacilities,
       Swagger::Requests::CCProviders,
+      Swagger::Requests::Sessions,
       Swagger::Responses::AuthenticationError,
       Swagger::Responses::RecordNotFoundError,
       Swagger::Responses::SavedForm,
