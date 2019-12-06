@@ -5,13 +5,15 @@ module V0
     skip_before_action :authenticate
 
     def index
-      response = Forms::Service.new.get_all
-      render json: response.body
+      response = Forms::Client.new.get_all
+      render json: response.body,
+        status: response.status
     end
 
     def healthcheck
-      response = Forms::Service.new.healthcheck
-      render json: response.body
+      response = Forms::Client.new.healthcheck
+      render json: response.body,
+        status: response.status
     end
   end
 end
