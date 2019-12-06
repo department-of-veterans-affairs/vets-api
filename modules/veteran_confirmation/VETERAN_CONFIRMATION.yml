@@ -1,0 +1,113 @@
+openapi: '3.0.0'
+info:
+  version: 0.0.1
+  title: Veteran Confirmation
+  description: |
+    Veteran Confirmation
+
+    ## Background
+
+    The use-case of this API is to allow third-parties
+    to request confirmation from the VA of an individual's Veteran status after
+    receiving authorization to do so using an Open ID Connect flow.
+
+    The Veteran Confirmation API passes requests through to eMIS, the Enterprise
+    Military Information Service, and formats the response into consumable data.
+
+    ## Design
+
+    ### Authorization
+
+    API requests are authorized using a Bearer token issued through an OpenID
+    Connect service to allow third-party applications. The token should be
+    submitted as an `Authorization` header in the form `Bearer <token>`.
+
+    ### Veteran Status Request
+
+    Allows a third-party application to request the VA confirm the Veteran Status of an
+    authorized individual:
+
+    1. Client Request: GET https://api.va.gov/services/veteran_confirmation/v0/status
+       * Provide the Bearer token as a header: `Authorization: Bearer <token>`
+
+    2. Status Response: A JSON API object with the individual's veteran status
+
+    ## Reference
+
+    Raw Open API Spec: https://api.va.gov/services/veteran_confirmation/docs/v0/status
+
+  termsOfService: ''
+  contact:
+    name: VA.gov
+tags:
+  - name: veteran_confirmation_status
+    description: Veteran confirmation - Veteran Status
+servers:
+  - url: https://dev-api.va.gov/services/veteran_confirmation/{version}
+    description: VA.gov API development environment
+    variables:
+      version:
+        default: v0
+  - url: https://staging-api.va.gov/services/veteran_confirmation/{version}
+    description: VA.gov API staging environment
+    variables:
+      version:
+        default: v0
+  - url: https://api.va.gov/services/veteran_confirmation/{version}
+    description: VA.gov API production environment
+    variables:
+      version:
+        default: v0
+paths:
+  /status:
+    get:
+      tags:
+        - veteran_confirmation_status
+      summary: Get confirmation about an individual's Veteran status according to the VA
+      operationId: getVeteranStatus
+      security:
+        - bearer_token: []
+      responses:
+        '200':
+          description: Confirmation status successfully retrieved
+          content:
+            application/json:
+              schema:
+                required:
+                  - data
+                properties:
+                  data:
+                    $ref: '#/components/schemas/VeteranStatusConfirmation'
+        '403':
+          description: Provided Access Token Does not have the required scopes to access.
+        '502':
+          description: eMIS failed to respond or responded in a way we cannot handle. 
+components:
+  securitySchemes:
+    bearer_token:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas:
+    VeteranStatusConfirmation:
+      description: |
+        Veteran status confirmation for an individual
+      type: object
+      properties:
+        id:
+          type: string
+          description: Confirmation UUID
+          example: "833c6ffc-efef-4775-9355-f836b4f57501"
+        type:
+          type: string
+          example: veteran_status_confirmations
+        attributes:
+          type: object
+          properties:
+            veteran_status:
+              type: string
+              description: |
+                Whether the system could confirm the Veteran status of the authorized individual
+              enum:
+                - confirmed
+                - not confirmed
