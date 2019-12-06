@@ -2,7 +2,7 @@
 
 require 'common/client/configuration/rest'
 
-module VaForms
+module Forms
   class Configuration < Common::Client::Configuration::REST
     self.read_timeout = 30
 

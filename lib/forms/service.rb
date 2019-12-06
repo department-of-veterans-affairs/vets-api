@@ -2,11 +2,11 @@
 
 require 'common/client/base'
 
-module VaForms
+module Forms
   class Service < Common::Client::Base
     STATSD_KEY_PREFIX = 'api.va_forms'
 
-    configuration VaForms::Configuration
+    configuration Forms::Configuration
 
     def initialize
       # @query = query
