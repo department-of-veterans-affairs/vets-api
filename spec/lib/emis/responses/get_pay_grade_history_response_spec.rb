@@ -26,35 +26,35 @@ describe EMIS::Responses::GetPayGradeHistoryResponse do
       end
 
       it 'has the proper personnel organization code' do
-        expect(first_item.personnel_organization_code).to eq('42')
+        expect(first_item.personnel_organization_code).to be_a(String).and eq('42')
       end
 
       it 'has the proper personnel category type code' do
-        expect(first_item.personnel_category_type_code).to eq('V')
+        expect(first_item.personnel_category_type_code).to be_a(String).and eq('V')
       end
 
       it 'has the proper personnel segment identifier' do
-        expect(first_item.personnel_segment_identifier).to eq('1')
+        expect(first_item.personnel_segment_identifier).to be_a(String).and eq('1')
       end
 
       it 'has the proper pay plan code' do
-        expect(first_item.pay_plan_code).to eq('ME')
+        expect(first_item.pay_plan_code).to be_a(String).and eq('ME')
       end
 
       it 'has the proper pay grade code' do
-        expect(first_item.pay_grade_code).to eq('04')
+        expect(first_item.pay_grade_code).to be_a(String).and eq('04')
       end
 
       it 'has the proper service rank name code' do
-        expect(first_item.service_rank_name_code).to eq('SRA')
+        expect(first_item.service_rank_name_code).to be_a(String).and eq('SRA')
       end
 
       it 'has the proper service rank name text' do
-        expect(first_item.service_rank_name_txt).to eq('Senior Airman')
+        expect(first_item.service_rank_name_txt).to be_a(String).and eq('Senior Airman')
       end
 
       it 'has the proper pay grade date' do
-        expect(first_item.pay_grade_date).to eq(Date.parse('2009-04-12'))
+        expect(first_item.pay_grade_date).to be_a(Date).and eq(Date.parse('2009-04-12'))
       end
     end
   end

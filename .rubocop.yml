@@ -1,3 +1,5 @@
+inherit_from: .rubocop_todo.yml
+
 require:
   - rubocop-rails
   - rubocop-rspec
@@ -67,6 +69,8 @@ Style/ZeroLengthPredicate:
 
 Metrics/LineLength:
   Max: 120
+  Exclude:
+    - 'Gemfile'
 
 Rails:
   Enabled: true

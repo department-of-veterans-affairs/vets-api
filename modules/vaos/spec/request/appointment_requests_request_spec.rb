@@ -81,7 +81,6 @@ RSpec.describe 'vaos appointment requests', type: :request do
       it 'has access and returns va appointments' do
         VCR.use_cassette('vaos/appointment_requests/get_requests_with_params', match_requests_on: %i[method uri]) do
           get '/v0/vaos/appointment_requests', params: params
-
           expect(response).to have_http_status(:success)
           expect(response.body).to be_a(String)
           expect(response).to match_response_schema('vaos/appointment_requests')
@@ -99,7 +98,7 @@ RSpec.describe 'vaos appointment requests', type: :request do
         post '/v0/vaos/appointment_requests', params: params
         expect(response).to have_http_status(:created)
         expect(response.body).to be_a(String)
-        expect(json_body_for(response)).to match_schema('vaos/appointment_request', strict: false)
+        expect(json_body_for(response)).to match_schema('vaos/appointment_request')
       end
     end
   end
@@ -124,6 +123,8 @@ RSpec.describe 'vaos appointment requests', type: :request do
         last_updated_date
       ).params
     end
+
+    let(:post_params) { params.merge(appointment_request_detail_code: ['DETCODE8']) }
 
     it 'creates a new appointment request' do
       VCR.use_cassette('vaos/appointment_requests/put_request', match_requests_on: %i[method uri]) do
