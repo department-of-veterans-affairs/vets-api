@@ -4,19 +4,19 @@ module V0
   module GI
     class InstitutionsController < GIController
       def autocomplete
-        render json: gi_response_body("get_institution_autocomplete_suggestions", scrubbed_params)
+        render json: gi_response_body('get_institution_autocomplete_suggestions', scrubbed_params)
       end
 
       def search
-        render json: gi_response_body("get_institution_search_results", scrubbed_params)
+        render json: gi_response_body('get_institution_search_results', scrubbed_params)
       end
 
       def show
-        render json: gi_response_body("get_institution_details", scrubbed_params)
+        render json: gi_response_body('get_institution_details', scrubbed_params)
       end
 
       def children
-        render json: gi_response_body("get_institution_children", scrubbed_params)
+        render json: gi_response_body('get_institution_children', scrubbed_params)
       end
     end
   end

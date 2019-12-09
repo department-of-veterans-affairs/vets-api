@@ -6,7 +6,7 @@ class GIController < ApplicationController
   private
 
   def client(rest_call, scrubbed_params)
-    @client ||= Gi.for_controller(rest_call, scrubbed_params)
+    Gi.for_controller(rest_call, scrubbed_params)
   end
 
   def gi_response_body(rest_call, scrubbed_params)

@@ -27,13 +27,9 @@ class Gi < Common::RedisStore
   # The status of the last GI response
   #
   # @return [String] the status of the last MVI response
-  def status
-    gi_response.status
-  end
+  delegate :status, to: :gi_response
 
-  def body
-    gi_response.body
-  end
+  delegate :body, to: :gi_response
 
   # @return the response returned from GI Client
   def gi_response
@@ -59,6 +55,6 @@ class Gi < Common::RedisStore
   end
 
   def record_ttl
-      REDIS_CONFIG[REDIS_CONFIG_KEY.to_s]['each_ttl']
+    REDIS_CONFIG[REDIS_CONFIG_KEY.to_s]['each_ttl']
   end
 end
