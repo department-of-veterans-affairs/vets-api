@@ -9,11 +9,8 @@ module Forms
     configuration Forms::Configuration
 
     def get_all
-      perform(:get, 'forms', nil)
-    end
-
-    def healthcheck
-      perform(:get, 'healthcheck', nil)
+      raw_response = perform(:get, 'forms', nil)
+      Forms::Responses::Response.new(raw_response.status, raw_response.body, 'forms')
     end
 
     private

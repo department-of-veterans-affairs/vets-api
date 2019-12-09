@@ -10,10 +10,13 @@ module V0
              status: response.status
     end
 
-    def healthcheck
-      response = Forms::Client.new.healthcheck
-      render json: response.body,
-             status: response.status
+    def query_params
+      params.permit(:query)
     end
+
+    def query
+      sanitize query_params['query']
+    end
+
   end
 end
