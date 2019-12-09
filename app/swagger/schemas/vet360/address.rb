@@ -11,7 +11,6 @@ module Swagger
           key :required, %i[
             address_line1
             city
-            address_pou
             country_code_iso3
             address_type
           ]
