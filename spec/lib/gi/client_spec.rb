@@ -3,8 +3,8 @@
 require 'rails_helper'
 require 'gi/client'
 
-describe 'gi client' do
-  let(:client) { GI::Client.new }
+describe 'gi service' do
+  let(:client) { GI::Service.new }
 
   it 'gets a list of institution autocomplete suggestions', :vcr do
     client_response = client.get_institution_autocomplete_suggestions(term: 'university')

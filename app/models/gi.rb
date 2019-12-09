@@ -45,7 +45,7 @@ class Gi < Common::RedisStore
   end
 
   def gi_client
-    @client ||= ::GI::Client.new
+    @client ||= ::GI::Service.new
   end
 
   def save
