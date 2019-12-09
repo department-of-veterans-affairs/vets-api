@@ -6,7 +6,6 @@ module VAOS
   class ClinicsController < ApplicationController
     def index
       response = systems_service.get_facility_clinics(
-        current_user,
         clinics_params[:facility_id],
         clinics_params[:type_of_care_id],
         clinics_params[:system_id]
@@ -18,7 +17,7 @@ module VAOS
     private
 
     def systems_service
-      VAOS::SystemsService.new
+      VAOS::SystemsService.new(current_user)
     end
 
     def clinics_params
