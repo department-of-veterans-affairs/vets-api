@@ -31,6 +31,10 @@ class Gi < Common::RedisStore
     gi_response.status
   end
 
+  def body
+    gi_response.body
+  end
+
   # @return the response returned from GI Client
   def gi_response
     @gi_response ||= response_from_redis_or_service

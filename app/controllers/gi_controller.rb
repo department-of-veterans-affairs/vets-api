@@ -10,7 +10,7 @@ class GIController < ApplicationController
   end
 
   def gi_response_body(rest_call, scrubbed_params)
-    client(rest_call, scrubbed_params).gi_response.body
+    client(rest_call, scrubbed_params).body
   end
 
   def scrubbed_params
