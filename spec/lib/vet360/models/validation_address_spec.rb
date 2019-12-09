@@ -8,10 +8,10 @@ describe Vet360::Models::Address do
   describe '#address_validation_req' do
     it 'formats the address for an address validation request' do
       expect(address.address_validation_req).to eq(
-        {:requestAddress=>{"addressLine1"=>"37 1st st",
-          "city"=>"Brooklyn", :requestCountry=>{:countryCode=>"USA"},
-          :addressPOU=>"RESIDENCE/CHOICE", :stateProvince=>{:code=>"NY"},
-          :zipCode5=>"11249"}}
+        requestAddress: { 'addressLine1' => '37 1st st',
+                          'city' => 'Brooklyn', :requestCountry => { countryCode: 'USA' },
+                          :addressPOU => 'RESIDENCE/CHOICE', :stateProvince => { code: 'NY' },
+                          :zipCode5 => '11249' }
       )
     end
   end

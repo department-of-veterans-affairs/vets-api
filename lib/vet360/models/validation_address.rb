@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Vet360
   module Models
     class ValidationAddress < BaseAddress
@@ -28,7 +30,7 @@ module Vet360
         address_hash = address_suggestion_hash['address']
 
         # add international_postal_code and province for future international support
-        self.new(
+        new(
           address_line1: address_hash['address_line1'],
           address_line2: address_hash['address_line2'],
           address_line3: address_hash['address_line3'],

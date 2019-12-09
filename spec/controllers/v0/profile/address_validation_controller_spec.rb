@@ -20,11 +20,11 @@ RSpec.describe V0::Profile::AddressValidationController, type: :controller do
 
         expect(response.code).to eq('422')
         expect(JSON.parse(response.body)).to eq(
-          {"errors"=>
-            [{"title"=>"Address line1 can't be blank", "detail"=>"address-line1 - can't be blank", "code"=>"100", "source"=>{"pointer"=>"data/attributes/address-line1"}, "status"=>"422"},
-             {"title"=>"City can't be blank", "detail"=>"city - can't be blank", "code"=>"100", "source"=>{"pointer"=>"data/attributes/city"}, "status"=>"422"},
-             {"title"=>"State code can't be blank", "detail"=>"state-code - can't be blank", "code"=>"100", "source"=>{"pointer"=>"data/attributes/state-code"}, "status"=>"422"},
-             {"title"=>"Zip code can't be blank", "detail"=>"zip-code - can't be blank", "code"=>"100", "source"=>{"pointer"=>"data/attributes/zip-code"}, "status"=>"422"}]}
+          'errors' =>
+           [{ 'title' => "Address line1 can't be blank", 'detail' => "address-line1 - can't be blank", 'code' => '100', 'source' => { 'pointer' => 'data/attributes/address-line1' }, 'status' => '422' },
+            { 'title' => "City can't be blank", 'detail' => "city - can't be blank", 'code' => '100', 'source' => { 'pointer' => 'data/attributes/city' }, 'status' => '422' },
+            { 'title' => "State code can't be blank", 'detail' => "state-code - can't be blank", 'code' => '100', 'source' => { 'pointer' => 'data/attributes/state-code' }, 'status' => '422' },
+            { 'title' => "Zip code can't be blank", 'detail' => "zip-code - can't be blank", 'code' => '100', 'source' => { 'pointer' => 'data/attributes/zip-code' }, 'status' => '422' }]
         )
       end
     end
@@ -41,32 +41,32 @@ RSpec.describe V0::Profile::AddressValidationController, type: :controller do
           ) do
             post(:create, params: { address: multiple_match_addr.to_h })
             expect(JSON.parse(response.body)).to eq(
-              {"addresses"=>
-                [{"address"=>
-                   {"address_line1"=>"37 N 1st St",
-                    "address_type"=>"DOMESTIC",
-                    "city"=>"Brooklyn",
-                    "country_name"=>"United States",
-                    "country_code_iso3"=>"USA",
-                    "county_code"=>"36047",
-                    "county_name"=>"Kings",
-                    "state_code"=>"NY",
-                    "zip_code"=>"11249",
-                    "zip_code_suffix"=>"3939"},
-                  "address_meta_data"=>{"confidence_score"=>100.0, "address_type"=>"Domestic", "delivery_point_validation"=>"UNDELIVERABLE"}},
-                 {"address"=>
-                   {"address_line1"=>"37 S 1st St",
-                    "address_type"=>"DOMESTIC",
-                    "city"=>"Brooklyn",
-                    "country_name"=>"United States",
-                    "country_code_iso3"=>"USA",
-                    "county_code"=>"36047",
-                    "county_name"=>"Kings",
-                    "state_code"=>"NY",
-                    "zip_code"=>"11249",
-                    "zip_code_suffix"=>"4101"},
-                  "address_meta_data"=>{"confidence_score"=>100.0, "address_type"=>"Domestic", "delivery_point_validation"=>"CONFIRMED", "residential_delivery_indicator"=>"MIXED"}}],
-               "validation_key"=>-646932106}
+              'addresses' =>
+               [{ 'address' =>
+                  { 'address_line1' => '37 N 1st St',
+                    'address_type' => 'DOMESTIC',
+                    'city' => 'Brooklyn',
+                    'country_name' => 'United States',
+                    'country_code_iso3' => 'USA',
+                    'county_code' => '36047',
+                    'county_name' => 'Kings',
+                    'state_code' => 'NY',
+                    'zip_code' => '11249',
+                    'zip_code_suffix' => '3939' },
+                  'address_meta_data' => { 'confidence_score' => 100.0, 'address_type' => 'Domestic', 'delivery_point_validation' => 'UNDELIVERABLE' } },
+                { 'address' =>
+                  { 'address_line1' => '37 S 1st St',
+                    'address_type' => 'DOMESTIC',
+                    'city' => 'Brooklyn',
+                    'country_name' => 'United States',
+                    'country_code_iso3' => 'USA',
+                    'county_code' => '36047',
+                    'county_name' => 'Kings',
+                    'state_code' => 'NY',
+                    'zip_code' => '11249',
+                    'zip_code_suffix' => '4101' },
+                  'address_meta_data' => { 'confidence_score' => 100.0, 'address_type' => 'Domestic', 'delivery_point_validation' => 'CONFIRMED', 'residential_delivery_indicator' => 'MIXED' } }],
+              'validation_key' => -646_932_106
             )
             expect(response.status).to eq(200)
           end
