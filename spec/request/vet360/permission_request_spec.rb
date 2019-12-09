@@ -56,6 +56,7 @@ RSpec.describe 'permission', type: :request do
 
     context 'with a 403 response' do
       it 'returns a forbidden response' do
+        permission.id = 401
         VCR.use_cassette('vet360/contact_information/post_permission_status_403') do
           post('/v0/profile/permissions', params: permission.to_json, headers: headers)
 
