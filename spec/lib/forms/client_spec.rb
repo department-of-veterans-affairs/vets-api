@@ -14,8 +14,7 @@ describe Forms::Client do
       it 'returns a form response object' do
         VCR.use_cassette('forms/200_all_forms') do
           response = subject.get_all
-          expect(response).to be_accepted
-          expect(response).to be_an Forms::Responses::Response
+          expect(response).to be_a Forms::Responses::Response
         end
       end
     end
@@ -26,8 +25,7 @@ describe Forms::Client do
       it 'returns a form response object' do
         VCR.use_cassette('forms/200_form_query') do
           response = subject.get_all
-          expect(response).to be_accepted
-          expect(response).to be_an Forms::Responses::Response
+          expect(response).to be_a Forms::Responses::Response
         end
       end
     end
