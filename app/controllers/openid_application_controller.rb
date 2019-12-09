@@ -51,10 +51,6 @@ class OpenidApplicationController < ApplicationController
     @current_user = OpenidUser.build_from_identity(identity: user_identity, ttl: ttl)
     @session = build_session(token, token_identifiers.uuid, ttl)
     @session.save && user_identity.save && @current_user.save
-  rescue JWT::ExpiredSignature
-    raise Common::Exceptions::TokenValidationError.new(detail: 'Validation error: token has expired')
-  rescue JWT::DecodeError
-    raise Common::Exceptions::TokenValidationError.new(detail: 'Validation error: token could not be validated')
   end
 
   def token
@@ -68,14 +64,17 @@ class OpenidApplicationController < ApplicationController
 
                          JWT.decode(token, pubkey, true, algorithm: 'RS256')[0]
                        end
+  rescue JWT::ExpiredSignature
+    raise error_klass('Validation error: token has expired')
+  rescue JWT::DecodeError
+    raise error_klass('Validation error: token could not be validated')
   end
 
   def validate_token
-    error_klass = Common::Exceptions::TokenValidationError
-    raise error_klass.new(detail: 'Validation error: no payload to validate') unless token_payload
-    raise error_klass.new(detail: 'Validation error: issuer') unless valid_issuer?
-    raise error_klass.new(detail: 'Validation error: audience') unless valid_audience?
-    raise error_klass.new(detail: 'Validation error: token has expired') unless valid_expiration?
+    raise error_klass('Validation error: no payload to validate') unless token_payload
+    raise error_klass('Validation error: issuer') unless valid_issuer?
+    raise error_klass('Validation error: audience') unless valid_audience?
+    raise error_klass('Validation error: token has expired') unless valid_expiration?
   end
 
   def valid_issuer?
@@ -124,6 +123,14 @@ class OpenidApplicationController < ApplicationController
     decoded_token = JWT.decode(token, nil, false, algorithm: 'RS256')
     kid = decoded_token[1]['kid']
     OIDC::KeyService.get_key(kid)
+  rescue JWT::ExpiredSignature
+    raise error_klass('Validation error: token has expired')
+  rescue JWT::DecodeError
+    raise error_klass('Validation error: token could not be validated')
+  end
+
+  def error_klass(error_detail_string)
+    Common::Exceptions::TokenValidationError.new(detail: error_detail_string)
   end
 
   attr_reader :current_user, :session, :scopes
