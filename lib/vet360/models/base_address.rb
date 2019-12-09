@@ -92,7 +92,7 @@ module Vet360
         inclusion: { in: ADDRESS_TYPES }
       )
 
-      with_options if: proc { |a| a.address_type == DOMESTIC } do
+      with_options if: proc { |a| [DOMESTIC, MILITARY].include?(a.address_type) } do
         validates :state_code, presence: true
         validates :zip_code, presence: true
         validates :province, absence: true
@@ -105,12 +105,6 @@ module Vet360
         validates :zip_code_suffix, absence: true
         validates :county_name, absence: true
         validates :county_code, absence: true
-      end
-
-      with_options if: proc { |a| a.address_type == MILITARY } do
-        validates :state_code, presence: true
-        validates :zip_code, presence: true
-        validates :province, absence: true
       end
 
       def zip_plus_four
