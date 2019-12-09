@@ -7,7 +7,9 @@ module Vet360
         @response = {
           addresses: candidate_res['candidate_addresses'].map do |address_suggestion_hash|
             {
-              address: Vet360::Models::ValidationAddress.build_from_address_suggestion(address_suggestion_hash).to_h.compact,
+              address: Vet360::Models::ValidationAddress.build_from_address_suggestion(
+                address_suggestion_hash
+              ).to_h.compact,
               address_meta_data: address_suggestion_hash['address_meta_data'].except('validation_key')
             }
           end,

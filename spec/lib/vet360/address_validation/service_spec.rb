@@ -51,7 +51,11 @@ describe Vet360::AddressValidation::Service do
                   'state_code' => 'NY',
                   'zip_code' => '11249',
                   'zip_code_suffix' => '3939' },
-                'address_meta_data' => { 'confidence_score' => 100.0, 'address_type' => 'Domestic', 'delivery_point_validation' => 'UNDELIVERABLE' } },
+                'address_meta_data' => {
+                  'confidence_score' => 100.0,
+                  'address_type' => 'Domestic',
+                  'delivery_point_validation' => 'UNDELIVERABLE'
+                } },
               { 'address' =>
                 { 'address_line1' => '37 S 1st St',
                   'address_type' => 'DOMESTIC',
@@ -63,7 +67,12 @@ describe Vet360::AddressValidation::Service do
                   'state_code' => 'NY',
                   'zip_code' => '11249',
                   'zip_code_suffix' => '4101' },
-                'address_meta_data' => { 'confidence_score' => 100.0, 'address_type' => 'Domestic', 'delivery_point_validation' => 'CONFIRMED', 'residential_delivery_indicator' => 'MIXED' } }],
+                'address_meta_data' => {
+                  'confidence_score' => 100.0,
+                  'address_type' => 'Domestic',
+                  'delivery_point_validation' => 'CONFIRMED',
+                  'residential_delivery_indicator' => 'MIXED'
+                } }],
               'validation_key' => -646_932_106
             )
           end
@@ -94,15 +103,26 @@ describe Vet360::AddressValidation::Service do
         ) do
           expect(described_class.new.validate(multiple_match_addr)).to eq(
             'address' =>
- { 'county' => { 'name' => 'Kings', 'county_fips_code' => '36047' },
-   'state_province' => { 'name' => 'New York', 'code' => 'NY' },
-   'country' => { 'name' => 'United States', 'code' => 'USA', 'fips_code' => 'US', 'iso2_code' => 'US', 'iso3_code' => 'USA' },
+ { 'county' => { 'name' => 'Kings',
+                 'county_fips_code' => '36047' },
+   'state_province' => {
+     'name' => 'New York', 'code' => 'NY'
+   },
+   'country' => { 'name' => 'United States', 'code' => 'USA', 'fips_code' => 'US', 'iso2_code' => 'US',
+                  'iso3_code' => 'USA' },
+
    'address_line1' => '37 S 1st St',
    'city' => 'Brooklyn',
    'zip_code5' => '11249',
    'zip_code4' => '4101' },
-            'geocode' => { 'calc_date' => '2019-12-05T15:43:16+00:00', 'location_precision' => 31.0, 'latitude' => 40.715367, 'longitude' => -73.965369 },
-            'address_meta_data' => { 'confidence_score' => 97.0, 'address_type' => 'Domestic', 'delivery_point_validation' => 'CONFIRMED', 'residential_delivery_indicator' => 'MIXED', 'validation_key' => -646_932_106 }
+            'geocode' => { 'calc_date' =>
+              '2019-12-05T15:43:16+00:00',
+                           'location_precision' => 31.0, 'latitude' => 40.715367, 'longitude' => -73.965369 },
+            'address_meta_data' => {
+              'confidence_score' => 97.0,
+              'address_type' => 'Domestic', 'delivery_point_validation' => 'CONFIRMED',
+              'residential_delivery_indicator' => 'MIXED', 'validation_key' => -646_932_106
+            }
           )
         end
       end
@@ -119,12 +139,34 @@ describe Vet360::AddressValidation::Service do
           expect(described_class.new.candidate(invalid_address)).to eq(
             'candidate_addresses' =>
            [{ 'address' =>
-              { 'state_province' => { 'name' => 'Maryland', 'code' => 'MD' }, 'country' => { 'name' => 'United States', 'code' => 'USA', 'fips_code' => 'US', 'iso2_code' => 'US', 'iso3_code' => 'USA' }, 'address_line1' => 'Sdfdsfsdf', 'city' => 'Sparks Glencoe', 'zip_code5' => '21152' },
-              'geocode' => { 'calc_date' => '2019-12-06T18:47:31+00:00', 'location_precision' => 0.0, 'latitude' => 39.5412, 'longitude' => -76.6676 },
-              'address_meta_data' => { 'confidence_score' => 0.0, 'address_type' => 'Unknown', 'delivery_point_validation' => 'MISSING_ZIP', 'validation_key' => 1_499_210_293 },
+              { 'state_province' => {
+                'name' => 'Maryland', 'code' => 'MD'
+              }, 'country' => {
+                'name' => 'United States', 'code' => 'USA',
+                'fips_code' => 'US', 'iso2_code' => 'US',
+                'iso3_code' => 'USA'
+              },
+                'address_line1' => 'Sdfdsfsdf',
+                'city' => 'Sparks Glencoe', 'zip_code5' => '21152' },
+              'geocode' => {
+                'calc_date' => '2019-12-06T18:47:31+00:00',
+                'location_precision' => 0.0, 'latitude' => 39.5412, 'longitude' => -76.6676
+              },
+              'address_meta_data' => {
+                'confidence_score' => 0.0,
+                'address_type' => 'Unknown',
+                'delivery_point_validation' => 'MISSING_ZIP',
+                'validation_key' => 1_499_210_293
+              },
               'messages' =>
-              [{ 'code' => 'ADDRVAL112', 'key' => 'AddressCouldNotBeFound', 'severity' => 'WARN', 'text' => 'The Address could not be found' },
-               { 'code' => 'ADDR306', 'key' => 'lowConfidenceScore', 'severity' => 'WARN', 'text' => 'Vet360 Validation Failed: Confidence Score less than 80' }] }]
+              [{
+                'code' => 'ADDRVAL112',
+                'key' => 'AddressCouldNotBeFound',
+                'severity' => 'WARN', 'text' => 'The Address could not be found'
+              },
+               { 'code' => 'ADDR306',
+                 'key' => 'lowConfidenceScore',
+                 'severity' => 'WARN', 'text' => 'Vet360 Validation Failed: Confidence Score less than 80' }] }]
           )
         end
       end
@@ -143,23 +185,44 @@ describe Vet360::AddressValidation::Service do
              [{ 'address' =>
                 { 'county' => { 'name' => 'Kings', 'county_fips_code' => '36047' },
                   'state_province' => { 'name' => 'New York', 'code' => 'NY' },
-                  'country' => { 'name' => 'United States', 'code' => 'USA', 'fips_code' => 'US', 'iso2_code' => 'US', 'iso3_code' => 'USA' },
+                  'country' => {
+                    'name' => 'United States', 'code' => 'USA',
+                    'fips_code' => 'US', 'iso2_code' => 'US', 'iso3_code' => 'USA'
+                  },
                   'address_line1' => '37 N 1st St',
                   'city' => 'Brooklyn',
                   'zip_code5' => '11249',
                   'zip_code4' => '3939' },
-                'geocode' => { 'calc_date' => '2019-12-05T15:59:36+00:00', 'location_precision' => 31.0, 'latitude' => 40.717029, 'longitude' => -73.964956 },
-                'address_meta_data' => { 'confidence_score' => 100.0, 'address_type' => 'Domestic', 'delivery_point_validation' => 'UNDELIVERABLE', 'validation_key' => -646_932_106 } },
+                'geocode' => {
+                  'calc_date' => '2019-12-05T15:59:36+00:00',
+                  'location_precision' => 31.0,
+                  'latitude' => 40.717029, 'longitude' => -73.964956
+                },
+                'address_meta_data' => {
+                  'confidence_score' => 100.0, 'address_type' => 'Domestic',
+                  'delivery_point_validation' => 'UNDELIVERABLE',
+                  'validation_key' => -646_932_106
+                } },
               { 'address' =>
                 { 'county' => { 'name' => 'Kings', 'county_fips_code' => '36047' },
                   'state_province' => { 'name' => 'New York', 'code' => 'NY' },
-                  'country' => { 'name' => 'United States', 'code' => 'USA', 'fips_code' => 'US', 'iso2_code' => 'US', 'iso3_code' => 'USA' },
+                  'country' => { 'name' => 'United States',
+                                 'code' => 'USA', 'fips_code' => 'US', 'iso2_code' => 'US',
+                                 'iso3_code' => 'USA' },
                   'address_line1' => '37 S 1st St',
                   'city' => 'Brooklyn',
                   'zip_code5' => '11249',
                   'zip_code4' => '4101' },
-                'geocode' => { 'calc_date' => '2019-12-05T15:59:36+00:00', 'location_precision' => 31.0, 'latitude' => 40.715367, 'longitude' => -73.965369 },
-                'address_meta_data' => { 'confidence_score' => 100.0, 'address_type' => 'Domestic', 'delivery_point_validation' => 'CONFIRMED', 'residential_delivery_indicator' => 'MIXED', 'validation_key' => -646_932_106 } }]
+                'geocode' => { 'calc_date' => '2019-12-05T15:59:36+00:00',
+                               'location_precision' => 31.0, 'latitude' => 40.715367,
+                               'longitude' => -73.965369 },
+                'address_meta_data' => {
+                  'confidence_score' => 100.0,
+                  'address_type' => 'Domestic',
+                  'delivery_point_validation' => 'CONFIRMED',
+                  'residential_delivery_indicator' => 'MIXED',
+                  'validation_key' => -646_932_106
+                } }]
             )
           end
         end

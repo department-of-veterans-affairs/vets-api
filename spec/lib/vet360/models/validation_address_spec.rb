@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-describe Vet360::Models::Address do
+describe Vet360::Models::ValidationAddress do
   let(:address) { build(:vet360_validation_address, :multiple_matches) }
 
   describe '#address_validation_req' do
