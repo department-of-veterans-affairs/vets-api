@@ -2303,6 +2303,13 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
         end
       end
     end
+
+    describe '/v0/sessions/:type/new' do
+      it 'Redirects to an auth service URL based on the type in params' do
+        type = 'idme'
+        expect(subject).to validate(:get, '/v0/sessions/{type}/new', 200, headers)
+      end
+    end
   end
 
   context 'and' do
