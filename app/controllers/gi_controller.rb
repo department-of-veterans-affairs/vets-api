@@ -1,14 +1,16 @@
 # frozen_string_literal: true
 
-require 'gi/client'
-
 class GIController < ApplicationController
   skip_before_action :authenticate
 
   private
 
-  def client
-    @client ||= ::GI::Client.new
+  def client(rest_call, scrubbed_params)
+    @client ||= Gi.for_controller(rest_call, scrubbed_params)
+  end
+
+  def gi_response_body(rest_call, scrubbed_params)
+    client(rest_call, scrubbed_params).gi_response.body
   end
 
   def scrubbed_params
