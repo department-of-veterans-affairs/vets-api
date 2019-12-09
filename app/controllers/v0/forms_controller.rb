@@ -19,6 +19,5 @@ module V0
     def query
       sanitize query_params['query']
     end
-
   end
 end
