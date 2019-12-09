@@ -2,10 +2,12 @@
 
 module V0
   class FormsController < ApplicationController
+    include ActionView::Helpers::SanitizeHelper
+
     skip_before_action :authenticate
 
     def index
-      response = Forms::Client.new.get_all
+      response = Forms::Client.new(query).get_all
       render json: response.body,
              status: response.status
     end

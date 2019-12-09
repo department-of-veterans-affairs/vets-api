@@ -8,12 +8,24 @@ module Forms
 
     configuration Forms::Configuration
 
+    attr_reader :query
+
+    def initialize(query)
+      @query = query
+    end
+
     def get_all
-      raw_response = perform(:get, 'forms', nil)
+      raw_response = perform(:get, 'forms', query_params)
       Forms::Responses::Response.new(raw_response.status, raw_response.body, 'forms')
     end
 
     private
+
+    def query_params
+      {
+        query: query
+      }
+    end
 
     def results_url
       config.base_path
