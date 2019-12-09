@@ -39,8 +39,7 @@ describe VAOS::AppointmentRequestsService do
           date: date,
           created_date: created_date,
           last_access_date: last_access_date,
-          last_updated_date:
-          last_updated_date
+          last_updated_date: last_updated_date
         ).params
       end
 
@@ -60,11 +59,33 @@ describe VAOS::AppointmentRequestsService do
     let(:start_date) { Date.parse('2019-08-20') }
     let(:end_date) { Date.parse('2020-08-22') }
 
-    context 'without data params' do
-      it 'returns an array of size 40' do
+    context 'without data params but with cc appointment data' do
+      it 'includes the cc appointment data' do
         VCR.use_cassette('vaos/appointment_requests/get_requests', match_requests_on: %i[method uri]) do
           response = subject.get_requests
-          expect(response[:data].size).to eq(40)
+          request_with_cc = response[:data][40]
+          expect(request_with_cc.cc_appointment_request).to eq(
+            data_identifier: {},
+            has_veteran_new_message: false,
+            preferred_zip_code: '20171',
+            preferred_state: 'VA',
+            preferred_city: 'her',
+            preferred_language: 'English',
+            distance_willing_to_travel: 25,
+            distance_eligible: false,
+            office_hours: ['Evenings'],
+            preferred_providers: [
+              {
+                first_name: 'Vilasini',
+                last_name: 'Reddy',
+                practice_name: 'Test clinic 2',
+                address: {},
+                preferred_order: 0,
+                object_type: 'Provider',
+                link: []
+              }
+            ]
+          )
         end
       end
     end
