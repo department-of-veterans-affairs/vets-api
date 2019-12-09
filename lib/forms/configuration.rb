@@ -11,10 +11,15 @@ module Forms
         faraday.use      :breakers
         faraday.use      Faraday::Response::RaiseError
 
+        faraday.response :betamocks if mock_enabled?
         faraday.response :snakecase, symbolize: false
         faraday.response :json, content_type: /\bjson/ # ensures only json content types parsed
         faraday.adapter Faraday.default_adapter
       end
+    end
+
+    def mock_enabled?
+      Settings.forms.mock || false
     end
 
     def self.base_request_headers
@@ -22,7 +27,7 @@ module Forms
     end
 
     def base_path
-      "#{Settings.lighthouse.url}va_forms/v0/"
+      Settings.forms.url
     end
 
     def service_name
