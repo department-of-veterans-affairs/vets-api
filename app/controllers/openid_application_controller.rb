@@ -53,6 +53,8 @@ class OpenidApplicationController < ApplicationController
     @session.save && user_identity.save && @current_user.save
   rescue JWT::ExpiredSignature
     raise Common::Exceptions::TokenValidationError.new(detail: 'Validation error: token has expired')
+  rescue JWT::DecodeError
+    raise Common::Exceptions::TokenValidationError.new(detail: 'Validation error: token could not be validated')
   end
 
   def token
