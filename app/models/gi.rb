@@ -43,11 +43,11 @@ class Gi < Common::RedisStore
 
   def response_from_redis_or_service
     do_cached_with(key: rest_call.to_s + scrubbed_params.to_s) do
-      gi_client.send(rest_call, scrubbed_params)
+      gi_service.send(rest_call, scrubbed_params)
     end
   end
 
-  def gi_client
+  def gi_service
     @client ||= ::GI::Service.new
   end
 
