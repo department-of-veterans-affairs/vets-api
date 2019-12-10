@@ -4,7 +4,7 @@ This project provides common APIs for applications that live on VA.gov (formerly
 
 For frontend, see [vets-website](https://github.com/department-of-veterans-affairs/vets-website) and [vets-content](https://github.com/department-of-veterans-affairs/vagov-content) repos.
 
-## Base setup  
+## Base setup
 
 **See the [native setup instructions](docs/setup/native.md) if you can't use docker**
 
@@ -22,7 +22,7 @@ To start, fetch this code:
    
    [certificate]: https://github.com/department-of-veterans-affairs/vets.gov-team/blob/master/Products/Identity/Login/IDme/development-certificates/vetsgov-localhost.crt
    [key]: https://github.com/department-of-veterans-affairs/vets.gov-team/blob/master/Products/Identity/Login/IDme/development-certificates/vetsgov-localhost.key
-
+ 
 ## Running the app
 
 A Makefile provides shortcuts for interacting with the docker images. To run vets-api and its redis and postgres 
