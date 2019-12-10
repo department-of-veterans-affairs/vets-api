@@ -38,26 +38,26 @@ module Forms
       config.base_path
     end
 
-    def parse_messages(error)
-      error.body&.dig('errors')
-    end
-
     def handle_error(error)
       case error
       when Common::Client::Errors::ClientError
-        save_error_details(error.body)
+        save_error_details(error)
         raise_backend_exception('FORMS_502', self.class, error)
       else
         raise error
       end
     end
 
-    def save_error_details(error_message)
-      Raven.extra_context(
-        message: error_message,
-        url: config.base_path
+    def save_error_details(error)
+      Raven.tags_context(
+        external_service: self.class.to_s.underscore
       )
-      Raven.tags_context(search: 'general_forms_query_error')
+
+      Raven.extra_context(
+        url: config.base_path,
+        message: error.message,
+        body: error.body
+      )
     end
   end
 end

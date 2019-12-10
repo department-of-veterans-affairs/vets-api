@@ -29,5 +29,19 @@ describe Forms::Client do
         end
       end
     end
+
+    context 'with an http timeout' do
+      before do
+        allow_any_instance_of(Faraday::Connection).to receive(:get).and_raise(Faraday::TimeoutError)
+      end
+
+      it 'logs an error and raise GatewayTimeout exception' do
+        expect(StatsD).to receive(:increment).once.with(
+          'api.forms.get_all.fail', tags: ['error:Common::Exceptions::GatewayTimeout']
+        )
+        expect(StatsD).to receive(:increment).once.with('api.forms.get_all.total')
+        expect { subject.get_all }.to raise_error(Common::Exceptions::GatewayTimeout)
+      end
+    end
   end
 end
