@@ -112,7 +112,7 @@ module Swagger
           property :first, type: :string
           property :prev, type: %i[null string]
           property :next, type: %i[null string]
-          property :last, type: :string, example: 'http://localhos:3000/v0/institution_programs/?name=code&page=3&per_page=30'
+          property :last, type: :string, example: 'http://localhost:3000/v0/institution_programs/?name=code&page=3&per_page=30'
         end
       end
     end
