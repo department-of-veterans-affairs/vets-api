@@ -11,6 +11,7 @@ RSpec.describe V0::FormsController, type: :controller do
       end
     end
   end
+
   context 'without query param' do
     it 'returns forms' do
       VCR.use_cassette('forms/200_all_forms') do
