@@ -16,6 +16,7 @@ require 'support/validation_helpers'
 require 'support/model_helpers'
 require 'support/authenticated_session_helper'
 require 'support/aws_helpers'
+require 'support/vcr_multipart_matcher_helper'
 require 'support/request_helper'
 require 'support/uploader_helpers'
 require 'common/exceptions'
@@ -182,6 +183,4 @@ RSpec.configure do |config|
   config.after(:all) do
     FileUtils.rm_rf(Dir[Rails.root.join('spec', 'support', 'uploads')]) if Rails.env.test?
   end
-
-  config.fuubar_auto_refresh = false
 end

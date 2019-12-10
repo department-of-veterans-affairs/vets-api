@@ -1,12 +1,13 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require_relative '../support/fixture_helper'
 
 describe VAOS::UserService do
   let(:user) { build(:user, :mhv) }
 
   describe '#session' do
-    let(:rsa_private) { OpenSSL::PKey::RSA.generate 4096 }
+    let(:rsa_private) { OpenSSL::PKey::RSA.new(read_fixture_file('open_ssl_rsa_private.pem')) }
     let(:token) { 'abc123' }
     let(:response) { double('response', body: token) }
 
@@ -74,7 +75,7 @@ describe VAOS::UserService do
       it 'raises a client error' do
         VCR.use_cassette('vaos/users/post_session_400') do
           expect { subject.session(user) }.to raise_error(
-            Common::Client::Errors::ClientError, 'the server responded with status 400'
+            Common::Exceptions::BackendServiceException
           )
         end
       end
@@ -84,7 +85,7 @@ describe VAOS::UserService do
       it 'raises a client error' do
         VCR.use_cassette('vaos/users/post_session_403') do
           expect { subject.session(user) }.to raise_error(
-            Common::Client::Errors::ClientError, 'the server responded with status 403'
+            Common::Exceptions::BackendServiceException
           )
         end
       end

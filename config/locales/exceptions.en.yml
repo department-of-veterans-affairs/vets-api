@@ -73,6 +73,12 @@ en:
         detail: "The required parameter \"%{param}\", is missing"
         code: 108
         status: 400
+      parameters_missing:
+        <<: *defaults
+        title: Missing parameter
+        detail: "The required parameter \"%{param}\", is missing"
+        code: 108
+        status: 400
       schema_validation_errors:
         <<: *defaults
         title: Validation error
@@ -474,6 +480,18 @@ en:
         code: 'SEARCH_429'
         detail: 'Exceeded Search.gov rate limit'
         status: 429
+      VAOS_400:
+        <<: *external_defaults
+        title: Bad Request
+        code: 'VAOS_400'
+        detail: # deliberarly left nil to reference response.body which is unparsable string (not json)
+        status: 400
+      VAOS_403:
+        <<: *external_defaults
+        title: Forbidden
+        code: 'VAOS_403'
+        detail: 'This user is forbidden from performing requests on the upstream server'
+        status: 403
       VAOS_502:
         <<: *external_defaults
         title: Bad Gateway
@@ -1605,6 +1623,111 @@ en:
         code: VET360_PHON305
         detail: Cannot update record if phoneType is not matching
         status: 400
+
+  decision_review:
+    exceptions:
+      unmapped_service_exception:
+        <<: *defaults
+        title: Internal Server Error
+        detail: The upstream server returned an error code that is unmapped
+        code: unmapped_service_exception
+        status: 400
+      DR_502:
+        <<: *defaults
+        title: Bad Gateway
+        code: DR_502
+        detail: Received an an invalid response from the upstream server
+        status: 502
+      DR_malformed_request:
+        <<: *defaults
+        title: Malformed Request
+        detail: The request was malformed and could not be processed
+        code: DR_malformed_request
+        status: 400
+      DR_veteran_not_found:
+        <<: *defaults
+        title: Veteran Not Found
+        detail: The veteran could not be found
+        code: DR_veteran_not_found
+        status: 404
+      DR_duplicate_intake_in_progress:
+        <<: *defaults
+        title: Duplicate Intake In Progress
+        detail: Another duplicate intake is already in progress
+        code: DR_duplicate_intake_in_progress
+        status: 422
+      DR_incident_flash:
+        <<: *defaults
+        title: Incident Flash
+        detail: The veteran has an incident flash
+        code: DR_incident_flash
+        status: 422
+      DR_invalid_file_number:
+        <<: *defaults
+        title: Invalid File Number
+        detail: Veteran ID not found
+        code: DR_invalid_file_number
+        status: 422
+      DR_request_issue_cannot_be_empty:
+        <<: *defaults
+        title: Request Issue Cannot Be Empty
+        detail: A request issue cannot be empty
+        code: DR_request_issue_cannot_be_empty
+        status: 422
+      DR_request_issue_category_invalid_for_benefit_type:
+        <<: *defaults
+        title: Request Issue Category Invalid for Benefit Type
+        detail: The Category is invalid for the benefit type
+        code: DR_request_issue_category_invalid_for_benefit_type
+        status: 422
+      DR_request_issue_legacyAppealId_is_blank_when_legacyAppealIssueId_is_present:
+        <<: *defaults
+        title: LegacyAppealId is blank when LegacyAppealIssueId Is Present
+        detail: If you specify a legacy appeal issue, you must specify which legacy appeal it belongs to (legacy_appeal_id)
+        code: DR_request_issue_legacyAppealId_is_blank_when_legacyAppealIssueId_is_present
+        status: 422
+      DR_request_issue_legacyAppealIssueId_is_blank_when_legacyAppealId_is_present:
+        <<: *defaults
+        title: LegacyAppealIssueId is blank when LegacyAppealId Is Present
+        detail: If you specify a legacy appeal, you must specify which issue (legacy_appeal_issue_id) of that appeal
+        code: DR_request_issue_legacyAppealIssueId_is_blank_when_legacyAppealId_is_present
+        status: 422
+      DR_request_issue_legacy_not_opted_in:
+        <<: *defaults
+        title: Legacy Not Opted In
+        detail: To add a legacy issue, legacyOptInApproved must be true
+        code: DR_request_issue_legacy_not_opted_in
+        status: 422
+      DR_request_issue_malformed:
+        <<: *defaults
+        title: Request Issue Malformed
+        detail: Request Issue is malformed
+        code: DR_request_issue_malformed
+        status: 422
+      DR_request_issue_must_have_at_least_one_ID_field:
+        <<: *defaults
+        title: Request Issue Must Have At Least One Id Field
+        detail: 'A request issue must have at least one of the following: decisionIssueId, ratingIssueId, legacyAppealId, legacyAppealIssueId'
+        code: DR_request_issue_must_have_at_least_one_ID_field
+        status: 422
+      DR_veteran_has_multiple_phone_numbers:
+        <<: *defaults
+        title: Veteran Has Multiple Phone Numbers
+        detail: The veteran has multiple active phone numbers
+        code: DR_veteran_has_multiple_phone_numbers
+        status: 422
+      DR_veteran_not_modifiable:
+        <<: *defaults
+        title: Veteran Not Modifiable
+        detail: You don't have permission to intake this veteran
+        code: DR_veteran_not_modifiable
+        status: 422
+      DR_veteran_not_valid:
+        <<: *defaults
+        title: Veteran Not Valid
+        detail: The veteran's profile has missing or invalid information required to create an EP
+        code: DR_veteran_not_valid
+        status: 422
 
   evss:
     external_service_unavailable:
