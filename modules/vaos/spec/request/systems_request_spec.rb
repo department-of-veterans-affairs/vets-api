@@ -30,7 +30,8 @@ RSpec.describe 'systems', type: :request do
       context 'with a valid GET systems response' do
         it 'returns a 200 with the correct schema' do
           VCR.use_cassette('vaos/systems/get_systems', match_requests_on: %i[method uri]) do
-            get '/v0/vaos/systems'
+            expect { get '/v0/vaos/systems' }
+              .to trigger_statsd_increment('api.external_http_request.VAOS.success', times: 1, value: 1)
 
             expect(response).to have_http_status(:ok)
             expect(response.body).to be_a(String)
