@@ -60,3 +60,4 @@ dump.rdb
 /.project
 .generators
 .rakeTasks
+Gemfile.lock

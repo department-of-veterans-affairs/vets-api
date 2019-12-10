@@ -91,9 +91,13 @@ Rails.application.routes.draw do
     get 'intent_to_file/:type/active', to: 'intent_to_files#active'
     post 'intent_to_file/:type', to: 'intent_to_files#submit'
 
+    get 'index', to: 'example#index', as: :index
     get 'welcome', to: 'example#welcome', as: :welcome
     get 'limited', to: 'example#limited', as: :limited
     get 'status', to: 'admin#status'
+
+    get 'dalc/hab/:id', to: 'dalc#hab', as: :dalc
+
 
     get 'ppiu/payment_information', to: 'ppiu#index'
     put 'ppiu/payment_information', to: 'ppiu#update'
