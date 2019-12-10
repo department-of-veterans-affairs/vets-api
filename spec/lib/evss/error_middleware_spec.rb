@@ -14,7 +14,7 @@ describe EVSS::ErrorMiddleware do
     VCR.use_cassette(
       'evss/claims/claim_with_errors',
       erb: { transaction_id: transaction_id },
-      match_requests_on: [:method, :uri, :body]
+      match_requests_on: VCR.all_matches
     ) do
       expect { claims_service.find_claim_by_id 1 }.to raise_exception(described_class::EVSSError)
     end

@@ -54,7 +54,7 @@ VCR::MATCH_EVERYTHING = { match_requests_on: %i[method uri headers body] }.freez
 
 module VCR
   def self.all_matches
-    %i[method uri headers body]
+    %i[method uri body]
   end
 end
 
