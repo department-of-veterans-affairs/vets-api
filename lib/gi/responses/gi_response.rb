@@ -17,17 +17,14 @@ module GI
       # @return [GI::Responses::GiResponse]
       def self.with_body(response)
         gi_response = GiResponse.new
-        gi_response.status = RESPONSE_STATUS[:ok]
+        gi_response.status = response.status
         gi_response.body = response.body
         gi_response
       end
 
       def cache?
-        ok? || not_found?
-      end
-
-      def ok?
-        @status == RESPONSE_STATUS[:ok]
+        false
+        # @status == 200
       end
     end
   end
