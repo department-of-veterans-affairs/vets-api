@@ -11,15 +11,9 @@ module Swagger
 
           property :data, type: :array, minItems: 0, uniqueItems: true do
             items do
-<<<<<<< HEAD
-              property :id, type: :integer, example: 1234
-              property :value, type: :string, example: '1X12345'
-              property :label, type: :string, example: 'COMPUTER SCIENCE'
-=======
-              property :id, type: :integer, example: '1234', description: 'Unique program ID'
+              property :id, type: :integer, example: 1234, description: 'Unique program ID'
               property :value, type: :string, example: '1X12345', description: 'Program institution facility code'
               property :label, type: :string, example: 'COMPUTER SCIENCE', description: 'Program name'
->>>>>>> 968f85cf52233cff7241b204a69588bc17794d43
             end
           end
 
@@ -43,12 +37,8 @@ module Swagger
               property :attributes do
                 key :required, %i[facility_code description]
 
-<<<<<<< HEAD
                 property :program_type, type: %i[null string],
                                         enum: %w[IHL NCD OJT FLGT CORR],
-=======
-                property :program_type, type: %i[null string], enum: %w[IHL NCD OJT FLGT CORR],
->>>>>>> 968f85cf52233cff7241b204a69588bc17794d43
                                         description: 'The classification of the program, ex: IHL, NCD, OJT'
                 property :description, type: :string, example: 'COMPUTER SCIENCE',
                                        description: 'Program name'
