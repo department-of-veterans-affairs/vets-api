@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'maintenance/poll_pagerduty'
+require 'pager_duty/poll_maintenance_windows'
 
 RSpec.describe PagerDuty::PollMaintenanceWindows, type: :job do
   let(:client_stub) { instance_double('PagerDuty::MaintenanceClient') }
