@@ -29,6 +29,9 @@ class Gi < Common::RedisStore
   # @return [String] the status of the last MVI response
   delegate :status, to: :gi_response
 
+  # The body of the last GI response
+  #
+  # @return
   delegate :body, to: :gi_response
 
   # @return the response returned from GI Client
@@ -39,8 +42,8 @@ class Gi < Common::RedisStore
   private
 
   def response_from_redis_or_service
-    do_cached_with(key: rest_call + scrubbed_params.to_s) do
-      gi_client.send(rest_call.to_sym, scrubbed_params)
+    do_cached_with(key: rest_call.to_s + scrubbed_params.to_s) do
+      gi_client.send(rest_call, scrubbed_params)
     end
   end
 
