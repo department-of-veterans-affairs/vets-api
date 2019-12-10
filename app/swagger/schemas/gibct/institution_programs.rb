@@ -62,7 +62,7 @@ module Swagger
                                                the requirements are not met'
                 property :tuition_amount, type: %i[null integer], example: 1000,
                                           description: 'Program tuition amount'
-                property :va_bah, type: %i[null integer], example: 220,
+                property :va_bah, type: %i[null number], example: 220.0,
                                   description: 'VA Basic Allowance for Housing'
                 property :dod_bah, type: %i[null integer], example: 200,
                                    description: 'DOD Basic Allowance for Housing'
