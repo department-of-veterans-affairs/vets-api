@@ -15,6 +15,20 @@ module ClaimsApi
       render json: pending_claim, serializer: ClaimsApi::AutoEstablishedClaimSerializer
     end
 
+    def validate_form_526
+      service = EVSS::DisabilityCompensationForm::ServiceAllClaim.new(auth_headers)
+      auto_claim = ClaimsApi::AutoEstablishedClaim.new(
+        status: ClaimsApi::AutoEstablishedClaim::PENDING,
+        auth_headers: auth_headers,
+        form_data: form_attributes
+      )
+      service.validate_form526(auto_claim.to_internal)
+      render json: valid_526_response
+    rescue EVSS::ErrorMiddleware::EVSSError => e
+      track_526_validation_errors(e.details)
+      render json: { errors: format_526_errors(e.details) }, status: :unprocessable_entity
+    end
+
     private
 
     def valid_526_response

@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 
-require_dependency 'claims_api/form_526'
 require_dependency 'claims_api/json_marshal'
 require_dependency 'claims_api/concerns/file_data'
 
@@ -37,8 +36,15 @@ module ClaimsApi
 
     alias token id
 
-    def form
-      @form ||= ClaimsApi::Form526.new(form_data.deep_symbolize_keys)
+    def to_internal
+      form_data['claimDate'] ||= created_at.to_date.to_s
+      {
+        "form526": form_data,
+        "form526_uploads": [],
+        "form4142": nil,
+        "form0781": nil,
+        "form8940": nil
+      }.to_json
     end
 
     def self.pending?(id)

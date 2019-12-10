@@ -484,6 +484,13 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
           )
         end
       end
+
+      it 'supports getting rating info' do
+        expect(subject).to validate(:get, '/v0/disability_compensation_form/rating_info', 401)
+        VCR.use_cassette('evss/disability_compensation_form/rating_info') do
+          expect(subject).to validate(:get, '/v0/disability_compensation_form/rating_info', 200, headers)
+        end
+      end
     end
 
     describe 'intent to file' do
