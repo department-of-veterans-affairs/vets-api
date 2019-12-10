@@ -67,7 +67,7 @@ namespace :connectivity do
   desc 'Check GI'
   task gi: :environment do
     check 'GIDS', Settings.gids.url do
-      GI::Service.new.get_autocomplete_suggestions(term: 'university')
+      GI::Client.new.get_autocomplete_suggestions(term: 'university')
     end
   end
 

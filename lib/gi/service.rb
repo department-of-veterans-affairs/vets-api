@@ -6,7 +6,7 @@ require 'gi/responses/gi_response'
 
 module GI
   # Core class responsible for api interface operations
-  class Service < Common::Client::Base
+  class Client < Common::Client::Base
     configuration GI::Configuration
 
     def get_institution_autocomplete_suggestions(params = {})

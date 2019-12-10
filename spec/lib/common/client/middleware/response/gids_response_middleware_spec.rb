@@ -8,7 +8,7 @@ require 'common/client/middleware/response/snakecase'
 require 'common/client/errors'
 
 describe Common::Client::Middleware::Response do
-  subject(:gi_service) do
+  subject(:gi_client) do
     Faraday.new do |conn|
       conn.response :snakecase
       conn.response :raise_error, error_prefix: 'GI'
