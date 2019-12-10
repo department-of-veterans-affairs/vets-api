@@ -14,14 +14,6 @@ module Forms
         self.status = status
       end
 
-      def ok?
-        status == 200
-      end
-
-      def accepted?
-        status == 202
-      end
-
       private
 
       def json_format_is_valid?(body, schema_name)
