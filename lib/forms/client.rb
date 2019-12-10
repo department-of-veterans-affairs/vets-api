@@ -34,10 +34,6 @@ module Forms
       }
     end
 
-    def results_url
-      config.base_path
-    end
-
     def handle_error(error)
       case error
       when Common::Client::Errors::ClientError
