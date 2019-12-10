@@ -118,7 +118,7 @@ RSpec.describe 'permission', type: :request do
 
   describe 'DELETE /v0/profile/permissions' do
     let(:permission) do
-      build(:permission, vet360_id: user.vet360_id, source_date: '2019-11-05T16:49:18Z')
+      build(:permission, vet360_id: 1, source_date: '2019-11-05T16:49:18Z')
     end
     let(:id_in_cassette) { 361 }
 
