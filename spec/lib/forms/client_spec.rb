@@ -43,5 +43,19 @@ describe Forms::Client do
         expect { subject.get_all }.to raise_error(Common::Exceptions::GatewayTimeout)
       end
     end
+
+    context 'with a client error' do
+      before do
+        allow_any_instance_of(Faraday::Connection).to receive(:get).and_raise(Common::Client::Errors::ClientError)
+      end
+
+      it 'raises backend exception' do
+        expect(StatsD).to receive(:increment).once.with(
+          'api.forms.get_all.fail', tags: ['error:Common::Client::Errors::ClientError']
+        )
+        expect(StatsD).to receive(:increment).once.with('api.forms.get_all.total')
+        expect { subject.get_all }.to raise_error(Common::Exceptions::BackendServiceException)
+      end
+    end
   end
 end
