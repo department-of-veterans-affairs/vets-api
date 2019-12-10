@@ -22,7 +22,7 @@ To start, fetch this code:
    
    [certificate]: https://github.com/department-of-veterans-affairs/vets.gov-team/blob/master/Products/Identity/Login/IDme/development-certificates/vetsgov-localhost.crt
    [key]: https://github.com/department-of-veterans-affairs/vets.gov-team/blob/master/Products/Identity/Login/IDme/development-certificates/vetsgov-localhost.key
-
+ 
 ## Running the app
 
 A Makefile provides shortcuts for interacting with the docker images. To run vets-api and its redis and postgres 
