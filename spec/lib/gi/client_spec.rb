@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-describe GI::Client do
+describe 'gi client' do
   let(:client) { GI::Client.new }
 
   it 'gets a list of institution autocomplete suggestions', :vcr do
