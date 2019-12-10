@@ -4,7 +4,6 @@ module VAOS
   class LimitsController < ApplicationController
     def index
       response = systems_service.get_facility_limits(
-        current_user,
         facility_id,
         type_of_care_id
       )
@@ -15,7 +14,7 @@ module VAOS
     private
 
     def systems_service
-      VAOS::SystemsService.new
+      VAOS::SystemsService.new(current_user)
     end
 
     def facility_id

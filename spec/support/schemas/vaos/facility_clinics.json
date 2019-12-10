@@ -34,8 +34,7 @@
               "display_to_patient_flag",
               "institution_name",
               "institution_code",
-              "object_type",
-              "link"
+              "object_type"
             ],
             "properties": {
               "site_code": {
@@ -70,9 +69,6 @@
               },
               "object_type": {
                 "type": "string"
-              },
-              "link": {
-                "type": "array"
               }
             }
           }

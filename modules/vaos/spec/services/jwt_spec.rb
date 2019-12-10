@@ -1,12 +1,13 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require_relative '../support/fixture_helper'
 
 describe VAOS::JWT do
   subject { VAOS::JWT.new(user) }
 
   let(:user) { build(:user, :vaos) }
-  let(:rsa_private) { OpenSSL::PKey::RSA.generate(4096) }
+  let(:rsa_private) { OpenSSL::PKey::RSA.new(read_fixture_file('open_ssl_rsa_private.pem')) }
   # JWT REGEX has 3 base64 url encoded parts (header, payload signature) and more importantly is non empty.
   let(:jwt_regex) { %r{^[A-Za-z0-9\-_=]+\.[A-Za-z0-9\-_=]+\.?[A-Za-z0-9\-_.+/=]*$} }
 
