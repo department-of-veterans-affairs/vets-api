@@ -21,18 +21,14 @@ class Token
                  end
   rescue JWT::ExpiredSignature
     raise error_klass('Validation error: token has expired')
-  rescue JWT::DecodeError
-    raise error_klass('Validation error: token could not be decoded')
   end
 
   def expected_key
-    decoded_token = JWT.decode(@token_string, nil, false, algorithm: 'RS256')
+    decoded_token = JWT.decode(@token_string, nil, false, algorithm: 'RS256') # throwing a decode error
     kid = decoded_token[1]['kid']
     OIDC::KeyService.get_key(kid)
-  rescue JWT::ExpiredSignature
-    raise error_klass('Validation error: token has expired')
-  rescue JWT::DecodeError
-    raise error_klass('Validation error: token could not be validated')
+  rescue JWT::DecodeError => e
+    raise error_klass("Validation error: #{e.message}")
   end
 
   def validate_token
