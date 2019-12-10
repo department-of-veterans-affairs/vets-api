@@ -1,0 +1,53 @@
+---
+http_interactions:
+- request:
+    method: put
+    uri: https://internal-dsva-vagov-staging-fwdproxy-1821450725.us-gov-west-1.elb.amazonaws.com:4433/person-mdm-cuf-person-hub/cuf/person/contact-information/v1/permissions
+    body:
+      encoding: UTF-8
+      string: '{"bio":{"originatingSourceSystem":"VETSGOV","permissionType":"TextPermission","permissionValue":true,"sourceDate":"2019-11-05T16:49:18.000Z","sourceSystemUser":"64762895576664260","permissionId":361,"vet360Id":"1","effectiveStartDate":"2019-11-05T16:49:18.000Z","effectiveEndDate":null}}'
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Cufsystemname:
+      - VETSGOV
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: ''
+    headers:
+      Date:
+      - Tue, 05 Nov 2019 21:35:03 GMT
+      Expires:
+      - '0'
+      Vet360txauditid:
+      - a1457a29-2248-439c-9f5b-52722dd821eb
+      X-Frame-Options:
+      - DENY
+      Pragma:
+      - no-cache
+      X-Content-Type-Options:
+      - nosniff
+      - nosniff
+      X-Xss-Protection:
+      - 1; mode=block
+      Cache-Control:
+      - no-cache, no-store, max-age=0, must-revalidate
+      X-Ua-Compatible:
+      - IE-edge,chrome=1
+      Content-Type:
+      - application/json;charset=UTF-8
+      Transfer-Encoding:
+      - chunked
+    body:
+      encoding: UTF-8
+      string: '{"txAuditId":"d91951c6-3f55-4c39-8057-876f7f109cc5","status":"RECEIVED"}'
+    http_version:
+  recorded_at: Tue, 05 Nov 2019 16:49:18 GMT
+recorded_with: VCR 3.0.3

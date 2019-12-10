@@ -81,10 +81,10 @@ describe 'vet360 rake tasks' do
   describe 'rake vet360:get_permission_transaction_status' do
     let :run_rake_task do
       Rake::Task['vet360:get_permission_transaction_status'].reenable
-      Rake.application.invoke_task 'vet360:get_permission_transaction_status[1,a50193df-f4d5-4b6a-b53d-36fed2db1a15]'
+      Rake.application.invoke_task 'vet360:get_permission_transaction_status[1,b1b06a34-c6a8-412e-82e7-df09d84862f3]'
     end
 
-    xit 'runs without errors' do
+    it 'runs without errors' do
       expect_any_instance_of(Vet360::ContactInformation::Service).to receive(:get_permission_transaction_status)
       VCR.use_cassette('vet360/contact_information/permission_transaction_status', VCR::MATCH_EVERYTHING) do
         expect { silently { run_rake_task } }.not_to raise_error
@@ -152,14 +152,14 @@ describe 'vet360 rake tasks' do
   describe 'rake vet360:put_permission' do
     let :run_rake_task do
       data = '{"originating_source_system":"VET360-TEST-PARTNER","permission_type":"TextPermission",'\
-      '"permission_value":true,"source_date":"2019-00-23T20:09:50.000-06:00","permission_id":42,'\
+      '"permission_value":true,"source_date":"2019-09-23T20:09:50.000-06:00","permission_id":42,'\
       '"vet360_id":"1"}'
       ENV['VET360_RAKE_DATA'] = data
       Rake::Task['vet360:put_permission'].reenable
       Rake.application.invoke_task 'vet360:put_permission'
     end
 
-    xit 'runs without errors' do
+    it 'runs without errors' do
       expect_any_instance_of(Vet360::ContactInformation::Service).to receive(:put_permission)
       VCR.use_cassette('vet360/contact_information/put_permission_success', VCR::MATCH_EVERYTHING) do
         expect { silently { run_rake_task } }.not_to raise_error
@@ -227,14 +227,14 @@ describe 'vet360 rake tasks' do
   describe 'rake vet360:post_permission' do
     let :run_rake_task do
       data = '{"originating_source_system":"VET360-TEST-PARTNER","permission_type":"TextPermission",'\
-      '"permission_value":true,"source_date":"2019-00-23T20:09:50.000-06:00","permission_id":null,'\
+      '"permission_value":true,"source_date":"2019-09-23T20:09:50.000-06:00","permission_id":null,'\
       '"vet360_id":"1"}'
       ENV['VET360_RAKE_DATA'] = data
       Rake::Task['vet360:post_permission'].reenable
       Rake.application.invoke_task 'vet360:post_permission'
     end
 
-    xit 'runs without errors' do
+    it 'runs without errors' do
       expect_any_instance_of(Vet360::ContactInformation::Service).to receive(:post_permission)
       VCR.use_cassette('vet360/contact_information/post_permission_success', VCR::MATCH_EVERYTHING) do
         expect { silently { run_rake_task } }.not_to raise_error

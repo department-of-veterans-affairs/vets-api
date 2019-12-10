@@ -18,6 +18,9 @@ FactoryBot.define do
     factory :telephone_transaction, class: AsyncTransaction::Vet360::TelephoneTransaction do
     end
 
+    factory :permission_transaction, class: AsyncTransaction::Vet360::PermissionTransaction do
+    end
+
     factory :initialize_person_transaction, class: AsyncTransaction::Vet360::InitializePersonTransaction do
       trait :init_vet360_id do
         source_id { nil }
