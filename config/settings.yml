@@ -436,6 +436,7 @@ bgs:
   mock_responses: ~
   external_uid: ~
   external_key: ~
+  ssl_verify_mode: 'peer'
 
 va_mobile:
   url: 'https://veteran.apps.va.gov/'

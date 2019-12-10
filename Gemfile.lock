@@ -24,10 +24,10 @@ GIT
 
 GIT
   remote: https://github.com/department-of-veterans-affairs/lighthouse-bgs.git
-  revision: 9c7bb7add3f4515ccc851f4edbdf60563dd1775f
+  revision: 380f27c95d5af4ff96c0ca5b95d6279cd1f5289d
   branch: master
   specs:
-    lighthouse_bgs (0.4.0)
+    lighthouse_bgs (0.5.0)
       httpclient
       nokogiri (>= 1.8.5)
       savon (~> 2.12)
@@ -442,7 +442,7 @@ GEM
     net-ssh (4.1.0)
     nio4r (2.3.1)
     no_proxy_fix (0.1.2)
-    nokogiri (1.10.5)
+    nokogiri (1.10.7)
       mini_portile2 (~> 2.4.0)
     nori (2.6.0)
     notiffany (0.1.3)
