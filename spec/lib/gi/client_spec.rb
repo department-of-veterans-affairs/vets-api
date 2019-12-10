@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require 'gi/client'
 
 describe 'gi client' do
   let(:client) { GI::Client.new }
