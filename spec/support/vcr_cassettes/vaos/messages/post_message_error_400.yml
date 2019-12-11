@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: post
-    uri: https://internal-dsva-vagov-staging-fwdproxy-1821450725.us-gov-west-1.elb.amazonaws.com:4463/var/VeteranAppointmentRequestService/v4/rest/appointment-service/patient/ICN/1012845331V153043/appointment-requests/system/var/id/8a4886886e4c8e22016ef6a8b1bf0396/messages
+    uri: https://veteran.apps.va.gov/var/VeteranAppointmentRequestService/v4/rest/appointment-service/patient/ICN/1012845331V153043/appointment-requests/system/var/id/8a4886886e4c8e22016ef6a8b1bf0396/messages
     body:
       encoding: UTF-8
       string: '{"messageText":"this is my third message","url":"","senderId":"1012845331V153043","appointmentRequestId":"8a4886886e4c8e22016ef6a8b1bf0396","messageDateTime":"","messageSent":true,"isLastMessage":true,"AppointmentRequestId":"8a4886886e4c8e22016ef6a8b1bf0396"}'
@@ -67,4 +67,3 @@ http_interactions:
         }
     http_version:
   recorded_at: Wed, 11 Dec 2019 20:41:36 GMT
-recorded_with: VCR 3.0.3

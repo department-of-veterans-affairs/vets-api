@@ -39,35 +39,41 @@ describe VAOS::MessagesService do
   end
 
   describe '#post_message', :skip_mvi do
-    let(:appointment_request_id) { '8a4886886e4c8e22016eebd3b8820347' } # need to update this with something valid on staging to record cassette.
+    let(:appointment_request_id) { '8a4886886e4c8e22016ef6a8b1bf0396' }
     let(:request_body) { { message_text: 'I want to see doctor Jeckyl please.' } }
 
     context 'when message is valid' do
       it 'creates a new message' do
-        VCR.use_cassette('vaos/messages/post_message', record: :new_episodes) do
+        VCR.use_cassette('vaos/messages/post_message', match_requests_on: %i[method uri]) do
           response = subject.post_message(appointment_request_id, request_body)
-          expect(response).to be_an_instance_of(String).and be_empty
+          expect(response[:data].keys)
+            .to contain_exactly(:data_identifier, :patient_identifier, :surrogate_identifier, :message_text,
+              :message_date_time, :sender_id, :appointment_request_id, :date, :patient_id, :unique_id,
+              :assigning_authority, :object_type, :link)
         end
       end
     end
 
     context 'when message has missing attributes' do
+      let(:appointment_request_id) { '8a4886886e4c8e22016eebd3b8820347' }
       it 'interprets a 204 response as an error' do
-        VCR.use_cassette('vaos/messages/post_message_error', record: :new_episodes) do
-          response = subject.post_message(appointment_request_id, request_body)
-          expect(response).to be_an_instance_of(String).and be_empty
+        VCR.use_cassette('vaos/messages/post_message_error', match_requests_on: %i[method uri]) do
+          expect{ subject.post_message(appointment_request_id, request_body) }.to raise_error(
+            Common::Exceptions::BackendServiceException
+          )
         end
       end
     end
 
 
     context 'when request has too many messages' do
-      let(:request_body) { { message_text: 'this is my third message', appointment_request_id: '8a4886886e4c8e22016eea28f62a0311' } }
+      let(:request_body) { { message_text: 'this is my third message' } }
 
       it 'interprets a 400 error' do
-        VCR.use_cassette('vaos/messages/post_message_error_400', record: :new_episodes) do
-          response = subject.post_message(appointment_request_id, request_body)
-          expect(response).to be_an_instance_of(String).and be_empty
+        VCR.use_cassette('vaos/messages/post_message_error_400', match_requests_on: %i[method uri]) do
+          expect{ subject.post_message(appointment_request_id, request_body) }.to raise_error(
+            Common::Exceptions::BackendServiceException
+          )
         end
       end
     end

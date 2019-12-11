@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: post
-    uri: https://internal-dsva-vagov-staging-fwdproxy-1821450725.us-gov-west-1.elb.amazonaws.com:4463/var/VeteranAppointmentRequestService/v4/rest/appointment-service/patient/ICN/1012845331V153043/appointment-requests/system/var/id/8a4886886e4c8e22016eebd3b8820347/messages
+    uri: https://veteran.apps.va.gov/var/VeteranAppointmentRequestService/v4/rest/appointment-service/patient/ICN/1012845331V153043/appointment-requests/system/var/id/8a4886886e4c8e22016eebd3b8820347/messages
     body:
       encoding: UTF-8
       string: '{"messageText":"I want to see doctor Jeckyl please.","url":null,"senderId":null,"appointmentRequestId":null,"messageDateTime":null,"messageSent":true,"isLastMessage":true,"AppointmentRequestId":null}'
@@ -35,4 +35,3 @@ http_interactions:
       string: ''
     http_version:
   recorded_at: Mon, 09 Dec 2019 18:18:53 GMT
-recorded_with: VCR 3.0.3
