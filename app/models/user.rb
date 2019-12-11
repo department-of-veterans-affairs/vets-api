@@ -122,6 +122,7 @@ class User < Common::RedisStore
   delegate :icn_with_aaid, to: :mvi
   delegate :participant_id, to: :mvi
   delegate :vet360_id, to: :mvi
+  delegate :search_token, to: :mvi
 
   # emis attributes
   delegate :military_person?, to: :veteran_status
