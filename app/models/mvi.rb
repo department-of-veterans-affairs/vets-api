@@ -72,6 +72,11 @@ class Mvi < Common::RedisStore
   # @return [Array[String]] the list of historical icns
   delegate :historical_icns, to: :profile, allow_nil: true
 
+  # The search token given in the original MVI 1306 response message
+  #
+  # @return [String] the search token
+  delegate :search_token, to: :profile, allow_nil: true
+
   # The profile returned from the MVI service. Either returned from cached response in Redis or the MVI service.
   #
   # @return [MVI::Models::MviProfile] patient 'golden record' data from MVI
