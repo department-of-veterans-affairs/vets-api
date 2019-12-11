@@ -1,10 +1,10 @@
-# Vets API [![Build Status](https://dev.vets.gov/jenkins/buildStatus/icon?job=testing/vets-api/master)](http://jenkins.vetsgov-internal/job/department-of-veterans-affairs/job/vets-api/job/master/)
+# Vets API [![Build Status](http://dev.va.gov/jenkins/buildStatus/icon?job=testing/vets-api/master)](http://jenkins.vfs.va.gov/job/builds/job/vets-api/) [![Yard Docs](http://img.shields.io/badge/yard-docs-blue.svg)](https://www.rubydoc.info/github/department-of-veterans-affairs/vets-api) [![Maintainability](https://api.codeclimate.com/v1/badges/8576e1b71f64d9bcd3cb/maintainability)](https://codeclimate.com/github/department-of-veterans-affairs/vets-api/maintainability) [![Test Coverage](https://api.codeclimate.com/v1/badges/8576e1b71f64d9bcd3cb/test_coverage)](https://codeclimate.com/github/department-of-veterans-affairs/vets-api/test_coverage) [![License: CC0-1.0](https://img.shields.io/badge/License-CC0%201.0-lightgrey.svg)](LICENSE.md)
 
-This project provides common APIs for applications that live on VA.gov (formerly vets.gov APIs). 
+This project provides common APIs for applications that live on VA.gov (formerly vets.gov APIs).
 
 For frontend, see [vets-website](https://github.com/department-of-veterans-affairs/vets-website) and [vets-content](https://github.com/department-of-veterans-affairs/vagov-content) repos.
 
-## Base setup  
+## Base setup
 
 **See the [native setup instructions](docs/setup/native.md) if you can't use docker**
 
@@ -14,7 +14,7 @@ To start, fetch this code:
 
 1. Install [Docker for Mac](https://docs.docker.com/docker-for-mac/install/). This will configure both `docker` and `docker-compose`.
 1. Setup localhost certificates / keys:
-   - Create a folder in your vets-api directory:  `mkdir config/certs`
+   - Create a folder in your vets-api directory: `mkdir config/certs`
    - Copy the [certificate][certificate] to `config/certs/vetsgov-localhost.crt`
    - Copy the [key][key] to `config/certs/vetsgov-localhost.key`
    - *NOTE:* using `touch` to create blank cert and key files no longer works. 
@@ -22,7 +22,7 @@ To start, fetch this code:
    
    [certificate]: https://github.com/department-of-veterans-affairs/vets.gov-team/blob/master/Products/Identity/Login/IDme/development-certificates/vetsgov-localhost.crt
    [key]: https://github.com/department-of-veterans-affairs/vets.gov-team/blob/master/Products/Identity/Login/IDme/development-certificates/vetsgov-localhost.key
-
+ 
 ## Running the app
 
 A Makefile provides shortcuts for interacting with the docker images. To run vets-api and its redis and postgres 
@@ -153,11 +153,11 @@ following command:
 
 Jenkins deploys `vets-api` upon each merge to `master`:
 
-http://jenkins.vetsgov-internal/job/department-of-veterans-affairs/job/vets-api/job/master/
+http://jenkins.vfs.va.gov/job/department-of-veterans-affairs/job/vets-api/job/master/
 
 Each deploy is available here:
 
-https://dev-api.vets.gov/v0/status
+https://dev-api.va.gov/v0/status
 
 ## API request key formatting
 

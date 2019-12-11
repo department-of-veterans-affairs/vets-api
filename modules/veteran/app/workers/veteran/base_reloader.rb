@@ -13,8 +13,8 @@ module Veteran
       rep = Veteran::Service::Representative.find_or_initialize_by(representative_id: hash_object['Registration Num'],
                                                                    first_name: hash_object['First Name'],
                                                                    last_name: hash_object['Last Name'])
-      poa_code = hash_object['POA Code'].gsub!(/\W/, '')
-      rep.poa_codes << poa_code unless rep.user_types.include?(poa_code)
+      poa_code = hash_object['POA Code'].gsub(/\W/, '')
+      rep.poa_codes << poa_code unless rep.poa_codes.include?(poa_code)
       rep.phone = hash_object['Phone']
       rep
     end

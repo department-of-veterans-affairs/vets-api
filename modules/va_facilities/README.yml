@@ -19,9 +19,15 @@ info:
 
     ## Design
 
+    ### Base URLs
+    
+    The base URLs for the VA Facilities API in the various environments are:
+    - Development: `https://dev-api.va.gov/services/va_facilities/v0`
+    - Production: `https://api.va.gov/services/va_facilities/v0`
+
     ### Authorization
 
-    API requests are authorized through a symmetric API token, provided in an HTTP header with name "apikey".
+    API requests are authorized through a symmetric API token, provided in an HTTP header with name `apikey`.
 
     ### Response Formats
 
@@ -40,17 +46,13 @@ info:
     - The list of available services in the `services` element is only applicable to VA health and
       benefits facilities.
 
-    ### Mobile Facilities
-
-    VHA has a set of mobile facilities that move regularly within a region.
-    If a facility comes back from this API with `"mobile": "true"`, the latitude/longitude and address should be considered inaccurate.
-    To get the exact current location, end consumers should contact the mobile facility directly.
-
     ### Active Status
-
-    VHA facilities can be temporarily closed for a variety of reasons.
-    If a facility comes back from this API with `"active_status": "T"`, it is not currently operating.
-    `"active_status": "A"` indicates normal operations at a facility.
+    
+    Facilities can be temporarily deactivated for a variety of reasons. If a facility comes back from this API with `"active_status": "T"`, it is not currently operating. `"active_status": "A"` indicates normal operations at a facility.
+    
+    ### Mobile Facilities
+    
+    The mobile health facilities move regularly within a region. If a facility comes back from this API with `"mobile": "true"`, the latitude/longitude and address could be inaccurate. To get the exact current location, please call the number listed.
 
     ## Reference
 
@@ -65,21 +67,16 @@ tags:
   - name: facilities
     description: VA Facilities API
 servers:
-  - url: https://dev-api.va.gov/services/va_facilities/{version}
-    description: VA.gov API development environment
-    variables:
-      version:
-        default: v0
-  - url: https://staging-api.va.gov/services/va_facilities/{version}
-    description: VA.gov API staging environment
-    variables:
-      version:
-        default: v0
-  - url: https://api.va.gov/services/va_facilities/{version}
-    description: VA.gov API production environment
-    variables:
-      version:
-        default: v0
+- url: https://dev-api.va.gov/services/va_facilities/{version}
+  description: Development
+  variables:
+    version:
+      default: v0
+- url: https://api.va.gov/services/va_facilities/{version}
+  description: Production
+  variables:
+    version:
+      default: v0
 paths:
   /facilities:
     get:
@@ -405,10 +402,201 @@ paths:
               schema:
                 type: string
                 example: |
-                  id,name,station_id,latitude,longitude,facility_type,classification,website,physical_address_1,physical_address_2,physical_address_3,physical_city,physical_state,physical_zip,mailing_address_1,mailing_address_2,mailing_address_3,mailing_city,mailing_state,mailing_zip,phone_main,phone_fax,phone_mental_health_clinic,phone_pharmacy,phone_after_hours,phone_patient_advocate,phone_enrollment_coordinator,hours_monday,hours_tuesay,hours_wednesday,hours_thursday,hours_friday,hours_saturday,hours_sunday,mobile,active_status
-                  vc_0101V,Boston Vet Center,0101V,42.3445959000001,-71.0361051099999,vet_center,,,7 Drydock Avenue,Suite 2070,,Boston,MA,2210,,,,,,,857-203-6461 x,,,,,,,800AM-700PM,800AM-800PM,800AM-700PM,800AM-800PM,800AM-600PM,-,-,,
-                  vba_362b,Houston Regional Benefit Office at Frank Tejeda Outpatient Clinic,362b,29.51690196,-98.59601936,va_benefits_facility,Outbased,NULL,5788 Eckhert Road,,,San Antonio,TX,78240,,,,,,,210-699-5040,210-699-5079,,,,,,,,,,,,,,
-                  vha_459GH,Saipan VA Clinic,459GH,15.216794,145.729385,va_health_facility,Other Outpatient Services (OOS),,Marina Heights Business Park - Garapan,Medical Associates of the Pacific,MH-II Building Suite 100 and 206,Saipan,MP,96950-9998,,,,,,,670-322-0035 x,670-322-0038 x,"",800-465-8387 x,800-214-1306 x,670-322-0035 x,808-433-7600 x,,,,,,,,false,A
+                  id,name,station_id,latitude,longitude,facility_type,classification,website,physical_address_1,physical_address_2,physical_address_3,physical_city,physical_state,physical_zip,mailing_address_1,mailing_address_2,mailing_address_3,mailing_city,mailing_state,mailing_zip,phone_main,phone_fax,phone_mental_health_clinic,phone_pharmacy,phone_after_hours,phone_patient_advocate,phone_enrollment_coordinator,hours_monday,hours_tuesay,hours_wednesday,hours_thursday,hours_friday,hours_saturday,hours_sunday,mobile,active_status,visn
+                  vc_0101V,Boston Vet Center,0101V,42.3445959000001,-71.0361051099999,vet_center,,,7 Drydock Avenue,Suite 2070,,Boston,MA,2210,,,,,,,857-203-6461 x,,,,,,,800AM-700PM,800AM-800PM,800AM-700PM,800AM-800PM,800AM-600PM,-,-,,,
+                  vba_362b,Houston Regional Benefit Office at Frank Tejeda Outpatient Clinic,362b,29.51690196,-98.59601936,va_benefits_facility,Outbased,NULL,5788 Eckhert Road,,,San Antonio,TX,78240,,,,,,,210-699-5040,210-699-5079,,,,,,,,,,,,,,,
+                  vha_459GH,Saipan VA Clinic,459GH,15.216794,145.729385,va_health_facility,Other Outpatient Services (OOS),,Marina Heights Business Park - Garapan,Medical Associates of the Pacific,MH-II Building Suite 100 and 206,Saipan,MP,96950-9998,,,,,,,670-322-0035 x,670-322-0038 x,"",800-465-8387 x,800-214-1306 x,670-322-0035 x,808-433-7600 x,,,,,,,,false,A,21
+        '401':
+          description: Missing API token
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthorizationError"
+        '403':
+          description: Invalid API token
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthorizationError"
+        '406':
+          description: Requested format unacceptable
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/APIError"
+  /nearby:
+    get:
+      tags:
+        - facilities
+      summary: Retrieve all VA health facilities reachable by driving within the specified time period
+      description: |
+        Retrieve all VA health facilities that are located within a specified drive time from a specified location
+        based on passing in a combination of `street_address`, `city`, `state`, and `zip` or `lat` and `lng` required
+        parameters along with `drive_time`.
+        Additionally one can filter the facilities within the drive time by available services.
+        Results of this operation are paginated. Responses include pagination information
+        in the standard JSON API "links" and "meta" elements.
+        The "attributes" element has information about the drivetime band that the requested location 
+        fell within for each facility included in the response. The values of min_time and 
+        max_time are in minutes. For example, a facility returned with a matched min_time 
+        of 10 and max_time of 20 is a 10 to 20 minute drive from the requested location.
+        This endpoint does not return facility information. To retrieve details for facilities found by `/nearby`, 
+        follow the relationship links and check documentation for `/facilities`.
+      operationId: getNearbyFacilities
+      security:
+        - apikey: []
+      parameters:
+        - name: street_address
+          in: query
+          description: |
+            Street address of the location from which drive time will be calculated.
+          required: false
+          schema:
+            type: string
+        - name: city
+          in: query
+          description: |
+            City of the location from which drive time will be calculated.
+          required: false
+          schema:
+            type: string
+        - name: state
+          in: query
+          description: |
+            Two character state code of the location from which drive time will be calculated.
+          required: false
+          schema:
+            type: string
+        - name: zip
+          in: query
+          description: |
+            Zip code of the location from which drive time will be calculated.
+          required: false
+          schema:
+            type: string
+            format: '##### or #####-####'
+        - name: lat
+          in: query
+          description: |
+            Latitude of point to search for nearest VA Facilities.
+          required: false
+          schema:
+            type: number
+            format: float
+        - name: lng
+          in: query
+          description: |
+            Longitude of point to search for nearest VA Facilities.
+          required: false
+          style: form
+          explode: true
+          schema:
+            type: number
+            format: float
+        - name: drive_time
+          description:  Filter to only include facilities that are within the specified number of drive time minutes from the requested location.
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 90
+            enum:
+              - 10
+              - 20
+              - 30
+              - 40
+              - 50
+              - 60
+              - 70
+              - 80
+              - 90
+        - name: services[]
+          description: Optional facility service search filter
+          in: query
+          style: form
+          explode: true
+          schema:
+            type: array
+            items:
+              type: string
+        - name: page
+          description: Page of results to return per paginated response.
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 1
+        - name: per_page
+          description: Number of results to return per paginated response.
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 30
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                required:
+                  - data
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/NearbyFacility"
+                  meta:
+                    description: "Metadata about the response"
+                    type: object
+                    required:
+                      - pagination
+                    properties:
+                      pagination:
+                        type: object
+                        required:
+                          - current_page
+                          - per_page
+                          - total_entries
+                          - total_pages
+                        properties:
+                          current_page:
+                            type: integer
+                            example: 1
+                          per_page:
+                            type: integer
+                            example: 10
+                          total_entries:
+                            type: integer
+                            example: 2162
+                          total_pages:
+                            type: integer
+                            example: 217
+                  links:
+                    type: object
+                    required:
+                      - va_facilities
+                    properties:
+                      related:
+                        type: string
+                        example: /services/va_facilities/v0/facilities?id=vha_688
+                      self:
+                        type: string
+                      first:
+                        type: string
+                      prev:
+                        type: string
+                      next:
+                        type: string
+                      last:
+                        type: string
+
+        '400':
+          description: Missing Required Or Ambiguous Parameters
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ParameterError"
         '401':
           description: Missing API token
           content:
@@ -543,6 +731,9 @@ components:
               enum:
                 - "A"
                 - "T"
+            visn:
+              type: string
+              example: "20"
     FacilityFeature:
       description: GeoJSON-complaint Feature object describing a VA Facility
       type: object
@@ -649,6 +840,54 @@ components:
               enum:
                 - "A"
                 - "T"
+            visn:
+              type: string
+              example: "20"
+    NearbyFacility:
+      description: JSON API-compliant object describing a nearby VA facility
+      type: object
+      required:
+        - id
+        - type
+        - attributes
+        - relationships
+      properties:
+        id:
+          type: string
+          example: vha_688
+        type:
+          type: string
+          enum: ["nearby_facility"]
+        attributes:
+          type: object
+          required:
+            - min_time
+            - max_time
+          properties:
+            min_time:
+              type: integer
+              example: 10
+            max_time:
+              type: integer
+              example: 20
+        relationships:
+          type: object
+          required:
+            - va_facility
+          properties:
+            va_facility:
+              type: object
+              required:
+                - links
+              properties:
+                links:
+                  type: object
+                  required:
+                    - related
+                  properties:
+                    related:
+                      type: string
+                      example: /services/va_facilities/v0/facilities/vha_688
     Address:
       type: object
       properties:
@@ -820,3 +1059,10 @@ components:
         message:
           type: string
           example: "No API key found in request"
+    ParameterError:
+      description: "Missing or ambiguous required parameters error"
+      type: object
+      properties:
+        message:
+          type: string
+          example: 'Must supply street_address, city, state, and zip or lat and lng to query nearby facilities.'

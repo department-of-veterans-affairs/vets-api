@@ -16,9 +16,11 @@ require 'support/validation_helpers'
 require 'support/model_helpers'
 require 'support/authenticated_session_helper'
 require 'support/aws_helpers'
+require 'support/vcr_multipart_matcher_helper'
 require 'support/request_helper'
 require 'support/uploader_helpers'
 require 'common/exceptions'
+require './spec/support/default_configuration_helper'
 
 WebMock.disable_net_connect!(allow_localhost: true)
 
@@ -49,6 +51,12 @@ def with_settings(settings, temp_values)
 end
 
 VCR::MATCH_EVERYTHING = { match_requests_on: %i[method uri headers body] }.freeze
+
+module VCR
+  def self.all_matches
+    %i[method uri body]
+  end
+end
 
 VCR.configure do |c|
   c.cassette_library_dir = 'spec/support/vcr_cassettes'

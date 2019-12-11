@@ -1,6 +1,6 @@
-<h1>Unsuccessful Submissions </h1>
+<h1>Unsuccessful Submissions <%= 'Summary' if @date_to.monday? %> </h1>
 <hr />
-<h3>From <%= @date_form %> -- <%= @date_to %> </h3>
+<h3>From <%= @date_from %> -- <%= @date_to %> </h3>
 <table>
   <thead>
     <tr>

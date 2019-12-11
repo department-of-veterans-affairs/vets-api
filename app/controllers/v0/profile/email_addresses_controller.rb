@@ -11,14 +11,14 @@ module V0
       def create
         write_to_vet360_and_render_transaction!(
           'email',
-          strip_effective_end_date(email_address_params)
+          email_address_params
         )
       end
 
       def update
         write_to_vet360_and_render_transaction!(
           'email',
-          strip_effective_end_date(email_address_params),
+          email_address_params,
           http_verb: 'put'
         )
       end
@@ -36,7 +36,6 @@ module V0
       def email_address_params
         params.permit(
           :email_address,
-          :effective_end_date,
           :effective_start_date,
           :id,
           :source_date,

@@ -1,7 +1,11 @@
 # frozen_string_literal: true
 
+require_relative './middleware/response/errors'
+
 module VAOS
   class Configuration < Common::Client::Configuration::REST
+    self.read_timeout = Settings.va_mobile.timeout || 15
+
     def base_path
       Settings.va_mobile.url
     end
@@ -11,16 +15,21 @@ module VAOS
     end
 
     def connection
-      Faraday.new(base_path, headers: base_request_headers, request: request_options) do |faraday|
-        faraday.use :breakers
-        faraday.use Faraday::Response::RaiseError
+      Faraday.new(base_path, headers: base_request_headers, request: request_options) do |conn|
+        conn.use :breakers
+        conn.request :camelcase
+        conn.request :json
 
-        faraday.request :json
+        if ENV['VAOS_DEBUG'] && !Rails.env.production?
+          conn.request(:curl, ::Logger.new(STDOUT), :warn)
+          conn.response(:logger, ::Logger.new(STDOUT), bodies: true)
+        end
 
-        faraday.response :betamocks if mock_enabled?
-        faraday.response :snakecase
-        faraday.response :json, content_type: /\bjson$/
-        faraday.adapter Faraday.default_adapter
+        conn.response :betamocks if mock_enabled?
+        conn.response :snakecase
+        conn.response :json, content_type: /\bjson$/
+        conn.response :vaos_errors
+        conn.adapter Faraday.default_adapter
       end
     end
 
