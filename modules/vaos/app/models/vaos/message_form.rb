@@ -15,13 +15,12 @@ module VAOS
     attribute :_appointment_request_id, String
 
     def initialize(user, request_id, json_hash = {})
-      value = super(json_hash)
+      super(json_hash)
       @user = user
       @appointment_request_id = request_id
-      value
     end
 
-    # Hack: addresses the fact that downstream requires this as AppointmentRequestId (upper camelcase)
+    # HACK: addresses the fact that downstream requires this as AppointmentRequestId (upper camelcase)
     def _appointment_request_id
       appointment_request_id
     end
@@ -42,9 +41,11 @@ module VAOS
       true
     end
 
+    # rubocop:disable Naming/PredicateName
     def is_last_message
       true
     end
+    # rubocop:enable Naming/PredicateName
 
     # validates :appointment_request_id, presence: true
     validates :message_text, length: { minimum: 1, maximum: 100 }
