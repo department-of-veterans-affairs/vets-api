@@ -30,52 +30,47 @@ describe Vet360::AddressValidation::Service do
     context 'with a found address' do
       it 'returns suggested addresses' do
         VCR.use_cassette(
-          'vet360/address_validation/validate_match',
+          'vet360/address_validation/candidate_multiple_matches',
           VCR::MATCH_EVERYTHING
         ) do
-          VCR.use_cassette(
-            'vet360/address_validation/candidate_multiple_matches',
-            VCR::MATCH_EVERYTHING
-          ) do
-            res = described_class.new.address_suggestions(multiple_match_addr)
-            expect(JSON.parse(res.to_json)).to eq(
-              'addresses' =>
-             [{ 'address' =>
-                { 'address_line1' => '37 N 1st St',
-                  'address_type' => 'DOMESTIC',
-                  'city' => 'Brooklyn',
-                  'country_name' => 'United States',
-                  'country_code_iso3' => 'USA',
-                  'county_code' => '36047',
-                  'county_name' => 'Kings',
-                  'state_code' => 'NY',
-                  'zip_code' => '11249',
-                  'zip_code_suffix' => '3939' },
-                'address_meta_data' => {
-                  'confidence_score' => 100.0,
-                  'address_type' => 'Domestic',
-                  'delivery_point_validation' => 'UNDELIVERABLE'
-                } },
-              { 'address' =>
-                { 'address_line1' => '37 S 1st St',
-                  'address_type' => 'DOMESTIC',
-                  'city' => 'Brooklyn',
-                  'country_name' => 'United States',
-                  'country_code_iso3' => 'USA',
-                  'county_code' => '36047',
-                  'county_name' => 'Kings',
-                  'state_code' => 'NY',
-                  'zip_code' => '11249',
-                  'zip_code_suffix' => '4101' },
-                'address_meta_data' => {
-                  'confidence_score' => 100.0,
-                  'address_type' => 'Domestic',
-                  'delivery_point_validation' => 'CONFIRMED',
-                  'residential_delivery_indicator' => 'MIXED'
-                } }],
-              'validation_key' => -646_932_106
-            )
-          end
+          res = described_class.new.address_suggestions(multiple_match_addr)
+          expect(JSON.parse(res.to_json)).to eq(
+            'addresses' =>
+           [{ 'address' =>
+              { 'address_line1' => '37 N 1st St',
+                'address_type' => 'DOMESTIC',
+                'city' => 'Brooklyn',
+                'country_name' => 'United States',
+                'country_code_iso3' => 'USA',
+                'county_code' => '36047',
+                'county_name' => 'Kings',
+                'state_code' => 'NY',
+                'zip_code' => '11249',
+                'zip_code_suffix' => '3939' },
+              'address_meta_data' => {
+                'confidence_score' => 100.0,
+                'address_type' => 'Domestic',
+                'delivery_point_validation' => 'UNDELIVERABLE'
+              } },
+            { 'address' =>
+              { 'address_line1' => '37 S 1st St',
+                'address_type' => 'DOMESTIC',
+                'city' => 'Brooklyn',
+                'country_name' => 'United States',
+                'country_code_iso3' => 'USA',
+                'county_code' => '36047',
+                'county_name' => 'Kings',
+                'state_code' => 'NY',
+                'zip_code' => '11249',
+                'zip_code_suffix' => '4101' },
+              'address_meta_data' => {
+                'confidence_score' => 100.0,
+                'address_type' => 'Domestic',
+                'delivery_point_validation' => 'CONFIRMED',
+                'residential_delivery_indicator' => 'MIXED'
+              } }],
+            'validation_key' => -646_932_106
+          )
         end
       end
     end
