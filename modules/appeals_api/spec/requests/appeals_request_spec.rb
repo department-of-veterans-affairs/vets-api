@@ -5,6 +5,65 @@ require 'rails_helper'
 RSpec.describe 'Claim Appeals API endpoint', type: :request do
   include SchemaMatchers
 
+  uuid = '4bc96bee-c6a3-470e-b222-66a47629dc20'
+
+  shared_context 'with user' do |options|
+    using_ssn = options[:without_ssn] ? nil : '111223333'
+    let(:user) { FactoryBot.create(:user, options[:user], ssn: using_ssn) }
+  end
+
+  describe 'show higher level review' do
+    context 'with an loa1 user' do
+      include_context 'with user', user: :loa1
+
+      it 'returns a forbidden error' do
+        get "services/appeals/v0/appeals/higher_level_reviews/#{uuid}"
+        expect(response).to have_http_status(:forbidden)
+      end
+    end
+
+    context 'with an loa3 user' do
+      include_context 'with user', user: :loa3
+
+      context 'with a valid response' do
+        it 'returns a successful response' do
+          VCR.use_cassette('decision_review/200_review') do
+            get "services/appeals/v0/appeals/higher_level_reviews/#{uuid}"
+            expect(response).to have_http_status(:ok)
+            expect(response.body).to be_a(String)
+            expect(response).to match_response_schema('higher_level_review')
+          end
+        end
+      end
+    end
+  end
+
+  describe 'show intake status' do
+    context 'using loa1 user' do
+      include_context 'with user', user: :loa1
+
+      it 'returns a forbidden error' do
+        get "services/appeals/v0/appeals/higher_level_reviews/intake_status/#{uuid}"
+        expect(response).to have_http_status(:forbidden)
+      end
+    end
+
+    context 'using loa3 user' do
+      include_context 'with user', user: :loa3
+
+      context 'with a valid response' do
+        it 'returns a successful response' do
+          VCR.use_cassette('decision_review/200_intake_status') do
+            get "services/appeals/v0/appeals/higher_level_reviews/intake_status/#{uuid}"
+            expect(response).to have_http_status(:ok)
+            expect(response.body).to be_a(String)
+            expect(response).to match_response_schema('intake_status')
+          end
+        end
+      end
+    end
+  end
+
   context 'with the X-VA-SSN and X-VA-User header supplied ' do
     let(:user) { FactoryBot.create(:user, :loa3) }
     let(:auth_headers) { EVSS::AuthHeaders.new(user).to_h }

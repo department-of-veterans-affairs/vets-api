@@ -20,6 +20,16 @@ module AppealsApi
         )
       end
 
+      def show
+        service.get_higher_level_reviews params[:uuid]
+        render json: higher_level_review
+      end
+  
+      def intake_status
+        intake_status = service.get_higher_level_reviews_intake_status params[:uuid]
+        render json: intake_status
+      end
+
       def healthcheck
         render json: Appeals::Service.new.healthcheck.body
       end

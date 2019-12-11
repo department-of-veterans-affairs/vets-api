@@ -32,19 +32,14 @@ module Swagger
           property :attributes, type: :object do
             key :required, %i[
               status
-              aoj
               program_area
               benefit_type
               description
-              receipt_date
-              informal_conference
-              same_office
-              legacy_opt_in_approved
               alerts
               events
             ]
             property :status, type: :string
-            property :aoj, type: :string, nullable: true
+            property :aoj, type: :string, 
             property :program_area, type: :string
             property :benefit_type do
               key :type, :string
@@ -66,9 +61,9 @@ module Swagger
               key :format, :date
               key :nullable, true
             end
-            property :informal_conference, type: :boolean, nullable: true
-            property :same_office, type: :boolean, nullable: true
-            property :legacy_opt_in_approved, type: :boolean, nullable: true
+            property :informal_conference, type: :boolean, 
+            property :same_office, type: :boolean, 
+            property :legacy_opt_in_approved, type: :boolean, 
             property :alerts do
               key :'$ref', :HigherLevelReviewAlerts
             end
@@ -98,7 +93,7 @@ module Swagger
           property :type, type: :string, enum: %w[AmaPostDecision]
           property :details do
             key :type, :object
-            property :decision_date, type: :string, nullable: true
+            property :decision_date, type: :string, 
             property :available_options do
               key :type, :array
               items do
@@ -167,10 +162,10 @@ module Swagger
               property :type, type: :string, enum: %w[DecisionIssue]
               property :id, type: :integer
               property :attributes, type: :object do
-                property :approxDecisionDate, type: :string, format: :date, nullable: true
-                property :decisionText, type: :string, nullable: true
+                property :approxDecisionDate, type: :string, format: :date
+                property :decisionText, type: :string
                 property :description, type: :string
-                property :disposition, type: :string, nullable: true
+                property :disposition, type: :string
                 property :finalized, type: :boolean
               end
             end
@@ -181,33 +176,33 @@ module Swagger
               property :attributes, type: :object do
                 property :active, type: :boolean
                 property :statusDescription, type: :string
-                property :diagnosticCode, type: :string, nullable: true
-                property :ratingIssueId, type: :string, nullable: true
+                property :diagnosticCode, type: :string
+                property :ratingIssueId, type: :string
                 property :ratingIssueProfileDate, type: :string do
                   key :format, :date
                   key :nullable, true
                 end
-                property :rating_decision_reference_id, type: :string, nullable: true
-                property :description, type: :string, nullable: true
+                property :rating_decision_reference_id, type: :string, 
+                property :description, type: :string, 
                 property :contention_text, type: :string
                 property :approx_decision_date, type: :string, format: :date
-                property :category, type: :string, nullable: true
-                property :notes, type: :string, nullable: true
-                property :is_unidentified, type: :boolean, nullable: true
-                property :ramp_claim_id, type: :string, nullable: true
-                property :legacy_appeal_id, type: :string, nullable: true
-                property :legacy_appeal_issue_id, type: :string, nullable: true
-                property :ineligible_reason, type: :string, nullable: true
-                property :ineligible_due_to_id, type: :integer, nullable: true
-                property :decision_review_title, type: :string, nullable: true
-                property :title_of_active_review, type: :string, nullable: true
-                property :decision_issue_id, type: :integer, nullable: true
+                property :category, type: :string, 
+                property :notes, type: :string, 
+                property :is_unidentified, type: :boolean
+                property :ramp_claim_id, type: :string
+                property :legacy_appeal_id, type: :string
+                property :legacy_appeal_issue_id, type: :string
+                property :ineligible_reason, type: :string
+                property :ineligible_due_to_id, type: :integer
+                property :decision_review_title, type: :string
+                property :title_of_active_review, type: :string
+                property :decision_issue_id, type: :integer
                 property :withdrawal_date, type: :string do
                   key :format, :date
                   key :nullable, true
                 end
-                property :contested_issue_description, type: :string, nullable: true
-                property :end_product_cleared, type: :boolean, nullable: true
+                property :contested_issue_description, type: :string, 
+                property :end_product_cleared, type: :boolean, 
                 property :end_product_code, type: :string
               end
             end

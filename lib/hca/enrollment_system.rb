@@ -366,7 +366,7 @@ module HCA
         'middleName' => Validations.validate_name(
           data: full_name['middle'],
           count: 30,
-          nullable: true
+          
         ),
         'lastName' => Validations.validate_name(
           data: full_name['last'],
@@ -394,12 +394,12 @@ module HCA
         'mothersMaidenName' => Validations.validate_string(
           data: veteran['mothersMaidenName'],
           count: 35,
-          nullable: true
+          
         ),
         'placeOfBirthCity' => Validations.validate_string(
           data: veteran['cityOfBirth'],
           count: 20,
-          nullable: true
+          
         ),
         'placeOfBirthState' => convert_birth_state(veteran['stateOfBirth'])
       }.merge(ssn_to_ssntext(veteran['veteranSocialSecurityNumber'])))

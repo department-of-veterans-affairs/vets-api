@@ -115,9 +115,9 @@ module Swagger
             key :in, :path
             key :required, true
             key :description, 'Decision Review UUID'
-            schema do
-              key :'$ref', :UUID
-            end
+            key :type, :string
+            key :format, :uuid
+            key :pattern, "^[0-9a-fA-F]{8}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{12}$"
           end
 
           response 200 do
