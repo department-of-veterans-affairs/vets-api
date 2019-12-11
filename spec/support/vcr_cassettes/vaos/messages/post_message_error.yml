@@ -1,0 +1,99 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: https://internal-dsva-vagov-staging-fwdproxy-1821450725.us-gov-west-1.elb.amazonaws.com:4463/users/v2/session?processRules=true
+    body:
+      encoding: US-ASCII
+      string: eyJhbGciOiJSUzUxMiJ9.eyJhdXRoZW50aWNhdGVkIjp0cnVlLCJzdWIiOiIxMDEyODQ1MzMxVjE1MzA0MyIsImlkVHlwZSI6IklDTiIsImlzcyI6Imdvdi52YS52YW9zIiwiZmlyc3ROYW1lIjoiSnVkeSIsImxhc3ROYW1lIjoiTW9ycmlzb24iLCJhdXRoZW50aWNhdGlvbkF1dGhvcml0eSI6Imdvdi52YS5pYW0uc3NvZS52MSIsImp0aSI6ImEyMWMwYmQ0LWU1NWItNDRmZS05YzY2LWQyMDYwOThkMzFjNiIsIm5iZiI6MTU3NTkxNTQ3MiwiZXhwIjoxNTc1OTE2NDMyLCJzc3QiOjE1NzU5MTU1MjIsInZlcnNpb24iOjIuMSwiZ2VuZGVyIjoiRkVNQUxFIiwiZG9iIjoiMTk1My0wNC0wMSIsImRhdGVPZkJpcnRoIjoiMTk1My0wNC0wMSIsImVkaXBpZCI6IjEyNTk4OTc5NzgiLCJzc24iOiI3OTYwNjE5NzYifQ.PGtX9bhXN0W5FRG_8IavZqbDuJjKWuj_1e_ZpXM59dvj8a4o8nZGfaBjtwB0vgyNKV-cb4NbBL5EoJWDbiT9ljk3BRr-ryu6OpuRa5_dwYAq25lSnWVpMNVoDQPnMjPYlK_GFomOhng4DM5CL1NlvKiys3_9xYMeMeDNYQfRchIW1FQxe2Ms1M3orV5mclUjgV0Z5rYE8SdiG7-7YmwFTnM0yDk2p9ipg4se5aoZJi-TQftHyEhBysvkAKfWJjaniYecnpwItMrhsIY-bCQYkvoNGhut8_GY50spuax3mU3l-GGoyP2EjBoSib2LokpYlNFsp2RhIljKJ8Z5bVPtCaqZeba0Zi-UxreUiA2v_C1Lx2F3YXxhnzzq_6qaTl4OcXJ6OVIhAkhr75TvbvBehHdav7MMqesK8ueIbyXgw0Wlyz9FHmivpksIeo8pE08qr9UGYL7LsKtMMlc3vUCrZJXoeG0iTYW7Bphq1R3v6lR9saVEdlbvIkKMq79bl43dfmtW8tmHhK-xZHhIDNA11B3MZE8-6bLzeyn08Vt0ABa7DgCTii2ctWWpL5XzYIv-fEipVGkRJLmq-iwe1Io0AufReHuYYVgNx_NOXezOsyOCsUCG0VQGM2g9kDMFOP-gB1kivC-CFFY2fJ9B9QuHIk9QIvhNcwhIC0FRa-pA-gs
+    headers:
+      Content-Type:
+      - text/plain
+      Referer:
+      - https://api.va.gov
+      User-Agent:
+      - Faraday v0.9.2
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Mon, 09 Dec 2019 18:18:53 GMT
+      Content-Type:
+      - text/plain
+      Content-Length:
+      - '1668'
+      Server:
+      - openresty
+      X-B3-Parentspanid:
+      - 1788397ef13e91c6
+      X-Vamf-Version:
+      - 2.7.3
+      Cache-Control:
+      - no-store
+      X-B3-Traceid:
+      - 1788397ef13e91c6
+      Access-Control-Allow-Headers:
+      - x-vamf-jwt
+      X-Vamf-Build:
+      - cb41c3b
+      X-B3-Sampled:
+      - '0'
+      X-Vamf-Timestamp:
+      - '2019-12-04T15:53:55+0000'
+      Access-Control-Allow-Origin:
+      - "*.va.gov"
+      X-B3-Spanid:
+      - 97292774cef91fdb
+      Access-Control-Allow-Methods:
+      - GET,OPTIONS
+      Access-Control-Max-Age:
+      - '3600'
+      Strict-Transport-Security:
+      - max-age=63072000; includeSubDomains; preload
+    body:
+      encoding: UTF-8
+      string: eyJhbGciOiJSUzUxMiJ9.eyJsYXN0TmFtZSI6Ik1vcnJpc29uIiwic3ViIjoiMTAxMjg0NTMzMVYxNTMwNDMiLCJhdXRoZW50aWNhdGVkIjp0cnVlLCJhdXRoZW50aWNhdGlvbkF1dGhvcml0eSI6Imdvdi52YS52YW9zIiwiaWRUeXBlIjoiSUNOIiwiZ2VuZGVyIjoiRkVNQUxFIiwiaXNzIjoiZ292LnZhLnZhbWYudXNlcnNlcnZpY2UudjEiLCJ2YW1mLmF1dGgucmVzb3VyY2VzIjpbIl4uKihcLyk_c2l0ZVtzXT9cLyhkZm4tKT85ODRcL3BhdGllbnRbc10_XC81NTIxNjEwNTBcL2FwcG9pbnRtZW50cyhcLy4qKT8kIiwiXi4qKFwvKT9zaXRlW3NdP1wvKGRmbi0pPzk4M1wvcGF0aWVudFtzXT9cLzcyMTY2OTFcL2FwcG9pbnRtZW50cyhcLy4qKT8kIiwiXi4qKFwvKT9wYXRpZW50W3NdP1wvKElDTlwvKT8xMDEyODQ1MzMxVjE1MzA0MyhcLy4qKT8kIl0sImRhdGVPZkJpcnRoIjoiMTk1My0wNC0wMSIsInZlcnNpb24iOjIuMSwiZWRpcGlkIjoiMTI1OTg5Nzk3OCIsInZpc3RhSWRzIjpbeyJwYXRpZW50SWQiOiI1NTIxNjEwNTAiLCJzaXRlSWQiOiI5ODQifSx7InBhdGllbnRJZCI6IjcyMTY2OTEiLCJzaXRlSWQiOiI5ODMifV0sInNzbiI6Ijc5NjA2MTk3NiIsImZpcnN0TmFtZSI6Ikp1ZHkiLCJzdGFmZkRpc2NsYWltZXJBY2NlcHRlZCI6dHJ1ZSwibmJmIjoxNTc1OTE1MzUzLCJzc3QiOjE1NzU5MTU1MzIsInBhdGllbnQiOnsiZmlyc3ROYW1lIjoiSnVkeSIsImxhc3ROYW1lIjoiTW9ycmlzb24iLCJnZW5kZXIiOiJGRU1BTEUiLCJpY24iOiIxMDEyODQ1MzMxVjE1MzA0MyIsImRvYiI6IjE5NTMtMDQtMDEiLCJkYXRlT2ZCaXJ0aCI6IjE5NTMtMDQtMDEiLCJzc24iOiI3OTYwNjE5NzYifSwiZG9iIjoiMTk1My0wNC0wMSIsInZhbWYuYXV0aC5yb2xlcyI6WyJ2ZXRlcmFuIl0sInJpZ2h0T2ZBY2Nlc3NBY2NlcHRlZCI6dHJ1ZSwiZXhwIjoxNTc1OTE2NDMzLCJqdGkiOiJhMjFjMGJkNC1lNTViLTQ0ZmUtOWM2Ni1kMjA2MDk4ZDMxYzYiLCJsb2EiOjJ9.LEVJZAc9iHxR-50ClGj2D0sR7KXXHxSrQwrgmqnes9qKovY2IalCOjA20YGK4GK0anvAhyhyyNKRj948TJ59hFWBgZOEl9fvBMcG5ATBf50vmz0a9pMa3GzV304Gkx4XLPpqAZ_CZN3kEcaMJCXykfh4_CbkunK0S55n_YrAo906klYpwrokOcc2nppg3o5RZexJxWfdR46mRiS4X8KpjihvUfeudS0xWk11F85unQDmMc55TpnwmP8gA9mUbgTkBL-jopodtWaK5cvw2Gf4Bgkf5prnRG90O-0c7IGokoTBuKNwEt03MhUiVDGgUZru7Y_5DZH_BnpMk6zAe9Vn-Q
+    http_version: 
+  recorded_at: Mon, 09 Dec 2019 18:18:53 GMT
+- request:
+    method: post
+    uri: https://internal-dsva-vagov-staging-fwdproxy-1821450725.us-gov-west-1.elb.amazonaws.com:4463/var/VeteranAppointmentRequestService/v4/rest/appointment-service/patient/ICN/1012845331V153043/appointment-requests/system/var/id/8a4886886e4c8e22016eebd3b8820347/messages
+    body:
+      encoding: UTF-8
+      string: '{"messageText":"I want to see doctor Jeckyl please.","url":null,"senderId":null,"appointmentRequestId":null,"messageDateTime":null,"messageSent":true,"isLastMessage":true,"AppointmentRequestId":null}'
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Referer:
+      - https://api.va.gov
+      X-Vamf-Jwt:
+      - eyJhbGciOiJSUzUxMiJ9.eyJsYXN0TmFtZSI6Ik1vcnJpc29uIiwic3ViIjoiMTAxMjg0NTMzMVYxNTMwNDMiLCJhdXRoZW50aWNhdGVkIjp0cnVlLCJhdXRoZW50aWNhdGlvbkF1dGhvcml0eSI6Imdvdi52YS52YW9zIiwiaWRUeXBlIjoiSUNOIiwiZ2VuZGVyIjoiRkVNQUxFIiwiaXNzIjoiZ292LnZhLnZhbWYudXNlcnNlcnZpY2UudjEiLCJ2YW1mLmF1dGgucmVzb3VyY2VzIjpbIl4uKihcLyk_c2l0ZVtzXT9cLyhkZm4tKT85ODRcL3BhdGllbnRbc10_XC81NTIxNjEwNTBcL2FwcG9pbnRtZW50cyhcLy4qKT8kIiwiXi4qKFwvKT9zaXRlW3NdP1wvKGRmbi0pPzk4M1wvcGF0aWVudFtzXT9cLzcyMTY2OTFcL2FwcG9pbnRtZW50cyhcLy4qKT8kIiwiXi4qKFwvKT9wYXRpZW50W3NdP1wvKElDTlwvKT8xMDEyODQ1MzMxVjE1MzA0MyhcLy4qKT8kIl0sImRhdGVPZkJpcnRoIjoiMTk1My0wNC0wMSIsInZlcnNpb24iOjIuMSwiZWRpcGlkIjoiMTI1OTg5Nzk3OCIsInZpc3RhSWRzIjpbeyJwYXRpZW50SWQiOiI1NTIxNjEwNTAiLCJzaXRlSWQiOiI5ODQifSx7InBhdGllbnRJZCI6IjcyMTY2OTEiLCJzaXRlSWQiOiI5ODMifV0sInNzbiI6Ijc5NjA2MTk3NiIsImZpcnN0TmFtZSI6Ikp1ZHkiLCJzdGFmZkRpc2NsYWltZXJBY2NlcHRlZCI6dHJ1ZSwibmJmIjoxNTc1OTE1MzUzLCJzc3QiOjE1NzU5MTU1MzIsInBhdGllbnQiOnsiZmlyc3ROYW1lIjoiSnVkeSIsImxhc3ROYW1lIjoiTW9ycmlzb24iLCJnZW5kZXIiOiJGRU1BTEUiLCJpY24iOiIxMDEyODQ1MzMxVjE1MzA0MyIsImRvYiI6IjE5NTMtMDQtMDEiLCJkYXRlT2ZCaXJ0aCI6IjE5NTMtMDQtMDEiLCJzc24iOiI3OTYwNjE5NzYifSwiZG9iIjoiMTk1My0wNC0wMSIsInZhbWYuYXV0aC5yb2xlcyI6WyJ2ZXRlcmFuIl0sInJpZ2h0T2ZBY2Nlc3NBY2NlcHRlZCI6dHJ1ZSwiZXhwIjoxNTc1OTE2NDMzLCJqdGkiOiJhMjFjMGJkNC1lNTViLTQ0ZmUtOWM2Ni1kMjA2MDk4ZDMxYzYiLCJsb2EiOjJ9.LEVJZAc9iHxR-50ClGj2D0sR7KXXHxSrQwrgmqnes9qKovY2IalCOjA20YGK4GK0anvAhyhyyNKRj948TJ59hFWBgZOEl9fvBMcG5ATBf50vmz0a9pMa3GzV304Gkx4XLPpqAZ_CZN3kEcaMJCXykfh4_CbkunK0S55n_YrAo906klYpwrokOcc2nppg3o5RZexJxWfdR46mRiS4X8KpjihvUfeudS0xWk11F85unQDmMc55TpnwmP8gA9mUbgTkBL-jopodtWaK5cvw2Gf4Bgkf5prnRG90O-0c7IGokoTBuKNwEt03MhUiVDGgUZru7Y_5DZH_BnpMk6zAe9Vn-Q
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 204
+      message: No Content
+    headers:
+      Date:
+      - Mon, 09 Dec 2019 18:18:53 GMT
+      Server:
+      - openresty
+      Strict-Transport-Security:
+      - max-age=63072000; includeSubDomains; preload
+    body:
+      encoding: UTF-8
+      string: ''
+    http_version: 
+  recorded_at: Mon, 09 Dec 2019 18:18:53 GMT
+recorded_with: VCR 3.0.3
