@@ -5,6 +5,15 @@ require 'common/models/base'
 
 module Forms
   module Responses
+    ##
+    # Model for Forms responses. Body is passed straight through from the service
+    # with a validation check that it matches the expected schema.
+    #
+    # @!attribute body
+    #   @return [Hash] Validated response body.
+    # @!attribute status
+    #   @return [Integer] The HTTP status code.
+    #
     class Response < Common::Base
       attribute :body, String
       attribute :status, Integer

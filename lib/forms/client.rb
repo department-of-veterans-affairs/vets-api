@@ -3,6 +3,11 @@
 require 'common/client/base'
 
 module Forms
+
+  # Proxy Service for Forms API.
+  #
+  # @example Get all forms or filter by a wildcard query.
+  #
   class Client < Common::Client::Base
     include SentryLogging
     include Common::Client::Monitoring
@@ -17,6 +22,8 @@ module Forms
       @query = query
     end
 
+    # Get all forms with an optional query parameter "query" for wildcard filtering.
+    #
     def get_all
       with_monitoring do
         raw_response = perform(:get, 'forms', query_params)
