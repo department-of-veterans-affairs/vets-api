@@ -14,7 +14,7 @@ http_interactions:
       User-Agent:
       - Vets.gov Agent
       Apikey:
-      - 5sBmaAWUXwjUtG1qO7yZI6bAtYpg9KPH
+      - fake_key
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
   response:
@@ -340,6 +340,6 @@ http_interactions:
         252\",\"type\":\"va_form\",\"attributes\":{\"form_name\":\"SF 252\",\"url\":\"https://www.gsa.gov/portal/forms/download/115990\",\"title\":\"Architect-Engineer
         Contract\",\"first_issued_on\":\"2020-07-12\",\"last_revision_on\":\"2020-07-12\",\"pages\":2,\"sha256\":\"604b15cf313b5bf6344cb0ede178fda5e4512bfe2fa1700cea6fc2bff54c7707\"}},{\"id\":\"SF88\",\"type\":\"va_form\",\"attributes\":{\"form_name\":\"SF88\",\"url\":\"http://www.gsa.gov/portal/forms/download/116402\",\"title\":\"Report
         of Medical Examination\",\"first_issued_on\":\"2020-08-20\",\"last_revision_on\":\"2020-08-20\",\"pages\":2,\"sha256\":\"9f0c1abf89ff99a130e46d2abfb98137e5bd13c1a46671684bf2d47f5efc48cf\"}}]}"
-    http_version: 
+    http_version:
   recorded_at: Mon, 09 Dec 2019 20:05:02 GMT
 recorded_with: VCR 3.0.3
