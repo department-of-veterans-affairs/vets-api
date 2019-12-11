@@ -14,7 +14,7 @@ module VAOS
     attribute :is_last_message, Boolean
     attribute :_appointment_request_id, String
 
-    def initialize(user, request_id, json_hash)
+    def initialize(user, request_id, json_hash = {})
       value = super(json_hash)
       @user = user
       @appointment_request_id = request_id
