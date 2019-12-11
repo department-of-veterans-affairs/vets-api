@@ -23,7 +23,7 @@ RSpec.describe 'systems', type: :request do
   end
 
   context 'with a loa3 user' do
-    let(:user) { FactoryBot.create(:user, :loa3, ssn: '111223333') }
+    let(:user) { build(:user, :mhv) }
     let(:error_code) { JSON.parse(response.body)['errors'].first['code'] }
 
     describe 'GET /v0/vaos/systems' do
@@ -126,6 +126,20 @@ RSpec.describe 'systems', type: :request do
             expect(response).to have_http_status(:bad_request)
             expect(JSON.parse(response.body)['errors'].first['detail'])
               .to eq('The required parameter "type_of_care_id", is missing')
+          end
+        end
+      end
+    end
+
+    describe 'GET /v0/vaos/systems/:system_id/pact' do
+      context 'with a valid GET system pact response' do
+        it 'returns a 200 with the correct schema' do
+          VCR.use_cassette('vaos/systems/get_system_pact', match_requests_on: %i[method uri]) do
+            get '/v0/vaos/systems/688/pact'
+
+            expect(response).to have_http_status(:ok)
+            expect(response.body).to be_a(String)
+            expect(response).to match_response_schema('vaos/system_pact')
           end
         end
       end
