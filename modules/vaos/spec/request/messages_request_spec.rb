@@ -90,6 +90,60 @@ RSpec.describe 'vaos appointment request messages', type: :request do
           end
         end
       end
+
+      context 'with access and invalid message' do
+        let(:request_body) { { message_text: Faker::Lorem.characters(101) } }
+
+        it 'returns a validation error', :skip_mvi do
+          post "/v0/vaos/appointment_requests/#{request_id}/messages", params: request_body
+
+          expect(response).to have_http_status(:unprocessable_entity)
+          expect(response.body).to be_a(String)
+          expect(JSON.parse(response.body)['errors'].first['detail'])
+            .to eq('message-text - is too long (maximum is 100 characters)')
+        end
+      end
+
+      context 'with access and invalid message' do
+        let(:request_body) { { message_text: '' } }
+
+        it 'returns a validation error', :skip_mvi do
+          post "/v0/vaos/appointment_requests/#{request_id}/messages", params: request_body
+
+          expect(response).to have_http_status(:bad_request)
+          expect(response.body).to be_a(String)
+          expect(JSON.parse(response.body)['errors'].first['detail'])
+            .to eq('The required parameter "message_text", is missing')
+        end
+      end
+
+      context 'with access and invalid appointment request id' do
+        let(:request_id) { '8a4886886e4c8e22016eebd3b8820347' }
+
+        it 'returns bad request', :skip_mvi do
+          VCR.use_cassette('vaos/messages/post_message_error', match_requests_on: %i[method uri]) do
+            post "/v0/vaos/appointment_requests/#{request_id}/messages", params: request_body
+
+            expect(response).to have_http_status(:bad_request)
+            expect(response.body).to be_a(String)
+            expect(JSON.parse(response.body)['errors'].first['detail'])
+              .to eq('Appointment request id is invalid')
+          end
+        end
+      end
+
+      context 'with access and too many messages for appointment request' do
+        it 'returns bad request', :skip_mvi do
+          VCR.use_cassette('vaos/messages/post_message_error_400', match_requests_on: %i[method uri]) do
+            post "/v0/vaos/appointment_requests/#{request_id}/messages", params: request_body
+
+            expect(response).to have_http_status(:bad_request)
+            expect(response.body).to be_a(String)
+            expect(JSON.parse(response.body)['errors'].first['detail'])
+              .to eq('Maximum allowed number of messages for this appointment request reached.')
+          end
+        end
+      end
     end
   end
 end
