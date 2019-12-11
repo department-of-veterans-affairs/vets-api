@@ -16,6 +16,7 @@ VAOS::Engine.routes.draw do
       resources :cancel_reasons, only: :index
       resources :available_appointments, only: :index
       resources :limits, only: :index
+      get 'visits/:schedule_type', to: 'visits#index'
     end
     resources :preferences, only: :index
     get 'api', to: 'apidocs#index'
