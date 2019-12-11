@@ -39,7 +39,7 @@ RSpec.describe ClaimsApi::PoaUpdater, type: :job do
 
   def create_mock_lighthouse_service
     vet_record_stub = LighthouseBGS::Services.new.vet_record
-    allow(vet_record_stub).to receive(:update_birls_record).and_return('return_code' => 'BMOD0001')
+    allow(vet_record_stub).to receive(:update_birls_record).and_return(return_code: 'BMOD0001')
     service_double = instance_double('LighthouseBGS::Services')
     expect(service_double).to receive(:vet_record).and_return(vet_record_stub)
     expect(LighthouseBGS::Services).to receive(:new).and_return(service_double)
