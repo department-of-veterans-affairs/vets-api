@@ -37,7 +37,7 @@ module ClaimsApi
       end
     end
 
-    def rescue_file_not_error(power_of_attorney)
+    def rescue_file_not_found(power_of_attorney)
       power_of_attorney.update(
         status: 'failed',
         vbms_error_message: 'File could not be retrieved from AWS'
