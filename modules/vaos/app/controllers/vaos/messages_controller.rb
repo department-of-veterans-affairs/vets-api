@@ -9,7 +9,7 @@ module VAOS
     end
 
     def create
-      response = messages_service.post_request(appointment_request_id, post_params)
+      response = messages_service.post_message(appointment_request_id, post_params)
       render json: MessagesSerializer.new(response[:data], meta: response[:meta])
     end
 
@@ -21,7 +21,7 @@ module VAOS
 
     def post_params
       params.require(:message_text)
-      params.permit(:message_text, :url)
+      params.permit(:message_text)
     end
 
     def messages

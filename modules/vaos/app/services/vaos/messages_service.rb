@@ -38,7 +38,7 @@ module VAOS
 
         if response.status == 200
           {
-            data: response.body,
+            data: OpenStruct.new(response.body),
             meta: {}
           }
         else
@@ -51,7 +51,7 @@ module VAOS
     private
 
     def deserialize(json_hash)
-      json_hash[:appointment_request_message].map { |request| OpenStruct.new(request) }
+      json_hash[:appointment_request_message].map { |message| OpenStruct.new(message) }
     rescue => e
       log_message_to_sentry(e.message, :warn, invalid_json: json_hash)
       []
