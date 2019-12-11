@@ -34,7 +34,8 @@ module VAOS
     def post_message(request_id, request_object_body)
       with_monitoring do
         params = VAOS::MessageForm.new(request_object_body).params
-        response = perform(:post, messages_url(request_id), params, headers(user))
+	binding.pry 
+        response = perform(:post, messages_url(request_id), params, headers)
 
         {
           data: deserialize(response.body),
