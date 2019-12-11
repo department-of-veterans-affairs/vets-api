@@ -46,7 +46,7 @@ describe VAOS::MessagesService do
       it 'creates a new message' do
         VCR.use_cassette('vaos/messages/post_message', match_requests_on: %i[method uri]) do
           response = subject.post_message(appointment_request_id, request_body)
-          expect(response[:data].keys)
+          expect(response[:data].to_h.keys)
             .to contain_exactly(:data_identifier, :patient_identifier, :surrogate_identifier, :message_text,
               :message_date_time, :sender_id, :appointment_request_id, :date, :patient_id, :unique_id,
               :assigning_authority, :object_type, :link)
