@@ -14,7 +14,7 @@ class Gi < Common::RedisStore
 
   # Creates a new Gi instance for a controller.
   #
-  # @param rest_call [String] the GI::Client method to call
+  # @param rest_call [Symbol] the GI::Client method to call
   # @param scrubbed_params [Hash] the params to be used with the rest_call
   # @return [Gi] an instance of this class
   def self.for_controller(rest_call, scrubbed_params)
