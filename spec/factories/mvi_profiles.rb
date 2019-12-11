@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require 'rails_helper'
-
 street = '49119 Jadon Mills'
 street2 = 'Apt. 832'
 
