@@ -57,6 +57,13 @@ RSpec.describe 'Disability Claims ', type: :request do
       expect(aec.source).to eq('TestConsumer')
     end
 
+    it 'builds the auth headers' do
+      auth_header_stub = instance_double('EVSS::DisabilityCompensationAuthHeaders')
+      expect(EVSS::DisabilityCompensationAuthHeaders).to(receive(:new).once { auth_header_stub })
+      expect(auth_header_stub).to receive(:add_headers).once
+      post path, params: data, headers: headers
+    end
+
     context 'validation' do
       let(:json_data) { JSON.parse data }
 
