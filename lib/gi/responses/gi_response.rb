@@ -23,8 +23,7 @@ module GI
       end
 
       def cache?
-        false
-        # @status == 200
+        @status == 200
       end
     end
   end

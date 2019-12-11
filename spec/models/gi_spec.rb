@@ -34,4 +34,10 @@ describe Gi do
 
     expect(gi.status).to eq(status)
   end
+
+  it 'gi_response' do
+    allow_any_instance_of(GI::Client).to receive(:get_institution_details).and_return(gi_response)
+
+    expect(gi.gi_response).to eq(gi_response)
+  end
 end
