@@ -236,4 +236,46 @@ describe VAOS::SystemsService do
       end
     end
   end
+
+  describe '#get_facility_visits' do
+    context 'with a 200 response for direct visits that is false' do
+      it 'returns facility information showing no visits' do
+        VCR.use_cassette('vaos/systems/get_facility_visits', match_requests_on: %i[method uri]) do
+          response = subject.get_facility_visits('688', '688', '323', 'direct')
+          expect(response.has_visited_in_past_months).to be_falsey
+          expect(response.duration_in_months).to eq(0)
+        end
+      end
+    end
+
+    context 'with a 200 response for request visits that is true' do
+      it 'returns facility information showing a past visit' do
+        VCR.use_cassette('vaos/systems/get_facility_visits_request', match_requests_on: %i[method uri]) do
+          response = subject.get_facility_visits('688', '688', '323', 'request')
+          expect(response.has_visited_in_past_months).to be_truthy
+          expect(response.duration_in_months).to eq(2)
+        end
+      end
+    end
+
+    context 'when the upstream server returns a 500' do
+      it 'raises a backend exception' do
+        VCR.use_cassette('vaos/systems/get_system_pact_500', match_requests_on: %i[method uri]) do
+          expect { subject.get_system_pact('688') }.to raise_error(
+            Common::Exceptions::BackendServiceException
+          )
+        end
+      end
+    end
+
+    context 'when the upstream server returns a 500' do
+      it 'raises a backend exception' do
+        VCR.use_cassette('vaos/systems/get_facility_visits_500', match_requests_on: %i[method uri]) do
+          expect { subject.get_facility_visits('688', '688', '323', 'direct') }.to raise_error(
+            Common::Exceptions::BackendServiceException
+          )
+        end
+      end
+    end
+  end
 end
