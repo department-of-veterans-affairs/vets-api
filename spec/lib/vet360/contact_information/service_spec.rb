@@ -404,7 +404,7 @@ describe Vet360::ContactInformation::Service, skip_vet360: true do
         VCR.use_cassette('vet360/contact_information/permission_transaction_status_error', VCR::MATCH_EVERYTHING) do
           expect { subject.get_permission_transaction_status(transaction_id) }.to raise_error do |e|
             expect(e).to be_a(Common::Exceptions::BackendServiceException)
-            expect(e.status_code).to eq(400)
+            expect(e.status_code).to eq(404)
             expect(e.errors.first.code).to eq('VET360_CORE103') # TODO: MT DOES THIS CODE NEED TO CHANGE????
           end
         end
