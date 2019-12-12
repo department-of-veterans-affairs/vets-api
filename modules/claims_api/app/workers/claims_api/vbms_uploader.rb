@@ -9,7 +9,7 @@ module ClaimsApi
     def perform(power_of_attorney_id)
       power_of_attorney = ClaimsApi::PowerOfAttorney.find(power_of_attorney_id)
       uploader = ClaimsApi::PowerOfAttorneyUploader.new(power_of_attorney_id)
-      uploader.retrieve_from_store!(power_of_attorney.file_data[:filename])
+      uploader.retrieve_from_store!(power_of_attorney.file_data['filename'])
       filepath = "#{uploader.file.file}/#{power_of_attorney.file_data['filename']}"
 
       upload_token_response = fetch_upload_token(
