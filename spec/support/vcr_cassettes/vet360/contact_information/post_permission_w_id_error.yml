@@ -2,7 +2,7 @@
 http_interactions:
     - request:
           method: post
-          uri: https://internal-dsva-vagov-staging-fwdproxy-1821450725.us-gov-west-1.elb.amazonaws.com:4433/person-mdm-cuf-person-hub/cuf/person/contact-information/v1/permissions
+          uri: https://int.vet360.va.gov/person-mdm-cuf-person-hub/cuf/person/contact-information/v1/permissions
           body:
               encoding: UTF-8
               string: '{"bio":{"originatingSourceSystem":"VETSGOV","permissionType":"TextPermission","permissionValue":true,"sourceDate":"2019-09-23T11:52:03.000-06:00","sourceSystemUser":"1234","permissionId":401,"vet360Id":"1411684","effectiveStartDate":null,"effectiveEndDate":null}}'

@@ -390,9 +390,6 @@ describe Vet360::ContactInformation::Service, skip_vet360: true do
   end
 
   describe '#get_permission_transaction_status' do
-    before do
-      allow(user).to receive(:vet360_id).and_return(1411684)
-    end
     context 'when successful' do
       let(:transaction_id) { 'b1b06a34-c6a8-412e-82e7-df09d84862f3' }
 
@@ -407,7 +404,7 @@ describe Vet360::ContactInformation::Service, skip_vet360: true do
     end
 
     context 'when not successful' do
-      let(:transaction_id) { 'b1b06a34-c6a8-412e-82e7-df09d84862f3' }
+      let(:transaction_id) { 'd47b3d96-9ddd-42be-ac57-8e564aa38029' }
 
       it 'returns a status of 404' do
         VCR.use_cassette('vet360/contact_information/permission_transaction_status_error', VCR::MATCH_EVERYTHING) do
