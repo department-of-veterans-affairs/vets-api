@@ -45,7 +45,7 @@ describe HCA::Validations, run_at: frozen_time do
     described_class,
     'validate_string',
     [
-      [{ , data: '' }, nil],
+      [{ nullable: true, data: '' }, nil],
       [{ data: '' }, ''],
       [{ data: 1 }, ''],
       [{ data: 'dog' }, 'Dog'],

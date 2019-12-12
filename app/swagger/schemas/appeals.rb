@@ -39,7 +39,7 @@ module Swagger
               events
             ]
             property :status, type: :string
-            property :aoj, type: :string, 
+            property :aoj, type: :string
             property :program_area, type: :string
             property :benefit_type do
               key :type, :string
@@ -93,7 +93,7 @@ module Swagger
           property :type, type: :string, enum: %w[AmaPostDecision]
           property :details do
             key :type, :object
-            property :decision_date, type: :string, 
+            property :decision_date, type: :string
             property :available_options do
               key :type, :array
               items do
