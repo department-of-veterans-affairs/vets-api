@@ -14,17 +14,17 @@ class Token
 
   def payload
     @payload ||= if @token_string
-                   pubkey = expected_key
+                   pubkey = public_key
                    return if pubkey.blank?
 
                    JWT.decode(@token_string, pubkey, true, algorithm: 'RS256')[0]
                  end
-  rescue JWT::ExpiredSignature
-    raise error_klass('Validation error: token has expired')
+  rescue JWT::ExpiredSignature => e
+    raise error_klass("Validation error: #{e.message}")
   end
 
-  def expected_key
-    decoded_token = JWT.decode(@token_string, nil, false, algorithm: 'RS256') # throwing a decode error
+  def public_key
+    decoded_token = JWT.decode(@token_string, nil, false, algorithm: 'RS256')
     kid = decoded_token[1]['kid']
     OIDC::KeyService.get_key(kid)
   rescue JWT::DecodeError => e
@@ -35,7 +35,6 @@ class Token
     raise error_klass('Validation error: no payload to validate') unless payload
     raise error_klass('Validation error: issuer') unless valid_issuer?
     raise error_klass('Validation error: audience') unless valid_audience?
-    raise error_klass('Validation error: token has expired') unless valid_expiration?
   end
 
   def valid_issuer?
@@ -44,10 +43,6 @@ class Token
 
   def valid_audience?
     payload['aud'] == Settings.oidc.audience
-  end
-
-  def valid_expiration?
-    payload['exp'] >= Time.current.utc.to_i
   end
 
   def identifiers

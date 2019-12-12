@@ -3,30 +3,29 @@
 require 'rails_helper'
 
 RSpec.describe OpenidApplicationController, type: :controller do
-  let(:token) do
-    [{
-      'ver' => 1,
-      'jti' => 'AT.04f_GBSkMkWYbLgG5joGNlApqUthsZnYXhiyPc_5KZ0',
-      'iss' => 'https://example.com/oauth2/default',
-      'aud' => 'api://default',
-      'iat' => Time.current.utc.to_i,
-      'exp' => Time.current.utc.to_i + 3600,
-      'cid' => '0oa1c01m77heEXUZt2p7',
-      'uid' => '00u1zlqhuo3yLa2Xs2p7',
-      'scp' => %w[profile email openid va_profile],
-      'sub' => 'ae9ff5f4e4b741389904087d94cd19b2'
-    }, {
-      'kid' => '1Z0tNc4Hxs_n7ySgwb6YT8JgWpq0wezqupEg136FZHU',
-      'alg' => 'RS256'
-    }]
+  let(:token) { okta_jwt( %w[profile email openid va_profile] ) }
+  let(:payload) { token[0] }
+  let(:kid) { token[1]['kid'] }
+  let(:alg) { token[1]['alg'] }
+
+  def change_encoded_token_payload(options = {})
+    new_payload = payload.merge(options)
+    @encoded_token = JWT.encode(new_payload, @public_key, alg, {'kid' => kid})
+    request.headers['Authorization'] = "Bearer #{@encoded_token}"
   end
 
   describe '#permit_scopes' do
-    before do
-      request.headers['Authorization'] = 'Bearer FakeToken'
-    end
 
     context 'with simple scopes' do
+      before do
+        @public_key ||= OpenSSL::PKey::RSA.generate(2048)
+        
+        @encoded_token = JWT.encode(payload, @public_key, alg, {'kid' => kid})
+        request.headers['Authorization'] = "Bearer #{@encoded_token}"
+
+        allow(OIDC::KeyService).to receive(:get_key).with(kid).and_return(@public_key)
+      end
+
       controller do
         before_action { permit_scopes 'profile' }
 
@@ -37,7 +36,6 @@ RSpec.describe OpenidApplicationController, type: :controller do
 
       it 'permits access when token has allowed scopes' do
         with_okta_configured do
-          allow(JWT).to receive(:decode).and_return(token)
           get :index
           expect(response).to be_ok
         end
@@ -45,9 +43,7 @@ RSpec.describe OpenidApplicationController, type: :controller do
 
       it 'rejects access when the does not have the allowed scopes' do
         with_okta_configured do
-          new_token = token
-          new_token[0]['scp'] = ['bad_scope']
-          allow(JWT).to receive(:decode).and_return(new_token)
+          change_encoded_token_payload({'scp' => ['bad_scope']})
           get :index
           expect(response.status).to eq(401)
         end
@@ -55,14 +51,17 @@ RSpec.describe OpenidApplicationController, type: :controller do
 
       it 'rejects access when expired' do
         with_okta_configured do
-          exp_token = token
-          exp_token[0]['iat'] = Time.current.utc.to_i - 7200
-          exp_token[0]['exp'] = Time.current.utc.to_i - 3600
-          allow(JWT).to receive(:decode).and_return(exp_token)
+          exp_token_opts = {
+            'iat' => Time.current.utc.to_i - 7200,
+            'exp' => Time.current.utc.to_i - 3600
+          }
+          change_encoded_token_payload(exp_token_opts)
+
           get :index
+
           expect(response.status).to eq(401)
           errors = JSON.parse(response.body)['errors']
-          expect(errors[0]['detail']).to eq('Validation error: token has expired')
+          expect(errors[0]['detail']).to eq('Validation error: Signature has expired')
         end
       end
     end
@@ -80,9 +79,17 @@ RSpec.describe OpenidApplicationController, type: :controller do
         end
       end
 
+      before do
+        @public_key ||= OpenSSL::PKey::RSA.generate(2048)
+        
+        @encoded_token = JWT.encode(payload, @public_key, alg, {'kid' => kid})
+        request.headers['Authorization'] = "Bearer #{@encoded_token}"
+
+        allow(OIDC::KeyService).to receive(:get_key).with(kid).and_return(@public_key)
+      end
+
       it 'permits access to one action with the correct scope' do
         with_okta_configured do
-          allow(JWT).to receive(:decode).and_return(token)
           get :index
           expect(response).to be_ok
         end
@@ -90,9 +97,9 @@ RSpec.describe OpenidApplicationController, type: :controller do
 
       it 'rejects access to one action without the correct scope' do
         with_okta_configured do
-          new_token = token
-          new_token[0]['scp'] = %w[openid]
-          allow(JWT).to receive(:decode).and_return(new_token)
+          token_opts = {'scp' => %w[openid] }
+          change_encoded_token_payload(token_opts)
+
           get :index
           expect(response.status).to eq(401)
         end
@@ -100,9 +107,9 @@ RSpec.describe OpenidApplicationController, type: :controller do
 
       it 'permits access to all actions when the correct scope is provided' do
         with_okta_configured do
-          new_token = token
-          new_token[0]['scp'] = %w[openid]
-          allow(JWT).to receive(:decode).and_return(new_token)
+          token_opts = {'scp' => %w[openid] }
+          change_encoded_token_payload(token_opts)
+          
           get :show, params: { id: 1 }
           expect(response).to be_ok
           patch :update, params: { id: 1 }
@@ -112,9 +119,9 @@ RSpec.describe OpenidApplicationController, type: :controller do
 
       it 'rejects access to all actions when the incorrect scope is provided' do
         with_okta_configured do
-          new_token = token
-          new_token[0]['scp'] = %w[profile]
-          allow(JWT).to receive(:decode).and_return(new_token)
+          token_opts = {'scp' => %w[profile] }
+          change_encoded_token_payload(token_opts)
+
           get :show, params: { id: 1 }
           expect(response.status).to eq(401)
           patch :update, params: { id: 1 }
@@ -124,9 +131,9 @@ RSpec.describe OpenidApplicationController, type: :controller do
 
       it 'permits access if at least one of the allowed scopes is provided' do
         with_okta_configured do
-          new_token = token
-          new_token[0]['scp'] = %w[email]
-          allow(JWT).to receive(:decode).and_return(new_token)
+          token_opts = {'scp' => %w[email] }
+          change_encoded_token_payload(token_opts)
+
           delete :destroy, params: { id: 1 }
           expect(response).to be_ok
         end
@@ -134,9 +141,9 @@ RSpec.describe OpenidApplicationController, type: :controller do
 
       it 'permits access if all the allowed scopes are provided' do
         with_okta_configured do
-          new_token = token
-          new_token[0]['scp'] = %w[email openid]
-          allow(JWT).to receive(:decode).and_return(new_token)
+          token_opts = {'scp' => %w[email openid] }
+          change_encoded_token_payload(token_opts)
+
           delete :destroy, params: { id: 1 }
           expect(response).to be_ok
         end
@@ -144,9 +151,9 @@ RSpec.describe OpenidApplicationController, type: :controller do
 
       it 'rejects access if none of the allowed scopes are provided' do
         with_okta_configured do
-          new_token = token
-          new_token[0]['scp'] = %w[profile va_profile]
-          allow(JWT).to receive(:decode).and_return(new_token)
+          token_opts = {'scp' => %w[profile va_profile]}
+          change_encoded_token_payload(token_opts)
+
           delete :destroy, params: { id: 1 }
           expect(response.status).to eq(401)
         end
