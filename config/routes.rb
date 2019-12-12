@@ -116,6 +116,8 @@ Rails.application.routes.draw do
       get :show, controller: 'health_record_contents', on: :collection
     end
 
+    resources :appeals, only: [:index]
+
     scope :messaging do
       scope :health do
         resources :triage_teams, only: [:index], defaults: { format: :json }, path: 'recipients'
