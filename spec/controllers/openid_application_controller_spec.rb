@@ -3,24 +3,23 @@
 require 'rails_helper'
 
 RSpec.describe OpenidApplicationController, type: :controller do
-  let(:token) { okta_jwt( %w[profile email openid va_profile] ) }
+  let(:token) { okta_jwt(%w[profile email openid va_profile]) }
   let(:payload) { token[0] }
   let(:kid) { token[1]['kid'] }
   let(:alg) { token[1]['alg'] }
 
   def change_encoded_token_payload(options = {})
     new_payload = payload.merge(options)
-    @encoded_token = JWT.encode(new_payload, @public_key, alg, {'kid' => kid})
+    @encoded_token = JWT.encode(new_payload, @public_key, alg, 'kid' => kid)
     request.headers['Authorization'] = "Bearer #{@encoded_token}"
   end
 
   describe '#permit_scopes' do
-
     context 'with simple scopes' do
       before do
         @public_key ||= OpenSSL::PKey::RSA.generate(2048)
-        
-        @encoded_token = JWT.encode(payload, @public_key, alg, {'kid' => kid})
+
+        @encoded_token = JWT.encode(payload, @public_key, alg, 'kid' => kid)
         request.headers['Authorization'] = "Bearer #{@encoded_token}"
 
         allow(OIDC::KeyService).to receive(:get_key).with(kid).and_return(@public_key)
@@ -43,7 +42,7 @@ RSpec.describe OpenidApplicationController, type: :controller do
 
       it 'rejects access when the does not have the allowed scopes' do
         with_okta_configured do
-          change_encoded_token_payload({'scp' => ['bad_scope']})
+          change_encoded_token_payload('scp' => ['bad_scope'])
           get :index
           expect(response.status).to eq(401)
         end
@@ -81,8 +80,8 @@ RSpec.describe OpenidApplicationController, type: :controller do
 
       before do
         @public_key ||= OpenSSL::PKey::RSA.generate(2048)
-        
-        @encoded_token = JWT.encode(payload, @public_key, alg, {'kid' => kid})
+
+        @encoded_token = JWT.encode(payload, @public_key, alg, 'kid' => kid)
         request.headers['Authorization'] = "Bearer #{@encoded_token}"
 
         allow(OIDC::KeyService).to receive(:get_key).with(kid).and_return(@public_key)
@@ -97,7 +96,7 @@ RSpec.describe OpenidApplicationController, type: :controller do
 
       it 'rejects access to one action without the correct scope' do
         with_okta_configured do
-          token_opts = {'scp' => %w[openid] }
+          token_opts = { 'scp' => %w[openid] }
           change_encoded_token_payload(token_opts)
 
           get :index
@@ -107,9 +106,9 @@ RSpec.describe OpenidApplicationController, type: :controller do
 
       it 'permits access to all actions when the correct scope is provided' do
         with_okta_configured do
-          token_opts = {'scp' => %w[openid] }
+          token_opts = { 'scp' => %w[openid] }
           change_encoded_token_payload(token_opts)
-          
+
           get :show, params: { id: 1 }
           expect(response).to be_ok
           patch :update, params: { id: 1 }
@@ -119,7 +118,7 @@ RSpec.describe OpenidApplicationController, type: :controller do
 
       it 'rejects access to all actions when the incorrect scope is provided' do
         with_okta_configured do
-          token_opts = {'scp' => %w[profile] }
+          token_opts = { 'scp' => %w[profile] }
           change_encoded_token_payload(token_opts)
 
           get :show, params: { id: 1 }
@@ -131,7 +130,7 @@ RSpec.describe OpenidApplicationController, type: :controller do
 
       it 'permits access if at least one of the allowed scopes is provided' do
         with_okta_configured do
-          token_opts = {'scp' => %w[email] }
+          token_opts = { 'scp' => %w[email] }
           change_encoded_token_payload(token_opts)
 
           delete :destroy, params: { id: 1 }
@@ -141,7 +140,7 @@ RSpec.describe OpenidApplicationController, type: :controller do
 
       it 'permits access if all the allowed scopes are provided' do
         with_okta_configured do
-          token_opts = {'scp' => %w[email openid] }
+          token_opts = { 'scp' => %w[email openid] }
           change_encoded_token_payload(token_opts)
 
           delete :destroy, params: { id: 1 }
@@ -151,7 +150,7 @@ RSpec.describe OpenidApplicationController, type: :controller do
 
       it 'rejects access if none of the allowed scopes are provided' do
         with_okta_configured do
-          token_opts = {'scp' => %w[profile va_profile]}
+          token_opts = { 'scp' => %w[profile va_profile] }
           change_encoded_token_payload(token_opts)
 
           delete :destroy, params: { id: 1 }
