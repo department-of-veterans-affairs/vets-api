@@ -19,6 +19,7 @@ module VBADocuments
     MAX_PART_SIZE = 100_000_000 # 100MB
     INVALID_ZIP_CODE_ERROR_REGEX = /Invalid zipCode/.freeze
     MISSING_ZIP_CODE_ERROR_REGEX = /Missing zipCode/.freeze
+    NON_FAILING_ERROR_REGEX = /Document already uploaded with uuid/.freeze
     INVALID_ZIP_CODE_ERROR_MSG = 'Invalid ZIP Code. ZIP Code must be 5 digits, ' \
       'or 9 digits in XXXXX-XXXX format. Specify \'00000\' for non-US addresses.'
     MISSING_ZIP_CODE_ERROR_MSG = 'Missing ZIP Code. ZIP Code must be 5 digits, ' \
@@ -117,7 +118,7 @@ module VBADocuments
     end
 
     def process_response(response)
-      if response.success?
+      if response.success? || response.body.match?(NON_FAILING_ERROR_REGEX)
         @upload.update(status: 'received')
       else
         map_downstream_error(response.status, response.body)

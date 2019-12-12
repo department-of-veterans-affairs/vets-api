@@ -7,10 +7,15 @@ require 'evss/auth_headers'
 describe EVSS::ErrorMiddleware do
   let(:current_user) { FactoryBot.build(:evss_user) }
   let(:auth_headers) { EVSS::AuthHeaders.new(current_user).to_h }
+  let(:transaction_id) { auth_headers['va_eauth_service_transaction_id'] }
   let(:claims_service) { EVSS::ClaimsService.new(auth_headers) }
 
   it 'raises the proper error', run_at: 'Wed, 13 Dec 2017 23:45:40 GMT' do
-    VCR.use_cassette('evss/claims/claim_with_errors', VCR::MATCH_EVERYTHING) do
+    VCR.use_cassette(
+      'evss/claims/claim_with_errors',
+      erb: { transaction_id: transaction_id },
+      match_requests_on: VCR.all_matches
+    ) do
       expect { claims_service.find_claim_by_id 1 }.to raise_exception(described_class::EVSSError)
     end
   end

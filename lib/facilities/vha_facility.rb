@@ -14,9 +14,9 @@ module Facilities
       def get_all_the_facilities_data
         gis_type = 'FacilitySitePoint_VHA'
         sort_field = 'Sta_No'
-        metadata = Facilities::GisMetadataClient.new.get_metadata(gis_type)
+        metadata = Facilities::Gis::MetadataClient.new.get_metadata(gis_type)
         max_record_count = metadata['maxRecordCount']
-        resp = Facilities::GisClient.new.get_all_facilities(gis_type, sort_field, max_record_count)
+        resp = Facilities::Gis::Client.new.get_all_facilities(gis_type, sort_field, max_record_count)
         resp_with_websites = add_websites(resp)
         add_mental_health(resp_with_websites)
       end
@@ -81,6 +81,14 @@ module Facilities
         result
       end
 
+      def with_services(services)
+        conditions = services.map do |service|
+          "services->'health' @> '[{\"sl1\":[\"#{service}\"]}]'"
+        end.join(' OR ')
+
+        where(conditions)
+      end
+
       def identifier
         'Sta_No'
       end
@@ -91,8 +99,7 @@ module Facilities
           'name' => 'NAME',
           'classification' => method(:classification_mapping),
           'phone' => { 'main' => 'Sta_Phone', 'fax' => 'Sta_Fax',
-                       'after_hours' => 'afterhoursphone',
-                       'patient_advocate' => 'patientadvocatephone',
+                       'after_hours' => 'afterhoursphone', 'patient_advocate' => 'patientadvocatephone',
                        'enrollment_coordinator' => 'enrollmentcoordinatorphone',
                        'pharmacy' => 'pharmacyphone' },
           'physical' => { 'address_1' => 'Address2', 'address_2' => 'Address1',
@@ -103,6 +110,7 @@ module Facilities
           'feedback' => { 'health' => method(:satisfaction_data) },
           'services' => health_services,
           'mobile' => 'Mobile',
+          'visn' => 'Visn',
           'active_status' => 'Pod',
           'mapped_fields' => mapped_fields_list
         }
@@ -150,7 +158,7 @@ module Facilities
 
       def mapped_fields_list
         %w[Sta_No NAME CocClassificationID LASTUPDATE Address1 Address2 Address3 MUNICIPALITY STATE
-           zip Zip4 Sta_Phone Sta_Fax afterhoursphone Mobile
+           zip Zip4 Sta_Phone Sta_Fax afterhoursphone Mobile Visn
            patientadvocatephone enrollmentcoordinatorphone pharmacyphone Monday
            Tuesday Wednesday Thursday Friday Saturday Sunday Pod]
       end

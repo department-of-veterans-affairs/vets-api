@@ -1,4 +1,4 @@
-version: '3'
+version: '3.4'
 services:
   redis:
     image: redis:3.2-alpine
@@ -10,17 +10,19 @@ services:
   vets-api:
     build:
       context: .
+      target: development
       args:
         sidekiq_license: "${BUNDLE_ENTERPRISE__CONTRIBSYS__COM}"
+        userid: "${VETS_API_USER_ID}"
     image: "vets-api:${DOCKER_IMAGE:-latest}"
     volumes:
-      - ".:/src/vets-api"
-      - bundle:/bundle
+      - ".:/srv/vets-api/src"
+      - test_bundle:/usr/local/bundle
     environment:
       "Settings.database_url": "postgis://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-password}@${POSTGRES_HOST:-postgres}:${POSTGRES_PORT:-5432}/${POSTGRES_DATABASE:-vets_api_development}?pool=4"
       "Settings.test_database_url": "postgis://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-password}@${POSTGRES_HOST:-postgres}:${POSTGRES_PORT:-5432}/${POSTGRES_DATABASE:-vets_api_test}?pool=4"
-      "Settings.saml.cert_path": "/src/vets-api/spec/support/certificates/ruby-saml.crt"
-      "Settings.saml.key_path": "/src/vets-api/spec/support/certificates/ruby-saml.key"
+      "Settings.saml.cert_path": "/srv/vets-api/src/spec/support/certificates/ruby-saml.crt"
+      "Settings.saml.key_path": "/srv/vets-api/src/spec/support/certificates/ruby-saml.key"
       "Settings.redis.host": "redis"
       "Settings.redis.port": "6379"
       "Settings.binaries.clamdscan": "clamscan"           # Not running a separate process within the container for clamdscan, so we use clamscan which requires no daemon
@@ -42,4 +44,4 @@ services:
       - postgres
       - redis
 volumes:
-  bundle:
+  test_bundle:

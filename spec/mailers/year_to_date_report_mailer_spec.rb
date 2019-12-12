@@ -30,7 +30,6 @@ RSpec.describe YearToDateReportMailer, type: %i[mailer aws_helpers] do
         expect(mail.to).to eq(
           %w[
             lihan@adhocteam.us
-            shay.norton-leonard@va.gov
           ]
         )
       end
