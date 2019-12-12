@@ -34,6 +34,9 @@ module Swagger
 
               property(:address) do
                 key :'$ref', :Vet360AddressSuggestion
+                key :required, %i[
+                  address_pou
+                ]
               end
             end
           end

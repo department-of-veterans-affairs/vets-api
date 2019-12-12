@@ -5,7 +5,7 @@ http_interactions:
     uri: https://dev-api.va.gov/services/address_validation/v1/validate
     body:
       encoding: UTF-8
-      string: '{"requestAddress":{"addressLine1":"sdfdsfsdf","city":"Washington","requestCountry":{"countryCode":"USA"},"stateProvince":{"code":"DC"},"zipCode5":"20011"}}'
+      string: '{"requestAddress":{"requestCountry":{"countryCode":"USA"},"addressPOU":"RESIDENCE/CHOICE","stateProvince":{}}}'
     headers:
       Accept:
       - application/json
@@ -25,11 +25,11 @@ http_interactions:
       message: ''
     headers:
       Date:
-      - Tue, 15 Oct 2019 07:21:23 GMT
+      - Fri, 06 Dec 2019 15:53:56 GMT
       Content-Type:
       - application/json;charset=UTF-8
       Content-Length:
-      - '599'
+      - '167'
       Connection:
       - keep-alive
       Server:
@@ -41,7 +41,7 @@ http_interactions:
       Pragma:
       - no-cache
       Vet360txauditid:
-      - 366c052a-e6fb-483c-8941-52b6095c48ad
+      - e39759d6-3a2b-4964-99b7-97b0bef6e32f
       Via:
       - kong/1.2.2
       X-Content-Type-Options:
@@ -49,9 +49,9 @@ http_interactions:
       X-Frame-Options:
       - DENY
       X-Kong-Proxy-Latency:
-      - '6'
+      - '1'
       X-Kong-Upstream-Latency:
-      - '272'
+      - '92'
       X-Ratelimit-Limit-Edge-Gateway-Address-Validation-Vagovli-Address-V1-Validate-Address:
       - '500'
       X-Ratelimit-Limit-Minute:
@@ -74,8 +74,8 @@ http_interactions:
       - max-age=31536000; includeSubDomains; preload
     body:
       encoding: UTF-8
-      string: '{"address":{"stateProvince":{"name":"District Of Colunbia","code":"DC"},"country":{"name":"USA","code":"USA","fipsCode":"US","iso2Code":"US","iso3Code":"USA"},"addressLine1":"Sdfdsfsdf","city":"Washington","zipCode5":"20011"},"geocode":{"calcDate":"2019-10-15T07:21:23+00:00","locationPrecision":0.0,"latitude":38.9525,"longitude":-77.0202},"addressMetaData":{"confidenceScore":0.0,"addressType":"Unknown","deliveryPointValidation":"MISSING_ZIP","validationKey":1008171488},"messages":[{"code":"ADDRVAL112","key":"AddressCouldNotBeFound","severity":"ERROR","text":"The
-        Address could not be found"}]}'
+      string: '{"messages":[{"code":"ADDRVAL203","key":"InvalidRequestStreetAddress","severity":"ERROR","text":"One
+        of addressLine1, addressLine2 or addressLine3 must be provided"}]}'
     http_version: 
-  recorded_at: Tue, 15 Oct 2019 07:21:23 GMT
+  recorded_at: Fri, 06 Dec 2019 15:53:56 GMT
 recorded_with: VCR 3.0.3
