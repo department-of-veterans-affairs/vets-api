@@ -9,7 +9,7 @@ RSpec.describe 'Claim Appeals API endpoint', type: :request do
 
   context 'with an loa1 user' do
     let(:user) { FactoryBot.create(:user, :loa1) }
-    
+
     before do
       sign_in_as(user)
     end
