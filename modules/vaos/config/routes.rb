@@ -8,6 +8,9 @@ VAOS::Engine.routes.draw do
     resources :appointment_requests, only: %i[index create update] do
       resources :messages, only: :index
     end
+    resources :community_care do
+      resources :eligibility, only: :show
+    end
     resources :systems, only: :index do
       resources :direct_scheduling_facilities, only: :index
       resources :pact, only: :index

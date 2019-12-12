@@ -3,19 +3,19 @@
 require_relative '../vaos/concerns/headers'
 
 module VAOS
-  class CommunityEligibilityService < Common::Client::Base
+  class CCEligibilityService < Common::Client::Base
     include Common::Client::Monitoring
     include SentryLogging
     include VAOS::Headers
 
     configuration VAOS::Configuration
 
-    STATSD_KEY_PREFIX = 'api.vaos'
+    STATSD_KEY_PREFIX = 'api.vaos'  # what's this for?  should it be api.cc?
 
     attr_accessor :user
 
     def self.for_user(user)
-      as = VAOS::CommunityEligibilityService.new
+      as = VAOS::CCEligibilityService.new
       as.user = user
       as
     end
@@ -27,7 +27,7 @@ module VAOS
         response = perform(:get, get_eligibility_url(service_type), nil, headers(user))
         {
           ### ???
-          data: deserialized_cce_eligibility(response.body),
+          data: response.body,
           meta: nil
         }
         # responses: 200, 400 (unknown service type), 404 (unknown patient)
@@ -47,7 +47,7 @@ module VAOS
 
     private
 
-    def deserialized_cce_eligibility(json_hash)
+    def deserialized_cc_eligibility(json_hash)
       if type == 'va'
         json_hash.dig(:data, :appointment_list).map { |appointments| OpenStruct.new(appointments) }
       else
