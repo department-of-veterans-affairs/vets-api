@@ -61,9 +61,9 @@ module Swagger
               key :format, :date
               key :nullable, true
             end
-            property :informal_conference, type: :boolean, 
-            property :same_office, type: :boolean, 
-            property :legacy_opt_in_approved, type: :boolean, 
+            property :informal_conference, type: :boolean
+            property :same_office, type: :boolean
+            property :legacy_opt_in_approved, type: :boolean
             property :alerts do
               key :'$ref', :HigherLevelReviewAlerts
             end
@@ -182,12 +182,12 @@ module Swagger
                   key :format, :date
                   key :nullable, true
                 end
-                property :rating_decision_reference_id, type: :string, 
-                property :description, type: :string, 
+                property :rating_decision_reference_id, type: :string
+                property :description, type: :string
                 property :contention_text, type: :string
                 property :approx_decision_date, type: :string, format: :date
-                property :category, type: :string, 
-                property :notes, type: :string, 
+                property :category, type: :string
+                property :notes, type: :string
                 property :is_unidentified, type: :boolean
                 property :ramp_claim_id, type: :string
                 property :legacy_appeal_id, type: :string
@@ -201,8 +201,8 @@ module Swagger
                   key :format, :date
                   key :nullable, true
                 end
-                property :contested_issue_description, type: :string, 
-                property :end_product_cleared, type: :boolean, 
+                property :contested_issue_description, type: :string
+                property :end_product_cleared, type: :boolean
                 property :end_product_code, type: :string
               end
             end
