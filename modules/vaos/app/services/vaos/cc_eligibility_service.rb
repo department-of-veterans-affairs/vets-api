@@ -61,8 +61,6 @@ module VAOS
 
 
 
-    # how do i get the mobile-cce-service base url?
-
     def get_eligibility_url(service_type)
         "/cce/v1/patients/#{user.icn}/eligibility/#{service_type}"
     end

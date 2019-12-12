@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module VAOS
-  class CCEController < ApplicationController
+  class CCEligibilityController < ApplicationController
     def index
       response = cce_service.get_service_types
       render json: VAOS::CCEServiceTypesSerializer.new(response)

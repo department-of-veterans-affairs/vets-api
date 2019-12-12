@@ -3,7 +3,7 @@
 require 'fast_jsonapi'
 
 module VAOS
-  class CCEServiceTypesSerializer
+  class CCEligibilityServiceTypesSerializer
     include FastJsonapi::ObjectSerializer
 
     set_id :name

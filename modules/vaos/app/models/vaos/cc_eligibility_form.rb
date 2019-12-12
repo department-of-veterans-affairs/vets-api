@@ -4,7 +4,7 @@ require 'active_model'
 require 'common/models/form'
 
 module VAOS
-  class CCEForm < Common::Form
+  class CCEligibilityForm < Common::Form
     attribute :service_type, String
 
     validates :service_type, presence: true
