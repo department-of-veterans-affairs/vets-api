@@ -9,8 +9,8 @@ module ClaimsApi
     def perform(power_of_attorney_id)
       power_of_attorney = ClaimsApi::PowerOfAttorney.find(power_of_attorney_id)
       uploader = ClaimsApi::PowerOfAttorneyUploader.new(power_of_attorney_id)
-      uploader.retrieve_from_store!(power_of_attorney.file_data[:filename])
-      filepath = fetch_file_path(uploader, power_of_attorney.file_data['filename'])
+      uploader.retrieve_from_store!(power_of_attorney.file_data['filename'])
+      filepath = fetch_file_path(uploader)
 
       upload_token_response = fetch_upload_token(
         filepath: filepath,
@@ -28,12 +28,12 @@ module ClaimsApi
       rescue_file_not_found(power_of_attorney)
     end
 
-    def fetch_file_path(uploader, filename)
+    def fetch_file_path(uploader)
       if Settings.evss.s3.uploads_enabled
         temp = URI.parse(uploader.file.url).open
         temp.path
       else
-        "#{uploader.file.file}/#{filename}"
+        uploader.file.file
       end
     end
 
