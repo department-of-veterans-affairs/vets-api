@@ -21,13 +21,13 @@ module AppealsApi
       end
 
       def show_higher_level_review
-        review_service.get_higher_level_reviews(params[:uuid])
-        render json: higher_level_review
+        higher_level_review = review_service.get_higher_level_reviews(params[:uuid])
+        render json: higher_level_review.body
       end
 
       def show_intake_status
         intake_status = review_service.get_higher_level_reviews_intake_status(params[:intake_id])
-        render json: intake_status
+        render json: intake_status.body
       end
 
       def healthcheck
