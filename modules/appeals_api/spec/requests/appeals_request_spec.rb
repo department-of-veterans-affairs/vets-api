@@ -7,54 +7,46 @@ RSpec.describe 'Claim Appeals API endpoint', type: :request do
 
   uuid = '4bc96bee-c6a3-470e-b222-66a47629dc20'
 
-  describe 'show higher level review' do
-    context 'with an loa1 user' do
-      let(:user) { FactoryBot.create(:user, :loa1, ssn: '111223333') }
-
-      it 'returns a forbidden error' do
-        get "/services/appeals/v0/appeals/higher_level_reviews/#{uuid}"
-        expect(response).to have_http_status(:forbidden)
-      end
+  context 'with an loa1 user' do
+    let(:user) { FactoryBot.create(:user, :loa1) }
+    
+    before do
+      sign_in_as(user)
     end
 
-    context 'with an loa3 user' do
-      let(:user) { FactoryBot.create(:user, :loa3, ssn: '111223333') }
+    it 'higher level review endpoint returns a forbidden error' do
+      get "/services/appeals/v0/appeals/higher_level_reviews/#{uuid}"
+      expect(response).to have_http_status(:forbidden)
+    end
 
-      context 'with a valid response' do
-        it 'returns a successful response' do
-          VCR.use_cassette('decision_review/200_review') do
-            get "/services/appeals/v0/appeals/higher_level_reviews/#{uuid}"
-            expect(response).to have_http_status(:ok)
-            expect(response.body).to be_a(String)
-            expect(response).to match_response_schema('higher_level_review')
-          end
-        end
-      end
+    it 'intake_statuses endpoint returns a forbidden error' do
+      get "/services/appeals/v0/appeals/intake_statuses/#{uuid}"
+      expect(response).to have_http_status(:forbidden)
     end
   end
 
-  describe 'show intake status' do
-    context 'using loa1 user' do
-      let(:user) { FactoryBot.create(:user, :loa1, ssn: '111223333') }
+  context 'with an loa3 user' do
+    let(:user) { FactoryBot.create(:user, :loa3, ssn: '700062010') }
 
-      it 'returns a forbidden error' do
-        get "/services/appeals/v0/appeals/intake_statuses/#{uuid}"
-        expect(response).to have_http_status(:forbidden)
+    before do
+      sign_in_as(user)
+    end
+
+    it 'higher level review endpoint returns a successful response' do
+      VCR.use_cassette('decision_review/200_review') do
+        get "/services/appeals/v0/appeals/higher_level_reviews/#{uuid}"
+        expect(response).to have_http_status(:ok)
+        expect(response.body).to be_a(String)
+        expect(response).to match_response_schema('higher_level_review')
       end
     end
 
-    context 'using loa3 user' do
-      let(:user) { FactoryBot.create(:user, :loa3, ssn: '111223333') }
-
-      context 'with a valid response' do
-        it 'returns a successful response' do
-          VCR.use_cassette('decision_review/200_intake_status') do
-            get "/services/appeals/v0/appeals/intake_statuses/#{uuid}"
-            expect(response).to have_http_status(:ok)
-            expect(response.body).to be_a(String)
-            expect(response).to match_response_schema('intake_status')
-          end
-        end
+    it 'intake_statuses endpoint returns a successful response' do
+      VCR.use_cassette('decision_review/200_intake_status') do
+        get "/services/appeals/v0/appeals/intake_statuses/#{uuid}"
+        expect(response).to have_http_status(:ok)
+        expect(response.body).to be_a(String)
+        expect(response).to match_response_schema('intake_status')
       end
     end
   end
