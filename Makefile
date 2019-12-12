@@ -25,7 +25,7 @@ bash:
 
 .PHONY: ci-build
 ci-build:
-	$(COMPOSE_TEST) build
+	$(COMPOSE_TEST) build --no-cache
 
 .PHONY: ci-db
 ci-db:
