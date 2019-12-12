@@ -50,7 +50,7 @@ module VAOS
     private
 
     def handle_error(response)
-      key = response.status == 204 ? 'VAOS_204_hack' : nil
+      key = response.status == 204 ? 'VAOS_204' : nil
       raise Common::Exceptions::BackendServiceException.new(key, {}, response.status, response.body)
     end
 
