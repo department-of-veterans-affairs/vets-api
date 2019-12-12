@@ -31,10 +31,10 @@ RSpec.describe Facilities::PSSGDownload, type: :job do
     end
   end
 
-  let(:pssg_client_stub) { instance_double('Facilities::DrivetimeBandClient') }
+  let(:pssg_client_stub) { instance_double('Facilities::DrivetimeBands::Client') }
 
   before do
-    allow(Facilities::DrivetimeBandClient).to receive(:new, &method(:pssg_client_stub))
+    allow(Facilities::DrivetimeBands::Client).to receive(:new, &method(:pssg_client_stub))
     allow(pssg_client_stub).to receive(:get_drivetime_bands).and_return([])
   end
 
@@ -53,7 +53,8 @@ RSpec.describe Facilities::PSSGDownload, type: :job do
       expect(BaseFacility.find_facility_by_id('vha_648A4').drivetime_bands[0].name).to eql('648A4 : 0 - 10')
       expect(BaseFacility.find_facility_by_id('vha_648A4').drivetime_bands[0].unit).to eql('minutes')
       expect(DrivetimeBand.find_by(vha_facility_id: '648A4').name).to eql('648A4 : 0 - 10')
-      expect(DrivetimeBand.find_by(vha_facility_id: '648A4').polygon.to_s).not_to eql(existing_drive_time.polygon.to_s)
+      # updates are currently turned off once they are working this should be `.not_to eql`
+      expect(DrivetimeBand.find_by(vha_facility_id: '648A4').polygon.to_s).to eql(existing_drive_time.polygon.to_s)
     end
 
     it 'populates facility with drive time data' do

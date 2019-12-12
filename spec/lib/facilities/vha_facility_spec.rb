@@ -14,8 +14,8 @@ RSpec.describe Facilities::VHAFacility do
 
   it 'is able to have multiple DrivetimeBands' do
     create :vha_648
-    create :thirty_mins
-    create :sixty_mins
+    create :ten_mins_648
+    create :twenty_mins_648
 
     bands = Facilities::VHAFacility.first.drivetime_bands
 
@@ -105,6 +105,13 @@ RSpec.describe Facilities::VHAFacility do
         end
       end
 
+      it 'includes visn for vha facilities' do
+        VCR.use_cassette('facilities/va/vha_facilities_limit_results') do
+          expect(facility.visn).to eq('21')
+          expect(facility_2.visn).to eq('1')
+        end
+      end
+
       it 'gets the correct classification name' do
         VCR.use_cassette('facilities/va/vha_facilities_limit_results') do
           expect(facility.classification).to eq('Other Outpatient Services (OOS)')
@@ -187,6 +194,18 @@ RSpec.describe Facilities::VHAFacility do
           end
         end
       end
+    end
+  end
+
+  describe 'with_services' do
+    it 'returns a list of facilities that provide the selected services' do
+      create :vha_648A4
+      create :vha_648
+      create :vha_648GI
+
+      result = Facilities::VHAFacility.with_services(['UrgentCare'])
+      expect(result.length).to eq(1)
+      expect(result.first.unique_id).to eq('648')
     end
   end
 end

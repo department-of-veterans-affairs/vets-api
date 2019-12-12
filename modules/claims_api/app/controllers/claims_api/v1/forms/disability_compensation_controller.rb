@@ -16,6 +16,7 @@ module ClaimsApi
 
         before_action { permit_scopes %w[claim.write] }
         before_action :validate_json_schema, only: %i[submit_form_526 validate_form_526]
+        before_action :validate_initial_claim, only: %i[submit_form_526 validate_form_526]
         before_action :validate_documents_page_size, only: %i[upload_supporting_documents]
 
         def submit_form_526
@@ -27,7 +28,7 @@ module ClaimsApi
             source: source_name
           )
           auto_claim = ClaimsApi::AutoEstablishedClaim.find_by(md5: auto_claim.md5) unless auto_claim.id
-          service_object.validate_form526(auto_claim.form.to_internal)
+          service_object.validate_form526(auto_claim.to_internal)
 
           ClaimsApi::ClaimEstablisher.perform_async(auto_claim.id)
 
@@ -50,17 +51,7 @@ module ClaimsApi
         end
 
         def validate_form_526
-          service = EVSS::DisabilityCompensationForm::ServiceAllClaim.new(auth_headers)
-          auto_claim = ClaimsApi::AutoEstablishedClaim.new(
-            status: ClaimsApi::AutoEstablishedClaim::PENDING,
-            auth_headers: auth_headers,
-            form_data: form_attributes
-          )
-          service.validate_form526(auto_claim.form.to_internal)
-          render json: valid_526_response
-        rescue EVSS::ErrorMiddleware::EVSSError => e
-          track_526_validation_errors(e.details)
-          render json: { errors: format_526_errors(e.details) }, status: :unprocessable_entity
+          super
         end
 
         private
@@ -68,6 +59,20 @@ module ClaimsApi
         def source_name
           user = poa_request? ? @current_user : target_veteran
           "#{user.first_name} #{user.last_name}"
+        end
+
+        def validate_initial_claim
+          if claims_service.claims_count.zero? && form_attributes['autoCestPDFGenerationDisabled'] == false
+            error = {
+              errors: [
+                {
+                  status: 422,
+                  details: 'Veteran has no claims, autoCestPDFGenerationDisabled requires true for Initial Claim'
+                }
+              ]
+            }
+            render json: error, status: :unprocessable_entity
+          end
         end
       end
     end

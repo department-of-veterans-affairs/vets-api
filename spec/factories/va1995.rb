@@ -25,8 +25,7 @@ FactoryBot.define do
             'spec',
             'fixtures',
             'education_benefits_claims',
-            '1995',
-            'kitchen_sink_stem.json'
+            '1995'
           )
         )
       }
