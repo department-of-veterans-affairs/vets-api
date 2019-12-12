@@ -8,7 +8,7 @@ describe Vet360::ContactInformation::Service, skip_vet360: true do
   let(:user) { build(:user, :loa3) }
 
   before do
-    allow(user).to receive(:vet360_id).and_return('1411684')
+    allow(user).to receive(:vet360_id).and_return('1')
     allow(user).to receive(:icn).and_return('1234')
   end
 
@@ -202,6 +202,9 @@ describe Vet360::ContactInformation::Service, skip_vet360: true do
   end
 
   describe '#put_permission' do
+    before do
+      allow(user).to receive(:vet360_id).and_return(1411684)
+    end
     let(:permission) { build(:permission, vet360_id: user.vet360_id, source_system_user: user.icn) }
 
     context 'when successful' do
@@ -218,6 +221,9 @@ describe Vet360::ContactInformation::Service, skip_vet360: true do
   end
 
   describe '#post_permission' do
+    before do
+      allow(user).to receive(:vet360_id).and_return(1411684)
+    end
     let(:permission) { build(:permission, vet360_id: user.vet360_id, id: nil, source_system_user: user.icn) }
 
     context 'when successful' do
@@ -384,6 +390,9 @@ describe Vet360::ContactInformation::Service, skip_vet360: true do
   end
 
   describe '#get_permission_transaction_status' do
+    before do
+      allow(user).to receive(:vet360_id).and_return(1411684)
+    end
     context 'when successful' do
       let(:transaction_id) { 'b1b06a34-c6a8-412e-82e7-df09d84862f3' }
 
@@ -405,7 +414,7 @@ describe Vet360::ContactInformation::Service, skip_vet360: true do
           expect { subject.get_permission_transaction_status(transaction_id) }.to raise_error do |e|
             expect(e).to be_a(Common::Exceptions::BackendServiceException)
             expect(e.status_code).to eq(404)
-            expect(e.errors.first.code).to eq('VET360_CORE103') # TODO: MT DOES THIS CODE NEED TO CHANGE????
+            expect(e.errors.first.code).to eq('VET360_CORE103')
           end
         end
       end
