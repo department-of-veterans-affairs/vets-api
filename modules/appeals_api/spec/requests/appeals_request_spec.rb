@@ -5,25 +5,8 @@ require 'rails_helper'
 RSpec.describe 'Claim Appeals API endpoint', type: :request do
   include SchemaMatchers
 
-  uuid = '1234567890'
-
-  context 'with an loa1 user' do
-    let(:user) { FactoryBot.create(:user, :loa1) }
-
-    before do
-      sign_in_as(user)
-    end
-
-    it 'higher level review endpoint returns a forbidden error' do
-      get "/services/appeals/v0/appeals/higher_level_reviews/#{uuid}"
-      expect(response).to have_http_status(:forbidden)
-    end
-
-    it 'intake_statuses endpoint returns a forbidden error' do
-      get "/services/appeals/v0/appeals/intake_statuses/#{uuid}"
-      expect(response).to have_http_status(:forbidden)
-    end
-  end
+  hlr_uuid = '4bc96bee-c6a3-470e-b222-66a47629dc20'
+  intake_id = '1234567890'
 
   context 'with an loa3 user' do
     let(:user) { FactoryBot.create(:user, :loa3, ssn: '700062010') }
@@ -34,7 +17,7 @@ RSpec.describe 'Claim Appeals API endpoint', type: :request do
 
     it 'higher level review endpoint returns a successful response' do
       VCR.use_cassette('decision_review/200_review') do
-        get "/services/appeals/v0/appeals/higher_level_reviews/#{uuid}"
+        get "/services/appeals/v0/appeals/higher_level_reviews/#{hlr_uuid}"
         expect(response).to have_http_status(:ok)
         expect(response.body).to be_a(String)
         expect(response).to match_response_schema('higher_level_review')
@@ -43,7 +26,7 @@ RSpec.describe 'Claim Appeals API endpoint', type: :request do
 
     it 'intake_statuses endpoint returns a successful response' do
       VCR.use_cassette('decision_review/200_intake_status') do
-        get "/services/appeals/v0/appeals/intake_statuses/#{uuid}"
+        get "/services/appeals/v0/appeals/intake_statuses/#{intake_id}"
         expect(response).to have_http_status(:ok)
         expect(response.body).to be_a(String)
         expect(response).to match_response_schema('intake_status')
