@@ -3,7 +3,6 @@
 require 'common/client/base'
 
 module Forms
-
   # Proxy Service for Forms API.
   #
   # @example Get all forms or filter by a wildcard query.
