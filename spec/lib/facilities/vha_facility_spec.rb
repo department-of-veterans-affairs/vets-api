@@ -105,6 +105,13 @@ RSpec.describe Facilities::VHAFacility do
         end
       end
 
+      it 'includes visn for vha facilities' do
+        VCR.use_cassette('facilities/va/vha_facilities_limit_results') do
+          expect(facility.visn).to eq('21')
+          expect(facility_2.visn).to eq('1')
+        end
+      end
+
       it 'gets the correct classification name' do
         VCR.use_cassette('facilities/va/vha_facilities_limit_results') do
           expect(facility.classification).to eq('Other Outpatient Services (OOS)')

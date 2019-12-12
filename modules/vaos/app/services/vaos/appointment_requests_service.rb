@@ -22,39 +22,72 @@ module VAOS
 
     def get_requests(start_date = nil, end_date = nil)
       with_monitoring do
-        response = perform(:get, get_appointment_requests_url(start_date, end_date), headers(user))
+        response = perform(:get, url, date_params(start_date, end_date), headers(user))
 
         {
           data: deserialize(response.body),
           meta: pagination
         }
       end
-    rescue Common::Client::Errors::ClientError => e
-      raise_backend_exception('VAOS_502', self.class, e)
+    end
+
+    def post_request(request_object_body)
+      with_monitoring do
+        params = VAOS::AppointmentRequestForm.new(user, request_object_body).params
+        response = perform(:post, url, params, headers(user))
+
+        {
+          data: OpenStruct.new(filter_cc_appointment_data(response.body))
+        }
+      end
+    end
+
+    def put_request(id, request_object_body)
+      with_monitoring do
+        params = VAOS::AppointmentRequestForm.new(user, request_object_body.merge(id: id)).params
+        response = perform(:put, url(id), params, headers(user))
+
+        {
+          data: OpenStruct.new(filter_cc_appointment_data(response.body))
+        }
+      end
     end
 
     private
 
     def deserialize(json_hash)
-      json_hash[:appointment_requests].map { |request| OpenStruct.new(request) }
+      json_hash[:appointment_requests].map do |request|
+        filter_cc_appointment_data(request)
+        OpenStruct.new(request)
+      end
     rescue => e
       log_message_to_sentry(e.message, :warn, invalid_json: json_hash)
       []
     end
 
-    def get_appointment_requests_url(start_date = nil, end_date = nil)
-      url = '/var/VeteranAppointmentRequestService/v4/rest/appointment-service'
-      url += "/patient/ICN/#{user.icn}/appointments"
-      url += get_date_url(start_date, end_date).empty? ? '' : "?#{get_date_url(start_date, end_date).to_query}"
-      url
+    def filter_cc_appointment_data(request)
+      return request if request[:cc_appointment_request].nil?
+
+      request[:cc_appointment_request].except!(
+        :patient_identifier, :surrogate_identifier, :object_type, :link
+      )
+      request
     end
 
-    def get_date_url(start_date, end_date)
-      { startDate: date_format(start_date), endDate: date_format(end_date) }
+    def url(id = nil)
+      if id
+        url + "/system/var/id/#{id}"
+      else
+        "/var/VeteranAppointmentRequestService/v4/rest/appointment-service/patient/ICN/#{user.icn}/appointments"
+      end
+    end
+
+    def date_params(start_date, end_date)
+      { startDate: date_format(start_date), endDate: date_format(end_date) }.compact
     end
 
     def date_format(date)
-      date&.strftime('%Y-%m-%dT%TZ')
+      date&.strftime('%m/%d/%Y')
     end
 
     # TODO: find out if this api supports pagination and other parameters
