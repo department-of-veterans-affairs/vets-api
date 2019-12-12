@@ -20,14 +20,10 @@ module EducationForm::Forms
     end
 
     def form_benefit
-      return 'STEM' if @applicant.isEdithNourseRogersScholarship
-
       @applicant.benefit&.titleize
     end
 
     def header_form_type
-      return 'STEM1995' if @applicant.isEdithNourseRogersScholarship
-
       'V1995'
     end
   end

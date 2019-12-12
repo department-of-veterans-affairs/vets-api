@@ -101,6 +101,38 @@ RSpec.describe 'Nearby Facilities API endpoint', type: :request do
         .to include('current_page' => 1, 'per_page' => 20, 'total_pages' => 1, 'total_entries' => 1)
       expect(json['links']['related']).to eq('/services/va_facilities/v0/facilities?ids=vha_648')
     end
+
+    it 'temporarily returns no results for Podiatry' do
+      create_bands
+
+      get base_query_path,
+          params: { lat: 45.4967668, lng: -122.6832211,
+                    drive_time: '20', 'services[]': 'Podiatry' },
+          headers: { 'HTTP_ACCEPT' => 'application/json' }
+
+      expect(response).to be_successful
+      expect(response.body).to be_a(String)
+
+      json = JSON.parse(response.body)
+
+      expect(json['data'].length).to eq(0)
+    end
+
+    it 'temporarily returns no results for Nutrition' do
+      create_bands
+
+      get base_query_path,
+          params: { lat: 45.4967668, lng: -122.6832211,
+                    drive_time: '20', 'services[]': 'Nutrition' },
+          headers: { 'HTTP_ACCEPT' => 'application/json' }
+
+      expect(response).to be_successful
+      expect(response.body).to be_a(String)
+
+      json = JSON.parse(response.body)
+
+      expect(json['data'].length).to eq(0)
+    end
   end
 
   describe 'bing errors' do

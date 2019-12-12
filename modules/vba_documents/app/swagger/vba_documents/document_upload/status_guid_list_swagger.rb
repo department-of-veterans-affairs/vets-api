@@ -17,7 +17,7 @@ module VbaDocuments
             key :example, '6d8433c1-cd55-4c24-affd-f592287a7572'
           end
           key :minItems, 1
-          key :maxItems, 100
+          key :maxItems, 1000
         end
       end
     end
