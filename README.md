@@ -4,7 +4,7 @@ This project provides common APIs for applications that live on VA.gov (formerly
 
 For frontend, see [vets-website](https://github.com/department-of-veterans-affairs/vets-website) and [vets-content](https://github.com/department-of-veterans-affairs/vagov-content) repos.
 
-## Base setup  
+## Base setup
 
 **See the [native setup instructions](docs/setup/native.md) if you can't use docker**
 
@@ -22,7 +22,7 @@ To start, fetch this code:
    
    [certificate]: https://github.com/department-of-veterans-affairs/vets.gov-team/blob/master/Products/Identity/Login/IDme/development-certificates/vetsgov-localhost.crt
    [key]: https://github.com/department-of-veterans-affairs/vets.gov-team/blob/master/Products/Identity/Login/IDme/development-certificates/vetsgov-localhost.key
-
+ 
 ## Running the app
 
 A Makefile provides shortcuts for interacting with the docker images. To run vets-api and its redis and postgres 
@@ -61,7 +61,7 @@ The [Makefile](https://github.com/department-of-veterans-affairs/vets-api/blob/m
 but the following tasks have been aliased to speed development:
 
 ### Running tests
-- `make spec` - Run the entire test suite via the docker image (alias for `rspec spec`)
+- `make spec` - Run the entire test suite via the docker image (alias for `rspec spec`). Test coverage statistics are in `coverage/index.html` or in [CodeClimate](https://codeclimate.com/github/department-of-veterans-affairs/vets-api/code)
 - `make guard` - Run the guard test server that reruns your tests after files are saved. Useful for TDD!
 
 ### Running linters
