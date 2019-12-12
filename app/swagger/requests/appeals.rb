@@ -62,6 +62,8 @@ module Swagger
 
       swagger_path '/v0/appeals/higher_level_reviews/{uuid}' do
         operation :get do
+          extend Swagger::Responses::AuthenticationError
+
           key :description, 'This endpoint returns the details of a specific Higher Level Review'
           key :operationId, 'showHigherLevelReview'
           key :tags, %w[higher_level_reviews]
@@ -71,13 +73,9 @@ module Swagger
             key :in, :path
             key :description, 'UUID of a higher level review'
             key :required, true
-
-            schema do
-              property :data,
-                       type: :string,
-                       format: :uuid,
-                       pattern: '^[0-9a-fA-F]{8}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{12}$'
-            end
+            key :type, :string
+            key :format, :uuid
+            key :pattern, "^[0-9a-fA-F]{8}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{12}$"
           end
 
           response 200 do
@@ -103,15 +101,17 @@ module Swagger
         end
       end
 
-      swagger_path 'v0/appeals/higher_level_review/intake_status/{uuid}' do
+      swagger_path '/v0/appeals/intake_statuses/{intake_id}' do
         operation :get do
+          extend Swagger::Responses::AuthenticationError
+
           key :tags, %w[intake_status]
           key :operationId, 'showIntakeStatus'
           key :description, 'After creating a Decision Review, you can use this endpoint to check its _intake status_'\
                             'to see whether or not a Decision Review has been processed in the Caseflow system.'
 
           parameter do
-            key :name, :uuid
+            key :name, :intake_id
             key :in, :path
             key :required, true
             key :description, 'Decision Review UUID'

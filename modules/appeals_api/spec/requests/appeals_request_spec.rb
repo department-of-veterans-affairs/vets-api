@@ -7,14 +7,9 @@ RSpec.describe 'Claim Appeals API endpoint', type: :request do
 
   uuid = '4bc96bee-c6a3-470e-b222-66a47629dc20'
 
-  shared_context 'with user' do |options|
-    using_ssn = options[:without_ssn] ? nil : '111223333'
-    let(:user) { FactoryBot.create(:user, options[:user], ssn: using_ssn) }
-  end
-
   describe 'show higher level review' do
     context 'with an loa1 user' do
-      include_context 'with user', user: :loa1
+      let(:user) { FactoryBot.create(:user, :loa1, ssn: '111223333') }
 
       it 'returns a forbidden error' do
         get "/services/appeals/v0/appeals/higher_level_reviews/#{uuid}"
@@ -23,7 +18,7 @@ RSpec.describe 'Claim Appeals API endpoint', type: :request do
     end
 
     context 'with an loa3 user' do
-      include_context 'with user', user: :loa3
+      let(:user) { FactoryBot.create(:user, :loa3, ssn: '111223333') }
 
       context 'with a valid response' do
         it 'returns a successful response' do
@@ -40,7 +35,7 @@ RSpec.describe 'Claim Appeals API endpoint', type: :request do
 
   describe 'show intake status' do
     context 'using loa1 user' do
-      include_context 'with user', user: :loa1
+      let(:user) { FactoryBot.create(:user, :loa1, ssn: '111223333') }
 
       it 'returns a forbidden error' do
         get "/services/appeals/v0/appeals/intake_statuses/#{uuid}"
@@ -49,7 +44,7 @@ RSpec.describe 'Claim Appeals API endpoint', type: :request do
     end
 
     context 'using loa3 user' do
-      include_context 'with user', user: :loa3
+      let(:user) { FactoryBot.create(:user, :loa3, ssn: '111223333') }
 
       context 'with a valid response' do
         it 'returns a successful response' do
