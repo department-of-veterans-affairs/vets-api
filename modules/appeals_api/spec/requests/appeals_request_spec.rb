@@ -5,7 +5,7 @@ require 'rails_helper'
 RSpec.describe 'Claim Appeals API endpoint', type: :request do
   include SchemaMatchers
 
-  uuid = '4bc96bee-c6a3-470e-b222-66a47629dc20'
+  uuid = '1234567890'
 
   context 'with an loa1 user' do
     let(:user) { FactoryBot.create(:user, :loa1) }
