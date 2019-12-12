@@ -118,6 +118,7 @@ module AsyncTransaction
         ongoing_transactions += AddressTransaction.last_requested.for_user(user)
         ongoing_transactions += EmailTransaction.last_requested.for_user(user)
         ongoing_transactions += TelephoneTransaction.last_requested.for_user(user)
+        ongoing_transactions += PermissionTransaction.last_requested.for_user(user)
         ongoing_transactions
       end
 
