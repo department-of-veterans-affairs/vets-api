@@ -201,10 +201,11 @@ describe Vet360::ContactInformation::Service, skip_vet360: true do
     end
   end
 
-  describe '#put_permission' do
+  describe '#put_permission' do    
     before do
-      allow(user).to receive(:vet360_id).and_return(1411684)
+      allow(user).to receive(:vet360_id).and_return(1_411_684)
     end
+
     let(:permission) { build(:permission, vet360_id: user.vet360_id, source_system_user: user.icn) }
 
     context 'when successful' do
@@ -221,9 +222,11 @@ describe Vet360::ContactInformation::Service, skip_vet360: true do
   end
 
   describe '#post_permission' do
+    
     before do
-      allow(user).to receive(:vet360_id).and_return(1411684)
+      allow(user).to receive(:vet360_id).and_return(1_411_684)
     end
+    
     let(:permission) { build(:permission, vet360_id: user.vet360_id, id: nil, source_system_user: user.icn) }
 
     context 'when successful' do
