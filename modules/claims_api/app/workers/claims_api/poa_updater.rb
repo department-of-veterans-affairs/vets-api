@@ -15,7 +15,7 @@ module ClaimsApi
         poa_code: poa_form.form_data['poaCode']
       )
 
-      poa_form.status = if response['return_code'] == 'BMOD0001'
+      poa_form.status = if response[:return_code] == 'BMOD0001'
                           ClaimsApi::PowerOfAttorney::UPDATED
                         else
                           ClaimsApi::PowerOfAttorney::ERRORED
