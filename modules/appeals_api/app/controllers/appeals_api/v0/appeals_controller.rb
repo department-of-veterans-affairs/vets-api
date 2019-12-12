@@ -20,13 +20,13 @@ module AppealsApi
         )
       end
 
-      def show
-        service.get_higher_level_reviews params[:uuid]
+      def show_higher_level_review
+        review_service.get_higher_level_reviews params[:uuid]
         render json: higher_level_review
       end
 
-      def intake_status
-        intake_status = service.get_higher_level_reviews_intake_status params[:uuid]
+      def show_intake_status
+        intake_status = review_service.get_higher_level_reviews_intake_status params[:uuid]
         render json: intake_status
       end
 
@@ -73,6 +73,10 @@ module AppealsApi
 
       def target_veteran
         OpenStruct.new(ssn: ssn)
+      end
+
+      def review_service
+        DecisionReview::Service.new
       end
     end
   end

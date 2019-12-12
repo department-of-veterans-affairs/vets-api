@@ -43,7 +43,7 @@ RSpec.describe 'Claim Appeals API endpoint', type: :request do
       include_context 'with user', user: :loa1
 
       it 'returns a forbidden error' do
-        get "services/appeals/v0/appeals/higher_level_reviews/intake_status/#{uuid}"
+        get "services/appeals/v0/appeals/intake_statuses/#{uuid}"
         expect(response).to have_http_status(:forbidden)
       end
     end
@@ -54,7 +54,7 @@ RSpec.describe 'Claim Appeals API endpoint', type: :request do
       context 'with a valid response' do
         it 'returns a successful response' do
           VCR.use_cassette('decision_review/200_intake_status') do
-            get "services/appeals/v0/appeals/higher_level_reviews/intake_status/#{uuid}"
+            get "services/appeals/v0/appeals/intake_statuses/#{uuid}"
             expect(response).to have_http_status(:ok)
             expect(response.body).to be_a(String)
             expect(response).to match_response_schema('intake_status')

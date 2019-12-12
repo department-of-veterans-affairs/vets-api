@@ -5,8 +5,9 @@ AppealsApi::Engine.routes.draw do
 
   namespace :v0, defaults: { format: 'json' } do
     resources :appeals, only: [:index] do
-      resources :higher_level_reviews, only: %i[show create], defaults: { format: :json } do
-        get 'intake_status/:intake_id', to: 'appeals#intake_status'
+      collection do
+        get 'higher_level_reviews/:uuid', to: 'appeals#show_higher_level_review'
+        get 'intake_statuses/:intake_id', to: 'appeals#show_intake_status'
       end
     end
 

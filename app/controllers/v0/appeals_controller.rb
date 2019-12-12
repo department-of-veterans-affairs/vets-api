@@ -12,11 +12,5 @@ module V0
         json: appeals_response.body
       )
     end
-
-    private
-
-    def service
-      DecisionReview::Service.new
-    end
   end
 end
