@@ -7,34 +7,7 @@ info:
 
     ## Background
 
-    The use-case of this API is to allow third-parties
-    to request confirmation from the VA of an individual's Veteran status after
-    receiving authorization to do so using an Open ID Connect flow.
-
-    The Veteran Confirmation API passes requests through to eMIS, the Enterprise
-    Military Information Service, and formats the response into consumable data.
-
-    ## Design
-
-    ### Authorization
-
-    API requests are authorized using a Bearer token issued through an OpenID
-    Connect service to allow third-party applications. The token should be
-    submitted as an `Authorization` header in the form `Bearer <token>`.
-
-    ### Veteran Status Request
-
-    Allows a third-party application to request the VA confirm the Veteran Status of an
-    authorized individual:
-
-    1. Client Request: GET https://api.va.gov/services/veteran_confirmation/v0/status
-       * Provide the Bearer token as a header: `Authorization: Bearer <token>`
-
-    2. Status Response: A JSON API object with the individual's veteran status
-
-    ## Reference
-
-    Raw Open API Spec: https://api.va.gov/services/veteran_confirmation/docs/v0/status
+    Placeholder for an upcoming Open API Spec
 
   termsOfService: ''
   contact:
@@ -78,16 +51,14 @@ paths:
                 properties:
                   data:
                     $ref: '#/components/schemas/VeteranStatusConfirmation'
-        '403':
-          description: Provided Access Token Does not have the required scopes to access.
         '502':
           description: eMIS failed to respond or responded in a way we cannot handle. 
 components:
   securitySchemes:
-    bearer_token:
-      type: http
-      scheme: bearer
-      bearerFormat: JWT
+    apikey:
+      type: apiKey
+      name: apikey
+      in: header
   schemas:
     VeteranStatusConfirmation:
       description: |
@@ -107,7 +78,7 @@ components:
             veteran_status:
               type: string
               description: |
-                Whether the system could confirm the Veteran status of the authorized individual
+                Whether the system could confirm the Veteran status of an invidual based on traits
               enum:
                 - confirmed
                 - not confirmed
