@@ -42,13 +42,17 @@ module VAOS
             meta: {}
           }
         else
-          key = response.status == 204 ? 'VAOS_204_hack' : nil
-          raise Common::Exceptions::BackendServiceException.new(key, {}, response.status, response.body)
+          handle_error(response)
         end
       end
     end
 
     private
+
+    def handle_error(response)
+      key = response.status == 204 ? 'VAOS_204_hack' : nil
+      raise Common::Exceptions::BackendServiceException.new(key, {}, response.status, response.body)
+    end
 
     def deserialize(json_hash)
       json_hash[:appointment_request_message].map { |message| OpenStruct.new(message) }
