@@ -26,7 +26,7 @@ module EMIS
     # Custom namespaces used in EMIS SOAP request message
     # @return [Config::Options] Custom namespaces object
     def custom_namespaces
-      Settings.emis.military_information.soap_namespaces
+      Settings.emis.military_information.v1.soap_namespaces
     end
   end
 end

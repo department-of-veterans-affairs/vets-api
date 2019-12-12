@@ -24,6 +24,24 @@ module ClaimsApi
       )
     rescue VBMS::Unknown
       rescue_vbms_error(power_of_attorney)
+    rescue Errno::ENOENT
+      rescue_file_not_found(power_of_attorney)
+    end
+
+    def fetch_file_path(uploader, filename)
+      if Settings.evss.s3.uploads_enabled
+        temp = URI.parse(uploader.file.url).open
+        temp.path
+      else
+        "#{uploader.file.file}/#{filename}"
+      end
+    end
+
+    def rescue_file_not_found(power_of_attorney)
+      power_of_attorney.update(
+        status: 'failed',
+        vbms_error_message: 'File could not be retrieved from AWS'
+      )
     end
 
     def rescue_vbms_error(power_of_attorney)
