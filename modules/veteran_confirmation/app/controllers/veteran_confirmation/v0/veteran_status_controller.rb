@@ -6,18 +6,18 @@ module VeteranConfirmation
   module V0
     class VeteranStatusController < ApplicationController
       def index
-        render json: { hit_it: 'yep' }
-      rescue
-        raise_error!
-      end
+        body = JSON.parse(request.body.read)
 
-      private
+        attributes = {
+          ssn: body['ssn'],
+          first_name: body['first_name'],
+          last_name: body['last_name'],
+          birth_date: Date.iso8601(body['birth_date']).strftime('%Y%m%d')
+        }
 
-      def raise_error!
-        raise Common::Exceptions::BackendServiceException.new(
-          'EMIS_STATUS502',
-          source: self.class.to_s
-        )
+        status = StatusService.new.get_by_attributes(attributes)
+
+        render json: { veteran_status: status }
       end
     end
   end

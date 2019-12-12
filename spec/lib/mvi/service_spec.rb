@@ -435,6 +435,23 @@ describe MVI::Service do
       end
     end
   end
+
+  describe '.find_profile_from_attributes' do
+    context 'valid request' do
+      before do
+        expect(MVI::Messages::FindProfileMessage).to receive(:new).once.and_call_original
+      end
+
+      it 'calls the find_profile_with_attributes endpoint with a find candidate message' do
+        VCR.use_cassette('mvi/find_candidate/valid') do
+          response = subject.find_profile_from_attributes(user_hash)
+
+          expect(response.status).to eq('OK')
+          expect(response.profile).to have_deep_attributes(mvi_profile)
+        end
+      end
+    end
+  end
 end
 
 def server_error_502_expectations_for(response)

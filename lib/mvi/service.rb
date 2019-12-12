@@ -67,6 +67,35 @@ module MVI
         mvi_profile_exception_response_for('MVI_502', e)
       end
     end
+
+    def find_profile_from_attributes(attributes)
+      with_monitoring do
+        raw_response = perform(
+          :post, '',
+          create_profile_message_from_attributes(attributes),
+          soapaction: OPERATIONS[:find_profile]
+        )
+
+        MVI::Responses::FindProfileResponse.with_parsed_response(raw_response)
+      end
+    rescue Breakers::OutageException => e
+      Raven.extra_context(breakers_error_message: e.message)
+      log_console_and_sentry('MVI find_profile connection failed.', :warn)
+      mvi_profile_exception_response_for('MVI_503', e)
+    rescue Faraday::ConnectionFailed => e
+      log_console_and_sentry("MVI find_profile connection failed: #{e.message}", :warn)
+      mvi_profile_exception_response_for('MVI_504', e)
+    rescue Common::Client::Errors::ClientError, Common::Exceptions::GatewayTimeout => e
+      log_console_and_sentry("MVI find_profile error: #{e.message}", :warn)
+      mvi_profile_exception_response_for('MVI_504', e)
+    rescue MVI::Errors::Base => e
+      mvi_error_handler(user_identity, e)
+      if e.is_a?(MVI::Errors::RecordNotFound)
+        mvi_profile_exception_response_for('MVI_404', e, type: 'not_found')
+      else
+        mvi_profile_exception_response_for('MVI_502', e)
+      end
+    end
     # rubocop:enable Metrics/MethodLength
 
     def self.service_is_up?
@@ -138,6 +167,15 @@ module MVI
       message_user_attributes(user_identity)
     end
     # rubocop:enable Metrics/LineLength
+
+    def create_profile_message_from_attributes(attributes)
+      MVI::Messages::FindProfileMessage.new(
+        [attributes[:first_name]],
+        attributes[:last_name],
+        attributes[:birth_date],
+        attributes[:ssn]
+      ).to_xml
+    end
 
     def message_icn(user)
       MVI::Messages::FindProfileMessageIcn.new(user.mhv_icn).to_xml
