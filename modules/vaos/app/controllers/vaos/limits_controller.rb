@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require_dependency 'vaos/application_controller'
+
 module VAOS
   class LimitsController < ApplicationController
     def index
