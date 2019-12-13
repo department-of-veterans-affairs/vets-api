@@ -5,18 +5,6 @@ require 'rails_helper'
 describe Vet360::Models::Address do
   let(:address) { build(:vet360_address) }
 
-  describe '#address_validation_req' do
-    it 'formats the address for an address validation request' do
-      expect(address.address_validation_req).to eq(
-        requestAddress: { 'addressLine1' => '140 Rock Creek Rd',
-                          'city' => 'Washington',
-                          :requestCountry => { countryCode: 'USA' },
-                          :stateProvince => { code: 'DC' },
-                          :zipCode5 => '20011' }
-      )
-    end
-  end
-
   describe '#zip_plus_four' do
     context 'with no zipcode' do
       it 'returns nil' do
