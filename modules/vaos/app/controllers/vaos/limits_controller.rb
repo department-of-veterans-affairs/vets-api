@@ -3,7 +3,7 @@
 require_dependency 'vaos/application_controller'
 
 module VAOS
-  class LimitsController < ApplicationController
+  class LimitsController < VAOS::BaseController
     def index
       response = systems_service.get_facility_limits(
         facility_id,
