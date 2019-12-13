@@ -47,7 +47,7 @@ http_interactions:
                   - '72'
           body:
               encoding: UTF-8
-              string: '{"txAuditId":"99867846-45fb-416c-8bed-4ff2a1466058","status":"RECEIVED"}'
+              string: '{"txAuditId":"b1b06a34-c6a8-412e-82e7-df09d84862f3","status":"RECEIVED"}'
           http_version:
       recorded_at: Fri, 13 Dec 2019 19:48:56 GMT
 recorded_with: VCR 3.0.3
