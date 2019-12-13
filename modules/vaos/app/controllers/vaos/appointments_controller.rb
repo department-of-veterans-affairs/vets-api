@@ -1,9 +1,7 @@
 # frozen_string_literal: true
 
-require_dependency 'vaos/application_controller'
-
 module VAOS
-  class AppointmentsController < ApplicationController
+  class AppointmentsController < VAOS::BaseController
     before_action :validate_params, only: :index
 
     def index
