@@ -59,7 +59,6 @@ module Swagger
             property :receipt_date do
               key :type, :string
               key :format, :date
-              key :nullable, true
             end
             property :informal_conference, type: :boolean
             property :same_office, type: :boolean
@@ -103,7 +102,6 @@ module Swagger
             property :due_date do
               key :type, :string
               key :format, :date
-              key :nullable, true
             end
           end
         end
@@ -122,7 +120,7 @@ module Swagger
             property :type, type: :string, enum: %w[Claimant]
           end
         end
-        %i[requestIssues decisionIssues].each do |prop|
+        %i[request_issues decision_issues].each do |prop|
           property prop, type: :object do
             property :data, type: :array do
               items do
@@ -157,31 +155,28 @@ module Swagger
         key :type, :array
         items do
           property :anyOf do
-            property :optionOne do
+            property :option_one do
               key :type, :object
               property :type, type: :string, enum: %w[DecisionIssue]
               property :id, type: :integer
               property :attributes, type: :object do
-                property :approxDecisionDate, type: :string, format: :date
-                property :decisionText, type: :string
+                property :approx_decision_date, type: :string, format: :date
+                property :decision_text, type: :string
                 property :description, type: :string
                 property :disposition, type: :string
                 property :finalized, type: :boolean
               end
             end
-            property :optionTwo do
+            property :option_two do
               key :type, :object
               property :type, type: :string, enum: %w[RequestIssue]
               property :id, type: :integer
               property :attributes, type: :object do
                 property :active, type: :boolean
-                property :statusDescription, type: :string
-                property :diagnosticCode, type: :string
-                property :ratingIssueId, type: :string
-                property :ratingIssueProfileDate, type: :string do
-                  key :format, :date
-                  key :nullable, true
-                end
+                property :status_description, type: :string
+                property :diagnostic_code, type: :string
+                property :rating_issue_id, type: :string
+                property :rating_issue_profile_date, type: :string, format: :date
                 property :rating_decision_reference_id, type: :string
                 property :description, type: :string
                 property :contention_text, type: :string
@@ -199,7 +194,6 @@ module Swagger
                 property :decision_issue_id, type: :integer
                 property :withdrawal_date, type: :string do
                   key :format, :date
-                  key :nullable, true
                 end
                 property :contested_issue_description, type: :string
                 property :end_product_cleared, type: :boolean
