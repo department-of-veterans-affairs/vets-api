@@ -20,9 +20,7 @@ module VAOS
       as
     end
 
-
     def get_eligibility(service_type)
-
       with_monitoring do
         response = perform(:get, url(service_type), nil, headers(user))
         {
@@ -32,12 +30,10 @@ module VAOS
       end
     end
 
-
     private
 
     def url(service_type)
-        "/cce/v1/patients/#{user.icn}/eligibility/#{service_type}"
+      "/cce/v1/patients/#{user.icn}/eligibility/#{service_type}"
     end
-
   end
 end
