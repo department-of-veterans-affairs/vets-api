@@ -1,9 +1,7 @@
 # frozen_string_literal: true
 
-require_dependency 'vaos/application_controller'
-
 module VAOS
-  class AvailableAppointmentsController < ApplicationController
+  class AvailableAppointmentsController < VAOS::BaseController
     def index
       response = systems_service.get_facility_available_appointments(
         facility_id, start_date, end_date, clinic_ids
