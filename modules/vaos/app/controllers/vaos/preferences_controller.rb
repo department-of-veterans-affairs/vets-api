@@ -9,10 +9,20 @@ module VAOS
       render json: VAOS::PreferencesSerializer.new(response)
     end
 
+    def update
+      response = appointment_requests_service.put_request(id, put_params)
+      render json: AppointmentRequestsSerializer.new(response[:data])
+    end
+
     private
 
     def preferences_service
       VAOS::PreferencesService.new
+    end
+
+    def put_params
+      params.require()
+      params.permit()
     end
   end
 end

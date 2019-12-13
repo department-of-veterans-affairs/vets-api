@@ -20,4 +20,29 @@ describe VAOS::PreferencesService do
       end
     end
   end
+
+  describe '#put_preferences' do
+    context 'with valid params' do
+        it 'updates preferences', :skip_mvi do
+          VCR.use_cassette('vaos/preferences/put_preference', record: :new_episodes) do
+            put "/v0/vaos/preferences", params: request_body
+
+            expect(response).to have_http_status(:success)
+            expect(response.body).to be_a(String)
+            expect(json_body_for(response)).to match_schema('vaos/put_preference')
+          end
+        end
+      end
+
+      context 'with invalid params' do
+        it 'returns a validation error', :skip_mvi do
+          put "/v0/vaos/preferences", params: request_body
+
+          expect(response).to have_http_status(:unprocessable_entity)
+          expect(response.body).to be_a(String)
+          expect(JSON.parse(response.body)['errors'].first['detail'])
+            .to eq('')
+        end
+      end
+  end
 end
