@@ -20,7 +20,7 @@ RSpec.describe 'Claim Appeals API endpoint', type: :request do
       it 'returns an intake status object' do
         VCR.use_cassette('decision_review/202_intake_status') do
           post hlr_endpoint
-          expect(response).to have_http_status(202)
+          expect(response).to have_http_status(:accepted)
           expect(response).to match_response_schema('intake_status')
         end
       end
@@ -30,7 +30,7 @@ RSpec.describe 'Claim Appeals API endpoint', type: :request do
       it 'returns a 400 error' do
         VCR.use_cassette('decision_review/400_intake_status') do
           post hlr_endpoint
-          expect(response).to have_http_status(400)
+          expect(response).to have_http_status(:bad_request)
         end
       end
     end
@@ -39,7 +39,7 @@ RSpec.describe 'Claim Appeals API endpoint', type: :request do
       it 'returns a 404 error' do
         VCR.use_cassette('decision_review/404_intake_status') do
           post hlr_endpoint
-          expect(response).to have_http_status(404)
+          expect(response).to have_http_status(:not_found)
         end
       end
     end
@@ -48,7 +48,7 @@ RSpec.describe 'Claim Appeals API endpoint', type: :request do
       it 'returns a 403 error' do
         VCR.use_cassette('decision_review/403_intake_status') do
           post hlr_endpoint
-          expect(response).to have_http_status(403)
+          expect(response).to have_http_status(:forbidden)
         end
       end
     end
@@ -56,10 +56,10 @@ RSpec.describe 'Claim Appeals API endpoint', type: :request do
 
   describe 'GET /intake_statuses' do
     context 'with a valid decision review response' do
-      it 'returns an intake status response object'do
+      it 'returns an intake status response object' do
         VCR.use_cassette('decision_review/200_intake_status') do
           get "#{intake_endpoint}/1234567890"
-          expect(response).to have_http_status(200)
+          expect(response).to have_http_status(:ok)
           expect(response).to match_response_schema('intake_status')
         end
       end
@@ -69,18 +69,18 @@ RSpec.describe 'Claim Appeals API endpoint', type: :request do
       it 'returns a 404 error' do
         VCR.use_cassette('decision_review/404_get_intake_status') do
           post hlr_endpoint
-          expect(response).to have_http_status(404)
+          expect(response).to have_http_status(:not_found)
         end
       end
     end
   end
-  
+
   describe 'GET /higher_level_reviews' do
     context 'with a valid higher review response' do
       it 'higher level review endpoint returns a successful response' do
         VCR.use_cassette('decision_review/200_review') do
           get "#{hlr_endpoint}/4bc96bee-c6a3-470e-b222-66a47629dc20"
-          expect(response).to have_http_status(200)
+          expect(response).to have_http_status(:ok)
           expect(response).to match_response_schema('higher_level_review')
         end
       end
@@ -90,7 +90,7 @@ RSpec.describe 'Claim Appeals API endpoint', type: :request do
       it 'returns a 404 error' do
         VCR.use_cassette('decision_review/404_review') do
           get "#{hlr_endpoint}/1234"
-          expect(response).to have_http_status(404)
+          expect(response).to have_http_status(:not_found)
         end
       end
     end
