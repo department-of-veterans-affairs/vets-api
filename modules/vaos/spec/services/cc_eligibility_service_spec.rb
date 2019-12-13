@@ -12,16 +12,18 @@ describe VAOS::CCEligibilityService do
 
   describe '#get_eligibility', :skip_mvi do
     it 'gets an eligibility of true' do
-      VCR.use_cassette('vaos/cc_eligibility/get_eligibility', record: :new_episodes do
+      VCR.use_cassette('vaos/cc_eligibility/get_eligibility_true', record: :new_episodes) do
         response = subject.get_eligibility(service_type)
+	binding.pry
         # expect(response[:data].size).to eq(1)
       end
     end
 
     it 'gets an eligibility of false' do
       # diff user 
-      VCR.use_cassette('vaos/cc_eligibility/get_eligibility', record: :new_episodes do
+      VCR.use_cassette('vaos/cc_eligibility/get_eligibility_false', record: :new_episodes) do
         response = subject.get_eligibility(service_type)
+	binding.pry
         # expect(response[:data].size).to eq(1)
       end
     end
@@ -29,7 +31,7 @@ describe VAOS::CCEligibilityService do
     context 'invalid service_type' do
       let(:service_type) { 'NotAType' }
       it 'handles 400 error appropriately' do
-        VCR.use_cassette('vaos/cc_eligibility/get_eligibility_400', record: :new_episodes do
+        VCR.use_cassette('vaos/cc_eligibility/get_eligibility_400', record: :new_episodes) do
           expect { subject.get_eligibility(service_type) }.to raise_error(
             Common::Exceptions::BackendServiceException
           )
