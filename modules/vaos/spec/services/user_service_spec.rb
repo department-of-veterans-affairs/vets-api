@@ -1,12 +1,13 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require_relative '../support/fixture_helper'
 
 describe VAOS::UserService do
   let(:user) { build(:user, :mhv) }
 
   describe '#session' do
-    let(:rsa_private) { OpenSSL::PKey::RSA.generate 4096 }
+    let(:rsa_private) { OpenSSL::PKey::RSA.new(read_fixture_file('open_ssl_rsa_private.pem')) }
     let(:token) { 'abc123' }
     let(:response) { double('response', body: token) }
 
