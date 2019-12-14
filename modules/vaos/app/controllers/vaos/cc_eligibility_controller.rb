@@ -1,9 +1,7 @@
 # frozen_string_literal: true
 
-require_dependency 'vaos/application_controller'
-
 module VAOS
-  class CCEligibilityController < ApplicationController
+  class CCEligibilityController < VAOS::BaseController
     def show
       response = cce_service.get_eligibility(params[:service_type])
       render json: VAOS::CCEligibilitySerializer.new(response[:data], meta: response[:meta])
