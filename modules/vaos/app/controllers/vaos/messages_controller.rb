@@ -1,9 +1,7 @@
 # frozen_string_literal: true
 
-require_dependency 'vaos/application_controller'
-
 module VAOS
-  class MessagesController < ApplicationController
+  class MessagesController < VAOS::BaseController
     def index
       render json: MessagesSerializer.new(messages[:data], meta: messages[:meta])
     end
