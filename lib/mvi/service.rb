@@ -33,6 +33,34 @@ module MVI
     STATSD_KEY_PREFIX = 'api.mvi' unless const_defined?(:STATSD_KEY_PREFIX)
     SERVER_ERROR = 'server_error'
 
+    # rubocop:disable Metrics/MethodLength
+    def add_person(user_identity)
+      with_monitoring do
+        measure_info(user_identity) do
+          raw_response = perform(
+            :post, '',
+            create_add_message(user_identity),
+            soapaction: OPERATIONS[:add_person]
+          )
+          MVI::Responses::AddPersonResponse.with_parsed_response(raw_response)
+        end
+      end
+    rescue Breakers::OutageException => e
+      Raven.extra_context(breakers_error_message: e.message)
+      log_console_and_sentry('MVI add_person connection failed.', :warn)
+      mvi_add_exception_response_for('MVI_503', e)
+    rescue Faraday::ConnectionFailed => e
+      log_console_and_sentry("MVI add_person connection failed: #{e.message}", :warn)
+      mvi_add_exception_response_for('MVI_504', e)
+    rescue Common::Client::Errors::ClientError, Common::Exceptions::GatewayTimeout => e
+      log_console_and_sentry("MVI add_person error: #{e.message}", :warn)
+      mvi_add_exception_response_for('MVI_504', e)
+    rescue MVI::Errors::Base => e
+      mvi_error_handler(user_identity, e)
+      mvi_add_exception_response_for('MVI_502', e)
+    end
+    # rubocop:enable Metrics/MethodLength
+
     # Given a user queries MVI and returns their VA profile.
     #
     # @param user [UserIdentity] the user to query MVI for
@@ -78,6 +106,12 @@ module MVI
 
     def measure_info(user_identity)
       Rails.logger.measure_info('Performed MVI Query', payload: logging_context(user_identity)) { yield }
+    end
+
+    def mvi_add_exception_response_for(key, error)
+      exception = build_exception(key, error)
+
+      MVI::Responses::AddPersonResponse.with_server_error(exception)
     end
 
     def mvi_profile_exception_response_for(key, error, type: SERVER_ERROR)
@@ -127,6 +161,12 @@ module MVI
         uuid: user_identity.uuid,
         authn_context: user_identity.authn_context
       }
+    end
+
+    def create_add_message(user)
+      raise Common::Exceptions::ValidationErrors, user unless user.valid?
+
+      MVI::Messages::AddPersonMessage.new(user).to_xml if user.icn_with_aaid.present?
     end
 
     # rubocop:disable Metrics/LineLength

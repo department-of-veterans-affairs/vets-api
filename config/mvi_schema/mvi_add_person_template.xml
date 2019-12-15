@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<env:Envelope xmlns:env="http://schemas.xmlsoap.org/soap/envelope/" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <env:Header />
+  <env:Body>
+    <idm:PRPA_IN201301UV02 xmlns="urn:hl7-org:v3" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:ps="http://vaww.oed.oit.va.gov" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" ITSVersion="XML_1.0" xsi:schemaLocation="urn:hl7-org:v3 ../../schema/HL7V3/NE2008/multicacheschemas/PRPA_IN201301UV02.xsd">
+      <id extension="{{ msg_id }}" root="22a0f9e0-4454-11dc-a6be-3603d6866807"></id>
+      <creationTime value="{{ date_of_request }}"></creationTime>
+      <versionCode code="4.1"></versionCode>
+      <interactionId extension="PRPA_IN201301UV02" root="2.16.840.1.113883.1.6"></interactionId>
+      <processingCode code="{{ processing_code }}"></processingCode>
+      <processingModeCode code="T"></processingModeCode>
+      <acceptAckCode code="AL"></acceptAckCode>
+      <receiver typeCode="RCV">
+        <device determinerCode="INSTANCE" classCode="DEV">
+          <id root="2.16.840.1.113883.4.349"></id>
+        </device>
+      </receiver>
+      <sender typeCode="SND">
+        <device determinerCode="INSTANCE" classCode="DEV">
+          <id extension="200VGOV" root="2.16.840.1.113883.4.349"> "/></id>
+        </device>
+      </sender>
+      <attentionLine>
+        <keyWordText>Search.Token</keyWordText>
+        <value>{{ search_token }}</value>
+      </attentionLine>
+      <controlActProcess classCode="CACT" moodCode="EVN">
+        <dataEnterer contextControlCode="AP" typeCode="ENT">
+          <assignedPerson classCode="ASSIGNED">
+            <id extension="{{ user_identity }}" root="2.16.840.1.113883.4.349"></id>
+            <assignedPerson determinerCode="INSTANCE" classCode="PSN">
+              <name>
+                <given>{{ first_name }}</given>
+                <family>{{ last_name }}</family>
+              </name>
+            </assignedPerson>
+            <representedOrganization determinerCode="INSTANCE" classCode="ORG">
+              <id extension="dslogon.{{ edipi }}" root="2.16.840.1.113883.4.349">
+              </id>
+              <code code="{{ current_datetime }}">
+              </code>
+              <desc>vagov</desc>
+              <telecom value="{{ ip_address }}">
+              </telecom>
+            </representedOrganization>
+          </assignedPerson>
+        </dataEnterer>
+        <subject typeCode="SUBJ">
+          <registrationEvent classCode="REG" moodCode="EVN">
+            <id nullFlavor="NA"></id>
+            <statusCode code="active"></statusCode>
+            <subject1 typeCode="SBJ">
+              <patient classCode="PAT">
+                <id extension="{{ user_identity }}" root="2.16.840.1.113883.4.349"></id>
+                <statusCode code="active"></statusCode>
+                <patientPerson>
+                  <name use="L">
+                    <given>{{ first_name}}</given>
+                    <family>{{ last_name }}</family>
+                  </name>
+                  <birthTime value="{{ date_of_birth }}"></birthTime>
+                  <asOtherIDs classCode="SSN">
+                    <id extension="{{ ssn }}" root="2.16.840.1.113883.4.1"></id>
+                    <scopingOrganization determinerCode="INSTANCE" classCode="ORG">
+                      <id root="2.16.840.1.113883.4.1"></id>
+                    </scopingOrganization>
+                  </asOtherIDs>
+                  <asOtherIDs classCode="PAT">
+                    <id extension="PROXY_ADD^PI^200VBA^USVBA" root="2.16.840.1.113883.4.349"></id>
+                    <scopingOrganization determinerCode="INSTANCE" classCode="ORG">
+                      <id extension="VBA" root="2.16.840.1.113883.4.349"></id>
+                      <name>MVI.ORCHESTRATION</name>
+                    </scopingOrganization>
+                  </asOtherIDs>
+                </patientPerson>
+                <providerOrganization determinerCode="INSTANCE" classCode="ORG">
+                  <id root="2.16.840.1.113883.3.933"></id>
+                  <name>Good Health Clinic</name>
+                  <contactParty classCode="CON">
+                    <telecom value="3425558394"></telecom>
+                  </contactParty>
+                </providerOrganization>
+              </patient>
+            </subject1>
+            <custodian typeCode="CST">
+              <assignedEntity classCode="ASSIGNED">
+                <id root="2.16.840.1.113883.3.933">
+                </id>
+                <assignedOrganization determinerCode="INSTANCE" classCode="ORG">
+                  <name>Good Health Clinic</name>
+                </assignedOrganization>
+              </assignedEntity>
+            </custodian>
+          </registrationEvent>
+        </subject>
+      </controlActProcess>
+    </idm:PRPA_IN201301UV02>
+  </env:Body>
+</env:Envelope>

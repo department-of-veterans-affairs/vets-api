@@ -90,6 +90,7 @@ module MVI
       private
 
       # rubocop:disable MethodLength
+      # rubocop:disable Metrics/AbcSize
       def build_mvi_profile(patient)
         name = parse_name(get_patient_name(patient))
         full_mvi_ids = get_extensions(patient.locate('id'))
@@ -115,9 +116,11 @@ module MVI
           birls_id: sanitize_birls_id(parsed_mvi_ids[:birls_id]),
           vet360_id: parsed_mvi_ids[:vet360_id],
           historical_icns: MVI::Responses::HistoricalIcnParser.new(@original_body).get_icns,
-          icn_with_aaid: parsed_mvi_ids[:icn_with_aaid]
+          icn_with_aaid: parsed_mvi_ids[:icn_with_aaid],
+          search_token: locate_element(@original_body, 'id').attributes[:extension]
         )
       end
+      # rubocop:enable Metrics/AbcSize
       # rubocop:enable MethodLength
 
       def get_extensions(id_array)

@@ -27,6 +27,7 @@ module MVI
       attribute :sec_id, String
       attribute :vet360_id, String
       attribute :historical_icns, Array[String]
+      attribute :search_token, String
 
       def mhv_correlation_id
         @active_mhv_ids&.first
