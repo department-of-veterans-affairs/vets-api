@@ -85,6 +85,20 @@ module Swagger
             end
           end
 
+          response 401 do
+            key :description, 'User is not authenticated (logged in)'
+            schema do
+              key :'$ref', :Errors
+            end
+          end
+
+          response 403 do
+            key :description, 'Forbidden: user is not authorized for higher_level_reviews'
+            schema do
+              key :'$ref', :Errors
+            end
+          end
+
           response 404 do
             key :description, 'ID not found'
             schema do

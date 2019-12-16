@@ -9,51 +9,6 @@ RSpec.describe 'Claim Appeals API endpoint', type: :request do
   hlr_endpoint = "#{appeals_endpoint}/higher_level_reviews"
   intake_endpoint = "#{appeals_endpoint}/intake_statuses"
 
-  describe 'POST /higher_level_reviews' do
-    let(:user) { FactoryBot.create(:user, :loa3, ssn: '700062010') }
-
-    before do
-      sign_in_as(user)
-    end
-
-    context 'with a valid decision review request' do
-      it 'returns an intake status object' do
-        VCR.use_cassette('decision_review/202_intake_status') do
-          post hlr_endpoint
-          expect(response).to have_http_status(:accepted)
-          expect(response).to match_response_schema('intake_status')
-        end
-      end
-    end
-
-    context 'with a malformed review request' do
-      it 'returns a 400 error' do
-        VCR.use_cassette('decision_review/400_intake_status') do
-          post hlr_endpoint
-          expect(response).to have_http_status(:bad_request)
-        end
-      end
-    end
-
-    context 'with a nonexistent veteran request' do
-      it 'returns a 404 error' do
-        VCR.use_cassette('decision_review/404_intake_status') do
-          post hlr_endpoint
-          expect(response).to have_http_status(:not_found)
-        end
-      end
-    end
-
-    context 'with a forbidden request' do
-      it 'returns a 403 error' do
-        VCR.use_cassette('decision_review/403_intake_status') do
-          post hlr_endpoint
-          expect(response).to have_http_status(:forbidden)
-        end
-      end
-    end
-  end
-
   describe 'GET /intake_statuses' do
     context 'with a valid decision review response' do
       it 'returns an intake status response object' do
@@ -81,7 +36,7 @@ RSpec.describe 'Claim Appeals API endpoint', type: :request do
         VCR.use_cassette('decision_review/200_review') do
           get "#{hlr_endpoint}/4bc96bee-c6a3-470e-b222-66a47629dc20"
           expect(response).to have_http_status(:ok)
-          expect(response).to match_response_schema('higher_level_review')
+          expect(response).to match_response_schema('review')
         end
       end
     end
