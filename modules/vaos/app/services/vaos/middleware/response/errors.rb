@@ -30,7 +30,12 @@ module VAOS
         end
 
         def parse_error(body)
-          JSON.parse(body)['errors'].first['errorMessage']
+          parsed = JSON.parse(body)
+          if parsed['errors']
+            parsed['errors'].first['errorMessage']
+          else
+            parsed['message']
+          end
         rescue
           body
         end
