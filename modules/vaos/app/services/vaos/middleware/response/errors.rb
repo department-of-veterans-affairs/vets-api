@@ -24,9 +24,15 @@ module VAOS
           raise Common::Exceptions::BackendServiceException.new(
             'VAOS_400',
             title: 'Bad Request',
-            detail: body,
+            detail: parse_error(body),
             source: self.class
           )
+        end
+
+        def parse_error(body)
+          JSON.parse(body)['errors'].first['errorMessage']
+        rescue
+          body
         end
       end
     end
