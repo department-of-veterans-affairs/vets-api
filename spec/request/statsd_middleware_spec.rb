@@ -75,4 +75,21 @@ RSpec.describe StatsdMiddleware, type: :request do
       get '/v0/blahblah'
     end.to trigger_statsd_measure(StatsdMiddleware::DURATION_KEY, tags: tags, times: 1, value: 0.0)
   end
+
+  it 'sends source_app to statsd' do
+    stub_varx_request(:get, 'mhv-api/patient/v1/prescription/gethistoryrx', history_rxs, status_code: 200)
+    tags = %w[controller:v0/prescriptions action:index source_app:account status:200]
+    expect do
+      get '/v0/prescriptions', headers: { 'Source-App-Name' => 'account' }
+    end.to trigger_statsd_increment(StatsdMiddleware::STATUS_KEY, tags: tags, times: 1)
+  end
+
+  it 'ignores source_app_name when the value is not in white list' do
+    stub_varx_request(:get, 'mhv-api/patient/v1/prescription/gethistoryrx', history_rxs, status_code: 200)
+    tags = %w[controller:v0/prescriptions action:index status:200]
+    expect do
+      get '/v0/prescriptions', headers: { 'Source-App-Name' => 'foo' }
+    end.to trigger_statsd_increment(StatsdMiddleware::STATUS_KEY, tags: tags, times: 1)
+  end
+
 end
