@@ -31,7 +31,6 @@ module VAOS
 
         def parse_error(body)
           parsed = JSON.parse(body)
-          binding.pry
           if parsed['errors']
             parsed['errors'].first['errorMessage']
           else
