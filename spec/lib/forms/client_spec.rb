@@ -3,8 +3,9 @@
 require 'rails_helper'
 
 describe Forms::Client do
-  let(:search_term) { nil }
   subject { described_class.new(search_term) }
+
+  let(:search_term) { nil }
 
   describe '#get_all' do
     context 'with no query' do
