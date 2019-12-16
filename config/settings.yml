@@ -455,6 +455,13 @@ va_mobile:
   key_path: /fake/client/key/path
   timeout: 15
 
+lighthouse:
+  api_key: fake_key
+
+forms:
+  url: https://dev-api.va.gov/services/va_forms/v0/
+  mock: false
+
 vbms:
   url: "https://internal-dsva-vagov-dev-fwdproxy-1893365470.us-gov-west-1.elb.amazonaws.com:4449"
   saml: "vetsapi.client.vbms.aide.oit.va.gov.saml-token.xml"
