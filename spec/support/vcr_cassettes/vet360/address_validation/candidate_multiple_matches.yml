@@ -5,7 +5,7 @@ http_interactions:
     uri: https://dev-api.va.gov/services/address_validation/v1/candidate
     body:
       encoding: UTF-8
-      string: '{"requestAddress":{"addressLine1":"37 1st st","city":"Brooklyn","requestCountry":{"countryCode":"USA"},"stateProvince":{"code":"NY"},"zipCode5":"11249"}}'
+      string: '{"requestAddress":{"addressLine1":"37 1st st","city":"Brooklyn","requestCountry":{"countryCode":"USA"},"addressPOU":"RESIDENCE/CHOICE","stateProvince":{"code":"NY"},"zipCode5":"11249"}}'
     headers:
       Accept:
       - application/json
@@ -25,7 +25,7 @@ http_interactions:
       message: ''
     headers:
       Date:
-      - Mon, 14 Oct 2019 11:21:44 GMT
+      - Thu, 05 Dec 2019 15:59:36 GMT
       Content-Type:
       - application/json;charset=UTF-8
       Transfer-Encoding:
@@ -42,7 +42,7 @@ http_interactions:
       - no-cache
       - no-cache
       Vet360txauditid:
-      - 31ec5677-2c21-4ac5-9828-b0eb94aff75f
+      - 28d50c1d-c3a0-4461-8b04-0dc9e59b2ed7
       Via:
       - kong/1.2.2
       X-Content-Type-Options:
@@ -52,7 +52,7 @@ http_interactions:
       X-Kong-Proxy-Latency:
       - '1'
       X-Kong-Upstream-Latency:
-      - '129'
+      - '181'
       X-Ratelimit-Limit-Edge-Gateway-Address-Validation-Vagovli-Address-V1-Candidate-Address:
       - '500'
       X-Ratelimit-Limit-Minute:
@@ -78,10 +78,10 @@ http_interactions:
     body:
       encoding: ASCII-8BIT
       string: '{"candidateAddresses":[{"address":{"county":{"name":"Kings","countyFipsCode":"36047"},"stateProvince":{"name":"New
-        York","code":"NY"},"country":{"name":"USA","code":"USA","fipsCode":"US","iso2Code":"US","iso3Code":"USA"},"addressLine1":"37
-        N 1st St","city":"Brooklyn","zipCode5":"11249","zipCode4":"3939"},"geocode":{"calcDate":"2019-10-14T11:21:44+00:00","locationPrecision":31.0,"latitude":40.717018,"longitude":-73.964935},"addressMetaData":{"confidenceScore":100.0,"addressType":"Domestic","deliveryPointValidation":"UNDELIVERABLE","validationKey":-1384531381}},{"address":{"county":{"name":"Kings","countyFipsCode":"36047"},"stateProvince":{"name":"New
-        York","code":"NY"},"country":{"name":"USA","code":"USA","fipsCode":"US","iso2Code":"US","iso3Code":"USA"},"addressLine1":"37
-        S 1st St","city":"Brooklyn","zipCode5":"11249","zipCode4":"4101"},"geocode":{"calcDate":"2019-10-14T11:21:44+00:00","locationPrecision":31.0,"latitude":40.715383,"longitude":-73.965421},"addressMetaData":{"confidenceScore":100.0,"addressType":"Domestic","deliveryPointValidation":"CONFIRMED","residentialDeliveryIndicator":"MIXED","validationKey":2017396678}}]}'
+        York","code":"NY"},"country":{"name":"United States","code":"USA","fipsCode":"US","iso2Code":"US","iso3Code":"USA"},"addressLine1":"37
+        N 1st St","city":"Brooklyn","zipCode5":"11249","zipCode4":"3939"},"geocode":{"calcDate":"2019-12-05T15:59:36+00:00","locationPrecision":31.0,"latitude":40.717029,"longitude":-73.964956},"addressMetaData":{"confidenceScore":100.0,"addressType":"Domestic","deliveryPointValidation":"UNDELIVERABLE","validationKey":-646932106}},{"address":{"county":{"name":"Kings","countyFipsCode":"36047"},"stateProvince":{"name":"New
+        York","code":"NY"},"country":{"name":"United States","code":"USA","fipsCode":"US","iso2Code":"US","iso3Code":"USA"},"addressLine1":"37
+        S 1st St","city":"Brooklyn","zipCode5":"11249","zipCode4":"4101"},"geocode":{"calcDate":"2019-12-05T15:59:36+00:00","locationPrecision":31.0,"latitude":40.715367,"longitude":-73.965369},"addressMetaData":{"confidenceScore":100.0,"addressType":"Domestic","deliveryPointValidation":"CONFIRMED","residentialDeliveryIndicator":"MIXED","validationKey":-646932106}}]}'
     http_version: 
-  recorded_at: Mon, 14 Oct 2019 11:21:44 GMT
+  recorded_at: Thu, 05 Dec 2019 15:59:37 GMT
 recorded_with: VCR 3.0.3

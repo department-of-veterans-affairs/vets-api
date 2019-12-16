@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module VAOS
-  class VisitsController < ApplicationController
+  class VisitsController < VAOS::BaseController
     SCHEDULE_TYPES = %w[direct request].freeze
 
     def index
