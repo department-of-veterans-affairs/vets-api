@@ -235,6 +235,8 @@ Rails.application.routes.draw do
 
     resources :search, only: :index
 
+    get 'forms', to: 'forms#index'
+
     get 'profile/mailing_address', to: 'addresses#show'
     put 'profile/mailing_address', to: 'addresses#update'
 
