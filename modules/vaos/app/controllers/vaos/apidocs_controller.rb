@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module VAOS
-  class ApidocsController < ApplicationController
+  class ApidocsController < VAOS::BaseController
     include Swagger::Blocks
     skip_before_action :authenticate
 
