@@ -91,5 +91,4 @@ RSpec.describe StatsdMiddleware, type: :request do
       get '/v0/prescriptions', headers: { 'Source-App-Name' => 'foo' }
     end.to trigger_statsd_increment(StatsdMiddleware::STATUS_KEY, tags: tags, times: 1)
   end
-
 end
