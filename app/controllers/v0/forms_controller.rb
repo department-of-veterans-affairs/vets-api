@@ -7,17 +7,9 @@ module V0
     skip_before_action :authenticate
 
     def index
-      response = Forms::Client.new(query).get_all
+      response = Forms::Client.new(params[:query]).get_all
       render json: response.body,
              status: response.status
-    end
-
-    def query_params
-      params.permit(:query)
-    end
-
-    def query
-      sanitize query_params['query']
     end
   end
 end
