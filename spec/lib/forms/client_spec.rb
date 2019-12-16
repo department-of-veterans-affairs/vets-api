@@ -16,7 +16,7 @@ describe Forms::Client do
     end
 
     context 'with a query' do
-      let(:query) { 'health' }
+      let(:search_term) { 'health' }
 
       it 'returns a form response object' do
         VCR.use_cassette('forms/200_form_query') do
