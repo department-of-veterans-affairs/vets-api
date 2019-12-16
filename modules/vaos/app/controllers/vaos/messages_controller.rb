@@ -23,7 +23,7 @@ module VAOS
     end
 
     def messages
-      @messages ||= messages_service.get_messages(params[:appointment_request_id])
+      @messages ||= messages_service.get_messages(appointment_request_id)
     end
 
     def messages_service

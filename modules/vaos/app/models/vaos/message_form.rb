@@ -20,7 +20,7 @@ module VAOS
       @appointment_request_id = request_id
     end
 
-    # HACK: addresses the fact that downstream requires this as AppointmentRequestId (upper camelcase)
+    # DOWNSTREAM_BUG: addresses the fact that downstream requires this as AppointmentRequestId (upper camelcase)
     def _appointment_request_id
       appointment_request_id
     end
@@ -47,7 +47,6 @@ module VAOS
     end
     # rubocop:enable Naming/PredicateName
 
-    # validates :appointment_request_id, presence: true
     validates :message_text, length: { minimum: 1, maximum: 100 }
 
     def params
