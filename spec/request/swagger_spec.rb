@@ -1379,7 +1379,7 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
       it 'documents higher_level_reviews 200' do
         VCR.use_cassette('decision_review/200_review') do
           expect(subject).to validate(:get, '/v0/appeals/higher_level_reviews/{uuid}', 200, headers)
-        end 
+        end
       end
 
       it 'documents higher_level_reviews 404' do
@@ -1402,7 +1402,7 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
       it 'documents intake_statuses 200' do
         VCR.use_cassette('decision_review/200_intake_status') do
           expect(subject).to validate(:get, '/v0/appeals/intake_statuses/{intake_id}', 200, headers)
-        end 
+        end
       end
 
       it 'documents intake_statuses 303' do
