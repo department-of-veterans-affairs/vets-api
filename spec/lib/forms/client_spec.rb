@@ -5,12 +5,8 @@ require 'rails_helper'
 describe Forms::Client do
   subject { described_class.new(query) }
 
-  let(:query) { nil }
-
   describe '#get_all' do
     context 'with no query' do
-      let(:query) { nil }
-
       it 'returns a form response object' do
         VCR.use_cassette('forms/200_all_forms') do
           response = subject.get_all
