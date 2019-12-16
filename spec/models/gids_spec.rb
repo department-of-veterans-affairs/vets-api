@@ -10,7 +10,7 @@ describe Gids do
   let(:status) { 200 }
   let(:body) { {} }
   let(:gi_response) do
-    GI::Responses::GiResponse.new(status: status, body: body)
+    GI::Responses::GidsResponse.new(status: status, body: body)
   end
 
   describe 'for_controller' do

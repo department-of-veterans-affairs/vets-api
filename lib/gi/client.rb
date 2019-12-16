@@ -47,7 +47,7 @@ module GI
     private
 
     def gi_response(response)
-      GI::Responses::GiResponse.with_body(response)
+      GI::Responses::GidsResponse.with_body(response)
     end
   end
 end
