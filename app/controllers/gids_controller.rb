@@ -1,12 +1,14 @@
 # frozen_string_literal: true
 
+require 'gids_redis/Gids'
+
 class GidsController < ApplicationController
   skip_before_action :authenticate
 
   private
 
   def client(rest_call, scrubbed_params)
-    Gi.for_controller(rest_call, scrubbed_params)
+    Gids.for_controller(rest_call, scrubbed_params)
   end
 
   def gi_response_body(rest_call, scrubbed_params)

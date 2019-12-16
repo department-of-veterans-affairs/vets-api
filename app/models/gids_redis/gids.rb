@@ -4,7 +4,7 @@ require 'common/models/redis_store'
 require 'common/models/concerns/cache_aside'
 
 # Facade for GI.
-class Gi < Common::RedisStore
+class Gids < Common::RedisStore
   include Common::CacheAside
 
   REDIS_CONFIG_KEY = :gi_response
@@ -16,9 +16,9 @@ class Gi < Common::RedisStore
   #
   # @param rest_call [Symbol] the GI::Client method to call
   # @param scrubbed_params [Hash] the params to be used with the rest_call
-  # @return [Gi] an instance of this class
+  # @return [Gids] an instance of this class
   def self.for_controller(rest_call, scrubbed_params)
-    gi = Gi.new
+    gi = Gids.new
     gi.rest_call = rest_call
     gi.scrubbed_params = scrubbed_params
     gi

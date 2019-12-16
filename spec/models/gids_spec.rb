@@ -3,10 +3,10 @@
 require 'rails_helper'
 require 'common/exceptions'
 
-describe Gi do
+describe Gids do
   let(:rest_call) { :get_institution_details }
   let(:scrubbed_params) { {} }
-  let(:gi) { Gi.for_controller(rest_call, scrubbed_params) }
+  let(:gi) { Gids.for_controller(rest_call, scrubbed_params) }
   let(:status) { 200 }
   let(:body) { {} }
   let(:gi_response) do
