@@ -77,20 +77,24 @@ class StatsdMiddleware
     if path_parameters
       controller = path_parameters[:controller]
       action = path_parameters[:action]
-
-      duration_tags = ["controller:#{controller}", "action:#{action}"]
-
       source_app = env['HTTP_SOURCE_APP_NAME']
-      duration_tags.push("source_app:#{source_app}") if SOURCE_APP_NAMES.include?(source_app)
 
-      status_tags = duration_tags + ["status:#{status}"]
-
-      # rubocop:disable Style/RescueModifier
-      StatsD.increment(STATUS_KEY, tags: status_tags) rescue nil
-      StatsD.measure(DURATION_KEY, duration, tags: duration_tags) rescue nil
+      instrument_statsd(status, duration, controller, action, source_app)
     end
 
-    # rubocop:enable Style/RescueModifier
     [status, headers, response]
+  end
+
+  private
+
+  def instrument_statsd(status, duration, controller, action, source_app)
+    duration_tags = ["controller:#{controller}", "action:#{action}"]
+    duration_tags.push("source_app:#{source_app}") if SOURCE_APP_NAMES.include?(source_app)
+
+    status_tags = duration_tags + ["status:#{status}"]
+
+    # rubocop:disable Style/RescueModifier
+    StatsD.increment(STATUS_KEY, tags: status_tags) rescue nil
+    StatsD.measure(DURATION_KEY, duration, tags: duration_tags) rescue nil
   end
 end
