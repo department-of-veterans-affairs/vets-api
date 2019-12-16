@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class GIController < ApplicationController
+class GidsController < ApplicationController
   skip_before_action :authenticate
 
   private

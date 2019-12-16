@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
 module V0
-  module GI
-    class InstitutionsController < GIController
+  module Gids
+    class InstitutionsController < GidsController
       def autocomplete
         render json: gi_response_body(:get_institution_autocomplete_suggestions, scrubbed_params)
       end
