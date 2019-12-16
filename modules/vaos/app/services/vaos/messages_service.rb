@@ -31,10 +31,31 @@ module VAOS
       end
     end
 
+    def post_message(request_id, request_object_body)
+      with_monitoring do
+        params = VAOS::MessageForm.new(user, request_id, request_object_body).params
+        response = perform(:post, messages_url(request_id), params, headers)
+
+        if response.status == 200
+          {
+            data: OpenStruct.new(response.body),
+            meta: {}
+          }
+        else
+          handle_error(response)
+        end
+      end
+    end
+
     private
 
+    def handle_error(response)
+      key = response.status == 204 ? 'VAOS_204' : nil
+      raise Common::Exceptions::BackendServiceException.new(key, {}, response.status, response.body)
+    end
+
     def deserialize(json_hash)
-      json_hash[:appointment_request_message].map { |request| OpenStruct.new(request) }
+      json_hash[:appointment_request_message].map { |message| OpenStruct.new(message) }
     rescue => e
       log_message_to_sentry(e.message, :warn, invalid_json: json_hash)
       []
