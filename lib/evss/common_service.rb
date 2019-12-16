@@ -9,7 +9,7 @@ module EVSS
 
     def initialize(*args)
       super
-      @use_mock = Settings.evss.mock_rating_info || false
+      @use_mock = Settings.evss.mock_common_service || false
     end
 
     def create_user_account

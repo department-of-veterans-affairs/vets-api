@@ -149,7 +149,7 @@ evss:
   mock_ppiu: true
   mock_itf: true
   mock_disabilities_form: true
-  mock_rating_info: false
+  mock_common_service: false
   mock_vso_search: false
   aws:
     url: http://fake.evss-reference-data-service.dev/v1
