@@ -3,7 +3,9 @@
 module Vet360
   module AddressValidation
     class AddressSuggestionsResponse
-      def initialize(candidate_res, validation_key)
+      def initialize(candidate_res)
+        validation_key = candidate_res['candidate_addresses'][0]['address_meta_data']['validation_key']
+
         @response = {
           addresses: candidate_res['candidate_addresses'].map do |address_suggestion_hash|
             {
