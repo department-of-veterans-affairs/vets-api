@@ -96,5 +96,6 @@ class StatsdMiddleware
     # rubocop:disable Style/RescueModifier
     StatsD.increment(STATUS_KEY, tags: status_tags) rescue nil
     StatsD.measure(DURATION_KEY, duration, tags: duration_tags) rescue nil
+    # rubocop:enable Style/RescueModifier
   end
 end
