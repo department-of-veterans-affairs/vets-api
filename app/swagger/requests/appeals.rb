@@ -62,8 +62,6 @@ module Swagger
 
       swagger_path '/services/appeals/v0/appeals/higher_level_reviews/{uuid}' do
         operation :get do
-          extend Swagger::Responses::AuthenticationError
-
           key :description, 'This endpoint returns the details of a specific Higher Level Review'
           key :operationId, 'showHigherLevelReview'
           key :tags, %w[higher_level_reviews]
@@ -103,8 +101,6 @@ module Swagger
 
       swagger_path '/services/appeals/v0/appeals/intake_statuses/{intake_id}' do
         operation :get do
-          extend Swagger::Responses::AuthenticationError
-
           key :tags, %w[intake_status]
           key :operationId, 'showIntakeStatus'
           key :description, 'After creating a Decision Review, you can use this endpoint to check its _intake status_'\
