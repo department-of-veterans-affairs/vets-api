@@ -1411,14 +1411,14 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
 
       it 'documents intake_statuses 404' do
         VCR.use_cassette('decision_review/404_get_intake_status') do
-          expect(subject).to validate(:get, '/services/appeals/v0/appeals/intake_statuses/{uuid}',
+          expect(subject).to validate(:get, '/services/appeals/v0/appeals/intake_statuses/{intake_id}',
                                       404, headers.merge('intake_id' => '1234'))
         end
       end
 
       it 'documents intake_statuses 500' do
         VCR.use_cassette('decision_review/500_intake_status') do
-          expect(subject).to validate(:get, '/services/appeals/v0/appeals/intake_statuses/{uuid}',
+          expect(subject).to validate(:get, '/services/appeals/v0/appeals/intake_statuses/{intake_id}',
                                       500, headers.merge('intake_id' => '1234'))
         end
       end
