@@ -10,33 +10,19 @@ class Gids < Common::RedisStore
   REDIS_CONFIG_KEY = :gi_response
   redis_config_key REDIS_CONFIG_KEY
 
+  # rest_call [Symbol] the GI::Client method to call
+  # scrubbed_params [Hash] the params to be used with the rest_call
   attr_accessor :rest_call, :scrubbed_params
-
-  # Creates a new Gi instance for a controller.
-  #
-  # @param rest_call [Symbol] the GI::Client method to call
-  # @param scrubbed_params [Hash] the params to be used with the rest_call
-  # @return [Gids] an instance of this class
-  def self.for_controller(rest_call, scrubbed_params)
-    gi = Gids.new
-    gi.rest_call = rest_call
-    gi.scrubbed_params = scrubbed_params
-    gi
-  end
-
-  # The status of the last GI response
-  #
-  # @return [String] the status of the last MVI response
-  delegate :status, to: :gi_response
-
-  # The body of the last GI response
-  #
-  # @return
-  delegate :body, to: :gi_response
 
   # @return the response returned from GI Client
   def gi_response
     @gi_response ||= response_from_redis_or_service
+  end
+
+  def method_missing(name, *args, &block)
+    self.rest_call = name
+    self.scrubbed_params = *args
+    gi_response.body
   end
 
   private

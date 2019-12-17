@@ -7,12 +7,8 @@ class GidsController < ApplicationController
 
   private
 
-  def client(rest_call, scrubbed_params)
-    Gids.for_controller(rest_call, scrubbed_params)
-  end
-
-  def gi_response_body(rest_call, scrubbed_params)
-    client(rest_call, scrubbed_params).body
+  def service
+    Gids.new
   end
 
   def scrubbed_params

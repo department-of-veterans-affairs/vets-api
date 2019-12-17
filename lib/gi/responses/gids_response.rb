@@ -18,7 +18,7 @@ module GI
       #
       # @param response returned from the rest call
       # @return [GI::Responses::GidsResponse]
-      def self.with_body(response)
+      def self.from(response)
         GidsResponse.new(status: response.status, body: response.body)
       end
 

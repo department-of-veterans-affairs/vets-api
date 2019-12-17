@@ -2,7 +2,7 @@
 
 require 'common/client/base'
 require 'gi/configuration'
-require 'gi/responses/gi_response'
+require 'gi/responses/gids_response'
 
 module GI
   # Core class responsible for api interface operations
@@ -47,7 +47,7 @@ module GI
     private
 
     def gi_response(response)
-      GI::Responses::GidsResponse.with_body(response)
+      GI::Responses::GidsResponse.from(response)
     end
   end
 end
