@@ -16,7 +16,7 @@ class StatsdMiddleware
   # rubocop:disable Metrics/LineLength
   #   find ~/Github/vets-website/src/applications -name manifest.json -exec grep "entryName" {} \; | sed 's/^ *//;s/ *$//' | tr -d '"' | sed 's/entryName: //' | sed 's/,$//' | sort
   # rubocop:enable Metrics/LineLength
-  SOURCE_APP_NAMES = %w[
+  SOURCE_APP_NAMES = Set.new %w[
     0993-edu-benefits
     0994-edu-benefits
     0996-higher-level-review
