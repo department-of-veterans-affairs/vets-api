@@ -121,21 +121,9 @@ module Swagger
           end
 
           response 200 do
-            key :description, 'Processing incomplete'
+            key :description, 'Processing status'
             schema do
               key :'$ref', :IntakeStatus
-            end
-          end
-
-          response 303 do
-            key :description, 'Processing complete; see other'
-            schema do
-              key :type, :object
-              property :meta, type: :object do
-                property :Location do
-                  key :'$ref', :UUID
-                end
-              end
             end
           end
 
@@ -149,7 +137,7 @@ module Swagger
             end
           end
 
-          response 500 do
+          response 502 do
             key :description, 'Bad Gateway: the upstream decision review API returned an invalid response (500+)'
             schema do
               key :type, :object

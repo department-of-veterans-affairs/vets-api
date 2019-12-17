@@ -116,15 +116,14 @@
                 "required": ["type", "date"],
                 "properties": {
                   "type": {
-                    "type": {
-                      "enum": [
-                        "hlr_request_event",
-                        "hlr_decision_event",
-                        "hlr_dta_error_event",
-                        "dta_decision_event",
-                        "hlr_other_close_event"
-                      ]
-                    }
+                    "type": "string",
+                    "enum": [
+                      "hlr_request_event",
+                      "hlr_decision_event",
+                      "hlr_dta_error_event",
+                      "dta_decision_event",
+                      "hlr_other_close_event"
+                    ]
                   },
                   "date": {
                     "type": "string"
@@ -193,7 +192,7 @@
                         "enum": ["RequestIssue"]
                       },
                       "id": {
-                        "type": "string"
+                        "type": ["string", "integer"]
                       }
                     }
                   }
