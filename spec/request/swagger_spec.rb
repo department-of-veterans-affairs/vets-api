@@ -1371,6 +1371,52 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
       end
     end
 
+    describe 'higher_level_reviews' do
+      it 'documents higher_level_reviews 200' do
+        VCR.use_cassette('decision_review/200_review') do
+          expect(subject).to validate(:get, '/services/appeals/v0/appeals/higher_level_reviews/{uuid}',
+                                      200, headers.merge('uuid' => '4bc96bee-c6a3-470e-b222-66a47629dc20'))
+        end
+      end
+
+      it 'documents higher_level_reviews 404' do
+        VCR.use_cassette('decision_review/404_review') do
+          expect(subject).to validate(:get, '/services/appeals/v0/appeals/higher_level_reviews/{uuid}',
+                                      404, headers.merge('uuid' => '1234'))
+        end
+      end
+
+      it 'documents higher_level_reviews 502' do
+        VCR.use_cassette('decision_review/502_review') do
+          expect(subject).to validate(:get, '/services/appeals/v0/appeals/higher_level_reviews/{uuid}',
+                                      502, headers.merge('uuid' => '1234'))
+        end
+      end
+    end
+
+    describe 'intake_statuses' do
+      it 'documents intake_statuses 200' do
+        VCR.use_cassette('decision_review/200_intake_status') do
+          expect(subject).to validate(:get, '/services/appeals/v0/appeals/intake_statuses/{intake_id}',
+                                      200, headers.merge('intake_id' => '1234567890'))
+        end
+      end
+
+      it 'documents intake_statuses 404' do
+        VCR.use_cassette('decision_review/404_get_intake_status') do
+          expect(subject).to validate(:get, '/services/appeals/v0/appeals/intake_statuses/{intake_id}',
+                                      404, headers.merge('intake_id' => '1234'))
+        end
+      end
+
+      it 'documents intake_statuses 502' do
+        VCR.use_cassette('decision_review/502_intake_status') do
+          expect(subject).to validate(:get, '/services/appeals/v0/appeals/intake_statuses/{intake_id}',
+                                      502, headers.merge('intake_id' => '1234'))
+        end
+      end
+    end
+
     describe 'appointments' do
       before do
         allow_any_instance_of(User).to receive(:icn).and_return('1234')
