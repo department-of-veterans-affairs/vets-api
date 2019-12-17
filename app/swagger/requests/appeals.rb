@@ -128,7 +128,7 @@ module Swagger
             schema do
               key :type, :object
               property :errors do
-                key :'$ref', :AppealsErrors
+                key :'$ref', :Errors
               end
             end
           end
@@ -138,7 +138,7 @@ module Swagger
             schema do
               key :type, :object
               property :errors do
-                key :'$ref', :AppealsErrors
+                key :'$ref', :Errors
               end
             end
           end

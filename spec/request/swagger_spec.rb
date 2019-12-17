@@ -1379,11 +1379,6 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
         end
       end
 
-      it 'returns a 401 with error details' do
-        expect(subject).to validate(:get, '/services/appeals/v0/appeals/higher_level_reviews/{uuid}',
-                                    401, 'uuid' => '1234')
-      end
-
       it 'documents higher_level_reviews 404' do
         VCR.use_cassette('decision_review/404_review') do
           expect(subject).to validate(:get, '/services/appeals/v0/appeals/higher_level_reviews/{uuid}',
@@ -1405,11 +1400,6 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
           expect(subject).to validate(:get, '/services/appeals/v0/appeals/intake_statuses/{intake_id}',
                                       200, headers.merge('intake_id' => '1234567890'))
         end
-      end
-
-      it 'returns a 401 with error details' do
-        expect(subject).to validate(:get, '/services/appeals/v0/appeals/intake_statuses/{intake_id}',
-                                    401, 'intake_id' => '1234')
       end
 
       it 'documents intake_statuses 404' do

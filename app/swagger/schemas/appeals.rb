@@ -69,9 +69,17 @@ module Swagger
             property :events do
               key :type, :array
               items do
-                key :type, :object
+                key :type, :string
                 property :type do
-                  key :'$ref', :HigherLevelReviewEvents
+                  key :type, :string
+                  key :enum, %w[
+                    hlr_request
+                    hlr_request_event
+                    hlr_decision_event
+                    hlr_dta_error_event
+                    dta_decision_event
+                    hlr_other_close_event
+                  ]
                 end
               end
             end
@@ -126,7 +134,7 @@ module Swagger
               items do
                 key :type, :object
                 property :type, type: :string, enum: [prop.to_s.titleize.delete(' ')[0..-2]]
-                property :id, type: :integer
+                property :id, type: :string
               end
             end
           end
