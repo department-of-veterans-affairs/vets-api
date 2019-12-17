@@ -12,22 +12,5 @@ module V0
         json: appeals_response.body
       )
     end
-
-    def create
-      review = service.post_higher_level_reviews request.raw_post
-
-      if review.accepted?
-        HigherLevelReview.find_or_create_by claims_id: params[:claims_id], review_uuid: review.uuid
-        render json: { 'status': 'ok' }
-      else
-        # Render errors here
-      end
-    end
-
-    private
-
-    def service
-      DecisionReview::Service.new
-    end
   end
 end

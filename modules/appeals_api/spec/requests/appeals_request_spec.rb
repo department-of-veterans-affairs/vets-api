@@ -51,6 +51,18 @@ RSpec.describe 'Claim Appeals API endpoint', type: :request do
     end
   end
 
+  describe 'POST /higher_level_reviews' do
+    context 'with an accepted response' do
+      it 'higher level review endpoint returns a successful response' do
+        VCR.use_cassette('decision_review/202_review') do
+          post hlr_endpoint
+          expect(response).to have_http_status(:accepted)
+          expect(response).to match_response_schema('higher_level_review_accepted')
+        end
+      end
+    end
+  end
+
   context 'with the X-VA-SSN and X-VA-User header supplied ' do
     let(:user) { FactoryBot.create(:user, :loa3) }
     let(:auth_headers) { EVSS::AuthHeaders.new(user).to_h }
