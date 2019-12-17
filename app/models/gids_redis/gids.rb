@@ -19,10 +19,16 @@ class Gids < Common::RedisStore
     @gi_response ||= response_from_redis_or_service
   end
 
-  def method_missing(name, *args, &block)
+  # rubocop:disable Style/MethodMissingSuper
+  def method_missing(name, *args)
     self.rest_call = name
     self.scrubbed_params = *args
     gi_response.body
+  end
+  # rubocop:enable Style/MethodMissingSuper
+
+  def respond_to_missing?(_name, _include_private)
+    true
   end
 
   private
