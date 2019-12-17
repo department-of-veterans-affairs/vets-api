@@ -63,7 +63,7 @@ RSpec.describe Users::Profile do
       # --- positive tests ---
       context 'idme user' do
         it 'includes authn_context' do
-          expect(profile[:authn_context]).to eq(nil)
+          expect(profile[:authn_context]).to eq(LOA::IDME_LOA3)
         end
 
         it 'includes sign_in' do
@@ -74,7 +74,7 @@ RSpec.describe Users::Profile do
           let(:user) { create(:user, :loa1, authn_context: 'multifactor') }
 
           it 'includes authn_context' do
-            expect(profile[:authn_context]).to eq(nil)
+            expect(profile[:authn_context]).to eq('multifactor')
           end
 
           it 'includes sign_in.service_name' do
@@ -368,6 +368,7 @@ RSpec.describe Users::Profile do
           expect(vet360_info[:work_phone]).to be_present
           expect(vet360_info[:fax_number]).to be_present
           expect(vet360_info[:temporary_phone]).to be_present
+          expect(vet360_info[:text_permission]).to be_present
         end
 
         it 'sets the status to 200' do

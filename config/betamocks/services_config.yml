@@ -225,6 +225,12 @@
     :cache_multiple_responses:
       :uid_location: header
       :uid_locator: 'va_eauth_pnid'
+  - :method: :post
+    :path: <%= "/wss-common-services-web-#{Settings.evss.versions.common}/rest/ratingInfoService/#{Settings.evss.versions.common}/findRatingInfoPID" %>
+    :file_path: "evss/disability_form/rating_info"
+    :cache_multiple_responses:
+      :uid_location: header
+      :uid_locator: 'va_eauth_pnid'
 
   # Letters
   - :method: :get
@@ -268,7 +274,7 @@
 
   # VSO Search
   - :method: :post
-    :path: <%= "/wss-common-services-web-#{Settings.evss.versions.common}/rest/vsoSearch/11.6/getCurrentInfo" %>
+    :path: <%= "/wss-common-services-web-#{Settings.evss.versions.common}/rest/vsoSearch/#{Settings.evss.versions.common}/getCurrentInfo" %>
     :file_path: "evss/vso_search/get_current_info"
     :cache_multiple_responses:
       :uid_location: header
@@ -471,9 +477,7 @@
   :endpoints:
     - :method: :get
       :path: "/arcgis2/rest/services/Portal/MonthlyVAST_TTB/FeatureServer/0/*"
-      :file_path: "pssg/drivetime_bands" 
+      :file_path: "pssg/drivetime_bands"
       :cache_multiple_responses:
         :uid_location: query
         :uid_locator:  resultOffset
-
-

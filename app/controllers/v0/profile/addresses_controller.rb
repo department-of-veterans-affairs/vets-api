@@ -48,6 +48,7 @@ module V0
           :county_code,
           :county_name,
           :effective_start_date,
+          :validation_key,
           :id,
           :international_postal_code,
           :province,
