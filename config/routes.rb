@@ -217,6 +217,7 @@ Rails.application.routes.draw do
       resource :addresses, only: %i[create update destroy]
       resource :email_addresses, only: %i[create update destroy]
       resource :telephones, only: %i[create update destroy]
+      resource :permissions, only: %i[create update destroy]
       resources :address_validation, only: :create
       post 'initialize_vet360_id', to: 'persons#initialize_vet360_id'
       get 'person/status/:transaction_id', to: 'persons#status', as: 'person/status'
