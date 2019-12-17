@@ -193,7 +193,7 @@
                         "enum": ["RequestIssue"]
                       },
                       "id": {
-                        "type": ["string", "integer"]
+                        "type": "string"
                       }
                     }
                   }
