@@ -177,6 +177,12 @@ en:
         detail: "%{detail}"
         code: 108
         status: 400
+      token_validation_error:
+        <<: *defaults
+        title: Token Validation Error
+        detail: "%{detail}"
+        code: 401
+        status: 401
 
 # EXTERNAL EXCEPTIONS
     # This is a Generic Error corresponding to backend services
@@ -414,6 +420,12 @@ en:
         code: 'EMIS_STATUS502'
         detail: EMIS service responded with something other than veteran status information
         status: 502
+      FORMS_502:
+        <<: *external_defaults
+        title: Unexpected response body
+        code: 'FORMS_400'
+        detail: The Forms service responded with something other than the expected array of forms
+        status: 502
       IHUB_101:
         <<: *external_defaults
         title: Error Occurred
@@ -485,6 +497,12 @@ en:
         title: Bad Request
         code: 'VAOS_400'
         detail: # deliberarly left nil to reference response.body which is unparsable string (not json)
+        status: 400
+      VAOS_204:
+        <<: *external_defaults
+        title: Bad Request
+        code: 'VAOS_400'
+        detail: 'Appointment request id is invalid'
         status: 400
       VAOS_403:
         <<: *external_defaults
@@ -1622,6 +1640,12 @@ en:
         title: Cannot update record if phoneType is not matching
         code: VET360_PHON305
         detail: Cannot update record if phoneType is not matching
+        status: 400
+      VET360_PERM101:
+        <<: *external_defaults
+        title: Permission ID Not Null
+        code: VET360_PERM101
+        detail: Permission ID must be null
         status: 400
 
   decision_review:
