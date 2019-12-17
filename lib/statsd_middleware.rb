@@ -103,7 +103,6 @@ class StatsdMiddleware
 
   def instrument_statsd(status, duration, controller, action, source_app)
     duration_tags = ["controller:#{controller}", "action:#{action}"]
-    duration_tags.push("source_app:#{source_app}") if SOURCE_APP_NAMES.include?(source_app)
 
     if SOURCE_APP_NAMES.include?(source_app)
       duration_tags.push("source_app:#{source_app}")
