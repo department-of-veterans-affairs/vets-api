@@ -91,4 +91,11 @@ RSpec.describe StatsdMiddleware, type: :request do
       get '/v0/prescriptions', headers: { 'Source-App-Name' => 'foo' }
     end.to trigger_statsd_increment(StatsdMiddleware::STATUS_KEY, tags: tags, times: 1)
   end
+
+  it 'logs a warning to sentry for unrecognized source_app_name headers' do
+    expect(Raven).to receive(:capture_message).once.with(
+      'Unrecognized Source App Request Header', extra: { source_app_name: 'foo' }, level: 'warning'
+    )
+    get '/v0/prescriptions', headers: { 'Source-App-Name' => 'foo' }
+  end
 end

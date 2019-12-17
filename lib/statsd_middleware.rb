@@ -105,6 +105,13 @@ class StatsdMiddleware
     duration_tags = ["controller:#{controller}", "action:#{action}"]
     duration_tags.push("source_app:#{source_app}") if SOURCE_APP_NAMES.include?(source_app)
 
+    if SOURCE_APP_NAMES.include?(source_app)
+      duration_tags.push("source_app:#{source_app}")
+    elsif source_app.nil? == false
+      Raven.capture_message('Unrecognized Source App Request Header',
+                            level: 'warning', extra: { source_app_name: source_app })
+    end
+
     status_tags = duration_tags + ["status:#{status}"]
 
     # rubocop:disable Style/RescueModifier
