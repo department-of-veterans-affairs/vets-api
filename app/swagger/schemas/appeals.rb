@@ -69,7 +69,7 @@ module Swagger
             property :events do
               key :type, :array
               items do
-                key :type, :string
+                key :type, :object
                 property :type do
                   key :type, :string
                   key :enum, %w[
