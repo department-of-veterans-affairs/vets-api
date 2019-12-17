@@ -1407,13 +1407,6 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
         end
       end
 
-      it 'documents intake_statuses 303' do
-        VCR.use_cassette('decision_review/303_intake_status') do
-          expect(subject).to validate(:get, '/services/appeals/v0/appeals/intake_statuses/{intake_id}',
-                                      303, headers.merge('intake_id' => '1234567890'))
-        end
-      end
-
       it 'returns a 401 with error details' do
         expect(subject).to validate(:get, '/services/appeals/v0/appeals/intake_statuses/{intake_id}',
                                     401, 'intake_id' => '1234')
