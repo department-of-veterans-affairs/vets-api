@@ -2,16 +2,16 @@
 
 require 'rails_helper'
 require 'common/exceptions'
-require 'gids_redis/Gids'
+require 'gids_redis/GIDS'
 
-describe Gids do
+describe GIDS do
   let(:rest_call) { :get_institution_details }
   let(:scrubbed_params) { {} }
-  let(:service) { Gids.new }
+  let(:service) { GIDS.new }
   let(:status) { 200 }
   let(:body) { {} }
   let(:gi_response) do
-    GI::Responses::GidsResponse.new(status: status, body: body)
+    GI::Responses::GIDSResponse.new(status: status, body: body)
   end
 
   it 'gi_response' do

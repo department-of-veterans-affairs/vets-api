@@ -6,7 +6,7 @@ require 'mvi/models/mvi_profile'
 
 module GI
   module Responses
-    class GidsResponse
+    class GIDSResponse
       include Virtus.model(nullify_blank: true)
       include Common::Client::ServiceStatus
 
@@ -17,9 +17,9 @@ module GI
       # Builds a response with a ok status and a response's body
       #
       # @param response returned from the rest call
-      # @return [GI::Responses::GidsResponse]
+      # @return [GI::Responses::GIDSResponse]
       def self.from(response)
-        GidsResponse.new(status: response.status, body: response.body)
+        GIDSResponse.new(status: response.status, body: response.body)
       end
 
       def cache?

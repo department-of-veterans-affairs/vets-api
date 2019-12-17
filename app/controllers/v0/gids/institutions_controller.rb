@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
 module V0
-  module Gids
-    class InstitutionsController < GidsController
+  module GIDS
+    class InstitutionsController < GIDSController
       def autocomplete
         render json: service.get_institution_autocomplete_suggestions(scrubbed_params)
       end

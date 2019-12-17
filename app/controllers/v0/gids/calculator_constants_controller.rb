@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
 module V0
-  module Gids
-    class CalculatorConstantsController < GidsController
+  module GIDS
+    class CalculatorConstantsController < GIDSController
       def index
         render json: service.get_calculator_constants(scrubbed_params)
       end

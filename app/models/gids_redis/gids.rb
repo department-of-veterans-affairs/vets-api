@@ -3,8 +3,8 @@
 require 'common/models/redis_store'
 require 'common/models/concerns/cache_aside'
 
-# Facade for GI.
-class Gids < Common::RedisStore
+# Facade for GIDS.
+class GIDS < Common::RedisStore
   include Common::CacheAside
 
   REDIS_CONFIG_KEY = :gi_response
