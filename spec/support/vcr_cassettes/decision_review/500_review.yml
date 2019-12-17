@@ -71,7 +71,7 @@ http_interactions:
           "errors": [{
             "status": "500",
             "title": "Internal Server Error",
-            "detail": "No method error"
+            "code": "500"
           }]
         }
     http_version:
