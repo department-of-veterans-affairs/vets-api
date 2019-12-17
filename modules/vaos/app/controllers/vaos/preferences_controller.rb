@@ -1,9 +1,7 @@
 # frozen_string_literal: true
 
-require_dependency 'vaos/application_controller'
-
 module VAOS
-  class PreferencesController < ApplicationController
+  class PreferencesController < VAOS::BaseController
     def index
       response = preferences_service.get_preferences(current_user)
       render json: VAOS::PreferencesSerializer.new(response)

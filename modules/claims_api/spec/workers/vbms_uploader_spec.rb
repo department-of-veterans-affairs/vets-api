@@ -67,6 +67,39 @@ RSpec.describe ClaimsApi::VbmsUploader, type: :job do
         expect(power_of_attorney.vbms_new_document_version_ref_id).to eq('{52300B69-1D6E-43B2-8BEB-67A7C55346A2}')
       end
     end
+
+    it 'handles the file not found from S3' do
+      VCR.use_cassette('vbms/document_upload_success') do
+        token_response = OpenStruct.new(upload_token: '<{573F054F-E9F7-4BF2-8C66-D43ADA5C62E7}')
+        OpenStruct.new(upload_document_response: {
+          '@new_document_version_ref_id' => '{52300B69-1D6E-43B2-8BEB-67A7C55346A2}',
+          '@document_series_ref_id' => '{A57EF6CC-2236-467A-BA4F-1FA1EFD4B374}'
+        }.with_indifferent_access)
+
+        allow_any_instance_of(ClaimsApi::VbmsUploader).to receive(:fetch_upload_token).and_return(token_response)
+        allow_any_instance_of(ClaimsApi::VbmsUploader).to receive(:upload_document).and_raise(Errno::ENOENT)
+        subject.new.perform(power_of_attorney.id)
+        power_of_attorney.reload
+        expect(power_of_attorney.status).to eq('failed')
+      end
+    end
+
+    it 'uploads to VBMS' do
+      VCR.use_cassette('vbms/document_upload_success') do
+        token_response = OpenStruct.new(upload_token: '<{573F054F-E9F7-4BF2-8C66-D43ADA5C62E7}')
+        response = OpenStruct.new(upload_document_response: {
+          '@new_document_version_ref_id' => '{52300B69-1D6E-43B2-8BEB-67A7C55346A2}',
+          '@document_series_ref_id' => '{A57EF6CC-2236-467A-BA4F-1FA1EFD4B374}'
+        }.with_indifferent_access)
+
+        allow_any_instance_of(ClaimsApi::VbmsUploader).to receive(:fetch_upload_token).and_return(token_response)
+        allow_any_instance_of(VBMS::Client).to receive(:send_request).and_return(response)
+        allow(VBMS::Requests::UploadDocument).to receive(:new).and_return({})
+        subject.new.perform(power_of_attorney.id)
+        power_of_attorney.reload
+        expect(power_of_attorney.status).to eq('uploaded')
+      end
+    end
   end
 
   private
