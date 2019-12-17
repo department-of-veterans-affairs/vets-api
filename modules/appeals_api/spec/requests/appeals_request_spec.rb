@@ -36,7 +36,7 @@ RSpec.describe 'Claim Appeals API endpoint', type: :request do
         VCR.use_cassette('decision_review/200_review') do
           get "#{hlr_endpoint}/4bc96bee-c6a3-470e-b222-66a47629dc20"
           expect(response).to have_http_status(:ok)
-          expect(response).to match_response_schema('review')
+          expect(response).to match_response_schema('higher_level_review')
         end
       end
     end
