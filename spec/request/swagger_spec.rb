@@ -1380,7 +1380,7 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
       end
 
       it 'returns a 401 with error details' do
-        expect(subject).to validate(:get, '/services/appeals/v0/appeals/higher_level_reviews/{uuid}', 
+        expect(subject).to validate(:get, '/services/appeals/v0/appeals/higher_level_reviews/{uuid}',
                                     401, 'uuid' => '1234')
       end
 
@@ -1415,7 +1415,7 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
       end
 
       it 'returns a 401 with error details' do
-        expect(subject).to validate(:get, '/services/appeals/v0/appeals/intake_statuses/{intake_id}', 
+        expect(subject).to validate(:get, '/services/appeals/v0/appeals/intake_statuses/{intake_id}',
                                     401, 'intake_id' => '1234')
       end
 
