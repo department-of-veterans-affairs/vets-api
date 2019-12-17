@@ -1,0 +1,49 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "type": "object",
+  "required": ["data"],
+  "properties": {
+    "data": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "type", "attributes"],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "type": {
+            "enum": ["va_form"]
+          },
+          "attributes": {
+            "type": "object",
+            "required": ["form_name", "url", "title"],
+            "properties": {
+              "form_name": {
+                "type":"string"
+              },
+              "url": {
+                "type": "string"
+              },
+              "title": {
+                "type": "string"
+              },
+              "first_issued_on": {
+                "type": "string"
+              },
+              "last_revision_on": {
+                "type": "string"
+              },
+              "pages": {
+                "type": "number"
+              },
+              "sha256": {
+                "type":"string"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
