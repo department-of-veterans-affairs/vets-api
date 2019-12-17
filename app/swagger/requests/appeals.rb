@@ -85,20 +85,6 @@ module Swagger
             end
           end
 
-          response 401 do
-            key :description, 'User is not authenticated (logged in)'
-            schema do
-              key :'$ref', :Errors
-            end
-          end
-
-          response 403 do
-            key :description, 'Forbidden: user is not authorized for higher_level_reviews'
-            schema do
-              key :'$ref', :Errors
-            end
-          end
-
           response 404 do
             key :description, 'ID not found'
             schema do
@@ -106,8 +92,8 @@ module Swagger
             end
           end
 
-          response 502 do
-            key :description, 'Bad Gateway: the upstream appeals app returned an invalid response (500+)'
+          response 500 do
+            key :description, 'Bad Gateway: the upstream decision review API returned an invalid response (500+)'
             schema do
               key :'$ref', :Errors
             end
@@ -164,7 +150,7 @@ module Swagger
           end
 
           response 500 do
-            key :description, 'Unknown error'
+            key :description, 'Bad Gateway: the upstream decision review API returned an invalid response (500+)'
             schema do
               key :type, :object
               property :errors do
