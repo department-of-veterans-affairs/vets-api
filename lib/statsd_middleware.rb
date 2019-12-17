@@ -19,10 +19,10 @@ class StatsdMiddleware
   SOURCE_APP_NAMES = %w[
     0993-edu-benefits
     0994-edu-benefits
+    0996-higher-level-review
     1990-edu-benefits
     1990e-edu-benefits
     1990n-edu-benefits
-    1995-STEM-edu-benefits
     1995-edu-benefits
     526EZ-all-claims
     526EZ-claims-increase
@@ -38,6 +38,8 @@ class StatsdMiddleware
     claims-status
     connected-accounts
     dashboard
+    dependents-view-dependents
+    disability-my-rated-disabilities
     discharge-upgrade-instructions
     facilities
     feedback-tool
@@ -50,7 +52,6 @@ class StatsdMiddleware
     post-911-gib-status
     pre-need
     profile-360
-    profile-360-beta
     proxy-rewrite
     public-outreach-materials
     search
