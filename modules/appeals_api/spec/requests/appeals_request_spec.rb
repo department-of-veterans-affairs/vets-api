@@ -23,7 +23,7 @@ RSpec.describe 'Claim Appeals API endpoint', type: :request do
     context 'with a decision response that does not exist' do
       it 'returns a 404 error' do
         VCR.use_cassette('decision_review/404_get_intake_status') do
-          post hlr_endpoint
+          get "#{intake_endpoint}/1234"
           expect(response).to have_http_status(:not_found)
         end
       end
