@@ -58,10 +58,10 @@ module DecisionReview
     #                                               status, and schema avalidations.
     #
     def get_higher_level_reviews(uuid)
-      #with_monitoring_and_error_handling do
+      with_monitoring_and_error_handling do
         raw_response = perform(:get, "higher_level_reviews/#{uuid}", nil)
         DecisionReview::Responses::Response.new(raw_response.status, raw_response.body, 'review')
-      #end
+      end
     end
 
     private
