@@ -34,6 +34,9 @@ module Swagger
 
               property(:address) do
                 key :'$ref', :Vet360AddressSuggestion
+                key :required, %i[
+                  address_pou
+                ]
               end
             end
           end
@@ -740,7 +743,7 @@ module Swagger
             ' or that were just updated to COMPLETED during the course of this request.'\
             ' The array will be empty if no transactions are pending or updated.'\
             ' Only the most recent transaction for each profile field will be included'\
-            ' so there may be up to 3 (Address, Email, Telephone).'
+            ' so there may be up to 4 (Address, Email, Telephone, Permission).'
           key :operationId, 'getTransactionStatusesByUser'
           key :tags, %w[profile]
 
@@ -835,6 +838,98 @@ module Swagger
 
             schema do
               key :'$ref', :PutVet360Telephone
+            end
+          end
+
+          response 200 do
+            key :description, 'Response is OK'
+            schema do
+              key :'$ref', :AsyncTransactionVet360
+            end
+          end
+        end
+      end
+
+      swagger_path '/v0/profile/permissions' do
+        operation :post do
+          extend Swagger::Responses::AuthenticationError
+
+          key :description, 'Creates a users Vet360 permission'
+          key :operationId, 'postVet360Permission'
+          key :tags, %w[
+            profile
+          ]
+
+          parameter :authorization
+
+          parameter do
+            key :name, :body
+            key :in, :body
+            key :description, 'Attributes to create a permission.'
+            key :required, true
+
+            schema do
+              key :'$ref', :PostVet360Permission
+            end
+          end
+
+          response 200 do
+            key :description, 'Response is OK'
+            schema do
+              key :'$ref', :AsyncTransactionVet360
+            end
+          end
+        end
+
+        operation :put do
+          extend Swagger::Responses::AuthenticationError
+
+          key :description, 'Updates a users existing permission'
+          key :operationId, 'putVet360Permission'
+          key :tags, %w[
+            profile
+          ]
+
+          parameter :authorization
+
+          parameter do
+            key :name, :body
+            key :in, :body
+            key :description, 'Attributes to update a permission'
+            key :required, true
+
+            schema do
+              key :'$ref', :PutVet360Permission
+            end
+          end
+
+          response 200 do
+            key :description, 'Response is OK'
+            schema do
+              key :'$ref', :AsyncTransactionVet360
+            end
+          end
+        end
+
+        operation :delete do
+          extend Swagger::Responses::AuthenticationError
+
+          key :description, 'Deletes an existing permission'
+          key :operationId, 'deleteVet360Permission'
+          key :tags, %w[
+            profile
+          ]
+
+          parameter :authorization
+
+          parameter do
+            key :name, :body
+            key :in, :body
+            key :description, 'Attributes of a permission'
+            key :required, true
+
+            schema do
+              key :'$ref', :PutVet360Permission
             end
           end
 
