@@ -60,7 +60,7 @@ module Swagger
         end
       end
 
-      swagger_path '/v0/appeals/higher_level_reviews/{uuid}' do
+      swagger_path '/services/appeals/v0/appeals/higher_level_reviews/{uuid}' do
         operation :get do
           extend Swagger::Responses::AuthenticationError
 
@@ -115,7 +115,7 @@ module Swagger
         end
       end
 
-      swagger_path '/v0/appeals/intake_statuses/{intake_id}' do
+      swagger_path '/services/appeals/v0/appeals/intake_statuses/{intake_id}' do
         operation :get do
           extend Swagger::Responses::AuthenticationError
 
