@@ -92,7 +92,7 @@ module Swagger
             end
           end
 
-          response 500 do
+          response 502 do
             key :description, 'Bad Gateway: the upstream decision review API returned an invalid response (500+)'
             schema do
               key :'$ref', :Errors

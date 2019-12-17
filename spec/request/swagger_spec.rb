@@ -1386,10 +1386,10 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
         end
       end
 
-      it 'documents higher_level_reviews 500' do
-        VCR.use_cassette('decision_review/500_review') do
+      it 'documents higher_level_reviews 502' do
+        VCR.use_cassette('decision_review/502_review') do
           expect(subject).to validate(:get, '/services/appeals/v0/appeals/higher_level_reviews/{uuid}',
-                                      500, headers.merge('uuid' => '1234'))
+                                      502, headers.merge('uuid' => '1234'))
         end
       end
     end
@@ -1416,10 +1416,10 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
         end
       end
 
-      it 'documents intake_statuses 500' do
-        VCR.use_cassette('decision_review/500_intake_status') do
+      it 'documents intake_statuses 502' do
+        VCR.use_cassette('decision_review/502_intake_status') do
           expect(subject).to validate(:get, '/services/appeals/v0/appeals/intake_statuses/{intake_id}',
-                                      500, headers.merge('intake_id' => '1234'))
+                                      502, headers.merge('intake_id' => '1234'))
         end
       end
     end

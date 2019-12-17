@@ -49,7 +49,7 @@ http_interactions:
       - https://dev-api.va.gov/services/appeals/v3/decision_review/higher_level_reviews/1234567890
     body:
       encoding: ASCII-8BIT
-      string: '{"meta":{"Location":"1234567890"}}'
+      string: '{"data":{"type":"HigherLevelReview","id":"944f2578-8eca-4f43-9570-69d0807367ef","attributes":{"status":"processed"}}}'
     http_version:
   recorded_at: Thu, 10 Oct 2019 21:17:52 GMT
 recorded_with: VCR 3.0.3

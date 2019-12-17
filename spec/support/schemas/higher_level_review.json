@@ -116,7 +116,9 @@
                 "required": ["type", "date"],
                 "properties": {
                   "type": {
+                    "type": "string",
                     "enum": [
+                      "hlr_request",
                       "hlr_request_event",
                       "hlr_decision_event",
                       "hlr_dta_error_event",
@@ -153,7 +155,7 @@
                       "enum": ["Veteran"]
                     },
                     "id": {
-                      "type": ["string", ]
+                      "type": ["string", "integer"]
                     }
                   }
                 }

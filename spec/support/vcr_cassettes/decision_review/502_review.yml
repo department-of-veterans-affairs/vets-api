@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri: https://dev-api.va.gov/services/appeals/v3/decision_review/intake_statuses/1234
+    uri: https://dev-api.va.gov/services/appeals/v3/decision_review/higher_level_reviews/1234
     body:
       encoding: US-ASCII
       string: ''
@@ -19,17 +19,19 @@ http_interactions:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
   response:
     status:
-      code: 500
+      code: 502
       message: Internal Server Error
     headers:
       Date:
-      - Mon, 21 Oct 2019 22:13:06 GMT
+      - Fri, 22 Nov 2019 22:57:55 GMT
       Content-Type:
       - application/json; charset=utf-8
       Connection:
       - keep-alive
       Access-Control-Allow-Origin:
       - "*"
+      Etag:
+      - W/"d007e863ef32711c2efe07a644667be4"
       Strict-Transport-Security:
       - max-age=31536000; includeSubDomains
       - max-age=31536000; includeSubDomains; preload
@@ -42,19 +44,23 @@ http_interactions:
       X-Kong-Proxy-Latency:
       - '1'
       X-Kong-Upstream-Latency:
-      - '440'
+      - '2490'
       X-Ratelimit-Limit-Minute:
       - '60'
       X-Ratelimit-Remaining-Minute:
       - '59'
       X-Request-Id:
-      - 54ed2a46-28ce-4b4b-a1ba-7b1823235964
+      - a4929381-02cd-4700-9c70-e1be2725f4ba
       X-Runtime:
-      - '0.009496'
+      - '2.169886'
       X-Xss-Protection:
       - 1; mode=block
+      Cache-Control:
+      - no-cache, no-store
+      Pragma:
+      - no-cache
       Set-Cookie:
-      - TS016f4012=01c8917e48298b882919a11faae4e29e89e876b2015c71a6ef9c7414e4fc1de80bc938948db5615950ab92b72f5b31112dca13808e;
+      - TS016f4012=01c8917e487bbf38c00f14ca80f4784d99a3d50aa7a8d286fc2ec7369620d39329b185854384eb94e09090c3f636c0aa0d4179b75e;
         Max-Age=900; Path=/
       Transfer-Encoding:
       - chunked
@@ -63,11 +69,11 @@ http_interactions:
       string: |-
         {
           "errors": [{
-            "status": "500",
+            "status": "502",
             "title": "Internal Server Error",
-            "code": "500"
+            "code": "502"
           }]
         }
     http_version:
-  recorded_at: Mon, 21 Oct 2019 22:13:05 GMT
+  recorded_at: Fri, 22 Nov 2019 22:57:54 GMT
 recorded_with: VCR 3.0.3
