@@ -1,9 +1,7 @@
 # frozen_string_literal: true
 
-require_dependency 'vaos/application_controller'
-
 module VAOS
-  class SystemsController < ApplicationController
+  class SystemsController < VAOS::BaseController
     def index
       response = systems_service.get_systems
       render json: VAOS::SystemSerializer.new(response)

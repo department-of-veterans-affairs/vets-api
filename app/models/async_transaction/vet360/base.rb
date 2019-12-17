@@ -62,6 +62,8 @@ module AsyncTransaction
           service.get_email_transaction_status(transaction_record.transaction_id)
         when AsyncTransaction::Vet360::TelephoneTransaction
           service.get_telephone_transaction_status(transaction_record.transaction_id)
+        when AsyncTransaction::Vet360::PermissionTransaction
+          service.get_permission_transaction_status(transaction_record.transaction_id)
         when AsyncTransaction::Vet360::InitializePersonTransaction
           service.get_person_transaction_status(transaction_record.transaction_id)
         else
@@ -116,6 +118,7 @@ module AsyncTransaction
         ongoing_transactions += AddressTransaction.last_requested.for_user(user)
         ongoing_transactions += EmailTransaction.last_requested.for_user(user)
         ongoing_transactions += TelephoneTransaction.last_requested.for_user(user)
+        ongoing_transactions += PermissionTransaction.last_requested.for_user(user)
         ongoing_transactions
       end
 
