@@ -3,6 +3,19 @@
 class StatsdMiddleware
   STATUS_KEY   = 'api.rack.request'
   DURATION_KEY = 'api.rack.request.duration'
+
+  # whitelist built from the vets-website repository by finding all files named `manifest.json` within the
+  # src/applications dir and finding the line that reads: "entryName": "<APP_NAME>"
+  #
+  # This can be done with a script
+  #
+  #   find ~/Github/vets-website/src/applications -name manifest.json -exec grep "entryName" {} \;
+  #
+  # Or for a prettier output to copy+paste from
+  #
+  # rubocop:disable Metrics/LineLength
+  #   find ~/Github/vets-website/src/applications -name manifest.json -exec grep "entryName" {} \; | sed 's/^ *//;s/ *$//' | tr -d '"' | sed 's/entryName: //' | sed 's/,$//' | sort
+  # rubocop:enable Metrics/LineLength
   SOURCE_APP_NAMES = %w[
     0993-edu-benefits
     0994-edu-benefits
