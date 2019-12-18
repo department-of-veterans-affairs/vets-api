@@ -451,6 +451,135 @@ describe MVI::Service do
         end
       end
     end
+
+    context 'when a MVI invalid request response is returned' do
+      it 'raises a invalid request error', :aggregate_failures do
+        invalid_xml = File.read('spec/support/mvi/find_candidate_invalid_request.xml')
+        allow_any_instance_of(MVI::Service).to receive(:create_profile_message).and_return(invalid_xml)
+        expect(subject).to receive(:log_message_to_sentry).with(
+          'MVI Invalid Request', :error
+        )
+        VCR.use_cassette('mvi/find_candidate/invalid') do
+          response = subject.find_profile_from_attributes(user_hash)
+          server_error_502_expectations_for(response)
+        end
+      end
+    end
+
+    context 'when a MVI internal system problem response is returned' do
+      let(:body) { File.read('spec/support/mvi/find_candidate_ar_code_database_error_response.xml') }
+
+      it 'raises a invalid request error', :aggregate_failures do
+        expect(subject).to receive(:log_message_to_sentry).with(
+          'MVI Failed Request', :error
+        )
+        stub_request(:post, Settings.mvi.url).to_return(status: 200, body: body)
+        response = subject.find_profile_from_attributes(user_hash)
+        server_error_502_expectations_for(response)
+      end
+    end
+
+    context 'with an MVI timeout' do
+      let(:base_path) { MVI::Configuration.instance.base_path }
+
+      it 'raises a service error', :aggregate_failures do
+        allow_any_instance_of(Faraday::Connection).to receive(:post).and_raise(Faraday::TimeoutError)
+        expect(subject).to receive(:log_console_and_sentry).with(
+          'MVI find_profile error: Gateway timeout',
+          :warn
+        )
+        response = subject.find_profile_from_attributes(user_hash)
+
+        server_error_504_expectations_for(response)
+      end
+    end
+
+    context 'when a status of 500 is returned' do
+      it 'raises a request failure error', :aggregate_failures do
+        allow_any_instance_of(MVI::Service).to receive(:create_profile_message).and_return('<nobeuno></nobeuno>')
+        expect(subject).to receive(:log_message_to_sentry).with(
+          'MVI find_profile error: SOAP HTTP call failed',
+          :warn
+        )
+        VCR.use_cassette('mvi/find_candidate/five_hundred') do
+          response = subject.find_profile_from_attributes(user_hash)
+          server_error_504_expectations_for(response)
+        end
+      end
+    end
+
+    context 'when no subject is returned in the response body' do
+      before do
+        expect(MVI::Messages::FindProfileMessage).to receive(:new).once.and_call_original
+      end
+
+      let(:user_hash) do
+        {
+          first_name: 'Earl',
+          last_name: 'Stephens',
+          middle_name: 'M',
+          birth_date: '1978-06-11',
+          ssn: '796188587'
+        }
+      end
+
+      it 'returns not found, does not log sentry', :aggregate_failures do
+        VCR.use_cassette('mvi/find_candidate/no_subject') do
+          expect(subject).not_to receive(:log_message_to_sentry)
+          response = subject.find_profile_from_attributes(user_hash)
+
+          record_not_found_404_expectations_for(response)
+        end
+      end
+
+      context 'with an ongoing breakers outage' do
+        it 'returns the correct thing', :aggregate_failures do
+          MVI::Configuration.instance.breakers_service.begin_forced_outage!
+          expect(Raven).to receive(:extra_context).once
+          response = subject.find_profile_from_attributes(user_hash)
+
+          server_error_503_expectations_for(response)
+        end
+      end
+    end
+
+    context 'when MVI returns 500 but VAAFI sends 200' do
+      before do
+        expect(MVI::Messages::FindProfileMessage).to receive(:new).once.and_call_original
+      end
+
+      %w[internal_server_error internal_server_error_2].each do |cassette|
+        it 'raises an Common::Client::Errors::HTTPError', :aggregate_failures do
+          expect(subject).to receive(:log_message_to_sentry).with(
+            'MVI find_profile error: SOAP service returned internal server error',
+            :warn
+          )
+          VCR.use_cassette("mvi/find_candidate/#{cassette}") do
+            response = subject.find_profile_from_attributes(user_hash)
+
+            server_error_504_expectations_for(response)
+          end
+        end
+      end
+    end
+
+    context 'when MVI multiple match failure response' do
+      before do
+        expect(MVI::Messages::FindProfileMessage).to receive(:new).once.and_call_original
+      end
+
+      it 'raises MVI::Errors::RecordNotFound', :aggregate_failures do
+        expect(subject).to receive(:log_message_to_sentry).with(
+          'MVI Duplicate Record', :warn
+        )
+
+        VCR.use_cassette('mvi/find_candidate/failure_multiple_matches') do
+          response = subject.find_profile_from_attributes(user_hash)
+
+          record_not_found_404_expectations_for(response)
+        end
+      end
+    end
   end
 end
 

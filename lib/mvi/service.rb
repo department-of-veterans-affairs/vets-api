@@ -89,7 +89,7 @@ module MVI
       log_console_and_sentry("MVI find_profile error: #{e.message}", :warn)
       mvi_profile_exception_response_for('MVI_504', e)
     rescue MVI::Errors::Base => e
-      mvi_error_handler(user_identity, e)
+      mvi_error_handler(nil, e)
       if e.is_a?(MVI::Errors::RecordNotFound)
         mvi_profile_exception_response_for('MVI_404', e, type: 'not_found')
       else
@@ -136,7 +136,7 @@ module MVI
         log_console_and_sentry('MVI Record Not Found')
       when MVI::Errors::InvalidRequestError
         # NOTE: ICN based lookups do not return RecordNotFound. They return InvalidRequestError
-        if user_identity.mhv_icn.present?
+        if icn_present?(user_identity)
           log_console_and_sentry('MVI Invalid Request (Possible RecordNotFound)', :error)
         else
           log_console_and_sentry('MVI Invalid Request', :error)
@@ -144,6 +144,10 @@ module MVI
       when MVI::Errors::FailedRequestError
         log_console_and_sentry('MVI Failed Request', :error)
       end
+    end
+
+    def icn_present?(user_identity)
+      user_identity.present? && user_identity.mhv_icn.present?
     end
 
     def log_console_and_sentry(message, sentry_classification = nil)
