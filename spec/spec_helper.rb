@@ -13,6 +13,7 @@ require 'support/stub_evss_pciu'
 require 'support/vet360/stub_vet360'
 require 'support/okta_users_helpers'
 require 'support/poa_stub'
+require 'support/shared'
 require 'pundit/rspec'
 
 # By default run SimpleCov, but allow an environment variable to disable.
