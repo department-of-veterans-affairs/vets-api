@@ -1,10 +1,7 @@
 # frozen_string_literal: true
 
-require 'common/models/redis_store'
-require 'common/models/concerns/cache_aside'
-
 # Facade for GIDS.
-class GIDS < Common::RedisStore
+class GIDSRedis < Common::RedisStore
   include Common::CacheAside
 
   REDIS_CONFIG_KEY = :gi_response

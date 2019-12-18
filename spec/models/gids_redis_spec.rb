@@ -4,10 +4,10 @@ require 'rails_helper'
 require 'common/exceptions'
 require 'gids_redis/GIDS'
 
-describe GIDS do
+describe GIDSRedis do
   let(:rest_call) { :get_institution_details }
   let(:scrubbed_params) { {} }
-  let(:service) { GIDS.new }
+  let(:service) { GIDSRedis.new }
   let(:status) { 200 }
   let(:body) { {} }
   let(:gi_response) do

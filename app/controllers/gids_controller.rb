@@ -1,14 +1,12 @@
 # frozen_string_literal: true
 
-require 'gids_redis/GIDS'
-
 class GIDSController < ApplicationController
   skip_before_action :authenticate
 
   private
 
   def service
-    GIDS.new
+    GIDSRedis.new
   end
 
   def scrubbed_params
