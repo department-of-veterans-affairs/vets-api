@@ -8,7 +8,9 @@ require 'sentry_logging'
 require 'aes_256_cbc_encryptor'
 
 ##
-# @attr_reader [User] current_user returns the current user object, if it exists
+# @attr_reader {User} current_user returns the current user object, if it exists
+#
+# The following errors might be raised from rescue blocks in this controller:
 # @raise [Common::Exceptions::Forbidden] when encountering a Pundit::NotAuthorizedError
 # @raise [Common::Exceptions::NotASafeHostError] when incoming host header is unsafe
 # @raise [Common::Exceptions::ParameterMissing] when encountering an ActionController::ParameterMissing error
