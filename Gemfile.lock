@@ -90,6 +90,12 @@ PATH
       sidekiq
 
 PATH
+  remote: modules/veteran_confirmation
+  specs:
+    veteran_confirmation (0.0.1)
+      rails (~> 5.2.3)
+
+PATH
   remote: modules/veteran_verification
   specs:
     veteran_verification (0.0.1)
@@ -106,7 +112,7 @@ GEM
   remote: https://enterprise.contribsys.com/
   specs:
     Ascii85 (1.0.2)
-    aasm (4.12.0)
+    aasm (5.0.6)
       concurrent-ruby (~> 1.0)
     actioncable (5.2.3)
       actionpack (= 5.2.3)
@@ -267,7 +273,8 @@ GEM
       thread_safe (~> 0.3, >= 0.3.1)
     diff-lcs (1.3)
     docile (1.3.2)
-    down (4.5.0)
+    down (4.8.1)
+      addressable (~> 2.5)
     dry-configurable (0.8.3)
       concurrent-ruby (~> 1.0)
       dry-core (~> 0.4, >= 0.4.7)
@@ -387,7 +394,7 @@ GEM
     i18n (0.9.5)
       concurrent-ruby (~> 1.0)
     ice_nine (0.11.2)
-    iconv (1.0.4)
+    iconv (1.0.8)
     iniparse (1.4.4)
     iso_country_codes (0.7.8)
     jaro_winkler (1.5.3)
@@ -590,7 +597,7 @@ GEM
       rainbow (>= 2.2.2, < 4.0)
       ruby-progressbar (~> 1.7)
       unicode-display_width (>= 1.4.0, < 1.7)
-    rubocop-junit-formatter (0.1.3)
+    rubocop-junit-formatter (0.1.4)
     rubocop-rails (2.3.2)
       rack (>= 1.1)
       rubocop (>= 0.72.0)
@@ -627,7 +634,7 @@ GEM
     sentry-raven (2.9.0)
       faraday (>= 0.7.6, < 1.0)
     shellany (0.0.1)
-    shrine (2.16.0)
+    shrine (2.19.3)
       content_disposition (~> 1.0)
       down (~> 4.1)
     shrine-memory (0.2.2)
@@ -856,6 +863,7 @@ DEPENDENCIES
   vba_documents!
   vcr
   veteran!
+  veteran_confirmation!
   veteran_verification!
   vets_json_schema!
   virtus
