@@ -17,7 +17,7 @@ describe ClaimsApi::HealthChecker do
       allow(ClaimsApi::HealthChecker).to receive(:bgs_is_healthy?).and_return(true)
       allow(ClaimsApi::HealthChecker).to receive(:vbms_is_healthy?).and_return(true)
       allow(ClaimsApi::HealthChecker).to receive(:mvi_is_healthy?).and_return(true)
-      allow(EVSS::Service).to receive(:service_is_up?).and_return(false)
+      allow(Breakers::Outage).to receive(:find_latest).and_return(OpenStruct.new(start_time: Time.zone.now))
       expect(ClaimsApi::HealthChecker.services_are_healthy?).to eq(false)
     end
 
