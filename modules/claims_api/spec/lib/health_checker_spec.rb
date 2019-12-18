@@ -33,7 +33,8 @@ describe ClaimsApi::HealthChecker do
       allow(ClaimsApi::HealthChecker).to receive(:bgs_is_healthy?).and_return(true)
       allow(ClaimsApi::HealthChecker).to receive(:evss_is_healthy?).and_return(true)
       allow(ClaimsApi::HealthChecker).to receive(:mvi_is_healthy?).and_return(true)
-      allow(Faraday).to receive(:get).and_return(OpenStruct.new(status: 503))
+      # VBMS does not have upper level access yet, just return true
+      # allow(Faraday).to receive(:get).and_return(OpenStruct.new(status: 503))
       expect(ClaimsApi::HealthChecker.services_are_healthy?).to eq(false)
     end
 
@@ -41,7 +42,8 @@ describe ClaimsApi::HealthChecker do
       allow(ClaimsApi::HealthChecker).to receive(:evss_is_healthy?).and_return(true)
       allow(ClaimsApi::HealthChecker).to receive(:mvi_is_healthy?).and_return(true)
       allow(ClaimsApi::HealthChecker).to receive(:vbms_is_healthy?).and_return(true)
-      allow(Faraday).to receive(:get).and_return(OpenStruct.new(status: 503))
+      # BGS does not have upper level access yet, just return true
+      # allow(Faraday).to receive(:get).and_return(OpenStruct.new(status: 503))
       expect(ClaimsApi::HealthChecker.services_are_healthy?).to eq(false)
     end
   end
