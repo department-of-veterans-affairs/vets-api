@@ -1,0 +1,84 @@
+openapi: '3.0.0'
+info:
+  version: 0.0.1
+  title: Veteran Confirmation
+  description: |
+    Veteran Confirmation
+
+    ## Background
+
+    Placeholder for an upcoming Open API Spec
+
+  termsOfService: ''
+  contact:
+    name: VA.gov
+tags:
+  - name: veteran_confirmation_status
+    description: Veteran confirmation - Veteran Status
+servers:
+  - url: https://dev-api.va.gov/services/veteran_confirmation/{version}
+    description: VA.gov API development environment
+    variables:
+      version:
+        default: v0
+  - url: https://staging-api.va.gov/services/veteran_confirmation/{version}
+    description: VA.gov API staging environment
+    variables:
+      version:
+        default: v0
+  - url: https://api.va.gov/services/veteran_confirmation/{version}
+    description: VA.gov API production environment
+    variables:
+      version:
+        default: v0
+paths:
+  /status:
+    get:
+      tags:
+        - veteran_confirmation_status
+      summary: Get confirmation about an individual's Veteran status according to the VA
+      operationId: getVeteranStatus
+      security:
+        - bearer_token: []
+      responses:
+        '200':
+          description: Confirmation status successfully retrieved
+          content:
+            application/json:
+              schema:
+                required:
+                  - data
+                properties:
+                  data:
+                    $ref: '#/components/schemas/VeteranStatusConfirmation'
+        '502':
+          description: eMIS failed to respond or responded in a way we cannot handle. 
+components:
+  securitySchemes:
+    apikey:
+      type: apiKey
+      name: apikey
+      in: header
+  schemas:
+    VeteranStatusConfirmation:
+      description: |
+        Veteran status confirmation for an individual
+      type: object
+      properties:
+        id:
+          type: string
+          description: Confirmation UUID
+          example: "833c6ffc-efef-4775-9355-f836b4f57501"
+        type:
+          type: string
+          example: veteran_status_confirmations
+        attributes:
+          type: object
+          properties:
+            veteran_status:
+              type: string
+              description: |
+                Whether the system could confirm the Veteran status of an invidual based on traits
+              enum:
+                - confirmed
+                - not confirmed
