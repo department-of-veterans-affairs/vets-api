@@ -112,7 +112,7 @@ GEM
   remote: https://enterprise.contribsys.com/
   specs:
     Ascii85 (1.0.2)
-    aasm (4.12.0)
+    aasm (5.0.6)
       concurrent-ruby (~> 1.0)
     actioncable (5.2.3)
       actionpack (= 5.2.3)
@@ -393,7 +393,7 @@ GEM
     i18n (0.9.5)
       concurrent-ruby (~> 1.0)
     ice_nine (0.11.2)
-    iconv (1.0.4)
+    iconv (1.0.8)
     iniparse (1.4.4)
     iso_country_codes (0.7.8)
     jaro_winkler (1.5.4)
