@@ -40,8 +40,4 @@ class GIDSRedis < Common::RedisStore
   def gi_service
     @client ||= ::GI::Client.new
   end
-
-  def record_ttl
-    REDIS_CONFIG[REDIS_CONFIG_KEY.to_s]['each_ttl']
-  end
 end
