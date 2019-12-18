@@ -15,6 +15,8 @@ module VAOS
     attribute :assigning_authority, String
     attribute :object_type, String
 
+#    validates :notification_frequency, presence: true
+
     def initialize(user, json_hash = {})
       super(json_hash)
       @user = user
@@ -36,8 +38,8 @@ module VAOS
 
     def patient_identifier
       {
-        unique_id: patient_id
-        assigning_authority: assigning_authority,
+        unique_id: patient_id,
+        assigning_authority: assigning_authority
       }
     end
   end
