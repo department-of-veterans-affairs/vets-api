@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 require 'saml/ssoe_settings_service'
-require 'lib/sentry_logging_spec_helper'
+require 'lib/shared_examples_for_sentry_logging'
 
 RSpec.describe SAML::SSOeSettingsService do
   before { Settings.saml_ssoe.idp_metadata_file = Rails.root.join('spec', 'support', 'saml', 'test_idp_metadata.xml') }
