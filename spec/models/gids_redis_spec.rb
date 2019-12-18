@@ -2,7 +2,6 @@
 
 require 'rails_helper'
 require 'common/exceptions'
-require 'gids_redis/GIDS'
 
 describe GIDSRedis do
   let(:rest_call) { :get_institution_details }
