@@ -10,10 +10,9 @@ module VAOS
     attribute :email_address, String
     attribute :text_msg_allowed, Boolean
     attribute :text_msg_ph_number, String
-    attribute :patient_identifier, Hash
-    attribute :patient_id, String
-    attribute :assigning_authority, String
-    attribute :object_type, String
+    attribute :patient_identifier, Hash # overridden Getter method; this field should be ignored if passed in by FE
+    attribute :patient_id, String # overridden Getter method; this field should be ignored if passed in by FE
+    attribute :assigning_authority, String # overridden Getter method; this field should be ignored if passed in by FE
 
     validates :notification_frequency, presence: true
 
@@ -28,6 +27,7 @@ module VAOS
       attributes.compact
     end
 
+    # The following values are all overridden, needed by VAMF, but should not be passed in by FE.
     def assigning_authority
       'ICN'
     end

@@ -37,7 +37,8 @@ RSpec.describe 'preferences', type: :request do
       end
     end
 
-    context 'with a valid PUT preferences request' do
+    context 'with a valid PUT preferences request', :skip_mvi do
+      let(:user) { build(:user, :vaos) }
       let(:request_body) do
         {
           notification_frequency: 'Each new message',
@@ -49,7 +50,7 @@ RSpec.describe 'preferences', type: :request do
       end
 
       it 'returns a 200 with correct schema' do
-        VCR.use_cassette('vaos/preferences/put_preferences', record: :new_episodes) do
+        VCR.use_cassette('vaos/preferences/put_preferences', match_requests_on: %i[method uri]) do
           put '/v0/vaos/preferences', params: request_body
 
           expect(response).to have_http_status(:ok)

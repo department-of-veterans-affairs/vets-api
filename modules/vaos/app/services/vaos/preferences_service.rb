@@ -24,7 +24,7 @@ module VAOS
       end
     end
 
-    def put_preference(request_object_body)
+    def put_preferences(request_object_body)
       with_monitoring do
         params = VAOS::PreferenceForm.new(user, request_object_body).params
         response = perform(:put, url, params, headers(user))

@@ -37,8 +37,8 @@ describe VAOS::PreferencesService do
 
     context 'with valid params' do
       it 'updates preferences', :skip_mvi do
-        VCR.use_cassette('vaos/preferences/put_preference', match_requests_on: %i[method uri]) do
-          response = subject.put_preference(request_body)
+        VCR.use_cassette('vaos/preferences/put_preferences', match_requests_on: %i[method uri]) do
+          response = subject.put_preferences(request_body)
 
           expect(response.notification_frequency).to eq('Each new message')
           expect(response.email_allowed).to be_truthy
@@ -50,7 +50,7 @@ describe VAOS::PreferencesService do
 
     context 'with invalid params' do
       it 'returns a validation exception', :skip_mvi do
-        expect { subject.put_preference({}) }.to raise_error(Common::Exceptions::ValidationErrors)
+        expect { subject.put_preferences({}) }.to raise_error(Common::Exceptions::ValidationErrors)
       end
     end
   end

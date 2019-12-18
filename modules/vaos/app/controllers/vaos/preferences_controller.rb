@@ -19,8 +19,12 @@ module VAOS
     end
 
     def put_params
-      params.require
-      params.permit
+      params.require(:notification_frequency)
+      params.permit(:notification_frequency,
+                    :email_allowed,
+                    :email_address,
+                    :text_msg_allowed,
+                    :text_msg_ph_number)
     end
   end
 end
