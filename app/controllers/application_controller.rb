@@ -62,7 +62,7 @@ class ApplicationController < ActionController::API
   end
 
   def handle_error(error)
-    Common::Client::ErrorHandler.handle(error)
+    Common::ErrorHandler.handle(error)
   end
 
   def render_error(exc)

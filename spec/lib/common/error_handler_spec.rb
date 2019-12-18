@@ -2,16 +2,16 @@
 
 require 'rails_helper'
 
-describe Common::Client::ErrorHandler do
-  let(:gateway_timeout_error) { StandardError.new }
-  let(:internal_server_error) { Common::Exceptions::InternalServerError }
-  let(:pundit_not_auth_error) { Pundit::NotAuthorizedError }
-  let(:parameter_missing_error) { ActionController::ParameterMissing }
-  let(:unknown_format_error) { ActionController::UnknownFormat }
-  let(:not_safe_host_error) { Common::Exceptions::NotASafeHostError }
+describe Common::ErrorHandler do
   let(:base_error) { Common::Exceptions::BaseError }
   let(:breakers_outage_error) { Breakers::OutageException }
   let(:client_error) { Common::Client::Errors::ClientError }
+  let(:gateway_timeout_error) { StandardError.new }
+  let(:internal_server_error) { Common::Exceptions::InternalServerError }
+  let(:not_safe_host_error) { Common::Exceptions::NotASafeHostError }
+  let(:pundit_not_auth_error) { Pundit::NotAuthorizedError }
+  let(:parameter_missing_error) { ActionController::ParameterMissing }
+  let(:unknown_format_error) { ActionController::UnknownFormat }
 
   describe '#log_error' do
     subject { described_class.new(client_error.new) }
