@@ -72,7 +72,7 @@ RSpec.describe OpenidApplicationController, type: :controller do
           }
           change_encoded_token_payload(exp_token_opts)
           allow(Rails.logger).to receive(:info)
-          expect(Rails.logger).to receive(:info).with("JWT: EXPIRED SIGNATURE", token: @encoded_token)
+          expect(Rails.logger).to receive(:info).with('JWT: EXPIRED SIGNATURE', token: @encoded_token)
           get :index
         end
       end
