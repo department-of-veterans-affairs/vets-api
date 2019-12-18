@@ -15,7 +15,7 @@ module VAOS
     attribute :assigning_authority, String
     attribute :object_type, String
 
-    #    validates :notification_frequency, presence: true
+    validates :notification_frequency, presence: true
 
     def initialize(user, json_hash = {})
       super(json_hash)

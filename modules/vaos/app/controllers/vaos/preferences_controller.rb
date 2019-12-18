@@ -2,20 +2,20 @@
 
 module VAOS
   class PreferencesController < VAOS::BaseController
-    def index
-      response = preferences_service.get_preferences(current_user)
+    def show
+      response = preferences_service.get_preferences
       render json: VAOS::PreferencesSerializer.new(response)
     end
 
     def update
-      response = appointment_requests_service.put_request(id, put_params)
-      render json: AppointmentRequestsSerializer.new(response)
+      response = preferences_service.put_preferences(put_params)
+      render json: VAOS::PreferencesSerializer.new(response)
     end
 
     private
 
     def preferences_service
-      VAOS::PreferencesService.new
+      VAOS::PreferencesService.new(current_user)
     end
 
     def put_params

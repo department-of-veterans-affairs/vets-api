@@ -37,7 +37,7 @@ describe VAOS::PreferencesService do
 
     context 'with valid params' do
       it 'updates preferences', :skip_mvi do
-        VCR.use_cassette('vaos/preferences/put_preference', record: :new_episodes) do
+        VCR.use_cassette('vaos/preferences/put_preference', match_requests_on: %i[method uri]) do
           response = subject.put_preference(request_body)
 
           expect(response.notification_frequency).to eq('Each new message')

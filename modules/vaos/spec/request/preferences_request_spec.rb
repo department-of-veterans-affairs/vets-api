@@ -38,9 +38,19 @@ RSpec.describe 'preferences', type: :request do
     end
 
     context 'with a valid PUT preferences request' do
+      let(:request_body) do
+        {
+          notification_frequency: 'Each new message',
+          email_allowed: true,
+          email_address: 'abraham.lincoln@va.gov',
+          text_msg_allowed: false,
+          text_msg_ph_number: ''
+        }
+      end
+
       it 'returns a 200 with correct schema' do
         VCR.use_cassette('vaos/preferences/put_preferences', record: :new_episodes) do
-          put '/v0/vaos/preferences'
+          put '/v0/vaos/preferences', params: request_body
 
           expect(response).to have_http_status(:ok)
           expect(response.body).to be_a(String)
