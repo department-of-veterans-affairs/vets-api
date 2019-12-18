@@ -61,6 +61,16 @@ RSpec.describe 'Claim Appeals API endpoint', type: :request do
         end
       end
     end
+
+    context 'with a malformed request' do
+      it 'higher level review endpoint returns a 400 error' do
+        VCR.use_cassette('decision_review/400_review') do
+          post hlr_endpoint
+          expect(response).to have_http_status(:bad_request)
+          expect(response).to match_response_schema('higher_level_review_errors')
+        end
+      end
+    end
   end
 
   context 'with the X-VA-SSN and X-VA-User header supplied ' do
