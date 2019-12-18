@@ -90,6 +90,12 @@ PATH
       sidekiq
 
 PATH
+  remote: modules/veteran_confirmation
+  specs:
+    veteran_confirmation (0.0.1)
+      rails (~> 5.2.3)
+
+PATH
   remote: modules/veteran_verification
   specs:
     veteran_verification (0.0.1)
@@ -387,7 +393,7 @@ GEM
     i18n (0.9.5)
       concurrent-ruby (~> 1.0)
     ice_nine (0.11.2)
-    iconv (1.0.4)
+    iconv (1.0.8)
     iniparse (1.4.4)
     iso_country_codes (0.7.8)
     jaro_winkler (1.5.3)
@@ -478,7 +484,7 @@ GEM
       hashery (~> 2.0)
       ruby-rc4
       ttfunk
-    pg (0.19.0)
+    pg (1.1.4)
     prawn (2.2.2)
       pdf-core (~> 0.7.0)
       ttfunk (~> 1.5)
@@ -498,8 +504,8 @@ GEM
       activesupport (>= 3.0.0)
     raabro (1.1.6)
     rack (2.0.7)
-    rack-attack (5.0.1)
-      rack
+    rack-attack (6.2.1)
+      rack (>= 1.0, < 3)
     rack-cors (1.0.6)
       rack (>= 1.6.0)
     rack-protection (2.0.7)
@@ -856,6 +862,7 @@ DEPENDENCIES
   vba_documents!
   vcr
   veteran!
+  veteran_confirmation!
   veteran_verification!
   vets_json_schema!
   virtus
