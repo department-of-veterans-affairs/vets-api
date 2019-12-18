@@ -2,7 +2,6 @@
 
 require 'rails_helper'
 require 'saml/settings_service'
-require 'lib/shared_examples_for_sentry_logging'
 
 RSpec.describe SAML::SettingsService do
   before do

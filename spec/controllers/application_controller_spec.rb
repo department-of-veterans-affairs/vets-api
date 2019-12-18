@@ -2,7 +2,6 @@
 
 require 'rails_helper'
 require 'rx/client'
-require 'lib/shared_examples_for_sentry_logging'
 
 RSpec.describe ApplicationController, type: :controller do
   controller do
