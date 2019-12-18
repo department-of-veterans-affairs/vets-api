@@ -155,7 +155,7 @@
                       "enum": ["Veteran"]
                     },
                     "id": {
-                      "type": "string"
+                      "type": ["string", "integer"]
                     }
                   }
                 }
@@ -193,7 +193,7 @@
                         "enum": ["RequestIssue"]
                       },
                       "id": {
-                        "type": "string"
+                        "type": ["string", "integer"]
                       }
                     }
                   }
@@ -432,7 +432,7 @@
                   "rating_issue_profile_date": {
                     "type": ["string", "null"]
                   },
-                  "rating_decision_reference_id": {
+                  "rating_decision_id": {
                     "type": ["string", "null"]
                   },
                   "description": {
