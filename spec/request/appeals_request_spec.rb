@@ -2,72 +2,13 @@
 
 require 'rails_helper'
 
-RSpec.describe 'Appeals', type: :request do
+RSpec.describe 'Appeals Status', type: :request do
   include SchemaMatchers
 
   before { sign_in_as(user) }
 
-  uuid = '1234567890'
-
-  shared_context 'with user' do |options|
-    using_ssn = options[:without_ssn] ? nil : '111223333'
-    let(:user) { FactoryBot.create(:user, options[:user], ssn: using_ssn )}
-  end
-
-  describe 'show higher level review' do
-    context 'with an loa1 user' do
-      include_context 'with user', user: :loa1
-
-      it 'returns a forbidden error' do
-        get "/v0/appeals/higher_level_reviews/#{uuid}"
-        expect(response).to have_http_status(:forbidden)
-      end
-    end
-
-    context 'with an loa3 user' do
-      include_context 'with user', user: :loa3
-      
-      context 'with a valid response' do
-        it 'returns a successful response' do
-          VCR.use_cassette('appeals/higher_level_review') do
-            get "/v0/appeals/higher_level_reviews/#{uuid}"
-            expect(response).to have_http_status(:ok)
-            expect(response.body).to be_a(String)
-            expect(response).to match_response_schema('higher_level_review')
-          end
-        end
-      end
-    end
-  end
-
-  describe 'show intake status' do
-    context 'using loa1 user' do
-      include_context 'with user', user: :loa1
-
-      it 'returns a forbidden error' do
-        get "/v0/appeals/higher_level_reviews/intake_status/#{uuid}"
-        expect(response).to have_http_status(:forbidden)
-      end
-    end
-
-    context 'using loa3 user' do
-      include_context 'with user', user: :loa3
-
-      context 'with a valid response' do
-        it 'returns a successful response' do
-          VCR.use_cassette('appeals/intake_status') do
-            get "/v0/appeals/higher_level_reviews/intake_status/#{uuid}"
-            expect(response).to have_http_status(:ok)
-            expect(response.body).to be_a(String)
-            expect(response).to match_response_schema('intake_status')
-          end
-        end
-      end
-    end
-  end
-
   context 'with a loa1 user' do
-    include_context 'with user', user: :loa1
+    let(:user) { FactoryBot.create(:user, :loa1, ssn: '111223333') }
 
     it 'returns a forbidden error' do
       get '/v0/appeals'
@@ -76,7 +17,7 @@ RSpec.describe 'Appeals', type: :request do
   end
 
   context 'with a loa3 user without a ssn' do
-    include_context 'with user', user: :loa3, without_ssn: true
+    let(:user) { FactoryBot.create(:user, :loa1, ssn: nil) }
 
     it 'returns a forbidden error' do
       get '/v0/appeals'
@@ -85,7 +26,7 @@ RSpec.describe 'Appeals', type: :request do
   end
 
   context 'with a loa3 user' do
-    include_context 'with user', user: :loa3, without_ssn: true
+    let(:user) { FactoryBot.create(:user, :loa3, ssn: '111223333') }
 
     context 'with a valid response' do
       it 'returns a successful response' do
