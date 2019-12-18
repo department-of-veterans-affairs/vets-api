@@ -4,7 +4,8 @@ module VbaDocuments
   module DocumentUpload
     class StatusSwagger
       include Swagger::Blocks
-      swagger_schema :DocumentUploadStatus do
+      swagger_component do
+      schema :DocumentUploadStatus do
         key :description, 'Status record for a previously initiated document submission.'
         key :required, %i[id type attributes]
 
@@ -24,6 +25,7 @@ module VbaDocuments
         property :attributes do
           key :$ref, :DocumentUploadStatusAttributes
         end
+      end
       end
     end
   end
