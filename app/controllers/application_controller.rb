@@ -147,8 +147,8 @@ class ApplicationController < ActionController::API
   end
 
   def set_app_info_headers
-    headers['X-GitHub-Repository'] = 'https://github.com/department-of-veterans-affairs/vets-api'
-    headers['X-Git-SHA'] = AppInfo::GIT_REVISION
+    headers['X-Git-SHA']           = AppInfo::GIT_REVISION
+    headers['X-GitHub-Repository'] = AppInfo::GITHUB_URL
   end
 
   def saml_settings(options = {})
