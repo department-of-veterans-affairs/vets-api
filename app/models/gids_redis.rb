@@ -13,7 +13,6 @@ class GIDSRedis < Common::RedisStore
   # scrubbed_params [Hash] the params to be used with the rest_call
   attr_accessor :rest_call, :scrubbed_params
 
-  # rubocop:disable Style/MethodMissingSuper
   def method_missing(name, *args)
     if respond_to?(name, nil)
       self.rest_call = name
@@ -23,7 +22,6 @@ class GIDSRedis < Common::RedisStore
       super
     end
   end
-  # rubocop:enable Style/MethodMissingSuper
 
   def respond_to_missing?(name, _include_private)
     gi_service.respond_to?(name)
