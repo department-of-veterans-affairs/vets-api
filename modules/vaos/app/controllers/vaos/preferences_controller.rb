@@ -9,7 +9,7 @@ module VAOS
 
     def update
       response = appointment_requests_service.put_request(id, put_params)
-      render json: AppointmentRequestsSerializer.new(response[:data])
+      render json: AppointmentRequestsSerializer.new(response)
     end
 
     private

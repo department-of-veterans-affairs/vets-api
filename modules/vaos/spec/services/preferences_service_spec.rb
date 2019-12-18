@@ -5,7 +5,7 @@ require 'rails_helper'
 describe VAOS::PreferencesService do
   let(:user) { build(:user, :mhv) }
 
-  before { allow_any_instance_of(VAOS::UserService).to receive(:session).and_return('stubbed_token') }
+  # before { allow_any_instance_of(VAOS::UserService).to receive(:session).and_return('stubbed_token') }
 
   describe '#get_preferences' do
     context 'with a 200 response' do
@@ -22,11 +22,23 @@ describe VAOS::PreferencesService do
   end
 
   describe '#put_preferences' do
+    let(:user) { build(:user, :vaos) }
+    let(:request_body) {
+      {
+        notification_frequency: 'Each new message',
+        email_allowed: true,
+        email_address: 'abraham.lincoln@va.gov',
+        text_msg_allowed: false,
+        text_msg_ph_number: ''
+      }
+    }
+
     context 'with valid params' do
         it 'updates preferences', :skip_mvi do
           VCR.use_cassette('vaos/preferences/put_preference', record: :new_episodes) do
             put "/v0/vaos/preferences", params: request_body
 
+            binding.pry
             expect(response).to have_http_status(:success)
             expect(response.body).to be_a(String)
             expect(json_body_for(response)).to match_schema('vaos/put_preference')
@@ -36,8 +48,9 @@ describe VAOS::PreferencesService do
 
       context 'with invalid params' do
         it 'returns a validation error', :skip_mvi do
-          put "/v0/vaos/preferences", params: request_body
+          put "/v0/vaos/preferences", params: {}
 
+          binding.pry
           expect(response).to have_http_status(:unprocessable_entity)
           expect(response.body).to be_a(String)
           expect(JSON.parse(response.body)['errors'].first['detail'])
