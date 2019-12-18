@@ -426,8 +426,8 @@ GEM
       crass (~> 1.0.2)
       nokogiri (>= 1.5.9)
     lumberjack (1.0.13)
-    mail (2.6.6)
-      mime-types (>= 1.16, < 4)
+    mail (2.7.1)
+      mini_mime (>= 0.1.1)
     marcel (0.3.3)
       mimemagic (~> 0.3.2)
     memoist (0.15.0)
@@ -437,6 +437,7 @@ GEM
     mime-types-data (3.2019.1009)
     mimemagic (0.3.2)
     mini_magick (4.9.4)
+    mini_mime (1.0.2)
     mini_portile2 (2.4.0)
     minitest (5.13.0)
     multi_json (1.13.1)
@@ -792,7 +793,7 @@ DEPENDENCIES
   levenshtein-ffi
   lighthouse_bgs!
   liquid
-  mail (= 2.6.6)
+  mail (= 2.7.1)
   memoist
   mini_magick (~> 4.9.4)
   net-sftp
