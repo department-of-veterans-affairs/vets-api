@@ -19,8 +19,8 @@ module VAOS
     end
 
     def put_params
-      params.require()
-      params.permit()
+      params.require
+      params.permit
     end
   end
 end
