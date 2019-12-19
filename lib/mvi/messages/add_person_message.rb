@@ -29,7 +29,7 @@ module MVI
       private
 
       def build_content(user)
-        current_time = Time.now.utc
+        current_time = Time.current
         ip_address = Socket.ip_address_list.find { |ip| ip.ipv4? && !ip.ipv4_loopback? }.ip_address
         {
           'msg_id' => "200VGOV-#{SecureRandom.uuid}",
