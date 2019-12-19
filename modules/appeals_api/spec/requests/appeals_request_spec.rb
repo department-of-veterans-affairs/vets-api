@@ -5,6 +5,52 @@ require 'rails_helper'
 RSpec.describe 'Claim Appeals API endpoint', type: :request do
   include SchemaMatchers
 
+  appeals_endpoint = '/services/appeals/v0/appeals'
+  hlr_endpoint = "#{appeals_endpoint}/higher_level_reviews"
+  intake_endpoint = "#{appeals_endpoint}/intake_statuses"
+
+  describe 'GET /intake_statuses' do
+    context 'with a valid decision review response' do
+      it 'returns an intake status response object' do
+        VCR.use_cassette('decision_review/200_intake_status') do
+          get "#{intake_endpoint}/1234567890"
+          expect(response).to have_http_status(:ok)
+          expect(response).to match_response_schema('intake_status')
+        end
+      end
+    end
+
+    context 'with a decision response that does not exist' do
+      it 'returns a 404 error' do
+        VCR.use_cassette('decision_review/404_get_intake_status') do
+          get "#{intake_endpoint}/1234"
+          expect(response).to have_http_status(:not_found)
+        end
+      end
+    end
+  end
+
+  describe 'GET /higher_level_reviews' do
+    context 'with a valid higher review response' do
+      it 'higher level review endpoint returns a successful response' do
+        VCR.use_cassette('decision_review/200_review') do
+          get "#{hlr_endpoint}/4bc96bee-c6a3-470e-b222-66a47629dc20"
+          expect(response).to have_http_status(:ok)
+          expect(response).to match_response_schema('higher_level_review')
+        end
+      end
+    end
+
+    context 'with a higher review response id that does not exist' do
+      it 'returns a 404 error' do
+        VCR.use_cassette('decision_review/404_review') do
+          get "#{hlr_endpoint}/1234"
+          expect(response).to have_http_status(:not_found)
+        end
+      end
+    end
+  end
+
   context 'with the X-VA-SSN and X-VA-User header supplied ' do
     let(:user) { FactoryBot.create(:user, :loa3) }
     let(:auth_headers) { EVSS::AuthHeaders.new(user).to_h }
@@ -28,7 +74,7 @@ RSpec.describe 'Claim Appeals API endpoint', type: :request do
 
     it 'returns a successful response' do
       VCR.use_cassette('appeals/appeals') do
-        get '/services/appeals/v0/appeals', params: nil, headers: user_headers
+        get appeals_endpoint, params: nil, headers: user_headers
         expect(response).to have_http_status(:ok)
         expect(response.body).to be_a(String)
         expect(response).to match_response_schema('appeals')
@@ -38,7 +84,7 @@ RSpec.describe 'Claim Appeals API endpoint', type: :request do
     it 'logs details about the request' do
       VCR.use_cassette('appeals/appeals') do
         allow(Rails.logger).to receive(:info)
-        get '/services/appeals/v0/appeals', params: nil, headers: user_headers
+        get appeals_endpoint, params: nil, headers: user_headers
 
         hash = Digest::SHA2.hexdigest '111223333'
         expect(Rails.logger).to have_received(:info).with('Caseflow Request',
@@ -71,7 +117,7 @@ RSpec.describe 'Claim Appeals API endpoint', type: :request do
 
     it 'returns a successful response' do
       VCR.use_cassette('appeals/appeals_empty') do
-        get '/services/appeals/v0/appeals', params: nil, headers: user_headers
+        get appeals_endpoint, params: nil, headers: user_headers
 
         expect(response).to have_http_status(:ok)
         expect(response.body).to be_a(String)
@@ -82,7 +128,7 @@ RSpec.describe 'Claim Appeals API endpoint', type: :request do
     it 'logs appropriately' do
       VCR.use_cassette('appeals/appeals_empty') do
         allow(Rails.logger).to receive(:info)
-        get '/services/appeals/v0/appeals', params: nil, headers: user_headers
+        get appeals_endpoint, params: nil, headers: user_headers
 
         hash = Digest::SHA2.hexdigest '111223333'
         expect(Rails.logger).to have_received(:info).with('Caseflow Request',
@@ -99,7 +145,7 @@ RSpec.describe 'Claim Appeals API endpoint', type: :request do
   context 'without the X-VA-User header supplied' do
     it 'returns a successful response' do
       VCR.use_cassette('appeals/appeals') do
-        get '/services/appeals/v0/appeals',
+        get appeals_endpoint,
             params: nil,
             headers: { 'X-VA-SSN' => '111223333',
                        'X-Consumer-Username' => 'TestConsumer' }
@@ -111,7 +157,7 @@ RSpec.describe 'Claim Appeals API endpoint', type: :request do
   context 'without the X-VA-SSN header supplied' do
     it 'returns a successful response' do
       VCR.use_cassette('appeals/appeals') do
-        get '/services/appeals/v0/appeals',
+        get appeals_endpoint,
             params: nil,
             headers: { 'X-Consumer-Username' => 'TestConsumer',
                        'X-VA-User' => 'adhoc.test.user' }
@@ -132,7 +178,7 @@ RSpec.describe 'Claim Appeals API endpoint', type: :request do
   context 'with a not found response' do
     it 'returns a 404 and logs an info level message' do
       VCR.use_cassette('appeals/not_found') do
-        get '/services/appeals/v0/appeals',
+        get appeals_endpoint,
             params: nil,
             headers: { 'X-VA-SSN' => '111223333',
                        'X-Consumer-Username' => 'TestConsumer',
