@@ -1,12 +1,15 @@
 # frozen_string_literal: true
 
+require 'ostruct'
+
 module VeteranConfirmation
   class StatusService
     CONFIRMED = 'confirmed'
     NOT_CONFIRMED = 'not confirmed'
 
-    def get_by_attributes(attributes)
-      mvi_resp = MVI::Service.new.find_profile_from_attributes(attributes)
+    def get_by_attributes(user_attributes)
+      attrs = OpenStruct.new(user_attributes)
+      mvi_resp = MVI::AttrService.new.find_profile(attrs)
       return NOT_CONFIRMED unless mvi_resp.ok?
 
       emis_resp = EMIS::VeteranStatusService.new.get_veteran_status(
