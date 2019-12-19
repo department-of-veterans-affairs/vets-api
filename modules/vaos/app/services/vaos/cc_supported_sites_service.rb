@@ -22,10 +22,7 @@ module VAOS
     def get_supported_sites(site_codes)
       with_monitoring do
         response = perform(:get, url(site_codes), nil, headers(user))
-        {
-          data: OpenStruct.new(response.body),
-          meta: {}
-        }
+        OpenStruct.new(response.body)
       end
     end
 
