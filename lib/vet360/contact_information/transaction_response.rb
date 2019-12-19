@@ -55,5 +55,6 @@ module Vet360
     class EmailTransactionResponse < TransactionResponse; end
     class PersonTransactionResponse < TransactionResponse; end
     class TelephoneTransactionResponse < TransactionResponse; end
+    class PermissionTransactionResponse < TransactionResponse; end
   end
 end
