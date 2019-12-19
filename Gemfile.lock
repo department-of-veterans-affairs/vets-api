@@ -689,7 +689,7 @@ GEM
     tzinfo (1.2.5)
       thread_safe (~> 0.1)
     unicode-display_width (1.6.0)
-    upsert (2.2.1)
+    upsert (2.9.10)
     uri_template (0.7.0)
     utf8-cleaner (0.2.5)
       activesupport
