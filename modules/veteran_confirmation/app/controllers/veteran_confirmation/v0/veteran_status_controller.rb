@@ -64,7 +64,7 @@ module VeteranConfirmation
       def vali_date(date)
         Date.iso8601(date)
       rescue ArgumentError
-        raise error_klass('Birth date must be a valid iso8601 format')
+        raise error_klass('birth_date must be a valid iso8601 format')
       end
 
       def error_klass(detail)
