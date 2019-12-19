@@ -30,7 +30,7 @@ module MVI
 
       def build_content(user)
         current_time = Time.now.utc
-        ip_address = Socket.ip_address_list.find { |ai| ai.ipv4? && !ai.ipv4_loopback? }.ip_address
+        ip_address = Socket.ip_address_list.find { |ip| ip.ipv4? && !ip.ipv4_loopback? }.ip_address
         {
           'msg_id' => "200VGOV-#{SecureRandom.uuid}",
           'date_of_request' => current_time.strftime('%Y%m%d%H%M%S'),
@@ -40,7 +40,7 @@ module MVI
           'edipi' => user.edipi,
           'first_name' => user.first_name,
           'last_name' => user.last_name,
-          'date_of_birth' => user.birth_date,
+          'date_of_birth' => Date.parse(user.birth_date).strftime('%Y%m%d'),
           'ssn' => user.ssn,
           'current_datetime' => current_time.strftime('%Y-%m-%d %H:%M:%S'),
           'ip_address' => ip_address
