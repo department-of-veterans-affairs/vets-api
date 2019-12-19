@@ -8,10 +8,9 @@ module MVI
     class AddParser
       include SentryLogging
 
+      ACKNOWLEDGEMENT_DETAIL_CODE_XPATH = 'acknowledgement/acknowledgementDetail/code'
       BODY_XPATH = 'env:Envelope/env:Body/idm:MCCI_IN000002UV01'
       CODE_XPATH = 'acknowledgement/typeCode/@code'
-
-      ACKNOWLEDGEMENT_DETAIL_CODE_XPATH = 'acknowledgement/acknowledgementDetail/code'
 
       # MVI response code options.
       EXTERNAL_RESPONSE_CODES = {
