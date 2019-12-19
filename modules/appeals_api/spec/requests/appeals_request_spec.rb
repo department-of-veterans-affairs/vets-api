@@ -55,7 +55,42 @@ RSpec.describe 'Claim Appeals API endpoint', type: :request do
     context 'with an accepted response' do
       it 'higher level review endpoint returns a successful response' do
         VCR.use_cassette('decision_review/202_review') do
-          post hlr_endpoint
+          request = {
+            'data' => {
+              'type' => 'HigherLevelReview',
+              'attributes' => {
+                'receiptDate' => '2019-07-10',
+                'informalConference' => true,
+                'sameOffice' => false,
+                'legacyOptInApproved' => true,
+                'benefitType' => 'compensation',
+                'veteran' => {
+                  'fileNumberOrSsn' => '123456789',
+                  'addressLine1' => '123 Street St',
+                  'addressLine2' => 'Apt 4',
+                  'city' => 'Chicago',
+                  'stateProvinceCode' => 'IL',
+                  'zipPostalCode' => '60652',
+                  'phoneNumber' => '4432924565',
+                  'emailAddress' => 'someone@example.com'
+                },
+                'claimant' => {
+                  'participantId' => '44444444',
+                  'payeeCode' => '10'
+                }
+              }
+            },
+            'included' => [
+              {
+                'type' => 'RequestIssue',
+                'attributes' => {
+                  'decisionIssueId' => 2
+                }
+              }
+            ]
+          }
+
+          post hlr_endpoint, body: request.to_json
           expect(response).to have_http_status(:accepted)
           expect(response).to match_response_schema('higher_level_review_accepted')
         end
