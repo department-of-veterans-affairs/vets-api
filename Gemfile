@@ -91,7 +91,7 @@ gem 'rgeo-geojson'
 gem 'ruby-saml'
 gem 'rubyzip', '>= 1.3.0'
 gem 'savon'
-gem 'sentry-raven', '2.9.0' # don't change gem version unless sentry server is also upgraded
+gem 'sentry-raven', '2.13.0' # don't change gem version unless sentry server is also upgraded
 gem 'shrine'
 gem 'sidekiq-instrument'
 gem 'staccato'
