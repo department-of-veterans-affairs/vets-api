@@ -40,8 +40,8 @@ info:
   contact:
     name: VA.gov
 tags:
-  - name: veteran_status
-    description: Veteran Verification - Veteran Status
+  - name: veteran_verification
+    description: Veteran Verification
 servers:
   - url: https://dev-api.va.gov/services/veteran_verification/{version}
     description: VA.gov API development environment
@@ -59,29 +59,9 @@ servers:
       version:
         default: v0
 paths:
-  /status:
-    get:
-      tags:
-        - veteran_status
-      summary: Get confirmation about an individual's Veteran status according to the VA
-      operationId: getVeteranStatus
-      security:
-        - bearer_token: []
-      responses:
-        '200':
-          description: Confirmation status successfully retrieved
-          content:
-            application/json:
-              schema:
-                required:
-                  - data
-                properties:
-                  data:
-                    $ref: '#/components/schemas/VeteranStatusConfirmation'
-        '403':
-          description: Provided Access Token Does not have the required scopes to access.
-        '502':
-          description: eMIS failed to respond or responded in a way we cannot handle. 
+  /status: STATUS_DOC_PLACEHOLDER
+  /disability_rating: DISABILITY_RATING_DOC_PLACEHOLDER
+  /service_history: SERVICE_HISTORY_DOC_PLACEHOLDER
 components:
   securitySchemes:
     bearer_token:
