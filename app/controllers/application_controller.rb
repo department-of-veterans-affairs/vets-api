@@ -116,8 +116,8 @@ class ApplicationController < ActionController::API
   # rubocop:enable Metrics/BlockLength
 
   def set_tags_and_extra_context
-    Thread.current['request_id'] = request.uuid
-    Thread.current['additional_request_attributes'] = {
+    RequestStore.store['request_id'] = request.uuid
+    RequestStore.store['additional_request_attributes'] = {
       'remote_ip' => request.remote_ip,
       'user_agent' => request.user_agent
     }

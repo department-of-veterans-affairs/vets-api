@@ -51,7 +51,7 @@ module ClaimsApi
 
       operation :post do
         key :summary, 'Accepts 2122 Power of Power of Attorney payload'
-        key :description, 'Accepts JSON payload. Full URL, including\nquery parameters.'
+        key :description, 'Accepts JSON payload. Full URL, including query parameters.'
         key :operationId, 'post2122'
         key :tags, [
           'Power of Attorney'
@@ -149,7 +149,7 @@ module ClaimsApi
     swagger_path '/forms/2122/{id}' do
       operation :put do
         key :summary, 'Upload 2122 document'
-        key :description, 'Accpets document binaries as part of a multipart payload.'
+        key :description, 'Accepts a document binary as part of a multipart payload.'
         key :operationId, 'upload2122Attachment'
         key :produces, [
           'application/json'
@@ -220,20 +220,6 @@ module ClaimsApi
           key :description, 'VA username of the person making the request'
           key :required, false
           key :type, :string
-        end
-
-        parameter do
-          key :name, 'attachment1'
-          key :in, :formData
-          key :type, :file
-          key :description, 'Attachment contents. Must be provided in PDF format and less than 11 in x 11 in'
-        end
-
-        parameter do
-          key :name, 'attachment2'
-          key :in, :formData
-          key :type, :file
-          key :description, 'Attachment contents. Must be provided in PDF format and less than 11 in x 11 in'
         end
 
         response 200 do
