@@ -10,9 +10,9 @@ module Preneeds
       return nil if value.to_s.empty?
 
       begin
-        return Time.iso8601(value&.to_s).utc.strftime('%Y-%m-%d')
+        Time.iso8601(value&.to_s).utc.strftime('%Y-%m-%d')
       rescue ArgumentError
-        return value
+        value
       end
     end
   end
