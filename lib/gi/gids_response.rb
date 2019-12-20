@@ -1,9 +1,5 @@
 # frozen_string_literal: true
 
-require 'common/models/redis_store'
-require 'common/client/concerns/service_status'
-require 'mvi/models/mvi_profile'
-
 module GI
   module Responses
     class GIDSResponse
