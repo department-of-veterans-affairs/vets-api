@@ -8,10 +8,11 @@ module GI
   module Responses
     class GIDSResponse
       include Virtus.model(nullify_blank: true)
-      include Common::Client::ServiceStatus
 
+      # @return  [Integer] the response status
       attribute :status, Integer
 
+      # @return  [Hash] the response body
       attribute :body, Hash
 
       # Builds a response with a ok status and a response's body
