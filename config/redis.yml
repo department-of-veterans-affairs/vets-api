@@ -28,8 +28,8 @@ development: &defaults
   gi_bill_feedback:
     namespace: gi_bill_feedback
     each_ttl: 86400
-  gi_response:
-    namespace: gi-response
+  gids_response:
+    namespace: gids-response
     each_ttl: 86400
   sm_store:
     namespace: sm-service

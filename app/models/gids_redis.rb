@@ -6,11 +6,13 @@ require 'common/models/concerns/cache_aside'
 class GIDSRedis < Common::RedisStore
   include Common::CacheAside
 
-  redis_config_key :gi_response
+  redis_config_key :gids_response
 
-  # rest_call [Symbol] the GI::Client method to call
-  # scrubbed_params [Hash] the params to be used with the rest_call
-  attr_accessor :rest_call, :scrubbed_params
+  # @return  [Symbol] the GI::Client method to call
+  attr_accessor :rest_call
+
+  # @return [Hash] the params to be used with the rest_call
+  attr_accessor :scrubbed_params
 
   def method_missing(name, *args)
     if respond_to?(name, nil)

@@ -7,7 +7,7 @@ describe GIDSRedis do
   let(:scrubbed_params) { {} }
   let(:service) { GIDSRedis.new }
   let(:body) { {} }
-  let(:gi_response) do
+  let(:gids_response) do
     GI::Responses::GIDSResponse.new(status: 200, body: body)
   end
 
