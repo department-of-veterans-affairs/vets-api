@@ -823,6 +823,7 @@ DEPENDENCIES
   rainbow
   redis
   redis-namespace
+  request_store
   restforce
   rgeo-geojson
   rspec-rails (~> 3.5)
@@ -877,4 +878,4 @@ RUBY VERSION
    ruby 2.4.5p335
 
 BUNDLED WITH
-   1.17.3
+   2.0.2
