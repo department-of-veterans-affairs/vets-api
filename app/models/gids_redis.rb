@@ -15,7 +15,7 @@ class GIDSRedis < Common::RedisStore
   attr_accessor :scrubbed_params
 
   def method_missing(name, *args)
-    if respond_to?(name, nil)
+    if respond_to?(name)
       self.rest_call = name
       self.scrubbed_params = *args
       response_from_redis_or_service.body

@@ -55,7 +55,7 @@ module GI
     private
 
     def gids_response(response)
-      GI::Responses::GIDSResponse.from(response)
+      GI::GIDSResponse.from(response)
     end
   end
 end
