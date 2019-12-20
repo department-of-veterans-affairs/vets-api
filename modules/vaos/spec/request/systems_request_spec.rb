@@ -108,7 +108,7 @@ RSpec.describe 'systems', type: :request do
 
       context 'when parent_code is missing' do
         it 'returns a 200 with the correct schema' do
-          VCR.use_cassette('vaos/systems/get_system_facilities', match_requests_on: %i[method uri]) do
+          VCR.use_cassette('vaos/systems/get_system_facilities_noparent', match_requests_on: %i[method uri]) do
             get '/v0/vaos/systems/688/direct_scheduling_facilities', params: { type_of_care_id: '323' }
 
             expect(response).to have_http_status(:ok)
