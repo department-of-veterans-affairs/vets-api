@@ -60,10 +60,9 @@ RSpec.describe 'Burial Claim Integration', type: %i[request serializer] do
           'mvi/find_candidate/find_profile_with_attributes',
           VCR::MATCH_EVERYTHING
         ) do
-
-        subject
-        expect(JSON.parse(response.body)['data']['attributes'].keys.sort)
-          .to eq(%w[confirmationNumber form guid regionalOffice submittedAt])
+          subject
+          expect(JSON.parse(response.body)['data']['attributes'].keys.sort)
+            .to eq(%w[confirmationNumber form guid regionalOffice submittedAt])
         end
       end
     end
