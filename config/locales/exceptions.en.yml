@@ -1674,6 +1674,12 @@ en:
         detail: The veteran could not be found
         code: DR_veteran_not_found
         status: 404
+      DR_decision_review_not_found:
+        <<: *defaults
+        title: Decision Review Not Found
+        detail: The decision review could not be found
+        code: DR_decision_review_not_found
+        status: 404
       DR_duplicate_intake_in_progress:
         <<: *defaults
         title: Duplicate Intake In Progress
