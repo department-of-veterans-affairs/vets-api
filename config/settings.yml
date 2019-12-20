@@ -84,6 +84,11 @@ central_mail:
     host: 'icmhs-api-test.csrarad.com'
     token: '<PENSIONS_TOKEN>'
 
+# Settings for BIP Services
+bip:
+  claims:
+    url: "https://claims-uat.dev8.bip.va.gov"
+
 # Settings for Vet360
 vet360:
   url: "https://int.vet360.va.gov"
@@ -269,8 +274,8 @@ emis:
     v2:
       soap_namespaces:
         xmlns:v1: http://viers.va.gov/cdi/CDI/commonService/v2
-        xmlns:v12: http://viers.va.gov/cdi/eMIS/RequestResponse/v2 
-        xmlns:v13: http://viers.va.gov/cdi/eMIS/commonService/v2 
+        xmlns:v12: http://viers.va.gov/cdi/eMIS/RequestResponse/v2
+        xmlns:v13: http://viers.va.gov/cdi/eMIS/commonService/v2
         xmlns:v11: http://viers.va.gov/cdi/eMIS/RequestResponse/MilitaryInfo/v2
   payment:
     v1:

@@ -52,10 +52,19 @@ RSpec.describe 'Burial Claim Integration', type: %i[request serializer] do
         }
       end
 
-      it 'renders success' do
+      # need run_at and uuid for VCR cassette to match
+      it 'renders success', run_at: 'Thu, 29 Aug 2019 17:45:03 GMT' do
+        allow(SecureRandom).to receive(:uuid).and_return('c3fa0769-70cb-419a-b3a6-d2563e7b8502')
+
+        VCR.use_cassette(
+          'mvi/find_candidate/find_profile_with_attributes',
+          VCR::MATCH_EVERYTHING
+        ) do
+
         subject
         expect(JSON.parse(response.body)['data']['attributes'].keys.sort)
           .to eq(%w[confirmationNumber form guid regionalOffice submittedAt])
+        end
       end
     end
   end
