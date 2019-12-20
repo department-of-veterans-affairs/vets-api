@@ -59,7 +59,7 @@ module Common
         if json_string.nil?
           collection = new(klass, yield.merge(cache_key: cache_key))
           cache(collection.serialize, cache_key, ttl)
-          return collection
+          collection
         else
           json_hash = Oj.load(json_string)
           new(klass, json_hash.merge('cache_key' => cache_key).symbolize_keys)
