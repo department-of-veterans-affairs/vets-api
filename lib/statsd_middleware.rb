@@ -97,14 +97,15 @@ class StatsdMiddleware
     return nil if source_app.nil?
     return source_app if SOURCE_APP_NAMES.include?(source_app)
 
-    Raven.capture_message('Unrecognized Source App Request Header',
-                          level: 'warning', extra: { source_app_name: source_app })
-    nil
+    # TODO: - Use sentry to notify us instead. It must be done in a rate-limited way
+    #        so as not to allow for a malicious client to overflow worker queues
+    Rails.logger.warn "Unrecognized value for HTTP_SOURCE_APP_NAME request header... [#{source_app}]"
+
+    ''
   end
 
   def instrument_statsd(status, duration, controller, action, source_app)
-    duration_tags = ["controller:#{controller}", "action:#{action}"]
-    duration_tags.push("source_app:#{source_app}") unless source_app.nil?
+    duration_tags = ["controller:#{controller}", "action:#{action}", "source_app:#{source_app}"]
     status_tags = duration_tags + ["status:#{status}"]
 
     # rubocop:disable Style/RescueModifier

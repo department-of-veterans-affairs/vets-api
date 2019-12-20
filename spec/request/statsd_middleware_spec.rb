@@ -32,7 +32,7 @@ RSpec.describe StatsdMiddleware, type: :request do
 
   it 'sends status data to statsd' do
     stub_varx_request(:get, 'mhv-api/patient/v1/prescription/gethistoryrx', history_rxs, status_code: 200)
-    tags = %w[controller:v0/prescriptions action:index status:200]
+    tags = %w[controller:v0/prescriptions action:index source_app: status:200]
     expect do
       get '/v0/prescriptions'
     end.to trigger_statsd_increment(StatsdMiddleware::STATUS_KEY, tags: tags, times: 1, value: 1)
@@ -40,7 +40,7 @@ RSpec.describe StatsdMiddleware, type: :request do
 
   it 'sends duration data to statsd' do
     stub_varx_request(:get, 'mhv-api/patient/v1/prescription/gethistoryrx', history_rxs, status_code: 200)
-    tags = %w[controller:v0/prescriptions action:index]
+    tags = %w[controller:v0/prescriptions action:index source_app:]
     expect do
       get '/v0/prescriptions'
     end.to trigger_statsd_measure(StatsdMiddleware::DURATION_KEY, tags: tags, times: 1, value: 0.0)
@@ -63,14 +63,14 @@ RSpec.describe StatsdMiddleware, type: :request do
   end
 
   it 'handles a missing route correctly' do
-    tags = %w[controller:application action:routing_error status:404]
+    tags = %w[controller:application action:routing_error source_app: status:404]
     expect do
       get '/v0/blahblah'
     end.to trigger_statsd_increment(StatsdMiddleware::STATUS_KEY, tags: tags, times: 1, value: 1)
   end
 
   it 'provides duration for missing routes' do
-    tags = %w[controller:application action:routing_error]
+    tags = %w[controller:application action:routing_error source_app:]
     expect do
       get '/v0/blahblah'
     end.to trigger_statsd_measure(StatsdMiddleware::DURATION_KEY, tags: tags, times: 1, value: 0.0)
@@ -84,17 +84,17 @@ RSpec.describe StatsdMiddleware, type: :request do
     end.to trigger_statsd_increment(StatsdMiddleware::STATUS_KEY, tags: tags, times: 1)
   end
 
-  it 'ignores source_app_name when the value is not in white list' do
+  it 'uses a blank string for source_app when the value is not in white list' do
     stub_varx_request(:get, 'mhv-api/patient/v1/prescription/gethistoryrx', history_rxs, status_code: 200)
-    tags = %w[controller:v0/prescriptions action:index status:200]
+    tags = %w[controller:v0/prescriptions action:index source_app: status:200]
     expect do
       get '/v0/prescriptions', headers: { 'Source-App-Name' => 'foo' }
     end.to trigger_statsd_increment(StatsdMiddleware::STATUS_KEY, tags: tags, times: 1)
   end
 
-  it 'logs a warning to sentry for unrecognized source_app_name headers' do
-    expect(Raven).to receive(:capture_message).once.with(
-      'Unrecognized Source App Request Header', extra: { source_app_name: 'foo' }, level: 'warning'
+  it 'logs a warning for unrecognized source_app_name headers' do
+    expect(Rails.logger).to receive(:warn).once.with(
+      'Unrecognized value for HTTP_SOURCE_APP_NAME request header... [foo]'
     )
     get '/v0/prescriptions', headers: { 'Source-App-Name' => 'foo' }
   end
