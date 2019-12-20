@@ -68,7 +68,7 @@ gem 'lighthouse_bgs', git: 'https://github.com/department-of-veterans-affairs/li
 gem 'liquid'
 gem 'mail', '2.6.6'
 gem 'memoist'
-gem 'mini_magick', '~> 4.9.4'
+gem 'mini_magick', '~> 4.9.5'
 gem 'net-sftp'
 gem 'nokogiri', '~> 1.10', '>= 1.10.4'
 gem 'oj' # Amazon Linux `json` gem causes conflicts, but `multi_json` will prefer `oj` if installed
