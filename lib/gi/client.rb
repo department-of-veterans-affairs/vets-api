@@ -2,7 +2,7 @@
 
 require 'common/client/base'
 require 'gi/configuration'
-require 'gi/responses/gids_response'
+require 'gi/gids_response'
 
 module GI
   # Core class responsible for api interface operations
