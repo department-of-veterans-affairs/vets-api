@@ -1,6 +1,6 @@
 GIT
   remote: https://github.com/department-of-veterans-affairs/betamocks
-  revision: 23ac096038e443812664a2917eb54bce667bceb5
+  revision: f9800a7477a6a72afaa631e8a73429781ceb26a3
   branch: master
   specs:
     betamocks (0.7.0)
