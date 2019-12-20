@@ -1,4 +1,4 @@
-<% if Thread.current[:flipper_user_email_for_log].present? || Rails.env.development? %>
+<% if RequestStore.store[:flipper_user_email_for_log].present? || Rails.env.development? %>
   <% if params.key?("error") %>
     <div class="alert alert-danger">
       <%= params["error"] %>
