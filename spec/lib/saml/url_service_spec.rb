@@ -14,7 +14,7 @@ RSpec.describe SAML::URLService do
     around do |example|
       User.create(user)
       Timecop.freeze('2018-04-09T17:52:03Z')
-      Thread.current['request_id'] = '123'
+      RequestStore.store['request_id'] = '123'
       example.run
       Timecop.return
     end
