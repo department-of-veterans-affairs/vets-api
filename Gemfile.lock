@@ -184,7 +184,7 @@ GEM
     attr_encrypted (3.1.0)
       encryptor (~> 3.0.0)
     awesome_print (1.8.0)
-    awrence (0.1.0)
+    awrence (1.1.0)
     aws-partitions (1.79.0)
     aws-sdk-core (3.19.0)
       aws-partitions (~> 1.0)
@@ -692,7 +692,7 @@ GEM
     uri_template (0.7.0)
     utf8-cleaner (0.2.5)
       activesupport
-    vcr (3.0.3)
+    vcr (5.0.0)
     virtus (1.0.5)
       axiom-types (~> 0.1)
       coercible (~> 1.0)
@@ -736,6 +736,7 @@ DEPENDENCIES
   active_model_serializers (= 0.10.4)
   activerecord-import
   activerecord-postgis-adapter (~> 5.2.2)
+  addressable
   apivore
   appeals_api!
   attr_encrypted (= 3.1.0)
