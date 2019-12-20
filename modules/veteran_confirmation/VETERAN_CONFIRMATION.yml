@@ -3,18 +3,24 @@ info:
   version: 0.0.1
   title: Veteran Confirmation
   description: |
-    Veteran Confirmation
 
     ## Background
 
-    Placeholder for an upcoming Open API Spec
+    This API allows approved third-parties to request confirmation from the
+    VA of an individual's Veteran status.
+
+    ## Design
+
+    ### Authorization
+
+    API requests are authorized through a symmetric API token, provided in an HTTP header with name `apikey`.
 
   termsOfService: ''
   contact:
-    name: VA.gov
+    name: developer.va.gov
 tags:
   - name: veteran_confirmation_status
-    description: Veteran confirmation - Veteran Status
+    description: Veteran Confirmation - Veteran Status
 servers:
   - url: https://dev-api.va.gov/services/veteran_confirmation/{version}
     description: VA.gov API development environment
@@ -33,13 +39,20 @@ servers:
         default: v0
 paths:
   /status:
-    get:
+    post:
       tags:
         - veteran_confirmation_status
       summary: Get confirmation about an individual's Veteran status according to the VA
       operationId: getVeteranStatus
       security:
-        - bearer_token: []
+        - apikey: []
+      requestBody:
+        description: Optional description in *Markdown*
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/VeteranStatusRequest'
       responses:
         '200':
           description: Confirmation status successfully retrieved
@@ -51,8 +64,8 @@ paths:
                 properties:
                   data:
                     $ref: '#/components/schemas/VeteranStatusConfirmation'
-        '502':
-          description: eMIS failed to respond or responded in a way we cannot handle. 
+        '503':
+          description: We encountered a temporary error. Check back in the future. 
 components:
   securitySchemes:
     apikey:
@@ -60,15 +73,31 @@ components:
       name: apikey
       in: header
   schemas:
+    VeteranStatusRequest:
+      description: Attributes required to retrieve a veteran's status
+      type: object
+      properties:
+        ssn:
+          type: string
+          description: Social Security Number for the person of interest with or without dashes
+          example: "555-55-5555"
+        first_name:
+          type: string
+          description: First name for the person of interest
+          example: "John"
+        last_name:
+          type: string
+          description: Last name for the person of interest
+          example: "Doe"
+        birth_date:
+          type: string
+          description: Birth date for the person of interest in any valid ISO8601 format
+          example: "1965-01-01"
     VeteranStatusConfirmation:
       description: |
         Veteran status confirmation for an individual
       type: object
       properties:
-        id:
-          type: string
-          description: Confirmation UUID
-          example: "833c6ffc-efef-4775-9355-f836b4f57501"
         type:
           type: string
           example: veteran_status_confirmations
