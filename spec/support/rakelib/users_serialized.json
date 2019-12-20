@@ -25,7 +25,10 @@
       ":multifactor": true,
       ":authn_context": null,
       ":mhv_icn": null,
-      ":mhv_correlation_id": null
+      ":mhv_correlation_id": null,
+      ":sign_in": {
+        ":service_name": "idme"
+      }
     },
     "mvi-profile-response": {
       ":uuid": "7700bbf301eb4e6e95ccea7693eced6f",
@@ -98,7 +101,10 @@
       ":multifactor": true,
       ":authn_context": null,
       ":mhv_icn": null,
-      ":mhv_correlation_id": null
+      ":mhv_correlation_id": null,
+      ":sign_in": {
+        ":service_name": "idme"
+      }
     },
     "mvi-profile-response": {
       ":uuid": "76c38ec8bfb447b19dfd0c9808357d46",

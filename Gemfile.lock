@@ -1,6 +1,6 @@
 GIT
   remote: https://github.com/department-of-veterans-affairs/betamocks
-  revision: 23ac096038e443812664a2917eb54bce667bceb5
+  revision: f9800a7477a6a72afaa631e8a73429781ceb26a3
   branch: master
   specs:
     betamocks (0.7.0)
@@ -184,7 +184,7 @@ GEM
     attr_encrypted (3.1.0)
       encryptor (~> 3.0.0)
     awesome_print (1.8.0)
-    awrence (0.1.0)
+    awrence (1.1.0)
     aws-partitions (1.79.0)
     aws-sdk-core (3.19.0)
       aws-partitions (~> 1.0)
@@ -437,7 +437,7 @@ GEM
       mime-types-data (~> 3.2015)
     mime-types-data (3.2019.1009)
     mimemagic (0.3.2)
-    mini_magick (4.9.4)
+    mini_magick (4.9.5)
     mini_mime (1.0.2)
     mini_portile2 (2.4.0)
     minitest (5.13.0)
@@ -693,7 +693,7 @@ GEM
     uri_template (0.7.0)
     utf8-cleaner (0.2.5)
       activesupport
-    vcr (3.0.3)
+    vcr (5.0.0)
     virtus (1.0.5)
       axiom-types (~> 0.1)
       coercible (~> 1.0)
@@ -737,6 +737,7 @@ DEPENDENCIES
   active_model_serializers (= 0.10.4)
   activerecord-import
   activerecord-postgis-adapter (~> 5.2.2)
+  addressable
   apivore
   appeals_api!
   attr_encrypted (= 3.1.0)
@@ -795,7 +796,7 @@ DEPENDENCIES
   liquid
   mail (= 2.7.1)
   memoist
-  mini_magick (~> 4.9.4)
+  mini_magick (~> 4.9.5)
   net-sftp
   nokogiri (~> 1.10, >= 1.10.4)
   oj
