@@ -8,16 +8,12 @@ module VeteranConfirmation
       before_action :validate_body
 
       def index
-        body = JSON.parse(string_body)
-
-        attributes = {
-          ssn: body['ssn'],
-          first_name: body['first_name'],
-          last_name: body['last_name'],
-          birth_date: Date.iso8601(body['birth_date']).strftime('%Y%m%d')
-        }
-
-        status = StatusService.new.get_by_attributes(attributes)
+        status = StatusService.new.get_by_attributes(
+          ssn: params['ssn'],
+          first_name: params['first_name'],
+          last_name: params['last_name'],
+          birth_date: params['birth_date']
+        )
 
         render json: { veteran_status: status }
       end
@@ -25,32 +21,29 @@ module VeteranConfirmation
       private
 
       def validate_body
-        raise error_klass('Body must not be empty') if string_body.blank?
+        parameters_exist?(%w[first_name last_name ssn birth_date])
 
-        body = JSON.parse(string_body)
-
-        body.each do |key, value|
-          validate_presence(key, value)
-        end
-
-        validate_ssn_format(body['ssn'])
-        vali_date(body['birth_date'])
+        validate_ssn_format(params['ssn'])
+        vali_date(params['birth_date'])
       end
 
-      def validate_presence(user_detail_name, user_detail_value)
-        raise error_klass("Body must include #{user_detail_name}") if user_detail_value.blank?
+      def parameters_exist?(to_check)
+        to_check.each do |field|
+          if params[field].blank?
+            raise Common::Exceptions::ParameterMissing.new(field,
+                                                           detail: "Must supply #{field} to query Veteran status")
+          end
+        end
       end
 
       def validate_ssn_format(ssn)
-        raise error_klass('SSN must be 9 digits or have this format: 999-99-9999') unless valid_ssn?(ssn)
+        raise Common::Exceptions::InvalidFieldValue.new('ssn', 'the provided') unless valid_ssn?(ssn)
+
+        params['ssn'] = ssn.gsub('-', '')
       end
 
       def valid_ssn?(ssn)
         ssn.is_a?(String) && (all_digits?(ssn) || all_digits_with_hyphens?(ssn))
-      end
-
-      def string_body
-        @string_body ||= request.body.read
       end
 
       def all_digits?(ssn)
@@ -62,13 +55,9 @@ module VeteranConfirmation
       end
 
       def vali_date(date)
-        Date.iso8601(date)
+        params['birth_date'] = Date.iso8601(date).strftime('%Y%m%d')
       rescue ArgumentError
-        raise error_klass('birth_date must be a valid iso8601 format')
-      end
-
-      def error_klass(detail)
-        Common::Exceptions::Unauthorized.new(detail: "Validation error: #{detail}")
+        raise Common::Exceptions::InvalidFieldValue.new('birth_date', params['birth_date'])
       end
     end
   end

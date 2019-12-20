@@ -16,11 +16,9 @@ RSpec.describe 'Veteran Status API endpoint', type: :request, skip_emis: true do
 
   context 'with a valid user' do
     it 'returns confirmed if the veteran status is confirmed' do
-      # in real life, the post body is used, but there is no request spec param for Body.
-      # using the params attribute send the data to the params and body in the test.
       VCR.use_cassette('mvi/find_candidate/valid') do
         VCR.use_cassette('emis/get_veteran_status/valid_icn') do
-          post '/services/veteran_confirmation/v0/status', params: valid_attributes.to_json
+          post '/services/veteran_confirmation/v0/status', params: valid_attributes
 
           expect(response).to have_http_status(:ok)
           expect(JSON.parse(response.body)['veteran_status']).to eq('confirmed')
@@ -29,11 +27,9 @@ RSpec.describe 'Veteran Status API endpoint', type: :request, skip_emis: true do
     end
 
     it 'returns not confirmed if the user is not a veteran' do
-      # in real life, the post body is used, but there is no request spec param for Body.
-      # using the params attribute send the data to the params and body in the test.
       VCR.use_cassette('mvi/find_candidate/valid') do
         VCR.use_cassette('emis/get_veteran_status/valid_non_veteran_icn') do
-          post '/services/veteran_confirmation/v0/status', params: valid_attributes.to_json
+          post '/services/veteran_confirmation/v0/status', params: valid_attributes
 
           expect(response).to have_http_status(:ok)
           expect(JSON.parse(response.body)['veteran_status']).to eq('not confirmed')
@@ -51,11 +47,11 @@ RSpec.describe 'Veteran Status API endpoint', type: :request, skip_emis: true do
         birth_date: '1967-04-13'
       }
 
-      post '/services/veteran_confirmation/v0/status', params: missing_attributes.to_json
+      post '/services/veteran_confirmation/v0/status', params: missing_attributes
 
-      expect(response).to have_http_status(:unauthorized)
+      expect(response).to have_http_status(:bad_request)
       error_detail = JSON.parse(response.body)['errors'].first['detail']
-      expect(error_detail).to eq('Validation error: Body must include ssn')
+      expect(error_detail).to eq('Must supply ssn to query Veteran status')
     end
 
     it 'throws an error when ssn format is invalid' do
@@ -66,24 +62,11 @@ RSpec.describe 'Veteran Status API endpoint', type: :request, skip_emis: true do
         birth_date: '1967-04-13'
       }
 
-      post '/services/veteran_confirmation/v0/status', params: invalid_ssn_attributes.to_json
+      post '/services/veteran_confirmation/v0/status', params: invalid_ssn_attributes
 
-      expect(response).to have_http_status(:unauthorized)
+      expect(response).to have_http_status(:bad_request)
       error_detail = JSON.parse(response.body)['errors'].first['detail']
-      expect(error_detail).to eq('Validation error: SSN must be 9 digits or have this format: 999-99-9999')
-
-      invalid_ssn_attributes = {
-        ssn: '123abc5678',
-        first_name: 'Mitchell',
-        last_name: 'Jenkins',
-        birth_date: '1967-04-13'
-      }
-
-      post '/services/veteran_confirmation/v0/status', params: invalid_ssn_attributes.to_json
-
-      expect(response).to have_http_status(:unauthorized)
-      error_detail = JSON.parse(response.body)['errors'].first['detail']
-      expect(error_detail).to eq('Validation error: SSN must be 9 digits or have this format: 999-99-9999')
+      expect(error_detail).to eq('"the provided" is not a valid value for "ssn"')
     end
 
     it 'throws an error when date format is invalid' do
@@ -94,11 +77,11 @@ RSpec.describe 'Veteran Status API endpoint', type: :request, skip_emis: true do
         birth_date: '1967sep30th'
       }
 
-      post '/services/veteran_confirmation/v0/status', params: invalid_date_attributes.to_json
+      post '/services/veteran_confirmation/v0/status', params: invalid_date_attributes
 
-      expect(response).to have_http_status(:unauthorized)
+      expect(response).to have_http_status(:bad_request)
       error_detail = JSON.parse(response.body)['errors'].first['detail']
-      expect(error_detail).to eq('Validation error: birth_date must be a valid iso8601 format')
+      expect(error_detail).to eq('"1967sep30th" is not a valid value for "birth_date"')
     end
   end
 end
