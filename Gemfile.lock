@@ -823,6 +823,7 @@ DEPENDENCIES
   rainbow
   redis
   redis-namespace
+  request_store
   restforce
   rgeo-geojson
   rspec-rails (~> 3.5)
