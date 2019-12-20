@@ -16,8 +16,7 @@ class ApplicationController < ActionController::API
     Common::Exceptions::Unauthorized,
     Common::Exceptions::RoutingError,
     Common::Exceptions::Forbidden,
-    Breakers::OutageException,
-    EVSS::GiBillStatus::OutsideWorkingHours
+    Breakers::OutageException
   ].freeze
 
   VERSION_STATUS = {
