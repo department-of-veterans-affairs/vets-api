@@ -6,6 +6,12 @@ require 'set'
 namespace :form526 do
   desc 'Get all submissions within a date period. [<start date: yyyy-mm-dd>,<end date: yyyy-mm-dd>]'
   task :submissions, %i[start_date end_date] => [:environment] do |_, args|
+    # rubocop:disable Style/FormatStringToken
+    # This forces string token formatting. Our examples don't match
+    # what this style is enforcing
+    # rubocop: format('%<greeting>s', greeting: 'Hello')
+    # vets-api example: printf "%-20s %s\n", header, total
+
     def print_row(created_at, updated_at, id, c_id, p_id, complete, version) # rubocop:disable Metrics/ParameterLists
       printf "%-24s %-24s %-15s %-10s %-10s %-10s %s\n", created_at, updated_at, id, c_id, p_id, complete, version
     end
@@ -95,6 +101,7 @@ namespace :form526 do
   task :errors, %i[start_date end_date] => [:environment] do |_, args|
     def print_row(sub_id, p_id, created_at)
       printf "%-20s %-20s %s\n", sub_id, p_id, created_at
+      # rubocop:enable Style/FormatStringToken
     end
 
     def print_errors(errors)
