@@ -736,6 +736,7 @@ DEPENDENCIES
   active_model_serializers (= 0.10.4)
   activerecord-import
   activerecord-postgis-adapter (~> 5.2.2)
+  addressable
   apivore
   appeals_api!
   attr_encrypted (= 3.1.0)
