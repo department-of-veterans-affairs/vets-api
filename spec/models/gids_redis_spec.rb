@@ -11,9 +11,11 @@ describe GIDSRedis do
     GI::Responses::GIDSResponse.new(status: 200, body: body)
   end
 
-  it 'method_missing' do
-    allow_any_instance_of(GI::Client).to receive(:get_institution_details).and_return(gi_response)
+  describe 'method_missing' do
+    it 'returns response body' do
+      allow_any_instance_of(GI::Client).to receive(:get_institution_details).and_return(gi_response)
 
-    expect(service.get_institution_details(scrubbed_params)).to eq(gi_response.body)
+      expect(service.get_institution_details(scrubbed_params)).to eq(gi_response.body)
+    end
   end
 end
