@@ -28,14 +28,15 @@ checks:
     config:
       threshold: # language-specific defaults. an override will affect all languages.
     exclude_patterns:
-    - '*/engine.rb'
+      - '*/engine.rb'
+      - "**/swagger/**.rb"
   identical-code:
     config:
       threshold: # language-specific defaults. an override will affect all languages.
 plugins:
   rubocop:
     enabled: true
-    channel: rubocop-0-74
+    channel: rubocop-0-77
   brakeman:
     enabled: true
   bundler-audit:

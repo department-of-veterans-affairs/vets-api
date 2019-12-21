@@ -8,6 +8,7 @@ module Vet360
       attribute :emails, Array[Email]
       attribute :source_date, Common::ISO8601Time
       attribute :telephones, Array[Telephone]
+      attribute :permissions, Array[Permission]
       attribute :transaction_id, String
       attribute :updated_at, Common::ISO8601Time
       attribute :vet360_id, String
@@ -19,6 +20,7 @@ module Vet360
         addresses = body['addresses']&.map { |a| Vet360::Models::Address.build_from(a) }
         emails = body['emails']&.map { |e| Vet360::Models::Email.build_from(e) }
         telephones = body['telephones']&.map { |t| Vet360::Models::Telephone.build_from(t) }
+        permissions = body['permissions']&.map { |t| Vet360::Models::Permission.build_from(t) }
 
         Vet360::Models::Person.new(
           created_at: body['create_date'],
@@ -28,6 +30,7 @@ module Vet360
           addresses: addresses || [],
           emails: emails || [],
           telephones: telephones || [],
+          permissions: permissions || [],
           vet360_id: body['vet360_id']
         )
       end
