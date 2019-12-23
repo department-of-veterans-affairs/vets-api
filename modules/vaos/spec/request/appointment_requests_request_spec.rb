@@ -101,6 +101,20 @@ RSpec.describe 'vaos appointment requests', type: :request do
         expect(json_body_for(response)).to match_schema('vaos/appointment_request')
       end
     end
+
+    context 'Community Cares'
+      let(:params) { build(:cc_appointment_request_form, :creation, user: current_user).params.merge(type: 'cc') }
+
+      it 'creates a new CC appointment request' do
+        VCR.use_cassette('vaos/appointment_requests/post_request_CC', record: :new_episodes) do
+          post '/v0/vaos/appointment_requests', params: params
+          binding.pry
+          expect(response).to have_http_status(:created)
+          expect(response.body).to be_a(String)
+          expect(json_body_for(response)).to match_schema('vaos/appointment_request')
+        end
+      end
+    end
   end
 
   describe 'PUT /v0/vaos/appointment_requests/:id', skip_mvi: true do
