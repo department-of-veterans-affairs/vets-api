@@ -107,7 +107,7 @@ RSpec.describe 'EVSS Claims management', type: :request do
       'X-Consumer-Username' => 'TestConsumer',
       'X-VA-LOA' => '3'
     }
-  
+
     valid_headers.each_key do |header|
       context "without #{header}" do
         it 'returns a bad request response' do
