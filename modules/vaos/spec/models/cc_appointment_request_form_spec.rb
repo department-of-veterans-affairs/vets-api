@@ -5,8 +5,9 @@
 require 'rails_helper'
 
 describe VAOS::CCAppointmentRequestForm, type: :model do
-  let(:user) { build(:user, :vaos) }
   subject { build(:cc_appointment_request_form, :creation, user: user) }
+
+  let(:user) { build(:user, :vaos) }
 
   it 'responds to the correct attributes' do
     expect(subject.attributes.keys)

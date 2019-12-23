@@ -9,10 +9,10 @@ FactoryBot.define do
     initialize_with { new(user, attributes) }
 
     trait :creation do
-      additional_information { 'Whatever'}
+      additional_information { 'Whatever' }
       address { '' } # Why is this not required?
       appointment_type { 'Primary Care' }
-      best_timeto_call { ['Morning', 'Afternoon', 'Evening'] }
+      best_timeto_call { %w[Morning Afternoon Evening] }
       cc_appointment_request { {} } # What is this and why is it ok that it be empty?
       city { '' } # What?
       state { '' } # What?
@@ -20,7 +20,7 @@ FactoryBot.define do
       distance_willing_to_travel { '25' } # so it it a string or an integer??
       email { 'abraham.lincoln@va.gov' }
       new_message { 'A message to a clerk' }
-      office_hours { ['Weekdays', 'Evenings', 'Weekends'] }
+      office_hours { %w[Weekdays Evenings Weekends] }
       option_date1 { '12/29/2019' }
       option_time1 { 'AM' }
       option_date2 { 'No Date Selected' }

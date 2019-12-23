@@ -9,6 +9,7 @@ describe VAOS::AppointmentRequestsService do
 
   describe '#post_request' do
     let(:user) { build(:user, :vaos) }
+
     context 'with valid creation attributes from factory' do
       let(:appointment_request_params) { build(:appointment_request_form, :creation, user: user).params }
 

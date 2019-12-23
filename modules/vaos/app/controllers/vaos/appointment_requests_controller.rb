@@ -16,15 +16,15 @@ module VAOS
       :additional_information, :address, :city, :state, :zip_code, :distance_willing_to_travel, :new_message,
       :office_hours, :preferred_city, :preferred_state, :preferred_zip_code, :provider_option, :preferred_language,
       :reason_for_visit, :service, best_timeto_call: [], appointment_request_detail_code: [],
-      patient: %i[inpatient text_messaging_allowed],
-      preferred_providers: [
-        :id, :first_name, :last_name, :practice_name, :provider_street, :provider_city, :provider_state,
-        :provider_zip_code1, address: %i[street city state zip_code]
-      ],
-      facility: [
-        :name, :type, :facility_code, :state, :city, :address, :parent_site_code, :supports_v_a_r,
-        children: %i[name type facility_code state city address parent_site_code]
-      ]
+                                   patient: %i[inpatient text_messaging_allowed],
+                                   preferred_providers: [
+                                     :id, :first_name, :last_name, :practice_name, :provider_street, :provider_city, :provider_state,
+                                     :provider_zip_code1, address: %i[street city state zip_code]
+                                   ],
+                                   facility: [
+                                     :name, :type, :facility_code, :state, :city, :address, :parent_site_code, :supports_v_a_r,
+                                     children: %i[name type facility_code state city address parent_site_code]
+                                   ]
     ].freeze
 
     def index
