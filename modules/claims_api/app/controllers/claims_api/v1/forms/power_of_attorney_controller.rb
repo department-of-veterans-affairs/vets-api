@@ -26,7 +26,7 @@ module ClaimsApi
           power_of_attorney.save!
 
           # This job only occurs when a Veteran submits a PoA request, they are not required to submit a document.
-          ClaimsApi::PoaUpdater.perform_async(power_of_attorney.id) unless poa_request?
+          ClaimsApi::PoaUpdater.perform_async(power_of_attorney.id) unless header_request?
 
           render json: power_of_attorney, serializer: ClaimsApi::PowerOfAttorneySerializer
         end
@@ -35,7 +35,7 @@ module ClaimsApi
           power_of_attorney = ClaimsApi::PowerOfAttorney.find_by(id: params[:id])
 
           # This job only occurs when a Representative submits a PoA request to ensure they've also uploaded a document.
-          ClaimsApi::PoaUpdater.perform_async(power_of_attorney.id) if poa_request?
+          ClaimsApi::PoaUpdater.perform_async(power_of_attorney.id) if header_request?
 
           power_of_attorney.set_file_data!(documents.first, params[:doc_type])
           power_of_attorney.status = 'submitted'
@@ -55,7 +55,7 @@ module ClaimsApi
         private
 
         def source_name
-          user = poa_request? ? @current_user : target_veteran
+          user = header_request? ? @current_user : target_veteran
           "#{user.first_name} #{user.last_name}"
         end
       end
