@@ -5,8 +5,8 @@ module VAOS
     before_action :validate_params, only: :index
 
     BASE_REQUIRED_PARAMS = %i[
-      option_date1 option_time1 option_date2 option_time2 option_date3 option_time3
-      appointment_type visit_type phone_number facility
+      option_date1 option_time1 option_date2 option_time2 option_date3 option_time3 appointment_type visit_type
+      phone_number facility
     ].freeze
 
     BASE_PARAMS_WHITELIST = [
@@ -30,7 +30,6 @@ module VAOS
     end
 
     def create
-      binding.pry
       response = appointment_requests_service.post_request(params_for_create)
       render json: AppointmentRequestsSerializer.new(response[:data]), status: :created
     end
