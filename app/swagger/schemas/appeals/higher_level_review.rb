@@ -3,13 +3,6 @@
 module Swagger
   module Schemas
     class Appeals
-      include Swagger::Blocks
-
-      swagger_schema :Appeals do
-        key :required, [:data]
-        property :data, type: :array
-      end
-
       swagger_schema :HigherLevelReview do
         key :required, %i[data included]
         property :data, type: :object do
@@ -19,13 +12,11 @@ module Swagger
             attributes
             relationships
           ]
-          property :id do
-            key :type, :string
+          property :id, type: :string do
             key :format, :uuid
             key :pattern, '^[0-9a-fA-F]{8}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{12}$'
           end
-          property :type do
-            key :type, :string
+          property :type, type: :string do
             key :enum, %w[HigherLevelReview]
             key :description, 'Will be "Higher Level Review"'
           end
@@ -41,8 +32,7 @@ module Swagger
             property :status, type: :string
             property :aoj, type: :string
             property :program_area, type: :string
-            property :benefit_type do
-              key :type, :string
+            property :benefit_type, type: :string do
               key :enum, %w[
                 compensation
                 pension
@@ -56,22 +46,17 @@ module Swagger
               ]
             end
             property :description, type: :string
-            property :receipt_date do
-              key :type, :string
-              key :format, :date
-            end
+            property :receipt_date, type: :string, format: :date
             property :informal_conference, type: :boolean
             property :same_office, type: :boolean
             property :legacy_opt_in_approved, type: :boolean
             property :alerts do
               key :'$ref', :HigherLevelReviewAlerts
             end
-            property :events do
-              key :type, :array
+            property :events, type: :array do
               items do
                 key :type, :object
-                property :type do
-                  key :type, :string
+                property :type, type: :string do
                   key :enum, %w[
                     hlr_request
                     hlr_request_event
@@ -93,46 +78,12 @@ module Swagger
         end
       end
 
-      swagger_schema :HigherLevelReviewRequest do
-        key :type, :object
-        key :required, %i[data]
-        property :data do
-          key :type, :object
-          key :required, %i[ 
-            type
-            attributes
-            relationships
-          ]
-          property :type, type: :string, enum: %w[HigherLevelReview]
-          property :attributes, type: :object do
-            key :required, %i[
-              receipt_date
-              informal_conference
-              same_office
-              legacy_opt_in_approved
-              benefit_type
-              veteran
-            ]
-            property :receipt_date, type: :string, format: :date
-            property :informal_conference, type: :boolean do
-              key :description, 'Corresponds to "14. ...REQUEST AN INFORMAL CONFERENCE..." on form 20-0996.'
-            end
-            property :informal_conference_times, type: :array do
-              key :description, '"OPTIONAL. Time slot preference for informal conference (if being requested).'\
-                                'EASTERN TIME. Pick up to two time slots (or none if no preference). Corresponds'\
-                                ' to "14. ...REQUEST AN INFORMAL CONFERENCE..." on form 20-0996."'
-            end
-          end
-        end
-      end
-
       swagger_schema :HigherLevelReviewAlerts do
         key :type, :array
         items do
           key :type, :object
           property :type, type: :string, enum: %w[AmaPostDecision]
-          property :details do
-            key :type, :object
+          property :details, type: :object do
             property :decision_date, type: :string
             property :available_options do
               key :type, :array
@@ -233,9 +184,7 @@ module Swagger
                 property :decision_review_title, type: :string
                 property :title_of_active_review, type: :string
                 property :decision_issue_id, type: :integer
-                property :withdrawal_date, type: :string do
-                  key :format, :date
-                end
+                property :withdrawal_date, type: :string, format: :date
                 property :contested_issue_description, type: :string
                 property :end_product_cleared, type: :boolean
                 property :end_product_code, type: :string
@@ -245,46 +194,10 @@ module Swagger
         end
       end
 
-      swagger_schema :IntakeStatus do
-        key :type, :object
-        key :description, 'An accepted Decision Review still needs to be processed '\
-                          'before the Decision Review can be accessed'
-        property :data, type: :object do
-          property :id, type: :string
-          property :type, type: :string, description: 'Will be Intake Status'
-          property :attributes, type: :object do
-            property :status, type: :string do
-              key :enum, %w[
-                processed
-                canceled
-                attempted
-                submitted
-                not_yet_submitted
-              ]
-              key :description, '`not_yet_submitted` - The DecisionReview has not been submitted yet.
-                                `submitted` - The DecisionReview is in the queue to be attempted.
-                                `attempted` - Processing of the DecisionReview is being attempted.
-                                `canceled` - The DecisionReview has been successfully canceled.
-                                `processed` - The DecisionReview has been processed and transmitted '\
-                                'to the appropriate government agency.'
-            end
-          end
-        end
-      end
-
       swagger_schema :UUID do
         key :type, :string
         key :format, :uuid
         key :pattern, "^[0-9a-fA-F]{8}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{12}$"
-      end
-
-      swagger_schema :AppealsErrors do
-        key :type, :object
-        items do
-          key :type, :object
-          property :title, type: :string
-          property :detail, type: :string
-        end
       end
     end
   end
