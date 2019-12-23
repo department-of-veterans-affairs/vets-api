@@ -14,8 +14,6 @@ module V0
         claim.process_attachments! # upload claim and attachments to Central Mail if creation by API is not possible
       end
 
-      # TODO: potentially separate out logs for creation of claims with Claims API vs Central Mail
-      # and add veteran/claimant lookup failure
       StatsD.increment("#{stats_key}.success")
       Rails.logger.info "ClaimID=#{claim.confirmation_number} Form=#{claim.class::FORM}"
       validate_session
