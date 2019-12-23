@@ -311,6 +311,19 @@ ActiveRecord::Schema.define(version: 2019_12_04_152342) do
     t.string "timestamp"
   end
 
+  create_table "higher_level_reviews", force: :cascade do |t|
+    t.date "receipt_date"
+    t.boolean "informal_conference"
+    t.boolean "same_office"
+    t.boolean "legacy_opt_in_approved"
+    t.string "benefit_type"
+    t.uuid "uuid"
+    t.bigint "account_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["account_id"], name: "index_higher_level_reviews_on_account_id"
+  end
+
   create_table "id_card_announcement_subscriptions", id: :serial, force: :cascade do |t|
     t.string "email", null: false
     t.datetime "created_at", null: false
