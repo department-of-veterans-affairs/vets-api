@@ -57,7 +57,7 @@ module ClaimsApi
         private
 
         def source_name
-          user = poa_request? ? @current_user : target_veteran
+          user = header_request? ? @current_user : target_veteran
           "#{user.first_name} #{user.last_name}"
         end
 
