@@ -3,6 +3,8 @@
 module Swagger
   module Schemas
     class Appeals
+      include Swagger::Blocks
+
       swagger_schema :HigherLevelReviewRequest, type: :object do
         key :required, %i[data]
         property :data, type: :object do
