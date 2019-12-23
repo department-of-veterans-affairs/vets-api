@@ -79,7 +79,7 @@ module Swagger
                             'Caseflow, the Intake Status endpoint will return a 303 response including the '\
                             'Decision Review ID for the submitted Decision Review, which will allow you to '\
                             'retrieve the full details including the processing status.'
-          
+
           parameter do
             key :name, :request
             key :in, :body

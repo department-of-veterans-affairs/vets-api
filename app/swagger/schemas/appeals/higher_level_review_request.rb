@@ -6,7 +6,7 @@ module Swagger
       swagger_schema :HigherLevelReviewRequest, type: :object do
         key :required, %i[data]
         property :data, type: :object do
-          key :required, %i[ 
+          key :required, %i[
             type
             attributes
             relationships
