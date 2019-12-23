@@ -5,6 +5,7 @@ require 'common/exceptions'
 
 describe GIDSRedis do
   subject { GIDSRedis.new }
+
   let(:scrubbed_params) { {} }
   let(:body) { {} }
   let(:gids_response) do
@@ -22,36 +23,32 @@ describe GIDSRedis do
       # expect().to raise_error does not work
       # expect(subject.not_a_real_method()).to raise_error(NoMethodError)
       begin
-        subject.not_a_real_method()
-      rescue NoMethodError => error
-          expect(error).to be_instance_of(NoMethodError)
+        subject.not_a_real_method
+      rescue NoMethodError => e
+        expect(e).to be_instance_of(NoMethodError)
       end
     end
   end
-  
-  describe 'cached attributes' do
-    context "get_calculator_constants" do
 
+  describe 'cached attributes' do
+    context 'get_calculator_constants' do
       context 'when the cache is empty' do
         it 'caches and return the response', :aggregate_failures do
-          VCR.use_cassette('gi_client/get_calculator_constants') do
-            expect(subject.redis_namespace).to receive(:set).once
-            response = subject.get_calculator_constants(scrubbed_params)
-            expect(response).to be_a(Hash)
-          end
+          allow_any_instance_of(GI::Client).to receive(:get_calculator_constants).and_return(gids_response)
+
+          expect(subject.redis_namespace).to receive(:set).once
+          expect(subject.get_calculator_constants(scrubbed_params)).to be_a(Hash)
         end
       end
 
       context 'when there is cached data' do
         it 'returns the cached data', :aggregate_failures do
-
           subject.cache(
-              :get_calculator_constants.to_s + scrubbed_params.to_s,
-              gids_response
+            :get_calculator_constants.to_s + scrubbed_params.to_s,
+            gids_response
           )
-          binding.pry
           expect_any_instance_of(GI::Client).not_to receive(:get_calculator_constants).with(scrubbed_params)
-          expect(subject.get_calculator_constants(scrubbed_params)).to be_a(GI::Responses::GIDSResponse)
+          expect(subject.get_calculator_constants(scrubbed_params)).to be_a(Hash)
         end
       end
     end

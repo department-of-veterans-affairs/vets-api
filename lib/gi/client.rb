@@ -1,9 +1,5 @@
 # frozen_string_literal: true
 
-require 'common/client/base'
-require 'gi/configuration'
-require 'gi/gids_response'
-
 module GI
   # Core class responsible for api interface operations
   class Client < Common::Client::Base

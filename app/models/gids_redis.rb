@@ -17,7 +17,7 @@ class GIDSRedis < Common::RedisStore
   def method_missing(name, *args)
     if respond_to?(name)
       self.rest_call = name
-      self.scrubbed_params = *args
+      self.scrubbed_params = args.first
       response_from_redis_or_service.body
     else
       super
