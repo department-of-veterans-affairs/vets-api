@@ -63,6 +63,19 @@ RSpec.describe OpenidApplicationController, type: :controller do
           expect(errors[0]['detail']).to eq('Validation error: Signature has expired')
         end
       end
+
+      it 'logs expired token' do
+        with_okta_configured do
+          exp_token_opts = {
+            'iat' => Time.current.utc.to_i - 7200,
+            'exp' => Time.current.utc.to_i - 3600
+          }
+          change_encoded_token_payload(exp_token_opts)
+          allow(Rails.logger).to receive(:info)
+          expect(Rails.logger).to receive(:info).with('Signature has expired', token: @encoded_token)
+          get :index
+        end
+      end
     end
 
     context 'with complex scopes' do

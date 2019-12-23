@@ -15,7 +15,8 @@ RSpec.describe PreneedsSubmissionsReportMailer, type: [:mailer] do
     end
 
     it 'sends the right email' do
-      expect(subject.body.raw_source).to eq(File.read('spec/fixtures/preneeds/preneeds_submission_report.html'))
+      body = File.read('spec/fixtures/preneeds/preneeds_submission_report.html').gsub(/\n/, "\r\n")
+      expect(subject.body.raw_source).to eq(body)
       expect(subject.subject).to eq('Preneeds submissions report')
     end
 
