@@ -13,7 +13,7 @@ describe VAOS::AppointmentRequestsService do
       let(:appointment_request_params) { build(:appointment_request_form, :creation, user: user).params }
 
       it 'creates a new appointment request' do
-        VCR.use_cassette('vaos/appointment_requests/post_request', record: :new_episodes) do
+        VCR.use_cassette('vaos/appointment_requests/post_request', match_requests_on: %i[method uri]) do
           response = subject.post_request(appointment_request_params)
           expect(response[:data].unique_id).to eq('8a4886886e4c8e22016e92be77cb00f9')
           expect(response[:data].appointment_request_detail_code).to be_empty
@@ -21,13 +21,12 @@ describe VAOS::AppointmentRequestsService do
       end
     end
 
-    context 'creates a new community care appointment request'
-      let(:params) { build(:cc_appointment_request_form, :creation, user: current_user).params.merge(type: 'cc') }
+    context 'creates a new community care appointment request' do
+      let(:params) { build(:cc_appointment_request_form, :creation, user: user).params.merge(type: 'cc') }
 
       it 'creates a new CC appointment request' do
-        VCR.use_cassette('vaos/appointment_requests/post_request_CC', record: :new_episodes) do
+        VCR.use_cassette('vaos/appointment_requests/post_request_CC', match_requests_on: %i[method uri]) do
           response = subject.post_request(params)
-          binding.pry
           expect(response[:data].created_date).not_to be_nil
         end
       end
@@ -56,7 +55,7 @@ describe VAOS::AppointmentRequestsService do
       end
 
       it 'cancels a pending appointment request' do
-        VCR.use_cassette('vaos/appointment_requests/put_request', record: :new_episodes) do
+        VCR.use_cassette('vaos/appointment_requests/put_request', match_requests_on: %i[method uri]) do
           response = subject.put_request(id, appointment_request_params)
           expect(response[:data].unique_id).to eq('8a4886886e4c8e22016e92be77cb00f9')
           expect(response[:data].appointment_request_detail_code.first[:created_date])
