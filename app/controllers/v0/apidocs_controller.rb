@@ -157,7 +157,7 @@ module V0
       Swagger::Responses::RecordNotFoundError,
       Swagger::Responses::SavedForm,
       Swagger::Schemas::Address,
-      Swagger::Schemas::Appeals::AppealsRequests,
+      Swagger::Schemas::Appeals::Requests,
       Swagger::Schemas::Appeals::HigherLevelReviewRequest,
       Swagger::Schemas::Appeals::HigherLevelReview,
       Swagger::Schemas::Appeals::IntakeStatus,

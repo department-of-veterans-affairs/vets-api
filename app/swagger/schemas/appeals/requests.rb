@@ -3,7 +3,7 @@
 module Swagger
   module Schemas
     module Appeals
-      class AppealsRequests
+      class Requests
         include Swagger::Blocks
 
         swagger_schema :Appeals do
