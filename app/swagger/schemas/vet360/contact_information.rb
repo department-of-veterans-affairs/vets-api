@@ -287,6 +287,32 @@ module Swagger
                            format: 'date-time',
                            example: '2018-04-21T20:09:50Z'
                 end
+
+                property :text_permission, type: :object do
+                  property :id, type: :integer, example: 123
+                  property :permission_type, type: :string, example: ::Vet360::Models::Permission::TEXT
+                  property :permission_value, type: :boolean, example: true
+                  property :created_at,
+                           type: :string,
+                           format: 'date-time',
+                           example: '2019-00-23T20:09:50Z'
+                  property :effective_end_date,
+                           type: %i[string null],
+                           format: 'date-time',
+                           example: '2019-00-23T20:09:50Z'
+                  property :effective_start_date,
+                           type: %i[string null],
+                           format: 'date-time',
+                           example: '2019-00-23T20:09:50Z'
+                  property :source_date,
+                           type: :string,
+                           format: 'date-time',
+                           example: '2019-00-23T20:09:50Z'
+                  property :updated_at,
+                           type: :string,
+                           format: 'date-time',
+                           example: '2019-00-23T20:09:50Z'
+                end
               end
             end
           end
