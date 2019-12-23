@@ -27,17 +27,18 @@ module BipClaims
     end
 
     def lookup_veteran_from_mvi(claim)
-      MVI::AttrService.new.find_profile(veteran_attributes(claim))&.profile
+      veteran = MVI::AttrService.new.find_profile(veteran_attributes(claim))
+      mvi_stats_key = veteran&.participantId ? 'hit' : 'miss'
+      StatsD.increment("api.bip_claims.mvi_lookup_#{mvi_stats_key}")
     rescue MVI::Errors::Base
-      nil
+      StatsD.increment("api.bip_claims.mvi_lookup_error")
     end
 
     def create_claim(form_data)
       veteran_record = lookup_veteran_from_mvi(form_data)
       claimant_record = false # TODO: look up from MVI
-      return false unless veteran_record && claimant_record
 
-      submit_claim(veteran: veteran_record, claimant: claimant_record)
+      submit_claim(veteran: veteran_record, claimant: claimant_record) if veteran_record && claimant_record
     end
 
     def submit_claim(veteran:, claimant:)
