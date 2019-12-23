@@ -18,7 +18,6 @@ module VAOS
       @user = user
     end
 
-
     def get_supported_sites(site_codes)
       with_monitoring do
         response = perform(:get, url(site_codes), nil, headers(user))

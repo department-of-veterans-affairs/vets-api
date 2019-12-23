@@ -8,10 +8,9 @@ module VAOS
 
     set_id :id
 
-    set_type :objectType
+    set_type :object_type
 
     attributes :name,
                :timezone
   end
 end
-

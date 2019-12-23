@@ -11,7 +11,6 @@ describe VAOS::CCSupportedSitesService do
   before { allow_any_instance_of(VAOS::UserService).to receive(:session).and_return('stubbed_token') }
 
   describe '#get_supported_sites', :skip_mvi do
-
     it 'gets a single supported site' do
       VCR.use_cassette('vaos/cc_supported_sites/get_one_site', match_requests_on: %i[method uri]) do
         response = subject.get_supported_sites(site_codes)
