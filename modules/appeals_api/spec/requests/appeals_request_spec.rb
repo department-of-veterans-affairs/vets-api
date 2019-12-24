@@ -90,7 +90,7 @@ RSpec.describe 'Claim Appeals API endpoint', type: :request do
             ]
           }
 
-          post hlr_endpoint, request.to_json
+          post hlr_endpoint, params: request.to_json
           expect(response).to have_http_status(:accepted)
           expect(response).to match_response_schema('higher_level_review_accepted')
         end
