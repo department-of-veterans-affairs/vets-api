@@ -90,6 +90,48 @@ module Swagger
               key :'$ref', :HigherLevelReviewRequest
             end
           end
+
+          response 202 do
+            key :description, 'Accepted'
+            schema do
+              key :'$ref', :IntakeStatus
+            end
+          end
+
+          response 400 do
+            key :description, 'Malformed request'
+            schema do
+              key :'$ref', :Errors
+            end
+          end
+
+          response 403 do
+            key :description, 'Veteran not accessible'
+            schema do
+              key :'$ref', :Errors
+            end
+          end
+
+          response 404 do
+            key :description, 'Veteran not found'
+            schema do
+              key :'$ref', :Errors
+            end
+          end
+
+          response 409 do
+            key :description, 'Duplicate intake in progress'
+            schema do
+              key :'$ref', :Errors
+            end
+          end
+
+          response 422 do
+            key :description, '422 Error'
+            schema do
+              key :'$ref', :Errors
+            end
+          end
         end
       end
 

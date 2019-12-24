@@ -7,7 +7,7 @@
         "type": "object",
         "properties": {
           "status": {
-            "type": "integer"
+            "type": "string"
           },
           "code": {
             "type": "string"
