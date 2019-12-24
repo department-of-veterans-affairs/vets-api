@@ -31,8 +31,8 @@ module AppealsApi
       end
 
       def create_higher_level_review
-        higher_level_review = review_service.post_higher_level_reviews(request.raw_post)
-        render json: higher_level_review.body
+        review = review_service.post_higher_level_reviews(request.raw_post)
+        render status: review.status, json: review.body
       end
 
       def healthcheck

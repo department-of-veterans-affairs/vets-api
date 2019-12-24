@@ -1372,24 +1372,43 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
     end
 
     describe 'higher_level_reviews' do
-      it 'documents higher_level_reviews 200' do
-        VCR.use_cassette('decision_review/200_review') do
-          expect(subject).to validate(:get, '/services/appeals/v0/appeals/higher_level_reviews/{uuid}',
-                                      200, headers.merge('uuid' => '4bc96bee-c6a3-470e-b222-66a47629dc20'))
+      context 'GET' do
+        it 'documents higher_level_reviews 200' do
+          VCR.use_cassette('decision_review/200_review') do
+            expect(subject).to validate(:get, '/services/appeals/v0/appeals/higher_level_reviews/{uuid}',
+                                        200, headers.merge('uuid' => '4bc96bee-c6a3-470e-b222-66a47629dc20'))
+          end
+        end
+  
+        it 'documents higher_level_reviews 404' do
+          VCR.use_cassette('decision_review/404_review') do
+            expect(subject).to validate(:get, '/services/appeals/v0/appeals/higher_level_reviews/{uuid}',
+                                        404, headers.merge('uuid' => '1234'))
+          end
+        end
+  
+        it 'documents higher_level_reviews 502' do
+          VCR.use_cassette('decision_review/502_review') do
+            expect(subject).to validate(:get, '/services/appeals/v0/appeals/higher_level_reviews/{uuid}',
+                                        502, headers.merge('uuid' => '1234'))
+          end
         end
       end
 
-      it 'documents higher_level_reviews 404' do
-        VCR.use_cassette('decision_review/404_review') do
-          expect(subject).to validate(:get, '/services/appeals/v0/appeals/higher_level_reviews/{uuid}',
-                                      404, headers.merge('uuid' => '1234'))
+      context 'POST' do
+        it 'documents higher_level_reviews 202' do
+          VCR.use_cassette('decision_review/202_intake_status') do
+            expect(subject).to validate(:post, '/services/appeals/v0/appeals/higher_level_reviews',
+                                        202)
+          end
         end
-      end
 
-      it 'documents higher_level_reviews 502' do
-        VCR.use_cassette('decision_review/502_review') do
-          expect(subject).to validate(:get, '/services/appeals/v0/appeals/higher_level_reviews/{uuid}',
-                                      502, headers.merge('uuid' => '1234'))
+        [400, 403, 404, 409, 422].each do |status|
+          it "documents higher_level_reviews #{status}" do
+            VCR.use_cassette("decision_review/#{status}_intake_status") do
+              expect(subject).to validate(:post, '/services/appeals/v0/appeals/higher_level_reviews', status)
+            end
+          end
         end
       end
     end
