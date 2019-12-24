@@ -1379,14 +1379,14 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
                                         200, headers.merge('uuid' => '4bc96bee-c6a3-470e-b222-66a47629dc20'))
           end
         end
-  
+
         it 'documents higher_level_reviews 404' do
           VCR.use_cassette('decision_review/404_review') do
             expect(subject).to validate(:get, '/services/appeals/v0/appeals/higher_level_reviews/{uuid}',
                                         404, headers.merge('uuid' => '1234'))
           end
         end
-  
+
         it 'documents higher_level_reviews 502' do
           VCR.use_cassette('decision_review/502_review') do
             expect(subject).to validate(:get, '/services/appeals/v0/appeals/higher_level_reviews/{uuid}',
