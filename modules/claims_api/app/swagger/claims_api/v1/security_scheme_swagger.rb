@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module ClaimsApi
-  module V0
+  module V1
     class SecuritySchemeSwagger
       include Swagger::Blocks
       swagger_component do
