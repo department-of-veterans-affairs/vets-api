@@ -101,6 +101,20 @@ RSpec.describe 'vaos appointment requests', type: :request do
         expect(json_body_for(response)).to match_schema('vaos/appointment_request')
       end
     end
+
+    context 'Community Cares' do
+      let(:params) { build(:cc_appointment_request_form, :creation, user: current_user).params.merge(type: 'cc') }
+
+      it 'creates a new appointment request' do
+        VCR.use_cassette('vaos/appointment_requests/post_request_CC', match_requests_on: %i[method uri]) do
+          post '/v0/vaos/appointment_requests', params: params
+
+          expect(response).to have_http_status(:created)
+          expect(response.body).to be_a(String)
+          expect(json_body_for(response)).to match_schema('vaos/appointment_request')
+        end
+      end
+    end
   end
 
   describe 'PUT /v0/vaos/appointment_requests/:id', skip_mvi: true do
@@ -126,7 +140,7 @@ RSpec.describe 'vaos appointment requests', type: :request do
 
     let(:post_params) { params.merge(appointment_request_detail_code: ['DETCODE8']) }
 
-    it 'creates a new appointment request' do
+    it 'cancels an appointment request' do
       VCR.use_cassette('vaos/appointment_requests/put_request', match_requests_on: %i[method uri]) do
         put "/v0/vaos/appointment_requests/#{id}", params: params
         expect(response).to have_http_status(:success)
