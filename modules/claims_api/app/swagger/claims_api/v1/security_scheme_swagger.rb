@@ -5,9 +5,9 @@ module ClaimsApi
     class SecuritySchemeSwagger
       include Swagger::Blocks
       swagger_component do
-        security_scheme :apikey do
-          key :type, :apiKey
-          key :name, :apikey
+        security_scheme :bearer do
+          key :type, :http
+          key :name, :token
           key :in, :header
         end
       end
