@@ -64,7 +64,7 @@ module VeteranVerification
         end
 
         def service_history_yaml
-          @service_history_yaml ||= YAML.safe_load(File.read(VeteranVerification::Engine.root.join('SERVICE_HISTORY.yml')))
+          @service_yaml ||= YAML.safe_load(File.read(VeteranVerification::Engine.root.join('SERVICE_HISTORY.yml')))
         end
       end
     end
