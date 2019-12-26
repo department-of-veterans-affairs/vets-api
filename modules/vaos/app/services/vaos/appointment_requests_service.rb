@@ -31,10 +31,10 @@ module VAOS
       end
     end
 
-    def post_request(request_object_body)
+    def post_request(params)
       with_monitoring do
-        params = VAOS::AppointmentRequestForm.new(user, request_object_body).params
-        response = perform(:post, url, params, headers(user))
+        validated_params = form_object(params).params
+        response = perform(:post, url, validated_params, headers(user))
 
         {
           data: OpenStruct.new(filter_cc_appointment_data(response.body))
@@ -42,10 +42,10 @@ module VAOS
       end
     end
 
-    def put_request(id, request_object_body)
+    def put_request(id, params)
       with_monitoring do
-        params = VAOS::AppointmentRequestForm.new(user, request_object_body.merge(id: id)).params
-        response = perform(:put, url(id), params, headers(user))
+        validated_params = form_object(params, id).params
+        response = perform(:put, url(id), validated_params, headers(user))
 
         {
           data: OpenStruct.new(filter_cc_appointment_data(response.body))
@@ -54,6 +54,14 @@ module VAOS
     end
 
     private
+
+    def form_object(params, id = nil)
+      if params[:type]&.upcase == 'CC'
+        VAOS::CCAppointmentRequestForm.new(user, params.merge(id: id))
+      else
+        VAOS::AppointmentRequestForm.new(user, params.merge(id: id))
+      end
+    end
 
     def deserialize(json_hash)
       json_hash[:appointment_requests].map do |request|
@@ -74,11 +82,11 @@ module VAOS
       request
     end
 
-    def url(id = nil)
+    def url(id = nil, type = 'appointments')
       if id
         url + "/system/var/id/#{id}"
       else
-        "/var/VeteranAppointmentRequestService/v4/rest/appointment-service/patient/ICN/#{user.icn}/appointments"
+        "/var/VeteranAppointmentRequestService/v4/rest/appointment-service/patient/ICN/#{user.icn}/#{type}"
       end
     end
 
