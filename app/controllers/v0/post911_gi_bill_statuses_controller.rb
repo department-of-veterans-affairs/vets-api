@@ -85,6 +85,10 @@ module V0
       Time.parse(user.va_profile.birth_date).iso8601
     end
 
+    def skip_sentry_exception_types
+      super + [EVSS::GiBillStatus::OutsideWorkingHours]
+    end
+
     def service
       EVSS::GiBillStatus::Service.new(@current_user)
     end

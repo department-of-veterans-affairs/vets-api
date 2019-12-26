@@ -2,7 +2,7 @@
 
 class Sidekiq::SetRequestId
   def call(_worker, job, _queue, _redis_pool)
-    job['request_id'] = Thread.current['request_id'] || 'N/A'
+    job['request_id'] = RequestStore.store['request_id'] || 'N/A'
 
     yield
   end

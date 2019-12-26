@@ -84,7 +84,8 @@ describe Preneeds::Service do
 
     context 'with attachments' do
       def match_with_switched_mimeparts(str1, str2, old_mimepart, new_mimepart)
-        expect(str1.gsub(new_mimepart, old_mimepart)).to eq(str2)
+        a = str1.gsub(new_mimepart, old_mimepart).gsub(/[^r]\n/, "\r\n")
+        expect(a).to eq(str2)
       end
 
       it 'creates a preneeds application', run_at: 'Tue, 21 Nov 2017 22:10:32 GMT' do

@@ -8,15 +8,27 @@ describe VAOS::AppointmentRequestsService do
   before { allow_any_instance_of(VAOS::UserService).to receive(:session).and_return('stubbed_token') }
 
   describe '#post_request' do
+    let(:user) { build(:user, :vaos) }
+
     context 'with valid creation attributes from factory' do
-      let(:user) { build(:user, :vaos) }
       let(:appointment_request_params) { build(:appointment_request_form, :creation, user: user).params }
 
       it 'creates a new appointment request' do
-        VCR.use_cassette('vaos/appointment_requests/post_request', record: :new_episodes) do
+        VCR.use_cassette('vaos/appointment_requests/post_request', match_requests_on: %i[method uri]) do
           response = subject.post_request(appointment_request_params)
           expect(response[:data].unique_id).to eq('8a4886886e4c8e22016e92be77cb00f9')
           expect(response[:data].appointment_request_detail_code).to be_empty
+        end
+      end
+    end
+
+    context 'creates a new community care appointment request' do
+      let(:params) { build(:cc_appointment_request_form, :creation, user: user).params.merge(type: 'cc') }
+
+      it 'creates a new CC appointment request' do
+        VCR.use_cassette('vaos/appointment_requests/post_request_CC', match_requests_on: %i[method uri]) do
+          response = subject.post_request(params)
+          expect(response[:data].created_date).not_to be_nil
         end
       end
     end
@@ -44,7 +56,7 @@ describe VAOS::AppointmentRequestsService do
       end
 
       it 'cancels a pending appointment request' do
-        VCR.use_cassette('vaos/appointment_requests/put_request', record: :new_episodes) do
+        VCR.use_cassette('vaos/appointment_requests/put_request', match_requests_on: %i[method uri]) do
           response = subject.put_request(id, appointment_request_params)
           expect(response[:data].unique_id).to eq('8a4886886e4c8e22016e92be77cb00f9')
           expect(response[:data].appointment_request_detail_code.first[:created_date])
