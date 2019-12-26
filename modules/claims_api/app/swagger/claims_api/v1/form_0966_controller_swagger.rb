@@ -9,9 +9,6 @@ module ClaimsApi
 
       swagger_path '/forms/0966' do
         operation :get do
-          security do
-            key :bearer_token, []
-          end
           key :summary, 'Get 0966 JSON Schema for form'
           key :description, 'Returns a single JSON schema to auto generate a form'
           key :operationId, 'get0966JsonSchema'
@@ -56,9 +53,6 @@ module ClaimsApi
         end
 
         operation :post do
-          security do
-            key :bearer_token, []
-          end
           key :summary, 'Accepts 0966 Intent to File form submission'
           key :description, 'Accepts JSON payload. Full URL, including\nquery parameters.'
           key :operationId, 'post0966itf'
@@ -166,9 +160,6 @@ module ClaimsApi
 
       swagger_path '/forms/0966/active' do
         operation :get do
-          security do
-            key :bearer_token, []
-          end
           key :summary, 'Returns last active 0966 Intent to File form submission'
           key :description, 'Returns last active JSON payload. Full URL, including\nquery parameters.'
           key :operationId, 'active0966itf'

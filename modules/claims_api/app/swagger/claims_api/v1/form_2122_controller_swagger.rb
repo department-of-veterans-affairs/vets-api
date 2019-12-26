@@ -59,14 +59,6 @@ module ClaimsApi
           ]
 
           parameter do
-            key :name, 'bearer_token'
-            key :in, :header
-            key :description, 'Oauth Token of Veteran requesting to access data'
-            key :required, true
-            key :type, :string
-          end
-
-          parameter do
             key :name, 'X-VA-SSN'
             key :in, :header
             key :description, 'SSN of Veteran to fetch'
@@ -168,14 +160,6 @@ module ClaimsApi
           end
 
           parameter do
-            key :name, 'bearer_token'
-            key :in, :header
-            key :description, 'Oauth Token of Veteran requesting to access data'
-            key :required, true
-            key :type, :string
-          end
-
-          parameter do
             key :name, 'X-VA-SSN'
             key :in, :header
             key :description, 'SSN of Veteran to fetch'
@@ -252,14 +236,6 @@ module ClaimsApi
           key :tags, [
             'Power of Attorney'
           ]
-
-          parameter do
-            key :name, 'bearer_token'
-            key :in, :header
-            key :description, 'Oauth Token of Veteran requesting to access data'
-            key :required, true
-            key :type, :string
-          end
 
           parameter do
             key :name, 'X-VA-SSN'

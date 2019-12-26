@@ -9,9 +9,6 @@ module ClaimsApi
 
       swagger_path '/forms/526' do
         operation :get do
-          security do
-            key :bearer_token, []
-          end
           key :summary, 'Get 526 JSON Schema for form'
           key :operationId, 'get526JsonSchema'
           key :description, 'Returns a single 526 JSON schema to auto generate a form'
@@ -54,9 +51,6 @@ module ClaimsApi
         end
 
         operation :post do
-          security do
-            key :bearer_token, []
-          end
           key :summary, 'Accepts 526 claim form submission'
           key :description, 'Accpets document binaries as part of a multipart payload. Accepts N number of attachments, via attachment1 .. attachmentN'
           key :operationId, 'post526Claim'
@@ -165,14 +159,6 @@ module ClaimsApi
           end
 
           parameter do
-            key :name, 'bearer_token'
-            key :in, :header
-            key :description, 'Oauth Token of Veteran requesting to access data'
-            key :required, true
-            key :type, :string
-          end
-
-          parameter do
             key :name, 'X-VA-SSN'
             key :in, :header
             key :description, 'SSN of Veteran to fetch'
@@ -259,9 +245,6 @@ module ClaimsApi
 
       swagger_path '/forms/526/validate' do
         operation :post do
-          security do
-            key :bearer_token, []
-          end
           key :summary, 'Validates a 526 claim form submission'
           key :description, 'Accepts JSON payload. Full URL, including\nquery parameters.'
           key :operationId, 'post526ClaimValidate'
@@ -388,9 +371,6 @@ module ClaimsApi
 
       swagger_path '/forms/526/{id}/attachments' do
         operation :post do
-          security do
-            key :bearer_token, []
-          end
           key :summary, 'Upload documents in support of a 526 claim'
           key :description, 'Accpets document binaries as part of a multipart payload. Accepts N number of attachments, via attachment1 .. attachmentN'
           key :operationId, 'upload526Attachments'
