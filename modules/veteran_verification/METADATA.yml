@@ -3,17 +3,26 @@ info:
   version: 0.0.1
   title: Veteran Verification
   description: |
-    Veteran Verification - Veteran Status
 
     ## Background
 
-    The use-case of this API is to allow third-parties
-    to request confirmation from the VA of an individual's Veteran status after
-    receiving authorization to do so using an Open ID Connect flow.
+    The use-case of this API is to allow third-parties to do the following after
+    receiving authorization using an Open ID Connect flow: 
+
+    #### Veteran Status - Request confirmation from the VA of an individual's Veteran status 
 
     The Veteran Verification API passes requests through to eMIS, the Enterprise
     Military Information Service, and formats the response into consumable data.
 
+     #### Disability Rating - Access the disability rating of a Veteran
+
+    The Disability Rating API passes requests through to EVSS, the Electronic Veterans Self Service, and formats the response into consumable data.
+
+    #### Service History - Access the service history of a Veteran
+
+    The Service History API passes requests through to eMIS, the Enterprise
+    Military Information Service, and formats the response into consumable data.
+  
     ## Design
 
     ### Authorization
@@ -32,16 +41,32 @@ info:
 
     2. Status Response: A JSON API object with the individual's veteran status
 
+    ### Disability Rating Request
+
+    Allows a third-party application to request a Veteran's disability rating with the authorization of the Veteran.
+
+    1. Client Request: GET https://dev-api.va.gov/services/veteran_verification/v0/disability_rating
+       *  Provide the Bearer token as a header: `Authorization: Bearer <token>`
+
+    2. Service Response: A JSON API object with the Veteran's disability rating
+
+    ### Service History Request
+
+    Allows a third-party application to request service history with the authorization
+    of a Veteran.
+
+    1. Client Request: GET https://dev-api.va.gov/services/veteran_verification/v0/service_history
+       * Provide the Bearer token as a header: `Authorization: Bearer <token>`
+
+    2. Service Response: A JSON API object with the Veteran's complete service history
+
     ## Reference
 
-    Raw Open API Spec: https://api.va.gov/services/veteran_verification/docs/v0/status
+    Raw Open API Spec: https://api.va.gov/services/veteran_verification/docs/v0/metadata
 
   termsOfService: ''
   contact:
     name: VA.gov
-tags:
-  - name: veteran_verification
-    description: Veteran Verification
 servers:
   - url: https://dev-api.va.gov/services/veteran_verification/{version}
     description: VA.gov API development environment
@@ -68,26 +93,4 @@ components:
       type: http
       scheme: bearer
       bearerFormat: JWT
-  schemas:
-    VeteranStatusConfirmation:
-      description: |
-        Veteran status confirmation for an individual
-      type: object
-      properties:
-        id:
-          type: string
-          description: Confirmation UUID
-          example: "833c6ffc-efef-4775-9355-f836b4f57501"
-        type:
-          type: string
-          example: veteran_status_confirmations
-        attributes:
-          type: object
-          properties:
-            veteran_status:
-              type: string
-              description: |
-                Whether the system could confirm the Veteran status of the authorized individual
-              enum:
-                - confirmed
-                - not confirmed
+  schemas: SCHEMAS_PLACEHOLDER
