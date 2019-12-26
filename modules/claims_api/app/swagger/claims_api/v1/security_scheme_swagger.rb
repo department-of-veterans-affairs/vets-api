@@ -8,7 +8,6 @@ module ClaimsApi
         security_scheme :bearer do
           key :type, :http
           key :name, :token
-          key :in, :header
         end
       end
     end
