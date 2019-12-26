@@ -26,4 +26,12 @@ RSpec.describe 'Veteran Verification Documentation Endpoints', type: :request do
       JSON.parse(response.body)
     end
   end
+
+  describe '#get /docs/v0/metadata' do
+    it 'returns Open API Spec v3 JSON' do
+      get '/services/veteran_verification/docs/v0/metadata'
+      expect(response).to have_http_status(:ok)
+      JSON.parse(response.body)
+    end
+  end
 end
