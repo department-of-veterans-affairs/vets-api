@@ -14,7 +14,7 @@ unless Rails.env.production?
   require 'rspec/core/rake_task'
   task(:spec).clear
   RSpec::Core::RakeTask.new(:spec) do |t|
-    t.pattern = Dir.glob(['spec/**/*_spec.rb', 'modules/*/spec/**/*_spec.rb'])
+    t.pattern = Dir.glob(['spec/**/*_spec.rb', 'modules/*/spec/**/*_spec.rb']).sort
     t.verbose = false
   end
 end
