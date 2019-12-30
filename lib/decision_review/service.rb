@@ -64,7 +64,28 @@ module DecisionReview
       end
     end
 
+    def get_contestable_issues(user)
+      with_monitoring_and_error_handling do
+        raw_response = perform(:get, 'contestable_issues', nil, request_headers(user))
+        DecisionReview::Responses::Response.new(raw_response.status, raw_response.body, 'contestable_issues')
+      end
+    end
+
+    def get_legacy_appeal_issues(user)
+      with_monitoring_and_error_handling do
+        raw_response = perform(:get, 'legacy_appeal_issues', nil, request_headers(user))
+        DecisionReview::Responses::Response.new(raw_response.status, raw_response.body, 'legacy_appeal_issues')
+      end
+    end
+
     private
+
+    def request_headers(user)
+      {
+        'veteranId' => user.ssn,
+        'receiptDate' => Time.current.strftime('%Y-%m-%d')
+      }
+    end
 
     def with_monitoring_and_error_handling
       with_monitoring(2) do

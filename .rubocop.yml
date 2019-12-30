@@ -161,7 +161,7 @@ Rails/ActiveRecordAliases:
 
 # The use of variables such as n to represent number, x and y for x-axis and y-axis, el for element,
 # v for value, i for index, and e for error are all standard abbreviations and should be excluded.
-Naming/UncommunicativeMethodParamName:
+Naming/MethodParameterName:
   Enabled: false
 
 # FactoryBot 5.x replaced static factory attributes with dynamic ones. Auto-converting using rubocop-rspec

@@ -1,9 +1,7 @@
 # frozen_string_literal: true
 
-require_dependency 'vaos/application_controller'
-
 module VAOS
-  class DirectSchedulingFacilitiesController < ApplicationController
+  class DirectSchedulingFacilitiesController < VAOS::BaseController
     def index
       response = systems_service.get_system_facilities(
         facilities_params[:system_id],

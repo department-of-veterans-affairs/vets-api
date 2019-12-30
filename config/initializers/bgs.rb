@@ -14,4 +14,5 @@ LighthouseBGS.configure do |config|
   config.external_uid = Settings.bgs.external_uid
   config.external_key = Settings.bgs.external_key
   config.forward_proxy_url = Settings.bgs.url
+  config.ssl_verify_mode = Settings.bgs.ssl_verify_mode
 end

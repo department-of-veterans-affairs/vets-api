@@ -428,6 +428,7 @@ flipper:
     - jeff@adhocteam.us
     - johnny@oddball.io
     - kam@adhocteam.us
+    - kenneth.gary@va.gov
     - lauren.alexanderson@va.gov
     - mark.greenburg@adhocteam.us
     - narin@adhocteam.us
@@ -445,12 +446,20 @@ bgs:
   mock_responses: ~
   external_uid: ~
   external_key: ~
+  ssl_verify_mode: 'peer'
 
 va_mobile:
   url: 'https://veteran.apps.va.gov/'
   mock: false
   key_path: /fake/client/key/path
   timeout: 15
+
+lighthouse:
+  api_key: fake_key
+
+forms:
+  url: https://dev-api.va.gov/services/va_forms/v0/
+  mock: false
 
 vbms:
   url: "https://internal-dsva-vagov-dev-fwdproxy-1893365470.us-gov-west-1.elb.amazonaws.com:4449"

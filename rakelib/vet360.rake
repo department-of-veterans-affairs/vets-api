@@ -46,6 +46,16 @@ namespace :vet360 do
     pp trx.to_h
   end
 
+  desc 'GET Vet360 permission transaction status'
+  task :get_permission_transaction_status, %i[vet360_id tx_audit_id] => [:environment] do |_, args|
+    ensure_arg(:vet360_id, args)
+    ensure_arg(:tx_audit_id, args)
+    trx = Vet360::ContactInformation::Service
+          .new(user_struct(args[:vet360_id]))
+          .get_permission_transaction_status(args[:tx_audit_id])
+    pp trx.to_h
+  end
+
   ## PUTs
 
   desc "Update Vet360 email (from #{ENV_VAR_NAME})"
@@ -123,6 +133,29 @@ namespace :vet360 do
     pp trx.to_h
   end
 
+  desc "Update Vet360 permission (from #{ENV_VAR_NAME})"
+  task put_permission: [:environment] do
+    # EXPECTED FORMAT OF VET360_RAKE_DATA:
+    # {
+    #     "permission_type": "string",
+    #     "permission_value": boolean,
+    #     ...
+    #     [ see lib/vet360/models/permission.rb ]
+    # }
+
+    ensure_data_var
+
+    body = JSON.parse(ENV[ENV_VAR_NAME])
+    vet360_id = body.dig('vet360_id')
+    ensure_var('vet360_id', vet360_id)
+
+    permission = Vet360::Models::Permission.build_from(body)
+    trx = Vet360::ContactInformation::Service
+          .new(user_struct(vet360_id))
+          .put_permission(permission)
+    pp trx.to_h
+  end
+
   ## POSTs
 
   desc "Create Vet360 email (from #{ENV_VAR_NAME})"
@@ -196,6 +229,29 @@ namespace :vet360 do
     trx = Vet360::ContactInformation::Service
           .new(user_struct(vet360_id))
           .post_address(address)
+    pp trx.to_h
+  end
+
+  desc "Create Vet360 permission (from #{ENV_VAR_NAME})"
+  task post_permission: [:environment] do
+    # EXPECTED FORMAT OF VET360_RAKE_DATA:
+    # {
+    #     "permission_type": "string",
+    #     "permission_value": boolean,
+    #     ...
+    #     [ see lib/vet360/models/permission.rb ]
+    # }
+
+    ensure_data_var
+
+    body = JSON.parse(ENV[ENV_VAR_NAME])
+    vet360_id = body.dig('vet360_id')
+    ensure_var('vet360_id', vet360_id)
+
+    permission = Vet360::Models::Permission.build_from(body)
+    trx = Vet360::ContactInformation::Service
+          .new(user_struct(vet360_id))
+          .post_permission(permission)
     pp trx.to_h
   end
 
