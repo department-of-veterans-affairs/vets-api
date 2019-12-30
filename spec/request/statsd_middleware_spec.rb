@@ -32,7 +32,7 @@ RSpec.describe StatsdMiddleware, type: :request do
 
   it 'sends status data to statsd' do
     stub_varx_request(:get, 'mhv-api/patient/v1/prescription/gethistoryrx', history_rxs, status_code: 200)
-    tags = %w[controller:v0/prescriptions action:index source_app: status:200]
+    tags = %w[controller:v0/prescriptions action:index source_app:not_provided status:200]
     expect do
       get '/v0/prescriptions'
     end.to trigger_statsd_increment(StatsdMiddleware::STATUS_KEY, tags: tags, times: 1, value: 1)
@@ -40,7 +40,7 @@ RSpec.describe StatsdMiddleware, type: :request do
 
   it 'sends duration data to statsd' do
     stub_varx_request(:get, 'mhv-api/patient/v1/prescription/gethistoryrx', history_rxs, status_code: 200)
-    tags = %w[controller:v0/prescriptions action:index source_app:]
+    tags = %w[controller:v0/prescriptions action:index source_app:not_provided]
     expect do
       get '/v0/prescriptions'
     end.to trigger_statsd_measure(StatsdMiddleware::DURATION_KEY, tags: tags, times: 1, value: 0.0)
@@ -63,14 +63,14 @@ RSpec.describe StatsdMiddleware, type: :request do
   end
 
   it 'handles a missing route correctly' do
-    tags = %w[controller:application action:routing_error source_app: status:404]
+    tags = %w[controller:application action:routing_error source_app:not_provided status:404]
     expect do
       get '/v0/blahblah'
     end.to trigger_statsd_increment(StatsdMiddleware::STATUS_KEY, tags: tags, times: 1, value: 1)
   end
 
   it 'provides duration for missing routes' do
-    tags = %w[controller:application action:routing_error source_app:]
+    tags = %w[controller:application action:routing_error source_app:not_provided]
     expect do
       get '/v0/blahblah'
     end.to trigger_statsd_measure(StatsdMiddleware::DURATION_KEY, tags: tags, times: 1, value: 0.0)
@@ -84,9 +84,17 @@ RSpec.describe StatsdMiddleware, type: :request do
     end.to trigger_statsd_increment(StatsdMiddleware::STATUS_KEY, tags: tags, times: 1)
   end
 
-  it 'uses a blank string for source_app when the value is not in white list' do
+  it 'sends undefined to statsd when source_app is undefined' do
     stub_varx_request(:get, 'mhv-api/patient/v1/prescription/gethistoryrx', history_rxs, status_code: 200)
-    tags = %w[controller:v0/prescriptions action:index source_app: status:200]
+    tags = %w[controller:v0/prescriptions action:index source_app:undefined status:200]
+    expect do
+      get '/v0/prescriptions', headers: { 'Source-App-Name' => 'undefined' }
+    end.to trigger_statsd_increment(StatsdMiddleware::STATUS_KEY, tags: tags, times: 1)
+  end
+
+  it 'uses not_in_whitelist for source_app when the value is not in white list' do
+    stub_varx_request(:get, 'mhv-api/patient/v1/prescription/gethistoryrx', history_rxs, status_code: 200)
+    tags = %w[controller:v0/prescriptions action:index source_app:not_in_whitelist status:200]
     expect do
       get '/v0/prescriptions', headers: { 'Source-App-Name' => 'foo' }
     end.to trigger_statsd_increment(StatsdMiddleware::STATUS_KEY, tags: tags, times: 1)
