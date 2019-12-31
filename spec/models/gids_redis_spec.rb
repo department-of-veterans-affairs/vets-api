@@ -20,13 +20,7 @@ describe GIDSRedis do
     end
 
     it 'undefined method' do
-      # expect().to raise_error does not work
-      # expect(subject.not_a_real_method()).to raise_error(NoMethodError)
-      begin
-        subject.not_a_real_method
-      rescue NoMethodError => e
-        expect(e).to be_instance_of(NoMethodError)
-      end
+      expect{ subject.not_a_real_method }.to raise_error(NoMethodError)
     end
   end
 
