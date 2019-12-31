@@ -28,7 +28,7 @@ module VAOS
     private
 
     def url(site_codes)
-      "/facility-service/supported-facilities?siteCodes=#{site_codes}"
+      "/var/VeteranAppointmentRequestService/v4/rest/facility-service/supported-facilities?siteCodes=#{site_codes}"
     end
   end
 end

@@ -1,0 +1,118 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: https://internal-dsva-vagov-staging-fwdproxy-1821450725.us-gov-west-1.elb.amazonaws.com:4463/users/v2/session?processRules=true
+    body:
+      encoding: US-ASCII
+      string: eyJhbGciOiJSUzUxMiJ9.eyJhdXRoZW50aWNhdGVkIjp0cnVlLCJzdWIiOiIxMDEyODQ1MzMxVjE1MzA0MyIsImlkVHlwZSI6IklDTiIsImlzcyI6Imdvdi52YS52YW9zIiwiZmlyc3ROYW1lIjoiSnVkeSIsImxhc3ROYW1lIjoiTW9ycmlzb24iLCJhdXRoZW50aWNhdGlvbkF1dGhvcml0eSI6Imdvdi52YS5pYW0uc3NvZS52MSIsImp0aSI6IjM0ODBjODYzLWQwYzQtNDE0Ni1hZjA2LTMxMmQzN2FmZDBlZiIsIm5iZiI6MTU3NzE0NTU4MywiZXhwIjoxNTc3MTQ2NTQzLCJzc3QiOjE1NzcxNDU2MzMsInZlcnNpb24iOjIuMSwiZ2VuZGVyIjoiRkVNQUxFIiwiZG9iIjoiMTk1My0wNC0wMSIsImRhdGVPZkJpcnRoIjoiMTk1My0wNC0wMSIsImVkaXBpZCI6IjEyNTk4OTc5NzgiLCJzc24iOiI3OTYwNjE5NzYifQ.er922p6x1_0w9KwAYl9KlBfOaDM2pyo5sA-z6U6LmaofExxwCSELDG-l3QOdnQBZqe859zH0Ysb9uh1t4aG0J5Sj__vTKeLbTyXhlDRFP1wuclWSCw3pRbUGMaULNGlon6Kh5TesKyyxI_sz3fb1bXIHdyMiuCONvrV8lZKCdc0Kh1SqdYCzdARwRVPGb3lS0EFWmEMZtjvCqkpSmAa9JnYo0RSyL8e2LVa0KE0hg1yRmJuDALCzJIPdPVctYvjQQuwiFENel5ohDecbHDcWjdFyTbB3rn4neUfSRswpta2YmIDM-8pbkhiA-OlbeHpM5FWS4-9j5obmrpJ8g_mTnI1R9nl79C8ImxwUqexV3YZyXCzglwqE8WZhu_OE6HT8a96uL-XMZllD61Q1EFKK90U66tC_k4CuDG3hLI4bwcBWyoJAcP2LqwFO_DTegAjscbZewHa8xQubAK0YD5zLt8SsZI8FYcbG487TV37CeRvX_T2yIXgCBe_ZEKTZt8sDGB-aWS8yJvk1957M00ytgY38sw86k1-qjY2Umx8e8RzYCiFul1JlIxXa9L0TELosrHL42xEaUo7c9YhoNlUg-kWtuse_NLjuixTzuPaO7d4s0_erOsWbqcDbWRlXL9z8qr7eed99B5eR2ZK21oePJ7Q9sTAvvlYcX2JKjSCwwus
+    headers:
+      Content-Type:
+      - text/plain
+      Referer:
+      - https://api.va.gov
+      User-Agent:
+      - Faraday v0.17.0
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Tue, 24 Dec 2019 00:00:43 GMT
+      Content-Type:
+      - text/plain
+      Content-Length:
+      - '1668'
+      Server:
+      - openresty
+      X-B3-Parentspanid:
+      - ea7cfd1882806d64
+      X-Vamf-Version:
+      - 2.7.3
+      Cache-Control:
+      - no-store
+      X-B3-Traceid:
+      - ea7cfd1882806d64
+      Access-Control-Allow-Headers:
+      - x-vamf-jwt
+      X-Vamf-Build:
+      - cb41c3b
+      X-B3-Sampled:
+      - '0'
+      X-Vamf-Timestamp:
+      - '2019-12-04T15:53:55+0000'
+      Access-Control-Allow-Origin:
+      - "*.va.gov"
+      X-B3-Spanid:
+      - 9d242c7705bcbe88
+      Access-Control-Allow-Methods:
+      - GET,OPTIONS
+      Access-Control-Max-Age:
+      - '3600'
+      Strict-Transport-Security:
+      - max-age=63072000; includeSubDomains; preload
+    body:
+      encoding: UTF-8
+      string: eyJhbGciOiJSUzUxMiJ9.eyJsYXN0TmFtZSI6Ik1vcnJpc29uIiwic3ViIjoiMTAxMjg0NTMzMVYxNTMwNDMiLCJhdXRoZW50aWNhdGVkIjp0cnVlLCJhdXRoZW50aWNhdGlvbkF1dGhvcml0eSI6Imdvdi52YS52YW9zIiwiaWRUeXBlIjoiSUNOIiwiZ2VuZGVyIjoiRkVNQUxFIiwiaXNzIjoiZ292LnZhLnZhbWYudXNlcnNlcnZpY2UudjEiLCJ2YW1mLmF1dGgucmVzb3VyY2VzIjpbIl4uKihcLyk_c2l0ZVtzXT9cLyhkZm4tKT85ODRcL3BhdGllbnRbc10_XC81NTIxNjEwNTBcL2FwcG9pbnRtZW50cyhcLy4qKT8kIiwiXi4qKFwvKT9zaXRlW3NdP1wvKGRmbi0pPzk4M1wvcGF0aWVudFtzXT9cLzcyMTY2OTFcL2FwcG9pbnRtZW50cyhcLy4qKT8kIiwiXi4qKFwvKT9wYXRpZW50W3NdP1wvKElDTlwvKT8xMDEyODQ1MzMxVjE1MzA0MyhcLy4qKT8kIl0sImRhdGVPZkJpcnRoIjoiMTk1My0wNC0wMSIsInZlcnNpb24iOjIuMSwiZWRpcGlkIjoiMTI1OTg5Nzk3OCIsInZpc3RhSWRzIjpbeyJwYXRpZW50SWQiOiI1NTIxNjEwNTAiLCJzaXRlSWQiOiI5ODQifSx7InBhdGllbnRJZCI6IjcyMTY2OTEiLCJzaXRlSWQiOiI5ODMifV0sInNzbiI6Ijc5NjA2MTk3NiIsImZpcnN0TmFtZSI6Ikp1ZHkiLCJzdGFmZkRpc2NsYWltZXJBY2NlcHRlZCI6dHJ1ZSwibmJmIjoxNTc3MTQ1NDYzLCJzc3QiOjE1NzcxNDU2NDMsInBhdGllbnQiOnsiZmlyc3ROYW1lIjoiSnVkeSIsImxhc3ROYW1lIjoiTW9ycmlzb24iLCJnZW5kZXIiOiJGRU1BTEUiLCJpY24iOiIxMDEyODQ1MzMxVjE1MzA0MyIsImRvYiI6IjE5NTMtMDQtMDEiLCJkYXRlT2ZCaXJ0aCI6IjE5NTMtMDQtMDEiLCJzc24iOiI3OTYwNjE5NzYifSwiZG9iIjoiMTk1My0wNC0wMSIsInZhbWYuYXV0aC5yb2xlcyI6WyJ2ZXRlcmFuIl0sInJpZ2h0T2ZBY2Nlc3NBY2NlcHRlZCI6dHJ1ZSwiZXhwIjoxNTc3MTQ2NTQzLCJqdGkiOiIzNDgwYzg2My1kMGM0LTQxNDYtYWYwNi0zMTJkMzdhZmQwZWYiLCJsb2EiOjJ9.mbGPdNpBvrXaEG8SugoQOs_HGyiuX1uJBHzJcSEbWbu8QGlMRC1eC2XHYYkBcuBe5nF0W2k1KJ-Z2w12Cd2eV3a-PE-eW8bvtQeComiEX2P0Qiv9jlkXqOl7o5CdmHGFJXgMyLwvA5VTiQeBhror5f9nKaM59akixwWcU0bLNRdJM_KgpeVwQCpUrl4jNTJBn7-vvI1gUG1SB-cSMYQOIUS0jOUQhxMk-zfnrsGrEeyMGx0rEbX58HS6IgUYpYJWbpGwzkGuWPi6jB_sPSWEuvkyuYor3ByQdiFeQOiYCvHyBZNZ7veIlDgkk-aCWen-5lKHr2ZtXeMBHJT1mGSrIA
+    http_version: 
+  recorded_at: Tue, 24 Dec 2019 00:00:43 GMT
+- request:
+    method: get
+    uri: https://internal-dsva-vagov-staging-fwdproxy-1821450725.us-gov-west-1.elb.amazonaws.com:4463/var/VeteranAppointmentRequestService/v4/rest/facility-service/supported-facilities?siteCodes=
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Referer:
+      - https://api.va.gov
+      X-Vamf-Jwt:
+      - eyJhbGciOiJSUzUxMiJ9.eyJsYXN0TmFtZSI6Ik1vcnJpc29uIiwic3ViIjoiMTAxMjg0NTMzMVYxNTMwNDMiLCJhdXRoZW50aWNhdGVkIjp0cnVlLCJhdXRoZW50aWNhdGlvbkF1dGhvcml0eSI6Imdvdi52YS52YW9zIiwiaWRUeXBlIjoiSUNOIiwiZ2VuZGVyIjoiRkVNQUxFIiwiaXNzIjoiZ292LnZhLnZhbWYudXNlcnNlcnZpY2UudjEiLCJ2YW1mLmF1dGgucmVzb3VyY2VzIjpbIl4uKihcLyk_c2l0ZVtzXT9cLyhkZm4tKT85ODRcL3BhdGllbnRbc10_XC81NTIxNjEwNTBcL2FwcG9pbnRtZW50cyhcLy4qKT8kIiwiXi4qKFwvKT9zaXRlW3NdP1wvKGRmbi0pPzk4M1wvcGF0aWVudFtzXT9cLzcyMTY2OTFcL2FwcG9pbnRtZW50cyhcLy4qKT8kIiwiXi4qKFwvKT9wYXRpZW50W3NdP1wvKElDTlwvKT8xMDEyODQ1MzMxVjE1MzA0MyhcLy4qKT8kIl0sImRhdGVPZkJpcnRoIjoiMTk1My0wNC0wMSIsInZlcnNpb24iOjIuMSwiZWRpcGlkIjoiMTI1OTg5Nzk3OCIsInZpc3RhSWRzIjpbeyJwYXRpZW50SWQiOiI1NTIxNjEwNTAiLCJzaXRlSWQiOiI5ODQifSx7InBhdGllbnRJZCI6IjcyMTY2OTEiLCJzaXRlSWQiOiI5ODMifV0sInNzbiI6Ijc5NjA2MTk3NiIsImZpcnN0TmFtZSI6Ikp1ZHkiLCJzdGFmZkRpc2NsYWltZXJBY2NlcHRlZCI6dHJ1ZSwibmJmIjoxNTc3MTQ1NDYzLCJzc3QiOjE1NzcxNDU2NDMsInBhdGllbnQiOnsiZmlyc3ROYW1lIjoiSnVkeSIsImxhc3ROYW1lIjoiTW9ycmlzb24iLCJnZW5kZXIiOiJGRU1BTEUiLCJpY24iOiIxMDEyODQ1MzMxVjE1MzA0MyIsImRvYiI6IjE5NTMtMDQtMDEiLCJkYXRlT2ZCaXJ0aCI6IjE5NTMtMDQtMDEiLCJzc24iOiI3OTYwNjE5NzYifSwiZG9iIjoiMTk1My0wNC0wMSIsInZhbWYuYXV0aC5yb2xlcyI6WyJ2ZXRlcmFuIl0sInJpZ2h0T2ZBY2Nlc3NBY2NlcHRlZCI6dHJ1ZSwiZXhwIjoxNTc3MTQ2NTQzLCJqdGkiOiIzNDgwYzg2My1kMGM0LTQxNDYtYWYwNi0zMTJkMzdhZmQwZWYiLCJsb2EiOjJ9.mbGPdNpBvrXaEG8SugoQOs_HGyiuX1uJBHzJcSEbWbu8QGlMRC1eC2XHYYkBcuBe5nF0W2k1KJ-Z2w12Cd2eV3a-PE-eW8bvtQeComiEX2P0Qiv9jlkXqOl7o5CdmHGFJXgMyLwvA5VTiQeBhror5f9nKaM59akixwWcU0bLNRdJM_KgpeVwQCpUrl4jNTJBn7-vvI1gUG1SB-cSMYQOIUS0jOUQhxMk-zfnrsGrEeyMGx0rEbX58HS6IgUYpYJWbpGwzkGuWPi6jB_sPSWEuvkyuYor3ByQdiFeQOiYCvHyBZNZ7veIlDgkk-aCWen-5lKHr2ZtXeMBHJT1mGSrIA
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Tue, 24 Dec 2019 00:00:43 GMT
+      Content-Type:
+      - application/json;charset=UTF-8
+      Content-Length:
+      - '341'
+      Server:
+      - openresty
+      Strict-Transport-Security:
+      - max-age=63072000; includeSubDomains; preload
+    body:
+      encoding: UTF-8
+      string: |-
+        {
+          "sitesSupportingVAR" : [ {
+            "id" : "983",
+            "name" : "CHYSHR-Cheyenne VA Medical Center",
+            "timezone" : "US/EST",
+            "objectType" : "SiteSupportingVAR",
+            "link" : [ ]
+          }, {
+            "id" : "dfn-983",
+            "name" : "CHEYENNE VAMC",
+            "timezone" : "America/Denver",
+            "objectType" : "SiteSupportingVAR",
+            "link" : [ ]
+          } ]
+        }
+    http_version: 
+  recorded_at: Tue, 24 Dec 2019 00:00:43 GMT
+recorded_with: VCR 5.0.0
