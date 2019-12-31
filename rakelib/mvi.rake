@@ -121,7 +121,7 @@ middle_name="W" last_name="Smith" birth_date="1945-01-25" gender="M" ssn="555443
   end
 
   desc "Given a ssn update a mocked user's correlation ids"
-  task :update_ids, [:environment] do
+  task update_ids: :environment do
     ssn = ENV['ssn']
     raise ArgumentError, 'ssn is required, usage: `rake mvi:update_ids ssn=111223333 icn=abc123`' unless ssn
 
@@ -148,7 +148,7 @@ middle_name="W" last_name="Smith" birth_date="1945-01-25" gender="M" ssn="555443
   end
 
   desc 'Create missing cache files from mock_mvi_responses.yml'
-  task :migrate_mock_data, [:environment] do
+  task migrate_mock_data: :environment do
     yaml = YAML.safe_load(
       File.read(File.join('config', 'mvi_schema', 'mock_mvi_responses.yml'))
     )
