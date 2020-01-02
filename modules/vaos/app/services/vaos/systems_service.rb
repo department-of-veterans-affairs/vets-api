@@ -30,7 +30,7 @@ module VAOS
           'facility-code' => system_id,
           'clinical-service' => type_of_care_id
         }
-        url_params.merge!('parent-code' => parent_code) unless parent_code.blank?
+        url_params.merge!('parent-code' => parent_code) if parent_code.present?
         response = perform(:get, url, url_params, headers(@user))
         response.body.map do |system|
           institution = system.delete(:institution)
