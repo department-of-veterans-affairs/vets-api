@@ -22,6 +22,8 @@ class Token
   rescue JWT::ExpiredSignature => e
     Rails.logger.info(e.message, token: @token_string)
     raise error_klass("Validation error: #{e.message}")
+  rescue JWT::DecodeError => e
+    raise error_klass(e.message)
   end
 
   def public_key
