@@ -30,9 +30,8 @@ class Token
     decoded_token = JWT.decode(@token_string, nil, false, algorithm: 'RS256')
     kid = decoded_token[1]['kid']
     key = OIDC::KeyService.get_key(kid)
-    if !key
-      raise error_klass("Public key not found for kid specified in token: '#{kid}'")
-    end
+    raise error_klass("Public key not found for kid specified in token: '#{kid}'") if key.blank?
+
     key
   rescue JWT::DecodeError => e
     raise error_klass("Unable to determine public key: #{e.message}")
