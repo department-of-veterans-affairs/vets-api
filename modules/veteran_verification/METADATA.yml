@@ -35,7 +35,7 @@ info:
     ## Authorization
     This API uses the [OpenID Connect](https://openid.net/specs/openid-connect-core-1_0.html) standard (OAuth 2) to allow the person being confirmed to log in and provide digital consent. API requests are authorized using a Bearer token issued through an OpenID Connect service. The token should be submitted as an Authorization header in the form Bearer <token>.
     
-    See our [OAuth Guide](/authorization) for more details
+    See our [OAuth Guide](/explore/verification/docs/authorization) for more details
 
 
     ## Reference
