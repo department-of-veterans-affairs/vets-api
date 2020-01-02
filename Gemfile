@@ -24,11 +24,12 @@ gem 'rails', '~> 5.2.3'
 # Gems with special version/repo needs
 gem 'active_model_serializers', '0.10.4' # breaking changed in 0.10.5 relating to .to_json
 gem 'carrierwave', '~> 0.11' # TODO: explanation
-gem 'sidekiq-scheduler', '~> 2.0' # TODO: explanation
+gem 'sidekiq-scheduler', '~> 3.0' # TODO: explanation
 
 gem 'aasm'
 gem 'activerecord-import'
 gem 'activerecord-postgis-adapter', '~> 5.2.2'
+gem 'addressable'
 gem 'attr_encrypted', '3.1.0'
 gem 'aws-sdk-s3', '~> 1'
 gem 'aws-sdk-sns', '~> 1'
@@ -65,7 +66,7 @@ gem 'jwt'
 gem 'levenshtein-ffi'
 gem 'lighthouse_bgs', git: 'https://github.com/department-of-veterans-affairs/lighthouse-bgs.git', branch: 'master'
 gem 'liquid'
-gem 'mail', '2.6.6'
+gem 'mail', '2.7.1'
 gem 'memoist'
 gem 'mini_magick', '~> 4.9.5'
 gem 'net-sftp'
