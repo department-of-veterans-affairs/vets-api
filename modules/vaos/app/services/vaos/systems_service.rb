@@ -28,9 +28,9 @@ module VAOS
         url = '/var/VeteranAppointmentRequestService/v4/rest/direct-scheduling/institutions'
         url_params = {
           'facility-code' => system_id,
-          'parent-code' => parent_code,
           'clinical-service' => type_of_care_id
         }
+        url_params.merge!('parent-code' => parent_code) unless parent_code.blank?
         response = perform(:get, url, url_params, headers(@user))
         response.body.map do |system|
           institution = system.delete(:institution)
