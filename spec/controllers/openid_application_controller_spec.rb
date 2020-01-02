@@ -60,7 +60,7 @@ RSpec.describe OpenidApplicationController, type: :controller do
 
           expect(response.status).to eq(401)
           errors = JSON.parse(response.body)['errors']
-          expect(errors[0]['detail']).to eq('Validation error: Signature has expired')
+          expect(errors[0]['detail']).to eq('Signature has expired')
         end
       end
 

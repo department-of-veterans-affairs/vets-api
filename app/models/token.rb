@@ -21,7 +21,7 @@ class Token
                  end
   rescue JWT::ExpiredSignature => e
     Rails.logger.info(e.message, token: @token_string)
-    raise error_klass("Validation error: #{e.message}")
+    raise error_klass(e.message)
   rescue JWT::DecodeError => e
     raise error_klass(e.message)
   end
@@ -35,13 +35,12 @@ class Token
     end
     key
   rescue JWT::DecodeError => e
-    raise error_klass("Validation error: #{e.message}")
+    raise error_klass("Unable to determine public key: #{e.message}")
   end
 
   def validate_token
-    raise error_klass('Validation error: no payload to validate') unless payload
-    raise error_klass('Validation error: issuer') unless valid_issuer?
-    raise error_klass('Validation error: audience') unless valid_audience?
+    raise error_klass('Invalid issuer') unless valid_issuer?
+    raise error_klass('Invalid audience') unless valid_audience?
   end
 
   def valid_issuer?
@@ -66,6 +65,9 @@ class Token
   end
 
   def error_klass(error_detail_string)
+    # Errors from the jwt gem (and other dependencies) are reraised with
+    # this class so we can exclude them from Sentry without needing to know
+    # all the classes used by our dependencies.
     Common::Exceptions::TokenValidationError.new(detail: error_detail_string)
   end
 end
