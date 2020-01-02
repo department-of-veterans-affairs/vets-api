@@ -4,65 +4,50 @@ info:
   title: Veteran Verification
   description: |
 
-    ## Background
+    The Veteran Verification API allows you to confirm the Veteran status for a given person, or retrieve a Veteran's service history or disability rating.
 
-    The use-case of this API is to allow third-parties to do the following after
-    receiving authorization using an Open ID Connect flow: 
+    When confirming Veteran Status, the Status endpoint will return "Confirmed" or "Not Confirmed".
 
-    #### Veteran Status - Request confirmation from the VA of an individual's Veteran status 
+    ## Quickstart Guide
 
-    The Veteran Verification API passes requests through to eMIS, the Enterprise
-    Military Information Service, and formats the response into consumable data.
+    ### 1. Get Access Credentials
 
-     #### Disability Rating - Access the disability rating of a Veteran
+    Get started by filling out the form on the [Apply for VA Lighthouse Developer Access](/apply) page. 
+    
+    After submitting a request, you will receive your credentials for using the API in the Development environment, which allows you to try it out with mock data before moving to the Production environment.
+    
+    ### 2. Test the  API
+    
+    In the endpoint documentation below, we've provided a curl command builder for trying out the API before implementation with your app.
 
-    The Disability Rating API passes requests through to EVSS, the Electronic Veterans Self Service, and formats the response into consumable data.
+    ### 3. Build your app
 
-    #### Service History - Access the service history of a Veteran
+    The base URI for the Veteran Verification API in the Development environment is:
 
-    The Service History API passes requests through to eMIS, the Enterprise
-    Military Information Service, and formats the response into consumable data.
-  
-    ## Design
+    dev-api.va.gov/services/veteran_verification/v0
 
-    ### Authorization
+    Check out some of our sample apps located on our [GitHub page](). Please visit our VA Lighthouse [Support portal]() should you need further assistance.
 
-    API requests are authorized using a Bearer token issued through an OpenID
-    Connect service to allow third-party applications. The token should be
-    submitted as an `Authorization` header in the form `Bearer <token>`.
+    ### 4. Show us a quick demo and get set up in the Production environment
 
-    ### Veteran Status Request
+    After building your app, we ask that you give us a quick demo before we set you up with production credentials. Please see the [Path to Production]() page for more details.
 
-    Allows a third-party application to request the VA confirm the Veteran Status of an
-    authorized individual:
+    ## Authorization
+    This API uses the [OpenID Connect](https://openid.net/specs/openid-connect-core-1_0.html) standard (OAuth 2) to allow the person being confirmed to log in and provide digital consent. API requests are authorized using a Bearer token issued through an OpenID Connect service. The token should be submitted as an Authorization header in the form Bearer <token>.
+    
+    See our [OAuth Guide](/authorization) for more details
 
-    1. Client Request: GET https://api.va.gov/services/veteran_verification/v0/status
-       * Provide the Bearer token as a header: `Authorization: Bearer <token>`
-
-    2. Status Response: A JSON API object with the individual's veteran status
-
-    ### Disability Rating Request
-
-    Allows a third-party application to request a Veteran's disability rating with the authorization of the Veteran.
-
-    1. Client Request: GET https://dev-api.va.gov/services/veteran_verification/v0/disability_rating
-       *  Provide the Bearer token as a header: `Authorization: Bearer <token>`
-
-    2. Service Response: A JSON API object with the Veteran's disability rating
-
-    ### Service History Request
-
-    Allows a third-party application to request service history with the authorization
-    of a Veteran.
-
-    1. Client Request: GET https://dev-api.va.gov/services/veteran_verification/v0/service_history
-       * Provide the Bearer token as a header: `Authorization: Bearer <token>`
-
-    2. Service Response: A JSON API object with the Veteran's complete service history
 
     ## Reference
-
-    Raw Open API Spec: https://api.va.gov/services/veteran_verification/docs/v0/metadata
+    
+    ### Development vs. Production Data
+    APIs accessed via the Development environment are using the same underlying logic as VA’s production APIs; only the underlying data store is different.
+  
+    ### Rate Limiting
+    We implemented basic rate limiting of 60 requests per minute. If you exceed this quota, your request will return a 429 status code. You may petition for increased rate limits by emailing   and requests will be decided on a case by case basis.
+    
+    ### Raw Open API Spec
+    https://api.va.gov/services/veteran_verification/docs/v0/metadata
 
   termsOfService: ''
   contact:
