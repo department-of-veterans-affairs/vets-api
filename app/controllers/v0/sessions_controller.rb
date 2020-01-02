@@ -26,7 +26,7 @@ module V0
       unless SessionActivity::SESSION_ACTIVITY_TYPES.include?(type)
         raise Common::Exceptions::RoutingError, params[:path]
       end
-      
+
       raise Common::Exceptions::RoutingError, params[:path] unless REDIRECT_URLS.include?(type)
 
       StatsD.increment(STATSD_SSO_NEW_KEY, tags: ["context:#{type}"])
@@ -119,6 +119,7 @@ module V0
 
     def session_activity
       return @session_activity if defined?(@session_activity)
+
       @session_activity = SessionActivity.find_by(
         id: session_activity_id,
         originating_request_id: originating_request_id

@@ -89,14 +89,14 @@ RSpec.describe V0::SessionsController, type: :controller do
 
   def self.stub_request_id
     let(:request_id) { SecureRandom.uuid }
-
+    # rubocop:disable RSpec/ScatteredSetup
     before do
       allow_any_instance_of(ActionController::TestRequest).to receive(:uuid).and_return(request_id)
     end
   end
 
   def self.verify_session_activity_update(status, logout)
-    it 'should update the session_activity' do
+    it 'updates the session_activity' do
       expect(session_activity.status).to eq('incomplete')
 
       if logout
@@ -109,7 +109,7 @@ RSpec.describe V0::SessionsController, type: :controller do
     end
   end
 
-  before(:each) do
+  before do
     request.host = request_host
     allow(SAML::SettingsService).to receive(:saml_settings).and_return(rubysaml_settings)
     allow(SAML::Responses::Login).to receive(:new).and_return(valid_saml_response)
@@ -117,6 +117,7 @@ RSpec.describe V0::SessionsController, type: :controller do
     Redis.current.set("benchmark_api.auth.logout_#{uuid}", Time.now.to_f)
   end
 
+  # rubocop:enable RSpec/ScatteredSetup
   context 'when not logged in' do
     describe 'new' do
       stub_request_id
@@ -140,7 +141,7 @@ RSpec.describe V0::SessionsController, type: :controller do
         it 'creates a session activity record' do
           expect do
             get(:new, params: { type: :mhv, clientId: '123123' })
-          end.to change { SessionActivity.count }.by(1)
+          end.to change(SessionActivity, :count).by(1)
 
           session_activity = SessionActivity.last
 
@@ -303,7 +304,9 @@ RSpec.describe V0::SessionsController, type: :controller do
     describe 'POST saml_logout_callback' do
       let(:originating_request_type) { 'slo' }
       let(:logout_relay_state_param) { '{"originating_request_id": "blah"}' }
+
       before { SingleLogoutRequest.create(uuid: logout_uuid, token: token) }
+
       stub_request_id
 
       context 'saml_logout_response is invalid' do
@@ -388,17 +391,16 @@ RSpec.describe V0::SessionsController, type: :controller do
 
     describe 'POST saml_callback' do
       let(:originating_request_type) { 'idme' }
-
-      before(:each) do
-        allow(SAML::User).to receive(:new).and_return(saml_user)
-      end
-
       let(:frozen_time) { Time.current }
       let(:expire_at) { frozen_time + 1800 }
 
+      before do
+        allow(SAML::User).to receive(:new).and_return(saml_user)
+      end
+
       stub_request_id
 
-      around(:each) do |example|
+      around do |example|
         Timecop.freeze(frozen_time)
         Settings.sso.cookie_enabled = true
         example.run
@@ -436,11 +438,9 @@ RSpec.describe V0::SessionsController, type: :controller do
 
           callback_tags = ['status:success', "context:#{LOA::IDME_LOA3}"]
 
-          expect { saml_callback_with_relaystate }
-
           Timecop.freeze(Time.current)
           cookie_expiration_time = 30.minutes.from_now.iso8601(0)
-          expect { post(:saml_callback) }
+          expect { saml_callback_with_relaystate }
             .to trigger_statsd_increment(described_class::STATSD_SSO_CALLBACK_KEY, tags: callback_tags, **once)
             .and trigger_statsd_increment(described_class::STATSD_SSO_CALLBACK_TOTAL_KEY, **once)
 
@@ -539,7 +539,7 @@ RSpec.describe V0::SessionsController, type: :controller do
         verify_session_activity_update('success', false)
 
         context 'when the users ip address changes' do
-          it 'should update the session activity' do
+          it 'updates the session activity' do
             ip = '192.168.1.1'
             allow_any_instance_of(ActionController::TestRequest).to receive(:remote_ip).and_return(ip)
             expect(session_activity.originating_ip_address).to eq('0.0.0.0')
@@ -610,6 +610,7 @@ RSpec.describe V0::SessionsController, type: :controller do
 
       context 'when user clicked DENY' do
         let(:originating_request_type) { 'idme' }
+
         before { allow(SAML::Responses::Login).to receive(:new).and_return(saml_response_click_deny) }
 
         it 'redirects to an auth failure page' do
@@ -625,6 +626,7 @@ RSpec.describe V0::SessionsController, type: :controller do
 
       context 'when too much time passed to consume the SAML Assertion' do
         let(:originating_request_type) { 'idme' }
+
         before { allow(SAML::Responses::Login).to receive(:new).and_return(saml_response_too_late) }
 
         it 'redirects to an auth failure page' do

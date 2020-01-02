@@ -5,6 +5,7 @@ inherit_from: .rubocop_todo.yml
 require:
   - rubocop-rails
   - rubocop-rspec
+  - rubocop-thread_safety
 
 AllCops:
   TargetRailsVersion: 5.2
@@ -287,6 +288,7 @@ RSpec/RepeatedExample:
     - 'modules/vba_documents/spec/models/upload_submission_spec.rb'
     - 'modules/vba_documents/spec/request/v0/reports_request_spec.rb'
     - 'modules/vba_documents/spec/request/v1/reports_request_spec.rb'
+    - 'spec/lib/saml/url_service_spec.rb'
 
 # Might be worth revisiting at some point
 RSpec/ScatteredLet:
