@@ -26,11 +26,11 @@ info:
 
     dev-api.va.gov/services/veteran_verification/v0
 
-    Check out some of our sample apps located on our [GitHub page](). Please visit our VA Lighthouse [Support portal]() should you need further assistance.
+    Check out some of our sample apps located on our [GitHub page](https://github.com/department-of-veterans-affairs/vets-api-clients/tree/master/samples/). Please visit our VA Lighthouse [Support portal](/support) should you need further assistance.
 
     ### 4. Show us a quick demo and get set up in the Production environment
 
-    After building your app, we ask that you give us a quick demo before we set you up with production credentials. Please see the [Path to Production]() page for more details.
+    After building your app, we ask that you give us a quick demo before we set you up with production credentials. Please see the [Path to Production](/go-live) page for more details.
 
     ## Authorization
     This API uses the [OpenID Connect](https://openid.net/specs/openid-connect-core-1_0.html) standard (OAuth 2) to allow the person being confirmed to log in and provide digital consent. API requests are authorized using a Bearer token issued through an OpenID Connect service. The token should be submitted as an Authorization header in the form Bearer <token>.
