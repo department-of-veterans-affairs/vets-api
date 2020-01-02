@@ -6,13 +6,6 @@ require 'evss/request_decision'
 
 RSpec.describe 'EVSS Claims management', type: :request do
   include SchemaMatchers
-  VALID_HEADERS = {
-    'X-VA-SSN' => '111223333',
-    'X-VA-First-Name' => 'Test',
-    'X-VA-Last-Name' => 'Consumer',
-    'X-VA-Birth-Date' => '11-11-1111',
-    'X-Consumer-Username' => 'TestConsumer'
-  }.freeze
 
   let(:request_headers) do
     {

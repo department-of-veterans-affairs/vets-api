@@ -150,7 +150,7 @@ module SAML
     end
 
     def relay_state_params
-      { originating_request_id: Thread.current['request_id'], type: type }.to_json
+      { originating_request_id: RequestStore.store['request_id'], type: type }.to_json
     end
 
     def current_host

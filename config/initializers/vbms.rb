@@ -3,7 +3,6 @@
 # OpenSSL::SSL::VERIFY_PEER = OpenSSL::SSL::VERIFY_NONE
 if Settings.vbms.present?
   ENV['CONNECT_VBMS_BASE_URL'] = Settings.vbms.url
-  ENV['CONNECT_VBMS_CACERT'] = Settings.vbms.ca_cert
   ENV['CONNECT_VBMS_CERT'] = Settings.vbms.cert
   ENV['CONNECT_VBMS_CLIENT_KEYFILE'] = Settings.vbms.client_keyfile
   ENV['CONNECT_VBMS_KEYPASS'] = Settings.vbms.keypass
