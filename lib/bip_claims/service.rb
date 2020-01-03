@@ -29,9 +29,9 @@ module BipClaims
     def lookup_veteran_from_mvi(claim)
       veteran = MVI::AttrService.new.find_profile(veteran_attributes(claim))
       mvi_stats_key = veteran&.participantId ? 'hit' : 'miss'
-      StatsD.increment("api.bip_claims.mvi_lookup_#{mvi_stats_key}")
+      StatsD.increment("#{STATSD_KEY_PREFIX}.mvi_lookup_#{mvi_stats_key}")
     rescue MVI::Errors::Base
-      StatsD.increment("api.bip_claims.mvi_lookup_error")
+      StatsD.increment("#{STATSD_KEY_PREFIX}.mvi_lookup_error")
     end
   end
 end
