@@ -10,13 +10,10 @@ module VAOS
 
     set_type :messages
 
-    attributes :surrogate_identifier,
-               :message_text,
+    attributes :message_text,
                :message_date_time,
                :sender_id,
                :appointment_request_id,
-               :date,
-               :assigning_authority,
-               :system_id
+               :date
   end
 end
