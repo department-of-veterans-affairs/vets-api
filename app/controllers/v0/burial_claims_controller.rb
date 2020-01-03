@@ -10,9 +10,10 @@ module V0
         raise Common::Exceptions::ValidationErrors, claim
       end
 
-      unless BipClaims::Service.new.create_claim(claim)
-        claim.process_attachments! # upload claim and attachments to Central Mail if creation by API is not possible
-      end
+      # veteran lookup for hit/miss metrics in support of Automation work
+      BipClaims::Service.new.lookup_veteran_from_mvi(claim)
+
+      claim.process_attachments! # upload claim and attachments to Central Mail
 
       StatsD.increment("#{stats_key}.success")
       Rails.logger.info "ClaimID=#{claim.confirmation_number} Form=#{claim.class::FORM}"
