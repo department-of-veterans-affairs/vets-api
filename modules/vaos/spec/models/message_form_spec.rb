@@ -20,7 +20,7 @@ describe VAOS::MessageForm, type: :model do
 
     context 'message_text length > 100' do
       subject do
-        described_class.new(user, request_id, message_text: Faker::Lorem.characters(101))
+        described_class.new(user, request_id, message_text: Faker::Lorem.characters(number: 101))
       end
 
       it 'raises a custom error message' do
