@@ -19,9 +19,10 @@ describe GIDSRedis do
       expect(subject.get_institution_details(scrubbed_params)).to eq(gids_response.body)
     end
   end
+
   context 'when `GIDSRedis` does not respond to method' do
     it 'calls `super`' do
-      expect{ subject.not_a_real_method }.to raise_error(NoMethodError)
+      expect { subject.not_a_real_method }.to raise_error(NoMethodError)
     end
   end
 
