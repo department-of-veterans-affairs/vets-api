@@ -37,7 +37,7 @@ module OIDC
 
     def self.fetch_keys
       okta = Okta::Service.new
-      key_response = okta.keys
+      key_response = okta.oidc_jwks_keys
       key_response.body
     end
 

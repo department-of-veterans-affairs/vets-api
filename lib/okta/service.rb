@@ -52,7 +52,7 @@ module Okta
       end
     end
 
-    def keys
+    def oidc_jwks_keys
       url = metadata.body['jwks_uri']
       with_monitoring do
         get_url_with_token(url)
