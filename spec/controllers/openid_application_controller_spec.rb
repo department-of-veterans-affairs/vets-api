@@ -22,7 +22,7 @@ RSpec.describe OpenidApplicationController, type: :controller do
         @encoded_token = JWT.encode(payload, @public_key, alg, 'kid' => kid)
         request.headers['Authorization'] = "Bearer #{@encoded_token}"
 
-        allow(OIDC::KeyService).to receive(:get_key).with(anything()).and_return(nil)
+        allow(OIDC::KeyService).to receive(:get_key).with(anything).and_return(nil)
         allow(OIDC::KeyService).to receive(:get_key).with(kid).and_return(@public_key)
       end
 
