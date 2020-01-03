@@ -45,5 +45,17 @@ describe AppealsApi::Docs::V1::DocsController, type: :request do
         expect(hlr_intake_status_doc).to include("get")
       end
     end
+    describe "/contestable_issues documentation" do
+      before(:each) do
+        get decision_reviews_docs
+      end
+      let(:contestable_issues_doc) do
+        json = JSON.parse(response.body)
+        json["paths"]["/contestable_issues"]
+      end
+      it "should have GET" do
+        expect(contestable_issues_doc).to include("get")
+      end
+    end
   end
 end
