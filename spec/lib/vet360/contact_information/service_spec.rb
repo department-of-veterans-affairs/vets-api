@@ -201,6 +201,48 @@ describe Vet360::ContactInformation::Service, skip_vet360: true do
     end
   end
 
+  describe '#put_permission' do
+    let(:permission) { build(:permission, vet360_id: '1411684', source_system_user: user.icn) }
+
+    context 'when successful' do
+      it 'returns a status of 200' do
+        VCR.use_cassette('vet360/contact_information/put_permission_success', VCR::MATCH_EVERYTHING) do
+          permission.id = 401
+          permission.permission_value = true
+          response = subject.put_permission(permission)
+          expect(response.transaction.id).to eq('83c7d34a-7d88-439e-b4eb-62157d0d74b3')
+          expect(response).to be_ok
+        end
+      end
+    end
+  end
+
+  describe '#post_permission' do
+    let(:permission) { build(:permission, vet360_id: '1411684', id: nil, source_system_user: user.icn) }
+
+    context 'when successful' do
+      it 'returns a status of 200' do
+        VCR.use_cassette('vet360/contact_information/post_permission_success', VCR::MATCH_EVERYTHING) do
+          response = subject.post_permission(permission)
+          expect(response).to be_ok
+        end
+      end
+    end
+
+    context 'when an ID is included' do
+      it 'raises an exception' do
+        VCR.use_cassette('vet360/contact_information/post_permission_w_id_error', VCR::MATCH_EVERYTHING) do
+          permission.id = 401
+          expect { subject.post_permission(permission) }.to raise_error do |e|
+            expect(e).to be_a(Common::Exceptions::BackendServiceException)
+            expect(e.status_code).to eq(400)
+            expect(e.errors.first.code).to eq('VET360_PERM101')
+          end
+        end
+      end
+    end
+  end
+
   describe '#get_telephone_transaction_status' do
     context 'when successful' do
       let(:transaction_id) { 'a50193df-f4d5-4b6a-b53d-36fed2db1a15' }
@@ -332,6 +374,35 @@ describe Vet360::ContactInformation::Service, skip_vet360: true do
       it 'returns a status of 404' do
         VCR.use_cassette('vet360/contact_information/address_transaction_status_error', VCR::MATCH_EVERYTHING) do
           expect { subject.get_address_transaction_status(transaction_id) }.to raise_error do |e|
+            expect(e).to be_a(Common::Exceptions::BackendServiceException)
+            expect(e.status_code).to eq(400)
+            expect(e.errors.first.code).to eq('VET360_CORE103')
+          end
+        end
+      end
+    end
+  end
+
+  describe '#get_permission_transaction_status' do
+    context 'when successful' do
+      let(:transaction_id) { 'b1b06a34-c6a8-412e-82e7-df09d84862f3' }
+
+      it 'returns a status of 200' do
+        VCR.use_cassette('vet360/contact_information/permission_transaction_status', VCR::MATCH_EVERYTHING) do
+          response = subject.get_permission_transaction_status(transaction_id)
+          expect(response).to be_ok
+          expect(response.transaction).to be_a(Vet360::Models::Transaction)
+          expect(response.transaction.id).to eq(transaction_id)
+        end
+      end
+    end
+
+    context 'when not successful' do
+      let(:transaction_id) { 'd47b3d96-9ddd-42be-ac57-8e564aa38029' }
+
+      it 'returns a status of 400' do
+        VCR.use_cassette('vet360/contact_information/permission_transaction_status_error', VCR::MATCH_EVERYTHING) do
+          expect { subject.get_permission_transaction_status(transaction_id) }.to raise_error do |e|
             expect(e).to be_a(Common::Exceptions::BackendServiceException)
             expect(e.status_code).to eq(400)
             expect(e.errors.first.code).to eq('VET360_CORE103')

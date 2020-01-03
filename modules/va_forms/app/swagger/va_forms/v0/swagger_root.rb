@@ -5,7 +5,7 @@ module VaForms
     class SwaggerRoot
       include Swagger::Blocks
       swagger_root do
-        key :swagger, '2.0'
+        key :openapi, '3.0.0'
         info do
           key :version, '0.0.0'
           key :title, 'VA Forms'
@@ -15,44 +15,30 @@ module VaForms
           end
         end
 
-        key :servers, [
-          {
-            "url": 'https://dev-api.va.gov/services/va_forms/{version}',
-            "description": 'VA.gov API development environment',
-            "variables": {
-              "version": {
-                "default": 'v0'
-              }
-            }
-          },
-          {
-            "url": 'https://staging-api.va.gov/services/va_forms/{version}',
-            "description": 'VA.gov API staging environment',
-            "variables": {
-              "version": {
-                "default": 'v0'
-              }
-            }
-          },
-          {
-            "url": 'https://api.va.gov/services/va_forms/{version}',
-            "description": 'VA.gov API production environment',
-            "variables": {
-              "version": {
-                "default": 'v0'
-              }
-            }
-          }
-        ]
-
-        security_definition :apikey do
-          key :type, :apiKey
-          key :name, :apikey
-          key :in, :header
+        server do
+          key :url, 'https://dev-api.va.gov/services/va_forms/{version}'
+          key :description, 'VA.gov API development environment'
+          variable :version do
+            key :default, 'v0'
+          end
         end
 
-        key :schemes, ['https']
-        key :host, 'api.va.gov'
+        server do
+          key :url, 'https://staging-api.va.gov/services/va_forms/{version}'
+          key :description, 'VA.gov API staging environment'
+          variable :version do
+            key :default, 'v0'
+          end
+        end
+
+        server do
+          key :url, 'https://api.va.gov/services/va_forms/{version}'
+          key :description, 'VA.gov API production environment'
+          variable :version do
+            key :default, 'v0'
+          end
+        end
+
         key :basePath, '/services/va_forms/v0'
         key :consumes, ['application/json']
         key :produces, ['application/json']

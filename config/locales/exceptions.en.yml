@@ -1641,6 +1641,12 @@ en:
         code: VET360_PHON305
         detail: Cannot update record if phoneType is not matching
         status: 400
+      VET360_PERM101:
+        <<: *external_defaults
+        title: Permission ID Not Null
+        code: VET360_PERM101
+        detail: Permission ID must be null
+        status: 400
 
   decision_review:
     exceptions:
@@ -1667,6 +1673,12 @@ en:
         title: Veteran Not Found
         detail: The veteran could not be found
         code: DR_veteran_not_found
+        status: 404
+      DR_decision_review_not_found:
+        <<: *defaults
+        title: Decision Review Not Found
+        detail: The decision review could not be found
+        code: DR_decision_review_not_found
         status: 404
       DR_duplicate_intake_in_progress:
         <<: *defaults
