@@ -33,52 +33,5 @@ module BipClaims
     rescue MVI::Errors::Base
       StatsD.increment("api.bip_claims.mvi_lookup_error")
     end
-
-    def create_claim(form_data)
-      veteran_record = lookup_veteran_from_mvi(form_data)
-      claimant_record = false # TODO: look up from MVI
-
-      submit_claim(veteran: veteran_record, claimant: claimant_record) if veteran_record && claimant_record
-    end
-
-    def submit_claim(veteran:, claimant:)
-      body = {
-        "serviceTypeCode": '',
-        "programTypeCode": '',
-        "benefitClaimTypeCode": '',
-        "claimant": {
-          "participantId": claimant&.participantId
-        },
-        "veteran": {
-          "participantId": veteran&.participantId,
-          "firstName": '',
-          "lastName": ''
-        },
-        "dateOfClaim": DateTime.now.utc.iso8601
-      }
-      body
-    end
-
-    # TODO: Identify if method is necessary
-    def benefit_claim_types(query)
-      # /api/v1/claims/benefit_claim_types
-    end
-
-    # TODO: per BIP, this health endpoint is subject to change
-    # TODO: add auth to request
-    def status
-      response = request(
-        :get,
-        'actuator/health'
-      )
-
-      response
-    end
-
-    # TODO: Breakers set up
-    def self.current_breaker_outage?
-      last_bc_outage = Breakers::Outage.find_latest(service: BipClaims::Configuration.instance.breakers_service)
-      BipClaims::Service.new.status('').try(:status) != 200 if last_bc_outage.present? && last_bc_outage.end_time.blank?
-    end
   end
 end
