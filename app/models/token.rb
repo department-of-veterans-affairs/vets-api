@@ -15,7 +15,6 @@ class Token
   def payload
     @payload ||= if @token_string
                    pubkey = public_key
-                   return if pubkey.blank?
 
                    JWT.decode(@token_string, pubkey, true, algorithm: 'RS256')[0]
                  end
