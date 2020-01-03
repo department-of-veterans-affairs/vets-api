@@ -37,8 +37,8 @@ module MVI
       def self.with_parsed_response(response)
         add_parser = AddParser.new(response)
         codes = add_parser.parse
-        raise MVI::Errors::InvalidRequestError(codes) if add_parser.invalid_request?
-        raise MVI::Errors::FailedRequestError(codes) if add_parser.failed_request?
+        raise MVI::Errors::InvalidRequestError.new(codes), 'InvalidRequest' if add_parser.invalid_request?
+        raise MVI::Errors::FailedRequestError.new(codes), 'FailedRequest' if add_parser.failed_request?
 
         AddPersonResponse.new(
           status: RESPONSE_STATUS[:ok],

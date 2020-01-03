@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <soap:Body>
-    <idm:PRPA_IN201301UV02 xmlns="urn:hl7-org:v3" xmlns:idm="http://vaww.oed.oit.va.gov" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" ITSVersion="XML_1.0" xsi:schemaLocation="urn:hl7-org:v3 ../../schema/HL7V3/NE2008/multicacheschemas/PRPA_IN201301UV02.xsd">
-      <id extension="{{ msg_id }}" root="22a0f9e0-4454-11dc-a6be-3603d6866807"/>
+    <idm:PRPA_IN201301UV02 xmlns:idm="http://vaww.oed.oit.va.gov" xmlns:xsi="http://www.w3.org/2001/XMLSchema‐instance" xsi:schemaLocation="urn:hl7‐org:v3 ../../schema/HL7V3/NE2008/multicacheschemas/PRPA_IN201305UV02.xsd" xmlns="urn:hl7‐org:v3" ITSVersion="XML_1.0">      <id extension="{{ msg_id }}" root="22a0f9e0-4454-11dc-a6be-3603d6866807"/>
       <creationTime value="{{ date_of_request }}"/>
       <versionCode code="4.1"/>
       <interactionId extension="PRPA_IN201301UV02" root="2.16.840.1.113883.1.6"/>
