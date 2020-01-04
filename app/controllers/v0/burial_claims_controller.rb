@@ -10,10 +10,12 @@ module V0
         raise Common::Exceptions::ValidationErrors, claim
       end
 
-      # veteran lookup for hit/miss metrics in support of Automation work
-      BipClaims::Service.new.lookup_veteran_from_mvi(claim)
-
-      claim.process_attachments! # upload claim and attachments to Central Mail
+      begin
+        # veteran lookup for hit/miss metrics in support of Automation work
+        BipClaims::Service.new.lookup_veteran_from_mvi(claim)
+      ensure
+        claim.process_attachments! # upload claim and attachments to Central Mail
+      end
 
       StatsD.increment("#{stats_key}.success")
       Rails.logger.info "ClaimID=#{claim.confirmation_number} Form=#{claim.class::FORM}"
