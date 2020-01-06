@@ -10,7 +10,7 @@ module Swagger
           key :type, :object
           key :required, %i[data]
           property :data, type: :array do
-            items type: :string do
+            items type: :object do
             end
           end
         end
