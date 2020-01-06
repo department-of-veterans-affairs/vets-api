@@ -52,7 +52,9 @@ module VeteranVerification
         end
 
         def verification_yaml
-          @verification_yaml ||= YAML.safe_load(File.read(VeteranVerification::Engine.root.join('VETERAN_VERIFICATION.yml')))
+          @verification_yaml ||= YAML.safe_load(
+            File.read(VeteranVerification::Engine.root.join('VETERAN_VERIFICATION.yml'))
+          )
         end
 
         def disability_rating_yaml
