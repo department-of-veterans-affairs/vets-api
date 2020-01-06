@@ -4,7 +4,7 @@ require 'rails_helper'
 
 RSpec.describe 'VBA Document SNS upload complete notification', type: :request do
   context 'with a subscriptionconfirmation message type' do
-    # rubocop:disable Metrics/LineLength
+    # rubocop:disable Layout/LineLength
     let(:headers) do
       {
         'x-amz-sns-message-type' => 'SubscriptionConfirmation',
@@ -36,7 +36,7 @@ RSpec.describe 'VBA Document SNS upload complete notification', type: :request d
         'SigningCertURL' => 'https://sns.us-west-2.amazonaws.com/SimpleNotificationService-f3ecfb7224c7233fe7bb5f59f96de52f.pem'
       }.to_json
     end
-    # rubocop:enable Metrics/LineLength
+    # rubocop:enable Layout/LineLength
 
     context 'verified message' do
       it 'confirms the subscription' do
@@ -91,7 +91,7 @@ RSpec.describe 'VBA Document SNS upload complete notification', type: :request d
   context 'with a notification message type' do
     let(:upload) { FactoryBot.create(:upload_submission) }
 
-    # rubocop:disable Metrics/LineLength
+    # rubocop:disable Layout/LineLength
     let(:headers) do
       {
         'x-amz-sns-message-type' => 'Notification',
@@ -120,7 +120,7 @@ RSpec.describe 'VBA Document SNS upload complete notification', type: :request d
         'UnsubscribeURL' => 'https://sns.us-west-2.amazonaws.com/?Action=Unsubscribe&SubscriptionArn=arn:aws:sns:us-west-2:123456789012:MyTopic:2bcfbf39-05c3-41de-beaa-fcfcc21c8f55'
       }.to_json
     end
-    # rubocop:enable Metrics/LineLength
+    # rubocop:enable Layout/LineLength
 
     context 'verified message' do
       it 'queues a processor working on the uploaded object-key' do
@@ -176,7 +176,7 @@ RSpec.describe 'VBA Document SNS upload complete notification', type: :request d
   end
 
   context 'with any other message type' do
-    # rubocop:disable Metrics/LineLength
+    # rubocop:disable Layout/LineLength
     let(:headers) do
       {
         'x-amz-sns-message-type' => 'OtherMessageType',
@@ -204,7 +204,7 @@ RSpec.describe 'VBA Document SNS upload complete notification', type: :request d
         'SigningCertURL' => 'https://sns.us-west-2.amazonaws.com/SimpleNotificationService-f3ecfb7224c7233fe7bb5f59f96de52f.pem'
       }.to_json
     end
-    # rubocop:enable Metrics/LineLength
+    # rubocop:enable Layout/LineLength
 
     it 'responds with a parameter missing error' do
       with_settings(Settings.vba_documents.sns,
