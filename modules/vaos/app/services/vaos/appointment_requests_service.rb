@@ -34,7 +34,7 @@ module VAOS
     def post_request(params)
       with_monitoring do
         validated_params = form_object(params).params
-        response = perform(:post, post_request_url(params), validated_params, headers(user))
+        response = perform(:post, post_request_url(params[:type]), validated_params, headers(user))
 
         {
           data: OpenStruct.new(filter_cc_appointment_data(response.body))
@@ -60,11 +60,11 @@ module VAOS
     end
 
     def put_request_url(id)
-      post_request_url('appointments') + "/system/var/id/#{id}"
+      post_request_url + "/system/var/id/#{id}"
     end
 
-    def post_request_url(params)
-      type = params[:type]&.upcase == 'CC' ? 'community-care-appointment' : 'appointments'
+    def post_request_url(request_type = '')
+      type = request_type&.upcase == 'CC' ? 'community-care-appointment' : 'appointments'
       "/var/VeteranAppointmentRequestService/v4/rest/appointment-service/patient/ICN/#{user.icn}/#{type}"
     end
 
