@@ -1668,6 +1668,12 @@ en:
         detail: The request was malformed and could not be processed
         code: DR_malformed_request
         status: 400
+      DR_veteran_not_accessible:
+        <<: *defaults
+        title: Veteran not Accessible
+        detail: You don't have permission to view this veteran's information
+        code: DR_veteran_not_accessible
+        status: 403
       DR_veteran_not_found:
         <<: *defaults
         title: Veteran Not Found
@@ -1685,7 +1691,7 @@ en:
         title: Duplicate Intake In Progress
         detail: Another duplicate intake is already in progress
         code: DR_duplicate_intake_in_progress
-        status: 422
+        status: 409
       DR_incident_flash:
         <<: *defaults
         title: Incident Flash
