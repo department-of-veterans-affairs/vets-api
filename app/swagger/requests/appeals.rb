@@ -64,6 +64,7 @@ module Swagger
         operation :post do
           key :tags, %w[higher_level_reviews]
           key :summary, 'Creates a higher level review'
+          key :operationId, 'createHigherLevelReview'
           key :description, 'This endpoint will submit a Decision Review request of type Higher-Level Review. '\
                             'This endpoint is analogous to submitting VA For 20-0996 via mail or fax. ### '\
                             'Asynchronous processing The Decision Reviews API leverages a pattern recommended '\
@@ -87,7 +88,7 @@ module Swagger
             key :required, true
 
             schema do
-              key :'$ref', :HigherLevelReviewRequest
+              key :'$ref', :HigherLevelReviewRequest   
             end
           end
 

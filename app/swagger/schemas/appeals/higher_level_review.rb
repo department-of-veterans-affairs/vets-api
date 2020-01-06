@@ -202,6 +202,18 @@ module Swagger
           key :format, :uuid
           key :pattern, "^[0-9a-fA-F]{8}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{12}$"
         end
+
+
+        payee_codes = []
+
+        (0..99).each do |num| 
+          num.digits.count == 1 ? payee_codes.push("0#{num}") : payee_codes.push(num.to_s)
+        end
+
+        swagger_schema :PayeeCode do
+          key :type, :string
+          key :enum, payee_codes
+        end
       end
     end
   end
