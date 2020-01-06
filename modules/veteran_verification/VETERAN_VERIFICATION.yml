@@ -24,9 +24,9 @@ info:
 
     The base URI for the Veteran Verification API in the Development environment is:
 
-    dev-api.va.gov/services/veteran_verification/v0
+    https://dev-api.va.gov/services/veteran_verification/v0
 
-    Check out some of our sample apps located on our [GitHub page](https://github.com/department-of-veterans-affairs/vets-api-clients/tree/master/samples/). Please visit our VA Lighthouse [Support portal](/support) should you need further assistance.
+    Check out some of our [sample apps](https://github.com/department-of-veterans-affairs/vets-api-clients/tree/master/samples/). Please visit our VA Lighthouse [Support portal](/support) should you need further assistance.
 
     ### 4. Show us a quick demo and get set up in the Production environment
 
@@ -44,7 +44,7 @@ info:
     APIs accessed via the Development environment are using the same underlying logic as VA’s production APIs; only the underlying data store is different.
   
     ### Rate Limiting
-    We implemented basic rate limiting of 60 requests per minute. If you exceed this quota, your request will return a 429 status code. You may petition for increased rate limits by emailing   and requests will be decided on a case by case basis.
+    We implemented basic rate limiting of 60 requests per minute. If you exceed this quota, your request will return a 429 status code. You may petition for increased rate limits by emailing, and requests will be decided on a case by case basis.
     
     ### Raw Open API Spec
     https://api.va.gov/services/veteran_verification/docs/v0/veteran_verification
