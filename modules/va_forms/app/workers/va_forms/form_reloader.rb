@@ -14,12 +14,18 @@ module VaForms
 
     def load_page(current_page: 0)
       current_page += 1
+      params = {}
+      unless current_page == 1
+        params = {
+          id: 'form2',
+          name: 'form2',
+          'CurrentPage' => current_page,
+          'Next10' => 'Next25 >'
+        }
+      end
       page = Faraday.new(url: BASE_URL).post(
         '/vaforms/search_action.asp',
-        id: 'form2',
-        name: 'form2',
-        'CurrentPage' => current_page,
-        'Next10' => 'Next25 >'
+        params
       ).body
       doc = Nokogiri::HTML(page)
       next_button = doc.css('input[name=Next10]')

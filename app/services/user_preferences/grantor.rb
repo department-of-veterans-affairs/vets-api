@@ -101,7 +101,7 @@ module UserPreferences
       end.flatten
     end
 
-    # rubocop:disable Metrics/LineLength
+    # rubocop:disable Layout/LineLength
     def destroy_user_preferences!
       UserPreference.for_preference_and_account(account.id, preference_codes).each(&:destroy!)
     rescue ActiveRecord::RecordNotDestroyed => e
@@ -109,7 +109,7 @@ module UserPreferences
         detail: "When destroying UserPreference records for Account #{account.id} with Preference codes '#{preference_codes}', experienced ActiveRecord::RecordNotDestroyed with this error: #{e}"
       )
     end
-    # rubocop:enable Metrics/LineLength
+    # rubocop:enable Layout/LineLength
 
     def assign_preference_codes(preferences)
       preference_code   = preferences.dig 'preference', 'code'
