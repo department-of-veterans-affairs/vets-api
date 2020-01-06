@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-# rubocop:disable Metrics/LineLength
+# rubocop:disable Layout/LineLength
 RSpec.describe UserPreferences::Grantor do
   let(:user) { build(:user, :accountable) }
   let(:account) { user.account }
@@ -213,7 +213,7 @@ RSpec.describe UserPreferences::Grantor do
     end
   end
 end
-# rubocop:enable Metrics/LineLength
+# rubocop:enable Layout/LineLength
 
 def returned_user_preference_codes_in(response, preference)
   pairings = response.select { |pair| pair[:preference].code == preference.code }
