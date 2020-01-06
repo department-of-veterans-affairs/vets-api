@@ -7,8 +7,12 @@ module Swagger
         include Swagger::Blocks
 
         swagger_schema :Appeals do
-          key :required, [:data]
-          property :data, type: :array
+          key :type, :object
+          key :required, %i[data]
+          property :data, type: :array do
+            items type: :string do
+            end
+          end
         end
 
         swagger_schema :AppealsErrors do

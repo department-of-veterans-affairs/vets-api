@@ -16,8 +16,7 @@ module Swagger
           parameter :authorization
 
           response 200 do
-            key :description,
-                '200 passes the response from the upstream appeals API. Their swagger can be viewed here https://app.swaggerhub.com/apis/dsva-appeals/appeals-status/2.0.0#/default/appeals'
+            key :description, '200 passes the response from the upstream appeals API'
             schema do
               key :'$ref', :Appeals
             end
