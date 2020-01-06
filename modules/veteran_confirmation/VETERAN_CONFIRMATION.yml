@@ -3,17 +3,50 @@ info:
   version: 0.0.1
   title: Veteran Confirmation
   description: |
+    The Veteran Confirmation API allows you to confirm Veteran status for a given person. This can be useful for offering Veterans discounts or other benefits.
 
-    ## Background
+    The API will only return “Confirmed” or “Not Confirmed”. 
 
-    This API allows approved third-parties to request confirmation from the
-    VA of an individual's Veteran status.
+    ## Quickstart Guide
+    ### 1. Get Access Credentials
+    Get started by filling out the form on the [Apply for VA Lighthouse Developer Access](https://developer.va.gov/apply) page.
 
-    ## Design
+    After submitting a request, you will receive your credentials for using the API in the Development environment, which allows you to try it out with mock data before moving to the Production environment.
 
-    ### Authorization
+    ### 2. Test the API
+    In the endpoint documentation below, we've provided a curl command builder for trying out the API before implementation with your app.
 
-    API requests are authorized through a symmetric API token, provided in an HTTP header with name `apikey`.
+    ### 3. Build your app
+    The base URI for the Veteran Confirmation API in the Development environment is:
+    
+    https://dev-api.va.gov/services/veteran_confirmation/v0
+
+    Check out some of our [sample apps](https://github.com/department-of-veterans-affairs/vets-api-clients). Please visit our VA Lighthouse [Support portal](https://developer.va.gov/support) should you need further assistance.
+
+    ### 4. Show us a quick demo and get access to the Production environment
+    After building your app, we ask that you give us a quick demo before we set you up with production credentials. Please see the [Path to Production](https://developer.va.gov/go-live) page for more details.
+
+    ## Authorization
+    This API requires an API key in combination with identifiable information for the person being confirmed listed below. API requests are authorized through a symmetric API token provided in an HTTP header with name `apikey`. Including more information has a better chance of making a match and returning a Confirmed status. 
+    #### Required information:
+    * First Name  
+    * Last Name  
+    * Date of Birth  
+    * Social Security Number 
+
+    #### Optional information:
+    * Middle Name  
+    * Gender
+    
+    ## Reference
+    ### Development vs. Production Data
+    APIs accessed via the Development environment are using the same underlying logic as VA’s production APIs; only the underlying data store is different. 
+
+    ### Rate Limiting 
+    We implemented basic rate limiting of 60 requests per minute. If you exceed this quota, your request will return a 429 status code. You may petition for increased rate limits by emailing and requests will be decided on a case by case basis. 
+
+    ### Raw Open API Spec 
+    https://api.va.gov/services/veteran_confirmation/docs/v0/api
 
   termsOfService: ''
   contact:
