@@ -19,6 +19,6 @@ Metrics/ClassLength:
   Exclude:
     - app/swagger/**/*.rb
 
-Metrics/LineLength:
+Layout/LineLength:
   Exclude:
     - app/swagger/**/*.rb
