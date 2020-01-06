@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
-module VbaDocuments
-  module V1
+module ClaimsApi
+  module Common
     class ErrorModelSwagger
       include Swagger::Blocks
 
@@ -17,9 +17,15 @@ module VbaDocuments
             key :description, 'Standard HTTP Status returned with Error'
           end
 
+          property :source do
+            key :type, :string
+            key :example, '#/serviceInformation/servicePeriods/1/serviceBranch'
+            key :description, 'a JSON Pointer to the offending attribute in the payload'
+          end
+
           property :details do
             key :type, :string
-            key :example, 'DOC104 - Upload rejected by downstream system.'
+            key :example, 'burial is not currently supported, but will be in a future version'
             key :description, 'A more detailed message about why an error occured'
           end
         end
