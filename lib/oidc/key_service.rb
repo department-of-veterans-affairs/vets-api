@@ -37,9 +37,7 @@ module OIDC
 
     def self.fetch_keys
       okta = Okta::Service.new
-      metadata_response = okta.get_url_with_token Settings.oidc.auth_server_metadata_url
-      metadata = metadata_response.body
-      key_response = okta.get_url_with_token metadata['jwks_uri']
+      key_response = okta.oidc_jwks_keys
       key_response.body
     end
 
