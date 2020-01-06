@@ -47,8 +47,7 @@ info:
     We implemented basic rate limiting of 60 requests per minute. If you exceed this quota, your request will return a 429 status code. You may petition for increased rate limits by emailing   and requests will be decided on a case by case basis.
     
     ### Raw Open API Spec
-    https://api.va.gov/services/veteran_verification/docs/v0/metadata
-
+    https://api.va.gov/services/veteran_verification/docs/v0/veteran_verification
   termsOfService: ''
   contact:
     name: VA.gov
