@@ -87,7 +87,7 @@ module Swagger
             key :required, true
 
             schema do
-              key :'$ref', :HigherLevelReviewRequest   
+              key :'$ref', :HigherLevelReviewRequest
             end
           end
 
