@@ -70,7 +70,7 @@ Naming/VariableNumber:
 Style/ZeroLengthPredicate:
   Enabled: false
 
-Metrics/LineLength:
+Layout/LineLength:
   Max: 120
   Exclude:
     - 'Gemfile'
