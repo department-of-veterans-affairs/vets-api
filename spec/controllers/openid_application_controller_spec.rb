@@ -8,9 +8,9 @@ RSpec.describe OpenidApplicationController, type: :controller do
   let(:kid) { token[1]['kid'] }
   let(:alg) { token[1]['alg'] }
 
-  def change_encoded_token_payload(options = {})
+  def change_encoded_token_payload(options = {}, new_kid = kid)
     new_payload = payload.merge(options)
-    @encoded_token = JWT.encode(new_payload, @public_key, alg, 'kid' => kid)
+    @encoded_token = JWT.encode(new_payload, @public_key, alg, 'kid' => new_kid)
     request.headers['Authorization'] = "Bearer #{@encoded_token}"
   end
 
@@ -22,6 +22,7 @@ RSpec.describe OpenidApplicationController, type: :controller do
         @encoded_token = JWT.encode(payload, @public_key, alg, 'kid' => kid)
         request.headers['Authorization'] = "Bearer #{@encoded_token}"
 
+        allow(OIDC::KeyService).to receive(:get_key).with(anything).and_return(nil)
         allow(OIDC::KeyService).to receive(:get_key).with(kid).and_return(@public_key)
       end
 
@@ -40,11 +41,21 @@ RSpec.describe OpenidApplicationController, type: :controller do
         end
       end
 
-      it 'rejects access when the does not have the allowed scopes' do
+      it 'rejects access when the token does not have the allowed scopes' do
         with_okta_configured do
           change_encoded_token_payload('scp' => ['bad_scope'])
           get :index
           expect(response.status).to eq(401)
+        end
+      end
+
+      it 'rejects access when the public key is not found' do
+        with_okta_configured do
+          change_encoded_token_payload({}, 'bad kid value')
+          get :index
+          expect(response.status).to eq(401)
+          errors = JSON.parse(response.body)['errors']
+          expect(errors[0]['detail']).to eq("Public key not found for kid specified in token: 'bad kid value'")
         end
       end
 
@@ -60,7 +71,7 @@ RSpec.describe OpenidApplicationController, type: :controller do
 
           expect(response.status).to eq(401)
           errors = JSON.parse(response.body)['errors']
-          expect(errors[0]['detail']).to eq('Validation error: Signature has expired')
+          expect(errors[0]['detail']).to eq('Signature has expired')
         end
       end
 

@@ -41,7 +41,7 @@ FactoryBot.define do
     family_name { Faker::Name.last_name }
     suffix { Faker::Name.suffix }
     gender { Faker::Medical::Patient.gender }
-    birth_date { Faker::Date.between(80.years.ago, 30.years.ago).strftime('%Y%m%d') }
+    birth_date { Faker::Date.between(from: 80.years.ago, to: 30.years.ago).strftime('%Y%m%d') }
     ssn { Faker::Medical::SSN.ssn.delete('-') }
     address { build(:mvi_profile_address) }
     home_phone { Faker::PhoneNumber.phone_number }
@@ -57,13 +57,13 @@ FactoryBot.define do
         '12345678^PI^200CORP^USVBA^A'
       ]
     }
-    icn { Faker::Number.number(17) }
+    icn { Faker::Number.number(digits: 17) }
     icn_with_aaid { '1000123456V123456^NI^200M^USVHA' }
-    mhv_ids { Array.new(2) { Faker::Number.number(11) } }
+    mhv_ids { Array.new(2) { Faker::Number.number(digits: 11) } }
     active_mhv_ids { mhv_ids }
-    edipi { Faker::Number.number(10) }
-    participant_id { Faker::Number.number(10) }
-    birls_id { Faker::Number.number(10) }
+    edipi { Faker::Number.number(digits: 10) }
+    participant_id { Faker::Number.number(digits: 10) }
+    birls_id { Faker::Number.number(digits: 10) }
     vet360_id { '123456789' }
     sec_id { '0001234567' }
     historical_icns { %w[1000123457V123456 1000123458V123456] }
