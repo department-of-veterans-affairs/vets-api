@@ -167,10 +167,10 @@ module Swagger
                 key :enum, %w[ContestableIssues]
               end
               property :attributes, type: :object do
-                property :notes, type: :string, nullable: true
-                property :decision_issue_id, type: :integer, nullable: true
-                property :rating_issue_id, type: :string, nullable: true
-                property :rating_decision_issue_id, type: :string, nullable: true
+                property :notes, type: :string
+                property :decision_issue_id, type: :integer
+                property :rating_issue_id, type: :string
+                property :rating_decision_issue_id, type: :string
                 property :legacy_appeal_issues, type: :array do
                   key :description, 'LegacyAppealIssues Array'
                   items do
