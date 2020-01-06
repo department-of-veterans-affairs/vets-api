@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2019_12_04_152342) do
+ActiveRecord::Schema.define(version: 2020_01_06_171714) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
@@ -103,6 +103,8 @@ ActiveRecord::Schema.define(version: 2019_12_04_152342) do
     t.string "source"
     t.string "encrypted_file_data"
     t.string "encrypted_file_data_iv"
+    t.string "encrypted_evss_response"
+    t.string "encrypted_evss_response_iv"
   end
 
   create_table "claims_api_power_of_attorneys", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
