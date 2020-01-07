@@ -7,23 +7,34 @@ module OIDC
     @mutex = Mutex.new
     # Map from kid to OpenSSL::RSA::PKey for all current keys
     @current_keys = {}
-
-    class << self
-      attr_reader :current_keys
-    end
+    @cache_miss_kids = {}
+    KID_CACHE_PERIOD = 60
 
     def self.get_key(expected_kid)
       found = @current_keys[expected_kid]
       if found.nil?
-        refresh expected_kid
-        found = @current_keys[expected_kid]
+        last_miss = @cache_miss_kids[expected_kid]
+        if last_miss.nil? || Time.now.utc - last_miss > KID_CACHE_PERIOD
+          refresh expected_kid
+          found = @current_keys[expected_kid]
+          if found.nil?
+            @cache_miss_kids[expected_kid] = Time.now.utc
+          end
+        end
       end
       found
     end
 
+    def self.reset!
+      @mutex.synchronize do
+        @current_keys = {}
+        @cache_miss_kids = {}
+      end
+    end
+
     def self.refresh(expected_kid)
       @mutex.synchronize do
-        break if current_keys[expected_kid].present?
+        break if @current_keys[expected_kid].present?
 
         jwks_result = fetch_keys
         new_keys = {}

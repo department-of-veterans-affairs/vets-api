@@ -23,27 +23,48 @@ RSpec.describe OIDC::KeyService do
 
   describe '::get_key' do
     after do
-      described_class.instance_variable_set(:@current_key, {})
+      described_class.reset!
     end
 
     it 'returns the current key if it already exists' do
-      described_class.current_keys['key'] = 'key'
+      described_class.instance_variable_set(:@current_keys, {'key' => 'key'})
       expect(described_class.get_key('key')).to eq 'key'
     end
 
-    it 'downloads new keys if it does not exist' do
-      with_settings(
-        Settings.oidc,
-        auth_server_metadata_url: 'https://example.com/oauth2/default/.well-known/oauth-authorization-server',
-        issuer: 'https://example.com/oauth2/default',
-        base_api_url: 'https://example.com/',
-        base_api_token: 'token'
-      ) do
-        VCR.use_cassette('okta/keys') do
-          key = described_class.get_key('1Z0tNc4Hxs_n7ySgwb6YT8JgWpq0wezqupEg136FZHU')
-          expect(key).to be_a(OpenSSL::PKey::RSA)
+    it 'avoids upstream requests for repeated bad kids' do
+      expect(described_class).to receive(:refresh).once
+      described_class.get_key('bad kid')
+      described_class.get_key('bad kid')
+    end
+
+    it 'refreshes a bad kid after one minute' do
+      expect(described_class).to receive(:refresh).twice
+      described_class.get_key('bad kid')
+      Timecop.travel(Time.zone.now + 61)
+      described_class.get_key('bad kid')
+      Timecop.return
+    end
+
+    context 'with okta api recordings' do
+      around do |example|
+        with_settings(
+          Settings.oidc,
+          auth_server_metadata_url: 'https://example.com/oauth2/default/.well-known/oauth-authorization-server',
+          issuer: 'https://example.com/oauth2/default',
+          base_api_url: 'https://example.com/',
+          base_api_token: 'token'
+        ) do
+          VCR.use_cassette('okta/keys') do
+            example.run
+          end
         end
       end
+
+      it 'downloads new keys if it does not exist' do
+        key = described_class.get_key('1Z0tNc4Hxs_n7ySgwb6YT8JgWpq0wezqupEg136FZHU')
+        expect(key).to be_a(OpenSSL::PKey::RSA)
+      end
+
     end
   end
 end
