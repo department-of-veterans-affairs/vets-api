@@ -21,7 +21,7 @@ FactoryBot.define do
       email { 'abraham.lincoln@va.gov' }
       new_message { 'A message to a clerk' }
       office_hours { %w[Weekdays Evenings Weekends] }
-      option_date1 { '12/29/2019' }
+      option_date1 { '1/20/2020' }
       option_time1 { 'AM' }
       option_date2 { 'No Date Selected' }
       option_time2 { 'No Time Selected' }
