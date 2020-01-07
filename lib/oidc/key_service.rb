@@ -8,7 +8,7 @@ module OIDC
     # Map from kid to OpenSSL::RSA::PKey for all current keys
     @current_keys = {}
     @cache_miss_kids = {}
-    KID_CACHE_PERIOD = 60
+    KID_CACHE_PERIOD_SECS = 60
     KID_CACHE_MAX_SIZE = 10
 
     def self.get_key(expected_kid)
@@ -31,7 +31,7 @@ module OIDC
 
     def self.should_refresh?(kid)
       last_miss = @cache_miss_kids[kid]
-      last_miss.nil? || Time.now.utc - last_miss > KID_CACHE_PERIOD
+      last_miss.nil? || Time.now.utc - last_miss > KID_CACHE_PERIOD_SECS
     end
 
     def self.reset!
