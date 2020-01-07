@@ -5,7 +5,7 @@ require 'rx/client'
 require 'support/rx_client_helpers'
 require 'support/shared_examples_for_mhv'
 
-# rubocop:disable Metrics/LineLength
+# rubocop:disable Layout/LineLength
 RSpec.describe 'prescriptions', type: :request do
   include Rx::ClientHelpers
   include SchemaMatchers
@@ -166,4 +166,4 @@ RSpec.describe 'prescriptions', type: :request do
     end
   end
 end
-# rubocop:enable Metrics/LineLength
+# rubocop:enable Layout/LineLength
