@@ -13,17 +13,15 @@ module OIDC
 
     def self.get_key(expected_kid)
       found = @current_keys[expected_kid]
-      if found.nil?
-        if should_refresh?(expected_kid)
-          refresh expected_kid
-          found = @current_keys[expected_kid]
-          update_kid_cache(expected_kid) if found.nil?
-        end
+      if found.nil? && should_refresh?(expected_kid)
+        refresh expected_kid
+        found = @current_keys[expected_kid]
+        update_missing_kid_cache(expected_kid) if found.nil?
       end
       found
     end
 
-    def self.update_kid_cache(kid)
+    def self.update_missing_kid_cache(kid)
       if @cache_miss_kids.length >= KID_CACHE_MAX_SIZE && !@cache_miss_kids.key?(kid)
         oldest_kid = @cache_miss_kids.min_by { |_, timestamp| timestamp }[0]
         @cache_miss_kids.delete oldest_kid
