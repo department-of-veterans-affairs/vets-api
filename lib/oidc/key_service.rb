@@ -9,7 +9,7 @@ module OIDC
     @current_keys = {}
     @cache_miss_kids = {}
     KID_CACHE_PERIOD = 60
-    KID_CACHE_MAX_SIZE = 1000
+    KID_CACHE_MAX_SIZE = 10
 
     def self.get_key(expected_kid)
       found = @current_keys[expected_kid]
