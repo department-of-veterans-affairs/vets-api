@@ -9,6 +9,7 @@ AppealsApi::Engine.routes.draw do
         get 'higher_level_reviews/:uuid', to: 'appeals#show_higher_level_review'
         post 'higher_level_reviews', to: 'appeals#create_higher_level_review'
         get 'intake_statuses/:intake_id', to: 'appeals#show_intake_status'
+        get 'contestable_issues', to: 'appeals#show_contestable_issues'
       end
     end
 
