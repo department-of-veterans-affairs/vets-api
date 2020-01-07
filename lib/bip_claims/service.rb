@@ -15,6 +15,8 @@ module BipClaims
           'veteranFullName',
           'veteranDateOfBirth'
         )
+      else
+        raise ArgumentError, "Unsupported form id: #{claim.form_id}"
       end
 
       BipClaims::Veteran.new(
