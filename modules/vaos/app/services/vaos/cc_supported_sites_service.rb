@@ -21,11 +21,24 @@ module VAOS
     def get_supported_sites(site_codes)
       with_monitoring do
         response = perform(:get, url(site_codes), nil, headers(user))
-        OpenStruct.new(response.body)
+        {
+          data: deserialize(response.body),
+          meta: {}
+        }
+      
       end
     end
 
     private
+
+    def deserialize(json_hash)
+      json_hash[:sites_supporting_var].map do |request|
+        OpenStruct.new(request)
+      end
+    rescue => e
+      log_message_to_sentry(e.message, :warn, invalid_json: json_hash)
+      []
+    end
 
     def url(site_codes)
       site_codes = Array.wrap(site_codes)
