@@ -97,6 +97,24 @@ paths:
                 properties:
                   data:
                     $ref: '#/components/schemas/VeteranStatusConfirmation'
+        '400':
+          description: Bad request - invalid or missing query parameters
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/APIError"
+        '401':
+          description: Missing API token
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthorizationError"
+        '403':
+          description: Invalid API token
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthorizationError"
         '503':
           description: We encountered a temporary error. Check back in the future. 
 components:
@@ -144,3 +162,31 @@ components:
               enum:
                 - confirmed
                 - not confirmed
+    APIError:
+      description: API invocation or processing error
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+            type: object
+            properties:
+              title:
+                type: string
+                example: "Error title"
+              detail:
+                type: string
+                example: "Detailed error message"
+              code:
+                type: string
+                example: "103"
+              status:
+                type: string
+                example: "400"
+    AuthorizationError:
+      description: "API Platform authorization (API token) error"
+      type: object
+      properties:
+        message:
+          type: string
+          example: "No API key found in request"
