@@ -22,3 +22,5 @@ workers 2
 # value is 60 seconds.
 #
 worker_timeout 60
+
+preload_app!
