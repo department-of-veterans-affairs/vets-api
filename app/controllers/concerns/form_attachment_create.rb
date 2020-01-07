@@ -11,7 +11,10 @@ module FormAttachmentCreate
     form_attachment_model = self.class::FORM_ATTACHMENT_MODEL
     form_attachment = form_attachment_model.new
     namespace = form_attachment_model.to_s.underscore.split('/').last
-    form_attachment.set_file_data!(params[namespace][:file_data])
+
+    file_data = params.require(namespace).permit(:file_data)
+
+    form_attachment.set_file_data!(file_data)
     form_attachment.save!
     render(json: form_attachment)
   end
