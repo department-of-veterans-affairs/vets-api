@@ -4,7 +4,7 @@ info:
   description: >+
     The Decision Reviews API allows you to interact with a Veteran’s Decision Review requests, also known as benefit appeals. This API provides a secure and efficient alternative to paper or fax document submissions. Veterans Benefits Administration or Board of Veterans Appeals can begin processing Decision Review requests submitted through this API immediately, which ultimately allows VA to provide Veterans with appeal decisions more quickly.
 
-    > * For more information on the Decision Review process, including the different types of Decision Reviews, please see [this informative page on VA.gov](https://www.va.gov/decision-reviews/). 
+    > * For more information on the Decision Review process, including the different types of Decision Reviews, please see [this informative page on VA.gov](https://www.va.gov/decision-reviews/).
 
     > * The Decision Reviews API supports the Appeals Modernization Act (AMA) process only. Appeals going through the legacy Appeal process cannot be managed through this API. Learn more about the AMA [here](https://benefits.va.gov/benefits/appeals.asp).
 
@@ -259,16 +259,6 @@ paths:
                       When including a _ContestableIssue_ obtained from the
                       `/contestable_issues` endpoint, use the `notes` field to provide
                       additional information about contesting this issue.
-                      **Additionally**, a `legacyAppealIssues` array can be added to a
-                      _ContestableIssue_ object to associate a _LegacyAppealIssue_
-                      to a _ContestableIssue_. Associating a _LegacyAppealIssue_ to a
-                      _ContestableIssue_ pulls the _LegacyAppealIssue_ out of the legacy
-                      appeal system and into AMA. See the `legacyAppealIssues` array
-                      below for more info on opting-in legacy issues.
-                      _Note:_ Not all legacy issues are eligible for opt-in; see
-                      [benefits.va.gov/benefits/docs/apppeals_SOC-SSOC_Opt-in.pdf](https://www.benefits.va.gov/benefits/docs/apppeals_SOC-SSOC_Opt-in.pdf)
-                      for details.
-
                     required:
                       - type
                       - attributes
@@ -291,29 +281,6 @@ paths:
                           ratingDecisionIssueId:
                             type: string
                             nullable: true
-                          legacyAppealIssues:
-                            nullable: true
-                            type: array
-                            description: LegacyAppealIssues Array
-
-                            items:
-                              type: object
-                              description: >-
-                                OPTIONAL. _LegacyAppealIssues_ that you are associating
-                                with this _ContestableIssue_. At this time, 0 or 1
-                                _LegacyAppealIssues_ can be associated with a
-                                _ContestableIssue_. A _LegacyAppealIssue_  can only be
-                                associated once in a Higher-Level Review. To associate
-                                _LegacyAppealIssues_, `legacyOptInApproved` must be `true`.
-
-                              required:
-                                - legacyAppealId
-                                - legacyAppealIssueId
-                              properties:
-                                legacyAppealId:
-                                  type: string
-                                legacyAppealIssueId:
-                                  type: string
             examples:
               compensation:
                 value:
@@ -370,9 +337,6 @@ paths:
                     - type: ContestableIssue
                       attributes:
                         ratingIssueId: 80
-                        legacyAppealIssues:
-                          - legacyAppealId: 12345678
-                            legacyAppealIssueId: 1
       responses:
         '202':
           description: Accepted
@@ -701,26 +665,6 @@ paths:
                       }
                     ]
                   }
-                request_issue_legacyAppealId_is_blank_when_legacyAppealIssueId_is_present:
-                  value: {
-                    "errors": [
-                      {
-                        "status": "422",
-                        "title": "If you specify a legacy appeal issue, you must specify which legacy appeal it belongs to (legacy_appeal_id)",
-                        "code": "request_issue_legacyAppealId_is_blank_when_legacyAppealIssueId_is_present"
-                      }
-                    ]
-                  }
-                request_issue_legacyAppealIssueId_is_blank_when_legacyAppealId_is_present:
-                  value: {
-                    "errors": [
-                      {
-                        "status": "422",
-                        "title": "If you specify a legacy appeal, you must specify which issue (legacy_appeal_issue_id) of that appeal",
-                        "code": "request_issue_legacyAppealIssueId_is_blank_when_legacyAppealId_is_present"
-                      }
-                    ]
-                  }
                 request_issue_legacy_not_opted_in:
                   value: {
                     "errors": [
@@ -746,7 +690,7 @@ paths:
                     "errors": [
                       {
                         "status": "422",
-                        "title": "A request issue must have at least one of the following: decisionIssueId, ratingIssueId, legacyAppealId, legacyAppealIssueId",
+                        "title": "A request issue must have at least one of the following: decisionIssueId, ratingIssueId",
                         "code": "request_issue_must_have_at_least_one_ID_field"
                       }
                     ]
@@ -1227,12 +1171,6 @@ paths:
                                 rampClaimId:
                                   type: string
                                   nullable: true
-                                legacyAppealId: # vacols_id
-                                  type: string
-                                  nullable: true
-                                legacyAppealIssueId: # vacols_sequence_id
-                                  type: integer
-                                  nullable: true
                                 decisionReviewTitle:
                                   type: string
                                   nullable: true
@@ -1385,127 +1323,6 @@ paths:
                             isRating:
                               type: boolean
                               description: "Whether or not this is a RatingIssue"
-        '404':
-          description: Veteran not found
-          content:
-            application/vnd.api+json:
-              schema:
-                type: object
-                properties:
-                  errors:
-                    $ref: "#/components/schemas/Errors"
-              examples:
-                bad file number or SSN:
-                  value:
-                    errors:
-                      status: 404,
-                      code: veteran_not_found
-                      title: "Veteran not found"
-        '422':
-          description: Bad receipt date
-          content:
-            application/vnd.api+json:
-              schema:
-                type: object
-                properties:
-                  errors:
-                    $ref: "#/components/schemas/Errors"
-              examples:
-                bad receipt date:
-                  value:
-                    errors:
-                      status: 422,
-                      code: bad_receipt_date
-                      title: "Bad receipt date"
-        '500':
-          description: Unknown error
-          content:
-            application/vnd.api+json:
-              schema:
-                type: object
-                properties:
-                  errors:
-                    $ref: "#/components/schemas/Errors"
-              examples:
-                unknown error:
-                  value:
-                    errors:
-                      status: 500,
-                      code: unknown_error
-                      title: "Unknown error"
-  /legacy_appeal_issues:
-    get:
-      tags:
-        - Issues
-      parameters:
-        - name: veteranId
-          in: header
-          required: true
-          description: The file number or SSN of the veteran.
-          schema:
-            type : string
-        - name: receiptDate
-          in: header
-          required: true
-          description: (yyyy-mm-dd) In order to determine contestability of issues, the receipt date of a hypothetical Decision Review must be supplied.
-          schema:
-            type: string
-            format: date
-      summary: Returns all legacy appeal issues for a specific veteran.
-      description: >-
-        Returns all the legacy appeal issues for a veteran that could be added to
-        a Decision Review as of the `receiptDate`.  The `LegacyAppealIssue`
-        would be added to the `legacyAppealIssues` attribute of the
-        `contestableIssue` to which this legacy appeal will be associated.
-      responses:
-        '200':
-          description: JSON:API response returning all legacy appeal issues for a specific veteran.
-          content:
-            application/vnd.api+json:
-              schema:
-                type: object
-                properties:
-                  data:
-                    type: array
-                    items:
-                      type: object
-                      description: "A legacy appeal issue. To opt-in these issues to AMA, you associate them with ContestableIssues when creating a DecisionReview (see the documentation for POST /higher_level_reviews for more details)."
-                      properties:
-                        type:
-                          type: string
-                          enum: ["LegacyAppealIssue"]
-                        attributes:
-                          type: object
-                          properties:
-                            legacyAppealId:
-                              type: string
-                            legacyAppealIssueId:
-                              type: string
-                            nodDate:
-                              type: string
-                              format: date
-                            description:
-                              type: array
-                              description: Derived from `codes` and `labels`.
-                              items:
-                                type: string
-                            codes:
-                              type: array
-                              description: Non-rating issue codes. [client/constants/ISSUE_INFO.json](https://github.com/department-of-veterans-affairs/caseflow/blob/master/client/constants/ISSUE_INFO.json)
-                              items:
-                                type: string
-                            labels:
-                              type: array
-                              description: Titles corresponding to each code in `codes`.
-                              items:
-                                type: string
-                            disposition:
-                              type: string
-                            closeDate:
-                              type: string
-                              format: date
-                            note:
-                              type: string
         '404':
           description: Veteran not found
           content:
