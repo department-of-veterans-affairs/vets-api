@@ -7,7 +7,7 @@ plugin :statsd
 #
 # The default is "0, 16".
 #
-threads 32, 32
+threads 16, 16
 
 # === Cluster mode ===
 
