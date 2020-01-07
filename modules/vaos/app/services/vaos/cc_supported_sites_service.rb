@@ -28,7 +28,9 @@ module VAOS
     private
 
     def url(site_codes)
-      "/var/VeteranAppointmentRequestService/v4/rest/facility-service/supported-facilities?siteCodes=#{site_codes}"
+      site_codes = Array.wrap(site_codes)
+      params = site_codes.reject(&:blank?).empty? ? '' : "?siteCodes=#{site_codes.join(',')}"
+      "/var/VeteranAppointmentRequestService/v4/rest/facility-service/supported-facilities#{params}"
     end
   end
 end
