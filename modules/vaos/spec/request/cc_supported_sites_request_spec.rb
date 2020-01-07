@@ -28,7 +28,7 @@ RSpec.describe 'supported_sites', type: :request do
     context 'with a valid GET supported_sites request' do
       it 'returns a 200 with the correct schema' do
         VCR.use_cassette('vaos/cc_supported_sites/get_one_site', match_requests_on: %i[method uri]) do
-          get '/v0/vaos/community_care/supported_sites', params: { site_codes: [983,984] }
+          get '/v0/vaos/community_care/supported_sites', params: { site_codes: [983, 984] }
           expect(response).to have_http_status(:ok)
           expect(response.body).to be_a(String)
           expect(response).to match_response_schema('vaos/cc_supported_sites')
@@ -44,6 +44,5 @@ RSpec.describe 'supported_sites', type: :request do
           .to eq('The required parameter "site_codes", is missing')
       end
     end
-
   end
 end

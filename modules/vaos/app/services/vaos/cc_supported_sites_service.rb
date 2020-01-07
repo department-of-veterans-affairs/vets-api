@@ -25,7 +25,6 @@ module VAOS
           data: deserialize(response.body),
           meta: {}
         }
-      
       end
     end
 
