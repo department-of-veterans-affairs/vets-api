@@ -15,8 +15,16 @@ module Facilities
 
       # https://dev.dws.ppms.va.gov/swagger/ui/index#!/GlobalFunctions/GlobalFunctions_ProviderLocator
       def provider_locator(params)
-        qparams = build_params(params)
+        qparams = provider_locator_params(params)
         response = perform(:get, 'v1.0/ProviderLocator?', qparams)
+        return [] if response.body.nil?
+
+        Facilities::PPMS::Response.from_provider_locator(response, params)
+      end
+
+      def pharmacy_locator(params)
+        qparams = pharmacy_locator_params(params)
+        response = perform(:get, 'v1.0/PlaceOfServiceLocator?', qparams)
         return [] if response.body.nil?
 
         Facilities::PPMS::Response.from_provider_locator(response, params)
@@ -47,21 +55,46 @@ module Facilities
         Facilities::PPMS::Response.new(response.body, response.status).get_body
       end
 
-      def build_params(params)
-        bbox_num = params[:bbox].map { |x| Float(x) }
-        page = Integer(params[:page] || 1)
+      private
+
+      def radius(bbox)
+        bbox_num = bbox.map { |x| Float(x) }
         lats = bbox_num.values_at(1, 3)
         longs = bbox_num.values_at(2, 0)
-        # more estimation fun about 69 miles between latitude lines, <= 69 miles between long lines
         xlen = (lats.max - lats.min) * 69 / 2
         ylen = (longs.max - longs.min) * 69 / 2
-        specialty = 'null'
-        specialty = "'#{params[:services][0]}'" unless params[:services].nil?
-        radius = Math.sqrt(xlen * xlen + ylen * ylen) * 1.1 # go a little bit beyond the corner;
-        { address: "'#{params[:address]}'", radius: radius, driveTime: 10_000,
-          specialtycode1: specialty, specialtycode2: 'null', specialtycode3: 'null',
-          specialtycode4: 'null', network: 0, gender: 0, primarycare: 0,
-          acceptingnewpatients: 0, maxResults: 20 * page + 1 }
+        Math.sqrt(xlen * xlen + ylen * ylen) * 1.1 # go a little bit beyond the corner;
+      end
+
+      def pharmacy_locator_params(params)
+        {
+          address: "'#{params[:address]}'",
+          radius: radius(params[:bbox]),
+          driveTime: 10_000,
+          posCodes: '01',
+          network: 0,
+          maxResults: 20 * page + 1
+        }
+      end
+
+      def provider_locator_params(params)
+        page = Integer(params[:page] || 1)
+        # more estimation fun about 69 miles between latitude lines, <= 69 miles between long lines
+        specialty = "'#{params[:services] ? params[:services][0] : 'null'}'"
+        {
+          address: "'#{params[:address]}'",
+          radius: radius(params[:bbox]),
+          driveTime: 10_000,
+          specialtycode1: specialty,
+          specialtycode2: 'null',
+          specialtycode3: 'null',
+          specialtycode4: 'null',
+          network: 0,
+          gender: 0,
+          primarycare: 0,
+          acceptingnewpatients: 0,
+          maxResults: 20 * page + 1
+        }
       end
     end
   end

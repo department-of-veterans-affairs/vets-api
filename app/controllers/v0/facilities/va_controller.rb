@@ -12,12 +12,17 @@ class V0::Facilities::VaController < FacilitiesController
   # @param type - Optional facility type, values = all (default), health, benefits, cemetery
   # @param services - Optional specialty services filter
   def index
-    return provider_locator if params[:type] == 'cc_provider'
-
-    facilities
+    case params[:type]
+    when 'cc_provider'
+      provider_locator
+    when 'cc_pharmacy'
+      pharmacy_locator
+    else
+      facilities_locator
+    end
   end
 
-  def facilities
+  def facilities_locator
     resource = BaseFacility.query(params).paginate(page: params[:page], per_page: BaseFacility.per_page)
     render json: resource,
            each_serializer: VAFacilitySerializer,
@@ -41,8 +46,27 @@ class V0::Facilities::VaController < FacilitiesController
   def provider_locator
     ppms = Facilities::PPMS::Client.new
     providers = ppms.provider_locator(params)
-    page = 1
-    page = Integer(params[:page]) if params[:page]
+    page = Integer(params[:page] || 1)
+    total = providers.length
+    start_ind = (page - 1) * BaseFacility.per_page
+    providers = providers[start_ind, BaseFacility.per_page - 1]
+    providers.map! do |provider|
+      prov_info = ppms.provider_info(provider['ProviderIdentifier'])
+      provider.add_details(prov_info)
+      provider
+    end
+    pages = { current_page: page, per_page: BaseFacility.per_page,
+              total_pages: total / BaseFacility.per_page + 1, total_entries: total }
+
+    render json: providers,
+           each_serializer: ProviderSerializer,
+           meta: { pagination: pages }
+  end
+
+  def pharmacy_locator
+    ppms = Facilities::PPMS::Client.new
+    providers = ppms.pharmacy_locator(params)
+    page = Integer(params[:page] || 1)
     total = providers.length
     start_ind = (page - 1) * BaseFacility.per_page
     providers = providers[start_ind, BaseFacility.per_page - 1]
