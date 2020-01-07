@@ -51,7 +51,7 @@ RSpec.describe 'Veteran Status API endpoint', type: :request, skip_emis: true do
 
       expect(response).to have_http_status(:bad_request)
       error_detail = JSON.parse(response.body)['errors'].first['detail']
-      expect(error_detail).to eq('Must supply ssn to query Veteran status')
+      expect(error_detail).to eq('The required parameter "ssn", is missing')
     end
 
     it 'throws an error when ssn format is invalid' do

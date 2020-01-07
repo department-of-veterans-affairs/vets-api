@@ -21,25 +21,16 @@ module VeteranConfirmation
       private
 
       def validate_body
-        parameters_exist?(%w[first_name last_name ssn birth_date])
+        params.require(%i[first_name last_name ssn birth_date])
 
-        validate_ssn_format(params['ssn'])
-        vali_date(params['birth_date'])
+        validate_ssn_format
+        vali_date
       end
 
-      def parameters_exist?(to_check)
-        to_check.each do |field|
-          if params[field].blank?
-            raise Common::Exceptions::ParameterMissing.new(field,
-                                                           detail: "Must supply #{field} to query Veteran status")
-          end
-        end
-      end
+      def validate_ssn_format
+        raise Common::Exceptions::InvalidFieldValue.new('ssn', 'the provided') unless valid_ssn?(params['ssn'])
 
-      def validate_ssn_format(ssn)
-        raise Common::Exceptions::InvalidFieldValue.new('ssn', 'the provided') unless valid_ssn?(ssn)
-
-        params['ssn'] = ssn.gsub('-', '')
+        params['ssn'] = params['ssn'].gsub('-', '')
       end
 
       def valid_ssn?(ssn)
@@ -47,15 +38,15 @@ module VeteranConfirmation
       end
 
       def all_digits?(ssn)
-        /\d{9}/.match?(ssn) && ssn.size == 9
+        /^\d{9}$/.match?(ssn)
       end
 
       def all_digits_with_hyphens?(ssn)
-        /\d{3}-\d{2}-\d{4}/.match?(ssn) && ssn.size == 11
+        /^\d{3}-\d{2}-\d{4}$/.match?(ssn)
       end
 
-      def vali_date(date)
-        params['birth_date'] = Date.iso8601(date).strftime('%Y%m%d')
+      def vali_date
+        params['birth_date'] = Date.iso8601(params['birth_date']).strftime('%Y%m%d')
       rescue ArgumentError
         raise Common::Exceptions::InvalidFieldValue.new('birth_date', params['birth_date'])
       end
