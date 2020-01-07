@@ -20,9 +20,8 @@ RSpec.describe BipClaims::Service do
     end
 
     it 'raises error when passed an unsupported form ID' do
-      expect {
-        service.veteran_attributes(OpenStruct.new(form_id: 'INVALID'))
-      }.to raise_error(ArgumentError)
+      expect { service.veteran_attributes(OpenStruct.new(form_id: 'INVALID')) }
+        .to raise_error(ArgumentError)
     end
   end
 end
