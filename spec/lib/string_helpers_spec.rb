@@ -53,14 +53,14 @@ describe StringHelpers do
   end
 
   context 'heuristics' do
-    # rubocop:disable Metrics/LineLength
+    # rubocop:disable Layout/LineLength
     fixtures = [
       ['319111111', '319111111', { length: [9, 9], only_digits: [true, true], encoding: %w[UTF-8 UTF-8], levenshtein_distance: 0 }],
       ['319121111', '319111111', { length: [9, 9], only_digits: [true, true], encoding: %w[UTF-8 UTF-8], levenshtein_distance: 1 }],
       ['319-11-1111', '319111111', { length: [11, 9], only_digits: [false, true], encoding: %w[UTF-8 UTF-8], levenshtein_distance: 2 }],
       ['319-11-1111', '319-11-1111', { length: [11, 11], only_digits: [false, false], encoding: %w[UTF-8 UTF-8], levenshtein_distance: 0 }]
     ]
-    # rubocop:enable Metrics/LineLength
+    # rubocop:enable Layout/LineLength
 
     fixtures.each do |w1, w2, heuristic_hash|
       it "returns heuristics hash #{heuristic_hash}" do

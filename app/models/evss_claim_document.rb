@@ -18,7 +18,7 @@ class EVSSClaimDocument < Common::Base
   validate :unencrypted_pdf?
   before_validation :normalize_text
 
-  # rubocop:disable Metrics/LineLength
+  # rubocop:disable Layout/LineLength
   DOCUMENT_TYPES = {
     'L015' => 'Buddy/Lay Statement',
     'L018' => 'Civilian Police Reports',
@@ -46,7 +46,7 @@ class EVSSClaimDocument < Common::Base
     'L703' => 'Goldmann Perimetry Chart/Field Of Vision Chart',
     'L827' => 'VA Form 21-4142a - General Release for Medical Provider Information'
   }.freeze
-  # rubocop:enable Metrics/LineLength
+  # rubocop:enable Layout/LineLength
 
   EVSS_TEXT_ENCODING = 'ascii' # EVSS only accepts text files written in ASCII
   MINIMUM_ENCODING_CONFIDENCE = 0.5
