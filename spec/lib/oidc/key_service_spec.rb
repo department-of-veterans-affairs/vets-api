@@ -23,63 +23,26 @@ RSpec.describe OIDC::KeyService do
 
   describe '::get_key' do
     after do
-      described_class.reset!
+      described_class.instance_variable_set(:@current_key, {})
     end
 
     it 'returns the current key if it already exists' do
-      described_class.instance_variable_set(:@current_keys, 'key' => 'key')
+      described_class.current_keys['key'] = 'key'
       expect(described_class.get_key('key')).to eq 'key'
     end
 
-    it 'avoids upstream requests for repeated bad kids' do
-      expect(described_class).to receive(:refresh).once
-      described_class.get_key('bad kid')
-      described_class.get_key('bad kid')
-    end
-
-    it 'refreshes a bad kid after one minute' do
-      expect(described_class).to receive(:refresh).twice
-      described_class.get_key('bad kid')
-      Timecop.travel(Time.zone.now + 61)
-      described_class.get_key('bad kid')
-      Timecop.return
-    end
-
-    it 'limits the size of the bad kid cache' do
-      expect(described_class).to receive(:refresh).exactly(1002).times
-
-      # Add a kid with a timestamp in the past
-      Timecop.travel(Time.zone.now - 30)
-      described_class.get_key('oldest key')
-      Timecop.return
-
-      # Fill up the kid cache so the first key we've added is evicted
-      (0...1000).each do |x|
-        described_class.get_key(x)
-      end
-
-      # Since this key was evicted, this call will trigger the 1002nd refresh
-      described_class.get_key('oldest key')
-    end
-
-    context 'with okta api recordings' do
-      around do |example|
-        with_settings(
-          Settings.oidc,
-          auth_server_metadata_url: 'https://example.com/oauth2/default/.well-known/oauth-authorization-server',
-          issuer: 'https://example.com/oauth2/default',
-          base_api_url: 'https://example.com/',
-          base_api_token: 'token'
-        ) do
-          VCR.use_cassette('okta/keys') do
-            example.run
-          end
+    it 'downloads new keys if it does not exist' do
+      with_settings(
+        Settings.oidc,
+        auth_server_metadata_url: 'https://example.com/oauth2/default/.well-known/oauth-authorization-server',
+        issuer: 'https://example.com/oauth2/default',
+        base_api_url: 'https://example.com/',
+        base_api_token: 'token'
+      ) do
+        VCR.use_cassette('okta/keys') do
+          key = described_class.get_key('1Z0tNc4Hxs_n7ySgwb6YT8JgWpq0wezqupEg136FZHU')
+          expect(key).to be_a(OpenSSL::PKey::RSA)
         end
-      end
-
-      it 'downloads new keys if it does not exist' do
-        key = described_class.get_key('1Z0tNc4Hxs_n7ySgwb6YT8JgWpq0wezqupEg136FZHU')
-        expect(key).to be_a(OpenSSL::PKey::RSA)
       end
     end
   end
