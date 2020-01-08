@@ -24,7 +24,7 @@ describe Vet360::ReferenceData::Service, skip_vet360: true do
         end
 
         it 'returns the correct data' do
-          VCR.use_cassette(cassette, VCR::MATCH_EVERYTHING) do
+          VCR.use_cassette(cassette, record: :new_episodes) do
             response = subject.send(message)
             data = response.send(message).first
 
@@ -44,7 +44,7 @@ describe Vet360::ReferenceData::Service, skip_vet360: true do
 
       context 'when not successful' do
         it 'raises an error' do
-          VCR.use_cassette(cassette + '_error', VCR::MATCH_EVERYTHING) do
+          VCR.use_cassette(cassette + '_error', record: :new_episodes) do
             expect { subject.send(message) }.to raise_error(Common::Exceptions::BackendServiceException)
           end
         end
