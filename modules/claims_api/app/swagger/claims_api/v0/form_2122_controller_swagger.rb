@@ -256,12 +256,8 @@ module ClaimsApi
             'Power of Attorney'
           ]
 
-          parameter do
-            key :name, 'apikey'
-            key :in, :header
-            key :description, 'API Key given to access data'
-            key :required, true
-            key :type, :string
+          security do
+            key :apikey, []
           end
 
           parameter do
