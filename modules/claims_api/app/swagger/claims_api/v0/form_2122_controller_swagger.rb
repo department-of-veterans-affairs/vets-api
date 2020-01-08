@@ -58,12 +58,8 @@ module ClaimsApi
             'Power of Attorney'
           ]
 
-          parameter do
-            key :name, 'apikey'
-            key :in, :header
-            key :description, 'API Key given to access data'
-            key :required, true
-            key :type, :string
+          security do
+            key :apikey, []
           end
 
           parameter do
@@ -114,13 +110,13 @@ module ClaimsApi
             key :type, :string
           end
 
-          parameter do
-            key :name, 'payload'
-            key :in, :body
+          request_body do
             key :description, 'JSON API Payload of Veteran being submitted'
             key :required, true
-            schema do
-              key :'$ref', :Form2122Input
+            content 'application/json' do
+              schema do
+                key :'$ref', :Form2122Input
+              end
             end
           end
 

@@ -120,11 +120,10 @@ module ClaimsApi
             key :type, :string
           end
 
-          parameter do
-            key :name, 'payload'
-            key :in, :body
+          request_body do
             key :description, 'JSON API Payload of Veteran being submitted'
             key :required, true
+            content 'application/json' do
             schema do
               key :type, :object
               key :required, [:data]
@@ -145,6 +144,7 @@ module ClaimsApi
                   end
                 end
               end
+            end
             end
           end
 

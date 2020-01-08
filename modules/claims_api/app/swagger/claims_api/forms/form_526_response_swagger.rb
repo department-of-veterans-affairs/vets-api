@@ -4,6 +4,7 @@ module ClaimsApi
   module Forms
     class Form526ResponseSwagger
       include Swagger::Blocks
+      EXAMPLE_PATH = ClaimsApi::Engine.root.join('app', 'swagger', 'claims_api', 'forms', 'form_526_example.json')
 
       swagger_component do
         schema :Form526Input do
@@ -12,6 +13,7 @@ module ClaimsApi
 
           property :data do
             key :type, :object
+            key :example, JSON.parse(File.read(EXAMPLE_PATH))
             property :type do
               key :type, :string
               key :example, 'form/526'

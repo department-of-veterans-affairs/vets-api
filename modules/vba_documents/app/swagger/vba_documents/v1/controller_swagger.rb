@@ -219,14 +219,14 @@ module VbaDocuments
             key :apikey, []
           end
 
-          parameter do
-            key :name, 'content'
+          request_body do
             key :description, 'List of GUIDs for which to retrieve current status.'
-            key :in, :body
-            key :example, '{ "ids": [ "6d8433c1-cd55-4c24-affd-f592287a7572" ] }'
+            key :required, true
 
-            schema do
-              key :$ref, :DocumentUploadStatusGuidList
+            content 'application/json' do
+              schema do
+                key :$ref, :DocumentUploadStatusGuidList
+              end
             end
           end
 
