@@ -22,3 +22,7 @@ workers 1
 # value is 60 seconds.
 #
 worker_timeout 60
+
+on_worker_boot do
+  ActiveRecord::Base.establish_connection # can also connect Resque/redis here since we use a lot of that
+end
