@@ -58,7 +58,6 @@ module ClaimsApi
             key :apikey, []
           end
           key :summary, 'Accepts 526 claim form submission'
-          key :description, 'Accepts JSON payload. Full URL, including\nquery parameters.'
           key :operationId, 'post526Claim'
           key :tags, [
             'Disability'
