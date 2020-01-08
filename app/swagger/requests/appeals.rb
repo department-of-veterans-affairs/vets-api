@@ -16,8 +16,7 @@ module Swagger
           parameter :authorization
 
           response 200 do
-            key :description,
-                '200 passes the response from the upstream appeals API. Their swagger can be viewed here https://app.swaggerhub.com/apis/dsva-appeals/appeals-status/2.0.0#/default/appeals'
+            key :description, '200 passes the response from the upstream appeals API'
             schema do
               key :'$ref', :Appeals
             end
@@ -53,6 +52,82 @@ module Swagger
 
           response 502 do
             key :description, 'Bad Gateway: the upstream appeals app returned an invalid response (500+)'
+            schema do
+              key :'$ref', :Errors
+            end
+          end
+        end
+      end
+
+      swagger_path '/services/appeals/v0/appeals/higher_level_reviews' do
+        operation :post do
+          key :tags, %w[higher_level_reviews]
+          key :summary, 'Creates a higher level review'
+          key :operationId, 'createHigherLevelReview'
+          key :description, 'This endpoint will submit a Decision Review request of type Higher-Level Review. '\
+                            'This endpoint is analogous to submitting VA For 20-0996 via mail or fax. ### '\
+                            'Asynchronous processing The Decision Reviews API leverages a pattern recommended '\
+                            'by JSON API for asynchronous processing (more information '\
+                            '[here](https://jsonapi.org/recommendations/#asynchronous-processing)). '\
+                            'Submitting a Decision Review is an asynchronous process due to the multiple '\
+                            'systems that are involved. Because of this, when a new Decision Review is '\
+                            'submitted, the POST endpoint will return a 202 `accepted` response including an '\
+                            'Intake UUID. That Intake UUID is associated with the submission and can be used '\
+                            'as an identifier for the Intake Status endpoint. While the submission is '\
+                            'processing the Intake Status endpoint will return a 200 response. Once the '\
+                            'asynchronous process is complete and the Decision Review is submitted into '\
+                            'Caseflow, the Intake Status endpoint will return a 303 response including the '\
+                            'Decision Review ID for the submitted Decision Review, which will allow you to '\
+                            'retrieve the full details including the processing status.'
+
+          parameter do
+            key :name, :request
+            key :in, :body
+            key :description, 'Higher level review raw request data'
+            key :required, true
+
+            schema do
+              key :'$ref', :HigherLevelReviewRequest
+            end
+          end
+
+          response 202 do
+            key :description, 'Accepted'
+            schema do
+              key :'$ref', :IntakeStatus
+            end
+          end
+
+          response 400 do
+            key :description, 'Malformed request'
+            schema do
+              key :'$ref', :Errors
+            end
+          end
+
+          response 403 do
+            key :description, 'Veteran not accessible'
+            schema do
+              key :'$ref', :Errors
+            end
+          end
+
+          response 404 do
+            key :description, 'Veteran not found'
+            schema do
+              key :'$ref', :Errors
+            end
+          end
+
+          response 409 do
+            key :description, 'Duplicate intake in progress'
+            schema do
+              key :'$ref', :Errors
+            end
+          end
+
+          response 422 do
+            key :description, '422 Error'
             schema do
               key :'$ref', :Errors
             end

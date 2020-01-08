@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 # rubocop:disable Metrics/ClassLength
-# rubocop:disable Metrics/LineLength
+# rubocop:disable Layout/LineLength
 module Swagger
   module Requests
     class Profile
@@ -1042,4 +1042,4 @@ module Swagger
   end
 end
 # rubocop:enable Metrics/ClassLength
-# rubocop:enable Metrics/LineLength
+# rubocop:enable Layout/LineLength

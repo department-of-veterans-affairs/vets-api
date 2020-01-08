@@ -17,8 +17,9 @@ module ClaimsApi
         auto_claim.evss_id = response.claim_id
         auto_claim.status = ClaimsApi::AutoEstablishedClaim::ESTABLISHED
         auto_claim.save
-      rescue ::Common::Exceptions::BackendServiceException => e
+      rescue ::EVSS::DisabilityCompensationForm::ServiceException => e
         auto_claim.status = ClaimsApi::AutoEstablishedClaim::ERRORED
+        auto_claim.evss_response = e.messages
         auto_claim.save
         raise e
       end
