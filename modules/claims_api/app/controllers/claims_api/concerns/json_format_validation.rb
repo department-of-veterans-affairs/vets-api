@@ -6,7 +6,7 @@ module ClaimsApi
 
     included do
       def validate_json_format
-        JSON.parse(request.body.string)
+        @json_body = JSON.parse(request.body.string)
       rescue JSON::ParserError
         error = {
           errors: [
