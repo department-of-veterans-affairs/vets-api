@@ -19,5 +19,8 @@ AppealsApi::Engine.routes.draw do
     namespace :v0 do
       resources :api, only: [:index]
     end
+    namespace :v1, defaults: { format: 'json' } do
+      get 'decision_reviews', to: 'docs#decision_reviews'
+    end
   end
 end
