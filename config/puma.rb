@@ -15,7 +15,7 @@ threads 16, 16
 #
 # The default is "0".
 #
-workers 2
+workers 1
 
 # Verifies that all workers have checked in to the master process within
 # the given timeout. If not the worker process will be restarted. Default
