@@ -7,12 +7,13 @@ FactoryBot.define do
       {
         privacyAgreementAccepted: true,
         veteranFullName: {
-          first: 'Test',
-          last: 'User'
+          first: 'WESLEY',
+          last: 'FORD'
         },
         claimantEmail: 'foo@foo.com',
         deathDate: '1989-12-13',
-        veteranSocialSecurityNumber: '111223333',
+        veteranDateOfBirth: '1986-05-06',
+        veteranSocialSecurityNumber: '796043735',
         claimantAddress: {
           country: 'USA',
           state: 'CA',
