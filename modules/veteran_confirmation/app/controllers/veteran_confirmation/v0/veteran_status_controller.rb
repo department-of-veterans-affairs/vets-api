@@ -30,9 +30,7 @@ module VeteranConfirmation
       end
 
       def validate_no_query_params
-        if request.post? && request.query_string.present?
-          raise Common::Exceptions::NoQueryParamsAllowed.new
-        end
+        raise Common::Exceptions::NoQueryParamsAllowed if request.post? && request.query_string.present?
       end
 
       def validate_ssn_format

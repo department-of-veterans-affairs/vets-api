@@ -46,7 +46,7 @@ RSpec.describe 'Veteran Status API endpoint', type: :request, skip_emis: true do
       error_detail = JSON.parse(response.body)['errors'].first['detail']
       expect(error_detail).to eq('No query params are allowed for this route')
     end
-    
+
     it 'throws an error when missing a required parameter' do
       missing_attributes = {
         ssn: nil,
