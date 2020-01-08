@@ -23,7 +23,7 @@ module SAML
         settings.certificate = Settings.saml_ssoe.certificate
         settings.private_key = Settings.saml_ssoe.key
         settings.certificate_new = Settings.saml_ssoe.certificate_new
-        settings.issuer = Settings.saml_ssoe.issuer
+        settings.sp_entity_id = Settings.saml_ssoe.issuer
         settings.assertion_consumer_service_url = Settings.saml_ssoe.callback_url
 
         settings.security[:authn_requests_signed] = true
