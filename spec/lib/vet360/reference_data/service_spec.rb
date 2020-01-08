@@ -15,7 +15,7 @@ describe Vet360::ReferenceData::Service, skip_vet360: true do
 
       context 'when successful' do
         it 'returns a status of 200', :aggregate_failures do
-          VCR.use_cassette(cassette, record: :new_episodes) do
+          VCR.use_cassette(cassette, VCR::MATCH_EVERYTHING) do
             response = subject.send(message)
 
             expect(response).to be_ok
@@ -24,7 +24,7 @@ describe Vet360::ReferenceData::Service, skip_vet360: true do
         end
 
         it 'returns the correct data' do
-          VCR.use_cassette(cassette, record: :new_episodes) do
+          VCR.use_cassette(cassette, VCR::MATCH_EVERYTHING) do
             response = subject.send(message)
             data = response.send(message).first
 
