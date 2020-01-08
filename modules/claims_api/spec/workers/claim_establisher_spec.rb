@@ -42,9 +42,9 @@ RSpec.describe ClaimsApi::ClaimEstablisher, type: :job do
 
   it 'sets the status of the claim to an error if it raises an error on EVSS' do
     allow_any_instance_of(EVSS::DisabilityCompensationForm::ServiceAllClaim).to(
-      receive(:submit_form526).and_raise(Common::Exceptions::BackendServiceException)
+      receive(:submit_form526).and_raise(EVSS::DisabilityCompensationForm::ServiceException)
     )
-    expect { subject.new.perform(claim.id) }.to raise_error(Common::Exceptions::BackendServiceException)
+    expect { subject.new.perform(claim.id) }.to raise_error(EVSS::DisabilityCompensationForm::ServiceException)
 
     claim.reload
     expect(claim.evss_id).to eq(nil)
