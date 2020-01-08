@@ -30,6 +30,11 @@ module AppealsApi
         render json: intake_status.body
       end
 
+      def create_higher_level_review
+        review = review_service.post_higher_level_reviews(request.raw_post)
+        render status: review.status, json: review.body
+      end
+
       def healthcheck
         render json: Appeals::Service.new.healthcheck.body
       end

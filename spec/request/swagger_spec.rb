@@ -167,28 +167,35 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
       )
     end
 
-    it 'supports adding a burial claim' do
-      expect(subject).to validate(
-        :post,
-        '/v0/burial_claims',
-        200,
-        '_data' => {
-          'burial_claim' => {
-            'form' => build(:burial_claim).form
-          }
-        }
-      )
+    it 'supports adding a burial claim', run_at: 'Thu, 29 Aug 2019 17:45:03 GMT' do
+      allow(SecureRandom).to receive(:uuid).and_return('c3fa0769-70cb-419a-b3a6-d2563e7b8502')
 
-      expect(subject).to validate(
-        :post,
-        '/v0/burial_claims',
-        422,
-        '_data' => {
-          'burial_claim' => {
-            'invalid-form' => { invalid: true }.to_json
+      VCR.use_cassette(
+        'mvi/find_candidate/find_profile_with_attributes',
+        VCR::MATCH_EVERYTHING
+      ) do
+        expect(subject).to validate(
+          :post,
+          '/v0/burial_claims',
+          200,
+          '_data' => {
+            'burial_claim' => {
+              'form' => build(:burial_claim).form
+            }
           }
-        }
-      )
+        )
+
+        expect(subject).to validate(
+          :post,
+          '/v0/burial_claims',
+          422,
+          '_data' => {
+            'burial_claim' => {
+              'invalid-form' => { invalid: true }.to_json
+            }
+          }
+        )
+      end
     end
 
     it 'supports adding a preneed claim' do
@@ -270,6 +277,10 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
             }
           }
         )
+      end
+
+      it 'returns a 400 if no attachment data is given' do
+        expect(subject).to validate(:post, '/v0/hca_attachments', 400, '')
       end
 
       it 'supports submitting a health care application', run_at: '2017-01-31' do
@@ -568,8 +579,8 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
         )
       end
 
-      it 'returns a 500 if no attachment data is given' do
-        expect(subject).to validate(:post, '/v0/upload_supporting_evidence', 500, '')
+      it 'returns a 400 if no attachment data is given' do
+        expect(subject).to validate(:post, '/v0/upload_supporting_evidence', 400, '')
       end
     end
 
@@ -1372,24 +1383,43 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
     end
 
     describe 'higher_level_reviews' do
-      it 'documents higher_level_reviews 200' do
-        VCR.use_cassette('decision_review/200_review') do
-          expect(subject).to validate(:get, '/services/appeals/v0/appeals/higher_level_reviews/{uuid}',
-                                      200, headers.merge('uuid' => '4bc96bee-c6a3-470e-b222-66a47629dc20'))
+      context 'GET' do
+        it 'documents higher_level_reviews 200' do
+          VCR.use_cassette('decision_review/200_review') do
+            expect(subject).to validate(:get, '/services/appeals/v0/appeals/higher_level_reviews/{uuid}',
+                                        200, headers.merge('uuid' => '4bc96bee-c6a3-470e-b222-66a47629dc20'))
+          end
+        end
+
+        it 'documents higher_level_reviews 404' do
+          VCR.use_cassette('decision_review/404_review') do
+            expect(subject).to validate(:get, '/services/appeals/v0/appeals/higher_level_reviews/{uuid}',
+                                        404, headers.merge('uuid' => '1234'))
+          end
+        end
+
+        it 'documents higher_level_reviews 502' do
+          VCR.use_cassette('decision_review/502_review') do
+            expect(subject).to validate(:get, '/services/appeals/v0/appeals/higher_level_reviews/{uuid}',
+                                        502, headers.merge('uuid' => '1234'))
+          end
         end
       end
 
-      it 'documents higher_level_reviews 404' do
-        VCR.use_cassette('decision_review/404_review') do
-          expect(subject).to validate(:get, '/services/appeals/v0/appeals/higher_level_reviews/{uuid}',
-                                      404, headers.merge('uuid' => '1234'))
+      context 'POST' do
+        it 'documents higher_level_reviews 202' do
+          VCR.use_cassette('decision_review/202_intake_status') do
+            expect(subject).to validate(:post, '/services/appeals/v0/appeals/higher_level_reviews',
+                                        202)
+          end
         end
-      end
 
-      it 'documents higher_level_reviews 502' do
-        VCR.use_cassette('decision_review/502_review') do
-          expect(subject).to validate(:get, '/services/appeals/v0/appeals/higher_level_reviews/{uuid}',
-                                      502, headers.merge('uuid' => '1234'))
+        [400, 403, 404, 409, 422].each do |status|
+          it "documents higher_level_reviews #{status}" do
+            VCR.use_cassette("decision_review/#{status}_intake_status") do
+              expect(subject).to validate(:post, '/services/appeals/v0/appeals/higher_level_reviews', status)
+            end
+          end
         end
       end
     end

@@ -18,12 +18,12 @@ RSpec.describe 'Upload supporting evidence', type: :request do
     context 'with invalid parameters' do
       it 'returns a 500 with no parameters' do
         post '/v0/upload_supporting_evidence', params: nil
-        expect(response).to have_http_status(:internal_server_error)
+        expect(response).to have_http_status(:bad_request)
       end
 
       it 'returns a 500 with no file_data' do
         post '/v0/upload_supporting_evidence', params: JSON.parse('{"supporting_evidence_attachment": {}}')
-        expect(response).to have_http_status(:internal_server_error)
+        expect(response).to have_http_status(:bad_request)
       end
     end
   end
