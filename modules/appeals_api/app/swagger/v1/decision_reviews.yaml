@@ -380,27 +380,6 @@ paths:
                       }
                     ]
                   }
-#       '401':
-#         description: |-
-#           401 response
-#         content:
-#           application/vnd.api+json:
-#             schema:
-#               type: object
-#               properties:
-#                 errors:
-#                   $ref: "#/components/schemas/Errors"
-#             examples:
-#               unauthenticated:
-#                 value: {
-#                   "errors": [
-#                     {
-#                       "status": "401",
-#                       "title":  "Unauthenticated",
-#                       "code":  "unauthenticated"
-#                     }
-#                   ]
-#                 }
         '403':
           description: |-
             403 response
@@ -443,26 +422,6 @@ paths:
                       }
                     ]
                   }
-#               issue_not_found:
-#                 value: {
-#                   "errors": [
-#                     {
-#                       "status": "404",
-#                       "title":  "Issue not found",
-#                       "code":  "issue_not_found"
-#                     }
-#                   ]
-#                 }
-#               claimant_not_found:
-#                 value: {
-#                   "errors": [
-#                     {
-#                       "status": "404",
-#                       "title":  "Claimant not found",
-#                       "code":  "claimant_not_found"
-#                     }
-#                   ]
-#                 }
         '409':
           description: |-
             409 response
@@ -495,126 +454,6 @@ paths:
                   errors:
                     $ref: "#/components/schemas/Errors"
               examples:
-#               payee_code_required:
-#                 value: {
-#                   "errors": [
-#                     {
-#                       "status": "422",
-#                       "title":  "Claimant payee code may not be blank",
-#                       "code":  "payee_code_required"
-#                     }
-#                   ]
-#                 }
-#               claimant_required:
-#                 value: {
-#                   "errors": [
-#                     {
-#                       "status": "422",
-#                       "title":  "Claimant participant id may not be blank",
-#                       "code":  "claimant_required"
-#                     }
-#                   ]
-#                 }
-#               claimant_address_required:
-#                 value: {
-#                   "errors": [
-#                     {
-#                       "status": "422",
-#                       "title":  "Claimant address required",
-#                       "code":  "claimant_address_required"
-#                     }
-#                   ]
-#                 }
-#               benefit_type_requires_payee_code:
-#                 value: {
-#                   "errors": [
-#                     {
-#                       "status": "422",
-#                       "title":  "Benefit type requires payee code",
-#                       "code":  "benefit_type_requires_payee_code"
-#                     }
-#                   ]
-#                 }
-#               duplicate_of_rating_issue_in_active_review:
-#                 value: {
-#                   "errors": [
-#                     {
-#                       "status": "422",
-#                       "title":  "Duplicate rating issue",
-#                       "code":  "duplicate_of_rating_issue_in_active_review"
-#                     }
-#                   ]
-#                 }
-#               claimant_ineligible:
-#                 value: {
-#                   "errors": [
-#                     {
-#                       "status": "422",
-#                       "title":  "Claimant Ineligible (not on original Benefit Claim or no POA)",
-#                       "code":  "claimant_ineligible"
-#                     }
-#                   ]
-#                 }
-#               untimely:
-#                 value: {
-#                   "errors": [
-#                     {
-#                       "status": "422",
-#                       "title":  "Issue is ineligible because it has a prior decision date that’s older than 372 days",
-#                       "code":  "untimely"
-#                     }
-#                   ]
-#                 }
-#               before_ama:
-#                 value: {
-#                   "errors": [
-#                     {
-#                       "status": "422",
-#                       "title":  "Issue is ineligible because it has a prior decision date before February 19, 2019",
-#                       "code":  "before_ama"
-#                     }
-#                   ]
-#                 }
-#               higher_level_review_to_higher_level_review:
-#                 value: {
-#                   "errors": [
-#                     {
-#                       "status": "422",
-#                       "title":  "Issue is ineligible because it was last processed as a Higher-Level Review and this can't be done twice in a row",
-#                       "code":  "higher_level_review_to_higher_level_review"
-#                     }
-#                   ]
-#                 }
-#               appeal_to_higher_level_review:
-#                 value: {
-#                   "errors": [
-#                     {
-#                       "status": "422",
-#                       "title":  "Issue is ineligible because it was last processed as a Board Appeal which can't be followed by a Higher-Level Review",
-#                       "code":  "appeal_to_higher_level_review"
-#                     }
-#                   ]
-#                 }
-#               legacy_issue_not_withdrawn:
-#                 value: {
-#                   "errors": [
-#                     {
-#                       "status": "422",
-#                       "title":  "Issue is ineligible because the same issue is under review as a Legacy Appeal but the claimant didn’t choose to withdraw their issue from the legacy system",
-#                       "code":  "legacy_issue_not_withdrawn"
-#                     }
-#                   ]
-#                 }
-#               legacy_appeal_not_eligible:
-#                 value: {
-#                   "errors": [
-#                     {
-#                       "status": "422",
-#                       "title":  "Issue is ineligible because the same issue is under review as a Legacy Appeal and that appeal is outside the window of eligibility",
-#                       "code":  "legacy_appeal_not_eligible"
-#                     }
-#                   ]
-#                 }
                 incident_flash:
                   value: {
                     "errors": [
@@ -645,53 +484,33 @@ paths:
                       }
                     ]
                   }
-                request_issue_cannot_be_empty:
+                malformed_contestable_issues:
                   value: {
                     "errors": [
                       {
                         "status": "422",
-                        "title": "A request issue cannot be empty",
-                        "code": "request_issue_cannot_be_empty"
+                        "title": "Malformed ContestableIssues",
+                        "code": "malformed_contestable_issues"
                       }
                     ]
                   }
-                request_issue_category_invalid_for_benefit_type:
+                contestable_issue_params_must_have_ids:
                   value: {
                     "errors": [
                       {
                         "status": "422",
-                        "title": "Request issue category for specified benefit type",
-                        "code": "request_issue_category_invalid_for_benefit_type"
+                        "title": "A contestable issue must have at least one of the following: decisionIssueId, ratingIssueId, ratingDecisionIssueId",
+                        "code": "contestable_issue_params_must_have_ids"
                       }
                     ]
                   }
-                request_issue_legacy_not_opted_in:
+                could_not_find_contestable_issue:
                   value: {
                     "errors": [
                       {
                         "status": "422",
-                        "title": "To add a legacy issue, legacyOptInApproved must be true",
-                        "code": "request_issue_legacy_not_opted_in"
-                      }
-                    ]
-                  }
-                request_issue_malformed:
-                  value: {
-                    "errors": [
-                      {
-                        "status": "422",
-                        "title": "Malformed RequestIssue",
-                        "code": "request_issue_malformed"
-                      }
-                    ]
-                  }
-                request_issue_must_have_at_least_one_ID_field:
-                  value: {
-                    "errors": [
-                      {
-                        "status": "422",
-                        "title": "A request issue must have at least one of the following: decisionIssueId, ratingIssueId",
-                        "code": "request_issue_must_have_at_least_one_ID_field"
+                        "title": "Could not find ContestableIssue",
+                        "code": "could_not_find_contestable_issue"
                       }
                     ]
                   }
