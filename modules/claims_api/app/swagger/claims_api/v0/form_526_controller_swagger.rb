@@ -148,7 +148,7 @@ module ClaimsApi
         operation :put do
           key :summary, 'Upload Disability Compensation document'
           key :description, 'Accpets document binaries as part of a multipart payload.'
-          key :operationId, 'upload526Attachments'
+          key :operationId, 'upload526Doc'
           key :produces, [
             'application/json'
           ]
@@ -383,9 +383,6 @@ module ClaimsApi
 
       swagger_path '/forms/526/{id}/attachments' do
         operation :post do
-          security do
-            key :apikey, []
-          end
           key :summary, 'Upload documents in support of a 526 claim'
           key :description, 'Accpets document binaries as part of a multipart payload. Accepts N number of attachments, via attachment1 .. attachmentN'
           key :operationId, 'upload526Attachments'

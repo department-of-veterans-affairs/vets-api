@@ -58,6 +58,10 @@ module ClaimsApi
             'Power of Attorney'
           ]
 
+          security do
+            key :apikey, []
+          end
+
           parameter do
             key :name, 'X-VA-SSN'
             key :in, :header
@@ -106,13 +110,13 @@ module ClaimsApi
             key :type, :string
           end
 
-          parameter do
-            key :name, 'payload'
-            key :in, :body
+          request_body do
             key :description, 'JSON API Payload of Veteran being submitted'
             key :required, true
-            schema do
-              key :'$ref', :Form2122Input
+            content 'application/json' do
+              schema do
+                key :'$ref', :Form2122Input
+              end
             end
           end
 

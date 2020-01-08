@@ -124,27 +124,28 @@ module ClaimsApi
             key :description, 'JSON API Payload of Veteran being submitted'
             key :required, true
             content 'application/json' do
-            schema do
-              key :type, :object
-              key :required, [:data]
-              property :data do
+              schema do
                 key :type, :object
-                key :required, [:attributes]
-                property :attributes do
+                key :required, [:data]
+                property :data do
                   key :type, :object
-                  property :type do
-                    key :type, :string
-                    key :example, 'compensation'
-                    key :description, 'Required by JSON API standard'
-                    key :enum, %w[
-                      compensation
-                      burial
-                      pension
-                    ]
+                  key :required, [:attributes]
+                  key :example, {type: 'form/0966', attributes: {type: 'compensation'}}
+                  property :attributes do
+                    key :type, :object
+                    property :type do
+                      key :type, :string
+                      key :example, 'compensation'
+                      key :description, 'Required by JSON API standard'
+                      key :enum, %w[
+                        compensation
+                        burial
+                        pension
+                      ]
+                    end
                   end
                 end
               end
-            end
             end
           end
 

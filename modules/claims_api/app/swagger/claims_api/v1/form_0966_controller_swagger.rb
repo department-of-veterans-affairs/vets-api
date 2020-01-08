@@ -60,6 +60,10 @@ module ClaimsApi
             'Intent to File'
           ]
 
+          security do
+            key :apikey, []
+          end
+
           parameter do
             key :name, 'X-VA-SSN'
             key :in, :header
@@ -108,28 +112,29 @@ module ClaimsApi
             key :type, :string
           end
 
-          parameter do
-            key :name, 'payload'
-            key :in, :body
+          request_body do
             key :description, 'JSON API Payload of Veteran being submitted'
             key :required, true
-            schema do
-              key :type, :object
-              key :required, [:data]
-              property :data do
+            content 'application/json' do
+              schema do
                 key :type, :object
-                key :required, [:attributes]
-                property :attributes do
+                key :required, [:data]
+                property :data do
                   key :type, :object
-                  property :type do
-                    key :type, :string
-                    key :example, 'compensation'
-                    key :description, 'Required by JSON API standard'
-                    key :enum, %w[
-                      compensation
-                      burial
-                      pension
-                    ]
+                  key :required, [:attributes]
+                  key :example, {type: 'form/0966', attributes: {type: 'compensation'}}
+                  property :attributes do
+                    key :type, :object
+                    property :type do
+                      key :type, :string
+                      key :example, 'compensation'
+                      key :description, 'Required by JSON API standard'
+                      key :enum, %w[
+                        compensation
+                        burial
+                        pension
+                      ]
+                    end
                   end
                 end
               end
