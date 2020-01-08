@@ -241,31 +241,11 @@ module ClaimsApi
           end
 
           parameter do
-            key :name, 'payload'
-            key :in, :body
-            key :description, 'JSON API Payload of Veteran being submitted'
+            key :name, 'type'
+            key :in,  :query
+            key :description, 'The type of 0966 you wish to get the active submission for'
             key :required, true
-            schema do
-              key :type, :object
-              key :required, [:data]
-              property :data do
-                key :type, :object
-                key :required, [:attributes]
-                property :attributes do
-                  key :type, :object
-                  property :type do
-                    key :type, :string
-                    key :example, 'compensation'
-                    key :description, 'Required by JSON API standard'
-                    key :enum, %w[
-                      compensation
-                      burial
-                      pension
-                    ]
-                  end
-                end
-              end
-            end
+            key :example, 'compensation'
           end
 
           response 200 do
