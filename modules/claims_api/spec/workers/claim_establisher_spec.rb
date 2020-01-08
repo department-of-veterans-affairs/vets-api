@@ -49,7 +49,7 @@ RSpec.describe ClaimsApi::ClaimEstablisher, type: :job do
 
     claim.reload
     expect(claim.evss_id).to eq(nil)
-    expect(claim.evss_response).to eq(original_body['messages'])
+    expect(claim.evss_response).to eq(body['messages'])
     expect(claim.status).to eq(ClaimsApi::AutoEstablishedClaim::ERRORED)
   end
 end
