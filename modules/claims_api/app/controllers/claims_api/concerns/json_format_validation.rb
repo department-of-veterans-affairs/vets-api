@@ -12,7 +12,10 @@ module ClaimsApi
           errors: [
             {
               type: 'malformed',
-              detail: "The payload body isn't valid JSON format"
+              detail: "The payload body isn't valid JSON:API format",
+              links: {
+                about: 'https://jsonapi.org/format/'
+              }
             }
           ]
         }
