@@ -21,10 +21,18 @@ module VeteranConfirmation
       private
 
       def validate_body
+        validate_no_query_params
+
         params.require(%i[first_name last_name ssn birth_date])
 
         validate_ssn_format
         vali_date
+      end
+
+      def validate_no_query_params
+        if request.post? && request.query_string.present?
+          raise Common::Exceptions::NoQueryParamsAllowed.new
+        end
       end
 
       def validate_ssn_format

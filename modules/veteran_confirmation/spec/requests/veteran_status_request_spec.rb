@@ -39,6 +39,14 @@ RSpec.describe 'Veteran Status API endpoint', type: :request, skip_emis: true do
   end
 
   context 'with invalid attributes' do
+    it 'throws an error when params are in the query path' do
+      post '/services/veteran_confirmation/v0/status?first_name=Tamara'
+
+      expect(response).to have_http_status(:bad_request)
+      error_detail = JSON.parse(response.body)['errors'].first['detail']
+      expect(error_detail).to eq('No query params are allowed for this route')
+    end
+    
     it 'throws an error when missing a required parameter' do
       missing_attributes = {
         ssn: nil,
