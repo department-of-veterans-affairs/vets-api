@@ -8,8 +8,9 @@ RSpec.describe V0::HcaAttachmentsController, type: :controller do
       post(:create, params: { hca_attachment: {
              file_data: fixture_file_upload('pdf_fill/extras.pdf')
            } })
-
-      expect(JSON.parse(response.body)['data']['attributes']['guid']).to eq HcaAttachment.last.guid
+      guid = JSON.parse(response.body)['data']['attributes']['guid']
+      expect(guid).to eq HcaAttachment.last.guid
+      expect(File).to exist("spec/support/uploads/hca_attachments/#{guid}")
     end
 
     it 'validates input parameters' do
