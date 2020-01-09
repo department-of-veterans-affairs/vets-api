@@ -69,7 +69,8 @@
               ]
             },
             "state": {
-              "type": "string"
+              "type": "string",
+              "pattern": "^[a-z,A-Z]{2}$"
             }
           },
           "allOf": [
@@ -179,7 +180,8 @@
               "type": "string"
             },
             "state": {
-              "type": "string"
+              "type": "string",
+              "pattern": "^[a-z,A-Z]{2}$"
             }
           },
           "allOf": [
