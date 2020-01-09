@@ -18,11 +18,13 @@ module VbaDocuments
 
           response 202 do
             key :description, 'Accepted. Location generated'
-            schema do
-              key :type, :object
-              key :required, [:data]
-              property :data do
-                key :'$ref', :DocumentUploadSubmission
+            content 'application/json' do
+              schema do
+                key :type, :object
+                key :required, [:data]
+                property :data do
+                  key :'$ref', :DocumentUploadSubmission
+                end
               end
             end
           end
@@ -37,13 +39,15 @@ module VbaDocuments
 
           response :default do
             key :description, 'unexpected error'
-            schema do
-              key :type, :object
-              key :required, [:errors]
-              property :errors do
-                key :type, :array
-                items do
-                  key :'$ref', :ErrorModel
+            content 'application/json' do
+              schema do
+                key :type, :object
+                key :required, [:errors]
+                property :errors do
+                  key :type, :array
+                  items do
+                    key :'$ref', :ErrorModel
+                  end
                 end
               end
             end
@@ -60,6 +64,7 @@ module VbaDocuments
           key :tags, [
             'document_uploads'
           ]
+
           parameter do
             key :name, 'Content-MD5'
             key :in, 'header'
@@ -71,37 +76,16 @@ module VbaDocuments
             end
           end
 
-          key :consumes, ['multipart/form-data']
-
-          parameter do
-            key :$ref, :DocumentUploadMetadata
-          end
-
-          parameter do
-            key :name, 'document'
-            key :in, :formData
-            key :type, :file
-            key :description, 'Document Contents. Must be provided in PDF format'
-          end
-
-          parameter do
-            key :name, 'attachment1'
-            key :in, :formData
-            key :type, :file
-          end
-
-          parameter do
-            key :name, 'attachment2'
-            key :in, :formData
-            key :type, :file
-          end
-
           response 200 do
             key :description, 'Document upload staged'
           end
 
           response 400 do
-            key :$ref, :DocumentUploadFailure
+            content 'application/xml' do
+              schema do
+                key :$ref, :DocumentUploadFailure
+              end
+            end
           end
         end
       end
@@ -130,10 +114,12 @@ module VbaDocuments
 
           response 200 do
             key :description, 'Upload status retrieved successfully'
-            schema do
-              key :required, %i[data]
-              property :data do
-                key :$ref, :DocumentUploadStatus
+            content 'application/json' do
+              schema do
+                key :required, %i[data]
+                property :data do
+                  key :$ref, :DocumentUploadStatus
+                end
               end
             end
           end
@@ -152,13 +138,15 @@ module VbaDocuments
 
           response :default do
             key :description, 'unexpected error'
-            schema do
-              key :type, :object
-              key :required, [:errors]
-              property :errors do
-                key :type, :array
-                items do
-                  key :'$ref', :ErrorModel
+            content 'application/json' do
+              schema do
+                key :type, :object
+                key :required, [:errors]
+                property :errors do
+                  key :type, :array
+                  items do
+                    key :'$ref', :ErrorModel
+                  end
                 end
               end
             end
@@ -190,7 +178,8 @@ module VbaDocuments
           response 200 do
             key :description, 'Zip file with the contents of your payload as parsed by our server'
             schema do
-              key :type, :file
+              key :type, :string
+              key :format, :binary
             end
           end
 
@@ -232,11 +221,14 @@ module VbaDocuments
 
           response 200 do
             key :description, 'Upload status report retrieved successfully'
-            schema do
-              key :required, %i[data]
+            content 'application/json' do
+              schema do
+                key :type, :object
+                key :required, %i[data]
 
-              property :data do
-                key :$ref, :DocumentUploadStatusReport
+                property :data do
+                  key :$ref, :DocumentUploadStatusReport
+                end
               end
             end
           end
@@ -255,13 +247,15 @@ module VbaDocuments
 
           response :default do
             key :description, 'unexpected error'
-            schema do
-              key :type, :object
-              key :required, [:errors]
-              property :errors do
-                key :type, :array
-                items do
-                  key :'$ref', :ErrorModel
+            content 'application/json' do
+              schema do
+                key :type, :object
+                key :required, [:errors]
+                property :errors do
+                  key :type, :array
+                  items do
+                    key :'$ref', :ErrorModel
+                  end
                 end
               end
             end

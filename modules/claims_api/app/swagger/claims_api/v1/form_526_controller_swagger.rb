@@ -21,15 +21,17 @@ module ClaimsApi
 
           response 200 do
             key :description, 'schema response'
-            schema do
-              key :type, :object
-              key :required, [:data]
-              property :data do
-                key :type, :array
-                items do
-                  key :type, :object
-                  key :description, 'Returning Variety of JSON and UI Schema Objects'
-                  key :example, ClaimsApi::FormSchemas::SCHEMAS['526']
+            content 'application/json' do
+              schema do
+                key :type, :object
+                key :required, [:data]
+                property :data do
+                  key :type, :array
+                  items do
+                    key :type, :object
+                    key :description, 'Returning Variety of JSON and UI Schema Objects'
+                    key :example, ClaimsApi::FormSchemas::SCHEMAS['526']
+                  end
                 end
               end
             end
@@ -37,13 +39,15 @@ module ClaimsApi
 
           response :default do
             key :description, 'unexpected error'
-            schema do
-              key :type, :object
-              key :required, [:errors]
-              property :errors do
-                key :type, :array
-                items do
-                  key :'$ref', :ErrorModel
+            content 'application/json' do
+              schema do
+                key :type, :object
+                key :required, [:errors]
+                property :errors do
+                  key :type, :array
+                  items do
+                    key :'$ref', :ErrorModel
+                  end
                 end
               end
             end
@@ -122,19 +126,23 @@ module ClaimsApi
 
           response 200 do
             key :description, '526 response'
-            schema do
-              key :'$ref', :ClaimsIndex
+            content 'application/json' do
+              schema do
+                key :'$ref', :ClaimsIndex
+              end
             end
           end
           response :default do
             key :description, 'unexpected error'
-            schema do
-              key :type, :object
-              key :required, [:errors]
-              property :errors do
-                key :type, :array
-                items do
-                  key :'$ref', :ErrorModel
+            content 'application/json' do
+              schema do
+                key :type, :object
+                key :required, [:errors]
+                property :errors do
+                  key :type, :array
+                  items do
+                    key :'$ref', :ErrorModel
+                  end
                 end
               end
             end
@@ -226,20 +234,24 @@ module ClaimsApi
 
           response 200 do
             key :description, '526 response'
-            schema do
-              key :'$ref', :ClaimsIndex
+            content 'application/json' do
+              schema do
+                key :'$ref', :ClaimsIndex
+              end
             end
           end
 
           response :default do
             key :description, 'unexpected error'
-            schema do
-              key :type, :object
-              key :required, [:errors]
-              property :errors do
-                key :type, :array
-                items do
-                  key :'$ref', :ErrorModel
+            content 'application/json' do
+              schema do
+                key :type, :object
+                key :required, [:errors]
+                property :errors do
+                  key :type, :array
+                  items do
+                    key :'$ref', :ErrorModel
+                  end
                 end
               end
             end
@@ -315,27 +327,29 @@ module ClaimsApi
 
           response 200 do
             key :description, '526 response'
-            schema do
-              key :type, :object
-              key :required, [:data]
-
-              property :data do
+            content 'application/json' do
+              schema do
                 key :type, :object
-                key :required, [:attributes]
+                key :required, [:data]
 
-                property :type do
-                  key :type, :string
-                  key :example, 'claims_api_auto_established_claims_validation'
-                  key :description, 'Required by JSON API standard'
-                end
-
-                property :attributes do
+                property :data do
                   key :type, :object
+                  key :required, [:attributes]
 
-                  property :status do
+                  property :type do
                     key :type, :string
-                    key :example, 'valid'
-                    key :description, 'Return whether or not whether or not the payload is valid'
+                    key :example, 'claims_api_auto_established_claims_validation'
+                    key :description, 'Required by JSON API standard'
+                  end
+
+                  property :attributes do
+                    key :type, :object
+
+                    property :status do
+                      key :type, :string
+                      key :example, 'valid'
+                      key :description, 'Return whether or not whether or not the payload is valid'
+                    end
                   end
                 end
               end
@@ -344,13 +358,15 @@ module ClaimsApi
 
           response 422 do
             key :description, 'Invalid Payload'
-            schema do
-              key :type, :object
-              key :required, [:errors]
-              property :errors do
-                key :type, :array
-                items do
-                  key :'$ref', :ErrorModel
+            content 'application/json' do
+              schema do
+                key :type, :object
+                key :required, [:errors]
+                property :errors do
+                  key :type, :array
+                  items do
+                    key :'$ref', :ErrorModel
+                  end
                 end
               end
             end
@@ -358,13 +374,15 @@ module ClaimsApi
 
           response :default do
             key :description, 'unexpected error'
-            schema do
-              key :type, :object
-              key :required, [:errors]
-              property :errors do
-                key :type, :array
-                items do
-                  key :'$ref', :ErrorModel
+            content 'application/json' do
+              schema do
+                key :type, :object
+                key :required, [:errors]
+                property :errors do
+                  key :type, :array
+                  items do
+                    key :'$ref', :ErrorModel
+                  end
                 end
               end
             end
@@ -459,13 +477,15 @@ module ClaimsApi
           end
           response :default do
             key :description, 'unexpected error'
-            schema do
-              key :type, :object
-              key :required, [:errors]
-              property :errors do
-                key :type, :array
-                items do
-                  key :'$ref', :ErrorModel
+            content 'application/json' do
+              schema do
+                key :type, :object
+                key :required, [:errors]
+                property :errors do
+                  key :type, :array
+                  items do
+                    key :'$ref', :ErrorModel
+                  end
                 end
               end
             end
