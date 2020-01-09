@@ -6,7 +6,7 @@ module ClaimsApi
   class ClaimEstablisher
     STATSD_VALIDATION_FAIL_KEY = 'api.claims_api.526.validation_fail'
     STATSD_VALIDATION_FAIL_TYPE_KEY = 'api.claims_api.526.validation_fail_type'
-    
+
     include Sidekiq::Worker
 
     def perform(auto_claim_id)

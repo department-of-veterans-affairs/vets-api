@@ -8,7 +8,7 @@ module ClaimsApi
   class ApplicationController < ::OpenidApplicationController
     STATSD_VALIDATION_FAIL_KEY = 'api.claims_api.526.validation_fail'
     STATSD_VALIDATION_FAIL_TYPE_KEY = 'api.claims_api.526.validation_fail_type'
-    
+
     include ClaimsApi::MviVerification
     include ClaimsApi::HeaderValidation
 
