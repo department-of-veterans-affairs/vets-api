@@ -53,7 +53,8 @@
               "pattern": "^\\d{5}?$"
             },
             "zipLastFour": {
-              "type": "string"
+              "type": "string",
+              "pattern": "^\\d{4}?$"
             },
             "internationalPostalCode": {
               "type": "string"
@@ -152,10 +153,12 @@
               "type": "string"
             },
             "zipFirstFive": {
-              "type": "string"
+              "type": "string",
+              "pattern": "^\\d{5}?$"
             },
             "zipLastFour": {
-              "type": "string"
+              "type": "string",
+              "pattern": "^\\d{4}?$"
             },
             "internationalPostalCode": {
               "type": "string"
