@@ -34,8 +34,8 @@ module ClaimsApi
 
           render json: auto_claim, serializer: ClaimsApi::AutoEstablishedClaimSerializer
         rescue EVSS::ErrorMiddleware::EVSSError => e
-          track_526_validation_errors(e.details)
-          render json: { errors: format_errors(e.details) }, status: :unprocessable_entity
+          track_evss_validation_errors(e.details)
+          render json: { errors: format_evss_errors(e.details) }, status: :unprocessable_entity
         end
 
         def upload_supporting_documents
