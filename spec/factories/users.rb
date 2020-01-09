@@ -58,8 +58,8 @@ FactoryBot.define do
     trait :response_builder do
       authn_context { nil }
       uuid { nil }
-      last_signed_in { Faker::Time.between(2.years.ago, 1.week.ago, :all) }
-      mhv_last_signed_in { Faker::Time.between(1.week.ago, 1.minute.ago, :all) }
+      last_signed_in { Faker::Time.between(from: 2.years.ago, to: 1.week.ago) }
+      mhv_last_signed_in { Faker::Time.between(from: 1.week.ago, to: 1.minute.ago) }
       email { nil }
       first_name { nil }
       last_name { nil }
@@ -221,14 +221,14 @@ FactoryBot.define do
     trait :mhv do
       authn_context { 'myhealthevet' }
       uuid { 'b2fab2b5-6af0-45e1-a9e2-394347af91ef' }
-      last_signed_in { Faker::Time.between(2.years.ago, 1.week.ago, :all) }
-      mhv_last_signed_in { Faker::Time.between(1.week.ago, 1.minute.ago, :all) }
+      last_signed_in { Faker::Time.between(from: 2.years.ago, to: 1.week.ago) }
+      mhv_last_signed_in { Faker::Time.between(from: 1.week.ago, to: 1.minute.ago) }
       email { Faker::Internet.email }
       first_name { Faker::Name.first_name }
       last_name { Faker::Name.last_name }
       gender { 'M' }
       zip { Faker::Address.postcode }
-      birth_date { Faker::Time.between(40.years.ago, 10.years.ago, :all) }
+      birth_date { Faker::Time.between(from: 40.years.ago, to: 10.years.ago) }
       ssn { '796111864' }
       multifactor { true }
       mhv_account_type { 'Premium' }
@@ -267,14 +267,14 @@ FactoryBot.define do
     trait :dslogon do
       authn_context { 'dslogon' }
       uuid { 'b2fab2b5-6af0-45e1-a9e2-394347af91ef' }
-      last_signed_in { Faker::Time.between(2.years.ago, 1.week.ago, :all) }
+      last_signed_in { Faker::Time.between(from: 2.years.ago, to: 1.week.ago) }
       mhv_last_signed_in { nil }
       email { Faker::Internet.email }
       first_name { Faker::Name.first_name }
       last_name { Faker::Name.last_name }
       gender { 'M' }
       zip { Faker::Address.postcode }
-      birth_date { Faker::Time.between(40.years.ago, 10.years.ago, :all) }
+      birth_date { Faker::Time.between(from: 40.years.ago, to: 10.years.ago) }
       ssn { '796111864' }
       multifactor { true }
       mhv_account_type { nil }
