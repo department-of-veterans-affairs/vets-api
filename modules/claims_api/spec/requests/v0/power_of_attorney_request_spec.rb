@@ -43,7 +43,7 @@ RSpec.describe 'Power of Attorney ', type: :request do
       post path, params: data, headers: headers
       token = JSON.parse(response.body)['data']['id']
       poa = ClaimsApi::PowerOfAttorney.find(token)
-      expect(poa.source).to eq('TestConsumer')
+      expect(poa.source_data['name']).to eq('TestConsumer')
     end
 
     context 'validation' do
