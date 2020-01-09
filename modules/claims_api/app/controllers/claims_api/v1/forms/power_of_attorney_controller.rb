@@ -20,7 +20,11 @@ module ClaimsApi
             status: ClaimsApi::PowerOfAttorney::PENDING,
             auth_headers: auth_headers,
             form_data: form_attributes,
-            source: source_name
+            source_data: {
+              name: source_name,
+              icn: current_user.icn,
+              email: current_user.email
+            }
           )
           power_of_attorney = ClaimsApi::PowerOfAttorney.find_by(md5: power_of_attorney.md5) unless power_of_attorney.id
           power_of_attorney.save!
