@@ -122,7 +122,7 @@ module ClaimsApi
                 property :data do
                   key :type, :object
                   key :required, [:attributes]
-                  key :example, {type: 'form/0966', attributes: {type: 'compensation'}}
+                  key :example, type: 'form/0966', attributes: { type: 'compensation' }
                   property :attributes do
                     key :type, :object
                     property :type do
@@ -222,7 +222,7 @@ module ClaimsApi
 
           parameter do
             key :name, 'type'
-            key :in,  :query
+            key :in, :query
             key :description, 'The type of 0966 you wish to get the active submission for'
             key :required, true
             key :example, 'compensation'

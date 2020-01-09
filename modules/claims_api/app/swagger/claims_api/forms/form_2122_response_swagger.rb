@@ -11,7 +11,7 @@ module ClaimsApi
           key :description, '2122 Power of Attorney Form submission'
           property :data do
             key :type, :object
-            key :example, {type: 'form/21-22', attributes: {poaCode: 'A01', poaFirstName: 'Bob', poaLastName: 'Jones'}}
+            key :example, type: 'form/21-22', attributes: { poaCode: 'A01', poaFirstName: 'Bob', poaLastName: 'Jones' }
             property :type do
               key :type, :string
               key :example, 'form/21-22'
