@@ -32,6 +32,18 @@ module VAOS
       end
     end
 
+    def post_appointment(request_object_body)
+      params = VAOS::AppointmentForm.new(user, request_object_body).params
+
+      with_monitoring do
+        response = perform(:post, post_appointment_url, params, headers(user))
+        {
+          data: OpenStruct.new(response.body) },
+          meta: {}
+        }
+      end
+    end
+
     def put_cancel_appointment(request_object_body)
       params = VAOS::CancelForm.new(request_object_body).params
       params.merge!(patient_identifier: { unique_id: user.icn, assigning_authority: 'ICN' })

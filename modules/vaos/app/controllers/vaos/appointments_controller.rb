@@ -8,7 +8,11 @@ module VAOS
       render json: each_serializer.new(appointments[:data], meta: appointments[:meta])
     end
 
-    # not sure whether to use standard update action here, seeing as appointments don't have legitimate id.
+    def create
+      response = appointment_service.post_appointment(create_params)
+      render json: each_serializer.new(response[:data], meta: response[:meta])
+    end
+
     def cancel
       appointment_service.put_cancel_appointment(cancel_params)
       head :no_content
@@ -18,6 +22,10 @@ module VAOS
 
     def cancel_params
       params.permit(:appointment_time, :clinic_id, :cancel_reason, :cancel_code, :remarks, :clinic_name)
+    end
+
+    def create_params
+      # TODO
     end
 
     def appointment_service

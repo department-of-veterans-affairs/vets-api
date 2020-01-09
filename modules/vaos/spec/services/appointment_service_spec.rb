@@ -11,6 +11,20 @@ describe VAOS::AppointmentService do
 
   before { allow_any_instance_of(VAOS::UserService).to receive(:session).and_return('stubbed_token') }
 
+  describe '#post_appointment' do
+    context 'when request is invalid' do
+      it 'returns a bad request with detailed error' do
+        # TODO
+      end
+    end
+
+    context 'when request is valid' do
+      it 'returns the created appointment' do
+        # TODO
+      end
+    end
+  end
+
   describe '#put_cancel_appointment' do
     context 'when appointment cannot be cancelled' do
       let(:request_body) do
