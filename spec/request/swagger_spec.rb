@@ -167,28 +167,35 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
       )
     end
 
-    it 'supports adding a burial claim' do
-      expect(subject).to validate(
-        :post,
-        '/v0/burial_claims',
-        200,
-        '_data' => {
-          'burial_claim' => {
-            'form' => build(:burial_claim).form
-          }
-        }
-      )
+    it 'supports adding a burial claim', run_at: 'Thu, 29 Aug 2019 17:45:03 GMT' do
+      allow(SecureRandom).to receive(:uuid).and_return('c3fa0769-70cb-419a-b3a6-d2563e7b8502')
 
-      expect(subject).to validate(
-        :post,
-        '/v0/burial_claims',
-        422,
-        '_data' => {
-          'burial_claim' => {
-            'invalid-form' => { invalid: true }.to_json
+      VCR.use_cassette(
+        'mvi/find_candidate/find_profile_with_attributes',
+        VCR::MATCH_EVERYTHING
+      ) do
+        expect(subject).to validate(
+          :post,
+          '/v0/burial_claims',
+          200,
+          '_data' => {
+            'burial_claim' => {
+              'form' => build(:burial_claim).form
+            }
           }
-        }
-      )
+        )
+
+        expect(subject).to validate(
+          :post,
+          '/v0/burial_claims',
+          422,
+          '_data' => {
+            'burial_claim' => {
+              'invalid-form' => { invalid: true }.to_json
+            }
+          }
+        )
+      end
     end
 
     it 'supports adding a preneed claim' do
