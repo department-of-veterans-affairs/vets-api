@@ -120,6 +120,15 @@ module ClaimsApi
             key :type, :string
           end
 
+          parameter do
+            key :name, 'X-VA-LOA'
+            key :in, :header
+            key :description, 'The level of assurance of the user making the request'
+            key :example, '3'
+            key :required, true
+            key :type, :string
+          end
+
           request_body do
             key :description, 'JSON API Payload of Veteran being submitted'
             key :required, true
@@ -236,6 +245,15 @@ module ClaimsApi
             key :name, 'X-VA-User'
             key :in, :header
             key :description, 'VA username of the person making the request'
+            key :required, true
+            key :type, :string
+          end
+
+          parameter do
+            key :name, 'X-VA-LOA'
+            key :in, :header
+            key :description, 'The level of assurance of the user making the request'
+            key :example, '3'
             key :required, true
             key :type, :string
           end
