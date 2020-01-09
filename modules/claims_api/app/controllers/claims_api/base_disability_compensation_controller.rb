@@ -2,9 +2,6 @@
 
 module ClaimsApi
   class BaseDisabilityCompensationController < ClaimsApi::BaseFormController
-    STATSD_VALIDATION_FAIL_KEY = 'api.claims_api.526.validation_fail'
-    STATSD_VALIDATION_FAIL_TYPE_KEY = 'api.claims_api.526.validation_fail_type'
-
     def upload_form_526
       pending_claim = ClaimsApi::AutoEstablishedClaim.pending?(params[:id])
       pending_claim.set_file_data!(documents.first, params[:doc_type])
