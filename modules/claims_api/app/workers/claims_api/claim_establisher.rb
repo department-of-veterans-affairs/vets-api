@@ -18,6 +18,7 @@ module ClaimsApi
         auto_claim.status = ClaimsApi::AutoEstablishedClaim::ESTABLISHED
         auto_claim.save
       rescue ::EVSS::DisabilityCompensationForm::ServiceException => e
+        track_evss_errors(e.messages)
         auto_claim.status = ClaimsApi::AutoEstablishedClaim::ERRORED
         auto_claim.evss_response = e.messages
         auto_claim.save
@@ -26,6 +27,15 @@ module ClaimsApi
     end
 
     private
+
+    def track_evss_errors(errors)
+      StatsD.increment STATSD_VALIDATION_FAIL_KEY
+
+      errors.each do |error|
+        key = error['key'].gsub(/\[(.*?)\]/, '')
+        StatsD.increment STATSD_VALIDATION_FAIL_TYPE_KEY, tags: ["key: #{key}"]
+      end
+    end
 
     def service(auth_headers)
       if Settings.claims_api.disability_claims_mock_override && !auth_headers['Mock-Override']
