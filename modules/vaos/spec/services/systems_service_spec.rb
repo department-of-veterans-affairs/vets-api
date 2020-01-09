@@ -278,4 +278,17 @@ describe VAOS::SystemsService do
       end
     end
   end
+
+  describe '#get_clinics' do
+    context 'with a 200 response for a set of clinic ids' do
+      let(:clinic_ids) { [16, 90, 110, 192, 193] }
+
+      it 'returns only those clinics' do
+        VCR.use_cassette('vaos/systems/get_facility_visits', match_requests_on: %i[method uri]) do
+          response = subject.get_clinics(clinic_ids)
+          expect(response).to eq(0)
+        end
+      end
+    end
+  end
 end

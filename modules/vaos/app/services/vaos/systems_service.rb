@@ -109,8 +109,20 @@ module VAOS
           'institution-code' => facility_id,
           'clinical-service' => type_of_care_id
         }
-        response = perform(:get, url, url_params, headers(@user))
+        response = perform(:get, url, url_params,)
         OpenStruct.new(response.body.merge(id: SecureRandom.uuid))
+      end
+    end
+
+    def get_clinics(clinic_ids)
+      with_monitoring do
+        url = "/cdw/v2/facilities/#{system_id}/clinics"
+        url_params = {
+          'pageSize' => 0,
+          'clinicIds' => clinic_ids
+        }
+        response = perform(:get, url, url_params, headers(@user))
+        OpenStruct.new(response.body['data'])
       end
     end
 
