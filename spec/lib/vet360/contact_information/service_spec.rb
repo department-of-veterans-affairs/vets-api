@@ -228,12 +228,12 @@ describe Vet360::ContactInformation::Service, skip_vet360: true do
 
     context 'when an ID is included' do
       it 'raises an exception' do
-        VCR.use_cassette('vet360/contact_information/post_permission_w_id_error', record: :new_episodes) do
+        VCR.use_cassette('vet360/contact_information/post_permission_w_id_error', VCR::MATCH_EVERYTHING) do
           permission.id = 401
           expect { subject.post_permission(permission) }.to raise_error do |e|
             expect(e).to be_a(Common::Exceptions::BackendServiceException)
-            expect(e.status_code).to eq(400)
-            expect(e.errors.first.code).to eq('VET360_PERM101')
+            expect(e.status_code).to eq(502)
+            expect(e.errors.first.code).to eq('VET360_502')
           end
         end
       end

@@ -49,8 +49,8 @@ module Vet360
         raise Common::Exceptions::Forbidden if error.status == 403
 
         raise_invalid_body(error, self.class) unless error.body.is_a?(Hash)
-        message = parse_messages(error)&.first
-        raise_backend_exception("VET360_#{message['code']}", self.class, error) if message.present?
+        code = parse_messages(error)&.first.try(:[], 'code')
+        raise_backend_exception("VET360_#{code}", self.class, error) if code.present?
         raise_backend_exception('VET360_502', self.class, error)
       else
         raise error
