@@ -522,16 +522,16 @@ module ClaimsApi
           response :default do
             key :description, 'unexpected error'
             content 'application/json' do
-            schema do
-              key :type, :object
-              key :required, [:errors]
-              property :errors do
-                key :type, :array
-                items do
-                  key :'$ref', :ErrorModel
+              schema do
+                key :type, :object
+                key :required, [:errors]
+                property :errors do
+                  key :type, :array
+                  items do
+                    key :'$ref', :ErrorModel
+                  end
                 end
               end
-            end
             end
           end
         end
