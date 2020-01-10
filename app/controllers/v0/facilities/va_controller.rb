@@ -44,9 +44,7 @@ class V0::Facilities::VaController < FacilitiesController
   end
 
   def provider_locator
-    ppms = Facilities::PPMS::Client.new
     providers = ppms.provider_locator(params)
-    page = Integer(params[:page] || 1)
     total = providers.length
     start_ind = (page - 1) * BaseFacility.per_page
     providers = providers[start_ind, BaseFacility.per_page - 1]
@@ -64,19 +62,10 @@ class V0::Facilities::VaController < FacilitiesController
   end
 
   def pharmacy_locator
-    ppms = Facilities::PPMS::Client.new
-    providers = ppms.pharmacy_locator(params)
-    page = Integer(params[:page] || 1)
-    total = providers.length
-    start_ind = (page - 1) * BaseFacility.per_page
-    providers = providers[start_ind, BaseFacility.per_page - 1]
-    providers.map! do |provider|
-      prov_info = ppms.provider_info(provider['ProviderIdentifier'])
-      provider.add_details(prov_info)
-      provider
-    end
+    place_of_service = ppms.pharmacy_locator(params)
+
     pages = { current_page: page, per_page: BaseFacility.per_page,
-              total_pages: total / BaseFacility.per_page + 1, total_entries: total }
+              total_pages: place_of_service.length / BaseFacility.per_page + 1, total_entries: total }
 
     render json: providers,
            each_serializer: ProviderSerializer,
@@ -84,6 +73,14 @@ class V0::Facilities::VaController < FacilitiesController
   end
 
   private
+
+  def ppms
+    @ppms ||= Facilities::PPMS::Client.new
+  end
+
+  def page
+    Integer(params[:page] || 1)
+  end
 
   def validate_types_name_part
     raise Common::Exceptions::ParameterMissing, 'name_part' if params[:name_part].blank?
