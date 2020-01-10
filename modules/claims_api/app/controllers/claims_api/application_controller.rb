@@ -39,7 +39,12 @@ module ClaimsApi
         validate_headers(headers_to_validate)
         if v0?
           check_loa_level
-          request.headers['X-VA-User'] = request.headers['X-Consumer-Username'] unless header('X-VA-User')
+          if request.headers['X-Consumer-Username']
+            request.headers['X-VA-User'] = request.headers['X-Consumer-Username'] unless header('X-VA-User')
+          else
+            log_message_to_sentry('Kong no longer sending X-Consumer-Username', :error,
+                            body: request.body)
+          end
         end
         veteran_from_headers(with_gender: with_gender)
       else
