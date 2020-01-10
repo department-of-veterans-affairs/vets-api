@@ -6,10 +6,17 @@ describe Vet360::ContactInformation::Service, skip_vet360: true do
   subject { described_class.new(user) }
 
   let(:user) { build(:user, :loa3) }
+  let(:bad_vet360_id) { '6767671' }
 
   before do
     allow(user).to receive(:vet360_id).and_return('1')
     allow(user).to receive(:icn).and_return('1234')
+  end
+
+  def self.set_bad_vet360_id
+    before do
+      allow(user).to receive(:vet360_id).and_return(bad_vet360_id)
+    end
   end
 
   describe '#get_person' do
@@ -24,23 +31,13 @@ describe Vet360::ContactInformation::Service, skip_vet360: true do
     end
 
     context 'when not successful' do
+      set_bad_vet360_id
+
       it 'returns a status of 404' do
         VCR.use_cassette('vet360/contact_information/person_error', VCR::MATCH_EVERYTHING) do
           response = subject.get_person
           expect(response).not_to be_ok
           expect(response.person).to be_nil
-        end
-      end
-    end
-
-    context 'when service returns a 503 error code' do
-      it 'raises a BackendServiceException error' do
-        VCR.use_cassette('vet360/contact_information/person_status_503', VCR::MATCH_EVERYTHING) do
-          expect { subject.get_person }.to raise_error do |e|
-            expect(e).to be_a(Common::Exceptions::BackendServiceException)
-            expect(e.status_code).to eq(502)
-            expect(e.errors.first.code).to eq('VET360_502')
-          end
         end
       end
     end
