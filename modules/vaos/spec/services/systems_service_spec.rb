@@ -279,14 +279,41 @@ describe VAOS::SystemsService do
     end
   end
 
-  describe '#get_clinics' do
+  describe '#get_clinic_institutions' do
     context 'with a 200 response for a set of clinic ids' do
+      let(:system_id) { 442 }
       let(:clinic_ids) { [16, 90, 110, 192, 193] }
 
-      it 'returns only those clinics' do
-        VCR.use_cassette('vaos/systems/get_facility_visits', match_requests_on: %i[method uri]) do
-          response = subject.get_clinics(clinic_ids)
-          expect(response).to eq(0)
+      it 'returns only those clinics parsed correctly', :aggregate_failures do
+        VCR.use_cassette('vaos/systems/get_institutions', match_requests_on: %i[method uri]) do
+          response = subject.get_clinic_institutions(system_id, clinic_ids)
+          expect(response.map { |c| c[:location_ien].to_i }).to eq(clinic_ids)
+          expect(response.last.to_h).to eq(
+            institution_code: '442',
+            institution_ien: '442',
+            institution_name: 'CHEYENNE VA MEDICAL',
+            institution_sid: 561_596,
+            location_ien: '193'
+          )
+        end
+      end
+    end
+
+    context 'with a 200 response for a set of clinic ids' do
+      let(:system_id) { 442 }
+      let(:clinic_ids) { 16 }
+
+      it 'returns only those clinics parsed correctly', :aggregate_failures do
+        VCR.use_cassette('vaos/systems/get_institutions_single', match_requests_on: %i[method uri]) do
+          response = subject.get_clinic_institutions(system_id, clinic_ids)
+          expect(response.map { |c| c[:location_ien].to_i }).to eq([*clinic_ids])
+          expect(response.first.to_h).to eq(
+            institution_code: '442',
+            institution_ien: '442',
+            institution_name: 'CHEYENNE VA MEDICAL',
+            institution_sid: 561_596,
+            location_ien: '16'
+          )
         end
       end
     end

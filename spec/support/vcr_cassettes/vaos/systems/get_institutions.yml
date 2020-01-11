@@ -2,7 +2,7 @@
 http_interactions:
   - request:
       method: get
-      uri: https://veteran.apps.va.gov/cdw/v2/facilities/442/clinics?pageSize=0&clinicIds=16,90,110,192,193
+      uri: https://veteran.apps.va.gov/cdw/v2/facilities/442/clinics?clinicIds=16,90,110,192,193&pageSize=0
       body:
         encoding: US-ASCII
         string: ''

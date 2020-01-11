@@ -144,5 +144,31 @@ RSpec.describe 'systems', type: :request do
         end
       end
     end
+
+    describe 'GET /v0/vaos/systems/:system_id/facilities' do
+      context 'with a set of clinic ids' do
+        it 'returns a 200 with the correct schema' do
+          VCR.use_cassette('vaos/systems/get_institutions', match_requests_on: %i[method uri]) do
+            get '/v0/vaos/systems/442/institutions', params: { clinic_ids: [16, 90, 110, 192, 193] }
+
+            expect(response).to have_http_status(:ok)
+            expect(response.body).to be_a(String)
+            expect(response).to match_response_schema('vaos/system_institutions')
+          end
+        end
+      end
+
+      context 'with one clinic id' do
+        it 'returns a 200 with the correct schema' do
+          VCR.use_cassette('vaos/systems/get_institutions_single', match_requests_on: %i[method uri]) do
+            get '/v0/vaos/systems/442/institutions', params: { clinic_ids: 16 }
+
+            expect(response).to have_http_status(:ok)
+            expect(response.body).to be_a(String)
+            expect(response).to match_response_schema('vaos/system_institutions')
+          end
+        end
+      end
+    end
   end
 end
