@@ -29,8 +29,6 @@ module VAOS
                .merge(patients: patient)
     end
 
-    private
-
     def test_data
       {
         appointment_type: 'Primary Care',
@@ -71,6 +69,8 @@ module VAOS
         }
       }
     end
+
+    private
 
     def patients
       {
