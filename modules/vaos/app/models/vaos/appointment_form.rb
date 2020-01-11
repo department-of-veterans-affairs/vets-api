@@ -35,8 +35,8 @@ module VAOS
         scheduling_request_type: 'NEXT_AVAILABLE_APPT',
         type: 'REGULAR',
         appointment_kind: 'TRADITIONAL',
-        desired_date: '11/22/2019 09:30:00',
-        date_time: '11/22/2019 09:30:00',
+        desired_date: '2020-01-20T20:51:59.292+0000',
+        date_time: '2020-01-20T20:51:59.292+0000',
         duration: 20,
         booking_notes: 'tummy hurts',
         patients:       {
