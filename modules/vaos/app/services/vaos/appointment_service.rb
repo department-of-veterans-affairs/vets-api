@@ -20,6 +20,11 @@ module VAOS
       as
     end
 
+    def self.test
+      user = FactoryBot.build(:user, :vaos)
+      for_user(user)
+    end
+
     def get_appointments(type, start_date, end_date, pagination_params = {})
       params = date_params(start_date, end_date).merge(page_params(pagination_params)).merge(other_params).compact
 
@@ -33,12 +38,14 @@ module VAOS
     end
 
     def post_appointment(request_object_body)
-      params = VAOS::AppointmentForm.new(user, request_object_body).params
+      # params = VAOS::AppointmentForm.new(user, request_object_body).params
+      params = VAOS::AppointmentForm.new(user, {}).test_data
 
+      binding.pry
       with_monitoring do
         response = perform(:post, post_appointment_url, params, headers(user))
         {
-          data: OpenStruct.new(response.body) },
+          data: OpenStruct.new(response.body),
           meta: {}
         }
       end
@@ -88,6 +95,11 @@ module VAOS
       else
         "/var/VeteranAppointmentRequestService/v4/rest/direct-scheduling/patient/ICN/#{user.icn}/booked-cc-appointments"
       end
+    end
+
+    def post_appointment_url(site)
+      "/var/VeteranAppointmentRequestService/v4/rest/direct-scheduling/site/#{site}" +
+        "/patient/ICN/#{user.icn}/booked-appointments"
     end
 
     def put_appointment_url
