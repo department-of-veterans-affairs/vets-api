@@ -505,12 +505,12 @@ GEM
     pundit (1.1.0)
       activesupport (>= 3.0.0)
     raabro (1.1.6)
-    rack (2.0.8)
+    rack (2.1.1)
     rack-attack (6.2.1)
       rack (>= 1.0, < 3)
     rack-cors (1.0.6)
       rack (>= 1.6.0)
-    rack-protection (2.0.7)
+    rack-protection (2.0.8.1)
       rack
     rack-test (1.1.0)
       rack (>= 1.0, < 3)
@@ -640,11 +640,11 @@ GEM
     shrine-memory (0.2.2)
       down
       shrine (~> 2.0)
-    sidekiq (4.2.10)
-      concurrent-ruby (~> 1.0)
-      connection_pool (~> 2.2, >= 2.2.0)
+    sidekiq (5.2.7)
+      connection_pool (~> 2.2, >= 2.2.2)
+      rack (>= 1.5.0)
       rack-protection (>= 1.5.0)
-      redis (~> 3.2, >= 3.2.1)
+      redis (>= 3.3.5, < 5)
     sidekiq-ent (1.6.1)
       sidekiq (>= 4.2.9)
       sidekiq-pro (>= 3.5.0)
@@ -842,7 +842,7 @@ DEPENDENCIES
   sentry-raven (= 2.9.0)
   shrine
   shrine-memory
-  sidekiq (~> 4.2)
+  sidekiq (~> 5.2)
   sidekiq-ent!
   sidekiq-instrument
   sidekiq-pro!

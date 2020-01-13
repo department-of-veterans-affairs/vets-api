@@ -160,7 +160,7 @@ group :development, :test do
   gem 'rubocop-rails'
   gem 'rubocop-rspec'
   gem 'rubocop-thread_safety'
-  gem 'sidekiq', '~> 4.2'
+  gem 'sidekiq', '~> 5.2'
   gem 'timecop'
   gem 'webmock'
   gem 'yard'
