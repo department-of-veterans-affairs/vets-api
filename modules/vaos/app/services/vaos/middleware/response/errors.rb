@@ -6,9 +6,8 @@ module VAOS
       class Errors < Faraday::Response::Middleware
         def on_complete(env)
           return if env.success?
-
-          Raven.extra_context(message: env.body, url: env.url)
           binding.pry
+          Raven.extra_context(message: env.body, url: env.url)          
           case env.status
           when 400
             error_400(env.body)

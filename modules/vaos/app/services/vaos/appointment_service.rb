@@ -40,10 +40,12 @@ module VAOS
     def post_appointment(request_object_body)
       # params = VAOS::AppointmentForm.new(user, request_object_body).params
       params = VAOS::AppointmentForm.new(user, {}).test_data
+      site_codes = params.dig(:patients, :patient).map { |patient| patient.dig(:location, :facility, :site_code) }
 
-      binding.pry
+      # if site_codes ever has more than one value, we might want to log it and investigate or something... Why is
+      # patient an array in the payload? you're going to go see the doctor as a group?
       with_monitoring do
-        response = perform(:post, post_appointment_url, params, headers(user))
+        response = perform(:post, post_appointment_url(site_codes.first), params, headers(user))
         {
           data: OpenStruct.new(response.body),
           meta: {}
