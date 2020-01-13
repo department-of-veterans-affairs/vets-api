@@ -1,0 +1,80 @@
+openapi: '3.0.0'
+info:
+  version: 0.0.1
+  title: Veteran Verification
+  description: |
+
+    The Veteran Verification API allows you to confirm the Veteran status for a given person, or retrieve a Veteran's service history or disability rating.
+
+    When confirming Veteran Status, the Status endpoint will return "Confirmed" or "Not Confirmed".
+
+    ## Quickstart Guide
+
+    ### 1. Get Access Credentials
+
+    Get started by filling out the form on the [Apply for VA Lighthouse Developer Access](/apply) page. 
+    
+    After submitting a request, you will receive your credentials for using the API in the Development environment, which allows you to try it out with mock data before moving to the Production environment.
+    
+    ### 2. Test the  API
+    
+    In the endpoint documentation below, we've provided a curl command builder for trying out the API before implementation with your app.
+
+    ### 3. Build your app
+
+    The base URI for the Veteran Verification API in the Development environment is:
+
+    https://dev-api.va.gov/services/veteran_verification/v0
+
+    Check out some of our [sample apps](https://github.com/department-of-veterans-affairs/vets-api-clients/tree/master/samples/). Please visit our VA Lighthouse [Support portal](/support) should you need further assistance.
+
+    ### 4. Show us a quick demo and get set up in the Production environment
+
+    After building your app, we ask that you give us a quick demo before we set you up with production credentials. Please see the [Path to Production](/go-live) page for more details.
+
+    ## Authorization
+    This API uses the [OpenID Connect](https://openid.net/specs/openid-connect-core-1_0.html) standard (OAuth 2) to allow the person being confirmed to log in and provide digital consent. API requests are authorized using a Bearer token issued through an OpenID Connect service. The token should be submitted as an Authorization header in the form Bearer <token>.
+    
+    See our [Authorization Guide](/explore/verification/docs/authorization) for more details
+
+
+    ## Reference
+    
+    ### Development vs. Production Data
+    APIs accessed via the Development environment are using the same underlying logic as VA’s production APIs; only the underlying data store is different.
+  
+    ### Rate Limiting
+    We implemented basic rate limiting of 60 requests per minute. If you exceed this quota, your request will return a 429 status code. You may petition for increased rate limits by emailing, and requests will be decided on a case by case basis.
+    
+    ### Raw Open API Spec
+    https://api.va.gov/services/veteran_verification/docs/v0/veteran_verification
+  termsOfService: ''
+  contact:
+    name: VA.gov
+servers:
+  - url: https://dev-api.va.gov/services/veteran_verification/{version}
+    description: VA.gov API development environment
+    variables:
+      version:
+        default: v0
+  - url: https://staging-api.va.gov/services/veteran_verification/{version}
+    description: VA.gov API staging environment
+    variables:
+      version:
+        default: v0
+  - url: https://api.va.gov/services/veteran_verification/{version}
+    description: VA.gov API production environment
+    variables:
+      version:
+        default: v0
+paths:
+  /status: STATUS_DOC_PLACEHOLDER
+  /disability_rating: DISABILITY_RATING_DOC_PLACEHOLDER
+  /service_history: SERVICE_HISTORY_DOC_PLACEHOLDER
+components:
+  securitySchemes:
+    bearer_token:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas: SCHEMAS_PLACEHOLDER
