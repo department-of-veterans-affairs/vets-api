@@ -12,8 +12,6 @@ RSpec.describe 'EVSS Claims management', type: :request do
       'X-VA-SSN' => '796043735',
       'X-VA-First-Name' => 'WESLEY',
       'X-VA-Last-Name' => 'FORD',
-      'X-VA-EDIPI' => '1007697216',
-      'X-VA-User' => 'adhoc.test.user',
       'X-VA-Birth-Date' => '1986-05-06T00:00:00+00:00'
     }
   end

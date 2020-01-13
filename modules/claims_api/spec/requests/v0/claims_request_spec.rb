@@ -104,6 +104,7 @@ RSpec.describe 'EVSS Claims management', type: :request do
       'X-VA-First-Name' => 'Test',
       'X-VA-Last-Name' => 'Consumer',
       'X-VA-Birth-Date' => '11-11-1111',
+      'X-Consumer-Username' => 'test',
       'X-VA-LOA' => '3'
     }
 
