@@ -57,6 +57,7 @@ module ClaimsApi
       elsif !request.headers['X-Consumer-Username']
         log_message_to_sentry('Kong no longer sending X-Consumer-Username', :error,
                               body: request.body)
+        validate_headers(['X-Consumer-Username'])
       end
     end
 
