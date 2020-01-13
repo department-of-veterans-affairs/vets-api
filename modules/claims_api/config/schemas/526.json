@@ -53,7 +53,8 @@
               "pattern": "^\\d{5}?$"
             },
             "zipLastFour": {
-              "type": "string"
+              "type": "string",
+              "pattern": "^\\d{4}?$"
             },
             "internationalPostalCode": {
               "type": "string"
@@ -68,7 +69,8 @@
               ]
             },
             "state": {
-              "type": "string"
+              "type": "string",
+              "pattern": "^[a-z,A-Z]{2}$"
             }
           },
           "allOf": [
@@ -152,10 +154,12 @@
               "type": "string"
             },
             "zipFirstFive": {
-              "type": "string"
+              "type": "string",
+              "pattern": "^\\d{5}?$"
             },
             "zipLastFour": {
-              "type": "string"
+              "type": "string",
+              "pattern": "^\\d{4}?$"
             },
             "internationalPostalCode": {
               "type": "string"
@@ -176,7 +180,8 @@
               "type": "string"
             },
             "state": {
-              "type": "string"
+              "type": "string",
+              "pattern": "^[a-z,A-Z]{2}$"
             }
           },
           "allOf": [

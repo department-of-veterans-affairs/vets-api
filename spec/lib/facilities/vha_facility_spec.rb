@@ -88,7 +88,7 @@ RSpec.describe Facilities::VHAFacility do
 
       it 'includes websites for facilities' do
         VCR.use_cassette('facilities/va/vha_facilities_limit_results') do
-          expect(facility_2.website).to eq('http://www.maine.va.gov/')
+          expect(facility_2.website).to eq('https://www.maine.va.gov/locations/directions.asp')
         end
       end
 
