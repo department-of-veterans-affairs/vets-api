@@ -437,7 +437,7 @@ GEM
       mime-types-data (~> 3.2015)
     mime-types-data (3.2019.1009)
     mimemagic (0.3.3)
-    mini_magick (4.9.5)
+    mini_magick (4.10.1)
     mini_mime (1.0.2)
     mini_portile2 (2.4.0)
     minitest (5.13.0)
@@ -796,7 +796,7 @@ DEPENDENCIES
   liquid
   mail (= 2.7.1)
   memoist
-  mini_magick (~> 4.9.5)
+  mini_magick (~> 4.10.1)
   net-sftp
   nokogiri (~> 1.10, >= 1.10.4)
   oj
