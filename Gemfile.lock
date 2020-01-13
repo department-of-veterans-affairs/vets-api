@@ -24,10 +24,10 @@ GIT
 
 GIT
   remote: https://github.com/department-of-veterans-affairs/lighthouse-bgs.git
-  revision: 6a5166347f25361e33b7ade8af99d45e1b578a85
+  revision: dc83f57577299686c3e056c2c3b8fb79a7b2d51e
   branch: master
   specs:
-    lighthouse_bgs (0.5.0)
+    lighthouse_bgs (0.6.0)
       httpclient
       nokogiri (>= 1.8.5)
       savon (~> 2.12)
@@ -185,12 +185,10 @@ GEM
       encryptor (~> 3.0.0)
     awesome_print (1.8.0)
     awrence (1.1.0)
-    aws-eventstream (1.0.3)
-    aws-partitions (1.261.0)
-    aws-sdk-core (3.86.0)
-      aws-eventstream (~> 1.0, >= 1.0.2)
-      aws-partitions (~> 1, >= 1.239.0)
-      aws-sigv4 (~> 1.1)
+    aws-partitions (1.79.0)
+    aws-sdk-core (3.19.0)
+      aws-partitions (~> 1.0)
+      aws-sigv4 (~> 1.0)
       jmespath (~> 1.0)
     aws-sdk-kms (1.5.0)
       aws-sdk-core (~> 3)
@@ -199,18 +197,17 @@ GEM
       aws-sdk-core (~> 3)
       aws-sdk-kms (~> 1)
       aws-sigv4 (~> 1.0)
-    aws-sdk-sns (1.21.0)
-      aws-sdk-core (~> 3, >= 3.71.0)
-      aws-sigv4 (~> 1.1)
-    aws-sigv4 (1.1.0)
-      aws-eventstream (~> 1.0, >= 1.0.2)
+    aws-sdk-sns (1.1.0)
+      aws-sdk-core (~> 3)
+      aws-sigv4 (~> 1.0)
+    aws-sigv4 (1.0.2)
     axiom-types (0.1.1)
       descendants_tracker (~> 0.0.4)
       ice_nine (~> 0.11.0)
       thread_safe (~> 0.3, >= 0.3.1)
     benchmark-ips (2.7.2)
     bindex (0.8.1)
-    brakeman (4.7.1)
+    brakeman (4.7.2)
     breakers (0.3.0)
       faraday (>= 0.7.4, < 0.18)
       multi_json (~> 1.0)
@@ -610,7 +607,7 @@ GEM
       rubocop (>= 0.51.0)
     ruby-progressbar (1.10.1)
     ruby-rc4 (0.1.5)
-    ruby-saml (1.7.0)
+    ruby-saml (1.11.0)
       nokogiri (>= 1.5.10)
     ruby_dep (1.5.0)
     rubyzip (2.0.0)
