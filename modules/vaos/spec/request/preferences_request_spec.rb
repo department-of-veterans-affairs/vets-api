@@ -25,10 +25,33 @@ RSpec.describe 'preferences', type: :request do
   context 'with a loa3 user' do
     let(:user) { build(:user, :mhv) }
 
-    context 'with a valid GET preferences response' do
+    context 'with a valid GET preferences request' do
       it 'returns a 200 with the correct schema' do
         VCR.use_cassette('vaos/preferences/get_preferences', match_requests_on: %i[method uri]) do
           get '/v0/vaos/preferences'
+
+          expect(response).to have_http_status(:ok)
+          expect(response.body).to be_a(String)
+          expect(response).to match_response_schema('vaos/preferences')
+        end
+      end
+    end
+
+    context 'with a valid PUT preferences request', :skip_mvi do
+      let(:user) { build(:user, :vaos) }
+      let(:request_body) do
+        {
+          notification_frequency: 'Each new message',
+          email_allowed: true,
+          email_address: 'abraham.lincoln@va.gov',
+          text_msg_allowed: false,
+          text_msg_ph_number: ''
+        }
+      end
+
+      it 'returns a 200 with correct schema' do
+        VCR.use_cassette('vaos/preferences/put_preferences', match_requests_on: %i[method uri]) do
+          put '/v0/vaos/preferences', params: request_body
 
           expect(response).to have_http_status(:ok)
           expect(response.body).to be_a(String)

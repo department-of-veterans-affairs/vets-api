@@ -1,5 +1,7 @@
 inherit_from: .rubocop_todo.yml
 
+# in rakelib/lint.rake we require rubocop-thread_safety for the CI env only,
+# because codeclimate does not support rubocop-thread_safety
 require:
   - rubocop-rails
   - rubocop-rspec
@@ -67,7 +69,7 @@ Naming/VariableNumber:
 Style/ZeroLengthPredicate:
   Enabled: false
 
-Metrics/LineLength:
+Layout/LineLength:
   Max: 120
   Exclude:
     - 'Gemfile'
@@ -320,3 +322,7 @@ RSpec/SubjectStub:
     - 'spec/services/evss_claim_service_spec.rb'
     - 'spec/services/mhv_accounts_service_spec.rb'
     - 'spec/uploaders/evss_claim_document_uploader_spec.rb'
+
+# the default style recently changed, but it's not worth changing
+Rails/FilePath:
+  EnforcedStyle: arguments
