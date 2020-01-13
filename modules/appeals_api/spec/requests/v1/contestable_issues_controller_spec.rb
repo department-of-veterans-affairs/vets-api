@@ -1,6 +1,9 @@
 # frozen_string_literal: true
 
-describe AppealsApi::V1::ContestableIssuesController, type: :request do
+#require Rails.root.join(*%w[modules appeals_api app controllers appeals_api v1 contestable_issues_controller.rb])
+
+#describe AppealsApi::V1::ContestableIssuesController, type: :request do
+describe "test", type: :request do
   describe '#index' do
     it do
       get(
