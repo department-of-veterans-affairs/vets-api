@@ -40,12 +40,14 @@ module VAOS
         date_time: 5.days.from_now.utc.iso8601(3),
         duration: 30,
         booking_notes: 'Follow-up/Routine: abdominal pain',
-        site_code: '983',
-        clinic_id: '308',
-        clinicName: 'CHY PC KILPATRICK',
-        clinic_friendly_location_name: 'Green Team Clinic1',
-        institution_name: 'CHYSHR-Cheyenne VA Medical Center',
-        institution_code: '983'
+        clinic: {
+          site_code: '983',
+          clinic_id: '308',
+          clinic_name: 'CHY PC KILPATRICK',
+          clinic_friendly_location_name: 'Green Team Clinic1',
+          institution_name: 'CHYSHR-Cheyenne VA Medical Center',
+          institution_code: '983'
+        }
       }
 
       response = service.post_appointment(params)
