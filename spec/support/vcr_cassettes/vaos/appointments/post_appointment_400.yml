@@ -1,0 +1,108 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: https://internal-dsva-vagov-staging-fwdproxy-1821450725.us-gov-west-1.elb.amazonaws.com:4463/users/v2/session?processRules=true
+    body:
+      encoding: US-ASCII
+      string: eyJhbGciOiJSUzUxMiJ9.eyJhdXRoZW50aWNhdGVkIjp0cnVlLCJzdWIiOiIxMDEyODQ1MzMxVjE1MzA0MyIsImlkVHlwZSI6IklDTiIsImlzcyI6Imdvdi52YS52YW9zIiwiZmlyc3ROYW1lIjoiSnVkeSIsImxhc3ROYW1lIjoiTW9ycmlzb24iLCJhdXRoZW50aWNhdGlvbkF1dGhvcml0eSI6Imdvdi52YS5pYW0uc3NvZS52MSIsImp0aSI6ImViMmFhOTgwLTQyMDgtNDU5YS1iYzc5LWUyMzY4MDUyYjhlYiIsIm5iZiI6MTU3OTAzMDU1NCwiZXhwIjoxNTc5MDMxNTE0LCJzc3QiOjE1NzkwMzA2MDQsInZlcnNpb24iOjIuMSwiZ2VuZGVyIjoiRkVNQUxFIiwiZG9iIjoiMTk1My0wNC0wMSIsImRhdGVPZkJpcnRoIjoiMTk1My0wNC0wMSIsImVkaXBpZCI6IjEyNTk4OTc5NzgiLCJzc24iOiI3OTYwNjE5NzYifQ.XhAu7fugqh63Goh98sc1x1t3cVDruntwKJDaNPSAQATtfvszUZNiRqOvEAiDcsq5yC2haOvijxZbgJsrbjrnWNm087qfrZ-esVGbCx-MA1XZ8K74YO4KAh14Ww7nMsZsZjY8-y5gOOw0oJGALoUPRz_EuiqSAVEkEu60X5YfuA9TVnj-imuCDVTbpN25ieWskUCg9sf3eIkYpOOrqNgtQg-vVFqrFrr_72S_B8Os6MWMeN_3ozk5v40McjhAwcMgbp0vg4gARdLehtxgrS6ZMPyql_cqUTMiWbizrpRVZDtLoBJpryZ_wposs6EGlLaI6vD7XfQwrYLIq7Cz_e_1TR9uusZZPRNhP7OSjdheMcYEqhGfQcsxe3WVDGRd-hSGFyWjfWtORrF3u-yFC3MOG7eA4NHfYsqUiq--LTqKTKUvXpAyQJOxAIsPRc9olIgPe1zQ9dtQLVHlF0eBRynwDHtz-5czwzLDGfe38lQCHg3cX95MpmNW4XB1aPolk7mnAUnVeYitaNnw7cr7xX9Dl6Joxdy4AA199S-K6x1VwscSCR_OkHroqQ91Lfuk5uawc36sDkvcFliOY2Std8too6-DIbxyMxT8yVDDN9bqKKwnbMNaqjR63WbHid_9eGnwQcmngwvuxBr-l_CKXCRPsNKyVc1jGTg3wLNvJ46AK44
+    headers:
+      Content-Type:
+      - text/plain
+      Referer:
+      - https://api.va.gov
+      User-Agent:
+      - Faraday v0.17.0
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Tue, 14 Jan 2020 19:36:54 GMT
+      Content-Type:
+      - text/plain
+      Content-Length:
+      - '1668'
+      Server:
+      - openresty
+      X-B3-Parentspanid:
+      - c2e4c1e7f55ad5da
+      X-Vamf-Version:
+      - 2.7.6
+      Cache-Control:
+      - no-store
+      X-B3-Traceid:
+      - c2e4c1e7f55ad5da
+      Access-Control-Allow-Headers:
+      - x-vamf-jwt
+      X-Vamf-Build:
+      - a9b4506
+      X-B3-Sampled:
+      - '0'
+      X-Vamf-Timestamp:
+      - '2020-01-09T21:46:51+0000'
+      Access-Control-Allow-Origin:
+      - "*.va.gov"
+      X-B3-Spanid:
+      - 73ffe73fccb03305
+      Access-Control-Allow-Methods:
+      - GET,OPTIONS
+      Access-Control-Max-Age:
+      - '3600'
+      Strict-Transport-Security:
+      - max-age=63072000; includeSubDomains; preload
+    body:
+      encoding: UTF-8
+      string: eyJhbGciOiJSUzUxMiJ9.eyJsYXN0TmFtZSI6Ik1vcnJpc29uIiwic3ViIjoiMTAxMjg0NTMzMVYxNTMwNDMiLCJhdXRoZW50aWNhdGVkIjp0cnVlLCJhdXRoZW50aWNhdGlvbkF1dGhvcml0eSI6Imdvdi52YS52YW9zIiwiaWRUeXBlIjoiSUNOIiwiZ2VuZGVyIjoiRkVNQUxFIiwiaXNzIjoiZ292LnZhLnZhbWYudXNlcnNlcnZpY2UudjEiLCJ2YW1mLmF1dGgucmVzb3VyY2VzIjpbIl4uKihcLyk_c2l0ZVtzXT9cLyhkZm4tKT85ODRcL3BhdGllbnRbc10_XC81NTIxNjEwNTBcL2FwcG9pbnRtZW50cyhcLy4qKT8kIiwiXi4qKFwvKT9zaXRlW3NdP1wvKGRmbi0pPzk4M1wvcGF0aWVudFtzXT9cLzcyMTY2OTFcL2FwcG9pbnRtZW50cyhcLy4qKT8kIiwiXi4qKFwvKT9wYXRpZW50W3NdP1wvKElDTlwvKT8xMDEyODQ1MzMxVjE1MzA0MyhcLy4qKT8kIl0sImRhdGVPZkJpcnRoIjoiMTk1My0wNC0wMSIsInZlcnNpb24iOjIuMSwiZWRpcGlkIjoiMTI1OTg5Nzk3OCIsInZpc3RhSWRzIjpbeyJwYXRpZW50SWQiOiI1NTIxNjEwNTAiLCJzaXRlSWQiOiI5ODQifSx7InBhdGllbnRJZCI6IjcyMTY2OTEiLCJzaXRlSWQiOiI5ODMifV0sInNzbiI6Ijc5NjA2MTk3NiIsImZpcnN0TmFtZSI6Ikp1ZHkiLCJzdGFmZkRpc2NsYWltZXJBY2NlcHRlZCI6dHJ1ZSwibmJmIjoxNTc5MDMwNDM0LCJzc3QiOjE1NzkwMzA2MTQsInBhdGllbnQiOnsiZmlyc3ROYW1lIjoiSnVkeSIsImxhc3ROYW1lIjoiTW9ycmlzb24iLCJnZW5kZXIiOiJGRU1BTEUiLCJpY24iOiIxMDEyODQ1MzMxVjE1MzA0MyIsImRvYiI6IjE5NTMtMDQtMDEiLCJkYXRlT2ZCaXJ0aCI6IjE5NTMtMDQtMDEiLCJzc24iOiI3OTYwNjE5NzYifSwiZG9iIjoiMTk1My0wNC0wMSIsInZhbWYuYXV0aC5yb2xlcyI6WyJ2ZXRlcmFuIl0sInJpZ2h0T2ZBY2Nlc3NBY2NlcHRlZCI6dHJ1ZSwiZXhwIjoxNTc5MDMxNTE0LCJqdGkiOiJlYjJhYTk4MC00MjA4LTQ1OWEtYmM3OS1lMjM2ODA1MmI4ZWIiLCJsb2EiOjJ9.D43thKbaMJ5B61lnoLC0tLxhpVhwhOTWhUbfwwBUCyn8kjpGANPY_fp-buxjjvlz_HCuy9QqJIukiU8mZRZ-dI2y9pWKHH3c8ffqabCwm6ux8kFzENmXZJOXtfOF9nxTxSMB6OUrevbRI38DE2AKGNTtCAlCpIYan2ui-HD-3Lnv4tG47VtvxZEAvwI8HqkE-kHKiUXWJRE3yW4zWTMwHpbHIq6C_UGPYqxJz0htV08ExhHdxM0H6NUogA7SlSZIB_9nzLw1QnFDVipt5myUZgaR1_3-u7CuYFQ-t1Ki8yfQz2OW4dyS9vKXGwFCHnWNRhr2qfltvEMc_ZR3F0bH-A
+    http_version: 
+  recorded_at: Tue, 14 Jan 2020 19:36:54 GMT
+- request:
+    method: post
+    uri: https://internal-dsva-vagov-staging-fwdproxy-1821450725.us-gov-west-1.elb.amazonaws.com:4463/var/VeteranAppointmentRequestService/v4/rest/direct-scheduling/site/Invalid/patient/ICN/1012845331V153043/booked-appointments
+    body:
+      encoding: UTF-8
+      string: '{"schedulingRequestType":"NEXT_AVAILABLE_APPT","type":"REGULAR","appointmentKind":"TRADITIONAL","schedulingMethod":"direct","apptType":"P","purpose":"9","lvl":"1","ekg":"","lab":"","xRay":"","desiredDate":"2020-02-06T00:00:00.000+00:00","dateTime":"2020-02-06T21:00:00.000+00:00","duration":30,"bookingNotes":"Follow-up/Routine:
+        abdominal pain","clinic":{"siteCode":"Invalid","clinicId":"Invalid","clinicName":"Invalid","clinicFriendlyLocationName":"Invalid","institutionName":"Invalid","institutionCode":"Invalid"},"patients":{"patient":[{"id":{"uniqueId":"1012845331V153043","assigningAuthority":"ICN"},"name":{"firstName":"JUDY","lastName":"MORRISON"},"contactInformation":{"preferredEmail":"test@va.gov","timeZone":"America/Denver"},"location":{"type":"VA","facility":{"name":"Invalid","siteCode":"Invalid","timeZone":"America/Denver"},"clinic":{"ien":"Invalid","name":"Invalid"}}}]},"direct":{"purpose":"Follow-up/Routine:
+        abdominal pain","desiredDate":"02/06/2020 00:00:00","dateTime":"02/06/2020
+        21:00:00","apptLength":30},"providers":{"provider":[{"location":{"type":"VA"}}]}}'
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Referer:
+      - https://api.va.gov
+      X-Vamf-Jwt:
+      - eyJhbGciOiJSUzUxMiJ9.eyJsYXN0TmFtZSI6Ik1vcnJpc29uIiwic3ViIjoiMTAxMjg0NTMzMVYxNTMwNDMiLCJhdXRoZW50aWNhdGVkIjp0cnVlLCJhdXRoZW50aWNhdGlvbkF1dGhvcml0eSI6Imdvdi52YS52YW9zIiwiaWRUeXBlIjoiSUNOIiwiZ2VuZGVyIjoiRkVNQUxFIiwiaXNzIjoiZ292LnZhLnZhbWYudXNlcnNlcnZpY2UudjEiLCJ2YW1mLmF1dGgucmVzb3VyY2VzIjpbIl4uKihcLyk_c2l0ZVtzXT9cLyhkZm4tKT85ODRcL3BhdGllbnRbc10_XC81NTIxNjEwNTBcL2FwcG9pbnRtZW50cyhcLy4qKT8kIiwiXi4qKFwvKT9zaXRlW3NdP1wvKGRmbi0pPzk4M1wvcGF0aWVudFtzXT9cLzcyMTY2OTFcL2FwcG9pbnRtZW50cyhcLy4qKT8kIiwiXi4qKFwvKT9wYXRpZW50W3NdP1wvKElDTlwvKT8xMDEyODQ1MzMxVjE1MzA0MyhcLy4qKT8kIl0sImRhdGVPZkJpcnRoIjoiMTk1My0wNC0wMSIsInZlcnNpb24iOjIuMSwiZWRpcGlkIjoiMTI1OTg5Nzk3OCIsInZpc3RhSWRzIjpbeyJwYXRpZW50SWQiOiI1NTIxNjEwNTAiLCJzaXRlSWQiOiI5ODQifSx7InBhdGllbnRJZCI6IjcyMTY2OTEiLCJzaXRlSWQiOiI5ODMifV0sInNzbiI6Ijc5NjA2MTk3NiIsImZpcnN0TmFtZSI6Ikp1ZHkiLCJzdGFmZkRpc2NsYWltZXJBY2NlcHRlZCI6dHJ1ZSwibmJmIjoxNTc5MDMwNDM0LCJzc3QiOjE1NzkwMzA2MTQsInBhdGllbnQiOnsiZmlyc3ROYW1lIjoiSnVkeSIsImxhc3ROYW1lIjoiTW9ycmlzb24iLCJnZW5kZXIiOiJGRU1BTEUiLCJpY24iOiIxMDEyODQ1MzMxVjE1MzA0MyIsImRvYiI6IjE5NTMtMDQtMDEiLCJkYXRlT2ZCaXJ0aCI6IjE5NTMtMDQtMDEiLCJzc24iOiI3OTYwNjE5NzYifSwiZG9iIjoiMTk1My0wNC0wMSIsInZhbWYuYXV0aC5yb2xlcyI6WyJ2ZXRlcmFuIl0sInJpZ2h0T2ZBY2Nlc3NBY2NlcHRlZCI6dHJ1ZSwiZXhwIjoxNTc5MDMxNTE0LCJqdGkiOiJlYjJhYTk4MC00MjA4LTQ1OWEtYmM3OS1lMjM2ODA1MmI4ZWIiLCJsb2EiOjJ9.D43thKbaMJ5B61lnoLC0tLxhpVhwhOTWhUbfwwBUCyn8kjpGANPY_fp-buxjjvlz_HCuy9QqJIukiU8mZRZ-dI2y9pWKHH3c8ffqabCwm6ux8kFzENmXZJOXtfOF9nxTxSMB6OUrevbRI38DE2AKGNTtCAlCpIYan2ui-HD-3Lnv4tG47VtvxZEAvwI8HqkE-kHKiUXWJRE3yW4zWTMwHpbHIq6C_UGPYqxJz0htV08ExhHdxM0H6NUogA7SlSZIB_9nzLw1QnFDVipt5myUZgaR1_3-u7CuYFQ-t1Ki8yfQz2OW4dyS9vKXGwFCHnWNRhr2qfltvEMc_ZR3F0bH-A
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 400
+      message: Bad Request
+    headers:
+      Date:
+      - Tue, 14 Jan 2020 19:36:55 GMT
+      Content-Type:
+      - application/json;charset=UTF-8
+      Content-Length:
+      - '313'
+      Server:
+      - openresty
+    body:
+      encoding: UTF-8
+      string: This appointment cannot be booked using VA Online Scheduling.  Please
+        contact the site directly to schedule your appointment and advise them to
+        <b>contact the VAOS Support Team for assistance with Clinic configuration.</b>
+        <a class="external-link" href="https://www.va.gov/find-locations/">VA Facility
+        Locator</a>
+    http_version: 
+  recorded_at: Tue, 14 Jan 2020 19:36:55 GMT
+recorded_with: VCR 5.0.0

@@ -9,12 +9,12 @@ describe VAOS::AppointmentService do
   let(:start_date) { Time.zone.parse('2019-11-14T07:00:00Z') }
   let(:end_date) { Time.zone.parse('2020-03-14T08:00:00Z') }
 
-  before { allow_any_instance_of(VAOS::UserService).to receive(:session).and_return('stubbed_token') }
+  # before { allow_any_instance_of(VAOS::UserService).to receive(:session).and_return('stubbed_token') }
 
   describe '#post_appointment' do
     context 'when request is ineligible' do
       let(:request_body) {
-        FactoryBot.build(:vaos_appointment, :ineligible).attributes
+        FactoryBot.build(:appointment_form, :ineligible).attributes
       }
 
       it 'returns a 409 Conflict' do
@@ -28,7 +28,7 @@ describe VAOS::AppointmentService do
 
     context 'when request is invalid' do
       let(:request_body) {
-        FactoryBot.build(:vaos_appointment, :invalid).attributes
+        FactoryBot.build(:appointment_form, :invalid).attributes
       }
 
       it 'returns an error' do
@@ -42,7 +42,7 @@ describe VAOS::AppointmentService do
 
     context 'when request is valid' do
       let(:request_body) {
-        FactoryBot.build(:vaos_appointment, :eligible).attributes
+        FactoryBot.build(:appointment_form, :eligible).attributes
       }
 
       it 'returns the created appointment' do
