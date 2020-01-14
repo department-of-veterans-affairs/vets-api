@@ -162,6 +162,7 @@ module V0
       Swagger::Schemas::Appeals::HigherLevelReviewRequest,
       Swagger::Schemas::Appeals::HigherLevelReview,
       Swagger::Schemas::Appeals::IntakeStatus,
+      Swagger::Schemas::Appeals::ContestableIssues,
       Swagger::Schemas::AsyncTransaction::Vet360,
       Swagger::Schemas::BB::HealthRecords,
       Swagger::Schemas::Countries,

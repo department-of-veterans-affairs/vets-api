@@ -1716,6 +1716,12 @@ en:
         detail: A request issue cannot be empty
         code: DR_request_issue_cannot_be_empty
         status: 422
+      DR_bad_receipt_date:
+        <<: *defaults
+        title: Bad receipt date
+        detail: Receipt date is invalid
+        code: DR_bad_receipt_date
+        status: 422
       DR_request_issue_category_invalid_for_benefit_type:
         <<: *defaults
         title: Request Issue Category Invalid for Benefit Type

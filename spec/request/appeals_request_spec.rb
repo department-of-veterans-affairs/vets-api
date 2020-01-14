@@ -143,7 +143,7 @@ RSpec.describe 'Appeals Status', type: :request do
         end
       end
 
-      context 'with a bad receipt date' do
+      context 'bad receipt date' do
         it 'returns 422' do
           VCR.use_cassette('decision_review/422_contestable_issues') do
             get '/v0/appeals/contestable_issues'
