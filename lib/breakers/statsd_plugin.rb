@@ -5,22 +5,7 @@ module Breakers
     def get_tags(request)
       tags = []
       if request
-        if request.url&.path
-          # replace identifiers with 'xxx'
-          # this nasty-looking regex attempts to cover:
-          # * (possibly negative) digit identifiers
-          # * uuid's with or without dashes
-          # * institution id's of form 111A2222 or 11A22222
-          digit = /\-?\d+/
-          contact_id = /\d{10}V\d{6}(%5ENI%5E200M%5EUSVHA)*/
-          uuids = /[a-fA-F0-9]{8}(\-?[a-fA-F0-9]{4}){3}\-?[a-fA-F0-9]{12}/
-          institution_ids = /[\dA-Z]{8}/
-          provider_ids = /Providers\(\d{10}\)/
-          r = %r{(\/)(#{digit}|#{contact_id}|#{uuids}|#{institution_ids}|#{provider_ids})(\/|$)}
-          endpoint = request.url.path.gsub(r, '\1xxx\5')
-          tags.append("endpoint:#{endpoint}")
-        end
-
+        tags.append("endpoint:#{filtered_endpoint_tag(request.url.path)}") if request.url&.path
         tags.append("method:#{request.method}") if request.method
       end
       tags
@@ -45,6 +30,31 @@ module Breakers
       if response_env && response_env[:duration]
         StatsD.measure(metric_base + 'time', response_env[:duration], tags: tags)
       end
+    end
+
+    private
+
+    def filtered_endpoint_tag(path)
+      # replace identifiers with 'xxx'
+      # this nasty-looking regex attempts to cover:
+      # * (possibly negative) digit identifiers
+      # * uuid's with or without dashes
+      # * institution id's of form 111A2222 or 11A22222
+      digit = /\-?\d+/
+      contact_id = /\d{10}V\d{6}(%5ENI%5E200M%5EUSVHA)*/
+      uuids = /[a-fA-F0-9]{8}(\-?[a-fA-F0-9]{4}){3}\-?[a-fA-F0-9]{12}/
+      institution_ids = /[\dA-Z]{8}/
+      provider_ids = /Providers\(\d{10}\)/
+      v1_user_ids_1 = /[0-9a-f]{22}$/ # e.g. /api/v1/users/bb9c0f499977be68611151
+      v1_user_ids_2 = /00u2[0-9a-zA-Z]{16}/ # e.g. /api/v1/users/00u2gskfa6kXUvU0N792
+
+      r = %r{
+        (\/)
+        (#{digit}|#{contact_id}|#{uuids}|#{institution_ids}|#{provider_ids}|#{v1_user_ids_1}|#{v1_user_ids_2})
+        (\/|$)
+      }x
+
+      path.gsub(r, '\1xxx\5')
     end
   end
 end
