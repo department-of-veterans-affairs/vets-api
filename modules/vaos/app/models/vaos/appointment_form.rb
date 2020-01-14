@@ -32,8 +32,8 @@ module VAOS
       raise Common::Exceptions::ValidationErrors, self unless valid?
 
       attributes.compact
-               .except(:preferred_email, :time_zone)
-               .merge(patients: patients, direct: direct, providers: providers)
+                .except(:preferred_email, :time_zone)
+                .merge(patients: patients, direct: direct, providers: providers)
     end
 
     private
@@ -66,36 +66,40 @@ module VAOS
             unique_id: @user.icn,
             assigning_authority: 'ICN'
           },
-          name: {
-            first_name: @user.first_name,
-            last_name: @user.last_name
-          },
-          contact_information: {
-            preferred_email: preferred_email,
-            time_zone: time_zone
-          },
-          location: {
-            type: 'VA',
-            facility: {
-              name: clinic[:institution_name],
-              site_code: clinic[:site_code],
-              time_zone: (clinic[:time_zone] || time_zone),
-            },
-            clinic: {
-              ien: clinic[:clinic_id],
-              name: clinic[:clinic_name]
-            }
-          }
+          name: name,
+          contact_information: contact_information,
+          location: location
         ]
       }
     end
 
-    def first_name
-      @user.mvi&.profile&.given_names&.first
+    def contact_information
+      {
+        preferred_email: preferred_email,
+        time_zone: time_zone
+      }
     end
 
-    def last_name
-      @user.mvi&.profile&.family_name
+    def location
+      {
+        type: 'VA',
+        facility: {
+          name: clinic[:institution_name],
+          site_code: clinic[:site_code],
+          time_zone: (clinic[:time_zone] || time_zone)
+        },
+        clinic: {
+          ien: clinic[:clinic_id],
+          name: clinic[:clinic_name]
+        }
+      }
+    end
+
+    def name
+      {
+        first_name: @user.mvi&.profile&.given_names&.first,
+        last_name: @user.mvi&.profile&.family_name
+      }
     end
   end
 end

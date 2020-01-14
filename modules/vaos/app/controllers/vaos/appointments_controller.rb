@@ -9,7 +9,7 @@ module VAOS
     end
 
     def create
-      response = appointment_service.post_appointment(create_params)
+      appointment_service.post_appointment(create_params)
       head :no_content # There is no id associated with the created resource, so no point returning a response body
     end
 
@@ -26,12 +26,11 @@ module VAOS
 
     def create_params
       params.permit(:scheduling_request_type, :type, :appointment_kind, :scheduling_method, :appt_type, :purpose, :lvl,
-        :ekg, :lab, :x_ray, :desired_date, :date_time, :duration, :booking_notes, :preferred_email, :time_zone,
-        clinic: [
-          :site_code, :clinic_id, :clinic_name, :clinic_friendly_location_name,
-          :institution_name, :institution_code, :time_zone
-        ]
-      )
+                    :ekg, :lab, :x_ray, :desired_date, :date_time, :duration, :booking_notes, :preferred_email,
+                    :time_zone, clinic: %i[
+                      site_code clinic_id clinic_name clinic_friendly_location_name
+                      institution_name institution_code time_zone
+                    ])
     end
 
     def appointment_service

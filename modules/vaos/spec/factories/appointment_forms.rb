@@ -21,8 +21,8 @@ FactoryBot.define do
       x_ray { '' }
       preferred_email { 'test@va.gov' }
       time_zone { 'America/Denver' }
-      desired_date { DateTime.new(2020, 01, 31, 00, 00, 0).iso8601(3) }
-      date_time { DateTime.new(2020, 01, 31, 21, 00, 0).iso8601(3) }
+      desired_date { DateTime.new(2020, 0o1, 31, 0o0, 0o0, 0).iso8601(3) }
+      date_time { DateTime.new(2020, 0o1, 31, 21, 0o0, 0).iso8601(3) }
       duration { 30 }
       booking_notes { 'Follow-up/Routine: abdominal pain' }
       clinic do
@@ -40,15 +40,15 @@ FactoryBot.define do
     trait :eligible do
       ineligible
 
-      desired_date { DateTime.new(2020, 02, 07, 00, 00, 0).iso8601(3) }
-      date_time { DateTime.new(2020, 02, 07, 21, 00, 0).iso8601(3) }
+      desired_date { DateTime.new(2020, 0o2, 0o7, 0o0, 0o0, 0).iso8601(3) }
+      date_time { DateTime.new(2020, 0o2, 0o7, 21, 0o0, 0).iso8601(3) }
     end
 
     trait :invalid do
       ineligible
 
-      desired_date { DateTime.new(2020, 02, 06, 00, 00, 0).iso8601(3) }
-      date_time { DateTime.new(2020, 02, 06, 21, 00, 0).iso8601(3) }
+      desired_date { DateTime.new(2020, 0o2, 0o6, 0o0, 0o0, 0).iso8601(3) }
+      date_time { DateTime.new(2020, 0o2, 0o6, 21, 0o0, 0).iso8601(3) }
       clinic do
         {
           site_code: 'Invalid',

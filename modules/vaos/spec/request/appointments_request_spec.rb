@@ -153,11 +153,11 @@ RSpec.describe 'vaos appointments', type: :request, skip_mvi: true do
     end
 
     describe 'POST appointments' do
-      let(:error_detail) {
+      let(:error_detail) do
         'This appointment cannot be booked using VA Online Scheduling.  Please contact the site directly to schedule ' \
         'your appointment and advise them to <b>contact the VAOS Support Team for assistance with Clinic configuratio' \
         'n.</b> <a class="external-link" href="https://www.va.gov/find-locations/">VA Facility Locator</a>'
-      }
+      end
 
       context 'with flipper disabled' do
         it 'does not have access' do

@@ -13,9 +13,9 @@ describe VAOS::AppointmentService do
 
   describe '#post_appointment' do
     context 'when request is mal-formed' do
-      let(:request_body) {
+      let(:request_body) do
         FactoryBot.build(:appointment_form, :ineligible).attributes
-      }
+      end
 
       it 'returns a 400 Bad Request' do
         VCR.use_cassette('vaos/appointments/post_appointment_400', match_requests_on: %i[method uri]) do
@@ -28,9 +28,9 @@ describe VAOS::AppointmentService do
     end
 
     context 'when request is in conflict' do
-      let(:request_body) {
+      let(:request_body) do
         FactoryBot.build(:appointment_form, :ineligible).attributes
-      }
+      end
 
       it 'returns a 400 Bad Request for 409 conlicts as well' do
         VCR.use_cassette('vaos/appointments/post_appointment_409', match_requests_on: %i[method uri]) do
@@ -43,9 +43,9 @@ describe VAOS::AppointmentService do
     end
 
     context 'when request is valid' do
-      let(:request_body) {
+      let(:request_body) do
         FactoryBot.build(:appointment_form, :eligible).attributes
-      }
+      end
 
       it 'returns the created appointment' do
         VCR.use_cassette('vaos/appointments/post_appointment', match_requests_on: %i[method uri]) do

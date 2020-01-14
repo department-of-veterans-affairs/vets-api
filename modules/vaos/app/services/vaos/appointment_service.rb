@@ -94,7 +94,7 @@ module VAOS
     end
 
     def post_appointment_url(site)
-      "/var/VeteranAppointmentRequestService/v4/rest/direct-scheduling/site/#{site}" +
+      "/var/VeteranAppointmentRequestService/v4/rest/direct-scheduling/site/#{site}" \
         "/patient/ICN/#{user.icn}/booked-appointments"
     end
 
