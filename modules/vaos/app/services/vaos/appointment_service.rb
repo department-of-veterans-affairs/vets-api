@@ -22,7 +22,35 @@ module VAOS
 
     def self.test
       user = FactoryBot.build(:user, :vaos)
-      for_user(user)
+      service = for_user(user)
+      params = {
+        appointment_type: 'Primary Care',
+        scheduling_request_type: 'NEXT_AVAILABLE_APPT',
+        type: 'REGULAR',
+        appointment_kind: 'TRADITIONAL',
+        desired_date: 5.days.from_now.utc.iso8601(3),
+        date_time: 5.days.from_now.utc.iso8601(3),
+        duration: 20,
+        booking_notes: 'tummy hurts',
+        patient_information: {
+          preferred_email: 'abraham.lincoln@va.gov',
+          time_zone: 'America/Denver'
+        },
+        appointment_location: {
+          type: 'VA',
+          facility: {
+            name: 'CHYSHR-Cheyenne VA Medical Center',
+            site_code: '983',
+            time_zone: 'America/Denver'
+          },
+          clinic: {
+            ien: '308',
+            name: 'CHY PC KILPATRICK'
+          }
+        }
+      }
+      binding.pry
+      response = service.post_appointment(VAOS::AppointmentForm.new(user, params).params)
     end
 
     def get_appointments(type, start_date, end_date, pagination_params = {})
@@ -38,8 +66,7 @@ module VAOS
     end
 
     def post_appointment(request_object_body)
-      # params = VAOS::AppointmentForm.new(user, request_object_body).params
-      params = VAOS::AppointmentForm.new(user, {}).test_data
+      params = VAOS::AppointmentForm.new(user, request_object_body).params
       site_codes = params.dig(:patients, :patient).map { |patient| patient.dig(:location, :facility, :site_code) }
 
       # if site_codes ever has more than one value, we might want to log it and investigate or something... Why is

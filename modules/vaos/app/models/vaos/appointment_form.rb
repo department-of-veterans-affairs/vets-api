@@ -10,8 +10,8 @@ module VAOS
     attribute :scheduling_request_type, String
     attribute :type, String
     attribute :appointment_kind, String
-    attribute :desired_date, Common::ISO8601Time
-    attribute :date_time, Common::ISO8601Time
+    attribute :desired_date, String
+    attribute :date_time, String
     attribute :duration, Integer
     attribute :booking_notes, String
     attribute :patient_information, Hash
@@ -28,37 +28,6 @@ module VAOS
       attributes.compact
                .except(:patient_information, :appointment_location)
                .merge(patients: patients)
-    end
-
-    def self.test_data
-      data = {
-        appointment_type: 'Primary Care',
-        scheduling_request_type: 'NEXT_AVAILABLE_APPT',
-        type: 'REGULAR',
-        appointment_kind: 'TRADITIONAL',
-        desired_date: 5.days.from_now.utc.iso8601,
-        date_time: 5.days.from_now.utc.iso8601,
-        duration: 20,
-        booking_notes: 'tummy hurts',
-        patient_information: {
-          preferred_email: 'abraham.lincoln@va.gov',
-          time_zone: 'America/Denver'
-        },
-        appointment_location: {
-          type: 'VA',
-          facility: {
-            name: 'CHYSHR-Cheyenne VA Medical Center',
-            site_code: '983',
-            time_zone: 'America/Denver'
-          },
-          clinic: {
-            ien: '308',
-            name: 'CHY PC KILPATRICK'
-          }
-        }
-      }
-
-      self.new(FactoryBot.build(:user, :vaos), data)
     end
 
     private
