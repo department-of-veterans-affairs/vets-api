@@ -13,6 +13,7 @@ describe AppealsApi::V1::DecisionReview::ContestableIssuesController, type: :req
         }
       )
       json = JSON.parse(response.body)
+      expect(json).to eq ""
       expect(json).not_to eq(
         "errors" => [{ "code" => "401", "detail" => "Not authorized", "status" => "401", "title" => "Not authorized" }]
         )
