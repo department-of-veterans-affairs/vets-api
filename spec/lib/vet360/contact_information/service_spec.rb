@@ -245,7 +245,7 @@ describe Vet360::ContactInformation::Service, skip_vet360: true do
       let(:transaction_id) { 'e0c79288-ce0b-43b5-adb0-94c8ff667da5' }
 
       it 'returns a status of 200' do
-        VCR.use_cassette('vet360/contact_information/telephone_transaction_status', record: :new_episodes) do
+        VCR.use_cassette('vet360/contact_information/telephone_transaction_status', VCR::MATCH_EVERYTHING) do
           response = subject.get_telephone_transaction_status(transaction_id)
           expect(response).to be_ok
           expect(response.transaction).to be_a(Vet360::Models::Transaction)

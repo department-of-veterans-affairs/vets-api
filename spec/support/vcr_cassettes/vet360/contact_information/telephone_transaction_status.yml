@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri: https://int.vet360.va.gov/contact-information-hub/cuf/contact-information/v1/1/telephones/status/a50193df-f4d5-4b6a-b53d-36fed2db1a15
+    uri: https://int.vet360.va.gov/contact-information-hub/cuf/contact-information/v1/1/telephones/status/e0c79288-ce0b-43b5-adb0-94c8ff667da5
     body:
       encoding: US-ASCII
       string: ''
@@ -19,15 +19,15 @@ http_interactions:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
   response:
     status:
-      code: 404
+      code: 200
       message: ''
     headers:
       Date:
-      - Fri, 10 Jan 2020 20:54:33 GMT
+      - Tue, 14 Jan 2020 07:34:47 GMT
       Expires:
       - '0'
       Vet360txauditid:
-      - '079f0fc8-27a2-47d1-8948-ddedd012dd91'
+      - 0637c377-ee08-4b27-ab11-19bbd24176e1
       X-Frame-Options:
       - DENY
       Pragma:
@@ -44,12 +44,12 @@ http_interactions:
       Content-Type:
       - application/json;charset=UTF-8
       Content-Length:
-      - '236'
+      - '708'
     body:
       encoding: UTF-8
-      string: '{"messages":[{"code":"CORE103","key":"_CUF_NOT_FOUND","severity":"ERROR","text":"The
-        tx for id/criteria a50193df-f4d5-4b6a-b53d-36fed2db1a15 could not be found.
-        Please correct your request and try again!"}],"status":"COMPLETED_FAILURE"}'
+      string: '{"txAuditId":"e0c79288-ce0b-43b5-adb0-94c8ff667da5","status":"COMPLETED_SUCCESS","txStatus":"COMPLETED_FAILURE","txType":"PUSH","txInteractionType":"ATTENDED","txPushInput":{"internationalIndicator":false,"phoneType":"MOBILE","countryCode":"1","areaCode":"303","phoneNumber":"5551234","textMessageCapableInd":true,"textMessagePermInd":true,"voiceMailAcceptableInd":true,"ttyInd":true,"sourceDate":"2018-04-09T17:52:03Z","originatingSourceSystem":"VETSGOV","sourceSystemUser":"1234","vet360Id":1},"txMessages":[{"code":"PHON301","key":"TelephoneType","severity":"ERROR","text":"Cannot
+        insert a record for a phone type that already exists. Pull the phone record
+        and update it using the telphoneId provided."}]}'
     http_version: 
-  recorded_at: Fri, 10 Jan 2020 20:54:34 GMT
+  recorded_at: Tue, 14 Jan 2020 07:34:47 GMT
 recorded_with: VCR 5.0.0
