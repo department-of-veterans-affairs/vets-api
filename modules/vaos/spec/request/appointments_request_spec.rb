@@ -153,6 +153,12 @@ RSpec.describe 'vaos appointments', type: :request, skip_mvi: true do
     end
 
     describe 'POST appointments' do
+      let(:error_detail) {
+        'This appointment cannot be booked using VA Online Scheduling.  Please contact the site directly to schedule ' \
+        'your appointment and advise them to <b>contact the VAOS Support Team for assistance with Clinic configuratio' \
+        'n.</b> <a class="external-link" href="https://www.va.gov/find-locations/">VA Facility Locator</a>'
+      }
+
       context 'with flipper disabled' do
         it 'does not have access' do
           Flipper.disable('va_online_scheduling')
@@ -164,18 +170,25 @@ RSpec.describe 'vaos appointments', type: :request, skip_mvi: true do
         end
       end
 
-      context 'when request body validation fails' do
-        it 'returns validation failed' do
-          post '/v0/vaos/appointments'
+      context 'when appointment cannot be created due to conflict' do
+        let(:request_body) do
+          FactoryBot.build(:appointment_form, :ineligible).attributes
+        end
 
-          expect(response).to have_http_status(:unprocessable_entity)
-          expect(JSON.parse(response.body)['errors'].size).to eq(2)
+        it 'returns bad request with detail in errors' do
+          VCR.use_cassette('vaos/appointments/post_appointment_409', match_requests_on: %i[method uri]) do
+            post '/v0/vaos/appointments', params: request_body
+
+            expect(response).to have_http_status(:bad_request)
+            expect(JSON.parse(response.body)['errors'].first['detail'])
+              .to eq(error_detail)
+          end
         end
       end
 
-      context 'when appointment cannot be cancelled' do
+      context 'when appointment is invalid' do
         let(:request_body) do
-          # TODO
+          FactoryBot.build(:appointment_form, :ineligible).attributes
         end
 
         it 'returns bad request with detail in errors' do
@@ -184,23 +197,22 @@ RSpec.describe 'vaos appointments', type: :request, skip_mvi: true do
 
             expect(response).to have_http_status(:bad_request)
             expect(JSON.parse(response.body)['errors'].first['detail'])
-              .to eq('TODO')
+              .to eq(error_detail)
           end
         end
       end
 
-      context 'when appointment can be cancelled' do
+      context 'when appointment can be created' do
         let(:request_body) do
-          # TODO
+          FactoryBot.build(:appointment_form, :eligible).attributes
         end
 
-        it 'cancels the appointment' do
+        it 'creates the appointment' do
           VCR.use_cassette('vaos/appointments/post_appointment', match_requests_on: %i[method uri]) do
             post '/v0/vaos/appointments', params: request_body
 
             expect(response).to have_http_status(:success)
             expect(response.body).to be_an_instance_of(String).and be_empty
-            expect(response).to match_response_schema('vaos/cc_appointment')
           end
         end
       end

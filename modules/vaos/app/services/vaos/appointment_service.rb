@@ -20,13 +20,6 @@ module VAOS
       as
     end
 
-    def self.test
-      user = FactoryBot.build(:user, :vaos)
-      service = for_user(user)
-      request_body = FactoryBot.build(:appointment_form, :ineligible).attributes
-      response = service.post_appointment(request_body)
-    end
-
     def get_appointments(type, start_date, end_date, pagination_params = {})
       params = date_params(start_date, end_date).merge(page_params(pagination_params)).merge(other_params).compact
 
@@ -40,13 +33,13 @@ module VAOS
     end
 
     def post_appointment(request_object_body)
-      params = VAOS::AppointmentForm.new(user, request_object_body).params
-      site_codes = params.dig(:patients, :patient).map { |patient| patient.dig(:location, :facility, :site_code) }
+      params = VAOS::AppointmentForm.new(user, request_object_body).params.with_indifferent_access
+      site_code = params[:clinic][:site_code]
 
       # if site_codes ever has more than one value, we might want to log it and investigate or something... Why is
       # patient an array in the payload? you're going to go see the doctor as a group?
       with_monitoring do
-        response = perform(:post, post_appointment_url(site_codes.first), params, headers(user))
+        response = perform(:post, post_appointment_url(site_code), params, headers(user))
         {
           data: OpenStruct.new(response.body),
           meta: {}
