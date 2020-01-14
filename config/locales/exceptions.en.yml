@@ -504,6 +504,12 @@ en:
         code: 'VAOS_400'
         detail: # deliberarly left nil to reference response.body which is unparsable string (not json)
         status: 400
+      VAOS_409:
+        <<: *external_defaults
+        title: Conflict
+        code: 'VAOS_409'
+        detail: # deliberarly left nil to reference response.body
+        status: 409
       VAOS_204:
         <<: *external_defaults
         title: Bad Request

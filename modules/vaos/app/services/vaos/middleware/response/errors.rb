@@ -13,6 +13,8 @@ module VAOS
             error_400(env.body)
           when 403
             raise Common::Exceptions::BackendServiceException.new('VAOS_403', source: self.class)
+          when 409
+            raise Common::Exceptions::BackendServiceException.new('VAOS_409', source: self.class)
           when 500..510
             raise Common::Exceptions::BackendServiceException.new('VAOS_502', source: self.class)
           else
