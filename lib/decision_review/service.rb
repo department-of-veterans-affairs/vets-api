@@ -71,13 +71,6 @@ module DecisionReview
       end
     end
 
-    def get_legacy_appeal_issues(user)
-      with_monitoring_and_error_handling do
-        raw_response = perform(:get, 'legacy_appeal_issues', nil, request_headers(user))
-        DecisionReview::Responses::Response.new(raw_response.status, raw_response.body, 'legacy_appeal_issues')
-      end
-    end
-
     private
 
     def request_headers(user)

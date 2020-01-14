@@ -209,16 +209,4 @@ describe DecisionReview::Service do
       end
     end
   end
-
-  describe '#get_legacy_appeal_issues' do
-    context 'with a valid legacy appeal issues request' do
-      it 'returns a legacy appeal issues response object' do
-        VCR.use_cassette('decision_review/200_legacy_appeal_issues') do
-          response = subject.get_legacy_appeal_issues(user)
-          expect(response).to be_ok
-          expect(response).to be_an DecisionReview::Responses::Response
-        end
-      end
-    end
-  end
 end
