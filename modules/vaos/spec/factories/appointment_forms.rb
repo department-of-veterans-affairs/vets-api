@@ -19,10 +19,10 @@ FactoryBot.define do
       ekg { '' }
       lab { '' }
       x_ray { '' }
-      preferred_email { 'abraham.lincoln@va.gov' }
+      preferred_email { 'test@va.gov' }
       time_zone { 'America/Denver' }
-      desired_date { 5.days.from_now.utc.change(hour: 0).iso8601(3) }
-      date_time { 5.days.from_now.utc.iso8601(3) }
+      desired_date { DateTime.new(2020, 01, 31, 00, 00, 0).iso8601(3) }
+      date_time { DateTime.new(2020, 01, 31, 21, 00, 0).iso8601(3) }
       duration { 30 }
       booking_notes { 'Follow-up/Routine: abdominal pain' }
       clinic do

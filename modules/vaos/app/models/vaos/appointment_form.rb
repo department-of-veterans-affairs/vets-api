@@ -2,7 +2,6 @@
 
 require 'active_model'
 require 'common/models/form'
-require 'common/models/attribute_types/iso8601_time'
 
 module VAOS
   class AppointmentForm < Common::Form
