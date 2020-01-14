@@ -116,7 +116,8 @@ module V0
     # A list of all classes that have swagger_* declarations.
     SWAGGERED_CLASSES = [
       Swagger::Requests::Address,
-      Swagger::Requests::Appeals,
+      Swagger::Requests::Appeals::Appeals,
+      Swagger::Requests::Appeals::ContestableIssues,
       Swagger::Requests::Appointments,
       Swagger::Requests::BackendStatuses,
       Swagger::Requests::BB::HealthRecords,
