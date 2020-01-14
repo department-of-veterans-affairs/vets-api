@@ -208,5 +208,19 @@ describe DecisionReview::Service do
         end
       end
     end
+
+    context 'when service returns a 422' do
+      it 'logs the error and raises an exception' do
+        VCR.use_cassette('decision_review/422_contestable_issues') do
+          expect(StatsD).to receive(:increment).once.with(
+            'api.decision_review.get_contestable_issues.fail', tags: [
+              'error:Common::Client::Errors::ClientError', 'status:422'
+            ]
+          )
+          expect(StatsD).to receive(:increment).once.with('api.decision_review.get_contestable_issues.total')
+          expect { subject.get_contestable_issues(user) }.to raise_error(DecisionReview::ServiceException)
+        end
+      end
+    end
   end
 end
