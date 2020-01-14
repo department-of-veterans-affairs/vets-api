@@ -149,7 +149,7 @@ describe Vet360::ContactInformation::Service, skip_vet360: true do
           address.state_code = 'MS'
           address.zip_code = '38843'
           response = subject.put_address(address)
-          expect(response.transaction.id).to eq('2c8c1b3b-1b1c-416c-bc91-a9fb4f79291f')
+          expect(response.transaction.id).to eq('63e7792c-887e-4d57-b6ed-801edcae2c2d')
           expect(response).to be_ok
         end
       end
