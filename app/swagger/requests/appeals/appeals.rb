@@ -179,8 +179,9 @@ module Swagger
           operation :get do
             key :tags, %w[intake_status]
             key :operationId, 'showIntakeStatus'
-            key :description, 'After creating a Decision Review, you can use this endpoint to check its _intake status_'\
-                              'to see whether or not a Decision Review has been processed in the Caseflow system.'
+            key :description, 'After creating a Decision Review, you can use this endpoint to check its _intake '\
+                              'status_ to see whether or not a Decision Review has been processed in the Caseflow'\
+                              ' system.'
 
             parameter do
               key :name, :intake_id
