@@ -38,7 +38,27 @@ FactoryBot.define do
     end
 
     trait :eligible do
-      # Still need to find one that's eligible for a successful test
+      ineligible
+
+      desired_date { DateTime.new(2020, 02, 07, 00, 00, 0).iso8601(3) }
+      date_time { DateTime.new(2020, 02, 07, 21, 00, 0).iso8601(3) }
+    end
+
+    trait :invalid do
+      ineligible
+
+      desired_date { DateTime.new(2020, 02, 06, 00, 00, 0).iso8601(3) }
+      date_time { DateTime.new(2020, 02, 06, 21, 00, 0).iso8601(3) }
+      clinic do
+        {
+          site_code: 'Invalid',
+          clinic_id: 'Invalid',
+          clinic_name: 'Invalid',
+          clinic_friendly_location_name: 'Invalid',
+          institution_name: 'Invalid',
+          institution_code: 'Invalid'
+        }
+      end
     end
   end
 end

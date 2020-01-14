@@ -12,15 +12,44 @@ describe VAOS::AppointmentService do
   before { allow_any_instance_of(VAOS::UserService).to receive(:session).and_return('stubbed_token') }
 
   describe '#post_appointment' do
+    context 'when request is ineligible' do
+      let(:request_body) {
+        FactoryBot.build(:vaos_appointment, :ineligible).attributes
+      }
+
+      it 'returns a 409 Conflict' do
+        VCR.use_cassette('vaos/appointments/post_appointment_409', record: :new_episodes) do
+          expect { subject.post_appointment(request_body) }.to raise_error(
+            Common::Exceptions::BackendServiceException
+          )
+        end
+      end
+    end
+
     context 'when request is invalid' do
-      it 'returns a bad request with detailed error' do
-        # TODO
+      let(:request_body) {
+        FactoryBot.build(:vaos_appointment, :invalid).attributes
+      }
+
+      it 'returns an error' do
+        VCR.use_cassette('vaos/appointments/post_appointment_400', record: :new_episodes) do
+          expect { subject.post_appointment(request_body) }.to raise_error(
+            Common::Exceptions::BackendServiceException
+          )
+        end
       end
     end
 
     context 'when request is valid' do
+      let(:request_body) {
+        FactoryBot.build(:vaos_appointment, :eligible).attributes
+      }
+
       it 'returns the created appointment' do
-        # TODO
+        VCR.use_cassette('vaos/appointments/post_appointment', record: :new_episodes) do
+          response = subject.post_appointment(request_body)
+          expect(response).to be_a(Hash)
+        end
       end
     end
   end
