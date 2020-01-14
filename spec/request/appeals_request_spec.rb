@@ -133,6 +133,26 @@ RSpec.describe 'Appeals Status', type: :request do
         end
       end
 
+      context 'with veteran not found' do
+        it 'returns 404' do
+          VCR.use_cassette('decision_review/404_contestable_issues') do
+            get '/v0/appeals/contestable_issues'
+            expect(response).to have_http_status(:not_found)
+            expect(response).to match_response_schema('errors')
+          end
+        end
+      end
+
+      context 'with a bad receipt date' do
+        it 'returns 422' do
+          VCR.use_cassette('decision_review/422_contestable_issues') do
+            get '/v0/appeals/contestable_issues'
+            expect(response).to have_http_status(:unprocessable_entity)
+            expect(response).to match_response_schema('errors')
+          end
+        end
+      end
+
       context 'with server error' do
         it 'returns an internal server error' do
           VCR.use_cassette('decision_review/502_contestable_issues') do
