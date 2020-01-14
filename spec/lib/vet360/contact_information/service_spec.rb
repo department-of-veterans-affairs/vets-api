@@ -161,11 +161,11 @@ describe Vet360::ContactInformation::Service, skip_vet360: true do
 
     context 'when successful' do
       it 'returns a status of 200' do
-        VCR.use_cassette('vet360/contact_information/put_telephone_success', record: :new_episodes) do
+        VCR.use_cassette('vet360/contact_information/put_telephone_success', VCR::MATCH_EVERYTHING) do
           telephone.id = 17259
           telephone.phone_number = '5551235'
           response = subject.put_telephone(telephone)
-          expect(response.transaction.id).to eq('6e1e4e54-e851-4f5e-a2bf-eec0b17738f1')
+          expect(response.transaction.id).to eq('c3c6502d-f660-409c-9bc9-a7b7ce4f0bc5')
           expect(response).to be_ok
         end
       end
