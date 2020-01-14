@@ -53,6 +53,22 @@ describe Breakers::StatsdPlugin do
 
         request.url = URI(test_host + '/v0.0/Providers(1234567890)/bar')
         expect(subject.get_tags(request)).to include('endpoint:/v0.0/xxx/bar')
+
+        request.url = URI(test_host + '/api/v1/users/b3366359af05d661342470')
+        expect(subject.get_tags(request)).to include('endpoint:/api/v1/users/xxx')
+
+        request.url = URI(test_host + '/api/v1/users/00u2sgjcthlnuo12o297')
+        expect(subject.get_tags(request)).to include('endpoint:/api/v1/users/xxx')
+
+        request.url = URI(test_host + '/api/v1/users/00u2i1p1u8m7l7FYb297/grants')
+        expect(subject.get_tags(request)).to include('endpoint:/api/v1/users/xxx/grants')
+      end
+    end
+
+    context 'request without an id' do
+      it 'doesnt replace anything' do
+        request.url = URI(test_host + '/foo/bar')
+        expect(subject.get_tags(request)).to include('endpoint:/foo/bar')
       end
     end
   end
