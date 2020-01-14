@@ -49,8 +49,7 @@ module VAOS
           }
         }
       }
-      binding.pry
-      response = service.post_appointment(VAOS::AppointmentForm.new(user, params).params)
+      response = service.post_appointment(params)
     end
 
     def get_appointments(type, start_date, end_date, pagination_params = {})
@@ -72,6 +71,7 @@ module VAOS
       # if site_codes ever has more than one value, we might want to log it and investigate or something... Why is
       # patient an array in the payload? you're going to go see the doctor as a group?
       with_monitoring do
+        binding.pry
         response = perform(:post, post_appointment_url(site_codes.first), params, headers(user))
         {
           data: OpenStruct.new(response.body),
