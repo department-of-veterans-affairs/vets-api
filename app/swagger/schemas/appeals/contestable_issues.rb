@@ -29,7 +29,8 @@ module Swagger
                 end
                 property :ratingDecisionId do
                   key :type, :string
-                  key :description, 'The BGS ID for the contested rating decision. This may be populated while ratingIssueId is nil'
+                  key :description, 'The BGS ID for the contested rating decision.'\
+                                    ' This may be populated while ratingIssueId is nil'
                 end
                 property :decisionIssueId do
                   key :type, :integer
