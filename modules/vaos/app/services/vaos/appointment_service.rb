@@ -36,8 +36,6 @@ module VAOS
       params = VAOS::AppointmentForm.new(user, request_object_body).params.with_indifferent_access
       site_code = params[:clinic][:site_code]
 
-      # if site_codes ever has more than one value, we might want to log it and investigate or something... Why is
-      # patient an array in the payload? you're going to go see the doctor as a group?
       with_monitoring do
         response = perform(:post, post_appointment_url(site_code), params, headers(user))
         {
