@@ -2,61 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri: https://int.vet360.va.gov/person-mdm-cuf-person-hub/cuf/person/contact-information/v1/1
-    body:
-      encoding: US-ASCII
-      string: ''
-    headers:
-      Accept:
-      - application/json
-      Content-Type:
-      - application/json
-      User-Agent:
-      - Vets.gov Agent
-      Cufsystemname:
-      - VETSGOV
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-  response:
-    status:
-      code: 200
-      message: ''
-    headers:
-      Date:
-      - Mon, 04 Nov 2019 22:37:38 GMT
-      Expires:
-      - '0'
-      Vet360txauditid:
-      - c86445e3-a658-4b0c-95a0-d7ba5ca66cf8
-      X-Frame-Options:
-      - DENY
-      Pragma:
-      - no-cache
-      X-Content-Type-Options:
-      - nosniff
-      - nosniff
-      X-Xss-Protection:
-      - 1; mode=block
-      Cache-Control:
-      - no-cache, no-store, max-age=0, must-revalidate
-      X-Ua-Compatible:
-      - IE-edge,chrome=1
-      Content-Type:
-      - application/json;charset=UTF-8
-      Transfer-Encoding:
-      - chunked
-    body:
-      encoding: UTF-8
-      string: '{"txAuditId":"3cad0e18-9c91-474d-a327-144aef4e1dc3","status":"COMPLETED_SUCCESS","bio":{"vet360Id":1,"addresses":[{"addressId":108347,"addressType":"Domestic","addressPOU":"CORRESPONDENCE","addressLine1":"1494
-        Martin Luther King Rd","addressLine2":"c/o foo","cityName":"Fulton","stateCode":"MS","zipCode5":"38843","countryName":"United
-        States","countryCodeFIPS":"US","countryCodeISO2":"US","countryCodeISO3":"USA","confidenceScore":"100","latitude":"34.1987","longitude":"-88.5259","geocodePrecision":"31","geocodeDate":"2019-10-29T02:09:54.000Z","createDate":"2019-10-25T17:06:15Z","updateDate":"2019-10-29T02:09:55Z","txAuditId":"2e8a9043-dec2-4a4e-bf77-186e46773ffa","sourceSystem":"VETSGOV","sourceDate":"2019-10-29T01:59:37Z","originatingSourceSystem":"VETSGOV","sourceSystemUser":"1234","effectiveStartDate":"2019-10-29T01:59:37.000Z","vet360Id":1},{"addressId":15035,"addressType":"Domestic","addressPOU":"RESIDENCE/CHOICE","addressLine1":"1226
-        Imperial Bend Dr","cityName":"Houston","stateCode":"TX","zipCode5":"77073","zipCode4":"6175","county":{"countyName":"Harris
-        County","countyCode":"48201"},"countryName":"United States","countryCodeFIPS":"US","countryCodeISO2":"US","countryCodeISO3":"USA","confidenceScore":"100","latitude":"29.9788","longitude":"-95.4026","geocodePrecision":"31","geocodeDate":"2019-10-24T19:55:25.000Z","createDate":"2018-09-05T16:58:15Z","updateDate":"2019-10-24T19:55:25Z","txAuditId":"98743284-ba91-4f2b-bd8e-e9f6dd5216f0","sourceSystem":"VETSGOV","sourceDate":"2019-10-24T19:55:21Z","originatingSourceSystem":"VETSGOV","sourceSystemUser":"1234","effectiveStartDate":"2019-10-24T19:55:21.000Z","vet360Id":1}],"telephones":[{"telephoneId":3,"internationalIndicator":false,"phoneType":"WORK","countryCode":"1","areaCode":"703","phoneNumber":"4616688","connectionStatusCode":"NO_KNOWN_PROBLEM","textMessageCapableInd":true,"textMessagePermInd":true,"voiceMailAcceptableInd":true,"ttyInd":true,"createDate":"2018-04-21T18:56:09Z","updateDate":"2018-09-06T17:49:03Z","txAuditId":"a455de29-2f16-4047-9b61-128d72c0b633","sourceSystem":"VET360-TEST-PARTNER","sourceDate":"2018-09-06T17:41:00Z","sourceSystemUser":"tester","effectiveStartDate":"2018-09-06T17:41:00.596Z","confirmationDate":"2018-09-06T17:41:00.596Z","vet360Id":1},{"telephoneId":17259,"internationalIndicator":false,"phoneType":"MOBILE","countryCode":"1","areaCode":"705","phoneNumber":"2562208","connectionStatusCode":"NO_KNOWN_PROBLEM","voiceMailAcceptableInd":true,"ttyInd":true,"createDate":"2018-09-07T02:36:56Z","updateDate":"2019-08-16T20:54:55Z","txAuditId":"f05f76fd-565b-48a8-94e4-ce2b8056c761","sourceSystem":"VET360-TEST-PARTNER","sourceDate":"2019-08-08T04:14:28Z","sourceSystemUser":"tester","effectiveStartDate":"2019-08-08T02:12:28.033Z","vet360Id":1}],"emails":[{"emailId":8087,"emailAddressText":"john.doe@doe.com","emailPermInd":true,"emailStatusCode":"NO_KNOWN_PROBLEM","createDate":"2018-09-06T17:49:03Z","updateDate":"2018-09-06T17:49:03Z","txAuditId":"a455de29-2f16-4047-9b61-128d72c0b633","sourceSystem":"VET360-TEST-PARTNER","sourceDate":"2018-09-06T17:41:00Z","sourceSystemUser":"tester","effectiveStartDate":"2018-09-06T17:41:00.596Z","confirmationDate":"2018-09-06T17:41:00.596Z","vet360Id":1}],"permissions":[{"permissionId":361,"permissionType":"TextPermission","permissionValue":true,"createDate":"2019-11-01T20:43:22Z","updateDate":"2019-11-01T20:43:22Z","txAuditId":"b4f1aec1-3f82-4ce6-9f91-c6434ea5e70c","sourceSystem":"VETSGOV","sourceDate":"2019-09-23T17:52:03Z","originatingSourceSystem":"VETSGOV","sourceSystemUser":"1234","effectiveStartDate":"2019-09-23T17:52:03.000Z","vet360Id":1}],"createDate":"2018-04-21T18:56:09Z","updateDate":"2018-04-21T18:56:09Z","txAuditId":"72cea1a0-7fe8-47d2-8e06-0178da097b93","sourceSystem":"VBACORP","sourceDate":"2018-04-21T18:55:50Z"}}'
-    http_version: 
-  recorded_at: Mon, 04 Nov 2019 22:37:38 GMT
-- request:
-    method: get
-    uri: https://internal-dsva-vagov-staging-fwdproxy-1821450725.us-gov-west-1.elb.amazonaws.com:4433/contact-information-hub/cuf/contact-information/v1/1
+    uri: https://int.vet360.va.gov/contact-information-hub/cuf/contact-information/v1/1
     body:
       encoding: US-ASCII
       string: ''
