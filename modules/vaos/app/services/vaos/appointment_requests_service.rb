@@ -22,7 +22,7 @@ module VAOS
 
     def get_requests(start_date = nil, end_date = nil)
       with_monitoring do
-        response = perform(:get, url, date_params(start_date, end_date), headers(user))
+        response = perform(:get, get_request_url, date_params(start_date, end_date), headers(user))
 
         {
           data: deserialize(response.body),
@@ -31,10 +31,10 @@ module VAOS
       end
     end
 
-    def post_request(request_object_body)
+    def post_request(params)
       with_monitoring do
-        params = VAOS::AppointmentRequestForm.new(user, request_object_body).params
-        response = perform(:post, url, params, headers(user))
+        validated_params = form_object(params).params
+        response = perform(:post, post_request_url(params[:type]), validated_params, headers(user))
 
         {
           data: OpenStruct.new(filter_cc_appointment_data(response.body))
@@ -42,10 +42,10 @@ module VAOS
       end
     end
 
-    def put_request(id, request_object_body)
+    def put_request(id, params)
       with_monitoring do
-        params = VAOS::AppointmentRequestForm.new(user, request_object_body.merge(id: id)).params
-        response = perform(:put, url(id), params, headers(user))
+        validated_params = form_object(params, id).params
+        response = perform(:put, put_request_url(id), validated_params, headers(user))
 
         {
           data: OpenStruct.new(filter_cc_appointment_data(response.body))
@@ -54,6 +54,27 @@ module VAOS
     end
 
     private
+
+    def get_request_url
+      "/var/VeteranAppointmentRequestService/v4/rest/appointment-service/patient/ICN/#{user.icn}/appointments"
+    end
+
+    def put_request_url(id)
+      post_request_url + "/system/var/id/#{id}"
+    end
+
+    def post_request_url(request_type = '')
+      type = request_type&.upcase == 'CC' ? 'community-care-appointment' : 'appointments'
+      "/var/VeteranAppointmentRequestService/v4/rest/appointment-service/patient/ICN/#{user.icn}/#{type}"
+    end
+
+    def form_object(params, id = nil)
+      if params[:type]&.upcase == 'CC'
+        VAOS::CCAppointmentRequestForm.new(user, params.merge(id: id))
+      else
+        VAOS::AppointmentRequestForm.new(user, params.merge(id: id))
+      end
+    end
 
     def deserialize(json_hash)
       json_hash[:appointment_requests].map do |request|
@@ -72,14 +93,6 @@ module VAOS
         :patient_identifier, :surrogate_identifier, :object_type, :link
       )
       request
-    end
-
-    def url(id = nil)
-      if id
-        url + "/system/var/id/#{id}"
-      else
-        "/var/VeteranAppointmentRequestService/v4/rest/appointment-service/patient/ICN/#{user.icn}/appointments"
-      end
     end
 
     def date_params(start_date, end_date)

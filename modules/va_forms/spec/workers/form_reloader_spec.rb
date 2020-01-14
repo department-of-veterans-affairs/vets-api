@@ -38,5 +38,23 @@ RSpec.describe VaForms::FormReloader, type: :job do
         expect(sha256).to eq('f99d16fb94859065855dd71e3b253571229b31d4d46ca08064054b15207598bc')
       end
     end
+
+    it 'expands relative urls' do
+      test_url = './medical/pdf/vha10-10171-fill.pdf'
+      final_url = VaForms::FormReloader.new.get_full_url(test_url)
+      expect(final_url).to eq('https://www.va.gov/vaforms/medical/pdf/vha10-10171-fill.pdf')
+    end
+
+    describe 'date parsing checks' do
+      it 'parses date when month day year' do
+        date_string = '7/30/2018'
+        expect(VaForms::FormReloader.new.parse_date(date_string).to_s).to eq('2018-07-30')
+      end
+
+      it 'parses date when month and year' do
+        date_string = '07/2018'
+        expect(VaForms::FormReloader.new.parse_date(date_string).to_s).to eq('2018-07-01')
+      end
+    end
   end
 end

@@ -89,7 +89,7 @@ module MVI
 
       private
 
-      # rubocop:disable MethodLength
+      # rubocop:disable Metrics/MethodLength
       # rubocop:disable Metrics/AbcSize
       def build_mvi_profile(patient)
         name = parse_name(get_patient_name(patient))
@@ -121,7 +121,7 @@ module MVI
         )
       end
       # rubocop:enable Metrics/AbcSize
-      # rubocop:enable MethodLength
+      # rubocop:enable Metrics/MethodLength
 
       def get_extensions(id_array)
         id_array.map do |id_object|

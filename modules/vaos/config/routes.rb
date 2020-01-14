@@ -9,6 +9,7 @@ VAOS::Engine.routes.draw do
       resources :messages, only: %i[index create]
     end
     get 'community_care/eligibility/:service_type', to: 'cc_eligibility#show'
+    get 'community_care/supported_sites', to: 'cc_supported_sites#index'
     resources :systems, only: :index do
       resources :direct_scheduling_facilities, only: :index
       resources :pact, only: :index
@@ -20,7 +21,7 @@ VAOS::Engine.routes.draw do
       resources :limits, only: :index
       get 'visits/:schedule_type', to: 'visits#index'
     end
-    resources :preferences, only: :index
+    resource :preferences, only: %i[show update]
     get 'api', to: 'apidocs#index'
   end
 end

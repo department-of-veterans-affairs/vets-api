@@ -32,3 +32,6 @@ features:
   gi_vet_tec_program_provider_filters:
     description: >
       Allows veterans to filter VET TEC programs by provider
+  va_global_downtime_notification:
+    description: >
+      Enables global downtime notification- do not use in production
