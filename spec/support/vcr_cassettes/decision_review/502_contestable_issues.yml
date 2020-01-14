@@ -24,7 +24,7 @@ http_interactions:
   response:
     status:
       code: 502
-      message: Internal Server Error
+      message: Bad Gateway
     headers:
       Date:
       - Tue, 14 Jan 2020 19:53:13 GMT
@@ -49,7 +49,7 @@ http_interactions:
         {
           "errors": [{
             "status": "502",
-            "title": "Internal Server Error",
+            "title": "Bad Gateway",
             "code": "502"
           }]
         }

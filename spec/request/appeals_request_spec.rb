@@ -157,7 +157,8 @@ RSpec.describe 'Appeals Status', type: :request do
         it 'returns an internal server error' do
           VCR.use_cassette('decision_review/502_contestable_issues') do
             get '/v0/appeals/contestable_issues'
-            expect(response).to have_http_status(:internal_server_error)
+            expect(response).to have_http_status(:bad_gateway)
+            expect(response).to match_response_schema('errors')
           end
         end
       end

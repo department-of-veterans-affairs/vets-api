@@ -1447,7 +1447,7 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
       [200, 404, 422, 502].each do |status_code|
         it "documents contestable_issues #{status_code}" do
           VCR.use_cassette("decision_review/#{status_code}_contestable_issues") do
-            expect(subject).to validate(:get, '/v0/appeals/contestable_issues', status_code)
+            expect(subject).to validate(:get, '/v0/appeals/contestable_issues', status_code, headers)
           end
         end
       end
