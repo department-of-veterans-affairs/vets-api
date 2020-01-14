@@ -1443,6 +1443,16 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
       end
     end
 
+    describe 'contestable_issues' do
+      [200, 404, 422, 502].each do |status_code|
+        it "documents contestable_issues #{status_code}" do
+          VCR.use_cassette("decision_review/#{status_code}_contestable_issues") do
+            expect(subject).to validate(:get, '/v0/appeals/contestable_issues', status_code)
+          end
+        end
+      end
+    end
+
     describe 'appointments' do
       before do
         allow_any_instance_of(User).to receive(:icn).and_return('1234')

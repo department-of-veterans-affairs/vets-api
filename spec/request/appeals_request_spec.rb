@@ -109,5 +109,38 @@ RSpec.describe 'Appeals Status', type: :request do
         end
       end
     end
+
+    describe 'GET /contestable_issues' do
+      context 'with a valid request' do
+        it 'returns a valid response' do
+          VCR.use_cassette('decision_review/200_contestable_issues') do
+            get '/v0/appeals/contestable_issues'
+            expect(response).to have_http_status(:ok)
+            expect(response.body).to be_a(String)
+            expect(response).to match_response_schema('contestable_issues')
+          end
+        end
+      end
+
+      context 'with invalid request' do
+        it 'returns an invalid response' do
+          VCR.use_cassette('decision_review/400_contestable_issues') do
+            get '/v0/appeals/contestable_issues'
+            expect(response).to have_http_status(:bad_request)
+            expect(response.body).to be_a(String)
+            expect(response).to match_response_schema('errors')
+          end
+        end
+      end
+
+      context 'with server error' do
+        it 'returns an internal server error' do
+          VCR.use_cassette('decision_review/502_contestable_issues') do
+            get '/v0/appeals/contestable_issues'
+            expect(response).to have_http_status(:internal_server_error)
+          end
+        end
+      end
+    end
   end
 end
