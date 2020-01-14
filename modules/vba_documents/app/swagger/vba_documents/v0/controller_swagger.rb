@@ -18,11 +18,13 @@ module VbaDocuments
 
           response 202 do
             key :description, 'Accepted. Location generated'
-            schema do
-              key :type, :object
-              key :required, [:data]
-              property :data do
-                key :'$ref', :DocumentUploadSubmission
+            content 'application/json' do
+              schema do
+                key :type, :object
+                key :required, [:data]
+                property :data do
+                  key :'$ref', :DocumentUploadSubmission
+                end
               end
             end
           end
@@ -57,37 +59,16 @@ module VbaDocuments
             end
           end
 
-          key :consumes, ['multipart/form-data']
-
-          parameter do
-            key :$ref, :DocumentUploadMetadata
-          end
-
-          parameter do
-            key :name, 'document'
-            key :in, :formData
-            key :type, :file
-            key :description, 'Document Contents. Must be provided in PDF format'
-          end
-
-          parameter do
-            key :name, 'attachment1'
-            key :in, :formData
-            key :type, :file
-          end
-
-          parameter do
-            key :name, 'attachment2'
-            key :in, :formData
-            key :type, :file
-          end
-
           response 200 do
             key :description, 'Document upload staged'
           end
 
           response 400 do
-            key :$ref, :DocumentUploadFailure
+            content 'application/xml' do
+              schema do
+                key :$ref, :DocumentUploadFailure
+              end
+            end
           end
         end
       end
@@ -116,10 +97,12 @@ module VbaDocuments
 
           response 200 do
             key :description, 'Upload status retrieved successfully'
-            schema do
-              key :required, %i[data]
-              property :data do
-                key :$ref, :DocumentUploadStatus
+            content 'application/json' do
+              schema do
+                key :required, %i[data]
+                property :data do
+                  key :$ref, :DocumentUploadStatus
+                end
               end
             end
           end
@@ -192,24 +175,26 @@ module VbaDocuments
             key :apikey, []
           end
 
-          parameter do
-            key :name, 'content'
+          request_body do
             key :description, 'List of GUIDs for which to retrieve current status.'
-            key :in, :body
-            key :example, '{ "ids": [ "6d8433c1-cd55-4c24-affd-f592287a7572" ] }'
+            key :required, true
 
-            schema do
-              key :$ref, :DocumentUploadStatusGuidList
+            content 'application/json' do
+              schema do
+                key :$ref, :DocumentUploadStatusGuidList
+              end
             end
           end
 
           response 200 do
             key :description, 'Upload status report retrieved successfully'
-            schema do
-              key :required, %i[data]
+            content 'application/json' do
+              schema do
+                key :required, %i[data]
 
-              property :data do
-                key :$ref, :DocumentUploadStatusReport
+                property :data do
+                  key :$ref, :DocumentUploadStatusReport
+                end
               end
             end
           end
