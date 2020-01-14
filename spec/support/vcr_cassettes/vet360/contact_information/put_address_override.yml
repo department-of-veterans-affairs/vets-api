@@ -2,58 +2,7 @@
 http_interactions:
 - request:
     method: put
-    uri: https://int.vet360.va.gov/person-mdm-cuf-person-hub/cuf/person/contact-information/v1/addresses
-    body:
-      encoding: UTF-8
-      string: '{"bio":{"addressId":108347,"addressLine1":"1494 Martin Luther King
-        Rd","addressLine2":"c/o foo","addressLine3":null,"addressPOU":"CORRESPONDENCE","addressType":"DOMESTIC","cityName":"Fulton","countryCodeISO2":null,"countryCodeISO3":"USA","countryName":"USA","county":{"countyCode":null,"countyName":null},"intPostalCode":null,"provinceName":null,"stateCode":"MS","zipCode5":"38843","zipCode4":null,"originatingSourceSystem":"VETSGOV","sourceSystemUser":"1234","sourceDate":"2019-10-29T01:59:37.000Z","vet360Id":"1","effectiveStartDate":"2019-10-29T01:59:37.000Z","effectiveEndDate":null,"validationKey":713117306,"overrideIndicator":true}}'
-    headers:
-      Accept:
-      - application/json
-      Content-Type:
-      - application/json
-      User-Agent:
-      - Vets.gov Agent
-      Cufsystemname:
-      - VETSGOV
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-  response:
-    status:
-      code: 200
-      message: ''
-    headers:
-      Date:
-      - Tue, 29 Oct 2019 02:09:54 GMT
-      Expires:
-      - '0'
-      Vet360txauditid:
-      - ee3a1097-4b89-4d8c-8ca0-d714b89711d9
-      X-Frame-Options:
-      - DENY
-      Pragma:
-      - no-cache
-      X-Content-Type-Options:
-      - nosniff
-      - nosniff
-      X-Xss-Protection:
-      - 1; mode=block
-      Cache-Control:
-      - no-cache, no-store, max-age=0, must-revalidate
-      X-Ua-Compatible:
-      - IE-edge,chrome=1
-      Content-Type:
-      - application/json;charset=UTF-8
-      Transfer-Encoding:
-      - chunked
-    body:
-      encoding: UTF-8
-      string: '{"txAuditId":"2e8a9043-dec2-4a4e-bf77-186e46773ffa","status":"RECEIVED"}'
-    http_version: 
-  recorded_at: Tue, 29 Oct 2019 01:59:37 GMT
-- request:
-    method: put
-    uri: https://internal-dsva-vagov-staging-fwdproxy-1821450725.us-gov-west-1.elb.amazonaws.com:4433/contact-information-hub/cuf/contact-information/v1/addresses
+    uri: https://int.vet360.va.gov/contact-information-hub/cuf/contact-information/v1/addresses
     body:
       encoding: UTF-8
       string: '{"bio":{"addressId":108347,"addressLine1":"1494 Martin Luther King

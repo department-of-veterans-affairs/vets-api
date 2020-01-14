@@ -106,7 +106,7 @@ describe Vet360::ContactInformation::Service, skip_vet360: true do
 
     context 'when an ID is included' do
       it 'raises an exception' do
-        VCR.use_cassette('vet360/contact_information/post_address_w_id_error', record: :new_episodes) do
+        VCR.use_cassette('vet360/contact_information/post_address_w_id_error', VCR::MATCH_EVERYTHING) do
           address.id = 42
           address.address_line1 = '1493 Martin Luther King Rd'
           address.city = 'Fulton'
@@ -131,18 +131,18 @@ describe Vet360::ContactInformation::Service, skip_vet360: true do
       it 'will override the address error', run_at: '2019-10-28 18:59:37 -0700' do
         VCR.use_cassette(
           'vet360/contact_information/put_address_override',
-          record: :new_episodes
+          VCR::MATCH_EVERYTHING
         ) do
           response = subject.put_address(address)
           expect(response.status).to eq(200)
-          expect(response.transaction.id).to eq('2e8a9043-dec2-4a4e-bf77-186e46773ffa')
+          expect(response.transaction.id).to eq('1b5b82e7-909d-4ccc-a2db-ad60f1b502cf')
         end
       end
     end
 
     context 'when successful' do
       it 'returns a status of 200' do
-        VCR.use_cassette('vet360/contact_information/put_address_success', record: :new_episodes) do
+        VCR.use_cassette('vet360/contact_information/put_address_success', VCR::MATCH_EVERYTHING) do
           address.id = 437
           address.address_line1 = '1494 Martin Luther King Rd'
           address.city = 'Fulton'
@@ -161,7 +161,7 @@ describe Vet360::ContactInformation::Service, skip_vet360: true do
 
     context 'when successful' do
       it 'returns a status of 200' do
-        VCR.use_cassette('vet360/contact_information/put_telephone_success', record: :new_episodes) do
+        VCR.use_cassette('vet360/contact_information/put_telephone_success', VCR::MATCH_EVERYTHING) do
           telephone.id = 1299
           telephone.phone_number = '5551235'
           response = subject.put_telephone(telephone)
@@ -177,7 +177,7 @@ describe Vet360::ContactInformation::Service, skip_vet360: true do
 
     context 'when successful' do
       it 'returns a status of 200' do
-        VCR.use_cassette('vet360/contact_information/post_telephone_success', record: :new_episodes) do
+        VCR.use_cassette('vet360/contact_information/post_telephone_success', VCR::MATCH_EVERYTHING) do
           response = subject.post_telephone(telephone)
           expect(response).to be_ok
         end
@@ -186,7 +186,7 @@ describe Vet360::ContactInformation::Service, skip_vet360: true do
 
     context 'when an ID is included' do
       it 'raises an exception' do
-        VCR.use_cassette('vet360/contact_information/post_telephone_w_id_error', record: :new_episodes) do
+        VCR.use_cassette('vet360/contact_information/post_telephone_w_id_error', VCR::MATCH_EVERYTHING) do
           telephone.id = 42
           expect { subject.post_telephone(telephone) }.to raise_error do |e|
             expect(e).to be_a(Common::Exceptions::BackendServiceException)
@@ -203,7 +203,7 @@ describe Vet360::ContactInformation::Service, skip_vet360: true do
 
     context 'when successful' do
       it 'returns a status of 200' do
-        VCR.use_cassette('vet360/contact_information/put_permission_success', record: :new_episodes) do
+        VCR.use_cassette('vet360/contact_information/put_permission_success', VCR::MATCH_EVERYTHING) do
           permission.id = 401
           permission.permission_value = true
           response = subject.put_permission(permission)
@@ -219,7 +219,7 @@ describe Vet360::ContactInformation::Service, skip_vet360: true do
 
     context 'when successful' do
       it 'returns a status of 200' do
-        VCR.use_cassette('vet360/contact_information/post_permission_success', record: :new_episodes) do
+        VCR.use_cassette('vet360/contact_information/post_permission_success', VCR::MATCH_EVERYTHING) do
           response = subject.post_permission(permission)
           expect(response).to be_ok
         end
@@ -245,7 +245,7 @@ describe Vet360::ContactInformation::Service, skip_vet360: true do
       let(:transaction_id) { 'a50193df-f4d5-4b6a-b53d-36fed2db1a15' }
 
       it 'returns a status of 200' do
-        VCR.use_cassette('vet360/contact_information/telephone_transaction_status', record: :new_episodes) do
+        VCR.use_cassette('vet360/contact_information/telephone_transaction_status', VCR::MATCH_EVERYTHING) do
           response = subject.get_telephone_transaction_status(transaction_id)
           expect(response).to be_ok
           expect(response.transaction).to be_a(Vet360::Models::Transaction)
@@ -258,7 +258,7 @@ describe Vet360::ContactInformation::Service, skip_vet360: true do
       let(:transaction_id) { 'd47b3d96-9ddd-42be-ac57-8e564aa38029' }
 
       it 'returns a status of 404' do
-        VCR.use_cassette('vet360/contact_information/telephone_transaction_status_error', record: :new_episodes) do
+        VCR.use_cassette('vet360/contact_information/telephone_transaction_status_error', VCR::MATCH_EVERYTHING) do
           expect { subject.get_telephone_transaction_status(transaction_id) }.to raise_error do |e|
             expect(e).to be_a(Common::Exceptions::BackendServiceException)
             expect(e.status_code).to eq(400)
@@ -274,7 +274,7 @@ describe Vet360::ContactInformation::Service, skip_vet360: true do
       let(:transaction_id) { '786efe0e-fd20-4da2-9019-0c00540dba4d' }
 
       it 'returns a status of 200' do
-        VCR.use_cassette('vet360/contact_information/email_transaction_status', record: :new_episodes) do
+        VCR.use_cassette('vet360/contact_information/email_transaction_status', VCR::MATCH_EVERYTHING) do
           response = subject.get_email_transaction_status(transaction_id)
           expect(response).to be_ok
           expect(response.transaction).to be_a(Vet360::Models::Transaction)
@@ -287,7 +287,7 @@ describe Vet360::ContactInformation::Service, skip_vet360: true do
       let(:transaction_id) { 'd47b3d96-9ddd-42be-ac57-8e564aa38029' }
 
       it 'returns a status of 404' do
-        VCR.use_cassette('vet360/contact_information/email_transaction_status_error', record: :new_episodes) do
+        VCR.use_cassette('vet360/contact_information/email_transaction_status_error', VCR::MATCH_EVERYTHING) do
           expect { subject.get_email_transaction_status(transaction_id) }.to raise_error do |e|
             expect(e).to be_a(Common::Exceptions::BackendServiceException)
             expect(e.status_code).to eq(400)
@@ -297,7 +297,7 @@ describe Vet360::ContactInformation::Service, skip_vet360: true do
       end
 
       it 'includes "general_client_error" tag in sentry error', :aggregate_failures do
-        VCR.use_cassette('vet360/contact_information/email_transaction_status_error', record: :new_episodes) do
+        VCR.use_cassette('vet360/contact_information/email_transaction_status_error', VCR::MATCH_EVERYTHING) do
           expect(Raven).to receive(:tags_context).with(vet360: 'general_client_error')
 
           expect { subject.get_email_transaction_status(transaction_id) }.to raise_error do |e|
@@ -315,7 +315,7 @@ describe Vet360::ContactInformation::Service, skip_vet360: true do
       let(:transaction_id) { '0faf342f-5966-4d3f-8b10-5e9f911d07d2' }
 
       it 'returns a status of 200' do
-        VCR.use_cassette('vet360/contact_information/address_transaction_status', record: :new_episodes) do
+        VCR.use_cassette('vet360/contact_information/address_transaction_status', VCR::MATCH_EVERYTHING) do
           response = subject.get_address_transaction_status(transaction_id)
           expect(response).to be_ok
           expect(response.transaction).to be_a(Vet360::Models::Transaction)
@@ -337,7 +337,7 @@ describe Vet360::ContactInformation::Service, skip_vet360: true do
         it 'logs the error to pii logs' do
           VCR.use_cassette(
             'vet360/contact_information/address_transaction_addr_not_found',
-            record: :new_episodes
+            VCR::MATCH_EVERYTHING
           ) do
             subject.get_address_transaction_status(transaction_id)
 
@@ -369,7 +369,7 @@ describe Vet360::ContactInformation::Service, skip_vet360: true do
       end
 
       it 'returns a status of 404' do
-        VCR.use_cassette('vet360/contact_information/address_transaction_status_error', record: :new_episodes) do
+        VCR.use_cassette('vet360/contact_information/address_transaction_status_error', VCR::MATCH_EVERYTHING) do
           expect { subject.get_address_transaction_status(transaction_id) }.to raise_error do |e|
             expect(e).to be_a(Common::Exceptions::BackendServiceException)
             expect(e.status_code).to eq(400)
@@ -385,7 +385,7 @@ describe Vet360::ContactInformation::Service, skip_vet360: true do
       let(:transaction_id) { 'b1b06a34-c6a8-412e-82e7-df09d84862f3' }
 
       it 'returns a status of 200' do
-        VCR.use_cassette('vet360/contact_information/permission_transaction_status', record: :new_episodes) do
+        VCR.use_cassette('vet360/contact_information/permission_transaction_status', VCR::MATCH_EVERYTHING) do
           response = subject.get_permission_transaction_status(transaction_id)
           expect(response).to be_ok
           expect(response.transaction).to be_a(Vet360::Models::Transaction)
@@ -398,7 +398,7 @@ describe Vet360::ContactInformation::Service, skip_vet360: true do
       let(:transaction_id) { 'd47b3d96-9ddd-42be-ac57-8e564aa38029' }
 
       it 'returns a status of 400' do
-        VCR.use_cassette('vet360/contact_information/permission_transaction_status_error', record: :new_episodes) do
+        VCR.use_cassette('vet360/contact_information/permission_transaction_status_error', VCR::MATCH_EVERYTHING) do
           expect { subject.get_permission_transaction_status(transaction_id) }.to raise_error do |e|
             expect(e).to be_a(Common::Exceptions::BackendServiceException)
             expect(e.status_code).to eq(400)
@@ -451,7 +451,7 @@ describe Vet360::ContactInformation::Service, skip_vet360: true do
       let(:transaction_id) { '786efe0e-fd20-4da2-9019-0c00540dba4d' }
 
       it 'returns a status of 200', :aggregate_failures do
-        VCR.use_cassette('vet360/contact_information/person_transaction_status', record: :new_episodes) do
+        VCR.use_cassette('vet360/contact_information/person_transaction_status', VCR::MATCH_EVERYTHING) do
           response = subject.get_person_transaction_status(transaction_id)
 
           expect(response).to be_ok
@@ -465,7 +465,7 @@ describe Vet360::ContactInformation::Service, skip_vet360: true do
       let(:transaction_id) { 'd47b3d96-9ddd-42be-ac57-8e564aa38029' }
 
       it 'returns a status of 400', :aggregate_failures do
-        VCR.use_cassette('vet360/contact_information/person_transaction_status_error', record: :new_episodes) do
+        VCR.use_cassette('vet360/contact_information/person_transaction_status_error', VCR::MATCH_EVERYTHING) do
           expect { subject.get_person_transaction_status(transaction_id) }.to raise_error do |e|
             expect(e).to be_a(Common::Exceptions::BackendServiceException)
             expect(e.status_code).to eq(400)
@@ -475,7 +475,7 @@ describe Vet360::ContactInformation::Service, skip_vet360: true do
       end
 
       it 'logs a vet360 tagged error message to sentry', :aggregate_failures do
-        VCR.use_cassette('vet360/contact_information/person_transaction_status_error', record: :new_episodes) do
+        VCR.use_cassette('vet360/contact_information/person_transaction_status_error', VCR::MATCH_EVERYTHING) do
           expect(Raven).to receive(:tags_context).with(vet360: 'failed_vet360_id_initializations')
 
           expect { subject.get_person_transaction_status(transaction_id) }.to raise_error do |e|
