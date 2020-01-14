@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2020_01_06_171714) do
+ActiveRecord::Schema.define(version: 2020_01_07_144615) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
@@ -117,13 +117,14 @@ ActiveRecord::Schema.define(version: 2020_01_06_171714) do
     t.string "encrypted_file_data"
     t.string "encrypted_file_data_iv"
     t.string "md5"
-    t.string "source"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.string "vbms_new_document_version_ref_id"
     t.string "vbms_document_series_ref_id"
     t.string "vbms_error_message"
     t.integer "vbms_upload_failure_count", default: 0
+    t.string "encrypted_source_data"
+    t.string "encrypted_source_data_iv"
   end
 
   create_table "claims_api_supporting_documents", id: :uuid, default: -> { "uuid_generate_v4()" }, force: :cascade do |t|
