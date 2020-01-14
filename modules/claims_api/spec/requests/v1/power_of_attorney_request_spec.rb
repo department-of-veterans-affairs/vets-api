@@ -47,7 +47,9 @@ RSpec.describe 'Power of Attorney ', type: :request do
         post path, params: data, headers: headers.merge(auth_header)
         token = JSON.parse(response.body)['data']['id']
         poa = ClaimsApi::PowerOfAttorney.find(token)
-        expect(poa.source).to eq('abraham lincoln')
+        expect(poa.source_data['name']).to eq('abraham lincoln')
+        expect(poa.source_data['icn'].present?).to eq(true)
+        expect(poa.source_data['email']).to eq('abraham.lincoln@vets.gov')
       end
     end
 
