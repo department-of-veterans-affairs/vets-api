@@ -22,7 +22,7 @@ gem 'puma-plugin-statsd', '~> 0.1.0'
 gem 'rails', '~> 5.2.4'
 
 # Gems with special version/repo needs
-gem 'active_model_serializers', '0.10.4' # breaking changed in 0.10.5 relating to .to_json
+gem 'active_model_serializers', '0.10.10' # breaking changed in 0.10.5 relating to .to_json
 gem 'carrierwave', '~> 0.11' # TODO: explanation
 gem 'sidekiq-scheduler', '~> 3.0' # TODO: explanation
 
