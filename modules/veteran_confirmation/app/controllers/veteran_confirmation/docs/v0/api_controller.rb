@@ -3,8 +3,8 @@
 module VeteranConfirmation
   module Docs
     module V0
-      class ApiController < ApplicationController
-        def status
+      class ApiController < VeteranConfirmation::ApplicationController
+        def index
           swagger = YAML.safe_load(File.read(VeteranConfirmation::Engine.root.join('VETERAN_CONFIRMATION.yml')))
           render json: swagger
         end

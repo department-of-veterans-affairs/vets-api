@@ -78,6 +78,15 @@ module ClaimsApi
             key :type, :string
           end
 
+          parameter do
+            key :name, 'X-VA-LOA'
+            key :in, :header
+            key :description, 'The level of assurance of the user making the request'
+            key :example, '3'
+            key :required, true
+            key :type, :string
+          end
+
           response 200 do
             key :description, 'claims response'
             schema do
@@ -171,6 +180,15 @@ module ClaimsApi
             key :description, 'VA username of the person making the request'
             key :example, 'lighthouse'
             key :required, false
+            key :type, :string
+          end
+
+          parameter do
+            key :name, 'X-VA-LOA'
+            key :in, :header
+            key :description, 'The level of assurance of the user making the request'
+            key :example, '3'
+            key :required, true
             key :type, :string
           end
 
