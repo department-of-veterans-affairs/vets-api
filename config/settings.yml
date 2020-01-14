@@ -443,16 +443,19 @@ flipper:
     - ryan.thurlwell@va.gov
     - travis.hilton@oddball.io
     - n.ratana@gmail.com
+    - zurbergram@gmail.com
 
 bgs:
   application: ~
   client_station_id: ~
   client_username: ~
-  mock_response_location: ~
-  mock_responses: ~
   external_uid: ~
   external_key: ~
+  env: ~
+  mock_response_location: ~
+  mock_responses: ~
   ssl_verify_mode: 'peer'
+  
 
 va_mobile:
   url: 'https://veteran.apps.va.gov/'

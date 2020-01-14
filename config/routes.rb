@@ -150,7 +150,7 @@ Rails.application.routes.draw do
       get 'services', to: 'ccp#services'
     end
 
-    scope :gi, module: 'gi' do
+    scope :gi, module: 'gids' do
       resources :institutions, only: :show, defaults: { format: :json } do
         get :search, on: :collection
         get :autocomplete, on: :collection
