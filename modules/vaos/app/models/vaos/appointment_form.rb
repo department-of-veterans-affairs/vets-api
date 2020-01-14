@@ -63,6 +63,14 @@ module VAOS
     def patients
       {
         patient: [
+          id: {
+            unique_id: @user.icn,
+            assigning_authority: 'ICN'
+          },
+          name: {
+            first_name: @user.first_name,
+            last_name: @user.last_name
+          },
           contact_information: {
             preferred_email: preferred_email,
             time_zone: time_zone
