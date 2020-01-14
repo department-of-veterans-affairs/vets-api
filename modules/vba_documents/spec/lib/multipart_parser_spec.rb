@@ -10,7 +10,7 @@ RSpec.describe VBADocuments::MultipartParser do
 
   describe '#parse' do
     it 'parses a valid multipart payload' do
-      valid_doc = get_fixture('valid_multipart_pdf.blob')
+      valid_doc = get_fixture('valid_multipart_pdf.blob').path
       result = described_class.parse(valid_doc)
       expect(result.size).to eq(2)
       expect(result).to have_key('metadata')
@@ -20,7 +20,7 @@ RSpec.describe VBADocuments::MultipartParser do
     end
 
     it 'parses a valid multipart payload with attachments' do
-      valid_doc = get_fixture('valid_multipart_pdf_attachments.blob')
+      valid_doc = get_fixture('valid_multipart_pdf_attachments.blob').path
       result = described_class.parse(valid_doc)
       expect(result.size).to eq(3)
       expect(result).to have_key('metadata')
@@ -32,7 +32,7 @@ RSpec.describe VBADocuments::MultipartParser do
     end
 
     it 'raises on a malformed multipart payload' do
-      invalid_doc = get_fixture('invalid_multipart_no_boundary.blob')
+      invalid_doc = get_fixture('invalid_multipart_no_boundary.blob').path
       expect { described_class.parse(invalid_doc) }.to raise_error do |error|
         expect(error).to be_a(VBADocuments::UploadError)
         expect(error.code).to eq('DOC101')
@@ -40,7 +40,7 @@ RSpec.describe VBADocuments::MultipartParser do
     end
 
     it 'raises on a multipart with truncated content' do
-      invalid_doc = get_fixture('invalid_multipart_truncated.blob')
+      invalid_doc = get_fixture('invalid_multipart_truncated.blob').path
       expect { described_class.parse(invalid_doc) }.to raise_error do |error|
         expect(error).to be_a(VBADocuments::UploadError)
         expect(error.code).to eq('DOC101')
@@ -48,7 +48,7 @@ RSpec.describe VBADocuments::MultipartParser do
     end
 
     it 'raises on a multipart with non-JSON content' do
-      invalid_doc = get_fixture('invalid_multipart_non_json.blob')
+      invalid_doc = get_fixture('invalid_multipart_non_json.blob').path
       expect { described_class.parse(invalid_doc) }.to raise_error do |error|
         expect(error).to be_a(VBADocuments::UploadError)
         expect(error.code).to eq('DOC101')
@@ -57,7 +57,7 @@ RSpec.describe VBADocuments::MultipartParser do
     end
 
     it 'raises on a multipart with non-PDF content' do
-      invalid_doc = get_fixture('invalid_multipart_non_pdf.blob')
+      invalid_doc = get_fixture('invalid_multipart_non_pdf.blob').path
       expect { described_class.parse(invalid_doc) }.to raise_error do |error|
         expect(error).to be_a(VBADocuments::UploadError)
         expect(error.code).to eq('DOC101')
@@ -66,7 +66,7 @@ RSpec.describe VBADocuments::MultipartParser do
     end
 
     it 'raises on a multipart with a missing content-type header' do
-      invalid_doc = get_fixture('invalid_multipart_no_contenttype.blob')
+      invalid_doc = get_fixture('invalid_multipart_no_contenttype.blob').path
       expect { described_class.parse(invalid_doc) }.to raise_error do |error|
         expect(error).to be_a(VBADocuments::UploadError)
         expect(error.code).to eq('DOC101')
@@ -75,7 +75,7 @@ RSpec.describe VBADocuments::MultipartParser do
     end
 
     it 'raises on a multipart wtih a missing part name header' do
-      invalid_doc = get_fixture('invalid_multipart_no_partname.blob')
+      invalid_doc = get_fixture('invalid_multipart_no_partname.blob').path
       expect { described_class.parse(invalid_doc) }.to raise_error do |error|
         expect(error).to be_a(VBADocuments::UploadError)
         expect(error.code).to eq('DOC101')
@@ -84,7 +84,7 @@ RSpec.describe VBADocuments::MultipartParser do
     end
 
     it 'raises on an empty payload' do
-      empty_doc = get_fixture('emptyfile.blob')
+      empty_doc = get_fixture('emptyfile.blob').path
       expect { described_class.parse(empty_doc) }.to raise_error do |error|
         expect(error).to be_a(VBADocuments::UploadError)
         expect(error.code).to eq('DOC107')
@@ -93,7 +93,7 @@ RSpec.describe VBADocuments::MultipartParser do
     end
 
     it 'handles a base64 payload' do
-      valid_doc = get_fixture('base_64')
+      valid_doc = get_fixture('base_64').path
       result = described_class.parse(valid_doc)
       expect(result.size).to eq(2)
       expect(result).to have_key('metadata')
