@@ -76,8 +76,8 @@ describe Vet360::ContactInformation::Service, skip_vet360: true do
 
     context 'when successful' do
       it 'returns a status of 200' do
-        VCR.use_cassette('vet360/contact_information/put_email_success', VCR::MATCH_EVERYTHING) do
-          email.id = 42
+        VCR.use_cassette('vet360/contact_information/put_email_success', record: :new_episodes) do
+          email.id = 8087
           email.email_address = 'person42@example.com'
           response = subject.put_email(email)
           expect(response.transaction.id).to eq('0b6344e3-3348-419c-bad9-c1a634e3d621')
