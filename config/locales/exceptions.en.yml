@@ -1704,53 +1704,35 @@ en:
         detail: The veteran has an incident flash
         code: DR_incident_flash
         status: 422
+      DR_invalid_benefit_type:
+        <<: *defaults
+        title: Invalid Benefit Type
+        detail: That Line of Business (benefit type) is either invalid or not currently supported
+        code: DR_invalid_benefit_type
+        status: 422
       DR_invalid_file_number:
         <<: *defaults
         title: Invalid File Number
         detail: Veteran ID not found
         code: DR_invalid_file_number
         status: 422
-      DR_request_issue_cannot_be_empty:
+      DR_malformed_contestable_issues:
         <<: *defaults
-        title: Request Issue Cannot Be Empty
-        detail: A request issue cannot be empty
-        code: DR_request_issue_cannot_be_empty
+        title: Malformed Contestable Issues
+        detail: Malformed ContestableIssues
+        code: DR_malformed_contestable_issues
         status: 422
-      DR_request_issue_category_invalid_for_benefit_type:
+      DR_contestable_issue_params_must_have_ids:
         <<: *defaults
-        title: Request Issue Category Invalid for Benefit Type
-        detail: The Category is invalid for the benefit type
-        code: DR_request_issue_category_invalid_for_benefit_type
+        title: Contestable Issue Params Must Have Ids
+        detail: A contestable issue must have at least one of the following- decisionIssueId, ratingIssueId, ratingDecisionIssueId
+        code: DR_contestable_issue_params_must_have_ids
         status: 422
-      DR_request_issue_legacyAppealId_is_blank_when_legacyAppealIssueId_is_present:
+      DR_could_not_find_contestable_issue:
         <<: *defaults
-        title: LegacyAppealId is blank when LegacyAppealIssueId Is Present
-        detail: If you specify a legacy appeal issue, you must specify which legacy appeal it belongs to (legacy_appeal_id)
-        code: DR_request_issue_legacyAppealId_is_blank_when_legacyAppealIssueId_is_present
-        status: 422
-      DR_request_issue_legacyAppealIssueId_is_blank_when_legacyAppealId_is_present:
-        <<: *defaults
-        title: LegacyAppealIssueId is blank when LegacyAppealId Is Present
-        detail: If you specify a legacy appeal, you must specify which issue (legacy_appeal_issue_id) of that appeal
-        code: DR_request_issue_legacyAppealIssueId_is_blank_when_legacyAppealId_is_present
-        status: 422
-      DR_request_issue_legacy_not_opted_in:
-        <<: *defaults
-        title: Legacy Not Opted In
-        detail: To add a legacy issue, legacyOptInApproved must be true
-        code: DR_request_issue_legacy_not_opted_in
-        status: 422
-      DR_request_issue_malformed:
-        <<: *defaults
-        title: Request Issue Malformed
-        detail: Request Issue is malformed
-        code: DR_request_issue_malformed
-        status: 422
-      DR_request_issue_must_have_at_least_one_ID_field:
-        <<: *defaults
-        title: Request Issue Must Have At Least One Id Field
-        detail: 'A request issue must have at least one of the following: decisionIssueId, ratingIssueId, legacyAppealId, legacyAppealIssueId'
-        code: DR_request_issue_must_have_at_least_one_ID_field
+        title: Could Not Find Contestable Issue
+        detail: Could not find ContestableIssue
+        code: DR_could_not_find_contestable_issue
         status: 422
       DR_veteran_has_multiple_phone_numbers:
         <<: *defaults
@@ -1769,6 +1751,12 @@ en:
         title: Veteran Not Valid
         detail: The veteran's profile has missing or invalid information required to create an EP
         code: DR_veteran_not_valid
+        status: 422
+      DR_bad_receipt_date:
+        <<: *defaults
+        title: Bad Receipt Date
+        detail: Bad receipt date
+        code: DR_bad_receipt_date
         status: 422
 
   evss:
