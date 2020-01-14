@@ -9,7 +9,7 @@ describe VAOS::AppointmentService do
   let(:start_date) { Time.zone.parse('2019-11-14T07:00:00Z') }
   let(:end_date) { Time.zone.parse('2020-03-14T08:00:00Z') }
 
-  # before { allow_any_instance_of(VAOS::UserService).to receive(:session).and_return('stubbed_token') }
+  before { allow_any_instance_of(VAOS::UserService).to receive(:session).and_return('stubbed_token') }
 
   describe '#post_appointment' do
     context 'when request is ineligible' do
@@ -19,20 +19,6 @@ describe VAOS::AppointmentService do
 
       it 'returns a 409 Conflict' do
         VCR.use_cassette('vaos/appointments/post_appointment_409', record: :new_episodes) do
-          expect { subject.post_appointment(request_body) }.to raise_error(
-            Common::Exceptions::BackendServiceException
-          )
-        end
-      end
-    end
-
-    context 'when request is invalid' do
-      let(:request_body) {
-        FactoryBot.build(:appointment_form, :invalid).attributes
-      }
-
-      it 'returns an error' do
-        VCR.use_cassette('vaos/appointments/post_appointment_400', record: :new_episodes) do
           expect { subject.post_appointment(request_body) }.to raise_error(
             Common::Exceptions::BackendServiceException
           )
