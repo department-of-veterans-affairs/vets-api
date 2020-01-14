@@ -23,7 +23,12 @@ module VAOS
     attribute :booking_notes, String
     attribute :preferred_email, String
     attribute :time_zone, String
-    attribute :clinic, Hash
+    attribute :site_code, String
+    attribute :clinic_id, String
+    attribute :clinic_name, String
+    attribute :clinic_friendly_location_name, String
+    attribute :institution_name, String
+    attribute :institution_code, String
 
     def initialize(user, json_hash)
       @user = user
@@ -39,6 +44,17 @@ module VAOS
     end
 
     private
+
+    def clinic
+      {
+        site_code: site_code,
+        clinic_id: clinic_id,
+        clinic_name: clinic_name,
+        clinic_friendly_location_name: clinic_friendly_location_name,
+        institution_name: institution_name,
+        institution_code: institution_code
+      }
+    end
 
     def direct
       {
@@ -79,9 +95,9 @@ module VAOS
           location: {
             type: 'VA',
             facility: {
-              name: clinic[:institution_name],
-              site_code: clinic[:site_code],
-              time_zone: (clinic[:time_zone] || time_zone),
+              name: institution_name,
+              site_code: site_code,
+              time_zone: time_zone,
             },
             clinic: {
               ien: clinic[:clinic_id],

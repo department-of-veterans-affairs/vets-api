@@ -36,18 +36,16 @@ module VAOS
         x_ray: '',
         preferred_email: 'abraham.lincoln@va.gov',
         time_zone: 'America/Denver',
-        desired_date: 5.days.from_now.utc.iso8601(3),
+        desired_date: 5.days.from_now.utc.change(hour: 0).iso8601(3),
         date_time: 5.days.from_now.utc.iso8601(3),
         duration: 30,
         booking_notes: 'Follow-up/Routine: abdominal pain',
-        clinic: {
-          site_code: '983',
-          clinic_id: '308',
-          clinicName: 'CHY PC KILPATRICK',
-          clinic_friendly_location_name: 'Green Team Clinic1',
-          institution_name: 'CHYSHR-Cheyenne VA Medical Center',
-          institution_code: '983'
-        }
+        site_code: '983',
+        clinic_id: '308',
+        clinicName: 'CHY PC KILPATRICK',
+        clinic_friendly_location_name: 'Green Team Clinic1',
+        institution_name: 'CHYSHR-Cheyenne VA Medical Center',
+        institution_code: '983'
       }
 
       response = service.post_appointment(params)
