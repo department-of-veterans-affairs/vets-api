@@ -727,7 +727,7 @@ GEM
       xmlmapper (>= 0.7.3)
     xmlmapper (0.7.3)
       nokogiri (~> 1.5)
-    yard (0.9.20)
+    yard (0.9.24)
     zero_downtime_migrations (0.0.7)
       activerecord
 
