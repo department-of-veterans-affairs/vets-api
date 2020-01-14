@@ -23,34 +23,8 @@ module VAOS
     def self.test
       user = FactoryBot.build(:user, :vaos)
       service = for_user(user)
-      params = {
-        scheduling_request_type: 'NEXT_AVAILABLE_APPT',
-        type: 'REGULAR',
-        appointment_kind: 'TRADITIONAL',
-        scheduling_method: 'direct',
-        appt_type: 'P',
-        purpose: '9',
-        lvl: '1',
-        ekg: '',
-        lab: '',
-        x_ray: '',
-        preferred_email: 'abraham.lincoln@va.gov',
-        time_zone: 'America/Denver',
-        desired_date: 5.days.from_now.utc.change(hour: 0).iso8601(3),
-        date_time: 5.days.from_now.utc.iso8601(3),
-        duration: 30,
-        booking_notes: 'Follow-up/Routine: abdominal pain',
-        clinic: {
-          site_code: '983',
-          clinic_id: '308',
-          clinic_name: 'CHY PC KILPATRICK',
-          clinic_friendly_location_name: 'Green Team Clinic1',
-          institution_name: 'CHYSHR-Cheyenne VA Medical Center',
-          institution_code: '983'
-        }
-      }
-
-      response = service.post_appointment(params)
+      request_body = FactoryBot.build(:appointment_form, :ineligible).attributes
+      response = service.post_appointment(request_body)
     end
 
     def get_appointments(type, start_date, end_date, pagination_params = {})
