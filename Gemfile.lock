@@ -459,12 +459,14 @@ GEM
     octokit (4.14.0)
       sawyer (~> 0.8.0, >= 0.5.3)
     oj (3.9.0)
-    olive_branch (2.0.0)
+    olive_branch (3.0.0)
+      multi_json
+      oj
       rails (>= 4.0)
     open4 (1.3.4)
     origami (2.1.0)
       colorize (~> 0.7)
-    overcommit (0.51.0)
+    overcommit (0.52.1)
       childprocess (>= 0.6.3, < 4)
       iniparse (~> 1.4)
     ox (2.12.0)
@@ -725,7 +727,7 @@ GEM
       xmlmapper (>= 0.7.3)
     xmlmapper (0.7.3)
       nokogiri (~> 1.5)
-    yard (0.9.20)
+    yard (0.9.24)
     zero_downtime_migrations (0.0.7)
       activerecord
 
