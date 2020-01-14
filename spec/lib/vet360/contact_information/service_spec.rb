@@ -22,7 +22,7 @@ describe Vet360::ContactInformation::Service, skip_vet360: true do
   describe '#get_person' do
     context 'when successful' do
       it 'returns a status of 200' do
-        VCR.use_cassette('vet360/contact_information/person_full', record: :new_episodes) do
+        VCR.use_cassette('vet360/contact_information/person_full', VCR::MATCH_EVERYTHING) do
           response = subject.get_person
           expect(response).to be_ok
           expect(response.person).to be_a(Vet360::Models::Person)
@@ -34,7 +34,7 @@ describe Vet360::ContactInformation::Service, skip_vet360: true do
       set_bad_vet360_id
 
       it 'returns a status of 404' do
-        VCR.use_cassette('vet360/contact_information/person_error', record: :new_episodes) do
+        VCR.use_cassette('vet360/contact_information/person_error', VCR::MATCH_EVERYTHING) do
           response = subject.get_person
           expect(response).not_to be_ok
           expect(response.person).to be_nil
