@@ -13,7 +13,7 @@ StatsD.backend = if host.present? && port.present?
 
 StatsD.increment(V0::SessionsController::STATSD_SSO_CALLBACK_TOTAL_KEY, 0)
 StatsD.increment(V0::SessionsController::STATSD_LOGIN_NEW_USER_KEY, 0)
-StatsD.increment(V1::SessionsController::STATSD_MHV_COOKIE_NO_ACCOUNT_KEY, 0)
+StatsD.increment(V1::SessionsController::STATSD_SSO_SHARED_COOKIE, 0)
 
 SAML::Responses::Base::ERRORS.merge(UserSessionForm::ERRORS).each_value do |known_error|
   StatsD.increment(V0::SessionsController::STATSD_SSO_CALLBACK_FAILED_KEY, 0, tags: ["error:#{known_error[:tag]}"])

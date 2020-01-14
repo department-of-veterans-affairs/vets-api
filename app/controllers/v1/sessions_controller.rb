@@ -14,7 +14,7 @@ module V1
     STATSD_SSO_CALLBACK_TOTAL_KEY = 'api.auth.login_callback.total'
     STATSD_SSO_CALLBACK_FAILED_KEY = 'api.auth.login_callback.failed'
     STATSD_LOGIN_NEW_USER_KEY = 'api.auth.new_user'
-    STATSD_MHV_COOKIE_NO_ACCOUNT_KEY = 'api.auth.mhv_cookie.no_user'
+    STATSD_SSO_SHARED_COOKIE = 'api.auth.sso_shared_cookie'
 
     # Collection Action: auth is required for certain types of requests
     # @type is set automatically by the routes in config/routes.rb
@@ -114,7 +114,7 @@ module V1
         @current_user, @session_object = user_session_form.persist
         set_cookies
         after_login_actions
-        should_skip_uplevel = saml_response.issuer_text&.match(/eauth\.va\.gov/)
+        should_skip_uplevel = saml_response.issuer_text&.match?(/eauth\.va\.gov/)
         redirect_to url_service.login_redirect_url(skip_uplevel: should_skip_uplevel)
         if self.location.start_with?(url_service.base_redirect_url)
           # only record success stats if the user is being redirect to the site
@@ -149,8 +149,8 @@ module V1
         StatsD.increment(STATSD_LOGIN_NEW_USER_KEY) if request_type == 'signup'
         StatsD.increment(STATSD_SSO_CALLBACK_KEY,
                          tags: ['status:success', "context:#{saml_response.authn_context}"])
-        # track users who need to re-login on MHV
-        StatsD.increment(STATSD_MHV_COOKIE_NO_ACCOUNT_KEY) unless @current_user.mhv_correlation_id
+        # track users who have a shared sso cookie
+        StatsD.increment(STATSD_SSO_SHARED_COOKIE) unless @current_user.mhv_correlation_id
       when :failure
         StatsD.increment(STATSD_SSO_CALLBACK_KEY,
                          tags: ['status:failure', "context:#{saml_response.authn_context}"])
