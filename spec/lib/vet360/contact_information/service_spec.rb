@@ -207,7 +207,7 @@ describe Vet360::ContactInformation::Service, skip_vet360: true do
           permission.id = 401
           permission.permission_value = true
           response = subject.put_permission(permission)
-          expect(response.transaction.id).to eq('83c7d34a-7d88-439e-b4eb-62157d0d74b3')
+          expect(response.transaction.id).to eq('98358039-5f4d-4ada-9a43-d385ce1cb275')
           expect(response).to be_ok
         end
       end
