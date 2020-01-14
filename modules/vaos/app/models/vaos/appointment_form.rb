@@ -6,7 +6,6 @@ require 'common/models/attribute_types/iso8601_time'
 
 module VAOS
   class AppointmentForm < Common::Form
-    attribute :appointment_type, String
     attribute :scheduling_request_type, String
     attribute :type, String
     attribute :appointment_kind, String
@@ -64,14 +63,6 @@ module VAOS
     def patients
       {
         patient: [
-          id: {
-            unique_id: @user.icn,
-            assigning_authority: 'ICN'
-          },
-          name: {
-            first_name: @user.first_name,
-            last_name: @user.last_name
-          },
           contact_information: {
             preferred_email: preferred_email,
             time_zone: time_zone
