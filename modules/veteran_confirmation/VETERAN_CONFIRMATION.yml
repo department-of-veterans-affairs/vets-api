@@ -80,7 +80,6 @@ paths:
       security:
         - apikey: []
       requestBody:
-        description: ''
         required: true
         content:
           application/json:
