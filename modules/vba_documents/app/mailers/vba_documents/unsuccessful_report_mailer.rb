@@ -19,7 +19,13 @@ module VBADocuments
       @date_from = date_from
       @date_to = date_to
 
-      path = VBADocuments::Engine.root.join('app', 'views', 'vba_documents', 'unsuccessful_report_mailer', 'unsuccessful_report.html.erb')
+      path = VBADocuments::Engine.root.join(
+        'app',
+        'views',
+        'vba_documents',
+        'unsuccessful_report_mailer',
+        'unsuccessful_report.html.erb'
+      )
       template = File.read(path)
 
       mail(
