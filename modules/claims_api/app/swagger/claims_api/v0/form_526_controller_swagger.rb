@@ -24,15 +24,17 @@ module ClaimsApi
 
           response 200 do
             key :description, 'schema response'
-            schema do
-              key :type, :object
-              key :required, [:data]
-              property :data do
-                key :type, :array
-                items do
-                  key :type, :object
-                  key :description, 'Returning Variety of JSON and UI Schema Objects'
-                  key :example, ClaimsApi::FormSchemas::SCHEMAS['526']
+            content 'application/json' do
+              schema do
+                key :type, :object
+                key :required, [:data]
+                property :data do
+                  key :type, :array
+                  items do
+                    key :type, :object
+                    key :description, 'Returning Variety of JSON and UI Schema Objects'
+                    key :example, ClaimsApi::FormSchemas::SCHEMAS['526']
+                  end
                 end
               end
             end
@@ -40,13 +42,15 @@ module ClaimsApi
 
           response :default do
             key :description, 'unexpected error'
-            schema do
-              key :type, :object
-              key :required, [:errors]
-              property :errors do
-                key :type, :array
-                items do
-                  key :'$ref', :ErrorModel
+            content 'application/json' do
+              schema do
+                key :type, :object
+                key :required, [:errors]
+                property :errors do
+                  key :type, :array
+                  items do
+                    key :'$ref', :ErrorModel
+                  end
                 end
               end
             end
@@ -58,7 +62,6 @@ module ClaimsApi
             key :apikey, []
           end
           key :summary, 'Accepts 526 claim form submission'
-          key :description, 'Accepts JSON payload. Full URL, including\nquery parameters.'
           key :operationId, 'post526Claim'
           key :tags, [
             'Disability'
@@ -113,30 +116,43 @@ module ClaimsApi
           end
 
           parameter do
-            key :name, 'payload'
-            key :in, :body
+            key :name, 'X-VA-LOA'
+            key :in, :header
+            key :description, 'The level of assurance of the user making the request'
+            key :example, '3'
+            key :required, true
+            key :type, :string
+          end
+
+          request_body do
             key :description, 'JSON API Payload of Veteran being submitted'
             key :required, true
-            schema do
-              key :'$ref', :Form526Input
+            content 'application/json' do
+              schema do
+                key :'$ref', :Form526Input
+              end
             end
           end
 
           response 200 do
             key :description, '526 response'
-            schema do
-              key :'$ref', :ClaimsIndex
+            content 'application/json' do
+              schema do
+                key :'$ref', :ClaimsIndex
+              end
             end
           end
           response :default do
             key :description, 'unexpected error'
-            schema do
-              key :type, :object
-              key :required, [:errors]
-              property :errors do
-                key :type, :array
-                items do
-                  key :'$ref', :ErrorModel
+            content 'application/json' do
+              schema do
+                key :type, :object
+                key :required, [:errors]
+                property :errors do
+                  key :type, :array
+                  items do
+                    key :'$ref', :ErrorModel
+                  end
                 end
               end
             end
@@ -148,7 +164,7 @@ module ClaimsApi
         operation :put do
           key :summary, 'Upload Disability Compensation document'
           key :description, 'Accpets document binaries as part of a multipart payload.'
-          key :operationId, 'upload526Attachments'
+          key :operationId, 'upload526Doc'
           key :produces, [
             'application/json'
           ]
@@ -221,6 +237,15 @@ module ClaimsApi
           end
 
           parameter do
+            key :name, 'X-VA-LOA'
+            key :in, :header
+            key :description, 'The level of assurance of the user making the request'
+            key :example, '3'
+            key :required, true
+            key :type, :string
+          end
+
+          parameter do
             key :name, 'attachment'
             key :in, :formData
             key :type, :file
@@ -229,20 +254,24 @@ module ClaimsApi
 
           response 200 do
             key :description, '526 response'
-            schema do
-              key :'$ref', :ClaimsIndex
+            content 'application/json' do
+              schema do
+                key :'$ref', :ClaimsIndex
+              end
             end
           end
 
           response :default do
             key :description, 'unexpected error'
-            schema do
-              key :type, :object
-              key :required, [:errors]
-              property :errors do
-                key :type, :array
-                items do
-                  key :'$ref', :ErrorModel
+            content 'application/json' do
+              schema do
+                key :type, :object
+                key :required, [:errors]
+                property :errors do
+                  key :type, :array
+                  items do
+                    key :'$ref', :ErrorModel
+                  end
                 end
               end
             end
@@ -311,38 +340,51 @@ module ClaimsApi
           end
 
           parameter do
+            key :name, 'X-VA-LOA'
+            key :in, :header
+            key :description, 'The level of assurance of the user making the request'
+            key :example, '3'
+            key :required, true
+            key :type, :string
+          end
+
+          request_body do
             key :name, 'payload'
             key :in, :body
             key :description, 'JSON API Payload of Veteran being submitted'
             key :required, true
-            schema do
-              key :'$ref', :Form526Input
+            content 'application/json' do
+              schema do
+                key :'$ref', :Form526Input
+              end
             end
           end
 
           response 200 do
             key :description, '526 response'
-            schema do
-              key :type, :object
-              key :required, [:data]
-
-              property :data do
+            content 'application/json' do
+              schema do
                 key :type, :object
-                key :required, [:attributes]
+                key :required, [:data]
 
-                property :type do
-                  key :type, :string
-                  key :example, 'claims_api_auto_established_claims_validation'
-                  key :description, 'Required by JSON API standard'
-                end
-
-                property :attributes do
+                property :data do
                   key :type, :object
+                  key :required, [:attributes]
 
-                  property :status do
+                  property :type do
                     key :type, :string
-                    key :example, 'valid'
-                    key :description, 'Return whether or not whether or not the payload is valid'
+                    key :example, 'claims_api_auto_established_claims_validation'
+                    key :description, 'Required by JSON API standard'
+                  end
+
+                  property :attributes do
+                    key :type, :object
+
+                    property :status do
+                      key :type, :string
+                      key :example, 'valid'
+                      key :description, 'Return whether or not whether or not the payload is valid'
+                    end
                   end
                 end
               end
@@ -351,13 +393,15 @@ module ClaimsApi
 
           response 422 do
             key :description, 'Invalid Payload'
-            schema do
-              key :type, :object
-              key :required, [:errors]
-              property :errors do
-                key :type, :array
-                items do
-                  key :'$ref', :ErrorModel
+            content 'application/json' do
+              schema do
+                key :type, :object
+                key :required, [:errors]
+                property :errors do
+                  key :type, :array
+                  items do
+                    key :'$ref', :ErrorModel
+                  end
                 end
               end
             end
@@ -365,13 +409,15 @@ module ClaimsApi
 
           response :default do
             key :description, 'unexpected error'
-            schema do
-              key :type, :object
-              key :required, [:errors]
-              property :errors do
-                key :type, :array
-                items do
-                  key :'$ref', :ErrorModel
+            content 'application/json' do
+              schema do
+                key :type, :object
+                key :required, [:errors]
+                property :errors do
+                  key :type, :array
+                  items do
+                    key :'$ref', :ErrorModel
+                  end
                 end
               end
             end
@@ -381,9 +427,6 @@ module ClaimsApi
 
       swagger_path '/forms/526/{id}/attachments' do
         operation :post do
-          security do
-            key :apikey, []
-          end
           key :summary, 'Upload documents in support of a 526 claim'
           key :description, 'Accpets document binaries as part of a multipart payload. Accepts N number of attachments, via attachment1 .. attachmentN'
           key :operationId, 'upload526Attachments'
@@ -451,6 +494,15 @@ module ClaimsApi
           end
 
           parameter do
+            key :name, 'X-VA-LOA'
+            key :in, :header
+            key :description, 'The level of assurance of the user making the request'
+            key :example, '3'
+            key :required, true
+            key :type, :string
+          end
+
+          parameter do
             key :name, 'attachment1'
             key :in, :formData
             key :type, :file
@@ -469,13 +521,15 @@ module ClaimsApi
           end
           response :default do
             key :description, 'unexpected error'
-            schema do
-              key :type, :object
-              key :required, [:errors]
-              property :errors do
-                key :type, :array
-                items do
-                  key :'$ref', :ErrorModel
+            content 'application/json' do
+              schema do
+                key :type, :object
+                key :required, [:errors]
+                property :errors do
+                  key :type, :array
+                  items do
+                    key :'$ref', :ErrorModel
+                  end
                 end
               end
             end
