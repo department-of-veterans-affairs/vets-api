@@ -312,61 +312,56 @@ describe Vet360::ContactInformation::Service, skip_vet360: true do
 
   describe '#get_address_transaction_status' do
     context 'when successful' do
-      let(:transaction_id) { '0faf342f-5966-4d3f-8b10-5e9f911d07d2' }
+      let(:transaction_id) { 'd8cd4a73-6241-46fe-95a4-e0776f8f6f64' }
+      before do
+        allow(user).to receive(:vet360_id).and_return('1133902')
+      end
 
       it 'returns a status of 200' do
-        VCR.use_cassette('vet360/contact_information/address_transaction_status', VCR::MATCH_EVERYTHING) do
+        VCR.use_cassette('vet360/contact_information/address_transaction_addr_not_found', VCR::MATCH_EVERYTHING) do
           response = subject.get_address_transaction_status(transaction_id)
           expect(response).to be_ok
           expect(response.transaction).to be_a(Vet360::Models::Transaction)
           expect(response.transaction.id).to eq(transaction_id)
         end
       end
+
+      it 'logs the failure to pii logs' do
+        VCR.use_cassette(
+          'vet360/contact_information/address_transaction_addr_not_found',
+          VCR::MATCH_EVERYTHING
+        ) do
+          subject.get_address_transaction_status(transaction_id)
+
+          personal_information_log = PersonalInformationLog.last
+
+          expect(personal_information_log.error_class).to eq(
+            'Vet360::ContactInformation::AddressTransactionResponseError'
+          )
+          expect(personal_information_log.data).to eq(
+            'errors' => [
+              { 'key' => 'addressBio.AddressCouldNotBeFound',
+                'code' => 'ADDRVAL112',
+                'text' => 'The Address could not be found',
+                'severity' => 'ERROR' }
+            ],
+            'address' =>
+             { 'county' => {},
+               'city_name' => 'Springfield',
+               'zip_code5' => '22150',
+               'state_code' => 'VA',
+               'address_pou' => 'CORRESPONDENCE',
+               'source_date' => '2019-10-21T18:32:31Z',
+               'address_type' => 'DOMESTIC',
+               'country_name' => 'United States',
+               'address_line1' => 'hgjghjghj' }
+          )
+        end
+      end
     end
 
     context 'when not successful' do
       let(:transaction_id) { 'd47b3d96-9ddd-42be-ac57-8e564aa38029' }
-
-      context 'when there is a COMPLETED_FAILURE address error' do
-        before do
-          allow(user).to receive(:vet360_id).and_return('1133902')
-        end
-
-        let(:transaction_id) { 'd8cd4a73-6241-46fe-95a4-e0776f8f6f64' }
-
-        it 'logs the error to pii logs' do
-          VCR.use_cassette(
-            'vet360/contact_information/address_transaction_addr_not_found',
-            VCR::MATCH_EVERYTHING
-          ) do
-            subject.get_address_transaction_status(transaction_id)
-
-            personal_information_log = PersonalInformationLog.last
-
-            expect(personal_information_log.error_class).to eq(
-              'Vet360::ContactInformation::AddressTransactionResponseError'
-            )
-            expect(personal_information_log.data).to eq(
-              'errors' => [
-                { 'key' => 'addressBio.AddressCouldNotBeFound',
-                  'code' => 'ADDRVAL112',
-                  'text' => 'The Address could not be found',
-                  'severity' => 'ERROR' }
-              ],
-              'address' =>
-               { 'county' => {},
-                 'city_name' => 'Springfield',
-                 'zip_code5' => '22150',
-                 'state_code' => 'VA',
-                 'address_pou' => 'CORRESPONDENCE',
-                 'source_date' => '2019-10-21T18:32:31Z',
-                 'address_type' => 'DOMESTIC',
-                 'country_name' => 'United States',
-                 'address_line1' => 'hgjghjghj' }
-            )
-          end
-        end
-      end
 
       it 'returns a status of 404' do
         VCR.use_cassette('vet360/contact_information/address_transaction_status_error', VCR::MATCH_EVERYTHING) do
