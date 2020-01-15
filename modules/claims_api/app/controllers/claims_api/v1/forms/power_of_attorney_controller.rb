@@ -56,6 +56,10 @@ module ClaimsApi
           render json: power_of_attorney, serializer: ClaimsApi::PowerOfAttorneySerializer
         end
 
+        def active
+          verifier = EVSS::PowerOfAttorneyVerifier.new(target_veteran)
+        end
+
         private
 
         def source_name
