@@ -114,6 +114,7 @@ module V1
         @current_user, @session_object = user_session_form.persist
         set_cookies
         after_login_actions
+        require 'pry'; binding.pry
         should_skip_uplevel = saml_response.issuer_text&.match?(/eauth\.va\.gov/)
         redirect_to url_service.login_redirect_url(skip_uplevel: should_skip_uplevel)
         if self.location.start_with?(url_service.base_redirect_url)
@@ -151,7 +152,9 @@ module V1
                          tags: ['status:success', "context:#{saml_response.authn_context}"])
         # track users who have a shared sso cookie
         # TODO: should we check for any special case to see if SSOe worked?
-        StatsD.increment(STATSD_SSO_SHARED_COOKIE)
+        StatsD.increment(STATSD_SSO_SHARED_COOKIE,
+                         tags: ["loa:{@current_user.loa[:current]}",
+                                "idp:{@current_user.identity.sign_in[:service_name]}"])
       when :failure
         StatsD.increment(STATSD_SSO_CALLBACK_KEY,
                          tags: ['status:failure', "context:#{saml_response.authn_context}"])
