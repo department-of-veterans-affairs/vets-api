@@ -469,7 +469,7 @@ describe Vet360::ContactInformation::Service, skip_vet360: true do
           expect { subject.get_person_transaction_status(transaction_id) }.to raise_error do |e|
             expect(e).to be_a(Common::Exceptions::BackendServiceException)
             expect(e.status_code).to eq(400)
-            expect(e.errors.first.code).to eq('VET360_PERS200')
+            expect(e.errors.first.code).to eq('VET360_CORE103')
           end
         end
       end
