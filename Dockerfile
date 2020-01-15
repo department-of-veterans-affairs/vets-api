@@ -64,8 +64,8 @@ COPY --chown=vets-api:vets-api . .
 USER vets-api
 # --no-cache doesn't do the right thing, so trim it during build
 # https://github.com/bundler/bundler/issues/6680
-RUN bundle install --binstubs="${BUNDLE_PATH}/bin" $bundler_opts && \
-    find ${BUNDLE_PATH}/cache -type f -name \*.gem -delete
+RUN bundle install --binstubs="${BUNDLE_APP_CONFIG}/bin" $bundler_opts && \
+    find ${BUNDLE_APP_CONFIG}/cache -type f -name \*.gem -delete
 
 ###
 # prod stage; default if no target given
@@ -76,7 +76,7 @@ RUN bundle install --binstubs="${BUNDLE_PATH}/bin" $bundler_opts && \
 FROM base AS production
 
 ENV RAILS_ENV=production
-COPY --from=builder $BUNDLE_PATH $BUNDLE_PATH
+COPY --from=builder $BUNDLE_APP_CONFIG $BUNDLE_APP_CONFIG
 COPY --from=builder --chown=vets-api:vets-api /srv/vets-api/src ./
 COPY --from=builder --chown=vets-api:vets-api /srv/vets-api/clamav/database ../clamav/database
 RUN if [ -d certs-tmp ] ; then cd certs-tmp ; for i in * ; do cp $i /usr/local/share/ca-certificates/${i/pem/crt} ; done ; fi && update-ca-certificates
