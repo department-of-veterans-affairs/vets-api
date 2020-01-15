@@ -11,8 +11,10 @@ module VeteranConfirmation
         status = StatusService.new.get_by_attributes(
           ssn: params['ssn'],
           first_name: params['first_name'],
+          middle_name: params['middle_name'],
           last_name: params['last_name'],
-          birth_date: params['birth_date']
+          birth_date: params['birth_date'],
+          gender: params['gender']
         )
 
         render json: { veteran_status: status }
@@ -27,6 +29,7 @@ module VeteranConfirmation
 
         validate_ssn_format
         vali_date
+        validate_gender
       end
 
       def validate_no_query_params
@@ -41,6 +44,13 @@ module VeteranConfirmation
 
       def valid_ssn?(ssn)
         ssn.is_a?(String) && (all_digits?(ssn) || all_digits_with_hyphens?(ssn))
+      end
+
+      def validate_gender
+        gender_options = %w(M F)
+        no_matching_option = params['gender'] && !gender_options.include?(params['gender'])
+
+        raise Common::Exceptions::InvalidFieldValue.new('gender', params['gender']) if no_matching_option
       end
 
       def all_digits?(ssn)
