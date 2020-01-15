@@ -47,7 +47,7 @@ module VeteranConfirmation
       end
 
       def validate_gender
-        gender_options = %w(M F m f)
+        gender_options = %w[M F m f]
         no_matching_option = params['gender'] && !gender_options.include?(params['gender'])
 
         raise Common::Exceptions::InvalidFieldValue.new('gender', params['gender']) if no_matching_option

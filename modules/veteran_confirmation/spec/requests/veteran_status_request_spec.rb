@@ -100,7 +100,7 @@ RSpec.describe 'Veteran Status API endpoint', type: :request, skip_emis: true do
         first_name: 'Mitchell',
         last_name: 'Jenkins',
         birth_date: '1967-04-13',
-        gender: 'randomstringhere',
+        gender: 'randomstringhere'
       }
 
       post '/services/veteran_confirmation/v0/status', params: invalid_gender_attributes
