@@ -109,7 +109,7 @@ module VAOS
           'institution-code' => facility_id,
           'clinical-service' => type_of_care_id
         }
-        response = perform(:get, url, url_params)
+        response = perform(:get, url, url_params, headers(@user))
         OpenStruct.new(response.body.merge(id: SecureRandom.uuid))
       end
     end
