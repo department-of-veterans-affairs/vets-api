@@ -4,20 +4,19 @@ require "rails_helper"
 
 describe AppealsApi::V1::DecisionReview::ContestableIssuesController, type: :request do
   describe "#index" do
-    it do
-      get(
-        "/services/appeals/v1/decision_review/contestable_issues",
-        headers: {
-          "veteranId" => "123456789",
-          "receiptDate" => Time.zone.today.strftime("%F")
-        }
-      )
-      json = JSON.parse(response.body)
-      expect(json).to eq ""
-      expect(json).not_to eq(
-        "errors" => [{ "code" => "401", "detail" => "Not authorized", "status" => "401", "title" => "Not authorized" }]
+    it "GETs contestable_issues from Caseflow successfully" do
+      VCR.use_cassette('appeals/contestable_issues') do
+        get(
+          "/services/appeals/v1/decision_review/contestable_issues",
+          headers: {
+            "veteranId" => "796111863",
+            "receiptDate" => "2019-12-01"
+          }
         )
-      expect(response).to have_http_status(:ok)
+        expect(response).to have_http_status(:ok)
+        json = JSON.parse(response.body)
+        expect(json["data"]).not_to be nil
+      end
     end
   end
 end
