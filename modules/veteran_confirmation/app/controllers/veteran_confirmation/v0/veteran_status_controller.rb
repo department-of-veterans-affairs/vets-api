@@ -14,7 +14,7 @@ module VeteranConfirmation
           middle_name: params['middle_name'],
           last_name: params['last_name'],
           birth_date: params['birth_date'],
-          gender: params['gender']
+          gender: params['gender'].upcase
         )
 
         render json: { veteran_status: status }
@@ -47,7 +47,7 @@ module VeteranConfirmation
       end
 
       def validate_gender
-        gender_options = %w(M F)
+        gender_options = %w(M F m f)
         no_matching_option = params['gender'] && !gender_options.include?(params['gender'])
 
         raise Common::Exceptions::InvalidFieldValue.new('gender', params['gender']) if no_matching_option
