@@ -135,7 +135,7 @@ module V0
         StatsD.increment(STATSD_SSO_CALLBACK_KEY,
                          tags: ['status:success', "context:#{saml_response.authn_context}"])
         # track users who have a shared sso cookie
-        StatsD.increment(STATSD_SSO_SHARED_COOKIE) unless @current_user.mhv_correlation_id
+        StatsD.increment(STATSD_SSO_SHARED_COOKIE) if cookies.key?(Settings.sso.cookie_name)
       when :failure
         StatsD.increment(STATSD_SSO_CALLBACK_KEY,
                          tags: ['status:failure', "context:#{saml_response.authn_context}"])
