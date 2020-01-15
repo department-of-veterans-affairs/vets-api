@@ -21,15 +21,17 @@ module ClaimsApi
 
           response 200 do
             key :description, 'schema response'
-            schema do
-              key :type, :object
-              key :required, [:data]
-              property :data do
-                key :type, :array
-                items do
-                  key :type, :object
-                  key :description, 'Returning Variety of JSON and UI Schema Objects'
-                  key :example, ClaimsApi::FormSchemas::SCHEMAS['2122']
+            content 'application/json' do
+              schema do
+                key :type, :object
+                key :required, [:data]
+                property :data do
+                  key :type, :array
+                  items do
+                    key :type, :object
+                    key :description, 'Returning Variety of JSON and UI Schema Objects'
+                    key :example, ClaimsApi::FormSchemas::SCHEMAS['2122']
+                  end
                 end
               end
             end
@@ -37,13 +39,15 @@ module ClaimsApi
 
           response :default do
             key :description, 'unexpected error'
-            schema do
-              key :type, :object
-              key :required, [:errors]
-              property :errors do
-                key :type, :array
-                items do
-                  key :'$ref', :ErrorModel
+            content 'application/json' do
+              schema do
+                key :type, :object
+                key :required, [:errors]
+                property :errors do
+                  key :type, :array
+                  items do
+                    key :'$ref', :ErrorModel
+                  end
                 end
               end
             end
@@ -57,6 +61,10 @@ module ClaimsApi
           key :tags, [
             'Power of Attorney'
           ]
+
+          security do
+            key :apikey, []
+          end
 
           parameter do
             key :name, 'X-VA-SSN'
@@ -106,32 +114,36 @@ module ClaimsApi
             key :type, :string
           end
 
-          parameter do
-            key :name, 'payload'
-            key :in, :body
+          request_body do
             key :description, 'JSON API Payload of Veteran being submitted'
             key :required, true
-            schema do
-              key :'$ref', :Form2122Input
+            content 'application/json' do
+              schema do
+                key :'$ref', :Form2122Input
+              end
             end
           end
 
           response 200 do
             key :description, '2122 response'
-            schema do
-              key :'$ref', :Form2122Output
+            content 'application/json' do
+              schema do
+                key :'$ref', :Form2122Output
+              end
             end
           end
 
           response :default do
             key :description, 'unexpected error'
-            schema do
-              key :type, :object
-              key :required, [:errors]
-              property :errors do
-                key :type, :array
-                items do
-                  key :'$ref', :ErrorModel
+            content 'application/json' do
+              schema do
+                key :type, :object
+                key :required, [:errors]
+                property :errors do
+                  key :type, :array
+                  items do
+                    key :'$ref', :ErrorModel
+                  end
                 end
               end
             end
@@ -209,20 +221,24 @@ module ClaimsApi
 
           response 200 do
             key :description, '2122 response'
-            schema do
-              key :'$ref', :Form2122Output
+            content 'application/json' do
+              schema do
+                key :'$ref', :Form2122Output
+              end
             end
           end
 
           response :default do
             key :description, 'unexpected error'
-            schema do
-              key :type, :object
-              key :required, [:errors]
-              property :errors do
-                key :type, :array
-                items do
-                  key :'$ref', :ErrorModel
+            content 'application/json' do
+              schema do
+                key :type, :object
+                key :required, [:errors]
+                property :errors do
+                  key :type, :array
+                  items do
+                    key :'$ref', :ErrorModel
+                  end
                 end
               end
             end
@@ -287,20 +303,24 @@ module ClaimsApi
 
           response 200 do
             key :description, '2122 response'
-            schema do
-              key :'$ref', :Form2122Output
+            content 'application/json' do
+              schema do
+                key :'$ref', :Form2122Output
+              end
             end
           end
 
           response :default do
             key :description, 'unexpected error'
-            schema do
-              key :type, :object
-              key :required, [:errors]
-              property :errors do
-                key :type, :array
-                items do
-                  key :'$ref', :ErrorModel
+            content 'application/json' do
+              schema do
+                key :type, :object
+                key :required, [:errors]
+                property :errors do
+                  key :type, :array
+                  items do
+                    key :'$ref', :ErrorModel
+                  end
                 end
               end
             end
