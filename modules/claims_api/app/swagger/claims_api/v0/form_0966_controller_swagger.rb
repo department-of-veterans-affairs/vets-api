@@ -24,15 +24,17 @@ module ClaimsApi
 
           response 200 do
             key :description, 'schema response'
-            schema do
-              key :type, :object
-              key :required, [:data]
-              property :data do
-                key :type, :array
-                items do
-                  key :type, :object
-                  key :description, 'Returning Variety of JSON and UI Schema Objects'
-                  key :example, ClaimsApi::FormSchemas::SCHEMAS['0966']
+            content 'application/json' do
+              schema do
+                key :type, :object
+                key :required, [:data]
+                property :data do
+                  key :type, :array
+                  items do
+                    key :type, :object
+                    key :description, 'Returning Variety of JSON and UI Schema Objects'
+                    key :example, ClaimsApi::FormSchemas::SCHEMAS['0966']
+                  end
                 end
               end
             end
@@ -40,13 +42,15 @@ module ClaimsApi
 
           response :default do
             key :description, 'unexpected error'
-            schema do
-              key :type, :object
-              key :required, [:errors]
-              property :errors do
-                key :type, :array
-                items do
-                  key :'$ref', :ErrorModel
+            content 'application/json' do
+              schema do
+                key :type, :object
+                key :required, [:errors]
+                property :errors do
+                  key :type, :array
+                  items do
+                    key :'$ref', :ErrorModel
+                  end
                 end
               end
             end
@@ -121,27 +125,37 @@ module ClaimsApi
           end
 
           parameter do
-            key :name, 'payload'
-            key :in, :body
+            key :name, 'X-VA-LOA'
+            key :in, :header
+            key :description, 'The level of assurance of the user making the request'
+            key :example, '3'
+            key :required, true
+            key :type, :string
+          end
+
+          request_body do
             key :description, 'JSON API Payload of Veteran being submitted'
             key :required, true
-            schema do
-              key :type, :object
-              key :required, [:data]
-              property :data do
+            content 'application/json' do
+              schema do
                 key :type, :object
-                key :required, [:attributes]
-                property :attributes do
+                key :required, [:data]
+                property :data do
                   key :type, :object
-                  property :type do
-                    key :type, :string
-                    key :example, 'compensation'
-                    key :description, 'Required by JSON API standard'
-                    key :enum, %w[
-                      compensation
-                      burial
-                      pension
-                    ]
+                  key :required, [:attributes]
+                  key :example, type: 'form/0966', attributes: { type: 'compensation' }
+                  property :attributes do
+                    key :type, :object
+                    property :type do
+                      key :type, :string
+                      key :example, 'compensation'
+                      key :description, 'Required by JSON API standard'
+                      key :enum, %w[
+                        compensation
+                        burial
+                        pension
+                      ]
+                    end
                   end
                 end
               end
@@ -150,20 +164,24 @@ module ClaimsApi
 
           response 200 do
             key :description, '0966 response'
-            schema do
-              key :'$ref', :Form0966Output
+            content 'application/json' do
+              schema do
+                key :'$ref', :Form0966Output
+              end
             end
           end
 
           response :default do
             key :description, 'unexpected error'
-            schema do
-              key :type, :object
-              key :required, [:errors]
-              property :errors do
-                key :type, :array
-                items do
-                  key :'$ref', :ErrorModel
+            content 'application/json' do
+              schema do
+                key :type, :object
+                key :required, [:errors]
+                property :errors do
+                  key :type, :array
+                  items do
+                    key :'$ref', :ErrorModel
+                  end
                 end
               end
             end
@@ -240,49 +258,42 @@ module ClaimsApi
           end
 
           parameter do
-            key :name, 'payload'
-            key :in, :body
-            key :description, 'JSON API Payload of Veteran being submitted'
+            key :name, 'X-VA-LOA'
+            key :in, :header
+            key :description, 'The level of assurance of the user making the request'
+            key :example, '3'
             key :required, true
-            schema do
-              key :type, :object
-              key :required, [:data]
-              property :data do
-                key :type, :object
-                key :required, [:attributes]
-                property :attributes do
-                  key :type, :object
-                  property :type do
-                    key :type, :string
-                    key :example, 'compensation'
-                    key :description, 'Required by JSON API standard'
-                    key :enum, %w[
-                      compensation
-                      burial
-                      pension
-                    ]
-                  end
-                end
-              end
-            end
+            key :type, :string
+          end
+
+          parameter do
+            key :name, 'type'
+            key :in, :query
+            key :description, 'The type of 0966 you wish to get the active submission for'
+            key :required, true
+            key :example, 'compensation'
           end
 
           response 200 do
             key :description, '0966 response'
-            schema do
-              key :'$ref', :Form0966Output
+            content 'application/json' do
+              schema do
+                key :'$ref', :Form0966Output
+              end
             end
           end
 
           response :default do
             key :description, 'unexpected error'
-            schema do
-              key :type, :object
-              key :required, [:errors]
-              property :errors do
-                key :type, :array
-                items do
-                  key :'$ref', :ErrorModel
+            content 'application/json' do
+              schema do
+                key :type, :object
+                key :required, [:errors]
+                property :errors do
+                  key :type, :array
+                  items do
+                    key :'$ref', :ErrorModel
+                  end
                 end
               end
             end
