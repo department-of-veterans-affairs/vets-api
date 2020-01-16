@@ -3,10 +3,10 @@
 require 'fast_jsonapi'
 
 module VAOS
-  class InstitutionSerializer
+  class ClinicInstitutionSerializer
     include FastJsonapi::ObjectSerializer
 
-    set_id :institution_ien
+    set_id :location_ien
     attributes :location_ien,
                :institution_sid,
                :institution_ien,

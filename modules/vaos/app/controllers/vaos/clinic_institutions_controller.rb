@@ -1,14 +1,14 @@
 # frozen_string_literal: true
 
 module VAOS
-  class SystemClinicsController < VAOS::BaseController
+  class ClinicInstitutionsController < VAOS::BaseController
     def index
       response = systems_service.get_clinic_institutions(
         system_id,
         clinic_ids
       )
 
-      render json: VAOS::InstitutionSerializer.new(response)
+      render json: VAOS::ClinicInstitutionSerializer.new(response)
     end
 
     private

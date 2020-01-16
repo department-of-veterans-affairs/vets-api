@@ -149,7 +149,7 @@ RSpec.describe 'systems', type: :request do
       context 'with a set of clinic ids' do
         it 'returns a 200 with the correct schema' do
           VCR.use_cassette('vaos/systems/get_institutions', match_requests_on: %i[method uri]) do
-            get '/v0/vaos/systems/442/institutions', params: { clinic_ids: [16, 90, 110, 192, 193] }
+            get '/v0/vaos/systems/442/clinic_institutions', params: { clinic_ids: [16, 90, 110, 192, 193] }
 
             expect(response).to have_http_status(:ok)
             expect(response.body).to be_a(String)
@@ -161,7 +161,7 @@ RSpec.describe 'systems', type: :request do
       context 'with one clinic id' do
         it 'returns a 200 with the correct schema' do
           VCR.use_cassette('vaos/systems/get_institutions_single', match_requests_on: %i[method uri]) do
-            get '/v0/vaos/systems/442/institutions', params: { clinic_ids: 16 }
+            get '/v0/vaos/systems/442/clinic_institutions', params: { clinic_ids: 16 }
 
             expect(response).to have_http_status(:ok)
             expect(response.body).to be_a(String)

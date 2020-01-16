@@ -13,7 +13,7 @@ VAOS::Engine.routes.draw do
     resources :systems, only: :index do
       resources :direct_scheduling_facilities, only: :index
       resources :pact, only: :index
-      resources :clinics, only: :index, controller: 'system_clinics'
+      resources :clinic_institutions, only: :index
     end
     resources :facilities, only: :index do
       resources :clinics, only: :index

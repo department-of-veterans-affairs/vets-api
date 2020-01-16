@@ -123,7 +123,7 @@ module VAOS
           'clinicIds' => [*clinic_ids].join(',')
         }
         response = perform(:get, url, url_params, headers(@user))
-        response.body[:data].map { |clinic| VAOS::Institution.new(clinic) }
+        response.body[:data].map { |clinic| VAOS::ClinicInstitution.new(clinic) }
       end
     end
 

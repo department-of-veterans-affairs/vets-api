@@ -3,7 +3,7 @@
 require 'common/models/base'
 
 module VAOS
-  class Institution < Common::Base
+  class ClinicInstitution < Common::Base
     attribute :location_ien, String
     attribute :institution_sid, Integer
     attribute :institution_ien, String
