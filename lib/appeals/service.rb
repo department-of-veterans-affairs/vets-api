@@ -51,6 +51,19 @@ module Appeals
     end
 
     ##
+    # Returns intake status for a decision review.
+    #
+    # @param id [String] Decision Review UUID.
+    # @return [Hash] Response object.
+    #
+    def get_intake_status(id)
+      with_monitoring do
+        perform(:get, "#{CASEFLOW_V3_API_PATH}intake_status/#{id}", {}, request_headers)
+      end
+    end
+
+
+    ##
     # Pings the Appeals Status health check endpoint.
     #
     # @return [Faraday::Response] Faraday response instance.
