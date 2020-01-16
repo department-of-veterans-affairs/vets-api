@@ -320,7 +320,7 @@ describe Vet360::ContactInformation::Service, skip_vet360: true do
       it 'returns a status of 200' do
         allow(user).to receive(:vet360_id).and_return('1')
 
-        VCR.use_cassette('vet360/contact_information/address_transaction_status', record: :new_episodes) do
+        VCR.use_cassette('vet360/contact_information/address_transaction_status', VCR::MATCH_EVERYTHING) do
           response = subject.get_address_transaction_status(transaction_id)
           expect(response).to be_ok
           expect(response.transaction).to be_a(Vet360::Models::Transaction)
@@ -513,7 +513,7 @@ describe Vet360::ContactInformation::Service, skip_vet360: true do
 
       context 'for addresses' do
         it 'increments the StatsD Vet360 posts_and_puts counters' do
-          transaction_id = '0faf342f-5966-4d3f-8b10-5e9f911d07d2'
+          transaction_id = 'a030185b-e88b-4e0d-a043-93e4f34c60d6'
 
           VCR.use_cassette('vet360/contact_information/address_transaction_status') do
             expect { subject.get_address_transaction_status(transaction_id) }.to trigger_statsd_increment(
