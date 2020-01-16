@@ -116,7 +116,13 @@ Rails.application.routes.draw do
       get :show, controller: 'health_record_contents', on: :collection
     end
 
-    resources :appeals, only: [:index]
+    resources :appeals, only: [:index] do
+      collection do
+        get 'higher_level_reviews/:uuid', to: 'appeals#show_higher_level_review'
+        post 'higher_level_reviews', to: 'appeals#create_higher_level_review'
+        get 'intake_statuses/:intake_id', to: 'appeals#show_intake_status'
+      end
+    end
 
     scope :messaging do
       scope :health do
