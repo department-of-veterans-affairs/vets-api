@@ -43,6 +43,11 @@ Rails.application.configure do
   # Print deprecation notices to the stderr.
   config.active_support.deprecation = :stderr
 
+  # Speed up specs by not writing logs during RSpec runs
+  unless ENV.fetch('RAILS_ENABLE_TEST_LOG', false)
+    config.logger = Logger.new(nil)
+    config.log_level = :fatal
+  end
   # Raises error for missing translations
   # config.action_view.raise_on_missing_translations = true
 end
