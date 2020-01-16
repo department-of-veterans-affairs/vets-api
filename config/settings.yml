@@ -449,8 +449,6 @@ bgs:
   application: ~
   client_station_id: ~
   client_username: ~
-  external_uid: ~
-  external_key: ~
   env: ~
   mock_response_location: ~
   mock_responses: ~
@@ -479,3 +477,4 @@ vbms:
   client_keyfile: vetsapi.client.vbms.aide.oit.va.gov.p12
   server_cert: vbms.aide.oit.va.gov.crt
   environment_directory: /srv/vets-api/secret
+  env: test
