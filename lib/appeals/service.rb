@@ -52,6 +52,19 @@ module Appeals
     end
 
     ##
+    # Returns an HLR's info.
+    #
+    # @param id [String] The HLR's UUID
+    # @return [Hash] Response object.
+    #
+    def get_higher_level_review(id)
+      with_monitoring do
+        perform(:get, "#{CASEFLOW_V3_API_PATH}higher_level_reviews/#{id}", {}, request_headers)
+      end
+    end
+
+
+    ##
     # Pings the Appeals Status health check endpoint.
     #
     # @return [Faraday::Response] Faraday response instance.
