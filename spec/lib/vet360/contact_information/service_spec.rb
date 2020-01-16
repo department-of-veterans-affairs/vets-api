@@ -142,7 +142,7 @@ describe Vet360::ContactInformation::Service, skip_vet360: true do
 
     context 'when successful' do
       it 'returns a status of 200' do
-        VCR.use_cassette('vet360/contact_information/put_address_success', record: :new_episodes) do
+        VCR.use_cassette('vet360/contact_information/put_address_success', VCR::MATCH_EVERYTHING) do
           address.id = 15035
           address.address_line1 = '1494 Martin Luther King Rd'
           address.city = 'Fulton'
@@ -312,13 +312,15 @@ describe Vet360::ContactInformation::Service, skip_vet360: true do
 
   describe '#get_address_transaction_status' do
     context 'when successful' do
-      let(:transaction_id) { 'd8cd4a73-6241-46fe-95a4-e0776f8f6f64' }
+      let(:transaction_id) { 'a030185b-e88b-4e0d-a043-93e4f34c60d6' }
       before do
         allow(user).to receive(:vet360_id).and_return('1133902')
       end
 
       it 'returns a status of 200' do
-        VCR.use_cassette('vet360/contact_information/address_transaction_addr_not_found', VCR::MATCH_EVERYTHING) do
+        allow(user).to receive(:vet360_id).and_return('1')
+
+        VCR.use_cassette('vet360/contact_information/address_transaction_status', record: :new_episodes) do
           response = subject.get_address_transaction_status(transaction_id)
           expect(response).to be_ok
           expect(response.transaction).to be_a(Vet360::Models::Transaction)
