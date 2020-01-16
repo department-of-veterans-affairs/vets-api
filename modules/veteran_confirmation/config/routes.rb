@@ -9,7 +9,7 @@ VeteranConfirmation::Engine.routes.draw do
 
   namespace :docs do
     namespace :v0, defaults: { format: 'json' } do
-      get 'status', to: 'api#status'
+      get 'api', to: 'api#index'
     end
   end
 end
