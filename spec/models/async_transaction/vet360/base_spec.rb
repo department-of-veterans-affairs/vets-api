@@ -149,7 +149,7 @@ RSpec.describe AsyncTransaction::Vet360::Base, type: :model do
              status: AsyncTransaction::Vet360::Base::REQUESTED,
              created_at: Time.zone.now - 1)
       transaction = create(:email_transaction,
-                           transaction_id: '786efe0e-fd20-4da2-9019-0c00540dba4d',
+                           transaction_id: 'cb99a754-9fa9-4f3c-be93-ede12c14b68e',
                            user_uuid: user.uuid,
                            transaction_status: 'RECEIVED',
                            status: AsyncTransaction::Vet360::Base::REQUESTED)
