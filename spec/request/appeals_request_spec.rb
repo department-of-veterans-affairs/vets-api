@@ -124,7 +124,7 @@ RSpec.describe 'Appeals Status', type: :request do
           end
         end
       end
-  
+
       context 'with a decision response that does not exist' do
         it 'returns a 404 error' do
           VCR.use_cassette('decision_review/404_get_intake_status') do
@@ -134,7 +134,7 @@ RSpec.describe 'Appeals Status', type: :request do
         end
       end
     end
-  
+
     describe 'GET /higher_level_reviews' do
       context 'with a valid higher review response' do
         it 'higher level review endpoint returns a successful response' do
@@ -145,7 +145,7 @@ RSpec.describe 'Appeals Status', type: :request do
           end
         end
       end
-  
+
       context 'with a higher review response id that does not exist' do
         it 'returns a 404 error' do
           VCR.use_cassette('decision_review/404_review') do
@@ -155,7 +155,7 @@ RSpec.describe 'Appeals Status', type: :request do
         end
       end
     end
-  
+
     describe 'POST /higher_level_reviews' do
       context 'with an accepted response' do
         it 'higher level review endpoint returns a successful response' do
@@ -194,14 +194,14 @@ RSpec.describe 'Appeals Status', type: :request do
                 }
               ]
             }
-  
+
             post hlr_endpoint, params: request.to_json
             expect(response).to have_http_status(:accepted)
             expect(response).to match_response_schema('higher_level_review_accepted')
           end
         end
       end
-  
+
       context 'with a malformed request' do
         it 'higher level review endpoint returns a 400 error' do
           VCR.use_cassette('decision_review/400_review') do
