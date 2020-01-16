@@ -113,7 +113,7 @@ RSpec.describe 'Veteran Status API endpoint', type: :request, skip_emis: true do
       expect(error_detail).to eq('"1967sep30th" is not a valid value for "birth_date"')
     end
 
-    it 'throws an error when gender is invalid' do
+    it 'throws an error when gender is an invalid string' do
       invalid_gender_attributes = {
         ssn: '123456789',
         first_name: 'Mitchell',
@@ -127,6 +127,22 @@ RSpec.describe 'Veteran Status API endpoint', type: :request, skip_emis: true do
       expect(response).to have_http_status(:bad_request)
       error_detail = JSON.parse(response.body)['errors'].first['detail']
       expect(error_detail).to eq('"randomstringhere" is not a valid value for "gender"')
+    end
+
+    it 'throws an error when gender is a number' do
+      invalid_gender_attributes = {
+        ssn: '123456789',
+        first_name: 'Mitchell',
+        last_name: 'Jenkins',
+        birth_date: '1967-04-13',
+        gender: 3
+      }
+
+      post '/services/veteran_confirmation/v0/status', params: invalid_gender_attributes
+
+      expect(response).to have_http_status(:bad_request)
+      error_detail = JSON.parse(response.body)['errors'].first['detail']
+      expect(error_detail).to eq('"3" is not a valid value for "gender"')
     end
   end
 end

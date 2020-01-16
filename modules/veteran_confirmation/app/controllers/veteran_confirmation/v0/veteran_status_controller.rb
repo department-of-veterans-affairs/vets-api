@@ -47,12 +47,16 @@ module VeteranConfirmation
       end
 
       def validate_gender
+        return if params['gender'].nil?
+
         if params['gender'].is_a? String
           original_attr = params['gender']
           params['gender'] = params['gender'].upcase
           gender_options = %w[M F]
           no_matching_option = !gender_options.include?(params['gender'])
           raise Common::Exceptions::InvalidFieldValue.new('gender', original_attr) if no_matching_option
+        else
+          raise Common::Exceptions::InvalidFieldValue.new('gender', params['gender'])
         end
       end
 
