@@ -1406,14 +1406,15 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
         it 'documents higher_level_reviews 202' do
           VCR.use_cassette('decision_review/202_intake_status') do
             expect(subject).to validate(:post, '/v0/appeals/higher_level_reviews',
-                                        202)
+                                        202, headers)
           end
         end
 
         [400, 403, 404, 409, 422].each do |status|
           it "documents higher_level_reviews #{status}" do
             VCR.use_cassette("decision_review/#{status}_intake_status") do
-              expect(subject).to validate(:post, '/v0/appeals/higher_level_reviews', status)
+              expect(subject).to validate(:post, '/v0/appeals/higher_level_reviews', 
+                                          status, headers)
             end
           end
         end
