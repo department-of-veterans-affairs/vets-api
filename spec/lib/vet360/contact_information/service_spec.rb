@@ -487,7 +487,7 @@ describe Vet360::ContactInformation::Service, skip_vet360: true do
     context 'when checking transaction status' do
       context 'for emails' do
         it 'increments the StatsD Vet360 posts_and_puts counters' do
-          transaction_id = '786efe0e-fd20-4da2-9019-0c00540dba4d'
+          transaction_id = 'cb99a754-9fa9-4f3c-be93-ede12c14b68e'
 
           VCR.use_cassette('vet360/contact_information/email_transaction_status') do
             expect { subject.get_email_transaction_status(transaction_id) }.to trigger_statsd_increment(
