@@ -313,13 +313,8 @@ describe Vet360::ContactInformation::Service, skip_vet360: true do
   describe '#get_address_transaction_status' do
     context 'when successful' do
       let(:transaction_id) { 'a030185b-e88b-4e0d-a043-93e4f34c60d6' }
-      before do
-        allow(user).to receive(:vet360_id).and_return('1133902')
-      end
 
       it 'returns a status of 200' do
-        allow(user).to receive(:vet360_id).and_return('1')
-
         VCR.use_cassette('vet360/contact_information/address_transaction_status', VCR::MATCH_EVERYTHING) do
           response = subject.get_address_transaction_status(transaction_id)
           expect(response).to be_ok
@@ -327,13 +322,29 @@ describe Vet360::ContactInformation::Service, skip_vet360: true do
           expect(response.transaction.id).to eq(transaction_id)
         end
       end
+    end
+
+    context 'when not successful' do
+      let(:transaction_id) { 'd47b3d96-9ddd-42be-ac57-8e564aa38029' }
+
+      it 'returns a status of 404' do
+        VCR.use_cassette('vet360/contact_information/address_transaction_status_error', VCR::MATCH_EVERYTHING) do
+          expect { subject.get_address_transaction_status(transaction_id) }.to raise_error do |e|
+            expect(e).to be_a(Common::Exceptions::BackendServiceException)
+            expect(e.status_code).to eq(400)
+            expect(e.errors.first.code).to eq('VET360_CORE103')
+          end
+        end
+      end
 
       it 'logs the failure to pii logs' do
+        allow(user).to receive(:vet360_id).and_return('1133902')
+
         VCR.use_cassette(
           'vet360/contact_information/address_transaction_addr_not_found',
           VCR::MATCH_EVERYTHING
         ) do
-          subject.get_address_transaction_status(transaction_id)
+          subject.get_address_transaction_status('d8cd4a73-6241-46fe-95a4-e0776f8f6f64')
 
           personal_information_log = PersonalInformationLog.last
 
@@ -358,20 +369,6 @@ describe Vet360::ContactInformation::Service, skip_vet360: true do
                'country_name' => 'United States',
                'address_line1' => 'hgjghjghj' }
           )
-        end
-      end
-    end
-
-    context 'when not successful' do
-      let(:transaction_id) { 'd47b3d96-9ddd-42be-ac57-8e564aa38029' }
-
-      it 'returns a status of 404' do
-        VCR.use_cassette('vet360/contact_information/address_transaction_status_error', VCR::MATCH_EVERYTHING) do
-          expect { subject.get_address_transaction_status(transaction_id) }.to raise_error do |e|
-            expect(e).to be_a(Common::Exceptions::BackendServiceException)
-            expect(e.status_code).to eq(400)
-            expect(e.errors.first.code).to eq('VET360_CORE103')
-          end
         end
       end
     end
