@@ -271,10 +271,10 @@ describe Vet360::ContactInformation::Service, skip_vet360: true do
 
   describe '#get_email_transaction_status' do
     context 'when successful' do
-      let(:transaction_id) { '786efe0e-fd20-4da2-9019-0c00540dba4d' }
+      let(:transaction_id) { 'cb99a754-9fa9-4f3c-be93-ede12c14b68e' }
 
       it 'returns a status of 200' do
-        VCR.use_cassette('vet360/contact_information/email_transaction_status', VCR::MATCH_EVERYTHING) do
+        VCR.use_cassette('vet360/contact_information/email_transaction_status', record: :new_episodes) do
           response = subject.get_email_transaction_status(transaction_id)
           expect(response).to be_ok
           expect(response.transaction).to be_a(Vet360::Models::Transaction)
