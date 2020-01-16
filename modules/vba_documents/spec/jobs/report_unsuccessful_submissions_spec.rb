@@ -17,6 +17,10 @@ RSpec.describe VBADocuments::ReportUnsuccessfulSubmissions, type: :job do
             created_at: from..to,
             status: %w[error expired]
           ),
+          VBADocuments::UploadSubmission.where(
+            created_at: from..to,
+            status: 'uploaded'
+          ),
           from,
           to
         ).and_return(double.tap do |mailer|
