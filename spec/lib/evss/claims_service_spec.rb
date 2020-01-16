@@ -35,8 +35,7 @@ describe EVSS::ClaimsService do
 
     it 'gets a claim with docs' do
       VCR.use_cassette('evss/claims/claim_with_docs') do
-        response = subject.find_claim_with_docs_by_id("600117255")
-        byebug
+        response = subject.find_claim_with_docs_by_id('600117255')
         expect(response).to be_success
       end
     end
