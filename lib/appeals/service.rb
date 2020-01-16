@@ -16,6 +16,7 @@ module Appeals
     configuration Appeals::Configuration
 
     STATSD_KEY_PREFIX = 'api.appeals'
+    CASEFLOW_V2_API_PATH = "/api/v2/appeals"
     CASEFLOW_V3_API_PATH = "/api/v3/decision_review/"
     DEFAULT_HEADERS = { 'Authorization' => "Token token=#{Settings.appeals.app_token}" }
 
@@ -30,7 +31,7 @@ module Appeals
       with_monitoring do
         response = perform(
           :get,
-          '/api/v2/appeals',
+          CASEFLOW_V2_API_PATH,
           {},
           request_headers(additional_headers.merge('ssn' => user.ssn))
         )
