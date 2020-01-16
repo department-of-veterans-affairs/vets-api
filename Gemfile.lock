@@ -1,11 +1,4 @@
 GIT
-  remote: git://github.com/rack/rack.git
-  revision: f690bb71425aa31d7b9b3113829af773950d8ab5
-  ref: f690bb71425aa31d7b9b3113829af773950d8ab5
-  specs:
-    rack (2.2.0)
-
-GIT
   remote: https://github.com/department-of-veterans-affairs/betamocks
   revision: f9800a7477a6a72afaa631e8a73429781ceb26a3
   branch: master
@@ -47,6 +40,13 @@ GIT
     vets_json_schema (3.138.12)
       multi_json (~> 1.0)
       script_utils (= 0.0.4)
+
+GIT
+  remote: https://github.com/rack/rack.git
+  revision: f690bb71425aa31d7b9b3113829af773950d8ab5
+  ref: f690bb71425aa31d7b9b3113829af773950d8ab5
+  specs:
+    rack (2.2.0)
 
 PATH
   remote: modules/appeals_api
