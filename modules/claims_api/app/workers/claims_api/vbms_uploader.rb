@@ -56,7 +56,7 @@ module ClaimsApi
     end
 
     def client
-      @client ||= VBMS::Client.from_env_vars
+      @client ||= VBMS::Client.from_env_vars(env_name: Settings.vbms.env)
     end
 
     def fetch_upload_token(filepath:, file_number:)
