@@ -245,7 +245,7 @@ describe Vet360::ContactInformation::Service, skip_vet360: true do
       let(:transaction_id) { 'a2af8cd1-472c-4e6f-bd5a-f95e31e351b7' }
 
       it 'returns a status of 200' do
-        VCR.use_cassette('vet360/contact_information/telephone_transaction_status', record: :new_episodes) do
+        VCR.use_cassette('vet360/contact_information/telephone_transaction_status', VCR::MATCH_EVERYTHING) do
           response = subject.get_telephone_transaction_status(transaction_id)
           expect(response).to be_ok
           expect(response.transaction).to be_a(Vet360::Models::Transaction)
@@ -499,7 +499,7 @@ describe Vet360::ContactInformation::Service, skip_vet360: true do
 
       context 'for telephones' do
         it 'increments the StatsD Vet360 posts_and_puts counters' do
-          transaction_id = 'a50193df-f4d5-4b6a-b53d-36fed2db1a15'
+          transaction_id = 'a2af8cd1-472c-4e6f-bd5a-f95e31e351b7'
 
           VCR.use_cassette('vet360/contact_information/telephone_transaction_status') do
             expect { subject.get_telephone_transaction_status(transaction_id) }.to trigger_statsd_increment(
