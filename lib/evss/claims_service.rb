@@ -17,8 +17,20 @@ module EVSS
       get 'vbaClaimStatusService/getClaims'
     end
 
+    # GETs a user's claim information
+    #
+    # @return [Hash] Response with a users claim information
+    #
     def find_claim_by_id(claim_id)
       post 'vbaClaimStatusService/getClaimDetailById', { id: claim_id }.to_json
+    end
+
+    # GETs a user's claim information with documents included
+    #
+    # @return [Hash] Response with a users claim information including doc list
+    #
+    def find_claim_with_docs_by_id(claim_id)
+      post 'vbaClaimStatusService/getClaimDetailWithDocsById', { id: claim_id }.to_json
     end
 
     def request_decision(claim_id)
