@@ -14,7 +14,7 @@ module VeteranConfirmation
           middle_name: params['middle_name'],
           last_name: params['last_name'],
           birth_date: params['birth_date'],
-          gender: params['gender'].upcase
+          gender: params['gender']
         )
 
         render json: { veteran_status: status }
@@ -47,10 +47,17 @@ module VeteranConfirmation
       end
 
       def validate_gender
-        gender_options = %w[M F m f]
-        no_matching_option = params['gender'] && !gender_options.include?(params['gender'])
+        return if params['gender'].nil?
 
-        raise Common::Exceptions::InvalidFieldValue.new('gender', params['gender']) if no_matching_option
+        if params['gender'].is_a? String
+          original_attr = params['gender']
+          params['gender'] = params['gender'].upcase
+          gender_options = %w[M F]
+          no_matching_option = !gender_options.include?(params['gender'])
+          raise Common::Exceptions::InvalidFieldValue.new('gender', original_attr) if no_matching_option
+        else
+          raise Common::Exceptions::InvalidFieldValue.new('gender', params['gender'])
+        end
       end
 
       def all_digits?(ssn)
