@@ -208,15 +208,17 @@ describe DecisionReview::Service do
         end
       end
     end
-  end
 
-  describe '#get_legacy_appeal_issues' do
-    context 'with a valid legacy appeal issues request' do
-      it 'returns a legacy appeal issues response object' do
-        VCR.use_cassette('decision_review/200_legacy_appeal_issues') do
-          response = subject.get_legacy_appeal_issues(user)
-          expect(response).to be_ok
-          expect(response).to be_an DecisionReview::Responses::Response
+    context 'when service returns a 422' do
+      it 'logs the error and raises an exception' do
+        VCR.use_cassette('decision_review/422_contestable_issues') do
+          expect(StatsD).to receive(:increment).once.with(
+            'api.decision_review.get_contestable_issues.fail', tags: [
+              'error:Common::Client::Errors::ClientError', 'status:422'
+            ]
+          )
+          expect(StatsD).to receive(:increment).once.with('api.decision_review.get_contestable_issues.total')
+          expect { subject.get_contestable_issues(user) }.to raise_error(DecisionReview::ServiceException)
         end
       end
     end
