@@ -21,11 +21,7 @@ module ClaimsApi
             status: ClaimsApi::PowerOfAttorney::PENDING,
             auth_headers: auth_headers,
             form_data: form_attributes,
-            source_data: {
-              name: request.headers['X-Consumer-Username'],
-              icn: Settings.bgs.external_uid,
-              email: Settings.bgs.external_key
-            }
+            source_data: source_data
           )
           power_of_attorney = ClaimsApi::PowerOfAttorney.find_by(md5: power_of_attorney.md5) unless power_of_attorney.id
           power_of_attorney.save!
@@ -48,6 +44,21 @@ module ClaimsApi
         def status
           power_of_attorney = ClaimsApi::PowerOfAttorney.find_by(id: params[:id])
           render json: power_of_attorney, serializer: ClaimsApi::PowerOfAttorneySerializer
+        end
+
+        def active
+          power_of_attorney = Veteran::User.new(target_veteran).power_of_attorney
+          render json: power_of_attorney, serializer: ClaimsApi::PowerOfAttorneySerializer
+        end
+
+        private
+
+        def source_data
+          {
+            name: request.headers['X-Consumer-Username'],
+            icn: Settings.bgs.external_uid,
+            email: Settings.bgs.external_key
+          }
         end
       end
     end

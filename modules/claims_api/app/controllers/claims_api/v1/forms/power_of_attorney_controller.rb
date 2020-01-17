@@ -20,11 +20,7 @@ module ClaimsApi
             status: ClaimsApi::PowerOfAttorney::PENDING,
             auth_headers: auth_headers,
             form_data: form_attributes,
-            source_data: {
-              name: source_name,
-              icn: current_user.icn,
-              email: current_user.email
-            }
+            source_data: source_data
           )
           power_of_attorney = ClaimsApi::PowerOfAttorney.find_by(md5: power_of_attorney.md5) unless power_of_attorney.id
           power_of_attorney.save!
@@ -57,10 +53,19 @@ module ClaimsApi
         end
 
         def active
-          verifier = EVSS::PowerOfAttorneyVerifier.new(target_veteran)
+          power_of_attorney = Veteran::User.new(target_veteran).power_of_attorney
+          render json: power_of_attorney, serializer: ClaimsApi::PowerOfAttorneySerializer
         end
 
         private
+
+        def source_data
+          {
+            name: source_name,
+            icn: current_user.icn,
+            email: current_user.email
+          }
+        end
 
         def source_name
           user = header_request? ? @current_user : target_veteran
