@@ -14,7 +14,7 @@ describe Vet360::Person::Service, skip_vet360: true do
 
     context 'with a user present, that has a icn_with_aaid, and no passed in ICN' do
       it 'returns a status of 200', :aggregate_failures do
-        VCR.use_cassette('vet360/person/init_vet360_id_success', record: :new_episodes) do
+        VCR.use_cassette('vet360/person/init_vet360_id_success', VCR::MATCH_EVERYTHING) do
           response = subject.init_vet360_id
 
           expect(response).to be_ok
@@ -23,7 +23,7 @@ describe Vet360::Person::Service, skip_vet360: true do
       end
 
       it 'initiates an asynchronous Vet360 transaction', :aggregate_failures do
-        VCR.use_cassette('vet360/person/init_vet360_id_success', record: :new_episodes) do
+        VCR.use_cassette('vet360/person/init_vet360_id_success', VCR::MATCH_EVERYTHING) do
           response = subject.init_vet360_id
 
           expect(response.transaction.id).to be_present
@@ -39,7 +39,7 @@ describe Vet360::Person::Service, skip_vet360: true do
       let(:rake_user) { 'rake_user' }
 
       it 'returns a status of 200', :aggregate_failures do
-        VCR.use_cassette('vet360/person/init_vet360_id_success', record: :new_episodes) do
+        VCR.use_cassette('vet360/person/init_vet360_id_success', VCR::MATCH_EVERYTHING) do
           response = subject.init_vet360_id(icn)
 
           expect(response).to be_ok
@@ -48,7 +48,7 @@ describe Vet360::Person::Service, skip_vet360: true do
       end
 
       it 'initiates an asynchronous Vet360 transaction', :aggregate_failures do
-        VCR.use_cassette('vet360/person/init_vet360_id_success', record: :new_episodes) do
+        VCR.use_cassette('vet360/person/init_vet360_id_success', VCR::MATCH_EVERYTHING) do
           response = subject.init_vet360_id(icn)
 
           expect(response.transaction.id).to be_present
@@ -59,7 +59,7 @@ describe Vet360::Person::Service, skip_vet360: true do
 
     context 'with a 400 response' do
       it 'raises an exception', :aggregate_failures do
-        VCR.use_cassette('vet360/person/init_vet360_id_status_400', record: :new_episodes) do
+        VCR.use_cassette('vet360/person/init_vet360_id_status_400', VCR::MATCH_EVERYTHING) do
           expect { subject.init_vet360_id }.to raise_error do |e|
             expect(e).to be_a(Common::Exceptions::BackendServiceException)
             expect(e.status_code).to eq(400)

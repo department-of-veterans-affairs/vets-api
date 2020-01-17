@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: post
-    uri: "https://int.vet360.va.gov/person-mdm-cuf-person-hub/cuf/person/contact-information/v1/2.16.840.1.113883.4.349/1000123456V123456%5ENI%5E200M%5EUSVHA"
+    uri: https://int.vet360.va.gov/contact-information-hub/cuf/contact-information/v1/2.16.840.1.113883.4.349/1000123456V123456%5ENI%5E200M%5EUSVHA
     body:
       encoding: UTF-8
       string: '{"bio":{"sourceDate":"2018-04-09T17:52:03Z"}}'
@@ -23,28 +23,31 @@ http_interactions:
       message: ''
     headers:
       Date:
-      - Wed, 25 Apr 2018 17:17:07 GMT
+      - Fri, 17 Jan 2020 04:40:30 GMT
       Expires:
       - '0'
+      Vet360txauditid:
+      - 9f34e62f-056b-47a5-bf83-140bc10e8aa2
+      X-Frame-Options:
+      - DENY
+      Pragma:
+      - no-cache
       X-Content-Type-Options:
+      - nosniff
       - nosniff
       X-Xss-Protection:
       - 1; mode=block
-      X-Frame-Options:
-      - DENY
       Cache-Control:
       - no-cache, no-store, max-age=0, must-revalidate
-      Pragma:
-      - no-cache
       X-Ua-Compatible:
       - IE-edge,chrome=1
       Content-Type:
       - application/json;charset=UTF-8
-      Transfer-Encoding:
-      - chunked
+      Content-Length:
+      - '72'
     body:
       encoding: UTF-8
-      string: '{"txAuditId":"786efe0e-fd20-4da2-9019-0c00540dba4d","status":"RECEIVED"}'
-    http_version:
-  recorded_at: Wed, 25 Apr 2018 17:17:06 GMT
-recorded_with: VCR 3.0.3
+      string: '{"txAuditId":"d8951c96-5b8c-42ea-9fbe-e656941b7236","status":"RECEIVED"}'
+    http_version: 
+  recorded_at: Mon, 09 Apr 2018 17:52:03 GMT
+recorded_with: VCR 5.0.0
