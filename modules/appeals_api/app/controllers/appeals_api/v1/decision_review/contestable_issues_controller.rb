@@ -3,7 +3,7 @@
 class AppealsApi::V1::DecisionReview::ContestableIssuesController < AppealsApi::ApplicationController
   skip_before_action(:authenticate)
 
-  EXPECTED_HEADERS = %w[veteranId receiptDate]
+  EXPECTED_HEADERS = %w[veteranId receiptDate].freeze
 
   def index
     render_response(Appeals::Service.new.get_contestable_issues(headers))
@@ -13,5 +13,5 @@ class AppealsApi::V1::DecisionReview::ContestableIssuesController < AppealsApi::
     EXPECTED_HEADERS.reduce({}) do |hash, key|
       hash.merge(key => request.headers[key])
     end
-  end 
+  end
 end
