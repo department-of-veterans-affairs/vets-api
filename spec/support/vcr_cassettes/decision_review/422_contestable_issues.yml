@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri: https://dev-api.va.gov/services/appeals/v3/decision_review/legacy_appeal_issues
+    uri: https://dev-api.va.gov/services/appeals/v3/decision_review/contestable_issues
     body:
       encoding: UTF-8
       string: ''
@@ -23,11 +23,11 @@ http_interactions:
       - '2019-12-01'
   response:
     status:
-      code: 200
-      message: Accepted
+      code: 422
+      message: Unprocessable Entity
     headers:
       Date:
-      - Thu, 10 Oct 2019 21:17:56 GMT
+      - Thu, 09 Jan 2020 21:13:12 GMT
       Content-Type:
       - application/json; charset=utf-8
       Connection:
@@ -51,7 +51,7 @@ http_interactions:
       - chunked
     body:
       encoding: ASCII-8BIT
-      string: '{"data":[{"type":"LegacyAppealIssue","attributes":{"legacyAppealId":"string","legacyAppealIssueId":"string","nodDate":"2019-12-15","description":["string"],"codes":["string"],"labels":["string"],"disposition":"string","closeDate":"2019-12-15","note":"string"}}]}'
+      string: '{"errors":[{"status":422,"code":"bad_receipt_date","title":"Bad receipt date"}]}'
     http_version:
-  recorded_at: Thu, 10 Oct 2019 21:17:52 GMT
+  recorded_at: Thu, 09 Jan 2020 21:13:12 GMT
 recorded_with: VCR 3.0.3
