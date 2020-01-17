@@ -16,6 +16,9 @@ module Appeals
     configuration Appeals::Configuration
 
     STATSD_KEY_PREFIX = 'api.appeals'
+    CASEFLOW_V2_API_PATH = '/api/v2/appeals'
+    CASEFLOW_V3_API_PATH = '/api/v3/decision_review/'
+    DEFAULT_HEADERS = { 'Authorization' => "Token token=#{Settings.appeals.app_token}" }.freeze
 
     ##
     # Returns appeals data for a user by their SSN.
@@ -26,8 +29,25 @@ module Appeals
     #
     def get_appeals(user, additional_headers = {})
       with_monitoring do
-        response = perform(:get, '/api/v2/appeals', {}, request_headers(user, additional_headers))
+        response = perform(
+          :get,
+          CASEFLOW_V2_API_PATH,
+          {},
+          request_headers(additional_headers.merge('ssn' => user.ssn))
+        )
         Appeals::Responses::Appeals.new(response.body, response.status)
+      end
+    end
+
+    ##
+    # Returns contestable issues for a veteran.
+    #
+    # @param headers [Hash] Headers to include (in addition to the caseflow api token).
+    # @return [Hash] Response object.
+    #
+    def get_contestable_issues(headers)
+      with_monitoring do
+        perform(:get, "#{CASEFLOW_V3_API_PATH}contestable_issues", {}, request_headers(headers))
       end
     end
 
@@ -44,11 +64,8 @@ module Appeals
 
     private
 
-    def request_headers(user, additional_headers)
-      {
-        'ssn' => user.ssn,
-        'Authorization' => "Token token=#{Settings.appeals.app_token}"
-      }.merge(additional_headers)
+    def request_headers(additional_headers = {})
+      DEFAULT_HEADERS.merge(additional_headers)
     end
   end
 end
