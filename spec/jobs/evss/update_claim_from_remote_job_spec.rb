@@ -20,7 +20,7 @@ RSpec.describe EVSS::UpdateClaimFromRemoteJob, type: :job do
     end
 
     it 'overwrites the existing record', run_at: 'Wed, 13 Dec 2017 03:28:23 GMT' do
-      VCR.use_cassette('evss/claims/claim') do
+      VCR.use_cassette('evss/claims/claim_with_docs') do
         expect(User).to receive(:find).with(user.uuid).once.and_return(user)
         expect_any_instance_of(EVSSClaimsSyncStatusTracker).to(
           receive(:set_single_status).with(String).and_call_original
@@ -34,7 +34,7 @@ RSpec.describe EVSS::UpdateClaimFromRemoteJob, type: :job do
 
     context 'when a standard error occurs' do
       it 'sets the status to FAILED', :aggregate_failures do
-        allow(client_stub).to receive(:find_claim_by_id).and_raise(
+        allow(client_stub).to receive(:find_claim_with_docs_by_id).and_raise(
           EVSS::ErrorMiddleware::EVSSBackendServiceError
         )
         allow(EVSS::ClaimsService).to receive(:new) { client_stub }
