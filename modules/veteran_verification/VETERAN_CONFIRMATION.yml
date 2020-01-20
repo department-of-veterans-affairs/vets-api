@@ -1,9 +1,9 @@
 openapi: '3.0.0'
 info:
   version: 0.0.1
-  title: Veteran Confirmation
+  title: Veteran Verification
   description: |
-    Veteran Verification - Veteran Confirmation
+    Veteran Verification - Veteran Status
 
     ## Background
 
@@ -11,7 +11,7 @@ info:
     to request confirmation from the VA of an individual's Veteran status after
     receiving authorization to do so using an Open ID Connect flow.
 
-    The Veteran Confirmation API passes requests through to eMIS, the Enterprise
+    The Veteran Verification API passes requests through to eMIS, the Enterprise
     Military Information Service, and formats the response into consumable data.
 
     ## Design
@@ -40,7 +40,7 @@ info:
   contact:
     name: VA.gov
 tags:
-  - name: veteran_confirmation_status
+  - name: veteran_status
     description: Veteran Verification - Veteran Status
 servers:
   - url: https://dev-api.va.gov/services/veteran_verification/{version}
@@ -62,7 +62,7 @@ paths:
   /status:
     get:
       tags:
-        - veteran_confirmation_status
+        - veteran_status
       summary: Get confirmation about an individual's Veteran status according to the VA
       operationId: getVeteranStatus
       security:

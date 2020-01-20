@@ -79,5 +79,6 @@ ENV RAILS_ENV=production
 COPY --from=builder $BUNDLE_PATH $BUNDLE_PATH
 COPY --from=builder --chown=vets-api:vets-api /srv/vets-api/src ./
 COPY --from=builder --chown=vets-api:vets-api /srv/vets-api/clamav/database ../clamav/database
+RUN if [ -d certs-tmp ] ; then cd certs-tmp ; for i in * ; do cp $i /usr/local/share/ca-certificates/${i/pem/crt} ; done ; fi && update-ca-certificates
 USER vets-api
 ENTRYPOINT ["/usr/bin/dumb-init", "--", "./docker-entrypoint.sh"]

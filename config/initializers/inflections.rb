@@ -6,6 +6,7 @@ ActiveSupport::Inflector.inflections do |inflect|
   inflect.acronym 'DOD'
   inflect.acronym 'EMIS'
   inflect.acronym 'EVSS'
+  inflect.acronym 'GIDS'
   inflect.acronym 'GI'
   inflect.acronym 'IHub'
   inflect.acronym 'PagerDuty'

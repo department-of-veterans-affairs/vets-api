@@ -29,7 +29,7 @@ module Swagger
             end
           end
 
-          response 400 do
+          response 500 do
             key :description, 'Bad Gateway: incorrect parameters'
             schema do
               key :'$ref', :Errors

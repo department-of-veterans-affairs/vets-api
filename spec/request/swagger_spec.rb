@@ -279,10 +279,6 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
         )
       end
 
-      it 'returns a 400 if no attachment data is given' do
-        expect(subject).to validate(:post, '/v0/hca_attachments', 400, '')
-      end
-
       it 'supports submitting a health care application', run_at: '2017-01-31' do
         VCR.use_cassette('hca/submit_anon', match_requests_on: [:body]) do
           expect(subject).to validate(
@@ -579,8 +575,8 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
         )
       end
 
-      it 'returns a 400 if no attachment data is given' do
-        expect(subject).to validate(:post, '/v0/upload_supporting_evidence', 400, '')
+      it 'returns a 500 if no attachment data is given' do
+        expect(subject).to validate(:post, '/v0/upload_supporting_evidence', 500, '')
       end
     end
 
@@ -1443,6 +1439,16 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
         VCR.use_cassette('decision_review/502_intake_status') do
           expect(subject).to validate(:get, '/services/appeals/v0/appeals/intake_statuses/{intake_id}',
                                       502, headers.merge('intake_id' => '1234'))
+        end
+      end
+    end
+
+    describe 'contestable_issues' do
+      [200, 404, 422, 502].each do |status_code|
+        it "documents contestable_issues #{status_code}" do
+          VCR.use_cassette("decision_review/#{status_code}_contestable_issues") do
+            expect(subject).to validate(:get, '/v0/appeals/contestable_issues', status_code, headers)
+          end
         end
       end
     end
