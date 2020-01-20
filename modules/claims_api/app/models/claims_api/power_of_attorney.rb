@@ -22,7 +22,7 @@ module ClaimsApi
     end
 
     def representative
-      form_data.merge(current_poa: current_poa, participant_id: nil)
+      form_data.merge(participant_id: nil)
     end
 
     def veteran

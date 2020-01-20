@@ -22,6 +22,7 @@ module ClaimsApi
             auth_headers: auth_headers,
             form_data: form_attributes,
             source_data: source_data,
+            # current_poa: current_poa,
             header_md5: header_md5
           )
           power_of_attorney = ClaimsApi::PowerOfAttorney.find_by(md5: power_of_attorney.md5) unless power_of_attorney.id
@@ -53,6 +54,10 @@ module ClaimsApi
         end
 
         private
+
+        def current_poa
+          @current_poa ||= Veteran::User.new(target_veteran).try(:power_of_attorney).try(:code)
+        end
 
         def header_md5
           @header_md5 ||= Digest::MD5.hexdigest auth_headers.except('va_eauth_issueinstant', 'Authorization').to_json
