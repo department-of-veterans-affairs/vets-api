@@ -19,6 +19,7 @@ AppealsApi::Engine.routes.draw do
     namespace :decision_review do
       resources :contestable_issues, only: [:index]
       resources :higher_level_reviews, only: %i[create show]
+      resources :intake_statuses, only: [:show]
     end
   end
 
