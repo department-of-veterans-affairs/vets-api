@@ -45,26 +45,26 @@ RSpec.describe 'EVSS Claims management', type: :request do
 
   context '#show (single claim) is polled' do
     let!(:claim) do
-      FactoryBot.create(:evss_claim, id: 1, evss_id: 600_118_851,
+      FactoryBot.create(:evss_claim, id: 1, evss_id: 600_117_255,
                                      user_uuid: user.uuid)
     end
 
     it 'returns claim from DB, kicks off job, returns updated claim when job is completed' do
       # initial request
       sign_in_as(evss_user)
-      get '/v0/evss_claims_async/600118851'
+      get '/v0/evss_claims_async/600117255'
       expect(response).to match_response_schema('evss_claim_async')
       expect(JSON.parse(response.body)['data']['type']).to eq 'evss_claims'
       expect(JSON.parse(response.body)['data']['attributes']['phase_change_date']).to eq '2012-08-10'
       expect(JSON.parse(response.body)['meta']['sync_status']).to eq 'REQUESTED'
       # run job
-      VCR.use_cassette('evss/claims/claim') do
+      VCR.use_cassette('evss/claims/claim_with_docs') do
         EVSS::UpdateClaimFromRemoteJob.new.perform(user.uuid, claim.id)
       end
       # subsequent request
-      get '/v0/evss_claims_async/600118851'
+      get '/v0/evss_claims_async/600117255'
       expect(response).to match_response_schema('evss_claim_async')
-      expect(JSON.parse(response.body)['data']['attributes']['phase_change_date']).to eq '2017-12-08'
+      expect(JSON.parse(response.body)['data']['attributes']['phase_change_date']).to eq '2017-11-01'
       expect(JSON.parse(response.body)['data']['type']).to eq 'evss_claims'
       expect(JSON.parse(response.body)['meta']['sync_status']).to eq 'SUCCESS'
     end
