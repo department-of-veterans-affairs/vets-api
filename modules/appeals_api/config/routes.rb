@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+# rubocop:disable Metrics/BlockLength
 AppealsApi::Engine.routes.draw do
   match '/v0/*path', to: 'application#cors_preflight', via: [:options]
 
@@ -18,6 +19,7 @@ AppealsApi::Engine.routes.draw do
   namespace :v1, defaults: { format: 'json' } do
     namespace :decision_review do
       resources :contestable_issues, only: [:index]
+      resources :higher_level_reviews, only: %i[create show]
       resources :intake_statuses, only: [:show]
     end
   end
@@ -31,3 +33,4 @@ AppealsApi::Engine.routes.draw do
     end
   end
 end
+# rubocop:enable Metrics/BlockLength
