@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+# rubocop:disable Metrics/BlockLength
 AppealsApi::Engine.routes.draw do
   match '/v0/*path', to: 'application#cors_preflight', via: [:options]
 
@@ -32,3 +33,4 @@ AppealsApi::Engine.routes.draw do
     end
   end
 end
+# rubocop:enable Metrics/BlockLength
