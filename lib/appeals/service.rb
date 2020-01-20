@@ -75,9 +75,9 @@ module Appeals
     end
 
     ##
-    # Returns an HLR's info.
+    # Create a HLR.
     #
-    # @param id [String] The HLR's UUID
+    # @param body [Hash] The HLR's attributes. See modules/appeals_api/app/swagger/v1/decision_reviews.yaml
     # @return [Hash] Response object.
     #
     def create_higher_level_review(body)
