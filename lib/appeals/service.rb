@@ -16,9 +16,9 @@ module Appeals
     configuration Appeals::Configuration
 
     STATSD_KEY_PREFIX = 'api.appeals'
-    CASEFLOW_V2_API_PATH = "/api/v2/appeals"
-    CASEFLOW_V3_API_PATH = "/api/v3/decision_review/"
-    DEFAULT_HEADERS = { 'Authorization' => "Token token=#{Settings.appeals.app_token}" }
+    CASEFLOW_V2_API_PATH = '/api/v2/appeals'
+    CASEFLOW_V3_API_PATH = '/api/v3/decision_review/'
+    DEFAULT_HEADERS = { 'Authorization' => "Token token=#{Settings.appeals.app_token}" }.freeze
 
     ##
     # Returns appeals data for a user by their SSN.
@@ -62,7 +62,6 @@ module Appeals
         perform(:get, "#{CASEFLOW_V3_API_PATH}higher_level_reviews/#{id}", {}, request_headers)
       end
     end
-
 
     ##
     # Pings the Appeals Status health check endpoint.
