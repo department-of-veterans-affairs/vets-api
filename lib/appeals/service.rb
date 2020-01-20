@@ -59,7 +59,7 @@ module Appeals
     #
     def get_intake_status(id)
       with_monitoring do
-        perform(:get, "#{CASEFLOW_V3_API_PATH}intake_status/#{id}", {}, request_headers)
+        perform(:get, "#{CASEFLOW_V3_API_PATH}intake_statuses/#{id}", {}, request_headers)
       end
     end
 
