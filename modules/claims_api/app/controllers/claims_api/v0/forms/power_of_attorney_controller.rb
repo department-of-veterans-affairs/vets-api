@@ -56,7 +56,7 @@ module ClaimsApi
         private
 
         def current_poa
-          @current_poa ||= Veteran::User.new(target_veteran).try(:power_of_attorney).try(:code)
+          @current_poa ||= EVSS::PowerOfAttorneyVerifier.new(target_veteran).current_poa
         end
 
         def header_md5
