@@ -3,7 +3,7 @@
 require_relative '../vaos/concerns/headers'
 
 module VAOS
-  class AppointmentService < Common::Client::Base
+  class AppointmentService < VAOS::BaseService
     include Common::Client::Monitoring
     include SentryLogging
     include VAOS::Headers

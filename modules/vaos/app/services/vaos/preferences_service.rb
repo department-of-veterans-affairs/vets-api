@@ -3,7 +3,7 @@
 require_relative '../vaos/concerns/headers'
 
 module VAOS
-  class PreferencesService < Common::Client::Base
+  class PreferencesService < VAOS::BaseService
     include Common::Client::Monitoring
     include VAOS::Headers
 

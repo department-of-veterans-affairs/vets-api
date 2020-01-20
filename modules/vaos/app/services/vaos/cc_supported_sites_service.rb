@@ -3,7 +3,7 @@
 require_relative '../vaos/concerns/headers'
 
 module VAOS
-  class CCSupportedSitesService < Common::Client::Base
+  class CCSupportedSitesService < VAOS::BaseService
     include Common::Client::Monitoring
     include SentryLogging
     include VAOS::Headers
