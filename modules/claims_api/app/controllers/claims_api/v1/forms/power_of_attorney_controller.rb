@@ -56,7 +56,11 @@ module ClaimsApi
 
         def active
           power_of_attorney = ClaimsApi::PowerOfAttorney.find_by(header_md5: header_md5)
-          render json: power_of_attorney, serializer: ClaimsApi::PowerOfAttorneySerializer
+          if power_of_attorney
+            render json: power_of_attorney, serializer: ClaimsApi::PowerOfAttorneySerializer
+          else
+            render json: { old_poa: current_poa }, serializer: ClaimsApi::PowerOfAttorneySerializer
+          end
         end
 
         private

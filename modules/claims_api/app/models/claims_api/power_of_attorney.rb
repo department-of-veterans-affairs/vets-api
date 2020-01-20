@@ -29,6 +29,10 @@ module ClaimsApi
       { participant_id: nil }
     end
 
+    def old_poa
+      current_poa
+    end
+
     def set_md5
       headers = auth_headers.except('va_eauth_issueinstant', 'Authorization')
       self.header_md5 = Digest::MD5.hexdigest headers.to_json

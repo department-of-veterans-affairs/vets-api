@@ -2,6 +2,6 @@
 
 module ClaimsApi
   class PowerOfAttorneySerializer < ActiveModel::Serializer
-    attributes :status, :date_request_accepted, :representative, :veteran, :current_poa
+    attributes :status, :date_request_accepted, :representative, :veteran, :old_poa
   end
 end
