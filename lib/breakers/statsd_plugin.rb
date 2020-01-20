@@ -50,7 +50,13 @@ module Breakers
 
       r = %r{
         (\/)
-        (#{digit}|#{contact_id}|#{uuids}|#{institution_ids}|#{provider_ids}|#{v1_user_ids_1}|#{v1_user_ids_2})
+        (#{digit}
+        |#{contact_id}
+        |#{uuids}
+        |#{institution_ids}
+        |#{provider_ids}
+        |#{v1_user_ids_1}
+        |#{v1_user_ids_2})
         (\/|$)
       }x
 
