@@ -16,6 +16,11 @@ module ClaimsApi
         FORM_NUMBER = '2122'
 
         def submit_form_2122
+          if %w[submitted pending].include? ClaimsApi::PowerOfAttorney.find_by(header_md5: header_md5).try(:status)
+            render json: { errors: [{ status: 422, source: '#/', details: 'Current PoA submission active' }] },
+                   status: :unprocessable_entity
+          end
+
           power_of_attorney = ClaimsApi::PowerOfAttorney.create(
             status: ClaimsApi::PowerOfAttorney::PENDING,
             auth_headers: auth_headers,
