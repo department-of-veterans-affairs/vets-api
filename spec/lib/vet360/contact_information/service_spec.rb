@@ -6,17 +6,11 @@ describe Vet360::ContactInformation::Service, skip_vet360: true do
   subject { described_class.new(user) }
 
   let(:user) { build(:user, :loa3) }
-  let(:bad_vet360_id) { '6767671' }
+  let(:vet360_id) { '1' }
 
   before do
-    allow(user).to receive(:vet360_id).and_return('1')
+    allow(user).to receive(:vet360_id).and_return(vet360_id)
     allow(user).to receive(:icn).and_return('1234')
-  end
-
-  def self.set_bad_vet360_id
-    before do
-      allow(user).to receive(:vet360_id).and_return(bad_vet360_id)
-    end
   end
 
   describe '#get_person' do
@@ -31,7 +25,7 @@ describe Vet360::ContactInformation::Service, skip_vet360: true do
     end
 
     context 'when not successful' do
-      set_bad_vet360_id
+      let(:vet360_id) { '6767671' }
 
       it 'returns a status of 404' do
         VCR.use_cassette('vet360/contact_information/person_error', VCR::MATCH_EVERYTHING) do
@@ -143,7 +137,7 @@ describe Vet360::ContactInformation::Service, skip_vet360: true do
     context 'when successful' do
       it 'returns a status of 200' do
         VCR.use_cassette('vet360/contact_information/put_address_success', VCR::MATCH_EVERYTHING) do
-          address.id = 15035
+          address.id = 15_035
           address.address_line1 = '1494 Martin Luther King Rd'
           address.city = 'Fulton'
           address.state_code = 'MS'
@@ -162,7 +156,7 @@ describe Vet360::ContactInformation::Service, skip_vet360: true do
     context 'when successful' do
       it 'returns a status of 200' do
         VCR.use_cassette('vet360/contact_information/put_telephone_success', VCR::MATCH_EVERYTHING) do
-          telephone.id = 17259
+          telephone.id = 17_259
           telephone.phone_number = '5551235'
           response = subject.put_telephone(telephone)
           expect(response.transaction.id).to eq('c3c6502d-f660-409c-9bc9-a7b7ce4f0bc5')

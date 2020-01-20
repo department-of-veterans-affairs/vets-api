@@ -113,14 +113,14 @@ RSpec.describe 'telephone', type: :request do
     end
 
     context 'when effective_end_date is included' do
-      let(:time) { Time.parse('2020-01-17T04:21:59.000Z') }
+      let(:time) { Time.zone.parse('2020-01-17T04:21:59.000Z') }
       let(:telephone) do
         build(:telephone,
               vet360_id: user.vet360_id,
               effective_end_date: Time.now.utc.iso8601,
               phone_number: '5551234')
       end
-      let(:id_in_cassette) { 17259 }
+      let(:id_in_cassette) { 17_259 }
 
       before do
         allow_any_instance_of(User).to receive(:vet360_id).and_return('1')
