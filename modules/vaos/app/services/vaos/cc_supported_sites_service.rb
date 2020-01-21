@@ -4,7 +4,7 @@ module VAOS
   class CCSupportedSitesService < VAOS::BaseService
     def get_supported_sites(site_codes)
       with_monitoring do
-        response = perform(:get, url(site_codes), nil, headers(user))
+        response = perform(:get, url(site_codes), nil, headers)
         {
           data: deserialize(response.body),
           meta: {}

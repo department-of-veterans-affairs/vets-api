@@ -10,7 +10,7 @@ module VAOS
       params = date_params(start_date, end_date).merge(page_params(pagination_params)).merge(other_params).compact
 
       with_monitoring do
-        response = perform(:get, get_appointments_base_url(type), params, headers(user))
+        response = perform(:get, get_appointments_base_url(type), params, headers)
         {
           data: deserialized_appointments(response.body, type),
           meta: pagination(pagination_params)
@@ -23,7 +23,7 @@ module VAOS
       site_code = params[:clinic][:site_code]
 
       with_monitoring do
-        response = perform(:post, post_appointment_url(site_code), params, headers(user))
+        response = perform(:post, post_appointment_url(site_code), params, headers)
         {
           data: OpenStruct.new(response.body),
           meta: {}
@@ -36,7 +36,7 @@ module VAOS
       params.merge!(patient_identifier: { unique_id: user.icn, assigning_authority: 'ICN' })
 
       with_monitoring do
-        perform(:put, put_appointment_url, params, headers(user))
+        perform(:put, put_appointment_url, params, headers)
         ''
       end
     rescue Common::Client::Errors::ClientError => e

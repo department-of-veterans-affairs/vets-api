@@ -51,9 +51,5 @@ module VAOS
       "/var/VeteranAppointmentRequestService/v4/rest/appointment-service/patient/ICN/#{user.icn}" \
         "/appointment-requests/system/var/id/#{request_id}/messages"
     end
-
-    def headers
-      super(user)
-    end
   end
 end

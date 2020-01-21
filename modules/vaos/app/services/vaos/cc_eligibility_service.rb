@@ -8,7 +8,7 @@ module VAOS
 
     def get_eligibility(service_type)
       with_monitoring do
-        response = perform(:get, url(service_type), nil, headers(user))
+        response = perform(:get, url(service_type), nil, headers)
         {
           data: OpenStruct.new(response.body),
           meta: {}

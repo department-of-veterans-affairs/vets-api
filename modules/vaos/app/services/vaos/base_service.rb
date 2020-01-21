@@ -19,7 +19,7 @@ module VAOS
       VAOS::Configuration.instance
     end
 
-    def headers(user)
+    def headers
       session_token = user_service.session(user)
       { 'Referer' => 'https://api.va.gov', 'X-VAMF-JWT' => session_token }
     end
