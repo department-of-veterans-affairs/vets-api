@@ -1,23 +1,9 @@
 # frozen_string_literal: true
 
-require_relative '../vaos/concerns/headers'
-
 module VAOS
   class MessagesService < VAOS::BaseService
-    include Common::Client::Monitoring
-    include SentryLogging
-    include VAOS::Headers
-
-    configuration VAOS::Configuration
-
-    attr_accessor :user
-
-    STATSD_KEY_PREFIX = 'api.vaos'
-
     def self.for_user(user)
-      rs = VAOS::MessagesService.new
-      rs.user = user
-      rs
+      VAOS::MessagesService.new(user)
     end
 
     def get_messages(request_id)

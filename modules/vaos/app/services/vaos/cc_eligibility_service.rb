@@ -1,23 +1,9 @@
 # frozen_string_literal: true
 
-require_relative '../vaos/concerns/headers'
-
 module VAOS
   class CCEligibilityService < VAOS::BaseService
-    include Common::Client::Monitoring
-    include SentryLogging
-    include VAOS::Headers
-
-    configuration VAOS::Configuration
-
-    STATSD_KEY_PREFIX = 'api.vaos'
-
-    attr_accessor :user
-
     def self.for_user(user)
-      as = VAOS::CCEligibilityService.new
-      as.user = user
-      as
+      VAOS::CCEligibilityService.new(user)
     end
 
     def get_eligibility(service_type)

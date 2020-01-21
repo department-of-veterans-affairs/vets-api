@@ -1,20 +1,8 @@
 # frozen_string_literal: true
 
-require_relative '../vaos/concerns/headers'
-
 module VAOS
   class SystemsService < VAOS::BaseService
-    include Common::Client::Monitoring
-    include VAOS::Headers
-
-    configuration VAOS::Configuration
-
-    STATSD_KEY_PREFIX = 'api.vaos'
     AVAILABLE_APPT_FMT = '%m/%d/%Y'
-
-    def initialize(user)
-      @user = user
-    end
 
     def get_systems
       with_monitoring do

@@ -1,22 +1,7 @@
 # frozen_string_literal: true
 
-require_relative '../vaos/concerns/headers'
-
 module VAOS
   class PreferencesService < VAOS::BaseService
-    include Common::Client::Monitoring
-    include VAOS::Headers
-
-    configuration VAOS::Configuration
-
-    STATSD_KEY_PREFIX = 'api.vaos'
-
-    attr_reader :user
-
-    def initialize(user)
-      @user = user
-    end
-
     def get_preferences
       with_monitoring do
         response = perform(:get, url, nil, headers(user))

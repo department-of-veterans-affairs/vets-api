@@ -1,23 +1,9 @@
 # frozen_string_literal: true
 
-require_relative '../vaos/concerns/headers'
-
 module VAOS
   class AppointmentService < VAOS::BaseService
-    include Common::Client::Monitoring
-    include SentryLogging
-    include VAOS::Headers
-
-    configuration VAOS::Configuration
-
-    STATSD_KEY_PREFIX = 'api.vaos'
-
-    attr_accessor :user
-
     def self.for_user(user)
-      as = VAOS::AppointmentService.new
-      as.user = user
-      as
+      VAOS::AppointmentService.new(user)
     end
 
     def get_appointments(type, start_date, end_date, pagination_params = {})
