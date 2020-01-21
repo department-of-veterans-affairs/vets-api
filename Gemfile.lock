@@ -41,6 +41,13 @@ GIT
       multi_json (~> 1.0)
       script_utils (= 0.0.4)
 
+GIT
+  remote: https://github.com/rack/rack.git
+  revision: f690bb71425aa31d7b9b3113829af773950d8ab5
+  ref: f690bb71425aa31d7b9b3113829af773950d8ab5
+  specs:
+    rack (2.2.0)
+
 PATH
   remote: modules/appeals_api
   specs:
@@ -348,7 +355,7 @@ GEM
     fast_jsonapi (1.5)
       activesupport (>= 4.2)
     fastimage (2.1.7)
-    ffi (1.11.3)
+    ffi (1.12.1)
     figaro (1.1.1)
       thor (~> 0.14)
     flipper (0.17.1)
@@ -379,7 +386,7 @@ GEM
       faraday
       faraday_middleware
       mime-types
-    guard (2.15.1)
+    guard (2.16.1)
       formatador (>= 0.2.4)
       listen (>= 2.7, < 4.0)
       lumberjack (>= 1.0.12, < 2.0)
@@ -435,14 +442,13 @@ GEM
     levenshtein-ffi (1.1.0)
       ffi (~> 1.9)
     liquid (4.0.3)
-    listen (3.1.5)
-      rb-fsevent (~> 0.9, >= 0.9.4)
-      rb-inotify (~> 0.9, >= 0.9.7)
-      ruby_dep (~> 1.2)
+    listen (3.2.1)
+      rb-fsevent (~> 0.10, >= 0.10.3)
+      rb-inotify (~> 0.9, >= 0.9.10)
     loofah (2.4.0)
       crass (~> 1.0.2)
       nokogiri (>= 1.5.9)
-    lumberjack (1.0.13)
+    lumberjack (1.1.1)
     mail (2.7.1)
       mini_mime (>= 0.1.1)
     marcel (0.3.3)
@@ -490,7 +496,7 @@ GEM
       activerecord (>= 4.2)
       request_store (~> 1.1)
     parallel (1.19.1)
-    parser (2.7.0.0)
+    parser (2.7.0.2)
       ast (~> 2.4.0)
     pdf-core (0.7.0)
     pdf-forms (1.2.0)
@@ -514,7 +520,7 @@ GEM
     pry-byebug (3.7.0)
       byebug (~> 11.0)
       pry (~> 0.10)
-    public_suffix (4.0.2)
+    public_suffix (4.0.3)
     puma (4.3.1)
       nio4r (~> 2.0)
     puma-plugin-statsd (0.1.0)
@@ -523,7 +529,6 @@ GEM
     pundit (1.1.0)
       activesupport (>= 3.0.0)
     raabro (1.1.6)
-    rack (2.1.1)
     rack-attack (6.2.1)
       rack (>= 1.0, < 3)
     rack-cors (1.1.1)
@@ -566,7 +571,7 @@ GEM
     rainbow (3.0.0)
     rake (13.0.1)
     rb-fsevent (0.10.3)
-    rb-inotify (0.10.0)
+    rb-inotify (0.10.1)
       ffi (~> 1.0)
     redis (3.3.5)
     redis-namespace (1.7.0)
@@ -589,12 +594,12 @@ GEM
       rspec-core (~> 3.9.0)
       rspec-expectations (~> 3.9.0)
       rspec-mocks (~> 3.9.0)
-    rspec-core (3.9.0)
-      rspec-support (~> 3.9.0)
+    rspec-core (3.9.1)
+      rspec-support (~> 3.9.1)
     rspec-expectations (3.9.0)
       diff-lcs (>= 1.2.0, < 2.0)
       rspec-support (~> 3.9.0)
-    rspec-mocks (3.9.0)
+    rspec-mocks (3.9.1)
       diff-lcs (>= 1.2.0, < 2.0)
       rspec-support (~> 3.9.0)
     rspec-rails (3.9.0)
@@ -605,13 +610,13 @@ GEM
       rspec-expectations (~> 3.9.0)
       rspec-mocks (~> 3.9.0)
       rspec-support (~> 3.9.0)
-    rspec-support (3.9.0)
+    rspec-support (3.9.2)
     rspec_junit_formatter (0.4.1)
       rspec-core (>= 2, < 4, != 2.12.0)
-    rubocop (0.78.0)
+    rubocop (0.79.0)
       jaro_winkler (~> 1.5.1)
       parallel (~> 1.10)
-      parser (>= 2.6)
+      parser (>= 2.7.0.1)
       rainbow (>= 2.2.2, < 4.0)
       ruby-progressbar (~> 1.7)
       unicode-display_width (>= 1.4.0, < 1.7)
@@ -619,15 +624,14 @@ GEM
     rubocop-rails (2.4.1)
       rack (>= 1.1)
       rubocop (>= 0.72.0)
-    rubocop-rspec (1.35.0)
-      rubocop (>= 0.60.0)
+    rubocop-rspec (1.37.1)
+      rubocop (>= 0.68.1)
     rubocop-thread_safety (0.3.4)
       rubocop (>= 0.51.0)
     ruby-progressbar (1.10.1)
     ruby-rc4 (0.1.5)
     ruby-saml (1.11.0)
       nokogiri (>= 1.5.10)
-    ruby_dep (1.5.0)
     rubyzip (2.0.0)
     rufus-scheduler (3.6.0)
       fugit (~> 1.1, >= 1.1.6)
@@ -706,7 +710,7 @@ GEM
       ethon (>= 0.9.0)
     tzinfo (1.2.6)
       thread_safe (~> 0.1)
-    unicode-display_width (1.6.0)
+    unicode-display_width (1.6.1)
     upsert (2.2.1)
     uri_template (0.7.0)
     utf8-cleaner (0.2.5)
@@ -725,7 +729,7 @@ GEM
       activemodel (>= 5.0)
       bindex (>= 0.4.0)
       railties (>= 5.0)
-    webmock (3.7.6)
+    webmock (3.8.0)
       addressable (>= 2.3.6)
       crack (>= 0.3.2)
       hashdiff (>= 0.4.0, < 2.0.0)
@@ -833,6 +837,7 @@ DEPENDENCIES
   puma (~> 4.3.1)
   puma-plugin-statsd (~> 0.1.0)
   pundit
+  rack!
   rack-attack
   rack-cors
   rack-test
