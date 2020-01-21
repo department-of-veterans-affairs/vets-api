@@ -26,6 +26,9 @@ module V0
     def create_higher_level_review
       review = review_service.post_higher_level_reviews(request.raw_post)
       render status: review.status, json: review.body
+    def show_contestable_issues
+      issues = review_service.get_contestable_issues(current_user)
+      render json: issues.body
     end
 
     private
