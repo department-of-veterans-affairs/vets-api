@@ -8,7 +8,16 @@ module Facilities
       def pull_source_data
         metadata = Facilities::Metadata::Client.new.get_metadata(arcgis_type)
         max_record_count = metadata['maxRecordCount']
-        Facilities::Client.new.get_all_facilities(arcgis_type, sort_field, max_record_count).map(&method(:new))
+        resp = Facilities::Client.new.get_all_facilities(arcgis_type, sort_field, max_record_count).map(&method(:new))
+        add_websites(resp)
+      end
+
+      def add_websites(facilities)
+        service = Facilities::WebsiteUrlService.new
+        facilities.map do |fac|
+          fac['website'] = service.find_for_station(fac['unique_id'], sti_name)
+          fac
+        end
       end
 
       def service_list
