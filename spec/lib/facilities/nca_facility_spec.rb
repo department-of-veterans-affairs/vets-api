@@ -39,7 +39,6 @@ module Facilities
 
         it 'includes websites for facilities' do
           VCR.use_cassette('facilities/va/nca_facilities') do
-            puts facility
             expect(facility.website).to eq('https://www.cem.va.gov/cems/lots/baxtersprings.asp')
           end
         end
