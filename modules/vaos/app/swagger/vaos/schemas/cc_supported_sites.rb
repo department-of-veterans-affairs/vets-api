@@ -24,28 +24,13 @@ module VAOS
       end
 
       swagger_schema :CCSupportedSite do
-        key :required, %i[id type attributes]
+        key :required, %i[id name timezone objectType link]
 
         property :id, type: :string
-        property :type, type: :string, enum: :va_appointments
-        property :attributes, type: :object do
-          property :appointment_request_id, type: :string
-          property :distance_eligible_confirmed, type: :boolean
-          property :name, type: :object do
-            property :first_name, type: :string
-            property :last_name, type: :string
-          end
-          property :provider_practice, type: :string
-          property :provider_phone, type: :string
-          property :address, type: :object do
-            property :street, type: :string
-            property :city, type: :string
-            property :state, type: :string
-            property :zip_code, type: :string
-          end
-          property :instructions_to_veteran, type: :string
-          property :appointment_time, type: :string
-          property :time_zone, type: :string
+        property :name, type: :string
+        property :timezone, type: :string
+        property :objectType, type: :string
+        property :link, type: :array do
         end
       end
     end
