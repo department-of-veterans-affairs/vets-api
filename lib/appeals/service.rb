@@ -75,6 +75,18 @@ module Appeals
     end
 
     ##
+    # Create a HLR.
+    #
+    # @param body [Hash] The HLR's attributes. See modules/appeals_api/app/swagger/v1/decision_reviews.yaml
+    # @return [Hash] Response object.
+    #
+    def create_higher_level_review(body)
+      with_monitoring do
+        perform(:post, "#{CASEFLOW_V3_API_PATH}higher_level_reviews", body, request_headers)
+      end
+    end
+
+    ##
     # Pings the Appeals Status health check endpoint.
     #
     # @return [Faraday::Response] Faraday response instance.
