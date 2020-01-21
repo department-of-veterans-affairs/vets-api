@@ -12,5 +12,16 @@ module V0
         json: appeals_response.body
       )
     end
+
+    def show_contestable_issues
+      issues = review_service.get_contestable_issues(current_user)
+      render json: issues.body
+    end
+
+    private
+
+    def review_service
+      DecisionReview::Service.new
+    end
   end
 end
