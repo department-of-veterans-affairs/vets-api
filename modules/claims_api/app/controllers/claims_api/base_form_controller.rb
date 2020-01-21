@@ -22,7 +22,7 @@ module ClaimsApi
     end
 
     def form_attributes
-      payload_attributes = JSON.parse(request.body.string).dig('data', 'attributes') if request.body.string.present?
+      payload_attributes = @json_body.dig('data', 'attributes')
 
       payload_attributes ||= {}
 

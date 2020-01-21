@@ -18,6 +18,7 @@ module ClaimsApi
         before_action :validate_json_schema, only: %i[submit_form_526 validate_form_526]
         before_action :validate_initial_claim, only: %i[submit_form_526 validate_form_526]
         before_action :validate_documents_page_size, only: %i[upload_supporting_documents]
+        skip_before_action :validate_json_format, only: %i[upload_supporting_documents]
 
         def submit_form_526
           service_object = service(auth_headers)

@@ -11,12 +11,19 @@ module VBADocuments
       valerie.hase@va.gov
     ].freeze
 
-    def build(unsuccessful_submissions, date_from, date_to)
+    def build(unsuccessful_submissions, stuck_submissions, date_from, date_to)
       @unsuccessful_submissions = unsuccessful_submissions
+      @stuck_submissions = stuck_submissions
       @date_from = date_from
       @date_to = date_to
 
-      path = VBADocuments::Engine.root.join('app', 'mailers', 'vba_documents', 'views', 'unsuccessful_report.erb')
+      path = VBADocuments::Engine.root.join(
+        'app',
+        'views',
+        'vba_documents',
+        'unsuccessful_report_mailer',
+        'unsuccessful_report.html.erb'
+      )
       template = File.read(path)
 
       mail(

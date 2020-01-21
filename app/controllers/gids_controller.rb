@@ -1,14 +1,12 @@
 # frozen_string_literal: true
 
-require 'gi/client'
-
-class GIController < ApplicationController
+class GIDSController < ApplicationController
   skip_before_action :authenticate
 
   private
 
-  def client
-    @client ||= ::GI::Client.new
+  def service
+    GIDSRedis.new
   end
 
   def scrubbed_params

@@ -1,0 +1,130 @@
+{
+  "data": {
+    "type": "form/526",
+    "attributes": {
+      "veteran": {
+        "currentlyVAEmployee": false,
+        "currentMailingAddress": {
+          "addressLine1": "1234 Couch Street",
+          "addressLine2": "Apt. 22",
+          "city": "Portland",
+          "country": "USA",
+          "zipFirstFive": "12345",
+          "zipLastFour": "6789",
+          "type": "DOMESTIC",
+          "state": "OR"
+        },
+        "changeOfAddress": {
+          "beginningDate": "2018-06-04",
+          "addressChangeType": "PERMANENT",
+          "addressLine1": "1234 Couch Stree",
+          "addressLine2": "Apt. 22",
+          "city": "Portland",
+          "country": "USA",
+          "zipFirstFive": "12345",
+          "zipLastFour": "6789",
+          "type": "DOMESTIC",
+          "state": "OR"
+        },
+        "homelessness": {
+          "pointOfContact": {
+            "pointOfContactName": "Jane Doe",
+            "primaryPhone": {
+              "areaCode": "123",
+              "phoneNumber": "1231234"
+            }
+          },
+          "currentlyHomeless": {
+            "homelessSituationType": "FLEEING_CURRENT_RESIDENCE",
+            "otherLivingSituation": "other living situation"
+          }
+        }
+      },
+      "serviceInformation": {
+        "servicePeriods": [
+          {
+            "serviceBranch": "Air Force",
+            "activeDutyBeginDate": "1980-02-05",
+            "activeDutyEndDate": "1990-01-02"
+          }
+        ],
+        "confinements": [
+          {
+            "confinementBeginDate": "1987-02-01",
+            "confinementEndDate": "1987-02-01"
+          }
+        ],
+        "reservesNationalGuardService": {
+          "title10Activation": {
+            "anticipatedSeparationDate": "2020-01-01",
+            "title10ActivationDate": "1999-03-04"
+          },
+          "obligationTermOfServiceFromDate": "2000-01-04",
+          "obligationTermOfServiceToDate": "2004-01-04",
+          "unitName": "Seal Team Six",
+          "unitPhone": {
+            "areaCode": "123",
+            "phoneNumber": "1231234"
+          },
+          "receivingInactiveDutyTrainingPay": true
+        },
+        "alternateNames": [
+          {
+            "firstName": "Jack",
+            "middleName": "Clint",
+            "lastName": "Bauer"
+          }
+        ]
+      },
+      "disabilities": [
+        {
+          "ratedDisabilityId": "1100583",
+          "diagnosticCode": 9999,
+          "disabilityActionType": "NEW",
+          "name": "PTSD (post traumatic stress disorder)",
+          "secondaryDisabilities": [
+            {
+              "name": "PTSD personal trauma",
+              "disabilityActionType": "SECONDARY",
+              "serviceRelevance": "Caused by a service-connected disability\\nLengthy description"
+            }
+          ]
+        }
+      ],
+      "treatments": [
+        {
+          "startDate": "2018-03-02",
+          "endDate": "2018-03-03",
+          "treatedDisabilityNames": [
+            "PTSD (post traumatic stress disorder)"
+          ],
+          "center": {
+            "name": "Private Facility 2",
+            "country": "USA"
+          }
+        }
+      ],
+      "servicePay": {
+        "waiveVABenefitsToRetainTrainingPay": true,
+        "waiveVABenefitsToRetainRetiredPay": true,
+        "militaryRetiredPay": {
+          "receiving": true,
+          "payment": {
+            "serviceBranch": "Air Force"
+          }
+        }
+      },
+      "directDeposit": {
+        "accountType": "CHECKING",
+        "accountNumber": "123123123123",
+        "routingNumber": "123123123",
+        "bankName": "Some Bank"
+      },
+      "claimantCertification": true,
+      "standardClaim": false,
+      "autoCestPDFGenerationDisabled": false,
+      "claimDate": "2018-08-28",
+      "applicationExpirationDate": "2018-08-28T19:53:45+00:00"
+    }
+  }
+}
