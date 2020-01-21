@@ -15,7 +15,8 @@ module Facilities
       def add_websites(facilities)
         service = Facilities::WebsiteUrlService.new
         facilities.map do |fac|
-          fac['website'] = service.find_for_station(fac['unique_id'], sti_name)
+          unique_id = fac['unique_id'].sub!(/^0/, '')
+          fac['website'] = service.find_for_station(unique_id, sti_name)
           fac
         end
       end
