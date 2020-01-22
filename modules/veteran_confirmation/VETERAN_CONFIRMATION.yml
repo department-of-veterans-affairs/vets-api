@@ -29,13 +29,13 @@ info:
     ## Authorization
     This API requires an API key in combination with identifiable information for the person being confirmed listed below. API requests are authorized through a symmetric API token provided in an HTTP header with name `apikey`. Including more information has a better chance of making a match and returning a Confirmed status. 
     #### Required information:
-    * First Name  
-    * Last Name  
-    * Date of Birth  
+    * First Name 
+    * Last Name 
+    * Date of Birth 
     * Social Security Number 
 
     #### Optional information:
-    * Middle Name  
+    * Middle Name
     * Gender
     
     ## Reference
@@ -80,7 +80,6 @@ paths:
       security:
         - apikey: []
       requestBody:
-        description: Optional description in *Markdown*
         required: true
         content:
           application/json:
@@ -125,8 +124,13 @@ components:
       in: header
   schemas:
     VeteranStatusRequest:
-      description: Attributes required to retrieve a veteran's status
+      description: Attributes required to retrieve a Veteran's status
       type: object
+      required:
+        - ssn
+        - first_name
+        - last_name
+        - birth_date
       properties:
         ssn:
           type: string
@@ -144,6 +148,17 @@ components:
           type: string
           description: Birth date for the person of interest in any valid ISO8601 format
           example: "1965-01-01"
+        middle_name:
+          type: string
+          description: Optional middle name for the person of interest
+          example: "Theodore"
+        gender:
+          type: string
+          description: Optional gender of M or F for the person of interest
+          enum:
+            - M
+            - F
+          example: "M"
     VeteranStatusConfirmation:
       description: |
         Veteran status confirmation for an individual
