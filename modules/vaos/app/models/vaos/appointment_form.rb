@@ -8,6 +8,7 @@ module VAOS
     attribute :scheduling_request_type, String
     attribute :type, String
     attribute :appointment_kind, String
+    attribute :appointment_type, String
     attribute :scheduling_method, String
     attribute :appt_type, String
     attribute :purpose, String
@@ -78,6 +79,10 @@ module VAOS
         preferred_email: preferred_email,
         time_zone: time_zone
       }
+    end
+
+    def clinic
+      @clinic ||= super.with_indifferent_access
     end
 
     def location
