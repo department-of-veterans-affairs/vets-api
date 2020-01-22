@@ -61,7 +61,6 @@ module VAOS
     end
 
     def patients
-      binding.pry
       {
         patient: [
           id: {
