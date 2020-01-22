@@ -33,6 +33,13 @@ describe EVSS::ClaimsService do
       end
     end
 
+    it 'gets a claim with docs' do
+      VCR.use_cassette('evss/claims/claim_with_docs') do
+        response = subject.find_claim_with_docs_by_id('600117255')
+        expect(response).to be_success
+      end
+    end
+
     it 'posts a 5103 waiver', run_at: 'Tue, 12 Dec 2017 03:21:11 GMT' do
       VCR.use_cassette(
         'evss/claims/set_5103_waiver',
