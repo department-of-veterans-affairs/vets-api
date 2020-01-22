@@ -4,6 +4,8 @@ Sidekiq::Enterprise.unique! if Rails.env.production?
 
 Sidekiq.configure_server do |config|
   config.redis = REDIS_CONFIG['redis']
+  config.super_fetch! if Rails.env.production?
+
   config.on(:startup) do
     Sidekiq.schedule = YAML.load_file(File.expand_path('../sidekiq_scheduler.yml', __dir__))
     Sidekiq::Scheduler.reload_schedule!
