@@ -61,6 +61,7 @@ module VAOS
     end
 
     def patients
+      binding.pry
       {
         patient: [
           id: {
@@ -81,21 +82,17 @@ module VAOS
       }
     end
 
-    def clinic
-      @clinic ||= super.with_indifferent_access
-    end
-
     def location
       {
         type: 'VA',
         facility: {
-          name: clinic[:institution_name],
-          site_code: clinic[:site_code],
-          time_zone: (clinic[:time_zone] || time_zone)
+          name: clinic['institution_name'],
+          site_code: clinic['site_code'],
+          time_zone: (clinic['time_zone'] || time_zone)
         },
         clinic: {
-          ien: clinic[:clinic_id],
-          name: clinic[:clinic_name]
+          ien: clinic['clinic_id'],
+          name: clinic['clinic_name']
         }
       }
     end
