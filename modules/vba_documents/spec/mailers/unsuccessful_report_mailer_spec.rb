@@ -4,10 +4,11 @@ require 'rails_helper'
 
 RSpec.describe VBADocuments::UnsuccessfulReportMailer, type: [:mailer] do
   let(:error_upload) { FactoryBot.create(:upload_submission, :status_error) }
+  let(:uploaded_upload) { FactoryBot.create(:upload_submission, :status_uploaded) }
 
   describe '#build' do
     subject do
-      described_class.build([error_upload], 7.days.ago, Time.zone.now).deliver_now
+      described_class.build([error_upload], [uploaded_upload], 7.days.ago, Time.zone.now).deliver_now
     end
 
     it 'sends the email' do

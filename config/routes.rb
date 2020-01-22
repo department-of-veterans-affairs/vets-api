@@ -116,7 +116,11 @@ Rails.application.routes.draw do
       get :show, controller: 'health_record_contents', on: :collection
     end
 
-    resources :appeals, only: [:index]
+    resources :appeals, only: [:index] do
+      collection do
+        get 'contestable_issues', to: 'appeals#show_contestable_issues'
+      end
+    end
 
     scope :messaging do
       scope :health do
@@ -150,7 +154,7 @@ Rails.application.routes.draw do
       get 'services', to: 'ccp#services'
     end
 
-    scope :gi, module: 'gi' do
+    scope :gi, module: 'gids' do
       resources :institutions, only: :show, defaults: { format: :json } do
         get :search, on: :collection
         get :autocomplete, on: :collection

@@ -3,13 +3,16 @@
 require_dependency 'claims_api/concerns/mvi_verification'
 require_dependency 'claims_api/concerns/header_validation'
 require_dependency 'claims_api/unsynchronized_evss_claims_service'
+require_dependency 'claims_api/concerns/json_format_validation'
 
 module ClaimsApi
   class ApplicationController < ::OpenidApplicationController
     include ClaimsApi::MviVerification
     include ClaimsApi::HeaderValidation
+    include ClaimsApi::JsonFormatValidation
 
     skip_before_action :set_tags_and_extra_context, raise: false
+    before_action :validate_json_format, if: -> { request.post? }
 
     private
 
@@ -31,12 +34,12 @@ module ClaimsApi
 
     def target_veteran(with_gender: false)
       if header_request?
-        headers_to_validate = %w[X-VA-SSN X-VA-First-Name X-VA-Last-Name X-VA-Birth-Date X-Consumer-Username]
+        headers_to_validate = %w[X-VA-SSN X-VA-First-Name X-VA-Last-Name X-VA-Birth-Date]
         headers_to_validate << 'X-VA-LOA' if v0?
         validate_headers(headers_to_validate)
         if v0?
           check_loa_level
-          request.headers['X-VA-User'] = request.headers['X-Consumer-Username'] unless header('X-VA-User')
+          check_source_user
         end
         veteran_from_headers(with_gender: with_gender)
       else
@@ -46,6 +49,16 @@ module ClaimsApi
 
     def v0?
       request.env['PATH_INFO'].downcase.include?('v0')
+    end
+
+    def check_source_user
+      if !header('X-VA-User') && request.headers['X-Consumer-Username']
+        request.headers['X-VA-User'] = request.headers['X-Consumer-Username']
+      elsif !request.headers['X-Consumer-Username']
+        log_message_to_sentry('Kong no longer sending X-Consumer-Username', :error,
+                              body: request.body)
+        validate_headers(['X-Consumer-Username'])
+      end
     end
 
     def check_loa_level
