@@ -6,19 +6,24 @@ module VBADocuments
       andrew.fichter@va.gov
       michael.bastos@oddball.io
       charley.stran@oddball.io
-      alex.teal@oddball.io
       ryan.link@oddball.io
       aubrey.suter@adhocteam.us
-      trista.rowan@adhocteam.us
       valerie.hase@va.gov
     ].freeze
 
-    def build(unsuccessful_submissions, date_from, date_to)
+    def build(unsuccessful_submissions, stuck_submissions, date_from, date_to)
       @unsuccessful_submissions = unsuccessful_submissions
+      @stuck_submissions = stuck_submissions
       @date_from = date_from
       @date_to = date_to
 
-      path = VBADocuments::Engine.root.join('app', 'mailers', 'vba_documents', 'views', 'unsuccessful_report.erb')
+      path = VBADocuments::Engine.root.join(
+        'app',
+        'views',
+        'vba_documents',
+        'unsuccessful_report_mailer',
+        'unsuccessful_report.html.erb'
+      )
       template = File.read(path)
 
       mail(
