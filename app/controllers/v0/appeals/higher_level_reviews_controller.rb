@@ -4,6 +4,7 @@ module V0
   class HigherLevelReviewsController < AppealsBaseController
     def show
       review = decision_review_service.get_higher_level_reviews(params[:id])
+      render json: review.body
     end
 
     def create
