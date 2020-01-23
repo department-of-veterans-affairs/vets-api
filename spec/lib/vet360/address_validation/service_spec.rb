@@ -164,7 +164,7 @@ describe Vet360::AddressValidation::Service do
                     'zip_code4' => '3939'
                   },
                   'geocode' => {
-                    'calc_date' => '2019-12-05T15:59:36+00:00',
+                    'calc_date' => '2020-01-23T03:15:47+00:00',
                     'location_precision' => 31.0,
                     'latitude' => 40.717029, 'longitude' => -73.964956
                   },
@@ -197,7 +197,7 @@ describe Vet360::AddressValidation::Service do
                     'zip_code4' => '4101'
                   },
                   'geocode' => {
-                    'calc_date' => '2019-12-05T15:59:36+00:00',
+                    'calc_date' => '2020-01-23T03:15:47+00:00',
                     'location_precision' => 31.0,
                     'latitude' => 40.715367,
                     'longitude' => -73.965369
