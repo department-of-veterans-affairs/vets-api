@@ -21,10 +21,8 @@ RSpec.describe VBADocuments::UnsuccessfulReportMailer, type: [:mailer] do
           andrew.fichter@va.gov
           michael.bastos@oddball.io
           charley.stran@oddball.io
-          alex.teal@oddball.io
           ryan.link@oddball.io
           aubrey.suter@adhocteam.us
-          trista.rowan@adhocteam.us
           valerie.hase@va.gov
         ]
       )
