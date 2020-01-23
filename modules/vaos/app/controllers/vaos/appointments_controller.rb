@@ -27,7 +27,7 @@ module VAOS
     def create_params
       params.permit(:scheduling_request_type, :type, :appointment_kind, :scheduling_method, :appt_type, :purpose, :lvl,
                     :ekg, :lab, :x_ray, :desired_date, :date_time, :duration, :booking_notes, :preferred_email,
-                    :time_zone, clinic: %i[
+                    :appointment_type, :time_zone, clinic: %i[
                       site_code clinic_id clinic_name clinic_friendly_location_name
                       institution_name institution_code time_zone
                     ])
