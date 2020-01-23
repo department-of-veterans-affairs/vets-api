@@ -111,6 +111,7 @@ ihub:
 
 # Settings for Decision Reviews
 decision_review:
+  prefill: true
   url: https://dev-api.va.gov/services/appeals/v3/decision_review
   api_key: abcd1234abcd1234abcd1234abcd1234abcd1234
   mock: false
@@ -453,7 +454,6 @@ bgs:
   mock_response_location: ~
   mock_responses: ~
   ssl_verify_mode: 'peer'
-  
 
 va_mobile:
   url: 'https://veteran.apps.va.gov/'
