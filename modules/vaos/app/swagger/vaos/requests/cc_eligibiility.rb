@@ -30,6 +30,13 @@ module VAOS
             end
           end
 
+          response 400 do
+            key :description, 'Bad ServiceType: an unrecognized value was sent for ServiceType'
+            schema do
+              key :'$ref', :Errors
+            end
+          end
+
           response 401 do
             key :description, 'User is not authenticated (logged in)'
             schema do
@@ -39,13 +46,6 @@ module VAOS
 
           response 403 do
             key :description, 'Forbidden: user is not authorized for VAOS'
-            schema do
-              key :'$ref', :Errors
-            end
-          end
-
-          response 400 do
-            key :description, 'Bad ServiceType: an unrecognized value was sent for ServiceType'
             schema do
               key :'$ref', :Errors
             end
