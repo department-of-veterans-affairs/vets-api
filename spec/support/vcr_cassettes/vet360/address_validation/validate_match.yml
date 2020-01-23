@@ -82,4 +82,84 @@ http_interactions:
         S 1st St","city":"Brooklyn","zipCode5":"11249","zipCode4":"4101"},"geocode":{"calcDate":"2019-12-05T15:43:16+00:00","locationPrecision":31.0,"latitude":40.715367,"longitude":-73.965369},"addressMetaData":{"confidenceScore":97.0,"addressType":"Domestic","deliveryPointValidation":"CONFIRMED","residentialDeliveryIndicator":"MIXED","validationKey":-646932106}}'
     http_version: 
   recorded_at: Thu, 05 Dec 2019 15:43:16 GMT
-recorded_with: VCR 3.0.3
+- request:
+    method: post
+    uri: https://dev-api.va.gov/services/address_validation/v2/validate
+    body:
+      encoding: UTF-8
+      string: '{"requestAddress":{"addressLine1":"37 1st st","city":"Brooklyn","requestCountry":{"countryCode":"USA"},"addressPOU":"RESIDENCE/CHOICE","stateProvince":{"code":"NY"},"zipCode5":"11249"}}'
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Cufsystemname:
+      - VETSGOV
+      Apikey:
+      - "<AV_KEY>"
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 404
+      message: ''
+    headers:
+      Date:
+      - Thu, 23 Jan 2020 03:15:47 GMT
+      Content-Type:
+      - text/html;charset=utf-8
+      Transfer-Encoding:
+      - chunked
+      Connection:
+      - keep-alive
+      Server:
+      - openresty
+      Access-Control-Allow-Origin:
+      - "*"
+      Content-Language:
+      - en
+      Expires:
+      - '0'
+      Pragma:
+      - no-cache
+      Vet360txauditid:
+      - ec6e84bf-3f65-4e2b-a2ff-bdb61e56e36e
+      Via:
+      - kong/1.2.2
+      X-Content-Type-Options:
+      - nosniff
+      X-Frame-Options:
+      - DENY
+      X-Kong-Proxy-Latency:
+      - '0'
+      X-Kong-Upstream-Latency:
+      - '74'
+      X-Ratelimit-Limit-Edge-Gateway-Address-Validation-Vagovli-Address-V2-Validate-Address:
+      - '500'
+      X-Ratelimit-Limit-Minute:
+      - '60'
+      X-Ratelimit-Remaining-Edge-Gateway-Address-Validation-Vagovli-Address-V2-Validate-Address:
+      - '498'
+      X-Ratelimit-Remaining-Minute:
+      - '58'
+      X-Ratelimit-Reset-Edge-Gateway-Address-Validation-Vagovli-Address-V2-Validate-Address:
+      - '58868'
+      X-Ratelimit-Sla-Limit-Edge-Gateway-Address-Validation-Vagovli-Address-V2-Validate-Address:
+      - '250'
+      X-Ratelimit-Sla-Remaining-Edge-Gateway-Address-Validation-Vagovli-Address-V2-Validate-Address:
+      - '248'
+      X-Ua-Compatible:
+      - IE-edge,chrome=1
+      X-Xss-Protection:
+      - 1; mode=block
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubDomains; preload
+    body:
+      encoding: ASCII-8BIT
+      string: !binary |-
+        PCFkb2N0eXBlIGh0bWw+PGh0bWwgbGFuZz0iZW4iPjxoZWFkPjx0aXRsZT5IVFRQIFN0YXR1cyA0MDQg4oCTIE5vdCBGb3VuZDwvdGl0bGU+PHN0eWxlIHR5cGU9InRleHQvY3NzIj5oMSB7Zm9udC1mYW1pbHk6VGFob21hLEFyaWFsLHNhbnMtc2VyaWY7Y29sb3I6d2hpdGU7YmFja2dyb3VuZC1jb2xvcjojNTI1RDc2O2ZvbnQtc2l6ZToyMnB4O30gaDIge2ZvbnQtZmFtaWx5OlRhaG9tYSxBcmlhbCxzYW5zLXNlcmlmO2NvbG9yOndoaXRlO2JhY2tncm91bmQtY29sb3I6IzUyNUQ3Njtmb250LXNpemU6MTZweDt9IGgzIHtmb250LWZhbWlseTpUYWhvbWEsQXJpYWwsc2Fucy1zZXJpZjtjb2xvcjp3aGl0ZTtiYWNrZ3JvdW5kLWNvbG9yOiM1MjVENzY7Zm9udC1zaXplOjE0cHg7fSBib2R5IHtmb250LWZhbWlseTpUYWhvbWEsQXJpYWwsc2Fucy1zZXJpZjtjb2xvcjpibGFjaztiYWNrZ3JvdW5kLWNvbG9yOndoaXRlO30gYiB7Zm9udC1mYW1pbHk6VGFob21hLEFyaWFsLHNhbnMtc2VyaWY7Y29sb3I6d2hpdGU7YmFja2dyb3VuZC1jb2xvcjojNTI1RDc2O30gcCB7Zm9udC1mYW1pbHk6VGFob21hLEFyaWFsLHNhbnMtc2VyaWY7YmFja2dyb3VuZDp3aGl0ZTtjb2xvcjpibGFjaztmb250LXNpemU6MTJweDt9IGEge2NvbG9yOmJsYWNrO30gYS5uYW1lIHtjb2xvcjpibGFjazt9IC5saW5lIHtoZWlnaHQ6MXB4O2JhY2tncm91bmQtY29sb3I6IzUyNUQ3Njtib3JkZXI6bm9uZTt9PC9zdHlsZT48L2hlYWQ+PGJvZHk+PGgxPkhUVFAgU3RhdHVzIDQwNCDigJMgTm90IEZvdW5kPC9oMT48aHIgY2xhc3M9ImxpbmUiIC8+PHA+PGI+VHlwZTwvYj4gU3RhdHVzIFJlcG9ydDwvcD48cD48Yj5EZXNjcmlwdGlvbjwvYj4gVGhlIG9yaWdpbiBzZXJ2ZXIgZGlkIG5vdCBmaW5kIGEgY3VycmVudCByZXByZXNlbnRhdGlvbiBmb3IgdGhlIHRhcmdldCByZXNvdXJjZSBvciBpcyBub3Qgd2lsbGluZyB0byBkaXNjbG9zZSB0aGF0IG9uZSBleGlzdHMuPC9wPjxociBjbGFzcz0ibGluZSIgLz48aDM+QXBhY2hlIFRvbWNhdC84LjUuNDI8L2gzPjwvYm9keT48L2h0bWw+
+    http_version: 
+  recorded_at: Thu, 23 Jan 2020 03:15:47 GMT
+recorded_with: VCR 5.0.0
