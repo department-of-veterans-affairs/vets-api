@@ -31,7 +31,7 @@ describe Vet360::AddressValidation::Service do
       it 'returns suggested addresses' do
         VCR.use_cassette(
           'vet360/address_validation/candidate_multiple_matches',
-          VCR::MATCH_EVERYTHING
+          record: :new_episodes
         ) do
           res = described_class.new.address_suggestions(multiple_match_addr)
           expect(JSON.parse(res.to_json)).to eq(
@@ -88,7 +88,7 @@ describe Vet360::AddressValidation::Service do
       it 'returns an error' do
         VCR.use_cassette(
           'vet360/address_validation/validate_no_match',
-          VCR::MATCH_EVERYTHING
+          record: :new_episodes
         ) do
           expect { described_class.new.validate(base_address) }.to raise_error(
             Common::Exceptions::BackendServiceException
@@ -101,7 +101,7 @@ describe Vet360::AddressValidation::Service do
       it 'returns suggested address' do
         VCR.use_cassette(
           'vet360/address_validation/validate_match',
-          VCR::MATCH_EVERYTHING
+          record: :new_episodes
         ) do
           expect(described_class.new.validate(multiple_match_addr)).to eq(
             'address' => {
@@ -149,7 +149,7 @@ describe Vet360::AddressValidation::Service do
       it 'returns error messages' do
         VCR.use_cassette(
           'vet360/address_validation/candidate_no_match',
-          VCR::MATCH_EVERYTHING
+          record: :new_episodes
         ) do
           expect(described_class.new.candidate(invalid_address)).to eq(
             'candidate_addresses' => [
@@ -207,7 +207,7 @@ describe Vet360::AddressValidation::Service do
         it 'returns suggested addresses for a given address' do
           VCR.use_cassette(
             'vet360/address_validation/candidate_multiple_matches',
-            VCR::MATCH_EVERYTHING
+            record: :new_episodes
           ) do
             res = described_class.new.candidate(multiple_match_addr)
             expect(res).to eq(
