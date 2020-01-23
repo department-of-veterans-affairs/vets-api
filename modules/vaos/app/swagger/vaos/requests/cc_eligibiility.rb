@@ -2,7 +2,7 @@
 
 module VAOS
   module Requests
-    class CCSupportedSites
+    class CCEligibility
       include Swagger::Blocks
 
       swagger_path '/community_care/eligibility' do
