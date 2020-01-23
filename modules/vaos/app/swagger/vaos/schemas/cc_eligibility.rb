@@ -35,7 +35,6 @@ module VAOS
           property :eligible, type: :boolean
         end
       end
-  
     end
   end
 end
