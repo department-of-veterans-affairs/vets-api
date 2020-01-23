@@ -171,14 +171,13 @@ describe Vet360::AddressValidation::Service do
                   'zip_code5' => '21152'
                 },
                 'geocode' => {
-                  'calc_date' => '2019-12-06T18:47:31+00:00',
-                  'location_precision' => 0.0,
+                  'calc_date' => '2020-01-23T03:15:48+00:00',
                   'latitude' => 39.5412,
                   'longitude' => -76.6676
                 },
                 'address_meta_data' => {
                   'confidence_score' => 0.0,
-                  'address_type' => 'Unknown',
+                  'address_type' => 'Domestic',
                   'delivery_point_validation' => 'MISSING_ZIP',
                   'validation_key' => 1_499_210_293
                 },
