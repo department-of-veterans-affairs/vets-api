@@ -13,20 +13,18 @@ module Vet360
         AddressSuggestionsResponse.new(candidate_res)
       end
 
-      %w[validate candidate].each do |endpoint|
-        define_method(endpoint) do |address|
-          begin
-            res = perform(
-              :post,
-              endpoint,
-              address.address_validation_req.to_json
-            )
-          rescue => e
-            handle_error(e)
-          end
-
-          res.body
+      def candidate
+        begin
+          res = perform(
+            :post,
+            'candidate',
+            address.address_validation_req.to_json
+          )
+        rescue => e
+          handle_error(e)
         end
+
+        res.body
       end
 
       private

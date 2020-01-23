@@ -83,67 +83,6 @@ describe Vet360::AddressValidation::Service do
     end
   end
 
-  describe '#validate' do
-    context 'with an invalid address' do
-      it 'returns an error' do
-        VCR.use_cassette(
-          'vet360/address_validation/validate_no_match',
-          VCR::MATCH_EVERYTHING
-        ) do
-          expect { described_class.new.validate(base_address) }.to raise_error(
-            Common::Exceptions::BackendServiceException
-          )
-        end
-      end
-    end
-
-    context 'with a found address' do
-      it 'returns suggested address' do
-        VCR.use_cassette(
-          'vet360/address_validation/validate_match',
-          VCR::MATCH_EVERYTHING
-        ) do
-          expect(described_class.new.validate(multiple_match_addr)).to eq(
-            'address' => {
-              'county' => {
-                'name' => 'Kings',
-                'county_fips_code' => '36047'
-              },
-              'state_province' => {
-                'name' => 'New York',
-                'code' => 'NY'
-              },
-              'country' => {
-                'name' => 'United States',
-                'code' => 'USA',
-                'fips_code' => 'US',
-                'iso2_code' => 'US',
-                'iso3_code' => 'USA'
-              },
-              'address_line1' => '37 S 1st St',
-              'city' => 'Brooklyn',
-              'zip_code5' => '11249',
-              'zip_code4' => '4101'
-            },
-            'geocode' => {
-              'calc_date' => '2019-12-05T15:43:16+00:00',
-              'location_precision' => 31.0,
-              'latitude' => 40.715367,
-              'longitude' => -73.965369
-            },
-            'address_meta_data' => {
-              'confidence_score' => 97.0,
-              'address_type' => 'Domestic',
-              'delivery_point_validation' => 'CONFIRMED',
-              'residential_delivery_indicator' => 'MIXED',
-              'validation_key' => -646_932_106
-            }
-          )
-        end
-      end
-    end
-  end
-
   describe '#candidate' do
     context 'with an invalid address' do
       it 'returns error messages' do
