@@ -13,7 +13,7 @@ module Vet360
         AddressSuggestionsResponse.new(candidate_res)
       end
 
-      def candidate
+      def candidate(address)
         begin
           res = perform(
             :post,
