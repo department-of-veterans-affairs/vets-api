@@ -57,9 +57,9 @@ RSpec.describe EducationForm::Forms::VA5490 do
         end
 
         it 'previous_benefits should return the right value' do
-          # rubocop:disable Metrics/LineLength
+          # rubocop:disable Layout/LineLength
           expect(subject.previous_benefits).to eq("DISABILITY COMPENSATION OR PENSION\nDEPENDENTS' INDEMNITY COMPENSATION\nVOCATIONAL REHABILITATION BENEFITS (Chapter 31)\nVETERANS EDUCATION ASSISTANCE BASED ON SOMEONE ELSE'S SERVICE: CHAPTER 35 - SURVIVORS' AND DEPENDENTS' EDUCATIONAL ASSISTANCE PROGRAM (DEA)\nVETERANS EDUCATION ASSISTANCE BASED ON SOMEONE ELSE'S SERVICE: CHAPTER 33 - POST-9/11 GI BILL MARINE GUNNERY SERGEANT DAVID FRY SCHOLARSHIP\nVETERANS EDUCATION ASSISTANCE BASED ON SOMEONE ELSE'S SERVICE: TRANSFERRED ENTITLEMENT\nVETERANS EDUCATION ASSISTANCE BASED ON YOUR OWN SERVICE SPECIFY BENEFIT(S): foo\nOTHER; Specify benefit(s): other")
-          # rubocop:enable Metrics/LineLength
+          # rubocop:enable Layout/LineLength
         end
 
         it 'previously_applied_for_benefits? should return true' do

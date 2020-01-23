@@ -28,9 +28,9 @@ module VAOS
         url = '/var/VeteranAppointmentRequestService/v4/rest/direct-scheduling/institutions'
         url_params = {
           'facility-code' => system_id,
-          'parent-code' => parent_code,
           'clinical-service' => type_of_care_id
         }
+        url_params.merge!('parent-code' => parent_code) if parent_code.present?
         response = perform(:get, url, url_params, headers(@user))
         response.body.map do |system|
           institution = system.delete(:institution)
@@ -111,6 +111,19 @@ module VAOS
         }
         response = perform(:get, url, url_params, headers(@user))
         OpenStruct.new(response.body.merge(id: SecureRandom.uuid))
+      end
+    end
+
+    def get_clinic_institutions(system_id, clinic_ids)
+      with_monitoring do
+        url = "/cdw/v2/facilities/#{system_id}/clinics"
+        # the vaos clinic ids endpoint doesn't follow the url_param[]=1&url_param[]=2 style of passing an array
+        url_params = {
+          'pageSize' => 0,
+          'clinicIds' => [*clinic_ids].join(',')
+        }
+        response = perform(:get, url, url_params, headers(@user))
+        response.body[:data].map { |clinic| VAOS::ClinicInstitution.new(clinic) }
       end
     end
 

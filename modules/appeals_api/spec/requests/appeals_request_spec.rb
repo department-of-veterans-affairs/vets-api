@@ -51,6 +51,63 @@ RSpec.describe 'Claim Appeals API endpoint', type: :request do
     end
   end
 
+  describe 'POST /higher_level_reviews' do
+    context 'with an accepted response' do
+      it 'higher level review endpoint returns a successful response' do
+        VCR.use_cassette('decision_review/202_review') do
+          request = {
+            'data' => {
+              'type' => 'HigherLevelReview',
+              'attributes' => {
+                'receiptDate' => '2019-07-10',
+                'informalConference' => true,
+                'sameOffice' => false,
+                'legacyOptInApproved' => true,
+                'benefitType' => 'compensation',
+                'veteran' => {
+                  'fileNumberOrSsn' => '123456789',
+                  'addressLine1' => '123 Street St',
+                  'addressLine2' => 'Apt 4',
+                  'city' => 'Chicago',
+                  'stateProvinceCode' => 'IL',
+                  'zipPostalCode' => '60652',
+                  'phoneNumber' => '4432924565',
+                  'emailAddress' => 'someone@example.com'
+                },
+                'claimant' => {
+                  'participantId' => '44444444',
+                  'payeeCode' => '10'
+                }
+              }
+            },
+            'included' => [
+              {
+                'type' => 'RequestIssue',
+                'attributes' => {
+                  'decisionIssueId' => 2
+                }
+              }
+            ]
+          }
+
+          post hlr_endpoint, params: request.to_json
+          expect(response).to have_http_status(:accepted)
+          expect(response).to match_response_schema('higher_level_review_accepted')
+        end
+      end
+    end
+
+    context 'with a malformed request' do
+      it 'higher level review endpoint returns a 400 error' do
+        VCR.use_cassette('decision_review/400_review') do
+          post hlr_endpoint
+          expect(response).to have_http_status(:bad_request)
+          expect(response).to match_response_schema('errors')
+        end
+      end
+    end
+  end
+
   context 'with the X-VA-SSN and X-VA-User header supplied ' do
     let(:user) { FactoryBot.create(:user, :loa3) }
     let(:auth_headers) { EVSS::AuthHeaders.new(user).to_h }

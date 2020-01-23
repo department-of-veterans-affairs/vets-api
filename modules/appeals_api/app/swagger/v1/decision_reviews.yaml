@@ -1,0 +1,1514 @@
+openapi: 3.0.0
+info:
+  title: Decision Reviews
+  description: >+
+    The Decision Reviews API allows you to interact with a Veteran’s Decision Review requests, also known as benefit appeals. This API provides a secure and efficient alternative to paper or fax document submissions. Veterans Benefits Administration or Board of Veterans Appeals can begin processing Decision Review requests submitted through this API immediately, which ultimately allows VA to provide Veterans with appeal decisions more quickly.
+
+    > * For more information on the Decision Review process, including the different types of Decision Reviews, please see [this informative page on VA.gov](https://www.va.gov/decision-reviews/).
+
+    > * The Decision Reviews API supports the Appeals Modernization Act (AMA) process only. Appeals going through the legacy Appeal process cannot be managed through this API. Learn more about the AMA [here](https://benefits.va.gov/benefits/appeals.asp).
+
+    ## Technical Summary
+
+    The Decision Reviews API interacts with VA's internal system, called Caseflow, that manages all benefit appeals. Caseflow is the authoritative source for all Decision Review information.
+
+    * The Decision Reviews API accepts a JSON payload and the participant identification is supplied as a header.
+
+    * The Decision Review request will be validated to ensure the Veteran information matches VA records and that the appeal information sent is valid.
+
+    * Detailed error messages will be returned to help your application provide meaningful information to the Veteran attempting to make the Decision Review request.
+
+    ### Authorization
+
+    API requests are authorized through a symmetric API token, provided in an HTTP header with name "apikey."
+  version: 1.0.0
+servers:
+  - url: https://dev-api.va.gov/services/appeals/{version}/decision_review
+    description: "VA.gov API development environment"
+    variables:
+      version:
+        default: "v1"
+paths:
+  /higher_level_reviews:
+    post:
+      tags:
+        - Higher-Level Reviews
+      summary: Creates a Higher-Level Review
+      description: >+
+        This endpoint will submit a Decision Review request of type Higher-Level Review.  This endpoint is analogous to submitting VA For 20-0996 via mail or fax.
+
+        ### Asynchronous processing
+
+        The Decision Reviews API leverages a pattern recommended by JSON API for asynchronous processing (more information [here](https://jsonapi.org/recommendations/#asynchronous-processing)).  Submitting a Decision Review is an asynchronous process due to the multiple systems that are involved.  Because of this, when a new Decision Review is submitted, the POST endpoint will return a 202 `accepted` response including an Intake UUID.  That Intake UUID is associated with the submission and can be used as an identifier for the Intake Status endpoint.  While the submission is processing the Intake Status endpoint will return a 200 response.  Once the asynchronous process is complete and the Decision Review is submitted into Caseflow, the Intake Status endpoint will return a 303 response including the Decision Review ID for the submitted Decision Review, which will allow you to retrieve the full details including the processing status. 
+      requestBody:
+        required: true
+        content:
+          application/vnd.api+json:
+            schema:
+              type: object
+              required:
+                - data
+                # included (NOT required)
+              properties:
+                data:
+                  type: object
+                  required:
+                    - type
+                    - attributes
+                    - relationships
+                  properties:
+                    type:
+                      type: string
+                      enum: [HigherLevelReview]
+                    attributes:
+                      type: object
+                      required:
+                        - receiptDate
+                        - informalConference
+                        - sameOffice
+                        - legacyOptInApproved
+                        - benefitType
+                        - veteran
+                      properties:
+                        receiptDate:
+                          type: string
+                          format: date
+                        informalConference:
+                          type: boolean
+                          description: Corresponds to "14. ...REQUEST AN INFORMAL CONFERENCE..." on form 20-0996.
+
+                        informalConferenceTimes:
+                          type: array
+                          description: >-
+                            OPTIONAL. Time slot preference for informal conference (if being requested). EASTERN TIME. Pick up to two time slots (or none if no preference).
+                            Corresponds to "14. ...REQUEST AN INFORMAL CONFERENCE..." on form 20-0996.
+
+                          items:
+                            type: string
+                            enum: ["800-1000", "1000-1230", "1230-200", "200-430"]
+
+                        informalConferenceRep:
+                          type: object
+                          description: >-
+                            OPTIONAL. The veteran's preferred representative for informal conference (if being requested).
+                            Corresponds to "14. ...REQUEST AN INFORMAL CONFERENCE..." on form 20-0996.
+
+                          properties:
+                            name:
+                              type: string
+                              description: Representative's name.
+
+                            phoneNumber:
+                              type: string
+                              pattern: '^[0-9]+$'
+                              description: >-
+                                Representative's phone number.
+                                Example: "8446982311".
+                                Format: Include only digit characters. Include area code.
+
+                            phoneNumberCountryCode:
+                              type: string
+                              pattern: '^[0-9]+$'
+                              description: >-
+                                Representative's phone number country code.
+                                If not specified, will assume "1".
+                                Example: "20".
+                                Format: Include only digit characters.
+
+                            phoneNumberExt:
+                              type: string
+                              description: >-
+                                Representative's phone number extension (if needed).
+                                Example: "123".
+
+                        sameOffice:
+                          type: boolean
+                        legacyOptInApproved:
+                          type: boolean
+                        benefitType:
+                          $ref: "#/components/schemas/BenefitType"
+                        veteran:
+                          type: object
+                          description: >-
+                            The veteran whom this Higher-Level Review concerns.
+                            Use the field fileNumberOrSsn to identify the veteran.
+                            Optionally, you can update the veteran's current contact info using the other fields.
+                            If any of these fields are present: [addressLine1, addressLine2, city, stateProvinceCode, zipPostalCode, countryCode],
+                            all of these fields must be present: [addressLine1, addressLine2, city, stateProvinceCode, zipPostalCode].
+                            NOTE: countryCode can be left out, and it will be assumed to be "US".
+
+                          required:
+                            - fileNumberOrSsn
+                          properties:
+                            fileNumberOrSsn:
+                              type: string
+                              pattern: '^[0-9]{8,9}$'
+                              description: >-
+                                The veteran's file number or SSN.
+                                Example: "123456789"
+                                Format: 8 or 9 digit characters.
+                                Max length: 9 characters.
+                                Corresponds to both "1. VETERAN'S SOCIAL SECURITY NUMBER" and "2. VA FILE NUMBER" on form 20-0996.
+
+                            addressLine1:
+                              type: string
+                              description: >-
+                                Update a veteran's house number/name and street.
+                                Example: "123 Main St".
+                                Max length: 100 characters.
+                                Corresponds to "9. CURRENT MAILING ADDRESS: No. & Street" on form 20-0996.
+
+                            addressLine2:
+                              type: string
+                              description: >-
+                                Update a veteran's apartment or unit number.
+                                Example: "Apt. 4".
+                                Max length: 100 characters.
+                                Corresponds to "9. CURRENT MAILING ADDRESS: Apt./Unit Number" on form 20-0996.
+
+                            city:
+                              type: string
+                              description: >-
+                                Update a veteran's city.
+                                Example: "Kansas City".
+                                Max length: 100 characters.
+                                Corresponds to "9. CURRENT MAILING ADDRESS: City" on form 20-0996.
+
+                            stateProvinceCode:
+                              type: string
+                              pattern: '^[a-z]{2}$'
+                              description: >-
+                                Update a veteran's state or province.
+                                Example: "CA".
+                                Max length: 2 characters.
+                                Corresponds to "9. CURRENT MAILING ADDRESS: State/Province" on form 20-0996.
+
+                            countryCode:
+                              type: string
+                              pattern: '^[a-z]{2}$'
+                              description: >-
+                                Update a veteran's country.
+                                Example: "US".
+                                NOTE: If not specified, will assume "US".
+                                Max length: 2 characters.
+                                Corresponds to "9. CURRENT MAILING ADDRESS: Country" on form 20-0996.
+
+                            zipPostalCode:
+                              type: string
+                              description: >-
+                                Update a veteran's zip or postal code.
+                                Example: "90210".
+                                NOTE: If countryCode is "US" or not specified, this field, if present, must be a 5 character string of digits.
+                                Corresponds to "9. CURRENT MAILING ADDRESS: Zip Code/Postal Code" on form 20-0996.
+
+                            phoneNumber:
+                              type: string
+                              pattern: '^[0-9]+$'
+                              description: >-
+                                Update a veteran's phone number.
+                                Example: "8446982311".
+                                Format: Include only digit characters. Include area code.
+                                Max length: 14 characters.
+                                Corresponds to "10. TELEPHONE NUMBER" on form 20-0996.
+
+                            phoneNumberCountryCode:
+                              type: string
+                              pattern: '^[0-9]+$'
+                              description: >-
+                                Update a veteran's phone number country code.
+                                Note: If not specified, will assume "1".
+                                Example: "20".
+                                Format: Include only digit characters.
+
+                            phoneNumberExt:
+                              type: string
+                              description: >-
+                                Update a veteran's phone number extension (if needed).
+                                Example: "123".
+                                Max length: 10 characters.
+
+                            emailAddress:
+                              type: string
+                              pattern: '^.+@.+\..+$'
+                              description: >-
+                                Update a veteran's email address.
+                                Example: "linda@example.com".
+                                Max length: 255 characters.
+                                Corresponds to "11. E-MAIL ADDRESS" on form 20-0996.
+
+                        claimant:
+                          type: object
+                          required:
+                            - participantId
+                            - payeeCode
+                          properties:
+                            participantId:
+                              type: string
+                            payeeCode:
+                              $ref: "#/components/schemas/PayeeCode"
+                included:
+                  type: array
+                  description: ContestableIssues Array
+                  items:
+                    type: object
+                    description: >-
+                      Use the `/contestable_issues` endpoint to pull a list of
+                      a veteran's contestable issues to select from, and include
+                      the _ContestableIssue_ objects that you want to contest in this
+                      array.
+                      When including a _ContestableIssue_ obtained from the
+                      `/contestable_issues` endpoint, use the `notes` field to provide
+                      additional information about contesting this issue.
+                    required:
+                      - type
+                      - attributes
+                    properties:
+                      type:
+                        type: string
+                        enum: [ContestableIssue]
+                      attributes:
+                        type: object
+                        properties:
+                          notes:
+                            type: string
+                            nullable: true
+                          decisionIssueId:
+                            type: integer
+                            nullable: true
+                          ratingIssueId:
+                            type: string
+                            nullable: true
+                          ratingDecisionIssueId:
+                            type: string
+                            nullable: true
+            examples:
+              compensation:
+                value:
+                  data:
+                    type: HigherLevelReview
+                    attributes:
+                      receiptDate: "2019-07-10"
+                      informalConference: true
+                      sameOffice: false
+                      legacyOptInApproved: true
+                      benefitType: compensation
+                      veteran:
+                        fileNumberOrSsn: "123456789"
+                        addressLine1: 123 Street St
+                        addressLine2: Apt 4
+                        city: Chicago
+                        stateProvinceCode: IL
+                        zipPostalCode: "60652"
+                        phoneNumber: "4432924565"
+                        emailAddress: someone@example.com
+                      claimant:
+                        participantId: "44444444"
+                        payeeCode: "10"
+                  included:
+                    - type: ContestableIssue
+                      attributes:
+                        decisionIssueId: 205
+              pension:
+                value:
+                  data:
+                    type: HigherLevelReview
+                    attributes:
+                      receiptDate: "2019-11-01"
+                      informalConference: false
+                      sameOffice: false
+                      legacyOptInApproved: true
+                      benefitType: pension
+                      veteran:
+                        fileNumberOrSsn: "123456789"
+                        addressLine1: 456 Street St
+                        addressLine2: Apt 7
+                        city: Kansas City
+                        stateProvinceCode: KS
+                        zipPostalCode: "66160"
+                        phoneNumber: "9133677100"
+                        emailAddress: someoneelse@example.com
+                      claimant:
+                        participantId: "33333333"
+                        payeeCode: "11"
+                  included:
+                    - type: ContestableIssue
+                      attributes:
+                        decisionIssueId: 206
+                    - type: ContestableIssue
+                      attributes:
+                        ratingIssueId: 80
+      responses:
+        '202':
+          description: Accepted
+          headers:
+            Content-Location:
+              schema:
+                type: string
+                format: url
+              description: Link to check status of intake for HigherLevelReview
+          content:
+            application/vnd.api+json:
+              schema:
+                $ref: "#/components/schemas/IntakeStatus"
+        '4XX':
+          description: Invalid Request
+          content:
+            application/vnd.api+json:
+              schema:
+                type: object
+                properties:
+                  errors:
+                    $ref: "#/components/schemas/Errors"
+        '400':
+          description: |-
+            400 response
+          content:
+            application/vnd.api+json:
+              schema:
+                type: object
+                properties:
+                  errors:
+                    $ref: "#/components/schemas/Errors"
+              examples:
+                malformed_request:
+                  value: {
+                    "errors": [
+                      {
+                        "status": "400",
+                        "title":  "Malformed request",
+                        "code":  "malformed_request"
+                      }
+                    ]
+                  }
+        '403':
+          description: |-
+            403 response
+          content:
+            application/vnd.api+json:
+              schema:
+                type: object
+                properties:
+                  errors:
+                    $ref: "#/components/schemas/Errors"
+              examples:
+                veteran_not_accessible:
+                  value: {
+                    "errors": [
+                      {
+                        "status": "403",
+                        "title":  "You don't have permission to view this veteran's information",
+                        "code":  "veteran_not_accessible"
+                      }
+                    ]
+                  }
+        '404':
+          description: |-
+            404 response
+          content:
+            application/vnd.api+json:
+              schema:
+                type: object
+                properties:
+                  errors:
+                    $ref: "#/components/schemas/Errors"
+              examples:
+                veteran_not_found:
+                  value: {
+                    "errors": [
+                      {
+                        "status": "404",
+                        "title":  "Veteran not found",
+                        "code":  "veteran_not_found"
+                      }
+                    ]
+                  }
+        '409':
+          description: |-
+            409 response
+          content:
+            application/vnd.api+json:
+              schema:
+                type: object
+                properties:
+                  errors:
+                    $ref: "#/components/schemas/Errors"
+              examples:
+                duplicate_intake_in_progress:
+                  value: {
+                    "errors": [
+                      {
+                        "status": "409",
+                        "title":  "Intake in progress",
+                        "code":  "duplicate_intake_in_progress"
+                      }
+                    ]
+                  }
+        '422':
+          description: |-
+            422 response
+          content:
+            application/vnd.api+json:
+              schema:
+                type: object
+                properties:
+                  errors:
+                    $ref: "#/components/schemas/Errors"
+              examples:
+                incident_flash:
+                  value: {
+                    "errors": [
+                      {
+                        "status": "422",
+                        "title": "The veteran has an incident flash",
+                        "code": "incident_flash"
+                      }
+                    ]
+                  }
+                invalid_benefit_type:
+                  value: {
+                    "errors": [
+                      {
+                        "status": "422",
+                        "title": "That Line of Business (benefit type) is either invalid or not currently supported",
+                        "code": "invalid_benefit_type"
+                      }
+                    ]
+                  }
+                invalid_file_number:
+                  value: {
+                    "errors": [
+                      {
+                        "status": "422",
+                        "title": "Veteran ID not found",
+                        "code": "invalid_file_number"
+                      }
+                    ]
+                  }
+                malformed_contestable_issues:
+                  value: {
+                    "errors": [
+                      {
+                        "status": "422",
+                        "title": "Malformed ContestableIssues",
+                        "code": "malformed_contestable_issues"
+                      }
+                    ]
+                  }
+                contestable_issue_params_must_have_ids:
+                  value: {
+                    "errors": [
+                      {
+                        "status": "422",
+                        "title": "A contestable issue must have at least one of the following: decisionIssueId, ratingIssueId, ratingDecisionIssueId",
+                        "code": "contestable_issue_params_must_have_ids"
+                      }
+                    ]
+                  }
+                could_not_find_contestable_issue:
+                  value: {
+                    "errors": [
+                      {
+                        "status": "422",
+                        "title": "Could not find ContestableIssue",
+                        "code": "could_not_find_contestable_issue"
+                      }
+                    ]
+                  }
+                veteran_has_multiple_phone_numbers:
+                  value: {
+                    "errors": [
+                      {
+                        "status": "422",
+                        "title": "The veteran has multiple active phone numbers",
+                        "code": "veteran_has_multiple_phone_numbers"
+                      }
+                    ]
+                  }
+                veteran_not_modifiable:
+                  value: {
+                    "errors": [
+                      {
+                        "status": "422",
+                        "title": "You don't have permission to intake this veteran",
+                        "code": "veteran_not_modifiable"
+                      }
+                    ]
+                  }
+                veteran_not_valid:
+                  value: {
+                    "errors": [
+                      {
+                        "status": "422",
+                        "title": "The veteran's profile has missing or invalid information required to create an EP",
+                        "code": "veteran_not_valid"
+                      }
+                    ]
+                  }
+        '5XX':
+          description: Failed
+          content:
+            application/vnd.api+json:
+              schema:
+                type: object
+                properties:
+                  errors:
+                    $ref: "#/components/schemas/Errors"
+              examples:
+                intake_review_failed:
+                  value: {
+                    "errors": [
+                      {
+                        "status": "500",
+                        "title": "The review step of processing the intake failed for an unknown reason",
+                        "code": "intake_review_failed"
+                      }
+                    ]
+                  }
+                intake_start_failed:
+                  value: {
+                    "errors": [
+                      {
+                        "status": "500",
+                        "title": "The start step of processing the intake failed for an unknown reason",
+                        "code": "intake_start_failed"
+                      }
+                    ]
+                  }
+                reserved_veteran_file_number:
+                  value: {
+                    "errors": [
+                      {
+                        "status": "500",
+                        "title": "Invalid veteran file number",
+                        "code": "reserved_veteran_file_number"
+                      }
+                    ]
+                  }
+                unknown_error:
+                  value: {
+                    "errors": [
+                      {
+                        "status": "500",
+                        "title":  "Unknown error",
+                        "code":  "unknown_error"
+                      }
+                    ]
+                  }
+  /intake_statuses/{uuid}:
+    get:
+      tags:
+        - Higher-Level Reviews
+      parameters:
+        - name: uuid
+          in: path
+          required: true
+          description: Decision Review UUID
+          schema:
+            $ref: "#/components/schemas/Uuid"
+      summary: Check a Decision Review's (Higher-Level Review, Supplemental Claim, Board Appeal) intake status.
+      description: >+
+        After creating a Decision Review, you can use this endpoint to check its _intake status_—whether or not a Decision Review has been processed in the Caseflow system.
+
+
+        **A Decision Review is not immediately accessible after creation.** Intake involves communicating with several systems/databases asynchronously. Consequently, a new Decision Review isn't available for API interaction immediately after creation. 
+
+
+        _Check a Decision Review's intake status to know when it has become accessible, and also its location for further actions._
+
+
+        * **Before a Decision Review is successfully processed:** This endpoint will return `200 OK` and a JSON payload describing the status in more detail.
+
+
+        * **Once processing is complete:** this endpoint will return a `303 see other` and a Location header containing the URL of the processed, and now accessible, Decision Review. You can use that URL to get the Decision Review and retrieve its full details. 
+      responses:
+        '200':
+          description: Processing incomplete
+          content:
+            application/vnd.api+json:
+              schema:
+                $ref: "#/components/schemas/IntakeStatus"
+              examples:
+                not_yet_submitted:
+                  value:
+                    data:
+                      id: 123e4567-e89b-12d3-a456-426655440000
+                      type: IntakeStatus
+                      attributes:
+                        status: not_yet_submitted
+                submitted:
+                  value:
+                    data:
+                      id: 123e4567-e89b-12d3-a456-426655440000
+                      type: IntakeStatus
+                      attributes:
+                        status: submitted
+                attempted:
+                  value:
+                    data:
+                      id: 123e4567-e89b-12d3-a456-426655440000
+                      type: IntakeStatus
+                      attributes:
+                        status: attempted
+                canceled:
+                  value:
+                    data:
+                      id: 123e4567-e89b-12d3-a456-426655440000
+                      type: IntakeStatus
+                      attributes:
+                        status: canceled
+        '303':
+          description: Processing complete; See other
+          headers:
+            Location:
+              schema:
+                type: string
+                format: url
+              description: Link to DecisionReview
+          content:
+            application/vnd.api+json:
+              schema:
+                type: object
+                properties:
+                  meta:
+                    type: object
+                    properties:
+                      Location:
+                        $ref: "#/components/schemas/Uuid"
+              examples:
+                processed:
+                  value:
+                    meta:
+                      Location: 123e4567-e89b-12d3-a456-426655440000
+        '404':
+          description: Decision Review not found
+          content:
+            application/vnd.api+json:
+              schema:
+                type: object
+                properties:
+                  errors:
+                    $ref: "#/components/schemas/Errors"
+              examples:
+                bad UUID:
+                  value:
+                    errors:
+                      status: 404,
+                      code: decision_review_not_found
+                      title: "Unable to find a Decision Review using specified UUID"
+        '500':
+          description: Unknown error
+          content:
+            application/vnd.api+json:
+              schema:
+                type: object
+                properties:
+                  errors:
+                    $ref: "#/components/schemas/Errors"
+              examples:
+                unknown error:
+                  value:
+                    errors:
+                      status: 500,
+                      code: unknown_error
+                      title: "Unknown error"
+
+  /higher_level_reviews/{uuid}:
+    get:
+      tags:
+        - Higher-Level Reviews
+      parameters:
+        - name: uuid
+          in: path
+          required: true
+          description: UUID of a Higher-Level Review
+          schema:
+            type : string
+            format: uuid
+            pattern: '^[0-9a-fA-F]{8}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{12}$'
+      summary: Details of the Higher-Level Review
+      description: This endpoint returns the details of a specific Higher-Level Review. This endpoint is also referred to as the Show endpoint.
+      responses:
+        '200':
+          description: JSONAPI response detailing the specific Higher-Level Review
+          content:
+            application/vnd.api+json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                        format: uuid
+                        pattern: '^[0-9a-fA-F]{8}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{12}$'
+                      type:
+                        type: string
+                        enum: ["HigherLevelReview"]
+                        description: Will be "HigherLevelReview"
+                      attributes:
+                        type: object
+                        properties:
+                          status:
+                            type: string
+                          aoj:
+                            type: string
+                            nullable: true
+                          programArea:
+                            type: string
+                          benefitType:
+                            $ref: "#/components/schemas/BenefitType"
+                          description:
+                            type: string
+                            nullable: true
+                          receiptDate:
+                            type: string
+                            format: date
+                            nullable: true
+                          informalConference:
+                            type: boolean
+                            nullable: true
+                          sameOffice:
+                            type: boolean
+                            nullable: true
+                          legacyOptInApproved:
+                            type: boolean
+                            nullable: true
+                          alerts:
+                            type: array
+                            items:
+                              type: object
+                              properties:
+                                type:
+                                  $ref: "#/components/schemas/HigherLevelReviewAlerts"
+                                details:
+                                  type: object
+                                  properties:
+                                    decisionDate:
+                                      type: string
+                                      format: date
+                                      nullable: true
+                                    availableOptions:
+                                      type: array
+                                      items:
+                                        type: string
+                                    dueDate:
+                                      type: string
+                                      format: date
+                                      nullable: true
+                          events:
+                            type: array
+                            items:
+                              type: object
+                              properties:
+                                type:
+                                  $ref: "#/components/schemas/HigherLevelReviewEvents"
+                                date:
+                                  type: string
+                                  format: date
+                      relationships:
+                        type: object
+                        properties:
+                          veteran:
+                            type: object
+                            properties:
+                              data:
+                                type: object
+                                properties:
+                                  type:
+                                    type: string
+                                    enum: ["Veteran"]
+                                  id:
+                                    type: string # file_number
+                          claimant:
+                            type: object
+                            properties:
+                              data:
+                                type: object
+                                properties:
+                                  type:
+                                    type: string
+                                    enum: ["Claimant"]
+                                  id:
+                                    type: string # participant id
+                          requestIssues:
+                            type: object
+                            properties:
+                              data:
+                                type: array
+                                items:
+                                  type: object
+                                  properties:
+                                    type:
+                                      type: string
+                                      enum: ["RequestIssue"]
+                                    id:
+                                      type: string
+                          decisionIssues:
+                            type: object
+                            properties:
+                              data:
+                                type: array
+                                items:
+                                  type: object
+                                  properties:
+                                    type:
+                                      type: string
+                                      enum: ["DecisionIssue"]
+                                    id:
+                                      type: string
+                  included:
+                    type: array
+                    description: Includes data for the Veteran, RequestIssues, and DecisionIssues.  When applicable, it will include the Claimant as well.
+                    items:
+                      anyOf:
+                        - type: object
+                          properties:
+                            type:
+                              type: string
+                              enum: ["Veteran"]
+                            id:
+                              type: string
+                              description: matches fileNumber
+                            attributes:
+                              type: object
+                              properties:
+                                firstName:
+                                  type: string
+                                  nullable: true
+                                middleName:
+                                  type: string
+                                  nullable: true
+                                lastName:
+                                  type: string
+                                  nullable: true
+                                nameSuffix:
+                                  type: string
+                                  nullable: true
+                                fileNumber:
+                                  type: string
+                                ssn:
+                                  type: string
+                                  nullable: true
+                                participantId:
+                                  type: string
+                                  nullable: true
+                        - type: object
+                          properties:
+                            type:
+                              type: string
+                              enum: ["Claimant"]
+                            id:
+                              type: string
+                            attributes:
+                              type: object
+                              properties:
+                                firstName:
+                                  type: string
+                                  nullable: true
+                                middleName:
+                                  type: string
+                                  nullable: true
+                                lastName:
+                                  type: string
+                                  nullable: true
+                                payeeCode:
+                                  allOf:
+                                    - $ref: "#/components/schemas/PayeeCode"
+                                    - nullable: true
+                                relationshipType:
+                                  type: string
+                                  nullable: true
+                        - type: object
+                          properties:
+                            type:
+                              type: string
+                              enum: ["DecisionIssue"]
+                            id:
+                              type: string
+                            attributes:
+                              type: object
+                              properties:
+                                approxDecisionDate:
+                                  type: string
+                                  format: date
+                                  nullable: true
+                                decisionText:
+                                  type: string
+                                  nullable: true
+                                description:
+                                  type: string
+                                disposition:
+                                  type: string
+                                  nullable: true
+                                finalized:
+                                  type: boolean
+                        - type: object
+                          properties:
+                            type:
+                              type: string
+                              enum: ["RequestIssue"]
+                            id:
+                              type: string
+                            attributes:
+                              type: object
+                              properties:
+                                active:
+                                  type: boolean
+                                statusDescription:
+                                  type: string
+                                diagnosticCode:
+                                  type: string
+                                  nullable: true
+                                ratingIssueId: # rating_issue_reference_id
+                                  type: string
+                                  nullable: true
+                                ratingIssueProfileDate:
+                                  type: string
+                                  format: date
+                                  nullable: true
+                                ratingDecisionId:
+                                  type: string
+                                  nullable: true
+                                description:
+                                  type: string
+                                  nullable: true
+                                contentionText:
+                                  type: string
+                                approxDecisionDate:
+                                  type: string
+                                  format: date
+                                category:
+                                  type: string
+                                  nullable: true
+                                notes:
+                                  type: string
+                                  nullable: true
+                                isUnidentified:
+                                  type: boolean
+                                  nullable: true
+                                rampClaimId:
+                                  type: string
+                                  nullable: true
+                                decisionReviewTitle:
+                                  type: string
+                                  nullable: true
+                                decisionIssueId: # contested_decision_issue_id
+                                  type: integer
+                                  nullable: true
+                                withdrawalDate:
+                                  type: string
+                                  format: date
+                                  nullable: true
+                                contestedIssueDescription:
+                                  type: string
+                                  nullable: true
+                                endProductCleared:
+                                  type: boolean
+                                  nullable: true
+                                endProductCode:
+                                  type: string
+                                ineligible:
+                                  type: object
+                                  nullable: true
+                                  description: This is null when the issue is eligible.  When it's ineligible, this object is populated with ineligibility information.
+                                  properties:
+                                    dueToId:
+                                      type: integer
+                                    reason:
+                                      type: string
+                                    titleOfActiveReview:
+                                      type: string
+
+        '404':
+          description: ID not found
+          content:
+            application/vnd.api+json:
+              schema:
+                type: object
+                properties:
+                  errors:
+                    $ref: "#/components/schemas/Errors"
+        '5XX':
+          description: Failed
+          content:
+            application/vnd.api+json:
+              schema:
+                type: object
+                properties:
+                  errors:
+                    $ref: "#/components/schemas/Errors"
+  /contestable_issues:
+    get:
+      tags:
+        - Issues
+      parameters:
+        - name: veteranId
+          in: header
+          required: true
+          description: The file number or SSN of the veteran.
+          schema:
+            type : string
+        - name: receiptDate
+          in: header
+          required: true
+          description: (yyyy-mm-dd) In order to determine contestability of issues, the receipt date of a hypothetical Decision Review must be supplied.
+          schema:
+            type: string
+            format: date
+      summary: Returns all contestable issues for a specific veteran.
+      description: >-
+        Returns all issues a Veteran could contest in a Decision Review
+        as of the `receiptDate`.  Associate these results when creating
+        new Decision Reviews.
+      responses:
+        '200':
+          description: JSON:API response returning all contestable issues for a specific veteran.
+          content:
+            application/vnd.api+json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      description: "A contestable issue (to contest this, you include it as a RequestIssue when creating a HigherLevelReview, SupplementalClaim, or Appeal)"
+                      properties:
+                        type:
+                          type: string
+                          enum: ["ContestableIssue"]
+                        attributes:
+                          type: object
+                          properties:
+                            ratingIssueId:
+                              type: string
+                              nullable: true
+                              description: "RatingIssue ID"
+                            ratingIssueProfileDate:
+                              type: string
+                              nullable: true
+                              format: date
+                              description: "(yyyy-mm-dd) RatingIssue profile date"
+                            ratingIssueDiagnosticCode:
+                              type: string
+                              nullable: true
+                              description: "RatingIssue diagnostic code"
+                            ratingDecisionId:
+                              type: string
+                              nullable: true
+                              description: "The BGS ID for the contested rating decision. This may be populated while ratingIssueId is nil"
+                            decisionIssueId:
+                              type: integer
+                              nullable: true
+                              description: "DecisionIssue ID"
+                            approxDecisionDate:
+                              type: string
+                              nullable: true
+                              format: date
+                              description: "(yyyy-mm-dd) Approximate decision date"
+                            description:
+                              type: string
+                              nullable: true
+                              description: "Description"
+                            rampClaimId:
+                              type: string
+                              nullable: true
+                              description: "RampClaim ID"
+                            titleOfActiveReview:
+                              type: string
+                              nullable: true
+                              description: "Title of DecisionReview that this issue is still active on"
+                            sourceReviewType:
+                              type: string
+                              nullable: true
+                              description: "The type of DecisionReview (HigherLevelReview, SupplementalClaim, Appeal) the issue was last decided on (if any)"
+                            timely:
+                              type: boolean
+                              description: "An issue is timely if the receipt date is within 372 dates of the decision date."
+                            latestIssuesInChain:
+                              type: array
+                              items:
+                                type: object
+                                properties:
+                                  id:
+                                    type: string
+                                    nullable: true
+                                  approxDecisionDate:
+                                    type: string
+                                    nullable: true
+                                    format: date
+                              description: "Shows the chain of decision and rating issues that preceded this issue. Only the most recent issue can be contested (the object itself that contains the latestIssuesInChain attribute)."
+                            isRating:
+                              type: boolean
+                              description: "Whether or not this is a RatingIssue"
+        '404':
+          description: Veteran not found
+          content:
+            application/vnd.api+json:
+              schema:
+                type: object
+                properties:
+                  errors:
+                    $ref: "#/components/schemas/Errors"
+              examples:
+                bad file number or SSN:
+                  value:
+                    errors:
+                      status: 404,
+                      code: veteran_not_found
+                      title: "Veteran not found"
+        '422':
+          description: Bad receipt date
+          content:
+            application/vnd.api+json:
+              schema:
+                type: object
+                properties:
+                  errors:
+                    $ref: "#/components/schemas/Errors"
+              examples:
+                bad receipt date:
+                  value:
+                    errors:
+                      status: 422,
+                      code: bad_receipt_date
+                      title: "Bad receipt date"
+        '500':
+          description: Unknown error
+          content:
+            application/vnd.api+json:
+              schema:
+                type: object
+                properties:
+                  errors:
+                    $ref: "#/components/schemas/Errors"
+              examples:
+                unknown error:
+                  value:
+                    errors:
+                      status: 500,
+                      code: unknown_error
+                      title: "Unknown error"
+components:
+  schemas:
+    Uuid:
+      type: string
+      format: uuid
+      pattern: '^[0-9a-fA-F]{8}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{12}$'
+    BenefitType:
+      type: string
+      enum:
+        - compensation
+        - pension
+        - fiduciary
+        - insurance
+        - education
+        - voc_rehab
+        - loan_guaranty
+        - vha
+        - nca
+    HigherLevelReviewAlerts:
+      type: string
+      enum: ["AmaPostDecision"]
+    HigherLevelReviewEvents:
+      type: string
+      enum:
+        - hlr_request_event
+        - hlr_decision_event
+        - hlr_dta_error_event
+        - dta_decision_event
+        - hlr_other_close_event
+    HigherLevelReviewStatusTypes:
+      type: string
+      enum:
+        - hlr_received
+        - hlr_dta_error
+        - hlr_decision
+        - hlr_closed
+    NonratingIssueCategory:
+      type: string
+      enum:
+        # for benefit type:  compensation
+        - Unknown issue category
+        - Apportionment
+        - Incarceration Adjustments
+        - Audit Error Worksheet (DFAS)
+        - Active Duty Adjustments
+        - Drill Pay Adjustments
+        - Character of discharge determinations
+        - Income/net worth (pension)
+        - Dependent child - Adopted
+        - Dependent child - Stepchild
+        - Dependent child - Biological
+        - Dependency Spouse - Common law marriage
+        - Dependency Spouse - Inference of marriage
+        - Dependency Spouse - Deemed valid marriage
+        - Military Retired Pay
+        - Contested Claims (other than apportionment)
+        - Lack of Qualifying Service
+        - Other non-rated
+        # for benefit type:  pension
+        - Eligibility | Wartime service
+        - Eligibility | Veteran Status
+        - Income/Net Worth | Countable Income
+        - Income/Net Worth | Residential Lot Size
+        - Income/Net Worth | Medical Expense Deductions
+        - Effective date | Liberalizing Legislation
+        - Effective date | 3.400(b)(ii)(B)
+        - Dependent Eligibility | Adoption
+        - Dependent Eligibility | Stepchild
+        - Dependent Eligibility | School child
+        - Dependent Eligibility | Validity of marriage
+        - Dependent Eligibility | Parent(s)
+        - Dependent Eligibility | Other
+        - Penalty Period
+        - Post Award Audit
+        - Overpayment | Validity of debt
+        - Overpayment | Waiver
+        - Apportionment
+        - Survivors pension eligibility
+        - Burial Benefits - NSC Burial
+        - Burial Benefits - Plot or Interment Allowance
+        - Burial Benefits - Transportation Allowance
+        - Burial Benefits - VA Hospitalization Death
+        # for benefit type:  fiduciary
+        - Appointment of a Fiduciary (38 CFR 13.100)
+        - Removal of a Fiduciary (38 CFR 13.500)
+        - Misuse Determination (38 CFR 13.400)
+        - RO Director Reconsideration of Misuse Determination (13.400(d))
+        - P&F Director's Negligence Determination for Benefits Reissuance (13.410)
+        # for benefit type:  voc_rehab
+        - Basic Eligibility
+        - Entitlement to Services
+        - Plan/Goal Selection
+        - Equipment/Supply Purchases
+        - Additional Training
+        - Change of Program
+        - Feasibility to Pursue a Vocational Goal
+        - Training Facility Selection
+        - Subsistence Allowance
+        - Employment Adjustment Allowance
+        - Entitlement Extension
+        - Advance from the Revolving Fund Loan
+        - Retroactive Induction
+        - Retroactive Reimbursement
+        - Successful Closure of Case
+        - Discontinue Services
+        - Interruption of Services
+        # for benefit type:  education
+        - Accrued
+        - Eligibility | 38 U.S.C. ch. 30
+        - Eligibility | 38 U.S.C. ch. 35
+        - Eligibility | 38 U.S.C. ch. 32
+        - Eligibility | 38 U.S.C. ch. 33
+        - Eligibility | 38 U.S.C. ch. 1606
+        - Entitlement | 38 U.S.C. ch. 30
+        - Entitlement | 38 U.S.C. ch. 35
+        - Entitlement | 38 U.S.C. ch. 32
+        - Entitlement | 38 U.S.C. ch. 33
+        - Entitlement | 38 U.S.C. ch. 1606
+        - Effective Date of Award | 38 U.S.C. ch. 35
+        - Payment | 38 U.S.C. ch. 30
+        - Payment | 38 U.S.C. ch. 35
+        - Payment | 38 U.S.C. ch. 32
+        - Payment | 38 U.S.C. ch. 33
+        - Payment | 38 U.S.C. ch. 1606
+        - Overpayment | Validity of debt
+        - Vet Tec
+        - Delimiting Date Issues | 38 U.S.C. ch. 30
+        - Delimiting Date Issues | 38 U.S.C. ch. 35
+        - Delimiting Date Issues | 38 U.S.C. ch. 32
+        - Delimiting Date Issues | 38 U.S.C. ch. 33
+        - Delimiting Date Issues | 38 U.S.C. ch. 1606
+        - Other
+        # for benefit type:  insurance
+        - Waiver of premiums (1912-1914) | Date of total disability
+        - Waiver of premiums (1912-1914) | Effective date
+        - Waiver of premiums (1912-1914) | TDIP (1915)
+        - Waiver of premiums (1912-1914) | Other
+        - Reinstatement | Medically Qualified
+        - Reinstatement | Other
+        - RH (1922(a) S-DVI) | Timely application
+        - RH (1922(a) S-DVI) | Medically qualified
+        - RH (1922(a) S-DVI) | Discharged before 4/25/51
+        - RH (1922(a) S-DVI) | Other
+        - SRH (1922(b) S-DVI) | Timely application
+        - SRH (1922(b) S-DVI) | Over age 65
+        - SRH (1922(b) S-DVI) | Other
+        - VMLI (2106) | LOC/Reverse Mortgage
+        - VMLI (2106) | Over age 70
+        - VMLI (2106) | Death Award
+        - VMLI (2106) | Other
+        - Contested death claim | Relationships
+        - Contested death claim | Testamentary capacity
+        - Contested death claim | Undue influence
+        - Contested death claim | Intent of insured
+        - Contested death claim | Other
+        - Other
+        # for benefit type:  loan_guaranty
+        - Basic eligibility - Certificate of Eligibility (COE) was denied for use of benefit
+        - Validity of debt - Existing debt indicated from loan termination is incorrect as stated
+        - Waiver of indebtedness - Existing debt should be waived to allow issuance of COE
+        - Restoration of entitlement - Remove a previous loan that was paid-in-full to allow all available entitlement on the COE
+        - Other
+        # for benefit type:  nca
+        - Entitlement | Reserves/National Guard
+        - Entitlement | Less than 24 months
+        - Entitlement | Character of service
+        - Entitlement | Merchant Marine
+        - Entitlement | No military information
+        - Entitlement | Cadet (service academies)
+        - Entitlement | Unmarried Adult Child
+        - Entitlement | Allied forces and non-citizens
+        - Entitlement | Pre-need
+        - Entitlement | Spouse/Surving Spouse
+        - Entitlement | Non-qualifying service
+        - Entitlement | ABMC/overseas burial
+        - Entitlement | Pre-WWI/burial site unknown
+        - Entitlement | Marked grave (death prior to 10-18-78)
+        - Entitlement | Marked grave (death on/after 10-18-78 to 10-31-90)
+        - Entitlement | Other
+        - Entitlement | Voided Enlistment
+        - Entitlement | Benefit Already Provided
+        - Entitlement | Confederate IMO
+        - Entitlement | Cremains not interred
+        - Entitlement | Historic marker deemed serviceable
+        - Entitlement | Medallion (no grave)
+        - Entitlement | Medallion (unmarked grave)
+        - Entitlement | Parent
+        - Entitlement | Replacement
+        - Entitlement | Unauthorized applicant
+        - Entitlement | Hmong
+        - Entitlement | Medallion (monetary allowance)
+        - Entitlement | IMO in NC
+        # for benefit type:  vha
+        - Eligibility for Treatment | Dental
+        - Eligibility for Treatment | Other
+        - Beneficiary Travel | Mileage
+        - Beneficiary Travel | Common Carrier
+        - Beneficiary Travel | Special Mode
+        - Eligibility for Fee Basis Care
+        - Indebtedness | Validity of Debt
+        - Indebtedness | Waiver
+        - Level of Priority for Treatment
+        - Clothing Allowance § 3.810(b) Certification
+        - Prosthetics Services
+        - Family Member Services | CHAMPVA Eligibility
+        - Family Member Services | CHAMPVA Medical Charges
+        - Family Member Services | Foreign Medical Program Medical Charges
+        - Family Member Services | Spina Bifida Medical Charges
+        - Family Member Services | Camp Lejeune Family Member Eligibility
+        - Other
+    PayeeCode:
+      type: string
+      enum:
+        - "00"
+        - "01"
+        - "02"
+        - "03"
+        - "04"
+        - "05"
+        - "06"
+        - "07"
+        - "08"
+        - "09"
+        - "10"
+        - "11"
+        - "12"
+        - "13"
+        - "14"
+        - "15"
+        - "16"
+        - "17"
+        - "18"
+        - "19"
+        - "20"
+        - "21"
+        - "22"
+        - "23"
+        - "24"
+        - "25"
+        - "26"
+        - "27"
+        - "28"
+        - "29"
+        - "30"
+        - "31"
+        - "32"
+        - "33"
+        - "34"
+        - "35"
+        - "36"
+        - "37"
+        - "38"
+        - "39"
+        - "41"
+        - "42"
+        - "43"
+        - "44"
+        - "45"
+        - "46"
+        - "47"
+        - "48"
+        - "49"
+        - "50"
+        - "60"
+        - "70"
+        - "71"
+        - "72"
+        - "73"
+        - "74"
+        - "75"
+        - "76"
+        - "77"
+        - "78"
+        - "80"
+        - "81"
+        - "82"
+        - "83"
+        - "84"
+        - "85"
+        - "86"
+        - "87"
+        - "88"
+        - "89"
+        - "99"
+    Errors:
+      type: array
+      items:
+        type: object
+        properties:
+          title:
+            type: string
+          detail:
+            type: string
+    IntakeStatus:
+      description: An accepted Decision Review still needs to be processed before the Decision Review can be accessed
+      type: object
+      properties:
+        data:
+          type: object
+          properties:
+            id:
+              type: string
+            type:
+              type: string
+              description: Will be "IntakeStatus"
+            attributes:
+              type: object
+              properties:
+                status:
+                  type: string
+                  enum:
+                    - processed
+                    - canceled
+                    - attempted
+                    - submitted
+                    - not_yet_submitted
+                  description: >
+                    * `not_yet_submitted` - The DecisionReview has not been submitted yet.
+                    * `submitted` - The DecisionReview is in the queue to be attempted.
+                    * `attempted` - Processing of the DecisionReview is being attempted.
+                    * `canceled` - The DecisionReview has been successfully canceled.
+                    * `processed` - The DecisionReview has been processed and transmitted to the appropriate government agency.

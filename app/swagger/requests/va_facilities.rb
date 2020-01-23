@@ -4,7 +4,7 @@ module Swagger
   module Requests
     class VAFacilities
       include Swagger::Blocks
-      # rubocop:disable Metrics/LineLength
+      # rubocop:disable Layout/LineLength
       swagger_path '/v0/facilities/va' do
         operation :get do
           key :description, 'Get facilities within a geographic bounding box'
@@ -61,7 +61,7 @@ module Swagger
           end
         end
       end
-      # rubocop:enable Metrics/LineLength
+      # rubocop:enable Layout/LineLength
 
       swagger_path '/v0/facilities/va/{id}' do
         operation :get do

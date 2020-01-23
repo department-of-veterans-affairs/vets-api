@@ -22,7 +22,7 @@ module VAOS
 
     def get_requests(start_date = nil, end_date = nil)
       with_monitoring do
-        response = perform(:get, url, date_params(start_date, end_date), headers(user))
+        response = perform(:get, get_request_url, date_params(start_date, end_date), headers(user))
 
         {
           data: deserialize(response.body),
@@ -34,7 +34,7 @@ module VAOS
     def post_request(params)
       with_monitoring do
         validated_params = form_object(params).params
-        response = perform(:post, url, validated_params, headers(user))
+        response = perform(:post, post_request_url(params[:type]), validated_params, headers(user))
 
         {
           data: OpenStruct.new(filter_cc_appointment_data(response.body))
@@ -45,7 +45,7 @@ module VAOS
     def put_request(id, params)
       with_monitoring do
         validated_params = form_object(params, id).params
-        response = perform(:put, url(id), validated_params, headers(user))
+        response = perform(:put, put_request_url(id), validated_params, headers(user))
 
         {
           data: OpenStruct.new(filter_cc_appointment_data(response.body))
@@ -54,6 +54,19 @@ module VAOS
     end
 
     private
+
+    def get_request_url
+      "/var/VeteranAppointmentRequestService/v4/rest/appointment-service/patient/ICN/#{user.icn}/appointments"
+    end
+
+    def put_request_url(id)
+      post_request_url + "/system/var/id/#{id}"
+    end
+
+    def post_request_url(request_type = '')
+      type = request_type&.upcase == 'CC' ? 'community-care-appointment' : 'appointments'
+      "/var/VeteranAppointmentRequestService/v4/rest/appointment-service/patient/ICN/#{user.icn}/#{type}"
+    end
 
     def form_object(params, id = nil)
       if params[:type]&.upcase == 'CC'
@@ -80,14 +93,6 @@ module VAOS
         :patient_identifier, :surrogate_identifier, :object_type, :link
       )
       request
-    end
-
-    def url(id = nil, type = 'appointments')
-      if id
-        url + "/system/var/id/#{id}"
-      else
-        "/var/VeteranAppointmentRequestService/v4/rest/appointment-service/patient/ICN/#{user.icn}/#{type}"
-      end
     end
 
     def date_params(start_date, end_date)

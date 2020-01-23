@@ -7,6 +7,11 @@ module EVSS
     API_VERSION = Settings.evss.versions.common
     BASE_URL = "#{Settings.evss.url}/wss-common-services-web-#{API_VERSION}/rest/"
 
+    def initialize(*args)
+      super
+      @use_mock = Settings.evss.mock_common_service || false
+    end
+
     def create_user_account
       post 'persistentPropertiesService/11.6/createUserAccount'
     end

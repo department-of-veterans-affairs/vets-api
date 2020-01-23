@@ -92,7 +92,7 @@ RSpec.describe 'vaos appointment request messages', type: :request do
       end
 
       context 'with access and invalid message' do
-        let(:request_body) { { message_text: Faker::Lorem.characters(101) } }
+        let(:request_body) { { message_text: Faker::Lorem.characters(number: 101) } }
 
         it 'returns a validation error', :skip_mvi do
           post "/v0/vaos/appointment_requests/#{request_id}/messages", params: request_body

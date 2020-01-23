@@ -2,7 +2,7 @@
 
 module EducationForm::Forms
   class VA5490 < Base
-    # rubocop:disable Metrics/LineLength
+    # rubocop:disable Layout/LineLength
     PREVIOUS_BENEFITS = {
       'disability' => 'DISABILITY COMPENSATION OR PENSION',
       'dic' => "DEPENDENTS' INDEMNITY COMPENSATION",
@@ -11,7 +11,7 @@ module EducationForm::Forms
       'chapter33' => "VETERANS EDUCATION ASSISTANCE BASED ON SOMEONE ELSE'S SERVICE: CHAPTER 33 - POST-9/11 GI BILL MARINE GUNNERY SERGEANT DAVID FRY SCHOLARSHIP",
       'transferOfEntitlement' => "VETERANS EDUCATION ASSISTANCE BASED ON SOMEONE ELSE'S SERVICE: TRANSFERRED ENTITLEMENT"
     }.freeze
-    # rubocop:enable Metrics/LineLength
+    # rubocop:enable Layout/LineLength
 
     HIGH_SCHOOL_STATUS = {
       'graduated' => 'Graduated from high school',

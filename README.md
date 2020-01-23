@@ -20,8 +20,8 @@ To start, fetch this code:
    - *NOTE:* using `touch` to create blank cert and key files no longer works. 
    If you previously added certs in this manner replace them with the team repo certificate and key listed above.
    
-   [certificate]: https://github.com/department-of-veterans-affairs/vets.gov-team/blob/master/Products/Identity/Login/IDme/development-certificates/vetsgov-localhost.crt
-   [key]: https://github.com/department-of-veterans-affairs/vets.gov-team/blob/master/Products/Identity/Login/IDme/development-certificates/vetsgov-localhost.key
+   [certificate]: https://github.com/department-of-veterans-affairs/va.gov-team/blob/master/products/identity-personalization/login/idme/development-certificates/vetsgov-localhost.crt
+   [key]: https://github.com/department-of-veterans-affairs/va.gov-team/blob/master/products/identity-personalization/login/idme/development-certificates/vetsgov-localhost.key
  
 ## Running the app
 

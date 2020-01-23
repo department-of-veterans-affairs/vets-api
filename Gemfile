@@ -19,7 +19,7 @@ gem 'veteran_verification', path: 'modules/veteran_verification'
 # Anchored versions, do not change
 gem 'puma', '~> 4.3.1'
 gem 'puma-plugin-statsd', '~> 0.1.0'
-gem 'rails', '~> 5.2.3'
+gem 'rails', '~> 5.2.4'
 
 # Gems with special version/repo needs
 gem 'active_model_serializers', '0.10.4' # breaking changed in 0.10.5 relating to .to_json
@@ -68,7 +68,7 @@ gem 'lighthouse_bgs', git: 'https://github.com/department-of-veterans-affairs/li
 gem 'liquid'
 gem 'mail', '2.7.1'
 gem 'memoist'
-gem 'mini_magick', '~> 4.9.5'
+gem 'mini_magick', '~> 4.10.1'
 gem 'net-sftp'
 gem 'nokogiri', '~> 1.10', '>= 1.10.4'
 gem 'oj' # Amazon Linux `json` gem causes conflicts, but `multi_json` will prefer `oj` if installed
@@ -81,6 +81,7 @@ gem 'pdf-reader'
 gem 'pg'
 gem 'prawn'
 gem 'pundit'
+gem 'rack', git: 'https://github.com/rack/rack.git', ref: 'f690bb71425aa31d7b9b3113829af773950d8ab5'
 gem 'rack-attack'
 gem 'rack-cors', require: 'rack/cors'
 gem 'rails-session_cookie'

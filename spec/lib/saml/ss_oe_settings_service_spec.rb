@@ -12,8 +12,8 @@ RSpec.describe SAML::SSOeSettingsService do
       expect(SAML::SSOeSettingsService.saml_settings).to be_an_instance_of(OneLogin::RubySaml::Settings)
     end
     it 'allows override of provided settings' do
-      settings = SAML::SSOeSettingsService.saml_settings('issuer' => 'testIssuer')
-      expect(settings.issuer).to equal('testIssuer')
+      settings = SAML::SSOeSettingsService.saml_settings('sp_entity_id' => 'testIssuer')
+      expect(settings.sp_entity_id).to equal('testIssuer')
     end
   end
 end

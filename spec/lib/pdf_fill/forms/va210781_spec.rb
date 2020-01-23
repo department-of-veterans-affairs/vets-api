@@ -26,7 +26,7 @@ describe PdfFill::Forms::Va210781 do
     end
   end
 
-  # rubocop:disable Metrics/LineLength
+  # rubocop:disable Layout/LineLength
   describe '#format_persons_involved' do
     it 'handles no data' do
       expect(new_form_class.send(:format_persons_involved, {})).to be_nil
@@ -80,7 +80,7 @@ describe PdfFill::Forms::Va210781 do
       )
     end
   end
-  # rubocop:enable Metrics/LineLength
+  # rubocop:enable Layout/LineLength
 
   describe '#expand_persons_involved' do
     data = {

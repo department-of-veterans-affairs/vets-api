@@ -8,6 +8,7 @@ module ClaimsApi
     include FileData
     attr_encrypted(:form_data, key: Settings.db_encryption_key, marshal: true, marshaler: ClaimsApi::JsonMarshal)
     attr_encrypted(:auth_headers, key: Settings.db_encryption_key, marshal: true, marshaler: ClaimsApi::JsonMarshal)
+    attr_encrypted(:source_data, key: Settings.db_encryption_key, marshal: true, marshaler: ClaimsApi::JsonMarshal)
 
     PENDING = 'pending'
     UPDATED = 'updated'
@@ -35,6 +36,14 @@ module ClaimsApi
 
     def uploader
       @uploader ||= ClaimsApi::PowerOfAttorneyUploader.new(id)
+    end
+
+    def external_key
+      source_data.present? ? source_data['email'] : Settings.bgs.external_key
+    end
+
+    def external_uid
+      source_data.present? ? source_data['icn'] : Settings.bgs.external_uid
     end
 
     def self.pending?(id)

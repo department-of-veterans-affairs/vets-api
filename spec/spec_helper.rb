@@ -38,6 +38,7 @@ unless ENV['NOCOVERAGE']
     add_filter 'modules/claims_api/app/swagger/*'
     add_filter 'modules/claims_api/lib/claims_api/health_checker.rb'
     add_filter 'modules/va_facilities/lib/va_facilities/engine.rb'
+    add_filter 'lib/bip_claims/configuration.rb'
     add_filter 'version.rb'
 
     add_group 'Policies', 'app/policies'
