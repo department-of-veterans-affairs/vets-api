@@ -9,5 +9,6 @@ threads(threads_count, threads_count)
 preload_app!
 
 on_worker_boot do
+    SemanticLogger.reopen
     ActiveRecord::Base.establish_connection
 end
