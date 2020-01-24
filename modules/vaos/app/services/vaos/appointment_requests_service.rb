@@ -67,9 +67,6 @@ module VAOS
         filter_cc_appointment_data(request)
         OpenStruct.new(request)
       end
-    rescue => e
-      log_message_to_sentry(e.message, :warn, invalid_json: json_hash)
-      []
     end
 
     def filter_cc_appointment_data(request)

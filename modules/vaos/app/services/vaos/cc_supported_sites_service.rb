@@ -18,9 +18,6 @@ module VAOS
       json_hash[:sites_supporting_var].map do |request|
         OpenStruct.new(request)
       end
-    rescue => e
-      log_message_to_sentry(e.message, :warn, invalid_json: json_hash)
-      []
     end
 
     def url(site_codes)
