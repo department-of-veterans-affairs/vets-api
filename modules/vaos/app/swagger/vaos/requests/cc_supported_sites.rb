@@ -2,24 +2,31 @@
 
 module VAOS
   module Requests
-    class Systems
+    class CCSupportedSites
       include Swagger::Blocks
 
-      swagger_path '/systems' do
+      swagger_path '/community_care/supported_sites' do
         operation :get do
           extend Swagger::Responses::AuthenticationError
 
-          key :description, 'returns list of system identifiers for a user'
-          key :operationId, 'getSystems'
-          key :tags, %w[vaos systems]
+          key :description, 'returns list of sites supporting community care'
+          key :operationId, 'getSupportedSites'
+          key :tags, %w[vaos community_care supported_sites]
 
           parameter :authorization
 
+          parameter do
+            key :name, :supported_sites
+            key :in, :query
+            key :required, true
+            key :type, :array
+            key :description, 'parent site ids to check for community care support'
+          end
+
           response 200 do
-            key :description,
-                'The list of systems the user is registered in'
+            key :description, 'The list sites supported'
             schema do
-              key :'$ref', :Systems
+              key :'$ref', :CCSupportedSites
             end
           end
 
