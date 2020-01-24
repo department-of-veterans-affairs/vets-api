@@ -553,7 +553,7 @@ RSpec.describe FormProfile, type: :model do
     }
   end
 
-  let(':20_0996_expected') do
+  let(:v20_0996_expected) do
     {
       'data' =>
       {
@@ -561,13 +561,13 @@ RSpec.describe FormProfile, type: :model do
         {
           'veteran' =>
           {
-            'addressLine1' => '49119 Jadon Mills',
-            'addressLine2' => 'Apt. 832',
-            'city' => 'Prohaskabury',
-            'stateOrProvinceCode' => 'OR',
-            'zipPostalCode' => '69072',
-            'phoneNumber' => '4445551212',
-            'emailAddress' => 'test2@test1.net'
+            'addressLine1' => street_check[:street],
+            'addressLine2' => street_check[:street2],
+            'city' => user.va_profile[:address][:city],
+            'stateOrProvinceCode' => user.va_profile[:address][:state],
+            'zipPostalCode' => user.va_profile[:address][:postal_code][0..4],
+            'phoneNumber' => us_phone,
+            'emailAddress' => user.pciu_email
           }
         }
       }
