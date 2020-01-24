@@ -2,10 +2,6 @@
 
 module VAOS
   class AppointmentRequestsService < VAOS::BaseService
-    def self.for_user(user)
-      VAOS::AppointmentRequestsService.new(user)
-    end
-
     def get_requests(start_date = nil, end_date = nil)
       with_monitoring do
         response = perform(:get, get_request_url, date_params(start_date, end_date), headers)

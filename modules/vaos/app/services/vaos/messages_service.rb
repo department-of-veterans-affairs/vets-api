@@ -2,10 +2,6 @@
 
 module VAOS
   class MessagesService < VAOS::BaseService
-    def self.for_user(user)
-      VAOS::MessagesService.new(user)
-    end
-
     def get_messages(request_id)
       with_monitoring do
         response = perform(:get, messages_url(request_id), nil, headers)

@@ -2,10 +2,6 @@
 
 module VAOS
   class CCEligibilityService < VAOS::BaseService
-    def self.for_user(user)
-      VAOS::CCEligibilityService.new(user)
-    end
-
     def get_eligibility(service_type)
       with_monitoring do
         response = perform(:get, url(service_type), nil, headers)

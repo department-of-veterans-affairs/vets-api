@@ -9,6 +9,11 @@ module VAOS
 
     STATSD_KEY_PREFIX = 'api.vaos'
 
+    # This method is deprecated... Will remove in future commit in favor of new
+    def self.for_user(user)
+      new(user)
+    end
+
     def initialize(user)
       @user = user
     end

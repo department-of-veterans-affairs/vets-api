@@ -2,10 +2,6 @@
 
 module VAOS
   class AppointmentService < VAOS::BaseService
-    def self.for_user(user)
-      VAOS::AppointmentService.new(user)
-    end
-
     def get_appointments(type, start_date, end_date, pagination_params = {})
       params = date_params(start_date, end_date).merge(page_params(pagination_params)).merge(other_params).compact
 
