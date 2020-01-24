@@ -42,6 +42,9 @@ module VAOS
 
     def deserialize(json_hash)
       json_hash[:appointment_request_message].map { |message| OpenStruct.new(message) }
+    rescue => e
+      log_message_to_sentry(e.message, :warn, invalid_json: json_hash)
+      []
     end
 
     def messages_url(request_id)
