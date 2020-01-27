@@ -114,6 +114,19 @@ module VAOS
       end
     end
 
+    def get_clinic_institutions(system_id, clinic_ids)
+      with_monitoring do
+        url = "/cdw/v2/facilities/#{system_id}/clinics"
+        # the vaos clinic ids endpoint doesn't follow the url_param[]=1&url_param[]=2 style of passing an array
+        url_params = {
+          'pageSize' => 0,
+          'clinicIds' => [*clinic_ids].join(',')
+        }
+        response = perform(:get, url, url_params, headers(@user))
+        response.body[:data].map { |clinic| VAOS::ClinicInstitution.new(clinic) }
+      end
+    end
+
     private
 
     def available_appointments_url(facility_id)

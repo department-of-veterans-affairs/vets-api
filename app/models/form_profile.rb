@@ -90,9 +90,11 @@ class FormProfile
   HCA_FORMS = ['1010ez'].freeze
   PENSION_BURIAL_FORMS = %w[21P-530 21P-527EZ].freeze
   VIC_FORMS = ['VIC'].freeze
+  HLR_FORMS = ['20-0996'].freeze
 
   FORM_ID_TO_CLASS = {
     '1010EZ' => ::FormProfiles::VA1010ez,
+    '20-0996' => ::FormProfiles::VA0996,
     '21-526EZ' => ::FormProfiles::VA526ez,
     '22-1990' => ::FormProfiles::VA1990,
     '22-1990N' => ::FormProfiles::VA1990n,
@@ -119,6 +121,7 @@ class FormProfile
   attribute :contact_information, FormContactInformation
   attribute :military_information, FormMilitaryInformation
 
+  # rubocop:disable Metrics/CyclomaticComplexity
   def self.prefill_enabled_forms
     forms = []
 
@@ -129,9 +132,11 @@ class FormProfile
     forms << '21-686C'
     forms << '40-10007'
     forms += EVSS_FORMS if Settings.evss.prefill
+    forms += HLR_FORMS if Settings.decision_review.prefill
 
     forms
   end
+  # rubocop:enable Metrics/CyclomaticComplexity
 
   def self.for(form)
     form = form.upcase
