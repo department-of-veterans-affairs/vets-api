@@ -9,11 +9,11 @@ module V0
     def create
       validate_session
 
-      service.submit_application!(current_user, caregivers_assistance_application_params)
+      claim = service.submit_application!(current_user, caregivers_assistance_application_params)
 
       # TODO: what do I render here?
       # TODO: serialize https://github.com/department-of-veterans-affairs/va.gov-team/blob/master/platform/engineering/backend/vets-api/response-serialization.md
-      render  json: claim, serializer: CaregiversAssistanceClaimSerializer
+      render json: claim, serializer: SavedClaimSerializer, status: :created
     end
 
     private
