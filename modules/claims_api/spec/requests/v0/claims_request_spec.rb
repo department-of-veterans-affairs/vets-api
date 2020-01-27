@@ -79,13 +79,13 @@ RSpec.describe 'EVSS Claims management', type: :request do
         end
       end
 
-      it 'shows a single Claim through auto established claims with an error', run_at: 'Wed, 13 Dec 2017 03:28:23 GMT' do
+      it 'shows a single Claim through auto established claims with a error', run_at: 'Wed, 13 Dec 2017 03:28:23 GMT' do
         create(:auto_established_claim,
                auth_headers: { some: 'data' },
                evss_id: 600_118_851,
                id: 'd5536c5c-0465-4038-a368-1a9d9daf65c9',
                status: 'errored',
-               evss_response: { 'messages' => [{ 'key' => 'serviceError', 'severity' => 'FATAL', 'text' => 'Not established.' }] })
+               evss_response: { 'messages' => [{ 'key' => 'Error', 'severity' => 'FATAL', 'text' => 'Failed' }] })
         VCR.use_cassette('evss/claims/claim') do
           get(
             '/services/claims/v0/claims/d5536c5c-0465-4038-a368-1a9d9daf65c9',
