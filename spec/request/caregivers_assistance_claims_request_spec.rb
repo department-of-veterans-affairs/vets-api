@@ -81,7 +81,7 @@ RSpec.describe "Caregivers Assistance Claims", :type => :request do
         body = { caregivers_assistance_claim: { form: form_data.to_json } }.to_json
         post endpoint, params: body, headers: headers
 
-        expect(response.code).to eq('201')
+        expect(response.code).to eq('200')
 
         res_body = JSON.parse(response.body)
 
