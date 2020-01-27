@@ -64,7 +64,8 @@ module ClaimsApi
           if power_of_attorney
             render json: power_of_attorney, serializer: ClaimsApi::PowerOfAttorneySerializer
           else
-            render json: { old_poa: current_poa }, serializer: ClaimsApi::PowerOfAttorneySerializer
+            old_poa = ClaimsApi::PowerOfAttorney.new(form_data: {}, current_poa: current_poa)
+            render json: old_poa, serializer: ClaimsApi::PowerOfAttorneySerializer
           end
         end
 
@@ -75,7 +76,7 @@ module ClaimsApi
         end
 
         def header_md5
-          @header_md5 ||= Digest::MD5.hexdigest auth_headers.except('va_eauth_issueinstant', 'Authorization').to_json
+          @header_md5 ||= Digest::MD5.hexdigest(auth_headers.except('va_eauth_issueinstant', 'Authorization').to_json)
         end
 
         def source_data

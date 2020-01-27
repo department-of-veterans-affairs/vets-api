@@ -29,7 +29,6 @@ RSpec.describe 'Power of Attorney ', type: :request do
     it 'returns a successful response with all the data' do
       post path, params: data, headers: headers
       parsed = JSON.parse(response.body)
-      puts parsed
       expect(parsed['data']['type']).to eq('claims_api_power_of_attorneys')
       expect(parsed['data']['attributes']['status']).to eq('pending')
     end

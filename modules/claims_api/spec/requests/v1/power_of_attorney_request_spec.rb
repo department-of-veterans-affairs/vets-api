@@ -68,16 +68,25 @@ RSpec.describe 'Power of Attorney ', type: :request do
     end
 
     describe '#check status' do
-      let(:power_of_attorney) { create(:power_of_attorney) }
+      let(:power_of_attorney) { create(:power_of_attorney, auth_headers: headers) }
 
-      it 'increases the supporting document count' do
+      it 'return the status of a PoA based on GUID' do
         with_okta_user(scopes) do |auth_header|
           get("/services/claims/v1/forms/2122/#{power_of_attorney.id}",
               params: nil, headers: headers.merge(auth_header))
-          power_of_attorney.reload
           parsed = JSON.parse(response.body)
           expect(parsed['data']['type']).to eq('claims_api_power_of_attorneys')
           expect(parsed['data']['attributes']['status']).to eq('submitted')
+        end
+      end
+
+      it 'return the active status of a PoA without a GUID' do
+        with_okta_user(scopes) do |auth_header|
+          get('/services/claims/v1/forms/2122/active',
+              params: nil, headers: headers.merge(auth_header))
+          parsed = JSON.parse(response.body)
+          expect(parsed['data']['type']).to eq('claims_api_power_of_attorneys')
+          expect(parsed['data']['attributes']['old_poa']).to eq('A01')
         end
       end
     end
