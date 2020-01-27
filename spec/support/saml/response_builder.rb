@@ -48,7 +48,7 @@ module SAML
         end
 
         if verifying && build_saml_response_with_existing_user_identity?
-          previous_context = authn_context.gsub(/_loa3/, '').gsub(%r{\/3\/}, '/1/')
+          previous_context = authn_context.gsub(/loa\/3/, 'loa/1/vets')
           create_user_identity(
             authn_context: previous_context,
             account_type: account_type,
@@ -171,6 +171,7 @@ module SAML
       ssoe_saml_attributes = if account_type == '1'
                                {
                                  'va_eauth_credentialassurancelevel' => level_of_assurance,
+                                 'va_eauth_ial' => level_of_assurance,
                                  'va_eauth_gender' => [],
                                  'va_eauth_uid' => ['0e1bb5723d7c4f0686f46ca4505642ad'],
                                  'va_eauth_dodedipnid' => ['1606997570'],
@@ -188,6 +189,7 @@ module SAML
                              else
                                {
                                  'va_eauth_credentialassurancelevel' => level_of_assurance,
+                                 'va_eauth_ial' => level_of_assurance,
                                  'va_eauth_gender' => ['M'],
                                  'va_eauth_uid' => ['0e1bb5723d7c4f0686f46ca4505642ad'],
                                  'va_eauth_dodedipnid' => ['1606997570'],
