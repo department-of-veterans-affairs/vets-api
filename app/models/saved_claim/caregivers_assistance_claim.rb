@@ -10,4 +10,8 @@ class SavedClaim::CaregiversAssistanceClaim < SavedClaim
     # Inherited from SavedClaim. Disabling until it's implemented for 10-10CG (requires code in PDFFill::Filler)
     raise NotImplementedError.new('Not Implemented for Form 10-10CG')
   end
+
+  def regional_office
+
+  end
 end
