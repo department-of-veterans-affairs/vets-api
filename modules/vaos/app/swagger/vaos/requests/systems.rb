@@ -11,7 +11,7 @@ module VAOS
 
           key :description, 'returns list of system identifiers for a user'
           key :operationId, 'getSystems'
-          key :tags, %w[systems]
+          key :tags, %w[vaos systems]
 
           parameter :authorization
 

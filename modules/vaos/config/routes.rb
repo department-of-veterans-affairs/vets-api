@@ -2,7 +2,7 @@
 
 VAOS::Engine.routes.draw do
   defaults format: :json do
-    resources :appointments, only: :index do
+    resources :appointments, only: %i[index create] do
       put 'cancel', on: :collection
     end
     resources :appointment_requests, only: %i[index create update] do
@@ -13,6 +13,7 @@ VAOS::Engine.routes.draw do
     resources :systems, only: :index do
       resources :direct_scheduling_facilities, only: :index
       resources :pact, only: :index
+      resources :clinic_institutions, only: :index
     end
     resources :facilities, only: :index do
       resources :clinics, only: :index

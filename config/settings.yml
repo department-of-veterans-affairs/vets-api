@@ -111,6 +111,7 @@ ihub:
 
 # Settings for Decision Reviews
 decision_review:
+  prefill: true
   url: https://dev-api.va.gov/services/appeals/v3/decision_review
   api_key: abcd1234abcd1234abcd1234abcd1234abcd1234
   mock: false
@@ -449,13 +450,10 @@ bgs:
   application: ~
   client_station_id: ~
   client_username: ~
-  external_uid: ~
-  external_key: ~
   env: ~
   mock_response_location: ~
   mock_responses: ~
   ssl_verify_mode: 'peer'
-  
 
 va_mobile:
   url: 'https://veteran.apps.va.gov/'
@@ -479,3 +477,4 @@ vbms:
   client_keyfile: vetsapi.client.vbms.aide.oit.va.gov.p12
   server_cert: vbms.aide.oit.va.gov.crt
   environment_directory: /srv/vets-api/secret
+  env: test
