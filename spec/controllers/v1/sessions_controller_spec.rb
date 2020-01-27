@@ -322,7 +322,7 @@ RSpec.describe V1::SessionsController, type: :controller do
       context 'verifying' do
         let(:authn_context) { LOA::IDME_LOA3 }
 
-        it 'uplevels an LOA 1 session to LOA 3', :aggregate_failures do
+        xit 'uplevels an LOA 1 session to LOA 3', :aggregate_failures do
           existing_user = User.find(uuid)
           expect(existing_user.last_signed_in).to be_a(Time)
           expect(existing_user.multifactor).to be_falsey
