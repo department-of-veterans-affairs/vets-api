@@ -16,18 +16,23 @@ module ClaimsApi
         FORM_NUMBER = '2122'
 
         def submit_form_2122
-          power_of_attorney = ClaimsApi::PowerOfAttorney.create(
-            status: ClaimsApi::PowerOfAttorney::PENDING,
-            auth_headers: auth_headers,
-            form_data: form_attributes,
-            source_data: {
-              name: source_name,
-              icn: current_user.icn,
-              email: current_user.email
-            }
-          )
-          power_of_attorney = ClaimsApi::PowerOfAttorney.find_by(md5: power_of_attorney.md5) unless power_of_attorney.id
-          power_of_attorney.save!
+          power_of_attorney = ClaimsApi::PowerOfAttorney.find_by(header_md5: header_md5)
+          unless power_of_attorney&.status&.in?(%w[submitted pending])
+            power_of_attorney = ClaimsApi::PowerOfAttorney.create(
+              status: ClaimsApi::PowerOfAttorney::PENDING,
+              auth_headers: auth_headers,
+              form_data: form_attributes,
+              source_data: source_data,
+              current_poa: current_poa,
+              header_md5: header_md5
+            )
+
+            unless power_of_attorney.persisted?
+              power_of_attorney = ClaimsApi::PowerOfAttorney.find_by(md5: power_of_attorney.md5)
+            end
+
+            power_of_attorney.save!
+          end
 
           # This job only occurs when a Veteran submits a PoA request, they are not required to submit a document.
           ClaimsApi::PoaUpdater.perform_async(power_of_attorney.id) unless header_request?
@@ -56,7 +61,36 @@ module ClaimsApi
           render json: power_of_attorney, serializer: ClaimsApi::PowerOfAttorneySerializer
         end
 
+        def active
+          power_of_attorney = ClaimsApi::PowerOfAttorney.find_by(header_md5: header_md5)
+          if power_of_attorney
+            render json: power_of_attorney, serializer: ClaimsApi::PowerOfAttorneySerializer
+          else
+            previous_poa = ClaimsApi::PowerOfAttorney.new(form_data: {}, current_poa: current_poa)
+            render json: previous_poa, serializer: ClaimsApi::PowerOfAttorneySerializer
+          end
+        end
+
         private
+
+        def current_poa
+          @current_poa ||= EVSS::PowerOfAttorneyVerifier.new(target_veteran).current_poa
+        end
+
+        def header_md5
+          @header_md5 ||= Digest::MD5.hexdigest(auth_headers.except('va_eauth_authenticationauthority',
+                                                                    'va_eauth_service_transaction_id',
+                                                                    'va_eauth_issueinstant',
+                                                                    'Authorization').to_json)
+        end
+
+        def source_data
+          {
+            name: source_name,
+            icn: current_user.icn,
+            email: current_user.email
+          }
+        end
 
         def source_name
           user = header_request? ? @current_user : target_veteran
