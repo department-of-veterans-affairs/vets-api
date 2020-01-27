@@ -40,9 +40,8 @@ module VBADocuments
     end
 
     def self.create_file_from_base64(infile)
-      content = File.read(infile)
       FileUtils.mkdir_p '/tmp/vets-api'
-      contents = content.sub %r{data:((multipart)/.{3,}),}, ''
+      contents = `sed -r 's/data:multipart\\/.{3,},//g' #{infile}`
       decoded_data = Base64.decode64(contents)
       filename = "temp_upload_#{Time.zone.now.to_i}"
 
