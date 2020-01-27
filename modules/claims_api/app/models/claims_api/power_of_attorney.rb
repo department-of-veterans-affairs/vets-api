@@ -34,7 +34,10 @@ module ClaimsApi
     end
 
     def set_md5
-      headers = auth_headers.except('va_eauth_issueinstant', 'Authorization')
+      headers = auth_headers.except('va_eauth_authenticationauthority',
+                                    'va_eauth_service_transaction_id',
+                                    'va_eauth_issueinstant',
+                                    'Authorization')
       self.header_md5 = Digest::MD5.hexdigest headers.to_json
       self.md5 = Digest::MD5.hexdigest form_data.merge(headers).to_json
     end

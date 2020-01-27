@@ -17,18 +17,17 @@ module ClaimsApi
         before_action :validate_documents_page_size, only: %i[upload]
 
         def submit_form_2122
-          if %w[submitted pending].include? ClaimsApi::PowerOfAttorney.find_by(header_md5: header_md5).try(:status)
-            render json: { errors: [{ status: 422, source: '#/', details: 'Current PoA submission active' }] },
-                   status: :unprocessable_entity
+          power_of_attorney = ClaimsApi::PowerOfAttorney.find_by(header_md5: header_md5)
+          unless %w[submitted pending].include? power_of_attorney.try(:status)
+            power_of_attorney = ClaimsApi::PowerOfAttorney.create(
+              status: ClaimsApi::PowerOfAttorney::PENDING,
+              auth_headers: auth_headers,
+              form_data: form_attributes,
+              source_data: source_data,
+              header_md5: header_md5
+            )
           end
 
-          power_of_attorney = ClaimsApi::PowerOfAttorney.create(
-            status: ClaimsApi::PowerOfAttorney::PENDING,
-            auth_headers: auth_headers,
-            form_data: form_attributes,
-            source_data: source_data,
-            header_md5: header_md5
-          )
           power_of_attorney = ClaimsApi::PowerOfAttorney.find_by(md5: power_of_attorney.md5) unless power_of_attorney.id
           power_of_attorney.save!
 
@@ -60,7 +59,10 @@ module ClaimsApi
         private
 
         def header_md5
-          @header_md5 ||= Digest::MD5.hexdigest auth_headers.except('va_eauth_issueinstant', 'Authorization').to_json
+          @header_md5 ||= Digest::MD5.hexdigest(auth_headers.except('va_eauth_authenticationauthority',
+                                                                    'va_eauth_service_transaction_id',
+                                                                    'va_eauth_issueinstant',
+                                                                    'Authorization').to_json)
         end
 
         def source_data
