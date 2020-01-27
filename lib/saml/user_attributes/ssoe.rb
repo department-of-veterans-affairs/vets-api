@@ -94,7 +94,7 @@ module SAML
 
       # This is the ID.me highest level of assurance attained
       def loa_highest
-        attributes['va_eauth_credentialassurancelevel']&.to_i
+        attributes['va_eauth_ial']&.to_i
       end
 
       def multifactor
