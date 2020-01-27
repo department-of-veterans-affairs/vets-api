@@ -128,7 +128,7 @@ module ClaimsApi
               end
             end
 
-            property :old_poa do
+            property :previous_poa do
               key :type, :string
               key :example, 'B02'
               key :description, 'Current or Previous Power of Attorney Code submitted for Veteran'

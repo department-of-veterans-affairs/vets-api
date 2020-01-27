@@ -29,7 +29,7 @@ module ClaimsApi
       { participant_id: nil }
     end
 
-    def old_poa
+    def previous_poa
       current_poa
     end
 

@@ -97,7 +97,7 @@ RSpec.describe 'Power of Attorney ', type: :request do
               params: nil, headers: headers.merge(auth_header))
           parsed = JSON.parse(response.body)
           expect(parsed['data']['type']).to eq('claims_api_power_of_attorneys')
-          expect(parsed['data']['attributes']['old_poa']).to eq('A01')
+          expect(parsed['data']['attributes']['previous_poa']).to eq('A01')
         end
       end
     end

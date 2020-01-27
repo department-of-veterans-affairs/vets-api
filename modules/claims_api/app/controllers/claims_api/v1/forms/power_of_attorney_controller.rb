@@ -63,8 +63,8 @@ module ClaimsApi
           if power_of_attorney
             render json: power_of_attorney, serializer: ClaimsApi::PowerOfAttorneySerializer
           else
-            old_poa = ClaimsApi::PowerOfAttorney.new(form_data: {}, current_poa: current_poa)
-            render json: old_poa, serializer: ClaimsApi::PowerOfAttorneySerializer
+            previous_poa = ClaimsApi::PowerOfAttorney.new(form_data: {}, current_poa: current_poa)
+            render json: previous_poa, serializer: ClaimsApi::PowerOfAttorneySerializer
           end
         end
 
