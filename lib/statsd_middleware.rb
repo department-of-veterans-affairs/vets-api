@@ -107,10 +107,15 @@ class StatsdMiddleware
   def get_source_app(env)
     source_app = env['HTTP_SOURCE_APP_NAME']
 
+    # When the source app name is not provided through the header, attempt to
+    # match the referrer to the root URL of one of the whitelisted apps.
     if source_app.nil?
       referer = env['HTTP_REFERER']
-      *, source_app = SOURCE_APP_URL_MAP.find do |root_url, _|
-        URI.parse(referer).path.start_with? root_url
+
+      if referer
+        *, source_app = SOURCE_APP_URL_MAP.find do |root_url, _|
+          URI.parse(referer).path.start_with? root_url
+        end
       end
     end
 
