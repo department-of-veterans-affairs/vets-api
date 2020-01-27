@@ -84,19 +84,19 @@ RSpec.describe StatsdMiddleware, type: :request do
     end.to trigger_statsd_increment(StatsdMiddleware::STATUS_KEY, tags: tags, times: 1)
   end
 
-  it 'sends source_app to statsd when source_app is undefined but url matches' do
+  it 'sends source_app to statsd when source_app is not provided but url matches' do
     stub_varx_request(:get, 'mhv-api/patient/v1/prescription/gethistoryrx', history_rxs, status_code: 200)
     tags = %w[controller:v0/prescriptions action:index source_app:account status:200]
     expect do
-      get '/v0/prescriptions', headers: { 'Source-App-Name' => 'undefined', 'Referer' => 'https://va.gov/account' }
+      get '/v0/prescriptions', headers: { 'Referer' => 'https://va.gov/account' }
     end.to trigger_statsd_increment(StatsdMiddleware::STATUS_KEY, tags: tags, times: 1)
   end
 
-  it 'sends undefined to statsd when source_app is undefined and url does not match' do
+  it 'sends undefined to statsd when source_app is undefined' do
     stub_varx_request(:get, 'mhv-api/patient/v1/prescription/gethistoryrx', history_rxs, status_code: 200)
     tags = %w[controller:v0/prescriptions action:index source_app:undefined status:200]
     expect do
-      get '/v0/prescriptions', headers: { 'Source-App-Name' => 'undefined', 'Referer' => 'https://va.gov/foo' }
+      get '/v0/prescriptions', headers: { 'Source-App-Name' => 'undefined' }
     end.to trigger_statsd_increment(StatsdMiddleware::STATUS_KEY, tags: tags, times: 1)
   end
 
