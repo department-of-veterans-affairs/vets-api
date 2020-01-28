@@ -108,10 +108,10 @@ RSpec.describe Facilities::PPMS::Client do
           IsAcceptingNewPatients: 'true',
           Latitude: nil,
           Longitude: nil,
-          MainPhone: nil,
+          MainPhone: '4809241552',
           Miles: nil,
           Name: 'Freed, Lewis ',
-          OrganizationFax: nil,
+          OrganizationFax: '4809241553',
           ProviderGender: 'Male',
           ProviderIdentifier: '1407842941'
         )
