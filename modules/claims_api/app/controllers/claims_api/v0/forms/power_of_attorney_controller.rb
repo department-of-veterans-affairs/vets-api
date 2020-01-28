@@ -1,19 +1,20 @@
 # frozen_string_literal: true
 
 require_dependency 'claims_api/base_form_controller'
-require_dependency 'claims_api/concerns/page_size_validation'
+require_dependency 'claims_api/concerns/document_validations'
 require 'jsonapi/parser'
 
 module ClaimsApi
   module V0
     module Forms
       class PowerOfAttorneyController < ClaimsApi::BaseFormController
-        include ClaimsApi::PageSizeValidation
+        include ClaimsApi::DocumentValidations
 
         FORM_NUMBER = '2122'
 
         skip_before_action(:authenticate)
         before_action :validate_json_schema, only: %i[submit_form_2122]
+        before_action :validate_documents_content_type, only: %i[upload]
         before_action :validate_documents_page_size, only: %i[upload]
 
         def submit_form_2122
