@@ -10,7 +10,7 @@ require File.expand_path(
   )
 )
 
-RSpec.describe V0::Facilities::CcpController, type: :request do
+RSpec.describe 'Community Care Providers', type: :request do
   include_context 'Facilities PPMS'
 
   let(:provider) { FactoryBot.build(:provider, :from_pos_locator) }

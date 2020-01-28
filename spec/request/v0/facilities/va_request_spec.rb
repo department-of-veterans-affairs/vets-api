@@ -122,10 +122,6 @@ RSpec.describe 'VA GIS Integration', type: :request do
     expect(json['data'].length).to eq(12)
   end
 
-  regex_matcher = lambda { |r1, r2|
-    r1.uri.match(r2.uri)
-  }
-
   it 'responds to GET #index with bbox and filter' do
     setup_ny_vba
     get BASE_QUERY_PATH + NY_BBOX + '&type=benefits&services[]=DisabilityClaimAssistance'
