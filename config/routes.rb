@@ -116,9 +116,11 @@ Rails.application.routes.draw do
       get :show, controller: 'health_record_contents', on: :collection
     end
 
-    resources :appeals, only: [:index] do
+    resources :appeals, only: :index do
       collection do
-        get 'contestable_issues', to: 'appeals#show_contestable_issues'
+        resources :higher_level_reviews, only: %i[show create]
+        resources :intake_statuses, only: :show
+        resources :contestable_issues, only: :index
       end
     end
 

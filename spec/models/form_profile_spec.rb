@@ -553,6 +553,27 @@ RSpec.describe FormProfile, type: :model do
     }
   end
 
+  let(:v20_0996_expected) do
+    {
+      'data' =>
+      {
+        'attributes' =>
+        {
+          'veteran' =>
+          {
+            'addressLine1' => street_check[:street],
+            'addressLine2' => street_check[:street2],
+            'city' => user.va_profile[:address][:city],
+            'stateOrProvinceCode' => user.va_profile[:address][:state],
+            'zipPostalCode' => user.va_profile[:address][:postal_code][0..4],
+            'phoneNumber' => us_phone,
+            'emailAddress' => user.pciu_email
+          }
+        }
+      }
+    }
+  end
+
   let(:vfeedback_tool_expected) do
     {
       'address' => {
@@ -837,6 +858,12 @@ RSpec.describe FormProfile, type: :model do
     context 'with a burial application form' do
       it 'returns the va profile mapped to the burial form' do
         expect_prefilled('21P-530')
+      end
+    end
+
+    context 'with a higher level review form' do
+      it 'returns the va profile mapped to the higher level review form' do
+        expect_prefilled('20-0996')
       end
     end
 
