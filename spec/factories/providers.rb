@@ -29,6 +29,5 @@ FactoryBot.define do
       from_provider_locator
       from_provider_info
     end
-    
   end
 end

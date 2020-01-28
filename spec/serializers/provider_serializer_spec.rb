@@ -3,7 +3,7 @@
 require 'rails_helper'
 
 RSpec.describe ProviderSerializer, type: :serializer do
-  subject(:serialized_provider) { serialize(provider, serializer_class: described_class) } 
+  subject(:serialized_provider) { serialize(provider, serializer_class: described_class) }
 
   let(:provider) { build :provider, :from_provider_locator }
   let(:data) { JSON.parse(serialized_provider)['data'] }

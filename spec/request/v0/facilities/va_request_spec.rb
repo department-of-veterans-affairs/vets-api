@@ -125,7 +125,7 @@ RSpec.describe 'VA GIS Integration', type: :request do
   regex_matcher = lambda { |r1, r2|
     r1.uri.match(r2.uri)
   }
-  
+
   it 'responds to GET #index with bbox and filter' do
     setup_ny_vba
     get BASE_QUERY_PATH + NY_BBOX + '&type=benefits&services[]=DisabilityClaimAssistance'
@@ -162,6 +162,7 @@ RSpec.describe 'VA GIS Integration', type: :request do
         bbox: ['-112.54', '32.53', '-111.04', '34.03']
       }
     end
+
     it 'responds to GET #index with bbox, address, and ccp type' do
       VCR.use_cassette('facilities/va/ppms', match_requests_on: %i[path query], allow_playback_repeats: true) do
         get '/v0/facilities/va', params: params.merge('type' => 'cc_provider', 'services' => ['213E00000X'])
@@ -175,7 +176,7 @@ RSpec.describe 'VA GIS Integration', type: :request do
         expect(provider['attributes']['caresite_phone']).to eq('4807057300')
       end
     end
-  
+
     it 'responds to GET #index with success even if no providers are found' do
       VCR.use_cassette('facilities/va/ppms_empty_search', match_requests_on: [:method], allow_playback_repeats: true) do
         get BASE_QUERY_PATH + PDX_BBOX + '&type=cc_provider&address=97089'
@@ -184,7 +185,7 @@ RSpec.describe 'VA GIS Integration', type: :request do
         json = JSON.parse(response.body)
         expect(json['data'].length).to eq(0)
       end
-    end  
+    end
   end
 
   context 'with bad bbox param' do

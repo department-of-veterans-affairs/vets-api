@@ -3,10 +3,10 @@
 require 'rails_helper'
 require File.expand_path(
   Rails.root.join(
-    "spec",
-    "support",
-    "shared_contexts",
-    "facilities_ppms.rb"
+    'spec',
+    'support',
+    'shared_contexts',
+    'facilities_ppms.rb'
   )
 )
 
@@ -97,16 +97,16 @@ RSpec.describe V0::Facilities::CcpController, type: :request do
   end
 
   describe '#show' do
-     let(:provider_services_response) { 
-       {
-         'CareSiteAddressStreet' => Faker::Address.street_address,
-         'CareSiteAddressCity' => Faker::Address.city,
-         'CareSiteAddressZipCode' => Faker::Address.zip,
-         'CareSiteAddressState' => Faker::Address.state_abbr,
-         'Latitude' => Faker::Address.latitude,
-         'Longitude' => Faker::Address.longitude
-       }
+    let(:provider_services_response) do
+      {
+        'CareSiteAddressStreet' => Faker::Address.street_address,
+        'CareSiteAddressCity' => Faker::Address.city,
+        'CareSiteAddressZipCode' => Faker::Address.zip,
+        'CareSiteAddressState' => Faker::Address.state_abbr,
+        'Latitude' => Faker::Address.latitude,
+        'Longitude' => Faker::Address.longitude
       }
+    end
 
     it 'indicates an invalid parameter' do
       get '/v0/facilities/ccp/12345'
@@ -131,7 +131,7 @@ RSpec.describe V0::Facilities::CcpController, type: :request do
         .with('0000000000').and_return(provider)
       expect_any_instance_of(Facilities::PPMS::Client).to receive(:provider_services)
         .with('0000000000').and_return([provider_services_response])
-      
+
       get '/v0/facilities/ccp/ccp_0000000000'
       bod = JSON.parse(response.body)
       expect(bod).to include(fake_provider_serializer(provider, provider_services_response))

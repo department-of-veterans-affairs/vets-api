@@ -1279,7 +1279,7 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
     describe 'facility locator tests' do
       context 'successful calls' do
         let(:provider) { FactoryBot.build(:provider, :from_provider_info) }
-        let(:provider_services_response) { 
+        let(:provider_services_response) do
           {
             'CareSiteAddressStreet' => Faker::Address.street_address,
             'CareSiteAddressCity' => Faker::Address.city,
@@ -1288,8 +1288,8 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
             'Latitude' => Faker::Address.latitude,
             'Longitude' => Faker::Address.longitude
           }
-         }
-        
+        end
+
         it 'supports getting a list of facilities' do
           VCR.use_cassette('facilities/va/pdx_bbox') do
             expect(subject).to validate(:get, '/v0/facilities/va', 200,
@@ -1325,7 +1325,7 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
                                       '_query_string' => 'type[]=foo&name_part=por')
         end
 
-        it 'supports getting a provider by id' do[]
+        it 'supports getting a provider by id' do
           expect_any_instance_of(Facilities::PPMS::Client).to receive(:provider_info)
             .with('1407842941').and_return(provider)
           expect_any_instance_of(Facilities::PPMS::Client).to receive(:provider_services)
