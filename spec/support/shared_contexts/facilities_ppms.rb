@@ -39,14 +39,24 @@ RSpec.shared_context 'Facilities PPMS' do
     }
   end
 
-  def fake_provider_serializer(provider_hash, details_hash = {}, set = true)
-    attributes = details_hash.merge(provider_hash)
+  def fake_providers_serializer(provider, extras = {})
+    provider = provider.attributes if provider.respond_to?(:attributes)
+    extras = extras.attributes if extras.respond_to?(:attributes)
+    
+    attributes = extras.merge(provider)
     data = fake_provider_serializer_data(attributes)
-    if set
-      { 'data' => [data] }
-    else
-      { 'data' => data }
-    end
+
+    { 'data' => [data] }
+  end
+
+  def fake_provider_serializer(provider, extras = {})
+    provider = provider.attributes if provider.respond_to?(:attributes)
+    extras = extras.attributes if extras.respond_to?(:attributes)
+
+    attributes = extras.merge(provider)
+    data = fake_provider_serializer_data(attributes)
+
+    { 'data' => data }
   end
 
 end

@@ -13,6 +13,11 @@ require File.expand_path(
 RSpec.describe V0::Facilities::CcpController, type: :request do
   include_context 'Facilities PPMS'
 
+  let(:provider) { FactoryBot.build(:provider, :from_pos_locator) }
+  let(:provider_details) do
+    FactoryBot.build(:provider, :from_provider_info, provider.attributes.slice(:ProviderIdentifier))
+  end
+
   describe '#index' do
     def strong_params(wimpy_params)
       ActionController::Parameters.new(wimpy_params).permit!
@@ -27,9 +32,6 @@ RSpec.describe V0::Facilities::CcpController, type: :request do
 
     context 'type=cc_provider' do
       let(:provider) { FactoryBot.build(:provider, :from_provider_locator) }
-      let(:provider_details) do
-        FactoryBot.build(:provider, :from_provider_info, provider.attributes.slice(:ProviderIdentifier))
-      end
 
       it 'returns a results from the provider_locator' do
         expect_any_instance_of(Facilities::PPMS::Client).to receive(:provider_locator)
@@ -42,16 +44,11 @@ RSpec.describe V0::Facilities::CcpController, type: :request do
         get '/v0/facilities/ccp', params: params.merge('type' => 'cc_provider', 'services' => ['213E00000X'])
         bod = JSON.parse(response.body)
         expect(response).to be_successful
-        expect(bod).to include(fake_provider_serializer(provider.attributes, provider_details.attributes))
+        expect(bod).to include(fake_providers_serializer(provider, provider_details))
       end
     end
 
     context 'type=cc_pharmacy' do
-      let(:provider) { FactoryBot.build(:provider, :from_pos_locator) }
-      let(:provider_details) do
-        FactoryBot.build(:provider, :from_provider_info, provider.attributes.slice(:ProviderIdentifier))
-      end
-
       it 'returns results from the pos_locator' do
         expect_any_instance_of(Facilities::PPMS::Client).to receive(:provider_locator)
           .with(strong_params(params.merge(type: 'cc_pharmacy', services: ['3336C0003X'])))
@@ -63,13 +60,11 @@ RSpec.describe V0::Facilities::CcpController, type: :request do
         get '/v0/facilities/ccp', params: params.merge('type' => 'cc_pharmacy')
         bod = JSON.parse(response.body)
         expect(response).to be_successful
-        expect(bod).to include(fake_provider_serializer(provider.attributes))
+        expect(bod).to include(fake_providers_serializer(provider))
       end
     end
 
     context 'type=cc_walkin' do
-      let(:provider) { FactoryBot.build(:provider, :from_pos_locator) }
-
       it 'returns results from the pos_locator' do
         expect_any_instance_of(Facilities::PPMS::Client).to receive(:pos_locator)
           .with(strong_params(params.merge(type: 'cc_walkin')), '17')
@@ -79,13 +74,11 @@ RSpec.describe V0::Facilities::CcpController, type: :request do
 
         bod = JSON.parse(response.body)
         expect(response).to be_successful
-        expect(bod).to include(fake_provider_serializer(provider.attributes))
+        expect(bod).to include(fake_providers_serializer(provider))
       end
     end
 
     context 'type=cc_urgent_care' do
-      let(:provider) { FactoryBot.build(:provider, :from_pos_locator) }
-
       it 'returns results from the pos_locator' do
         expect_any_instance_of(Facilities::PPMS::Client).to receive(:pos_locator)
           .with(
@@ -98,13 +91,22 @@ RSpec.describe V0::Facilities::CcpController, type: :request do
 
         bod = JSON.parse(response.body)
         expect(response).to be_successful
-        expect(bod).to include(fake_provider_serializer(provider.attributes))
+        expect(bod).to include(fake_providers_serializer(provider))
       end
     end
   end
 
   describe '#show' do
-    let(:provider) { FactoryBot.build(:provider, :from_provider_info) }
+     let(:provider_services_response) { 
+       {
+         'CareSiteAddressStreet' => Faker::Address.street_address,
+         'CareSiteAddressCity' => Faker::Address.city,
+         'CareSiteAddressZipCode' => Faker::Address.zip,
+         'CareSiteAddressState' => Faker::Address.state_abbr,
+         'Latitude' => Faker::Address.latitude,
+         'Longitude' => Faker::Address.longitude
+       }
+      }
 
     it 'indicates an invalid parameter' do
       get '/v0/facilities/ccp/12345'
@@ -125,45 +127,14 @@ RSpec.describe V0::Facilities::CcpController, type: :request do
     end
 
     it 'returns a provider with services' do
-      provider_service = {
-        'Name' => provider.Name,
-        'AffiliationName' => 'TriWest - Choice',
-        'RelationshipName' => 'Choice',
-        'ProviderName' => provider.Name,
-        'ProviderAgreementName' => nil,
-        'SpecialtyName' => Faker::Construction.subcontract_category,
-        'SpecialtyCode' => Faker::Alphanumeric.alphanumeric(number: 10),
-        'HPP' => 'Unknown',
-        'HighPerformingProvider' => 'TriWest - Choice(U)',
-        'CareSiteName' => provider.Name,
-        'CareSiteLocationAddress' => [
-          provider.AddressStreet,
-          provider.AddressCity,
-          provider.AddressPostalCode,
-          provider.AddressPostalCode
-        ].join(', '),
-        'CareSiteAddressStreet' => provider.AddressStreet,
-        'CareSiteAddressStreet1' => provider.AddressStreet,
-        'CareSiteAddressStreet2' => nil,
-        'CareSiteAddressStreet3' => nil,
-        'CareSiteAddressCity' => provider.AddressCity,
-        'CareSiteAddressState' => provider.AddressPostalCode,
-        'CareSiteAddressZipCode' => provider.AddressPostalCode,
-        'Latitude' => provider.Latitude,
-        'Longitude' => provider.Longitude,
-        'CareSitePhoneNumber' => provider.CareSitePhoneNumber,
-        'OrganiztionGroupName' => nil,
-        'DescriptionOfService' => nil,
-        'Limitation' => nil
-      }.with_indifferent_access
       expect_any_instance_of(Facilities::PPMS::Client).to receive(:provider_info)
         .with('0000000000').and_return(provider)
       expect_any_instance_of(Facilities::PPMS::Client).to receive(:provider_services)
-        .with('0000000000').and_return([provider_service])
-
+        .with('0000000000').and_return([provider_services_response])
+      
       get '/v0/facilities/ccp/ccp_0000000000'
       bod = JSON.parse(response.body)
-      expect(bod).to include(fake_provider_serializer(provider.attributes, provider_service, false))
+      expect(bod).to include(fake_provider_serializer(provider, provider_services_response))
     end
 
     it 'returns a provider without services' do
@@ -174,33 +145,13 @@ RSpec.describe V0::Facilities::CcpController, type: :request do
 
       get '/v0/facilities/ccp/ccp_0000000000'
       bod = JSON.parse(response.body)
-      expect(bod).to include(fake_provider_serializer(provider.attributes, {}, false))
+      expect(bod).to include(fake_provider_serializer(provider))
     end
   end
 
   describe '#services' do
     it 'returns a provider without services' do
-      expect_any_instance_of(Facilities::PPMS::Client).to receive(:specialties)
-        .and_return(
-          [
-            {
-              'SpecialtyCode' => '101Y00000X',
-              'Name' => 'Counselor',
-              'Grouping' => 'Behavioral Health & Social Service Providers',
-              'Classification' => 'Counselor',
-              'Specialization' => nil,
-              'SpecialtyDescription' =>
-                'A provider who is trained and educated in the performance of behavior' \
-                'health services through interpersonal communications and analysis.' \
-                'Training and education at the specialty level usually requires a' \
-                "master's degree and clinical experience and supervision for licensure" \
-                'or certification.'
-            }
-          ]
-        )
-      get '/v0/facilities/services'
-      bod = JSON.parse(response.body)
-      expect(bod).to include(
+      specialty = {
         'SpecialtyCode' => '101Y00000X',
         'Name' => 'Counselor',
         'Grouping' => 'Behavioral Health & Social Service Providers',
@@ -212,7 +163,13 @@ RSpec.describe V0::Facilities::CcpController, type: :request do
           'Training and education at the specialty level usually requires a' \
           "master's degree and clinical experience and supervision for licensure" \
           'or certification.'
-      )
+      }
+
+      expect_any_instance_of(Facilities::PPMS::Client).to receive(:specialties)
+        .and_return([specialty])
+      get '/v0/facilities/services'
+      bod = JSON.parse(response.body)
+      expect(bod).to include(specialty)
     end
   end
 end

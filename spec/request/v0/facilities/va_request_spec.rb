@@ -171,7 +171,7 @@ RSpec.describe 'VA GIS Integration', type: :request do
         expect(json['data'].length).to eq(1)
         provider = json['data'][0]
         expect(provider['attributes']['address']['city']).to eq('Chandler')
-        expect(provider['attributes']['phone']).to be_nil
+        expect(provider['attributes']['phone']).to eq('4809241552')
         expect(provider['attributes']['caresite_phone']).to eq('4807057300')
       end
     end
