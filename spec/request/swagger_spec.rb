@@ -1281,12 +1281,12 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
         let(:provider) { FactoryBot.build(:provider, :from_provider_info) }
         let(:provider_services_response) do
           {
-            'CareSiteAddressStreet' => Faker::Address.street_address,
-            'CareSiteAddressCity' => Faker::Address.city,
-            'CareSiteAddressZipCode' => Faker::Address.zip,
-            'CareSiteAddressState' => Faker::Address.state_abbr,
-            'Latitude' => Faker::Address.latitude,
-            'Longitude' => Faker::Address.longitude
+            'CareSiteAddressStreet' => '3195 S Price Rd Ste 148',
+            'CareSiteAddressCity' => 'Chandler',
+            'CareSiteAddressZipCode' => '85248',
+            'CareSiteAddressState' => 'AZ',
+            'Latitude' => 33.258135,
+            'Longitude' => -111.887927
           }
         end
 
