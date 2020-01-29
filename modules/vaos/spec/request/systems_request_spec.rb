@@ -43,7 +43,6 @@ RSpec.describe 'systems', type: :request do
             expect { get '/v0/vaos/systems' }
               .to trigger_statsd_increment('api.external_http_request.VAOS.success', times: 1, value: 1)
 
-            puts response.body
             expect(response).to have_http_status(:ok)
             expect(response.body).to be_a(String)
             expect(response).to match_response_schema('vaos/systems')
@@ -110,7 +109,6 @@ RSpec.describe 'systems', type: :request do
               parent_code: '688', type_of_care_id: '323'
             }
 
-            puts response.body
             expect(response).to have_http_status(:ok)
             expect(response.body).to be_a(String)
             expect(response).to match_response_schema('vaos/system_facilities')
@@ -149,7 +147,6 @@ RSpec.describe 'systems', type: :request do
           VCR.use_cassette('vaos/systems/get_system_pact', match_requests_on: %i[method uri]) do
             get '/v0/vaos/systems/688/pact'
 
-            puts response.body
             expect(response).to have_http_status(:ok)
             expect(response.body).to be_a(String)
             expect(response).to match_response_schema('vaos/system_pact')
@@ -164,7 +161,6 @@ RSpec.describe 'systems', type: :request do
           VCR.use_cassette('vaos/systems/get_institutions', match_requests_on: %i[method uri]) do
             get '/v0/vaos/systems/442/clinic_institutions', params: { clinic_ids: [16, 90, 110, 192, 193] }
 
-            puts response.body
             expect(response).to have_http_status(:ok)
             expect(response.body).to be_a(String)
             expect(response).to match_response_schema('vaos/system_institutions')

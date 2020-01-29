@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class AppealsApi::Docs::V1::DocsController < ApplicationController
+class AppealsApi::Docs::V1::ApidocsController < ApplicationController
   skip_before_action(:authenticate)
 
   def decision_reviews

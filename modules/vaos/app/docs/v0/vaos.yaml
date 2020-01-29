@@ -31,27 +31,6 @@ servers:
       version:
         default: v0
 paths:
-  '/appointments':
-    get:
-      tags:
-        - appointments
-      summary: Returns alist of online scheduling appointments
-      operationId: getAppointments
-      security:
-        - bearerAuth: []
-      responses:
-        '200':
-          description: Systems retrieved successfully
-          content:
-            application/json:
-              schema:
-                required:
-                  - data
-                properties:
-                  data:
-                    type: array
-                    items:
-                      $ref: "#/components/schemas/System"
   '/systems':
     get:
       tags:

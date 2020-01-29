@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-describe AppealsApi::Docs::V1::DocsController, type: :request do
+describe AppealsApi::Docs::V1::ApidocsController, type: :request do
   describe '#decision_reviews' do
     let(:decision_reviews_docs) { '/services/appeals/docs/v1/decision_reviews' }
 
