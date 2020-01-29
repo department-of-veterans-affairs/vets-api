@@ -11,7 +11,7 @@ module VAOS
 
           key :description, 'returns list of online scheduling appointments'
           key :operationId, 'getAppointments'
-          key :tags, %w[appointments]
+          key :tags, %w[vaos appointments]
 
           parameter :authorization
 

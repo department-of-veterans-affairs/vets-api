@@ -60,7 +60,7 @@ module Swagger
           end
         end
 
-        swagger_path '/services/appeals/v0/appeals/higher_level_reviews' do
+        swagger_path '/v0/appeals/higher_level_reviews' do
           operation :post do
             key :tags, %w[higher_level_reviews]
             key :summary, 'Creates a higher level review'
@@ -136,7 +136,7 @@ module Swagger
           end
         end
 
-        swagger_path '/services/appeals/v0/appeals/higher_level_reviews/{uuid}' do
+        swagger_path '/v0/appeals/higher_level_reviews/{uuid}' do
           operation :get do
             key :description, 'This endpoint returns the details of a specific Higher Level Review'
             key :operationId, 'showHigherLevelReview'
@@ -175,7 +175,7 @@ module Swagger
           end
         end
 
-        swagger_path '/services/appeals/v0/appeals/intake_statuses/{intake_id}' do
+        swagger_path '/v0/appeals/intake_statuses/{intake_id}' do
           operation :get do
             key :tags, %w[intake_status]
             key :operationId, 'showIntakeStatus'
