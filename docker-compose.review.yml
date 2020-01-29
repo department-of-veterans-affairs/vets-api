@@ -39,6 +39,7 @@ services:
     links:
       - postgres
       - redis
+    restart: unless-stopped
 volumes:
   db-data:
   dev_bundle:
