@@ -86,6 +86,7 @@ RSpec.describe V1::SessionsController, type: :controller do
                 .to trigger_statsd_increment(described_class::STATSD_SSO_NEW_KEY, tags: ["context:#{type}"], **once)
 
               expect(response).to have_http_status(:found)
+              # FIXME: should this not be a PINT url?
               expect(response.location)
                 .to be_an_idme_saml_url('https://api.idmelabs.com/saml/SingleSignOnService?SAMLRequest=')
                 .with_relay_state('originating_request_id' => nil, 'type' => type)
@@ -99,6 +100,7 @@ RSpec.describe V1::SessionsController, type: :controller do
             expect { get(:new, params: { type: :signup, client_id: '123123' }) }
               .to trigger_statsd_increment(described_class::STATSD_SSO_NEW_KEY, tags: ['context:signup'], **once)
             expect(response).to have_http_status(:found)
+            # FIXME: should this not be a PINT url?
             expect(response.location)
               .to be_an_idme_saml_url('https://api.idmelabs.com/saml/SingleSignOnService?SAMLRequest=')
               .with_relay_state('originating_request_id' => nil, 'type' => 'signup')
@@ -207,6 +209,7 @@ RSpec.describe V1::SessionsController, type: :controller do
           # it has the cookie set
           expect(cookies['vagov_session_dev']).not_to be_nil
           get(:new, params: { type: 'slo' })
+          # FIXME: should this not be a PINT url?
           expect(response.location)
             .to be_an_idme_saml_url('https://api.idmelabs.com/saml/SingleLogoutService?SAMLRequest=')
             .with_relay_state('originating_request_id' => nil, 'type' => 'slo')
@@ -348,6 +351,7 @@ RSpec.describe V1::SessionsController, type: :controller do
           expect { post(:saml_callback) }
             .to trigger_statsd_increment(described_class::STATSD_SSO_CALLBACK_KEY, tags: callback_tags, **once)
             .and trigger_statsd_increment(described_class::STATSD_SSO_CALLBACK_TOTAL_KEY, **once)
+            .and trigger_statsd_increment(described_class::STATSD_SSO_SHARED_COOKIE, tags: ['loa:3', 'idp:idme'], **once)
 
           expect(response.location).to start_with('http://127.0.0.1:3001/auth/login/callback')
 
@@ -391,7 +395,10 @@ RSpec.describe V1::SessionsController, type: :controller do
           Timecop.freeze(Time.current)
           cookie_expiration_time = 30.minutes.from_now.iso8601(0)
 
-          post :saml_callback
+          expect { post(:saml_callback) }
+            .to trigger_statsd_increment(described_class::STATSD_SSO_CALLBACK_KEY, tags: ['status:success', 'context:multifactor'], **once)
+            .and trigger_statsd_increment(described_class::STATSD_SSO_CALLBACK_TOTAL_KEY, **once)
+            .and trigger_statsd_increment(described_class::STATSD_SSO_SHARED_COOKIE, tags: ['loa:1', 'idp:idme'], **once)
 
           expect(cookies['vagov_session_dev']).not_to be_nil
           expect(JSON.parse(decrypter.decrypt(cookies['vagov_session_dev'])))
@@ -616,6 +623,7 @@ RSpec.describe V1::SessionsController, type: :controller do
           expect { post(:saml_callback) }
             .to trigger_statsd_increment(described_class::STATSD_SSO_CALLBACK_KEY, tags: callback_tags, **once)
             .and trigger_statsd_increment(described_class::STATSD_SSO_CALLBACK_TOTAL_KEY, **once)
+            .and trigger_statsd_increment(described_class::STATSD_SSO_SHARED_COOKIE, tags: ['loa:3', 'idp:myhealthevet'], **once)
           expect(response.location).to start_with('http://127.0.0.1:3001/auth/login/callback')
           expect(cookies['vagov_session_dev']).not_to be_nil
           MVI::Configuration.instance.breakers_service.end_forced_outage!
