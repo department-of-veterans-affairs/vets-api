@@ -15,11 +15,8 @@ RSpec.describe Facilities::PPMS::Client do
   end
 
   context 'with an http timeout' do
-    before do
-      allow_any_instance_of(Faraday::Connection).to receive(:get).and_raise(Faraday::TimeoutError)
-    end
-
     it 'logs an error and raise GatewayTimeout' do
+      allow_any_instance_of(Faraday::Connection).to receive(:get).and_raise(Faraday::TimeoutError)
       expect do
         Facilities::PPMS::Client.new.provider_locator(params)
       end.to raise_error(Common::Exceptions::GatewayTimeout)
