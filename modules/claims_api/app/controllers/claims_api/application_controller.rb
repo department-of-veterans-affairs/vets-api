@@ -21,7 +21,7 @@ module ClaimsApi
 
     def format_evss_errors(errors)
       errors.map do |error|
-        { status: 422, detail: "#{error['detail'] || error['text']} #{error['severity']}", source: error['key'] }
+        { status: 422, detail: "#{error['severity']} #{error['detail'] || error['text']}".squish, source: error['key'] }
       end
     end
 

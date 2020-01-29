@@ -97,7 +97,7 @@ RSpec.describe 'EVSS Claims management', type: :request do
               'X-VA-Birth-Date' => '1986-05-06T00:00:00+00:00', 'X-VA-LOA' => '3'
             }
           )
-          expect(response.status).to eq(404)
+          expect(response.status).to eq(422)
         end
       end
     end
