@@ -1,19 +1,20 @@
 # frozen_string_literal: true
 
 require_dependency 'claims_api/base_disability_compensation_controller'
-require_dependency 'claims_api/concerns/page_size_validation'
+require_dependency 'claims_api/concerns/document_validations'
 require 'jsonapi/parser'
 
 module ClaimsApi
   module V0
     module Forms
       class DisabilityCompensationController < BaseDisabilityCompensationController
-        include ClaimsApi::PageSizeValidation
+        include ClaimsApi::DocumentValidations
 
         FORM_NUMBER = '526'
 
         skip_before_action(:authenticate)
         before_action :validate_json_schema, only: %i[submit_form_526 validate_form_526]
+        before_action :validate_documents_content_type, only: %i[upload_supporting_documents]
         before_action :validate_documents_page_size, only: %i[upload_supporting_documents]
         skip_before_action :validate_json_format, only: %i[upload_supporting_documents]
 
