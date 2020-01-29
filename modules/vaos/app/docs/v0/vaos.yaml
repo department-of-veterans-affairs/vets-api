@@ -3,32 +3,55 @@ info:
   version: 0.0.1
   title: VAOS
   description: |
-    ## Veterans Affairs Online Scheduling
+    ## The API for managing Veterans Affairs Online Scheduling
 
     These endpoints give hooks into VAOS, an existing product suite, containing a veteran-facing healthcare appointment online scheduling tool of
     the same name (formerly named VAR - Veteran Appointment Request), a scheduler-facing appointment management tool named Schedule Manager, and a schedule configuration utility for VA facilities, named VATS (VA Tool Set).
   contact:
     name: va.gov
 tags:
+  - name: appointments
+    description: Appointments
   - name: systems
     description: Systems
 servers:
-  - url: https://dev-api.va.gov/services/appeals/{version}
+  - url: https://dev-api.va.gov/v0/vaos/{version}
     description: VA.gov API development environment
     variables:
       version:
         default: v0
-  - url: https://staging-api.va.gov/services/appeals/{version}
+  - url: https://staging-api.va.gov/v0/vaos/{version}
     description: VA.gov API staging environment
     variables:
       version:
         default: v0
-  - url: https://api.va.gov/services/appeals/{version}
+  - url: https://api.va.gov/v0/vaos/{version}
     description: VA.gov API production environment
     variables:
       version:
         default: v0
 paths:
+  '/appointments':
+    get:
+      tags:
+        - appointments
+      summary: Returns alist of online scheduling appointments
+      operationId: getAppointments
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Systems retrieved successfully
+          content:
+            application/json:
+              schema:
+                required:
+                  - data
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/System"
   '/systems':
     get:
       tags:
@@ -52,12 +75,28 @@ paths:
                       $ref: "#/components/schemas/System"
         '400':
           description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
         '401':
           description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
         '502':
           description: Error in the upstream service
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
         '504':
           description: Timeout from the upstream service
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
   '/systems/{system_id}/clinic_institutions':
     get:
       tags:
@@ -88,12 +127,28 @@ paths:
                       $ref: "#/components/schemas/ClinicInstitution"
         '400':
           description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
         '401':
           description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
         '502':
           description: Error in the upstream service
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
         '504':
           description: Timeout from the upstream service
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
   '/systems/{system_id}/direct_scheduling_facilities':
     get:
       tags:
@@ -124,12 +179,28 @@ paths:
                       $ref: "#/components/schemas/DirectSchedulingFacility"
         '400':
           description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
         '401':
           description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
         '502':
           description: Error in the upstream service
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
         '504':
           description: Timeout from the upstream service
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
   '/systems/{system_id}/pact':
     get:
       tags:
@@ -161,12 +232,28 @@ paths:
                       $ref: "#/components/schemas/PACT"
         '400':
           description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
         '401':
           description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
         '502':
           description: Error in the upstream service
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
         '504':
           description: Timeout from the upstream service
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
 components:
   securitySchemes:
     bearerAuth:
@@ -174,6 +261,23 @@ components:
       scheme: bearer
       bearerFormat: JWT
   schemas:
+    Errors:
+      required:
+        - "errors"
+      properties:
+        errors:
+          type: "array"
+          items:
+            type: "object"
+            properties:
+              status:
+                type: "string"
+              code:
+                type: "string"
+              title:
+                type: "string"
+              detail:
+                type: "string"
     System:
       type: "object"
       properties:
