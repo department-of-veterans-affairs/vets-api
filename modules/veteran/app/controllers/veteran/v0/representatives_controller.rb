@@ -20,11 +20,13 @@ module Veteran
       end
 
       private
+
       def check_required_fields
         if params[:first_name].blank? || params[:last_name].blank?
           render json: {
             errors: [
-              details: "First name and Last name are required to complete this request", status: 422]
+              details: 'First name and Last name are required to complete this request', status: 422
+            ]
           }, status: 422
         end
       end
