@@ -24,8 +24,8 @@ RSpec.describe V1::SessionsController, type: :controller do
   let(:callback_url)        { "http://#{request_host}/v1/sessions/callback" }
   let(:logout_redirect_url) { 'http://127.0.0.1:3001/logout/' }
 
-  let(:settings_no_context) { build(:settings_no_context, assertion_consumer_service_url: callback_url) }
-  let(:rubysaml_settings)   { build(:rubysaml_settings, assertion_consumer_service_url: callback_url) }
+  let(:settings_no_context) { build(:settings_no_context_v1, assertion_consumer_service_url: callback_url) }
+  let(:rubysaml_settings)   { build(:rubysaml_settings_v1, assertion_consumer_service_url: callback_url) }
 
   let(:logout_uuid) { '1234' }
   let(:invalid_logout_response) { SAML::Responses::Logout.new('', rubysaml_settings) }
@@ -88,7 +88,7 @@ RSpec.describe V1::SessionsController, type: :controller do
               expect(response).to have_http_status(:found)
               # FIXME: should this not be a PINT url?
               expect(response.location)
-                .to be_an_idme_saml_url('https://api.idmelabs.com/saml/SingleSignOnService?SAMLRequest=')
+                .to be_an_idme_saml_url('https://pint.eauth.va.gov/isam/sps/saml20idp/saml20/login?SAMLRequest=')
                 .with_relay_state('originating_request_id' => nil, 'type' => type)
                 .with_params('clientId' => '123123')
             end
@@ -102,7 +102,7 @@ RSpec.describe V1::SessionsController, type: :controller do
             expect(response).to have_http_status(:found)
             # FIXME: should this not be a PINT url?
             expect(response.location)
-              .to be_an_idme_saml_url('https://api.idmelabs.com/saml/SingleSignOnService?SAMLRequest=')
+              .to be_an_idme_saml_url('https://pint.eauth.va.gov/isam/sps/saml20idp/saml20/login?SAMLRequest=')
               .with_relay_state('originating_request_id' => nil, 'type' => 'signup')
               .with_params('op' => 'signup', 'clientId' => '123123')
           end
@@ -211,7 +211,7 @@ RSpec.describe V1::SessionsController, type: :controller do
           get(:new, params: { type: 'slo' })
           # FIXME: should this not be a PINT url?
           expect(response.location)
-            .to be_an_idme_saml_url('https://api.idmelabs.com/saml/SingleLogoutService?SAMLRequest=')
+            .to be_an_idme_saml_url('https://pint.eauth.va.gov/pkmslogout?SAMLRequest=')
             .with_relay_state('originating_request_id' => nil, 'type' => 'slo')
 
           # these should be destroyed.
@@ -441,7 +441,7 @@ RSpec.describe V1::SessionsController, type: :controller do
         end
 
         it 'redirects to idme for up-level' do
-          expect(post(:saml_callback)).to redirect_to(/api.idmelabs.com/)
+          expect(post(:saml_callback)).to redirect_to(/pint.eauth.va.gov/)
         end
 
         it 'redirects to identity proof URL', :aggregate_failures do
