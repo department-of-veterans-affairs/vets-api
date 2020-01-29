@@ -2,16 +2,6 @@
 
 require 'rails_helper'
 
-module Helpers
-  def help
-    response.body
-  end
-end
-
-RSpec.configure do |c|
-  c.include Helpers
-end
-
 RSpec.describe 'systems', type: :request do
   include SchemaMatchers
 
