@@ -9,7 +9,7 @@ services:
       POSTGRES_PASSWORD: "${POSTGRES_PASSWORD:-password}"
       POSTGRES_USER: "${POSTGRES_USER:-postgres}"
     volumes:
-      - ./data:/var/lib/postgresql/data:cached
+      - db-data:/var/lib/postgresql/data:cached
     ports:
       - "54320:5432"
     restart: unless-stopped
@@ -21,7 +21,7 @@ services:
         exclude_sidekiq_ent: "${EXCLUDE_SIDEKIQ_ENTERPRISE:-false}"
         sidekiq_license: "${BUNDLE_ENTERPRISE__CONTRIBSYS__COM}"
         userid: "${VETS_API_USER_ID}"
-    command: foreman start -m all=1
+    command: foreman start -m all=1,clamd=0,freshclam=0
     image: "vets-api:${DOCKER_IMAGE:-latest}"
     volumes:
       - .:/srv/vets-api/src:cached
