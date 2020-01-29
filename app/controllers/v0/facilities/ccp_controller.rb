@@ -66,7 +66,7 @@ class V0::Facilities::CcpController < FacilitiesController
     {
       current_page: page,
       per_page: BaseFacility.per_page,
-      total_pages: ppms_results.length / BaseFacility.per_page + 1,
+      total_pages: Integer(ppms_results.length / BaseFacility.per_page + 1),
       total_entries: total
     }
   end
