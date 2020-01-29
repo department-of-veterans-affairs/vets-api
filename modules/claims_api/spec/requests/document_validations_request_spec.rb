@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe 'Page Validation Requests', type: :request do
+RSpec.describe 'Document Validations Requests', type: :request do
   describe 'an upload request' do
     let(:headers) do
       { 'X-VA-SSN': '796043735',
@@ -38,6 +38,19 @@ RSpec.describe 'Page Validation Requests', type: :request do
         allow_any_instance_of(ClaimsApi::SupportingDocumentUploader).to receive(:store!)
         post "/services/claims/v0/forms/526/#{auto_claim.id}/attachments", params: params, headers: headers
         expect(response.status).to eq(200)
+      end
+    end
+
+    context 'with a non pdf' do
+      let(:params) do
+        path = Rack::Test::UploadedFile.new("#{::Rails.root}/modules/claims_api/spec/fixtures/form_2122_json_api.json")
+        { 'attachment': path }
+      end
+
+      it 'returns a failure' do
+        allow_any_instance_of(ClaimsApi::SupportingDocumentUploader).to receive(:store!)
+        post "/services/claims/v0/forms/526/#{auto_claim.id}/attachments", params: params, headers: headers
+        expect(response.status).to eq(422)
       end
     end
   end
