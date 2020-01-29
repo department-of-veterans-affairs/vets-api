@@ -8,6 +8,7 @@ module VAOS
     attribute :scheduling_request_type, String
     attribute :type, String
     attribute :appointment_kind, String
+    attribute :appointment_type, String
     attribute :scheduling_method, String
     attribute :appt_type, String
     attribute :purpose, String
@@ -84,13 +85,13 @@ module VAOS
       {
         type: 'VA',
         facility: {
-          name: clinic[:institution_name],
-          site_code: clinic[:site_code],
-          time_zone: (clinic[:time_zone] || time_zone)
+          name: clinic['institution_name'],
+          site_code: clinic['site_code'],
+          time_zone: (clinic['time_zone'] || time_zone)
         },
         clinic: {
-          ien: clinic[:clinic_id],
-          name: clinic[:clinic_name]
+          ien: clinic['clinic_id'],
+          name: clinic['clinic_name']
         }
       }
     end

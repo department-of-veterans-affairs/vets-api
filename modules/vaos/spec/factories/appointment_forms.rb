@@ -14,6 +14,7 @@ FactoryBot.define do
       appointment_kind { 'TRADITIONAL' }
       scheduling_method { 'direct' }
       appt_type { 'P' }
+      appointment_type { 'Primary Care' }
       purpose { '9' }
       lvl { '1' }
       ekg { '' }
@@ -27,12 +28,12 @@ FactoryBot.define do
       booking_notes { 'Follow-up/Routine: abdominal pain' }
       clinic do
         {
-          site_code: '983',
-          clinic_id: '308',
-          clinic_name: 'CHY PC KILPATRICK',
-          clinic_friendly_location_name: 'Green Team Clinic1',
-          institution_name: 'CHYSHR-Cheyenne VA Medical Center',
-          institution_code: '983'
+          'site_code' => '983',
+          'clinic_id' => '308',
+          'clinic_name' => 'CHY PC KILPATRICK',
+          'clinic_friendly_location_name' => 'Green Team Clinic1',
+          'institution_name' => 'CHYSHR-Cheyenne VA Medical Center',
+          'institution_code' => '983'
         }
       end
     end
