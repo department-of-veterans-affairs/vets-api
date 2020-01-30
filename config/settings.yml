@@ -51,8 +51,6 @@ relative_url_root: /
 
 secret_key_base: 8af0fe1e378586520e4324694897eb269bd0fffa1c5be6cc3b4ffb9dbde095d0bef5c7fdab73cd05685d8fe1dd589287d78b38e4de7116fbe14461e414072677
 
-review_instance_slug: ~
-
 sidekiq_admin_panel: false
 
 salesforce-gibft:
@@ -378,8 +376,6 @@ shrine:
   claims:
     type: local
     path: claims
-github:
-  api_key: abcd1234abcd1234abcd1234abcd1234abcd1234
 
 # Settings for maintenance window API
 # Services should be a map from logical service name to PagerDuty service id
