@@ -25,7 +25,7 @@ module Veteran
         if params[:first_name].blank? || params[:last_name].blank?
           render json: {
             errors: [
-              details: 'First name and Last name are required to complete this request', status: 422
+              detail: 'First name and Last name are required to complete this request', status: 422
             ]
           }, status: 422
         end
