@@ -22,13 +22,19 @@ module Veteran
       private
 
       def check_required_fields
-        if params[:first_name].blank? || params[:last_name].blank?
-          render json: {
-            errors: [
-              detail: 'First name and Last name are required to complete this request', status: 422
-            ]
-          }, status: 422
-        end
+        errors = []
+        errors << error_hash('first_name') if params[:first_name].blank?
+        errors << error_hash('last_name') if params[:last_name].blank?
+        render json: { errors: errors }, status: 422 if errors.any?
+      end
+
+      def error_hash(parameter)
+        {
+          detail: "#{parameter.humanize} are required to complete this request",
+          title: 'Missing Parameter',
+          source: { parameter: parameter },
+          status: 422
+        }
       end
     end
   end
