@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2020_01_07_144615) do
+ActiveRecord::Schema.define(version: 2020_01_17_193734) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
@@ -125,6 +125,8 @@ ActiveRecord::Schema.define(version: 2020_01_07_144615) do
     t.integer "vbms_upload_failure_count", default: 0
     t.string "encrypted_source_data"
     t.string "encrypted_source_data_iv"
+    t.string "header_md5"
+    t.index ["header_md5"], name: "index_claims_api_power_of_attorneys_on_header_md5"
   end
 
   create_table "claims_api_supporting_documents", id: :uuid, default: -> { "uuid_generate_v4()" }, force: :cascade do |t|
