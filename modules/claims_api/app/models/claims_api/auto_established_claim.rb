@@ -38,7 +38,7 @@ module ClaimsApi
     alias token id
 
     def to_internal
-      form_data['claimDate'] ||= created_at.to_date.to_s
+      form_data['claimDate'] ||= (persisted? ? created_at.to_date.to_s : Time.zone.today.to_s)
       {
         "form526": form_data,
         "form526_uploads": [],
