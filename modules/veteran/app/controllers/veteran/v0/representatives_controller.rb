@@ -30,7 +30,7 @@ module Veteran
 
       def error_hash(parameter)
         {
-          detail: "#{parameter.humanize} are required to complete this request",
+          detail: "#{parameter.humanize} is required to complete this request",
           title: 'Missing Parameter',
           source: { parameter: parameter },
           status: 422
