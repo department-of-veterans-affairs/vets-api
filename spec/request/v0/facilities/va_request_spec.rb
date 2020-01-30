@@ -122,34 +122,6 @@ RSpec.describe 'VA GIS Integration', type: :request do
     expect(json['data'].length).to eq(12)
   end
 
-  regex_matcher = lambda { |r1, r2|
-    r1.uri.match(r2.uri)
-  }
-
-  it 'responds to GET #index with bbox, address, and ccp type' do
-    VCR.use_cassette('facilities/va/ppms', match_requests_on: [regex_matcher], allow_playback_repeats: true) do
-      get BASE_QUERY_PATH + NOVA_BBOX + '&type=cc_provider&address=22033'
-      expect(response).to be_successful
-      expect(response.body).to be_a(String)
-      json = JSON.parse(response.body)
-      expect(json['data'].length).to eq(4)
-      provider = json['data'][0]
-      expect(provider['attributes']['address']['city']).to eq('MANASSAS')
-      expect(provider['attributes']['phone']).to eq('(828) 555-1723')
-      expect(provider['attributes']['caresite_phone']).to eq('(888) 444-1234')
-    end
-  end
-
-  it 'responds to GET #index with success even if no providers are found' do
-    VCR.use_cassette('facilities/va/ppms_empty_search', match_requests_on: [:method], allow_playback_repeats: true) do
-      get BASE_QUERY_PATH + PDX_BBOX + '&type=cc_provider&address=97089'
-      expect(response).to be_successful
-      expect(response.body).to be_a(String)
-      json = JSON.parse(response.body)
-      expect(json['data'].length).to eq(0)
-    end
-  end
-
   it 'responds to GET #index with bbox and filter' do
     setup_ny_vba
     get BASE_QUERY_PATH + NY_BBOX + '&type=benefits&services[]=DisabilityClaimAssistance'
@@ -177,6 +149,39 @@ RSpec.describe 'VA GIS Integration', type: :request do
   it 'returns 400 for benefits query with unknown service' do
     get BASE_QUERY_PATH + NY_BBOX + '&type=benefits&services[]=Haircut'
     expect(response).to have_http_status(:bad_request)
+  end
+
+  context 'Community Care (PPMS)' do
+    let(:params) do
+      {
+        address: 'South Gilbert Road, Chandler, Arizona 85286, United States',
+        bbox: ['-112.54', '32.53', '-111.04', '34.03']
+      }
+    end
+
+    it 'responds to GET #index with bbox, address, and ccp type' do
+      VCR.use_cassette('facilities/va/ppms', match_requests_on: %i[path query], allow_playback_repeats: true) do
+        get '/v0/facilities/va', params: params.merge('type' => 'cc_provider', 'services' => ['213E00000X'])
+        expect(response).to be_successful
+        expect(response.body).to be_a(String)
+        json = JSON.parse(response.body)
+        expect(json['data'].length).to eq(1)
+        provider = json['data'][0]
+        expect(provider['attributes']['address']['city']).to eq('Chandler')
+        expect(provider['attributes']['phone']).to eq('4809241552')
+        expect(provider['attributes']['caresite_phone']).to eq('4807057300')
+      end
+    end
+
+    it 'responds to GET #index with success even if no providers are found' do
+      VCR.use_cassette('facilities/va/ppms_empty_search', match_requests_on: [:method], allow_playback_repeats: true) do
+        get BASE_QUERY_PATH + PDX_BBOX + '&type=cc_provider&address=97089'
+        expect(response).to be_successful
+        expect(response.body).to be_a(String)
+        json = JSON.parse(response.body)
+        expect(json['data'].length).to eq(0)
+      end
+    end
   end
 
   context 'with bad bbox param' do
