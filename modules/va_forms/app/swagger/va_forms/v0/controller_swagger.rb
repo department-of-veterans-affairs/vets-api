@@ -49,22 +49,6 @@ module VaForms
           response 403 do
             key :description, 'Bad API Token'
           end
-
-          response :default do
-            key :description, 'unexpected error'
-            content 'application/json' do
-              schema do
-                key :type, :object
-                key :required, [:errors]
-                property :errors do
-                  key :type, :array
-                  items do
-                    key :'$ref', :FormsErrorModel
-                  end
-                end
-              end
-            end
-          end
         end
       end
 
@@ -106,22 +90,6 @@ module VaForms
 
           response 403 do
             key :description, 'Bad API Token'
-          end
-
-          response :default do
-            key :description, 'unexpected error'
-            content 'application/json' do
-              schema do
-                key :type, :object
-                key :required, [:errors]
-                property :errors do
-                  key :type, :array
-                  items do
-                    key :'$ref', :FormsErrorModel
-                  end
-                end
-              end
-            end
           end
         end
       end

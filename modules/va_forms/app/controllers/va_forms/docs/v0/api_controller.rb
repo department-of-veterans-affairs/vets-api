@@ -3,7 +3,6 @@
 require_dependency 'va_forms/v0/swagger_root'
 require_dependency 'va_forms/v0/security_scheme_swagger'
 require_dependency 'va_forms/forms/form_swagger'
-require_dependency 'va_forms/common/forms_error_model_swagger'
 
 module VaForms
   module Docs
