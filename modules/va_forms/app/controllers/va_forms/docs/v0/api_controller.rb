@@ -15,7 +15,6 @@ module VaForms
           VaForms::V0::ControllerSwagger,
           VaForms::Forms::Form,
           VaForms::V0::SecuritySchemeSwagger,
-          VaForms::Common::FormsErrorModelSwagger,
           VaForms::V0::SwaggerRoot
         ].freeze
 
