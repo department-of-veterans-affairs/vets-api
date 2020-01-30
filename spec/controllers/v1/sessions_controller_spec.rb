@@ -86,7 +86,6 @@ RSpec.describe V1::SessionsController, type: :controller do
                 .to trigger_statsd_increment(described_class::STATSD_SSO_NEW_KEY, tags: ["context:#{type}"], **once)
 
               expect(response).to have_http_status(:found)
-              # FIXME: should this not be a PINT url?
               expect(response.location)
                 .to be_an_idme_saml_url('https://pint.eauth.va.gov/isam/sps/saml20idp/saml20/login?SAMLRequest=')
                 .with_relay_state('originating_request_id' => nil, 'type' => type)
@@ -100,7 +99,6 @@ RSpec.describe V1::SessionsController, type: :controller do
             expect { get(:new, params: { type: :signup, client_id: '123123' }) }
               .to trigger_statsd_increment(described_class::STATSD_SSO_NEW_KEY, tags: ['context:signup'], **once)
             expect(response).to have_http_status(:found)
-            # FIXME: should this not be a PINT url?
             expect(response.location)
               .to be_an_idme_saml_url('https://pint.eauth.va.gov/isam/sps/saml20idp/saml20/login?SAMLRequest=')
               .with_relay_state('originating_request_id' => nil, 'type' => 'signup')
@@ -209,7 +207,6 @@ RSpec.describe V1::SessionsController, type: :controller do
           # it has the cookie set
           expect(cookies['vagov_session_dev']).not_to be_nil
           get(:new, params: { type: 'slo' })
-          # FIXME: should this not be a PINT url?
           expect(response.location)
             .to be_an_idme_saml_url('https://pint.eauth.va.gov/pkmslogout?SAMLRequest=')
             .with_relay_state('originating_request_id' => nil, 'type' => 'slo')
