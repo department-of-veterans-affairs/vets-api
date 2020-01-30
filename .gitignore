@@ -45,6 +45,7 @@ data/
 log/*
 .bash_history
 .cache
+.env
 .local
 
 config/settings.local.yml
