@@ -101,7 +101,7 @@ module V0
         set_cookies
         after_login_actions
         redirect_to url_service.login_redirect_url
-        if self.location.start_with?(url_service.base_redirect_url)
+        if location.start_with?(url_service.base_redirect_url)
           # only record success stats if the user is being redirect to the site
           # some users will need to be up-leveled and this will be redirected
           # back to the identity provider
@@ -135,9 +135,11 @@ module V0
         StatsD.increment(STATSD_SSO_CALLBACK_KEY,
                          tags: ['status:success', "context:#{saml_response.authn_context}"])
         # track users who have a shared sso cookie
-        StatsD.increment(STATSD_SSO_SHARED_COOKIE,
-                         tags: ["loa:{@current_user.loa[:current]}",
-                                "idp:{@current_user.identity.sign_in[:service_name]}"]) if cookies.key?(Settings.sso.cookie_name)
+        if cookies.key?(Settings.sso.cookie_name)
+          StatsD.increment(STATSD_SSO_SHARED_COOKIE,
+                           tags: ["loa:#{@current_user.loa[:current]}",
+                                  "idp:#{@current_user.identity.sign_in[:service_name]}"])
+        end
       when :failure
         StatsD.increment(STATSD_SSO_CALLBACK_KEY,
                          tags: ['status:failure', "context:#{saml_response.authn_context}"])

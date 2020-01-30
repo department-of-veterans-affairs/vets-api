@@ -116,7 +116,7 @@ module V1
         after_login_actions
         should_skip_uplevel = saml_response.issuer_text&.match?(/eauth\.va\.gov/)
         redirect_to url_service.login_redirect_url(skip_uplevel: should_skip_uplevel)
-        if self.location.start_with?(url_service.base_redirect_url)
+        if location.start_with?(url_service.base_redirect_url)
           # only record success stats if the user is being redirect to the site
           # some users will need to be up-leveled and this will be redirected
           # back to the identity provider

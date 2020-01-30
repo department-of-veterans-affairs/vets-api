@@ -48,7 +48,7 @@ module SAML
         end
 
         if verifying && build_saml_response_with_existing_user_identity?
-          previous_context = authn_context.gsub(/loa\/3/, 'loa/1/vets')
+          previous_context = authn_context.gsub(%r{loa/3}, 'loa/1/vets')
           create_user_identity(
             authn_context: previous_context,
             account_type: account_type,
