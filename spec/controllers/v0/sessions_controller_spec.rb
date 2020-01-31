@@ -24,8 +24,8 @@ RSpec.describe V0::SessionsController, type: :controller do
   let(:callback_url)        { "http://#{request_host}/auth/saml/callback" }
   let(:logout_redirect_url) { 'http://127.0.0.1:3001/logout/' }
 
-  let(:settings_no_context) { build(:settings_no_context_v0, assertion_consumer_service_url: callback_url) }
-  let(:rubysaml_settings)   { build(:rubysaml_settings_v0, assertion_consumer_service_url: callback_url) }
+  let(:settings_no_context) { build(:settings_no_context, assertion_consumer_service_url: callback_url) }
+  let(:rubysaml_settings)   { build(:rubysaml_settings, assertion_consumer_service_url: callback_url) }
 
   let(:logout_uuid) { '1234' }
   let(:invalid_logout_response) { SAML::Responses::Logout.new('', rubysaml_settings) }

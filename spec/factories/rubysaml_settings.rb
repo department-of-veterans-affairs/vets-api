@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 FactoryBot.define do
-  factory :rubysaml_settings_v0, class: 'OneLogin::RubySaml::Settings' do
+  factory :rubysaml_settings, class: 'OneLogin::RubySaml::Settings' do
     certificate                     { Settings.saml.certificate }
     private_key                     { Settings.saml.key }
     sp_entity_id                    { Settings.saml.issuer }
@@ -19,7 +19,7 @@ FactoryBot.define do
     end
   end
 
-  factory :settings_no_context_v0, class: 'OneLogin::RubySaml::Settings' do
+  factory :settings_no_context, class: 'OneLogin::RubySaml::Settings' do
     certificate                     { Settings.saml.certificate }
     private_key                     { Settings.saml.key }
     sp_entity_id                    { Settings.saml.issuer }
