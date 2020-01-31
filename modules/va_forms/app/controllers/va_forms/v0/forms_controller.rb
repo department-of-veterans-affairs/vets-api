@@ -21,7 +21,8 @@ module VaForms
 
       def get_forms
         if params[:query].present?
-          Form.where('form_name ilike ? OR title ilike ?', "%#{params[:query]}%", "%#{params[:query]}%")
+          query = params[:query].strip
+          Form.where('form_name ilike ? OR title ilike ?', "%#{query}%", "%#{query}%")
         else
           Form.all
         end
