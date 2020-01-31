@@ -2,7 +2,6 @@
 
 module BGS
   class DependentService
-
     def get_dependents(current_user)
       service = LighthouseBGS::Services.new(
         external_uid: current_user.icn,
@@ -13,4 +12,3 @@ module BGS
     end
   end
 end
-
