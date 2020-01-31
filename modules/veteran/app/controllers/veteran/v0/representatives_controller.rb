@@ -5,6 +5,7 @@ module Veteran
     class RepresentativesController < ApplicationController
       skip_before_action :set_tags_and_extra_content, raise: false
       skip_before_action :authenticate
+      before_action :check_required_fields
 
       # Currently only used by the SAML proxy and not documented for external use
       def find_rep
@@ -16,6 +17,24 @@ module Veteran
           render json: { errors: [{ detail: 'Representative not found' }] },
                  status: :not_found
         end
+      end
+
+      private
+
+      def check_required_fields
+        errors = []
+        errors << error_hash('first_name') if params[:first_name].blank?
+        errors << error_hash('last_name') if params[:last_name].blank?
+        render json: { errors: errors }, status: 422 if errors.any?
+      end
+
+      def error_hash(parameter)
+        {
+          detail: "#{parameter.humanize} is required to complete this request",
+          title: 'Missing Parameter',
+          source: { parameter: parameter },
+          status: 422
+        }
       end
     end
   end
