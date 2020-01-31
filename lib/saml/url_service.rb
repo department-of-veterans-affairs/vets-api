@@ -39,7 +39,7 @@ module SAML
 
     # REDIRECT_URLS
     def base_redirect_url
-      VIRTUAL_HOST_MAPPINGS[current_host][:base_redirect]
+      Settings.saml.relay || VIRTUAL_HOST_MAPPINGS[current_host][:base_redirect]
     end
 
     # TODO: SSOe does not currently support upleveling due to missing AuthN attribute support
@@ -150,7 +150,12 @@ module SAML
     end
 
     def relay_state_params
-      { originating_request_id: RequestStore.store['request_id'], type: type }.to_json
+      rs_params = {
+        originating_request_id: RequestStore.store['request_id'],
+        type: type
+      }
+      rs_params[:review_instance_slug] = Settings.review_instance_slug unless Settings.review_instance_slug.nil?
+      rs_params.to_json
     end
 
     def current_host
