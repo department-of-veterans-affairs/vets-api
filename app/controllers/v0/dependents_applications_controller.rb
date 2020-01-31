@@ -21,7 +21,11 @@ module V0
     end
 
     def show
-      render(json: DependentsApplication.find(params[:id]))
+      dependent_service = BGS::DependentService.new
+      response = dependent_service.get_dependents(current_user)
+      render json: response, each_serializer: DependentsSerializer
+    rescue => e
+      log_exception_to_sentry(e)
     end
 
     def disability_rating
