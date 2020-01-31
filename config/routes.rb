@@ -116,7 +116,13 @@ Rails.application.routes.draw do
       get :show, controller: 'health_record_contents', on: :collection
     end
 
-    resources :appeals, only: [:index]
+    resources :appeals, only: :index do
+      collection do
+        resources :higher_level_reviews, only: %i[show create]
+        resources :intake_statuses, only: :show
+        resources :contestable_issues, only: :index
+      end
+    end
 
     scope :messaging do
       scope :health do
@@ -145,7 +151,7 @@ Rails.application.routes.draw do
 
     scope :facilities, module: 'facilities' do
       resources :va, only: %i[index show], defaults: { format: :json }
-      resources :ccp, only: %i[show], defaults: { format: :json }
+      resources :ccp, only: %i[index show], defaults: { format: :json }
       get 'suggested', to: 'va#suggested'
       get 'services', to: 'ccp#services'
     end

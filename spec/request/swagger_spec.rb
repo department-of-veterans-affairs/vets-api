@@ -1278,6 +1278,18 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
 
     describe 'facility locator tests' do
       context 'successful calls' do
+        let(:provider) { FactoryBot.build(:provider, :from_provider_info) }
+        let(:provider_services_response) do
+          {
+            'CareSiteAddressStreet' => '3195 S Price Rd Ste 148',
+            'CareSiteAddressCity' => 'Chandler',
+            'CareSiteAddressZipCode' => '85248',
+            'CareSiteAddressState' => 'AZ',
+            'Latitude' => 33.258135,
+            'Longitude' => -111.887927
+          }
+        end
+
         it 'supports getting a list of facilities' do
           VCR.use_cassette('facilities/va/pdx_bbox') do
             expect(subject).to validate(:get, '/v0/facilities/va', 200,
@@ -1313,17 +1325,16 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
                                       '_query_string' => 'type[]=foo&name_part=por')
         end
 
-        regex_matcher = lambda { |r1, r2|
-          r1.uri.match(r2.uri)
-        }
         it 'supports getting a provider by id' do
-          VCR.use_cassette('facilities/va/ppms', match_requests_on: [regex_matcher]) do
-            expect(subject).to validate(:get, '/v0/facilities/ccp/{id}', 200, 'id' => 'ccp_123123')
-          end
+          expect_any_instance_of(Facilities::PPMS::Client).to receive(:provider_info)
+            .with('1407842941').and_return(provider)
+          expect_any_instance_of(Facilities::PPMS::Client).to receive(:provider_services)
+            .with('1407842941').and_return([provider_services_response])
+          expect(subject).to validate(:get, '/v0/facilities/ccp/{id}', 200, 'id' => 'ccp_1407842941')
         end
 
         it '400s on improper id' do
-          VCR.use_cassette('facilities/va/ppms', match_requests_on: [regex_matcher]) do
+          VCR.use_cassette('facilities/va/ppms', match_requests_on: %i[path query]) do
             expect(subject).to validate(:get, '/v0/facilities/ccp/{id}', 400, 'id' => 'ccap_123123')
           end
         end
@@ -1335,8 +1346,8 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
         end
 
         it 'supports getting the services list' do
-          VCR.use_cassette('facilities/va/ppms', match_requests_on: [regex_matcher]) do
-            expect(subject).to validate(:get, '/v0/facilities/services', 200, 'id' => 'ccp_123123')
+          VCR.use_cassette('facilities/va/ppms', match_requests_on: %i[path query]) do
+            expect(subject).to validate(:get, '/v0/facilities/services', 200, 'id' => 'ccp_1407842941')
           end
         end
       end
@@ -1382,21 +1393,21 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
       context 'GET' do
         it 'documents higher_level_reviews 200' do
           VCR.use_cassette('decision_review/200_review') do
-            expect(subject).to validate(:get, '/services/appeals/v0/appeals/higher_level_reviews/{uuid}',
+            expect(subject).to validate(:get, '/v0/appeals/higher_level_reviews/{uuid}',
                                         200, headers.merge('uuid' => '4bc96bee-c6a3-470e-b222-66a47629dc20'))
           end
         end
 
         it 'documents higher_level_reviews 404' do
           VCR.use_cassette('decision_review/404_review') do
-            expect(subject).to validate(:get, '/services/appeals/v0/appeals/higher_level_reviews/{uuid}',
+            expect(subject).to validate(:get, '/v0/appeals/higher_level_reviews/{uuid}',
                                         404, headers.merge('uuid' => '1234'))
           end
         end
 
         it 'documents higher_level_reviews 502' do
           VCR.use_cassette('decision_review/502_review') do
-            expect(subject).to validate(:get, '/services/appeals/v0/appeals/higher_level_reviews/{uuid}',
+            expect(subject).to validate(:get, '/v0/appeals/higher_level_reviews/{uuid}',
                                         502, headers.merge('uuid' => '1234'))
           end
         end
@@ -1405,15 +1416,16 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
       context 'POST' do
         it 'documents higher_level_reviews 202' do
           VCR.use_cassette('decision_review/202_intake_status') do
-            expect(subject).to validate(:post, '/services/appeals/v0/appeals/higher_level_reviews',
-                                        202)
+            expect(subject).to validate(:post, '/v0/appeals/higher_level_reviews',
+                                        202, headers)
           end
         end
 
         [400, 403, 404, 409, 422].each do |status|
           it "documents higher_level_reviews #{status}" do
             VCR.use_cassette("decision_review/#{status}_intake_status") do
-              expect(subject).to validate(:post, '/services/appeals/v0/appeals/higher_level_reviews', status)
+              expect(subject).to validate(:post, '/v0/appeals/higher_level_reviews',
+                                          status, headers)
             end
           end
         end
@@ -1423,22 +1435,32 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
     describe 'intake_statuses' do
       it 'documents intake_statuses 200' do
         VCR.use_cassette('decision_review/200_intake_status') do
-          expect(subject).to validate(:get, '/services/appeals/v0/appeals/intake_statuses/{intake_id}',
+          expect(subject).to validate(:get, '/v0/appeals/intake_statuses/{intake_id}',
                                       200, headers.merge('intake_id' => '1234567890'))
         end
       end
 
       it 'documents intake_statuses 404' do
         VCR.use_cassette('decision_review/404_get_intake_status') do
-          expect(subject).to validate(:get, '/services/appeals/v0/appeals/intake_statuses/{intake_id}',
+          expect(subject).to validate(:get, '/v0/appeals/intake_statuses/{intake_id}',
                                       404, headers.merge('intake_id' => '1234'))
         end
       end
 
       it 'documents intake_statuses 502' do
         VCR.use_cassette('decision_review/502_intake_status') do
-          expect(subject).to validate(:get, '/services/appeals/v0/appeals/intake_statuses/{intake_id}',
+          expect(subject).to validate(:get, '/v0/appeals/intake_statuses/{intake_id}',
                                       502, headers.merge('intake_id' => '1234'))
+        end
+      end
+    end
+
+    describe 'contestable_issues' do
+      [200, 404, 422, 502].each do |status_code|
+        it "documents contestable_issues #{status_code}" do
+          VCR.use_cassette("decision_review/#{status_code}_contestable_issues") do
+            expect(subject).to validate(:get, '/v0/appeals/contestable_issues', status_code, headers)
+          end
         end
       end
     end
