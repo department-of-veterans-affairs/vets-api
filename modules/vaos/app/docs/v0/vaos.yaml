@@ -31,6 +31,155 @@ servers:
       version:
         default: v0
 paths:
+  '/appointments':
+    get:
+      tags:
+        - appointments
+      summary: Returns alist of online scheduling appointments
+      operationId: getAppointments
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          required: true
+          name: "type"
+          description: "type of appointment, e.g. 'va' or 'cc' (community care)"
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Systems retrieved successfully
+          content:
+            application/json:
+              schema:
+                required:
+                  - data
+                properties:
+                  data:
+                    type: array
+                    items:
+                      oneOf:
+                        - $ref: "#/components/schemas/VAAppointment"
+                        - $ref: "#/components/schemas/CCAppointment"
+                  meta:
+                    $ref: "#/components/schemas/Pagination"
+              examples:
+                va_type:
+                  summary: Example of a 'va' type response
+                  value:
+                    data:
+                      type: array
+                      items:
+                        $ref: "#/components/schemas/VAAppointment"
+                      meta:
+                        $ref: "#/components/schemas/Pagination"
+                cc_type:
+                  summary: Example of a 'cc' type response
+                  value:
+                    data:
+                      type: array
+                      items:
+                        $ref: "#/components/schemas/CCAppointment"
+                      meta:
+                        $ref: "#/components/schemas/Pagination"
+  '/community_care/eligibility':
+    get:
+      tags:
+        - vaos
+        - community_care
+      summary: Returns object with eligibility flag for specified service type for user
+      operationId: getEligibility
+      security:
+        - bearerAuth: []
+      parameters:
+        name: service_type
+        in: path
+        required: true
+        type: string
+        description: 'service type to use to check for community care eligibility'
+      responses:
+        '200':
+          description: Systems retrieved successfully
+          content:
+            application/json:
+              schema:
+                required:
+                  - data
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/CCEligibilty"
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '502':
+          description: Error in the upstream service
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '504':
+          description: Timeout from the upstream service
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+  '/community_care/supported_sites':
+    get:
+      tags:
+        - vaos
+        - community_care
+      summary: Returns list of sites supporting community care
+      operationId: getSupportedSites
+      security:
+        - bearerAuth: []
+      parameters:
+        name: supported_sites
+        in: query
+        required: true
+        type: array
+        description: 'parent site ids to check for community care support'
+      responses:
+        '200':
+          description: Systems retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CCEligibilty"
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '502':
+          description: Error in the upstream service
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '504':
+          description: Timeout from the upstream service
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
   '/systems':
     get:
       tags:
@@ -241,6 +390,7 @@ components:
       bearerFormat: JWT
   schemas:
     Errors:
+      type: "object"
       required:
         - "errors"
       properties:
@@ -257,6 +407,229 @@ components:
                 type: "string"
               detail:
                 type: "string"
+    Pagination:
+      type: "object"
+      required:
+        - "pagination"
+      properties:
+        pagination:
+          required:
+            - "current_page"
+            - "per_page"
+            - "total_pages"
+            - "total_entries"
+          properties:
+            current_page:
+              type: "number"
+              example: 0
+            per_page:
+              type: "number"
+              example: 0
+            total_pages:
+              type: "number"
+              example: 0
+            total_entries:
+              type: "number"
+              example: 0
+          type: "object"
+    VAAppointment:
+      type: "object"
+      properties:
+        id:
+          type: "string"
+          example: "9d82d708c71bb59a6c8a58a05fb469d7"
+        type:
+          type: "string"
+          example: "va_appointments"
+        attributes:
+          required:
+            - "start_date"
+            - "clinic_id"
+            - "clinic_friendly_name"
+            - "facility_id"
+            - "community_care"
+            - "vds_appointments"
+            - "vvs_appointments"
+          properties:
+            start_date:
+              type: "string"
+              example: "2019-10-24T17:00:00Z"
+            clinic_id:
+              type: "string"
+              example: "408"
+            facility_id:
+              type: "string"
+              example: "983"
+            community_care:
+              type: "boolean"
+              example: false
+            vds_appointments:
+              type: "array"
+              items:
+                type: "object"
+                properties:
+                  booking_note:
+                    type: "string"
+                    example: "Testing the direct schedule"
+                  appointment_length:
+                    type: "string"
+                    example: "60"
+                  appointment_time:
+                    type: "string"
+                    example: "2019-10-24T17:00:00Z"
+                  clinic:
+                    required:
+                      - "name"
+                      - "ask_for_check_in"
+                      - "facility_code"
+                    properties:
+                      name:
+                        type: "string"
+                        example: "OPTOMETRY - GRUBBS"
+                      ask_for_check_in:
+                        type: "boolean"
+                        example: false
+                      facility_code:
+                        type: "string"
+                        example: "983"
+                    type: "object"
+                  type:
+                    type: "string"
+                    example: "REGULAR"
+                  current_status:
+                    type: "string"
+                    example: "NO ACTION TAKEN/TODAY"
+            vvs_appointments:
+              type: "array"
+              items:
+                type: "object"
+              example: []
+          type: "object"
+        meta:
+          required:
+            - "pagination"
+          properties:
+            pagination:
+              required:
+                - "current_page"
+                - "per_page"
+                - "total_pages"
+                - "total_entries"
+              properties:
+                current_page:
+                  type: "number"
+                  example: 0
+                per_page:
+                  type: "number"
+                  example: 0
+                total_pages:
+                  type: "number"
+                  example: 0
+                total_entries:
+                  type: "number"
+                  example: 0
+              type: "object"
+          type: "object"
+    CCAppointment:
+      type: "object"
+      properties:
+        id:
+          type: "string"
+          example: "8a48912a6c2409b9016c29cbeed0006a"
+        type:
+          type: "string"
+          example: "cc_appointments"
+        attributes:
+          required:
+            - "appointment_request_id"
+            - "distance_eligible_confirmed"
+            - "name"
+            - "provider_practice"
+            - "provider_phone"
+            - "address"
+            - "instructions_to_veteran"
+            - "appointment_time"
+            - "time_zone"
+          properties:
+            appointment_request_id:
+              type: "string"
+              example: "8a48912a6c2409b9016c29cbeed0006a"
+            distance_eligible_confirmed:
+              type: "boolean"
+              example: true
+            name:
+              required:
+                - "first_name"
+                - "last_name"
+              properties:
+                first_name:
+                  type: "string"
+                  example: ""
+                last_name:
+                  type: "string"
+                  example: ""
+              type: "object"
+            provider_practice:
+              type: "string"
+              example: "test"
+            provider_phone:
+              type: "string"
+              example: "(321) 230-0328"
+            address:
+              required:
+                - "street"
+                - "city"
+                - "state"
+                - "zip_code"
+              properties:
+                street:
+                  type: "string"
+                  example: "test"
+                city:
+                  type: "string"
+                  example: "test"
+                state:
+                  type: "string"
+                  example: "MA"
+                zip_code:
+                  type: "string"
+                  example: "32826"
+              type: "object"
+            instructions_to_veteran:
+              type: "string"
+              example: ""
+            appointment_time:
+              type: "string"
+              example: "09/20/2020 16:29:00"
+            time_zone:
+              type: "string"
+              example: "-04:00 EDT"
+          type: "object"
+    CCEligibilty:
+      required:
+        - "data"
+        properties:
+          data:
+            required:
+              - "id"
+              - "type"
+              - "attributes"
+            properties:
+              id:
+                type: "string"
+                example: "PrimaryCare"
+              type:
+                type: "string"
+                example: "cc_eligibility"
+              attributes:
+                required:
+                  - "eligible"
+                properties:
+                  eligible:
+                    type: "boolean"
+                    example: true
+                type: "object"
+            type: "object"
     System:
       type: "object"
       properties:
@@ -286,7 +659,6 @@ components:
               type: "string"
               example: "ACTIVE"
           type: "object"
-
     DirectSchedulingFacility:
       type: "object"
       properties:
