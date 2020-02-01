@@ -48,16 +48,14 @@ end
 Flipper::UI.configuration.feature_creation_enabled = false
 # Make sure that each feature we reference in code is present in the UI, as long as we have a Database already
 FLIPPER_FEATURE_CONFIG['features'].each_key do |feature|
-  begin
-    unless Flipper.exist?(feature)
-      Flipper.add(feature)
-      # default features to enabled for development and test only
-      Flipper.enable(feature) if Rails.env.development? || Rails.env.test?
-    end
-  rescue
-    # make sure we can still run rake tasks before table has been created
-    nil
+  unless Flipper.exist?(feature)
+    Flipper.add(feature)
+    # default features to enabled for development and test only
+    Flipper.enable(feature) if Rails.env.development? || Rails.env.test?
   end
+rescue
+  # make sure we can still run rake tasks before table has been created
+  nil
 end
 
 # Modify Flipper::UI::Action to use custom views if they exist
