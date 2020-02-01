@@ -66,12 +66,12 @@ module MVI
     # @param user [UserIdentity] the user to query MVI for
     # @return [MVI::Responses::FindProfileResponse] the parsed response from MVI.
     # rubocop:disable Metrics/MethodLength
-    def find_profile(user_identity)
+    def find_profile(user_identity, orch_search: false)
       with_monitoring do
         measure_info(user_identity) do
           raw_response = perform(
             :post, '',
-            create_profile_message(user_identity),
+            create_profile_message(user_identity, orch_search),
             soapaction: OPERATIONS[:find_profile]
           )
           MVI::Responses::FindProfileResponse.with_parsed_response(raw_response)
@@ -170,7 +170,8 @@ module MVI
     end
 
     # rubocop:disable Layout/LineLength
-    def create_profile_message(user_identity)
+    def create_profile_message(user_identity, orch_search)
+      return orchestrated_search(user_identity, orch_search) if orch_search
       return message_icn(user_identity) if user_identity.mhv_icn.present? # from SAML::UserAttributes::MHV::BasicLOA3User
       return message_edipi(user_identity) if user_identity.dslogon_edipi.present? && Settings.mvi.edipi_search
       raise Common::Exceptions::ValidationErrors, user_identity unless user_identity.valid?
@@ -178,6 +179,12 @@ module MVI
       message_user_attributes(user_identity)
     end
     # rubocop:enable Layout/LineLength
+
+    def orchestrated_search(user, orch_search)
+      raise Common::Exceptions::ValidationErrors, user unless user.valid? || user.edipi.blank?
+
+      message_user_attributes(user, orch_search, user.edipi)
+    end
 
     def message_icn(user)
       MVI::Messages::FindProfileMessageIcn.new(user.mhv_icn).to_xml
@@ -187,15 +194,20 @@ module MVI
       MVI::Messages::FindProfileMessageEdipi.new(user.dslogon_edipi).to_xml
     end
 
-    def message_user_attributes(user)
+    def message_user_attributes(user, orch_search = false, edipi = nil)
       given_names = [user.first_name]
       given_names.push user.middle_name unless user.middle_name.nil?
+      profile = {
+        given_names: given_names,
+        last_name: user.last_name,
+        birth_date: user.birth_date,
+        ssn: user.ssn,
+        gender: user.gender
+      }
       MVI::Messages::FindProfileMessage.new(
-        given_names,
-        user.last_name,
-        user.birth_date,
-        user.ssn,
-        user.gender
+        profile,
+        orch_search,
+        edipi
       ).to_xml
     end
   end
