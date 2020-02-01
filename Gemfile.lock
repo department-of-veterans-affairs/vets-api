@@ -697,7 +697,7 @@ GEM
       activesupport (>= 4.0)
       sprockets (>= 3.0.0)
     staccato (0.5.1)
-    statsd-instrument (2.6.0)
+    statsd-instrument (2.9.2)
     swagger-blocks (3.0.0)
     terminal-table (1.8.0)
       unicode-display_width (~> 1.1, >= 1.1.1)
