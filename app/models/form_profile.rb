@@ -90,7 +90,7 @@ class FormProfile
   HCA_FORMS = ['1010ez'].freeze
   PENSION_BURIAL_FORMS = %w[21P-530 21P-527EZ].freeze
   VIC_FORMS = ['VIC'].freeze
-  HLR_FORMS = ['20-0996'].freeze
+  DECISION_REVIEW_FORMS = ['20-0996'].freeze
   MDOT_FORMS = ['MDOT'].freeze
 
   FORM_ID_TO_CLASS = {
@@ -127,7 +127,7 @@ class FormProfile
   def self.prefill_enabled_forms
     forms = ['21-686C', '40-10007']
 
-    %w[hca pension_burial edu vic evss hlr mdot].each do |form|
+    %w[hca pension_burial edu vic evss decision_review mdot].each do |form|
       forms += "#{form}_FORMS".upcase.constantize if Settings[form].prefill
     end
 
