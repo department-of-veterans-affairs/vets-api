@@ -50,6 +50,18 @@ RUN freshclam --config-file freshclam.conf
 ENTRYPOINT ["/usr/bin/dumb-init", "--", "./docker-entrypoint.sh"]
 
 ###
+# XXX: get rid of this when we have a better model for it
+# ssl target; loads ssl to trust store
+# used directly by review instances and prod via COPY --from=ssl
+###
+FROM development AS ssl
+USER root
+COPY certs-tmp /usr/local/share/ca-certificates/
+# normalize file extension between pem/crt
+RUN cd /usr/local/share/ca-certificates ; for i in *.pem ; do mv $i ${i/pem/crt} ; done && update-ca-certificates
+USER vets-api
+
+###
 # build stage; use --target=builder to stop here
 # Also be sure to add build-args from development stage above
 #

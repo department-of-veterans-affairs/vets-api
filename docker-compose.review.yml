@@ -16,7 +16,7 @@ services:
   vets-api:
     build:
       context: .
-      target: development
+      target: ssl
       args:
         exclude_sidekiq_ent: "${EXCLUDE_SIDEKIQ_ENTERPRISE:-false}"
         sidekiq_license: "${BUNDLE_ENTERPRISE__CONTRIBSYS__COM}"
