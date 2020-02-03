@@ -109,12 +109,12 @@ class Mvi < Common::RedisStore
     @mvi_response ||= response_from_redis_or_service
   end
 
-  # The status of the MVI Add Person call. An Orchestrated MVI Searches need to be made before an MVI add person
-  # call is made. The cache is invalidated afterwards so it can be reset on when next accessed.
+  # The status of the MVI Add Person call. An Orchestrated MVI Search needs to be made before an MVI add person
+  # call is made. The cache is invalidated afterwards so it can be reset when next accessed.
   #
   # @return [MVI::Responses::AddPersonResponse] the response returned from MVI Add Person call
   def mvi_add_person
-    record = mvi_service.find_profile(user, orch_search: true)
+    record = MVI::OrchSearchService.new.find_profile(user)
     @mvi_response = record if record.cache?
     response = mvi_service.add_person(user)
     destroy if response.errors.blank?
