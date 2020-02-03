@@ -3,7 +3,7 @@
 require 'rails_helper'
 
 describe VAOS::AppointmentService do
-  subject { described_class.for_user(user) }
+  subject { described_class.new(user) }
 
   let(:user) { build(:user, :vaos) }
   let(:start_date) { Time.zone.parse('2019-11-14T07:00:00Z') }
