@@ -91,6 +91,7 @@ class FormProfile
   PENSION_BURIAL_FORMS = %w[21P-530 21P-527EZ].freeze
   VIC_FORMS = ['VIC'].freeze
   HLR_FORMS = ['20-0996'].freeze
+  MDOT_FORMS = ['MDOT'].freeze
 
   FORM_ID_TO_CLASS = {
     '1010EZ' => ::FormProfiles::VA1010ez,
@@ -110,7 +111,8 @@ class FormProfile
     '21P-527EZ' => ::FormProfiles::VA21p527ez,
     '22-0993' => ::FormProfiles::VA0993,
     '22-0994' => ::FormProfiles::VA0994,
-    'FEEDBACK-TOOL' => ::FormProfiles::FeedbackTool
+    'FEEDBACK-TOOL' => ::FormProfiles::FeedbackTool,
+    'MDOT' => ::FormProfiles::MDOT
   }.freeze
 
   APT_REGEX = /\S\s+((apt|apartment|unit|ste|suite).+)/i.freeze
@@ -133,6 +135,7 @@ class FormProfile
     forms << '40-10007'
     forms += EVSS_FORMS if Settings.evss.prefill
     forms += HLR_FORMS if Settings.decision_review.prefill
+    forms += MDOT_FORMS if Settings.mdot.prefill
 
     forms
   end
