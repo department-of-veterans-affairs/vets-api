@@ -599,6 +599,26 @@ RSpec.describe FormProfile, type: :model do
     }
   end
 
+  let(:vmdot_expected) do
+    {
+      'veteranFullName' => {
+        'first' => user.first_name&.capitalize,
+        'middle' => user.middle_name&.capitalize,
+        'last' => user.last_name&.capitalize,
+      },
+      'gender' => user.gender,
+      'veteranAddress' => {
+        'street' => street_check[:street],
+        'city' => user.va_profile[:address][:city],
+        'state' => user.va_profile[:address][:state],
+        'country' => user.va_profile[:address][:country],
+        'postalCode' => user.va_profile[:address][:postal_code][0..4]
+      },
+      'email' => user.pciu_email,
+      'dateOfBirth' => user.birth_date
+    }
+  end
+
   describe '#get_us_phone' do
     def self.test_get_us_phone(phone, expected)
       it "returns #{expected}" do
