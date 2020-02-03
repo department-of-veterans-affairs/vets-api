@@ -84,14 +84,16 @@ class FormProfile
 
   MAPPINGS = Dir[Rails.root.join('config', 'form_profile_mappings', '*.yml')].map { |f| File.basename(f, '.*') }
 
-  EDU_FORMS = %w[22-1990 22-1990N 22-1990E 22-1995 22-1995S 22-5490
-                 22-5495 22-0993 22-0994 FEEDBACK-TOOL].freeze
-  EVSS_FORMS = ['21-526EZ'].freeze
-  HCA_FORMS = ['1010ez'].freeze
-  PENSION_BURIAL_FORMS = %w[21P-530 21P-527EZ].freeze
-  VIC_FORMS = ['VIC'].freeze
-  DECISION_REVIEW_FORMS = ['20-0996'].freeze
-  MDOT_FORMS = ['MDOT'].freeze
+  ALL_FORMS = {
+    edu: %w[22-1990 22-1990N 22-1990E 22-1995 22-1995S 22-5490 
+            22-5495 22-0993 22-0994 FEEDBACK-TOOL].freeze,
+    evss: ['21-526EZ'].freeze,
+    hca: ['1010ez'].freeze,
+    pension_burial: %w[21P-530 21P-527EZ].freeze,
+    vic: ['VIC'].freeze,
+    decision_review: ['20-0996'].freeze,
+    mdot: ['MDOT'].freeze
+  }
 
   FORM_ID_TO_CLASS = {
     '1010EZ' => ::FormProfiles::VA1010ez,
@@ -123,17 +125,11 @@ class FormProfile
   attribute :contact_information, FormContactInformation
   attribute :military_information, FormMilitaryInformation
 
-  # rubocop:disable Metrics/CyclomaticComplexity
   def self.prefill_enabled_forms
     forms = %w[21-686C 40-10007]
-
-    %w[hca pension_burial edu vic evss decision_review mdot].each do |form|
-      forms += "#{form}_FORMS".upcase.constantize if Settings[form].prefill
-    end
-
+    ALL_FORMS.each { |type, form_list| forms += form_list if Settings[type].prefill }
     forms
   end
-  # rubocop:enable Metrics/CyclomaticComplexity
 
   def self.for(form)
     form = form.upcase
