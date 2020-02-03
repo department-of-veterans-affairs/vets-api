@@ -85,15 +85,15 @@ class FormProfile
   MAPPINGS = Dir[Rails.root.join('config', 'form_profile_mappings', '*.yml')].map { |f| File.basename(f, '.*') }
 
   ALL_FORMS = {
-    edu: %w[22-1990 22-1990N 22-1990E 22-1995 22-1995S 22-5490 
-            22-5495 22-0993 22-0994 FEEDBACK-TOOL].freeze,
-    evss: ['21-526EZ'].freeze,
-    hca: ['1010ez'].freeze,
-    pension_burial: %w[21P-530 21P-527EZ].freeze,
-    vic: ['VIC'].freeze,
-    decision_review: ['20-0996'].freeze,
-    mdot: ['MDOT'].freeze
-  }
+    edu: %w[22-1990 22-1990N 22-1990E 22-1995 22-1995S 22-5490
+            22-5495 22-0993 22-0994 FEEDBACK-TOOL],
+    evss: ['21-526EZ'],
+    hca: ['1010ez'],
+    pension_burial: %w[21P-530 21P-527EZ],
+    vic: ['VIC'],
+    decision_review: ['20-0996'],
+    mdot: ['MDOT']
+  }.freeze
 
   FORM_ID_TO_CLASS = {
     '1010EZ' => ::FormProfiles::VA1010ez,
