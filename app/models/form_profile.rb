@@ -127,15 +127,12 @@ class FormProfile
   def self.prefill_enabled_forms
     forms = []
 
-    forms += HCA_FORMS if Settings.hca.prefill
-    forms += PENSION_BURIAL_FORMS if Settings.pension_burial.prefill
-    forms += EDU_FORMS if Settings.edu.prefill
-    forms += VIC_FORMS if Settings.vic.prefill
+    %w[hca pension_burial edu vic evss hlr mdot].each do |form|
+      forms += "#{form}_FORMS".upcase.constantize if Settings[form].prefill
+    end
+
     forms << '21-686C'
     forms << '40-10007'
-    forms += EVSS_FORMS if Settings.evss.prefill
-    forms += HLR_FORMS if Settings.decision_review.prefill
-    forms += MDOT_FORMS if Settings.mdot.prefill
 
     forms
   end
