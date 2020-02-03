@@ -20,7 +20,7 @@ web_origin: http://localhost:3000,http://localhost:3001,null
 1. Add `localhost:8000` to `web_origin` in your `settings.local.yml`:
 ```
 # For CORS requests; separate multiple origins with a comma
-web_origin: http://localhost:3000,http://localhost:3001,localhost:8000
+web_origin: http://localhost:3000,http://localhost:3001,http://localhost:8000
 ```
 2. Clone the repo at: https://github.com/swagger-api/swagger-ui
 3. Navigate to YOUR_SWAGGER_REPO/dist/
