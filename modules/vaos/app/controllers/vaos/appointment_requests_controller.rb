@@ -58,7 +58,7 @@ module VAOS
     end
 
     def appointment_requests_service
-      VAOS::AppointmentRequestsService.for_user(current_user)
+      VAOS::AppointmentRequestsService.new(current_user)
     end
 
     def validate_params
