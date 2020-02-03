@@ -1,25 +1,10 @@
 # frozen_string_literal: true
 
-require_relative '../vaos/concerns/headers'
-
 module VAOS
-  class PreferencesService < Common::Client::Base
-    include Common::Client::Monitoring
-    include VAOS::Headers
-
-    configuration VAOS::Configuration
-
-    STATSD_KEY_PREFIX = 'api.vaos'
-
-    attr_reader :user
-
-    def initialize(user)
-      @user = user
-    end
-
+  class PreferencesService < VAOS::BaseService
     def get_preferences
       with_monitoring do
-        response = perform(:get, url, nil, headers(user))
+        response = perform(:get, url, nil, headers)
         OpenStruct.new(response.body.merge(id: preference_id))
       end
     end
@@ -27,7 +12,7 @@ module VAOS
     def put_preferences(request_object_body)
       with_monitoring do
         params = VAOS::PreferenceForm.new(user, request_object_body).params
-        response = perform(:put, url, params, headers(user))
+        response = perform(:put, url, params, headers)
         OpenStruct.new(response.body.merge(id: preference_id))
       end
     end

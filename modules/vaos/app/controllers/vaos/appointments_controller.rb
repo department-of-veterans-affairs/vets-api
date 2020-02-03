@@ -34,7 +34,7 @@ module VAOS
     end
 
     def appointment_service
-      VAOS::AppointmentService.for_user(current_user)
+      VAOS::AppointmentService.new(current_user)
     end
 
     def appointments
