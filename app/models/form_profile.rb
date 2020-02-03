@@ -125,7 +125,7 @@ class FormProfile
 
   # rubocop:disable Metrics/CyclomaticComplexity
   def self.prefill_enabled_forms
-    forms = ['21-686C', '40-10007']
+    forms = %w[21-686C 40-10007]
 
     %w[hca pension_burial edu vic evss decision_review mdot].each do |form|
       forms += "#{form}_FORMS".upcase.constantize if Settings[form].prefill
