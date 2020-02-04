@@ -16,8 +16,10 @@ module VeteranVerification
 
       def index
         disabilities_response = service.get_rated_disabilities
-        serialized = ActiveModel::SerializableResource.new(disabilities_response.rated_disabilities, 
-                                                           each_serializer: VeteranVerification::DisabilityRatingSerializer)
+        serialized = ActiveModelSerializers::SerializableResource.new(
+          disabilities_response.rated_disabilities,
+          each_serializer: VeteranVerification::DisabilityRatingSerializer
+        )
 
         respond_to do |format|
           format.json { render json: serialized.to_json }
