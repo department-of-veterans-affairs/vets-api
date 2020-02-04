@@ -18,6 +18,14 @@ module MVI
       attr_reader :given_names, :family_name, :birth_date, :ssn, :gender
 
       def initialize(profile, orch_search = false, edipi = nil)
+        # gender is optional and will default to nil if it DNE
+        raise ArgumentError, 'wrong number of arguments' unless %i[
+          given_names
+          last_name
+          birth_date
+          ssn
+        ].all? { |k| profile.key? k }
+
         @given_names = profile[:given_names]
         @family_name = profile[:last_name]
         @birth_date = profile[:birth_date]
