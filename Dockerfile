@@ -22,6 +22,16 @@ RUN mkdir -p /srv/vets-api/{clamav/database,pki/tls,secure,src} && \
 WORKDIR /srv/vets-api/src
 
 ###
+# XXX: get rid of this when we have a better model for it
+# ssl target; loads ssl to trust store
+# used directly by review instances and prod via COPY --from=ssl
+###
+FROM base AS ssl
+COPY config/pki-trust/* /usr/local/share/ca-certificates/
+# normalize file extension between pem/crt
+RUN cd /usr/local/share/ca-certificates ; for i in *.pem ; do mv $i ${i/pem/crt} ; done && update-ca-certificates
+
+###
 # dev stage; use --target=development to stop here
 # Be sure to pass required ARGs as `--build-arg`
 # This stage useful for mounting your local checkout with compose
@@ -48,18 +58,6 @@ USER vets-api
 # XXX: this is tacky 
 RUN freshclam --config-file freshclam.conf
 ENTRYPOINT ["/usr/bin/dumb-init", "--", "./docker-entrypoint.sh"]
-
-###
-# XXX: get rid of this when we have a better model for it
-# ssl target; loads ssl to trust store
-# used directly by review instances and prod via COPY --from=ssl
-###
-FROM development AS ssl
-USER root
-COPY certs-tmp /usr/local/share/ca-certificates/
-# normalize file extension between pem/crt
-RUN cd /usr/local/share/ca-certificates ; for i in *.pem ; do mv $i ${i/pem/crt} ; done && update-ca-certificates
-USER vets-api
 
 ###
 # build stage; use --target=builder to stop here
