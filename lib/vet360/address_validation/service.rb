@@ -2,6 +2,7 @@
 
 module Vet360
   module AddressValidation
+    # Wrapper for the VA profile address validation/suggestions API
     class Service < Vet360::Service
       configuration Vet360::AddressValidation::Configuration
 
