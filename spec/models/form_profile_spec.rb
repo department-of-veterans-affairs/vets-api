@@ -448,8 +448,8 @@ RSpec.describe FormProfile, type: :model do
     {
       'veteranFullName' => {
         'first' => user.first_name&.capitalize,
-        'middle' => user.middle_name&.capitalize,
-        'last' => user.last_name&.capitalize
+        'last' => user.last_name&.capitalize,
+        'suffix' => user.va_profile[:suffix]
       },
       'gender' => user.gender,
       'veteranAddress' => {
