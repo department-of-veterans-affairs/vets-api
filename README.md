@@ -17,7 +17,7 @@ To start, fetch this code:
    - Create a folder in your vets-api directory: `mkdir config/certs`
    - Copy the [certificate][certificate] to `config/certs/vetsgov-localhost.crt`
    - Copy the [key][key] to `config/certs/vetsgov-localhost.key`
-   - *NOTE:* using `touch` to create blank cert and key files no longer works. 
+   - *NOTE:* using `touch` to create blank cert and key files no longer works.
    If you previously added certs in this manner replace them with the team repo certificate and key listed above.
    
    [certificate]: https://github.com/department-of-veterans-affairs/va.gov-team/blob/master/products/identity-personalization/login/idme/development-certificates/vetsgov-localhost.crt
