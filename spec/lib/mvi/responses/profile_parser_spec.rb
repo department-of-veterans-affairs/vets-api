@@ -205,7 +205,7 @@ describe MVI::Responses::ProfileParser do
   end
 
   context 'with a vet360 id' do
-    let(:buildody) { Ox.parse(File.read('spec/support/mvi/find_candidate_response.xml')) }
+    let(:body) { Ox.parse(File.read('spec/support/mvi/find_candidate_response.xml')) }
     let(:mvi_profile) do
       build(
         :mvi_profile_response,
