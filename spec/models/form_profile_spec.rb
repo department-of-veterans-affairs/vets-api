@@ -444,6 +444,26 @@ RSpec.describe FormProfile, type: :model do
     }
   end
 
+  let(:vmdot_expected) do
+    {
+      'veteranFullName' => {
+        'first' => user.first_name&.capitalize,
+        'middle' => user.middle_name&.capitalize,
+        'last' => user.last_name&.capitalize
+      },
+      'gender' => user.gender,
+      'veteranAddress' => {
+        'street' => street_check[:street],
+        'city' => user.va_profile[:address][:city],
+        'state' => user.va_profile[:address][:state],
+        'country' => user.va_profile[:address][:country],
+        'postalCode' => user.va_profile[:address][:postal_code][0..4]
+      },
+      'email' => user.pciu_email,
+      'dateOfBirth' => user.birth_date
+    }
+  end
+
   let(:vvic_expected) do
     {
       'email' => user.pciu_email,
@@ -596,26 +616,6 @@ RSpec.describe FormProfile, type: :model do
         'from' => '2007-04-01',
         'to' => '2007-04-02'
       }
-    }
-  end
-
-  let(:vmdot_expected) do
-    {
-      'veteranFullName' => {
-        'first' => user.first_name&.capitalize,
-        'middle' => user.middle_name&.capitalize,
-        'last' => user.last_name&.capitalize
-      },
-      'gender' => user.gender,
-      'veteranAddress' => {
-        'street' => street_check[:street],
-        'city' => user.va_profile[:address][:city],
-        'state' => user.va_profile[:address][:state],
-        'country' => user.va_profile[:address][:country],
-        'postalCode' => user.va_profile[:address][:postal_code][0..4]
-      },
-      'email' => user.pciu_email,
-      'dateOfBirth' => user.birth_date
     }
   end
 
