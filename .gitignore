@@ -56,8 +56,8 @@ rspec.xml
 
 # Ignore certificates directory
 config/certs
-config/pki-trust
-!config/pki-trust/README.md
+config/ca-trust
+!config/ca-trust/README.md
 
 dump.rdb
 /.project
