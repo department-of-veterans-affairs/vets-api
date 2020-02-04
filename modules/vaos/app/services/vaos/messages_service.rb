@@ -1,25 +1,7 @@
 # frozen_string_literal: true
 
-require_relative '../vaos/concerns/headers'
-
 module VAOS
-  class MessagesService < Common::Client::Base
-    include Common::Client::Monitoring
-    include SentryLogging
-    include VAOS::Headers
-
-    configuration VAOS::Configuration
-
-    attr_accessor :user
-
-    STATSD_KEY_PREFIX = 'api.vaos'
-
-    def self.for_user(user)
-      rs = VAOS::MessagesService.new
-      rs.user = user
-      rs
-    end
-
+  class MessagesService < VAOS::BaseService
     def get_messages(request_id)
       with_monitoring do
         response = perform(:get, messages_url(request_id), nil, headers)
@@ -64,10 +46,6 @@ module VAOS
     def messages_url(request_id)
       "/var/VeteranAppointmentRequestService/v4/rest/appointment-service/patient/ICN/#{user.icn}" \
         "/appointment-requests/system/var/id/#{request_id}/messages"
-    end
-
-    def headers
-      super(user)
     end
   end
 end

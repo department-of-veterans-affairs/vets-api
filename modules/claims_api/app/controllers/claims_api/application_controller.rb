@@ -7,9 +7,6 @@ require_dependency 'claims_api/concerns/json_format_validation'
 
 module ClaimsApi
   class ApplicationController < ::OpenidApplicationController
-    STATSD_VALIDATION_FAIL_KEY = 'api.claims_api.526.validation_fail'
-    STATSD_VALIDATION_FAIL_TYPE_KEY = 'api.claims_api.526.validation_fail_type'
-
     include ClaimsApi::MviVerification
     include ClaimsApi::HeaderValidation
     include ClaimsApi::JsonFormatValidation
@@ -18,21 +15,6 @@ module ClaimsApi
     before_action :validate_json_format, if: -> { request.post? }
 
     private
-
-    def format_evss_errors(errors)
-      errors.map do |error|
-        { status: 422, detail: "#{error['severity']} #{error['detail'] || error['text']}".squish, source: error['key'] }
-      end
-    end
-
-    def track_evss_validation_errors(errors)
-      StatsD.increment STATSD_VALIDATION_FAIL_KEY
-
-      errors.each do |error|
-        key = error['key'].gsub(/\[(.*?)\]/, '')
-        StatsD.increment STATSD_VALIDATION_FAIL_TYPE_KEY, tags: ["key: #{key}"]
-      end
-    end
 
     def claims_service
       ClaimsApi::UnsynchronizedEVSSClaimService.new(target_veteran)
