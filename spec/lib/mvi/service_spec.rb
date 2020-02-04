@@ -36,7 +36,8 @@ describe MVI::Service do
         '9100792239^PI^200CORP^USVBA^A',
         '1008714701^PN^200PROV^USDVA^A',
         '32383600^PI^200CORP^USVBA^L'
-      ]
+      ],
+      search_token: nil
     )
   end
 
@@ -50,9 +51,11 @@ describe MVI::Service do
         allow(user).to receive(:mhv_icn).and_return('1008714701V416111^NI^200M^USVHA^P')
 
         VCR.use_cassette('mvi/find_candidate/valid_icn_full') do
+          profile = mvi_profile
+          profile['search_token'] = 'WSDOC1908201553145951848240311'
           response = subject.find_profile(user)
           expect(response.status).to eq('OK')
-          expect(response.profile).to have_deep_attributes(mvi_profile)
+          expect(response.profile).to have_deep_attributes(profile)
         end
       end
 
@@ -60,9 +63,11 @@ describe MVI::Service do
         allow(user).to receive(:mhv_icn).and_return('1008714701V416111^NI')
 
         VCR.use_cassette('mvi/find_candidate/valid_icn_ni_only') do
+          profile = mvi_profile
+          profile['search_token'] = 'WSDOC1908201553117051423642755'
           response = subject.find_profile(user)
           expect(response.status).to eq('OK')
-          expect(response.profile).to have_deep_attributes(mvi_profile)
+          expect(response.profile).to have_deep_attributes(profile)
         end
       end
 
@@ -70,6 +75,8 @@ describe MVI::Service do
         allow(user).to receive(:mhv_icn).and_return('1008714701V416111')
 
         VCR.use_cassette('mvi/find_candidate/valid_icn_without_ni') do
+          profile = mvi_profile
+          profile['search_token'] = 'WSDOC1908201553094460697640189'
           response = subject.find_profile(user)
           expect(response.status).to eq('OK')
           expect(response.profile).to have_deep_attributes(mvi_profile)
@@ -194,9 +201,11 @@ describe MVI::Service do
 
       it 'calls the find_profile endpoint with a find candidate message' do
         VCR.use_cassette('mvi/find_candidate/valid') do
+          profile = mvi_profile
+          profile['search_token'] = 'WSDOC1908281447208280163390431'
           response = subject.find_profile(user)
           expect(response.status).to eq('OK')
-          expect(response.profile).to have_deep_attributes(mvi_profile)
+          expect(response.profile).to have_deep_attributes(profile)
         end
       end
 
@@ -239,6 +248,8 @@ describe MVI::Service do
 
         it 'calls the find_profile endpoint with a find candidate message' do
           VCR.use_cassette('mvi/find_candidate/valid_no_gender') do
+            profile = mvi_profile
+            profile['search_token'] = 'WSDOC1908281514193450364096012'
             response = subject.find_profile(user)
             expect(response.profile).to have_deep_attributes(mvi_profile)
           end
