@@ -454,6 +454,7 @@ RSpec.describe FormProfile, type: :model do
       'gender' => user.gender,
       'veteranAddress' => {
         'street' => street_check[:street],
+        'street2' => street_check[:street2],
         'city' => user.va_profile[:address][:city],
         'state' => user.va_profile[:address][:state],
         'country' => user.va_profile[:address][:country],
