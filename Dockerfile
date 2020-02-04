@@ -19,17 +19,14 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
 RUN mkdir -p /srv/vets-api/{clamav/database,pki/tls,secure,src} && \
     chown -R vets-api:vets-api /srv/vets-api && \
     ln -s /srv/vets-api/pki /etc/pki
-WORKDIR /srv/vets-api/src
-
-###
 # XXX: get rid of this when we have a better model for it
-# ssl target; loads ssl to trust store
-# used directly by review instances and prod via COPY --from=ssl
-###
-FROM base AS ssl
 COPY config/pki-trust/* /usr/local/share/ca-certificates/
 # normalize file extension between pem/crt
-RUN cd /usr/local/share/ca-certificates ; for i in *.pem ; do mv $i ${i/pem/crt} ; done && update-ca-certificates
+RUN if [ -f /usr/local/share/ca-certificates/*.crt ]; then \
+      cd /usr/local/share/ca-certificates ; for i in *.pem ; do mv $i ${i/pem/crt} ; done; \
+    fi  && \
+    update-ca-certificates
+WORKDIR /srv/vets-api/src
 
 ###
 # dev stage; use --target=development to stop here
