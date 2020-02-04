@@ -5,8 +5,27 @@ module Sentry
     class PIISanitizer < Raven::Processor
       SANITIZED_FIELDS =
         %w[
-          accountType city country gender phone postalCode zipCode fileNumber state street vaEauthPnid
-          accountNumber routingNumber bankName ssn birth_date social fname lname mname dslogon_idvalue
+          accountNumber
+          accountType
+          bankName
+          birth_date
+          city
+          country
+          dslogon_idvalue
+          fileNumber
+          fname
+          gender
+          lname
+          mname
+          phone
+          postalCode
+          routingNumber
+          social
+          ssn
+          state
+          street
+          vaEauthPnid
+          zipCode
         ].freeze
 
       SANITIZER_EXCEPTIONS =
