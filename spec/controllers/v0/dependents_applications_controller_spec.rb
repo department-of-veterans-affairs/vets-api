@@ -21,7 +21,7 @@ RSpec.describe V0::DependentsApplicationsController do
           get(:show, params: { id: user.participant_id })
           expect(response.code).to eq('200')
           expect(response).to have_http_status(:ok)
-          expect(JSON.parse(response.body)['return_message']).to eq "Records found"
+          expect(JSON.parse(response.body)['return_message']).to eq 'Records found'
         end
       end
     end
@@ -32,7 +32,7 @@ RSpec.describe V0::DependentsApplicationsController do
           get(:show, params: { id: user.participant_id })
           expect(response.code).to eq('204')
           expect(response).to have_http_status(:no_content)
-          expect(response.body).to eq ""
+          expect(response.body).to eq ''
         end
       end
     end
