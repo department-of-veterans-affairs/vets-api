@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'lighthouse_bgs'
 
 RSpec.describe V0::DependentsApplicationsController do
   let(:user) { create(:evss_user) }
