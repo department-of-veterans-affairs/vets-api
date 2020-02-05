@@ -39,18 +39,21 @@ module SAML
 
     # REDIRECT_URLS
     def base_redirect_url
-      Settings.saml.relay || VIRTUAL_HOST_MAPPINGS[current_host][:base_redirect]
+      VIRTUAL_HOST_MAPPINGS[current_host][:base_redirect]
     end
 
     # TODO: SSOe does not currently support upleveling due to missing AuthN attribute support
     # rubocop:disable Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
     def login_redirect_url(auth: 'success', code: nil, skip_uplevel: false)
-      if auth == 'success' && user.loa[:current] < user.loa[:highest] && !skip_uplevel
-        verify_url
+      return verify_url if auth == 'success' && user.loa[:current] < user.loa[:highest] && !skip_uplevel
+
+      @query_params[:type] = type if type
+      @query_params[:auth] = auth if auth == 'fail'
+      @query_params[:code] = code if code
+
+      if Settings.saml.relay.present?
+        add_query(Settings.saml.relay, query_params)
       else
-        @query_params[:type] = type if type
-        @query_params[:auth] = auth if auth == 'fail'
-        @query_params[:code] = code if code
         add_query("#{base_redirect_url}#{LOGIN_REDIRECT_PARTIAL}", query_params)
       end
     end
