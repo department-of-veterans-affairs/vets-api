@@ -53,11 +53,9 @@ class SFTPWriter::Remote
     # error.
     dirs.shift(2) if dirs[0].to_s == '/'
     dirs.each do |f|
-      begin
-        sftp.mkdir!(f.to_s)
-      rescue Net::SFTP::StatusException
-        raise if $ERROR_INFO.code != Net::SFTP::Constants::StatusCodes::FX_FILE_ALREADY_EXISTS
-      end
+      sftp.mkdir!(f.to_s)
+    rescue Net::SFTP::StatusException
+      raise if $ERROR_INFO.code != Net::SFTP::Constants::StatusCodes::FX_FILE_ALREADY_EXISTS
     end
   end
 
