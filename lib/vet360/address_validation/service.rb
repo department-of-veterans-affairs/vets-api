@@ -16,7 +16,8 @@ module Vet360
         AddressSuggestionsResponse.new(candidate_res)
       end
 
-      # @return [Hash] raw data from VA profile address validation API including address suggestions, validation key, and address errors
+      # @return [Hash] raw data from VA profile address validation API including
+      #   address suggestions, validation key, and address errors
       def candidate(address)
         begin
           res = perform(
