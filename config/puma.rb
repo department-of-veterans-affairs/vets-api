@@ -8,10 +8,10 @@ threads(threads_count, threads_count)
 
 
 if ENV.fetch('PUMA_PRELOAD', false)
-    preload_app!
+  preload_app!
 
-    on_worker_boot do
-        SemanticLogger.reopen
-        ActiveRecord::Base.establish_connection
-    end
+  on_worker_boot do
+    SemanticLogger.reopen
+    ActiveRecord::Base.establish_connection
+  end
 end
