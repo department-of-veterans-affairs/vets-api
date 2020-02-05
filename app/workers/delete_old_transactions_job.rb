@@ -9,17 +9,15 @@ class DeleteOldTransactionsJob
     AsyncTransaction::Base
       .stale
       .find_each do |tx|
-        begin
-          tx.destroy!
-        rescue ActiveRecord::RecordNotDestroyed => e
-          log_message_to_sentry(
-            'DeleteOldTransactionsJob raised an exception',
-            :info,
-            model: self.class.to_s,
-            transaction_id: tx.id,
-            exception: e.message
-          )
-        end
+        tx.destroy!
+    rescue ActiveRecord::RecordNotDestroyed => e
+      log_message_to_sentry(
+        'DeleteOldTransactionsJob raised an exception',
+        :info,
+        model: self.class.to_s,
+        transaction_id: tx.id,
+        exception: e.message
+      )
       end
   end
   # :nocov:
