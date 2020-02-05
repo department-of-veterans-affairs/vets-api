@@ -2,7 +2,7 @@
 
 module VAOS
   class UserService < Common::Client::Base
-    configuration VAOS::UserConfiguration
+    configuration VAOS::Configuration
 
     def session(user)
       cached = SessionStore.find(user.uuid)
@@ -15,10 +15,14 @@ module VAOS
 
     private
 
+    def headers
+      { 'Content-Type' => 'text/plain', 'Referer' => 'https://api.va.gov' }
+    end
+
     def get_session_token(user)
       url = '/users/v2/session?processRules=true'
       token = VAOS::JWT.new(user).token
-      response = perform(:post, url, token)
+      response = perform(:post, url, token, headers)
       raise Common::Exceptions::BackendServiceException.new('VAOS_502', source: self.class) unless body?(response)
 
       response.body
