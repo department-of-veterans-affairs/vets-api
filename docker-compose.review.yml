@@ -29,7 +29,7 @@ services:
       - .:/srv/vets-api/src:cached
       - dev_bundle:/usr/local/bundle
       - ../.secret:/srv/vets-api/secret:cached
-      - /etc/pki:/srv/vets-api/pki:cached
+      - ../.pki:/srv/vets-api/pki:cached
     ports:
       - "3000:3000"
     environment:
