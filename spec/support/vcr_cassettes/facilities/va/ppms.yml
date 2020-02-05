@@ -1,318 +1,467 @@
 ---
-http_interactions:
-- request:
-    method: get
-    uri: !ruby/regexp /ProviderLocator/
-    body:
-      encoding: US-ASCII
-      string: ''
-    headers:
-      Accept:
-      - application/json
-      Content-Type:
-      - application/json
-      User-Agent:
-      - Vets.gov Agent
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Date:
-      - Fri, 27 Jul 2018 21:30:16 GMT
-      Server:
-      - Apache/2.4.6 (Red Hat Enterprise Linux) OpenSSL/1.0.2k-fips PHP/5.6.25
-      X-Frame-Options:
-      - SAMEORIGIN
-      Strict-Transport-Security:
-      - max-age=31536000; includeSubDomains
-      - max-age=31536000; includeSubdomains
-      X-Powered-By:
-      - Express
-      Access-Control-Allow-Origin:
-      - "*"
-      Access-Control-Allow-Methods:
-      - GET
-      - OPTIONS
-      - POST
-      - PUT
-      Access-Control-Allow-Headers:
-      - Content-Length
-      - Content-Type
-      - x-contact
-      - x-cull
-      - x-forward-for
-      - x-id
-      - x-token
-      - x-token2
-      - x-username
-      Content-Type:
-      - text/html; charset=utf-8
-      Content-Length:
-      - '50'
-      Etag:
-      - W/"32-5e15861"
-      Vary:
-      - Accept-Encoding
-      X-Xss-Protection:
-      - 1; mode=block
-    body:
-      encoding: UTF-8
-      string: '{"@odata.context":"https://dev.dws.ppms.va.gov/v1.0/$metadata#ProviderLocatorResults","value":[{"Miles":7.47076307768083,"Minutes":11.5083333333333,"ProviderName":"DOCTOR PARTNERS OF NORTHERN VIRGINIA","ProviderSpecialty":"Allergy & Immunology   ","SpecialtyCode":"207K00000X","CareSite":"4229 LAFAYETTE CENTER DR, UNIT 1760, CHANTILLY, VA, 20151","CareSiteAddress":"123RANDOM ST, CHANTILLY, VA 20151","CareSiteAddressCity":"MANASSAS","CareSiteAddressStreeet":"123 RANDOM STREET","CareSiteAddressState":"VA","CareSiteAddressZipCode":"22030","WorkHours":null,"ProviderGender":"NotSpecified","ProviderNetwork":"Provider Agreement","NetworkId":8,"ProviderAcceptingNewPatients":false,"ProviderPrimaryCare":false,"QualityRanking":0,"ProviderIdentifier":"1700950045","Latitude":45.5,"Longitude":-122.5},{"Miles":59.2995756799325,"Minutes":60.97,"ProviderName":"DOCTOR PARTNERS OF SHENANDOAH VALLEY","ProviderSpecialty":"Allergy & Immunology   ","SpecialtyCode":"207K00000X","CareSite":"1828 W PLAZA DR, WINCHESTER, VA, 22601","CareSiteAddress":"1828 W PLAZA DR WINCHESTER, VA 22601","CareSiteAddressCity":"MANASSAS","CareSiteAddressStreet":"123 RANDOM STREET","CareSiteAddressState":"VA","CareSiteAddressZipCode":"22030","CareSitePhoneNumber":"(888) 444-1234","WorkHours":null,"ProviderGender":"NotSpecified","ProviderNetwork":"Provider Agreement","NetworkId":8,"ProviderAcceptingNewPatients":false,"ProviderPrimaryCare":false,"QualityRanking":0,"ProviderIdentifier":"1427435759","Latitude":38.86787,"Longitude":-78.17305},{"Miles":59.5528017001683,"Minutes":61.8516666666667,"ProviderName":"HEALTH CONSULTANTS OF VIRGINIA","ProviderSpecialty":"Ophthalmology","SpecialtyCode":"207W00000X","CareSite":"420 W JUBAL EARLY DRIVE STE 203, WINCHESTER, VA, 22601","CareSiteAddress":"420 W JUBAL EARLY DRIVE STE 203 WINCHESTER, VA 22601","WorkHours":null,"ProviderGender":"NotSpecified","ProviderNetwork":"Provider Agreement","NetworkId":8,"ProviderAcceptingNewPatients":false,"ProviderPrimaryCare":false,"QualityRanking":0,"ProviderIdentifier":"1114172319","Latitude":39.16996,"Longitude":-78.18052},{"Miles":70.88498973655,"Minutes":68.395,"ProviderName":"HEALTH OF MARYLAND","ProviderSpecialty":"Nutritionist   ","SpecialtyCode":"133N00000X","CareSite":"110 W RD STE 215, TOWSON, MD, 21204","CareSiteAddress":"110 W RD STE 215 TOWSON, MD 21204","WorkHours":null,"ProviderGender":"NotSpecified","ProviderNetwork":"Provider Agreement","NetworkId":8,"ProviderAcceptingNewPatients":false,"ProviderPrimaryCare":false,"QualityRanking":0,"ProviderIdentifier":"1730131764","Latitude":39.41179,"Longitude":-76.61636},{"Miles":70.88498973655,"Minutes":68.395,"ProviderName":"HEALTH OF MARYLAND","ProviderSpecialty":"Physical Medicine & Rehabilitation   ","SpecialtyCode":"208100000X","CareSite":"110 W RD STE 215, TOWSON, MD, 21204","CareSiteAddress":"110 W RD STE 215 TOWSON, MD 21204","WorkHours":null,"ProviderGender":"NotSpecified","ProviderNetwork":"Provider Agreement","NetworkId":8,"ProviderAcceptingNewPatients":false,"ProviderPrimaryCare":false,"QualityRanking":0,"ProviderIdentifier":"1730131764","Latitude":39.41179,"Longitude":-76.61636},{"Miles":70.88498973655,"Minutes":68.395,"ProviderName":"HEALTH OF MARYLAND","ProviderSpecialty":"Home Health","SpecialtyCode":"251E00000X","CareSite":"110 W RD STE 215, TOWSON, MD, 21204","CareSiteAddress":"110 W RD STE 215 TOWSON, MD 21204","WorkHours":null,"ProviderGender":"NotSpecified","ProviderNetwork":"Provider Agreement","NetworkId":8,"ProviderAcceptingNewPatients":false,"ProviderPrimaryCare":false,"QualityRanking":0,"ProviderIdentifier":"1730131764","Latitude":39.41179,"Longitude":-76.61636},{"Miles":70.88498973655,"Minutes":68.395,"ProviderName":"HEALTH OF MARYLAND","ProviderSpecialty":"Home Infusion   ","SpecialtyCode":"251F00000X","CareSite":"110 W RD STE 215, TOWSON, MD, 21204","CareSiteAddress":"110 W RD STE 215 TOWSON, MD 21204","WorkHours":null,"ProviderGender":"NotSpecified","ProviderNetwork":"Provider Agreement","NetworkId":8,"ProviderAcceptingNewPatients":false,"ProviderPrimaryCare":false,"QualityRanking":0,"ProviderIdentifier":"1730131764","Latitude":39.41179,"Longitude":-76.61636},{"Miles":70.88498973655,"Minutes":68.395,"ProviderName":"HEALTH OF MARYLAND","ProviderSpecialty":"Hospice Care, Community Based   ","SpecialtyCode":"251G00000X","CareSite":"110 W RD STE 215, TOWSON, MD, 21204","CareSiteAddress":"110 W RD STE 215 TOWSON, MD 21204","WorkHours":null,"ProviderGender":"NotSpecified","ProviderNetwork":"Provider Agreement","NetworkId":8,"ProviderAcceptingNewPatients":false,"ProviderPrimaryCare":false,"QualityRanking":0,"ProviderIdentifier":"1730131764","Latitude":39.41179,"Longitude":-76.61636},{"Miles":74.6780638643508,"Minutes":71.265,"ProviderName":"SLEEP CENTER OF MARYLAND, LLC","ProviderSpecialty":"Internal Medicine - Sleep Medicine ","SpecialtyCode":"207RS0012X","CareSite":"1110 OPAL COURT, STE 4, HAGERSTOWN, MD, 21740","CareSiteAddress":"1110 OPAL COURT, STE 4 HAGERSTOWN, MD 21740","WorkHours":null,"ProviderGender":"NotSpecified","ProviderNetwork":"Provider Agreement","NetworkId":8,"ProviderAcceptingNewPatients":false,"ProviderPrimaryCare":false,"QualityRanking":0,"ProviderIdentifier":"1700824125","Latitude":39.63618,"Longitude":-77.69525}]}'
-    http_version:
-  recorded_at: Fri, 27 Jul 2018 21:30:16 GMT
-- request:
-    method: get
-    uri: !ruby/regexp /CareSites/
-    body:
-      encoding: US-ASCII
-      string: ''
-    headers:
-      Accept:
-      - application/json
-      Content-Type:
-      - application/json
-      User-Agent:
-      - Vets.gov Agent
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Date:
-      - Fri, 27 Jul 2018 21:30:16 GMT
-      Server:
-      - Apache/2.4.6 (Red Hat Enterprise Linux) OpenSSL/1.0.2k-fips PHP/5.6.25
-      X-Frame-Options:
-      - SAMEORIGIN
-      Strict-Transport-Security:
-      - max-age=31536000; includeSubDomains
-      - max-age=31536000; includeSubdomains
-      X-Powered-By:
-      - Express
-      Access-Control-Allow-Origin:
-      - "*"
-      Access-Control-Allow-Methods:
-      - GET
-      - OPTIONS
-      - POST
-      - PUT
-      Access-Control-Allow-Headers:
-      - Content-Length
-      - Content-Type
-      - x-contact
-      - x-cull
-      - x-forward-for
-      - x-id
-      - x-token
-      - x-token2
-      - x-username
-      Content-Type:
-      - text/html; charset=utf-8
-      Content-Length:
-      - '50'
-      Etag:
-      - W/"32-5e15861"
-      Vary:
-      - Accept-Encoding
-      X-Xss-Protection:
-      - 1; mode=block
-    body:
-      encoding: UTF-8
-      string: '{"@odata.context":"https://dev.dws.ppms.va.gov/v1.0/$metadata#CareSites","value":[{"Name": "123 Main Street, Manassas, VA, 20111", "Id":"62bdd2b1-9dd1-e8111-12346324daqe4", "Latitude":38.8, "Longitude": -76.6, "Street": "123 Main Street"}]}'
-    http_version:
-  recorded_at: Fri, 27 Jul 2018 21:30:16 GMT
-- request:
-    method: get
-    uri: !ruby/regexp /Services/
-    body:
-      encoding: US-ASCII
-      string: ''
-    headers:
-      Accept:
-      - application/json
-      Content-Type:
-      - application/json
-      User-Agent:
-      - Vets.gov Agent
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Date:
-      - Fri, 27 Jul 2018 21:30:16 GMT
-      Server:
-      - Apache/2.4.6 (Red Hat Enterprise Linux) OpenSSL/1.0.2k-fips PHP/5.6.25
-      X-Frame-Options:
-      - SAMEORIGIN
-      Strict-Transport-Security:
-      - max-age=31536000; includeSubDomains
-      - max-age=31536000; includeSubdomains
-      X-Powered-By:
-      - Express
-      Access-Control-Allow-Origin:
-      - "*"
-      Access-Control-Allow-Methods:
-      - GET
-      - OPTIONS
-      - POST
-      - PUT
-      Access-Control-Allow-Headers:
-      - Content-Length
-      - Content-Type
-      - x-contact
-      - x-cull
-      - x-forward-for
-      - x-id
-      - x-token
-      - x-token2
-      - x-username
-      Content-Type:
-      - text/html; charset=utf-8
-      Content-Length:
-      - '50'
-      Etag:
-      - W/"32-5e15861"
-      Vary:
-      - Accept-Encoding
-      X-Xss-Protection:
-      - 1; mode=block
-    body:
-      encoding: UTF-8
-      string: '{"@odata.context":"https://dev.dws.ppms.va.gov/v1.0/$metadata#ProviderServices","value":[{"Name":"Danzer, Hal  - Obstetrics & Gynecology    ","AffiliationName":"TriWest","ProviderName":"Danzer, Hal ","ProviderAgreementName":null,"SpecialtyName":"Obstetrics & Gynecology   ","ProviderSpecialtyName":null,"CareSiteLocationAddress":"SOUTHERN CALIF REPRODUCTIVE CTR MED GRP INC","Longitude":-122.5,"Latitude":45.8,"CareSiteAddressStreet":"123 test street","CareSiteAddressZipCode":"11111","CareSiteAddressCity":"Testville","CareSiteAddressState":"VA","CareSitePhoneNumber":"(888) 444-1234","OrganiztionGroupName":null,"DescriptionOfService":null,"Limitation":null},{"Name":"Danzer, Hal  - Obstetrics & Gynecology - Reproductive Endocrinology  ","AffiliationName":"TriWest","ProviderName":"Danzer, Hal ","ProviderAgreementName":null,"SpecialtyName":"Obstetrics & Gynecology - Reproductive Endocrinology ","ProviderSpecialtyName":null,"CareSiteLocationAddress":"SOUTHERN CALIF REPRODUCTIVE CTR MED GRP INC","CareSitePhoneNumber":null,"OrganiztionGroupName":null,"DescriptionOfService":null,"Limitation":null}]}'
-    http_version:
-  recorded_at: Fri, 27 Jul 2018 21:30:16 GMT
-- request:
-    method: get
-    uri: !ruby/regexp /Providers/
-    body:
-      encoding: US-ASCII
-      string: ''
-    headers:
-      Accept:
-      - application/json
-      Content-Type:
-      - application/json
-      User-Agent:
-      - Vets.gov Agent
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Date:
-      - Fri, 27 Jul 2018 21:30:16 GMT
-      Server:
-      - Apache/2.4.6 (Red Hat Enterprise Linux) OpenSSL/1.0.2k-fips PHP/5.6.25
-      X-Frame-Options:
-      - SAMEORIGIN
-      Strict-Transport-Security:
-      - max-age=31536000; includeSubDomains
-      - max-age=31536000; includeSubdomains
-      X-Powered-By:
-      - Express
-      Access-Control-Allow-Origin:
-      - "*"
-      Access-Control-Allow-Methods:
-      - GET
-      - OPTIONS
-      - POST
-      - PUT
-      Access-Control-Allow-Headers:
-      - Content-Length
-      - Content-Type
-      - x-contact
-      - x-cull
-      - x-forward-for
-      - x-id
-      - x-token
-      - x-token2
-      - x-username
-      Content-Type:
-      - text/html; charset=utf-8
-      Content-Length:
-      - '50'
-      Etag:
-      - W/"32-5e15861"
-      Vary:
-      - Accept-Encoding
-      X-Xss-Protection:
-      - 1; mode=block
-    body:
-      encoding: UTF-8
-      string: '{"@odata.context":"https://dev.dws.ppms.va.gov/v1.0/$metadata#Providers","value":[{"Id":0,"ProviderIdentifier":"1427435759","ProviderIdentifierType":"Npi","Name":"DOCTOR PARTNERS","ProviderType":"GroupPracticeOrAgency","QualityRankingTotalScore":0,"QualityRankingLastUpdated":null,"MainPhone":"(828) 555-1723","Email":null,"Address":"111 MAIN ST\r\nMANASSAS, VA 20111","AddressStreet":"111 MAIN ST","AddressCity":"MANASSAS","AddressStateProvince":"VA","AddressPostalCode":"20111","AddressCounty":null,"AddressCountry":null,"ProviderStatusReason":"Active","DoDAffiliation":false,"VaAcademicAffiliate":false,"PrimaryCarePhysician":false,"HighPerformance":false,"Fqhc":false,"AccountableCareOrganization":false,"IsAcceptingNewPatients":false,"ProviderEthnicity":"Unknown","ProviderGender":"Male","Religion":null,"OrganizationId":null,"ServiceProviderType":"None","SpecialInstruction":null,"OwnedCareSiteName":null,"OrganizationFax":"(540) 665-0411","OrganizationStatus":"Active","IsExternal":false,"InternalType":"0","LicensingJuristicion":null,"CanCreateHealthCareOrders":false,"InternalAppointmentStatus":"FullTime","ExternalHealthProviderType":"CommunityHospital","OnLeie":false,"ExternalInstitutionDeaNumber":null,"ExternalLeieCheckDate":null,"ValidationSource":null,"ContactMethod":"Any","BulkEmails":true,"BulkMails":false,"Emails":true,"Mails":true,"PhoneCalls":true,"Faxes":true,"ModifiedOnDate":"2018-08-02T04:27:10Z","TerminationDate":"0001-01-01T00:00:00Z","ProviderSpecialties":[]}]}'
-    http_version:
-  recorded_at: Fri, 27 Jul 2018 21:30:16 GMT
-- request:
-    method: get
-    uri: !ruby/regexp /\/Specialties/
-    body:
-      encoding: US-ASCII
-      string: ''
-    headers:
-      Accept:
-      - application/json
-      Content-Type:
-      - application/json
-      User-Agent:
-      - Vets.gov Agent
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Date:
-      - Fri, 27 Jul 2018 21:30:16 GMT
-      Server:
-      - Apache/2.4.6 (Red Hat Enterprise Linux) OpenSSL/1.0.2k-fips PHP/5.6.25
-      X-Frame-Options:
-      - SAMEORIGIN
-      Strict-Transport-Security:
-      - max-age=31536000; includeSubDomains
-      - max-age=31536000; includeSubdomains
-      X-Powered-By:
-      - Express
-      Access-Control-Allow-Origin:
-      - "*"
-      Access-Control-Allow-Methods:
-      - GET
-      - OPTIONS
-      - POST
-      - PUT
-      Access-Control-Allow-Headers:
-      - Content-Length
-      - Content-Type
-      - x-contact
-      - x-cull
-      - x-forward-for
-      - x-id
-      - x-token
-      - x-token2
-      - x-username
-      Content-Type:
-      - text/html; charset=utf-8
-      Content-Length:
-      - '50'
-      Etag:
-      - W/"32-5e15861"
-      Vary:
-      - Accept-Encoding
-      X-Xss-Protection:
-      - 1; mode=block
-    body:
-      encoding: UTF-8
-      string: '{"@odata.context":"https://dev.dws.ppms.va.gov/v1.0/$metadata#Specialties","value":[{"SpecialtyCode":"101Y00000X","Name":"Counselor   ","Grouping":"Behavioral Health & Social Service Providers","Classification":"Counselor","Specialization":null,"SpecialtyDescription":"A provider who is trained and educated in the performance of behavior health services through interpersonal communications and analysis. Training and education at the specialty level usually requires a master\u2019s degree and clinical experience and supervision for licensure or certification."},{"SpecialtyCode":"101YA0400X","Name":"Counselor - Addiction (Substance Use Disorder) ","Grouping":"Behavioral Health & Social Service Providers","Classification":"Counselor","Specialization":"Addiction (Substance Use Disorder)","SpecialtyDescription":"Definition to come..."},{"SpecialtyCode":"101YM0800X","Name":"Counselor - Mental Health ","Grouping":"Behavioral Health & Social Service Providers","Classification":"Counselor","Specialization":"Mental Health","SpecialtyDescription":"Definition to come..."},{"SpecialtyCode":"101YP1600X","Name":"Counselor - Pastoral ","Grouping":"Behavioral Health & Social Service Providers","Classification":"Counselor","Specialization":"Pastoral","SpecialtyDescription":"Definition to come..."},{"SpecialtyCode":"101YP2500X","Name":"Counselor - Professional ","Grouping":"Behavioral Health & Social Service Providers","Classification":"Counselor","Specialization":"Professional","SpecialtyDescription":"Definition to come..."},{"SpecialtyCode":"101YS0200X","Name":"Counselor - School ","Grouping":"Behavioral Health & Social Service Providers","Classification":"Counselor","Specialization":"School","SpecialtyDescription":"Definition to come..."},{"SpecialtyCode":"102L00000X","Name":"Psychoanalyst   ","Grouping":"Behavioral Health & Social Service Providers","Classification":"Psychoanalyst","Specialization":null,"SpecialtyDescription":"Psychoanalysis is a comprehensive, theoretical framework which, when applied to a treatment process, consists of an intensive verbal, therapeutic relationship between an analyst and an analysand which aims for symptom relief, emotional growth, and personal integration. The psychoanalytic treatment process includes, but is not limited to, the recognition of unconscious processes and conflicts; the significance of developmental influences; and the impact of resistances, defenses, transference and countertransference phenomena. Treatment is enhanced by an understanding developed in the analyst\u2019s training and personal analysis of unconscious manifestations, such as dreams, slips of the tongue, fantasies and day dreams. Psychoanalytic technique varies in relation to theoretical orientation."},{"SpecialtyCode":"102X00000X","Name":"Poetry Therapist   ","Grouping":"Behavioral Health & Social Service Providers","Classification":"Poetry Therapist","Specialization":null,"SpecialtyDescription":"A medical or mental health professional who has attained credentials after satisfactorily completing a poetry therapy training program approved by the National Federation for Biblio/Poetry Therapy (NFBPT). Training includes didactic work, peer group experience, and supervised practicum.  An NFBPT credentialed certified poetry therapist (CPT) or registered poetry therapist (PTR) integrates discussion of published literature and reflective or creative writing into the psychotherapeutic process to achieve goals of emotional well-being, symptom reduction, and improved interpersonal communication.  Certified poetry therapists and registered poetry therapists are licensed mental health professionals with advanced training in the theory and practice of poetry therapy. CPTs and PTRs are qualified to work independently with emotionally troubled populations in clinical, rehabilitative, community and educational institutions. They also work with emotionally healthy individuals adjusting to developmental issues, life crises, or disabilities. The PTR completes an advanced level of training and fieldwork, commensurate with the highest levels of clinical practice. The terms poetry therapy, applied poetry facilitation, journal therapy, bibliotherapy, biblio/poetry therapy, and poetry/journal therapy reflect the interactive use of literature and/or writing to promote personal growth and emotional healing. In addition to poetry, poetry therapy applies all forms or written and spoken language including story, myth, folk and fairy tale and other genres of poetic expression as well as journal, memoir, and narrative. The poetry therapy process integrates discussion of published literature and reflective or creative writing for expression and communication of thoughts and feelings to facilitate participants emotional well-being. The field of poetry therapy encompasses all of these modalities, though only a duly trained and licensed clinical practitioner can be credentialed as CPT or PTR."}]}'
-    http_version:
-  recorded_at: Fri, 27 Jul 2018 21:30:16 GMT
-recorded_with: VCR 3.0.3
+  http_interactions:
+  - request:
+      method: get
+      uri: https://np.dws.ppms.va.gov/v1.0/ProviderLocator?address=%27South%20Gilbert%20Road,%20Chandler,%20Arizona%2085286,%20United%20States%27&radius=80.50410703808843&driveTime=10000&specialtycode1=%27213E00000X%27&specialtycode2=null&specialtycode3=null&specialtycode4=null&network=0&gender=0&primarycare=0&acceptingnewpatients=0&maxResults=21
+      body:
+        encoding: US-ASCII
+        string: ''
+      headers:
+        User-Agent:
+        - Faraday v1.0.0
+        Accept:
+        - application/json
+    response:
+      status:
+        code: 200
+        message: OK
+      headers:
+        cache-control:
+        - no-cache
+        pragma:
+        - no-cache
+        content-length:
+        - '1237'
+        content-type:
+        - application/json; odata.metadata=minimal
+        expires:
+        - "-1"
+        vary:
+        - Accept-Encoding
+        server:
+        - Microsoft-IIS/10.0
+        odata-version:
+        - '4.0'
+        x-aspnet-version:
+        - 4.0.30319
+        request-context:
+        - appId=cid-v1:eb19c193-bb35-487a-bd34-bf11c4cecb5f
+        access-control-expose-headers:
+        - Request-Context
+        x-powered-by:
+        - ASP.NET
+        x-content-type-options:
+        - nosniff
+        set-cookie:
+        - ARRAffinity=3d15955dbb3ae948d97f99668b2f8e7d0da69760a7a60c59ac60dcf8438af508;Path=/;HttpOnly;Domain=np.dws.ppms.va.gov
+        date:
+        - Thu, 16 Jan 2020 20:16:26 GMT
+        connection:
+        - close
+      body:
+        encoding: ASCII-8BIT
+        string: '{"@odata.context":"https://dws.ppms.va.gov/v1.0/$metadata#Collection(PpmsDataWebService.Models.ProviderLocatorResult)","value":[{"Miles":2.302,"Minutes":5.433,"ProviderName":"Freed, Lewis ","ProviderSpecialty":"Podiatrist","SpecialtyCode":"213E00000X","PreferredMeansReceivingReferralHSRM":false,"PreferredMeansReceivingReferralSecuredEmail":false,"PreferredMeansReceivingReferralMail":false,"PreferredMeansReceivingReferralDirectMessaging":false,"PreferredMeansReceivingReferralFax":false,"HPP":"Unknown","CareSite":"Lewis H Freed DPM PC","CareSiteAddress":"3195 S Price Rd Ste 148 Chandler, AZ 85248","CareSiteAddressStreet":"3195 S Price Rd Ste 148","CareSiteAddressCity":"Chandler","CareSiteAddressState":"AZ","CareSiteAddressZipCode":"85248","CareSitePhoneNumber":"4807057300","WorkHours":null,"ProviderGender":"Male","ProviderNetwork":"TriWest - Choice","NetworkId":null,"ProviderAcceptingNewPatients":true,"ProviderPrimaryCare":false,"QualityRanking":null,"ProviderIdentifier":"1407842941","Latitude":33.258135,"Longitude":-111.887927},{"Miles":2.302,"Minutes":5.317,"ProviderName":"Freed, Lewis ","ProviderSpecialty":"Podiatrist","SpecialtyCode":"213E00000X","PreferredMeansReceivingReferralHSRM":false,"PreferredMeansReceivingReferralSecuredEmail":false,"PreferredMeansReceivingReferralMail":false,"PreferredMeansReceivingReferralDirectMessaging":false,"PreferredMeansReceivingReferralFax":false,"HPP":"Unknown","CareSite":"Lewis H Freed DPM PC","CareSiteAddress":"3195 S Price Rd Ste 148 Chandler, AZ 85248","CareSiteAddressStreet":"3195 S Price Rd Ste 148","CareSiteAddressCity":"Chandler","CareSiteAddressState":"AZ","CareSiteAddressZipCode":"85248","CareSitePhoneNumber":"4807057300","WorkHours":null,"ProviderGender":"Male","ProviderNetwork":"TriWest - Choice","NetworkId":null,"ProviderAcceptingNewPatients":true,"ProviderPrimaryCare":false,"QualityRanking":null,"ProviderIdentifier":"1407842941","Latitude":33.258135,"Longitude":-111.887927},{"Miles":2.302,"Minutes":5.2,"ProviderName":"Freed, Lewis ","ProviderSpecialty":"Podiatrist","SpecialtyCode":"213E00000X","PreferredMeansReceivingReferralHSRM":false,"PreferredMeansReceivingReferralSecuredEmail":false,"PreferredMeansReceivingReferralMail":false,"PreferredMeansReceivingReferralDirectMessaging":false,"PreferredMeansReceivingReferralFax":false,"HPP":"Unknown","CareSite":"Lewis H Freed DPM PC","CareSiteAddress":"3195 S Price Rd Ste 148 Chandler, AZ 85248","CareSiteAddressStreet":"3195 S Price Rd Ste 148","CareSiteAddressCity":"Chandler","CareSiteAddressState":"AZ","CareSiteAddressZipCode":"85248","CareSitePhoneNumber":"4807057300","WorkHours":null,"ProviderGender":"Male","ProviderNetwork":"TriWest - Choice","NetworkId":null,"ProviderAcceptingNewPatients":true,"ProviderPrimaryCare":false,"QualityRanking":null,"ProviderIdentifier":"1407842941","Latitude":33.258135,"Longitude":-111.887927},{"Miles":2.302,"Minutes":5.083,"ProviderName":"Freed, Lewis ","ProviderSpecialty":"Podiatrist","SpecialtyCode":"213E00000X","PreferredMeansReceivingReferralHSRM":false,"PreferredMeansReceivingReferralSecuredEmail":false,"PreferredMeansReceivingReferralMail":false,"PreferredMeansReceivingReferralDirectMessaging":false,"PreferredMeansReceivingReferralFax":false,"HPP":"Unknown","CareSite":"Lewis H Freed DPM PC","CareSiteAddress":"3195 S Price Rd Ste 148 Chandler, AZ 85248","CareSiteAddressStreet":"3195 S Price Rd Ste 148","CareSiteAddressCity":"Chandler","CareSiteAddressState":"AZ","CareSiteAddressZipCode":"85248","CareSitePhoneNumber":"4807057300","WorkHours":null,"ProviderGender":"Male","ProviderNetwork":"TriWest - Choice","NetworkId":null,"ProviderAcceptingNewPatients":true,"ProviderPrimaryCare":false,"QualityRanking":null,"ProviderIdentifier":"1407842941","Latitude":33.258135,"Longitude":-111.887927},{"Miles":2.302,"Minutes":4.967,"ProviderName":"Freed, Lewis ","ProviderSpecialty":"Podiatrist","SpecialtyCode":"213E00000X","PreferredMeansReceivingReferralHSRM":false,"PreferredMeansReceivingReferralSecuredEmail":false,"PreferredMeansReceivingReferralMail":false,"PreferredMeansReceivingReferralDirectMessaging":false,"PreferredMeansReceivingReferralFax":false,"HPP":"Unknown","CareSite":"Lewis H Freed DPM PC","CareSiteAddress":"3195 S Price Rd Ste 148 Chandler, AZ 85248","CareSiteAddressStreet":"3195 S Price Rd Ste 148","CareSiteAddressCity":"Chandler","CareSiteAddressState":"AZ","CareSiteAddressZipCode":"85248","CareSitePhoneNumber":"4807057300","WorkHours":null,"ProviderGender":"Male","ProviderNetwork":"TriWest - Choice","NetworkId":null,"ProviderAcceptingNewPatients":true,"ProviderPrimaryCare":false,"QualityRanking":null,"ProviderIdentifier":"1407842941","Latitude":33.258135,"Longitude":-111.887927}]}'
+      http_version:
+    recorded_at: Thu, 16 Jan 2020 20:16:26 GMT
+  - request:
+      method: get
+      uri: https://np.dws.ppms.va.gov/v1.0/Providers(1407842941)?%24expand=ProviderSpecialties
+      body:
+        encoding: US-ASCII
+        string: ''
+      headers:
+        User-Agent:
+        - Faraday v1.0.0
+        Accept:
+        - application/json
+    response:
+      status:
+        code: 200
+        message: OK
+      headers:
+        cache-control:
+        - no-cache
+        pragma:
+        - no-cache
+        content-length:
+        - '1237'
+        content-type:
+        - application/json; odata.metadata=minimal
+        expires:
+        - "-1"
+        vary:
+        - Accept-Encoding
+        server:
+        - Microsoft-IIS/10.0
+        odata-version:
+        - '4.0'
+        x-aspnet-version:
+        - 4.0.30319
+        request-context:
+        - appId=cid-v1:eb19c193-bb35-487a-bd34-bf11c4cecb5f
+        access-control-expose-headers:
+        - Request-Context
+        x-powered-by:
+        - ASP.NET
+        x-content-type-options:
+        - nosniff
+        set-cookie:
+        - ARRAffinity=3d15955dbb3ae948d97f99668b2f8e7d0da69760a7a60c59ac60dcf8438af508;Path=/;HttpOnly;Domain=np.dws.ppms.va.gov
+        date:
+        - Thu, 16 Jan 2020 20:16:26 GMT
+        connection:
+        - close
+      body:
+        encoding: ASCII-8BIT
+        string: '{"@odata.context":"https://dws.ppms.va.gov/v1.0/$metadata#Providers(ProviderSpecialties())","value":[{"ProviderIdentifier":1407842941,"ProviderIdentifierType":"Npi","Name":"Freed, Lewis ","ProviderType":"Individual","QualityRankingTotalScore":null,"QualityRankingLastUpdated":null,"MainPhone":4809241552,"Email":"evfa1@hotmail.com","PrimaryDirectMessagingAddress":null,"SecondaryDirectMessagingAddress":null,"EMRSystem":null,"EMRSystemOther":null,"Address":null,"AddressStreet":null,"AddressCity":null,"AddressStateProvince":null,"AddressPostalCode":null,"AddressCounty":null,"AddressCountry":null,"ProviderStatusReason":"Active","PrimaryCarePhysician":false,"IsAcceptingNewPatients":true,"ProviderEthnicity":null,"ProviderGender":"Male","Religion":null,"OrganizationId":null,"ServiceProviderType":null,"SpecialInstruction":null,"OwnedCareSiteName":null,"OrganizationFax":4809241553,"OrganizationStatus":null,"IsExternal":true,"InternalType":null,"LicensingJuristicion":null,"CanCreateHealthCareOrders":null,"InternalAppointmentStatus":null,"ExternalHealthProviderType":null,"OnLeie":null,"ExternalInstitutionDeaNumber":null,"ExternalLeieCheckDate":null,"ValidationSource":null,"ContactMethodEmail":false,"ContactMethodFax":false,"ContactMethodVirtuPro":false,"ContactMethodHSRM":false,"ContactMethodPhone":false,"ContactMethodMail":false,"ContactMethodRefDoc":false,"BulkEmails":false,"BulkMails":true,"Emails":false,"Mails":false,"PhoneCalls":false,"Faxes":false,"PreferredMeansReceivingReferralHSRM":false,"PreferredMeansReceivingReferralSecuredEmail":false,"PreferredMeansReceivingReferralMail":false,"PreferredMeansReceivingReferralDirectMessaging":null,"PreferredMeansReceivingReferralFax":false,"Id":null,"ModifiedOnDate":"2020-01-09T00:26:44Z","TerminationDate":null,"ProviderSpecialties":[{"CodedSpecialty":"213E00000X","Name":"Podiatrist","Grouping":"Podiatric Medicine & Surgery Service Providers","Classification":"Podiatrist","Specialization":null,"SpecialtyDescription":"A podiatrist is a person qualified by a Doctor of Podiatric Medicine (D.P.M.) degree, licensed by the state, and practicing within the scope of that license. Podiatrists diagnose and treat foot diseases and deformities. They perform medical, surgical and other operative procedures, prescribe corrective devices and prescribe and administer drugs and physical therapy.","ProviderName":"Freed, Lewis ","IsPrimaryType":null,"SpecialtyName":"Podiatrist"},{"CodedSpecialty":"213E00000X","Name":"Podiatrist","Grouping":"Podiatric Medicine & Surgery Service Providers","Classification":"Podiatrist","Specialization":null,"SpecialtyDescription":"A podiatrist is a person qualified by a Doctor of Podiatric Medicine (D.P.M.) degree, licensed by the state, and practicing within the scope of that license. Podiatrists diagnose and treat foot diseases and deformities. They perform medical, surgical and other operative procedures, prescribe corrective devices and prescribe and administer drugs and physical therapy.","ProviderName":"Freed, Lewis ","IsPrimaryType":null,"SpecialtyName":"Podiatrist"},{"CodedSpecialty":"213E00000X","Name":"Podiatrist","Grouping":"Podiatric Medicine & Surgery Service Providers","Classification":"Podiatrist","Specialization":null,"SpecialtyDescription":"A podiatrist is a person qualified by a Doctor of Podiatric Medicine (D.P.M.) degree, licensed by the state, and practicing within the scope of that license. Podiatrists diagnose and treat foot diseases and deformities. They perform medical, surgical and other operative procedures, prescribe corrective devices and prescribe and administer drugs and physical therapy.","ProviderName":"Freed, Lewis ","IsPrimaryType":null,"SpecialtyName":"Podiatrist"},{"CodedSpecialty":"213E00000X","Name":"Podiatrist","Grouping":"Podiatric Medicine & Surgery Service Providers","Classification":"Podiatrist","Specialization":null,"SpecialtyDescription":"A podiatrist is a person qualified by a Doctor of Podiatric Medicine (D.P.M.) degree, licensed by the state, and practicing within the scope of that license. Podiatrists diagnose and treat foot diseases and deformities. They perform medical, surgical and other operative procedures, prescribe corrective devices and prescribe and administer drugs and physical therapy.","ProviderName":"Freed, Lewis ","IsPrimaryType":null,"SpecialtyName":"Podiatrist"},{"CodedSpecialty":"213E00000X","Name":"Podiatrist","Grouping":"Podiatric Medicine & Surgery Service Providers","Classification":"Podiatrist","Specialization":null,"SpecialtyDescription":"A podiatrist is a person qualified by a Doctor of Podiatric Medicine (D.P.M.) degree, licensed by the state, and practicing within the scope of that license. Podiatrists diagnose and treat foot diseases and deformities. They perform medical, surgical and other operative procedures, prescribe corrective devices and prescribe and administer drugs and physical therapy.","ProviderName":"Freed, Lewis ","IsPrimaryType":null,"SpecialtyName":"Podiatrist"},{"CodedSpecialty":"213E00000X","Name":"Podiatrist","Grouping":"Podiatric Medicine & Surgery Service Providers","Classification":"Podiatrist","Specialization":null,"SpecialtyDescription":"A podiatrist is a person qualified by a Doctor of Podiatric Medicine (D.P.M.) degree, licensed by the state, and practicing within the scope of that license. Podiatrists diagnose and treat foot diseases and deformities. They perform medical, surgical and other operative procedures, prescribe corrective devices and prescribe and administer drugs and physical therapy.","ProviderName":"Freed, Lewis ","IsPrimaryType":null,"SpecialtyName":"Podiatrist"},{"CodedSpecialty":"213E00000X","Name":"Podiatrist","Grouping":"Podiatric Medicine & Surgery Service Providers","Classification":"Podiatrist","Specialization":null,"SpecialtyDescription":"A podiatrist is a person qualified by a Doctor of Podiatric Medicine (D.P.M.) degree, licensed by the state, and practicing within the scope of that license. Podiatrists diagnose and treat foot diseases and deformities. They perform medical, surgical and other operative procedures, prescribe corrective devices and prescribe and administer drugs and physical therapy.","ProviderName":"Freed, Lewis ","IsPrimaryType":null,"SpecialtyName":"Podiatrist"},{"CodedSpecialty":"213E00000X","Name":"Podiatrist","Grouping":"Podiatric Medicine & Surgery Service Providers","Classification":"Podiatrist","Specialization":null,"SpecialtyDescription":"A podiatrist is a person qualified by a Doctor of Podiatric Medicine (D.P.M.) degree, licensed by the state, and practicing within the scope of that license. Podiatrists diagnose and treat foot diseases and deformities. They perform medical, surgical and other operative procedures, prescribe corrective devices and prescribe and administer drugs and physical therapy.","ProviderName":"Freed, Lewis ","IsPrimaryType":null,"SpecialtyName":"Podiatrist"},{"CodedSpecialty":"213E00000X","Name":"Podiatrist","Grouping":"Podiatric Medicine & Surgery Service Providers","Classification":"Podiatrist","Specialization":null,"SpecialtyDescription":"A podiatrist is a person qualified by a Doctor of Podiatric Medicine (D.P.M.) degree, licensed by the state, and practicing within the scope of that license. Podiatrists diagnose and treat foot diseases and deformities. They perform medical, surgical and other operative procedures, prescribe corrective devices and prescribe and administer drugs and physical therapy.","ProviderName":"Freed, Lewis ","IsPrimaryType":null,"SpecialtyName":"Podiatrist"},{"CodedSpecialty":"213E00000X","Name":"Podiatrist","Grouping":"Podiatric Medicine & Surgery Service Providers","Classification":"Podiatrist","Specialization":null,"SpecialtyDescription":"A podiatrist is a person qualified by a Doctor of Podiatric Medicine (D.P.M.) degree, licensed by the state, and practicing within the scope of that license. Podiatrists diagnose and treat foot diseases and deformities. They perform medical, surgical and other operative procedures, prescribe corrective devices and prescribe and administer drugs and physical therapy.","ProviderName":"Freed, Lewis ","IsPrimaryType":null,"SpecialtyName":"Podiatrist"},{"CodedSpecialty":"213E00000X","Name":"Podiatrist","Grouping":"Podiatric Medicine & Surgery Service Providers","Classification":"Podiatrist","Specialization":null,"SpecialtyDescription":"A podiatrist is a person qualified by a Doctor of Podiatric Medicine (D.P.M.) degree, licensed by the state, and practicing within the scope of that license. Podiatrists diagnose and treat foot diseases and deformities. They perform medical, surgical and other operative procedures, prescribe corrective devices and prescribe and administer drugs and physical therapy.","ProviderName":"Freed, Lewis ","IsPrimaryType":null,"SpecialtyName":"Podiatrist"},{"CodedSpecialty":"213E00000X","Name":"Podiatrist","Grouping":"Podiatric Medicine & Surgery Service Providers","Classification":"Podiatrist","Specialization":null,"SpecialtyDescription":"A podiatrist is a person qualified by a Doctor of Podiatric Medicine (D.P.M.) degree, licensed by the state, and practicing within the scope of that license. Podiatrists diagnose and treat foot diseases and deformities. They perform medical, surgical and other operative procedures, prescribe corrective devices and prescribe and administer drugs and physical therapy.","ProviderName":"Freed, Lewis ","IsPrimaryType":null,"SpecialtyName":"Podiatrist"},{"CodedSpecialty":"213E00000X","Name":"Podiatrist","Grouping":"Podiatric Medicine & Surgery Service Providers","Classification":"Podiatrist","Specialization":null,"SpecialtyDescription":"A podiatrist is a person qualified by a Doctor of Podiatric Medicine (D.P.M.) degree, licensed by the state, and practicing within the scope of that license. Podiatrists diagnose and treat foot diseases and deformities. They perform medical, surgical and other operative procedures, prescribe corrective devices and prescribe and administer drugs and physical therapy.","ProviderName":"Freed, Lewis ","IsPrimaryType":null,"SpecialtyName":"Podiatrist"},{"CodedSpecialty":"213E00000X","Name":"Podiatrist","Grouping":"Podiatric Medicine & Surgery Service Providers","Classification":"Podiatrist","Specialization":null,"SpecialtyDescription":"A podiatrist is a person qualified by a Doctor of Podiatric Medicine (D.P.M.) degree, licensed by the state, and practicing within the scope of that license. Podiatrists diagnose and treat foot diseases and deformities. They perform medical, surgical and other operative procedures, prescribe corrective devices and prescribe and administer drugs and physical therapy.","ProviderName":"Freed, Lewis ","IsPrimaryType":null,"SpecialtyName":"Podiatrist"},{"CodedSpecialty":"213E00000X","Name":"Podiatrist","Grouping":"Podiatric Medicine & Surgery Service Providers","Classification":"Podiatrist","Specialization":null,"SpecialtyDescription":"A podiatrist is a person qualified by a Doctor of Podiatric Medicine (D.P.M.) degree, licensed by the state, and practicing within the scope of that license. Podiatrists diagnose and treat foot diseases and deformities. They perform medical, surgical and other operative procedures, prescribe corrective devices and prescribe and administer drugs and physical therapy.","ProviderName":"Freed, Lewis ","IsPrimaryType":null,"SpecialtyName":"Podiatrist"},{"CodedSpecialty":"213E00000X","Name":"Podiatrist","Grouping":"Podiatric Medicine & Surgery Service Providers","Classification":"Podiatrist","Specialization":null,"SpecialtyDescription":"A podiatrist is a person qualified by a Doctor of Podiatric Medicine (D.P.M.) degree, licensed by the state, and practicing within the scope of that license. Podiatrists diagnose and treat foot diseases and deformities. They perform medical, surgical and other operative procedures, prescribe corrective devices and prescribe and administer drugs and physical therapy.","ProviderName":"Freed, Lewis ","IsPrimaryType":null,"SpecialtyName":"Podiatrist"},{"CodedSpecialty":"213E00000X","Name":"Podiatrist","Grouping":"Podiatric Medicine & Surgery Service Providers","Classification":"Podiatrist","Specialization":null,"SpecialtyDescription":"A podiatrist is a person qualified by a Doctor of Podiatric Medicine (D.P.M.) degree, licensed by the state, and practicing within the scope of that license. Podiatrists diagnose and treat foot diseases and deformities. They perform medical, surgical and other operative procedures, prescribe corrective devices and prescribe and administer drugs and physical therapy.","ProviderName":"Freed, Lewis ","IsPrimaryType":null,"SpecialtyName":"Podiatrist"},{"CodedSpecialty":"213E00000X","Name":"Podiatrist","Grouping":"Podiatric Medicine & Surgery Service Providers","Classification":"Podiatrist","Specialization":null,"SpecialtyDescription":"A podiatrist is a person qualified by a Doctor of Podiatric Medicine (D.P.M.) degree, licensed by the state, and practicing within the scope of that license. Podiatrists diagnose and treat foot diseases and deformities. They perform medical, surgical and other operative procedures, prescribe corrective devices and prescribe and administer drugs and physical therapy.","ProviderName":"Freed, Lewis ","IsPrimaryType":null,"SpecialtyName":"Podiatrist"},{"CodedSpecialty":"213E00000X","Name":"Podiatrist","Grouping":"Podiatric Medicine & Surgery Service Providers","Classification":"Podiatrist","Specialization":null,"SpecialtyDescription":"A podiatrist is a person qualified by a Doctor of Podiatric Medicine (D.P.M.) degree, licensed by the state, and practicing within the scope of that license. Podiatrists diagnose and treat foot diseases and deformities. They perform medical, surgical and other operative procedures, prescribe corrective devices and prescribe and administer drugs and physical therapy.","ProviderName":"Freed, Lewis ","IsPrimaryType":null,"SpecialtyName":"Podiatrist"},{"CodedSpecialty":"213E00000X","Name":"Podiatrist","Grouping":"Podiatric Medicine & Surgery Service Providers","Classification":"Podiatrist","Specialization":null,"SpecialtyDescription":"A podiatrist is a person qualified by a Doctor of Podiatric Medicine (D.P.M.) degree, licensed by the state, and practicing within the scope of that license. Podiatrists diagnose and treat foot diseases and deformities. They perform medical, surgical and other operative procedures, prescribe corrective devices and prescribe and administer drugs and physical therapy.","ProviderName":"Freed, Lewis ","IsPrimaryType":null,"SpecialtyName":"Podiatrist"},{"CodedSpecialty":"213E00000X","Name":"Podiatrist","Grouping":"Podiatric Medicine & Surgery Service Providers","Classification":"Podiatrist","Specialization":null,"SpecialtyDescription":"A podiatrist is a person qualified by a Doctor of Podiatric Medicine (D.P.M.) degree, licensed by the state, and practicing within the scope of that license. Podiatrists diagnose and treat foot diseases and deformities. They perform medical, surgical and other operative procedures, prescribe corrective devices and prescribe and administer drugs and physical therapy.","ProviderName":"Freed, Lewis ","IsPrimaryType":null,"SpecialtyName":"Podiatrist"},{"CodedSpecialty":"213E00000X","Name":"Podiatrist","Grouping":"Podiatric Medicine & Surgery Service Providers","Classification":"Podiatrist","Specialization":null,"SpecialtyDescription":"A podiatrist is a person qualified by a Doctor of Podiatric Medicine (D.P.M.) degree, licensed by the state, and practicing within the scope of that license. Podiatrists diagnose and treat foot diseases and deformities. They perform medical, surgical and other operative procedures, prescribe corrective devices and prescribe and administer drugs and physical therapy.","ProviderName":"Freed, Lewis ","IsPrimaryType":null,"SpecialtyName":"Podiatrist"},{"CodedSpecialty":"213E00000X","Name":"Podiatrist","Grouping":"Podiatric Medicine & Surgery Service Providers","Classification":"Podiatrist","Specialization":null,"SpecialtyDescription":"A podiatrist is a person qualified by a Doctor of Podiatric Medicine (D.P.M.) degree, licensed by the state, and practicing within the scope of that license. Podiatrists diagnose and treat foot diseases and deformities. They perform medical, surgical and other operative procedures, prescribe corrective devices and prescribe and administer drugs and physical therapy.","ProviderName":"Freed, Lewis ","IsPrimaryType":null,"SpecialtyName":"Podiatrist"},{"CodedSpecialty":"213E00000X","Name":"Podiatrist","Grouping":"Podiatric Medicine & Surgery Service Providers","Classification":"Podiatrist","Specialization":null,"SpecialtyDescription":"A podiatrist is a person qualified by a Doctor of Podiatric Medicine (D.P.M.) degree, licensed by the state, and practicing within the scope of that license. Podiatrists diagnose and treat foot diseases and deformities. They perform medical, surgical and other operative procedures, prescribe corrective devices and prescribe and administer drugs and physical therapy.","ProviderName":"Freed, Lewis ","IsPrimaryType":null,"SpecialtyName":"Podiatrist"},{"CodedSpecialty":"213E00000X","Name":"Podiatrist","Grouping":"Podiatric Medicine & Surgery Service Providers","Classification":"Podiatrist","Specialization":null,"SpecialtyDescription":"A podiatrist is a person qualified by a Doctor of Podiatric Medicine (D.P.M.) degree, licensed by the state, and practicing within the scope of that license. Podiatrists diagnose and treat foot diseases and deformities. They perform medical, surgical and other operative procedures, prescribe corrective devices and prescribe and administer drugs and physical therapy.","ProviderName":"Freed, Lewis ","IsPrimaryType":null,"SpecialtyName":"Podiatrist"},{"CodedSpecialty":"213E00000X","Name":"Podiatrist","Grouping":"Podiatric Medicine & Surgery Service Providers","Classification":"Podiatrist","Specialization":null,"SpecialtyDescription":"A podiatrist is a person qualified by a Doctor of Podiatric Medicine (D.P.M.) degree, licensed by the state, and practicing within the scope of that license. Podiatrists diagnose and treat foot diseases and deformities. They perform medical, surgical and other operative procedures, prescribe corrective devices and prescribe and administer drugs and physical therapy.","ProviderName":"Freed, Lewis ","IsPrimaryType":null,"SpecialtyName":"Podiatrist"},{"CodedSpecialty":"213E00000X","Name":"Podiatrist","Grouping":"Podiatric Medicine & Surgery Service Providers","Classification":"Podiatrist","Specialization":null,"SpecialtyDescription":"A podiatrist is a person qualified by a Doctor of Podiatric Medicine (D.P.M.) degree, licensed by the state, and practicing within the scope of that license. Podiatrists diagnose and treat foot diseases and deformities. They perform medical, surgical and other operative procedures, prescribe corrective devices and prescribe and administer drugs and physical therapy.","ProviderName":"Freed, Lewis ","IsPrimaryType":null,"SpecialtyName":"Podiatrist"},{"CodedSpecialty":"213E00000X","Name":"Podiatrist","Grouping":"Podiatric Medicine & Surgery Service Providers","Classification":"Podiatrist","Specialization":null,"SpecialtyDescription":"A podiatrist is a person qualified by a Doctor of Podiatric Medicine (D.P.M.) degree, licensed by the state, and practicing within the scope of that license. Podiatrists diagnose and treat foot diseases and deformities. They perform medical, surgical and other operative procedures, prescribe corrective devices and prescribe and administer drugs and physical therapy.","ProviderName":"Freed, Lewis ","IsPrimaryType":null,"SpecialtyName":"Podiatrist"},{"CodedSpecialty":"213E00000X","Name":"Podiatrist","Grouping":"Podiatric Medicine & Surgery Service Providers","Classification":"Podiatrist","Specialization":null,"SpecialtyDescription":"A podiatrist is a person qualified by a Doctor of Podiatric Medicine (D.P.M.) degree, licensed by the state, and practicing within the scope of that license. Podiatrists diagnose and treat foot diseases and deformities. They perform medical, surgical and other operative procedures, prescribe corrective devices and prescribe and administer drugs and physical therapy.","ProviderName":"Freed, Lewis ","IsPrimaryType":null,"SpecialtyName":"Podiatrist"},{"CodedSpecialty":"213E00000X","Name":"Podiatrist","Grouping":"Podiatric Medicine & Surgery Service Providers","Classification":"Podiatrist","Specialization":null,"SpecialtyDescription":"A podiatrist is a person qualified by a Doctor of Podiatric Medicine (D.P.M.) degree, licensed by the state, and practicing within the scope of that license. Podiatrists diagnose and treat foot diseases and deformities. They perform medical, surgical and other operative procedures, prescribe corrective devices and prescribe and administer drugs and physical therapy.","ProviderName":"Freed, Lewis ","IsPrimaryType":null,"SpecialtyName":"Podiatrist"},{"CodedSpecialty":"213E00000X","Name":"Podiatrist","Grouping":"Podiatric Medicine & Surgery Service Providers","Classification":"Podiatrist","Specialization":null,"SpecialtyDescription":"A podiatrist is a person qualified by a Doctor of Podiatric Medicine (D.P.M.) degree, licensed by the state, and practicing within the scope of that license. Podiatrists diagnose and treat foot diseases and deformities. They perform medical, surgical and other operative procedures, prescribe corrective devices and prescribe and administer drugs and physical therapy.","ProviderName":"Freed, Lewis ","IsPrimaryType":null,"SpecialtyName":"Podiatrist"},{"CodedSpecialty":"213E00000X","Name":"Podiatrist","Grouping":"Podiatric Medicine & Surgery Service Providers","Classification":"Podiatrist","Specialization":null,"SpecialtyDescription":"A podiatrist is a person qualified by a Doctor of Podiatric Medicine (D.P.M.) degree, licensed by the state, and practicing within the scope of that license. Podiatrists diagnose and treat foot diseases and deformities. They perform medical, surgical and other operative procedures, prescribe corrective devices and prescribe and administer drugs and physical therapy.","ProviderName":"Freed, Lewis ","IsPrimaryType":null,"SpecialtyName":"Podiatrist"},{"CodedSpecialty":"213E00000X","Name":"Podiatrist","Grouping":"Podiatric Medicine & Surgery Service Providers","Classification":"Podiatrist","Specialization":null,"SpecialtyDescription":"A podiatrist is a person qualified by a Doctor of Podiatric Medicine (D.P.M.) degree, licensed by the state, and practicing within the scope of that license. Podiatrists diagnose and treat foot diseases and deformities. They perform medical, surgical and other operative procedures, prescribe corrective devices and prescribe and administer drugs and physical therapy.","ProviderName":"Freed, Lewis ","IsPrimaryType":null,"SpecialtyName":"Podiatrist"},{"CodedSpecialty":"213E00000X","Name":"Podiatrist","Grouping":"Podiatric Medicine & Surgery Service Providers","Classification":"Podiatrist","Specialization":null,"SpecialtyDescription":"A podiatrist is a person qualified by a Doctor of Podiatric Medicine (D.P.M.) degree, licensed by the state, and practicing within the scope of that license. Podiatrists diagnose and treat foot diseases and deformities. They perform medical, surgical and other operative procedures, prescribe corrective devices and prescribe and administer drugs and physical therapy.","ProviderName":"Freed, Lewis ","IsPrimaryType":null,"SpecialtyName":"Podiatrist"},{"CodedSpecialty":"213E00000X","Name":"Podiatrist","Grouping":"Podiatric Medicine & Surgery Service Providers","Classification":"Podiatrist","Specialization":null,"SpecialtyDescription":"A podiatrist is a person qualified by a Doctor of Podiatric Medicine (D.P.M.) degree, licensed by the state, and practicing within the scope of that license. Podiatrists diagnose and treat foot diseases and deformities. They perform medical, surgical and other operative procedures, prescribe corrective devices and prescribe and administer drugs and physical therapy.","ProviderName":"Freed, Lewis ","IsPrimaryType":null,"SpecialtyName":"Podiatrist"},{"CodedSpecialty":"213E00000X","Name":"Podiatrist","Grouping":"Podiatric Medicine & Surgery Service Providers","Classification":"Podiatrist","Specialization":null,"SpecialtyDescription":"A podiatrist is a person qualified by a Doctor of Podiatric Medicine (D.P.M.) degree, licensed by the state, and practicing within the scope of that license. Podiatrists diagnose and treat foot diseases and deformities. They perform medical, surgical and other operative procedures, prescribe corrective devices and prescribe and administer drugs and physical therapy.","ProviderName":"Freed, Lewis ","IsPrimaryType":null,"SpecialtyName":"Podiatrist"},{"CodedSpecialty":"213E00000X","Name":"Podiatrist","Grouping":"Podiatric Medicine & Surgery Service Providers","Classification":"Podiatrist","Specialization":null,"SpecialtyDescription":"A podiatrist is a person qualified by a Doctor of Podiatric Medicine (D.P.M.) degree, licensed by the state, and practicing within the scope of that license. Podiatrists diagnose and treat foot diseases and deformities. They perform medical, surgical and other operative procedures, prescribe corrective devices and prescribe and administer drugs and physical therapy.","ProviderName":"Freed, Lewis ","IsPrimaryType":null,"SpecialtyName":"Podiatrist"},{"CodedSpecialty":"213E00000X","Name":"Podiatrist","Grouping":"Podiatric Medicine & Surgery Service Providers","Classification":"Podiatrist","Specialization":null,"SpecialtyDescription":"A podiatrist is a person qualified by a Doctor of Podiatric Medicine (D.P.M.) degree, licensed by the state, and practicing within the scope of that license. Podiatrists diagnose and treat foot diseases and deformities. They perform medical, surgical and other operative procedures, prescribe corrective devices and prescribe and administer drugs and physical therapy.","ProviderName":"Freed, Lewis ","IsPrimaryType":null,"SpecialtyName":"Podiatrist"},{"CodedSpecialty":"213E00000X","Name":"Podiatrist","Grouping":"Podiatric Medicine & Surgery Service Providers","Classification":"Podiatrist","Specialization":null,"SpecialtyDescription":"A podiatrist is a person qualified by a Doctor of Podiatric Medicine (D.P.M.) degree, licensed by the state, and practicing within the scope of that license. Podiatrists diagnose and treat foot diseases and deformities. They perform medical, surgical and other operative procedures, prescribe corrective devices and prescribe and administer drugs and physical therapy.","ProviderName":"Freed, Lewis ","IsPrimaryType":null,"SpecialtyName":"Podiatrist"},{"CodedSpecialty":"213E00000X","Name":"Podiatrist","Grouping":"Podiatric Medicine & Surgery Service Providers","Classification":"Podiatrist","Specialization":null,"SpecialtyDescription":"A podiatrist is a person qualified by a Doctor of Podiatric Medicine (D.P.M.) degree, licensed by the state, and practicing within the scope of that license. Podiatrists diagnose and treat foot diseases and deformities. They perform medical, surgical and other operative procedures, prescribe corrective devices and prescribe and administer drugs and physical therapy.","ProviderName":"Freed, Lewis ","IsPrimaryType":null,"SpecialtyName":"Podiatrist"},{"CodedSpecialty":"213E00000X","Name":"Podiatrist","Grouping":"Podiatric Medicine & Surgery Service Providers","Classification":"Podiatrist","Specialization":null,"SpecialtyDescription":"A podiatrist is a person qualified by a Doctor of Podiatric Medicine (D.P.M.) degree, licensed by the state, and practicing within the scope of that license. Podiatrists diagnose and treat foot diseases and deformities. They perform medical, surgical and other operative procedures, prescribe corrective devices and prescribe and administer drugs and physical therapy.","ProviderName":"Freed, Lewis ","IsPrimaryType":null,"SpecialtyName":"Podiatrist"}]}]}'
+      http_version:
+    recorded_at: Thu, 16 Jan 2020 20:16:26 GMT
+  - request:
+      method: get
+      uri: https://np.dws.ppms.va.gov/v1.0/Providers(1407842941)/ProviderServices
+      body:
+        encoding: US-ASCII
+        string: ''
+      headers:
+        User-Agent:
+        - Faraday v1.0.0
+        Accept:
+        - application/json
+    response:
+      status:
+        code: 200
+        message: OK
+      headers:
+        cache-control:
+        - no-cache
+        pragma:
+        - no-cache
+        content-length:
+        - '1237'
+        content-type:
+        - application/json; odata.metadata=minimal
+        expires:
+        - "-1"
+        vary:
+        - Accept-Encoding
+        server:
+        - Microsoft-IIS/10.0
+        odata-version:
+        - '4.0'
+        x-aspnet-version:
+        - 4.0.30319
+        request-context:
+        - appId=cid-v1:eb19c193-bb35-487a-bd34-bf11c4cecb5f
+        access-control-expose-headers:
+        - Request-Context
+        x-powered-by:
+        - ASP.NET
+        x-content-type-options:
+        - nosniff
+        set-cookie:
+        - ARRAffinity=3d15955dbb3ae948d97f99668b2f8e7d0da69760a7a60c59ac60dcf8438af508;Path=/;HttpOnly;Domain=np.dws.ppms.va.gov
+        date:
+        - Thu, 16 Jan 2020 20:16:26 GMT
+        connection:
+        - close
+      body:
+        encoding: ASCII-8BIT
+        string: '{"@odata.context":"https://dws.ppms.va.gov/v1.0/$metadata#ProviderServices","value":[{"Name":"Freed, Lewis - Podiatrist ","AffiliationName":"TriWest - PC3","RelationshipName":"PC3","ProviderName":"Freed, Lewis ","ProviderAgreementName":null,"SpecialtyName":"Podiatrist","SpecialtyCode":"213E00000X","HPP":"Unknown","HighPerformingProvider":"TriWest - PC3(U)","CareSiteName":"Orthopedic Specialists of North America PLLC","CareSiteLocationAddress":"6116 E Arbor Ave Ste 118, Mesa, AZ, 85206","CareSiteAddressStreet":"6116 E Arbor Ave Ste 118","CareSiteAddressStreet1":"6116 E Arbor Ave","CareSiteAddressStreet2":"Ste 118","CareSiteAddressStreet3":null,"CareSiteAddressCity":"Mesa","CareSiteAddressState":"AZ","CareSiteAddressZipCode":"85206","Latitude":33.413705,"Longitude":-111.698513,"CareSitePhoneNumber":"4809241552","OrganiztionGroupName":null,"DescriptionOfService":null,"Limitation":null},{"Name":"Freed, Lewis  - Podiatrist    ","AffiliationName":"TriWest - Choice","RelationshipName":"Choice","ProviderName":"Freed, Lewis ","ProviderAgreementName":null,"SpecialtyName":"Podiatrist","SpecialtyCode":"213E00000X","HPP":"Unknown","HighPerformingProvider":"TriWest - Choice(U)","CareSiteName":"Lewis H Freed DPM PC","CareSiteLocationAddress":"6116 E Arbor Ave Ste 118, Mesa, AZ, 85206","CareSiteAddressStreet":"6116 E Arbor Ave Ste 118","CareSiteAddressStreet1":"6116 E Arbor Ave","CareSiteAddressStreet2":"Ste 118","CareSiteAddressStreet3":null,"CareSiteAddressCity":"Mesa","CareSiteAddressState":"AZ","CareSiteAddressZipCode":"85206","Latitude":33.413301,"Longitude":-111.698479,"CareSitePhoneNumber":"4809241552","OrganiztionGroupName":null,"DescriptionOfService":null,"Limitation":null},{"Name":"Freed, Lewis - Podiatrist ","AffiliationName":"TriWest - Choice","RelationshipName":"Choice","ProviderName":"Freed, Lewis ","ProviderAgreementName":null,"SpecialtyName":"Podiatrist","SpecialtyCode":"213E00000X","HPP":"Unknown","HighPerformingProvider":"TriWest - Choice(U)","CareSiteName":"Lewis H Freed DPM PC","CareSiteLocationAddress":"3195 S Price Rd Ste 148, Chandler, AZ, 85248","CareSiteAddressStreet":"3195 S Price Rd Ste 148","CareSiteAddressStreet1":"3195 S Price Rd","CareSiteAddressStreet2":"Ste 148","CareSiteAddressStreet3":null,"CareSiteAddressCity":"Chandler","CareSiteAddressState":"AZ","CareSiteAddressZipCode":"85248","Latitude":33.258135,"Longitude":-111.887927,"CareSitePhoneNumber":"4807057300","OrganiztionGroupName":null,"DescriptionOfService":null,"Limitation":null},{"Name":"Freed, Lewis  - Podiatrist ","AffiliationName":"TriWest - PC3","RelationshipName":"PC3","ProviderName":"Freed, Lewis ","ProviderAgreementName":null,"SpecialtyName":"Podiatrist","SpecialtyCode":"213E00000X","HPP":"Unknown","HighPerformingProvider":"TriWest - PC3(U)","CareSiteName":"Orthopedic Specialists of North America PLLC","CareSiteLocationAddress":"6116 E Arbor Ave Ste 118, Mesa, AZ, 85206","CareSiteAddressStreet":"6116 E Arbor Ave Ste 118","CareSiteAddressStreet1":"6116 E Arbor Ave","CareSiteAddressStreet2":"Ste 118","CareSiteAddressStreet3":null,"CareSiteAddressCity":"Mesa","CareSiteAddressState":"AZ","CareSiteAddressZipCode":"85206","Latitude":33.413705,"Longitude":-111.698513,"CareSitePhoneNumber":"4809241552","OrganiztionGroupName":null,"DescriptionOfService":null,"Limitation":null},{"Name":"Freed, Lewis - Podiatrist ","AffiliationName":"TriWest - PC3","RelationshipName":"PC3","ProviderName":"Freed, Lewis ","ProviderAgreementName":null,"SpecialtyName":"Podiatrist","SpecialtyCode":"213E00000X","HPP":"Unknown","HighPerformingProvider":"TriWest - PC3(U)","CareSiteName":"OrthoArizona","CareSiteLocationAddress":"525 S Chandler Village Dr Ste 1, Chandler, AZ, 85226","CareSiteAddressStreet":"525 S Chandler Village Dr Ste 1","CareSiteAddressStreet1":"525 S Chandler Village Dr","CareSiteAddressStreet2":"Ste 1","CareSiteAddressStreet3":null,"CareSiteAddressCity":"Chandler","CareSiteAddressState":"AZ","CareSiteAddressZipCode":"85226","Latitude":33.2956545171,"Longitude":-111.9021362032,"CareSitePhoneNumber":"4809642908","OrganiztionGroupName":null,"DescriptionOfService":null,"Limitation":null},{"Name":"Freed, Lewis  - Podiatrist    ","AffiliationName":"TriWest - Choice","RelationshipName":"Choice","ProviderName":"Freed, Lewis ","ProviderAgreementName":null,"SpecialtyName":"Podiatrist","SpecialtyCode":"213E00000X","HPP":"Unknown","HighPerformingProvider":"TriWest - Choice(U)","CareSiteName":"Lewis H Freed DPM PC","CareSiteLocationAddress":"3195 S Price Rd Ste 148, Chandler, AZ, 85248","CareSiteAddressStreet":"3195 S Price Rd Ste 148","CareSiteAddressStreet1":"3195 S Price Rd","CareSiteAddressStreet2":"Ste 148","CareSiteAddressStreet3":null,"CareSiteAddressCity":"Chandler","CareSiteAddressState":"AZ","CareSiteAddressZipCode":"85248","Latitude":33.258135,"Longitude":-111.887927,"CareSitePhoneNumber":"4807057300","OrganiztionGroupName":null,"DescriptionOfService":null,"Limitation":null},{"Name":"Freed, Lewis  - Podiatrist ","AffiliationName":"TriWest - PC3","RelationshipName":"PC3","ProviderName":"Freed, Lewis ","ProviderAgreementName":null,"SpecialtyName":"Podiatrist","SpecialtyCode":"213E00000X","HPP":"Unknown","HighPerformingProvider":"TriWest - PC3(U)","CareSiteName":"Orthopedic Specialists of North America PLLC","CareSiteLocationAddress":"525 S Chandler Village Dr Ste 1, Chandler, AZ, 85226","CareSiteAddressStreet":"525 S Chandler Village Dr Ste 1","CareSiteAddressStreet1":"525 S Chandler Village Dr","CareSiteAddressStreet2":"Ste 1","CareSiteAddressStreet3":null,"CareSiteAddressCity":"Chandler","CareSiteAddressState":"AZ","CareSiteAddressZipCode":"85226","Latitude":33.2956545171,"Longitude":-111.9021362032,"CareSitePhoneNumber":"4807500303","OrganiztionGroupName":null,"DescriptionOfService":null,"Limitation":null},{"Name":"Freed, Lewis - Podiatrist ","AffiliationName":"TriWest - PC3","RelationshipName":"PC3","ProviderName":"Freed, Lewis ","ProviderAgreementName":null,"SpecialtyName":"Podiatrist","SpecialtyCode":"213E00000X","HPP":"Unknown","HighPerformingProvider":"TriWest - PC3(U)","CareSiteName":"Orthopedic Specialists of North America PLLC","CareSiteLocationAddress":"10250 N 92nd St Ste 308, Scottsdale, AZ, 85258","CareSiteAddressStreet":"10250 N 92nd St Ste 308","CareSiteAddressStreet1":"10250 N 92nd St","CareSiteAddressStreet2":"Ste 308","CareSiteAddressStreet3":null,"CareSiteAddressCity":"Scottsdale","CareSiteAddressState":"AZ","CareSiteAddressZipCode":"85258","Latitude":33.580485,"Longitude":-111.882899,"CareSitePhoneNumber":"6026313161","OrganiztionGroupName":null,"DescriptionOfService":null,"Limitation":null},{"Name":"Freed, Lewis - Podiatrist ","AffiliationName":"TriWest - PC3","RelationshipName":"PC3","ProviderName":"Freed, Lewis ","ProviderAgreementName":null,"SpecialtyName":"Podiatrist","SpecialtyCode":"213E00000X","HPP":"Unknown","HighPerformingProvider":"TriWest - PC3(U)","CareSiteName":"Orthopedic Specialists of North America PLLC","CareSiteLocationAddress":"525 S Chandler Village Dr Ste 1, Chandler, AZ, 85226","CareSiteAddressStreet":"525 S Chandler Village Dr Ste 1","CareSiteAddressStreet1":"525 S Chandler Village Dr","CareSiteAddressStreet2":"Ste 1","CareSiteAddressStreet3":null,"CareSiteAddressCity":"Chandler","CareSiteAddressState":"AZ","CareSiteAddressZipCode":"85226","Latitude":33.2956545171,"Longitude":-111.9021362032,"CareSitePhoneNumber":"4807500303","OrganiztionGroupName":null,"DescriptionOfService":null,"Limitation":null},{"Name":"Freed, Lewis - Podiatrist ","AffiliationName":"TriWest - PC3","RelationshipName":"PC3","ProviderName":"Freed, Lewis ","ProviderAgreementName":null,"SpecialtyName":"Podiatrist","SpecialtyCode":"213E00000X","HPP":"Unknown","HighPerformingProvider":"TriWest - PC3(U)","CareSiteName":"Orthopedic Specialists of North America PLLC","CareSiteLocationAddress":"6116 E Arbor Ave Ste 118, Mesa, AZ, 85206","CareSiteAddressStreet":"6116 E Arbor Ave Ste 118","CareSiteAddressStreet1":"6116 E Arbor Ave","CareSiteAddressStreet2":"Ste 118","CareSiteAddressStreet3":null,"CareSiteAddressCity":"Mesa","CareSiteAddressState":"AZ","CareSiteAddressZipCode":"85206","Latitude":33.413705,"Longitude":-111.698513,"CareSitePhoneNumber":"4809241552","OrganiztionGroupName":null,"DescriptionOfService":null,"Limitation":null},{"Name":"Freed, Lewis - Podiatrist ","AffiliationName":"TriWest - PC3","RelationshipName":"PC3","ProviderName":"Freed, Lewis ","ProviderAgreementName":null,"SpecialtyName":"Podiatrist","SpecialtyCode":"213E00000X","HPP":"Unknown","HighPerformingProvider":"TriWest - PC3(U)","CareSiteName":"OrthoArizona","CareSiteLocationAddress":"1760 E Pecos Rd Ste 207, Gilbert, AZ, 85295","CareSiteAddressStreet":"1760 E Pecos Rd Ste 207","CareSiteAddressStreet1":"1760 E Pecos Rd","CareSiteAddressStreet2":"Ste 207","CareSiteAddressStreet3":null,"CareSiteAddressCity":"Gilbert","CareSiteAddressState":"AZ","CareSiteAddressZipCode":"85295","Latitude":33.2964,"Longitude":-111.7523,"CareSitePhoneNumber":"4809642908","OrganiztionGroupName":null,"DescriptionOfService":null,"Limitation":null},{"Name":"Freed, Lewis - Podiatrist ","AffiliationName":"TriWest - Choice","RelationshipName":"Choice","ProviderName":"Freed, Lewis ","ProviderAgreementName":null,"SpecialtyName":"Podiatrist","SpecialtyCode":"213E00000X","HPP":"Unknown","HighPerformingProvider":"TriWest - Choice(U)","CareSiteName":"Lewis H Freed DPM PC","CareSiteLocationAddress":"6116 E Arbor Ave Ste 118, Mesa, AZ, 85206","CareSiteAddressStreet":"6116 E Arbor Ave Ste 118","CareSiteAddressStreet1":"6116 E Arbor Ave","CareSiteAddressStreet2":"Ste 118","CareSiteAddressStreet3":null,"CareSiteAddressCity":"Mesa","CareSiteAddressState":"AZ","CareSiteAddressZipCode":"85206","Latitude":33.413301,"Longitude":-111.698479,"CareSitePhoneNumber":"4809241552","OrganiztionGroupName":null,"DescriptionOfService":null,"Limitation":null},{"Name":"Freed, Lewis - Podiatrist ","AffiliationName":"TriWest - PC3","RelationshipName":"PC3","ProviderName":"Freed, Lewis ","ProviderAgreementName":null,"SpecialtyName":"Podiatrist","SpecialtyCode":"213E00000X","HPP":"Unknown","HighPerformingProvider":"TriWest - PC3(U)","CareSiteName":"Orthopedic Specialists of North America PLLC","CareSiteLocationAddress":"1760 E Pecos Rd Ste 207, Gilbert, AZ, 85295","CareSiteAddressStreet":"1760 E Pecos Rd Ste 207","CareSiteAddressStreet1":"1760 E Pecos Rd","CareSiteAddressStreet2":"Ste 207","CareSiteAddressStreet3":null,"CareSiteAddressCity":"Gilbert","CareSiteAddressState":"AZ","CareSiteAddressZipCode":"85295","Latitude":33.296389,"Longitude":-111.752372,"CareSitePhoneNumber":"4809642908","OrganiztionGroupName":null,"DescriptionOfService":null,"Limitation":null},{"Name":"Freed, Lewis  - Podiatrist ","AffiliationName":"TriWest - Choice","RelationshipName":"Choice","ProviderName":"Freed, Lewis ","ProviderAgreementName":null,"SpecialtyName":"Podiatrist","SpecialtyCode":"213E00000X","HPP":"Unknown","HighPerformingProvider":"TriWest - Choice(U)","CareSiteName":"Lewis H Freed DPM PC","CareSiteLocationAddress":"6116 E Arbor Ave Ste 118, Mesa, AZ, 85206","CareSiteAddressStreet":"6116 E Arbor Ave Ste 118","CareSiteAddressStreet1":"6116 E Arbor Ave","CareSiteAddressStreet2":"Ste 118","CareSiteAddressStreet3":null,"CareSiteAddressCity":"Mesa","CareSiteAddressState":"AZ","CareSiteAddressZipCode":"85206","Latitude":33.413301,"Longitude":-111.698479,"CareSitePhoneNumber":"4809241552","OrganiztionGroupName":null,"DescriptionOfService":null,"Limitation":null},{"Name":"Freed, Lewis - Podiatrist    ","AffiliationName":"TriWest - Choice","RelationshipName":"Choice","ProviderName":"Freed, Lewis ","ProviderAgreementName":null,"SpecialtyName":"Podiatrist","SpecialtyCode":"213E00000X","HPP":"Unknown","HighPerformingProvider":"TriWest - Choice(U)","CareSiteName":"Lewis H Freed DPM PC","CareSiteLocationAddress":"6116 E Arbor Ave Ste 118, Mesa, AZ, 85206","CareSiteAddressStreet":"6116 E Arbor Ave Ste 118","CareSiteAddressStreet1":"6116 E Arbor Ave","CareSiteAddressStreet2":"Ste 118","CareSiteAddressStreet3":null,"CareSiteAddressCity":"Mesa","CareSiteAddressState":"AZ","CareSiteAddressZipCode":"85206","Latitude":33.413301,"Longitude":-111.698479,"CareSitePhoneNumber":"4809241552","OrganiztionGroupName":null,"DescriptionOfService":null,"Limitation":null},{"Name":"Freed, Lewis - Podiatrist ","AffiliationName":"TriWest - Choice","RelationshipName":"Choice","ProviderName":"Freed, Lewis ","ProviderAgreementName":null,"SpecialtyName":"Podiatrist","SpecialtyCode":"213E00000X","HPP":"Unknown","HighPerformingProvider":"TriWest - Choice(U)","CareSiteName":"Lewis H Freed DPM PC","CareSiteLocationAddress":"3195 S Price Rd Ste 148, Chandler, AZ, 85248","CareSiteAddressStreet":"3195 S Price Rd Ste 148","CareSiteAddressStreet1":"3195 S Price Rd","CareSiteAddressStreet2":"Ste 148","CareSiteAddressStreet3":null,"CareSiteAddressCity":"Chandler","CareSiteAddressState":"AZ","CareSiteAddressZipCode":"85248","Latitude":33.258135,"Longitude":-111.887927,"CareSitePhoneNumber":"4807057300","OrganiztionGroupName":null,"DescriptionOfService":null,"Limitation":null},{"Name":"Freed, Lewis - Podiatrist ","AffiliationName":"TriWest - Choice","RelationshipName":"Choice","ProviderName":"Freed, Lewis ","ProviderAgreementName":null,"SpecialtyName":"Podiatrist","SpecialtyCode":"213E00000X","HPP":"Unknown","HighPerformingProvider":"TriWest - Choice(U)","CareSiteName":"Lewis H Freed DPM PC","CareSiteLocationAddress":"6116 E Arbor Ave Ste 118, Mesa, AZ, 85206","CareSiteAddressStreet":"6116 E Arbor Ave Ste 118","CareSiteAddressStreet1":"6116 E Arbor Ave","CareSiteAddressStreet2":"Ste 118","CareSiteAddressStreet3":null,"CareSiteAddressCity":"Mesa","CareSiteAddressState":"AZ","CareSiteAddressZipCode":"85206","Latitude":33.413301,"Longitude":-111.698479,"CareSitePhoneNumber":"4809241552","OrganiztionGroupName":null,"DescriptionOfService":null,"Limitation":null},{"Name":"Freed, Lewis  - Podiatrist ","AffiliationName":"TriWest - PC3","RelationshipName":"PC3","ProviderName":"Freed, Lewis ","ProviderAgreementName":null,"SpecialtyName":"Podiatrist","SpecialtyCode":"213E00000X","HPP":"Unknown","HighPerformingProvider":"TriWest - PC3(U)","CareSiteName":"Orthopedic Specialists of North America PLLC","CareSiteLocationAddress":"10250 N 92nd St Ste 308, Scottsdale, AZ, 85258","CareSiteAddressStreet":"10250 N 92nd St Ste 308","CareSiteAddressStreet1":"10250 N 92nd St","CareSiteAddressStreet2":"Ste 308","CareSiteAddressStreet3":null,"CareSiteAddressCity":"Scottsdale","CareSiteAddressState":"AZ","CareSiteAddressZipCode":"85258","Latitude":33.580485,"Longitude":-111.882899,"CareSitePhoneNumber":"6026313161","OrganiztionGroupName":null,"DescriptionOfService":null,"Limitation":null},{"Name":"Freed, Lewis - Podiatrist ","AffiliationName":"TriWest - Choice","RelationshipName":"Choice","ProviderName":"Freed, Lewis ","ProviderAgreementName":null,"SpecialtyName":"Podiatrist","SpecialtyCode":"213E00000X","HPP":"Unknown","HighPerformingProvider":"TriWest - Choice(U)","CareSiteName":"Lewis H Freed DPM PC","CareSiteLocationAddress":"6116 E Arbor Ave Ste 118, Mesa, AZ, 85206","CareSiteAddressStreet":"6116 E Arbor Ave Ste 118","CareSiteAddressStreet1":"6116 E Arbor Ave","CareSiteAddressStreet2":"Ste 118","CareSiteAddressStreet3":null,"CareSiteAddressCity":"Mesa","CareSiteAddressState":"AZ","CareSiteAddressZipCode":"85206","Latitude":33.413301,"Longitude":-111.698479,"CareSitePhoneNumber":"4809241552","OrganiztionGroupName":null,"DescriptionOfService":null,"Limitation":null},{"Name":"Freed, Lewis - Podiatrist ","AffiliationName":"TriWest - PC3","RelationshipName":"PC3","ProviderName":"Freed, Lewis ","ProviderAgreementName":null,"SpecialtyName":"Podiatrist","SpecialtyCode":"213E00000X","HPP":"Unknown","HighPerformingProvider":"TriWest - PC3(U)","CareSiteName":"OrthoArizona","CareSiteLocationAddress":"6116 E Arbor Ave Ste 118, Mesa, AZ, 85206","CareSiteAddressStreet":"6116 E Arbor Ave Ste 118","CareSiteAddressStreet1":"6116 E Arbor Ave","CareSiteAddressStreet2":"Ste 118","CareSiteAddressStreet3":null,"CareSiteAddressCity":"Mesa","CareSiteAddressState":"AZ","CareSiteAddressZipCode":"85206","Latitude":33.41356,"Longitude":-111.69859,"CareSitePhoneNumber":"4809241552","OrganiztionGroupName":null,"DescriptionOfService":null,"Limitation":null},{"Name":"Freed, Lewis - Podiatrist ","AffiliationName":"TriWest - Choice","RelationshipName":"Choice","ProviderName":"Freed, Lewis ","ProviderAgreementName":null,"SpecialtyName":"Podiatrist","SpecialtyCode":"213E00000X","HPP":"Unknown","HighPerformingProvider":"TriWest - Choice(U)","CareSiteName":"Lewis H Freed DPM PC","CareSiteLocationAddress":"3195 S Price Rd Ste 148, Chandler, AZ, 85248","CareSiteAddressStreet":"3195 S Price Rd Ste 148","CareSiteAddressStreet1":"3195 S Price Rd","CareSiteAddressStreet2":"Ste 148","CareSiteAddressStreet3":null,"CareSiteAddressCity":"Chandler","CareSiteAddressState":"AZ","CareSiteAddressZipCode":"85248","Latitude":33.258135,"Longitude":-111.887927,"CareSitePhoneNumber":"4807057300","OrganiztionGroupName":null,"DescriptionOfService":null,"Limitation":null},{"Name":"Freed, Lewis - Podiatrist ","AffiliationName":"TriWest - PC3","RelationshipName":"PC3","ProviderName":"Freed, Lewis ","ProviderAgreementName":null,"SpecialtyName":"Podiatrist","SpecialtyCode":"213E00000X","HPP":"Unknown","HighPerformingProvider":"TriWest - PC3(U)","CareSiteName":"Orthopedic Specialists of North America PLLC","CareSiteLocationAddress":"525 S Chandler Village Dr Ste 1, Chandler, AZ, 85226","CareSiteAddressStreet":"525 S Chandler Village Dr Ste 1","CareSiteAddressStreet1":"525 S Chandler Village Dr","CareSiteAddressStreet2":"Ste 1","CareSiteAddressStreet3":null,"CareSiteAddressCity":"Chandler","CareSiteAddressState":"AZ","CareSiteAddressZipCode":"85226","Latitude":33.2956545171,"Longitude":-111.9021362032,"CareSitePhoneNumber":"4807500303","OrganiztionGroupName":null,"DescriptionOfService":null,"Limitation":null},{"Name":"Freed, Lewis  - Podiatrist ","AffiliationName":"TriWest - PC3","RelationshipName":"PC3","ProviderName":"Freed, Lewis ","ProviderAgreementName":null,"SpecialtyName":"Podiatrist","SpecialtyCode":"213E00000X","HPP":"Unknown","HighPerformingProvider":"TriWest - PC3(U)","CareSiteName":"Orthopedic Specialists of North America PLLC","CareSiteLocationAddress":"6116 E Arbor Ave Ste 118, Mesa, AZ, 85206","CareSiteAddressStreet":"6116 E Arbor Ave Ste 118","CareSiteAddressStreet1":"6116 E Arbor Ave","CareSiteAddressStreet2":"Ste 118","CareSiteAddressStreet3":null,"CareSiteAddressCity":"Mesa","CareSiteAddressState":"AZ","CareSiteAddressZipCode":"85206","Latitude":33.413705,"Longitude":-111.698513,"CareSitePhoneNumber":"4809241552","OrganiztionGroupName":null,"DescriptionOfService":null,"Limitation":null},{"Name":"Freed, Lewis  - Podiatrist ","AffiliationName":"TriWest - Choice","RelationshipName":"Choice","ProviderName":"Freed, Lewis ","ProviderAgreementName":null,"SpecialtyName":"Podiatrist","SpecialtyCode":"213E00000X","HPP":"Unknown","HighPerformingProvider":"TriWest - Choice(U)","CareSiteName":"Lewis H Freed DPM PC","CareSiteLocationAddress":"3195 S Price Rd Ste 148, Chandler, AZ, 85248","CareSiteAddressStreet":"3195 S Price Rd Ste 148","CareSiteAddressStreet1":"3195 S Price Rd","CareSiteAddressStreet2":"Ste 148","CareSiteAddressStreet3":null,"CareSiteAddressCity":"Chandler","CareSiteAddressState":"AZ","CareSiteAddressZipCode":"85248","Latitude":33.258135,"Longitude":-111.887927,"CareSitePhoneNumber":"4807057300","OrganiztionGroupName":null,"DescriptionOfService":null,"Limitation":null},{"Name":"Freed, Lewis - Podiatrist ","AffiliationName":"TriWest - Choice","RelationshipName":"Choice","ProviderName":"Freed, Lewis ","ProviderAgreementName":null,"SpecialtyName":"Podiatrist","SpecialtyCode":"213E00000X","HPP":"Unknown","HighPerformingProvider":"TriWest - Choice(U)","CareSiteName":"Lewis H Freed DPM PC","CareSiteLocationAddress":"6116 E Arbor Ave Ste 118, Mesa, AZ, 85206","CareSiteAddressStreet":"6116 E Arbor Ave Ste 118","CareSiteAddressStreet1":"6116 E Arbor Ave","CareSiteAddressStreet2":"Ste 118","CareSiteAddressStreet3":null,"CareSiteAddressCity":"Mesa","CareSiteAddressState":"AZ","CareSiteAddressZipCode":"85206","Latitude":33.413301,"Longitude":-111.698479,"CareSitePhoneNumber":"4809241552","OrganiztionGroupName":null,"DescriptionOfService":null,"Limitation":null},{"Name":"Freed, Lewis  - Podiatrist ","AffiliationName":"TriWest - PC3","RelationshipName":"PC3","ProviderName":"Freed, Lewis ","ProviderAgreementName":null,"SpecialtyName":"Podiatrist","SpecialtyCode":"213E00000X","HPP":"Unknown","HighPerformingProvider":"TriWest - PC3(U)","CareSiteName":"Orthopedic Specialists of North America PLLC","CareSiteLocationAddress":"10250 N 92nd St Ste 308, Scottsdale, AZ, 85258","CareSiteAddressStreet":"10250 N 92nd St Ste 308","CareSiteAddressStreet1":"10250 N 92nd St","CareSiteAddressStreet2":"Ste 308","CareSiteAddressStreet3":null,"CareSiteAddressCity":"Scottsdale","CareSiteAddressState":"AZ","CareSiteAddressZipCode":"85258","Latitude":33.580485,"Longitude":-111.882899,"CareSitePhoneNumber":"6026313161","OrganiztionGroupName":null,"DescriptionOfService":null,"Limitation":null},{"Name":"Freed, Lewis - Podiatrist ","AffiliationName":"TriWest - PC3","RelationshipName":"PC3","ProviderName":"Freed, Lewis ","ProviderAgreementName":null,"SpecialtyName":"Podiatrist","SpecialtyCode":"213E00000X","HPP":"Unknown","HighPerformingProvider":"TriWest - PC3(U)","CareSiteName":"Orthopedic Specialists of North America PLLC","CareSiteLocationAddress":"525 S Chandler Village Dr Ste 1, Chandler, AZ, 85226","CareSiteAddressStreet":"525 S Chandler Village Dr Ste 1","CareSiteAddressStreet1":"525 S Chandler Village Dr","CareSiteAddressStreet2":"Ste 1","CareSiteAddressStreet3":null,"CareSiteAddressCity":"Chandler","CareSiteAddressState":"AZ","CareSiteAddressZipCode":"85226","Latitude":33.2956545171,"Longitude":-111.9021362032,"CareSitePhoneNumber":"4807500303","OrganiztionGroupName":null,"DescriptionOfService":null,"Limitation":null},{"Name":"Freed, Lewis - Podiatrist ","AffiliationName":"TriWest - PC3","RelationshipName":"PC3","ProviderName":"Freed, Lewis ","ProviderAgreementName":null,"SpecialtyName":"Podiatrist","SpecialtyCode":"213E00000X","HPP":"Unknown","HighPerformingProvider":"TriWest - PC3(U)","CareSiteName":"Orthopedic Specialists of North America PLLC","CareSiteLocationAddress":"1760 E Pecos Rd Ste 207, Gilbert, AZ, 85295","CareSiteAddressStreet":"1760 E Pecos Rd Ste 207","CareSiteAddressStreet1":"1760 E Pecos Rd","CareSiteAddressStreet2":"Ste 207","CareSiteAddressStreet3":null,"CareSiteAddressCity":"Gilbert","CareSiteAddressState":"AZ","CareSiteAddressZipCode":"85295","Latitude":33.296389,"Longitude":-111.752372,"CareSitePhoneNumber":"4809642908","OrganiztionGroupName":null,"DescriptionOfService":null,"Limitation":null},{"Name":"Freed, Lewis - Podiatrist ","AffiliationName":"TriWest - PC3","RelationshipName":"PC3","ProviderName":"Freed, Lewis ","ProviderAgreementName":null,"SpecialtyName":"Podiatrist","SpecialtyCode":"213E00000X","HPP":"Unknown","HighPerformingProvider":"TriWest - PC3(U)","CareSiteName":"Orthopedic Specialists of North America PLLC","CareSiteLocationAddress":"1760 E Pecos Rd Ste 207, Gilbert, AZ, 85295","CareSiteAddressStreet":"1760 E Pecos Rd Ste 207","CareSiteAddressStreet1":"1760 E Pecos Rd","CareSiteAddressStreet2":"Ste 207","CareSiteAddressStreet3":null,"CareSiteAddressCity":"Gilbert","CareSiteAddressState":"AZ","CareSiteAddressZipCode":"85295","Latitude":33.296389,"Longitude":-111.752372,"CareSitePhoneNumber":"4809642908","OrganiztionGroupName":null,"DescriptionOfService":null,"Limitation":null},{"Name":"Freed, Lewis - Podiatrist ","AffiliationName":"TriWest - PC3","RelationshipName":"PC3","ProviderName":"Freed, Lewis ","ProviderAgreementName":null,"SpecialtyName":"Podiatrist","SpecialtyCode":"213E00000X","HPP":"Unknown","HighPerformingProvider":"TriWest - PC3(U)","CareSiteName":"OSNA PLLC","CareSiteLocationAddress":"1760 E Pecos Rd, Gilbert, AZ, 85295","CareSiteAddressStreet":"1760 E Pecos Rd","CareSiteAddressStreet1":null,"CareSiteAddressStreet2":null,"CareSiteAddressStreet3":null,"CareSiteAddressCity":"Gilbert","CareSiteAddressState":"AZ","CareSiteAddressZipCode":"85295","Latitude":33.296516,"Longitude":-111.750586,"CareSitePhoneNumber":"4809642908","OrganiztionGroupName":null,"DescriptionOfService":null,"Limitation":null},{"Name":"Freed, Lewis  - Podiatrist ","AffiliationName":"TriWest - PC3","RelationshipName":"PC3","ProviderName":"Freed, Lewis ","ProviderAgreementName":null,"SpecialtyName":"Podiatrist","SpecialtyCode":"213E00000X","HPP":"Unknown","HighPerformingProvider":"TriWest - PC3(U)","CareSiteName":"Orthopedic Specialists of North America PLLC","CareSiteLocationAddress":"525 S Chandler Village Dr Ste 1, Chandler, AZ, 85226","CareSiteAddressStreet":"525 S Chandler Village Dr Ste 1","CareSiteAddressStreet1":"525 S Chandler Village Dr","CareSiteAddressStreet2":"Ste 1","CareSiteAddressStreet3":null,"CareSiteAddressCity":"Chandler","CareSiteAddressState":"AZ","CareSiteAddressZipCode":"85226","Latitude":33.2956545171,"Longitude":-111.9021362032,"CareSitePhoneNumber":"4807500303","OrganiztionGroupName":null,"DescriptionOfService":null,"Limitation":null},{"Name":"Freed, Lewis - Podiatrist ","AffiliationName":"TriWest - Choice","RelationshipName":"Choice","ProviderName":"Freed, Lewis ","ProviderAgreementName":null,"SpecialtyName":"Podiatrist","SpecialtyCode":"213E00000X","HPP":"Unknown","HighPerformingProvider":"TriWest - Choice(U)","CareSiteName":"Lewis H Freed DPM PC","CareSiteLocationAddress":"3195 S Price Rd Ste 148, Chandler, AZ, 85248","CareSiteAddressStreet":"3195 S Price Rd Ste 148","CareSiteAddressStreet1":"3195 S Price Rd","CareSiteAddressStreet2":"Ste 148","CareSiteAddressStreet3":null,"CareSiteAddressCity":"Chandler","CareSiteAddressState":"AZ","CareSiteAddressZipCode":"85248","Latitude":33.258135,"Longitude":-111.887927,"CareSitePhoneNumber":"4807057300","OrganiztionGroupName":null,"DescriptionOfService":null,"Limitation":null},{"Name":"Freed, Lewis  - Podiatrist ","AffiliationName":"TriWest - PC3","RelationshipName":"PC3","ProviderName":"Freed, Lewis ","ProviderAgreementName":null,"SpecialtyName":"Podiatrist","SpecialtyCode":"213E00000X","HPP":"Unknown","HighPerformingProvider":"TriWest - PC3(U)","CareSiteName":"Orthopedic Specialists of North America PLLC","CareSiteLocationAddress":"1760 E Pecos Rd Ste 207, Gilbert, AZ, 85295","CareSiteAddressStreet":"1760 E Pecos Rd Ste 207","CareSiteAddressStreet1":"1760 E Pecos Rd","CareSiteAddressStreet2":"Ste 207","CareSiteAddressStreet3":null,"CareSiteAddressCity":"Gilbert","CareSiteAddressState":"AZ","CareSiteAddressZipCode":"85295","Latitude":33.296389,"Longitude":-111.752372,"CareSitePhoneNumber":"4809642908","OrganiztionGroupName":null,"DescriptionOfService":null,"Limitation":null},{"Name":"Freed, Lewis - Podiatrist ","AffiliationName":"TriWest - PC3","RelationshipName":"PC3","ProviderName":"Freed, Lewis ","ProviderAgreementName":null,"SpecialtyName":"Podiatrist","SpecialtyCode":"213E00000X","HPP":"Unknown","HighPerformingProvider":"TriWest - PC3(U)","CareSiteName":"Orthopedic Specialists of North America PLLC","CareSiteLocationAddress":"10250 N 92nd St Ste 308, Scottsdale, AZ, 85258","CareSiteAddressStreet":"10250 N 92nd St Ste 308","CareSiteAddressStreet1":"10250 N 92nd St","CareSiteAddressStreet2":"Ste 308","CareSiteAddressStreet3":null,"CareSiteAddressCity":"Scottsdale","CareSiteAddressState":"AZ","CareSiteAddressZipCode":"85258","Latitude":33.580485,"Longitude":-111.882899,"CareSitePhoneNumber":"6026313161","OrganiztionGroupName":null,"DescriptionOfService":null,"Limitation":null},{"Name":"Freed, Lewis - Podiatrist    ","AffiliationName":"TriWest - Choice","RelationshipName":"Choice","ProviderName":"Freed, Lewis ","ProviderAgreementName":null,"SpecialtyName":"Podiatrist","SpecialtyCode":"213E00000X","HPP":"Unknown","HighPerformingProvider":"TriWest - Choice(U)","CareSiteName":"Lewis H Freed DPM PC","CareSiteLocationAddress":"3195 S Price Rd Ste 148, Chandler, AZ, 85248","CareSiteAddressStreet":"3195 S Price Rd Ste 148","CareSiteAddressStreet1":"3195 S Price Rd","CareSiteAddressStreet2":"Ste 148","CareSiteAddressStreet3":null,"CareSiteAddressCity":"Chandler","CareSiteAddressState":"AZ","CareSiteAddressZipCode":"85248","Latitude":33.258135,"Longitude":-111.887927,"CareSitePhoneNumber":"4807057300","OrganiztionGroupName":null,"DescriptionOfService":null,"Limitation":null},{"Name":"Freed, Lewis  - Podiatrist ","AffiliationName":"TriWest - Choice","RelationshipName":"Choice","ProviderName":"Freed, Lewis ","ProviderAgreementName":null,"SpecialtyName":"Podiatrist","SpecialtyCode":"213E00000X","HPP":"Unknown","HighPerformingProvider":"TriWest - Choice(U)","CareSiteName":"Lewis H Freed DPM PC","CareSiteLocationAddress":"6116 E Arbor Ave Ste 118, Mesa, AZ, 85206","CareSiteAddressStreet":"6116 E Arbor Ave Ste 118","CareSiteAddressStreet1":"6116 E Arbor Ave","CareSiteAddressStreet2":"Ste 118","CareSiteAddressStreet3":null,"CareSiteAddressCity":"Mesa","CareSiteAddressState":"AZ","CareSiteAddressZipCode":"85206","Latitude":33.413301,"Longitude":-111.698479,"CareSitePhoneNumber":"4809241552","OrganiztionGroupName":null,"DescriptionOfService":null,"Limitation":null},{"Name":"Freed, Lewis - Podiatrist ","AffiliationName":"TriWest - PC3","RelationshipName":"PC3","ProviderName":"Freed, Lewis ","ProviderAgreementName":null,"SpecialtyName":"Podiatrist","SpecialtyCode":"213E00000X","HPP":"Unknown","HighPerformingProvider":"TriWest - PC3(U)","CareSiteName":"OSNA PLLC","CareSiteLocationAddress":"2940 E Banner Gateway Dr, Gilbert, AZ, 85234","CareSiteAddressStreet":"2940 E Banner Gateway Dr","CareSiteAddressStreet1":null,"CareSiteAddressStreet2":null,"CareSiteAddressStreet3":null,"CareSiteAddressCity":"Gilbert","CareSiteAddressState":"AZ","CareSiteAddressZipCode":"85234","Latitude":33.383125,"Longitude":-111.724894,"CareSitePhoneNumber":"4809642908","OrganiztionGroupName":null,"DescriptionOfService":null,"Limitation":null},{"Name":"Freed, Lewis - Podiatrist ","AffiliationName":"TriWest - PC3","RelationshipName":"PC3","ProviderName":"Freed, Lewis ","ProviderAgreementName":null,"SpecialtyName":"Podiatrist","SpecialtyCode":"213E00000X","HPP":"Unknown","HighPerformingProvider":"TriWest - PC3(U)","CareSiteName":"OrthoArizona","CareSiteLocationAddress":"525 S Chandler Village Dr Ste 1, Chandler, AZ, 85226","CareSiteAddressStreet":"525 S Chandler Village Dr Ste 1","CareSiteAddressStreet1":"525 S Chandler Village Dr","CareSiteAddressStreet2":"Ste 1","CareSiteAddressStreet3":null,"CareSiteAddressCity":"Chandler","CareSiteAddressState":"AZ","CareSiteAddressZipCode":"85226","Latitude":33.2956545171,"Longitude":-111.9021362032,"CareSitePhoneNumber":"4809642908","OrganiztionGroupName":null,"DescriptionOfService":null,"Limitation":null},{"Name":"Freed, Lewis  - Podiatrist ","AffiliationName":"TriWest - PC3","RelationshipName":"PC3","ProviderName":"Freed, Lewis ","ProviderAgreementName":null,"SpecialtyName":"Podiatrist","SpecialtyCode":"213E00000X","HPP":"Unknown","HighPerformingProvider":"TriWest - PC3(U)","CareSiteName":"Orthopedic Specialists of North America PLLC","CareSiteLocationAddress":"1760 E Pecos Rd Ste 207, Gilbert, AZ, 85295","CareSiteAddressStreet":"1760 E Pecos Rd Ste 207","CareSiteAddressStreet1":"1760 E Pecos Rd","CareSiteAddressStreet2":"Ste 207","CareSiteAddressStreet3":null,"CareSiteAddressCity":"Gilbert","CareSiteAddressState":"AZ","CareSiteAddressZipCode":"85295","Latitude":33.296389,"Longitude":-111.752372,"CareSitePhoneNumber":"4809642908","OrganiztionGroupName":null,"DescriptionOfService":null,"Limitation":null},{"Name":"Freed, Lewis  - Podiatrist ","AffiliationName":"TriWest - Choice","RelationshipName":"Choice","ProviderName":"Freed, Lewis ","ProviderAgreementName":null,"SpecialtyName":"Podiatrist","SpecialtyCode":"213E00000X","HPP":"Unknown","HighPerformingProvider":"TriWest - Choice(U)","CareSiteName":"Lewis H Freed DPM PC","CareSiteLocationAddress":"3195 S Price Rd Ste 148, Chandler, AZ, 85248","CareSiteAddressStreet":"3195 S Price Rd Ste 148","CareSiteAddressStreet1":"3195 S Price Rd","CareSiteAddressStreet2":"Ste 148","CareSiteAddressStreet3":null,"CareSiteAddressCity":"Chandler","CareSiteAddressState":"AZ","CareSiteAddressZipCode":"85248","Latitude":33.258135,"Longitude":-111.887927,"CareSitePhoneNumber":"4807057300","OrganiztionGroupName":null,"DescriptionOfService":null,"Limitation":null},{"Name":"Freed, Lewis - Podiatrist ","AffiliationName":"TriWest - PC3","RelationshipName":"PC3","ProviderName":"Freed, Lewis ","ProviderAgreementName":null,"SpecialtyName":"Podiatrist","SpecialtyCode":"213E00000X","HPP":"Unknown","HighPerformingProvider":"TriWest - PC3(U)","CareSiteName":"Orthopedic Specialists of North America PLLC","CareSiteLocationAddress":"6116 E Arbor Ave Ste 118, Mesa, AZ, 85206","CareSiteAddressStreet":"6116 E Arbor Ave Ste 118","CareSiteAddressStreet1":"6116 E Arbor Ave","CareSiteAddressStreet2":"Ste 118","CareSiteAddressStreet3":null,"CareSiteAddressCity":"Mesa","CareSiteAddressState":"AZ","CareSiteAddressZipCode":"85206","Latitude":33.413705,"Longitude":-111.698513,"CareSitePhoneNumber":"4809241552","OrganiztionGroupName":null,"DescriptionOfService":null,"Limitation":null}]}'
+      http_version:
+    recorded_at: Thu, 16 Jan 2020 20:16:26 GMT
+  - request:
+      method: get
+      uri: https://np.dws.ppms.va.gov/v1.0/CareSites('Lewis+H+Freed+DPM+PC')
+      body:
+        encoding: US-ASCII
+        string: ''
+      headers:
+        User-Agent:
+        - Faraday v1.0.0
+        Accept:
+        - application/json
+    response:
+      status:
+        code: 200
+        message: OK
+      headers:
+        cache-control:
+        - no-cache
+        pragma:
+        - no-cache
+        content-length:
+        - '1237'
+        content-type:
+        - application/json; odata.metadata=minimal
+        expires:
+        - "-1"
+        vary:
+        - Accept-Encoding
+        server:
+        - Microsoft-IIS/10.0
+        odata-version:
+        - '4.0'
+        x-aspnet-version:
+        - 4.0.30319
+        request-context:
+        - appId=cid-v1:eb19c193-bb35-487a-bd34-bf11c4cecb5f
+        access-control-expose-headers:
+        - Request-Context
+        x-powered-by:
+        - ASP.NET
+        x-content-type-options:
+        - nosniff
+        set-cookie:
+        - ARRAffinity=3d15955dbb3ae948d97f99668b2f8e7d0da69760a7a60c59ac60dcf8438af508;Path=/;HttpOnly;Domain=np.dws.ppms.va.gov
+        date:
+        - Thu, 16 Jan 2020 20:16:26 GMT
+        connection:
+        - close
+      body:
+        encoding: ASCII-8BIT
+        string: '{"@odata.context":"https://dws.ppms.va.gov/v1.0/$metadata#CareSites","value":[{"Name":"Lewis H Freed DPM PC","Id":"bffe41f7-91ee-4c66-81f0-a3ee78be02e9","CareSiteType":"Facility","VaCareSite":false,"CenterOfExcellence":"Unknown","SiteContactName":null,"OwningOrganizationName":null,"OtherName":null,"IsHandicapAccessible":false,"IsExternal":true,"Street":"3195 S Price Rd Ste 148","City":"Chandler","State":"AZ","ZipCode":"85248","County":null,"Country":null,"Latitude":33.258135,"Longitude":-111.887927,"Geocoded":true,"Visn":null,"Facility":null,"ParentStationNumber":null,"StationNumber":null,"StationName":null,"MainSitePhone":null}]}'
+      http_version:
+    recorded_at: Thu, 16 Jan 2020 20:16:26 GMT
+  - request:
+      method: get
+      uri: https://np.dws.ppms.va.gov/v1.0/PlaceOfServiceLocator?address=85286&driveTime=75&maxResults=5&network=0&posCodes=01&radius=25
+      body:
+        encoding: US-ASCII
+        string: ''
+      headers:
+        User-Agent:
+        - Faraday v1.0.0
+        Accept:
+        - application/json
+    response:
+      status:
+        code: 404
+        message: Not Found
+      headers:
+        cache-control:
+        - no-cache
+        pragma:
+        - no-cache
+        content-length:
+        - '103'
+        content-type:
+        - application/json; odata.metadata=minimal
+        expires:
+        - "-1"
+        server:
+        - Microsoft-IIS/10.0
+        odata-version:
+        - '4.0'
+        x-aspnet-version:
+        - 4.0.30319
+        request-context:
+        - appId=cid-v1:eb19c193-bb35-487a-bd34-bf11c4cecb5f
+        access-control-expose-headers:
+        - Request-Context
+        x-powered-by:
+        - ASP.NET
+        x-content-type-options:
+        - nosniff
+        set-cookie:
+        - ARRAffinity=3d15955dbb3ae948d97f99668b2f8e7d0da69760a7a60c59ac60dcf8438af508;Path=/;HttpOnly;Domain=np.dws.ppms.va.gov
+        date:
+        - Thu, 16 Jan 2020 20:16:20 GMT
+        connection:
+        - close
+      body:
+        encoding: UTF-8
+        string: '{"error":{"code":"","message":"No Providers found based on Address,
+          Radius and Filter Criteria given"}}'
+      http_version:
+    recorded_at: Thu, 16 Jan 2020 20:16:20 GMT
+  - request:
+      method: get
+      uri: https://np.dws.ppms.va.gov/v1.0/PlaceOfServiceLocator?address='South%20Gilbert%20Road,%20Chandler,%20Arizona%2085286,%20United%20States'&driveTime=10000&maxResults=21&network=0&posCodes=17&radius=80.50410703808843
+      body:
+        encoding: US-ASCII
+        string: ''
+      headers:
+        User-Agent:
+        - Faraday v1.0.0
+        Accept:
+        - application/json
+    response:
+      status:
+        code: 200
+        message: OK
+      headers:
+        cache-control:
+        - no-cache
+        pragma:
+        - no-cache
+        content-length:
+        - '1071'
+        content-type:
+        - application/json; odata.metadata=minimal
+        expires:
+        - "-1"
+        vary:
+        - Accept-Encoding
+        server:
+        - Microsoft-IIS/10.0
+        odata-version:
+        - '4.0'
+        x-aspnet-version:
+        - 4.0.30319
+        request-context:
+        - appId=cid-v1:eb19c193-bb35-487a-bd34-bf11c4cecb5f
+        access-control-expose-headers:
+        - Request-Context
+        x-powered-by:
+        - ASP.NET
+        x-content-type-options:
+        - nosniff
+        set-cookie:
+        - ARRAffinity=3d15955dbb3ae948d97f99668b2f8e7d0da69760a7a60c59ac60dcf8438af508;Path=/;HttpOnly;Domain=np.dws.ppms.va.gov
+        date:
+        - Thu, 16 Jan 2020 20:16:23 GMT
+        connection:
+        - close
+      body:
+        encoding: ASCII-8BIT
+        string: '{"@odata.context":"https://np.dws.ppms.va.gov/v1.0/$metadata#Collection(PpmsDataWebService.Models.ProviderLocatorResult)","value":[{"Miles":0.79,"Minutes":3.383,"ProviderName":"MinuteClinic
+          LLC","ProviderSpecialty":"Clinic/Center","SpecialtyCode":"261Q00000X","PreferredMeansReceivingReferralHSRM":false,"PreferredMeansReceivingReferralSecuredEmail":false,"PreferredMeansReceivingReferralMail":false,"PreferredMeansReceivingReferralDirectMessaging":false,"PreferredMeansReceivingReferralFax":false,"HPP":"Unknown","CareSite":"MinuteClinic
+          LLC","CareSiteAddress":"2010 S Dobson Rd Chandler, AZ 85286","CareSiteAddressStreet":"2010
+          S Dobson Rd","CareSiteAddressCity":"Chandler","CareSiteAddressState":"AZ","CareSiteAddressZipCode":"85286","CareSitePhoneNumber":"8663892727","WorkHours":null,"ProviderGender":"NotSpecified","ProviderNetwork":"CCN
+          Region 1","NetworkId":null,"ProviderAcceptingNewPatients":false,"ProviderPrimaryCare":false,"QualityRanking":null,"ProviderIdentifier":"1629245311","Latitude":33.275526,"Longitude":-111.877057},{"Miles":1.02,"Minutes":3.65,"ProviderName":"Walgreens
+          Healthcare Clinic","ProviderSpecialty":"Clinic/Center","SpecialtyCode":"261Q00000X","PreferredMeansReceivingReferralHSRM":false,"PreferredMeansReceivingReferralSecuredEmail":false,"PreferredMeansReceivingReferralMail":false,"PreferredMeansReceivingReferralDirectMessaging":false,"PreferredMeansReceivingReferralFax":false,"HPP":"Unknown","CareSite":"Take
+          Care Health Arizona PC","CareSiteAddress":"1975 S Alma School Rd Chandler,
+          AZ 85286","CareSiteAddressStreet":"1975 S Alma School Rd","CareSiteAddressCity":"Chandler","CareSiteAddressState":"AZ","CareSiteAddressZipCode":"85286","CareSitePhoneNumber":"8559254733","WorkHours":null,"ProviderGender":"NotSpecified","ProviderNetwork":"CCN
+          Region 1","NetworkId":null,"ProviderAcceptingNewPatients":false,"ProviderPrimaryCare":false,"QualityRanking":null,"ProviderIdentifier":"1992993570","Latitude":33.277213,"Longitude":-111.857814},{"Miles":6.493,"Minutes":10.483,"ProviderName":"MinuteClinic
+          LLC","ProviderSpecialty":"Clinic/Center","SpecialtyCode":"261Q00000X","PreferredMeansReceivingReferralHSRM":false,"PreferredMeansReceivingReferralSecuredEmail":false,"PreferredMeansReceivingReferralMail":false,"PreferredMeansReceivingReferralDirectMessaging":false,"PreferredMeansReceivingReferralFax":false,"HPP":"Unknown","CareSite":"MinuteClinic
+          LLC","CareSiteAddress":"5975 W Chandler Blvd Chandler, AZ 85226","CareSiteAddressStreet":"5975
+          W Chandler Blvd","CareSiteAddressCity":"Chandler","CareSiteAddressState":"AZ","CareSiteAddressZipCode":"85226","CareSitePhoneNumber":"8663892727","WorkHours":null,"ProviderGender":"NotSpecified","ProviderNetwork":"CCN
+          Region 1","NetworkId":null,"ProviderAcceptingNewPatients":false,"ProviderPrimaryCare":false,"QualityRanking":null,"ProviderIdentifier":"1629245311","Latitude":33.30479,"Longitude":-111.94499},{"Miles":8.46,"Minutes":15.05,"ProviderName":"Walgreens
+          Healthcare Clinic","ProviderSpecialty":"Clinic/Center","SpecialtyCode":"261Q00000X","PreferredMeansReceivingReferralHSRM":false,"PreferredMeansReceivingReferralSecuredEmail":false,"PreferredMeansReceivingReferralMail":false,"PreferredMeansReceivingReferralDirectMessaging":false,"PreferredMeansReceivingReferralFax":false,"HPP":"Unknown","CareSite":"Take
+          Care Health Arizona PC","CareSiteAddress":"785 S Cooper Rd Gilbert, AZ 85233","CareSiteAddressStreet":"785
+          S Cooper Rd","CareSiteAddressCity":"Gilbert","CareSiteAddressState":"AZ","CareSiteAddressZipCode":"85233","CareSitePhoneNumber":"8559254733","WorkHours":null,"ProviderGender":"NotSpecified","ProviderNetwork":"CCN
+          Region 1","NetworkId":null,"ProviderAcceptingNewPatients":false,"ProviderPrimaryCare":false,"QualityRanking":null,"ProviderIdentifier":"1992993570","Latitude":33.336045,"Longitude":-111.806103},{"Miles":9.135,"Minutes":15.833,"ProviderName":"MinuteClinic
+          LLC","ProviderSpecialty":"Clinic/Center","SpecialtyCode":"261Q00000X","PreferredMeansReceivingReferralHSRM":false,"PreferredMeansReceivingReferralSecuredEmail":false,"PreferredMeansReceivingReferralMail":false,"PreferredMeansReceivingReferralDirectMessaging":false,"PreferredMeansReceivingReferralFax":false,"HPP":"Unknown","CareSite":"MinuteClinic
+          LLC","CareSiteAddress":"2995 E Chandler Heights Rd Chandler, AZ 85249","CareSiteAddressStreet":"2995
+          E Chandler Heights Rd","CareSiteAddressCity":"Chandler","CareSiteAddressState":"AZ","CareSiteAddressZipCode":"85249","CareSitePhoneNumber":"8663892727","WorkHours":null,"ProviderGender":"NotSpecified","ProviderNetwork":"CCN
+          Region 1","NetworkId":null,"ProviderAcceptingNewPatients":false,"ProviderPrimaryCare":false,"QualityRanking":null,"ProviderIdentifier":"1629245311","Latitude":33.23309,"Longitude":-111.79016}]}'
+      http_version:
+    recorded_at: Thu, 16 Jan 2020 20:16:23 GMT
+  - request:
+      method: get
+      uri: https://np.dws.ppms.va.gov/v1.0/PlaceOfServiceLocator?address=85286&driveTime=75&maxResults=5&network=0&posCodes=20&radius=25
+      body:
+        encoding: US-ASCII
+        string: ''
+      headers:
+        User-Agent:
+        - Faraday v1.0.0
+        Accept:
+        - application/json
+    response:
+      status:
+        code: 200
+        message: OK
+      headers:
+        cache-control:
+        - no-cache
+        pragma:
+        - no-cache
+        content-length:
+        - '1237'
+        content-type:
+        - application/json; odata.metadata=minimal
+        expires:
+        - "-1"
+        vary:
+        - Accept-Encoding
+        server:
+        - Microsoft-IIS/10.0
+        odata-version:
+        - '4.0'
+        x-aspnet-version:
+        - 4.0.30319
+        request-context:
+        - appId=cid-v1:eb19c193-bb35-487a-bd34-bf11c4cecb5f
+        access-control-expose-headers:
+        - Request-Context
+        x-powered-by:
+        - ASP.NET
+        x-content-type-options:
+        - nosniff
+        set-cookie:
+        - ARRAffinity=3d15955dbb3ae948d97f99668b2f8e7d0da69760a7a60c59ac60dcf8438af508;Path=/;HttpOnly;Domain=np.dws.ppms.va.gov
+        date:
+        - Thu, 16 Jan 2020 20:16:26 GMT
+        connection:
+        - close
+      body:
+        encoding: ASCII-8BIT
+        string: '{"@odata.context":"https://np.dws.ppms.va.gov/v1.0/$metadata#Collection(PpmsDataWebService.Models.ProviderLocatorResult)","value":[{"Miles":2.248,"Minutes":4.75,"ProviderName":"NextCare
+          Arizona LLC","ProviderSpecialty":"Clinic/Center - Urgent Care","SpecialtyCode":"261QU0200X","PreferredMeansReceivingReferralHSRM":false,"PreferredMeansReceivingReferralSecuredEmail":false,"PreferredMeansReceivingReferralMail":false,"PreferredMeansReceivingReferralDirectMessaging":false,"PreferredMeansReceivingReferralFax":false,"HPP":"Unknown","CareSite":"NextCare
+          Urgent Care Dobson","CareSiteAddress":"600 S Dobson Rd Ste C26 Chandler, AZ
+          85224","CareSiteAddressStreet":"600 S Dobson Rd Ste C26","CareSiteAddressCity":"Chandler","CareSiteAddressState":"AZ","CareSiteAddressZipCode":"85224","CareSitePhoneNumber":"4808141560","WorkHours":null,"ProviderGender":"NotSpecified","ProviderNetwork":"TriWest
+          - PC3","NetworkId":null,"ProviderAcceptingNewPatients":false,"ProviderPrimaryCare":false,"QualityRanking":null,"ProviderIdentifier":"1043371826","Latitude":33.2962,"Longitude":-111.87682},{"Miles":3.153,"Minutes":7.083,"ProviderName":"NextCare
+          Arizona LLC","ProviderSpecialty":"Clinic/Center - Urgent Care","SpecialtyCode":"261QU0200X","PreferredMeansReceivingReferralHSRM":false,"PreferredMeansReceivingReferralSecuredEmail":false,"PreferredMeansReceivingReferralMail":false,"PreferredMeansReceivingReferralDirectMessaging":false,"PreferredMeansReceivingReferralFax":false,"HPP":"Unknown","CareSite":"NextCare
+          Urgent Care Ocotillo","CareSiteAddress":"1155 W Ocotillo Rd Ste 4 Chandler,
+          AZ 85248","CareSiteAddressStreet":"1155 W Ocotillo Rd Ste 4","CareSiteAddressCity":"Chandler","CareSiteAddressState":"AZ","CareSiteAddressZipCode":"85248","CareSitePhoneNumber":"4803747400","WorkHours":null,"ProviderGender":"NotSpecified","ProviderNetwork":"TriWest
+          - PC3","NetworkId":null,"ProviderAcceptingNewPatients":false,"ProviderPrimaryCare":false,"QualityRanking":null,"ProviderIdentifier":"1043371826","Latitude":33.246766,"Longitude":-111.866671},{"Miles":7.197,"Minutes":11.217,"ProviderName":"Urgent
+          Care Centers of Arizona LLC","ProviderSpecialty":"Clinic/Center - Urgent Care","SpecialtyCode":"261QU0200X","PreferredMeansReceivingReferralHSRM":false,"PreferredMeansReceivingReferralSecuredEmail":false,"PreferredMeansReceivingReferralMail":false,"PreferredMeansReceivingReferralDirectMessaging":false,"PreferredMeansReceivingReferralFax":false,"HPP":"Unknown","CareSite":"Medpost
+          Urgent Care - Gilbert Fiesta","CareSiteAddress":"2487 S Gilbert Rd Ste A108
+          Gilbert, AZ 85295","CareSiteAddressStreet":"2487 S Gilbert Rd Ste A108","CareSiteAddressCity":"Gilbert","CareSiteAddressState":"AZ","CareSiteAddressZipCode":"85295","CareSitePhoneNumber":"4808991341","WorkHours":null,"ProviderGender":"NotSpecified","ProviderNetwork":"CCN
+          Region 1","NetworkId":null,"ProviderAcceptingNewPatients":false,"ProviderPrimaryCare":false,"QualityRanking":null,"ProviderIdentifier":"1447660816","Latitude":33.305014,"Longitude":-111.788763},{"Miles":11.927,"Minutes":17.267,"ProviderName":"American
+          Current Care of Arizona PA","ProviderSpecialty":"Clinic/Center - Urgent Care","SpecialtyCode":"261QU0200X","PreferredMeansReceivingReferralHSRM":false,"PreferredMeansReceivingReferralSecuredEmail":false,"PreferredMeansReceivingReferralMail":false,"PreferredMeansReceivingReferralDirectMessaging":false,"PreferredMeansReceivingReferralFax":false,"HPP":"Unknown","CareSite":"Concentra
+          Urgent Care","CareSiteAddress":"1710 W Southern Ave Mesa, AZ 85202","CareSiteAddressStreet":"1710
+          W Southern Ave","CareSiteAddressCity":"Mesa","CareSiteAddressState":"AZ","CareSiteAddressZipCode":"85202","CareSitePhoneNumber":"8669446046","WorkHours":null,"ProviderGender":"NotSpecified","ProviderNetwork":"CCN
+          Region 1","NetworkId":null,"ProviderAcceptingNewPatients":false,"ProviderPrimaryCare":false,"QualityRanking":null,"ProviderIdentifier":"1871782490","Latitude":33.3931849665,"Longitude":-111.8681063774},{"Miles":13.336,"Minutes":20.067,"ProviderName":"NextCare
+          Arizona LLC","ProviderSpecialty":"Clinic/Center - Urgent Care","SpecialtyCode":"261QU0200X","PreferredMeansReceivingReferralHSRM":false,"PreferredMeansReceivingReferralSecuredEmail":false,"PreferredMeansReceivingReferralMail":false,"PreferredMeansReceivingReferralDirectMessaging":false,"PreferredMeansReceivingReferralFax":false,"HPP":"Unknown","CareSite":"NextCare
+          Urgent Care Higley","CareSiteAddress":"6343 S Higley Rd Gilbert, AZ 85298","CareSiteAddressStreet":"6343
+          S Higley Rd","CareSiteAddressCity":"Gilbert","CareSiteAddressState":"AZ","CareSiteAddressZipCode":"85298","CareSitePhoneNumber":"4807482712","WorkHours":null,"ProviderGender":"NotSpecified","ProviderNetwork":"TriWest
+          - PC3","NetworkId":null,"ProviderAcceptingNewPatients":false,"ProviderPrimaryCare":false,"QualityRanking":null,"ProviderIdentifier":"1043371826","Latitude":33.23498,"Longitude":-111.71979}]}'
+      http_version:
+    recorded_at: Thu, 16 Jan 2020 20:16:26 GMT
+  - request:
+      method: get
+      uri: https://np.dws.ppms.va.gov/v1.0/Specialties
+      body:
+        encoding: US-ASCII
+        string: ''
+      headers:
+        User-Agent:
+        - Faraday v1.0.0
+        Accept:
+        - application/json
+    response:
+      status:
+        code: 200
+        message: OK
+      headers:
+        cache-control:
+        - no-cache
+        pragma:
+        - no-cache
+        content-length:
+        - '1237'
+        content-type:
+        - application/json; odata.metadata=minimal
+        expires:
+        - "-1"
+        vary:
+        - Accept-Encoding
+        server:
+        - Microsoft-IIS/10.0
+        odata-version:
+        - '4.0'
+        x-aspnet-version:
+        - 4.0.30319
+        request-context:
+        - appId=cid-v1:eb19c193-bb35-487a-bd34-bf11c4cecb5f
+        access-control-expose-headers:
+        - Request-Context
+        x-powered-by:
+        - ASP.NET
+        x-content-type-options:
+        - nosniff
+        set-cookie:
+        - ARRAffinity=3d15955dbb3ae948d97f99668b2f8e7d0da69760a7a60c59ac60dcf8438af508;Path=/;HttpOnly;Domain=np.dws.ppms.va.gov
+        date:
+        - Thu, 16 Jan 2020 20:16:26 GMT
+        connection:
+        - close
+      body:
+        encoding: ASCII-8BIT
+        string: '{"@odata.context":"https://dws.ppms.va.gov/v1.0/$metadata#Specialties","value":[{"SpecialtyCode":"101Y00000X","Name":"Counselor","Grouping":"Behavioral Health & Social Service Providers","Classification":"Counselor","Specialization":null,"SpecialtyDescription":"A provider who is trained and educated in the performance of behavior health services through interpersonal communications and analysis. Training and education at the specialty level usually requires a master''s degree and clinical experience and supervision for licensure or certification."},{"SpecialtyCode":"101YA0400X","Name":"Counselor - Addiction (Substance Use Disorder)","Grouping":"Behavioral Health & Social Service Providers","Classification":"Counselor","Specialization":"Addiction (Substance Use Disorder)","SpecialtyDescription":"Definition to come..."},{"SpecialtyCode":"101YM0800X","Name":"Counselor - Mental Health","Grouping":"Behavioral Health & Social Service Providers","Classification":"Counselor","Specialization":"Mental Health","SpecialtyDescription":"Definition to come..."},{"SpecialtyCode":"101YP1600X","Name":"Counselor - Pastoral","Grouping":"Behavioral Health & Social Service Providers","Classification":"Counselor","Specialization":"Pastoral","SpecialtyDescription":"Definition to come..."},{"SpecialtyCode":"101YP2500X","Name":"Counselor - Professional","Grouping":"Behavioral Health & Social Service Providers","Classification":"Counselor","Specialization":"Professional","SpecialtyDescription":"Definition to come..."},{"SpecialtyCode":"101YS0200X","Name":"Counselor - School","Grouping":"Behavioral Health & Social Service Providers","Classification":"Counselor","Specialization":"School","SpecialtyDescription":"Definition to come…"}]}'
+      http_version:
+    recorded_at: Thu, 16 Jan 2020 20:16:26 GMT
+  recorded_with: VCR 5.0.0
+  

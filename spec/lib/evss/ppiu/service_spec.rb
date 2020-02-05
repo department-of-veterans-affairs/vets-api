@@ -133,11 +133,9 @@ describe EVSS::PPIU::Service do
       it 'creates a PII log' do
         VCR.use_cassette('evss/ppiu/update_service_error') do
           expect do
-            begin
-              subject.update_payment_information(request_payload)
-            rescue
-              EVSS::PPIU::ServiceException
-            end
+            subject.update_payment_information(request_payload)
+          rescue
+            EVSS::PPIU::ServiceException
           end.to change(ppiu_pii_log, :count).by(1)
         end
 

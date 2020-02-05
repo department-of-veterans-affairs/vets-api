@@ -33,6 +33,15 @@ RSpec.describe 'Power of Attorney ', type: :request do
       expect(parsed['data']['attributes']['status']).to eq('pending')
     end
 
+    it 'returns the same successful response with all the data' do
+      post path, params: data, headers: headers
+      parsed = JSON.parse(response.body)
+      expect(parsed['data']['type']).to eq('claims_api_power_of_attorneys')
+      post path, params: data, headers: headers
+      newly_parsed = JSON.parse(response.body)
+      expect(newly_parsed['data']['id']).to eq(parsed['data']['id'])
+    end
+
     it 'returns a unsuccessful response without mvi' do
       allow_any_instance_of(ClaimsApi::Veteran).to receive(:mvi_record?).and_return(false)
       post path, params: data, headers: headers
@@ -41,7 +50,8 @@ RSpec.describe 'Power of Attorney ', type: :request do
 
     it 'sets the source' do
       post path, params: data, headers: headers
-      token = JSON.parse(response.body)['data']['id']
+      parsed = JSON.parse(response.body)
+      token = parsed['data']['id']
       poa = ClaimsApi::PowerOfAttorney.find(token)
       expect(poa.source_data['name']).to eq('TestConsumer')
     end
