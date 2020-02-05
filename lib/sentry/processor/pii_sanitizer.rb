@@ -13,8 +13,10 @@ module Sentry
           country
           dslogon_idvalue
           fileNumber
+          firstName
           fname
           gender
+          lastName
           lname
           mname
           phone
@@ -24,6 +26,7 @@ module Sentry
           ssn
           state
           street
+          va_eauth_authorization
           vaEauthPnid
           zipCode
         ].freeze
