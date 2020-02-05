@@ -111,6 +111,7 @@ gem 'zero_downtime_migrations'
 group :development do
   gem 'benchmark-ips'
   gem 'guard-rubocop'
+  gem 'httparty'
   gem 'seedbank'
   gem 'socksify'
   gem 'spring', platforms: :ruby # Spring speeds up development by keeping your application running in the background
