@@ -154,3 +154,4 @@ ExportGithubStats:
   cron: "0 */2 * * * America/New_York"
   class: GithubStatsJob
   description: "Send Github open PR stats to prometheus"
+  enabled: <%= Settings.hostname == 'dev-api.vets.gov' %>
