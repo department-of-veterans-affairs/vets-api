@@ -1,28 +1,10 @@
 # frozen_string_literal: true
 
-require_relative '../vaos/concerns/headers'
-
 module VAOS
-  class AppointmentRequestsService < Common::Client::Base
-    include Common::Client::Monitoring
-    include SentryLogging
-    include VAOS::Headers
-
-    configuration VAOS::Configuration
-
-    attr_accessor :user
-
-    STATSD_KEY_PREFIX = 'api.vaos'
-
-    def self.for_user(user)
-      rs = VAOS::AppointmentRequestsService.new
-      rs.user = user
-      rs
-    end
-
+  class AppointmentRequestsService < VAOS::BaseService
     def get_requests(start_date = nil, end_date = nil)
       with_monitoring do
-        response = perform(:get, get_request_url, date_params(start_date, end_date), headers(user))
+        response = perform(:get, get_request_url, date_params(start_date, end_date), headers)
 
         {
           data: deserialize(response.body),
@@ -34,7 +16,7 @@ module VAOS
     def post_request(params)
       with_monitoring do
         validated_params = form_object(params).params
-        response = perform(:post, post_request_url(params[:type]), validated_params, headers(user))
+        response = perform(:post, post_request_url(params[:type]), validated_params, headers)
 
         {
           data: OpenStruct.new(filter_cc_appointment_data(response.body))
@@ -45,7 +27,7 @@ module VAOS
     def put_request(id, params)
       with_monitoring do
         validated_params = form_object(params, id).params
-        response = perform(:put, put_request_url(id), validated_params, headers(user))
+        response = perform(:put, put_request_url(id), validated_params, headers)
 
         {
           data: OpenStruct.new(filter_cc_appointment_data(response.body))
@@ -81,9 +63,6 @@ module VAOS
         filter_cc_appointment_data(request)
         OpenStruct.new(request)
       end
-    rescue => e
-      log_message_to_sentry(e.message, :warn, invalid_json: json_hash)
-      []
     end
 
     def filter_cc_appointment_data(request)
