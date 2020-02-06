@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2020_01_17_193734) do
+ActiveRecord::Schema.define(version: 2020_02_05_145700) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
@@ -333,6 +333,7 @@ ActiveRecord::Schema.define(version: 2020_01_17_193734) do
     t.json "metadata"
     t.datetime "expires_at"
     t.index ["form_id", "user_uuid"], name: "index_in_progress_forms_on_form_id_and_user_uuid", unique: true
+    t.index ["user_uuid"], name: "index_in_progress_forms_on_user_uuid"
   end
 
   create_table "invalid_letter_address_edipis", id: :serial, force: :cascade do |t|
