@@ -14,18 +14,6 @@ RSpec.describe V0::DependentsApplicationsController do
   end
 
   describe '#show' do
-=begin
-    context 'with a valid bgs response' do
-      it 'returns a list of dependents' do
-        VCR.use_cassette('bgs/claimant_web_service/dependents') do
-          get(:show, params: { id: user.participant_id })
-          expect(response.code).to eq('200')
-          expect(response).to have_http_status(:ok)
-          expect(JSON.parse(response.body)['return_message']).to eq 'Records found'
-        end
-      end
-    end
-=end
     context 'with an empty bgs response' do
       it 'returns no content' do
         VCR.use_cassette('bgs/claimant_web_service/dependents_204') do
