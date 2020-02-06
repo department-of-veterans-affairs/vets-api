@@ -32,9 +32,9 @@ Flipper::UI.configure do |config|
 
   # Labeling what Flipper calls "actors" as "users" in the UI
   config.actors.title = 'Users'
-  config.percentage_of_actors.title = 'Percentage of Logged in Users'
-  config.percentage_of_actors.description = %(Percentage of logged in users functions independently of percentage of
-    time. If you enable 50% of logged in users and 25% of time, then the feature will always be enabled for 50% of users
+  config.percentage_of_actors.title = 'Percentage of Actors'
+  config.percentage_of_actors.description = %(By default, Actors are Logged in Users. Percentage of Actors functions independently of percentage of
+    time. If you enable 50% of logged in users and 25% of time, then the feature will always be enabled for 50% of actors (users)
     and occasionally enabled 25% of the time for everyone.)
 end
 

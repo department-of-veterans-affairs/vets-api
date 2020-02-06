@@ -63,9 +63,9 @@
           </form>
           <p class="vads-u-background-color--gray-lightest vads-u-font-size--sm vads-u-padding--2 vads-u-margin-bottom--0">
           <% if @feature.percentage_of_actors_value > 0 && !@feature.boolean_value %>
-            This feature is enabled for <%= @feature.percentage_of_actors_value %>% of logged in users.
+            This feature is enabled for <%= @feature.percentage_of_actors_value %>% of actors.
           <% else %>
-            This feature is not enabled by percentage of logged in users.
+            This feature is not enabled by percentage of actors.
           <% end %>
           </p>
         </div>

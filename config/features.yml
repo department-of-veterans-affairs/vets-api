@@ -44,3 +44,7 @@ features:
   va_profile_address_validation:
     description: >
       Enables calls to the VA Profile address validation service from the VA.gov Veteran profile page
+  ssoe:
+    actor: cookie_id
+    description: >
+      Enables ssoe
