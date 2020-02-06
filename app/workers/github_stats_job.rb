@@ -22,22 +22,17 @@ class GithubStatsJob
   ].freeze
 
   def get_open_prs
-    responses = []
-    REPOS.each do |repo|
-      url = "https://api.github.com/repos/department-of-veterans-affairs/#{repo}/pulls?state=open&per_page=100"
-      resp = HTTParty.get(url)
-      responses.concat(resp)
-    end
-
+    responses = get_repo_data
     open_prs = []
     responses.each do |response|
       h = {}
-      response.each do |k,v|
+      response.each do |k, v|
         next unless PR_KEYS.include?(k)
-        if k == 'head'      
-          h['repo_name'] = "#{v['repo']['name']}"
+
+        if k == 'head'
+          h['repo_name'] = (v['repo']['name']).to_s
         else
-          h["#{k}"] = "#{v}"
+          h[k.to_s] = v.to_s
         end
       end
       h['duration'] = (DateTime.now - h['updated_at'].parse)
@@ -46,10 +41,20 @@ class GithubStatsJob
     open_prs
   end
 
+  def get_repo_data
+    responses = []
+    REPOS.each do |repo|
+      url = "https://api.github.com/repos/department-of-veterans-affairs/#{repo}/pulls?state=open&per_page=100"
+      resp = HTTParty.get(url)
+      responses.concat(resp)
+    end
+    responses
+  end
+
   def perform
     open_prs = get_open_prs
     open_prs.each do |pr|
-      StatsD.measure("github:pull_request_duration", pr['duration'], tags: [repo: pr['repo_name'])
+      StatsD.measure('github:pull_request_duration', pr['duration'], tags: [repo: pr['repo_name']])
     end
   rescue => e
     Rails.logger.error(
