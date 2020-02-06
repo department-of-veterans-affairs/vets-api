@@ -3,28 +3,61 @@
 module VAOS
   module Middleware
     class VaosLogging < Faraday::Middleware
-      def initialize(app, type_key)
+      def initialize(app, service_name)
         super(app)
-        @type_key = type_key
+        @service_name = service_name
       end
 
       def call(env)
-        request_body = Base64.encode64(env.body) if env.body
+        start_time = Time.current
 
         @app.call(env).on_complete do |response_env|
-          PersonalInformationLog.create(
-            error_class: @type_key, # TODO: error_class is probably worth renaming
-            data: {
-              method: env.method,
-              url: env.url.to_s,
-              request_body: request_body,
-              response_body: Base64.encode64(response_env.body)
-            }
-          )
+          jti = jti(env, response_env)
+          duration = Time.current - start_time
+          status = response_env.status
+
+          if status.between?(200..299) 
+            logger.info('vaos service call succeeded:',
+              duration: duration,
+              status: status,
+              jti: jti,
+              url: env.url.to_s
+            )
+          else
+            logger.warn('vaos service call failed:',
+              duration: duration,
+              status: status,
+              jti: jti,
+              url: env.url.to_s
+            )
+          end
+        end
+      end
+
+      private
+
+      def decode_jwt(token)
+       JWT.decode(token, rsa_private.public_key, true, algorithm: 'RS512').first
+      end
+
+      def user_session_request?(env)
+        env.url.to_s.include?('users/v2/session?processRules=true') ? true : false
+      end
+
+      def rsa_private
+        OpenSSL::PKey::RSA.new(File.read(Settings.va_mobile.key_path))
+      end
+  
+      def jti(env, response_env)
+        if user_session_request?(env)
+          decode_jwt(response_env.body)['jti']
+        else
+          decode_jwt(env.headers['X-Vamf-Jwt'])
         end
       end
     end
   end
 end
+
 
 Faraday::Middleware.register_middleware vaos_logging: VAOS::Middleware::VaosLogging
