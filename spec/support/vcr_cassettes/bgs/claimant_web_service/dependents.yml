@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri: https://localhost:4447/ClaimantServiceBean/ClaimantWebService?WSDL
+    uri: https://internal-dsva-vagov-dev-fwdproxy-1893365470.us-gov-west-1.elb.amazonaws.com:4447/ClaimantServiceBean/ClaimantWebService?WSDL
     body:
       encoding: US-ASCII
       string: ''
@@ -718,7 +718,7 @@ http_interactions:
         </port>
         </service>
         </definitions>
-    http_version: 
+    http_version:
   recorded_at: Wed, 05 Feb 2020 19:56:53 GMT
 - request:
     method: post
@@ -774,8 +774,8 @@ http_interactions:
       string: <?xml version='1.0' encoding='UTF-8'?><S:Envelope xmlns:S="http://schemas.xmlsoap.org/soap/envelope/"><S:Header><work:WorkContext
         xmlns:work="http://oracle.com/weblogic/soap/workarea/">rO0ABXdUAB13ZWJsb2dpYy5hcHAuQ29ycG9yYXRlRGF0YUVBUgAAANYAAAAjd2VibG9naWMud29ya2FyZWEuU3RyaW5nV29ya0NvbnRleHQABjEwLjIuMAAA</work:WorkContext></S:Header><S:Body><ns2:findDependentsByPtcpntIdResponse
         xmlns:ns2="http://services.share.benefits.vba.va.gov/"><return><numberOfRecords>
-        2</numberOfRecords><persons><awardIndicator>N</awardIndicator><cityOfBirth>WASHINGTON</cityOfBirth><currentRelateStatus></currentRelateStatus><dateOfBirth>01/01/2000</dateOfBirth><dateOfDeath></dateOfDeath><deathReason></deathReason><emailAddress>Curt@email.com</emailAddress><firstName>CURT</firstName><gender></gender><lastName>WEBB-STER</lastName><middleName></middleName><proofOfDependency>Y</proofOfDependency><ptcpntId>32354974</ptcpntId><relatedToVet>N</relatedToVet><relationship>Child</relationship><ssn>500223351</ssn><ssnVerifyStatus>1</ssnVerifyStatus><stateOfBirth>DC</stateOfBirth></persons><persons><awardIndicator>N</awardIndicator><cityOfBirth>WASHINGTON</cityOfBirth><currentRelateStatus></currentRelateStatus><dateOfBirth>01/01/1970</dateOfBirth><dateOfDeath></dateOfDeath><deathReason></deathReason><emailAddress>Sharon@email.com</emailAddress><firstName>SHARON</firstName><gender></gender><lastName>WEBB-STER</lastName><middleName></middleName><proofOfDependency></proofOfDependency><ptcpntId>32354975</ptcpntId><relatedToVet>N</relatedToVet><relationship>Spouse</relationship><ssn>500223352</ssn><ssnVerifyStatus></ssnVerifyStatus><stateOfBirth>DC</stateOfBirth></persons><returnCode>SHAR
+        2</numberOfRecords><persons><awardIndicator>N</awardIndicator><cityOfBirth>WASHINGTON</cityOfBirth><currentRelateStatus>''</currentRelateStatus><dateOfBirth>01/01/2000</dateOfBirth><dateOfDeath>''</dateOfDeath><deathReason>''</deathReason><emailAddress>Curt@email.com</emailAddress><firstName>CURT</firstName><gender>''</gender><lastName>WEBB-STER</lastName><middleName>''</middleName><proofOfDependency>Y</proofOfDependency><ptcpntId>32354974</ptcpntId><relatedToVet>N</relatedToVet><relationship>Child</relationship><ssn>500223351</ssn><ssnVerifyStatus>1</ssnVerifyStatus><stateOfBirth>DC</stateOfBirth></persons><persons><awardIndicator>N</awardIndicator><cityOfBirth>WASHINGTON</cityOfBirth><currentRelateStatus>''</currentRelateStatus><dateOfBirth>01/01/1970</dateOfBirth><dateOfDeath>''</dateOfDeath><deathReason>''</deathReason><emailAddress>Sharon@email.com</emailAddress><firstName>SHARON</firstName><gender>''</gender><lastName>WEBB-STER</lastName><middleName>''</middleName><proofOfDependency>''</proofOfDependency><ptcpntId>32354975</ptcpntId><relatedToVet>N</relatedToVet><relationship>Spouse</relationship><ssn>500223352</ssn><ssnVerifyStatus>''</ssnVerifyStatus><stateOfBirth>DC</stateOfBirth></persons><returnCode>SHAR
         9999</returnCode><returnMessage>Records found</returnMessage></return></ns2:findDependentsByPtcpntIdResponse></S:Body></S:Envelope>
-    http_version: 
+    http_version:
   recorded_at: Wed, 05 Feb 2020 19:56:54 GMT
 recorded_with: VCR 5.0.0

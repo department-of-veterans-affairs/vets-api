@@ -6,20 +6,13 @@ module Swagger
       include Swagger::Blocks
 
       swagger_schema :Dependents do
-        key :required, [:data]
-
-        property :data, type: :object do
-          key :required, [:attributes]
-          property :attributes, type: :object do
-            property :number_of_records, type: :string, example: '1'
-            property :return_code, type: :string, example: 'SHAR 9999'
-            property :return_message, type: :string, example: 'Records found'
-            property :persons do
-              items do
-                key :type, :object
-                key :'$ref', :Persons
-              end
-            end
+        property :number_of_records, type: :string, example: '1'
+        property :return_code, type: :string, example: 'SHAR 9999'
+        property :return_message, type: :string, example: 'Records found'
+        property :persons do
+          items do
+            key :type, :object
+            key :'$ref', :Persons
           end
         end
       end
