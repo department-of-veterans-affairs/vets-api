@@ -79,7 +79,7 @@ describe MVI::Service do
           profile['search_token'] = 'WSDOC1908201553094460697640189'
           response = subject.find_profile(user)
           expect(response.status).to eq('OK')
-          expect(response.profile).to have_deep_attributes(mvi_profile)
+          expect(response.profile).to have_deep_attributes(profile)
         end
       end
 
@@ -251,7 +251,7 @@ describe MVI::Service do
             profile = mvi_profile
             profile['search_token'] = 'WSDOC1908281514193450364096012'
             response = subject.find_profile(user)
-            expect(response.profile).to have_deep_attributes(mvi_profile)
+            expect(response.profile).to have_deep_attributes(profile)
           end
         end
       end
