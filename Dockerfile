@@ -21,7 +21,7 @@ RUN mkdir -p /srv/vets-api/{clamav/database,pki/tls,secure,src} && \
     ln -s /srv/vets-api/pki /etc/pki
 # XXX: get rid of this when we have a better model for it
 COPY config/ca-trust/* /usr/local/share/ca-certificates/
-# normalize file extension between pem/crt
+# rename .pem files to .crt because update-ca-certificates ignores files that are not .crt
 RUN if [ -f /usr/local/share/ca-certificates/*.crt ]; then \
       cd /usr/local/share/ca-certificates ; for i in *.pem ; do mv $i ${i/pem/crt} ; done; \
     fi  && \
