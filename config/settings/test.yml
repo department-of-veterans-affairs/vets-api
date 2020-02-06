@@ -69,7 +69,7 @@ vba_documents:
 
 bgs:
   mock_response_location: /cache/bgs
-  mock_responses: true
+  mock_responses: false
   application: VAgovAPI
   client_station_id: 281
   client_username: VAgovAPI
