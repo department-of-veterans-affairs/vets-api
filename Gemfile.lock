@@ -24,20 +24,20 @@ GIT
 
 GIT
   remote: https://github.com/department-of-veterans-affairs/lighthouse-bgs.git
-  revision: dc83f57577299686c3e056c2c3b8fb79a7b2d51e
+  revision: a7878c8b7e88957bb8327d5bde5c39fcdfd76c1c
   branch: master
   specs:
-    lighthouse_bgs (0.6.0)
+    lighthouse_bgs (0.8.0)
       httpclient
       nokogiri (>= 1.8.5)
       savon (~> 2.12)
 
 GIT
   remote: https://github.com/department-of-veterans-affairs/vets-json-schema
-  revision: 88e29a5896b84bf19dfc0f69c0383e1a2c397457
+  revision: ad0b80adba5702cb6c590d2a3218eafb2d4bf40c
   branch: master
   specs:
-    vets_json_schema (3.138.15)
+    vets_json_schema (3.140.0)
       multi_json (~> 1.0)
       script_utils (= 0.0.4)
 
@@ -900,7 +900,7 @@ DEPENDENCIES
   zero_downtime_migrations
 
 RUBY VERSION
-   ruby 2.4.5p335
+   ruby 2.5.7p206
 
 BUNDLED WITH
    1.17.3

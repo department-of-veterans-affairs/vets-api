@@ -151,7 +151,7 @@ Rails.application.routes.draw do
 
     scope :facilities, module: 'facilities' do
       resources :va, only: %i[index show], defaults: { format: :json }
-      resources :ccp, only: %i[show], defaults: { format: :json }
+      resources :ccp, only: %i[index show], defaults: { format: :json }
       get 'suggested', to: 'va#suggested'
       get 'services', to: 'ccp#services'
     end
