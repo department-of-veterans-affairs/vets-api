@@ -2,6 +2,8 @@
 
 module MVI
   class OrchSearchService < Service
+    configuration MVI::Configuration
+
     private
 
     def measure_info(user_identity)
