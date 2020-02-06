@@ -16,6 +16,36 @@ module ClaimsApi
 
     private
 
+    def fetch_local_claim_id
+      claim = ClaimsApi::AutoEstablishedClaim.find_by(id: params[:id])
+      if claim && claim.status == 'errored'
+        fetch_errored(claim)
+      else
+        claim = claims_service.update_from_remote(claim.try(:evss_id) || params[:id])
+        render json: claim, serializer: ClaimsApi::ClaimDetailSerializer
+      end
+    rescue EVSS::ErrorMiddleware::EVSSError
+      render json: { errors: [{ status: 404, detail: 'Claim not found' }] },
+             status: :not_found
+    end
+
+    def fetch_errored(claim)
+      if claim.evss_response.any?
+        render json: { errors: format_evss_errors(claim.evss_response['messages']) },
+               status: :unprocessable_entity
+      else
+        render json: { errors: [{ status: 404, detail: 'Unknown EVSS Async Error' }] },
+               status: :unprocessable_entity
+      end
+    end
+
+    def format_evss_errors(errors)
+      errors.map do |error|
+        formatted = error['key'] ? error['key'].gsub('.', '/') : error['key']
+        { status: 422, detail: "#{error['severity']} #{error['detail'] || error['text']}".squish, source: formatted }
+      end
+    end
+
     def claims_service
       ClaimsApi::UnsynchronizedEVSSClaimService.new(target_veteran)
     end

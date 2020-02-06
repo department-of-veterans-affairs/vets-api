@@ -28,13 +28,7 @@ module ClaimsApi
           render json: pending_claim,
                  serializer: ClaimsApi::AutoEstablishedClaimSerializer
         else
-          begin
-            evss_claim_id = ClaimsApi::AutoEstablishedClaim.evss_id_by_token(params[:id]) || params[:id]
-            fetch_and_render_evss_claim(evss_claim_id)
-          rescue EVSS::ErrorMiddleware::EVSSError
-            render json: { errors: [{ detail: 'Claim not found' }] },
-                   status: :not_found
-          end
+          fetch_or_error_local_claim_id
         end
       end
 
