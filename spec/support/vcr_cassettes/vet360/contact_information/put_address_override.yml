@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: put
-    uri: https://int.vet360.va.gov/person-mdm-cuf-person-hub/cuf/person/contact-information/v1/addresses
+    uri: https://int.vet360.va.gov/contact-information-hub/cuf/contact-information/v1/addresses
     body:
       encoding: UTF-8
       string: '{"bio":{"addressId":108347,"addressLine1":"1494 Martin Luther King
@@ -24,11 +24,11 @@ http_interactions:
       message: ''
     headers:
       Date:
-      - Tue, 29 Oct 2019 02:09:54 GMT
+      - Fri, 10 Jan 2020 20:54:32 GMT
       Expires:
       - '0'
       Vet360txauditid:
-      - ee3a1097-4b89-4d8c-8ca0-d714b89711d9
+      - 20883a1a-d3c0-4772-9e85-7a6f140ee442
       X-Frame-Options:
       - DENY
       Pragma:
@@ -44,11 +44,19 @@ http_interactions:
       - IE-edge,chrome=1
       Content-Type:
       - application/json;charset=UTF-8
-      Transfer-Encoding:
-      - chunked
+      Content-Length:
+      - '832'
     body:
       encoding: UTF-8
-      string: '{"txAuditId":"2e8a9043-dec2-4a4e-bf77-186e46773ffa","status":"RECEIVED"}'
+      string: '{"messages":[{"code":"CORE110","key":"_CUF_SOURCE_DATE_VERSION_VIOLATION","severity":"WARN","text":"Source
+        dates are outdated for Type AddressDio with a ID of 108347.  Previous source
+        date was 2019-12-06 15:22:44.0 but received new source date of Tue Oct 29
+        01:59:37 UTC 2019.  Source dates may not be null, and new must be greater
+        than the previous.  Please correct your request and try again!"},{"code":"CORE104","key":"_CUF_NO_CHANGES_DETECTED","severity":"INFO","text":"Your
+        request was received and processed without error, however no differences were
+        detected between current data and the data you sent.  This message is informational
+        only, please verify your request if you believe you sent actual changes that
+        should be applied."}],"txAuditId":"1b5b82e7-909d-4ccc-a2db-ad60f1b502cf","status":"COMPLETED_NO_CHANGES_DETECTED"}'
     http_version: 
   recorded_at: Tue, 29 Oct 2019 01:59:37 GMT
-recorded_with: VCR 3.0.3
+recorded_with: VCR 5.0.0
