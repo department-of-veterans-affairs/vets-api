@@ -21,6 +21,7 @@ module VAOS
               duration: duration,
               status: status,
               jti: jti,
+              service_name: @service_name,
               url: env.url.to_s
             )
           else
@@ -28,6 +29,7 @@ module VAOS
               duration: duration,
               status: status,
               jti: jti,
+              service_name: @service_name,
               url: env.url.to_s
             )
           end
