@@ -2,10 +2,10 @@
 http_interactions:
 - request:
     method: put
-    uri: https://int.vet360.va.gov/person-mdm-cuf-person-hub/cuf/person/contact-information/v1/telephones
+    uri: https://int.vet360.va.gov/contact-information-hub/cuf/contact-information/v1/telephones
     body:
       encoding: UTF-8
-      string: '{"bio":{"areaCode":"303","countryCode":"1","internationalIndicator":false,"originatingSourceSystem":"VETSGOV","phoneNumber":"5551234","phoneNumberExt":null,"phoneType":"MOBILE","sourceDate":"2018-06-06T15:35:55.000Z","sourceSystemUser":"1234","telephoneId":1299,"textMessageCapableInd":true,"textMessagePermInd":true,"ttyInd":true,"vet360Id":"123456789","voiceMailAcceptableInd":true,"effectiveStartDate":"2018-06-06T15:35:55.000Z","effectiveEndDate":null}}'
+      string: '{"bio":{"areaCode":"303","countryCode":"1","internationalIndicator":false,"originatingSourceSystem":"VETSGOV","phoneNumber":"5551234","phoneNumberExt":null,"phoneType":"MOBILE","sourceDate":"2020-01-17T04:21:59.000Z","sourceSystemUser":"1234","telephoneId":17259,"textMessageCapableInd":true,"textMessagePermInd":true,"ttyInd":true,"vet360Id":"1","voiceMailAcceptableInd":true,"effectiveStartDate":"2020-01-17T04:21:59.000Z","effectiveEndDate":null}}'
     headers:
       Accept:
       - application/json
@@ -23,28 +23,31 @@ http_interactions:
       message: ''
     headers:
       Date:
-      - Wed, 25 Apr 2018 21:32:21 GMT
+      - Fri, 17 Jan 2020 04:21:59 GMT
       Expires:
       - '0'
+      Vet360txauditid:
+      - ed663bac-a91e-4b5b-b0c4-65bb27280081
+      X-Frame-Options:
+      - DENY
+      Pragma:
+      - no-cache
       X-Content-Type-Options:
+      - nosniff
       - nosniff
       X-Xss-Protection:
       - 1; mode=block
-      X-Frame-Options:
-      - DENY
       Cache-Control:
       - no-cache, no-store, max-age=0, must-revalidate
-      Pragma:
-      - no-cache
       X-Ua-Compatible:
       - IE-edge,chrome=1
       Content-Type:
       - application/json;charset=UTF-8
-      Transfer-Encoding:
-      - chunked
+      Content-Length:
+      - '72'
     body:
       encoding: UTF-8
-      string: '{"txAuditId":"6e1e4e54-e851-4f5e-a2bf-eec0b17738f1","status":"RECEIVED"}'
-    http_version:
-  recorded_at: Wed, 25 Apr 2018 21:32:21 GMT
-recorded_with: VCR 3.0.3
+      string: '{"txAuditId":"e9f12a44-c13d-4f46-8cf3-aab80c0edd4d","status":"RECEIVED"}'
+    http_version: 
+  recorded_at: Fri, 17 Jan 2020 04:21:59 GMT
+recorded_with: VCR 5.0.0
