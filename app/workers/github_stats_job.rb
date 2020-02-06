@@ -16,8 +16,6 @@ class GithubStatsJob
   ].freeze
 
   PR_KEYS = %w[
-    id
-    number
     created_at
     updated_at
     head

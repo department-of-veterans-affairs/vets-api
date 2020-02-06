@@ -151,6 +151,6 @@ VaForms::FetchLatest:
   description: "Fetches latest VA Forms"
 
 ExportGithubStats:
-  cron: "0 */4 * * * America/New_York"
+  cron: "0 */2 * * * America/New_York"
   class: GithubStatsJob
   description: "Send Github open PR stats to prometheus"
