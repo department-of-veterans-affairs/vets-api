@@ -17,6 +17,8 @@ module Swagger
           parameter do
             key :name, :features
             key :description, 'A comma delimited list of the feature toggle names in snake or camel case'
+            Key :cookie_id, 'a unique string from the front end so that features can be configured to be "sticky" for
+                             unauthenticated users'
             key :in, :path
             key :type, :string
             key :required, true

@@ -32,10 +32,6 @@ Flipper::UI.configure do |config|
 
   # Labeling what Flipper calls "actors" as "users" in the UI
   config.actors.title = 'Users'
-  config.percentage_of_actors.title = 'Percentage of Actors'
-  config.percentage_of_actors.description = %(By default, Actors are Logged in Users. Percentage of Actors functions independently of percentage of
-    time. If you enable 50% of logged in users and 25% of time, then the feature will always be enabled for 50% of actors (users)
-    and occasionally enabled 25% of the time for everyone.)
 end
 
 # A contrived example of how we might use a "group"
@@ -44,6 +40,15 @@ end
 # Flipper.register(:first_name_is_hector) do |user|
 #   user.respond_to?(:first_name) && user.first_name == 'HECTOR'
 # end
+
+module Flipper
+  module Gates
+    class Actor
+      USER = 'user'
+      STRING = 'cookie_id'
+    end
+  end
+end
 
 Flipper::UI.configuration.feature_creation_enabled = false
 # Make sure that each feature we reference in code is present in the UI, as long as we have a Database already
