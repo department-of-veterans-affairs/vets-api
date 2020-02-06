@@ -72,8 +72,34 @@ RSpec.describe 'Power of Attorney ', type: :request do
           params = json_data
           params['data']['attributes']['poaCode'] = nil
           post path, params: params.to_json, headers: headers.merge(auth_header)
+          res = JSON.parse(response.body)
           expect(response.status).to eq(422)
           expect(JSON.parse(response.body)['errors'].size).to eq(1)
+          expect(res['errors'].first['source']).to eq('/poaCode')
+        end
+      end
+
+      it 'requires first_name subfield' do
+        with_okta_user(scopes) do |auth_header|
+          params = json_data
+          params['data']['attributes']['poaFirstName'] = ""
+          post path, params: params.to_json, headers: headers.merge(auth_header)
+          res = JSON.parse(response.body)
+          expect(response.status).to eq(422)
+          expect(res['errors'].size).to eq(1)
+          expect(res['errors'].first['source']).to eq('/poaFirstName')
+        end
+      end
+
+      it 'requires last_name subfield' do
+        with_okta_user(scopes) do |auth_header|
+          params = json_data
+          params['data']['attributes']['poaLastName'] = ""
+          post path, params: params.to_json, headers: headers.merge(auth_header)
+          res = JSON.parse(response.body)
+          expect(response.status).to eq(422)
+          expect(res['errors'].size).to eq(1)
+          expect(res['errors'].first['source']).to eq('/poaLastName')
         end
       end
     end
