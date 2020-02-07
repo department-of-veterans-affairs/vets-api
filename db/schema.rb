@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2020_02_05_145700) do
+ActiveRecord::Schema.define(version: 2020_02_05_154839) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
@@ -176,6 +176,7 @@ ActiveRecord::Schema.define(version: 2020_02_05_145700) do
     t.datetime "updated_at", null: false
     t.integer "min"
     t.integer "max"
+    t.datetime "vssc_extract_date"
     t.index ["polygon"], name: "index_drivetime_bands_on_polygon", using: :gist
   end
 
