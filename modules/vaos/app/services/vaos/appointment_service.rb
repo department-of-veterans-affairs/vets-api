@@ -45,7 +45,7 @@ module VAOS
       appointment_list = if type == 'va'
                            json_hash.dig(:data, :appointment_list)
                          else
-                           json_hash[:booked_appointment_collections]&.first[:booked_cc_appointments]
+                           json_hash[:booked_appointment_collections].first[:booked_cc_appointments]
                          end
       return [] unless appointment_list
 
