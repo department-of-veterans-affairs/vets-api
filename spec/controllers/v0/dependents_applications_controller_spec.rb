@@ -24,16 +24,6 @@ RSpec.describe V0::DependentsApplicationsController do
         end
       end
     end
-
-    context 'with an empty bgs response' do
-      it 'returns no content' do
-        VCR.use_cassette('bgs/claimant_web_service/dependents_400') do
-          get(:show, params: { id: user.participant_id })
-          expect(response.code).to eq('400')
-          expect(response).to have_http_status(:bad_request)
-        end
-      end
-    end
   end
 
   describe 'POST create' do
