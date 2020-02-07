@@ -99,7 +99,6 @@ class ApplicationController < ActionController::API
         Common::Exceptions::ServiceOutage.new(exception.outage)
       when Common::Client::Errors::ClientError
         # SSLError, ConnectionFailed, SerializationError, etc
-        puts exception
         Common::Exceptions::ServiceOutage.new(nil, detail: 'Backend Service Outage')
       else
         Common::Exceptions::InternalServerError.new(exception)
