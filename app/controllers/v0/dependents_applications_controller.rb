@@ -26,7 +26,7 @@ module V0
       render json: response, each_serializer: DependentsSerializer
     rescue => e
       log_exception_to_sentry(e)
-      raise Common::Exceptions::BackendServiceException.new(nil, detail: e.message)
+      render json: e.to_json
     end
 
     def disability_rating
