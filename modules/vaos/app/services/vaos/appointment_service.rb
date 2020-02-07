@@ -42,12 +42,14 @@ module VAOS
     private
 
     def deserialized_appointments(json_hash, type)
-      if type == 'va'
-        json_hash.dig(:data, :appointment_list).map { |appointments| OpenStruct.new(appointments) }
-      else
-        json_hash[:booked_appointment_collections].first[:booked_cc_appointments]
-                                                  .map { |appointments| OpenStruct.new(appointments) }
-      end
+      appointment_list = if type == 'va'
+                           json_hash.dig(:data, :appointment_list)
+                         else
+                           json_hash[:booked_appointment_collections]&.first[:booked_cc_appointments]
+                         end
+      return [] unless appointment_list
+
+      appointment_list.map { |appointments| OpenStruct.new(appointments) }
     end
 
     # TODO: need underlying APIs to support pagination consistently
