@@ -3,7 +3,7 @@
 require 'rails_helper'
 
 describe VAOS::CCEligibilityService do
-  subject { described_class.for_user(user) }
+  subject { described_class.new(user) }
 
   let(:user) { build(:user, :vaos) }
   let(:service_type) { 'PrimaryCare' }

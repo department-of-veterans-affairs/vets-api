@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri: !ruby/regexp /ProviderLocator/
+    uri: https://np.dws.ppms.va.gov/v1.0/ProviderLocator?address=%27South%20Gilbert%20Road,%20Chandler,%20Arizona%2085286,%20United%20States%27&radius=80.50410703808843&driveTime=10000&specialtycode1=%27213E00000X%27&specialtycode2=null&specialtycode3=null&specialtycode4=null&network=0&gender=0&primarycare=0&acceptingnewpatients=0&maxResults=21
     body:
       encoding: US-ASCII
       string: ''
