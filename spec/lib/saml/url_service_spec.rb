@@ -431,17 +431,25 @@ RSpec.describe SAML::URLService do
   end
 
   context 'review instance' do
+    subject { described_class.new(saml_settings, session: session, user: user, params: params) }
+
+    let(:user) { build(:user) }
+    let(:session) { Session.create(uuid: user.uuid, token: 'abracadabra') }
     let(:slug_id) { '617bed45ccb1fc2a87872b567c721009' }
     let(:saml_settings) do
       build(:settings_no_context, assertion_consumer_service_url: 'https://staging-api.vets.gov/review_instance/saml/callback')
     end
 
     around do |example|
+      User.create(user)
+      Timecop.freeze('2018-04-09T17:52:03Z')
+      RequestStore.store['request_id'] = '123'
       with_settings(Settings.saml, relay: "http://#{slug_id}.review.vetsgov-internal/auth/login/callback") do
         with_settings(Settings, review_instance_slug: slug_id) do
           example.run
         end
       end
+      Timecop.return
     end
 
     context 'new url' do
