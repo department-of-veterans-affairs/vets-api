@@ -175,6 +175,9 @@ gids:
   open_timeout: 1
   read_timeout: 1
 
+mdot:
+  prefill: true
+
 mvi_hca:
   url: http://example.com
 

@@ -7,9 +7,10 @@ RSpec.describe 'telephone', type: :request do
 
   let(:user) { build(:user, :loa3) }
   let(:headers) { { 'Content-Type' => 'application/json', 'Accept' => 'application/json' } }
+  let(:time) { Time.zone.local(2018, 6, 6, 15, 35, 55) }
 
   before do
-    Timecop.freeze(Time.zone.local(2018, 6, 6, 15, 35, 55))
+    Timecop.freeze(time)
     sign_in_as(user)
   end
 
@@ -112,15 +113,17 @@ RSpec.describe 'telephone', type: :request do
     end
 
     context 'when effective_end_date is included' do
+      let(:time) { Time.zone.parse('2020-01-17T04:21:59.000Z') }
       let(:telephone) do
         build(:telephone,
               vet360_id: user.vet360_id,
               effective_end_date: Time.now.utc.iso8601,
               phone_number: '5551234')
       end
-      let(:id_in_cassette) { 1299 }
+      let(:id_in_cassette) { 17_259 }
 
       before do
+        allow_any_instance_of(User).to receive(:vet360_id).and_return('1')
         allow_any_instance_of(User).to receive(:icn).and_return('1234')
         telephone.id = id_in_cassette
       end
