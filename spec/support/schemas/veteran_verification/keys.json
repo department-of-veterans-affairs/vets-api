@@ -1,0 +1,29 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "definitions": {
+  },
+  "properties": {
+    "keys": {
+      "type": "array",
+      "items": {
+        "properties": {
+          "kty": { 
+            "type": "string"
+          },
+          "use": { 
+            "type": "string"
+          },
+          "alg": { 
+            "type": "string"
+          },
+          "kid": { 
+            "type": "string"
+          },
+          "pem": { 
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}
