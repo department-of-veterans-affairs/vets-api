@@ -5,20 +5,20 @@ require 'saml/url_service'
 require 'support/url_service_helpers'
 
 RSpec.describe SAML::URLService do
+  subject { described_class.new(saml_settings, session: session, user: user, params: params) }
+
+  let(:user) { build(:user) }
+  let(:session) { Session.create(uuid: user.uuid, token: 'abracadabra') }
+
+  around do |example|
+    User.create(user)
+    Timecop.freeze('2018-04-09T17:52:03Z')
+    RequestStore.store['request_id'] = '123'
+    example.run
+    Timecop.return
+  end
+
   SAML::URLService::VIRTUAL_HOST_MAPPINGS.each do |vhost_url, values|
-    subject { described_class.new(saml_settings, session: session, user: user, params: params) }
-
-    let(:user) { build(:user) }
-    let(:session) { Session.create(uuid: user.uuid, token: 'abracadabra') }
-
-    around do |example|
-      User.create(user)
-      Timecop.freeze('2018-04-09T17:52:03Z')
-      RequestStore.store['request_id'] = '123'
-      example.run
-      Timecop.return
-    end
-
     context "virtual host: #{vhost_url}" do
       let(:saml_settings) do
         build(:settings_no_context, assertion_consumer_service_url: "#{vhost_url}/auth/saml/callback")
@@ -210,6 +210,46 @@ RSpec.describe SAML::URLService do
         it 'raises an exception' do
           expect { subject }.to raise_error(Common::Exceptions::RoutingError)
         end
+      end
+    end
+  end
+
+  context 'review instance' do
+    let(:slug_id) { '617bed45ccb1fc2a87872b567c721009' }
+    let(:saml_settings) do
+      build(:settings_no_context, assertion_consumer_service_url: 'https://staging-api.vets.gov/review_instance/saml/callback')
+    end
+
+    around do |example|
+      with_settings(Settings.saml, relay: "http://#{slug_id}.review.vetsgov-internal/auth/login/callback") do
+        with_settings(Settings, review_instance_slug: slug_id) do
+          example.run
+        end
+      end
+    end
+
+    context 'new url' do
+      let(:params) { { action: 'new' } }
+
+      it 'has sign in url: mhv_url' do
+        expect(subject.mhv_url)
+          .to be_an_idme_saml_url('https://api.idmelabs.com/saml/SingleSignOnService?SAMLRequest=')
+          .with_relay_state('originating_request_id' => '123', 'type' => 'mhv', 'review_instance_slug' => slug_id)
+      end
+    end
+
+    context 'up-leveling' do
+      let(:params) do
+        { action: 'saml_callback', RelayState: "{\"type\":\"idme\",\"review_instance_slug:\":\"#{slug_id}\"}" }
+      end
+
+      it 'goes to verify URL before login redirect' do
+        expect(user.authn_context).to eq('http://idmanagement.gov/ns/assurance/loa/1/vets')
+        expect_any_instance_of(OneLogin::RubySaml::Settings)
+          .to receive(:authn_context=).with('http://idmanagement.gov/ns/assurance/loa/3/vets')
+        expect(subject.login_redirect_url)
+          .to be_an_idme_saml_url('https://api.idmelabs.com/saml/SingleSignOnService?SAMLRequest=')
+          .with_relay_state('originating_request_id' => '123', 'type' => 'idme', 'review_instance_slug' => slug_id)
       end
     end
   end
