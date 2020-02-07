@@ -2,17 +2,18 @@
 
 require 'rails_helper'
 
-RSpec.describe "Caregivers Assistance Claims", :type => :request do
-
-  let(:headers) {{
-    'ACCEPT' => 'application/json',
-    'CONTENT_TYPE' => 'application/json',
-    'HTTP_X_KEY_INFLECTION' => 'camel'
-  }}
+RSpec.describe 'Caregivers Assistance Claims', type: :request do
+  let(:headers) do
+    {
+      'ACCEPT' => 'application/json',
+      'CONTENT_TYPE' => 'application/json',
+      'HTTP_X_KEY_INFLECTION' => 'camel'
+    }
+  end
   let(:uri) { 'http://localhost:3000' }
   let(:endpoint) { uri + '/v0/caregivers_assistance_claims' }
-  let(:build_valid_form_submission) { ->() { VetsJsonSchema::EXAMPLES['10-10CG'].clone } }
-  let(:get_schema) { ->() { VetsJsonSchema::SCHEMAS['10-10CG'].clone } }
+  let(:build_valid_form_submission) { -> { VetsJsonSchema::EXAMPLES['10-10CG'].clone } }
+  let(:get_schema) { -> { VetsJsonSchema::SCHEMAS['10-10CG'].clone } }
 
   shared_examples_for 'any invalid submission' do
     it 'requires a namcespace of caregivers_assistance_claim' do
@@ -29,7 +30,7 @@ RSpec.describe "Caregivers Assistance Claims", :type => :request do
     end
 
     it 'prevents proeprties undefined in schema from being submitted' do
-      body = { caregivers_assistance_claim: { form: JSON({ anAttrNotInSchema: 'some value' }) } }.to_json
+      body = { caregivers_assistance_claim: { form: JSON(anAttrNotInSchema: 'some value') } }.to_json
       post endpoint, params: body, headers: headers
 
       expect(response.code).to eq('422')
@@ -62,9 +63,13 @@ RSpec.describe "Caregivers Assistance Claims", :type => :request do
       expect(res_body['errors'].length).to eq(1)
 
       schema_error = res_body['errors'][0]
-      
-      expect(schema_error['title']).to include("Form The property '#/' did not contain a required property of '#{required_property}'")
-      expect(schema_error['detail']).to include("form - The property '#/' did not contain a required property of '#{required_property}'")
+
+      expect(schema_error['title']).to include(
+        "Form The property '#/' did not contain a required property of '#{required_property}'"
+      )
+      expect(schema_error['detail']).to include(
+        "form - The property '#/' did not contain a required property of '#{required_property}'"
+      )
       expect(schema_error['code']).to eq('100')
       expect(schema_error['source']['pointer']).to eq('data/attributes/form')
       expect(schema_error['status']).to eq('422')
@@ -75,7 +80,7 @@ RSpec.describe "Caregivers Assistance Claims", :type => :request do
     context 'when unauthenticated' do
       it_behaves_like 'any invalid submission'
 
-      it 'can submit a valid submission' do        
+      it 'can submit a valid submission' do
         form_data = build_valid_form_submission.call
 
         body = { caregivers_assistance_claim: { form: form_data.to_json } }.to_json

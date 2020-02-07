@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class CaregiversAssistanceClaimsService
   def submit_application!(user, application_data)
     claim = SavedClaim::CaregiversAssistanceClaim.new(application_data)
@@ -5,18 +7,18 @@ class CaregiversAssistanceClaimsService
     unless claim.valid?
       # TODO: If we've reached here, there is an client error that prevented the claim, log increment relevant stats.
       # StatsD.increment("#{stats_key}.failure")
-      raise(Common::Exceptions::ValidationErrors, claim) 
+      raise(Common::Exceptions::ValidationErrors, claim)
     end
 
-    begin 
+    begin
       claim.save!
-    rescue => save_error
+    rescue => e
       # TODO: If we've reached here, there is an internal error that prevented claim, log error and increment stats.
       # StatsD.increment("#{stats_key}.failure")
-      raise save_error
+      raise e
     end
 
-    # TODO: If we've made it here, log success and 
+    # TODO: If we've made it here, log success and
     # StatsD.increment("#{stats_key}.success")
     # Rails.logger.info "ClaimID=#{claim.id} Form=#{form_id}" # TODO: Is there a convention for claims?
 

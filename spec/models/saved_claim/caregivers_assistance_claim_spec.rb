@@ -5,13 +5,11 @@ require 'rails_helper'
 RSpec.describe SavedClaim::CaregiversAssistanceClaim do
   describe '#to_pdf' do
     it 'raises a NotImplementedError' do
-
     end
   end
 
   describe '#process_attachments!' do
     it 'raises a NotImplementedError' do
-
     end
   end
 
