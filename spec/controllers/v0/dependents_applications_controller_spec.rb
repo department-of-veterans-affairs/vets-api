@@ -31,7 +31,6 @@ RSpec.describe V0::DependentsApplicationsController do
           get(:show, params: { id: user.participant_id })
           expect(response.code).to eq('400')
           expect(response).to have_http_status(:bad_request)
-          expect(response.body).to include 'No records found'
         end
       end
     end
