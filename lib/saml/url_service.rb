@@ -45,12 +45,15 @@ module SAML
     # TODO: SSOe does not currently support upleveling due to missing AuthN attribute support
     # rubocop:disable Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
     def login_redirect_url(auth: 'success', code: nil, skip_uplevel: false)
-      if auth == 'success' && user.loa[:current] < user.loa[:highest] && !skip_uplevel
-        verify_url
+      return verify_url if auth == 'success' && user.loa[:current] < user.loa[:highest] && !skip_uplevel
+
+      @query_params[:type] = type if type
+      @query_params[:auth] = auth if auth == 'fail'
+      @query_params[:code] = code if code
+
+      if Settings.saml.relay.present?
+        add_query(Settings.saml.relay, query_params)
       else
-        @query_params[:type] = type if type
-        @query_params[:auth] = auth if auth == 'fail'
-        @query_params[:code] = code if code
         add_query("#{base_redirect_url}#{LOGIN_REDIRECT_PARTIAL}", query_params)
       end
     end
@@ -150,7 +153,12 @@ module SAML
     end
 
     def relay_state_params
-      { originating_request_id: RequestStore.store['request_id'], type: type }.to_json
+      rs_params = {
+        originating_request_id: RequestStore.store['request_id'],
+        type: type
+      }
+      rs_params[:review_instance_slug] = Settings.review_instance_slug unless Settings.review_instance_slug.nil?
+      rs_params.to_json
     end
 
     def current_host
