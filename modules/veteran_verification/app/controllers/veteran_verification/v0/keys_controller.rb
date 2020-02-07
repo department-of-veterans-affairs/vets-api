@@ -14,8 +14,8 @@ module VeteranVerification
       NOTARY = VeteranVerification::Notary.new(Settings.vet_verification.key_path)
 
       def index
-        render json: { 
-          keys: [ 
+        render json: {
+          keys: [
             {
               kty: 'RSA',
               use: 'sig',
@@ -23,7 +23,7 @@ module VeteranVerification
               kid: NOTARY.kid,
               pem: Base64.urlsafe_encode64(NOTARY.public_key.to_pem)
             }
-          ] 
+          ]
         }
       end
     end

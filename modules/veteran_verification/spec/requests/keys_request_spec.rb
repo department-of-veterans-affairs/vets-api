@@ -20,8 +20,7 @@ RSpec.describe 'Keys endpoint', type: :request do
 
     body = JSON.parse(response.body)
     pem = Base64.urlsafe_decode64(body['keys'].first['pem'])
-    
+
     expect(pem).to eq(original_keypair.public_key.to_pem)
   end
 end
-
