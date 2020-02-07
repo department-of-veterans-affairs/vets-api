@@ -320,7 +320,7 @@ RSpec.describe V0::SessionsController, type: :controller do
       end
 
       context 'verifying' do
-        let(:authn_context) { LOA::IDME_LOA3 }
+        let(:authn_context) { LOA::IDME_LOA3_VETS }
 
         it 'uplevels an LOA 1 session to LOA 3', :aggregate_failures do
           existing_user = User.find(uuid)
@@ -341,7 +341,7 @@ RSpec.describe V0::SessionsController, type: :controller do
           )
           expect(Raven).to receive(:tags_context).once
 
-          callback_tags = ['status:success', "context:#{LOA::IDME_LOA3}"]
+          callback_tags = ['status:success', "context:#{LOA::IDME_LOA3_VETS}"]
 
           Timecop.freeze(Time.current)
           cookie_expiration_time = 30.minutes.from_now.iso8601(0)

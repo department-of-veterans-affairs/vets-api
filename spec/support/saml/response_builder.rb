@@ -34,7 +34,7 @@ module SAML
       authn_context:, account_type:, level_of_assurance:,
       multifactor:, attributes: nil, issuer: nil
     )
-      verifying = [LOA::IDME_LOA3, 'myhealthevet_loa3', 'dslogon_loa3'].include?(authn_context)
+      verifying = [LOA::IDME_LOA3, LOA::IDME_LOA3_VETS, 'myhealthevet_loa3', 'dslogon_loa3'].include?(authn_context)
 
       if authn_context.present?
         if authn_context.include?('multifactor') && build_saml_response_with_existing_user_identity?
@@ -48,7 +48,7 @@ module SAML
         end
 
         if verifying && build_saml_response_with_existing_user_identity?
-          previous_context = authn_context.gsub(/_loa3/, '').gsub(%r{loa/3}, 'loa/1/vets')
+          previous_context = authn_context.gsub(/_loa3/, '').gsub(%r{loa/3/vets}, 'loa/1/vets').gsub(%r{loa/3}, 'loa/1/vets')
           create_user_identity(
             authn_context: previous_context,
             account_type: account_type,
@@ -298,7 +298,7 @@ module SAML
           level_of_assurance: level_of_assurance,
           multifactor: multifactor
         )
-      when LOA::IDME_LOA3, 'dslogon_loa3', 'myhealthevet_loa3'
+      when LOA::IDME_LOA3, LOA::IDME_LOA3_VETS, 'dslogon_loa3', 'myhealthevet_loa3'
         OneLogin::RubySaml::Attributes.new(
           'uuid' => ['0e1bb5723d7c4f0686f46ca4505642ad'],
           'email' => ['kam+tristanmhv@adhocteam.us'],

@@ -192,7 +192,7 @@ module V1
     end
 
     def url_service
-      SAML::URLService.new(saml_settings, session: @session_object, user: current_user, params: params)
+      SAML::URLService.new(saml_settings, session: @session_object, user: current_user, params: params, loa3_context: LOA::IDME_LOA3)
     end
   end
 end

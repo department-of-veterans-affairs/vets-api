@@ -19,7 +19,7 @@ module SAML
 
     attr_reader :saml_settings, :session, :user, :authn_context, :type, :query_params
 
-    def initialize(saml_settings, session: nil, user: nil, params: {})
+    def initialize(saml_settings, session: nil, user: nil, params: {}, loa3_context: LOA::IDME_LOA3_VETS)
       unless %w[new saml_callback saml_logout_callback].include?(params[:action])
         raise Common::Exceptions::RoutingError, params[:path]
       end
@@ -31,6 +31,7 @@ module SAML
       end
 
       @saml_settings = saml_settings
+      @loa3_context = loa3_context
 
       Raven.extra_context(params: params)
       Raven.user_context(session: session, user: user)
@@ -90,7 +91,7 @@ module SAML
       link_authn_context =
         case authn_context
         when LOA::IDME_LOA1, 'multifactor'
-          LOA::IDME_LOA3
+          @loa3_context
         when 'myhealthevet', 'myhealthevet_multifactor'
           'myhealthevet_loa3'
         when 'dslogon', 'dslogon_multifactor'
@@ -104,7 +105,7 @@ module SAML
       @type = 'mfa'
       link_authn_context =
         case authn_context
-        when LOA::IDME_LOA1, LOA::IDME_LOA3
+        when LOA::IDME_LOA1, LOA::IDME_LOA3, LOA::IDME_LOA3_VETS
           'multifactor'
         when 'myhealthevet', 'myhealthevet_loa3'
           'myhealthevet_multifactor'

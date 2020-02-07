@@ -14,6 +14,7 @@ module SAML
     AUTHN_CONTEXTS = {
       LOA::IDME_LOA1 => { loa_current: '1', sign_in: { service_name: 'idme' } },
       LOA::IDME_LOA3 => { loa_current: '3', sign_in: { service_name: 'idme' } },
+      LOA::IDME_LOA3_VETS => { loa_current: '3', sign_in: { service_name: 'idme' } },
       'multifactor' => { loa_current: nil, sign_in: { service_name: 'idme' } },
       'myhealthevet_multifactor' => { loa_current: nil, sign_in: { service_name: 'myhealthevet' } },
       'myhealthevet_loa3' => { loa_current: '3', sign_in: { service_name: 'myhealthevet' } },
@@ -98,7 +99,7 @@ module SAML
         SAML::UserAttributes::MHV
       when 'dslogon', 'dslogon_multifactor'
         SAML::UserAttributes::DSLogon
-      when 'multifactor', 'dslogon_loa3', 'myhealthevet_loa3', LOA::IDME_LOA3, LOA::IDME_LOA1
+      when 'multifactor', 'dslogon_loa3', 'myhealthevet_loa3', LOA::IDME_LOA3, LOA::IDME_LOA3_VETS, LOA::IDME_LOA1
         SAML::UserAttributes::IdMe
       else
         Raven.tags_context(
