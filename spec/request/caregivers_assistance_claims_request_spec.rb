@@ -93,7 +93,7 @@ RSpec.describe 'Caregivers Assistance Claims', type: :request do
         expect(res_body['data']).to be_present
         expect(res_body['data']['id'].to_i).to be > 0
         expect(res_body['data']['type']).to eq 'saved_claim_caregivers_assistance_claims'
-        expect(res_body['data']['attributes']['regionalOffice']).to eq(nil)
+        expect(res_body['data']['attributes']['regionalOffice']).to eq([])
         expect(res_body['data']['attributes']['submittedAt']).to be_present
         expect(res_body['data']['attributes']['submittedAt'].to_date).to eq(DateTime.now.to_date)
         expect(res_body['data']['attributes']['confirmationNumber']).to be_present # TODO: TO BE UUID
