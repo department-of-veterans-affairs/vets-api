@@ -68,7 +68,7 @@ module SAML
 
         # TODO: authn_context is currently not passed through by SSOe
         @loa_current ||=
-          if existing_user_identity || authn_context.include?('multifactor')
+          if authn_context.include?('multifactor')
             existing_user_identity.loa.fetch(:current, 1).to_i
           else
             SAML::User::AUTHN_CONTEXTS.fetch(authn_context).fetch(:loa_current, 1).to_i
@@ -95,7 +95,7 @@ module SAML
 
       # This is the ID.me highest level of assurance attained
       def loa_highest
-        attributes['va_eauth_credentialassurancelevel']&.to_i
+        attributes['va_eauth_ial']&.to_i
       end
 
       def multifactor

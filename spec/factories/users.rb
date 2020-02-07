@@ -74,7 +74,7 @@ FactoryBot.define do
     end
 
     trait :accountable do
-      authn_context { 'http://idmanagement.gov/ns/assurance/loa/3/vets' }
+      authn_context { 'http://idmanagement.gov/ns/assurance/loa/3' }
       uuid { SecureRandom.uuid }
       callback(:after_build) do |user|
         create(:account, idme_uuid: user.uuid)
@@ -105,7 +105,7 @@ FactoryBot.define do
     end
 
     trait :loa3 do
-      authn_context { 'http://idmanagement.gov/ns/assurance/loa/3/vets' }
+      authn_context { 'http://idmanagement.gov/ns/assurance/loa/3' }
 
       sign_in do
         {
