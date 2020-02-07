@@ -14,7 +14,8 @@ module V0
     STATSD_SSO_CALLBACK_TOTAL_KEY = 'api.auth.login_callback.total'
     STATSD_SSO_CALLBACK_FAILED_KEY = 'api.auth.login_callback.failed'
     STATSD_LOGIN_NEW_USER_KEY = 'api.auth.new_user'
-    STATSD_SSO_SHARED_COOKIE = 'api.auth.sso_shared_cookie'
+    STATSD_LOGIN_STATUS = 'api.auth.login'
+    STATSD_LOGIN_SHARED_COOKIE = 'api.auth.sso_shared_cookie'
 
     # Collection Action: auth is required for certain types of requests
     # @type is set automatically by the routes in config/routes.rb
@@ -58,14 +59,14 @@ module V0
       else
         log_error(saml_response)
         redirect_to url_service.login_redirect_url(auth: 'fail', code: auth_error_code(saml_response.error_code))
-        failure_stats(saml_response, saml_response.error_instrumentation_code)
+        callback_stats(:failure, saml_response, saml_response.error_instrumentation_code)
       end
     rescue => e
       log_exception_to_sentry(e, {}, {}, :error)
       redirect_to url_service.login_redirect_url(auth: 'fail', code: '007') unless performed?
-      failure_unknown_stats
+      callback_stats(:failed_unknown)
     ensure
-      total_stats
+      callback_stats(:total)
     end
 
     private
@@ -105,14 +106,14 @@ module V0
           # only record success stats if the user is being redirect to the site
           # some users will need to be up-leveled and this will be redirected
           # back to the identity provider
-          success_stats(saml_response)
+          login_stats(:success, saml_response)
         end
       else
         log_message_to_sentry(
           user_session_form.errors_message, user_session_form.errors_hash[:level], user_session_form.errors_context
         )
         redirect_to url_service.login_redirect_url(auth: 'fail', code: user_session_form.error_code)
-        failure_stats(saml_response, user_session_form.error_instrumentation_code)
+        login_stats(:failure, saml_response, user_session_form)
       end
     end
 
@@ -128,36 +129,50 @@ module V0
       end
     end
 
-    def success_stats(saml_response)
-      StatsD.increment(STATSD_LOGIN_NEW_USER_KEY) if request_type == 'signup'
-      StatsD.increment(STATSD_SSO_CALLBACK_KEY,
-                       tags: ['status:success',
-                              "context:#{saml_response.authn_context}"])
-      # track users who have a shared sso cookie
-      if cookies.key?(Settings.sso.cookie_name)
-        StatsD.increment(STATSD_SSO_SHARED_COOKIE,
-                         tags: ["loa:#{@current_user.loa[:current]}",
-                                "idp:#{@current_user.identity.sign_in[:service_name]}"])
+    # rubocop:disable Metrics/MethodLength
+    def login_stats(status, saml_response, user_session_form = nil)
+      case status
+      when :success
+        StatsD.increment(STATSD_LOGIN_NEW_USER_KEY) if request_type == 'signup'
+        # track users who have a shared sso cookie
+        if cookies.key?(Settings.sso.cookie_name)
+          StatsD.increment(STATSD_LOGIN_SHARED_COOKIE,
+                           tags: ["loa:#{@current_user.loa[:current]}",
+                                  "idp:#{@current_user.identity.sign_in[:service_name]}"])
+        end
+        StatsD.increment(STATSD_LOGIN_STATUS,
+                         tags: ['status:success',
+                                "idp:#{@current_user.identity.sign_in[:service_name]}",
+                                "context:#{saml_response.authn_context}"])
+        callback_stats(:success, saml_response)
+      when :failure
+        StatsD.increment(STATSD_LOGIN_STATUS,
+                         tags: ['status:failure',
+                                "idp:#{params[:type]}",
+                                "context:#{saml_response.authn_context}",
+                                "error:#{user_session_form.error_instrumentation_code}"])
+        callback_stats(:failure, saml_response, user_session_form.error_instrumentation_code)
       end
     end
+    # rubocop:enable Metrics/MethodLength
 
-    def failure_stats(saml_response, failure_tag)
-      StatsD.increment(STATSD_SSO_CALLBACK_KEY,
-                       tags: ['status:failure',
-                              "context:#{saml_response.authn_context}"])
-      StatsD.increment(STATSD_SSO_CALLBACK_FAILED_KEY,
-                       tags: [failure_tag])
-    end
-
-    def failure_unknown_stats
-      StatsD.increment(STATSD_SSO_CALLBACK_KEY,
-                       tags: ['status:failure', 'context:unknown'])
-      StatsD.increment(STATSD_SSO_CALLBACK_FAILED_KEY,
-                       tags: ['error:unknown'])
-    end
-
-    def total_stats
-      StatsD.increment(STATSD_SSO_CALLBACK_TOTAL_KEY)
+    def callback_stats(status, saml_response = nil, failure_tag = nil)
+      case status
+      when :success
+        StatsD.increment(STATSD_SSO_CALLBACK_KEY,
+                         tags: ['status:success', "context:#{saml_response.authn_context}"])
+        # track users who have a shared sso cookie
+      when :failure
+        StatsD.increment(STATSD_SSO_CALLBACK_KEY,
+                         tags: ['status:failure', "context:#{saml_response.authn_context}"])
+        StatsD.increment(STATSD_SSO_CALLBACK_FAILED_KEY, tags: [failure_tag])
+      when :failed_unknown
+        StatsD.increment(STATSD_SSO_CALLBACK_KEY,
+                         tags: ['status:failure', 'context:unknown'])
+        StatsD.increment(STATSD_SSO_CALLBACK_FAILED_KEY, tags: ['error:unknown'])
+      when :total
+        StatsD.increment(STATSD_SSO_CALLBACK_TOTAL_KEY)
+      end
     end
 
     def set_cookies
