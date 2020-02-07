@@ -43,7 +43,7 @@ FactoryBot.define do
     idp_slo_target_url              { 'https://pint.eauth.va.gov/pkmslogout' }
     idp_sso_target_url              { 'https://pint.eauth.va.gov/isam/sps/saml20idp/saml20/login' }
     name_identifier_format          { 'urn:oasis:names:tc:SAML:1.1:nameid-format:unspecified' }
-    
+
     trait :rollover_cert do
       certificate_new { Settings.saml.certificate }
     end
@@ -61,5 +61,4 @@ FactoryBot.define do
     idp_sso_target_url              { 'https://pint.eauth.va.gov/isam/sps/saml20idp/saml20/login' }
     name_identifier_format          { 'urn:oasis:names:tc:SAML:1.1:nameid-format:unspecified' }
   end
-
 end

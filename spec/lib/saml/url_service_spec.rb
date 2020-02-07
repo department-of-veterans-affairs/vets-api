@@ -218,7 +218,10 @@ RSpec.describe SAML::URLService do
 
   context 'using loa/3 context' do
     SAML::URLService::VIRTUAL_HOST_MAPPINGS.each do |vhost_url, values|
-      subject { described_class.new(saml_settings, session: session, user: user, params: params, loa3_context: LOA::IDME_LOA3) }
+      subject do
+        described_class.new(saml_settings, session: session, user: user,
+                                           params: params, loa3_context: LOA::IDME_LOA3)
+      end
 
       let(:user) { build(:user) }
       let(:session) { Session.create(uuid: user.uuid, token: 'abracadabra') }
