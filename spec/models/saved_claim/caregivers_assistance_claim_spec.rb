@@ -16,7 +16,7 @@ RSpec.describe SavedClaim::CaregiversAssistanceClaim do
   describe '.regional_office' do
     # This method is required by it's parent: SavedClaim.
     # Can return an actual value if we ever process the claim and have a regional_office.
-    it 'returns nil' do
+    it 'returns empty array' do
       expect(subject.regional_office).to eq([])
     end
   end
