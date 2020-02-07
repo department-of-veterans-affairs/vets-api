@@ -1278,6 +1278,18 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
 
     describe 'facility locator tests' do
       context 'successful calls' do
+        let(:provider) { FactoryBot.build(:provider, :from_provider_info) }
+        let(:provider_services_response) do
+          {
+            'CareSiteAddressStreet' => '3195 S Price Rd Ste 148',
+            'CareSiteAddressCity' => 'Chandler',
+            'CareSiteAddressZipCode' => '85248',
+            'CareSiteAddressState' => 'AZ',
+            'Latitude' => 33.258135,
+            'Longitude' => -111.887927
+          }
+        end
+
         it 'supports getting a list of facilities' do
           VCR.use_cassette('facilities/va/pdx_bbox') do
             expect(subject).to validate(:get, '/v0/facilities/va', 200,
@@ -1313,17 +1325,16 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
                                       '_query_string' => 'type[]=foo&name_part=por')
         end
 
-        regex_matcher = lambda { |r1, r2|
-          r1.uri.match(r2.uri)
-        }
         it 'supports getting a provider by id' do
-          VCR.use_cassette('facilities/va/ppms', match_requests_on: [regex_matcher]) do
-            expect(subject).to validate(:get, '/v0/facilities/ccp/{id}', 200, 'id' => 'ccp_123123')
-          end
+          expect_any_instance_of(Facilities::PPMS::Client).to receive(:provider_info)
+            .with('1407842941').and_return(provider)
+          expect_any_instance_of(Facilities::PPMS::Client).to receive(:provider_services)
+            .with('1407842941').and_return([provider_services_response])
+          expect(subject).to validate(:get, '/v0/facilities/ccp/{id}', 200, 'id' => 'ccp_1407842941')
         end
 
         it '400s on improper id' do
-          VCR.use_cassette('facilities/va/ppms', match_requests_on: [regex_matcher]) do
+          VCR.use_cassette('facilities/va/ppms', match_requests_on: %i[path query]) do
             expect(subject).to validate(:get, '/v0/facilities/ccp/{id}', 400, 'id' => 'ccap_123123')
           end
         end
@@ -1335,8 +1346,8 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
         end
 
         it 'supports getting the services list' do
-          VCR.use_cassette('facilities/va/ppms', match_requests_on: [regex_matcher]) do
-            expect(subject).to validate(:get, '/v0/facilities/services', 200, 'id' => 'ccp_123123')
+          VCR.use_cassette('facilities/va/ppms', match_requests_on: %i[path query]) do
+            expect(subject).to validate(:get, '/v0/facilities/services', 200, 'id' => 'ccp_1407842941')
           end
         end
       end
@@ -1986,7 +1997,7 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
       it 'supports GETting async transaction by ID' do
         transaction = create(
           :address_transaction,
-          transaction_id: '0faf342f-5966-4d3f-8b10-5e9f911d07d2',
+          transaction_id: 'a030185b-e88b-4e0d-a043-93e4f34c60d6',
           user_uuid: user.uuid
         )
         expect(subject).to validate(
