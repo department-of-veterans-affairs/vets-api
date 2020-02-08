@@ -115,9 +115,13 @@ class Mvi < Common::RedisStore
   # @return [MVI::Responses::AddPersonResponse] the response returned from MVI Add Person call
   def mvi_add_person
     record = MVI::OrchSearchService.new.find_profile(user)
-    @mvi_response = record if record.cache?
-    response = mvi_service.add_person(user)
-    destroy if response.errors.blank?
+    if record.cache?
+      @mvi_response = record
+      response = mvi_service.add_person(user)
+      destroy if response.error.blank?
+    else
+      response = MVI::Responses::AddPersonResponse.with_failed_orch_search(record.error)
+    end
     response
   end
 

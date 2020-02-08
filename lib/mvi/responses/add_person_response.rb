@@ -13,27 +13,35 @@ module MVI
       # @return [String] The status of the response
       attribute :status, String
 
-      # @return [Array] The parsed response warnings
-      attribute :warnings, Array
+      # @return [Array] The parsed response codes
+      attribute :codes, Array
 
       # @return [Common::Exceptions::BackendServiceException] The rescued exception
       attribute :error, Common::Exceptions::BackendServiceException
 
-      # Builds a response with a server error status and a nil warning
+      # Builds a response with a server error status and a nil codes
       #
       # @return [MVI::Responses::AddPersonResponse] the response
       def self.with_server_error(exception = nil)
         AddPersonResponse.new(
           status: AddPersonResponse::RESPONSE_STATUS[:server_error],
-          warnings: nil,
+          codes: nil,
           error: exception
         )
       end
 
-      # Builds a response with a ok status and a warnings response
+      def self.with_failed_orch_search(exception = nil)
+        AddPersonResponse.new(
+          status: AddPersonResponse::RESPONSE_STATUS[:server_error],
+          codes: nil,
+          error: exception
+        )
+      end
+
+      # Builds a response with a ok status and a codes response
       #
       # @param response [Ox::Element] ox element returned from the soap service middleware
-      # @return [MVI::Responses::AddPersonResponse] response with a possible parsed warnings
+      # @return [MVI::Responses::AddPersonResponse] response with a possible parsed codes
       def self.with_parsed_response(response)
         add_parser = AddParser.new(response)
         codes = add_parser.parse
@@ -42,7 +50,7 @@ module MVI
 
         AddPersonResponse.new(
           status: RESPONSE_STATUS[:ok],
-          warnings: codes
+          codes: codes
         )
       end
 
