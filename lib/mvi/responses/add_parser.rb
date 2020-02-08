@@ -28,6 +28,13 @@ module MVI
         @code = locate_element(@original_body, CODE_XPATH)
       end
 
+      # MVI returns failed or invalid codes if the request is malformed or MVI throws an internal error.
+      #
+      # @return [Boolean] has failed or invalid code?
+      def failed_or_invalid?
+        invalid_request? || failed_request?
+      end
+
       # MVI returns failed if MVI throws an internal error.
       #
       # @return [Boolean] has failed
