@@ -27,11 +27,10 @@ RSpec.describe V0::DependentsApplicationsController do
 
     context 'with an empty bgs response' do
       it 'returns no content' do
-        VCR.use_cassette('bgs/claimant_web_service/dependents_400') do
-          get(:show, params: { id: user.participant_id })
-          expect(response.code).to eq('400')
-          expect(response).to have_http_status(:bad_request)
-        end
+        allow_any_instance_of(BGS::DependentService).to receive(:get_dependents).and_raise(LighthouseBGS::ShareError)
+        get(:show, params: { id: user.participant_id })
+        expect(response.code).to eq('400')
+        expect(response).to have_http_status(:bad_request)
       end
     end
   end
