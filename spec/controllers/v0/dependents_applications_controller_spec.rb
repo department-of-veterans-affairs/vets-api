@@ -15,12 +15,26 @@ RSpec.describe V0::DependentsApplicationsController do
 
   describe '#show' do
     context 'with a valid bgs response' do
+      let(:user) { build(:disabilities_compensation_user) }
+
       it 'returns a list of dependents' do
         VCR.use_cassette('bgs/claimant_web_service/dependents') do
           get(:show, params: { id: user.participant_id })
           expect(response.code).to eq('200')
           expect(response).to have_http_status(:ok)
           expect(JSON.parse(response.body)['return_message']).to eq 'Records found'
+        end
+      end
+    end
+
+    context 'with an empty bgs response' do
+      let(:user) { build(:unauthorized_evss_user, :loa3) }
+
+      it 'returns no content' do
+        VCR.use_cassette('bgs/claimant_web_service/dependents_400') do
+          get(:show, params: { id: '' })
+          expect(response.code).to eq('400')
+          expect(response).to have_http_status(:bad_request)
         end
       end
     end
