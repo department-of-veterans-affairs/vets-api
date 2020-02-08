@@ -20,6 +20,8 @@ FactoryBot.define do
       mhv_account_type { nil }
       dslogon_edipi { nil }
       va_patient { nil }
+      search_token { nil }
+      icn_with_aaid { nil }
 
       sign_in do
         {
