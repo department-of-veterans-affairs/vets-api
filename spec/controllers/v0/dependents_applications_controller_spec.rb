@@ -28,7 +28,7 @@ RSpec.describe V0::DependentsApplicationsController do
     end
 
     context 'with an empty bgs response' do
-      let(:user) { build(:unauthorized_evss_user, :loa3) }
+      let(:user) { build(:disabilities_compensation_user, ssn: '796043735') }
 
       it 'returns no content' do
         allow_any_instance_of(BGS::DependentService).to receive(:get_dependents).and_raise(LighthouseBGS::ShareError)
