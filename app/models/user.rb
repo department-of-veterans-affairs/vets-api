@@ -272,6 +272,16 @@ class User < Common::RedisStore
     false
   end
 
+  def can_mvi_proxy_add?
+    personal_info? && edipi.present? && icn_with_aaid.present? && search_token.present?
+  rescue # Default to false for any error
+    false
+  end
+
+  def personal_info?
+    first_name.present? && last_name.present? && ssn.present? && birth_date.present?
+  end
+
   def mvi
     @mvi ||= Mvi.for_user(self)
   end

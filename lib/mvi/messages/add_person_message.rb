@@ -15,6 +15,8 @@ module MVI
       SCHEMA_FILE_NAME = 'mvi_add_person_template.xml'
 
       def initialize(user)
+        raise ArgumentError, 'User missing attributes' unless user.can_mvi_proxy_add?
+
         @user = user
       end
 
