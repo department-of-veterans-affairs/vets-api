@@ -120,7 +120,9 @@ class Mvi < Common::RedisStore
       add_response = mvi_service.add_person(user)
       destroy if add_response.ok?
     else
-      add_response = MVI::Responses::AddPersonResponse.with_failed_orch_search(search_response.error)
+      add_response = MVI::Responses::AddPersonResponse.with_failed_orch_search(
+        search_response.status, search_response.error
+      )
     end
     add_response
   end

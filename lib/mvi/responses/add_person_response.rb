@@ -13,27 +13,31 @@ module MVI
       # @return [String] The status of the response
       attribute :status, String
 
-      # @return [Array] The parsed response codes
-      attribute :codes, Array
+      # @return [Array] The parsed response mvi codes
+      attribute :mvi_codes, Array[Hash], coerce: false
 
       # @return [Common::Exceptions::BackendServiceException] The rescued exception
       attribute :error, Common::Exceptions::BackendServiceException
 
-      # Builds a response with a server error status and a nil codes
+      # Builds a response with a server error status and a nil mvi_codes
       #
       # @return [MVI::Responses::AddPersonResponse] the response
       def self.with_server_error(exception = nil)
         AddPersonResponse.new(
           status: AddPersonResponse::RESPONSE_STATUS[:server_error],
-          codes: nil,
+          mvi_codes: nil,
           error: exception
         )
       end
 
-      def self.with_failed_orch_search(exception = nil)
+      # Builds a response with a variable status and a nil mvi_codes. The status
+      # should represent the status returned from the orchestrated search.
+      #
+      # @return [MVI::Responses::AddPersonResponse] the response
+      def self.with_failed_orch_search(status, exception = nil)
         AddPersonResponse.new(
-          status: AddPersonResponse::RESPONSE_STATUS[:server_error],
-          codes: nil,
+          status: status,
+          mvi_codes: nil,
           error: exception
         )
       end
@@ -44,22 +48,18 @@ module MVI
       # @return [MVI::Responses::AddPersonResponse] response with a possible parsed codes
       def self.with_parsed_response(response)
         add_parser = AddParser.new(response)
-        codes = add_parser.parse
-        raise MVI::Errors::InvalidRequestError.new(codes), 'InvalidRequest' if add_parser.invalid_request?
-        raise MVI::Errors::FailedRequestError.new(codes), 'FailedRequest' if add_parser.failed_request?
+        mvi_codes = add_parser.parse
+        raise MVI::Errors::InvalidRequestError, mvi_codes if add_parser.invalid_request?
+        raise MVI::Errors::FailedRequestError, mvi_codes if add_parser.failed_request?
 
         AddPersonResponse.new(
           status: RESPONSE_STATUS[:ok],
-          codes: codes
+          mvi_codes: mvi_codes
         )
       end
 
       def ok?
         @status == RESPONSE_STATUS[:ok]
-      end
-
-      def not_found?
-        @status == RESPONSE_STATUS[:not_found]
       end
 
       def server_error?
