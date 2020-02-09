@@ -5,7 +5,7 @@ require 'mvi/responses/add_parser'
 
 describe MVI::Responses::AddParser do
   let(:faraday_response) { instance_double('Faraday::Response') }
-  let(:parser) { MVI::Responses::AddParser.new(faraday_response) }
+  let(:parser) { described_class.new(faraday_response) }
 
   context 'given a valid response' do
     let(:body) { Ox.parse(File.read('spec/support/mvi/add_person_response.xml')) }
