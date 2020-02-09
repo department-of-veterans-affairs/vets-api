@@ -8,7 +8,7 @@ module V0
     def create
       validate_session
 
-      claim = service.submit_application!(current_user, caregivers_assistance_application_params)
+      claim = service.submit_claim!(current_user, claim_params)
 
       render json: claim, serializer: SavedClaimSerializer
     end
@@ -19,7 +19,7 @@ module V0
       CaregiversAssistanceClaimsService.new
     end
 
-    def caregivers_assistance_application_params
+    def claim_params
       params.require(:caregivers_assistance_claim).permit(:form)
     end
   end

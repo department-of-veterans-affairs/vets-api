@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
 class CaregiversAssistanceClaimsService
-  def submit_application!(user, application_data)
-    claim = SavedClaim::CaregiversAssistanceClaim.new(application_data)
+  def submit_claim!(user_context, claim_data)
+    claim = SavedClaim::CaregiversAssistanceClaim.new(claim_data)
 
     unless claim.valid?
       # TODO: If we've reached here, there is an client error that prevented the claim, log increment relevant stats.
@@ -22,20 +22,20 @@ class CaregiversAssistanceClaimsService
     # StatsD.increment("#{stats_key}.success")
     # Rails.logger.info "ClaimID=#{claim.id} Form=#{form_id}" # TODO: Is there a convention for claims?
 
-    destroy_previously_saved_form_for(user) if user
+    destroy_previously_saved_form_for(user_context) if user_context
 
     claim
   end
 
   private
 
-  # Destroy this form it has previously been stored in-progress by this user
+  # Destroy this form it has previously been stored in-progress by this user_context
   def form_schema_id
-    SavedClaim::CaregiversAssistanceApplication::FORM
+    SavedClaim::CaregiversAssistanceClaim::FORM
   end
 
-  def destroy_previously_saved_form_for(user)
-    InProgressForm.form_for_user(form_schema_id, user)&.destroy
+  def destroy_previously_saved_form_for(user_context)
+    InProgressForm.form_for_user(form_schema_id, user_context)&.destroy
   end
 
   # def stats_key

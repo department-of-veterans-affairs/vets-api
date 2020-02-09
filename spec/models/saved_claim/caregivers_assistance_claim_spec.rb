@@ -5,17 +5,17 @@ require 'rails_helper'
 RSpec.describe SavedClaim::CaregiversAssistanceClaim do
   describe '.to_pdf' do
     it 'raises a NotImplementedError' do
+      expect { subject.to_pdf }.to raise_error(NotImplementedError)
     end
   end
 
   describe '.process_attachments!' do
     it 'raises a NotImplementedError' do
+      expect { subject.process_attachments! }.to raise_error(NotImplementedError)
     end
   end
 
   describe '.regional_office' do
-    # This method is required by it's parent: SavedClaim.
-    # Can return an actual value if we ever process the claim and have a regional_office.
     it 'returns empty array' do
       expect(subject.regional_office).to eq([])
     end

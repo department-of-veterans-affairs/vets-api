@@ -13,7 +13,12 @@ class SavedClaim::CaregiversAssistanceClaim < SavedClaim
     raise NotImplementedError, 'Not Implemented for Form 10-10CG'
   end
 
+  # SavedClaims require regional_office to be defined, we CaregiversAssistanceClaim has no purpose for it.
+  #
+  # CaregiversAssistanceClaims are not processed regional VA offices.
+  # The claim's form will contain a "Planned Clinic" (a VA medical facility that the end-user provided in the form).
+  # This facility is where the end-user's point of contact will be for post-submission processing.
   def regional_office
-    [] # TODO: (kevinmirc): This needs to be the plannedClinic provided on
+    []
   end
 end
