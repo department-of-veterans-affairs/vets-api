@@ -15,7 +15,7 @@ RSpec.describe V0::DependentsApplicationsController do
 
   describe '#show' do
     context 'with a valid bgs response' do
-      let(:user) { build(:disabilities_compensation_user, ssn: '796043735') }
+      let(:user) { build(:disabilities_compensation_user, ssn: '796126777') }
 
       it 'returns a list of dependents' do
         VCR.use_cassette('bgs/claimant_web_service/dependents') do
