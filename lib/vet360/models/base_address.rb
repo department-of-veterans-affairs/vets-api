@@ -92,6 +92,8 @@ module Vet360
         inclusion: { in: ADDRESS_TYPES }
       )
 
+      validates(:country_code_iso3, presence: true)
+
       with_options if: proc { |a| [DOMESTIC, MILITARY].include?(a.address_type) } do
         validates :state_code, presence: true
         validates :zip_code, presence: true
