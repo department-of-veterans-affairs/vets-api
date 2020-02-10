@@ -25,9 +25,6 @@ module V0
       response = dependent_service.get_dependents(current_user)
       render json: response, each_serializer: DependentsSerializer
     rescue => e
-      Rails.logger.warn '---------------'
-      Rails.logger.warn e.inspect
-      Rails.logger.warn '---------------'
       log_exception_to_sentry(e)
       raise Common::Exceptions::BackendServiceException.new(nil, detail: e.message)
     end
