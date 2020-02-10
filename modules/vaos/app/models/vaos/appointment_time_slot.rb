@@ -3,17 +3,17 @@
 require 'common/models/resource'
 
 module VAOS
-  class DateTimeMdy < Virtus::Attribute
-    def coerce(value)
-      DateTime.strptime(value, '%m/%d/%Y %H:%M:%S')
-    end
-  end
+  # class DateTimeMdy < Common::Resource
+  #   def coerce(value)
+  #     DateTime.strptime(value, '%m/%d/%Y %H:%M:%S')
+  #   end
+  # end
 
-  class AppointmentTimeSlot < Common::Base
-    attribute :start_date_time, VAOS::DateTimeMdy
-    attribute :end_date_time, VAOS::DateTimeMdy
-    attribute :booking_status, String
-    attribute :remaining_allowed_over_bookings, String
-    attribute :availability, Boolean
+  class AppointmentTimeSlot < Common::Resource
+    attribute :start_date_time, Types::DateTime
+    attribute :end_date_time, Types::DateTime
+    attribute :booking_status, Types::String
+    attribute :remaining_allowed_over_bookings, Types::String
+    attribute :availability, Types::Bool
   end
 end
