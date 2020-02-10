@@ -246,7 +246,7 @@ RSpec.describe SAML::URLService do
       it 'goes to verify URL before login redirect' do
         expect(user.authn_context).to eq('http://idmanagement.gov/ns/assurance/loa/1/vets')
         expect_any_instance_of(OneLogin::RubySaml::Settings)
-          .to receive(:authn_context=).with('http://idmanagement.gov/ns/assurance/loa/3/vets')
+          .to receive(:authn_context=).with('http://idmanagement.gov/ns/assurance/loa/3')
         expect(subject.login_redirect_url)
           .to be_an_idme_saml_url('https://api.idmelabs.com/saml/SingleSignOnService?SAMLRequest=')
           .with_relay_state('originating_request_id' => '123', 'type' => 'idme', 'review_instance_slug' => slug_id)
