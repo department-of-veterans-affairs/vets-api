@@ -11,7 +11,7 @@ module Swagger
 
           key :description, 'Get the dependents for a veteran by participant ID'
           key :operationId, 'getDependents'
-          key :tags, %w[dependents]
+          key :tags, %w[dependents_applications]
 
           parameter :authorization
 
