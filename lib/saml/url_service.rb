@@ -45,8 +45,8 @@ module SAML
 
     # TODO: SSOe does not currently support upleveling due to missing AuthN attribute support
     # rubocop:disable Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
-    def login_redirect_url(auth: 'success', code: nil, skip_uplevel: false)
-      return verify_url if auth == 'success' && user.loa[:current] < user.loa[:highest] && !skip_uplevel
+    def login_redirect_url(auth: 'success', code: nil)
+      return verify_url if auth == 'success' && user.loa[:current] < user.loa[:highest]
 
       @query_params[:type] = type if type
       @query_params[:auth] = auth if auth == 'fail'
