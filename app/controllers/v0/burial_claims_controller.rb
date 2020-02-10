@@ -18,7 +18,7 @@ module V0
         claim.process_attachments! # upload claim and attachments to Central Mail
       end
 
-      relationship_type = claim.parsed_form["relationship"]&.fetch("type", nil)
+      relationship_type = claim.parsed_form['relationship']&.fetch('type', nil)
       StatsD.increment("#{stats_key}.success", tags: ["relationship:#{relationship_type}"])
 
       Rails.logger.info "ClaimID=#{claim.confirmation_number} Form=#{claim.class::FORM}"
