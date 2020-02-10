@@ -235,7 +235,7 @@ RSpec.describe 'vaos appointments', type: :request, skip_mvi: true do
           put '/v0/vaos/appointments/cancel'
 
           expect(response).to have_http_status(:unprocessable_entity)
-          expect(JSON.parse(response.body)['errors'].size).to eq(2)
+          expect(JSON.parse(response.body)['errors'].size).to eq(3)
         end
       end
 
@@ -244,6 +244,7 @@ RSpec.describe 'vaos appointments', type: :request, skip_mvi: true do
           {
             appointment_time: '11/15/19 20:00:00',
             clinic_id: '408',
+            facility_id: '983',
             cancel_reason: 'whatever',
             cancel_code: '5',
             remarks: nil,
