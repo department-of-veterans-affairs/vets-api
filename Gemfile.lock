@@ -24,20 +24,20 @@ GIT
 
 GIT
   remote: https://github.com/department-of-veterans-affairs/lighthouse-bgs.git
-  revision: 5591ed794b3a3ee3639f05d2e3ead1526cbe7bf7
+  revision: a7878c8b7e88957bb8327d5bde5c39fcdfd76c1c
   branch: master
   specs:
-    lighthouse_bgs (0.7.0)
+    lighthouse_bgs (0.8.0)
       httpclient
       nokogiri (>= 1.8.5)
       savon (~> 2.12)
 
 GIT
   remote: https://github.com/department-of-veterans-affairs/vets-json-schema
-  revision: 03de05bdbb02d335c5dab1a63567033755cf7806
+  revision: ad0b80adba5702cb6c590d2a3218eafb2d4bf40c
   branch: master
   specs:
-    vets_json_schema (3.138.16)
+    vets_json_schema (3.140.0)
       multi_json (~> 1.0)
       script_utils (= 0.0.4)
 
