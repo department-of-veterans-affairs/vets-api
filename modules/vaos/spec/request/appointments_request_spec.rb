@@ -270,6 +270,7 @@ RSpec.describe 'vaos appointments', type: :request, skip_mvi: true do
           {
             appointment_time: '11/15/2019 13:00:00',
             clinic_id: '437',
+            facility_id: '983',
             cancel_reason: '5',
             cancel_code: 'PC',
             remarks: '',
