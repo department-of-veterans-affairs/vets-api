@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri: https://int.vet360.va.gov/person-mdm-cuf-person-hub/referencedata/v1/states
+    uri: https://int.vet360.va.gov/contact-information-hub/referencedata/contact-information/v1/states
     body:
       encoding: US-ASCII
       string: ''
@@ -23,25 +23,28 @@ http_interactions:
       message: ''
     headers:
       Date:
-      - Mon, 11 Jun 2018 16:19:38 GMT
+      - Wed, 08 Jan 2020 07:45:18 GMT
       Expires:
       - '0'
+      Vet360txauditid:
+      - c64637c7-35cc-4482-84c7-2a09613d9b92
+      X-Frame-Options:
+      - DENY
+      Pragma:
+      - no-cache
       X-Content-Type-Options:
+      - nosniff
       - nosniff
       X-Xss-Protection:
       - 1; mode=block
-      X-Frame-Options:
-      - DENY
       Cache-Control:
       - no-cache, no-store, max-age=0, must-revalidate
-      Pragma:
-      - no-cache
       X-Ua-Compatible:
       - IE-edge,chrome=1
       Content-Type:
       - application/json;charset=UTF-8
-      Transfer-Encoding:
-      - chunked
+      Content-Length:
+      - '2749'
     body:
       encoding: UTF-8
       string: '{"stateList":[{"stateName":"Alabama","stateCode":"AL"},{"stateName":"Alaska","stateCode":"AK"},{"stateName":"Arizona","stateCode":"AZ"},{"stateName":"Arkansas","stateCode":"AR"},{"stateName":"California","stateCode":"CA"},{"stateName":"Colorado","stateCode":"CO"},{"stateName":"Connecticut","stateCode":"CT"},{"stateName":"Delaware","stateCode":"DE"},{"stateName":"District
@@ -58,6 +61,6 @@ http_interactions:
         Islands","stateCode":"MH"},{"stateName":"Palau","stateCode":"PW"},{"stateName":"U.S.
         Armed Forces - Americas","stateCode":"AA"},{"stateName":"U.S. Armed Forces
         - Europe","stateCode":"AE"},{"stateName":"U.S. Armed Forces - Pacific","stateCode":"AP"}]}'
-    http_version:
+    http_version: 
   recorded_at: Mon, 09 Apr 2018 17:52:03 GMT
-recorded_with: VCR 3.0.3<Paste>
+recorded_with: VCR 5.0.0
