@@ -15,6 +15,7 @@ module MDOT
 
     def initialize(current_user)
       @user = current_user
+      @supplies = 'mdot/supplies'
     end
 
     ##
@@ -22,43 +23,23 @@ module MDOT
     #
     # @return [Faraday::Response] Faraday response instance.
     #
-    # def get_supplies
-    # end
+    def get_supplies
+      with_monitoring_and_error_handling do
+        raw_response = perform(:get, @supplies, request_body)
+        MDOT::Response.new response: raw_response, schema: :supplies
+      end
+    end
 
     ##
     # POSTs to DLC endpoint to create a new order.
     #
     # @return [Faraday::Response] Faraday response instance.
     #
-    # def submit_order
-    # end
-
-    ##
-    # GETS veterans contact information.
-    #
-    # @return Hash of veteran information.
-    def get_veteran_information
-      veteran_information
-    end
-
-    ##
-    # PUTS (modifies) veterans contact information.
-    #
-    # @return Hash of success or failure.
-    # def modify_veteran_information
-    # end
-
-    private
-
-    def veteran_information
-      {
-        first_name: @user.first_name,
-        last_name: @user.last_name,
-        birth_date: @user.birth_date,
-        gender: @user.gender,
-        email: @user.email
-        
-      }
+    def submit_order
+      with_monitoring_and_error_handling do
+        raw_response = perform(:post, @supplies, request_body)
+        MDOT::Response.new response: raw_response, schema: :submit
+      end
     end
   end
 end

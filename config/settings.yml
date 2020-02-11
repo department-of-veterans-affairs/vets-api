@@ -112,9 +112,10 @@ ihub:
 # Settings for Medical Devices Ordering Tool
 mdot:
   prefill: true
-  url: https://dlc.com/v1/api
+  url: https://example.com/v1/api
   api_key: abcd1234abcd1234abcd1234abcd1234abcd1234
   mock: false
+  enabled: false
 
 # Settings for Decision Reviews
 decision_review:

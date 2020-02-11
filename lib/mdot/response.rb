@@ -1,0 +1,25 @@
+# frozen_string_literal: true
+
+require 'common/models/base'
+
+module MDOT
+  class Response < Common::Base
+    attr_reader :body, :status
+
+    def initialize(args)
+      @response = args[:response]
+      @schema = validate_schema(args[:schema])
+      @body = @response.body if json_format_is_valid?(@response.body, @schema)
+      @status = @response.status
+    end
+
+    private
+
+    def validate_schema(schema)
+      %i[supplies submit].each do |valid_schema|
+        return schema.to_s if schema == valid_schema
+      end
+      nil
+    end
+  end
+end
