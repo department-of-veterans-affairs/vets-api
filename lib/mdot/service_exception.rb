@@ -3,8 +3,6 @@
 require 'common/exceptions/external/backend_service_exception'
 
 module MDOT
-  # Custom exception that maps MDOT errors to error details defined in config/locales/exceptions.en.yml
-  #
   class ServiceException < Common::Exceptions::BackendServiceException
     include SentryLogging
 

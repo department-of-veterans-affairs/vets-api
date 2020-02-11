@@ -77,20 +77,26 @@ module MDOT
       )
     end
 
+    def handle_parsing_error(error)
+      Raven.extra_context(
+        message: error.message,
+        url: config.base_path
+      )
+      raise_backend_exception('MDOT_502', self.class)
+    end
+
+    def handle_client_error(error)
+      save_error_details(error)
+      code = error.body['errors'].first.dig('code')
+      raise_backend_exception("MDOT_#{code}", self.class, error)
+    end
+
     def handle_error(error)
       case error
       when Faraday::ParsingError
-        Raven.extra_context(
-          message: error.message,
-          url: config.base_path
-        )
-        raise_backend_exception('MDOT_502', self.class)
+        handle_parsing_error(error)
       when Common::Client::Errors::ClientError
-        save_error_details(error)
-        raise Common::Exceptions::Forbidden if error.status == 403
-
-        code = error.body['errors'].first.dig('code')
-        raise_backend_exception("MDOT_#{code}", self.class, error)
+        handle_client_error(error)
       else
         raise error
       end

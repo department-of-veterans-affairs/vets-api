@@ -1918,6 +1918,12 @@ en:
         detail: The request was malformed and could not be processed
         code: MDOT_malformed_request
         status: 400
+      MDOT_forbidden:
+        <<: *defaults
+        title: Forbidden
+        detail: User is forbidden from accessing this resource
+        code: MDOT_forbidden
+        status: 403
       MDOT_veteran_not_found:
         <<: *defaults
         title: Veteran Not Found

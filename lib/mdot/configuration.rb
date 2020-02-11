@@ -3,10 +3,6 @@
 require 'common/client/configuration/rest'
 
 module MDOT
-  ##
-  # HTTP client configuration for the {MDOT::Client},
-  # sets the base path, the base request headers, and a service name for breakers and metrics.
-  #
   class Configuration < Common::Client::Configuration::REST
     ##
     # @return [String] Base path for decision review URLs.
