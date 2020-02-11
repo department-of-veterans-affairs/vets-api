@@ -6,6 +6,9 @@ module VeteranVerification
   class NotaryException < StandardError
   end
 
+  # Notary is used to sign arbitrary payloads with the RS256 algorithm.
+  # Notary#sign returns a JWT, which can be verified by a client with the correct
+  # public key.
   class Notary
     def initialize(private_key_path)
       key_file = File.read(private_key_path)

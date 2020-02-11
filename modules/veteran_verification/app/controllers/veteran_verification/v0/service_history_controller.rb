@@ -12,7 +12,6 @@ module VeteranVerification
 
       before_action { authorize :emis, :access? }
       before_action { permit_scopes %w[service_history.read] }
-      before_action { set_default_format }
 
       def index
         response = ServiceHistoryEpisode.for_user(@current_user)
@@ -26,12 +25,6 @@ module VeteranVerification
           format.json { render json: serialized.to_json }
           format.jwt { render body: NOTARY.sign(serialized.serializable_hash) }
         end
-      end
-
-      private
-
-      def set_default_format
-        request.format = :json if params[:format].nil? && request.headers['HTTP_ACCEPT'].nil?
       end
     end
   end
