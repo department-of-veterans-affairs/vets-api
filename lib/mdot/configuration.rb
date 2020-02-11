@@ -4,16 +4,16 @@ require 'common/client/configuration/rest'
 
 module MDOT
   class Configuration < Common::Client::Configuration::REST
-    def base_path
-      Settings.mdot.url
-    end
-
     def service_name
       'MDOT'
     end
 
     def self.base_request_headers
       super.merge('apiKey' => Settings.mdot.api_key)
+    end
+
+    def base_path
+      Settings.mdot.url
     end
 
     def connection
