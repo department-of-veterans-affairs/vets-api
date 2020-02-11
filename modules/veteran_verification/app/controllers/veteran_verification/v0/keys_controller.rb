@@ -18,10 +18,11 @@ module VeteranVerification
           keys: [
             {
               kty: 'RSA',
-              use: 'sig',
               alg: 'RS256',
               kid: NOTARY.kid,
-              pem: Base64.urlsafe_encode64(NOTARY.public_key.to_pem)
+              pem: NOTARY.public_key.to_pem,
+              e: Base64.urlsafe_encode64(NOTARY.public_key.e.to_s(2)),
+              n: Base64.urlsafe_encode64(NOTARY.public_key.n.to_s(2))
             }
           ]
         }

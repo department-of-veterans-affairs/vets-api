@@ -10,9 +10,6 @@
           "kty": { 
             "type": "string"
           },
-          "use": { 
-            "type": "string"
-          },
           "alg": { 
             "type": "string"
           },
@@ -20,6 +17,12 @@
             "type": "string"
           },
           "pem": { 
+            "type": "string"
+          },
+          "e": { 
+            "type": "string"
+          },
+          "n": { 
             "type": "string"
           }
         }
