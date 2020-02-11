@@ -2,17 +2,22 @@
 
 module Vet360
   module AddressValidation
+    # Wrapper for the VA profile address validation/suggestions API
     class Service < Vet360::Service
       configuration Vet360::AddressValidation::Configuration
 
       def initialize; end
 
+      # Get address suggestions and override key from the VA profile API
+      # @return [Vet360::AddressValidation::AddressSuggestionsResponse] response wrapper around address suggestions data
       def address_suggestions(address)
         candidate_res = candidate(address)
 
         AddressSuggestionsResponse.new(candidate_res)
       end
 
+      # @return [Hash] raw data from VA profile address validation API including
+      #   address suggestions, validation key, and address errors
       def candidate(address)
         begin
           res = perform(

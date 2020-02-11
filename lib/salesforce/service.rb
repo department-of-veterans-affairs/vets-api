@@ -22,7 +22,7 @@ module Salesforce
         iss: self.class::CONSUMER_KEY,
         sub: self.class::SALESFORCE_USERNAME,
         aud: SALESFORCE_HOST,
-        exp: Time.now.utc.to_i.to_s
+        exp: Time.now.utc.to_i
       }
     end
 

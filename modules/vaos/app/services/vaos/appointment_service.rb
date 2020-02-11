@@ -1,30 +1,12 @@
 # frozen_string_literal: true
 
-require_relative '../vaos/concerns/headers'
-
 module VAOS
-  class AppointmentService < Common::Client::Base
-    include Common::Client::Monitoring
-    include SentryLogging
-    include VAOS::Headers
-
-    configuration VAOS::Configuration
-
-    STATSD_KEY_PREFIX = 'api.vaos'
-
-    attr_accessor :user
-
-    def self.for_user(user)
-      as = VAOS::AppointmentService.new
-      as.user = user
-      as
-    end
-
+  class AppointmentService < VAOS::BaseService
     def get_appointments(type, start_date, end_date, pagination_params = {})
       params = date_params(start_date, end_date).merge(page_params(pagination_params)).merge(other_params).compact
 
       with_monitoring do
-        response = perform(:get, get_appointments_base_url(type), params, headers(user))
+        response = perform(:get, get_appointments_base_url(type), params, headers, timeout: 55)
         {
           data: deserialized_appointments(response.body, type),
           meta: pagination(pagination_params)
@@ -37,7 +19,7 @@ module VAOS
       site_code = params[:clinic][:site_code]
 
       with_monitoring do
-        response = perform(:post, post_appointment_url(site_code), params, headers(user))
+        response = perform(:post, post_appointment_url(site_code), params, headers)
         {
           data: OpenStruct.new(response.body),
           meta: {}
@@ -48,9 +30,10 @@ module VAOS
     def put_cancel_appointment(request_object_body)
       params = VAOS::CancelForm.new(request_object_body).params
       params.merge!(patient_identifier: { unique_id: user.icn, assigning_authority: 'ICN' })
+      site_code = params[:facility_id]
 
       with_monitoring do
-        perform(:put, put_appointment_url, params, headers(user))
+        perform(:put, put_appointment_url(site_code), params, headers)
         ''
       end
     rescue Common::Client::Errors::ClientError => e
@@ -66,9 +49,6 @@ module VAOS
         json_hash[:booked_appointment_collections].first[:booked_cc_appointments]
                                                   .map { |appointments| OpenStruct.new(appointments) }
       end
-    rescue => e
-      log_message_to_sentry(e.message, :warn, invalid_json: json_hash, appointments_type: type)
-      []
     end
 
     # TODO: need underlying APIs to support pagination consistently
@@ -96,8 +76,8 @@ module VAOS
         "/patient/ICN/#{user.icn}/booked-appointments"
     end
 
-    def put_appointment_url
-      '/var/VeteranAppointmentRequestService/v4/rest/direct-scheduling/site/983/patient/ICN/' \
+    def put_appointment_url(site)
+      "/var/VeteranAppointmentRequestService/v4/rest/direct-scheduling/site/#{site}/patient/ICN/" \
         "#{user.icn}/cancel-appointment"
     end
 
