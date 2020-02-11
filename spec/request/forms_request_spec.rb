@@ -2,25 +2,29 @@
 
 require 'rails_helper'
 
-RSpec.describe 'Forms API', type: :request do
-  context 'with a query' do
-    it 'matches the forms schema', :aggregate_failures do
-      VCR.use_cassette('forms/200_form_query') do
-        get '/v0/forms', params: { term: 'health' }
+describe 'forms', type: :request do
+  include SchemaMatchers
 
-        expect(response).to have_http_status(:ok)
-        expect(response).to match_response_schema('forms')
+  describe 'GET /v0/forms' do
+    context 'with a query' do
+      it 'matches the forms schema', :aggregate_failures do
+        VCR.use_cassette('forms/200_form_query') do
+          get '/v0/forms', params: { term: 'health' }
+
+          expect(response).to have_http_status(:ok)
+          expect(response).to match_response_schema('forms')
+        end
       end
     end
-  end
 
-  context 'without a query' do
-    it 'matches the forms schema', :aggregate_failures do
-      VCR.use_cassette('forms/200_all_forms') do
-        get '/v0/forms'
+    context 'without a query' do
+      it 'matches the forms schema', :aggregate_failures do
+        VCR.use_cassette('forms/200_all_forms') do
+          get '/v0/forms'
 
-        expect(response).to have_http_status(:ok)
-        expect(response).to match_response_schema('forms')
+          expect(response).to have_http_status(:ok)
+          expect(response).to match_response_schema('forms')
+        end
       end
     end
   end
