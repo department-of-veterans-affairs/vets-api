@@ -1900,7 +1900,7 @@ en:
   
   mdot:
     exceptions:
-      unmapped_service_exception:
+      default_exception:
         <<: *defaults
         title: Internal Server Error
         detail: The upstream server returned an error code that is unmapped

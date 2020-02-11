@@ -82,13 +82,20 @@ module MDOT
         message: error.message,
         url: config.base_path
       )
-      raise_backend_exception('MDOT_502', self.class)
+      raise_backend_exception(
+        MDOT::ExceptionKey.new('MDOT_502'), 
+        self.class
+      )
     end
 
     def handle_client_error(error)
       save_error_details(error)
       code = error.body['errors'].first.dig('code')
-      raise_backend_exception("MDOT_#{code}", self.class, error)
+      raise_backend_exception(
+        MDOT::ExceptionKey.new("MDOT_#{code}"),
+        self.class,
+        error
+      )
     end
 
     def handle_error(error)

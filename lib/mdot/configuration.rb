@@ -4,9 +4,6 @@ require 'common/client/configuration/rest'
 
 module MDOT
   class Configuration < Common::Client::Configuration::REST
-    ##
-    # @return [String] Base path for decision review URLs.
-    #
     def base_path
       Settings.mdot.url
     end
@@ -15,18 +12,10 @@ module MDOT
       'MDOT'
     end
 
-    ##
-    # @return [Hash] The basic headers required for any decision review API call.
-    #
     def self.base_request_headers
       super.merge('apiKey' => Settings.mdot.api_key)
     end
 
-    ##
-    # Creates the a connection with parsing json and adding breakers functionality.
-    #
-    # @return [Faraday::Connection] a Faraday connection instance.
-    #
     def connection
       @conn ||= Faraday.new(base_path, headers: base_request_headers, request: request_options) do |faraday|
         faraday.use      :breakers
@@ -41,11 +30,8 @@ module MDOT
       end
     end
 
-    ##
-    # @return [Boolean] Should the service use mock data in lower environments.
-    #
     def mock_enabled?
-      Settings.medical_devices.mock || false
+      Settings.mdot.mock || false
     end
   end
 end
