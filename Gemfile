@@ -2,7 +2,7 @@
 
 source 'https://rubygems.org'
 
-ruby '2.4.5'
+ruby '2.5.7'
 
 # Modules
 gem 'appeals_api', path: 'modules/appeals_api'
@@ -70,6 +70,7 @@ gem 'mail', '2.7.1'
 gem 'memoist'
 gem 'mini_magick', '~> 4.10.1'
 gem 'net-sftp'
+gem 'newrelic_rpm'
 gem 'nokogiri', '~> 1.10', '>= 1.10.4'
 gem 'oj' # Amazon Linux `json` gem causes conflicts, but `multi_json` will prefer `oj` if installed
 gem 'olive_branch'

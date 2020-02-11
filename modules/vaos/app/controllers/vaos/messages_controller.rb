@@ -27,7 +27,7 @@ module VAOS
     end
 
     def messages_service
-      VAOS::MessagesService.for_user(current_user)
+      VAOS::MessagesService.new(current_user)
     end
   end
 end
