@@ -112,7 +112,7 @@ ihub:
 # Settings for Medical Devices Ordering Tool
 mdot:
   prefill: true
-  url: https://example.com/v1/api
+  url: https://some.fakesite.com
   api_key: abcd1234abcd1234abcd1234abcd1234abcd1234
   mock: false
   enabled: false
@@ -318,7 +318,7 @@ vic:
 
 # Settings for (preneeds) burials.
 preneeds:
-  host: http://some.fakesite.com
+  host: https://some.fakesite.com/api
   wsdl: 'config/preneeds/wsdl/preneeds.wsdl'
 
 # Settings for VBA Document upload service module
