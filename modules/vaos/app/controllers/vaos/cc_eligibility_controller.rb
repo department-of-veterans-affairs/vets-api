@@ -10,7 +10,7 @@ module VAOS
     private
 
     def cce_service
-      VAOS::CCEligibilityService.for_user(current_user)
+      VAOS::CCEligibilityService.new(current_user)
     end
   end
 end

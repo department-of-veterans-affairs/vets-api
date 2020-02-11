@@ -125,7 +125,7 @@ RSpec.describe 'address', type: :request do
             put('/v0/profile/addresses', params: address.to_json, headers: headers)
 
             expect(JSON.parse(response.body)['data']['attributes']['transaction_id']).to eq(
-              '2e8a9043-dec2-4a4e-bf77-186e46773ffa'
+              '1b5b82e7-909d-4ccc-a2db-ad60f1b502cf'
             )
           end
         end

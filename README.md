@@ -17,7 +17,7 @@ To start, fetch this code:
    - Create a folder in your vets-api directory: `mkdir config/certs`
    - Copy the [certificate][certificate] to `config/certs/vetsgov-localhost.crt`
    - Copy the [key][key] to `config/certs/vetsgov-localhost.key`
-   - *NOTE:* using `touch` to create blank cert and key files no longer works. 
+   - *NOTE:* using `touch` to create blank cert and key files no longer works.
    If you previously added certs in this manner replace them with the team repo certificate and key listed above.
    
    [certificate]: https://github.com/department-of-veterans-affairs/va.gov-team/blob/master/products/identity-personalization/login/idme/development-certificates/vetsgov-localhost.crt
@@ -25,7 +25,7 @@ To start, fetch this code:
  
 ## Running the app
 
-A Makefile provides shortcuts for interacting with the docker images. To run vets-api and its redis and postgres 
+A Makefile provides shortcuts for interacting with the docker images. To run vets-api and its redis and postgres
 dependencies run the following command from within the repo you cloned in the above steps.
 
 ### Authentication required for enterprise.contribsys.com
