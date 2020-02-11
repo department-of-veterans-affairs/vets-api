@@ -15,7 +15,7 @@ http_interactions:
       - Vets.gov Agent
       Authorization:
       - Token token=PUBLICDEMO123
-      Veteranid:
+      Ssn:
       - '872958715'
       Receiptdate:
       - '2019-12-01'

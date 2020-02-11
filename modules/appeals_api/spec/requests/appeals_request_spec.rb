@@ -65,7 +65,7 @@ RSpec.describe 'Claim Appeals API endpoint', type: :request do
                 'legacyOptInApproved' => true,
                 'benefitType' => 'compensation',
                 'veteran' => {
-                  'fileNumberOrSsn' => '123456789',
+                  'ssn' => '123456789',
                   'addressLine1' => '123 Street St',
                   'addressLine2' => 'Apt 4',
                   'city' => 'Chicago',

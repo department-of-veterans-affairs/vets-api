@@ -9,7 +9,7 @@ describe AppealsApi::V1::DecisionReview::ContestableIssuesController, type: :req
         get(
           '/services/appeals/v1/decision_review/contestable_issues',
           headers: {
-            'veteranId' => '872958715',
+            'ssn' => '872958715',
             'receiptDate' => '2019-12-01'
           }
         )
