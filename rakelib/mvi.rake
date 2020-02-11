@@ -97,31 +97,29 @@ middle_name="W" last_name="Smith" birth_date="1945-01-25" gender="M" ssn="555443
 
     csv = CSV.open(args[:csvfile], headers: true)
     csv.each_with_index do |row, i|
-      begin
-        bd = Time.iso8601(row['birth_date']).strftime('%Y-%m-%d')
-        user = User.new(
-          first_name: row['first_name'],
-          last_name: row['last_name'],
-          middle_name: row['middle_name'],
-          birth_date: bd,
-          gender: row['gender'],
-          ssn: row['ssn'],
-          email: row['email'],
-          uuid: SecureRandom.uuid,
-          loa: { current: LOA::THREE, highest: LOA::THREE }
-        )
-        if user.va_profile.nil?
-          puts "Row #{i} #{row['first_name']} #{row['last_name']}: No MVI profile"
-          next
-        end
-      rescue => e
-        puts "Row #{i} #{row['first_name']} #{row['last_name']}: #{e.message}"
+      bd = Time.iso8601(row['birth_date']).strftime('%Y-%m-%d')
+      user = User.new(
+        first_name: row['first_name'],
+        last_name: row['last_name'],
+        middle_name: row['middle_name'],
+        birth_date: bd,
+        gender: row['gender'],
+        ssn: row['ssn'],
+        email: row['email'],
+        uuid: SecureRandom.uuid,
+        loa: { current: LOA::THREE, highest: LOA::THREE }
+      )
+      if user.va_profile.nil?
+        puts "Row #{i} #{row['first_name']} #{row['last_name']}: No MVI profile"
+        next
       end
+    rescue => e
+      puts "Row #{i} #{row['first_name']} #{row['last_name']}: #{e.message}"
     end
   end
 
   desc "Given a ssn update a mocked user's correlation ids"
-  task :update_ids, [:environment] do
+  task update_ids: :environment do
     ssn = ENV['ssn']
     raise ArgumentError, 'ssn is required, usage: `rake mvi:update_ids ssn=111223333 icn=abc123`' unless ssn
 
@@ -148,7 +146,7 @@ middle_name="W" last_name="Smith" birth_date="1945-01-25" gender="M" ssn="555443
   end
 
   desc 'Create missing cache files from mock_mvi_responses.yml'
-  task :migrate_mock_data, [:environment] do
+  task migrate_mock_data: :environment do
     yaml = YAML.safe_load(
       File.read(File.join('config', 'mvi_schema', 'mock_mvi_responses.yml'))
     )

@@ -8,6 +8,7 @@ module ClaimsApi
     include FileData
     attr_encrypted(:form_data, key: Settings.db_encryption_key, marshal: true, marshaler: ClaimsApi::JsonMarshal)
     attr_encrypted(:auth_headers, key: Settings.db_encryption_key, marshal: true, marshaler: ClaimsApi::JsonMarshal)
+    attr_encrypted(:evss_response, key: Settings.db_encryption_key, marshal: true, marshaler: ClaimsApi::JsonMarshal)
 
     has_many :supporting_documents, dependent: :destroy
 
@@ -37,7 +38,7 @@ module ClaimsApi
     alias token id
 
     def to_internal
-      form_data['claimDate'] ||= created_at.to_date.to_s
+      form_data['claimDate'] ||= (persisted? ? created_at.to_date.to_s : Time.zone.today.to_s)
       {
         "form526": form_data,
         "form526_uploads": [],
@@ -65,7 +66,10 @@ module ClaimsApi
     end
 
     def set_md5
-      headers = auth_headers.except('va_eauth_issueinstant', 'Authorization')
+      headers = auth_headers.except('va_eauth_authenticationauthority',
+                                    'va_eauth_service_transaction_id',
+                                    'va_eauth_issueinstant',
+                                    'Authorization')
       self.md5 = Digest::MD5.hexdigest form_data.merge(headers).to_json
     end
 

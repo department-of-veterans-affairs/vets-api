@@ -52,6 +52,7 @@ class StatsdMiddleware
     veteran-id-card
     veteran-representative
     vic-v2
+    undefined
   ].freeze
 
   def initialize(app)
@@ -94,14 +95,14 @@ class StatsdMiddleware
   def get_source_app(env)
     source_app = env['HTTP_SOURCE_APP_NAME']
 
-    return nil if source_app.nil?
+    return 'not_provided' if source_app.nil?
     return source_app if SOURCE_APP_NAMES.include?(source_app)
 
     # TODO: - Use sentry to notify us instead. It must be done in a rate-limited way
     #        so as not to allow for a malicious client to overflow worker queues
     Rails.logger.warn "Unrecognized value for HTTP_SOURCE_APP_NAME request header... [#{source_app}]"
 
-    ''
+    'not_in_whitelist'
   end
 
   def instrument_statsd(status, duration, controller, action, source_app)

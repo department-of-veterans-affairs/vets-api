@@ -6,50 +6,6 @@ RSpec.describe 'Claim Appeals API endpoint', type: :request do
   include SchemaMatchers
 
   appeals_endpoint = '/services/appeals/v0/appeals'
-  hlr_endpoint = "#{appeals_endpoint}/higher_level_reviews"
-  intake_endpoint = "#{appeals_endpoint}/intake_statuses"
-
-  describe 'GET /intake_statuses' do
-    context 'with a valid decision review response' do
-      it 'returns an intake status response object' do
-        VCR.use_cassette('decision_review/200_intake_status') do
-          get "#{intake_endpoint}/1234567890"
-          expect(response).to have_http_status(:ok)
-          expect(response).to match_response_schema('intake_status')
-        end
-      end
-    end
-
-    context 'with a decision response that does not exist' do
-      it 'returns a 404 error' do
-        VCR.use_cassette('decision_review/404_get_intake_status') do
-          get "#{intake_endpoint}/1234"
-          expect(response).to have_http_status(:not_found)
-        end
-      end
-    end
-  end
-
-  describe 'GET /higher_level_reviews' do
-    context 'with a valid higher review response' do
-      it 'higher level review endpoint returns a successful response' do
-        VCR.use_cassette('decision_review/200_review') do
-          get "#{hlr_endpoint}/4bc96bee-c6a3-470e-b222-66a47629dc20"
-          expect(response).to have_http_status(:ok)
-          expect(response).to match_response_schema('higher_level_review')
-        end
-      end
-    end
-
-    context 'with a higher review response id that does not exist' do
-      it 'returns a 404 error' do
-        VCR.use_cassette('decision_review/404_review') do
-          get "#{hlr_endpoint}/1234"
-          expect(response).to have_http_status(:not_found)
-        end
-      end
-    end
-  end
 
   context 'with the X-VA-SSN and X-VA-User header supplied ' do
     let(:user) { FactoryBot.create(:user, :loa3) }

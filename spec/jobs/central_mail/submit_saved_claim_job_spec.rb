@@ -123,9 +123,9 @@ RSpec.describe CentralMail::SubmitSavedClaimJob, uploader_helpers: true do
 
       it 'generates the metadata', run_at: '2017-01-04 03:00:00 EDT' do
         expect(job.generate_metadata).to eq(
-          'veteranFirstName' => 'Test',
-          'veteranLastName' => 'User',
-          'fileNumber' => '111223333',
+          'veteranFirstName' => 'WESLEY',
+          'veteranLastName' => 'FORD',
+          'fileNumber' => '796043735',
           'receiveDt' => '2017-01-04 01:00:00',
           'zipCode' => '90210',
           'uuid' => claim.guid,

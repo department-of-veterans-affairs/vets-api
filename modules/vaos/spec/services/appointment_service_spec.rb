@@ -3,13 +3,58 @@
 require 'rails_helper'
 
 describe VAOS::AppointmentService do
-  subject { described_class.for_user(user) }
+  subject { described_class.new(user) }
 
   let(:user) { build(:user, :vaos) }
   let(:start_date) { Time.zone.parse('2019-11-14T07:00:00Z') }
   let(:end_date) { Time.zone.parse('2020-03-14T08:00:00Z') }
 
   before { allow_any_instance_of(VAOS::UserService).to receive(:session).and_return('stubbed_token') }
+
+  describe '#post_appointment' do
+    context 'when request is mal-formed' do
+      let(:request_body) do
+        FactoryBot.build(:appointment_form, :ineligible).attributes
+      end
+
+      it 'returns a 400 Bad Request' do
+        VCR.use_cassette('vaos/appointments/post_appointment_400', match_requests_on: %i[method uri]) do
+          expect { subject.post_appointment(request_body) }
+            .to raise_error(Common::Exceptions::BackendServiceException) do |error|
+              expect(error.status_code).to eq(400)
+            end
+        end
+      end
+    end
+
+    context 'when request is in conflict' do
+      let(:request_body) do
+        FactoryBot.build(:appointment_form, :ineligible).attributes
+      end
+
+      it 'returns a 400 Bad Request for 409 conlicts as well' do
+        VCR.use_cassette('vaos/appointments/post_appointment_409', match_requests_on: %i[method uri]) do
+          expect { subject.post_appointment(request_body) }
+            .to raise_error(Common::Exceptions::BackendServiceException) do |error|
+              expect(error.status_code).to eq(400)
+            end
+        end
+      end
+    end
+
+    context 'when request is valid' do
+      let(:request_body) do
+        FactoryBot.build(:appointment_form, :eligible).attributes
+      end
+
+      it 'returns the created appointment' do
+        VCR.use_cassette('vaos/appointments/post_appointment', match_requests_on: %i[method uri]) do
+          response = subject.post_appointment(request_body)
+          expect(response).to be_a(Hash)
+        end
+      end
+    end
+  end
 
   describe '#put_cancel_appointment' do
     context 'when appointment cannot be cancelled' do

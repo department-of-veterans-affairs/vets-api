@@ -100,7 +100,7 @@ module SAML
 
         settings.certificate = Settings.saml.certificate
         settings.private_key = Settings.saml.key
-        settings.issuer = Settings.saml.issuer
+        settings.sp_entity_id = Settings.saml.issuer
         settings.assertion_consumer_service_url = Settings.saml.callback_url
         settings.certificate_new = Settings.saml.certificate_new
 
