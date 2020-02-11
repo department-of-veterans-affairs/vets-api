@@ -3,7 +3,7 @@
 require 'rails_helper'
 
 describe VAOS::MessagesService do
-  subject { described_class.for_user(user) }
+  subject { described_class.new(user) }
 
   let(:user) { build(:user, :vaos) }
   let(:request_id) { '8a4886886e4c8e22016e5bee49c30007' }
