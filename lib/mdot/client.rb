@@ -83,7 +83,7 @@ module MDOT
         url: config.base_path
       )
       raise_backend_exception(
-        MDOT::ExceptionKey.new('MDOT_502'), 
+        MDOT::ExceptionKey.new('MDOT_502'),
         self.class
       )
     end

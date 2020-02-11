@@ -3,7 +3,7 @@
 module MDOT
   class ExceptionKey
     attr_reader :key, :i18n_key
-  
+
     def initialize(key)
       @exception_group = 'mdot.exceptions.'
       @default_exception = 'default_exception'
