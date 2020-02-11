@@ -68,13 +68,206 @@ servers:
       version:
         default: v0
 paths:
-  /status: STATUS_DOC_PLACEHOLDER
-  /disability_rating: DISABILITY_RATING_DOC_PLACEHOLDER
-  /service_history: SERVICE_HISTORY_DOC_PLACEHOLDER
+  /status:
+    get:
+      tags:
+        - veteran_status
+      summary: Get confirmation about an individual's Veteran status according to the VA
+      operationId: getVeteranStatus
+      security:
+        - bearer_token: []
+      responses:
+        '200':
+          description: Confirmation status successfully retrieved
+          content:
+            application/json:
+              schema:
+                required:
+                  - data
+                properties:
+                  data:
+                    $ref: '#/components/schemas/VeteranStatusConfirmation'
+        '403':
+          description: Provided Access Token Does not have the required scopes to access.
+        '502':
+          description: eMIS failed to respond or responded in a way we cannot handle. 
+  /disability_rating:
+    get:
+      tags:
+        - disability_rating
+      summary: Retrieve disability rating of authorized Veteran
+      operationId: getDisabilityRating
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Disability Rating retrieved successfully
+          content:
+            application/json:
+              schema:
+                required:
+                  - data
+                properties:
+                  data:
+                    $ref: '#/components/schemas/DisabilityRating'
+        '404':
+          description: No disability ratings found
+  /service_history:
+    get:
+      tags:
+        - service_history
+      summary: Retrieve service history of authorized Veteran
+      operationId: getServiceHistory
+      security:
+        - bearer_token: []
+      responses:
+        '200':
+          description: Service History retrieved successfully
+          content:
+            application/json:
+              schema:
+                required:
+                  - data
+                properties:
+                  data:
+                    $ref: '#/components/schemas/ServiceHistoryEpisode'
+        '404':
+          description: No service history found
 components:
   securitySchemes:
     bearer_token:
       type: http
       scheme: bearer
       bearerFormat: JWT
-  schemas: SCHEMAS_PLACEHOLDER
+  schemas:
+    DisabilityRating:
+      description: |
+        The disability rating percentage applied to the Veteran.
+      required:
+        - id
+        - type
+        - atttributes
+      properties:
+        id:
+          description: JSON API identifier
+          type: string
+          example: 12303
+        type:
+          description: JSON API type specification
+          type: string
+          example: 'document_upload'
+        attributes:
+          $ref: '#/components/schemas/RatingAttributes'
+    RatingAttributes:
+      description: |
+        Body of the disability rating response
+      required:
+        - decision
+        - effective_date
+        - rating_percentage
+      properties:
+        decision:
+          description: Whether the disability is service connected or not.
+          type: string
+          example: 'Service Connected'
+        effective_date:
+          description: When the Veteran could begin claiming benefits related to this disability
+          type: string
+          format: datetime
+          example: "2018-03-27T21:00:41.000+0000"
+        rating_percentage:
+          description: Severity rating determined by VA that indicates how disabling an illness or injury is for the Veteran. Used to help determine disability compensation (pay) and related benefits.
+          type: number
+          example: 50
+    VeteranStatusConfirmation:
+          description: |
+            Veteran status confirmation for an individual
+          type: object
+          properties:
+            id:
+              type: string
+              description: Confirmation UUID
+              example: "833c6ffc-efef-4775-9355-f836b4f57501"
+            type:
+              type: string
+              example: veteran_status_confirmations
+            attributes:
+              type: object
+              properties:
+                veteran_status:
+                  type: string
+                  description: |
+                    Whether the system could confirm the Veteran status of the authorized individual
+                  enum:
+                    - confirmed
+                    - not confirmed
+    ServiceHistoryEpisode:
+      description: |
+        Service History for authorized Veteran
+      type: object
+      properties:
+        id:
+          type: string
+          description: Service History Episode ID
+          example: "12312AASDf"
+        type:
+          type: string
+          example: service-history-episodes
+        attributes:
+          type: object
+          properties:
+            start_date:
+              type: string
+              format: date
+              description: start date of a service history episode (YYYY-mm-dd)
+              example: '1948-04-08'
+            end_date:
+              type: string
+              format: date
+              description: end date of a service history episode (YYYY-mm-dd)
+              example: '1950-05-10'
+            branch:
+              type: string
+              description: Branch of military including National Guard or Reserve status
+              example: "Air Force"
+            discharge_status:
+              type: string
+              description: |
+                Character of discharge from service episode. Possible values are:
+
+                Both "honorable-for-va-purposes" and "dishonorable-for-va-purposes" represent a change in character of discharge based on an administrative decision, for purposes of VA benefits administration. The original character of discharge for other purposes was either "bad-conduct" or "other-than-honorable". "honorable-absence-of-negative-report" represents an unreported character of service that DoD classifies as honorable.
+              enum:
+                - honorable
+                - general
+                - bad-conduct
+                - other-than-honorable
+                - dishonorable
+                - honorable-absence-of-negative-report
+                - honorable-for-va-purposes
+                - dishonorable-for-va-purposes
+                - uncharacterized
+                - unknown
+              example: honorable
+            deployments:
+              type: array
+              items:
+                $ref: '#/components/schemas/Deployment'
+    Deployment:
+      description: |
+        Deployment during a service history episode
+      type: object
+      properties:
+        start_date:
+          type: string
+          format: date
+          description: beginning of deployment (YYYY-mm-dd)
+          example: '1948-10-10'
+        end_date:
+          type: string
+          format: date
+          description: end of deployment (YYYY-mm-dd)
+          example: '1949-10-09'
+        location:
+          type: string
+          description: Three letter ISO country code of deployment location
+          example: KOR
