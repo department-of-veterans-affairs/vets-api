@@ -24,20 +24,20 @@ GIT
 
 GIT
   remote: https://github.com/department-of-veterans-affairs/lighthouse-bgs.git
-  revision: dc83f57577299686c3e056c2c3b8fb79a7b2d51e
+  revision: a7878c8b7e88957bb8327d5bde5c39fcdfd76c1c
   branch: master
   specs:
-    lighthouse_bgs (0.6.0)
+    lighthouse_bgs (0.8.0)
       httpclient
       nokogiri (>= 1.8.5)
       savon (~> 2.12)
 
 GIT
   remote: https://github.com/department-of-veterans-affairs/vets-json-schema
-  revision: baa5f1ea73c9183398eedbe40b40c5695dbce77c
+  revision: ad0b80adba5702cb6c590d2a3218eafb2d4bf40c
   branch: master
   specs:
-    vets_json_schema (3.138.12)
+    vets_json_schema (3.140.0)
       multi_json (~> 1.0)
       script_utils (= 0.0.4)
 
@@ -248,9 +248,9 @@ GEM
     colored2 (3.1.2)
     colorize (0.8.1)
     concurrent-ruby (1.1.5)
-    config (1.4.0)
-      activesupport (>= 3.0)
-      deep_merge (~> 1.1.1)
+    config (2.2.1)
+      deep_merge (~> 1.2, >= 1.2.1)
+      dry-validation (~> 1.0, >= 1.0.0)
     connection_pool (2.2.2)
     content_disposition (1.0.0)
     cork (0.3.0)
@@ -275,7 +275,7 @@ GEM
     date_validator (0.9.0)
       activemodel
       activesupport
-    deep_merge (1.1.1)
+    deep_merge (1.2.1)
     descendants_tracker (0.0.4)
       thread_safe (~> 0.3, >= 0.3.1)
     diff-lcs (1.3)
@@ -292,10 +292,19 @@ GEM
       concurrent-ruby (~> 1.0)
     dry-equalizer (0.3.0)
     dry-inflector (0.2.0)
+    dry-initializer (3.0.3)
     dry-logic (1.0.5)
       concurrent-ruby (~> 1.0)
       dry-core (~> 0.2)
       dry-equalizer (~> 0.2)
+    dry-schema (1.4.3)
+      concurrent-ruby (~> 1.0)
+      dry-configurable (~> 0.8, >= 0.8.3)
+      dry-core (~> 0.4)
+      dry-equalizer (~> 0.2)
+      dry-initializer (~> 3.0)
+      dry-logic (~> 1.0)
+      dry-types (~> 1.2)
     dry-struct (1.2.0)
       dry-core (~> 0.4, >= 0.4.3)
       dry-equalizer (~> 0.3)
@@ -308,6 +317,13 @@ GEM
       dry-equalizer (~> 0.3)
       dry-inflector (~> 0.1, >= 0.1.2)
       dry-logic (~> 1.0, >= 1.0.2)
+    dry-validation (1.4.1)
+      concurrent-ruby (~> 1.0)
+      dry-container (~> 0.7, >= 0.7.1)
+      dry-core (~> 0.4)
+      dry-equalizer (~> 0.2)
+      dry-initializer (~> 3.0)
+      dry-schema (~> 1.0, >= 1.4.3)
     ecma-re-validator (0.2.0)
       regexp_parser (~> 1.2)
     encryptor (3.0.0)
@@ -447,13 +463,14 @@ GEM
     mini_mime (1.0.2)
     mini_portile2 (2.4.0)
     minitest (5.13.0)
-    multi_json (1.13.1)
+    multi_json (1.14.1)
     multipart-post (2.1.1)
     nap (1.1.0)
     nenv (0.3.0)
     net-sftp (2.1.2)
       net-ssh (>= 2.6.5)
     net-ssh (4.1.0)
+    newrelic_rpm (6.8.0.360)
     nio4r (2.5.2)
     no_proxy_fix (0.1.2)
     nokogiri (1.10.7)
@@ -804,6 +821,7 @@ DEPENDENCIES
   memoist
   mini_magick (~> 4.10.1)
   net-sftp
+  newrelic_rpm
   nokogiri (~> 1.10, >= 1.10.4)
   oj
   olive_branch
@@ -884,7 +902,7 @@ DEPENDENCIES
   zero_downtime_migrations
 
 RUBY VERSION
-   ruby 2.4.5p335
+   ruby 2.5.7p206
 
 BUNDLED WITH
    1.17.3
