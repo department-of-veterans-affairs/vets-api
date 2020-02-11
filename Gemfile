@@ -2,7 +2,7 @@
 
 source 'https://rubygems.org'
 
-ruby '2.5.7'
+ruby '2.6.5'
 
 # Modules
 gem 'appeals_api', path: 'modules/appeals_api'
