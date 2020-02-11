@@ -2446,7 +2446,7 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
         context 'when successful' do
           it 'supports getting form results data with a query' do
             VCR.use_cassette('forms/200_form_query') do
-              expect(subject).to validate(:get, '/v0/forms', 200, '_query_string' => 'term=health')
+              expect(subject).to validate(:get, '/v0/forms', 200, '_query_string' => 'query=health')
             end
           end
 
