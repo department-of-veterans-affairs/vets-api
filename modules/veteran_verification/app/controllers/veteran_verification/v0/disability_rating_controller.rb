@@ -12,7 +12,6 @@ module VeteranVerification
 
       before_action { authorize :evss, :access? }
       before_action { permit_scopes %w[disability_rating.read] }
-      before_action { set_default_format }
 
       def index
         disabilities_response = service.get_rated_disabilities
@@ -28,10 +27,6 @@ module VeteranVerification
       end
 
       private
-
-      def set_default_format
-        request.format = :json if params[:format].nil? && request.headers['HTTP_ACCEPT'].nil?
-      end
 
       def service
         EVSS::DisabilityCompensationForm::Service.new(auth_headers)

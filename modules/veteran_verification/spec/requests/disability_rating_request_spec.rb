@@ -23,7 +23,7 @@ RSpec.describe 'Disability Rating API endpoint', type: :request, skip_emis: true
       'alg' => 'RS256'
     }]
   end
-  let(:auth_header) { { 'Authorization' => "Bearer #{token}", 'Accept' => 'application/json' } }
+  let(:auth_header) { { 'Authorization' => "Bearer #{token}", 'Accept' => '*/*' } }
   let(:user) { create(:openid_user, identity_attrs: build(:user_identity_attrs, :loa3)) }
 
   before do
