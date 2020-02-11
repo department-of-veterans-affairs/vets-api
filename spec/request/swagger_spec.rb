@@ -2441,6 +2441,24 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
           end
         end
       end
+
+      describe 'forms' do
+        context 'when successful' do
+          it 'supports getting form results data with a query' do
+            VCR.use_cassette('forms/200_form_query') do
+              expect(subject).to validate(:get, '/v0/forms', 200, '_query_string' => 'term=health')
+            end
+          end
+        end
+
+        context 'with an empty form query' do
+          it 'returns a 400 with error details' do
+            VCR.use_cassette('search/200_all_forms') do
+              expect(subject).to validate(:get, '/v0/forms', 200, '_query_string' => 'term=')
+            end
+          end
+        end
+      end
     end
   end
 
