@@ -1997,7 +1997,7 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
       it 'supports GETting async transaction by ID' do
         transaction = create(
           :address_transaction,
-          transaction_id: '0faf342f-5966-4d3f-8b10-5e9f911d07d2',
+          transaction_id: 'a030185b-e88b-4e0d-a043-93e4f34c60d6',
           user_uuid: user.uuid
         )
         expect(subject).to validate(
