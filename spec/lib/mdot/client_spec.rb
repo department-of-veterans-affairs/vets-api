@@ -110,7 +110,7 @@ describe MDOT::Client do
             raise_error(Common::Exceptions::BackendServiceException) do |e|
               expect(e.message).to match(/MDOT_502/)
             end
-          )   
+          )
         end
       end
     end
