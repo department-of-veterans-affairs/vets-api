@@ -38,7 +38,7 @@ module SAML
 
       if authn_context.present?
         if authn_context.include?('multifactor') && build_saml_response_with_existing_user_identity?
-          previous_context = authn_context.gsub(/multifactor|_multifactor/, '').presence || LOA::IDME_LOA1
+          previous_context = authn_context.gsub(/multifactor|_multifactor/, '').presence || LOA::IDME_LOA1_VETS
           create_user_identity(
             authn_context: previous_context,
             account_type: account_type,
@@ -313,7 +313,7 @@ module SAML
           'level_of_assurance' => ['3'],
           'multifactor' => [true] # always true for these types
         )
-      when LOA::IDME_LOA1, 'multifactor'
+      when LOA::IDME_LOA1_VETS, 'multifactor'
         OneLogin::RubySaml::Attributes.new(
           'uuid' => ['0e1bb5723d7c4f0686f46ca4505642ad'],
           'email' => ['kam+tristanmhv@adhocteam.us'],

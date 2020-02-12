@@ -77,13 +77,13 @@ module SAML
 
     def idme_url
       @type = 'idme'
-      build_sso_url(LOA::IDME_LOA1)
+      build_sso_url(LOA::IDME_LOA1_VETS)
     end
 
     def signup_url
       @type = 'signup'
       @query_params[:op] = 'signup'
-      build_sso_url(LOA::IDME_LOA1)
+      build_sso_url(LOA::IDME_LOA1_VETS)
     end
 
     def verify_url
@@ -93,7 +93,7 @@ module SAML
 
       link_authn_context =
         case authn_context
-        when LOA::IDME_LOA1, 'multifactor'
+        when LOA::IDME_LOA1_VETS, 'multifactor'
           @loa3_context
         when 'myhealthevet', 'myhealthevet_multifactor'
           'myhealthevet_loa3'
@@ -108,7 +108,7 @@ module SAML
       @type = 'mfa'
       link_authn_context =
         case authn_context
-        when LOA::IDME_LOA1, LOA::IDME_LOA3, LOA::IDME_LOA3_VETS
+        when LOA::IDME_LOA1_VETS, LOA::IDME_LOA3_VETS, LOA::IDME_LOA3
           'multifactor'
         when 'myhealthevet', 'myhealthevet_loa3'
           'myhealthevet_multifactor'
