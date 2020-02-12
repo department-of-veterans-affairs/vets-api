@@ -12,34 +12,30 @@ module VAOS
         start_time = Time.current
 
         @app.call(env).on_complete do |response_env|
-          jti = jti(env, response_env)
-          duration = Time.current - start_time
-          status = response_env.status
+          log_tags = {
+            jti: jti(env, response_env),
+            status: response_env.status,
+            duration: Time.current - start_time,
+            service_name: @service_name || 'VAOS Generic',
+            url: env.url.to_s
+          }
 
-          if status.between?(200..299) 
-            logger.info('vaos service call succeeded:',
-              duration: duration,
-              status: status,
-              jti: jti,
-              service_name: @service_name,
-              url: env.url.to_s
-            )
+          if status.between?(200..299)
+            log(:info, 'vaos service call succeeded:', log_tags)
           else
-            logger.warn('vaos service call failed:',
-              duration: duration,
-              status: status,
-              jti: jti,
-              service_name: @service_name,
-              url: env.url.to_s
-            )
+            log(:warn, 'vaos service call failed:', log_tags)
           end
         end
       end
 
       private
 
+      def log(type, message, tags)
+        logger.send(type, message, tags)
+      end
+
       def decode_jwt(token)
-       JWT.decode(token, rsa_private.public_key, true, algorithm: 'RS512').first
+        JWT.decode(token, rsa_private.public_key, true, algorithm: 'RS512').first
       end
 
       def user_session_request?(env)
@@ -49,7 +45,7 @@ module VAOS
       def rsa_private
         OpenSSL::PKey::RSA.new(File.read(Settings.va_mobile.key_path))
       end
-  
+
       def jti(env, response_env)
         if user_session_request?(env)
           decode_jwt(response_env.body)['jti']
@@ -60,6 +56,5 @@ module VAOS
     end
   end
 end
-
 
 Faraday::Middleware.register_middleware vaos_logging: VAOS::Middleware::VaosLogging
