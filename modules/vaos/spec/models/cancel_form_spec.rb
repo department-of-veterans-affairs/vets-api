@@ -10,7 +10,7 @@ describe VAOS::CancelForm, type: :model do
 
     it 'validates presence of required attributes' do
       expect(subject).not_to be_valid
-      expect(subject.errors.keys).to contain_exactly(:appointment_time, :cancel_code)
+      expect(subject.errors.keys).to contain_exactly(:appointment_time, :cancel_code, :facility_id)
     end
 
     it 'raises a Common::Exceptions::ValidationErrors when trying to fetch coerced params' do
@@ -23,6 +23,7 @@ describe VAOS::CancelForm, type: :model do
       described_class.new(
         appointment_time: '2019-11-13T20:19:12Z',
         clinic_id: 455,
+        facility_id: 983,
         cancel_reason: 5,
         cancel_code: 'PC',
         remarks: nil,
@@ -38,6 +39,7 @@ describe VAOS::CancelForm, type: :model do
       expect(subject.params).to eq(
         appointment_time: '11/13/2019 20:19:12',
         clinic_id: '455',
+        facility_id: '983',
         cancel_reason: '5',
         cancel_code: 'PC',
         remarks: nil, # doesn't coerce nil to ""
