@@ -48,7 +48,7 @@ module MDOT
     private
 
     def headers
-      { veteranId: user.ssn }
+      { veteranId: @user.ssn }
     end
 
     def with_monitoring_and_error_handling
