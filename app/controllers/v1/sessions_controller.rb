@@ -58,7 +58,6 @@ module V1
 
     def saml_callback
       saml_response = SAML::Responses::Login.new(params[:SAMLResponse], settings: saml_settings)
-
       if saml_response.valid?
         user_login(saml_response)
       else
@@ -115,8 +114,7 @@ module V1
         @current_user, @session_object = user_session_form.persist
         set_cookies
         after_login_actions
-        should_skip_uplevel = saml_response.issuer_text&.match?(/Xeauth\.va\.gov/)
-        redirect_to url_service.login_redirect_url(skip_uplevel: should_skip_uplevel)
+        redirect_to url_service.login_redirect_url
         if location.start_with?(url_service.base_redirect_url)
           # only record success stats if the user is being redirect to the site
           # some users will need to be up-leveled and this will be redirected
@@ -222,7 +220,8 @@ module V1
     end
 
     def url_service
-      SAML::URLService.new(saml_settings, session: @session_object, user: current_user, params: params)
+      SAML::URLService.new(saml_settings, session: @session_object, user: current_user,
+                                          params: params, loa3_context: LOA::IDME_LOA3)
     end
   end
 end

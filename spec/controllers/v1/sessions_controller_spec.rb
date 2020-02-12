@@ -41,7 +41,7 @@ RSpec.describe V1::SessionsController, type: :controller do
   end
 
   let(:decrypter) { Aes256CbcEncryptor.new(Settings.sso.cookie_key, Settings.sso.cookie_iv) }
-  let(:authn_context) { LOA::IDME_LOA1 }
+  let(:authn_context) { LOA::IDME_LOA1_VETS }
   let(:valid_saml_response) do
     build_saml_response(
       authn_context: authn_context,
@@ -670,7 +670,7 @@ RSpec.describe V1::SessionsController, type: :controller do
         end
 
         it 'increments the failed and total statsd counters' do
-          callback_tags = ['status:failure', "context:#{LOA::IDME_LOA1}"]
+          callback_tags = ['status:failure', "context:#{LOA::IDME_LOA1_VETS}"]
           failed_tags = ['error:validations_failed']
 
           expect { post(:saml_callback) }
