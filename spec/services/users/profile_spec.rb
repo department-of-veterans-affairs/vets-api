@@ -63,7 +63,7 @@ RSpec.describe Users::Profile do
       # --- positive tests ---
       context 'idme user' do
         it 'includes authn_context' do
-          expect(profile[:authn_context]).to eq(LOA::IDME_LOA3)
+          expect(profile[:authn_context]).to eq(LOA::IDME_LOA3_VETS)
         end
 
         it 'includes sign_in' do
