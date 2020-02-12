@@ -6,7 +6,7 @@ module Vet360
       self.read_timeout = 30
 
       def base_path
-        "#{Settings.vet360.url}/person-mdm-cuf-person-hub/referencedata/v1"
+        "#{Settings.vet360.url}/contact-information-hub/referencedata/contact-information/v1"
       end
 
       def service_name
