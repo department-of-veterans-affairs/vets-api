@@ -5,7 +5,7 @@ FactoryBot.define do
     uuid { 'b2fab2b5-6af0-45e1-a9e2-394347af91ef' }
     last_signed_in { Time.now.utc }
     transient do
-      authn_context { 'http://idmanagement.gov/ns/assurance/loa/1/vets' }
+      authn_context { LOA::IDME_LOA1_VETS }
       email { 'abraham.lincoln@vets.gov' }
       first_name { 'abraham' }
       middle_name { nil }
@@ -76,7 +76,7 @@ FactoryBot.define do
     end
 
     trait :accountable do
-      authn_context { 'http://idmanagement.gov/ns/assurance/loa/3/vets' }
+      authn_context { LOA::IDME_LOA3_VETS }
       uuid { SecureRandom.uuid }
       callback(:after_build) do |user|
         create(:account, idme_uuid: user.uuid)
@@ -94,7 +94,7 @@ FactoryBot.define do
     end
 
     trait :loa1 do
-      authn_context { 'http://idmanagement.gov/ns/assurance/loa/1/vets' }
+      authn_context { LOA::IDME_LOA1_VETS }
       sign_in do
         {
           service_name: SAML::User::AUTHN_CONTEXTS[authn_context][:sign_in][:service_name]
@@ -107,7 +107,7 @@ FactoryBot.define do
     end
 
     trait :loa3 do
-      authn_context { 'http://idmanagement.gov/ns/assurance/loa/3/vets' }
+      authn_context { LOA::IDME_LOA3_VETS }
 
       sign_in do
         {
