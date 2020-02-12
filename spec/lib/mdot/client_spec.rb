@@ -6,11 +6,13 @@ describe MDOT::Client do
   subject { described_class.new }
 
   let(:user_details) do
-    first_name: 'Greg',
-    last_name: 'Anderson',
-    middle_name: 'A',
-    birth_date: '1949-03-04',
-    ssn: '000555555'
+    {
+      first_name: 'Greg',
+      last_name: 'Anderson',
+      middle_name: 'A',
+      birth_date: '1949-03-04',
+      ssn: '000555555'
+    }
   end
 
   let(:user) { build(:user, :loa3, user_details) }
