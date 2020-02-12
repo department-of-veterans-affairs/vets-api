@@ -16,6 +16,8 @@ module MDOT
 
     configuration MDOT::Configuration
 
+    STATSD_KEY_PREFIX = 'api.decision_review'
+
     def initialize(current_user)
       @user = current_user
       @supplies = 'mdot/supplies'
