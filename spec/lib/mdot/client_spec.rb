@@ -3,6 +3,8 @@
 require 'rails_helper'
 
 describe MDOT::Client do
+  subject { described_class.new(user) }
+
   let(:user_details) do
     {
       first_name: 'Greg',
@@ -14,8 +16,6 @@ describe MDOT::Client do
   end
 
   let(:user) { build(:user, :loa3, user_details) }
-
-  subject { described_class.new(user) }
 
   describe '#get_supplies' do
     context 'with a valid supplies response' do
