@@ -12,6 +12,8 @@ module MDOT
   #
 
   class Client < Common::Client::Base
+    include Common::Client::Monitoring
+
     configuration MDOT::Configuration
 
     def initialize(current_user)
