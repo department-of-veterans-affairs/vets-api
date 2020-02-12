@@ -39,38 +39,52 @@ describe MDOT::Client do
         expect { subject.get_letters }.to raise_error(Common::Exceptions::GatewayTimeout)
       end
     end
+
+    context 'with an unkwown DLC service error' do
+      it 'raises a BackendServiceException' do
+        VCR.use_cassette('mdot/get_supplies_500') do
+          expect { subject.get_letters }.to raise_error(Common::Exceptions::BackendServiceException) do |e|
+            expect(e.message).to match(/MDOT_502/)
+          end
+        end
+      end
+    end
   end
 
   describe '#submit_order' do
+    let(:valid_order) do
+      {
+        veteranFullName: {
+          first: 'Greg',
+          middle: 'A',
+          last: 'Anderson'
+        },
+        veteranAddress: {
+          street: '101 Example Street',
+          street2: 'Apt 2',
+          city: 'Kansas City',
+          state: 'MO',
+          country: 'USA',
+          postalCode: '64117'
+        },
+        order: [
+          {
+            productId: 1
+          },
+          {
+            productId: 4
+          }
+        ],
+        additionalRequests: ''
+      }.to_json
+    end
+
     context 'with a valid supplies order' do
       it 'returns a successful response' do
         VCR.use_cassette('mdot/submit_order_202') do
-          order = {
-            veteranFullName: {
-              first: 'Greg',
-              middle: 'A',
-              last: 'Anderson'
-            },
-            veteranAddress: {
-              street: '101 Example Street',
-              street2: 'Apt 2',
-              city: 'Kansas City',
-              state: 'MO',
-              country: 'USA',
-              postalCode: '64117'
-            },
-            order: [
-              {
-                productId: 1
-              },
-              {
-                productId: 4
-              }
-            ],
-            additionalRequests: ''
-          }.to_json
+          
 
-          response = subject.submit_order(order)
+          response = subject.submit_order(valid_order)
           expect(response).to be_accepted
           expect(response).to be_an MDOT::Response
         end
@@ -80,12 +94,22 @@ describe MDOT::Client do
     context 'with an http timeout error' do
       it 'logs the error and raises GatewayTimeout' do
         faraday = double('Faraday::Connection')
-        allow(faraday).to receive(:get).and_raise(Faraday::TimeoutError)
+        allow(faraday).to receive(:post).and_raise(Faraday::TimeoutError)
         expect(StatsD).to receive(:increment).once.with(
           'api.mdot.submit_order.fail', tags: ['error:Common::Exceptions::GatewayTimeout']
         )
         expect(StatsD).to receive(:increment).once.with('api.mdot.submit_order.total')
-        expect { subject.get_letters }.to raise_error(Common::Exceptions::GatewayTimeout)
+        expect { subject.submit_order(valid_order) }.to raise_error(Common::Exceptions::GatewayTimeout)
+      end
+    end
+
+    context 'with an unkwown DLC service error' do
+      it 'raises a BackendServiceException' do
+        VCR.use_cassette('mdot/submit_order_500') do
+          expect { subject.submit_order(valid_order) }.to raise_error(Common::Exceptions::BackendServiceException) do |e|
+            expect(e.message).to match(/MDOT_502/)
+          end
+        end
       end
     end
   end
