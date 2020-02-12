@@ -16,7 +16,7 @@ module MDOT
 
     configuration MDOT::Configuration
 
-    STATSD_KEY_PREFIX = 'api.decision_review'
+    STATSD_KEY_PREFIX = 'api.mdot'
 
     def initialize(current_user)
       @user = current_user

@@ -17,7 +17,7 @@ module MDOT
     end
 
     def connection
-      Faraday.new(base_path, headers: base_request_headers, request: request_options) do |f|
+      @connection = Faraday.new(base_path, headers: base_request_headers, request: request_options) do |f|
         f.use :breakers
         f.use Faraday::Response::RaiseError
 
