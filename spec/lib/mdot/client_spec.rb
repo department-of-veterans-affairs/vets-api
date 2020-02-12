@@ -3,8 +3,6 @@
 require 'rails_helper'
 
 describe MDOT::Client do
-  subject { described_class.new }
-
   let(:user_details) do
     {
       first_name: 'Greg',
@@ -17,11 +15,13 @@ describe MDOT::Client do
 
   let(:user) { build(:user, :loa3, user_details) }
 
+  subject { described_class.new(user) }
+
   describe '#get_supplies' do
     context 'with a valid supplies response' do
       it 'returns an array of supplies' do
         VCR.use_cassette('mdot/get_supplies_200') do
-          response = subject.new(user).get_supplies
+          response = subject.get_supplies
           expect(response).to be_ok
           expect(response).to be_an MDOT::Response
         end
@@ -58,7 +58,7 @@ describe MDOT::Client do
             additionalRequests: ''
           }.to_json
 
-          response = subject.new(user).submit_order(order)
+          response = subject.submit_order(order)
           expect(response).to be_accepted
           expect(response).to be_an MDOT::Response
         end
