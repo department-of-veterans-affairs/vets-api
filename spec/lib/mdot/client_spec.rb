@@ -43,8 +43,9 @@ describe MDOT::Client do
     context 'with an unkwown DLC service error' do
       it 'raises a BackendServiceException' do
         VCR.use_cassette('mdot/get_supplies_500') do
-          expect { subject.get_letters }.to raise_error(Common::Exceptions::BackendServiceException) do |e|
-            expect(e.message).to match(/MDOT_502/)
+          expect { subject.get_letters }
+            .to raise_error(Common::Exceptions::BackendServiceException) do |e|
+              expect(e.message).to match(/MDOT_502/)
           end
         end
       end
@@ -106,8 +107,9 @@ describe MDOT::Client do
     context 'with an unkwown DLC service error' do
       it 'raises a BackendServiceException' do
         VCR.use_cassette('mdot/submit_order_500') do
-          expect { subject.submit_order(valid_order) }.to raise_error(Common::Exceptions::BackendServiceException) do |e|
-            expect(e.message).to match(/MDOT_502/)
+          expect { subject.submit_order(valid_order) }
+            .to raise_error(Common::Exceptions::BackendServiceException) do |e|
+              expect(e.message).to match(/MDOT_502/)
           end
         end
       end
