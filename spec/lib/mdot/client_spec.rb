@@ -27,6 +27,18 @@ describe MDOT::Client do
         end
       end
     end
+
+    context 'with an http timeout error' do
+      it 'logs the error and raises GatewayTimeout' do
+        faraday = double('Faraday::Connection')
+        allow(faraday).to receive(:get).and_raise(Faraday::TimeoutError)
+        expect(StatsD).to receive(:increment).once.with(
+          'api.mdot.get_supplies.fail', tags: ['error:Common::Exceptions::GatewayTimeout']
+        )
+        expect(StatsD).to receive(:increment).once.with('api.mdot.get_supplies.total')
+        expect { subject.get_letters }.to raise_error(Common::Exceptions::GatewayTimeout)
+      end
+    end
   end
 
   describe '#submit_order' do
@@ -62,6 +74,18 @@ describe MDOT::Client do
           expect(response).to be_accepted
           expect(response).to be_an MDOT::Response
         end
+      end
+    end
+
+    context 'with an http timeout error' do
+      it 'logs the error and raises GatewayTimeout' do
+        faraday = double('Faraday::Connection')
+        allow(faraday).to receive(:get).and_raise(Faraday::TimeoutError)
+        expect(StatsD).to receive(:increment).once.with(
+          'api.mdot.submit_order.fail', tags: ['error:Common::Exceptions::GatewayTimeout']
+        )
+        expect(StatsD).to receive(:increment).once.with('api.mdot.submit_order.total')
+        expect { subject.get_letters }.to raise_error(Common::Exceptions::GatewayTimeout)
       end
     end
   end
