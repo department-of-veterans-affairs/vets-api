@@ -40,8 +40,7 @@ module Facilities
             provider.posCodes = request_params[:posCodes]
           end
           new_array.concat(providers)
-          new_array.sort!
-        end
+        end.sort!
       end
 
       # https://dev.dws.ppms.va.gov/swagger/ui/index#!/Providers/Providers_Get_0
