@@ -36,14 +36,14 @@ describe MDOT::Client do
           'api.mdot.get_supplies.fail', tags: ['error:Common::Exceptions::GatewayTimeout']
         )
         expect(StatsD).to receive(:increment).once.with('api.mdot.get_supplies.total')
-        expect { subject.get_letters }.to raise_error(Common::Exceptions::GatewayTimeout)
+        expect { subject.get_supplies }.to raise_error(Common::Exceptions::GatewayTimeout)
       end
     end
 
     context 'with an unkwown DLC service error' do
       it 'raises a BackendServiceException' do
         VCR.use_cassette('mdot/get_supplies_500') do
-          expect { subject.get_letters }
+          expect { subject.get_supplies}
             .to raise_error(Common::Exceptions::BackendServiceException) do |e|
               expect(e.message).to match(/MDOT_502/)
           end
@@ -83,8 +83,6 @@ describe MDOT::Client do
     context 'with a valid supplies order' do
       it 'returns a successful response' do
         VCR.use_cassette('mdot/submit_order_202') do
-          
-
           response = subject.submit_order(valid_order)
           expect(response).to be_accepted
           expect(response).to be_an MDOT::Response
@@ -111,6 +109,20 @@ describe MDOT::Client do
             .to raise_error(Common::Exceptions::BackendServiceException) do |e|
               expect(e.message).to match(/MDOT_502/)
           end
+        end
+      end
+    end
+
+    context 'with an malformed order' do
+      it 'returns a 400 error' do
+        VCR.use_cassette('mdot/submit_order_400') do
+          expect(StatsD).to receive(:increment).once.with(
+            'api.mdot.submit_order.fail', tags: [
+              'error:Common::Client::Errors::ClientError', 'status:400'
+            ]
+          )
+          expect(StatsD).to receive(:increment).once.with('api.mdot.submit_order.total')
+          expect { subject.submit_order({}) }.to raise_error(MDOT::ServiceException)
         end
       end
     end
