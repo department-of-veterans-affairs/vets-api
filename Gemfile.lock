@@ -358,7 +358,7 @@ GEM
     ffi (1.12.1)
     figaro (1.1.1)
       thor (~> 0.14)
-    flipper (0.17.1)
+    flipper (0.17.2)
     flipper-active_record (0.17.1)
       activerecord (>= 4.2, < 7)
       flipper (~> 0.17.1)
@@ -530,7 +530,7 @@ GEM
     pundit (1.1.0)
       activesupport (>= 3.0.0)
     raabro (1.1.6)
-    rack-attack (6.2.1)
+    rack-attack (6.2.2)
       rack (>= 1.0, < 3)
     rack-cors (1.1.1)
       rack (>= 2.0.0)
@@ -795,7 +795,7 @@ DEPENDENCIES
   fast_jsonapi
   fastimage
   figaro
-  flipper (~> 0.17.1)
+  flipper (~> 0.17.2)
   flipper-active_record (~> 0.17.1)
   flipper-active_support_cache_store (~> 0.17.1)
   flipper-ui (~> 0.17.1)
