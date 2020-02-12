@@ -17,16 +17,16 @@ module MDOT
     end
 
     def connection
-      @conn ||= Faraday.new(base_path, headers: base_request_headers, request: request_options) do |faraday|
-        faraday.use :breakers
-        faraday.use Faraday::Response::RaiseError
-        
-        faraday.request :json
+      @conn ||= Faraday.new(base_path, headers: base_request_headers, request: request_options) do |f|
+        f.use :breakers
+        f.use Faraday::Response::RaiseError
 
-        faraday.response :betamocks if mock_enabled?
-        faraday.response :snakecase, symbolize: false
-        faraday.response :json
-        faraday.adapter Faraday.default_adapter
+        f.request :json
+
+        f.response :betamocks if mock_enabled?
+        f.response :snakecase, symbolize: false
+        f.response :json
+        f.adapter Faraday.default_adapter
       end
     end
 
