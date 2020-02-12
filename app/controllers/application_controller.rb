@@ -12,7 +12,7 @@ class ApplicationController < ActionController::API
   include SentryLogging
   include Pundit
 
-  # blah
+  # blah 1
   SKIP_SENTRY_EXCEPTION_TYPES = [
     Common::Exceptions::Unauthorized,
     Common::Exceptions::RoutingError,
