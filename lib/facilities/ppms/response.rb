@@ -14,10 +14,12 @@ module Facilities
       end
 
       def self.from_provider_locator(response, params)
-        bbox_num = params[:bbox].map { |x| Float(x) }
-        response.body.select! do |provider|
-          provider['Latitude'] > bbox_num[1] && provider['Latitude'] < bbox_num[3] &&
-            provider['Longitude'] > bbox_num[0] && provider['Longitude'] < bbox_num[2]
+        if params[:bbox]
+          bbox_num = params[:bbox].map { |x| Float(x) }
+          response.body.select! do |provider|
+            provider['Latitude'] > bbox_num[1] && provider['Latitude'] < bbox_num[3] &&
+              provider['Longitude'] > bbox_num[0] && provider['Longitude'] < bbox_num[2]
+          end
         end
 
         response_body = map_provider_list(response.body)
