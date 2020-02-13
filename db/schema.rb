@@ -509,7 +509,7 @@ ActiveRecord::Schema.define(version: 2020_02_13_160814) do
     t.string "sha256"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.boolean "valid_pdf", null: false
+    t.boolean "valid_pdf", default: false
     t.index ["valid_pdf"], name: "index_va_forms_forms_on_valid_pdf"
   end
 
