@@ -8,16 +8,23 @@ module MDOT
 
     def initialize(args)
       @response = args[:response]
-      @status = check_status(@response.status)
+      #@status = check_status(@response.status)
+      @status = @response.status
       @schema = validate_schema(args[:schema])
       @body = @response.body if json_format_is_valid?(@response.body, @schema)
+    end
+
+    def ok?
+      @status == 200 || @status == 202
     end
 
     private
 
     def check_status(status)
-      raise Common::Client::Errors::ClientError.new(nil, status, @response.body) if status != 200 || status != 202
-
+      if status != 200 && status != 202
+        message = "MDOT_#{@response.body['errors'].first.dig('code')}"
+        raise Common::Client::Errors::ClientError.new(message, status, @response.body)
+      end
       status
     end
 

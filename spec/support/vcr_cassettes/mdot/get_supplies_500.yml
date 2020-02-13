@@ -21,8 +21,8 @@ http_interactions:
       - 000555555
   response:
     status:
-      code: 500
-      message: Internal Server Error
+      code: 502
+      message: Bad Gateway
     headers:
       Date:
       - Tue, 11 Feb 2020 17:50:55 GMT
@@ -68,7 +68,14 @@ http_interactions:
       - chunked
     body:
       encoding: ASCII-8BIT
-      string: 'the server responded with status 500'
+      string: |-
+        {
+          "errors": [{
+            "status": "502",
+            "title": "Bad Gateway",
+            "code": "502"
+          }]
+        }
     http_version:
   recorded_at: Tue, 11 Feb 2020 17:50:55 GMT
 recorded_with: VCR 3.0.3
