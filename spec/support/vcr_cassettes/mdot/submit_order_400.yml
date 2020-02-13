@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: post
-    uri: https://some.fakesite.com/api/supplies
+    uri: https://some.fakesite.com/mdot/supplies
     body:
       encoding: UTF-8
       string: '{}'

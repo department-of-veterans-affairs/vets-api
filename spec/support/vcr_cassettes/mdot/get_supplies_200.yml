@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri: https://some.fakesite.com/api/supplies
+    uri: https://some.fakesite.com/mdot/supplies
     body:
       encoding: US-ASCII
       string: ''

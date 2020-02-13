@@ -99,7 +99,7 @@ describe MDOT::Client do
           'api.mdot.submit_order.fail', tags: ['error:Common::Exceptions::GatewayTimeout']
         )
         expect(StatsD).to receive(:increment).once.with('api.mdot.submit_order.total')
-        expect { subject.submit_order(valid_order) }.to raise_error(Common::Exceptions::GatewayTimeout)
+        expect { subject.submit_order({}) }.to raise_error(Common::Exceptions::GatewayTimeout)
       end
     end
 
