@@ -23,14 +23,6 @@ module MDOT
 
     private
 
-    def check_status(status)
-      if status != 200 && status != 202
-        message = "MDOT_#{@response.body['errors'].first.dig('code')}"
-        raise Common::Client::Errors::ClientError.new(message, status, @response.body)
-      end
-      status
-    end
-
     def validate_schema(schema)
       %i[supplies submit].each do |valid_schema|
         return schema.to_s if schema == valid_schema

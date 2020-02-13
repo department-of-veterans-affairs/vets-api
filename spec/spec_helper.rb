@@ -28,7 +28,6 @@ unless ENV['NOCOVERAGE']
     add_filter 'lib/feature_flipper.rb'
     add_filter 'lib/gibft/configuration.rb'
     add_filter 'lib/ihub/appointments/response.rb'
-    add_filter 'lib/mdot/exceptions/service_exception.rb'
     add_filter 'lib/salesforce/configuration.rb'
     add_filter 'lib/vet360/address_validation/configuration.rb'
     add_filter 'lib/search/response.rb'
