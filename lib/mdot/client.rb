@@ -2,6 +2,7 @@
 
 require 'common/client/base'
 require 'common/client/concerns/monitoring'
+require 'common/exceptions/external/gateway_timeout'
 require 'mdot/configuration'
 require 'mdot/response'
 require 'mdot/exceptions/key'
@@ -35,7 +36,6 @@ module MDOT
     def get_supplies
       with_monitoring_and_error_handling do
         raw_response = perform(:get, @supplies, nil, headers)
-        puts raw_response
         MDOT::Response.new response: raw_response, schema: :supplies
       end
     end
@@ -48,7 +48,7 @@ module MDOT
     def submit_order(request_body)
       with_monitoring_and_error_handling do
         raw_response = perform(:post, @supplies, request_body, headers)
-        #puts raw_response
+        #byebug
         MDOT::Response.new response: raw_response, schema: :submit
       end
     end
@@ -80,27 +80,13 @@ module MDOT
     end
 
     def raise_backend_exception(key, source, error = nil)
-      puts "---"
-      puts key
-      puts "---"
-      puts key.key
-      puts "---"
-      puts key.i18n_key
-      puts "---"
-      puts source
-      puts "---"
-      puts error
-      puts "---"
-      puts error.status
-      puts "---"
-      puts error.body
-      puts "---"
-      raise MDOT::ServiceException.new(
+      exception = MDOT::ServiceException.new(
         key,
         { source: source.to_s },
         error&.status,
         error&.body
       )
+      raise exception
     end
 
     def handle_parsing_error(error)

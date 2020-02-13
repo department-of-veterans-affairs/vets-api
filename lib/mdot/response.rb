@@ -15,7 +15,11 @@ module MDOT
     end
 
     def ok?
-      @status == 200 || @status == 202
+      @status == 200
+    end
+
+    def accepted?
+      @status == 202
     end
 
     private
@@ -37,7 +41,9 @@ module MDOT
 
     def json_format_is_valid?(body, schema_name)
       schema_path = Rails.root.join('lib', 'mdot', 'schemas', "#{schema_name}.json").to_s
-      JSON::Validator.validate!(schema_path, body, strict: false)
+      validation = JSON::Validator.validate!(schema_path, body, strict: false)
+      #byebug
+      validation
     end
   end
 end

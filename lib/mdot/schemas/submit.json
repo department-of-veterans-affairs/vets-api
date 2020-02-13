@@ -1,12 +1,12 @@
 {
   "$schema" : "http://json-schema.org/draft-04/schema#",
   "type" : "object",
-  "required": ["status", "orderId"],
+  "required": ["status", "order_id"],
   "properties": {
     "status": {
       "type": "string"
     },
-    "orderId": {
+    "order_id": {
       "type": "string"
     }
   }

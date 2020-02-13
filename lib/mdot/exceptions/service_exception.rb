@@ -11,6 +11,16 @@ module MDOT
       super(exception.key, response_values, original_status, original_body)
     end
 
+    private
+
+    def code
+      if @exception.key && I18n.exists?(@exception.i18n_key)
+        @exception.key
+      else
+        'default_exception'
+      end
+    end
+
     def i18n_key
       @exception.i18n_key
     end
