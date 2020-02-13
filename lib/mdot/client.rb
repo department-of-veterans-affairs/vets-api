@@ -2,6 +2,10 @@
 
 require 'common/client/base'
 require 'common/client/concerns/monitoring'
+require 'mdot/configuration'
+require 'mdot/response'
+require 'mdot/exceptions/key'
+require 'mdot/exceptions/service_exception'
 
 module MDOT
   ##
