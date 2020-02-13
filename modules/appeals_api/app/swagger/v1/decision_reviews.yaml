@@ -1007,13 +1007,13 @@ paths:
       tags:
         - Issues
       parameters:
-        - name: ssn
+        - name: X-VA-SSN
           in: header
           required: true
           description: The SSN of the veteran.
           schema:
             type : string
-        - name: receiptDate
+        - name: X-VA-Receipt-Date
           in: header
           required: true
           description: (yyyy-mm-dd) In order to determine contestability of issues, the receipt date of a hypothetical Decision Review must be supplied.
