@@ -48,6 +48,7 @@ RSpec.describe Facilities::PPMS::Client do
               AddressPostalCode: '85248',
               AddressStateProvince: 'AZ',
               AddressStreet: '3195 S Price Rd Ste 148',
+              CareSite: 'Lewis H Freed DPM PC',
               CareSitePhoneNumber: '4807057300',
               ContactMethod: nil,
               Email: nil,
@@ -56,16 +57,16 @@ RSpec.describe Facilities::PPMS::Client do
               Longitude: -111.887927,
               MainPhone: nil,
               Miles: 2.302,
-              Name: name,
               OrganizationFax: nil,
               ProviderGender: 'Male',
               ProviderIdentifier: '1407842941',
+              ProviderName: name,
               ProviderSpecialties: []
             )
           end
         end
       end
-    
+
       describe '#pos_locator' do
         it 'finds places of service' do
           VCR.use_cassette('facilities/va/ppms', match_requests_on: %i[path query]) do
@@ -73,7 +74,7 @@ RSpec.describe Facilities::PPMS::Client do
             expect(r.length).to be 10
             expect(r[0]).to have_attributes(
               ProviderIdentifier: '1629245311',
-              Name: 'MinuteClinic LLC',
+              CareSite: 'MinuteClinic LLC',
               AddressStreet: '2010 S Dobson Rd',
               AddressCity: 'Chandler',
               AddressStateProvince: 'AZ',
@@ -94,18 +95,17 @@ RSpec.describe Facilities::PPMS::Client do
           end
         end
       end
-    
+
       describe '#provider_info' do
         it 'gets additional attributes for the provider' do
           VCR.use_cassette('facilities/va/ppms', match_requests_on: %i[path query]) do
             r = Facilities::PPMS::Client.new.provider_info(1_407_842_941, trim: trim_bool)
-            name = 'Freed, Lewis '
-            name = name.strip if trim_bool
             expect(r).to have_attributes(
               AddressCity: nil,
               AddressPostalCode: nil,
               AddressStateProvince: nil,
               AddressStreet: nil,
+              CareSite: nil,
               CareSitePhoneNumber: nil,
               ContactMethod: nil,
               Email: 'evfa1@hotmail.com',
@@ -114,10 +114,10 @@ RSpec.describe Facilities::PPMS::Client do
               Longitude: nil,
               MainPhone: '4809241552',
               Miles: nil,
-              Name: name,
               OrganizationFax: '4809241553',
               ProviderGender: 'Male',
-              ProviderIdentifier: '1407842941'
+              ProviderIdentifier: '1407842941',
+              ProviderName: nil
             )
             expect(r['ProviderSpecialties'].each_with_object(Hash.new(0)) do |specialty, count|
               count[specialty['CodedSpecialty']] += 1
@@ -125,16 +125,16 @@ RSpec.describe Facilities::PPMS::Client do
           end
         end
       end
-    
+
       describe '#provider_services' do
         it 'returns Services' do
           VCR.use_cassette('facilities/va/ppms', match_requests_on: %i[path query]) do
             r = Facilities::PPMS::Client.new.provider_services(1_407_842_941, trim: trim_bool)
 
-            name_hash = 
+            name_hash =
               case trim_bool
               when true
-                { 'Freed, Lewis - Podiatrist'=>41 }
+                { 'Freed, Lewis - Podiatrist' => 41 }
               when false
                 {
                   'Freed, Lewis - Podiatrist ' => 25,

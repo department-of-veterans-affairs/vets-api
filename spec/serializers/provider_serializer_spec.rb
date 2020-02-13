@@ -25,7 +25,19 @@ RSpec.describe ProviderSerializer, type: :serializer do
     expect(attributes['address']['street']).to eq(provider.AddressStreet)
   end
 
-  it 'includes the name' do
-    expect(attributes['name']).to eq(provider.Name)
+  context "ProviderType is 'GroupPracticeOrAgency'" do
+    let(:provider) { build :provider, :from_provider_locator, ProviderType: 'GroupPracticeOrAgency' }
+
+    it 'includes the caresite name' do
+      expect(attributes['name']).to eq(provider.CareSite)
+    end
+  end
+
+  context "ProviderType is 'Individual'" do
+    let(:provider) { build :provider, :from_provider_locator, ProviderType: 'Individual' }
+
+    it 'includes the caresite name' do
+      expect(attributes['name']).to eq(provider.ProviderName)
+    end
   end
 end
