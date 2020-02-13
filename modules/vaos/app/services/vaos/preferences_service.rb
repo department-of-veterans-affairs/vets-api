@@ -11,7 +11,7 @@ module VAOS
 
     def put_preferences(request_object_body)
       with_monitoring do
-        params = VAOS::PreferenceForm.new(user, request_object_body).params
+        params = VAOS::PreferenceParams.new(user, request_object_body).to_h
         response = perform(:put, url, params, headers)
         OpenStruct.new(response.body.merge(id: preference_id))
       end

@@ -59,5 +59,27 @@ RSpec.describe 'preferences', type: :request do
         end
       end
     end
+
+    context 'with an preferences request missing a required parameter', :skip_mvi do
+      let(:user) { build(:user, :vaos) }
+      let(:request_body) do
+        {
+          email_allowed: true,
+          email_address: 'abraham.lincoln@va.gov',
+          text_msg_allowed: false,
+          text_msg_ph_number: ''
+        }
+      end
+
+      it 'returns an error that a required parameter is missing' do
+        VCR.use_cassette('vaos/preferences/put_preferences', match_requests_on: %i[method uri]) do
+          put '/v0/vaos/preferences', params: request_body
+
+          expect(response).to have_http_status(:bad_request)
+          expect(JSON.parse(response.body)['errors'].first['detail'])
+            .to eq('The required parameter "notification_frequency", is missing')
+        end
+      end
+    end
   end
 end

@@ -673,7 +673,7 @@ GEM
     sidekiq-instrument (0.3.0)
       sidekiq (>= 4.2, < 6)
       statsd-instrument (~> 2.0, >= 2.0.4)
-    sidekiq-pro (3.7.0)
+    sidekiq-pro (3.7.1)
       sidekiq (>= 4.1.5)
     sidekiq-scheduler (3.0.0)
       redis (>= 3, < 5)
@@ -782,6 +782,7 @@ DEPENDENCIES
   danger
   database_cleaner
   date_validator
+  dry-schema
   dry-struct
   dry-types
   factory_bot_rails (> 5)
