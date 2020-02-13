@@ -110,7 +110,6 @@ module MDOT
     def handle_error(error)
       case error
       when Faraday::ParsingError
-        puts "parsing error"
         handle_parsing_error(error)
       when Common::Client::Errors::ClientError
         handle_client_error(error)
