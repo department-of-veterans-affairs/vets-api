@@ -65,8 +65,8 @@ RSpec.describe Facilities::PPMS::Client do
   describe '#pos_locator' do
     it 'finds places of service' do
       VCR.use_cassette('facilities/va/ppms', match_requests_on: %i[path query]) do
-        r = Facilities::PPMS::Client.new.pos_locator(params, '17')
-        expect(r.length).to be 5
+        r = Facilities::PPMS::Client.new.pos_locator(params)
+        expect(r.length).to be 10
         expect(r[0]).to have_attributes(
           ProviderIdentifier: '1629245311',
           Name: 'MinuteClinic LLC',
@@ -84,7 +84,8 @@ RSpec.describe Facilities::PPMS::Client do
           ProviderSpecialties: [],
           Latitude: 33.275526,
           Longitude: -111.877057,
-          Miles: 0.79
+          Miles: 0.79,
+          posCodes: '17'
         )
       end
     end
