@@ -1,0 +1,15 @@
+common: &default_settings
+  app_name: API
+  log_level: info
+
+
+development:
+  <<: *default_settings
+  app_name: API (Development)
+
+test:
+  <<: *default_settings
+  monitor_mode: false
+
+production:
+  <<: *default_settings
