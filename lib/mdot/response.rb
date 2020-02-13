@@ -16,7 +16,10 @@ module MDOT
     private
 
     def check_status(status)
-      raise Common::Client::Errors::ClientError.new(nil, status, @response.body) if status != 200 || status != 202
+      if status != 200 || status != 202
+        raise Common::Client::Errors::ClientError.new(nil, status, @response.body)
+      end
+
       status
     end
 

@@ -62,7 +62,6 @@ module MDOT
         yield
       end
     rescue => e
-      puts "handle error"
       handle_error(e)
     end
 
@@ -79,9 +78,6 @@ module MDOT
     end
 
     def raise_backend_exception(key, source, error = nil)
-      puts "raise backend exception"
-      puts error.status
-      puts error.body
       raise MDOT::ServiceException.new(
         key,
         { source: source.to_s },
@@ -102,7 +98,6 @@ module MDOT
     end
 
     def handle_client_error(error)
-      puts "error: #{error.body}"
       save_error_details(error)
       code = error.body['errors'].first.dig('code')
       raise_backend_exception(
@@ -113,7 +108,6 @@ module MDOT
     end
 
     def handle_error(error)
-      puts error.status
       case error
       when Faraday::ParsingError
         puts "parsing error"
