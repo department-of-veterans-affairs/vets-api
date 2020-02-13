@@ -76,7 +76,6 @@ module VAOS
         url_params = available_appointments_params(start_date, end_date, clinic_ids)
         options = { params_encoder: Faraday::FlatParamsEncoder }
         response = perform(:get, url, url_params, headers, options)
-        response.body.map { |fa| puts(fa) }
         response.body.map { |fa| VAOS::FacilityAvailability.new(fa) }
       end
     end
