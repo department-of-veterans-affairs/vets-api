@@ -48,7 +48,7 @@ module Swagger
               property :last_signed_in, type: :string, example: '2019-10-02T13:55:54.261Z'
               property :authn_context,
                        enum: ['dslogon', 'dslogon_loa3', 'dslogon_multifactor', 'myhealthevet', 'myhealthevet_loa3',
-                              'myhealthevet_multifactor', LOA::IDME_LOA1, LOA::IDME_LOA3],
+                              'myhealthevet_multifactor', LOA::IDME_LOA1_VETS, LOA::IDME_LOA3_VETS],
                        example: 'myhealthevet_loa3',
                        description: 'The login method of a user.
                                      If a user logs in using a DS Logon Username and password and then goes through
