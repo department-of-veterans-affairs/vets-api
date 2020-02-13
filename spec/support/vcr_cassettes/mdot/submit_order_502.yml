@@ -21,8 +21,8 @@ http_interactions:
       - 000555555
   response:
     status:
-      code: 500
-      message: Internal Server Error
+      code: 502
+      message: Bad Gateway
     headers:
       Date:
       - Fri, 22 Nov 2019 22:51:55 GMT

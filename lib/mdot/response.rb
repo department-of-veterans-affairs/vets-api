@@ -8,12 +8,17 @@ module MDOT
 
     def initialize(args)
       @response = args[:response]
+      @status = check_status(@response.status)
       @schema = validate_schema(args[:schema])
       @body = @response.body if json_format_is_valid?(@response.body, @schema)
-      @status = @response.status
     end
 
     private
+
+    def check_status(status)
+      raise Common::Client::Errors::ClientError.new(nil, status, @response.body) if status != 200 || status != 202
+      status
+    end
 
     def validate_schema(schema)
       %i[supplies submit].each do |valid_schema|

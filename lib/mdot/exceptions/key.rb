@@ -5,16 +5,15 @@ module MDOT
     attr_reader :key, :i18n_key
 
     def initialize(key)
-      @exception_group = 'mdot.exceptions.'
       @default_exception = 'default_exception'
       @key = validate_key(key)
-      @i18n_key = @exception_group << @key
+      @i18n_key = "mdot.exceptions.#{@key}"
     end
 
     private
 
     def key_exists?(key)
-      I18n.exists? @exception_group << key
+      I18n.exists?("mdot.exceptions.#{key}")
     end
 
     def validate_key(key)
