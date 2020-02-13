@@ -2,7 +2,11 @@
 
 module Vet360
   module Models
+    # Model for addresses sent and received from the VA profile address validation API
     class ValidationAddress < BaseAddress
+      # Convert a ValidationAddress into a hash that can be sent to the address validation
+      # API
+      # @return [Hash] hash that is formatted for POSTing to address validation API
       def address_validation_req
         Common::HashHelpers.deep_remove_blanks(
           requestAddress: attributes.slice(
@@ -26,6 +30,8 @@ module Vet360
         )
       end
 
+      # @return [Vet360::Models::ValidationAddress] validation address model created from
+      #   address validation API response
       def self.build_from_address_suggestion(address_suggestion_hash)
         address_hash = address_suggestion_hash['address']
 
