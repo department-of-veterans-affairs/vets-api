@@ -1,6 +1,8 @@
-class AddPdfBooleanToFormsApi < ActiveRecord::Migration[5.2]  
+# frozen_string_literal: true
+
+class AddPdfBooleanToFormsApi < ActiveRecord::Migration[5.2]
   safety_assured
-  
+
   def change
     add_column :va_forms_forms, :valid_pdf, :boolean, null: false
     add_index :va_forms_forms, :valid_pdf
