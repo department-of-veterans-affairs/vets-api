@@ -32,6 +32,8 @@ module MVI
 
       def build_content(user)
         current_time = Time.current
+        # For BGS, they require a the clients ip address for the telecom value in the xml payload
+        # This is to trace the request all the way from BGS back to vets-api if the need arises
         ip_address = Socket.ip_address_list.find { |ip| ip.ipv4? && !ip.ipv4_loopback? }.ip_address
         {
           'msg_id' => "200VGOV-#{SecureRandom.uuid}",
