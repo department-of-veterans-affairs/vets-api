@@ -39,7 +39,11 @@ describe MDOT::Client do
           expect(StatsD).to receive(:increment).once.with(
             'api.mdot.get_supplies.total'
           )
-          expect { subject.get_supplies }.to raise_error(MDOT::ServiceException)
+          expect { subject.get_supplies }.to raise_error(
+            MDOT::ServiceException
+          ) do |e|
+            expect(e.message).to match(/MDOT_502/)
+          end
         end
       end
     end
