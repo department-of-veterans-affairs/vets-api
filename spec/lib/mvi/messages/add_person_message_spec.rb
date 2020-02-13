@@ -7,8 +7,6 @@ describe MVI::Messages::AddPersonMessage do
   let(:xml) { described_class.new(user).to_xml }
 
   describe '.to_xml' do
-    # allow(Socket).to receive(:ip_address_list).and_return([Addrinfo.ip('1.1.1.1')])
-
     context 'with a user that has all required attributes' do
       let(:user) { build(:user, :loa3) }
 
