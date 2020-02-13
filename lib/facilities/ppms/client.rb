@@ -14,15 +14,17 @@ module Facilities
       configuration Facilities::PPMS::Configuration
 
       # https://dev.dws.ppms.va.gov/swagger/ui/index#!/GlobalFunctions/GlobalFunctions_ProviderLocator
-      def provider_locator(params)
+      def provider_locator(params, trim: false)
         qparams = provider_locator_params(params)
         response = perform(:get, 'v1.0/ProviderLocator', qparams)
         return [] if response.body.nil?
+        
+        response = trim_response_attributes(response) if trim == true
 
         Facilities::PPMS::Response.from_provider_locator(response, params)
       end
 
-      def pos_locator(params)
+      def pos_locator(params, trim: false)
         walkin_params = pos_locator_params(params, 17)
         urgent_care_params = pos_locator_params(params, 20)
 
@@ -34,7 +36,9 @@ module Facilities
           [urgent_care_params, urgent_care_response]
         ].each_with_object([]) do |(request_params, response), new_array|
           next if response.body.blank?
-
+          
+          response = trim_response_attributes(response) if trim == true
+  
           providers = Facilities::PPMS::Response.from_provider_locator(response, request_params)
           providers.each do |provider|
             provider.posCodes = request_params[:posCodes]
@@ -44,21 +48,29 @@ module Facilities
       end
 
       # https://dev.dws.ppms.va.gov/swagger/ui/index#!/Providers/Providers_Get_0
-      def provider_info(identifier)
+      def provider_info(identifier, trim: false)
         qparams = { :$expand => 'ProviderSpecialties' }
         response = perform(:get, "v1.0/Providers(#{identifier})", qparams)
         return nil if response.body.nil? || response.body[0].nil?
+        
+        response = trim_response_attributes(response) if trim == true
 
         Facilities::PPMS::Response.new(response.body[0], response.status).new_provider
       end
 
-      def provider_caresites(site_name)
+      def provider_caresites(site_name, trim: false)
         response = perform(:get, 'v1.0/CareSites()', name: "'#{site_name}'")
+        
+        response = trim_response_attributes(response) if trim == true
+        
         Facilities::PPMS::Response.new(response.body, response.status).get_body
       end
 
-      def provider_services(identifier)
+      def provider_services(identifier, trim: false)
         response = perform(:get, "v1.0/Providers(#{identifier})/ProviderServices", {})
+        
+        response = trim_response_attributes(response) if trim == true
+
         Facilities::PPMS::Response.new(response.body, response.status).get_body
       end
 
@@ -69,6 +81,21 @@ module Facilities
       end
 
       private
+
+      def trim_response_attributes(response)
+        OpenStruct.new({
+          method: response.method,
+          body: response.body.collect! do |hsh|
+            hsh.each_pair.collect do |attr, value|
+              if value.is_a? String
+                [attr, value.gsub(/ +/, ' ').strip]
+              else
+                [attr, value]
+              end
+            end.to_h
+          end
+        })
+      end
 
       def radius(bbox)
         # more estimation fun about 69 miles between latitude lines, <= 69 miles between long lines
