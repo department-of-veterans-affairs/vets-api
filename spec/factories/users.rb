@@ -20,6 +20,8 @@ FactoryBot.define do
       mhv_account_type { nil }
       dslogon_edipi { nil }
       va_patient { nil }
+      search_token { nil }
+      icn_with_aaid { nil }
 
       sign_in do
         {
@@ -115,6 +117,18 @@ FactoryBot.define do
 
       loa do
         { current: LOA::THREE, highest: LOA::THREE }
+      end
+    end
+
+    factory :user_with_no_ids, traits: [:loa3] do
+      after(:build) do
+        stub_mvi(
+          build(
+            :mvi_profile,
+            birls_id: nil,
+            participant_id: nil
+          )
+        )
       end
     end
 
