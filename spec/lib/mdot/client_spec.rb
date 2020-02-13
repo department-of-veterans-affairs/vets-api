@@ -28,18 +28,6 @@ describe MDOT::Client do
       end
     end
 
-    context 'with an http timeout error' do
-      it 'logs the error and raises GatewayTimeout' do
-        faraday = double('Faraday::Connection')
-        allow(faraday).to receive(:get).and_raise(Faraday::TimeoutError)
-        expect(StatsD).to receive(:increment).once.with(
-          'api.mdot.get_supplies.fail', tags: ['error:Common::Exceptions::GatewayTimeout']
-        )
-        expect(StatsD).to receive(:increment).once.with('api.mdot.get_supplies.total')
-        expect { subject.get_supplies }.to raise_error(Common::Exceptions::GatewayTimeout)
-      end
-    end
-
     context 'with an unkwown DLC service error' do
       it 'raises a BackendServiceException' do
         VCR.use_cassette('mdot/get_supplies_500') do
@@ -92,9 +80,11 @@ describe MDOT::Client do
     end
 
     context 'with an http timeout error' do
+      before do
+        allow_any_instance_of(Faraday::Connection).to receive(:get).and_raise(Faraday::TimeoutError)
+      end
+
       it 'logs the error and raises GatewayTimeout' do
-        faraday = double('Faraday::Connection')
-        allow(faraday).to receive(:post).and_raise(Faraday::TimeoutError)
         expect(StatsD).to receive(:increment).once.with(
           'api.mdot.submit_order.fail', tags: ['error:Common::Exceptions::GatewayTimeout']
         )
@@ -105,7 +95,7 @@ describe MDOT::Client do
 
     context 'with an unkwown DLC service error' do
       it 'raises a BackendServiceException' do
-        VCR.use_cassette('mdot/submit_order_500') do
+        VCR.use_cassette('mdot/submit_order_502') do
           expect(subject.submit_order(valid_order)).to(
             raise_error(Common::Exceptions::BackendServiceException) do |e|
               expect(e.message).to match(/MDOT_502/)
