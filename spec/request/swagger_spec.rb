@@ -2442,6 +2442,15 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
         end
       end
     end
+
+    describe 'dependents applications' do
+      it 'supports getting dependent information' do
+        expect(subject).to validate(:get, '/v0/dependents_applications/show', 401)
+        VCR.use_cassette('bgs/claimant_web_service/dependents') do
+          expect(subject).to validate(:get, '/v0/dependents_applications/show', 200, headers)
+        end
+      end
+    end
   end
 
   context 'and' do
