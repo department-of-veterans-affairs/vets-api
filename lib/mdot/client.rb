@@ -48,7 +48,6 @@ module MDOT
     def submit_order(request_body)
       with_monitoring_and_error_handling do
         raw_response = perform(:post, @supplies, request_body, headers)
-        #byebug
         MDOT::Response.new response: raw_response, schema: :submit
       end
     end

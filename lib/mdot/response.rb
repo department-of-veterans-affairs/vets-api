@@ -8,7 +8,6 @@ module MDOT
 
     def initialize(args)
       @response = args[:response]
-      #@status = check_status(@response.status)
       @status = @response.status
       @schema = validate_schema(args[:schema])
       @body = @response.body if json_format_is_valid?(@response.body, @schema)
@@ -41,9 +40,7 @@ module MDOT
 
     def json_format_is_valid?(body, schema_name)
       schema_path = Rails.root.join('lib', 'mdot', 'schemas', "#{schema_name}.json").to_s
-      validation = JSON::Validator.validate!(schema_path, body, strict: false)
-      #byebug
-      validation
+      JSON::Validator.validate!(schema_path, body, strict: false)
     end
   end
 end
