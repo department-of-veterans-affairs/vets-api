@@ -163,11 +163,6 @@ RSpec.describe 'address', type: :request do
   describe 'DELETE /v0/profile/addresses' do
     context 'when the method is DELETE' do
       let(:frozen_time) { Time.zone.parse('2020-02-13T20:47:45.000Z') }
-      before do
-        allow_any_instance_of(User).to receive(:vet360_id).and_return('1')
-        allow_any_instance_of(User).to receive(:icn).and_return('1234')
-      end
-
       let(:address) do
         { 'address_line1' => '4041 Victoria Way',
           'address_line2' => nil,
@@ -195,6 +190,11 @@ RSpec.describe 'address', type: :request do
           'vet360_id' => '1',
           'zip_code' => '40515',
           'zip_code_suffix' => '4655' }
+      end
+
+      before do
+        allow_any_instance_of(User).to receive(:vet360_id).and_return('1')
+        allow_any_instance_of(User).to receive(:icn).and_return('1234')
       end
 
       it 'effective_end_date gets appended to the request body', :aggregate_failures do
