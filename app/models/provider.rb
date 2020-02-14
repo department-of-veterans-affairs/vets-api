@@ -20,6 +20,11 @@ class Provider < Common::Base
   attribute :Latitude, Float
   attribute :Longitude, Float
   attribute :Miles, Float
+  attribute :posCodes, String
+
+  def <=>(other)
+    self.Miles <=> other.Miles
+  end
 
   def self.from_provloc(prov_loc)
     provider = Provider.new(prov_loc)

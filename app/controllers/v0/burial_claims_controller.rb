@@ -5,6 +5,7 @@ module V0
     def create
       PensionBurial::TagSentry.tag_sentry
       claim = claim_class.new(form: filtered_params[:form])
+
       unless claim.save
         StatsD.increment("#{stats_key}.failure")
         raise Common::Exceptions::ValidationErrors, claim
@@ -17,7 +18,9 @@ module V0
         claim.process_attachments! # upload claim and attachments to Central Mail
       end
 
-      StatsD.increment("#{stats_key}.success")
+      relationship_type = claim.parsed_form['relationship']&.fetch('type', nil)
+      StatsD.increment("#{stats_key}.success", tags: ["relationship:#{relationship_type}"])
+
       Rails.logger.info "ClaimID=#{claim.confirmation_number} Form=#{claim.class::FORM}"
       validate_session
       clear_saved_form(claim.form_id)
