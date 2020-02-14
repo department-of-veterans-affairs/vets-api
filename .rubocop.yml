@@ -271,6 +271,11 @@ ThreadSafety/ClassAndModuleAttributes:
   Enabled: false
 
 # Might be worth revisiting at some point
+ThreadSafety/NewThread:
+  Exclude:
+    - 'spec/lib/common/client/middleware/request/remove_cookies_spec.rb'
+
+# Might be worth revisiting at some point
 RSpec/MessageChain:
   Exclude:
     - 'modules/veteran_verification/spec/requests/service_history_request_spec.rb'
