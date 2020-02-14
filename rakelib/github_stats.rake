@@ -43,10 +43,8 @@ namespace :github_stats do
       open_prs << h
     end
     # send each duration to StatsD
-    
     open_prs.each do |pr|
-      StatsD.measure('github:pull_request_duration', pr['duration'], tags: {repo: pr['repo_name']})
+      StatsD.measure('github:pull_request_duration', pr['duration'], tags: { repo: pr['repo_name'] })
     end
   end
 end
-
