@@ -14,5 +14,17 @@ describe AppealsApi::V1::DecisionReview::IntakeStatusesController, type: :reques
         expect(json['data']).not_to be nil
       end
     end
+
+    it 'GET renders a successful response when a 303 is returned' do
+      VCR.use_cassette('appeals/intake_status_redirect') do
+        get(
+          '/services/appeals/v1/decision_review/intake_statuses/ca9a8ab7-dff2-499b-8251-60b9d0300bc9'
+        )
+        expect(response.status).to eq(303)
+        json = JSON.parse(response.body)
+        expect(json['meta']).not_to be nil
+        expect(json['meta']['Location']).not_to be nil
+      end
+    end
   end
 end

@@ -1,0 +1,56 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: https://dsva-appeals-certification-dev-1895622301.us-gov-west-1.elb.amazonaws.com/api/v3/decision_review/intake_statuses/ca9a8ab7-dff2-499b-8251-60b9d0300bc9
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Authorization:
+      - Token token=PUBLICDEMO123
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 303
+      message: See Other
+    headers:
+      X-Frame-Options:
+      - SAMEORIGIN
+      X-Xss-Protection:
+      - 1; mode=block
+      X-Content-Type-Options:
+      - nosniff
+      X-Download-Options:
+      - noopen
+      X-Permitted-Cross-Domain-Policies:
+      - none
+      Referrer-Policy:
+      - strict-origin-when-cross-origin
+      Location:
+      - https://dsva-appeals-certification-dev-1895622301.us-gov-west-1.elb.amazonaws.com/api/v3/decision_review/higher_level_reviews/ca9a8ab7-dff2-499b-8251-60b9d0300bc9
+      Content-Type:
+      - application/json; charset=utf-8
+      Cache-Control:
+      - no-cache
+      X-Meta-Request-Version:
+      - 0.7.2
+      X-Request-Id:
+      - a20b6303-a874-4a9a-9e2e-5972253cd9eb
+      X-Runtime:
+      - '0.101027'
+      Transfer-Encoding:
+      - chunked
+    body:
+      encoding: UTF-8
+      string: '{"meta":{"Location":"http://localhost:3000/api/v3/decision_review/higher_level_reviews/ca9a8ab7-dff2-499b-8251-60b9d0300bc9"}}'
+    http_version: 
+  recorded_at: Fri, 14 Feb 2020 16:26:22 GMT
+recorded_with: VCR 5.0.0
