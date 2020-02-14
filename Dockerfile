@@ -52,7 +52,7 @@ RUN curl -sSL -o /usr/local/bin/cc-test-reporter https://codeclimate.com/downloa
     cc-test-reporter --version
 COPY --chown=vets-api:vets-api config/freshclam.conf docker-entrypoint.sh ./
 USER vets-api
-# XXX: this is tacky 
+# XXX: this is tacky
 RUN freshclam --config-file freshclam.conf
 ENTRYPOINT ["/usr/bin/dumb-init", "--", "./docker-entrypoint.sh"]
 
