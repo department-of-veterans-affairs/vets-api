@@ -14,17 +14,17 @@ module Facilities
       configuration Facilities::PPMS::Configuration
 
       # https://dev.dws.ppms.va.gov/swagger/ui/index#!/GlobalFunctions/GlobalFunctions_ProviderLocator
-      def provider_locator(params, trim: false)
+      def provider_locator(params)
         qparams = provider_locator_params(params)
         response = perform(:get, 'v1.0/ProviderLocator', qparams)
         return [] if response.body.nil?
 
-        response = trim_response_attributes(response) if trim == true
+        response = trim_response_attributes(response) if Flipper.enabled?(:facilities_ppms_response_trim)
 
         Facilities::PPMS::Response.from_provider_locator(response, params)
       end
 
-      def pos_locator(params, trim: false)
+      def pos_locator(params)
         walkin_params = pos_locator_params(params, 17)
         urgent_care_params = pos_locator_params(params, 20)
 
@@ -37,7 +37,7 @@ module Facilities
         ].each_with_object([]) do |(request_params, response), new_array|
           next if response.body.blank?
 
-          response = trim_response_attributes(response) if trim == true
+          response = trim_response_attributes(response) if Flipper.enabled?(:facilities_ppms_response_trim)
 
           providers = Facilities::PPMS::Response.from_provider_locator(response, request_params)
           providers.each do |provider|
@@ -48,28 +48,28 @@ module Facilities
       end
 
       # https://dev.dws.ppms.va.gov/swagger/ui/index#!/Providers/Providers_Get_0
-      def provider_info(identifier, trim: false)
+      def provider_info(identifier)
         qparams = { :$expand => 'ProviderSpecialties' }
         response = perform(:get, "v1.0/Providers(#{identifier})", qparams)
         return nil if response.body.nil? || response.body[0].nil?
 
-        response = trim_response_attributes(response) if trim == true
+        response = trim_response_attributes(response) if Flipper.enabled?(:facilities_ppms_response_trim)
 
         Facilities::PPMS::Response.new(response.body[0], response.status).new_provider
       end
 
-      def provider_caresites(site_name, trim: false)
+      def provider_caresites(site_name)
         response = perform(:get, 'v1.0/CareSites()', name: "'#{site_name}'")
 
-        response = trim_response_attributes(response) if trim == true
+        response = trim_response_attributes(response) if Flipper.enabled?(:facilities_ppms_response_trim)
 
         Facilities::PPMS::Response.new(response.body, response.status).get_body
       end
 
-      def provider_services(identifier, trim: false)
+      def provider_services(identifier)
         response = perform(:get, "v1.0/Providers(#{identifier})/ProviderServices", {})
 
-        response = trim_response_attributes(response) if trim == true
+        response = trim_response_attributes(response) if Flipper.enabled?(:facilities_ppms_response_trim)
 
         Facilities::PPMS::Response.new(response.body, response.status).get_body
       end

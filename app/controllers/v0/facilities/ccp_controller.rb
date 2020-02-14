@@ -12,7 +12,7 @@ class V0::Facilities::CcpController < FacilitiesController
                     when 'cc_pharmacy'
                       provider_search('services' => ['3336C0003X'])
                     when 'cc_urgent_care'
-                      api.pos_locator(search_params, trim: trim_params[:trim])
+                      api.pos_locator(search_params)
                     end
 
     start_ind = (page - 1) * BaseFacility.per_page
@@ -24,10 +24,10 @@ class V0::Facilities::CcpController < FacilitiesController
   end
 
   def show
-    result = api.provider_info(params[:id], trim: trim_params[:trim])
+    result = api.provider_info(params[:id])
     raise Common::Exceptions::RecordNotFound, params[:id] if result.nil?
 
-    services = api.provider_services(params[:id], trim: trim_params[:trim])
+    services = api.provider_services(params[:id])
     result.add_provider_service(services[0]) if services.present?
     render json: result, serializer: ProviderSerializer
   end
@@ -43,13 +43,9 @@ class V0::Facilities::CcpController < FacilitiesController
     params.permit(:type, :address, services: [], bbox: [])
   end
 
-  def trim_params
-    params.permit(:trim)
-  end
-
   def provider_search(options = {})
-    api.provider_locator(search_params.merge(options), trim: trim_params[:trim]).map do |provider|
-      prov_info = api.provider_info(provider['ProviderIdentifier'], trim: trim_params[:trim])
+    api.provider_locator(search_params.merge(options)).map do |provider|
+      prov_info = api.provider_info(provider['ProviderIdentifier'])
       provider.add_details(prov_info)
       provider
     end

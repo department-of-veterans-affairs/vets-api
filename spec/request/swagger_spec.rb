@@ -1327,9 +1327,9 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
 
         it 'supports getting a provider by id' do
           expect_any_instance_of(Facilities::PPMS::Client).to receive(:provider_info)
-            .with('1407842941', trim: nil).and_return(provider)
+            .with('1407842941').and_return(provider)
           expect_any_instance_of(Facilities::PPMS::Client).to receive(:provider_services)
-            .with('1407842941', trim: nil).and_return([provider_services_response])
+            .with('1407842941').and_return([provider_services_response])
           expect(subject).to validate(:get, '/v0/facilities/ccp/{id}', 200, 'id' => 'ccp_1407842941')
         end
 
