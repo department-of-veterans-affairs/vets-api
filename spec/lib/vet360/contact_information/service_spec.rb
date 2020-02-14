@@ -133,7 +133,7 @@ describe Vet360::ContactInformation::Service, skip_vet360: true do
 
     context 'with a validation key' do
       let(:address) do
-        address = build(:vet360_address, :override, country_name: nil)
+        build(:vet360_address, :override, country_name: nil)
       end
 
       it 'will override the address error', run_at: '2020-02-14T00:19:15.000Z' do
