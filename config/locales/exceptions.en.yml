@@ -456,6 +456,12 @@ en:
         detail: "MVI service returned an invalid response"
         code: 'MVI_502'
         status: 502
+      MVI_502_DUP:
+        <<: *external_defaults
+        title: Duplicate Keys
+        detail: "The user has duplicate identifier keys"
+        code: 'MVI_502'
+        status: 502
       MVI_503:
         <<: *external_defaults
         title: Service unavailable
