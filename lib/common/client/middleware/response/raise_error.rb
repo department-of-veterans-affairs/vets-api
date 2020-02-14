@@ -16,11 +16,15 @@ module Common
           end
 
           def on_complete(env)
-            return if env.success?
+            @status = env.status.to_i
+            return if env.success? || redirect?
 
             @body = env[:body]
-            @status = env.status.to_i
             raise_error!
+          end
+
+          def redirect?
+            status&.between?(300, 399)
           end
 
           private
@@ -28,7 +32,7 @@ module Common
           def raise_error!
             if status&.between?(400, 599)
               raise Common::Exceptions::BackendServiceException.new(service_i18n_key, response_values, status, body)
-            elsif status != 303
+            else
               raise BackendUnhandledException, "Unhandled Exception - status: #{status}, body: #{body}"
             end
           end
