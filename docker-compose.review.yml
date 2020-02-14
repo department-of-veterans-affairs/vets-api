@@ -4,7 +4,7 @@ services:
     image: redis:3.2-alpine
     restart: unless-stopped
   postgres:
-    image: mdillon/postgis:9.6-alpine
+    image: mdillon/postgis:11-alpine
     environment:
       POSTGRES_PASSWORD: "${POSTGRES_PASSWORD:-password}"
       POSTGRES_USER: "${POSTGRES_USER:-postgres}"
@@ -29,6 +29,7 @@ services:
       - .:/srv/vets-api/src:cached
       - dev_bundle:/usr/local/bundle
       - ../.secret:/srv/vets-api/secret:cached
+      - ../.pki:/srv/vets-api/pki:cached
     ports:
       - "3000:3000"
     environment:
@@ -41,6 +42,7 @@ services:
       POSTGRES_PORT: "${POSTGRES_PORT:-5432}"
       POSTGRES_USER: "${POSTGRES_USER:-postgres}"
       POSTGRES_PASSWORD: "${POSTGRES_PASSWORD:-password}"
+      PUMA_THREADS: "${PUMA_THREADS:-4}"
     depends_on:
       - postgres
       - redis
