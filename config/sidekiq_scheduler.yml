@@ -149,9 +149,3 @@ VaForms::FetchLatest:
   cron: "0 0 * * * America/New_York"
   class: VaForms::FormReloader
   description: "Fetches latest VA Forms"
-
-ExportGithubStats:
-  cron: "0 */2 * * * America/New_York"
-  class: GithubStatsJob
-  description: "Send Github open PR stats to prometheus"
-  enabled: <%= Settings.hostname == 'dev-api.vets.gov' %>
