@@ -9,7 +9,7 @@ RSpec.describe SAML::User do
   describe 'SSOe' do
     subject { described_class.new(saml_response) }
 
-    let(:authn_context) { LOA::IDME_LOA1 }
+    let(:authn_context) { LOA::IDME_LOA1_VETS }
     let(:account_type)  { '1' }
     let(:highest_attained_loa) { '1' }
     let(:multifactor) { false }

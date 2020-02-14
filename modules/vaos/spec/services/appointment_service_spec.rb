@@ -62,6 +62,7 @@ describe VAOS::AppointmentService do
         {
           appointment_time: '11/15/19 20:00:00',
           clinic_id: '408',
+          facility_id: '983',
           cancel_reason: 'whatever',
           cancel_code: '5',
           remarks: nil,
@@ -83,6 +84,7 @@ describe VAOS::AppointmentService do
         {
           appointment_time: '11/15/2019 13:00:00',
           clinic_id: '437',
+          facility_id: '983',
           cancel_reason: '5',
           cancel_code: 'PC',
           remarks: '',
