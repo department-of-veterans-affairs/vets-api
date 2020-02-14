@@ -14,12 +14,28 @@ RSpec.describe V0::DependentsApplicationsController do
   end
 
   describe '#show' do
-    let(:dependents_application) { create(:dependents_application) }
+    context 'with a valid bgs response' do
+      let(:user) { build(:disabilities_compensation_user, ssn: '796126777') }
 
-    it 'returns a dependents application' do
-      id = dependents_application.id
-      get(:show, params: { id: id })
-      expect(JSON.parse(response.body)['data']['id']).to eq id
+      it 'returns a list of dependents' do
+        VCR.use_cassette('bgs/claimant_web_service/dependents') do
+          get(:show, params: { id: user.participant_id })
+          expect(response.code).to eq('200')
+          expect(response).to have_http_status(:ok)
+          expect(JSON.parse(response.body)['return_message']).to eq 'Records found'
+        end
+      end
+    end
+
+    context 'with an empty bgs response' do
+      let(:user) { build(:disabilities_compensation_user, ssn: '796043735') }
+
+      it 'returns no content' do
+        allow_any_instance_of(BGS::DependentService).to receive(:get_dependents).and_raise(LighthouseBGS::ShareError)
+        get(:show, params: { id: user.participant_id })
+        expect(response.code).to eq('400')
+        expect(response).to have_http_status(:bad_request)
+      end
     end
   end
 
