@@ -262,6 +262,14 @@ RSpec/EmptyExampleGroup:
 RSpec/LetSetup:
   Enabled: false
 
+# Determined to be too benign and/or numerous to justify changing
+ThreadSafety/InstanceVariableInClassMethod:
+  Enabled: false
+
+# Determined to be too benign and/or numerous to justify changing
+ThreadSafety/ClassAndModuleAttributes:
+  Enabled: false
+
 # Might be worth revisiting at some point
 RSpec/MessageChain:
   Exclude:
