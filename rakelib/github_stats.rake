@@ -1,8 +1,5 @@
 # frozen_string_literal: true
 
-require 'httparty'
-require 'date'
-
 STATSD_ERROR_KEY = 'worker.github_stats_scraper.error'
 
 REPOS = %w[
@@ -23,8 +20,9 @@ namespace :github_stats do
     responses = []
     REPOS.each do |repo|
       url = "https://api.github.com/repos/department-of-veterans-affairs/#{repo}/pulls?state=open&per_page=100"
-      resp = HTTParty.get(url)
-      responses.concat(resp)
+      uri = URI(url)
+      resp = Net::HTTP.get(uri)
+      responses.concat(JSON.parse(resp))
     end
     # iterate thru responses and collect just the needed data
     open_prs = []

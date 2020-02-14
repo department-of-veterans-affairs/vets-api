@@ -410,9 +410,6 @@ GEM
     hashery (2.1.2)
     hashie (3.6.0)
     holidays (8.0.0)
-    httparty (0.17.3)
-      mime-types (~> 3.0)
-      multi_xml (>= 0.5.2)
     httpclient (2.8.3)
     httpi (2.4.4)
       rack
@@ -467,7 +464,6 @@ GEM
     mini_portile2 (2.4.0)
     minitest (5.13.0)
     multi_json (1.14.1)
-    multi_xml (0.6.0)
     multipart-post (2.1.1)
     nap (1.1.0)
     nenv (0.3.0)
@@ -810,7 +806,6 @@ DEPENDENCIES
   guard-rubocop
   gyoku
   holidays
-  httparty
   httpclient
   ice_nine
   iconv
