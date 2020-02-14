@@ -7,6 +7,9 @@ module Sentry
         %w[
           accountNumber
           accountType
+          address_line1
+          address_line2
+          address_line3
           bankName
           birth_date
           city
