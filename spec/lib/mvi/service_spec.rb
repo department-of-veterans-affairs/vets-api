@@ -36,8 +36,151 @@ describe MVI::Service do
         '9100792239^PI^200CORP^USVBA^A',
         '1008714701^PN^200PROV^USDVA^A',
         '32383600^PI^200CORP^USVBA^L'
-      ]
+      ],
+      search_token: nil
     )
+  end
+
+  describe '.add_person' do
+    before do
+      expect(MVI::Messages::AddPersonMessage).to receive(:new).once.and_call_original
+    end
+
+    context 'valid_request when user has no ids' do
+      let(:user) { build(:user_with_no_ids) }
+
+      let(:mvi_codes) do
+        [
+          { codeSystemName: 'MVI', code: '111985523^PI^200BRLS^USVBA', displayName: 'IEN' },
+          { codeSystemName: 'MVI', code: '32397028^PI^200CORP^USVBA', displayName: 'IEN' }
+        ]
+      end
+
+      it 'runs a proxy add for birls and corp ids' do
+        VCR.use_cassette('mvi/add_person/add_person_success') do
+          response = subject.add_person(user)
+          expect(response.status).to eq('OK')
+          expect(response.mvi_codes).to have_deep_attributes(mvi_codes)
+        end
+      end
+
+      it 'returns no errors' do
+        VCR.use_cassette('mvi/add_person/add_person_success') do
+          response = subject.add_person(user)
+
+          expect(response.error).to be_nil
+        end
+      end
+    end
+
+    context 'valid_request when user already has both ids' do
+      let(:user) { build(:user, :loa3) }
+
+      let(:mvi_codes) do
+        [
+          { codeSystemName: 'MVI', code: '796104437^PI^200BRLS^USVBA', displayName: 'IEN' },
+          { codeSystemName: 'MVI', code: '13367440^PI^200CORP^USVBA', displayName: 'IEN' },
+          { codeSystem: '2.16.840.1.113883.4.349', code: 'WRN206', displayName: 'Existing Key Identifier' }
+        ]
+      end
+
+      it 'runs a proxy add for birls and corp ids' do
+        VCR.use_cassette('mvi/add_person/add_person_already_exists') do
+          response = subject.add_person(user)
+          expect(response.status).to eq('OK')
+          expect(response.mvi_codes).to have_deep_attributes(mvi_codes)
+        end
+      end
+
+      it 'returns no errors' do
+        VCR.use_cassette('mvi/add_person/add_person_success') do
+          response = subject.add_person(user)
+
+          expect(response.error).to be_nil
+        end
+      end
+    end
+
+    context 'invalid requests' do
+      it 'responds with a SERVER_ERROR if request is invalid', :aggregate_failures do
+        expect(subject).to receive(:log_message_to_sentry).with(
+          'MVI Invalid Request', :error
+        )
+
+        VCR.use_cassette('mvi/add_person/add_person_invalid_request') do
+          response = subject.add_person(user)
+          exception = response.error.errors.first
+
+          expect(response.class).to eq MVI::Responses::AddPersonResponse
+          expect(response.status).to eq server_error
+          expect(response.mvi_codes).to be_nil
+          expect(exception.title).to eq 'Bad Gateway'
+          expect(exception.code).to eq 'MVI_502'
+          expect(exception.status).to eq '502'
+          expect(exception.source).to eq MVI::Service
+        end
+      end
+
+      it 'responds with a SERVER_ERROR if the user has duplicate keys in the system', :aggregate_failures do
+        expect(subject).to receive(:log_message_to_sentry).with(
+          'MVI Invalid Request', :error
+        )
+
+        VCR.use_cassette('mvi/add_person/add_person_duplicate') do
+          response = subject.add_person(user)
+          exception = response.error.errors.first
+
+          expect(response.class).to eq MVI::Responses::AddPersonResponse
+          expect(response.status).to eq server_error
+          expect(response.mvi_codes).to be_nil
+          expect(exception.title).to eq 'Duplicate Keys'
+          expect(exception.code).to eq 'MVI_502_DUP'
+          expect(exception.status).to eq '502'
+          expect(exception.source).to eq MVI::Service
+        end
+      end
+    end
+
+    context 'with an MVI timeout' do
+      let(:base_path) { MVI::Configuration.instance.base_path }
+
+      it 'raises a service error', :aggregate_failures do
+        allow_any_instance_of(Faraday::Connection).to receive(:post).and_raise(Faraday::TimeoutError)
+        expect(subject).to receive(:log_console_and_sentry).with(
+          'MVI add_person error: Gateway timeout',
+          :warn
+        )
+        response = subject.add_person(user)
+
+        exception = response.error.errors.first
+
+        expect(response.class).to eq MVI::Responses::AddPersonResponse
+        expect(response.status).to eq server_error
+        expect(response.mvi_codes).to be_nil
+        expect(exception.title).to eq 'Gateway timeout'
+        expect(exception.code).to eq 'MVI_504'
+        expect(exception.status).to eq '504'
+        expect(exception.source).to eq MVI::Service
+      end
+    end
+
+    context 'with an ongoing breakers outage' do
+      it 'returns the correct thing', :aggregate_failures do
+        MVI::Configuration.instance.breakers_service.begin_forced_outage!
+        expect(Raven).to receive(:extra_context).once
+        response = subject.add_person(user)
+
+        exception = response.error.errors.first
+
+        expect(response.class).to eq MVI::Responses::AddPersonResponse
+        expect(response.status).to eq server_error
+        expect(response.mvi_codes).to be_nil
+        expect(exception.title).to eq 'Service unavailable'
+        expect(exception.code).to eq 'MVI_503'
+        expect(exception.status).to eq '503'
+        expect(exception.source).to eq MVI::Service
+      end
+    end
   end
 
   describe '.find_profile with icn', run_at: 'Wed, 21 Feb 2018 20:19:01 GMT' do
@@ -50,9 +193,11 @@ describe MVI::Service do
         allow(user).to receive(:mhv_icn).and_return('1008714701V416111^NI^200M^USVHA^P')
 
         VCR.use_cassette('mvi/find_candidate/valid_icn_full') do
+          profile = mvi_profile
+          profile['search_token'] = 'WSDOC1908201553145951848240311'
           response = subject.find_profile(user)
           expect(response.status).to eq('OK')
-          expect(response.profile).to have_deep_attributes(mvi_profile)
+          expect(response.profile).to have_deep_attributes(profile)
         end
       end
 
@@ -60,9 +205,11 @@ describe MVI::Service do
         allow(user).to receive(:mhv_icn).and_return('1008714701V416111^NI')
 
         VCR.use_cassette('mvi/find_candidate/valid_icn_ni_only') do
+          profile = mvi_profile
+          profile['search_token'] = 'WSDOC1908201553117051423642755'
           response = subject.find_profile(user)
           expect(response.status).to eq('OK')
-          expect(response.profile).to have_deep_attributes(mvi_profile)
+          expect(response.profile).to have_deep_attributes(profile)
         end
       end
 
@@ -70,9 +217,11 @@ describe MVI::Service do
         allow(user).to receive(:mhv_icn).and_return('1008714701V416111')
 
         VCR.use_cassette('mvi/find_candidate/valid_icn_without_ni') do
+          profile = mvi_profile
+          profile['search_token'] = 'WSDOC1908201553094460697640189'
           response = subject.find_profile(user)
           expect(response.status).to eq('OK')
-          expect(response.profile).to have_deep_attributes(mvi_profile)
+          expect(response.profile).to have_deep_attributes(profile)
         end
       end
 
@@ -194,9 +343,11 @@ describe MVI::Service do
 
       it 'calls the find_profile endpoint with a find candidate message' do
         VCR.use_cassette('mvi/find_candidate/valid') do
+          profile = mvi_profile
+          profile['search_token'] = 'WSDOC1908281447208280163390431'
           response = subject.find_profile(user)
           expect(response.status).to eq('OK')
-          expect(response.profile).to have_deep_attributes(mvi_profile)
+          expect(response.profile).to have_deep_attributes(profile)
         end
       end
 
@@ -239,8 +390,10 @@ describe MVI::Service do
 
         it 'calls the find_profile endpoint with a find candidate message' do
           VCR.use_cassette('mvi/find_candidate/valid_no_gender') do
+            profile = mvi_profile
+            profile['search_token'] = 'WSDOC1908281514193450364096012'
             response = subject.find_profile(user)
-            expect(response.profile).to have_deep_attributes(mvi_profile)
+            expect(response.profile).to have_deep_attributes(profile)
           end
         end
       end
