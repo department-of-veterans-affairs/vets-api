@@ -91,7 +91,7 @@ RSpec.describe Facilities::PPMS::Client do
     end
   end
 
-  [true,false].each do |dedup|
+  [true, false].each do |dedup|
     context "dedup=#{dedup}" do
       before do
         if dedup
@@ -100,6 +100,7 @@ RSpec.describe Facilities::PPMS::Client do
           Flipper.disable(:facility_locator_dedup_community_care_services)
         end
       end
+
       describe '#provider_info' do
         it 'gets additional attributes for the provider' do
           VCR.use_cassette('facilities/va/ppms', match_requests_on: %i[path query]) do
@@ -129,7 +130,7 @@ RSpec.describe Facilities::PPMS::Client do
           end
         end
       end
-    
+
       describe '#provider_services' do
         it 'returns Services' do
           VCR.use_cassette('facilities/va/ppms', match_requests_on: %i[path query]) do
@@ -172,7 +173,6 @@ RSpec.describe Facilities::PPMS::Client do
         end
       end
     end
-    
   end
 
   describe '#specialties' do
