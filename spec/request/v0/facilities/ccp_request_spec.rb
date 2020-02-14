@@ -43,8 +43,9 @@ RSpec.describe 'Community Care Providers', type: :request do
 
         get '/v0/facilities/ccp', params: params.merge('type' => 'cc_provider', 'services' => ['213E00000X'])
         bod = JSON.parse(response.body)
-        expect(response).to be_successful
+
         expect(bod).to include(fake_providers_serializer(provider, provider_details))
+        expect(response).to be_successful
       end
     end
 
@@ -59,39 +60,24 @@ RSpec.describe 'Community Care Providers', type: :request do
 
         get '/v0/facilities/ccp', params: params.merge('type' => 'cc_pharmacy')
         bod = JSON.parse(response.body)
-        expect(response).to be_successful
+
         expect(bod).to include(fake_providers_serializer(provider))
-      end
-    end
-
-    context 'type=cc_walkin' do
-      it 'returns results from the pos_locator' do
-        expect_any_instance_of(Facilities::PPMS::Client).to receive(:pos_locator)
-          .with(strong_params(params.merge(type: 'cc_walkin')), '17')
-          .and_return([provider])
-
-        get '/v0/facilities/ccp', params: params.merge('type' => 'cc_walkin')
-
-        bod = JSON.parse(response.body)
         expect(response).to be_successful
-        expect(bod).to include(fake_providers_serializer(provider))
       end
     end
 
     context 'type=cc_urgent_care' do
       it 'returns results from the pos_locator' do
         expect_any_instance_of(Facilities::PPMS::Client).to receive(:pos_locator)
-          .with(
-            strong_params(params.merge(type: 'cc_urgent_care')),
-            '20'
-          )
+          .with(strong_params(params.merge(type: 'cc_urgent_care')))
           .and_return([provider])
 
         get '/v0/facilities/ccp', params: params.merge('type' => 'cc_urgent_care')
 
         bod = JSON.parse(response.body)
-        expect(response).to be_successful
+
         expect(bod).to include(fake_providers_serializer(provider))
+        expect(response).to be_successful
       end
     end
   end
