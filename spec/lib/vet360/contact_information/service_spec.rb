@@ -129,6 +129,8 @@ describe Vet360::ContactInformation::Service, skip_vet360: true do
   end
 
   describe '#put_address' do
+    let(:address) { build(:vet360_address, vet360_id: user.vet360_id, source_system_user: user.icn) }
+
     context 'with a validation key' do
       let(:address) do
         address = build(:vet360_address, :override, country_name: nil)
