@@ -36,13 +36,14 @@ RSpec.describe Facilities::PPMS::Client do
 
   [true, false].each do |trim_bool|
     context "#{trim_bool ? 'with' : 'without'} trim" do
-      before(:each) do
+      before do
         if trim_bool
           Flipper.enable(:facilities_ppms_response_trim)
         else
           Flipper.disable(:facilities_ppms_response_trim)
         end
       end
+
       describe '#provider_locator' do
         it 'returns a list of providers' do
           VCR.use_cassette('facilities/va/ppms', match_requests_on: %i[path query]) do

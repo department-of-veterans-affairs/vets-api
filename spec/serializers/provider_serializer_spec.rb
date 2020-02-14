@@ -25,10 +25,11 @@ RSpec.describe ProviderSerializer, type: :serializer do
     expect(attributes['address']['street']).to eq(provider.AddressStreet)
   end
 
-  context "Flipper facilities_ppms_caresite_name: true" do
-    before(:each) do
+  context 'Flipper facilities_ppms_caresite_name: true' do
+    before do
       Flipper.enable(:facilities_ppms_caresite_name)
     end
+
     context "ProviderType is 'GroupPracticeOrAgency'" do
       let(:provider) { build :provider, :from_provider_locator, ProviderType: 'GroupPracticeOrAgency' }
 
@@ -45,10 +46,12 @@ RSpec.describe ProviderSerializer, type: :serializer do
       end
     end
   end
-  context "Flipper facilities_ppms_caresite_name: false" do
-    before(:each) do
+
+  context 'Flipper facilities_ppms_caresite_name: false' do
+    before do
       Flipper.disable(:facilities_ppms_caresite_name)
     end
+
     context "ProviderType is 'GroupPracticeOrAgency'" do
       let(:provider) { build :provider, :from_provider_locator, ProviderType: 'GroupPracticeOrAgency' }
 
