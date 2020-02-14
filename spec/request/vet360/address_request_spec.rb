@@ -112,7 +112,7 @@ RSpec.describe 'address', type: :request do
 
       context 'with a validation key' do
         let(:address) { build(:vet360_address, :override) }
-        let(:frozen_time) { Time.zone.parse('2019-10-28 18:59:37 -0700') }
+        let(:frozen_time) { Time.zone.parse('2020-02-14T00:19:15.000Z') }
 
         before do
           allow_any_instance_of(User).to receive(:vet360_id).and_return('1')
@@ -125,7 +125,7 @@ RSpec.describe 'address', type: :request do
             put('/v0/profile/addresses', params: address.to_json, headers: headers)
 
             expect(JSON.parse(response.body)['data']['attributes']['transaction_id']).to eq(
-              '1b5b82e7-909d-4ccc-a2db-ad60f1b502cf'
+              '7f01230f-56e3-4289-97ed-6168d2d23722'
             )
           end
         end
