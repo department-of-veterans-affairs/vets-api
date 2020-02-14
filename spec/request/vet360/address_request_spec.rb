@@ -147,28 +147,15 @@ RSpec.describe 'address', type: :request do
     context 'when effective_end_date is included' do
       let(:address) do
         build(:vet360_address,
-              vet360_id: user.vet360_id,
               effective_end_date: Time.now.utc.iso8601)
-      end
-      let(:id_in_cassette) { 42 }
-
-      before do
-        allow_any_instance_of(User).to receive(:icn).and_return('1234')
-        address.id = id_in_cassette
-        address.address_line1 = '1493 Martin Luther King Rd'
-        address.city = 'Fulton'
-        address.state_code = 'MS'
-        address.zip_code = '38843'
       end
 
       it 'effective_end_date is NOT included in the request body', :aggregate_failures do
-        VCR.use_cassette('vet360/contact_information/put_address_ignore_eed', VCR::MATCH_EVERYTHING) do
-          # The cassette we're using does not include the effectiveEndDate in the body.
-          # So this test ensures that it was stripped out
-          put('/v0/profile/addresses', params: address.to_json, headers: headers)
-          expect(response).to have_http_status(:ok)
-          expect(response).to match_response_schema('vet360/transaction_response')
+        expect_any_instance_of(Vet360::ContactInformation::Service).to receive(:put_address) do |_, address|
+          expect(address.effective_end_date).to eq(nil)
         end
+
+        put('/v0/profile/addresses', params: address.to_json, headers: headers)
       end
     end
   end
