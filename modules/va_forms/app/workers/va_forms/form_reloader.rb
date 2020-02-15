@@ -58,7 +58,7 @@ module VaForms
       form.first_issued_on = nil
       form.last_revision_on = parse_date(line.css('td:nth-child(4)').text) if revision_string.present?
       form.pages = line.css('td:nth-child(5)').text
-      form_url = url.starts_with?('http') ? url.gsub('http:','https:') : get_full_url(url)
+      form_url = url.starts_with?('http') ? url.gsub('http:', 'https:') : get_full_url(url)
       form.url = Addressable::URI.parse(form_url).normalize.to_s
       begin
         if form.url.present? && content = URI.parse(form.url).open
@@ -74,7 +74,7 @@ module VaForms
     end
 
     def parse_date(date_string)
-      matcher = date_string.split('/').count == 2 ? '%m/%Y' : '%m/%d/%Y' 
+      matcher = date_string.split('/').count == 2 ? '%m/%Y' : '%m/%d/%Y'
       Date.strptime(date_string, matcher)
     end
 
