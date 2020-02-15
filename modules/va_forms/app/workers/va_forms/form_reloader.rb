@@ -49,27 +49,16 @@ module VaForms
     end
 
     def parse_form_row(line, url)
-      title = line.css('font').text
       form_name = line.css('a').first.text
       form = VaForms::Form.find_or_initialize_by form_name: form_name
       current_sha256 = form.sha256
-      form.title = title
+      form.title = line.css('font').text
       revision_string = line.css('td:nth-child(4)').text
-      form.first_issued_on = nil
       form.last_revision_on = parse_date(line.css('td:nth-child(4)').text) if revision_string.present?
       form.pages = line.css('td:nth-child(5)').text
       form_url = url.starts_with?('http') ? url.gsub('http:', 'https:') : get_full_url(url)
       form.url = Addressable::URI.parse(form_url).normalize.to_s
-      begin
-        if form.url.present? && content = URI.parse(form.url).open
-          form.sha256 = get_sha256(content)
-          form.valid_pdf = true
-        else
-          form.valid_pdf = false
-        end
-      rescue
-        form.valid_pdf = false
-      end
+      form = get_sha256(form)
       form.save if current_sha256 != form.sha256
     end
 
@@ -78,12 +67,21 @@ module VaForms
       Date.strptime(date_string, matcher)
     end
 
-    def get_sha256(content)
-      if content.class == Tempfile
-        Digest::SHA256.file(content).hexdigest
+    def get_sha256(form)
+      if form.url.present? && (content = URI.parse(form.url).open)
+        form.sha256 = if content.class == Tempfile
+                        Digest::SHA256.file(content).hexdigest
+                      else
+                        Digest::SHA256.hexdigest(content.string)
+                      end
+        form.valid_pdf = true
       else
-        Digest::SHA256.hexdigest(content.string)
+        form.valid_pdf = false
       end
+      form
+    rescue
+      form.valid_pdf = false
+      form
     end
 
     def get_full_url(url)
