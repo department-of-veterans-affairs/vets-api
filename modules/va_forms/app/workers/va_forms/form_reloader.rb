@@ -43,8 +43,11 @@ module VaForms
     def parse_table_row(row)
       if row.css('a').try(:first) && (url = row.css('a').first['href'])
         return if url.starts_with?('#') || url == 'help.asp'
-
-        parse_form_row(row, url)
+        begin
+          parse_form_row(row, url)
+        rescue
+          Rails.logger.warn "VA Forms could not open #{url}"
+        end
       end
     end
 
@@ -89,7 +92,7 @@ module VaForms
     end
 
     def get_full_url(url)
-      "#{BASE_URL}/vaforms/#{url.gsub('./', '')}" if url.include?('./va') || url.include?('./medical')
+      "#{BASE_URL}/vaforms/#{url.gsub('./', '')}" if url.starts_with?('./va') || url.starts_with?('./medical')
     end
   end
 end
