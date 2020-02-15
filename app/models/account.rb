@@ -38,16 +38,31 @@ class Account < ApplicationRecord
   def self.cache_or_create_by!(user)
     return unless user.uuid
 
-    do_cached_with(key: user.uuid) do
+    acct = do_cached_with(key: user.uuid) do
       create_if_needed!(user)
     end
+    # Account.sec_id was added months after this class was built, thus
+    # the existing Account records (not new ones) need to have their
+    # sec_id value updated
+    update_if_needed!(acct, user)
   end
 
   def self.create_if_needed!(user)
     find_or_create_by!(idme_uuid: user.uuid) do |account|
-      account.edipi = user&.edipi
-      account.icn   = user&.icn
+      account.edipi   = user&.edipi
+      account.icn     = user&.icn
+      account.sec_id  = user&.sec_id
     end
+  end
+
+  def self.update_if_needed!(account, user)
+    return account if account.does_user_match?(user)
+    update(account.id, edipi: user&.edipi, icn: user&.icn, sec_id: user&.sec_id)
+  end
+
+  def does_user_match?(user)
+    # TODO: if the account is loaded from redis, could @sec_id be undefined?
+    return [@edipi, @icn, @sec_id] == [user&.edipi, user&.icn, user&.sec_id]
   end
 
   # Determines if the associated Account record is cacheable. Required
