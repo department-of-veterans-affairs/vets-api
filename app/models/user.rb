@@ -123,6 +123,9 @@ class User < Common::RedisStore
   delegate :participant_id, to: :mvi
   delegate :vet360_id, to: :mvi
 
+  # va profile attributes
+  delegate :sec_id, to: :va_profile
+
   # emis attributes
   delegate :military_person?, to: :veteran_status
   delegate :veteran?, to: :veteran_status
