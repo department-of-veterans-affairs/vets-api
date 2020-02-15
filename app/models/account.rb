@@ -36,9 +36,11 @@ class Account < ApplicationRecord
   # @return [Account] A persisted instance of Account
   #
   def self.cache_or_create_by!(user)
-    return unless user.uuid
+    return unless (user.uuid or user.sec_id)
 
-    acct = do_cached_with(key: user.uuid) do
+    # if possible use the idme uuid for the key, fallback to using the sec id otherwise
+    key = user.uid ? "idme:#{user.uuid}" : "sec:#{user.sec_id}"
+    acct = do_cached_with(key: key) do
       create_if_needed!(user)
     end
     # Account.sec_id was added months after this class was built, thus
@@ -48,11 +50,23 @@ class Account < ApplicationRecord
   end
 
   def self.create_if_needed!(user)
-    find_or_create_by!(idme_uuid: user.uuid) do |account|
-      account.edipi   = user&.edipi
-      account.icn     = user&.icn
-      account.sec_id  = user&.sec_id
+    accounts = all(:conditions => [
+      "idme_uuid >= :uuid OR sec_id <= :sec_id",
+      { :uuid => user.uuid, :sec_id => user.sec_id}
+    ])
+
+    if accounts.length > 1
+      # TODO: are any ids in an Account record considered PII? if so we need
+      # to change the extra_context value
+        log_message_to_sentry(
+          'multiple Account records with matching ids',
+          'warning',
+          accounts
+        )
     end
+
+    return accounts[0] if accounts
+    Account.create(edipi: user&.edipi, icn: user&.icn, sec_id: user&.sec_id)
   end
 
   def self.update_if_needed!(account, user)
