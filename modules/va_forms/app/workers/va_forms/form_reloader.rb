@@ -67,13 +67,17 @@ module VaForms
       Date.strptime(date_string, matcher)
     end
 
-    def get_sha256(form)
+    def get_sha256(content)
+      if content.class == Tempfile
+        Digest::SHA256.file(content).hexdigest
+      else
+        Digest::SHA256.hexdigest(content.string)
+      end
+    end
+
+    def update_sha256(form)
       if form.url.present? && (content = URI.parse(form.url).open)
-        form.sha256 = if content.class == Tempfile
-                        Digest::SHA256.file(content).hexdigest
-                      else
-                        Digest::SHA256.hexdigest(content.string)
-                      end
+        form.sha256 = get_sha256(content)
         form.valid_pdf = true
       else
         form.valid_pdf = false
