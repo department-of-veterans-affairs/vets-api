@@ -58,7 +58,7 @@ module VaForms
       form.pages = line.css('td:nth-child(5)').text
       form_url = url.starts_with?('http') ? url.gsub('http:', 'https:') : get_full_url(url)
       form.url = Addressable::URI.parse(form_url).normalize.to_s
-      form = get_sha256(form)
+      form = update_sha256(form)
       form.save if current_sha256 != form.sha256
     end
 
