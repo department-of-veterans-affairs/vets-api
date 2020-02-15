@@ -43,6 +43,7 @@ module VaForms
     def parse_table_row(row)
       if row.css('a').try(:first) && (url = row.css('a').first['href'])
         return if url.starts_with?('#') || url == 'help.asp'
+
         begin
           parse_form_row(row, url)
         rescue
