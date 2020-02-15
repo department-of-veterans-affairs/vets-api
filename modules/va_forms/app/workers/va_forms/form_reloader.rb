@@ -44,11 +44,7 @@ module VaForms
       if row.css('a').try(:first) && (url = row.css('a').first['href'])
         return if url.starts_with?('#') || url == 'help.asp'
 
-        begin
-          parse_form_row(row, url)
-        rescue
-          Rails.logger.warn "VA Forms could not open #{url}"
-        end
+        parse_form_row(row, url)
       end
     end
 
@@ -65,7 +61,7 @@ module VaForms
       form_url = url.starts_with?('http') ? url.gsub('http:','https:') : get_full_url(url)
       form.url = Addressable::URI.parse(form_url).normalize.to_s
       begin
-        if url.present? && content = URI.parse(form.url).open
+        if form.url.present? && content = URI.parse(form.url).open
           form.sha256 = get_sha256(content)
           form.valid_pdf = true
         else
@@ -78,7 +74,7 @@ module VaForms
     end
 
     def parse_date(date_string)
-      matcher = date_string.length == 7 ? '%m/%Y' : '%m/%d/%Y'
+      matcher = date_string.split('/').count == 2 ? '%m/%Y' : '%m/%d/%Y' 
       Date.strptime(date_string, matcher)
     end
 
@@ -91,7 +87,7 @@ module VaForms
     end
 
     def get_full_url(url)
-      "#{BASE_URL}/vaforms/#{url.gsub('./', '')}" if url.starts_with?('./va') || url.starts_with?('./medical')
+      "#{BASE_URL}/vaforms/#{url.gsub('./', '')}" if url.include?('./va') || url.include?('./medical')
     end
   end
 end
