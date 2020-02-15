@@ -35,7 +35,17 @@ RSpec.describe VaForms::FormReloader, type: :job do
       VCR.use_cassette('va_forms/stringio') do
         form = VaForms::Form.new(url: 'http://www.vba.va.gov/pubs/forms/26-8599.pdf')
         form = form_reloader.update_sha256(form)
+        expect(form.valid_pdf).to eq(true)
         expect(form.sha256).to eq('f99d16fb94859065855dd71e3b253571229b31d4d46ca08064054b15207598bc')
+      end
+    end
+
+    it 'fails to update the sha256 when forms are submitted' do
+      VCR.use_cassette('va_forms/fails') do
+        form = VaForms::Form.new(url: 'http://www.vba.va.gov/pubs/forms/26-85992.pdf')
+        form = form_reloader.update_sha256(form)
+        expect(form.valid_pdf).to eq(false)
+        expect(form.sha256).to eq(nil)
       end
     end
 
