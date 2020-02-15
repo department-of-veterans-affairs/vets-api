@@ -36,7 +36,7 @@ class Account < ApplicationRecord
   # @return [Account] A persisted instance of Account
   #
   def self.cache_or_create_by!(user)
-    return unless (user.uuid or user.sec_id)
+    return unless user.uuid || user.sec_id
 
     # if possible use the idme uuid for the key, fallback to using the sec id otherwise
     key = user.uid ? "idme:#{user.uuid}" : "sec:#{user.sec_id}"
@@ -50,33 +50,35 @@ class Account < ApplicationRecord
   end
 
   def self.create_if_needed!(user)
-    accounts = all(:conditions => [
-      "idme_uuid >= :uuid OR sec_id <= :sec_id",
-      { :uuid => user.uuid, :sec_id => user.sec_id}
-    ])
+    accounts = all(conditions: [
+                     'idme_uuid >= :uuid OR sec_id <= :sec_id',
+                     { uuid: user.uuid, sec_id: user.sec_id }
+                   ])
 
     if accounts.length > 1
       # TODO: are any ids in an Account record considered PII? if so we need
       # to change the extra_context value
-        log_message_to_sentry(
-          'multiple Account records with matching ids',
-          'warning',
-          accounts
-        )
+      log_message_to_sentry(
+        'multiple Account records with matching ids',
+        'warning',
+        accounts
+      )
     end
 
     return accounts[0] if accounts
+
     Account.create(edipi: user&.edipi, icn: user&.icn, sec_id: user&.sec_id)
   end
 
   def self.update_if_needed!(account, user)
     return account if account.does_user_match?(user)
+
     update(account.id, edipi: user&.edipi, icn: user&.icn, sec_id: user&.sec_id)
   end
 
   def does_user_match?(user)
     # TODO: if the account is loaded from redis, could @sec_id be undefined?
-    return [@edipi, @icn, @sec_id] == [user&.edipi, user&.icn, user&.sec_id]
+    [@edipi, @icn, @sec_id] == [user&.edipi, user&.icn, user&.sec_id]
   end
 
   # Determines if the associated Account record is cacheable. Required
