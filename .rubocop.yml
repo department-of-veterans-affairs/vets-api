@@ -262,18 +262,17 @@ RSpec/EmptyExampleGroup:
 RSpec/LetSetup:
   Enabled: false
 
-# Determined to be too benign and/or numerous to justify changing
+# Doesn't play well with Code Climate
 ThreadSafety/InstanceVariableInClassMethod:
   Enabled: false
 
-# Determined to be too benign and/or numerous to justify changing
+# Doesn't play well with Code Climate
 ThreadSafety/ClassAndModuleAttributes:
   Enabled: false
 
-# Might be worth revisiting at some point
+# Doesn't play well with Code Climate
 ThreadSafety/NewThread:
-  Exclude:
-    - 'spec/lib/common/client/middleware/request/remove_cookies_spec.rb'
+  Enabled: false
 
 # Might be worth revisiting at some point
 RSpec/MessageChain:
