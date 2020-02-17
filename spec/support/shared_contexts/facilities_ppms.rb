@@ -32,6 +32,7 @@ RSpec.shared_context 'Facilities PPMS' do
         'long' => attributes[:Longitude],
         'name' => attributes[:Name],
         'phone' => attributes[:MainPhone],
+        'pos_codes' => attributes[:posCodes],
         'pref_contact' => attributes[:ContactMethod],
         'specialty' => [],
         'unique_id' => attributes[:ProviderIdentifier]

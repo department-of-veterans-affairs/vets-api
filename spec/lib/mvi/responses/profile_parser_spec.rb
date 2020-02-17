@@ -27,7 +27,8 @@ describe MVI::Responses::ProfileParser do
           :address_austin,
           birls_id: nil,
           sec_id: nil,
-          historical_icns: nil
+          historical_icns: nil,
+          search_token: 'WSDOC1609131753362231779394902'
         )
       end
 
@@ -45,7 +46,8 @@ describe MVI::Responses::ProfileParser do
             suffix: nil,
             birls_id: nil,
             sec_id: nil,
-            historical_icns: nil
+            historical_icns: nil,
+            search_token: 'WSDOC1609131753362231779394902'
           )
         end
 
@@ -76,7 +78,8 @@ describe MVI::Responses::ProfileParser do
               '123456^PI^200MHV^USVHA^A',
               'UNK^NI^200DOD^USDOD^A',
               'UNK^PI^200CORP^USVBA^A'
-            ]
+            ],
+            search_token: 'WSDOC1609131753362231779394902'
           )
         end
 
@@ -104,7 +107,8 @@ describe MVI::Responses::ProfileParser do
               '9100792239^PI^200CORP^USVBA^A',
               '1008714701^PN^200PROV^USDVA^A',
               '1100792239^PI^200MHS^USVHA^A'
-            ]
+            ],
+            search_token: 'WSDOC1908201553145951848240311'
           )
         end
 
@@ -186,7 +190,8 @@ describe MVI::Responses::ProfileParser do
           '1122334455^NI^200DOD^USDOD^A',
           '0001234567^PN^200PROV^USDVA^A',
           '123412345^PI^200BRLS^USVBA^A'
-        ]
+        ],
+        search_token: 'WSDOC1611060614456041732180196'
       )
     end
 
@@ -207,7 +212,8 @@ describe MVI::Responses::ProfileParser do
         :address_austin,
         historical_icns: nil,
         birls_id: nil,
-        sec_id: nil
+        sec_id: nil,
+        search_token: 'WSDOC1609131753362231779394902'
       )
     end
 
