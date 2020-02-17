@@ -33,6 +33,35 @@ module MVI
     STATSD_KEY_PREFIX = 'api.mvi' unless const_defined?(:STATSD_KEY_PREFIX)
     SERVER_ERROR = 'server_error'
 
+    # rubocop:disable Metrics/MethodLength
+    def add_person(user_identity)
+      with_monitoring do
+        measure_info(user_identity) do
+          raw_response = perform(
+            :post, '',
+            create_add_message(user_identity),
+            soapaction: OPERATIONS[:add_person]
+          )
+          MVI::Responses::AddPersonResponse.with_parsed_response(raw_response)
+        end
+      end
+    rescue Breakers::OutageException => e
+      Raven.extra_context(breakers_error_message: e.message)
+      log_console_and_sentry('MVI add_person connection failed.', :warn)
+      mvi_add_exception_response_for('MVI_503', e)
+    rescue Faraday::ConnectionFailed => e
+      log_console_and_sentry("MVI add_person connection failed: #{e.message}", :warn)
+      mvi_add_exception_response_for('MVI_504', e)
+    rescue Common::Client::Errors::ClientError, Common::Exceptions::GatewayTimeout => e
+      log_console_and_sentry("MVI add_person error: #{e.message}", :warn)
+      mvi_add_exception_response_for('MVI_504', e)
+    rescue MVI::Errors::Base => e
+      key = get_mvi_error_key(e)
+      mvi_error_handler(user_identity, e)
+      mvi_add_exception_response_for(key, e)
+    end
+    # rubocop:enable Metrics/MethodLength
+
     # Given a user queries MVI and returns their VA profile.
     #
     # @param user [UserIdentity] the user to query MVI for
@@ -78,6 +107,19 @@ module MVI
 
     def measure_info(user_identity)
       Rails.logger.measure_info('Performed MVI Query', payload: logging_context(user_identity)) { yield }
+    end
+
+    def get_mvi_error_key(e)
+      error_name = e.body&.first&.[](:displayName)
+      return 'MVI_502_DUP' if error_name == 'Duplicate Key Identifier'
+
+      'MVI_502'
+    end
+
+    def mvi_add_exception_response_for(key, error)
+      exception = build_exception(key, error)
+
+      MVI::Responses::AddPersonResponse.with_server_error(exception)
     end
 
     def mvi_profile_exception_response_for(key, error, type: SERVER_ERROR)
@@ -129,6 +171,12 @@ module MVI
       }
     end
 
+    def create_add_message(user)
+      raise Common::Exceptions::ValidationErrors, user unless user.valid?
+
+      MVI::Messages::AddPersonMessage.new(user).to_xml if user.icn_with_aaid.present?
+    end
+
     # rubocop:disable Layout/LineLength
     def create_profile_message(user_identity)
       return message_icn(user_identity) if user_identity.mhv_icn.present? # from SAML::UserAttributes::MHV::BasicLOA3User
@@ -150,13 +198,14 @@ module MVI
     def message_user_attributes(user)
       given_names = [user.first_name]
       given_names.push user.middle_name unless user.middle_name.nil?
-      MVI::Messages::FindProfileMessage.new(
-        given_names,
-        user.last_name,
-        user.birth_date,
-        user.ssn,
-        user.gender
-      ).to_xml
+      profile = {
+        given_names: given_names,
+        last_name: user.last_name,
+        birth_date: user.birth_date,
+        ssn: user.ssn,
+        gender: user.gender
+      }
+      MVI::Messages::FindProfileMessage.new(profile).to_xml
     end
   end
 end

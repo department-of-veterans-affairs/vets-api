@@ -24,20 +24,20 @@ GIT
 
 GIT
   remote: https://github.com/department-of-veterans-affairs/lighthouse-bgs.git
-  revision: 5591ed794b3a3ee3639f05d2e3ead1526cbe7bf7
+  revision: 08bdfbbb286814a617b069dfabbf00d30f63daac
   branch: master
   specs:
-    lighthouse_bgs (0.7.0)
+    lighthouse_bgs (0.9.0)
       httpclient
       nokogiri (>= 1.8.5)
       savon (~> 2.12)
 
 GIT
   remote: https://github.com/department-of-veterans-affairs/vets-json-schema
-  revision: 03de05bdbb02d335c5dab1a63567033755cf7806
+  revision: ad0b80adba5702cb6c590d2a3218eafb2d4bf40c
   branch: master
   specs:
-    vets_json_schema (3.138.16)
+    vets_json_schema (3.140.0)
       multi_json (~> 1.0)
       script_utils (= 0.0.4)
 
@@ -222,7 +222,7 @@ GEM
     bundler-audit (0.6.1)
       bundler (>= 1.2.0, < 3)
       thor (~> 0.18)
-    byebug (11.0.1)
+    byebug (11.1.1)
     carrierwave (0.11.2)
       activemodel (>= 3.2.0)
       activesupport (>= 3.2.0)
@@ -342,8 +342,8 @@ GEM
       i18n (>= 1.6, < 2)
     faker-medical (0.5.2)
       faker
-    fakeredis (0.5.0)
-      redis (~> 3.0)
+    fakeredis (0.7.0)
+      redis (>= 3.2, < 5.0)
     faraday (0.17.0)
       multipart-post (>= 1.2, < 3)
     faraday-http-cache (2.0.0)
@@ -358,7 +358,7 @@ GEM
     ffi (1.12.1)
     figaro (1.1.1)
       thor (~> 0.14)
-    flipper (0.17.1)
+    flipper (0.17.2)
     flipper-active_record (0.17.1)
       activerecord (>= 4.2, < 7)
       flipper (~> 0.17.1)
@@ -435,7 +435,7 @@ GEM
       jsonapi-renderer (= 0.1.1.beta1)
     jsonapi-parser (0.1.1.beta3)
     jsonapi-renderer (0.1.1.beta1)
-    jwt (2.1.0)
+    jwt (2.2.1)
     kramdown (2.1.0)
     kramdown-parser-gfm (1.1.0)
       kramdown (~> 2.0)
@@ -470,6 +470,7 @@ GEM
     net-sftp (2.1.2)
       net-ssh (>= 2.6.5)
     net-ssh (4.1.0)
+    newrelic_rpm (6.8.0.360)
     nio4r (2.5.2)
     no_proxy_fix (0.1.2)
     nokogiri (1.10.7)
@@ -529,7 +530,7 @@ GEM
     pundit (1.1.0)
       activesupport (>= 3.0.0)
     raabro (1.1.6)
-    rack-attack (6.2.1)
+    rack-attack (6.2.2)
       rack (>= 1.0, < 3)
     rack-cors (1.1.1)
       rack (>= 2.0.0)
@@ -621,7 +622,7 @@ GEM
       ruby-progressbar (~> 1.7)
       unicode-display_width (>= 1.4.0, < 1.7)
     rubocop-junit-formatter (0.1.4)
-    rubocop-rails (2.4.1)
+    rubocop-rails (2.4.2)
       rack (>= 1.1)
       rubocop (>= 0.72.0)
     rubocop-rspec (1.37.1)
@@ -696,7 +697,7 @@ GEM
       actionpack (>= 4.0)
       activesupport (>= 4.0)
       sprockets (>= 3.0.0)
-    staccato (0.5.1)
+    staccato (0.5.3)
     statsd-instrument (2.6.0)
     swagger-blocks (3.0.0)
     terminal-table (1.8.0)
@@ -794,7 +795,7 @@ DEPENDENCIES
   fast_jsonapi
   fastimage
   figaro
-  flipper (~> 0.17.1)
+  flipper (~> 0.17.2)
   flipper-active_record (~> 0.17.1)
   flipper-active_support_cache_store (~> 0.17.1)
   flipper-ui (~> 0.17.1)
@@ -820,6 +821,7 @@ DEPENDENCIES
   memoist
   mini_magick (~> 4.10.1)
   net-sftp
+  newrelic_rpm
   nokogiri (~> 1.10, >= 1.10.4)
   oj
   olive_branch

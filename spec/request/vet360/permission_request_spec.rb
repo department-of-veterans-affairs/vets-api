@@ -48,7 +48,7 @@ RSpec.describe 'permission', type: :request do
         VCR.use_cassette('vet360/contact_information/post_permission_w_id_error') do
           post('/v0/profile/permissions', params: permission.to_json, headers: headers)
 
-          expect(response).to have_http_status(:bad_request)
+          expect(response).to have_http_status(:bad_gateway)
           expect(response).to match_response_schema('errors')
         end
       end
