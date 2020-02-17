@@ -15,11 +15,15 @@ class Account < ApplicationRecord
   has_many :notifications, dependent: :destroy
 
   validates :uuid, presence: true, uniqueness: true
-  validates :idme_uuid, presence: true, uniqueness: true
+  validates :idme_uuid, uniqueness: true
+  validates :idme_uuid, presence: true, unless: -> { sec_id.present? }
+  validates :sec_id, presence: true, unless: -> { idme_uuid.present? }
 
   before_validation :initialize_uuid, on: :create
 
   attr_readonly :uuid
+
+  USER_ATTR_HASH = { idme_uuid: 'uuid', edipi: 'edipi', icn: 'icn', sec_id: 'sec_id' }.freeze
 
   # Required for configuring mixed in ActiveRecordCacheAside module.
   # Redis settings for ttl and namespacing reside in config/redis.yml
@@ -39,7 +43,7 @@ class Account < ApplicationRecord
     return unless user.uuid || user.sec_id
 
     # if possible use the idme uuid for the key, fallback to using the sec id otherwise
-    key = user.uid ? "idme:#{user.uuid}" : "sec:#{user.sec_id}"
+    key = user.uuid ? "idme:#{user.uuid}" : "sec:#{user.sec_id}"
     acct = do_cached_with(key: key) do
       create_if_needed!(user)
     end
@@ -50,10 +54,8 @@ class Account < ApplicationRecord
   end
 
   def self.create_if_needed!(user)
-    accounts = all(conditions: [
-                     'idme_uuid >= :uuid OR sec_id <= :sec_id',
-                     { uuid: user.uuid, sec_id: user.sec_id }
-                   ])
+    accounts = where('idme_uuid = :u OR sec_id = :s',
+                     u: user.send(USER_ATTR_HASH[:idme_uuid]), s: user.send(USER_ATTR_HASH[:sec_id]))
 
     if accounts.length > 1
       # TODO: are any ids in an Account record considered PII? if so we need
@@ -65,20 +67,16 @@ class Account < ApplicationRecord
       )
     end
 
-    return accounts[0] if accounts
+    return accounts[0] if accounts.length > 0
 
-    Account.create(edipi: user&.edipi, icn: user&.icn, sec_id: user&.sec_id)
+    create(**USER_ATTR_HASH.map { |k, v| [k, user.send(v)] }.to_h)
   end
 
   def self.update_if_needed!(account, user)
-    return account if account.does_user_match?(user)
+    # return account as is if all user attributes match up to be the same
+    return account if USER_ATTR_HASH.all? { |k, v| account.send(k) == user.send(v) }
 
-    update(account.id, edipi: user&.edipi, icn: user&.icn, sec_id: user&.sec_id)
-  end
-
-  def does_user_match?(user)
-    # TODO: if the account is loaded from redis, could @sec_id be undefined?
-    [@edipi, @icn, @sec_id] == [user&.edipi, user&.icn, user&.sec_id]
+    update(account.id, **USER_ATTR_HASH.map { |k, v| [k, user.send(v)] }.to_h)
   end
 
   # Determines if the associated Account record is cacheable. Required
