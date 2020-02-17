@@ -22,12 +22,25 @@ module Facilities
         Facilities::PPMS::Response.from_provider_locator(response, params)
       end
 
-      def pos_locator(params, pos_code)
-        qparams = pos_locator_params(params, pos_code)
-        response = perform(:get, 'v1.0/PlaceOfServiceLocator', qparams)
-        return [] if response.body.nil?
+      def pos_locator(params)
+        walkin_params = pos_locator_params(params, 17)
+        urgent_care_params = pos_locator_params(params, 20)
 
-        Facilities::PPMS::Response.from_provider_locator(response, params)
+        walkin_response = perform(:get, 'v1.0/PlaceOfServiceLocator', walkin_params)
+        urgent_care_response = perform(:get, 'v1.0/PlaceOfServiceLocator', urgent_care_params)
+
+        [
+          [walkin_params, walkin_response],
+          [urgent_care_params, urgent_care_response]
+        ].each_with_object([]) do |(request_params, response), new_array|
+          next if response.body.blank?
+
+          providers = Facilities::PPMS::Response.from_provider_locator(response, request_params)
+          providers.each do |provider|
+            provider.posCodes = request_params[:posCodes]
+          end
+          new_array.concat(providers)
+        end.sort!
       end
 
       # https://dev.dws.ppms.va.gov/swagger/ui/index#!/Providers/Providers_Get_0

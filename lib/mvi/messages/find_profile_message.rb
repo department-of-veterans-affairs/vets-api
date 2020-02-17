@@ -17,12 +17,22 @@ module MVI
       include FindProfileMessageHelpers
       attr_reader :given_names, :family_name, :birth_date, :ssn, :gender
 
-      def initialize(given_names, family_name, birth_date, ssn, gender = nil)
-        @given_names = given_names
-        @family_name = family_name
-        @birth_date = birth_date
-        @ssn = ssn
-        @gender = gender
+      def initialize(profile, orch_search = false, edipi = nil)
+        # gender is optional and will default to nil if it DNE
+        raise ArgumentError, 'wrong number of arguments' unless %i[
+          given_names
+          last_name
+          birth_date
+          ssn
+        ].all? { |k| profile.key? k }
+
+        @given_names = profile[:given_names]
+        @family_name = profile[:last_name]
+        @birth_date = profile[:birth_date]
+        @ssn = profile[:ssn]
+        @gender = profile[:gender]
+        @orch_search = orch_search
+        @edipi = edipi
       end
 
       private
@@ -46,6 +56,7 @@ module MVI
         name << element('family', text!: @family_name)
         assigned_person_instance << name
         assigned_person << assigned_person_instance
+        assigned_person << build_orchestrated_search if @orch_search
         el << assigned_person
         el
       end
@@ -90,6 +101,18 @@ module MVI
         el = element('livingSubjectAdministrativeGender')
         el << element('value', code: @gender)
         el << element('semanticsText', text!: 'Gender')
+        el
+      end
+
+      def build_orchestrated_search
+        # For BGS, they require a the clients ip address for the telecom value in the xml payload
+        # This is to trace the request all the way from BGS back to vets-api if the need arises
+        ip_address = Socket.ip_address_list.find { |ip| ip.ipv4? && !ip.ipv4_loopback? }.ip_address
+        el = element('representedOrganization', determinerCode: 'INSTANCE', classCode: 'ORG')
+        el << element('id', root: '2.16.840.1.113883.4.349', extension: "dslogon.#{@edipi}")
+        el << element('code', code: Time.now.utc.strftime('%Y-%m-%d %H:%M:%S'))
+        el << element('desc', text!: 'vagov')
+        el << element('telecom', value: ip_address)
         el
       end
     end
