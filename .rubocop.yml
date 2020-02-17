@@ -262,18 +262,6 @@ RSpec/EmptyExampleGroup:
 RSpec/LetSetup:
   Enabled: false
 
-# Doesn't play well with Code Climate
-ThreadSafety/InstanceVariableInClassMethod:
-  Enabled: false
-
-# Doesn't play well with Code Climate
-ThreadSafety/ClassAndModuleAttributes:
-  Enabled: false
-
-# Doesn't play well with Code Climate
-ThreadSafety/NewThread:
-  Enabled: false
-
 # Might be worth revisiting at some point
 RSpec/MessageChain:
   Exclude:
