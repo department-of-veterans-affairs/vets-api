@@ -271,7 +271,7 @@ GEM
       no_proxy_fix
       octokit (~> 4.7)
       terminal-table (~> 1)
-    database_cleaner (1.7.0)
+    database_cleaner (1.8.2)
     date_validator (0.9.0)
       activemodel
       activesupport
