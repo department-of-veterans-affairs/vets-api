@@ -170,8 +170,6 @@ RSpec.describe 'address', type: :request do
           'address_pou' => 'CORRESPONDENCE',
           'address_type' => 'DOMESTIC',
           'city' => 'Lexington',
-          'country_name' => 'United States',
-          'country_code_iso2' => 'US',
           'country_code_iso3' => 'USA',
           'country_code_fips' => nil,
           'county_code' => '21067',
