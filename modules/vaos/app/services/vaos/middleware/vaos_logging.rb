@@ -3,9 +3,8 @@
 module VAOS
   module Middleware
     class VaosLogging < Faraday::Middleware
-      def initialize(app, service_name)
+      def initialize(app)
         super(app)
-        @service_name = service_name
       end
 
       def call(env)
@@ -16,7 +15,7 @@ module VAOS
             jti: jti(env, response_env),
             status: response_env.status,
             duration: Time.current - start_time,
-            service_name: @service_name || 'VAOS Generic',
+            # service_name: service_name || 'VAOS Generic', # Need to figure out a clean way to do this with headers
             url: env.url.to_s
           }
 

@@ -6,7 +6,7 @@ require_relative '../../support/fixture_helper'
 describe VAOS::Middleware::VaosLogging do
   subject(:client) do
     Faraday.new do |conn|
-      conn.use :vaos_logging, service_name
+      conn.use :vaos_logging
 
       conn.adapter :test do |stub|
         stub.get(all_other_uris) { [status, { 'Content-Type' => 'text/plain', 'X-Vamf-Jwt' => sample_jwt }, '{}'] }
@@ -15,7 +15,6 @@ describe VAOS::Middleware::VaosLogging do
     end
   end
 
-  let(:service_name) { 'jalepeno' }
   let(:sample_jwt) { read_fixture_file('sample_jwt.response') }
   let(:all_other_uris) { '' }
   let(:user_service_uri) { 'https://veteran.apps.va.gov/users/v2/session?processRules=true' }
