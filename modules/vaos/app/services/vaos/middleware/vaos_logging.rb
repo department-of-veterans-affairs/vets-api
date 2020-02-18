@@ -20,7 +20,9 @@ module VAOS
             url: env.url.to_s
           }
 
-          if status.between?(200..299)
+          binding.pry
+
+          if response_env.status.between?(200, 299)
             log(:info, 'vaos service call succeeded:', log_tags)
           else
             log(:warn, 'vaos service call failed:', log_tags)
@@ -31,11 +33,11 @@ module VAOS
       private
 
       def log(type, message, tags)
-        logger.send(type, message, tags)
+        Rails.logger.send(type, message, tags)
       end
 
       def decode_jwt(token)
-        JWT.decode(token, rsa_private.public_key, true, algorithm: 'RS512').first
+        VAOS::JWT.decode(token, rsa_private.public_key, false, algorithm: 'RS512').first
       end
 
       def user_session_request?(env)

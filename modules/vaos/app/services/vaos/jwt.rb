@@ -17,6 +17,10 @@ module VAOS
       ::JWT.encode(payload, rsa_private, 'RS512')
     end
 
+    def self.decode(jwt, key = nil, verify = false, options = {}, &keyfinder)
+      ::JWT.decode(jwt, key = nil, verify = false, options = {}, &keyfinder)
+    end
+
     private
 
     def payload
