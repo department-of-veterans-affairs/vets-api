@@ -9,8 +9,8 @@ describe AppealsApi::V1::DecisionReview::ContestableIssuesController, type: :req
         get(
           '/services/appeals/v1/decision_review/contestable_issues',
           headers: {
-            'veteranId' => '872958715',
-            'receiptDate' => '2019-12-01'
+            'X-VA-SSN' => '872958715',
+            'X-VA-Receipt-Date' => '2019-12-01'
           }
         )
         expect(response).to have_http_status(:ok)
