@@ -124,15 +124,16 @@ class User < Common::RedisStore
   delegate :vet360_id, to: :mvi
   delegate :search_token, to: :mvi
 
-  # va profile attributes
-  delegate :sec_id, to: :va_profile
-
   # emis attributes
   delegate :military_person?, to: :veteran_status
   delegate :veteran?, to: :veteran_status
 
   def edipi
     loa3? && dslogon_edipi.present? ? dslogon_edipi : mvi&.edipi
+  end
+
+  def sec_id
+    va_profile && va_profile.sec_id
   end
 
   def va_profile

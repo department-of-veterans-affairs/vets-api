@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'common/models/concerns/active_record_cache_aside'
+require 'sentry_logging'
 
 # Account's purpose is to correlate unique identifiers, and to
 # remove our dependency on third party services for a user's
@@ -41,7 +42,7 @@ class Account < ApplicationRecord
     return unless user.uuid || user.sec_id
 
     # if possible use the idme uuid for the key, fallback to using the sec id otherwise
-    key = user.uuid ? "idme:#{user.uuid}" : "sec:#{user.sec_id}"
+    key = user.uuid ? user.uuid : "sec:#{user.sec_id}"
     acct = do_cached_with(key: key) do
       create_if_needed!(user)
     end
@@ -54,7 +55,12 @@ class Account < ApplicationRecord
   def self.create_if_needed!(user)
     attrs = account_attrs_from_user(user)
 
-    accts = where(idme_uuid: attrs[:idme_uuid]).or(where(sec_id: attrs[:sec_id]))
+    accts = where(idme_uuid: attrs[:idme_uuid])
+            .where.not(idme_uuid: nil)
+            .or(
+              where(sec_id: attrs[:sec_id])
+              .where.not(sec_id: nil)
+            )
     if accts.length > 1
       # TODO: are any ids in an Account record considered PII? if so we need
       # to change the extra_context value
@@ -65,8 +71,10 @@ class Account < ApplicationRecord
   end
 
   def self.update_if_needed!(account, user)
-    attrs = account_attrs_from_user(user)
+    # account has yet to be saved, no need to update
+    return account if !account.id
     # return account as is if all user attributes match up to be the same
+    attrs = account_attrs_from_user(user)
     return account if attrs.all? { |k, v| account.send(k) == v }
 
     update(account.id, **attrs)
