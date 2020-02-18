@@ -23,8 +23,6 @@ class Account < ApplicationRecord
 
   attr_readonly :uuid
 
-  USER_ATTR_HASH = { idme_uuid: 'uuid', edipi: 'edipi', icn: 'icn', sec_id: 'sec_id' }.freeze
-
   # Required for configuring mixed in ActiveRecordCacheAside module.
   # Redis settings for ttl and namespacing reside in config/redis.yml
   #
@@ -54,29 +52,32 @@ class Account < ApplicationRecord
   end
 
   def self.create_if_needed!(user)
-    accounts = where('idme_uuid = :u OR sec_id = :s',
-                     u: user.send(USER_ATTR_HASH[:idme_uuid]), s: user.send(USER_ATTR_HASH[:sec_id]))
+    attrs = account_attrs_from_user(user)
 
-    if accounts.length > 1
+    accts = where(idme_uuid: attrs[:idme_uuid]).or(where(sec_id: attrs[:sec_id]))
+    if accts.length > 1
       # TODO: are any ids in an Account record considered PII? if so we need
       # to change the extra_context value
-      log_message_to_sentry(
-        'multiple Account records with matching ids',
-        'warning',
-        accounts
-      )
+      log_message_to_sentry('multiple Account records with matching ids', 'warning', accts)
     end
 
-    return accounts[0] if accounts.length > 0
-
-    create(**USER_ATTR_HASH.map { |k, v| [k, user.send(v)] }.to_h)
+    accts.length.positive? ? accts[0] : create(**attrs)
   end
 
   def self.update_if_needed!(account, user)
+    attrs = account_attrs_from_user(user)
     # return account as is if all user attributes match up to be the same
-    return account if USER_ATTR_HASH.all? { |k, v| account.send(k) == user.send(v) }
+    return account if attrs.all? { |k, v| account.send(k) == v }
 
-    update(account.id, **USER_ATTR_HASH.map { |k, v| [k, user.send(v)] }.to_h)
+    update(account.id, **attrs)
+  end
+
+  # Build an account attribute hash from the given User attributes
+  #
+  # @return [Hash]
+  #
+  def self.account_attrs_from_user(user)
+    { idme_uuid: user.uuid, edipi: user.edipi, icn: user.icn, sec_id: user.sec_id }
   end
 
   # Determines if the associated Account record is cacheable. Required
@@ -87,6 +88,8 @@ class Account < ApplicationRecord
   def cache?
     persisted?
   end
+
+  private_class_method :account_attrs_from_user
 
   private
 
