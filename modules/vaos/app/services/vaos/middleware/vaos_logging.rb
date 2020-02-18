@@ -20,8 +20,6 @@ module VAOS
             url: env.url.to_s
           }
 
-          binding.pry
-
           if response_env.status.between?(200, 299)
             log(:info, 'vaos service call succeeded:', log_tags)
           else
@@ -52,8 +50,10 @@ module VAOS
         if user_session_request?(env)
           decode_jwt(response_env.body)['jti']
         else
-          decode_jwt(env.headers['X-Vamf-Jwt'])
+          decode_jwt(env.response_headers['X-Vamf-Jwt'])
         end
+      rescue
+        'unknown'
       end
     end
   end

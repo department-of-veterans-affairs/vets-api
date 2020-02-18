@@ -9,7 +9,7 @@ describe VAOS::Middleware::VaosLogging do
       conn.use :vaos_logging, service_name
 
       conn.adapter :test do |stub|
-        stub.get(all_other_uris) { [status, { 'Content-Type' => 'text/plain', 'X-Vamf-Jwt' => sample_jwr }, '{}'] }
+        stub.get(all_other_uris) { [status, { 'Content-Type' => 'text/plain', 'X-Vamf-Jwt' => sample_jwt }, '{}'] }
         stub.post(user_service_uri) { [status, { 'Content-Type' => 'text/plain' }, sample_jwt] }
       end
     end
