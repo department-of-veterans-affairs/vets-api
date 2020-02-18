@@ -15,9 +15,9 @@ http_interactions:
       - Vets.gov Agent
       Authorization:
       - Token token=PUBLICDEMO123
-      Veteranid:
+      X-VA-SSN:
       - '872958715'
-      Receiptdate:
+      X-VA-Receipt-Date:
       - '2019-12-01'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3

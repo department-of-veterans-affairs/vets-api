@@ -34,13 +34,23 @@ RSpec.describe Facilities::PPMS::Client do
     end
   end
 
-  [true, false].each do |trim_bool|
-    context "#{trim_bool ? 'with' : 'without'} trim" do
+  [
+    [true,  true],
+    [true,  false],
+    [false, true],
+    [false, false]
+  ].each do |(dedup, trim_bool)|
+    context "Feature Flag dedup=#{dedup} & trim=#{trim_bool}" do
       before do
         if trim_bool
           Flipper.enable(:facilities_ppms_response_trim)
         else
           Flipper.disable(:facilities_ppms_response_trim)
+        end
+        if dedup
+          Flipper.enable(:facility_locator_dedup_community_care_services)
+        else
+          Flipper.disable(:facility_locator_dedup_community_care_services)
         end
       end
 
@@ -127,9 +137,10 @@ RSpec.describe Facilities::PPMS::Client do
               ProviderIdentifier: '1407842941',
               ProviderName: nil
             )
+            specialty_count = dedup ? 1 : 41
             expect(r['ProviderSpecialties'].each_with_object(Hash.new(0)) do |specialty, count|
               count[specialty['CodedSpecialty']] += 1
-            end).to match('213E00000X' => 41)
+            end).to match('213E00000X' => specialty_count)
           end
         end
       end
