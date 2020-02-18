@@ -133,7 +133,7 @@ class User < Common::RedisStore
   end
 
   def sec_id
-    va_profile && va_profile.sec_id
+    va_profile&.sec_id
   end
 
   def va_profile

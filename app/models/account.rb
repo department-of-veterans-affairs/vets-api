@@ -42,7 +42,7 @@ class Account < ApplicationRecord
     return unless user.uuid || user.sec_id
 
     # if possible use the idme uuid for the key, fallback to using the sec id otherwise
-    key = user.uuid ? user.uuid : "sec:#{user.sec_id}"
+    key = user.uuid || "sec:#{user.sec_id}"
     acct = do_cached_with(key: key) do
       create_if_needed!(user)
     end
@@ -72,7 +72,8 @@ class Account < ApplicationRecord
 
   def self.update_if_needed!(account, user)
     # account has yet to be saved, no need to update
-    return account if !account.id
+    return account unless account.id
+
     # return account as is if all user attributes match up to be the same
     attrs = account_attrs_from_user(user)
     return account if attrs.all? { |k, v| account.send(k) == v }
