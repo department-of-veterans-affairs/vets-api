@@ -19,6 +19,17 @@ RSpec.shared_context 'Facilities PPMS' do
     end
   end
 
+  def fake_name(attributes)
+    case attributes[:ProviderType]
+    when /GroupPracticeOrAgency/
+      attributes[:CareSite]
+    when /Individual/
+      attributes[:ProviderName]
+    else
+      'ERROR!!'
+    end
+  end
+
   def fake_provider_serializer_data(attributes)
     {
       'attributes' => {
@@ -30,7 +41,7 @@ RSpec.shared_context 'Facilities PPMS' do
         'gender' => attributes[:ProviderGender],
         'lat' => attributes[:Latitude],
         'long' => attributes[:Longitude],
-        'name' => attributes[:Name],
+        'name' => fake_name(attributes),
         'phone' => attributes[:MainPhone],
         'pos_codes' => attributes[:posCodes],
         'pref_contact' => attributes[:ContactMethod],

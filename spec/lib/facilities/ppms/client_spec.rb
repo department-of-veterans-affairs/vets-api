@@ -34,70 +34,83 @@ RSpec.describe Facilities::PPMS::Client do
     end
   end
 
-  describe '#provider_locator' do
-    it 'returns a list of providers' do
-      VCR.use_cassette('facilities/va/ppms', match_requests_on: %i[path query]) do
-        r = Facilities::PPMS::Client.new.provider_locator(params.merge(services: ['213E00000X']))
-        expect(r.length).to be 5
-        expect(r[0]).to have_attributes(
-          AddressCity: 'Chandler',
-          AddressPostalCode: '85248',
-          AddressStateProvince: 'AZ',
-          AddressStreet: '3195 S Price Rd Ste 148',
-          CareSitePhoneNumber: '4807057300',
-          ContactMethod: nil,
-          Email: nil,
-          IsAcceptingNewPatients: 'true',
-          Latitude: 33.258135,
-          Longitude: -111.887927,
-          MainPhone: nil,
-          Miles: 2.302,
-          Name: 'Freed, Lewis ',
-          OrganizationFax: nil,
-          ProviderGender: 'Male',
-          ProviderIdentifier: '1407842941',
-          ProviderSpecialties: []
-        )
-      end
-    end
-  end
-
-  describe '#pos_locator' do
-    it 'finds places of service' do
-      VCR.use_cassette('facilities/va/ppms', match_requests_on: %i[path query]) do
-        r = Facilities::PPMS::Client.new.pos_locator(params)
-        expect(r.length).to be 10
-        expect(r[0]).to have_attributes(
-          ProviderIdentifier: '1629245311',
-          Name: 'MinuteClinic LLC',
-          AddressStreet: '2010 S Dobson Rd',
-          AddressCity: 'Chandler',
-          AddressStateProvince: 'AZ',
-          AddressPostalCode: '85286',
-          Email: nil,
-          MainPhone: nil,
-          CareSitePhoneNumber: '8663892727',
-          OrganizationFax: nil,
-          ContactMethod: nil,
-          IsAcceptingNewPatients: 'false',
-          ProviderGender: 'NotSpecified',
-          ProviderSpecialties: [],
-          Latitude: 33.275526,
-          Longitude: -111.877057,
-          Miles: 0.79,
-          posCodes: '17'
-        )
-      end
-    end
-  end
-
-  [true, false].each do |dedup|
-    context "dedup=#{dedup}" do
+  [
+    [true,  true],
+    [true,  false],
+    [false, true],
+    [false, false]
+  ].each do |(dedup, trim_bool)|
+    context "Feature Flag dedup=#{dedup} & trim=#{trim_bool}" do
       before do
+        if trim_bool
+          Flipper.enable(:facilities_ppms_response_trim)
+        else
+          Flipper.disable(:facilities_ppms_response_trim)
+        end
         if dedup
           Flipper.enable(:facility_locator_dedup_community_care_services)
         else
           Flipper.disable(:facility_locator_dedup_community_care_services)
+        end
+      end
+
+      describe '#provider_locator' do
+        it 'returns a list of providers' do
+          VCR.use_cassette('facilities/va/ppms', match_requests_on: %i[path query]) do
+            r = Facilities::PPMS::Client.new.provider_locator(params.merge(services: ['213E00000X']))
+            name = 'Freed, Lewis '
+            name = name.strip if trim_bool
+            expect(r.length).to be 5
+            expect(r[0]).to have_attributes(
+              AddressCity: 'Chandler',
+              AddressPostalCode: '85248',
+              AddressStateProvince: 'AZ',
+              AddressStreet: '3195 S Price Rd Ste 148',
+              CareSite: 'Lewis H Freed DPM PC',
+              CareSitePhoneNumber: '4807057300',
+              ContactMethod: nil,
+              Email: nil,
+              IsAcceptingNewPatients: 'true',
+              Latitude: 33.258135,
+              Longitude: -111.887927,
+              MainPhone: nil,
+              Miles: 2.302,
+              OrganizationFax: nil,
+              ProviderGender: 'Male',
+              ProviderIdentifier: '1407842941',
+              ProviderName: name,
+              ProviderSpecialties: []
+            )
+          end
+        end
+      end
+
+      describe '#pos_locator' do
+        it 'finds places of service' do
+          VCR.use_cassette('facilities/va/ppms', match_requests_on: %i[path query]) do
+            r = Facilities::PPMS::Client.new.pos_locator(params)
+            expect(r.length).to be 10
+            expect(r[0]).to have_attributes(
+              ProviderIdentifier: '1629245311',
+              CareSite: 'MinuteClinic LLC',
+              AddressStreet: '2010 S Dobson Rd',
+              AddressCity: 'Chandler',
+              AddressStateProvince: 'AZ',
+              AddressPostalCode: '85286',
+              Email: nil,
+              MainPhone: nil,
+              CareSitePhoneNumber: '8663892727',
+              OrganizationFax: nil,
+              ContactMethod: nil,
+              IsAcceptingNewPatients: 'false',
+              ProviderGender: 'NotSpecified',
+              ProviderSpecialties: [],
+              Latitude: 33.275526,
+              Longitude: -111.877057,
+              Miles: 0.79,
+              posCodes: '17'
+            )
+          end
         end
       end
 
@@ -110,6 +123,7 @@ RSpec.describe Facilities::PPMS::Client do
               AddressPostalCode: nil,
               AddressStateProvince: nil,
               AddressStreet: nil,
+              CareSite: nil,
               CareSitePhoneNumber: nil,
               ContactMethod: nil,
               Email: 'evfa1@hotmail.com',
@@ -118,10 +132,10 @@ RSpec.describe Facilities::PPMS::Client do
               Longitude: nil,
               MainPhone: '4809241552',
               Miles: nil,
-              Name: 'Freed, Lewis ',
               OrganizationFax: '4809241553',
               ProviderGender: 'Male',
-              ProviderIdentifier: '1407842941'
+              ProviderIdentifier: '1407842941',
+              ProviderName: nil
             )
             specialty_count = dedup ? 1 : 41
             expect(r['ProviderSpecialties'].each_with_object(Hash.new(0)) do |specialty, count|
@@ -135,17 +149,26 @@ RSpec.describe Facilities::PPMS::Client do
         it 'returns Services' do
           VCR.use_cassette('facilities/va/ppms', match_requests_on: %i[path query]) do
             r = Facilities::PPMS::Client.new.provider_services(1_407_842_941)
+
+            name_hash =
+              case trim_bool
+              when true
+                { 'Freed, Lewis - Podiatrist' => 41 }
+              when false
+                {
+                  'Freed, Lewis - Podiatrist ' => 25,
+                  'Freed, Lewis  - Podiatrist    ' => 2,
+                  'Freed, Lewis  - Podiatrist ' => 12,
+                  'Freed, Lewis - Podiatrist    ' => 2
+                }
+              end
+
             expect(r.each_with_object(Hash.new { |h, k| h[k] = Hash.new(0) }) do |service, count|
               %w[Name AffiliationName RelationshipName CareSiteName CareSiteAddressZipCode].each do |key|
                 count[key][service[key]] += 1
               end
             end).to match(
-              'Name' => {
-                'Freed, Lewis - Podiatrist ' => 25,
-                'Freed, Lewis  - Podiatrist    ' => 2,
-                'Freed, Lewis  - Podiatrist ' => 12,
-                'Freed, Lewis - Podiatrist    ' => 2
-              },
+              'Name' => name_hash,
               'AffiliationName' => {
                 'TriWest - PC3' => 25,
                 'TriWest - Choice' => 16
