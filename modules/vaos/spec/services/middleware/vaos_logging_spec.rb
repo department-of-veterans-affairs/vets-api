@@ -31,25 +31,19 @@ describe VAOS::Middleware::VaosLogging do
 
     it 'user service call logs a success' do
       expect(Rails.logger).to receive(:info).with('VAOS service call succeeded!',
-        {
-          jti: 'ebfc95ef5f3a41a7b15e432fe47e9864',
-          status: 200,
-          duration: 0.0,
-          url: 'https://veteran.apps.va.gov/users/v2/session?processRules=true'
-        }
-      ).and_call_original
+                                                  jti: 'ebfc95ef5f3a41a7b15e432fe47e9864',
+                                                  status: 200,
+                                                  duration: 0.0,
+                                                  url: 'https://veteran.apps.va.gov/users/v2/session?processRules=true').and_call_original
       client.post(user_service_uri)
     end
 
     it 'other requests logs a success' do
       expect(Rails.logger).to receive(:info).with('VAOS service call succeeded!',
-        {
-          jti: 'ebfc95ef5f3a41a7b15e432fe47e9864',
-          status: 200,
-          duration: 0.0,
-          url: 'https://veteran.apps.va.gov/whatever'
-        }
-      ).and_call_original
+                                                  jti: 'ebfc95ef5f3a41a7b15e432fe47e9864',
+                                                  status: 200,
+                                                  duration: 0.0,
+                                                  url: 'https://veteran.apps.va.gov/whatever').and_call_original
       client.get(all_other_uris)
     end
   end
@@ -60,25 +54,19 @@ describe VAOS::Middleware::VaosLogging do
 
     it 'user service calls logs a failure' do
       expect(Rails.logger).to receive(:warn).with('VAOS service call failed!',
-        {
-          jti: 'unknown jti',
-          status: 500,
-          duration: 0.0,
-          url: 'https://veteran.apps.va.gov/users/v2/session?processRules=true'
-        }
-      ).and_call_original
+                                                  jti: 'unknown jti',
+                                                  status: 500,
+                                                  duration: 0.0,
+                                                  url: 'https://veteran.apps.va.gov/users/v2/session?processRules=true').and_call_original
       client.post(user_service_uri)
     end
 
     it 'other requests logs a failure' do
       expect(Rails.logger).to receive(:warn).with('VAOS service call failed!',
-        {
-          jti: 'unknown jti',
-          status: 500,
-          duration: 0.0,
-          url: 'https://veteran.apps.va.gov/whatever'
-        }
-      ).and_call_original
+                                                  jti: 'unknown jti',
+                                                  status: 500,
+                                                  duration: 0.0,
+                                                  url: 'https://veteran.apps.va.gov/whatever').and_call_original
       client.get(all_other_uris)
     end
   end
