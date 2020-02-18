@@ -3,9 +3,12 @@
 FactoryBot.define do
   factory :provider, class: Provider do
     ProviderIdentifier { Faker::Number.number(digits: 6) }
-    Name { Faker::Name.name }
+    ProviderName { Faker::Name.name }
+    CareSite { Faker::Company.name }
     ProviderGender { Faker::Gender.binary_type }
     ProviderSpecialties { [] }
+
+    sequence(:ProviderType, %w[GroupPracticeOrAgency Individual].cycle)
 
     trait :from_provider_locator do
       AddressStreet { Faker::Address.street_address }
