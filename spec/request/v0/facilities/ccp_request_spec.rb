@@ -35,11 +35,13 @@ RSpec.describe 'Community Care Providers', type: :request do
 
       it 'returns a results from the provider_locator' do
         expect_any_instance_of(Facilities::PPMS::Client).to receive(:provider_locator)
-          .with(strong_params(params.merge(type: 'cc_provider', services: ['213E00000X'])))
-          .and_return([provider])
+          .with(
+            strong_params(params.merge(type: 'cc_provider', services: ['213E00000X']))
+          ).and_return([provider])
         expect_any_instance_of(Facilities::PPMS::Client).to receive(:provider_info)
-          .with(provider['ProviderIdentifier'])
-          .and_return(provider_details)
+          .with(
+            provider['ProviderIdentifier']
+          ).and_return(provider_details)
 
         get '/v0/facilities/ccp', params: params.merge('type' => 'cc_provider', 'services' => ['213E00000X'])
         bod = JSON.parse(response.body)
@@ -52,11 +54,13 @@ RSpec.describe 'Community Care Providers', type: :request do
     context 'type=cc_pharmacy' do
       it 'returns results from the pos_locator' do
         expect_any_instance_of(Facilities::PPMS::Client).to receive(:provider_locator)
-          .with(strong_params(params.merge(type: 'cc_pharmacy', services: ['3336C0003X'])))
-          .and_return([provider])
+          .with(
+            strong_params(params.merge(type: 'cc_pharmacy', services: ['3336C0003X']))
+          ).and_return([provider])
         expect_any_instance_of(Facilities::PPMS::Client).to receive(:provider_info)
-          .with(provider['ProviderIdentifier'])
-          .and_return(provider_details)
+          .with(
+            provider['ProviderIdentifier']
+          ).and_return(provider_details)
 
         get '/v0/facilities/ccp', params: params.merge('type' => 'cc_pharmacy')
         bod = JSON.parse(response.body)
@@ -69,11 +73,11 @@ RSpec.describe 'Community Care Providers', type: :request do
     context 'type=cc_urgent_care' do
       it 'returns results from the pos_locator' do
         expect_any_instance_of(Facilities::PPMS::Client).to receive(:pos_locator)
-          .with(strong_params(params.merge(type: 'cc_urgent_care')))
-          .and_return([provider])
+          .with(
+            strong_params(params.merge(type: 'cc_urgent_care'))
+          ).and_return([provider])
 
         get '/v0/facilities/ccp', params: params.merge('type' => 'cc_urgent_care')
-
         bod = JSON.parse(response.body)
 
         expect(bod).to include(fake_providers_serializer(provider))
