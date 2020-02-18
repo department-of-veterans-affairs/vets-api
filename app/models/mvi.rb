@@ -72,6 +72,11 @@ class Mvi < Common::RedisStore
   # @return [Array[String]] the list of historical icns
   delegate :historical_icns, to: :profile, allow_nil: true
 
+  # The search token given in the original MVI 1306 response message
+  #
+  # @return [String] the search token
+  delegate :search_token, to: :profile, allow_nil: true
+
   # The profile returned from the MVI service. Either returned from cached response in Redis or the MVI service.
   #
   # @return [MVI::Models::MviProfile] patient 'golden record' data from MVI
@@ -102,6 +107,24 @@ class Mvi < Common::RedisStore
   # @return [MVI::Responses::FindProfileResponse] the response returned from MVI
   def mvi_response
     @mvi_response ||= response_from_redis_or_service
+  end
+
+  # The status of the MVI Add Person call. An Orchestrated MVI Search needs to be made before an MVI add person
+  # call is made. The cache is invalidated afterwards so it can be reset when next accessed.
+  #
+  # @return [MVI::Responses::AddPersonResponse] the response returned from MVI Add Person call
+  def mvi_add_person
+    search_response = MVI::OrchSearchService.new.find_profile(user)
+    if search_response.ok?
+      @mvi_response = search_response
+      add_response = mvi_service.add_person(user)
+      destroy if add_response.ok?
+    else
+      add_response = MVI::Responses::AddPersonResponse.with_failed_orch_search(
+        search_response.status, search_response.error
+      )
+    end
+    add_response
   end
 
   private

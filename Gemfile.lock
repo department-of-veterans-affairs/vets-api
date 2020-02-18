@@ -24,10 +24,10 @@ GIT
 
 GIT
   remote: https://github.com/department-of-veterans-affairs/lighthouse-bgs.git
-  revision: a7878c8b7e88957bb8327d5bde5c39fcdfd76c1c
+  revision: 08bdfbbb286814a617b069dfabbf00d30f63daac
   branch: master
   specs:
-    lighthouse_bgs (0.8.0)
+    lighthouse_bgs (0.9.0)
       httpclient
       nokogiri (>= 1.8.5)
       savon (~> 2.12)
@@ -222,7 +222,7 @@ GEM
     bundler-audit (0.6.1)
       bundler (>= 1.2.0, < 3)
       thor (~> 0.18)
-    byebug (11.0.1)
+    byebug (11.1.1)
     carrierwave (0.11.2)
       activemodel (>= 3.2.0)
       activesupport (>= 3.2.0)
@@ -271,7 +271,7 @@ GEM
       no_proxy_fix
       octokit (~> 4.7)
       terminal-table (~> 1)
-    database_cleaner (1.7.0)
+    database_cleaner (1.8.2)
     date_validator (0.9.0)
       activemodel
       activesupport
@@ -342,8 +342,8 @@ GEM
       i18n (>= 1.6, < 2)
     faker-medical (0.5.2)
       faker
-    fakeredis (0.5.0)
-      redis (~> 3.0)
+    fakeredis (0.7.0)
+      redis (>= 3.2, < 5.0)
     faraday (0.17.0)
       multipart-post (>= 1.2, < 3)
     faraday-http-cache (2.0.0)
@@ -358,7 +358,7 @@ GEM
     ffi (1.12.1)
     figaro (1.1.1)
       thor (~> 0.14)
-    flipper (0.17.1)
+    flipper (0.17.2)
     flipper-active_record (0.17.1)
       activerecord (>= 4.2, < 7)
       flipper (~> 0.17.1)
@@ -370,7 +370,7 @@ GEM
       flipper (~> 0.17.1)
       rack (>= 1.4, < 3)
       rack-protection (>= 1.5.3, < 2.1.0)
-    foreman (0.86.0)
+    foreman (0.87.0)
     formatador (0.2.5)
     fugit (1.3.3)
       et-orbi (~> 1.1, >= 1.1.8)
@@ -435,7 +435,7 @@ GEM
       jsonapi-renderer (= 0.1.1.beta1)
     jsonapi-parser (0.1.1.beta3)
     jsonapi-renderer (0.1.1.beta1)
-    jwt (2.1.0)
+    jwt (2.2.1)
     kramdown (2.1.0)
     kramdown-parser-gfm (1.1.0)
       kramdown (~> 2.0)
@@ -470,6 +470,7 @@ GEM
     net-sftp (2.1.2)
       net-ssh (>= 2.6.5)
     net-ssh (4.1.0)
+    newrelic_rpm (6.8.0.360)
     nio4r (2.5.2)
     no_proxy_fix (0.1.2)
     nokogiri (1.10.7)
@@ -517,7 +518,7 @@ GEM
     pry (0.12.2)
       coderay (~> 1.1.0)
       method_source (~> 0.9.0)
-    pry-byebug (3.7.0)
+    pry-byebug (3.8.0)
       byebug (~> 11.0)
       pry (~> 0.10)
     public_suffix (4.0.3)
@@ -529,7 +530,7 @@ GEM
     pundit (1.1.0)
       activesupport (>= 3.0.0)
     raabro (1.1.6)
-    rack-attack (6.2.1)
+    rack-attack (6.2.2)
       rack (>= 1.0, < 3)
     rack-cors (1.1.1)
       rack (>= 2.0.0)
@@ -621,7 +622,7 @@ GEM
       ruby-progressbar (~> 1.7)
       unicode-display_width (>= 1.4.0, < 1.7)
     rubocop-junit-formatter (0.1.4)
-    rubocop-rails (2.4.1)
+    rubocop-rails (2.4.2)
       rack (>= 1.1)
       rubocop (>= 0.72.0)
     rubocop-rspec (1.37.1)
@@ -680,11 +681,10 @@ GEM
       rufus-scheduler (~> 3.2)
       sidekiq (>= 3)
       tilt (>= 1.4.0)
-    simplecov (0.17.1)
+    simplecov (0.18.2)
       docile (~> 1.1)
-      json (>= 1.8, < 3)
-      simplecov-html (~> 0.10.0)
-    simplecov-html (0.10.2)
+      simplecov-html (~> 0.11)
+    simplecov-html (0.12.0)
     socksify (1.7.1)
     spring (2.1.0)
     spring-commands-rspec (1.0.4)
@@ -696,7 +696,7 @@ GEM
       actionpack (>= 4.0)
       activesupport (>= 4.0)
       sprockets (>= 3.0.0)
-    staccato (0.5.1)
+    staccato (0.5.3)
     statsd-instrument (2.6.0)
     swagger-blocks (3.0.0)
     terminal-table (1.8.0)
@@ -715,7 +715,7 @@ GEM
     uri_template (0.7.0)
     utf8-cleaner (0.2.5)
       activesupport
-    vcr (5.0.0)
+    vcr (5.1.0)
     virtus (1.0.5)
       axiom-types (~> 0.1)
       coercible (~> 1.0)
@@ -729,11 +729,11 @@ GEM
       activemodel (>= 5.0)
       bindex (>= 0.4.0)
       railties (>= 5.0)
-    webmock (3.8.0)
+    webmock (3.8.1)
       addressable (>= 2.3.6)
       crack (>= 0.3.2)
       hashdiff (>= 0.4.0, < 2.0.0)
-    webrick (1.4.2)
+    webrick (1.6.0)
     websocket-driver (0.7.1)
       websocket-extensions (>= 0.1.0)
     websocket-extensions (0.1.4)
@@ -794,7 +794,7 @@ DEPENDENCIES
   fast_jsonapi
   fastimage
   figaro
-  flipper (~> 0.17.1)
+  flipper (~> 0.17.2)
   flipper-active_record (~> 0.17.1)
   flipper-active_support_cache_store (~> 0.17.1)
   flipper-ui (~> 0.17.1)
@@ -820,6 +820,7 @@ DEPENDENCIES
   memoist
   mini_magick (~> 4.10.1)
   net-sftp
+  newrelic_rpm
   nokogiri (~> 1.10, >= 1.10.4)
   oj
   olive_branch

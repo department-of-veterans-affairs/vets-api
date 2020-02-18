@@ -11,10 +11,8 @@ class V0::Facilities::CcpController < FacilitiesController
                       provider_search
                     when 'cc_pharmacy'
                       provider_search('services' => ['3336C0003X'])
-                    when 'cc_walkin'
-                      api.pos_locator(search_params, '17')
                     when 'cc_urgent_care'
-                      api.pos_locator(search_params, '20')
+                      api.pos_locator(search_params)
                     end
 
     start_ind = (page - 1) * BaseFacility.per_page
