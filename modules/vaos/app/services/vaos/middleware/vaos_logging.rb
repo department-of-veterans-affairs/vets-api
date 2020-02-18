@@ -20,9 +20,9 @@ module VAOS
           }
 
           if response_env.status.between?(200, 299)
-            log(:info, 'vaos service call succeeded:', log_tags)
+            log(:info, 'VAOS service call succeeded!', log_tags)
           else
-            log(:warn, 'vaos service call failed:', log_tags)
+            log(:warn, 'VAOS service call failed!', log_tags)
           end
         end
       end
