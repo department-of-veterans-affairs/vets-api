@@ -50,10 +50,10 @@ module VAOS
         if user_session_request?(env)
           decode_jwt(response_env.body)['jti']
         else
-          decode_jwt(env.response_headers['X-Vamf-Jwt'])
+          decode_jwt(env.response_headers['X-Vamf-Jwt'])['jti']
         end
       rescue
-        'unknown'
+        'unknown jti'
       end
     end
   end
