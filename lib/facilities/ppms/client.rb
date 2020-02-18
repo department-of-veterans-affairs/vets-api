@@ -83,23 +83,27 @@ module Facilities
 
       def deduplicate_response_arrays(response)
         if Flipper.enabled?(:facility_locator_dedup_community_care_services)
-          OpenStruct.new(
-            {
-              method: response.method,
-              body: response.body.collect! do |hsh|
-                      hsh.each_pair.collect do |attr, value|
-                        if value.is_a? Array
-                          [attr, value.uniq]
-                        else
-                          [attr, value]
-                        end
-                      end.to_h
-                    end
-            }
-          )
+          flipper_enabled_deduplicate_response_arrays(response)
         else
           response
         end
+      end
+
+      def flipper_enabled_deduplicate_response_arrays(response)
+        OpenStruct.new(
+          {
+            method: response.method,
+            body: response.body.collect do |hsh|
+                    hsh.each_pair.collect do |attr, value|
+                      if value.is_a? Array
+                        [attr, value.uniq]
+                      else
+                        [attr, value]
+                      end
+                    end.to_h
+                  end
+          }
+        )
       end
 
       def radius(bbox)
