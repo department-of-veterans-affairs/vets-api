@@ -23,7 +23,7 @@ RSpec.describe 'transactions', type: :request do
         transaction = create(
           :address_transaction,
           user_uuid: user.uuid,
-          transaction_id: '0faf342f-5966-4d3f-8b10-5e9f911d07d2'
+          transaction_id: 'a030185b-e88b-4e0d-a043-93e4f34c60d6'
         )
 
         VCR.use_cassette('vet360/contact_information/address_transaction_status') do
@@ -41,10 +41,10 @@ RSpec.describe 'transactions', type: :request do
         transaction = create(
           :email_transaction,
           user_uuid: user.uuid,
-          transaction_id: '786efe0e-fd20-4da2-9019-0c00540dba4d'
+          transaction_id: 'cb99a754-9fa9-4f3c-be93-ede12c14b68e'
         )
 
-        VCR.use_cassette('vet360/contact_information/email_transaction_status_w_message') do
+        VCR.use_cassette('vet360/contact_information/email_transaction_status') do
           get("/v0/profile/status/#{transaction.transaction_id}")
           expect(response).to have_http_status(:ok)
           response_body = JSON.parse(response.body)
@@ -59,7 +59,7 @@ RSpec.describe 'transactions', type: :request do
           transaction = create(
             :address_transaction,
             user_uuid: user.uuid,
-            transaction_id: '0faf342f-5966-4d3f-8b10-5e9f911d07d2'
+            transaction_id: 'a030185b-e88b-4e0d-a043-93e4f34c60d6'
           )
 
           expect_any_instance_of(Common::RedisStore).to receive(:destroy)

@@ -8,6 +8,12 @@ describe Mvi, skip_mvi: true do
   let(:user) { build(:user, :loa3) }
   let(:mvi) { Mvi.for_user(user) }
   let(:mvi_profile) { build(:mvi_profile) }
+  let(:mvi_codes) do
+    [
+      { codeSystemName: 'MVI', code: '111985523^PI^200BRLS^USVBA', displayName: 'IEN' },
+      { codeSystemName: 'MVI', code: '32397028^PI^200CORP^USVBA', displayName: 'IEN' }
+    ]
+  end
   let(:profile_response) do
     MVI::Responses::FindProfileResponse.new(
       status: MVI::Responses::FindProfileResponse::RESPONSE_STATUS[:ok],
@@ -16,13 +22,50 @@ describe Mvi, skip_mvi: true do
   end
   let(:profile_response_error) { MVI::Responses::FindProfileResponse.with_server_error(server_error_exception) }
   let(:profile_response_not_found) { MVI::Responses::FindProfileResponse.with_not_found(not_found_exception) }
-
+  let(:add_response) do
+    MVI::Responses::AddPersonResponse.new(
+      status: MVI::Responses::AddPersonResponse::RESPONSE_STATUS[:ok],
+      mvi_codes: mvi_codes
+    )
+  end
+  let(:add_response_error) { MVI::Responses::AddPersonResponse.with_server_error(server_error_exception) }
   let(:default_ttl) { REDIS_CONFIG[Mvi::REDIS_CONFIG_KEY.to_s]['each_ttl'] }
   let(:failure_ttl) { REDIS_CONFIG[Mvi::REDIS_CONFIG_KEY.to_s]['failure_ttl'] }
 
   describe '.new' do
     it 'creates an instance with user attributes' do
       expect(mvi.user).to eq(user)
+    end
+  end
+
+  describe '#mvi_add_person' do
+    context 'with a successful add' do
+      it 'returns the successul response' do
+        allow_any_instance_of(MVI::Service).to receive(:find_profile).and_return(profile_response)
+        allow_any_instance_of(MVI::Service).to receive(:add_person).and_return(add_response)
+        expect_any_instance_of(Mvi).to receive(:destroy).once
+        response = user.mvi.mvi_add_person
+        expect(response.status).to eq('OK')
+      end
+    end
+
+    context 'with a failed search' do
+      it 'returns the failed search response' do
+        allow_any_instance_of(MVI::Service).to receive(:find_profile).and_return(profile_response_error)
+        response = user.mvi.mvi_add_person
+        expect_any_instance_of(MVI::Service).not_to receive(:add_person)
+        expect(response.status).to eq('SERVER_ERROR')
+      end
+    end
+
+    context 'with a failed add' do
+      it 'returns the failed add response' do
+        allow_any_instance_of(MVI::Service).to receive(:find_profile).and_return(profile_response)
+        allow_any_instance_of(MVI::Service).to receive(:add_person).and_return(add_response_error)
+        expect_any_instance_of(Mvi).not_to receive(:destroy)
+        response = user.mvi.mvi_add_person
+        expect(response.status).to eq('SERVER_ERROR')
+      end
     end
   end
 

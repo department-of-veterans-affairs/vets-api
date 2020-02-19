@@ -19,7 +19,7 @@ module VAOS
     end
 
     def facilities_params
-      params.require(%i[system_id type_of_care_id])
+      params.require(%i[system_id type_of_care_id parent_code])
       params.permit(
         :parent_code,
         :system_id,
