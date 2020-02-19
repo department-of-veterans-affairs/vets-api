@@ -30,7 +30,7 @@ module ClaimsApi
     end
 
     def fetch_errored(claim)
-      if claim.evss_response && claim.evss_response.any?
+      if claim.evss_response&.any?
         render json: { errors: format_evss_errors(claim.evss_response['messages']) },
                status: :unprocessable_entity
       else
