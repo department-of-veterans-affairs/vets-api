@@ -21,7 +21,7 @@ saml_ssoe:
   key_path: config/certs/vetsgov-localhost.key
   issuer: https://ssoe-sp-dev.va.gov
   callback_url: http://localhost:3000/v1/sessions/callback
-  logout_url: https://int.eauth.va.gov/pkmslogout
+  logout_url: https://pint.eauth.va.gov/pkmslogout
 
 session_cookie:
   secure: false
@@ -108,6 +108,14 @@ ihub:
     timeout: 30
     mock: true
   in_production: false
+
+# Settings for Medical Devices Ordering Tool
+mdot:
+  prefill: true
+  url: https://some.fakesite.com
+  api_key: abcd1234abcd1234abcd1234abcd1234abcd1234
+  mock: false
+  enabled: false
 
 # Settings for Decision Reviews
 decision_review:
@@ -438,12 +446,13 @@ flipper:
     - kenneth.gary@va.gov
     - lauren.alexanderson@va.gov
     - mark.greenburg@adhocteam.us
+    - n.ratana@gmail.com
     - narin@adhocteam.us
+    - osanchez@governmentcio.com
     - rian.fowler@adhoc.team
     - rianfowler@outlook.com
     - ryan.thurlwell@va.gov
     - travis.hilton@oddball.io
-    - n.ratana@gmail.com
     - zurbergram@gmail.com
 
 bgs:

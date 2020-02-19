@@ -2,7 +2,7 @@
 
 source 'https://rubygems.org'
 
-ruby '2.5.7'
+ruby '2.6.5'
 
 # Modules
 gem 'appeals_api', path: 'modules/appeals_api'
@@ -47,7 +47,7 @@ gem 'faraday_middleware'
 gem 'fast_jsonapi'
 gem 'fastimage'
 gem 'figaro'
-gem 'flipper', '~> 0.17.1'
+gem 'flipper', '~> 0.17.2'
 gem 'flipper-active_record', '~> 0.17.1'
 gem 'flipper-active_support_cache_store', '~> 0.17.1'
 gem 'flipper-ui', '~> 0.17.1'
@@ -70,6 +70,7 @@ gem 'mail', '2.7.1'
 gem 'memoist'
 gem 'mini_magick', '~> 4.10.1'
 gem 'net-sftp'
+gem 'newrelic_rpm'
 gem 'nokogiri', '~> 1.10', '>= 1.10.4'
 gem 'oj' # Amazon Linux `json` gem causes conflicts, but `multi_json` will prefer `oj` if installed
 gem 'olive_branch'

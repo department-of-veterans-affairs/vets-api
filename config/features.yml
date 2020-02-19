@@ -8,6 +8,15 @@ features:
     description: >
       On https://www.va.gov/find-locations/ enable veterans to search for Community care by showing that option in the "Search for" box.
       This toggle is owned by Rian
+  facilities_ppms_response_trim:
+    description: >
+      On https://www.va.gov/find-locations/ enables reformatting the PPMS results to have consistant whitespace
+  facilities_ppms_caresite_name:
+    description: >
+      On https://www.va.gov/find-locations/ enables the ability to display the provider name based on the providers type
+  facility_locator_dedup_community_care_services:
+    description: >
+      On https://www.va.gov/find-locations/ toggles the deduplication of of services from a community care provider
   profile_show_direct_deposit:
     description: >
       https://www.va.gov/profile/ show Direct Deposit
