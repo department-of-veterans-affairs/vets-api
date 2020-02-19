@@ -30,11 +30,11 @@ module ClaimsApi
     end
 
     def fetch_errored(claim)
-      if claim.evss_response.any?
+      if claim.evss_response && claim.evss_response.any?
         render json: { errors: format_evss_errors(claim.evss_response['messages']) },
                status: :unprocessable_entity
       else
-        render json: { errors: [{ status: 404, detail: 'Unknown EVSS Async Error' }] },
+        render json: { errors: [{ status: 422, detail: 'Unknown EVSS Async Error' }] },
                status: :unprocessable_entity
       end
     end
