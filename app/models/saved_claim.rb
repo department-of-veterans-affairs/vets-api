@@ -48,8 +48,8 @@ class SavedClaim < ApplicationRecord
 
   def submit_to_structured_data_services!
     # Only 21P-530 burial forms are supported at this time
-    if self.form_id != '21P-530'
-      err_message = "Unsupported form id: #{self.form_id}"
+    if form_id != '21P-530'
+      err_message = "Unsupported form id: #{form_id}"
       raise Common::Exceptions::UnprocessableEntity.new(detail: err_message), err_message
     end
 
