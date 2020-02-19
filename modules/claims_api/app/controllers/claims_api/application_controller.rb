@@ -24,9 +24,6 @@ module ClaimsApi
         claim = claims_service.update_from_remote(claim.try(:evss_id) || params[:id])
         render json: claim, serializer: ClaimsApi::ClaimDetailSerializer
       end
-    rescue EVSS::ErrorMiddleware::EVSSError
-      render json: { errors: [{ status: 404, detail: 'Claim not found' }] },
-             status: :not_found
     end
 
     def fetch_errored(claim)

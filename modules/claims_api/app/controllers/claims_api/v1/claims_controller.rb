@@ -30,6 +30,9 @@ module ClaimsApi
         else
           fetch_or_error_local_claim_id
         end
+      rescue EVSS::ErrorMiddleware::EVSSError
+        render json: { errors: [{ status: 404, detail: 'Claim not found' }] },
+               status: :not_found
       end
 
       private
