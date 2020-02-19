@@ -28,9 +28,6 @@
               "title": {
                 "type": "string"
               },
-              "first_issued_on": {
-                "type": "string"
-              },
               "last_revision_on": {
                 "type": "string"
               },
