@@ -46,7 +46,7 @@ module Breakers
       institution_ids = /[\dA-Z]{8}/
       provider_ids = /Providers\(\d{10}\)/
       v1_user_ids_1 = /[0-9a-f]{22}$/ # e.g. /api/v1/users/bb9c0f499977be68611151
-      v1_user_ids_2 = /00u2[0-9a-zA-Z]{16}/ # e.g. /api/v1/users/00u2gskfa6kXUvU0N792
+      v1_user_ids_2 = /00u[0-9a-zA-Z]{17}/ # e.g. /api/v1/users/00u2gskfa6kXUvU0N792
 
       r = %r{
         (\/)
