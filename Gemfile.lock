@@ -711,7 +711,7 @@ GEM
     tzinfo (1.2.6)
       thread_safe (~> 0.1)
     unicode-display_width (1.6.1)
-    upsert (2.2.1)
+    upsert (2.9.10)
     uri_template (0.7.0)
     utf8-cleaner (0.2.5)
       activesupport
@@ -901,7 +901,7 @@ DEPENDENCIES
   zero_downtime_migrations
 
 RUBY VERSION
-   ruby 2.5.7p206
+   ruby 2.6.5p114
 
 BUNDLED WITH
    1.17.3

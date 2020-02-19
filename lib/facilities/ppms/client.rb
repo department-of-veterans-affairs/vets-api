@@ -19,6 +19,9 @@ module Facilities
         response = perform(:get, 'v1.0/ProviderLocator', qparams)
         return [] if response.body.nil?
 
+        trim_response_attributes!(response)
+        deduplicate_response_arrays!(response)
+
         Facilities::PPMS::Response.from_provider_locator(response, params)
       end
 
@@ -35,6 +38,9 @@ module Facilities
         ].each_with_object([]) do |(request_params, response), new_array|
           next if response.body.blank?
 
+          trim_response_attributes!(response)
+          deduplicate_response_arrays!(response)
+
           providers = Facilities::PPMS::Response.from_provider_locator(response, request_params)
           providers.each do |provider|
             provider.posCodes = request_params[:posCodes]
@@ -49,16 +55,27 @@ module Facilities
         response = perform(:get, "v1.0/Providers(#{identifier})", qparams)
         return nil if response.body.nil? || response.body[0].nil?
 
+        trim_response_attributes!(response)
+        deduplicate_response_arrays!(response)
+
         Facilities::PPMS::Response.new(response.body[0], response.status).new_provider
       end
 
       def provider_caresites(site_name)
         response = perform(:get, 'v1.0/CareSites()', name: "'#{site_name}'")
+
+        trim_response_attributes!(response)
+        deduplicate_response_arrays!(response)
+
         Facilities::PPMS::Response.new(response.body, response.status).get_body
       end
 
       def provider_services(identifier)
         response = perform(:get, "v1.0/Providers(#{identifier})/ProviderServices", {})
+
+        trim_response_attributes!(response)
+        deduplicate_response_arrays!(response)
+
         Facilities::PPMS::Response.new(response.body, response.status).get_body
       end
 
@@ -69,6 +86,48 @@ module Facilities
       end
 
       private
+
+      def trim_response_attributes!(response)
+        if Flipper.enabled?(:facilities_ppms_response_trim)
+          flipper_enabled_trim_response_attributes!(response)
+        else
+          response
+        end
+      end
+
+      def flipper_enabled_trim_response_attributes!(response)
+        response.body.collect! do |hsh|
+          hsh.each_pair.collect do |attr, value|
+            if value.is_a? String
+              [attr, value.gsub(/ +/, ' ').strip]
+            else
+              [attr, value]
+            end
+          end.to_h
+        end
+        response
+      end
+
+      def deduplicate_response_arrays!(response)
+        if Flipper.enabled?(:facility_locator_dedup_community_care_services)
+          flipper_enabled_deduplicate_response_arrays!(response)
+        else
+          response
+        end
+      end
+
+      def flipper_enabled_deduplicate_response_arrays!(response)
+        response.body.collect! do |hsh|
+          hsh.each_pair.collect do |attr, value|
+            if value.is_a? Array
+              [attr, value.uniq]
+            else
+              [attr, value]
+            end
+          end.to_h
+        end
+        response
+      end
 
       def radius(bbox)
         # more estimation fun about 69 miles between latitude lines, <= 69 miles between long lines

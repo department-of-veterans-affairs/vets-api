@@ -1,0 +1,62 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "description": "",
+  "type": "object",
+  "required": ["data"],
+  "properties": {
+    "data": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "type": "object",
+        "required": ["id", "type", "attributes"],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "type": { 
+            "enum": ["medical_supplies"] 
+          },
+          "attributes": {
+            "type": "object",
+            "properties": {
+              "deviceName": {
+                "type": "string"
+              },
+              "productName": {
+                "type": "string"
+              },
+              "productGroup": {
+                "type": "string"
+              },
+              "productId": {
+                "type": "string"
+              },
+              "availableForReorder": {
+                "type": "boolean"
+              },
+              "lastOrderDate": {
+                "type": "string"
+              },
+              "nextAvailabilityDate": {
+                "type": "string"
+              },
+              "leftEar": {
+                "type": "boolean"
+              },
+              "rightEar": {
+                "type": "boolean"
+              },
+              "quantity": {
+                "type": "integer"
+              },
+              "size": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
