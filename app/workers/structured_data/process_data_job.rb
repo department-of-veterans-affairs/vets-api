@@ -23,9 +23,9 @@ module StructuredData
 
         # veteran lookup for hit/miss metrics in support of Automation work
         StatsD.increment("#{stats_key}.success", tags: [
-          "relationship:#{relationship_type}",
-          "veteranInMVI:#{veteran&.participant_id}"
-        ])
+                           "relationship:#{relationship_type}",
+                           "veteranInMVI:#{veteran&.participant_id}"
+                         ])
       end
     rescue
       raise
