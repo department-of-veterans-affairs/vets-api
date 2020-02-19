@@ -16,7 +16,7 @@ module ClaimsApi
 
     private
 
-    def fetch_local_claim_id
+    def fetch_or_error_local_claim_id
       claim = ClaimsApi::AutoEstablishedClaim.find_by(id: params[:id])
       if claim && claim.status == 'errored'
         fetch_errored(claim)
