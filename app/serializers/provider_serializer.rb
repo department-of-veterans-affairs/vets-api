@@ -13,14 +13,15 @@ class ProviderSerializer < ActiveModel::Serializer
 
   def name
     if Flipper.enabled?(:facilities_ppms_caresite_name)
-      case object.ProviderType
-      when /GroupPracticeOrAgency/i
-        object.CareSite
-      else
-        object.ProviderName
-      end
+      possible_name = case object.ProviderType
+                      when /GroupPracticeOrAgency/i
+                        object.CareSite
+                      else
+                        object.ProviderName
+                      end
+      possible_name || object.Name
     else
-      object.ProviderName
+      object.ProviderName || object.Name
     end
   end
 
