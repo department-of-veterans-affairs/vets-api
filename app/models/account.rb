@@ -63,8 +63,6 @@ class Account < ApplicationRecord
               .where.not(sec_id: nil)
             )
     if accts.length > 1
-      # TODO: are any ids in an Account record considered PII? if so we need
-      # to change the extra_context value
       data = accts.map(&:attributes)
       accts[0].log_message_to_sentry('multiple Account records with matching ids', 'warning', data)
     end
