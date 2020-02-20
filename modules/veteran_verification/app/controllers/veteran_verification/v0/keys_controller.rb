@@ -5,9 +5,11 @@ require_dependency 'notary'
 
 module VeteranVerification
   module V0
-    # KeysController returns a set of public keys as Base64URL encoded PEMs
+    # KeysController returns a JSON Web Key Set (JWKS) of public keys
     # that can be matched based on the kid (key id) and used to verify
     # payloads signed by the same Notary in other endpoints.
+    # In addition to the fields required for a JSON Web Key (JWK),
+    # a PEM-encoded key is included for ease of use.
     class KeysController < ApplicationController
       skip_before_action(:authenticate)
 
