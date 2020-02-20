@@ -14,6 +14,18 @@ module ClaimsApi
     skip_before_action :set_tags_and_extra_context, raise: false
     before_action :validate_json_format, if: -> { request.post? }
 
+    def show
+      if (pending_claim = ClaimsApi::AutoEstablishedClaim.pending?(params[:id]))
+        render json: pending_claim,
+               serializer: ClaimsApi::AutoEstablishedClaimSerializer
+      else
+        fetch_or_error_local_claim_id
+      end
+    rescue EVSS::ErrorMiddleware::EVSSError
+      render json: { errors: [{ status: 404, detail: 'Claim not found' }] },
+             status: :not_found
+    end
+
     private
 
     def fetch_or_error_local_claim_id

@@ -24,15 +24,7 @@ module ClaimsApi
       end
 
       def show
-        if (pending_claim = ClaimsApi::AutoEstablishedClaim.pending?(params[:id]))
-          render json: pending_claim,
-                 serializer: ClaimsApi::AutoEstablishedClaimSerializer
-        else
-          fetch_or_error_local_claim_id
-        end
-      rescue EVSS::ErrorMiddleware::EVSSError
-        render json: { errors: [{ status: 404, detail: 'Claim not found' }] },
-               status: :not_found
+        super
       end
     end
   end
