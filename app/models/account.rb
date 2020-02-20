@@ -11,6 +11,7 @@ require 'sentry_logging'
 #
 class Account < ApplicationRecord
   include Common::ActiveRecordCacheAside
+  include SentryLogging
 
   has_many :user_preferences, dependent: :destroy
   has_many :notifications, dependent: :destroy
@@ -64,7 +65,8 @@ class Account < ApplicationRecord
     if accts.length > 1
       # TODO: are any ids in an Account record considered PII? if so we need
       # to change the extra_context value
-      log_message_to_sentry('multiple Account records with matching ids', 'warning', accts)
+      data = accts.map { |a| a.attributes }
+      accts[0].log_message_to_sentry('multiple Account records with matching ids', 'warning', data)
     end
 
     accts.length.positive? ? accts[0] : create(**attrs)
@@ -78,6 +80,8 @@ class Account < ApplicationRecord
     attrs = account_attrs_from_user(user)
     return account if attrs.all? { |k, v| account.send(k) == v }
 
+    diff = {account: account.attributes, user: attrs}
+    account.log_message_to_sentry('Account record does not match User', 'warning', diff)
     update(account.id, **attrs)
   end
 
