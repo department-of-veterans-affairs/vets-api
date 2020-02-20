@@ -65,7 +65,7 @@ class Account < ApplicationRecord
     if accts.length > 1
       # TODO: are any ids in an Account record considered PII? if so we need
       # to change the extra_context value
-      data = accts.map { |a| a.attributes }
+      data = accts.map(&:attributes)
       accts[0].log_message_to_sentry('multiple Account records with matching ids', 'warning', data)
     end
 
@@ -80,7 +80,7 @@ class Account < ApplicationRecord
     attrs = account_attrs_from_user(user)
     return account if attrs.all? { |k, v| account.send(k) == v }
 
-    diff = {account: account.attributes, user: attrs}
+    diff = { account: account.attributes, user: attrs }
     account.log_message_to_sentry('Account record does not match User', 'warning', diff)
     update(account.id, **attrs)
   end
