@@ -47,9 +47,9 @@ describe Vet360::Models::Address do
         expect(address.valid?).to eq(false)
       end
 
-      it 'country_code_iso3 is requred', :aggregate_failures do
+      it 'country_name is requred', :aggregate_failures do
         expect(address.valid?).to eq(true)
-        address.country_code_iso3 = ''
+        address.country_name = ''
         expect(address.valid?).to eq(false)
       end
 
