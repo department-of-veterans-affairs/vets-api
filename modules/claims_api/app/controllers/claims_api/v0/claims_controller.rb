@@ -32,13 +32,6 @@ module ClaimsApi
         render json: { errors: [{ status: 404, detail: 'Claim not found' }] },
                status: :not_found
       end
-
-      private
-
-      def fetch_and_render_evss_claim(id)
-        claim = claims_service.update_from_remote(id)
-        render json: claim, serializer: ClaimsApi::ClaimDetailSerializer
-      end
     end
   end
 end
