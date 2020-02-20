@@ -25,7 +25,7 @@ class ProviderSerializer < ActiveModel::Serializer
                       object.CareSite
                     else
                       object.ProviderName
-    end
+                    end
     [possible_name, object.Name].find(&:present?)
   end
 
