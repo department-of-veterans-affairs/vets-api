@@ -15,8 +15,8 @@ class V0::Facilities::CcpController < FacilitiesController
                       api.pos_locator(search_params)
                     end
 
-    start_ind = (page - 1) * BaseFacility.per_page
-    ppms_results = ppms_results[start_ind, BaseFacility.per_page - 1]
+    start_ind = (page - 1) * per_page
+    ppms_results = ppms_results[start_ind, per_page - 1]
 
     render  json: ppms_results,
             each_serializer: ProviderSerializer,
@@ -55,6 +55,10 @@ class V0::Facilities::CcpController < FacilitiesController
     @api ||= Facilities::PPMS::Client.new
   end
 
+  def per_page
+    Integer(search_params[:per_page] || BaseFacility.per_page)
+  end
+
   def page
     Integer(search_params[:page] || 1)
   end
@@ -63,8 +67,8 @@ class V0::Facilities::CcpController < FacilitiesController
     total = ppms_results.length
     {
       current_page: page,
-      per_page: BaseFacility.per_page,
-      total_pages: Integer(ppms_results.length / BaseFacility.per_page + 1),
+      per_page: per_page,
+      total_pages: Integer(ppms_results.length / per_page + 1),
       total_entries: total
     }
   end
