@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-STATSD_ERROR_KEY = 'worker.github_stats_scraper.error'
+STATSD_METRIC = 'tasks.github_stats_scraper.duration'
 
 REPOS = %w[
   vets-api
@@ -37,12 +37,12 @@ namespace :github_stats do
           h[k.to_s] = v.to_s
         end
       end
-      h['duration'] = (DateTime.now - DateTime.parse(h['updated_at']))
+      h['duration'] = (DateTime.now.to_f - DateTime.parse(h['updated_at']).to_f)
       open_prs << h
     end
     # send each duration to StatsD
     open_prs.each do |pr|
-      StatsD.measure('github:pull_request_duration', pr['duration'], tags: { repo: pr['repo_name'] })
+      StatsD.measure(STATSD_METRIC, pr['duration'], tags: { repo: pr['repo_name'] })
     end
   end
 end
