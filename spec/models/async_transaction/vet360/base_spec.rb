@@ -7,13 +7,13 @@ RSpec.describe AsyncTransaction::Vet360::Base, type: :model do
     let(:user) { build(:user, :loa3) }
     let(:transaction1) do
       create(:address_transaction,
-             transaction_id: '0faf342f-5966-4d3f-8b10-5e9f911d07d2',
+             transaction_id: 'a030185b-e88b-4e0d-a043-93e4f34c60d6',
              user_uuid: user.uuid,
              transaction_status: 'RECEIVED')
     end
     let(:transaction2) do
       create(:email_transaction,
-             transaction_id: '786efe0e-fd20-4da2-9019-0c00540dba4d',
+             transaction_id: 'cb99a754-9fa9-4f3c-be93-ede12c14b68e',
              user_uuid: user.uuid,
              transaction_status: 'RECEIVED')
     end
@@ -52,7 +52,7 @@ RSpec.describe AsyncTransaction::Vet360::Base, type: :model do
     end
 
     it 'persists the messages from vet360' do
-      VCR.use_cassette('vet360/contact_information/email_transaction_status_w_message') do
+      VCR.use_cassette('vet360/contact_information/email_transaction_status') do
         updated_transaction = AsyncTransaction::Vet360::Base.refresh_transaction_status(
           user,
           service,
@@ -149,7 +149,7 @@ RSpec.describe AsyncTransaction::Vet360::Base, type: :model do
              status: AsyncTransaction::Vet360::Base::REQUESTED,
              created_at: Time.zone.now - 1)
       transaction = create(:email_transaction,
-                           transaction_id: '786efe0e-fd20-4da2-9019-0c00540dba4d',
+                           transaction_id: 'cb99a754-9fa9-4f3c-be93-ede12c14b68e',
                            user_uuid: user.uuid,
                            transaction_status: 'RECEIVED',
                            status: AsyncTransaction::Vet360::Base::REQUESTED)

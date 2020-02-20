@@ -12,7 +12,8 @@ task lint: :environment do
   opts += if ENV['CI']
             "-r rubocop/formatter/junit_formatter.rb \
             --format RuboCop::Formatter::JUnitFormatter --out log/rubocop.xml \
-            --format clang"
+            --format clang \
+            --parallel"
           else
             '--display-cop-names --auto-correct'
           end
