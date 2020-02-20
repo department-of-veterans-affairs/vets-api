@@ -42,6 +42,8 @@ module V0
           :address_pou,
           :address_type,
           :city,
+          :country_name,
+          :country_code_iso2,
           :country_code_iso3,
           :county_code,
           :county_name,
