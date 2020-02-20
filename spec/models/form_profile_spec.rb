@@ -444,6 +444,27 @@ RSpec.describe FormProfile, type: :model do
     }
   end
 
+  let(:vmdot_expected) do
+    {
+      'veteranFullName' => {
+        'first' => user.first_name&.capitalize,
+        'last' => user.last_name&.capitalize,
+        'suffix' => user.va_profile[:suffix]
+      },
+      'gender' => user.gender,
+      'veteranAddress' => {
+        'street' => street_check[:street],
+        'street2' => street_check[:street2],
+        'city' => user.va_profile[:address][:city],
+        'state' => user.va_profile[:address][:state],
+        'country' => user.va_profile[:address][:country],
+        'postalCode' => user.va_profile[:address][:postal_code][0..4]
+      },
+      'email' => user.pciu_email,
+      'dateOfBirth' => user.birth_date
+    }
+  end
+
   let(:vvic_expected) do
     {
       'email' => user.pciu_email,
@@ -799,6 +820,7 @@ RSpec.describe FormProfile, type: :model do
           1010ez
           22-0993
           FEEDBACK-TOOL
+          MDOT
         ].each do |form_id|
           it "returns prefilled #{form_id}" do
             expect_prefilled(form_id)
