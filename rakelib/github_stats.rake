@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-STATSD_METRIC = 'tasks.github_stats_scraper'
+STATSD_METRIC = 'tasks.github_stats_scraper.duration'
 
 REPOS = %w[
   vets-api
