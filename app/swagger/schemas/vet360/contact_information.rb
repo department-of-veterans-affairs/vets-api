@@ -47,7 +47,9 @@ module Swagger
                            enum: ::Vet360::Models::Address::ADDRESS_TYPES,
                            example: ::Vet360::Models::Address::DOMESTIC
                   property :city, type: :string, example: 'Fulton'
-                  property :country_code_iso3, type: %i[string], example: 'USA'
+                  property :country_name, type: :string, example: 'United States of America'
+                  property :country_code_iso2, type: %i[string null], example: 'US'
+                  property :country_code_iso3, type: %i[string null], example: 'USA'
                   property :country_code_fips, type: %i[string null], example: 'US'
                   property :id, type: :integer, example: 123
                   property :international_postal_code, type: %i[string null], example: '54321'
@@ -89,7 +91,9 @@ module Swagger
                            enum: ::Vet360::Models::Address::ADDRESS_TYPES,
                            example: ::Vet360::Models::Address::DOMESTIC
                   property :city, type: :string, example: 'Fulton'
-                  property :country_code_iso3, type: %i[string], example: 'USA'
+                  property :country_name, type: :string, example: 'United States of America'
+                  property :country_code_iso2, type: %i[string null], example: 'US'
+                  property :country_code_iso3, type: %i[string null], example: 'USA'
                   property :country_code_fips, type: %i[string null], example: 'US'
                   property :id, type: :integer, example: 123
                   property :international_postal_code, type: %i[string null], example: '54321'
