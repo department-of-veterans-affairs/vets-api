@@ -40,7 +40,7 @@ class V0::Facilities::CcpController < FacilitiesController
   private
 
   def search_params
-    params.permit(:type, :address, services: [], bbox: [])
+    params.permit(:type, :address, :page, :per_page, services: [], bbox: [])
   end
 
   def provider_search(options = {})
@@ -56,7 +56,7 @@ class V0::Facilities::CcpController < FacilitiesController
   end
 
   def page
-    Integer(params[:page] || 1)
+    Integer(search_params[:page] || 1)
   end
 
   def pages(ppms_results)
