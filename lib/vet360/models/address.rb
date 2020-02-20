@@ -4,6 +4,7 @@ module Vet360
   module Models
     class Address < BaseAddress
       validates(:source_date, presence: true)
+      validates(:country_name, presence: true)
 
       # Converts a decoded JSON response from Vet360 to an instance of the Address model
       # @param body [Hash] the decoded response body from Vet360
