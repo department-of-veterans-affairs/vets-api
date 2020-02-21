@@ -7,9 +7,9 @@ module V0
         supplies = client.get_supplies
         render json: supplies.body
       end
-  
+
       private
-  
+
       def client
         MDOT::Client.new(@current_user)
       end

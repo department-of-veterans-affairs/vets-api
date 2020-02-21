@@ -10,12 +10,7 @@ module Swagger
           key :required, %i[supplies veteran_address]
           property :supplies, :array do
             items do
-              key :required %i[
-                product_name
-                product_group
-                product_id
-                quantity
-              ]
+              key :required %i[product_name product_group product_id quantity]
               property :device_name, type: :string
               property :last_order_date, type: :string, format: :date
               property :next_availability_date, type: :string, format: :date
@@ -34,13 +29,7 @@ module Swagger
         end
 
         swagger_schema :VeteranAddress do
-          key :required %i[
-            street
-            city
-            state
-            country
-            postal_code
-          ]
+          key :required %i[street city state country postal_code]
           property :street, type: :string
           property :street2, type: :string
           property :city, type: :string
