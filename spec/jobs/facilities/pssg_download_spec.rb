@@ -31,6 +31,10 @@ RSpec.describe Facilities::PSSGDownload, type: :job do
     end
   end
 
+  let(:drive_time_data_multiple) do
+    drive_time_data_648A4.concat(drive_time_data_402QA)
+  end
+
   let(:pssg_client_stub) { instance_double('Facilities::DrivetimeBands::Client') }
 
   before do
@@ -130,6 +134,20 @@ RSpec.describe Facilities::PSSGDownload, type: :job do
       expect(Raven).to receive(:extra_context).with('Band name' => drive_time_data_648A4[0]['attributes']['Name'])
 
       subject.perform
+    end
+
+    it 'continues to process bands', focus: true do
+      create :vha_402QA
+
+      allow(pssg_client_stub).to receive(:get_drivetime_bands).with(0, 30).and_return(drive_time_data_multiple)
+
+      allow(subject).to receive(:extract_polygon).and_call_original
+      allow(subject).to receive(:extract_polygon).with(drive_time_data_multiple[0]['geometry']['rings']).and_raise(RGeo::Error::InvalidGeometry)
+
+      subject.perform
+
+      expect(BaseFacility.find_facility_by_id('vha_648A4').drivetime_bands).to be_empty
+      expect(BaseFacility.find_facility_by_id('vha_402QA').drivetime_bands).not_to be_empty
     end
   end
 end
