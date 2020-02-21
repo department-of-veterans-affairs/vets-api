@@ -22,25 +22,7 @@ module ClaimsApi
       end
 
       def show
-        if (pending_claim = ClaimsApi::AutoEstablishedClaim.pending?(params[:id]))
-          render json: pending_claim,
-                 serializer: ClaimsApi::AutoEstablishedClaimSerializer
-        else
-          begin
-            evss_claim_id = ClaimsApi::AutoEstablishedClaim.evss_id_by_token(params[:id]) || params[:id]
-            fetch_and_render_evss_claim(evss_claim_id)
-          rescue EVSS::ErrorMiddleware::EVSSError
-            render json: { errors: [{ detail: 'Claim not found' }] },
-                   status: :not_found
-          end
-        end
-      end
-
-      private
-
-      def fetch_and_render_evss_claim(id)
-        claim = claims_service.update_from_remote(id)
-        render json: claim, serializer: ClaimsApi::ClaimDetailSerializer
+        super
       end
     end
   end
