@@ -19,6 +19,11 @@ RSpec.describe 'VA Forms', type: :request do
       expect(response).to match_response_schema('va_forms/forms')
     end
 
+    it 'correctly returns a matched query while ignoring leading and trailing whitespace' do
+      get "#{base_url}?query=%20526%20"
+      expect(response).to match_response_schema('va_forms/forms')
+    end
+
     it "correctly doesn't return results that don't match" do
       get "#{base_url}?query=123123123"
       expect(JSON.parse(response.body)['data'].count).to eq(0)
