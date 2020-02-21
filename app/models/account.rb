@@ -11,7 +11,7 @@ require 'sentry_logging'
 #
 class Account < ApplicationRecord
   include Common::ActiveRecordCacheAside
-  include SentryLogging
+  extend SentryLogging
 
   has_many :user_preferences, dependent: :destroy
   has_many :notifications, dependent: :destroy
@@ -62,9 +62,10 @@ class Account < ApplicationRecord
               where(sec_id: attrs[:sec_id])
               .where.not(sec_id: nil)
             )
+
     if accts.length > 1
       data = accts.map(&:attributes)
-      accts[0].log_message_to_sentry('multiple Account records with matching ids', 'warning', data)
+      log_message_to_sentry('multiple Account records with matching ids', 'warning', data)
     end
 
     accts.length.positive? ? accts[0] : create(**attrs)
@@ -79,7 +80,7 @@ class Account < ApplicationRecord
     return account if attrs.all? { |k, v| account.send(k) == v }
 
     diff = { account: account.attributes, user: attrs }
-    account.log_message_to_sentry('Account record does not match User', 'warning', diff)
+    log_message_to_sentry('Account record does not match User', 'warning', diff)
     update(account.id, **attrs)
   end
 
