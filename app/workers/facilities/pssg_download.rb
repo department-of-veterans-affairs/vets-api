@@ -55,19 +55,20 @@ module Facilities
     end
 
     def insert_or_update_band(facility)
-      if facility.drivetime_bands.exists?(vha_facility_id: @id, name: @band_name)
-        Rails.logger.info "PSSG Band not updated: Facility #{@id}. Band #{@attributes&.dig('Name')}"
-      else
-        drive_time_band = facility.drivetime_bands.new(vha_facility_id: @id, name: @band_name)
-        drive_time_band.unit = 'minutes'
-        drive_time_band.min = round_band(@attributes&.dig('FromBreak'))
-        drive_time_band.max = round_band(@attributes&.dig('ToBreak'))
-        drive_time_band.name = @band_name
-        drive_time_band.polygon = extract_polygon(@rings)
+      vssc_extract_date = DateTime.strptime(@attributes&.dig('EXTRDATE').to_s, '%Q')
+      drive_time_band = facility.drivetime_bands.find_or_initialize_by(vha_facility_id: @id, name: @band_name)
 
-        Rails.logger.info "PSSG Band successfully saved: #{@band_name}" # temporary logging
-        drive_time_band.save
+      if vssc_extract_date > drive_time_band.try(:vssc_extract_date)
+        drive_time_band.update_attributes(
+          unit: 'minutes',
+          min: round_band(@attributes&.dig('FromBreak')),
+          max: round_band(@attributes&.dig('ToBreak')),
+          polygon: extract_polygon(@rings),
+          vssc_extract_date: vssc_extract_date
+        )
         facility.save
+      else
+        Rails.logger.info "PSSG Band not updated: Facility #{@id}. Band #{@band_name}"
       end
     end
 
