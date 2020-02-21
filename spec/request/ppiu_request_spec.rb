@@ -62,11 +62,11 @@ RSpec.describe 'PPIU', type: :request do
     let(:ppiu_response) { File.read('spec/support/ppiu/update_ppiu_response.json') }
     let(:ppiu_request) { File.read('spec/support/ppiu/update_ppiu_request.json') }
 
-    before(:each) do
+    before do
       VCR.insert_cassette('evss/ppiu/payment_information')
     end
 
-    after(:each) do
+    after do
       VCR.eject_cassette
     end
 
