@@ -49,7 +49,9 @@ module EVSS
       end
 
       def authorized?
-        is_competent_indicator && no_fiduciary_assigned_indicator
+        is_competent_indicator &&
+          no_fiduciary_assigned_indicator &&
+          not_deceased_indicator
       end
     end
   end
