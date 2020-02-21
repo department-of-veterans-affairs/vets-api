@@ -10,6 +10,10 @@ RSpec.describe StructuredData::ProcessDataJob, uploader_helpers: true do
   describe '#perform' do
     let(:job) { described_class.new }
 
+    before(:each) do
+      described_class.new.perform(claim.id)
+    end
+
     it 'attempts Veteran MVI lookup' do
       expect_any_instance_of(BipClaims::Service).to receive(:lookup_veteran_from_mvi).with(claim).and_return(
         OpenStruct.new(participant_id: 123)
@@ -21,7 +25,7 @@ RSpec.describe StructuredData::ProcessDataJob, uploader_helpers: true do
     end
 
     it 'increments metric for successful claim submission to va.gov' do
-      expect(StatsD).to receive(:increment)
+      expect(StatsD).to receive(:increment).at_least(:once)
     end
   end
 end
