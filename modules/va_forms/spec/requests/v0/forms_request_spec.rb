@@ -24,9 +24,11 @@ RSpec.describe 'VA Forms', type: :request do
       expect(response).to match_response_schema('va_forms/forms')
     end
 
-    it "correctly doesn't return results that don't match" do
-      get "#{base_url}?query=123123123"
-      expect(JSON.parse(response.body)['data'].count).to eq(0)
+    it 'correctly returns a matched query using keywords separated by whitespace' do
+      get "#{base_url}?query=health%20care"
+      data = JSON.parse(response.body)['data']
+      expect(data.count).to eq(1)
+      expect(data[0].id).to eq('10-10EZ (pdf)')
     end
   end
 
