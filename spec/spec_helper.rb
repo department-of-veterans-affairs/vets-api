@@ -41,6 +41,7 @@ unless ENV['NOCOVERAGE']
     add_filter 'lib/bip_claims/configuration.rb'
     add_filter 'version.rb'
     add_filter 'app/controllers/v0/ppiu_controller.rb'
+    add_filter 'app/serializers/ppiu_serializer.rb'
 
     add_group 'Policies', 'app/policies'
     add_group 'Serializers', 'app/serializers'
