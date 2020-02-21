@@ -59,12 +59,13 @@ module Facilities
       drive_time_band = facility.drivetime_bands.find_or_initialize_by(vha_facility_id: @id, name: @band_name)
 
       if vssc_extract_date > drive_time_band.try(:vssc_extract_date)
-        drive_time_band.update_attributes(
+        drive_time_band.update_columns(
           unit: 'minutes',
           min: round_band(@attributes&.dig('FromBreak')),
           max: round_band(@attributes&.dig('ToBreak')),
           polygon: extract_polygon(@rings),
-          vssc_extract_date: vssc_extract_date
+          vssc_extract_date: vssc_extract_date,
+          updated_at: Time.now
         )
         facility.save
       else
