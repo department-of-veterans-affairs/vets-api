@@ -21,24 +21,23 @@ module Facilities
 
     def create_and_save_drive_time_data(drive_time_data)
       @attributes = drive_time_data&.dig('attributes')
+      @band_name = @attributes&.dig('Name')
       @rings = drive_time_data&.dig('geometry', 'rings')
 
       # temporary logging
-      Rails.logger.info "PSSG Band not downloaded: Missing rings: #{@attributes&.dig('Name')}" if @rings.blank?
+      Rails.logger.info "PSSG Band not downloaded: Missing rings: #{@band_name}" if @rings.blank?
       return if @rings.blank?
 
       @id = @attributes&.dig('Sta_No')&.strip
       facility = Facilities::VHAFacility.find_by(unique_id: @id)
 
       # temporary logging
-      if facility.nil?
-        Rails.logger.info "PSSG Band not downloaded: Facility #{@id} dne. Band #{@attributes&.dig('Name')}"
-      end
+      Rails.logger.info "PSSG Band not downloaded: Facility #{@id} dne. Band #{@band_name}" if facility.nil?
       return if facility.nil?
 
-      @band_name = @attributes&.dig('Name')
-
       insert_or_update_band(facility)
+    rescue => e
+      log_exception_to_sentry(e, 'Band name' => @band_name)
     end
 
     def round_band(band)
