@@ -82,104 +82,6 @@ paths:
                         $ref: "#/components/schemas/CCAppointment"
                       meta:
                         $ref: "#/components/schemas/Pagination"
-  '/community_care/eligibility':
-    get:
-      tags:
-        - vaos
-        - community_care
-      summary: Returns object with eligibility flag for specified service type for user
-      operationId: getEligibility
-      security:
-        - bearerAuth: []
-      parameters:
-        name: service_type
-        in: path
-        required: true
-        type: string
-        description: 'service type to use to check for community care eligibility'
-      responses:
-        '200':
-          description: Systems retrieved successfully
-          content:
-            application/json:
-              schema:
-                required:
-                  - data
-                properties:
-                  data:
-                    type: array
-                    items:
-                      $ref: "#/components/schemas/CCEligibilty"
-        '400':
-          description: Bad Request
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Errors"
-        '401':
-          description: Unauthorized
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Errors"
-        '502':
-          description: Error in the upstream service
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Errors"
-        '504':
-          description: Timeout from the upstream service
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Errors"
-  '/community_care/supported_sites':
-    get:
-      tags:
-        - vaos
-        - community_care
-      summary: Returns list of sites supporting community care
-      operationId: getSupportedSites
-      security:
-        - bearerAuth: []
-      parameters:
-        name: supported_sites
-        in: query
-        required: true
-        type: array
-        description: 'parent site ids to check for community care support'
-      responses:
-        '200':
-          description: Systems retrieved successfully
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/CCEligibilty"
-        '400':
-          description: Bad Request
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Errors"
-        '401':
-          description: Unauthorized
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Errors"
-        '502':
-          description: Error in the upstream service
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Errors"
-        '504':
-          description: Timeout from the upstream service
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Errors"
   '/systems':
     get:
       tags:
@@ -390,7 +292,6 @@ components:
       bearerFormat: JWT
   schemas:
     Errors:
-      type: "object"
       required:
         - "errors"
       properties:
@@ -407,30 +308,195 @@ components:
                 type: "string"
               detail:
                 type: "string"
-    Pagination:
+    System:
       type: "object"
-      required:
-        - "pagination"
       properties:
-        pagination:
+        id:
+          type: "string"
+          example: "12345748"
+        type:
+          type: "string"
+          example: "system"
+        attributes:
           required:
-            - "current_page"
-            - "per_page"
-            - "total_pages"
-            - "total_entries"
+            - "unique_id"
+            - "assigning_authority"
+            - "assigning_code"
+            - "id_status"
           properties:
-            current_page:
+            unique_id:
+              type: "string"
+              example: "12345748"
+            assigning_authority:
+              type: "string"
+              example: "UNKNOWN"
+            assigning_code:
+              type: "string"
+              example: "200MHS"
+            id_status:
+              type: "string"
+              example: "ACTIVE"
+          type: "object"
+
+    DirectSchedulingFacility:
+      type: "object"
+      properties:
+        id:
+          type: "string"
+        type:
+          type: "string"
+        attributes:
+          required:
+            - "institution_code"
+            - "city"
+            - "state_abbrev"
+            - "authoritative_name"
+            - "root_station_code"
+            - "admin_parent"
+            - "parent_station_code"
+            - "request_supported"
+            - "direct_scheduling_supported"
+            - "express_times"
+            - "institution_timezone"
+          properties:
+            institution_code:
+              type: "string"
+              example: '688'
+            city:
+              type: "string"
+              example: 'Washington'
+            state_abbrev:
+              type: "string"
+              example: 'DC'
+            authoritative_name:
+              type: "string"
+              example: 'Washington VA Medical Center'
+            root_station_code:
+              type: "string"
+              example: '688'
+            admin_parent:
+              type: "boolean"
+              example: true
+            parent_station_code:
+              type: "string"
+              example: '688'
+            request_supported:
+              type: "boolean"
+              example: true
+            direct_scheduling_supported:
+              type: "boolean"
+              example: true
+            institution_timezone:
+              type: "string"
+              example: 'America/New_York'
+          type: "object"
+    ClinicInstitution:
+      type: "object"
+      properties:
+        id:
+          type: "string"
+          example: "16"
+        type:
+          type: "string"
+          example: "clinic_institution"
+        attributes:
+          required:
+            - "location_ien"
+            - "institution_sid"
+            - "institution_ien"
+            - "institution_name"
+            - "institution_code"
+          properties:
+            location_ien:
+              type: "string"
+              example: "16"
+            institution_sid:
               type: "number"
-              example: 0
-            per_page:
-              type: "number"
-              example: 0
-            total_pages:
-              type: "number"
-              example: 0
-            total_entries:
-              type: "number"
-              example: 0
+              example: 561596
+            institution_ien:
+              type: "string"
+              example: "442"
+            institution_name:
+              type: "string"
+              example: "CHEYENNE VA MEDICAL"
+            institution_code:
+              type: "string"
+              example: "442"
+          type: "object"
+    CCAppointment:
+      type: "object"
+      properties:
+        id:
+          type: "string"
+          example: "8a48912a6c2409b9016c29cbeed0006a"
+        type:
+          type: "string"
+          example: "cc_appointments"
+        attributes:
+          required:
+            - "appointment_request_id"
+            - "distance_eligible_confirmed"
+            - "name"
+            - "provider_practice"
+            - "provider_phone"
+            - "address"
+            - "instructions_to_veteran"
+            - "appointment_time"
+            - "time_zone"
+          properties:
+            appointment_request_id:
+              type: "string"
+              example: "8a48912a6c2409b9016c29cbeed0006a"
+            distance_eligible_confirmed:
+              type: "boolean"
+              example: true
+            name:
+              required:
+                - "first_name"
+                - "last_name"
+              properties:
+                first_name:
+                  type: "string"
+                  example: ""
+                last_name:
+                  type: "string"
+                  example: ""
+              type: "object"
+            provider_practice:
+              type: "string"
+              example: "test"
+            provider_phone:
+              type: "string"
+              example: "(321) 230-0328"
+            address:
+              required:
+                - "street"
+                - "city"
+                - "state"
+                - "zip_code"
+              properties:
+                street:
+                  type: "string"
+                  example: "test"
+                city:
+                  type: "string"
+                  example: "test"
+                state:
+                  type: "string"
+                  example: "MA"
+                zip_code:
+                  type: "string"
+                  example: "32826"
+              type: "object"
+            instructions_to_veteran:
+              type: "string"
+              example: ""
+            appointment_time:
+              type: "string"
+              example: "09/20/2020 16:29:00"
+            time_zone:
+              type: "string"
+              example: "-04:00 EDT"
           type: "object"
     VAAppointment:
       type: "object"
@@ -530,219 +596,30 @@ components:
                   example: 0
               type: "object"
           type: "object"
-    CCAppointment:
+    Pagination:
       type: "object"
-      properties:
-        id:
-          type: "string"
-          example: "8a48912a6c2409b9016c29cbeed0006a"
-        type:
-          type: "string"
-          example: "cc_appointments"
-        attributes:
-          required:
-            - "appointment_request_id"
-            - "distance_eligible_confirmed"
-            - "name"
-            - "provider_practice"
-            - "provider_phone"
-            - "address"
-            - "instructions_to_veteran"
-            - "appointment_time"
-            - "time_zone"
-          properties:
-            appointment_request_id:
-              type: "string"
-              example: "8a48912a6c2409b9016c29cbeed0006a"
-            distance_eligible_confirmed:
-              type: "boolean"
-              example: true
-            name:
-              required:
-                - "first_name"
-                - "last_name"
-              properties:
-                first_name:
-                  type: "string"
-                  example: ""
-                last_name:
-                  type: "string"
-                  example: ""
-              type: "object"
-            provider_practice:
-              type: "string"
-              example: "test"
-            provider_phone:
-              type: "string"
-              example: "(321) 230-0328"
-            address:
-              required:
-                - "street"
-                - "city"
-                - "state"
-                - "zip_code"
-              properties:
-                street:
-                  type: "string"
-                  example: "test"
-                city:
-                  type: "string"
-                  example: "test"
-                state:
-                  type: "string"
-                  example: "MA"
-                zip_code:
-                  type: "string"
-                  example: "32826"
-              type: "object"
-            instructions_to_veteran:
-              type: "string"
-              example: ""
-            appointment_time:
-              type: "string"
-              example: "09/20/2020 16:29:00"
-            time_zone:
-              type: "string"
-              example: "-04:00 EDT"
-          type: "object"
-    CCEligibilty:
       required:
-        - "data"
-        properties:
-          data:
-            required:
-              - "id"
-              - "type"
-              - "attributes"
-            properties:
-              id:
-                type: "string"
-                example: "PrimaryCare"
-              type:
-                type: "string"
-                example: "cc_eligibility"
-              attributes:
-                required:
-                  - "eligible"
-                properties:
-                  eligible:
-                    type: "boolean"
-                    example: true
-                type: "object"
-            type: "object"
-    System:
-      type: "object"
+        - "pagination"
       properties:
-        id:
-          type: "string"
-          example: "12345748"
-        type:
-          type: "string"
-          example: "system"
-        attributes:
+        pagination:
           required:
-            - "unique_id"
-            - "assigning_authority"
-            - "assigning_code"
-            - "id_status"
+            - "current_page"
+            - "per_page"
+            - "total_pages"
+            - "total_entries"
           properties:
-            unique_id:
-              type: "string"
-              example: "12345748"
-            assigning_authority:
-              type: "string"
-              example: "UNKNOWN"
-            assigning_code:
-              type: "string"
-              example: "200MHS"
-            id_status:
-              type: "string"
-              example: "ACTIVE"
-          type: "object"
-    DirectSchedulingFacility:
-      type: "object"
-      properties:
-        id:
-          type: "string"
-        type:
-          type: "string"
-        attributes:
-          required:
-            - "institution_code"
-            - "city"
-            - "state_abbrev"
-            - "authoritative_name"
-            - "root_station_code"
-            - "admin_parent"
-            - "parent_station_code"
-            - "request_supported"
-            - "direct_scheduling_supported"
-            - "express_times"
-            - "institution_timezone"
-          properties:
-            institution_code:
-              type: "string"
-              example: '688'
-            city:
-              type: "string"
-              example: 'Washington'
-            state_abbrev:
-              type: "string"
-              example: 'DC'
-            authoritative_name:
-              type: "string"
-              example: 'Washington VA Medical Center'
-            root_station_code:
-              type: "string"
-              example: '688'
-            admin_parent:
-              type: "boolean"
-              example: true
-            parent_station_code:
-              type: "string"
-              example: '688'
-            request_supported:
-              type: "boolean"
-              example: true
-            direct_scheduling_supported:
-              type: "boolean"
-              example: true
-            institution_timezone:
-              type: "string"
-              example: 'America/New_York'
-          type: "object"
-    ClinicInstitution:
-      type: "object"
-      properties:
-        id:
-          type: "string"
-          example: "16"
-        type:
-          type: "string"
-          example: "clinic_institution"
-        attributes:
-          required:
-            - "location_ien"
-            - "institution_sid"
-            - "institution_ien"
-            - "institution_name"
-            - "institution_code"
-          properties:
-            location_ien:
-              type: "string"
-              example: "16"
-            institution_sid:
+            current_page:
               type: "number"
-              example: 561596
-            institution_ien:
-              type: "string"
-              example: "442"
-            institution_name:
-              type: "string"
-              example: "CHEYENNE VA MEDICAL"
-            institution_code:
-              type: "string"
-              example: "442"
+              example: 0
+            per_page:
+              type: "number"
+              example: 0
+            total_pages:
+              type: "number"
+              example: 0
+            total_entries:
+              type: "number"
+              example: 0
           type: "object"
     PACT:
       type: "object"
