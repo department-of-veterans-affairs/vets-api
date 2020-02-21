@@ -62,17 +62,23 @@ RSpec.describe 'PPIU', type: :request do
     let(:ppiu_response) { File.read('spec/support/ppiu/update_ppiu_response.json') }
     let(:ppiu_request) { File.read('spec/support/ppiu/update_ppiu_request.json') }
 
+    before(:each) do
+      VCR.insert_cassette('evss/ppiu/payment_information')
+    end
+
+    after(:each) do
+      VCR.eject_cassette
+    end
+
     test_unauthorized('put')
 
     context 'with a valid evss response' do
       it 'matches the ppiu schema' do
-        VCR.use_cassette('evss/ppiu/payment_information') do
-          VCR.use_cassette('evss/ppiu/update_payment_information') do
-            put '/v0/ppiu/payment_information', params: ppiu_request, headers: headers
-            expect(response).to have_http_status(:ok)
-            expect(response).to match_response_schema('payment_information')
-            expect(JSON.parse(response.body)).to eq(JSON.parse(ppiu_response))
-          end
+        VCR.use_cassette('evss/ppiu/update_payment_information') do
+          put '/v0/ppiu/payment_information', params: ppiu_request, headers: headers
+          expect(response).to have_http_status(:ok)
+          expect(response).to match_response_schema('payment_information')
+          expect(JSON.parse(response.body)).to eq(JSON.parse(ppiu_response))
         end
       end
 
