@@ -26,10 +26,10 @@ module Facilities
       end
 
       def pos_locator(params)
-        walkin_params = pos_locator_params(params, 17)
+        walkin_params      = pos_locator_params(params, 17)
         urgent_care_params = pos_locator_params(params, 20)
 
-        walkin_response = perform(:get, 'v1.0/PlaceOfServiceLocator', walkin_params)
+        walkin_response      = perform(:get, 'v1.0/PlaceOfServiceLocator', walkin_params)
         urgent_care_response = perform(:get, 'v1.0/PlaceOfServiceLocator', urgent_care_params)
 
         [
