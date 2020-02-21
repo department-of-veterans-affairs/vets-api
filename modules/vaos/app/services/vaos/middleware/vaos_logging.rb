@@ -10,7 +10,6 @@ module VAOS
         super(app)
       end
 
-
       # #call
       #
       # Logs all outbound request / responses to VAMF api gateway as :info when success and :warn when fail
@@ -32,7 +31,7 @@ module VAOS
             status: response_env.status,
             duration: Time.current - start_time,
             # service_name: service_name || 'VAOS Generic', # Need to figure out a clean way to do this with headers
-            url: "(#{env.method.upcase}) #{env.url.to_s}"
+            url: "(#{env.method.upcase}) #{env.url}"
           }
 
           if response_env.status.between?(200, 299)
@@ -42,7 +41,6 @@ module VAOS
           end
         end
       end
-
 
       private
 
@@ -55,7 +53,6 @@ module VAOS
       def log(type, message, tags)
         Rails.logger.send(type, message, tags)
       end
-
 
       # #decode_jwt_no_sig_check decodes the JWT token received in the response without signature verification
       #
@@ -72,7 +69,6 @@ module VAOS
         env.url.to_s.include?('users/v2/session?processRules=true') ? true : false
       end
 
-
       # #jti is the value from the JWT key value pair in the response and needed for logging and audit purposes
       #
       # @param env [Faraday::Env] The Request/Response tree object
@@ -87,7 +83,6 @@ module VAOS
       rescue
         'unknown jti'
       end
-
     end
   end
 end
