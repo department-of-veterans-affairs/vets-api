@@ -6,7 +6,7 @@ RSpec.describe 'PPIU', type: :request do
   include SchemaMatchers
 
   describe 'endpoints are down' do
-    it 'should not let you call direct deposit endpoints' do
+    it 'does not let you call direct deposit endpoints' do
       get '/v0/ppiu/payment_information'
       expect(response.code).to eq('404')
 
