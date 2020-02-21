@@ -24,8 +24,8 @@ RSpec.describe Facilities::PSSGDownload, type: :job do
     bands
   end
 
-  let(:drive_time_data_402) do
-    fixture_file_name = "#{::Rails.root}/spec/fixtures/pssg/drive_time_data_402.json"
+  let(:drive_time_data_402QA) do
+    fixture_file_name = "#{::Rails.root}/spec/fixtures/pssg/drive_time_data_402QA.json"
     File.open(fixture_file_name, 'rb') do |f|
       JSON.parse(f.read)
     end
@@ -89,9 +89,10 @@ RSpec.describe Facilities::PSSGDownload, type: :job do
     end
 
     it 'leaves facility with original drive time band' do
+      create :vha_402QA
       existing_drive_time = create :sixty_mins_648A4
 
-      allow(pssg_client_stub).to receive(:get_drivetime_bands).with(0, 30).and_return(drive_time_data_402)
+      allow(pssg_client_stub).to receive(:get_drivetime_bands).with(0, 30).and_return(drive_time_data_402QA)
       subject.perform
       expect(BaseFacility.find_facility_by_id('vha_648A4').drivetime_bands).not_to be_nil
       expect(BaseFacility.find_facility_by_id('vha_648A4').drivetime_bands.size).to be(1)
