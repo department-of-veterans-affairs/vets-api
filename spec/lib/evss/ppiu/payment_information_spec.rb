@@ -17,7 +17,7 @@ describe EVSS::PPIU::PaymentInformation do
       allow(payment_information).to receive(:authorized?).and_return(false)
     end
 
-    it 'should hide payment address and payment account' do
+    it 'hides payment address and payment account' do
       expect(payment_information.payment_account.attributes).to eq(EVSS::PPIU::PaymentAccount.new.attributes)
       expect(payment_information.payment_address.attributes).to eq(EVSS::PPIU::PaymentAddress.new.attributes)
     end
@@ -28,7 +28,7 @@ describe EVSS::PPIU::PaymentInformation do
       allow(payment_information).to receive(:authorized?).and_return(true)
     end
 
-    it 'should display payment address and payment account' do
+    it 'displays payment address and payment account' do
       expect(payment_information.payment_account.attributes).not_to eq(EVSS::PPIU::PaymentAccount.new.attributes)
       expect(payment_information.payment_address.attributes).not_to eq(EVSS::PPIU::PaymentAddress.new.attributes)
     end
