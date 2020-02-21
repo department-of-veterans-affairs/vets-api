@@ -34,7 +34,7 @@ describe VAOS::Middleware::VaosLogging do
                                                   jti: 'ebfc95ef5f3a41a7b15e432fe47e9864',
                                                   status: 200,
                                                   duration: 0.0,
-                                                  url: 'https://veteran.apps.va.gov/users/v2/session?processRules=true').and_call_original
+                                                  url: '(POST) https://veteran.apps.va.gov/users/v2/session?processRules=true').and_call_original
       client.post(user_service_uri)
     end
 
@@ -43,7 +43,7 @@ describe VAOS::Middleware::VaosLogging do
                                                   jti: 'ebfc95ef5f3a41a7b15e432fe47e9864',
                                                   status: 200,
                                                   duration: 0.0,
-                                                  url: 'https://veteran.apps.va.gov/whatever').and_call_original
+                                                  url: '(GET) https://veteran.apps.va.gov/whatever').and_call_original
       client.get(all_other_uris)
     end
   end
@@ -57,7 +57,7 @@ describe VAOS::Middleware::VaosLogging do
                                                   jti: 'unknown jti',
                                                   status: 500,
                                                   duration: 0.0,
-                                                  url: 'https://veteran.apps.va.gov/users/v2/session?processRules=true').and_call_original
+                                                  url: '(POST) https://veteran.apps.va.gov/users/v2/session?processRules=true').and_call_original
       client.post(user_service_uri)
     end
 
@@ -66,7 +66,7 @@ describe VAOS::Middleware::VaosLogging do
                                                   jti: 'unknown jti',
                                                   status: 500,
                                                   duration: 0.0,
-                                                  url: 'https://veteran.apps.va.gov/whatever').and_call_original
+                                                  url: '(GET) https://veteran.apps.va.gov/whatever').and_call_original
       client.get(all_other_uris)
     end
   end
