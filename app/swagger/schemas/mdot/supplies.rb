@@ -8,7 +8,7 @@ module Swagger
 
         swagger_schema :Supplies do
           key :required, %i[supplies veteran_address]
-          property :supplies, :array do
+          property :supplies, type: :array do
             items do
               key :required, %i[product_name product_group product_id quantity]
               property :device_name, type: :string
