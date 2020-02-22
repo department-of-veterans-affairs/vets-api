@@ -47,7 +47,8 @@ RSpec.describe V1::SessionsController, type: :controller do
       authn_context: authn_context,
       account_type: 'N/A',
       level_of_assurance: ['3'],
-      multifactor: [false]
+      multifactor: [false],
+      attributes: build(:ssoe_idme_loa1, va_eauth_ial: 3)
     )
   end
 

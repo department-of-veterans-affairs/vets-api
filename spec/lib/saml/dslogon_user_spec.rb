@@ -12,17 +12,22 @@ RSpec.describe SAML::User do
     let(:authn_context) { 'dslogon' }
     let(:account_type)  { '1' }
     let(:highest_attained_loa) { '3' }
+    let(:existing_saml_attributes) { nil }
 
     let(:saml_response) do
       build_saml_response(
         authn_context: authn_context,
         account_type: account_type,
         level_of_assurance: [highest_attained_loa],
-        multifactor: [false]
+        multifactor: [false],
+        attributes: saml_attributes,
+        existing_attributes: existing_saml_attributes
       )
     end
 
     context 'non-premium user' do
+      let(:saml_attributes) { build(:dslogon_level1, level_of_assurance: [highest_attained_loa]) }
+
       it 'has various important attributes' do
         expect(subject.to_hash).to eq(
           dslogon_edipi: '1606997570',
@@ -47,6 +52,12 @@ RSpec.describe SAML::User do
 
       context 'multifactor' do
         let(:authn_context) { 'dslogon_multifactor' }
+        let(:saml_attributes) do
+          build(:dslogon_level1,
+                multifactor: [true],
+                level_of_assurance: [highest_attained_loa])
+        end
+        let(:existing_saml_attributes) { build(:dslogon_level1, multifactor: [false], level_of_assurance: ['3']) }
 
         it 'has various important attributes' do
           expect(subject.to_hash).to eq(
@@ -73,8 +84,10 @@ RSpec.describe SAML::User do
 
       context 'verifying' do
         let(:authn_context) { 'dslogon_loa3' }
+        let(:saml_attributes) { build(:idme_loa3, multifactor: [true], level_of_assurance: ['3']) }
+        let(:existing_saml_attributes) { build(:dslogon_level1, multifactor: [true], level_of_assurance: ['3']) }
 
-        it 'has various important attributes' do
+        it 'merges existing DSLogon identity with ID.me identity' do
           expect(subject.to_hash).to eq(
             uuid: '0e1bb5723d7c4f0686f46ca4505642ad',
             email: 'kam+tristanmhv@adhocteam.us',
@@ -102,6 +115,7 @@ RSpec.describe SAML::User do
     context 'premium user' do
       let(:account_type) { '2' }
       let(:highest_attained_loa) { nil }
+      let(:saml_attributes) { build(:dslogon_level2, multifactor: [false], level_of_assurance: ['3']) }
 
       it 'has various important attributes' do
         expect(subject.to_hash).to eq(
@@ -127,6 +141,8 @@ RSpec.describe SAML::User do
 
       context 'multifactor' do
         let(:authn_context) { 'dslogon_multifactor' }
+        let(:saml_attributes) { build(:dslogon_level2, multifactor: [true], level_of_assurance: ['3']) }
+        let(:existing_saml_attributes) { build(:dslogon_level2, multifactor: [false], level_of_assurance: ['3']) }
 
         it 'has various important attributes' do
           expect(subject.to_hash).to eq(
