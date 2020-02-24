@@ -7,11 +7,11 @@ jobs:
     docker:
       - image: circleci/ruby:2.6.5-stretch-node
       - image: circleci/postgres:11.5-postgis
-      - image: circleci/redis:3.2-alpine
       environment: # environment variables for database
         POSTGRES_USER: circleci-demo-ruby
         POSTGRES_DB: rails_blog
         POSTGRES_PASSWORD: ""
+      - image: circleci/redis:3.2-alpine
     executor: default
     steps:
       - checkout
