@@ -13,7 +13,7 @@ module Facilities
       begin
         download_data
       rescue => e
-        log_exception_to_sentry(e, 'Band name' => @band_name)
+        log_exception_to_sentry(e)
       end
     end
 
