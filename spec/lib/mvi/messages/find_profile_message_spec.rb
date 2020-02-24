@@ -8,7 +8,11 @@ describe MVI::Messages::FindProfileMessage do
     context 'with first, last, birth_date, and ssn from auth provider' do
       let(:xml) do
         described_class.new(
-          %w[John William], 'Smith', '1980-1-1', '555-44-3333', 'M'
+          given_names: %w[John William],
+          last_name: 'Smith',
+          birth_date: '1980-1-1',
+          ssn: '555-44-3333',
+          gender: 'M'
         ).to_xml
       end
       let(:idm_path) { 'env:Body/idm:PRPA_IN201305UV02' }
@@ -92,7 +96,11 @@ describe MVI::Messages::FindProfileMessage do
     context 'with nil gender' do
       let(:xml) do
         MVI::Messages::FindProfileMessage.new(
-          %w[John William], 'Smith', '1980-1-1', '555-44-3333', nil
+          given_names: %w[John William],
+          last_name: 'Smith',
+          birth_date: '1980-1-1',
+          ssn: '555-44-3333',
+          gender: nil
         ).to_xml
       end
       let(:idm_path) { 'env:Body/idm:PRPA_IN201305UV02' }
@@ -114,8 +122,12 @@ describe MVI::Messages::FindProfileMessage do
     context 'missing arguments' do
       it 'throws an argument error' do
         expect do
-          MVI::Messages::FindProfileMessage.new(%w[John William], 'Smith', Time.new(1980, 1, 1).utc)
-        end.to raise_error(ArgumentError, 'wrong number of arguments (given 3, expected 4..5)')
+          MVI::Messages::FindProfileMessage.new(
+            given_names: %w[John William],
+            last_name: 'Smith',
+            birth_date: Time.new(1980, 1, 1).utc
+          )
+        end.to raise_error(ArgumentError, 'wrong number of arguments')
       end
     end
   end

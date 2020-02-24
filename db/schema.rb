@@ -334,6 +334,7 @@ ActiveRecord::Schema.define(version: 2020_02_24_143703) do
     t.json "metadata"
     t.datetime "expires_at"
     t.index ["form_id", "user_uuid"], name: "index_in_progress_forms_on_form_id_and_user_uuid", unique: true
+    t.index ["user_uuid"], name: "index_in_progress_forms_on_user_uuid"
   end
 
   create_table "invalid_letter_address_edipis", id: :serial, force: :cascade do |t|
@@ -508,6 +509,8 @@ ActiveRecord::Schema.define(version: 2020_02_24_143703) do
     t.string "sha256"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.boolean "valid_pdf", default: false
+    t.index ["valid_pdf"], name: "index_va_forms_forms_on_valid_pdf"
   end
 
   create_table "vba_documents_upload_submissions", id: :serial, force: :cascade do |t|

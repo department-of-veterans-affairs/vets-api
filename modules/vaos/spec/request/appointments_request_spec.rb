@@ -150,6 +150,27 @@ RSpec.describe 'vaos appointments', type: :request, skip_mvi: true do
           expect(response).to match_response_schema('vaos/cc_appointments')
         end
       end
+
+      context 'with no appointments' do
+        it 'returns an empty list' do
+          VCR.use_cassette('vaos/appointments/get_appointments_empty', match_requests_on: %i[method uri]) do
+            get '/v0/vaos/appointments', params: params
+            expect(response).to have_http_status(:success)
+            expect(JSON.parse(response.body)).to eq(
+              'data' => [],
+              'meta' => {
+                'pagination' => {
+                  'current_page' => 0,
+                  'per_page' => 0,
+                  'total_entries' => 0,
+                  'total_pages' => 0
+                }
+              }
+            )
+            expect(response).to match_response_schema('vaos/va_appointments')
+          end
+        end
+      end
     end
 
     describe 'POST appointments' do
@@ -235,7 +256,7 @@ RSpec.describe 'vaos appointments', type: :request, skip_mvi: true do
           put '/v0/vaos/appointments/cancel'
 
           expect(response).to have_http_status(:unprocessable_entity)
-          expect(JSON.parse(response.body)['errors'].size).to eq(2)
+          expect(JSON.parse(response.body)['errors'].size).to eq(3)
         end
       end
 
@@ -244,6 +265,7 @@ RSpec.describe 'vaos appointments', type: :request, skip_mvi: true do
           {
             appointment_time: '11/15/19 20:00:00',
             clinic_id: '408',
+            facility_id: '983',
             cancel_reason: 'whatever',
             cancel_code: '5',
             remarks: nil,
@@ -269,6 +291,7 @@ RSpec.describe 'vaos appointments', type: :request, skip_mvi: true do
           {
             appointment_time: '11/15/2019 13:00:00',
             clinic_id: '437',
+            facility_id: '983',
             cancel_reason: '5',
             cancel_code: 'PC',
             remarks: '',
