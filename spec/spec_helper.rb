@@ -40,6 +40,10 @@ unless ENV['NOCOVERAGE']
     add_filter 'modules/va_facilities/lib/va_facilities/engine.rb'
     add_filter 'lib/bip_claims/configuration.rb'
     add_filter 'version.rb'
+    add_filter 'app/controllers/v0/ppiu_controller.rb'
+    add_filter 'app/serializers/ppiu_serializer.rb'
+    add_filter 'app/policies/ppiu_policy.rb'
+    add_filter 'lib/evss/ppiu/service_exception.rb'
 
     add_group 'Policies', 'app/policies'
     add_group 'Serializers', 'app/serializers'
