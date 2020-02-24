@@ -47,6 +47,12 @@ module EVSS
         super(attrs)
         self.identity_indicator = attrs['indentity_indicator']
       end
+
+      def authorized?
+        is_competent_indicator &&
+          no_fiduciary_assigned_indicator &&
+          not_deceased_indicator
+      end
     end
   end
 end
