@@ -8,6 +8,8 @@ RSpec.describe 'MDOT Medical Devices & Supplies', type: :request do
   context 'with a loa1 user' do
     let(:user) { FactoryBot.create(:user, :loa1, ssn: '111223333') }
 
+    before { sign_in_as(user) }
+
     it 'returns a forbidden error' do
       get '/v0/mdot/supplies'
       expect(response).to have_http_status(:forbidden)

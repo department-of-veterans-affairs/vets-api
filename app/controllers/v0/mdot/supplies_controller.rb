@@ -3,6 +3,8 @@
 module V0
   module MDOT
     class SuppliesController < ApplicationController
+      before_action { authorize :mdot, :access? }
+
       def index
         supplies = client.get_supplies
         render json: supplies.body
