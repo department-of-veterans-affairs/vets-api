@@ -111,9 +111,9 @@ RSpec.describe 'systems', type: :request do
           VCR.use_cassette('vaos/systems/get_system_facilities_noparent', match_requests_on: %i[method uri]) do
             get '/v0/vaos/systems/688/direct_scheduling_facilities', params: { type_of_care_id: '323' }
 
-            expect(response).to have_http_status(:ok)
-            expect(response.body).to be_a(String)
-            expect(response).to match_response_schema('vaos/system_facilities')
+            expect(response).to have_http_status(:bad_request)
+            expect(JSON.parse(response.body)['errors'].first['detail'])
+              .to eq('The required parameter "parent_code", is missing')
           end
         end
       end

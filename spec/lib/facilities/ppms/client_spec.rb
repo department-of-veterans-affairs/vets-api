@@ -1,89 +1,217 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-module Facilities
-  RSpec.describe PPMS::Client do
-    let(:bbox_bounds) { [-79, 38, -77, 39] }
 
-    it 'is an PPMS::Client object' do
-      expect(described_class.new).to be_an(PPMS::Client)
+RSpec.describe Facilities::PPMS::Client do
+  let(:params) do
+    {
+      address: 'South Gilbert Road, Chandler, Arizona 85286, United States',
+      bbox: [-112.54, 32.53, -111.04, 34.03]
+    }.with_indifferent_access
+  end
+
+  it 'is an PPMS::Client object' do
+    expect(described_class.new).to be_an(Facilities::PPMS::Client)
+  end
+
+  context 'with an http timeout' do
+    it 'logs an error and raise GatewayTimeout' do
+      allow_any_instance_of(Faraday::Connection).to receive(:get).and_raise(Faraday::TimeoutError)
+      expect do
+        Facilities::PPMS::Client.new.provider_locator(params)
+      end.to raise_error(Common::Exceptions::GatewayTimeout)
     end
+  end
 
-    regex_matcher = lambda { |r1, r2|
-      r1.uri.match(r2.uri)
-    }
+  context 'with an unknown error from PPMS' do
+    it 'raises BackendUnhandledException when errors happen' do
+      VCR.use_cassette('facilities/va/ppms_500', match_requests_on: %i[path]) do
+        expect { Facilities::PPMS::Client.new.provider_locator(params) }
+          .to raise_error(Common::Exceptions::BackendServiceException) do |e|
+            expect(e.message).to match(/PPMS_502/)
+          end
+      end
+    end
+  end
 
-    describe 'route_fuctions' do
-      context 'with an http timeout' do
-        before do
-          allow_any_instance_of(Faraday::Connection).to receive(:get).and_raise(Faraday::TimeoutError)
+  [
+    [true,  true],
+    [true,  false],
+    [false, true],
+    [false, false]
+  ].each do |(dedup, trim_bool)|
+    context "Feature Flag dedup=#{dedup} & trim=#{trim_bool}" do
+      before do
+        if trim_bool
+          Flipper.enable(:facilities_ppms_response_trim)
+        else
+          Flipper.disable(:facilities_ppms_response_trim)
         end
-
-        it 'logs an error and raise GatewayTimeout' do
-          expect do
-            PPMS::Client.new.provider_locator('bbox': bbox_bounds)
-          end.to raise_error(Common::Exceptions::GatewayTimeout)
+        if dedup
+          Flipper.enable(:facility_locator_dedup_community_care_services)
+        else
+          Flipper.disable(:facility_locator_dedup_community_care_services)
         end
       end
 
-      context 'with an unknown error from PPMS' do
-        it 'raises BackendUnhandledException when errors happen' do
-          VCR.use_cassette('facilities/va/ppms_500', match_requests_on: [regex_matcher]) do
-            expect { PPMS::Client.new.provider_locator('bbox': bbox_bounds) }
-              .to raise_error(Common::Exceptions::BackendServiceException) do |e|
-                expect(e.message).to match(/PPMS_502/)
-              end
+      describe '#provider_locator' do
+        it 'returns a list of providers' do
+          VCR.use_cassette('facilities/va/ppms', match_requests_on: %i[path query]) do
+            r = Facilities::PPMS::Client.new.provider_locator(params.merge(services: ['213E00000X']))
+            name = 'Freed, Lewis '
+            name = name.strip if trim_bool
+            expect(r.length).to be 5
+            expect(r[0]).to have_attributes(
+              AddressCity: 'Chandler',
+              AddressPostalCode: '85248',
+              AddressStateProvince: 'AZ',
+              AddressStreet: '3195 S Price Rd Ste 148',
+              CareSite: 'Lewis H Freed DPM PC',
+              CareSitePhoneNumber: '4807057300',
+              ContactMethod: nil,
+              Email: nil,
+              IsAcceptingNewPatients: 'true',
+              Latitude: 33.258135,
+              Longitude: -111.887927,
+              MainPhone: nil,
+              Miles: 2.302,
+              OrganizationFax: nil,
+              ProviderGender: 'Male',
+              ProviderIdentifier: '1407842941',
+              ProviderName: name,
+              ProviderSpecialties: []
+            )
           end
         end
       end
 
-      it 'finds at least one provider' do
-        VCR.use_cassette('facilities/va/ppms', match_requests_on: [regex_matcher]) do
-          r = PPMS::Client.new.provider_locator('bbox': [-79, 38, -77, 39])
-          expect(r.length).to be > 0
-          expect(r[0]['Latitude']).to be > 38
-          expect(r[0]['Latitude']).to be < 39
+      describe '#pos_locator' do
+        it 'finds places of service' do
+          VCR.use_cassette('facilities/va/ppms', match_requests_on: %i[path query]) do
+            r = Facilities::PPMS::Client.new.pos_locator(params)
+            expect(r.length).to be 10
+            expect(r[0]).to have_attributes(
+              ProviderIdentifier: '1629245311',
+              CareSite: 'MinuteClinic LLC',
+              AddressStreet: '2010 S Dobson Rd',
+              AddressCity: 'Chandler',
+              AddressStateProvince: 'AZ',
+              AddressPostalCode: '85286',
+              Email: nil,
+              MainPhone: nil,
+              CareSitePhoneNumber: '8663892727',
+              OrganizationFax: nil,
+              ContactMethod: nil,
+              IsAcceptingNewPatients: 'false',
+              ProviderGender: 'NotSpecified',
+              ProviderSpecialties: [],
+              Latitude: 33.275526,
+              Longitude: -111.877057,
+              Miles: 0.79,
+              posCodes: '17'
+            )
+          end
         end
       end
 
-      it 'returns a Provider shape' do
-        VCR.use_cassette('facilities/va/ppms', match_requests_on: [regex_matcher]) do
-          r = PPMS::Client.new.provider_info(1_427_435_759)
-          expect(r['ProviderIdentifier']).not_to be(nil)
-          expect(r['Name']).not_to be(nil)
-          expect(r['ProviderSpecialties'].class.name).to eq('Array')
+      describe '#provider_info' do
+        it 'gets additional attributes for the provider' do
+          VCR.use_cassette('facilities/va/ppms', match_requests_on: %i[path query]) do
+            r = Facilities::PPMS::Client.new.provider_info(1_407_842_941)
+            expect(r).to have_attributes(
+              AddressCity: nil,
+              AddressPostalCode: nil,
+              AddressStateProvince: nil,
+              AddressStreet: nil,
+              CareSite: nil,
+              CareSitePhoneNumber: nil,
+              ContactMethod: nil,
+              Email: 'evfa1@hotmail.com',
+              IsAcceptingNewPatients: 'true',
+              Latitude: nil,
+              Longitude: nil,
+              MainPhone: '4809241552',
+              Miles: nil,
+              OrganizationFax: '4809241553',
+              ProviderGender: 'Male',
+              ProviderIdentifier: '1407842941',
+              ProviderName: nil
+            )
+            specialty_count = dedup ? 1 : 41
+            expect(r['ProviderSpecialties'].each_with_object(Hash.new(0)) do |specialty, count|
+              count[specialty['CodedSpecialty']] += 1
+            end).to match('213E00000X' => specialty_count)
+          end
         end
       end
 
-      it 'returns some Specialties' do
-        VCR.use_cassette('facilities/va/ppms', match_requests_on: [regex_matcher]) do
-          r = PPMS::Client.new.specialties
-          expect(r.length).to be > 0
-          expect(r[0]['SpecialtyCode']).not_to be(nil)
+      describe '#provider_services' do
+        it 'returns Services' do
+          VCR.use_cassette('facilities/va/ppms', match_requests_on: %i[path query]) do
+            r = Facilities::PPMS::Client.new.provider_services(1_407_842_941)
+
+            name_hash =
+              case trim_bool
+              when true
+                { 'Freed, Lewis - Podiatrist' => 41 }
+              when false
+                {
+                  'Freed, Lewis - Podiatrist ' => 25,
+                  'Freed, Lewis  - Podiatrist    ' => 2,
+                  'Freed, Lewis  - Podiatrist ' => 12,
+                  'Freed, Lewis - Podiatrist    ' => 2
+                }
+              end
+
+            expect(r.each_with_object(Hash.new { |h, k| h[k] = Hash.new(0) }) do |service, count|
+              %w[Name AffiliationName RelationshipName CareSiteName CareSiteAddressZipCode].each do |key|
+                count[key][service[key]] += 1
+              end
+            end).to match(
+              'Name' => name_hash,
+              'AffiliationName' => {
+                'TriWest - PC3' => 25,
+                'TriWest - Choice' => 16
+              },
+              'RelationshipName' => {
+                'PC3' => 25,
+                'Choice' => 16
+              },
+              'CareSiteName' => {
+                'Orthopedic Specialists of North America PLLC' => 19,
+                'Lewis H Freed DPM PC' => 16,
+                'OrthoArizona' => 4,
+                'OSNA PLLC' => 2
+              },
+              'CareSiteAddressZipCode' => {
+                '85206' => 14,
+                '85248' => 8,
+                '85226' => 7,
+                '85258' => 4,
+                '85295' => 7,
+                '85234' => 1
+              }
+            )
+          end
         end
       end
+    end
+  end
 
-      it 'returns a CareSite' do
-        VCR.use_cassette('facilities/va/ppms', match_requests_on: [regex_matcher]) do
-          r = PPMS::Client.new.provider_caresites(1_427_435_759)
-          expect(r.length).to be > 0
-          expect(r[0]['Longitude']).not_to be(nil)
-        end
-      end
-
-      it 'returns Services' do
-        VCR.use_cassette('facilities/va/ppms', match_requests_on: [regex_matcher]) do
-          r = PPMS::Client.new.provider_services(1_427_435_759)
-          expect(r.length).to be > 0
-          expect(r[0]['Longitude']).not_to be(nil)
-          expect(r[0]['CareSiteAddressStreet']).not_to be(nil)
-        end
-      end
-
-      it 'edits the parameters' do
-        params = PPMS::Client.new.build_params('bbox': [73, -60, 74, -61])
-        Rails.logger.info(params)
-        expect(params[:radius]).to be > 35
+  describe '#specialties' do
+    it 'returns some Specialties' do
+      VCR.use_cassette('facilities/va/ppms', match_requests_on: %i[path query]) do
+        r = Facilities::PPMS::Client.new.specialties
+        expect(r.each_with_object(Hash.new(0)) do |specialty, count|
+          count[specialty['SpecialtyCode']] += 1
+        end).to match(
+          '101Y00000X' => 1,
+          '101YA0400X' => 1,
+          '101YM0800X' => 1,
+          '101YP1600X' => 1,
+          '101YP2500X' => 1,
+          '101YS0200X' => 1
+        )
       end
     end
   end

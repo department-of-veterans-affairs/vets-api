@@ -21,7 +21,7 @@ saml_ssoe:
   key_path: config/certs/vetsgov-localhost.key
   issuer: https://ssoe-sp-dev.va.gov
   callback_url: http://localhost:3000/v1/sessions/callback
-  logout_url: https://int.eauth.va.gov/pkmslogout
+  logout_url: https://pint.eauth.va.gov/pkmslogout
 
 session_cookie:
   secure: false
@@ -109,8 +109,17 @@ ihub:
     mock: true
   in_production: false
 
+# Settings for Medical Devices Ordering Tool
+mdot:
+  prefill: true
+  url: https://some.fakesite.com
+  api_key: abcd1234abcd1234abcd1234abcd1234abcd1234
+  mock: false
+  enabled: false
+
 # Settings for Decision Reviews
 decision_review:
+  prefill: true
   url: https://dev-api.va.gov/services/appeals/v3/decision_review
   api_key: abcd1234abcd1234abcd1234abcd1234abcd1234
   mock: false
@@ -437,12 +446,13 @@ flipper:
     - kenneth.gary@va.gov
     - lauren.alexanderson@va.gov
     - mark.greenburg@adhocteam.us
+    - n.ratana@gmail.com
     - narin@adhocteam.us
+    - osanchez@governmentcio.com
     - rian.fowler@adhoc.team
     - rianfowler@outlook.com
     - ryan.thurlwell@va.gov
     - travis.hilton@oddball.io
-    - n.ratana@gmail.com
     - zurbergram@gmail.com
 
 bgs:
@@ -453,7 +463,6 @@ bgs:
   mock_response_location: ~
   mock_responses: ~
   ssl_verify_mode: 'peer'
-  
 
 va_mobile:
   url: 'https://veteran.apps.va.gov/'
@@ -478,3 +487,7 @@ vbms:
   server_cert: vbms.aide.oit.va.gov.crt
   environment_directory: /srv/vets-api/secret
   env: test
+
+vet_verification:
+  key_path: modules/veteran_verification/spec/fixtures/verification_test.pem
+

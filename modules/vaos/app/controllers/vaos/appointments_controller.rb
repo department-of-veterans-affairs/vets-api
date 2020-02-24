@@ -21,7 +21,7 @@ module VAOS
     private
 
     def cancel_params
-      params.permit(:appointment_time, :clinic_id, :cancel_reason, :cancel_code, :remarks, :clinic_name)
+      params.permit(:appointment_time, :clinic_id, :facility_id, :cancel_reason, :cancel_code, :remarks, :clinic_name)
     end
 
     def create_params
@@ -34,7 +34,7 @@ module VAOS
     end
 
     def appointment_service
-      VAOS::AppointmentService.for_user(current_user)
+      VAOS::AppointmentService.new(current_user)
     end
 
     def appointments

@@ -96,8 +96,9 @@ Rails.application.routes.draw do
     get 'limited', to: 'example#limited', as: :limited
     get 'status', to: 'admin#status'
 
-    get 'ppiu/payment_information', to: 'ppiu#index'
-    put 'ppiu/payment_information', to: 'ppiu#update'
+    # temporarily removing direct deposit because of security issues
+    # get 'ppiu/payment_information', to: 'ppiu#index'
+    # put 'ppiu/payment_information', to: 'ppiu#update'
 
     resources :maintenance_windows, only: [:index]
 
@@ -116,9 +117,11 @@ Rails.application.routes.draw do
       get :show, controller: 'health_record_contents', on: :collection
     end
 
-    resources :appeals, only: [:index] do
+    resources :appeals, only: :index do
       collection do
-        get 'contestable_issues', to: 'appeals#show_contestable_issues'
+        resources :higher_level_reviews, only: %i[show create]
+        resources :intake_statuses, only: :show
+        resources :contestable_issues, only: :index
       end
     end
 
@@ -149,7 +152,7 @@ Rails.application.routes.draw do
 
     scope :facilities, module: 'facilities' do
       resources :va, only: %i[index show], defaults: { format: :json }
-      resources :ccp, only: %i[show], defaults: { format: :json }
+      resources :ccp, only: %i[index show], defaults: { format: :json }
       get 'suggested', to: 'va#suggested'
       get 'services', to: 'ccp#services'
     end

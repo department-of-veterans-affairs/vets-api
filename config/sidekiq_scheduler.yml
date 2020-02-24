@@ -60,11 +60,6 @@ FailedClaimsReport:
   class: EVSS::FailedClaimsReport
   description: "Notify developers about EVSS claims which could not be uploaded"
 
-PreneedsReport:
-  cron: "30 5 * * MON America/New_York"
-  class: Preneeds::SubmissionsReport
-  description: "Notify stakeholders about PreNeed submission stats"
-
 FacilityDentalServiceBulkUpdate:
   cron: "25 4 * * * America/New_York"
   class: Facilities::DentalServiceReloadJob

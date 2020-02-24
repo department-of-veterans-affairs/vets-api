@@ -24,8 +24,8 @@ RSpec.describe V1::SessionsController, type: :controller do
   let(:callback_url)        { "http://#{request_host}/v1/sessions/callback" }
   let(:logout_redirect_url) { 'http://127.0.0.1:3001/logout/' }
 
-  let(:settings_no_context) { build(:settings_no_context, assertion_consumer_service_url: callback_url) }
-  let(:rubysaml_settings)   { build(:rubysaml_settings, assertion_consumer_service_url: callback_url) }
+  let(:settings_no_context) { build(:settings_no_context_v1, assertion_consumer_service_url: callback_url) }
+  let(:rubysaml_settings)   { build(:rubysaml_settings_v1, assertion_consumer_service_url: callback_url) }
 
   let(:logout_uuid) { '1234' }
   let(:invalid_logout_response) { SAML::Responses::Logout.new('', rubysaml_settings) }
@@ -41,7 +41,7 @@ RSpec.describe V1::SessionsController, type: :controller do
   end
 
   let(:decrypter) { Aes256CbcEncryptor.new(Settings.sso.cookie_key, Settings.sso.cookie_iv) }
-  let(:authn_context) { LOA::IDME_LOA1 }
+  let(:authn_context) { LOA::IDME_LOA1_VETS }
   let(:valid_saml_response) do
     build_saml_response(
       authn_context: authn_context,
@@ -87,7 +87,7 @@ RSpec.describe V1::SessionsController, type: :controller do
 
               expect(response).to have_http_status(:found)
               expect(response.location)
-                .to be_an_idme_saml_url('https://api.idmelabs.com/saml/SingleSignOnService?SAMLRequest=')
+                .to be_an_idme_saml_url('https://pint.eauth.va.gov/isam/sps/saml20idp/saml20/login?SAMLRequest=')
                 .with_relay_state('originating_request_id' => nil, 'type' => type)
                 .with_params('clientId' => '123123')
             end
@@ -100,7 +100,7 @@ RSpec.describe V1::SessionsController, type: :controller do
               .to trigger_statsd_increment(described_class::STATSD_SSO_NEW_KEY, tags: ['context:signup'], **once)
             expect(response).to have_http_status(:found)
             expect(response.location)
-              .to be_an_idme_saml_url('https://api.idmelabs.com/saml/SingleSignOnService?SAMLRequest=')
+              .to be_an_idme_saml_url('https://pint.eauth.va.gov/isam/sps/saml20idp/saml20/login?SAMLRequest=')
               .with_relay_state('originating_request_id' => nil, 'type' => 'signup')
               .with_params('op' => 'signup', 'clientId' => '123123')
           end
@@ -208,7 +208,7 @@ RSpec.describe V1::SessionsController, type: :controller do
           expect(cookies['vagov_session_dev']).not_to be_nil
           get(:new, params: { type: 'slo' })
           expect(response.location)
-            .to be_an_idme_saml_url('https://api.idmelabs.com/saml/SingleLogoutService?SAMLRequest=')
+            .to be_an_idme_saml_url('https://pint.eauth.va.gov/pkmslogout?SAMLRequest=')
             .with_relay_state('originating_request_id' => nil, 'type' => 'slo')
 
           # these should be destroyed.
@@ -348,6 +348,8 @@ RSpec.describe V1::SessionsController, type: :controller do
           expect { post(:saml_callback) }
             .to trigger_statsd_increment(described_class::STATSD_SSO_CALLBACK_KEY, tags: callback_tags, **once)
             .and trigger_statsd_increment(described_class::STATSD_SSO_CALLBACK_TOTAL_KEY, **once)
+            .and trigger_statsd_increment(described_class::STATSD_LOGIN_SHARED_COOKIE,
+                                          tags: ['loa:3', 'idp:idme'], **once)
 
           expect(response.location).to start_with('http://127.0.0.1:3001/auth/login/callback')
 
@@ -391,7 +393,12 @@ RSpec.describe V1::SessionsController, type: :controller do
           Timecop.freeze(Time.current)
           cookie_expiration_time = 30.minutes.from_now.iso8601(0)
 
-          post :saml_callback
+          expect { post(:saml_callback) }
+            .to trigger_statsd_increment(described_class::STATSD_SSO_CALLBACK_KEY,
+                                         tags: ['status:success', 'context:multifactor'], **once)
+            .and trigger_statsd_increment(described_class::STATSD_SSO_CALLBACK_TOTAL_KEY, **once)
+            .and trigger_statsd_increment(described_class::STATSD_LOGIN_SHARED_COOKIE,
+                                          tags: ['loa:1', 'idp:idme'], **once)
 
           expect(cookies['vagov_session_dev']).not_to be_nil
           expect(JSON.parse(decrypter.decrypt(cookies['vagov_session_dev'])))
@@ -434,7 +441,7 @@ RSpec.describe V1::SessionsController, type: :controller do
         end
 
         it 'redirects to idme for up-level' do
-          expect(post(:saml_callback)).to redirect_to(/api.idmelabs.com/)
+          expect(post(:saml_callback)).to redirect_to(/pint.eauth.va.gov/)
         end
 
         it 'redirects to identity proof URL', :aggregate_failures do
@@ -616,6 +623,8 @@ RSpec.describe V1::SessionsController, type: :controller do
           expect { post(:saml_callback) }
             .to trigger_statsd_increment(described_class::STATSD_SSO_CALLBACK_KEY, tags: callback_tags, **once)
             .and trigger_statsd_increment(described_class::STATSD_SSO_CALLBACK_TOTAL_KEY, **once)
+            .and trigger_statsd_increment(described_class::STATSD_LOGIN_SHARED_COOKIE,
+                                          tags: ['loa:3', 'idp:myhealthevet'], **once)
           expect(response.location).to start_with('http://127.0.0.1:3001/auth/login/callback')
           expect(cookies['vagov_session_dev']).not_to be_nil
           MVI::Configuration.instance.breakers_service.end_forced_outage!
@@ -661,7 +670,7 @@ RSpec.describe V1::SessionsController, type: :controller do
         end
 
         it 'increments the failed and total statsd counters' do
-          callback_tags = ['status:failure', "context:#{LOA::IDME_LOA1}"]
+          callback_tags = ['status:failure', "context:#{LOA::IDME_LOA1_VETS}"]
           failed_tags = ['error:validations_failed']
 
           expect { post(:saml_callback) }

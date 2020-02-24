@@ -84,15 +84,20 @@ class FormProfile
 
   MAPPINGS = Dir[Rails.root.join('config', 'form_profile_mappings', '*.yml')].map { |f| File.basename(f, '.*') }
 
-  EDU_FORMS = %w[22-1990 22-1990N 22-1990E 22-1995 22-1995S 22-5490
-                 22-5495 22-0993 22-0994 FEEDBACK-TOOL].freeze
-  EVSS_FORMS = ['21-526EZ'].freeze
-  HCA_FORMS = ['1010ez'].freeze
-  PENSION_BURIAL_FORMS = %w[21P-530 21P-527EZ].freeze
-  VIC_FORMS = ['VIC'].freeze
+  ALL_FORMS = {
+    edu: %w[22-1990 22-1990N 22-1990E 22-1995 22-1995S 22-5490
+            22-5495 22-0993 22-0994 FEEDBACK-TOOL],
+    evss: ['21-526EZ'],
+    hca: ['1010ez'],
+    pension_burial: %w[21P-530 21P-527EZ],
+    vic: ['VIC'],
+    decision_review: ['20-0996'],
+    mdot: ['MDOT']
+  }.freeze
 
   FORM_ID_TO_CLASS = {
     '1010EZ' => ::FormProfiles::VA1010ez,
+    '20-0996' => ::FormProfiles::VA0996,
     '21-526EZ' => ::FormProfiles::VA526ez,
     '22-1990' => ::FormProfiles::VA1990,
     '22-1990N' => ::FormProfiles::VA1990n,
@@ -108,7 +113,8 @@ class FormProfile
     '21P-527EZ' => ::FormProfiles::VA21p527ez,
     '22-0993' => ::FormProfiles::VA0993,
     '22-0994' => ::FormProfiles::VA0994,
-    'FEEDBACK-TOOL' => ::FormProfiles::FeedbackTool
+    'FEEDBACK-TOOL' => ::FormProfiles::FeedbackTool,
+    'MDOT' => ::FormProfiles::MDOT
   }.freeze
 
   APT_REGEX = /\S\s+((apt|apartment|unit|ste|suite).+)/i.freeze
@@ -120,16 +126,8 @@ class FormProfile
   attribute :military_information, FormMilitaryInformation
 
   def self.prefill_enabled_forms
-    forms = []
-
-    forms += HCA_FORMS if Settings.hca.prefill
-    forms += PENSION_BURIAL_FORMS if Settings.pension_burial.prefill
-    forms += EDU_FORMS if Settings.edu.prefill
-    forms += VIC_FORMS if Settings.vic.prefill
-    forms << '21-686C'
-    forms << '40-10007'
-    forms += EVSS_FORMS if Settings.evss.prefill
-
+    forms = %w[21-686C 40-10007]
+    ALL_FORMS.each { |type, form_list| forms += form_list if Settings[type].prefill }
     forms
   end
 
