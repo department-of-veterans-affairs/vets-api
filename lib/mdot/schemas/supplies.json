@@ -51,7 +51,6 @@
       "uniqueItems": true,
       "items": {
         "type": "object",
-        "required": ["id", "type", "attributes"],
         "properties": {
           "type": "object",
           "deviceName": {
