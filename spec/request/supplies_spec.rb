@@ -17,7 +17,17 @@ RSpec.describe 'MDOT Medical Devices & Supplies', type: :request do
   end
 
   context 'with an authenticated user' do
-    let(:user) { build(:user, :loa3) }
+    let(:user_details) do
+      {
+        first_name: 'Greg',
+        last_name: 'Anderson',
+        middle_name: 'A',
+        birth_date: '1949-03-04',
+        ssn: '000555555'
+      }
+    end
+
+    let(:user) { build(:user, :loa3, user_details) }
 
     before { sign_in_as(user) }
 

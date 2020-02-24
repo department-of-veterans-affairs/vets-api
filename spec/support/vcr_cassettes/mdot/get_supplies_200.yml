@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri: https://some.fakesite.com/mdot/supplies
+    uri: https://dlc-fake.fake.com/mdot/supplies
     body:
       encoding: US-ASCII
       string: ''
@@ -115,7 +115,7 @@ http_interactions:
             "nextAvailabilityDate": "2019-12-15",
             "quantity": "10",
             "size": "7mm"
-          }
+          },
           {
             "productName": "Waxbuster single unit",
             "productGroup": "hearing aid accessories",
