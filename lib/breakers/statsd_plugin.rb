@@ -45,19 +45,21 @@ module Breakers
       uuids = /[a-fA-F0-9]{8}(\-?[a-fA-F0-9]{4}){3}\-?[a-fA-F0-9]{12}/
       institution_ids = /[\dA-Z]{8}/
       provider_ids = /Providers\(\d{10}\)/
-      okta_users = %r{(api\/v1\/users\/)\w*}
+      okta_users = %r{(?<user_path>api\/v1\/users\/)\w*}
       r = %r{
-        (\/)
+        (?<first_slash>\/)
         (#{okta_users}
         |#{digit}
         |#{contact_id}
         |#{uuids}
         |#{institution_ids}
         |#{provider_ids})
-        (\/|$)
+        (?<ending_slash>\/|$)
       }x
 
-      path.gsub(r, '\1\3xxx\6')
+      path.gsub(r) do
+        "#{$LAST_MATCH_INFO[:first_slash]}#{$LAST_MATCH_INFO[:user_path]}xxx#{$LAST_MATCH_INFO[:ending_slash]}"
+      end
     end
   end
 end
