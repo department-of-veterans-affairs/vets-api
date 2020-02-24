@@ -26,6 +26,16 @@ module EVSS
       attribute :payment_account, EVSS::PPIU::PaymentAccount
       attribute :payment_address, EVSS::PPIU::PaymentAddress
       attribute :payment_type, String
+
+      delegate :authorized?, to: :control_information
+
+      def payment_account
+        authorized? ? @payment_account : EVSS::PPIU::PaymentAccount.new
+      end
+
+      def payment_address
+        authorized? ? @payment_address : EVSS::PPIU::PaymentAddress.new
+      end
     end
   end
 end
