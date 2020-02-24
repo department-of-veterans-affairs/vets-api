@@ -99,7 +99,7 @@ module SAML
       end
 
       def multifactor
-        safe_attr('va_eauth_multifactor') == 'true'
+        safe_attr('va_eauth_multifactor')&.downcase == 'true'
       end
 
       def account_type

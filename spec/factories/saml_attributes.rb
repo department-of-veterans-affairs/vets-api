@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 
-# rubocop:disable Layout/LineLength
 FactoryBot.define do
   factory :idme_loa1, class: OneLogin::RubySaml::Attributes do
     transient do
@@ -69,7 +68,10 @@ FactoryBot.define do
     mhv_icn { ['1012853550V207686'] }
     mhv_profile {
       [
-        '{"accountType":"Premium","availableServices":{"21":"VA Medications","4":"Secure Messaging","3":"VA Allergies","2":"Rx Refill","12":"Blue Button (all VA data)","1":"Blue Button self entered data.","11":"Blue Button (DoD) Military Service Information"}}'
+        '{"accountType":"Premium","availableServices":{"21":"VA Medications",'\
+        '"4":"Secure Messaging","3":"VA Allergies","2":"Rx Refill",'\
+        '"12":"Blue Button (all VA data)","1":"Blue Button self entered data.",'\
+        '"11":"Blue Button (DoD) Military Service Information"}}'
       ]
     }
     mhv_uuid { ['12345748'] }
@@ -166,7 +168,7 @@ FactoryBot.define do
     va_eauth_credentialassurancelevel { ['1'] }
     va_eauth_ial { ['1'] }
     va_eauth_firstname { ['JERRY'] }
-    va_eauth_csponly { [true] } # TODO: is this string or boolean
+    va_eauth_csponly { ['true'] }
     va_eauth_authenticationMethod { ['http://idmanagement.gov/ns/assurance/loa/1/vets'] }
     va_eauth_aal { ['1'] }
     va_eauth_emailaddress { ['vets.gov.user+262@example.com'] }
@@ -188,7 +190,7 @@ FactoryBot.define do
     va_eauth_credentialassurancelevel { ['3'] }
     va_eauth_ial { ['3'] }
     va_eauth_firstname { ['JERRY'] }
-    va_eauth_csponly { [false] } # TODO: is this string or boolean
+    va_eauth_csponly { ['false'] }
     va_eauth_authenticationMethod { ['http://idmanagement.gov/ns/assurance/loa/3'] }
     va_eauth_aal { ['2'] }
     va_eauth_emailaddress { ['vets.gov.user+262@example.com'] }
@@ -227,7 +229,11 @@ FactoryBot.define do
     va_eauth_commonname { ['vets.gov.user+262@example.com'] }
     va_eauth_isDelegate { ['false'] }
     va_eauth_secid { ['1008830476'] }
-    va_eauth_gcIds { ['1008830476V316605^NI^200M^USVHA^P|54e78de6140d473f87960f211be49c08^PN^200VIDM^USDVA^A|1008830476^PN^200PROV^USDVA^A'] }
+    va_eauth_gcIds {
+      ['1008830476V316605^NI^200M^USVHA^P|'\
+       '54e78de6140d473f87960f211be49c08^PN^200VIDM^USDVA^A|'\
+       '1008830476^PN^200PROV^USDVA^A']
+    }
     va_eauth_persontype { ['NOT_FOUND'] }
     va_eauth_multifactor { ['true'] }
     va_eauth_mhv_ien { ['NOT_FOUND'] }
@@ -245,7 +251,7 @@ FactoryBot.define do
     va_eauth_credentialassurancelevel { ['3'] }
     va_eauth_ial { ['3'] }
     va_eauth_firstname { ['JERRY'] }
-    va_eauth_csponly { [false] } # TODO: is this string or boolean
+    va_eauth_csponly { ['false'] }
     va_eauth_authenticationMethod { ['http://idmanagement.gov/ns/assurance/loa/3'] }
     va_eauth_aal { ['2'] }
     va_eauth_emailaddress { ['vets.gov.user+262@example.com'] }
@@ -284,7 +290,11 @@ FactoryBot.define do
     va_eauth_commonname { ['vets.gov.user+262@example.com'] }
     va_eauth_isDelegate { ['false'] }
     va_eauth_secid { ['1008830476'] }
-    va_eauth_gcIds { ['1008830476V316605^NI^200M^USVHA^P|54e78de6140d473f87960f211be49c08^PN^200VIDM^USDVA^A|1008830476^PN^200PROV^USDVA^A'] }
+    va_eauth_gcIds {
+      ['1008830476V316605^NI^200M^USVHA^P|'\
+       '54e78de6140d473f87960f211be49c08^PN^200VIDM^USDVA^A|'\
+       '1008830476^PN^200PROV^USDVA^A']
+    }
     va_eauth_persontype { ['NOT_FOUND'] }
     va_eauth_multifactor { ['true'] }
     va_eauth_mhv_ien { ['NOT_FOUND'] }
@@ -302,7 +312,7 @@ FactoryBot.define do
     va_eauth_credentialassurancelevel { ['3'] }
     va_eauth_ial { ['3'] }
     va_eauth_firstname { ['JERRY'] }
-    va_eauth_csponly { [false] } # TODO: is this string or boolean
+    va_eauth_csponly { ['false'] }
     va_eauth_authenticationMethod { ['http://idmanagement.gov/ns/assurance/loa/3'] }
     va_eauth_aal { ['2'] }
     va_eauth_emailaddress { ['vets.gov.user+262@example.com'] }
@@ -341,7 +351,11 @@ FactoryBot.define do
     va_eauth_commonname { ['vets.gov.user+262@example.com'] }
     va_eauth_isDelegate { ['false'] }
     va_eauth_secid { ['1008830476'] }
-    va_eauth_gcIds { ['1008830476V316605^NI^200M^USVHA^P|54e78de6140d473f87960f211be49c08^PN^200VIDM^USDVA^A|1008830476^PN^200PROV^USDVA^A'] }
+    va_eauth_gcIds {
+      ['1008830476V316605^NI^200M^USVHA^P|'\
+       '54e78de6140d473f87960f211be49c08^PN^200VIDM^USDVA^A|'\
+       '1008830476^PN^200PROV^USDVA^A']
+    }
     va_eauth_persontype { ['NOT_FOUND'] }
     va_eauth_multifactor { ['true'] }
     va_eauth_mhv_ien { ['NOT_FOUND'] }
@@ -359,7 +373,7 @@ FactoryBot.define do
     va_eauth_credentialassurancelevel { ['3'] }
     va_eauth_ial { ['3'] }
     va_eauth_firstname { ['JERRY'] }
-    va_eauth_csponly { [false] } # TODO: is this string or boolean
+    va_eauth_csponly { ['false'] }
     va_eauth_authenticationMethod { ['http://idmanagement.gov/ns/assurance/loa/3'] }
     va_eauth_aal { ['2'] }
     va_eauth_emailaddress { ['vets.gov.user+262@example.com'] }
@@ -398,7 +412,11 @@ FactoryBot.define do
     va_eauth_commonname { ['vets.gov.user+262@example.com'] }
     va_eauth_isDelegate { ['false'] }
     va_eauth_secid { ['1008830476'] }
-    va_eauth_gcIds { ['1008830476V316605^NI^200M^USVHA^P|54e78de6140d473f87960f211be49c08^PN^200VIDM^USDVA^A|1008830476^PN^200PROV^USDVA^A'] }
+    va_eauth_gcIds {
+      ['1008830476V316605^NI^200M^USVHA^P|'\
+       '54e78de6140d473f87960f211be49c08^PN^200VIDM^USDVA^A|'\
+       '1008830476^PN^200PROV^USDVA^A']
+    }
     va_eauth_persontype { ['NOT_FOUND'] }
     va_eauth_multifactor { ['true'] }
     va_eauth_mhv_ien { ['NOT_FOUND'] }
@@ -416,7 +434,7 @@ FactoryBot.define do
     va_eauth_credentialassurancelevel { ['3'] }
     va_eauth_ial { ['3'] }
     va_eauth_firstname { ['JERRY'] }
-    va_eauth_csponly { [false] } # TODO: is this string or boolean
+    va_eauth_csponly { ['false'] }
     va_eauth_authenticationMethod { ['http://idmanagement.gov/ns/assurance/loa/3'] }
     va_eauth_aal { ['2'] }
     va_eauth_emailaddress { ['vets.gov.user+262@example.com'] }
@@ -455,7 +473,11 @@ FactoryBot.define do
     va_eauth_commonname { ['vets.gov.user+262@example.com'] }
     va_eauth_isDelegate { ['false'] }
     va_eauth_secid { ['1008830476'] }
-    va_eauth_gcIds { ['1008830476V316605^NI^200M^USVHA^P|54e78de6140d473f87960f211be49c08^PN^200VIDM^USDVA^A|1008830476^PN^200PROV^USDVA^A'] }
+    va_eauth_gcIds {
+      ['1008830476V316605^NI^200M^USVHA^P|'\
+       '54e78de6140d473f87960f211be49c08^PN^200VIDM^USDVA^A|'\
+       '1008830476^PN^200PROV^USDVA^A']
+    }
     va_eauth_persontype { ['NOT_FOUND'] }
     va_eauth_multifactor { ['true'] }
     va_eauth_mhv_ien { ['NOT_FOUND'] }
@@ -463,4 +485,3 @@ FactoryBot.define do
     initialize_with { new(attributes.stringify_keys) }
   end
 end
-# rubocop:enable Layout/LineLength
