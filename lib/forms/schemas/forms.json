@@ -29,7 +29,7 @@
                 "type": "string"
               },
               "last_revision_on": {
-                "type": "string"
+                "type": ["string", "null"]
               },
               "pages": {
                 "type": "number"
