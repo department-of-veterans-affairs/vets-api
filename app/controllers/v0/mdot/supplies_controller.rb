@@ -13,7 +13,7 @@ module V0
       private
 
       def client
-        MDOT::Client.new(@current_user)
+        ::MDOT::Client.new(@current_user)
       end
     end
   end
