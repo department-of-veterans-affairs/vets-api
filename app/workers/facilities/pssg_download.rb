@@ -23,6 +23,7 @@ module Facilities
       @attributes = drive_time_data&.dig('attributes')
       @band_name = @attributes&.dig('Name')
       @rings = drive_time_data&.dig('geometry', 'rings')
+      @vssc_extract_date = DateTime.strptime(@attributes&.dig('EXTRDATE').to_s, '%Q')
 
       # temporary logging
       Rails.logger.info "PSSG Band not downloaded: Missing rings: #{@band_name}" if @rings.blank?
@@ -55,21 +56,31 @@ module Facilities
     end
 
     def insert_or_update_band(facility)
-      vssc_extract_date = DateTime.strptime(@attributes&.dig('EXTRDATE').to_s, '%Q')
-      drive_time_band = facility.drivetime_bands.find_or_initialize_by(vha_facility_id: @id, name: @band_name)
+      drive_time_band = facility.drivetime_bands.find_by(vha_facility_id: @id, name: @band_name)
 
-      if vssc_extract_date > drive_time_band.try(:vssc_extract_date)
+      if drive_time_band.nil?
+        drive_time_band = facility.drivetime_bands.new(vha_facility_id: @id, name: @band_name)
+        drive_time_band.unit = 'minutes'
+        drive_time_band.min = round_band(@attributes&.dig('FromBreak'))
+        drive_time_band.max = round_band(@attributes&.dig('ToBreak'))
+        drive_time_band.polygon = extract_polygon(@rings)
+        drive_time_band.vssc_extract_date = @vssc_extract_date
+
+        drive_time_band.save
+        # Rails.logger.info "PSSG Band successfully inserted: #{@band_name}" # temporary logging
+      elsif @vssc_extract_date > drive_time_band.try(:vssc_extract_date)
+        # rubocop:disable Rails/SkipsModelValidations
         drive_time_band.update_columns(
-          unit: 'minutes',
           min: round_band(@attributes&.dig('FromBreak')),
           max: round_band(@attributes&.dig('ToBreak')),
           polygon: extract_polygon(@rings),
-          vssc_extract_date: vssc_extract_date,
-          updated_at: Time.now
+          vssc_extract_date: @vssc_extract_date,
+          updated_at: Time.zone.now
         )
-        facility.save
-      else
-        Rails.logger.info "PSSG Band not updated: Facility #{@id}. Band #{@band_name}"
+        # rubocop:enable Rails/SkipsModelValidations
+        # Rails.logger.info "PSSG Band successfully updated: #{@band_name}" # temporary logging
+        # else
+        #   Rails.logger.info "PSSG Band not updated: Facility #{@id}. Band #{@band_name}" # temporary logging
       end
     end
 
