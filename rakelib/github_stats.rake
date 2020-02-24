@@ -8,6 +8,8 @@ REPOS = %w[
 ].freeze
 
 PR_KEYS = %w[
+  number
+  user
   created_at
   updated_at
   head
@@ -33,16 +35,19 @@ namespace :github_stats do
 
         if k == 'head'
           h['repo_name'] = (v['repo']['name']).to_s
+        elsif k == 'user'
+          h['user'] = v['login'].to_s
         else
           h[k.to_s] = v.to_s
         end
       end
-      h['duration'] = (DateTime.now.to_f - DateTime.parse(h['updated_at']).to_f)
+      h['duration'] = (DateTime.now.to_f - DateTime.parse(h['updated_at']).to_f).round
       open_prs << h
     end
     # send each duration to StatsD
     open_prs.each do |pr|
-      StatsD.measure(STATSD_METRIC, pr['duration'], tags: { repo: pr['repo_name'] })
+      StatsD.measure(STATSD_METRIC, pr['duration'],
+                     tags: { repo: pr['repo_name'], number: pr['number'], user: pr['user'] })
     end
   end
 end
