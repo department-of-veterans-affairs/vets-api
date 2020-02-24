@@ -38,7 +38,7 @@ module Swagger
                 key :example, 'Information for Pre-Complaint Processing'
               end
 
-              property :last_revised_on do
+              property :last_revision_on do
                 key :description, 'The date the form was last updated'
                 key :type, :string
                 key :example, '2012-01-01'
