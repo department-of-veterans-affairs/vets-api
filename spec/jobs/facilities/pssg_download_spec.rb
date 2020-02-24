@@ -31,8 +31,10 @@ RSpec.describe Facilities::PSSGDownload, type: :job do
     end
   end
 
-  let(:drive_time_data_multiple) do
-    drive_time_data_648A4.concat(drive_time_data_402QA)
+  let(:drive_time_data_bad_band) do
+    bands = drive_time_data_648A4
+    bands.first['geometry']['rings'] = 'InvalidGeometry'
+    bands
   end
 
   let(:pssg_client_stub) { instance_double('Facilities::DrivetimeBands::Client') }
@@ -136,13 +138,11 @@ RSpec.describe Facilities::PSSGDownload, type: :job do
       subject.perform
     end
 
-    it 'continues to process bands', focus: true do
+    it 'continues to process bands' do
       create :vha_402QA
+      drive_time_data_multiple = drive_time_data_bad_band.concat(drive_time_data_402QA)
 
       allow(pssg_client_stub).to receive(:get_drivetime_bands).with(0, 30).and_return(drive_time_data_multiple)
-
-      allow(subject).to receive(:extract_polygon).and_call_original
-      allow(subject).to receive(:extract_polygon).with(drive_time_data_multiple[0]['geometry']['rings']).and_raise(RGeo::Error::InvalidGeometry)
 
       subject.perform
 
