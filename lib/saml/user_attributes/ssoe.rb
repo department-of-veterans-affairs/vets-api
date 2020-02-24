@@ -4,7 +4,8 @@ module SAML
   module UserAttributes
     class SSOe < Base
       include SentryLogging
-      SSOE_SERIALIZABLE_ATTRIBUTES = %i[first_name middle_name last_name zip gender ssn birth_date disable_mhv_sso_cookie].freeze
+      SSOE_SERIALIZABLE_ATTRIBUTES = %i[first_name middle_name last_name zip gender ssn
+                                        birth_date disable_mhv_sso_cookie].freeze
       MERGEABLE_IDENTITY_ATTRIBUTES = %i[mhv_icn mhv_correlation_id dslogon_edipi sign_in].freeze
 
       # Denoted as "CSP user ID" in SSOe docs; required attribute for LOA >= 2
