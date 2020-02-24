@@ -87,7 +87,7 @@ module AuthenticationAndSSOConcerns
   def set_sso_cookie!
     # if the user logged in with an IDP that doesn't benefit from the MHV SSO
     # shared cookie (ie SSOe), then immediately return
-    return if @current_user.identity.disable_mhv_sso_cookie
+    return if @current_user&.identity&.disable_mhv_sso_cookie
 
     Rails.logger.info('SSO: ApplicationController#set_sso_cookie!', sso_logging_info)
 
