@@ -3,7 +3,7 @@
 class AppealsApi::V1::DecisionReview::ContestableIssuesController < AppealsApi::ApplicationController
   skip_before_action(:authenticate)
 
-  EXPECTED_HEADERS = %w[veteranId receiptDate].freeze
+  EXPECTED_HEADERS = %w[X-VA-SSN X-VA-Receipt-Date].freeze
 
   def index
     render_response(Appeals::Service.new.get_contestable_issues(headers))

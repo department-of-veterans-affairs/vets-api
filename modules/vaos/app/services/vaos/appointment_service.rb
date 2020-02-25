@@ -30,9 +30,10 @@ module VAOS
     def put_cancel_appointment(request_object_body)
       params = VAOS::CancelForm.new(request_object_body).params
       params.merge!(patient_identifier: { unique_id: user.icn, assigning_authority: 'ICN' })
+      site_code = params[:facility_id]
 
       with_monitoring do
-        perform(:put, put_appointment_url, params, headers)
+        perform(:put, put_appointment_url(site_code), params, headers)
         ''
       end
     rescue Common::Client::Errors::ClientError => e
@@ -42,12 +43,14 @@ module VAOS
     private
 
     def deserialized_appointments(json_hash, type)
-      if type == 'va'
-        json_hash.dig(:data, :appointment_list).map { |appointments| OpenStruct.new(appointments) }
-      else
-        json_hash[:booked_appointment_collections].first[:booked_cc_appointments]
-                                                  .map { |appointments| OpenStruct.new(appointments) }
-      end
+      appointment_list = if type == 'va'
+                           json_hash.dig(:data, :appointment_list)
+                         else
+                           json_hash[:booked_appointment_collections].first[:booked_cc_appointments]
+                         end
+      return [] unless appointment_list
+
+      appointment_list.map { |appointments| OpenStruct.new(appointments) }
     end
 
     # TODO: need underlying APIs to support pagination consistently
@@ -75,8 +78,8 @@ module VAOS
         "/patient/ICN/#{user.icn}/booked-appointments"
     end
 
-    def put_appointment_url
-      '/var/VeteranAppointmentRequestService/v4/rest/direct-scheduling/site/983/patient/ICN/' \
+    def put_appointment_url(site)
+      "/var/VeteranAppointmentRequestService/v4/rest/direct-scheduling/site/#{site}/patient/ICN/" \
         "#{user.icn}/cancel-appointment"
     end
 

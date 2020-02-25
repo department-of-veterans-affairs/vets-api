@@ -543,20 +543,22 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
 
       it 'supports updating payment information' do
         expect(subject).to validate(:put, '/v0/ppiu/payment_information', 401)
-        VCR.use_cassette('evss/ppiu/update_payment_information') do
-          expect(subject).to validate(
-            :put,
-            '/v0/ppiu/payment_information',
-            200,
-            headers.update(
-              '_data' => {
-                'account_type' => 'Checking',
-                'financial_institution_name' => 'Bank of Amazing',
-                'account_number' => '1234567890',
-                'financial_institution_routing_number' => '123456789'
-              }
+        VCR.use_cassette('evss/ppiu/payment_information') do
+          VCR.use_cassette('evss/ppiu/update_payment_information') do
+            expect(subject).to validate(
+              :put,
+              '/v0/ppiu/payment_information',
+              200,
+              headers.update(
+                '_data' => {
+                  'account_type' => 'Checking',
+                  'financial_institution_name' => 'Bank of Amazing',
+                  'account_number' => '1234567890',
+                  'financial_institution_routing_number' => '123456789'
+                }
+              )
             )
-          )
+          end
         end
       end
     end
@@ -1997,7 +1999,7 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
       it 'supports GETting async transaction by ID' do
         transaction = create(
           :address_transaction,
-          transaction_id: '0faf342f-5966-4d3f-8b10-5e9f911d07d2',
+          transaction_id: 'a030185b-e88b-4e0d-a043-93e4f34c60d6',
           user_uuid: user.uuid
         )
         expect(subject).to validate(
@@ -2439,6 +2441,31 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
               headers.merge('_data' => patch_body, 'subject' => notification_subject)
             )
           end
+        end
+      end
+
+      describe 'forms' do
+        context 'when successful' do
+          it 'supports getting form results data with a query' do
+            VCR.use_cassette('forms/200_form_query') do
+              expect(subject).to validate(:get, '/v0/forms', 200, '_query_string' => 'query=health')
+            end
+          end
+
+          it 'support getting form results without a query' do
+            VCR.use_cassette('forms/200_all_forms') do
+              expect(subject).to validate(:get, '/v0/forms', 200)
+            end
+          end
+        end
+      end
+    end
+
+    describe 'dependents applications' do
+      it 'supports getting dependent information' do
+        expect(subject).to validate(:get, '/v0/dependents_applications/show', 401)
+        VCR.use_cassette('bgs/claimant_web_service/dependents') do
+          expect(subject).to validate(:get, '/v0/dependents_applications/show', 200, headers)
         end
       end
     end
