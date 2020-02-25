@@ -2,9 +2,9 @@
   "$schema": "http://json-schema.org/draft-04/schema#",
   "description": "",
   "type": "object",
-  "required": ["veteran_address", "supplies"],
+  "required": ["veteranAddress", "supplies"],
   "properties": {
-    "veteran_address": {
+    "veteranAddress": {
       "type": "object",
       "street": {
         "type": "string"
@@ -25,7 +25,7 @@
         "type": "string"
       }
     },
-    "veteran_temporary_address": {
+    "veteranTemporaryAddress": {
       "type": "object",
       "street": {
         "type": "string"
