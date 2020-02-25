@@ -5,27 +5,34 @@ module HCA
     include Sidekiq::Worker
     VALIDATION_ERROR = HCA::SOAPParser::ValidationError
 
-    def perform(user_identifier, form, health_care_application_id, google_analytics_client_id)
-      health_care_application = HealthCareApplication.find(health_care_application_id)
+    def submit(user_identifier, form, google_analytics_client_id)
 
       begin
         result = HCA::Service.new(user_identifier).submit_form(form)
       rescue VALIDATION_ERROR
         PersonalInformationLog.create!(data: { form: form }, error_class: VALIDATION_ERROR.to_s)
 
-        return health_care_application.update_attributes!(
+        @health_care_application.update_attributes!(
           state: 'failed',
           form: form.to_json,
           google_analytics_client_id: google_analytics_client_id
         )
-      rescue
-        health_care_application.update_attributes!(state: 'error')
-        raise
+
+        return false
       end
+
+      result
+    end
+
+    def perform(user_identifier, form, health_care_application_id, google_analytics_client_id)
+      @health_care_application = HealthCareApplication.find(health_care_application_id)
+
+      result = submit(user_identifier, form, google_analytics_client_id)
+      return unless result
 
       Rails.logger.info "SubmissionID=#{result[:formSubmissionId]}"
 
-      health_care_application.set_result_on_success!(result)
+      @health_care_application.set_result_on_success!(result)
     end
   end
 end

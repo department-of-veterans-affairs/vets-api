@@ -10,5 +10,12 @@ module HCA
         google_analytics_client_id: msg['args'][3]
       )
     end
+
+    def perform(*args)
+      super
+    rescue
+      @health_care_application.update_attributes!(state: 'error')
+      raise
+    end
   end
 end
