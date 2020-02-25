@@ -127,7 +127,7 @@ http_interactions:
               "availableForReorder": true,
               "lastOrderDate": "2019-06-30",
               "nextAvailabilityDate": "2019-12-15",
-              "quantity": 10
+              "quantity": 10,
               "size": ""
             }
           ]
