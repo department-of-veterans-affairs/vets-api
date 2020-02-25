@@ -21,7 +21,7 @@
       "country": {
         "type": "string"
       },
-      "postalCode": {
+      "postal_code": {
         "type": "string"
       }
     },
@@ -42,7 +42,7 @@
       "country": {
         "type": "string"
       },
-      "postalCode": {
+      "postal_code": {
         "type": "string"
       }
     },
@@ -51,27 +51,27 @@
       "uniqueItems": true,
       "items": {
         "type": "object",
-        "required": ["productId"],
+        "required": ["product_id"],
         "properties": {
-          "deviceName": {
+          "device_name": {
             "type": "string"
           },
-          "productName": {
+          "product_name": {
             "type": "string"
           },
-          "productGroup": {
+          "product_group": {
             "type": "string"
           },
-          "productId": {
+          "product_id": {
             "type": "string"
           },
-          "availableForReorder": {
+          "available_for_reorder": {
             "type": "boolean"
           },
-          "lastOrderDate": {
+          "last_order_date": {
             "type": "string"
           },
-          "nextAvailabilityDate": {
+          "next_availability_date": {
             "type": "string"
           },
           "quantity": {
