@@ -21,29 +21,8 @@ module Swagger
               end
             end
 
-            response 401 do
-              key :description, 'User is not authenticated (logged in)'
-              schema do
-                key :'$ref', :Errors
-              end
-            end
-
-            response 403 do
-              key :description, 'Forbidden: user is not authorized for Medical Device Ordering Tool'
-              schema do
-                key :'$ref', :Errors
-              end
-            end
-
             response 404 do
               key :description, 'Not found: medical devices and supplies not found for user'
-              schema do
-                key :'$ref', :Errors
-              end
-            end
-
-            response 422 do
-              key :description, 'Unprocessable Entity: one or more validations has failed'
               schema do
                 key :'$ref', :Errors
               end

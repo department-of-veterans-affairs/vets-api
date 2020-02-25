@@ -57,7 +57,8 @@ http_interactions:
           "errors": [{
             "status": "404",
             "title": "Veteran not found",
-            "detail": "A veteran with that SSN was not found in our systems."
+            "detail": "A veteran with that SSN was not found in our systems.",
+            "code": "404"
           }]
         }
     http_version:
