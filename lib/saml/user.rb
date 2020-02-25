@@ -89,9 +89,11 @@ module SAML
       raise
     end
 
+    # rubocop:disable Naming/PredicateName
     def has_va_sso
       issuer&.match?(/eauth\.va\.gov/) == true
     end
+    # rubocop:enable Naming/PredicateName
 
     # SSOe Issuer value is https://int.eauth.va.gov/FIM/sps/saml20fedCSP/saml20
     # SSOe AuthnContext currently set to urn:oasis:names:tc:SAML:2.0:ac:classes:Password
