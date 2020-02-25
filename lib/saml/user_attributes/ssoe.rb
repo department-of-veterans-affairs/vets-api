@@ -87,14 +87,28 @@ module SAML
       end
 
       def dslogon_loa_current
-        if safe_attr('dslogon_assurance')
-          dslogon_assurance = safe_attr('dslogon_assurance')
+        if safe_attr('va_eauth_dslogonassurance')
+          dslogon_assurance = safe_attr('va_eauth_dslogonassurance')
+          SAML:: UserAttributes::DSLogon::PREMIUM_LOAS.include?(dslogon_assurance) ? 3 : 1
+        end
+      end
+
+      def mhv_loa_highest
+
+      end
+
+      def dslogon_loa_highest
+        if safe_attr('va_eauth_dslogonassurance')
+          dslogon_assurance = safe_attr('va_eauth_dslogonassurance')
+          # TODO account for idme-wrapped variation
           SAML:: UserAttributes::DSLogon::PREMIUM_LOAS.include?(dslogon_assurance) ? 3 : 1
         end
       end
 
       # This is the ID.me highest level of assurance attained
       def loa_highest
+        return mhv_loa_highest if mhv_loa_highest
+        return dslogon_loa_highest if dslogon_loa_highest
         safe_attr('va_eauth_ial')&.to_i
       end
 

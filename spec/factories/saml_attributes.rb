@@ -159,6 +159,26 @@ FactoryBot.define do
     initialize_with { new(attributes.stringify_keys) }
   end
 
+  factory :ssoe_idme_loa1_unproofed, class: OneLogin::RubySaml::Attributes do
+    transient do
+      authn_context { LOA::IDME_LOA1_VETS }
+    end
+    va_eauth_csid { ['idme'] }
+    va_eauth_emailaddress { ['vets.gov.user+262@example.com'] }
+    va_eauth_lastname { ['GPKTESTNINE'] }
+    va_eauth_transactionid { ['abcd1234xyz'] }
+    va_eauth_authncontextclassref { ['http://idmanagement.gov/ns/assurance/loa/1/vets'] }
+    va_eauth_credentialassurancelevel { ['1'] }
+    va_eauth_uid { ['54e78de6140d473f87960f211be49c08'] }
+    va_eauth_issueinstant { ['2020-02-05T21:14:20Z'] }
+    va_eauth_firstname { ['JERRY'] }
+    va_eauth_middlename { ['NOT_FOUND'] }
+    va_eauth_csponly { ['true'] }
+    va_eauth_authenticationMethod { ['http://idmanagement.gov/ns/assurance/loa/1/vets'] }
+
+    initialize_with { new(attributes.stringify_keys) }
+  end
+
   factory :ssoe_idme_loa1, class: OneLogin::RubySaml::Attributes do
     transient do
       authn_context { LOA::IDME_LOA1_VETS }
@@ -166,7 +186,7 @@ FactoryBot.define do
     va_eauth_csid { ['idme'] }
     va_eauth_lastname { ['GPKTESTNINE'] }
     va_eauth_credentialassurancelevel { ['1'] }
-    va_eauth_ial { ['1'] }
+    va_eauth_ial { ['3'] }
     va_eauth_firstname { ['JERRY'] }
     va_eauth_csponly { ['true'] }
     va_eauth_authenticationMethod { ['http://idmanagement.gov/ns/assurance/loa/1/vets'] }
@@ -241,64 +261,92 @@ FactoryBot.define do
     initialize_with { new(attributes.stringify_keys) }
   end
 
-  # TODO: make this reflective of MHV basic user
-  factory :ssoe_idme_mhv_basic, class: OneLogin::RubySaml::Attributes do
+  # Federated SSOe-ID.me user with MHV basic credential
+  # Note this user has previously been verified but this 
+  # SAML attribute set represents the initial non-verified request
+   factory :ssoe_idme_mhv_basic, class: OneLogin::RubySaml::Attributes do
     transient do
       authn_context { 'myhealthevet' }
     end
     va_eauth_csid { ['idme'] }
-    va_eauth_lastname { ['GPKTESTNINE'] }
-    va_eauth_credentialassurancelevel { ['3'] }
-    va_eauth_ial { ['3'] }
-    va_eauth_firstname { ['JERRY'] }
-    va_eauth_csponly { ['false'] }
-    va_eauth_authenticationMethod { ['http://idmanagement.gov/ns/assurance/loa/3'] }
-    va_eauth_aal { ['2'] }
-    va_eauth_emailaddress { ['vets.gov.user+262@example.com'] }
+    va_eauth_lastname { ['NOT_FOUND'] }
+    va_eauth_credentialassurancelevel { ['1'] }
+    va_eauth_ial { ['1'] }
+    va_eauth_firstname { ['NOT_FOUND'] }
+    va_eauth_csponly { ['true'] }
+    va_eauth_authenticationMethod { ['myhealthevet'] }
+    va_eauth_aal { ['1'] }
+    va_eauth_emailaddress { ['alexmac_0@example.com'] }
     va_eauth_transactionid { ['abcd1234xyz'] }
-    va_eauth_authncontextclassref { ['http://idmanagement.gov/ns/assurance/loa/3'] }
-    va_eauth_uid { ['54e78de6140d473f87960f211be49c08'] }
-    va_eauth_issueinstant { ['2020-02-05T21:15:14Z'] }
+    va_eauth_authncontextclassref { ['myhealthevet'] }
+    va_eauth_uid { ['881571066e5741439652bc80759dd88c'] }
+    va_eauth_issueinstant { ['2020-02-25T01:37:51Z'] }
     va_eauth_middlename { ['NOT_FOUND'] }
 
+    initialize_with { new(attributes.stringify_keys) }
+  end
+
+  # Federated SSOe-ID.me user with MHV basic credential who
+  # has been verified through ID.me
+  factory :ssoe_idme_mhv_loa3, class: OneLogin::RubySaml::Attributes do
+    transient do
+      authn_context { 'myhealthevet_loa3' }
+    end
     va_eauth_phone { ['NOT_FOUND'] }
-    va_eauth_street { ['NOT_FOUND'] }
-    va_eauth_street1 { ['NOT_FOUND'] }
-    va_eauth_street2 { ['NOT_FOUND'] }
-    va_eauth_street3 { ['NOT_FOUND'] }
+    va_eauth_lastname { ['MAC'] }
+    va_eauth_ial { ['3'] }
+    va_eauth_icn { ['1013183292V131165'] }
     va_eauth_city { ['NOT_FOUND'] }
-    va_eauth_state { ['NOT_FOUND'] }
-    va_eauth_postalcode { ['NOT_FOUND'] }
     va_eauth_country { ['NOT_FOUND'] }
-
-    va_eauth_prefix { ['NOT_FOUND'] }
-    va_eauth_suffix { ['NOT_FOUND'] }
-
-    va_eauth_icn { ['1008830476V316605'] }
     va_eauth_csp_identifier { ['200VIDM'] }
-    va_eauth_gender { ['male'] }
-    va_eauth_csp_method { ['IDME'] }
+    va_eauth_gender { ['female'] }
+    va_eauth_street2 { ['NOT_FOUND'] }
+    va_eauth_aal { ['2'] }
+    # va_eauth_dslogonassurance { ['2'] } not present for MHV
+    va_eauth_csp_method { ['IDME_MHV'] }
     va_eauth_dodedipnid { ['NOT_FOUND'] }
-    va_eauth_cspid { ['200VIDM_54e78de6140d473f87960f211be49c08'] }
-    va_eauth_birthDate_v1 { ['19690407'] }
+    va_eauth_emailaddress { ['alexmac_0@example.com'] }
+    va_eauth_cspid { ['200VIDM_881571066e5741439652bc80759dd88c'] }
+    va_eauth_authncontextclassref { ['myhealthevet_loa3'] }
+    # va_eauth_dslogonuuid { ['1005169255'] } not present for MHV
+    va_eauth_issueinstant { ['2020-02-25T01:37:57Z'] }
+    va_eauth_middlename { ['NOT_FOUND'] }
+    va_eauth_birthDate_v1 { ['19881124'] }
+    va_eauth_state { ['NOT_FOUND'] }
     va_eauth_birlsfilenumber { ['NOT_FOUND'] }
-    va_eauth_proofingAuthority { ['FICAM'] }
+    va_eauth_postalcode { ['NOT_FOUND'] }
+    va_eauth_mhvassurance { ['Basic'] }
+    va_eauth_street3 { ['NOT_FOUND'] }
+    va_eauth_csid { ['idme'] }
+    va_eauth_proofingAuthority { ['MHV'] }
     va_eauth_pid { ['NOT_FOUND'] }
+    va_eauth_credentialassurancelevel { ['3'] }
     va_eauth_pnidtype { ['SSN'] }
-    va_eauth_mcid { ['WSSOE2002051615154200356008529'] }
-    va_eauth_pnid { ['666271152'] }
-    va_eauth_commonname { ['vets.gov.user+262@example.com'] }
+    va_eauth_mcid { ['WSSOE2002242037576871098176537'] }
+    va_eauth_firstname { ['ALEX'] }
+    va_eauth_mhvprofile { ['{"accountType":"Basic","availableServices":{"1":"Blue Button self entered data."}}'] }
+    va_eauth_prefix { ['NOT_FOUND'] }
+    va_eauth_street { ['811 Vermont Ave NW'] }
+    va_eauth_csponly { ['false'] }
+    va_eauth_pnid { ['230595111'] }
+    va_eauth_commonname { ['alexmac_0@example.com'] }
+    va_eauth_authenticationMethod { ['myhealthevet_loa3'] }
+    va_eauth_transactionid { ['abcd1234xyz'] }
+    va_eauth_mhvuuid { ['15001594'] }
+    va_eauth_suffix { ['NOT_FOUND'] }
+    va_eauth_uid { ['881571066e5741439652bc80759dd88c'] }
     va_eauth_isDelegate { ['false'] }
-    va_eauth_secid { ['1008830476'] }
+    va_eauth_secid { ['1013183292'] }
     va_eauth_gcIds {
-      ['1008830476V316605^NI^200M^USVHA^P|'\
-       '54e78de6140d473f87960f211be49c08^PN^200VIDM^USDVA^A|'\
-       '1008830476^PN^200PROV^USDVA^A']
+      ['1013183292V131165^NI^200M^USVHA^P|'\
+       '1013183292^PN^200PROV^USDVA^A|'\
+       '881571066e5741439652bc80759dd88c^PN^200VIDM^USDVA^A']
     }
     va_eauth_persontype { ['NOT_FOUND'] }
     va_eauth_multifactor { ['true'] }
+    va_eauth_street1 { ['NOT_FOUND'] }
     va_eauth_mhv_ien { ['NOT_FOUND'] }
-
+       
     initialize_with { new(attributes.stringify_keys) }
   end
 
@@ -424,64 +472,71 @@ FactoryBot.define do
     initialize_with { new(attributes.stringify_keys) }
   end
 
-  # TODO: make this reflective of DSLogon 2 user
   factory :ssoe_idme_dslogon_level2, class: OneLogin::RubySaml::Attributes do
     transient do
       authn_context { 'dslogon' }
     end
-    va_eauth_csid { ['idme'] }
-    va_eauth_lastname { ['GPKTESTNINE'] }
-    va_eauth_credentialassurancelevel { ['3'] }
-    va_eauth_ial { ['3'] }
-    va_eauth_firstname { ['JERRY'] }
-    va_eauth_csponly { ['false'] }
-    va_eauth_authenticationMethod { ['http://idmanagement.gov/ns/assurance/loa/3'] }
-    va_eauth_aal { ['2'] }
-    va_eauth_emailaddress { ['vets.gov.user+262@example.com'] }
-    va_eauth_transactionid { ['abcd1234xyz'] }
-    va_eauth_authncontextclassref { ['http://idmanagement.gov/ns/assurance/loa/3'] }
-    va_eauth_uid { ['54e78de6140d473f87960f211be49c08'] }
-    va_eauth_issueinstant { ['2020-02-05T21:15:14Z'] }
-    va_eauth_middlename { ['NOT_FOUND'] }
-
-    va_eauth_phone { ['NOT_FOUND'] }
-    va_eauth_street { ['NOT_FOUND'] }
-    va_eauth_street1 { ['NOT_FOUND'] }
-    va_eauth_street2 { ['NOT_FOUND'] }
-    va_eauth_street3 { ['NOT_FOUND'] }
-    va_eauth_city { ['NOT_FOUND'] }
-    va_eauth_state { ['NOT_FOUND'] }
-    va_eauth_postalcode { ['NOT_FOUND'] }
-    va_eauth_country { ['NOT_FOUND'] }
-
-    va_eauth_prefix { ['NOT_FOUND'] }
-    va_eauth_suffix { ['NOT_FOUND'] }
-
-    va_eauth_icn { ['1008830476V316605'] }
+    va_eauth_phone { ['(202)555-9320'] }
+    va_eauth_lastname { ['WEAVER'] }
+    va_eauth_ial { ['2'] }
+    va_eauth_icn { ['1012740600V714187'] }
+    va_eauth_city { ['Washington'] }
+    va_eauth_country { ['USA'] }
     va_eauth_csp_identifier { ['200VIDM'] }
-    va_eauth_gender { ['male'] }
-    va_eauth_csp_method { ['IDME'] }
-    va_eauth_dodedipnid { ['NOT_FOUND'] }
-    va_eauth_cspid { ['200VIDM_54e78de6140d473f87960f211be49c08'] }
-    va_eauth_birthDate_v1 { ['19690407'] }
-    va_eauth_birlsfilenumber { ['NOT_FOUND'] }
-    va_eauth_proofingAuthority { ['FICAM'] }
-    va_eauth_pid { ['NOT_FOUND'] }
+    va_eauth_gender { ['MALE'] }
+    va_eauth_street2 { ['NOT_FOUND'] }
+    va_eauth_aal { ['1'] }
+    va_eauth_dslogonassurance { ['2'] }
+    va_eauth_csp_method { ['IDME_DSL'] }
+    va_eauth_dodedipnid { ['1005169255'] }
+    va_eauth_emailaddress { ['Test0206@gmail.com'] }
+    va_eauth_cspid { ['200VIDM_1655c16aa0784dbe973814c95bd69177'] }
+    va_eauth_authncontextclassref { ['dslogon'] }
+    va_eauth_dslogonuuid { ['1005169255'] }
+    va_eauth_issueinstant { ['2020-02-24T23:21:41Z'] }
+    va_eauth_middlename { ['LEONARD'] }
+    va_eauth_birthDate_v1 { ['19560710'] }
+    va_eauth_state { ['DC'] }
+    va_eauth_birlsfilenumber { ['796123607'] }
+    va_eauth_postalcode { ['20571-0001'] }
+    va_eauth_street3 { ['NOT_FOUND'] }
+    va_eauth_csid { ['idme'] }
+    va_eauth_proofingAuthority { ['DMDC'] }
+    va_eauth_pid { ['600043180'] }
+    va_eauth_credentialassurancelevel { ['2'] }
     va_eauth_pnidtype { ['SSN'] }
-    va_eauth_mcid { ['WSSOE2002051615154200356008529'] }
-    va_eauth_pnid { ['666271152'] }
-    va_eauth_commonname { ['vets.gov.user+262@example.com'] }
+    va_eauth_mcid { ['WSSOE2002241821433910863216572'] }
+    va_eauth_firstname { ['JOHNNIE'] }
+    va_eauth_prefix { ['NOT_FOUND'] }
+    va_eauth_street { ['811 Vermont Ave NW'] }
+    va_eauth_csponly { ['false'] }
+    va_eauth_pnid { ['796123607'] }
+    va_eauth_commonname { ['dslogon10923109@gmail.com'] }
+    va_eauth_authenticationMethod { ['dslogon'] }
+    va_eauth_transactionid { ['abcd1234xyz'] }
+    va_eauth_suffix { ['NOT_FOUND'] }
+    va_eauth_uid { ['1655c16aa0784dbe973814c95bd69177'] }
     va_eauth_isDelegate { ['false'] }
-    va_eauth_secid { ['1008830476'] }
+    va_eauth_secid { ['0000028007'] }
     va_eauth_gcIds {
-      ['1008830476V316605^NI^200M^USVHA^P|'\
-       '54e78de6140d473f87960f211be49c08^PN^200VIDM^USDVA^A|'\
-       '1008830476^PN^200PROV^USDVA^A']
+      ['1012740600V714187^NI^200M^USVHA^P|'\
+       '552151338^PI^989^USVHA^A|'\
+       '1005169255^NI^200DOD^USDOD^A|'\
+       '796123607^PI^200BRLS^USVBA^A|'\
+       '600043180^PI^200CORP^USVBA^A|'\
+       '0000028007^PN^200PROV^USDVA^A|'\
+       '0000001012740600V714187000000^PI^200ESR^USVHA^A|'\
+       '14384899^PI^200MHS^USVHA^A|'\
+       '1133902^PI^200VETS^USDVA^A|'\
+       '1655c16aa0784dbe973814c95bd69177^PN^200VIDM^USDVA^A|'\
+       '1306e31273604dd4a12aa67609a63bfe^PN^200VIDM^USDVA^A|'\
+       '796123607^AN^200CORP^USVBA^']
     }
-    va_eauth_persontype { ['NOT_FOUND'] }
+    va_eauth_persontype { ['PAT'] }
     va_eauth_multifactor { ['true'] }
-    va_eauth_mhv_ien { ['NOT_FOUND'] }
-
+    va_eauth_street1 { ['811 Vermont Ave NW'] }
+    va_eauth_mhv_ien { ['14384899'] }
+       
     initialize_with { new(attributes.stringify_keys) }
   end
 end
