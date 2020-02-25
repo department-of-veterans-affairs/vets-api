@@ -7,7 +7,11 @@ RSpec.describe HCA::AnonSubmissionJob, type: :job do
 
   describe 'when job has failed' do
     it 'sets the health_care_application state to failed' do
-      described_class.new.perform(nil, nil, health_care_application.id, nil) rescue nil
+      begin
+        described_class.new.perform(nil, nil, health_care_application.id, nil)
+      rescue
+        nil
+      end
 
       expect(health_care_application.reload.state).to eq('failed')
     end

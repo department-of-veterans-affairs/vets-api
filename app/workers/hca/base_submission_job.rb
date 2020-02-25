@@ -6,7 +6,6 @@ module HCA
     VALIDATION_ERROR = HCA::SOAPParser::ValidationError
 
     def submit(user_identifier, form, google_analytics_client_id)
-
       begin
         result = HCA::Service.new(user_identifier).submit_form(form)
       rescue VALIDATION_ERROR
