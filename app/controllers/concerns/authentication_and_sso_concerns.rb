@@ -140,11 +140,11 @@ module AuthenticationAndSSOConcerns
   end
 
   def can_set_sso_cookie?
-    return Settings.sso.cookie_enabled &&
-            @session_object.present? &&
-            # if the user logged in via SSOe, there is no benefit from
-            # creating a MHV SSO shared cookie
-            @current_user&.issuer !~ /https:\/\/.*eauth.va.gov\/[\S]+/
+    Settings.sso.cookie_enabled &&
+      @session_object.present? &&
+      # if the user logged in via SSOe, there is no benefit from
+      # creating a MHV SSO shared cookie
+      @current_user&.issuer !~ %r{https://.*eauth.va.gov/[\S]+}
   end
 end
 # rubocop:enable Metrics/ModuleLength
