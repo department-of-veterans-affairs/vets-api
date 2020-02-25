@@ -54,9 +54,15 @@ class HealthCareApplication < ApplicationRecord
   def process!
     raise(Common::Exceptions::ValidationErrors, self) unless valid?
 
-    if parsed_form['email'].present? && async_compatible
+    has_email = parsed_form['email'].present?
+
+    if has_email || async_compatible
       save!
-      HCA::SubmissionJob.perform_async(
+
+      submission_job = 'SubmissionJob'
+      submission_job = "Anon#{submission_job}" unless has_email
+
+      "HCA::#{submission_job}".constantize.perform_async(
         self.class.get_user_identifier(user),
         parsed_form,
         id,
