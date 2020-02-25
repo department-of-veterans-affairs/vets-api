@@ -51,6 +51,7 @@
       "uniqueItems": true,
       "items": {
         "type": "object",
+        "required": ["productId"],
         "properties": {
           "deviceName": {
             "type": "string"
