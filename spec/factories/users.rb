@@ -22,6 +22,7 @@ FactoryBot.define do
       va_patient { nil }
       search_token { nil }
       icn_with_aaid { nil }
+      has_va_sso { false }
 
       sign_in do
         {
