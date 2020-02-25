@@ -85,13 +85,9 @@ module AuthenticationAndSSOConcerns
 
   # Sets a cookie used by MHV for SSO
   def set_sso_cookie!
-    # if the user logged in with an IDP that doesn't benefit from the MHV SSO
-    # shared cookie (ie SSOe), then immediately return
-    return if @current_user&.identity&.disable_mhv_sso_cookie
+    return unless can_set_sso_cookie
 
     Rails.logger.info('SSO: ApplicationController#set_sso_cookie!', sso_logging_info)
-
-    return unless Settings.sso.cookie_enabled && @session_object.present?
 
     encryptor = SSOEncryptor
     encrypted_value = encryptor.encrypt(ActiveSupport::JSON.encode(sso_cookie_content))
@@ -141,6 +137,14 @@ module AuthenticationAndSSOConcerns
       sso_cookie_contents: sso_cookie_content,
       request_host: request.host
     }
+  end
+
+  def can_set_sso_cookie?
+    return Settings.sso.cookie_enabled &&
+            @session_object.present? &&
+            # if the user logged in via SSOe, there is no benefit from
+            # creating a MHV SSO shared cookie
+            @current_user&.issuer !~ /https:\/\/.*eauth.va.gov\/[\S]+/
   end
 end
 # rubocop:enable Metrics/ModuleLength

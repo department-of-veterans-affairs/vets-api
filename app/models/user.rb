@@ -115,6 +115,7 @@ class User < Common::RedisStore
   delegate :authn_context, to: :identity, allow_nil: true
   delegate :mhv_icn, to: :identity, allow_nil: true
   delegate :dslogon_edipi, to: :identity, allow_nil: true
+  delegate :issuer, to: :identity, allow_nil: true
 
   # mvi attributes
   delegate :birls_id, to: :mvi
