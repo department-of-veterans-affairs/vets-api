@@ -70,59 +70,59 @@ http_interactions:
       encoding: ASCII-8BIT
       string: |-
         {
-          "veteran_address": {
+          "veteranAddress": {
             "street": "101 Example Street",
             "street2": "Apt 2",
             "city": "Kansas City",
             "state": "MO",
             "country": "US",
-            "postal_code": "64117"
+            "postalCode": "64117"
           },
-          "veteran_temporary_address": {
+          "veteranTemporaryAddress": {
             "street": "201 Example Street",
             "city": "Galveston",
             "state": "TX",
             "country": "US",
-            "postal_code": "77550"
+            "postalCode": "77550"
           },
           "supplies": [
             {
-              "device_name": "OMEGA XD3241",
-              "product_name": "ZA1239",
-              "product_group": "hearing aid batteries",
-              "product_id": "1",
-              "available_for_reorder": "false",
-              "last_order_date": "2020-01-01",
-              "next_availability_date": "2020-09-01",
+              "deviceName": "OMEGA XD3241",
+              "productName": "ZA1239",
+              "productGroup": "hearing aid batteries",
+              "productId": "1",
+              "availableForReorder": "false",
+              "lastOrderDate": "2020-01-01",
+              "nextAvailabilityDate": "2020-09-01",
               "quantity": 60
             },
             {
-              "product_name": "DOME",
-              "product_group": "hearing aid accessories",
-              "product_id": "3",
-              "available_for_reorder": "true",
-              "last_order_date": "2019-06-30",
-              "next_availability_date": "2019-12-15",
+              "productName": "DOME",
+              "productGroup": "hearing aid accessories",
+              "productId": "3",
+              "availableForReorder": "true",
+              "lastOrderDate": "2019-06-30",
+              "nextAvailabilityDate": "2019-12-15",
               "quantity": 10,
               "size": "6mm"
             },
             {
-              "product_name": "DOME",
-              "product_group": "hearing aid accessories",
-              "product_id": "4",
-              "available_for_reorder": "true",
-              "last_order_date": "2019-06-30",
-              "next_availability_date": "2019-12-15",
+              "productName": "DOME",
+              "productGroup": "hearing aid accessories",
+              "productId": "4",
+              "availableForReorder": "true",
+              "lastOrderDate": "2019-06-30",
+              "nextAvailabilityDate": "2019-12-15",
               "quantity": 10,
               "size": "7mm"
             },
             {
-              "product_name": "Waxbuster single unit",
-              "product_group": "hearing aid accessories",
-              "product_id": "5",
-              "available_for_reorder": "true",
-              "last_order_date": "2019-06-30",
-              "next_availability_date": "2019-12-15",
+              "productName": "Waxbuster single unit",
+              "productGroup": "hearing aid accessories",
+              "productId": "5",
+              "availableForReorder": "true",
+              "lastOrderDate": "2019-06-30",
+              "nextAvailabilityDate": "2019-12-15",
               "quantity": 10
             }
           ]
