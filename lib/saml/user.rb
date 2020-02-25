@@ -58,7 +58,7 @@ module SAML
     private
 
     def serializable_attributes
-      %i[authn_context issuer]
+      %i[authn_context has_va_sso]
     end
 
     def log_warnings_to_sentry
@@ -89,10 +89,14 @@ module SAML
       raise
     end
 
+    def has_va_sso
+      issuer&.match?(/eauth\.va\.gov/) == true
+    end
+
     # SSOe Issuer value is https://int.eauth.va.gov/FIM/sps/saml20fedCSP/saml20
     # SSOe AuthnContext currently set to urn:oasis:names:tc:SAML:2.0:ac:classes:Password
     def user_attributes_class
-      return SAML::UserAttributes::SSOe if issuer&.match(/eauth\.va\.gov/)
+      return SAML::UserAttributes::SSOe if has_va_sso
 
       case authn_context
       when 'myhealthevet', 'myhealthevet_multifactor'

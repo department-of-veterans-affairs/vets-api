@@ -144,7 +144,7 @@ module AuthenticationAndSSOConcerns
       @session_object.present? &&
       # if the user logged in via SSOe, there is no benefit from
       # creating a MHV SSO shared cookie
-      @current_user&.issuer !~ %r{eauth\.va\.gov/}
+      !@current_user&.has_va_sso
   end
 end
 # rubocop:enable Metrics/ModuleLength
