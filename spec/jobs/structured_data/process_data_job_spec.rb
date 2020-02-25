@@ -11,6 +11,9 @@ RSpec.describe StructuredData::ProcessDataJob, uploader_helpers: true do
     let(:job) { described_class.new }
 
     before do
+      expect_any_instance_of(BipClaims::Service).to receive(:lookup_veteran_from_mvi).with(claim).and_return(
+        OpenStruct.new(participant_id: 123)
+      )
       described_class.new.perform(claim.id)
     end
 
