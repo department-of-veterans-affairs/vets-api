@@ -5,6 +5,7 @@ module V0
     before_action { authorize :evss, :access? }
     before_action { authorize :ppiu, :access? }
     before_action :validate_pay_info, only: :update
+    before_action(only: :update) { authorize(:ppiu, :access_update?) }
 
     def index
       response = service.get_payment_information

@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-STATSD_ERROR_KEY = 'worker.github_stats_scraper.error'
+STATSD_METRIC = 'tasks.github_stats_scraper.duration'
 
 REPOS = %w[
   vets-api
@@ -8,6 +8,8 @@ REPOS = %w[
 ].freeze
 
 PR_KEYS = %w[
+  number
+  user
   created_at
   updated_at
   head
@@ -16,33 +18,29 @@ PR_KEYS = %w[
 namespace :github_stats do
   desc 'Hit the Github API and grab data on open PRs'
   task get_open_prs: :environment do
-    # hit API endpoints for vets-api and vets-website to get open PRs and add data to array
-    responses = []
+    # hit API endpoints for vets-api and vets-website to get open PRs and add data to hash
+    responses = {}
     REPOS.each do |repo|
       url = "https://api.github.com/repos/department-of-veterans-affairs/#{repo}/pulls?state=open&per_page=100"
       uri = URI(url)
       resp = Net::HTTP.get(uri)
-      responses.concat(JSON.parse(resp))
+      responses[repo] = resp
     end
     # iterate thru responses and collect just the needed data
-    open_prs = []
-    responses.each do |response|
-      h = {}
-      response.each do |k, v|
-        next unless PR_KEYS.include?(k)
+    responses.each do |repo, json_response|
+      open_prs = JSON.parse(json_response)
+      open_prs.each do |pr|
+        # parse vals from json
+        user = pr['user']['login']
+        number = pr['number']
+        repo_name = repo
+        updated_at = pr['updated_at']
 
-        if k == 'head'
-          h['repo_name'] = (v['repo']['name']).to_s
-        else
-          h[k.to_s] = v.to_s
-        end
+        duration = (DateTime.now.to_f - DateTime.parse(updated_at).to_f).round
+        # send duration to StatsD
+        StatsD.measure(STATSD_METRIC, duration,
+                       tags: { repo: repo_name, number: number, user: user })
       end
-      h['duration'] = (DateTime.now - DateTime.parse(h['updated_at']))
-      open_prs << h
-    end
-    # send each duration to StatsD
-    open_prs.each do |pr|
-      StatsD.measure('github:pull_request_duration', pr['duration'], tags: { repo: pr['repo_name'] })
     end
   end
 end

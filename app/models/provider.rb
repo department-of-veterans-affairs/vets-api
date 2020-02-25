@@ -16,6 +16,7 @@ class Provider < Common::Base
   attribute :Longitude, Float
   attribute :MainPhone, String
   attribute :Miles, Float
+  attribute :Name, String
   attribute :OrganizationFax, String
   attribute :posCodes, String
   attribute :ProviderGender, String
@@ -38,6 +39,7 @@ class Provider < Common::Base
     provider.CareSitePhoneNumber = prov_loc['CareSitePhoneNumber']
     provider.IsAcceptingNewPatients = prov_loc['ProviderAcceptingNewPatients']
     provider.ProviderName = prov_loc['ProviderName']
+    provider.Name = prov_loc['Name']
     provider
   end
 
