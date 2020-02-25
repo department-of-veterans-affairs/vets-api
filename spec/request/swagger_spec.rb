@@ -1468,6 +1468,14 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
     end
 
     describe 'supplies' do
+      let(:route) { '/v0/mdot/supplies' }
+
+      context 'not signed in' do
+        it 'returns a 401' do
+          expect(subject).to validate(:get, route, 401)
+        end
+      end
+
       [200, 404, 502].each do |status_code|
         it "documents GET /v0/mdot/supplies #{status_code} response" do
           VCR.use_cassette("mdot/get_supplies_#{status_code}") do
