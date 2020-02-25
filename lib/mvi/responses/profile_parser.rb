@@ -117,7 +117,9 @@ module MVI
           vet360_id: parsed_mvi_ids[:vet360_id],
           historical_icns: MVI::Responses::HistoricalIcnParser.new(@original_body).get_icns,
           icn_with_aaid: parsed_mvi_ids[:icn_with_aaid],
-          search_token: locate_element(@original_body, 'id').attributes[:extension]
+          search_token: locate_element(@original_body, 'id').attributes[:extension],
+          cerner_id: parsed_mvi_ids[:cerner_id],
+          cerner_facility_ids: parsed_mvi_ids[:cerner_facility_ids],
         )
       end
       # rubocop:enable Metrics/AbcSize
