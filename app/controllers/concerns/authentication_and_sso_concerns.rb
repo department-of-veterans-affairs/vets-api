@@ -85,7 +85,7 @@ module AuthenticationAndSSOConcerns
 
   # Sets a cookie used by MHV for SSO
   def set_sso_cookie!
-    return unless can_set_sso_cookie
+    return unless can_set_sso_cookie?
 
     Rails.logger.info('SSO: ApplicationController#set_sso_cookie!', sso_logging_info)
 
@@ -144,7 +144,7 @@ module AuthenticationAndSSOConcerns
       @session_object.present? &&
       # if the user logged in via SSOe, there is no benefit from
       # creating a MHV SSO shared cookie
-      @current_user&.issuer !~ %r{https://.*eauth.va.gov/[\S]+}
+      @current_user&.issuer !~ %r{eauth\.va\.gov/}
   end
 end
 # rubocop:enable Metrics/ModuleLength
