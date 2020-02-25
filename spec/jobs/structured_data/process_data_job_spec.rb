@@ -10,7 +10,7 @@ RSpec.describe StructuredData::ProcessDataJob, uploader_helpers: true do
   describe '#perform' do
     let(:job) { described_class.new }
 
-    before(:each) do
+    before do
       described_class.new.perform(claim.id)
     end
 
