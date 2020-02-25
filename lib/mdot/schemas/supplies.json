@@ -52,7 +52,6 @@
       "items": {
         "type": "object",
         "properties": {
-          "type": "object",
           "deviceName": {
             "type": "string"
           },
