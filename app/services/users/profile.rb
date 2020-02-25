@@ -106,7 +106,7 @@ module Users
           family_name: user.va_profile.family_name,
           gender: user.va_profile.gender,
           given_names: user.va_profile.given_names,
-          is_cerner_patient: user.va_profile.cerner_id != nil,
+          is_cerner_patient: user.va_profile.cerner_id.nil?,
           facilities: user.va_profile.vha_facility_ids.map { |id| facility(id) }
         }
       else
