@@ -208,6 +208,10 @@ Rails.application.routes.draw do
       end
     end
 
+    namespace :mdot do
+      resources :supplies, only: :index
+    end
+
     resources :performance_monitorings, only: :create
 
     namespace :profile do
