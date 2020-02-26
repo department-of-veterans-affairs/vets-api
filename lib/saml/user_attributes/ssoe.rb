@@ -79,10 +79,9 @@ module SAML
       end
 
       def mhv_loa_current
-        if safe_attr('mhv_profile')
-          mhv_profile = JSON.parse(safe_attr('mhv_profile'))
-          mhv_account_type = mhv_profile['accountType']
-          SAML::UserAttributes::MHV::PREMIUM_LOAS.include?(mhv_account_type) ? 3 : 1
+        if safe_attr('va_eauth_mhvassurance')
+          mhv_assurance = safe_attr('va_eauth_mhvassurance')
+          SAML::UserAttributes::MHV::PREMIUM_LOAS.include?(mhv_assurance) ? 3 : 1
         end
       end
 
@@ -94,7 +93,11 @@ module SAML
       end
 
       def mhv_loa_highest
-
+        if safe_attr('va_eauth_mhvassurance')
+          mhv_assurance = safe_attr('va_eauth_mhvassurance')
+          # TODO account for idme-wrapped variation
+          SAML::UserAttributes::MHV::PREMIUM_LOAS.include?(mhv_assurance) ? 3 : 1
+        end
       end
 
       def dslogon_loa_highest

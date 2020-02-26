@@ -208,24 +208,25 @@ RSpec.describe SAML::User do
       let(:account_type) { '1' }
       let(:highest_attained_loa) { '3' }
       let(:saml_attributes) { build(:ssoe_idme_mhv_premium) }
+      let(:multifactor) { true }
 
-      xit 'has various important attributes' do
+      it 'has various important attributes' do
         expect(subject.to_hash).to eq(
-          birth_date: nil,
+          birth_date: '19770307',
           authn_context: authn_context,
-          dslogon_edipi: '1606997570',
-          first_name: nil,
-          last_name: nil,
+          dslogon_edipi: '2107307560',
+          first_name: 'TRISTAN',
+          last_name: 'GPTESTSYSTWO',
           middle_name: nil,
-          gender: nil,
-          ssn: nil,
+          gender: 'M',
+          ssn: '666811850',
           zip: nil,
-          mhv_icn: nil,
+          mhv_icn: '1012853550V207686',
           mhv_correlation_id: nil,
           uuid: '0e1bb5723d7c4f0686f46ca4505642ad',
-          email: 'kam+tristanmhv@adhocteam.us',
-          loa: { current: 1, highest: 3 },
-          sign_in: { service_name: 'myhealthevet', account_type: 1 },
+          email: 'k+tristanmhv@example.com',
+          loa: { current: 3, highest: 3 },
+          sign_in: { service_name: 'myhealthevet', account_type: 3 },
           multifactor: multifactor
         )
       end
