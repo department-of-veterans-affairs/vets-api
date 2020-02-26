@@ -96,9 +96,8 @@ Rails.application.routes.draw do
     get 'limited', to: 'example#limited', as: :limited
     get 'status', to: 'admin#status'
 
-    # temporarily removing direct deposit because of security issues
-    # get 'ppiu/payment_information', to: 'ppiu#index'
-    # put 'ppiu/payment_information', to: 'ppiu#update'
+    get 'ppiu/payment_information', to: 'ppiu#index'
+    put 'ppiu/payment_information', to: 'ppiu#update'
 
     resources :maintenance_windows, only: [:index]
 
@@ -207,6 +206,10 @@ Rails.application.routes.draw do
           get 'states', to: 'addresses#states'
         end
       end
+    end
+
+    namespace :mdot do
+      resources :supplies, only: :index
     end
 
     resources :performance_monitorings, only: :create
