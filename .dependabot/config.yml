@@ -3,3 +3,6 @@ update_configs:
   - package_manager: "ruby:bundler"
     directory: "/"
     update_schedule: "monthly"
+    ignored_updates:
+      - match:
+          dependency_name: "vets_json_schema"
