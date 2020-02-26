@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2020_02_13_160814) do
+ActiveRecord::Schema.define(version: 2020_02_14_224815) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
@@ -27,7 +27,9 @@ ActiveRecord::Schema.define(version: 2020_02_13_160814) do
     t.string "edipi"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "sec_id"
     t.index ["idme_uuid"], name: "index_accounts_on_idme_uuid", unique: true
+    t.index ["sec_id"], name: "index_accounts_on_sec_id"
     t.index ["uuid"], name: "index_accounts_on_uuid", unique: true
   end
 

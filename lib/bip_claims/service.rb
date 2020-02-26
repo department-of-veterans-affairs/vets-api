@@ -35,6 +35,7 @@ module BipClaims
         veteran.profile
       else
         StatsD.increment("#{STATSD_KEY_PREFIX}.mvi_lookup_miss")
+        nil
       end
     end
   end
