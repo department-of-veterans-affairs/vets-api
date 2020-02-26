@@ -16,7 +16,7 @@ class V0::Facilities::CcpController < FacilitiesController
                     end
 
     start_ind = (page - 1) * per_page
-    ppms_results = ppms_results[start_ind, per_page - 1]
+    ppms_results = ppms_results[start_ind, per_page]
 
     render  json: ppms_results,
             each_serializer: ProviderSerializer,
@@ -68,7 +68,7 @@ class V0::Facilities::CcpController < FacilitiesController
     {
       current_page: page,
       per_page: per_page,
-      total_pages: Integer(ppms_results.length / per_page + 1),
+      total_pages: page + 1,
       total_entries: total
     }
   end
