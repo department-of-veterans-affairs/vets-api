@@ -14,7 +14,7 @@ module VAOS
       'VAOS'
     end
 
-    def key
+    def rsa_key
       @key ||= OpenSSL::PKey::RSA.new(File.read(Settings.va_mobile.key_path))
     end
 
