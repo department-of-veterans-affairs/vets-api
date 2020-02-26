@@ -13,9 +13,11 @@ features:
       On https://www.va.gov/find-locations/ enable veterans to search for Community care by showing that option in the "Search for" box.
       This toggle is owned by Rian
   facilities_ppms_response_trim:
+    actor_type: user
     description: >
       On https://www.va.gov/find-locations/ enables reformatting the PPMS results to have consistant whitespace
   facilities_ppms_caresite_name:
+    actor_type: user
     description: >
       On https://www.va.gov/find-locations/ enables the ability to display the provider name based on the providers type
   facility_locator_dedup_community_care_services:
@@ -55,6 +57,7 @@ features:
     description: >
       Enables global downtime notification- do not use in production
   va_profile_address_validation:
+    actor_type: user
     description: >
       Enables calls to the VA Profile address validation service from the VA.gov Veteran profile page
   ssoe:

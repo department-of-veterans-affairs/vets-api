@@ -6,7 +6,6 @@ require 'active_support/cache'
 require 'flipper/adapters/active_support_cache_store'
 require 'flipper/action_patch'
 require 'flipper/configuration_patch'
-
 require 'flipper/instrumentation/event_subscriber'
 
 FLIPPER_FEATURE_CONFIG = YAML.safe_load(File.read(Rails.root.join('config', 'features.yml')))
@@ -29,9 +28,6 @@ Flipper::UI::Configuration.prepend(FlipperExtensions::ConfigurationPatch)
 
 Flipper::UI.configure do |config|
   config.custom_views_path = Rails.root.join('lib', 'flipper', 'views')
-
-  # Labeling what Flipper calls "actors" as "users" in the UI
-  config.actors.title = 'Users'
 end
 
 # A contrived example of how we might use a "group"
@@ -40,15 +36,8 @@ end
 # Flipper.register(:first_name_is_hector) do |user|
 #   user.respond_to?(:first_name) && user.first_name == 'HECTOR'
 # end
-
-module Flipper
-  module Gates
-    class Actor
-      USER = 'user'
-      STRING = 'cookie_id'
-    end
-  end
-end
+FLIPPER_ACTOR_USER = 'user'
+FLIPPER_ACTOR_STRING = 'cookie_id'
 
 Flipper::UI.configuration.feature_creation_enabled = false
 # Make sure that each feature we reference in code is present in the UI, as long as we have a Database already
@@ -64,5 +53,5 @@ rescue
 end
 
 # Modify Flipper::UI::Action to use custom views if they exist
-# and to add descriptions for features.
+# and to add descriptions and types for features.
 Flipper::UI::Action.prepend(FlipperExtensions::ActionPatch)

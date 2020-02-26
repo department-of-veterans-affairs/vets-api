@@ -52,7 +52,7 @@ RSpec.describe V0::FeatureTogglesController, type: :controller do
     it 'allows strings as actors' do
       @feature_name =  'ssoe'
       @cookie_id = 'abc_123'
-      actor = V0::FeatureTogglesController::FlipperActor.new(@cookie_id)
+      actor = Flipper::Actor.new(@cookie_id)
       Flipper.disable(@feature_name)
       Flipper.enable_actor(@feature_name, actor)
 
