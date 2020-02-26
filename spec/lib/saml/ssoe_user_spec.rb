@@ -43,7 +43,7 @@ RSpec.describe SAML::User do
           multifactor: false,
           loa: { current: 1, highest: 1 },
           sign_in: { service_name: 'idme', account_type: 1 },
-          has_va_sso: true
+          authenticated_by_ssoe: true
         )
       end
 
@@ -75,7 +75,7 @@ RSpec.describe SAML::User do
           loa: { current: 1, highest: 3 },
           sign_in: { service_name: 'myhealthevet', account_type: 1 },
           multifactor: multifactor,
-          has_va_sso: true
+          authenticated_by_ssoe: true
         )
       end
     end
@@ -103,7 +103,7 @@ RSpec.describe SAML::User do
           loa: { current: 1, highest: 3 },
           sign_in: { service_name: 'dslogon', account_type: 1 },
           multifactor: multifactor,
-          has_va_sso: true
+          authenticated_by_ssoe: true
         )
       end
     end
@@ -131,7 +131,7 @@ RSpec.describe SAML::User do
           loa: { current: 3, highest: 3 },
           sign_in: { service_name: 'dslogon', account_type: 3 },
           multifactor: multifactor,
-          has_va_sso: true
+          authenticated_by_ssoe: true
         )
       end
     end

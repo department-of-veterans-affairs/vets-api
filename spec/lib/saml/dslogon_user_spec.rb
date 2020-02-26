@@ -38,7 +38,7 @@ RSpec.describe SAML::User do
           loa: { current: 1, highest: 3 },
           sign_in: { service_name: 'dslogon', account_type: '1' },
           authn_context: 'dslogon',
-          has_va_sso: false
+          authenticated_by_ssoe: false
         )
       end
 
@@ -64,7 +64,7 @@ RSpec.describe SAML::User do
             multifactor: true,
             authn_context: 'dslogon_multifactor',
             dslogon_edipi: '1606997570',
-            has_va_sso: false
+            authenticated_by_ssoe: false
           )
         end
 
@@ -92,7 +92,7 @@ RSpec.describe SAML::User do
             sign_in: { service_name: 'dslogon', account_type: '1' },
             multifactor: true,
             authn_context: 'dslogon_loa3',
-            has_va_sso: false
+            authenticated_by_ssoe: false
           )
         end
 
@@ -121,7 +121,7 @@ RSpec.describe SAML::User do
           sign_in: { service_name: 'dslogon', account_type: '2' },
           multifactor: false,
           authn_context: 'dslogon',
-          has_va_sso: false
+          authenticated_by_ssoe: false
         )
       end
 
@@ -147,7 +147,7 @@ RSpec.describe SAML::User do
             multifactor: true,
             authn_context: 'dslogon_multifactor',
             dslogon_edipi: '1606997570',
-            has_va_sso: false
+            authenticated_by_ssoe: false
           )
         end
 

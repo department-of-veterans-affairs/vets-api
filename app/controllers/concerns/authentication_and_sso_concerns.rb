@@ -87,7 +87,7 @@ module AuthenticationAndSSOConcerns
                   @session_object.present? &&
                   # if the user logged in via SSOe, there is no benefit from
                   # creating a MHV SSO shared cookie
-                  !@current_user&.has_va_sso
+                  !@current_user&.authenticated_by_ssoe
 
     Rails.logger.info('SSO: ApplicationController#set_sso_cookie!', sso_logging_info)
 
