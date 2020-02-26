@@ -2,7 +2,6 @@
 
 # This module only gets mixed in to one place, but is that cleanest way to organize everything in one place related
 # to this responsibility alone.
-# rubocop:disable Metrics/ModuleLength
 module AuthenticationAndSSOConcerns
   extend ActiveSupport::Concern
   include ActionController::HttpAuthentication::Token::ControllerMethods
@@ -60,8 +59,7 @@ module AuthenticationAndSSOConcerns
   # Determines whether user signed out of MHV's website
   def should_signout_sso?
     Rails.logger.info('SSO: ApplicationController#should_signout_sso?', sso_logging_info)
-    return false unless Settings.sso.cookie_enabled
-    return false unless Settings.sso.cookie_signout_enabled
+    return false unless Settings.sso.cookie_enabled && Settings.sso.cookie_signout_enabled
 
     cookies[Settings.sso.cookie_name].blank? && request.host.match(Settings.sso.cookie_domain)
   end
@@ -85,7 +83,11 @@ module AuthenticationAndSSOConcerns
 
   # Sets a cookie used by MHV for SSO
   def set_sso_cookie!
-    return unless can_set_sso_cookie?
+    return unless Settings.sso.cookie_enabled &&
+                  @session_object.present? &&
+                  # if the user logged in via SSOe, there is no benefit from
+                  # creating a MHV SSO shared cookie
+                  !@current_user&.has_va_sso
 
     Rails.logger.info('SSO: ApplicationController#set_sso_cookie!', sso_logging_info)
 
@@ -123,8 +125,7 @@ module AuthenticationAndSSOConcerns
     {
       'myhealthevet' => 'my_healthe_vet',
       'dslogon' => 'ds_logon',
-      'idme' => 'id_me',
-      'ssoe' => 'ssoe'
+      'idme' => 'id_me'
     }.fetch(@current_user.identity.sign_in.fetch(:service_name))
   end
 
@@ -138,13 +139,4 @@ module AuthenticationAndSSOConcerns
       request_host: request.host
     }
   end
-
-  def can_set_sso_cookie?
-    Settings.sso.cookie_enabled &&
-      @session_object.present? &&
-      # if the user logged in via SSOe, there is no benefit from
-      # creating a MHV SSO shared cookie
-      !@current_user&.has_va_sso
-  end
 end
-# rubocop:enable Metrics/ModuleLength
