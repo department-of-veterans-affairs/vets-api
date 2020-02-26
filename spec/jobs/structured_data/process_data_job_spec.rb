@@ -8,27 +8,31 @@ RSpec.describe StructuredData::ProcessDataJob, uploader_helpers: true do
   let(:claim) { pension_burial.saved_claim }
 
   describe '#perform' do
-    let(:job) { described_class.new }
+    let(:job) { StructuredData::ProcessDataJob.new }
+    let(:bip_claims) { instance_double(BipClaims::Service) }
 
     before do
-      expect_any_instance_of(BipClaims::Service).to receive(:lookup_veteran_from_mvi).with(claim).and_return(
+      allow(BipClaims::Service).to receive(:new).and_return(bip_claims)
+      allow(bip_claims).to receive(:lookup_veteran_from_mvi).and_return(
         OpenStruct.new(participant_id: 123)
       )
-      described_class.new.perform(claim.id)
     end
 
     it 'attempts Veteran MVI lookup' do
-      expect_any_instance_of(BipClaims::Service).to receive(:lookup_veteran_from_mvi).with(claim).and_return(
+      expect(bip_claims).to receive(:lookup_veteran_from_mvi).with(claim).and_return(
         OpenStruct.new(participant_id: 123)
       )
+      job.perform(claim.id)
     end
 
-    it 'calls Central Mail process attachments' do
-      expect(claim).to receive(:process_attachments)
+    it 'calls Central Mail processing job' do
+      expect(CentralMail::SubmitSavedClaimJob).to receive(:perform_async)
+      job.perform(claim.id)
     end
 
     it 'increments metric for successful claim submission to va.gov' do
       expect(StatsD).to receive(:increment).at_least(:once)
+      job.perform(claim.id)
     end
   end
 end
