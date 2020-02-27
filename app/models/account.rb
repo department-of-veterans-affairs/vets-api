@@ -73,7 +73,7 @@ class Account < ApplicationRecord
 
   def self.update_if_needed!(account, user)
     # account has yet to be saved, no need to update
-    return account unless account.id
+    return account unless account.persisted?
 
     # return account as is if all user attributes match up to be the same
     attrs = account_attrs_from_user(user)
