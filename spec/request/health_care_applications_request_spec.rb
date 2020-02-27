@@ -175,6 +175,20 @@ RSpec.describe 'Health Care Application Integration', type: %i[request serialize
         }
       end
 
+      def self.expect_async_submit
+        it 'submits async' do
+          subject
+          body = JSON.parse(response.body)
+          expect(body).to eq(
+            'data' =>
+           { 'id' => HealthCareApplication.last.id.to_s,
+             'type' => 'health_care_applications',
+             'attributes' =>
+             { 'state' => 'pending', 'formSubmissionId' => nil, 'timestamp' => nil } }
+          )
+        end
+      end
+
       context 'anonymously' do
         let(:body) do
           { 'formSubmissionId' => 40_124_668_140,
@@ -183,22 +197,20 @@ RSpec.describe 'Health Care Application Integration', type: %i[request serialize
         end
 
         context 'with an email set' do
-          it 'submits async' do
-            subject
-            body = JSON.parse(response.body)
-            expect(body).to eq(
-              'data' =>
-             { 'id' => HealthCareApplication.last.id.to_s,
-               'type' => 'health_care_applications',
-               'attributes' =>
-               { 'state' => 'pending', 'formSubmissionId' => nil, 'timestamp' => nil } }
-            )
-          end
+          expect_async_submit
         end
 
         context 'with no email set' do
           before do
             test_veteran.delete('email')
+          end
+
+          context 'with async_all set' do
+            before do
+              params[:async_all] = true
+            end
+
+            expect_async_submit
           end
 
           it 'renders success', run_at: '2017-01-31' do
@@ -215,6 +227,7 @@ RSpec.describe 'Health Care Application Integration', type: %i[request serialize
 
         before do
           sign_in_as(current_user)
+          test_veteran.delete('email')
         end
 
         let(:body) do
@@ -236,6 +249,7 @@ RSpec.describe 'Health Care Application Integration', type: %i[request serialize
         let(:discharge_date) { Time.zone.today + 181.days }
         let(:params) do
           test_veteran['lastDischargeDate'] = discharge_date.strftime('%Y-%m-%d')
+          test_veteran.delete('email')
 
           {
             form: test_veteran.to_json
@@ -265,6 +279,7 @@ RSpec.describe 'Health Care Application Integration', type: %i[request serialize
 
       context 'when hca service raises an error' do
         before do
+          test_veteran.delete('email')
           allow_any_instance_of(HCA::Service).to receive(:post) do
             raise error
           end
