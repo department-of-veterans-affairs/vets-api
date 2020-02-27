@@ -84,4 +84,22 @@ describe PagerDuty::MaintenanceClient do
       expect(windows).to be_empty
     end
   end
+
+  context 'with options specified' do
+    let(:body) { File.read('spec/support/pagerduty/maintenance_windows_simple.json') }
+
+    it 'gets maintenance windows with services in query' do
+      stub_request(:get, 'https://api.pagerduty.com/maintenance_windows')
+        .with(query: hash_including('service_ids' => %w[ABCDEF]))
+        .to_return(
+          status: 200,
+          headers: { 'Content-Type' => 'application/json; charset=utf-8' },
+          body: body
+        )
+      windows = subject.get_all({ 'service_ids' => %w[ABCDEF] })
+      expect(windows).to be_a(Array)
+      expect(windows.first).to be_a(Hash)
+      expect(windows.first.keys).to include(:pagerduty_id, :external_service, :start_time, :end_time, :description)
+    end
+  end
 end
