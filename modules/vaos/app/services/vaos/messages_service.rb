@@ -19,6 +19,7 @@ module VAOS
         response = perform(:post, messages_url(request_id), params, headers)
 
         if response.status == 200
+          response.body.delete(:sender_id)
           {
             data: OpenStruct.new(response.body),
             meta: {}
