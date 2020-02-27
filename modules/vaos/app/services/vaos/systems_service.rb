@@ -7,7 +7,9 @@ module VAOS
     def get_systems
       with_monitoring do
         response = perform(:get, '/mvi/v1/patients/session/identifiers.json', nil, headers)
-        response.body.map { |system| OpenStruct.new(system) }
+        response.body
+          .select { |system| system.assigning_authority.include? "dfn-" }
+          .map { |system| OpenStruct.new(system) }
       end
     end
 

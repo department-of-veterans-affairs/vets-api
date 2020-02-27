@@ -10,11 +10,11 @@ describe VAOS::SystemsService do
   before { allow_any_instance_of(VAOS::UserService).to receive(:session).and_return('stubbed_token') }
 
   describe '#get_systems' do
-    context 'with 10 system identifiers' do
-      it 'returns an array of size 10' do
+    context 'with 10 identifiers and 2 systems' do
+      it 'returns an array of size 2' do
         VCR.use_cassette('vaos/systems/get_systems', match_requests_on: %i[method uri]) do
           response = subject.get_systems
-          expect(response.size).to eq(10)
+          expect(response.size).to eq(2)
         end
       end
 
