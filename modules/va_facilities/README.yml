@@ -22,7 +22,7 @@ info:
     ### Base URLs
     
     The base URLs for the VA Facilities API in the various environments are:
-    - Development: `https://dev-api.va.gov/services/va_facilities/v0`
+    - Sandbox: `https://sandbox-api.va.gov/services/va_facilities/v0`
     - Production: `https://api.va.gov/services/va_facilities/v0`
 
     ### Authorization
@@ -67,13 +67,13 @@ tags:
   - name: facilities
     description: VA Facilities API
 servers:
-- url: https://dev-api.va.gov/services/va_facilities/{version}
-  description: Development
+- url: https://sandbox-api.va.gov/services/va_facilities/{version}
+  description: VA.gov API sandbox environment
   variables:
     version:
       default: v0
 - url: https://api.va.gov/services/va_facilities/{version}
-  description: Production
+  description: VA.gov API production environment
   variables:
     version:
       default: v0
@@ -280,7 +280,7 @@ paths:
               description: GitHub-style pagination information. Only present for GeoJSON-format responses.
               schema:
                 type: string
-                example: '<https://dev-api.va.gov/services/va_facilities/v0/facilities?bbox%5B%5D=-120&bbox%5B%5D=40&bbox%5B%5D=-125&bbox%5B%5D=50&page=2&per_page=20>; rel="self", <https://dev-api.va.gov/services/va_facilities/v0/facilities?bbox%5B%5D=-120&bbox%5B%5D=40&bbox%5B%5D=-125&bbox%5B%5D=50&page=1&per_page=20>; rel="first", <https://dev-api.va.gov/services/va_facilities/v0/facilities?bbox%5B%5D=-120&bbox%5B%5D=40&bbox%5B%5D=-125&bbox%5B%5D=50&page=1&per_page=20>; rel="prev", <https://dev-api.va.gov/services/va_facilities/v0/facilities?bbox%5B%5D=-120&bbox%5B%5D=40&bbox%5B%5D=-125&bbox%5B%5D=50&page=3&per_page=20>; rel="next", <https://dev-api.va.gov/services/va_facilities/v0/facilities?bbox%5B%5D=-120&bbox%5B%5D=40&bbox%5B%5D=-125&bbox%5B%5D=50&page=5&per_page=20>; rel="last"'
+                example: '<https://sandbox-api.va.gov/services/va_facilities/v0/facilities?bbox%5B%5D=-120&bbox%5B%5D=40&bbox%5B%5D=-125&bbox%5B%5D=50&page=2&per_page=20>; rel="self", <https://sandbox-api.va.gov/services/va_facilities/v0/facilities?bbox%5B%5D=-120&bbox%5B%5D=40&bbox%5B%5D=-125&bbox%5B%5D=50&page=1&per_page=20>; rel="first", <https://sandbox-api.va.gov/services/va_facilities/v0/facilities?bbox%5B%5D=-120&bbox%5B%5D=40&bbox%5B%5D=-125&bbox%5B%5D=50&page=1&per_page=20>; rel="prev", <https://sandbox-api.va.gov/services/va_facilities/v0/facilities?bbox%5B%5D=-120&bbox%5B%5D=40&bbox%5B%5D=-125&bbox%5B%5D=50&page=3&per_page=20>; rel="next", <https://sandbox-api.va.gov/services/va_facilities/v0/facilities?bbox%5B%5D=-120&bbox%5B%5D=40&bbox%5B%5D=-125&bbox%5B%5D=50&page=5&per_page=20>; rel="last"'
         '401':
           description: Missing API token
           content:
