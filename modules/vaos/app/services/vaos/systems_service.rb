@@ -9,7 +9,7 @@ module VAOS
         response = perform(:get, '/mvi/v1/patients/session/identifiers.json', nil, headers)
         response
           .body
-          .select { |system| system[:assigning_authority].include? 'dfn-' }
+          .select { |system| system[:assigning_authority].include?('dfn-') || system[:assigning_code].include?('CRNR') }
           .map { |system| OpenStruct.new(system) }
       end
     end
