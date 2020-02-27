@@ -182,11 +182,7 @@ RSpec.describe 'Health Care Application Integration', type: %i[request serialize
             'success' => true }
         end
 
-        context 'with async_compatible set' do
-          before do
-            params[:async_compatible] = true
-          end
-
+        context 'with an email set' do
           it 'submits async' do
             subject
             body = JSON.parse(response.body)
@@ -200,10 +196,16 @@ RSpec.describe 'Health Care Application Integration', type: %i[request serialize
           end
         end
 
-        it 'renders success', run_at: '2017-01-31' do
-          VCR.use_cassette('hca/submit_anon', match_requests_on: [:body]) do
-            subject
-            expect(JSON.parse(response.body)).to eq(body)
+        context 'with no email set' do
+          before do
+            test_veteran.delete('email')
+          end
+
+          it 'renders success', run_at: '2017-01-31' do
+            VCR.use_cassette('hca/submit_anon', match_requests_on: [:body]) do
+              subject
+              expect(JSON.parse(response.body)).to eq(body)
+            end
           end
         end
       end
