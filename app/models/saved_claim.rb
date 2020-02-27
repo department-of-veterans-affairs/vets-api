@@ -46,6 +46,16 @@ class SavedClaim < ApplicationRecord
     CentralMail::SubmitSavedClaimJob.perform_async(id)
   end
 
+  def submit_to_structured_data_services!
+    # Only 21P-530 burial forms are supported at this time
+    if form_id != '21P-530'
+      err_message = "Unsupported form id: #{form_id}"
+      raise Common::Exceptions::UnprocessableEntity.new(detail: err_message), err_message
+    end
+
+    StructuredData::ProcessDataJob.perform_async(id)
+  end
+
   def confirmation_number
     guid
   end
