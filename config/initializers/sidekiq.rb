@@ -4,6 +4,9 @@ Sidekiq::Enterprise.unique! if Rails.env.production?
 
 Sidekiq.configure_server do |config|
   config.redis = REDIS_CONFIG['redis']
+  # super_fetch! is only available in sidekiq-pro and will cause 
+  #   "undefined method `super_fetch!'"
+  # for those using regular sidekiq
   config.super_fetch! if defined?(Sidekiq::Pro)
 
   config.on(:startup) do
