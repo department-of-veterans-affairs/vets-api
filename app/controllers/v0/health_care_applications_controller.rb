@@ -21,6 +21,10 @@ module V0
       render(json: result)
     end
 
+    def show
+      render(json: HealthCareApplication.find(params[:id]))
+    end
+
     def enrollment_status
       validate_session
       loa3 = current_user&.loa3?

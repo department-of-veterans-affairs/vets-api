@@ -134,6 +134,27 @@ RSpec.describe 'Health Care Application Integration', type: %i[request serialize
     end
   end
 
+  describe 'GET show' do
+    let(:health_care_application) { create(:health_care_application) }
+
+    it 'should show a health care application' do
+      get(v0_health_care_application_path(id: health_care_application.id))
+      expect(JSON.parse(response.body)).to eq(
+        {
+          "data"=> {
+            "id"=>health_care_application.id.to_s,
+            "type"=>"health_care_applications",
+            "attributes" => {
+              "state"=>"pending",
+              "form_submission_id"=>nil,
+              "timestamp"=>nil
+            }
+          }
+        }
+      )
+    end
+  end
+
   describe 'POST create' do
     subject do
       post(v0_health_care_applications_path,
