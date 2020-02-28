@@ -282,6 +282,15 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
         )
       end
 
+      it 'supports getting a health care application state' do
+        expect(subject).to validate(
+          :get,
+          "/v0/health_care_applications/{id}",
+          200,
+          'id' => create(:health_care_application).id
+        )
+      end
+
       it 'supports submitting a health care application', run_at: '2017-01-31' do
         VCR.use_cassette('hca/submit_anon', match_requests_on: [:body]) do
           expect(subject).to validate(
