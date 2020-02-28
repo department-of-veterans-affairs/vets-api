@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe 'VA GIS Integration', type: :request do
+RSpec.describe 'VA GIS Integration', type: :request, team: :facilities do
   include SchemaMatchers
 
   BASE_QUERY_PATH = '/v0/facilities/va?'

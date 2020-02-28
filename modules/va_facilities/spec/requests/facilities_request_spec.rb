@@ -4,7 +4,7 @@ require 'rails_helper'
 require 'cgi'
 require 'uri'
 
-RSpec.describe 'Facilities API endpoint', type: :request do
+RSpec.describe 'Facilities API endpoint', type: :request, team: :facilities do
   include SchemaMatchers
 
   let(:base_query_path) { '/services/va_facilities/v0/facilities' }

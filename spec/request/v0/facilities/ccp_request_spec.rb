@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe 'Community Care Providers', type: :request do
+RSpec.describe 'Community Care Providers', type: :request, team: :facilities do
   around do |example|
     VCR.use_cassette('facilities/va/ppms', match_requests_on: %i[path query], allow_playback_repeats: true) do
       example.run
