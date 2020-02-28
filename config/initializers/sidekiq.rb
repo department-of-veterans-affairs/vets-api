@@ -4,7 +4,10 @@ Sidekiq::Enterprise.unique! if Rails.env.production?
 
 Sidekiq.configure_server do |config|
   config.redis = REDIS_CONFIG['redis']
-  config.super_fetch! unless ENV['EXCLUDE_SIDEKIQ_ENTERPRISE'] == 'true'
+  # super_fetch! is only available in sidekiq-pro and will cause
+  #   "undefined method `super_fetch!'"
+  # for those using regular sidekiq
+  config.super_fetch! if defined?(Sidekiq::Pro)
 
   config.on(:startup) do
     Sidekiq.schedule = YAML.load_file(File.expand_path('../sidekiq_scheduler.yml', __dir__))
