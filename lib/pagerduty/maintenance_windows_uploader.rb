@@ -23,4 +23,3 @@ module PagerDuty
     end
   end
 end
-

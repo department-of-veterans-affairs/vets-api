@@ -26,8 +26,7 @@ module PagerDuty
     private
 
     def global_service_id
-      Settings.maintenance.services&.to_hash[:global].to_s
+      Settings.maintenance.services&.to_hash[:global]
     end
   end
 end
-
