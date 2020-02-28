@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'common/models/concerns/active_record_cache_aside'
-require 'sentry_logging'
 
 # Account's purpose is to correlate unique identifiers, and to
 # remove our dependency on third party services for a user's
@@ -11,15 +10,12 @@ require 'sentry_logging'
 #
 class Account < ApplicationRecord
   include Common::ActiveRecordCacheAside
-  extend SentryLogging
 
   has_many :user_preferences, dependent: :destroy
   has_many :notifications, dependent: :destroy
 
   validates :uuid, presence: true, uniqueness: true
-  validates :idme_uuid, uniqueness: true
-  validates :idme_uuid, presence: true, unless: -> { sec_id.present? }
-  validates :sec_id, presence: true, unless: -> { idme_uuid.present? }
+  validates :idme_uuid, presence: true, uniqueness: true
 
   before_validation :initialize_uuid, on: :create
 
@@ -40,56 +36,18 @@ class Account < ApplicationRecord
   # @return [Account] A persisted instance of Account
   #
   def self.cache_or_create_by!(user)
-    return unless user.uuid || user.sec_id
+    return unless user.uuid
 
-    # if possible use the idme uuid for the key, fallback to using the sec id otherwise
-    key = user.uuid || "sec:#{user.sec_id}"
-    acct = do_cached_with(key: key) do
+    do_cached_with(key: user.uuid) do
       create_if_needed!(user)
     end
-    # Account.sec_id was added months after this class was built, thus
-    # the existing Account records (not new ones) need to have their
-    # sec_id value updated
-    update_if_needed!(acct, user)
   end
 
   def self.create_if_needed!(user)
-    attrs = account_attrs_from_user(user)
-
-    accts = where(idme_uuid: attrs[:idme_uuid])
-            .where.not(idme_uuid: nil)
-            .or(
-              where(sec_id: attrs[:sec_id])
-              .where.not(sec_id: nil)
-            )
-
-    if accts.length > 1
-      data = accts.map(&:attributes)
-      log_message_to_sentry('multiple Account records with matching ids', 'warning', data)
+    find_or_create_by!(idme_uuid: user.uuid) do |account|
+      account.edipi = user&.edipi
+      account.icn   = user&.icn
     end
-
-    accts.length.positive? ? accts[0] : create(**attrs)
-  end
-
-  def self.update_if_needed!(account, user)
-    # account has yet to be saved, no need to update
-    return account unless account.persisted?
-
-    # return account as is if all user attributes match up to be the same
-    attrs = account_attrs_from_user(user)
-    return account if attrs.all? { |k, v| account.send(k) == v }
-
-    diff = { account: account.attributes, user: attrs }
-    log_message_to_sentry('Account record does not match User', 'warning', diff)
-    update(account.id, **attrs)
-  end
-
-  # Build an account attribute hash from the given User attributes
-  #
-  # @return [Hash]
-  #
-  def self.account_attrs_from_user(user)
-    { idme_uuid: user.uuid, edipi: user.edipi, icn: user.icn, sec_id: user.sec_id }
   end
 
   # Determines if the associated Account record is cacheable. Required
@@ -100,8 +58,6 @@ class Account < ApplicationRecord
   def cache?
     persisted?
   end
-
-  private_class_method :account_attrs_from_user
 
   private
 
