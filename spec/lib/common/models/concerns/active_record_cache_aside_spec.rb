@@ -16,7 +16,7 @@ describe Common::ActiveRecordCacheAside do
       end
 
       it 'retrieves the db record from the cache' do
-        expect(Marshal).to receive(:load).with(serialized_record) { Account.new(idme_uuid: user.uuid) }
+        expect(Marshal).to receive(:load).with(serialized_record)
 
         Account.cache_or_create_by! user
       end
