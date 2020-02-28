@@ -18,12 +18,14 @@ module VAOS
         params = VAOS::MessageForm.new(user, request_id, request_object_body).params
         response = perform(:post, messages_url(request_id), params, headers)
 
-        handle_error(response) unless response.status == 200
-
-        {
-          data: OpenStruct.new(response.body.except(:sender_id)),
-          meta: {}
-        }
+        if response.status == 200
+          {
+            data: OpenStruct.new(response.body.except(:sender_id)),
+            meta: {}
+          }
+        else
+          handle_error(response)
+        end
       end
     end
 
