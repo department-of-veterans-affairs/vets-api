@@ -8,11 +8,9 @@ module PagerDuty
     include SentryLogging
     sidekiq_options retry: 1
 
-    GLOBAL_SVC_ID = Settings.maintenance.services&.to_hash['global'].to_s
-
     def perform
       client = PagerDuty::MaintenanceClient.new
-      options = { 'service_ids' => [GLOBAL_SVC_ID] }
+      options = { 'service_ids' => [global_service_id] }
       maintenance_windows = client.get_all(options)
       file_path = 'tmp/maintenance_windows.json'
 
@@ -23,6 +21,12 @@ module PagerDuty
       PagerDuty::MaintenanceWindowsUploader.upload_file(file_path)
     rescue Common::Exceptions::BackendServiceException, Common::Client::Errors::ClientError => e
       log_exception_to_sentry(e)
+    end
+
+    private
+
+    def global_service_id
+      Settings.maintenance.services&.to_hash[:global].to_s
     end
   end
 end
