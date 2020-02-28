@@ -96,7 +96,7 @@ describe PagerDuty::MaintenanceClient do
           headers: { 'Content-Type' => 'application/json; charset=utf-8' },
           body: body
         )
-      windows = subject.get_all({ 'service_ids' => %w[ABCDEF] })
+      windows = subject.get_all('service_ids' => %w[ABCDEF])
       expect(windows).to be_a(Array)
       expect(windows.first).to be_a(Hash)
       expect(windows.first.keys).to include(:pagerduty_id, :external_service, :start_time, :end_time, :description)

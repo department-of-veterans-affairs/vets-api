@@ -3,7 +3,7 @@
 require 'rails_helper'
 require 'pager_duty/cache_global_downtime'
 
-RSpec.describe PagerDuty::CacheGlobalDowntime, type: %i[job, aws_helpers] do
+RSpec.describe PagerDuty::CacheGlobalDowntime, type: %i[job aws_helpers] do
   let(:subject) { described_class.new }
 
   let(:client_stub) { instance_double('PagerDuty::MaintenanceClient') }
@@ -27,29 +27,23 @@ RSpec.describe PagerDuty::CacheGlobalDowntime, type: %i[job, aws_helpers] do
   end
 
   describe '#perform' do
-    def perform
-      stub_maintenance_windows_s3(filename) do
-        subject.perform
-      end
-    end
-
     context 'with success response from client' do
       let(:filename) { 'tmp/maintenance_windows.json' }
-      let(:options) { { 'service_ids' => %w(ABCDEF) } }
+      let(:options) { { 'service_ids' => %w[ABCDEF] } }
 
-      after do
-        File.delete(filename)
-      end
+      before { stub_maintenance_windows_s3(filename) }
+
+      after { File.delete(filename) }
 
       it 'uploads an empty list of global downtimes' do
         allow(client_stub).to receive(:get_all).with(options).and_return([])
-        perform
+        subject.perform
         expect(File.read(filename)).to eq('[]')
       end
 
       it 'uploads a populated list of global downtimes' do
         allow(client_stub).to receive(:get_all).with(options).and_return([mw_hash])
-        perform
+        subject.perform
         expect(File.read(filename)).to eq("[#{mw_hash.to_json}]")
       end
     end

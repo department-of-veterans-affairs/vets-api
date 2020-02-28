@@ -20,7 +20,7 @@ module PagerDuty
       windows = resp['maintenance_windows']
       while resp['more']
         offset = resp['offset'] + resp['limit']
-        resp = get_raw(options.merge('offset' => offset ))
+        resp = get_raw(options.merge('offset' => offset))
         windows += resp['maintenance_windows']
       end
       windows
