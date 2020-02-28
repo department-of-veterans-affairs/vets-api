@@ -37,7 +37,6 @@ module AuthenticationAndSSOConcerns
       Rails.logger.info('SSO: MHV INITIATED SIGNOUT', sso_logging_info)
       reset_session
     else
-      Rails.logger.info('SSO: EXTENDING SESSION', sso_logging_info)
       extend_session!
     end
 
@@ -66,6 +65,7 @@ module AuthenticationAndSSOConcerns
 
   # Extends the users session, including the MHV SSO Cookie
   def extend_session!
+    Rails.logger.info('SSO: ApplicationController#extend_session!', sso_logging_info)
     @session_object.expire(Session.redis_namespace_ttl)
     @current_user&.identity&.expire(UserIdentity.redis_namespace_ttl)
     @current_user&.expire(User.redis_namespace_ttl)
