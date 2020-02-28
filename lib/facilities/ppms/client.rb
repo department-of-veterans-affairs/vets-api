@@ -44,6 +44,7 @@ module Facilities
           providers = Facilities::PPMS::Response.from_provider_locator(response, request_params)
           providers.each do |provider|
             provider.posCodes = request_params[:posCodes]
+            provider.ProviderType = 'GroupPracticeOrAgency'
           end
           new_array.concat(providers)
         end.sort!
