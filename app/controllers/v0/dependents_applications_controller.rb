@@ -22,8 +22,8 @@ module V0
 
     def show
       dependent_service = BGS::DependentService.new
-      response = dependent_service.get_dependents(current_user)
-      render json: { data: { attributes: response } }, each_serializer: DependentsSerializer
+      dependents = dependent_service.get_dependents(current_user)
+      render json: dependents, serializer: DependentsSerializer
     rescue => e
       log_exception_to_sentry(e)
       raise Common::Exceptions::BackendServiceException.new(nil, detail: e.message)
