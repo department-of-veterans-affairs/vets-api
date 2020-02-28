@@ -38,4 +38,5 @@ RSpec.describe InProgressForm, type: :model do
       expect(in_progress_form.form_data).to eq(form_data.to_json)
     end
   end
+  # add tests for proxy add
 end
