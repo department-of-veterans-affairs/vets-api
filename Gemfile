@@ -17,7 +17,7 @@ gem 'veteran_confirmation', path: 'modules/veteran_confirmation'
 gem 'veteran_verification', path: 'modules/veteran_verification'
 
 # Anchored versions, do not change
-gem 'puma', '~> 4.3.1'
+gem 'puma', '~> 4.3.2'
 gem 'puma-plugin-statsd', '~> 0.1.0'
 gem 'rails', '~> 5.2.4'
 
