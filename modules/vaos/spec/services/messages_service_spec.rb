@@ -18,7 +18,7 @@ describe VAOS::MessagesService do
       end
     end
 
-    it 'handles unparsable JSON approprietaly' do
+    it 'handles unparsable JSON appropriately' do
       VCR.use_cassette('vaos/messages/get_messages_unparsable', match_requests_on: %i[method uri]) do
         Settings.sentry.dsn = 'test' # wont actually report to sentry since we're mocking
         expect(Raven).to receive(:capture_message).with("undefined method `map' for nil:NilClass", level: 'warning')
@@ -29,7 +29,7 @@ describe VAOS::MessagesService do
       end
     end
 
-    it 'handles 500 errors approprietaly' do
+    it 'handles 500 errors appropriately' do
       VCR.use_cassette('vaos/messages/get_messages_500', match_requests_on: %i[method uri]) do
         expect { subject.get_messages(request_id) }.to raise_error(
           Common::Exceptions::BackendServiceException
