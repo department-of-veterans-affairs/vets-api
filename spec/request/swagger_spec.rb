@@ -225,9 +225,12 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
     context 'HCA tests' do
       let(:login_required) { Notification::LOGIN_REQUIRED }
       let(:test_veteran) do
-        File.read(
+        json_string = File.read(
           Rails.root.join('spec', 'fixtures', 'hca', 'veteran.json')
         )
+        json = JSON.parse(json_string)
+        json.delete('email')
+        json.to_json
       end
 
       it 'supports getting the hca enrollment status' do
