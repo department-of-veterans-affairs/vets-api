@@ -31,8 +31,8 @@ module Swagger
                   key :required, %i[state]
 
                   property :state, type: :string
-                  property :form_submission_id, type: [:string, :null]
-                  property :timestamp, type: [:string, :null]
+                  property :form_submission_id, type: %i[string null]
+                  property :timestamp, type: %i[string null]
                 end
               end
             end

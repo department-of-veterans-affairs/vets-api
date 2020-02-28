@@ -285,7 +285,7 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
       it 'supports getting a health care application state' do
         expect(subject).to validate(
           :get,
-          "/v0/health_care_applications/{id}",
+          '/v0/health_care_applications/{id}',
           200,
           'id' => create(:health_care_application).id
         )
