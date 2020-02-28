@@ -58,18 +58,7 @@ class HealthCareApplication < ApplicationRecord
 
     if has_email || async_compatible
       save!
-
-      submission_job = 'SubmissionJob'
-      submission_job = "Anon#{submission_job}" unless has_email
-
-      "HCA::#{submission_job}".constantize.perform_async(
-        self.class.get_user_identifier(user),
-        parsed_form,
-        id,
-        google_analytics_client_id
-      )
-
-      self
+      submit_async(has_email)
     else
       submit_sync
     end
@@ -157,6 +146,20 @@ class HealthCareApplication < ApplicationRecord
   end
 
   private
+
+  def submit_async(has_email)
+    submission_job = 'SubmissionJob'
+    submission_job = "Anon#{submission_job}" unless has_email
+
+    "HCA::#{submission_job}".constantize.perform_async(
+      self.class.get_user_identifier(user),
+      parsed_form,
+      id,
+      google_analytics_client_id
+    )
+
+    self
+  end
 
   def send_failure_mail
     HCASubmissionFailureMailer.build(parsed_form['email'], google_analytics_client_id).deliver_now
