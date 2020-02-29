@@ -40,10 +40,10 @@ describe Mvi, skip_mvi: true do
 
   describe '#mvi_add_person' do
     context 'with a successful add' do
-      it 'returns the successul response' do
+      it 'returns the successful response' do
         allow_any_instance_of(MVI::Service).to receive(:find_profile).and_return(profile_response)
         allow_any_instance_of(MVI::Service).to receive(:add_person).and_return(add_response)
-        expect_any_instance_of(Mvi).to receive(:destroy).once
+        expect_any_instance_of(Mvi).to receive(:clear_cache).once
         response = user.mvi.mvi_add_person
         expect(response.status).to eq('OK')
       end
@@ -63,6 +63,7 @@ describe Mvi, skip_mvi: true do
         allow_any_instance_of(MVI::Service).to receive(:find_profile).and_return(profile_response)
         allow_any_instance_of(MVI::Service).to receive(:add_person).and_return(add_response_error)
         expect_any_instance_of(Mvi).not_to receive(:destroy)
+        expect_any_instance_of(Mvi).not_to receive(:clear_cache)
         response = user.mvi.mvi_add_person
         expect(response.status).to eq('SERVER_ERROR')
       end
