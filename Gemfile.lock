@@ -324,6 +324,7 @@ GEM
       dry-equalizer (~> 0.2)
       dry-initializer (~> 3.0)
       dry-schema (~> 1.0, >= 1.4.3)
+    e2mmap (0.1.0)
     ecma-re-validator (0.2.0)
       regexp_parser (~> 1.2)
     encryptor (3.0.0)
@@ -535,7 +536,7 @@ GEM
       rack (>= 1.0, < 3)
     rack-cors (1.1.1)
       rack (>= 2.0.0)
-    rack-protection (2.0.7)
+    rack-protection (2.0.8.1)
       rack
     rack-test (1.1.0)
       rack (>= 1.0, < 3)
@@ -677,10 +678,12 @@ GEM
       statsd-instrument (~> 2.0, >= 2.0.4)
     sidekiq-pro (3.7.0)
       sidekiq (>= 4.1.5)
-    sidekiq-scheduler (3.0.0)
+    sidekiq-scheduler (3.0.1)
+      e2mmap
       redis (>= 3, < 5)
       rufus-scheduler (~> 3.2)
       sidekiq (>= 3)
+      thwait
       tilt (>= 1.4.0)
     simplecov (0.18.2)
       docile (~> 1.1)
@@ -704,6 +707,7 @@ GEM
       unicode-display_width (~> 1.1, >= 1.1.1)
     thor (0.20.3)
     thread_safe (0.3.6)
+    thwait (0.1.0)
     tilt (2.0.10)
     timecop (0.9.1)
     ttfunk (1.5.1)
