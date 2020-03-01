@@ -422,7 +422,7 @@ GEM
     iso_country_codes (0.7.8)
     jaro_winkler (1.5.4)
     jmespath (1.4.0)
-    json (1.8.6)
+    json (2.3.0)
     json-schema (2.8.1)
       addressable (>= 2.4)
     json_schemer (0.2.8)
@@ -525,7 +525,7 @@ GEM
     public_suffix (4.0.3)
     puma (4.3.1)
       nio4r (~> 2.0)
-    puma-plugin-statsd (0.1.0)
+    puma-plugin-statsd (0.2.0)
       json
       puma (>= 3.12, < 5)
     pundit (1.1.0)
@@ -838,7 +838,7 @@ DEPENDENCIES
   prawn
   pry-byebug
   puma (~> 4.3.1)
-  puma-plugin-statsd (~> 0.1.0)
+  puma-plugin-statsd (~> 0.2.0)
   pundit
   rack!
   rack-attack
