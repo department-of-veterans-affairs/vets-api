@@ -365,9 +365,9 @@ GEM
     flipper-active_support_cache_store (0.17.1)
       activesupport (>= 4.2, < 7)
       flipper (~> 0.17.1)
-    flipper-ui (0.17.1)
+    flipper-ui (0.17.2)
       erubi (>= 1.0.0, < 2.0.0)
-      flipper (~> 0.17.1)
+      flipper (~> 0.17.2)
       rack (>= 1.4, < 3)
       rack-protection (>= 1.5.3, < 2.1.0)
     foreman (0.87.0)
@@ -535,7 +535,7 @@ GEM
       rack (>= 1.0, < 3)
     rack-cors (1.1.1)
       rack (>= 2.0.0)
-    rack-protection (2.0.7)
+    rack-protection (2.0.8.1)
       rack
     rack-test (1.1.0)
       rack (>= 1.0, < 3)
@@ -798,7 +798,7 @@ DEPENDENCIES
   flipper (~> 0.17.2)
   flipper-active_record (~> 0.17.1)
   flipper-active_support_cache_store (~> 0.17.1)
-  flipper-ui (~> 0.17.1)
+  flipper-ui (~> 0.17.2)
   foreman
   fuubar
   govdelivery-tms (= 2.8.4)
