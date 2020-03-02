@@ -23,7 +23,7 @@ module StructuredData
         @claim.process_attachments!
       end
 
-      veteran lookup for hit/miss metrics in support of Automation work
+      # veteran lookup for hit/miss metrics in support of Automation work
       StatsD.increment("#{stats_key}.success", tags: [
                           "relationship:#{relationship_type}",
                           "veteranInMVI:#{veteran&.participant_id}"
