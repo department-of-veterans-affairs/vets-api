@@ -5,11 +5,6 @@ module V0
     class SuppliesController < ApplicationController
       before_action { authorize :mdot, :access? }
 
-      def create
-        response = client.submit_order(request.raw_post)
-        render json: response.body
-      end
-
       def index
         supplies = client.get_supplies
         render json: supplies.body
