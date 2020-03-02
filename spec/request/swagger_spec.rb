@@ -1472,7 +1472,7 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
 
       context 'not signed in' do
         it 'returns a 401' do
-        #  %i[get post].each { |method| expect(subject).to validate(method, route, 401) } 
+          # %i[get post].each { |method| expect(subject).to validate(method, route, 401) }
         end
       end
 
