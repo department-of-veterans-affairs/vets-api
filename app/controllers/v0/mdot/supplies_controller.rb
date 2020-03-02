@@ -22,8 +22,4 @@ module V0
       end
     end
   end
-<<<<<<< HEAD
 end
-=======
-end
->>>>>>> master
