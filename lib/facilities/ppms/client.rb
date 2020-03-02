@@ -98,7 +98,7 @@ module Facilities
         per_page = Integer(params[:per_page] || BaseFacility.per_page)
         offset = (page - 1) * per_page
 
-        response[offset, per_page]
+        response[offset, per_page] || []
       end
 
       def trim_response_attributes!(response)
