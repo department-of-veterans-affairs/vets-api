@@ -76,7 +76,7 @@ class Account < ApplicationRecord
     return account unless account.persisted?
 
     # return account as is if all non-nil user attributes match up to be the same
-    attrs = account_attrs_from_user(user).reject { |k, v| v.nil? }
+    attrs = account_attrs_from_user(user).reject { |_k, v| v.nil? }
 
     return account if attrs.all? { |k, v| account.try(k) == v }
 
