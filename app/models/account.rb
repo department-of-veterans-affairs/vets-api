@@ -43,7 +43,7 @@ class Account < ApplicationRecord
     return unless user.uuid || user.sec_id
 
     # if possible use the idme uuid for the key, fallback to using the sec id otherwise
-    key = user.uuid || "sec:#{user.sec_id}"
+    key = get_key(user)
     acct = do_cached_with(key: key) do
       create_if_needed!(user)
     end
@@ -77,11 +77,13 @@ class Account < ApplicationRecord
 
     # return account as is if all user attributes match up to be the same
     attrs = account_attrs_from_user(user)
-    return account if attrs.all? { |k, v| account.send(k) == v }
+    return account if attrs.all? { |k, v| account.try(k) == v }
 
     diff = { account: account.attributes, user: attrs }
     log_message_to_sentry('Account record does not match User', 'warning', diff)
-    update(account.id, **attrs)
+    updated = update(account.id, **attrs)
+    cache_record(get_key(user), updated)
+    updated
   end
 
   # Build an account attribute hash from the given User attributes
@@ -101,7 +103,11 @@ class Account < ApplicationRecord
     persisted?
   end
 
-  private_class_method :account_attrs_from_user
+  def self.get_key(user)
+    user.uuid || "sec:#{user.sec_id}"
+  end
+
+  private_class_method :account_attrs_from_user, :get_key
 
   private
 
