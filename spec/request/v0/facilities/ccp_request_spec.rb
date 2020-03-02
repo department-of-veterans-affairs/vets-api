@@ -48,7 +48,7 @@ RSpec.describe 'Community Care Providers', type: :request, team: :facilities do
               'current_page' => page,
               'per_page' => per_page,
               'total_pages' => page + 1,
-              'total_entries' => per_page
+              'total_entries' => (page + 1) * per_page
             }
           )
         end
@@ -304,7 +304,7 @@ RSpec.describe 'Community Care Providers', type: :request, team: :facilities do
               'current_page' => 1,
               'per_page' => 10,
               'total_pages' => 2,
-              'total_entries' => 10
+              'total_entries' => 20
             }
           }
         )

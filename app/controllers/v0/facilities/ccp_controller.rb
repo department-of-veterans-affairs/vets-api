@@ -15,9 +15,6 @@ class V0::Facilities::CcpController < FacilitiesController
                       api.pos_locator(search_params)
                     end
 
-    start_ind = (page - 1) * per_page
-    ppms_results = ppms_results[start_ind, per_page]
-
     render  json: ppms_results,
             each_serializer: ProviderSerializer,
             meta: { pagination: pages(ppms_results) }
@@ -64,7 +61,7 @@ class V0::Facilities::CcpController < FacilitiesController
   end
 
   def pages(ppms_results)
-    total = ppms_results.length
+    total = (page + 1) * per_page
     {
       current_page: page,
       per_page: per_page,
