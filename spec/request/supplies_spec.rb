@@ -29,7 +29,7 @@ RSpec.describe 'MDOT Medical Devices & Supplies', type: :request do
           product_id: 4
         }
       ],
-      additional_request: ""
+      additional_request: ''
     }.to_json
   end
 
@@ -38,7 +38,7 @@ RSpec.describe 'MDOT Medical Devices & Supplies', type: :request do
   describe 'GET /v0/mdot/supplies' do
     context 'with a loa1 user' do
       before { sign_in_as(loa1_user) }
-  
+
       it 'returns a forbidden error' do
         get '/v0/mdot/supplies'
         expect(response).to have_http_status(:forbidden)
@@ -47,7 +47,7 @@ RSpec.describe 'MDOT Medical Devices & Supplies', type: :request do
 
     context 'with an authenticated user' do
       before { sign_in_as(loa3_user) }
-  
+
       context 'with a valid response' do
         it 'lists medical devices and supplies for the veteran' do
           VCR.use_cassette('mdot/get_supplies_200') do
@@ -57,7 +57,7 @@ RSpec.describe 'MDOT Medical Devices & Supplies', type: :request do
           end
         end
       end
-  
+
       context 'with a veteran not in DLC system' do
         it 'returns a 404 not found' do
           VCR.use_cassette('mdot/get_supplies_404') do
@@ -67,7 +67,7 @@ RSpec.describe 'MDOT Medical Devices & Supplies', type: :request do
           end
         end
       end
-  
+
       context 'with a server error' do
         it 'returns a 502 and logs an error message' do
           VCR.use_cassette('mdot/get_supplies_502') do
@@ -83,7 +83,7 @@ RSpec.describe 'MDOT Medical Devices & Supplies', type: :request do
   describe 'POST /v0/mdot/supplies' do
     context 'with a loa1 user' do
       before { sign_in_as(loa1_user) }
-  
+
       it 'returns a forbidden error' do
         post '/v0/mdot/supplies', params: good_order
         expect(response).to have_http_status(:forbidden)
