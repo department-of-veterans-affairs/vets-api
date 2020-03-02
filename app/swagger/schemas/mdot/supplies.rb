@@ -37,6 +37,10 @@ module Swagger
           property :country, type: :string
           property :postal_code, type: :string
         end
+
+        swagger_schema :SuppliesAccepted do
+          
+        end
       end
     end
   end

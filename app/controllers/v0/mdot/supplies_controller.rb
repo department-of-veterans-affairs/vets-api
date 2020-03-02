@@ -15,6 +15,11 @@ module V0
         render json: supplies.body
       end
 
+      def create
+        response = client.submit_order(request.raw_post)
+        render status: response.status, json: response.body
+      end
+
       private
 
       def client

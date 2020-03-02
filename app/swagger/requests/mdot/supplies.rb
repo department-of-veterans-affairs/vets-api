@@ -35,6 +35,35 @@ module Swagger
               end
             end
           end
+
+          operation :post do
+            extend Swagger::Responses::AuthenticationError
+
+            key :description, 'submits a new order for medical devices and supplies to the DLC'
+            key :operationId, 'postSupplies'
+            key :tags, %w[supplies]
+
+            response 202 do
+              key :description, 'Accepted response from the DLC'
+              schema do
+                key :'$ref', :SuppliesAccepted
+              end
+            end
+
+            response 404 do
+              key :description, 'Not found: medical devices and supplies not found for user'
+              schema do
+                key :'$ref', :Errors
+              end
+            end
+
+            response 502 do
+              key :description, 'Bad Gateway: the upstream DLC API returned an invalid response (500+)'
+              schema do
+                key :'$ref', :Errors
+              end
+            end
+          end
         end
       end
     end
