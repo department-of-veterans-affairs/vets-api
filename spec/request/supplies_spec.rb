@@ -98,7 +98,7 @@ RSpec.describe 'MDOT Medical Devices & Supplies', type: :request do
           VCR.use_cassette('mdot/post_supplies_202') do
             post '/v0/mdot/supplies', params: good_order
             expect(response).to have_http_status(:accepted)
-            expect(response).to match_response_schema('mdot_supplies')
+            expect(response).to match_response_schema('mdot_accepted')
           end
         end
       end
