@@ -27,7 +27,9 @@ ActiveRecord::Schema.define(version: 2020_02_24_143703) do
     t.string "edipi"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "sec_id"
     t.index ["idme_uuid"], name: "index_accounts_on_idme_uuid", unique: true
+    t.index ["sec_id"], name: "index_accounts_on_sec_id"
     t.index ["uuid"], name: "index_accounts_on_uuid", unique: true
   end
 

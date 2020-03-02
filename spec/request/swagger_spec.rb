@@ -533,7 +533,7 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
       end
     end
 
-    skip 'PPIU' do
+    describe 'PPIU' do
       it 'supports getting payment information' do
         expect(subject).to validate(:get, '/v0/ppiu/payment_information', 401)
         VCR.use_cassette('evss/ppiu/payment_information') do
@@ -543,20 +543,22 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
 
       it 'supports updating payment information' do
         expect(subject).to validate(:put, '/v0/ppiu/payment_information', 401)
-        VCR.use_cassette('evss/ppiu/update_payment_information') do
-          expect(subject).to validate(
-            :put,
-            '/v0/ppiu/payment_information',
-            200,
-            headers.update(
-              '_data' => {
-                'account_type' => 'Checking',
-                'financial_institution_name' => 'Bank of Amazing',
-                'account_number' => '1234567890',
-                'financial_institution_routing_number' => '123456789'
-              }
+        VCR.use_cassette('evss/ppiu/payment_information') do
+          VCR.use_cassette('evss/ppiu/update_payment_information') do
+            expect(subject).to validate(
+              :put,
+              '/v0/ppiu/payment_information',
+              200,
+              headers.update(
+                '_data' => {
+                  'account_type' => 'Checking',
+                  'financial_institution_name' => 'Bank of Amazing',
+                  'account_number' => '1234567890',
+                  'financial_institution_routing_number' => '123456789'
+                }
+              )
             )
-          )
+          end
         end
       end
     end
@@ -1460,6 +1462,24 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
         it "documents contestable_issues #{status_code}" do
           VCR.use_cassette("decision_review/#{status_code}_contestable_issues") do
             expect(subject).to validate(:get, '/v0/appeals/contestable_issues', status_code, headers)
+          end
+        end
+      end
+    end
+
+    describe 'supplies' do
+      let(:route) { '/v0/mdot/supplies' }
+
+      context 'not signed in' do
+        it 'returns a 401' do
+          expect(subject).to validate(:get, route, 401)
+        end
+      end
+
+      [200, 404, 502].each do |status_code|
+        it "documents GET /v0/mdot/supplies #{status_code} response" do
+          VCR.use_cassette("mdot/get_supplies_#{status_code}") do
+            expect(subject).to validate(:get, '/v0/mdot/supplies', status_code, headers)
           end
         end
       end

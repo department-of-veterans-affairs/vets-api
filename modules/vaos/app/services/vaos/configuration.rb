@@ -14,9 +14,14 @@ module VAOS
       'VAOS'
     end
 
+    def rsa_key
+      @key ||= OpenSSL::PKey::RSA.new(File.read(Settings.va_mobile.key_path))
+    end
+
     def connection
       Faraday.new(base_path, headers: base_request_headers, request: request_options) do |conn|
         conn.use :breakers
+        conn.use :vaos_logging
         conn.request :camelcase
         conn.request :json
 
