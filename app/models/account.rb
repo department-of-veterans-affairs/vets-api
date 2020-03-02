@@ -75,8 +75,9 @@ class Account < ApplicationRecord
     # account has yet to be saved, no need to update
     return account unless account.persisted?
 
-    # return account as is if all user attributes match up to be the same
-    attrs = account_attrs_from_user(user)
+    # return account as is if all non-nil user attributes match up to be the same
+    attrs = account_attrs_from_user(user).reject { |_k, v| v.nil? }
+
     return account if attrs.all? { |k, v| account.try(k) == v }
 
     diff = { account: account.attributes, user: attrs }
