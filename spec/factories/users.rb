@@ -150,6 +150,17 @@ FactoryBot.define do
       end
     end
 
+    factory :user_with_no_secid, traits: [:loa3] do
+      after(:build) do
+        stub_mvi(
+          build(
+            :mvi_profile,
+            sec_id: nil
+          )
+        )
+      end
+    end
+
     factory :vets360_user, traits: [:loa3] do
       after(:build) do
         stub_mvi(
