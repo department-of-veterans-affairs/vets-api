@@ -1472,23 +1472,23 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
 
       context 'not signed in' do
         it 'returns a 401' do
-          # %i[get post].each { |method| expect(subject).to validate(method, route, 401) }
+          %i[get post].each { |method| expect(subject).to validate(method, route, 401) }
         end
       end
 
       [200, 404, 502].each do |status_code|
-        %w[get post].each do |method|
-          it "documents #{method} /v0/mdot/supplies #{status_code} response" do
-            VCR.use_cassette("mdot/#{method}_supplies_#{status_code}") do
-              expect(subject).to validate(method.to_sym, route, status_code, headers)
-            end
+        it "documents GET /v0/mdot/supplies #{status_code} response" do
+          VCR.use_cassette("mdot/get_supplies_#{status_code}") do
+            expect(subject).to validate(:get, route, status_code, headers)
           end
         end
       end
 
-      it 'documents POST /v0/mdot/supplies 422' do
-        VCR.use_cassette('mdot/post_supplies_422') do
-          expect(subject).to validate(:post, route, 422, headers)
+      [202, 422, 404, 502].each do |status_code|
+        it "documents POST /v0/mdot/supplies #{status_code}" do
+          VCR.use_cassette("mdot/post_supplies_#{status_code}") do
+            expect(subject).to validate(:post, route, status_code, headers)
+          end
         end
       end
     end
