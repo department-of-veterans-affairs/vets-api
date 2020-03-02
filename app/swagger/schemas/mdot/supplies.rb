@@ -39,7 +39,9 @@ module Swagger
         end
 
         swagger_schema :SuppliesAccepted do
-          
+          key :required, %i[status order_id]
+          property :status, type: :string
+          property :order_id, type: :string
         end
       end
     end
