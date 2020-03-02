@@ -60,7 +60,7 @@ class V0::Facilities::CcpController < FacilitiesController
     Integer(search_params[:page] || 1)
   end
 
-  def pages(ppms_results)
+  def pages(_ppms_results)
     total = (page + 1) * per_page
     {
       current_page: page,

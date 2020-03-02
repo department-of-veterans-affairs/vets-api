@@ -23,7 +23,6 @@ module Facilities
         trim_response_attributes!(response)
         deduplicate_response_arrays!(response)
 
-        
         paginated_responses(
           Facilities::PPMS::Response.from_provider_locator(response, params),
           params
@@ -37,7 +36,7 @@ module Facilities
         walkin_response      = perform(:get, 'v1.0/PlaceOfServiceLocator', walkin_params)
         urgent_care_response = perform(:get, 'v1.0/PlaceOfServiceLocator', urgent_care_params)
 
-        response = [
+        responses = [
           [walkin_params, walkin_response],
           [urgent_care_params, urgent_care_response]
         ].each_with_object([]) do |(request_params, response), new_array|
@@ -53,7 +52,7 @@ module Facilities
           end
           new_array.concat(providers)
         end.sort
-        paginated_responses(response, params)
+        paginated_responses(responses, params)
       end
 
       # https://dev.dws.ppms.va.gov/swagger/ui/index#!/Providers/Providers_Get_0
@@ -97,7 +96,7 @@ module Facilities
       def paginated_responses(response, params)
         page = Integer(params[:page] || 1)
         per_page = Integer(params[:per_page] || BaseFacility.per_page)
-        offset = (page -1) * per_page
+        offset = (page - 1) * per_page
 
         response[offset, per_page]
       end
