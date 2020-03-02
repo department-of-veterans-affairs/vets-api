@@ -93,6 +93,24 @@ FactoryBot.define do
       end
     end
 
+    trait :accountable_with_sec_id do
+      authn_context { LOA::IDME_LOA3_VETS }
+      uuid { SecureRandom.uuid }
+      callback(:after_build) do |user|
+        create(:account, sec_id: user.sec_id)
+      end
+
+      sign_in do
+        {
+          service_name: SAML::User::AUTHN_CONTEXTS[authn_context][:sign_in][:service_name]
+        }
+      end
+
+      loa do
+        { current: LOA::THREE, highest: LOA::THREE }
+      end
+    end
+
     trait :loa1 do
       authn_context { LOA::IDME_LOA1_VETS }
       sign_in do
@@ -127,6 +145,17 @@ FactoryBot.define do
             :mvi_profile,
             birls_id: nil,
             participant_id: nil
+          )
+        )
+      end
+    end
+
+    factory :user_with_no_secid, traits: [:loa3] do
+      after(:build) do
+        stub_mvi(
+          build(
+            :mvi_profile,
+            sec_id: nil
           )
         )
       end

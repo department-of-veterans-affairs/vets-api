@@ -14,7 +14,7 @@ module VAOS
     end
 
     def token
-      ::JWT.encode(payload, rsa_private, 'RS512')
+      ::JWT.encode(payload, Configuration.instance.rsa_key, 'RS512')
     end
 
     private
@@ -75,10 +75,6 @@ module VAOS
 
     def ssn
       user.mvi&.profile&.ssn
-    end
-
-    def rsa_private
-      OpenSSL::PKey::RSA.new(File.read(Settings.va_mobile.key_path))
     end
   end
 end
