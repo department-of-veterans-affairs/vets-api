@@ -95,7 +95,7 @@ RSpec.describe 'MDOT Medical Devices & Supplies', type: :request do
 
       context 'with an accepted response' do
         it 'returns an order_id and accepted status' do
-          VCR.use_cassette('mdot/post_supplies_200') do
+          VCR.use_cassette('mdot/post_supplies_202') do
             post '/v0/mdot/supplies', params: good_order
             expect(response).to have_http_status(:accepted)
             expect(response).to match_response_schema('mdot_supplies')
