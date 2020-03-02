@@ -37,7 +37,7 @@ module Swagger
           end
 
           operation :post do
-            extend Swagger::Responses::AuthenticationError
+            extend Swagger::Responses::ValidationError
 
             key :description, 'submits a new order for medical devices and supplies to the DLC'
             key :operationId, 'postSupplies'
