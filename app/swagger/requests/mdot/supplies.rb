@@ -38,10 +38,11 @@ module Swagger
 
           operation :post do
             extend Swagger::Responses::ValidationError
+            extend Swagger::Responses::AuthenticationError
 
+            key :tags, %w[supplies]
             key :description, 'submits a new order for medical devices and supplies to the DLC'
             key :operationId, 'postSupplies'
-            key :tags, %w[supplies]
 
             response 202 do
               key :description, 'Accepted response from the DLC'
