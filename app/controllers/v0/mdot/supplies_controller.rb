@@ -10,6 +10,11 @@ module V0
         render json: response.body
       end
 
+      def index
+        supplies = client.get_supplies
+        render json: supplies.body
+      end
+
       private
 
       def client
@@ -17,4 +22,8 @@ module V0
       end
     end
   end
+<<<<<<< HEAD
 end
+=======
+end
+>>>>>>> master
