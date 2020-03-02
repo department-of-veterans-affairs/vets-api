@@ -1,5 +1,5 @@
 # frozen_string_literal: true
-
+ 
 require 'attr_encrypted'
 
 # Base class to hold common functionality for Claim submissions.
@@ -36,8 +36,28 @@ class SavedClaim < ApplicationRecord
     validates(:form_id, inclusion: [form_id])
   end
 
-  # Run after a claim is saved, this processes any files and workflows that are present
-  # and sends them to our internal partners for processing.
+  # Processes claim and claim attachments via structure data workflow (BPDS, VBMS eFolder)
+  # Only 21P-530 burial forms are supported at this time.
+  def submit_to_structured_data_services!
+    if form_id != '21P-530'
+      err_message = "Unsupported form id: #{form_id}"
+      raise Common::Exceptions::UnprocessableEntity.new(detail: err_message), err_message
+    end
+    StructuredData::ProcessDataJob.perform_async(id)
+  end
+
+  # Upload claim attachments directly to VBMS eFolder.
+  def process_efolder_attachments!
+    # Associate uploaded attachments to this claim
+    refs = attachment_keys.map { |key| Array(open_struct_form.send(key)) }.flatten
+    files = PersistentAttachment.where(guid: refs.map(&:confirmationCode))
+    files.find_each { |f| f.update(saved_claim_id: id) }
+
+    # upload
+    VBMS::Efolder::UploadClaimAttachments.new(id)&.upload!
+  end
+
+  # Processes claim and claim attachments via Central Mail workflow.
   def process_attachments!
     refs = attachment_keys.map { |key| Array(open_struct_form.send(key)) }.flatten
     files = PersistentAttachment.where(guid: refs.map(&:confirmationCode))
@@ -45,17 +65,7 @@ class SavedClaim < ApplicationRecord
 
     CentralMail::SubmitSavedClaimJob.perform_async(id)
   end
-
-  def submit_to_structured_data_services!
-    # Only 21P-530 burial forms are supported at this time
-    if form_id != '21P-530'
-      err_message = "Unsupported form id: #{form_id}"
-      raise Common::Exceptions::UnprocessableEntity.new(detail: err_message), err_message
-    end
-
-    StructuredData::ProcessDataJob.perform_async(id)
-  end
-
+  
   def confirmation_number
     guid
   end
