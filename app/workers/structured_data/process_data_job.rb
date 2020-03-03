@@ -36,9 +36,10 @@ module StructuredData
       raise
     end
 
+    private
+
     def lookup_claimant(relationship_type, veteran, claimant_name, claimant_address)
-      case relationship_type
-      when 'child'
+      if relationship_type == 'child'
         StructuredData::Utilities.find_dependent_claimant(veteran, claimant_name, claimant_address)
       end
     end

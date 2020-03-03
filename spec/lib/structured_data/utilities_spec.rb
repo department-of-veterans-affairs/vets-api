@@ -12,8 +12,7 @@ RSpec.describe StructuredData::Utilities do
 
       people_service = OpenStruct.new(find_dependents: { dependent: [] })
       allow(bgs_service).to receive(:people).and_return(people_service)
-      allow(people_service).to receive(:find_dependents).and_return({ dependent: [] })
-
+      allow(people_service).to receive(:find_dependents).and_return(dependent: [])
 
       expect(StructuredData::Utilities.find_dependents(123)).to eq([])
     end
