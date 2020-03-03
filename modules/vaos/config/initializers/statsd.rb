@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require_relative '../../app/services/vaos/configuration'
-
 vaos_endpoints = %w[get_appointments get_cancel_reasons get_clinic_institutions get_clinic_institutions
                     get_eligibility get_facilities get_facility_available_appointments get_facility_clinics
                     get_facility_limits get_facility_visits get_messages get_preferences get_requests
