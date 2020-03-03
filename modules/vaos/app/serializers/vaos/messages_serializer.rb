@@ -12,7 +12,6 @@ module VAOS
 
     attributes :message_text,
                :message_date_time,
-               :sender_id,
                :appointment_request_id,
                :date
   end
