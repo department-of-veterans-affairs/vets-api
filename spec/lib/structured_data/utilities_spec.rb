@@ -9,9 +9,10 @@ RSpec.describe StructuredData::Utilities do
   describe '#find_dependents' do
     it 'calls LighthouseBGS::Services for claimant lookup' do
       allow(LighthouseBGS::Services).to receive(:new).and_return(bgs_service)
-      allow(bgs_service).to receive_message_chain(:people, :find_dependents) {
-        { dependent: [] }
-      }
+
+      people_service = OpenStruct.new(find_dependents: { dependent: [] })
+      allow(bgs_service).to receive(people: people_service)
+
       expect(StructuredData::Utilities.find_dependents(123)).to eq([])
     end
   end
