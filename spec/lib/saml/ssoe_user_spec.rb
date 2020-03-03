@@ -42,7 +42,8 @@ RSpec.describe SAML::User do
           email: 'kam+tristanmhv@adhocteam.us',
           multifactor: false,
           loa: { current: 1, highest: 1 },
-          sign_in: { service_name: 'idme', account_type: 1 }
+          sign_in: { service_name: 'idme', account_type: 1 },
+          authenticated_by_ssoe: true
         )
       end
 
@@ -73,7 +74,8 @@ RSpec.describe SAML::User do
           email: 'kam+tristanmhv@adhocteam.us',
           loa: { current: 1, highest: 3 },
           sign_in: { service_name: 'myhealthevet', account_type: 1 },
-          multifactor: multifactor
+          multifactor: multifactor,
+          authenticated_by_ssoe: true
         )
       end
     end
@@ -100,7 +102,8 @@ RSpec.describe SAML::User do
           email: 'kam+tristanmhv@adhocteam.us',
           loa: { current: 1, highest: 3 },
           sign_in: { service_name: 'dslogon', account_type: 1 },
-          multifactor: multifactor
+          multifactor: multifactor,
+          authenticated_by_ssoe: true
         )
       end
     end
@@ -127,7 +130,8 @@ RSpec.describe SAML::User do
           email: 'kam+tristanmhv@adhocteam.us',
           loa: { current: 3, highest: 3 },
           sign_in: { service_name: 'dslogon', account_type: 3 },
-          multifactor: multifactor
+          multifactor: multifactor,
+          authenticated_by_ssoe: true
         )
       end
     end
