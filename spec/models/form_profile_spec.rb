@@ -446,7 +446,7 @@ RSpec.describe FormProfile, type: :model do
 
   let(:vmdot_expected) do
     {
-      'veteranFullName' => {
+      'fullName' => {
         'first' => user.first_name&.capitalize,
         'last' => user.last_name&.capitalize,
         'suffix' => user.va_profile[:suffix]
