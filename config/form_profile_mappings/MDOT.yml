@@ -1,4 +1,4 @@
-veteranFullName: [identity_information, full_name]
+fullName: [identity_information, full_name]
 gender: [identity_information, gender]
 veteranAddress: [contact_information, address]
 email: [contact_information, email]
