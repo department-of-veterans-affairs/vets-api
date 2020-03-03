@@ -13,15 +13,12 @@ module StructuredData
         stats_key = BipClaims::Service::STATSD_KEY_PREFIX
 
         PensionBurial::TagSentry.tag_sentry
-        @claim = SavedClaim.find(saved_claim_id)
 
-        relationship_type = @claim.parsed_form['relationship']&.fetch('type', nil)
-        claimant_name = @claim.parsed_form['claimantFullName']
-        claimant_address = @claim.parsed_form['claimantAddress']
+        @claim = SavedClaim.find(saved_claim_id)
 
         veteran = BipClaims::Service.new.lookup_veteran_from_mvi(@claim)
 
-        claimant = lookup_claimant(relationship_type, veteran, claimant_name, claimant_address) if veteran
+        claimant = lookup_claimant(veteran, @claim) if veteran
       ensure
         @claim.process_attachments! # upload claim and attachments to Central Mail
 
@@ -36,7 +33,11 @@ module StructuredData
       raise
     end
 
-    def lookup_claimant(relationship_type, veteran, claimant_name, claimant_address)
+    def lookup_claimant(veteran, claim)
+      relationship_type = claim.parsed_form['relationship']&.fetch('type', nil)
+      claimant_name = claim.parsed_form['claimantFullName']
+      claimant_address = claim.parsed_form['claimantAddress']
+
       case relationship_type
       when 'child'
         StructuredData::Utilities.find_dependent_claimant(veteran, claimant_name, claimant_address)
