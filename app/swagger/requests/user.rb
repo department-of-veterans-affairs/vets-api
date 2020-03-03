@@ -90,7 +90,7 @@ module Swagger
                   property :facilities, type: :array do
                     items do
                       key :facility_id, type: :string
-                      property :is_cerner, :boolean
+                      property :is_cerner, type: :boolean
                     end
                   end
                   property :given_names, type: :array do
