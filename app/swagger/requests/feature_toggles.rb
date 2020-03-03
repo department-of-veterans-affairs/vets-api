@@ -22,6 +22,15 @@ module Swagger
             key :required, true
           end
 
+          parameter do
+            key :name, :cookie_id
+            key :in, :query
+            key :description, 'a unique string from the front end so that features can be configured to be "sticky" for
+                               unauthenticated users'
+            key :required, false
+            key :type, :string
+          end
+
           response 200 do
             key :description, 'Response is OK'
             schema do
