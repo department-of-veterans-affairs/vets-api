@@ -97,9 +97,6 @@ module Common
         send(method, path, params || {}, headers || {}, options || {})
       end
 
-=begin
-#NEW
-      # rubocop:disable Metrics/AbcSize
       def request(method, path, params = {}, headers = {}, options = {})
         sanitize_headers!(method, path, params, headers)
         raise_not_authenticated if headers.keys.include?('Token') && headers['Token'].nil?
@@ -111,36 +108,7 @@ module Common
         # convert BackendServiceException into a more meaningful exception title for Sentry
         raise config.service_exception.new(e.key, e.response_values, e.original_status, e.original_body)
       rescue Timeout::Error, Faraday::TimeoutError => e
-        Raven.extra_context(add_response_to_hash_if_present(
-                              e,
-                              service_name: config.service_name,
-                              url: config.base_path
-                            ))
-        raise Common::Exceptions::GatewayTimeout
-      rescue Faraday::ParsingError => e
-        raise Common::Client::Errors::ParsingError.new(e.message, e.response.status, e.response.body)
-      rescue Faraday::ClientError => e
-        raise Common::Client::Errors::ClientError.new(e.message, e.response.status, e.response.body)
-      end
-      # rubocop:enable Metrics/AbcSize
-#/NEW
-=end
-
-#OLD
-      def request(method, path, params = {}, headers = {}, options = {}) # rubocop:disable Metrics/MethodLength
-        sanitize_headers!(method, path, params, headers)
-        raise_not_authenticated if headers.keys.include?('Token') && headers['Token'].nil?
-        connection.send(method.to_sym, path, params) do |request|
-          request.headers.update(headers)
-          options.each { |option, value| request.options.send("#{option}=", value) }
-        end.env
-      rescue Common::Exceptions::BackendServiceException => e
-        # convert BackendServiceException into a more meaningful exception title for Sentry
-        raise config.service_exception.new(
-          e.key, e.response_values, e.original_status, e.original_body
-        )
-      rescue Timeout::Error, Faraday::TimeoutError
-        Raven.extra_context(service_name: config.service_name, url: config.base_path)
+        Raven.extra_context(response_hash_from_error(e).merge(service_name: config.service_name, url: config.base_path))
         raise Common::Exceptions::GatewayTimeout
       rescue Faraday::ClientError => e
         error_class = case e
@@ -149,27 +117,26 @@ module Common
                       else
                         Common::Client::Errors::ClientError
                       end
-
-        response_hash = e.response&.to_hash
-        client_error = error_class.new(e.message, response_hash&.dig(:status), response_hash&.dig(:body))
-        raise client_error
-      end
-#/OLD
-
-      def add_response_to_hash_if_present(exception, hash)
-        return hash unless exception.respond_to?(:response)
-
-        hash.merge(response_hash(exception.response))
+        status, body = response_hash_from_error(e)[:response].try(:values_at, :status, :body)
+        raise error_class.new(e.message, status, body)
       end
 
-      def response_hash(response)
-        {
-          response: {
-            status: response.try(:status),
-            body: response.try(:body),
-            headers: response.try(:headers)
+      def response_hash_from_error(error)
+        return { response: nil } unless error.respond_to?(:response)
+
+        resp = error.response
+
+        if %i[status body headers].all? { |method| resp.respond_to? method }
+          return {
+            response: {
+              status: resp.status,
+              body: resp.body,
+              headers: resp.headers
+            }
           }
-        }
+        end
+
+        { response: resp.try(:to_hash) || resp.try(:to_h) }
       end
 
       def sanitize_headers!(_method, _path, _params, headers)
