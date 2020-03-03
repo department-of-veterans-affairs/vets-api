@@ -8,8 +8,6 @@ module StructuredData
 
     class StructuredDataResponseError < StandardError
     end
-
-    # rubocop:disable Metrics/MethodLength
     def perform(saved_claim_id)
       begin
         stats_key = BipClaims::Service::STATSD_KEY_PREFIX
@@ -23,12 +21,7 @@ module StructuredData
 
         veteran = BipClaims::Service.new.lookup_veteran_from_mvi(@claim)
 
-        if veteran
-          case relationship_type
-          when 'child'
-            claimant = find_dependent_claimant(veteran, claimant_name, claimant_address)
-          end
-        end
+        claimant = lookup_claimant(relationship_type, veteran, claimant_name, claimant_address) if veteran
       ensure
         @claim.process_attachments! # upload claim and attachments to Central Mail
 
@@ -42,6 +35,12 @@ module StructuredData
     rescue
       raise
     end
-    # rubocop:enable Metrics/MethodLength
+
+    def lookup_claimant(relationship_type, veteran, claimant_name, claimant_address)
+      case relationship_type
+      when 'child'
+        StructuredData::Utilities.find_dependent_claimant(veteran, claimant_name, claimant_address)
+      end
+    end
   end
 end
