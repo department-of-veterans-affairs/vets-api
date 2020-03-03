@@ -456,6 +456,12 @@ en:
         detail: "MVI service returned an invalid response"
         code: 'MVI_502'
         status: 502
+      MVI_502_DUP:
+        <<: *external_defaults
+        title: Duplicate Keys
+        detail: "The user has duplicate identifier keys"
+        code: 'MVI_502'
+        status: 502
       MVI_503:
         <<: *external_defaults
         title: Service unavailable
@@ -1897,3 +1903,42 @@ en:
         detail: 'Error on data from external service'
         code: 134
         status: 502
+  
+  mdot:
+    exceptions:
+      default_exception:
+        <<: *defaults
+        title: Internal Server Error
+        detail: The upstream server returned an error code that is unmapped
+        code: unmapped_service_exception
+        status: 400
+      MDOT_502:
+        <<: *defaults
+        title: Bad Gateway
+        detail: Received an an invalid response from the upstream server
+        code: MDOT_502
+        status: 502
+      MDOT_malformed_request:
+        <<: *defaults
+        title: Malformed Request
+        detail: The request was malformed and could not be processed
+        code: MDOT_malformed_request
+        status: 400
+      MDOT_forbidden:
+        <<: *defaults
+        title: Forbidden
+        detail: User is forbidden from accessing this resource
+        code: MDOT_forbidden
+        status: 403
+      MDOT_veteran_not_found:
+        <<: *defaults
+        title: Veteran Not Found
+        detail: The veteran could not be found
+        code: MDOT_veteran_not_found
+        status: 404
+      MDOT_supplies_not_found:
+        <<: *defaults
+        title: Supplies Not Found
+        detail: The medical supplies could not be found
+        code: MDOT_supplies_not_found
+        status: 404

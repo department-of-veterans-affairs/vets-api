@@ -122,6 +122,7 @@ class User < Common::RedisStore
   delegate :icn_with_aaid, to: :mvi
   delegate :participant_id, to: :mvi
   delegate :vet360_id, to: :mvi
+  delegate :search_token, to: :mvi
 
   # emis attributes
   delegate :military_person?, to: :veteran_status
@@ -129,6 +130,10 @@ class User < Common::RedisStore
 
   def edipi
     loa3? && dslogon_edipi.present? ? dslogon_edipi : mvi&.edipi
+  end
+
+  def sec_id
+    va_profile&.sec_id
   end
 
   def va_profile
@@ -269,6 +274,16 @@ class User < Common::RedisStore
     loa3? && icn.present? && vet360_id.present?
   rescue # Default to false for any error
     false
+  end
+
+  def can_mvi_proxy_add?
+    personal_info? && edipi.present? && icn_with_aaid.present? && search_token.present?
+  rescue # Default to false for any error
+    false
+  end
+
+  def personal_info?
+    first_name.present? && last_name.present? && ssn.present? && birth_date.present?
   end
 
   def mvi

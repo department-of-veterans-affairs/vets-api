@@ -112,6 +112,14 @@ ihub:
     mock: true
   in_production: false
 
+# Settings for Medical Devices Ordering Tool
+mdot:
+  prefill: true
+  url: https://dlc-fake.fake.com
+  api_key: abcd1234abcd1234abcd1234abcd1234abcd1234
+  mock: false
+  enabled: false
+
 # Settings for Decision Reviews
 decision_review:
   prefill: true
@@ -177,9 +185,6 @@ gids:
   url: https://dev.va.gov/gids
   open_timeout: 1
   read_timeout: 1
-
-mdot:
-  prefill: true
 
 mvi_hca:
   url: http://example.com
@@ -444,12 +449,13 @@ flipper:
     - kenneth.gary@va.gov
     - lauren.alexanderson@va.gov
     - mark.greenburg@adhocteam.us
+    - n.ratana@gmail.com
     - narin@adhocteam.us
+    - osanchez@governmentcio.com
     - rian.fowler@adhoc.team
     - rianfowler@outlook.com
     - ryan.thurlwell@va.gov
     - travis.hilton@oddball.io
-    - n.ratana@gmail.com
     - zurbergram@gmail.com
 
 bgs:
@@ -484,3 +490,7 @@ vbms:
   server_cert: vbms.aide.oit.va.gov.crt
   environment_directory: /srv/vets-api/secret
   env: test
+
+vet_verification:
+  key_path: modules/veteran_verification/spec/fixtures/verification_test.pem
+

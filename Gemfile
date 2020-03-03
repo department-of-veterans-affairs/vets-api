@@ -2,7 +2,7 @@
 
 source 'https://rubygems.org'
 
-ruby '2.5.7'
+ruby '2.6.5'
 
 # Modules
 gem 'appeals_api', path: 'modules/appeals_api'
@@ -17,7 +17,7 @@ gem 'veteran_confirmation', path: 'modules/veteran_confirmation'
 gem 'veteran_verification', path: 'modules/veteran_verification'
 
 # Anchored versions, do not change
-gem 'puma', '~> 4.3.1'
+gem 'puma', '~> 4.3.2'
 gem 'puma-plugin-statsd', '~> 0.1.0'
 gem 'rails', '~> 5.2.4'
 
@@ -71,9 +71,10 @@ gem 'memoist'
 gem 'mini_magick', '~> 4.10.1'
 gem 'net-sftp'
 gem 'newrelic_rpm'
-gem 'nokogiri', '~> 1.10', '>= 1.10.4'
+gem 'nokogiri', '~> 1.10'
 gem 'oj' # Amazon Linux `json` gem causes conflicts, but `multi_json` will prefer `oj` if installed
 gem 'olive_branch'
+gem 'operating_hours'
 gem 'origami'
 gem 'ox'
 gem 'paper_trail'
