@@ -331,6 +331,13 @@
       :uid_locator: '<v11:eMISserviceEpisodeRequest>\s*<v12:edipiORicn>\s*<v13:edipiORicnValue>(\d+)'
 
   - :method: :post
+    :path: "/VIERSService/eMIS/v2/MilitaryInformationService"
+    :file_path: "emis/military_service_episodes_v2"
+    :cache_multiple_responses:
+      :uid_location: body
+      :uid_locator: '<v11:eMISserviceEpisodeRequest>\s*<v12:edipiORicn>\s*<v13:edipiORicnValue>(\d+)'
+
+  - :method: :post
     :path: "/VIERSService/eMIS/v1/MilitaryInformationService"
     :file_path: "emis/deployment"
     :cache_multiple_responses:
