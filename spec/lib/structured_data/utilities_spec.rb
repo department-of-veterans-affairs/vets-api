@@ -11,7 +11,9 @@ RSpec.describe StructuredData::Utilities do
       allow(LighthouseBGS::Services).to receive(:new).and_return(bgs_service)
 
       people_service = OpenStruct.new(find_dependents: { dependent: [] })
-      allow(bgs_service).to receive(people: people_service)
+      allow(bgs_service).to receive(:people).and_return(people_service)
+      allow(people_service).to receive(:find_dependents).and_return({ dependent: [] })
+
 
       expect(StructuredData::Utilities.find_dependents(123)).to eq([])
     end
