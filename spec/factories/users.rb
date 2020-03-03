@@ -22,6 +22,7 @@ FactoryBot.define do
       va_patient { nil }
       search_token { nil }
       icn_with_aaid { nil }
+      authenticated_by_ssoe { false }
 
       sign_in do
         {
@@ -145,6 +146,17 @@ FactoryBot.define do
             :mvi_profile,
             birls_id: nil,
             participant_id: nil
+          )
+        )
+      end
+    end
+
+    factory :user_with_no_secid, traits: [:loa3] do
+      after(:build) do
+        stub_mvi(
+          build(
+            :mvi_profile,
+            sec_id: nil
           )
         )
       end
