@@ -132,6 +132,10 @@ class User < Common::RedisStore
     loa3? && dslogon_edipi.present? ? dslogon_edipi : mvi&.edipi
   end
 
+  def sec_id
+    va_profile&.sec_id
+  end
+
   def va_profile
     mvi.profile
   end
