@@ -493,4 +493,4 @@ vet_verification:
 
 github_stats:
   username: "github-stats-rake"
-  token: "59f2bc73d37afc44ae209cec3c1003c61f2231d7"
+  token: "{{ lookup('credstash', 'github.stats.api-token') }}"
