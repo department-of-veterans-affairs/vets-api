@@ -89,7 +89,8 @@ module Swagger
                   property :is_cerner_patient, type: :boolean
                   property :facilities, type: :array do
                     items do
-                      key :facility_id, type: :string
+                      key :required, %i[facility_id is_cerner]
+                      property :facility_id, type: :string
                       property :is_cerner, type: :boolean
                     end
                   end
