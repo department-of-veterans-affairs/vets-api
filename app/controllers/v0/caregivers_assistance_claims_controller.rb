@@ -6,10 +6,7 @@ module V0
     skip_before_action(:authenticate)
 
     def create
-      validate_session
-
-      claim = service.submit_claim!(current_user, claim_params)
-
+      claim = service.submit_claim!(nil, claim_params)
       render json: claim, serializer: SavedClaimSerializer
     end
 

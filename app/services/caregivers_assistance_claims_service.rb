@@ -5,21 +5,18 @@ class CaregiversAssistanceClaimsService
     claim = SavedClaim::CaregiversAssistanceClaim.new(claim_data)
 
     unless claim.valid?
-      # If we've reached here, there is an client error that prevented the claim, increment relevant stat.
-      # TODO (kevinmirc): #5672
+      # TODO: (kevinmirc #5672) - increment failure.client stat
       raise(Common::Exceptions::ValidationErrors, claim)
     end
 
     begin
       claim.save!
     rescue => e
-      # If we've reached here, there is an internal error that prevented claim, log error and increment stat.
-      # TODO (kevinmirc): #5672
+      # TODO: (kevinmirc #5672) - increment failure.server stat
       raise e
     end
 
-    # If we've made it here, increment success stat
-    # TODO (kevinmirc): #5672
+    # TODO: (kevinmirc #5672) - increment success stat
 
     destroy_previously_saved_form_for(user_context) if user_context
 
