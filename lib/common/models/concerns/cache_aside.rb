@@ -26,9 +26,15 @@ module Common
       attribute :response
     end
 
+    def is_cached(key:)
+      self.class.find(key) ? true : false
+    end
+
+    # get or create method
     def do_cached_with(key:)
       cached = self.class.find(key)
       if cached
+        # if cached, re-cache
         set_attributes(key, cached.response)
         return cached.response
       end
@@ -36,10 +42,12 @@ module Common
       response = yield
       raise NoMethodError, 'The response class being cached must implement #cache?' unless response.respond_to?(:cache?)
 
+      # if not cached, add to cache
       cache(key, response) if response.cache?
       response
     end
 
+    # create method
     def cache(key, response)
       set_attributes(key, response)
       save

@@ -46,10 +46,10 @@ module V0
 
     # TO DO:
     # - [ ] tests
-    #   - [ ] mvi_add_person in spec/models/mvi_spec.rb
+    #   - [x] mvi_add_person in spec/models/mvi_spec.rb
     #     - [x] update: with a successful add... expect_any_instance_of(Mvi).to receive(:destroy).once will fail after new :clear_cache method is added
     #     - [x] new: with a failed add... for form '526' expect not to call :clear_cache (instead of :destroy)
-    #     - [ ] new: test of :clear_cache method
+    #     - [x] new: test of :clear_cache method
     #   - [x] add proxy_add test to spec/request/in_progress_forms_request_spec.rb
     # - [x] redis_store add :clear_cache method (can not use :destroy bc we don't want to freeze)
     # - [ ] new before_action:

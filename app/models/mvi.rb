@@ -130,10 +130,14 @@ class Mvi < Common::RedisStore
 
   private
 
-  # def clear_cache
-  #   Mvi.delete(user.uuid)
-  #   @mvi_response = nil
-  # end
+  def clear_cache
+    # Mvi.delete(user.uuid)
+
+    # What's the point of this? If we call mvi.mvi_response
+    # calls => @mvi_response ||= response_from_redis_or_service
+    # calls => do_cached_with, which recreates cache
+    # @mvi_response = nil
+  end
 
   def response_from_redis_or_service
     do_cached_with(key: user.uuid) do

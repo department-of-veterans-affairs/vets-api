@@ -124,7 +124,7 @@ describe Mvi, skip_mvi: true do
   end
 
   describe 'correlation ids' do
-    context 'with a succesful response' do
+    context 'with a successful response' do
       before do
         allow_any_instance_of(MVI::Service).to receive(:find_profile).and_return(profile_response)
       end
@@ -210,6 +210,18 @@ describe Mvi, skip_mvi: true do
           expect(mvi.participant_id).to be_nil
         end
       end
+    end
+  end
+
+  describe '#clear_cache' do
+    let(:mvi) { Mvi.for_user(user) }
+
+    it 'clears user from cache and returns nil' do
+      mvi.cache(user.uuid, profile_response)
+      expect(mvi.is_cached(key: user.uuid)).to be true
+
+      mvi.send(:clear_cache)
+      expect(mvi.is_cached(key: user.uuid)).to be false
     end
   end
 end
