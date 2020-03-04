@@ -8,6 +8,6 @@ module UserIdentifiable
   included do
     # returns all instances that match the given User on their available
     # identifiers, either the users idme uuid or account id
-    scope :for_user, ->(u) { where(:user_uuid => [u.uuid, ACCT_ID_PREFIX + u.account_id]) }
+    scope :for_user, ->(u) { where(user_uuid: [u.uuid, ACCT_ID_PREFIX + u.account_id]) }
   end
 end
