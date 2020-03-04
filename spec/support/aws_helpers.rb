@@ -24,4 +24,19 @@ module AwsHelpers
 
     url
   end
+
+  def stub_maintenance_windows_s3(filename)
+    s3 = double
+    bucket = double
+    obj = double
+
+    expect(Aws::S3::Resource).to receive(:new).once.with(
+      region: 'region',
+      access_key_id: 'key',
+      secret_access_key: 'secret'
+    ).and_return(s3)
+    expect(s3).to receive(:bucket).once.with('bucket').and_return(bucket)
+    expect(bucket).to receive(:object).once.with('maintenance_windows.json').and_return(obj)
+    expect(obj).to receive(:upload_file).once.with(filename)
+  end
 end
