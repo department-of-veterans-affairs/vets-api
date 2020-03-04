@@ -35,16 +35,14 @@ RSpec.describe StructuredData::Utilities do
   describe '#find_dependent_claimant' do
     it 'returns dependent claimants that match claim form data' do
       expect(StructuredData::Utilities.find_dependent_claimant(
-        OpenStruct.new(participant_id: 123),
-        { 'first' => 'First', 'last' => 'Last'},
-        { "street" => "claimant street" }
-      )).to eq(
-        {
-          ptcpnt_rlnshp_type_nm: 'Child',
-          first_nm: 'First',
-          last_nm: 'Last'
-        }
-      )
+               OpenStruct.new(participant_id: 123),
+               { 'first' => 'First', 'last' => 'Last' },
+               'street' => 'claimant street'
+             )).to eq(
+               ptcpnt_rlnshp_type_nm: 'Child',
+               first_nm: 'First',
+               last_nm: 'Last'
+             )
     end
   end
 end
