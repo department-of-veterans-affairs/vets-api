@@ -7,13 +7,15 @@
       "FromBreak": 0,
       "ToBreak": 10,
       "Sta_No": "648A4",
-      "TravelTimeBand": "0 - 10"
+      "TravelTimeBand": "0 - 10",
+      "MONTHYEAR": "NOV2019",
+      "EXTRDATE": 1575082800000
     },
     "geometry": {
       "rings": [
         [
           [
-            -69.72744285999994,
+            -58.72744285999994,
             44.340386525000042
           ],
           [

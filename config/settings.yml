@@ -401,6 +401,7 @@ maintenance:
     emis: P0HNT0I
     es: PH7OPR4
     evss: PZKWB6Y
+    global: PLPSIB0
     idme: PVWB4R8
     mvi: PCIPVGJ
     mhv: PP2ZZ2V
@@ -408,6 +409,11 @@ maintenance:
     tims: PUL8OQ4
     vet360: PHVOGQ1
     vic: P7LW3MS
+  aws:
+    access_key_id: ~
+    bucket: ~
+    region: ~
+    secret_access_key: ~
 
 # Note: in addition to enabling / disabling betamocks here, you _must_ also
 # change the 'mock' bool for each service you want to mock in this settings file
@@ -491,3 +497,6 @@ vbms:
 vet_verification:
   key_path: modules/veteran_verification/spec/fixtures/verification_test.pem
 
+github_stats:
+  username: github-stats-rake
+  token: fake_token
