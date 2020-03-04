@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require_relative './middleware/response/errors'
-require_relative './middleware/response/vaos_logging'
+require_relative './middleware/vaos_logging'
 
 module VAOS
   class Configuration < Common::Client::Configuration::REST
