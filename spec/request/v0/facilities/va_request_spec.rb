@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe 'VA GIS Integration', type: :request do
+RSpec.describe 'VA GIS Integration', type: :request, team: :facilities do
   include SchemaMatchers
 
   BASE_QUERY_PATH = '/v0/facilities/va?'
@@ -119,7 +119,7 @@ RSpec.describe 'VA GIS Integration', type: :request do
     expect(response).to be_successful
     expect(response.body).to be_a(String)
     json = JSON.parse(response.body)
-    expect(json['data'].length).to eq(12)
+    expect(json['data'].length).to eq(10)
   end
 
   it 'responds to GET #index with bbox and filter' do
