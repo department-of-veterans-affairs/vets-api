@@ -102,7 +102,7 @@ class BaseFacility < ApplicationRecord
     end
 
     def per_page
-      20
+      10
     end
 
     def max_per_page
