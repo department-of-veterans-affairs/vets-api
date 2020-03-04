@@ -82,7 +82,7 @@ module V1
     private
 
     def force_authn?
-      return params[:force]&.downcase == 'true'
+      params[:force]&.downcase == 'true'
     end
 
     def saml_settings(options = {})
