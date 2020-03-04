@@ -65,7 +65,6 @@ module AuthenticationAndSSOConcerns
 
   # Extends the users session, including the MHV SSO Cookie
   def extend_session!
-    Rails.logger.info('SSO: ApplicationController#extend_session!', sso_logging_info)
     @session_object.expire(Session.redis_namespace_ttl)
     @current_user&.identity&.expire(UserIdentity.redis_namespace_ttl)
     @current_user&.expire(User.redis_namespace_ttl)
