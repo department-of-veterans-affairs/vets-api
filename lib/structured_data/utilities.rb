@@ -12,7 +12,7 @@ module StructuredData
         veteran.participant_id
       )
 
-      children = results[:dependent].select do |c|
+      children = results.select do |c|
         [
           c[:ptcpnt_rlnshp_type_nm] == 'Child',
           c[:first_nm].downcase == c_name['first'].downcase,
