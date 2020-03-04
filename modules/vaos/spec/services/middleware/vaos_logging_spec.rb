@@ -15,11 +15,11 @@ describe VAOS::Middleware::VaosLogging do
 
   after { Timecop.return }
 
-  describe '#get_appointments of type va' do
+  describe 'vaos logging' do
     let(:type) { 'va' }
 
-    context 'with 12 va appointments' do
-      it 'returns an array of size 12' do
+    context 'with a succesful response' do
+      it 'increments statsd and logs additional details in a success line' do
         VCR.use_cassette('vaos/appointments/get_appointments', match_requests_on: %i[method uri]) do
           expect(Rails.logger).to receive(:info).with(
             '[StatsD] increment api.external_http_request.VAOS.success:1 ' /
@@ -43,8 +43,8 @@ describe VAOS::Middleware::VaosLogging do
       end
     end
 
-    context 'when the upstream server returns a 500' do
-      it 'raises a backend exception' do
+    context 'with a failed response' do
+      it 'increments statsd and logs additional details in a failure line' do
         VCR.use_cassette('vaos/appointments/get_appointments_500', match_requests_on: %i[method uri]) do
           expect(Rails.logger).to receive(:info).with('[StatsD] increment api.vaos.get_appointments.total:1')
           expect(Rails.logger).to receive(:info).with(
