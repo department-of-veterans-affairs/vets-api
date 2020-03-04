@@ -156,5 +156,15 @@ RSpec.describe Account, type: :model do
       cached_acct = Account.do_cached_with(key: user.uuid)
       expect(cached_acct.sec_id).to eq new_secid
     end
+
+    it 'does not overwrite populated fields with nil values' do
+      original_acct = Account.cache_or_create_by! user_delta
+      updated_acct = Account.update_if_needed!(original_acct, user)
+      expect(updated_acct.sec_id).to be_present
+
+      # Use do_cached_with to fetch cached model only
+      cached_acct = Account.do_cached_with(key: user.uuid)
+      expect(cached_acct.sec_id).to be_present
+    end
   end
 end

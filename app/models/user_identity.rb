@@ -29,6 +29,7 @@ class UserIdentity < Common::RedisStore
   attribute :mhv_account_type # this is only available for MHV sign-in users
   attribute :dslogon_edipi # this is only available for dslogon users
   attribute :sign_in, Hash # original sign_in (see sso_service#mergable_identity_attributes)
+  attribute :authenticated_by_ssoe, Boolean
 
   validates :uuid, presence: true
   validates :email, presence: true
