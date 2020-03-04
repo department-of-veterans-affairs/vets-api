@@ -83,7 +83,7 @@ module EducationForm::Forms
       # chomp off the final rendered line to get the correct
       # output. Any intentionally blank lines before the final
       # one will remain.
-      ERB.new(template, nil, '-').result(binding).chomp
+      ERB.new(template, trim_mode: '-').result(binding).chomp
     end
 
     def parse_with_template_path(path)

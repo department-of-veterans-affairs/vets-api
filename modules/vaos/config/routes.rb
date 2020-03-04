@@ -23,6 +23,6 @@ VAOS::Engine.routes.draw do
       get 'visits/:schedule_type', to: 'visits#index'
     end
     resource :preferences, only: %i[show update]
-    get 'api', to: 'apidocs#index'
+    get 'apidocs', to: 'apidocs#index'
   end
 end

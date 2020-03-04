@@ -20,7 +20,7 @@ module VAOS
 
         if response.status == 200
           {
-            data: OpenStruct.new(response.body),
+            data: OpenStruct.new(response.body.except(:sender_id)),
             meta: {}
           }
         else

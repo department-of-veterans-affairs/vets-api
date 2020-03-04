@@ -45,6 +45,9 @@ RSpec.describe Sentry::Processor::PIISanitizer do
     let(:data) do
       {
         veteran_address: {
+          address_line1: 'addr',
+          address_line2: 'addr',
+          address_line3: 'addr',
           city: 'Las Vegas',
           country: 'USA',
           postal_code: '91823',

@@ -7,7 +7,10 @@ module VAOS
     def get_systems
       with_monitoring do
         response = perform(:get, '/mvi/v1/patients/session/identifiers.json', nil, headers)
-        response.body.map { |system| OpenStruct.new(system) }
+        response
+          .body
+          .select { |system| system[:assigning_authority].include?('dfn-') || system[:assigning_code].include?('CRNR') }
+          .map { |system| OpenStruct.new(system) }
       end
     end
 
@@ -16,9 +19,9 @@ module VAOS
         url = '/var/VeteranAppointmentRequestService/v4/rest/direct-scheduling/institutions'
         url_params = {
           'facility-code' => system_id,
-          'clinical-service' => type_of_care_id
+          'clinical-service' => type_of_care_id,
+          'parent-code' => parent_code
         }
-        url_params.merge!('parent-code' => parent_code) if parent_code.present?
         response = perform(:get, url, url_params, headers)
         response.body.map do |system|
           institution = system.delete(:institution)
