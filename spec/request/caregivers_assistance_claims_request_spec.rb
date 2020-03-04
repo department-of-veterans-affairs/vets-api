@@ -29,7 +29,7 @@ RSpec.describe 'Caregivers Assistance Claims', type: :request do
       expect(res_body['errors'][0]['detail']).to eq('The required parameter "caregivers_assistance_claim", is missing')
     end
 
-    it 'prevents proeprties undefined in schema from being submitted' do
+    it 'prevents attributes undefined in schema from being submitted' do
       body = { caregivers_assistance_claim: { form: JSON(anAttrNotInSchema: 'some value') } }.to_json
       post endpoint, params: body, headers: headers
 
