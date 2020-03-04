@@ -81,6 +81,9 @@ module V1
     private
 
     def saml_settings(options = {})
+      # add a forceAuthn value to the saml settings based on the initial options or
+      # the "force" value in the query params
+      options[:force_authn] = options[:force_authn] || params[:force]&.downcase == 'true'
       SAML::SSOeSettingsService.saml_settings(options)
     end
 
