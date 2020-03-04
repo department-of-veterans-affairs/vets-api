@@ -21,7 +21,7 @@ module V0
 
     def update
       form = InProgressForm.where(form_id: params[:id], user_uuid: @current_user.uuid).first
-      alt_id = InProgressForm::ACCT_ID_PREFIX + @current_user.account_id
+      alt_id = "#{InProgressForm::ACCT_ID_PREFIX}#{@current_user.account_id}"
       form ||= InProgressForm.where(form_id: params[:id],
                                     user_uuid: alt_id).first_or_initialize
       form.update!(form_data: params[:form_data], metadata: params[:metadata])

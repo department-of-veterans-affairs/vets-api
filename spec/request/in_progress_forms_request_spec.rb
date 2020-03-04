@@ -226,6 +226,17 @@ RSpec.describe V0::InProgressFormsController, type: :request do
           expect(in_progress_form.user_uuid).to start_with(InProgressForm::ACCT_ID_PREFIX)
         end
 
+        context 'with a nil account_id' do
+          it 'fails to create the form', run_at: '2017-01-01' do
+            allow_any_instance_of(User).to receive(:account_id).and_return(nil)
+            put v0_in_progress_form_url(new_form.form_id), params: {
+              form_data: new_form.form_data,
+              metadata: new_form.metadata
+            }.to_json, headers: { 'CONTENT_TYPE' => 'application/json' }
+            expect(response).to have_http_status(:internal_server_error)
+          end
+        end
+
         context 'when an error occurs' do
           it 'returns an error response' do
             allow_any_instance_of(InProgressForm).to receive(:update!).and_raise(ActiveRecord::ActiveRecordError)
