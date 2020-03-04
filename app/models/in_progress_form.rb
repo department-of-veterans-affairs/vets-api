@@ -32,8 +32,8 @@ class InProgressForm < ApplicationRecord
   # Resolve a form given an "indifferent" user_id, i.e.
   # one that may be either an idme_uuid or a prefixed account_id
   def self.form_for_user_id(form_id, user_id)
-    acct = Account.find_by(idme_uuid: user_id)
-    acct = Account.find_by(uuid: user_id.delete_prefix(ACCT_ID_PREFIX)) if user_id.start_with?(ACCT_ID_PREFIX)
+    arg = user_id.start_with?(ACCT_ID_PREFIX) ? { uuid: user_id.delete_prefix(ACCT_ID_PREFIX) } : { idme_uuid: user_id }
+    acct = Account.find_by(arg)
     if acct
       InProgressForm.where(user_uuid: acct.idme_uuid)
                     .or(where(user_uuid: ACCT_ID_PREFIX + acct.uuid))

@@ -60,7 +60,7 @@ RSpec.describe V0::InProgressFormsController, type: :request do
 
       context 'when forms are stored under both uuid types' do
         let!(:in_progress_form_edu) { FactoryBot.create(:in_progress_form, form_id: '22-1990', user_uuid: user.uuid) }
-        let(:acct_user_id) { InProgressForm.ACCT_ID_PREFIX + user.account_id }
+        let(:acct_user_id) { InProgressForm::ACCT_ID_PREFIX + user.account_id }
         let!(:in_progress_form_hca) { FactoryBot.create(:in_progress_form, form_id: '1010ez', user_uuid: acct_user_id) }
 
         it 'returns a 200' do
@@ -119,7 +119,7 @@ RSpec.describe V0::InProgressFormsController, type: :request do
       end
 
       context 'when a form is found under account_id' do
-        let(:acct_user_id) { InProgressForm.ACCT_ID_PREFIX + user.account_id }
+        let(:acct_user_id) { InProgressForm::ACCT_ID_PREFIX + user.account_id }
         let!(:in_progress_form) { FactoryBot.create(:in_progress_form, user_uuid: acct_user_id) }
 
         it 'returns the form as JSON' do
@@ -223,7 +223,7 @@ RSpec.describe V0::InProgressFormsController, type: :request do
 
           expect(response).to have_http_status(:ok)
           in_progress_form = InProgressForm.last
-          expect(in_progress_form.user_uuid).to start_with(InProgressForm.ACCT_ID_PREFIX)
+          expect(in_progress_form.user_uuid).to start_with(InProgressForm::ACCT_ID_PREFIX)
         end
 
         context 'when an error occurs' do
