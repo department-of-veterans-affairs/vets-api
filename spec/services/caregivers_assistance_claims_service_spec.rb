@@ -50,7 +50,7 @@ RSpec.describe CaregiversAssistanceClaimsService do
         user_uuid: user.uuid
       )
 
-      same_form_for__different_user = create(
+      same_form_for_different_user = create(
         :in_progress_form,
         form_id: '10-10CG',
         form_data: { name: 'not-kevin' },
@@ -58,7 +58,7 @@ RSpec.describe CaregiversAssistanceClaimsService do
       )
 
       expect(other_form_for_user).not_to receive(:destroy)
-      expect(same_form_for__different_user).not_to receive(:destroy)
+      expect(same_form_for_different_user).not_to receive(:destroy)
 
       result = subject.submit_claim!(user, claim_data)
 
