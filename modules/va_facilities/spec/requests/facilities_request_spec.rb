@@ -4,7 +4,7 @@ require 'rails_helper'
 require 'cgi'
 require 'uri'
 
-RSpec.describe 'Facilities API endpoint', type: :request do
+RSpec.describe 'Facilities API endpoint', type: :request, team: :facilities do
   include SchemaMatchers
 
   let(:base_query_path) { '/services/va_facilities/v0/facilities' }
@@ -207,7 +207,7 @@ RSpec.describe 'Facilities API endpoint', type: :request do
       get base_query_path + '?zip=97204', params: nil, headers: accept_json
       expect(response).to be_successful
       json = JSON.parse(response.body)
-      expect(json['data'].length).to eq(20)
+      expect(json['data'].length).to eq(10)
       links = json['links']
       expect(query_params(links['next'])['per_page']).to eq([BaseFacility.per_page.to_s])
       pagination = json['meta']['pagination']
