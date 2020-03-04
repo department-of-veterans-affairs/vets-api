@@ -15,6 +15,7 @@ module Common
     #
     module MHVSessionBasedClient
       extend ActiveSupport::Concern
+      include SentryLogging
 
       ##
       # @param session [Hash] a hash containing user_id with which the session will be found or built
@@ -45,7 +46,9 @@ module Common
       # @return [Sm::ClientSession] if a SM (Secure Messaging) client session
       #
       def get_session
-        env = perform(:get, 'session', nil, auth_headers)
+        env = set_raven_tag(:error, 'mhv_session') do
+          perform(:get, 'session', nil, auth_headers)
+        end
         req_headers = env.request_headers
         res_headers = env.response_headers
         @session.class.new(user_id: req_headers['mhvCorrelationId'],
