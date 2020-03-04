@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-describe "endpoint logging" do
+describe VAOS::Middleware::VaosLogging do
   let(:user) { build(:user, :vaos) }
   let(:service) { VAOS::AppointmentService.new(user) }
   let(:start_date) { Time.zone.parse('2019-11-14T07:00:00Z') }
@@ -21,15 +21,23 @@ describe "endpoint logging" do
     context 'with 12 va appointments' do
       it 'returns an array of size 12' do
         VCR.use_cassette('vaos/appointments/get_appointments', match_requests_on: %i[method uri]) do
-          expect(Rails.logger).to receive(:info).with("[StatsD] increment api.external_http_request.VAOS.success:1 #endpoint:/appointments/v1/patients/xxx/appointments #method:get")
-          expect(Rails.logger).to receive(:info).with("[StatsD] measure api.external_http_request.VAOS.time:0.0 #endpoint:/appointments/v1/patients/xxx/appointments #method:get")
-          expect(Rails.logger).to receive(:info).with("[StatsD] increment api.vaos.get_appointments.total:1")
-          expect(Rails.logger).to receive(:info).with('VAOS service call succeeded!', {
-            duration: 0.0,
-            jti: "unknown jti",
-            status: 200,
-            url: "(GET) https://veteran.apps.va.gov/appointments/v1/patients/1012845331V153043/appointments?endDate=2020-03-14T08%3A00%3A00Z&pageSize=0&startDate=2019-11-14T07%3A00%3A00Z&useCache=false"
-          })
+          expect(Rails.logger).to receive(:info).with(
+            '[StatsD] increment api.external_http_request.VAOS.success:1 ' /
+              '#endpoint:/appointments/v1/patients/xxx/appointments #method:get'
+          )
+          expect(Rails.logger).to receive(:info).with(
+            '[StatsD] measure api.external_http_request.VAOS.time:0.0 ' /
+              '#endpoint:/appointments/v1/patients/xxx/appointments #method:get'
+          )
+          expect(Rails.logger).to receive(:info).with('[StatsD] increment api.vaos.get_appointments.total:1')
+          expect(Rails.logger).to receive(:info).with('VAOS service call succeeded!',
+                                                      duration: 0.0,
+                                                      jti: 'unknown jti',
+                                                      status: 200,
+                                                      url: '(GET) https://veteran.apps.va.gov/appointments/v1' /
+                                                        '/patients/1012845331V153043/appointments?endDate=' /
+                                                        '2020-03-14T08%3A00%3A00Z&pageSize=0&startDate=' /
+                                                        '2019-11-14T07%3A00%3A00Z&useCache=false')
           service.get_appointments(type, start_date, end_date)
         end
       end
@@ -38,14 +46,19 @@ describe "endpoint logging" do
     context 'when the upstream server returns a 500' do
       it 'raises a backend exception' do
         VCR.use_cassette('vaos/appointments/get_appointments_500', match_requests_on: %i[method uri]) do
-          expect(Rails.logger).to receive(:info).with("[StatsD] increment api.vaos.get_appointments.total:1")
-          expect(Rails.logger).to receive(:info).with("[StatsD] increment api.vaos.get_appointments.fail:1 #error:VAOS::ServiceException")
-          expect(Rails.logger).to receive(:warn).with('VAOS service call failed!', {
-            duration: 0.0,
-            jti: "unknown jti",
-            status: 500,
-            url: "(GET) https://veteran.apps.va.gov/appointments/v1/patients/1012845331V153043/appointments?endDate=2020-03-14T08%3A00%3A00Z&pageSize=0&startDate=2019-11-14T07%3A00%3A00Z&useCache=false"
-          })
+          expect(Rails.logger).to receive(:info).with('[StatsD] increment api.vaos.get_appointments.total:1')
+          expect(Rails.logger).to receive(:info).with(
+            '[StatsD] increment api.vaos.get_appointments.fail:1 ' /
+              '#error:VAOS::ServiceException'
+          )
+          expect(Rails.logger).to receive(:warn).with('VAOS service call failed!',
+                                                      duration: 0.0,
+                                                      jti: 'unknown jti',
+                                                      status: 500,
+                                                      url: '(GET) https://veteran.apps.va.gov/appointments/v1' /
+              '/patients/1012845331V153043/appointments?endDate=' /
+              '2020-03-14T08%3A00%3A00Z&pageSize=0&startDate=' /
+              '2019-11-14T07%3A00%3A00Z&useCache=false')
           expect { service.get_appointments(type, start_date, end_date) }.to raise_error(
             Common::Exceptions::BackendServiceException
           )
