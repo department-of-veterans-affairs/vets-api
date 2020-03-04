@@ -40,7 +40,8 @@ class ApplicationController < ActionController::API
   end
 
   def clear_saved_form(form_id)
-    InProgressForm.form_for_user(form_id, current_user)&.destroy if current_user
+    form = InProgressForm.form_for_user(form_id, current_user) if current_user
+    form&.destroy
   end
 
   # I'm commenting this out for now, we can put it back in if we encounter it

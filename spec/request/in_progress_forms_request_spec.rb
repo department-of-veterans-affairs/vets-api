@@ -57,6 +57,23 @@ RSpec.describe V0::InProgressFormsController, type: :request do
         expect(items.size).to eq(2)
         expect(items.dig(0, 'attributes', 'form_id')).to be_a(String)
       end
+
+      context 'when forms are stored under both uuid types' do
+        let!(:in_progress_form_edu) { FactoryBot.create(:in_progress_form, form_id: '22-1990', user_uuid: user.uuid) }
+        let(:acct_user_id) { InProgressForm.ACCT_ID_PREFIX + user.account_id }
+        let!(:in_progress_form_hca) { FactoryBot.create(:in_progress_form, form_id: '1010ez', user_uuid: acct_user_id) }
+
+        it 'returns a 200' do
+          subject
+          expect(response).to have_http_status(:ok)
+        end
+
+        it 'resolves both forms' do
+          subject
+          items = JSON.parse(response.body)['data']
+          expect(items.size).to eq(2)
+        end
+      end
     end
 
     describe '#show' do
@@ -98,6 +115,21 @@ RSpec.describe V0::InProgressFormsController, type: :request do
               metadata: in_progress_form.metadata
             }.to_camelback_keys.to_json)
           end
+        end
+      end
+
+      context 'when a form is found under account_id' do
+        let(:acct_user_id) { InProgressForm.ACCT_ID_PREFIX + user.account_id }
+        let!(:in_progress_form) { FactoryBot.create(:in_progress_form, user_uuid: acct_user_id) }
+
+        it 'returns the form as JSON' do
+          get v0_in_progress_form_url(in_progress_form.form_id), params: nil
+
+          expect(response).to have_http_status(:ok)
+          expect(response.body).to eq({
+            'form_data' => JSON.parse(in_progress_form.form_data),
+            'metadata' => in_progress_form.metadata
+          }.to_json)
         end
       end
 
@@ -171,7 +203,6 @@ RSpec.describe V0::InProgressFormsController, type: :request do
           end.to change(InProgressForm, :count).by(1)
 
           expect(response).to have_http_status(:ok)
-
           in_progress_form = InProgressForm.last
           expect(in_progress_form.form_data).to eq(new_form.form_data)
           expect(in_progress_form.metadata).to eq(
@@ -180,6 +211,19 @@ RSpec.describe V0::InProgressFormsController, type: :request do
             'expires_at' => 1_488_412_800,
             'last_updated' => 1_483_228_800
           )
+        end
+
+        it 'indexes the form under account_id', run_at: '2017-01-01' do
+          expect do
+            put v0_in_progress_form_url(new_form.form_id), params: {
+              form_data: new_form.form_data,
+              metadata: new_form.metadata
+            }.to_json, headers: { 'CONTENT_TYPE' => 'application/json' }
+          end.to change(InProgressForm, :count).by(1)
+
+          expect(response).to have_http_status(:ok)
+          in_progress_form = InProgressForm.last
+          expect(in_progress_form.user_uuid).to start_with(InProgressForm.ACCT_ID_PREFIX)
         end
 
         context 'when an error occurs' do
@@ -202,6 +246,20 @@ RSpec.describe V0::InProgressFormsController, type: :request do
           expect(response).to have_http_status(:ok)
 
           expect(existing_form.reload.form_data).to eq(update_form.form_data)
+        end
+      end
+
+      context 'with an existing form indexed under idme_uuid' do
+        let!(:existing_form) { create(:in_progress_form, user_uuid: user.uuid) }
+        let(:update_form) { build(:in_progress_update_form, user_uuid: user.account_id) }
+
+        it 'resolves the form without adding a new one' do
+          pre_count = InProgressForm.count
+          put v0_in_progress_form_url(existing_form.form_id), params: { form_data: update_form.form_data }
+          expect(response).to have_http_status(:ok)
+
+          expect(existing_form.reload.form_data).to eq(update_form.form_data)
+          expect(InProgressForm.count).to eq(pre_count)
         end
       end
     end

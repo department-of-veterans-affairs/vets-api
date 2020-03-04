@@ -10,6 +10,7 @@ class InProgressForm < ApplicationRecord
   end
 
   EXPIRES_AFTER = YAML.load_file(Rails.root.join('config', 'in_progress_forms', 'expirations.yml'))
+  ACCT_ID_PREFIX = 'acct:'
 
   attribute :user_uuid, CleanUUID.new
   attr_encrypted :form_data, key: Settings.db_encryption_key
@@ -19,8 +20,25 @@ class InProgressForm < ApplicationRecord
   before_save :serialize_form_data
   before_save :set_expires_at
 
+  scope :for_user, lambda { |user|
+                     where(user_uuid: user.uuid)
+                       .or(where(user_uuid: ACCT_ID_PREFIX + user.account_id))
+                   }
+
   def self.form_for_user(form_id, user)
-    InProgressForm.find_by(form_id: form_id, user_uuid: user.uuid)
+    InProgressForm.for_user(user).find_by(form_id: form_id)
+  end
+
+  # Resolve a form given an "indifferent" user_id, i.e.
+  # one that may be either an idme_uuid or a prefixed account_id
+  def self.form_for_user_id(form_id, user_id)
+    acct = Account.find_by(idme_uuid: user_id)
+    acct = Account.find_by(uuid: user_id.delete_prefix(ACCT_ID_PREFIX)) if user_id.start_with?(ACCT_ID_PREFIX)
+    if acct
+      InProgressForm.where(user_uuid: acct.idme_uuid)
+                    .or(where(user_uuid: ACCT_ID_PREFIX + acct.uuid))
+                    .find_by(form_id: form_id)
+    end
   end
 
   def data_and_metadata
@@ -46,6 +64,8 @@ class InProgressForm < ApplicationRecord
   # > ago, and switched to UUID v4 (minus dashes) later on
   # https://dsva.slack.com/archives/C1A7KLZ9B/p1501856503336861
   def id_me_user_uuid
+    return if user_uuid.start_with?(ACCT_ID_PREFIX) && user_uuid.length == 37
+
     if user_uuid && !user_uuid.length.in?([20, 21, 22, 23, 32])
       errors[:user_uuid] << "(#{user_uuid}) is not a proper length"
     end

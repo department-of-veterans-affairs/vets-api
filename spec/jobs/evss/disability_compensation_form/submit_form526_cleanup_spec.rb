@@ -11,7 +11,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526Cleanup, type: :jo
     Sidekiq::Worker.clear_all
   end
 
-  let(:user) { FactoryBot.create(:user, :loa3) }
+  let(:user) { FactoryBot.create(:user, :accountable) }
   let(:submission) { create(:form526_submission, user_uuid: user.uuid) }
 
   describe '.perform_async' do
@@ -21,6 +21,12 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526Cleanup, type: :jo
     context 'with a successful call' do
       it 'deletes the in progress form' do
         create(:in_progress_form, user_uuid: user.uuid, form_id: '21-526EZ')
+        subject.perform_async(submission.id)
+        expect { described_class.drain }.to change(InProgressForm, :count).by(-1)
+      end
+
+      it 'deletes the in progress form indexed under account_id' do
+        create(:in_progress_form, user_uuid: 'acct:' + user.account_id, form_id: '21-526EZ')
         subject.perform_async(submission.id)
         expect { described_class.drain }.to change(InProgressForm, :count).by(-1)
       end
