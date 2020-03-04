@@ -27,15 +27,6 @@ shared_examples 'a sentry logger' do
       end
     end
 
-    describe '#set_raven_tag' do
-      it 'sets and unset the raven tag' do
-        described_class.set_raven_tag(:foo, 'bar') do
-          expect(Raven.context.tags[:foo]).to eq('bar')
-        end
-        expect(Raven.context.tags.key?(:foo)).to eq(false)
-      end
-    end
-
     describe '#log_exception_to_sentry' do
       it 'warn logs to Rails logger' do
         expect(Rails.logger).to receive(:error).with(exception.message + '.')
