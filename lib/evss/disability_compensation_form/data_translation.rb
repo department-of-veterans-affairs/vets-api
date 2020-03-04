@@ -287,7 +287,7 @@ module EVSS
         # Application create date is the date the user began their application
         # TODO is this IPF guaranteed to exist at this point?
         # or should we do safe navigation?
-        @acd ||= InProgressForm.form_for_user(VA526ez::FORM_ID, user).created_at
+        @acd ||= InProgressForm.form_for_user(VA526ez::FORM_ID, @user).created_at
       end
 
       def rad_date
