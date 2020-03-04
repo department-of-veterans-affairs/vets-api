@@ -10,6 +10,7 @@ module V0
     end
 
     def show
+      proxy_add
       form_id = params[:id]
       form    = InProgressForm.form_for_user(form_id, @current_user)
 
@@ -36,22 +37,21 @@ module V0
 
     # MVI wants add calls only if from 526 is being completed and user is missing ids
     def proxy_add
-      # if user.birls_id missing, user.participant_id missing
-      #   call user.mvi_add_person
-      # if user.participant_id is missing
-      #   call user.mvi_add_person
-      # if user.birls_id missing, user.participant_id exists
-      #   raise error
+      # if user.participant_id
+      #   raise Common::Exceptions::ValidationErrors, "Missing birls_id while participant_id present" unless user.birls_id.nil?
+      # else
+      #   user.mvi_add_person
+      # end
     end
 
     # TO DO:
     # - [ ] tests
     #   - [ ] mvi_add_person in spec/models/mvi_spec.rb
-    #     - [ ] update: with a successful add... expect_any_instance_of(Mvi).to receive(:destroy).once will fail after new :delete method is added
-    #     - [ ] new: with a failed add... for form '526' expect not to call :delete (instead of :destroy)
-    #     - [ ] new: test of :delete method
-    #   - [ ] add proxy_add test to spec/models/in_progress_form_spec.rb
-    # - [ ] redis_store add :delete method (can not use :destroy bc we don't want to freeze)
+    #     - [x] update: with a successful add... expect_any_instance_of(Mvi).to receive(:destroy).once will fail after new :clear_cache method is added
+    #     - [x] new: with a failed add... for form '526' expect not to call :clear_cache (instead of :destroy)
+    #     - [ ] new: test of :clear_cache method
+    #   - [x] add proxy_add test to spec/request/in_progress_forms_request_spec.rb
+    # - [x] redis_store add :clear_cache method (can not use :destroy bc we don't want to freeze)
     # - [ ] new before_action:
     #   - only on 'show' method
     #   - can we add conditional to check params[:id] == '526' here? we might not have access to params

@@ -241,6 +241,40 @@ RSpec.describe V0::InProgressFormsController, type: :request do
         end
       end
     end
+
+    describe '#proxy_add' do
+      context 'user is missing birls and participant ids' do
+        let(:user) { build(:user_with_no_ids) }
+
+        context 'and is NOT completing form 526' do
+          let!(:in_progress_form) { FactoryBot.create(:in_progress_form, user_uuid: user.uuid) }
+
+          it 'call to add user to MVI is skipped' do
+            expect(in_progress_form.form_id).not_to eq('526')
+            get v0_in_progress_form_url(in_progress_form.form_id), params: nil
+            expect(user).not_to receive(:mvi_add_person)
+          end
+        end
+        context 'and is completing form 526' do
+          let!(:in_progress_form) { FactoryBot.create(:in_progress_form, user_uuid: user.uuid, form_id: '526') }
+
+          it 'call is made to add user to MVI' do
+            get v0_in_progress_form_url(in_progress_form.form_id), params: nil
+            expect(user).to receive(:mvi_add_person)
+          end
+        end
+      end
+
+      context 'user is only missing birls id and is completing form 526' do
+        let(:user) { build(:user_with_no_birls_id) }
+        let!(:in_progress_form) { FactoryBot.create(:in_progress_form, user_uuid: user.uuid, form_id: '526') }
+
+        it 'returns an error response' do
+          get v0_in_progress_form_url(in_progress_form.form_id), params: nil
+          expect(response).to have_http_status(:internal_server_error)
+        end
+      end
+    end
   end
 
   context 'without a user' do
