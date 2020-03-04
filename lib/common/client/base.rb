@@ -117,26 +117,40 @@ module Common
                       else
                         Common::Client::Errors::ClientError
                       end
-        status, body = response_hash_from_error(e)[:response].try(:values_at, :status, :body)
-        raise error_class.new(e.message, status, body)
+        raise error_class.new(e.message, response_status_from_error(e), response_body_from_error(e))
+      end
+
+      def response_status_from_error(error)
+        hash = response_hash_from_error(error)[:response][:hash]
+        return nil unless hash.is_a? Hash
+        hash[:status]
+      end
+
+      def response_body_from_error(error)
+        hash = response_hash_from_error(error)[:response][:hash]
+        return nil unless hash.is_a? Hash
+        hash[:body]
       end
 
       def response_hash_from_error(error)
-        return { response: nil } unless error.respond_to?(:response)
+        response = error.try(:response)
 
-        resp = error.response
+        # lambda that returns a hash of the response and the response itself
+        response_hash = ->(hash) { { response: { hash: hash, object: response } } }
 
-        if %i[status body headers].all? { |method| resp.respond_to? method }
-          return {
-            response: {
-              status: resp.status,
-              body: resp.body,
-              headers: resp.headers
-            }
-          }
+        # no response method
+        return response_hash[nil] unless error.respond_to?(:response)
+
+        # response has .to_hash (Farady 1.0.0)
+        return response_hash[response.to_hash] if response.respond_to?(:to_hash)
+
+        # response does not have .to_hash but has .status, .body, .headers (Faraday < 1.0.0)
+        if %i[status body headers].all? { |method| response.respond_to? method }
+          return response_hash[{ status: response.status, body: response.body, headers: response.headers }]
         end
 
-        { response: resp.try(:to_hash) || resp.try(:to_h) }
+        # last ditch to get a hash
+        response_hash[response.try(:to_h)]
       end
 
       def sanitize_headers!(_method, _path, _params, headers)
