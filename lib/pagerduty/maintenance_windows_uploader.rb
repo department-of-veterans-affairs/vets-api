@@ -19,7 +19,7 @@ module PagerDuty
     def upload_file(file)
       s3_resource = new_s3_resource
       obj = s3_resource.bucket(s3_bucket).object('maintenance_windows.json')
-      obj.upload_file(file, acl: 'public-read')
+      obj.upload_file(file, acl: 'public-read', content_type: 'application/json')
     end
   end
 end
