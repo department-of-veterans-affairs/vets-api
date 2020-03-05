@@ -104,6 +104,11 @@ FacilityLocationVHADriveTime:
   class: Facilities::PSSGDownload
   description: "Download and store drive time bands"
 
+GlobalDowntimeCache:
+  every: "60m"
+  class: PagerDuty::CacheGlobalDowntime
+  description: "Cache global downtimes from PagerDuty API to S3"
+
 MaintenanceWindowRefresh:
   cron: "*/3 * * * * America/New_York"
   class: PagerDuty::PollMaintenanceWindows
