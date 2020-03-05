@@ -29,7 +29,8 @@ module EVSS
     private
 
     def create_or_update_claim(raw_claim)
-      claim = claims_scope.where(evss_id: raw_claim['id']).first_or_initialize(data: {})
+      claim = claims_scope.where(evss_id: raw_claim['id'])
+      claim = claim.first_or_initialize(data: {}, user_uuid: EVSSClaim.initial_user_uuid(@user))
       claim.update_attributes(list_data: raw_claim)
     end
 
