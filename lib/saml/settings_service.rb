@@ -108,7 +108,7 @@ module SAML
                                                       true
                                                     else
                                                       Settings.saml.authn_requests_signed
-        end
+                                                    end
 
         settings.security[:logout_requests_signed] = true
         settings.security[:embed_sign] = false
