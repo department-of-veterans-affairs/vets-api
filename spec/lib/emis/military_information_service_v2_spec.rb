@@ -42,14 +42,14 @@ describe EMIS::MilitaryInformationServiceV2 do
     end
   end
 
-  # describe 'get_deployment' do
-  #   context 'with a valid request' do
-  #     it 'calls the get_deplopyment endpoint with a proper emis message' do
-  #       VCR.use_cassette('emis/get_deployment/valid') do
-  #         response = subject.get_deployment(edipi: edipi)
-  #         expect(response).to be_ok
-  #       end
-  #     end
-  #   end
-  # end
+  describe 'get_deployment' do
+    context 'with a valid request' do
+      it 'calls the get_deplopyment endpoint with a proper emis message' do
+        VCR.use_cassette('emis/get_deployment_v2/valid') do
+          response = subject.get_deployment(edipi: edipi)
+          expect(response).to be_ok
+        end
+      end
+    end
+  end
 end
