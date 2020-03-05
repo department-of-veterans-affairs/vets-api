@@ -4,8 +4,7 @@ require 'rails_helper'
 require 'support/controller_spec_helper'
 
 RSpec.describe V0::EducationBenefitsClaimsController, type: :controller do
-  it_behaves_like 'a controller that deletes an InProgressForm 22-1990', 'education_benefits_claim', 'va1990', '22-1990'
-  it_behaves_like 'a controller that deletes an InProgressForm 22-1995', 'education_benefits_claim', 'va1995', '22-1995'
+  it_behaves_like 'a controller that deletes an InProgressForm', 'education_benefits_claim', 'va1990', '22-1990'
 
   describe '#create' do
     context 'with a valid 1995S form' do
