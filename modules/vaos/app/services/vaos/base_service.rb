@@ -29,7 +29,7 @@ module VAOS
       if Settings.hostname.ends_with?('.gov')
         "https://#{Settings.hostname}"
       else
-        "https://review-instance.va.gov" # VAMF rejects Referer that is not valid; such as those of review instances
+        'https://review-instance.va.gov' # VAMF rejects Referer that is not valid; such as those of review instances
       end
     end
 
