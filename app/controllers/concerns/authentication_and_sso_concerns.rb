@@ -59,8 +59,7 @@ module AuthenticationAndSSOConcerns
   # Determines whether user signed out of MHV's website
   def should_signout_sso?
     Rails.logger.info('SSO: ApplicationController#should_signout_sso?', sso_logging_info)
-    return false unless Settings.sso.cookie_enabled
-    return false unless Settings.sso.cookie_signout_enabled
+    return false unless Settings.sso.cookie_enabled && Settings.sso.cookie_signout_enabled
 
     cookies[Settings.sso.cookie_name].blank? && request.host.match(Settings.sso.cookie_domain)
   end
@@ -84,9 +83,13 @@ module AuthenticationAndSSOConcerns
 
   # Sets a cookie used by MHV for SSO
   def set_sso_cookie!
-    Rails.logger.info('SSO: ApplicationController#set_sso_cookie!', sso_logging_info)
+    return unless Settings.sso.cookie_enabled &&
+                  @session_object.present? &&
+                  # if the user logged in via SSOe, there is no benefit from
+                  # creating a MHV SSO shared cookie
+                  !@current_user&.authenticated_by_ssoe
 
-    return unless Settings.sso.cookie_enabled && @session_object.present?
+    Rails.logger.info('SSO: ApplicationController#set_sso_cookie!', sso_logging_info)
 
     encryptor = SSOEncryptor
     encrypted_value = encryptor.encrypt(ActiveSupport::JSON.encode(sso_cookie_content))
@@ -122,8 +125,7 @@ module AuthenticationAndSSOConcerns
     {
       'myhealthevet' => 'my_healthe_vet',
       'dslogon' => 'ds_logon',
-      'idme' => 'id_me',
-      'ssoe' => 'ssoe'
+      'idme' => 'id_me'
     }.fetch(@current_user.identity.sign_in.fetch(:service_name))
   end
 

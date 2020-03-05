@@ -3,11 +3,13 @@
     "attributes": {
       "OBJECTID": 11371,
       "FacilityID": 29,
-      "Name": "402 : 0 - 10",
+      "Name": "402QA : 0 - 10",
       "FromBreak": 0,
       "ToBreak": 10,
-      "Sta_No": "402",
-      "TravelTimeBand": "0 - 10"
+      "Sta_No": "402QA",
+      "TravelTimeBand": "0 - 10",
+      "MONTHYEAR": "NOV2019",
+      "EXTRDATE": 1575082800000
     },
     "geometry": {
       "rings": [
