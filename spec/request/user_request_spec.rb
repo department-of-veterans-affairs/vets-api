@@ -55,6 +55,12 @@ RSpec.describe 'Fetching user data', type: :request do
       )
     end
 
+    it 'gives me va profile cerner data' do
+      va_profile = JSON.parse(response.body)['data']['attributes']['va_profile']
+      expect(va_profile['is_cerner_patient']).to be false
+      expect(va_profile['facilities']).to match_array([{ 'facility_id' => '358', 'is_cerner' => false }])
+    end
+
     context 'with an error from a 503 raised by Vet360::ContactInformation::Service#get_person', skip_vet360: true do
       before do
         exception  = 'the server responded with status 503'
