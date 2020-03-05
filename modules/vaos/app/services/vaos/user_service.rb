@@ -16,7 +16,15 @@ module VAOS
     private
 
     def headers
-      { 'Accept' => 'text/plain', 'Content-Type' => 'text/plain', 'Referer' => 'https://api.va.gov' }
+      { 'Accept' => 'text/plain', 'Content-Type' => 'text/plain', 'Referer' => referrer }
+    end
+
+    def referrer
+      if Settings.hostname.ends_with?('.gov')
+        "https://#{Settings.hostname}"
+      else
+        "http://#{Settings.hostname}"
+      end
     end
 
     def get_session_token(user)
