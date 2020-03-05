@@ -16,7 +16,7 @@ module VAOS
     private
 
     def headers
-      { 'Content-Type' => 'text/plain', 'Referer' => 'https://api.va.gov' }
+      { 'Accepts' => 'text/plain', 'Content-Type' => 'text/plain', 'Referer' => 'https://api.va.gov' }
     end
 
     def get_session_token(user)
