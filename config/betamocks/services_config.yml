@@ -1,6 +1,16 @@
 ---
 :services:
 
+- :name: 'MDOT'
+  :base_uri: <%= "#{URI(Settings.mdot.url)}" %>
+  :endpoints:
+  - :method: :get
+    :path: "/mdot/supplies"
+    :file_path: "mdot/supplies/index"
+    :cache_multiple_responses:
+      :uid_location: header
+      :uid_locator: 'veteranId'
+
 - :name: 'MHV_Rx'
   :base_uri: <%= "#{URI(Settings.mhv.rx.host).host}:#{URI(Settings.mhv.rx.host).port}" %>
   :endpoints:
