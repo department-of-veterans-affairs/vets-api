@@ -15,8 +15,7 @@ module V0
       StatsD.increment("#{stats_key}.success")
       Rails.logger.info "ClaimID=#{claim.id} RPO=#{claim.education_benefits_claim.region} Form=#{form_type}"
       validate_session
-      form_id = claim.form_id == '22-1995S' ? '22-1995' : claim.form_id
-      clear_saved_form(form_id)
+      clear_saved_form(claim.in_progress_form_id)
       render(json: claim.education_benefits_claim)
     end
 
