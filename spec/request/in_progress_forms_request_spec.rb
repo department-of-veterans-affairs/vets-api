@@ -243,24 +243,46 @@ RSpec.describe V0::InProgressFormsController, type: :request do
     end
 
     describe '#proxy_add' do
-      context 'user is missing birls and participant ids' do
-        let(:user) { build(:user_with_no_ids) }
+      # unsure if needed
+      # let(:mvi_profile) { build(:mvi_profile) }
+      # let(:profile_response) do
+      #   MVI::Responses::FindProfileResponse.new(
+      #     status: MVI::Responses::FindProfileResponse::RESPONSE_STATUS[:ok],
+      #     profile: mvi_profile
+      #   )
+      # end
+      # let(:add_response) do
+      #   MVI::Responses::AddPersonResponse.new(
+      #     status: MVI::Responses::AddPersonResponse::RESPONSE_STATUS[:ok],
+      #     mvi_codes: [
+      #       { codeSystemName: 'MVI', code: '111985523^PI^200BRLS^USVBA', displayName: 'IEN' },
+      #       { codeSystemName: 'MVI', code: '32397028^PI^200CORP^USVBA', displayName: 'IEN' }
+      #     ]
+      #   )
+      # end
 
+      context 'user is missing birls and participant ids' do
         context 'and is NOT completing form 526' do
+          let(:user) { build(:user_with_no_ids) }
           let!(:in_progress_form) { FactoryBot.create(:in_progress_form, user_uuid: user.uuid) }
 
           it 'call to add user to MVI is skipped' do
             expect(in_progress_form.form_id).not_to eq('526')
             get v0_in_progress_form_url(in_progress_form.form_id), params: nil
-            expect(user).not_to receive(:mvi_add_person)
+            expect(user.mvi).not_to receive(:mvi_add_person)
           end
         end
         context 'and is completing form 526' do
+          let(:user) { build(:user_with_no_ids) }
           let!(:in_progress_form) { FactoryBot.create(:in_progress_form, user_uuid: user.uuid, form_id: '526') }
 
           it 'call is made to add user to MVI' do
+            # unsure if needed
+            # allow_any_instance_of(MVI::Service).to receive(:find_profile).and_return(profile_response)
+            # allow_any_instance_of(MVI::Service).to receive(:add_person).and_return(add_response)
+            expect(in_progress_form.form_id).to eq('526')
             get v0_in_progress_form_url(in_progress_form.form_id), params: nil
-            expect(user).to receive(:mvi_add_person)
+            expect(user.mvi).to receive(:mvi_add_person).once
           end
         end
       end
