@@ -9,7 +9,7 @@ RSpec.describe SAML::User do
   describe 'ID.me' do
     subject { described_class.new(saml_response) }
 
-    let(:authn_context) { LOA::IDME_LOA1 }
+    let(:authn_context) { LOA::IDME_LOA1_VETS }
     let(:account_type)  { 'N/A' }
     let(:highest_attained_loa) { '1' }
 
@@ -92,7 +92,8 @@ RSpec.describe SAML::User do
           loa: { current: 1, highest: 1 },
           sign_in: { service_name: 'idme', account_type: 'N/A' },
           multifactor: false,
-          authn_context: LOA::IDME_LOA1
+          authn_context: LOA::IDME_LOA1_VETS,
+          authenticated_by_ssoe: false
         )
       end
 
@@ -117,7 +118,8 @@ RSpec.describe SAML::User do
             ssn: nil,
             zip: nil,
             multifactor: true,
-            authn_context: 'multifactor'
+            authn_context: 'multifactor',
+            authenticated_by_ssoe: false
           )
         end
 
@@ -148,7 +150,8 @@ RSpec.describe SAML::User do
               ssn: nil,
               zip: nil,
               multifactor: true,
-              authn_context: 'multifactor'
+              authn_context: 'multifactor',
+              authenticated_by_ssoe: false
             )
           end
         end
@@ -172,7 +175,8 @@ RSpec.describe SAML::User do
           loa: { current: 1, highest: 3 },
           sign_in: { service_name: 'idme', account_type: 'N/A' },
           multifactor: false,
-          authn_context: LOA::IDME_LOA1
+          authn_context: LOA::IDME_LOA1_VETS,
+          authenticated_by_ssoe: false
         )
       end
 
@@ -197,7 +201,8 @@ RSpec.describe SAML::User do
             ssn: nil,
             zip: nil,
             multifactor: true,
-            authn_context: 'multifactor'
+            authn_context: 'multifactor',
+            authenticated_by_ssoe: false
           )
         end
 
@@ -208,7 +213,7 @@ RSpec.describe SAML::User do
     end
 
     context 'LOA3 user' do
-      let(:authn_context) { LOA::IDME_LOA3 }
+      let(:authn_context) { LOA::IDME_LOA3_VETS }
       let(:highest_attained_loa) { '3' }
 
       it 'has various important attributes' do
@@ -225,7 +230,8 @@ RSpec.describe SAML::User do
           loa: { current: 3, highest: 3 },
           sign_in: { service_name: 'idme', account_type: 'N/A' },
           multifactor: true,
-          authn_context: LOA::IDME_LOA3
+          authn_context: LOA::IDME_LOA3_VETS,
+          authenticated_by_ssoe: false
         )
       end
 

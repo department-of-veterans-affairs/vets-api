@@ -5,7 +5,7 @@ FactoryBot.define do
     uuid { 'b2fab2b5-6af0-45e1-a9e2-394347af91ef' }
     last_signed_in { Time.now.utc }
     transient do
-      authn_context { 'http://idmanagement.gov/ns/assurance/loa/1/vets' }
+      authn_context { LOA::IDME_LOA1_VETS }
       email { 'abraham.lincoln@vets.gov' }
       first_name { 'abraham' }
       middle_name { nil }
@@ -20,6 +20,9 @@ FactoryBot.define do
       mhv_account_type { nil }
       dslogon_edipi { nil }
       va_patient { nil }
+      search_token { nil }
+      icn_with_aaid { nil }
+      authenticated_by_ssoe { false }
 
       sign_in do
         {
@@ -74,7 +77,7 @@ FactoryBot.define do
     end
 
     trait :accountable do
-      authn_context { 'http://idmanagement.gov/ns/assurance/loa/3/vets' }
+      authn_context { LOA::IDME_LOA3_VETS }
       uuid { SecureRandom.uuid }
       callback(:after_build) do |user|
         create(:account, idme_uuid: user.uuid)
@@ -91,8 +94,26 @@ FactoryBot.define do
       end
     end
 
+    trait :accountable_with_sec_id do
+      authn_context { LOA::IDME_LOA3_VETS }
+      uuid { SecureRandom.uuid }
+      callback(:after_build) do |user|
+        create(:account, sec_id: user.sec_id)
+      end
+
+      sign_in do
+        {
+          service_name: SAML::User::AUTHN_CONTEXTS[authn_context][:sign_in][:service_name]
+        }
+      end
+
+      loa do
+        { current: LOA::THREE, highest: LOA::THREE }
+      end
+    end
+
     trait :loa1 do
-      authn_context { 'http://idmanagement.gov/ns/assurance/loa/1/vets' }
+      authn_context { LOA::IDME_LOA1_VETS }
       sign_in do
         {
           service_name: SAML::User::AUTHN_CONTEXTS[authn_context][:sign_in][:service_name]
@@ -105,7 +126,7 @@ FactoryBot.define do
     end
 
     trait :loa3 do
-      authn_context { 'http://idmanagement.gov/ns/assurance/loa/3/vets' }
+      authn_context { LOA::IDME_LOA3_VETS }
 
       sign_in do
         {
@@ -115,6 +136,29 @@ FactoryBot.define do
 
       loa do
         { current: LOA::THREE, highest: LOA::THREE }
+      end
+    end
+
+    factory :user_with_no_ids, traits: [:loa3] do
+      after(:build) do
+        stub_mvi(
+          build(
+            :mvi_profile,
+            birls_id: nil,
+            participant_id: nil
+          )
+        )
+      end
+    end
+
+    factory :user_with_no_secid, traits: [:loa3] do
+      after(:build) do
+        stub_mvi(
+          build(
+            :mvi_profile,
+            sec_id: nil
+          )
+        )
       end
     end
 

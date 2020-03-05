@@ -5,19 +5,15 @@ module V0
     def create
       PensionBurial::TagSentry.tag_sentry
       claim = claim_class.new(form: filtered_params[:form])
+
       unless claim.save
         StatsD.increment("#{stats_key}.failure")
         raise Common::Exceptions::ValidationErrors, claim
       end
 
-      begin
-        # veteran lookup for hit/miss metrics in support of Automation work
-        BipClaims::Service.new.lookup_veteran_from_mvi(claim)
-      ensure
-        claim.process_attachments! # upload claim and attachments to Central Mail
-      end
+      # this method also calls claim.process_attachments!
+      claim.submit_to_structured_data_services!
 
-      StatsD.increment("#{stats_key}.success")
       Rails.logger.info "ClaimID=#{claim.confirmation_number} Form=#{claim.class::FORM}"
       validate_session
       clear_saved_form(claim.form_id)

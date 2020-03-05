@@ -41,7 +41,7 @@ RSpec.describe V0::SessionsController, type: :controller do
   end
 
   let(:decrypter) { Aes256CbcEncryptor.new(Settings.sso.cookie_key, Settings.sso.cookie_iv) }
-  let(:authn_context) { LOA::IDME_LOA1 }
+  let(:authn_context) { LOA::IDME_LOA1_VETS }
   let(:valid_saml_response) do
     build_saml_response(
       authn_context: authn_context,
@@ -320,7 +320,7 @@ RSpec.describe V0::SessionsController, type: :controller do
       end
 
       context 'verifying' do
-        let(:authn_context) { LOA::IDME_LOA3 }
+        let(:authn_context) { LOA::IDME_LOA3_VETS }
 
         it 'uplevels an LOA 1 session to LOA 3', :aggregate_failures do
           existing_user = User.find(uuid)
@@ -341,7 +341,7 @@ RSpec.describe V0::SessionsController, type: :controller do
           )
           expect(Raven).to receive(:tags_context).once
 
-          callback_tags = ['status:success', "context:#{LOA::IDME_LOA3}"]
+          callback_tags = ['status:success', "context:#{LOA::IDME_LOA3_VETS}"]
 
           Timecop.freeze(Time.current)
           cookie_expiration_time = 30.minutes.from_now.iso8601(0)
@@ -391,7 +391,12 @@ RSpec.describe V0::SessionsController, type: :controller do
           Timecop.freeze(Time.current)
           cookie_expiration_time = 30.minutes.from_now.iso8601(0)
 
-          post :saml_callback
+          expect { post(:saml_callback) }
+            .to trigger_statsd_increment(described_class::STATSD_SSO_CALLBACK_KEY,
+                                         tags: ['status:success', 'context:multifactor'], **once)
+            .and trigger_statsd_increment(described_class::STATSD_SSO_CALLBACK_TOTAL_KEY, **once)
+            .and trigger_statsd_increment(described_class::STATSD_LOGIN_SHARED_COOKIE,
+                                          tags: ['loa:1', 'idp:idme'], **once)
 
           expect(cookies['vagov_session_dev']).not_to be_nil
           expect(JSON.parse(decrypter.decrypt(cookies['vagov_session_dev'])))
@@ -616,6 +621,8 @@ RSpec.describe V0::SessionsController, type: :controller do
           expect { post(:saml_callback) }
             .to trigger_statsd_increment(described_class::STATSD_SSO_CALLBACK_KEY, tags: callback_tags, **once)
             .and trigger_statsd_increment(described_class::STATSD_SSO_CALLBACK_TOTAL_KEY, **once)
+            .and trigger_statsd_increment(described_class::STATSD_LOGIN_SHARED_COOKIE,
+                                          tags: ['loa:3', 'idp:myhealthevet'], **once)
           expect(response.location).to start_with('http://127.0.0.1:3001/auth/login/callback')
           expect(cookies['vagov_session_dev']).not_to be_nil
           MVI::Configuration.instance.breakers_service.end_forced_outage!
@@ -661,7 +668,7 @@ RSpec.describe V0::SessionsController, type: :controller do
         end
 
         it 'increments the failed and total statsd counters' do
-          callback_tags = ['status:failure', "context:#{LOA::IDME_LOA1}"]
+          callback_tags = ['status:failure', "context:#{LOA::IDME_LOA1_VETS}"]
           failed_tags = ['error:validations_failed']
 
           expect { post(:saml_callback) }

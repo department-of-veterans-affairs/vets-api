@@ -3,7 +3,7 @@
 require 'rails_helper'
 
 describe VAOS::AppointmentRequestsService do
-  subject { described_class.for_user(user) }
+  subject { described_class.new(user) }
 
   before { allow_any_instance_of(VAOS::UserService).to receive(:session).and_return('stubbed_token') }
 

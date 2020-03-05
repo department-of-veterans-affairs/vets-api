@@ -100,20 +100,14 @@ module ClaimsApi
 
               property :poa_first_name do
                 key :type, :string
-                key :example, 'A01'
+                key :example, 'John'
                 key :description, 'Power of Attorney representative first name submitted for Veteran'
               end
 
               property :poa_last_name do
                 key :type, :string
-                key :example, 'A01'
+                key :example, 'Doe'
                 key :description, 'Power of Attorney representative last name submitted for Veteran'
-              end
-
-              property :current_poa do
-                key :type, :string
-                key :example, 'A01'
-                key :description, 'Current or Previous Power of Attorney Code submitted for Veteran'
               end
 
               property :participant_id do
@@ -132,6 +126,12 @@ module ClaimsApi
                 key :example, '14567'
                 key :description, 'Participant ID for veteran'
               end
+            end
+
+            property :previous_poa do
+              key :type, :string
+              key :example, 'B02'
+              key :description, 'Current or Previous Power of Attorney Code submitted for Veteran'
             end
           end
         end

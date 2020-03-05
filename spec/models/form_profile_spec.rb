@@ -444,6 +444,27 @@ RSpec.describe FormProfile, type: :model do
     }
   end
 
+  let(:vmdot_expected) do
+    {
+      'veteranFullName' => {
+        'first' => user.first_name&.capitalize,
+        'last' => user.last_name&.capitalize,
+        'suffix' => user.va_profile[:suffix]
+      },
+      'gender' => user.gender,
+      'veteranAddress' => {
+        'street' => street_check[:street],
+        'street2' => street_check[:street2],
+        'city' => user.va_profile[:address][:city],
+        'state' => user.va_profile[:address][:state],
+        'country' => user.va_profile[:address][:country],
+        'postalCode' => user.va_profile[:address][:postal_code][0..4]
+      },
+      'email' => user.pciu_email,
+      'dateOfBirth' => user.birth_date
+    }
+  end
+
   let(:vvic_expected) do
     {
       'email' => user.pciu_email,
@@ -550,6 +571,27 @@ RSpec.describe FormProfile, type: :model do
       'bankAccountType' => 'Checking',
       'bankName' => 'Comerica',
       'bankRoutingNumber' => '*****2115'
+    }
+  end
+
+  let(:v20_0996_expected) do
+    {
+      'data' =>
+      {
+        'attributes' =>
+        {
+          'veteran' =>
+          {
+            'addressLine1' => street_check[:street],
+            'addressLine2' => street_check[:street2],
+            'city' => user.va_profile[:address][:city],
+            'stateOrProvinceCode' => user.va_profile[:address][:state],
+            'zipPostalCode' => user.va_profile[:address][:postal_code][0..4],
+            'phoneNumber' => us_phone,
+            'emailAddress' => user.pciu_email
+          }
+        }
+      }
     }
   end
 
@@ -778,6 +820,7 @@ RSpec.describe FormProfile, type: :model do
           1010ez
           22-0993
           FEEDBACK-TOOL
+          MDOT
         ].each do |form_id|
           it "returns prefilled #{form_id}" do
             expect_prefilled(form_id)
@@ -837,6 +880,12 @@ RSpec.describe FormProfile, type: :model do
     context 'with a burial application form' do
       it 'returns the va profile mapped to the burial form' do
         expect_prefilled('21P-530')
+      end
+    end
+
+    context 'with a higher level review form' do
+      it 'returns the va profile mapped to the higher level review form' do
+        expect_prefilled('20-0996')
       end
     end
 

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2020_01_17_193734) do
+ActiveRecord::Schema.define(version: 2020_02_24_143703) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
@@ -27,7 +27,9 @@ ActiveRecord::Schema.define(version: 2020_01_17_193734) do
     t.string "edipi"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "sec_id"
     t.index ["idme_uuid"], name: "index_accounts_on_idme_uuid", unique: true
+    t.index ["sec_id"], name: "index_accounts_on_sec_id"
     t.index ["uuid"], name: "index_accounts_on_uuid", unique: true
   end
 
@@ -176,6 +178,7 @@ ActiveRecord::Schema.define(version: 2020_01_17_193734) do
     t.datetime "updated_at", null: false
     t.integer "min"
     t.integer "max"
+    t.datetime "vssc_extract_date", default: "2001-01-01 00:00:00"
     t.index ["polygon"], name: "index_drivetime_bands_on_polygon", using: :gist
   end
 
@@ -333,6 +336,7 @@ ActiveRecord::Schema.define(version: 2020_01_17_193734) do
     t.json "metadata"
     t.datetime "expires_at"
     t.index ["form_id", "user_uuid"], name: "index_in_progress_forms_on_form_id_and_user_uuid", unique: true
+    t.index ["user_uuid"], name: "index_in_progress_forms_on_user_uuid"
   end
 
   create_table "invalid_letter_address_edipis", id: :serial, force: :cascade do |t|
@@ -507,6 +511,8 @@ ActiveRecord::Schema.define(version: 2020_01_17_193734) do
     t.string "sha256"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.boolean "valid_pdf", default: false
+    t.index ["valid_pdf"], name: "index_va_forms_forms_on_valid_pdf"
   end
 
   create_table "vba_documents_upload_submissions", id: :serial, force: :cascade do |t|

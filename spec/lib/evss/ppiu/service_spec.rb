@@ -8,6 +8,8 @@ describe EVSS::PPIU::Service do
   let(:user) { build(:evss_user) }
 
   describe '#get_payment_information' do
+    let(:pay_info) { subject.get_payment_information.responses.first }
+
     context 'with a valid evss response' do
       it 'returns a payment information response object', :aggregate_failures do
         VCR.use_cassette('evss/ppiu/payment_information') do
@@ -20,6 +22,22 @@ describe EVSS::PPIU::Service do
             .to be_an EVSS::PPIU::PaymentAccount
           expect(response.responses.first.payment_address)
             .to be_an EVSS::PPIU::PaymentAddress
+        end
+      end
+
+      it 'has pay account and pay address data' do
+        VCR.use_cassette('evss/ppiu/payment_information') do
+          expect(pay_info.payment_account.financial_institution_routing_number).to eq('042102115')
+          expect(pay_info.payment_address.address_one).to eq('string')
+        end
+      end
+    end
+
+    context 'with an unauthorized user' do
+      it 'returns a payment information response object with payment account and payment address hidden' do
+        VCR.use_cassette('evss/ppiu/pay_info_unauthorized') do
+          expect(pay_info.payment_account.attributes).to eq(EVSS::PPIU::PaymentAccount.new.attributes)
+          expect(pay_info.payment_address.attributes).to eq(EVSS::PPIU::PaymentAddress.new.attributes)
         end
       end
     end
@@ -133,11 +151,9 @@ describe EVSS::PPIU::Service do
       it 'creates a PII log' do
         VCR.use_cassette('evss/ppiu/update_service_error') do
           expect do
-            begin
-              subject.update_payment_information(request_payload)
-            rescue
-              EVSS::PPIU::ServiceException
-            end
+            subject.update_payment_information(request_payload)
+          rescue
+            EVSS::PPIU::ServiceException
           end.to change(ppiu_pii_log, :count).by(1)
         end
 
