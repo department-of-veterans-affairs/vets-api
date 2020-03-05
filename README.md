@@ -22,7 +22,7 @@ touch config/certs/vetsgov-localhost.crt
 touch config/certs/vetsgov-localhost.key
 ```
    
-   - Disable signed authentication requests:
+1. Disable signed authentication requests:
 
    
 ```yaml
@@ -31,20 +31,7 @@ saml:
   authn_requests_signed: false
 ```
 
-1. (OPTIONAL) Enable crypto for localhost authentication
-
-   - Copy the [certificate][certificate] to `config/certs/vetsgov-localhost.crt`
-   - Copy the [key][key] to `config/certs/vetsgov-localhost.key`
-   - Enable signed authentication requests:
-
-```yaml
-# settings.local.yml
-saml:
-  authn_requests_signed: true
-```
-   
-   [certificate]: https://github.com/department-of-veterans-affairs/va.gov-team-sensitive/TBD_LOCATION/vetsgov-localhost.key
-   [key]: https://github.com/department-of-veterans-affairs/va.gov-team-sensitive/TBD_LOCATION/vetsgov-localhost.key
+[For more info on crypto & authentication, including how to enable crypto for localhost authentication](/docs/setup/authentication_with_idme.md)
 
  
 ## Running the app
