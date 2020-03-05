@@ -24,11 +24,12 @@ module VAOS
       { 'Referer' => referrer, 'X-VAMF-JWT' => session_token }
     end
 
+    # Set the referrer (Referer header) to distinguish review instance, staging, etc from logs
     def referrer
       if Settings.hostname.ends_with?('.gov')
         "https://#{Settings.hostname}"
       else
-        "http://#{Settings.hostname}"
+        "https://review-instance.va.gov" # VAMF rejects Referer that is not valid; such as those of review instances
       end
     end
 
