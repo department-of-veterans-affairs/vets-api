@@ -21,7 +21,7 @@ module AuthenticationAndSSOConcerns
   end
 
   def validate_csrf_token!
-    if request.headers['X-CSRF-Token'] != cookies['X-CSRF-Token']
+    if request.headers['X-CSRF-Token'].nil? || request.headers['X-CSRF-Token'] != cookies['X-CSRF-Token']
       raise ActionController::InvalidAuthenticityToken
     end
   end
