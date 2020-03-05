@@ -8,7 +8,7 @@ module AuthenticationAndSSOConcerns
   include ActionController::Cookies
 
   included do
-    before_action :validate_csrf_token!
+    before_action :validate_csrf_token!, if: -> { request.method != 'GET' }
     before_action :authenticate
     before_action :set_session_expiration_header
     after_action :set_csrf_cookie
@@ -21,7 +21,7 @@ module AuthenticationAndSSOConcerns
   end
 
   def validate_csrf_token!
-    if request.method != 'GET' && request.headers['X-CSRF-Token'] != cookies['X-CSRF-Token']
+    if request.headers['X-CSRF-Token'] != cookies['X-CSRF-Token']
       raise ActionController::InvalidAuthenticityToken
     end
   end
