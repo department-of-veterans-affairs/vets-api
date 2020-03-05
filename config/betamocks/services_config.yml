@@ -2,7 +2,7 @@
 :services:
 
 - :name: 'MDOT'
-  :base_uri: <%= "#{URI(Settings.mdot.url)}" %>
+  :base_uri: <%= "#{URI(Settings.mdot.url).host}:#{URI(Settings.mdot.url).port}" %>
   :endpoints:
   - :method: :get
     :path: "/mdot/supplies"
