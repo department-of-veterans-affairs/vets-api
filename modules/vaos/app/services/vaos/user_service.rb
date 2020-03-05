@@ -1,14 +1,12 @@
 # frozen_string_literal: true
 
 module VAOS
-  class UserService < Common::Client::Base
-    configuration VAOS::Configuration
-
-    def session(user)
+  class UserService < VAOS::BaseService
+    def session
       cached = SessionStore.find(user.uuid)
       return cached.token if cached
 
-      token = get_session_token(user)
+      token = get_session_token
       SessionStore.new(user_uuid: user.uuid, token: token).save
       token
     end
@@ -19,15 +17,7 @@ module VAOS
       { 'Accept' => 'text/plain', 'Content-Type' => 'text/plain', 'Referer' => referrer }
     end
 
-    def referrer
-      if Settings.hostname.ends_with?('.gov')
-        "https://#{Settings.hostname}"
-      else
-        "http://#{Settings.hostname}"
-      end
-    end
-
-    def get_session_token(user)
+    def get_session_token
       url = '/users/v2/session?processRules=true'
       token = VAOS::JWT.new(user).token
       response = perform(:post, url, token, headers)

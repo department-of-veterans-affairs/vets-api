@@ -20,12 +20,20 @@ module VAOS
     end
 
     def headers
-      session_token = user_service.session(user)
-      { 'Referer' => 'https://api.va.gov', 'X-VAMF-JWT' => session_token }
+      session_token = user_service.session
+      { 'Referer' => referrer, 'X-VAMF-JWT' => session_token }
+    end
+
+    def referrer
+      if Settings.hostname.ends_with?('.gov')
+        "https://#{Settings.hostname}"
+      else
+        "http://#{Settings.hostname}"
+      end
     end
 
     def user_service
-      VAOS::UserService.new
+      VAOS::UserService.new(user)
     end
   end
 end
