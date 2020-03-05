@@ -470,7 +470,7 @@ GEM
     net-sftp (2.1.2)
       net-ssh (>= 2.6.5)
     net-ssh (4.1.0)
-    newrelic_rpm (6.8.0.360)
+    newrelic_rpm (6.9.0.363)
     nio4r (2.5.2)
     no_proxy_fix (0.1.2)
     nokogiri (1.10.8)
@@ -493,7 +493,7 @@ GEM
     overcommit (0.52.1)
       childprocess (>= 0.6.3, < 4)
       iniparse (~> 1.4)
-    ox (2.12.0)
+    ox (2.13.2)
     paper_trail (10.3.1)
       activerecord (>= 4.2)
       request_store (~> 1.1)
@@ -523,7 +523,7 @@ GEM
       byebug (~> 11.0)
       pry (~> 0.10)
     public_suffix (4.0.3)
-    puma (4.3.1)
+    puma (4.3.3)
       nio4r (~> 2.0)
     puma-plugin-statsd (0.1.0)
       json
@@ -837,7 +837,7 @@ DEPENDENCIES
   pg
   prawn
   pry-byebug
-  puma (~> 4.3.1)
+  puma (~> 4.3.2)
   puma-plugin-statsd (~> 0.1.0)
   pundit
   rack!
