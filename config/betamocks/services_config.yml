@@ -10,11 +10,7 @@
     :cache_multiple_responses:
       :uid_location: header
       :uid_locator: 'veteranId'
-<<<<<<< HEAD
-  - :method: :post
-=======
 -   :method: :post
->>>>>>> master
     :path: "/mdot/supplies"
     :file_path: "mdot/supplies/create"
     :cache_multiple_responses:
