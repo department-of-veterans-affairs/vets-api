@@ -54,8 +54,18 @@ RSpec.describe 'EVSS Claims management', type: :request do
       sign_in_as(user)
       FactoryBot.create(:evss_claim, id: 2, evss_id: 189_625,
                                      user_uuid: 'xyz')
-      get '/v0/evss_claims/2'
+      get '/v0/evss_claims/189625'
       expect(response).to have_http_status(:not_found)
+    end
+
+    it 'user can access claim with account id', run_at: 'Wed, 13 Dev 2017 03:28:23 GMT' do
+      EVSSClaim.find_by(id: 1).update(user_uuid:  UserIdentifiable::ACCT_ID_PREFIX + evss_user.account_id)
+
+      sign_in_as(evss_user)
+      VCR.use_cassette('evss/claims/claim', match_requests_on: %i[uri method body]) do
+        get '/v0/evss_claims/600118851'
+        expect(response).to have_http_status(:success)
+      end
     end
 
     context '5103 waiver has not been submitted yet' do
