@@ -27,6 +27,17 @@ RSpec.describe 'EVSS Claims management', type: :request do
     end
   end
 
+  it 'claims are initialized with user\'s account id', run_at: 'Tue, 12 Dec 2017 03:09:06 GMT' do
+    sign_in_as(evss_user)
+    VCR.use_cassette('evss/claims/claims', match_requests_on: %i[uri method body]) do
+      get '/v0/evss_claims'
+              expect(response).to match_response_schema('evss_claims')
+
+      uniq_user_uuids = EVSSClaim.all.map { |c| c.user_uuid }.uniq
+      expect(uniq_user_uuids).to match_array([UserIdentifiable::ACCT_ID_PREFIX + evss_user.account_id])
+    end
+  end
+
   context 'for a single claim' do
     let!(:claim) do
       FactoryBot.create(:evss_claim, id: 1, evss_id: 600_118_851,
