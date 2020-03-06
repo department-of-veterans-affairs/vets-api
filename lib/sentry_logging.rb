@@ -63,13 +63,6 @@ module SentryLogging
     h.is_a?(Hash) && !h.empty?
   end
 
-  def set_raven_tag(k, v)
-    Raven.tags_context(k => v)
-    return_val = yield
-    Raven.context.tags.delete(k)
-    return_val
-  end
-
   private
 
   def client_error?(va_exception_errors)

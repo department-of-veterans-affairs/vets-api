@@ -46,9 +46,7 @@ module Common
       # @return [Sm::ClientSession] if a SM (Secure Messaging) client session
       #
       def get_session
-        env = set_raven_tag(:error, 'mhv_session') do
-          perform(:get, 'session', nil, auth_headers)
-        end
+        env = get_session_tagged
         req_headers = env.request_headers
         res_headers = env.response_headers
         @session.class.new(user_id: req_headers['mhvCorrelationId'],
@@ -70,6 +68,13 @@ module Common
       end
 
       private
+
+      def get_session_tagged
+        Raven.tags_context(error: 'mhv_session')
+        env = perform(:get, 'session', nil, auth_headers)
+        Raven.context.tags.delete(:error)
+        env
+      end
 
       def token_headers
         config.base_request_headers.merge('Token' => session.token)
