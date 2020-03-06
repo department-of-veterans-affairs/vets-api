@@ -31,9 +31,9 @@ RSpec.describe 'EVSS Claims management', type: :request do
     sign_in_as(evss_user)
     VCR.use_cassette('evss/claims/claims', match_requests_on: %i[uri method body]) do
       get '/v0/evss_claims'
-              expect(response).to match_response_schema('evss_claims')
+      expect(response).to match_response_schema('evss_claims')
 
-      uniq_user_uuids = EVSSClaim.all.map { |c| c.user_uuid }.uniq
+      uniq_user_uuids = EVSSClaim.all.map(&:user_uuid).uniq
       expect(uniq_user_uuids).to match_array([UserIdentifiable::ACCT_ID_PREFIX + evss_user.account_id])
     end
   end
@@ -70,7 +70,7 @@ RSpec.describe 'EVSS Claims management', type: :request do
     end
 
     it 'user can access claim with account id', run_at: 'Wed, 13 Dev 2017 03:28:23 GMT' do
-      EVSSClaim.find_by(id: 1).update(user_uuid:  UserIdentifiable::ACCT_ID_PREFIX + evss_user.account_id)
+      EVSSClaim.find_by(id: 1).update(user_uuid: UserIdentifiable::ACCT_ID_PREFIX + evss_user.account_id)
 
       sign_in_as(evss_user)
       VCR.use_cassette('evss/claims/claim', match_requests_on: %i[uri method body]) do
