@@ -1,22 +1,21 @@
 # frozen_string_literal: true
- 
+
 module VBMS
   module Efolder
     class UploadClaimAttachments
-      def initialize(claim_id)
-        @claim = SavedClaim.find(claim_id)
-        @attachments = @claim.persistent_attachments
-        unless @attachments
-          err_msg = "Claim #{claim_id} does not contain any supporting documents."
-          raise Common::Exceptions::RecordNotFound, detail: err_msg  
-        end
+      def initialize(claim)
+        @claim = claim
         @metadata = generate_metadata
-      rescue
-        raise Common::Exceptions::RecordNotFound, claim_id
       end
 
       def upload!
-        @attachments.each do |attachment|
+        # ensure we have attachments to process and upload
+        unless @claim.persistent_attachments.size > 0
+          err_msg = "Claim #{@claim.id} does not contain any supporting documents."
+          raise ActiveRecord::RecordNotFound, err_msg
+        end
+
+        @claim.persistent_attachments.each do |attachment|
           # uploading to efolder is a two step process. Fetch token and upload.
           token = fetch_upload_token(attachment)
           upload(token, attachment)
@@ -38,12 +37,12 @@ module VBMS
           subject: @metadata['source'] + '_' + @metadata['doc_type'], # TODO
           new_mail: true # TODO
         )
-        token = client.send_request(vbms_request)
-        # token = SecureRandom.uuid # stub for dev
+        # token = client.send_request(vbms_request)
+        token = SecureRandom.uuid # stub for dev
         token
       rescue
         # TODO: handle service outages and invalid attachments
-        raise Common::Exceptions::UnprocessableEntity, attachment
+        raise
       end
 
       def upload(token, attachment)
@@ -51,14 +50,16 @@ module VBMS
           upload_token: token,
           filepath: attachment.file.to_io.path
         )
-        client.send_request(upload_request)
+        # client.send_request(upload_request)
       rescue
         # TODO: handle service outages and upload errors
-        raise Common::Exceptions::UnprocessableEntity, attachment
+        raise
       end
 
       def client
         @client ||= VBMS::Client.from_env_vars(env_name: Settings.vbms.env)
+      rescue
+        @client = nil
       end
 
       def generate_metadata
