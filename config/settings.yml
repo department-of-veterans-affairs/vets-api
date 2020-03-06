@@ -387,8 +387,6 @@ shrine:
   claims:
     type: local
     path: claims
-github:
-  api_key: abcd1234abcd1234abcd1234abcd1234abcd1234
 
 # Settings for maintenance window API
 # Services should be a map from logical service name to PagerDuty service id

@@ -28,6 +28,8 @@ module MVI
       attribute :vet360_id, String
       attribute :historical_icns, Array[String]
       attribute :search_token, String
+      attribute :cerner_facility_ids, Array[String]
+      attribute :cerner_id, String
 
       def mhv_correlation_id
         @active_mhv_ids&.first
