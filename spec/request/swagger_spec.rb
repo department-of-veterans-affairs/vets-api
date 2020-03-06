@@ -543,20 +543,22 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
 
       it 'supports updating payment information' do
         expect(subject).to validate(:put, '/v0/ppiu/payment_information', 401)
-        VCR.use_cassette('evss/ppiu/update_payment_information') do
-          expect(subject).to validate(
-            :put,
-            '/v0/ppiu/payment_information',
-            200,
-            headers.update(
-              '_data' => {
-                'account_type' => 'Checking',
-                'financial_institution_name' => 'Bank of Amazing',
-                'account_number' => '1234567890',
-                'financial_institution_routing_number' => '123456789'
-              }
+        VCR.use_cassette('evss/ppiu/payment_information') do
+          VCR.use_cassette('evss/ppiu/update_payment_information') do
+            expect(subject).to validate(
+              :put,
+              '/v0/ppiu/payment_information',
+              200,
+              headers.update(
+                '_data' => {
+                  'account_type' => 'Checking',
+                  'financial_institution_name' => 'Bank of Amazing',
+                  'account_number' => '1234567890',
+                  'financial_institution_routing_number' => '123456789'
+                }
+              )
             )
-          )
+          end
         end
       end
     end
@@ -1460,6 +1462,32 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
         it "documents contestable_issues #{status_code}" do
           VCR.use_cassette("decision_review/#{status_code}_contestable_issues") do
             expect(subject).to validate(:get, '/v0/appeals/contestable_issues', status_code, headers)
+          end
+        end
+      end
+    end
+
+    describe 'supplies' do
+      let(:route) { '/v0/mdot/supplies' }
+
+      context 'not signed in' do
+        it 'returns a 401' do
+          %i[get post].each { |method| expect(subject).to validate(method, route, 401) }
+        end
+      end
+
+      [200, 404, 502].each do |status_code|
+        it "documents GET /v0/mdot/supplies #{status_code} response" do
+          VCR.use_cassette("mdot/get_supplies_#{status_code}") do
+            expect(subject).to validate(:get, route, status_code, headers)
+          end
+        end
+      end
+
+      [202, 422, 404, 502].each do |status_code|
+        it "documents POST /v0/mdot/supplies #{status_code}" do
+          VCR.use_cassette("mdot/post_supplies_#{status_code}") do
+            expect(subject).to validate(:post, route, status_code, headers)
           end
         end
       end
@@ -2438,6 +2466,22 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
               404,
               headers.merge('_data' => patch_body, 'subject' => notification_subject)
             )
+          end
+        end
+      end
+
+      describe 'forms' do
+        context 'when successful' do
+          it 'supports getting form results data with a query' do
+            VCR.use_cassette('forms/200_form_query') do
+              expect(subject).to validate(:get, '/v0/forms', 200, '_query_string' => 'query=health')
+            end
+          end
+
+          it 'support getting form results without a query' do
+            VCR.use_cassette('forms/200_all_forms') do
+              expect(subject).to validate(:get, '/v0/forms', 200)
+            end
           end
         end
       end

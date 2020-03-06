@@ -17,30 +17,42 @@ module Facilities
       def provider_locator(params)
         qparams = provider_locator_params(params)
         response = perform(:get, 'v1.0/ProviderLocator', qparams)
+
         return [] if response.body.nil?
 
-        Facilities::PPMS::Response.from_provider_locator(response, params)
+        trim_response_attributes!(response)
+        deduplicate_response_arrays!(response)
+
+        paginated_responses(
+          Facilities::PPMS::Response.from_provider_locator(response, params),
+          params
+        )
       end
 
       def pos_locator(params)
-        walkin_params = pos_locator_params(params, 17)
+        walkin_params      = pos_locator_params(params, 17)
         urgent_care_params = pos_locator_params(params, 20)
 
-        walkin_response = perform(:get, 'v1.0/PlaceOfServiceLocator', walkin_params)
+        walkin_response      = perform(:get, 'v1.0/PlaceOfServiceLocator', walkin_params)
         urgent_care_response = perform(:get, 'v1.0/PlaceOfServiceLocator', urgent_care_params)
 
-        [
+        responses = [
           [walkin_params, walkin_response],
           [urgent_care_params, urgent_care_response]
         ].each_with_object([]) do |(request_params, response), new_array|
           next if response.body.blank?
 
+          trim_response_attributes!(response)
+          deduplicate_response_arrays!(response)
+
           providers = Facilities::PPMS::Response.from_provider_locator(response, request_params)
           providers.each do |provider|
             provider.posCodes = request_params[:posCodes]
+            provider.ProviderType = 'GroupPracticeOrAgency'
           end
           new_array.concat(providers)
-        end.sort!
+        end.sort
+        paginated_responses(responses, params)
       end
 
       # https://dev.dws.ppms.va.gov/swagger/ui/index#!/Providers/Providers_Get_0
@@ -49,16 +61,27 @@ module Facilities
         response = perform(:get, "v1.0/Providers(#{identifier})", qparams)
         return nil if response.body.nil? || response.body[0].nil?
 
+        trim_response_attributes!(response)
+        deduplicate_response_arrays!(response)
+
         Facilities::PPMS::Response.new(response.body[0], response.status).new_provider
       end
 
       def provider_caresites(site_name)
         response = perform(:get, 'v1.0/CareSites()', name: "'#{site_name}'")
+
+        trim_response_attributes!(response)
+        deduplicate_response_arrays!(response)
+
         Facilities::PPMS::Response.new(response.body, response.status).get_body
       end
 
       def provider_services(identifier)
         response = perform(:get, "v1.0/Providers(#{identifier})/ProviderServices", {})
+
+        trim_response_attributes!(response)
+        deduplicate_response_arrays!(response)
+
         Facilities::PPMS::Response.new(response.body, response.status).get_body
       end
 
@@ -69,6 +92,56 @@ module Facilities
       end
 
       private
+
+      def paginated_responses(response, params)
+        page = Integer(params[:page] || 1)
+        per_page = Integer(params[:per_page] || BaseFacility.per_page)
+        offset = (page - 1) * per_page
+
+        response[offset, per_page] || []
+      end
+
+      def trim_response_attributes!(response)
+        if Flipper.enabled?(:facilities_ppms_response_trim)
+          flipper_enabled_trim_response_attributes!(response)
+        else
+          response
+        end
+      end
+
+      def flipper_enabled_trim_response_attributes!(response)
+        response.body.collect! do |hsh|
+          hsh.each_pair.collect do |attr, value|
+            if value.is_a? String
+              [attr, value.gsub(/ +/, ' ').strip]
+            else
+              [attr, value]
+            end
+          end.to_h
+        end
+        response
+      end
+
+      def deduplicate_response_arrays!(response)
+        if Flipper.enabled?(:facility_locator_dedup_community_care_services)
+          flipper_enabled_deduplicate_response_arrays!(response)
+        else
+          response
+        end
+      end
+
+      def flipper_enabled_deduplicate_response_arrays!(response)
+        response.body.collect! do |hsh|
+          hsh.each_pair.collect do |attr, value|
+            if value.is_a? Array
+              [attr, value.uniq]
+            else
+              [attr, value]
+            end
+          end.to_h
+        end
+        response
+      end
 
       def radius(bbox)
         # more estimation fun about 69 miles between latitude lines, <= 69 miles between long lines
@@ -82,18 +155,20 @@ module Facilities
 
       def pos_locator_params(params, pos_code)
         page = Integer(params[:page] || 1)
+        per_page = Integer(params[:per_page] || BaseFacility.per_page)
         {
           address: "'#{params[:address]}'",
           radius: radius(params[:bbox]),
           driveTime: 10_000,
           posCodes: pos_code,
           network: 0,
-          maxResults: 20 * page + 1
+          maxResults: per_page * page + 1
         }
       end
 
       def provider_locator_params(params)
         page = Integer(params[:page] || 1)
+        per_page = Integer(params[:per_page] || BaseFacility.per_page)
         specialty = "'#{params[:services] ? params[:services][0] : 'null'}'"
         {
           address: "'#{params[:address]}'",
@@ -107,7 +182,7 @@ module Facilities
           gender: 0,
           primarycare: 0,
           acceptingnewpatients: 0,
-          maxResults: 20 * page + 1
+          maxResults: per_page * page + 1
         }
       end
     end

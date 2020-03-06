@@ -5,7 +5,7 @@
 ###
 # shared build/settings for all child images, reuse these layers yo
 ###
-FROM ruby:2.5.7-slim-stretch AS base
+FROM ruby:2.6.5-slim-stretch AS base
 
 ARG userid=993
 SHELL ["/bin/bash", "-c"]
@@ -22,10 +22,7 @@ RUN mkdir -p /srv/vets-api/{clamav/database,pki/tls,secure,src} && \
 # XXX: get rid of the CA trust manipulation when we have a better model for it
 COPY config/ca-trust/* /usr/local/share/ca-certificates/
 # rename .pem files to .crt because update-ca-certificates ignores files that are not .crt
-RUN if [ -f /usr/local/share/ca-certificates/*.pem ]; then \
-      cd /usr/local/share/ca-certificates ; for i in *.pem ; do mv $i ${i/pem/crt} ; done; \
-    fi  && \
-    update-ca-certificates
+RUN cd /usr/local/share/ca-certificates ; for i in *.pem ; do mv $i ${i/pem/crt} ; done ; update-ca-certificates
 WORKDIR /srv/vets-api/src
 
 ###
