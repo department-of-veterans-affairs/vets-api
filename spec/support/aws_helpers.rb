@@ -37,6 +37,6 @@ module AwsHelpers
     ).and_return(s3)
     expect(s3).to receive(:bucket).once.with('bucket').and_return(bucket)
     expect(bucket).to receive(:object).once.with('maintenance_windows.json').and_return(obj)
-    expect(obj).to receive(:upload_file).once.with(filename)
+    expect(obj).to receive(:upload_file).once.with(filename, acl: 'public-read', content_type: 'application/json')
   end
 end
