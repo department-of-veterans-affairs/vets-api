@@ -267,29 +267,29 @@ RSpec.describe V0::InProgressFormsController, type: :request do
           let!(:in_progress_form) { FactoryBot.create(:in_progress_form, user_uuid: user.uuid) }
 
           it 'call to add user to MVI is skipped' do
-            expect(in_progress_form.form_id).not_to eq('526')
+            expect(in_progress_form.form_id).not_to eq('21-526EZ')
             get v0_in_progress_form_url(in_progress_form.form_id), params: nil
             expect(user.mvi).not_to receive(:mvi_add_person)
           end
         end
-        context 'and is completing form 526' do
+        context 'and is completing form 21-526EZ' do
           let(:user) { build(:user_with_no_ids) }
-          let!(:in_progress_form) { FactoryBot.create(:in_progress_form, user_uuid: user.uuid, form_id: '526') }
+          let!(:in_progress_form) { FactoryBot.create(:in_progress_form, user_uuid: user.uuid, form_id: '21-526EZ') }
 
           it 'call is made to add user to MVI' do
             # unsure if needed
             # allow_any_instance_of(MVI::Service).to receive(:find_profile).and_return(profile_response)
             # allow_any_instance_of(MVI::Service).to receive(:add_person).and_return(add_response)
-            expect(in_progress_form.form_id).to eq('526')
+            expect(in_progress_form.form_id).to eq('21-526EZ')
             get v0_in_progress_form_url(in_progress_form.form_id), params: nil
             expect(user.mvi).to receive(:mvi_add_person).once
           end
         end
       end
 
-      context 'user is only missing birls id and is completing form 526' do
+      context 'user is only missing birls id and is completing form 21-526EZ' do
         let(:user) { build(:user_with_no_birls_id) }
-        let!(:in_progress_form) { FactoryBot.create(:in_progress_form, user_uuid: user.uuid, form_id: '526') }
+        let!(:in_progress_form) { FactoryBot.create(:in_progress_form, user_uuid: user.uuid, form_id: '21-526EZ') }
 
         it 'returns an error response' do
           get v0_in_progress_form_url(in_progress_form.form_id), params: nil

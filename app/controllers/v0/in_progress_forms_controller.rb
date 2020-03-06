@@ -35,7 +35,7 @@ module V0
     end
 
     def proxy_add
-      if params[:id] == '526'
+      if params[:id] == '21-526EZ'
         if @current_user.participant_id
           raise Common::Exceptions::ValidationErrors, \
             "No birls_id while participant_id present" if @current_user.birls_id.nil?
