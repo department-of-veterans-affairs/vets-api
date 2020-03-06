@@ -5,11 +5,11 @@ module VAOS
     configuration VAOS::UserConfiguration
 
     def session(user)
-      cached = SessionStore.find(user.uuid)
+      cached = SessionStore.find(user.account_uuid)
       return cached.token if cached
 
       token = get_session_token(user)
-      SessionStore.new(user_uuid: user.uuid, token: token).save
+      SessionStore.new(account_uuid: user.account_uuid, token: token).save
       token
     end
 
