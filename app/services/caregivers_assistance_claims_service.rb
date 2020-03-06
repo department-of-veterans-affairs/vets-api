@@ -4,6 +4,7 @@ class CaregiversAssistanceClaimsService
   def submit_claim!(user_context, claim_data)
     claim = SavedClaim::CaregiversAssistanceClaim.new(claim_data)
     claim.valid? ? claim.save! : raise(Common::Exceptions::ValidationErrors, claim)
+
     destroy_previously_saved_form_for(user_context) if user_context
 
     claim
