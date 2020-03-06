@@ -143,6 +143,30 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
       )
     end
 
+    it 'supports adding an caregiver\'s assistance claim' do
+      expect(subject).to validate(
+        :post,
+        '/v0/caregivers_assistance_claims',
+        200,
+        '_data' => {
+          'caregivers_assistance_claim' => {
+            'form' => build(:caregivers_assistance_claim).form
+          }
+        }
+      )
+
+      expect(subject).to validate(
+        :post,
+        '/v0/caregivers_assistance_claims',
+        422,
+        '_data' => {
+          'caregivers_assistance_claim' => {
+            'form' => {}.to_json
+          }
+        }
+      )
+    end
+
     it 'supports adding a pension' do
       expect(subject).to validate(
         :post,
@@ -1472,14 +1496,22 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
 
       context 'not signed in' do
         it 'returns a 401' do
-          expect(subject).to validate(:get, route, 401)
+          %i[get post].each { |method| expect(subject).to validate(method, route, 401) }
         end
       end
 
       [200, 404, 502].each do |status_code|
         it "documents GET /v0/mdot/supplies #{status_code} response" do
           VCR.use_cassette("mdot/get_supplies_#{status_code}") do
-            expect(subject).to validate(:get, '/v0/mdot/supplies', status_code, headers)
+            expect(subject).to validate(:get, route, status_code, headers)
+          end
+        end
+      end
+
+      [202, 422, 404, 502].each do |status_code|
+        it "documents POST /v0/mdot/supplies #{status_code}" do
+          VCR.use_cassette("mdot/post_supplies_#{status_code}") do
+            expect(subject).to validate(:post, route, status_code, headers)
           end
         end
       end
