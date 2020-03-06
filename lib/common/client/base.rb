@@ -108,7 +108,8 @@ module Common
         # convert BackendServiceException into a more meaningful exception title for Sentry
         raise config.service_exception.new(e.key, e.response_values, e.original_status, e.original_body)
       rescue Timeout::Error, Faraday::TimeoutError => e
-        Raven.extra_context(response_hash_from_error(e).merge(service_name: config.service_name, url: config.base_path))
+        PersonalInformationLog.create(data: response_hash_from_error(e), error_class: e.class)
+        Raven.extra_context(service_name: config.service_name, url: config.base_path)
         raise Common::Exceptions::GatewayTimeout
       rescue Faraday::ClientError => e
         error_class = case e
@@ -123,12 +124,14 @@ module Common
       def response_status_from_error(error)
         hash = response_hash_from_error(error)[:response][:hash]
         return nil unless hash.is_a? Hash
+
         hash[:status]
       end
 
       def response_body_from_error(error)
         hash = response_hash_from_error(error)[:response][:hash]
         return nil unless hash.is_a? Hash
+
         hash[:body]
       end
 
