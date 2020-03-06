@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe Facilities::PPMS::Client do
+RSpec.describe Facilities::PPMS::Client, team: :facilities do
   let(:params) do
     {
       address: 'South Gilbert Road, Chandler, Arizona 85286, United States',
