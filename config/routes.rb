@@ -212,7 +212,7 @@ Rails.application.routes.draw do
     end
 
     namespace :mdot do
-      resources :supplies, only: :index
+      resources :supplies, only: %i[index create]
     end
 
     resources :performance_monitorings, only: :create
