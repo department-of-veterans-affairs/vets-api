@@ -17,12 +17,16 @@ module Facilities
       def provider_locator(params)
         qparams = provider_locator_params(params)
         response = perform(:get, 'v1.0/ProviderLocator', qparams)
+
         return [] if response.body.nil?
 
         trim_response_attributes!(response)
         deduplicate_response_arrays!(response)
 
-        Facilities::PPMS::Response.from_provider_locator(response, params)
+        paginated_responses(
+          Facilities::PPMS::Response.from_provider_locator(response, params),
+          params
+        )
       end
 
       def pos_locator(params)
@@ -32,7 +36,7 @@ module Facilities
         walkin_response      = perform(:get, 'v1.0/PlaceOfServiceLocator', walkin_params)
         urgent_care_response = perform(:get, 'v1.0/PlaceOfServiceLocator', urgent_care_params)
 
-        [
+        responses = [
           [walkin_params, walkin_response],
           [urgent_care_params, urgent_care_response]
         ].each_with_object([]) do |(request_params, response), new_array|
@@ -47,7 +51,8 @@ module Facilities
             provider.ProviderType = 'GroupPracticeOrAgency'
           end
           new_array.concat(providers)
-        end.sort!
+        end.sort
+        paginated_responses(responses, params)
       end
 
       # https://dev.dws.ppms.va.gov/swagger/ui/index#!/Providers/Providers_Get_0
@@ -87,6 +92,14 @@ module Facilities
       end
 
       private
+
+      def paginated_responses(response, params)
+        page = Integer(params[:page] || 1)
+        per_page = Integer(params[:per_page] || BaseFacility.per_page)
+        offset = (page - 1) * per_page
+
+        response[offset, per_page] || []
+      end
 
       def trim_response_attributes!(response)
         if Flipper.enabled?(:facilities_ppms_response_trim)
@@ -142,18 +155,20 @@ module Facilities
 
       def pos_locator_params(params, pos_code)
         page = Integer(params[:page] || 1)
+        per_page = Integer(params[:per_page] || BaseFacility.per_page)
         {
           address: "'#{params[:address]}'",
           radius: radius(params[:bbox]),
           driveTime: 10_000,
           posCodes: pos_code,
           network: 0,
-          maxResults: 20 * page + 1
+          maxResults: per_page * page + 1
         }
       end
 
       def provider_locator_params(params)
         page = Integer(params[:page] || 1)
+        per_page = Integer(params[:per_page] || BaseFacility.per_page)
         specialty = "'#{params[:services] ? params[:services][0] : 'null'}'"
         {
           address: "'#{params[:address]}'",
@@ -167,7 +182,7 @@ module Facilities
           gender: 0,
           primarycare: 0,
           acceptingnewpatients: 0,
-          maxResults: 20 * page + 1
+          maxResults: per_page * page + 1
         }
       end
     end

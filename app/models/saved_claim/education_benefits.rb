@@ -13,6 +13,10 @@ class SavedClaim::EducationBenefits < SavedClaim
     "SavedClaim::EducationBenefits::VA#{form_type}".constantize
   end
 
+  def in_progress_form_id
+    form_id
+  end
+
   private
 
   def add_education_benefits_claim
