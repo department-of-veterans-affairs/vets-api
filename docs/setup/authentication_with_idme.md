@@ -23,6 +23,31 @@ saml:
 See [config/settings.yml](config/settings.yml) for all of the configuration
 options.
 
+### Enabling Crypto for Localhost Authentication
+
+1. Copy the localhost [certificate][certificate] to `config/certs/vetsgov-localhost.crt`
+2. Copy the localhost [key][key] to `config/certs/vetsgov-localhost.key`
+3. Enable signed authentication requests:
+
+```yaml
+# settings.local.yml
+saml:
+  authn_requests_signed: true
+```
+   
+[certificate]: https://github.com/department-of-veterans-affairs/va.gov-team-sensitive/TBD_LOCATION/vetsgov-localhost.key
+[key]: https://github.com/department-of-veterans-affairs/va.gov-team-sensitive/TBD_LOCATION/vetsgov-localhost.key
+
+
+#### Additional Info 
+
+The `vets-api` rails server requires that a SAML key & cert file exist in order to start up - which is why the recommended approach is to `touch` empty key & cert files. 
+
+For the `saml-rp.vetsgov.localhost` profile, if an AuthNRequest is not signed, then ID.me skips this signature validation. If a signature is present however, ID.me will validate that signature and return an error if that signature is incorrect. Additionally, AuthNResponses are not encrypted.
+
+For all other environments `dev`, `staging` & `prod` - AuthNRequests require a signature and AuthNResponses are encrypted.
+
+
 ## Manually Testing ID.me Authentication Flow
 
 Note the following two endpoints:

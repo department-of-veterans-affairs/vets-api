@@ -55,6 +55,8 @@ module MVI
           edipi: select_ids(select_extension(ids, /^\w+\^NI\^200DOD\^USDOD\^A$/, DOD_ROOT_OID))&.first,
           vba_corp_id: select_ids(select_extension(ids, /^\w+\^PI\^200CORP\^USVBA\^A$/, VA_ROOT_OID))&.first,
           vha_facility_ids: select_facilities(select_extension(ids, /^\w+\^PI\^\w+\^USVHA\^\w+$/, VA_ROOT_OID)),
+          cerner_facility_ids: select_facilities(select_extension(ids, /^\w+\^PI\^\w+\^USVHA\^C$/, VA_ROOT_OID)),
+          cerner_id: select_ids(select_extension(ids, /^\w+\^PI\^200CRNR\^US\w+\^A$/, VA_ROOT_OID))&.first,
           birls_id: select_ids(select_extension(ids, /^\w+\^PI\^200BRLS\^USVBA\^A$/, VA_ROOT_OID))&.first,
           vet360_id: select_ids(select_extension(ids, /^\w+\^PI\^200VETS\^USDVA\^A$/, VA_ROOT_OID))&.first,
           icn_with_aaid: ICNWithAAIDParser.new(full_icn_with_aaid(ids)).without_id_status
