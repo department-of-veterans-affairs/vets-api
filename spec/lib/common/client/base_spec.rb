@@ -65,13 +65,15 @@ describe Common::Client::Base do
     context 'objects without .response' do
       let(:empty_return) { { response: { hash: nil, object: nil } } }
 
-      context do
+      context 'error is nil' do
         let(:error) { nil }
+
         it { is_expected.to eq(empty_return) }
       end
 
-      context do
+      context 'error is 55' do
         let(:error) { 55 }
+
         it { is_expected.to eq(empty_return) }
       end
     end
@@ -82,7 +84,8 @@ describe Common::Client::Base do
       context 'response has .to_hash' do
         let(:hash) { 99 }
         let(:error) { class_with_response.new(Struct.new(:to_hash).new(hash)) }
-        it { is_expected.to eq({ response: { hash: hash, object: error.response } }) }
+
+        it { is_expected.to eq(response: { hash: hash, object: error.response }) }
       end
 
       context 'response has .status, .body, .headers' do
@@ -94,17 +97,16 @@ describe Common::Client::Base do
             Struct.new(:status, :body, :headers).new(status, body, headers)
           )
         end
+
         it do
-          is_expected.to eq(
-            {
-              response: {
-                hash: {
-                  status: status,
-                  body: body,
-                  headers: headers
-                },
-                object: error.response
-              }
+          expect(subject).to eq(
+            response: {
+              hash: {
+                status: status,
+                body: body,
+                headers: headers
+              },
+              object: error.response
             }
           )
         end
@@ -124,13 +126,12 @@ describe Common::Client::Base do
             end.new
           )
         end
+
         it 'hash is nil' do
-          is_expected.to eq(
-            {
-              response: {
-                hash: nil,
-                object: error.response
-              }
+          expect(subject).to eq(
+            response: {
+              hash: nil,
+              object: error.response
             }
           )
         end
@@ -146,13 +147,12 @@ describe Common::Client::Base do
             Struct.new(:to_hash, :status, :body, :headers).new(to_hash, status, body, headers)
           )
         end
+
         it 'uses .to_hash over .status, .body, .headers' do
-          is_expected.to eq(
-            {
-              response: {
-                hash: to_hash,
-                object: error.response
-              }
+          expect(subject).to eq(
+            response: {
+              hash: to_hash,
+              object: error.response
             }
           )
         end
@@ -161,13 +161,12 @@ describe Common::Client::Base do
       context 'response IS a Hash' do
         let(:hash) { { a: 1, b: 2, c: 3 } }
         let(:error) { class_with_response.new(hash) }
+
         it do
-          is_expected.to eq(
-            {
-              response: {
-                hash: hash,
-                object: error.response
-              }
+          expect(subject).to eq(
+            response: {
+              hash: hash,
+              object: error.response
             }
           )
         end
@@ -176,13 +175,12 @@ describe Common::Client::Base do
       context 'response has none of the methods we\'re looking for, and is not a Hash' do
         let(:response) { 88 }
         let(:error) { class_with_response.new(response) }
+
         it do
-          is_expected.to eq(
-            {
-              response: {
-                hash: nil,
-                object: error.response
-              }
+          expect(subject).to eq(
+            response: {
+              hash: nil,
+              object: error.response
             }
           )
         end
@@ -194,13 +192,15 @@ describe Common::Client::Base do
     subject { Common::Client::Base.new.send(:response_status_from_error, error) }
 
     context 'objects without .response' do
-      context do
+      context 'error is nil' do
         let(:error) { nil }
+
         it { is_expected.to eq(nil) }
       end
 
-      context do
+      context 'error is 55' do
         let(:error) { 55 }
+
         it { is_expected.to eq(nil) }
       end
     end
@@ -211,19 +211,22 @@ describe Common::Client::Base do
       context 'response has .to_hash' do
         let(:error) { class_with_response.new(Struct.new(:to_hash).new(hash)) }
 
-        context '.to_hash does not return a hash' do
+        describe '.to_hash does not return a hash' do
           let(:hash) { 99 }
+
           it { is_expected.to eq(nil) }
         end
 
-        context '.to_hash returns hash with :status field' do
+        describe '.to_hash returns hash with :status field' do
           let(:status) { 600 }
           let(:hash) { { status: status } }
+
           it { is_expected.to eq(status) }
         end
 
-        context '.to_hash returns hash without :status field' do
+        describe '.to_hash returns hash without :status field' do
           let(:hash) { { b: 2 } }
+
           it { is_expected.to eq(nil) }
         end
       end
@@ -235,6 +238,7 @@ describe Common::Client::Base do
             Struct.new(:status, :body, :headers).new(status, 'body', 'headers')
           )
         end
+
         it { is_expected.to eq(status) }
       end
 
@@ -245,6 +249,7 @@ describe Common::Client::Base do
             Struct.new(:status, :body, :to_h).new(status, 'body', nil)
           )
         end
+
         it { is_expected.to eq(nil) }
       end
 
@@ -256,18 +261,21 @@ describe Common::Client::Base do
             Struct.new(:to_hash, :status, :body, :headers).new(to_hash, 'a', 'b', 'c')
           )
         end
+
         it('uses .to_hash over .status') { is_expected.to eq(status) }
       end
 
       context 'response IS a Hash' do
         let(:status) { 'banana' }
         let(:error) { class_with_response.new(status: status) }
+
         it { is_expected.to eq(status) }
       end
 
       context 'response has none of the methods we\'re looking for, and is not a Hash' do
         let(:response) { 88 }
         let(:error) { class_with_response.new(response) }
+
         it { is_expected.to eq(nil) }
       end
     end
@@ -277,13 +285,15 @@ describe Common::Client::Base do
     subject { Common::Client::Base.new.send(:response_body_from_error, error) }
 
     context 'objects without .response' do
-      context do
+      context 'error is nil' do
         let(:error) { nil }
+
         it { is_expected.to eq(nil) }
       end
 
-      context do
+      context 'error is 55' do
         let(:error) { 55 }
+
         it { is_expected.to eq(nil) }
       end
     end
@@ -294,19 +304,22 @@ describe Common::Client::Base do
       context 'response has .to_hash' do
         let(:error) { class_with_response.new(Struct.new(:to_hash).new(hash)) }
 
-        context '.to_hash does not return a hash' do
+        describe '.to_hash does not return a hash' do
           let(:hash) { 99 }
+
           it { is_expected.to eq(nil) }
         end
 
-        context '.to_hash returns hash with :body field' do
+        describe '.to_hash returns hash with :body field' do
           let(:body) { 'squirrel' }
           let(:hash) { { body: body } }
+
           it { is_expected.to eq(body) }
         end
 
-        context '.to_hash returns hash without :body field' do
+        describe '.to_hash returns hash without :body field' do
           let(:hash) { { b: 2 } }
+
           it { is_expected.to eq(nil) }
         end
       end
@@ -318,6 +331,7 @@ describe Common::Client::Base do
             Struct.new(:status, :body, :headers).new('status', body, 'headers')
           )
         end
+
         it { is_expected.to eq(body) }
       end
 
@@ -328,6 +342,7 @@ describe Common::Client::Base do
             Struct.new(:status, :body, :to_h).new('status', body, nil)
           )
         end
+
         it { is_expected.to eq(nil) }
       end
 
@@ -339,18 +354,21 @@ describe Common::Client::Base do
             Struct.new(:to_hash, :status, :body, :headers).new(to_hash, 'a', 'b', 'c')
           )
         end
+
         it('uses .to_hash over .body') { is_expected.to eq(body) }
       end
 
       context 'response IS a Hash' do
         let(:body) { 'banana' }
         let(:error) { class_with_response.new(body: body) }
+
         it { is_expected.to eq(body) }
       end
 
       context 'response has none of the methods we\'re looking for, and is not a Hash' do
         let(:response) { 88 }
         let(:error) { class_with_response.new(response) }
+
         it { is_expected.to eq(nil) }
       end
     end

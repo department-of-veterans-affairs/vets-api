@@ -135,6 +135,32 @@ module Common
         hash[:body]
       end
 
+      # response_hash_from_error
+      #
+      # given an object, returns a hash based off of its .response method:
+      #
+      #   {
+      #     response: {
+      #       hash:   hash of object.response (if possible),
+      #       object: object.response || nil
+      #   }
+      #
+      # a hash of this shape ^^^ will be returned whether or not an object has a .response
+      # method, and whether or not what is returned by .response can be turned into a hash
+      #
+      # Motivation:
+      #
+      # I wanted to be able to reliably extract a response hash from a Faraday object.
+      # I noticed we were already using &.to_hash, but I also noticed we are currently
+      # using Faraday 0.17.0. --responses in that version don't have a .to_hash method
+      # (it wasn't introduced until 1.0.0). Therefore, to be maximally, safe, I try
+      # using .to_hash, then [.status, .body, .headers] (availiable in all versions),
+      # then .to_h. This also leaves room for us to author our own errors that conform
+      # to the structure of Faraday errors.
+      #
+      # https://www.rubydoc.info/gems/faraday/0.17.0/Faraday/Response
+      # https://www.rubydoc.info/gems/faraday/Faraday/Response
+
       def response_hash_from_error(error)
         response = error.try(:response)
 
