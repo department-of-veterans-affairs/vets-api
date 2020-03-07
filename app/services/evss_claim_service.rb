@@ -61,7 +61,8 @@ class EVSSClaimService
   end
 
   def create_or_update_claim(raw_claim)
-    claim = EVSSClaim.first_or_initialize_for_user(@user, evss_id: raw_claim['id'])
+    claim = EVSSClaim.where(evss_id: raw_claim['id'])
+    claim = claim.first_or_initialize_for_user(@user, data: {})
     claim.update_attributes(list_data: raw_claim)
     claim
   end
