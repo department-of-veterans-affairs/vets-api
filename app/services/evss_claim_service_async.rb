@@ -15,7 +15,7 @@ class EVSSClaimServiceAsync
       @tracker.set_collection_status(status)
       EVSS::RetrieveClaimsFromRemoteJob.perform_async(@user.uuid)
     end
-    claims = status == 'REQUESTED' ? [] : claims_scope.all
+    claims = status == 'REQUESTED' ? [] : EVSSClaim.for_user(@user)
     @tracker.delete_collection_status unless status == 'REQUESTED'
     [claims, status]
   end
@@ -30,9 +30,5 @@ class EVSSClaimServiceAsync
     end
     @tracker.delete_single_status unless status == 'REQUESTED'
     [claim, status]
-  end
-
-  def claims_scope
-    EVSSClaim.for_user(@user)
   end
 end

@@ -23,7 +23,7 @@ class EVSSClaimService
     end.flatten
     [claims, true]
   rescue Breakers::OutageException, EVSS::ErrorMiddleware::EVSSBackendServiceError
-    [claims_scope.all, false]
+    [EVSSClaim.for_user(@user), false]
   end
 
   def update_from_remote(claim)
@@ -60,13 +60,8 @@ class EVSSClaimService
     @auth_headers ||= EVSS::AuthHeaders.new(@user).to_h
   end
 
-  def claims_scope
-    EVSSClaim.for_user(@user)
-  end
-
   def create_or_update_claim(raw_claim)
-    claim = claims_scope.where(evss_id: raw_claim['id'])
-    claim = claim.first_or_initialize(data: {}, user_uuid: EVSSClaim.initial_user_uuid(@user))
+    claim = EVSSClaim.first_or_initialize_for_user(@user, evss_id: raw_claim['id'])
     claim.update_attributes(list_data: raw_claim)
     claim
   end

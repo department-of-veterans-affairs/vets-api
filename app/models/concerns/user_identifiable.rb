@@ -5,13 +5,18 @@ module UserIdentifiable
 
   ACCT_ID_PREFIX = 'acct:'
 
-  included do
-    # returns all instances that match the given User on their available
+  class_methods do
+    # Returns all instances that match the given User on their available
     # identifiers, either the users idme uuid or account id
-    scope :for_user, ->(u) { where(user_uuid: [ACCT_ID_PREFIX + u.account_id, u.uuid]) }
+    def for_user(user)
+      where(user_uuid: [ACCT_ID_PREFIX + user.account_id, user.uuid])
+    end
 
-    # the user_uuid could point to the users id.me uuid or account id, however
-    # when we create new instances we would like them to use the account id
-    scope :initial_user_uuid, ->(u) { ACCT_ID_PREFIX + u.account_id }
+    # Return the first instance that matches for the given user + attributes
+    # or if none exists, initialize a new instance
+    def first_or_initialize_for_user(user, attributes = nil)
+      objs = for_user(user).where(attributes || {})
+      objs.first_or_initialize(user_uuid: ACCT_ID_PREFIX + user.account_id)
+    end
   end
 end
