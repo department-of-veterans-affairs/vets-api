@@ -7,6 +7,7 @@ require 'mhv_ac/client'
 #
 class MhvAccount < ApplicationRecord
   include AASM
+  include UserIdentifiable
   # http://grafana.vetsgov-internal/dashboard/db/mhv-account-creation
   # the following scopes are used for dashboard metrics in grafana and are collected
   # by the job in app/workers/mhv/account_statistics_job.rb
@@ -148,7 +149,7 @@ class MhvAccount < ApplicationRecord
   # @param user [User] verifies UUID matches and then sets the user account
   #
   def user=(user)
-    raise 'Invalid User UUID' unless user.uuid.to_s == user_uuid.to_s
+    raise 'Invalid User UUID' unless user_match(user)
 
     @user = user
     setup

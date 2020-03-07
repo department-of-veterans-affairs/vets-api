@@ -208,7 +208,7 @@ class User < Common::RedisStore
   end
 
   def mhv_account
-    @mhv_account ||= MhvAccount.find_or_initialize_by(user_uuid: uuid, mhv_correlation_id: mhv_correlation_id)
+    @mhv_account ||= MhvAccount.first_or_initialize_for_user(user, mhv_correlation_id: mhv_correlation_id)
                                .tap { |m| m.user = self } # MHV account should not re-initialize use
   end
 
