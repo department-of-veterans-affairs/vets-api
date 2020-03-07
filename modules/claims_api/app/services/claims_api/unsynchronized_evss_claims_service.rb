@@ -57,10 +57,6 @@ module ClaimsApi
       @auth_headers ||= EVSS::AuthHeaders.new(@user).to_h
     end
 
-    def claims_scope
-      EVSSClaim.for_user(@user)
-    end
-
     def create_claim(evss_id, key, raw_claim)
       ClaimsApi::EVSSClaim.new(:evss_id => evss_id, key => raw_claim)
     end
