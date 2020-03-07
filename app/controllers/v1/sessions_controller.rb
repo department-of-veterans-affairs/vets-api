@@ -24,7 +24,8 @@ module V1
       type = params[:type]
       raise Common::Exceptions::RoutingError, params[:path] unless REDIRECT_URLS.include?(type)
 
-      StatsD.increment(STATSD_SSO_NEW_KEY, tags: ["context:#{type}"])
+      StatsD.increment(STATSD_SSO_NEW_KEY,
+                       tags: ["context:#{type}", "forceauthn:#{force_authn?}"])
       url = url_service.send("#{type}_url")
 
       if %w[slo ssoe_slo].include?(type)
@@ -80,7 +81,14 @@ module V1
 
     private
 
+    def force_authn?
+      params[:force]&.downcase == 'true'
+    end
+
     def saml_settings(options = {})
+      # add a forceAuthn value to the saml settings based on the initial options or
+      # the "force" value in the query params
+      options[:force_authn] ||= force_authn?
       SAML::SSOeSettingsService.saml_settings(options)
     end
 
@@ -147,7 +155,6 @@ module V1
       when :success
         StatsD.increment(STATSD_LOGIN_NEW_USER_KEY) if request_type == 'signup'
         # track users who have a shared sso cookie
-        # TODO: should we check for any special case to see if SSOe worked?
         StatsD.increment(STATSD_LOGIN_SHARED_COOKIE,
                          tags: ["loa:#{@current_user.loa[:current]}",
                                 "idp:#{@current_user.identity.sign_in[:service_name]}"])
