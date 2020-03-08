@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe CaregiversAssistanceClaimsService do
+RSpec.describe Form1010cg::Service do
   let(:build_valid_claim_data) { -> { VetsJsonSchema::EXAMPLES['10-10CG'].clone.to_json } }
   let(:get_schema) { -> { VetsJsonSchema::SCHEMAS['10-10CG'].clone } }
 
@@ -10,20 +10,27 @@ RSpec.describe CaregiversAssistanceClaimsService do
     user = nil
     invalid_claim_data = { form: {} }
 
+    expect(CARMA::Models::Submission).not_to receive(:new)
+
     expect do
       subject.submit_claim!(user, invalid_claim_data)
     end.to raise_error(Common::Exceptions::ValidationErrors)
   end
 
-  it 'will create and return a claim' do
+  it 'will return a Form1010cg::submission' do
     user = nil
     claim_data = { form: build_valid_claim_data.call }
 
-    result = subject.submit_claim!(user, claim_data)
+    # carma_submission = double
 
-    expect(result).to be_an_instance_of(SavedClaim::CaregiversAssistanceClaim)
-    expect(result.id).to be_truthy
-    expect(result.persisted?).to eq(true)
+    # expect(CARMA::Models::Submission).to receive(:from_claim).and_return(carma_submission)
+    # expect(carma_submission).to receive(:submit!).and_return({ case_id: 99 })
+
+    submission = subject.submit_claim!(user, claim_data)
+
+    expect(submission).to be_an_instance_of(Form1010cg::Submission)
+    expect(submission.id).to eq(nil)
+    expect(submission.persisted?).to eq(false) # Not persisting until production relsease
   end
 
   context 'with user context' do
@@ -60,11 +67,11 @@ RSpec.describe CaregiversAssistanceClaimsService do
       expect(other_form_for_user).not_to receive(:destroy)
       expect(same_form_for_different_user).not_to receive(:destroy)
 
-      result = subject.submit_claim!(user, claim_data)
+      submission = subject.submit_claim!(user, claim_data)
 
-      expect(result).to be_an_instance_of(SavedClaim::CaregiversAssistanceClaim)
-      expect(result.id).to be_truthy
-      expect(result.persisted?).to eq(true)
+      expect(submission).to be_an_instance_of(Form1010cg::Submission)
+      expect(submission.id).to eq(nil)
+      expect(submission.persisted?).to eq(false) # Not persisting until production relsease
     end
 
     it 'will function when no related in progress form exists' do
@@ -73,11 +80,11 @@ RSpec.describe CaregiversAssistanceClaimsService do
 
       expect_any_instance_of(InProgressForm).not_to receive(:destroy)
 
-      result = subject.submit_claim!(user, claim_data)
+      submission = subject.submit_claim!(user, claim_data)
 
-      expect(result).to be_an_instance_of(SavedClaim::CaregiversAssistanceClaim)
-      expect(result.id).to be_truthy
-      expect(result.persisted?).to eq(true)
+      expect(submission).to be_an_instance_of(Form1010cg::Submission)
+      expect(submission.id).to eq(nil)
+      expect(submission.persisted?).to eq(false) # Not persisting until production relsease
     end
   end
 end
