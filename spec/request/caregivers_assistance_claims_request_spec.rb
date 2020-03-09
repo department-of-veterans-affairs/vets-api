@@ -84,21 +84,20 @@ RSpec.describe 'Caregivers Assistance Claims', type: :request do
         form_data = build_valid_form_submission.call
 
         body = { caregivers_assistance_claim: { form: form_data.to_json } }.to_json
-        post endpoint, params: body, headers: headers
+
+        VCR.use_cassette 'carma/submissions/create/201' do
+          post endpoint, params: body, headers: headers
+        end
 
         expect(response.code).to eq('200')
 
         res_body = JSON.parse(response.body)
 
         expect(res_body['data']).to be_present
-        expect(res_body['data']['id'].to_i).to be > 0
-        expect(res_body['data']['type']).to eq 'saved_claim_caregivers_assistance_claims'
-        expect(res_body['data']['attributes']['regionalOffice']).to eq([])
+        expect(res_body['data']['type']).to eq 'form1010cg_submissions'
         expect(res_body['data']['attributes']['submittedAt']).to be_present
-        expect(res_body['data']['attributes']['submittedAt'].to_date).to eq(DateTime.now.to_date)
+        expect(res_body['data']['attributes']['submittedAt'].to_date).to eq DateTime.now.to_date
         expect(res_body['data']['attributes']['confirmationNumber']).to be_present
-        expect(res_body['data']['attributes']['guid']).to be_present
-        expect(res_body['data']['attributes']['form']).to eq('10-10CG')
       end
     end
   end
