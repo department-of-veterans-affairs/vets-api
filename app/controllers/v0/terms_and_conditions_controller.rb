@@ -44,7 +44,7 @@ module V0
       raise Common::Exceptions::RecordNotFound, params[:name] if terms.blank?
 
       resource = TermsAndConditionsAcceptance.new(
-        user_uuid: current_user.uuid,
+        user_uuid: TermsAndConditionsAcceptance.default_user_uuid(current_user),
         terms_and_conditions: terms
       )
       if resource.save

@@ -36,10 +36,14 @@ RSpec.describe 'terms_and_conditions', type: :request do
     end
 
     let!(:terms2_acceptance) do
-      create(:terms_and_conditions_acceptance, user_uuid: current_user.uuid, terms_and_conditions: terms2)
+      create(:terms_and_conditions_acceptance,
+             user_uuid: TermsAndConditionsAcceptance.default_user_uuid(current_user),
+             terms_and_conditions: terms2)
     end
     let!(:terms21_acceptance) do
-      create(:terms_and_conditions_acceptance, user_uuid: current_user.uuid, terms_and_conditions: terms21)
+      create(:terms_and_conditions_acceptance,
+             user_uuid: TermsAndConditionsAcceptance.default_user_uuid(current_user),
+             terms_and_conditions: terms21)
     end
 
     describe 'getting user data' do
