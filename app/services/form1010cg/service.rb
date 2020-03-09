@@ -7,11 +7,13 @@ module Form1010cg
       claim = SavedClaim::CaregiversAssistanceClaim.new(claim_data)
       claim.valid? || raise(Common::Exceptions::ValidationErrors, claim)
 
-      # carma_submission = CARMA::Models::Submission.from_claim(claim)
-      # carma_submission.submit!
+      carma_submission = CARMA::Models::Submission.from_claim(claim)
+      carma_submission.submit!
 
-      submission = Form1010cg::Submission.new
-      # (carma_case_id: carma_submission.case_id, submitted_at: carma_submission.submitted_at)
+      submission = Form1010cg::Submission.new(
+        carma_case_id: carma_submission.case_id,
+        submitted_at: carma_submission.submitted_at
+      )
 
       destroy_previously_saved_form_for(user_context) if user_context
 
