@@ -194,6 +194,7 @@ hca:
   endpoint: https://test-foo.vets.gov
   cert_path: /fake/client/cert/path
   key_path: /fake/client/key/path
+  timeout: 30
   ee:
     endpoint: 'http://example.com'
     user: "HCASvcUsr"

@@ -5,6 +5,41 @@ module Swagger
     class HealthCareApplications
       include Swagger::Blocks
 
+      swagger_path '/v0/health_care_applications/{id}' do
+        operation :get do
+          key :description, 'Show the status of a health care application'
+          key :operationId, 'getHealthCareApplication'
+          key :tags, %w[benefits_forms]
+
+          parameter do
+            key :name, :id
+            key :in, :path
+            key :description, 'ID of the application'
+            key :required, true
+            key :type, :string
+          end
+
+          response 200 do
+            key :description, 'get HCA response'
+
+            schema do
+              property :data, type: :object do
+                key :required, %i[attributes]
+                property :id, type: :string
+                property :type, type: :string
+                property :attributes, type: :object do
+                  key :required, %i[state]
+
+                  property :state, type: :string
+                  property :form_submission_id, type: %i[string null]
+                  property :timestamp, type: %i[string null]
+                end
+              end
+            end
+          end
+        end
+      end
+
       swagger_path '/v0/health_care_applications' do
         operation :post do
           extend Swagger::Responses::ValidationError
