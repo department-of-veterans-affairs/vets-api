@@ -311,7 +311,6 @@ describe EMISRedis::MilitaryInformationV2, skip_emis: true do
       end
     end
   end
-
 end
 
 def service_history_object(branch_of_service = 'Air Force', personnel_category_type_code = 'V', begin_date:, end_date:)
