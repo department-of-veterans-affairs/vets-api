@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-# This service manages the interactions between CaregiversAssistancesClaims, CARMA, and Form1010cg::Submissions.
+# This service manages the interactions between CaregiversAssistanceClaim, CARMA, and Form1010cg::Submission.
 module Form1010cg
   class Service
     def submit_claim!(user_context, claim_data)
