@@ -120,7 +120,7 @@ class MhvAccount < ApplicationRecord
       TermsAndConditionsAcceptance.joins(:terms_and_conditions)
                                   .includes(:terms_and_conditions)
                                   .where(terms_and_conditions: { latest: true, name: TERMS_AND_CONDITIONS_NAME })
-                                  .where(user_uuid: user_uuid).limit(1).first
+                                  .for_user(user).limit(1).first
   end
 
   ##
@@ -162,7 +162,7 @@ class MhvAccount < ApplicationRecord
 
   def track_state
     to_state = aasm(:account_state).to_state
-    tracker_id = (user.uuid.to_s + mhv_correlation_id.to_s)
+    tracker_id = (self.class.default_user_uuid(user) + mhv_correlation_id.to_s)
     if INELIGIBLE_STATES.include?(to_state)
       tracker = MHVAccountIneligible.find(tracker_id)
       return if tracker && tracker.account_state == to_state
@@ -170,7 +170,7 @@ class MhvAccount < ApplicationRecord
       if tracker
         tracker.update(account_state: to_state)
       else
-        attrs = { uuid: user.uuid, account_state: to_state,
+        attrs = { uuid: self.class.default_user_uuid(user), account_state: to_state,
                   mhv_correlation_id: mhv_correlation_id, icn: user.icn,
                   tracker_id: tracker_id }
         MHVAccountIneligible.create(attrs)

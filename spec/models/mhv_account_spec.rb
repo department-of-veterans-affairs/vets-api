@@ -117,7 +117,7 @@ RSpec.describe MhvAccount, type: :model do
     end
 
     context '#track_state' do
-      let(:tracker_id) { user.uuid.to_s + user.mhv_correlation_id.to_s }
+      let(:tracker_id) { MhvAccount.default_user_uuid(user) + user.mhv_correlation_id.to_s }
 
       it 'creates redis entry' do
         subject.creatable?
@@ -143,9 +143,9 @@ RSpec.describe MhvAccount, type: :model do
       end
 
       it 'can have multiple trackers for the same uuid and icn' do
-        attrs = { uuid: user.uuid, account_state: 'whatever',
+        attrs = { uuid: MhvAccount.default_user_uuid(user), account_state: 'whatever',
                   mhv_correlation_id: 'different_id', icn: user.icn,
-                  tracker_id: (user.uuid.to_s + 'different_id') }
+                  tracker_id: (MhvAccount.default_user_uuid(user) + 'different_id') }
         MHVAccountIneligible.create(attrs)
 
         subject.creatable?
@@ -153,13 +153,13 @@ RSpec.describe MhvAccount, type: :model do
         expect(tracker).to be_truthy
         expect(tracker.mhv_correlation_id).to eq(user.mhv_correlation_id)
         expect(tracker.account_state).to eq(:needs_terms_acceptance)
-        expect(tracker.uuid).to eq(user.uuid)
+        expect(tracker.uuid).to eq(MhvAccount.default_user_uuid(user))
 
-        tracker = MHVAccountIneligible.find(user.uuid.to_s + 'different_id')
+        tracker = MHVAccountIneligible.find(MhvAccount.default_user_uuid(user) + 'different_id')
         expect(tracker).to be_truthy
         expect(tracker.mhv_correlation_id).to eq('different_id')
         expect(tracker.account_state).to eq('whatever')
-        expect(tracker.uuid).to eq(user.uuid)
+        expect(tracker.uuid).to eq(MhvAccount.default_user_uuid(user))
       end
     end
 
@@ -167,7 +167,10 @@ RSpec.describe MhvAccount, type: :model do
       context 'with terms accepted' do
         let(:terms) { create(:terms_and_conditions, latest: true, name: described_class::TERMS_AND_CONDITIONS_NAME) }
 
-        before { create(:terms_and_conditions_acceptance, terms_and_conditions: terms, user_uuid: user.uuid) }
+        before do
+          create(:terms_and_conditions_acceptance, terms_and_conditions: terms,
+                                                   user_uuid: MhvAccount.default_user_uuid(user))
+        end
 
         context 'without an existing account' do
           context 'nothing has been persisted and no mhv_id' do
@@ -246,7 +249,8 @@ RSpec.describe MhvAccount, type: :model do
 
           context 'previously upgraded' do
             before do
-              create(:mhv_account, :upgraded, user_uuid: user.uuid, mhv_correlation_id: user.mhv_correlation_id)
+              create(:mhv_account, :upgraded, user_uuid: MhvAccount.default_user_uuid(user),
+                                              mhv_correlation_id: user.mhv_correlation_id)
             end
 
             it 'has upgraded' do
@@ -260,7 +264,7 @@ RSpec.describe MhvAccount, type: :model do
 
           context 'previously registered but somehow upgraded because of account level' do
             before do
-              create(:mhv_account, :upgraded, upgraded_at: nil, user_uuid: user.uuid,
+              create(:mhv_account, :upgraded, upgraded_at: nil, user_uuid: MhvAccount.default_user_uuid(user),
                                               mhv_correlation_id: user.mhv_correlation_id)
             end
 
@@ -285,7 +289,8 @@ RSpec.describe MhvAccount, type: :model do
 
           context 'previously registered' do
             before do
-              create(:mhv_account, :registered, user_uuid: user.uuid, mhv_correlation_id: user.mhv_correlation_id)
+              create(:mhv_account, :registered, user_uuid: MhvAccount.default_user_uuid(user),
+                                                mhv_correlation_id: user.mhv_correlation_id)
             end
 
             it 'has registered, upgradable with account level basic' do
