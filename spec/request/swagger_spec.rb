@@ -1234,7 +1234,9 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
         # so that the association in terms_acc works as expected with these tests.
         let!(:terms2) { create(:terms_and_conditions, latest: true, name: "#{terms.name}-again") }
         let!(:terms_acc) do
-          create(:terms_and_conditions_acceptance, user_uuid: mhv_user.uuid, terms_and_conditions: terms)
+          create(:terms_and_conditions_acceptance,
+                 user_uuid: TermsAndConditionsAcceptance.default_user_uuid(mhv_user),
+                 terms_and_conditions: terms)
         end
 
         it 'validates the routes' do
