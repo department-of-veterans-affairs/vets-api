@@ -1,24 +1,26 @@
 # frozen_string_literal: true
 
 module VAOS
-  class UserService < Common::Client::Base
-    configuration VAOS::UserConfiguration
-
-    def session(user)
-      cached = SessionStore.find(user.account_uuid)
+  class UserService < VAOS::BaseService
+    def session
+      cached = SessionStore.find(user.uuid)
       return cached.token if cached
 
-      token = get_session_token(user)
-      SessionStore.new(account_uuid: user.account_uuid, token: token).save
+      token = get_session_token
+      SessionStore.new(user_uuid: user.uuid, token: token).save
       token
     end
 
     private
 
-    def get_session_token(user)
+    def headers
+      { 'Accept' => 'text/plain', 'Content-Type' => 'text/plain', 'Referer' => referrer }
+    end
+
+    def get_session_token
       url = '/users/v2/session?processRules=true'
       token = VAOS::JWT.new(user).token
-      response = perform(:post, url, token)
+      response = perform(:post, url, token, headers)
       raise Common::Exceptions::BackendServiceException.new('VAOS_502', source: self.class) unless body?(response)
 
       response.body
