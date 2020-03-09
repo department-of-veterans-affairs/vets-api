@@ -38,7 +38,7 @@ describe 'gi client' do
   end
 
   it 'gets yellow ribbon programs search results', :vcr do
-    client_response = client.get_yellow_ribbon_programs().body
+    client_response = client.get_yellow_ribbon_programs.body
     expect(client_response[:data]).to be_an(Array)
     expect(client_response[:data].first.keys).to contain_exactly(:id, :type, :attributes, :links)
   end
