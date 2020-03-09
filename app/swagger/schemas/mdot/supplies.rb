@@ -37,6 +37,12 @@ module Swagger
           property :country, type: :string
           property :postal_code, type: :string
         end
+
+        swagger_schema :SuppliesAccepted do
+          key :required, %i[status order_id]
+          property :status, type: :string
+          property :order_id, type: :string
+        end
       end
     end
   end

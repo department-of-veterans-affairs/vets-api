@@ -41,13 +41,6 @@ GIT
       multi_json (~> 1.0)
       script_utils (= 0.0.4)
 
-GIT
-  remote: https://github.com/rack/rack.git
-  revision: f690bb71425aa31d7b9b3113829af773950d8ab5
-  ref: f690bb71425aa31d7b9b3113829af773950d8ab5
-  specs:
-    rack (2.2.0)
-
 PATH
   remote: modules/appeals_api
   specs:
@@ -532,6 +525,7 @@ GEM
     pundit (1.1.0)
       activesupport (>= 3.0.0)
     raabro (1.1.6)
+    rack (2.2.2)
     rack-attack (6.2.2)
       rack (>= 1.0, < 3)
     rack-cors (1.1.1)
@@ -685,10 +679,10 @@ GEM
       sidekiq (>= 3)
       thwait
       tilt (>= 1.4.0)
-    simplecov (0.18.2)
+    simplecov (0.18.5)
       docile (~> 1.1)
       simplecov-html (~> 0.11)
-    simplecov-html (0.12.0)
+    simplecov-html (0.12.1)
     socksify (1.7.1)
     spring (2.1.0)
     spring-commands-rspec (1.0.4)
@@ -844,7 +838,7 @@ DEPENDENCIES
   puma (~> 4.3.2)
   puma-plugin-statsd (~> 0.1.0)
   pundit
-  rack!
+  rack
   rack-attack
   rack-cors
   rack-test
