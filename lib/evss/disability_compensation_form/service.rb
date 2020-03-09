@@ -50,7 +50,18 @@ module EVSS
         with_monitoring_and_error_handling do
           headers = { 'Content-Type' => 'application/json' }
           options = { timeout: Settings.evss.disability_compensation_form.submit_timeout || 355 }
-          raw_response = perform(:post, 'submit', form_content, headers, options)
+          begin
+            raw_response = perform(:post, 'submit', form_content, headers, options)
+          rescue Net::ReadTimeout, Faraday::TimeoutError, Timeout::Error => e
+            PersonalInformationLog.create(
+              error_class: "EVSS::DisabilityCompensationForm::Service #submit_form526 Timeout Error",
+              data: {
+                response: self.class.response_json(raw_response),
+                error: self.class.error_json(e)
+              }
+            )
+            raise e
+          end
           FormSubmitResponse.new(raw_response.status, raw_response)
         end
       end
@@ -72,6 +83,32 @@ module EVSS
         else
           super(error)
         end
+      end
+
+      def self.response_json(response)
+        return response.to_hash if response.respond_to? :to_hash
+
+        if %i[status body headers].all? { |method| response.respond_to? method }
+          return {
+            status: response.status,
+            body: response.body,
+            headers: response.headers
+          }
+        end
+
+        return response.as_json if response.respond_to? :as_json
+
+        return response.to_h if response.respond_to? :to_h
+
+        'failed to turn response into json'
+      end
+
+      def self.error_json(error)
+        {
+          error_class: error.class.to_s,
+          message: error.message,
+          backtrace: error.backtrace
+        }
       end
     end
   end

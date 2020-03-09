@@ -72,4 +72,132 @@ describe EVSS::DisabilityCompensationForm::Service do
       end
     end
   end
+
+
+  describe '.response_json' do
+    subject { EVSS::DisabilityCompensationForm::Service.response_json(response) }
+
+    let(:response_methods) { %i[to_hash status body headers as_json to_h] }
+
+    let(:dummy_response) do
+      Struct.new(*response_methods).new(*response_methods)
+    end
+
+    let(:response) do
+      resp = dummy_response
+      Array.wrap(without).each { |method| resp.instance_eval("undef :#{method}") }
+      resp
+    end
+
+    let(:without) { [] }
+
+    it { is_expected.to eq(response.to_hash) }
+
+    context 'without #to_hash' do
+      let(:without) { :to_hash }
+
+      it do
+        is_expected.to eq(
+          status: response.status,
+          body: response.body,
+          headers: response.headers
+        )
+      end
+    end
+
+    context 'without #to_hash #status' do
+      let(:without) { %i[to_hash status] }
+
+      it { is_expected.to eq(response.as_json) }
+    end
+
+    context 'without #to_hash #body' do
+      let(:without) { %i[to_hash body] }
+
+      it { is_expected.to eq(response.as_json) }
+    end
+
+    context 'without #to_hash #headers' do
+      let(:without) { %i[to_hash headers] }
+
+      it { is_expected.to eq(response.as_json) }
+    end
+
+    context 'without #to_hash #status #body' do
+      let(:without) { %i[to_hash status body] }
+
+      it { is_expected.to eq(response.as_json) }
+    end
+
+    context 'without #to_hash #status headers' do
+      let(:without) { %i[to_hash status headers] }
+
+      it { is_expected.to eq(response.as_json) }
+    end
+
+    context 'without #to_hash #status #body #headers' do
+      let(:without) { %i[to_hash status body headers] }
+
+      it { is_expected.to eq(response.as_json) }
+    end
+
+    context 'without #to_hash #status #body #headers #as_json' do
+      let(:without) { %i[to_hash status body headers as_json] }
+
+      it { is_expected.to eq(response.to_h) }
+    end
+
+    context 'without #to_hash #status #body #headers #as_json #to_h' do
+      let(:without) { %i[to_hash status body headers as_json to_h] }
+
+      it { is_expected.to eq('failed to turn response into json') }
+    end
+  end
+
+  describe '.error_json' do
+    subject { EVSS::DisabilityCompensationForm::Service.error_json(error) }
+
+    let(:error) { StandardError.new }
+
+    let(:error_hash) do
+      {
+        error_class: error.class.to_s,
+        message: error.message,
+        backtrace: error.backtrace
+      }
+    end
+
+    it { is_expected.to eq(error_hash) }
+
+    context 'Net::ReadTimeout' do
+      let(:error) { Net::ReadTimeout.new }
+      it { is_expected.to eq(error_hash) }
+    end
+
+    context 'Faraday::TimeoutError' do
+      let(:error) { Faraday::TimeoutError.new }
+      it { is_expected.to eq(error_hash) }
+    end
+
+    context 'Timeout::Error' do
+      let(:error) { Timeout::Error.new }
+      it { is_expected.to eq(error_hash) }
+    end
+
+    context 'some other error' do
+      let(:error) do
+        begin
+          Float "cat"
+        rescue => e
+          e
+        end
+      end
+
+      it do
+        expect(subject[:error_class]).not_to be_nil
+        expect(subject[:message]).not_to be_nil
+        expect(subject[:backtrace]).not_to be_nil
+      end
+    end
+  end
 end
