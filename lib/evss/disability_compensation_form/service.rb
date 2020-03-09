@@ -80,7 +80,7 @@ module EVSS
           options = { timeout: Settings.evss.disability_compensation_form.submit_timeout || 355 }
           begin
             raw_response = perform(:post, 'submit', form_content, headers, options)
-          rescue Faraday::TimeoutError, Net::ReadTimeout, Timeout::Error => e
+          rescue Net::ReadTimeout, Timeout::Error, Faraday::TimeoutError => e
             PersonalInformationLog.create(
               error_class: 'Timeout Error in EVSS::DisabilityCompensationForm::Service#submit_form526',
               data: {
