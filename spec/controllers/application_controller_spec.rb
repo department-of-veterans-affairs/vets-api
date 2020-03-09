@@ -167,6 +167,9 @@ RSpec.describe ApplicationController, type: :controller do
         controller_name: 'anonymous',
         sign_in_method: 'not-signed-in'
       )
+      expect(Raven).to receive(:tags_context).once.with(
+        error: 'mhv_session'
+      )
       # since user is not signed in this shouldnt get called.
       expect(Raven).not_to receive(:user_context)
       expect(Raven).to receive(:capture_exception).once
@@ -203,6 +206,9 @@ RSpec.describe ApplicationController, type: :controller do
                                                           sign_in_method: 'idme',
                                                           sign_in_acct_type: nil)
 
+        expect(Raven).to receive(:tags_context).once.with(
+          error: 'mhv_session'
+        )
         # since user IS signed in, this SHOULD get called
         expect(Raven).to receive(:user_context).with(
           uuid: user.uuid,

@@ -61,7 +61,7 @@ Rails.application.routes.draw do
       end
     end
 
-    resource :health_care_applications, only: [:create] do
+    resources :health_care_applications, only: %i[create show] do
       collection do
         get(:healthcheck)
         get(:enrollment_status)
@@ -69,6 +69,9 @@ Rails.application.routes.draw do
     end
 
     resource :hca_attachments, only: :create
+
+    # Excluding this feature until external service (CARMA) is connected
+    resources :caregivers_assistance_claims, only: :create if Rails.env.test?
 
     resources :dependents_applications, only: %i[create show] do
       collection do
@@ -209,7 +212,7 @@ Rails.application.routes.draw do
     end
 
     namespace :mdot do
-      resources :supplies, only: :index
+      resources :supplies, only: %i[index create]
     end
 
     resources :performance_monitorings, only: :create
