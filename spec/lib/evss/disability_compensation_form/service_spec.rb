@@ -73,7 +73,6 @@ describe EVSS::DisabilityCompensationForm::Service do
     end
   end
 
-
   describe '.response_json' do
     subject { EVSS::DisabilityCompensationForm::Service.response_json(response) }
 
@@ -85,7 +84,7 @@ describe EVSS::DisabilityCompensationForm::Service do
 
     let(:response) do
       resp = dummy_response
-      Array.wrap(without).each { |method| resp.instance_eval("undef :#{method}") }
+      Array.wrap(without).each { |method| resp.instance_eval("undef :#{method}", __FILE__, __LINE__) }
       resp
     end
 
@@ -97,7 +96,7 @@ describe EVSS::DisabilityCompensationForm::Service do
       let(:without) { :to_hash }
 
       it do
-        is_expected.to eq(
+        expect(subject).to eq(
           status: response.status,
           body: response.body,
           headers: response.headers
@@ -171,26 +170,27 @@ describe EVSS::DisabilityCompensationForm::Service do
 
     context 'Net::ReadTimeout' do
       let(:error) { Net::ReadTimeout.new }
+
       it { is_expected.to eq(error_hash) }
     end
 
     context 'Faraday::TimeoutError' do
       let(:error) { Faraday::TimeoutError.new }
+
       it { is_expected.to eq(error_hash) }
     end
 
     context 'Timeout::Error' do
       let(:error) { Timeout::Error.new }
+
       it { is_expected.to eq(error_hash) }
     end
 
     context 'some other error' do
       let(:error) do
-        begin
-          Float "cat"
-        rescue => e
-          e
-        end
+        Float 'cat'
+      rescue => e
+        e
       end
 
       it do
