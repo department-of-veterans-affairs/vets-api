@@ -22,7 +22,6 @@ module VAOS
     def connection
       Faraday.new(base_path, headers: base_request_headers, request: request_options) do |conn|
         conn.use :breakers
-        conn.use :vaos_logging
         conn.request :camelcase
         conn.request :json
 
@@ -35,6 +34,7 @@ module VAOS
         conn.response :snakecase
         conn.response :json, content_type: /\bjson$/
         conn.response :vaos_errors
+        conn.use :vaos_logging
         conn.adapter Faraday.default_adapter
       end
     end
