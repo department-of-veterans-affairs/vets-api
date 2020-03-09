@@ -97,7 +97,7 @@ module Common
         send(method, path, params || {}, headers || {}, options || {})
       end
 
-      def request(method, path, params = {}, headers = {}, options = {})
+      def request(method, path, params = {}, headers = {}, options = {}) # rubocop:disable Metrics/MethodLength
         sanitize_headers!(method, path, params, headers)
         raise_not_authenticated if headers.keys.include?('Token') && headers['Token'].nil?
         connection.send(method.to_sym, path, params) do |request|
@@ -106,9 +106,10 @@ module Common
         end.env
       rescue Common::Exceptions::BackendServiceException => e
         # convert BackendServiceException into a more meaningful exception title for Sentry
-        raise config.service_exception.new(e.key, e.response_values, e.original_status, e.original_body)
-      rescue Timeout::Error, Faraday::TimeoutError => e
-        PersonalInformationLog.create(data: response_hash_from_error(e), error_class: e.class)
+        raise config.service_exception.new(
+          e.key, e.response_values, e.original_status, e.original_body
+        )
+      rescue Timeout::Error, Faraday::TimeoutError
         Raven.extra_context(service_name: config.service_name, url: config.base_path)
         raise Common::Exceptions::GatewayTimeout
       rescue Faraday::ClientError => e
@@ -118,68 +119,10 @@ module Common
                       else
                         Common::Client::Errors::ClientError
                       end
-        raise error_class.new(e.message, response_status_from_error(e), response_body_from_error(e))
-      end
 
-      def response_status_from_error(error)
-        hash = response_hash_from_error(error)[:response][:hash]
-        return nil unless hash.is_a? Hash
-
-        hash[:status]
-      end
-
-      def response_body_from_error(error)
-        hash = response_hash_from_error(error)[:response][:hash]
-        return nil unless hash.is_a? Hash
-
-        hash[:body]
-      end
-
-      # response_hash_from_error
-      #
-      # given an object, returns a hash based off of its .response method:
-      #
-      #   {
-      #     response: {
-      #       hash:   hash of object.response (if possible),
-      #       object: object.response || nil
-      #   }
-      #
-      # a hash of this shape ^^^ will be returned whether or not an object has a .response
-      # method, and whether or not what is returned by .response can be turned into a hash
-      #
-      # Motivation:
-      #
-      # I wanted to be able to reliably extract a response hash from a Faraday object.
-      # I noticed we were already using &.to_hash, but I also noticed we are currently
-      # using Faraday 0.17.0. --responses in that version don't have a .to_hash method
-      # (it wasn't introduced until 1.0.0). Therefore, to be maximally, safe, I try
-      # using .to_hash, then [.status, .body, .headers] (availiable in all versions),
-      # then .to_h. This also leaves room for us to author our own errors that conform
-      # to the structure of Faraday errors.
-      #
-      # https://www.rubydoc.info/gems/faraday/0.17.0/Faraday/Response
-      # https://www.rubydoc.info/gems/faraday/Faraday/Response
-
-      def response_hash_from_error(error)
-        response = error.try(:response)
-
-        # lambda that returns a hash of the response and the response itself
-        response_hash = ->(hash) { { response: { hash: hash, object: response } } }
-
-        # no response method
-        return response_hash[nil] unless error.respond_to?(:response)
-
-        # response has .to_hash (Farady 1.0.0)
-        return response_hash[response.to_hash] if response.respond_to?(:to_hash)
-
-        # response does not have .to_hash but has .status, .body, .headers (Faraday < 1.0.0)
-        if %i[status body headers].all? { |method| response.respond_to? method }
-          return response_hash[{ status: response.status, body: response.body, headers: response.headers }]
-        end
-
-        # last ditch to get a hash
-        response_hash[response.try(:to_h)]
+        response_hash = e.response&.to_hash
+        client_error = error_class.new(e.message, response_hash&.dig(:status), response_hash&.dig(:body))
+        raise client_error
       end
 
       def sanitize_headers!(_method, _path, _params, headers)
