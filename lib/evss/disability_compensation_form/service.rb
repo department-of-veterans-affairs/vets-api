@@ -17,6 +17,34 @@ module EVSS
     #   EVSS::DisabilityCompensationForm::Service.new(disability_auth_headers)
     #
     class Service < EVSS::Service
+      class << self
+        def response_json(response)
+          return response.to_hash if response.respond_to? :to_hash
+
+          if %i[status body headers].all? { |method| response.respond_to? method }
+            return {
+              status: response.status,
+              body: response.body,
+              headers: response.headers
+            }
+          end
+
+          return response.as_json if response.respond_to? :as_json
+
+          return response.to_h if response.respond_to? :to_h
+
+          'failed to turn response into json'
+        end
+
+        def error_json(error)
+          {
+            error_class: error.class.to_s,
+            message: error.message,
+            backtrace: error.backtrace
+          }
+        end
+      end
+
       configuration EVSS::DisabilityCompensationForm::Configuration
 
       # @param headers [EVSS::DisabilityCompensationAuthHeaders] VAAFI headers for a user
@@ -52,9 +80,9 @@ module EVSS
           options = { timeout: Settings.evss.disability_compensation_form.submit_timeout || 355 }
           begin
             raw_response = perform(:post, 'submit', form_content, headers, options)
-          rescue Net::ReadTimeout, Faraday::TimeoutError, Timeout::Error => e
+          rescue Faraday::TimeoutError, Net::ReadTimeout, Timeout::Error => e
             PersonalInformationLog.create(
-              error_class: "EVSS::DisabilityCompensationForm::Service #submit_form526 Timeout Error",
+              error_class: 'Timeout Error in EVSS::DisabilityCompensationForm::Service#submit_form526',
               data: {
                 response: self.class.response_json(raw_response),
                 error: self.class.error_json(e)
@@ -83,32 +111,6 @@ module EVSS
         else
           super(error)
         end
-      end
-
-      def self.response_json(response)
-        return response.to_hash if response.respond_to? :to_hash
-
-        if %i[status body headers].all? { |method| response.respond_to? method }
-          return {
-            status: response.status,
-            body: response.body,
-            headers: response.headers
-          }
-        end
-
-        return response.as_json if response.respond_to? :as_json
-
-        return response.to_h if response.respond_to? :to_h
-
-        'failed to turn response into json'
-      end
-
-      def self.error_json(error)
-        {
-          error_class: error.class.to_s,
-          message: error.message,
-          backtrace: error.backtrace
-        }
       end
     end
   end
