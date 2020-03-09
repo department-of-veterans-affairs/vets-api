@@ -24,10 +24,10 @@ features:
     actor_type: user
     description: >
       On https://www.va.gov/find-locations/ toggles the deduplication of of services from a community care provider
-  profile_show_direct_deposit:
+  profile_schema_forms:
     actor_type: user
     description: >
-      https://www.va.gov/profile/ show Direct Deposit
+      Enables SchemaForm-based contact info edit forms on the VA.gov Veteran profile page
   profile_show_receive_text_notifications:
     actor_type: user
     description: >
