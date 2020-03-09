@@ -4,7 +4,6 @@
 # to this responsibility alone.
 module AuthenticationAndSSOConcerns
   extend ActiveSupport::Concern
-  include ActionController::HttpAuthentication::Token::ControllerMethods
   include ActionController::Cookies
 
   included do
