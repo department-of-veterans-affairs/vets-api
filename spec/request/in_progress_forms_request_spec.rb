@@ -244,28 +244,33 @@ RSpec.describe V0::InProgressFormsController, type: :request do
 
     describe '#proxy_add' do
       context 'user is missing birls and participant ids' do
-        context 'and is completing form 21-526EZ' do
+        context 'and is NOT completing form 526' do
+          let(:user) { build(:user_with_no_ids) }
+          let!(:in_progress_form) { FactoryBot.create(:in_progress_form, user_uuid: user.uuid) }
+
+          it 'call to add user to MVI is skipped' do
+            expect(in_progress_form.form_id).not_to eq('21-526EZ') # check test set up
+            expect_any_instance_of(Mvi).not_to receive(:mvi_add_person)
+            get v0_in_progress_form_url(in_progress_form.form_id), params: nil
+          end
+        end
+        context 'and is completing form 526' do
           let(:user) { build(:user_with_no_ids) }
           let!(:in_progress_form) { FactoryBot.create(:in_progress_form, user_uuid: user.uuid, form_id: '21-526EZ') }
 
           it 'call is made to add user to MVI' do
             VCR.use_cassette('mvi/add_person/add_person_success') do
               VCR.use_cassette('mvi/find_candidate/orch_search_with_attributes') do
-                # check test set up is correct
-                expect(in_progress_form.form_id).to eq('21-526EZ')
-                # call show endpoint
-                get v0_in_progress_form_url(in_progress_form.form_id), params: nil
-
-                # expect(user.mvi).to receive(:mvi_add_person).once would be a preferred test method, but user.mvi from
-                # test is not the @current_user.mvi from controller context. There is no way we can think of to test
-                # this method was called besides letting the show endpoint run to completion and checking the result.
+                expect(in_progress_form.form_id).to eq('21-526EZ') # check test set up
+                # expect success to be achieved by calling mvi_add_person
+                expect_any_instance_of(Mvi).to receive(:mvi_add_person).once
+                get v0_in_progress_form_url(in_progress_form.form_id), params: nil # call show endpoint
                 expect(response.status).to eq(200)
               end
             end
           end
         end
       end
-
       context 'user is only missing birls id and is completing form 21-526EZ' do
         let(:user) { build(:user_with_no_birls_id) }
         let!(:in_progress_form) { FactoryBot.create(:in_progress_form, user_uuid: user.uuid, form_id: '21-526EZ') }
