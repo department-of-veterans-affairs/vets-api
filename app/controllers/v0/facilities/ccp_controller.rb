@@ -15,9 +15,6 @@ class V0::Facilities::CcpController < FacilitiesController
                       api.pos_locator(search_params)
                     end
 
-    start_ind = (page - 1) * BaseFacility.per_page
-    ppms_results = ppms_results[start_ind, BaseFacility.per_page - 1]
-
     render  json: ppms_results,
             each_serializer: ProviderSerializer,
             meta: { pagination: pages(ppms_results) }
@@ -40,7 +37,7 @@ class V0::Facilities::CcpController < FacilitiesController
   private
 
   def search_params
-    params.permit(:type, :address, services: [], bbox: [])
+    params.permit(:type, :address, :page, :per_page, services: [], bbox: [])
   end
 
   def provider_search(options = {})
@@ -55,16 +52,20 @@ class V0::Facilities::CcpController < FacilitiesController
     @api ||= Facilities::PPMS::Client.new
   end
 
-  def page
-    Integer(params[:page] || 1)
+  def per_page
+    Integer(search_params[:per_page] || BaseFacility.per_page)
   end
 
-  def pages(ppms_results)
-    total = ppms_results.length
+  def page
+    Integer(search_params[:page] || 1)
+  end
+
+  def pages(_ppms_results)
+    total = (page + 1) * per_page
     {
       current_page: page,
-      per_page: BaseFacility.per_page,
-      total_pages: Integer(ppms_results.length / BaseFacility.per_page + 1),
+      per_page: per_page,
+      total_pages: page + 1,
       total_entries: total
     }
   end
