@@ -58,7 +58,6 @@ module V1
 
     def saml_callback
       saml_response = SAML::Responses::Login.new(params[:SAMLResponse], settings: saml_settings)
-      Rails.logger.info('PVSAML: ' + saml_response.response)
       if saml_response.valid?
         user_login(saml_response)
       else
