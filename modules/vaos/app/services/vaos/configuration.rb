@@ -23,10 +23,11 @@ module VAOS
     # Overridden from Configuration::Base
     # We want a custom error threshold for breakers outages to get triggered because the there are a large number
     # of endpoints and they all resolve to the same url so 50% might cause 1 or 2 endpoints to break the whole app.
-    # In the future we might look at playing around with the matcher based on client class names instead.
+    # In the future we might look at playing around with the matcher based on client class names instead instead of URI.
     #
     # @return Hash default request options.
     #
+    # rubocop:disable Metrics/MethodLength
     def breakers_service
       return @service if defined?(@service)
 
@@ -49,10 +50,11 @@ module VAOS
       @service = Breakers::Service.new(
         name: service_name,
         request_matcher: matcher,
-        error_threshold: 90, # this line here is the main line that is being modified
+        error_threshold: 90,
         exception_handler: exception_handler
       )
     end
+    # rubocop:enable Metrics/MethodLength
 
     def connection
       Faraday.new(base_path, headers: base_request_headers, request: request_options) do |conn|
