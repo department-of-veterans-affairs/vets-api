@@ -164,17 +164,21 @@ FactoryBot.define do
       authn_context { LOA::IDME_LOA1_VETS }
     end
     va_eauth_csid { ['idme'] }
-    va_eauth_emailaddress { ['vets.gov.user+262@example.com'] }
     va_eauth_lastname { ['GPKTESTNINE'] }
-    va_eauth_transactionid { ['abcd1234xyz'] }
-    va_eauth_authncontextclassref { ['http://idmanagement.gov/ns/assurance/loa/1/vets'] }
+    va_eauth_aal_idme_highest { ['2'] }
     va_eauth_credentialassurancelevel { ['1'] }
-    va_eauth_uid { ['54e78de6140d473f87960f211be49c08'] }
-    va_eauth_issueinstant { ['2020-02-05T21:14:20Z'] }
+    va_eauth_ial { ['1'] }
     va_eauth_firstname { ['JERRY'] }
-    va_eauth_middlename { ['NOT_FOUND'] }
+    va_eauth_ial_idme_highest { ['1'] }
     va_eauth_csponly { ['true'] }
     va_eauth_authenticationMethod { ['http://idmanagement.gov/ns/assurance/loa/1/vets'] }
+    va_eauth_aal { ['2'] }
+    va_eauth_emailaddress { ['vets.gov.user+262@example.com'] }
+    va_eauth_transactionid { ['abcd1234xyz'] }
+    va_eauth_authncontextclassref { ['http://idmanagement.gov/ns/assurance/loa/1/vets'] }
+    va_eauth_uid { ['54e78de6140d473f87960f211be49c08'] }
+    va_eauth_issueinstant { ['2020-02-05T21:14:20Z'] }
+    va_eauth_middlename { ['NOT_FOUND'] }
 
     initialize_with { new(attributes.stringify_keys) }
   end
@@ -185,18 +189,21 @@ FactoryBot.define do
     end
     va_eauth_csid { ['idme'] }
     va_eauth_lastname { ['GPKTESTNINE'] }
+    va_eauth_aal_idme_highest { ['2'] }
     va_eauth_credentialassurancelevel { ['1'] }
-    va_eauth_ial { ['3'] }
+    va_eauth_ial { ['1'] }
     va_eauth_firstname { ['JERRY'] }
+    va_eauth_ial_idme_highest { ['classic_loa3'] }
     va_eauth_csponly { ['true'] }
     va_eauth_authenticationMethod { ['http://idmanagement.gov/ns/assurance/loa/1/vets'] }
-    va_eauth_aal { ['1'] }
+    va_eauth_aal { ['2'] }
     va_eauth_emailaddress { ['vets.gov.user+262@example.com'] }
     va_eauth_transactionid { ['abcd1234xyz'] }
     va_eauth_authncontextclassref { ['http://idmanagement.gov/ns/assurance/loa/1/vets'] }
     va_eauth_uid { ['54e78de6140d473f87960f211be49c08'] }
     va_eauth_issueinstant { ['2020-02-05T21:14:20Z'] }
     va_eauth_middlename { ['NOT_FOUND'] }
+    va_eauth_multifactor { ['true'] }
 
     initialize_with { new(attributes.stringify_keys) }
   end
@@ -205,14 +212,16 @@ FactoryBot.define do
     transient do
       authn_context { LOA::IDME_LOA3 }
     end
-    va_eauth_csid { ['idme'] }
     va_eauth_lastname { ['GPKTESTNINE'] }
+    va_eauth_aal_idme_highest { ['2'] }
+    va_eauth_aal { ['2'] }
+    va_eauth_csid { ['idme'] }
     va_eauth_credentialassurancelevel { ['3'] }
     va_eauth_ial { ['3'] }
+    va_eauth_ial_idme_highest { ['classic_loa3'] }
     va_eauth_firstname { ['JERRY'] }
     va_eauth_csponly { ['false'] }
     va_eauth_authenticationMethod { ['http://idmanagement.gov/ns/assurance/loa/3'] }
-    va_eauth_aal { ['2'] }
     va_eauth_emailaddress { ['vets.gov.user+262@example.com'] }
     va_eauth_transactionid { ['abcd1234xyz'] }
     va_eauth_authncontextclassref { ['http://idmanagement.gov/ns/assurance/loa/3'] }
@@ -270,17 +279,21 @@ FactoryBot.define do
     va_eauth_csid { ['idme'] }
     va_eauth_lastname { ['NOT_FOUND'] }
     va_eauth_credentialassurancelevel { ['1'] }
+    va_eauth_aal_idme_highest { ['2'] }
+    va_eauth_ial_idme_highest { ['1'] }
     va_eauth_ial { ['1'] }
     va_eauth_firstname { ['NOT_FOUND'] }
     va_eauth_csponly { ['true'] }
     va_eauth_authenticationMethod { ['myhealthevet'] }
-    va_eauth_aal { ['1'] }
+    va_eauth_aal { ['2'] }
     va_eauth_emailaddress { ['pv+mhvtest1@example.com'] }
     va_eauth_transactionid { ['abcd1234xyz'] }
     va_eauth_authncontextclassref { ['myhealthevet'] }
     va_eauth_uid { ['72782a87a807407f83e8a052d804d7f7'] }
     va_eauth_issueinstant { ['2020-02-26T04:07:03Z'] }
     va_eauth_middlename { ['NOT_FOUND'] }
+    va_eauth_multifactor { ['true'] }
+    va_eauth_mhv_assurance { ['Basic'] }
 
     initialize_with { new(attributes.stringify_keys) }
   end
@@ -288,29 +301,33 @@ FactoryBot.define do
   # Federated SSOe-ID.me user with MHV basic credential
   # Note this user has previously been verified but this 
   # SAML attribute set represents the initial non-verified request
-   factory :ssoe_idme_mhv_basic, class: OneLogin::RubySaml::Attributes do
+   factory :ssoe_idme_mhv_advanced, class: OneLogin::RubySaml::Attributes do
     transient do
       authn_context { 'myhealthevet' }
     end
     va_eauth_csid { ['idme'] }
     va_eauth_lastname { ['NOT_FOUND'] }
+    va_eauth_aal_idme_highest { ['2'] }
     va_eauth_credentialassurancelevel { ['1'] }
     va_eauth_ial { ['1'] }
     va_eauth_firstname { ['NOT_FOUND'] }
+    va_eauth_ial_idme_highest { ['classic_loa3'] }
     va_eauth_csponly { ['true'] }
     va_eauth_authenticationMethod { ['myhealthevet'] }
-    va_eauth_aal { ['1'] }
+    va_eauth_aal { ['2'] }
     va_eauth_emailaddress { ['alexmac_0@example.com'] }
     va_eauth_transactionid { ['abcd1234xyz'] }
     va_eauth_authncontextclassref { ['myhealthevet'] }
     va_eauth_uid { ['881571066e5741439652bc80759dd88c'] }
     va_eauth_issueinstant { ['2020-02-25T01:37:51Z'] }
     va_eauth_middlename { ['NOT_FOUND'] }
+    va_eauth_multifactor { ['true'] }
+    va_eauth_mhvassurance { ['Advanced'] }
 
     initialize_with { new(attributes.stringify_keys) }
   end
 
-  # Federated SSOe-ID.me user with MHV basic credential who
+  # Federated SSOe-ID.me user with MHV advanced credential who
   # has been verified through ID.me
   factory :ssoe_idme_mhv_loa3, class: OneLogin::RubySaml::Attributes do
     transient do
@@ -319,6 +336,7 @@ FactoryBot.define do
     va_eauth_phone { ['NOT_FOUND'] }
     va_eauth_lastname { ['MAC'] }
     va_eauth_ial { ['3'] }
+    va_eauth_ial_idme_highest { ['classic_loa3'] }
     va_eauth_icn { ['1013183292V131165'] }
     va_eauth_city { ['NOT_FOUND'] }
     va_eauth_country { ['NOT_FOUND'] }
@@ -326,20 +344,19 @@ FactoryBot.define do
     va_eauth_gender { ['female'] }
     va_eauth_street2 { ['NOT_FOUND'] }
     va_eauth_aal { ['2'] }
-    # va_eauth_dslogonassurance { ['2'] } not present for MHV
+    va_eauth_aal_idme_highest { ['2'] }
     va_eauth_csp_method { ['IDME_MHV'] }
     va_eauth_dodedipnid { ['NOT_FOUND'] }
     va_eauth_emailaddress { ['alexmac_0@example.com'] }
     va_eauth_cspid { ['200VIDM_881571066e5741439652bc80759dd88c'] }
     va_eauth_authncontextclassref { ['myhealthevet_loa3'] }
-    # va_eauth_dslogonuuid { ['1005169255'] } not present for MHV
     va_eauth_issueinstant { ['2020-02-25T01:37:57Z'] }
     va_eauth_middlename { ['NOT_FOUND'] }
     va_eauth_birthDate_v1 { ['19881124'] }
     va_eauth_state { ['NOT_FOUND'] }
     va_eauth_birlsfilenumber { ['NOT_FOUND'] }
     va_eauth_postalcode { ['NOT_FOUND'] }
-    va_eauth_mhvassurance { ['Basic'] }
+    va_eauth_mhvassurance { ['Advanced'] }
     va_eauth_street3 { ['NOT_FOUND'] }
     va_eauth_csid { ['idme'] }
     va_eauth_proofingAuthority { ['MHV'] }
@@ -404,13 +421,15 @@ FactoryBot.define do
     va_eauth_street1 { ['NOT_FOUND'] }
     va_eauth_phone { ['NOT_FOUND'] }
     va_eauth_lastname { ['GPTESTSYSTWO'] }
-    va_eauth_ial { ['2'] }
+    va_eauth_ial_idme_highest { ['classic_loa3'] }
+    va_eauth_ial { ['3'] }
     va_eauth_city { ['NOT_FOUND'] }
     va_eauth_country { ['NOT_FOUND'] }
     va_eauth_csp_identifier { ['200VIDM'] }
     va_eauth_gender { ['MALE'] }
     va_eauth_street2 { ['NOT_FOUND'] }
-    va_eauth_aal { ['1'] }
+    va_eauth_aal_idme_highest { ['2'] }
+    va_eauth_aal { ['2'] }
     va_eauth_csp_method { ['IDME_MHV'] }
     va_eauth_dodedipnid { ['2107307560'] }
     va_eauth_emailaddress { ['k+tristanmhv@example.com'] }
@@ -422,7 +441,7 @@ FactoryBot.define do
     va_eaauth_mhvicn { ['1012853550V207686'] }
     va_eauth_street3 { ['NOT_FOUND'] }
     va_eauth_proofingAuthority { ['MHV'] }
-    va_eauth_credentialassurancelevel { ['2'] }
+    va_eauth_credentialassurancelevel { ['3'] }
     va_eauth_mcid { ['WSSOE2002252323315192027814298'] }
     va_eauth_prefix { ['NOT_FOUND'] }
     va_eauth_csponly { ['false'] }
@@ -540,7 +559,7 @@ FactoryBot.define do
     va_eauth_csid { ['idme'] }
     va_eauth_proofingAuthority { ['DMDC'] }
     va_eauth_pid { ['600043180'] }
-    va_eauth_credentialassurancelevel { ['2'] }
+    va_eauth_credentialassurancelevel { ['3'] }
     va_eauth_pnidtype { ['SSN'] }
     va_eauth_mcid { ['WSSOE2002241821433910863216572'] }
     va_eauth_firstname { ['JOHNNIE'] }

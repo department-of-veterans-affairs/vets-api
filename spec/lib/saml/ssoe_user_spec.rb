@@ -105,7 +105,7 @@ RSpec.describe SAML::User do
           dslogon_edipi: nil,
           uuid: '54e78de6140d473f87960f211be49c08',
           email: 'vets.gov.user+262@example.com',
-          multifactor: false,
+          multifactor: true,
           loa: { current: 1, highest: 3 },
           sign_in: { service_name: 'idme', account_type: 1 }
         )
@@ -150,7 +150,8 @@ RSpec.describe SAML::User do
       let(:authn_context) { 'myhealthevet' }
       let(:account_type) { '1' }
       let(:highest_attained_loa) { '3' }
-      let(:saml_attributes) { build(:ssoe_idme_mhv_basic) }
+      let(:saml_attributes) { build(:ssoe_idme_mhv_advanced) }
+      let(:multifactor) { true }
 
       it 'has various important attributes' do
         expect(subject.to_hash).to eq(

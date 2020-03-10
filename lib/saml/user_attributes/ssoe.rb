@@ -64,55 +64,38 @@ module SAML
       end
 
       def loa_current
-        return mhv_loa_current if mhv_loa_current
-        return dslogon_loa_current if dslogon_loa_current
-
         @loa_current ||=
           if authn_context.include?('multifactor')
+            # TODO verify if this case is still needed
             existing_user_identity.loa.fetch(:current, 1).to_i
           else
-            SAML::User::AUTHN_CONTEXTS.fetch(authn_context).fetch(:loa_current, 1).to_i
+            safe_attr('va_eauth_credentialassurancelevel')&.to_i
           end
       rescue NoMethodError, KeyError => e
         @warnings << "loa_current error: #{e.message}"
         @loa_current = 1
       end
 
-      def mhv_loa_current
-        if safe_attr('va_eauth_mhvassurance')
-          mhv_assurance = safe_attr('va_eauth_mhvassurance')
-          SAML::UserAttributes::MHV::PREMIUM_LOAS.include?(mhv_assurance) ? 3 : 1
-        end
-      end
-
-      def dslogon_loa_current
-        if safe_attr('va_eauth_dslogonassurance')
-          dslogon_assurance = safe_attr('va_eauth_dslogonassurance')
-          SAML:: UserAttributes::DSLogon::PREMIUM_LOAS.include?(dslogon_assurance) ? 3 : 1
-        end
-      end
-
       def mhv_loa_highest
         if safe_attr('va_eauth_mhvassurance')
           mhv_assurance = safe_attr('va_eauth_mhvassurance')
-          # TODO account for idme-wrapped variation
-          SAML::UserAttributes::MHV::PREMIUM_LOAS.include?(mhv_assurance) ? 3 : 1
+          SAML::UserAttributes::MHV::PREMIUM_LOAS.include?(mhv_assurance) ? 3 : nil
         end
       end
 
       def dslogon_loa_highest
         if safe_attr('va_eauth_dslogonassurance')
           dslogon_assurance = safe_attr('va_eauth_dslogonassurance')
-          # TODO account for idme-wrapped variation
-          SAML:: UserAttributes::DSLogon::PREMIUM_LOAS.include?(dslogon_assurance) ? 3 : 1
+          SAML:: UserAttributes::DSLogon::PREMIUM_LOAS.include?(dslogon_assurance) ? 3 : nil
         end
       end
 
       # This is the ID.me highest level of assurance attained
       def loa_highest
-        return mhv_loa_highest if mhv_loa_highest
-        return dslogon_loa_highest if dslogon_loa_highest
-        safe_attr('va_eauth_ial')&.to_i
+        result =  mhv_loa_highest
+        result ||= dslogon_loa_highest
+        result ||= ['2','classic_loa3'].include?(safe_attr('va_eauth_ial_idme_highest')) ? 3 : 1
+        result
       end
 
       def multifactor
