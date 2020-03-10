@@ -512,7 +512,7 @@ RSpec.describe User, type: :model do
       end
 
       it 'first attempts to fetch the Account record from the Redis cache' do
-        expect(Account).to receive(:do_cached_with)
+        expect(Account).to receive(:do_cached_with) { Account.create(idme_uuid: user.uuid) }
 
         user.account
       end

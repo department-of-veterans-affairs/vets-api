@@ -82,9 +82,30 @@ RSpec.describe V1::SessionsController, type: :controller do
       context 'routes not requiring auth' do
         %w[mhv dslogon idme].each do |type|
           context "routes /sessions/#{type}/new to SessionsController#new with type: #{type}" do
-            it 'redirects' do
+            it 'redirects without a forceAuthn' do
+              expect(SAML::SSOeSettingsService)
+                .to receive(:saml_settings)
+                .with(force_authn: false)
+
               expect { get(:new, params: { type: type, clientId: '123123' }) }
-                .to trigger_statsd_increment(described_class::STATSD_SSO_NEW_KEY, tags: ["context:#{type}"], **once)
+                .to trigger_statsd_increment(described_class::STATSD_SSO_NEW_KEY,
+                                             tags: ["context:#{type}", 'forceauthn:false'], **once)
+
+              expect(response).to have_http_status(:found)
+              expect(response.location)
+                .to be_an_idme_saml_url('https://pint.eauth.va.gov/isam/sps/saml20idp/saml20/login?SAMLRequest=')
+                .with_relay_state('originating_request_id' => nil, 'type' => type)
+                .with_params('clientId' => '123123')
+            end
+
+            it 'redirects with a forceAuthn' do
+              expect(SAML::SSOeSettingsService)
+                .to receive(:saml_settings)
+                .with(force_authn: true)
+
+              expect { get(:new, params: { type: type, clientId: '123123', force: true }) }
+                .to trigger_statsd_increment(described_class::STATSD_SSO_NEW_KEY,
+                                             tags: ["context:#{type}", 'forceauthn:true'], **once)
 
               expect(response).to have_http_status(:found)
               expect(response.location)
@@ -98,7 +119,8 @@ RSpec.describe V1::SessionsController, type: :controller do
         context 'routes /sessions/signup/new to SessionsController#new' do
           it 'redirects' do
             expect { get(:new, params: { type: :signup, client_id: '123123' }) }
-              .to trigger_statsd_increment(described_class::STATSD_SSO_NEW_KEY, tags: ['context:signup'], **once)
+              .to trigger_statsd_increment(described_class::STATSD_SSO_NEW_KEY,
+                                           tags: ['context:signup', 'forceauthn:false'], **once)
             expect(response).to have_http_status(:found)
             expect(response.location)
               .to be_an_idme_saml_url('https://pint.eauth.va.gov/isam/sps/saml20idp/saml20/login?SAMLRequest=')
@@ -171,7 +193,8 @@ RSpec.describe V1::SessionsController, type: :controller do
           context "routes /sessions/#{type}/new to SessionsController#new with type: #{type}" do
             it 'redirects' do
               expect { get(:new, params: { type: type }) }
-                .to trigger_statsd_increment(described_class::STATSD_SSO_NEW_KEY, tags: ["context:#{type}"], **once)
+                .to trigger_statsd_increment(described_class::STATSD_SSO_NEW_KEY,
+                                             tags: ["context:#{type}", 'forceauthn:false'], **once)
               expect(response).to have_http_status(:found)
               expect(cookies['vagov_session_dev']).not_to be_nil unless type.in?(%w[mhv dslogon idme slo])
             end
