@@ -52,6 +52,10 @@ features:
     actor_type: user
     description: >
       Allows veterans to directly schedule VA appointments
+  va_online_scheduling_past:
+    actor_type: user
+    description: >
+      Allows veterans to see past appointments
   va_global_downtime_notification:
     actor_type: user
     description: >
