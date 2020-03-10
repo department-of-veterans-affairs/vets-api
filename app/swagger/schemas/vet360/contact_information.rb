@@ -12,9 +12,9 @@ module Swagger
           property.call :address_line3, type: %i[string null]
           property.call :address_pou, type: :string, example: address_pou
           property.call :address_type,
-                   type: :string,
-                   enum: ::Vet360::Models::Address::ADDRESS_TYPES,
-                   example: ::Vet360::Models::Address::DOMESTIC
+                        type: :string,
+                        enum: ::Vet360::Models::Address::ADDRESS_TYPES,
+                        example: ::Vet360::Models::Address::DOMESTIC
           property.call :city, type: :string, example: 'Fulton'
           property.call :country_name, type: :string, example: 'United States of America'
           property.call :country_code_iso2, type: %i[string null], example: 'US'
@@ -27,25 +27,25 @@ module Swagger
           property.call :zip_code, type: :string, example: '97062'
           property.call :zip_code_suffix, type: %i[string null], example: '1234'
           property.call :created_at,
-                   type: :string,
-                   format: 'date-time',
-                   example: '2018-04-21T20:09:50Z'
+                        type: :string,
+                        format: 'date-time',
+                        example: '2018-04-21T20:09:50Z'
           property.call :effective_end_date,
-                   type: %i[string null],
-                   format: 'date-time',
-                   example: '2018-04-21T20:09:50Z'
+                        type: %i[string null],
+                        format: 'date-time',
+                        example: '2018-04-21T20:09:50Z'
           property.call :effective_start_date,
-                   type: %i[string null],
-                   format: 'date-time',
-                   example: '2018-04-21T20:09:50Z'
+                        type: %i[string null],
+                        format: 'date-time',
+                        example: '2018-04-21T20:09:50Z'
           property.call :source_date,
-                   type: :string,
-                   format: 'date-time',
-                   example: '2018-04-21T20:09:50Z'
+                        type: :string,
+                        format: 'date-time',
+                        example: '2018-04-21T20:09:50Z'
           property.call :updated_at,
-                   type: :string,
-                   format: 'date-time',
-                   example: '2018-04-21T20:09:50Z'
+                        type: :string,
+                        format: 'date-time',
+                        example: '2018-04-21T20:09:50Z'
         end
 
         swagger_schema :Vet360ContactInformation do
