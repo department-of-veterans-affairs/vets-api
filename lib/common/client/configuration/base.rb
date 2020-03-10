@@ -108,11 +108,20 @@ module Common
             end
           end
 
-          @service = Breakers::Service.new(
+          @service = create_new_breakers_service(matcher, exception_handler)
+        end
+
+        def create_new_breakers_service(matcher, exception_handler)
+          Breakers::Service.new(
             name: service_name,
             request_matcher: matcher,
+            error_threshold: breakers_error_threshold,
             exception_handler: exception_handler
           )
+        end
+
+        def breakers_error_threshold
+          50
         end
 
         private

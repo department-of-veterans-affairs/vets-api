@@ -19,42 +19,10 @@ module VAOS
       @key ||= OpenSSL::PKey::RSA.new(File.read(Settings.va_mobile.key_path))
     end
 
-    ##
-    # Overridden from Configuration::Base
-    # We want a custom error threshold for breakers outages to get triggered because the there are a large number
-    # of endpoints and they all resolve to the same url so 50% might cause 1 or 2 endpoints to break the whole app.
-    # In the future we might look at playing around with the matcher based on client class names instead instead of URI.
-    #
-    # @return Hash default request options.
-    #
-    # rubocop:disable Metrics/MethodLength
-    def breakers_service
-      return @service if defined?(@service)
-
-      base_uri = URI.parse(base_path)
-      matcher = proc do |request_env|
-        request_env.url.host == base_uri.host && request_env.url.port == base_uri.port &&
-          request_env.url.path =~ /^#{base_uri.path}/
-      end
-
-      exception_handler = proc do |exception|
-        if exception.is_a?(Common::Exceptions::BackendServiceException)
-          (500..599).cover?(exception.response_values[:status])
-        elsif exception.is_a?(Common::Client::Errors::HTTPError)
-          (500..599).cover?(exception.status)
-        else
-          false
-        end
-      end
-
-      @service = Breakers::Service.new(
-        name: service_name,
-        request_matcher: matcher,
-        error_threshold: 90,
-        exception_handler: exception_handler
-      )
+    # overriding the default error threshold from 50 to 90
+    def breakers_error_threshold
+      90
     end
-    # rubocop:enable Metrics/MethodLength
 
     def connection
       Faraday.new(base_path, headers: base_request_headers, request: request_options) do |conn|
