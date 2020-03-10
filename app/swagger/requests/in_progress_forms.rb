@@ -55,7 +55,10 @@ module Swagger
         operation :get do
           extend Swagger::Responses::AuthenticationError
 
-          key :description, 'Get form data'
+          key :summary,     'Get form data'
+          key :description, 'When a GET request is made for a user completing disability claim form 21-526EZ
+            for the first time, the API service will make a call to add the user to the Master Veteran Index (MVI)
+            and a new blank form will be served to the client.'
           key :operationId, 'getInProgressForm'
           key :tags, [
             'in_progress_forms'
