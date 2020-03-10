@@ -272,7 +272,7 @@ FactoryBot.define do
 
   # Federated SSOe-ID.me user with MHV basic credential
   # for a user who has never been identity proofed
-   factory :ssoe_idme_mhv_basic_neverproofed, class: OneLogin::RubySaml::Attributes do
+  factory :ssoe_idme_mhv_basic_neverproofed, class: OneLogin::RubySaml::Attributes do
     transient do
       authn_context { 'myhealthevet' }
     end
@@ -299,9 +299,9 @@ FactoryBot.define do
   end
 
   # Federated SSOe-ID.me user with MHV basic credential
-  # Note this user has previously been verified but this 
+  # Note this user has previously been verified but this
   # SAML attribute set represents the initial non-verified request
-   factory :ssoe_idme_mhv_advanced, class: OneLogin::RubySaml::Attributes do
+  factory :ssoe_idme_mhv_advanced, class: OneLogin::RubySaml::Attributes do
     transient do
       authn_context { 'myhealthevet' }
     end
@@ -387,12 +387,12 @@ FactoryBot.define do
     va_eauth_multifactor { ['true'] }
     va_eauth_street1 { ['NOT_FOUND'] }
     va_eauth_mhv_ien { ['NOT_FOUND'] }
-       
+
     initialize_with { new(attributes.stringify_keys) }
   end
 
-   # Federated SSOe-ID.me user with MHV premium credential 
-   factory :ssoe_idme_mhv_premium, class: OneLogin::RubySaml::Attributes do
+  # Federated SSOe-ID.me user with MHV premium credential
+  factory :ssoe_idme_mhv_premium, class: OneLogin::RubySaml::Attributes do
     transient do
       authn_context { 'myhealthevet' }
     end
@@ -405,11 +405,11 @@ FactoryBot.define do
     va_eauth_pid { ['NOT_FOUND'] }
     va_eauth_pnidtype { ['SSN'] }
     va_eauth_firstname { ['TRISTAN'] }
-    va_eauth_mhvprofile { 
+    va_eauth_mhvprofile {
       ['{"accountType":"Premium","availableServices":{"21":"VA Medications",'\
        '"4":"Secure Messaging","3":"VA Allergies","2":"Rx Refill",'\
        '"12":"Blue Button (all VA data)","1":"Blue Button self entered data.",'\
-       '"11":"Blue Button (DoD) Military Service Information"}}'] 
+       '"11":"Blue Button (DoD) Military Service Information"}}']
     }
     va_eauth_street { ['NOT_FOUND'] }
     va_eauth_authenticationMethod { ['myhealthevet'] }
@@ -592,7 +592,7 @@ FactoryBot.define do
     va_eauth_multifactor { ['true'] }
     va_eauth_street1 { ['811 Vermont Ave NW'] }
     va_eauth_mhv_ien { ['14384899'] }
-       
+
     initialize_with { new(attributes.stringify_keys) }
   end
 end
