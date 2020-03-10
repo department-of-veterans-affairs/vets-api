@@ -36,10 +36,11 @@ module V0
 
     def proxy_add
       if params[:id] == '21-526EZ'
-        if @current_user.participant_id
-          raise Common::Exceptions::ValidationErrors, 'No birls_id while participant_id present' if @current_user.birls_id.nil?
-        else
+        if @current_user.participant_id.nil?
+          # Add person to MVI if missing participant_id (no matter if birls_id present or absent)
           @current_user.mvi.mvi_add_person
+        elsif @current_user.birls_id.nil?
+          raise Common::Exceptions::ValidationErrors, 'No birls_id while participant_id present'
         end
       end
     end
