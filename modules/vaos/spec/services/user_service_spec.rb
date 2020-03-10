@@ -4,15 +4,17 @@ require 'rails_helper'
 require_relative '../support/fixture_helper'
 
 describe VAOS::UserService do
-  let(:user) { build(:user, :mhv) }
+  let(:user) { build(:user, :vaos, :accountable) }
   let(:subject) { described_class.new(user) }
 
   describe '#session' do
-    let(:rsa_private) { OpenSSL::PKey::RSA.new(read_fixture_file('open_ssl_rsa_private.pem')) }
     let(:token) { 'abc123' }
     let(:response) { double('response', body: token) }
 
-    before { allow(File).to receive(:read).and_return(rsa_private) }
+    before do
+      @rsa_key = OpenSSL::PKey::RSA.new(read_fixture_file('open_ssl_rsa_private.pem'))
+      allow(VAOS::Configuration.instance).to receive(:rsa_key).and_return(@rsa_key)
+    end
 
     context 'with a 200 response' do
       it 'returns the session token' do
@@ -25,7 +27,7 @@ describe VAOS::UserService do
       context 'with a cached session' do
         it 'does not call the VAOS user service' do
           VCR.use_cassette('vaos/users/post_session') do
-            VAOS::SessionStore.new(user_uuid: user.uuid, token: token).save
+            VAOS::SessionStore.new(account_uuid: user.account_uuid, token: token).save
             expect(subject).not_to receive(:perform)
             subject.session
           end
@@ -49,7 +51,7 @@ describe VAOS::UserService do
 
       context 'when the session is fetched before 15m' do
         it 'does not call perform to request a new token' do
-          VAOS::SessionStore.new(user_uuid: user.uuid, token: token).save
+          VAOS::SessionStore.new(account_uuid: user.account_uuid, token: token).save
           Timecop.travel(Time.zone.now + 11.minutes)
           VCR.use_cassette('vaos/users/post_session') do
             expect(subject).not_to receive(:perform)
