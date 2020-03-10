@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe 'Community Care Providers', type: :request do
+RSpec.describe 'Community Care Providers', type: :request, team: :facilities do
   around do |example|
     VCR.use_cassette('facilities/va/ppms', match_requests_on: %i[path query], allow_playback_repeats: true) do
       example.run
@@ -10,16 +10,52 @@ RSpec.describe 'Community Care Providers', type: :request do
   end
 
   describe '#index' do
-    let(:params) do
-      {
-        address: 'South Gilbert Road, Chandler, Arizona 85286, United States',
-        bbox: ['-112.54', '32.53', '-111.04', '34.03']
-      }
-    end
-
     context 'type=cc_provider' do
+      let(:params) do
+        {
+          address: 'South Gilbert Road, Chandler, Arizona 85286, United States',
+          bbox: ['-112.54', '32.53', '-111.04', '34.03'],
+          type: 'cc_provider',
+          services: ['213E00000X']
+        }
+      end
+
+      [
+        [1, 5],
+        [2, 5],
+        [3, 1]
+      ].each do |(page, per_page)|
+        it 'paginates ppms responses' do
+          mock_client = double('Facilities::PPMS::Client')
+          params_with_pagination = params.merge(
+            page: page.to_s,
+            per_page: per_page.to_s
+          )
+          expect(Facilities::PPMS::Client).to receive(:new).and_return(mock_client)
+          expect(mock_client).to receive(:provider_locator).with(
+            ActionController::Parameters.new(params_with_pagination).permit!
+          ).and_return(
+            FactoryBot.build_list(:provider, page * per_page)
+          )
+          allow(mock_client).to receive(:provider_info).and_return(
+            FactoryBot.build(:provider)
+          )
+
+          get '/v0/facilities/ccp', params: params_with_pagination
+          bod = JSON.parse(response.body)
+          expect(bod['meta']).to include(
+            'pagination' => {
+              'current_page' => page,
+              'per_page' => per_page,
+              'total_pages' => page + 1,
+              'total_entries' => (page + 1) * per_page
+            }
+          )
+        end
+      end
+
       it 'returns a results from the provider_locator' do
-        get '/v0/facilities/ccp', params: params.merge('type' => 'cc_provider', 'services' => ['213E00000X'])
+        get '/v0/facilities/ccp', params: params
 
         bod = JSON.parse(response.body)
 
@@ -66,8 +102,16 @@ RSpec.describe 'Community Care Providers', type: :request do
     end
 
     context 'type=cc_pharmacy' do
+      let(:params) do
+        {
+          address: 'South Gilbert Road, Chandler, Arizona 85286, United States',
+          bbox: ['-112.54', '32.53', '-111.04', '34.03'],
+          type: 'cc_pharmacy'
+        }
+      end
+
       it 'returns results from the pos_locator' do
-        get '/v0/facilities/ccp', params: params.merge('type' => 'cc_pharmacy')
+        get '/v0/facilities/ccp', params: params
 
         bod = JSON.parse(response.body)
 
@@ -114,6 +158,14 @@ RSpec.describe 'Community Care Providers', type: :request do
     end
 
     context 'type=cc_urgent_care' do
+      let(:params) do
+        {
+          address: 'South Gilbert Road, Chandler, Arizona 85286, United States',
+          bbox: ['-112.54', '32.53', '-111.04', '34.03'],
+          type: 'cc_urgent_care'
+        }
+      end
+
       it 'returns results from the pos_locator' do
         get '/v0/facilities/ccp', params: params.merge('type' => 'cc_urgent_care')
 
@@ -163,7 +215,7 @@ RSpec.describe 'Community Care Providers', type: :request do
                 'gender' => 'NotSpecified',
                 'lat' => 33.277213,
                 'long' => -111.857814,
-                'name' => 'Walgreens Healthcare Clinic',
+                'name' => 'Take Care Health Arizona PC',
                 'phone' => nil,
                 'pos_codes' => '17',
                 'pref_contact' => nil,
@@ -188,7 +240,7 @@ RSpec.describe 'Community Care Providers', type: :request do
                 'gender' => 'NotSpecified',
                 'lat' => 33.2962,
                 'long' => -111.87682,
-                'name' => 'NextCare Arizona LLC',
+                'name' => 'NextCare Urgent Care Dobson',
                 'phone' => nil,
                 'pos_codes' => '20',
                 'pref_contact' => nil,
@@ -213,7 +265,7 @@ RSpec.describe 'Community Care Providers', type: :request do
                 'gender' => 'NotSpecified',
                 'lat' => 33.305014,
                 'long' => -111.788763,
-                'name' => 'Urgent Care Centers of Arizona LLC',
+                'name' => 'Medpost Urgent Care - Gilbert Fiesta',
                 'phone' => nil,
                 'pos_codes' => '20',
                 'pref_contact' => nil,
@@ -238,7 +290,7 @@ RSpec.describe 'Community Care Providers', type: :request do
                 'gender' => 'NotSpecified',
                 'lat' => 33.3931849665,
                 'long' => -111.8681063774,
-                'name' => 'American Current Care of Arizona PA',
+                'name' => 'Concentra Urgent Care',
                 'phone' => nil,
                 'pos_codes' => '20',
                 'pref_contact' => nil,
@@ -250,9 +302,9 @@ RSpec.describe 'Community Care Providers', type: :request do
           'meta' => {
             'pagination' => {
               'current_page' => 1,
-              'per_page' => 20,
-              'total_pages' => 1,
-              'total_entries' => 10
+              'per_page' => 10,
+              'total_pages' => 2,
+              'total_entries' => 20
             }
           }
         )

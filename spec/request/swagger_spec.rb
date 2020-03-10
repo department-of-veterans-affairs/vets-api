@@ -143,6 +143,30 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
       )
     end
 
+    it 'supports adding an caregiver\'s assistance claim' do
+      expect(subject).to validate(
+        :post,
+        '/v0/caregivers_assistance_claims',
+        200,
+        '_data' => {
+          'caregivers_assistance_claim' => {
+            'form' => build(:caregivers_assistance_claim).form
+          }
+        }
+      )
+
+      expect(subject).to validate(
+        :post,
+        '/v0/caregivers_assistance_claims',
+        422,
+        '_data' => {
+          'caregivers_assistance_claim' => {
+            'form' => {}.to_json
+          }
+        }
+      )
+    end
+
     it 'supports adding a pension' do
       expect(subject).to validate(
         :post,
@@ -225,9 +249,12 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
     context 'HCA tests' do
       let(:login_required) { Notification::LOGIN_REQUIRED }
       let(:test_veteran) do
-        File.read(
+        json_string = File.read(
           Rails.root.join('spec', 'fixtures', 'hca', 'veteran.json')
         )
+        json = JSON.parse(json_string)
+        json.delete('email')
+        json.to_json
       end
 
       it 'supports getting the hca enrollment status' do
@@ -276,6 +303,15 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
               )
             }
           }
+        )
+      end
+
+      it 'supports getting a health care application state' do
+        expect(subject).to validate(
+          :get,
+          '/v0/health_care_applications/{id}',
+          200,
+          'id' => create(:health_care_application).id
         )
       end
 
@@ -1472,14 +1508,22 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
 
       context 'not signed in' do
         it 'returns a 401' do
-          expect(subject).to validate(:get, route, 401)
+          %i[get post].each { |method| expect(subject).to validate(method, route, 401) }
         end
       end
 
       [200, 404, 502].each do |status_code|
         it "documents GET /v0/mdot/supplies #{status_code} response" do
           VCR.use_cassette("mdot/get_supplies_#{status_code}") do
-            expect(subject).to validate(:get, '/v0/mdot/supplies', status_code, headers)
+            expect(subject).to validate(:get, route, status_code, headers)
+          end
+        end
+      end
+
+      [202, 422, 404, 502].each do |status_code|
+        it "documents POST /v0/mdot/supplies #{status_code}" do
+          VCR.use_cassette("mdot/post_supplies_#{status_code}") do
+            expect(subject).to validate(:post, route, status_code, headers)
           end
         end
       end

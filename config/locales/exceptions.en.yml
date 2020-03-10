@@ -1942,3 +1942,9 @@ en:
         detail: The medical supplies could not be found
         code: MDOT_supplies_not_found
         status: 404
+      MDOT_unprocessable_entity:
+        <<: *defaults
+        title: Order unable to be processed
+        detail: Order unable to be processed
+        code: MDOT_unprocessable_entity
+        status: 422
