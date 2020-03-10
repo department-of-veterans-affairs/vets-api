@@ -31,6 +31,9 @@ class Account < ApplicationRecord
   redis REDIS_CONFIG['user_account_details']['namespace']
   redis_ttl REDIS_CONFIG['user_account_details']['each_ttl']
 
+  scope :idme_uuid_match, ->(v) { where(idme_uuid: v).where.not(idme_uuid: nil) }
+  scope :sec_id_match, ->(v) { where(sec_id: v).where.not(sec_id: nil) }
+
   # Returns the one Account record for the passed in user.
   #
   # Will first attempt to return the cached record.  If one does
@@ -56,12 +59,7 @@ class Account < ApplicationRecord
   def self.create_if_needed!(user)
     attrs = account_attrs_from_user(user)
 
-    accts = where(idme_uuid: attrs[:idme_uuid])
-            .where.not(idme_uuid: nil)
-            .or(
-              where(sec_id: attrs[:sec_id])
-              .where.not(sec_id: nil)
-            )
+    accts = idme_uuid_match(attrs[:idme_uuid]).or(sec_id_match(attrs[:sec_id]))
 
     if accts.length > 1
       data = accts.map(&:attributes)
