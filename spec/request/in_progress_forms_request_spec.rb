@@ -254,6 +254,7 @@ RSpec.describe V0::InProgressFormsController, type: :request do
             get v0_in_progress_form_url(in_progress_form.form_id), params: nil
           end
         end
+
         context 'and is completing form 526' do
           let(:user) { build(:user_with_no_ids) }
           let!(:in_progress_form) { FactoryBot.create(:in_progress_form, user_uuid: user.uuid, form_id: '21-526EZ') }
@@ -271,6 +272,7 @@ RSpec.describe V0::InProgressFormsController, type: :request do
           end
         end
       end
+
       context 'user is only missing birls id and is completing form 21-526EZ' do
         let(:user) { build(:user_with_no_birls_id) }
         let!(:in_progress_form) { FactoryBot.create(:in_progress_form, user_uuid: user.uuid, form_id: '21-526EZ') }

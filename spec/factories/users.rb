@@ -156,7 +156,7 @@ FactoryBot.define do
         stub_mvi(
           build(
             :mvi_profile,
-            birls_id: nil,
+            birls_id: nil
           )
         )
       end
