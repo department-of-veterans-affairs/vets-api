@@ -13,7 +13,7 @@ describe VAOS::UserService do
 
     before do
       @rsa_key = OpenSSL::PKey::RSA.new(read_fixture_file('open_ssl_rsa_private.pem'))
-      allow(VAOS::Configuration.instance).to receive(:rsa_key).and_return( @rsa_key )
+      allow(VAOS::Configuration.instance).to receive(:rsa_key).and_return(@rsa_key)
     end
 
     context 'with a 200 response' do
