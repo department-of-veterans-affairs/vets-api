@@ -1,11 +1,8 @@
 ## Description of change
-<!-- Please include a description of the change. What would a code reviewer, or a future dev, need to know about this PR in order to understand why this PR is necessary. This could include dependencies introduced, changes in behavior, pointers to more detailed documentation -->
+<!-- Please include a description of the change and context. What would a code reviewer, or a future dev, need to know about this PR in order to understand why this PR is necessary? This could include dependencies introduced, changes in behavior, pointers to more detailed documentation. The description should be more than a link to an issue.  -->
 
-## Testing done
-<!-- Please describe testing done to verify the changes. -->
-
-## Testing planned
-<!-- Please describe testing planned. -->
+## Testing
+<!-- Please describe testing done to verify the changes or any testing planned. -->
 
 ## Acceptance Criteria (Definition of Done)
 
@@ -15,7 +12,6 @@
 
 #### Applies to all PRs
 
-- [ ] Appropriate logging
 - [ ] Swagger docs have been updated, if applicable
 - [ ] Provide link to originating GitHub issue, or connected to it via ZenHub
 - [ ] Does not contain any sensitive information (i.e. PII/credentials/internal URLs/etc., in logging, hardcoded, or in specs)
