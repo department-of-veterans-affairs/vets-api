@@ -39,6 +39,18 @@ describe EVSS::DisabilityCompensationForm::Service do
         expect(StatsD).to receive(:increment).once.with('api.evss.get_rated_disabilities.total')
         expect { subject.get_rated_disabilities }.to raise_error(Common::Exceptions::GatewayTimeout)
       end
+
+      context 'Timeout triggers log' do
+        let(:last_pii_log) do
+          subject.get_rated_disabilities
+          false
+        rescue
+          PersonalInformationLog.last
+        end
+        it 'records to PII log' do
+          expect(last_pii_log).not_to be nil
+        end
+      end
     end
   end
 
