@@ -120,9 +120,14 @@ module Common
           )
         end
 
+
+        # The percentage of errors over which an outage will be reported as part of breakers gem
+        #
+        # @return [Integer] corresponding to percentage
         def breakers_error_threshold
           50
         end
+
 
         private
 
