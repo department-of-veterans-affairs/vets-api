@@ -6,6 +6,48 @@ module Swagger
       class ContactInformation
         include Swagger::Blocks
 
+        def self.address_fields(property, address_pou)
+          property.call :address_line1, type: :string, example: '1493 Martin Luther King Rd'
+          property.call :address_line2, type: %i[string null]
+          property.call :address_line3, type: %i[string null]
+          property.call :address_pou, type: :string, example: address_pou
+          property.call :address_type,
+                   type: :string,
+                   enum: ::Vet360::Models::Address::ADDRESS_TYPES,
+                   example: ::Vet360::Models::Address::DOMESTIC
+          property.call :city, type: :string, example: 'Fulton'
+          property.call :country_name, type: :string, example: 'United States of America'
+          property.call :country_code_iso2, type: %i[string null], example: 'US'
+          property.call :country_code_iso3, type: %i[string null], example: 'USA'
+          property.call :country_code_fips, type: %i[string null], example: 'US'
+          property.call :id, type: :integer, example: 123
+          property.call :international_postal_code, type: %i[string null], example: '54321'
+          property.call :province, type: %i[string null]
+          property.call :state_code, type: :string, example: 'NY'
+          property.call :zip_code, type: :string, example: '97062'
+          property.call :zip_code_suffix, type: %i[string null], example: '1234'
+          property.call :created_at,
+                   type: :string,
+                   format: 'date-time',
+                   example: '2018-04-21T20:09:50Z'
+          property.call :effective_end_date,
+                   type: %i[string null],
+                   format: 'date-time',
+                   example: '2018-04-21T20:09:50Z'
+          property.call :effective_start_date,
+                   type: %i[string null],
+                   format: 'date-time',
+                   example: '2018-04-21T20:09:50Z'
+          property.call :source_date,
+                   type: :string,
+                   format: 'date-time',
+                   example: '2018-04-21T20:09:50Z'
+          property.call :updated_at,
+                   type: :string,
+                   format: 'date-time',
+                   example: '2018-04-21T20:09:50Z'
+        end
+
         swagger_schema :Vet360ContactInformation do
           property :data, type: :object do
             property :id, type: :string
@@ -38,89 +80,17 @@ module Swagger
                 end
 
                 property :residential_address, type: :object do
-                  property :address_line1, type: :string, example: '1493 Martin Luther King Rd'
-                  property :address_line2, type: %i[string null]
-                  property :address_line3, type: %i[string null]
-                  property :address_pou, type: :string, example: ::Vet360::Models::Address::RESIDENCE
-                  property :address_type,
-                           type: :string,
-                           enum: ::Vet360::Models::Address::ADDRESS_TYPES,
-                           example: ::Vet360::Models::Address::DOMESTIC
-                  property :city, type: :string, example: 'Fulton'
-                  property :country_name, type: :string, example: 'United States of America'
-                  property :country_code_iso2, type: %i[string null], example: 'US'
-                  property :country_code_iso3, type: %i[string null], example: 'USA'
-                  property :country_code_fips, type: %i[string null], example: 'US'
-                  property :id, type: :integer, example: 123
-                  property :international_postal_code, type: %i[string null], example: '54321'
-                  property :province, type: %i[string null]
-                  property :state_code, type: :string, example: 'NY'
-                  property :zip_code, type: :string, example: '97062'
-                  property :zip_code_suffix, type: %i[string null], example: '1234'
-                  property :created_at,
-                           type: :string,
-                           format: 'date-time',
-                           example: '2018-04-21T20:09:50Z'
-                  property :effective_end_date,
-                           type: %i[string null],
-                           format: 'date-time',
-                           example: '2018-04-21T20:09:50Z'
-                  property :effective_start_date,
-                           type: %i[string null],
-                           format: 'date-time',
-                           example: '2018-04-21T20:09:50Z'
-                  property :source_date,
-                           type: :string,
-                           format: 'date-time',
-                           example: '2018-04-21T20:09:50Z'
-                  property :updated_at,
-                           type: :string,
-                           format: 'date-time',
-                           example: '2018-04-21T20:09:50Z'
+                  Swagger::Schemas::Vet360::ContactInformation.address_fields(
+                    method(:property),
+                    ::Vet360::Models::Address::RESIDENCE
+                  )
                 end
 
                 property :mailing_address, type: :object do
-                  property :address_line1, type: :string, example: '1493 Martin Luther King Rd'
-                  property :address_line2, type: %i[string null]
-                  property :address_line3, type: %i[string null]
-                  property :address_pou,
-                           type: :string,
-                           example: ::Vet360::Models::Address::CORRESPONDENCE
-                  property :address_type,
-                           type: :string,
-                           enum: ::Vet360::Models::Address::ADDRESS_TYPES,
-                           example: ::Vet360::Models::Address::DOMESTIC
-                  property :city, type: :string, example: 'Fulton'
-                  property :country_name, type: :string, example: 'United States of America'
-                  property :country_code_iso2, type: %i[string null], example: 'US'
-                  property :country_code_iso3, type: %i[string null], example: 'USA'
-                  property :country_code_fips, type: %i[string null], example: 'US'
-                  property :id, type: :integer, example: 123
-                  property :international_postal_code, type: %i[string null], example: '54321'
-                  property :province, type: %i[string null]
-                  property :state_code, type: :string, example: 'NY'
-                  property :zip_code, type: :string, example: '97062'
-                  property :zip_code_suffix, type: %i[string null], example: '1234'
-                  property :created_at,
-                           type: :string,
-                           format: 'date-time',
-                           example: '2018-04-21T20:09:50Z'
-                  property :effective_end_date,
-                           type: %i[string null],
-                           format: 'date-time',
-                           example: '2018-04-21T20:09:50Z'
-                  property :effective_start_date,
-                           type: %i[string null],
-                           format: 'date-time',
-                           example: '2018-04-21T20:09:50Z'
-                  property :source_date,
-                           type: :string,
-                           format: 'date-time',
-                           example: '2018-04-21T20:09:50Z'
-                  property :updated_at,
-                           type: :string,
-                           format: 'date-time',
-                           example: '2018-04-21T20:09:50Z'
+                  Swagger::Schemas::Vet360::ContactInformation.address_fields(
+                    method(:property),
+                    ::Vet360::Models::Address::CORRESPONDENCE
+                  )
                 end
 
                 property :mobile_phone, type: :object do
