@@ -218,10 +218,10 @@ describe Mvi, skip_mvi: true do
 
     it 'clears user from cache and returns nil' do
       mvi.cache(user.uuid, profile_response)
-      expect(mvi.is_cached(key: user.uuid)).to be true
+      expect(mvi.cached?(key: user.uuid)).to be true
 
       mvi.send(:clear_cache)
-      expect(mvi.is_cached(key: user.uuid)).to be false
+      expect(mvi.cached?(key: user.uuid)).to be false
     end
   end
 end

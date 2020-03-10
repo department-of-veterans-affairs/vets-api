@@ -26,7 +26,8 @@ module Common
       attribute :response
     end
 
-    def is_cached(key:)
+    # get method
+    def cached?(key:)
       self.class.find(key) ? true : false
     end
 
