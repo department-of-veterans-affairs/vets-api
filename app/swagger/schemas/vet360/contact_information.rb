@@ -93,169 +93,39 @@ module Swagger
                   )
                 end
 
-                property :mobile_phone, type: :object do
-                  property :area_code, type: :string, example: '503'
-                  property :country_code, type: :string, example: '1'
-                  property :extension, type: %i[string null]
-                  property :id, type: :integer, example: 123
-                  property :is_international, type: :boolean
-                  property :is_textable, type: :boolean
-                  property :is_tty, type: :boolean
-                  property :is_voicemailable, type: :boolean
-                  property :phone_number, type: :string, example: '5551234'
-                  property :phone_type, type: :string, example: ::Vet360::Models::Telephone::MOBILE
-                  property :created_at,
-                           type: :string,
-                           format: 'date-time',
-                           example: '2018-04-21T20:09:50Z'
-                  property :effective_end_date,
-                           type: %i[string null],
-                           format: 'date-time',
-                           example: '2018-04-21T20:09:50Z'
-                  property :effective_start_date,
-                           type: %i[string null],
-                           format: 'date-time',
-                           example: '2018-04-21T20:09:50Z'
-                  property :source_date,
-                           type: :string,
-                           format: 'date-time',
-                           example: '2018-04-21T20:09:50Z'
-                  property :updated_at,
-                           type: :string,
-                           format: 'date-time',
-                           example: '2018-04-21T20:09:50Z'
-                end
-
-                property :home_phone, type: :object do
-                  property :area_code, type: :string, example: '503'
-                  property :country_code, type: :string, example: '1'
-                  property :extension, type: %i[string null]
-                  property :id, type: :integer, example: 123
-                  property :is_international, type: :boolean
-                  property :is_textable, type: :boolean
-                  property :is_tty, type: :boolean
-                  property :is_voicemailable, type: :boolean
-                  property :phone_number, type: :string, example: '5551234'
-                  property :phone_type, type: :string, example: ::Vet360::Models::Telephone::HOME
-                  property :created_at,
-                           type: :string,
-                           format: 'date-time',
-                           example: '2018-04-21T20:09:50Z'
-                  property :effective_end_date,
-                           type: %i[string null],
-                           format: 'date-time',
-                           example: '2018-04-21T20:09:50Z'
-                  property :effective_start_date,
-                           type: %i[string null],
-                           format: 'date-time',
-                           example: '2018-04-21T20:09:50Z'
-                  property :source_date,
-                           type: :string,
-                           format: 'date-time',
-                           example: '2018-04-21T20:09:50Z'
-                  property :updated_at,
-                           type: :string,
-                           format: 'date-time',
-                           example: '2018-04-21T20:09:50Z'
-                end
-
-                property :work_phone, type: :object do
-                  property :area_code, type: :string, example: '503'
-                  property :country_code, type: :string, example: '1'
-                  property :extension, type: %i[string null]
-                  property :id, type: :integer, example: 123
-                  property :is_international, type: :boolean
-                  property :is_textable, type: :boolean
-                  property :is_tty, type: :boolean
-                  property :is_voicemailable, type: :boolean
-                  property :phone_number, type: :string, example: '5551234'
-                  property :phone_type, type: :string, example: ::Vet360::Models::Telephone::WORK
-                  property :created_at,
-                           type: :string,
-                           format: 'date-time',
-                           example: '2018-04-21T20:09:50Z'
-                  property :effective_end_date,
-                           type: %i[string null],
-                           format: 'date-time',
-                           example: '2018-04-21T20:09:50Z'
-                  property :effective_start_date,
-                           type: %i[string null],
-                           format: 'date-time',
-                           example: '2018-04-21T20:09:50Z'
-                  property :source_date,
-                           type: :string,
-                           format: 'date-time',
-                           example: '2018-04-21T20:09:50Z'
-                  property :updated_at,
-                           type: :string,
-                           format: 'date-time',
-                           example: '2018-04-21T20:09:50Z'
-                end
-
-                property :temporary_phone, type: :object do
-                  property :area_code, type: :string, example: '503'
-                  property :country_code, type: :string, example: '1'
-                  property :extension, type: %i[string null]
-                  property :id, type: :integer, example: 123
-                  property :is_international, type: :boolean
-                  property :is_textable, type: :boolean
-                  property :is_tty, type: :boolean
-                  property :is_voicemailable, type: :boolean
-                  property :phone_number, type: :string, example: '5551234'
-                  property :phone_type, type: :string, example: ::Vet360::Models::Telephone::TEMPORARY
-                  property :created_at,
-                           type: :string,
-                           format: 'date-time',
-                           example: '2018-04-21T20:09:50Z'
-                  property :effective_end_date,
-                           type: %i[string null],
-                           format: 'date-time',
-                           example: '2018-04-21T20:09:50Z'
-                  property :effective_start_date,
-                           type: %i[string null],
-                           format: 'date-time',
-                           example: '2018-04-21T20:09:50Z'
-                  property :source_date,
-                           type: :string,
-                           format: 'date-time',
-                           example: '2018-04-21T20:09:50Z'
-                  property :updated_at,
-                           type: :string,
-                           format: 'date-time',
-                           example: '2018-04-21T20:09:50Z'
-                end
-
-                property :fax_number, type: :object do
-                  property :area_code, type: :string, example: '503'
-                  property :country_code, type: :string, example: '1'
-                  property :extension, type: %i[string null]
-                  property :id, type: :integer, example: 123
-                  property :is_international, type: :boolean
-                  property :is_textable, type: :boolean
-                  property :is_tty, type: :boolean
-                  property :is_voicemailable, type: :boolean
-                  property :phone_number, type: :string, example: '5551234'
-                  property :phone_type, type: :string, example: ::Vet360::Models::Telephone::FAX
-                  property :created_at,
-                           type: :string,
-                           format: 'date-time',
-                           example: '2018-04-21T20:09:50Z'
-                  property :effective_end_date,
-                           type: %i[string null],
-                           format: 'date-time',
-                           example: '2018-04-21T20:09:50Z'
-                  property :effective_start_date,
-                           type: %i[string null],
-                           format: 'date-time',
-                           example: '2018-04-21T20:09:50Z'
-                  property :source_date,
-                           type: :string,
-                           format: 'date-time',
-                           example: '2018-04-21T20:09:50Z'
-                  property :updated_at,
-                           type: :string,
-                           format: 'date-time',
-                           example: '2018-04-21T20:09:50Z'
+                ::Vet360::Models::Telephone::PHONE_TYPES.each do |phone_type|
+                  property "#{phone_type.downcase}_phone", type: :object do
+                    property :area_code, type: :string, example: '503'
+                    property :country_code, type: :string, example: '1'
+                    property :extension, type: %i[string null]
+                    property :id, type: :integer, example: 123
+                    property :is_international, type: :boolean
+                    property :is_textable, type: :boolean
+                    property :is_tty, type: :boolean
+                    property :is_voicemailable, type: :boolean
+                    property :phone_number, type: :string, example: '5551234'
+                    property :phone_type, type: :string, example: phone_type
+                    property :created_at,
+                             type: :string,
+                             format: 'date-time',
+                             example: '2018-04-21T20:09:50Z'
+                    property :effective_end_date,
+                             type: %i[string null],
+                             format: 'date-time',
+                             example: '2018-04-21T20:09:50Z'
+                    property :effective_start_date,
+                             type: %i[string null],
+                             format: 'date-time',
+                             example: '2018-04-21T20:09:50Z'
+                    property :source_date,
+                             type: :string,
+                             format: 'date-time',
+                             example: '2018-04-21T20:09:50Z'
+                    property :updated_at,
+                             type: :string,
+                             format: 'date-time',
+                             example: '2018-04-21T20:09:50Z'
+                  end
                 end
 
                 property :text_permission, type: :object do
