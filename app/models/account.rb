@@ -64,6 +64,11 @@ class Account < ApplicationRecord
     if accts.length > 1
       data = accts.map(&:attributes)
       log_message_to_sentry('multiple Account records with matching ids', 'warning', data)
+      # sort the accounts so the ones with matching idme_uuid values come first
+      # in the array, this will provide the users with a more consistent
+      # experience in case they have multiple credentials to login with
+      # https://github.com/department-of-veterans-affairs/va.gov-team/issues/6702
+      accts = accts.sort_by { |a| a.idme_uuid == attrs[:idme_uuid] ? 0 : 1 }
     end
 
     accts.length.positive? ? accts[0] : create(**attrs)
