@@ -10,6 +10,8 @@ RSpec.describe Form1010cg::Submission, type: :model do
     subject.carma_case_id = carma_case_id
     subject.submitted_at = submitted_at
 
+    expect(subject.id).to eq(nil)
+    expect(subject.persisted?).to eq(false)
     expect(subject.carma_case_id).to eq(carma_case_id)
     expect(subject.submitted_at).to eq(submitted_at)
   end

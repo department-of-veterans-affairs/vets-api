@@ -11,6 +11,14 @@ module Form1010cg
     attr_accessor :carma_case_id # The id of the CARMA Case created from this form submission
     attr_accessor :submitted_at # The timestamp of when the submission was accepted in CARMA
 
+    def id
+      nil
+    end
+
+    def persisted?
+      false
+    end
+
     def initialize(args = [])
       args.each { |key, value| send("#{key}=", value) }
     end
