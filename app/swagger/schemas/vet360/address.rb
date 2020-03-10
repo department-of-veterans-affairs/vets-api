@@ -6,34 +6,35 @@ module Swagger
       class Address
         include Swagger::Blocks
 
-        swagger_schema :Vet360AddressSuggestion do
-          key :type, :object
-          key :required, %i[
-            address_line1
-            city
-            country_code_iso3
-            address_type
-          ]
-          property :address_line1,
-                   type: :string,
-                   example: '1493 Martin Luther King Rd',
-                   maxLength: 100
-          property :address_line2, type: :string, maxLength: 100
-          property :address_line3, type: :string, maxLength: 100
-          property :address_pou,
-                   type: :string,
-                   enum: ::Vet360::Models::Address::ADDRESS_POUS,
-                   example: ::Vet360::Models::Address::RESIDENCE
-          property :address_type,
-                   type: :string,
-                   enum: ::Vet360::Models::Address::ADDRESS_TYPES,
-                   example: ::Vet360::Models::Address::DOMESTIC
-          property :city, type: :string, example: 'Fulton', maxLength: 100
-          property :country_code_iso3,
+        def self.common_address_fields(block, address_type)
+          SwaggerHelpers.add_to_required(block, %i[address_line1 city address_type])
+
+          block.property :address_line1,
+             type: :string,
+             example: '1493 Martin Luther King Rd',
+             maxLength: 100
+          block.property :address_line2, type: :string, maxLength: 100
+          block.property :address_line3, type: :string, maxLength: 100
+          block.property :address_pou,
+             type: :string,
+             enum: ::Vet360::Models::Address::ADDRESS_POUS,
+             example: ::Vet360::Models::Address::RESIDENCE
+          block.property :address_type,
+             type: :string,
+             enum: ::Vet360::Models::Address::ADDRESS_TYPES,
+             example: address_type
+          block.property :city, type: :string, example: 'Fulton', maxLength: 100
+          block.property :country_code_iso3,
                    type: :string,
                    example: 'USA',
                    minLength: 3,
                    maxLength: 3
+        end
+
+        swagger_schema :Vet360AddressSuggestion do
+          key :type, :object
+          SwaggerHelpers.add_to_required(self, :country_code_iso3)
+          Swagger::Schemas::Vet360::Address.common_address_fields(self, ::Vet360::Models::Address::DOMESTIC)
           property :international_postal_code, type: :string, example: '12345'
           property :province, type: :string
           property :state_code,
@@ -53,253 +54,51 @@ module Swagger
                    maxLength: 4
         end
 
-        %i[
-          PostVet360DomesticAddress
-          PutVet360DomesticAddress
-          PostVet360InternationalAddress
-          PutVet360InternationalAddress
-          PostVet360MilitaryOverseasAddress
-          PutVet360MilitaryOverseasAddress
-        ].each do |schema|
-          swagger_schema schema do
-            property :validation_key, type: :integer
+        [
+          ['Domestic', ::Vet360::Models::Address::DOMESTIC],
+          ['International', ::Vet360::Models::Address::INTERNATIONAL],
+          ['MilitaryOverseas', ::Vet360::Models::Address::MILITARY]
+        ].each do |address_type|
+          %w[Post Put].each do |req_type|
+            swagger_schema "#{req_type}Vet360#{address_type[0]}Address" do
+              Swagger::Schemas::Vet360::Address.common_address_fields(self, address_type[1])
+              SwaggerHelpers.add_to_required(self, :country_name)
+
+              property :validation_key, type: :integer
+              property :country_name,
+                     type: :string,
+                     example: 'United States',
+                     pattern: ::Vet360::Models::Address::VALID_ALPHA_REGEX.inspect
+
+              if req_type == 'Put'
+                SwaggerHelpers.add_to_required(self, :id)
+
+                property :id, type: :integer, example: 1
+              end
+
+              if %w[Domestic MilitaryOverseas].include?(address_type[0])
+                SwaggerHelpers.add_to_required(self, %i[state_code zip_code])
+
+                property :state_code,
+                         type: :string,
+                         example: 'MS',
+                         minLength: 2,
+                         maxLength: 2,
+                         pattern: ::Vet360::Models::Address::VALID_ALPHA_REGEX.inspect
+                property :zip_code,
+                         type: :string,
+                         example: '38843',
+                         maxLength: 5,
+                         pattern: ::Vet360::Models::Address::VALID_NUMERIC_REGEX.inspect
+              end
+
+              if address_type[0] == 'International'
+                SwaggerHelpers.add_to_required(self, :international_postal_code)
+
+                property :international_postal_code, type: :string, example: '12345'
+              end
+            end
           end
-        end
-
-        swagger_schema :PostVet360DomesticAddress do
-          key :required, %i[
-            address_line1
-            address_pou
-            address_type
-            city
-            country_name
-            state_code
-            zip_code
-          ]
-          property :address_line1,
-                   type: :string,
-                   example: '1493 Martin Luther King Rd',
-                   maxLength: 100
-          property :address_line2, type: :string, maxLength: 100
-          property :address_line3, type: :string, maxLength: 100
-          property :address_pou,
-                   type: :string,
-                   enum: ::Vet360::Models::Address::ADDRESS_POUS,
-                   example: ::Vet360::Models::Address::RESIDENCE
-          property :address_type,
-                   type: :string,
-                   enum: ::Vet360::Models::Address::ADDRESS_TYPES,
-                   example: ::Vet360::Models::Address::DOMESTIC
-          property :city, type: :string, example: 'Fulton', maxLength: 100
-          property :country_name,
-                   type: :string,
-                   example: 'United States',
-                   pattern: ::Vet360::Models::Address::VALID_ALPHA_REGEX.inspect
-          property :state_code,
-                   type: :string,
-                   example: 'MS',
-                   minLength: 2,
-                   maxLength: 2,
-                   pattern: ::Vet360::Models::Address::VALID_ALPHA_REGEX.inspect
-          property :zip_code,
-                   type: :string,
-                   example: '38843',
-                   maxLength: 5,
-                   pattern: ::Vet360::Models::Address::VALID_NUMERIC_REGEX.inspect
-        end
-
-        swagger_schema :PutVet360DomesticAddress do
-          key :required, %i[
-            address_line1
-            address_pou
-            address_type
-            city
-            country_name
-            id
-            state_code
-            zip_code
-          ]
-          property :id, type: :integer, example: 1
-          property :address_line1,
-                   type: :string,
-                   example: '1493 Martin Luther King Rd',
-                   maxLength: 100
-          property :address_line2, type: :string, maxLength: 100
-          property :address_line3, type: :string, maxLength: 100
-          property :address_pou,
-                   type: :string,
-                   enum: ::Vet360::Models::Address::ADDRESS_POUS,
-                   example: ::Vet360::Models::Address::RESIDENCE
-          property :address_type,
-                   type: :string,
-                   enum: ::Vet360::Models::Address::ADDRESS_TYPES,
-                   example: ::Vet360::Models::Address::DOMESTIC
-          property :city, type: :string, example: 'Fulton', maxLength: 100
-          property :country_name,
-                   type: :string,
-                   example: 'United States',
-                   pattern: ::Vet360::Models::Address::VALID_ALPHA_REGEX.inspect
-          property :state_code,
-                   type: :string,
-                   example: 'MS',
-                   minLength: 2,
-                   maxLength: 2,
-                   pattern: ::Vet360::Models::Address::VALID_ALPHA_REGEX.inspect
-          property :zip_code,
-                   type: :string,
-                   example: '38843',
-                   maxLength: 5,
-                   pattern: ::Vet360::Models::Address::VALID_NUMERIC_REGEX.inspect
-        end
-
-        swagger_schema :PostVet360InternationalAddress do
-          key :required, %i[
-            address_line1
-            address_pou
-            address_type
-            international_postal_code
-            city
-            country_name
-          ]
-          property :address_line1,
-                   type: :string,
-                   example: '1493 Martin Luther King Rd',
-                   maxLength: 100
-          property :address_line2, type: :string, maxLength: 100
-          property :address_line3, type: :string, maxLength: 100
-          property :address_pou,
-                   type: :string,
-                   enum: ::Vet360::Models::Address::ADDRESS_POUS,
-                   example: ::Vet360::Models::Address::RESIDENCE
-          property :address_type,
-                   type: :string,
-                   enum: ::Vet360::Models::Address::ADDRESS_TYPES,
-                   example: ::Vet360::Models::Address::INTERNATIONAL
-          property :city, type: :string, example: 'Florence', maxLength: 100
-          property :country_name,
-                   type: :string,
-                   example: 'Italy',
-                   pattern: ::Vet360::Models::Address::VALID_ALPHA_REGEX.inspect
-          property :international_postal_code, type: :string, example: '12345'
-        end
-
-        swagger_schema :PutVet360InternationalAddress do
-          key :required, %i[
-            address_line1
-            address_pou
-            address_type
-            id
-            international_postal_code
-            city
-            country_name
-          ]
-          property :id, type: :integer, example: 1
-          property :address_line1,
-                   type: :string,
-                   example: '1493 Martin Luther King Rd',
-                   maxLength: 100
-          property :address_line2, type: :string, maxLength: 100
-          property :address_line3, type: :string, maxLength: 100
-          property :address_pou,
-                   type: :string,
-                   enum: ::Vet360::Models::Address::ADDRESS_POUS,
-                   example: ::Vet360::Models::Address::RESIDENCE
-          property :address_type,
-                   type: :string,
-                   enum: ::Vet360::Models::Address::ADDRESS_TYPES,
-                   example: ::Vet360::Models::Address::INTERNATIONAL
-          property :city, type: :string, example: 'Florence', maxLength: 100
-          property :country_name,
-                   type: :string,
-                   example: 'Italy',
-                   pattern: ::Vet360::Models::Address::VALID_ALPHA_REGEX.inspect
-          property :international_postal_code, type: :string, example: '12345'
-        end
-
-        swagger_schema :PostVet360MilitaryOverseasAddress do
-          key :required, %i[
-            address_line1
-            address_pou
-            address_type
-            city
-            country_name
-            state_code
-            zip_code
-          ]
-          property :address_line1,
-                   type: :string,
-                   example: '1493 Martin Luther King Rd',
-                   maxLength: 100
-          property :address_line2, type: :string, maxLength: 100
-          property :address_line3, type: :string, maxLength: 100
-          property :address_pou,
-                   type: :string,
-                   enum: ::Vet360::Models::Address::ADDRESS_POUS,
-                   example: ::Vet360::Models::Address::RESIDENCE
-          property :address_type,
-                   type: :string,
-                   enum: ::Vet360::Models::Address::ADDRESS_TYPES,
-                   example: ::Vet360::Models::Address::MILITARY
-          property :city, type: :string, example: 'Fulton', maxLength: 100
-          property :country_name,
-                   type: :string,
-                   example: 'United States',
-                   pattern: ::Vet360::Models::Address::VALID_ALPHA_REGEX.inspect
-          property :state_code,
-                   type: :string,
-                   example: 'MS',
-                   minLength: 2,
-                   maxLength: 2,
-                   pattern: ::Vet360::Models::Address::VALID_ALPHA_REGEX.inspect
-          property :zip_code,
-                   type: :string,
-                   example: '38843',
-                   maxLength: 5,
-                   pattern: ::Vet360::Models::Address::VALID_NUMERIC_REGEX.inspect
-        end
-
-        swagger_schema :PutVet360MilitaryOverseasAddress do
-          key :required, %i[
-            address_line1
-            address_pou
-            address_type
-            city
-            country_name
-            id
-            state_code
-            zip_code
-          ]
-          property :id, type: :integer, example: 1
-          property :address_line1,
-                   type: :string,
-                   example: '1493 Martin Luther King Rd',
-                   maxLength: 100
-          property :address_line2, type: :string, maxLength: 100
-          property :address_line3, type: :string, maxLength: 100
-          property :address_pou,
-                   type: :string,
-                   enum: ::Vet360::Models::Address::ADDRESS_POUS,
-                   example: ::Vet360::Models::Address::RESIDENCE
-          property :address_type,
-                   type: :string,
-                   enum: ::Vet360::Models::Address::ADDRESS_TYPES,
-                   example: ::Vet360::Models::Address::MILITARY
-          property :city, type: :string, example: 'Fulton', maxLength: 100
-          property :country_name,
-                   type: :string,
-                   example: 'United States',
-                   pattern: ::Vet360::Models::Address::VALID_ALPHA_REGEX.inspect
-          property :state_code,
-                   type: :string,
-                   example: 'MS',
-                   minLength: 2,
-                   maxLength: 2,
-                   pattern: ::Vet360::Models::Address::VALID_ALPHA_REGEX.inspect
-          property :zip_code,
-                   type: :string,
-                   example: '38843',
-                   maxLength: 5,
-                   pattern: ::Vet360::Models::Address::VALID_NUMERIC_REGEX.inspect
         end
       end
     end
