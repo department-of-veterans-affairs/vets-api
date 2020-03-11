@@ -56,9 +56,12 @@ module Swagger
           extend Swagger::Responses::AuthenticationError
 
           key :summary,     'Get form data'
-          key :description, 'When a GET request is made for a user completing disability claim form 21-526EZ
-            for the first time, the API service will make a call to add the user to the Master Veteran Index (MVI)
-            and a new blank form will be served to the client.'
+          key :description, "When a GET request is made for a user completing disability claim form 21-526EZ
+            for the first time, the API service will make a call to the Master Veteran Index (MVI) requesting
+            that MVI make calls to upstream services to find or create the user's CorpDB (Corp) ID,
+            and possibly the user's Beneficiary Identification and Records Locator Subsystem (BIRLS) ID. MVI will
+            save the IDs it discovers to its own database. The Corp and BIRLS IDs are required prerequisites
+            for serving the 21-526EZ disability claim form to the client."
           key :operationId, 'getInProgressForm'
           key :tags, [
             'in_progress_forms'
