@@ -109,9 +109,11 @@ module Common
         raise config.service_exception.new(
           e.key, e.response_values, e.original_status, e.original_body
         )
+=begin
       rescue Timeout::Error, Faraday::TimeoutError
         Raven.extra_context(service_name: config.service_name, url: config.base_path)
         raise Common::Exceptions::GatewayTimeout
+=end
       rescue Faraday::ClientError => e
         error_class = case e
                       when Faraday::ParsingError

@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'pp'
+
 module EVSS
   module DisabilityCompensationForm
     class Form526TimeoutMiddleware < Faraday::Response::Middleware
@@ -29,11 +31,13 @@ module EVSS
       end
 
       def call(env)
-        puts 'XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX' # DEBUG
-        puts "XX   #{Time.now}  #{env.to_s[20..80]}"                                            # DEBUG
+        #puts 'XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX' # DEBUG
+        #puts "XX   #{Time.now}  #{env.to_s[20..80]}"                                            # DEBUG
+        #pp env
         puts 'XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX' # DEBUG
         super(env)
       rescue Timeout::Error, Faraday::TimeoutError => e
+        puts 'ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ' # DEBUG
         puts "RESCUED!!" # DEBUG
         response_hash = if e.respond_to?(:response)
           { response: self.class.response_json(e.response) }
