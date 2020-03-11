@@ -12,10 +12,10 @@ require 'rails_helper'
 RSpec.describe 'CSRF scenarios', type: :request do
 
   around(:example) do |example|
-    original_val = Rails.application.config.action_controller.allow_forgery_protection
-    Rails.application.config.action_controller.allow_forgery_protection = true
+    original_val = ActionController::Base.allow_forgery_protection
+    ActionController::Base.allow_forgery_protection = true
     example.run
-    Rails.application.config.action_controller.allow_forgery_protection = original_val
+    ActionController::Base.allow_forgery_protection = original_val
   end
 
   before do 

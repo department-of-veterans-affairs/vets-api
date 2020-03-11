@@ -9,7 +9,7 @@ module AuthenticationAndSSOConcerns
 
   included do
     before_action :validate_csrf_token!, if: -> do
-      Rails.application.config.action_controller.allow_forgery_protection && request.method != 'GET'
+      ActionController::Base.allow_forgery_protection && request.method != 'GET'
     end
     before_action :authenticate
     before_action :set_session_expiration_header
