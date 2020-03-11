@@ -51,7 +51,7 @@ RSpec.describe 'Disability Claims ', type: :request do
               .to receive(:validate_form526).and_raise(error_klass)
             post path, params: data, headers: headers
             expect(response.status).to eq 504
-            expect(PersonalInformationLog.count).to be > 0
+            expect(PersonalInformationLog.count).to be.positive?
             expect(PersonalInformationLog.last.error_class).to eq("submit_form_526 #{error_klass.name}")
           end
         end
