@@ -1,5 +1,12 @@
 # frozen_string_literal: true
 
+# This file is for exercising routes that should require CSRF protection.
+# It is very much a WIP
+
+# TODO:
+# Lighthouse API endpoints
+# Check routes.rb for other `POST` routes
+
 require 'rails_helper'
 
 RSpec.describe 'CSRF scenarios', type: :request do
@@ -39,10 +46,4 @@ RSpec.describe 'CSRF scenarios', type: :request do
       end
     end
   end
-
-  # TODO:
-  # Lighthouse API endpoints
-  # Check routes.rb for other `POST` routes
-  
-
 end
