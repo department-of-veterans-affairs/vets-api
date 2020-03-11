@@ -1050,11 +1050,9 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
     describe 'gibct' do
       describe 'yellow_ribbon_programs' do
         describe 'index' do
-          it 'supports autocomplete of institution names' do
+          it 'supports showing a list of yellow_ribbon_programs' do
             VCR.use_cassette('gi_client/get_yellow_ribbon_programs') do
-              expect(subject).to validate(
-                :get, '/v0/gi/yellow_ribbon_programs', 200, '_query_string' => 'name=university'
-              )
+              expect(subject).to validate(:get, '/v0/gi/yellow_ribbon_programs', 200)
             end
           end
         end
