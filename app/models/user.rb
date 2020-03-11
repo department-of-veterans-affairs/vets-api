@@ -46,10 +46,6 @@ class User < Common::RedisStore
     Account.cache_or_create_by!(self)
   end
 
-  def account_id
-    account.uuid
-  end
-
   def pciu_email
     pciu.get_email_address.email
   end
