@@ -208,6 +208,58 @@ FactoryBot.define do
     initialize_with { new(attributes.stringify_keys) }
   end
 
+  # Assertion for user with no multifactor
+  factory :ssoe_idme_singlefactor, class: OneLogin::RubySaml::Attributes do
+    transient do
+      authn_context { LOA::IDME_LOA1_VETS }
+    end
+    va_eauth_csid { ['idme'] }
+    va_eauth_lastname { ['GPKTESTNINE'] }
+    va_eauth_aal_idme_highest { ['1'] }
+    va_eauth_credentialassurancelevel { ['1'] }
+    va_eauth_ial { ['1'] }
+    va_eauth_firstname { ['JERRY'] }
+    va_eauth_ial_idme_highest { ['1'] }
+    va_eauth_csponly { ['true'] }
+    va_eauth_authenticationMethod { ['http://idmanagement.gov/ns/assurance/loa/1/vets'] }
+    va_eauth_aal { ['1'] }
+    va_eauth_emailaddress { ['vets.gov.user+262@example.com'] }
+    va_eauth_transactionid { ['abcd1234xyz'] }
+    va_eauth_authncontextclassref { ['http://idmanagement.gov/ns/assurance/loa/1/vets'] }
+    va_eauth_uid { ['54e78de6140d473f87960f211be49c08'] }
+    va_eauth_issueinstant { ['2020-02-05T21:14:20Z'] }
+    va_eauth_middlename { ['NOT_FOUND'] }
+    va_eauth_multifactor { ['false'] }
+
+    initialize_with { new(attributes.stringify_keys) }
+  end
+
+  # Assertion for multifactor enrollment
+  factory :ssoe_idme_multifactor, class: OneLogin::RubySaml::Attributes do
+    transient do
+      authn_context { 'multifactor' }
+    end
+    va_eauth_csid { ['idme'] }
+    va_eauth_lastname { ['GPKTESTNINE'] }
+    va_eauth_aal_idme_highest { ['2'] }
+    va_eauth_credentialassurancelevel { ['1'] }
+    va_eauth_ial { ['1'] }
+    va_eauth_firstname { ['JERRY'] }
+    va_eauth_ial_idme_highest { ['classic_loa3'] }
+    va_eauth_csponly { ['true'] }
+    va_eauth_authenticationMethod { ['multifactor'] }
+    va_eauth_aal { ['2'] }
+    va_eauth_emailaddress { ['vets.gov.user+262@example.com'] }
+    va_eauth_transactionid { ['abcd1234xyz'] }
+    va_eauth_authncontextclassref { ['multifactor'] }
+    va_eauth_uid { ['54e78de6140d473f87960f211be49c08'] }
+    va_eauth_issueinstant { ['2020-02-05T21:14:20Z'] }
+    va_eauth_middlename { ['NOT_FOUND'] }
+    va_eauth_multifactor { ['true'] }
+
+    initialize_with { new(attributes.stringify_keys) }
+  end
+
   factory :ssoe_idme_loa3, class: OneLogin::RubySaml::Attributes do
     transient do
       authn_context { LOA::IDME_LOA3 }
@@ -289,6 +341,63 @@ FactoryBot.define do
     va_eauth_emailaddress { ['pv+mhvtest1@example.com'] }
     va_eauth_transactionid { ['abcd1234xyz'] }
     va_eauth_authncontextclassref { ['myhealthevet'] }
+    va_eauth_uid { ['72782a87a807407f83e8a052d804d7f7'] }
+    va_eauth_issueinstant { ['2020-02-26T04:07:03Z'] }
+    va_eauth_middlename { ['NOT_FOUND'] }
+    va_eauth_multifactor { ['true'] }
+    va_eauth_mhv_assurance { ['Basic'] }
+
+    initialize_with { new(attributes.stringify_keys) }
+  end
+
+  # Federated SSOe-ID.me user with MHV basic credential
+  # for a user who has not enrolled in 2FA
+  factory :ssoe_idme_mhv_basic_singlefactor, class: OneLogin::RubySaml::Attributes do
+    transient do
+      authn_context { 'myhealthevet' }
+    end
+    va_eauth_csid { ['idme'] }
+    va_eauth_lastname { ['NOT_FOUND'] }
+    va_eauth_credentialassurancelevel { ['1'] }
+    # TODO: this assertion is currently missing these two attribute
+    # va_eauth_aal_idme_highest { ['1'] }
+    # va_eauth_aal { ['1'] }
+    va_eauth_ial_idme_highest { ['1'] }
+    va_eauth_ial { ['1'] }
+    va_eauth_firstname { ['NOT_FOUND'] }
+    va_eauth_csponly { ['true'] }
+    va_eauth_authenticationMethod { ['myhealthevet'] }
+    va_eauth_emailaddress { ['pv+mhvtestb@example.com'] }
+    va_eauth_transactionid { ['abcd1234xyz'] }
+    va_eauth_authncontextclassref { ['myhealthevet'] }
+    va_eauth_uid { ['72782a87a807407f83e8a052d804d7f7'] }
+    va_eauth_issueinstant { ['2020-02-26T04:07:03Z'] }
+    va_eauth_middlename { ['NOT_FOUND'] }
+    va_eauth_multifactor { ['false'] }
+    va_eauth_mhv_assurance { ['Basic'] }
+
+    initialize_with { new(attributes.stringify_keys) }
+  end
+
+  # Federated SSOe-ID.me user with MHV basic credential
+  # for a user who is adding multifactor
+  factory :ssoe_idme_mhv_basic_multifactor, class: OneLogin::RubySaml::Attributes do
+    transient do
+      authn_context { 'myhealthevet_multifactor' }
+    end
+    va_eauth_csid { ['idme'] }
+    va_eauth_lastname { ['NOT_FOUND'] }
+    va_eauth_credentialassurancelevel { ['1'] }
+    va_eauth_aal_idme_highest { ['2'] }
+    va_eauth_aal { ['2'] }
+    va_eauth_ial_idme_highest { ['1'] }
+    va_eauth_ial { ['1'] }
+    va_eauth_firstname { ['NOT_FOUND'] }
+    va_eauth_csponly { ['true'] }
+    va_eauth_authenticationMethod { ['myhealthevet_multifactor'] }
+    va_eauth_emailaddress { ['pv+mhvtestb@example.com'] }
+    va_eauth_transactionid { ['abcd1234xyz'] }
+    va_eauth_authncontextclassref { ['myhealthevet_multifactor'] }
     va_eauth_uid { ['72782a87a807407f83e8a052d804d7f7'] }
     va_eauth_issueinstant { ['2020-02-26T04:07:03Z'] }
     va_eauth_middlename { ['NOT_FOUND'] }

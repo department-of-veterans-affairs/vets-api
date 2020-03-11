@@ -64,13 +64,7 @@ module SAML
       end
 
       def loa_current
-        @loa_current ||=
-          if authn_context.include?('multifactor')
-            # TODO: verify if this case is still needed
-            existing_user_identity.loa.fetch(:current, 1).to_i
-          else
-            safe_attr('va_eauth_credentialassurancelevel')&.to_i
-          end
+        @loa_current ||= safe_attr('va_eauth_credentialassurancelevel')&.to_i
       rescue NoMethodError, KeyError => e
         @warnings << "loa_current error: #{e.message}"
         @loa_current = 1

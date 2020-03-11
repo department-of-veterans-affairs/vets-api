@@ -20,7 +20,6 @@ RSpec.describe SAML::User do
         authn_context: authn_context,
         account_type: account_type,
         level_of_assurance: [highest_attained_loa],
-        multifactor: [multifactor],
         attributes: saml_attributes,
         existing_attributes: existing_saml_attributes,
         issuer: 'https://int.eauth.va.gov/FIM/sps/saml20fedCSP/saml20'
@@ -206,6 +205,41 @@ RSpec.describe SAML::User do
           multifactor: multifactor,
           authenticated_by_ssoe: true
         )
+      end
+    end
+
+    context 'MHV non premium user who adds multifactor' do
+      let(:authn_context) { 'myhealthevet_multifactor' }
+      let(:account_type) { '1' }
+      let(:highest_attained_loa) { '1' }
+      let(:saml_attributes) { build(:ssoe_idme_mhv_basic_multifactor) }
+      let(:multifactor) { false }
+      let(:existing_saml_attributes) { build(:ssoe_idme_mhv_basic_singlefactor) }
+
+      it 'has various important attributes' do
+        expect(subject.to_hash).to eq(
+          birth_date: nil,
+          authn_context: authn_context,
+          dslogon_edipi: nil,
+          first_name: nil,
+          last_name: nil,
+          middle_name: nil,
+          gender: nil,
+          ssn: nil,
+          zip: nil,
+          mhv_icn: nil,
+          mhv_correlation_id: nil,
+          uuid: '72782a87a807407f83e8a052d804d7f7',
+          email: 'pv+mhvtestb@example.com',
+          loa: { current: 1, highest: 1 },
+          sign_in: { service_name: 'myhealthevet', account_type: 1 },
+          multifactor: true,
+          authenticated_by_ssoe: true
+        )
+      end
+
+      it 'is changing multifactor' do
+        expect(subject).to be_changing_multifactor
       end
     end
 

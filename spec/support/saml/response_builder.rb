@@ -9,13 +9,13 @@ module SAML
       ' Military Service Information"}}'
     ].freeze
 
-    def create_user_identity(authn_context:, account_type:, level_of_assurance:, multifactor:, attributes:)
+    def create_user_identity(authn_context:, account_type:, level_of_assurance:, attributes:, issuer: nil)
       saml = build_saml_response(
         authn_context: authn_context,
         account_type: account_type,
         level_of_assurance: level_of_assurance,
-        multifactor: multifactor,
-        attributes: attributes
+        attributes: attributes,
+        issuer: issuer
       )
       saml_user = SAML::User.new(saml)
       user = create(:user, :response_builder, saml_user.to_hash)
@@ -25,7 +25,7 @@ module SAML
     # rubocop:disable Metrics/CyclomaticComplexity, Metrics/ParameterLists
     def build_saml_response(
       authn_context:, account_type:, level_of_assurance:,
-      multifactor:, attributes: nil, issuer: nil, existing_attributes: nil
+      attributes: nil, issuer: nil, existing_attributes: nil
     )
       verifying = [LOA::IDME_LOA3, LOA::IDME_LOA3_VETS, 'myhealthevet_loa3', 'dslogon_loa3'].include?(authn_context)
 
@@ -36,8 +36,8 @@ module SAML
             authn_context: previous_context,
             account_type: account_type,
             level_of_assurance: level_of_assurance,
-            multifactor: [false],
-            attributes: existing_attributes
+            attributes: existing_attributes,
+            issuer: issuer
           )
         end
 
@@ -49,8 +49,8 @@ module SAML
             authn_context: previous_context,
             account_type: account_type,
             level_of_assurance: '1',
-            multifactor: multifactor,
-            attributes: existing_attributes
+            attributes: existing_attributes,
+            issuer: issuer
           )
         end
       end

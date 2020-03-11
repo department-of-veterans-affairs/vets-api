@@ -19,7 +19,6 @@ RSpec.describe SAML::User do
         authn_context: authn_context,
         account_type: account_type,
         level_of_assurance: [highest_attained_loa],
-        multifactor: [false],
         attributes: saml_attributes,
         existing_attributes: existing_saml_attributes
       )
