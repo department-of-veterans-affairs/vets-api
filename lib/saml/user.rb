@@ -21,8 +21,6 @@ module SAML
       'dslogon_multifactor' => { loa_current: nil, sign_in: { service_name: 'dslogon' } },
       'dslogon_loa3' => { loa_current: '3', sign_in: { service_name: 'dslogon' } },
       'myhealthevet' => { loa_current: nil, sign_in: { service_name: 'myhealthevet' } },
-      # SSOe context
-      'urn:oasis:names:tc:SAML:2.0:ac:classes:Password' => { loa_current: '1', sign_in: { service_name: 'ssoe' } },
       'dslogon' => { loa_current: nil, sign_in: { service_name: 'dslogon' } }
     }.freeze
     UNKNOWN_AUTHN_CONTEXT = 'unknown'
@@ -94,7 +92,6 @@ module SAML
     end
 
     # SSOe Issuer value is https://int.eauth.va.gov/FIM/sps/saml20fedCSP/saml20
-    # SSOe AuthnContext currently set to urn:oasis:names:tc:SAML:2.0:ac:classes:Password
     def user_attributes_class
       return SAML::UserAttributes::SSOe if authenticated_by_ssoe
 
