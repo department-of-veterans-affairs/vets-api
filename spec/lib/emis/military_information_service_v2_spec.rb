@@ -55,7 +55,6 @@ describe EMIS::MilitaryInformationServiceV2 do
 
           first_location = first_item.locations.first
           expect(first_location.iso_alpha3_country).to eq('QAT')
-
         end
       end
     end
