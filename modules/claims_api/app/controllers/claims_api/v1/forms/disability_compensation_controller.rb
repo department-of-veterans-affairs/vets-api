@@ -21,7 +21,6 @@ module ClaimsApi
         before_action :validate_documents_page_size, only: %i[upload_supporting_documents]
         skip_before_action :validate_json_format, only: %i[upload_supporting_documents]
 
-        # rubocop:disable Metrics/MethodLength
         def submit_form_526
           service_object = service(auth_headers)
           auto_claim = ClaimsApi::AutoEstablishedClaim.create(
@@ -40,21 +39,12 @@ module ClaimsApi
           track_526_validation_errors(e.details)
           render json: { errors: format_errors(e.details) }, status: :unprocessable_entity
         rescue Common::Exceptions::GatewayTimeout, Timeout::Error, Faraday::TimeoutError => e
+          req = { auth: auth_headers, form: form_attributes, source: source_name, auto_claim: auto_claim.as_json }
           PersonalInformationLog.create(
-            error_class: 'submit_form526 Timeout',
-            data: {
-              request: {
-                auth_headers: auth_headers,
-                form_data: form_attributes,
-                source: source_name,
-                auto_claim: auto_claim.try(:as_json)
-              },
-              error: e.try(:as_json)
-            }
+            error_class: "submit_form526 #{e.class.name}", data: { request: req, error: e.try(:as_json) || e }
           )
           raise e
         end
-        # rubocop:enable Metrics/MethodLength
 
         def upload_supporting_documents
           claim = ClaimsApi::AutoEstablishedClaim.get_by_id_or_evss_id(params[:id])
