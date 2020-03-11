@@ -43,7 +43,7 @@ module ClaimsApi
           PersonalInformationLog.create(
             error_class: "submit_form_526 #{e.class.name}", data: { request: req, error: e.try(:as_json) || e }
           )
-          render json: { errors: [ { status: 504, detail: 'Timeout', source: nil } ] }, status: :gateway_timeout
+          render json: { errors: [{ status: 504, detail: 'Timeout', source: nil }] }, status: :gateway_timeout
         end
 
         def upload_supporting_documents
