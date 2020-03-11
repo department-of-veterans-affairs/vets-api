@@ -24,7 +24,7 @@ module UserIdentifiable
 
   class_methods do
     def default_user_uuid(user)
-      ACCT_ID_PREFIX + user.account_id
+      ACCT_ID_PREFIX + user.account_uuid
     end
   end
 end
