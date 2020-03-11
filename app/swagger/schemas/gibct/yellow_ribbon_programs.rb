@@ -9,7 +9,7 @@ module Swagger
         swagger_schema :GibctYellowRibbonPrograms do
           key :required, %i[data meta links]
 
-          property :data, type: :array, maxItems: 10, uniqueItems: true do
+          property :data, type: :array, maxItems: 30, uniqueItems: true do
             items do
               key :type, :object
               key :required, %i[id type attributes]
@@ -55,7 +55,7 @@ module Swagger
                 property :insturl, type: %i[null string], example: 'https://example.com',
                                    description: 'The URL for the Yellow Ribbon Program\'s instutition.'
 
-                property :number_of_students, type: %i[null string], example: 320,
+                property :number_of_students, type: %i[null integer], example: 320,
                                               description: 'The number of students that can receive the benefit.'
 
                 property :school_name_in_yr_database, type: %i[null string], example: 'colorado university',
