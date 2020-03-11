@@ -41,6 +41,23 @@ RSpec.describe 'Disability Claims ', type: :request do
       expect(response.status).to eq(404)
     end
 
+    context 'Timeouts are recorded (investigating)' do
+      [Common::Exceptions::GatewayTimeout, Timeout::Error, Faraday::TimeoutError].each do |error_klass|
+        context "#{error_klass}" do
+          it "is logged to PersonalInformationLog" do
+            allow_any_instance_of(ClaimsApi::DisabilityCompensation::MockOverrideService)
+              .to receive(:validate_form526).and_raise(error_klass)
+            allow_any_instance_of(EVSS::DisabilityCompensationForm::ServiceAllClaim)
+              .to receive(:validate_form526).and_raise(error_klass)
+            post path, params: data, headers: headers
+            expect(response.status).to eq 504
+            expect(PersonalInformationLog.count).to be > 0
+            expect(PersonalInformationLog.last.error_class).to eq("submit_form_526 #{error_klass.name}")
+          end
+        end
+      end
+    end
+
     it 'creates the sidekick job' do
       klass = EVSS::DisabilityCompensationForm::ServiceAllClaim
       expect_any_instance_of(klass).to receive(:validate_form526).and_return(true)

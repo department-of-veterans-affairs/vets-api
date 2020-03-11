@@ -41,9 +41,9 @@ module ClaimsApi
         rescue Common::Exceptions::GatewayTimeout, Timeout::Error, Faraday::TimeoutError => e
           req = { auth: auth_headers, form: form_attributes, source: source_name, auto_claim: auto_claim.as_json }
           PersonalInformationLog.create(
-            error_class: "submit_form526 #{e.class.name}", data: { request: req, error: e.try(:as_json) || e }
+            error_class: "submit_form_526 #{e.class.name}", data: { request: req, error: e.try(:as_json) || e }
           )
-          raise e
+          render json: { errors: [ { status: 504, detail: 'Timeout', source: nil } ] }, status: :gateway_timeout
         end
 
         def upload_supporting_documents

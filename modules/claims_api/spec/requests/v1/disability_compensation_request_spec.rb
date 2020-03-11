@@ -46,6 +46,20 @@ RSpec.describe 'Disability Claims ', type: :request do
       end
     end
 
+    context 'Timeouts are recorded (investigating)' do
+      [Common::Exceptions::GatewayTimeout, Timeout::Error, Faraday::TimeoutError].each do |error_klass|
+        context "#{error_klass}" do
+          it "is logged to PersonalInformationLog" do
+            allow_any_instance_of(ClaimsApi::V1::Forms::DisabilityCompensationController).to receive(:service).and_raise(error_klass)
+            post path, params: data, headers: headers
+            expect(response.status).to eq 504
+            expect(PersonalInformationLog.count).to be > 0
+            expect(PersonalInformationLog.last.error_class).to eq("submit_form_526 #{error_klass.name}")
+          end
+        end
+      end
+    end
+
     it 'creates the sidekick job' do
       with_okta_user(scopes) do |auth_header|
         VCR.use_cassette('evss/claims/claims') do
