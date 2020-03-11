@@ -86,6 +86,14 @@ module Swagger
                   property :birthdate, type: :string
                   property :family_name, type: :string
                   property :gender, type: :string
+                  property :is_cerner_patient, type: :boolean
+                  property :facilities, type: :array do
+                    items do
+                      key :required, %i[facility_id is_cerner]
+                      property :facility_id, type: :string
+                      property :is_cerner, type: :boolean
+                    end
+                  end
                   property :given_names, type: :array do
                     items do
                       key :type, :string

@@ -13,15 +13,26 @@ To start, fetch this code:
 `git clone https://github.com/department-of-veterans-affairs/vets-api.git`
 
 1. Install [Docker for Mac](https://docs.docker.com/docker-for-mac/install/). This will configure both `docker` and `docker-compose`.
-1. Setup localhost certificates / keys:
+1. Setup key & cert for localhost authentication to ID.me:
    - Create a folder in your vets-api directory: `mkdir config/certs`
-   - Copy the [certificate][certificate] to `config/certs/vetsgov-localhost.crt`
-   - Copy the [key][key] to `config/certs/vetsgov-localhost.key`
-   - *NOTE:* using `touch` to create blank cert and key files no longer works.
-   If you previously added certs in this manner replace them with the team repo certificate and key listed above.
+   - Create an empty key and cert:
+
+```
+touch config/certs/vetsgov-localhost.crt
+touch config/certs/vetsgov-localhost.key
+```
    
-   [certificate]: https://github.com/department-of-veterans-affairs/va.gov-team/blob/master/products/identity-personalization/login/idme/development-certificates/vetsgov-localhost.crt
-   [key]: https://github.com/department-of-veterans-affairs/va.gov-team/blob/master/products/identity-personalization/login/idme/development-certificates/vetsgov-localhost.key
+1. Disable signed authentication requests:
+
+   
+```yaml
+# settings.local.yml
+saml:
+  authn_requests_signed: false
+```
+
+[For more info on crypto & authentication, including how to enable crypto for localhost authentication](/docs/setup/authentication_with_idme.md)
+
  
 ## Running the app
 

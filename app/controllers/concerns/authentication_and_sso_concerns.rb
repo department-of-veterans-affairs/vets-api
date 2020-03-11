@@ -4,7 +4,6 @@
 # to this responsibility alone.
 module AuthenticationAndSSOConcerns
   extend ActiveSupport::Concern
-  include ActionController::HttpAuthentication::Token::ControllerMethods
   include ActionController::Cookies
 
   included do
@@ -30,7 +29,6 @@ module AuthenticationAndSSOConcerns
       reset_session
       return false
     end
-
     @current_user = User.find(@session_object.uuid)
 
     if should_signout_sso?
@@ -59,6 +57,10 @@ module AuthenticationAndSSOConcerns
   # Determines whether user signed out of MHV's website
   def should_signout_sso?
     Rails.logger.info('SSO: ApplicationController#should_signout_sso?', sso_logging_info)
+    # TODO: This logic needs updating to let us log out either/or
+    # SSOe session or MHV-SSO session but for  now  the next line lets
+    # us avoid terminating  the session due to not setting it  previously
+    return false if @current_user&.authenticated_by_ssoe
     return false unless Settings.sso.cookie_enabled && Settings.sso.cookie_signout_enabled
 
     cookies[Settings.sso.cookie_name].blank? && request.host.match(Settings.sso.cookie_domain)
