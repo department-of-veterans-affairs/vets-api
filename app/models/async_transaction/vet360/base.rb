@@ -12,7 +12,6 @@ module AsyncTransaction
       REQUESTED = 'requested'
       COMPLETED = 'completed'
 
-      scope :for_user, ->(user) { where(user_uuid: user.uuid) }
       scope :last_requested, -> { where(status: Base::REQUESTED).order(created_at: :desc).limit(1) }
 
       validates :source_id, presence: true, unless: :initialize_person?
@@ -26,7 +25,7 @@ module AsyncTransaction
       #
       def self.start(user, response)
         create(
-          user_uuid: user.uuid,
+          user_uuid: default_user_uuid(user),
           source_id: user.vet360_id,
           source: 'vet360',
           status: REQUESTED,
@@ -42,7 +41,7 @@ module AsyncTransaction
       # @param tx_id [int] the transaction_id
       # @return [AsyncTransaction::Vet360::Base]
       def self.refresh_transaction_status(user, service, tx_id = nil)
-        transaction_record = find_transaction!(user.uuid, tx_id)
+        transaction_record = find_transaction!(user, tx_id)
         return transaction_record if transaction_record.finished?
 
         api_response = Base.fetch_transaction(transaction_record, service)
@@ -73,11 +72,11 @@ module AsyncTransaction
       end
 
       # Finds a transaction by transaction_id for a user
-      # @param user_uuid [String] the user's UUID
+      # @param user [User] the user
       # @param transaction_id [String] the transaction UUID
       # @return [AddressTransaction, EmailTransaction, TelephoneTransaction]
-      def self.find_transaction!(user_uuid, transaction_id)
-        Base.find_by!(user_uuid: user_uuid, transaction_id: transaction_id)
+      def self.find_transaction!(user, transaction_id)
+        Base.for_user(user).find_by!(transaction_id: transaction_id)
       end
 
       def self.update_transaction_from_api(transaction_record, api_response)

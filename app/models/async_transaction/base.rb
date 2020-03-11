@@ -2,6 +2,8 @@
 
 module AsyncTransaction
   class Base < ApplicationRecord
+    include UserIdentifiable
+
     self.table_name = 'async_transactions'
 
     REQUESTED = 'requested'
