@@ -43,7 +43,7 @@ RSpec.describe 'vaos appointment request messages', type: :request do
 
           expect(response).to have_http_status(:success)
           expect(response.body).to be_a(String)
-          expect(response).to match_response_schema('vaos/messages')
+          expect(response).to match_response_schema('vaos/get_messages')
         end
       end
     end
@@ -86,7 +86,7 @@ RSpec.describe 'vaos appointment request messages', type: :request do
 
             expect(response).to have_http_status(:success)
             expect(response.body).to be_a(String)
-            expect(json_body_for(response)).to match_schema('vaos/message')
+            expect(json_body_for(response)).to match_schema('vaos/post_message')
           end
         end
       end

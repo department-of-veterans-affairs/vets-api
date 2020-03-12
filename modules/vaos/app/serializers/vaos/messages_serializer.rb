@@ -10,10 +10,7 @@ module VAOS
 
     set_type :messages
 
-    attributes :message_text,
-               :message_date_time,
-               :sender_id,
-               :appointment_request_id,
-               :date
+    attributes :message_text, :message_date_time, :appointment_request_id, :date
+    attribute :sender_id, if: proc { |object| object.try(:sender_id).present? }
   end
 end

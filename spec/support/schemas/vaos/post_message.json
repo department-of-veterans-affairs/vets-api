@@ -7,14 +7,12 @@
     "attributes": {
       "type": "object",
       "properties": {
-        "sender_id": { "type": "string" },
         "message_text": { "type": "string" },
         "message_date_time": { "type": "string" },
         "appointment_request_id": { "type": "string" },
         "date": { "type": "string" }
       },
       "required": [
-        "sender_id",
         "message_text",
         "message_date_time",
         "appointment_request_id",
