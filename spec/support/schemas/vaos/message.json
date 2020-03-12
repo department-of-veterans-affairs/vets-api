@@ -9,6 +9,7 @@
       "properties": {
         "message_text": { "type": "string" },
         "message_date_time": { "type": "string" },
+        "sender_id": { "type": ["string", "null"] },
         "appointment_request_id": { "type": "string" },
         "date": { "type": "string" }
       },
