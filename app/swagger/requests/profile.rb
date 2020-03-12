@@ -33,10 +33,7 @@ module Swagger
               key :required, [:address]
 
               property(:address) do
-                key :'$ref', :Vet360AddressSuggestion
-                key :required, %i[
-                  address_pou
-                ]
+                key :'$ref', :Vet360AddressSuggestionReq
               end
             end
           end
@@ -54,7 +51,7 @@ module Swagger
                   key :type, :object
 
                   property(:address) do
-                    key :'$ref', :Vet360AddressSuggestion
+                    key :'$ref', :Vet360AddressSuggestionRes
                   end
 
                   property(:address_meta_data) do
