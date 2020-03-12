@@ -25,47 +25,20 @@ RSpec.describe ProviderSerializer, type: :serializer do
     expect(attributes['address']['street']).to eq(provider.AddressStreet)
   end
 
-  context 'Flipper facilities_ppms_caresite_name: true' do
-    before do
-      Flipper.enable(:facilities_ppms_caresite_name)
-    end
+  context "ProviderType is 'GroupPracticeOrAgency'" do
+    let(:provider) { build :provider, :from_provider_locator, ProviderType: 'GroupPracticeOrAgency' }
 
-    context "ProviderType is 'GroupPracticeOrAgency'" do
-      let(:provider) { build :provider, :from_provider_locator, ProviderType: 'GroupPracticeOrAgency' }
-
-      it 'includes the caresite name' do
-        expect(attributes['name']).to eq(provider.CareSite)
-      end
-    end
-
-    context "ProviderType is 'Individual'" do
-      let(:provider) { build :provider, :from_provider_locator, ProviderType: 'Individual' }
-
-      it 'includes the caresite name' do
-        expect(attributes['name']).to eq(provider.ProviderName)
-      end
+    it 'includes the caresite name' do
+      expect(attributes['name']).to eq(provider.CareSite)
     end
   end
 
-  context 'Flipper facilities_ppms_caresite_name: false' do
-    before do
-      Flipper.disable(:facilities_ppms_caresite_name)
-    end
+  context "ProviderType is 'Individual'" do
+    let(:provider) { build :provider, :from_provider_locator, ProviderType: 'Individual' }
 
-    context "ProviderType is 'GroupPracticeOrAgency'" do
-      let(:provider) { build :provider, :from_provider_locator, ProviderType: 'GroupPracticeOrAgency' }
-
-      it 'includes the caresite name' do
-        expect(attributes['name']).to eq(provider.ProviderName)
-      end
-    end
-
-    context "ProviderType is 'Individual'" do
-      let(:provider) { build :provider, :from_provider_locator, ProviderType: 'Individual' }
-
-      it 'includes the caresite name' do
-        expect(attributes['name']).to eq(provider.ProviderName)
-      end
+    it 'includes the caresite name' do
+      expect(attributes['name']).to eq(provider.ProviderName)
     end
   end
+  
 end
