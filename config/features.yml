@@ -12,6 +12,10 @@ features:
     description: >
       On https://www.va.gov/find-locations/ enable veterans to search for Community care by showing that option in the "Search for" box.
       This toggle is owned by Rian
+  facilities_ppms_suppress_pharmacies:
+    actor_type: user
+    description: >
+      Suppresses the ability to search for pharmacies.     
   facilities_ppms_response_trim:
     actor_type: user
     description: >
