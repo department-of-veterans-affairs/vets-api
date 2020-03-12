@@ -53,17 +53,6 @@ class SavedClaim < ApplicationRecord
     StructuredData::ProcessDataJob.perform_async(id)
   end
 
-  # # Upload claim attachments directly to VBMS eFolder.
-  # def process_efolder_attachments!
-  #   # Associate uploaded attachments to this claim
-  #   refs = attachment_keys.map { |key| Array(open_struct_form.send(key)) }.flatten
-  #   files = PersistentAttachment.where(guid: refs.map(&:confirmationCode))
-  #   files.find_each { |f| f.update(saved_claim_id: id) }
-
-  #   # upload
-  #   VBMS::Efolder::UploadClaimAttachments.new(id)&.upload!
-  # end
-
   # Processes claim and claim attachments via Central Mail workflow.
   def process_attachments!
     refs = attachment_keys.map { |key| Array(open_struct_form.send(key)) }.flatten
