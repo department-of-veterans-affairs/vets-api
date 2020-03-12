@@ -32,13 +32,13 @@ module Swagger
         end
 
         def self.domestic_address_fields(block)
-          property :state_code,
+          block.property :state_code,
                    type: :string,
                    example: 'MS',
                    minLength: 2,
                    maxLength: 2,
                    pattern: ::Vet360::Models::Address::VALID_ALPHA_REGEX.inspect
-          property :zip_code,
+          block.property :zip_code,
                    type: :string,
                    example: '38843',
                    maxLength: 5,
