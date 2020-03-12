@@ -31,27 +31,35 @@ module Swagger
                    maxLength: 3
         end
 
-        swagger_schema :Vet360AddressSuggestion do
-          key :type, :object
-          SwaggerHelpers.add_to_required(self, :country_code_iso3)
-          Swagger::Schemas::Vet360::Address.common_address_fields(self, ::Vet360::Models::Address::DOMESTIC)
-          property :international_postal_code, type: :string, example: '12345'
-          property :province, type: :string
-          property :state_code,
+        def self.domestic_address_fields(block)
+          block.property :state_code,
                    type: :string,
                    example: 'MS',
                    minLength: 2,
                    maxLength: 2
-          property :zip_code,
+          block.property :zip_code,
                    type: :string,
                    example: '38843',
                    minLength: 5,
                    maxLength: 5
-          property :zip_code_suffix,
+          block.property :zip_code_suffix,
                    type: :string,
                    example: '1234',
                    minLength: 4,
                    maxLength: 4
+        end
+
+        def self.intl_address_fields(block)
+          block.property :international_postal_code, type: :string, example: '12345'
+          block.property :province, type: :string
+        end
+
+        swagger_schema :Vet360AddressSuggestion do
+          key :type, :object
+          SwaggerHelpers.add_to_required(self, :country_code_iso3)
+          Swagger::Schemas::Vet360::Address.common_address_fields(self, ::Vet360::Models::Address::DOMESTIC)
+          Swagger::Schemas::Vet360::Address.intl_address_fields(self)
+          Swagger::Schemas::Vet360::Address.domestic_address_fields(self)
         end
 
         [
@@ -78,24 +86,12 @@ module Swagger
 
               if %w[Domestic MilitaryOverseas].include?(address_type[0])
                 SwaggerHelpers.add_to_required(self, %i[state_code zip_code])
-
-                property :state_code,
-                         type: :string,
-                         example: 'MS',
-                         minLength: 2,
-                         maxLength: 2,
-                         pattern: ::Vet360::Models::Address::VALID_ALPHA_REGEX.inspect
-                property :zip_code,
-                         type: :string,
-                         example: '38843',
-                         maxLength: 5,
-                         pattern: ::Vet360::Models::Address::VALID_NUMERIC_REGEX.inspect
+                Swagger::Schemas::Vet360::Address.domestic_address_fields(self)
               end
 
               if address_type[0] == 'International'
                 SwaggerHelpers.add_to_required(self, :international_postal_code)
-
-                property :international_postal_code, type: :string, example: '12345'
+                Swagger::Schemas::Vet360::Address.intl_address_fields(self)
               end
             end
           end
