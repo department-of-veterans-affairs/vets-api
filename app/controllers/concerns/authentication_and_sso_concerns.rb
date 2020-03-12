@@ -56,6 +56,7 @@ module AuthenticationAndSSOConcerns
   # Determines whether user signed out of MHV's website
   def should_signout_sso?
     return false if @current_user&.authenticated_by_ssoe
+    return false unless Settings.sso.cookie_enabled && Settings.sso.cookie_signout_enabled
 
     cookies[Settings.sso.cookie_name].blank? && request.host.match(Settings.sso.cookie_domain)
   end
