@@ -84,7 +84,7 @@ describe VAOS::SystemsService do
     context 'when the upstream server returns a 500' do
       it 'raises a backend exception' do
         VCR.use_cassette('vaos/systems/get_facility_clinics_500', match_requests_on: %i[method uri]) do
-          expect { subject.get_facility_clinics('984', '323', '984GA') }.to raise_error(
+          expect { subject.get_facility_clinics('984GA', '323', '984') }.to raise_error(
             Common::Exceptions::BackendServiceException
           )
         end
