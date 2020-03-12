@@ -15,8 +15,9 @@ module VBMS
           @filename = File.basename(file)
           @file = file
         else
-          raise
+          raise "Could not process file of type #{file.class.to_s}"
         end
+        metadata['content_hash'] = Digest::SHA1.hexdigest(@file.read)
         @filename = SecureRandom.uuid + '-' + @filename
         @metadata = metadata
       end
@@ -30,34 +31,29 @@ module VBMS
       private
 
       def fetch_upload_token
-        content_hash = Digest::SHA1.hexdigest(@file.read)
-        vbms_request = VBMS::Requests::InitializeUpload.new(
-          content_hash: content_hash,
+        request = initialize_upload
+        client.send_request(request) # returns a token
+      end
+
+      def initialize_upload
+        VBMS::Requests::InitializeUpload.new(
+          content_hash: @metadata['content_hash'],
           filename: @filename,
           file_number: @metadata['file_number'],
           va_receive_date: @metadata['receive_date'],
           doc_type: @metadata['doc_type'],
           source: @metadata['source'],
-          subject: @metadata['source'] + '_' + @metadata['doc_type'], # TODO
-          new_mail: true # TODO
+          subject: @metadata['source'] + '_' + @metadata['doc_type'], # TODO?
+          new_mail: @metadata['new_mail'] || true # TODO?
         )
-        # token = client.send_request(vbms_request)
-        token = SecureRandom.uuid # stub for dev
-        token
-      rescue
-        # TODO: handle service outages and invalid files
-        raise
       end
 
       def upload(token)
-        binding.pry
         upload_request = VBMS::Requests::UploadDocument.new(
           upload_token: token,
           filepath: @file.path
         )
         client.send_request(upload_request)
-      rescue
-        raise
       end
 
       def client
