@@ -10,7 +10,7 @@ module Common
           end
 
           def call(env)
-            env[:body] = camelcase(env[:body])
+            env[:body] = camelcase(env[:body]) unless env.request_headers['Content-Type'] == 'text/plain'
             @app.call(env)
           end
 
