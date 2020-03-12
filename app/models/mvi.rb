@@ -130,7 +130,7 @@ class Mvi < Common::RedisStore
   private
 
   def response_from_redis_or_service
-    do_cached_with(key: user.uuid) do
+    do_cached_with(key: user.account_uuid) do
       mvi_service.find_profile(user)
     end
   end

@@ -176,7 +176,7 @@ module Vet360Redis
     def response_from_redis_or_service
       return contact_info_service.get_person unless Settings.vet360.contact_information.cache_enabled
 
-      do_cached_with(key: @user.uuid) do
+      do_cached_with(key: @user.account_uuid) do
         contact_info_service.get_person
       end
     end
