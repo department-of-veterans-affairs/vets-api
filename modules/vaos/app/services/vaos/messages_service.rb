@@ -37,7 +37,7 @@ module VAOS
     end
 
     def deserialize(json_hash)
-      json_hash[:appointment_request_message].map { |message| message_struct(message)  }
+      json_hash[:appointment_request_message].map { |message| message_struct(message) }
     rescue => e
       log_message_to_sentry(e.message, :warn, invalid_json: json_hash)
       []
