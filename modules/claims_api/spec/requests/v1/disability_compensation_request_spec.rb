@@ -50,14 +50,18 @@ RSpec.describe 'Disability Claims ', type: :request do
       [Common::Exceptions::GatewayTimeout, Timeout::Error, Faraday::TimeoutError].each do |error_klass|
         context error_klass.to_s do
           it 'is logged to PersonalInformationLog' do
-            allow_any_instance_of(ClaimsApi::DisabilityCompensation::MockOverrideService)
-              .to receive(:validate_form526).and_raise(error_klass)
-            allow_any_instance_of(EVSS::DisabilityCompensationForm::ServiceAllClaim)
-              .to receive(:validate_form526).and_raise(error_klass)
-            post path, params: data, headers: headers
-            expect(response.status).to eq 504
-            expect(PersonalInformationLog.count).to be_positive
-            expect(PersonalInformationLog.last.error_class).to eq("submit_form_526 #{error_klass.name}")
+            with_okta_user(scopes) do |auth_header|
+              VCR.use_cassette('evss/claims/claims') do
+                allow_any_instance_of(ClaimsApi::DisabilityCompensation::MockOverrideService)
+                  .to receive(:validate_form526).and_raise(error_klass)
+                allow_any_instance_of(EVSS::DisabilityCompensationForm::ServiceAllClaim)
+                  .to receive(:validate_form526).and_raise(error_klass)
+                post path, params: data, headers: headers.merge(auth_header)
+                expect(response.status).to eq 504
+                expect(PersonalInformationLog.count).to be_positive
+                expect(PersonalInformationLog.last.error_class).to eq("submit_form_526 #{error_klass.name}")
+              end
+            end
           end
         end
       end
