@@ -37,7 +37,7 @@ describe VAOS::MessageForm, type: :model do
 
     it 'validates presence of required attributes' do
       expect(subject).to be_valid
-      expect(subject.sender_id).to eql(:user.icn)
+      expect(subject.sender_id).to eql(user.icn)
     end
   end
 end
