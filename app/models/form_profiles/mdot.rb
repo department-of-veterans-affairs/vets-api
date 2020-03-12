@@ -1,16 +1,15 @@
 # frozen_string_literal: true
 
 module MDOT
-  class FormSupply
+  class FormAddressInformation
     include Virtus.model
+    attribute :permanent_address, MDOT::Address
+    attribute :temporary_address, MDOT::Address
   end
 
-  class FormPermanentAddress
+  class FormSupplyInformation
     include Virtus.model
-  end
-
-  class FormTemporaryAddress
-    include Virtus.model
+    attribute :available, Array[MDOT::Supply]
   end
 end
 
@@ -25,23 +24,23 @@ class FormProfiles::MDOT < FormProfile
 
   def prefill(user)
     return {} unless user.authorize? :mdot, :access?
+    @response = MDOT::Client.new(user).get_supplies
+    @mdot_contact_information = initialize_mdot_contact_information(@response)
+    @mdot_supplies = initialize_mdot_supplies(@response)
   end
 
   private
 
-  def prefill_supplies(raw_supplies)
+  def initialize_mdot_contact_information(response)
+    MDOT::FormAddressInformation.new(
+      permanent_address: response&.permanent_address,
+      temporary_address: response&.temporary_address
+    )
   end
 
-  def prefill_permanent_address(raw_permanent_address)
-  end
-
-  def prefill_temporary_address(raw_temporary_address)
-  end
-
-  def initialize_supplies(user)
-    client = MDOT::Client.new(user)
-    supplies = client.get_supplies
-
-
+  def initialize_mdot_supplies(response)
+    MDOT::FormSupplyInformation.new(
+      available: response&.supplies
+    )
   end
 end

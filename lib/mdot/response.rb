@@ -6,6 +6,10 @@ module MDOT
   class Response < Common::Base
     attr_reader :body, :status
 
+    attribute :permanent_address, MDOT::Address
+    attribute :temporary_address, MDOT::Address
+    attribute :supplies, Array[MDOT::Supply]
+
     def initialize(args)
       @response = args[:response]
       @status = @response.status
