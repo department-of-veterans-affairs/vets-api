@@ -37,18 +37,18 @@ module Swagger
                    example: 'MS',
                    minLength: 2,
                    maxLength: 2,
-                   pattern: ::Vet360::Models::Address::VALID_ALPHA_REGEX.inspect
+                   pattern: SwaggerHelpers.convert_regex(::Vet360::Models::Address::VALID_ALPHA_REGEX)
           block.property :zip_code,
                    type: :string,
                    example: '38843',
                    maxLength: 5,
-                   pattern: ::Vet360::Models::Address::VALID_NUMERIC_REGEX.inspect
+                   pattern: SwaggerHelpers.convert_regex(::Vet360::Models::Address::VALID_NUMERIC_REGEX)
           block.property :zip_code_suffix,
                    type: :string,
                    example: '1234',
                    minLength: 4,
                    maxLength: 4,
-                   pattern: ::Vet360::Models::Address::VALID_NUMERIC_REGEX.inspect
+                   pattern: SwaggerHelpers.convert_regex(::Vet360::Models::Address::VALID_NUMERIC_REGEX)
         end
 
         def self.intl_address_fields(block)
