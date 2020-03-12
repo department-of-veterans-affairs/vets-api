@@ -4,7 +4,6 @@
 # to this responsibility alone.
 module AuthenticationAndSSOConcerns
   extend ActiveSupport::Concern
-  include ActionController::HttpAuthentication::Token::ControllerMethods
   include ActionController::Cookies
 
   included do
@@ -30,7 +29,6 @@ module AuthenticationAndSSOConcerns
       reset_session
       return false
     end
-
     @current_user = User.find(@session_object.uuid)
 
     if should_signout_sso?
@@ -57,7 +55,7 @@ module AuthenticationAndSSOConcerns
 
   # Determines whether user signed out of MHV's website
   def should_signout_sso?
-    return false unless Settings.sso.cookie_enabled && Settings.sso.cookie_signout_enabled
+    return false if @current_user&.authenticated_by_ssoe
 
     cookies[Settings.sso.cookie_name].blank? && request.host.match(Settings.sso.cookie_domain)
   end
