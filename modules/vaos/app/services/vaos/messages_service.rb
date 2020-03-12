@@ -20,7 +20,7 @@ module VAOS
 
         if response.status == 200
           {
-            data: OpenStruct.new(response.body.except(:sender_id)),
+            data: message_struct(response.body),
             meta: {}
           }
         else
@@ -37,10 +37,14 @@ module VAOS
     end
 
     def deserialize(json_hash)
-      json_hash[:appointment_request_message].map { |message| OpenStruct.new(message) }
+      json_hash[:appointment_request_message].map { |message| message_struct(message)  }
     rescue => e
       log_message_to_sentry(e.message, :warn, invalid_json: json_hash)
       []
+    end
+
+    def message_struct(message)
+      OpenStruct.new(message.except(:sender_id))
     end
 
     def messages_url(request_id)
