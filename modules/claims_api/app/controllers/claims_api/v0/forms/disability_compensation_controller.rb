@@ -35,12 +35,12 @@ module ClaimsApi
         rescue EVSS::ErrorMiddleware::EVSSError => e
           track_526_validation_errors(e.details)
           render json: { errors: format_errors(e.details) }, status: :unprocessable_entity
-        rescue Common::Exceptions::GatewayTimeout, Timeout::Error, Faraday::TimeoutError => e
+        rescue ::Common::Exceptions::GatewayTimeout, ::Timeout::Error, ::Faraday::TimeoutError => e
           req = { auth: auth_headers, form: form_attributes, source: source_name, auto_claim: auto_claim.as_json }
           PersonalInformationLog.create(
             error_class: "submit_form_526 #{e.class.name}", data: { request: req, error: e.try(:as_json) || e }
           )
-          render json: { errors: [{ status: 422, detail: 'Timeout', source: nil }] }, status: :unprocessable_entity
+          render json: { errors: [{ status: 504, detail: 'Timeout', source: nil }] }, status: :gateway_timeout
         end
 
         def upload_supporting_documents
