@@ -36,11 +36,25 @@ RSpec.describe 'CSRF scenarios', type: :request do
       end
     end
     context 'without a CSRF token' do
-      it 'returns an error' do
+      around(:example) do |example|
+        Settings.sentry.dsn = 'asdf'
+        example.run
+        Settings.sentry.dsn = nil
+      end
+
+      it 'logs the info to sentry' do
+        expect(Raven).to receive(:capture_message).once
         post(v0_hca_attachments_path,
           params: { hca_attachment: { file_data: fixture_file_upload('pdf_fill/extras.pdf') } }
         )
-        expect(response.status).to eq 500
+      end
+
+      it 'returns an error' do
+        skip "this should be live test when CSRF is enforced"
+        # post(v0_hca_attachments_path,
+        #   params: { hca_attachment: { file_data: fixture_file_upload('pdf_fill/extras.pdf') } }
+        # )
+        # expect(response.status).to eq 500
       end
     end
   end
