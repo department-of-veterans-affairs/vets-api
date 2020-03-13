@@ -24,6 +24,7 @@ class FormProfiles::MDOT < FormProfile
 
   def prefill(user)
     return {} unless user.authorize? :mdot, :access?
+
     @response = MDOT::Client.new(user).get_supplies
     @mdot_contact_information = initialize_mdot_contact_information(@response)
     @mdot_supplies = initialize_mdot_supplies(@response)
