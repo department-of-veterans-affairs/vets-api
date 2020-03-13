@@ -32,32 +32,32 @@ pipeline {
     stage('Build Docker Images'){
       steps {
         withCredentials([string(credentialsId: 'sidekiq-enterprise-license', variable: 'BUNDLE_ENTERPRISE__CONTRIBSYS__COM')]) {
-          sh 'make ci-build'
+          sh 'make build'
         }
       }
     }
 
     stage('Setup Testing DB') {
       steps {
-        sh 'make ci-db'
+        sh 'make db'
       }
     }
 
     stage('Lint') {
       steps {
-        sh 'make ci-lint'
+        sh 'make lint'
       }
     }
 
     stage('Security Scan') {
       steps {
-        sh 'make ci-security'
+        sh 'make security'
       }
     }
 
     stage('Run tests') {
       steps {
-        sh 'make ci-spec'
+        sh 'make spec'
       }
       post {
         success {
@@ -144,7 +144,7 @@ pipeline {
   }
   post {
     always {
-      sh 'make ci-down'
+      sh 'make down'
       deleteDir() /* clean up our workspace */
     }
     failure {
