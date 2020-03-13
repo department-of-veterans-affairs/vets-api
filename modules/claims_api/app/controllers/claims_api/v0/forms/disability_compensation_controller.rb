@@ -24,7 +24,7 @@ module ClaimsApi
             status: ClaimsApi::AutoEstablishedClaim::PENDING,
             auth_headers: auth_headers,
             form_data: form_attributes,
-            source: request.headers['X-Consumer-Username']
+            source: source_name
           )
           auto_claim = ClaimsApi::AutoEstablishedClaim.find_by(md5: auto_claim.md5) unless auto_claim.id
           service_object.validate_form526(auto_claim.to_internal)
@@ -35,6 +35,12 @@ module ClaimsApi
         rescue EVSS::ErrorMiddleware::EVSSError => e
           track_526_validation_errors(e.details)
           render json: { errors: format_errors(e.details) }, status: :unprocessable_entity
+        rescue ::Common::Exceptions::GatewayTimeout, ::Timeout::Error, ::Faraday::TimeoutError => e
+          req = { auth: auth_headers, form: form_attributes, source: source_name, auto_claim: auto_claim.as_json }
+          PersonalInformationLog.create(
+            error_class: "submit_form_526 #{e.class.name}", data: { request: req, error: e.try(:as_json) || e }
+          )
+          raise e
         end
 
         def upload_supporting_documents
@@ -51,6 +57,12 @@ module ClaimsApi
 
         def validate_form_526
           super
+        end
+
+        private
+
+        def source_name
+          request.headers['X-Consumer-Username']
         end
       end
     end
