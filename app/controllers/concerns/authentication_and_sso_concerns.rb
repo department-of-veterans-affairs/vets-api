@@ -19,7 +19,11 @@ module AuthenticationAndSSOConcerns
   protected
 
   def set_csrf_cookie
-    cookies['X-CSRF-Token'] = form_authenticity_token
+    cookies['X-CSRF-Token'] = {
+      value: form_authenticity_token,
+      expires: 1.day.from_now,
+      secure: true
+    }
   end
 
   def validate_csrf_token!
