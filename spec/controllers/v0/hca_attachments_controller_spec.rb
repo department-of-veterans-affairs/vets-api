@@ -11,7 +11,7 @@ RSpec.describe V0::HcaAttachmentsController, type: :controller do
 
       expect(JSON.parse(response.body)['data']['attributes']['guid']).to eq HcaAttachment.last.guid
     end
-    
+
     it 'validates input parameters' do
       post(:create)
       expect(response).to have_http_status(:bad_request)

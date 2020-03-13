@@ -314,9 +314,9 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
           'id' => create(:health_care_application).id
         )
       end
-      
+
       it 'returns a 400 if no attachment data is given' do
-          expect(subject).to validate(:post, '/v0/hca_attachments', 400, '')
+        expect(subject).to validate(:post, '/v0/hca_attachments', 400, '')
       end
 
       it 'supports submitting a health care application', run_at: '2017-01-31' do
