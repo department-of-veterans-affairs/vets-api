@@ -4,7 +4,7 @@
   "type": "object",
   "required": ["veteran_address", "supplies"],
   "properties": {
-    "veteran_address": {
+    "permanent_address": {
       "type": "object",
       "street": {
         "type": "string"
@@ -25,7 +25,7 @@
         "type": "string"
       }
     },
-    "veteran_temporary_address": {
+    "temporary_address": {
       "type": "object",
       "street": {
         "type": "string"
