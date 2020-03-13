@@ -7,6 +7,7 @@ module VAOS
   class MessageForm < Common::Form
     attribute :message_text, String # only this attribute gets set by user, everything else is overridden
     attribute :url, String
+    attribute :sender_id, String
     attribute :appointment_request_id, String
     attribute :message_date_time, String
     attribute :message_sent, Boolean
@@ -26,6 +27,10 @@ module VAOS
 
     def url
       ''
+    end
+
+    def sender_id
+      @user.icn
     end
 
     def message_date_time
