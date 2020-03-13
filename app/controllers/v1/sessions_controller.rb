@@ -7,6 +7,9 @@ require 'saml/responses/logout'
 
 module V1
   class SessionsController < ApplicationController
+    skip_before_action :validate_csrf_token!
+    skip_after_action :set_csrf_cookie
+
     REDIRECT_URLS = %w[signup mhv dslogon idme mfa verify slo ssoe_slo].freeze
 
     STATSD_SSO_NEW_KEY = 'api.auth.new'

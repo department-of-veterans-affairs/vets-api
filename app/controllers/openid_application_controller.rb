@@ -10,6 +10,9 @@ require 'jwt'
 
 class OpenidApplicationController < ApplicationController
   before_action :authenticate
+
+  skip_before_action :validate_csrf_token!
+  skip_after_action :set_csrf_cookie
   TOKEN_REGEX = /Bearer /.freeze
 
   private
