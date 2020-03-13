@@ -1,0 +1,67 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: "<GIDS_URL>/v0/yellow_ribbon_programs"
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Fri, 13 Mar 2020 14:38:25 GMT
+      Content-Type:
+      - application/json; charset=utf-8
+      Connection:
+      - keep-alive
+      Cache-Control:
+      - no-cache, no-store
+      Expires:
+      - 2019-03-13 14:38:25 UTC
+      Pragma:
+      - no-cache
+      Vary:
+      - Origin
+      X-Content-Type-Options:
+      - nosniff
+      - nosniff
+      X-Frame-Options:
+      - SAMEORIGIN
+      - deny
+      X-Request-Id:
+      - 43057afa-bd8f-44ce-974b-6cb03e1bd619
+      X-Runtime:
+      - '0.132331'
+      Referrer-Policy:
+      - no-referrer-when-downgrade
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubDomains; preload
+      X-Xss-Protection:
+      - 1; report=/csp-report
+      Set-Cookie:
+      - TS016f4012=01c16e2d8114023ee69c2c1033caf41e665137f8eb675bb5378a1691d5328b0877bb2ecb16f029144f6503a828db0bc0a44bad7cfc;
+        Max-Age=900; Path=/
+      Transfer-Encoding:
+      - chunked
+    body:
+      encoding: ASCII-8BIT
+      string: '{"data":[{"id":"14390","type":"yellow_ribbon_programs","attributes":{"city":null,"contribution_amount":"10000.0","country":"USA","degree_level":"Undergraduate","division_professional_school":"All","facility_code":null,"institution_id":3426800,"insturl":"www.calbaptist.edu","number_of_students":99999,"school_name_in_yr_database":null,"state":null,"street_address":null,"zip":null}},{"id":"14389","type":"yellow_ribbon_programs","attributes":{"city":null,"contribution_amount":"20000.0","country":"USA","degree_level":"All","division_professional_school":"All","facility_code":null,"institution_id":3426806,"insturl":"worldwide.erau.edu/","number_of_students":20,"school_name_in_yr_database":null,"state":null,"street_address":null,"zip":null}},{"id":"14388","type":"yellow_ribbon_programs","attributes":{"city":null,"contribution_amount":"20000.0","country":"USA","degree_level":"All","division_professional_school":"All","facility_code":null,"institution_id":3426806,"insturl":"worldwide.erau.edu/","number_of_students":20,"school_name_in_yr_database":null,"state":null,"street_address":null,"zip":null}},{"id":"14387","type":"yellow_ribbon_programs","attributes":{"city":null,"contribution_amount":"20000.0","country":"USA","degree_level":"All","division_professional_school":"All","facility_code":null,"institution_id":3426806,"insturl":"worldwide.erau.edu/","number_of_students":20,"school_name_in_yr_database":null,"state":null,"street_address":null,"zip":null}},{"id":"14386","type":"yellow_ribbon_programs","attributes":{"city":null,"contribution_amount":"20000.0","country":"USA","degree_level":"All","division_professional_school":"All","facility_code":null,"institution_id":3426815,"insturl":"worldwide.erau.edu/","number_of_students":20,"school_name_in_yr_database":null,"state":null,"street_address":null,"zip":null}},{"id":"14385","type":"yellow_ribbon_programs","attributes":{"city":null,"contribution_amount":"10500.0","country":"USA","degree_level":"All","division_professional_school":"All","facility_code":null,"institution_id":3426822,"insturl":"www.keiseruniversity.edu","number_of_students":75,"school_name_in_yr_database":null,"state":null,"street_address":null,"zip":null}},{"id":"14384","type":"yellow_ribbon_programs","attributes":{"city":null,"contribution_amount":"5000.0","country":"USA","degree_level":"All","division_professional_school":"All","facility_code":null,"institution_id":3426824,"insturl":"www.keiseruniversity.edu","number_of_students":75,"school_name_in_yr_database":null,"state":null,"street_address":null,"zip":null}},{"id":"14383","type":"yellow_ribbon_programs","attributes":{"city":null,"contribution_amount":"14000.0","country":"USA","degree_level":"Undergraduate","division_professional_school":"All","facility_code":null,"institution_id":3426834,"insturl":"https://www.msmu.edu","number_of_students":30,"school_name_in_yr_database":null,"state":null,"street_address":null,"zip":null}},{"id":"14382","type":"yellow_ribbon_programs","attributes":{"city":null,"contribution_amount":"99999.0","country":"USA","degree_level":"Undergraduate","division_professional_school":"Online","facility_code":null,"institution_id":3426834,"insturl":"https://www.msmu.edu","number_of_students":99999,"school_name_in_yr_database":null,"state":null,"street_address":null,"zip":null}},{"id":"14381","type":"yellow_ribbon_programs","attributes":{"city":null,"contribution_amount":"1500.0","country":"USA","degree_level":"Doctoral","division_professional_school":"All","facility_code":null,"institution_id":3426834,"insturl":"https://www.msmu.edu","number_of_students":4,"school_name_in_yr_database":null,"state":null,"street_address":null,"zip":null}},{"id":"14380","type":"yellow_ribbon_programs","attributes":{"city":null,"contribution_amount":"6000.0","country":"USA","degree_level":"Graduate/Undergraduate","division_professional_school":"Capital
+        University Main Campus","facility_code":null,"institution_id":3426850,"insturl":"www.capital.edu","number_of_students":150,"school_name_in_yr_database":null,"state":null,"street_address":null,"zip":null}},{"id":"14379","type":"yellow_ribbon_programs","attributes":{"city":null,"contribution_amount":"6000.0","country":"USA","degree_level":"All","division_professional_school":"All","facility_code":null,"institution_id":3426851,"insturl":"www.capital.edu","number_of_students":99999,"school_name_in_yr_database":null,"state":null,"street_address":null,"zip":null}},{"id":"14378","type":"yellow_ribbon_programs","attributes":{"city":null,"contribution_amount":"99999.0","country":"USA","degree_level":"All","division_professional_school":"Business,
+        Health, Technology","facility_code":null,"institution_id":3426869,"insturl":"www.davenport.edu","number_of_students":99999,"school_name_in_yr_database":null,"state":null,"street_address":null,"zip":null}},{"id":"14377","type":"yellow_ribbon_programs","attributes":{"city":null,"contribution_amount":"99999.0","country":"USA","degree_level":"Graduate","division_professional_school":"McGeorge
+        School of Law","facility_code":null,"institution_id":3426918,"insturl":"www.pacific.edu","number_of_students":60,"school_name_in_yr_database":null,"state":null,"street_address":null,"zip":null}},{"id":"14376","type":"yellow_ribbon_programs","attributes":{"city":null,"contribution_amount":"15000.0","country":"USA","degree_level":"Graduate","division_professional_school":"Pacific
+        Dugoni","facility_code":null,"institution_id":3426919,"insturl":"www.pacific.edu","number_of_students":10,"school_name_in_yr_database":null,"state":null,"street_address":null,"zip":null}},{"id":"14375","type":"yellow_ribbon_programs","attributes":{"city":null,"contribution_amount":"10000.0","country":"USA","degree_level":"Undergraduate","division_professional_school":"All","facility_code":null,"institution_id":3426923,"insturl":"www.dewv.edu","number_of_students":99999,"school_name_in_yr_database":null,"state":null,"street_address":null,"zip":null}},{"id":"14374","type":"yellow_ribbon_programs","attributes":{"city":null,"contribution_amount":"20000.0","country":"USA","degree_level":"All","division_professional_school":"All","facility_code":null,"institution_id":3426936,"insturl":"worldwide.erau.edu/","number_of_students":20,"school_name_in_yr_database":null,"state":null,"street_address":null,"zip":null}},{"id":"14373","type":"yellow_ribbon_programs","attributes":{"city":null,"contribution_amount":"99999.0","country":"USA","degree_level":"Undergraduate","division_professional_school":"All","facility_code":null,"institution_id":3426942,"insturl":"www.champlain.edu","number_of_students":99999,"school_name_in_yr_database":null,"state":null,"street_address":null,"zip":null}},{"id":"14372","type":"yellow_ribbon_programs","attributes":{"city":null,"contribution_amount":"99999.0","country":"USA","degree_level":"Graduate","division_professional_school":"All","facility_code":null,"institution_id":3426942,"insturl":"www.champlain.edu","number_of_students":99999,"school_name_in_yr_database":null,"state":null,"street_address":null,"zip":null}},{"id":"14371","type":"yellow_ribbon_programs","attributes":{"city":null,"contribution_amount":"20000.0","country":"USA","degree_level":"All","division_professional_school":"All","facility_code":null,"institution_id":3426945,"insturl":"worldwide.erau.edu/","number_of_students":20,"school_name_in_yr_database":null,"state":null,"street_address":null,"zip":null}},{"id":"14370","type":"yellow_ribbon_programs","attributes":{"city":null,"contribution_amount":"2000.0","country":"USA","degree_level":"Graduate","division_professional_school":"All","facility_code":null,"institution_id":3426948,"insturl":"www.pcom.edu","number_of_students":5,"school_name_in_yr_database":null,"state":null,"street_address":null,"zip":null}},{"id":"14369","type":"yellow_ribbon_programs","attributes":{"city":null,"contribution_amount":"4000.0","country":"USA","degree_level":"Doctoral","division_professional_school":"Osteopathy","facility_code":null,"institution_id":3426948,"insturl":"www.pcom.edu","number_of_students":5,"school_name_in_yr_database":null,"state":null,"street_address":null,"zip":null}},{"id":"14368","type":"yellow_ribbon_programs","attributes":{"city":null,"contribution_amount":"1000.0","country":"USA","degree_level":"All","division_professional_school":"All","facility_code":null,"institution_id":3426965,"insturl":"www.coleman.edu","number_of_students":150,"school_name_in_yr_database":null,"state":null,"street_address":null,"zip":null}},{"id":"14367","type":"yellow_ribbon_programs","attributes":{"city":null,"contribution_amount":"3600.0","country":"USA","degree_level":"Undergraduate","division_professional_school":"All","facility_code":null,"institution_id":3426972,"insturl":"www.cse.edu","number_of_students":10,"school_name_in_yr_database":null,"state":null,"street_address":null,"zip":null}},{"id":"14366","type":"yellow_ribbon_programs","attributes":{"city":null,"contribution_amount":"3600.0","country":"USA","degree_level":"Graduate","division_professional_school":"All","facility_code":null,"institution_id":3426972,"insturl":"www.cse.edu","number_of_students":10,"school_name_in_yr_database":null,"state":null,"street_address":null,"zip":null}},{"id":"14365","type":"yellow_ribbon_programs","attributes":{"city":null,"contribution_amount":"8000.0","country":"USA","degree_level":"All","division_professional_school":"All","facility_code":null,"institution_id":3426973,"insturl":"www.juilliard.edu/","number_of_students":99999,"school_name_in_yr_database":null,"state":null,"street_address":null,"zip":null}},{"id":"14364","type":"yellow_ribbon_programs","attributes":{"city":null,"contribution_amount":"15000.0","country":"USA","degree_level":"Undergraduate","division_professional_school":"All","facility_code":null,"institution_id":3426986,"insturl":"www.clarku.edu","number_of_students":80,"school_name_in_yr_database":null,"state":null,"street_address":null,"zip":null}},{"id":"14363","type":"yellow_ribbon_programs","attributes":{"city":null,"contribution_amount":"8000.0","country":"USA","degree_level":"Graduate","division_professional_school":"All","facility_code":null,"institution_id":3426986,"insturl":"www.clarku.edu","number_of_students":20,"school_name_in_yr_database":null,"state":null,"street_address":null,"zip":null}},{"id":"14362","type":"yellow_ribbon_programs","attributes":{"city":null,"contribution_amount":"20000.0","country":"USA","degree_level":"All","division_professional_school":"All","facility_code":null,"institution_id":3426989,"insturl":"worldwide.erau.edu/","number_of_students":20,"school_name_in_yr_database":null,"state":null,"street_address":null,"zip":null}},{"id":"14391","type":"yellow_ribbon_programs","attributes":{"city":null,"contribution_amount":"3000.0","country":"USA","degree_level":"Graduate","division_professional_school":"All","facility_code":null,"institution_id":3426800,"insturl":"www.calbaptist.edu","number_of_students":99999,"school_name_in_yr_database":null,"state":null,"street_address":null,"zip":null}}],"links":{"self":"https://dev-api.va.gov/gids/v0/yellow_ribbon_programs?","first":"https://dev-api.va.gov/gids/v0/yellow_ribbon_programs?page=1\u0026per_page=30","prev":null,"next":"https://dev-api.va.gov/gids/v0/yellow_ribbon_programs?page=2\u0026per_page=30","last":"https://dev-api.va.gov/gids/v0/yellow_ribbon_programs?page=27\u0026per_page=30"},"meta":{"version":{"number":59,"created_at":"2020-02-26T15:03:31.584Z","preview":false},"count":790}}'
+    http_version: null
+  recorded_at: Fri, 13 Mar 2020 14:38:25 GMT
+recorded_with: VCR 5.1.0
