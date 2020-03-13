@@ -36,7 +36,7 @@ end
 def with_okta_user(scopes)
   token = 'token'
   auth_header = { 'Authorization' => "Bearer #{token}" }
-  user = create(:openid_user, identity_attrs: build(:user_identity_attrs, :loa3))
+  user = build_stubbed(:openid_user, identity_attrs: build(:user_identity_attrs, :loa3))
 
   allow(JWT).to receive(:decode).and_return(okta_jwt(scopes))
   Session.create(uuid: user.uuid, token: token)

@@ -4,7 +4,7 @@ require 'rails_helper'
 
 RSpec.describe CentralMail::SubmitSavedClaimJob, uploader_helpers: true do
   stub_virus_scan
-  let(:pension_burial) { create(:pension_burial) }
+  let(:pension_burial) { build_stubbed(:pension_burial) }
   let(:claim) { pension_burial.saved_claim }
   let(:central_mail_submission) { claim.central_mail_submission }
 

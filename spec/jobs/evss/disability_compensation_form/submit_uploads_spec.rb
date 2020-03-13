@@ -11,13 +11,13 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitUploads, type: :job do
     Sidekiq::Worker.clear_all
   end
 
-  let(:user) { FactoryBot.create(:user, :loa3) }
+  let(:user) { FactoryBot.build_stubbed(:user, :loa3) }
   let(:auth_headers) do
     EVSS::DisabilityCompensationAuthHeaders.new(user).add_headers(EVSS::AuthHeaders.new(user).to_h)
   end
-  let(:saved_claim) { FactoryBot.create(:va526ez) }
+  let(:saved_claim) { FactoryBot.build_stubbed(:va526ez) }
   let(:submission) do
-    create(:form526_submission, :with_uploads,
+    build_stubbed(:form526_submission, :with_uploads,
            user_uuid: user.uuid,
            auth_headers_json: auth_headers.to_json,
            saved_claim_id: saved_claim.id,

@@ -11,12 +11,12 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm0781, type: :job do
     Sidekiq::Worker.clear_all
   end
 
-  let(:user) { FactoryBot.create(:user, :loa3) }
+  let(:user) { FactoryBot.build_stubbed(:user, :loa3) }
   let(:auth_headers) do
     EVSS::DisabilityCompensationAuthHeaders.new(user).add_headers(EVSS::AuthHeaders.new(user).to_h)
   end
   let(:evss_claim_id) { 123_456_789 }
-  let(:saved_claim) { FactoryBot.create(:va526ez) }
+  let(:saved_claim) { FactoryBot.build_stubbed(:va526ez) }
   let(:form0781) { File.read 'spec/support/disability_compensation_form/submissions/with_0781.json' }
 
   VCR.configure do |c|

@@ -5,7 +5,7 @@ require 'rails_helper'
 describe Common::ConvertToPdf, uploader_helpers: true do
   stub_virus_scan
 
-  let(:file) { create(:pension_burial).file }
+  let(:file) { build_stubbed(:pension_burial).file }
 
   let(:instance) do
     described_class.new(file)
@@ -34,7 +34,7 @@ describe Common::ConvertToPdf, uploader_helpers: true do
     end
 
     context 'with a pdf file' do
-      let(:file) { create(:pension_burial, file_path: 'spec/fixtures/pdf_fill/extras.pdf').file }
+      let(:file) { build_stubbed(:pension_burial, file_path: 'spec/fixtures/pdf_fill/extras.pdf').file }
 
       it 'stills be pdf and not run convert' do
         expect(MiniMagick::Tool::Convert).not_to receive(:new)

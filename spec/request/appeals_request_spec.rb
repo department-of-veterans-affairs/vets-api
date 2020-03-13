@@ -12,7 +12,7 @@ RSpec.describe 'Appeals Status', type: :request do
   before { sign_in_as(user) }
 
   context 'with a loa1 user' do
-    let(:user) { FactoryBot.create(:user, :loa1, ssn: '111223333') }
+    let(:user) { FactoryBot.build_stubbed(:user, :loa1, ssn: '111223333') }
 
     it 'returns a forbidden error' do
       get appeals_endpoint
@@ -21,7 +21,7 @@ RSpec.describe 'Appeals Status', type: :request do
   end
 
   context 'with a loa3 user without a ssn' do
-    let(:user) { FactoryBot.create(:user, :loa1, ssn: nil) }
+    let(:user) { FactoryBot.build_stubbed(:user, :loa1, ssn: nil) }
 
     it 'returns a forbidden error' do
       get appeals_endpoint
@@ -30,7 +30,7 @@ RSpec.describe 'Appeals Status', type: :request do
   end
 
   context 'with a loa3 user' do
-    let(:user) { FactoryBot.create(:user, :loa3, ssn: '111223333') }
+    let(:user) { FactoryBot.build_stubbed(:user, :loa3, ssn: '111223333') }
 
     context 'with a valid response' do
       it 'returns a successful response' do

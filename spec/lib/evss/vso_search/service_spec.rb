@@ -3,7 +3,7 @@
 require 'rails_helper'
 
 describe EVSS::VsoSearch::Service do
-  let(:user) { create(:evss_user) }
+  let(:user) { build_stubbed(:evss_user) }
   let(:service) { described_class.new(user) }
   let(:response) { OpenStruct.new(body: get_fixture('json/veteran_with_poa')) }
 

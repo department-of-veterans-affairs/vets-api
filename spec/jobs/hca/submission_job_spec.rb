@@ -3,9 +3,9 @@
 require 'rails_helper'
 
 RSpec.describe HCA::SubmissionJob, type: :job do
-  let(:user) { create(:user) }
+  let(:user) { build_stubbed(:user) }
   let(:user_identifier) { HealthCareApplication.get_user_identifier(user) }
-  let(:health_care_application) { create(:health_care_application) }
+  let(:health_care_application) { build_stubbed(:health_care_application) }
   let(:form) { { foo: true, email: 'foo@example.com' } }
   let(:result) do
     {

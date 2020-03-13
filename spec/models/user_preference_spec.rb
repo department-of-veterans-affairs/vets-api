@@ -4,13 +4,13 @@ require 'rails_helper'
 
 describe UserPreference, type: :model do
   it 'has a valid factory' do
-    user_preference = create(:user_preference)
+    user_preference = build_stubbed(:user_preference)
     expect(user_preference).to be_valid
   end
 
   describe '.all_preferences_with_choices' do
     let(:user) { build(:user, :loa1) }
-    let(:account) { create(:account) }
+    let(:account) { build_stubbed(:account) }
     let(:account_id) { account.id }
 
     before do
@@ -26,7 +26,7 @@ describe UserPreference, type: :model do
 
     context 'when the User has a single Preference with UserPreferences' do
       it 'returns a single object in the array' do
-        benefits = create(:preference, :benefits)
+        benefits = build_stubbed(:preference, :benefits)
         UserPreference.create(account: account,
                               preference_id: benefits.id,
                               preference_choice_id: benefits.choices.first.id)
@@ -41,8 +41,8 @@ describe UserPreference, type: :model do
 
     context 'when the User has multiple Preferences with UserPreferences' do
       it 'returns an array of objects including preference/user preference pairs' do
-        benefits = create(:preference, :benefits)
-        notifications = create(:preference, :notifications)
+        benefits = build_stubbed(:preference, :benefits)
+        notifications = build_stubbed(:preference, :notifications)
         UserPreference.create(account: account,
                               preference_id: benefits.id,
                               preference_choice_id: benefits.choices.first.id)

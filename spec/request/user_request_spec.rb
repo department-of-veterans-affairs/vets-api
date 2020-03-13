@@ -17,7 +17,7 @@ RSpec.describe 'Fetching user data', type: :request do
       allow(mhv_account).to receive(:terms_and_conditions_accepted?).and_return(true)
       allow(mhv_account).to receive(:needs_terms_acceptance?).and_return(false)
       allow(mhv_account).to receive(:user=).and_return(mhv_user)
-      create(:account, idme_uuid: mhv_user.uuid)
+      build_stubbed(:account, idme_uuid: mhv_user.uuid)
       sign_in_as(mhv_user)
       get v0_user_url, params: nil
     end
@@ -238,7 +238,7 @@ RSpec.describe 'Fetching user data', type: :request do
 
   def new_user(type = :loa3)
     user = build(:user, type, uuid: rand(1000..100_000))
-    create(:account, idme_uuid: user.uuid)
+    build_stubbed(:account, idme_uuid: user.uuid)
     user
   end
 

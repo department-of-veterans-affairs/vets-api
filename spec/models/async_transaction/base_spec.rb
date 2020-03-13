@@ -4,7 +4,7 @@ require 'rails_helper'
 
 RSpec.describe AsyncTransaction::Base, type: :model do
   describe 'Validation' do
-    let(:transaction1) { create(:address_transaction) }
+    let(:transaction1) { build_stubbed(:address_transaction) }
     let(:transaction2) { build(:address_transaction) }
     let(:transaction3) { build(:address_transaction, source: nil) }
     let(:transaction4) { build(:address_transaction) }
@@ -35,9 +35,9 @@ RSpec.describe AsyncTransaction::Base, type: :model do
   end
 
   describe 'Subclasses' do
-    let(:transaction1) { create(:address_transaction, transaction_id: 1) }
-    let(:transaction2) { create(:email_transaction, transaction_id: 2) }
-    let(:transaction3) { create(:telephone_transaction, transaction_id: 3) }
+    let(:transaction1) { build_stubbed(:address_transaction, transaction_id: 1) }
+    let(:transaction2) { build_stubbed(:email_transaction, transaction_id: 2) }
+    let(:transaction3) { build_stubbed(:telephone_transaction, transaction_id: 3) }
 
     it 'are queryable from the parent', :aggregate_failures do
       record1 = AsyncTransaction::Vet360::Base

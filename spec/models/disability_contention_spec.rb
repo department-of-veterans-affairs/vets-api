@@ -5,9 +5,9 @@ require 'rails_helper'
 RSpec.describe DisabilityContention, type: :model do
   describe '.suggested' do
     before do
-      create(:disability_contention_arrhythmia)
-      create(:disability_contention_arteriosclerosis)
-      create(:disability_contention_arthritis)
+      build_stubbed(:disability_contention_arrhythmia)
+      build_stubbed(:disability_contention_arteriosclerosis)
+      build_stubbed(:disability_contention_arthritis)
     end
 
     it 'finds records that only match the medical term' do

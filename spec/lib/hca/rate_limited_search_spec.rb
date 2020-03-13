@@ -3,7 +3,7 @@
 require 'rails_helper'
 
 describe HCA::RateLimitedSearch do
-  let(:user_attributes) { HealthCareApplication.user_attributes(create(:health_care_application).parsed_form) }
+  let(:user_attributes) { HealthCareApplication.user_attributes(build_stubbed(:health_care_application).parsed_form) }
 
   describe '.combine_traits' do
     it 'combines non-ssn user attributes' do

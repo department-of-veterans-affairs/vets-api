@@ -12,7 +12,7 @@ RSpec.describe SavedClaim::EducationBenefits::VA1995s do
 
   describe '#in_progress_form_id' do
     it 'returns 22-1995' do
-      form = create(:va1995s)
+      form = build_stubbed(:va1995s)
       expect(form.in_progress_form_id).to eq('22-1995')
     end
   end

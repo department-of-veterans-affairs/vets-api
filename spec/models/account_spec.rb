@@ -17,7 +17,7 @@ RSpec.describe Account, type: :model do
     it 'creates an Account if one does not exist' do
       expect(Account.count).to eq 0
 
-      user = create(:user, :loa3)
+      user = build_stubbed(:user, :loa3)
 
       expect do
         Account.create_if_needed!(user)
@@ -25,7 +25,7 @@ RSpec.describe Account, type: :model do
     end
 
     it 'does not create a second Account, matched on idme uuid' do
-      user = create(:user, :accountable)
+      user = build_stubbed(:user, :accountable)
       expect(Account.count).to eq 1
 
       expect do
@@ -34,7 +34,7 @@ RSpec.describe Account, type: :model do
     end
 
     it 'does not create a second Account, matched on sec id' do
-      user = create(:user, :accountable_with_sec_id)
+      user = build_stubbed(:user, :accountable_with_sec_id)
       expect(Account.count).to eq 1
 
       expect do
@@ -43,8 +43,8 @@ RSpec.describe Account, type: :model do
     end
 
     it 'issues a warning with multiple matching Accounts' do
-      user = create(:user, :accountable)
-      create(:user, :accountable_with_sec_id)
+      user = build_stubbed(:user, :accountable)
+      build_stubbed(:user, :accountable_with_sec_id)
 
       expect(Account).to receive(:log_message_to_sentry)
 
@@ -58,7 +58,7 @@ RSpec.describe Account, type: :model do
     it 'does not update an Account that has yet to be saved' do
       expect(Account.count).to eq 0
 
-      user = create(:user, :loa3)
+      user = build_stubbed(:user, :loa3)
 
       expect do
         Account.update_if_needed!(Account.new, user)
@@ -66,7 +66,7 @@ RSpec.describe Account, type: :model do
     end
 
     it 'does not update the Account, as it hasnt changed' do
-      user = create(:user, :loa3)
+      user = build_stubbed(:user, :loa3)
       acct = Account.create_if_needed!(user)
 
       expect(Account.count).to eq 1
@@ -79,7 +79,7 @@ RSpec.describe Account, type: :model do
     end
 
     it 'does update the Account' do
-      user = create(:user, :accountable)
+      user = build_stubbed(:user, :accountable)
       acct = Account.first
 
       expect(acct.edipi).to eq nil

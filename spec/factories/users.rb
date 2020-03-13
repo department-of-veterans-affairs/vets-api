@@ -36,7 +36,7 @@ FactoryBot.define do
     end
 
     callback(:after_build, :after_stub, :after_create) do |user, t|
-      user_identity = create(:user_identity,
+      user_identity = build_stubbed(:user_identity,
                              authn_context: t.authn_context,
                              uuid: user.uuid,
                              email: t.email,
@@ -80,7 +80,7 @@ FactoryBot.define do
       authn_context { LOA::IDME_LOA3_VETS }
       uuid { SecureRandom.uuid }
       callback(:after_build) do |user|
-        create(:account, idme_uuid: user.uuid)
+        build_stubbed(:account, idme_uuid: user.uuid)
       end
 
       sign_in do
@@ -98,7 +98,7 @@ FactoryBot.define do
       authn_context { LOA::IDME_LOA3_VETS }
       uuid { SecureRandom.uuid }
       callback(:after_build) do |user|
-        create(:account, sec_id: user.sec_id)
+        build_stubbed(:account, sec_id: user.sec_id)
       end
 
       sign_in do

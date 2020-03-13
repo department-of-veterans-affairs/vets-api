@@ -16,7 +16,7 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
 
   describe '#translate' do
     before do
-      create(:in_progress_form, form_id: VA526ez::FORM_ID, user_uuid: user.uuid)
+      build_stubbed(:in_progress_form, form_id: VA526ez::FORM_ID, user_uuid: user.uuid)
     end
 
     let(:form_content) do

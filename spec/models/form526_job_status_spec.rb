@@ -4,7 +4,7 @@ require 'rails_helper'
 
 RSpec.describe Form526JobStatus do
   describe '.upsert' do
-    let(:form526_submission) { create(:form526_submission) }
+    let(:form526_submission) { build_stubbed(:form526_submission) }
     let(:jid) { SecureRandom.uuid }
     let(:values) do
       {

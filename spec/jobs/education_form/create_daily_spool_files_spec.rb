@@ -6,7 +6,7 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, type: :model, form: :educat
   subject { described_class.new }
 
   let!(:application_1606) do
-    create(:va1990).education_benefits_claim
+    build_stubbed(:va1990).education_benefits_claim
   end
   let(:line_break) { EducationForm::WINDOWS_NOTEPAD_LINEBREAK }
 
@@ -83,7 +83,7 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, type: :model, form: :educat
     end
 
     context 'with a 1995 form' do
-      let(:application_1606) { create(:va1995_full_form).education_benefits_claim }
+      let(:application_1606) { build_stubbed(:va1995_full_form).education_benefits_claim }
 
       it 'tracks the 1995 form' do
         expect(subject).to receive(:track_form_type).with('22-1995', 999)
@@ -93,7 +93,7 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, type: :model, form: :educat
     end
 
     context 'with a 1995s form' do
-      let(:application_1606) { create(:va1995s_full_form).education_benefits_claim }
+      let(:application_1606) { build_stubbed(:va1995s_full_form).education_benefits_claim }
 
       it 'tracks the 1995s form' do
         expect(subject).to receive(:track_form_type).with('22-1995s', 999)
@@ -123,9 +123,9 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, type: :model, form: :educat
         expect(Rails.env).to receive('development?').once.and_return(true)
         application_1606.saved_claim.form = {}.to_json
         application_1606.saved_claim.save!(validate: false) # Make this claim super malformed
-        FactoryBot.create(:va1990_western_region)
-        FactoryBot.create(:va1995_full_form)
-        FactoryBot.create(:va0994_full_form)
+        FactoryBot.build_stubbed(:va1990_western_region)
+        FactoryBot.build_stubbed(:va1995_full_form)
+        FactoryBot.build_stubbed(:va0994_full_form)
         # clear out old test files
         FileUtils.rm_rf(Dir.glob(spool_files))
         # ensure our test data is spread across 3 regions..
@@ -194,7 +194,7 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, type: :model, form: :educat
 
   context 'write_files', run_at: '2016-09-17 03:00:00 EDT' do
     let(:filename) { '307_09172016_070000_vetsgov.spl' }
-    let!(:second_record) { FactoryBot.create(:va1995) }
+    let!(:second_record) { FactoryBot.build_stubbed(:va1995) }
 
     context 'in the development env' do
       let(:file_path) { "tmp/spool_files/#{filename}" }

@@ -6,8 +6,8 @@ require 'evss/request_decision'
 RSpec.describe 'EVSS Claims management', type: :request do
   include SchemaMatchers
 
-  let(:user) { create(:user, :loa3) }
-  let(:evss_user) { create(:evss_user) }
+  let(:user) { build_stubbed(:user, :loa3) }
+  let(:evss_user) { build_stubbed(:evss_user) }
 
   context 'for a user without evss attrs' do
     it 'returns a 403' do
@@ -29,7 +29,7 @@ RSpec.describe 'EVSS Claims management', type: :request do
 
   context 'for a single claim' do
     let!(:claim) do
-      FactoryBot.create(:evss_claim, id: 1, evss_id: 600_118_851,
+      FactoryBot.build_stubbed(:evss_claim, id: 1, evss_id: 600_118_851,
                                      user_uuid: user.uuid)
     end
 
@@ -52,7 +52,7 @@ RSpec.describe 'EVSS Claims management', type: :request do
 
     it 'user cannot access claim of another user' do
       sign_in_as(user)
-      FactoryBot.create(:evss_claim, id: 2, evss_id: 189_625,
+      FactoryBot.build_stubbed(:evss_claim, id: 2, evss_id: 189_625,
                                      user_uuid: 'xyz')
       get '/v0/evss_claims/2'
       expect(response).to have_http_status(:not_found)

@@ -28,7 +28,7 @@ RSpec.describe MhvAccountsService do
   end
 
   let(:user) do
-    create(:user, :loa3,
+    build_stubbed(:user, :loa3,
            ssn: mvi_profile.ssn,
            first_name: mvi_profile.given_names.first,
            last_name: mvi_profile.family_name,
@@ -42,9 +42,9 @@ RSpec.describe MhvAccountsService do
 
   before do
     stub_mvi(mvi_profile)
-    terms = create(:terms_and_conditions, latest: true, name: MhvAccount::TERMS_AND_CONDITIONS_NAME, version: 'v3.4')
+    terms = build_stubbed(:terms_and_conditions, latest: true, name: MhvAccount::TERMS_AND_CONDITIONS_NAME, version: 'v3.4')
     date_signed = Time.new(2017, 5, 9).utc
-    create(:terms_and_conditions_acceptance, terms_and_conditions: terms, user_uuid: user.uuid, created_at: date_signed)
+    build_stubbed(:terms_and_conditions_acceptance, terms_and_conditions: terms, user_uuid: user.uuid, created_at: date_signed)
   end
 
   describe 'account creation and upgrade' do

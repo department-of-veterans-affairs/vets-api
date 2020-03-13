@@ -4,7 +4,7 @@ require 'rails_helper'
 
 describe EVSSClaimsSyncStatusTracker do
   let(:user) { build(:user, :loa3) }
-  let(:claim) { create(:evss_claim, user_uuid: user.uuid) }
+  let(:claim) { build_stubbed(:evss_claim, user_uuid: user.uuid) }
 
   context 'with valid arguments' do
     subject { described_class.create(user_uuid: user.uuid, claim_id: claim.id) }

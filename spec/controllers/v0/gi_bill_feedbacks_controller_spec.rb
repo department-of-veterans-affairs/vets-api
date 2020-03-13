@@ -5,7 +5,7 @@ require 'support/controller_spec_helper'
 
 RSpec.describe V0::GIBillFeedbacksController, type: :controller do
   let(:form) { build(:gi_bill_feedback).form }
-  let(:user) { create(:user) }
+  let(:user) { build_stubbed(:user) }
 
   it_behaves_like 'a controller that deletes an InProgressForm',
                   'gi_bill_feedback', 'gi_bill_feedback', GIBillFeedback::FORM_ID
@@ -40,7 +40,7 @@ RSpec.describe V0::GIBillFeedbacksController, type: :controller do
 
   describe '#show' do
     it 'finds a gi bill feedback submission by guid' do
-      gi_bill_feedback = create(:gi_bill_feedback)
+      gi_bill_feedback = build_stubbed(:gi_bill_feedback)
       get(:show, params: { id: gi_bill_feedback.guid })
       expect(parsed_body['data']['id']).to eq(gi_bill_feedback.id)
       expect(parsed_body['data']['attributes'].keys).to eq(%w[guid state parsed_response])

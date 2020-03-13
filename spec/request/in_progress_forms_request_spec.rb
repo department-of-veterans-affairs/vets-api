@@ -30,8 +30,8 @@ RSpec.describe V0::InProgressFormsController, type: :request do
       end
 
       let(:user) { loa3_user }
-      let!(:in_progress_form_edu) { FactoryBot.create(:in_progress_form, form_id: '22-1990', user_uuid: user.uuid) }
-      let!(:in_progress_form_hca) { FactoryBot.create(:in_progress_form, form_id: '1010ez', user_uuid: user.uuid) }
+      let!(:in_progress_form_edu) { FactoryBot.build_stubbed(:in_progress_form, form_id: '22-1990', user_uuid: user.uuid) }
+      let!(:in_progress_form_hca) { FactoryBot.build_stubbed(:in_progress_form, form_id: '1010ez', user_uuid: user.uuid) }
 
       context 'when the user is not loa3' do
         let(:user) { loa1_user }
@@ -61,7 +61,7 @@ RSpec.describe V0::InProgressFormsController, type: :request do
 
     describe '#show' do
       let(:user) { loa3_user }
-      let!(:in_progress_form) { FactoryBot.create(:in_progress_form, user_uuid: user.uuid) }
+      let!(:in_progress_form) { FactoryBot.build_stubbed(:in_progress_form, user_uuid: user.uuid) }
 
       context 'when the user is not loa3' do
         let(:user) { loa1_user }
@@ -193,8 +193,8 @@ RSpec.describe V0::InProgressFormsController, type: :request do
       end
 
       context 'with an existing form' do
-        let!(:other_existing_form) { create(:in_progress_form, form_id: 'jksdfjk') }
-        let(:existing_form) { create(:in_progress_form, user_uuid: user.uuid) }
+        let!(:other_existing_form) { build_stubbed(:in_progress_form, form_id: 'jksdfjk') }
+        let(:existing_form) { build_stubbed(:in_progress_form, user_uuid: user.uuid) }
         let(:update_form) { build(:in_progress_update_form, user_uuid: user.uuid) }
 
         it 'updates the right form' do
@@ -208,7 +208,7 @@ RSpec.describe V0::InProgressFormsController, type: :request do
 
     describe '#destroy' do
       let(:user) { loa3_user }
-      let!(:in_progress_form) { FactoryBot.create(:in_progress_form, user_uuid: user.uuid) }
+      let!(:in_progress_form) { FactoryBot.build_stubbed(:in_progress_form, user_uuid: user.uuid) }
 
       context 'when the user is not loa3' do
         let(:user) { loa1_user }
@@ -245,7 +245,7 @@ RSpec.describe V0::InProgressFormsController, type: :request do
 
   context 'without a user' do
     describe '#show' do
-      let(:in_progress_form) { FactoryBot.create(:in_progress_form) }
+      let(:in_progress_form) { FactoryBot.build_stubbed(:in_progress_form) }
 
       it 'returns a 401' do
         get v0_in_progress_form_url(in_progress_form.form_id), params: nil

@@ -58,10 +58,10 @@ RSpec.describe ApplicationController, type: :controller do
       controller.clear_saved_form(form_id)
     end
 
-    let(:user) { create(:user) }
+    let(:user) { build_stubbed(:user) }
 
     context 'with a saved form' do
-      let!(:in_progress_form) { create(:in_progress_form, user_uuid: user.uuid) }
+      let!(:in_progress_form) { build_stubbed(:in_progress_form, user_uuid: user.uuid) }
       let(:form_id) { in_progress_form.form_id }
 
       context 'without a current user' do
@@ -181,7 +181,7 @@ RSpec.describe ApplicationController, type: :controller do
     end
 
     context 'signed in user' do
-      let(:user) { create(:user) }
+      let(:user) { build_stubbed(:user) }
 
       before do
         controller.instance_variable_set(:@current_user, user)

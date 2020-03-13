@@ -8,7 +8,7 @@ describe EVSS::ClaimsService do
   subject { claims_service }
 
   let(:current_user) do
-    create(:evss_user)
+    build_stubbed(:evss_user)
   end
 
   let(:auth_headers) do

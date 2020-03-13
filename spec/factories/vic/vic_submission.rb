@@ -8,11 +8,11 @@ FactoryBot.define do
         'email' => 'foo@foo.com',
         'dd214' => [
           {
-            'confirmationCode' => create(:supporting_documentation_attachment).guid
+            'confirmationCode' => build_stubbed(:supporting_documentation_attachment).guid
           }
         ],
         'photo' => {
-          'confirmationCode' => create(:profile_photo_attachment).guid
+          'confirmationCode' => build_stubbed(:profile_photo_attachment).guid
         },
         'privacyAgreementAccepted' => true,
         'veteranDateOfBirth' => '1985-03-07',
@@ -40,11 +40,11 @@ FactoryBot.define do
           'email' => 'foo@foo.com',
           'dd214' => [
             {
-              'confirmationCode' => create(:supporting_documentation_attachment).guid
+              'confirmationCode' => build_stubbed(:supporting_documentation_attachment).guid
             }
           ],
           'photo' => {
-            'confirmationCode' => create(:profile_photo_attachment).guid
+            'confirmationCode' => build_stubbed(:profile_photo_attachment).guid
           },
           'privacyAgreementAccepted' => true,
           'veteranAddress' => {

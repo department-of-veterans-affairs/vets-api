@@ -6,13 +6,13 @@ RSpec.describe AsyncTransaction::Vet360::Base, type: :model do
   describe '.refresh_transaction_status()' do
     let(:user) { build(:user, :loa3) }
     let(:transaction1) do
-      create(:address_transaction,
+      build_stubbed(:address_transaction,
              transaction_id: 'a030185b-e88b-4e0d-a043-93e4f34c60d6',
              user_uuid: user.uuid,
              transaction_status: 'RECEIVED')
     end
     let(:transaction2) do
-      create(:email_transaction,
+      build_stubbed(:email_transaction,
              transaction_id: 'cb99a754-9fa9-4f3c-be93-ede12c14b68e',
              user_uuid: user.uuid,
              transaction_status: 'RECEIVED')
@@ -119,7 +119,7 @@ RSpec.describe AsyncTransaction::Vet360::Base, type: :model do
   describe '.refresh_transaction_statuses()' do
     let(:user) { build(:user, :loa3) }
     let(:transaction1) do
-      create(:address_transaction,
+      build_stubbed(:address_transaction,
              transaction_id: '0faf342f-5966-4d3f-8b10-5e9f911d07d2',
              user_uuid: user.uuid,
              status: AsyncTransaction::Vet360::Base::COMPLETED)
@@ -142,13 +142,13 @@ RSpec.describe AsyncTransaction::Vet360::Base, type: :model do
     end
 
     it 'returns only the most recent transaction address/telephone/email transaction' do
-      create(:email_transaction,
+      build_stubbed(:email_transaction,
              transaction_id: 'foo',
              user_uuid: user.uuid,
              transaction_status: 'RECEIVED',
              status: AsyncTransaction::Vet360::Base::REQUESTED,
              created_at: Time.zone.now - 1)
-      transaction = create(:email_transaction,
+      transaction = build_stubbed(:email_transaction,
                            transaction_id: 'cb99a754-9fa9-4f3c-be93-ede12c14b68e',
                            user_uuid: user.uuid,
                            transaction_status: 'RECEIVED',

@@ -18,7 +18,7 @@ module SAML
         issuer: issuer
       )
       saml_user = SAML::User.new(saml)
-      user = create(:user, :response_builder, saml_user.to_hash)
+      user = build_stubbed(:user, :response_builder, saml_user.to_hash)
       user.identity
     end
 

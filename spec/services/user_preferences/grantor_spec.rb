@@ -131,8 +131,8 @@ RSpec.describe UserPreferences::Grantor do
       end
 
       context 'when the user has other non-related UserPreferences in place' do
-        let(:some_preference) { create(:preference) }
-        let(:some_choice) { create(:preference_choice) }
+        let(:some_preference) { build_stubbed(:preference) }
+        let(:some_choice) { build_stubbed(:preference_choice) }
         let!(:other_user_preference) { create_user_preference(some_preference, some_choice) }
 
         before do

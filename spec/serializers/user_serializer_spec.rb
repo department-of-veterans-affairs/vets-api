@@ -5,8 +5,8 @@ require 'rails_helper'
 RSpec.describe UserSerializer, type: :serializer do
   subject { serialize(pre_serialized_profile, serializer_class: described_class) }
 
-  let(:user) { create(:user, :loa3) }
-  let!(:in_progress_form) { create(:in_progress_form, user_uuid: user.uuid) }
+  let(:user) { build_stubbed(:user, :loa3) }
+  let!(:in_progress_form) { build_stubbed(:in_progress_form, user_uuid: user.uuid) }
   let(:pre_serialized_profile) { Users::Profile.new(user).pre_serialize }
   let(:data) { JSON.parse(subject)['data'] }
   let(:attributes) { data['attributes'] }

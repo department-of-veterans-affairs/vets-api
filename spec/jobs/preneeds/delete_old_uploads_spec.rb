@@ -19,9 +19,9 @@ RSpec.describe Preneeds::DeleteOldUploads, type: :model do
 
   describe '#perform' do
     it 'deletes attachments older than 2 months that arent associated with an in progress form' do
-      attach1 = create(:preneed_attachment)
-      attach2 = create(:preneed_attachment, created_at: 3.months.ago)
-      attach3 = create(:preneed_attachment, created_at: 3.months.ago)
+      attach1 = build_stubbed(:preneed_attachment)
+      attach2 = build_stubbed(:preneed_attachment, created_at: 3.months.ago)
+      attach3 = build_stubbed(:preneed_attachment, created_at: 3.months.ago)
 
       expect(job).to receive(:uuids_to_keep).and_return([attach3.guid])
 

@@ -3,7 +3,7 @@
 require 'rails_helper'
 
 RSpec.describe EducationForm::Forms::Base, type: :model, form: :education_benefits do
-  let!(:application) { FactoryBot.create(:va1990).education_benefits_claim }
+  let!(:application) { FactoryBot.build_stubbed(:va1990).education_benefits_claim }
   let(:renderer) { described_class.new(application) }
 
   context 'build' do
@@ -71,7 +71,7 @@ RSpec.describe EducationForm::Forms::Base, type: :model, form: :education_benefi
       described_class.new(education_benefits_claim)
     end
 
-    let(:education_benefits_claim) { create(:va1990e).education_benefits_claim }
+    let(:education_benefits_claim) { build_stubbed(:va1990e).education_benefits_claim }
 
     it 'returns the benefit type shorthand' do
       expect(subject.benefit_type(education_benefits_claim.open_struct_form)).to eq('CH33')

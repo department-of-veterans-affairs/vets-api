@@ -31,18 +31,18 @@ RSpec.describe EducationForm::CreateDailyYearToDateReport, type: :aws_helpers do
       )
 
       # outside of yearly range
-      create(:education_benefits_submission, created_at: date - 1.year, status: 'processed')
+      build_stubbed(:education_benefits_submission, created_at: date - 1.year, status: 'processed')
       # outside of daily range, given the timecop freeze.
-      create(:education_benefits_submission, created_at: date - 26.hours, status: 'processed')
+      build_stubbed(:education_benefits_submission, created_at: date - 26.hours, status: 'processed')
 
-      create(:education_benefits_submission, created_at: date, status: 'submitted')
+      build_stubbed(:education_benefits_submission, created_at: date, status: 'submitted')
       %w[1995 1990e 5490 1990n 5495].each do |form_type|
-        create(:education_benefits_submission, form_type: form_type, created_at: date)
+        build_stubbed(:education_benefits_submission, form_type: form_type, created_at: date)
       end
-      create(:education_benefits_submission, form_type: '0993', created_at: date, region: :western)
-      create(:education_benefits_submission, form_type: '0994',
+      build_stubbed(:education_benefits_submission, form_type: '0993', created_at: date, region: :western)
+      build_stubbed(:education_benefits_submission, form_type: '0994',
                                              created_at: date, region: :eastern, vettec: true, chapter33: false)
-      create(:education_benefits_submission, form_type: '1995s', created_at: date, region: :eastern, chapter33: true)
+      build_stubbed(:education_benefits_submission, form_type: '1995s', created_at: date, region: :eastern, chapter33: true)
     end
 
     context 'with the date variable set' do

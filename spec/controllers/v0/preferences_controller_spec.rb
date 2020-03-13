@@ -7,7 +7,7 @@ RSpec.describe V0::PreferencesController, type: :controller do
   include SchemaMatchers
 
   describe '#show' do
-    let(:preference) { create(:preference, :with_choices) }
+    let(:preference) { build_stubbed(:preference, :with_choices) }
 
     context 'when not logged in' do
       it 'returns unauthorized' do
@@ -51,8 +51,8 @@ RSpec.describe V0::PreferencesController, type: :controller do
   end
 
   describe '#index' do
-    let!(:notifications) { create(:preference, :notifications) }
-    let!(:benefits) { create(:preference, :benefits) }
+    let!(:notifications) { build_stubbed(:preference, :notifications) }
+    let!(:benefits) { build_stubbed(:preference, :benefits) }
 
     context 'when not logged in' do
       it 'returns unauthorized' do

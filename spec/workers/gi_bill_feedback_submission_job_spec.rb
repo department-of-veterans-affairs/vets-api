@@ -3,7 +3,7 @@
 require 'rails_helper'
 
 RSpec.describe GIBillFeedbackSubmissionJob do
-  let(:gi_bill_feedback) { create(:gi_bill_feedback) }
+  let(:gi_bill_feedback) { build_stubbed(:gi_bill_feedback) }
 
   describe '#perform' do
     before do

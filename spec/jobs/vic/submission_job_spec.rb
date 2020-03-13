@@ -4,11 +4,11 @@ require 'rails_helper'
 
 RSpec.describe VIC::SubmissionJob do
   let(:uuid) { 'fab2eea7-982e-4171-a2cb-8e9455ab00ed' }
-  let(:user) { create(:user, :loa3) }
+  let(:user) { build_stubbed(:user, :loa3) }
 
   describe '#perform' do
     context 'when the service is up' do
-      let(:vic_submission) { create(:vic_submission_loa3_user) }
+      let(:vic_submission) { build_stubbed(:vic_submission_loa3_user) }
 
       context 'when files arent processed yet', run_at: '2017-01-04 07:00:00 UTC' do
         it 'reenqueues the job' do
@@ -64,7 +64,7 @@ RSpec.describe VIC::SubmissionJob do
 
     context 'when the service has an error' do
       it 'sets the submission to failed' do
-        vic_submission = create(:vic_submission)
+        vic_submission = build_stubbed(:vic_submission)
         ProcessFileJob.drain
         expect_any_instance_of(VIC::Service).to receive(:submit).and_raise('foo')
         expect do

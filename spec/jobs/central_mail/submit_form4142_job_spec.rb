@@ -11,12 +11,12 @@ RSpec.describe CentralMail::SubmitForm4142Job, type: :job do
     Sidekiq::Worker.clear_all
   end
 
-  let(:user) { FactoryBot.create(:user, :loa3) }
+  let(:user) { FactoryBot.build_stubbed(:user, :loa3) }
   let(:auth_headers) do
     EVSS::DisabilityCompensationAuthHeaders.new(user).add_headers(EVSS::AuthHeaders.new(user).to_h)
   end
   let(:evss_claim_id) { 123_456_789 }
-  let(:saved_claim) { FactoryBot.create(:va526ez) }
+  let(:saved_claim) { FactoryBot.build_stubbed(:va526ez) }
 
   describe '.perform_async' do
     let(:form_json) do

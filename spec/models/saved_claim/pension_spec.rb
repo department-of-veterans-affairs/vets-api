@@ -13,8 +13,8 @@ RSpec.describe SavedClaim::Pension, uploader_helpers: true do
   context 'saved claims w/ attachments' do
     stub_virus_scan
 
-    let!(:attachment1) { FactoryBot.create(:pension_burial) }
-    let!(:attachment2) { FactoryBot.create(:pension_burial) }
+    let!(:attachment1) { FactoryBot.build_stubbed(:pension_burial) }
+    let!(:attachment2) { FactoryBot.build_stubbed(:pension_burial) }
 
     let(:claim) do
       FactoryBot.create(

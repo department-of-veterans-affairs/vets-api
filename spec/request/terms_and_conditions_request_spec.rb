@@ -5,11 +5,11 @@ require 'rails_helper'
 RSpec.describe 'terms_and_conditions', type: :request do
   include SchemaMatchers
 
-  let(:current_user) { create(:user) }
-  let!(:terms1) { create(:terms_and_conditions, latest: true, name: 'one') }
-  let!(:terms2) { create(:terms_and_conditions, latest: false, name: 'two') }
-  let!(:terms21) { create(:terms_and_conditions, name: terms2.name, latest: true) }
-  let!(:terms3) { create(:terms_and_conditions, latest: true, name: 'three') }
+  let(:current_user) { build_stubbed(:user) }
+  let!(:terms1) { build_stubbed(:terms_and_conditions, latest: true, name: 'one') }
+  let!(:terms2) { build_stubbed(:terms_and_conditions, latest: false, name: 'two') }
+  let!(:terms21) { build_stubbed(:terms_and_conditions, name: terms2.name, latest: true) }
+  let!(:terms3) { build_stubbed(:terms_and_conditions, latest: true, name: 'three') }
 
   it 'responds to GET #index' do
     get '/v0/terms_and_conditions'
@@ -36,10 +36,10 @@ RSpec.describe 'terms_and_conditions', type: :request do
     end
 
     let!(:terms2_acceptance) do
-      create(:terms_and_conditions_acceptance, user_uuid: current_user.uuid, terms_and_conditions: terms2)
+      build_stubbed(:terms_and_conditions_acceptance, user_uuid: current_user.uuid, terms_and_conditions: terms2)
     end
     let!(:terms21_acceptance) do
-      create(:terms_and_conditions_acceptance, user_uuid: current_user.uuid, terms_and_conditions: terms21)
+      build_stubbed(:terms_and_conditions_acceptance, user_uuid: current_user.uuid, terms_and_conditions: terms21)
     end
 
     describe 'getting user data' do

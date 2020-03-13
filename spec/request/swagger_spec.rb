@@ -29,7 +29,7 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
   let(:mhv_user) { build(:user, :mhv, middle_name: 'Bob') }
 
   before do
-    create(:account, idme_uuid: mhv_user.uuid)
+    build_stubbed(:account, idme_uuid: mhv_user.uuid)
     allow(SAML::SettingsService).to receive(:saml_settings).and_return(rubysaml_settings)
   end
 
@@ -76,7 +76,7 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
     end
 
     it 'supports getting an in-progress form' do
-      FactoryBot.create(:in_progress_form, user_uuid: mhv_user.uuid)
+      FactoryBot.build_stubbed(:in_progress_form, user_uuid: mhv_user.uuid)
       stub_evss_pciu(mhv_user)
       expect(subject).to validate(
         :get,
@@ -107,7 +107,7 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
     end
 
     it 'supports deleting an in-progress form' do
-      form = FactoryBot.create(:in_progress_form, user_uuid: mhv_user.uuid)
+      form = FactoryBot.build_stubbed(:in_progress_form, user_uuid: mhv_user.uuid)
       expect(subject).to validate(
         :delete,
         '/v0/in_progress_forms/{id}',
@@ -311,7 +311,7 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
           :get,
           '/v0/health_care_applications/{id}',
           200,
-          'id' => create(:health_care_application).id
+          'id' => build_stubbed(:health_care_application).id
         )
       end
 
@@ -426,7 +426,7 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
 
     describe 'disability compensation' do
       before do
-        create(:in_progress_form, form_id: VA526ez::FORM_ID, user_uuid: mhv_user.uuid)
+        build_stubbed(:in_progress_form, form_id: VA526ez::FORM_ID, user_uuid: mhv_user.uuid)
       end
 
       let(:form526) do
@@ -449,7 +449,7 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
       end
 
       it 'supports getting suggested conditions' do
-        create(:disability_contention_arrhythmia)
+        build_stubbed(:disability_contention_arrhythmia)
         expect(subject).to validate(
           :get,
           '/v0/disability_compensation_form/suggested_conditions{params}',
@@ -509,8 +509,8 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
       end
 
       context 'with a submission and job status' do
-        let(:submission) { create(:form526_submission, submitted_claim_id: 61_234_567) }
-        let(:job_status) { create(:form526_job_status, form526_submission_id: submission.id) }
+        let(:submission) { build_stubbed(:form526_submission, submitted_claim_id: 61_234_567) }
+        let(:job_status) { build_stubbed(:form526_job_status, form526_submission_id: submission.id) }
 
         it 'supports getting submission status' do
           expect(subject).to validate(
@@ -1239,12 +1239,12 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
 
     context 'terms and conditions routes' do
       context 'with some terms and acceptances' do
-        let!(:terms) { create(:terms_and_conditions, latest: true) }
+        let!(:terms) { build_stubbed(:terms_and_conditions, latest: true) }
         # The Faker in the factory will _sometimes_ return the same name. make sure it's different
         # so that the association in terms_acc works as expected with these tests.
-        let!(:terms2) { create(:terms_and_conditions, latest: true, name: "#{terms.name}-again") }
+        let!(:terms2) { build_stubbed(:terms_and_conditions, latest: true, name: "#{terms.name}-again") }
         let!(:terms_acc) do
-          create(:terms_and_conditions_acceptance, user_uuid: mhv_user.uuid, terms_and_conditions: terms)
+          build_stubbed(:terms_and_conditions_acceptance, user_uuid: mhv_user.uuid, terms_and_conditions: terms)
         end
 
         it 'validates the routes' do
@@ -1600,7 +1600,7 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
     end
 
     describe 'preferences' do
-      let(:preference) { create(:preference) }
+      let(:preference) { build_stubbed(:preference) }
       let(:route) { '/v0/user/preferences/choices' }
       let(:choice) { create :preference_choice, preference: preference }
       let(:request_body) do
@@ -1680,7 +1680,7 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
     end
 
     describe 'user preferences' do
-      let(:benefits) { create(:preference, :benefits) }
+      let(:benefits) { build_stubbed(:preference, :benefits) }
       let(:account) { Account.first }
 
       before do
@@ -2146,7 +2146,7 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
 
     describe 'profile/connected_applications' do
       let(:token) { 'fa0f28d6-224a-4015-a3b0-81e77de269f2' }
-      let(:user) { create(:user, :loa3, uuid: '00u2fqgvbyT23TZNm2p7') }
+      let(:user) { build_stubbed(:user, :loa3, uuid: '00u2fqgvbyT23TZNm2p7') }
       let(:headers) { { '_headers' => { 'Cookie' => sign_in(user, token, true) } } }
 
       before do

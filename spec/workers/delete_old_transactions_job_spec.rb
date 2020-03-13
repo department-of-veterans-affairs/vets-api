@@ -12,7 +12,7 @@ RSpec.describe DeleteOldTransactionsJob do
     end
 
     it 'rescues and logs the details' do
-      create(:address_transaction,
+      build_stubbed(:address_transaction,
              created_at: (Time.current - AsyncTransaction::Base::DELETE_COMPLETED_AFTER - 1.day).iso8601,
              status: AsyncTransaction::Base::COMPLETED)
 

@@ -4,7 +4,7 @@ require 'rails_helper'
 
 RSpec.describe EducationBenefitsClaim, type: :model do
   let(:education_benefits_claim) do
-    create(:va1990).education_benefits_claim
+    build_stubbed(:va1990).education_benefits_claim
   end
 
   %w[1990 1995 1990e 5490 5495 1990n 0993 0994 1995s].each do |form_type|
@@ -68,7 +68,7 @@ RSpec.describe EducationBenefitsClaim, type: :model do
   end
 
   describe '#create_education_benefits_submission' do
-    subject { create(:va1990_western_region) }
+    subject { build_stubbed(:va1990_western_region) }
 
     let(:submission_attributes) do
       {
@@ -106,7 +106,7 @@ RSpec.describe EducationBenefitsClaim, type: :model do
 
     context 'with a form type of 1995' do
       subject do
-        create(:va1995)
+        build_stubbed(:va1995)
       end
 
       it 'creates a submission' do
@@ -123,7 +123,7 @@ RSpec.describe EducationBenefitsClaim, type: :model do
 
     context 'with a form type of 1995s' do
       subject do
-        create(:va1995s)
+        build_stubbed(:va1995s)
       end
 
       it 'creates a submission' do
@@ -141,7 +141,7 @@ RSpec.describe EducationBenefitsClaim, type: :model do
 
     context 'with a form type of 1990e' do
       subject do
-        create(:va1990e)
+        build_stubbed(:va1990e)
       end
 
       it 'creates a submission' do
@@ -158,7 +158,7 @@ RSpec.describe EducationBenefitsClaim, type: :model do
 
     context 'with a form type of 5490' do
       subject do
-        create(:va5490)
+        build_stubbed(:va5490)
       end
 
       it 'creates a submission' do
@@ -175,7 +175,7 @@ RSpec.describe EducationBenefitsClaim, type: :model do
 
     context 'with a form type of 1990n' do
       subject do
-        create(:va1990n)
+        build_stubbed(:va1990n)
       end
 
       it 'creates a submission' do
@@ -191,7 +191,7 @@ RSpec.describe EducationBenefitsClaim, type: :model do
 
     context 'with a form type of 5495' do
       subject do
-        create(:va5495)
+        build_stubbed(:va5495)
       end
 
       it 'creates a submission' do

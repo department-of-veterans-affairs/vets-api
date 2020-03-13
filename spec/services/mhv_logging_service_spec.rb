@@ -26,7 +26,7 @@ RSpec.describe MHVLoggingService do
   end
 
   context 'with current_user not having logged in to MHV' do
-    let(:mhv_user) { create(:user, :mhv, :mhv_not_logged_in) }
+    let(:mhv_user) { build_stubbed(:user, :mhv, :mhv_not_logged_in) }
 
     it 'posts audit log when not logged in' do
       VCR.use_cassette('mhv_logging_client/audits/submits_an_audit_log_for_signing_in') do
@@ -44,7 +44,7 @@ RSpec.describe MHVLoggingService do
   end
 
   context 'with current_user having already logged in to MHV' do
-    let(:mhv_user) { create(:user, :mhv) }
+    let(:mhv_user) { build_stubbed(:user, :mhv) }
 
     it 'posts audit log when not logged in' do
       expect(mhv_user.mhv_last_signed_in).to be_a(Time)

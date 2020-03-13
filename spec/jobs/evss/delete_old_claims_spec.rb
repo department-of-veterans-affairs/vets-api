@@ -4,9 +4,9 @@ require 'rails_helper'
 
 RSpec.describe EVSS::DeleteOldClaims do
   before do
-    @claim_nil = create(:evss_claim, updated_at: nil)
-    @claim_new = create(:evss_claim, updated_at: Time.now.utc)
-    @claim_old = create(:evss_claim, updated_at: 2.days.ago)
+    @claim_nil = build_stubbed(:evss_claim, updated_at: nil)
+    @claim_new = build_stubbed(:evss_claim, updated_at: Time.now.utc)
+    @claim_old = build_stubbed(:evss_claim, updated_at: 2.days.ago)
   end
 
   describe '#perform' do

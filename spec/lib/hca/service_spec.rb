@@ -62,7 +62,7 @@ describe HCA::Service do
           'hca/submit_with_attachment',
           VCR::MATCH_EVERYTHING.merge(erb: true)
         ) do
-          result = HCA::Service.new.submit_form(create(:hca_app_with_attachment).parsed_form)
+          result = HCA::Service.new.submit_form(build_stubbed(:hca_app_with_attachment).parsed_form)
           expect(result[:success]).to eq(true)
         end
       end

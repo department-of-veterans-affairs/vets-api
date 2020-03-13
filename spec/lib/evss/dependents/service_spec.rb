@@ -3,7 +3,7 @@
 require 'rails_helper'
 
 describe EVSS::Dependents::Service do
-  let(:user) { create(:evss_user) }
+  let(:user) { build_stubbed(:evss_user) }
   let(:service) { described_class.new(user) }
   let(:transaction_id) { service.transaction_id }
 

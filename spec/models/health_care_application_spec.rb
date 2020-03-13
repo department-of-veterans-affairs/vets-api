@@ -3,7 +3,7 @@
 require 'rails_helper'
 
 RSpec.describe HealthCareApplication, type: :model do
-  let(:health_care_application) { create(:health_care_application) }
+  let(:health_care_application) { build_stubbed(:health_care_application) }
   let(:inelig_character_of_discharge) { Notification::INELIG_CHARACTER_OF_DISCHARGE }
   let(:login_required) { Notification::LOGIN_REQUIRED }
 

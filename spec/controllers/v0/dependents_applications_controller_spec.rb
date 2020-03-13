@@ -3,7 +3,7 @@
 require 'rails_helper'
 
 RSpec.describe V0::DependentsApplicationsController do
-  let(:user) { create(:evss_user) }
+  let(:user) { build_stubbed(:evss_user) }
 
   before do
     sign_in_as(user)

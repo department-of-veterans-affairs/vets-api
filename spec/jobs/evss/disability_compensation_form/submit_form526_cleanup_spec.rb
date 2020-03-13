@@ -11,8 +11,8 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526Cleanup, type: :jo
     Sidekiq::Worker.clear_all
   end
 
-  let(:user) { FactoryBot.create(:user, :loa3) }
-  let(:submission) { create(:form526_submission, user_uuid: user.uuid) }
+  let(:user) { FactoryBot.build_stubbed(:user, :loa3) }
+  let(:submission) { build_stubbed(:form526_submission, user_uuid: user.uuid) }
 
   describe '.perform_async' do
     let(:strategy_class) { EVSS::IntentToFile::ResponseStrategy }
@@ -20,7 +20,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526Cleanup, type: :jo
 
     context 'with a successful call' do
       it 'deletes the in progress form' do
-        create(:in_progress_form, user_uuid: user.uuid, form_id: '21-526EZ')
+        build_stubbed(:in_progress_form, user_uuid: user.uuid, form_id: '21-526EZ')
         subject.perform_async(submission.id)
         expect { described_class.drain }.to change(InProgressForm, :count).by(-1)
       end

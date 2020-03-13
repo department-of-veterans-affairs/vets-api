@@ -3,7 +3,7 @@
 require 'rails_helper'
 
 describe VIC::Service, type: :model do
-  let(:parsed_form) { JSON.parse(create(:vic_submission).form) }
+  let(:parsed_form) { JSON.parse(build_stubbed(:vic_submission).form) }
   let(:service) { described_class.new }
   let(:user) { build(:evss_user) }
   let(:client) { double }
@@ -93,7 +93,7 @@ describe VIC::Service, type: :model do
     context 'with one record' do
       it 'converts the file' do
         records = [
-          create(:supporting_documentation_attachment)
+          build_stubbed(:supporting_documentation_attachment)
         ]
         ProcessFileJob.drain
         final_pdf = service.combine_files(records)
@@ -107,8 +107,8 @@ describe VIC::Service, type: :model do
     context 'with multiple records' do
       it 'converts files to pdf and combine them' do
         records = [
-          create(:supporting_documentation_attachment),
-          create(:supporting_documentation_attachment)
+          build_stubbed(:supporting_documentation_attachment),
+          build_stubbed(:supporting_documentation_attachment)
         ]
         ProcessFileJob.drain
         final_pdf = service.combine_files(records)
@@ -146,7 +146,7 @@ describe VIC::Service, type: :model do
 
   describe '#send_file' do
     let(:attachment) do
-      attachment = create(:supporting_documentation_attachment)
+      attachment = build_stubbed(:supporting_documentation_attachment)
       ProcessFileJob.drain
       attachment
     end

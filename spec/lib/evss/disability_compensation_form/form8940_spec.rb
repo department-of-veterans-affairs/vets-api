@@ -11,7 +11,7 @@ describe EVSS::DisabilityCompensationForm::Form8940 do
     )
   end
   let(:expected_output) { JSON.parse(File.read('spec/support/disability_compensation_form/form_8940.json')) }
-  let(:user) { create(:disabilities_compensation_user) }
+  let(:user) { build_stubbed(:disabilities_compensation_user) }
 
   describe '#translate' do
     it 'returns correctly formatted json to send to async job' do

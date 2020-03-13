@@ -29,7 +29,7 @@ RSpec.describe MhvAccount, type: :model do
   end
 
   let(:user) do
-    create(:user,
+    build_stubbed(:user,
            loa: user_loa,
            ssn: user_ssn,
            first_name: mvi_profile.given_names.first,
@@ -165,9 +165,9 @@ RSpec.describe MhvAccount, type: :model do
 
     context 'check_account_state' do
       context 'with terms accepted' do
-        let(:terms) { create(:terms_and_conditions, latest: true, name: described_class::TERMS_AND_CONDITIONS_NAME) }
+        let(:terms) { build_stubbed(:terms_and_conditions, latest: true, name: described_class::TERMS_AND_CONDITIONS_NAME) }
 
-        before { create(:terms_and_conditions_acceptance, terms_and_conditions: terms, user_uuid: user.uuid) }
+        before { build_stubbed(:terms_and_conditions_acceptance, terms_and_conditions: terms, user_uuid: user.uuid) }
 
         context 'without an existing account' do
           context 'nothing has been persisted and no mhv_id' do
@@ -246,7 +246,7 @@ RSpec.describe MhvAccount, type: :model do
 
           context 'previously upgraded' do
             before do
-              create(:mhv_account, :upgraded, user_uuid: user.uuid, mhv_correlation_id: user.mhv_correlation_id)
+              build_stubbed(:mhv_account, :upgraded, user_uuid: user.uuid, mhv_correlation_id: user.mhv_correlation_id)
             end
 
             it 'has upgraded' do
@@ -260,7 +260,7 @@ RSpec.describe MhvAccount, type: :model do
 
           context 'previously registered but somehow upgraded because of account level' do
             before do
-              create(:mhv_account, :upgraded, upgraded_at: nil, user_uuid: user.uuid,
+              build_stubbed(:mhv_account, :upgraded, upgraded_at: nil, user_uuid: user.uuid,
                                               mhv_correlation_id: user.mhv_correlation_id)
             end
 
@@ -285,7 +285,7 @@ RSpec.describe MhvAccount, type: :model do
 
           context 'previously registered' do
             before do
-              create(:mhv_account, :registered, user_uuid: user.uuid, mhv_correlation_id: user.mhv_correlation_id)
+              build_stubbed(:mhv_account, :registered, user_uuid: user.uuid, mhv_correlation_id: user.mhv_correlation_id)
             end
 
             it 'has registered, upgradable with account level basic' do

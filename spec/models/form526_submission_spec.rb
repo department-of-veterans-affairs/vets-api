@@ -18,7 +18,7 @@ RSpec.describe Form526Submission do
   let(:auth_headers) do
     EVSS::DisabilityCompensationAuthHeaders.new(user).add_headers(EVSS::AuthHeaders.new(user).to_h)
   end
-  let(:saved_claim) { FactoryBot.create(:va526ez) }
+  let(:saved_claim) { FactoryBot.build_stubbed(:va526ez) }
   let(:form_json) do
     File.read('spec/support/disability_compensation_form/submissions/only_526.json')
   end
@@ -165,7 +165,7 @@ RSpec.describe Form526Submission do
 
   describe '#workflow_complete_handler' do
     context 'with a single successful job' do
-      subject { create(:form526_submission, :with_one_succesful_job) }
+      subject { build_stubbed(:form526_submission, :with_one_succesful_job) }
 
       it 'sets the submission.complete to true' do
         expect(subject.workflow_complete).to be_falsey
@@ -176,7 +176,7 @@ RSpec.describe Form526Submission do
     end
 
     context 'with multiple successful jobs' do
-      subject { create(:form526_submission, :with_multiple_succesful_jobs) }
+      subject { build_stubbed(:form526_submission, :with_multiple_succesful_jobs) }
 
       it 'sets the submission.complete to true' do
         expect(subject.workflow_complete).to be_falsey
@@ -187,7 +187,7 @@ RSpec.describe Form526Submission do
     end
 
     context 'with mixed result jobs' do
-      subject { create(:form526_submission, :with_mixed_status) }
+      subject { build_stubbed(:form526_submission, :with_mixed_status) }
 
       it 'sets the submission.complete to true' do
         expect(subject.workflow_complete).to be_falsey
@@ -198,7 +198,7 @@ RSpec.describe Form526Submission do
     end
 
     context 'with a failing 526 form job' do
-      subject { create(:form526_submission, :with_one_failed_job) }
+      subject { build_stubbed(:form526_submission, :with_one_failed_job) }
 
       it 'sets the submission.complete to true' do
         expect(subject.workflow_complete).to be_falsey

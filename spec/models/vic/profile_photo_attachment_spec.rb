@@ -5,7 +5,7 @@ require 'rails_helper'
 RSpec.describe VIC::ProfilePhotoAttachment, type: :model do
   describe '#set_file_data!' do
     it 'stores the filename' do
-      attachment = create(:profile_photo_attachment,
+      attachment = build_stubbed(:profile_photo_attachment,
                           file_path: 'spec/fixtures/files/va.gif',
                           file_type: 'image/gif')
 
@@ -15,7 +15,7 @@ RSpec.describe VIC::ProfilePhotoAttachment, type: :model do
 
   describe '#get_file' do
     let!(:attachment) do
-      create(:profile_photo_attachment,
+      build_stubbed(:profile_photo_attachment,
              file_path: 'spec/fixtures/files/va.gif',
              file_type: 'image/gif')
     end

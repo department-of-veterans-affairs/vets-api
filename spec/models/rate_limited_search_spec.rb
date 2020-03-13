@@ -15,7 +15,7 @@ RSpec.describe RateLimitedSearch do
     end
 
     context 'when an existing search exists' do
-      let!(:rate_limited_search) { create(:rate_limited_search) }
+      let!(:rate_limited_search) { build_stubbed(:rate_limited_search) }
 
       it 'increments the count' do
         described_class.create_or_increment_count(params)

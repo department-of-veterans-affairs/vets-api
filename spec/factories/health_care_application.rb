@@ -13,11 +13,11 @@ FactoryBot.define do
         form = health_care_application.parsed_form
         form['attachments'] = [
           {
-            'confirmationCode' => create(:hca_attachment).guid,
+            'confirmationCode' => build_stubbed(:hca_attachment).guid,
             'dd214' => true
           },
           {
-            'confirmationCode' => create(:hca_attachment).guid,
+            'confirmationCode' => build_stubbed(:hca_attachment).guid,
             'dd214' => false
           }
         ]

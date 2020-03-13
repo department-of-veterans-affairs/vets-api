@@ -4,8 +4,8 @@ require 'rails_helper'
 
 RSpec.describe EVSS::DependentsApplicationJob do
   describe '#perform' do
-    let(:user) { create(:evss_user) }
-    let!(:dependents_application) { create(:dependents_application, user: user) }
+    let(:user) { build_stubbed(:evss_user) }
+    let!(:dependents_application) { build_stubbed(:dependents_application, user: user) }
 
     def reload_dependents_application
       DependentsApplication.find(dependents_application.id)

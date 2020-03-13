@@ -3,7 +3,7 @@
 require 'rails_helper'
 
 RSpec.describe HCA::AnonSubmissionJob, type: :job do
-  let(:health_care_application) { create(:health_care_application) }
+  let(:health_care_application) { build_stubbed(:health_care_application) }
 
   describe 'when job has failed' do
     it 'sets the health_care_application state to failed' do

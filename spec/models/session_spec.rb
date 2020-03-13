@@ -28,7 +28,7 @@ RSpec.describe Session, type: :model do
     context 'with a matching user' do
       let(:start_time) { Time.current.utc }
       let(:expry_time) { start_time + 1800 }
-      let(:user) { create(:user, :mhv, uuid: attributes[:uuid]) }
+      let(:user) { build_stubbed(:user, :mhv, uuid: attributes[:uuid]) }
 
       before do
         Timecop.freeze(start_time)

@@ -8,7 +8,7 @@ RSpec.describe V0::BurialClaimsController, type: :controller do
     let(:form) { build(:burial_claim) }
     let(:param_name) { :burial_claim }
     let(:form_id) { '21P-530' }
-    let(:user) { create(:user) }
+    let(:user) { build_stubbed(:user) }
 
     def send_create
       post(:create, params: { param_name => { form: form.form } })
@@ -21,7 +21,7 @@ RSpec.describe V0::BurialClaimsController, type: :controller do
         'mvi/find_candidate/find_profile_with_attributes',
         VCR::MATCH_EVERYTHING
       ) do
-        create(:in_progress_form, user_uuid: user.uuid, form_id: form_id)
+        build_stubbed(:in_progress_form, user_uuid: user.uuid, form_id: form_id)
         expect(controller).to receive(:clear_saved_form).with(form_id).and_call_original
         sign_in_as(user)
         expect { send_create }.to change(InProgressForm, :count).by(-1)
@@ -31,7 +31,7 @@ RSpec.describe V0::BurialClaimsController, type: :controller do
 
   describe '#show' do
     it 'returns the submission status' do
-      claim = create(:burial_claim)
+      claim = build_stubbed(:burial_claim)
       claim.central_mail_submission.update_attributes!(state: 'success')
       get(:show, params: { id: claim.guid })
 

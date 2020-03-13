@@ -4,7 +4,7 @@ require 'rails_helper'
 
 RSpec.describe Users::Profile do
   let(:user) { build(:user, :accountable) }
-  let!(:in_progress_form) { create(:in_progress_form, user_uuid: user.uuid) }
+  let!(:in_progress_form) { build_stubbed(:in_progress_form, user_uuid: user.uuid) }
 
   describe '.initialize' do
     let(:users_profile) { Users::Profile.new(user) }
@@ -71,7 +71,7 @@ RSpec.describe Users::Profile do
         end
 
         context 'multifactor' do
-          let(:user) { create(:user, :loa1, authn_context: 'multifactor') }
+          let(:user) { build_stubbed(:user, :loa1, authn_context: 'multifactor') }
 
           it 'includes authn_context' do
             expect(profile[:authn_context]).to eq('multifactor')
@@ -84,14 +84,14 @@ RSpec.describe Users::Profile do
       end
 
       context 'mhv user' do
-        let(:user) { create(:user, :mhv) }
+        let(:user) { build_stubbed(:user, :mhv) }
 
         it 'includes sign_in' do
           expect(profile[:sign_in]).to eq(service_name: 'myhealthevet')
         end
 
         context 'multifactor' do
-          let(:user) { create(:user, :loa1, authn_context: 'myhealthevet_multifactor') }
+          let(:user) { build_stubbed(:user, :loa1, authn_context: 'myhealthevet_multifactor') }
 
           it 'includes sign_in.service_name' do
             expect(profile[:sign_in][:service_name]).to eq('myhealthevet')
@@ -99,7 +99,7 @@ RSpec.describe Users::Profile do
         end
 
         context 'verified' do
-          let(:user) { create(:user, :loa1, authn_context: 'myhealthevet_loa3') }
+          let(:user) { build_stubbed(:user, :loa1, authn_context: 'myhealthevet_loa3') }
 
           it 'includes sign_in.service_name' do
             expect(profile[:sign_in][:service_name]).to eq('myhealthevet')
@@ -108,14 +108,14 @@ RSpec.describe Users::Profile do
       end
 
       context 'dslogon user' do
-        let(:user) { create(:user, :dslogon) }
+        let(:user) { build_stubbed(:user, :dslogon) }
 
         it 'includes sign_in.service_name' do
           expect(profile[:sign_in]).to eq(service_name: 'dslogon')
         end
 
         context 'multifactor' do
-          let(:user) { create(:user, :loa1, authn_context: 'dslogon_multifactor') }
+          let(:user) { build_stubbed(:user, :loa1, authn_context: 'dslogon_multifactor') }
 
           it 'includes sign_in.service_name' do
             expect(profile[:sign_in]).to eq(service_name: 'dslogon')
@@ -123,7 +123,7 @@ RSpec.describe Users::Profile do
         end
 
         context 'verified' do
-          let(:user) { create(:user, :loa1, authn_context: 'dslogon_loa3') }
+          let(:user) { build_stubbed(:user, :loa1, authn_context: 'dslogon_loa3') }
 
           it 'includes sign_in.service_name' do
             expect(profile[:sign_in]).to eq(service_name: 'dslogon')

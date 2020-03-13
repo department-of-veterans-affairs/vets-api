@@ -11,7 +11,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm8940, type: :job do
     Sidekiq::Worker.clear_all
   end
 
-  let(:user) { FactoryBot.create(:user, :loa3) }
+  let(:user) { FactoryBot.build_stubbed(:user, :loa3) }
   let(:auth_headers) do
     EVSS::DisabilityCompensationAuthHeaders.new(user).add_headers(EVSS::AuthHeaders.new(user).to_h)
   end
@@ -28,10 +28,10 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm8940, type: :job do
     with8940 = File.read 'spec/support/disability_compensation_form/submissions/with_8940.json'
     submitted_claim_id = 123_456_789
 
-    let(:saved_claim) { FactoryBot.create(:va526ez) }
+    let(:saved_claim) { FactoryBot.build_stubbed(:va526ez) }
     let(:submitted_claim_id) { 123_456_789 }
     let(:submission) do
-      create(:form526_submission,
+      build_stubbed(:form526_submission,
              user_uuid: user.uuid,
              auth_headers_json: auth_headers.to_json,
              saved_claim_id: saved_claim.id,

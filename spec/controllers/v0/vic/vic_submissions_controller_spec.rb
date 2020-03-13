@@ -5,7 +5,7 @@ require 'support/controller_spec_helper'
 
 RSpec.describe V0::VIC::VICSubmissionsController, type: :controller do
   let(:form) { build(:vic_submission).form }
-  let(:user) { create(:user) }
+  let(:user) { build_stubbed(:user) }
 
   it_behaves_like 'a controller that deletes an InProgressForm', 'vic_submission', 'vic_submission', 'VIC'
 
@@ -66,7 +66,7 @@ RSpec.describe V0::VIC::VICSubmissionsController, type: :controller do
 
   describe '#show' do
     it 'finds a vic submission by guid' do
-      vic_submission = create(:vic_submission)
+      vic_submission = build_stubbed(:vic_submission)
       get(:show, params: { id: vic_submission.guid })
       expect(JSON.parse(response.body)['data']['id'].to_i)
         .to eq(vic_submission.id)

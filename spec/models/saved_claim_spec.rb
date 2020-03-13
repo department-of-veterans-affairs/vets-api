@@ -3,7 +3,7 @@
 require 'rails_helper'
 
 RSpec.describe SavedClaim do
-  let(:saved_claim) { create(:pension_claim) }
+  let(:saved_claim) { build_stubbed(:pension_claim) }
 
   describe '#to_pdf' do
     it 'converts form to pdf' do

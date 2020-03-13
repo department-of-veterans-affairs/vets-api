@@ -9,11 +9,11 @@ RSpec.describe InProgressFormCleaner do
     context 'when there is a set of records' do
       before do
         Timecop.freeze(now - 61.days)
-        @form_expired = create(:in_progress_form)
+        @form_expired = build_stubbed(:in_progress_form)
         Timecop.freeze(now - 59.days)
-        @form_active = create(:in_progress_form)
+        @form_active = build_stubbed(:in_progress_form)
         Timecop.freeze(now)
-        @form_new = create(:in_progress_form)
+        @form_new = build_stubbed(:in_progress_form)
         Timecop.return
       end
 
@@ -26,7 +26,7 @@ RSpec.describe InProgressFormCleaner do
     context 'when there is a form526 record older than 60 days' do
       before do
         Timecop.freeze(now - 61.days)
-        @form526_active = create(:in_progress_526_form)
+        @form526_active = build_stubbed(:in_progress_526_form)
         Timecop.return
       end
 
@@ -39,7 +39,7 @@ RSpec.describe InProgressFormCleaner do
     context 'when there is a form526 record older than 365 days' do
       before do
         Timecop.freeze(now - 366.days)
-        @form526_expired = create(:in_progress_526_form)
+        @form526_expired = build_stubbed(:in_progress_526_form)
         Timecop.return
       end
 

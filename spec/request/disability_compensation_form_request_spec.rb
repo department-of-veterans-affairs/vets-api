@@ -66,9 +66,9 @@ RSpec.describe 'Disability compensation form', type: :request do
 
   describe 'Post /v0/disability_compensation_form/suggested_conditions/:name_part' do
     before do
-      create(:disability_contention_arrhythmia)
-      create(:disability_contention_arteriosclerosis)
-      create(:disability_contention_arthritis)
+      build_stubbed(:disability_contention_arrhythmia)
+      build_stubbed(:disability_contention_arteriosclerosis)
+      build_stubbed(:disability_contention_arthritis)
     end
 
     let(:conditions) { JSON.parse(response.body)['data'] }
@@ -111,7 +111,7 @@ RSpec.describe 'Disability compensation form', type: :request do
       before do
         allow(EVSS::DisabilityCompensationForm::SubmitForm526IncreaseOnly).to receive(:perform_async).and_return(jid)
         allow(EVSS::DisabilityCompensationForm::SubmitForm526AllClaim).to receive(:perform_async).and_return(jid)
-        create(:in_progress_form, form_id: VA526ez::FORM_ID, user_uuid: user.uuid)
+        build_stubbed(:in_progress_form, form_id: VA526ez::FORM_ID, user_uuid: user.uuid)
       end
 
       context 'with an `increase only` claim' do
@@ -163,10 +163,10 @@ RSpec.describe 'Disability compensation form', type: :request do
 
   describe 'Get /v0/disability_compensation_form/submission_status' do
     context 'with a success status' do
-      let(:submission) { create(:form526_submission, submitted_claim_id: 61_234_567) }
-      let(:job_status) { create(:form526_job_status, form526_submission_id: submission.id) }
+      let(:submission) { build_stubbed(:form526_submission, submitted_claim_id: 61_234_567) }
+      let(:job_status) { build_stubbed(:form526_job_status, form526_submission_id: submission.id) }
       let!(:ancillary_job_status) do
-        create(:form526_job_status,
+        build_stubbed(:form526_job_status,
                form526_submission_id: submission.id,
                job_class: 'AncillaryForm')
       end
@@ -199,8 +199,8 @@ RSpec.describe 'Disability compensation form', type: :request do
     end
 
     context 'with a retryable_error status' do
-      let(:submission) { create(:form526_submission) }
-      let(:job_status) { create(:form526_job_status, :retryable_error, form526_submission_id: submission.id) }
+      let(:submission) { build_stubbed(:form526_submission) }
+      let(:job_status) { build_stubbed(:form526_job_status, :retryable_error, form526_submission_id: submission.id) }
 
       it 'returns the job status and response', :aggregate_failures do
         get "/v0/disability_compensation_form/submission_status/#{job_status.job_id}", params: nil, headers: headers
@@ -222,8 +222,8 @@ RSpec.describe 'Disability compensation form', type: :request do
     end
 
     context 'with a non_retryable_error status' do
-      let(:submission) { create(:form526_submission) }
-      let(:job_status) { create(:form526_job_status, :non_retryable_error, form526_submission_id: submission.id) }
+      let(:submission) { build_stubbed(:form526_submission) }
+      let(:job_status) { build_stubbed(:form526_job_status, :non_retryable_error, form526_submission_id: submission.id) }
 
       it 'returns the job status and response', :aggregate_failures do
         get "/v0/disability_compensation_form/submission_status/#{job_status.job_id}", params: nil, headers: headers

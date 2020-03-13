@@ -5,7 +5,7 @@ require 'rails_helper'
 RSpec.describe EVSSClaimService do
   subject { service }
 
-  let(:user) { FactoryBot.create(:user, :loa3) }
+  let(:user) { FactoryBot.build_stubbed(:user, :loa3) }
   let(:client_stub) { instance_double('EVSS::ClaimsService') }
   let(:service) { described_class.new(user) }
 
@@ -14,7 +14,7 @@ RSpec.describe EVSSClaimService do
       it 'returns all claims for the user' do
         allow(client_stub).to receive(:all_claims).and_raise(EVSS::ErrorMiddleware::EVSSBackendServiceError)
         allow(subject).to receive(:client) { client_stub }
-        claim = FactoryBot.create(:evss_claim, user_uuid: user.uuid)
+        claim = FactoryBot.build_stubbed(:evss_claim, user_uuid: user.uuid)
         claims, synchronized = subject.all
         expect(claims).to eq([claim])
         expect(synchronized).to eq(false)
@@ -75,7 +75,7 @@ RSpec.describe EVSSClaimService do
       end
 
       it 'returns all claims for the user' do
-        claim = FactoryBot.create(:evss_claim, user_uuid: user.uuid)
+        claim = FactoryBot.build_stubbed(:evss_claim, user_uuid: user.uuid)
         claims, synchronized = subject
         expect(claims).to eq([claim])
         expect(synchronized).to eq(false)

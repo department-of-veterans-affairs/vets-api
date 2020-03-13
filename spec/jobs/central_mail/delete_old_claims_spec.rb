@@ -7,9 +7,9 @@ RSpec.describe CentralMail::DeleteOldClaims, uploader_helpers: true, type: :mode
     stub_virus_scan
 
     it 'deletes old central mail claims' do
-      new_attachment_success = create(:pension_burial)
-      old_attachment_pending = create(:pension_burial)
-      old_attachment_success = create(:pension_burial)
+      new_attachment_success = build_stubbed(:pension_burial)
+      old_attachment_pending = build_stubbed(:pension_burial)
+      old_attachment_success = build_stubbed(:pension_burial)
       file = old_attachment_success.file
       [new_attachment_success, old_attachment_success].each do |attachment|
         attachment.saved_claim.central_mail_submission.update_attributes(state: 'success')

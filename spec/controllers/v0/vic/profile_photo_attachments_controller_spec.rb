@@ -32,7 +32,7 @@ RSpec.describe V0::VIC::ProfilePhotoAttachmentsController, type: :controller do
     end
 
     context 'with a logged in user' do
-      let(:user) { create(:user, :loa3) }
+      let(:user) { build_stubbed(:user, :loa3) }
 
       before do
         expect_any_instance_of(described_class).to receive(:validate_session).at_least(:once).and_return(true)

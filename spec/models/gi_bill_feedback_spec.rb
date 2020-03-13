@@ -39,7 +39,7 @@ RSpec.describe GIBillFeedback, type: :model do
 
   describe '#transform_form' do
     before do
-      gi_bill_feedback.user = create(:user)
+      gi_bill_feedback.user = build_stubbed(:user)
     end
 
     context 'with no user' do
@@ -55,7 +55,7 @@ RSpec.describe GIBillFeedback, type: :model do
     end
 
     context 'with a user' do
-      let(:user) { create(:user) }
+      let(:user) { build_stubbed(:user) }
 
       it 'transforms the form to the right format' do
         expect(gi_bill_feedback.transform_form).to eq(get_fixture('gibft/transform_form'))
@@ -82,7 +82,7 @@ RSpec.describe GIBillFeedback, type: :model do
     it 'does not pass in the user if form is anonymous' do
       form = gi_bill_feedback.parsed_form
       form['onBehalfOf'] = 'Anonymous'
-      user = create(:user)
+      user = build_stubbed(:user)
       gi_bill_feedback.form = form.to_json
       gi_bill_feedback.instance_variable_set(:@parsed_form, nil)
       gi_bill_feedback.user = user

@@ -5,7 +5,7 @@ require 'rails_helper'
 RSpec.describe 'MDOT Medical Devices & Supplies', type: :request do
   include SchemaMatchers
 
-  let(:loa1_user) { FactoryBot.create(:user, :loa1, ssn: '111223333') }
+  let(:loa1_user) { FactoryBot.build_stubbed(:user, :loa1, ssn: '111223333') }
 
   let(:user_details) do
     {

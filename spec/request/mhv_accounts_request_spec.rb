@@ -28,7 +28,7 @@ RSpec.describe 'Account creation and upgrade', type: :request do
   end
 
   let(:user) do
-    create(:user, :loa3,
+    build_stubbed(:user, :loa3,
            ssn: user_ssn,
            first_name: mvi_profile.given_names.first,
            last_name: mvi_profile.family_name,
@@ -42,7 +42,7 @@ RSpec.describe 'Account creation and upgrade', type: :request do
   let(:mhv_ids) { [] }
   let(:vha_facility_ids) { ['450'] }
 
-  let(:terms) { create(:terms_and_conditions, latest: true, name: MhvAccount::TERMS_AND_CONDITIONS_NAME) }
+  let(:terms) { build_stubbed(:terms_and_conditions, latest: true, name: MhvAccount::TERMS_AND_CONDITIONS_NAME) }
 
   before do
     stub_mvi(mvi_profile)
@@ -158,7 +158,7 @@ RSpec.describe 'Account creation and upgrade', type: :request do
   end
 
   context 'with T&C acceptance' do
-    before { create(:terms_and_conditions_acceptance, terms_and_conditions: terms, user_uuid: user.uuid) }
+    before { build_stubbed(:terms_and_conditions_acceptance, terms_and_conditions: terms, user_uuid: user.uuid) }
 
     it_behaves_like 'ssn mismatch'
     it_behaves_like 'non va patient'

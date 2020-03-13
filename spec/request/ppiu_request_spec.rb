@@ -5,13 +5,13 @@ require 'rails_helper'
 RSpec.describe 'PPIU', type: :request do
   include SchemaMatchers
 
-  let(:user) { create(:user, :mhv) }
+  let(:user) { build_stubbed(:user, :mhv) }
 
   before { sign_in(user) }
 
   def self.test_unauthorized(verb)
     context 'with an unauthorized user' do
-      let(:user) { create(:user, :loa3) }
+      let(:user) { build_stubbed(:user, :loa3) }
 
       it 'returns 403' do
         public_send(verb, '/v0/ppiu/payment_information')

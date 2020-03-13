@@ -135,7 +135,7 @@ RSpec.describe 'Health Care Application Integration', type: %i[request serialize
   end
 
   describe 'GET show' do
-    let(:health_care_application) { create(:health_care_application) }
+    let(:health_care_application) { build_stubbed(:health_care_application) }
 
     it 'shows a health care application' do
       get(v0_health_care_application_path(id: health_care_application.id))

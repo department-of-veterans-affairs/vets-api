@@ -183,7 +183,7 @@ describe 'user_preferences', type: :request do
 
   describe 'DELETE /v0/user/preferences/:code' do
     before do
-      notifications = create(:preference, :notifications)
+      notifications = build_stubbed(:preference, :notifications)
       UserPreference.create(account_id: user.account.id,
                             preference_id: notifications.id,
                             preference_choice_id: notifications.choices.first.id)
@@ -232,8 +232,8 @@ describe 'user_preferences', type: :request do
 
   describe 'GET /v0/user/preferences' do
     before do
-      benefits = create(:preference, :benefits)
-      notifications = create(:preference, :notifications)
+      benefits = build_stubbed(:preference, :benefits)
+      notifications = build_stubbed(:preference, :notifications)
       UserPreference.create(account_id: user.account.id,
                             preference_id: benefits.id,
                             preference_choice_id: benefits.choices.first.id)

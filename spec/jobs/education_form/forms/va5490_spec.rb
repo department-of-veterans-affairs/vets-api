@@ -10,7 +10,7 @@ RSpec.describe EducationForm::Forms::VA5490 do
       described_class.new(education_benefits_claim)
     end
 
-    let(:education_benefits_claim) { create(:va5490).education_benefits_claim }
+    let(:education_benefits_claim) { build_stubbed(:va5490).education_benefits_claim }
 
     before do
       allow_any_instance_of(described_class).to receive(:format)

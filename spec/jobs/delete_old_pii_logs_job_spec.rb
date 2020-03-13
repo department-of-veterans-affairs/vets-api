@@ -3,8 +3,8 @@
 require 'rails_helper'
 
 RSpec.describe DeleteOldPiiLogsJob, type: :model do
-  let!(:old_log) { create(:personal_information_log, created_at: 3.weeks.ago) }
-  let!(:new_log) { create(:personal_information_log, created_at: 1.week.ago) }
+  let!(:old_log) { build_stubbed(:personal_information_log, created_at: 3.weeks.ago) }
+  let!(:new_log) { build_stubbed(:personal_information_log, created_at: 1.week.ago) }
 
   describe '#perform' do
     it 'deletes old records' do

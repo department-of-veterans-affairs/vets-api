@@ -4,9 +4,9 @@ require 'rails_helper'
 require 'evss/power_of_attorney_verifier.rb'
 
 describe EVSS::PowerOfAttorneyVerifier do
-  let(:user) { FactoryBot.create(:user, :loa3) }
+  let(:user) { FactoryBot.build_stubbed(:user, :loa3) }
   let(:auth_headers) { EVSS::AuthHeaders.new(user).to_h }
-  let(:identity) { FactoryBot.create(:user_identity) }
+  let(:identity) { FactoryBot.build_stubbed(:user_identity) }
 
   before do
     @client_stub = instance_double('EVSS::VsoSearch::Service')
