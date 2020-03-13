@@ -70,7 +70,7 @@ http_interactions:
       encoding: ASCII-8BIT
       string: |-
         {
-          "veteranAddress": {
+          "permanentAddress": {
             "street": "101 Example Street",
             "street2": "Apt 2",
             "city": "Kansas City",
@@ -78,7 +78,7 @@ http_interactions:
             "country": "US",
             "postalCode": "64117"
           },
-          "veteranTemporaryAddress": {
+          "temporaryAddress": {
             "street": "201 Example Street",
             "city": "Galveston",
             "state": "TX",
