@@ -1,6 +1,7 @@
 $stdout.sync = true
 export VETS_API_USER_ID  := $(shell id -u)
 
+ENV_ARG      := $(env)
 COMPOSE_DEV  := docker-compose
 COMPOSE_TEST := docker-compose -f docker-compose.test.yml
 BASH         := run --rm --service-ports vets-api bash
