@@ -3,22 +3,21 @@
 # This file is for exercising routes that should require CSRF protection.
 # It is very much a WIP
 
-# TODO:
+# TODO: \
 # Lighthouse API endpoints
 # Check routes.rb for other `POST` routes
 
 require 'rails_helper'
 
 RSpec.describe 'CSRF scenarios', type: :request do
-
-  around(:example) do |example|
+  around do |example|
     original_val = ActionController::Base.allow_forgery_protection
     ActionController::Base.allow_forgery_protection = true
     example.run
     ActionController::Base.allow_forgery_protection = original_val
   end
 
-  before do 
+  before do
     get(v0_maintenance_windows_path)
     @token = response.cookies['X-CSRF-Token']
   end
@@ -28,15 +27,15 @@ RSpec.describe 'CSRF scenarios', type: :request do
     context 'with a CSRF token' do
       it 'uploads an hca attachment' do
         post(v0_hca_attachments_path,
-          params: { hca_attachment: { file_data: fixture_file_upload('pdf_fill/extras.pdf') } },
-          headers: { 'X-CSRF-Token' => @token }
-        )
+             params: { hca_attachment: { file_data: fixture_file_upload('pdf_fill/extras.pdf') } },
+             headers: { 'X-CSRF-Token' => @token })
 
         expect(JSON.parse(response.body)['data']['attributes']['guid']).to eq HcaAttachment.last.guid
       end
     end
+
     context 'without a CSRF token' do
-      around(:example) do |example|
+      around do |example|
         Settings.sentry.dsn = 'asdf'
         example.run
         Settings.sentry.dsn = nil
@@ -45,12 +44,11 @@ RSpec.describe 'CSRF scenarios', type: :request do
       it 'logs the info to sentry' do
         expect(Raven).to receive(:capture_message).once
         post(v0_hca_attachments_path,
-          params: { hca_attachment: { file_data: fixture_file_upload('pdf_fill/extras.pdf') } }
-        )
+             params: { hca_attachment: { file_data: fixture_file_upload('pdf_fill/extras.pdf') } })
       end
 
       it 'returns an error' do
-        skip "this should be live test when CSRF is enforced"
+        skip 'this should be live test when CSRF is enforced'
         # post(v0_hca_attachments_path,
         #   params: { hca_attachment: { file_data: fixture_file_upload('pdf_fill/extras.pdf') } }
         # )

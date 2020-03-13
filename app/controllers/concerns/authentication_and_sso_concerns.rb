@@ -8,9 +8,9 @@ module AuthenticationAndSSOConcerns
   include ActionController::Cookies
 
   included do
-    before_action :validate_csrf_token!, if: -> do
+    before_action :validate_csrf_token!, if: lambda {
       ActionController::Base.allow_forgery_protection && request.method != 'GET'
-    end
+    }
     before_action :authenticate
     before_action :set_session_expiration_header
     after_action :set_csrf_cookie
@@ -32,7 +32,7 @@ module AuthenticationAndSSOConcerns
 
       # for now we are just logging when there's no CSRF protection
       # when this is going to be enforced return a meaningful error (and turn up logging level)
-      log_message_to_sentry('Request susceptible to CSRF', :info, { controller: self.class, action: action_name })
+      log_message_to_sentry('Request susceptible to CSRF', :info, controller: self.class, action: action_name)
     end
   end
 
