@@ -9,6 +9,7 @@ require 'aes_256_cbc_encryptor'
 
 class ApplicationController < ActionController::API
   include AuthenticationAndSSOConcerns
+  include CSRFProtection
   include SentryLogging
   include Pundit
 
