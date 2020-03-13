@@ -26,7 +26,12 @@ bash:
 
 .PHONY: build
 build:
+ifeq ($(ENV_ARG), dev)
+	$(COMPOSE_DEV) build
+else
 	$(COMPOSE_TEST) build
+endif
+	
 
 .PHONY: db
 db:
