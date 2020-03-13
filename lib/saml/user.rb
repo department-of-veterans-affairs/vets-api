@@ -49,6 +49,10 @@ module SAML
       authn_context.include?('multifactor')
     end
 
+    def uuid
+      user_attributes.uuid || "SEC:#{user_attributes.sec_id}"
+    end
+
     def to_hash
       user_attributes.to_hash.merge(Hash[serializable_attributes.map { |k| [k, send(k)] }])
     end
