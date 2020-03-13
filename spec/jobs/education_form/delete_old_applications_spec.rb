@@ -7,26 +7,26 @@ RSpec.describe EducationForm::DeleteOldApplications do
     @saved_claim_nil = build(:education_benefits_1990, form: '{}')
     @saved_claim_nil.save(validate: false)
     @edu_claim_nil = build_stubbed(:education_benefits_claim,
-                            processed_at: nil,
-                            saved_claim: @saved_claim_nil)
+                                   processed_at: nil,
+                                   saved_claim: @saved_claim_nil)
 
     @saved_claim_new = build(:education_benefits_1990, form: '{}')
     @saved_claim_new.save(validate: false)
     @edu_claim_new = build_stubbed(:education_benefits_claim,
-                            processed_at: Time.now.utc,
-                            saved_claim: @saved_claim_new)
+                                   processed_at: Time.now.utc,
+                                   saved_claim: @saved_claim_new)
 
     @saved_claim_semi_new = build(:education_benefits_1990, form: '{}')
     @saved_claim_semi_new.save(validate: false)
     @edu_claim_semi_new = build_stubbed(:education_benefits_claim,
-                                 processed_at: 45.days.ago.utc,
-                                 saved_claim: @saved_claim_semi_new)
+                                        processed_at: 45.days.ago.utc,
+                                        saved_claim: @saved_claim_semi_new)
 
     @saved_claim_old = build(:education_benefits_1990, form: '{}')
     @saved_claim_old.save(validate: false)
     @edu_claim_old = build_stubbed(:education_benefits_claim,
-                            processed_at: 3.months.ago,
-                            saved_claim: @saved_claim_old)
+                                   processed_at: 3.months.ago,
+                                   saved_claim: @saved_claim_old)
   end
 
   describe '#perform' do

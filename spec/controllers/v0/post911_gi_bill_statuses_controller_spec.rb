@@ -64,7 +64,9 @@ RSpec.describe V0::Post911GIBillStatusesController, type: :controller do
       gi_bill404 = { cassette_name: 'evss/gi_bill_status/vet_not_found' }
       describe 'when EVSS has no knowledge of user', vcr: gi_bill404 do
         # special EVSS CI user ssn=796066619
-        let(:user) { FactoryBot.build_stubbed(:user, :loa3, ssn: '796066619', uuid: '89b40886-95e3-4a5b-824e-a4658b707507') }
+        let(:user) do
+          FactoryBot.build_stubbed(:user, :loa3, ssn: '796066619', uuid: '89b40886-95e3-4a5b-824e-a4658b707507')
+        end
 
         it 'responds with 404' do
           get :show
@@ -85,7 +87,9 @@ RSpec.describe V0::Post911GIBillStatusesController, type: :controller do
 
       describe 'when EVSS has no info of user' do
         # special EVSS CI user ssn=796066622
-        let(:user) { FactoryBot.build_stubbed(:user, :loa3, ssn: '796066622', uuid: '89b40886-95e3-4a5b-824e-a4658b707508') }
+        let(:user) do
+          FactoryBot.build_stubbed(:user, :loa3, ssn: '796066622', uuid: '89b40886-95e3-4a5b-824e-a4658b707508')
+        end
 
         it 'renders nil data' do
           VCR.use_cassette('evss/gi_bill_status/vet_with_no_info') do

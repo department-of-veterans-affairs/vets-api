@@ -11,21 +11,21 @@ RSpec.describe AsyncTransaction::EVSS::VA526ezSubmitTransaction, type: :model do
 
   before do
     build_stubbed(:va526ez_submit_transaction,
-           user_uuid: user.uuid,
-           source: 'EVSS',
-           transaction_id: job_id)
+                  user_uuid: user.uuid,
+                  source: 'EVSS',
+                  transaction_id: job_id)
     build_stubbed(:va526ez_submit_transaction,
-           user_uuid: user_2.uuid,
-           source: 'EVSS',
-           transaction_id: job_id_2)
+                  user_uuid: user_2.uuid,
+                  source: 'EVSS',
+                  transaction_id: job_id_2)
     build_stubbed(:va526ez_submit_transaction,
-           user_uuid: user.uuid,
-           source: 'EVSS',
-           transaction_id: job_id_3)
+                  user_uuid: user.uuid,
+                  source: 'EVSS',
+                  transaction_id: job_id_3)
     build_stubbed(:email_transaction,
-           transaction_id: '786efe0e-fd20-4da2-9019-0c00540dba4d',
-           user_uuid: user.uuid,
-           transaction_status: 'RECEIVED')
+                  transaction_id: '786efe0e-fd20-4da2-9019-0c00540dba4d',
+                  user_uuid: user.uuid,
+                  transaction_status: 'RECEIVED')
   end
 
   describe '.start' do
@@ -76,9 +76,9 @@ RSpec.describe AsyncTransaction::EVSS::VA526ezSubmitTransaction, type: :model do
 
     before do
       build_stubbed(:va526ez_submit_transaction,
-             user_uuid: user.uuid,
-             source: 'EVSS',
-             transaction_id: update_job_id)
+                    user_uuid: user.uuid,
+                    source: 'EVSS',
+                    transaction_id: update_job_id)
     end
 
     context 'with a valid status of retrying' do

@@ -29,12 +29,12 @@ RSpec.describe 'Account creation and upgrade', type: :request do
 
   let(:user) do
     build_stubbed(:user, :loa3,
-           ssn: user_ssn,
-           first_name: mvi_profile.given_names.first,
-           last_name: mvi_profile.family_name,
-           gender: mvi_profile.gender,
-           birth_date: mvi_profile.birth_date,
-           email: 'vets.gov.user+0@gmail.com')
+                  ssn: user_ssn,
+                  first_name: mvi_profile.given_names.first,
+                  last_name: mvi_profile.family_name,
+                  gender: mvi_profile.gender,
+                  birth_date: mvi_profile.birth_date,
+                  email: 'vets.gov.user+0@gmail.com')
   end
 
   let(:user_ssn) { mvi_profile.ssn }

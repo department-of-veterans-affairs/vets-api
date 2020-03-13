@@ -37,23 +37,23 @@ FactoryBot.define do
 
     callback(:after_build, :after_stub, :after_create) do |user, t|
       user_identity = build_stubbed(:user_identity,
-                             authn_context: t.authn_context,
-                             uuid: user.uuid,
-                             email: t.email,
-                             first_name: t.first_name,
-                             middle_name: t.middle_name,
-                             last_name: t.last_name,
-                             gender: t.gender,
-                             birth_date: t.birth_date,
-                             zip: t.zip,
-                             ssn: t.ssn,
-                             mhv_icn: t.mhv_icn,
-                             loa: t.loa,
-                             multifactor: t.multifactor,
-                             mhv_correlation_id: t.mhv_correlation_id,
-                             mhv_account_type: t.mhv_account_type,
-                             dslogon_edipi: t.dslogon_edipi,
-                             sign_in: t.sign_in)
+                                    authn_context: t.authn_context,
+                                    uuid: user.uuid,
+                                    email: t.email,
+                                    first_name: t.first_name,
+                                    middle_name: t.middle_name,
+                                    last_name: t.last_name,
+                                    gender: t.gender,
+                                    birth_date: t.birth_date,
+                                    zip: t.zip,
+                                    ssn: t.ssn,
+                                    mhv_icn: t.mhv_icn,
+                                    loa: t.loa,
+                                    multifactor: t.multifactor,
+                                    mhv_correlation_id: t.mhv_correlation_id,
+                                    mhv_account_type: t.mhv_account_type,
+                                    dslogon_edipi: t.dslogon_edipi,
+                                    sign_in: t.sign_in)
       user.instance_variable_set(:@identity, user_identity)
     end
 

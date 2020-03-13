@@ -167,8 +167,8 @@ RSpec.describe 'Disability compensation form', type: :request do
       let(:job_status) { build_stubbed(:form526_job_status, form526_submission_id: submission.id) }
       let!(:ancillary_job_status) do
         build_stubbed(:form526_job_status,
-               form526_submission_id: submission.id,
-               job_class: 'AncillaryForm')
+                      form526_submission_id: submission.id,
+                      job_class: 'AncillaryForm')
       end
 
       it 'returns the job status and response', :aggregate_failures do
@@ -223,7 +223,9 @@ RSpec.describe 'Disability compensation form', type: :request do
 
     context 'with a non_retryable_error status' do
       let(:submission) { build_stubbed(:form526_submission) }
-      let(:job_status) { build_stubbed(:form526_job_status, :non_retryable_error, form526_submission_id: submission.id) }
+      let(:job_status) do
+        build_stubbed(:form526_job_status, :non_retryable_error, form526_submission_id: submission.id)
+      end
 
       it 'returns the job status and response', :aggregate_failures do
         get "/v0/disability_compensation_form/submission_status/#{job_status.job_id}", params: nil, headers: headers

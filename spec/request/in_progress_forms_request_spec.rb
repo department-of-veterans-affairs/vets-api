@@ -30,8 +30,12 @@ RSpec.describe V0::InProgressFormsController, type: :request do
       end
 
       let(:user) { loa3_user }
-      let!(:in_progress_form_edu) { FactoryBot.build_stubbed(:in_progress_form, form_id: '22-1990', user_uuid: user.uuid) }
-      let!(:in_progress_form_hca) { FactoryBot.build_stubbed(:in_progress_form, form_id: '1010ez', user_uuid: user.uuid) }
+      let!(:in_progress_form_edu) do
+        FactoryBot.build_stubbed(:in_progress_form, form_id: '22-1990', user_uuid: user.uuid)
+      end
+      let!(:in_progress_form_hca) do
+        FactoryBot.build_stubbed(:in_progress_form, form_id: '1010ez', user_uuid: user.uuid)
+      end
 
       context 'when the user is not loa3' do
         let(:user) { loa1_user }

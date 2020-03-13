@@ -21,9 +21,9 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526, type: :job do
     let(:submitted_claim_id) { 600_130_094 }
     let(:submission) do
       build_stubbed(:form526_submission,
-             user_uuid: user.uuid,
-             auth_headers_json: auth_headers.to_json,
-             saved_claim_id: saved_claim.id)
+                    user_uuid: user.uuid,
+                    auth_headers_json: auth_headers.to_json,
+                    saved_claim_id: saved_claim.id)
     end
 
     context 'when the base class is used' do

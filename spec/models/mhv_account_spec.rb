@@ -30,13 +30,13 @@ RSpec.describe MhvAccount, type: :model do
 
   let(:user) do
     build_stubbed(:user,
-           loa: user_loa,
-           ssn: user_ssn,
-           first_name: mvi_profile.given_names.first,
-           last_name: mvi_profile.family_name,
-           gender: mvi_profile.gender,
-           birth_date: mvi_profile.birth_date,
-           email: 'vets.gov.user+0@gmail.com')
+                  loa: user_loa,
+                  ssn: user_ssn,
+                  first_name: mvi_profile.given_names.first,
+                  last_name: mvi_profile.family_name,
+                  gender: mvi_profile.gender,
+                  birth_date: mvi_profile.birth_date,
+                  email: 'vets.gov.user+0@gmail.com')
   end
 
   let(:user_loa) { { current: LOA::THREE, highest: LOA::THREE } }
@@ -165,7 +165,9 @@ RSpec.describe MhvAccount, type: :model do
 
     context 'check_account_state' do
       context 'with terms accepted' do
-        let(:terms) { build_stubbed(:terms_and_conditions, latest: true, name: described_class::TERMS_AND_CONDITIONS_NAME) }
+        let(:terms) do
+          build_stubbed(:terms_and_conditions, latest: true, name: described_class::TERMS_AND_CONDITIONS_NAME)
+        end
 
         before { build_stubbed(:terms_and_conditions_acceptance, terms_and_conditions: terms, user_uuid: user.uuid) }
 
@@ -261,7 +263,7 @@ RSpec.describe MhvAccount, type: :model do
           context 'previously registered but somehow upgraded because of account level' do
             before do
               build_stubbed(:mhv_account, :upgraded, upgraded_at: nil, user_uuid: user.uuid,
-                                              mhv_correlation_id: user.mhv_correlation_id)
+                                                     mhv_correlation_id: user.mhv_correlation_id)
             end
 
             it 'has upgraded, with account level Premium, but it is treated as upgraded therefore not upgradable' do
@@ -285,7 +287,8 @@ RSpec.describe MhvAccount, type: :model do
 
           context 'previously registered' do
             before do
-              build_stubbed(:mhv_account, :registered, user_uuid: user.uuid, mhv_correlation_id: user.mhv_correlation_id)
+              build_stubbed(:mhv_account, :registered,
+                            user_uuid: user.uuid, mhv_correlation_id: user.mhv_correlation_id)
             end
 
             it 'has registered, upgradable with account level basic' do

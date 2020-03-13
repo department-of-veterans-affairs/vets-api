@@ -13,8 +13,8 @@ RSpec.describe DeleteOldTransactionsJob do
 
     it 'rescues and logs the details' do
       build_stubbed(:address_transaction,
-             created_at: (Time.current - AsyncTransaction::Base::DELETE_COMPLETED_AFTER - 1.day).iso8601,
-             status: AsyncTransaction::Base::COMPLETED)
+                    created_at: (Time.current - AsyncTransaction::Base::DELETE_COMPLETED_AFTER - 1.day).iso8601,
+                    status: AsyncTransaction::Base::COMPLETED)
 
       job = DeleteOldTransactionsJob.new
       expect(job).to receive(:log_message_to_sentry).once

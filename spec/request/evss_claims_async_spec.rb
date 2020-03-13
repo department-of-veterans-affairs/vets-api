@@ -46,7 +46,7 @@ RSpec.describe 'EVSS Claims management', type: :request do
   context '#show (single claim) is polled' do
     let!(:claim) do
       FactoryBot.build_stubbed(:evss_claim, id: 1, evss_id: 600_117_255,
-                                     user_uuid: user.uuid)
+                                            user_uuid: user.uuid)
     end
 
     it 'returns claim from DB, kicks off job, returns updated claim when job is completed' do
@@ -72,7 +72,7 @@ RSpec.describe 'EVSS Claims management', type: :request do
     it 'user cannot access claim of another user' do
       sign_in_as(user)
       FactoryBot.build_stubbed(:evss_claim, id: 2, evss_id: 189_625,
-                                     user_uuid: 'xyz')
+                                            user_uuid: 'xyz')
       get '/v0/evss_claims_async/2'
       expect(response).to have_http_status(:not_found)
     end

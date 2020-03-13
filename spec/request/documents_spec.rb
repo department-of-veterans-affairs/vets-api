@@ -14,7 +14,7 @@ RSpec.describe 'Documents management', type: :request do
   let(:document_type) { 'L023' }
   let!(:claim) do
     FactoryBot.build_stubbed(:evss_claim, id: 1, evss_id: 189_625,
-                                   user_uuid: user.uuid, data: {})
+                                          user_uuid: user.uuid, data: {})
   end
   let(:user) { FactoryBot.build_stubbed(:user, :loa3) }
 
