@@ -169,7 +169,7 @@ module ClaimsApi
               Use this endpoint in conjunction with the [POST](#operations-Disability-post526Claim) endpoint to file an original claim when the filer is _not_ the veteran (the oauth token is not the veteran’s).
               In most cases, if the veteran is not the filer on the original claim, a scanned copy of form 526, signed in ink by the veteran, is required.
               **`Step 1:`** use [POST /forms/526/{id}](#operations-Disability-post526Claim) but set `"autoCestPDFGenerationDisabled": true` (this disables automatic PDF generation).
-              **`Step 2:`** use PUT to attach scan of form 526 and any additional attachments.
+              **`Step 2:`** use PUT to attach scan of form 526 and any additional supporting documents.
             X
           )
           key :operationId, 'upload526Attachment'
