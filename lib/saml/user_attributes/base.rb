@@ -3,7 +3,7 @@
 module SAML
   module UserAttributes
     class Base
-      REQUIRED_ATTRIBUTES = %i[email uuid loa sign_in multifactor].freeze
+      REQUIRED_ATTRIBUTES = %i[email uuid sec_id loa sign_in multifactor].freeze
 
       attr_reader :attributes, :authn_context, :warnings
 
@@ -17,6 +17,10 @@ module SAML
       # ID.me unique identifier
       def uuid
         attributes['uuid']
+      end
+
+      def sec_id
+        attributes['sec_id']
       end
 
       # ID.me email address associated with the signed-in 'wallet'

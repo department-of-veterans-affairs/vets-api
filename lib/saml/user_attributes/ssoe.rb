@@ -5,7 +5,7 @@ module SAML
     class SSOe < Base
       include SentryLogging
       SSOE_SERIALIZABLE_ATTRIBUTES = %i[first_name middle_name last_name zip gender ssn birth_date].freeze
-      MERGEABLE_IDENTITY_ATTRIBUTES = %i[mhv_icn mhv_correlation_id dslogon_edipi sign_in].freeze
+      MERGEABLE_IDENTITY_ATTRIBUTES = %i[sec_id mhv_icn mhv_correlation_id dslogon_edipi sign_in].freeze
 
       # Denoted as "CSP user ID" in SSOe docs; required attribute for LOA >= 2
       def uuid
@@ -50,6 +50,9 @@ module SAML
       end
 
       ### Identifiers
+      def sec_id
+        safe_attr('va_eauth_secid')
+      end
 
       def mhv_icn
         safe_attr('va_eauth_icn')
