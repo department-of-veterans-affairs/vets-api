@@ -63,8 +63,9 @@ RSpec.describe 'CSRF scenarios', type: :request do
   describe 'POST SAML callback' do
     context 'without a CSRF token' do
       it 'does not raise an error' do
+        expect(Raven).not_to receive(:capture_message)
         post(auth_saml_callback_path)
-        expect(response.body).not_to match(/ActionController::InvalidAuthenticityToken/)
+        # expect(response.body).not_to match(/ActionController::InvalidAuthenticityToken/)
       end
     end
   end
