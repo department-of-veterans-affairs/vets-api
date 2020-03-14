@@ -487,6 +487,8 @@ vbms:
   server_cert: vbms.aide.oit.va.gov.crt
   environment_directory: /srv/vets-api/secret
   env: test
+  efolder:
+    mock: true
 
 vet_verification:
   key_path: modules/veteran_verification/spec/fixtures/verification_test.pem
