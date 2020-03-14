@@ -24,6 +24,13 @@ RSpec.describe VBMS::Efolder::Service do
   let(:pa) { build_stubbed(:pension_burial) } # a claim with persistent_attachments
   let(:upload) { described_class.new(file, metadata) }
 
+  statsd = {
+    token_success: 'api.vbms.efolder.uploads.token.success',
+    token_fail: 'api.vbms.efolder.uploads.token.fail',
+    upload_success: 'api.vbms.efolder.uploads.upload.success',
+    upload_fail: 'api.vbms.efolder.uploads.upload.fail'
+  }
+
   describe '#initialize' do
     context 'with a ClaimDocumentation::Uploader::UploadedFile File' do
       let(:claim_upload) { described_class.new(pa.file, metadata)}
@@ -62,49 +69,78 @@ RSpec.describe VBMS::Efolder::Service do
     end
   end
 
-  context 'uploading a file' do
+  describe '#upload_file' do
     before do
       allow(file).to receive('class').and_return('File')
       allow(vbms_init).to receive('initialize')
       allow(upload).to receive('client').and_return(vbms_client)
     end
     
-    it 'calls #upload_file!' do
+    it 'is called only once per file' do
       expect(upload).to receive('upload_file!').once
     end
 
-    it 'calls #fetch_upload_token' do
+    it 'calls #fetch_upload_token once' do
       allow(vbms_client).to receive('send_request')
       expect(upload).to receive(:fetch_upload_token).once
     end
 
-    it 'calls #upload' do
+    it 'calls #upload with a token once' do
       allow(upload).to receive(:fetch_upload_token).and_return(token)
       allow(upload).to receive(:upload).with(:token)
       expect(upload).to receive(:upload).with(token).once
     end
 
-    it 'generates an upload request with file and metadata' do
-      allow(upload).to receive(:upload).and_return true
-      expect(vbms_client).to receive(:send_request) do |request|
-        expect(request.kind_of? VBMS::Requests::InitializeUpload).to be(true)
-        request.instance_values.each do |var, val|
-          expect(request.instance_values[var]).to_not be_nil
+    describe 'fetching token from VBMS' do
+      it 'generates an upload request with file and metadata' do
+        allow(upload).to receive(:upload).and_return true
+        expect(vbms_client).to receive(:send_request) do |request|
+          expect(request.kind_of? VBMS::Requests::InitializeUpload).to be(true)
+          request.instance_values.each do |var, val|
+            expect(request.instance_values[var]).to_not be_nil
+          end
+          expect(request.instance_values['new_mail']).to be_truthy
         end
-        expect(request.instance_values['new_mail']).to be_truthy
+      end
+  
+      context 'increments statsd' do
+        it 'on success' do
+          allow(upload).to receive(:fetch_upload_token).and_return(token)
+          allow(upload).to receive(:upload).and_return(true)
+          expect { upload.upload_file! }.to trigger_statsd_increment(statsd[:token_success])
+        end
+        it 'on failure' do
+          allow(upload).to receive(:fetch_upload_token).and_raise('not found')
+          allow(upload).to receive(:upload).and_return(true)
+          expect { upload.upload_file! }.to trigger_statsd_increment(statsd[:token_fail])
+        end
       end
     end
 
-    it 'uploads document to vbms with token and file' do
-      allow(upload).to receive(:fetch_upload_token).and_return(token)
-      expect(vbms_client).to receive(:send_request) do |request|
-        expect(request.kind_of? VBMS::Requests::UploadDocument).to be(true)
-        filepath = upload.instance_variable_get(:@file).tempfile.path
-        expect(request.instance_values['filepath']).to eq(filepath)
-        expect(request.instance_values['upload_token']).to eq(token)
+    describe 'uploading a file to VBMS' do
+      it 'uploads document to vbms with token and file' do
+        allow(upload).to receive(:fetch_upload_token).and_return(token)
+        expect(vbms_client).to receive(:send_request) do |request|
+          expect(request.kind_of? VBMS::Requests::UploadDocument).to be(true)
+          filepath = upload.instance_variable_get(:@file).tempfile.path
+          expect(request.instance_values['filepath']).to eq(filepath)
+          expect(request.instance_values['upload_token']).to eq(token)
+        end
+      end
+      context 'increments statsd' do
+        it 'on success' do
+          allow(upload).to receive(:fetch_upload_token).and_return(token)
+          allow(upload).to receive(:upload).and_return(true)
+          expect { upload.upload_file! }.to trigger_statsd_increment(statsd[:upload_success])
+        end
+        it 'on failure' do
+          allow(upload).to receive(:fetch_upload_token).and_return(token)
+          allow(upload).to receive(:upload).and_raise('500')
+          expect { upload.upload_file! }.to trigger_statsd_increment(statsd[:upload_fail])
+        end
       end
     end
-
+    
     after do
       upload.upload_file!
     end

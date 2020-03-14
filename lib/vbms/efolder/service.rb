@@ -2,7 +2,7 @@
 module VBMS
   module Efolder
     class Service < Common::Client::Base
-      STATSD_KEY_PREFIX = 'api.vbms_efolder'
+      STATSD_KEY_PREFIX = 'api.vbms.efolder.uploads'
       include Common::Client::Monitoring
       configuration VBMS::Efolder::Configuration
       
@@ -26,6 +26,10 @@ module VBMS
         # uploading to efolder is a two step process. Fetch token and upload.
         token = fetch_upload_token
         upload(token)
+        increment_success(:upload, :token)
+      rescue
+        increment_fail(:token) unless token
+        increment_fail(:upload)
       end
 
       private
@@ -58,6 +62,18 @@ module VBMS
 
       def client
         @client ||= VBMS::Client.from_env_vars(env_name: Settings.vbms.env)
+      end
+
+      def increment_success(*keys)
+        keys.each do |key|
+          StatsD.increment("#{STATSD_KEY_PREFIX}.#{key}.success")
+        end
+      end
+      
+      def increment_fail(*keys)
+        keys.each do |key|
+          StatsD.increment("#{STATSD_KEY_PREFIX}.#{key}.fail")
+        end
       end
     end
   end
