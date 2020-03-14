@@ -2,18 +2,18 @@
 
 module VBMS
   module Efolder
-    class Configuration < Common::Client::Configuration::Base # TODO
-      def base_path
-        Settings.vbms.url
-      end
+    class Configuration < Common::Client::Configuration::Base
 
       def service_name
         'vbms_efolder'
       end
 
-      # we are using the connect_vbms gem for interaction with the vbms service, but we will define a connection
-      # here to add breakers functionality.
-      # TODO: how to check vbms for service outage or does the gem do this?
+      def base_path
+        Settings.vbms.url
+      end
+
+      # TODO: we are using connect_vbms gem for interaction with the vbms SOAP service, but we should
+      # define something here to add breakers functionality. Does vbms have a health check endpoint?
       def connection
         Faraday.new(base_path, headers: base_request_headers, request: request_options) do |faraday|
           faraday.use :breakers
