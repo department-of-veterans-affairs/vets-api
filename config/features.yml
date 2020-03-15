@@ -4,6 +4,9 @@
 # The description should contain any relevant information for an admin who may toggle the feature.
 
 features:
+  burial_claim_sd_workflow:
+    description: >
+      Enables procressing Burial Claims directly to BIP/BPDS/VBMS-Efolder services. Falls back to Central Mail workflow if unsuccessful.
   facility_locator_show_community_cares:
     description: >
       On https://www.va.gov/find-locations/ enable veterans to search for Community care by showing that option in the "Search for" box.

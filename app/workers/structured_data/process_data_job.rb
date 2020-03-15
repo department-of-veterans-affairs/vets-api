@@ -15,19 +15,24 @@ module StructuredData
       PensionBurial::TagSentry.tag_sentry
       @claim = SavedClaim.find(saved_claim_id)
       
-      begin
-        relationship_type = @claim.parsed_form['relationship']&.fetch('type', nil)
-        veteran = BipClaims::Service.new.lookup_veteran_from_mvi(@claim)
-        attachments = @claim.process_efolder_attachments!
-      rescue
+      if Flipper.enabled?(:burial_claim_sd_workflow)
+        begin
+          relationship_type = @claim.parsed_form['relationship']&.fetch('type', nil)
+          veteran = BipClaims::Service.new.lookup_veteran_from_mvi(@claim)
+          VBMS::Efolder::UploadClaimAttachments.new(@claim).upload!
+
+          # veteran lookup for hit/miss metrics in support of Automation work
+          StatsD.increment("#{stats_key}.success", tags: [
+            "relationship:#{relationship_type}",
+            "veteranInMVI:#{veteran&.participant_id}"
+          ])
+        rescue
+          # fall back to Central Mail workflow
+          @claim.process_attachments!
+        end
+      else
         @claim.process_attachments!
       end
-
-      # veteran lookup for hit/miss metrics in support of Automation work
-      StatsD.increment("#{stats_key}.success", tags: [
-                          "relationship:#{relationship_type}",
-                          "veteranInMVI:#{veteran&.participant_id}"
-                        ])
     rescue
       raise
     end

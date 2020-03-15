@@ -25,9 +25,18 @@ RSpec.describe StructuredData::ProcessDataJob, uploader_helpers: true do
       job.perform(claim.id)
     end
 
-    it 'calls Central Mail processing job' do
+    it 'calls Central Mail processing job with SD flipper disabled' do
+      Flipper.disable(:burial_claim_sd_workflow)
       expect(CentralMail::SubmitSavedClaimJob).to receive(:perform_async)
       job.perform(claim.id)
+    end
+
+    describe 'if structured data workflow fails' do
+      before { allow_any_instance_of(VBMS::Efolder::UploadClaimAttachments).to receive(:upload!).and_raise('500') }
+      it 'defaults to Central Mail workflow' do
+        expect(CentralMail::SubmitSavedClaimJob).to receive(:perform_async)
+        job.perform(claim.id)
+      end
     end
 
     it 'increments metric for successful claim submission to va.gov' do
