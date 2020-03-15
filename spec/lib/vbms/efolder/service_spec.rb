@@ -3,146 +3,39 @@
 require 'rails_helper'
 
 RSpec.describe VBMS::Efolder::Service do
-  let(:metadata) {{
-        'first_name' => 'Pat',
-        'last_name' => 'Doe',
-        'file_number' => '123-44-5678',
-        'receive_date' => Time.now.strftime('%Y-%m-%d %H:%M:%S'),
-        'guid' => pa.saved_claim.guid,
-        'zip_code' => '78504',
-        'source' => 'va.gov',
-        'doc_type' => pa.saved_claim.form_id
-  }}
-  let(:file) { fixture_file_upload(
-    "#{::Rails.root}/spec/fixtures/pension/attachment.pdf", 'application/pdf')
-  }
-  let(:file_hash) { "a83abce1fea679b6f49c8ccdc7fa947710645d0b" } # sha1.hexdigest of above file
-  let(:token) { "af022405-4e10-4025-b6f5-2f85570ccbb5" }
-  let(:vbms_client) { double(VBMS::Client)}
-  let(:vbms_init) { double(VBMS::Requests::InitializeUpload) }
-  let(:vbms_upload) { double(VBMS::Requests::UploadDocument)}
-  let(:pa) { build_stubbed(:pension_burial) } # a claim with persistent_attachments
-  let(:upload) { described_class.new(file, metadata) }
+  let(:service) { described_class.new }
+  let(:vbms_client) { VBMS::Client }
 
-  statsd = {
-    token_success: 'api.vbms.efolder.uploads.token.success',
-    token_fail: 'api.vbms.efolder.uploads.token.fail',
-    upload_success: 'api.vbms.efolder.uploads.upload.success',
-    upload_fail: 'api.vbms.efolder.uploads.upload.fail'
-  }
+  before do
+    service.class.send(:public, *described_class.private_instance_methods)
+    allow(VBMS::Client).to receive(:from_env_vars).and_return(vbms_client)
+  end
 
-  describe '#initialize' do
-    context 'with a ClaimDocumentation::Uploader::UploadedFile File' do
-      let(:claim_upload) { described_class.new(pa.file, metadata)}
-      let(:uploaded_file) { claim_upload.instance_variable_get(:@file)}
-      let(:filename) { claim_upload.instance_variable_get(:@filename)}
-      before do
-        allow(pa).to receive('file').and_return(file)
-        allow(pa.file).to receive('class').and_return('ClaimDocumentation::Uploader::UploadedFile')
-      end
-      it 'loads the file' do
-        expect(uploaded_file.path).to eq(pa.file.path)
-      end
-      it 'prepends the filename with a unique identifier' do
-        expect(filename).to match("^([a-z0-9]+-){5}attachment.pdf")
-      end
-    end
+  it 'should configure statsd key prefix' do
+    expect(VBMS::Efolder::Service::STATSD_KEY_PREFIX).to eq('api.vbms.efolder')  
+  end
 
-    context 'with a PORO File' do
-      let(:uploaded_file) { upload.instance_variable_get(:@file)}
-      let(:filename) { upload.instance_variable_get(:@filename)}
-      before do
-        allow(file).to receive('class').and_return('File')
-      end
-      it 'loads the file' do
-        expect(uploaded_file.path).to eq(file.path)
-      end
-      it 'prepends the filename with a unique identifier' do
-        expect(filename).to match("^([a-z0-9]+-){5}#{File.basename(file.tempfile)}")
-      end
-    end
-
-    it 'hashes the file\'s content' do
-      allow(file).to receive('class').and_return('File')
-      content_hash = upload.instance_variable_get('@metadata')['content_hash']
-      expect(content_hash).to eq(file_hash)
+  describe '#client' do
+    it 'should return a VBMS::Client' do
+      expect(service.client).to be(VBMS::Client)
     end
   end
 
-  describe '#upload_file' do
-    before do
-      allow(file).to receive('class').and_return('File')
-      allow(vbms_init).to receive('initialize')
-      allow(upload).to receive('client').and_return(vbms_client)
-    end
-    
-    it 'is called only once per file' do
-      expect(upload).to receive('upload_file!').once
+  describe 'statsd helper methods' do
+    # set the class name to UploadService to ensure the incrementers convert and use upload_service as keyname
+    before { allow(service).to receive(:class).and_return(VBMS::Efolder::UploadService) }
+    upload_success_key = 'api.vbms.efolder.upload_service.upload.success'
+    upload_fail_key = 'api.vbms.efolder.upload_service.upload.fail'
+
+    # ensure 
+    it '#increment_success triggers statsd with correct keyname' do
+      expect { service.increment_success(:upload) }.to trigger_statsd_increment(upload_success_key)
+      service.increment_success(:upload)
     end
 
-    it 'calls #fetch_upload_token once' do
-      allow(vbms_client).to receive('send_request')
-      expect(upload).to receive(:fetch_upload_token).once
-    end
-
-    it 'calls #upload with a token once' do
-      allow(upload).to receive(:fetch_upload_token).and_return(token)
-      allow(upload).to receive(:upload).with(:token)
-      expect(upload).to receive(:upload).with(token).once
-    end
-
-    describe 'fetching token from VBMS' do
-      it 'generates an upload request with file and metadata' do
-        allow(upload).to receive(:upload).and_return true
-        expect(vbms_client).to receive(:send_request) do |request|
-          expect(request.kind_of? VBMS::Requests::InitializeUpload).to be(true)
-          request.instance_values.each do |var, val|
-            expect(request.instance_values[var]).to_not be_nil
-          end
-          expect(request.instance_values['new_mail']).to be_truthy
-        end
-      end
-  
-      context 'increments statsd' do
-        it 'on success' do
-          allow(upload).to receive(:fetch_upload_token).and_return(token)
-          allow(upload).to receive(:upload).and_return(true)
-          expect { upload.upload_file! }.to trigger_statsd_increment(statsd[:token_success])
-        end
-        it 'on failure' do
-          allow(upload).to receive(:fetch_upload_token).and_raise('not found')
-          allow(upload).to receive(:upload).and_return(true)
-          expect { upload.upload_file! }.to trigger_statsd_increment(statsd[:token_fail])
-        end
-      end
-    end
-
-    describe 'uploading a file to VBMS' do
-      it 'uploads document to vbms with token and file' do
-        allow(upload).to receive(:fetch_upload_token).and_return(token)
-        expect(vbms_client).to receive(:send_request) do |request|
-          expect(request.kind_of? VBMS::Requests::UploadDocument).to be(true)
-          filepath = upload.instance_variable_get(:@file).tempfile.path
-          expect(request.instance_values['filepath']).to eq(filepath)
-          expect(request.instance_values['upload_token']).to eq(token)
-        end
-      end
-      context 'increments statsd' do
-        it 'on success' do
-          allow(upload).to receive(:fetch_upload_token).and_return(token)
-          allow(upload).to receive(:upload).and_return(true)
-          expect { upload.upload_file! }.to trigger_statsd_increment(statsd[:upload_success])
-        end
-        it 'on failure' do
-          allow(upload).to receive(:fetch_upload_token).and_return(token)
-          allow(upload).to receive(:upload).and_raise('500')
-          expect { upload.upload_file! }.to trigger_statsd_increment(statsd[:upload_fail])
-        end
-      end
-    end
-    
-    after do
-      upload.upload_file!
+    it '#increment_fail should trigger statsd with correct keyname' do
+      expect { service.increment_fail(:upload) }.to trigger_statsd_increment(upload_fail_key)
+      service.increment_fail(:upload)
     end
   end
 end
