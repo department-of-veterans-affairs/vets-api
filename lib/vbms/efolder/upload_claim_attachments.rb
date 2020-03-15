@@ -16,7 +16,7 @@ module VBMS
         end
 
         @claim.persistent_attachments.each do |attachment|
-          efolder = VBMS::Efolder::Service.new(attachment.file, @metadata)
+          efolder = VBMS::Efolder::UploadService.new(attachment.file, @metadata)
           efolder.upload_file!
         end
       end
