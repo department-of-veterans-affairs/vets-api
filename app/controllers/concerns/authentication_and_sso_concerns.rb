@@ -4,7 +4,6 @@
 # to this responsibility alone.
 module AuthenticationAndSSOConcerns
   extend ActiveSupport::Concern
-  include ActionController::HttpAuthentication::Token::ControllerMethods
   include ActionController::Cookies
 
   included do
@@ -30,14 +29,12 @@ module AuthenticationAndSSOConcerns
       reset_session
       return false
     end
-
     @current_user = User.find(@session_object.uuid)
 
     if should_signout_sso?
       Rails.logger.info('SSO: MHV INITIATED SIGNOUT', sso_logging_info)
       reset_session
     else
-      Rails.logger.info('SSO: EXTENDING SESSION', sso_logging_info)
       extend_session!
     end
 
@@ -58,17 +55,17 @@ module AuthenticationAndSSOConcerns
 
   # Determines whether user signed out of MHV's website
   def should_signout_sso?
-    Rails.logger.info('SSO: ApplicationController#should_signout_sso?', sso_logging_info)
-    return false unless Settings.sso.cookie_enabled
-    return false unless Settings.sso.cookie_signout_enabled
+    # TODO: This logic needs updating to let us log out either/or
+    # SSOe session or MHV-SSO session but for  now  the next line lets
+    # us avoid terminating  the session due to not setting it  previously
+    return false if @current_user&.authenticated_by_ssoe
+    return false unless Settings.sso.cookie_enabled && Settings.sso.cookie_signout_enabled
 
     cookies[Settings.sso.cookie_name].blank? && request.host.match(Settings.sso.cookie_domain)
   end
 
   # Extends the users session, including the MHV SSO Cookie
   def extend_session!
-    Rails.logger.info('SSO: ApplicationController#extend_session!', sso_logging_info)
-
     @session_object.expire(Session.redis_namespace_ttl)
     @current_user&.identity&.expire(UserIdentity.redis_namespace_ttl)
     @current_user&.expire(User.redis_namespace_ttl)
@@ -84,9 +81,13 @@ module AuthenticationAndSSOConcerns
 
   # Sets a cookie used by MHV for SSO
   def set_sso_cookie!
-    Rails.logger.info('SSO: ApplicationController#set_sso_cookie!', sso_logging_info)
+    return unless Settings.sso.cookie_enabled &&
+                  @session_object.present? &&
+                  # if the user logged in via SSOe, there is no benefit from
+                  # creating a MHV SSO shared cookie
+                  !@current_user&.authenticated_by_ssoe
 
-    return unless Settings.sso.cookie_enabled && @session_object.present?
+    Rails.logger.info('SSO: ApplicationController#set_sso_cookie!', sso_logging_info)
 
     encryptor = SSOEncryptor
     encrypted_value = encryptor.encrypt(ActiveSupport::JSON.encode(sso_cookie_content))
@@ -122,17 +123,14 @@ module AuthenticationAndSSOConcerns
     {
       'myhealthevet' => 'my_healthe_vet',
       'dslogon' => 'ds_logon',
-      'idme' => 'id_me',
-      'ssoe' => 'ssoe'
+      'idme' => 'id_me'
     }.fetch(@current_user.identity.sign_in.fetch(:service_name))
   end
 
   # Info for logging purposes related to SSO.
   def sso_logging_info
     {
-      sso_cookies_enabled: Settings.sso.cookie_enabled,
-      sso_cookies_signout_enabled: Settings.sso.cookie_signout_enabled,
-      sso_cookie_name: Settings.sso.cookie_name,
+      user_uuid: @current_user&.uuid,
       sso_cookie_contents: sso_cookie_content,
       request_host: request.host
     }

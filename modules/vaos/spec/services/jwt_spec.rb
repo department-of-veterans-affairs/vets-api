@@ -38,11 +38,11 @@ describe VAOS::JWT do
       end
 
       it 'includes a dob from MVI' do
-        expect(decoded_payload['dob']).to eq('1953-04-01')
+        expect(decoded_payload['dob']).to eq('19530401')
       end
 
       it 'includes a dateOfBirth from MVI' do
-        expect(decoded_payload['dateOfBirth']).to eq('1953-04-01')
+        expect(decoded_payload['dateOfBirth']).to eq('19530401')
       end
 
       it 'includes a edipid from MVI' do

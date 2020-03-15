@@ -10,11 +10,11 @@ describe VAOS::SystemsService do
   before { allow_any_instance_of(VAOS::UserService).to receive(:session).and_return('stubbed_token') }
 
   describe '#get_systems' do
-    context 'with 10 system identifiers' do
-      it 'returns an array of size 10' do
+    context 'with 10 identifiers and 4 systems' do
+      it 'returns an array of size 4' do
         VCR.use_cassette('vaos/systems/get_systems', match_requests_on: %i[method uri]) do
           response = subject.get_systems
-          expect(response.size).to eq(10)
+          expect(response.size).to eq(4)
         end
       end
 
@@ -84,7 +84,7 @@ describe VAOS::SystemsService do
     context 'when the upstream server returns a 500' do
       it 'raises a backend exception' do
         VCR.use_cassette('vaos/systems/get_facility_clinics_500', match_requests_on: %i[method uri]) do
-          expect { subject.get_facility_clinics('984', '323', '984GA') }.to raise_error(
+          expect { subject.get_facility_clinics('984GA', '323', '984') }.to raise_error(
             Common::Exceptions::BackendServiceException
           )
         end
