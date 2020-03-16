@@ -17,7 +17,7 @@ module BGS
         external_key: current_user.email
       )
 
-      service.vnp_proc_v2.vnp_proc_create(
+      vnpResponse = service.vnp_proc_v2.vnp_proc_create(
         vnp_proc_type_cd: 'COMPCLM',
         vnp_proc_state_type_cd: 'Ready',
         creatd_dt: '2020-02-25T09:59:16-06:00',
@@ -25,9 +25,25 @@ module BGS
         jrn_dt: '2020-02-25T10:02:31-06:00',
         jrn_lctn_id: '281',
         jrn_status_type_cd: 'U',
-        jrn_user_id: 'VAEBENEFITS',
-        jrn_obj_id: 'eBenefits',
-        submtd_dt: '2020-02-25T10:01:59-06:00')
+        jrn_user_id: 'VAgovAPI',
+        jrn_obj_id: 'VAgovAPI',
+        submtd_dt: '2020-02-25T10:01:59-06:00',
+        ssn: current_user.ssn)
+
+
+      vnp_proc_id = vnpResponse[:vnp_proc_id]
+
+      service.vnp_proc_form.vnp_proc_form_create(
+        vnp_proc_id: vnp_proc_id,
+        form_type_cd: '21-686c',
+        jrn_dt: '2020-02-25T10:02:31-06:00',
+        jrn_lctn_id: '281',
+        jrn_obj_id: 'VAgovAPI',
+        jrn_status_type_cd: 'U',
+        jrn_user_id: 'VAgovAPI',
+        ssn: current_user.ssn)
+
+
     end
   end
 end
