@@ -97,6 +97,12 @@ StatsD.increment("#{EMIS::Service::STATSD_KEY_PREFIX}.service_history", 0, tags:
 StatsD.increment("#{CentralMail::Service::STATSD_KEY_PREFIX}.upload.total", 0)
 StatsD.increment("#{CentralMail::Service::STATSD_KEY_PREFIX}.upload.fail", 0)
 
+# init VBMS::Efolder
+StatsD.increment("#{VBMS::Efolder::Service::STATSD_KEY_PREFIX}.token.success", 0)
+StatsD.increment("#{VBMS::Efolder::Service::STATSD_KEY_PREFIX}.token.fail", 0)
+StatsD.increment("#{VBMS::Efolder::Service::STATSD_KEY_PREFIX}.upload.success", 0)
+StatsD.increment("#{VBMS::Efolder::Service::STATSD_KEY_PREFIX}.upload.fail", 0)
+
 # init SentryJob error monitoring
 StatsD.increment(SentryJob::STATSD_ERROR_KEY, 0)
 
