@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module VAOS
-  class BaseController < ::ExternalApiApplicationController
+  class BaseController < ::ApplicationController
     before_action :authorize
 
     protected
