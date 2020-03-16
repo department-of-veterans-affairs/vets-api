@@ -22,7 +22,6 @@ module ClaimsApi
         skip_before_action :validate_json_format, only: %i[upload_supporting_documents]
 
         def submit_form_526
-          service_object = service(auth_headers)
           auto_claim = ClaimsApi::AutoEstablishedClaim.create(
             status: ClaimsApi::AutoEstablishedClaim::PENDING,
             auth_headers: auth_headers,
@@ -30,9 +29,9 @@ module ClaimsApi
             source: source_name
           )
           auto_claim = ClaimsApi::AutoEstablishedClaim.find_by(md5: auto_claim.md5) unless auto_claim.id
-          
+
           # Removing final validation check because EVSS may not be able to handle request load
-          # service_object.validate_form526(auto_claim.to_internal)
+          # service(auth_headers).validate_form526(auto_claim.to_internal)
 
           ClaimsApi::ClaimEstablisher.perform_async(auto_claim.id)
 
