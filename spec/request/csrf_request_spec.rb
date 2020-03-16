@@ -23,6 +23,7 @@ RSpec.describe 'CSRF scenarios', type: :request do
   end
 
   before do
+    # innocuous route chosen for setting the CSRF token in the cookie
     get(v0_maintenance_windows_path)
     @token = response.cookies['X-CSRF-Token']
   end
