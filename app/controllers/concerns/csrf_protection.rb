@@ -8,7 +8,6 @@
 # Whereas `protect_from_forgery` uses `session` and hidden form fields, we are using `cookies` and request headers.
 module CSRFProtection
   extend ActiveSupport::Concern
-  include ActionController::RequestForgeryProtection
   include ActionController::Cookies
 
   included do
@@ -22,7 +21,7 @@ module CSRFProtection
 
   def set_csrf_cookie
     cookies['X-CSRF-Token'] ||= {
-      value: form_authenticity_token,
+      value: SecureRandom.base64(32),
       expires: 1.day.from_now,
       secure: true
     }
