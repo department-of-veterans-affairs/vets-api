@@ -39,18 +39,18 @@ module Swagger
                          example: 'MS',
                          minLength: 2,
                          maxLength: 2,
-                         pattern: SwaggerHelpers.convert_regex(::Vet360::Models::Address::VALID_ALPHA_REGEX)
+                         pattern: ::Vet360::Models::Address::VALID_ALPHA_REGEX
           block.property :zip_code,
                          type: :string,
                          example: '38843',
                          maxLength: 5,
-                         pattern: SwaggerHelpers.convert_regex(::Vet360::Models::Address::VALID_NUMERIC_REGEX)
+                         pattern: ::Vet360::Models::Address::VALID_NUMERIC_REGEX
           block.property :zip_code_suffix,
                          type: :string,
                          example: '1234',
                          minLength: 4,
                          maxLength: 4,
-                         pattern: SwaggerHelpers.convert_regex(::Vet360::Models::Address::VALID_NUMERIC_REGEX)
+                         pattern: ::Vet360::Models::Address::VALID_NUMERIC_REGEX
         end
 
         def self.intl_address_fields(block)
@@ -84,7 +84,7 @@ module Swagger
               property :country_name,
                        type: :string,
                        example: 'United States',
-                       pattern: ::Vet360::Models::Address::VALID_ALPHA_REGEX.inspect
+                       pattern: ::Vet360::Models::Address::VALID_ALPHA_REGEX
 
               if req_type == 'Put'
                 SwaggerHelpers.add_to_required(self, :id)
