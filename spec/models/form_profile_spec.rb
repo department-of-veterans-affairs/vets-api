@@ -849,8 +849,10 @@ RSpec.describe FormProfile, type: :model do
               expect(user).to receive(:authorize).with(:mdot, :access?).and_return(true).at_least(:once)
             end
 
-            VCR.use_cassette('mdot/get_supplies_200') do
-              expect_prefilled('MDOT')
+            it 'returns a prefilled MDOT form' do
+              VCR.use_cassette('mdot/get_supplies_200') do
+                expect_prefilled('MDOT')
+              end
             end
           end
 
