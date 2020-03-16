@@ -8,7 +8,6 @@ RSpec.describe V0::HcaAttachmentsController, type: :controller do
       post(:create, params: { hca_attachment: {
              file_data: fixture_file_upload('pdf_fill/extras.pdf')
            } })
-
       expect(JSON.parse(response.body)['data']['attributes']['guid']).to eq HcaAttachment.last.guid
     end
 
@@ -23,8 +22,7 @@ RSpec.describe V0::HcaAttachmentsController, type: :controller do
       file_data = fixture_file_upload('pdf_fill/extras.pdf')
       post(:create, params: { hca_attachment: {
              file_data: file_data
-      }}) 
-       
+           } }) 
       expect(HcaAttachment.last.get_file).to_not be_nil
     end
   end
