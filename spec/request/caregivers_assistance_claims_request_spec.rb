@@ -96,7 +96,7 @@ RSpec.describe 'Caregivers Assistance Claims', type: :request do
         expect(res_body['data']).to be_present
         expect(res_body['data']['type']).to eq 'form1010cg_submissions'
         expect(res_body['data']['attributes']['submittedAt']).to be_present
-        expect(res_body['data']['attributes']['submittedAt'].to_date).to eq DateTime.now.to_date
+        expect(res_body['data']['attributes']['submittedAt']).to eq '2020-03-09T10:48:59Z' # Found in VCR response
         expect(res_body['data']['attributes']['confirmationNumber']).to be_present
       end
     end

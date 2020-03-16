@@ -6,20 +6,20 @@ RSpec.describe CARMA::Models::Submission, type: :model do
   describe '#new' do
     it 'accepts arguments' do
       expected = {
-        case_id: 'somecaseid1234_CAS',
+        carma_case_id: 'aB935000000A9GoCAK',
         submitted_at: DateTime.now.iso8601,
         data: { my: 'data' },
         claim_id: 3
       }
 
       submission = described_class.new(
-        case_id: expected[:case_id],
+        carma_case_id: expected[:carma_case_id],
         submitted_at: expected[:submitted_at],
         data: expected[:data],
         metadata: { claim_id: expected[:claim_id] }
       )
 
-      expect(submission.case_id).to eq(expected[:case_id])
+      expect(submission.carma_case_id).to eq(expected[:carma_case_id])
       expect(submission.submitted_at).to eq(expected[:submitted_at])
       expect(submission.data).to eq(expected[:data])
       expect(submission.metadata).to be_instance_of(described_class::Metadata)
@@ -35,7 +35,7 @@ RSpec.describe CARMA::Models::Submission, type: :model do
 
       expect(submission).to be_instance_of(described_class)
       expect(submission.data).to eq(claim.parsed_form)
-      expect(submission.case_id).to eq(nil)
+      expect(submission.carma_case_id).to eq(nil)
       expect(submission.submitted_at).to eq(nil)
 
       expect(submission.metadata).to be_instance_of(described_class::Metadata)
@@ -49,7 +49,7 @@ RSpec.describe CARMA::Models::Submission, type: :model do
 
       expect(submission).to be_instance_of(described_class)
       expect(submission.data).to eq(claim.parsed_form)
-      expect(submission.case_id).to eq(nil)
+      expect(submission.carma_case_id).to eq(nil)
       expect(submission.submitted_at).to eq(nil)
 
       expect(submission.metadata).to be_instance_of(described_class::Metadata)
@@ -58,8 +58,8 @@ RSpec.describe CARMA::Models::Submission, type: :model do
   end
 
   describe '#submitted?' do
-    it 'returns true if :case_id is set' do
-      submission = described_class.new(case_id: 'somecaseid1234_CAS')
+    it 'returns true if :carma_case_id is set' do
+      submission = described_class.new(carma_case_id: 'aB935000000A9GoCAK')
       expect(submission.submitted?).to eq(true)
     end
 
@@ -68,7 +68,7 @@ RSpec.describe CARMA::Models::Submission, type: :model do
       expect(submission.submitted?).to eq(true)
     end
 
-    it 'returns false if :case_id and :submitted_at are falsy' do
+    it 'returns false if :carma_case_id and :submitted_at are falsy' do
       submission = described_class.new
       expect(submission.submitted?).to eq(false)
     end
@@ -92,21 +92,28 @@ RSpec.describe CARMA::Models::Submission, type: :model do
     end
 
     context 'when submission is valid' do
-      it 'submits the data and metadata to CARMA, and updates :case_id and :submitted_at' do
-        expect(submission.case_id).to eq(nil)
+      it 'submits the data and metadata to CARMA, and updates :carma_case_id and :submitted_at' do
+        expect(submission.carma_case_id).to eq(nil)
         expect(submission.submitted_at).to eq(nil)
         expect(submission.submitted?).to eq(false)
 
-        response = { data: { case: { id: 'Qma39I9wDN1UiS_CAS', created_at: '2020-03-09T10:48:59Z' } } }
+        expected_data = {
+          'data' => {
+            'carmacase' => {
+              'id' => 'aB935000000F3VnCAK',
+              'createdAt' => '2020-03-09T10:48:59Z'
+            }
+          }
+        }
 
-        expect_any_instance_of(CARMA::Client::Client).to receive(:create_submission)
+        expect_any_instance_of(CARMA::Client::Client).to receive(:create_submission_stub)
           .with(data: submission.data, metadata: { claim_id: nil })
-          .and_return(response)
+          .and_return(expected_data)
 
         submission.submit!
 
-        expect(submission.case_id).to eq(response[:data][:case][:id])
-        expect(submission.submitted_at).to eq(response[:data][:case][:created_at])
+        expect(submission.carma_case_id).to eq(expected_data['data']['carmacase']['id'])
+        expect(submission.submitted_at).to eq(expected_data['data']['carmacase']['createdAt'])
         expect(submission.submitted?).to eq(true)
       end
     end
@@ -114,9 +121,9 @@ RSpec.describe CARMA::Models::Submission, type: :model do
     context 'when already submitted' do
       it 'raises an exception' do
         submission.submitted_at = DateTime.now.iso8601
-        submission.case_id = 'somecaseid1234_CAS'
+        submission.carma_case_id = 'aB935000000A9GoCAK'
 
-        expect_any_instance_of(CARMA::Client::Client).not_to receive(:create_submission)
+        expect_any_instance_of(CARMA::Client::Client).not_to receive(:create_submission_stub)
 
         expect { submission.submit! }.to raise_error('This submission has already been submitted to CARMA')
       end

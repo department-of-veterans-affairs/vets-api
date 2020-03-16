@@ -8,7 +8,7 @@ module CARMA
       attr_accessor :metadata
 
       # response
-      attr_accessor :case_id
+      attr_accessor :carma_case_id
       attr_accessor :submitted_at
 
       # Returns a new CARMA::Models::Submission built from a CaregiversAssistanceClaim.
@@ -27,7 +27,7 @@ module CARMA
 
       def initialize(args = {})
         @client = CARMA::Client::Client.new
-        @case_id = args[:case_id]
+        @carma_case_id = args[:carma_case_id]
         @submitted_at = args[:submitted_at]
         @data = args[:data]
         @metadata = CARMA::Models::Submission::Metadata.new(args[:metadata] || {})
@@ -36,16 +36,16 @@ module CARMA
       def submit!
         raise 'This submission has already been submitted to CARMA' if submitted?
 
-        response = @client.create_submission(to_request_payload)
+        response = @client.create_submission_stub(to_request_payload)
 
-        @case_id = response[:data][:case][:id]
-        @submitted_at = response[:data][:case][:created_at]
+        @carma_case_id = response['data']['carmacase']['id']
+        @submitted_at = response['data']['carmacase']['createdAt']
 
         self
       end
 
       def submitted?
-        @submitted_at.present? || @case_id.present?
+        @submitted_at.present? || @carma_case_id.present?
       end
 
       def to_request_payload

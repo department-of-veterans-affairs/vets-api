@@ -8,10 +8,11 @@ module Form1010cg
       claim.valid? || raise(Common::Exceptions::ValidationErrors, claim)
 
       carma_submission = CARMA::Models::Submission.from_claim(claim)
+
       carma_submission.submit!
 
       submission = Form1010cg::Submission.new(
-        carma_case_id: carma_submission.case_id,
+        carma_case_id: carma_submission.carma_case_id,
         submitted_at: carma_submission.submitted_at
       )
 

@@ -20,13 +20,13 @@ RSpec.describe Form1010cg::Service do
   it 'will return a Form1010cg::submission' do
     user = nil
     claim_data = { form: build_valid_claim_data.call }
-    expected = { case_id: 9, submitted_at: DateTime.new }
+    expected = { carma_case_id: 'aB935000000A9GoCAK', submitted_at: DateTime.new }
 
     carma_submission = double
 
     expect(CARMA::Models::Submission).to receive(:from_claim).and_return(carma_submission)
     expect(carma_submission).to receive(:submit!) {
-      expect(carma_submission).to receive(:case_id).and_return(expected[:case_id])
+      expect(carma_submission).to receive(:carma_case_id).and_return(expected[:carma_case_id])
       expect(carma_submission).to receive(:submitted_at).and_return(expected[:submitted_at])
     }
 
@@ -34,7 +34,7 @@ RSpec.describe Form1010cg::Service do
 
     expect(submission).to be_an_instance_of(Form1010cg::Submission)
     expect(submission.id).to eq(nil)
-    expect(submission.carma_case_id).to eq(expected[:case_id])
+    expect(submission.carma_case_id).to eq(expected[:carma_case_id])
     expect(submission.submitted_at).to eq(expected[:submitted_at])
     expect(submission.persisted?).to eq(false) # Not persisting until production relsease
   end
@@ -43,7 +43,7 @@ RSpec.describe Form1010cg::Service do
     it 'will delete the related in progress form' do
       user = double(uuid: SecureRandom.uuid)
       claim_data = { form: build_valid_claim_data.call }
-      expected = { case_id: 9, submitted_at: DateTime.new }
+      expected = { carma_case_id: 'aB935000000A9GoCAK', submitted_at: DateTime.new }
 
       # Related in progress form (should be destroyed)
       previously_saved_form = build(
@@ -78,7 +78,7 @@ RSpec.describe Form1010cg::Service do
 
       expect(CARMA::Models::Submission).to receive(:from_claim).and_return(carma_submission)
       expect(carma_submission).to receive(:submit!) {
-        expect(carma_submission).to receive(:case_id).and_return(expected[:case_id])
+        expect(carma_submission).to receive(:carma_case_id).and_return(expected[:carma_case_id])
         expect(carma_submission).to receive(:submitted_at).and_return(expected[:submitted_at])
       }
 
@@ -86,7 +86,7 @@ RSpec.describe Form1010cg::Service do
 
       expect(submission).to be_an_instance_of(Form1010cg::Submission)
       expect(submission.id).to eq(nil)
-      expect(submission.carma_case_id).to eq(expected[:case_id])
+      expect(submission.carma_case_id).to eq(expected[:carma_case_id])
       expect(submission.submitted_at).to eq(expected[:submitted_at])
       expect(submission.persisted?).to eq(false) # Not persisting until production relsease
     end
@@ -94,7 +94,7 @@ RSpec.describe Form1010cg::Service do
     it 'will function when no related in progress form exists' do
       user = double(uuid: SecureRandom.uuid)
       claim_data = { form: build_valid_claim_data.call }
-      expected = { case_id: 9, submitted_at: DateTime.new }
+      expected = { carma_case_id: 'aB935000000A9GoCAK', submitted_at: DateTime.new }
 
       expect_any_instance_of(InProgressForm).not_to receive(:destroy)
 
@@ -102,7 +102,7 @@ RSpec.describe Form1010cg::Service do
 
       expect(CARMA::Models::Submission).to receive(:from_claim).and_return(carma_submission)
       expect(carma_submission).to receive(:submit!) {
-        expect(carma_submission).to receive(:case_id).and_return(expected[:case_id])
+        expect(carma_submission).to receive(:carma_case_id).and_return(expected[:carma_case_id])
         expect(carma_submission).to receive(:submitted_at).and_return(expected[:submitted_at])
       }
 
@@ -110,7 +110,7 @@ RSpec.describe Form1010cg::Service do
 
       expect(submission).to be_an_instance_of(Form1010cg::Submission)
       expect(submission.id).to eq(nil)
-      expect(submission.carma_case_id).to eq(expected[:case_id])
+      expect(submission.carma_case_id).to eq(expected[:carma_case_id])
       expect(submission.submitted_at).to eq(expected[:submitted_at])
       expect(submission.persisted?).to eq(false) # Not persisting until production relsease
     end

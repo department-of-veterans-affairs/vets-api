@@ -39,4 +39,25 @@ RSpec.describe CARMA::Client::Client, type: :model do
       expect(response).to eq(:response_token)
     end
   end
+
+  describe '#create_submission_stub' do
+    it 'returns a hard coded response' do
+      payload = nil
+
+      # rubocop:disable RSpec/SubjectStub
+      expect(subject).not_to receive(:get_client)
+      # rubocop:enable RSpec/SubjectStub
+
+      response = subject.create_submission_stub(payload)
+      expect(response).to eq(
+        'message' => 'Application Received',
+        'data' => {
+          'carmacase' => {
+            'id' => 'aB935000000F3VnCAK',
+            'createdAt' => '2020-03-09T10:48:59Z'
+          }
+        }
+      )
+    end
+  end
 end
