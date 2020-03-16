@@ -30,7 +30,9 @@ module ClaimsApi
             source: source_name
           )
           auto_claim = ClaimsApi::AutoEstablishedClaim.find_by(md5: auto_claim.md5) unless auto_claim.id
-          service_object.validate_form526(auto_claim.to_internal)
+          
+          # Removing final validation check because EVSS may not be able to handle request load
+          # service_object.validate_form526(auto_claim.to_internal)
 
           ClaimsApi::ClaimEstablisher.perform_async(auto_claim.id)
 
