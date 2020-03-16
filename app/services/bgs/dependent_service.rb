@@ -33,7 +33,7 @@ module BGS
 
       vnp_proc_id = vnpResponse[:vnp_proc_id]
 
-      service.vnp_proc_form.vnp_proc_form_create(
+      create_proc_form_response = service.vnp_proc_form.vnp_proc_form_create(
         vnp_proc_id: vnp_proc_id,
         form_type_cd: '21-686c',
         jrn_dt: '2020-02-25T10:02:31-06:00',
@@ -41,9 +41,28 @@ module BGS
         jrn_obj_id: 'VAgovAPI',
         jrn_status_type_cd: 'U',
         jrn_user_id: 'VAgovAPI',
-        ssn: current_user.ssn)
+        ssn: current_user.ssn
+      )
 
-
+      create_ptcpnt_response = service.vnp_ptcpnt.vnp_ptcpnt_create(
+        vnp_ptcpnt_id: '',
+        vnp_proc_id: '3826728',
+        fraud_ind: '',
+        jrn_dt: '2012-07-17T15:36:26-05:00',
+        jrn_lctn_id: '281',
+        jrn_obj_id: 'VAgovAPI',
+        jrn_status_type_cd: 'I',
+        jrn_user_id: 'VAgovAPI',
+        legacy_poa_cd: '',
+        misc_vendor_ind: '',
+        ptcpnt_short_nm: '',
+        ptcpnt_type_nm: 'Person',
+        tax_idfctn_nbr: '',
+        tin_waiver_reason_type_cd: '',
+        ptcpnt_fk_ptcpnt_id: '',
+        corp_ptcpnt_id: '600036507',
+        ssn: current_user.ssn
+      )
     end
   end
 end
