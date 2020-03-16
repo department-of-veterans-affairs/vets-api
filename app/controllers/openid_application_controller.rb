@@ -8,11 +8,9 @@ require 'sentry_logging'
 require 'oidc/key_service'
 require 'jwt'
 
-class OpenidApplicationController < ApplicationController
+class OpenidApplicationController < ExternalApiApplicationController
   before_action :authenticate
 
-  skip_before_action :validate_csrf_token!
-  skip_after_action :set_csrf_cookie
   TOKEN_REGEX = /Bearer /.freeze
 
   private

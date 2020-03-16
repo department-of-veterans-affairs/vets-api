@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module AppealsApi
-  class ApplicationController < ::ApplicationController
+  class ApplicationController < ::ExternalApiApplicationController
     skip_before_action :set_tags_and_extra_context, raise: false
 
     def render_response(response)

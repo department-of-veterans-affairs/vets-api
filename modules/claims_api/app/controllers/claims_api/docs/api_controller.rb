@@ -6,7 +6,7 @@ require_dependency 'claims_api/forms/form_2122_response_swagger'
 
 module ClaimsApi
   module Docs
-    class ApiController < ::ApplicationController
+    class ApiController < ::ExternalApiApplicationController
       skip_before_action(:authenticate)
       include Swagger::Blocks
     end

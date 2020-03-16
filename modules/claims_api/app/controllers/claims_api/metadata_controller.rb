@@ -3,7 +3,7 @@
 require 'claims_api/health_checker'
 
 module ClaimsApi
-  class MetadataController < ::ApplicationController
+  class MetadataController < ::ExternalApiApplicationController
     skip_before_action(:authenticate)
 
     def index

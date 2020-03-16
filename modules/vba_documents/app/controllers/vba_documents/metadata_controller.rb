@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module VBADocuments
-  class MetadataController < ::ApplicationController
+  class MetadataController < ::ExternalApiApplicationController
     skip_before_action(:authenticate)
 
     def index
