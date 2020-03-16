@@ -17,13 +17,13 @@ RSpec.describe V0::HcaAttachmentsController, type: :controller do
       expect(JSON.parse(response.body)['errors'].first['detail'])
         .to eq('The required parameter "hca_attachment", is missing')
     end
-    
+
     it 'validates that the upload attachment is not nil' do
       file_data = fixture_file_upload('pdf_fill/extras.pdf')
       post(:create, params: { hca_attachment: {
              file_data: file_data
-           } }) 
-      expect(HcaAttachment.last.get_file).to_not be_nil
+           } })
+      expect(HcaAttachment.last.get_file).not_to be_nil
     end
   end
 end
