@@ -1,7 +1,11 @@
 # frozen_string_literal: true
 
-# This module only gets mixed in to one place, but is that cleanest way to organize everything in one place related
-# to this responsibility alone.
+# `vets-api` operates as an API for our frontend, `vets-website`
+# Since our frontend content is not rendered by the server, Rails' `protect_from_forgery` will not work.
+# Still, our frontend provides form submissions for our end users.  Many of these forms do not require authentication
+# CSRF proctection is still needed.  This module provides that protection following the same basic pattern
+# that is used by Rails' `protect_from_forgery`
+# Whereas `protect_from_forgery` uses `session` and hidden form fields, we are using `cookies` and request headers.
 module CSRFProtection
   extend ActiveSupport::Concern
   include ActionController::RequestForgeryProtection
