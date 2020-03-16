@@ -36,7 +36,6 @@ RSpec.describe 'Disability Claims ', type: :request do
     it 'returns a successful response with all the data' do
       with_okta_user(scopes) do |auth_header|
         VCR.use_cassette('evss/claims/claims') do
-          klass = EVSS::DisabilityCompensationForm::ServiceAllClaim
           post path, params: data, headers: headers.merge(auth_header)
           parsed = JSON.parse(response.body)
           expect(parsed['data']['type']).to eq('claims_api_claim')
@@ -48,7 +47,6 @@ RSpec.describe 'Disability Claims ', type: :request do
     it 'creates the sidekick job' do
       with_okta_user(scopes) do |auth_header|
         VCR.use_cassette('evss/claims/claims') do
-          klass = EVSS::DisabilityCompensationForm::ServiceAllClaim
           expect(ClaimsApi::ClaimEstablisher).to receive(:perform_async)
           post path, params: data, headers: headers.merge(auth_header)
         end
@@ -58,7 +56,6 @@ RSpec.describe 'Disability Claims ', type: :request do
     it 'assigns a source' do
       with_okta_user(scopes) do |auth_header|
         VCR.use_cassette('evss/claims/claims') do
-          klass = EVSS::DisabilityCompensationForm::ServiceAllClaim
           post path, params: data, headers: headers.merge(auth_header)
           token = JSON.parse(response.body)['data']['attributes']['token']
           aec = ClaimsApi::AutoEstablishedClaim.find(token)
@@ -178,7 +175,7 @@ RSpec.describe 'Disability Claims ', type: :request do
                     .to receive(:validate_form526).and_raise(error_klass)
                   post path, params: data, headers: headers.merge(auth_header)
                   expect(PersonalInformationLog.count).to be_positive
-                  expect(PersonalInformationLog.last.error_class).to eq("submit_form_526 #{error_klass.name}")
+                  expect(PersonalInformationLog.last.error_class).to eq("validate_form_526 #{error_klass.name}")
                 end
               end
             end

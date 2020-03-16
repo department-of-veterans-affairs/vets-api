@@ -27,7 +27,6 @@ RSpec.describe 'Disability Claims ', type: :request do
     end
 
     it 'returns a successful response with all the data' do
-      klass = EVSS::DisabilityCompensationForm::ServiceAllClaim
       post path, params: data, headers: headers
       parsed = JSON.parse(response.body)
       expect(parsed['data']['type']).to eq('claims_api_claim')
@@ -41,13 +40,11 @@ RSpec.describe 'Disability Claims ', type: :request do
     end
 
     it 'creates the sidekick job' do
-      klass = EVSS::DisabilityCompensationForm::ServiceAllClaim
       expect(ClaimsApi::ClaimEstablisher).to receive(:perform_async)
       post path, params: data, headers: headers
     end
 
     it 'sets the source' do
-      klass = EVSS::DisabilityCompensationForm::ServiceAllClaim
       post path, params: data, headers: headers
       token = JSON.parse(response.body)['data']['attributes']['token']
       aec = ClaimsApi::AutoEstablishedClaim.find(token)
@@ -140,7 +137,7 @@ RSpec.describe 'Disability Claims ', type: :request do
                 .to receive(:validate_form526).and_raise(error_klass)
               post path, params: data, headers: headers
               expect(PersonalInformationLog.count).to be_positive
-              expect(PersonalInformationLog.last.error_class).to eq("submit_form_526 #{error_klass.name}")
+              expect(PersonalInformationLog.last.error_class).to eq("validate_form_526 #{error_klass.name}")
             end
           end
         end
