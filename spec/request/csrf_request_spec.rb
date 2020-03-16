@@ -10,14 +10,19 @@
 require 'rails_helper'
 
 RSpec.describe 'CSRF scenarios', type: :request do
-  around do |example|
-    original_val = ActionController::Base.allow_forgery_protection
+  # ActionController::Base.allow_forgery_protection = false in the 'test' environment
+  # We explicity enable it for this spec
+  before(:all) do
+    @original_val = ActionController::Base.allow_forgery_protection
     ActionController::Base.allow_forgery_protection = true
-    example.run
-    ActionController::Base.allow_forgery_protection = original_val
+  end
+
+  after(:all) do
+    ActionController::Base.allow_forgery_protection = @original_val
   end
 
   before do
+    # innocuous route chosen for setting the CSRF token in the cookie
     get(v0_maintenance_windows_path)
     @token = response.cookies['X-CSRF-Token']
   end
