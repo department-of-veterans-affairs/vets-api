@@ -446,7 +446,7 @@ RSpec.describe FormProfile, type: :model do
 
   let(:vmdot_expected) do
     {
-      'veteranFullName' => {
+      'fullName' => {
         'first' => user.first_name&.capitalize,
         'last' => user.last_name&.capitalize,
         'suffix' => user.va_profile[:suffix]
@@ -820,7 +820,6 @@ RSpec.describe FormProfile, type: :model do
           1010ez
           22-0993
           FEEDBACK-TOOL
-          MDOT
         ].each do |form_id|
           it "returns prefilled #{form_id}" do
             expect_prefilled(form_id)
@@ -842,6 +841,16 @@ RSpec.describe FormProfile, type: :model do
                   end
                 end
               end
+            end
+          end
+
+          context 'with a user that can prefill mdot' do
+            before do
+              expect(user).to receive(:authorize).with(:mdot, :access?).and_return(true).at_least(:once)
+            end
+
+            VCR.use_cassette('mdot/get_supplies_200') do
+              expect_prefilled('MDOT')
             end
           end
 

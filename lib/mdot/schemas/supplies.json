@@ -2,7 +2,7 @@
   "$schema": "http://json-schema.org/draft-04/schema#",
   "description": "",
   "type": "object",
-  "required": ["veteran_address", "supplies"],
+  "required": ["permanent_address", "supplies"],
   "properties": {
     "permanent_address": {
       "type": "object",
