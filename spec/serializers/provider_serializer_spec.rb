@@ -40,5 +40,4 @@ RSpec.describe ProviderSerializer, type: :serializer do
       expect(attributes['name']).to eq(provider.ProviderName)
     end
   end
-  
 end
