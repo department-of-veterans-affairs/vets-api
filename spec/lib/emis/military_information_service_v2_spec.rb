@@ -48,6 +48,13 @@ describe EMIS::MilitaryInformationServiceV2 do
         VCR.use_cassette('emis/get_deployment_v2/valid') do
           response = subject.get_deployment(edipi: edipi)
           expect(response).to be_ok
+
+          first_item = response.items.first
+          expect(first_item.begin_date).to eq(Date.parse('2009-05-01'))
+          expect(first_item.end_date).to eq(Date.parse('2009-05-31'))
+
+          first_location = first_item.locations.first
+          expect(first_location.iso_alpha3_country).to eq('QAT')
         end
       end
     end
