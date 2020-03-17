@@ -22,7 +22,6 @@ module ClaimsApi
         skip_before_action :validate_json_format, only: %i[upload_supporting_documents]
 
         def submit_form_526
-          service_object = service(auth_headers)
           auto_claim = ClaimsApi::AutoEstablishedClaim.create(
             status: ClaimsApi::AutoEstablishedClaim::PENDING,
             auth_headers: auth_headers,
@@ -30,20 +29,10 @@ module ClaimsApi
             source: source_name
           )
           auto_claim = ClaimsApi::AutoEstablishedClaim.find_by(md5: auto_claim.md5) unless auto_claim.id
-          service_object.validate_form526(auto_claim.to_internal)
 
           ClaimsApi::ClaimEstablisher.perform_async(auto_claim.id)
 
           render json: auto_claim, serializer: ClaimsApi::AutoEstablishedClaimSerializer
-        rescue EVSS::ErrorMiddleware::EVSSError => e
-          track_526_validation_errors(e.details)
-          render json: { errors: format_errors(e.details) }, status: :unprocessable_entity
-        rescue ::Common::Exceptions::GatewayTimeout, ::Timeout::Error, ::Faraday::TimeoutError => e
-          req = { auth: auth_headers, form: form_attributes, source: source_name, auto_claim: auto_claim.as_json }
-          PersonalInformationLog.create(
-            error_class: "submit_form_526 #{e.class.name}", data: { request: req, error: e.try(:as_json) || e }
-          )
-          raise e
         end
 
         def upload_supporting_documents

@@ -40,10 +40,10 @@ describe Mvi, skip_mvi: true do
 
   describe '#mvi_add_person' do
     context 'with a successful add' do
-      it 'returns the successul response' do
+      it 'returns the successful response' do
         allow_any_instance_of(MVI::Service).to receive(:find_profile).and_return(profile_response)
         allow_any_instance_of(MVI::Service).to receive(:add_person).and_return(add_response)
-        expect_any_instance_of(Mvi).to receive(:destroy).once
+        expect_any_instance_of(Mvi).to receive(:clear_cache).once
         response = user.mvi.mvi_add_person
         expect(response.status).to eq('OK')
       end
@@ -63,6 +63,7 @@ describe Mvi, skip_mvi: true do
         allow_any_instance_of(MVI::Service).to receive(:find_profile).and_return(profile_response)
         allow_any_instance_of(MVI::Service).to receive(:add_person).and_return(add_response_error)
         expect_any_instance_of(Mvi).not_to receive(:destroy)
+        expect_any_instance_of(Mvi).not_to receive(:clear_cache)
         response = user.mvi.mvi_add_person
         expect(response.status).to eq('SERVER_ERROR')
       end
@@ -123,7 +124,7 @@ describe Mvi, skip_mvi: true do
   end
 
   describe 'correlation ids' do
-    context 'with a succesful response' do
+    context 'with a successful response' do
       before do
         allow_any_instance_of(MVI::Service).to receive(:find_profile).and_return(profile_response)
       end
@@ -209,6 +210,18 @@ describe Mvi, skip_mvi: true do
           expect(mvi.participant_id).to be_nil
         end
       end
+    end
+  end
+
+  describe '#clear_cache' do
+    let(:mvi) { Mvi.for_user(user) }
+
+    it 'clears user from cache and returns nil' do
+      mvi.cache(user.uuid, profile_response)
+      expect(mvi.cached?(key: user.uuid)).to be true
+
+      mvi.send(:clear_cache)
+      expect(mvi.cached?(key: user.uuid)).to be false
     end
   end
 end
