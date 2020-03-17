@@ -4,12 +4,6 @@ class RemoveDisabilityCompensationSubmissions < ActiveRecord::Migration[5.2]
   end
 
   def down
-    create_table "disability_compensation_submissions", id: :serial, force: :cascade do |t|
-      t.datetime "created_at", null: false
-      t.datetime "updated_at", null: false
-      t.integer "disability_compensation_id"
-      t.integer "va526ez_submit_transaction_id"
-      t.boolean "complete", default: false
-    end
+    fail ActiveRecord::IrreversibleMigration
   end
 end
