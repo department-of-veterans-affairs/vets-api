@@ -41,6 +41,7 @@ RSpec.describe 'CSRF scenarios', type: :request do
 
     context 'without a CSRF token' do
       around do |example|
+        # enable sentry for testing
         Settings.sentry.dsn = 'asdf'
         example.run
         Settings.sentry.dsn = nil
