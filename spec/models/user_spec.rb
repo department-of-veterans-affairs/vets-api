@@ -501,6 +501,19 @@ RSpec.describe User, type: :model do
     end
   end
 
+  describe '#va_treatment_facility_ids' do
+    let(:user) { build(:user, :loa3) }
+    let(:mvi_profile) { build(:mvi_profile, vha_facility_ids: %w[200MHS 400 741 744]) }
+
+    before do
+      stub_mvi(mvi_profile)
+    end
+
+    it 'filters out fake vha facility ids' do
+      expect(user.va_treatment_facility_ids).to match_array(%w[400 744])
+    end
+  end
+
   describe '#account' do
     context 'when user has an existing Account record' do
       let(:user) { create :user, :accountable }
