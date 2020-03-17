@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+# TODO: remove
 
 class DisabilityCompensationSubmission < ApplicationRecord
   belongs_to :disability_compensation_claim,
