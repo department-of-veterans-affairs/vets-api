@@ -3,14 +3,12 @@
 module V0
   class DependentsApplicationsController < ApplicationController
     def create
-      dependent_service = BGS::DependentService.new
-      bgsResponse = dependent_service.modify_dependents(current_user)
+      bgsResponse = bgs_dependent_service.modify_dependents
       render json: bgsResponse
     end
 
     def show
-      dependent_service = BGS::DependentService.new
-      dependents = dependent_service.get_dependents(current_user)
+      dependents = bgs_dependent_service.get_dependents
       render json: dependents, serializer: DependentsSerializer
     rescue => e
       log_exception_to_sentry(e)
@@ -20,6 +18,12 @@ module V0
     def disability_rating
       res = EVSS::Dependents::RetrievedInfo.for_user(current_user)
       render json: { has30_percent: res.body.dig('submitProcess', 'application', 'has30Percent') }
+    end
+
+    private
+
+    def bgs_dependent_service
+      @bgs_dependent_service ||= BGS::DependentService.new(current_user)
     end
   end
 end
