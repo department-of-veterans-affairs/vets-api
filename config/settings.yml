@@ -36,6 +36,7 @@ sso:
   cookie_iv: A3C0567C78BEC6DDE75E2FEB92DE11AA
   cookie_secure: false
   cookie_domain: localhost
+  ssoe_redirect_cookie_name: vagov_authentication_redirect_dev
   ssoe_redirects:
     cerner: https://cernercare.com/
 

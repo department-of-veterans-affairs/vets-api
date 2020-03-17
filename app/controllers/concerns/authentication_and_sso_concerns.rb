@@ -135,4 +135,12 @@ module AuthenticationAndSSOConcerns
       request_host: request.host
     }
   end
+
+  def set_ssoe_redirect(value)
+    cookies.encrypted[Settings.sso.ssoe_redirect_cookie_name] = Settings.sso.ssoe_redirects[value]
+  end
+
+  def delete_ssoe_redirect
+    cookies.encrypted.delete(Settings.sso.ssoe_redirect_cookie_name)
+  end
 end
