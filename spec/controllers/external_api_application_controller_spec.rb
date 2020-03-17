@@ -30,6 +30,11 @@ RSpec.describe ExternalApiApplicationController, type: :controller do
     end
 
     it 'can post without a CSRF token header' do
+      post :index
+      expect(response).to be_ok
+    end
+
+    it 'will not log to sentry without CSRF token header' do
       expect(Raven).to_not receive(:capture_message)
       post :index
     end
