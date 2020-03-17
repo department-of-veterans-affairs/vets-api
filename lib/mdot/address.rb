@@ -9,6 +9,6 @@ module MDOT
     attribute :city, String
     attribute :state, String
     attribute :country, String
-    attribute :postal_code, Integer
+    attribute :postal_code, String
   end
 end

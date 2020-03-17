@@ -446,22 +446,75 @@ RSpec.describe FormProfile, type: :model do
 
   let(:vmdot_expected) do
     {
-      'fullName' => {
-        'first' => user.first_name&.capitalize,
-        'last' => user.last_name&.capitalize,
-        'suffix' => user.va_profile[:suffix]
+      fullName: {
+        first: user.first_name&.capitalize,
+        last: user.last_name&.capitalize,
+        suffix: user.va_profile[:suffix]
       },
-      'gender' => user.gender,
-      'veteranAddress' => {
-        'street' => street_check[:street],
-        'street2' => street_check[:street2],
-        'city' => user.va_profile[:address][:city],
-        'state' => user.va_profile[:address][:state],
-        'country' => user.va_profile[:address][:country],
-        'postalCode' => user.va_profile[:address][:postal_code][0..4]
+      permanentAddress: {
+        street: '101 Example Street',
+        street2: 'Apt 2',
+        city: 'Kansas City',
+        state: 'MO',
+        country: 'USA',
+        postalCode: '64117'
       },
-      'email' => user.pciu_email,
-      'dateOfBirth' => user.birth_date
+      temporaryAddress: {
+        street: '201 Example Street',
+        city: 'Galveston',
+        state: 'TX',
+        country: 'USA',
+        postalCode: '77550'
+      },
+      gender: user.gender,
+      email: user.pciu_email,
+      dateOfBirth: user.birth_date,
+      supplies: [
+        {
+          deviceName: "_o_m_e_g_a_x_d3241",
+          productName: "_z_a1239",
+          productGroup: "hearing aid batteries",
+          productId: "1",
+          available_for_reorder: false,
+          lastOrderDate: "2020-01-01",
+          nextAvailabilityDate: "2020-09-01",
+          quantity: 60,
+          size: ""
+        },
+        {
+          deviceName: "",
+          productName: "_d_o_m_e",
+          productGroup: "hearing aid accessories",
+          productId: "3",
+          available_for_reorder: true,
+          lastOrderDate: "2019-06-30",
+          nextAvailabilityDate: "2019-12-15",
+          quantity: 10,
+          size: "6mm"
+        },
+        {
+          deviceName: "",
+          productName: "_d_o_m_e",
+          productGroup: "hearing aid accessories",
+          productId: "4",
+          available_for_reorder: true,
+          lastOrderDate: "2019-06-30",
+          nextAvailabilityDate: "2019-12-15",
+          quantity: 10,
+          size: "7mm"
+        },
+        {
+          deviceName: "",
+          productName: "_waxbustersingleunit",
+          productGroup: "hearing aid accessories",
+          productId: "5",
+          available_for_reorder: true,
+          lastOrderDate: "2019-06-30",
+          nextAvailabilityDate: "2019-12-15",
+          quantity: 10,
+          size: ""
+        }
+      ]
     }
   end
 

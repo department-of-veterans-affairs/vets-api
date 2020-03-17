@@ -14,6 +14,9 @@ module MDOT
 end
 
 class FormProfiles::MDOT < FormProfile
+  attribute :mdot_contact_information, MDOT::FormAddressInformation
+  attribute :mdot_supplies, MDOT::FormSupplyInformation
+
   def metadata
     {
       version: 0,
@@ -28,6 +31,7 @@ class FormProfiles::MDOT < FormProfile
     @response = MDOT::Client.new(user).get_supplies
     @mdot_contact_information = initialize_mdot_contact_information(@response)
     @mdot_supplies = initialize_mdot_supplies(@response)
+    super(user)
   end
 
   private

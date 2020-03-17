@@ -9,8 +9,8 @@ module MDOT
     attribute :product_group, String
     attribute :product_id, String
     attribute :available_for_reorder, Boolean, default: false
-    attribute :last_order_date, DateTime
-    attribute :next_availability_date, DateTime
+    attribute :last_order_date, Date
+    attribute :next_availability_date, Date
     attribute :quantity, Integer
   end
 end
