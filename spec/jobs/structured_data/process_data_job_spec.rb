@@ -33,6 +33,7 @@ RSpec.describe StructuredData::ProcessDataJob, uploader_helpers: true do
 
     describe 'if structured data workflow fails' do
       before { allow_any_instance_of(VBMS::Efolder::UploadClaimAttachments).to receive(:upload!).and_raise('500') }
+
       it 'defaults to Central Mail workflow' do
         expect(CentralMail::SubmitSavedClaimJob).to receive(:perform_async)
         job.perform(claim.id)

@@ -14,7 +14,7 @@ module StructuredData
 
       PensionBurial::TagSentry.tag_sentry
       @claim = SavedClaim.find(saved_claim_id)
-      
+
       if Flipper.enabled?(:burial_claim_sd_workflow)
         begin
           relationship_type = @claim.parsed_form['relationship']&.fetch('type', nil)
@@ -23,9 +23,9 @@ module StructuredData
 
           # veteran lookup for hit/miss metrics in support of Automation work
           StatsD.increment("#{stats_key}.success", tags: [
-            "relationship:#{relationship_type}",
-            "veteranInMVI:#{veteran&.participant_id}"
-          ])
+                             "relationship:#{relationship_type}",
+                             "veteranInMVI:#{veteran&.participant_id}"
+                           ])
         rescue
           # fall back to Central Mail workflow
           @claim.process_attachments!

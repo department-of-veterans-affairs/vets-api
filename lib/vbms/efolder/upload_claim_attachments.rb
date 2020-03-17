@@ -28,7 +28,7 @@ module VBMS
         veteran_full_name = form['veteranFullName']
         address = form['claimantAddress'] || form['veteranAddress']
         receive_date = @claim.created_at.in_time_zone('Central Time (US & Canada)')
-  
+
         metadata = {
           'first_name' => veteran_full_name['first'],
           'last_name' => veteran_full_name['last'],

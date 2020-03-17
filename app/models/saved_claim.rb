@@ -1,5 +1,5 @@
 # frozen_string_literal: true
- 
+
 require 'attr_encrypted'
 
 # Base class to hold common functionality for Claim submissions.
@@ -61,7 +61,7 @@ class SavedClaim < ApplicationRecord
 
     CentralMail::SubmitSavedClaimJob.perform_async(id)
   end
-  
+
   def confirmation_number
     guid
   end

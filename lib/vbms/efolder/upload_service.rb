@@ -1,8 +1,8 @@
 # frozen_string_literal: true
+
 module VBMS
   module Efolder
     class UploadService < VBMS::Efolder::Service
-
       def initialize(file, metadata)
         case file.class.to_s
         when 'ClaimDocumentation::Uploader::UploadedFile'
@@ -13,7 +13,7 @@ module VBMS
           @filename = File.basename(file)
           @file = file
         else
-          raise "Could not process file of type #{file.class.to_s}"
+          raise "Could not process file of type #{file.class}"
         end
         metadata['content_hash'] = Digest::SHA1.hexdigest(@file.read)
         @filename = SecureRandom.uuid + '-' + @filename

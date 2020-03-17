@@ -4,7 +4,7 @@ require 'rails_helper'
 
 describe VBMS::Efolder::Configuration do
   subject { described_class }
-  
+
   it 'has a service name' do
     expect(described_class.instance.service_name).to eq('vbms_efolder')
   end

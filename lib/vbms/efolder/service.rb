@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 module VBMS
   module Efolder
     class Service < Common::Client::Base
@@ -19,7 +20,7 @@ module VBMS
           StatsD.increment("#{STATSD_KEY_PREFIX}.#{self.class.name.demodulize.to_s.underscore}.#{key}.success")
         end
       end
-      
+
       def increment_fail(*keys)
         keys.each do |key|
           StatsD.increment("#{STATSD_KEY_PREFIX}.#{self.class.name.demodulize.to_s.underscore}.#{key}.fail")

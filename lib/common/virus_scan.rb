@@ -12,11 +12,11 @@ module Common
       # the `--config` option. If run via docker (e.g. dev, test, etc), then
       # clamscan is used, so we need to pass the db path. The binary is chosen
       # in docker-compose.yml files.
-      if Settings.binaries.clamdscan == 'clamdscan'
-        args = ['--config', Rails.root.join('config', 'clamd.conf').to_s]
-      else
-        args = ['--database=/srv/vets-api/clamav/database']
-      end
+      args = if Settings.binaries.clamdscan == 'clamdscan'
+               ['--config', Rails.root.join('config', 'clamd.conf').to_s]
+             else
+               ['--database=/srv/vets-api/clamav/database']
+             end
       ClamScan::Client.scan(location: file_path, custom_args: args)
     end
   end

@@ -1,14 +1,16 @@
 # frozen_string_literal: true
- 
+
 require 'rails_helper'
 
-
 RSpec.describe VBMS::Efolder::UploadClaimAttachments do
-  let(:bc) { build(:burial_claim)} # plain burial claim with no attachments
+  let(:bc) { build(:burial_claim) } # plain burial claim with no attachments
   let(:pa) { build_stubbed(:pension_burial) } # persistent attachment
-  let(:file) { fixture_file_upload(
-    "#{::Rails.root}/spec/fixtures/pension/attachment.pdf", 'application/pdf')
-  }
+  let(:file) do
+    fixture_file_upload(
+      "#{::Rails.root}/spec/fixtures/pension/attachment.pdf", 'application/pdf'
+    )
+  end
+
   describe 'when processing a burial claim' do
     before do
       # save claim to get a created_at date and id
@@ -42,12 +44,12 @@ RSpec.describe VBMS::Efolder::UploadClaimAttachments do
     end
   end
 
-  describe "when processing a burial claim with no attachments" do
+  describe 'when processing a burial claim with no attachments' do
     it 'raises an error' do
       bc.save
       msg = "Claim #{bc.id} does not contain any supporting documents."
       expect(bc.persistent_attachments.count).to be(0)
-      expect {described_class.new(bc)&.upload!}.to raise_error(ActiveRecord::RecordNotFound, msg)
+      expect { described_class.new(bc)&.upload! }.to raise_error(ActiveRecord::RecordNotFound, msg)
     end
   end
 end

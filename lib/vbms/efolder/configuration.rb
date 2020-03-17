@@ -3,7 +3,6 @@
 module VBMS
   module Efolder
     class Configuration < Common::Client::Configuration::Base
-
       def service_name
         'vbms_efolder'
       end
@@ -34,5 +33,4 @@ module VBMS
       end
     end
   end
-
 end
