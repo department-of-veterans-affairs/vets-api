@@ -185,10 +185,14 @@ class User < Common::RedisStore
   # Facilities in the defined range are treating facilities, indicating
   # that the user is a VA patient.
   def va_patient?
+    mhv_facility_range = [[358,718],[720,740],[742,758]].freeze
+    mhv_facility_specific = [['741MM']].freeze # 741 is excluded, but 741MM is included
+
+    # include ranges first, then individual exceptions to the ranges last.
     facilities = va_profile&.vha_facility_ids
     facilities.to_a.any? do |f|
-      Settings.mhv.facility_range.any? { |range| f.to_i.between?(*range) } ||
-        Settings.mhv.facility_specific.include?(f)
+      mhv_facility_range.any? { |range| f.to_i.between?(*range) } ||
+        mhv_facility_specific.include?(f)
     end
   end
 
