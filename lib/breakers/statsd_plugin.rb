@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Breakers
-  class StatsdPlugin
+  class StatsDPlugin
     def get_tags(request)
       tags = []
       if request
@@ -27,8 +27,9 @@ module Breakers
       tags = get_tags(request_env)
       metric_base = "api.external_http_request.#{service.name}."
       StatsD.increment(metric_base + status, 1, tags: tags)
+
       if response_env && response_env[:duration]
-        StatsD.measure(metric_base + 'time', response_env[:duration], tags: tags)
+        StatsD.histogram(metric_base + 'duration', response_env[:duration], tags: tags)
       end
     end
 
