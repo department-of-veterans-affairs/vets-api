@@ -15,4 +15,23 @@ RSpec.describe ExternalApiApplicationController, type: :controller do
     expect(response).to be_ok
     expect(cookies['X-CSRF-Token']).to be_nil
   end
+
+  describe 'with forgery_protection and logging enabled' do
+    around do |example|
+      orig = ActionController::Base.allow_forgery_protection
+      begin
+        Settings.sentry.dsn = 'asdf'
+        ActionController::Base.allow_forgery_protection = true
+        example.run
+      ensure
+        Settings.sentry.dsn = nil
+        ActionController::Base.allow_forgery_protection = orig
+      end
+    end
+
+    it 'can post without a CSRF token header' do
+      expect(Raven).to_not receive(:capture_message)
+      post :index
+    end
+  end
 end
