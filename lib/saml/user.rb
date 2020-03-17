@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require 'digest'
 require 'saml/user_attributes/id_me'
 require 'saml/user_attributes/mhv'
 require 'saml/user_attributes/dslogon'
@@ -50,7 +51,10 @@ module SAML
     end
 
     def uuid
-      user_attributes.uuid || "SEC:#{user_attributes.sec_id}"
+      return user_attributes.uuid if user_attributes.uuid
+
+      sec_hashed_uuid = Digest::UUID.uuid_v3('user-sec-id', user_attributes.sec_id)
+      return "SEC:#{sec_hashed_uuid.replace('-', '')}"
     end
 
     def to_hash
