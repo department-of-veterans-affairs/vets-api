@@ -6,6 +6,7 @@ RSpec.describe 'address', type: :request do
   include SchemaMatchers
 
   before(:all) { @cached_enabled_val = Settings.evss.reference_data_service.enabled }
+
   after(:all) { Settings.evss.reference_data_service.enabled = @cached_enabled_val }
 
   let(:headers) { { 'Content-Type' => 'application/json', 'Accept' => 'application/json' } }

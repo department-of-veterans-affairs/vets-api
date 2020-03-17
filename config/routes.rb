@@ -204,8 +204,8 @@ Rails.application.routes.draw do
 
     resource :address, only: %i[show update] do
       collection do
-          get 'countries', to: 'addresses#countries'
-          get 'states', to: 'addresses#states'
+        get 'countries', to: 'addresses#countries'
+        get 'states', to: 'addresses#states'
       end
     end
 
