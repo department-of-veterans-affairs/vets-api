@@ -24,6 +24,11 @@ module VAOS
           data: OpenStruct.new(response.body),
           meta: {}
         }
+      rescue Common::Exceptions::BackendServiceException => e
+        if e.key == 'VAOS_400'
+          Rails.logger.warn('Clinic does not support VAOS appointment create', clinic: params['clinic'])
+        end
+        raise e
       end
     end
 
@@ -35,6 +40,11 @@ module VAOS
       with_monitoring do
         perform(:put, put_appointment_url(site_code), params, headers)
         ''
+      rescue Common::Exceptions::BackendServiceException => e
+        if e.key == 'VAOS_400'
+          Rails.logger.warn('Clinic does not support VAOS appointment cancel', clinic: params['clinic'])
+        end
+        raise e
       end
     rescue Common::Client::Errors::ClientError => e
       raise_backend_exception('VAOS_502', self.class, e)
