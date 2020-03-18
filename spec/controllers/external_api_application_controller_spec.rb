@@ -18,14 +18,14 @@ RSpec.describe ExternalApiApplicationController, type: :controller do
 
   describe 'with forgery_protection and logging enabled' do
     around do |example|
-      orig = ActionController::Base.allow_forgery_protection
+      forgery_protection = ActionController::Base.allow_forgery_protection
       begin
         Settings.sentry.dsn = 'asdf'
         ActionController::Base.allow_forgery_protection = true
         example.run
       ensure
         Settings.sentry.dsn = nil
-        ActionController::Base.allow_forgery_protection = orig
+        ActionController::Base.allow_forgery_protection = forgery_protection
       end
     end
 
