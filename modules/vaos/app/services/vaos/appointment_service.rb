@@ -26,9 +26,7 @@ module VAOS
         }
       rescue Common::Exceptions::BackendServiceException => e
         # TODO: Reevaluate the need to log clinic data three months after launch (6/15/20)
-        if e.key == 'VAOS_400'
-          Rails.logger.warn('Clinic does not support VAOS appointment create', clinic: params['clinic'])
-        end
+        log_clinic_details(:create, params.dig(:clinic, :clinic_id), site_code) if e.key == 'VAOS_400'
         raise e
       end
     end
@@ -43,13 +41,7 @@ module VAOS
         ''
       rescue Common::Exceptions::BackendServiceException => e
         # TODO: Reevaluate the need to log clinic data three months after launch (6/15/20)
-        if e.key == 'VAOS_400'
-          Rails.logger.warn(
-            'Clinic does not support VAOS appointment cancel',
-            clinic_id: params[:clinic_id],
-            facility_id: params[:facility_id]
-          )
-        end
+        log_clinic_details(:cancel, params[:clinic_id], site_code) if e.key == 'VAOS_400'
         raise e
       end
     rescue Common::Client::Errors::ClientError => e
@@ -57,6 +49,14 @@ module VAOS
     end
 
     private
+
+    def log_clinic_details(action, clinic_id, site_code)
+      Rails.logger.warn(
+        "Clinic does not support VAOS appointment #{action}",
+        clinic_id: clinic_id,
+        site_code: site_code
+      )
+    end
 
     def deserialized_appointments(json_hash, type)
       appointment_list = if type == 'va'
