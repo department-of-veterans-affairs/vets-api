@@ -115,13 +115,14 @@
 
 
     "phone": {
+      "$comment": "source: VA Profile API - POST /v0/profile/telephones",
       "type": "object",
       "properties": {
         "is_international": { "type": "boolean" },
         "country_code":     { "$ref": "#/definitions/nonBlankString" },
         "phone_number":     { "type": "string", "pattern": "^[0-9]{1,14}$" },
         "area_code":        { "type": "string", "pattern": "^[0-9]{3}$" },
-        "extension":        { "$ref": "#/definitions/nonBlankString10" },
+        "extension":        { "$ref": "#/definitions/nonBlankStringMaxLength10" },
         "phone_type":       { "type": "string", "enum": [ "MOBILE", "HOME", "WORK", "FAX", "TEMPORARY" ] }
       },
       "additionalProperties": false,
@@ -136,6 +137,7 @@
 
 
     "address": {
+      "$comment": "source: VA Profile API - POST /v0/profile/addresses",
       "oneOf": [
         {
           "type": "object",
