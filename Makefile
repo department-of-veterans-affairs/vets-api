@@ -35,6 +35,10 @@ ci-db:
 ci-lint:
 	@$(BASH_TEST) "bin/rails lint"
 
+.PHONY: bill
+ci-lint:
+	@$(BASH_TEST) "echo hi"
+
 .PHONY: ci-security
 ci-security:
 	@$(BASH_TEST) "bin/rails security"

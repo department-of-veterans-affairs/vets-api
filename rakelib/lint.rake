@@ -4,7 +4,7 @@ require 'open3'
 require './rakelib/support/shell_command'
 
 desc 'shortcut to run all linting tools, at the same time.'
-task lint: :environment do
+task :lint, [:files] => [:environment] do |_, args|
   require 'rainbow'
 
   opts = '-r rubocop-thread_safety '
@@ -19,7 +19,7 @@ task lint: :environment do
           end
 
   puts 'running rubocop...'
-  rubocop_result = ShellCommand.run("rubocop #{opts} --color")
+  rubocop_result = ShellCommand.run("rubocop #{opts} --color #{args[:files]}")
 
   puts "\n"
   if rubocop_result
