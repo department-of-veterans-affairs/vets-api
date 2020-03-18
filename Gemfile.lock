@@ -665,7 +665,7 @@ GEM
       redis (~> 3.2, >= 3.2.1)
     sidekiq-ent (1.6.1)
       sidekiq (>= 4.2.9)
-      sidekiq-pro!
+      sidekiq-pro
     sidekiq-instrument (0.3.0)
       sidekiq (>= 4.2, < 6)
       statsd-instrument (~> 2.0, >= 2.0.4)
@@ -865,7 +865,7 @@ DEPENDENCIES
   sidekiq (~> 4.2)
   sidekiq-ent!
   sidekiq-instrument
-  sidekiq-pro (= 3.7.0)!
+  sidekiq-pro!
   sidekiq-scheduler (~> 3.0)
   simplecov
   socksify
