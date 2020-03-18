@@ -3,10 +3,6 @@
 # This file is for exercising routes that should require CSRF protection.
 # It is very much a WIP
 
-# TODO: \
-# Lighthouse API endpoints
-# Check routes.rb for other `POST` routes
-
 require 'rails_helper'
 
 RSpec.describe 'CSRF scenarios', type: :request do
@@ -40,17 +36,12 @@ RSpec.describe 'CSRF scenarios', type: :request do
     end
 
     context 'without a CSRF token' do
-      around do |example|
-        # enable sentry for testing
-        Settings.sentry.dsn = 'asdf'
-        example.run
-        Settings.sentry.dsn = nil
-      end
-
       it 'logs the info to sentry' do
         expect(Raven).to receive(:capture_message).once
-        post(v0_hca_attachments_path,
-             params: { hca_attachment: { file_data: fixture_file_upload('pdf_fill/extras.pdf') } })
+        with_settings(Settings.sentry, dsn: 'truthy') do
+          post(v0_hca_attachments_path,
+              params: { hca_attachment: { file_data: fixture_file_upload('pdf_fill/extras.pdf') } })
+        end
       end
 
       it 'returns an error' do
@@ -67,8 +58,10 @@ RSpec.describe 'CSRF scenarios', type: :request do
   describe 'POST SAML callback' do
     context 'without a CSRF token' do
       it 'does not raise an error' do
-        expect(Raven).not_to receive(:capture_message)
-        post(auth_saml_callback_path)
+        expect(Raven).not_to receive(:capture_message).with("Request susceptible to CSRF", {:level=>"info"})
+        with_settings(Settings.sentry, dsn: 'truthy') do
+          post(auth_saml_callback_path)
+        end
         # expect(response.body).not_to match(/ActionController::InvalidAuthenticityToken/)
       end
     end
