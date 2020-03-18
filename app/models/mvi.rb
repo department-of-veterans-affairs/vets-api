@@ -118,7 +118,7 @@ class Mvi < Common::RedisStore
     if search_response.ok?
       @mvi_response = search_response
       add_response = mvi_service.add_person(user)
-      destroy if add_response.ok?
+      clear_cache if add_response.ok?
     else
       add_response = MVI::Responses::AddPersonResponse.with_failed_orch_search(
         search_response.status, search_response.error
@@ -128,6 +128,11 @@ class Mvi < Common::RedisStore
   end
 
   private
+
+  def clear_cache
+    Mvi.delete(user.uuid)
+    @mvi_response = nil
+  end
 
   def response_from_redis_or_service
     do_cached_with(key: user.uuid) do

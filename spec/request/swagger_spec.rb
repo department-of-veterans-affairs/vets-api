@@ -315,6 +315,10 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
         )
       end
 
+      it 'returns a 400 if no attachment data is given' do
+        expect(subject).to validate(:post, '/v0/hca_attachments', 400, '')
+      end
+
       it 'supports submitting a health care application', run_at: '2017-01-31' do
         VCR.use_cassette('hca/submit_anon', match_requests_on: [:body]) do
           expect(subject).to validate(
@@ -613,8 +617,8 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
         )
       end
 
-      it 'returns a 500 if no attachment data is given' do
-        expect(subject).to validate(:post, '/v0/upload_supporting_evidence', 500, '')
+      it 'returns a 400 if no attachment data is given' do
+        expect(subject).to validate(:post, '/v0/upload_supporting_evidence', 400, '')
       end
     end
 
@@ -1048,6 +1052,16 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
     end
 
     describe 'gibct' do
+      describe 'yellow_ribbon_programs' do
+        describe 'index' do
+          it 'supports showing a list of yellow_ribbon_programs' do
+            VCR.use_cassette('gi_client/get_yellow_ribbon_programs') do
+              expect(subject).to validate(:get, '/v0/gi/yellow_ribbon_programs', 200)
+            end
+          end
+        end
+      end
+
       describe 'institutions' do
         describe 'autocomplete' do
           it 'supports autocomplete of institution names' do
