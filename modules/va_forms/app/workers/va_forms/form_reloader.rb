@@ -53,36 +53,43 @@ module VaForms
     end
 
     def parse_form_row(line, url)
-      title = line.css('font').text
       form_name = line.css('a').first.text
       form = VaForms::Form.find_or_initialize_by form_name: form_name
       current_sha256 = form.sha256
-      form.title = title
-      issued_string = line.css('td:nth-child(3)').text
+      form.title = line.css('font').text
       revision_string = line.css('td:nth-child(4)').text
-      form.first_issued_on = parse_date(issued_string) if issued_string.present?
       form.last_revision_on = parse_date(line.css('td:nth-child(4)').text) if revision_string.present?
       form.pages = line.css('td:nth-child(5)').text
-      form_url = url.starts_with?('http') ? url : get_full_url(url)
+      form_url = url.starts_with?('http') ? url.gsub('http:', 'https:') : get_full_url(url)
       form.url = Addressable::URI.parse(form_url).normalize.to_s
-      form.sha256 = get_sha256(form.url)
+      form = update_sha256(form)
       form.save if current_sha256 != form.sha256
     end
 
     def parse_date(date_string)
-      matcher = date_string.length == 7 ? '%m/%Y' : '%m/%d/%Y'
+      matcher = date_string.split('/').count == 2 ? '%m/%Y' : '%m/%d/%Y'
       Date.strptime(date_string, matcher)
     end
 
-    def get_sha256(url)
-      if url.present?
-        content = URI.parse(url).open
-        if content.class == Tempfile
-          Digest::SHA256.file(content).hexdigest
-        else
-          Digest::SHA256.hexdigest(content.string)
-        end
+    def get_sha256(content)
+      if content.class == Tempfile
+        Digest::SHA256.file(content).hexdigest
+      else
+        Digest::SHA256.hexdigest(content.string)
       end
+    end
+
+    def update_sha256(form)
+      if form.url.present? && (content = URI.parse(form.url).open)
+        form.sha256 = get_sha256(content)
+        form.valid_pdf = true
+      else
+        form.valid_pdf = false
+      end
+      form
+    rescue
+      form.valid_pdf = false
+      form
     end
 
     def get_full_url(url)

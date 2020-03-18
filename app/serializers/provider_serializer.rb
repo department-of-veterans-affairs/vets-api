@@ -12,16 +12,34 @@ class ProviderSerializer < ActiveModel::Serializer
   end
 
   def name
-    object.Name
+    if Flipper.enabled?(:facilities_ppms_caresite_name)
+      fipper_enabled_name
+    else
+      object.ProviderName || object.Name
+    end
+  end
+
+  def fipper_enabled_name
+    possible_name = case object.ProviderType
+                    when /GroupPracticeOrAgency/i
+                      object.CareSite
+                    else
+                      object.ProviderName
+                    end
+    [possible_name, object.Name].find(&:present?)
   end
 
   def address
     if object.AddressStreet && object.AddressCity && object.AddressStateProvince && object.AddressPostalCode
-      return { street: object.AddressStreet, city: object.AddressCity,
-               state: object.AddressStateProvince,
-               zip: object.AddressPostalCode }
+      {
+        street: object.AddressStreet,
+        city: object.AddressCity,
+        state: object.AddressStateProvince,
+        zip: object.AddressPostalCode
+      }
+    else
+      {}
     end
-    {}
   end
 
   def lat
