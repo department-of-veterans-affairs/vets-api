@@ -39,7 +39,7 @@ pipeline {
 
     stage('bill testing make arguments') {
       steps {
-        sh 'docker-compose -f docker-compose.test.yml run --rm --service-ports vets-api bash --login -c bin/rails lint[rakelib/github_stats.rake rakelib/lint.rake]'
+        sh 'docker-compose -f docker-compose.test.yml run --rm --service-ports vets-api bash --login -c bin/rails lint["rakelib/github_stats.rake rakelib/lint.rake"]'
       }
     }
 
