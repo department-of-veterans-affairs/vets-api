@@ -18,6 +18,12 @@
               "end_date": {
                 "type": "string"
               },
+              "pay_grade_code": {
+                "type": "string"
+              },
+              "separation_reason": {
+                "type": "string"
+              },
               "discharge_status": {
                 "type": "string"
               },
