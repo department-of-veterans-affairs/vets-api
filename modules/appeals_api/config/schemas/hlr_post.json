@@ -34,34 +34,58 @@
 
 
     "dataAttributes": {
-      "type": "object",
-      "properties": {
-        "informalConference":      { "type": "boolean" },
-        "sameOffice":              { "type": "boolean" },
-        "legacyOptInApproved":     { "type": "boolean" },
-        "benefitType":             { "$ref": "#/definitions/benefitType" },
-        "veteran":                 { "$ref": "#/definitions/veteran" },
-        "informalConferenceTimes": { "$ref": "#/definitions/informalConferenceTimes" },
-        "informalConferenceRep":   { "$ref": "#/definitions/informalConferenceRep" },
-        "claimant":                { "$ref": "#/definitions/claimant" },
-        "receiptDate": {
-          "type": "string",
-          "format": "date",
-          "$comment": "if field absent, use today"
-        }
-      },
-      "additionalProperties": false,
-      "required": [
-        "informalConference",
-        "sameOffice",
-        "legacyOptInApproved",
-        "benefitType",
-        "veteran"
-      ],
-      "allOf": [
+      "oneOf": [
         {
-          "if": { "properties": { "informalConference": { "const": true } } },
-          "then": { "required": [ "informalConferenceTimes" ] }
+          "type": "object",
+          "properties": {
+            "informalConference":      { "const": false },
+            "sameOffice":              { "type": "boolean" },
+            "legacyOptInApproved":     { "type": "boolean" },
+            "benefitType":             { "$ref": "#/definitions/benefitType" },
+            "veteran":                 { "$ref": "#/definitions/veteran" },
+            "claimant":                { "$ref": "#/definitions/claimant" },
+            "receiptDate": {
+              "type": "string",
+              "format": "date",
+              "$comment": "if field absent, use today"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "informalConference",
+            "sameOffice",
+            "legacyOptInApproved",
+            "benefitType",
+            "veteran"
+          ]
+        },
+        {
+          "$comment": "if informalConference requested, desired times must be included (rep is optional)",
+          "type": "object",
+          "properties": {
+            "informalConference":      { "const": true },
+            "sameOffice":              { "type": "boolean" },
+            "legacyOptInApproved":     { "type": "boolean" },
+            "benefitType":             { "$ref": "#/definitions/benefitType" },
+            "veteran":                 { "$ref": "#/definitions/veteran" },
+            "claimant":                { "$ref": "#/definitions/claimant" },
+            "receiptDate": {
+              "type": "string",
+              "format": "date",
+              "$comment": "if field absent, use today"
+            },
+            "informalConferenceTimes": { "$ref": "#/definitions/informalConferenceTimes" },
+            "informalConferenceRep":   { "$ref": "#/definitions/informalConferenceRep" }
+          },
+          "additionalProperties": false,
+          "required": [
+            "informalConference",
+            "sameOffice",
+            "legacyOptInApproved",
+            "benefitType",
+            "veteran",
+            "informalConferenceTimes"
+          ]
         }
       ]
     },
