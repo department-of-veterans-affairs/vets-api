@@ -155,7 +155,7 @@ module SAML
       new_url_settings = url_settings
       new_url_settings.authn_context = link_authn_context
       saml_auth_request = OneLogin::RubySaml::Authrequest.new
-      set_redirect_url(saml_auth_request.uuid)
+      set_redirect_application(saml_auth_request.uuid)
       saml_auth_request.create(new_url_settings, query_params)
     end
 
@@ -189,7 +189,7 @@ module SAML
       end
     end
 
-    def set_redirect_url(uuid)
+    def set_redirect_application(uuid)
       return unless @redirect_application
 
       LoginRedirectApplication.create(uuid: uuid, redirect_application: @redirect_application)

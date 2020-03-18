@@ -128,10 +128,6 @@ module V1
           # some users will need to be up-leveled and this will be redirected
           # back to the identity provider
           login_stats(:success, saml_response)
-          ssoe_redirect = delete_ssoe_redirect
-          if ssoe_redirect
-            redirect_to ssoe_redirect
-          end
         end
       else
         log_message_to_sentry(
