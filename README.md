@@ -37,7 +37,7 @@ saml:
 ## Running the app
 
 A Makefile provides shortcuts for interacting with the docker images. To run vets-api and its redis and postgres
-dependencies run the following command from within the repo you cloned in the above steps.
+dependencies run the following command from within the repo you cloned in the above steps. 
 
 ### Authentication required for enterprise.contribsys.com
 
