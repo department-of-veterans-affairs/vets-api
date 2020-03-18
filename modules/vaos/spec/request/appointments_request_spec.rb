@@ -283,7 +283,8 @@ RSpec.describe 'vaos appointments', type: :request, skip_mvi: true do
             expect(Rails.logger).to receive(:warn).with('VAOS service call failed!', any_args)
             expect(Rails.logger).to receive(:warn).with(
               'Clinic does not support VAOS appointment cancel',
-              clinic: request_body[:clinic]
+              clinic_id: request_body[:clinic_id],
+              facility_id: request_body[:facility_id]
             )
             put '/v0/vaos/appointments/cancel', params: request_body
 
