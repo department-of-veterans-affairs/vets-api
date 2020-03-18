@@ -6,16 +6,29 @@ module Vet360
   module ContactInformation
     class TransactionResponse < Vet360::Response
       attribute :transaction, Vet360::Models::Transaction
+      ERROR_STATES = ['COMPLETED_FAILURE', 'REJECTED']
 
       attr_reader :response_body
 
       def self.from(raw_response = nil)
         @response_body = raw_response&.body
+        binding.pry; fail
+
+        log_message_to_sentry(
+          'Vet360 transaction error',
+          :error,
+          { response_body: @response_body },
+          error: :vet360
+        ) if has_error?
 
         new(
           raw_response&.status,
           transaction: Vet360::Models::Transaction.build_from(@response_body)
         )
+      end
+
+      def self.has_error?
+        ERROR_STATES.include?(@response_body['tx_status'])
       end
     end
 
