@@ -742,6 +742,7 @@ RSpec.describe FormProfile, type: :model do
     context 'with a user that can prefill mdot' do
       before do
         expect(user).to receive(:authorize).with(:mdot, :access?).and_return(true).at_least(:once)
+        expect(user.authorize(:mdot, :access?)).to eq(true)
       end
 
       it 'returns a prefilled MDOT form' do
