@@ -13,7 +13,7 @@ module MDOT
     def initialize(args)
       validate_response_against_schema(args[:schema], args[:response])
       @body = args[:response].body
-      @parsed_body = JSON.parse(@body)
+      @parsed_body = @body.is_a?(String) ? JSON.parse(@body) : @body
       self.permanent_address = @parsed_body['permanent_address']
       self.temporary_address = @parsed_body['temporary_address']
       self.supplies = @parsed_body['supplies']
