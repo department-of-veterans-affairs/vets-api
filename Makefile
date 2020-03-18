@@ -1,54 +1,47 @@
 $stdout.sync = true
 export VETS_API_USER_ID  := $(shell id -u)
 
-ENV_ARG      := $(env)
 COMPOSE_DEV  := docker-compose
 COMPOSE_TEST := docker-compose -f docker-compose.test.yml
 BASH         := run --rm --service-ports vets-api bash
 BASH_DEV     := $(COMPOSE_DEV) $(BASH) -c
 BASH_TEST    := $(COMPOSE_TEST) $(BASH) --login -c
 SPEC_PATH    := spec/
-DB		     := "bin/rails db:setup db:migrate"
-LINT    	 := "bin/rails lint"
-DOWN         := down
-SECURITY     := "bin/rails security"
 
 .PHONY: default
 default: ci
-	
+
 .PHONY: ci
 ci:
 	@$(BASH_TEST) "bin/rails db:setup db:migrate ci"
+
+.PHONY: ci-down
+ci-down:
+	$(COMPOSE_TEST) down
 
 .PHONY: bash
 bash:
 	@$(COMPOSE_DEV) $(BASH)
 
-.PHONY: build
-build:
-ifeq ($(ENV_ARG), dev)
-	$(COMPOSE_DEV) build
-else
+.PHONY: ci-build
+ci-build:
 	$(COMPOSE_TEST) build
-endif
-	
 
-.PHONY: db
-db:
-ifeq ($(ENV_ARG), dev)
-	@$(BASH_DEV) $(DB)
-else
-	@$(BASH_TEST) $(DB)
-endif	
+.PHONY: ci-db
+ci-db:
+	@$(BASH_TEST) "bin/rails db:setup db:migrate"	
 
+.PHONY: ci-lint
+ci-lint:
+	@$(BASH_TEST) "bin/rails lint"
 
-.PHONY: lint
-lint:
-ifeq ($(ENV_ARG), dev)
-	@$(BASH_DEV) $(LINT)
-else
-	@$(BASH_TEST) $(LINT)
-endif	
+.PHONY: ci-security
+ci-security:
+	@$(BASH_TEST) "bin/rails security"
+
+.PHONY: ci-spec
+ci-spec:
+	@$(BASH_TEST) "bin/rails spec:with_codeclimate_coverage"
 
 .PHONY: console
 console:
@@ -58,21 +51,25 @@ console:
 danger:
 	@$(BASH_TEST) "bundle exec danger --verbose"
 
+.PHONY: db
+db:
+	@$(BASH_DEV) "bin/rails db:setup db:migrate"
+
 .PHONY: docker-clean
 docker-clean:
 	@$(COMPOSE_DEV) down --rmi all --volumes
 
 .PHONY: down
 down:
-ifeq ($(ENV_ARG), dev)
-	@$(COMPOSE_DEV) $(DOWN)
-else
-	@$(COMPOSE_TEST) $(DOWN)
-endif	
+	@$(COMPOSE_DEV) down
 
 .PHONY: guard
 guard:
 	@$(BASH_DEV) "bundle exec guard"
+
+.PHONY: lint
+lint:
+	@$(BASH_DEV) "bin/rails lint"
 
 .PHONY: migrate
 migrate:
@@ -84,11 +81,7 @@ rebuild: down
 
 .PHONY: security
 security:
-ifeq ($(ENV_ARG), dev)
-	@$(BASH_DEV) $(SECURITY)
-else
-	@$(BASH_TEST) $(SECURITY)
-endif
+	@$(BASH_DEV) "bin/rails security"
 
 .PHONY: server
 server:
@@ -96,12 +89,8 @@ server:
 
 .PHONY: spec
 spec:
-ifeq ($(ENV_ARG), dev)
 	@$(BASH_DEV) "bin/rspec ${SPEC_PATH}"
-else
-	@$(BASH_TEST) "bin/rails spec:with_codeclimate_coverage"
-endif
-	
+
 .PHONY: up
 up: db
 	@$(BASH_DEV) "rm -f tmp/pids/server.pid && foreman start -m all=1,clamd=0,freshclam=0"
