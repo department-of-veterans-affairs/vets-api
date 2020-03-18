@@ -251,6 +251,7 @@ GEM
     crack (0.4.3)
       safe_yaml (~> 1.0.0)
     crass (1.0.5)
+    curb (0.9.10)
     danger (6.1.0)
       claide (~> 1.0)
       claide-plugins (>= 0.9.2)
@@ -778,6 +779,7 @@ DEPENDENCIES
   clam_scan
   config
   connect_vbms!
+  curb
   danger
   database_cleaner
   date_validator
