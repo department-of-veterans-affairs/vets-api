@@ -9,6 +9,7 @@ RSpec.describe V0::HcaAttachmentsController, type: :controller do
              file_data: fixture_file_upload('pdf_fill/extras.pdf')
            } })
       expect(JSON.parse(response.body)['data']['attributes']['guid']).to eq HcaAttachment.last.guid
+      expect(FormAttachment.last).to be_a(HcaAttachment)
     end
 
     it 'validates input parameters' do
@@ -20,10 +21,16 @@ RSpec.describe V0::HcaAttachmentsController, type: :controller do
 
     it 'validates that the upload attachment is not nil' do
       file_data = fixture_file_upload('pdf_fill/extras.pdf')
+
       post(:create, params: { hca_attachment: {
              file_data: file_data
            } })
-      expect(HcaAttachment.last.get_file).not_to be_nil
+
+      uploaded_file_path =  HcaAttachment.last.get_file.file
+      file_1 = File.open(uploaded_file_path).read
+      file_2 = File.open(file_data).read
+
+      expect(file_1).to eq(file_2)
     end
   end
 end
