@@ -64,6 +64,14 @@ RSpec.describe 'CSRF scenarios', type: :request do
         end
         # expect(response.body).not_to match(/ActionController::InvalidAuthenticityToken/)
       end
+
+      it 'does not raise an error for v1' do
+        expect(Raven).not_to receive(:capture_message).with("Request susceptible to CSRF", {:level=>"info"})
+        with_settings(Settings.sentry, dsn: 'truthy') do
+          post(v1_sessions_callback_path)
+        end
+        # expect(response.body).not_to match(/ActionController::InvalidAuthenticityToken/)
+      end
     end
   end
 end
