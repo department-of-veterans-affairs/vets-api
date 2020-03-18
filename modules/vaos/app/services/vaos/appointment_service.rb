@@ -44,7 +44,11 @@ module VAOS
       rescue Common::Exceptions::BackendServiceException => e
         # TODO: Reevaluate the need to log clinic data three months after launch (6/15/20)
         if e.key == 'VAOS_400'
-          Rails.logger.warn('Clinic does not support VAOS appointment cancel', clinic_id: params[:clinic_id], facility_id: params[:facility_id])
+          Rails.logger.warn(
+            'Clinic does not support VAOS appointment cancel',
+            clinic_id: params[:clinic_id],
+            facility_id: params[:facility_id]
+          )
         end
         raise e
       end
