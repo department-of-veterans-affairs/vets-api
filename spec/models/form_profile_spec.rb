@@ -446,73 +446,73 @@ RSpec.describe FormProfile, type: :model do
 
   let(:vmdot_expected) do
     {
-      fullName: {
-        first: user.first_name&.capitalize,
-        last: user.last_name&.capitalize,
-        suffix: user.va_profile[:suffix]
+      'fullName' => {
+        'first' => user.first_name&.capitalize,
+        'last' => user.last_name&.capitalize,
+        'suffix' => user.va_profile[:suffix]
       },
-      permanentAddress: {
-        street: '101 Example Street',
-        street2: 'Apt 2',
-        city: 'Kansas City',
-        state: 'MO',
-        country: 'USA',
-        postalCode: '64117'
+      'permanentAddress' => {
+        'street' => '101 Example Street',
+        'street2' => 'Apt 2',
+        'city' => 'Kansas City',
+        'state' => 'MO',
+        'country' => 'USA',
+        'postalCode' => '64117'
       },
-      temporaryAddress: {
-        street: '201 Example Street',
-        city: 'Galveston',
-        state: 'TX',
-        country: 'USA',
-        postalCode: '77550'
+      'temporaryAddress' => {
+        'street' => '201 Example Street',
+        'city' => 'Galveston',
+        'state' => 'TX',
+        'country' => 'USA',
+        'postalCode' => '77550'
       },
-      gender: user.gender,
-      email: user.pciu_email,
-      dateOfBirth: user.birth_date,
-      supplies: [
+      'gender' => user.gender,
+      'email' => user.pciu_email,
+      'dateOfBirth' => user.birth_date,
+      'supplies' => [
         {
-          deviceName: "_o_m_e_g_a_x_d3241",
-          productName: "_z_a1239",
-          productGroup: "hearing aid batteries",
-          productId: "1",
-          available_for_reorder: false,
-          lastOrderDate: "2020-01-01",
-          nextAvailabilityDate: "2020-09-01",
-          quantity: 60,
-          size: ""
+          'deviceName' => 'OMEGAX d3241',
+          'productName' => 'ZA1239',
+          'productGroup' => 'hearing aid batteries',
+          'productId' => '1',
+          'availableForReorder' => false,
+          'lastOrderDate' => '2020-01-01',
+          'nextAvailabilityDate' => '2020-09-01',
+          'quantity' => 60,
+          'size' => ''
         },
         {
-          deviceName: "",
-          productName: "_d_o_m_e",
-          productGroup: "hearing aid accessories",
-          productId: "3",
-          available_for_reorder: true,
-          lastOrderDate: "2019-06-30",
-          nextAvailabilityDate: "2019-12-15",
-          quantity: 10,
-          size: "6mm"
+          'deviceName' => '',
+          'productName' => 'DOME',
+          'productGroup' => 'hearing aid accessories',
+          'productId' => '3',
+          'availableForReorder' => true,
+          'lastOrderDate' => '2019-06-30',
+          'nextAvailabilityDate' => '2019-12-15',
+          'quantity' => 10,
+          'size' => '6mm'
         },
         {
-          deviceName: "",
-          productName: "_d_o_m_e",
-          productGroup: "hearing aid accessories",
-          productId: "4",
-          available_for_reorder: true,
-          lastOrderDate: "2019-06-30",
-          nextAvailabilityDate: "2019-12-15",
-          quantity: 10,
-          size: "7mm"
+          'deviceName' => '',
+          'productName' => 'DOME',
+          'productGroup' => 'hearing aid accessories',
+          'productId' => '4',
+          'availableForReorder' => true,
+          'lastOrderDate' => '2019-06-30',
+          'nextAvailabilityDate' => '2019-12-15',
+          'quantity' => 10,
+          'size' => '7mm'
         },
         {
-          deviceName: "",
-          productName: "_waxbustersingleunit",
-          productGroup: "hearing aid accessories",
-          productId: "5",
-          available_for_reorder: true,
-          lastOrderDate: "2019-06-30",
-          nextAvailabilityDate: "2019-12-15",
-          quantity: 10,
-          size: ""
+          'deviceName' => '',
+          'productName' => 'WaxBuster Single Unit',
+          'productGroup' => 'hearing aid accessories',
+          'productId' => '5',
+          'available_for_reorder' => true,
+          'lastOrderDate' => '2019-06-30',
+          'nextAvailabilityDate' => '2019-12-15',
+          'quantity' => 10,
+          'size' => ''
         }
       ]
     }
@@ -739,6 +739,18 @@ RSpec.describe FormProfile, type: :model do
       )
     end
 
+    context 'with a user that can prefill mdot' do
+      before do
+        expect(user).to receive(:authorize).with(:mdot, :access?).and_return(true).at_least(:once)
+      end
+
+      it 'returns a prefilled MDOT form' do
+        VCR.use_cassette('mdot/get_supplies_200') do
+          expect_prefilled('MDOT')
+        end
+      end
+    end
+
     context 'when emis is down', skip_emis: true do
       it 'logs the error to sentry' do
         can_prefill_emis(true)
@@ -893,18 +905,6 @@ RSpec.describe FormProfile, type: :model do
                     expect_prefilled('21-526EZ')
                   end
                 end
-              end
-            end
-          end
-
-          context 'with a user that can prefill mdot' do
-            before do
-              expect(user).to receive(:authorize).with(:mdot, :access?).and_return(true).at_least(:once)
-            end
-
-            it 'returns a prefilled MDOT form' do
-              VCR.use_cassette('mdot/get_supplies_200') do
-                expect_prefilled('MDOT')
               end
             end
           end

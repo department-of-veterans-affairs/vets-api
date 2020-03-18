@@ -12,5 +12,6 @@ module MDOT
     attribute :last_order_date, Date
     attribute :next_availability_date, Date
     attribute :quantity, Integer
+    attribute :size, String
   end
 end
