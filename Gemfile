@@ -175,7 +175,7 @@ group :production do
   unless ENV['EXCLUDE_SIDEKIQ_ENTERPRISE'] == 'true'
     source 'https://enterprise.contribsys.com/' do
       gem 'sidekiq-ent'
-      gem 'sidekiq-pro', '3.7.0'
+      gem 'sidekiq-pro'
     end
   end
 end

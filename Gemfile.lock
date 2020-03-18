@@ -529,7 +529,7 @@ GEM
       rack (>= 1.0, < 3)
     rack-cors (1.1.1)
       rack (>= 2.0.0)
-    rack-protection (2.0.8.1)
+    rack-protection (2.0.7)
       rack
     rack-test (1.1.0)
       rack (>= 1.0, < 3)
@@ -665,7 +665,7 @@ GEM
       redis (~> 3.2, >= 3.2.1)
     sidekiq-ent (1.6.1)
       sidekiq (>= 4.2.9)
-      sidekiq-pro (>= 3.5.0)
+      sidekiq-pro!
     sidekiq-instrument (0.3.0)
       sidekiq (>= 4.2, < 6)
       statsd-instrument (~> 2.0, >= 2.0.4)
