@@ -40,7 +40,7 @@ RSpec.describe 'CSRF scenarios', type: :request do
         expect(Raven).to receive(:capture_message).once
         with_settings(Settings.sentry, dsn: 'truthy') do
           post(v0_hca_attachments_path,
-              params: { hca_attachment: { file_data: fixture_file_upload('pdf_fill/extras.pdf') } })
+               params: { hca_attachment: { file_data: fixture_file_upload('pdf_fill/extras.pdf') } })
         end
       end
 
@@ -58,7 +58,7 @@ RSpec.describe 'CSRF scenarios', type: :request do
   describe 'POST SAML callback' do
     context 'without a CSRF token' do
       it 'does not raise an error' do
-        expect(Raven).not_to receive(:capture_message).with("Request susceptible to CSRF", {:level=>"info"})
+        expect(Raven).not_to receive(:capture_message).with('Request susceptible to CSRF', level: 'info')
         with_settings(Settings.sentry, dsn: 'truthy') do
           post(auth_saml_callback_path)
         end
@@ -66,7 +66,7 @@ RSpec.describe 'CSRF scenarios', type: :request do
       end
 
       it 'does not raise an error for v1' do
-        expect(Raven).not_to receive(:capture_message).with("Request susceptible to CSRF", {:level=>"info"})
+        expect(Raven).not_to receive(:capture_message).with('Request susceptible to CSRF', level: 'info')
         with_settings(Settings.sentry, dsn: 'truthy') do
           post(v1_sessions_callback_path)
         end
