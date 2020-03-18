@@ -39,8 +39,7 @@ module MDOT
 
         MDOT::Response.new(
           response: raw_response,
-          schema: :supplies,
-          status: raw_response.status
+          schema: :supplies
         )
       end
     end

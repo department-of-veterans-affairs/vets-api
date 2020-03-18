@@ -16,7 +16,7 @@ module MDOT
       self.permanent_address = @body['permanent_address']
       self.temporary_address = @body['temporary_address']
       self.supplies = @body['supplies']
-      @status = args[:status]
+      @status = args[:response][:status]
     end
 
     def ok?
