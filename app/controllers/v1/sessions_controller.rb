@@ -27,7 +27,6 @@ module V1
       StatsD.increment(STATSD_SSO_NEW_KEY,
                        tags: ["context:#{type}", "forceauthn:#{force_authn?}"])
       url = url_service.send("#{type}_url")
-      set_ssoe_redirect(params[:application])
 
       if %w[slo ssoe_slo].include?(type)
         Rails.logger.info("LOGOUT of type #{type}", sso_logging_info)
@@ -123,7 +122,7 @@ module V1
         @current_user, @session_object = user_session_form.persist
         set_cookies
         after_login_actions
-        redirect_to url_service.login_redirect_url
+        redirect_to url_service.login_redirect_url(saml_uuid: user_session_form.saml_uuid)
         if location.start_with?(url_service.base_redirect_url)
           # only record success stats if the user is being redirect to the site
           # some users will need to be up-leveled and this will be redirected
