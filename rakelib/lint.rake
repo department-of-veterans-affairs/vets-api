@@ -7,6 +7,10 @@ desc 'shortcut to run all linting tools, at the same time.'
 task :lint, [:files] => [:environment] do |_, args|
   require 'rainbow'
 
+  # comes in as 'app/controllers/v0/addresses_controller.rb|config/routes.rb'
+  # but we want 'app/controllers/v0/addresses_controller.rb config/routes.rb'
+  files = args[:files].gsub('|', ' ')
+
   opts = '-r rubocop-thread_safety '
 
   opts += if ENV['CI']
@@ -19,7 +23,7 @@ task :lint, [:files] => [:environment] do |_, args|
           end
 
   puts 'running rubocop...'
-  rubocop_result = ShellCommand.run("rubocop #{opts} --color #{args[:files]}")
+  rubocop_result = ShellCommand.run("rubocop #{opts} --color #{files}")
 
   puts "\n"
   if rubocop_result

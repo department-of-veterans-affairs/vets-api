@@ -33,7 +33,7 @@ ci-db:
 
 .PHONY: ci-lint
 ci-lint:
-	@$(BASH_TEST) "bin/rails lint"
+	@$(BASH_TEST) "bin/rails lint["$(files_to_lint)"]"
 
 .PHONY: bill
 bill:
