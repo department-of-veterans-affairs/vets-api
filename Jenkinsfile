@@ -48,8 +48,8 @@ pipeline {
     stage('Lint') {
       steps {
         script {
-          files_to_lint = getGithubChangedFiles('vets-api', pr_number: env.CHANGE_ID)
-          files_to_lint = files_to_lint.join(' ')
+          files_to_lint = []
+          files_to_lint = getGithubChangedFiles('vets-api', pr_number: env.CHANGE_ID).join(' ')
         }
         sh """make files='${files_to_lint}' ci-lint"""
       }
