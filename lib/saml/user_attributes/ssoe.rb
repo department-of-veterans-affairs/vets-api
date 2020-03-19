@@ -63,25 +63,26 @@ module SAML
         safe_attr('va_eauth_dodedipnid')
       end
 
+      # va_eauth_credentialassurancelevel is supposed to roll up the
+      # federated assurance level from credential provider and broker.
+      # It is currently returning a value of "2" for DSLogon level 2
+      # so we are interpreting any value greater than 1 as "LOA 3".
       def loa_current
-        @loa_current ||= safe_attr('va_eauth_credentialassurancelevel')&.to_i
+        assurance = safe_attr('va_eauth_credentialassurancelevel')&.to_i
+        @loa_current ||= assurance.present? && assurance > 1 ? 3 : 1
       rescue NoMethodError, KeyError => e
         @warnings << "loa_current error: #{e.message}"
         @loa_current = 1
       end
 
       def mhv_loa_highest
-        if safe_attr('va_eauth_mhvassurance')
-          mhv_assurance = safe_attr('va_eauth_mhvassurance')
-          SAML::UserAttributes::MHV::PREMIUM_LOAS.include?(mhv_assurance) ? 3 : nil
-        end
+        mhv_assurance = safe_attr('va_eauth_mhvassurance')
+        SAML::UserAttributes::MHV::PREMIUM_LOAS.include?(mhv_assurance) ? 3 : nil
       end
 
       def dslogon_loa_highest
-        if safe_attr('va_eauth_dslogonassurance')
-          dslogon_assurance = safe_attr('va_eauth_dslogonassurance')
-          SAML:: UserAttributes::DSLogon::PREMIUM_LOAS.include?(dslogon_assurance) ? 3 : nil
-        end
+        dslogon_assurance = safe_attr('va_eauth_dslogonassurance')
+        SAML:: UserAttributes::DSLogon::PREMIUM_LOAS.include?(dslogon_assurance) ? 3 : nil
       end
 
       # This is the ID.me highest level of assurance attained
