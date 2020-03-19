@@ -10,7 +10,11 @@
   "definitions": {
 
 
-    "nonBlankString": { "type": "string", "pattern": "[^ ]" },
+    "nonBlankString": {
+      "type": "string",
+      "pattern": "[^ \f\n\r\t\v\u00a0\u1680\u2000-\u200a\u2028\u2029\u202f\u205f\u3000\ufeff]",
+      "$comment": "The pattern used ensures that a string has at least one non-whitespace charcter. The pattern comes from JavaScript's \s character class. \"\s Matches a single white space character, including space, tab, form feed, line feed, and other Unicode spaces. Equivalent to [ \f\n\r\t\v\u00a0\u1680\u2000-\u200a\u2028\u2029\u202f\u205f\u3000\ufeff].\": https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Regular_Expressions/Character_Classes  We are using simple character classes at JSON Schema's recommendation: https://tools.ietf.org/html/draft-handrews-json-schema-validation-01#section-4.3"
+    },
     "nonBlankStringMaxLength100": {
       "allOf": [ { "$ref": "#/definitions/nonBlankString" }, { "maxLength": 100 } ]
     },
@@ -142,20 +146,20 @@
       "$comment": "source: VA Profile API - POST /v0/profile/telephones",
       "type": "object",
       "properties": {
-        "is_international": { "type": "boolean" },
-        "country_code":     { "$ref": "#/definitions/nonBlankString" },
-        "phone_number":     { "type": "string", "pattern": "^[0-9]{1,14}$" },
-        "area_code":        { "type": "string", "pattern": "^[0-9]{3}$" },
+        "isInternational": { "type": "boolean" },
+        "countryCode":     { "$ref": "#/definitions/nonBlankString" },
+        "phoneNumber":     { "type": "string", "pattern": "^[0-9]{1,14}$" },
+        "areaCode":        { "type": "string", "pattern": "^[0-9]{3}$" },
         "extension":        { "$ref": "#/definitions/nonBlankStringMaxLength10" },
-        "phone_type":       { "type": "string", "enum": [ "MOBILE", "HOME", "WORK", "FAX", "TEMPORARY" ] }
+        "phoneType":       { "type": "string", "enum": [ "MOBILE", "HOME", "WORK", "FAX", "TEMPORARY" ] }
       },
       "additionalProperties": false,
       "required": [
-        "is_international",
-        "country_code",
-        "phone_number",
-        "area_code",
-        "phone_type"
+        "isInternational",
+        "countryCode",
+        "phoneNumber",
+        "areaCode",
+        "phoneType"
       ]
     },
 
@@ -166,47 +170,47 @@
         {
           "type": "object",
           "properties": {
-            "address_type":  { "type": "string", "enum": [ "DOMESTIC", "OVERSEAS MILITARY" ] },
-            "address_line1": { "$ref": "#/definitions/nonBlankStringMaxLength100" },
-            "address_line2": { "$ref": "#/definitions/nonBlankStringMaxLength100" },
-            "address_line3": { "$ref": "#/definitions/nonBlankStringMaxLength100" },
+            "addressType":  { "type": "string", "enum": [ "DOMESTIC", "OVERSEAS MILITARY" ] },
+            "addressLine1": { "$ref": "#/definitions/nonBlankStringMaxLength100" },
+            "addressLine2": { "$ref": "#/definitions/nonBlankStringMaxLength100" },
+            "addressLine3": { "$ref": "#/definitions/nonBlankStringMaxLength100" },
             "city":          { "$ref": "#/definitions/nonBlankStringMaxLength100" },
-            "state_code":    { "$ref": "#/definitions/nonBlankStringMaxLength2" },
-            "zip_code":      { "type": "string", "pattern": "^[0-9]{5}$" },
-            "country_name":  { "type": "string" },
-            "address_pou":   { "type": "string", "enum": [ "RESIDENCE/CHOICE", "CORRESPONDENCE" ] }
+            "stateCode":    { "$ref": "#/definitions/nonBlankStringMaxLength2" },
+            "zipCode":      { "type": "string", "pattern": "^[0-9]{5}$" },
+            "countryName":  { "type": "string" },
+            "addressPou":   { "type": "string", "enum": [ "RESIDENCE/CHOICE", "CORRESPONDENCE" ] }
           },
           "additionalProperties": false,
           "required": [
-            "address_type",
-            "address_line1",
+            "addressType",
+            "addressLine1",
             "city",
-            "state_code",
-            "zip_code",
-            "country_name",
-            "address_pou"
+            "stateCode",
+            "zipCode",
+            "countryName",
+            "addressPou"
           ]
         },
         {
           "type": "object",
           "properties": {
-            "address_type":              { "const": "INTERNATIONAL" },
-            "address_line1":             { "$ref": "#/definitions/nonBlankStringMaxLength100" },
-            "address_line2":             { "$ref": "#/definitions/nonBlankStringMaxLength100" },
-            "address_line3":             { "$ref": "#/definitions/nonBlankStringMaxLength100" },
+            "addressType":              { "const": "INTERNATIONAL" },
+            "addressLine1":             { "$ref": "#/definitions/nonBlankStringMaxLength100" },
+            "addressLine2":             { "$ref": "#/definitions/nonBlankStringMaxLength100" },
+            "addressLine3":             { "$ref": "#/definitions/nonBlankStringMaxLength100" },
             "city":                      { "$ref": "#/definitions/nonBlankStringMaxLength100" },
-            "international_postal_code": { "type": "string" },
-            "country_name":              { "type": "string" },
-            "address_pou":               { "type": "string", "enum": [ "RESIDENCE/CHOICE", "CORRESPONDENCE" ] }
+            "internationalPostalCode": { "type": "string" },
+            "countryName":              { "type": "string" },
+            "addressPou":               { "type": "string", "enum": [ "RESIDENCE/CHOICE", "CORRESPONDENCE" ] }
           },
           "additionalProperties": false,
           "required": [
-            "address_type",
-            "address_line1",
+            "addressType",
+            "addressLine1",
             "city",
-            "international_postal_code",
-            "country_name",
-            "address_pou"
+            "internationalPostalCode",
+            "countryName",
+            "addressPou"
           ]
         }
       ]
@@ -219,7 +223,7 @@
         "ssn":           { "type": "string", "pattern": "^[0-9]{9}$" },
         "address":       { "$ref": "#/definitions/address" },
         "phone":         { "$ref": "#/definitions/phone" },
-        "email_address": { "type": "string", "format": "email" }
+        "emailAddress": { "type": "string", "format": "email" }
       },
       "additionalProperties": false,
       "required": [ "ssn" ]
