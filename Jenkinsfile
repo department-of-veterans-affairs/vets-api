@@ -45,7 +45,7 @@ pipeline {
           files_to_lint = getGithubChangedFiles('vets-api', pr_number: env.CHANGE_ID.toInteger())
           files_to_lint = files_to_lint.join(' ')
         }
-        sh '''make files='${files_to_lint}' ci-build'''
+        sh """make files='${files_to_lint}' ci-build"""
       }
     }
 
