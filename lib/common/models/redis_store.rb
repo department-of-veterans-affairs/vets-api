@@ -62,8 +62,8 @@ module Common
     end
 
     def self.pop(redis_key = nil)
-      object = self.find(redis_key)
-      object.destroy && object if object
+      object = find(redis_key)
+      delete(redis_key) && object if object
     end
 
     def self.exists?(redis_key = nil)
