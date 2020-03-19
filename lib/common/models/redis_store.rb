@@ -61,6 +61,11 @@ module Common
       find(redis_key) || new(Hash[@redis_namespace_key, redis_key])
     end
 
+    def self.pop(redis_key = nil)
+      object = self.find(redis_key)
+      object.destroy && object if object
+    end
+
     def self.exists?(redis_key = nil)
       redis_namespace.exists(redis_key)
     end

@@ -36,6 +36,8 @@ module SAML
       Raven.extra_context(params: params)
       Raven.user_context(session: session, user: user)
       initialize_query_params(params)
+      # the optional redirect_application is used to determine where to redirect
+      # the user to after a succesful login
       @redirect_application = params[:application]
     end
 
@@ -44,7 +46,6 @@ module SAML
       VIRTUAL_HOST_MAPPINGS[current_host][:base_redirect]
     end
 
-    # TODO: SSOe does not currently support upleveling due to missing AuthN attribute support
     # rubocop:disable Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
     def login_redirect_url(auth: 'success', code: nil, saml_uuid: nil)
       find_redirect_application(saml_uuid) if saml_uuid
@@ -155,7 +156,7 @@ module SAML
       new_url_settings = url_settings
       new_url_settings.authn_context = link_authn_context
       saml_auth_request = OneLogin::RubySaml::Authrequest.new
-      set_redirect_application(saml_auth_request.uuid)
+      create_redirect_application(saml_auth_request.uuid) if @redirect_application
       saml_auth_request.create(new_url_settings, query_params)
     end
 
@@ -189,15 +190,15 @@ module SAML
       end
     end
 
-    def set_redirect_application(uuid)
-      return unless @redirect_application
-
-      LoginRedirectApplication.create(uuid: uuid, redirect_application: @redirect_application)
+    def create_redirect_application(uuid)
+      LoginRedirectApplication.create(
+        uuid: uuid, redirect_application: @redirect_application
+      )
     end
 
     def find_redirect_application(uuid)
-      app = LoginRedirectApplication.find(uuid)
-      @redirect_application = app.present? && app.redirect_application
+      app = LoginRedirectApplication.pop(uuid)
+      @redirect_application = app && app.redirect_application
     end
   end
 end
