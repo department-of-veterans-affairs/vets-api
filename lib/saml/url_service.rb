@@ -197,8 +197,7 @@ module SAML
     end
 
     def find_redirect_application(uuid)
-      app = LoginRedirectApplication.pop(uuid)
-      @redirect_application = app && app.redirect_application
+      @redirect_application = LoginRedirectApplication.pop(uuid)&.redirect_application
     end
   end
 end
