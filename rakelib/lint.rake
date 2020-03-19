@@ -7,9 +7,9 @@ desc 'shortcut to run all linting tools, at the same time.'
 task :lint, [:files] => [:environment] do |_, args|
   require 'rainbow'
 
-  # comes in as 'app/controllers/v0/addresses_controller.rb|config/routes.rb'
+  # comes in as 'Jenkinsfile|app/controllers/v0/addresses_controller.rb|config/routes.rb'
   # but we want 'app/controllers/v0/addresses_controller.rb config/routes.rb'
-  files = args[:files].gsub('|', ' ')
+  filess = args[:files].split('|').select{ |filename| filename.include?('.rb') || filename.include?('.rake') }.join(' ')
 
   opts = '-r rubocop-thread_safety '
 
