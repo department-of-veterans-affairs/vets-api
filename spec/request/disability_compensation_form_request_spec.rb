@@ -154,9 +154,9 @@ RSpec.describe 'Disability compensation form', type: :request do
     end
 
     context 'with invalid json body' do
-      it 'returns a 500' do
+      it 'returns a 422' do
         post '/v0/disability_compensation_form/submit', params: { 'form526' => nil }.to_json, headers: headers
-        expect(response).to have_http_status(:internal_server_error)
+        expect(response).to have_http_status(:unprocessable_entity)
       end
     end
   end
