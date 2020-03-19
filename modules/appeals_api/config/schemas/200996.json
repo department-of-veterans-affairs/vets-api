@@ -268,7 +268,8 @@
     "included": {
       "type": "array",
       "items": { "$ref": "#/definitions/contestableIssue" },
-      "minItems": 1
+      "minItems": 1,
+      "uniqueItems": true
     },
 
 
