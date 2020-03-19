@@ -29,7 +29,7 @@ module Vet360
       end
 
       def self.has_error?
-        @response_body['tx_status'] == ERROR_STATUS
+        @response_body.try(:[], 'tx_status') == ERROR_STATUS
       end
     end
 
