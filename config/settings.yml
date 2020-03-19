@@ -468,6 +468,9 @@ bgs:
   env: ~
   mock_response_location: ~
   mock_responses: ~
+  jrn_user_id: 'VAgovAPI'
+  jrn_obj_id: 'VAgovAPI'
+  jrn_lctn_id: '281'
   ssl_verify_mode: 'peer'
 
 va_mobile:

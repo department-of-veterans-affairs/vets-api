@@ -26,9 +26,10 @@ module BGS
       create_proc_form_response = vnp_proc_form_create(vnp_proc_id)
 
       create_ptcpnt_response = vnp_ptcpnt_create
-      binding.pry
 
       person_create_response = vnp_person_create(create_ptcpnt_response["vnp_ptcpnt_id"])
+
+      person_create_response
     end
 
     private
@@ -41,11 +42,11 @@ module BGS
         vnp_proc_state_type_cd: 'Ready',
         creatd_dt: '2020-02-25T09:59:16-06:00',
         last_modifd_dt: '2020-02-25T10:02:28-06:00',
-        jrn_dt: '2020-02-25T10:02:31-06:00',
-        jrn_lctn_id: '281',
+        jrn_dt: Time.current.iso8601,
+        jrn_lctn_id: Settings.bgs.jrn_lctn_id,
         jrn_status_type_cd: 'U',
-        jrn_user_id: 'VAgovAPI',
-        jrn_obj_id: 'VAgovAPI',
+        jrn_user_id: Settings.bgs.jrn_user_id,
+        jrn_obj_id: Settings.bgs.jrn_obj_id,
         submtd_dt: '2020-02-25T10:01:59-06:00',
         ssn: current_user.ssn
       )
@@ -55,11 +56,11 @@ module BGS
       service.vnp_proc_form.vnp_proc_form_create(
         vnp_proc_id: vnp_proc_id,
         form_type_cd: '21-686c',
-        jrn_dt: '2020-02-25T10:02:31-06:00',
-        jrn_lctn_id: '281',
-        jrn_obj_id: 'VAgovAPI',
+        jrn_dt: Time.current.iso8601,
+        jrn_lctn_id: Settings.bgs.jrn_lctn_id,
+        jrn_obj_id: Settings.bgs.jrn_obj_id,
         jrn_status_type_cd: 'U',
-        jrn_user_id: 'VAgovAPI',
+        jrn_user_id: Settings.bgs.jrn_user_id,
         ssn: current_user.ssn
       )
     end
@@ -69,11 +70,11 @@ module BGS
         vnp_ptcpnt_id: '',
         vnp_proc_id: '3826728',
         fraud_ind: '',
-        jrn_dt: '2012-07-17T15:36:26-05:00',
-        jrn_lctn_id: '281',
-        jrn_obj_id: 'VAgovAPI',
+        jrn_dt: Time.current.iso8601,
+        jrn_lctn_id: Settings.bgs.jrn_lctn_id,
+        jrn_obj_id: Settings.bgs.jrn_obj_id,
         jrn_status_type_cd: 'I',
-        jrn_user_id: 'VAgovAPI',
+        jrn_user_id: Settings.bgs.jrn_user_id,
         legacy_poa_cd: '',
         misc_vendor_ind: '',
         ptcpnt_short_nm: '',
@@ -103,11 +104,11 @@ module BGS
         first_nm: "Jane",
         frgn_svc_nbr: "0",
         gender_cd: "F",
-        jrn_dt: "Thu, 05 Mar 2020 21:13:13 -0600",
-        jrn_lctn_id: "281",
-        jrn_obj_id: "VAgovAPI",
+        jrn_dt: Time.current.iso8601,
+        jrn_lctn_id: Settings.bgs.jrn_lctn_id,
+        jrn_obj_id: Settings.bgs.jrn_obj_id,
         jrn_status_type_cd: "U",
-        jrn_user_id: "VAgovAPI",
+        jrn_user_id: Settings.bgs.jrn_user_id,
         last_nm: "Smith",
         lgy_entlmt_type_cd: "",
         martl_status_type_cd: "",
