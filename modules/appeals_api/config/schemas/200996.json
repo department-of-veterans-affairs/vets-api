@@ -220,13 +220,19 @@
     "veteran": {
       "type": "object",
       "properties": {
-        "ssn":           { "type": "string", "pattern": "^[0-9]{9}$" },
         "address":       { "$ref": "#/definitions/address" },
         "phone":         { "$ref": "#/definitions/phone" },
         "emailAddress": { "type": "string", "format": "email" }
       },
       "additionalProperties": false,
-      "required": [ "ssn" ]
+      "$comment": "if veteran object is being included, it cannot be empty",
+      "not": {
+        "properties": {
+          "address":      { "const": null },
+          "phone":        { "const": null },
+          "emailAddress": { "const": null }
+        }
+      }
     },
 
 
