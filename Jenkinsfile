@@ -40,11 +40,11 @@ pipeline {
     }
 
     stage('bill testing make arguments') {
-      script {
-        files_to_lint = getGithubChangedFiles('vets-api', pr_number: env.CHANGE_ID)
-        files_to_lint = files_to_lint.join('|')
-      }
       steps {
+        script {
+          files_to_lint = getGithubChangedFiles('vets-api', pr_number: env.CHANGE_ID)
+          files_to_lint = files_to_lint.join('|')
+        }
         sh "make files=${files_to_lint} ci-build"
       }
     }
