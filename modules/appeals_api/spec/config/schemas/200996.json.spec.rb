@@ -359,4 +359,41 @@ describe 'hlr_post JSON Schema', type: :request do
       it('has errors') { expect(errors).not_to be_empty }
     end
   end
+
+  context 'one off' do
+    let(:input) do
+      {
+        "data": {
+          "type": "HigherLevelReview",
+          "attributes": {
+            "informalConference": false,
+            "sameOffice": false,
+            "legacyOptInApproved": true,
+            "benefitType": "compensation",
+            "veteran": {
+              "address": {
+                "addressType": "DOMESTIC",
+                "addressLine1": "	s",
+                "city": "a",
+                "stateCode": "aa",
+                "zipCode": "12345",
+                "countryName": "SNETF",
+                "addressPou": "RESIDENCE/CHOICE"
+              }
+            }
+          }
+        },
+        "included": [
+          {
+            "type": "ContestableIssue",
+            "attributes": {
+              "decisionIssueId": 205
+            }
+          }
+        ]
+      }
+    end
+
+    it('has no errors') { expect(errors).to be_empty }
+  end
 end
