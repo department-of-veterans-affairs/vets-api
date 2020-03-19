@@ -22,7 +22,7 @@ Gem::Specification.new do |s|
   s.add_dependency 'faraday'
   s.add_dependency 'nokogiri'
   s.add_dependency 'paper_trail'
-  s.add_dependency 'rails', '~> 5.2.3'
+  s.add_dependency 'rails', '~> 6.0.2'
   s.add_dependency 'sidekiq'
 
   s.add_development_dependency 'factory_bot_rails'
