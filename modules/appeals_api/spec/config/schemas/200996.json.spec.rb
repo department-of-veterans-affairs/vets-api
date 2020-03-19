@@ -3,6 +3,13 @@
 require 'rails_helper'
 require 'pp'
 
+# it('has no errors') do
+#   pp errors.map { |error| error['data_pointer'] } unless errors.empty?
+#   puts
+#   pp errors unless errors.empty?
+#   expect(errors).to be_empty
+# end
+
 describe 'hlr_post JSON Schema', type: :request do
   let(:json_schema) do
     JSON.parse(
@@ -316,5 +323,40 @@ describe 'hlr_post JSON Schema', type: :request do
   context 'veteran field is an empty object' do
     let(:veteran) { {} }
     it('has errors') { expect(errors).not_to be_empty }
+  end
+
+  context 'you can leave out addressLine2 and addressLine3' do
+    let(:veteran_address) do
+      {
+        addressType: veteran_address_address_type,
+        addressLine1: veteran_address_address_line1,
+        city: veteran_address_city,
+        stateCode: veteran_address_state_code,
+        zipCode: veteran_address_zip_code,
+        countryName: veteran_address_country_name,
+        addressPou: veteran_address_address_pou
+      }
+    end
+
+    it('has no errors') { expect(errors).to be_empty }
+  end
+
+  context 'veteran email address isn\'t valid' do
+    context 'empty string' do
+      let(:veteran_email_address) { '' }
+
+      it('has errors') { expect(errors).not_to be_empty }
+    end
+
+    context 'nil' do
+      let(:veteran_email_address) { '' }
+
+      it('has errors') { expect(errors).not_to be_empty }
+    end
+    context 'no @' do
+      let(:veteran_email_address) { 'cat' }
+
+      it('has errors') { expect(errors).not_to be_empty }
+    end
   end
 end
