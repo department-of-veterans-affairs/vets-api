@@ -8,7 +8,7 @@ task :lint, [:files] => [:environment] do |_, args|
   require 'rainbow'
 
   files = args[:files]
-  
+
   opts = '-r rubocop-thread_safety '
 
   opts += if ENV['CI']
