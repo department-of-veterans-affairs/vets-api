@@ -32,7 +32,6 @@ describe 'hlr_post JSON Schema', type: :request do
             sameOffice: false,
             legacyOptInApproved: true,
             benefitType: 'compensation',
-            veteran: { ssn: '123456789' }
           }
         },
         included: [
@@ -73,18 +72,16 @@ describe 'hlr_post JSON Schema', type: :request do
       }
     end
 
-    let(:ssn) { '123456789' }
-
     context 'required address fields (if address fields are present)' do
       context 'no address fields present' do
         context 'address is nil' do
-          let(:veteran) { { ssn: ssn, address: nil } }
+          let(:veteran) { { address: nil } }
 
           it('has errors') { expect(errors).not_to be_empty }
         end
 
         context 'address is empty object' do
-          let(:veteran) { { ssn: ssn, address: {} } }
+          let(:veteran) { { address: {} } }
 
           it('has errors') { expect(errors).not_to be_empty }
         end
@@ -93,7 +90,6 @@ describe 'hlr_post JSON Schema', type: :request do
       context 'address_type: DOMESTIC' do
         let(:veteran) do
           {
-            ssn: ssn,
             address: {
               "address_type": 'DOMESTIC'
             }.merge(fields)
