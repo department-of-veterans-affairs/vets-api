@@ -416,7 +416,7 @@ GEM
     iso_country_codes (0.7.8)
     jaro_winkler (1.5.4)
     jmespath (1.4.0)
-    json (1.8.6)
+    json (2.3.0)
     json-schema (2.8.1)
       addressable (>= 2.4)
     json_schemer (0.2.8)
