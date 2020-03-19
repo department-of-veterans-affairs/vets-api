@@ -115,6 +115,11 @@ module Common
       count
     end
 
+    def initialize_dup(other)
+      initialize_copy(other)
+      @destroyed = false
+    end
+
     def ttl
       redis_namespace.ttl(attributes[redis_namespace_key])
     end
