@@ -60,7 +60,7 @@ VA.gov Team Engineers should follow instructions [here](https://github.com/depar
 
 Once you have the `EXCLUDE_SIDEKIQ_ENTERPRISE` set you can run the application with:
 ```
-make up
+env=dev make up
 ```
 
 You should then be able to navigate to [http://localhost:3000/v0/status](http://localhost:3000/v0/status) in your
