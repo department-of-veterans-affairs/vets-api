@@ -39,7 +39,13 @@ pipeline {
       }
     }
 
-    stage('bill testing make arguments') {
+    stage('Setup Testing DB') {
+      steps {
+        sh 'make ci-db'
+      }
+    }
+
+    stage('Lint') {
       steps {
         script {
           files_to_lint = getGithubChangedFiles('vets-api', pr_number: env.CHANGE_ID)
@@ -49,122 +55,110 @@ pipeline {
       }
     }
 
-  //   stage('Setup Testing DB') {
-  //     steps {
-  //       sh 'make ci-db'
-  //     }
-  //   }
+    stage('Security Scan') {
+      steps {
+        sh 'make ci-security'
+      }
+    }
 
-  //   stage('Lint') {
-  //     steps {
-  //       sh 'make ci-lint'
-  //     }
-  //   }
+    stage('Run tests') {
+      steps {
+        sh 'make ci-spec'
+      }
+      post {
+        success {
+          archiveArtifacts artifacts: "coverage/**"
+          publishHTML(target: [reportDir: 'coverage', reportFiles: 'index.html', reportName: 'Coverage', keepAll: true])
+          junit 'log/*.xml'
+        }
+      }
+    }
 
-  //   stage('Security Scan') {
-  //     steps {
-  //       sh 'make ci-security'
-  //     }
-  //   }
+    stage('Run Danger Bot') {
+      steps {
+        withCredentials([string(credentialsId: 'danger-github-api-token',    variable: 'DANGER_GITHUB_API_TOKEN')]) {
+          sh 'make danger'
+        }
+      }
+    }
 
-  //   stage('Run tests') {
-  //     steps {
-  //       sh 'make ci-spec'
-  //     }
-  //     post {
-  //       success {
-  //         archiveArtifacts artifacts: "coverage/**"
-  //         publishHTML(target: [reportDir: 'coverage', reportFiles: 'index.html', reportName: 'Coverage', keepAll: true])
-  //         junit 'log/*.xml'
-  //       }
-  //     }
-  //   }
+    stage('Review') {
+      when { not { branch 'master' } }
 
-  //   stage('Run Danger Bot') {
-  //     steps {
-  //       withCredentials([string(credentialsId: 'danger-github-api-token',    variable: 'DANGER_GITHUB_API_TOKEN')]) {
-  //         sh 'make danger'
-  //       }
-  //     }
-  //   }
+      steps {
+        build job: 'deploys/vets-review-instance-deploy', parameters: [
+          stringParam(name: 'devops_branch', value: 'master'),
+          stringParam(name: 'api_branch', value: env.THE_BRANCH),
+          stringParam(name: 'web_branch', value: 'master'),
+          stringParam(name: 'source_repo', value: 'vets-api'),
+        ], wait: false
+      }
+    }
 
-  //   stage('Review') {
-  //     when { not { branch 'master' } }
+    stage('Build AMI') {
+      when { anyOf { branch dev_branch; branch staging_branch; branch main_branch } }
 
-  //     steps {
-  //       build job: 'deploys/vets-review-instance-deploy', parameters: [
-  //         stringParam(name: 'devops_branch', value: 'master'),
-  //         stringParam(name: 'api_branch', value: env.THE_BRANCH),
-  //         stringParam(name: 'web_branch', value: 'master'),
-  //         stringParam(name: 'source_repo', value: 'vets-api'),
-  //       ], wait: false
-  //     }
-  //   }
+      steps {
+        // hack to get the commit hash, some plugin is swallowing git variables and I can't figure out which one
+        script {
+          commit = sh(returnStdout: true, script: "git rev-parse HEAD").trim()
+        }
 
-  //   stage('Build AMI') {
-  //     when { anyOf { branch dev_branch; branch staging_branch; branch main_branch } }
+        build job: 'builds/vets-api', parameters: [
+          booleanParam(name: 'notify_slack', value: true),
+          stringParam(name: 'ref', value: commit),
+          booleanParam(name: 'release', value: false),
+        ], wait: true
+      }
+    }
 
-  //     steps {
-  //       // hack to get the commit hash, some plugin is swallowing git variables and I can't figure out which one
-  //       script {
-  //         commit = sh(returnStdout: true, script: "git rev-parse HEAD").trim()
-  //       }
+    stage('Deploy dev') {
+      when { branch dev_branch }
 
-  //       build job: 'builds/vets-api', parameters: [
-  //         booleanParam(name: 'notify_slack', value: true),
-  //         stringParam(name: 'ref', value: commit),
-  //         booleanParam(name: 'release', value: false),
-  //       ], wait: true
-  //     }
-  //   }
+      steps {
+        build job: 'deploys/vets-api-server-vagov-dev', parameters: [
+          booleanParam(name: 'notify_slack', value: true),
+          booleanParam(name: 'migration_status', value: true),
+          stringParam(name: 'ref', value: commit),
+        ], wait: false
 
-  //   stage('Deploy dev') {
-  //     when { branch dev_branch }
+        build job: 'deploys/vets-api-worker-vagov-dev', parameters: [
+          booleanParam(name: 'notify_slack', value: true),
+          booleanParam(name: 'migration_status', value: false),
+          stringParam(name: 'ref', value: commit),
+        ], wait: false
+      }
+    }
 
-  //     steps {
-  //       build job: 'deploys/vets-api-server-vagov-dev', parameters: [
-  //         booleanParam(name: 'notify_slack', value: true),
-  //         booleanParam(name: 'migration_status', value: true),
-  //         stringParam(name: 'ref', value: commit),
-  //       ], wait: false
+    stage('Deploy staging') {
+      when { branch staging_branch }
 
-  //       build job: 'deploys/vets-api-worker-vagov-dev', parameters: [
-  //         booleanParam(name: 'notify_slack', value: true),
-  //         booleanParam(name: 'migration_status', value: false),
-  //         stringParam(name: 'ref', value: commit),
-  //       ], wait: false
-  //     }
-  //   }
+      steps {
+        build job: 'deploys/vets-api-server-vagov-staging', parameters: [
+          booleanParam(name: 'notify_slack', value: true),
+          booleanParam(name: 'migration_status', value: true),
+          stringParam(name: 'ref', value: commit),
+        ], wait: false
 
-  //   stage('Deploy staging') {
-  //     when { branch staging_branch }
+        build job: 'deploys/vets-api-worker-vagov-staging', parameters: [
+          booleanParam(name: 'notify_slack', value: true),
+          booleanParam(name: 'migration_status', value: false),
+          stringParam(name: 'ref', value: commit),
+        ], wait: false
+      }
+    }
+  }
+  post {
+    always {
+      sh 'make ci-down'
+      deleteDir() /* clean up our workspace */
+    }
+    failure {
+      when { branch 'master' }
 
-  //     steps {
-  //       build job: 'deploys/vets-api-server-vagov-staging', parameters: [
-  //         booleanParam(name: 'notify_slack', value: true),
-  //         booleanParam(name: 'migration_status', value: true),
-  //         stringParam(name: 'ref', value: commit),
-  //       ], wait: false
-
-  //       build job: 'deploys/vets-api-worker-vagov-staging', parameters: [
-  //         booleanParam(name: 'notify_slack', value: true),
-  //         booleanParam(name: 'migration_status', value: false),
-  //         stringParam(name: 'ref', value: commit),
-  //       ], wait: false
-  //     }
-  //   }
-  // }
-  // post {
-  //   always {
-  //     sh 'make ci-down'
-  //     deleteDir() /* clean up our workspace */
-  //   }
-  //   failure {
-  //     when { branch 'master' }
-
-  //     slackSend message: "Failed vets-api CI on branch: `${env.THE_BRANCH}`! ${env.RUN_DISPLAY_URL}".stripMargin(),
-  //     color: 'danger',
-  //     failOnError: true
-  //   }
+      slackSend message: "Failed vets-api CI on branch: `${env.THE_BRANCH}`! ${env.RUN_DISPLAY_URL}".stripMargin(),
+      color: 'danger',
+      failOnError: true
+    }
   }
 }
