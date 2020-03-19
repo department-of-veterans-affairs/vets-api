@@ -1,5 +1,6 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
+  "description": "JSON Schema for VA Form 20-0996",
   "type": "object",
   "properties": {
     "data":     { "$ref": "#/definitions/data" },
@@ -51,7 +52,7 @@
             "receiptDate": {
               "type": "string",
               "format": "date",
-              "$comment": "if field absent, use today"
+              "$comment": "if field is absent, the current date will be used"
             }
           },
           "additionalProperties": false,
@@ -76,7 +77,7 @@
             "receiptDate": {
               "type": "string",
               "format": "date",
-              "$comment": "if field absent, use today"
+              "$comment": "if field is absent, the current date will be used"
             },
             "informalConferenceTimes": { "$ref": "#/definitions/informalConferenceTimes" },
             "informalConferenceRep":   { "$ref": "#/definitions/informalConferenceRep" }
@@ -122,6 +123,7 @@
 
     "informalConferenceTime": {
       "type": "string",
+      "#comment": "time ranges in Eastern Time",
       "enum": [
         "800-1000 ET",
         "1000-1230 ET",
@@ -174,7 +176,7 @@
             "addressLine1": { "$ref": "#/definitions/nonBlankStringMaxLength100" },
             "addressLine2": { "$ref": "#/definitions/nonBlankStringMaxLength100" },
             "addressLine3": { "$ref": "#/definitions/nonBlankStringMaxLength100" },
-            "city":          { "$ref": "#/definitions/nonBlankStringMaxLength100" },
+            "city":         { "$ref": "#/definitions/nonBlankStringMaxLength100" },
             "stateCode":    { "$ref": "#/definitions/nonBlankStringMaxLength2" },
             "zipCode":      { "type": "string", "pattern": "^[0-9]{5}$" },
             "countryName":  { "type": "string" },
@@ -194,14 +196,14 @@
         {
           "type": "object",
           "properties": {
-            "addressType":              { "const": "INTERNATIONAL" },
-            "addressLine1":             { "$ref": "#/definitions/nonBlankStringMaxLength100" },
-            "addressLine2":             { "$ref": "#/definitions/nonBlankStringMaxLength100" },
-            "addressLine3":             { "$ref": "#/definitions/nonBlankStringMaxLength100" },
-            "city":                      { "$ref": "#/definitions/nonBlankStringMaxLength100" },
+            "addressType":             { "const": "INTERNATIONAL" },
+            "addressLine1":            { "$ref": "#/definitions/nonBlankStringMaxLength100" },
+            "addressLine2":            { "$ref": "#/definitions/nonBlankStringMaxLength100" },
+            "addressLine3":            { "$ref": "#/definitions/nonBlankStringMaxLength100" },
+            "city":                    { "$ref": "#/definitions/nonBlankStringMaxLength100" },
             "internationalPostalCode": { "type": "string" },
-            "countryName":              { "type": "string" },
-            "addressPou":               { "type": "string", "enum": [ "RESIDENCE/CHOICE", "CORRESPONDENCE" ] }
+            "countryName":             { "type": "string" },
+            "addressPou":              { "type": "string", "enum": [ "RESIDENCE/CHOICE", "CORRESPONDENCE" ] }
           },
           "additionalProperties": false,
           "required": [
@@ -220,8 +222,8 @@
     "veteran": {
       "type": "object",
       "properties": {
-        "address":       { "$ref": "#/definitions/address" },
-        "phone":         { "$ref": "#/definitions/phone" },
+        "address":      { "$ref": "#/definitions/address" },
+        "phone":        { "$ref": "#/definitions/phone" },
         "emailAddress": { "type": "string", "format": "email" }
       },
       "additionalProperties": false,
