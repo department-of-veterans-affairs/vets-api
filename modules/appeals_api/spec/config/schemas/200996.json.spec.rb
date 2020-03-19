@@ -7,7 +7,7 @@ describe 'hlr_post JSON Schema', type: :request do
   let(:json_schema) do
     JSON.parse(
       File.read(
-        Rails.root.join('modules', 'appeals_api', 'config', 'schemas', 'hlr_post.json')
+        Rails.root.join('modules', 'appeals_api', 'config', 'schemas', '200996.json')
       )
     )
   end
