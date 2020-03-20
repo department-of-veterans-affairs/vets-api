@@ -94,7 +94,7 @@ development: &defaults
     each_ttl: 855
   login_redirect_application:
     namespace: login-redirect-application
-    each_ttl: 1800 # 30 minutes
+    each_ttl: 3600 # 1 hour
 
 test:
   <<: *defaults
