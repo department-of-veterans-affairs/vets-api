@@ -23,7 +23,7 @@ module CSRFProtection
     cookies['X-CSRF-Token'] ||= {
       value: SecureRandom.base64(32),
       expires: 1.day.from_now,
-      secure: true
+      secure: Rails.env.production?
     }
   end
 
