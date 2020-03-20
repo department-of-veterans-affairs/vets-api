@@ -1,22 +1,47 @@
 # frozen_string_literal: true
 
+require 'json_schema/json_api_missing_attribute'
+require 'appeals_api/form_schemas'
+require_dependency 'appeals_api/concerns/json_format_validation'
+
 class AppealsApi::V1::DecisionReview::HigherLevelReviewsController < AppealsApi::ApplicationController
+  include AppealsApi::JsonFormatValidation
+
   skip_before_action(:authenticate)
+  before_action :validate_json_format, if: -> { request.post? }
+  before_action :validate_json_schema, only: %i[create validate]
+
+  FORM_NUMBER = '200996'
 
   def show
     render_response(Appeals::Service.new.get_higher_level_review(params[:id]))
   end
 
   def create
-    render_response(Appeals::Service.new.create_higher_level_review(create_params))
+    render json: { data: { success: true } }
+  end
+
+  def validate
+    render json: validation_success
   end
 
   private
 
-  def create_params
+  def validate_json_schema
+    AppealsApi::FormSchemas.validate!(self.class::FORM_NUMBER, @json_body)
+  rescue JsonSchema::JsonApiMissingAttribute => e
+    render json: e.to_json_api, status: e.code
+  end
+
+  def validation_success
     {
-      'data' => params[:data].as_json,
-      'included' => params[:included].as_json
+      data: { 
+        type: 'appeals_api_higher_level_review_validation', 
+        attributes: {
+          status: 'valid'
+        }
+      }
     }
   end
+
 end
