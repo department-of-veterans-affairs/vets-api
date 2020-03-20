@@ -51,10 +51,11 @@ module SAML
     end
 
     def uuid
-      return user_attributes.uuid if user_attributes.uuid
+      raise Common::Exceptions::InvalidResource, user_attributes unless user_attributes.idme_uuid or user_attributes.sec_id
 
-      sec_hashed_uuid = Digest::UUID.uuid_v3('user-sec-id', user_attributes.sec_id)
-      return "SEC:#{sec_hashed_uuid.replace('-', '')}"
+      return user_attributes.idme_uuid if user_attributes.idme_uuid
+
+      Digest::UUID.uuid_v3('sec-id', user_attributes.sec_id).replace('-', '')
     end
 
     def to_hash
@@ -64,7 +65,7 @@ module SAML
     private
 
     def serializable_attributes
-      %i[authn_context authenticated_by_ssoe]
+      %i[uuid authn_context authenticated_by_ssoe]
     end
 
     def log_warnings_to_sentry

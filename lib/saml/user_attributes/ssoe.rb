@@ -2,18 +2,22 @@
 
 module SAML
   module UserAttributes
-    class SSOe < Base
+    class SSOe
       include SentryLogging
-      SSOE_SERIALIZABLE_ATTRIBUTES = %i[first_name middle_name last_name zip gender ssn birth_date].freeze
-      MERGEABLE_IDENTITY_ATTRIBUTES = %i[sec_id mhv_icn mhv_correlation_id dslogon_edipi sign_in].freeze
+      SERIALIZABLE_ATTRIBUTES = %i[email first_name middle_name last_name zip gender ssn birth_date
+                                    idme_uuid sec_id mhv_icn mhv_correlation_id dslogon_edipi 
+                                    loa sign_in multifactor].freeze
+      IDME_GCID_REGEX = /^(?<idme>\w+)\^PN\^200VIDM\^USDVA\^A$/.freeze
 
-      # Denoted as "CSP user ID" in SSOe docs; required attribute for LOA >= 2
-      def uuid
-        safe_attr('va_eauth_uid')
+      attr_reader :attributes, :authn_context, :warnings
+
+      def initialize(saml_attributes, authn_context)
+        @attributes = saml_attributes # never default this to {}
+        @authn_context = authn_context
+        @warnings = []
       end
 
       ### Personal attributes
-
       def first_name
         safe_attr('va_eauth_firstname')
       end
@@ -50,6 +54,16 @@ module SAML
       end
 
       ### Identifiers
+      def idme_uuid
+        return safe_attr('va_eauth_uid') if sign_in[:service_name] == 'idme'
+
+        gcids = safe_attr('va_eauth_gcIds')&.split('|')
+        if gcids
+          idme_match = gcids.map { |id| IDME_GCID_REGEX.match(id) }.compact.first
+          idme_match && idme_match[:idme]
+        end
+      end
+
       def sec_id
         safe_attr('va_eauth_secid')
       end
@@ -104,22 +118,24 @@ module SAML
         loa_current
       end
 
+      def loa
+        { current: loa_current, highest: loa_highest }
+      end
+
       def sign_in
-        if existing_user_identity?
-          existing_user_identity.sign_in
-        else
-          super
-        end
+        SAML::User::AUTHN_CONTEXTS.fetch(@authn_context)
+                                  .fetch(:sign_in)
+                                  .merge(account_type: account_type)
+      end
+
+      def to_hash
+        Hash[SERIALIZABLE_ATTRIBUTES.map { |k| [k, send(k)] }]
       end
 
       private
 
       def safe_attr(key)
-        attributes[key] == 'NOT_FOUND' ? nil : attributes[key]
-      end
-
-      def serializable_attributes
-        REQUIRED_ATTRIBUTES + SSOE_SERIALIZABLE_ATTRIBUTES + MERGEABLE_IDENTITY_ATTRIBUTES
+        @attributes[key] == 'NOT_FOUND' ? nil : @attributes[key]
       end
     end
   end
