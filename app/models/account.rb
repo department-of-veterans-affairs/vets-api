@@ -40,9 +40,8 @@ class Account < ApplicationRecord
   # @return [Account] A persisted instance of Account
   #
   def self.cache_or_create_by!(user)
-    return unless user.uuid || user.sec_id
+    return unless user.uuid
 
-    # if possible use the idme uuid for the key, fallback to using the sec id otherwise
     key = get_key(user)
     acct = do_cached_with(key: key) do
       create_if_needed!(user)
@@ -56,13 +55,7 @@ class Account < ApplicationRecord
   def self.create_if_needed!(user)
     attrs = account_attrs_from_user(user)
 
-    accts = where(idme_uuid: attrs[:idme_uuid])
-            .where.not(idme_uuid: nil)
-            .or(
-              where(sec_id: attrs[:sec_id])
-              .where.not(sec_id: nil)
-            )
-
+    accts = where(uuid: user.uuid)
     if accts.length > 1
       data = accts.map(&:attributes)
       log_message_to_sentry('multiple Account records with matching ids', 'warning', data)
@@ -92,7 +85,7 @@ class Account < ApplicationRecord
   # @return [Hash]
   #
   def self.account_attrs_from_user(user)
-    { idme_uuid: user.uuid, edipi: user.edipi, icn: user.icn, sec_id: user.sec_id }
+    Hash[%i[idme_uuid sec_id edipi icn].map { |k| [k, user.send(k)] }]
   end
 
   # Determines if the associated Account record is cacheable. Required
