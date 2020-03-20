@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
 require 'sidekiq'
-require 'sidekiq/middleware/server/logging'
+require 'sidekiq/job_logger'
 
-class Sidekiq::SemanticLogging < Sidekiq::Middleware::Server::Logging
+class Sidekiq::SemanticLogging < Sidekiq::JobLogger
   def call(worker, item, queue)
     logger_tags =  {
       class: item['class'],
