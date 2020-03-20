@@ -151,6 +151,17 @@ FactoryBot.define do
       end
     end
 
+    factory :user_with_no_birls_id, traits: [:loa3] do
+      after(:build) do
+        stub_mvi(
+          build(
+            :mvi_profile,
+            birls_id: nil
+          )
+        )
+      end
+    end
+
     factory :user_with_no_secid, traits: [:loa3] do
       after(:build) do
         stub_mvi(
@@ -298,7 +309,7 @@ FactoryBot.define do
             :mvi_profile,
             icn: '1000123456V123456',
             mhv_ids: %w[12345678901],
-            vha_facility_ids: t.va_patient ? %w[358] : []
+            vha_facility_ids: t.va_patient ? %w[358 200MHS] : []
           )
         )
       end

@@ -36,7 +36,11 @@ module MDOT
     def get_supplies
       with_monitoring_and_error_handling do
         raw_response = perform(:get, @supplies, nil, headers)
-        MDOT::Response.new response: raw_response, schema: :supplies
+
+        MDOT::Response.new(
+          response: raw_response,
+          schema: :supplies
+        )
       end
     end
 
