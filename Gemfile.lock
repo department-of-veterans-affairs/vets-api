@@ -1,10 +1,10 @@
 GIT
   remote: https://github.com/department-of-veterans-affairs/betamocks
-  revision: f9800a7477a6a72afaa631e8a73429781ceb26a3
+  revision: df8f8e600863fe35b1d0bab01372f65a75d50937
   branch: master
   specs:
     betamocks (0.7.0)
-      activesupport (>= 4.2, <= 6.0)
+      activesupport (>= 4.2)
       adler32
       faraday (>= 0.7.4, <= 0.17.0)
 
@@ -45,25 +45,25 @@ PATH
   remote: modules/appeals_api
   specs:
     appeals_api (0.0.1)
-      rails (~> 5.2.3)
+      rails (>= 5.2.3)
 
 PATH
   remote: modules/claims_api
   specs:
     claims_api (0.0.1)
-      rails (~> 5.2.3)
+      rails (>= 5.2.3)
 
 PATH
   remote: modules/openid_auth
   specs:
     openid_auth (0.0.1)
-      rails (~> 5.2.3)
+      rails (>= 5.2.3)
 
 PATH
   remote: modules/va_facilities
   specs:
     va_facilities (0.0.1)
-      rails (~> 5.2.3)
+      rails (>= 5.2.3)
 
 PATH
   remote: modules/va_forms
@@ -72,40 +72,40 @@ PATH
       faraday
       nokogiri
       paper_trail
-      rails (~> 5.2.3)
+      rails (>= 5.2.3)
       sidekiq
 
 PATH
   remote: modules/vaos
   specs:
     vaos (0.1.0)
-      rails (~> 5.2.3)
+      rails (>= 5.2.3)
 
 PATH
   remote: modules/vba_documents
   specs:
     vba_documents (0.0.1)
       aws-sdk-s3 (~> 1)
-      rails (~> 5.2.3)
+      rails (>= 5.2.3)
       sidekiq
 
 PATH
   remote: modules/veteran_confirmation
   specs:
     veteran_confirmation (0.0.1)
-      rails (~> 5.2.3)
+      rails (>= 5.2.3)
 
 PATH
   remote: modules/veteran_verification
   specs:
     veteran_verification (0.0.1)
-      rails (~> 5.2.3)
+      rails (>= 5.2.3)
 
 PATH
   remote: modules/veteran
   specs:
     veteran (0.0.1)
-      rails (~> 5.2.3)
+      rails (>= 5.2.3)
 
 GEM
   remote: https://rubygems.org/
@@ -670,7 +670,7 @@ GEM
     sidekiq-instrument (0.3.0)
       sidekiq (>= 4.2, < 6)
       statsd-instrument (~> 2.0, >= 2.0.4)
-    sidekiq-pro (3.7.0)
+    sidekiq-pro (3.7.1)
       sidekiq (>= 4.1.5)
     sidekiq-scheduler (3.0.1)
       e2mmap
