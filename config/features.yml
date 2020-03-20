@@ -7,6 +7,10 @@
 #  or `cookie_id` of you wish to use the Google Analytics id as the unique identifier.
 
 features:
+  dashboard_show_covid19_alert:
+    actor_type: user
+    description: >
+      Allows for showing a special COVID19 alert on the My VA Dashboard
   facility_locator_show_community_cares:
     actor_type: user
     description: >
@@ -32,6 +36,10 @@ features:
     actor_type: user
     description: >
       https://www.va.gov/profile/ show Receive Text Notifications
+  profile_show_profile_2.0:
+    actor_type: user
+    description: >
+      Enables Profile 2.0
   va_online_scheduling:
     actor_type: user
     description: >
