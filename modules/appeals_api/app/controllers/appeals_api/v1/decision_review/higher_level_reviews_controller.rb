@@ -25,6 +25,10 @@ class AppealsApi::V1::DecisionReview::HigherLevelReviewsController < AppealsApi:
     render json: validation_success
   end
 
+  def schema
+    render json: { data: [AppealsApi::FormSchemas::SCHEMAS[self.class::FORM_NUMBER]] }
+  end
+
   private
 
   def validate_json_schema

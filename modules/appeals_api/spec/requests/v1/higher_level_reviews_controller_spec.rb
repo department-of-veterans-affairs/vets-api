@@ -48,4 +48,11 @@ describe AppealsApi::V1::DecisionReview::HigherLevelReviewsController, type: :re
       expect(parsed['errors'].size).to eq(3)
     end
   end
+
+  describe '#schema' do
+    it 'renders the json schema' do
+      get '/services/appeals/v1/decision_review/higher_level_reviews/schema'
+      expect(response.status).to eq(200)
+    end
+  end
 end
