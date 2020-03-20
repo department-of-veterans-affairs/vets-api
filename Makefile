@@ -2,9 +2,9 @@ $stdout.sync = true
 export VETS_API_USER_ID  := $(shell id -u)
 
 ifdef env
-	ENV_ARG    := $(env)
+    ENV_ARG  := $(env)
 else
-	ENV_ARG	   := dev
+    ENV_ARG	 := dev
 endif
 
 COMPOSE_DEV  := docker-compose
