@@ -302,6 +302,41 @@ RSpec.describe SAML::User do
       end
     end
 
+    context 'DSLogon premium user without multifactor' do
+      let(:authn_context) { 'dslogon' }
+      let(:account_type) { '3' }
+      let(:highest_attained_loa) { '3' }
+      let(:multifactor) { true }
+      let(:saml_attributes) { build(:ssoe_idme_dslogon_level2_singlefactor) }
+
+      it 'has various important attributes' do
+        expect(subject.to_hash).to eq(
+          birth_date: '19510604',
+          authn_context: authn_context,
+          dslogon_edipi: '2106798217',
+          first_name: 'BRANDIN',
+          last_name: 'MILLER-NIETO',
+          middle_name: 'BRANSON',
+          gender: 'M',
+          ssn: '666016789',
+          zip: nil,
+          mhv_icn: '1013173963V366678',
+          mhv_correlation_id: nil,
+          uuid: '363761e8857642f7b77ef7d99200e711',
+          email: 'iam.tester@example.com',
+          loa: { current: 3, highest: 3 },
+          sign_in: { service_name: 'dslogon', account_type: 3 },
+          multifactor: false,
+          authenticated_by_ssoe: true
+        )
+      end
+
+      it 'does not trigger upleveling' do
+        loa = subject.to_hash[:loa]
+        expect((loa[:highest] > loa[:current])).to be false
+      end
+    end
+
     context 'DSLogon premium user' do
       let(:authn_context) { 'dslogon' }
       let(:account_type) { '3' }
