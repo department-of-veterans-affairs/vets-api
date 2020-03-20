@@ -107,7 +107,7 @@ module Users
           gender: user.va_profile.gender,
           given_names: user.va_profile.given_names,
           is_cerner_patient: !user.va_profile.cerner_id.nil?,
-          facilities: user.va_profile.vha_facility_ids.map { |id| facility(id) }
+          facilities: user.va_treatment_facility_ids.map { |id| facility(id) }
         }
       else
         scaffold.errors << Users::ExceptionHandler.new(user.va_profile_error, 'MVI').serialize_error
