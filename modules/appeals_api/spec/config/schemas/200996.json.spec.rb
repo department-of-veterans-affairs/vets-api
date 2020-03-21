@@ -10,7 +10,7 @@ require 'pp'
 #   expect(errors).to be_empty
 # end
 
-describe 'hlr_post JSON Schema', type: :request do
+describe 'VA Form 20-0996 JSON Schema', type: :request do
   let(:json_schema) do
     JSON.parse(
       File.read(
@@ -23,106 +23,6 @@ describe 'hlr_post JSON Schema', type: :request do
   let(:errors) { validator.validate(json).to_a }
   let(:validator) { JSONSchemer.schema(json_schema) }
 
-  let(:informal_conference_rep_email_address) { 'josie@example.com' }
-  let(:informal_conference_rep_phone_phone_type) { 'HOME' }
-  let(:informal_conference_rep_phone_extension) { '2' }
-  let(:informal_conference_rep_phone_phone_number) { '8001111' }
-  let(:informal_conference_rep_phone_area_code) { '555' }
-  let(:informal_conference_rep_phone_country_code) { '1' }
-  let(:informal_conference_rep_phone_is_international) { false }
-  let(:informal_conference_rep_phone) do
-    {
-      isInternational: informal_conference_rep_phone_is_international,
-      countryCode: informal_conference_rep_phone_country_code,
-      areaCode: informal_conference_rep_phone_area_code,
-      phoneNumber: informal_conference_rep_phone_phone_number,
-      extension: informal_conference_rep_phone_extension,
-      phoneType: informal_conference_rep_phone_phone_type
-    }
-  end
-  let(:informal_conference_rep_name) { 'Helen Holly' }
-  let(:informal_conference_rep) do
-    {
-      name: informal_conference_rep_name,
-      phone: informal_conference_rep_phone
-    }
-  end
-  let(:informal_conference_times) do
-    [
-      '1230-1400 ET',
-      '1400-1630 ET'
-    ]
-  end
-  let(:claimant) do
-    {
-      participantId: claimant_participant_id,
-      payeeCode: claimant_payee_code
-    }
-  end
-  let(:claimant_participant_id) { "123" }
-  let(:claimant_payee_code) { "10" }
-  let(:veteran_email_address) { 'josie@example.com' }
-  let(:veteran_phone_phone_type) { 'HOME' }
-  let(:veteran_phone_extension) { '2' }
-  let(:veteran_phone_phone_number) { '8001111' }
-  let(:veteran_phone_area_code) { '555' }
-  let(:veteran_phone_country_code) { '1' }
-  let(:veteran_phone_is_international) { false }
-  let(:veteran_phone) do
-    {
-      isInternational: veteran_phone_is_international,
-      countryCode: veteran_phone_country_code,
-      areaCode: veteran_phone_area_code,
-      phoneNumber: veteran_phone_phone_number,
-      extension: veteran_phone_extension,
-      phoneType: veteran_phone_phone_type
-    }
-  end
-  let(:veteran_address_address_pou) { 'RESIDENCE/CHOICE' }
-  let(:veteran_address_country_name) { 'United States' }
-  let(:veteran_address_zip_code) { '66002' }
-  let(:veteran_address_state_code) { 'KS' }
-  let(:veteran_address_city) { 'Atchison' }
-  let(:veteran_address_address_line3) { 'c/o Amelia Earhart' }
-  let(:veteran_address_address_line2) { 'Unit #724' }
-  let(:veteran_address_address_line1) { '401 Kansas Avenue' }
-  let(:veteran_address_address_type) { 'DOMESTIC' }
-  let(:veteran_address) do
-    {
-      addressType: veteran_address_address_type,
-      addressLine1: veteran_address_address_line1,
-      addressLine2: veteran_address_address_line2,
-      addressLine3: veteran_address_address_line3,
-      city: veteran_address_city,
-      stateCode: veteran_address_state_code,
-      zipCode: veteran_address_zip_code,
-      countryName: veteran_address_country_name,
-      addressPou: veteran_address_address_pou
-    }
-  end
-  let(:veteran) do
-    {
-      address: veteran_address,
-      phone: veteran_phone,
-      emailAddress: veteran_email_address
-    }
-  end
-  let(:legacy_opt_in_approved) { true }
-  let(:same_office) { true }
-  let(:informal_conference) { true }
-  let(:attributes) do
-    {
-      informalConference: informal_conference,
-      sameOffice: same_office,
-      legacyOptInApproved: legacy_opt_in_approved,
-      benefitType: benefit_type,
-      veteran: veteran,
-      claimant: claimant,
-      receiptDate: receipt_date,
-      informalConferenceTimes: informal_conference_times,
-      informalConferenceRep: informal_conference_rep
-    }
-  end
   let(:included) do
     [
       {
@@ -168,16 +68,14 @@ describe 'hlr_post JSON Schema', type: :request do
       }
     ]
   end
-  let(:data) { { type: 'HigherLevelReview', attributes: attributes } }
+  let(:data) { { type: 'HigherLevelReview', attributes: data_attributes } }
   let(:input) { { data: data, included: included } }
-  let(:receipt_date) { '2020-02-02' }
-  let(:benefit_type) { 'nca' }
 
-  it('is valid JSON') { expect(json_schema).to be_a Hash }
+  it('JSON is valid') { expect(json_schema).to be_a Hash }
 
-  it('is valid JSON Schema') { expect(validator).to be_truthy }
+  it('JSON Schema is valid') { expect(validator).to be_truthy }
 
-  context 'every field used' do
+  context 'all fields used' do
     let(:input) do
       # ALL IN ONE PIECE TO SERVE AS AN EXAMPLE
       {
@@ -281,55 +179,61 @@ describe 'hlr_post JSON Schema', type: :request do
     it('has no errors') { expect(errors).to be_empty }
   end
 
-  context 'only the booleans and benefitType are required' do
-    let(:attributes) do
+  context 'data:' do
+    let(:data_attributes) { data_attributes_template }
+    let(:data_attributes_template) do
       {
         informalConference: informal_conference,
         sameOffice: same_office,
         legacyOptInApproved: legacy_opt_in_approved,
-        benefitType: benefit_type
+        benefitType: benefit_type,
+        veteran: veteran,
+        claimant: claimant,
+        receiptDate: receipt_date,
+        informalConferenceTimes: informal_conference_times,
+        informalConferenceRep: informal_conference_rep
       }
     end
-    let(:informal_conference) { false }
-
-    it('has no errors') { expect(errors).to be_empty }
-
-    context 'unless informalConference is true' do
-      let(:informal_conference) { true }
-
-      it('has errors') { expect(errors).not_to be_empty }
-
-      context 'with informalConferenceTimes' do
-        let(:attributes) do
-          {
-            informalConference: true,
-            sameOffice: same_office,
-            legacyOptInApproved: legacy_opt_in_approved,
-            benefitType: benefit_type,
-            informalConferenceTimes: informal_conference_times
-          }
-        end
-
-        it('has no errors') { expect(errors).to be_empty }
-      end
+    let(:informal_conference_rep_phone) { informal_conference_rep_phone_template }
+    let(:informal_conference_rep_phone_template) do
+      {
+        isInternational: informal_conference_rep_phone_is_international,
+        countryCode: informal_conference_rep_phone_country_code,
+        areaCode: informal_conference_rep_phone_area_code,
+        phoneNumber: informal_conference_rep_phone_phone_number,
+        extension: informal_conference_rep_phone_extension,
+        phoneType: informal_conference_rep_phone_phone_type
+      }
     end
-  end
-
-  context 'veteran field is nil' do
-    let(:veteran) { nil }
-    it('has errors') { expect(errors).not_to be_empty }
-  end
-
-  context 'veteran field is an empty object' do
-    let(:veteran) { {} }
-    it('has errors') { expect(errors).not_to be_empty }
-  end
-
-  context 'you can leave out addressLine2 and addressLine3' do
-    let(:veteran_address) do
+    let(:informal_conference_rep) { informal_conference_rep_template }
+    let(:informal_conference_rep_template) do
+      {
+        name: informal_conference_rep_name,
+        phone: informal_conference_rep_phone
+      }
+    end
+    let(:claimant) { claimant_template }
+    let(:claimant_template) do
+      {
+        participantId: claimant_participant_id,
+        payeeCode: claimant_payee_code
+      }
+    end
+    let(:veteran) { veteran_template }
+    let(:veteran_template) do
+      {
+        address: veteran_address,
+        phone: veteran_phone,
+        emailAddress: veteran_email_address
+      }
+    end
+    let(:veteran_address) { veteran_address_template }
+    let(:veteran_address_template) do
       {
         addressType: veteran_address_address_type,
         addressLine1: veteran_address_address_line1,
+        addressLine2: veteran_address_address_line2,
+        addressLine3: veteran_address_address_line3,
         city: veteran_address_city,
         stateCode: veteran_address_state_code,
         zipCode: veteran_address_zip_code,
@@ -337,63 +241,320 @@ describe 'hlr_post JSON Schema', type: :request do
         addressPou: veteran_address_address_pou
       }
     end
-
-    it('has no errors') { expect(errors).to be_empty }
-  end
-
-  context 'veteran email address isn\'t valid' do
-    context 'empty string' do
-      let(:veteran_email_address) { '' }
-
-      it('has errors') { expect(errors).not_to be_empty }
-    end
-
-    context 'nil' do
-      let(:veteran_email_address) { '' }
-
-      it('has errors') { expect(errors).not_to be_empty }
-    end
-    context 'no @' do
-      let(:veteran_email_address) { 'cat' }
-
-      it('has errors') { expect(errors).not_to be_empty }
-    end
-  end
-
-  context 'one off' do
-    let(:input) do
+    let(:veteran_phone) { veteran_phone_template }
+    let(:veteran_phone_template) do
       {
-        "data": {
-          "type": "HigherLevelReview",
-          "attributes": {
-            "informalConference": false,
-            "sameOffice": false,
-            "legacyOptInApproved": true,
-            "benefitType": "compensation",
-            "veteran": {
-              "address": {
-                "addressType": "DOMESTIC",
-                "addressLine1": "	s",
-                "city": "a",
-                "stateCode": "aa",
-                "zipCode": "12345",
-                "countryName": "SNETF",
-                "addressPou": "RESIDENCE/CHOICE"
-              }
-            }
-          }
-        },
-        "included": [
-          {
-            "type": "ContestableIssue",
-            "attributes": {
-              "decisionIssueId": 205
-            }
-          }
-        ]
+        isInternational: veteran_phone_is_international,
+        countryCode: veteran_phone_country_code,
+        areaCode: veteran_phone_area_code,
+        phoneNumber: veteran_phone_phone_number,
+        extension: veteran_phone_extension,
+        phoneType: veteran_phone_phone_type
       }
     end
 
-    it('has no errors') { expect(errors).to be_empty }
+    let(:informal_conference_rep_email_address) { 'josie@example.com' }
+    let(:informal_conference_rep_phone_phone_type) { 'HOME' }
+    let(:informal_conference_rep_phone_extension) { '2' }
+    let(:informal_conference_rep_phone_phone_number) { '8001111' }
+    let(:informal_conference_rep_phone_area_code) { '555' }
+    let(:informal_conference_rep_phone_country_code) { '1' }
+    let(:informal_conference_rep_phone_is_international) { false }
+    let(:informal_conference_rep_name) { 'Helen Holly' }
+    let(:informal_conference_times) { ['1230-1400 ET', '1400-1630 ET'] }
+    let(:claimant_participant_id) { '123' }
+    let(:claimant_payee_code) { '10' }
+    let(:veteran_email_address) { 'josie@example.com' }
+    let(:veteran_phone_phone_type) { 'HOME' }
+    let(:veteran_phone_extension) { '2' }
+    let(:veteran_phone_phone_number) { '8001111' }
+    let(:veteran_phone_area_code) { '555' }
+    let(:veteran_phone_country_code) { '1' }
+    let(:veteran_phone_is_international) { false }
+    let(:veteran_address_address_pou) { 'RESIDENCE/CHOICE' }
+    let(:veteran_address_country_name) { 'United States' }
+    let(:veteran_address_zip_code) { '66002' }
+    let(:veteran_address_state_code) { 'KS' }
+    let(:veteran_address_city) { 'Atchison' }
+    let(:veteran_address_address_line3) { 'c/o Amelia Earhart' }
+    let(:veteran_address_address_line2) { 'Unit #724' }
+    let(:veteran_address_address_line1) { '401 Kansas Avenue' }
+    let(:veteran_address_address_type) { 'DOMESTIC' }
+    let(:legacy_opt_in_approved) { true }
+    let(:same_office) { true }
+    let(:informal_conference) { true }
+    let(:receipt_date) { '2020-02-02' }
+    let(:benefit_type) { 'nca' }
+
+    context 'attributes:' do
+      it('has no errors') { expect(errors).to be_empty }
+
+      context 'informalConference:' do
+        context 'true' do
+          let(:informal_conference) { true }
+
+          context '(without fields: informalConferenceTimes, informalConferenceRep)' do
+            let(:data_attributes) do
+              data_attributes_template.except(
+                :informalConferenceTimes,
+                :informalConferenceRep
+              )
+            end
+
+            it('HAS ERRORS') { expect(errors).not_to be_empty }
+          end
+
+          context '(without field informalConferenceRep)' do
+            let(:data_attributes) { data_attributes_template.except(:informalConferenceRep) }
+
+            it('has no errors (must have at least ...Times if requesting conference)') do
+              expect(errors).to be_empty
+            end
+          end
+        end
+
+        context 'false' do
+          let(:informal_conference) { false }
+
+          it('HAS ERRORS') { expect(errors).not_to be_empty }
+
+          context '(without field informalConferenceRep)' do
+            let(:data_attributes) { data_attributes_template.except(:informalConferenceRep) }
+
+            it('HAS ERRORS') { expect(errors).not_to be_empty }
+          end
+
+          context '(without field informalConferenceTimes)' do
+            let(:data_attributes) { data_attributes_template.except(:informalConferenceTimes) }
+
+            it('HAS ERRORS') { expect(errors).not_to be_empty }
+          end
+
+          context '(without fields: informalConferenceTimes, informalConferenceRep)' do
+            let(:data_attributes) do
+              data_attributes_template.except(
+                :informalConferenceTimes,
+                :informalConferenceRep
+              )
+            end
+
+            it('has no errors (cannot use ...Times or ...Rep field if not requesting an conference)') do
+              expect(errors).to be_empty
+            end
+          end
+        end
+      end
+
+      context '(with only fields: informalConference, sameOffice, legacyOptInApproved, benefitType)' do
+        let(:attributes) do
+          {
+            informalConference: informal_conference,
+            sameOffice: same_office,
+            legacyOptInApproved: legacy_opt_in_approved,
+            benefitType: benefit_type
+          }
+        end
+
+        it('has no errors (benefitType and boolean fields are the only required fields)') do
+          expect(errors).to be_empty
+        end
+      end
+
+      context 'veteran:' do
+        it('has no errors') { expect(errors).to be_empty }
+
+        context 'field absent' do
+          let(:data_attributes) { data_attributes_template.except(:veteran) }
+
+          it('has no errors (unless updating phone/address/email, you don\'t need to use the veteran field)') do
+            expect(errors).to be_empty
+          end
+        end
+
+        context 'nil' do
+          let(:veteran) { nil }
+
+          it('HAS ERRORS') { expect(errors).not_to be_empty }
+        end
+
+        context '{}' do
+          let(:veteran) { {} }
+
+          it('HAS ERRORS') { expect(errors).not_to be_empty }
+        end
+
+        context '{...}' do
+          context 'address:' do
+            it('has no errors') { expect(errors).to be_empty }
+
+            context '(without fields: addressLine2, addressLine3)' do
+              let(:veteran_address) do
+                {
+                  addressType: veteran_address_address_type,
+                  addressLine1: veteran_address_address_line1,
+                  city: veteran_address_city,
+                  stateCode: veteran_address_state_code,
+                  zipCode: veteran_address_zip_code,
+                  countryName: veteran_address_country_name,
+                  addressPou: veteran_address_address_pou
+                }
+              end
+
+              it('has no errors (addressLine2 and addressLine3 are optional') { expect(errors).to be_empty }
+            end
+
+            context 'addressType: OVERSEAS MILITARY' do
+              let(:veteran_address_address_type) { 'OVERSEAS MILITARY' }
+
+              it('has no errors (OVERSEAS MILITARY has the same conditions/requirement as DOMESTIC)') do
+                expect(errors).to be_empty
+              end
+            end
+
+            context 'addressType: INTERNATIONAL' do
+              let(:veteran_address_address_type) { 'INTERNATIONAL' }
+
+              it('HAS ERRORS') { expect(errors).not_to be_empty }
+
+              context '(without fields: stateCode, zipCode)' do
+                let(:veteran_address) do
+                  {
+                    addressType: veteran_address_address_type,
+                    addressLine1: veteran_address_address_line1,
+                    city: veteran_address_city,
+                    countryName: veteran_address_country_name,
+                    addressPou: veteran_address_address_pou
+                  }
+                end
+
+                it('HAS ERRORS') { expect(errors).not_to be_empty }
+
+                context '(with field: internationalPostalCode)' do
+                  let(:veteran_address) do
+                    {
+                      addressType: veteran_address_address_type,
+                      addressLine1: veteran_address_address_line1,
+                      city: veteran_address_city,
+                      internationalPostalCode: 'any string 0123',
+                      countryName: veteran_address_country_name,
+                      addressPou: veteran_address_address_pou
+                    }
+                  end
+
+                  it(
+                    'has no errors (must have field internationalPostalCode.' \
+                    'cannot have fields stateCode or zipCode)'
+                  ) do
+                    expect(errors).to be_empty
+                  end
+                end
+              end
+            end
+
+            context 'stateCode:' do
+              context '"KS"' do
+                let(:veteran_address_state_code) { 'KS' }
+
+                it('has no errors') { expect(errors).to be_empty }
+              end
+
+              context '""' do
+                let(:veteran_address_state_code) { '' }
+
+                it('HAS ERRORS') { expect(errors).not_to be_empty }
+              end
+
+              context '(tabs)' do
+                context '(2x)' do
+                  let(:veteran_address_state_code) { '		' }
+
+                  it('HAS ERRORS') { expect(errors).not_to be_empty }
+                end
+
+                context '(1x)' do
+                  let(:veteran_address_state_code) { '	' }
+
+                  it('HAS ERRORS') { expect(errors).not_to be_empty }
+                end
+              end
+
+              context '\u3000' do
+                context '(2x)' do
+                  let(:veteran_address_state_code) { "\u3000\u3000" }
+
+                  it('HAS ERRORS') { expect(errors).not_to be_empty }
+                end
+
+                context '(1x)' do
+                  let(:veteran_address_state_code) { "\u3000" }
+
+                  it('HAS ERRORS') { expect(errors).not_to be_empty }
+                end
+              end
+            end
+          end
+
+          context 'email:' do
+            context 'judy@example.com' do
+              let(:veteran_email_address) { 'judy@example.com' }
+
+              it('has no errors') { expect(errors).to be_empty }
+            end
+
+            context 'empty string' do
+              let(:veteran_email_address) { '' }
+
+              it('HAS ERRORS') { expect(errors).not_to be_empty }
+            end
+
+            context 'nil' do
+              let(:veteran_email_address) { '' }
+
+              it('HAS ERRORS') { expect(errors).not_to be_empty }
+            end
+
+            context 'no @' do
+              let(:veteran_email_address) { 'cat' }
+
+              it('HAS ERRORS') { expect(errors).not_to be_empty }
+            end
+          end
+
+          context 'phone:' do
+            context 'extension:' do
+              context 'field absent' do
+                let(:veteran_phone) do
+                  {
+                    isInternational: veteran_phone_is_international,
+                    countryCode: veteran_phone_country_code,
+                    areaCode: veteran_phone_area_code,
+                    phoneNumber: veteran_phone_phone_number,
+                    phoneType: veteran_phone_phone_type
+                  }
+                end
+
+                it('has no errors (extension is optional)') { expect(errors).to be_empty }
+              end
+            end
+          end
+        end
+      end
+
+      context 'claimant:' do
+        it('has no errors (participantId and payeeCode are required)') { expect(errors).to be_empty }
+
+        context '(without field: participantId)' do
+          let(:claimant) { claimant_template.except(:participantId) }
+
+          it('HAS ERRORS') { expect(errors).not_to be_empty }
+        end
+
+        context '(without field: payeeCode)' do
+          let(:claimant) { claimant_template.except(:payeeCode) }
+
+          it('HAS ERRORS') { expect(errors).not_to be_empty }
+        end
+      end
+    end
   end
 end
