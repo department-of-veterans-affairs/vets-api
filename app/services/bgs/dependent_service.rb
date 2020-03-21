@@ -19,17 +19,44 @@ module BGS
     end
 
     def modify_dependents
+      # Step 1 create Proc
       vnp_response = vnp_proc_create
 
       vnp_proc_id = vnp_response[:vnp_proc_id]
-
+      # Step 2 Create ProcForm using ProcId from Step 1
       create_proc_form_response = vnp_proc_form_create(vnp_proc_id)
 
+      # Step 3 Create FIRST Participant
       create_ptcpnt_response = vnp_ptcpnt_create
 
+      # Step 4 Create "Veteran" this is a 'Person' using ParticipantId generated from Step 3
       person_create_response = vnp_person_create(create_ptcpnt_response["vnp_ptcpnt_id"])
 
-      person_create_response
+      # Step 5 Create address for veteran pass in VNP participant id created in step 3
+      vnp_ptcpnt_addrs_create_response = vnp_ptcpnt_addrs_create(create_ptcpnt_response["vnp_ptcpnt_id"])
+
+      #####- loop through 6-8 for each dependent
+      #   6. Create *NEXT* participant “Pass in corp participant id if it is obtainable”
+      #   7. Create *Dependent* using participant-id from step 6
+      #   8. Create address for dependent pass in participant-id from step 6
+      #####
+
+      # 9. Create Phone number for veteran or spouse(dependent?) pass in participant-id from step 3 or 6 (Maybe fire this off for each participant, we’ll look it up later)
+      vnp_ptcpnt_phone_create_response = vnp_ptcpnt_phone_create(create_ptcpnt_response["vnp_ptcpnt_id"])
+
+      vnp_ptcpnt_phone_create_response
+
+      # 10. Create relationship pass in Veteran and dependent using respective participant-id (loop it for each dependent)
+
+      # ####-We’ll only do this for form number 674
+      # 11. Create Child school (if there are kids)
+      # 12. Create Child student (if there are kids)
+
+      ####- Back in 686
+      # 13. Create benefit claims in formation (no mention of id)
+      # 14. Insert vnp benefit claim (created in step 13?)
+      # 15. Update vip benefit claims information (pass Corp benefit claim id Created in step 14)
+      # 16. Set vnpProcstateTypeCd to “ready “
     end
 
     private
@@ -43,10 +70,10 @@ module BGS
         creatd_dt: '2020-02-25T09:59:16-06:00',
         last_modifd_dt: '2020-02-25T10:02:28-06:00',
         jrn_dt: Time.current.iso8601,
-        jrn_lctn_id: Settings.bgs.jrn_lctn_id,
+        jrn_lctn_id: Settings.bgs.client_station_id,
         jrn_status_type_cd: 'U',
-        jrn_user_id: Settings.bgs.jrn_user_id,
-        jrn_obj_id: Settings.bgs.jrn_obj_id,
+        jrn_user_id: Settings.bgs.client_username,
+        jrn_obj_id: Settings.bgs.application,
         submtd_dt: '2020-02-25T10:01:59-06:00',
         ssn: current_user.ssn
       )
@@ -57,10 +84,10 @@ module BGS
         vnp_proc_id: vnp_proc_id,
         form_type_cd: '21-686c',
         jrn_dt: Time.current.iso8601,
-        jrn_lctn_id: Settings.bgs.jrn_lctn_id,
-        jrn_obj_id: Settings.bgs.jrn_obj_id,
+        jrn_lctn_id: Settings.bgs.client_station_id,
+        jrn_obj_id: Settings.bgs.application,
         jrn_status_type_cd: 'U',
-        jrn_user_id: Settings.bgs.jrn_user_id,
+        jrn_user_id: Settings.bgs.client_username,
         ssn: current_user.ssn
       )
     end
@@ -71,10 +98,10 @@ module BGS
         vnp_proc_id: '3826728',
         fraud_ind: '',
         jrn_dt: Time.current.iso8601,
-        jrn_lctn_id: Settings.bgs.jrn_lctn_id,
-        jrn_obj_id: Settings.bgs.jrn_obj_id,
+        jrn_lctn_id: Settings.bgs.client_station_id,
+        jrn_obj_id: Settings.bgs.application,
         jrn_status_type_cd: 'I',
-        jrn_user_id: Settings.bgs.jrn_user_id,
+        jrn_user_id: Settings.bgs.client_username,
         legacy_poa_cd: '',
         misc_vendor_ind: '',
         ptcpnt_short_nm: '',
@@ -105,10 +132,10 @@ module BGS
         frgn_svc_nbr: "0",
         gender_cd: "F",
         jrn_dt: Time.current.iso8601,
-        jrn_lctn_id: Settings.bgs.jrn_lctn_id,
-        jrn_obj_id: Settings.bgs.jrn_obj_id,
+        jrn_lctn_id: Settings.bgs.client_station_id,
+        jrn_obj_id: Settings.bgs.application,
         jrn_status_type_cd: "U",
-        jrn_user_id: Settings.bgs.jrn_user_id,
+        jrn_user_id: Settings.bgs.client_username,
         last_nm: "Smith",
         lgy_entlmt_type_cd: "",
         martl_status_type_cd: "",
@@ -140,5 +167,72 @@ module BGS
         ssn: current_user.ssn
       )
     end
+
+    def vnp_ptcpnt_addrs_create(vnp_ptcpnt_id)
+      service.vnp_ptcpnt_addrs.vnp_ptcpnt_addrs_create(
+        vnp_ptcpnt_id: vnp_ptcpnt_id,
+        vnp_proc_id: '',
+        addrs_one_txt: '',
+        addrs_three_txt: '',
+        addrs_two_txt: '',
+        bad_addrs_ind: '',
+        city_nm: '',
+        cntry_nm: '',
+        county_nm: '',
+        eft_waiver_type_nm: '',
+        email_addrs_txt: '',
+        end_dt: '',
+        fms_addrs_code_txt: '',
+        frgn_postal_cd: '',
+        group1_verifd_type_cd: '',
+        jrn_dt: Time.current.iso8601,
+        jrn_lctn_id: Settings.bgs.client_station_id,
+        jrn_obj_id: Settings.bgs.application,
+        jrn_status_type_cd: "U",
+        jrn_user_id: Settings.bgs.client_username,
+        lctn_nm: '',
+        mlty_postal_type_cd: '',
+        mlty_post_office_type_cd: '',
+        postal_cd: '',
+        prvnc_nm: '',
+        ptcpnt_addrs_type_nm: 'Mailing',
+        shared_addrs_ind: 'N',
+        trsury_addrs_five_txt: '',
+        trsury_addrs_four_txt: '',
+        trsury_addrs_one_txt: '',
+        trsury_addrs_six_txt: '',
+        trsury_addrs_three_txt: '',
+        trsury_addrs_two_txt: '',
+        trsury_seq_nbr: '',
+        trtry_nm: '',
+        zip_first_suffix_nbr: '',
+        zip_prefix_nbr: '',
+        zip_second_suffix_nbr: '',
+        ssn: current_user.ssn
+      )
+    end
+
+    def vnp_ptcpnt_phone_create(vnp_ptcpnt_id)
+      service.vnp_ptcpnt_phone.vnp_ptcpnt_phone_create(
+        vnp_ptcpnt_phone_id: '',
+        vnp_proc_id: '3826728',
+        vnp_ptcpnt_id: vnp_ptcpnt_id,
+        phone_type_nm: 'Nighttime',
+        phone_nbr: '848-4848',
+        efctv_dt:'2011-09-19T13:56:01-05:00',
+        end_dt: '?',
+        area_nbr: '984',
+        cntry_nbr: '?',
+        frgn_phone_rfrnc_txt: '?',
+        extnsn_nbr: '?',
+        jrn_dt: Time.current.iso8601,
+        jrn_lctn_id: Settings.bgs.client_station_id,
+        jrn_user_id: Settings.bgs.client_username,
+        jrn_status_type_cd: "U",
+        jrn_obj_id: Settings.bgs.application,
+        ssn: current_user.ssn
+      )
+    end
   end
 end
+
