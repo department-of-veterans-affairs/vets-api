@@ -2,10 +2,10 @@
 http_interactions:
 - request:
     method: post
-    uri: https://va--carmadev.my.salesforce.com/services/oauth2/token
+    uri: https://fake-carma.salesforce.com/services/oauth2/token
     body:
       encoding: UTF-8
-      string: assertion=eyJhbGciOiJSUzI1NiJ9.eyJpc3MiOiIzTVZHOVpkbDdZbjZRREtQQTlTODlmeXNtVmFjak1mZjV5SXFIZzJBaWltdE0xS1VlV2RkNFg1LklCYXhDX3Zra1R0NHdYNVlONzlNTnBMZDRqNDBqIiwic3ViIjoiY2FybWF2YWdvdmludGVncmF0aW9uQHZhLmdvdi5jYXJtYWRldiIsImF1ZCI6Imh0dHBzOi8vdGVzdC5zYWxlc2ZvcmNlLmNvbSIsImV4cCI6MTU4MzI3NDAzM30.nYmtdiTS2Eqfw7A-hmavUoOu_cZyBoA4Pm7InHBmqHQrbCAnJOlj1Ad3WQ3iROCVAzvZXVqsMqX2SMkFUrhnRBh5B_M9lF5nwzofp2MqPt27Yx9omgHSgwzwFPNMcUgM4gjIPKakhYcEU-IVdVoFtDybEXrOC--dv8K_n2dOvee5kDfP-FKX9Gizd2NhZesXozXEF7CEDcy-j-JwUbT3QVt6Atgo6XBOViC-cQ3Mw5ivdexMJRrTIa9bgDWf-RGNHXnVNrryr5oyXCQoVQiiLQRVA4Twv1_03aEr0BXGVHIOOjYtujoUZjSdMLoqY52AXv-AmtCqeGuiQ_zTQpk-ko1ReE2Ue2UgC-NCetra-zRzAj8kCZWzGHOkGpFOvAXjaUpItZNpjjfwO-c0qw6Fclb2SOgwoe9PdkqrV4oESu1Vh8kF5gKaHJ1TFgWNIkHdwXY87QZHhbohUJwMQQhDWD0D3nqLlq4gngRVOEmdncKzPACeuF4AwVJ0bsorNv8_omJM-jAPjtN79DAy1UkiN1RbOYu6SpcvSGvtQXZAp9nJVxkY0Hhj7vv_ChX2VOFNIOcj8ncQGS9HIxP0E_eMBweyglVp4EjUgipwYD4lpBngRkMYSh7n3X5YskTd1qJ8gt-LP4sb1hedIobnMC8BZWvImm_zassArK3bPGXyRTc&grant_type=urn%3Aietf%3Aparams%3Aoauth%3Agrant-type%3Ajwt-bearer
+      string: assertion=<GENERATED_JWT_TOKEN>&grant_type=urn%3Aietf%3Aparams%3Aoauth%3Agrant-type%3Ajwt-bearer
     headers:
       User-Agent:
       - Faraday v0.17.0
@@ -51,12 +51,12 @@ http_interactions:
       - chunked
     body:
       encoding: ASCII-8BIT
-      string: '{"access_token":"00D350000008uAL!AR4AQOPwc6MUwNe.bhO9GKfgsO6gPB8_VVUlEIpKLuD8iCALuxLy0UKU_lNcZ4qdyxGaTJ8inIb0MkITkijtEPgh3pA0X5zy","scope":"api","instance_url":"https://va--CARMADEV.my.salesforce.com","id":"https://test.salesforce.com/id/00D350000008uALEAY/00535000001UsLIAA0","token_type":"Bearer"}'
+      string: '{"access_token":"<CARMA_ACCESS_TOKEN>","scope":"api","instance_url":"https://fake-carma.salesforce.com","id":"https://fake-carma.salesforce.com/id/ABC123/ABC123","token_type":"Bearer"}'
     http_version: null
   recorded_at: Tue, 03 Mar 2020 22:20:34 GMT
 - request:
     method: post
-    uri: https://va--carmadev.my.salesforce.com/services/apexrest/carma/v1/1010-cg-submissions
+    uri: https://fake-carma.salesforce.com/services/apexrest/carma/v1/1010-cg-submissions
     body:
       encoding: UTF-8
       string: "{}"
@@ -66,7 +66,7 @@ http_interactions:
       Content-Type:
       - application/json
       Authorization:
-      - OAuth 00D350000008uAL!AR4AQOPwc6MUwNe.bhO9GKfgsO6gPB8_VVUlEIpKLuD8iCALuxLy0UKU_lNcZ4qdyxGaTJ8inIb0MkITkijtEPgh3pA0X5zy
+      - OAuth <CARMA_ACCESS_TOKEN>
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:

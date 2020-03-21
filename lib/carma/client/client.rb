@@ -8,7 +8,7 @@ module CARMA
       configuration CARMA::Client::Configuration
 
       STATSD_KEY_PREFIX = 'api.carma'
-      SALESFORCE_INSTANCE_URL = 'https://va--carmadev.my.salesforce.com'
+      SALESFORCE_INSTANCE_URL = Settings['salesforce-carma'].url
 
       CONSUMER_KEY = Settings['salesforce-carma'].consumer_key
       SIGNING_KEY_PATH = Settings['salesforce-carma'].signing_key_path
@@ -28,7 +28,7 @@ module CARMA
         response_body
       end
 
-      # The CARAM Staging and Prod enviornments will not exist until (est.) August 2020
+      # The CARAM Staging and Prod enviornments will not exist until ~May 2020
       # So we will not be hitting SALESFORCE_INSTANCE_URL in runtime, to avoid 500 errors. Instead
       # we'll use stub req/res in order to do user testing on the rest of our submission code.
       def create_submission_stub(_payload)
