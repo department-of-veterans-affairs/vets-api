@@ -5,8 +5,8 @@ module SAML
     class SSOe
       include SentryLogging
       SERIALIZABLE_ATTRIBUTES = %i[email first_name middle_name last_name zip gender ssn birth_date
-                                    idme_uuid sec_id mhv_icn mhv_correlation_id dslogon_edipi 
-                                    loa sign_in multifactor].freeze
+                                   idme_uuid sec_id mhv_icn mhv_correlation_id dslogon_edipi
+                                   loa sign_in multifactor].freeze
       IDME_GCID_REGEX = /^(?<idme>\w+)\^PN\^200VIDM\^USDVA\^A$/.freeze
 
       attr_reader :attributes, :authn_context, :warnings

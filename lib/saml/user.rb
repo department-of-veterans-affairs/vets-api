@@ -51,7 +51,9 @@ module SAML
     end
 
     def uuid
-      raise Common::Exceptions::InvalidResource, user_attributes unless user_attributes.idme_uuid or user_attributes.sec_id
+      unless user_attributes.idme_uuid || user_attributes.sec_id
+        raise Common::Exceptions::InvalidResource, user_attributes
+      end
 
       return user_attributes.idme_uuid if user_attributes.idme_uuid
 
