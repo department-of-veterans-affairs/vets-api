@@ -31,6 +31,9 @@ class Account < ApplicationRecord
   redis REDIS_CONFIG['user_account_details']['namespace']
   redis_ttl REDIS_CONFIG['user_account_details']['each_ttl']
 
+  scope :idme_uuid_match, ->(v) { where(idme_uuid: v).where.not(idme_uuid: nil) }
+  scope :sec_id_match, ->(v) { where(sec_id: v).where.not(sec_id: nil) }
+
   # Returns the one Account record for the passed in user.
   #
   # Will first attempt to return the cached record.  If one does
@@ -40,10 +43,9 @@ class Account < ApplicationRecord
   # @return [Account] A persisted instance of Account
   #
   def self.cache_or_create_by!(user)
-    return unless user.uuid
+    return unless get_key(user)
 
-    key = get_key(user)
-    acct = do_cached_with(key: key) do
+    acct = do_cached_with(key: get_key(user)) do
       create_if_needed!(user)
     end
     # Account.sec_id was added months after this class was built, thus
@@ -53,15 +55,13 @@ class Account < ApplicationRecord
   end
 
   def self.create_if_needed!(user)
-    attrs = account_attrs_from_user(user)
-
-    accts = where(uuid: user.uuid)
+    accts = idme_uuid_match(user.idme_uuid).or(sec_id_match(user.sec_id))
     if accts.length > 1
       data = accts.map(&:attributes)
       log_message_to_sentry('multiple Account records with matching ids', 'warning', data)
     end
 
-    accts.length.positive? ? accts[0] : create(**attrs)
+    accts.length.positive? ? accts[0] : create(**account_attrs_from_user(user))
   end
 
   def self.update_if_needed!(account, user)
