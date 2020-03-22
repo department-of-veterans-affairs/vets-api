@@ -55,7 +55,7 @@ module SAML
 
       ### Identifiers
       def idme_uuid
-        return safe_attr('va_eauth_uid') if sign_in[:service_name] == 'idme'
+        return safe_attr('va_eauth_uid') if safe_attr('va_eauth_csid') == 'idme'
 
         gcids = safe_attr('va_eauth_gcIds')&.split('|')
         if gcids
