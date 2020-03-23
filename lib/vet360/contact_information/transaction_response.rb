@@ -15,12 +15,14 @@ module Vet360
       def self.from(raw_response = nil)
         @response_body = raw_response&.body
 
-        log_message_to_sentry(
-          'Vet360 transaction error',
-          :error,
-          { response_body: @response_body },
-          error: :vet360
-        ) if has_error?
+        if error?
+          log_message_to_sentry(
+            'Vet360 transaction error',
+            :error,
+            { response_body: @response_body },
+            error: :vet360
+          )
+        end
 
         new(
           raw_response&.status,
@@ -28,7 +30,7 @@ module Vet360
         )
       end
 
-      def self.has_error?
+      def self.error?
         @response_body.try(:[], 'tx_status') == ERROR_STATUS
       end
     end
@@ -43,7 +45,7 @@ module Vet360
       end
 
       def self.log_error
-        if has_error?
+        if error?
           PersonalInformationLog.create(
             error_class: 'Vet360::ContactInformation::AddressTransactionResponseError',
             data:
