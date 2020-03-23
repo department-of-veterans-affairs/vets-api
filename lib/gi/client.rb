@@ -42,6 +42,11 @@ module GI
       gids_response(response)
     end
 
+    def get_yellow_ribbon_programs(params = {})
+      response = perform(:get, 'yellow_ribbon_programs', params)
+      gids_response(response)
+    end
+
     def get_zipcode_rate(params = {})
       zipcode = params[:id]
       response = perform(:get, "zipcode_rates/#{zipcode}", {})
