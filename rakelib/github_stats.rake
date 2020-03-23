@@ -3,7 +3,7 @@
 STATSD_METRIC = 'tasks.github_stats_scraper.duration'
 
 REPOS = %w[
-  vets-api v
+  vets-api
   vets-website
 ].freeze
 
