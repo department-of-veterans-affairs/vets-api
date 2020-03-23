@@ -48,7 +48,7 @@ module SAML
 
     # rubocop:disable Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
     def login_redirect_url(auth: 'success', code: nil, saml_uuid: nil)
-      find_redirect_application(saml_uuid) if saml_uuid
+      pop_redirect_application(saml_uuid) if saml_uuid
 
       return verify_url if auth == 'success' && user.loa[:current] < user.loa[:highest]
 
@@ -196,7 +196,7 @@ module SAML
       )
     end
 
-    def find_redirect_application(uuid)
+    def pop_redirect_application(uuid)
       @redirect_application = LoginRedirectApplication.pop(uuid)&.redirect_application
     end
   end
