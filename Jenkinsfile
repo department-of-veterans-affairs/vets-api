@@ -35,14 +35,14 @@ pipeline {
     stage('Build Docker Images'){
       steps {
         withCredentials([string(credentialsId: 'sidekiq-enterprise-license', variable: 'BUNDLE_ENTERPRISE__CONTRIBSYS__COM')]) {
-          sh 'make ci-build'
+          sh 'env=$RAILS_ENV make build'
         }
       }
     }
 
     stage('Setup Testing DB') {
       steps {
-        sh 'make ci-db'
+        sh 'env=$RAILS_ENV make db'
       }
     }
 
@@ -65,19 +65,19 @@ pipeline {
     stage('Lint All Files') {
       when { branch 'master' }
       steps {
-        sh 'make ci-lint'
+        sh 'env=$RAILS_ENV make lint'
       }
     }
 
     stage('Security Scan') {
       steps {
-        sh 'make ci-security'
+        sh 'env=$RAILS_ENV make security'
       }
     }
 
     stage('Run tests') {
       steps {
-        sh 'make ci-spec'
+        sh 'env=$RAILS_ENV make spec'
       }
       post {
         success {
@@ -91,7 +91,7 @@ pipeline {
     stage('Run Danger Bot') {
       steps {
         withCredentials([string(credentialsId: 'danger-github-api-token',    variable: 'DANGER_GITHUB_API_TOKEN')]) {
-          sh 'make danger'
+          sh 'env=$RAILS_ENV make danger'
         }
       }
     }
@@ -164,7 +164,7 @@ pipeline {
   }
   post {
     always {
-      sh 'make ci-down'
+      sh 'env=$RAILS_ENV make down'
       deleteDir() /* clean up our workspace */
     }
     failure {
