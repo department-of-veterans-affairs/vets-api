@@ -1,11 +1,13 @@
 # frozen_string_literal: true
 
+require 'digest'
+
 module SAML
   module UserAttributes
     class SSOe
       include SentryLogging
       SERIALIZABLE_ATTRIBUTES = %i[email first_name middle_name last_name zip gender ssn birth_date
-                                   idme_uuid sec_id mhv_icn mhv_correlation_id dslogon_edipi
+                                   uuid idme_uuid sec_id mhv_icn mhv_correlation_id dslogon_edipi
                                    loa sign_in multifactor].freeze
       IDME_GCID_REGEX = /^(?<idme>\w+)\^PN\^200VIDM\^USDVA\^A$/.freeze
 
@@ -54,6 +56,16 @@ module SAML
       end
 
       ### Identifiers
+      def uuid
+        unless idme_uuid || sec_id
+          raise Common::Exceptions::InvalidResource, @attributes
+        end
+
+        return idme_uuid if idme_uuid
+
+        Digest::UUID.uuid_v3('sec-id', sec_id).replace('-', '')
+      end
+
       def idme_uuid
         return safe_attr('va_eauth_uid') if safe_attr('va_eauth_csid') == 'idme'
 

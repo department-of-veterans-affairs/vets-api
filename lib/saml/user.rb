@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 
-require 'digest'
 require 'saml/user_attributes/id_me'
 require 'saml/user_attributes/mhv'
 require 'saml/user_attributes/dslogon'
@@ -50,16 +49,6 @@ module SAML
       authn_context.include?('multifactor')
     end
 
-    def uuid
-      unless user_attributes.idme_uuid || user_attributes.sec_id
-        raise Common::Exceptions::InvalidResource, user_attributes
-      end
-
-      return user_attributes.idme_uuid if user_attributes.idme_uuid
-
-      Digest::UUID.uuid_v3('sec-id', user_attributes.sec_id).replace('-', '')
-    end
-
     def to_hash
       user_attributes.to_hash.merge(Hash[serializable_attributes.map { |k| [k, send(k)] }])
     end
@@ -67,7 +56,7 @@ module SAML
     private
 
     def serializable_attributes
-      %i[uuid authn_context authenticated_by_ssoe]
+      %i[authn_context authenticated_by_ssoe]
     end
 
     def log_warnings_to_sentry

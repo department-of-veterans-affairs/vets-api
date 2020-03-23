@@ -17,9 +17,9 @@ class UserSessionForm
   def initialize(saml_response)
     @saml_uuid = saml_response.in_response_to
     saml_attributes = SAML::User.new(saml_response)
-    existing_user = User.find(saml_attributes.uuid)
+    existing_user = User.find(saml_attributes.user_attributes.uuid)
     @user_identity = UserIdentity.new(saml_attributes.to_hash)
-    @user = User.new(uuid: saml_attributes.uuid)
+    @user = User.new(uuid: @user_identity.attributes[:uuid])
     @user.instance_variable_set(:@identity, @user_identity)
     if saml_attributes.changing_multifactor?
       @user.mhv_last_signed_in = existing_user.last_signed_in
