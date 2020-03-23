@@ -12,6 +12,7 @@ describe VeteranVerification::ServiceHistoryEpisode, skip_emis: true do
           result = described_class.for_user(user)
           expect(result.length).to eq(1)
           expect(result[0][:branch_of_service]).to eq('Army National Guard')
+          expect(result[0][:pay_grade]).to eq('W04')
           expect(result[0][:deployments][0][:location]).to eq('AX1')
         end
       end
@@ -23,6 +24,7 @@ describe VeteranVerification::ServiceHistoryEpisode, skip_emis: true do
           result = described_class.for_user(user)
           expect(result.length).to eq(2)
           expect(result[0][:branch_of_service]).to eq('Army National Guard')
+          expect(result[0][:pay_grade]).to eq('W04')
           expect(result[1][:deployments][0][:location]).to eq('AX1')
         end
       end
