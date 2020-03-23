@@ -23,8 +23,8 @@ info:
     API requests are authorized through a symmetric API token, provided in an HTTP header with name "apikey."
   version: 1.0.0
 servers:
-  - url: https://dev-api.va.gov/services/appeals/{version}/decision_review
-    description: "VA.gov API development environment"
+  - url: https://sandbox-api.va.gov/services/appeals/{version}/decision_review
+    description: "VA.gov API sandbox environment"
     variables:
       version:
         default: "v1"
