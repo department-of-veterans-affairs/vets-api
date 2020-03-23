@@ -113,7 +113,10 @@ RSpec.describe MhvAccountTypeService do
       it '#mhv_account_type returns Unknown' do
         VCR.use_cassette('mhv_account_type_service/error') do
           expect(Raven).to receive(:extra_context).with({ error_message: 'string not matched' }.merge(extra_context))
-          expect(Raven).to receive(:tags_context).with(tags_context)
+          expect(Raven).to receive(:tags_context).once.with(tags_context)
+          expect(Raven).to receive(:tags_context).once.with(
+            error: 'mhv_session'
+          )
           expect(Raven).to receive(:capture_message).with(error_message, level: level)
           expect(subject.mhv_account_type).to eq('Error')
         end
@@ -127,7 +130,10 @@ RSpec.describe MhvAccountTypeService do
       it '#mhv_account_type returns Unknown' do
         VCR.use_cassette('mhv_account_type_service/unknown') do
           expect(Raven).to receive(:extra_context).with(extra_context)
-          expect(Raven).to receive(:tags_context).with(tags_context)
+          expect(Raven).to receive(:tags_context).once.with(tags_context)
+          expect(Raven).to receive(:tags_context).once.with(
+            error: 'mhv_session'
+          )
           expect(Raven).to receive(:capture_message).with(error_message, level: level)
           expect(subject.mhv_account_type).to eq('Unknown')
         end

@@ -131,24 +131,23 @@ paths:
                           type: object
                           description: >-
                             The veteran whom this Higher-Level Review concerns.
-                            Use the field fileNumberOrSsn to identify the veteran.
+                            Use the field ssn to identify the veteran.
                             Optionally, you can update the veteran's current contact info using the other fields.
                             If any of these fields are present: [addressLine1, addressLine2, city, stateProvinceCode, zipPostalCode, countryCode],
                             all of these fields must be present: [addressLine1, addressLine2, city, stateProvinceCode, zipPostalCode].
                             NOTE: countryCode can be left out, and it will be assumed to be "US".
 
                           required:
-                            - fileNumberOrSsn
+                            - ssn
                           properties:
-                            fileNumberOrSsn:
+                            ssn:
                               type: string
-                              pattern: '^[0-9]{8,9}$'
+                              pattern: '^[0-9]{9}$'
                               description: >-
-                                The veteran's file number or SSN.
+                                The veteran's SSN.
                                 Example: "123456789"
-                                Format: 8 or 9 digit characters.
-                                Max length: 9 characters.
-                                Corresponds to both "1. VETERAN'S SOCIAL SECURITY NUMBER" and "2. VA FILE NUMBER" on form 20-0996.
+                                Format: 9 digit characters.
+                                Corresponds to "2. VETERAN'S SOCIAL SECURITY NUMBER" on form 20-0996.
 
                             addressLine1:
                               type: string
@@ -256,9 +255,6 @@ paths:
                       a veteran's contestable issues to select from, and include
                       the _ContestableIssue_ objects that you want to contest in this
                       array.
-                      When including a _ContestableIssue_ obtained from the
-                      `/contestable_issues` endpoint, use the `notes` field to provide
-                      additional information about contesting this issue.
                     required:
                       - type
                       - attributes
@@ -269,9 +265,6 @@ paths:
                       attributes:
                         type: object
                         properties:
-                          notes:
-                            type: string
-                            nullable: true
                           decisionIssueId:
                             type: integer
                             nullable: true
@@ -293,7 +286,7 @@ paths:
                       legacyOptInApproved: true
                       benefitType: compensation
                       veteran:
-                        fileNumberOrSsn: "123456789"
+                        ssn: "123456789"
                         addressLine1: 123 Street St
                         addressLine2: Apt 4
                         city: Chicago
@@ -308,35 +301,6 @@ paths:
                     - type: ContestableIssue
                       attributes:
                         decisionIssueId: 205
-              pension:
-                value:
-                  data:
-                    type: HigherLevelReview
-                    attributes:
-                      receiptDate: "2019-11-01"
-                      informalConference: false
-                      sameOffice: false
-                      legacyOptInApproved: true
-                      benefitType: pension
-                      veteran:
-                        fileNumberOrSsn: "123456789"
-                        addressLine1: 456 Street St
-                        addressLine2: Apt 7
-                        city: Kansas City
-                        stateProvinceCode: KS
-                        zipPostalCode: "66160"
-                        phoneNumber: "9133677100"
-                        emailAddress: someoneelse@example.com
-                      claimant:
-                        participantId: "33333333"
-                        payeeCode: "11"
-                  included:
-                    - type: ContestableIssue
-                      attributes:
-                        decisionIssueId: 206
-                    - type: ContestableIssue
-                      attributes:
-                        ratingIssueId: 80
       responses:
         '202':
           description: Accepted
@@ -1043,13 +1007,13 @@ paths:
       tags:
         - Issues
       parameters:
-        - name: veteranId
+        - name: X-VA-SSN
           in: header
           required: true
-          description: The file number or SSN of the veteran.
+          description: The SSN of the veteran.
           schema:
             type : string
-        - name: receiptDate
+        - name: X-VA-Receipt-Date
           in: header
           required: true
           description: (yyyy-mm-dd) In order to determine contestability of issues, the receipt date of a hypothetical Decision Review must be supplied.

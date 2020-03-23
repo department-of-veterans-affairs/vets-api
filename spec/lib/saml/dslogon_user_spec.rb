@@ -12,17 +12,21 @@ RSpec.describe SAML::User do
     let(:authn_context) { 'dslogon' }
     let(:account_type)  { '1' }
     let(:highest_attained_loa) { '3' }
+    let(:existing_saml_attributes) { nil }
 
     let(:saml_response) do
       build_saml_response(
         authn_context: authn_context,
         account_type: account_type,
         level_of_assurance: [highest_attained_loa],
-        multifactor: [false]
+        attributes: saml_attributes,
+        existing_attributes: existing_saml_attributes
       )
     end
 
     context 'non-premium user' do
+      let(:saml_attributes) { build(:dslogon_level1, level_of_assurance: [highest_attained_loa]) }
+
       it 'has various important attributes' do
         expect(subject.to_hash).to eq(
           dslogon_edipi: '1606997570',
@@ -37,7 +41,8 @@ RSpec.describe SAML::User do
           multifactor: false,
           loa: { current: 1, highest: 3 },
           sign_in: { service_name: 'dslogon', account_type: '1' },
-          authn_context: 'dslogon'
+          authn_context: 'dslogon',
+          authenticated_by_ssoe: false
         )
       end
 
@@ -47,6 +52,12 @@ RSpec.describe SAML::User do
 
       context 'multifactor' do
         let(:authn_context) { 'dslogon_multifactor' }
+        let(:saml_attributes) do
+          build(:dslogon_level1,
+                multifactor: [true],
+                level_of_assurance: [highest_attained_loa])
+        end
+        let(:existing_saml_attributes) { build(:dslogon_level1, multifactor: [false], level_of_assurance: ['3']) }
 
         it 'has various important attributes' do
           expect(subject.to_hash).to eq(
@@ -62,7 +73,8 @@ RSpec.describe SAML::User do
             ssn: nil,
             multifactor: true,
             authn_context: 'dslogon_multifactor',
-            dslogon_edipi: '1606997570'
+            dslogon_edipi: '1606997570',
+            authenticated_by_ssoe: false
           )
         end
 
@@ -73,8 +85,10 @@ RSpec.describe SAML::User do
 
       context 'verifying' do
         let(:authn_context) { 'dslogon_loa3' }
+        let(:saml_attributes) { build(:idme_loa3, multifactor: [true], level_of_assurance: ['3']) }
+        let(:existing_saml_attributes) { build(:dslogon_level1, multifactor: [true], level_of_assurance: ['3']) }
 
-        it 'has various important attributes' do
+        it 'merges existing DSLogon identity with ID.me identity' do
           expect(subject.to_hash).to eq(
             uuid: '0e1bb5723d7c4f0686f46ca4505642ad',
             email: 'kam+tristanmhv@adhocteam.us',
@@ -89,7 +103,8 @@ RSpec.describe SAML::User do
             loa: { current: 3, highest: 3 },
             sign_in: { service_name: 'dslogon', account_type: '1' },
             multifactor: true,
-            authn_context: 'dslogon_loa3'
+            authn_context: 'dslogon_loa3',
+            authenticated_by_ssoe: false
           )
         end
 
@@ -102,6 +117,7 @@ RSpec.describe SAML::User do
     context 'premium user' do
       let(:account_type) { '2' }
       let(:highest_attained_loa) { nil }
+      let(:saml_attributes) { build(:dslogon_level2, multifactor: [false], level_of_assurance: ['3']) }
 
       it 'has various important attributes' do
         expect(subject.to_hash).to eq(
@@ -117,7 +133,8 @@ RSpec.describe SAML::User do
           loa: { current: 3, highest: 3 },
           sign_in: { service_name: 'dslogon', account_type: '2' },
           multifactor: false,
-          authn_context: 'dslogon'
+          authn_context: 'dslogon',
+          authenticated_by_ssoe: false
         )
       end
 
@@ -127,6 +144,8 @@ RSpec.describe SAML::User do
 
       context 'multifactor' do
         let(:authn_context) { 'dslogon_multifactor' }
+        let(:saml_attributes) { build(:dslogon_level2, multifactor: [true], level_of_assurance: ['3']) }
+        let(:existing_saml_attributes) { build(:dslogon_level2, multifactor: [false], level_of_assurance: ['3']) }
 
         it 'has various important attributes' do
           expect(subject.to_hash).to eq(
@@ -142,7 +161,8 @@ RSpec.describe SAML::User do
             ssn: '111223333',
             multifactor: true,
             authn_context: 'dslogon_multifactor',
-            dslogon_edipi: '1606997570'
+            dslogon_edipi: '1606997570',
+            authenticated_by_ssoe: false
           )
         end
 

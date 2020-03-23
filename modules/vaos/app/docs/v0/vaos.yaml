@@ -1,0 +1,672 @@
+openapi: '3.0.0'
+info:
+  version: 0.0.1
+  title: VAOS
+  description: |
+    ## The API for managing Veterans Affairs Online Scheduling
+
+    These endpoints give hooks into VAOS, an existing product suite, containing a veteran-facing healthcare appointment online scheduling tool of
+    the same name (formerly named VAR - Veteran Appointment Request), a scheduler-facing appointment management tool named Schedule Manager, and a schedule configuration utility for VA facilities, named VATS (VA Tool Set).
+  contact:
+    name: va.gov
+tags:
+  - name: appointments
+    description: Appointments
+  - name: systems
+    description: Systems
+servers:
+  - url: https://dev-api.va.gov/v0/vaos/{version}
+    description: VA.gov API development environment
+    variables:
+      version:
+        default: v0
+  - url: https://staging-api.va.gov/v0/vaos/{version}
+    description: VA.gov API staging environment
+    variables:
+      version:
+        default: v0
+  - url: https://api.va.gov/v0/vaos/{version}
+    description: VA.gov API production environment
+    variables:
+      version:
+        default: v0
+paths:
+  '/appointments':
+    get:
+      tags:
+        - appointments
+      summary: Returns alist of online scheduling appointments
+      operationId: getAppointments
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          required: true
+          name: "type"
+          description: "type of appointment, e.g. 'va' or 'cc' (community care)"
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Systems retrieved successfully
+          content:
+            application/json:
+              schema:
+                required:
+                  - data
+                properties:
+                  data:
+                    type: array
+                    items:
+                      oneOf:
+                        - $ref: "#/components/schemas/VAAppointment"
+                        - $ref: "#/components/schemas/CCAppointment"
+                  meta:
+                    $ref: "#/components/schemas/Pagination"
+              examples:
+                va_type:
+                  summary: Example of a 'va' type response
+                  value:
+                    data:
+                      type: array
+                      items:
+                        $ref: "#/components/schemas/VAAppointment"
+                      meta:
+                        $ref: "#/components/schemas/Pagination"
+                cc_type:
+                  summary: Example of a 'cc' type response
+                  value:
+                    data:
+                      type: array
+                      items:
+                        $ref: "#/components/schemas/CCAppointment"
+                      meta:
+                        $ref: "#/components/schemas/Pagination"
+  '/systems':
+    get:
+      tags:
+        - systems
+      summary: Returns a list of systems available to the the veteran.
+      operationId: getSystems
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Systems retrieved successfully
+          content:
+            application/json:
+              schema:
+                required:
+                  - data
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/System"
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '502':
+          description: Error in the upstream service
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '504':
+          description: Timeout from the upstream service
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+  '/systems/{system_id}/clinic_institutions':
+    get:
+      tags:
+        - systems
+      summary: Returns an expanded clinic model with institution data which is used for finding its correct address.
+      operationId: getClinicInstitutions
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: system_id
+          schema:
+            type: integer
+          required: true
+          description: the system id for the related clinics
+      responses:
+        '200':
+          description: Facilities retrieved successfully
+          content:
+            application/json:
+              schema:
+                required:
+                  - data
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/ClinicInstitution"
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '502':
+          description: Error in the upstream service
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '504':
+          description: Timeout from the upstream service
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+  '/systems/{system_id}/direct_scheduling_facilities':
+    get:
+      tags:
+        - systems
+      summary: Returns a list of facilities in which the veteran can directly schedule an appointment.
+      operationId: getDirectSchedulingFacilities
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: system_id
+          schema:
+            type: integer
+          required: true
+          description: the system id for the list of facilities
+      responses:
+        '200':
+          description: Direct schedule facilities retrieved successfully
+          content:
+            application/json:
+              schema:
+                required:
+                  - data
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/DirectSchedulingFacility"
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '502':
+          description: Error in the upstream service
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '504':
+          description: Timeout from the upstream service
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+  '/systems/{system_id}/pact':
+    get:
+      tags:
+        - systems
+      summary: Returns a list of Patient-Aligned Care Teams (PACT).
+      description: description
+      operationId: getAppealStatus
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: system_id
+          schema:
+            type: integer
+          required: true
+          description: the system id for the list of facilities
+      responses:
+        '200':
+          description: Facilities retrieved successfully
+          content:
+            application/json:
+              schema:
+                required:
+                  - data
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/PACT"
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '502':
+          description: Error in the upstream service
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '504':
+          description: Timeout from the upstream service
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas:
+    Errors:
+      required:
+        - "errors"
+      properties:
+        errors:
+          type: "array"
+          items:
+            type: "object"
+            properties:
+              status:
+                type: "string"
+              code:
+                type: "string"
+              title:
+                type: "string"
+              detail:
+                type: "string"
+    System:
+      type: "object"
+      properties:
+        id:
+          type: "string"
+          example: "12345748"
+        type:
+          type: "string"
+          example: "system"
+        attributes:
+          required:
+            - "unique_id"
+            - "assigning_authority"
+            - "assigning_code"
+            - "id_status"
+          properties:
+            unique_id:
+              type: "string"
+              example: "12345748"
+            assigning_authority:
+              type: "string"
+              example: "UNKNOWN"
+            assigning_code:
+              type: "string"
+              example: "200MHS"
+            id_status:
+              type: "string"
+              example: "ACTIVE"
+          type: "object"
+
+    DirectSchedulingFacility:
+      type: "object"
+      properties:
+        id:
+          type: "string"
+        type:
+          type: "string"
+        attributes:
+          required:
+            - "institution_code"
+            - "city"
+            - "state_abbrev"
+            - "authoritative_name"
+            - "root_station_code"
+            - "admin_parent"
+            - "parent_station_code"
+            - "request_supported"
+            - "direct_scheduling_supported"
+            - "express_times"
+            - "institution_timezone"
+          properties:
+            institution_code:
+              type: "string"
+              example: '688'
+            city:
+              type: "string"
+              example: 'Washington'
+            state_abbrev:
+              type: "string"
+              example: 'DC'
+            authoritative_name:
+              type: "string"
+              example: 'Washington VA Medical Center'
+            root_station_code:
+              type: "string"
+              example: '688'
+            admin_parent:
+              type: "boolean"
+              example: true
+            parent_station_code:
+              type: "string"
+              example: '688'
+            request_supported:
+              type: "boolean"
+              example: true
+            direct_scheduling_supported:
+              type: "boolean"
+              example: true
+            institution_timezone:
+              type: "string"
+              example: 'America/New_York'
+          type: "object"
+    ClinicInstitution:
+      type: "object"
+      properties:
+        id:
+          type: "string"
+          example: "16"
+        type:
+          type: "string"
+          example: "clinic_institution"
+        attributes:
+          required:
+            - "location_ien"
+            - "institution_sid"
+            - "institution_ien"
+            - "institution_name"
+            - "institution_code"
+          properties:
+            location_ien:
+              type: "string"
+              example: "16"
+            institution_sid:
+              type: "number"
+              example: 561596
+            institution_ien:
+              type: "string"
+              example: "442"
+            institution_name:
+              type: "string"
+              example: "CHEYENNE VA MEDICAL"
+            institution_code:
+              type: "string"
+              example: "442"
+          type: "object"
+    CCAppointment:
+      type: "object"
+      properties:
+        id:
+          type: "string"
+          example: "8a48912a6c2409b9016c29cbeed0006a"
+        type:
+          type: "string"
+          example: "cc_appointments"
+        attributes:
+          required:
+            - "appointment_request_id"
+            - "distance_eligible_confirmed"
+            - "name"
+            - "provider_practice"
+            - "provider_phone"
+            - "address"
+            - "instructions_to_veteran"
+            - "appointment_time"
+            - "time_zone"
+          properties:
+            appointment_request_id:
+              type: "string"
+              example: "8a48912a6c2409b9016c29cbeed0006a"
+            distance_eligible_confirmed:
+              type: "boolean"
+              example: true
+            name:
+              required:
+                - "first_name"
+                - "last_name"
+              properties:
+                first_name:
+                  type: "string"
+                  example: ""
+                last_name:
+                  type: "string"
+                  example: ""
+              type: "object"
+            provider_practice:
+              type: "string"
+              example: "test"
+            provider_phone:
+              type: "string"
+              example: "(321) 230-0328"
+            address:
+              required:
+                - "street"
+                - "city"
+                - "state"
+                - "zip_code"
+              properties:
+                street:
+                  type: "string"
+                  example: "test"
+                city:
+                  type: "string"
+                  example: "test"
+                state:
+                  type: "string"
+                  example: "MA"
+                zip_code:
+                  type: "string"
+                  example: "32826"
+              type: "object"
+            instructions_to_veteran:
+              type: "string"
+              example: ""
+            appointment_time:
+              type: "string"
+              example: "09/20/2020 16:29:00"
+            time_zone:
+              type: "string"
+              example: "-04:00 EDT"
+          type: "object"
+    VAAppointment:
+      type: "object"
+      properties:
+        id:
+          type: "string"
+          example: "9d82d708c71bb59a6c8a58a05fb469d7"
+        type:
+          type: "string"
+          example: "va_appointments"
+        attributes:
+          required:
+            - "start_date"
+            - "clinic_id"
+            - "clinic_friendly_name"
+            - "facility_id"
+            - "community_care"
+            - "vds_appointments"
+            - "vvs_appointments"
+          properties:
+            start_date:
+              type: "string"
+              example: "2019-10-24T17:00:00Z"
+            clinic_id:
+              type: "string"
+              example: "408"
+            facility_id:
+              type: "string"
+              example: "983"
+            community_care:
+              type: "boolean"
+              example: false
+            vds_appointments:
+              type: "array"
+              items:
+                type: "object"
+                properties:
+                  booking_note:
+                    type: "string"
+                    example: "Testing the direct schedule"
+                  appointment_length:
+                    type: "string"
+                    example: "60"
+                  appointment_time:
+                    type: "string"
+                    example: "2019-10-24T17:00:00Z"
+                  clinic:
+                    required:
+                      - "name"
+                      - "ask_for_check_in"
+                      - "facility_code"
+                    properties:
+                      name:
+                        type: "string"
+                        example: "OPTOMETRY - GRUBBS"
+                      ask_for_check_in:
+                        type: "boolean"
+                        example: false
+                      facility_code:
+                        type: "string"
+                        example: "983"
+                    type: "object"
+                  type:
+                    type: "string"
+                    example: "REGULAR"
+                  current_status:
+                    type: "string"
+                    example: "NO ACTION TAKEN/TODAY"
+            vvs_appointments:
+              type: "array"
+              items:
+                type: "object"
+              example: []
+          type: "object"
+        meta:
+          required:
+            - "pagination"
+          properties:
+            pagination:
+              required:
+                - "current_page"
+                - "per_page"
+                - "total_pages"
+                - "total_entries"
+              properties:
+                current_page:
+                  type: "number"
+                  example: 0
+                per_page:
+                  type: "number"
+                  example: 0
+                total_pages:
+                  type: "number"
+                  example: 0
+                total_entries:
+                  type: "number"
+                  example: 0
+              type: "object"
+          type: "object"
+    Pagination:
+      type: "object"
+      required:
+        - "pagination"
+      properties:
+        pagination:
+          required:
+            - "current_page"
+            - "per_page"
+            - "total_pages"
+            - "total_entries"
+          properties:
+            current_page:
+              type: "number"
+              example: 0
+            per_page:
+              type: "number"
+              example: 0
+            total_pages:
+              type: "number"
+              example: 0
+            total_entries:
+              type: "number"
+              example: 0
+          type: "object"
+    PACT:
+      type: "object"
+      properties:
+        id:
+          type: "string"
+          example: "3780868"
+        type:
+          type: "string"
+          example: "system_pact"
+        attributes:
+          required:
+            - "facility_id"
+            - "possible_primary"
+            - "provider_position"
+            - "provider_sid"
+            - "staff_name"
+            - "team_name"
+            - "team_purpose"
+            - "team_sid"
+            - "title"
+          properties:
+            facility_id:
+              type: "string"
+              example: "688"
+            possible_primary:
+              type: "string"
+              example: "Y"
+            provider_position:
+              type: "string"
+              example: "GREEN-FOUR PHYSICIAN"
+            provider_sid:
+              type: "string"
+              example: "3780868"
+            staff_name:
+              type: "string"
+              example: "VASSALL,NATALIE M"
+            team_name:
+              type: "string"
+              example: "GREEN-FOUR"
+            team_purpose:
+              type: "string"
+              example: "PRIMARY CARE"
+            team_sid:
+              type: "string"
+              example: "1400018881"
+            title:
+              type: "string"
+              example: "PHYSICIAN-ATTENDING"
+          type: "object"

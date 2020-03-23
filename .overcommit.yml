@@ -28,7 +28,7 @@ PreCommit:
   RuboCop:
     enabled: true
     on_warn: fail # Treat all warnings as failures
-    command: ['bundle', 'exec', 'rubocop']
+    command: ['bundle', 'exec', 'rubocop', '-r', 'rubocop-thread_safety']
     exclude:
       - 'Gemfile'
 

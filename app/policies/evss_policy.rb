@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+# rubocop:disable Metrics/BlockLength
 EVSSPolicy = Struct.new(:user, :evss) do
   def access?
     evss_attrs? ? log_success : log_failure
@@ -9,10 +10,18 @@ EVSSPolicy = Struct.new(:user, :evss) do
     form526_attrs? ? log_success : log_failure
   end
 
+  def access_original_claims?
+    user_attrs? && (user.birls_id.blank? || user.participant_id.blank?) ? log_success : log_failure
+  end
+
   private
 
+  def user_attrs?
+    user.edipi.present? && user.ssn.present?
+  end
+
   def evss_attrs?
-    user.edipi.present? && user.ssn.present? && user.participant_id.present?
+    user_attrs? && user.participant_id.present?
   end
 
   def form526_attrs?
@@ -29,3 +38,4 @@ EVSSPolicy = Struct.new(:user, :evss) do
     false
   end
 end
+# rubocop:enable Metrics/BlockLength

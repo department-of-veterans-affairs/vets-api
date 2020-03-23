@@ -49,8 +49,8 @@ module HCA
     def connection
       Faraday.new(base_path, headers: base_request_headers, request: request_options, ssl: ssl_options) do |conn|
         conn.use :breakers
-        conn.options.open_timeout = 10  # TODO(molson): Make a config/setting
-        conn.options.timeout = 15       # TODO(molson): Make a config/setting
+        conn.options.open_timeout = 10
+        conn.options.timeout = Settings.hca.timeout
         conn.request :soap_headers
         conn.response :hca_soap_parser
         conn.adapter Faraday.default_adapter
