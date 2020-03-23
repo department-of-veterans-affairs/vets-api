@@ -15,13 +15,8 @@ tags:
   - name: systems
     description: Systems
 servers:
-  - url: https://dev-api.va.gov/v0/vaos/{version}
-    description: VA.gov API development environment
-    variables:
-      version:
-        default: v0
-  - url: https://staging-api.va.gov/v0/vaos/{version}
-    description: VA.gov API staging environment
+  - url: https://sandbox-api.va.gov/v0/vaos/{version}
+    description: VA.gov API sandbox environment
     variables:
       version:
         default: v0
