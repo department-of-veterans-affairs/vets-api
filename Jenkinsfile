@@ -1,3 +1,4 @@
+// TODO REMOVE THIS!!
 @Library('va.gov-devops-jenkins-lib@github-api') _
 
 dev_branch = 'master'
@@ -57,15 +58,14 @@ pipeline {
             echo "${e}"           
           }
         }
-        sh "make ci-lint"
-        //sh """make files='${files_to_lint}' ci-lint"""
+        sh """make files='${files_to_lint}' ci-lint"""
       }
     }
 
     stage('Lint All Files') {
       when { branch 'master' }
       steps {
-        sh """make files='' ci-lint"""
+        sh "make ci-lint"
       }
     }
 
