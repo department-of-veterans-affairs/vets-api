@@ -45,7 +45,7 @@ pipeline {
       }
     }
 
-    stage('Fetch List of Changed Files in Pull-Request') {
+    stage('Lint Changed Files') {
       when { changeRequest() }
       steps {
         script {
@@ -57,12 +57,15 @@ pipeline {
             echo "${e}"           
           }
         }
+        sh "make ci-lint"
+        //sh """make files='${files_to_lint}' ci-lint"""
       }
     }
 
-    stage('Lint') {
+    stage('Lint All Files') {
+      when { branch 'master' }
       steps {
-        sh """make files='${files_to_lint}' ci-lint"""
+        sh """make files='' ci-lint"""
       }
     }
 
