@@ -60,7 +60,7 @@ class Account < ApplicationRecord
     attrs = account_attrs_from_user(user)
 
     accts = idme_uuid_match(attrs[:idme_uuid]).or(sec_id_match(attrs[:sec_id]))
-    accts = sort_with_idme_uuid_priority(accts)
+    accts = sort_with_idme_uuid_priority(accts, user)
     accts.length.positive? ? accts[0] : create(**attrs)
   end
 
@@ -107,11 +107,11 @@ class Account < ApplicationRecord
   # https://github.com/department-of-veterans-affairs/va.gov-team/issues/6702
   #
   # @return [Array]
-  def self.sort_with_idme_uuid_priority(accts)
+  def self.sort_with_idme_uuid_priority(accts, user)
     if accts.length > 1
       data = accts.map(&:attributes)
       log_message_to_sentry('multiple Account records with matching ids', 'warning', data)
-      accts = accts.sort_by { |a| a.idme_uuid == attrs[:idme_uuid] ? 0 : 1 }
+      accts = accts.sort_by { |a| a.idme_uuid == user.uuid ? 0 : 1 }
     end
     accts
   end
