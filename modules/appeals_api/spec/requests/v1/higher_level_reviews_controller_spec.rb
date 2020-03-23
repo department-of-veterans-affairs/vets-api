@@ -19,7 +19,8 @@ describe AppealsApi::V1::DecisionReview::HigherLevelReviewsController, type: :re
       data = File.read(Rails.root.join('modules', 'appeals_api', 'spec', 'fixtures', 'valid_200996.json'))
       post(
         '/services/appeals/v1/decision_review/higher_level_reviews/validate',
-        params: data)
+        params: data
+      )
       parsed = JSON.parse(response.body)
       expect(parsed['data']['attributes']['status']).to eq('valid')
       expect(parsed['data']['type']).to eq('appeals_api_higher_level_review_validation')
@@ -33,7 +34,8 @@ describe AppealsApi::V1::DecisionReview::HigherLevelReviewsController, type: :re
       data = File.read(Rails.root.join('modules', 'appeals_api', 'spec', 'fixtures', 'valid_200996.json'))
       post(
         '/services/appeals/v1/decision_review/higher_level_reviews',
-        params: data)
+        params: data
+      )
       parsed = JSON.parse(response.body)
       expect(parsed['data']['success']).to eq(true)
     end
@@ -42,7 +44,8 @@ describe AppealsApi::V1::DecisionReview::HigherLevelReviewsController, type: :re
       data = File.read(Rails.root.join('modules', 'appeals_api', 'spec', 'fixtures', 'invalid_200996.json'))
       post(
         '/services/appeals/v1/decision_review/higher_level_reviews/validate',
-        params: data)
+        params: data
+      )
       parsed = JSON.parse(response.body)
       expect(response.status).to eq(422)
       expect(parsed['errors'].size).to eq(3)

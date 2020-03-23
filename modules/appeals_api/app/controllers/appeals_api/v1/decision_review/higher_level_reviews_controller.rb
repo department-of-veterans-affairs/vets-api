@@ -47,5 +47,4 @@ class AppealsApi::V1::DecisionReview::HigherLevelReviewsController < AppealsApi:
       }
     }
   end
-
 end

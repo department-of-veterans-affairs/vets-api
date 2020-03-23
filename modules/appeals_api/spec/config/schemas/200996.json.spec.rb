@@ -31,7 +31,7 @@ describe 'hlr_post JSON Schema', type: :request do
             informalConference: false,
             sameOffice: false,
             legacyOptInApproved: true,
-            benefitType: 'compensation',
+            benefitType: 'compensation'
           }
         },
         included: [

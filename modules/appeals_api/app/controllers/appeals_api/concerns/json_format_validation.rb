@@ -7,7 +7,7 @@ module AppealsApi
     included do
       def validate_json_format
         @json_body = JSON.parse(request.body.string)
-      rescue JSON::ParserError => e
+      rescue JSON::ParserError
         error = {
           errors: [
             {

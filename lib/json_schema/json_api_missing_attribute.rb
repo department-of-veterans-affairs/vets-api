@@ -55,4 +55,3 @@ module JsonSchema
     end
   end
 end
-

@@ -4,7 +4,6 @@
 
 module JsonSchema
   class FormSchemas
-
     def base_dir
       # set in subclass
     end
@@ -29,8 +28,8 @@ module JsonSchema
       schema_validator.validate(payload).count
       errors = schema_validator.validate(payload).to_a
       raise JsonSchema::JsonApiMissingAttribute, errors unless errors.empty?
+
       true
     end
   end
 end
-
