@@ -58,7 +58,7 @@ pipeline {
             echo "${e}"           
           }
         }
-        sh """make files='${files_to_lint}' ci-lint"""
+        sh """env=$RAILS_ENV make files='${files_to_lint}' lint"""
       }
     }
 
