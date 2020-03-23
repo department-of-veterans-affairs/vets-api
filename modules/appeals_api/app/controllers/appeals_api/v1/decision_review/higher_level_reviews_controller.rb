@@ -26,21 +26,21 @@ class AppealsApi::V1::DecisionReview::HigherLevelReviewsController < AppealsApi:
   end
 
   def schema
-    render json: { data: [AppealsApi::FormSchemas::SCHEMAS[self.class::FORM_NUMBER]] }
+    render json: { data: [AppealsApi::FormSchemas.new.schemas[self.class::FORM_NUMBER]] }
   end
 
   private
 
   def validate_json_schema
-    AppealsApi::FormSchemas.validate!(self.class::FORM_NUMBER, @json_body)
+    AppealsApi::FormSchemas.new.validate!(self.class::FORM_NUMBER, @json_body)
   rescue JsonSchema::JsonApiMissingAttribute => e
     render json: e.to_json_api, status: e.code
   end
 
   def validation_success
     {
-      data: { 
-        type: 'appeals_api_higher_level_review_validation', 
+      data: {
+        type: 'appeals_api_higher_level_review_validation',
         attributes: {
           status: 'valid'
         }
