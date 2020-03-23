@@ -48,7 +48,7 @@ pipeline {
     stage('Lint') {
       steps {
         script {
-          files_to_lint = []
+          files_to_lint = ''
           try {
             files_to_lint = getGithubChangedFiles('vets-api', pr_number: env.CHANGE_ID).join(' ')
           } catch(IOException e) {
