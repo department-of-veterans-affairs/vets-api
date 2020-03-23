@@ -172,6 +172,9 @@ Rails.application.routes.draw do
       end
 
       resources :calculator_constants, only: :index, defaults: { format: :json }
+
+      resources :yellow_ribbon_programs, only: :index, defaults: { format: :json }
+
       resources :zipcode_rates, only: :show, defaults: { format: :json }
     end
 
@@ -209,10 +212,6 @@ Rails.application.routes.draw do
           get 'states', to: 'addresses#states'
         end
       end
-    end
-
-    namespace :mdot do
-      resources :supplies, only: %i[index create]
     end
 
     resources :performance_monitorings, only: :create
