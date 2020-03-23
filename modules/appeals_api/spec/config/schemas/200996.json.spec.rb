@@ -19,11 +19,15 @@ describe 'VA Form 20-0996 JSON Schema', type: :request do
     )
   end
 
-  let(:json) { input.as_json }
   let(:errors) { validator.validate(json).to_a }
+
   let(:validator) { JSONSchemer.schema(json_schema) }
 
-  let(:included) do
+  let(:json) { input.as_json }
+  let(:input) { { data: data, included: included } }
+  let(:data) { { type: 'HigherLevelReview', attributes: data_attributes } }
+  let(:included) { included_template }
+  let(:included_template) do
     [
       {
         type: 'ContestableIssue',
@@ -68,224 +72,129 @@ describe 'VA Form 20-0996 JSON Schema', type: :request do
       }
     ]
   end
-  let(:data) { { type: 'HigherLevelReview', attributes: data_attributes } }
-  let(:input) { { data: data, included: included } }
+  let(:data_attributes) { data_attributes_template }
+  let(:data_attributes_template) do
+    {
+      informalConference: informal_conference,
+      sameOffice: same_office,
+      legacyOptInApproved: legacy_opt_in_approved,
+      benefitType: benefit_type,
+      veteran: veteran,
+      claimant: claimant,
+      receiptDate: receipt_date,
+      informalConferenceTimes: informal_conference_times,
+      informalConferenceRep: informal_conference_rep
+    }
+  end
+  let(:veteran) { veteran_template }
+  let(:veteran_template) do
+    {
+      address: veteran_address,
+      phone: veteran_phone,
+      emailAddress: veteran_email_address
+    }
+  end
+  let(:veteran_address) { veteran_address_template }
+  let(:veteran_address_template) do
+    {
+      addressType: veteran_address_address_type,
+      addressLine1: veteran_address_address_line1,
+      addressLine2: veteran_address_address_line2,
+      addressLine3: veteran_address_address_line3,
+      city: veteran_address_city,
+      stateCode: veteran_address_state_code,
+      zipCode: veteran_address_zip_code,
+      countryName: veteran_address_country_name,
+      addressPou: veteran_address_address_pou
+    }
+  end
+  let(:veteran_phone) { veteran_phone_template }
+  let(:veteran_phone_template) do
+    {
+      isInternational: veteran_phone_is_international,
+      countryCode: veteran_phone_country_code,
+      areaCode: veteran_phone_area_code,
+      phoneNumber: veteran_phone_phone_number,
+      extension: veteran_phone_extension,
+      phoneType: veteran_phone_phone_type
+    }
+  end
+  let(:claimant) { claimant_template }
+  let(:claimant_template) do
+    {
+      participantId: claimant_participant_id,
+      payeeCode: claimant_payee_code
+    }
+  end
+  let(:informal_conference_rep) { informal_conference_rep_template }
+  let(:informal_conference_rep_template) do
+    {
+      name: informal_conference_rep_name,
+      phone: informal_conference_rep_phone
+    }
+  end
+  let(:informal_conference_rep_phone) { informal_conference_rep_phone_template }
+  let(:informal_conference_rep_phone_template) do
+    {
+      isInternational: informal_conference_rep_phone_is_international,
+      countryCode: informal_conference_rep_phone_country_code,
+      areaCode: informal_conference_rep_phone_area_code,
+      phoneNumber: informal_conference_rep_phone_phone_number,
+      extension: informal_conference_rep_phone_extension,
+      phoneType: informal_conference_rep_phone_phone_type
+    }
+  end
+  let(:receipt_date) { '2020-02-02' }
+  let(:informal_conference) { true }
+  let(:same_office) { true }
+  let(:legacy_opt_in_approved) { true }
+  let(:veteran_address_address_type) { 'DOMESTIC' }
+  let(:veteran_address_address_line1) { '401 Kansas Avenue' }
+  let(:veteran_address_address_line2) { 'Unit #724' }
+  let(:veteran_address_address_line3) { 'c/o Amelia Earhart' }
+  let(:veteran_address_city) { 'Atchison' }
+  let(:veteran_address_state_code) { 'KS' }
+  let(:veteran_address_zip_code) { '66002' }
+  let(:veteran_address_country_name) { 'United States' }
+  let(:veteran_address_address_pou) { 'RESIDENCE/CHOICE' }
+  let(:veteran_phone_is_international) { false }
+  let(:veteran_phone_country_code) { '1' }
+  let(:veteran_phone_area_code) { '555' }
+  let(:veteran_phone_phone_number) { '8001111' }
+  let(:veteran_phone_extension) { '2' }
+  let(:veteran_phone_phone_type) { 'HOME' }
+  let(:veteran_email_address) { 'josie@example.com' }
+  let(:claimant_payee_code) { '10' }
+  let(:claimant_participant_id) { '123' }
+  let(:informal_conference_times) { ['1230-1400 ET', '1400-1630 ET'] }
+  let(:informal_conference_rep_name) { 'Helen Holly' }
+  let(:informal_conference_rep_phone_is_international) { false }
+  let(:informal_conference_rep_phone_country_code) { '1' }
+  let(:informal_conference_rep_phone_area_code) { '555' }
+  let(:informal_conference_rep_phone_phone_number) { '8001111' }
+  let(:informal_conference_rep_phone_extension) { '2' }
+  let(:informal_conference_rep_phone_phone_type) { 'HOME' }
+  let(:informal_conference_rep_email_address) { 'josie@example.com' }
+  let(:benefit_type) { 'nca' }
 
   it('JSON is valid') { expect(json_schema).to be_a Hash }
 
   it('JSON Schema is valid') { expect(validator).to be_truthy }
 
-  context 'all fields used' do
-    let(:input) do
-      # ALL IN ONE PIECE TO SERVE AS AN EXAMPLE
-      {
-        data: {
-          type: 'HigherLevelReview',
-          attributes: {
-            informalConference: true,
-            sameOffice: true,
-            legacyOptInApproved: true,
-            benefitType: 'compensation',
-            veteran: {
-              address: {
-                addressType: 'DOMESTIC',
-                addressLine1: '401 Kansas Avenue',
-                addressLine2: 'Unit #724',
-                addressLine3: 'c/o Amelia Earhart',
-                city: 'Atchison',
-                stateCode: 'KS',
-                zipCode: '66002',
-                countryName: 'United States',
-                addressPou: 'RESIDENCE/CHOICE'
-              },
-              phone: {
-                isInternational: false,
-                countryCode: '1',
-                areaCode: '913',
-                phoneNumber: '3671902',
-                extension: '99',
-                phoneType: 'HOME'
-              },
-              emailAddress: 'barbara@example.com'
-            },
-            claimant: {
-              "participantId": '123',
-              "payeeCode": '10'
-            },
-            receiptDate: '2020-02-02',
-            informalConferenceTimes: [
-              '1230-1400 ET',
-              '1400-1630 ET'
-            ],
-            informalConferenceRep: {
-              name: 'Joe Rep',
-              phone: {
-                isInternational: false,
-                countryCode: '1',
-                areaCode: '913',
-                phoneNumber: '3677100',
-                extension: '600',
-                phoneType: 'MOBILE'
-              }
-            }
-          }
-        },
-        included: [
-          {
-            type: 'ContestableIssue',
-            attributes: {
-              decisionIssueId: 100,
-              ratingIssueId: '200',
-              ratingDecisionIssueId: '300'
-            }
-          },
-          {
-            type: 'ContestableIssue',
-            attributes: {
-              decisionIssueId: 401,
-              ratingIssueId: '501'
-            }
-          },
-          {
-            type: 'ContestableIssue',
-            attributes: {
-              ratingIssueId: '602',
-              ratingDecisionIssueId: '702'
-            }
-          },
-          {
-            type: 'ContestableIssue',
-            attributes: {
-              decisionIssueId: 803,
-              ratingDecisionIssueId: '904'
-            }
-          },
-          {
-            type: 'ContestableIssue',
-            attributes: { decisionIssueId: 1005 }
-          },
-          {
-            type: 'ContestableIssue',
-            attributes: { ratingIssueId: '1106' }
-          },
-          {
-            type: 'ContestableIssue',
-            attributes: { ratingDecisionIssueId: '1207' }
-          }
-        ]
-      }
+  context 'template is valid' do
+    it('has no errors') do
+      puts
+      puts '######  EXAMPLE JSON  ######'
+      puts
+      pp input
+      puts
+      puts '############################'
+      puts
+      expect(errors).to be_empty
     end
-
-    it('has no errors') { expect(errors).to be_empty }
   end
 
   context 'data:' do
-    let(:data_attributes) { data_attributes_template }
-    let(:data_attributes_template) do
-      {
-        informalConference: informal_conference,
-        sameOffice: same_office,
-        legacyOptInApproved: legacy_opt_in_approved,
-        benefitType: benefit_type,
-        veteran: veteran,
-        claimant: claimant,
-        receiptDate: receipt_date,
-        informalConferenceTimes: informal_conference_times,
-        informalConferenceRep: informal_conference_rep
-      }
-    end
-    let(:informal_conference_rep_phone) { informal_conference_rep_phone_template }
-    let(:informal_conference_rep_phone_template) do
-      {
-        isInternational: informal_conference_rep_phone_is_international,
-        countryCode: informal_conference_rep_phone_country_code,
-        areaCode: informal_conference_rep_phone_area_code,
-        phoneNumber: informal_conference_rep_phone_phone_number,
-        extension: informal_conference_rep_phone_extension,
-        phoneType: informal_conference_rep_phone_phone_type
-      }
-    end
-    let(:informal_conference_rep) { informal_conference_rep_template }
-    let(:informal_conference_rep_template) do
-      {
-        name: informal_conference_rep_name,
-        phone: informal_conference_rep_phone
-      }
-    end
-    let(:claimant) { claimant_template }
-    let(:claimant_template) do
-      {
-        participantId: claimant_participant_id,
-        payeeCode: claimant_payee_code
-      }
-    end
-    let(:veteran) { veteran_template }
-    let(:veteran_template) do
-      {
-        address: veteran_address,
-        phone: veteran_phone,
-        emailAddress: veteran_email_address
-      }
-    end
-    let(:veteran_address) { veteran_address_template }
-    let(:veteran_address_template) do
-      {
-        addressType: veteran_address_address_type,
-        addressLine1: veteran_address_address_line1,
-        addressLine2: veteran_address_address_line2,
-        addressLine3: veteran_address_address_line3,
-        city: veteran_address_city,
-        stateCode: veteran_address_state_code,
-        zipCode: veteran_address_zip_code,
-        countryName: veteran_address_country_name,
-        addressPou: veteran_address_address_pou
-      }
-    end
-    let(:veteran_phone) { veteran_phone_template }
-    let(:veteran_phone_template) do
-      {
-        isInternational: veteran_phone_is_international,
-        countryCode: veteran_phone_country_code,
-        areaCode: veteran_phone_area_code,
-        phoneNumber: veteran_phone_phone_number,
-        extension: veteran_phone_extension,
-        phoneType: veteran_phone_phone_type
-      }
-    end
-
-    let(:informal_conference_rep_email_address) { 'josie@example.com' }
-    let(:informal_conference_rep_phone_phone_type) { 'HOME' }
-    let(:informal_conference_rep_phone_extension) { '2' }
-    let(:informal_conference_rep_phone_phone_number) { '8001111' }
-    let(:informal_conference_rep_phone_area_code) { '555' }
-    let(:informal_conference_rep_phone_country_code) { '1' }
-    let(:informal_conference_rep_phone_is_international) { false }
-    let(:informal_conference_rep_name) { 'Helen Holly' }
-    let(:informal_conference_times) { ['1230-1400 ET', '1400-1630 ET'] }
-    let(:claimant_participant_id) { '123' }
-    let(:claimant_payee_code) { '10' }
-    let(:veteran_email_address) { 'josie@example.com' }
-    let(:veteran_phone_phone_type) { 'HOME' }
-    let(:veteran_phone_extension) { '2' }
-    let(:veteran_phone_phone_number) { '8001111' }
-    let(:veteran_phone_area_code) { '555' }
-    let(:veteran_phone_country_code) { '1' }
-    let(:veteran_phone_is_international) { false }
-    let(:veteran_address_address_pou) { 'RESIDENCE/CHOICE' }
-    let(:veteran_address_country_name) { 'United States' }
-    let(:veteran_address_zip_code) { '66002' }
-    let(:veteran_address_state_code) { 'KS' }
-    let(:veteran_address_city) { 'Atchison' }
-    let(:veteran_address_address_line3) { 'c/o Amelia Earhart' }
-    let(:veteran_address_address_line2) { 'Unit #724' }
-    let(:veteran_address_address_line1) { '401 Kansas Avenue' }
-    let(:veteran_address_address_type) { 'DOMESTIC' }
-    let(:legacy_opt_in_approved) { true }
-    let(:same_office) { true }
-    let(:informal_conference) { true }
-    let(:receipt_date) { '2020-02-02' }
-    let(:benefit_type) { 'nca' }
-
     context 'attributes:' do
       it('has no errors') { expect(errors).to be_empty }
 
@@ -366,7 +275,7 @@ describe 'VA Form 20-0996 JSON Schema', type: :request do
         context 'field absent' do
           let(:data_attributes) { data_attributes_template.except(:veteran) }
 
-          it('has no errors (unless updating phone/address/email, you don\'t need to use the veteran field)') do
+          it('has no errors (unless updating phone/address/email, the veteran field should be absent)') do
             expect(errors).to be_empty
           end
         end
@@ -555,6 +464,128 @@ describe 'VA Form 20-0996 JSON Schema', type: :request do
           it('HAS ERRORS') { expect(errors).not_to be_empty }
         end
       end
+
+      context 'informalConferenceTimes:' do
+        let(:informal_conference) { true }
+        let(:all_time_ranges) do
+          [
+            '800-1000 ET',
+            '1000-1230 ET',
+            '1230-1400 ET',
+            '1400-1630 ET'
+          ]
+        end
+
+        it('has no errors') { expect(errors).to be_empty }
+
+        context 'all 4 ranges' do
+          let(:informal_conference_times) { all_time_ranges }
+
+          it('HAS ERRORS') { expect(errors).not_to be_empty }
+        end
+
+        context '3 ranges' do
+          let(:informal_conference_times) { all_time_ranges[1..3] }
+
+          it('HAS ERRORS') { expect(errors).not_to be_empty }
+        end
+
+        context '2 ranges' do
+          let(:informal_conference_times) { [all_time_ranges[0], all_time_ranges[3]] }
+
+          it('has no errors') { expect(errors).to be_empty }
+        end
+
+        context '1 range' do
+          let(:informal_conference_times) { [all_time_ranges[2]] }
+
+          it('has no errors') { expect(errors).to be_empty }
+        end
+
+        context '[]' do
+          let(:informal_conference_times) { [] }
+
+          it('HAS ERRORS') { expect(errors).not_to be_empty }
+        end
+
+        context 'nil' do
+          let(:informal_conference_times) { nil }
+
+          it('HAS ERRORS') { expect(errors).not_to be_empty }
+        end
+
+        context 'invalid range' do
+          let(:informal_conference_times) { ['afternoon is fine'] }
+
+          it('HAS ERRORS') { expect(errors).not_to be_empty }
+        end
+
+        context 'duplicate ranges' do
+          let(:informal_conference_times) { [all_time_ranges[1], all_time_ranges[1]] }
+
+          it('HAS ERRORS') { expect(errors).not_to be_empty }
+        end
+      end
+    end
+  end
+
+  context 'included:' do
+    it('has no errors') { expect(errors).to be_empty }
+
+    context 'duplicate ContestableIssues' do
+      let(:included) { [included_template[0], included_template[0]] }
+
+      it('HAS ERRORS') { expect(errors).not_to be_empty }
+    end
+
+    context 'duplicate ContestableIssues' do
+      let(:included) do
+        [
+          {
+            type: 'ContestableIssue',
+            attributes: {
+              decisionIssueId: 1,
+              ratingIssueId: '2',
+              ratingDecisionIssueId: '3'
+            }
+          },
+          {
+            type: 'ContestableIssue',
+            attributes: {
+              ratingDecisionIssueId: '3',
+              decisionIssueId: 1,
+              ratingIssueId: '2'
+            }
+          }
+        ]
+      end
+
+      it('HAS ERRORS') { expect(errors).not_to be_empty }
+    end
+
+    context 'non-duplicate ContestableIssues' do
+      let(:included) do
+        [
+          {
+            type: 'ContestableIssue',
+            attributes: {
+              ratingDecisionIssueId: '3',
+              decisionIssueId: 1,
+              ratingIssueId: '2'
+            }
+          },
+          {
+            type: 'ContestableIssue',
+            attributes: {
+              ratingDecisionIssueId: '4',
+              decisionIssueId: 1,
+              ratingIssueId: '2'
+            }
+          }
+        ]
+      end
+
+      it('has no errors') { expect(errors).to be_empty }
     end
   end
 end
