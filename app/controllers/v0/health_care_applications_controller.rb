@@ -10,7 +10,7 @@ module V0
       validate_session
 
       health_care_application = HealthCareApplication.new(params.permit(:form))
-      health_care_application.async_compatible = params[:async_compatible]
+      health_care_application.async_compatible = params[:async_all]
       health_care_application.google_analytics_client_id = params[:ga_client_id]
       health_care_application.user = current_user
 
@@ -19,6 +19,10 @@ module V0
       clear_saved_form(FORM_ID)
 
       render(json: result)
+    end
+
+    def show
+      render(json: HealthCareApplication.find(params[:id]))
     end
 
     def enrollment_status

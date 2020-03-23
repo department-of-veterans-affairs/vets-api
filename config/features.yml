@@ -7,11 +7,19 @@
 #  or `cookie_id` of you wish to use the Google Analytics id as the unique identifier.
 
 features:
+  dashboard_show_covid19_alert:
+    actor_type: user
+    description: >
+      Allows for showing a special COVID19 alert on the My VA Dashboard
   facility_locator_show_community_cares:
     actor_type: user
     description: >
       On https://www.va.gov/find-locations/ enable veterans to search for Community care by showing that option in the "Search for" box.
       This toggle is owned by Rian
+  facilities_ppms_suppress_pharmacies:
+    actor_type: user
+    description: >
+      Suppresses the ability to search for pharmacies.
   facilities_ppms_response_trim:
     actor_type: user
     description: >
@@ -24,14 +32,14 @@ features:
     actor_type: user
     description: >
       On https://www.va.gov/find-locations/ toggles the deduplication of of services from a community care provider
-  profile_show_direct_deposit:
-    actor_type: user
-    description: >
-      https://www.va.gov/profile/ show Direct Deposit
   profile_show_receive_text_notifications:
     actor_type: user
     description: >
       https://www.va.gov/profile/ show Receive Text Notifications
+  profile_show_profile_2.0:
+    actor_type: user
+    description: >
+      Enables Profile 2.0
   va_online_scheduling:
     actor_type: user
     description: >
@@ -52,6 +60,10 @@ features:
     actor_type: user
     description: >
       Allows veterans to directly schedule VA appointments
+  va_online_scheduling_past:
+    actor_type: user
+    description: >
+      Allows veterans to see past appointments
   va_global_downtime_notification:
     actor_type: user
     description: >
