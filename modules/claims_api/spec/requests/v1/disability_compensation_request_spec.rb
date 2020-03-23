@@ -36,8 +36,6 @@ RSpec.describe 'Disability Claims ', type: :request do
     it 'returns a successful response with all the data' do
       with_okta_user(scopes) do |auth_header|
         VCR.use_cassette('evss/claims/claims') do
-          klass = EVSS::DisabilityCompensationForm::ServiceAllClaim
-          expect_any_instance_of(klass).to receive(:validate_form526).and_return(true)
           post path, params: data, headers: headers.merge(auth_header)
           parsed = JSON.parse(response.body)
           expect(parsed['data']['type']).to eq('claims_api_claim')
@@ -46,31 +44,9 @@ RSpec.describe 'Disability Claims ', type: :request do
       end
     end
 
-    context 'Timeouts are recorded (investigating)' do
-      [Common::Exceptions::GatewayTimeout, Timeout::Error, Faraday::TimeoutError].each do |error_klass|
-        context error_klass.to_s do
-          it 'is logged to PersonalInformationLog' do
-            with_okta_user(scopes) do |auth_header|
-              VCR.use_cassette('evss/claims/claims') do
-                allow_any_instance_of(ClaimsApi::DisabilityCompensation::MockOverrideService)
-                  .to receive(:validate_form526).and_raise(error_klass)
-                allow_any_instance_of(EVSS::DisabilityCompensationForm::ServiceAllClaim)
-                  .to receive(:validate_form526).and_raise(error_klass)
-                post path, params: data, headers: headers.merge(auth_header)
-                expect(PersonalInformationLog.count).to be_positive
-                expect(PersonalInformationLog.last.error_class).to eq("submit_form_526 #{error_klass.name}")
-              end
-            end
-          end
-        end
-      end
-    end
-
     it 'creates the sidekick job' do
       with_okta_user(scopes) do |auth_header|
         VCR.use_cassette('evss/claims/claims') do
-          klass = EVSS::DisabilityCompensationForm::ServiceAllClaim
-          expect_any_instance_of(klass).to receive(:validate_form526).and_return(true)
           expect(ClaimsApi::ClaimEstablisher).to receive(:perform_async)
           post path, params: data, headers: headers.merge(auth_header)
         end
@@ -80,8 +56,6 @@ RSpec.describe 'Disability Claims ', type: :request do
     it 'assigns a source' do
       with_okta_user(scopes) do |auth_header|
         VCR.use_cassette('evss/claims/claims') do
-          klass = EVSS::DisabilityCompensationForm::ServiceAllClaim
-          expect_any_instance_of(klass).to receive(:validate_form526).and_return(true)
           post path, params: data, headers: headers.merge(auth_header)
           token = JSON.parse(response.body)['data']['attributes']['token']
           aec = ClaimsApi::AutoEstablishedClaim.find(token)
@@ -139,12 +113,14 @@ RSpec.describe 'Disability Claims ', type: :request do
     end
 
     context 'form 526 validation' do
+      let(:path) { '/services/claims/v1/forms/526/validate' }
+
       it 'returns a successful response when valid' do
         VCR.use_cassette('evss/disability_compensation_form/form_526_valid_validation') do
           with_okta_user(scopes) do |auth_header|
             VCR.use_cassette('evss/claims/claims') do
               data = File.read(Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'form_526_json_api.json'))
-              post '/services/claims/v1/forms/526/validate', params: data, headers: headers.merge(auth_header)
+              post path, params: data, headers: headers.merge(auth_header)
               parsed = JSON.parse(response.body)
               expect(parsed['data']['type']).to eq('claims_api_auto_established_claim_validation')
               expect(parsed['data']['attributes']['status']).to eq('valid')
@@ -157,7 +133,7 @@ RSpec.describe 'Disability Claims ', type: :request do
         with_okta_user(scopes) do |auth_header|
           VCR.use_cassette('evss/disability_compensation_form/form_526_invalid_validation') do
             VCR.use_cassette('evss/claims/claims') do
-              post '/services/claims/v1/forms/526/validate', params: data, headers: headers.merge(auth_header)
+              post path, params: data, headers: headers.merge(auth_header)
               parsed = JSON.parse(response.body)
               expect(response.status).to eq(422)
               expect(parsed['errors'].size).to eq(2)
@@ -170,7 +146,7 @@ RSpec.describe 'Disability Claims ', type: :request do
         with_okta_user(scopes) do |auth_header|
           VCR.use_cassette('evss/disability_compensation_form/form_526_invalid_validation') do
             expect(StatsD).to receive(:increment).at_least(:once)
-            post '/services/claims/v1/forms/526/validate', params: data, headers: headers.merge(auth_header)
+            post path, params: data, headers: headers.merge(auth_header)
           end
         end
       end
@@ -180,10 +156,30 @@ RSpec.describe 'Disability Claims ', type: :request do
           json_data = JSON.parse data
           params = json_data
           params['data']['attributes']['veteran']['currentMailingAddress'] = {}
-          post '/services/claims/v1/forms/526/validate', params: params.to_json, headers: headers.merge(auth_header)
+          post path, params: params.to_json, headers: headers.merge(auth_header)
           parsed = JSON.parse(response.body)
           expect(response.status).to eq(422)
           expect(parsed['errors'].size).to eq(5)
+        end
+      end
+
+      context 'Timeouts are recorded (investigating)' do
+        [Common::Exceptions::GatewayTimeout, Timeout::Error, Faraday::TimeoutError].each do |error_klass|
+          context error_klass.to_s do
+            it 'is logged to PersonalInformationLog' do
+              with_okta_user(scopes) do |auth_header|
+                VCR.use_cassette('evss/claims/claims') do
+                  allow_any_instance_of(ClaimsApi::DisabilityCompensation::MockOverrideService)
+                    .to receive(:validate_form526).and_raise(error_klass)
+                  allow_any_instance_of(EVSS::DisabilityCompensationForm::ServiceAllClaim)
+                    .to receive(:validate_form526).and_raise(error_klass)
+                  post path, params: data, headers: headers.merge(auth_header)
+                  expect(PersonalInformationLog.count).to be_positive
+                  expect(PersonalInformationLog.last.error_class).to eq("validate_form_526 #{error_klass.name}")
+                end
+              end
+            end
+          end
         end
       end
     end

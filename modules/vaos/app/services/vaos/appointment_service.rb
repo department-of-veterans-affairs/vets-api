@@ -24,6 +24,10 @@ module VAOS
           data: OpenStruct.new(response.body),
           meta: {}
         }
+      rescue Common::Exceptions::BackendServiceException => e
+        # TODO: Reevaluate the need to log clinic data three months after launch (6/15/20)
+        log_clinic_details(:create, params.dig(:clinic, :clinic_id), site_code) if e.key == 'VAOS_400'
+        raise e
       end
     end
 
@@ -35,12 +39,24 @@ module VAOS
       with_monitoring do
         perform(:put, put_appointment_url(site_code), params, headers)
         ''
+      rescue Common::Exceptions::BackendServiceException => e
+        # TODO: Reevaluate the need to log clinic data three months after launch (6/15/20)
+        log_clinic_details(:cancel, params[:clinic_id], site_code) if e.key == 'VAOS_400'
+        raise e
       end
     rescue Common::Client::Errors::ClientError => e
       raise_backend_exception('VAOS_502', self.class, e)
     end
 
     private
+
+    def log_clinic_details(action, clinic_id, site_code)
+      Rails.logger.warn(
+        "Clinic does not support VAOS appointment #{action}",
+        clinic_id: clinic_id,
+        site_code: site_code
+      )
+    end
 
     def deserialized_appointments(json_hash, type)
       appointment_list = if type == 'va'

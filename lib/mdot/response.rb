@@ -4,13 +4,20 @@ require 'common/models/base'
 
 module MDOT
   class Response < Common::Base
-    attr_reader :body, :status
+    attr_reader :status
+
+    attribute :permanent_address, MDOT::Address
+    attribute :temporary_address, MDOT::Address
+    attribute :supplies, Array[MDOT::Supply]
 
     def initialize(args)
-      @response = args[:response]
-      @status = @response.status
-      @schema = validate_schema(args[:schema])
-      @body = @response.body if json_format_is_valid?(@response.body, @schema)
+      validate_response_against_schema(args[:schema], args[:response])
+      @body = args[:response].body
+      @parsed_body = @body.is_a?(String) ? JSON.parse(@body) : @body
+      self.permanent_address = @parsed_body['permanent_address']
+      self.temporary_address = @parsed_body['temporary_address']
+      self.supplies = @parsed_body['supplies']
+      @status = args[:response][:status]
     end
 
     def ok?
@@ -23,16 +30,9 @@ module MDOT
 
     private
 
-    def validate_schema(schema)
-      %i[supplies submit].each do |valid_schema|
-        return schema.to_s if schema == valid_schema
-      end
-      nil
-    end
-
-    def json_format_is_valid?(body, schema_name)
-      schema_path = Rails.root.join('lib', 'mdot', 'schemas', "#{schema_name}.json").to_s
-      JSON::Validator.validate!(schema_path, body, strict: false)
+    def validate_response_against_schema(schema, response)
+      schema_path = Rails.root.join('lib', 'mdot', 'schemas', "#{schema}.json").to_s
+      JSON::Validator.validate!(schema_path, response.body, strict: false)
     end
   end
 end
