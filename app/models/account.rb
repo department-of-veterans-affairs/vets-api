@@ -56,11 +56,7 @@ class Account < ApplicationRecord
 
   def self.create_if_needed!(user)
     accts = idme_uuid_match(user.idme_uuid).or(sec_id_match(user.sec_id))
-    if accts.length > 1
-      data = accts.map(&:attributes)
-      log_message_to_sentry('multiple Account records with matching ids', 'warning', data)
-    end
-
+    accts = sort_with_idme_uuid_priority(accts, user)
     accts.length.positive? ? accts[0] : create(**account_attrs_from_user(user))
   end
 
@@ -101,7 +97,23 @@ class Account < ApplicationRecord
     user.uuid || "sec:#{user.sec_id}"
   end
 
-  private_class_method :account_attrs_from_user, :get_key
+  # Sort the given list of Accounts so the ones with matching ID.me UUID values
+  # come first in the array, this will provide users with a more consistent
+  # experience in the case they have multiple credentials to login with
+  # https://github.com/department-of-veterans-affairs/va.gov-team/issues/6702
+  #
+  # @return [Array]
+  #
+  def self.sort_with_idme_uuid_priority(accts, user)
+    if accts.length > 1
+      data = accts.map { |a| "Account:#{a.id}" }
+      log_message_to_sentry('multiple Account records with matching ids', 'warning', data)
+      accts = accts.sort_by { |a| a.idme_uuid == user.idme_uuid ? 0 : 1 }
+    end
+    accts
+  end
+
+  private_class_method :account_attrs_from_user, :get_key, :sort_with_idme_uuid_priority
 
   private
 
