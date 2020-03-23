@@ -136,7 +136,7 @@ RSpec.describe Account, type: :model do
     it "returns the user's db Account record", :aggregate_failures do
       record = Account.cache_or_create_by! user
 
-      expect(record).to eq Account.find_by(idme_uuid: user.uuid)
+      expect(record).to eq Account.find_by(idme_uuid: user.idme_uuid)
       expect(record.class).to eq Account
     end
   end

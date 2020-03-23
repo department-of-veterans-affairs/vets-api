@@ -14,6 +14,7 @@ FactoryBot.define do
       birth_date { '1809-02-12' }
       zip { '17325' }
       ssn { '796111863' }
+      idme_uuid { 'b2fab2b5-6af0-45e1-a9e2-394347af91ef' }
       mhv_icn { nil }
       multifactor { false }
       mhv_correlation_id { nil }
@@ -47,6 +48,7 @@ FactoryBot.define do
                              birth_date: t.birth_date,
                              zip: t.zip,
                              ssn: t.ssn,
+                             idme_uuid: t.idme_uuid,
                              mhv_icn: t.mhv_icn,
                              loa: t.loa,
                              multifactor: t.multifactor,
@@ -78,9 +80,10 @@ FactoryBot.define do
 
     trait :accountable do
       authn_context { LOA::IDME_LOA3_VETS }
-      uuid { SecureRandom.uuid }
+      uuid { '72839e7a-5fc5-4e44-bbc5-2cf5c2cdb6a1' }
+      idme_uuid { '72839e7a-5fc5-4e44-bbc5-2cf5c2cdb6a1' }
       callback(:after_build) do |user|
-        create(:account, idme_uuid: user.uuid)
+        create(:account, idme_uuid: user.idme_uuid)
       end
 
       sign_in do
