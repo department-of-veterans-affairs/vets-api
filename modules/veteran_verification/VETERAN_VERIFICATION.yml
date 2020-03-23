@@ -260,15 +260,15 @@ components:
               description: |
                 Defines the level of compensation for a position, normalized across military branches
 
-                Possible values include the concatenation of Pay Plan and Pay Grade.
-                Pay Plan is represented as a two-character code, and can be one of five values:
+                Possible values include the concatenation of Pay Plan Code and Pay Grade Code.
+                Pay Plan Code is represented as a two-character code, and can be one of five values:
                  - CC (Commissioned Corps)
                  - MC (Cadet)
                  - ME (Enlisted)
                  - MO (Officer)
                  - MW (Warrant Officer)
-                Pay Grade is a value between 01 and 10.
-                Pay Plan needs to be concatenated with Pay Grade to determine the full grade, with the leading character (M or C) stripped from Pay Plan.
+                Pay Grade Code is a value between 01 and 10.
+                Pay Plan Code is concatenated with Pay Grade Code to determine the full Pay Grade value, with the leading character (M or C) stripped from Pay Plan Code.
               example: "W01"
             discharge_status:
               type: string
