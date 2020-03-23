@@ -109,7 +109,7 @@ class Account < ApplicationRecord
   # @return [Array]
   def self.sort_with_idme_uuid_priority(accts, user)
     if accts.length > 1
-      data = accts.map(&:attributes)
+      data = accts.map { |a| "Account:#{a.id}" }
       log_message_to_sentry('multiple Account records with matching ids', 'warning', data)
       accts = accts.sort_by { |a| a.idme_uuid == user.uuid ? 0 : 1 }
     end
