@@ -74,7 +74,7 @@ module VeteranVerification
     end
 
     def self.build_pay_grade(episode)
-      if (episode.pay_plan_code.blank? || episode.pay_grade_code.blank?)
+      if episode.pay_plan_code.blank? || episode.pay_grade_code.blank?
         'unknown'
       else
         episode.pay_plan_code[1] + episode.pay_grade_code
