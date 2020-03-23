@@ -65,7 +65,7 @@ pipeline {
     stage('Lint All Files') {
       when { branch 'master' }
       steps {
-        sh "make ci-lint"
+        sh 'make ci-lint'
       }
     }
 
