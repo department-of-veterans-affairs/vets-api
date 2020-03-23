@@ -45,16 +45,23 @@ pipeline {
       }
     }
 
-    stage('Lint') {
+    stage('Fetch List of Changed Files in Pull-Request') {
+      when { changeRequest() }
       steps {
         script {
           files_to_lint = ''
           try {
             files_to_lint = getGithubChangedFiles('vets-api', pr_number: env.CHANGE_ID).join(' ')
           } catch(IOException e) {
-            echo "Maybe failed to connect to githubb: ${e}, lint all files"
+            echo "WARNING: Unable to fetch changed PR files from Github!"
+            echo "${e}"           
           }
         }
+      }
+    }
+
+    stage('Lint') {
+      steps {
         sh """make files='${files_to_lint}' ci-lint"""
       }
     }
