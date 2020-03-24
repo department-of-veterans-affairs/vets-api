@@ -29,20 +29,18 @@ module BGS
       # vnp_ptcpnt_addrs_create_response = vnp_ptcpnt_addrs_create(create_ptcpnt_response["vnp_ptcpnt_id"])
 
       veteran = PersonEntity.new(payload['veteran'], client, @user, proc_id, :veteran)
-
       veteran.vnp_create
-
 
       #####- loop through 6-8 for each dependent
       #   6. Create *NEXT* participant “Pass in corp participant id if it is obtainable”
       #   7. Create *Dependent* using participant-id from step 6
       #   8. Create address for dependent pass in participant-id from step 6
       #####
+
       # 9. Create Phone number for veteran or spouse(dependent?) pass in participant-id from step 3 or 6 (Maybe fire this off for each participant, we’ll look it up later)
       # vnp_ptcpnt_phone_create_response = vnp_ptcpnt_phone_create(create_ptcpnt_response["vnp_ptcpnt_id"])
       # vnp_ptcpnt_phone_create_response
       dependents = create_dependents(payload, proc_id)
-
 
       # 10. Create relationship pass in Veteran and dependent using respective participant-id (loop it for each dependent)
       # vnp_relationship_create(veteran, dependents)
@@ -112,7 +110,7 @@ module BGS
 
       dependents.each { |person| person.vnp_create }
 
-    dependents
+      dependents
     end
 
     # not implemented yet
