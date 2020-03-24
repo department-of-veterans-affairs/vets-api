@@ -1,6 +1,3 @@
-// TODO REMOVE THIS!!
-@Library('va.gov-devops-jenkins-lib@github-api') _
-
 dev_branch = 'master'
 staging_branch = 'master'
 main_branch = 'master'
