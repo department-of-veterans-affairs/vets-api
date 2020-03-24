@@ -22,9 +22,9 @@ module BGS
       # Step 1 create Proc
       vnp_response = vnp_proc_create
 
-      vnp_proc_id = vnp_response[:vnp_proc_id]
+      @vnp_proc_id = vnp_response[:vnp_proc_id]
       # Step 2 Create ProcForm using ProcId from Step 1
-      create_proc_form_response = vnp_proc_form_create(vnp_proc_id)
+      create_proc_form_response = vnp_proc_form_create
 
       # Step 3 Create FIRST Participant
       create_ptcpnt_response = vnp_ptcpnt_create
@@ -79,9 +79,9 @@ module BGS
       )
     end
 
-    def vnp_proc_form_create(vnp_proc_id)
+    def vnp_proc_form_create
       service.vnp_proc_form.vnp_proc_form_create(
-        vnp_proc_id: vnp_proc_id,
+        vnp_proc_id: @vnp_proc_id,
         form_type_cd: '21-686c',
         jrn_dt: Time.current.iso8601,
         jrn_lctn_id: Settings.bgs.client_station_id,
@@ -95,12 +95,12 @@ module BGS
     def vnp_ptcpnt_create
       service.vnp_ptcpnt.vnp_ptcpnt_create(
         vnp_ptcpnt_id: '',
-        vnp_proc_id: '3826728',
+        vnp_proc_id: @vnp_proc_id,
         fraud_ind: '',
         jrn_dt: Time.current.iso8601,
         jrn_lctn_id: Settings.bgs.client_station_id,
         jrn_obj_id: Settings.bgs.application,
-        jrn_status_type_cd: 'I',
+        jrn_status_type_cd: 'U',
         jrn_user_id: Settings.bgs.client_username,
         legacy_poa_cd: '',
         misc_vendor_ind: '',
@@ -109,7 +109,7 @@ module BGS
         tax_idfctn_nbr: '',
         tin_waiver_reason_type_cd: '',
         ptcpnt_fk_ptcpnt_id: '',
-        corp_ptcpnt_id: '600036507',
+        corp_ptcpnt_id: current_user.participant_id,
         ssn: current_user.ssn
       )
     end
@@ -161,7 +161,7 @@ module BGS
         vet_ind: "",
         vet_type_nm: "",
         years_presnt_emplyr_nbr: "0",
-        vnp_proc_id: "3826728",
+        vnp_proc_id: @vnp_proc_id,
         vnp_srusly_dsabld_ind: "",
         vnp_school_child_ind: "",
         ssn: current_user.ssn
@@ -171,7 +171,7 @@ module BGS
     def vnp_ptcpnt_addrs_create(vnp_ptcpnt_id)
       service.vnp_ptcpnt_addrs.vnp_ptcpnt_addrs_create(
         vnp_ptcpnt_id: vnp_ptcpnt_id,
-        vnp_proc_id: '',
+        vnp_proc_id: @vnp_proc_id,
         addrs_one_txt: '',
         addrs_three_txt: '',
         addrs_two_txt: '',
@@ -215,7 +215,7 @@ module BGS
     def vnp_ptcpnt_phone_create(vnp_ptcpnt_id)
       service.vnp_ptcpnt_phone.vnp_ptcpnt_phone_create(
         vnp_ptcpnt_phone_id: '',
-        vnp_proc_id: '3826728',
+        vnp_proc_id: @vnp_proc_id,
         vnp_ptcpnt_id: vnp_ptcpnt_id,
         phone_type_nm: 'Nighttime',
         phone_nbr: '848-4848',
