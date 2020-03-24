@@ -9,11 +9,13 @@ RSpec.describe 'CSRF scenarios', type: :request do
   # ActionController::Base.allow_forgery_protection = false in the 'test' environment
   # We explicity enable it for this spec
   before(:all) do
+    Settings.sentry.dsn = 'truthy'
     @original_val = ActionController::Base.allow_forgery_protection
     ActionController::Base.allow_forgery_protection = true
   end
 
   after(:all) do
+    Settings.sentry.dsn = nil
     ActionController::Base.allow_forgery_protection = @original_val
   end
 
@@ -38,10 +40,8 @@ RSpec.describe 'CSRF scenarios', type: :request do
     context 'without a CSRF token' do
       it 'logs the info to sentry' do
         expect(Raven).to receive(:capture_message).once
-        with_settings(Settings.sentry, dsn: 'truthy') do
-          post(v0_hca_attachments_path,
-               params: { hca_attachment: { file_data: fixture_file_upload('pdf_fill/extras.pdf') } })
-        end
+        post(v0_hca_attachments_path,
+              params: { hca_attachment: { file_data: fixture_file_upload('pdf_fill/extras.pdf') } })
       end
 
       it 'returns an error' do
@@ -57,20 +57,20 @@ RSpec.describe 'CSRF scenarios', type: :request do
   # SAML callback
   describe 'POST SAML callback' do
     context 'without a CSRF token' do
-      it 'does not raise an error' do
-        expect(Raven).not_to receive(:capture_message).with('Request susceptible to CSRF', level: 'info')
-        with_settings(Settings.sentry, dsn: 'truthy') do
+      context 'v0' do
+        it 'does not raise an error' do
+          expect(Raven).not_to receive(:capture_message).with('Request susceptible to CSRF', level: 'info')
           post(auth_saml_callback_path)
+          # expect(response.body).not_to match(/ActionController::InvalidAuthenticityToken/)
         end
-        # expect(response.body).not_to match(/ActionController::InvalidAuthenticityToken/)
       end
 
-      it 'does not raise an error for v1' do
-        expect(Raven).not_to receive(:capture_message).with('Request susceptible to CSRF', level: 'info')
-        with_settings(Settings.sentry, dsn: 'truthy') do
+      context 'v1' do
+        it 'does not raise an error' do
+          expect(Raven).not_to receive(:capture_message).with('Request susceptible to CSRF', level: 'info')
           post(v1_sessions_callback_path)
+          # expect(response.body).not_to match(/ActionController::InvalidAuthenticityToken/)
         end
-        # expect(response.body).not_to match(/ActionController::InvalidAuthenticityToken/)
       end
     end
   end
