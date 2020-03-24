@@ -40,7 +40,6 @@ RSpec.describe 'CSRF scenarios', type: :request do
     end
   
     %i[post put patch delete].each do |verb|
-      # binding.pry
       context "for #{verb.upcase} requests" do
         context 'without a CSRF token present' do
           it 'raises an exception' do
