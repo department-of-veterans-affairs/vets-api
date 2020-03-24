@@ -15,6 +15,7 @@ FactoryBot.define do
       zip { '17325' }
       ssn { '796111863' }
       idme_uuid { 'b2fab2b5-6af0-45e1-a9e2-394347af91ef' }
+      sec_id { nil }
       mhv_icn { nil }
       multifactor { false }
       mhv_correlation_id { nil }
@@ -49,6 +50,7 @@ FactoryBot.define do
                              zip: t.zip,
                              ssn: t.ssn,
                              idme_uuid: user.uuid,
+                             sec_id: t.sec_id,
                              mhv_icn: t.mhv_icn,
                              loa: t.loa,
                              multifactor: t.multifactor,
@@ -73,6 +75,7 @@ FactoryBot.define do
       birth_date { nil }
       ssn { nil }
       multifactor { nil }
+      idme_uuid { nil }
       mhv_account_type { nil }
       va_patient { nil }
       loa { nil }
