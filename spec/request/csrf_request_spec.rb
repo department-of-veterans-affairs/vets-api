@@ -22,7 +22,7 @@ RSpec.describe 'CSRF scenarios', type: :request do
   before do
     # innocuous route chosen for setting the CSRF token in the cookie
     get(v0_maintenance_windows_path)
-    @token = response.cookies['X-CSRF-Token']
+    @token = response.headers['X-CSRF-Token']
   end
 
   describe 'CSRF protection' do
@@ -48,6 +48,7 @@ RSpec.describe 'CSRF scenarios', type: :request do
             # expect(response.status).to eq 500
           end
         end
+
         context 'with a CSRF token present' do
           it 'succeeds' do
             send(verb, '/csrf_test', headers: { 'X-CSRF-Token' => @token })
@@ -65,6 +66,7 @@ RSpec.describe 'CSRF scenarios', type: :request do
           expect(response.status).to eq 200
         end
       end
+
       context 'with a CSRF token present' do
         it 'succeeds' do
           expect(Raven).not_to receive(:capture_message)

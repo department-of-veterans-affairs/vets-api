@@ -7,6 +7,7 @@ require 'saml/responses/logout'
 
 module V0
   class SessionsController < ApplicationController
+    skip_before_action :verify_authenticity_token
 
     REDIRECT_URLS = %w[signup mhv dslogon idme mfa verify slo].freeze
 

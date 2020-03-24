@@ -8,6 +8,10 @@ require 'sentry_logging'
 require 'aes_256_cbc_encryptor'
 
 class ApplicationController < ActionController::API
+  include ActionController::RequestForgeryProtection
+  protect_from_forgery with: LoggingForgeryStrategy, if: -> { ActionController::Base.allow_forgery_protection }
+  after_action :set_csrf_header, if: -> { ActionController::Base.allow_forgery_protection }
+
   include AuthenticationAndSSOConcerns
   include SentryLogging
   include Pundit
@@ -52,6 +56,10 @@ class ApplicationController < ActionController::API
   private
 
   attr_reader :current_user
+
+  def set_csrf_header
+    response.set_header('X-CSRF-Token', form_authenticity_token)
+  end
 
   # returns a Bad Request if the incoming host header is unsafe.
   def block_unknown_hosts
