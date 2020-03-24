@@ -52,7 +52,8 @@ pipeline {
         script {
           files_to_lint = ''
           try {
-            files_to_lint = getGithubChangedFiles('vets-api', pr_number: env.CHANGE_ID).join(' ')
+            files_to_lint = getGithubChangedFiles('vets-api', env.CHANGE_ID.toInteger(),
+                              change_types: ['modified', 'added']).join(' ')
           } catch(IOException e) {
             echo "WARNING: Unable to fetch changed PR files from Github!"
             echo "${e}"           
