@@ -118,7 +118,7 @@ RSpec.describe V1::SessionsController, type: :controller do
             end
 
             it 'persists redirect application' do
-              expect { get(:new, params: { type: type, clientId: '123123', application: 'cerner' }) }
+              expect { get(:new, params: { type: type, clientId: '123123', application: 'myvahealth' }) }
                 .to trigger_statsd_increment(described_class::STATSD_SSO_NEW_KEY,
                                              tags: ["context:#{type}", 'forceauthn:false'], **once)
 
@@ -187,10 +187,10 @@ RSpec.describe V1::SessionsController, type: :controller do
 
       it 'redirect user to external site' do
         LoginRedirectApplication.create(
-          uuid: login_uuid, redirect_application: 'cerner'
+          uuid: login_uuid, redirect_application: 'myvahealth'
         )
         allow(SAML::User).to receive(:new).and_return(saml_user)
-        expect(post(:saml_callback)).to redirect_to(Settings.sso.ssoe_redirects['cerner'])
+        expect(post(:saml_callback)).to redirect_to(Settings.sso.ssoe_redirects['myvahealth'])
       end
     end
   end
