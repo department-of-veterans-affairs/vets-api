@@ -22,7 +22,7 @@ gem 'puma-plugin-statsd', '~> 0.1.0'
 gem 'rails', '~> 6.0.2'
 
 # Gems with special version/repo needs
-gem 'active_model_serializers', git: 'https://github.com/erluti/active_model_serializers', branch: 'master' # TODO put this repo in vsp github
+gem 'active_model_serializers', git: 'https://github.com/erluti/active_model_serializers', branch: 'master' # TODO: put this repo in vsp github
 gem 'carrierwave', '~> 0.11' # TODO: explanation
 gem 'sidekiq-scheduler', '~> 3.0' # TODO: explanation
 
@@ -126,7 +126,7 @@ group :development do
 end
 
 group :test do
-  gem 'apivore', git: 'https://github.com/erluti/apivore', branch: 'master' # TODO put this repo in vsp github
+  gem 'apivore', git: 'https://github.com/erluti/apivore', branch: 'master' # TODO: put this repo in vsp github
   gem 'awrence'
   gem 'faker'
   gem 'faker-medical'
