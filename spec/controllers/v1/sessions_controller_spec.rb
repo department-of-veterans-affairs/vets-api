@@ -200,7 +200,7 @@ RSpec.describe V1::SessionsController, type: :controller do
 
       it 'redirect user to external site' do
         LoginRedirectApplication.create(
-          uuid: login_uuid, redirect_application: 'myvahealth'
+          uuid: login_uuid, redirect_application: Settings.sso.ssoe_redirects['myvahealth']
         )
         allow(SAML::User).to receive(:new).and_return(saml_user)
         expect(post(:saml_callback)).to redirect_to(Settings.sso.ssoe_redirects['myvahealth'])
