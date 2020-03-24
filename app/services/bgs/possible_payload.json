@@ -1,0 +1,102 @@
+{
+  "veteran": {
+    "first_name": "Mark",
+    "middle_name": "",
+    "last_name": "Webster",
+    "suffix": "Jr",
+    "ssn": "796104437",
+    "va_file_number": "123VAFileNumber",
+    "service_number": "123service_number",
+    "date_of_birth": "1970-01-01",
+    "address": {
+      "country": "united states",
+      "line_one": "8200 Doby Ln",
+      "line_two": "",
+      "line_three": "",
+      "city": "PASADENA",
+      "state": "MD",
+      "postal_code": "67201",
+      "phone": "1112223333",
+      "email_address": "foo@foo.com"
+    },
+    "spouse": {
+      "first_name": "CurrentSpouseFirstName",
+      "middle_name": "CurrentSpouseMiddleName",
+      "last_name": "CurrentSpouseLastName",
+      "suffix": "",
+      "ssn": "796104437",
+      "date_of_birth": "1970-01-01",
+      "veteran_status": false,
+      "reason_for_separation": "",
+      "address": {},
+      "marraige": {
+        "date": "1990-01-01",
+        "state": "MD",
+        "city": "PASADENA",
+        "type": "ceremonial"
+      },
+      "former_spouses": [
+        {
+          "first_name": "CurrentSpouseFormerSpouseFirstName",
+          "middle_name": "CurrentSpouseFormerSpouseMiddleName",
+          "last_name": "CurrentSpouseFormerSposueLastName",
+          "suffix": ""
+        }
+      ]
+    },
+    "former_spouses": [
+      {
+        "first_name": "SpouseFirstName",
+        "middle_name": "SpouseMiddleName",
+        "last_name": "SpouseLastName",
+        "suffix": "SpouseSuffix",
+        "marraige": {
+          "date":"1990-01-01",
+          "state": "MD",
+          "city": "PASADENA",
+          "type": "divorce",
+          "reason": "divorce",
+          "end_date": "1993-01-01",
+          "end_state": "FL",
+          "end_city":"Tampa"
+        },
+        "former_spouses": [
+          {
+            "first_name": "FormerSpouseFirstName",
+            "middle_name": "FormerSpouseMiddleName",
+            "last_name": "FormerSposueLastName"
+          }
+        ]
+      }
+    ],
+    "dependents": [
+      {
+        "first_name": "Mia",
+        "middle_name": "MiddleName",
+        "last_name": "Webster",
+        "suffix": "",
+        "ssn": "796104437",
+        "dob": "1992-02-01",
+        "state_of_birth": "MD",
+        "city_of_birth": "PASADENA",
+        "status": "biological",
+        "living_with_veteran": true,
+        "step_child_date": ""
+
+      },
+      {
+        "first_name": "Randall",
+        "middle_name": "MiddleName",
+        "last_name": "Webster",
+        "suffix": "",
+        "ssn": "796104437",
+        "dob": "1992-02-01",
+        "state_of_birth": "MD",
+        "city_of_birth": "PASADENA",
+        "status": "biological",
+        "living_with_veteran": true,
+        "step_child_date": ""
+      }
+    ]
+  }
+}
