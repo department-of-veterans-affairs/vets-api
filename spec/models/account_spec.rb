@@ -52,6 +52,15 @@ RSpec.describe Account, type: :model do
         Account.create_if_needed!(user)
       end.not_to change(Account, :count)
     end
+
+    it 'uses idme match with multiple matching Accounts' do
+      user1 = create(:user, :accountable_with_sec_id)
+      user1.uuid = nil
+      user2 = create(:user, :accountable)
+
+      acct = Account.create_if_needed!(user2)
+      expect(acct.idme_uuid).to eq(user2.uuid)
+    end
   end
 
   describe '.update_if_needed!' do
