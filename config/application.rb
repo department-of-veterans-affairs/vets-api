@@ -5,14 +5,19 @@ require_relative 'boot'
 require 'rails'
 # Pick the frameworks you want:
 require 'active_model/railtie'
-# require 'active_job/railtie'
+# require "active_job/railtie"
 require 'active_record/railtie'
+# require "active_storage/engine"
 require 'action_controller/railtie'
 require 'action_mailer/railtie'
+# require "action_mailbox/engine"
+# require "action_text/engine"
 # require "action_view/railtie"
+# require "action_cable/engine"
 # require "sprockets/railtie"
 require_relative '../lib/http_method_not_allowed'
 require_relative '../lib/statsd_middleware'
+require 'rails/test_unit/railtie'
 
 # Require the gems listed in Gemfile, including any gems
 # you've limited to :test, :development, or :production.
@@ -20,21 +25,18 @@ Bundler.require(*Rails.groups)
 
 module VetsAPI
   class Application < Rails::Application
+    # Initialize configuration defaults for originally generated Rails version.
+    config.load_defaults 5.2
+
     # Settings in config/environments/* take precedence over those specified here.
-    # Application configuration should go into files in config/initializers
-    # -- all .rb files in that directory are automatically loaded.
+    # Application configuration can go into files in config/initializers
+    # -- all .rb files in that directory are automatically loaded after loading
+    # the framework and any gems in your application.
 
-    # Set Time.zone default to the specified zone and make Active Record auto-convert to this zone.
-    # Run "rake -D time" for a list of tasks for finding time zone names. Default is UTC.
-    # config.time_zone = 'Central Time (US & Canada)'
-
-    # The default locale is :en and all translations from config/locales/*.rb,yml are auto loaded.
-    # config.i18n.load_path += Dir[Rails.root.join('my', 'locales', '*.{rb,yml}').to_s]
-    # config.i18n.default_locale = :de
-
-    config.load_defaults(5.2)
+    # Only loads a smaller set of middleware suitable for API only apps.
+    # Middleware like session, flash, cookies can be added back manually.
+    # Skip views, helpers and assets when generating a new resource.
     config.api_only = true
-
     config.relative_url_root = Settings.relative_url_root
 
     # This prevents rails from escaping html like & in links when working with JSON
