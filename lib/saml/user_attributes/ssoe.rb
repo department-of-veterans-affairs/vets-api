@@ -57,9 +57,7 @@ module SAML
 
       ### Identifiers
       def uuid
-        unless idme_uuid || sec_id
-          raise Common::Exceptions::InvalidResource, @attributes
-        end
+        raise Common::Exceptions::InvalidResource, @attributes unless idme_uuid || sec_id
 
         return idme_uuid if idme_uuid
 
