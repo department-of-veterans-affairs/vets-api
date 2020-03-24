@@ -129,6 +129,19 @@ RSpec.describe V1::SessionsController, type: :controller do
                 .with_params('clientId' => '123123')
               expect(LoginRedirectApplication.keys.length).to eq(1)
             end
+
+            it 'ignores invalid redirect application' do
+              expect { get(:new, params: { type: type, clientId: '123123', application: 'unknown' }) }
+                .to trigger_statsd_increment(described_class::STATSD_SSO_NEW_KEY,
+                                             tags: ["context:#{type}", 'forceauthn:false'], **once)
+
+              expect(response).to have_http_status(:found)
+              expect(response.location)
+                .to be_an_idme_saml_url('https://pint.eauth.va.gov/isam/sps/saml20idp/saml20/login?SAMLRequest=')
+                .with_relay_state('originating_request_id' => nil, 'type' => type)
+                .with_params('clientId' => '123123')
+              expect(LoginRedirectApplication.keys.length).to eq(0)
+            end
           end
         end
 

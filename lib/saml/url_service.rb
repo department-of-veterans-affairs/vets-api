@@ -37,8 +37,10 @@ module SAML
       Raven.user_context(session: session, user: user)
       initialize_query_params(params)
       # the optional redirect_application is used to determine where to redirect
-      # the user to after a succesful login
-      @redirect_application = params[:application]
+      # the user to after a successful login
+      if Settings.sso.ssoe_redirects[params[:application]]
+        @redirect_application = params[:application]
+      end
     end
 
     # REDIRECT_URLS
