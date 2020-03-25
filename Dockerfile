@@ -34,11 +34,9 @@ WORKDIR /srv/vets-api/src
 FROM base AS development
 
 ARG sidekiq_license
-ARG exclude_sidekiq_ent
 ARG rails_env=development
 
 ENV BUNDLE_ENTERPRISE__CONTRIBSYS__COM=$sidekiq_license
-ENV EXCLUDE_SIDEKIQ_ENTERPRISE=$exclude_sidekiq_ent
 ENV RAILS_ENV=$rails_env
 
 # only extra dev/build opts go here, common packages go in base 👆
