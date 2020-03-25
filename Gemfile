@@ -173,7 +173,7 @@ end
 group :production do
   # sidekiq enterprise requires a license key to download but is only required in production.
   # for local dev environments, regular sidekiq works fine
-  if Bundler::Settings.new['enterprise.contribsys.com'] || ENV['BUNDLE_ENTERPRISE__CONTRIBSYS__COM']
+  unless Bundler::Settings.new['enterprise.contribsys.com']&.empty? && ENV['BUNDLE_ENTERPRISE__CONTRIBSYS__COM']&.empty?
     source 'https://enterprise.contribsys.com/' do
       gem 'sidekiq-ent'
       gem 'sidekiq-pro'
