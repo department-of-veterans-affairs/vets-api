@@ -23,6 +23,7 @@ module EVSS
       #
       def initialize(headers)
         @headers = headers
+        @transaction_id = @headers['va_eauth_service_transaction_id']
       end
 
       # GETs a user's rated disabilities

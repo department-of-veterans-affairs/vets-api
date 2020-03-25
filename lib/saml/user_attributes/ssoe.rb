@@ -9,97 +9,92 @@ module SAML
 
       # Denoted as "CSP user ID" in SSOe docs; required attribute for LOA >= 2
       def uuid
-        attributes['va_eauth_uid']
+        safe_attr('va_eauth_uid')
       end
 
       ### Personal attributes
 
       def first_name
-        attributes['va_eauth_firstname']
+        safe_attr('va_eauth_firstname')
       end
 
       def middle_name
-        attributes['va_eauth_middlename']
+        safe_attr('va_eauth_middlename')
       end
 
       def last_name
-        attributes['va_eauth_lastname']
+        safe_attr('va_eauth_lastname')
       end
 
       def zip
-        attributes['va_eauth_postalcode']
+        safe_attr('va_eauth_postalcode')
       end
 
       def gender
-        attributes['va_eauth_gender']&.chars&.first&.upcase
+        gender = safe_attr('va_eauth_gender')&.chars&.first&.upcase
+        %w[M F].include?(gender) ? gender : nil
       end
 
       # This attribute may sometimes be TIN, Patient identifier, etc.
       # It is not guaranteed to be a SSN
       def ssn
-        attributes['va_eauth_pnid']&.delete('-') if attributes['va_eauth_pnidtype'] == 'SSN'
+        safe_attr('va_eauth_pnid')&.delete('-') if safe_attr('va_eauth_pnidtype') == 'SSN'
       end
 
       def birth_date
-        attributes['va_eauth_birthDate_v1']
+        safe_attr('va_eauth_birthDate_v1')
       end
 
       def email
-        attributes['va_eauth_emailaddress']
+        safe_attr('va_eauth_emailaddress')
       end
 
       ### Identifiers
 
       def mhv_icn
-        attributes['va_eauth_icn']
+        safe_attr('va_eauth_icn')
       end
 
       def mhv_correlation_id
-        attributes['va_eauth_mhvien']
+        safe_attr('va_eauth_mhvien')
       end
 
       def dslogon_edipi
-        attributes['va_eauth_dodedipnid']
+        safe_attr('va_eauth_dodedipnid')
       end
 
+      # va_eauth_credentialassurancelevel is supposed to roll up the
+      # federated assurance level from credential provider and broker.
+      # It is currently returning a value of "2" for DSLogon level 2
+      # so we are interpreting any value greater than 1 as "LOA 3".
       def loa_current
-        return mhv_loa_current if mhv_loa_current
-        return dslogon_loa_current if dslogon_loa_current
-
-        # TODO: authn_context is currently not passed through by SSOe
-        @loa_current ||=
-          if existing_user_identity || authn_context.include?('multifactor')
-            existing_user_identity.loa.fetch(:current, 1).to_i
-          else
-            SAML::User::AUTHN_CONTEXTS.fetch(authn_context).fetch(:loa_current, 1).to_i
-          end
+        assurance = safe_attr('va_eauth_credentialassurancelevel')&.to_i
+        @loa_current ||= assurance.present? && assurance > 1 ? 3 : 1
       rescue NoMethodError, KeyError => e
         @warnings << "loa_current error: #{e.message}"
         @loa_current = 1
       end
 
-      def mhv_loa_current
-        if attributes['mhv_profile']
-          mhv_profile = JSON.parse(attributes['mhv_profile'])
-          mhv_account_type = mhv_profile['accountType']
-          SAML::UserAttributes::MHV::PREMIUM_LOAS.include?(mhv_account_type) ? 3 : 1
-        end
+      def mhv_loa_highest
+        mhv_assurance = safe_attr('va_eauth_mhvassurance')
+        SAML::UserAttributes::MHV::PREMIUM_LOAS.include?(mhv_assurance) ? 3 : nil
       end
 
-      def dslogon_loa_current
-        if attributes['dslogon_assurance']
-          dslogon_assurance = attributes['dslogon_assurance']
-          SAML:: UserAttributes::DSLogon::PREMIUM_LOAS.include?(dslogon_assurance) ? 3 : 1
-        end
+      def dslogon_loa_highest
+        dslogon_assurance = safe_attr('va_eauth_dslogonassurance')
+        SAML:: UserAttributes::DSLogon::PREMIUM_LOAS.include?(dslogon_assurance) ? 3 : nil
       end
 
       # This is the ID.me highest level of assurance attained
       def loa_highest
-        attributes['va_eauth_credentialassurancelevel']&.to_i
+        result = mhv_loa_highest
+        result ||= dslogon_loa_highest
+        result ||= %w[2 classic_loa3].include?(safe_attr('va_eauth_ial_idme_highest')) ? 3 : 1
+        result
       end
 
       def multifactor
-        attributes['multifactor']
+        safe_attr('va_eauth_multifactor')&.downcase == 'true'
       end
 
       def account_type
@@ -115,6 +110,10 @@ module SAML
       end
 
       private
+
+      def safe_attr(key)
+        attributes[key] == 'NOT_FOUND' ? nil : attributes[key]
+      end
 
       def serializable_attributes
         REQUIRED_ATTRIBUTES + SSOE_SERIALIZABLE_ATTRIBUTES + MERGEABLE_IDENTITY_ATTRIBUTES

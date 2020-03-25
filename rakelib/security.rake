@@ -4,7 +4,7 @@ require 'open3'
 require './rakelib/support/shell_command'
 
 desc 'shortcut to run all linting tools, at the same time.'
-task :security do
+task security: :environment do
   require 'rainbow'
 
   puts 'running Brakeman security scan...'

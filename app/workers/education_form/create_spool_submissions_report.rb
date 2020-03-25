@@ -26,7 +26,7 @@ module EducationForm
         processed_at: processed_at_range
       ).find_each do |education_benefits_claim|
         parsed_form = education_benefits_claim.parsed_form
-        data[:stem_exists] = check_claim_for_stem(education_benefits_claim, parsed_form, data[:stem_exists])
+        data[:stem_exists] = data[:stem_exists] || education_benefits_claim.form_type == '1995s'
         data[:csv_array] << [
           format_name(parsed_form['relativeFullName']),
           format_name(parsed_form['veteranFullName']),
@@ -36,15 +36,6 @@ module EducationForm
         ]
       end
       data
-    end
-
-    def check_claim_for_stem(education_benefits_claim, parsed_form, stem_exists)
-      return true if stem_exists
-
-      # TODO: Remove when 1995s form type is in prod
-      return true if education_benefits_claim.form_type == '1995' && parsed_form['isEdithNourseRogersScholarship']
-
-      education_benefits_claim.form_type == '1995s'
     end
 
     def perform

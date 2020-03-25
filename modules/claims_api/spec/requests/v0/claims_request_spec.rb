@@ -6,14 +6,6 @@ require 'evss/request_decision'
 
 RSpec.describe 'EVSS Claims management', type: :request do
   include SchemaMatchers
-  VALID_HEADERS = {
-    'X-VA-SSN' => '111223333',
-    'X-VA-First-Name' => 'Test',
-    'X-VA-Last-Name' => 'Consumer',
-    'X-VA-Birth-Date' => '11-11-1111',
-    'X-Consumer-Username' => 'TestConsumer',
-    'X-VA-LOA' => '3'
-  }.freeze
 
   before do
     stub_mvi
@@ -39,11 +31,56 @@ RSpec.describe 'EVSS Claims management', type: :request do
         expect(response).to match_response_schema('claims_api/claims')
       end
     end
+
     context 'with errors' do
       it 'renders an empty array' do
         VCR.use_cassette('evss/claims/claims_with_errors') do
           get '/services/claims/v0/claims', params: nil, headers: request_headers
           expect(JSON.parse(response.body)['data'].length).to eq(0)
+        end
+      end
+
+      it 'shows a single errored Claim with an error message', run_at: 'Wed, 13 Dec 2017 03:28:23 GMT' do
+        create(:auto_established_claim,
+               auth_headers: { some: 'data' },
+               evss_id: 600_118_851,
+               id: 'd5536c5c-0465-4038-a368-1a9d9daf65c9',
+               status: 'errored',
+               evss_response: { 'messages' => [{ 'key' => 'Error', 'severity' => 'FATAL', 'text' => 'Failed' }] })
+        VCR.use_cassette('evss/claims/claim') do
+          get(
+            '/services/claims/v0/claims/d5536c5c-0465-4038-a368-1a9d9daf65c9',
+            params: nil,
+            headers: {
+              'X-VA-SSN' => '796043735', 'X-VA-First-Name' => 'WESLEY',
+              'X-VA-Last-Name' => 'FORD', 'X-VA-EDIPI' => '1007697216',
+              'X-Consumer-Username' => 'TestConsumer', 'X-VA-User' => 'adhoc.test.user',
+              'X-VA-Birth-Date' => '1986-05-06T00:00:00+00:00', 'X-VA-LOA' => '3'
+            }
+          )
+          expect(response.status).to eq(422)
+        end
+      end
+
+      it 'shows a single errored Claim without an error message', run_at: 'Wed, 13 Dec 2017 03:28:23 GMT' do
+        create(:auto_established_claim,
+               auth_headers: { some: 'data' },
+               evss_id: 600_118_851,
+               id: 'd5536c5c-0465-4038-a368-1a9d9daf65c9',
+               status: 'errored',
+               evss_response: nil)
+        VCR.use_cassette('evss/claims/claim') do
+          get(
+            '/services/claims/v0/claims/d5536c5c-0465-4038-a368-1a9d9daf65c9',
+            params: nil,
+            headers: {
+              'X-VA-SSN' => '796043735', 'X-VA-First-Name' => 'WESLEY',
+              'X-VA-Last-Name' => 'FORD', 'X-VA-EDIPI' => '1007697216',
+              'X-Consumer-Username' => 'TestConsumer', 'X-VA-User' => 'adhoc.test.user',
+              'X-VA-Birth-Date' => '1986-05-06T00:00:00+00:00', 'X-VA-LOA' => '3'
+            }
+          )
+          expect(response.status).to eq(422)
         end
       end
     end
@@ -107,11 +144,20 @@ RSpec.describe 'EVSS Claims management', type: :request do
   end
 
   context 'header validations' do
-    VALID_HEADERS.each_key do |header|
+    valid_headers = {
+      'X-VA-SSN' => '111223333',
+      'X-VA-First-Name' => 'Test',
+      'X-VA-Last-Name' => 'Consumer',
+      'X-VA-Birth-Date' => '11-11-1111',
+      'X-Consumer-Username' => 'test',
+      'X-VA-LOA' => '3'
+    }
+
+    valid_headers.each_key do |header|
       context "without #{header}" do
         it 'returns a bad request response' do
           VCR.use_cassette('evss/claims/claims') do
-            get '/services/claims/v0/claims', params: nil, headers: VALID_HEADERS.except(header)
+            get '/services/claims/v0/claims', params: nil, headers: valid_headers.except(header)
             expect(response).to have_http_status(:bad_request)
           end
         end
@@ -120,7 +166,7 @@ RSpec.describe 'EVSS Claims management', type: :request do
 
     it 'returns error if loa is not 3' do
       VCR.use_cassette('evss/claims/claims') do
-        get '/services/claims/v0/claims', params: nil, headers: VALID_HEADERS.merge('X-VA-LOA' => 2)
+        get '/services/claims/v0/claims', params: nil, headers: valid_headers.merge('X-VA-LOA' => 2)
         expect(response).to have_http_status(:unauthorized)
       end
     end

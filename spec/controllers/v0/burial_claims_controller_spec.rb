@@ -4,7 +4,30 @@ require 'rails_helper'
 require 'support/controller_spec_helper'
 
 RSpec.describe V0::BurialClaimsController, type: :controller do
-  it_behaves_like 'a controller that deletes an InProgressForm', 'burial_claim', 'burial_claim', '21P-530'
+  describe 'with a user' do
+    let(:form) { build(:burial_claim) }
+    let(:param_name) { :burial_claim }
+    let(:form_id) { '21P-530' }
+    let(:user) { create(:user) }
+
+    def send_create
+      post(:create, params: { param_name => { form: form.form } })
+    end
+
+    it 'deletes the "in progress form"', run_at: 'Thu, 29 Aug 2019 17:45:03 GMT' do
+      allow(SecureRandom).to receive(:uuid).and_return('c3fa0769-70cb-419a-b3a6-d2563e7b8502')
+
+      VCR.use_cassette(
+        'mvi/find_candidate/find_profile_with_attributes',
+        VCR::MATCH_EVERYTHING
+      ) do
+        create(:in_progress_form, user_uuid: user.uuid, form_id: form_id)
+        expect(controller).to receive(:clear_saved_form).with(form_id).and_call_original
+        sign_in_as(user)
+        expect { send_create }.to change(InProgressForm, :count).by(-1)
+      end
+    end
+  end
 
   describe '#show' do
     it 'returns the submission status' do

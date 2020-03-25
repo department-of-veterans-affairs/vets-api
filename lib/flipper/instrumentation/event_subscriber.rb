@@ -15,7 +15,7 @@ module Flipper
                                     operation: operation,
                                     gate_name: event.payload[:gate_name],
                                     value: event.payload[:thing]&.value,
-                                    user: Thread.current[:flipper_user_email_for_log])
+                                    user: RequestStore.store[:flipper_user_email_for_log])
         end
       end
 

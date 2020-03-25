@@ -7,23 +7,43 @@ module OIDC
     @mutex = Mutex.new
     # Map from kid to OpenSSL::RSA::PKey for all current keys
     @current_keys = {}
-
-    class << self
-      attr_reader :current_keys
-    end
+    @cache_miss_kids = {}
+    KID_CACHE_PERIOD_SECS = 60
+    KID_CACHE_MAX_SIZE = 10
 
     def self.get_key(expected_kid)
       found = @current_keys[expected_kid]
-      if found.nil?
+      if found.nil? && should_refresh?(expected_kid)
         refresh expected_kid
         found = @current_keys[expected_kid]
+        update_missing_kid_cache(expected_kid) if found.nil?
       end
       found
     end
 
+    def self.update_missing_kid_cache(kid)
+      if @cache_miss_kids.length >= KID_CACHE_MAX_SIZE && !@cache_miss_kids.key?(kid)
+        oldest_kid = @cache_miss_kids.min_by { |_, timestamp| timestamp }[0]
+        @cache_miss_kids.delete oldest_kid
+      end
+      @cache_miss_kids[kid] = Time.now.utc
+    end
+
+    def self.should_refresh?(kid)
+      last_miss = @cache_miss_kids[kid]
+      last_miss.nil? || Time.now.utc - last_miss > KID_CACHE_PERIOD_SECS
+    end
+
+    def self.reset!
+      @mutex.synchronize do
+        @current_keys = {}
+        @cache_miss_kids = {}
+      end
+    end
+
     def self.refresh(expected_kid)
       @mutex.synchronize do
-        break if current_keys[expected_kid].present?
+        break if @current_keys[expected_kid].present?
 
         jwks_result = fetch_keys
         new_keys = {}
@@ -37,9 +57,7 @@ module OIDC
 
     def self.fetch_keys
       okta = Okta::Service.new
-      metadata_response = okta.get_url_with_token Settings.oidc.auth_server_metadata_url
-      metadata = metadata_response.body
-      key_response = okta.get_url_with_token metadata['jwks_uri']
+      key_response = okta.oidc_jwks_keys
       key_response.body
     end
 

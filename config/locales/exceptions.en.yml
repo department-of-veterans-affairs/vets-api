@@ -73,6 +73,12 @@ en:
         detail: "The required parameter \"%{param}\", is missing"
         code: 108
         status: 400
+      parameters_missing:
+        <<: *defaults
+        title: Missing parameter
+        detail: "The required parameter \"%{param}\", is missing"
+        code: 108
+        status: 400
       schema_validation_errors:
         <<: *defaults
         title: Validation error
@@ -170,6 +176,18 @@ en:
         title: Ambiguous Request
         detail: "%{detail}"
         code: 108
+        status: 400
+      token_validation_error:
+        <<: *defaults
+        title: Token Validation Error
+        detail: "%{detail}"
+        code: 401
+        status: 401
+      no_query_params_allowed:
+        <<: *defaults
+        title: No query params allowed
+        detail: "No query params are allowed for this route"
+        code: 400
         status: 400
 
 # EXTERNAL EXCEPTIONS
@@ -408,6 +426,12 @@ en:
         code: 'EMIS_STATUS502'
         detail: EMIS service responded with something other than veteran status information
         status: 502
+      FORMS_502:
+        <<: *external_defaults
+        title: Unexpected response body
+        code: 'FORMS_400'
+        detail: The Forms service responded with something other than the expected array of forms
+        status: 502
       IHUB_101:
         <<: *external_defaults
         title: Error Occurred
@@ -430,6 +454,12 @@ en:
         <<: *external_defaults
         title: Bad Gateway
         detail: "MVI service returned an invalid response"
+        code: 'MVI_502'
+        status: 502
+      MVI_502_DUP:
+        <<: *external_defaults
+        title: Duplicate Keys
+        detail: "The user has duplicate identifier keys"
         code: 'MVI_502'
         status: 502
       MVI_503:
@@ -474,6 +504,18 @@ en:
         code: 'SEARCH_429'
         detail: 'Exceeded Search.gov rate limit'
         status: 429
+      VAOS_400:
+        <<: *external_defaults
+        title: Bad Request
+        code: 'VAOS_400'
+        detail: # deliberarly left nil to reference response.body which is unparsable string (not json)
+        status: 400
+      VAOS_204:
+        <<: *external_defaults
+        title: Bad Request
+        code: 'VAOS_400'
+        detail: 'Appointment request id is invalid'
+        status: 400
       VAOS_403:
         <<: *external_defaults
         title: Forbidden
@@ -1611,6 +1653,129 @@ en:
         code: VET360_PHON305
         detail: Cannot update record if phoneType is not matching
         status: 400
+      VET360_PERM101:
+        <<: *external_defaults
+        title: Permission ID Not Null
+        code: VET360_PERM101
+        detail: Permission ID must be null
+        status: 400
+
+  decision_review:
+    exceptions:
+      unmapped_service_exception:
+        <<: *defaults
+        title: Internal Server Error
+        detail: The upstream server returned an error code that is unmapped
+        code: unmapped_service_exception
+        status: 400
+      DR_502:
+        <<: *defaults
+        title: Bad Gateway
+        code: DR_502
+        detail: Received an an invalid response from the upstream server
+        status: 502
+      DR_malformed_request:
+        <<: *defaults
+        title: Malformed Request
+        detail: The request was malformed and could not be processed
+        code: DR_malformed_request
+        status: 400
+      DR_veteran_not_accessible:
+        <<: *defaults
+        title: Veteran not Accessible
+        detail: You don't have permission to view this veteran's information
+        code: DR_veteran_not_accessible
+        status: 403
+      DR_veteran_not_found:
+        <<: *defaults
+        title: Veteran Not Found
+        detail: The veteran could not be found
+        code: DR_veteran_not_found
+        status: 404
+      DR_decision_review_not_found:
+        <<: *defaults
+        title: Decision Review Not Found
+        detail: The decision review could not be found
+        code: DR_decision_review_not_found
+        status: 404
+      DR_duplicate_intake_in_progress:
+        <<: *defaults
+        title: Duplicate Intake In Progress
+        detail: Another duplicate intake is already in progress
+        code: DR_duplicate_intake_in_progress
+        status: 409
+      DR_incident_flash:
+        <<: *defaults
+        title: Incident Flash
+        detail: The veteran has an incident flash
+        code: DR_incident_flash
+        status: 422
+      DR_invalid_benefit_type:
+        <<: *defaults
+        title: Invalid Benefit Type
+        detail: That Line of Business (benefit type) is either invalid or not currently supported
+        code: DR_invalid_benefit_type
+        status: 422
+      DR_invalid_file_number:
+        <<: *defaults
+        title: Invalid File Number
+        detail: Veteran ID not found
+        code: DR_invalid_file_number
+        status: 422
+      DR_request_issue_cannot_be_empty:
+        <<: *defaults
+        title: Request Issue Cannot Be Empty
+        detail: A request issue cannot be empty
+        code: DR_request_issue_cannot_be_empty
+        status: 422
+      DR_request_issue_category_invalid_for_benefit_type:
+        <<: *defaults
+        title: Request Issue Category Invalid for Benefit Type
+        detail: The Category is invalid for the benefit type
+        code: DR_request_issue_category_invalid_for_benefit_type
+        status: 422
+      DR_malformed_contestable_issues:
+        <<: *defaults
+        title: Malformed Contestable Issues
+        detail: Malformed ContestableIssues
+        code: DR_malformed_contestable_issues
+        status: 422
+      DR_contestable_issue_params_must_have_ids:
+        <<: *defaults
+        title: Contestable Issue Params Must Have Ids
+        detail: A contestable issue must have at least one of the following- decisionIssueId, ratingIssueId, ratingDecisionIssueId
+        code: DR_contestable_issue_params_must_have_ids
+        status: 422
+      DR_could_not_find_contestable_issue:
+        <<: *defaults
+        title: Could Not Find Contestable Issue
+        detail: Could not find ContestableIssue
+        code: DR_could_not_find_contestable_issue
+        status: 422
+      DR_veteran_has_multiple_phone_numbers:
+        <<: *defaults
+        title: Veteran Has Multiple Phone Numbers
+        detail: The veteran has multiple active phone numbers
+        code: DR_veteran_has_multiple_phone_numbers
+        status: 422
+      DR_veteran_not_modifiable:
+        <<: *defaults
+        title: Veteran Not Modifiable
+        detail: You don't have permission to intake this veteran
+        code: DR_veteran_not_modifiable
+        status: 422
+      DR_veteran_not_valid:
+        <<: *defaults
+        title: Veteran Not Valid
+        detail: The veteran's profile has missing or invalid information required to create an EP
+        code: DR_veteran_not_valid
+        status: 422
+      DR_bad_receipt_date:
+        <<: *defaults
+        title: Bad Receipt Date
+        detail: Bad receipt date
+        code: DR_bad_receipt_date
+        status: 422
 
   evss:
     external_service_unavailable:
@@ -1738,3 +1903,48 @@ en:
         detail: 'Error on data from external service'
         code: 134
         status: 502
+  
+  mdot:
+    exceptions:
+      default_exception:
+        <<: *defaults
+        title: Internal Server Error
+        detail: The upstream server returned an error code that is unmapped
+        code: unmapped_service_exception
+        status: 400
+      MDOT_502:
+        <<: *defaults
+        title: Bad Gateway
+        detail: Received an an invalid response from the upstream server
+        code: MDOT_502
+        status: 502
+      MDOT_malformed_request:
+        <<: *defaults
+        title: Malformed Request
+        detail: The request was malformed and could not be processed
+        code: MDOT_malformed_request
+        status: 400
+      MDOT_forbidden:
+        <<: *defaults
+        title: Forbidden
+        detail: User is forbidden from accessing this resource
+        code: MDOT_forbidden
+        status: 403
+      MDOT_veteran_not_found:
+        <<: *defaults
+        title: Veteran Not Found
+        detail: The veteran could not be found
+        code: MDOT_veteran_not_found
+        status: 404
+      MDOT_supplies_not_found:
+        <<: *defaults
+        title: Supplies Not Found
+        detail: The medical supplies could not be found
+        code: MDOT_supplies_not_found
+        status: 404
+      MDOT_unprocessable_entity:
+        <<: *defaults
+        title: Order unable to be processed
+        detail: Order unable to be processed
+        code: MDOT_unprocessable_entity
+        status: 422

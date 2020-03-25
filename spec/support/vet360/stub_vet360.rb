@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+# rubocop:disable Metrics/MethodLength
 def stub_vet360(person = nil)
   person ||= build(
     :person,
@@ -16,6 +17,10 @@ def stub_vet360(person = nil)
       build(:telephone, :home, phone_type: Vet360::Models::Telephone::WORK, id: 791),
       build(:telephone, :home, phone_type: Vet360::Models::Telephone::FAX, id: 792),
       build(:telephone, :home, phone_type: Vet360::Models::Telephone::TEMPORARY, id: 793)
+    ],
+    permissions: [
+      build(:permission, id: 1011),
+      build(:permission, permission_type: Vet360::Models::Permission::TEXT, id: 1012)
     ]
   )
 
@@ -23,3 +28,4 @@ def stub_vet360(person = nil)
     Vet360::ContactInformation::PersonResponse.new(200, person: person)
   )
 end
+# rubocop:enable Metrics/MethodLength

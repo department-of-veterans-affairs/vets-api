@@ -5,14 +5,25 @@
 ###
 # shared build/settings for all child images, reuse these layers yo
 ###
-FROM ruby:2.4.5-slim-stretch AS base
+FROM ruby:2.6.5-slim-stretch AS base
 
 ARG userid=993
+SHELL ["/bin/bash", "-c"]
 RUN groupadd -g $userid -r vets-api && \
     useradd -u $userid -r -m -d /srv/vets-api -g vets-api vets-api
 RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
-    dumb-init clamav imagemagick pdftk curl poppler-utils
-WORKDIR /srv/vets-api
+    dumb-init clamav clamdscan clamav-daemon imagemagick pdftk curl poppler-utils libpq5 vim
+# The pki work below is for parity with the non-docker BRD deploys to mount certs into
+# the container, we need to get rid of it and refactor the configuration bits into
+# something more continer friendly in a later bunch of work
+RUN mkdir -p /srv/vets-api/{clamav/database,pki/tls,secure,src} && \
+    chown -R vets-api:vets-api /srv/vets-api && \
+    ln -s /srv/vets-api/pki /etc/pki
+# XXX: get rid of the CA trust manipulation when we have a better model for it
+COPY config/ca-trust/* /usr/local/share/ca-certificates/
+# rename .pem files to .crt because update-ca-certificates ignores files that are not .crt
+RUN cd /usr/local/share/ca-certificates ; for i in *.pem ; do mv $i ${i/pem/crt} ; done ; update-ca-certificates
+WORKDIR /srv/vets-api/src
 
 ###
 # dev stage; use --target=development to stop here
@@ -36,9 +47,10 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
 RUN curl -sSL -o /usr/local/bin/cc-test-reporter https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 && \
     chmod +x /usr/local/bin/cc-test-reporter && \
     cc-test-reporter --version
-RUN freshclam
-COPY --chown=vets-api:vets-api docker-entrypoint.sh .
+COPY --chown=vets-api:vets-api config/freshclam.conf docker-entrypoint.sh ./
 USER vets-api
+# XXX: this is tacky
+RUN freshclam --config-file freshclam.conf
 ENTRYPOINT ["/usr/bin/dumb-init", "--", "./docker-entrypoint.sh"]
 
 ###
@@ -56,8 +68,8 @@ COPY --chown=vets-api:vets-api . .
 USER vets-api
 # --no-cache doesn't do the right thing, so trim it during build
 # https://github.com/bundler/bundler/issues/6680
-RUN bundle install --binstubs="${BUNDLE_PATH}/bin" $bundler_opts && \
-    find ${BUNDLE_PATH}/cache -type f -name \*.gem -delete
+RUN bundle install --binstubs="${BUNDLE_APP_CONFIG}/bin" $bundler_opts && \
+    find ${BUNDLE_APP_CONFIG}/cache -type f -name \*.gem -delete
 
 ###
 # prod stage; default if no target given
@@ -68,7 +80,9 @@ RUN bundle install --binstubs="${BUNDLE_PATH}/bin" $bundler_opts && \
 FROM base AS production
 
 ENV RAILS_ENV=production
-COPY --from=builder $BUNDLE_PATH $BUNDLE_PATH
-COPY --from=builder --chown=vets-api:vets-api /srv/vets-api ./
+COPY --from=builder $BUNDLE_APP_CONFIG $BUNDLE_APP_CONFIG
+COPY --from=builder --chown=vets-api:vets-api /srv/vets-api/src ./
+COPY --from=builder --chown=vets-api:vets-api /srv/vets-api/clamav/database ../clamav/database
+RUN if [ -d certs-tmp ] ; then cd certs-tmp ; for i in * ; do cp $i /usr/local/share/ca-certificates/${i/pem/crt} ; done ; fi && update-ca-certificates
 USER vets-api
 ENTRYPOINT ["/usr/bin/dumb-init", "--", "./docker-entrypoint.sh"]

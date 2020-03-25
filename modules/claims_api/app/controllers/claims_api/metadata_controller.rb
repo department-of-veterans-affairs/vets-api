@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'claims_api/health_checker'
+
 module ClaimsApi
   class MetadataController < ::ApplicationController
     skip_before_action(:authenticate)
@@ -28,7 +30,7 @@ module ClaimsApi
     end
 
     def healthcheck
-      if ClaimsApi::EVSSClaim.services_are_healthy?
+      if ClaimsApi::HealthChecker.services_are_healthy?
         render json: healthy_service_response
       else
         render json: unhealthy_service_response,

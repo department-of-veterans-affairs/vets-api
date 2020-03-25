@@ -43,6 +43,8 @@ http_interactions:
       - '{"authorizationResponse":{"status":"VETERAN","idType":"SSN","id":"796043735","edi":"1007697216","firstName":"WESLEY","lastName":"FORD","birthDate":"1986-05-06T00:00:00+00:00"}}'
       Va-Eauth-Authenticationauthority:
       - 'eauth'
+      Va-Eauth-Service-Transaction-Id:
+      - <%= transaction_id %>
   response:
     status:
       code: 200

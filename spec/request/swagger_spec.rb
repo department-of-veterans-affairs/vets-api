@@ -143,6 +143,30 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
       )
     end
 
+    it 'supports adding an caregiver\'s assistance claim' do
+      expect(subject).to validate(
+        :post,
+        '/v0/caregivers_assistance_claims',
+        200,
+        '_data' => {
+          'caregivers_assistance_claim' => {
+            'form' => build(:caregivers_assistance_claim).form
+          }
+        }
+      )
+
+      expect(subject).to validate(
+        :post,
+        '/v0/caregivers_assistance_claims',
+        422,
+        '_data' => {
+          'caregivers_assistance_claim' => {
+            'form' => {}.to_json
+          }
+        }
+      )
+    end
+
     it 'supports adding a pension' do
       expect(subject).to validate(
         :post,
@@ -167,28 +191,35 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
       )
     end
 
-    it 'supports adding a burial claim' do
-      expect(subject).to validate(
-        :post,
-        '/v0/burial_claims',
-        200,
-        '_data' => {
-          'burial_claim' => {
-            'form' => build(:burial_claim).form
-          }
-        }
-      )
+    it 'supports adding a burial claim', run_at: 'Thu, 29 Aug 2019 17:45:03 GMT' do
+      allow(SecureRandom).to receive(:uuid).and_return('c3fa0769-70cb-419a-b3a6-d2563e7b8502')
 
-      expect(subject).to validate(
-        :post,
-        '/v0/burial_claims',
-        422,
-        '_data' => {
-          'burial_claim' => {
-            'invalid-form' => { invalid: true }.to_json
+      VCR.use_cassette(
+        'mvi/find_candidate/find_profile_with_attributes',
+        VCR::MATCH_EVERYTHING
+      ) do
+        expect(subject).to validate(
+          :post,
+          '/v0/burial_claims',
+          200,
+          '_data' => {
+            'burial_claim' => {
+              'form' => build(:burial_claim).form
+            }
           }
-        }
-      )
+        )
+
+        expect(subject).to validate(
+          :post,
+          '/v0/burial_claims',
+          422,
+          '_data' => {
+            'burial_claim' => {
+              'invalid-form' => { invalid: true }.to_json
+            }
+          }
+        )
+      end
     end
 
     it 'supports adding a preneed claim' do
@@ -218,9 +249,12 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
     context 'HCA tests' do
       let(:login_required) { Notification::LOGIN_REQUIRED }
       let(:test_veteran) do
-        File.read(
+        json_string = File.read(
           Rails.root.join('spec', 'fixtures', 'hca', 'veteran.json')
         )
+        json = JSON.parse(json_string)
+        json.delete('email')
+        json.to_json
       end
 
       it 'supports getting the hca enrollment status' do
@@ -270,6 +304,19 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
             }
           }
         )
+      end
+
+      it 'supports getting a health care application state' do
+        expect(subject).to validate(
+          :get,
+          '/v0/health_care_applications/{id}',
+          200,
+          'id' => create(:health_care_application).id
+        )
+      end
+
+      it 'returns a 400 if no attachment data is given' do
+        expect(subject).to validate(:post, '/v0/hca_attachments', 400, '')
       end
 
       it 'supports submitting a health care application', run_at: '2017-01-31' do
@@ -484,6 +531,13 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
           )
         end
       end
+
+      it 'supports getting rating info' do
+        expect(subject).to validate(:get, '/v0/disability_compensation_form/rating_info', 401)
+        VCR.use_cassette('evss/disability_compensation_form/rating_info') do
+          expect(subject).to validate(:get, '/v0/disability_compensation_form/rating_info', 200, headers)
+        end
+      end
     end
 
     describe 'intent to file' do
@@ -529,20 +583,22 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
 
       it 'supports updating payment information' do
         expect(subject).to validate(:put, '/v0/ppiu/payment_information', 401)
-        VCR.use_cassette('evss/ppiu/update_payment_information') do
-          expect(subject).to validate(
-            :put,
-            '/v0/ppiu/payment_information',
-            200,
-            headers.update(
-              '_data' => {
-                'account_type' => 'Checking',
-                'financial_institution_name' => 'Bank of Amazing',
-                'account_number' => '1234567890',
-                'financial_institution_routing_number' => '123456789'
-              }
+        VCR.use_cassette('evss/ppiu/payment_information') do
+          VCR.use_cassette('evss/ppiu/update_payment_information') do
+            expect(subject).to validate(
+              :put,
+              '/v0/ppiu/payment_information',
+              200,
+              headers.update(
+                '_data' => {
+                  'account_type' => 'Checking',
+                  'financial_institution_name' => 'Bank of Amazing',
+                  'account_number' => '1234567890',
+                  'financial_institution_routing_number' => '123456789'
+                }
+              )
             )
-          )
+          end
         end
       end
     end
@@ -561,8 +617,8 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
         )
       end
 
-      it 'returns a 500 if no attachment data is given' do
-        expect(subject).to validate(:post, '/v0/upload_supporting_evidence', 500, '')
+      it 'returns a 400 if no attachment data is given' do
+        expect(subject).to validate(:post, '/v0/upload_supporting_evidence', 400, '')
       end
     end
 
@@ -996,6 +1052,16 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
     end
 
     describe 'gibct' do
+      describe 'yellow_ribbon_programs' do
+        describe 'index' do
+          it 'supports showing a list of yellow_ribbon_programs' do
+            VCR.use_cassette('gi_client/get_yellow_ribbon_programs') do
+              expect(subject).to validate(:get, '/v0/gi/yellow_ribbon_programs', 200)
+            end
+          end
+        end
+      end
+
       describe 'institutions' do
         describe 'autocomplete' do
           it 'supports autocomplete of institution names' do
@@ -1264,6 +1330,18 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
 
     describe 'facility locator tests' do
       context 'successful calls' do
+        let(:provider) { FactoryBot.build(:provider, :from_provider_info) }
+        let(:provider_services_response) do
+          {
+            'CareSiteAddressStreet' => '3195 S Price Rd Ste 148',
+            'CareSiteAddressCity' => 'Chandler',
+            'CareSiteAddressZipCode' => '85248',
+            'CareSiteAddressState' => 'AZ',
+            'Latitude' => 33.258135,
+            'Longitude' => -111.887927
+          }
+        end
+
         it 'supports getting a list of facilities' do
           VCR.use_cassette('facilities/va/pdx_bbox') do
             expect(subject).to validate(:get, '/v0/facilities/va', 200,
@@ -1299,17 +1377,16 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
                                       '_query_string' => 'type[]=foo&name_part=por')
         end
 
-        regex_matcher = lambda { |r1, r2|
-          r1.uri.match(r2.uri)
-        }
         it 'supports getting a provider by id' do
-          VCR.use_cassette('facilities/va/ppms', match_requests_on: [regex_matcher]) do
-            expect(subject).to validate(:get, '/v0/facilities/ccp/{id}', 200, 'id' => 'ccp_123123')
-          end
+          expect_any_instance_of(Facilities::PPMS::Client).to receive(:provider_info)
+            .with('1407842941').and_return(provider)
+          expect_any_instance_of(Facilities::PPMS::Client).to receive(:provider_services)
+            .with('1407842941').and_return([provider_services_response])
+          expect(subject).to validate(:get, '/v0/facilities/ccp/{id}', 200, 'id' => 'ccp_1407842941')
         end
 
         it '400s on improper id' do
-          VCR.use_cassette('facilities/va/ppms', match_requests_on: [regex_matcher]) do
+          VCR.use_cassette('facilities/va/ppms', match_requests_on: %i[path query]) do
             expect(subject).to validate(:get, '/v0/facilities/ccp/{id}', 400, 'id' => 'ccap_123123')
           end
         end
@@ -1321,8 +1398,8 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
         end
 
         it 'supports getting the services list' do
-          VCR.use_cassette('facilities/va/ppms', match_requests_on: [regex_matcher]) do
-            expect(subject).to validate(:get, '/v0/facilities/services', 200, 'id' => 'ccp_123123')
+          VCR.use_cassette('facilities/va/ppms', match_requests_on: %i[path query]) do
+            expect(subject).to validate(:get, '/v0/facilities/services', 200, 'id' => 'ccp_1407842941')
           end
         end
       end
@@ -1360,6 +1437,82 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
       it 'documents appeals 502' do
         VCR.use_cassette('/appeals/server_error') do
           expect(subject).to validate(:get, '/v0/appeals', 502, headers)
+        end
+      end
+    end
+
+    describe 'higher_level_reviews' do
+      context 'GET' do
+        it 'documents higher_level_reviews 200' do
+          VCR.use_cassette('decision_review/200_review') do
+            expect(subject).to validate(:get, '/v0/appeals/higher_level_reviews/{uuid}',
+                                        200, headers.merge('uuid' => '4bc96bee-c6a3-470e-b222-66a47629dc20'))
+          end
+        end
+
+        it 'documents higher_level_reviews 404' do
+          VCR.use_cassette('decision_review/404_review') do
+            expect(subject).to validate(:get, '/v0/appeals/higher_level_reviews/{uuid}',
+                                        404, headers.merge('uuid' => '1234'))
+          end
+        end
+
+        it 'documents higher_level_reviews 502' do
+          VCR.use_cassette('decision_review/502_review') do
+            expect(subject).to validate(:get, '/v0/appeals/higher_level_reviews/{uuid}',
+                                        502, headers.merge('uuid' => '1234'))
+          end
+        end
+      end
+
+      context 'POST' do
+        it 'documents higher_level_reviews 202' do
+          VCR.use_cassette('decision_review/202_intake_status') do
+            expect(subject).to validate(:post, '/v0/appeals/higher_level_reviews',
+                                        202, headers)
+          end
+        end
+
+        [400, 403, 404, 409, 422].each do |status|
+          it "documents higher_level_reviews #{status}" do
+            VCR.use_cassette("decision_review/#{status}_intake_status") do
+              expect(subject).to validate(:post, '/v0/appeals/higher_level_reviews',
+                                          status, headers)
+            end
+          end
+        end
+      end
+    end
+
+    describe 'intake_statuses' do
+      it 'documents intake_statuses 200' do
+        VCR.use_cassette('decision_review/200_intake_status') do
+          expect(subject).to validate(:get, '/v0/appeals/intake_statuses/{intake_id}',
+                                      200, headers.merge('intake_id' => '1234567890'))
+        end
+      end
+
+      it 'documents intake_statuses 404' do
+        VCR.use_cassette('decision_review/404_get_intake_status') do
+          expect(subject).to validate(:get, '/v0/appeals/intake_statuses/{intake_id}',
+                                      404, headers.merge('intake_id' => '1234'))
+        end
+      end
+
+      it 'documents intake_statuses 502' do
+        VCR.use_cassette('decision_review/502_intake_status') do
+          expect(subject).to validate(:get, '/v0/appeals/intake_statuses/{intake_id}',
+                                      502, headers.merge('intake_id' => '1234'))
+        end
+      end
+    end
+
+    describe 'contestable_issues' do
+      [200, 404, 422, 502].each do |status_code|
+        it "documents contestable_issues #{status_code}" do
+          VCR.use_cassette("decision_review/#{status_code}_contestable_issues") do
+            expect(subject).to validate(:get, '/v0/appeals/contestable_issues', status_code, headers)
+          end
         end
       end
     end
@@ -1796,6 +1949,51 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
         end
       end
 
+      it 'supports posting vet360 permission data' do
+        expect(subject).to validate(:post, '/v0/profile/permissions', 401)
+
+        VCR.use_cassette('vet360/contact_information/post_permission_success') do
+          permission = build(:permission)
+
+          expect(subject).to validate(
+            :post,
+            '/v0/profile/permissions',
+            200,
+            headers.merge('_data' => permission.as_json)
+          )
+        end
+      end
+
+      it 'supports putting vet360 permission data' do
+        expect(subject).to validate(:put, '/v0/profile/permissions', 401)
+
+        VCR.use_cassette('vet360/contact_information/put_permission_success') do
+          permission = build(:permission, id: 401)
+
+          expect(subject).to validate(
+            :put,
+            '/v0/profile/permissions',
+            200,
+            headers.merge('_data' => permission.as_json)
+          )
+        end
+      end
+
+      it 'supports deleting vet360 permission data' do
+        expect(subject).to validate(:delete, '/v0/profile/permissions', 401)
+
+        VCR.use_cassette('vet360/contact_information/delete_permission_success') do
+          permission = build(:permission, id: 361) # TODO: ID
+
+          expect(subject).to validate(
+            :delete,
+            '/v0/profile/permissions',
+            200,
+            headers.merge('_data' => permission.as_json)
+          )
+        end
+      end
+
       it 'supports posting to initialize a vet360_id' do
         expect(subject).to validate(:post, '/v0/profile/initialize_vet360_id', 401)
 
@@ -1851,7 +2049,7 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
       it 'supports GETting async transaction by ID' do
         transaction = create(
           :address_transaction,
-          transaction_id: '0faf342f-5966-4d3f-8b10-5e9f911d07d2',
+          transaction_id: 'a030185b-e88b-4e0d-a043-93e4f34c60d6',
           user_uuid: user.uuid
         )
         expect(subject).to validate(
@@ -2293,6 +2491,31 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
               headers.merge('_data' => patch_body, 'subject' => notification_subject)
             )
           end
+        end
+      end
+
+      describe 'forms' do
+        context 'when successful' do
+          it 'supports getting form results data with a query' do
+            VCR.use_cassette('forms/200_form_query') do
+              expect(subject).to validate(:get, '/v0/forms', 200, '_query_string' => 'query=health')
+            end
+          end
+
+          it 'support getting form results without a query' do
+            VCR.use_cassette('forms/200_all_forms') do
+              expect(subject).to validate(:get, '/v0/forms', 200)
+            end
+          end
+        end
+      end
+    end
+
+    describe 'dependents applications' do
+      it 'supports getting dependent information' do
+        expect(subject).to validate(:get, '/v0/dependents_applications/show', 401)
+        VCR.use_cassette('bgs/claimant_web_service/dependents') do
+          expect(subject).to validate(:get, '/v0/dependents_applications/show', 200, headers)
         end
       end
     end

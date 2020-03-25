@@ -1,15 +1,15 @@
 # frozen_string_literal: true
 
+require 'evss/base_headers'
+
 module EVSS
-  class DisabilityCompensationAuthHeaders
+  class DisabilityCompensationAuthHeaders < EVSS::BaseHeaders
     # :nocov:
 
-    def initialize(user)
-      @user = user
-    end
-
     def add_headers(auth_headers)
-      auth_headers.merge('va_eauth_authorization' => eauth_json)
+      auth_headers.merge(
+        'va_eauth_authorization' => eauth_json
+      )
     end
 
     private
@@ -40,12 +40,6 @@ module EVSS
               detail: 'Gender is required & must be "F" or "M"',
               source: self.class, event_id: Raven.last_event_id
       end
-    end
-
-    def iso8601_birth_date
-      return nil unless @user&.va_profile&.birth_date
-
-      DateTime.parse(@user.va_profile.birth_date).iso8601
     end
 
     # :nocov:

@@ -60,11 +60,6 @@ FailedClaimsReport:
   class: EVSS::FailedClaimsReport
   description: "Notify developers about EVSS claims which could not be uploaded"
 
-PreneedsReport:
-  cron: "30 5 * * MON America/New_York"
-  class: Preneeds::SubmissionsReport
-  description: "Notify stakeholders about PreNeed submission stats"
-
 FacilityDentalServiceBulkUpdate:
   cron: "25 4 * * * America/New_York"
   class: Facilities::DentalServiceReloadJob
@@ -109,6 +104,11 @@ FacilityLocationVHADriveTime:
   class: Facilities::PSSGDownload
   description: "Download and store drive time bands"
 
+GlobalDowntimeCache:
+  every: "60m"
+  class: PagerDuty::CacheGlobalDowntime
+  description: "Cache global downtimes from PagerDuty API to S3"
+
 MaintenanceWindowRefresh:
   cron: "*/3 * * * * America/New_York"
   class: PagerDuty::PollMaintenanceWindows
@@ -130,7 +130,7 @@ VBADocuments::UploadStatusBatch:
   description: "Cache Statuses for VBA Documents"
 
 VBADocuments::ReportUnsuccessfulSubmissions:
-  cron: "0 0 * * 1 America/New_York"
+  cron: "0 0 * * MON-FRI America/New_York"
   class: VBADocuments::ReportUnsuccessfulSubmissions
   description: "Weekly report of unsuccessful submissions"
 

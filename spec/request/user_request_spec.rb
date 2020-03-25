@@ -29,12 +29,7 @@ RSpec.describe 'Fetching user data', type: :request do
 
     it 'gives me the list of available prefill forms' do
       num_enabled = 2
-      num_enabled += FormProfile::EDU_FORMS.length if Settings.edu.prefill
-      num_enabled += FormProfile::HCA_FORMS.length if Settings.hca.prefill
-      num_enabled += FormProfile::PENSION_BURIAL_FORMS.length if Settings.pension_burial.prefill
-      num_enabled += FormProfile::VIC_FORMS.length if Settings.vic.prefill
-      num_enabled += FormProfile::EVSS_FORMS.length if Settings.evss.prefill
-
+      FormProfile::ALL_FORMS.each { |type, form_list| num_enabled += form_list.length if Settings[type].prefill }
       expect(JSON.parse(response.body)['data']['attributes']['prefills_available'].length).to be(num_enabled)
     end
 
@@ -58,6 +53,12 @@ RSpec.describe 'Fetching user data', type: :request do
           BackendServices::VET360
         ].sort
       )
+    end
+
+    it 'gives me va profile cerner data' do
+      va_profile = JSON.parse(response.body)['data']['attributes']['va_profile']
+      expect(va_profile['is_cerner_patient']).to be false
+      expect(va_profile['facilities']).to match_array([{ 'facility_id' => '358', 'is_cerner' => false }])
     end
 
     context 'with an error from a 503 raised by Vet360::ContactInformation::Service#get_person', skip_vet360: true do

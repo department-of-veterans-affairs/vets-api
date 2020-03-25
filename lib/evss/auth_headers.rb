@@ -1,9 +1,14 @@
 # frozen_string_literal: true
 
+require 'evss/base_headers'
+
 module EVSS
-  class AuthHeaders
+  class AuthHeaders < EVSS::BaseHeaders
+    attr_reader :transaction_id
+
     def initialize(user)
-      @user = user
+      @transaction_id = create_transaction_id
+      super(user)
     end
 
     def to_h
@@ -23,11 +28,16 @@ module EVSS
         'va_eauth_pnid' => @user.ssn,
         'va_eauth_birthdate' => iso8601_birth_date,
         'va_eauth_authorization' => eauth_json,
-        'va_eauth_authenticationauthority' => 'eauth'
+        'va_eauth_authenticationauthority' => 'eauth',
+        'va_eauth_service_transaction_id' => @transaction_id
       )
     end
 
     private
+
+    def create_transaction_id
+      "vagov-#{SecureRandom.uuid}"
+    end
 
     def sanitize(headers)
       headers.transform_values! do |value|
@@ -47,12 +57,6 @@ module EVSS
           birthDate: iso8601_birth_date
         }
       }.to_json
-    end
-
-    def iso8601_birth_date
-      return nil unless @user&.va_profile&.birth_date
-
-      DateTime.parse(@user.va_profile.birth_date).iso8601
     end
   end
 end

@@ -12,6 +12,7 @@ saml:
   issuer: saml-rp.vetsgov.localhost
   callback_url: http://localhost:3000/auth/saml/callback
   metadata_url: https://api.idmelabs.com/saml/metadata/provider
+  authn_requests_signed: false
 
 # Settings for new SAML authentication with SSOe
 saml_ssoe:
@@ -21,7 +22,7 @@ saml_ssoe:
   key_path: config/certs/vetsgov-localhost.key
   issuer: https://ssoe-sp-dev.va.gov
   callback_url: http://localhost:3000/v1/sessions/callback
-  logout_url: https://int.eauth.va.gov/pkmslogout
+  logout_url: https://pint.eauth.va.gov/pkmslogout
 
 session_cookie:
   secure: false
@@ -35,6 +36,8 @@ sso:
   cookie_iv: A3C0567C78BEC6DDE75E2FEB92DE11AA
   cookie_secure: false
   cookie_domain: localhost
+  ssoe_redirects:
+    cerner: https://ehrm-va-test.patientportal.us.healtheintent.com/
 
 binaries:
   # you can specify a full path in settings.local.yml if necessary
@@ -84,6 +87,11 @@ central_mail:
     host: 'icmhs-api-test.csrarad.com'
     token: '<PENSIONS_TOKEN>'
 
+# Settings for BIP Services
+bip:
+  claims:
+    url: "https://claims-uat.dev8.bip.va.gov"
+
 # Settings for Vet360
 vet360:
   url: "https://int.vet360.va.gov"
@@ -104,6 +112,20 @@ ihub:
     mock: true
   in_production: false
 
+# Settings for Medical Devices Ordering Tool
+mdot:
+  prefill: true
+  url: https://dlc-fake.fake.com
+  api_key: abcd1234abcd1234abcd1234abcd1234abcd1234
+  mock: false
+  enabled: false
+
+# Settings for Decision Reviews
+decision_review:
+  prefill: true
+  url: https://dev-api.va.gov/services/appeals/v3/decision_review
+  api_key: abcd1234abcd1234abcd1234abcd1234abcd1234
+  mock: false
 
 # Settings for EVSS
 evss:
@@ -144,6 +166,7 @@ evss:
   mock_ppiu: true
   mock_itf: true
   mock_disabilities_form: true
+  mock_common_service: true
   mock_vso_search: false
   aws:
     url: http://fake.evss-reference-data-service.dev/v1
@@ -160,6 +183,8 @@ evss:
 # Settings for GI Bill Data Service
 gids:
   url: https://dev.va.gov/gids
+  open_timeout: 1
+  read_timeout: 1
 
 mvi_hca:
   url: http://example.com
@@ -171,6 +196,7 @@ hca:
   endpoint: https://test-foo.vets.gov
   cert_path: /fake/client/cert/path
   key_path: /fake/client/key/path
+  timeout: 30
   ee:
     endpoint: 'http://example.com'
     user: "HCASvcUsr"
@@ -240,10 +266,12 @@ emis:
   mock: true
   host: https://vaausvrsapp81.aac.va.gov
   veteran_status_url: /VIERSService/eMIS/v1/VeteranStatusService
-  payment_url: 
+  payment_url:
     v1: /VIERSService/eMIS/v1/PaymentService
     v2: /VIERSService/eMIS/v2/PaymentService
-  military_information_url: /VIERSService/eMIS/v1/MilitaryInformationService
+  military_information_url:
+    v1: /VIERSService/eMIS/v1/MilitaryInformationService
+    v2: /VIERSService/eMIS/v2/MilitaryInformationService
   client_cert_path: /fake/client/cert/path
   client_key_path: /fake/client/key/path
   soap_namespaces:
@@ -254,8 +282,15 @@ emis:
     xmlns:v12: http://viers.va.gov/cdi/eMIS/RequestResponse/v1
     xmlns:v13: http://viers.va.gov/cdi/eMIS/commonService/v1
   military_information:
-    soap_namespaces:
-      xmlns:v11: http://viers.va.gov/cdi/eMIS/RequestResponse/MilitaryInfo/v1
+    v1:
+      soap_namespaces:
+        xmlns:v11: http://viers.va.gov/cdi/eMIS/RequestResponse/MilitaryInfo/v1
+    v2:
+      soap_namespaces:
+        xmlns:v1: http://viers.va.gov/cdi/CDI/commonService/v2
+        xmlns:v12: http://viers.va.gov/cdi/eMIS/RequestResponse/v2
+        xmlns:v13: http://viers.va.gov/cdi/eMIS/commonService/v2
+        xmlns:v11: http://viers.va.gov/cdi/eMIS/RequestResponse/MilitaryInfo/v2
   payment:
     v1:
       soap_namespaces:
@@ -263,8 +298,8 @@ emis:
     v2:
       soap_namespaces:
         xmlns:v1: http://viers.va.gov/cdi/CDI/commonService/v2
-        xmlns:v12: http://viers.va.gov/cdi/eMIS/RequestResponse/v2 
-        xmlns:v13: http://viers.va.gov/cdi/eMIS/commonService/v2 
+        xmlns:v12: http://viers.va.gov/cdi/eMIS/RequestResponse/v2
+        xmlns:v13: http://viers.va.gov/cdi/eMIS/commonService/v2
         xmlns:v11: http://viers.va.gov/cdi/eMIS/RequestResponse/Payment/v2
   veteran_status:
     soap_namespaces:
@@ -355,8 +390,6 @@ shrine:
   claims:
     type: local
     path: claims
-github:
-  api_key: abcd1234abcd1234abcd1234abcd1234abcd1234
 
 # Settings for maintenance window API
 # Services should be a map from logical service name to PagerDuty service id
@@ -370,6 +403,7 @@ maintenance:
     emis: P0HNT0I
     es: PH7OPR4
     evss: PZKWB6Y
+    global: PLPSIB0
     idme: PVWB4R8
     mvi: PCIPVGJ
     mhv: PP2ZZ2V
@@ -377,6 +411,11 @@ maintenance:
     tims: PUL8OQ4
     vet360: PHVOGQ1
     vic: P7LW3MS
+  aws:
+    access_key_id: ~
+    bucket: ~
+    region: ~
+    secret_access_key: ~
 
 # Note: in addition to enabling / disabling betamocks here, you _must_ also
 # change the 'mock' bool for each service you want to mock in this settings file
@@ -405,26 +444,61 @@ bing:
 
 flipper:
   admin_user_emails:
+    - alastair@adhocteam.us
     - anna@adhoc.team
-    - johnny@oddball.io
-    - travis.hilton@oddball.io
-    - rian.fowler@adhoc.team
-    - rianfowler@outlook.com
+    - erik@adhocteam.us
     - jbalboni@gmail.com
     - jeff@adhocteam.us
+    - johnny@oddball.io
     - kam@adhocteam.us
-    - alastair@adhocteam.us
+    - kenneth.gary@va.gov
+    - lauren.alexanderson@va.gov
+    - mark.greenburg@adhocteam.us
+    - n.ratana@gmail.com
     - narin@adhocteam.us
+    - osanchez@governmentcio.com
+    - rian.fowler@adhoc.team
+    - rianfowler@outlook.com
+    - ryan.thurlwell@va.gov
+    - travis.hilton@oddball.io
+    - zurbergram@gmail.com
 
 bgs:
   application: ~
   client_station_id: ~
   client_username: ~
+  env: ~
   mock_response_location: ~
   mock_responses: ~
+  ssl_verify_mode: 'peer'
 
 va_mobile:
   url: 'https://veteran.apps.va.gov/'
   mock: false
   key_path: /fake/client/key/path
   timeout: 15
+
+lighthouse:
+  api_key: fake_key
+
+forms:
+  url: https://dev-api.va.gov/services/va_forms/v0/
+  mock: false
+
+vbms:
+  url: "https://internal-dsva-vagov-dev-fwdproxy-1893365470.us-gov-west-1.elb.amazonaws.com:4449"
+  saml: "vetsapi.client.vbms.aide.oit.va.gov.saml-token.xml"
+  keypass: "{{ lookup('credstash', 'vbms.dev.key_password') }}"
+  ca_cert: VBMS-Client-Signing-CA.crt
+  cert: vetsapi.client.vbms.aide.oit.va.gov.crt
+  client_keyfile: vetsapi.client.vbms.aide.oit.va.gov.p12
+  server_cert: vbms.aide.oit.va.gov.crt
+  environment_directory: /srv/vets-api/secret
+  env: test
+
+vet_verification:
+  key_path: modules/veteran_verification/spec/fixtures/verification_test.pem
+
+github_stats:
+  username: github-stats-rake
+  token: fake_token

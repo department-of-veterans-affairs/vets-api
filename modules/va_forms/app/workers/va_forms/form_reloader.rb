@@ -14,12 +14,18 @@ module VaForms
 
     def load_page(current_page: 0)
       current_page += 1
+      params = {}
+      unless current_page == 1
+        params = {
+          id: 'form2',
+          name: 'form2',
+          'CurrentPage' => current_page,
+          'Next10' => 'Next25 >'
+        }
+      end
       page = Faraday.new(url: BASE_URL).post(
         '/vaforms/search_action.asp',
-        id: 'form2',
-        name: 'form2',
-        'CurrentPage' => current_page,
-        'Next10' => 'Next25 >'
+        params
       ).body
       doc = Nokogiri::HTML(page)
       next_button = doc.css('input[name=Next10]')
@@ -36,7 +42,7 @@ module VaForms
 
     def parse_table_row(row)
       if row.css('a').try(:first) && (url = row.css('a').first['href'])
-        return if url.starts_with?('#')
+        return if url.starts_with?('#') || url == 'help.asp'
 
         begin
           parse_form_row(row, url)
@@ -47,33 +53,47 @@ module VaForms
     end
 
     def parse_form_row(line, url)
-      title = line.css('font').text
       form_name = line.css('a').first.text
       form = VaForms::Form.find_or_initialize_by form_name: form_name
       current_sha256 = form.sha256
-      form.title = title
-      issued_string = line.css('td:nth-child(3)').text
-      form.first_issued_on = Date.strptime(issued_string, '%m/%d/%y') if issued_string.present?
-      form.last_revision_on = line.css('td:nth-child(4)').text
+      form.title = line.css('font').text
+      revision_string = line.css('td:nth-child(4)').text
+      form.last_revision_on = parse_date(line.css('td:nth-child(4)').text) if revision_string.present?
       form.pages = line.css('td:nth-child(5)').text
-      form.url = url.starts_with?('http') ? url : get_full_url(url)
-      form.sha256 = get_sha256(form.url)
+      form_url = url.starts_with?('http') ? url.gsub('http:', 'https:') : get_full_url(url)
+      form.url = Addressable::URI.parse(form_url).normalize.to_s
+      form = update_sha256(form)
       form.save if current_sha256 != form.sha256
     end
 
-    def get_sha256(url)
-      if url.present?
-        content = URI.parse(CGI.escape(url).gsub('%2F', '/').gsub('%3A', ':')).open
-        if content.class == Tempfile
-          Digest::SHA256.file(content).hexdigest
-        else
-          Digest::SHA256.hexdigest(content.string)
-        end
+    def parse_date(date_string)
+      matcher = date_string.split('/').count == 2 ? '%m/%Y' : '%m/%d/%Y'
+      Date.strptime(date_string, matcher)
+    end
+
+    def get_sha256(content)
+      if content.class == Tempfile
+        Digest::SHA256.file(content).hexdigest
+      else
+        Digest::SHA256.hexdigest(content.string)
       end
     end
 
+    def update_sha256(form)
+      if form.url.present? && (content = URI.parse(form.url).open)
+        form.sha256 = get_sha256(content)
+        form.valid_pdf = true
+      else
+        form.valid_pdf = false
+      end
+      form
+    rescue
+      form.valid_pdf = false
+      form
+    end
+
     def get_full_url(url)
-      "https://www.va.gov/vaforms/#{url.gsub('./', '')}" if url.include?('/va') || url.include?('/medical')
+      "#{BASE_URL}/vaforms/#{url.gsub('./', '')}" if url.starts_with?('./va') || url.starts_with?('./medical')
     end
   end
 end

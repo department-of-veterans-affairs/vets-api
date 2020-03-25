@@ -17,9 +17,9 @@ module SAML
     LOGIN_REDIRECT_PARTIAL = '/auth/login/callback'
     LOGOUT_REDIRECT_PARTIAL = '/logout/'
 
-    attr_reader :saml_settings, :session, :user, :authn_context, :type, :query_params
+    attr_reader :saml_settings, :session, :user, :authn_context, :type, :query_params, :redirect_application
 
-    def initialize(saml_settings, session: nil, user: nil, params: {})
+    def initialize(saml_settings, session: nil, user: nil, params: {}, loa3_context: LOA::IDME_LOA3_VETS)
       unless %w[new saml_callback saml_logout_callback].include?(params[:action])
         raise Common::Exceptions::RoutingError, params[:path]
       end
@@ -31,10 +31,14 @@ module SAML
       end
 
       @saml_settings = saml_settings
+      @loa3_context = loa3_context
 
       Raven.extra_context(params: params)
       Raven.user_context(session: session, user: user)
       initialize_query_params(params)
+      # the optional redirect_application is used to determine where to redirect
+      # the user to after a succesful login
+      @redirect_application = params[:application]
     end
 
     # REDIRECT_URLS
@@ -42,15 +46,21 @@ module SAML
       VIRTUAL_HOST_MAPPINGS[current_host][:base_redirect]
     end
 
-    # TODO: SSOe does not currently support upleveling due to missing AuthN attribute support
     # rubocop:disable Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
-    def login_redirect_url(auth: 'success', code: nil, skip_uplevel: false)
-      if auth == 'success' && user.loa[:current] < user.loa[:highest] && !skip_uplevel
-        verify_url
+    def login_redirect_url(auth: 'success', code: nil, saml_uuid: nil)
+      pop_redirect_application(saml_uuid) if saml_uuid
+
+      return verify_url if auth == 'success' && user.loa[:current] < user.loa[:highest]
+
+      return Settings.sso.ssoe_redirects[@redirect_application] if @redirect_application
+
+      @query_params[:type] = type if type
+      @query_params[:auth] = auth if auth == 'fail'
+      @query_params[:code] = code if code
+
+      if Settings.saml.relay.present?
+        add_query(Settings.saml.relay, query_params)
       else
-        @query_params[:type] = type if type
-        @query_params[:auth] = auth if auth == 'fail'
-        @query_params[:code] = code if code
         add_query("#{base_redirect_url}#{LOGIN_REDIRECT_PARTIAL}", query_params)
       end
     end
@@ -73,13 +83,13 @@ module SAML
 
     def idme_url
       @type = 'idme'
-      build_sso_url(LOA::IDME_LOA1)
+      build_sso_url(LOA::IDME_LOA1_VETS)
     end
 
     def signup_url
       @type = 'signup'
       @query_params[:op] = 'signup'
-      build_sso_url(LOA::IDME_LOA1)
+      build_sso_url(LOA::IDME_LOA1_VETS)
     end
 
     def verify_url
@@ -89,8 +99,8 @@ module SAML
 
       link_authn_context =
         case authn_context
-        when LOA::IDME_LOA1, 'multifactor'
-          LOA::IDME_LOA3
+        when LOA::IDME_LOA1_VETS, 'multifactor'
+          @loa3_context
         when 'myhealthevet', 'myhealthevet_multifactor'
           'myhealthevet_loa3'
         when 'dslogon', 'dslogon_multifactor'
@@ -104,7 +114,7 @@ module SAML
       @type = 'mfa'
       link_authn_context =
         case authn_context
-        when LOA::IDME_LOA1, LOA::IDME_LOA3
+        when LOA::IDME_LOA1_VETS, LOA::IDME_LOA3_VETS, LOA::IDME_LOA3
           'multifactor'
         when 'myhealthevet', 'myhealthevet_loa3'
           'myhealthevet_multifactor'
@@ -146,11 +156,17 @@ module SAML
       new_url_settings = url_settings
       new_url_settings.authn_context = link_authn_context
       saml_auth_request = OneLogin::RubySaml::Authrequest.new
+      create_redirect_application(saml_auth_request.uuid) if @redirect_application
       saml_auth_request.create(new_url_settings, query_params)
     end
 
     def relay_state_params
-      { originating_request_id: Thread.current['request_id'], type: type }.to_json
+      rs_params = {
+        originating_request_id: RequestStore.store['request_id'],
+        type: type
+      }
+      rs_params[:review_instance_slug] = Settings.review_instance_slug unless Settings.review_instance_slug.nil?
+      rs_params.to_json
     end
 
     def current_host
@@ -172,6 +188,16 @@ module SAML
       else
         url
       end
+    end
+
+    def create_redirect_application(uuid)
+      LoginRedirectApplication.create(
+        uuid: uuid, redirect_application: @redirect_application
+      )
+    end
+
+    def pop_redirect_application(uuid)
+      @redirect_application = LoginRedirectApplication.pop(uuid)&.redirect_application
     end
   end
 end

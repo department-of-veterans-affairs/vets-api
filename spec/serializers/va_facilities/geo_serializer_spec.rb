@@ -33,6 +33,7 @@ RSpec.describe VaFacilities::GeoSerializer do
         wait_times
         mobile
         active_status
+        visn
       ]
       simple_keys = expected_property_keys - %w[id services satisfaction wait_times]
 

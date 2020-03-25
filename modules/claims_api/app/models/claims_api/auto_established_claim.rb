@@ -1,12 +1,14 @@
 # frozen_string_literal: true
 
-require_dependency 'claims_api/form_526'
 require_dependency 'claims_api/json_marshal'
+require_dependency 'claims_api/concerns/file_data'
 
 module ClaimsApi
   class AutoEstablishedClaim < ApplicationRecord
+    include FileData
     attr_encrypted(:form_data, key: Settings.db_encryption_key, marshal: true, marshaler: ClaimsApi::JsonMarshal)
     attr_encrypted(:auth_headers, key: Settings.db_encryption_key, marshal: true, marshaler: ClaimsApi::JsonMarshal)
+    attr_encrypted(:evss_response, key: Settings.db_encryption_key, marshal: true, marshaler: ClaimsApi::JsonMarshal)
 
     has_many :supporting_documents, dependent: :destroy
 
@@ -35,8 +37,15 @@ module ClaimsApi
 
     alias token id
 
-    def form
-      @form ||= ClaimsApi::Form526.new(form_data.deep_symbolize_keys)
+    def to_internal
+      form_data['claimDate'] ||= (persisted? ? created_at.to_date.to_s : Time.zone.today.to_s)
+      {
+        "form526": form_data,
+        "form526_uploads": [],
+        "form4142": nil,
+        "form0781": nil,
+        "form8940": nil
+      }.to_json
     end
 
     def self.pending?(id)
@@ -57,12 +66,19 @@ module ClaimsApi
     end
 
     def set_md5
-      headers = auth_headers.except('va_eauth_issueinstant', 'Authorization')
+      headers = auth_headers.except('va_eauth_authenticationauthority',
+                                    'va_eauth_service_transaction_id',
+                                    'va_eauth_issueinstant',
+                                    'Authorization')
       self.md5 = Digest::MD5.hexdigest form_data.merge(headers).to_json
     end
 
     def status_from_phase(*)
       status
+    end
+
+    def uploader
+      @uploader ||= ClaimsApi::SupportingDocumentUploader.new(id)
     end
   end
 end

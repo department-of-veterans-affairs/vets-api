@@ -25,23 +25,23 @@ describe EMIS::Responses::GetCombatPayResponse do
       end
 
       it 'has the proper segment identifier' do
-        expect(response.items.first.segment_identifier).to eq('1')
+        expect(response.items.first.segment_identifier).to be_a(String).and eq('1')
       end
 
       it 'has the proper begin date' do
-        expect(response.items.first.begin_date).to eq(Date.parse('2008-09-08'))
+        expect(response.items.first.begin_date).to be_a(Date).and eq(Date.parse('2008-09-08'))
       end
 
       it 'has the proper end date' do
-        expect(response.items.first.end_date).to eq(Date.parse('2009-04-18'))
+        expect(response.items.first.end_date).to be_a(Date).and eq(Date.parse('2009-04-18'))
       end
 
       it 'has the proper type code' do
-        expect(response.items.first.type_code).to eq('01')
+        expect(response.items.first.type_code).to be_a(String).and eq('01')
       end
 
       it 'has the proper zone country code' do
-        expect(response.items.first.combat_zone_country_code).to eq('AE')
+        expect(response.items.first.combat_zone_country_code).to be_a(String).and eq('AE')
       end
     end
   end

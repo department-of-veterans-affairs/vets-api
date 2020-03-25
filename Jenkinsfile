@@ -32,32 +32,32 @@ pipeline {
     stage('Build Docker Images'){
       steps {
         withCredentials([string(credentialsId: 'sidekiq-enterprise-license', variable: 'BUNDLE_ENTERPRISE__CONTRIBSYS__COM')]) {
-          sh 'make ci-build'
+          sh 'env=$RAILS_ENV make build'
         }
       }
     }
 
     stage('Setup Testing DB') {
       steps {
-        sh 'make ci-db'
+        sh 'env=$RAILS_ENV make db'
       }
     }
 
     stage('Lint') {
       steps {
-        sh 'make ci-lint'
+        sh 'env=$RAILS_ENV make lint'
       }
     }
 
     stage('Security Scan') {
       steps {
-        sh 'make ci-security'
+        sh 'env=$RAILS_ENV make security'
       }
     }
 
     stage('Run tests') {
       steps {
-        sh 'make ci-spec'
+        sh 'env=$RAILS_ENV make spec'
       }
       post {
         success {
@@ -71,7 +71,7 @@ pipeline {
     stage('Run Danger Bot') {
       steps {
         withCredentials([string(credentialsId: 'danger-github-api-token',    variable: 'DANGER_GITHUB_API_TOKEN')]) {
-          sh 'make danger'
+          sh 'env=$RAILS_ENV make danger'
         }
       }
     }
@@ -112,11 +112,13 @@ pipeline {
       steps {
         build job: 'deploys/vets-api-server-vagov-dev', parameters: [
           booleanParam(name: 'notify_slack', value: true),
+          booleanParam(name: 'migration_status', value: true),
           stringParam(name: 'ref', value: commit),
         ], wait: false
 
         build job: 'deploys/vets-api-worker-vagov-dev', parameters: [
           booleanParam(name: 'notify_slack', value: true),
+          booleanParam(name: 'migration_status', value: false),
           stringParam(name: 'ref', value: commit),
         ], wait: false
       }
@@ -128,11 +130,13 @@ pipeline {
       steps {
         build job: 'deploys/vets-api-server-vagov-staging', parameters: [
           booleanParam(name: 'notify_slack', value: true),
+          booleanParam(name: 'migration_status', value: true),
           stringParam(name: 'ref', value: commit),
         ], wait: false
 
         build job: 'deploys/vets-api-worker-vagov-staging', parameters: [
           booleanParam(name: 'notify_slack', value: true),
+          booleanParam(name: 'migration_status', value: false),
           stringParam(name: 'ref', value: commit),
         ], wait: false
       }
@@ -140,7 +144,7 @@ pipeline {
   }
   post {
     always {
-      sh 'make ci-down'
+      sh 'env=$RAILS_ENV make down'
       deleteDir() /* clean up our workspace */
     }
     failure {

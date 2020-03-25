@@ -45081,7 +45081,7 @@ http_interactions:
         RU4+DQotLS0tLS0tLS0tLS0tUnVieU11bHRpcGFydFBvc3QtLQ0KDQo=
     headers:
       User-Agent:
-      - Faraday v0.9.2
+      - Faraday v0.17.0
       Content-Type:
       - multipart/form-data; boundary=-----------RubyMultipartPost
       Content-Length:

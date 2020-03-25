@@ -60,19 +60,11 @@ the `vets-api` directory, run `./bin/setup-osx && source ~/.bash_profile && cd
    - More information about installing *with* Sidekiq Enterprise as well as our credentials are on the internal system here: https://github.com/department-of-veterans-affairs/vets-api#authentication-required-for-enterprisecontribsyscom
 
 11. Install overcommit `overcommit --install --sign`
-12. Setup localhost certificates / keys:
-   - Create certs directory within config:  `mkdir ./config/certs`
-   - Copy the [certificate][certificate] to `./config/certs/vetsgov-localhost.crt`
-   - Copy the [key][key] to `./config/certs/vetsgov-localhost.key`
-   - *NOTE*: If you don't have access to these keys, running the following
-     commands will provide basic functionality, such as for running unit tests:
-   - `touch ./config/certs/vetsgov-localhost.crt`
-   - `touch ./config/certs/vetsgov-localhost.key`
-13. Create dev database: `bundle exec rake db:setup`
-14. Go to the file `config/settings/development.yml` in your local vets-api. Switch the commented out lines pertaining to the cache_dir: uncomment out line 14 (what you use for running the app via Rails), and comment out line 15 (what you use for running the app via Docker).
-15. Make sure you have the [vets-api-mockdata](https://github.com/department-of-veterans-affairs/vets-api-mockdata) repo locally installed, preferably in a parallel directory to `vets-api`.
-16. Make sure you have the [vets-api-mockdata](https://github.com/department-of-veterans-affairs/vets-api-mockdata) repo locally installed
-17. Create a `config/settings.local.yml` file for your local configuration overrides. Add this key pointing to your `vets-api-mockdata` directory. 
+12. Create dev database: `bundle exec rake db:setup`
+13. Go to the file `config/settings/development.yml` in your local vets-api. Switch the commented out lines pertaining to the cache_dir: uncomment out line 14 (what you use for running the app via Rails), and comment out line 15 (what you use for running the app via Docker).
+14. Make sure you have the [vets-api-mockdata](https://github.com/department-of-veterans-affairs/vets-api-mockdata) repo locally installed, preferably in a parallel directory to `vets-api`.
+15. Make sure you have the [vets-api-mockdata](https://github.com/department-of-veterans-affairs/vets-api-mockdata) repo locally installed
+16. Create a `config/settings.local.yml` file for your local configuration overrides. Add this key pointing to your `vets-api-mockdata` directory. 
 ```
 betamocks:
   cache_dir: ../vets-api-mockdata

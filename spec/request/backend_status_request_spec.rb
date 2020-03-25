@@ -34,14 +34,15 @@ RSpec.describe 'Backend Status', type: :request do
         it 'indicates the service is unavailable' do
           get v0_backend_status_url('gibs'), params: nil, headers: auth_header
           json = JSON.parse(response.body)
+
           expect(json['data']['attributes']['is_available']).to eq(false)
-          expect(json['data']['attributes']['name']).to eq('gibs')
+          expect(json['data']['attributes']['name']).to be_a(String).and eq('gibs')
         end
 
         it 'returns 0 as number of seconds until next downtime' do
           get v0_backend_status_url('gibs'), params: nil, headers: auth_header
           json = JSON.parse(response.body)
-          expect(json['data']['attributes']['uptime_remaining']).to eq(0)
+          expect(json['data']['attributes']['uptime_remaining']).to be_a(Integer).and eq(0)
         end
       end
 
@@ -54,13 +55,13 @@ RSpec.describe 'Backend Status', type: :request do
           get v0_backend_status_url('gibs'), params: nil, headers: auth_header
           json = JSON.parse(response.body)
           expect(json['data']['attributes']['is_available']).to eq(true)
-          expect(json['data']['attributes']['name']).to eq('gibs')
+          expect(json['data']['attributes']['name']).to be_a(String).and eq('gibs')
         end
 
         it 'returns number of seconds until next downtime' do
           get v0_backend_status_url('gibs'), params: nil, headers: auth_header
           json = JSON.parse(response.body)
-          expect(json['data']['attributes']['uptime_remaining']).to eq(57_600)
+          expect(json['data']['attributes']['uptime_remaining']).to be_a(Integer).and eq(57_600)
         end
       end
     end
@@ -70,13 +71,13 @@ RSpec.describe 'Backend Status', type: :request do
         get v0_backend_status_url('hca'), params: nil, headers: auth_header
         json = JSON.parse(response.body)
         expect(json['data']['attributes']['is_available']).to eq(true)
-        expect(json['data']['attributes']['name']).to eq('hca')
+        expect(json['data']['attributes']['name']).to be_a(String).and eq('hca')
       end
 
       it 'always returns 0 as number of seconds until next downtime' do
         get v0_backend_status_url('hca'), params: nil, headers: auth_header
         json = JSON.parse(response.body)
-        expect(json['data']['attributes']['uptime_remaining']).to eq(0)
+        expect(json['data']['attributes']['uptime_remaining']).to be_a(Integer).and eq(0)
       end
     end
   end
@@ -103,9 +104,9 @@ RSpec.describe 'Backend Status', type: :request do
           body = JSON.parse(response.body)
           error = body.dig('errors').first
 
-          expect(response.status).to eq 429
-          expect(error['code']).to eq 'PAGERDUTY_429'
-          expect(error['title']).to eq 'Exceeded rate limit'
+          expect(response.status).to be_a(Integer).and eq 429
+          expect(error['code']).to be_a(String).and eq 'PAGERDUTY_429'
+          expect(error['title']).to be_a(String).and eq 'Exceeded rate limit'
         end
       end
     end

@@ -2,10 +2,10 @@
 http_interactions:
 - request:
     method: post
-    uri: https://dev-api.va.gov/services/address_validation/v1/candidate
+    uri: https://dev-api.va.gov/services/address_validation/v2/candidate
     body:
       encoding: UTF-8
-      string: '{"requestAddress":{"addressLine1":"sdfdsfsdf","city":"Washington","requestCountry":{"countryCode":"USA"},"stateProvince":{"code":"DC"},"zipCode5":"20011"}}'
+      string: '{"requestAddress":{"addressLine1":"sdfdsfsdf","city":"Sparks Glencoe","requestCountry":{"countryCode":"USA"},"addressPOU":"RESIDENCE/CHOICE","stateProvince":{"code":"MD"},"zipCode5":"21152"}}'
     headers:
       Accept:
       - application/json
@@ -21,11 +21,11 @@ http_interactions:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
   response:
     status:
-      code: 404
+      code: 200
       message: ''
     headers:
       Date:
-      - Thu, 10 Oct 2019 10:45:56 GMT
+      - Thu, 23 Jan 2020 03:15:48 GMT
       Content-Type:
       - application/json;charset=UTF-8
       Transfer-Encoding:
@@ -40,8 +40,9 @@ http_interactions:
       - '0'
       Pragma:
       - no-cache
+      - no-cache
       Vet360txauditid:
-      - 17acb301-9a6b-497a-bec1-6a8f70429853
+      - 1a19bb51-3466-4484-81bf-8c42585f91f1
       Via:
       - kong/1.2.2
       X-Content-Type-Options:
@@ -49,33 +50,38 @@ http_interactions:
       X-Frame-Options:
       - DENY
       X-Kong-Proxy-Latency:
-      - '1'
+      - '2'
       X-Kong-Upstream-Latency:
-      - '141'
-      X-Ratelimit-Limit-Edge-Gateway-Address-Validation-Vagovli-Address-V1-Candidate-Address:
+      - '97'
+      X-Ratelimit-Limit-Edge-Gateway-Address-Validation-Vagovli-Address-V2-Candidate-Address:
       - '500'
       X-Ratelimit-Limit-Minute:
       - '60'
-      X-Ratelimit-Remaining-Edge-Gateway-Address-Validation-Vagovli-Address-V1-Candidate-Address:
-      - '499'
+      X-Ratelimit-Remaining-Edge-Gateway-Address-Validation-Vagovli-Address-V2-Candidate-Address:
+      - '498'
       X-Ratelimit-Remaining-Minute:
-      - '59'
-      X-Ratelimit-Reset-Edge-Gateway-Address-Validation-Vagovli-Address-V1-Candidate-Address:
-      - '60000'
-      X-Ratelimit-Sla-Limit-Edge-Gateway-Address-Validation-Vagovli-Address-V1-Candidate-Address:
+      - '56'
+      X-Ratelimit-Reset-Edge-Gateway-Address-Validation-Vagovli-Address-V2-Candidate-Address:
+      - '58751'
+      X-Ratelimit-Sla-Limit-Edge-Gateway-Address-Validation-Vagovli-Address-V2-Candidate-Address:
       - '250'
-      X-Ratelimit-Sla-Remaining-Edge-Gateway-Address-Validation-Vagovli-Address-V1-Candidate-Address:
-      - '249'
+      X-Ratelimit-Sla-Remaining-Edge-Gateway-Address-Validation-Vagovli-Address-V2-Candidate-Address:
+      - '248'
       X-Ua-Compatible:
       - IE-edge,chrome=1
       X-Xss-Protection:
       - 1; mode=block
       Strict-Transport-Security:
       - max-age=31536000; includeSubDomains; preload
+      Cache-Control:
+      - no-cache, no-store
     body:
       encoding: ASCII-8BIT
-      string: '{"messages":[{"code":"ADDRVAL108","key":"CandidateAddressNotFound","severity":"INFO","text":"No
-        Candidate Address Found "}]}'
+      string: '{"candidateAddresses":[{"address":{"stateProvince":{"name":"Maryland","code":"MD"},"country":{"name":"United
+        States","code":"USA","fipsCode":"US","iso2Code":"US","iso3Code":"USA"},"addressLine1":"Sdfdsfsdf","city":"Sparks
+        Glencoe","zipCode5":"21152"},"geocode":{"calcDate":"2020-01-23T03:15:48+00:00","latitude":39.5412,"longitude":-76.6676},"addressMetaData":{"confidenceScore":0.0,"addressType":"Domestic","deliveryPointValidation":"MISSING_ZIP","validationKey":1499210293},"messages":[{"code":"ADDRVAL112","key":"AddressCouldNotBeFound","severity":"WARN","text":"The
+        Address could not be found"},{"code":"ADDR306","key":"lowConfidenceScore","severity":"WARN","text":"Vet360
+        Validation Failed: Confidence Score less than 80"}]}]}'
     http_version: 
-  recorded_at: Thu, 10 Oct 2019 10:45:56 GMT
-recorded_with: VCR 3.0.3
+  recorded_at: Thu, 23 Jan 2020 03:15:48 GMT
+recorded_with: VCR 5.0.0

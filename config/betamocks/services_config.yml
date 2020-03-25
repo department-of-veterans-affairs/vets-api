@@ -1,6 +1,22 @@
 ---
 :services:
 
+- :name: 'MDOT'
+  :base_uri: <%= "#{URI(Settings.mdot.url).host}:#{URI(Settings.mdot.url).port}" %>
+  :endpoints:
+  - :method: :get
+    :path: "/mdot/supplies"
+    :file_path: "mdot/supplies/index"
+    :cache_multiple_responses:
+      :uid_location: header
+      :uid_locator: 'veteranId'
+  - :method: :post
+    :path: "/mdot/supplies"
+    :file_path: "mdot/supplies/create"
+    :cache_multiple_responses:
+      :uid_location: header
+      :uid_locator: 'veteranId'
+
 - :name: 'MHV_Rx'
   :base_uri: <%= "#{URI(Settings.mhv.rx.host).host}:#{URI(Settings.mhv.rx.host).port}" %>
   :endpoints:
@@ -225,6 +241,12 @@
     :cache_multiple_responses:
       :uid_location: header
       :uid_locator: 'va_eauth_pnid'
+  - :method: :post
+    :path: <%= "/wss-common-services-web-#{Settings.evss.versions.common}/rest/ratingInfoService/#{Settings.evss.versions.common}/findRatingInfoPID" %>
+    :file_path: "evss/disability_form/rating_info"
+    :cache_multiple_responses:
+      :uid_location: header
+      :uid_locator: 'va_eauth_pnid'
 
   # Letters
   - :method: :get
@@ -327,6 +349,20 @@
   - :method: :post
     :path: "/VIERSService/eMIS/v1/MilitaryInformationService"
     :file_path: "emis/deployment"
+    :cache_multiple_responses:
+      :uid_location: body
+      :uid_locator: '<v11:eMISdeploymentRequest>\s*<v12:edipiORicn>\s*<v13:edipiORicnValue>(\d+)'
+
+  - :method: :post
+    :path: "/VIERSService/eMIS/v2/MilitaryInformationService"
+    :file_path: "emis/v2/military_service_episodes"
+    :cache_multiple_responses:
+      :uid_location: body
+      :uid_locator: '<v11:eMISserviceEpisodeRequest>\s*<v12:edipiORicn>\s*<v13:edipiORicnValue>(\d+)'
+      
+  - :method: :post
+    :path: "/VIERSService/eMIS/v2/MilitaryInformationService"
+    :file_path: "emis/v2/deployment"
     :cache_multiple_responses:
       :uid_location: body
       :uid_locator: '<v11:eMISdeploymentRequest>\s*<v12:edipiORicn>\s*<v13:edipiORicnValue>(\d+)'

@@ -75,6 +75,10 @@ RSpec.describe 'Post 911 GI Bill Status', type: :request do
       get v0_post911_gi_bill_status_url, params: nil
       expect(response.headers).to include('Retry-After')
     end
+    it 'ignores OutsideWorkingHours exception' do
+      expect(Raven).not_to receive(:capture_message)
+      get v0_post911_gi_bill_status_url, params: nil
+    end
   end
 
   context 'with deprecated GibsNotFoundUser class' do

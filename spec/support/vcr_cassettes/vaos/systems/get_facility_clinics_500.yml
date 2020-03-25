@@ -2,7 +2,7 @@
 http_interactions:
   - request:
       method: get
-      uri: https://veteran.apps.va.gov/var/VeteranAppointmentRequestService/v4/rest/clinical-services/patient/ICN/1000123456V123456/clinics?clinical-service&institution-code=984GA&three-digit-code=984
+      uri: https://veteran.apps.va.gov/var/VeteranAppointmentRequestService/v4/rest/clinical-services/patient/ICN/1000123456V123456/clinics?clinical-service=323&institution-code=984GA&three-digit-code=984
       body:
         encoding: US-ASCII
         string: ''

@@ -1,30 +1,12 @@
 # frozen_string_literal: true
 
-require_relative '../vaos/concerns/headers'
-
 module VAOS
-  class AppointmentService < Common::Client::Base
-    include Common::Client::Monitoring
-    include SentryLogging
-    include VAOS::Headers
-
-    configuration VAOS::Configuration
-
-    STATSD_KEY_PREFIX = 'api.vaos'
-
-    attr_accessor :user
-
-    def self.for_user(user)
-      as = VAOS::AppointmentService.new
-      as.user = user
-      as
-    end
-
+  class AppointmentService < VAOS::BaseService
     def get_appointments(type, start_date, end_date, pagination_params = {})
-      with_monitoring do
-        url = get_appointments_base_url(type)
+      params = date_params(start_date, end_date).merge(page_params(pagination_params)).merge(other_params).compact
 
-        response = perform(:get, url, params(start_date, end_date, pagination_params), headers(user))
+      with_monitoring do
+        response = perform(:get, get_appointments_base_url(type), params, headers, timeout: 55)
         {
           data: deserialized_appointments(response.body, type),
           meta: pagination(pagination_params)
@@ -32,18 +14,59 @@ module VAOS
       end
     end
 
+    def post_appointment(request_object_body)
+      params = VAOS::AppointmentForm.new(user, request_object_body).params.with_indifferent_access
+      site_code = params[:clinic][:site_code]
+
+      with_monitoring do
+        response = perform(:post, post_appointment_url(site_code), params, headers)
+        {
+          data: OpenStruct.new(response.body),
+          meta: {}
+        }
+      rescue Common::Exceptions::BackendServiceException => e
+        # TODO: Reevaluate the need to log clinic data three months after launch (6/15/20)
+        log_clinic_details(:create, params.dig(:clinic, :clinic_id), site_code) if e.key == 'VAOS_400'
+        raise e
+      end
+    end
+
+    def put_cancel_appointment(request_object_body)
+      params = VAOS::CancelForm.new(request_object_body).params
+      params.merge!(patient_identifier: { unique_id: user.icn, assigning_authority: 'ICN' })
+      site_code = params[:facility_id]
+
+      with_monitoring do
+        perform(:put, put_appointment_url(site_code), params, headers)
+        ''
+      rescue Common::Exceptions::BackendServiceException => e
+        # TODO: Reevaluate the need to log clinic data three months after launch (6/15/20)
+        log_clinic_details(:cancel, params[:clinic_id], site_code) if e.key == 'VAOS_400'
+        raise e
+      end
+    rescue Common::Client::Errors::ClientError => e
+      raise_backend_exception('VAOS_502', self.class, e)
+    end
+
     private
 
+    def log_clinic_details(action, clinic_id, site_code)
+      Rails.logger.warn(
+        "Clinic does not support VAOS appointment #{action}",
+        clinic_id: clinic_id,
+        site_code: site_code
+      )
+    end
+
     def deserialized_appointments(json_hash, type)
-      if type == 'va'
-        json_hash.dig(:data, :appointment_list).map { |appointments| OpenStruct.new(appointments) }
-      else
-        json_hash[:booked_appointment_collections].first[:booked_cc_appointments]
-                                                  .map { |appointments| OpenStruct.new(appointments) }
-      end
-    rescue => e
-      log_message_to_sentry(e.message, :warn, invalid_json: json_hash, appointments_type: type)
-      []
+      appointment_list = if type == 'va'
+                           json_hash.dig(:data, :appointment_list)
+                         else
+                           json_hash[:booked_appointment_collections].first[:booked_cc_appointments]
+                         end
+      return [] unless appointment_list
+
+      appointment_list.map { |appointments| OpenStruct.new(appointments) }
     end
 
     # TODO: need underlying APIs to support pagination consistently
@@ -66,8 +89,14 @@ module VAOS
       end
     end
 
-    def params(start_date, end_date, pagination_params)
-      date_params(start_date, end_date).merge(page_params(pagination_params)).merge(other_params).compact
+    def post_appointment_url(site)
+      "/var/VeteranAppointmentRequestService/v4/rest/direct-scheduling/site/#{site}" \
+        "/patient/ICN/#{user.icn}/booked-appointments"
+    end
+
+    def put_appointment_url(site)
+      "/var/VeteranAppointmentRequestService/v4/rest/direct-scheduling/site/#{site}/patient/ICN/" \
+        "#{user.icn}/cancel-appointment"
     end
 
     def date_params(start_date, end_date)

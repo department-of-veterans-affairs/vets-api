@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2019_11_06_190228) do
+ActiveRecord::Schema.define(version: 2020_03_17_164309) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
@@ -27,7 +27,9 @@ ActiveRecord::Schema.define(version: 2019_11_06_190228) do
     t.string "edipi"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "sec_id"
     t.index ["idme_uuid"], name: "index_accounts_on_idme_uuid", unique: true
+    t.index ["sec_id"], name: "index_accounts_on_sec_id"
     t.index ["uuid"], name: "index_accounts_on_uuid", unique: true
   end
 
@@ -69,6 +71,7 @@ ActiveRecord::Schema.define(version: 2019_11_06_190228) do
     t.geography "location", limit: {:srid=>4326, :type=>"st_point", :geographic=>true}
     t.boolean "mobile"
     t.string "active_status"
+    t.string "visn"
     t.index ["location"], name: "index_base_facilities_on_location", using: :gist
     t.index ["name"], name: "index_base_facilities_on_name", using: :gin
     t.index ["unique_id", "facility_type"], name: "index_base_facilities_on_unique_id_and_facility_type", unique: true
@@ -102,6 +105,8 @@ ActiveRecord::Schema.define(version: 2019_11_06_190228) do
     t.string "source"
     t.string "encrypted_file_data"
     t.string "encrypted_file_data_iv"
+    t.string "encrypted_evss_response"
+    t.string "encrypted_evss_response_iv"
   end
 
   create_table "claims_api_power_of_attorneys", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
@@ -114,9 +119,16 @@ ActiveRecord::Schema.define(version: 2019_11_06_190228) do
     t.string "encrypted_file_data"
     t.string "encrypted_file_data_iv"
     t.string "md5"
-    t.string "source"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "vbms_new_document_version_ref_id"
+    t.string "vbms_document_series_ref_id"
+    t.string "vbms_error_message"
+    t.integer "vbms_upload_failure_count", default: 0
+    t.string "encrypted_source_data"
+    t.string "encrypted_source_data_iv"
+    t.string "header_md5"
+    t.index ["header_md5"], name: "index_claims_api_power_of_attorneys_on_header_md5"
   end
 
   create_table "claims_api_supporting_documents", id: :uuid, default: -> { "uuid_generate_v4()" }, force: :cascade do |t|
@@ -125,25 +137,6 @@ ActiveRecord::Schema.define(version: 2019_11_06_190228) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.uuid "auto_established_claim_id", null: false
-  end
-
-  create_table "disability_compensation_job_statuses", id: :serial, force: :cascade do |t|
-    t.integer "disability_compensation_submission_id", null: false
-    t.string "job_id", null: false
-    t.string "job_class", null: false
-    t.string "status", null: false
-    t.string "error_message"
-    t.datetime "updated_at", null: false
-    t.index ["disability_compensation_submission_id"], name: "index_disability_compensation_job_statuses_on_dsc_id"
-    t.index ["job_id"], name: "index_disability_compensation_job_statuses_on_job_id", unique: true
-  end
-
-  create_table "disability_compensation_submissions", id: :serial, force: :cascade do |t|
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.integer "disability_compensation_id"
-    t.integer "va526ez_submit_transaction_id"
-    t.boolean "complete", default: false
   end
 
   create_table "disability_contentions", id: :serial, force: :cascade do |t|
@@ -166,6 +159,7 @@ ActiveRecord::Schema.define(version: 2019_11_06_190228) do
     t.datetime "updated_at", null: false
     t.integer "min"
     t.integer "max"
+    t.datetime "vssc_extract_date", default: "2001-01-01 00:00:00"
     t.index ["polygon"], name: "index_drivetime_bands_on_polygon", using: :gist
   end
 
@@ -323,6 +317,7 @@ ActiveRecord::Schema.define(version: 2019_11_06_190228) do
     t.json "metadata"
     t.datetime "expires_at"
     t.index ["form_id", "user_uuid"], name: "index_in_progress_forms_on_form_id_and_user_uuid", unique: true
+    t.index ["user_uuid"], name: "index_in_progress_forms_on_user_uuid"
   end
 
   create_table "invalid_letter_address_edipis", id: :serial, force: :cascade do |t|
@@ -497,6 +492,8 @@ ActiveRecord::Schema.define(version: 2019_11_06_190228) do
     t.string "sha256"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.boolean "valid_pdf", default: false
+    t.index ["valid_pdf"], name: "index_va_forms_forms_on_valid_pdf"
   end
 
   create_table "vba_documents_upload_submissions", id: :serial, force: :cascade do |t|

@@ -17,7 +17,6 @@ module VAOS
                :display_to_patient_flag,
                :institution_name,
                :institution_code,
-               :object_type,
-               :link
+               :object_type
   end
 end

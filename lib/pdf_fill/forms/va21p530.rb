@@ -14,7 +14,7 @@ module PdfFill
         'nursingHome' => 'NURSING HOME UNDER VA CONTRACT'
       }.freeze
 
-      # rubocop:disable Metrics/LineLength
+      # rubocop:disable Layout/LineLength
       KEY = {
         'burialAllowanceRequested' => {
           'checkbox' => {
@@ -333,7 +333,7 @@ module PdfFill
           }
         }
       }.freeze
-      # rubocop:enable Metrics/LineLength
+      # rubocop:enable Layout/LineLength
 
       def split_phone(hash, key)
         phone = hash[key]

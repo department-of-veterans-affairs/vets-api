@@ -95,6 +95,8 @@ PHON303,effectiveEndDate,telephones[#].CheckEffectiveEndDate,ERROR,400,REJECTED,
 PHON304,phoneType,DuplicateTelephoneType,ERROR,400,REJECTED,RECEIVED_ERROR_QUEUE,Cannot accept a request with multiple phones of the same type.
 PHON305,phoneType,telephones[#].phoneType,ERROR,400,REJECTED,RECEIVED_ERROR_QUEUE,Cannot update record if phoneType is not matching
 ,,,,,,,
+PERM101,permissionId,permissions[#].permissionId.Null,ERROR,400,REJECTED,RECEIVED_ERROR_QUEUE,Permission ID in permission bio must be null for inserts/adds
+,,,,,,,
 ADDR101,AddressType,addresses[#].AddressType.NotNull,ERROR,400,REJECTED,RECEIVED_ERROR_QUEUE,Address Type may not be null
 ADDR102,effectiveStartDate,addresses[#].effectiveStartDate.Pattern,ERROR,400,REJECTED,RECEIVED_ERROR_QUEUE,Effective Start Date is invalid
 ADDR103,effectiveEndDate,addresses[#].effectiveEndDate.Pattern,ERROR,400,REJECTED,RECEIVED_ERROR_QUEUE,Effective End Date is invalid

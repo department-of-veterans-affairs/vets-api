@@ -8,7 +8,7 @@ RSpec.describe AfterLoginJob do
       let(:user) { create(:evss_user) }
 
       it 'launches CreateUserAccountJob' do
-        expect(EVSS::CreateUserAccountJob).to receive(:perform_async).with(EVSS::AuthHeaders.new(user).to_h)
+        expect(EVSS::CreateUserAccountJob).to receive(:perform_async)
         described_class.new.perform('user_uuid' => user.uuid)
       end
     end

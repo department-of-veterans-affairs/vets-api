@@ -3,6 +3,7 @@
 namespace :id_card_announcement_subscriptions do
   # Example: To export the second set of 100 non-VA emails, provide offset=100
   # $ rake id_card_announcement_subscriptions:export_non_va[100]
+  # rubocop:disable Style/FormatStringToken
   desc 'Export distinct email addresses'
   task :export_non_va, %i[offset limit] => [:environment] do |_, args|
     offset = (args[:offset] || 0).to_i
@@ -39,4 +40,5 @@ namespace :id_card_announcement_subscriptions do
     printf "%-20s %d\n", 'Email Count:', email_count
     printf "%-20s %d\n", 'VA Email Count:', va_email_count
   end
+  # rubocop:enable Style/FormatStringToken
 end
