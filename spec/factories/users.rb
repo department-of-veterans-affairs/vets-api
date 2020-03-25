@@ -49,7 +49,7 @@ FactoryBot.define do
                              birth_date: t.birth_date,
                              zip: t.zip,
                              ssn: t.ssn,
-                             idme_uuid: user.uuid,
+                             idme_uuid: t.idme_uuid,
                              sec_id: t.sec_id,
                              mhv_icn: t.mhv_icn,
                              loa: t.loa,
@@ -83,7 +83,8 @@ FactoryBot.define do
 
     trait :accountable do
       authn_context { LOA::IDME_LOA3_VETS }
-      uuid { SecureRandom.uuid }
+      uuid { '9d018700-b72c-444a-95b4-43e14a4509ea' }
+      idme_uuid { '9d018700-b72c-444a-95b4-43e14a4509ea' }
       callback(:after_build) do |user|
         create(:account, idme_uuid: user.idme_uuid)
       end
@@ -101,7 +102,8 @@ FactoryBot.define do
 
     trait :accountable_with_sec_id do
       authn_context { LOA::IDME_LOA3_VETS }
-      uuid { SecureRandom.uuid }
+      uuid { '378250b8-28b1-4366-a377-445d04fcd3d5' }
+      idme_uuid { '378250b8-28b1-4366-a377-445d04fcd3d5' }
       callback(:after_build) do |user|
         create(:account, sec_id: user.sec_id)
       end
@@ -263,6 +265,22 @@ FactoryBot.define do
       end
     end
 
+    trait :user_with_no_idme_uuid do
+      uuid { '133e619f-7b69-4e7a-b571-e4c9478d0a04' }
+      sec_id { '1234' }
+      idme_uuid { nil }
+
+      sign_in do
+        {
+          service_name: SAML::User::AUTHN_CONTEXTS[authn_context][:sign_in][:service_name]
+        }
+      end
+
+      loa do
+        { current: LOA::THREE, highest: LOA::THREE }
+      end
+    end
+
     trait :mhv_sign_in do
       authn_context { 'myhealthevet' }
       mhv_account_type { 'Basic' }
@@ -281,6 +299,7 @@ FactoryBot.define do
     trait :mhv do
       authn_context { 'myhealthevet' }
       uuid { 'b2fab2b5-6af0-45e1-a9e2-394347af91ef' }
+      idme_uuid { 'b2fab2b5-6af0-45e1-a9e2-394347af91ef' }
       last_signed_in { Faker::Time.between(from: 2.years.ago, to: 1.week.ago) }
       mhv_last_signed_in { Faker::Time.between(from: 1.week.ago, to: 1.minute.ago) }
       email { Faker::Internet.email }
@@ -327,6 +346,7 @@ FactoryBot.define do
     trait :dslogon do
       authn_context { 'dslogon' }
       uuid { 'b2fab2b5-6af0-45e1-a9e2-394347af91ef' }
+      idme_uuid { 'b2fab2b5-6af0-45e1-a9e2-394347af91ef' }
       last_signed_in { Faker::Time.between(from: 2.years.ago, to: 1.week.ago) }
       mhv_last_signed_in { nil }
       email { Faker::Internet.email }
