@@ -287,6 +287,38 @@ RSpec.describe SAML::User do
       end
     end
 
+    context 'MHV premium user no idme uuid' do
+      let(:authn_context) { 'myhealthevet' }
+      let(:account_type) { '1' }
+      let(:highest_attained_loa) { '3' }
+      let(:saml_attributes) { build(:ssoe_idme_mhv_premium, va_eauth_uid: ['NOT_FOUND'], va_eauth_csid: ['NOT_FOUND'], va_eauth_gcIds: ['']) }
+      let(:multifactor) { true }
+
+      it 'has various important attributes' do
+        expect(subject.to_hash).to eq(
+          birth_date: '19770307',
+          authn_context: authn_context,
+          dslogon_edipi: '2107307560',
+          first_name: 'TRISTAN',
+          last_name: 'GPTESTSYSTWO',
+          middle_name: nil,
+          gender: 'M',
+          ssn: '666811850',
+          zip: nil,
+          mhv_icn: '1012853550V207686',
+          mhv_correlation_id: nil,
+          uuid: Digest::UUID.uuid_v3('sec-id', '1012853550').tr('-', ''),
+          email: 'k+tristanmhv@example.com',
+          idme_uuid: nil,
+          loa: { current: 3, highest: 3 },
+          sign_in: { service_name: 'myhealthevet', account_type: 3 },
+          sec_id: '1012853550',
+          multifactor: multifactor,
+          authenticated_by_ssoe: true
+        )
+      end
+    end
+
     context 'DSLogon non premium user' do
       let(:authn_context) { 'dslogon' }
       let(:account_type) { '1' }
@@ -361,6 +393,38 @@ RSpec.describe SAML::User do
       let(:highest_attained_loa) { '3' }
       let(:multifactor) { true }
       let(:saml_attributes) { build(:ssoe_idme_dslogon_level2) }
+
+      it 'has various important attributes' do
+        expect(subject.to_hash).to eq(
+          birth_date: '19560710',
+          authn_context: authn_context,
+          dslogon_edipi: '1005169255',
+          first_name: 'JOHNNIE',
+          last_name: 'WEAVER',
+          middle_name: 'LEONARD',
+          gender: 'M',
+          ssn: '796123607',
+          zip: '20571-0001',
+          mhv_icn: '1012740600V714187',
+          mhv_correlation_id: nil,
+          uuid: '1655c16aa0784dbe973814c95bd69177',
+          email: 'Test0206@gmail.com',
+          idme_uuid: '1655c16aa0784dbe973814c95bd69177',
+          loa: { current: 3, highest: 3 },
+          sign_in: { service_name: 'dslogon', account_type: 3 },
+          sec_id: '0000028007',
+          multifactor: multifactor,
+          authenticated_by_ssoe: true
+        )
+      end
+    end
+
+    context 'DSLogon premium user with idme uuid in gcIds' do
+      let(:authn_context) { 'dslogon' }
+      let(:account_type) { '3' }
+      let(:highest_attained_loa) { '3' }
+      let(:multifactor) { true }
+      let(:saml_attributes) { build(:ssoe_idme_dslogon_level2, va_eauth_uid: ['0000028007'], va_eauth_csid: ['NOT_FOUND']) }
 
       it 'has various important attributes' do
         expect(subject.to_hash).to eq(
