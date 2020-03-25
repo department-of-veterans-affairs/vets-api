@@ -15,10 +15,4 @@ class LoggingForgeryStrategy
       action: @controller.action_name
     )
   end
-
-  private
-
-  def request
-    @request ||= @controller.request
-  end
 end
