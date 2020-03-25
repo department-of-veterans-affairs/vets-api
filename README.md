@@ -39,22 +39,16 @@ saml:
 A Makefile provides shortcuts for interacting with the docker images. To run vets-api and its redis and postgres
 dependencies run the following command from within the repo you cloned in the above steps.
 
-### Authentication required for enterprise.contribsys.com
+### Sidekiq Enterprise
 
-```
-Authentication is required for enterprise.contribsys.com.
-Please supply credentials for this source. You can do this by running:
- bundle config enterprise.contribsys.com username:password
-ERROR: Service 'vets-api' failed to build: The command '/bin/bash --login -c bundle install -j4' returned a non-zero code: 17
-make: *** [db] Error 1
-```
+Sidekiq Enterprise is used for worker rate limiting and additional reliability.  
+Sidekiq Enterprise requires a license be configured on your development machine.  
+If you do not have license configured, Sidekiq Enterprise will simply not be installed during gem installation.
 
-Sidekiq Enterprise is used for worker rate limiting and additional reliability. Most
-developers can bypass the installation of Sidekiq Enterprise with
+VA.gov Team Engineers can follow instructions [here](https://github.com/department-of-veterans-affairs/vets.gov-team/blob/master/Products/Platform/Vets-API/Sidekiq%20Enterprise%20Setup.md) to install the enterprise license on their systems.
 
-- `$ EXCLUDE_SIDEKIQ_ENTERPRISE=true make rebuild`
-
-VA.gov Team Engineers should follow instructions [here](https://github.com/department-of-veterans-affairs/vets.gov-team/blob/master/Products/Platform/Vets-API/Sidekiq%20Enterprise%20Setup.md) to install the enterprise license on their systems.
+Unless you are sure you need a Sidekiq Enterprise feature, you are probably fine without configuring the license and running Sidekiq Enterprise.  
+Normal Sidekiq will still be installed and run.
 
 **DO NOT commit Gemfile modifications that result from local builds without sidekiq enterprise if you do not have it enabled on your development system**
 
