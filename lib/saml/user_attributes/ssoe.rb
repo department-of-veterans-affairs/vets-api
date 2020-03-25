@@ -61,7 +61,7 @@ module SAML
 
         return idme_uuid if idme_uuid
 
-        Digest::UUID.uuid_v3('sec-id', sec_id).replace('-', '')
+        Digest::UUID.uuid_v3('sec-id', sec_id).tr('-', '')
       end
 
       def idme_uuid
