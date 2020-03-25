@@ -50,6 +50,17 @@ describe AppealsApi::V1::DecisionReview::HigherLevelReviewsController, type: :re
       expect(response.status).to eq(422)
       expect(parsed['errors'].size).to eq(3)
     end
+
+    it 'responds properly when JSON parse error' do
+      data = File.read(Rails.root.join('modules', 'appeals_api', 'spec', 'fixtures', 'invalid_200996.json'))
+      allow(JSON).to receive(:parse).and_raise(JSON::ParserError)
+      post(
+        '/services/appeals/v1/decision_review/higher_level_reviews/validate',
+        params: data
+      )
+      # parsed = JSON.parse(response.body)
+      expect(response.status).to eq(422)
+    end
   end
 
   describe '#schema' do
