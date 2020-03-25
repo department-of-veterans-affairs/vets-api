@@ -5,24 +5,37 @@ require 'vet360/response'
 module Vet360
   module ContactInformation
     class TransactionResponse < Vet360::Response
+      extend SentryLogging
+
       attribute :transaction, Vet360::Models::Transaction
+      ERROR_STATUS = 'COMPLETED_FAILURE'
 
       attr_reader :response_body
 
       def self.from(raw_response = nil)
         @response_body = raw_response&.body
 
+        if error?
+          log_message_to_sentry(
+            'Vet360 transaction error',
+            :error,
+            { response_body: @response_body },
+            error: :vet360
+          )
+        end
+
         new(
           raw_response&.status,
           transaction: Vet360::Models::Transaction.build_from(@response_body)
         )
       end
+
+      def self.error?
+        @response_body.try(:[], 'tx_status') == ERROR_STATUS
+      end
     end
 
     class AddressTransactionResponse < TransactionResponse
-      ERROR_STATUS = 'COMPLETED_FAILURE'
-      extend SentryLogging
-
       def self.from(*args)
         return_val = super
 
@@ -32,7 +45,7 @@ module Vet360
       end
 
       def self.log_error
-        if @response_body['tx_status'] == ERROR_STATUS
+        if error?
           PersonalInformationLog.create(
             error_class: 'Vet360::ContactInformation::AddressTransactionResponseError',
             data:
