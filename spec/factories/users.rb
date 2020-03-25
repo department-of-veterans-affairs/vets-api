@@ -309,7 +309,7 @@ FactoryBot.define do
             :mvi_profile,
             icn: '1000123456V123456',
             mhv_ids: %w[12345678901],
-            vha_facility_ids: t.va_patient ? %w[358] : []
+            vha_facility_ids: t.va_patient ? %w[358 200MHS] : []
           )
         )
       end
