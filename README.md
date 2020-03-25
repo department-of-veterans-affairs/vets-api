@@ -52,7 +52,6 @@ Normal Sidekiq will still be installed and run.
 
 **DO NOT commit Gemfile modifications that result from local builds without sidekiq enterprise if you do not have it enabled on your development system**
 
-Once you have the `EXCLUDE_SIDEKIQ_ENTERPRISE` set you can run the application with:
 ```
 make up
 ```
