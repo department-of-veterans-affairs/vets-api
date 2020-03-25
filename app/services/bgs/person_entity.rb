@@ -12,9 +12,9 @@ module BGS
     end
 
     def vnp_create
-      vnp_person_create(@participant['vnp_ptcpnt_id'])
-      vnp_address_create(@participant['vnp_ptcpnt_id'])
-      vnp_phone_create(@participant['vnp_ptcpnt_id'])
+      vnp_person_create(@participant[:vnp_ptcpnt_id])
+      vnp_address_create(@participant[:vnp_ptcpnt_id])
+      vnp_phone_create(@participant[:vnp_ptcpnt_id])
     end
 
     private
@@ -56,6 +56,7 @@ module BGS
         fid_decn_categy_type_cd: "",
         file_nbr: "",
         first_nm: "Jane",
+        first_nm_key: "",
         frgn_svc_nbr: "0",
         gender_cd: "F",
         jrn_dt: Time.current.iso8601,
@@ -64,6 +65,7 @@ module BGS
         jrn_status_type_cd: "U",
         jrn_user_id: Settings.bgs.client_username,
         last_nm: "Smith",
+        last_nm_key: "",
         lgy_entlmt_type_cd: "",
         martl_status_type_cd: "",
         middle_nm: "",
@@ -97,6 +99,7 @@ module BGS
 
     def vnp_address_create(vnp_ptcpnt_id)
       @client.vnp_ptcpnt_addrs.vnp_ptcpnt_addrs_create(
+        efctv_dt: Time.current.iso8601,
         vnp_ptcpnt_id: vnp_ptcpnt_id,
         vnp_proc_id: @proc_id,
         addrs_one_txt: '',
