@@ -9,6 +9,10 @@ module JsonSchema
     end
 
     def schemas
+      @schemas ||= get_schemas
+    end
+
+    def get_schemas
       return_val = {}
 
       Dir.glob(File.join(base_dir, '/*')).each do |schema|
