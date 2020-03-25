@@ -291,7 +291,12 @@ RSpec.describe SAML::User do
       let(:authn_context) { 'myhealthevet' }
       let(:account_type) { '1' }
       let(:highest_attained_loa) { '3' }
-      let(:saml_attributes) { build(:ssoe_idme_mhv_premium, va_eauth_uid: ['NOT_FOUND'], va_eauth_csid: ['NOT_FOUND'], va_eauth_gcIds: ['']) }
+      let(:saml_attributes) do
+        build(:ssoe_idme_mhv_premium,
+              va_eauth_uid: ['NOT_FOUND'],
+              va_eauth_csid: ['NOT_FOUND'],
+              va_eauth_gcIds: [''])
+      end
       let(:multifactor) { true }
 
       it 'has various important attributes' do
@@ -424,7 +429,11 @@ RSpec.describe SAML::User do
       let(:account_type) { '3' }
       let(:highest_attained_loa) { '3' }
       let(:multifactor) { true }
-      let(:saml_attributes) { build(:ssoe_idme_dslogon_level2, va_eauth_uid: ['0000028007'], va_eauth_csid: ['NOT_FOUND']) }
+      let(:saml_attributes) do
+        build(:ssoe_idme_dslogon_level2,
+              va_eauth_uid: ['0000028007'],
+              va_eauth_csid: ['NOT_FOUND'])
+      end
 
       it 'has various important attributes' do
         expect(subject.to_hash).to eq(
