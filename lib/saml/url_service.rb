@@ -20,7 +20,8 @@ module SAML
     attr_reader :saml_settings, :session, :user, :authn_context, :type, :query_params, :redirect_application
 
     def initialize(saml_settings, session: nil, user: nil, params: {}, loa3_context: LOA::IDME_LOA3_VETS)
-      unless %w[new saml_callback saml_logout_callback].include?(params[:action])
+      binding.pry
+      unless %w[new saml_callback saml_logout_callback ssoe_slo_callback].include?(params[:action])
         raise Common::Exceptions::RoutingError, params[:path]
       end
 

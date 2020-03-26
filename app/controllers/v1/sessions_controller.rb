@@ -22,13 +22,15 @@ module V1
     # For more details see SAML::SettingsService and SAML::URLService
     def new
       type = params[:type]
-      raise Common::Exceptions::RoutingError, params[:path] unless REDIRECT_URLS.include?(type)
+      if type == 'slo'
+        type = 'ssoe_slo'
+       raise Common::Exceptions::RoutingError, params[:path] unless REDIRECT_URLS.include?(type)
 
       StatsD.increment(STATSD_SSO_NEW_KEY,
                        tags: ["context:#{type}", "forceauthn:#{force_authn?}"])
       url = url_service.send("#{type}_url")
 
-      if %w[slo ssoe_slo].include?(type)
+      if type == 'ssoe_slo'
         Rails.logger.info("LOGOUT of type #{type}", sso_logging_info)
         reset_session
       end
@@ -38,22 +40,6 @@ module V1
     end
 
     def ssoe_slo_callback
-      redirect_to url_service.logout_redirect_url
-    end
-
-    def saml_logout_callback
-      saml_response = SAML::Responses::Logout.new(params[:SAMLResponse], saml_settings, raw_get_params: params)
-      Raven.extra_context(in_response_to: saml_response.try(:in_response_to) || 'ERROR')
-
-      if saml_response.valid?
-        user_logout(saml_response)
-      else
-        log_error(saml_response)
-        Rails.logger.info("SLO callback response invalid for originating_request_id '#{originating_request_id}'")
-      end
-    rescue => e
-      log_exception_to_sentry(e, {}, {}, :error)
-    ensure
       redirect_to url_service.logout_redirect_url
     end
 
