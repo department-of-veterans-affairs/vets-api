@@ -102,14 +102,6 @@ module Facilities
       end
 
       def trim_response_attributes!(response)
-        if Flipper.enabled?(:facilities_ppms_response_trim)
-          flipper_enabled_trim_response_attributes!(response)
-        else
-          response
-        end
-      end
-
-      def flipper_enabled_trim_response_attributes!(response)
         response.body.collect! do |hsh|
           hsh.each_pair.collect do |attr, value|
             if value.is_a? String
@@ -123,14 +115,6 @@ module Facilities
       end
 
       def deduplicate_response_arrays!(response)
-        if Flipper.enabled?(:facility_locator_dedup_community_care_services)
-          flipper_enabled_deduplicate_response_arrays!(response)
-        else
-          response
-        end
-      end
-
-      def flipper_enabled_deduplicate_response_arrays!(response)
         response.body.collect! do |hsh|
           hsh.each_pair.collect do |attr, value|
             if value.is_a? Array
