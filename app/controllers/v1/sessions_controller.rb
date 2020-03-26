@@ -65,6 +65,7 @@ module V1
 
     private
 
+    # rubocop:disable Metrics/CyclomaticComplexity
     def redirect_url(type)
       case type
       when 'signup'
@@ -85,6 +86,7 @@ module V1
         raise Common::Exceptions::RoutingError, params[:path]
       end
     end
+    # rubocop:enable Metrics/CyclomaticComplexity
 
     def force_authn?
       params[:force]&.downcase == 'true'
