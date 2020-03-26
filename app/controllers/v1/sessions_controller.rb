@@ -7,7 +7,7 @@ require 'saml/responses/logout'
 
 module V1
   class SessionsController < ApplicationController
-    REDIRECT_URLS = %w[signup mhv dslogon idme mfa verify slo ssoe_slo].freeze
+    REDIRECT_URLS = %w[signup mhv dslogon idme mfa verify slo].freeze
 
     STATSD_SSO_NEW_KEY = 'api.auth.new'
     STATSD_SSO_CALLBACK_KEY = 'api.auth.saml_callback'
@@ -26,10 +26,9 @@ module V1
 
       StatsD.increment(STATSD_SSO_NEW_KEY,
                        tags: ["context:#{type}", "forceauthn:#{force_authn?}"])
-      type = 'ssoe_slo' if type == 'slo'
-      url = url_service.send("#{type}_url")
+      url = redirect_url(type)
 
-      if type == 'ssoe_slo'
+      if type == 'slo'
         Rails.logger.info("LOGOUT of type #{type}", sso_logging_info)
         reset_session
       end
@@ -65,6 +64,27 @@ module V1
     end
 
     private
+
+    def redirect_url(type)
+      case type
+      when 'signup'
+        url_service.signup_url
+      when 'mhv'
+        url_service.mhv_url
+      when 'dslogon'
+        url_service.dslogon_url
+      when 'idme'
+        url_service.idme_url
+      when 'mfa'
+        url_service.mfa_url
+      when 'verify'
+        url_service.verify_url
+      when 'slo'
+        url_service.ssoe_slo_url # due to shared url service implementation
+      else
+        raise Common::Exceptions::RoutingError, params[:path]
+      end
+    end
 
     def force_authn?
       params[:force]&.downcase == 'true'
