@@ -24,7 +24,7 @@ module SAML
       end
 
       def sec_id
-        attributes['sec_id']
+        nil
       end
 
       # ID.me email address associated with the signed-in 'wallet'
