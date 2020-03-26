@@ -43,7 +43,7 @@ GIT
 
 GIT
   remote: https://github.com/erluti/active_model_serializers
-  revision: fbaa5357e8dba538b6a17a939b04810bb8d77cfe
+  revision: 898ed7532afaa4847220d21976090c0d6d6d19e6
   branch: master
   specs:
     active_model_serializers (0.10.4.vsp)
