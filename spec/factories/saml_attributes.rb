@@ -766,4 +766,191 @@ FactoryBot.define do
 
     initialize_with { new(attributes.stringify_keys) }
   end
+
+  factory :ssoe_inbound_dslogon_level2, class: OneLogin::RubySaml::Attributes do
+    transient do
+      authn_context { 'urn:oasis:names:tc:SAML:2.0:ac:classes:Password' }
+    end
+    va_eauth_phone { ['(555)555-5555'] }
+    va_eauth_lastname { ['MCKIBBENS'] }
+    va_eauth_icn { ['1012779219V964737'] }
+    va_eauth_city { ['CHEYENNE'] }
+    va_eauth_sponsorDodEdiPnId { ['1606997570'] }
+    va_eauth_country { ['USA'] }
+    va_eauth_csp_identifier { ['200DOD'] }
+    va_eauth_gender { ['FEMALE'] }
+    va_eauth_street2 { ['NOT_FOUND'] }
+    va_eauth_csp_method { ['DSL'] }
+    va_eauth_dodedipnid { ['1606997570'] }
+    va_eauth_emailaddress { ['NOT_FOUND'] }
+    va_eauth_cspid { ['200DOD_1606997570'] }
+    va_eauth_issueinstant { ['2020-03-20T20:45:12Z'] }
+    va_eauth_middlename { ['NOT_FOUND'] }
+    va_eauth_birthDate_v1 { ['19461020'] }
+    va_eauth_state { ['WY'] }
+    va_eauth_birlsfilenumber { ['NOT_FOUND'] }
+    va_eauth_authorization {
+      ['{"authorizationResponse":{"id":"101174874",'\
+       '"idType":"SSN","lastName":"MCKIBBENS","firstName":"SOFIA",'\
+       '"middleName":"","cadencyName":"","deceased":false,'\
+       '"birthDate":"1946-10-20T08:00:00Z","gender":"FEMALE",'\
+       '"edi":1606997570,"benefits":[],"personnels":[],'\
+       '"status":"VETERAN","personAssociatedSet":[]}}']
+    }
+    va_eauth_postalcode { ['82009'] }
+    va_eauth_authenticationAuthority { ['D'] }
+    va_eauth_street3 { ['NOT_FOUND'] }
+    va_eauth_csid { ['DSLogon'] }
+    va_eauth_proofingAuthority { ['DMDC'] }
+    va_eauth_pid { ['NOT_FOUND'] }
+    va_eauth_credentialassurancelevel { ['2'] }
+    va_eauth_pnidtype { ['SSN'] }
+    va_eauth_mcid { ['WSSOE2003201645189620771963396'] }
+    va_eauth_firstname { ['SOFIA'] }
+    va_eauth_prefix { ['NOT_FOUND'] }
+    va_eauth_street { ['6021 WEAVER RD'] }
+    va_eauth_csponly { ['false'] }
+    va_eauth_pnid { ['101174874'] }
+    va_eauth_commonname { ['SOFIA MCKIBBENS'] }
+    va_eauth_authenticationMethod { ['DSLogon'] }
+    va_eauth_transactionid { ['yGXMk81W0r3aArfVXHdZuCl5utlNQ1adITH8QHsLlB0'] }
+    va_eauth_suffix { ['NOT_FOUND'] }
+    va_eauth_uid { ['id=sofia.mckibbens,ou=user,ou=People,o=Beneficiaries,dc=osd,dc=mil'] }
+    va_eauth_isDelegate { ['false'] }
+    va_eauth_secid { ['1012779219'] }
+    va_eauth_gcIds {
+      ['1012779219V964737^NI^200M^USVHA^P|'\
+       '38401^PI^451^USVHA^A|'\
+       '1606997570^NI^200DOD^USDOD^A|'\
+       '38401^PI^969^USVHA^A|'\
+       '1012779219^PN^200PROV^USDVA^A']
+    }
+    va_eauth_persontype { ['NOT_FOUND'] }
+    va_eauth_street1 { ['6021 WEAVER RD'] }
+    va_eauth_mhvien { ['NOT_FOUND'] }
+
+    initialize_with { new(attributes.stringify_keys) }
+  end
+
+  factory :ssoe_inbound_mhv_premium, class: OneLogin::RubySaml::Attributes do
+    transient do
+      authn_context { 'urn:oasis:names:tc:SAML:2.0:ac:classes:Password' }
+    end
+    va_eauth_phone { ['NOT_FOUND'] }
+    va_eauth_lastname { ['DAYTMHV'] }
+    va_eauth_icn { ['1013062086V794840'] }
+    va_eauth_city { ['NOT_FOUND'] }
+    va_eauth_country { ['NOT_FOUND'] }
+    va_eauth_csp_identifier { ['200MH'] }
+    va_eauth_gender { ['MALE'] }
+    va_eauth_street2 { ['NOT_FOUND'] }
+    va_eauth_csp_method { ['MHV'] }
+    va_eauth_dodedipnid { ['NOT_FOUND'] }
+    va_eauth_emailaddress { ['NOT_FOUND'] }
+    va_eauth_cspid { ['200MH_15093546'] }
+    va_eauth_issueinstant { ['2020-03-20T20:36:19Z'] }
+    va_eauth_birthDate_v1 { ['19820523'] }
+    va_eauth_middlename { ['NOT_FOUND'] }
+    va_eauth_state { ['NOT_FOUND'] }
+    va_eauth_birlsfilenumber { ['NOT_FOUND'] }
+    va_eauth_postalcode { ['NOT_FOUND'] }
+    va_eauth_street3 { ['NOT_FOUND'] }
+    va_eauth_proofingAuthority { ['FICAM'] }
+    va_eauth_pid { ['NOT_FOUND'] }
+    va_eauth_csid { ['mhv'] }
+    va_eauth_credentialassurancelevel { ['2'] }
+    va_eauth_pnidtype { ['SSN'] }
+    va_eauth_mcid { ['WSSOE2003201636186742109041579'] }
+    va_eauth_firstname { ['ZACK'] }
+    va_eauth_prefix { ['NOT_FOUND'] }
+    va_eauth_street { ['NOT_FOUND'] }
+    va_eauth_csponly { ['false'] }
+    va_eauth_pnid { ['666872589'] }
+    va_eauth_commonname { ['mhvzack@mhv.va.gov'] }
+    va_eauth_authenticationMethod { ['urn:oasis:names:tc:SAML:2.0:ac:classes:unspecified'] }
+    va_eauth_transactionid { ['6e/7qHvlmQR0NPaplboby1mJJlKDKz2UEXk9Ul9e5tU='] }
+    va_eauth_suffix { ['NOT_FOUND'] }
+    va_eauth_uid { ['15093546'] }
+    va_eauth_isDelegate { ['false'] }
+    va_eauth_secid { ['1013062086'] }
+    va_eauth_gcIds {
+      ['1013062086V794840^NI^200M^USVHA^P|'\
+       '15093546^PI^200MHS^USVHA^A|'\
+       '552151869^PI^989^USVHA^A|'\
+       '18277^PI^200VETS^USDVA^A|'\
+       '1013062086^PN^200PROV^USDVA^A|'\
+       '15093546^PI^200MH^USVHA^A|'\
+       '53f065475a794e14a32d707bfd9b215f^PN^200VIDM^USDVA^A']
+    }
+    va_eauth_persontype { ['NOT_FOUND'] }
+    va_eauth_street1 { ['NOT_FOUND'] }
+    va_eauth_mhvien { ['15093546'] }
+
+    initialize_with { new(attributes.stringify_keys) }
+  end
+
+  factory :ssoe_inbound_idme_loa3, class: OneLogin::RubySaml::Attributes do
+    transient do
+      authn_context { LOA::IDME_LOA3 }
+    end
+    va_eauth_phone { ['NOT_FOUND'] }
+    va_eauth_lastname { ['GPKTESTNINE'] }
+    va_eauth_aal_idme_highest { ['2'] }
+    va_eauth_ial { ['3'] }
+    va_eauth_icn { ['1012827134V054550'] }
+    va_eauth_city { ['NOT_FOUND'] }
+    va_eauth_ial_idme_highest { ['classic_loa3'] }
+    va_eauth_country { ['NOT_FOUND'] }
+    va_eauth_csp_identifier { ['200VIDM'] }
+    va_eauth_gender { ['MALE'] }
+    va_eauth_street2 { ['NOT_FOUND'] }
+    va_eauth_aal { ['2'] }
+    va_eauth_csp_method { ['IDME'] }
+    va_eauth_dodedipnid { ['1320002060'] }
+    va_eauth_emailaddress { ['vets.gov.user+262@gmail.com'] }
+    va_eauth_cspid { ['200VIDM_54e78de6140d473f87960f211be49c08'] }
+    va_eauth_authncontextclassref { ['http://idmanagement.gov/ns/assurance/loa/3'] }
+    va_eauth_issueinstant { ['2020-03-20T20:50:12Z'] }
+    va_eauth_middlename { ['NOT_FOUND'] }
+    va_eauth_birthDate_v1 { ['19690407'] }
+    va_eauth_state { ['NOT_FOUND'] }
+    va_eauth_birlsfilenumber { ['666271151'] }
+    va_eauth_postalcode { ['NOT_FOUND'] }
+    va_eauth_street3 { ['NOT_FOUND'] }
+    va_eauth_csid { ['idme'] }
+    va_eauth_proofingAuthority { ['FICAM'] }
+    va_eauth_pid { ['600152411'] }
+    va_eauth_credentialassurancelevel { ['3'] }
+    va_eauth_pnidtype { ['SSN'] }
+    va_eauth_mcid { ['WSSOE2003201650138851548832059'] }
+    va_eauth_firstname { ['JERRY'] }
+    va_eauth_prefix { ['NOT_FOUND'] }
+    va_eauth_street { ['NOT_FOUND'] }
+    va_eauth_csponly { ['false'] }
+    va_eauth_pnid { ['666271152'] }
+    va_eauth_commonname { ['vets.gov.user+262@gmail.com'] }
+    va_eauth_authenticationMethod { ['http://idmanagement.gov/ns/assurance/loa/3'] }
+    va_eauth_transactionid { ['HZmR3a1TZAnLNzLfliYLFXO6Xu1cUEA1p18v2B3bekI='] }
+    va_eauth_suffix { ['NOT_FOUND'] }
+    va_eauth_uid { ['54e78de6140d473f87960f211be49c08'] }
+    va_eauth_isDelegate { ['false'] }
+    va_eauth_secid { ['1012827134'] }
+    va_eauth_gcIds {
+      ['1012827134V054550^NI^200M^USVHA^P|'\
+       '10894456^PI^200MHS^USVHA^A|'\
+       '943523^PI^979^USVHA^A|'\
+       '552151501^PI^989^USVHA^A|'\
+       '666271151^PI^200BRLS^USVBA^A|'\
+       '1320002060^NI^200DOD^USDOD^A|'\
+       '20381^PI^200VETS^USDVA^A|'\
+       '54e78de6140d473f87960f211be49c08^PN^200VIDM^USDVA^A|'\
+       '1012827134^PN^200PROV^USDVA^A|'\
+       '600152411^PI^200CORP^USVBA^A']
+    }
+    va_eauth_persontype { ['NOT_FOUND'] }
+    va_eauth_street1 { ['NOT_FOUND'] }
+    va_eauth_mhvien { ['10894456'] }
+
+    initialize_with { new(attributes.stringify_keys) }
+  end
 end
