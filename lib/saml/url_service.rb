@@ -38,7 +38,7 @@ module SAML
       initialize_query_params(params)
       # the optional redirect_application is used to determine where to redirect
       # the user to after a successful login
-      @redirect_application = Settings.sso.ssoe_redirects[params[:application]]
+      @redirect_application = Settings.ssoe.redirects[params[:application]]
     end
 
     # REDIRECT_URLS
