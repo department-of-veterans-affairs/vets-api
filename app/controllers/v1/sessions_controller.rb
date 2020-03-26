@@ -22,12 +22,11 @@ module V1
     # For more details see SAML::SettingsService and SAML::URLService
     def new
       type = params[:type]
-      if type == 'slo'
-        type = 'ssoe_slo'
-       raise Common::Exceptions::RoutingError, params[:path] unless REDIRECT_URLS.include?(type)
+      raise Common::Exceptions::RoutingError, params[:path] unless REDIRECT_URLS.include?(type)
 
       StatsD.increment(STATSD_SSO_NEW_KEY,
                        tags: ["context:#{type}", "forceauthn:#{force_authn?}"])
+      type = 'ssoe_slo' if type == 'slo'
       url = url_service.send("#{type}_url")
 
       if type == 'ssoe_slo'
