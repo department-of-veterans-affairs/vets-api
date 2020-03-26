@@ -18,6 +18,7 @@ module BGS
       delete_me_root = Rails.root.to_s
       delete_me_payload_file = File.read("#{delete_me_root}/app/services/bgs/possible_payload.json")
       payload = JSON.parse(delete_me_payload_file)
+
       # Step 1 create Proc
       # Step 2 Create ProcForm using ProcId from Step 1
       proc_id = create_proc_id_and_form
@@ -27,8 +28,8 @@ module BGS
       # person_create_response = vnp_person_create(create_ptcpnt_response["vnp_ptcpnt_id"])
       # Step 5 Create address for veteran pass in VNP participant id created in step 3
       # vnp_ptcpnt_addrs_create_response = vnp_ptcpnt_addrs_create(create_ptcpnt_response["vnp_ptcpnt_id"])
-      veteran_particpant_id = create_participant(proc_id, payload['veteran'])
-      veteran = vnp_create(proc_id, veteran_particpant_id, @user.ssn)
+      veteran_particpant = create_participant(proc_id, payload['veteran'])
+      veteran = vnp_create(proc_id, veteran_particpant[:vnp_ptcpnt_id], @user.ssn)
 
       #####- loop through 6-8 for each dependent
       #   6. Create *NEXT* participant “Pass in corp participant id if it is obtainable”
@@ -117,20 +118,21 @@ module BGS
         tax_idfctn_nbr: '',
         tin_waiver_reason_type_cd: '',
         ptcpnt_fk_ptcpnt_id: '',
-        corp_ptcpnt_id: @user.participant_id,
+        #corp_ptcpnt_id: @user.participant_id,
+        corp_ptcpnt_id: '',
         ssn: payload['ssn']
       )
     end
 
     def create_dependents(proc_id, payload)
       dependents = payload['veteran']['dependents'].map do |dependent|
-        dependent_participant_id = create_participant(proc_id, dependent)
-        vnp_create(proc_id, dependent_participant_id, @user.ssn)
+        dependent_participant = create_participant(proc_id, dependent)
+        vnp_create(proc_id, dependent_participant[:vnp_ptcpnt_id], @user.ssn)
       end
 
       unless payload['veteran']['spouse'].blank?
-        spouse_participant_id = create_participant(proc_id, payload['veteran']['spouse']) unless payload['veteran']['spouse'].blank?
-        spouse = vnp_create(proc_id, spouse_participant_id, @user.ssn)
+        spouse_participant = create_participant(proc_id, payload['veteran']['spouse']) unless payload['veteran']['spouse'].blank?
+        spouse = vnp_create(proc_id, spouse_participant[:vnp_ptcpnt_id], @user.ssn)
 
         dependents << spouse
       end
@@ -184,7 +186,7 @@ module BGS
         serous_emplmt_hndcap_ind: "",
         slttn_type_nm: "",
         spina_bifida_ind: "",
-        ssn_nbr: "333224444",
+        ssn_nbr: "",
         ssn_vrfctn_status_type_cd: "",
         suffix_nm: "",
         tax_abtmnt_cd: "",
@@ -294,7 +296,7 @@ module BGS
           mthly_support_from_vet_amt: "",
           proof_depncy_ind: "",
           prptnl_phrase_type_nm: "",
-          ptcpnt_rlnshp_type_nm: "",
+          ptcpnt_rlnshp_type_nm: "Spouse",
           rate_type_nm: "",
           review_dt: "",
           status_type_cd: "",
@@ -305,8 +307,8 @@ module BGS
           poa_rep_type_cd: "",
           poa_agency_nm: "",
           vnp_proc_id: proc_id,
-          vnp_ptcpnt_id_a: veteran['vnp_ptcpnt_id'],
-          vnp_ptcpnt_id_b: dependent['vnp_ptcpnt_id'],
+          vnp_ptcpnt_id_a: veteran[:vnp_ptcpnt_id],
+          vnp_ptcpnt_id_b: dependent[:vnp_ptcpnt_id],
           ssn: @user.ssn
         )
       end
