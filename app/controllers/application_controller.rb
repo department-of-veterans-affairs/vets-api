@@ -58,7 +58,7 @@ class ApplicationController < ActionController::API
   attr_reader :current_user
 
   def set_csrf_header
-    response.set_header('X-CSRF-Token', form_authenticity_token)
+    response.set_header('X-CSRF-Token', session[:_csrf_token] || form_authenticity_token)
   end
 
   # returns a Bad Request if the incoming host header is unsafe.
