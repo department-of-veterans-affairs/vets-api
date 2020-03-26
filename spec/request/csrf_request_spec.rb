@@ -38,7 +38,7 @@ RSpec.describe 'CSRF scenarios', type: :request do
     after(:all) do
       Rails.application.reload_routes!
     end
-  
+
     %i[post put patch delete].each do |verb|
       context "for #{verb.upcase} requests" do
         context 'without a CSRF token present' do
@@ -57,7 +57,7 @@ RSpec.describe 'CSRF scenarios', type: :request do
         end
       end
     end
-    
+
     context 'for GET requests' do
       context 'without a CSRF token present' do
         it 'succeeds' do
