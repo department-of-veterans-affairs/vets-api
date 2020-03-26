@@ -118,7 +118,7 @@ RSpec.describe V1::SessionsController, type: :controller do
             end
 
             it 'persists redirect application' do
-              expect { get(:new, params: { type: type, clientId: '123123', application: 'cerner' }) }
+              expect { get(:new, params: { type: type, clientId: '123123', application: 'myvahealth' }) }
                 .to trigger_statsd_increment(described_class::STATSD_SSO_NEW_KEY,
                                              tags: ["context:#{type}", 'forceauthn:false'], **once)
 
@@ -128,6 +128,19 @@ RSpec.describe V1::SessionsController, type: :controller do
                 .with_relay_state('originating_request_id' => nil, 'type' => type)
                 .with_params('clientId' => '123123')
               expect(LoginRedirectApplication.keys.length).to eq(1)
+            end
+
+            it 'ignores invalid redirect application' do
+              expect { get(:new, params: { type: type, clientId: '123123', application: 'unknown' }) }
+                .to trigger_statsd_increment(described_class::STATSD_SSO_NEW_KEY,
+                                             tags: ["context:#{type}", 'forceauthn:false'], **once)
+
+              expect(response).to have_http_status(:found)
+              expect(response.location)
+                .to be_an_idme_saml_url('https://pint.eauth.va.gov/isam/sps/saml20idp/saml20/login?SAMLRequest=')
+                .with_relay_state('originating_request_id' => nil, 'type' => type)
+                .with_params('clientId' => '123123')
+              expect(LoginRedirectApplication.keys.length).to eq(0)
             end
           end
         end
@@ -187,10 +200,10 @@ RSpec.describe V1::SessionsController, type: :controller do
 
       it 'redirect user to external site' do
         LoginRedirectApplication.create(
-          uuid: login_uuid, redirect_application: 'cerner'
+          uuid: login_uuid, redirect_application: Settings.ssoe.redirects['myvahealth']
         )
         allow(SAML::User).to receive(:new).and_return(saml_user)
-        expect(post(:saml_callback)).to redirect_to(Settings.sso.ssoe_redirects['cerner'])
+        expect(post(:saml_callback)).to redirect_to(Settings.ssoe.redirects['myvahealth'])
       end
     end
   end
