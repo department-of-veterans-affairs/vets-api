@@ -6,13 +6,15 @@
 ## Original issue(s)
 department-of-veterans-affairs/va.gov-team#0000
 
+## Things to know about this PR
+<!--
+* Is there a feature flag? What is it
+* Are there additions to a `settings.yml` file? Do they vary by environment?
+* Is there some sentry logging that was added?
+* Are there any prometheus metrics being collected? What dashboard were they added do?
+-->
 
-## Testing
 <!-- Please describe testing done to verify the changes or any testing planned. -->
-
-#### Unique to this PR
-<!-- This would be a good place to include feature flag check item and info, specific dashboards and instrumentation check item and info -->
-- [ ] _Replace this line with individual tasks unique to your PR_
 
 #### Applies to all PRs
 
