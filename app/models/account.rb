@@ -81,7 +81,12 @@ class Account < ApplicationRecord
   # @return [Hash]
   #
   def self.account_attrs_from_user(user)
-    Hash[%i[idme_uuid sec_id edipi icn].map { |k| [k, user.send(k)] }]
+    {
+      idme_uuid: user.idme_uuid,
+      sec_id: user.sec_id,
+      edipi: user.edipi,
+      icn: user.icn
+    }
   end
 
   # Determines if the associated Account record is cacheable. Required
