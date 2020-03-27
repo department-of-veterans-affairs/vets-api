@@ -8,17 +8,12 @@ department-of-veterans-affairs/va.gov-team#0000
 
 ## Things to know about this PR
 <!--
-* Is there a feature flag? What is it
 * Are there additions to a `settings.yml` file? Do they vary by environment?
-* Is there some sentry logging that was added?
+* Is there a feature flag? What is it
+* Is there some sentry logging that was added? What alerts are relevant?
 * Are there any prometheus metrics being collected? What dashboard were they added do?
+* Are there Swagger docs that were updated?
+* Is there any PII concerns or questions?
 -->
 
 <!-- Please describe testing done to verify the changes or any testing planned. -->
-
-#### Applies to all PRs
-
-- [ ] Swagger docs have been updated, if applicable
-- [ ] Provide link to originating GitHub issue, or connected to it via ZenHub
-- [ ] Does not contain any sensitive information (i.e. PII/credentials/internal URLs/etc., in logging, hardcoded, or in specs)
-- [ ] Provide which alerts would indicate a problem with this functionality (if applicable)
