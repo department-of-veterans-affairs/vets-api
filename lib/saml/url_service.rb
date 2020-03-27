@@ -17,7 +17,7 @@ module SAML
     LOGIN_REDIRECT_PARTIAL = '/auth/login/callback'
     LOGOUT_REDIRECT_PARTIAL = '/logout/'
 
-    attr_reader :saml_settings, :session, :user, :authn_context, :type, :query_params
+    attr_reader :saml_settings, :session, :user, :authn_context, :type, :query_params, :redirect_application
 
     def initialize(saml_settings, session: nil, user: nil, params: {}, loa3_context: LOA::IDME_LOA3_VETS)
       unless %w[new saml_callback saml_logout_callback].include?(params[:action])
@@ -36,6 +36,9 @@ module SAML
       Raven.extra_context(params: params)
       Raven.user_context(session: session, user: user)
       initialize_query_params(params)
+      # the optional redirect_application is used to determine where to redirect
+      # the user to after a successful login
+      @redirect_application = Settings.ssoe.redirects[params[:application]]
     end
 
     # REDIRECT_URLS
@@ -43,10 +46,13 @@ module SAML
       VIRTUAL_HOST_MAPPINGS[current_host][:base_redirect]
     end
 
-    # TODO: SSOe does not currently support upleveling due to missing AuthN attribute support
     # rubocop:disable Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
-    def login_redirect_url(auth: 'success', code: nil)
+    def login_redirect_url(auth: 'success', code: nil, saml_uuid: nil)
+      pop_redirect_application(saml_uuid) if saml_uuid
+
       return verify_url if auth == 'success' && user.loa[:current] < user.loa[:highest]
+
+      return @redirect_application if @redirect_application
 
       @query_params[:type] = type if type
       @query_params[:auth] = auth if auth == 'fail'
@@ -150,6 +156,7 @@ module SAML
       new_url_settings = url_settings
       new_url_settings.authn_context = link_authn_context
       saml_auth_request = OneLogin::RubySaml::Authrequest.new
+      create_redirect_application(saml_auth_request.uuid) if @redirect_application
       saml_auth_request.create(new_url_settings, query_params)
     end
 
@@ -181,6 +188,16 @@ module SAML
       else
         url
       end
+    end
+
+    def create_redirect_application(uuid)
+      LoginRedirectApplication.create(
+        uuid: uuid, redirect_application: @redirect_application
+      )
+    end
+
+    def pop_redirect_application(uuid)
+      @redirect_application = LoginRedirectApplication.pop(uuid)&.redirect_application
     end
   end
 end
