@@ -241,12 +241,9 @@ RSpec.describe V1::SessionsController, type: :controller do
     end
 
     describe 'GET sessions/slo/new' do
-      let(:logout_request) { OneLogin::RubySaml::Logoutrequest.new }
-
       before do
         mhv_account = double('mhv_account', ineligible?: false, needs_terms_acceptance?: false, upgraded?: true)
         allow(MhvAccount).to receive(:find_or_initialize_by).and_return(mhv_account)
-        allow(OneLogin::RubySaml::Logoutrequest).to receive(:new).and_return(logout_request)
         Session.find(token).to_hash.each { |k, v| session[k] = v }
         cookies['vagov_session_dev'] = 'bar'
       end
@@ -263,108 +260,23 @@ RSpec.describe V1::SessionsController, type: :controller do
           verify_session_cookie
           expect(User.find(uuid)).not_to be_nil
 
-          # this should not exist yet
-          expect(SingleLogoutRequest.find(logout_request.uuid)).to be_nil
           # it has the cookie set
           expect(cookies['vagov_session_dev']).not_to be_nil
           get(:new, params: { type: 'slo' })
           expect(response.location)
-            .to be_an_idme_saml_url('https://pint.eauth.va.gov/pkmslogout?SAMLRequest=')
-            .with_relay_state('originating_request_id' => nil, 'type' => 'slo')
+            .to eq('https://pint.eauth.va.gov/pkmslogout')
 
           # these should be destroyed.
           expect(Session.find(token)).to be_nil
           expect(session).to be_empty
           expect(User.find(uuid)).to be_nil
           expect(cookies['vagov_session_dev']).to be_nil
-
-          # this should be created in redis
-          expect(SingleLogoutRequest.find(logout_request.uuid)).not_to be_nil
         end
       end
     end
 
-    it 'redirects as success even when logout fails, but it logs the failure' do
-      expect(post(:saml_logout_callback)).to redirect_to(logout_redirect_url)
-    end
-
-    describe 'POST saml_logout_callback' do
-      let(:logout_relay_state_param) { '{"originating_request_id": "blah"}' }
-
-      before { SingleLogoutRequest.create(uuid: logout_uuid, token: token) }
-
-      context 'saml_logout_response is invalid' do
-        before do
-          allow(OneLogin::RubySaml::Logoutresponse).to receive(:new).and_return(invalid_logout_response)
-        end
-
-        it 'redirects as success and logs the failure' do
-          msg = "SLO callback response invalid for originating_request_id 'blah'"
-          expect_logger_msg(:info, msg)
-          expect(controller).to receive(:log_message_to_sentry)
-          expect(post(:saml_logout_callback, params: { SAMLResponse: '-', RelayState: logout_relay_state_param }))
-            .to redirect_to(logout_redirect_url)
-        end
-      end
-
-      context 'saml_logout_response is valid but saml_logout_request is not found' do
-        context 'saml_logout_response is success' do
-          before do
-            mhv_account = double('mhv_account', ineligible?: false, needs_terms_acceptance?: false, upgraded?: true)
-            allow(MhvAccount).to receive(:find_or_initialize_by).and_return(mhv_account)
-            allow(SingleLogoutRequest).to receive(:find).with('1234').and_return(nil)
-            allow(OneLogin::RubySaml::Logoutresponse).to receive(:new).and_return(successful_logout_response)
-            Session.find(token).to_hash.each { |k, v| session[k] = v }
-          end
-
-          it 'redirects to success and destroys nothing' do
-            # these should have been destroyed in the initial call to sessions/logout, not in the callback.
-            verify_session_cookie
-            expect(User.find(uuid)).not_to be_nil
-            # this will be destroyed
-            expect(SingleLogoutRequest.find(successful_logout_response&.in_response_to)).to be_nil
-
-            msg = "SLO callback response could not resolve logout request for originating_request_id 'blah'"
-            expect_logger_msg(:info, msg)
-            expect(post(:saml_logout_callback, params: { SAMLResponse: '-', RelayState: logout_relay_state_param }))
-              .to redirect_to(logout_redirect_url)
-            # these should have been destroyed in the initial call to sessions/logout, not in the callback.
-            verify_session_cookie
-            expect(User.find(uuid)).not_to be_nil
-            # this should be destroyed
-            expect(SingleLogoutRequest.find(successful_logout_response&.in_response_to)).to be_nil
-          end
-        end
-      end
-
-      context 'saml_logout_response is success' do
-        before do
-          mhv_account = double('mhv_account', ineligible?: false, needs_terms_acceptance?: false, upgraded?: true)
-          allow(MhvAccount).to receive(:find_or_initialize_by).and_return(mhv_account)
-          allow(SingleLogoutRequest).to receive(:find).with('1234').and_call_original
-          allow(OneLogin::RubySaml::Logoutresponse).to receive(:new).and_return(successful_logout_response)
-          Session.find(token).to_hash.each { |k, v| session[k] = v }
-        end
-
-        it 'redirects to success and destroys only the logout request' do
-          # these should have been destroyed in the initial call to sessions/logout, not in the callback.
-          verify_session_cookie
-          expect(User.find(uuid)).not_to be_nil
-          # this will be destroyed
-          expect(SingleLogoutRequest.find(successful_logout_response&.in_response_to)).not_to be_nil
-
-          msg = "SLO callback response to '1234' for originating_request_id 'blah'"
-          expect_logger_msg(:info, msg)
-          expect(controller).not_to receive(:log_message_to_sentry)
-          expect(post(:saml_logout_callback, params: { SAMLResponse: '-', RelayState: logout_relay_state_param }))
-            .to redirect_to(logout_redirect_url)
-          # these should have been destroyed in the initial call to sessions/logout, not in the callback.
-          verify_session_cookie
-          expect(User.find(uuid)).not_to be_nil
-          # this should be destroyed
-          expect(SingleLogoutRequest.find(successful_logout_response&.in_response_to)).to be_nil
-        end
-      end
+    it 'redirects on callback from external logout' do
+      expect(get(:ssoe_slo_callback)).to redirect_to(logout_redirect_url)
     end
 
     describe 'POST saml_callback' do
