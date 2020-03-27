@@ -6,7 +6,7 @@ include WebMock::API
 WebMock.enable!
 WebMock.allow_net_connect!
 
-Pact.provider_states_for 'VA.gov' do
+Pact.provider_states_for 'HCA' do
   provider_state 'enrollment service is up' do
     set_up do
       stub_request(:post, Settings.hca.endpoint).to_return(
