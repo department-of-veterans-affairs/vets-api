@@ -159,13 +159,11 @@ module V1
         # track users who have a shared sso cookie
         StatsD.increment(STATSD_LOGIN_SHARED_COOKIE,
                          tags: ["loa:#{@current_user.loa[:current]}",
-                                "idp:#{@current_user.identity.sign_in[:service_name]}",
-                                VERSION_TAG])
+                                "idp:#{@current_user.identity.sign_in[:service_name]}", VERSION_TAG])
         StatsD.increment(STATSD_LOGIN_STATUS,
                          tags: ['status:success',
                                 "idp:#{@current_user.identity.sign_in[:service_name]}",
-                                "context:#{saml_response.authn_context}",
-                                VERSION_TAG])
+                                "context:#{saml_response.authn_context}", VERSION_TAG])
         callback_stats(:success, saml_response)
       when :failure
         StatsD.increment(STATSD_LOGIN_STATUS,
