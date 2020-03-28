@@ -7,8 +7,8 @@ module SAML
     class SSOe
       include SentryLogging
       SERIALIZABLE_ATTRIBUTES = %i[email first_name middle_name last_name zip gender ssn birth_date
-                                   uuid idme_uuid sec_id mhv_icn mhv_correlation_id dslogon_edipi
-                                   loa sign_in multifactor].freeze
+                                   uuid idme_uuid sec_id mhv_icn mhv_correlation_id mhv_account_type
+                                   dslogon_edipi loa sign_in multifactor].freeze
       IDME_GCID_REGEX = /^(?<idme>\w+)\^PN\^200VIDM\^USDVA\^A$/.freeze
 
       attr_reader :attributes, :authn_context, :warnings
@@ -94,6 +94,10 @@ module SAML
         safe_attr('va_eauth_mhvien')
       end
 
+      def mhv_account_type
+        safe_attr('va_eauth_mhvassurance')
+      end
+
       def dslogon_edipi
         safe_attr('va_eauth_dodedipnid')
       end
@@ -133,7 +137,10 @@ module SAML
       end
 
       def account_type
-        loa_current
+        result = mhv_account_type
+        result ||= safe_attr('va_eauth_dslogonassurance')
+        result ||= 'N/A'
+        result
       end
 
       def loa
