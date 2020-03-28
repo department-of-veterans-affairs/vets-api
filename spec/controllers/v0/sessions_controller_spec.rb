@@ -83,7 +83,8 @@ RSpec.describe V0::SessionsController, type: :controller do
           context "routes /sessions/#{type}/new to SessionsController#new with type: #{type}" do
             it 'redirects' do
               expect { get(:new, params: { type: type, clientId: '123123' }) }
-                .to trigger_statsd_increment(described_class::STATSD_SSO_NEW_KEY, tags: ["context:#{type}", 'version:v0'], **once)
+                .to trigger_statsd_increment(described_class::STATSD_SSO_NEW_KEY,
+                                             tags: ["context:#{type}", 'version:v0'], **once)
 
               expect(response).to have_http_status(:found)
               expect(response.location)
@@ -97,7 +98,8 @@ RSpec.describe V0::SessionsController, type: :controller do
         context 'routes /sessions/signup/new to SessionsController#new' do
           it 'redirects' do
             expect { get(:new, params: { type: :signup, client_id: '123123' }) }
-              .to trigger_statsd_increment(described_class::STATSD_SSO_NEW_KEY, tags: ['context:signup', 'version:v0'], **once)
+              .to trigger_statsd_increment(described_class::STATSD_SSO_NEW_KEY,
+                                           tags: ['context:signup', 'version:v0'], **once)
             expect(response).to have_http_status(:found)
             expect(response.location)
               .to be_an_idme_saml_url('https://api.idmelabs.com/saml/SingleSignOnService?SAMLRequest=')
@@ -170,7 +172,8 @@ RSpec.describe V0::SessionsController, type: :controller do
           context "routes /sessions/#{type}/new to SessionsController#new with type: #{type}" do
             it 'redirects' do
               expect { get(:new, params: { type: type }) }
-                .to trigger_statsd_increment(described_class::STATSD_SSO_NEW_KEY, tags: ["context:#{type}", 'version:v0'], **once)
+                .to trigger_statsd_increment(described_class::STATSD_SSO_NEW_KEY,
+                                             tags: ["context:#{type}", 'version:v0'], **once)
               expect(response).to have_http_status(:found)
               expect(cookies['vagov_session_dev']).not_to be_nil unless type.in?(%w[mhv dslogon idme slo])
             end
