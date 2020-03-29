@@ -17,7 +17,8 @@ RSpec.describe V1::SessionsController, type: :controller do
     instance_double('SAML::User',
                     changing_multifactor?: false,
                     user_attributes: user_attributes,
-                    to_hash: saml_user_attributes)
+                    to_hash: saml_user_attributes,
+                    validate!: nil)
   end
 
   let(:request_host)        { '127.0.0.1:3000' }
@@ -203,6 +204,29 @@ RSpec.describe V1::SessionsController, type: :controller do
         )
         allow(SAML::User).to receive(:new).and_return(saml_user)
         expect(post(:saml_callback)).to redirect_to(Settings.ssoe.redirects['myvahealth'])
+      end
+
+      context 'for a user with semantically invalid SAML attributes' do
+        let(:invalid_attributes) do
+          build(:ssoe_idme_mhv_loa3,
+                va_eauth_mhvuuid: ['999888'],
+                va_eauth_mhvien: ['888777'])
+        end
+        let(:valid_saml_response) do
+          build_saml_response(
+            authn_context: authn_context,
+            level_of_assurance: ['3'],
+            attributes: invalid_attributes,
+            in_response_to: login_uuid
+          )
+        end
+
+        it 'redirects to an auth failure page' do
+          expect(controller).to receive(:log_message_to_sentry)
+          expect(post(:saml_callback)).to redirect_to('http://127.0.0.1:3001/auth/login/callback?auth=fail&code=004')
+          expect(response).to have_http_status(:found)
+          expect(cookies['vagov_session_dev']).to be_nil
+        end
       end
     end
   end

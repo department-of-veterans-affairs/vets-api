@@ -211,7 +211,7 @@ RSpec.describe SAML::User do
           ssn: '230595111',
           zip: nil,
           mhv_icn: '1013183292V131165',
-          mhv_correlation_id: nil,
+          mhv_correlation_id: '15001594',
           mhv_account_type: 'Advanced',
           uuid: '881571066e5741439652bc80759dd88c',
           email: 'alexmac_0@example.com',
@@ -280,7 +280,7 @@ RSpec.describe SAML::User do
           ssn: '666811850',
           zip: nil,
           mhv_icn: '1012853550V207686',
-          mhv_correlation_id: nil,
+          mhv_correlation_id: '12345748',
           mhv_account_type: 'Premium',
           uuid: '0e1bb5723d7c4f0686f46ca4505642ad',
           email: 'k+tristanmhv@example.com',
@@ -317,7 +317,7 @@ RSpec.describe SAML::User do
           ssn: '666811850',
           zip: nil,
           mhv_icn: '1012853550V207686',
-          mhv_correlation_id: nil,
+          mhv_correlation_id: '12345748',
           mhv_account_type: 'Premium',
           uuid: Digest::UUID.uuid_v3('sec-id', '1012853550').tr('-', ''),
           email: 'k+tristanmhv@example.com',
@@ -328,6 +328,87 @@ RSpec.describe SAML::User do
           multifactor: multifactor,
           authenticated_by_ssoe: true
         )
+      end
+    end
+
+    context 'MHV user' do
+      let(:authn_context) { 'myhealthevet_loa3' }
+      let(:highest_attained_loa) { '3' }
+      let(:multifactor) { true }
+
+      context 'with an identifier from credential provider' do
+        let(:saml_attributes) do
+          build(:ssoe_idme_mhv_loa3,
+                va_eauth_mhvuuid: ['999888'],
+                va_eauth_mhvien: ['NOT_FOUND'])
+        end
+
+        it 'resolves mhv id' do
+          expect(subject.to_hash).to include(
+            mhv_correlation_id: '999888'
+          )
+        end
+
+        it 'validates' do
+          expect { subject.validate! }.not_to raise_error
+        end
+      end
+
+      context 'with an identifier from person index' do
+        let(:saml_attributes) do
+          build(:ssoe_idme_mhv_loa3,
+                va_eauth_mhvuuid: ['NOT_FOUND'],
+                va_eauth_mhvien: ['888777'])
+        end
+
+        it 'resolves mhv id' do
+          expect(subject.to_hash).to include(
+            mhv_correlation_id: '888777'
+          )
+        end
+
+        it 'validates' do
+          expect { subject.validate! }.not_to raise_error
+        end
+      end
+
+      context 'with matching identifiers' do
+        let(:saml_attributes) do
+          build(:ssoe_idme_mhv_loa3,
+                va_eauth_mhvuuid: ['888777'],
+                va_eauth_mhvien: ['888777'])
+        end
+
+        it 'resolves mhv id' do
+          expect(subject.to_hash).to include(
+            mhv_correlation_id: '888777'
+          )
+        end
+
+        it 'validates' do
+          expect { subject.validate! }.not_to raise_error
+        end
+      end
+
+      context 'with mismatching identifiers' do
+        let(:saml_attributes) do
+          build(:ssoe_idme_mhv_loa3,
+                va_eauth_mhvuuid: ['999888'],
+                va_eauth_mhvien: ['888777'])
+        end
+
+        it 'resolves mhv id from credential provider' do
+          expect(subject.to_hash).to include(
+            mhv_correlation_id: '999888'
+          )
+        end
+
+        it 'does not validate' do
+          expect { subject.validate! }.to raise_error { |error|
+            expect(error).to be_a(SAML::UserAttributeError)
+            expect(error.message).to eq('MHV Identifier mismatch')
+          }
+        end
       end
     end
 

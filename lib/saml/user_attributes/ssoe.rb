@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require 'saml/errors'
 require 'digest'
 
 module SAML
@@ -91,7 +92,7 @@ module SAML
       end
 
       def mhv_correlation_id
-        safe_attr('va_eauth_mhvien')
+        safe_attr('va_eauth_mhvuuid') || safe_attr('va_eauth_mhvien')
       end
 
       def mhv_account_type
@@ -157,10 +158,21 @@ module SAML
         Hash[SERIALIZABLE_ATTRIBUTES.map { |k| [k, send(k)] }]
       end
 
+      # Raise any fatal exceptions due to validation issues
+      def validate!
+        raise SAML::UserAttributeError, 'MHV Identifier mismatch' if mhv_id_mismatch?
+      end
+
       private
 
       def safe_attr(key)
         @attributes[key] == 'NOT_FOUND' ? nil : @attributes[key]
+      end
+
+      def mhv_id_mismatch?
+        uuid = safe_attr('va_eauth_mhvuuid')
+        ien = safe_attr('va_eauth_mhvien')
+        uuid.present? && ien.present? && uuid != ien
       end
     end
   end

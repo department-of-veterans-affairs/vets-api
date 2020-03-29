@@ -43,6 +43,10 @@ module SAML
       log_warnings_to_sentry
     end
 
+    def validate!
+      @user_attributes.validate!
+    end
+
     def changing_multifactor?
       return false if authn_context.nil?
 
