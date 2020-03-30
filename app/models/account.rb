@@ -43,7 +43,7 @@ class Account < ApplicationRecord
   # @return [Account] A persisted instance of Account
   #
   def self.cache_or_create_by!(user)
-    return unless get_key(user)
+    return unless user.uuid || user.sec_id
 
     acct = do_cached_with(key: get_key(user)) do
       create_if_needed!(user)
