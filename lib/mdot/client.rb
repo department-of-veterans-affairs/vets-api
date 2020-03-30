@@ -25,7 +25,7 @@ module MDOT
 
     def initialize(current_user)
       @user = current_user
-      @supplies = 'mdot/supplies'
+      @supplies = 'supplies'
     end
 
     ##
@@ -59,7 +59,10 @@ module MDOT
     private
 
     def headers
-      { veteranId: @user.ssn }
+      { 
+        VA_VETERAN_ID: @user.ssn.split(//).last(4).join,
+        VA_VETERAN_BIRTH_DATE: @user.birth_date
+      }
     end
 
     def with_monitoring_and_error_handling
