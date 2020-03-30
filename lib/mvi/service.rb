@@ -98,6 +98,40 @@ module MVI
     end
     # rubocop:enable Metrics/MethodLength
 
+    # Given a persons attibutes, queries MVI and returns their VA profile.
+    #
+    # @param attributes [OpenStruct] the user to query MVI for
+    # @return [MVI::Responses::FindProfileResponse] the parsed response from MVI.
+    # rubocop:disable Metrics/MethodLength
+    def find_profile_by_attributes_only(attributes)
+      with_monitoring do
+        raw_response = perform(
+          :post, '',
+          message_user_attributes(attributes),
+          soapaction: OPERATIONS[:find_profile]
+        )
+        MVI::Responses::FindProfileResponse.with_parsed_response(raw_response)
+      end
+    rescue Breakers::OutageException => e
+      Raven.extra_context(breakers_error_message: e.message)
+      log_console_and_sentry('MVI find_profile connection failed.', :warn)
+      mvi_profile_exception_response_for('MVI_503', e)
+    rescue Faraday::ConnectionFailed => e
+      log_console_and_sentry("MVI find_profile connection failed: #{e.message}", :warn)
+      mvi_profile_exception_response_for('MVI_504', e)
+    rescue Common::Client::Errors::ClientError, Common::Exceptions::GatewayTimeout => e
+      log_console_and_sentry("MVI find_profile error: #{e.message}", :warn)
+      mvi_profile_exception_response_for('MVI_504', e)
+    rescue MVI::Errors::Base => e
+      mvi_error_handler(user_identity, e)
+      if e.is_a?(MVI::Errors::RecordNotFound)
+        mvi_profile_exception_response_for('MVI_404', e, type: 'not_found')
+      else
+        mvi_profile_exception_response_for('MVI_502', e)
+      end
+    end
+    # rubocop:enable Metrics/MethodLength
+
     def self.service_is_up?
       last_mvi_outage = Breakers::Outage.find_latest(service: MVI::Configuration.instance.breakers_service)
       last_mvi_outage.blank? || last_mvi_outage.end_time.present?

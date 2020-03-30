@@ -86,7 +86,11 @@ RSpec.describe 'Caregivers Assistance Claims', type: :request do
         body = { caregivers_assistance_claim: { form: form_data.to_json } }.to_json
 
         VCR.use_cassette 'carma/submissions/create/201' do
-          post endpoint, params: body, headers: headers
+          VCR.use_cassette 'mvi/find_candidate/valid' do
+            VCR.use_cassette 'mvi/find_candidate/valid_icn_ni_only' do
+              post endpoint, params: body, headers: headers
+            end
+          end
         end
 
         expect(response.code).to eq('200')
@@ -95,7 +99,9 @@ RSpec.describe 'Caregivers Assistance Claims', type: :request do
 
         expect(res_body['data']).to be_present
         expect(res_body['data']['type']).to eq 'form1010cg_submissions'
-        expect(res_body['data']['attributes']['submittedAt']).to eq '2020-03-09T10:48:59Z' # Found in VCR response
+        expect(
+          res_body['data']['attributes']['submittedAt']
+        ).to eq '2020-03-09T10:48:59.000+00:00' # Found in VCR response
         expect(res_body['data']['attributes']['confirmationNumber']).to be_present
       end
     end

@@ -30,6 +30,15 @@ RSpec.describe Form1010cg::Service do
       expect(carma_submission).to receive(:submitted_at).and_return(expected[:submitted_at])
     }
 
+    mvi_lookup_1 = double(status: 'OK', profile: double(icn: '999V1000'))
+    mvi_lookup_2 = double(status: 'OK', profile: double(icn: '333V2000'))
+
+    expect_any_instance_of(
+      MVI::Service
+    ).to receive(
+      :find_profile_by_attributes_only
+    ).and_return(mvi_lookup_1, mvi_lookup_2)
+
     submission = subject.submit_claim!(user, claim_data)
 
     expect(submission).to be_an_instance_of(Form1010cg::Submission)
@@ -82,6 +91,15 @@ RSpec.describe Form1010cg::Service do
         expect(carma_submission).to receive(:submitted_at).and_return(expected[:submitted_at])
       }
 
+      mvi_lookup_1 = double(status: 'OK', profile: double(icn: '999V1000'))
+      mvi_lookup_2 = double(status: 'OK', profile: double(icn: '333V2000'))
+
+      expect_any_instance_of(
+        MVI::Service
+      ).to receive(
+        :find_profile_by_attributes_only
+      ).and_return(mvi_lookup_1, mvi_lookup_2)
+
       submission = subject.submit_claim!(user, claim_data)
 
       expect(submission).to be_an_instance_of(Form1010cg::Submission)
@@ -105,6 +123,15 @@ RSpec.describe Form1010cg::Service do
         expect(carma_submission).to receive(:carma_case_id).and_return(expected[:carma_case_id])
         expect(carma_submission).to receive(:submitted_at).and_return(expected[:submitted_at])
       }
+
+      mvi_lookup_1 = double(status: 'OK', profile: double(icn: '999V1000'))
+      mvi_lookup_2 = double(status: 'OK', profile: double(icn: '333V2000'))
+
+      expect_any_instance_of(
+        MVI::Service
+      ).to receive(
+        :find_profile_by_attributes_only
+      ).and_return(mvi_lookup_1, mvi_lookup_2)
 
       submission = subject.submit_claim!(user, claim_data)
 
