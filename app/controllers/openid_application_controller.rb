@@ -10,7 +10,6 @@ require 'jwt'
 
 class OpenidApplicationController < ExternalApiApplicationController
   before_action :authenticate
-
   TOKEN_REGEX = /Bearer /.freeze
 
   private
