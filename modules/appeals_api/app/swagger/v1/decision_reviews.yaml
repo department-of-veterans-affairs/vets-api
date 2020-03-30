@@ -44,79 +44,29 @@ paths:
               type: object
               required:
                 - data
-                # included (NOT required)
+                - included
               properties:
                 data:
                   type: object
                   required:
                     - type
                     - attributes
-                    - relationships
                   properties:
                     type:
                       type: string
                       enum: [HigherLevelReview]
                     attributes:
                       type: object
+                      description: >-
+                        If `informalConference` is _true_, `informalConferenceTimes` is also required.
                       required:
-                        - receiptDate
                         - informalConference
                         - sameOffice
                         - legacyOptInApproved
                         - benefitType
-                        - veteran
                       properties:
-                        receiptDate:
-                          type: string
-                          format: date
                         informalConference:
                           type: boolean
-                          description: Corresponds to "14. ...REQUEST AN INFORMAL CONFERENCE..." on form 20-0996.
-
-                        informalConferenceTimes:
-                          type: array
-                          description: >-
-                            OPTIONAL. Time slot preference for informal conference (if being requested). EASTERN TIME. Pick up to two time slots (or none if no preference).
-                            Corresponds to "14. ...REQUEST AN INFORMAL CONFERENCE..." on form 20-0996.
-
-                          items:
-                            type: string
-                            enum: ["800-1000", "1000-1230", "1230-200", "200-430"]
-
-                        informalConferenceRep:
-                          type: object
-                          description: >-
-                            OPTIONAL. The veteran's preferred representative for informal conference (if being requested).
-                            Corresponds to "14. ...REQUEST AN INFORMAL CONFERENCE..." on form 20-0996.
-
-                          properties:
-                            name:
-                              type: string
-                              description: Representative's name.
-
-                            phoneNumber:
-                              type: string
-                              pattern: '^[0-9]+$'
-                              description: >-
-                                Representative's phone number.
-                                Example: "8446982311".
-                                Format: Include only digit characters. Include area code.
-
-                            phoneNumberCountryCode:
-                              type: string
-                              pattern: '^[0-9]+$'
-                              description: >-
-                                Representative's phone number country code.
-                                If not specified, will assume "1".
-                                Example: "20".
-                                Format: Include only digit characters.
-
-                            phoneNumberExt:
-                              type: string
-                              description: >-
-                                Representative's phone number extension (if needed).
-                                Example: "123".
-
                         sameOffice:
                           type: boolean
                         legacyOptInApproved:
@@ -125,112 +75,14 @@ paths:
                           $ref: "#/components/schemas/BenefitType"
                         veteran:
                           type: object
-                          description: >-
-                            The veteran whom this Higher-Level Review concerns.
-                            Use the field ssn to identify the veteran.
-                            Optionally, you can update the veteran's current contact info using the other fields.
-                            If any of these fields are present: [addressLine1, addressLine2, city, stateProvinceCode, zipPostalCode, countryCode],
-                            all of these fields must be present: [addressLine1, addressLine2, city, stateProvinceCode, zipPostalCode].
-                            NOTE: countryCode can be left out, and it will be assumed to be "US".
-
-                          required:
-                            - ssn
+                          description: optional field; for updating veteran contact info
                           properties:
-                            ssn:
-                              type: string
-                              pattern: '^[0-9]{9}$'
-                              description: >-
-                                The veteran's SSN.
-                                Example: "123456789"
-                                Format: 9 digit characters.
-                                Corresponds to "2. VETERAN'S SOCIAL SECURITY NUMBER" on form 20-0996.
-
-                            addressLine1:
-                              type: string
-                              description: >-
-                                Update a veteran's house number/name and street.
-                                Example: "123 Main St".
-                                Max length: 100 characters.
-                                Corresponds to "9. CURRENT MAILING ADDRESS: No. & Street" on form 20-0996.
-
-                            addressLine2:
-                              type: string
-                              description: >-
-                                Update a veteran's apartment or unit number.
-                                Example: "Apt. 4".
-                                Max length: 100 characters.
-                                Corresponds to "9. CURRENT MAILING ADDRESS: Apt./Unit Number" on form 20-0996.
-
-                            city:
-                              type: string
-                              description: >-
-                                Update a veteran's city.
-                                Example: "Kansas City".
-                                Max length: 100 characters.
-                                Corresponds to "9. CURRENT MAILING ADDRESS: City" on form 20-0996.
-
-                            stateProvinceCode:
-                              type: string
-                              pattern: '^[a-z]{2}$'
-                              description: >-
-                                Update a veteran's state or province.
-                                Example: "CA".
-                                Max length: 2 characters.
-                                Corresponds to "9. CURRENT MAILING ADDRESS: State/Province" on form 20-0996.
-
-                            countryCode:
-                              type: string
-                              pattern: '^[a-z]{2}$'
-                              description: >-
-                                Update a veteran's country.
-                                Example: "US".
-                                NOTE: If not specified, will assume "US".
-                                Max length: 2 characters.
-                                Corresponds to "9. CURRENT MAILING ADDRESS: Country" on form 20-0996.
-
-                            zipPostalCode:
-                              type: string
-                              description: >-
-                                Update a veteran's zip or postal code.
-                                Example: "90210".
-                                NOTE: If countryCode is "US" or not specified, this field, if present, must be a 5 character string of digits.
-                                Corresponds to "9. CURRENT MAILING ADDRESS: Zip Code/Postal Code" on form 20-0996.
-
-                            phoneNumber:
-                              type: string
-                              pattern: '^[0-9]+$'
-                              description: >-
-                                Update a veteran's phone number.
-                                Example: "8446982311".
-                                Format: Include only digit characters. Include area code.
-                                Max length: 14 characters.
-                                Corresponds to "10. TELEPHONE NUMBER" on form 20-0996.
-
-                            phoneNumberCountryCode:
-                              type: string
-                              pattern: '^[0-9]+$'
-                              description: >-
-                                Update a veteran's phone number country code.
-                                Note: If not specified, will assume "1".
-                                Example: "20".
-                                Format: Include only digit characters.
-
-                            phoneNumberExt:
-                              type: string
-                              description: >-
-                                Update a veteran's phone number extension (if needed).
-                                Example: "123".
-                                Max length: 10 characters.
-
-                            emailAddress:
-                              type: string
-                              pattern: '^.+@.+\..+$'
-                              description: >-
-                                Update a veteran's email address.
-                                Example: "linda@example.com".
-                                Max length: 255 characters.
-                                Corresponds to "11. E-MAIL ADDRESS" on form 20-0996.
-
+                            address:
+                              $ref: "#/components/schemas/Address"
+                            phone:
+                              $ref: "#/components/schemas/Phone"
+                            email:
+                              $ref: "#/components/schemas/EmailAddress"
                         claimant:
                           type: object
                           required:
@@ -241,6 +93,27 @@ paths:
                               type: string
                             payeeCode:
                               $ref: "#/components/schemas/PayeeCode"
+                        receiptDate:
+                          type: string
+                          format: date
+                        informalConferenceTimes:
+                          type: array
+                          description: >-
+                            Time slot preference for informal conference (if being requested). EASTERN TIME. Pick up to two time slots.
+                          items:
+                            type: string
+                            enum:
+                              - 800-1000 ET
+                              - 1000-1230 ET
+                              - 1230-1400 ET
+                              - 1400-1630 ET
+                        informalConferenceRep:
+                          type: object
+                          properties:
+                            name:
+                              $ref: "#/components/schemas/NonBlankString"
+                            phone:
+                              $ref: "#/components/schemas/Phone"
                 included:
                   type: array
                   description: ContestableIssues Array
@@ -1168,6 +1041,93 @@ components:
         - loan_guaranty
         - vha
         - nca
+    NonBlankString:
+      type: string
+      pattern: '\S'
+    NonBlankStringMaxLength2:
+      $ref: "#/components/schemas/NonBlankString"
+      maxLength: 2
+    NonBlankStringMaxLength10:
+      $ref: "#/components/schemas/NonBlankString"
+      maxLength: 10
+    NonBlankStringMaxLength100:
+      $ref: "#/components/schemas/NonBlankString"
+      maxLength: 100
+    AddressLine:
+      $ref: "#/components/schemas/NonBlankStringMaxLength100"
+    Phone:
+      type: object
+      required:
+        - isInternational
+        - countryCode
+        - phoneNumber
+        - areaCode
+        - phoneType
+      properties:
+        isInternational:
+          type: boolean
+        countryCode:
+          $ref: "#/components/schemas/NonBlankString"
+        phoneNumber:
+          type: string
+          pattern: '^\d{1,14}$'
+        areaCode:
+          type: string
+          pattern: '^\d{3}$'
+        extension:
+          $ref: "#/components/schemas/NonBlankStringMaxLength10"
+        phoneType:
+          type: string
+          enum:
+            - MOBILE
+            - HOME
+            - WORK
+            - FAX
+            - TEMPORARY
+    EmailAddress:
+      type: string
+      pattern: '.@.'
+    Address:
+      type: object
+      description: >-
+        If `addressType` is "DOMESTIC" or "OVERSEAS MILITARY",
+        `stateCode` and `zipCode` are required, and `internationalPostalCode`
+        is forbidden. If `addressType` is "INTERNATIONAL", the opposite is true.
+      properties:
+        addressType:
+          type: string
+          enum:
+            - DOMESTIC
+            - OVERSEAS MILITARY
+            - INTERNATIONAL
+        addressLine1:
+          $ref: "#/components/schemas/AddressLine"
+        addressLine2:
+          $ref: "#/components/schemas/AddressLine"
+        addressLine3:
+          $ref: "#/components/schemas/AddressLine"
+        city:
+          $ref: "#/components/schemas/NonBlankStringMaxLength100"
+        stateCode:
+          $ref: "#/components/schemas/NonBlankStringMaxLength2"
+        zipCode:
+          type: string
+          pattern: '^\d{5}$'
+        countryName:
+          type: string
+        addressPou:
+          type: string
+          enum:
+            - RESIDENCE/CHOICE
+            - CORRESPONDENCE
+        internationalPostalCode:
+          type: string
+      required:
+        - addressType
+        - addressLine1
+        - city
+        - countryName
+        - addressPou
     HigherLevelReviewAlerts:
       type: string
       enum: ["AmaPostDecision"]
