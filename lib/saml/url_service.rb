@@ -20,7 +20,7 @@ module SAML
     attr_reader :saml_settings, :session, :user, :authn_context, :type, :query_params, :redirect_application
 
     def initialize(saml_settings, session: nil, user: nil, params: {}, loa3_context: LOA::IDME_LOA3_VETS)
-      unless %w[new saml_callback saml_logout_callback].include?(params[:action])
+      unless %w[new saml_callback saml_logout_callback ssoe_slo_callback].include?(params[:action])
         raise Common::Exceptions::RoutingError, params[:path]
       end
 
@@ -37,8 +37,8 @@ module SAML
       Raven.user_context(session: session, user: user)
       initialize_query_params(params)
       # the optional redirect_application is used to determine where to redirect
-      # the user to after a succesful login
-      @redirect_application = params[:application]
+      # the user to after a successful login
+      @redirect_application = Settings.ssoe.redirects[params[:application]]
     end
 
     # REDIRECT_URLS
@@ -52,7 +52,7 @@ module SAML
 
       return verify_url if auth == 'success' && user.loa[:current] < user.loa[:highest]
 
-      return Settings.sso.ssoe_redirects[@redirect_application] if @redirect_application
+      return @redirect_application if @redirect_application
 
       @query_params[:type] = type if type
       @query_params[:auth] = auth if auth == 'fail'
