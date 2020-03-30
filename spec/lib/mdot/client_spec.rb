@@ -10,8 +10,8 @@ describe MDOT::Client do
       first_name: 'Greg',
       last_name: 'Anderson',
       middle_name: 'A',
-      birth_date: '1949-03-04',
-      ssn: '000555555'
+      birth_date: '1991-04-05',
+      ssn: '000550237'
     }
   end
 
@@ -79,10 +79,10 @@ describe MDOT::Client do
 
     context 'with a valid supplies order' do
       it 'returns a successful response' do
-        VCR.use_cassette('mdot/submit_order_202') do
-          response = subject.submit_order(valid_order)
-          expect(response).to be_accepted
-          expect(response).to be_an MDOT::Response
+        VCR.use_cassette('mdot/submit_order', VCR::MATCH_EVERYTHING) do
+          res = subject.submit_order(valid_order)
+          expect(res['status']).to eq('success')
+          expect(res['order_id']).to match(/[a-z0-9-]+/)
         end
       end
     end

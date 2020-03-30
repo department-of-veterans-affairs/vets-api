@@ -25,7 +25,7 @@ module MDOT
 
     def initialize(current_user)
       @user = current_user
-      @supplies = 'mdot/supplies'
+      @supplies = 'supplies'
     end
 
     ##
@@ -51,15 +51,17 @@ module MDOT
     #
     def submit_order(request_body)
       with_monitoring_and_error_handling do
-        raw_response = perform(:post, @supplies, request_body, headers)
-        MDOT::Response.new response: raw_response, schema: :submit
+        perform(:post, @supplies, request_body, headers).body
       end
     end
 
     private
 
     def headers
-      { veteranId: @user.ssn }
+      {
+        va_veteran_id: @user.ssn.last(4),
+        va_veteran_birth_date: @user.birth_date
+      }
     end
 
     def with_monitoring_and_error_handling
