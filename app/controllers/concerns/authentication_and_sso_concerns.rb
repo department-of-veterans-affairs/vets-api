@@ -22,14 +22,13 @@ module AuthenticationAndSSOConcerns
   end
 
   def validate_session
-    @session_object = Session.find(session[:token])
+    load_user
 
     if @session_object.nil?
       Rails.logger.info('SSO: INVALID SESSION', sso_logging_info)
       reset_session
       return false
     end
-    @current_user = User.find(@session_object.uuid)
 
     if should_signout_sso?
       Rails.logger.info('SSO: MHV INITIATED SIGNOUT', sso_logging_info)
@@ -39,6 +38,11 @@ module AuthenticationAndSSOConcerns
     end
 
     @current_user.present?
+  end
+
+  def load_user
+    @session_object = Session.find(session[:token])
+    @current_user = User.find(@session_object.uuid) if @session_object
   end
 
   # Destroys the users session in 1) Redis, 1) the MHV SSO Cookie, 3) and the Session Cookie
