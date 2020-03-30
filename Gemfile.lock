@@ -597,6 +597,9 @@ GEM
     rspec-expectations (3.9.0)
       diff-lcs (>= 1.2.0, < 2.0)
       rspec-support (~> 3.9.0)
+    rspec-instrumentation-matcher (0.0.9)
+      activesupport
+      rspec-expectations
     rspec-mocks (3.9.1)
       diff-lcs (>= 1.2.0, < 2.0)
       rspec-support (~> 3.9.0)
@@ -855,6 +858,7 @@ DEPENDENCIES
   request_store
   restforce
   rgeo-geojson
+  rspec-instrumentation-matcher
   rspec-rails (~> 3.5)
   rspec_junit_formatter
   rubocop
