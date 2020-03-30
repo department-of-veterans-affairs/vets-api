@@ -134,5 +134,5 @@ ActiveSupport::Notifications.subscribe('facilities.ppms.request.faraday') do |_,
                 when /Providers\(\d+\)/
                   'facilities.ppms.providers'
                 end
-  StatsD.measure(measurement, duration, tags: ['facilities.ppms'])
+  StatsD.measure(measurement, duration, tags: ['facilities.ppms']) if measurement
 end
