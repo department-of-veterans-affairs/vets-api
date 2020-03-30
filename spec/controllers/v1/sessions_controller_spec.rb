@@ -9,8 +9,8 @@ RSpec.describe V1::SessionsController, type: :controller do
 
   let(:uuid) { SecureRandom.uuid }
   let(:token) { 'abracadabra-open-sesame' }
-  let(:loa1_user) { build(:user, :loa1, uuid: uuid) }
-  let(:loa3_user) { build(:user, :loa3, uuid: uuid) }
+  let(:loa1_user) { build(:user, :loa1, uuid: uuid, idme_uuid: uuid) }
+  let(:loa3_user) { build(:user, :loa3, uuid: uuid, idme_uuid: uuid) }
   let(:saml_user_attributes) { loa3_user.attributes.merge(loa3_user.identity.attributes) }
   let(:user_attributes) { double('user_attributes', saml_user_attributes) }
   let(:saml_user) do
