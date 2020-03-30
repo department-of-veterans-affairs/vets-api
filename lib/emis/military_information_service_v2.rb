@@ -10,6 +10,7 @@ module EMIS
 
     create_endpoints(
       [
+        [:get_deployment, 'deploymentRequest', 'V2'],
         [:get_military_service_episodes, 'serviceEpisodeRequest', 'V2']
       ]
     )

@@ -47,10 +47,10 @@ gem 'faraday_middleware'
 gem 'fast_jsonapi'
 gem 'fastimage'
 gem 'figaro'
-gem 'flipper', '~> 0.17.2'
-gem 'flipper-active_record', '~> 0.17.1'
-gem 'flipper-active_support_cache_store', '~> 0.17.1'
-gem 'flipper-ui', '~> 0.17.1'
+gem 'flipper'
+gem 'flipper-active_record'
+gem 'flipper-active_support_cache_store'
+gem 'flipper-ui'
 gem 'foreman'
 gem 'govdelivery-tms', '2.8.4', require: 'govdelivery/tms/mail/delivery_method'
 gem 'gyoku'
@@ -59,6 +59,7 @@ gem 'httpclient'
 gem 'ice_nine'
 gem 'iconv'
 gem 'iso_country_codes'
+gem 'json', '>= 2.3.0'
 gem 'json-schema'
 gem 'json_schemer'
 gem 'jsonapi-parser'
@@ -172,7 +173,9 @@ end
 group :production do
   # sidekiq enterprise requires a license key to download but is only required in production.
   # for local dev environments, regular sidekiq works fine
-  unless ENV['EXCLUDE_SIDEKIQ_ENTERPRISE'] == 'true'
+  unless (Bundler::Settings.new['enterprise.contribsys.com'].nil? ||
+          Bundler::Settings.new['enterprise.contribsys.com']&.empty?) &&
+         ENV.fetch('BUNDLE_ENTERPRISE__CONTRIBSYS__COM', '').empty?
     source 'https://enterprise.contribsys.com/' do
       gem 'sidekiq-ent'
       gem 'sidekiq-pro'

@@ -31,6 +31,9 @@ class Account < ApplicationRecord
   redis REDIS_CONFIG['user_account_details']['namespace']
   redis_ttl REDIS_CONFIG['user_account_details']['each_ttl']
 
+  scope :idme_uuid_match, ->(v) { where(idme_uuid: v).where.not(idme_uuid: nil) }
+  scope :sec_id_match, ->(v) { where(sec_id: v).where.not(sec_id: nil) }
+
   # Returns the one Account record for the passed in user.
   #
   # Will first attempt to return the cached record.  If one does
@@ -56,18 +59,8 @@ class Account < ApplicationRecord
   def self.create_if_needed!(user)
     attrs = account_attrs_from_user(user)
 
-    accts = where(idme_uuid: attrs[:idme_uuid])
-            .where.not(idme_uuid: nil)
-            .or(
-              where(sec_id: attrs[:sec_id])
-              .where.not(sec_id: nil)
-            )
-
-    if accts.length > 1
-      data = accts.map(&:attributes)
-      log_message_to_sentry('multiple Account records with matching ids', 'warning', data)
-    end
-
+    accts = idme_uuid_match(attrs[:idme_uuid]).or(sec_id_match(attrs[:sec_id]))
+    accts = sort_with_idme_uuid_priority(accts, user)
     accts.length.positive? ? accts[0] : create(**attrs)
   end
 
@@ -108,7 +101,22 @@ class Account < ApplicationRecord
     user.uuid || "sec:#{user.sec_id}"
   end
 
-  private_class_method :account_attrs_from_user, :get_key
+  # Sort the given list of Accounts so the ones with matching ID.me UUID values
+  # come first in the array, this will provide users with a more consistent
+  # experience in the case they have multiple credentials to login with
+  # https://github.com/department-of-veterans-affairs/va.gov-team/issues/6702
+  #
+  # @return [Array]
+  def self.sort_with_idme_uuid_priority(accts, user)
+    if accts.length > 1
+      data = accts.map { |a| "Account:#{a.id}" }
+      log_message_to_sentry('multiple Account records with matching ids', 'warning', data)
+      accts = accts.sort_by { |a| a.idme_uuid == user.uuid ? 0 : 1 }
+    end
+    accts
+  end
+
+  private_class_method :account_attrs_from_user, :get_key, :sort_with_idme_uuid_priority
 
   private
 

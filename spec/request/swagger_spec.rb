@@ -249,9 +249,12 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
     context 'HCA tests' do
       let(:login_required) { Notification::LOGIN_REQUIRED }
       let(:test_veteran) do
-        File.read(
+        json_string = File.read(
           Rails.root.join('spec', 'fixtures', 'hca', 'veteran.json')
         )
+        json = JSON.parse(json_string)
+        json.delete('email')
+        json.to_json
       end
 
       it 'supports getting the hca enrollment status' do
@@ -301,6 +304,19 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
             }
           }
         )
+      end
+
+      it 'supports getting a health care application state' do
+        expect(subject).to validate(
+          :get,
+          '/v0/health_care_applications/{id}',
+          200,
+          'id' => create(:health_care_application).id
+        )
+      end
+
+      it 'returns a 400 if no attachment data is given' do
+        expect(subject).to validate(:post, '/v0/hca_attachments', 400, '')
       end
 
       it 'supports submitting a health care application', run_at: '2017-01-31' do
@@ -601,8 +617,8 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
         )
       end
 
-      it 'returns a 500 if no attachment data is given' do
-        expect(subject).to validate(:post, '/v0/upload_supporting_evidence', 500, '')
+      it 'returns a 400 if no attachment data is given' do
+        expect(subject).to validate(:post, '/v0/upload_supporting_evidence', 400, '')
       end
     end
 
@@ -1036,6 +1052,16 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
     end
 
     describe 'gibct' do
+      describe 'yellow_ribbon_programs' do
+        describe 'index' do
+          it 'supports showing a list of yellow_ribbon_programs' do
+            VCR.use_cassette('gi_client/get_yellow_ribbon_programs') do
+              expect(subject).to validate(:get, '/v0/gi/yellow_ribbon_programs', 200)
+            end
+          end
+        end
+      end
+
       describe 'institutions' do
         describe 'autocomplete' do
           it 'supports autocomplete of institution names' do
@@ -1486,32 +1512,6 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
         it "documents contestable_issues #{status_code}" do
           VCR.use_cassette("decision_review/#{status_code}_contestable_issues") do
             expect(subject).to validate(:get, '/v0/appeals/contestable_issues', status_code, headers)
-          end
-        end
-      end
-    end
-
-    describe 'supplies' do
-      let(:route) { '/v0/mdot/supplies' }
-
-      context 'not signed in' do
-        it 'returns a 401' do
-          %i[get post].each { |method| expect(subject).to validate(method, route, 401) }
-        end
-      end
-
-      [200, 404, 502].each do |status_code|
-        it "documents GET /v0/mdot/supplies #{status_code} response" do
-          VCR.use_cassette("mdot/get_supplies_#{status_code}") do
-            expect(subject).to validate(:get, route, status_code, headers)
-          end
-        end
-      end
-
-      [202, 422, 404, 502].each do |status_code|
-        it "documents POST /v0/mdot/supplies #{status_code}" do
-          VCR.use_cassette("mdot/post_supplies_#{status_code}") do
-            expect(subject).to validate(:post, route, status_code, headers)
           end
         end
       end
