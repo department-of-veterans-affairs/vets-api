@@ -60,7 +60,7 @@ module MDOT
 
     def headers
       {
-        VA_VETERAN_ID: @user.ssn.split(//).last(4).join,
+        VA_VETERAN_ID: @user.ssn.last(4),
         VA_VETERAN_BIRTH_DATE: @user.birth_date
       }
     end
