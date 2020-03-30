@@ -81,8 +81,8 @@
         "city_of_birth": "PASADENA",
         "status": "biological",
         "living_with_veteran": true,
-        "step_child_date": ""
-
+        "step_child_date": "",
+        "attendingSchool": true
       },
       {
         "first_name": "Randall",
@@ -95,7 +95,8 @@
         "city_of_birth": "PASADENA",
         "status": "biological",
         "living_with_veteran": true,
-        "step_child_date": ""
+        "step_child_date": "",
+        "attendingSchool": false
       }
     ]
   }

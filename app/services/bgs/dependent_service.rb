@@ -47,6 +47,7 @@ module BGS
 
       # ####-We’ll only do this for form number 674
       # 11. Create Child school (if there are kids)
+      child_student_create(proc_id, dependents)
       # 12. Create Child student (if there are kids)
 
       ####- Back in 686
@@ -128,12 +129,13 @@ module BGS
       dependents = payload['veteran']['dependents'].map do |dependent|
         dependent_participant = create_participant(proc_id, dependent)
         vnp_create(proc_id, dependent_participant[:vnp_ptcpnt_id], @user.ssn)
+        dependent_participant.merge!(dependent)
       end
 
       unless payload['veteran']['spouse'].blank?
-        spouse_participant = create_participant(proc_id, payload['veteran']['spouse']) unless payload['veteran']['spouse'].blank?
+        spouse_participant = create_participant(proc_id, payload['veteran']['spouse'])
         spouse = vnp_create(proc_id, spouse_participant[:vnp_ptcpnt_id], @user.ssn)
-
+        spouse_participant.merge!(payload['veteran']['spouse'])
         dependents << spouse
       end
 
@@ -311,6 +313,62 @@ module BGS
           vnp_ptcpnt_id_b: dependent[:vnp_ptcpnt_id],
           ssn: @user.ssn
         )
+      end
+    end
+
+    def child_student_create(proc_id, dependents)
+      dependents.map do |dependent|
+        if dependent["attendingSchool"]
+          service.vnp_child_student.child_student_create(
+            vnp_child_school_id: "",
+            course_name_txtame_txt: "Bachelors",
+            curnt_hours_per_wk_num: "8",
+            curnt_school_addrs_one_txt: "1585 E 13th Ave",
+            curnt_school_addrs_two_txt: "",
+            curnt_school_addrs_three_txt: "",
+            curnt_school_addrs_zip_nbr: "97403",
+            curnt_school_nm: "University of Oregon",
+            curnt_school_postal_cd: "OR",
+            curnt_sessns_per_wk_num: "4",
+            current_edu_instn_ptcpnt_id: "",
+            full_time_studnt_type_cd: "College",
+            gradtn_dt: "2022-05-12T00:00:00-06:00",
+            jrn_dt: Time.current.iso8601,
+            jrn_lctn_id: Settings.bgs.client_station_id,
+            jrn_obj_id: Settings.bgs.application,
+            jrn_status_type_cd: "U",
+            jrn_user_id: Settings.bgs.client_username,
+            last_term_end_dt: "",
+            last_term_enrlmt_ind: "",
+            last_term_start_dt: "",
+            part_time_school_subjct_txt: "Biology",
+            prev_hours_per_wk_num: "",
+            prev_school_addrs_one_txt: "",
+            prev_school_addrs_two_txt: "",
+            prev_school_addrs_three_txt: "",
+            prev_school_addrs_zip_nbr: "",
+            prev_school_nm: "",
+            prev_school_postal_cd: "",
+            prev_sessns_per_wk_num: "",
+            rmks: "",
+            school_actual_expctd_start_dt: "",
+            school_term_start_dt: "",
+            vnp_ptcpnt_id: dependent[:vnp_ptcpnt_id],
+            vnp_proc_id: proc_id,
+            prev_edu_instn_ptcpnt_id: "",
+            prev_school_city_nm: "",
+            prev_school_cntry_nm: "",
+            curnt_school_city_nm: "",
+            curnt_school_cntry_nm: "",
+            prev_mlty_postal_typ_cd: "",
+            prev_mlty_post_office_typ_cd: "",
+            prev_frgn_postal_cd: "",
+            curnt_mlty_postal_typ_cd: "",
+            curnt_mlty_post_office_typ_cd: "",
+            curnt_forgn_postal_cd: "",
+            ssn: @user.ssn
+          )
+        end
       end
     end
   end
