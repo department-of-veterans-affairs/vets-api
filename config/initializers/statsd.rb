@@ -121,3 +121,18 @@ end
 
 # init Facilities Jobs
 StatsD.increment('shared.sidekiq.default.Facilities_InitializingErrorMetric.error', 0)
+
+ActiveSupport::Notifications.subscribe('facilities.ppms.request.faraday') do |_, start_time, end_time, _, payload|
+  duration = end_time - start_time
+  measurement = case payload[:url].path
+                when /ProviderLocator/
+                  'facilities.ppms.provider_locator'
+                when /PlaceOfServiceLocator/
+                  'facilities.ppms.place_of_service_locator'
+                when %r{Providers\(\d+\)/ProviderServices}
+                  'facilities.ppms.providers.provider_services'
+                when /Providers\(\d+\)/
+                  'facilities.ppms.providers'
+                end
+  StatsD.measure(measurement, duration, tags: ['facilities.ppms'])
+end
