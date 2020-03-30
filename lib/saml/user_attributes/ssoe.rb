@@ -61,12 +61,20 @@ module SAML
 
         return idme_uuid if idme_uuid
 
+        # The sec_id is not a UUID, and while unique this has a potential to cause issues
+        # in downstream processes that are expecting a user UUID to be 32 bytes. For 
+        # example, if there is a log filtering process that was striping out any 32 byte
+        # id, an 10 byte sec id would be missed. Using a one way UUID hash, will convert
+        # the sec id to a 32 byte unique identifier so that any downstream processes will
+        # will treat it exactly the same as a typical 32 byte ID.me identifier.
         Digest::UUID.uuid_v3('sec-id', sec_id).tr('-', '')
       end
 
       def idme_uuid
         return safe_attr('va_eauth_uid') if safe_attr('va_eauth_csid') == 'idme'
 
+        # the gcIds are a pipe-delimited concatenation of the MVI correlation IDs
+        # (minus the weird "base/extension" cruft)
         gcids = safe_attr('va_eauth_gcIds')&.split('|')
         if gcids
           idme_match = gcids.map { |id| IDME_GCID_REGEX.match(id) }.compact.first
