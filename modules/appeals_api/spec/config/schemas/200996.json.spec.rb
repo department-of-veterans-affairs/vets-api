@@ -3,13 +3,6 @@
 require 'rails_helper'
 require 'pp'
 
-# it('has no errors') do
-#   pp errors.map { |error| error['data_pointer'] } unless errors.empty?
-#   puts
-#   pp errors unless errors.empty?
-#   expect(errors).to be_empty
-# end
-
 describe 'VA Form 20-0996 JSON Schema', type: :request do
   let(:json_schema) do
     JSON.parse(
