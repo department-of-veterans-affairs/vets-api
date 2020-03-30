@@ -311,6 +311,7 @@ appeals:
   mock: true
   app_token: PUBLICDEMO123
   host: https://dsva-appeals-certification-dev-1895622301.us-gov-west-1.elb.amazonaws.com
+  schema_dir: config/schemas
 
 vic:
   url: https://some.fakesite.com
