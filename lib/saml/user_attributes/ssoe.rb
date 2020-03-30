@@ -1,19 +1,25 @@
 # frozen_string_literal: true
 
+require 'digest'
+
 module SAML
   module UserAttributes
-    class SSOe < Base
+    class SSOe
       include SentryLogging
-      SSOE_SERIALIZABLE_ATTRIBUTES = %i[first_name middle_name last_name zip gender ssn birth_date].freeze
-      MERGEABLE_IDENTITY_ATTRIBUTES = %i[mhv_icn mhv_correlation_id dslogon_edipi sign_in].freeze
+      SERIALIZABLE_ATTRIBUTES = %i[email first_name middle_name last_name zip gender ssn birth_date
+                                   uuid idme_uuid sec_id mhv_icn mhv_correlation_id dslogon_edipi
+                                   loa sign_in multifactor].freeze
+      IDME_GCID_REGEX = /^(?<idme>\w+)\^PN\^200VIDM\^USDVA\^A$/.freeze
 
-      # Denoted as "CSP user ID" in SSOe docs; required attribute for LOA >= 2
-      def uuid
-        safe_attr('va_eauth_uid')
+      attr_reader :attributes, :authn_context, :warnings
+
+      def initialize(saml_attributes, authn_context)
+        @attributes = saml_attributes # never default this to {}
+        @authn_context = authn_context
+        @warnings = []
       end
 
       ### Personal attributes
-
       def first_name
         safe_attr('va_eauth_firstname')
       end
@@ -50,6 +56,35 @@ module SAML
       end
 
       ### Identifiers
+      def uuid
+        raise Common::Exceptions::InvalidResource, @attributes unless idme_uuid || sec_id
+
+        return idme_uuid if idme_uuid
+
+        # The sec_id is not a UUID, and while unique this has a potential to cause issues
+        # in downstream processes that are expecting a user UUID to be 32 bytes. For
+        # example, if there is a log filtering process that was striping out any 32 byte
+        # id, an 10 byte sec id would be missed. Using a one way UUID hash, will convert
+        # the sec id to a 32 byte unique identifier so that any downstream processes will
+        # will treat it exactly the same as a typical 32 byte ID.me identifier.
+        Digest::UUID.uuid_v3('sec-id', sec_id).tr('-', '')
+      end
+
+      def idme_uuid
+        return safe_attr('va_eauth_uid') if safe_attr('va_eauth_csid') == 'idme'
+
+        # the gcIds are a pipe-delimited concatenation of the MVI correlation IDs
+        # (minus the weird "base/extension" cruft)
+        gcids = safe_attr('va_eauth_gcIds')&.split('|')
+        if gcids
+          idme_match = gcids.map { |id| IDME_GCID_REGEX.match(id) }.compact.first
+          idme_match && idme_match[:idme]
+        end
+      end
+
+      def sec_id
+        safe_attr('va_eauth_secid')
+      end
 
       def mhv_icn
         safe_attr('va_eauth_icn')
@@ -101,22 +136,24 @@ module SAML
         loa_current
       end
 
+      def loa
+        { current: loa_current, highest: loa_highest }
+      end
+
       def sign_in
-        if existing_user_identity?
-          existing_user_identity.sign_in
-        else
-          super
-        end
+        SAML::User::AUTHN_CONTEXTS.fetch(@authn_context)
+                                  .fetch(:sign_in)
+                                  .merge(account_type: account_type)
+      end
+
+      def to_hash
+        Hash[SERIALIZABLE_ATTRIBUTES.map { |k| [k, send(k)] }]
       end
 
       private
 
       def safe_attr(key)
-        attributes[key] == 'NOT_FOUND' ? nil : attributes[key]
-      end
-
-      def serializable_attributes
-        REQUIRED_ATTRIBUTES + SSOE_SERIALIZABLE_ATTRIBUTES + MERGEABLE_IDENTITY_ATTRIBUTES
+        @attributes[key] == 'NOT_FOUND' ? nil : @attributes[key]
       end
     end
   end

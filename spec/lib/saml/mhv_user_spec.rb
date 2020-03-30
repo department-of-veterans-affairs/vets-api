@@ -33,12 +33,14 @@ RSpec.describe SAML::User do
         expect(subject.to_hash).to eq(
           uuid: '0e1bb5723d7c4f0686f46ca4505642ad',
           email: 'kam+tristanmhv@adhocteam.us',
+          idme_uuid: '0e1bb5723d7c4f0686f46ca4505642ad',
           loa: { current: 1, highest: 3 },
           sign_in: { service_name: 'myhealthevet', account_type: 'Basic' },
           mhv_account_type: 'Basic',
           mhv_correlation_id: '12345748',
           mhv_icn: '',
           multifactor: false,
+          sec_id: nil,
           authn_context: 'myhealthevet',
           authenticated_by_ssoe: false
         )
@@ -59,8 +61,10 @@ RSpec.describe SAML::User do
           expect(subject.to_hash).to eq(
             uuid: '0e1bb5723d7c4f0686f46ca4505642ad',
             email: 'kam+tristanmhv@adhocteam.us',
+            idme_uuid: '0e1bb5723d7c4f0686f46ca4505642ad',
             loa: { current: 1, highest: 3 },
             multifactor: true,
+            sec_id: nil,
             authn_context: 'myhealthevet_multifactor',
             mhv_account_type: 'Basic',
             mhv_correlation_id: '12345748',
@@ -85,6 +89,7 @@ RSpec.describe SAML::User do
           expect(subject.to_hash).to eq(
             uuid: '0e1bb5723d7c4f0686f46ca4505642ad',
             email: 'kam+tristanmhv@adhocteam.us',
+            idme_uuid: '0e1bb5723d7c4f0686f46ca4505642ad',
             first_name: 'Tristan',
             middle_name: '',
             last_name: 'MHV',
@@ -92,6 +97,7 @@ RSpec.describe SAML::User do
             birth_date: '1735-10-30',
             ssn: '111223333',
             zip: nil,
+            sec_id: nil,
             mhv_account_type: 'Advanced',
             mhv_correlation_id: '12345748',
             mhv_icn: '1012853550V207686',
@@ -117,8 +123,10 @@ RSpec.describe SAML::User do
         expect(subject.to_hash).to eq(
           uuid: '0e1bb5723d7c4f0686f46ca4505642ad',
           email: 'kam+tristanmhv@adhocteam.us',
+          idme_uuid: '0e1bb5723d7c4f0686f46ca4505642ad',
           loa: { current: 3, highest: 3 },
           sign_in: { service_name: 'myhealthevet', account_type: 'Premium' },
+          sec_id: nil,
           mhv_account_type: 'Premium',
           mhv_correlation_id: '12345748',
           mhv_icn: '1012853550V207686',
@@ -145,10 +153,12 @@ RSpec.describe SAML::User do
           expect(subject.to_hash).to eq(
             uuid: '0e1bb5723d7c4f0686f46ca4505642ad',
             email: 'kam+tristanmhv@adhocteam.us',
+            idme_uuid: '0e1bb5723d7c4f0686f46ca4505642ad',
             loa: { current: 3, highest: 3 },
             sign_in: { service_name: 'myhealthevet', account_type: 'Premium' },
             multifactor: true,
             authn_context: 'myhealthevet_multifactor',
+            sec_id: nil,
             mhv_account_type: 'Premium',
             mhv_correlation_id: '12345748',
             mhv_icn: '1012853550V207686',

@@ -45,9 +45,7 @@ class Account < ApplicationRecord
   def self.cache_or_create_by!(user)
     return unless user.uuid || user.sec_id
 
-    # if possible use the idme uuid for the key, fallback to using the sec id otherwise
-    key = get_key(user)
-    acct = do_cached_with(key: key) do
+    acct = do_cached_with(key: get_key(user)) do
       create_if_needed!(user)
     end
     # Account.sec_id was added months after this class was built, thus
@@ -57,11 +55,9 @@ class Account < ApplicationRecord
   end
 
   def self.create_if_needed!(user)
-    attrs = account_attrs_from_user(user)
-
-    accts = idme_uuid_match(attrs[:idme_uuid]).or(sec_id_match(attrs[:sec_id]))
+    accts = idme_uuid_match(user.idme_uuid).or(sec_id_match(user.sec_id))
     accts = sort_with_idme_uuid_priority(accts, user)
-    accts.length.positive? ? accts[0] : create(**attrs)
+    accts.length.positive? ? accts[0] : create(**account_attrs_from_user(user))
   end
 
   def self.update_if_needed!(account, user)
@@ -85,7 +81,12 @@ class Account < ApplicationRecord
   # @return [Hash]
   #
   def self.account_attrs_from_user(user)
-    { idme_uuid: user.uuid, edipi: user.edipi, icn: user.icn, sec_id: user.sec_id }
+    {
+      idme_uuid: user.idme_uuid,
+      sec_id: user.sec_id,
+      edipi: user.edipi,
+      icn: user.icn
+    }
   end
 
   # Determines if the associated Account record is cacheable. Required
@@ -107,11 +108,12 @@ class Account < ApplicationRecord
   # https://github.com/department-of-veterans-affairs/va.gov-team/issues/6702
   #
   # @return [Array]
+  #
   def self.sort_with_idme_uuid_priority(accts, user)
     if accts.length > 1
       data = accts.map { |a| "Account:#{a.id}" }
       log_message_to_sentry('multiple Account records with matching ids', 'warning', data)
-      accts = accts.sort_by { |a| a.idme_uuid == user.uuid ? 0 : 1 }
+      accts = accts.sort_by { |a| a.idme_uuid == user.idme_uuid ? 0 : 1 }
     end
     accts
   end
