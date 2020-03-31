@@ -10,14 +10,12 @@ RSpec.describe SAML::User do
     subject { described_class.new(saml_response) }
 
     let(:authn_context) { 'dslogon' }
-    let(:account_type)  { '1' }
     let(:highest_attained_loa) { '3' }
     let(:existing_saml_attributes) { nil }
 
     let(:saml_response) do
       build_saml_response(
         authn_context: authn_context,
-        account_type: account_type,
         level_of_assurance: [highest_attained_loa],
         attributes: saml_attributes,
         existing_attributes: existing_saml_attributes
@@ -121,7 +119,6 @@ RSpec.describe SAML::User do
     end
 
     context 'premium user' do
-      let(:account_type) { '2' }
       let(:highest_attained_loa) { nil }
       let(:saml_attributes) { build(:dslogon_level2, multifactor: [false], level_of_assurance: ['3']) }
 

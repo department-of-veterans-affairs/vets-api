@@ -17,7 +17,8 @@ RSpec.describe V0::SessionsController, type: :controller do
     instance_double('SAML::User',
                     changing_multifactor?: false,
                     user_attributes: user_attributes,
-                    to_hash: saml_user_attributes)
+                    to_hash: saml_user_attributes,
+                    validate!: nil)
   end
 
   let(:request_host)        { '127.0.0.1:3000' }
@@ -45,7 +46,6 @@ RSpec.describe V0::SessionsController, type: :controller do
   let(:valid_saml_response) do
     build_saml_response(
       authn_context: authn_context,
-      account_type: 'N/A',
       level_of_assurance: ['3'],
       attributes: build(:idme_loa1, level_of_assurance: ['3'])
     )
