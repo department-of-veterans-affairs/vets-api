@@ -10,7 +10,6 @@ RSpec.describe SAML::User do
     subject { described_class.new(saml_response) }
 
     let(:authn_context) { LOA::IDME_LOA1_VETS }
-    let(:account_type)  { 'N/A' }
     let(:highest_attained_loa) { '1' }
     let(:saml_attributes) { build(:idme_loa1) }
     let(:existing_saml_attributes) { nil }
@@ -18,7 +17,6 @@ RSpec.describe SAML::User do
     let(:saml_response) do
       build_saml_response(
         authn_context: authn_context,
-        account_type: account_type,
         level_of_assurance: [highest_attained_loa],
         attributes: saml_attributes,
         existing_attributes: existing_saml_attributes

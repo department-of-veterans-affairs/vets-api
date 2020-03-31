@@ -60,6 +60,9 @@ module SAML
         Hash[serializable_attributes.map { |k| [k, send(k)] }]
       end
 
+      # Raise any fatal exceptions due to validation issues
+      def validate!; end
+
       private
 
       def account_type
