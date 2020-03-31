@@ -1,8 +1,5 @@
 # frozen_string_literal: true
 
-# This file is for exercising routes that should require CSRF protection.
-# It is very much a WIP
-
 require 'rails_helper'
 
 RSpec.describe 'CSRF scenarios', type: :request do
@@ -95,6 +92,28 @@ RSpec.describe 'CSRF scenarios', type: :request do
           # expect(response.body).not_to match(/ActionController::InvalidAuthenticityToken/)
         end
       end
+    end
+  end
+
+  describe 'OpenidApplicationController (Lighthouse) descendants' do
+    let(:headers) do
+      { 'X-VA-SSN': '796043735',
+        'X-VA-First-Name': 'WESLEY',
+        'X-VA-Last-Name': 'FORD',
+        'X-VA-EDIPI': '1007697216',
+        'X-Consumer-Username': 'TestConsumer',
+        'X-VA-User': 'adhoc.test.user',
+        'X-VA-Birth-Date': '1986-05-06T00:00:00+00:00',
+        'X-VA-LOA' => '3',
+        'X-VA-Gender': 'M' }
+    end
+    let(:path) { '/services/claims/v0/forms/526' }
+    let(:data) { File.read(Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'form_526_json_api.json')) }
+    it 'should skip CSRF validation' do
+      post path, params: data, headers: headers
+      expect(response.status).to eq(200)
+      expect(Raven).not_to receive(:capture_message).with('Request susceptible to CSRF', level: 'info')
+      # expect(response.body).not_to match(/ActionController::InvalidAuthenticityToken/)
     end
   end
 end
