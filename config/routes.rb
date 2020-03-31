@@ -182,6 +182,10 @@ Rails.application.routes.draw do
       resource :announcement_subscription, only: [:create], controller: 'id_card_announcement_subscription'
     end
 
+    namespace :mdot do
+      resources :supplies, only: %i[create]
+    end
+
     namespace :preneeds do
       resources :cemeteries, only: :index, defaults: { format: :json }
       resources :states, only: :index, defaults: { format: :json }

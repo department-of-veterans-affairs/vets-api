@@ -5,8 +5,8 @@ http_interactions:
     uri: https://dlc-dummy.herokuapp.com/supplies
     body:
       encoding: UTF-8
-      string: '{"veteranFullName":{"first":"Greg","middle":"A","last":"Anderson"},"veteranAddress":{"street":"101
-        Example Street","street2":"Apt 2","city":"Kansas City","state":"MO","country":"USA","postalCode":"64117"},"order":[{"productId":1},{"productId":4}],"additionalRequests":""}'
+      string: '{"use_permanent_address":true,"use_temporary_address":false,"additional_requests":"","order":[{"product_id":"1"},{"product_id":"4"}],"permanent_address":{"street":"101
+        Example Street","street2":"Apt 2","city":"Kansas City","state":"MO","country":"USA","postal_code":"64117"}}'
     headers:
       Accept:
       - application/json
@@ -30,26 +30,26 @@ http_interactions:
       Server:
       - Cowboy
       Date:
-      - Mon, 30 Mar 2020 14:07:06 GMT
+      - Tue, 31 Mar 2020 14:32:35 GMT
       Connection:
       - keep-alive
       Content-Type:
       - application/json; charset=utf-8
       Etag:
-      - W/"c0b04ac295b5ea56d777cb450b47798e"
+      - W/"570535d1150e372663eb30ca87a98047"
       Cache-Control:
       - max-age=0, private, must-revalidate
       X-Request-Id:
-      - 80c84557-1dc5-4eb3-b669-722224a6be3f
+      - 774129c4-c7f3-401f-893b-9368f526cb46
       X-Runtime:
-      - '0.010541'
+      - '0.007192'
       Transfer-Encoding:
       - chunked
       Via:
       - 1.1 vegur
     body:
       encoding: UTF-8
-      string: '{"status":"success","order_id":"db35695e-becb-46ca-9ab6-f9d240ba0d11"}'
+      string: '{"status":"success","order_id":"4eb9e4a5-1fd1-4a47-8a45-fe4f28466dde"}'
     http_version: null
-  recorded_at: Mon, 30 Mar 2020 14:07:07 GMT
+  recorded_at: Tue, 31 Mar 2020 14:32:36 GMT
 recorded_with: VCR 5.1.0
