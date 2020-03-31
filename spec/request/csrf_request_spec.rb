@@ -109,7 +109,8 @@ RSpec.describe 'CSRF scenarios', type: :request do
     end
     let(:path) { '/services/claims/v0/forms/526' }
     let(:data) { File.read(Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'form_526_json_api.json')) }
-    it 'should skip CSRF validation' do
+
+    it 'skips CSRF validation' do
       post path, params: data, headers: headers
       expect(response.status).to eq(200)
       expect(Raven).not_to receive(:capture_message).with('Request susceptible to CSRF', level: 'info')
