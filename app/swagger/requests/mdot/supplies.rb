@@ -10,6 +10,12 @@ module Swagger
             key :operationId, 'addMdotOrder'
             key :tags, %w[mdot]
 
+            extend Swagger::Responses::AuthenticationError
+            parameter :authorization
+
+            key :produces, ['application/json']
+            key :consumes, ['application/json']
+
             response 200 do
               key :description, 'mdot order response'
 
