@@ -22,10 +22,7 @@ gem 'puma-plugin-statsd', '~> 0.1.0'
 gem 'rails', '~> 6.0.2'
 
 # Gems with special version/repo needs
-source "https://rubygems.pkg.github.com/erluti" do
-  gem 'active_model_serializers', '= 0.10.4.vsp'
-end
-# gem 'active_model_serializers', git: 'https://github.com/erluti/active_model_serializers', branch: 'master' # TODO: put this repo in vsp github
+gem 'active_model_serializers', git: 'https://github.com/erluti/active_model_serializers', branch: 'master' # TODO: put this repo in vsp github
 gem 'carrierwave', '~> 0.11' # TODO: explanation
 gem 'sidekiq-scheduler', '~> 3.0' # TODO: explanation
 
