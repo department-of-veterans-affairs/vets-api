@@ -136,7 +136,11 @@ RSpec.configure do |config|
 
   # enable `allow_forgery_protection` in Lighthouse specs to ensure that the endpoints
   # in those modules have explicitly skipped the CSRF protection functionality
-  lighthouse_dirs = %r{modules/(appeals_api|claims_api|openid_auth|va_facilities|va_forms|vba_documents|veteran|veteran_confirmation|veteran_verification)/}
+  lighthouse_dirs = %r{
+    modules/
+    (appeals_api|claims_api|openid_auth|va_facilities|va_forms|vba_documents|
+      veteran|veteran_confirmation|veteran_verification)/
+  }x
   config.define_derived_metadata(file_path: lighthouse_dirs) do |metadata|
     metadata[:enable_csrf_protection] = true
   end
