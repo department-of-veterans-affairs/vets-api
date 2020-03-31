@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-module ClaimsApi
+module JsonSchema
   class JsonApiMissingAttribute < StandardError
     attr_accessor :code
     attr_accessor :details

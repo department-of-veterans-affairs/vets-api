@@ -1,0 +1,19 @@
+{
+  "data": {
+    "type": "HigherLevelReview",
+    "attributes": {
+      "informalConference": false,
+      "sameOffice": false,
+      "legacyOptInApproved": true,
+      "benefitType": "compensation"
+    }
+  },
+  "included": [
+    {
+      "type": "ContestableIssue",
+      "attributes": {
+        "decisionIssueId": 205
+      }
+    }
+  ]
+}

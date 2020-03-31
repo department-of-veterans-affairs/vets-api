@@ -3,7 +3,7 @@
 module SAML
   module UserAttributes
     class Base
-      REQUIRED_ATTRIBUTES = %i[email uuid loa sign_in multifactor].freeze
+      REQUIRED_ATTRIBUTES = %i[email uuid idme_uuid sec_id loa sign_in multifactor].freeze
 
       attr_reader :attributes, :authn_context, :warnings
 
@@ -16,7 +16,15 @@ module SAML
       # Common Attributes
       # ID.me unique identifier
       def uuid
+        idme_uuid
+      end
+
+      def idme_uuid
         attributes['uuid']
+      end
+
+      def sec_id
+        nil
       end
 
       # ID.me email address associated with the signed-in 'wallet'
@@ -61,7 +69,7 @@ module SAML
       def existing_user_identity
         return @_existing_user_identity if defined?(@_existing_user_identity)
 
-        @_existing_user_identity = UserIdentity.find(uuid)
+        @_existing_user_identity = UserIdentity.find(idme_uuid)
       end
 
       def existing_user_identity?
