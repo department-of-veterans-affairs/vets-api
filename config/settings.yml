@@ -37,6 +37,10 @@ sso:
   cookie_secure: false
   cookie_domain: localhost
 
+ssoe:
+  redirects:
+    myvahealth: https://ehrm-va-test.patientportal.us.healtheintent.com/
+
 binaries:
   # you can specify a full path in settings.local.yml if necessary
   pdfinfo: pdfinfo
@@ -307,6 +311,7 @@ appeals:
   mock: true
   app_token: PUBLICDEMO123
   host: https://dsva-appeals-certification-dev-1895622301.us-gov-west-1.elb.amazonaws.com
+  schema_dir: config/schemas
 
 vic:
   url: https://some.fakesite.com
@@ -455,6 +460,7 @@ flipper:
     - n.ratana@gmail.com
     - narin@adhocteam.us
     - osanchez@governmentcio.com
+    - patrick@adhocteam.us
     - rian.fowler@adhoc.team
     - rianfowler@outlook.com
     - ryan.thurlwell@va.gov

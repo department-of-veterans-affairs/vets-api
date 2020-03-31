@@ -42,6 +42,28 @@ RSpec.describe Account, type: :model do
       end.not_to change(Account, :count)
     end
 
+    it 'creates an Account on sec id if one does not exist' do
+      expect(Account.count).to eq 0
+
+      user = create(:user, :user_with_no_idme_uuid)
+
+      expect do
+        acct = Account.create_if_needed!(user)
+        expect(acct.sec_id).to eq '1234'
+        expect(acct.idme_uuid).to eq nil
+      end.to change(Account, :count).by(1)
+    end
+
+    it 'matches on sec id with missing idme uuid' do
+      user = create(:user, :user_with_no_idme_uuid)
+      create(:account, idme_uuid: nil, sec_id: user.sec_id)
+      expect(Account.count).to eq 1
+
+      expect do
+        Account.create_if_needed!(user)
+      end.not_to change(Account, :count)
+    end
+
     it 'issues a warning with multiple matching Accounts' do
       user = create(:user, :accountable)
       create(:user, :accountable_with_sec_id)
@@ -51,6 +73,15 @@ RSpec.describe Account, type: :model do
       expect do
         Account.create_if_needed!(user)
       end.not_to change(Account, :count)
+    end
+
+    it 'uses idme match with multiple matching Accounts' do
+      user1 = create(:user, :accountable_with_sec_id)
+      user1.uuid = nil
+      user2 = create(:user, :accountable)
+
+      acct = Account.create_if_needed!(user2)
+      expect(acct.idme_uuid).to eq(user2.uuid)
     end
   end
 
@@ -136,7 +167,7 @@ RSpec.describe Account, type: :model do
     it "returns the user's db Account record", :aggregate_failures do
       record = Account.cache_or_create_by! user
 
-      expect(record).to eq Account.find_by(idme_uuid: user.uuid)
+      expect(record).to eq Account.find_by(idme_uuid: user.idme_uuid)
       expect(record.class).to eq Account
     end
   end
