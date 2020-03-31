@@ -49,7 +49,7 @@ module Swagger
                   items do
                     key :type, :object
 
-                    property :product_id
+                    property :product_id, type: :string
                   end
                 end
               end
