@@ -25,16 +25,8 @@ module VbaDocuments
         end
 
         server do
-          key :url, 'https://dev-api.va.gov/services/vba_documents/{version}'
-          key :description, 'VA.gov API development environment'
-          variable :version do
-            key :default, 'v0'
-          end
-        end
-
-        server do
-          key :url, 'https://staging-api.va.gov/services/vba_documents/{version}'
-          key :description, 'VA.gov API staging environment'
+          key :url, 'https://sandbox-api.va.gov/services/vba_documents/{version}'
+          key :description, 'VA.gov API sandbox environment'
           variable :version do
             key :default, 'v0'
           end

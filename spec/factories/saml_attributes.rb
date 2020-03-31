@@ -345,7 +345,7 @@ FactoryBot.define do
     va_eauth_issueinstant { ['2020-02-26T04:07:03Z'] }
     va_eauth_middlename { ['NOT_FOUND'] }
     va_eauth_multifactor { ['true'] }
-    va_eauth_mhv_assurance { ['Basic'] }
+    va_eauth_mhvassurance { ['Basic'] }
 
     initialize_with { new(attributes.stringify_keys) }
   end
@@ -374,7 +374,7 @@ FactoryBot.define do
     va_eauth_issueinstant { ['2020-02-26T04:07:03Z'] }
     va_eauth_middlename { ['NOT_FOUND'] }
     va_eauth_multifactor { ['false'] }
-    va_eauth_mhv_assurance { ['Basic'] }
+    va_eauth_mhvassurance { ['Basic'] }
 
     initialize_with { new(attributes.stringify_keys) }
   end
@@ -402,7 +402,7 @@ FactoryBot.define do
     va_eauth_issueinstant { ['2020-02-26T04:07:03Z'] }
     va_eauth_middlename { ['NOT_FOUND'] }
     va_eauth_multifactor { ['true'] }
-    va_eauth_mhv_assurance { ['Basic'] }
+    va_eauth_mhvassurance { ['Basic'] }
 
     initialize_with { new(attributes.stringify_keys) }
   end
@@ -701,6 +701,68 @@ FactoryBot.define do
     va_eauth_multifactor { ['true'] }
     va_eauth_street1 { ['811 Vermont Ave NW'] }
     va_eauth_mhv_ien { ['14384899'] }
+
+    initialize_with { new(attributes.stringify_keys) }
+  end
+
+  factory :ssoe_idme_dslogon_level2_singlefactor, class: OneLogin::RubySaml::Attributes do
+    transient do
+      authn_context { 'dslogon' }
+    end
+    va_eauth_aal_idme_highest { ['1'] }
+    va_eauth_icn { ['1013173963V366678'] }
+    va_eauth_ial_idme_highest { ['1'] }
+    va_eauth_dslogonassurance { ['2'] }
+    va_eauth_cspid { ['200VIDM_363761e8857642f7b77ef7d99200e711'] }
+    va_eauth_birthDate_v1 { ['19510604'] }
+    va_eauth_state { ['NOT_FOUND'] }
+    va_eauth_postalcode { ['NOT_FOUND'] }
+    va_eauth_csid { ['idme'] }
+    va_eauth_pid { ['NOT_FOUND'] }
+    va_eauth_pnidtype { ['SSN'] }
+    va_eauth_firstname { ['BRANDIN'] }
+    va_eauth_street { ['NOT_FOUND'] }
+    va_eauth_authenticationMethod { ['dslogon'] }
+    va_eauth_uid { ['363761e8857642f7b77ef7d99200e711'] }
+    va_eauth_isDelegate { ['false'] }
+    va_eauth_secid { ['1013173963'] }
+    va_eauth_persontype { ['NOT_FOUND'] }
+    va_eauth_multifactor { ['false'] }
+    va_eauth_street1 { ['NOT_FOUND'] }
+    va_eauth_phone { ['NOT_FOUND'] }
+    va_eauth_lastname { ['MILLER-NIETO'] }
+    va_eauth_ial { ['2'] }
+    va_eauth_city { ['NOT_FOUND'] }
+    va_eauth_country { ['NOT_FOUND'] }
+    va_eauth_csp_identifier { ['200VIDM'] }
+    va_eauth_gender { ['MALE'] }
+    va_eauth_street2 { ['NOT_FOUND'] }
+    va_eauth_aal { ['1'] }
+    va_eauth_csp_method { ['IDME_DSL'] }
+    va_eauth_dodedipnid { ['2106798217'] }
+    va_eauth_emailaddress { ['iam.tester@example.com'] }
+    va_eauth_authncontextclassref { ['dslogon'] }
+    va_eauth_dslogonuuid { ['2106798217'] }
+    va_eauth_issueinstant { ['2020-03-18T00:05:57Z'] }
+    va_eauth_middlename { ['BRANSON'] }
+    va_eauth_birlsfilenumber { ['NOT_FOUND'] }
+    va_eauth_street3 { ['NOT_FOUND'] }
+    va_eauth_proofingAuthority { ['DMDC'] }
+    va_eauth_credentialassurancelevel { ['2'] }
+    va_eauth_mcid { ['WSSOE2003172005598450418218420'] }
+    va_eauth_prefix { ['NOT_FOUND'] }
+    va_eauth_csponly { ['false'] }
+    va_eauth_pnid { ['666016789'] }
+    va_eauth_commonname { ['iam.tester@example.com'] }
+    va_eauth_transactionid { ['3oiTInhBKGiA/FbtYGVloGdOqUtvKCw4rcuchfwPNAo='] }
+    va_eauth_suffix { ['NOT_FOUND'] }
+    va_eauth_gcIds {
+      ['1013173963V366678^NI^200M^USVHA^P|'\
+       '363761e8857642f7b77ef7d99200e711^PN^200VIDM^USDVA^A|'\
+       '2106798217^NI^200DOD^USDOD^A|'\
+       '1013173963^PN^200PROV^USDVA^A']
+    }
+    va_eauth_mhv_ien { ['NOT_FOUND'] }
 
     initialize_with { new(attributes.stringify_keys) }
   end
