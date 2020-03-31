@@ -17,8 +17,8 @@ class User < Common::RedisStore
   # Defined per issue #6042
   ID_CARD_ALLOWED_STATUSES = %w[V1 V3 V6].freeze
 
-  redis_store REDIS_CONFIG['user_b_store']['namespace']
-  redis_ttl REDIS_CONFIG['user_b_store']['each_ttl']
+  redis_store REDIS_CONFIG[:user_b_store][:namespace]
+  redis_ttl REDIS_CONFIG[:user_b_store][:each_ttl]
   redis_key :uuid
 
   validates :uuid, presence: true

@@ -18,8 +18,8 @@ module Common
       end
 
       def self.redis_config_key(key)
-        redis_store REDIS_CONFIG[key.to_s]['namespace']
-        redis_ttl REDIS_CONFIG[key.to_s]['each_ttl']
+        redis_store REDIS_CONFIG[key][:namespace]
+        redis_ttl REDIS_CONFIG[key][:each_ttl]
         redis_key :uuid
       end
       attribute :uuid

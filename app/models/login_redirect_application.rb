@@ -9,8 +9,8 @@ require 'common/models/redis_store'
 # SAML response comes back from SSOe we know where to redirect the newly
 # authenticated user.
 class LoginRedirectApplication < Common::RedisStore
-  redis_store REDIS_CONFIG['login_redirect_application']['namespace']
-  redis_ttl REDIS_CONFIG['login_redirect_application']['each_ttl']
+  redis_store REDIS_CONFIG[:login_redirect_application][:namespace]
+  redis_ttl REDIS_CONFIG[:login_redirect_application][:each_ttl]
   redis_key :uuid
 
   attribute :uuid
