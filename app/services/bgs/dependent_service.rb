@@ -104,8 +104,8 @@ module BGS
 
     def create_participant(proc_id, payload)
       service.vnp_ptcpnt.vnp_ptcpnt_create(
-        vnp_ptcpnt_id: '',
         vnp_proc_id: proc_id,
+        vnp_ptcpnt_id: '',
         fraud_ind: '',
         jrn_dt: Time.current.iso8601,
         jrn_lctn_id: Settings.bgs.client_station_id,
