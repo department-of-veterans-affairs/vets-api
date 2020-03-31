@@ -2,10 +2,10 @@
 
 require 'json_schema/form_schemas'
 
-module ClaimsApi
+module AppealsApi
   class FormSchemas < JsonSchema::FormSchemas
     def base_dir
-      Rails.root.join('modules', 'claims_api', Settings.claims_api.schema_dir)
+      Rails.root.join('modules', 'appeals_api', Settings.appeals.schema_dir)
     end
   end
 end

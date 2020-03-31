@@ -9,15 +9,16 @@ RSpec.describe V0::SessionsController, type: :controller do
 
   let(:uuid) { SecureRandom.uuid }
   let(:token) { 'abracadabra-open-sesame' }
-  let(:loa1_user) { build(:user, :loa1, uuid: uuid) }
-  let(:loa3_user) { build(:user, :loa3, uuid: uuid) }
+  let(:loa1_user) { build(:user, :loa1, uuid: uuid, idme_uuid: uuid) }
+  let(:loa3_user) { build(:user, :loa3, uuid: uuid, idme_uuid: uuid) }
   let(:saml_user_attributes) { loa3_user.attributes.merge(loa3_user.identity.attributes) }
   let(:user_attributes) { double('user_attributes', saml_user_attributes) }
   let(:saml_user) do
     instance_double('SAML::User',
                     changing_multifactor?: false,
                     user_attributes: user_attributes,
-                    to_hash: saml_user_attributes)
+                    to_hash: saml_user_attributes,
+                    validate!: nil)
   end
 
   let(:request_host)        { '127.0.0.1:3000' }
@@ -45,7 +46,6 @@ RSpec.describe V0::SessionsController, type: :controller do
   let(:valid_saml_response) do
     build_saml_response(
       authn_context: authn_context,
-      account_type: 'N/A',
       level_of_assurance: ['3'],
       attributes: build(:idme_loa1, level_of_assurance: ['3'])
     )
