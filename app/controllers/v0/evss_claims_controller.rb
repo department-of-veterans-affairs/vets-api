@@ -28,7 +28,7 @@ module V0
       raise Common::Exceptions::RecordNotFound, params[:id] unless claim
 
       jid = service.request_decision(claim)
-      claim.update_attributes(requested_decision: true)
+      claim.update(requested_decision: true)
       render_job_id(jid)
     end
 
