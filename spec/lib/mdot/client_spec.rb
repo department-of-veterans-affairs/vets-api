@@ -52,18 +52,18 @@ describe MDOT::Client do
   describe '#submit_order' do
     let(:valid_order) do
       {
-        "use_permanent_address"=>true,
-        "use_temporary_address"=>false,
-        "additional_requests"=>"",
-        "order"=>[{"product_id"=>"1"}, {"product_id"=>"4"}],
-        "permanent_address"=> {
-          "street"=>"101 Example Street",
-          "street2"=>"Apt 2",
-          "city"=>"Kansas City",
-          "state"=>"MO",
-          "country"=>"USA",
-          "postal_code"=>"64117"
-        },
+        'use_permanent_address' => true,
+        'use_temporary_address' => false,
+        'additional_requests' => '',
+        'order' => [{ 'product_id' => '1' }, { 'product_id' => '4' }],
+        'permanent_address' => {
+          'street' => '101 Example Street',
+          'street2' => 'Apt 2',
+          'city' => 'Kansas City',
+          'state' => 'MO',
+          'country' => 'USA',
+          'postal_code' => '64117'
+        }
       }
     end
 

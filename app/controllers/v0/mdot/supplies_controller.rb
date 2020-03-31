@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module V0
   module MDOT
     class SuppliesController < ApplicationController
@@ -13,13 +15,13 @@ module V0
           :use_temporary_address,
           :additional_requests,
           order: [:product_id],
-          permanent_address: [
-            :street,
-            :street2,
-            :city,
-            :state,
-            :country,
-            :postal_code
+          permanent_address: %i[
+            street
+            street2
+            city
+            state
+            country
+            postal_code
           ]
         ).to_hash
       end

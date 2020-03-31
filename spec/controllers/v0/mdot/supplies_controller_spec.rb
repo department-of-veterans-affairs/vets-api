@@ -22,18 +22,18 @@ RSpec.describe V0::MDOT::SuppliesController, type: :controller do
   describe '#create' do
     let(:body) do
       {
-        "permanent_address"=> {
-          "street"=>"101 Example Street",
-          "street2"=>"Apt 2",
-          "city"=>"Kansas City",
-          "state"=>"MO",
-          "country"=>"USA",
-          "postal_code"=>"64117"
+        'permanent_address' => {
+          'street' => '101 Example Street',
+          'street2' => 'Apt 2',
+          'city' => 'Kansas City',
+          'state' => 'MO',
+          'country' => 'USA',
+          'postal_code' => '64117'
         },
-        "use_permanent_address"=>true,
-        "use_temporary_address"=>false,
-        "order"=>[{"product_id"=>"1"}, {"product_id"=>"4"}],
-        "additional_requests"=>""
+        'use_permanent_address' => true,
+        'use_temporary_address' => false,
+        'order' => [{ 'product_id' => '1' }, { 'product_id' => '4' }],
+        'additional_requests' => ''
       }
     end
 
