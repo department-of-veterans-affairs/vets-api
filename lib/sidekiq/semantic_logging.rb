@@ -14,7 +14,7 @@ class Sidekiq::SemanticLogging < Sidekiq::JobLogger
     }
 
     logger.tagged(**logger_tags) do
-      super
+      super(item, queue)
     end
   end
 end
