@@ -12,13 +12,12 @@ AppealsApi::Engine.routes.draw do
   namespace :v1, defaults: { format: 'json' } do
     namespace :decision_review do
       resources :contestable_issues, only: [:index]
-      resources :higher_level_reviews, only: %i[create show] do
+      resources :higher_level_reviews, only: %i[create] do
         collection do
           get 'schema', to: 'higher_level_reviews#schema'
           post 'validate', to: 'higher_level_reviews#validate'
         end
       end
-      resources :intake_statuses, only: [:show]
     end
   end
 
