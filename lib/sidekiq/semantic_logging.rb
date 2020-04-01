@@ -4,8 +4,8 @@ require 'sidekiq'
 require 'sidekiq/job_logger'
 
 class Sidekiq::SemanticLogging < Sidekiq::JobLogger
-  def call(worker, item, queue)
-    logger_tags =  {
+  def call(_worker, item, queue)
+    logger_tags = {
       class: item['class'],
       jid: item['jid'],
       request_id: item['request_id'],
@@ -14,7 +14,7 @@ class Sidekiq::SemanticLogging < Sidekiq::JobLogger
     }
 
     logger.tagged(**logger_tags) do
-      super
+      super(item, queue)
     end
   end
 end
