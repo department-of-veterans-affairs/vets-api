@@ -20,6 +20,30 @@ RSpec.describe 'Community Care Providers', type: :request, team: :facilities do
         }
       end
 
+      it "sends a 'facilities.ppms.request.faraday' notification to any subscribers listening" do
+        allow(StatsD).to receive(:measure)
+
+        expect(StatsD).to receive(:measure).with(
+          'facilities.ppms.provider_locator',
+          kind_of(Numeric),
+          hash_including(
+            tags: ['facilities.ppms']
+          )
+        )
+
+        expect(StatsD).to receive(:measure).with(
+          'facilities.ppms.providers',
+          kind_of(Numeric),
+          hash_including(
+            tags: ['facilities.ppms']
+          )
+        ).exactly(5).times
+
+        expect do
+          get '/v0/facilities/ccp', params: params
+        end.to instrument('facilities.ppms.request.faraday')
+      end
+
       [
         [1, 5],
         [2, 5],
