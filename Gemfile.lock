@@ -109,7 +109,6 @@ PATH
 
 GEM
   remote: https://rubygems.org/
-  remote: https://enterprise.contribsys.com/
   specs:
     Ascii85 (1.0.3)
     aasm (5.0.6)
@@ -251,14 +250,14 @@ GEM
     crack (0.4.3)
       safe_yaml (~> 1.0.0)
     crass (1.0.6)
-    danger (6.1.0)
+    danger (6.3.2)
       claide (~> 1.0)
       claide-plugins (>= 0.9.2)
       colored2 (~> 3.1)
       cork (~> 0.1)
       faraday (~> 0.9)
       faraday-http-cache (~> 2.0)
-      git (~> 1.5)
+      git (~> 1.6)
       kramdown (~> 2.0)
       kramdown-parser-gfm (~> 1.0)
       no_proxy_fix
@@ -372,7 +371,8 @@ GEM
     fuubar (2.5.0)
       rspec-core (~> 3.0)
       ruby-progressbar (~> 1.4)
-    git (1.5.0)
+    git (1.6.0)
+      rchardet (~> 1.8)
     globalid (0.4.2)
       activesupport (>= 4.2.0)
     govdelivery-tms (2.8.4)
@@ -473,7 +473,8 @@ GEM
     notiffany (0.1.3)
       nenv (~> 0.1)
       shellany (~> 0.0)
-    octokit (4.14.0)
+    octokit (4.18.0)
+      faraday (>= 0.9)
       sawyer (~> 0.8.0, >= 0.5.3)
     oj (3.9.0)
     olive_branch (3.0.0)
@@ -570,6 +571,7 @@ GEM
     rb-fsevent (0.10.3)
     rb-inotify (0.10.1)
       ffi (~> 1.0)
+    rchardet (1.8.0)
     redis (3.3.5)
     redis-namespace (1.7.0)
       redis (>= 3.0.4)
@@ -666,14 +668,9 @@ GEM
       connection_pool (~> 2.2, >= 2.2.0)
       rack-protection (>= 1.5.0)
       redis (~> 3.2, >= 3.2.1)
-    sidekiq-ent (1.6.1)
-      sidekiq (>= 4.2.9)
-      sidekiq-pro (>= 3.5.0)
     sidekiq-instrument (0.3.0)
       sidekiq (>= 4.2, < 6)
       statsd-instrument (~> 2.0, >= 2.0.4)
-    sidekiq-pro (3.7.0)
-      sidekiq (>= 4.1.5)
     sidekiq-scheduler (3.0.1)
       e2mmap
       redis (>= 3, < 5)
@@ -870,9 +867,7 @@ DEPENDENCIES
   shrine
   shrine-memory
   sidekiq (~> 4.2)
-  sidekiq-ent!
   sidekiq-instrument
-  sidekiq-pro!
   sidekiq-scheduler (~> 3.0)
   simplecov
   socksify
