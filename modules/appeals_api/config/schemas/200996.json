@@ -59,7 +59,8 @@
             "informalConference",
             "sameOffice",
             "legacyOptInApproved",
-            "benefitType"
+            "benefitType",
+            "veteran"
           ]
         },
         {
@@ -85,6 +86,7 @@
             "sameOffice",
             "legacyOptInApproved",
             "benefitType",
+            "veteran",
             "informalConferenceTimes"
           ]
         }

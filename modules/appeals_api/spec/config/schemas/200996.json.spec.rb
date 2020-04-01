@@ -73,7 +73,6 @@ describe 'VA Form 20-0996 JSON Schema', type: :request do
       legacyOptInApproved: legacy_opt_in_approved,
       benefitType: benefit_type,
       veteran: veteran,
-      claimant: claimant,
       receiptDate: receipt_date,
       informalConferenceTimes: informal_conference_times,
       informalConferenceRep: informal_conference_rep
@@ -110,13 +109,6 @@ describe 'VA Form 20-0996 JSON Schema', type: :request do
       phoneNumber: veteran_phone_phone_number,
       extension: veteran_phone_extension,
       phoneType: veteran_phone_phone_type
-    }
-  end
-  let(:claimant) { claimant_template }
-  let(:claimant_template) do
-    {
-      participantId: claimant_participant_id,
-      payeeCode: claimant_payee_code
     }
   end
   let(:informal_conference_rep) { informal_conference_rep_template }
@@ -157,8 +149,6 @@ describe 'VA Form 20-0996 JSON Schema', type: :request do
   let(:veteran_phone_extension) { '2' }
   let(:veteran_phone_phone_type) { 'HOME' }
   let(:veteran_email_address) { 'josie@example.com' }
-  let(:claimant_payee_code) { '10' }
-  let(:claimant_participant_id) { '123' }
   let(:informal_conference_times) { ['1230-1400 ET', '1400-1630 ET'] }
   let(:informal_conference_rep_name) { 'Helen Holly' }
   let(:informal_conference_rep_phone_is_international) { false }
@@ -268,9 +258,7 @@ describe 'VA Form 20-0996 JSON Schema', type: :request do
         context 'field absent' do
           let(:data_attributes) { data_attributes_template.except(:veteran) }
 
-          it('has no errors (unless updating phone/address/email, the veteran field should be absent)') do
-            expect(errors).to be_empty
-          end
+          it('HAS ERRORS') { expect(errors).not_to be_empty }
         end
 
         context 'nil' do
@@ -439,22 +427,6 @@ describe 'VA Form 20-0996 JSON Schema', type: :request do
               end
             end
           end
-        end
-      end
-
-      context 'claimant:' do
-        it('has no errors (participantId and payeeCode are required)') { expect(errors).to be_empty }
-
-        context '(without field: participantId)' do
-          let(:claimant) { claimant_template.except(:participantId) }
-
-          it('HAS ERRORS') { expect(errors).not_to be_empty }
-        end
-
-        context '(without field: payeeCode)' do
-          let(:claimant) { claimant_template.except(:payeeCode) }
-
-          it('HAS ERRORS') { expect(errors).not_to be_empty }
         end
       end
 
