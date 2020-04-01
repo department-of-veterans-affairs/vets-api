@@ -172,8 +172,8 @@ RSpec.describe 'vaos appointments', type: :request, skip_mvi: true do
         end
       end
 
-      context 'with a response that threw a map undefined error' do
-        it 'no longer throws the error' do
+      context 'with a response that includes blank providers' do
+        it 'parses the data and does not throw an undefined method error' do
           VCR.use_cassette('vaos/appointments/get_appointments_map_error', match_requests_on: %i[method uri]) do
             get '/v0/vaos/appointments', params: params
             expect(response).to have_http_status(:success)
