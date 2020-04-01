@@ -21,6 +21,7 @@ module VAOS
 
     def headers
       session_token = user_service.session
+      # TODO: add zipkin header
       { 'Referer' => referrer, 'X-VAMF-JWT' => session_token }
     end
 
