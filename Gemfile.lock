@@ -109,7 +109,6 @@ PATH
 
 GEM
   remote: https://rubygems.org/
-  remote: https://enterprise.contribsys.com/
   specs:
     Ascii85 (1.0.3)
     aasm (5.0.6)
@@ -492,7 +491,7 @@ GEM
       activerecord (>= 4.2)
       request_store (~> 1.1)
     parallel (1.19.1)
-    parser (2.7.0.3)
+    parser (2.7.0.5)
       ast (~> 2.4.0)
     pdf-core (0.7.0)
     pdf-forms (1.2.0)
@@ -611,14 +610,14 @@ GEM
     rspec-support (3.9.2)
     rspec_junit_formatter (0.4.1)
       rspec-core (>= 2, < 4, != 2.12.0)
-    rubocop (0.80.1)
+    rubocop (0.81.0)
       jaro_winkler (~> 1.5.1)
       parallel (~> 1.10)
       parser (>= 2.7.0.1)
       rainbow (>= 2.2.2, < 4.0)
       rexml
       ruby-progressbar (~> 1.7)
-      unicode-display_width (>= 1.4.0, < 1.7)
+      unicode-display_width (>= 1.4.0, < 2.0)
     rubocop-junit-formatter (0.1.4)
     rubocop-rails (2.4.2)
       rack (>= 1.1)
@@ -666,14 +665,9 @@ GEM
       connection_pool (~> 2.2, >= 2.2.0)
       rack-protection (>= 1.5.0)
       redis (~> 3.2, >= 3.2.1)
-    sidekiq-ent (1.6.1)
-      sidekiq (>= 4.2.9)
-      sidekiq-pro (>= 3.5.0)
     sidekiq-instrument (0.3.0)
       sidekiq (>= 4.2, < 6)
       statsd-instrument (~> 2.0, >= 2.0.4)
-    sidekiq-pro (3.7.0)
-      sidekiq (>= 4.1.5)
     sidekiq-scheduler (3.0.1)
       e2mmap
       redis (>= 3, < 5)
@@ -711,7 +705,7 @@ GEM
       ethon (>= 0.9.0)
     tzinfo (1.2.6)
       thread_safe (~> 0.1)
-    unicode-display_width (1.6.1)
+    unicode-display_width (1.7.0)
     upsert (2.9.10)
     uri_template (0.7.0)
     utf8-cleaner (0.2.5)
@@ -870,9 +864,7 @@ DEPENDENCIES
   shrine
   shrine-memory
   sidekiq (~> 4.2)
-  sidekiq-ent!
   sidekiq-instrument
-  sidekiq-pro!
   sidekiq-scheduler (~> 3.0)
   simplecov
   socksify
