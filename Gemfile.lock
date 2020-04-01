@@ -10,7 +10,7 @@ GIT
 
 GIT
   remote: https://github.com/department-of-veterans-affairs/connect_vbms.git
-  revision: bebad55f8723f091c7d41522178b11999f574499
+  revision: 6e5d45fc5f69cdfce1ee8a9edb9b4ff7dd9c80c5
   branch: master
   specs:
     connect_vbms (1.2.0)
@@ -109,7 +109,6 @@ PATH
 
 GEM
   remote: https://rubygems.org/
-  remote: https://enterprise.contribsys.com/
   specs:
     Ascii85 (1.0.3)
     aasm (5.0.6)
@@ -666,14 +665,9 @@ GEM
       connection_pool (~> 2.2, >= 2.2.0)
       rack-protection (>= 1.5.0)
       redis (~> 3.2, >= 3.2.1)
-    sidekiq-ent (1.6.1)
-      sidekiq (>= 4.2.9)
-      sidekiq-pro (>= 3.5.0)
     sidekiq-instrument (0.3.0)
       sidekiq (>= 4.2, < 6)
       statsd-instrument (~> 2.0, >= 2.0.4)
-    sidekiq-pro (3.7.0)
-      sidekiq (>= 4.1.5)
     sidekiq-scheduler (3.0.1)
       e2mmap
       redis (>= 3, < 5)
@@ -870,9 +864,7 @@ DEPENDENCIES
   shrine
   shrine-memory
   sidekiq (~> 4.2)
-  sidekiq-ent!
   sidekiq-instrument
-  sidekiq-pro!
   sidekiq-scheduler (~> 3.0)
   simplecov
   socksify
