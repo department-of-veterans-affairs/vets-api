@@ -9,13 +9,13 @@
     :file_path: "mdot/supplies/index"
     :cache_multiple_responses:
       :uid_location: header
-      :uid_locator: 'veteranId'
+      :uid_locator: 'va_veteran_id'
   - :method: :post
     :path: "/supplies"
     :file_path: "mdot/supplies/create"
     :cache_multiple_responses:
       :uid_location: header
-      :uid_locator: 'veteranId'
+      :uid_locator: 'va_veteran_id'
 
 - :name: 'MHV_Rx'
   :base_uri: <%= "#{URI(Settings.mhv.rx.host).host}:#{URI(Settings.mhv.rx.host).port}" %>
