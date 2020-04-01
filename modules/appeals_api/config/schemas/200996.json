@@ -48,7 +48,6 @@
             "legacyOptInApproved":     { "type": "boolean" },
             "benefitType":             { "$ref": "#/definitions/benefitType" },
             "veteran":                 { "$ref": "#/definitions/veteran" },
-            "claimant":                { "$ref": "#/definitions/claimant" },
             "receiptDate": {
               "type": "string",
               "pattern": "[0-9]{4}-[0-9]{2}-[0-9]{2}",
@@ -72,7 +71,6 @@
             "legacyOptInApproved":     { "type": "boolean" },
             "benefitType":             { "$ref": "#/definitions/benefitType" },
             "veteran":                 { "$ref": "#/definitions/veteran" },
-            "claimant":                { "$ref": "#/definitions/claimant" },
             "receiptDate": {
               "type": "string",
               "pattern": "[0-9]{4}-[0-9]{2}-[0-9]{2}",
@@ -229,25 +227,7 @@
         }
       },
       "additionalProperties": false,
-      "$comment": "if veteran object is being included, it cannot be empty",
-      "not": {
-        "properties": {
-          "address":      { "const": null },
-          "phone":        { "const": null },
-          "emailAddress": { "const": null }
-        }
-      }
-    },
-
-
-    "claimant": {
-      "type": "object",
-      "properties": {
-        "participantId": { "$ref": "#/definitions/nonBlankString" },
-        "payeeCode":     { "$ref": "#/definitions/payeeCode" }
-      },
-      "additionalProperties": false,
-      "required": [ "participantId", "payeeCode" ]
+      "required": [ "address" ]
     },
 
 
