@@ -2,15 +2,15 @@ openapi: 3.0.0
 info:
   title: Decision Reviews
   description: >+
-    The Decision Reviews API allows you to interact with a Veteran’s Decision Review requests, also known as Benefit Appeals. This API provides a secure and efficient alternative to paper or fax document submissions.
+    The Decision Reviews API allows you to interact with a veteran’s decision reviews, also known as benefit appeals. This API provides a secure and efficient alternative to paper or fax submissions.
 
     > * For more information on the Decision Review process, including the different types of Decision Reviews, please see [this informative page on VA.gov](https://www.va.gov/decision-reviews/).
 
-    > * The Decision Reviews API supports the Appeals Modernization Act (AMA) process only. Appeals going through the legacy Appeal process cannot be managed through this API. Learn more about the AMA [here](https://benefits.va.gov/benefits/appeals.asp).
+    > * The Decision Reviews API supports the Appeals Modernization Act (AMA) process only. Appeals going through the legacy Appeal process cannot be managed through this API. Learn more about AMA [here](https://benefits.va.gov/benefits/appeals.asp).
 
     ### Authorization
 
-    API requests are authorized through a symmetric API token, provided in an HTTP header with name "apikey."
+    API requests are authorized through a symmetric API token, provided in an HTTP header with name `apikey`.
   version: 1.0.0
 servers:
   - url: https://sandbox-api.va.gov/services/appeals/{version}/decision_review
