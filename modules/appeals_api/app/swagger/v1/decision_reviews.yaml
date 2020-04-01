@@ -27,9 +27,53 @@ paths:
         - name: X-VA-SSN
           in: header
           required: true
-          description: The SSN of the veteran.
+          description: veteran's SSN
           schema:
             type: string
+            pattern: '^\d{9}$'
+        - name: X-VA-First-Name
+          in: header
+          required: true
+          description: veteran's first name
+          schema:         # if vet only has 1 legal name,
+            type: string  # first-name can be whitespace and last-name can hold name
+        - name: X-VA-Middle-Initial
+          in: header
+          required: false
+          description: veteran's middle initial
+          schema:
+            $ref: '#/components/schemas/NonBlankStringMaxLength1'
+        - name: X-VA-Last-Name
+          in: header
+          required: true
+          description: veteran's last name
+          schema:
+            $ref: '#/components/schemas/NonBlankString'
+        - name: X-VA-Birth-Date
+          in: header
+          required: true
+          description: veteran's birth date
+          schema:
+            type: string
+            format: date
+        - name: X-VA-File-Number
+          in: header
+          required: false
+          description: veteran's file number
+          schema:
+            $ref: '#/components/schemas/NonBlankString'
+        - name: X-VA-Service-Number
+          in: header
+          required: false
+          description: veteran's service number
+          schema:
+            $ref: '#/components/schemas/NonBlankString'
+        - name: X-VA-Insurance-Policy-Number
+          in: header
+          required: false
+          description: veteran's insurance policy number
+          schema:
+            $ref: '#/components/schemas/NonBlankString'
       summary: Create a Higher-Level Review
       description: >-
         Submits a Decision Review request of type *Higher-Level Review*.
@@ -296,6 +340,10 @@ components:
     NonBlankString:
       type: string
       pattern: '\S'
+    NonBlankStringMaxLength1:
+      allOf:
+        - $ref: '#/components/schemas/NonBlankString'
+        - maxLength: 1
     NonBlankStringMaxLength2:
       allOf:
         - $ref: '#/components/schemas/NonBlankString'
