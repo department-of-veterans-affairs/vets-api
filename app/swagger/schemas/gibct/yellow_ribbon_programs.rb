@@ -55,7 +55,7 @@ module Swagger
                                    description: 'The URL for the Yellow Ribbon Program\'s instutition.'
 
                 property :name_of_institution, type: %i[null string], example: 'colorado university',
-                                              description: 'The name of the school.'
+                                               description: 'The name of the school.'
 
                 property :number_of_students, type: %i[null integer], example: 320,
                                               description: 'The number of students that can receive the benefit.'
