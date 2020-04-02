@@ -52,6 +52,7 @@ module BGS
 
       ####- Back in 686
       # 13. Create benefit claims in formation (no mention of id)
+      vnp_benefit_claim_create(proc_id)
       # 14. Insert vnp benefit claim (created in step 13?)
       # 15. Update vip benefit claims information (pass Corp benefit claim id Created in step 14)
       # 16. Set vnpProcstateTypeCd to “ready “
@@ -404,6 +405,42 @@ module BGS
         term_year_other_income_amt: "",
         term_year_ssa_income_amt: "",
         ssn: @user.ssn
+      )
+    end
+
+    def vnp_benefit_claim_create(proc_id)
+      service.vnp_bnft_claim.vnp_bnft_claim_create(
+      vnp_proc_id: proc_id,
+      claim_rcvd_dt: Time.current.iso8601,
+      jrn_dt: Time.current.iso8601,
+      jrn_lctn_id: Settings.bgs.client_station_id,
+      jrn_obj_id: Settings.bgs.application,
+      jrn_status_type_cd: "U",
+      jrn_user_id: Settings.bgs.client_username,
+      pgm_type_cd: "COMP",
+      status_type_cd: "CURR",
+      bnft_claim_type_cd:"",
+      ptcpnt_clmant_id: "",
+      vnp_bnft_claim_id: "",
+      svc_type_cd: "",
+      applcn_id: "",
+      atchms_ind: "",
+      claim_jrsdtn_lctn_id: "",
+      claim_suspns_dt: "",
+      end_prdct_type_cd: "",
+      infrml_ind: "",
+      intake_jrsdtn_lctn_id: "",
+      last_paid_dt: "",
+      payee_type_cd: "",
+      ptcpnt_dposit_acnt_id: "",
+      ptcpnt_vsr_id: "",
+      rmks_txt: "",
+      ptcpnt_mail_addrs_id: "",
+      ptcpnt_pymt_addrs_id: "",
+      termnl_digit_nbr: "",
+      vnp_ptcpnt_vet_id: "",
+      bnft_claim_id: "",
+      ssn: @user.ssn
       )
     end
   end
