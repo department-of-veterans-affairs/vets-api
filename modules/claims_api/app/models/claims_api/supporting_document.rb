@@ -2,7 +2,7 @@
 
 module ClaimsApi
   class SupportingDocument < ApplicationRecord
-    include FileData
+    include FileData::FileData
 
     belongs_to :auto_established_claim
     validates :auto_established_claim_id, presence: true

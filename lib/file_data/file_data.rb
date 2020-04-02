@@ -1,28 +1,30 @@
 # frozen_string_literal: true
 
 module FileData
-  extend ActiveSupport::Concern
+  module FileData
+    extend ActiveSupport::Concern
 
-  included do
-    attr_encrypted(:file_data, key: Settings.db_encryption_key, marshal: true, marshaler: JsonMarshal)
+    included do
+      attr_encrypted(:file_data, key: Settings.db_encryption_key, marshal: true, marshaler: JsonMarshal::Marshaller)
 
-    def file_name
-      file_data['filename']
-    end
+      def file_name
+        file_data['filename']
+      end
 
-    def document_type
-      file_data['doc_type']
-    end
+      def document_type
+        file_data['doc_type']
+      end
 
-    def description
-      file_data['description']
-    end
+      def description
+        file_data['description']
+      end
 
-    def set_file_data!(file_data, doc_type, description = nil)
-      uploader.store!(file_data)
-      self.file_data = { filename: uploader.filename,
-                         doc_type: doc_type,
-                         description: description }
+      def set_file_data!(file_data, doc_type, description = nil)
+        uploader.store!(file_data)
+        self.file_data = { filename: uploader.filename,
+                           doc_type: doc_type,
+                           description: description }
+      end
     end
   end
 end
