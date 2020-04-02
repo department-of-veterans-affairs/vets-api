@@ -25,11 +25,10 @@ module Swagger
                                   facility_code
                                   institution_id
                                   insturl
+                                  name_of_institution
                                   number_of_students
-                                  school_name_in_yr_database
                                   state
-                                  street_address
-                                  zip]
+                                  street_address]
 
                 property :city, type: %i[null string], example: 'Chicago',
                                 description: 'The city name where the Yellow Ribbon Program is located.'
@@ -55,20 +54,17 @@ module Swagger
                 property :insturl, type: %i[null string], example: 'https://example.com',
                                    description: 'The URL for the Yellow Ribbon Program\'s instutition.'
 
+                property :name_of_institution, type: %i[null string], example: 'colorado university',
+                                               description: 'The name of the school.'
+
                 property :number_of_students, type: %i[null integer], example: 320,
                                               description: 'The number of students that can receive the benefit.'
-
-                property :school_name_in_yr_database, type: %i[null string], example: 'colorado university',
-                                                      description: 'The name of the school.'
 
                 property :state, type: %i[null string], example: 'IL',
                                  description: 'The provincial state where the Yellow Ribbon Program is located.'
 
                 property :street_address, type: %i[null string], example: '1234 Street',
                                           description: 'The street address where the Yellow Ribbon Program is located.'
-
-                property :zip, type: %i[null string], example: '12345',
-                               description: 'The zipcode where the Yellow Ribbon Program is located.'
               end
             end
           end
