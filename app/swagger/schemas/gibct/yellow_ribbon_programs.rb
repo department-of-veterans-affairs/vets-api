@@ -58,7 +58,7 @@ module Swagger
                                               description: 'The number of students that can receive the benefit.'
 
                 property :name, type: %i[null string], example: 'colorado university',
-                                                      description: 'The name of the school.'
+                                description: 'The name of the school.'
 
                 property :state, type: %i[null string], example: 'IL',
                                  description: 'The provincial state where the Yellow Ribbon Program is located.'
