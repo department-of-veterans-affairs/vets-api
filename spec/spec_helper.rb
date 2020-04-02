@@ -145,12 +145,12 @@ RSpec.configure do |config|
     metadata[:enable_csrf_protection] = true
   end
 
-  config.before(:all, :enable_csrf_protection) do
+  config.before(:suite, :enable_csrf_protection) do
     @original_allow_forgery_protection = ActionController::Base.allow_forgery_protection
     ActionController::Base.allow_forgery_protection = true
   end
 
-  config.after(:all, :enable_csrf_protection) do
+  config.after(:suite, :enable_csrf_protection) do
     ActionController::Base.allow_forgery_protection = @original_allow_forgery_protection
   end
 end
