@@ -262,6 +262,8 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
       end
 
       it 'supports creating a MDOT order' do
+        expect(subject).to validate(:post, '/v0/mdot/supplies', 401)
+
         VCR.use_cassette('mdot/submit_order', VCR::MATCH_EVERYTHING) do
           expect(subject).to validate(
             :post,
