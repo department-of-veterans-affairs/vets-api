@@ -59,8 +59,8 @@ module MDOT
 
     def headers
       {
-        va_veteran_id: @user.ssn.last(4),
-        va_veteran_birth_date: @user.birth_date
+        VA_VETERAN_ID: @user.ssn.last(4),
+        VA_VETERAN_BIRTH_DATE: @user.birth_date
       }
     end
 

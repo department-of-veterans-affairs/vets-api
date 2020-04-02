@@ -9,7 +9,7 @@ module MDOT
     end
 
     def self.base_request_headers
-      super.merge('va_api_key' => Settings.mdot.api_key)
+      super.merge('VA_API_KEY' => Settings.mdot.api_key)
     end
 
     def base_path

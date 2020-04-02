@@ -1106,7 +1106,7 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
       describe 'yellow_ribbon_programs' do
         describe 'index' do
           it 'supports showing a list of yellow_ribbon_programs' do
-            VCR.use_cassette('gi_client/get_yellow_ribbon_programs') do
+            VCR.use_cassette('gi_client/gets_yellow_ribbon_programs_search_results') do
               expect(subject).to validate(:get, '/v0/gi/yellow_ribbon_programs', 200)
             end
           end
