@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require_dependency 'claims_api/concerns/file_data'
+
 module ClaimsApi
   class SupportingDocument < ApplicationRecord
     include FileData
