@@ -253,6 +253,8 @@ Rails.application.routes.draw do
 
     get 'forms', to: 'forms#index'
 
+    resources :homepage_banner, only: :index
+
     get 'profile/mailing_address', to: 'addresses#show'
     put 'profile/mailing_address', to: 'addresses#update'
 
