@@ -2,7 +2,6 @@
 
 module AppealsApi
   class HlrSubmission < ApplicationRecord
-    include FileData::FileData
     attr_encrypted(:json, key: Settings.db_encryption_key, marshal: true, marshaler: JsonMarshal::Marshaller)
     attr_encrypted(:headers, key: Settings.db_encryption_key, marshal: true, marshaler: JsonMarshal::Marshaller)
     attr_encrypted(:pdf, key: Settings.db_encryption_key, marshal: true, marshaler: JsonMarshal::Marshaller)
