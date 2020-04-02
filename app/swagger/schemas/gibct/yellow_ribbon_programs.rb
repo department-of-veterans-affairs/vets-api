@@ -26,10 +26,9 @@ module Swagger
                                   institution_id
                                   insturl
                                   number_of_students
-                                  school_name_in_yr_database
+                                  name
                                   state
-                                  street_address
-                                  zip]
+                                  street_address]
 
                 property :city, type: %i[null string], example: 'Chicago',
                                 description: 'The city name where the Yellow Ribbon Program is located.'
@@ -58,7 +57,7 @@ module Swagger
                 property :number_of_students, type: %i[null integer], example: 320,
                                               description: 'The number of students that can receive the benefit.'
 
-                property :school_name_in_yr_database, type: %i[null string], example: 'colorado university',
+                property :name, type: %i[null string], example: 'colorado university',
                                                       description: 'The name of the school.'
 
                 property :state, type: %i[null string], example: 'IL',
@@ -66,9 +65,6 @@ module Swagger
 
                 property :street_address, type: %i[null string], example: '1234 Street',
                                           description: 'The street address where the Yellow Ribbon Program is located.'
-
-                property :zip, type: %i[null string], example: '12345',
-                               description: 'The zipcode where the Yellow Ribbon Program is located.'
               end
             end
           end
