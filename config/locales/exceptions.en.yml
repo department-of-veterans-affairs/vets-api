@@ -1930,6 +1930,12 @@ en:
         detail: User is forbidden from accessing this resource
         code: MDOT_forbidden
         status: 403
+      MDOT_deceased_veteran:
+        <<: *defaults
+        title: Veteran is Deceased
+        detail: The veteran is deceased; supplies cannot be ordered
+        code: MDOT_deceased_veteran
+        status: 403
       MDOT_veteran_not_found:
         <<: *defaults
         title: Veteran Not Found
