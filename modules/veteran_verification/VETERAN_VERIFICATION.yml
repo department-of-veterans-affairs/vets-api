@@ -14,7 +14,7 @@ info:
 
     Get started by filling out the form on the [Apply for VA Lighthouse Developer Access](/apply) page.
 
-    After submitting a request, you will receive your credentials for using the API in the Development environment, which allows you to try it out with mock data before moving to the Production environment.
+    After submitting a request, you will receive your credentials for using the API in the Sandbox environment, which allows you to try it out with mock data before moving to the Production environment.
 
     ### 2. Test the  API
 
@@ -22,9 +22,9 @@ info:
 
     ### 3. Build your app
 
-    The base URI for the Veteran Verification API in the Development environment is:
+    The base URI for the Veteran Verification API in the Sandbox environment is:
 
-    https://dev-api.va.gov/services/veteran_verification/v0
+    https://sandbox-api.va.gov/services/veteran_verification/v0
 
     Check out some of our [sample apps](https://github.com/department-of-veterans-affairs/vets-api-clients/tree/master/samples/). Please visit our VA Lighthouse [Support portal](/support) should you need further assistance.
 
@@ -46,8 +46,8 @@ info:
 
     ## Reference
 
-    ### Development vs. Production Data
-    APIs accessed via the Development environment are using the same underlying logic as VA’s production APIs; only the underlying data store is different.
+    ### Sandbox vs. Production Data
+    APIs accessed via the Sandbox environment are using the same underlying logic as VA’s production APIs; only the underlying data store is different.
 
     ### Rate Limiting
     We implemented basic rate limiting of 60 requests per minute. If you exceed this quota, your request will return a 429 status code. You may petition for increased rate limits by emailing, and requests will be decided on a case by case basis.
@@ -58,13 +58,8 @@ info:
   contact:
     name: VA.gov
 servers:
-  - url: https://dev-api.va.gov/services/veteran_verification/{version}
-    description: VA.gov API development environment
-    variables:
-      version:
-        default: v0
-  - url: https://staging-api.va.gov/services/veteran_verification/{version}
-    description: VA.gov API staging environment
+  - url: https://sandbox-api.va.gov/services/veteran_verification/{version}
+    description: VA.gov API sandbox environment
     variables:
       version:
         default: v0
@@ -260,10 +255,22 @@ components:
               type: string
               description: Branch of military including National Guard or Reserve status
               example: "Air Force"
-            pay_grade_code:
+            pay_grade:
               type: string
-              description: Defines the level of compensation for a position, normalized across military branches
-              example: "06"
+              description: |
+                Defines the level of compensation for a position, normalized across military branches
+
+                Possible values include the concatenation of Pay Plan Code and Pay Grade Code.
+                Pay Plan Code is represented as a two-character code, and can be one of five values:
+                 - CC (Commissioned Corps)
+                 - MC (Cadet)
+                 - ME (Enlisted)
+                 - MO (Officer)
+                 - MW (Warrant Officer)
+                 
+                Pay Grade Code is a value between 01 and 10.
+                Pay Plan Code is concatenated with Pay Grade Code to determine the full Pay Grade value, with the leading character (M or C) stripped from Pay Plan Code.
+              example: "W01"
             discharge_status:
               type: string
               description: |

@@ -12,7 +12,6 @@ Rails.application.routes.draw do
       constraints: ->(request) { V0::SessionsController::REDIRECT_URLS.include?(request.path_parameters[:type]) }
 
   get '/v1/sessions/metadata', to: 'v1/sessions#metadata'
-  get '/v1/sessions/logout', to: 'v1/sessions#saml_logout_callback'
   post '/v1/sessions/callback', to: 'v1/sessions#saml_callback', module: 'v1'
   get '/v1/sessions/:type/new',
       to: 'v1/sessions#new',
@@ -207,10 +206,6 @@ Rails.application.routes.draw do
         get 'countries', to: 'addresses#countries'
         get 'states', to: 'addresses#states'
       end
-    end
-
-    namespace :mdot do
-      resources :supplies, only: %i[index create]
     end
 
     resources :performance_monitorings, only: :create

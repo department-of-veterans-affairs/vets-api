@@ -30,7 +30,7 @@ module ClaimsApi
                   items do
                     key :type, :object
                     key :description, 'Returning Variety of JSON and UI Schema Objects'
-                    key :example, ClaimsApi::FormSchemas::SCHEMAS['526']
+                    key :example, ClaimsApi::FormSchemas.new.schemas['526']
                   end
                 end
               end
@@ -55,8 +55,16 @@ module ClaimsApi
         end
 
         operation :post do
-          key :summary, 'Accepts 526 claim form submission'
-          key :description, 'Accpets document binaries as part of a multipart payload. Accepts N number of attachments, via attachment1 .. attachmentN'
+          key :summary, 'Submit form 526'
+          key(
+            :description,
+            <<~X
+              Submit [form 526](https://www.vba.va.gov/pubs/forms/VBA-21-526EZ-ARE.pdf).
+              Takes in JSON, returns UUID for submission. Asynchronously auto-establishes claim and generates a PDF for Central Mail.
+              Can accept document binaries as part of a multi-part payload (as `attachment1`, `attachment2`, etc.).
+              **If you are filing an original claim, and the filer is not the veteran** (the oauth token is not the veteran’s), see [PUT /forms/526/{id}](#operations-Disability-upload526Attachment).
+            X
+          )
           key :operationId, 'post526Claim'
           key :tags, [
             'Disability'
@@ -153,7 +161,16 @@ module ClaimsApi
       swagger_path '/forms/526/{id}' do
         operation :put do
           key :summary, 'Upload 526 document'
-          key :description, 'Accpets document binaries as part of a multipart payload.'
+          key(
+            :description,
+            <<~X
+              Upload attachments for [form 526](https://www.vba.va.gov/pubs/forms/VBA-21-526EZ-ARE.pdf) submission.
+              Use this endpoint in conjunction with the [POST](#operations-Disability-post526Claim) endpoint to file an original claim when the filer is _not_ the veteran (the oauth token is not the veteran’s).
+              In most cases, if the veteran is not the filer on the original claim, a scanned copy of form 526, signed in ink by the veteran, is required.
+              **`Step 1:`** use [POST /forms/526/{id}](#operations-Disability-post526Claim) but set `"autoCestPDFGenerationDisabled": true` (this disables automatic PDF generation).
+              **`Step 2:`** use PUT to attach scan of form 526 and any additional supporting documents.
+            X
+          )
           key :operationId, 'upload526Attachment'
           key :produces, [
             'application/json'

@@ -59,6 +59,7 @@ gem 'httpclient'
 gem 'ice_nine'
 gem 'iconv'
 gem 'iso_country_codes'
+gem 'json', '>= 2.3.0'
 gem 'json-schema'
 gem 'json_schemer'
 gem 'jsonapi-parser'
@@ -158,6 +159,7 @@ group :development, :test do
   gem 'rack-test', require: 'rack/test'
   gem 'rack-vcr'
   gem 'rainbow' # Used to colorize output for rake tasks
+  gem 'rspec-instrumentation-matcher'
   gem 'rspec-rails', '~> 3.5'
   gem 'rubocop', require: false
   gem 'rubocop-rails'
@@ -172,7 +174,9 @@ end
 group :production do
   # sidekiq enterprise requires a license key to download but is only required in production.
   # for local dev environments, regular sidekiq works fine
-  unless ENV['EXCLUDE_SIDEKIQ_ENTERPRISE'] == 'true'
+  unless (Bundler::Settings.new['enterprise.contribsys.com'].nil? ||
+          Bundler::Settings.new['enterprise.contribsys.com']&.empty?) &&
+         ENV.fetch('BUNDLE_ENTERPRISE__CONTRIBSYS__COM', '').empty?
     source 'https://enterprise.contribsys.com/' do
       gem 'sidekiq-ent'
       gem 'sidekiq-pro'

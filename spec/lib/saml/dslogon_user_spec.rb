@@ -10,14 +10,12 @@ RSpec.describe SAML::User do
     subject { described_class.new(saml_response) }
 
     let(:authn_context) { 'dslogon' }
-    let(:account_type)  { '1' }
     let(:highest_attained_loa) { '3' }
     let(:existing_saml_attributes) { nil }
 
     let(:saml_response) do
       build_saml_response(
         authn_context: authn_context,
-        account_type: account_type,
         level_of_assurance: [highest_attained_loa],
         attributes: saml_attributes,
         existing_attributes: existing_saml_attributes
@@ -38,9 +36,11 @@ RSpec.describe SAML::User do
           ssn: nil,
           uuid: '0e1bb5723d7c4f0686f46ca4505642ad',
           email: 'kam+tristanmhv@adhocteam.us',
+          idme_uuid: '0e1bb5723d7c4f0686f46ca4505642ad',
           multifactor: false,
           loa: { current: 1, highest: 3 },
           sign_in: { service_name: 'dslogon', account_type: '1' },
+          sec_id: nil,
           authn_context: 'dslogon',
           authenticated_by_ssoe: false
         )
@@ -63,8 +63,10 @@ RSpec.describe SAML::User do
           expect(subject.to_hash).to eq(
             uuid: '0e1bb5723d7c4f0686f46ca4505642ad',
             email: 'kam+tristanmhv@adhocteam.us',
+            idme_uuid: '0e1bb5723d7c4f0686f46ca4505642ad',
             loa: { current: 1, highest: 3 },
             sign_in: { service_name: 'dslogon', account_type: '1' },
+            sec_id: nil,
             birth_date: nil,
             first_name: nil,
             last_name: nil,
@@ -92,6 +94,7 @@ RSpec.describe SAML::User do
           expect(subject.to_hash).to eq(
             uuid: '0e1bb5723d7c4f0686f46ca4505642ad',
             email: 'kam+tristanmhv@adhocteam.us',
+            idme_uuid: '0e1bb5723d7c4f0686f46ca4505642ad',
             first_name: 'Tristan',
             middle_name: '',
             last_name: 'MHV',
@@ -102,6 +105,7 @@ RSpec.describe SAML::User do
             dslogon_edipi: '1606997570',
             loa: { current: 3, highest: 3 },
             sign_in: { service_name: 'dslogon', account_type: '1' },
+            sec_id: nil,
             multifactor: true,
             authn_context: 'dslogon_loa3',
             authenticated_by_ssoe: false
@@ -115,7 +119,6 @@ RSpec.describe SAML::User do
     end
 
     context 'premium user' do
-      let(:account_type) { '2' }
       let(:highest_attained_loa) { nil }
       let(:saml_attributes) { build(:dslogon_level2, multifactor: [false], level_of_assurance: ['3']) }
 
@@ -130,8 +133,10 @@ RSpec.describe SAML::User do
           ssn: '111223333',
           uuid: '0e1bb5723d7c4f0686f46ca4505642ad',
           email: 'kam+tristanmhv@adhocteam.us',
+          idme_uuid: '0e1bb5723d7c4f0686f46ca4505642ad',
           loa: { current: 3, highest: 3 },
           sign_in: { service_name: 'dslogon', account_type: '2' },
+          sec_id: nil,
           multifactor: false,
           authn_context: 'dslogon',
           authenticated_by_ssoe: false
@@ -151,8 +156,10 @@ RSpec.describe SAML::User do
           expect(subject.to_hash).to eq(
             uuid: '0e1bb5723d7c4f0686f46ca4505642ad',
             email: 'kam+tristanmhv@adhocteam.us',
+            idme_uuid: '0e1bb5723d7c4f0686f46ca4505642ad',
             loa: { current: 3, highest: 3 },
             sign_in: { service_name: 'dslogon', account_type: '2' },
+            sec_id: nil,
             birth_date: '1735-10-30',
             first_name: 'Tristan',
             last_name: 'MHV',
