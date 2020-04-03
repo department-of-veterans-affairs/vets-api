@@ -21,6 +21,7 @@ module Sentry
           gender
           lastName
           lname
+          middlename
           mname
           phone
           postalCode
@@ -30,6 +31,9 @@ module Sentry
           state
           street
           va_eauth_authorization
+          va_eauth_commonname
+          va_eauth_emailaddress
+          va_eauth_gcIds
           vaEauthPnid
           zipCode
         ].freeze
