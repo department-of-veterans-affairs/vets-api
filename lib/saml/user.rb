@@ -29,7 +29,7 @@ module SAML
     def initialize(saml_response)
       @saml_response = saml_response
       @saml_attributes = saml_response.attributes
-puts saml_attributes&.to_h
+
       Raven.extra_context(
         saml_attributes: saml_attributes&.to_h,
         saml_response: Base64.encode64(saml_response&.response || '')
