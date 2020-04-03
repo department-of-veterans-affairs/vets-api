@@ -26,7 +26,7 @@ module MDOT
         f.response :json
         f.adapter Faraday.default_adapter
 
-        # remove long timeouts after changing to real API
+        # TODO: remove long timeouts after changing to real API
         f.options.timeout = 30
         f.options.open_timeout = 30
       end
