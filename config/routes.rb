@@ -213,8 +213,6 @@ Rails.application.routes.draw do
       end
     end
 
-    resources :performance_monitorings, only: :create
-
     namespace :profile do
       resource :alternate_phone, only: %i[show create]
       resource :email, only: %i[show create]
