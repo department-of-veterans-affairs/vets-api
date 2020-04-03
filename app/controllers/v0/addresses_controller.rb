@@ -44,7 +44,7 @@ module V0
     private
 
     def service
-      if Settings.evss&.reference_data_service&.enabled
+      if Settings.evss.reference_data_service&.enabled
         EVSS::ReferenceData::Service.new(@current_user)
       else
         EVSS::PCIUAddress::Service.new(@current_user)
