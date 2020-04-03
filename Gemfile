@@ -181,6 +181,9 @@ group :production do
       gem 'sidekiq-ent'
       gem 'sidekiq-pro'
     end
+  else
+    puts "No credentials found to install Sidekiq Enterprise. This is fine for local development but you may not check in this Gemfile.lock."
+    sleep 3
   end
 end
    
