@@ -37,7 +37,7 @@ describe AppealsApi::V1::DecisionReview::HigherLevelReviewsController, type: :re
       )
       parsed = JSON.parse(response.body)
       expect(response.status).to eq(422)
-      expect(parsed['errors'].size).to eq(5)
+      expect(parsed['errors']).not_to be_empty
     end
 
     it 'responds properly when JSON parse error' do
