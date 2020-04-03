@@ -25,8 +25,8 @@ describe 'VA Form 20-0996 JSON Schema', type: :request do
       {
         type: 'ContestableIssue',
         attributes: {
-          issue: "tinnitus",
-          decisionDate: "1900-01-01",
+          issue: 'tinnitus',
+          decisionDate: '1900-01-01',
           decisionIssueId: 1,
           ratingIssueId: '2',
           ratingDecisionIssueId: '3'
@@ -35,8 +35,8 @@ describe 'VA Form 20-0996 JSON Schema', type: :request do
       {
         type: 'ContestableIssue',
         attributes: {
-          issue: "left knee",
-          decisionDate: "1900-01-02",
+          issue: 'left knee',
+          decisionDate: '1900-01-02',
           decisionIssueId: 4,
           ratingIssueId: '5'
         }
@@ -44,8 +44,8 @@ describe 'VA Form 20-0996 JSON Schema', type: :request do
       {
         type: 'ContestableIssue',
         attributes: {
-          issue: "right knee",
-          decisionDate: "1900-01-03",
+          issue: 'right knee',
+          decisionDate: '1900-01-03',
           ratingIssueId: '6',
           ratingDecisionIssueId: '7'
         }
@@ -53,8 +53,8 @@ describe 'VA Form 20-0996 JSON Schema', type: :request do
       {
         type: 'ContestableIssue',
         attributes: {
-          issue: "PTSD",
-          decisionDate: "1900-01-04",
+          issue: 'PTSD',
+          decisionDate: '1900-01-04',
           decisionIssueId: 8,
           ratingDecisionIssueId: '9'
         }
@@ -62,24 +62,24 @@ describe 'VA Form 20-0996 JSON Schema', type: :request do
       {
         type: 'ContestableIssue',
         attributes: {
-          issue: "Traumatic Brain Injury",
-          decisionDate: "1900-01-05",
+          issue: 'Traumatic Brain Injury',
+          decisionDate: '1900-01-05',
           decisionIssueId: 10
         }
       },
       {
         type: 'ContestableIssue',
         attributes: {
-          issue: "right shoulder",
-          decisionDate: "1900-01-06",
+          issue: 'right shoulder',
+          decisionDate: '1900-01-06',
           ratingIssueId: '11'
         }
       },
       {
         type: 'ContestableIssue',
         attributes: {
-          issue: "left shoulder",
-          decisionDate: "1900-01-07",
+          issue: 'left shoulder',
+          decisionDate: '1900-01-07',
           ratingDecisionIssueId: '12'
         }
       }
@@ -526,21 +526,21 @@ describe 'VA Form 20-0996 JSON Schema', type: :request do
           {
             type: 'ContestableIssue',
             attributes: {
-              decisionDate: "2020-01-01",
+              decisionDate: '2020-01-01',
               decisionIssueId: 1,
               ratingIssueId: '2',
               ratingDecisionIssueId: '3',
-              issue: "hello"
+              issue: 'hello'
             }
           },
           {
             type: 'ContestableIssue',
             attributes: {
-              issue: "hello",
+              issue: 'hello',
               ratingDecisionIssueId: '3',
               decisionIssueId: 1,
               ratingIssueId: '2',
-              decisionDate: "2020-01-01"
+              decisionDate: '2020-01-01'
             }
           }
         ]
