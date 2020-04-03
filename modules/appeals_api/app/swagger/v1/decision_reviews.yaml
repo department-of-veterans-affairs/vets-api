@@ -597,8 +597,6 @@ components:
               enum: [true]
             sameOffice:
               type: boolean
-            legacyOptInApproved:
-              type: boolean
             benefitType:
               $ref: '#/components/schemas/BenefitType'
             veteran:
@@ -615,7 +613,6 @@ components:
           required:
             - informalConference
             - sameOffice
-            - legacyOptInApproved
             - benefitType
             - informalConferenceTimes
         - type: object
@@ -625,8 +622,6 @@ components:
               type: boolean
               enum: [false]
             sameOffice:
-              type: boolean
-            legacyOptInApproved:
               type: boolean
             benefitType:
               $ref: '#/components/schemas/BenefitType'
@@ -640,7 +635,6 @@ components:
           required:
             - informalConference
             - sameOffice
-            - legacyOptInApproved
             - benefitType
     HlrCreateInformalConferenceTimes:
       type: array
@@ -783,7 +777,6 @@ components:
           attributes:
             informalConference: true
             sameOffice: true
-            legacyOptInApproved: true
             benefitType: compensation
             veteran:
               address:
@@ -854,7 +847,6 @@ components:
           attributes:
             informalConference: false
             sameOffice: true
-            legacyOptInApproved: true
             benefitType: nca
         included:
           - type: ContestableIssue
@@ -921,7 +913,6 @@ components:
                   "properties": {
                     "informalConference":      { "const": false },
                     "sameOffice":              { "type": "boolean" },
-                    "legacyOptInApproved":     { "type": "boolean" },
                     "benefitType":             { "$ref": "#/definitions/benefitType" },
                     "veteran":                 { "$ref": "#/definitions/veteran" },
                     "receiptDate": {
@@ -934,7 +925,6 @@ components:
                   "required": [
                     "informalConference",
                     "sameOffice",
-                    "legacyOptInApproved",
                     "benefitType",
                     "veteran"
                   ]
@@ -945,7 +935,6 @@ components:
                   "properties": {
                     "informalConference":      { "const": true },
                     "sameOffice":              { "type": "boolean" },
-                    "legacyOptInApproved":     { "type": "boolean" },
                     "benefitType":             { "$ref": "#/definitions/benefitType" },
                     "veteran":                 { "$ref": "#/definitions/veteran" },
                     "receiptDate": {
@@ -960,7 +949,6 @@ components:
                   "required": [
                     "informalConference",
                     "sameOffice",
-                    "legacyOptInApproved",
                     "benefitType",
                     "veteran",
                     "informalConferenceTimes"

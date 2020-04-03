@@ -45,7 +45,6 @@
           "properties": {
             "informalConference":      { "const": false },
             "sameOffice":              { "type": "boolean" },
-            "legacyOptInApproved":     { "type": "boolean" },
             "benefitType":             { "$ref": "#/definitions/benefitType" },
             "veteran":                 { "$ref": "#/definitions/veteran" },
             "receiptDate": {
@@ -58,7 +57,6 @@
           "required": [
             "informalConference",
             "sameOffice",
-            "legacyOptInApproved",
             "benefitType",
             "veteran"
           ]
@@ -69,7 +67,6 @@
           "properties": {
             "informalConference":      { "const": true },
             "sameOffice":              { "type": "boolean" },
-            "legacyOptInApproved":     { "type": "boolean" },
             "benefitType":             { "$ref": "#/definitions/benefitType" },
             "veteran":                 { "$ref": "#/definitions/veteran" },
             "receiptDate": {
@@ -84,7 +81,6 @@
           "required": [
             "informalConference",
             "sameOffice",
-            "legacyOptInApproved",
             "benefitType",
             "veteran",
             "informalConferenceTimes"
