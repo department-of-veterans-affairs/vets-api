@@ -11,8 +11,6 @@ class HigherLevelReviewSubmission < ActiveRecord::Migration[5.2]
       t.string :encrypted_form_data_iv
       t.string :encrypted_auth_headers
       t.string :encrypted_auth_headers_iv
-      t.string :encrypted_file_data
-      t.string :encrypted_file_data_iv
       t.timestamps null: false
     end
   end
