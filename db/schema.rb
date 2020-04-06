@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2020_04_02_145412) do
+ActiveRecord::Schema.define(version: 2020_03_17_164309) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
@@ -31,16 +31,6 @@ ActiveRecord::Schema.define(version: 2020_04_02_145412) do
     t.index ["idme_uuid"], name: "index_accounts_on_idme_uuid", unique: true
     t.index ["sec_id"], name: "index_accounts_on_sec_id"
     t.index ["uuid"], name: "index_accounts_on_uuid", unique: true
-  end
-
-  create_table "appeals_api_higher_level_review_submissions", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
-    t.integer "status", default: 0
-    t.string "encrypted_form_data"
-    t.string "encrypted_form_data_iv"
-    t.string "encrypted_auth_headers"
-    t.string "encrypted_auth_headers_iv"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
   end
 
   create_table "async_transactions", id: :serial, force: :cascade do |t|
@@ -102,7 +92,7 @@ ActiveRecord::Schema.define(version: 2020_04_02_145412) do
     t.index ["state"], name: "index_central_mail_submissions_on_state"
   end
 
-  create_table "claims_api_auto_established_claims", id: :uuid, default: nil, force: :cascade do |t|
+  create_table "claims_api_auto_established_claims", id: :uuid, default: -> { "uuid_generate_v4()" }, force: :cascade do |t|
     t.string "status"
     t.string "encrypted_form_data"
     t.string "encrypted_form_data_iv"
@@ -119,7 +109,7 @@ ActiveRecord::Schema.define(version: 2020_04_02_145412) do
     t.string "encrypted_evss_response_iv"
   end
 
-  create_table "claims_api_power_of_attorneys", id: :uuid, default: nil, force: :cascade do |t|
+  create_table "claims_api_power_of_attorneys", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.string "status"
     t.string "current_poa"
     t.string "encrypted_form_data"
@@ -141,7 +131,7 @@ ActiveRecord::Schema.define(version: 2020_04_02_145412) do
     t.index ["header_md5"], name: "index_claims_api_power_of_attorneys_on_header_md5"
   end
 
-  create_table "claims_api_supporting_documents", id: :uuid, default: nil, force: :cascade do |t|
+  create_table "claims_api_supporting_documents", id: :uuid, default: -> { "uuid_generate_v4()" }, force: :cascade do |t|
     t.string "encrypted_file_data", null: false
     t.string "encrypted_file_data_iv", null: false
     t.datetime "created_at", null: false
