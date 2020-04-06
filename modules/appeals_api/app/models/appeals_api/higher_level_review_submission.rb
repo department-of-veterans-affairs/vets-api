@@ -10,7 +10,7 @@ module AppealsApi
     def receipt_date
       Date.parse(
         form_data_receipt_date ||
-        created_at.strftime('%F') ||
+        created_at&.strftime('%F') ||
         Time.now.utc.strftime('%F')
       )
     end
