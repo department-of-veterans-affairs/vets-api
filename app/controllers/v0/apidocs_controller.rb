@@ -137,6 +137,7 @@ module V0
       Swagger::Requests::IntentToFile,
       Swagger::Requests::Letters,
       Swagger::Requests::MaintenanceWindows,
+      Swagger::Requests::MDOT::Supplies,
       Swagger::Requests::Messages::Folders,
       Swagger::Requests::Messages::Messages,
       Swagger::Requests::Messages::MessageDrafts,
