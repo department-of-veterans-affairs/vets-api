@@ -15,11 +15,6 @@ module AppealsApi
       )
     end
 
-    def valid?
-      receipt_date
-      true
-    end
-
     private
 
     def form_data_receipt_date
