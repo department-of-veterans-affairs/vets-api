@@ -53,9 +53,6 @@ RSpec.describe ClaimsApi::ClaimEstablisher, type: :job do
     claim.reload
     expect(claim.evss_id).to be_nil
     expect(claim.evss_response).to eq(body['messages'])
-    expect(claim.form_data).to be_empty
-    expect(claim.auth_headers).to be_empty
-    expect(claim.file_data).to be_nil
     expect(claim.status).to eq(ClaimsApi::AutoEstablishedClaim::ERRORED)
   end
 end

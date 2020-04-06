@@ -23,9 +23,6 @@ module ClaimsApi
       rescue ::EVSS::DisabilityCompensationForm::ServiceException => e
         auto_claim.status = ClaimsApi::AutoEstablishedClaim::ERRORED
         auto_claim.evss_response = e.messages
-        auto_claim.form_data = {}
-        auto_claim.auth_headers = {}
-        auto_claim.file_data = nil
         auto_claim.save
         raise e
       end
