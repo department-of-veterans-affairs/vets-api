@@ -9,7 +9,7 @@ module MDOT
     end
 
     def self.base_request_headers
-      super.merge('apiKey' => Settings.mdot.api_key)
+      super.merge('VA_API_KEY' => Settings.mdot.api_key)
     end
 
     def base_path
@@ -25,6 +25,10 @@ module MDOT
         f.response :snakecase, symbolize: false
         f.response :json
         f.adapter Faraday.default_adapter
+
+        # TODO: remove long timeouts after changing to real API
+        f.options.timeout = 30
+        f.options.open_timeout = 30
       end
     end
 

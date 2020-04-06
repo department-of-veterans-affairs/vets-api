@@ -13,10 +13,6 @@ class AppealsApi::V1::DecisionReview::HigherLevelReviewsController < AppealsApi:
 
   FORM_NUMBER = '200996'
 
-  def show
-    render_response(Appeals::Service.new.get_higher_level_review(params[:id]))
-  end
-
   def create
     render json: { data: { success: true } }
   end
