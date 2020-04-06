@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: post
-    uri: https://dlc-fake.fake.com/supplies
+    uri: https://dlc-dummy.herokuapp.com/supplies
     body:
       encoding: US-ASCII
       string: ''
