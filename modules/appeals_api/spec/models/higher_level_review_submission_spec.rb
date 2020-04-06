@@ -19,28 +19,30 @@ describe AppealsApi::HigherLevelReviewSubmission, type: :model do
   describe '#receipt_date' do
     subject { higher_level_review_submission.receipt_date }
 
-    context 'new hlr submission; receiptDate not given' do
-      let(:form_data) do
-        json = default_form_data
-        json['data']['attributes'] = json['data']['attributes'].except 'receiptDate'
-        json
+    context 'new hlr submission' do
+      context 'receiptDate not given' do
+        let(:form_data) do
+          json = default_form_data
+          json['data']['attributes'] = json['data']['attributes'].except 'receiptDate'
+          json
+        end
+
+        it 'uses today\'s date' do
+          expect(subject.strftime('%F')).to eq Time.now.utc.strftime('%F')
+        end
       end
 
-      it 'uses today\'s date' do
-        expect(subject.strftime('%F')).to eq Time.now.utc.strftime('%F')
-      end
-    end
+      context 'receiptDate given' do
+        let(:date_string) { '2020-02-02' }
+        let(:form_data) do
+          json = default_form_data
+          json['data']['attributes']['receiptDate'] = date_string
+          json
+        end
 
-    context 'new hlr submission; receiptDate given' do
-      let(:date_string) { '2020-02-02' }
-      let(:form_data) do
-        json = default_form_data
-        json['data']['attributes']['receiptDate'] = date_string
-        json
-      end
-
-      it 'pulls date from form_data' do
-        expect(subject.strftime('%F')).to eq date_string
+        it 'pulls date from form_data' do
+          expect(subject.strftime('%F')).to eq date_string
+        end
       end
     end
   end
