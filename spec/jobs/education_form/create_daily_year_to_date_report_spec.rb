@@ -42,7 +42,6 @@ RSpec.describe EducationForm::CreateDailyYearToDateReport, type: :aws_helpers do
       create(:education_benefits_submission, form_type: '0993', created_at: date, region: :western)
       create(:education_benefits_submission, form_type: '0994',
                                              created_at: date, region: :eastern, vettec: true, chapter33: false)
-      create(:education_benefits_submission, form_type: '1995s', created_at: date, region: :eastern, chapter33: true)
     end
 
     context 'with the date variable set' do
@@ -84,7 +83,6 @@ RSpec.describe EducationForm::CreateDailyYearToDateReport, type: :aws_helpers do
           %i[processed submitted].each do |status|
             context "for the current #{range_type}" do
               let(:range_type) { range_type }
-
               verify_status_numbers(
                 status,
                 get_education_form_fixture("ytd_#{range_type}_#{status}")
