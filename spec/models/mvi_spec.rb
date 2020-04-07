@@ -226,7 +226,7 @@ describe Mvi, skip_mvi: true do
       )
     end
 
-    it 'clears user from cache and returns nil' do
+    it 'updates the user profile and updates the cache' do
       allow_any_instance_of(MVI::Service).to receive(:find_profile).and_return(profile_response)
       expect_any_instance_of(Mvi).to receive(:cache).twice.and_call_original
       mvi.send(:add_ids, response)
