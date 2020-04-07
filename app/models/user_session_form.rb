@@ -17,6 +17,7 @@ class UserSessionForm
   def initialize(saml_response)
     @saml_uuid = saml_response.in_response_to
     saml_attributes = SAML::User.new(saml_response)
+    saml_attributes.validate!
     existing_user = User.find(saml_attributes.user_attributes.uuid)
     @user_identity = UserIdentity.new(saml_attributes.to_hash)
     @user = User.new(uuid: @user_identity.attributes[:uuid])

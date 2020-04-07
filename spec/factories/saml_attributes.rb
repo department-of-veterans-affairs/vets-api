@@ -345,7 +345,7 @@ FactoryBot.define do
     va_eauth_issueinstant { ['2020-02-26T04:07:03Z'] }
     va_eauth_middlename { ['NOT_FOUND'] }
     va_eauth_multifactor { ['true'] }
-    va_eauth_mhv_assurance { ['Basic'] }
+    va_eauth_mhvassurance { ['Basic'] }
 
     initialize_with { new(attributes.stringify_keys) }
   end
@@ -374,7 +374,7 @@ FactoryBot.define do
     va_eauth_issueinstant { ['2020-02-26T04:07:03Z'] }
     va_eauth_middlename { ['NOT_FOUND'] }
     va_eauth_multifactor { ['false'] }
-    va_eauth_mhv_assurance { ['Basic'] }
+    va_eauth_mhvassurance { ['Basic'] }
 
     initialize_with { new(attributes.stringify_keys) }
   end
@@ -402,7 +402,7 @@ FactoryBot.define do
     va_eauth_issueinstant { ['2020-02-26T04:07:03Z'] }
     va_eauth_middlename { ['NOT_FOUND'] }
     va_eauth_multifactor { ['true'] }
-    va_eauth_mhv_assurance { ['Basic'] }
+    va_eauth_mhvassurance { ['Basic'] }
 
     initialize_with { new(attributes.stringify_keys) }
   end

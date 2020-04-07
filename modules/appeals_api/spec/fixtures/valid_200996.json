@@ -2,17 +2,116 @@
   "data": {
     "type": "HigherLevelReview",
     "attributes": {
-      "informalConference": false,
-      "sameOffice": false,
-      "legacyOptInApproved": true,
-      "benefitType": "compensation"
+      "informalConference": true,
+      "sameOffice": true,
+      "benefitType": "nca",
+      "veteran": {
+        "address": {
+          "addressType": "DOMESTIC",
+          "addressLine1": "401 Kansas Avenue",
+          "addressLine2": "Unit #724",
+          "addressLine3": "c/o Amelia Earhart",
+          "city": "Atchison",
+          "stateCode": "KS",
+          "zipCode": "66002",
+          "countryName": "United States",
+          "addressPou": "RESIDENCE/CHOICE"
+        },
+        "phone": {
+          "isInternational": false,
+          "countryCode": "1",
+          "areaCode": "555",
+          "phoneNumber": "8001111",
+          "extension": "2",
+          "phoneType": "HOME"
+        },
+        "emailAddress": "josie@example.com"
+      },
+      "receiptDate": "2020-02-02",
+      "informalConferenceTimes": [
+        "1230-1400 ET",
+        "1400-1630 ET"
+      ],
+      "informalConferenceRep": {
+        "name": "Helen Holly",
+        "phone": {
+          "isInternational": false,
+          "countryCode": "1",
+          "areaCode": "555",
+          "phoneNumber": "8001111",
+          "extension": "2",
+          "phoneType": "HOME"
+        }
+      }
     }
   },
   "included": [
     {
       "type": "ContestableIssue",
       "attributes": {
-        "decisionIssueId": 205
+        "issue": "tinnitus",
+        "decisionDate": "1900-01-01",
+        "decisionIssueId": 1,
+        "ratingIssueId": "2",
+        "ratingDecisionIssueId": "3"
+      }
+    },
+    {
+      "type": "ContestableIssue",
+      "attributes": {
+        "issue": "left knee",
+        "decisionDate": "1900-01-02",
+        "decisionIssueId": 4,
+        "ratingIssueId": "5"
+      }
+    },
+    {
+      "type": "ContestableIssue",
+      "attributes": {
+        "issue": "right knee",
+        "decisionDate": "1900-01-03",
+        "ratingIssueId": "6",
+        "ratingDecisionIssueId": "7"
+      }
+    },
+    {
+      "type": "ContestableIssue",
+      "attributes": {
+        "issue": "PTSD",
+        "decisionDate": "1900-01-04",
+        "decisionIssueId": 8,
+        "ratingDecisionIssueId": "9"
+      }
+    },
+    {
+      "type": "ContestableIssue",
+      "attributes": {
+        "issue": "Traumatic Brain Injury",
+        "decisionDate": "1900-01-05",
+        "decisionIssueId": 10
+      }
+    },
+    {
+      "type": "ContestableIssue",
+      "attributes": {
+        "issue": "right shoulder",
+        "decisionDate": "1900-01-06",
+        "ratingIssueId": "11"
+      }
+    },
+    {
+      "type": "ContestableIssue",
+      "attributes": {
+        "issue": "left shoulder",
+        "decisionDate": "1900-01-07",
+        "ratingDecisionIssueId": "12"
+      }
+    },
+    {
+      "type": "ContestableIssue",
+      "attributes": {
+        "issue": "left shoulder",
+        "decisionDate": "1920-12-01"
       }
     }
   ]
