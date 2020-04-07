@@ -2,9 +2,9 @@
 
 require 'rails_helper'
 
-describe AppealsApi::HigherLevelReviewSubmission, type: :model do
-  let(:higher_level_review_submission) do
-    AppealsApi::HigherLevelReviewSubmission.new(
+describe AppealsApi::HigherLevelReview, type: :model do
+  let(:higher_level_review) do
+    AppealsApi::HigherLevelReview.new(
       form_data: form_data,
       auth_headers: auth_headers
     )
@@ -17,9 +17,9 @@ describe AppealsApi::HigherLevelReviewSubmission, type: :model do
   end
 
   describe '#receipt_date' do
-    subject { higher_level_review_submission.receipt_date }
+    subject { higher_level_review.receipt_date }
 
-    context 'new hlr submission' do
+    context 'new hlr' do
       context 'receiptDate not given' do
         let(:form_data) do
           json = default_form_data

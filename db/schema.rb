@@ -33,7 +33,7 @@ ActiveRecord::Schema.define(version: 2020_04_02_145412) do
     t.index ["uuid"], name: "index_accounts_on_uuid", unique: true
   end
 
-  create_table "appeals_api_higher_level_review_submissions", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+  create_table "appeals_api_higher_level_reviews", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.integer "status", default: 0
     t.string "encrypted_form_data"
     t.string "encrypted_form_data_iv"
