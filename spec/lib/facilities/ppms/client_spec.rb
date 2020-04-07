@@ -106,7 +106,6 @@ RSpec.describe Facilities::PPMS::Client, team: :facilities do
           expect(provider_locator_params[:address]).to eql('33.28,-111.79')
         end
       end
-      
     end
   end
 
