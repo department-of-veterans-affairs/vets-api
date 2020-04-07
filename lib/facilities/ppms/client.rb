@@ -220,24 +220,12 @@ module Facilities
         specialty = "'#{params[:services] ? params[:services][0] : 'null'}'"
         cnr = center_and_radius(params[:bbox])
 
-        query_params = {}
-
-        query_params[:address] = [cnr[:latitude], cnr[:longitude]].join(',')
-        query_params[:radius] = cnr[:radius]
-        query_params[:driveTime] = 10_000 unless Flipper.enabled?(:facility_locator_ppms_suppress_drive_time)
-        query_params[:specialtycode1] = specialty
-        unless Flipper.enabled?(:facility_locator_ppms_suppress_extra_params)
-          query_params[:specialtycode2] = 'null'
-          query_params[:specialtycode3] = 'null'
-          query_params[:specialtycode4] = 'null'
-          query_params[:network] = 0
-          query_params[:gender] = 0
-          query_params[:primarycare] = 0
-          query_params[:acceptingnewpatients] = 0
-        end
-        query_params[:maxResults] = per_page * page + 1
-
-        query_params
+        {
+          address: [cnr[:latitude], cnr[:longitude]].join(','),
+          radius: cnr[:radius],
+          specialtycode1: specialty,
+          maxResults: per_page * page + 1
+        }
       end
     end
   end

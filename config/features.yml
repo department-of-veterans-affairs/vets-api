@@ -19,12 +19,6 @@ features:
   facility_locator_ppms_location_query:
     actor_type: user
     description: Use the Lat/Long instead of an address
-  facility_locator_ppms_suppress_drive_time:
-    actor_type: user
-    description: Include driveTime = 10_000 in new PPMS query    
-  facility_locator_ppms_suppress_extra_params:
-    actor_type: user
-    description: Include specialtycode2 to specialtycode4, network, gender primartycare, and acceptingnewpatients in new PPMS query
   profile_schema_forms:
     actor_type: user
     description: >

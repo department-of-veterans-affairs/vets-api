@@ -74,38 +74,12 @@ RSpec.describe Facilities::PPMS::Client, team: :facilities do
         )
       end
 
-      # | location_query | suppress_drive_time | suppress_extra_params | expected_keys                             |
-      # | -------------- | ------------------- | --------------------- | ----------------------------------------- |
-      # | false          | false               | false                 | location_keys, drive_time_key, extra_keys |
-      # | true           | true                | true                  | location_keys, extra_keys                 |
-      # | true           | true                | false                 | location_keys, extra_keys                 |
-      # | true           | false               | true                  | location_keys, drive_time_key             |
-      # | true           | false               | false                 | location_keys, drive_time_key, extra_keys |
-
       let(:location_hash) do
         {
           address: '33.28,-111.79',
           radius: 103.64,
           specialtycode1: "'213E00000X'",
           maxResults: 11
-        }
-      end
-
-      let(:drive_time_hash) do
-        {
-          driveTime: 10_000
-        }
-      end
-
-      let(:extras_hash) do
-        {
-          specialtycode2: 'null',
-          specialtycode3: 'null',
-          specialtycode4: 'null',
-          network: 0,
-          gender: 0,
-          primarycare: 0,
-          acceptingnewpatients: 0
         }
       end
 
@@ -131,36 +105,8 @@ RSpec.describe Facilities::PPMS::Client, team: :facilities do
         it 'uses lat/long for an address' do
           expect(provider_locator_params[:address]).to eql('33.28,-111.79')
         end
-
-        [
-          { suppress_drive_time: false, suppress_extra_params: false  },
-          { suppress_drive_time: true,  suppress_extra_params: true   },
-          { suppress_drive_time: false, suppress_extra_params: true   },
-          { suppress_drive_time: true,  suppress_extra_params: false  }
-        ].each do |feature_flags|
-          context feature_flags.to_s do
-            feature_flags.each do |(flag_name, enabled)|
-              before do
-                Flipper.enable("facility_locator_ppms_#{flag_name}".to_sym, enabled)
-              end
-            end
-
-            it { is_expected.to include(location_hash) }
-
-            if feature_flags[:suppress_drive_time]
-              it { is_expected.not_to include(drive_time_hash) }
-            else
-              it { is_expected.to include(drive_time_hash) }
-            end
-
-            if feature_flags[:suppress_extra_params]
-              it { is_expected.not_to include(extras_hash) }
-            else
-              it { is_expected.to include(extras_hash) }
-            end
-          end
-        end
       end
+      
     end
   end
 
