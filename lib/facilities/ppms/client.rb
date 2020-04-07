@@ -220,7 +220,7 @@ module Facilities
 
         query_params[:address] = [cnr[:latitude], cnr[:longitude]].join(',')
         query_params[:radius] = cnr[:radius]
-        query_params[:driveTime] = 10_000       unless Flipper.enabled?(:facility_locator_ppms_suppress_drive_time)
+        query_params[:driveTime] = 10_000 unless Flipper.enabled?(:facility_locator_ppms_suppress_drive_time)
         query_params[:specialtycode1] = specialty
         query_params[:specialtycode2] = 'null'  unless Flipper.enabled?(:facility_locator_ppms_suppress_extra_params)
         query_params[:specialtycode3] = 'null'  unless Flipper.enabled?(:facility_locator_ppms_suppress_extra_params)
