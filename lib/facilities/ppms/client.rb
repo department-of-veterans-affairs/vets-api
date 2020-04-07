@@ -129,7 +129,7 @@ module Facilities
 
       EARTH_RADIUS = 3_958.8
 
-      def regeo_factory
+      def rgeo_factory
         RGeo::Geographic.spherical_factory
       end
 
@@ -148,7 +148,7 @@ module Facilities
         bbox_num = bbox.map { |x| Float(x) }
         x_min, y_min, x_max, y_max = bbox_num.values_at(1, 0, 3, 2)
 
-        projection = RGeo::Geographic::ProjectedWindow.new(regeo_factory, x_min, y_min, x_max, y_max)
+        projection = RGeo::Geographic::ProjectedWindow.new(rgeo_factory, x_min, y_min, x_max, y_max)
         lat, lon = projection.center_xy
         rad = [
           (projection.height * latitude_degree_distance).round(2),
