@@ -154,7 +154,7 @@ module Facilities
           (projection.height * latitude_degree_distance).round(2),
           (projection.width * longitude_degree_distance(lat)).round(2)
         ].max
-        
+
         {
           latitude: lat,
           longitude: lon,
