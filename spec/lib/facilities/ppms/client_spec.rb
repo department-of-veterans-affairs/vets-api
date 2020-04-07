@@ -85,7 +85,7 @@ RSpec.describe Facilities::PPMS::Client, team: :facilities do
       let(:location_hash) do
         {
           address: '33.28,-111.79',
-          radius: 86.64,
+          radius: 103.64,
           specialtycode1: "'213E00000X'",
           maxResults: 11
         }
@@ -115,7 +115,9 @@ RSpec.describe Facilities::PPMS::Client, team: :facilities do
         end
 
         it 'uses lat/long for an address' do
-          expect(provider_locator_params[:address]).to eql("'South Gilbert Road, Chandler, Arizona 85286, United States'")
+          expect(provider_locator_params[:address]).to eql(
+            "'South Gilbert Road, Chandler, Arizona 85286, United States'"
+          )
         end
       end
 

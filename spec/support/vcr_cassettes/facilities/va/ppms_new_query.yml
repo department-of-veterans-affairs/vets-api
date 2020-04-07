@@ -55,13 +55,13 @@
     recorded_at: Thu, 16 Jan 2020 20:16:26 GMT
   - request:
       <<: *base_request
-      uri: https://np.dws.ppms.va.gov/v1.0/ProviderLocator?address=33.28,-111.79&maxResults=11&radius=86.64&specialtycode1=%27213E00000X%27
+      uri: https://np.dws.ppms.va.gov/v1.0/ProviderLocator?address=33.28,-111.79&maxResults=11&radius=103.64&specialtycode1=%27213E00000X%27
     response:
       <<: *base_response
     recorded_at: Thu, 16 Jan 2020 20:16:26 GMT
   - request:
       <<: *base_request
-      uri: https://np.dws.ppms.va.gov/v1.0/ProviderLocator?address=33.28,-111.79&maxResults=11&radius=86.64&specialtycode1=%273336C0003X%27
+      uri: https://np.dws.ppms.va.gov/v1.0/ProviderLocator?address=33.28,-111.79&maxResults=11&radius=103.64&specialtycode1=%273336C0003X%27
     response:
       <<: *base_response
     recorded_at: Thu, 16 Jan 2020 20:16:26 GMT

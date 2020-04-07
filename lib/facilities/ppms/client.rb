@@ -150,7 +150,11 @@ module Facilities
 
         projection = RGeo::Geographic::ProjectedWindow.new(regeo_factory, x_min, y_min, x_max, y_max)
         lat, lon = projection.center_xy
-        rad = (projection.height * longitude_degree_distance(lat)).round(2)
+        rad = [
+          (projection.height * latitude_degree_distance).round(2),
+          (projection.width * longitude_degree_distance(lat)).round(2)
+        ].max
+        
         {
           latitude: lat,
           longitude: lon,
@@ -222,13 +226,15 @@ module Facilities
         query_params[:radius] = cnr[:radius]
         query_params[:driveTime] = 10_000 unless Flipper.enabled?(:facility_locator_ppms_suppress_drive_time)
         query_params[:specialtycode1] = specialty
-        query_params[:specialtycode2] = 'null'  unless Flipper.enabled?(:facility_locator_ppms_suppress_extra_params)
-        query_params[:specialtycode3] = 'null'  unless Flipper.enabled?(:facility_locator_ppms_suppress_extra_params)
-        query_params[:specialtycode4] = 'null'  unless Flipper.enabled?(:facility_locator_ppms_suppress_extra_params)
-        query_params[:network] = 0              unless Flipper.enabled?(:facility_locator_ppms_suppress_extra_params)
-        query_params[:gender] = 0               unless Flipper.enabled?(:facility_locator_ppms_suppress_extra_params)
-        query_params[:primarycare] = 0          unless Flipper.enabled?(:facility_locator_ppms_suppress_extra_params)
-        query_params[:acceptingnewpatients] = 0 unless Flipper.enabled?(:facility_locator_ppms_suppress_extra_params)
+        unless Flipper.enabled?(:facility_locator_ppms_suppress_extra_params)
+          query_params[:specialtycode2] = 'null'
+          query_params[:specialtycode3] = 'null'
+          query_params[:specialtycode4] = 'null'
+          query_params[:network] = 0
+          query_params[:gender] = 0
+          query_params[:primarycare] = 0
+          query_params[:acceptingnewpatients] = 0
+        end
         query_params[:maxResults] = per_page * page + 1
 
         query_params
