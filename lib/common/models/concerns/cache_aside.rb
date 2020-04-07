@@ -35,7 +35,6 @@ module Common
     def do_cached_with(key:)
       cached = self.class.find(key)
       if cached
-        # if cached, re-cache
         set_attributes(key, cached.response)
         return cached.response
       end

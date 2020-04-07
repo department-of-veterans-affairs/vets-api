@@ -264,7 +264,7 @@ RSpec.describe V0::InProgressFormsController, type: :request do
               VCR.use_cassette('mvi/find_candidate/orch_search_with_attributes') do
                 expect(in_progress_form.form_id).to eq('21-526EZ') # check test set up
                 # expect success to be achieved by calling mvi_add_person
-                expect_any_instance_of(Mvi).to receive(:mvi_add_person).once
+                expect_any_instance_of(Mvi).to receive(:mvi_add_person).once.and_call_original
                 get v0_in_progress_form_url(in_progress_form.form_id), params: nil # call show endpoint
                 expect(response.status).to eq(200)
               end
@@ -278,10 +278,20 @@ RSpec.describe V0::InProgressFormsController, type: :request do
         let!(:in_progress_form) { FactoryBot.create(:in_progress_form, user_uuid: user.uuid, form_id: '21-526EZ') }
 
         it 'returns an error response' do
-          VCR.use_cassette('mvi/add_person/add_person_success') do
+          get v0_in_progress_form_url(in_progress_form.form_id), params: nil
+          expect(response).to have_http_status(:unprocessable_entity)
+        end
+      end
+
+      context 'user experiences error from proxy add call to mvi' do
+        let(:user) { build(:user_with_no_ids) }
+        let!(:in_progress_form) { FactoryBot.create(:in_progress_form, user_uuid: user.uuid, form_id: '21-526EZ') }
+
+        it 'returns an error response' do
+          VCR.use_cassette('mvi/add_person/add_person_invalid_request') do
             VCR.use_cassette('mvi/find_candidate/orch_search_with_attributes') do
               get v0_in_progress_form_url(in_progress_form.form_id), params: nil
-              expect(response).to have_http_status(:internal_server_error)
+              expect(response).to have_http_status(:bad_gateway)
             end
           end
         end

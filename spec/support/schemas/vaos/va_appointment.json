@@ -9,10 +9,10 @@
       "type": "object",
       "properties": {
         "start_date": { "type": "string", "format": "date-time" },
-        "clinic_id": { "type": "string" },
+        "clinic_id": { "type": ["string", null] },
         "clinic_friendly_name": { "type": ["string", null] },
-        "facility_id": { "type": "string" },
-        "community_care": { "type": "boolean" },
+        "facility_id": { "type": ["string", null] },
+        "community_care": { "type": ["boolean", null] },
         "vds_appointments": {
           "type": "array",
           "optional": true,
@@ -46,6 +46,9 @@
             "properties": {
               "id": { "type": "string" },
               "appointment_kind": { "type": "string" },
+              "scheduling_request_type": { "type": "string" },
+              "instruction": { "type": "string" },
+              "invities": { "type": "array" },
               "source_system": { "type": "string" },
               "date_time": { "type": "string", "format": "date-time" },
               "desired_date": { "type": "string", "format": "date-time" },

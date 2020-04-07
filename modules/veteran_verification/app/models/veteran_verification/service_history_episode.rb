@@ -13,7 +13,7 @@ module VeteranVerification
     attribute :deployments, Array
     attribute :discharge_type, String
     attribute :start_date, Date
-    attribute :pay_grade_code, String
+    attribute :pay_grade, String
     attribute :separation_reason, String
 
     def self.for_user(user)
@@ -42,7 +42,7 @@ module VeteranVerification
           deployments: deployments(emis, episode),
           discharge_type: episode.discharge_character_of_service_code,
           start_date: episode.begin_date,
-          pay_grade_code: episode.pay_grade_code,
+          pay_grade: build_pay_grade(episode),
           separation_reason: episode.narrative_reason_for_separation_txt
         )
       end
@@ -71,6 +71,14 @@ module VeteranVerification
 
     def discharge_status
       EMISRedis::MilitaryInformationV2::EXTERNAL_DISCHARGE_TYPES[discharge_type] || 'unknown'
+    end
+
+    def self.build_pay_grade(episode)
+      if episode.pay_plan_code.blank? || episode.pay_grade_code.blank?
+        'unknown'
+      else
+        episode.pay_plan_code[1] + episode.pay_grade_code
+      end
     end
   end
 end
