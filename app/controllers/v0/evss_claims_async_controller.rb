@@ -18,7 +18,7 @@ module V0
       claim = EVSSClaim.for_user(current_user).find_by(evss_id: params[:id])
 
       unless claim
-        Raven.tags_context(team: 'benefits-memorial-1')  # tag sentry logs with team name
+        Raven.tags_context(team: 'benefits-memorial-1') # tag sentry logs with team name
         raise Common::Exceptions::RecordNotFound, params[:id]
       end
 

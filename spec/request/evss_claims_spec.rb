@@ -54,7 +54,7 @@ RSpec.describe 'EVSS Claims management', type: :request do
       sign_in_as(user)
       FactoryBot.create(:evss_claim, id: 2, evss_id: 189_625,
                                      user_uuid: 'xyz')
-      # check tagging of EVSSClaimsAsyncController.show RecordNotFound error
+      # check tagging of EVSSClaimsController.show RecordNotFound error
       allow(Raven).to receive(:tags_context)
       expect(Raven).to receive(:tags_context).with(team: 'benefits-memorial-1')
 
