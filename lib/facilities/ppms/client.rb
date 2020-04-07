@@ -223,7 +223,15 @@ module Facilities
         {
           address: [cnr[:latitude], cnr[:longitude]].join(','),
           radius: cnr[:radius],
+          driveTime: 10_000,
           specialtycode1: specialty,
+          specialtycode2: 'null',
+          specialtycode3: 'null',
+          specialtycode4: 'null',
+          network: 0,
+          gender: 0,
+          primarycare: 0,
+          acceptingnewpatients: 0,
           maxResults: per_page * page + 1
         }
       end
