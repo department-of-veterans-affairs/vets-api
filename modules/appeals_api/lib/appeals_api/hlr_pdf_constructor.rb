@@ -24,10 +24,6 @@ module AppealsApi
       pdf.set_field(:"F[0].#subform[2].DOBmonth[0]", @target_veteran.birth_date.month)
       pdf.set_field(:"F[0].#subform[2].DOBday[0]", @target_veteran.birth_date.day)
       pdf.set_field(:"F[0].#subform[2].DOByear[0]", @target_veteran.birth_date.year)
-      # claimant
-      pdf.set_field(:"F[0].#subform[2].ClaimantsFirstName[0]", @target_veteran.claimant_first_name)
-      pdf.set_field(:"F[0].#subform[2].ClaimantsMiddleInitial1[0]", @target_veteran.claimant_middle_name.first)
-      pdf.set_field(:"F[0].#subform[2].ClaimantsLastName[0]", @target_veteran.claimant_last_name)
 
       #address
 
