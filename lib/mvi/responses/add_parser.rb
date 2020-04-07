@@ -65,9 +65,10 @@ module MVI
       def parse_ids(attributes)
         codes = { other: [] }
         attributes.each do |attribute|
-          if attribute[:code].include? 'BRLS'
+          case attribute[:code]
+          when /BRLS/
             codes[:birls_id] = sanitize_ids(attribute[:code])
-          elsif attribute[:code].include? 'CORP'
+          when /CORP/
             codes[:participant_id] = sanitize_ids(attribute[:code])
           else
             codes[:other].append(attribute)
