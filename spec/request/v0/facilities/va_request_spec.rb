@@ -152,6 +152,12 @@ RSpec.describe 'VA GIS Integration', type: :request, team: :facilities do
   end
 
   context 'Community Care (PPMS)' do
+    around do |example|
+      VCR.use_cassette('facilities/va/ppms', match_requests_on: %i[path query], allow_playback_repeats: true) do
+        example.run
+      end
+    end
+
     let(:params) do
       {
         address: 'South Gilbert Road, Chandler, Arizona 85286, United States',
@@ -160,7 +166,7 @@ RSpec.describe 'VA GIS Integration', type: :request, team: :facilities do
     end
 
     it 'responds to GET #index with bbox, address, and ccp type' do
-      VCR.use_cassette('facilities/va/ppms', match_requests_on: %i[path query], allow_playback_repeats: true) do
+      VCR.use_cassette('facilities/va/ppms_new_query', match_requests_on: %i[path query], allow_playback_repeats: true) do
         get '/v0/facilities/va', params: params.merge('type' => 'cc_provider', 'services' => ['213E00000X'])
         expect(response).to be_successful
         expect(response.body).to be_a(String)
