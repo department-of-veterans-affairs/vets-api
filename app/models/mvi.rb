@@ -131,8 +131,8 @@ class Mvi < Common::RedisStore
 
   def add_ids(response)
     # set new ids in the profile and recache the response
-    profile.birls_id = response.mvi_codes[:birls_id] if response.mvi_codes[:birls_id].present?
-    profile.participant_id = response.mvi_codes[:participant_id] if response.mvi_codes[:participant_id].present?
+    profile.birls_id = response.mvi_codes[:birls_id].presence
+    profile.participant_id = response.mvi_codes[:participant_id].presence
 
     cache(user.uuid, mvi_response) if mvi_response.cache?
   end
