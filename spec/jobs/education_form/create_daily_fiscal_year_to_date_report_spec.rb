@@ -72,9 +72,16 @@ RSpec.describe EducationForm::CreateDailyFiscalYearToDateReport, type: :aws_help
       create(:education_benefits_submission, created_at: date - 26.hours, status: 'processed')
 
       create(:education_benefits_submission, created_at: date, status: 'submitted')
-      %w[1995 1990e 5490 1990n 5495].each do |form_type|
-        create(:education_benefits_submission, form_type: form_type, created_at: date)
+      if !Flipper.enabled?(:edu_benefits_stem_scholarship, @current_user)
+        %w[1995 1990e 5490 1990n 5495].each do |form_type|
+          create(:education_benefits_submission, form_type: form_type, created_at: date)
+        end
+      else
+        %w[1995 1990e 5490 1990n 5495 1995s].each do |form_type|
+          create(:education_benefits_submission, form_type: form_type, created_at: date)
+        end
       end
+
       create(:education_benefits_submission, form_type: '0993', created_at: date, region: :western)
       create(:education_benefits_submission, form_type: '0994',
                                              created_at: date, region: :eastern, vettec: true, chapter33: false)
@@ -91,11 +98,14 @@ RSpec.describe EducationForm::CreateDailyFiscalYearToDateReport, type: :aws_help
       end
 
       describe '#create_csv_array' do
+
+        if !Flipper.enabled?(:edu_benefits_stem_scholarship, @current_user)
         it 'makes the right csv array' do
           expect(subject.create_csv_array).to eq(
             get_education_form_fixture('fiscal_year_create_csv_array')
           )
         end
+       end
       end
 
       describe '#calculate_submissions' do
@@ -107,10 +117,11 @@ RSpec.describe EducationForm::CreateDailyFiscalYearToDateReport, type: :aws_help
         def self.verify_status_numbers(status, result)
           context "for #{status} applications" do
             let(:status) { status }
-
+            if !Flipper.enabled?(:edu_benefits_stem_scholarship, @current_user)
             it 'returns data about the number of submissions' do
               expect(subject.deep_stringify_keys).to eq(result)
             end
+          end
           end
         end
 
