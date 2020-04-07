@@ -12,8 +12,7 @@ class EducationBenefitsClaim < ApplicationRecord
     FORM_HEADERS = [
       '22-1990', '22-1995', '22-1990e', '22-5490', '22-5495', '22-1990n', '22-0993', '22-0994', '22-1995 STEM'
     ].freeze
-
-end
+  end
   APPLICATION_TYPES = %w[
     chapter33
     chapter1607

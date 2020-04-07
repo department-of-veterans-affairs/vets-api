@@ -44,7 +44,7 @@ RSpec.describe EducationForm::CreateDailyYearToDateReport, type: :aws_helpers do
         %w[1995 1990e 5490 1990n 5495 1995s].each do |form_type|
           create(:education_benefits_submission, form_type: form_type, created_at: date)
         end
-    end
+      end
       create(:education_benefits_submission, form_type: '0993', created_at: date, region: :western)
       create(:education_benefits_submission, form_type: '0994',
                                              created_at: date, region: :eastern, vettec: true, chapter33: false)
@@ -71,7 +71,7 @@ RSpec.describe EducationForm::CreateDailyYearToDateReport, type: :aws_helpers do
               get_education_form_fixture('create_csv_array')
             )
           end
-      end
+        end
       end
 
       describe '#calculate_submissions' do
@@ -84,10 +84,8 @@ RSpec.describe EducationForm::CreateDailyYearToDateReport, type: :aws_helpers do
           context "for #{status} applications" do
             let(:status) { status }
 
-            unless Flipper.enabled?(:edu_benefits_stem_scholarship, @current_user)
-              it 'returns data about the number of submissions' do
-                expect(subject.deep_stringify_keys).to eq(result)
-              end
+            it 'returns data about the number of submissions' do
+              expect(subject.deep_stringify_keys).to eq(result)
             end
           end
         end
@@ -97,10 +95,12 @@ RSpec.describe EducationForm::CreateDailyYearToDateReport, type: :aws_helpers do
             context "for the current #{range_type}" do
               let(:range_type) { range_type }
 
-              verify_status_numbers(
-                status,
-                get_education_form_fixture("ytd_#{range_type}_#{status}")
-              )
+              unless Flipper.enabled?(:edu_benefits_stem_scholarship, @current_user)
+                verify_status_numbers(
+                  status,
+                  get_education_form_fixture("ytd_#{range_type}_#{status}")
+                )
+              end
             end
           end
         end
