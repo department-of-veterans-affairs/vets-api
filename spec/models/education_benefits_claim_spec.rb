@@ -7,7 +7,6 @@ RSpec.describe EducationBenefitsClaim, type: :model do
     create(:va1990).education_benefits_claim
   end
 
-
   if !Flipper.enabled?(:edu_benefits_stem_scholarship, @current_user)
     %w[1990 1995 1990e 5490 5495 1990n 0993 0994].each do |form_type|
       method = "is_#{form_type}?"
@@ -16,7 +15,7 @@ RSpec.describe EducationBenefitsClaim, type: :model do
           education_benefits_claim.saved_claim.form_id = 'foo'
           expect(education_benefits_claim.public_send(method)).to eq(false)
         end
-  
+
         it "returns true when it's the right type" do
           education_benefits_claim.saved_claim.form_id = "22-#{form_type.upcase}"
           expect(education_benefits_claim.public_send(method)).to eq(true)
@@ -26,13 +25,13 @@ RSpec.describe EducationBenefitsClaim, type: :model do
   else
     %w[1990 1995 1990e 5490 5495 1990n 0993 0994 1995s].each do |form_type|
       method = "is_#{form_type}?"
-  
+
       describe "##{method}" do
         it "returns false when it's not the right type" do
           education_benefits_claim.saved_claim.form_id = 'foo'
           expect(education_benefits_claim.public_send(method)).to eq(false)
         end
-  
+
         it "returns true when it's the right type" do
           education_benefits_claim.saved_claim.form_id = "22-#{form_type.upcase}"
           expect(education_benefits_claim.public_send(method)).to eq(true)
@@ -40,7 +39,6 @@ RSpec.describe EducationBenefitsClaim, type: :model do
       end
     end
   end
-
 
   describe '#form_type' do
     it 'returns the form type' do

@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe EducationForm::CreateSpoolSubmissionsReport, type: :aws_helpers, focus: true do
+RSpec.describe EducationForm::CreateSpoolSubmissionsReport, type: :aws_helpers do
   subject do
     described_class.new
   end
@@ -43,10 +43,10 @@ RSpec.describe EducationForm::CreateSpoolSubmissionsReport, type: :aws_helpers, 
     end
 
     if Flipper.enabled?(:edu_benefits_stem_scholarship, @current_user)
-      it 'recognizes 1995s as STEM submission' do	
-      create(:education_benefits_claim_1995s, processed_at: time.beginning_of_day)	
-      data = subject.create_csv_array	
-      expect(data[:stem_exists]).to eq(true)	
+      it 'recognizes 1995s as STEM submission' do
+        create(:education_benefits_claim_1995s, processed_at: time.beginning_of_day)
+        data = subject.create_csv_array
+        expect(data[:stem_exists]).to eq(true)
       end
     end
 

@@ -98,13 +98,12 @@ RSpec.describe EducationForm::CreateDailyFiscalYearToDateReport, type: :aws_help
       end
 
       describe '#create_csv_array' do
-
-        if !Flipper.enabled?(:edu_benefits_stem_scholarship, @current_user)
-        it 'makes the right csv array' do
-          expect(subject.create_csv_array).to eq(
-            get_education_form_fixture('fiscal_year_create_csv_array')
-          )
-        end
+        unless Flipper.enabled?(:edu_benefits_stem_scholarship, @current_user)
+          it 'makes the right csv array' do
+            expect(subject.create_csv_array).to eq(
+              get_education_form_fixture('fiscal_year_create_csv_array')
+            )
+          end
        end
       end
 
@@ -117,10 +116,11 @@ RSpec.describe EducationForm::CreateDailyFiscalYearToDateReport, type: :aws_help
         def self.verify_status_numbers(status, result)
           context "for #{status} applications" do
             let(:status) { status }
-            if !Flipper.enabled?(:edu_benefits_stem_scholarship, @current_user)
-            it 'returns data about the number of submissions' do
-              expect(subject.deep_stringify_keys).to eq(result)
-            end
+
+            unless Flipper.enabled?(:edu_benefits_stem_scholarship, @current_user)
+              it 'returns data about the number of submissions' do
+                expect(subject.deep_stringify_keys).to eq(result)
+              end
           end
           end
         end
