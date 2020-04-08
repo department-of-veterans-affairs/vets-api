@@ -22,8 +22,8 @@ module VAOS
     attribute :vvs_appointments do |object|
       Array.wrap(object&.vvs_appointments).map do |vvs|
         vvs.merge( # flatten the structure of patients and providers and remove patient identifiers
-          patients: vvs[:patients][:patient].map { |patient| patient.except(:id) },
-          providers: vvs[:providers][:provider].map { |provider| provider.except(:id) }
+          patients: vvs.dig(:patients, :patient).to_a.map { |patient| patient.except(:id) },
+          providers: vvs.dig(:providers, :provider).to_a.map { |provider| provider.except(:id) }
         )
       end
     end

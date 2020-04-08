@@ -10,14 +10,12 @@ RSpec.describe SAML::User do
     subject { described_class.new(saml_response) }
 
     let(:authn_context) { 'myhealthevet' }
-    let(:account_type)  { 'Basic' }
     let(:highest_attained_loa) { '3' }
     let(:existing_saml_attributes) { nil }
 
     let(:saml_response) do
       build_saml_response(
         authn_context: authn_context,
-        account_type: account_type,
         level_of_assurance: [highest_attained_loa],
         attributes: saml_attributes,
         existing_attributes: existing_saml_attributes
@@ -81,7 +79,6 @@ RSpec.describe SAML::User do
 
       context 'verifying' do
         let(:authn_context) { 'myhealthevet_loa3' }
-        let(:account_type) { 'Advanced' }
         let(:saml_attributes) { build(:mhv_loa3, multifactor: [true], level_of_assurance: ['3']) }
         let(:existing_saml_attributes) { build(:mhv_advanced, multifactor: [true], level_of_assurance: ['3']) }
 
@@ -117,7 +114,6 @@ RSpec.describe SAML::User do
 
     context 'premium user' do
       let(:saml_attributes) { build(:mhv_premium, multifactor: [false], level_of_assurance: [highest_attained_loa]) }
-      let(:account_type) { 'Premium' }
 
       it 'has various important attributes' do
         expect(subject.to_hash).to eq(
