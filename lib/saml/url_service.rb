@@ -191,13 +191,14 @@ module SAML
     end
 
     def create_redirect_application(uuid)
-      LoginRedirectApplication.create(
-        uuid: uuid, redirect_application: @redirect_application
+      SAMLRequestTracker.create(
+        uuid: uuid, payload: {:redirect_application => @redirect_application}
       )
     end
 
     def pop_redirect_application(uuid)
-      @redirect_application = LoginRedirectApplication.pop(uuid)&.redirect_application
+      payload = SAMLRequestTracker.pop(uuid)&.payload
+      @redirect_application = payload.try(:[], :redirect_application)
     end
   end
 end

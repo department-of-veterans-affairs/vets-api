@@ -97,7 +97,7 @@ RSpec.describe V1::SessionsController, type: :controller do
                 .to be_an_idme_saml_url('https://pint.eauth.va.gov/isam/sps/saml20idp/saml20/login?SAMLRequest=')
                 .with_relay_state('originating_request_id' => nil, 'type' => type)
                 .with_params('clientId' => '123123')
-              expect(LoginRedirectApplication.keys.length).to eq(0)
+              expect(SAMLRequestTracker.keys.length).to eq(0)
             end
 
             it 'redirects with a forceAuthn' do
@@ -114,7 +114,7 @@ RSpec.describe V1::SessionsController, type: :controller do
                 .to be_an_idme_saml_url('https://pint.eauth.va.gov/isam/sps/saml20idp/saml20/login?SAMLRequest=')
                 .with_relay_state('originating_request_id' => nil, 'type' => type)
                 .with_params('clientId' => '123123')
-              expect(LoginRedirectApplication.keys.length).to eq(0)
+              expect(SAMLRequestTracker.keys.length).to eq(0)
             end
 
             it 'persists redirect application' do
@@ -127,7 +127,7 @@ RSpec.describe V1::SessionsController, type: :controller do
                 .to be_an_idme_saml_url('https://pint.eauth.va.gov/isam/sps/saml20idp/saml20/login?SAMLRequest=')
                 .with_relay_state('originating_request_id' => nil, 'type' => type)
                 .with_params('clientId' => '123123')
-              expect(LoginRedirectApplication.keys.length).to eq(1)
+              expect(SAMLRequestTracker.keys.length).to eq(1)
             end
 
             it 'ignores invalid redirect application' do
@@ -140,7 +140,7 @@ RSpec.describe V1::SessionsController, type: :controller do
                 .to be_an_idme_saml_url('https://pint.eauth.va.gov/isam/sps/saml20idp/saml20/login?SAMLRequest=')
                 .with_relay_state('originating_request_id' => nil, 'type' => type)
                 .with_params('clientId' => '123123')
-              expect(LoginRedirectApplication.keys.length).to eq(0)
+              expect(SAMLRequestTracker.keys.length).to eq(0)
             end
           end
         end
@@ -199,8 +199,9 @@ RSpec.describe V1::SessionsController, type: :controller do
       end
 
       it 'redirect user to external site' do
-        LoginRedirectApplication.create(
-          uuid: login_uuid, redirect_application: Settings.ssoe.redirects['myvahealth']
+        SAMLRequestTracker.create(
+          uuid: login_uuid,
+          payload: {redirect_application: Settings.ssoe.redirects['myvahealth']}
         )
         allow(SAML::User).to receive(:new).and_return(saml_user)
         expect(post(:saml_callback)).to redirect_to(Settings.ssoe.redirects['myvahealth'])
