@@ -17,7 +17,7 @@ class AppealsApi::V1::DecisionReview::HigherLevelReviewsController < AppealsApi:
   )['paths']['/higher_level_reviews']['post']['parameters'].map { |parameter| parameter['name'] }
 
   def create
-    AppealsApi::HigherLevelReviewSubmission.create!(
+    AppealsApi::HigherLevelReview.create!(
       auth_headers: create_headers,
       form_data: @json_body
     )

@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 FactoryBot.define do
-  factory :higher_level_review_submission, class: 'AppealsApi::HigherLevelReviewSubmission' do
+  factory :higher_level_review, class: 'AppealsApi::HigherLevelReview' do
     id { SecureRandom.uuid }
     auth_headers { {} }
     form_data do
