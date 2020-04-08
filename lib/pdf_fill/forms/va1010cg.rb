@@ -587,94 +587,87 @@ module PdfFill
         }
       }.freeze
 
-      # rubocop:disable Metrics/MethodLength, Metrics/PerceivedComplexity, Metrics/CyclomaticComplexity, Metrics/AbcSize
       def merge_fields
         @form_data['helpers'] = {
-          'veteran' => {
-            'address' => {
-              'street' => combine_hash(@form_data['veteran']['address'], %w[street street2])
-            },
-            'gender' => {
-              'male' => @form_data['veteran']['gender'] == 'M' ? '1' : 'Off',
-              'female' => @form_data['veteran']['gender'] == 'F' ? '2' : 'Off'
-            },
-            'lastTreatmentFacility' => {
-              'type' => {
-                'hospital' => @form_data.dig('veteran', 'lastTreatmentFacility', 'type') == 'hospital' ? '2' : 'Off',
-                'clinic' => @form_data.dig('veteran', 'lastTreatmentFacility', 'type') == 'clinic' ? '3' : 'Off'
-              }
-            },
-            'signature' => {
-              'name' => combine_full_name(@form_data['veteran']['fullName']),
-              'date' => Time.zone.today.to_s
-            }
-          },
-          'primaryCaregiver' => {
-            'enrollments' => {
-              'medicaid' => {
-                'yes' => @form_data.dig('primaryCaregiver', 'medicaidEnrolled') == true ? '1' : 'Off',
-                'no' => @form_data.dig('primaryCaregiver', 'medicaidEnrolled') == false ? '2' : 'Off'
-              },
-              'medicare' => {
-                'yes' => @form_data.dig('primaryCaregiver', 'medicareEnrolled') == true ? '1' : 'Off',
-                'no' => @form_data.dig('primaryCaregiver', 'medicareEnrolled') == false ? '2' : 'Off'
-              },
-              'champva' => {
-                'yes' => @form_data.dig('primaryCaregiver', 'champvaEnrolled') == true ? '1' : 'Off',
-                'no' => @form_data.dig('primaryCaregiver', 'champvaEnrolled') == false ? '2' : 'Off'
-              },
-              'tricare' => {
-                'yes' => @form_data.dig('primaryCaregiver', 'tricareEnrolled') == true ? '1' : 'Off',
-                'no' => @form_data.dig('primaryCaregiver', 'tricareEnrolled') == false ? '2' : 'Off'
-              },
-              'other' => {
-                'yes' => @form_data.dig('primaryCaregiver', 'otherHealthInsuranceName').present?,
-                'no' => @form_data.dig('primaryCaregiver', 'otherHealthInsuranceName').nil? ? '2' : 'Off'
-              }
-            },
-            'address' => {
-              'street' => combine_hash(@form_data['primaryCaregiver']['address'], %w[street street2])
-            },
-            'gender' => {
-              'male' => @form_data['primaryCaregiver']['gender'] == 'M' ? '1' : 'Off',
-              'female' => @form_data['primaryCaregiver']['gender'] == 'F' ? '2' : 'Off'
-            },
-            'signature' => {
-              'name' => combine_full_name(@form_data.dig('primaryCaregiver', 'fullName')),
-              'date' => Time.zone.today.to_s
-            }
-          },
-          'secondaryOneCaregiver' => {
-            'address' => {
-              'street' => combine_hash(@form_data.dig('secondaryOneCaregiver', 'address'), %w[street street2])
-            },
-            'gender' => {
-              'male' => @form_data.dig('secondaryOneCaregiver', 'gender') == 'M' ? '1' : 'Off',
-              'female' => @form_data.dig('secondaryOneCaregiver', 'gender') == 'F' ? '2' : 'Off'
-            },
-            'signature' => {
-              'name' => combine_full_name(@form_data.dig('secondaryOneCaregiver', 'fullName')),
-              'date' => @form_data['secondaryOneCaregiver'].present? ? Time.zone.today.to_s : nil
-            }
-          },
-          'secondaryTwoCaregiver' => {
-            'address' => {
-              'street' => combine_hash(@form_data.dig('secondaryTwoCaregiver', 'address'), %w[street street2])
-            },
-            'gender' => {
-              'male' => @form_data.dig('secondaryTwoCaregiver', 'gender') == 'M' ? '1' : 'Off',
-              'female' => @form_data.dig('secondaryTwoCaregiver', 'gender') == 'F' ? '2' : 'Off'
-            },
-            'signature' => {
-              'name' => combine_full_name(@form_data.dig('secondaryTwoCaregiver', 'fullName')),
-              'date' => @form_data['secondaryTwoCaregiver'].present? ? Time.zone.today.to_s : nil
-            }
-          }
+          'veteran' => {},
+          'primaryCaregiver' => {},
+          'secondaryOneCaregiver' => {},
+          'secondaryTwoCaregiver' => {}
         }
+
+        merge_address_helpers
+        merge_gender_helpers
+        merge_signature_helpers
+
+        merge_primary_caregiver_enrollment_helpers
+        merge_veteran_last_treatment_facility_helper
 
         @form_data
       end
-      # rubocop:enable Metrics/MethodLength, Metrics/PerceivedComplexity, Metrics/CyclomaticComplexity, Metrics/AbcSize
+
+      private
+
+      def merge_address_helpers
+        subjects.each do |subject|
+          @form_data['helpers'][subject]['address'] = {
+            'street' => combine_hash(@form_data.dig(subject, 'address'), %w[street street2])
+          }
+        end
+      end
+
+      def merge_gender_helpers
+        subjects.each do |subject|
+          @form_data['helpers'][subject]['gender'] = {
+            'male' => @form_data.dig(subject, 'gender') == 'M' ? '1' : 'Off',
+            'female' => @form_data.dig(subject, 'gender') == 'F' ? '2' : 'Off'
+          }
+        end
+      end
+
+      def merge_signature_helpers
+        subjects.each do |subject|
+          @form_data['helpers'][subject]['signature'] = {
+            'name' => combine_full_name(@form_data.dig(subject, 'fullName')),
+            'date' => @form_data[subject].present? ? Time.zone.today.to_s : nil
+          }
+        end
+      end
+
+      def subjects
+        %w[veteran primaryCaregiver secondaryOneCaregiver secondaryTwoCaregiver]
+      end
+
+      def merge_primary_caregiver_enrollment_helpers
+        @form_data['helpers']['primaryCaregiver']['enrollments'] = {}
+
+        enrollments = [
+          OpenStruct.new(key: 'medicaid', pointer: 'medicaidEnrolled'),
+          OpenStruct.new(key: 'medicare', pointer: 'medicareEnrolled'),
+          OpenStruct.new(key: 'champva', pointer: 'champvaEnrolled'),
+          OpenStruct.new(key: 'tricare', pointer: 'tricareEnrolled')
+        ]
+
+        enrollments.each do |enrollment|
+          @form_data['helpers']['primaryCaregiver']['enrollments'][enrollment.key] = {
+            'yes' => @form_data.dig('primaryCaregiver', enrollment.pointer) == true ? '1' : 'Off',
+            'no' => @form_data.dig('primaryCaregiver', enrollment.pointer) == false ? '2' : 'Off'
+          }
+        end
+
+        @form_data['helpers']['primaryCaregiver']['enrollments']['other'] = {
+          'yes' => @form_data.dig('primaryCaregiver', 'otherHealthInsuranceName').present?,
+          'no' => @form_data.dig('primaryCaregiver', 'otherHealthInsuranceName').nil? ? '2' : 'Off'
+        }
+      end
+
+      def merge_veteran_last_treatment_facility_helper
+        @form_data['helpers']['veteran']['lastTreatmentFacility'] = {
+          'type' => {
+            'hospital' => @form_data.dig('veteran', 'lastTreatmentFacility', 'type') == 'hospital' ? '2' : 'Off',
+            'clinic' => @form_data.dig('veteran', 'lastTreatmentFacility', 'type') == 'clinic' ? '3' : 'Off'
+          }
+        }
+      end
     end
   end
 end
