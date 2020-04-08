@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 # Note: robust testing for this controller is in spec/request/evss_claims_async_spec.rb
 
 require 'rails_helper'
