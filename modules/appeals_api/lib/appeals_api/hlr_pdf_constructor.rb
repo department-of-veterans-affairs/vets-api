@@ -5,8 +5,34 @@ module AppealsApi
 
     PDF_TEMPLATE = Rails.root.join('modules', 'appeals_api', 'config', 'pdfs')
 
-    def initialize(target_veteran)
-      @target_veteran = target_veteran
+    def initialize(higher_level_review_id)
+      higher_level_review = AppealsApi::HigherLevelReviewSubmission.find(higher_level_review_id)
+      @target_veteran = build_veteran(higher_level_review)
+    end
+
+    def build_veteran(higher_level_review)
+      form_data = higher_level_review.form_data['data']['attributes']
+      included = higher_level_review.form_data['included']
+      auth_headers = higher_level_review.auth_headers
+      OpenStruct.new(
+        first_name: auth_headers['X-VA-First-Name'],
+        middle_name: auth_headers['X-VA-Middle-Initial'],
+        last_name: auth_headers['X-VA-Last-Name'],
+        ssn: auth_headers['X-VA-SSN'],
+        birth_date: auth_headers['X-VA-Birth-Date'],
+        address_line_1: form_data.dig('veteran', 'address', 'addressLine1'),
+        address_line_2: form_data.dig('veteran', 'address', 'addressLine2'),
+        city: form_data.dig('veteran', 'address', 'city'),
+        state: form_data.dig('veteran', 'address', 'stateCode'),
+        country: form_data.dig('veteran', 'address', 'country'),
+        zip: form_data.dig('veteran', 'address', 'zipCode'),
+        zip_last_4: form_data.dig('veteran', 'address', 'zip_last_4'),
+        benefit_type: form_data['benefitType'],
+        same_office: form_data['sameOffice'],
+        informal_conference: form_data['informalConference'],
+        conference_times: form_data['informalConferenceTimes'],
+        issues: included
+      )
     end
 
     def pdf
@@ -69,44 +95,8 @@ module AppealsApi
           pdf.set_field(:"F[0].#subform[3].DateofDecision[#{index - 1}]", issue['attributes']['decisionDate'])
         end
       end
-
-
-      template.save_as("#{@target_veteran.ssn}_#{Time.now.to_i}_200996.pdf", flatten: true)
-
+      pdf.save_as("#{@target_veteran.ssn}_#{Time.now.to_i}_200996.pdf", flatten: true)
     end
-
-    def self.perform(higher_level_review_id)
-      higher_level_review = AppealsApi::HigherLevelReviewSubmission.find(higher_level_review_id)
-      veteran = build_veteran(higher_level_review)
-      constructor = new(veteran)
-      constructor.fill_pdf
-    end
-
-    def self.build_veteran(higher_level_review)
-      form_data = higher_level_review.form_data['data']['attributes']
-      included = higher_level_review.form_data['included']
-      auth_headers = higher_level_review.auth_headers
-      OpenStruct.new(
-        first_name: auth_headers['X-VA-First-Name'],
-        middle_name: auth_headers['X-VA-Middle-Initial'],
-        last_name: auth_headers['X-VA-Last-Name'],
-        ssn: auth_headers['X-VA-SSN'],
-        birth_date: auth_headers['X-VA-Birth-Date'],
-        address_line_1: form_data.dig('veteran', 'address', 'addressLine1'),
-        address_line_2: form_data.dig('veteran', 'address', 'addressLine2'),
-        city: form_data.dig('veteran', 'address', 'city'),
-        state: form_data.dig('veteran', 'address', 'stateCode'),
-        country: form_data.dig('veteran', 'address', 'country'),
-        zip: form_data.dig('veteran', 'address', 'zipCode'),
-        zip_last_4: form_data.dig('veteran', 'address', 'zip_last_4'),
-        benefit_type: form_data['benefitType'],
-        same_office: form_data['sameOffice'],
-        informal_conference: form_data['informalConference'],
-        conference_times: form_data['informalConferenceTimes'],
-        issues: included
-      )
-    end
-
 
   end
 end
