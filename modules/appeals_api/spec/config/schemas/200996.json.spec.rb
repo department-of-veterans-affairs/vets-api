@@ -25,6 +25,8 @@ describe 'VA Form 20-0996 JSON Schema', type: :request do
       {
         type: 'ContestableIssue',
         attributes: {
+          issue: 'tinnitus',
+          decisionDate: '1900-01-01',
           decisionIssueId: 1,
           ratingIssueId: '2',
           ratingDecisionIssueId: '3'
@@ -33,6 +35,8 @@ describe 'VA Form 20-0996 JSON Schema', type: :request do
       {
         type: 'ContestableIssue',
         attributes: {
+          issue: 'left knee',
+          decisionDate: '1900-01-02',
           decisionIssueId: 4,
           ratingIssueId: '5'
         }
@@ -40,6 +44,8 @@ describe 'VA Form 20-0996 JSON Schema', type: :request do
       {
         type: 'ContestableIssue',
         attributes: {
+          issue: 'right knee',
+          decisionDate: '1900-01-03',
           ratingIssueId: '6',
           ratingDecisionIssueId: '7'
         }
@@ -47,21 +53,35 @@ describe 'VA Form 20-0996 JSON Schema', type: :request do
       {
         type: 'ContestableIssue',
         attributes: {
+          issue: 'PTSD',
+          decisionDate: '1900-01-04',
           decisionIssueId: 8,
           ratingDecisionIssueId: '9'
         }
       },
       {
         type: 'ContestableIssue',
-        attributes: { decisionIssueId: 10 }
+        attributes: {
+          issue: 'Traumatic Brain Injury',
+          decisionDate: '1900-01-05',
+          decisionIssueId: 10
+        }
       },
       {
         type: 'ContestableIssue',
-        attributes: { ratingIssueId: '11' }
+        attributes: {
+          issue: 'right shoulder',
+          decisionDate: '1900-01-06',
+          ratingIssueId: '11'
+        }
       },
       {
         type: 'ContestableIssue',
-        attributes: { ratingDecisionIssueId: '12' }
+        attributes: {
+          issue: 'left shoulder',
+          decisionDate: '1900-01-07',
+          ratingDecisionIssueId: '12'
+        }
       }
     ]
   end
@@ -70,10 +90,8 @@ describe 'VA Form 20-0996 JSON Schema', type: :request do
     {
       informalConference: informal_conference,
       sameOffice: same_office,
-      legacyOptInApproved: legacy_opt_in_approved,
       benefitType: benefit_type,
       veteran: veteran,
-      claimant: claimant,
       receiptDate: receipt_date,
       informalConferenceTimes: informal_conference_times,
       informalConferenceRep: informal_conference_rep
@@ -112,13 +130,6 @@ describe 'VA Form 20-0996 JSON Schema', type: :request do
       phoneType: veteran_phone_phone_type
     }
   end
-  let(:claimant) { claimant_template }
-  let(:claimant_template) do
-    {
-      participantId: claimant_participant_id,
-      payeeCode: claimant_payee_code
-    }
-  end
   let(:informal_conference_rep) { informal_conference_rep_template }
   let(:informal_conference_rep_template) do
     {
@@ -140,7 +151,6 @@ describe 'VA Form 20-0996 JSON Schema', type: :request do
   let(:receipt_date) { '2020-02-02' }
   let(:informal_conference) { true }
   let(:same_office) { true }
-  let(:legacy_opt_in_approved) { true }
   let(:veteran_address_address_type) { 'DOMESTIC' }
   let(:veteran_address_address_line1) { '401 Kansas Avenue' }
   let(:veteran_address_address_line2) { 'Unit #724' }
@@ -157,8 +167,6 @@ describe 'VA Form 20-0996 JSON Schema', type: :request do
   let(:veteran_phone_extension) { '2' }
   let(:veteran_phone_phone_type) { 'HOME' }
   let(:veteran_email_address) { 'josie@example.com' }
-  let(:claimant_payee_code) { '10' }
-  let(:claimant_participant_id) { '123' }
   let(:informal_conference_times) { ['1230-1400 ET', '1400-1630 ET'] }
   let(:informal_conference_rep_name) { 'Helen Holly' }
   let(:informal_conference_rep_phone_is_international) { false }
@@ -247,12 +255,11 @@ describe 'VA Form 20-0996 JSON Schema', type: :request do
         end
       end
 
-      context '(with only fields: informalConference, sameOffice, legacyOptInApproved, benefitType)' do
+      context '(with only fields: informalConference, sameOffice, benefitType)' do
         let(:attributes) do
           {
             informalConference: informal_conference,
             sameOffice: same_office,
-            legacyOptInApproved: legacy_opt_in_approved,
             benefitType: benefit_type
           }
         end
@@ -268,9 +275,7 @@ describe 'VA Form 20-0996 JSON Schema', type: :request do
         context 'field absent' do
           let(:data_attributes) { data_attributes_template.except(:veteran) }
 
-          it('has no errors (unless updating phone/address/email, the veteran field should be absent)') do
-            expect(errors).to be_empty
-          end
+          it('HAS ERRORS') { expect(errors).not_to be_empty }
         end
 
         context 'nil' do
@@ -442,22 +447,6 @@ describe 'VA Form 20-0996 JSON Schema', type: :request do
         end
       end
 
-      context 'claimant:' do
-        it('has no errors (participantId and payeeCode are required)') { expect(errors).to be_empty }
-
-        context '(without field: participantId)' do
-          let(:claimant) { claimant_template.except(:participantId) }
-
-          it('HAS ERRORS') { expect(errors).not_to be_empty }
-        end
-
-        context '(without field: payeeCode)' do
-          let(:claimant) { claimant_template.except(:payeeCode) }
-
-          it('HAS ERRORS') { expect(errors).not_to be_empty }
-        end
-      end
-
       context 'informalConferenceTimes:' do
         let(:informal_conference) { true }
         let(:all_time_ranges) do
@@ -537,48 +526,27 @@ describe 'VA Form 20-0996 JSON Schema', type: :request do
           {
             type: 'ContestableIssue',
             attributes: {
+              decisionDate: '2020-01-01',
               decisionIssueId: 1,
               ratingIssueId: '2',
-              ratingDecisionIssueId: '3'
+              ratingDecisionIssueId: '3',
+              issue: 'hello'
             }
           },
           {
             type: 'ContestableIssue',
             attributes: {
+              issue: 'hello',
               ratingDecisionIssueId: '3',
               decisionIssueId: 1,
-              ratingIssueId: '2'
+              ratingIssueId: '2',
+              decisionDate: '2020-01-01'
             }
           }
         ]
       end
 
       it('HAS ERRORS') { expect(errors).not_to be_empty }
-    end
-
-    context 'non-duplicate ContestableIssues' do
-      let(:included) do
-        [
-          {
-            type: 'ContestableIssue',
-            attributes: {
-              ratingDecisionIssueId: '3',
-              decisionIssueId: 1,
-              ratingIssueId: '2'
-            }
-          },
-          {
-            type: 'ContestableIssue',
-            attributes: {
-              ratingDecisionIssueId: '4',
-              decisionIssueId: 1,
-              ratingIssueId: '2'
-            }
-          }
-        ]
-      end
-
-      it('has no errors') { expect(errors).to be_empty }
     end
   end
 end

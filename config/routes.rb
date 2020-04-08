@@ -182,6 +182,10 @@ Rails.application.routes.draw do
       resource :announcement_subscription, only: [:create], controller: 'id_card_announcement_subscription'
     end
 
+    namespace :mdot do
+      resources :supplies, only: %i[create]
+    end
+
     namespace :preneeds do
       resources :cemeteries, only: :index, defaults: { format: :json }
       resources :states, only: :index, defaults: { format: :json }
@@ -203,13 +207,8 @@ Rails.application.routes.draw do
 
     resource :address, only: %i[show update] do
       collection do
-        if Settings.evss&.reference_data_service&.enabled
-          get 'countries', to: 'addresses#rds_countries'
-          get 'states', to: 'addresses#rds_states'
-        else
-          get 'countries', to: 'addresses#countries'
-          get 'states', to: 'addresses#states'
-        end
+        get 'countries', to: 'addresses#countries'
+        get 'states', to: 'addresses#states'
       end
     end
 
