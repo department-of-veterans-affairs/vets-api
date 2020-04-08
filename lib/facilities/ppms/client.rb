@@ -167,7 +167,7 @@ module Facilities
         bbox_num = bbox.map { |x| Float(x) }
 
         lats = bbox_num.values_at(1, 3)
-        longs = bbox_num.values_at(0, 2)
+        longs = bbox_num.values_at(2, 0)
         xlen = (lats.max - lats.min) * 69 / 2
         ylen = (longs.max - longs.min) * 69 / 2
         Math.sqrt(xlen * xlen + ylen * ylen) * 1.1 # go a little bit beyond the corner;
