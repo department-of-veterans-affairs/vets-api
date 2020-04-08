@@ -97,7 +97,8 @@ RSpec.describe V1::SessionsController, type: :controller do
                 .to be_an_idme_saml_url('https://pint.eauth.va.gov/isam/sps/saml20idp/saml20/login?SAMLRequest=')
                 .with_relay_state('originating_request_id' => nil, 'type' => type)
                 .with_params('clientId' => '123123')
-              expect(SAMLRequestTracker.keys.length).to eq(0)
+              expect(SAMLRequestTracker.keys.length).to eq(1)
+              expect(SAMLRequestTracker.find(SAMLRequestTracker.keys[0]).payload).to eq({})
             end
 
             it 'redirects with a forceAuthn' do
@@ -114,7 +115,8 @@ RSpec.describe V1::SessionsController, type: :controller do
                 .to be_an_idme_saml_url('https://pint.eauth.va.gov/isam/sps/saml20idp/saml20/login?SAMLRequest=')
                 .with_relay_state('originating_request_id' => nil, 'type' => type)
                 .with_params('clientId' => '123123')
-              expect(SAMLRequestTracker.keys.length).to eq(0)
+              expect(SAMLRequestTracker.keys.length).to eq(1)
+              expect(SAMLRequestTracker.find(SAMLRequestTracker.keys[0]).payload).to eq({})
             end
 
             it 'persists redirect application' do
@@ -128,6 +130,7 @@ RSpec.describe V1::SessionsController, type: :controller do
                 .with_relay_state('originating_request_id' => nil, 'type' => type)
                 .with_params('clientId' => '123123')
               expect(SAMLRequestTracker.keys.length).to eq(1)
+              expect(SAMLRequestTracker.find(SAMLRequestTracker.keys[0]).payload).to eq({redirect_application: 'https://ehrm-va-test.patientportal.us.healtheintent.com/'})
             end
 
             it 'ignores invalid redirect application' do
@@ -140,7 +143,8 @@ RSpec.describe V1::SessionsController, type: :controller do
                 .to be_an_idme_saml_url('https://pint.eauth.va.gov/isam/sps/saml20idp/saml20/login?SAMLRequest=')
                 .with_relay_state('originating_request_id' => nil, 'type' => type)
                 .with_params('clientId' => '123123')
-              expect(SAMLRequestTracker.keys.length).to eq(0)
+              expect(SAMLRequestTracker.keys.length).to eq(1)
+              expect(SAMLRequestTracker.find(SAMLRequestTracker.keys[0]).payload).to eq({})
             end
           end
         end

@@ -48,7 +48,7 @@ module SAML
 
     # rubocop:disable Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
     def login_redirect_url(auth: 'success', code: nil, saml_uuid: nil)
-      pop_redirect_application(saml_uuid) if saml_uuid
+      @redirect_application = SAMLRequestTracker.safe_payload_attr(saml_uuid, :redirect_application)
 
       return verify_url if auth == 'success' && user.loa[:current] < user.loa[:highest]
 
@@ -156,7 +156,7 @@ module SAML
       new_url_settings = url_settings
       new_url_settings.authn_context = link_authn_context
       saml_auth_request = OneLogin::RubySaml::Authrequest.new
-      create_redirect_application(saml_auth_request.uuid) if @redirect_application
+      create_saml_request_tracker(saml_auth_request.uuid)
       saml_auth_request.create(new_url_settings, query_params)
     end
 
@@ -190,15 +190,9 @@ module SAML
       end
     end
 
-    def create_redirect_application(uuid)
-      SAMLRequestTracker.create(
-        uuid: uuid, payload: {:redirect_application => @redirect_application}
-      )
-    end
-
-    def pop_redirect_application(uuid)
-      payload = SAMLRequestTracker.pop(uuid)&.payload
-      @redirect_application = payload.try(:[], :redirect_application)
+    def create_saml_request_tracker(uuid)
+      payload = @redirect_application ? {redirect_application: @redirect_application} : {}
+      SAMLRequestTracker.create(uuid: uuid, payload: payload)
     end
   end
 end
