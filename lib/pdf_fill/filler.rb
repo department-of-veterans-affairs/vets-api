@@ -11,7 +11,8 @@ module PdfFill
       '21-4142' => PdfFill::Forms::Va214142,
       '21-0781a' => PdfFill::Forms::Va210781a,
       '21-0781' => PdfFill::Forms::Va210781,
-      '21-8940' => PdfFill::Forms::Va218940
+      '21-8940' => PdfFill::Forms::Va218940,
+      '10-10CG' => PdfFill::Forms::Va1010cg
     }.freeze
 
     def combine_extras(old_file_path, extras_generator)
