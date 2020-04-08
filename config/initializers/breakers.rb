@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'appeals/configuration'
+require 'caseflow/configuration'
 require 'breakers/statsd_plugin'
 require 'bb/configuration'
 require 'emis/military_information_configuration'
@@ -33,7 +33,7 @@ redis = Redis.new(redis_config['redis'])
 redis_namespace = Redis::Namespace.new('breakers', redis: redis)
 
 services = [
-  Appeals::Configuration.instance.breakers_service,
+  Caseflow::Configuration.instance.breakers_service,
   Rx::Configuration.instance.breakers_service,
   BB::Configuration.instance.breakers_service,
   EMIS::MilitaryInformationConfiguration.instance.breakers_service,
