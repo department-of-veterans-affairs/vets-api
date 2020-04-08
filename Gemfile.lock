@@ -495,7 +495,7 @@ GEM
       activerecord (>= 4.2)
       request_store (~> 1.1)
     parallel (1.19.1)
-    parser (2.7.0.5)
+    parser (2.7.1.0)
       ast (~> 2.4.0)
     pdf-core (0.7.0)
     pdf-forms (1.2.0)
@@ -707,7 +707,7 @@ GEM
       activesupport (>= 4.0)
       sprockets (>= 3.0.0)
     staccato (0.5.3)
-    statsd-instrument (2.9.2)
+    statsd-instrument (2.6.0)
     swagger-blocks (3.0.0)
     terminal-table (1.8.0)
       unicode-display_width (~> 1.1, >= 1.1.1)
@@ -890,7 +890,7 @@ DEPENDENCIES
   spring
   spring-commands-rspec
   staccato
-  statsd-instrument
+  statsd-instrument (~> 2.6.0)
   swagger-blocks
   timecop
   typhoeus
