@@ -156,7 +156,10 @@ module PdfFill
           'veteran' => {
             'address' => {
               'street' => {
-                key: PDF_INPUT_LOCATIONS.veteran[:address][:street]
+                key: PDF_INPUT_LOCATIONS.veteran[:address][:street],
+                limit: 80,
+                question_num: 7,
+                question_text: 'VETERAN/SERVICEMEMBER > Address > Street'
               }
             },
             'gender' => {
@@ -232,7 +235,10 @@ module PdfFill
             },
             'address' => {
               'street' => {
-                key: PDF_INPUT_LOCATIONS.primaryCaregiver[:address][:street]
+                key: PDF_INPUT_LOCATIONS.primaryCaregiver[:address][:street],
+                limit: 80,
+                question_num: 25,
+                question_text: 'PRIMARY FAMILY CAREGIVER > Address > Street'
               }
             },
             'gender' => {
@@ -256,7 +262,10 @@ module PdfFill
           'secondaryOneCaregiver' => {
             'address' => {
               'street' => {
-                key: PDF_INPUT_LOCATIONS.secondaryOneCaregiver[:address][:street]
+                key: PDF_INPUT_LOCATIONS.secondaryOneCaregiver[:address][:street],
+                limit: 80,
+                question_num: 48,
+                question_text: 'SECONDARY FAMILY CAREGIVER (1) > Address > Street'
               }
             },
             'gender' => {
@@ -280,7 +289,10 @@ module PdfFill
           'secondaryTwoCaregiver' => {
             'address' => {
               'street' => {
-                key: PDF_INPUT_LOCATIONS.secondaryTwoCaregiver[:address][:street]
+                key: PDF_INPUT_LOCATIONS.secondaryTwoCaregiver[:address][:street],
+                limit: 80,
+                question_num: 65,
+                question_text: 'SECONDARY FAMILY CAREGIVER (2) > Address > Street'
               }
             },
             'gender' => {
@@ -306,13 +318,22 @@ module PdfFill
         'veteran' => {
           'fullName' => {
             'last' => {
-              key: PDF_INPUT_LOCATIONS.veteran[:name][:last]
+              key: PDF_INPUT_LOCATIONS.veteran[:name][:last],
+              limit: 29,
+              question_num: 1,
+              question_text: 'VETERAN/SERVICEMEMBER > Last Name'
             },
             'first' => {
-              key: PDF_INPUT_LOCATIONS.veteran[:name][:first]
+              key: PDF_INPUT_LOCATIONS.veteran[:name][:first],
+              limit: 29,
+              question_num: 2,
+              question_text: 'VETERAN/SERVICEMEMBER > First Name'
             },
             'middle' => {
-              key: PDF_INPUT_LOCATIONS.veteran[:name][:middle]
+              key: PDF_INPUT_LOCATIONS.veteran[:name][:middle],
+              limit: 29,
+              question_num: 3,
+              question_text: 'VETERAN/SERVICEMEMBER > Middle Name'
             }
           },
           'ssnOrTin' => {
@@ -324,13 +345,22 @@ module PdfFill
           },
           'address' => {
             'city' => {
-              key: PDF_INPUT_LOCATIONS.veteran[:address][:city]
+              key: PDF_INPUT_LOCATIONS.veteran[:address][:city],
+              limit: 29,
+              question_num: 8,
+              question_text: 'VETERAN/SERVICEMEMBER > Address > City'
             },
             'state' => {
-              key: PDF_INPUT_LOCATIONS.veteran[:address][:state]
+              key: PDF_INPUT_LOCATIONS.veteran[:address][:state],
+              limit: 29,
+              question_num: 9,
+              question_text: 'VETERAN/SERVICEMEMBER > Address > State'
             },
             'postalCode' => {
-              key: PDF_INPUT_LOCATIONS.veteran[:address][:zip]
+              key: PDF_INPUT_LOCATIONS.veteran[:address][:zip],
+              limit: 29,
+              question_num: 10,
+              question_text: 'VETERAN/SERVICEMEMBER > Address > Zip Code'
             }
           },
           'primaryPhoneNumber' => {
@@ -340,27 +370,42 @@ module PdfFill
             key: PDF_INPUT_LOCATIONS.veteran[:alternative_phone]
           },
           'email' => {
-            key: PDF_INPUT_LOCATIONS.veteran[:email]
+            key: PDF_INPUT_LOCATIONS.veteran[:email],
+            limit: 79,
+            question_num: 13,
+            question_text: 'VETERAN/SERVICEMEMBER > Email'
           },
           'plannedClinic' => {
             key: PDF_INPUT_LOCATIONS.veteran[:planned_clinic]
           },
           'lastTreatmentFacility' => {
             'name' => {
-              key: PDF_INPUT_LOCATIONS.veteran[:last_treatment_facility][:name]
+              key: PDF_INPUT_LOCATIONS.veteran[:last_treatment_facility][:name],
+              limit: 72,
+              question_num: 16,
+              question_text: 'VETERAN/SERVICEMEMBER > Last Treatment Facility > Name'
             }
           }
         },
         'primaryCaregiver' => {
           'fullName' => {
             'last' => {
-              key: PDF_INPUT_LOCATIONS.primaryCaregiver[:name][:last]
+              key: PDF_INPUT_LOCATIONS.primaryCaregiver[:name][:last],
+              limit: 29,
+              question_num: 19,
+              question_text: 'PRIMARY FAMILY CAREGIVER > Last Name'
             },
             'first' => {
-              key: PDF_INPUT_LOCATIONS.primaryCaregiver[:name][:first]
+              key: PDF_INPUT_LOCATIONS.primaryCaregiver[:name][:first],
+              limit: 29,
+              question_num: 20,
+              question_text: 'PRIMARY FAMILY CAREGIVER > First Name'
             },
             'middle' => {
-              key: PDF_INPUT_LOCATIONS.primaryCaregiver[:name][:middle]
+              key: PDF_INPUT_LOCATIONS.primaryCaregiver[:name][:middle],
+              limit: 29,
+              question_num: 21,
+              question_text: 'PRIMARY FAMILY CAREGIVER > Middle Name'
             }
           },
           'ssnOrTin' => {
@@ -372,13 +417,22 @@ module PdfFill
           },
           'address' => {
             'city' => {
-              key: PDF_INPUT_LOCATIONS.primaryCaregiver[:address][:city]
+              key: PDF_INPUT_LOCATIONS.primaryCaregiver[:address][:city],
+              limit: 29,
+              question_num: 26,
+              question_text: 'PRIMARY FAMILY CAREGIVER > Address > City'
             },
             'state' => {
-              key: PDF_INPUT_LOCATIONS.primaryCaregiver[:address][:state]
+              key: PDF_INPUT_LOCATIONS.primaryCaregiver[:address][:state],
+              limit: 29,
+              question_num: 27,
+              question_text: 'PRIMARY FAMILY CAREGIVER > Address > State'
             },
             'postalCode' => {
-              key: PDF_INPUT_LOCATIONS.primaryCaregiver[:address][:zip]
+              key: PDF_INPUT_LOCATIONS.primaryCaregiver[:address][:zip],
+              limit: 29,
+              question_num: 28,
+              question_text: 'PRIMARY FAMILY CAREGIVER > Address > Zip Code'
             }
           },
           'primaryPhoneNumber' => {
@@ -388,25 +442,40 @@ module PdfFill
             key: PDF_INPUT_LOCATIONS.primaryCaregiver[:alternative_phone]
           },
           'email' => {
-            key: PDF_INPUT_LOCATIONS.primaryCaregiver[:email]
+            key: PDF_INPUT_LOCATIONS.primaryCaregiver[:email],
+            limit: 45,
+            question_num: 31,
+            question_text: 'PRIMARY FAMILY CAREGIVER > Email'
           },
           'vetRelationship' => {
             key: PDF_INPUT_LOCATIONS.primaryCaregiver[:vet_relationship]
           },
           'otherHealthInsuranceName' => {
-            key: PDF_INPUT_LOCATIONS.primaryCaregiver[:other_health_insurance_name]
+            key: PDF_INPUT_LOCATIONS.primaryCaregiver[:other_health_insurance_name],
+            limit: 49,
+            question_num: 38,
+            question_text: 'PRIMARY FAMILY CAREGIVER > Other Health Insurance > Name'
           }
         },
         'secondaryOneCaregiver' => {
           'fullName' => {
             'last' => {
-              key: PDF_INPUT_LOCATIONS.secondaryOneCaregiver[:name][:last]
+              key: PDF_INPUT_LOCATIONS.secondaryOneCaregiver[:name][:last],
+              limit: 29,
+              question_num: 42,
+              question_text: 'SECONDARY FAMILY CAREGIVER (1) > Last Name'
             },
             'first' => {
-              key: PDF_INPUT_LOCATIONS.secondaryOneCaregiver[:name][:first]
+              key: PDF_INPUT_LOCATIONS.secondaryOneCaregiver[:name][:first],
+              limit: 29,
+              question_num: 43,
+              question_text: 'SECONDARY FAMILY CAREGIVER (1) > First Name'
             },
             'middle' => {
-              key: PDF_INPUT_LOCATIONS.secondaryOneCaregiver[:name][:middle]
+              key: PDF_INPUT_LOCATIONS.secondaryOneCaregiver[:name][:middle],
+              limit: 29,
+              question_num: 44,
+              question_text: 'SECONDARY FAMILY CAREGIVER (1) > Middle Name'
             }
           },
           'ssnOrTin' => {
@@ -418,13 +487,22 @@ module PdfFill
           },
           'address' => {
             'city' => {
-              key: PDF_INPUT_LOCATIONS.secondaryOneCaregiver[:address][:city]
+              key: PDF_INPUT_LOCATIONS.secondaryOneCaregiver[:address][:city],
+              limit: 29,
+              question_num: 49,
+              question_text: 'SECONDARY FAMILY CAREGIVER (1) > Address > City'
             },
             'state' => {
-              key: PDF_INPUT_LOCATIONS.secondaryOneCaregiver[:address][:state]
+              key: PDF_INPUT_LOCATIONS.secondaryOneCaregiver[:address][:state],
+              limit: 29,
+              question_num: 50,
+              question_text: 'SECONDARY FAMILY CAREGIVER (1) > Address > State'
             },
             'postalCode' => {
-              key: PDF_INPUT_LOCATIONS.secondaryOneCaregiver[:address][:zip]
+              key: PDF_INPUT_LOCATIONS.secondaryOneCaregiver[:address][:zip],
+              limit: 29,
+              question_num: 51,
+              question_text: 'SECONDARY FAMILY CAREGIVER (1) > Address > Zip Code'
             }
           },
           'primaryPhoneNumber' => {
@@ -434,7 +512,10 @@ module PdfFill
             key: PDF_INPUT_LOCATIONS.secondaryOneCaregiver[:alternative_phone]
           },
           'email' => {
-            key: PDF_INPUT_LOCATIONS.secondaryOneCaregiver[:email]
+            key: PDF_INPUT_LOCATIONS.secondaryOneCaregiver[:email],
+            limit: 45,
+            question_num: 54,
+            question_text: 'SECONDARY FAMILY CAREGIVER (1) > Email'
           },
           'vetRelationship' => {
             key: PDF_INPUT_LOCATIONS.secondaryOneCaregiver[:vet_relationship]
@@ -443,13 +524,22 @@ module PdfFill
         'secondaryTwoCaregiver' => {
           'fullName' => {
             'last' => {
-              key: PDF_INPUT_LOCATIONS.secondaryTwoCaregiver[:name][:last]
+              key: PDF_INPUT_LOCATIONS.secondaryTwoCaregiver[:name][:last],
+              limit: 29,
+              question_num: 59,
+              question_text: 'SECONDARY FAMILY CAREGIVER (2) > Last Name'
             },
             'first' => {
-              key: PDF_INPUT_LOCATIONS.secondaryTwoCaregiver[:name][:first]
+              key: PDF_INPUT_LOCATIONS.secondaryTwoCaregiver[:name][:first],
+              limit: 29,
+              question_num: 60,
+              question_text: 'SECONDARY FAMILY CAREGIVER (2) > First Name'
             },
             'middle' => {
-              key: PDF_INPUT_LOCATIONS.secondaryTwoCaregiver[:name][:middle]
+              key: PDF_INPUT_LOCATIONS.secondaryTwoCaregiver[:name][:middle],
+              limit: 29,
+              question_num: 61,
+              question_text: 'SECONDARY FAMILY CAREGIVER (2) > Middle Name'
             }
           },
           'ssnOrTin' => {
@@ -461,13 +551,22 @@ module PdfFill
           },
           'address' => {
             'city' => {
-              key: PDF_INPUT_LOCATIONS.secondaryTwoCaregiver[:address][:city]
+              key: PDF_INPUT_LOCATIONS.secondaryTwoCaregiver[:address][:city],
+              limit: 29,
+              question_num: 66,
+              question_text: 'SECONDARY FAMILY CAREGIVER (2) > Address > City'
             },
             'state' => {
-              key: PDF_INPUT_LOCATIONS.secondaryTwoCaregiver[:address][:state]
+              key: PDF_INPUT_LOCATIONS.secondaryTwoCaregiver[:address][:state],
+              limit: 29,
+              question_num: 67,
+              question_text: 'SECONDARY FAMILY CAREGIVER (2) > Address > State'
             },
             'postalCode' => {
-              key: PDF_INPUT_LOCATIONS.secondaryTwoCaregiver[:address][:zip]
+              key: PDF_INPUT_LOCATIONS.secondaryTwoCaregiver[:address][:zip],
+              limit: 29,
+              question_num: 68,
+              question_text: 'SECONDARY FAMILY CAREGIVER (2) > Address > Zip'
             }
           },
           'primaryPhoneNumber' => {
@@ -477,7 +576,10 @@ module PdfFill
             key: PDF_INPUT_LOCATIONS.secondaryTwoCaregiver[:alternative_phone]
           },
           'email' => {
-            key: PDF_INPUT_LOCATIONS.secondaryTwoCaregiver[:email]
+            key: PDF_INPUT_LOCATIONS.secondaryTwoCaregiver[:email],
+            limit: 45,
+            question_num: 71,
+            question_text: 'SECONDARY FAMILY CAREGIVER (2) > Email'
           },
           'vetRelationship' => {
             key: PDF_INPUT_LOCATIONS.secondaryTwoCaregiver[:vet_relationship]
