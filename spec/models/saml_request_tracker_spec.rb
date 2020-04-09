@@ -3,12 +3,11 @@
 require 'rails_helper'
 
 RSpec.describe SAMLRequestTracker, type: :model do
-
   describe '#save' do
     it 'sets created_at when missing' do
       Timecop.freeze(Time.zone.parse('2020-01-01T08:00:00Z'))
       tracker = SAMLRequestTracker.create(uuid: 1, payload: {})
-      expect(tracker.created_at).to eq(1577865600)
+      expect(tracker.created_at).to eq(1_577_865_600)
     end
 
     it 'leaves created_at untouched when already set' do
@@ -34,7 +33,7 @@ RSpec.describe SAMLRequestTracker, type: :model do
     end
 
     it 'finds payload attribute' do
-      tracker = SAMLRequestTracker.new(payload: {x: 'ok'})
+      tracker = SAMLRequestTracker.new(payload: { x: 'ok' })
       expect(tracker.payload_attr(:x)).to eq('ok')
     end
   end
