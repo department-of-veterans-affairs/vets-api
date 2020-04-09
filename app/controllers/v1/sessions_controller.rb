@@ -221,7 +221,7 @@ module V1
       obscure_token = Session.obscure_token(@session_object.token)
       Rails.logger.info("Logged in user with id #{@session_object.uuid}, token #{obscure_token}")
       # We want to log when SSNs do not match between MVI and SAML Identity. And might take future
-      # action if this appears to be happening frquently.
+      # action if this appears to be happening frequently.
       if current_user.ssn_mismatch?
         additional_context = StringHelpers.heuristics(current_user.identity.ssn, current_user.va_profile.ssn)
         log_message_to_sentry('SSNS DO NOT MATCH!!', :warn, identity_compared_with_mvi: additional_context)
