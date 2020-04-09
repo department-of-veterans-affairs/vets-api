@@ -16,6 +16,7 @@ module V1
     STATSD_LOGIN_NEW_USER_KEY = 'api.auth.new_user'
     STATSD_LOGIN_STATUS = 'api.auth.login'
     STATSD_LOGIN_SHARED_COOKIE = 'api.auth.sso_shared_cookie'
+    STATSD_LOGIN_LATENCY = 'api.auth.latency'
 
     VERSION_TAG = 'version:v1'
 
@@ -131,12 +132,12 @@ module V1
         @current_user, @session_object = user_session_form.persist
         set_cookies
         after_login_actions
-        redirect_to url_service.login_redirect_url(saml_uuid: user_session_form.saml_uuid)
+        redirect_to url_service(previous_saml_uuid: user_session_form.saml_uuid).login_redirect_url
         if location.start_with?(url_service.base_redirect_url)
           # only record success stats if the user is being redirect to the site
           # some users will need to be up-leveled and this will be redirected
           # back to the identity provider
-          login_stats(:success, saml_response)
+          login_stats(:success, saml_response, user_session_form)
         end
       else
         log_message_to_sentry(
@@ -159,18 +160,25 @@ module V1
       end
     end
 
+    def success_stat_tags(saml_response, **tags)
+      [
+        'status:success',
+        "loa:#{@current_user.loa[:current]}",
+        "idp:#{@current_user.identity.sign_in[:service_name]}",
+        "context:#{saml_response.authn_context}",
+        VERSION_TAG
+      ] + tags
+    end
+
     def login_stats(status, saml_response, user_session_form = nil)
+      tracker = url_service(previous_saml_uuid: user_session_form&.saml_uuid).tracker
       case status
       when :success
         StatsD.increment(STATSD_LOGIN_NEW_USER_KEY, tags: [VERSION_TAG]) if request_type == 'signup'
         # track users who have a shared sso cookie
-        StatsD.increment(STATSD_LOGIN_SHARED_COOKIE,
-                         tags: ["loa:#{@current_user.loa[:current]}",
-                                "idp:#{@current_user.identity.sign_in[:service_name]}", VERSION_TAG])
-        StatsD.increment(STATSD_LOGIN_STATUS,
-                         tags: ['status:success',
-                                "idp:#{@current_user.identity.sign_in[:service_name]}",
-                                "context:#{saml_response.authn_context}", VERSION_TAG])
+        StatsD.increment(STATSD_LOGIN_SHARED_COOKIE, tags: success_stat_tags)
+        StatsD.increment(STATSD_LOGIN_STATUS, tags: success_stat_tags)
+        StatsD.measure(STATSD_LOGIN_LATENCY, tracker.age, tags: success_stat_tags)
         callback_stats(:success, saml_response)
       when :failure
         StatsD.increment(STATSD_LOGIN_STATUS,
@@ -186,10 +194,7 @@ module V1
     def callback_stats(status, saml_response = nil, failure_tag = nil)
       case status
       when :success
-        StatsD.increment(STATSD_SSO_CALLBACK_KEY,
-                         tags: ['status:success',
-                                "context:#{saml_response.authn_context}",
-                                VERSION_TAG])
+        StatsD.increment(STATSD_SSO_CALLBACK_KEY, tags: success_stat_tags)
         # track users who have a shared sso cookie
       when :failure
         StatsD.increment(STATSD_SSO_CALLBACK_KEY,
@@ -240,9 +245,13 @@ module V1
       'UNKNOWN'
     end
 
-    def url_service
-      SAML::URLService.new(saml_settings, session: @session_object, user: current_user,
-                                          params: params, loa3_context: LOA::IDME_LOA3)
+    def url_service(previous_saml_uuid: nil)
+      SAML::URLService.new(saml_settings,
+                           session: @session_object,
+                           user: current_user,
+                           params: params,
+                           loa3_context: LOA::IDME_LOA3,
+                           previous_saml_uuid: previous_saml_uuid)
     end
   end
 end

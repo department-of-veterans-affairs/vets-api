@@ -17,9 +17,11 @@ module SAML
     LOGIN_REDIRECT_PARTIAL = '/auth/login/callback'
     LOGOUT_REDIRECT_PARTIAL = '/logout/'
 
-    attr_reader :saml_settings, :session, :user, :authn_context, :type, :query_params, :redirect_application
+    attr_reader :saml_settings, :session, :user, :authn_context, :type, :query_params, :tracker
 
-    def initialize(saml_settings, session: nil, user: nil, params: {}, loa3_context: LOA::IDME_LOA3_VETS)
+    # rubocop:disable Metrics/ParameterLists
+    def initialize(saml_settings, session: nil, user: nil, params: {},
+                   loa3_context: LOA::IDME_LOA3_VETS, previous_saml_uuid: nil)
       unless %w[new saml_callback saml_logout_callback ssoe_slo_callback].include?(params[:action])
         raise Common::Exceptions::RoutingError, params[:path]
       end
@@ -36,10 +38,9 @@ module SAML
       Raven.extra_context(params: params)
       Raven.user_context(session: session, user: user)
       initialize_query_params(params)
-      # the optional redirect_application is used to determine where to redirect
-      # the user to after a successful login
-      @redirect_application = Settings.ssoe.redirects[params[:application]]
+      initialize_tracker(params, previous_saml_uuid: previous_saml_uuid)
     end
+    # rubocop:enable Metrics/ParameterLists
 
     # REDIRECT_URLS
     def base_redirect_url
@@ -47,12 +48,10 @@ module SAML
     end
 
     # rubocop:disable Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
-    def login_redirect_url(auth: 'success', code: nil, saml_uuid: nil)
-      @redirect_application = SAMLRequestTracker.safe_payload_attr(saml_uuid, :redirect_application)
-
+    def login_redirect_url(auth: 'success', code: nil)
       return verify_url if auth == 'success' && user.loa[:current] < user.loa[:highest]
 
-      return @redirect_application if @redirect_application
+      return @tracker&.payload_attr(:redirect) if @tracker&.payload_attr(:redirect)
 
       @query_params[:type] = type if type
       @query_params[:auth] = auth if auth == 'fail'
@@ -156,7 +155,7 @@ module SAML
       new_url_settings = url_settings
       new_url_settings.authn_context = link_authn_context
       saml_auth_request = OneLogin::RubySaml::Authrequest.new
-      create_saml_request_tracker(saml_auth_request.uuid)
+      save_saml_request_tracker(saml_auth_request.uuid)
       saml_auth_request.create(new_url_settings, query_params)
     end
 
@@ -190,9 +189,23 @@ module SAML
       end
     end
 
-    def create_saml_request_tracker(uuid)
-      payload = @redirect_application ? {redirect_application: @redirect_application} : {}
-      SAMLRequestTracker.create(uuid: uuid, payload: payload)
+    # Initialize a new SAMLRequestTracker, if a valid previous SAML UUID is
+    # given, copy over the redirect and created_at timestamp.  This is useful
+    # for a user that has to go through the upleveling process.
+    def initialize_tracker(params, previous_saml_uuid: nil)
+      previous = previous_saml_uuid && SAMLRequestTracker.find(previous_saml_uuid)
+      redirect = previous&.payload_attr(:redirect) || Settings.ssoe.redirects[params[:application]]
+      # if created_at is set to nil (meaning no previous tracker to use), it
+      # will be initialized to the current time when it is saved
+      @tracker = SAMLRequestTracker.new(
+        payload: redirect ? { redirect: redirect } : {},
+        created_at: previous&.created_at
+      )
+    end
+
+    def save_saml_request_tracker(uuid)
+      @tracker.uuid = uuid
+      @tracker.save
     end
   end
 end

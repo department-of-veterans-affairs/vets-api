@@ -130,7 +130,7 @@ RSpec.describe V1::SessionsController, type: :controller do
                 .with_relay_state('originating_request_id' => nil, 'type' => type)
                 .with_params('clientId' => '123123')
               expect(SAMLRequestTracker.keys.length).to eq(1)
-              expect(SAMLRequestTracker.find(SAMLRequestTracker.keys[0]).payload).to eq({redirect_application: 'https://ehrm-va-test.patientportal.us.healtheintent.com/'})
+              expect(SAMLRequestTracker.find(SAMLRequestTracker.keys[0]).payload).to eq({redirect: 'https://ehrm-va-test.patientportal.us.healtheintent.com/'})
             end
 
             it 'ignores invalid redirect application' do
@@ -205,7 +205,7 @@ RSpec.describe V1::SessionsController, type: :controller do
       it 'redirect user to external site' do
         SAMLRequestTracker.create(
           uuid: login_uuid,
-          payload: {redirect_application: Settings.ssoe.redirects['myvahealth']}
+          payload: {redirect: Settings.ssoe.redirects['myvahealth']}
         )
         allow(SAML::User).to receive(:new).and_return(saml_user)
         expect(post(:saml_callback)).to redirect_to(Settings.ssoe.redirects['myvahealth'])
