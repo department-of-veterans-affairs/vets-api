@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 
-require_dependency 'claims_api/json_marshal'
 require_dependency 'claims_api/concerns/file_data'
 
 module ClaimsApi
