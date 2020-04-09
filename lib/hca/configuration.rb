@@ -17,13 +17,6 @@ module HCA
       'HCA'
     end
 
-    # Allow connection to be used without certificates present
-    # SSL configuration provided by fwdproxy
-    # @return [Boolean]
-    def allow_missing_certs?
-      true
-    end
-
     def connection
       Faraday.new(base_path, headers: base_request_headers, request: request_options) do |conn|
         conn.use :breakers
