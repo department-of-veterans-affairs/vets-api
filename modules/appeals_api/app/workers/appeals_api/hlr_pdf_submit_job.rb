@@ -11,7 +11,7 @@ module AppealsApi
       pdf_constructor = AppealsApi::HlrPdfConstructor.new(higher_level_review_id)
       pdf_constructor.fill_pdf
       # set status to pending upload
-      HigherLevelReview.update(higher_level_review_id, status: 'pending_upload')
+      HigherLevelReview.update(higher_level_review_id, status: 'proccessing')
       # send to central mail
     end
   end
