@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+require 'sidekiq/api'
 
 Sidekiq::Enterprise.unique! if Rails.env.production?
 
@@ -17,7 +18,7 @@ Sidekiq.configure_server do |config|
   config.server_middleware do |chain|
     chain.remove Sidekiq::Middleware::Server::Logging
     chain.add Sidekiq::SemanticLogging
-    chain.add Sidekiq::Instrument::ServerMiddleware
+    # chain.add Sidekiq::Middleware::Server::Statsd # TODO add this in
     chain.add Sidekiq::ErrorTag
   end
 
@@ -30,7 +31,6 @@ Sidekiq.configure_client do |config|
   config.redis = REDIS_CONFIG['redis']
 
   config.client_middleware do |chain|
-    chain.add Sidekiq::Instrument::ClientMiddleware
     chain.add Sidekiq::SetRequestId
     chain.add Sidekiq::SetRequestAttributes
   end

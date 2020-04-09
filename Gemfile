@@ -99,7 +99,7 @@ gem 'rubyzip', '>= 1.3.0'
 gem 'savon'
 gem 'sentry-raven', '2.9.0' # don't change gem version unless sentry server is also upgraded
 gem 'shrine'
-gem 'sidekiq-instrument'
+# gem 'sidekiq-instrument'
 gem 'staccato'
 gem 'statsd-instrument', '~> 2.6.0'
 gem 'swagger-blocks'
