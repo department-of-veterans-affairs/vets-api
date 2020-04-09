@@ -123,7 +123,7 @@ ihub:
 # Settings for Medical Devices Ordering Tool
 mdot:
   prefill: true
-  url: https://dlc-fake.fake.com
+  url: https://dlc-dummy.herokuapp.com
   api_key: abcd1234abcd1234abcd1234abcd1234abcd1234
   mock: false
   enabled: false
@@ -317,6 +317,7 @@ appeals:
   mock: true
   app_token: PUBLICDEMO123
   host: https://dsva-appeals-certification-dev-1895622301.us-gov-west-1.elb.amazonaws.com
+  schema_dir: config/schemas
 
 vic:
   url: https://some.fakesite.com
@@ -454,6 +455,7 @@ flipper:
   admin_user_emails:
     - alastair@adhocteam.us
     - anna@adhoc.team
+    - eric.buckley@adhocteam.us
     - erik@adhocteam.us
     - jbalboni@gmail.com
     - jeff@adhocteam.us
@@ -465,6 +467,7 @@ flipper:
     - n.ratana@gmail.com
     - narin@adhocteam.us
     - osanchez@governmentcio.com
+    - patrick@adhocteam.us
     - rian.fowler@adhoc.team
     - rianfowler@outlook.com
     - ryan.thurlwell@va.gov

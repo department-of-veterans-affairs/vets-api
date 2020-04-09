@@ -30,7 +30,7 @@ module ClaimsApi
                   items do
                     key :type, :object
                     key :description, 'Returning Variety of JSON and UI Schema Objects'
-                    key :example, ClaimsApi::FormSchemas::SCHEMAS['2122']
+                    key :example, ClaimsApi::FormSchemas.new.schemas['2122']
                   end
                 end
               end

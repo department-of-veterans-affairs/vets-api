@@ -38,9 +38,13 @@ module V0
       if params[:id] == VA526ez::FORM_ID
         if @current_user.participant_id.nil?
           # Add person to MVI if missing participant_id (no matter if birls_id present or absent)
-          @current_user.mvi.mvi_add_person
+          add_response = @current_user.mvi.mvi_add_person
+          raise add_response.error unless add_response.ok?
         elsif @current_user.birls_id.nil?
-          raise Common::Exceptions::ValidationErrors, 'No birls_id while participant_id present'
+          raise Common::Exceptions::UnprocessableEntity.new(
+            detail: 'No birls_id while participant_id present',
+            source: 'InProgressFormsController'
+          )
         end
       end
     end

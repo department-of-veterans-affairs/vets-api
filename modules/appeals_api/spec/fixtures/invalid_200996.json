@@ -1,0 +1,18 @@
+{
+  "data": {
+    "type": "HigherLevelReview",
+    "attributes": {
+      "sameOffice": false,
+      "legacyOptInApproved": true,
+      "benefitType": "compensation"
+    }
+  },
+  "included": [
+    {
+      "type": "ContestableIssue",
+      "attributes": {
+        "decisionIssueId": 205
+      }
+    }
+  ]
+}

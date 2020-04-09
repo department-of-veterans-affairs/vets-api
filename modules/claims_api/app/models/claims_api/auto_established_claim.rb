@@ -21,6 +21,7 @@ module ClaimsApi
                                requested_decision va_representative].freeze
 
     before_validation :set_md5
+    after_validation :remove_encrypted_fields, on: [:update]
     validates :md5, uniqueness: true
 
     EVSS_CLAIM_ATTRIBUTES.each do |attribute|
@@ -79,6 +80,16 @@ module ClaimsApi
 
     def uploader
       @uploader ||= ClaimsApi::SupportingDocumentUploader.new(id)
+    end
+
+    private
+
+    def remove_encrypted_fields
+      if status == ESTABLISHED
+        self.form_data = {}
+        self.auth_headers = {}
+        self.file_data = nil
+      end
     end
   end
 end

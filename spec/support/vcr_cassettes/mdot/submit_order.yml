@@ -1,0 +1,55 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: https://dlc-dummy.herokuapp.com/supplies
+    body:
+      encoding: UTF-8
+      string: '{"use_permanent_address":true,"use_temporary_address":false,"additional_requests":"","order":[{"product_id":"1"},{"product_id":"4"}],"permanent_address":{"street":"101
+        Example Street","street2":"Apt 2","city":"Kansas City","state":"MO","country":"USA","postal_code":"64117"}}'
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Va-Api-Key:
+      - "<MDOT_KEY>"
+      Va-Veteran-Id:
+      - '0237'
+      Va-Veteran-Birth-Date:
+      - '1991-04-05'
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Server:
+      - Cowboy
+      Date:
+      - Tue, 31 Mar 2020 14:32:35 GMT
+      Connection:
+      - keep-alive
+      Content-Type:
+      - application/json; charset=utf-8
+      Etag:
+      - W/"570535d1150e372663eb30ca87a98047"
+      Cache-Control:
+      - max-age=0, private, must-revalidate
+      X-Request-Id:
+      - 774129c4-c7f3-401f-893b-9368f526cb46
+      X-Runtime:
+      - '0.007192'
+      Transfer-Encoding:
+      - chunked
+      Via:
+      - 1.1 vegur
+    body:
+      encoding: UTF-8
+      string: '{"status":"success","order_id":"4eb9e4a5-1fd1-4a47-8a45-fe4f28466dde"}'
+    http_version: null
+  recorded_at: Tue, 31 Mar 2020 14:32:36 GMT
+recorded_with: VCR 5.1.0

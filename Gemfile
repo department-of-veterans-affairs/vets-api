@@ -2,7 +2,7 @@
 
 source 'https://rubygems.org'
 
-ruby '2.6.5'
+ruby '2.6.6'
 
 # Modules
 gem 'appeals_api', path: 'modules/appeals_api'
@@ -159,6 +159,7 @@ group :development, :test do
   gem 'rack-test', require: 'rack/test'
   gem 'rack-vcr'
   gem 'rainbow' # Used to colorize output for rake tasks
+  gem 'rspec-instrumentation-matcher'
   gem 'rspec-rails', '~> 3.5'
   gem 'rubocop', require: false
   gem 'rubocop-rails'

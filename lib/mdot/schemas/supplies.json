@@ -26,7 +26,7 @@
       }
     },
     "temporary_address": {
-      "type": "object",
+      "type": ["object", "null"],
       "street": {
         "type": "string"
       },
@@ -54,7 +54,7 @@
         "required": ["product_id"],
         "properties": {
           "device_name": {
-            "type": "string"
+            "type": ["string", "null"]
           },
           "product_name": {
             "type": "string"
@@ -78,7 +78,7 @@
             "type": "integer"
           },
           "size": {
-            "type": "string"
+            "type": ["string", "null"]
           }
         }
       }
