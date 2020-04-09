@@ -8,7 +8,7 @@ require 'common/models/redis_store'
 # For example, one use case would be for users logging in via SSOe that need
 # to be redirected back to an external application after authentication, rather
 # than the VA.gov home page. When a authentication request comes in, with the
-# necessary parameter, we can use this Redis namespace to temporarily store a 
+# necessary parameter, we can use this Redis namespace to temporarily store a
 # redirect url value so that when a matching SAML response comes back from SSOe
 # we know where to redirect the newly authenticated user.
 class SAMLRequestTracker < Common::RedisStore
