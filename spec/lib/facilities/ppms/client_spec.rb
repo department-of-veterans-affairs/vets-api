@@ -36,6 +36,7 @@ RSpec.describe Facilities::PPMS::Client, team: :facilities do
 
   describe '#provider_locator' do
     it 'returns a list of providers' do
+      Flipper.enable(:facility_locator_ppms_location_query, false)
       VCR.use_cassette('facilities/va/ppms', match_requests_on: %i[path query]) do
         r = Facilities::PPMS::Client.new.provider_locator(params.merge(services: ['213E00000X']))
         name = 'Freed, Lewis'
@@ -60,6 +61,48 @@ RSpec.describe Facilities::PPMS::Client, team: :facilities do
           ProviderName: name,
           ProviderSpecialties: []
         )
+      end
+    end
+
+    describe '#provider_locator_params' do
+      subject(:provider_locator_params) do
+        Facilities::PPMS::Client.new.send(
+          :provider_locator_params,
+          params.merge(services: ['213E00000X'])
+        )
+      end
+
+      let(:location_hash) do
+        {
+          address: '33.28,-111.79',
+          radius: 103.64,
+          specialtycode1: "'213E00000X'",
+          maxResults: 11
+        }
+      end
+
+      context 'old address query' do
+        before do
+          Flipper.enable(:facility_locator_ppms_location_query, false)
+        end
+
+        it 'uses lat/long for an address' do
+          expect(provider_locator_params[:address]).to eql(
+            "'South Gilbert Road, Chandler, Arizona 85286, United States'"
+          )
+        end
+      end
+
+      context 'new location query' do
+        before do
+          Flipper.enable(:facility_locator_ppms_location_query, true)
+        end
+
+        let(:api_client) { Facilities::PPMS::Client.new }
+
+        it 'uses lat/long for an address' do
+          expect(provider_locator_params[:address]).to eql('33.28,-111.79')
+        end
       end
     end
   end

@@ -3,27 +3,21 @@
 require 'rails_helper'
 
 describe AppealsApi::V1::DecisionReview::HigherLevelReviewsController, type: :request do
-  describe '#show' do
-    it 'show a HLR from Caseflow successfully' do
-      VCR.use_cassette('appeals/higher_level_reviews_show') do
-        get('/services/appeals/v1/decision_review/higher_level_reviews/97bca3d5-3524-4e5d-81ea-92753892a59c')
-        expect(response).to have_http_status(:ok)
-        json = JSON.parse(response.body)
-        expect(json['data']).not_to be nil
-      end
-    end
-  end
-
   describe '#create' do
     it 'create an HLR through Caseflow successfully' do
-      data = File.read(Rails.root.join('modules', 'appeals_api', 'spec', 'fixtures', 'valid_200996.json'))
+      body = File.read(Rails.root.join('modules', 'appeals_api', 'spec', 'fixtures', 'valid_200996.json'))
+      headers = JSON.parse(
+        File.read(
+          Rails.root.join('modules', 'appeals_api', 'spec', 'fixtures', 'higher_level_review_create_headers.json')
+        )
+      )
       post(
-        '/services/appeals/v1/decision_review/higher_level_reviews/validate',
-        params: data
+        '/services/appeals/v1/decision_review/higher_level_reviews',
+        params: body,
+        headers: headers
       )
       parsed = JSON.parse(response.body)
-      expect(parsed['data']['attributes']['status']).to eq('valid')
-      expect(parsed['data']['type']).to eq('appeals_api_higher_level_review_validation')
+      expect(parsed['data']['success']).to eq(true)
     end
   end
 
@@ -33,11 +27,12 @@ describe AppealsApi::V1::DecisionReview::HigherLevelReviewsController, type: :re
     it 'returns a response when valid' do
       data = File.read(Rails.root.join('modules', 'appeals_api', 'spec', 'fixtures', 'valid_200996.json'))
       post(
-        '/services/appeals/v1/decision_review/higher_level_reviews',
+        '/services/appeals/v1/decision_review/higher_level_reviews/validate',
         params: data
       )
       parsed = JSON.parse(response.body)
-      expect(parsed['data']['success']).to eq(true)
+      expect(parsed['data']['attributes']['status']).to eq('valid')
+      expect(parsed['data']['type']).to eq('appeals_api_higher_level_review_validation')
     end
 
     it 'returns a response when invalid' do
@@ -48,7 +43,7 @@ describe AppealsApi::V1::DecisionReview::HigherLevelReviewsController, type: :re
       )
       parsed = JSON.parse(response.body)
       expect(response.status).to eq(422)
-      expect(parsed['errors'].size).to eq(3)
+      expect(parsed['errors']).not_to be_empty
     end
 
     it 'responds properly when JSON parse error' do
@@ -58,7 +53,6 @@ describe AppealsApi::V1::DecisionReview::HigherLevelReviewsController, type: :re
         '/services/appeals/v1/decision_review/higher_level_reviews/validate',
         params: data
       )
-      # parsed = JSON.parse(response.body)
       expect(response.status).to eq(422)
     end
   end

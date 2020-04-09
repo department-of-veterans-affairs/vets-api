@@ -329,3 +329,18 @@ RSpec/SubjectStub:
 # the default style recently changed, but it's not worth changing
 Rails/FilePath:
   EnforcedStyle: arguments
+
+Lint/RaiseException:
+  Enabled: false
+
+Lint/StructNewOverride:
+  Enabled: false
+
+Style/HashEachMethods:
+  Enabled: false
+
+Style/HashTransformKeys:
+  Enabled: false
+
+Style/HashTransformValues:
+  Enabled: false

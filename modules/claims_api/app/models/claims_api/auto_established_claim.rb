@@ -1,14 +1,13 @@
 # frozen_string_literal: true
 
-require_dependency 'claims_api/json_marshal'
 require_dependency 'claims_api/concerns/file_data'
 
 module ClaimsApi
   class AutoEstablishedClaim < ApplicationRecord
     include FileData
-    attr_encrypted(:form_data, key: Settings.db_encryption_key, marshal: true, marshaler: ClaimsApi::JsonMarshal)
-    attr_encrypted(:auth_headers, key: Settings.db_encryption_key, marshal: true, marshaler: ClaimsApi::JsonMarshal)
-    attr_encrypted(:evss_response, key: Settings.db_encryption_key, marshal: true, marshaler: ClaimsApi::JsonMarshal)
+    attr_encrypted(:form_data, key: Settings.db_encryption_key, marshal: true, marshaler: JsonMarshal::Marshaller)
+    attr_encrypted(:auth_headers, key: Settings.db_encryption_key, marshal: true, marshaler: JsonMarshal::Marshaller)
+    attr_encrypted(:evss_response, key: Settings.db_encryption_key, marshal: true, marshaler: JsonMarshal::Marshaller)
 
     has_many :supporting_documents, dependent: :destroy
 
@@ -21,6 +20,7 @@ module ClaimsApi
                                requested_decision va_representative].freeze
 
     before_validation :set_md5
+    after_validation :remove_encrypted_fields, on: [:update]
     validates :md5, uniqueness: true
 
     EVSS_CLAIM_ATTRIBUTES.each do |attribute|
@@ -79,6 +79,16 @@ module ClaimsApi
 
     def uploader
       @uploader ||= ClaimsApi::SupportingDocumentUploader.new(id)
+    end
+
+    private
+
+    def remove_encrypted_fields
+      if status == ESTABLISHED
+        self.form_data = {}
+        self.auth_headers = {}
+        self.file_data = nil
+      end
     end
   end
 end
