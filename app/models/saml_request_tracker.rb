@@ -22,18 +22,13 @@ class SAMLRequestTracker < Common::RedisStore
 
   validates :uuid, presence: true
 
-  # Find the payload attribute for the record with the matching UUID,
-  # if no record is found, or the attribute is missing, return NilClass
-  def self.safe_payload_attr(uuid, attr)
-    uuid && find(uuid)&.payload.try(:[], attr)
+  # Calculate the number of seconds that have elapsed since creation
+  def age
+    @created_at ? Time.new.to_i - @created_at : 0
   end
 
-  # Calculate the age, in seconds, of the matching SAML Request Tracker record.
-  # If no record can be found, return NilClass
-  def self.age(uuid)
-    created_at = find(uuid)&.created_at
-
-    Time.new.to_i - created_at if created_at
+  def payload_attr(attr)
+    @payload&.try(:[], attr)
   end
 
   def save
