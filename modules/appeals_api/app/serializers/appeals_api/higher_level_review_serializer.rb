@@ -6,4 +6,3 @@ module AppealsApi
     type :higher_level_review
   end
 end
-

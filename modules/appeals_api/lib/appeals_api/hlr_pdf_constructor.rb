@@ -2,15 +2,18 @@
 
 module AppealsApi
   class HlrPdfConstructor
-
-    PDF_FORMS = PdfForms.new(Settings.binaries.pdftk)
     PDF_TEMPLATE = Rails.root.join('modules', 'appeals_api', 'config', 'pdfs')
 
     def initialize(higher_level_review_id)
       @higher_level_review = AppealsApi::HigherLevelReview.find(higher_level_review_id)
-      @veteran = build_veteran(@higher_level_review)
+      veteran
     end
 
+    def veteran
+      @veteran ||= build_veteran(@higher_level_review)
+    end
+
+    # rubocop:disable Metrics/MethodLength
     def build_veteran(higher_level_review)
       form_data = higher_level_review.form_data['data']['attributes']
       included = higher_level_review.form_data['included']
@@ -38,23 +41,31 @@ module AppealsApi
         issues: included
       )
     end
+    # rubocop:enable Metrics/MethodLength
 
     def pdf_path
       "#{PDF_TEMPLATE}/200996.pdf"
     end
 
     def fill_pdf
-      PDF_FORMS.fill_form(
+      pdftk = PdfForms.new(Settings.binaries.pdftk)
+      output_path = "/tmp/#{@higher_level_review.id}.pdf"
+      pdftk.fill_form(
         pdf_path,
-        "/tmp/#{@higher_level_review.id}.pdf",
+        output_path,
         pdf_options,
-        :flatten => true
+        flatten: true
       )
+      output_path
     end
 
+    # rubocop:disable Metrics/MethodLength
+    # rubocop:disable Metrics/AbcSize
+    # rubocop:disable Metrics/CyclomaticComplexity
+    # rubocop:disable Metrics/PerceivedComplexity
     def pdf_options
       options = {
-        "F[0].#subform[2].VeteransFirstName[0]":  @veteran.first_name,
+        "F[0].#subform[2].VeteransFirstName[0]": @veteran.first_name,
         "F[0].#subform[2].VeteransMiddleInitial1[0]": @veteran.middle_name.first,
         "F[0].#subform[2].VeteransLastName[0]": @veteran.last_name,
         "F[0].#subform[2].SocialSecurityNumber_FirstThreeNumbers[0]": @veteran.ssn.first(3),
@@ -93,9 +104,10 @@ module AppealsApi
       }
       @veteran.issues.each_with_index do |issue, index|
         next if index >= 6
-        if index == 0
+
+        if index.zero?
           options["F[0].#subform[3].SPECIFICISSUE#{index + 1}[1]"] = issue['attributes']['issue']
-          options["F[0].#subform[3].DateofDecision[5]"] = issue['attributes']['decisionDate']
+          options['F[0].#subform[3].DateofDecision[5]'] = issue['attributes']['decisionDate']
         elsif index == 1
           options["F[0].#subform[3].SPECIFICISSUE#{index}[0]"] = issue['attributes']['issue']
           options["F[0].#subform[3].DateofDecision[#{index - 1}]"] = issue['attributes']['decisionDate']
@@ -106,5 +118,9 @@ module AppealsApi
       end
       options
     end
+    # rubocop:enable Metrics/MethodLength
+    # rubocop:enable Metrics/AbcSize
+    # rubocop:enable Metrics/CyclomaticComplexity
+    # rubocop:enable Metrics/PerceivedComplexity
   end
 end
