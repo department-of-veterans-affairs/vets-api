@@ -13,13 +13,5 @@ RSpec.describe CARMA::Client::Configuration, type: :model do
     it 'sets SALESFORCE_INSTANCE_URL' do
       expect(described_class::SALESFORCE_INSTANCE_URL).to eq(app_config_url)
     end
-
-    it 'sets #service_name on consuming client' do
-      expect(subject.service_name).to eq('CARMA')
-    end
-
-    it 'sets #base_path on consuming client' do
-      expect(subject.base_path).to eq(app_config_url + '/services/oauth2/token')
-    end
   end
 end
