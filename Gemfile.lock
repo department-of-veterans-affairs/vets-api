@@ -465,7 +465,7 @@ GEM
     net-sftp (2.1.2)
       net-ssh (>= 2.6.5)
     net-ssh (4.1.0)
-    newrelic_rpm (6.9.0.363)
+    newrelic_rpm (6.10.0.364)
     nio4r (2.5.2)
     no_proxy_fix (0.1.2)
     nokogiri (1.10.9)
