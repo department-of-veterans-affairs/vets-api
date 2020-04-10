@@ -19,44 +19,24 @@ module BGS
         delete_me_payload_file = File.read("#{delete_me_root}/app/services/bgs/possible_payload.json")
         payload = JSON.parse(delete_me_payload_file)
 
-        # Step 1 create Proc
-        # Step 2 Create ProcForm using ProcId from Step 1
         proc_id = create_proc_id_and_form
 
-        # Step 3 Create FIRST Participant
-        # Step 4 Create "Veteran" this is a 'Person' using ParticipantId generated from Step 3
-        # Step 5 Create address for veteran pass in VNP participant id created in step 3
-# veteran_particpant = create_participant(proc_id, payload['veteran'])
-# create_person_address_phone(proc_id, veteran_particpant[:vnp_ptcpnt_id], payload['veteran'])
+        veteran_particpant = create_participant(proc_id, payload['veteran'])
 
-        #####- loop through 6-8 for each dependent
-        #   6. Create *NEXT* participant “Pass in corp participant id if it is obtainable”
-        #   7. Create *Dependent* using participant-id from step 6
-        #   8. Create address for dependent pass in participant-id from step 6
-        #####
+        create_person_address_phone(proc_id, veteran_particpant[:vnp_ptcpnt_id], payload['veteran'])
 
-# dependents = create_dependents(proc_id, payload)
+        dependents = create_dependents(proc_id, payload)
 
-        # 10. Create relationship pass in Veteran and dependent using respective participant-id (loop it for each dependent)
-# create_relationship(proc_id, veteran_particpant, dependents)
+        create_relationship(proc_id, veteran_particpant, dependents)
 
         ####-We’ll only do this for form number 674
-        # 11. Create Child school (if there are kids)
-        # 12. Create Child student (if there are kids)
-# create_child_school_student(proc_id, dependents)
+        create_child_school_student(proc_id, dependents)
 
-        ####- Back in 686
-        # 13. Create benefit claims in formation
-# vnp_benefit_claim = create_benefit_claim(proc_id, veteran_particpant)
+        vnp_benefit_claim = create_benefit_claim(proc_id, veteran_particpant)
 
-        # 14. Insert vnp benefit claim (created in step 13?)
-# benefit_claim = insert_benefit_claim(vnp_benefit_claim, payload['veteran'])
-# benefit_claim_record = benefit_claim[:benefit_claim_record]
-
-        # 15. Update vnp benefit claims information (pass Corp benefit claim id Created in step 14)
-  # bnft_update = vnp_bnft_claim_update(proc_id, benefit_claim_record, vnp_benefit_claim)
-  # bnft_update
-        # 16. Set vnpProcstateTypeCd to “ready “
+        benefit_claim = insert_benefit_claim(vnp_benefit_claim, payload['veteran'])
+        benefit_claim_record = benefit_claim[:benefit_claim_record]
+        vnp_bnft_claim_update(proc_id, benefit_claim_record, vnp_benefit_claim)
         proc_update(proc_id)
     end
 
@@ -267,7 +247,7 @@ module BGS
         benefit_claim_type: "1", # this is intentionally hard coded
         payee: "00", # intentionally left hard-coded
         end_product_code: vnp_benefit_claim[:bnft_claim_type_cd],
-        end_product: "475", # not sure what this is, it has to be unique tried this: vnp_benefit_claim[:vnp_bnft_claim_id] I just add one everytime I run this code
+        end_product: "476", # not sure what this is, it has to be unique tried this: vnp_benefit_claim[:vnp_bnft_claim_id] I just add one everytime I run this code
         first_name: @user.first_name,
         last_name: @user.last_name,
         city: veteran_payload["address"]["city"],
