@@ -175,13 +175,11 @@ the response.
 
 ## Versions
 
-The currently used version of Ruby is tracked in [.ruby-version](https://github.com/department-of-veterans-affairs/vets-api/blob/master/.ruby-version) so that environemnt managers can set it automatically.
-
-Gem dependencies (including Rails) are defined in the included [Gemfile](https://github.com/department-of-veterans-affairs/vets-api/blob/master/Gemfile). The currently used versions are maintained with Bundler and stored in the [Gemfile.lock](https://github.com/department-of-veterans-affairs/vets-api/blob/master/Gemfile.lock).
+The version of Ruby and gem dependencies (including Rails) used are defined in the included [Gemfile](https://github.com/department-of-veterans-affairs/vets-api/blob/master/Gemfile). The currently used versions of gems are maintained with Bundler and stored in the [Gemfile.lock](https://github.com/department-of-veterans-affairs/vets-api/blob/master/Gemfile.lock).
 
 #### Version Policy
 
-The goal is to have vets-api use supported versions of gems and Ruby, which is often the latest.  However the versions are generally updated as need or availability arise.  If you need a newer version of a gem, please contact Backend Tools via DSVA Slack in the channel `#vfs-platform-support`.
+The goal is to have vets-api use supported versions of gems and Ruby, which is often the latest.  However the versions are generally updated as need or availability arise.  If you need a newer version of a gem, please submit a pull-request marked as `draft` with just the gem updated and passing tests.
 
 ## How to contribute
 
