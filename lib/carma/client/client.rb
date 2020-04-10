@@ -37,7 +37,7 @@ module CARMA
           'data' => {
             'carmacase' => {
               'id' => 'aB935000000F3VnCAK',
-              'createdAt' => '2020-03-09T10:48:59Z'
+              'createdAt' => DateTime.now.iso8601
             }
           }
         }

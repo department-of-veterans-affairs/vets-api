@@ -40,7 +40,9 @@ RSpec.describe CARMA::Client::Client, type: :model do
   end
 
   describe '#create_submission_stub' do
-    it 'returns a hard coded response' do
+    timestamp = '2020-03-09T06:48:59-04:00'
+
+    it 'returns a hard coded response', run_at: timestamp do
       payload = nil
 
       # rubocop:disable RSpec/SubjectStub
@@ -53,7 +55,7 @@ RSpec.describe CARMA::Client::Client, type: :model do
         'data' => {
           'carmacase' => {
             'id' => 'aB935000000F3VnCAK',
-            'createdAt' => '2020-03-09T10:48:59Z'
+            'createdAt' => timestamp
           }
         }
       )
