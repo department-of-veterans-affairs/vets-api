@@ -9,6 +9,12 @@
           "attributes": {
             "type": "object",
             "properties": {
+              "first_name": {
+                "type": "string"
+              },
+              "last_name": {
+                "type": "string"
+              },
               "branch_of_service": {
                 "type": "string"
               },
