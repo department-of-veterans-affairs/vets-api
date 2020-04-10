@@ -21,12 +21,4 @@ class SavedClaim::CaregiversAssistanceClaim < SavedClaim
   def regional_office
     []
   end
-
-  def save
-    raise NotImplementedError, 'Preventing persistance until production release'
-  end
-
-  def save!
-    raise NotImplementedError, 'Preventing persistance until production release'
-  end
 end
