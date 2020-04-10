@@ -16,7 +16,7 @@ RSpec.describe CARMA::Client::Configuration, type: :model do
     end
 
     it 'sets #service_name' do
-      expect(subject.service_name).to eq(CARMA)
+      expect(subject.service_name).to eq('CARMA')
     end
 
     it 'sets #base_url' do
