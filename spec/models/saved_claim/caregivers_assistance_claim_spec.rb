@@ -20,16 +20,4 @@ RSpec.describe SavedClaim::CaregiversAssistanceClaim do
       expect(subject.regional_office).to eq([])
     end
   end
-
-  describe '.save!' do
-    it 'raises a NotImplementedError' do
-      expect { subject.save! }.to raise_error(NotImplementedError)
-    end
-  end
-
-  describe '.save' do
-    it 'raises a NotImplementedError' do
-      expect { subject.save }.to raise_error(NotImplementedError)
-    end
-  end
 end
