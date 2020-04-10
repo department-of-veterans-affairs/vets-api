@@ -43,15 +43,11 @@ module AppealsApi
     end
     # rubocop:enable Metrics/MethodLength
 
-    def pdf_path
-      "#{PDF_TEMPLATE}/200996.pdf"
-    end
-
     def fill_pdf
       pdftk = PdfForms.new(Settings.binaries.pdftk)
       output_path = "/tmp/#{@higher_level_review.id}.pdf"
       pdftk.fill_form(
-        pdf_path,
+        "#{PDF_TEMPLATE}/200996.pdf",
         output_path,
         pdf_options,
         flatten: true
