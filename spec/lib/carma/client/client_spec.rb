@@ -40,9 +40,9 @@ RSpec.describe CARMA::Client::Client, type: :model do
   end
 
   describe '#create_submission_stub' do
-    timestamp = '2020-03-09T06:48:59-04:00'
+    timestamp = DateTime.parse('2020-03-09T06:48:59-04:00')
 
-    it 'returns a hard coded response', run_at: timestamp do
+    it 'returns a hard coded response', run_at: timestamp.iso8601 do
       payload = nil
 
       # rubocop:disable RSpec/SubjectStub
@@ -50,15 +50,12 @@ RSpec.describe CARMA::Client::Client, type: :model do
       # rubocop:enable RSpec/SubjectStub
 
       response = subject.create_submission_stub(payload)
-      expect(response).to eq(
-        'message' => 'Application Received',
-        'data' => {
-          'carmacase' => {
-            'id' => 'aB935000000F3VnCAK',
-            'createdAt' => timestamp
-          }
-        }
-      )
+
+      expect(response['message']).to eq('Application Received')
+      expect(response['data']).to be_present
+      expect(response['data']['carmacase']).to be_present
+      expect(response['data']['carmacase']['id']).to eq 'aB935000000F3VnCAK'
+      expect(DateTime.parse(response['data']['carmacase']['createdAt'])).to eq timestamp
     end
   end
 end

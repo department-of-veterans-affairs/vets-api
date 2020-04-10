@@ -80,9 +80,9 @@ RSpec.describe 'Caregivers Assistance Claims', type: :request do
     context 'when unauthenticated' do
       it_behaves_like 'any invalid submission'
 
-      timestamp = '2020-03-09T06:48:59-04:00'
+      timestamp = Date.parse('2020-03-09T06:48:59-04:00')
 
-      it 'can submit a valid submission', run_at: timestamp do
+      it 'can submit a valid submission', run_at: timestamp.iso8601 do
         form_data = build_valid_form_submission.call
 
         body = { caregivers_assistance_claim: { form: form_data.to_json } }.to_json
@@ -97,7 +97,7 @@ RSpec.describe 'Caregivers Assistance Claims', type: :request do
 
         expect(res_body['data']).to be_present
         expect(res_body['data']['type']).to eq 'form1010cg_submissions'
-        expect(res_body['data']['attributes']['submittedAt']).to eq timestamp
+        expect(DateTime.parse(res_body['data']['attributes']['submittedAt'])).to eq timestamp
         expect(res_body['data']['attributes']['confirmationNumber']).to be_present
       end
     end
