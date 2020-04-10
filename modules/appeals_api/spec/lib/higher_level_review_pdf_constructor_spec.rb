@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'appeals_api/hlr_pdf_constructor'
+require 'appeals_api/higher_level_review_pdf_constructor'
 
-describe AppealsApi::HlrPdfConstructor do
+describe AppealsApi::HigherLevelReviewPdfConstructor do
   let(:auth_headers) do
     File.read(
       Rails.root.join('modules', 'appeals_api', 'spec', 'fixtures', 'higher_level_review_create_headers.json')
@@ -13,7 +13,7 @@ describe AppealsApi::HlrPdfConstructor do
 
   it 'builds the veteran from the hlr data headers' do
     higher_level_review
-    constructor = AppealsApi::HlrPdfConstructor.new(higher_level_review.id)
+    constructor = AppealsApi::HigherLevelReviewPdfConstructor.new(higher_level_review.id)
     expect(constructor.veteran.first_name).to eq('Heather')
     expect(constructor.veteran.middle_name).to eq('H')
     expect(constructor.veteran.last_name).to eq('Header')
@@ -26,7 +26,7 @@ describe AppealsApi::HlrPdfConstructor do
 
   it 'builds the pdf options' do
     higher_level_review
-    constructor = AppealsApi::HlrPdfConstructor.new(higher_level_review.id)
+    constructor = AppealsApi::HigherLevelReviewPdfConstructor.new(higher_level_review.id)
     expect(constructor.pdf_options).to eq(valid_pdf_options)
   end
 

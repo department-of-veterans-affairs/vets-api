@@ -34,7 +34,7 @@ describe AppealsApi::V1::DecisionReview::HigherLevelReviewsController, type: :re
           params: body,
           headers: headers
         )
-      end .to change(AppealsApi::HlrPdfSubmitJob.jobs, :size).by(1)
+      end .to change(AppealsApi::HigherLevelReviewPdfSubmitJob.jobs, :size).by(1)
     end
   end
 

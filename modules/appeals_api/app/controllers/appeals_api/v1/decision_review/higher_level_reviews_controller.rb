@@ -21,7 +21,7 @@ class AppealsApi::V1::DecisionReview::HigherLevelReviewsController < AppealsApi:
       auth_headers: create_headers,
       form_data: @json_body
     )
-    AppealsApi::HlrPdfSubmitJob.perform_async(higher_level_review.id)
+    AppealsApi::HigherLevelReviewPdfSubmitJob.perform_async(higher_level_review.id)
     render json: higher_level_review, serializer: AppealsApi::HigherLevelReviewSerializer
   end
 

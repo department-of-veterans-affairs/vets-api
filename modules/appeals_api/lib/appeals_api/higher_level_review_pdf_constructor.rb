@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module AppealsApi
-  class HlrPdfConstructor
+  class HigherLevelReviewPdfConstructor
     PDF_TEMPLATE = Rails.root.join('modules', 'appeals_api', 'config', 'pdfs')
 
     def initialize(higher_level_review_id)

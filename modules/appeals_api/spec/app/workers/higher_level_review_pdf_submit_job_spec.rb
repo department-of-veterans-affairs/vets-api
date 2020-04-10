@@ -5,7 +5,7 @@ require 'sidekiq/testing'
 
 Sidekiq::Testing.fake!
 
-RSpec.describe AppealsApi::HlrPdfSubmitJob, type: :job do
+RSpec.describe AppealsApi::HigherLevelReviewPdfSubmitJob, type: :job do
   subject { described_class }
 
   before do
@@ -19,7 +19,7 @@ RSpec.describe AppealsApi::HlrPdfSubmitJob, type: :job do
   end
 
   it 'calls out to the pdf constructor class' do
-    allow_any_instance_of(AppealsApi::HlrPdfConstructor).to receive(:fill_pdf).and_return(true)
+    allow_any_instance_of(AppealsApi::HigherLevelReviewPdfConstructor).to receive(:fill_pdf).and_return(true)
     higher_level_review = create_higher_level_review
     subject.new.perform(higher_level_review.id)
     higher_level_review.reload
