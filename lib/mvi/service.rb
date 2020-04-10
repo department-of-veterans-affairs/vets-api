@@ -110,7 +110,7 @@ module MVI
     end
 
     def get_mvi_error_key(e)
-      error_name = e.body&.first&.[](:displayName)
+      error_name = e.body&.[](:other)&.first&.[](:displayName)
       return 'MVI_502_DUP' if error_name == 'Duplicate Key Identifier'
 
       'MVI_502'

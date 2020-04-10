@@ -4,9 +4,11 @@ require 'rails_helper'
 
 RSpec.describe 'Community Care Providers', type: :request, team: :facilities do
   around do |example|
-    VCR.use_cassette('facilities/va/ppms', match_requests_on: %i[path query], allow_playback_repeats: true) do
-      example.run
-    end
+    VCR.insert_cassette('facilities/va/ppms', match_requests_on: %i[path query], allow_playback_repeats: true)
+    VCR.insert_cassette('facilities/va/ppms_new_query', match_requests_on: %i[path query], allow_playback_repeats: true)
+    example.run
+    VCR.eject_cassette('facilities/va/ppms_new_query')
+    VCR.eject_cassette('facilities/va/ppms')
   end
 
   describe '#index' do
@@ -18,6 +20,30 @@ RSpec.describe 'Community Care Providers', type: :request, team: :facilities do
           type: 'cc_provider',
           services: ['213E00000X']
         }
+      end
+
+      it "sends a 'facilities.ppms.request.faraday' notification to any subscribers listening" do
+        allow(StatsD).to receive(:measure)
+
+        expect(StatsD).to receive(:measure).with(
+          'facilities.ppms.provider_locator',
+          kind_of(Numeric),
+          hash_including(
+            tags: ['facilities.ppms']
+          )
+        )
+
+        expect(StatsD).to receive(:measure).with(
+          'facilities.ppms.providers',
+          kind_of(Numeric),
+          hash_including(
+            tags: ['facilities.ppms']
+          )
+        ).exactly(5).times
+
+        expect do
+          get '/v0/facilities/ccp', params: params
+        end.to instrument('facilities.ppms.request.faraday')
       end
 
       [

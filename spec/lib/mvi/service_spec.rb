@@ -50,10 +50,10 @@ describe MVI::Service do
       let(:user) { build(:user_with_no_ids) }
 
       let(:mvi_codes) do
-        [
-          { codeSystemName: 'MVI', code: '111985523^PI^200BRLS^USVBA', displayName: 'IEN' },
-          { codeSystemName: 'MVI', code: '32397028^PI^200CORP^USVBA', displayName: 'IEN' }
-        ]
+        {
+          birls_id: '111985523',
+          participant_id: '32397028'
+        }
       end
 
       it 'runs a proxy add for birls and corp ids' do
@@ -77,11 +77,11 @@ describe MVI::Service do
       let(:user) { build(:user, :loa3) }
 
       let(:mvi_codes) do
-        [
-          { codeSystemName: 'MVI', code: '796104437^PI^200BRLS^USVBA', displayName: 'IEN' },
-          { codeSystemName: 'MVI', code: '13367440^PI^200CORP^USVBA', displayName: 'IEN' },
-          { codeSystem: '2.16.840.1.113883.4.349', code: 'WRN206', displayName: 'Existing Key Identifier' }
-        ]
+        {
+          birls_id: '796104437',
+          participant_id: '13367440',
+          other: [{ codeSystem: '2.16.840.1.113883.4.349', code: 'WRN206', displayName: 'Existing Key Identifier' }]
+        }
       end
 
       it 'runs a proxy add for birls and corp ids' do

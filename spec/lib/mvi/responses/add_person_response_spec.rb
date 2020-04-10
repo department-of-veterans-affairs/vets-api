@@ -64,10 +64,10 @@ describe MVI::Responses::AddPersonResponse do
         expect(ok_response.status).to eq('OK')
         expect(ok_response.error).to be_nil
         expect(ok_response.mvi_codes).to eq(
-          [
-            { codeSystemName: 'MVI', code: '111985523^PI^200BRLS^USVBA', displayName: 'IEN' },
-            { codeSystemName: 'MVI', code: '32397028^PI^200CORP^USVBA', displayName: 'IEN' }
-          ]
+          {
+            birls_id: '111985523',
+            participant_id: '32397028'
+          }
         )
       end
     end

@@ -52,29 +52,6 @@ module Appeals
     end
 
     ##
-    # Returns an HLR's info.
-    #
-    # @param id [String] The HLR's UUID
-    # @return [Hash] Response object.
-    #
-    def get_higher_level_review(id)
-      with_monitoring do
-        perform(:get, "#{CASEFLOW_V3_API_PATH}higher_level_reviews/#{id}", {}, request_headers)
-      end
-    end
-
-    # Returns intake status for a decision review.
-    #
-    # @param id [String] Decision Review UUID.
-    # @return [Hash] Response object.
-    #
-    def get_intake_status(id)
-      with_monitoring do
-        perform(:get, "#{CASEFLOW_V3_API_PATH}intake_statuses/#{id}", {}, request_headers)
-      end
-    end
-
-    ##
     # Create a HLR.
     #
     # @param body [Hash] The HLR's attributes. See modules/appeals_api/app/swagger/v1/decision_reviews.yaml
