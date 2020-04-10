@@ -21,7 +21,7 @@ module VAOS
 
     def headers
       session_token = user_service.session
-      { 'Referer' => referrer, 'X-VAMF-JWT' => session_token }
+      { 'Referer' => referrer, 'X-VAMF-JWT' => session_token, 'X-Request-ID' => RequestStore.store['request_id'] }
     end
 
     # Set the referrer (Referer header) to distinguish review instance, staging, etc from logs
