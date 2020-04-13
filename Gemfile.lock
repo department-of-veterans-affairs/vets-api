@@ -890,7 +890,7 @@ DEPENDENCIES
   spring
   spring-commands-rspec
   staccato
-  statsd-instrument (~> 2.6.0)
+  statsd-instrument
   swagger-blocks
   timecop
   typhoeus
