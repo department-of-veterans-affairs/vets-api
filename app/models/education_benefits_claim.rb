@@ -2,7 +2,7 @@
 
 require 'attr_encrypted'
 class EducationBenefitsClaim < ApplicationRecord
-  if !Flipper.enabled?(:edu_benefits_stem_scholarship, @current_user)
+  if Flipper.enabled?(:edu_benefits_stem_scholarship, @current_user)
     FORM_TYPES = %w[1990 1995 1990e 5490 5495 1990n 0993 0994].freeze
     FORM_HEADERS = %w[
       22-1990 22-1995 22-1990e 22-5490 22-5495 22-1990n 22-0993 22-0994

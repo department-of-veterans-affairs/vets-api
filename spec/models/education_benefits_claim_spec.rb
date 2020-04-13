@@ -4,26 +4,12 @@ require 'rails_helper'
 
 RSpec.describe EducationBenefitsClaim, type: :model do
   let(:education_benefits_claim) do
+    Flipper.enable('edu_benefits_stem_scholarship')
     create(:va1990).education_benefits_claim
   end
 
-  if !Flipper.enabled?(:edu_benefits_stem_scholarship, @current_user)
+  context 'without 1995s' do
     %w[1990 1995 1990e 5490 5495 1990n 0993 0994].each do |form_type|
-      method = "is_#{form_type}?"
-      describe "##{method}" do
-        it "returns false when it's not the right type" do
-          education_benefits_claim.saved_claim.form_id = 'foo'
-          expect(education_benefits_claim.public_send(method)).to eq(false)
-        end
-
-        it "returns true when it's the right type" do
-          education_benefits_claim.saved_claim.form_id = "22-#{form_type.upcase}"
-          expect(education_benefits_claim.public_send(method)).to eq(true)
-        end
-      end
-    end
-  else
-    %w[1990 1995 1990e 5490 5495 1990n 0993 0994 1995s].each do |form_type|
       method = "is_#{form_type}?"
 
       describe "##{method}" do
@@ -39,6 +25,28 @@ RSpec.describe EducationBenefitsClaim, type: :model do
       end
     end
   end
+
+  context 'with 1995s' do
+    let(:education_benefits_claim) do
+      Flipper.disable('edu_benefits_stem_scholarship')
+      create(:va1990).education_benefits_claim
+    end
+    %w[1990 1995 1990e 5490 5495 1990n 0993 0994 1995s].each do |form_type|
+      method = "is_#{form_type}?"
+      describe "##{method}" do
+        it "returns false when it's not the right type" do
+          education_benefits_claim.saved_claim.form_id = 'foo'
+          expect(education_benefits_claim.public_send(method)).to eq(false)
+        end
+
+        it "returns true when it's the right type" do
+          education_benefits_claim.saved_claim.form_id = "22-#{form_type.upcase}"
+          expect(education_benefits_claim.public_send(method)).to eq(true)
+        end
+      end
+    end
+  end
+
 
   describe '#form_type' do
     it 'returns the form type' do
