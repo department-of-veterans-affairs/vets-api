@@ -74,4 +74,4 @@ features:
   gibct_estimate_your_benefits:
     actor_type: user
     description: >
-      Enable updates to the "Estimate Your Benefits" section of the Comparison Tool Profile pages to be 508 compliant and more user friendly so that all user types can effectively use the tool to review their benefits.
+      Enable 508 and usability enhancements for the Comparison Tool Profile Page Estimate Your Benefits section benefits estimator panel.
