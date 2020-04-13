@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
-module VAOS
-  class ClinicInstitutionsController < VAOS::BaseController
+module VAOS::V0
+  class ClinicInstitutionsController < VAOS::V0::BaseController
     def index
       response = systems_service.get_clinic_institutions(
         system_id,

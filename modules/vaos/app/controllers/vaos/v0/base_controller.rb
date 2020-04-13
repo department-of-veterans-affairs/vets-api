@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-module VAOS
+module VAOS::V0
   class BaseController < ::ApplicationController
     before_action :authorize
 

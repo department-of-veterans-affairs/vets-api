@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
-module VAOS
-  class PreferencesController < VAOS::BaseController
+module VAOS::V0
+  class PreferencesController < VAOS::V0::BaseController
     def show
       response = preferences_service.get_preferences
       render json: VAOS::PreferencesSerializer.new(response)

@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
-module VAOS
-  class PactController < VAOS::BaseController
+module VAOS::V0
+  class PactController < VAOS::V0::BaseController
     def index
       response = systems_service.get_system_pact(system_id)
       render json: VAOS::SystemPactSerializer.new(response)

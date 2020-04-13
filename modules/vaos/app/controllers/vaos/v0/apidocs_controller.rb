@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-module VAOS
+module VAOS::V0
   class ApidocsController < ApplicationController
     skip_before_action(:authenticate)
 

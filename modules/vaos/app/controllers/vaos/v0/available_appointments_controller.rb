@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
-module VAOS
-  class AvailableAppointmentsController < VAOS::BaseController
+module VAOS::V0
+  class AvailableAppointmentsController < VAOS::V0::BaseController
     def index
       response = systems_service.get_facility_available_appointments(
         facility_id, start_date, end_date, clinic_ids

@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
-module VAOS
-  class FacilitiesController < VAOS::BaseController
+module VAOS::V0
+  class FacilitiesController < VAOS::V0::BaseController
     def index
       response = systems_service.get_facilities(facilities_params)
       render json: VAOS::FacilitySerializer.new(response)
