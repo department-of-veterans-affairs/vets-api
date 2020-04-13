@@ -3,14 +3,7 @@
 require 'rails_helper'
 
 RSpec.describe EducationForm::Forms::VA10203 do
-  subject { described_class.new(education_benefits_claim) }
-
-  context '#direct_deposit_type' do
-    let(:education_benefits_claim) { create(:va10203_full_form).education_benefits_claim }
-
-    it 'converts internal keys to text' do
-      expect(subject.school['name']).to eq('Test School Name')
-      expect(subject.header_form_type).to eq('V10203')
-    end
+  %w[kitchen_sink simple].each do |test_application|
+    test_spool_file('10203', test_application)
   end
 end
