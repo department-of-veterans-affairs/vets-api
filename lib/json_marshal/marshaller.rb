@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
-module ClaimsApi
-  class JsonMarshal
+module JsonMarshal
+  class Marshaller
     def self.dump(obj)
       obj.to_json
     end
