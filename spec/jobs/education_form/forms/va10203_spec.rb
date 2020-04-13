@@ -11,10 +11,9 @@ RSpec.describe EducationForm::Forms::VA10203 do
     let(:education_benefits_claim) { create(:va10203_full_form).education_benefits_claim }
 
     it 'converts internal keys to text' do
-      expect(subject.school['name']).to eq('Test School Name')
       expect(subject.form_type).to eq('CH33')
       expect(subject.form_benefit).to eq('STEM')
-      expect(subject.header_form_type).to eq('STEM1995')
+      expect(subject.header_form_type).to eq('V10203')
     end
   end
 end

@@ -15,7 +15,7 @@ module EducationForm::Forms
     end
 
     def header_form_type
-      '22-10203'
+      'V10203'
     end
   end
 end
