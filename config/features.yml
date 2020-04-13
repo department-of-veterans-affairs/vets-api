@@ -64,9 +64,9 @@ features:
     description: >
       Enables ssoe, as opposed to saml authentication wrapped by id.me
   edu_benefits_stem_scholarship:
-      actor_type: user
-      description: >
-        Enables STEM scholarship functionality
+    actor_type: user
+    description: >
+      Enables STEM scholarship functionality
   edu_section_103:
       actor_type: user
       description: >
