@@ -2,7 +2,7 @@
 
 source 'https://rubygems.org'
 
-ruby '2.4.5'
+ruby '2.6.6'
 
 # Modules
 gem 'appeals_api', path: 'modules/appeals_api'
@@ -13,21 +13,23 @@ gem 'va_forms', path: 'modules/va_forms'
 gem 'vaos', path: 'modules/vaos'
 gem 'vba_documents', path: 'modules/vba_documents'
 gem 'veteran', path: 'modules/veteran'
+gem 'veteran_confirmation', path: 'modules/veteran_confirmation'
 gem 'veteran_verification', path: 'modules/veteran_verification'
 
 # Anchored versions, do not change
-gem 'puma', '~> 4.2.1'
+gem 'puma', '~> 4.3.2'
 gem 'puma-plugin-statsd', '~> 0.1.0'
-gem 'rails', '~> 5.2.3'
+gem 'rails', '~> 5.2.4'
 
 # Gems with special version/repo needs
 gem 'active_model_serializers', '0.10.4' # breaking changed in 0.10.5 relating to .to_json
 gem 'carrierwave', '~> 0.11' # TODO: explanation
-gem 'sidekiq-scheduler', '~> 2.0' # TODO: explanation
+gem 'sidekiq-scheduler', '~> 3.0' # TODO: explanation
 
 gem 'aasm'
 gem 'activerecord-import'
 gem 'activerecord-postgis-adapter', '~> 5.2.2'
+gem 'addressable'
 gem 'attr_encrypted', '3.1.0'
 gem 'aws-sdk-s3', '~> 1'
 gem 'aws-sdk-sns', '~> 1'
@@ -45,10 +47,10 @@ gem 'faraday_middleware'
 gem 'fast_jsonapi'
 gem 'fastimage'
 gem 'figaro'
-gem 'flipper', '~> 0.17.1'
-gem 'flipper-active_record', '~> 0.17.1'
-gem 'flipper-active_support_cache_store', '~> 0.17.1'
-gem 'flipper-ui', '~> 0.17.1'
+gem 'flipper'
+gem 'flipper-active_record'
+gem 'flipper-active_support_cache_store'
+gem 'flipper-ui'
 gem 'foreman'
 gem 'govdelivery-tms', '2.8.4', require: 'govdelivery/tms/mail/delivery_method'
 gem 'gyoku'
@@ -57,6 +59,7 @@ gem 'httpclient'
 gem 'ice_nine'
 gem 'iconv'
 gem 'iso_country_codes'
+gem 'json', '>= 2.3.0'
 gem 'json-schema'
 gem 'json_schemer'
 gem 'jsonapi-parser'
@@ -64,13 +67,15 @@ gem 'jwt'
 gem 'levenshtein-ffi'
 gem 'lighthouse_bgs', git: 'https://github.com/department-of-veterans-affairs/lighthouse-bgs.git', branch: 'master'
 gem 'liquid'
-gem 'mail', '2.6.6'
+gem 'mail', '2.7.1'
 gem 'memoist'
-gem 'mini_magick', '~> 4.9.4'
+gem 'mini_magick', '~> 4.10.1'
 gem 'net-sftp'
-gem 'nokogiri', '~> 1.10', '>= 1.10.4'
+gem 'newrelic_rpm'
+gem 'nokogiri', '~> 1.10'
 gem 'oj' # Amazon Linux `json` gem causes conflicts, but `multi_json` will prefer `oj` if installed
 gem 'olive_branch'
+gem 'operating_hours'
 gem 'origami'
 gem 'ox'
 gem 'paper_trail'
@@ -79,12 +84,14 @@ gem 'pdf-reader'
 gem 'pg'
 gem 'prawn'
 gem 'pundit'
+gem 'rack'
 gem 'rack-attack'
 gem 'rack-cors', require: 'rack/cors'
 gem 'rails-session_cookie'
 gem 'rails_semantic_logger', '~> 4.4'
 gem 'redis'
 gem 'redis-namespace'
+gem 'request_store'
 gem 'restforce'
 gem 'rgeo-geojson'
 gem 'ruby-saml'
@@ -152,6 +159,7 @@ group :development, :test do
   gem 'rack-test', require: 'rack/test'
   gem 'rack-vcr'
   gem 'rainbow' # Used to colorize output for rake tasks
+  gem 'rspec-instrumentation-matcher'
   gem 'rspec-rails', '~> 3.5'
   gem 'rubocop', require: false
   gem 'rubocop-rails'
@@ -166,7 +174,9 @@ end
 group :production do
   # sidekiq enterprise requires a license key to download but is only required in production.
   # for local dev environments, regular sidekiq works fine
-  unless ENV['EXCLUDE_SIDEKIQ_ENTERPRISE'] == 'true'
+  unless (Bundler::Settings.new['enterprise.contribsys.com'].nil? ||
+          Bundler::Settings.new['enterprise.contribsys.com']&.empty?) &&
+         ENV.fetch('BUNDLE_ENTERPRISE__CONTRIBSYS__COM', '').empty?
     source 'https://enterprise.contribsys.com/' do
       gem 'sidekiq-ent'
       gem 'sidekiq-pro'

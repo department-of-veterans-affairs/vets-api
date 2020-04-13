@@ -1,9 +1,7 @@
 # frozen_string_literal: true
 
-require_dependency 'vaos/application_controller'
-
 module VAOS
-  class DirectSchedulingFacilitiesController < ApplicationController
+  class DirectSchedulingFacilitiesController < VAOS::BaseController
     def index
       response = systems_service.get_system_facilities(
         facilities_params[:system_id],
@@ -21,7 +19,7 @@ module VAOS
     end
 
     def facilities_params
-      params.require(%i[parent_code system_id type_of_care_id])
+      params.require(%i[system_id type_of_care_id parent_code])
       params.permit(
         :parent_code,
         :system_id,

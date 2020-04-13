@@ -54,7 +54,7 @@ module Search
 
     def pagination_object
       {
-        'current_page' => [current_page, total_pages].min,
+        'current_page' => [current_page, total_viewable_pages].min,
         'per_page' => ENTRIES_PER_PAGE,
         'total_pages' => total_viewable_pages,
         'total_entries' => total_viewable_entries

@@ -22,7 +22,7 @@ info:
     ### Base URLs
     
     The base URLs for the VA Facilities API in the various environments are:
-    - Development: `https://dev-api.va.gov/services/va_facilities/v0`
+    - Sandbox: `https://sandbox-api.va.gov/services/va_facilities/v0`
     - Production: `https://api.va.gov/services/va_facilities/v0`
 
     ### Authorization
@@ -67,13 +67,13 @@ tags:
   - name: facilities
     description: VA Facilities API
 servers:
-- url: https://dev-api.va.gov/services/va_facilities/{version}
-  description: Development
+- url: https://sandbox-api.va.gov/services/va_facilities/{version}
+  description: VA.gov API sandbox environment
   variables:
     version:
       default: v0
 - url: https://api.va.gov/services/va_facilities/{version}
-  description: Production
+  description: VA.gov API production environment
   variables:
     version:
       default: v0
@@ -280,7 +280,7 @@ paths:
               description: GitHub-style pagination information. Only present for GeoJSON-format responses.
               schema:
                 type: string
-                example: '<https://dev-api.va.gov/services/va_facilities/v0/facilities?bbox%5B%5D=-120&bbox%5B%5D=40&bbox%5B%5D=-125&bbox%5B%5D=50&page=2&per_page=20>; rel="self", <https://dev-api.va.gov/services/va_facilities/v0/facilities?bbox%5B%5D=-120&bbox%5B%5D=40&bbox%5B%5D=-125&bbox%5B%5D=50&page=1&per_page=20>; rel="first", <https://dev-api.va.gov/services/va_facilities/v0/facilities?bbox%5B%5D=-120&bbox%5B%5D=40&bbox%5B%5D=-125&bbox%5B%5D=50&page=1&per_page=20>; rel="prev", <https://dev-api.va.gov/services/va_facilities/v0/facilities?bbox%5B%5D=-120&bbox%5B%5D=40&bbox%5B%5D=-125&bbox%5B%5D=50&page=3&per_page=20>; rel="next", <https://dev-api.va.gov/services/va_facilities/v0/facilities?bbox%5B%5D=-120&bbox%5B%5D=40&bbox%5B%5D=-125&bbox%5B%5D=50&page=5&per_page=20>; rel="last"'
+                example: '<https://sandbox-api.va.gov/services/va_facilities/v0/facilities?bbox%5B%5D=-120&bbox%5B%5D=40&bbox%5B%5D=-125&bbox%5B%5D=50&page=2&per_page=20>; rel="self", <https://sandbox-api.va.gov/services/va_facilities/v0/facilities?bbox%5B%5D=-120&bbox%5B%5D=40&bbox%5B%5D=-125&bbox%5B%5D=50&page=1&per_page=20>; rel="first", <https://sandbox-api.va.gov/services/va_facilities/v0/facilities?bbox%5B%5D=-120&bbox%5B%5D=40&bbox%5B%5D=-125&bbox%5B%5D=50&page=1&per_page=20>; rel="prev", <https://sandbox-api.va.gov/services/va_facilities/v0/facilities?bbox%5B%5D=-120&bbox%5B%5D=40&bbox%5B%5D=-125&bbox%5B%5D=50&page=3&per_page=20>; rel="next", <https://sandbox-api.va.gov/services/va_facilities/v0/facilities?bbox%5B%5D=-120&bbox%5B%5D=40&bbox%5B%5D=-125&bbox%5B%5D=50&page=5&per_page=20>; rel="last"'
         '401':
           description: Missing API token
           content:
@@ -402,10 +402,10 @@ paths:
               schema:
                 type: string
                 example: |
-                  id,name,station_id,latitude,longitude,facility_type,classification,website,physical_address_1,physical_address_2,physical_address_3,physical_city,physical_state,physical_zip,mailing_address_1,mailing_address_2,mailing_address_3,mailing_city,mailing_state,mailing_zip,phone_main,phone_fax,phone_mental_health_clinic,phone_pharmacy,phone_after_hours,phone_patient_advocate,phone_enrollment_coordinator,hours_monday,hours_tuesay,hours_wednesday,hours_thursday,hours_friday,hours_saturday,hours_sunday,mobile,active_status
-                  vc_0101V,Boston Vet Center,0101V,42.3445959000001,-71.0361051099999,vet_center,,,7 Drydock Avenue,Suite 2070,,Boston,MA,2210,,,,,,,857-203-6461 x,,,,,,,800AM-700PM,800AM-800PM,800AM-700PM,800AM-800PM,800AM-600PM,-,-,,
-                  vba_362b,Houston Regional Benefit Office at Frank Tejeda Outpatient Clinic,362b,29.51690196,-98.59601936,va_benefits_facility,Outbased,NULL,5788 Eckhert Road,,,San Antonio,TX,78240,,,,,,,210-699-5040,210-699-5079,,,,,,,,,,,,,,
-                  vha_459GH,Saipan VA Clinic,459GH,15.216794,145.729385,va_health_facility,Other Outpatient Services (OOS),,Marina Heights Business Park - Garapan,Medical Associates of the Pacific,MH-II Building Suite 100 and 206,Saipan,MP,96950-9998,,,,,,,670-322-0035 x,670-322-0038 x,"",800-465-8387 x,800-214-1306 x,670-322-0035 x,808-433-7600 x,,,,,,,,false,A
+                  id,name,station_id,latitude,longitude,facility_type,classification,website,physical_address_1,physical_address_2,physical_address_3,physical_city,physical_state,physical_zip,mailing_address_1,mailing_address_2,mailing_address_3,mailing_city,mailing_state,mailing_zip,phone_main,phone_fax,phone_mental_health_clinic,phone_pharmacy,phone_after_hours,phone_patient_advocate,phone_enrollment_coordinator,hours_monday,hours_tuesay,hours_wednesday,hours_thursday,hours_friday,hours_saturday,hours_sunday,mobile,active_status,visn
+                  vc_0101V,Boston Vet Center,0101V,42.3445959000001,-71.0361051099999,vet_center,,,7 Drydock Avenue,Suite 2070,,Boston,MA,2210,,,,,,,857-203-6461 x,,,,,,,800AM-700PM,800AM-800PM,800AM-700PM,800AM-800PM,800AM-600PM,-,-,,,
+                  vba_362b,Houston Regional Benefit Office at Frank Tejeda Outpatient Clinic,362b,29.51690196,-98.59601936,va_benefits_facility,Outbased,NULL,5788 Eckhert Road,,,San Antonio,TX,78240,,,,,,,210-699-5040,210-699-5079,,,,,,,,,,,,,,,
+                  vha_459GH,Saipan VA Clinic,459GH,15.216794,145.729385,va_health_facility,Other Outpatient Services (OOS),,Marina Heights Business Park - Garapan,Medical Associates of the Pacific,MH-II Building Suite 100 and 206,Saipan,MP,96950-9998,,,,,,,670-322-0035 x,670-322-0038 x,"",800-465-8387 x,800-214-1306 x,670-322-0035 x,808-433-7600 x,,,,,,,,false,A,21
         '401':
           description: Missing API token
           content:
@@ -731,6 +731,9 @@ components:
               enum:
                 - "A"
                 - "T"
+            visn:
+              type: string
+              example: "20"
     FacilityFeature:
       description: GeoJSON-complaint Feature object describing a VA Facility
       type: object
@@ -837,6 +840,9 @@ components:
               enum:
                 - "A"
                 - "T"
+            visn:
+              type: string
+              example: "20"
     NearbyFacility:
       description: JSON API-compliant object describing a nearby VA facility
       type: object

@@ -2,7 +2,7 @@
 
 module V0
   class IntentToFilesController < ApplicationController
-    before_action { authorize :evss, :access? }
+    before_action { authorize :evss, :access_form526? }
     before_action :validate_type_param, only: %i[active submit]
 
     # currently, only `compensation` is supported. This will be expanded to

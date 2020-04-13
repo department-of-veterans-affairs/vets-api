@@ -118,6 +118,17 @@ module Vet360Redis
       dig_out('telephones', 'phone_type', Vet360::Models::Telephone::FAX)
     end
 
+    # Returns the user's text permission. In Vet360, a user can only have one
+    # text permission.
+    #
+    # @return [Vet360::Models::Permission] The user's one text permission model
+    #
+    def text_permission
+      return unless @user.loa3?
+
+      dig_out('permissions', 'permission_type', Vet360::Models::Permission::TEXT)
+    end
+
     # The status of the last Vet360::ContactInformation::Service response,
     # or not authorized for for users < LOA 3
     #

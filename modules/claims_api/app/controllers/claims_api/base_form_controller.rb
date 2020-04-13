@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
-require_dependency 'claims_api/form_schemas'
-require_dependency 'claims_api/json_api_missing_attribute'
+require 'json_schema/json_api_missing_attribute'
+require 'claims_api/form_schemas'
 
 module ClaimsApi
   class BaseFormController < ClaimsApi::ApplicationController
@@ -10,19 +10,20 @@ module ClaimsApi
     skip_before_action :verify_mvi, only: %i[schema]
 
     def schema
-      render json: { data: [ClaimsApi::FormSchemas::SCHEMAS[self.class::FORM_NUMBER]] }
+      render json: { data: [ClaimsApi::FormSchemas.new.schemas[self.class::FORM_NUMBER]] }
     end
 
     private
 
     def validate_json_schema
-      ClaimsApi::FormSchemas.validate!(self.class::FORM_NUMBER, form_attributes)
-    rescue ClaimsApi::JsonApiMissingAttribute => e
+      validator = ClaimsApi::FormSchemas.new
+      validator.validate!(self.class::FORM_NUMBER, form_attributes)
+    rescue JsonSchema::JsonApiMissingAttribute => e
       render json: e.to_json_api, status: e.code
     end
 
     def form_attributes
-      payload_attributes = JSON.parse(request.body.string).dig('data', 'attributes') if request.body.string.present?
+      payload_attributes = @json_body.dig('data', 'attributes')
 
       payload_attributes ||= {}
 

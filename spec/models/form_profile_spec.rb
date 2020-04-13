@@ -444,6 +444,80 @@ RSpec.describe FormProfile, type: :model do
     }
   end
 
+  let(:vmdot_expected) do
+    {
+      'fullName' => {
+        'first' => user.first_name&.capitalize,
+        'last' => user.last_name&.capitalize,
+        'suffix' => user.va_profile[:suffix]
+      },
+      'permanentAddress' => {
+        'street' => '101 Example Street',
+        'street2' => 'Apt 2',
+        'city' => 'Kansas City',
+        'state' => 'MO',
+        'country' => 'USA',
+        'postalCode' => '64117'
+      },
+      'temporaryAddress' => {
+        'street' => '201 Example Street',
+        'city' => 'Galveston',
+        'state' => 'TX',
+        'country' => 'USA',
+        'postalCode' => '77550'
+      },
+      'gender' => user.gender,
+      'email' => user.pciu_email,
+      'dateOfBirth' => user.birth_date,
+      'supplies' => [
+        {
+          'deviceName' => 'OMEGAX d3241',
+          'productName' => 'ZA1239',
+          'productGroup' => 'hearing aid batteries',
+          'productId' => '1',
+          'availableForReorder' => false,
+          'lastOrderDate' => '2020-01-01',
+          'nextAvailabilityDate' => '2020-09-01',
+          'quantity' => 60,
+          'size' => ''
+        },
+        {
+          'deviceName' => '',
+          'productName' => 'DOME',
+          'productGroup' => 'hearing aid accessories',
+          'productId' => '3',
+          'availableForReorder' => true,
+          'lastOrderDate' => '2019-06-30',
+          'nextAvailabilityDate' => '2019-12-15',
+          'quantity' => 10,
+          'size' => '6mm'
+        },
+        {
+          'deviceName' => '',
+          'productName' => 'DOME',
+          'productGroup' => 'hearing aid accessories',
+          'productId' => '4',
+          'availableForReorder' => true,
+          'lastOrderDate' => '2019-06-30',
+          'nextAvailabilityDate' => '2019-12-15',
+          'quantity' => 10,
+          'size' => '7mm'
+        },
+        {
+          'deviceName' => '',
+          'productName' => 'WaxBuster Single Unit',
+          'productGroup' => 'hearing aid accessories',
+          'productId' => '5',
+          'available_for_reorder' => true,
+          'lastOrderDate' => '2019-06-30',
+          'nextAvailabilityDate' => '2019-12-15',
+          'quantity' => 10,
+          'size' => ''
+        }
+      ]
+    }
+  end
+
   let(:vvic_expected) do
     {
       'email' => user.pciu_email,
@@ -553,6 +627,27 @@ RSpec.describe FormProfile, type: :model do
     }
   end
 
+  let(:v20_0996_expected) do
+    {
+      'data' =>
+      {
+        'attributes' =>
+        {
+          'veteran' =>
+          {
+            'addressLine1' => street_check[:street],
+            'addressLine2' => street_check[:street2],
+            'city' => user.va_profile[:address][:city],
+            'stateOrProvinceCode' => user.va_profile[:address][:state],
+            'zipPostalCode' => user.va_profile[:address][:postal_code][0..4],
+            'phoneNumber' => us_phone,
+            'emailAddress' => user.pciu_email
+          }
+        }
+      }
+    }
+  end
+
   let(:vfeedback_tool_expected) do
     {
       'address' => {
@@ -642,6 +737,19 @@ RSpec.describe FormProfile, type: :model do
       expect(prefilled_data).to eq(
         form_profile.send(:clean!, public_send("v#{form_id.underscore}_expected"))
       )
+    end
+
+    context 'with a user that can prefill mdot' do
+      before do
+        expect(user).to receive(:authorize).with(:mdot, :access?).and_return(true).at_least(:once)
+        expect(user.authorize(:mdot, :access?)).to eq(true)
+      end
+
+      it 'returns a prefilled MDOT form' do
+        VCR.use_cassette('mdot/get_supplies_200') do
+          expect_prefilled('MDOT')
+        end
+      end
     end
 
     context 'when emis is down', skip_emis: true do
@@ -837,6 +945,12 @@ RSpec.describe FormProfile, type: :model do
     context 'with a burial application form' do
       it 'returns the va profile mapped to the burial form' do
         expect_prefilled('21P-530')
+      end
+    end
+
+    context 'with a higher level review form' do
+      it 'returns the va profile mapped to the higher level review form' do
+        expect_prefilled('20-0996')
       end
     end
 

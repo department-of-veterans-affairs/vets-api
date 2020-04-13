@@ -11,6 +11,10 @@ class ApplicationController < ActionController::API
   include AuthenticationAndSSOConcerns
   include SentryLogging
   include Pundit
+  include ActionController::RequestForgeryProtection
+
+  protect_from_forgery with: LoggingForgeryStrategy, if: -> { ActionController::Base.allow_forgery_protection }
+  after_action :set_csrf_header, if: -> { ActionController::Base.allow_forgery_protection }
 
   SKIP_SENTRY_EXCEPTION_TYPES = [
     Common::Exceptions::Unauthorized,
@@ -53,6 +57,10 @@ class ApplicationController < ActionController::API
 
   attr_reader :current_user
 
+  def set_csrf_header
+    response.set_header('X-CSRF-Token', form_authenticity_token)
+  end
+
   # returns a Bad Request if the incoming host header is unsafe.
   def block_unknown_hosts
     return if controller_name == 'example'
@@ -87,6 +95,8 @@ class ApplicationController < ActionController::API
       case exception
       when Pundit::NotAuthorizedError
         Common::Exceptions::Forbidden.new(detail: 'User does not have access to the requested resource')
+      when Common::Exceptions::TokenValidationError
+        Common::Exceptions::Unauthorized.new(detail: exception.detail)
       when ActionController::ParameterMissing
         Common::Exceptions::ParameterMissing.new(exception.param)
       when ActionController::UnknownFormat
@@ -113,8 +123,8 @@ class ApplicationController < ActionController::API
   # rubocop:enable Metrics/BlockLength
 
   def set_tags_and_extra_context
-    Thread.current['request_id'] = request.uuid
-    Thread.current['additional_request_attributes'] = {
+    RequestStore.store['request_id'] = request.uuid
+    RequestStore.store['additional_request_attributes'] = {
       'remote_ip' => request.remote_ip,
       'user_agent' => request.user_agent
     }
@@ -145,13 +155,13 @@ class ApplicationController < ActionController::API
   end
 
   def set_app_info_headers
-    headers['X-GitHub-Repository'] = 'https://github.com/department-of-veterans-affairs/vets-api'
-    headers['X-Git-SHA'] = AppInfo::GIT_REVISION
+    headers['X-Git-SHA']           = AppInfo::GIT_REVISION
+    headers['X-GitHub-Repository'] = AppInfo::GITHUB_URL
   end
 
   def saml_settings(options = {})
     callback_url = URI.parse(Settings.saml.callback_url)
-    callback_url.host = request.host
+    callback_url.host = request.host if Settings.review_instance_slug.blank?
     options.reverse_merge!(assertion_consumer_service_url: callback_url.to_s)
     SAML::SettingsService.saml_settings(options)
   end

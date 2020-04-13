@@ -3,7 +3,7 @@
 require 'hca/validations'
 
 module HCA
-  # rubocop:disable ModuleLength
+  # rubocop:disable Metrics/ModuleLength
   module EnrollmentSystem
     module_function
 
@@ -745,5 +745,5 @@ module HCA
       request
     end
   end
-  # rubocop:enable ModuleLength
+  # rubocop:enable Metrics/ModuleLength
 end

@@ -1,9 +1,7 @@
 # frozen_string_literal: true
 
-require_dependency 'vaos/application_controller'
-
 module VAOS
-  class ClinicsController < ApplicationController
+  class ClinicsController < VAOS::BaseController
     def index
       response = systems_service.get_facility_clinics(
         clinics_params[:facility_id],

@@ -28,6 +28,7 @@ module Swagger
                   AsyncTransaction::Vet360::AddressTransaction
                   AsyncTransaction::Vet360::EmailTransaction
                   AsyncTransaction::Vet360::InitializePersonTransaction
+                  AsyncTransaction::Vet360::PermissionTransaction
                   AsyncTransaction::Vet360::TelephoneTransaction
                 ], example: 'AsyncTransaction::Vet360::EmailTransaction'
               property :metadata, type: :array do
@@ -65,8 +66,9 @@ module Swagger
                     AsyncTransaction::Vet360::AddressTransaction
                     AsyncTransaction::Vet360::EmailTransaction
                     AsyncTransaction::Vet360::InitializePersonTransaction
+                    AsyncTransaction::Vet360::PermissionTransaction
                     AsyncTransaction::Vet360::TelephoneTransaction
-                  ], example: 'AsyncTransaction::Vet360::EmailTransaction'
+                  ], example: 'AsyncTransaction::Vet360::AddressTransaction'
                 property :metadata, type: :array do
                   items type: :object do
                     property :code, type: :string, example: 'CORE103'

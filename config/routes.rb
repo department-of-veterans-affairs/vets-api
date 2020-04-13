@@ -12,7 +12,6 @@ Rails.application.routes.draw do
       constraints: ->(request) { V0::SessionsController::REDIRECT_URLS.include?(request.path_parameters[:type]) }
 
   get '/v1/sessions/metadata', to: 'v1/sessions#metadata'
-  get '/v1/sessions/logout', to: 'v1/sessions#saml_logout_callback'
   post '/v1/sessions/callback', to: 'v1/sessions#saml_callback', module: 'v1'
   get '/v1/sessions/:type/new',
       to: 'v1/sessions#new',
@@ -61,7 +60,7 @@ Rails.application.routes.draw do
       end
     end
 
-    resource :health_care_applications, only: [:create] do
+    resources :health_care_applications, only: %i[create show] do
       collection do
         get(:healthcheck)
         get(:enrollment_status)
@@ -69,6 +68,9 @@ Rails.application.routes.draw do
     end
 
     resource :hca_attachments, only: :create
+
+    # Excluding this feature until external service (CARMA) is connected
+    resources :caregivers_assistance_claims, only: :create if Rails.env.test?
 
     resources :dependents_applications, only: %i[create show] do
       collection do
@@ -116,7 +118,13 @@ Rails.application.routes.draw do
       get :show, controller: 'health_record_contents', on: :collection
     end
 
-    resources :appeals, only: [:index]
+    resources :appeals, only: :index do
+      collection do
+        resources :higher_level_reviews, only: %i[show create]
+        resources :intake_statuses, only: :show
+        resources :contestable_issues, only: :index
+      end
+    end
 
     scope :messaging do
       scope :health do
@@ -145,12 +153,12 @@ Rails.application.routes.draw do
 
     scope :facilities, module: 'facilities' do
       resources :va, only: %i[index show], defaults: { format: :json }
-      resources :ccp, only: %i[show], defaults: { format: :json }
+      resources :ccp, only: %i[index show], defaults: { format: :json }
       get 'suggested', to: 'va#suggested'
       get 'services', to: 'ccp#services'
     end
 
-    scope :gi, module: 'gi' do
+    scope :gi, module: 'gids' do
       resources :institutions, only: :show, defaults: { format: :json } do
         get :search, on: :collection
         get :autocomplete, on: :collection
@@ -163,12 +171,19 @@ Rails.application.routes.draw do
       end
 
       resources :calculator_constants, only: :index, defaults: { format: :json }
+
+      resources :yellow_ribbon_programs, only: :index, defaults: { format: :json }
+
       resources :zipcode_rates, only: :show, defaults: { format: :json }
     end
 
     scope :id_card do
       resource :attributes, only: [:show], controller: 'id_card_attributes'
       resource :announcement_subscription, only: [:create], controller: 'id_card_announcement_subscription'
+    end
+
+    namespace :mdot do
+      resources :supplies, only: %i[create]
     end
 
     namespace :preneeds do
@@ -192,13 +207,8 @@ Rails.application.routes.draw do
 
     resource :address, only: %i[show update] do
       collection do
-        if Settings.evss&.reference_data_service&.enabled
-          get 'countries', to: 'addresses#rds_countries'
-          get 'states', to: 'addresses#rds_states'
-        else
-          get 'countries', to: 'addresses#countries'
-          get 'states', to: 'addresses#states'
-        end
+        get 'countries', to: 'addresses#countries'
+        get 'states', to: 'addresses#states'
       end
     end
 
@@ -217,6 +227,7 @@ Rails.application.routes.draw do
       resource :addresses, only: %i[create update destroy]
       resource :email_addresses, only: %i[create update destroy]
       resource :telephones, only: %i[create update destroy]
+      resource :permissions, only: %i[create update destroy]
       resources :address_validation, only: :create
       post 'initialize_vet360_id', to: 'persons#initialize_vet360_id'
       get 'person/status/:transaction_id', to: 'persons#status', as: 'person/status'
@@ -233,6 +244,8 @@ Rails.application.routes.draw do
     end
 
     resources :search, only: :index
+
+    get 'forms', to: 'forms#index'
 
     get 'profile/mailing_address', to: 'addresses#show'
     put 'profile/mailing_address', to: 'addresses#update'
@@ -298,6 +311,7 @@ Rails.application.routes.draw do
     mount Veteran::Engine, at: '/veteran'
     mount VaForms::Engine, at: '/va_forms'
     mount VeteranVerification::Engine, at: '/veteran_verification'
+    mount VeteranConfirmation::Engine, at: '/veteran_confirmation'
   end
 
   mount VAOS::Engine, at: '/v0/vaos'

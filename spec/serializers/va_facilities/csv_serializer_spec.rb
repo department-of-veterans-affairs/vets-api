@@ -30,6 +30,7 @@ RSpec.describe VaFacilities::CsvSerializer do
       classification
       website
       active_status
+      visn
     ]
 
     simple_keys.each do |key|

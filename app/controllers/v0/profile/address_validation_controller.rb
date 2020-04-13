@@ -4,7 +4,10 @@ module V0
   module Profile
     class AddressValidationController < ApplicationController
       def create
-        render(json: service.address_suggestions(Vet360::Models::Address.new(address_params)))
+        address = Vet360::Models::ValidationAddress.new(address_params)
+        raise Common::Exceptions::ValidationErrors, address unless address.valid?
+
+        render(json: service.address_suggestions(address))
       end
 
       private
@@ -14,6 +17,7 @@ module V0
           :address_line1,
           :address_line2,
           :address_line3,
+          :address_pou,
           :address_type,
           :city,
           :country_code_iso3,

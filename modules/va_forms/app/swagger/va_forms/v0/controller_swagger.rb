@@ -31,11 +31,13 @@ module VaForms
 
           response 200 do
             key :description, 'VaForms index response'
-            schema do
-              key :type, :object
-              key :required, [:data]
-              property :data do
-                key :'$ref', :FormsIndex
+            content 'application/json' do
+              schema do
+                key :type, :object
+                key :required, [:data]
+                property :data do
+                  key :'$ref', :FormsIndex
+                end
               end
             end
           end
@@ -71,11 +73,13 @@ module VaForms
 
           response 200 do
             key :description, 'VaForm response'
-            schema do
-              key :type, :object
-              key :required, [:data]
-              property :data do
-                key :'$ref', :FormShow
+            content 'application/json' do
+              schema do
+                key :type, :object
+                key :required, [:data]
+                property :data do
+                  key :'$ref', :FormShow
+                end
               end
             end
           end

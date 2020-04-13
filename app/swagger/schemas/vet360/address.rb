@@ -12,6 +12,7 @@ module Swagger
             address_line1
             city
             country_code_iso3
+            address_type
           ]
           property :address_line1,
                    type: :string,
@@ -19,6 +20,14 @@ module Swagger
                    maxLength: 100
           property :address_line2, type: :string, maxLength: 100
           property :address_line3, type: :string, maxLength: 100
+          property :address_pou,
+                   type: :string,
+                   enum: ::Vet360::Models::Address::ADDRESS_POUS,
+                   example: ::Vet360::Models::Address::RESIDENCE
+          property :address_type,
+                   type: :string,
+                   enum: ::Vet360::Models::Address::ADDRESS_TYPES,
+                   example: ::Vet360::Models::Address::DOMESTIC
           property :city, type: :string, example: 'Fulton', maxLength: 100
           property :country_code_iso3,
                    type: :string,

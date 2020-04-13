@@ -5,14 +5,14 @@ require 'rx/client'
 require 'support/rx_client_helpers'
 require 'support/shared_examples_for_mhv'
 
-# rubocop:disable Metrics/LineLength
+# rubocop:disable Layout/LineLength
 RSpec.describe 'prescriptions', type: :request do
   include Rx::ClientHelpers
   include SchemaMatchers
 
   let(:va_patient) { true }
   let(:current_user) do
-    build(:user, :mhv, authn_context: LOA::IDME_LOA3, va_patient: va_patient, mhv_account_type: mhv_account_type)
+    build(:user, :mhv, authn_context: LOA::IDME_LOA3_VETS, va_patient: va_patient, mhv_account_type: mhv_account_type)
   end
 
   before do
@@ -166,4 +166,4 @@ RSpec.describe 'prescriptions', type: :request do
     end
   end
 end
-# rubocop:enable Metrics/LineLength
+# rubocop:enable Layout/LineLength

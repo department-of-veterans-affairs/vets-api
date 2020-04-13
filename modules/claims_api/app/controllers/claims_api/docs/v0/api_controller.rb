@@ -1,24 +1,24 @@
 # frozen_string_literal: true
 
-require_dependency 'claims_api/form_526_v0_controller_swagger'
-require_dependency 'claims_api/form_0966_v0_controller_swagger'
-require_dependency 'claims_api/form_2122_v0_controller_swagger'
+require_dependency 'claims_api/v0/form_526_controller_swagger'
+require_dependency 'claims_api/v0/form_0966_controller_swagger'
+require_dependency 'claims_api/v0/form_2122_controller_swagger'
 
 module ClaimsApi
   module Docs
     module V0
       class ApiController < ClaimsApi::Docs::ApiController
         SWAGGERED_CLASSES = [
-          ClaimsApi::ClaimsModelSwagger,
-          ClaimsApi::Form526ModelSwagger,
-          ClaimsApi::Form0966ModelSwagger,
-          ClaimsApi::Form2122ModelSwagger,
-          ClaimsApi::ErrorModelSwagger,
-          ClaimsApi::ClaimsV0ControllerSwagger,
-          ClaimsApi::Form526V0ControllerSwagger,
-          ClaimsApi::Form0966V0ControllerSwagger,
-          ClaimsApi::Form2122V0ControllerSwagger,
-          ClaimsApi::ClaimsV0Swagger
+          ClaimsApi::Claims::ClaimsResponseSwagger,
+          ClaimsApi::Forms::Form526ResponseSwagger,
+          ClaimsApi::Forms::Form0966ResponseSwagger,
+          ClaimsApi::Forms::Form2122ResponseSwagger,
+          ClaimsApi::Common::ErrorModelSwagger,
+          ClaimsApi::V0::ClaimsControllerSwagger,
+          ClaimsApi::V0::Form526ControllerSwagger,
+          ClaimsApi::V0::Form0966ControllerSwagger,
+          ClaimsApi::V0::Form2122ControllerSwagger,
+          ClaimsApi::V0::SwaggerRoot
         ].freeze
 
         def index

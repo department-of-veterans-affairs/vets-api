@@ -22,7 +22,7 @@ module PdfFill
         'interest' => 'TOTAL DIVIDENDS AND INTEREST'
       }.freeze
       # rubocop:disable Metrics/BlockLength
-      # rubocop:disable Metrics/LineLength
+      # rubocop:disable Layout/LineLength
       KEY = lambda do
         key = {
           'vaFileNumber' => { key: 'F[0].Page_5[0].VAfilenumber[0]' },
@@ -557,7 +557,7 @@ module PdfFill
 
         key
       end.call.freeze
-      # rubocop:enable Metrics/LineLength
+      # rubocop:enable Layout/LineLength
       # rubocop:enable Metrics/BlockLength
 
       DEFAULT_FINANCIAL_ACCT = { 'name' => 'None', 'amount' => 0, 'recipient' => 'None' }.freeze

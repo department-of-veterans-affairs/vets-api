@@ -1,16 +1,18 @@
 # frozen_string_literal: true
 
-require_dependency 'vaos/application_controller'
-
 module VAOS
-  class AppointmentsController < ApplicationController
+  class AppointmentsController < VAOS::BaseController
     before_action :validate_params, only: :index
 
     def index
       render json: each_serializer.new(appointments[:data], meta: appointments[:meta])
     end
 
-    # not sure whether to use standard update action here, seeing as appointments don't have legitimate id.
+    def create
+      appointment_service.post_appointment(create_params)
+      head :no_content # There is no id associated with the created resource, so no point returning a response body
+    end
+
     def cancel
       appointment_service.put_cancel_appointment(cancel_params)
       head :no_content
@@ -19,11 +21,20 @@ module VAOS
     private
 
     def cancel_params
-      params.permit(:appointment_time, :clinic_id, :cancel_reason, :cancel_code, :remarks, :clinic_name)
+      params.permit(:appointment_time, :clinic_id, :facility_id, :cancel_reason, :cancel_code, :remarks, :clinic_name)
+    end
+
+    def create_params
+      params.permit(:scheduling_request_type, :type, :appointment_kind, :scheduling_method, :appt_type, :purpose, :lvl,
+                    :ekg, :lab, :x_ray, :desired_date, :date_time, :duration, :booking_notes, :preferred_email,
+                    :appointment_type, :time_zone, clinic: %i[
+                      site_code clinic_id clinic_name clinic_friendly_location_name
+                      institution_name institution_code time_zone
+                    ])
     end
 
     def appointment_service
-      VAOS::AppointmentService.for_user(current_user)
+      VAOS::AppointmentService.new(current_user)
     end
 
     def appointments

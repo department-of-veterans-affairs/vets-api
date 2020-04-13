@@ -1,8 +1,9 @@
 # frozen_string_literal: true
 
-# rubocop:disable Metrics/LineLength
+# rubocop:disable Layout/LineLength
 module V0
   class PerformanceMonitoringsController < ApplicationController
+    skip_before_action :verify_authenticity_token
     skip_before_action :authenticate
 
     # Calls StatsD.measure for a given whitelisted path, and set of metrics data.
@@ -46,4 +47,4 @@ module V0
     end
   end
 end
-# rubocop:enable Metrics/LineLength
+# rubocop:enable Layout/LineLength

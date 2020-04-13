@@ -88,7 +88,7 @@ RSpec.describe Facilities::VHAFacility do
 
       it 'includes websites for facilities' do
         VCR.use_cassette('facilities/va/vha_facilities_limit_results') do
-          expect(facility_2.website).to eq('http://www.maine.va.gov/')
+          expect(facility_2.website).to eq('https://www.maine.va.gov/locations/directions.asp')
         end
       end
 
@@ -102,6 +102,13 @@ RSpec.describe Facilities::VHAFacility do
         VCR.use_cassette('facilities/va/vha_facilities_limit_results') do
           expect(facility.mobile).to eq(false)
           expect(facility_2.mobile).to eq(true)
+        end
+      end
+
+      it 'includes visn for vha facilities' do
+        VCR.use_cassette('facilities/va/vha_facilities_limit_results') do
+          expect(facility.visn).to eq('21')
+          expect(facility_2.visn).to eq('1')
         end
       end
 

@@ -1,12 +1,13 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require_relative '../support/fixture_helper'
 
 describe VAOS::JWT do
   subject { VAOS::JWT.new(user) }
 
   let(:user) { build(:user, :vaos) }
-  let(:rsa_private) { OpenSSL::PKey::RSA.generate(4096) }
+  let(:rsa_private) { OpenSSL::PKey::RSA.new(read_fixture_file('open_ssl_rsa_private.pem')) }
   # JWT REGEX has 3 base64 url encoded parts (header, payload signature) and more importantly is non empty.
   let(:jwt_regex) { %r{^[A-Za-z0-9\-_=]+\.[A-Za-z0-9\-_=]+\.?[A-Za-z0-9\-_.+/=]*$} }
 
@@ -37,11 +38,11 @@ describe VAOS::JWT do
       end
 
       it 'includes a dob from MVI' do
-        expect(decoded_payload['dob']).to eq('1953-04-01')
+        expect(decoded_payload['dob']).to eq('19530401')
       end
 
       it 'includes a dateOfBirth from MVI' do
-        expect(decoded_payload['dateOfBirth']).to eq('1953-04-01')
+        expect(decoded_payload['dateOfBirth']).to eq('19530401')
       end
 
       it 'includes a edipid from MVI' do

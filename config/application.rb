@@ -56,12 +56,13 @@ module VetsAPI
                         X-RateLimit-Remaining
                         X-RateLimit-Reset
                         X-Session-Expiration
+                        X-CSRF-Token
                       ]
       end
     end
 
     config.middleware.insert_before(0, HttpMethodNotAllowed)
-    config.middleware.use OliveBranch::Middleware
+    config.middleware.use OliveBranch::Middleware, inflection_header: 'X-Key-Inflection'
     config.middleware.use StatsdMiddleware
     config.middleware.use Rack::Attack
     config.middleware.use ActionDispatch::Cookies

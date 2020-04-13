@@ -83,6 +83,10 @@ RSpec.describe VaFacilities::FacilitySerializer, type: :serializer do
     expect(data['attributes']['active_status']).to eq('A')
   end
 
+  it 'includes visn' do
+    expect(data['attributes']['visn']).to eq('20')
+  end
+
   it 'includes satisfaction' do
     expected_satisfaction = {
       'health' => {

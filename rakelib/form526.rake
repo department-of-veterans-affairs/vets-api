@@ -6,6 +6,12 @@ require 'set'
 namespace :form526 do
   desc 'Get all submissions within a date period. [<start date: yyyy-mm-dd>,<end date: yyyy-mm-dd>]'
   task :submissions, %i[start_date end_date] => [:environment] do |_, args|
+    # rubocop:disable Style/FormatStringToken
+    # This forces string token formatting. Our examples don't match
+    # what this style is enforcing
+    # rubocop: format('%<greeting>s', greeting: 'Hello')
+    # vets-api example: printf "%-20s %s\n", header, total
+
     def print_row(created_at, updated_at, id, c_id, p_id, complete, version) # rubocop:disable Metrics/ParameterLists
       printf "%-24s %-24s %-15s %-10s %-10s %-10s %s\n", created_at, updated_at, id, c_id, p_id, complete, version
     end
@@ -95,6 +101,7 @@ namespace :form526 do
   task :errors, %i[start_date end_date] => [:environment] do |_, args|
     def print_row(sub_id, p_id, created_at)
       printf "%-20s %-20s %s\n", sub_id, p_id, created_at
+      # rubocop:enable Style/FormatStringToken
     end
 
     def print_errors(errors)
@@ -244,56 +251,5 @@ namespace :form526 do
     SavedClaim::DisabilityCompensation.where(type: 'SavedClaim::DisabilityCompensation')
                                       .update_all(type: 'SavedClaim::DisabilityCompensation::Form526IncreaseOnly')
     # rubocop:enable Rails/SkipsModelValidations
-  end
-
-  desc 'dry run for migrating existing 526 submissions to the new tables'
-  task migrate_dry_run: :environment do
-    migrated = 0
-
-    DisabilityCompensationSubmission.find_each do |submission|
-      job = AsyncTransaction::EVSS::VA526ezSubmitTransaction.find(submission.va526ez_submit_transaction_id)
-      user_uuid = job.user_uuid
-      claim_id = nil
-      claim_id = JSON.parse(job.metadata)['claim_id'] if job.transaction_status == 'received'
-
-      submission_hash = create_submission_hash(claim_id, submission, user_uuid)
-
-      puts "\n\n---"
-      puts 'Form526Submission:'
-      pp submission_hash
-
-      submission.job_statuses.each do |job_status|
-        status_hash = create_status_hash(nil, job_status)
-        puts 'Form526JobStatus:'
-        pp status_hash
-      end
-
-      migrated += 1
-      puts "---\n\n"
-    end
-
-    puts "Submissions migrated: #{migrated}"
-  end
-
-  desc 'migrate existing 526 submissions to the new tables'
-  task migrate_data: :environment do
-    migrated = 0
-
-    DisabilityCompensationSubmission.find_each do |submission|
-      job = AsyncTransaction::EVSS::VA526ezSubmitTransaction.find(submission.va526ez_submit_transaction_id)
-      user_uuid = job.user_uuid
-      claim_id = nil
-      claim_id = JSON.parse(job.metadata)['claim_id'] if job.transaction_status == 'received'
-
-      new_submission = Form526Submission.create(create_submission_hash(claim_id, submission, user_uuid))
-
-      submission.job_statuses.each do |job_status|
-        Form526JobStatus.create(create_status_hash(new_submission.id, job_status))
-      end
-
-      migrated += 1
-    end
-
-    puts "Submissions migrated: #{migrated}"
   end
 end

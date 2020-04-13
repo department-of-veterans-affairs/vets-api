@@ -5,7 +5,7 @@ module ClaimsApi
     extend ActiveSupport::Concern
 
     included do
-      before_action :verify_power_of_attorney, if: :poa_request?
+      before_action :verify_power_of_attorney, if: :header_request?
 
       def verify_power_of_attorney
         verifier = EVSS::PowerOfAttorneyVerifier.new(target_veteran)

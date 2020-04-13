@@ -94,6 +94,28 @@ module Vet360
         get_transaction_status(route, TelephoneTransactionResponse)
       end
 
+      # POSTs a new permission to the vet360 API
+      # @param permission [Vet360::Models::Permission] the permission to create
+      # @return [Vet360::ContactInformation::PermissionUpdateResponse] response wrapper around a transaction object
+      def post_permission(permission)
+        post_or_put_data(:post, permission, 'permissions', PermissionTransactionResponse)
+      end
+
+      # PUTs an updated permission to the vet360 API
+      # @param permission [Vet360::Models::Permission] the permission to update
+      # @return [Vet360::ContactInformation::PermissionUpdateResponse] response wrapper around a transaction object
+      def put_permission(permission)
+        post_or_put_data(:put, permission, 'permissions', PermissionTransactionResponse)
+      end
+
+      # GET's the status of a permission transaction from the Vet360 api
+      # @param transaction_id [int] the transaction_id to check
+      # @return [Vet360::ContactInformation::PermissionTransactionResponse] response wrapper around a transaction object
+      def get_permission_transaction_status(transaction_id)
+        route = "#{@user.vet360_id}/permissions/status/#{transaction_id}"
+        get_transaction_status(route, PermissionTransactionResponse)
+      end
+
       # GET's the status of a person transaction from the Vet360 api. Does not validate the presence of
       # a vet360_id before making the service call, as POSTing a person initializes a vet360_id.
       #

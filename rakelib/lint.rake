@@ -4,7 +4,7 @@ require 'open3'
 require './rakelib/support/shell_command'
 
 desc 'shortcut to run all linting tools, at the same time.'
-task :lint do
+task lint: :environment do
   require 'rainbow'
 
   opts = '-r rubocop-thread_safety '
@@ -12,7 +12,8 @@ task :lint do
   opts += if ENV['CI']
             "-r rubocop/formatter/junit_formatter.rb \
             --format RuboCop::Formatter::JUnitFormatter --out log/rubocop.xml \
-            --format clang"
+            --format clang \
+            --parallel"
           else
             '--display-cop-names --auto-correct'
           end

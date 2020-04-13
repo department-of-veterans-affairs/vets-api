@@ -3,20 +3,56 @@
 require_dependency 'claims_api/concerns/mvi_verification'
 require_dependency 'claims_api/concerns/header_validation'
 require_dependency 'claims_api/unsynchronized_evss_claims_service'
+require_dependency 'claims_api/concerns/json_format_validation'
 
 module ClaimsApi
   class ApplicationController < ::OpenidApplicationController
     include ClaimsApi::MviVerification
     include ClaimsApi::HeaderValidation
+    include ClaimsApi::JsonFormatValidation
 
     skip_before_action :set_tags_and_extra_context, raise: false
+    before_action :validate_json_format, if: -> { request.post? }
+
+    def show
+      if (pending_claim = ClaimsApi::AutoEstablishedClaim.pending?(params[:id]))
+        render json: pending_claim,
+               serializer: ClaimsApi::AutoEstablishedClaimSerializer
+      else
+        fetch_or_error_local_claim_id
+      end
+    rescue EVSS::ErrorMiddleware::EVSSError
+      render json: { errors: [{ status: 404, detail: 'Claim not found' }] },
+             status: :not_found
+    end
 
     private
 
-    def poa_request?
-      # if any of the required headers are present we should attempt to use headers
-      headers_to_check = %w[HTTP_X_VA_SSN HTTP_X_VA_Consumer-Username HTTP_X_VA_Birth_Date]
-      (request.headers.to_h.keys & headers_to_check).length.positive?
+    def fetch_or_error_local_claim_id
+      claim = ClaimsApi::AutoEstablishedClaim.find_by(id: params[:id])
+      if claim && claim.status == 'errored'
+        fetch_errored(claim)
+      else
+        claim = claims_service.update_from_remote(claim.try(:evss_id) || params[:id])
+        render json: claim, serializer: ClaimsApi::ClaimDetailSerializer
+      end
+    end
+
+    def fetch_errored(claim)
+      if claim.evss_response&.any?
+        render json: { errors: format_evss_errors(claim.evss_response['messages']) },
+               status: :unprocessable_entity
+      else
+        render json: { errors: [{ status: 422, detail: 'Unknown EVSS Async Error' }] },
+               status: :unprocessable_entity
+      end
+    end
+
+    def format_evss_errors(errors)
+      errors.map do |error|
+        formatted = error['key'] ? error['key'].gsub('.', '/') : error['key']
+        { status: 422, detail: "#{error['severity']} #{error['detail'] || error['text']}".squish, source: formatted }
+      end
     end
 
     def claims_service
@@ -29,7 +65,6 @@ module ClaimsApi
 
     def header_request?
       headers_to_check = %w[HTTP_X_VA_SSN
-                            HTTP_X_VA_Consumer-Username
                             HTTP_X_VA_BIRTH_DATE
                             HTTP_X_VA_FIRST_NAME
                             HTTP_X_VA_LAST_NAME]
@@ -43,7 +78,7 @@ module ClaimsApi
         validate_headers(headers_to_validate)
         if v0?
           check_loa_level
-          request.headers['X-VA-User'] = request.headers['X-Consumer-Username'] unless header('X-VA-User')
+          check_source_user
         end
         veteran_from_headers(with_gender: with_gender)
       else
@@ -53,6 +88,16 @@ module ClaimsApi
 
     def v0?
       request.env['PATH_INFO'].downcase.include?('v0')
+    end
+
+    def check_source_user
+      if !header('X-VA-User') && request.headers['X-Consumer-Username']
+        request.headers['X-VA-User'] = request.headers['X-Consumer-Username']
+      elsif !request.headers['X-Consumer-Username']
+        log_message_to_sentry('Kong no longer sending X-Consumer-Username', :error,
+                              body: request.body)
+        validate_headers(['X-Consumer-Username'])
+      end
     end
 
     def check_loa_level

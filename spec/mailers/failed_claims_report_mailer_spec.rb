@@ -37,7 +37,8 @@ RSpec.describe FailedClaimsReportMailer, type: [:mailer] do
     end
 
     it 'sends the right email' do
-      expect(subject.body.raw_source).to eq(File.read('spec/fixtures/evss_claim/failed_claims_report.html'))
+      body = File.read('spec/fixtures/evss_claim/failed_claims_report.html').gsub(/\n/, "\r\n")
+      expect(subject.body.raw_source).to eq(body)
       expect(subject.subject).to eq('EVSS claims failed to upload')
     end
 

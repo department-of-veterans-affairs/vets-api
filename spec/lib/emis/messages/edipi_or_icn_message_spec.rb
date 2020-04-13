@@ -6,7 +6,7 @@ require 'emis/messages/edipi_or_icn_message'
 describe EMIS::Messages::EdipiOrIcnMessage do
   describe '.to_xml' do
     context 'with an edipi' do
-      let(:edipi) { Faker::Number.number(10) }
+      let(:edipi) { Faker::Number.number(digits: 10).to_s }
       let(:xml) do
         EMIS::Messages::EdipiOrIcnMessage.new(edipi: edipi, request_name: 'foo').to_xml
       end
@@ -21,7 +21,7 @@ describe EMIS::Messages::EdipiOrIcnMessage do
     end
 
     context 'with an icn' do
-      let(:icn) { Faker::Number.number(10) }
+      let(:icn) { Faker::Number.number(digits: 10).to_s }
       let(:xml) do
         EMIS::Messages::EdipiOrIcnMessage.new(icn: icn, request_name: 'foo').to_xml
       end

@@ -37,17 +37,22 @@ RSpec.describe ClaimsApi::ClaimEstablisher, type: :job do
     subject.new.perform(claim.id)
     claim.reload
     expect(claim.evss_id).to eq(1337)
+    expect(claim.form_data).to be_empty
+    expect(claim.auth_headers).to be_empty
+    expect(claim.file_data).to be_nil
     expect(claim.status).to eq(ClaimsApi::AutoEstablishedClaim::ESTABLISHED)
   end
 
   it 'sets the status of the claim to an error if it raises an error on EVSS' do
+    body = { 'messages' => [{ 'key' => 'serviceError', 'severity' => 'FATAL', 'text' => 'Not established.' }] }
     allow_any_instance_of(EVSS::DisabilityCompensationForm::ServiceAllClaim).to(
-      receive(:submit_form526).and_raise(Common::Exceptions::BackendServiceException)
+      receive(:submit_form526).and_raise(EVSS::DisabilityCompensationForm::ServiceException.new(body))
     )
-    expect { subject.new.perform(claim.id) }.to raise_error(Common::Exceptions::BackendServiceException)
+    expect { subject.new.perform(claim.id) }.to raise_error(EVSS::DisabilityCompensationForm::ServiceException)
 
     claim.reload
-    expect(claim.evss_id).to eq(nil)
+    expect(claim.evss_id).to be_nil
+    expect(claim.evss_response).to eq(body['messages'])
     expect(claim.status).to eq(ClaimsApi::AutoEstablishedClaim::ERRORED)
   end
 end

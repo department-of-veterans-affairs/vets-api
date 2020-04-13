@@ -5,7 +5,7 @@ module VbaDocuments
     class SwaggerRoot
       include Swagger::Blocks
       swagger_root do
-        key :swagger, '2.0'
+        key :openapi, '3.0.0'
         info do
           key :version, '1.0.0'
           key :title, 'Benefits Intake'
@@ -24,14 +24,22 @@ module VbaDocuments
           end
         end
 
-        security_definition :apikey do
-          key :type, :apiKey
-          key :name, :apikey
-          key :in, :header
+        server do
+          key :url, 'https://sandbox-api.va.gov/services/vba_documents/{version}'
+          key :description, 'VA.gov API sandbox environment'
+          variable :version do
+            key :default, 'v1'
+          end
         end
 
-        key :schemes, ['https']
-        key :host, 'api.va.gov'
+        server do
+          key :url, 'https://api.va.gov/services/vba_documents/{version}'
+          key :description, 'VA.gov API production environment'
+          variable :version do
+            key :default, 'v1'
+          end
+        end
+
         key :basePath, '/services/vba_documents/v1'
         key :consumes, ['application/json']
         key :produces, ['application/json']

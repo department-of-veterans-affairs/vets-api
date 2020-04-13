@@ -88,7 +88,8 @@ module Users
         home_phone: person.home_phone,
         work_phone: person.work_phone,
         temporary_phone: person.temporary_phone,
-        fax_number: person.fax_number
+        fax_number: person.fax_number,
+        text_permission: person.text_permission
       }
     rescue => e
       scaffold.errors << Users::ExceptionHandler.new(e, 'Vet360').serialize_error
@@ -104,7 +105,9 @@ module Users
           birth_date: user.va_profile.birth_date,
           family_name: user.va_profile.family_name,
           gender: user.va_profile.gender,
-          given_names: user.va_profile.given_names
+          given_names: user.va_profile.given_names,
+          is_cerner_patient: !user.va_profile.cerner_id.nil?,
+          facilities: user.va_treatment_facility_ids.map { |id| facility(id) }
         }
       else
         scaffold.errors << Users::ExceptionHandler.new(user.va_profile_error, 'MVI').serialize_error
@@ -149,6 +152,14 @@ module Users
       else
         scaffold.errors = nil
       end
+    end
+
+    def facility(facility_id)
+      cerner_facility_ids = user.va_profile.cerner_facility_ids || []
+      {
+        facility_id: facility_id,
+        is_cerner: cerner_facility_ids.include?(facility_id)
+      }
     end
   end
 end

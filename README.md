@@ -4,7 +4,7 @@ This project provides common APIs for applications that live on VA.gov (formerly
 
 For frontend, see [vets-website](https://github.com/department-of-veterans-affairs/vets-website) and [vets-content](https://github.com/department-of-veterans-affairs/vagov-content) repos.
 
-## Base setup  
+## Base setup
 
 **See the [native setup instructions](docs/setup/native.md) if you can't use docker**
 
@@ -13,41 +13,45 @@ To start, fetch this code:
 `git clone https://github.com/department-of-veterans-affairs/vets-api.git`
 
 1. Install [Docker for Mac](https://docs.docker.com/docker-for-mac/install/). This will configure both `docker` and `docker-compose`.
-1. Setup localhost certificates / keys:
+1. Setup key & cert for localhost authentication to ID.me:
    - Create a folder in your vets-api directory: `mkdir config/certs`
-   - Copy the [certificate][certificate] to `config/certs/vetsgov-localhost.crt`
-   - Copy the [key][key] to `config/certs/vetsgov-localhost.key`
-   - *NOTE:* using `touch` to create blank cert and key files no longer works. 
-   If you previously added certs in this manner replace them with the team repo certificate and key listed above.
-   
-   [certificate]: https://github.com/department-of-veterans-affairs/vets.gov-team/blob/master/Products/Identity/Login/IDme/development-certificates/vetsgov-localhost.crt
-   [key]: https://github.com/department-of-veterans-affairs/vets.gov-team/blob/master/Products/Identity/Login/IDme/development-certificates/vetsgov-localhost.key
+   - Create an empty key and cert:
 
+```
+touch config/certs/vetsgov-localhost.crt
+touch config/certs/vetsgov-localhost.key
+```
+   
+1. Disable signed authentication requests:
+
+   
+```yaml
+# settings.local.yml
+saml:
+  authn_requests_signed: false
+```
+
+[For more info on crypto & authentication, including how to enable crypto for localhost authentication](/docs/setup/authentication_with_idme.md)
+
+ 
 ## Running the app
 
-A Makefile provides shortcuts for interacting with the docker images. To run vets-api and its redis and postgres 
+A Makefile provides shortcuts for interacting with the docker images. To run vets-api and its redis and postgres
 dependencies run the following command from within the repo you cloned in the above steps.
 
-### Authentication required for enterprise.contribsys.com
+### Sidekiq Enterprise
 
-```
-Authentication is required for enterprise.contribsys.com.
-Please supply credentials for this source. You can do this by running:
- bundle config enterprise.contribsys.com username:password
-ERROR: Service 'vets-api' failed to build: The command '/bin/bash --login -c bundle install -j4' returned a non-zero code: 17
-make: *** [db] Error 1
-```
+Sidekiq Enterprise is used for worker rate limiting and additional reliability.  
+Sidekiq Enterprise requires a license be configured on your development machine.  
+If you do not have license configured, Sidekiq Enterprise will simply not be installed during gem installation.
 
-Sidekiq Enterprise is used for worker rate limiting and additional reliability. Most
-developers can bypass the installation of Sidekiq Enterprise with
+Unless you are sure you need a Sidekiq Enterprise feature, you are probably fine without configuring the license and running Sidekiq Enterprise.  
+Normal Sidekiq will still be installed and run.
 
-- `$ EXCLUDE_SIDEKIQ_ENTERPRISE=true make rebuild`
-
-VA.gov Team Engineers should follow instructions [here](https://github.com/department-of-veterans-affairs/vets.gov-team/blob/master/Products/Platform/Vets-API/Sidekiq%20Enterprise%20Setup.md) to install the enterprise license on their systems.
+If you do need Sidekiq Enterprise, VA.gov Team Engineers can follow instructions [here](https://github.com/department-of-veterans-affairs/vets.gov-team/blob/master/Products/Platform/Vets-API/Sidekiq%20Enterprise%20Setup.md) to install the enterprise license on their systems.
 
 **DO NOT commit Gemfile modifications that result from local builds without sidekiq enterprise if you do not have it enabled on your development system**
 
-Once you have the `EXCLUDE_SIDEKIQ_ENTERPRISE` set you can run the application with:
 ```
 make up
 ```
@@ -61,7 +65,7 @@ The [Makefile](https://github.com/department-of-veterans-affairs/vets-api/blob/m
 but the following tasks have been aliased to speed development:
 
 ### Running tests
-- `make spec` - Run the entire test suite via the docker image (alias for `rspec spec`)
+- `make spec` - Run the entire test suite via the docker image (alias for `rspec spec`). Test coverage statistics are in `coverage/index.html` or in [CodeClimate](https://codeclimate.com/github/department-of-veterans-affairs/vets-api/code)
 - `make guard` - Run the guard test server that reruns your tests after files are saved. Useful for TDD!
 
 ### Running linters

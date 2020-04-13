@@ -6,19 +6,17 @@ module VeteranVerification
       class ApiController < ApplicationController
         skip_before_action(:authenticate)
 
-        def history
-          swagger = YAML.safe_load(File.read(VeteranVerification::Engine.root.join('SERVICE_HISTORY.yml')))
+        def veteran_verification
+          swagger = verification_yaml
           render json: swagger
         end
 
-        def rating
-          swagger = YAML.safe_load(File.read(VeteranVerification::Engine.root.join('DISABILITY_RATING.yml')))
-          render json: swagger
-        end
+        private
 
-        def status
-          swagger = YAML.safe_load(File.read(VeteranVerification::Engine.root.join('VETERAN_CONFIRMATION.yml')))
-          render json: swagger
+        def verification_yaml
+          @verification_yaml ||= YAML.safe_load(
+            File.read(VeteranVerification::Engine.root.join('VETERAN_VERIFICATION.yml'))
+          )
         end
       end
     end

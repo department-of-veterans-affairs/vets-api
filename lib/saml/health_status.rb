@@ -53,11 +53,11 @@ module SAML
 
           OpenSSL::X509::Certificate.new(formatted_signing_cert)
           OpenSSL::X509::Certificate.new(formatted_encryption_cert)
-          return true
+          true
         rescue OpenSSL::X509::CertificateError => e
           # if cert is invalid --> "OpenSSL::X509::CertificateError: nested asn1 error"
           log_exception_to_sentry(e)
-          return false
+          false
         end
       end
     end

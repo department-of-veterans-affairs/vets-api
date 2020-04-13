@@ -2,6 +2,7 @@
 
 class ProviderSerializer < ActiveModel::Serializer
   type 'cc_provider'
+
   def id
     "ccp_#{object.ProviderIdentifier}"
   end
@@ -11,16 +12,27 @@ class ProviderSerializer < ActiveModel::Serializer
   end
 
   def name
-    object.Name
+    possible_name =
+      case object.ProviderType
+      when /GroupPracticeOrAgency/i
+        object.CareSite
+      else
+        object.ProviderName
+      end
+    [possible_name, object.Name].find(&:present?)
   end
 
   def address
     if object.AddressStreet && object.AddressCity && object.AddressStateProvince && object.AddressPostalCode
-      return { street: object.AddressStreet, city: object.AddressCity,
-               state: object.AddressStateProvince,
-               zip: object.AddressPostalCode }
+      {
+        street: object.AddressStreet,
+        city: object.AddressCity,
+        state: object.AddressStateProvince,
+        zip: object.AddressPostalCode
+      }
+    else
+      {}
     end
-    {}
   end
 
   def lat
@@ -37,6 +49,10 @@ class ProviderSerializer < ActiveModel::Serializer
 
   def phone
     object.MainPhone
+  end
+
+  def pos_codes
+    object.posCodes
   end
 
   def caresite_phone
@@ -66,6 +82,18 @@ class ProviderSerializer < ActiveModel::Serializer
     end
   end
 
-  attributes :unique_id, :name, :address, :email, :phone, :fax, :lat, :long,
-             :pref_contact, :acc_new_patients, :gender, :specialty, :caresite_phone
+  attributes  :acc_new_patients,
+              :address,
+              :caresite_phone,
+              :email,
+              :fax,
+              :gender,
+              :lat,
+              :long,
+              :name,
+              :phone,
+              :pos_codes,
+              :pref_contact,
+              :specialty,
+              :unique_id
 end

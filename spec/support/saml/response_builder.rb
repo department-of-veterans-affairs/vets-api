@@ -9,71 +9,59 @@ module SAML
       ' Military Service Information"}}'
     ].freeze
 
-    def create_user_identity(authn_context:, account_type:, level_of_assurance:, multifactor:)
+    def create_user_identity(authn_context:, level_of_assurance:, attributes:, issuer: nil)
       saml = build_saml_response(
         authn_context: authn_context,
-        account_type: account_type,
         level_of_assurance: level_of_assurance,
-        multifactor: multifactor
+        attributes: attributes,
+        issuer: issuer
       )
       saml_user = SAML::User.new(saml)
       user = create(:user, :response_builder, saml_user.to_hash)
       user.identity
     end
 
-    def saml_response_from_attributes(authn_context, attributes)
-      build_saml_response(authn_context: authn_context, attributes: attributes)
-    end
-
-    def build_saml_response_with_existing_user_identity?
-      true
-    end
-
-    # rubocop:disable Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity,  Metrics/ParameterLists
+    # rubocop:disable Metrics/CyclomaticComplexity, Metrics/ParameterLists, Metrics/AbcSize
     def build_saml_response(
-      authn_context:, account_type:, level_of_assurance:,
-      multifactor:, attributes: nil, issuer: nil
+      authn_context:, level_of_assurance:,
+      attributes: nil, issuer: nil, existing_attributes: nil, in_response_to: nil
     )
-      verifying = [LOA::IDME_LOA3, 'myhealthevet_loa3', 'dslogon_loa3'].include?(authn_context)
+      verifying = [LOA::IDME_LOA3, LOA::IDME_LOA3_VETS, 'myhealthevet_loa3', 'dslogon_loa3'].include?(authn_context)
 
       if authn_context.present?
-        if authn_context.include?('multifactor') && build_saml_response_with_existing_user_identity?
-          previous_context = authn_context.gsub(/multifactor|_multifactor/, '').presence || LOA::IDME_LOA1
+        if authn_context.include?('multifactor') && existing_attributes.present?
+          previous_context = authn_context.gsub(/multifactor|_multifactor/, '').presence || LOA::IDME_LOA1_VETS
           create_user_identity(
             authn_context: previous_context,
-            account_type: account_type,
             level_of_assurance: level_of_assurance,
-            multifactor: [false]
+            attributes: existing_attributes,
+            issuer: issuer
           )
         end
 
-        if verifying && build_saml_response_with_existing_user_identity?
-          previous_context = authn_context.gsub(/_loa3/, '').gsub(%r{\/3\/}, '/1/')
+        if verifying && existing_attributes.present?
+          previous_context = authn_context.gsub(/_loa3/, '')
+                                          .gsub(%r{loa/3/vets}, 'loa/1/vets')
+                                          .gsub(%r{loa/3}, 'loa/1/vets')
           create_user_identity(
             authn_context: previous_context,
-            account_type: account_type,
             level_of_assurance: '1',
-            multifactor: multifactor
+            attributes: existing_attributes,
+            issuer: issuer
           )
         end
       end
 
-      attributes ||= build_saml_attributes(
-        authn_context: authn_context,
-        account_type: account_type,
-        level_of_assurance: verifying ? ['3'] : level_of_assurance,
-        multifactor: multifactor,
-        issuer: issuer
-      )
       saml_response = SAML::Responses::Login.new(document_partial(authn_context).to_s)
       allow(saml_response).to receive(:issuer_text).and_return(issuer)
       allow(saml_response).to receive(:assertion_encrypted?).and_return(true)
       allow(saml_response).to receive(:attributes).and_return(attributes)
       allow(saml_response).to receive(:validate).and_return(true)
       allow(saml_response).to receive(:decrypted_document).and_return(document_partial(authn_context))
+      allow(saml_response).to receive(:in_response_to).and_return(in_response_to)
       saml_response
     end
-    # rubocop:enable Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity, Metrics/ParameterLists
+    # rubocop:enable Metrics/CyclomaticComplexity, Metrics/ParameterLists, Metrics/AbcSize
 
     def build_invalid_saml_response(in_response_to:, decrypted_document:, errors:, status_message:)
       saml_response = SAML::Responses::Login.new(decrypted_document.to_s)
@@ -165,159 +153,6 @@ module SAML
         XML
       )
     end
-
-    # rubocop:disable Metrics/CyclomaticComplexity
-    def build_ssoe_saml_attributes(authn_context:, account_type:, level_of_assurance:, multifactor:)
-      ssoe_saml_attributes = if account_type == '1'
-                               {
-                                 'va_eauth_credentialassurancelevel' => level_of_assurance,
-                                 'va_eauth_gender' => [],
-                                 'va_eauth_uid' => ['0e1bb5723d7c4f0686f46ca4505642ad'],
-                                 'va_eauth_dodedipnid' => ['1606997570'],
-                                 'va_eauth_emailaddress' => ['kam+tristanmhv@adhocteam.us'],
-                                 'multifactor' => (authn_context.include?('multifactor') ? [true] : multifactor),
-                                 'va_eauth_birthDate_v1' => [],
-                                 'va_eauth_firstname' => [],
-                                 'va_eauth_lastname' => [],
-                                 'va_eauth_middlename' => [],
-                                 'va_eauth_pnid' => [],
-                                 'va_eauth_postalcode' => [],
-                                 'va_eauth_icn' => [],
-                                 'va_eauth_mhvien' => []
-                               }
-                             else
-                               {
-                                 'va_eauth_credentialassurancelevel' => level_of_assurance,
-                                 'va_eauth_gender' => ['M'],
-                                 'va_eauth_uid' => ['0e1bb5723d7c4f0686f46ca4505642ad'],
-                                 'va_eauth_dodedipnid' => ['1606997570'],
-                                 'va_eauth_emailaddress' => ['kam+tristanmhv@adhocteam.us'],
-                                 'multifactor' => (authn_context.include?('multifactor') ? [true] : multifactor),
-                                 'va_eauth_birthDate_v1' => ['1735-10-30'],
-                                 'va_eauth_firstname' => ['Tristan'],
-                                 'va_eauth_lastname' => ['MHV'],
-                                 'va_eauth_middlename' => [''],
-                                 'va_eauth_pnid' => ['111223333'],
-                                 'va_eauth_pnidtype' => ['SSN'],
-                                 'va_eauth_postalcode' => ['12345'],
-                                 'va_eauth_icn' => ['0000'],
-                                 'va_eauth_mhvien' => ['0000']
-                               }
-                             end
-
-      case authn_context
-      when 'dslogon', 'dslogon_multifactor'
-        ssoe_saml_attributes['dslogon_assurance'] = [account_type]
-      when 'myhealthevet', 'myhealthevet_multifactor'
-        ssoe_saml_attributes['mhv_profile'] = (
-          account_type != 'Premium' ? ["{\"accountType\":\"#{account_type}\"}"] : MHV_PREMIUM_ATYPE
-        )
-      end
-
-      OneLogin::RubySaml::Attributes.new(ssoe_saml_attributes)
-    end
-    # rubocop:enable Metrics/CyclomaticComplexity
-
-    def build_mhv_saml_attributes(authn_context:, account_type:, level_of_assurance:, multifactor:)
-      OneLogin::RubySaml::Attributes.new(
-        'mhv_icn' => (account_type == 'Basic' ? [''] : ['1012853550V207686']),
-        'mhv_profile' => (account_type != 'Premium' ? ["{\"accountType\":\"#{account_type}\"}"] : MHV_PREMIUM_ATYPE),
-        'mhv_uuid' => ['12345748'],
-        'email' => ['kam+tristanmhv@adhocteam.us'],
-        'multifactor' => (authn_context.include?('multifactor') ? [true] : multifactor),
-        'uuid' => ['0e1bb5723d7c4f0686f46ca4505642ad'],
-        'level_of_assurance' => level_of_assurance
-      )
-    end
-
-    def build_dslogon_saml_attributes(authn_context:, account_type:, level_of_assurance:, multifactor:)
-      if account_type == '1'
-        OneLogin::RubySaml::Attributes.new(
-          'dslogon_status' => [],
-          'dslogon_assurance' => ['1'],
-          'dslogon_gender' => [],
-          'dslogon_deceased' => [],
-          'dslogon_idtype' => [],
-          'uuid' => ['0e1bb5723d7c4f0686f46ca4505642ad'],
-          'dslogon_uuid' => ['1606997570'],
-          'email' => ['kam+tristanmhv@adhocteam.us'],
-          'multifactor' => (authn_context.include?('multifactor') ? [true] : multifactor),
-          'level_of_assurance' => level_of_assurance,
-          'dslogon_birth_date' => [],
-          'dslogon_fname' => [],
-          'dslogon_lname' => [],
-          'dslogon_mname' => [],
-          'dslogon_idvalue' => []
-        )
-      else
-        OneLogin::RubySaml::Attributes.new(
-          'dslogon_status' => ['DEPENDENT'],
-          'dslogon_assurance' => [account_type],
-          'dslogon_gender' => ['M'],
-          'dslogon_deceased' => ['false'],
-          'dslogon_idtype' => ['ssn'],
-          'uuid' => ['0e1bb5723d7c4f0686f46ca4505642ad'],
-          'dslogon_uuid' => ['1606997570'],
-          'email' => ['kam+tristanmhv@adhocteam.us'],
-          'multifactor' => (authn_context.include?('multifactor') ? [true] : multifactor),
-          'level_of_assurance' => level_of_assurance,
-          'dslogon_birth_date' => ['1735-10-30'],
-          'dslogon_fname' => ['Tristan'],
-          'dslogon_lname' => ['MHV'],
-          'dslogon_mname' => [''],
-          'dslogon_idvalue' => ['111223333']
-        )
-      end
-    end
-
-    # rubocop:disable Metrics/CyclomaticComplexity
-    def build_saml_attributes(authn_context:, account_type:, level_of_assurance:, multifactor:, issuer: nil)
-      if issuer&.match(/eauth\.va\.gov/)
-        return build_ssoe_saml_attributes(
-          authn_context: authn_context,
-          account_type: account_type,
-          level_of_assurance: level_of_assurance,
-          multifactor: multifactor
-        )
-      end
-
-      case authn_context
-      when 'myhealthevet', 'myhealthevet_multifactor'
-        build_mhv_saml_attributes(
-          authn_context: authn_context,
-          account_type: account_type,
-          level_of_assurance: level_of_assurance,
-          multifactor: multifactor
-        )
-      when 'dslogon', 'dslogon_multifactor'
-        build_dslogon_saml_attributes(
-          authn_context: authn_context,
-          account_type: account_type,
-          level_of_assurance: level_of_assurance,
-          multifactor: multifactor
-        )
-      when LOA::IDME_LOA3, 'dslogon_loa3', 'myhealthevet_loa3'
-        OneLogin::RubySaml::Attributes.new(
-          'uuid' => ['0e1bb5723d7c4f0686f46ca4505642ad'],
-          'email' => ['kam+tristanmhv@adhocteam.us'],
-          'fname' => ['Tristan'],
-          'lname' => ['MHV'],
-          'mname' => [''],
-          'social' => ['111223333'],
-          'gender' => ['male'],
-          'birth_date' => ['1735-10-30'],
-          'level_of_assurance' => ['3'],
-          'multifactor' => [true] # always true for these types
-        )
-      when LOA::IDME_LOA1, 'multifactor'
-        OneLogin::RubySaml::Attributes.new(
-          'uuid' => ['0e1bb5723d7c4f0686f46ca4505642ad'],
-          'email' => ['kam+tristanmhv@adhocteam.us'],
-          'multifactor' => (authn_context.include?('multifactor') ? [true] : multifactor),
-          'level_of_assurance' => level_of_assurance
-        )
-      end
-    end
   end
-  # rubocop:enable Metrics/MethodLength, Metrics/ModuleLength, Metrics/CyclomaticComplexity
+  # rubocop:enable Metrics/MethodLength, Metrics/ModuleLength
 end

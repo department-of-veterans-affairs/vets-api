@@ -43,37 +43,83 @@ middle_name="W" last_name="Smith" birth_date="1945-01-25" gender="M" ssn="555443
     end
   end
 
+  desc 'Given a CSV with ICNs, append attributes needed to stage the user as ID.me LOA3' do
+    task :idme_saml_stage_attributes, [:csvfile] => [:environment] do |_, args|
+      raise 'No input CSV provided' unless args[:csvfile]
+
+      CSV.open(args[:csvfile] + '.out', 'w', write_headers: true) do |dest|
+        existing_headers = CSV.open(args[:csvfile], &:readline)
+        appended_headers = %w[first_name middle_name last_name gender birth_date ssn address]
+        CSV.open(args[:csvfile], headers: true) do |source|
+          dest << (existing_headers + appended_headers)
+          source.each do |row|
+            user_identity = UserIdentity.new(
+              uuid: SecureRandom.uuid,
+              email: 'fakeemail@needed_for_object_validation.gov',
+              mhv_icn: row['icn'], # HACK: because the presence of this attribute results in ICN based MVI lookup
+              loa: {
+                current: LOA::THREE,
+                highest: LOA::THREE
+              }
+            )
+
+            # Not persisting any users, user_identities, or caching MVI by doing it this way.
+            user = User.new(uuid: user_identity.uuid)
+            user.instance_variable_set(:@identity, user_identity)
+            mvi = Mvi.for_user(user)
+            response = mvi.send(:mvi_service).find_profile(user_identity)
+
+            appended_headers.each do |column_name|
+              case column_name
+              when 'address'
+                row['address'] = response.profile.address.to_json
+              when 'first_name'
+                row['first_name'] = response.profile.given_names.first
+              when 'middle_name'
+                row['middle_name'] = response.profile.given_names.to_a[1..-1]&.join(' ')
+              when 'last_name'
+                row['last_name'] = response.profile.family_name
+              else
+                row[column_name] = response.profile.send(column_name.to_sym)
+              end
+            end
+
+            dest << row
+          end
+        end
+      end
+    end
+  end
+
   desc 'Build mock MVI yaml database for users in given CSV'
   task :mock_database, [:csvfile] => [:environment] do |_, args|
     raise 'No input CSV provided' unless args[:csvfile]
 
     csv = CSV.open(args[:csvfile], headers: true)
     csv.each_with_index do |row, i|
-      begin
-        bd = Time.iso8601(row['birth_date']).strftime('%Y-%m-%d')
-        user = User.new(
-          first_name: row['first_name'],
-          last_name: row['last_name'],
-          middle_name: row['middle_name'],
-          birth_date: bd,
-          gender: row['gender'],
-          ssn: row['ssn'],
-          email: row['email'],
-          uuid: SecureRandom.uuid,
-          loa: { current: LOA::THREE, highest: LOA::THREE }
-        )
-        if user.va_profile.nil?
-          puts "Row #{i} #{row['first_name']} #{row['last_name']}: No MVI profile"
-          next
-        end
-      rescue => e
-        puts "Row #{i} #{row['first_name']} #{row['last_name']}: #{e.message}"
+      bd = Time.iso8601(row['birth_date']).strftime('%Y-%m-%d')
+      user = User.new(
+        first_name: row['first_name'],
+        last_name: row['last_name'],
+        middle_name: row['middle_name'],
+        birth_date: bd,
+        gender: row['gender'],
+        ssn: row['ssn'],
+        email: row['email'],
+        uuid: SecureRandom.uuid,
+        loa: { current: LOA::THREE, highest: LOA::THREE }
+      )
+      if user.va_profile.nil?
+        puts "Row #{i} #{row['first_name']} #{row['last_name']}: No MVI profile"
+        next
       end
+    rescue => e
+      puts "Row #{i} #{row['first_name']} #{row['last_name']}: #{e.message}"
     end
   end
 
   desc "Given a ssn update a mocked user's correlation ids"
-  task :update_ids, [:environment] do
+  task update_ids: :environment do
     ssn = ENV['ssn']
     raise ArgumentError, 'ssn is required, usage: `rake mvi:update_ids ssn=111223333 icn=abc123`' unless ssn
 
@@ -100,7 +146,7 @@ middle_name="W" last_name="Smith" birth_date="1945-01-25" gender="M" ssn="555443
   end
 
   desc 'Create missing cache files from mock_mvi_responses.yml'
-  task :migrate_mock_data, [:environment] do
+  task migrate_mock_data: :environment do
     yaml = YAML.safe_load(
       File.read(File.join('config', 'mvi_schema', 'mock_mvi_responses.yml'))
     )
