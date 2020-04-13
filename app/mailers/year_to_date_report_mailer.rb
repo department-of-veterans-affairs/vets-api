@@ -30,6 +30,8 @@ class YearToDateReportMailer < ApplicationMailer
       daniel.shawkey@va.gov
       shawkey_daniel@bah.com
       daveandshay@att.net
+      johnny@oddball.io
+      John.Holton2@va.gov
     ]
   }.freeze
 
