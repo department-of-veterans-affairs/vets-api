@@ -1,14 +1,13 @@
 # frozen_string_literal: true
 
-require_dependency 'claims_api/json_marshal'
 require_dependency 'claims_api/concerns/file_data'
 
 module ClaimsApi
   class PowerOfAttorney < ApplicationRecord
     include FileData
-    attr_encrypted(:form_data, key: Settings.db_encryption_key, marshal: true, marshaler: ClaimsApi::JsonMarshal)
-    attr_encrypted(:auth_headers, key: Settings.db_encryption_key, marshal: true, marshaler: ClaimsApi::JsonMarshal)
-    attr_encrypted(:source_data, key: Settings.db_encryption_key, marshal: true, marshaler: ClaimsApi::JsonMarshal)
+    attr_encrypted(:form_data, key: Settings.db_encryption_key, marshal: true, marshaler: JsonMarshal::Marshaller)
+    attr_encrypted(:auth_headers, key: Settings.db_encryption_key, marshal: true, marshaler: JsonMarshal::Marshaller)
+    attr_encrypted(:source_data, key: Settings.db_encryption_key, marshal: true, marshaler: JsonMarshal::Marshaller)
 
     PENDING = 'pending'
     UPDATED = 'updated'
