@@ -101,7 +101,7 @@ gem 'sentry-raven', '2.9.0' # don't change gem version unless sentry server is a
 gem 'shrine'
 gem 'sidekiq-instrument'
 gem 'staccato'
-gem 'statsd-instrument'
+gem 'statsd-instrument', '~> 2.6.0'
 gem 'swagger-blocks'
 gem 'typhoeus'
 gem 'upsert'
