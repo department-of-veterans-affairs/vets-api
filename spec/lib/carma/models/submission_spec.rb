@@ -122,16 +122,6 @@ RSpec.describe CARMA::Models::Submission, type: :model do
       )
     end
 
-    context 'when :data is invalid' do
-      xit 'raises exception' do
-      end
-    end
-
-    context 'when :metadata is invalid' do
-      xit 'raises exception' do
-      end
-    end
-
     context 'when submission is valid' do
       it 'submits the data and metadata to CARMA, and updates :carma_case_id and :submitted_at' do
         expect(submission.carma_case_id).to eq(nil)
