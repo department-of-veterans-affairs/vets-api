@@ -31,6 +31,7 @@ RSpec.describe EducationBenefitsClaim, type: :model do
       Flipper.disable('edu_benefits_stem_scholarship')
       create(:va1990).education_benefits_claim
     end
+
     %w[1990 1995 1990e 5490 5495 1990n 0993 0994 1995s].each do |form_type|
       method = "is_#{form_type}?"
       describe "##{method}" do
@@ -46,7 +47,6 @@ RSpec.describe EducationBenefitsClaim, type: :model do
       end
     end
   end
-
 
   describe '#form_type' do
     it 'returns the form type' do
