@@ -28,7 +28,7 @@ module CARMA
         response_body
       end
 
-      # The CARAM Staging and Prod enviornments will not exist until ~May 2020
+      # The CARMA Staging and Prod enviornments will not exist until ~May 2020
       # So we will not be hitting SALESFORCE_INSTANCE_URL in runtime, to avoid 500 errors. Instead
       # we'll use stub req/res in order to do user testing on the rest of our submission code.
       def create_submission_stub(_payload)

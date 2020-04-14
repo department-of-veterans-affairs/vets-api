@@ -4,8 +4,7 @@ module CARMA
   module Models
     class Submission < Base
       attr_reader :metadata
-      attr_accessor :data
-      attr_accessor :carma_case_id, :submitted_at
+      attr_accessor :data, :carma_case_id, :submitted_at
 
       request_payload_key :data, :metadata
 
