@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require 'common/models/resource'
-
 module VAOS
   class DateTimeMdy < Virtus::Attribute
     def coerce(value)
