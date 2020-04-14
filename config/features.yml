@@ -3,7 +3,7 @@
 # Features are defaulted to enabled in development and test environments and disabled in all others.
 # The description should contain any relevant information for an admin who may toggle the feature.
 #
-# The actor_type should be either `user` for featires you want to be "sticky" for a logged in user (default)
+# The actor_type should be either `user` for features you want to be "sticky" for a logged in user (default)
 #  or `cookie_id` of you wish to use the Google Analytics id as the unique identifier.
 
 features:
@@ -64,10 +64,14 @@ features:
     description: >
       Enables ssoe, as opposed to saml authentication wrapped by id.me
   edu_benefits_stem_scholarship:
-      actor_type: user
-      description: >
-        Enables STEM scholarship functionality
-  edu_section_103:     
-      actor_type: user
-      description: > 
-        Enables section 103 content
+    actor_type: user
+    description: >
+      Enables STEM scholarship functionality
+  edu_section_103:
+    actor_type: user
+    description: >
+      Enables section 103 content
+  gibct_estimate_your_benefits:
+    actor_type: user
+    description: >
+      Enable 508 and usability enhancements for the Comparison Tool Profile Page Estimate Your Benefits section benefits estimator panel.
