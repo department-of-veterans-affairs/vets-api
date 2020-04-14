@@ -41,7 +41,6 @@
   "civilianBenefitsAssistance": true,
   "email": "test@sample.com",
   "benefit": "chapter33",
-  "educationType": "tuitionTopUp",
   "educationObjective": "bachelor's degree",
   "bankAccountChange": "startUpdate",
   "bankAccount": {

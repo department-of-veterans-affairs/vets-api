@@ -8,6 +8,6 @@ RSpec.describe EducationForm::Forms::VA10203 do
   let(:education_benefits_claim) { build(:va10203).education_benefits_claim }
 
   %w[kitchen_sink minimal].each do |test_application|
-    test_spool_file('10203', test_application)
-  end
+    test_spool_file('10203', test_application)end
+
 end
