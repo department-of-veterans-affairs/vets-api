@@ -30,14 +30,9 @@ checks:
     exclude_patterns:
       - '*/engine.rb'
       - "**/swagger/**.rb"
-      - "**/evss_claims_controller.rb"
-      - "**/evss_claims_async_controller.rb"
   identical-code:
     config:
       threshold: # language-specific defaults. an override will affect all languages.
-    exclude_patterns:
-      - "**/evss_claims_controller.rb"
-      - "**/evss_claims_async_controller.rb"
 plugins:
   rubocop:
     enabled: true
