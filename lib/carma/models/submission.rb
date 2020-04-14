@@ -2,14 +2,12 @@
 
 module CARMA
   module Models
-    class Submission
-      # request
+    class Submission < Base
+      attr_reader :metadata
       attr_accessor :data
-      attr_accessor :metadata
+      attr_accessor :carma_case_id, :submitted_at
 
-      # response
-      attr_accessor :carma_case_id
-      attr_accessor :submitted_at
+      request_payload_key :data, :metadata
 
       # Returns a new CARMA::Models::Submission built from a CaregiversAssistanceClaim.
       #
@@ -20,23 +18,23 @@ module CARMA
       #
       def self.from_claim(claim, metadata = {})
         new(
-          data: claim.parsed_form, # No data transformation yet, just a one-to-one mapping of properties
+          data: claim.parsed_form,
           metadata: metadata.merge(claim_id: claim.id)
         )
       end
 
       def initialize(args = {})
-        @client = CARMA::Client::Client.new
         @carma_case_id = args[:carma_case_id]
         @submitted_at = args[:submitted_at]
         @data = args[:data]
-        @metadata = CARMA::Models::Submission::Metadata.new(args[:metadata] || {})
+
+        send('metadata=', args[:metadata] || {})
       end
 
       def submit!
         raise 'This submission has already been submitted to CARMA' if submitted?
 
-        response = @client.create_submission_stub(to_request_payload)
+        response = client.create_submission_stub(to_request_payload)
 
         @carma_case_id = response['data']['carmacase']['id']
         @submitted_at = response['data']['carmacase']['createdAt']
@@ -48,20 +46,14 @@ module CARMA
         @submitted_at.present? || @carma_case_id.present?
       end
 
-      def to_request_payload
-        { data: @data, metadata: metadata.to_request_payload }
+      def metadata=(args = {})
+        @metadata = Metadata.new(args)
       end
 
-      class Metadata
-        attr_reader :claim_id
+      private
 
-        def initialize(args = {})
-          @claim_id = args[:claim_id]
-        end
-
-        def to_request_payload
-          { claim_id: claim_id }
-        end
+      def client
+        @client ||= CARMA::Client::Client.new
       end
     end
   end
