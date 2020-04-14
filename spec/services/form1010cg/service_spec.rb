@@ -33,10 +33,8 @@ RSpec.describe Form1010cg::Service do
     submission = subject.submit_claim!(user, claim_data)
 
     expect(submission).to be_an_instance_of(Form1010cg::Submission)
-    expect(submission.id).to eq(nil)
     expect(submission.carma_case_id).to eq(expected[:carma_case_id])
     expect(submission.submitted_at).to eq(expected[:submitted_at])
-    expect(submission.persisted?).to eq(false) # Not persisting until production relsease
   end
 
   context 'with user context' do
@@ -85,10 +83,8 @@ RSpec.describe Form1010cg::Service do
       submission = subject.submit_claim!(user, claim_data)
 
       expect(submission).to be_an_instance_of(Form1010cg::Submission)
-      expect(submission.id).to eq(nil)
       expect(submission.carma_case_id).to eq(expected[:carma_case_id])
       expect(submission.submitted_at).to eq(expected[:submitted_at])
-      expect(submission.persisted?).to eq(false) # Not persisting until production relsease
     end
 
     it 'will function when no related in progress form exists' do
@@ -109,10 +105,8 @@ RSpec.describe Form1010cg::Service do
       submission = subject.submit_claim!(user, claim_data)
 
       expect(submission).to be_an_instance_of(Form1010cg::Submission)
-      expect(submission.id).to eq(nil)
       expect(submission.carma_case_id).to eq(expected[:carma_case_id])
       expect(submission.submitted_at).to eq(expected[:submitted_at])
-      expect(submission.persisted?).to eq(false) # Not persisting until production relsease
     end
   end
 end
