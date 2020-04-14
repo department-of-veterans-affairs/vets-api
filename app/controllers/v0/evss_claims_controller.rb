@@ -16,7 +16,10 @@ module V0
 
     def show
       claim = EVSSClaim.for_user(current_user).find_by(evss_id: params[:id])
-      raise Common::Exceptions::RecordNotFound, params[:id] unless claim
+      unless claim
+        Raven.tags_context(team: 'benefits-memorial-1') # tag sentry logs with team name
+        raise Common::Exceptions::RecordNotFound, params[:id]
+      end
 
       claim, synchronized = service.update_from_remote(claim)
       render json: claim, serializer: EVSSClaimDetailSerializer,
@@ -25,7 +28,10 @@ module V0
 
     def request_decision
       claim = EVSSClaim.for_user(current_user).find_by(evss_id: params[:id])
-      raise Common::Exceptions::RecordNotFound, params[:id] unless claim
+      unless claim
+        Raven.tags_context(team: 'benefits-memorial-1') # tag sentry logs with team name
+        raise Common::Exceptions::RecordNotFound, params[:id]
+      end
 
       jid = service.request_decision(claim)
       claim.update_attributes(requested_decision: true)
