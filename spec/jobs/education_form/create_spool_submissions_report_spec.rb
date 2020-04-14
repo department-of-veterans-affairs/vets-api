@@ -42,12 +42,6 @@ RSpec.describe EducationForm::CreateSpoolSubmissionsReport, type: :aws_helpers d
       end
     end
 
-    it 'recognizes 1995s as STEM submission' do
-      create(:education_benefits_claim_1995s, processed_at: time.beginning_of_day)
-      data = subject.create_csv_array
-      expect(data[:stem_exists]).to eq(true)
-    end
-
     describe '#perform' do
       before do
         expect(FeatureFlipper).to receive(:send_edu_report_email?).once.and_return(true)
