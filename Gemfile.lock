@@ -298,11 +298,6 @@ GEM
       dry-initializer (~> 3.0)
       dry-logic (~> 1.0)
       dry-types (~> 1.2)
-    dry-struct (1.2.0)
-      dry-core (~> 0.4, >= 0.4.3)
-      dry-equalizer (~> 0.3)
-      dry-types (~> 1.0)
-      ice_nine (~> 0.11)
     dry-types (1.2.2)
       concurrent-ruby (~> 1.0)
       dry-container (~> 0.3)
@@ -790,8 +785,6 @@ DEPENDENCIES
   danger
   database_cleaner
   date_validator
-  dry-struct
-  dry-types
   factory_bot_rails (> 5)
   faker
   faker-medical
