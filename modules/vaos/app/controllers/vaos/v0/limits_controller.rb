@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module VAOS::V0
-  class LimitsController < VAOS::V0::BaseControllers
+  class LimitsController < VAOS::V0::BaseController
     def index
       response = systems_service.get_facility_limits(
         facility_id,

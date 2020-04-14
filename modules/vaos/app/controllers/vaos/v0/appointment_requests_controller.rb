@@ -26,17 +26,17 @@ module VAOS::V0
 
     def index
       response = appointment_requests_service.get_requests(start_date, end_date)
-      render json: AppointmentRequestsSerializer.new(response[:data], meta: response[:meta])
+      render json: VAOS::AppointmentRequestsSerializer.new(response[:data], meta: response[:meta])
     end
 
     def create
       response = appointment_requests_service.post_request(params_for_create)
-      render json: AppointmentRequestsSerializer.new(response[:data]), status: :created
+      render json: VAOS::AppointmentRequestsSerializer.new(response[:data]), status: :created
     end
 
     def update
       response = appointment_requests_service.put_request(id, params_for_update)
-      render json: AppointmentRequestsSerializer.new(response[:data])
+      render json: VAOS::AppointmentRequestsSerializer.new(response[:data])
     end
 
     private
