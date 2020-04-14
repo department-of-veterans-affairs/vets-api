@@ -23,11 +23,10 @@ module CARMA
       end
 
       def initialize(args = {})
-        @carma_case_id = args[:carma_case_id]
-        @submitted_at = args[:submitted_at]
-        @data = args[:data]
-
-        send('metadata=', args[:metadata] || {})
+        self.carma_case_id = args[:carma_case_id]
+        self.submitted_at = args[:submitted_at]
+        self.data = args[:data]
+        self.metadata = args[:metadata] || {}
       end
 
       def submit!
