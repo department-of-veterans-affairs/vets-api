@@ -8,8 +8,6 @@ module Form1010cg
     #
     # More information about CARMA can be found in lib/carma/README.md
 
-    include ActiveModel::Serialization
-
     attr_accessor :carma_case_id # The id of the CARMA Case created from this form submission
     attr_accessor :submitted_at # The timestamp of when the submission was accepted in CARMA
 
