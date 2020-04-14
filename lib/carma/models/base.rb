@@ -15,9 +15,10 @@ module CARMA
       end
 
       # Hook allowing the inheriting class to set the attribute keys that should be included when
-      # parsing the object to a request_payload object. Assignment is important for the inheriting class
-      # to have it's own array vs referencing Base.request_payload_keys
+      # parsing the object to a request_payload object.
       def self.request_payload_key(key, *keys)
+        # Assignment vs concat is important for the inheriting class
+        # to have it's own array vs referencing Base.request_payload_keys
         self.request_payload_keys += [key, *keys]
       end
     end
