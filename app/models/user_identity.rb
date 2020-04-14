@@ -24,11 +24,14 @@ class UserIdentity < Common::RedisStore
   attribute :loa
   attribute :multifactor, Boolean # used by F/E to decision on whether or not to prompt user to add MFA
   attribute :authn_context # used by F/E to handle various identity related complexities pending refactor
+  attribute :idme_uuid
+  attribute :sec_id
   attribute :mhv_icn # only needed by B/E not serialized in user_serializer
   attribute :mhv_correlation_id # this is the cannonical version of MHV Correlation ID, provided by MHV sign-in users
   attribute :mhv_account_type # this is only available for MHV sign-in users
   attribute :dslogon_edipi # this is only available for dslogon users
   attribute :sign_in, Hash # original sign_in (see sso_service#mergable_identity_attributes)
+  attribute :authenticated_by_ssoe, Boolean
 
   validates :uuid, presence: true
   validates :email, presence: true

@@ -12,7 +12,6 @@ Rails.application.routes.draw do
       constraints: ->(request) { V0::SessionsController::REDIRECT_URLS.include?(request.path_parameters[:type]) }
 
   get '/v1/sessions/metadata', to: 'v1/sessions#metadata'
-  get '/v1/sessions/logout', to: 'v1/sessions#saml_logout_callback'
   post '/v1/sessions/callback', to: 'v1/sessions#saml_callback', module: 'v1'
   get '/v1/sessions/:type/new',
       to: 'v1/sessions#new',
@@ -61,7 +60,7 @@ Rails.application.routes.draw do
       end
     end
 
-    resource :health_care_applications, only: [:create] do
+    resources :health_care_applications, only: %i[create show] do
       collection do
         get(:healthcheck)
         get(:enrollment_status)
@@ -69,6 +68,9 @@ Rails.application.routes.draw do
     end
 
     resource :hca_attachments, only: :create
+
+    # Excluding this feature until external service (CARMA) is connected
+    resources :caregivers_assistance_claims, only: :create if Rails.env.test?
 
     resources :dependents_applications, only: %i[create show] do
       collection do
@@ -169,12 +171,19 @@ Rails.application.routes.draw do
       end
 
       resources :calculator_constants, only: :index, defaults: { format: :json }
+
+      resources :yellow_ribbon_programs, only: :index, defaults: { format: :json }
+
       resources :zipcode_rates, only: :show, defaults: { format: :json }
     end
 
     scope :id_card do
       resource :attributes, only: [:show], controller: 'id_card_attributes'
       resource :announcement_subscription, only: [:create], controller: 'id_card_announcement_subscription'
+    end
+
+    namespace :mdot do
+      resources :supplies, only: %i[create]
     end
 
     namespace :preneeds do
@@ -198,13 +207,8 @@ Rails.application.routes.draw do
 
     resource :address, only: %i[show update] do
       collection do
-        if Settings.evss&.reference_data_service&.enabled
-          get 'countries', to: 'addresses#rds_countries'
-          get 'states', to: 'addresses#rds_states'
-        else
-          get 'countries', to: 'addresses#countries'
-          get 'states', to: 'addresses#states'
-        end
+        get 'countries', to: 'addresses#countries'
+        get 'states', to: 'addresses#states'
       end
     end
 

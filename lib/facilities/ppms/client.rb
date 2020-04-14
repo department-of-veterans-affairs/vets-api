@@ -17,22 +17,26 @@ module Facilities
       def provider_locator(params)
         qparams = provider_locator_params(params)
         response = perform(:get, 'v1.0/ProviderLocator', qparams)
+
         return [] if response.body.nil?
 
         trim_response_attributes!(response)
         deduplicate_response_arrays!(response)
 
-        Facilities::PPMS::Response.from_provider_locator(response, params)
+        paginated_responses(
+          Facilities::PPMS::Response.from_provider_locator(response, params),
+          params
+        )
       end
 
       def pos_locator(params)
-        walkin_params = pos_locator_params(params, 17)
+        walkin_params      = pos_locator_params(params, 17)
         urgent_care_params = pos_locator_params(params, 20)
 
-        walkin_response = perform(:get, 'v1.0/PlaceOfServiceLocator', walkin_params)
+        walkin_response      = perform(:get, 'v1.0/PlaceOfServiceLocator', walkin_params)
         urgent_care_response = perform(:get, 'v1.0/PlaceOfServiceLocator', urgent_care_params)
 
-        [
+        responses = [
           [walkin_params, walkin_response],
           [urgent_care_params, urgent_care_response]
         ].each_with_object([]) do |(request_params, response), new_array|
@@ -44,9 +48,11 @@ module Facilities
           providers = Facilities::PPMS::Response.from_provider_locator(response, request_params)
           providers.each do |provider|
             provider.posCodes = request_params[:posCodes]
+            provider.ProviderType = 'GroupPracticeOrAgency'
           end
           new_array.concat(providers)
-        end.sort!
+        end.sort
+        paginated_responses(responses, params)
       end
 
       # https://dev.dws.ppms.va.gov/swagger/ui/index#!/Providers/Providers_Get_0
@@ -87,15 +93,15 @@ module Facilities
 
       private
 
-      def trim_response_attributes!(response)
-        if Flipper.enabled?(:facilities_ppms_response_trim)
-          flipper_enabled_trim_response_attributes!(response)
-        else
-          response
-        end
+      def paginated_responses(response, params)
+        page = Integer(params[:page] || 1)
+        per_page = Integer(params[:per_page] || BaseFacility.per_page)
+        offset = (page - 1) * per_page
+
+        response[offset, per_page] || []
       end
 
-      def flipper_enabled_trim_response_attributes!(response)
+      def trim_response_attributes!(response)
         response.body.collect! do |hsh|
           hsh.each_pair.collect do |attr, value|
             if value.is_a? String
@@ -109,14 +115,6 @@ module Facilities
       end
 
       def deduplicate_response_arrays!(response)
-        if Flipper.enabled?(:facility_locator_dedup_community_care_services)
-          flipper_enabled_deduplicate_response_arrays!(response)
-        else
-          response
-        end
-      end
-
-      def flipper_enabled_deduplicate_response_arrays!(response)
         response.body.collect! do |hsh|
           hsh.each_pair.collect do |attr, value|
             if value.is_a? Array
@@ -129,9 +127,45 @@ module Facilities
         response
       end
 
+      EARTH_RADIUS = 3_958.8
+
+      def rgeo_factory
+        RGeo::Geographic.spherical_factory
+      end
+
+      # Distance spanned by one degree of latitude in the given units.
+      def latitude_degree_distance
+        2 * Math::PI * EARTH_RADIUS / 360
+      end
+
+      # Distance spanned by one degree of longitude at the given latitude.
+      # This ranges from around 69 miles at the equator to zero at the poles.
+      def longitude_degree_distance(latitude)
+        (latitude_degree_distance * Math.cos(latitude * (Math::PI / 180))).abs
+      end
+
+      def center_and_radius(bbox)
+        bbox_num = bbox.map { |x| Float(x) }
+        x_min, y_min, x_max, y_max = bbox_num.values_at(1, 0, 3, 2)
+
+        projection = RGeo::Geographic::ProjectedWindow.new(rgeo_factory, x_min, y_min, x_max, y_max)
+        lat, lon = projection.center_xy
+        rad = [
+          (projection.height * latitude_degree_distance).round(2),
+          (projection.width * longitude_degree_distance(lat)).round(2)
+        ].max
+
+        {
+          latitude: lat,
+          longitude: lon,
+          radius: rad
+        }
+      end
+
       def radius(bbox)
         # more estimation fun about 69 miles between latitude lines, <= 69 miles between long lines
         bbox_num = bbox.map { |x| Float(x) }
+
         lats = bbox_num.values_at(1, 3)
         longs = bbox_num.values_at(2, 0)
         xlen = (lats.max - lats.min) * 69 / 2
@@ -141,18 +175,28 @@ module Facilities
 
       def pos_locator_params(params, pos_code)
         page = Integer(params[:page] || 1)
+        per_page = Integer(params[:per_page] || BaseFacility.per_page)
         {
           address: "'#{params[:address]}'",
           radius: radius(params[:bbox]),
           driveTime: 10_000,
           posCodes: pos_code,
           network: 0,
-          maxResults: 20 * page + 1
+          maxResults: per_page * page + 1
         }
       end
 
       def provider_locator_params(params)
+        if Flipper.enabled?(:facility_locator_ppms_location_query)
+          provider_locator_location_params(params)
+        else
+          provider_locator_address_params(params)
+        end
+      end
+
+      def provider_locator_address_params(params)
         page = Integer(params[:page] || 1)
+        per_page = Integer(params[:per_page] || BaseFacility.per_page)
         specialty = "'#{params[:services] ? params[:services][0] : 'null'}'"
         {
           address: "'#{params[:address]}'",
@@ -166,7 +210,29 @@ module Facilities
           gender: 0,
           primarycare: 0,
           acceptingnewpatients: 0,
-          maxResults: 20 * page + 1
+          maxResults: per_page * page + 1
+        }
+      end
+
+      def provider_locator_location_params(params)
+        page = Integer(params[:page] || 1)
+        per_page = Integer(params[:per_page] || BaseFacility.per_page)
+        specialty = "'#{params[:services] ? params[:services][0] : 'null'}'"
+        cnr = center_and_radius(params[:bbox])
+
+        {
+          address: [cnr[:latitude], cnr[:longitude]].join(','),
+          radius: cnr[:radius],
+          driveTime: 10_000,
+          specialtycode1: specialty,
+          specialtycode2: 'null',
+          specialtycode3: 'null',
+          specialtycode4: 'null',
+          network: 0,
+          gender: 0,
+          primarycare: 0,
+          acceptingnewpatients: 0,
+          maxResults: per_page * page + 1
         }
       end
     end

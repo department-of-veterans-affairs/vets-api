@@ -12,6 +12,7 @@ saml:
   issuer: saml-rp.vetsgov.localhost
   callback_url: http://localhost:3000/auth/saml/callback
   metadata_url: https://api.idmelabs.com/saml/metadata/provider
+  authn_requests_signed: false
 
 # Settings for new SAML authentication with SSOe
 saml_ssoe:
@@ -35,6 +36,10 @@ sso:
   cookie_iv: A3C0567C78BEC6DDE75E2FEB92DE11AA
   cookie_secure: false
   cookie_domain: localhost
+
+ssoe:
+  redirects:
+    myvahealth: https://ehrm-va-test.patientportal.us.healtheintent.com/
 
 binaries:
   # you can specify a full path in settings.local.yml if necessary
@@ -112,7 +117,7 @@ ihub:
 # Settings for Medical Devices Ordering Tool
 mdot:
   prefill: true
-  url: https://some.fakesite.com
+  url: https://dlc-dummy.herokuapp.com
   api_key: abcd1234abcd1234abcd1234abcd1234abcd1234
   mock: false
   enabled: false
@@ -191,17 +196,11 @@ mvi_hca:
 hca:
   prefill: true
   endpoint: https://test-foo.vets.gov
-  cert_path: /fake/client/cert/path
-  key_path: /fake/client/key/path
+  timeout: 30
   ee:
     endpoint: 'http://example.com'
     user: "HCASvcUsr"
     pass: "password"
-  ca:
-    - 'VA Internal Root CA.pem'
-    - 'VA Internal Subordinate CA 1.pem'
-    - 'VA-Internal-S2-ICA1-v1.pem'
-    - 'VA-Internal-S2-RCA1-v1.pem'
 
 # Settings for the facility locator
 locators:
@@ -305,6 +304,7 @@ appeals:
   mock: true
   app_token: PUBLICDEMO123
   host: https://dsva-appeals-certification-dev-1895622301.us-gov-west-1.elb.amazonaws.com
+  schema_dir: config/schemas
 
 vic:
   url: https://some.fakesite.com
@@ -386,8 +386,6 @@ shrine:
   claims:
     type: local
     path: claims
-github:
-  api_key: abcd1234abcd1234abcd1234abcd1234abcd1234
 
 # Settings for maintenance window API
 # Services should be a map from logical service name to PagerDuty service id
@@ -401,6 +399,7 @@ maintenance:
     emis: P0HNT0I
     es: PH7OPR4
     evss: PZKWB6Y
+    global: PLPSIB0
     idme: PVWB4R8
     mvi: PCIPVGJ
     mhv: PP2ZZ2V
@@ -408,6 +407,11 @@ maintenance:
     tims: PUL8OQ4
     vet360: PHVOGQ1
     vic: P7LW3MS
+  aws:
+    access_key_id: ~
+    bucket: ~
+    region: ~
+    secret_access_key: ~
 
 # Note: in addition to enabling / disabling betamocks here, you _must_ also
 # change the 'mock' bool for each service you want to mock in this settings file
@@ -438,6 +442,7 @@ flipper:
   admin_user_emails:
     - alastair@adhocteam.us
     - anna@adhoc.team
+    - eric.buckley@adhocteam.us
     - erik@adhocteam.us
     - jbalboni@gmail.com
     - jeff@adhocteam.us
@@ -449,6 +454,7 @@ flipper:
     - n.ratana@gmail.com
     - narin@adhocteam.us
     - osanchez@governmentcio.com
+    - patrick@adhocteam.us
     - rian.fowler@adhoc.team
     - rianfowler@outlook.com
     - ryan.thurlwell@va.gov
@@ -487,3 +493,10 @@ vbms:
   server_cert: vbms.aide.oit.va.gov.crt
   environment_directory: /srv/vets-api/secret
   env: test
+
+vet_verification:
+  key_path: modules/veteran_verification/spec/fixtures/verification_test.pem
+
+github_stats:
+  username: github-stats-rake
+  token: fake_token

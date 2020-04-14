@@ -21,8 +21,6 @@ module SAML
       'dslogon_multifactor' => { loa_current: nil, sign_in: { service_name: 'dslogon' } },
       'dslogon_loa3' => { loa_current: '3', sign_in: { service_name: 'dslogon' } },
       'myhealthevet' => { loa_current: nil, sign_in: { service_name: 'myhealthevet' } },
-      # SSOe context
-      'urn:oasis:names:tc:SAML:2.0:ac:classes:Password' => { loa_current: '1', sign_in: { service_name: 'ssoe' } },
       'dslogon' => { loa_current: nil, sign_in: { service_name: 'dslogon' } }
     }.freeze
     UNKNOWN_AUTHN_CONTEXT = 'unknown'
@@ -45,6 +43,10 @@ module SAML
       log_warnings_to_sentry
     end
 
+    def validate!
+      @user_attributes.validate!
+    end
+
     def changing_multifactor?
       return false if authn_context.nil?
 
@@ -58,7 +60,7 @@ module SAML
     private
 
     def serializable_attributes
-      %i[authn_context]
+      %i[authn_context authenticated_by_ssoe]
     end
 
     def log_warnings_to_sentry
@@ -89,10 +91,13 @@ module SAML
       raise
     end
 
+    def authenticated_by_ssoe
+      issuer&.match?(/eauth\.va\.gov/) == true
+    end
+
     # SSOe Issuer value is https://int.eauth.va.gov/FIM/sps/saml20fedCSP/saml20
-    # SSOe AuthnContext currently set to urn:oasis:names:tc:SAML:2.0:ac:classes:Password
     def user_attributes_class
-      return SAML::UserAttributes::SSOe if issuer&.match(/eauth\.va\.gov/)
+      return SAML::UserAttributes::SSOe if authenticated_by_ssoe
 
       case authn_context
       when 'myhealthevet', 'myhealthevet_multifactor'

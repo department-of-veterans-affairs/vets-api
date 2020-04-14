@@ -2,58 +2,83 @@
   "$schema": "http://json-schema.org/draft-04/schema#",
   "description": "",
   "type": "object",
-  "required": ["data"],
+  "required": ["permanent_address", "supplies"],
   "properties": {
-    "data": {
+    "permanent_address": {
+      "type": "object",
+      "street": {
+        "type": "string"
+      },
+      "street2": {
+        "type": "string"
+      },
+      "city": {
+        "type": "string"
+      },
+      "state": {
+        "type": "string"
+      },
+      "country": {
+        "type": "string"
+      },
+      "postal_code": {
+        "type": "string"
+      }
+    },
+    "temporary_address": {
+      "type": ["object", "null"],
+      "street": {
+        "type": "string"
+      },
+      "street2": {
+        "type": "string"
+      },
+      "city": {
+        "type": "string"
+      },
+      "state": {
+        "type": "string"
+      },
+      "country": {
+        "type": "string"
+      },
+      "postal_code": {
+        "type": "string"
+      }
+    },
+    "supplies": {
       "type": "array",
       "uniqueItems": true,
       "items": {
         "type": "object",
-        "required": ["id", "type", "attributes"],
+        "required": ["product_id"],
         "properties": {
-          "id": {
+          "device_name": {
+            "type": ["string", "null"]
+          },
+          "product_name": {
             "type": "string"
           },
-          "type": { 
-            "enum": ["medical_supplies"] 
+          "product_group": {
+            "type": "string"
           },
-          "attributes": {
-            "type": "object",
-            "properties": {
-              "deviceName": {
-                "type": "string"
-              },
-              "productName": {
-                "type": "string"
-              },
-              "productGroup": {
-                "type": "string"
-              },
-              "productId": {
-                "type": "string"
-              },
-              "availableForReorder": {
-                "type": "boolean"
-              },
-              "lastOrderDate": {
-                "type": "string"
-              },
-              "nextAvailabilityDate": {
-                "type": "string"
-              },
-              "leftEar": {
-                "type": "boolean"
-              },
-              "rightEar": {
-                "type": "boolean"
-              },
-              "quantity": {
-                "type": "integer"
-              },
-              "size": {
-                "type": "string"
-              }
-            }
+          "product_id": {
+            "type": "string"
+          },
+          "available_for_reorder": {
+            "type": "boolean"
+          },
+          "last_order_date": {
+            "type": "string"
+          },
+          "next_availability_date": {
+            "type": "string"
+          },
+          "quantity": {
+            "type": "integer"
+          },
+          "size": {
+            "type": ["string", "null"]
           }
         }
       }

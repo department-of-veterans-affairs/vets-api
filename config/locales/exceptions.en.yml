@@ -1930,6 +1930,12 @@ en:
         detail: User is forbidden from accessing this resource
         code: MDOT_forbidden
         status: 403
+      MDOT_deceased_veteran:
+        <<: *defaults
+        title: Veteran is Deceased
+        detail: The veteran is deceased; supplies cannot be ordered
+        code: MDOT_deceased_veteran
+        status: 403
       MDOT_veteran_not_found:
         <<: *defaults
         title: Veteran Not Found
@@ -1942,3 +1948,9 @@ en:
         detail: The medical supplies could not be found
         code: MDOT_supplies_not_found
         status: 404
+      MDOT_unprocessable_entity:
+        <<: *defaults
+        title: Order unable to be processed
+        detail: Order unable to be processed
+        code: MDOT_unprocessable_entity
+        status: 422

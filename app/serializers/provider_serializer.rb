@@ -12,16 +12,14 @@ class ProviderSerializer < ActiveModel::Serializer
   end
 
   def name
-    if Flipper.enabled?(:facilities_ppms_caresite_name)
+    possible_name =
       case object.ProviderType
       when /GroupPracticeOrAgency/i
         object.CareSite
       else
         object.ProviderName
       end
-    else
-      object.ProviderName
-    end
+    [possible_name, object.Name].find(&:present?)
   end
 
   def address

@@ -143,6 +143,30 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
       )
     end
 
+    it 'supports adding an caregiver\'s assistance claim' do
+      expect(subject).to validate(
+        :post,
+        '/v0/caregivers_assistance_claims',
+        200,
+        '_data' => {
+          'caregivers_assistance_claim' => {
+            'form' => build(:caregivers_assistance_claim).form
+          }
+        }
+      )
+
+      expect(subject).to validate(
+        :post,
+        '/v0/caregivers_assistance_claims',
+        422,
+        '_data' => {
+          'caregivers_assistance_claim' => {
+            'form' => {}.to_json
+          }
+        }
+      )
+    end
+
     it 'supports adding a pension' do
       expect(subject).to validate(
         :post,
@@ -198,6 +222,59 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
       end
     end
 
+    context 'MDOT tests' do
+      let(:user_details) do
+        {
+          first_name: 'Greg',
+          last_name: 'Anderson',
+          middle_name: 'A',
+          birth_date: '1991-04-05',
+          ssn: '000550237'
+        }
+      end
+
+      let(:user) { build(:user, :loa3, user_details) }
+      let(:headers) do
+        {
+          '_headers' => {
+            'Cookie' => sign_in(user, nil, true),
+            'accept' => 'application/json',
+            'content-type' => 'application/json'
+          }
+        }
+      end
+
+      let(:body) do
+        {
+          'permanent_address' => {
+            'street' => '101 Example Street',
+            'street2' => 'Apt 2',
+            'city' => 'Kansas City',
+            'state' => 'MO',
+            'country' => 'USA',
+            'postal_code' => '64117'
+          },
+          'use_permanent_address' => true,
+          'use_temporary_address' => false,
+          'order' => [{ 'product_id' => '1' }, { 'product_id' => '4' }],
+          'additional_requests' => ''
+        }
+      end
+
+      it 'supports creating a MDOT order' do
+        expect(subject).to validate(:post, '/v0/mdot/supplies', 401)
+
+        VCR.use_cassette('mdot/submit_order', VCR::MATCH_EVERYTHING) do
+          expect(subject).to validate(
+            :post,
+            '/v0/mdot/supplies',
+            200,
+            headers.merge('_data' => body.to_json)
+          )
+        end
+      end
+    end
+
     it 'supports adding a preneed claim' do
       VCR.use_cassette('preneeds/burial_forms/creates_a_pre_need_burial_form') do
         expect(subject).to validate(
@@ -225,9 +302,12 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
     context 'HCA tests' do
       let(:login_required) { Notification::LOGIN_REQUIRED }
       let(:test_veteran) do
-        File.read(
+        json_string = File.read(
           Rails.root.join('spec', 'fixtures', 'hca', 'veteran.json')
         )
+        json = JSON.parse(json_string)
+        json.delete('email')
+        json.to_json
       end
 
       it 'supports getting the hca enrollment status' do
@@ -277,6 +357,19 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
             }
           }
         )
+      end
+
+      it 'supports getting a health care application state' do
+        expect(subject).to validate(
+          :get,
+          '/v0/health_care_applications/{id}',
+          200,
+          'id' => create(:health_care_application).id
+        )
+      end
+
+      it 'returns a 400 if no attachment data is given' do
+        expect(subject).to validate(:post, '/v0/hca_attachments', 400, '')
       end
 
       it 'supports submitting a health care application', run_at: '2017-01-31' do
@@ -543,20 +636,22 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
 
       it 'supports updating payment information' do
         expect(subject).to validate(:put, '/v0/ppiu/payment_information', 401)
-        VCR.use_cassette('evss/ppiu/update_payment_information') do
-          expect(subject).to validate(
-            :put,
-            '/v0/ppiu/payment_information',
-            200,
-            headers.update(
-              '_data' => {
-                'account_type' => 'Checking',
-                'financial_institution_name' => 'Bank of Amazing',
-                'account_number' => '1234567890',
-                'financial_institution_routing_number' => '123456789'
-              }
+        VCR.use_cassette('evss/ppiu/payment_information') do
+          VCR.use_cassette('evss/ppiu/update_payment_information') do
+            expect(subject).to validate(
+              :put,
+              '/v0/ppiu/payment_information',
+              200,
+              headers.update(
+                '_data' => {
+                  'account_type' => 'Checking',
+                  'financial_institution_name' => 'Bank of Amazing',
+                  'account_number' => '1234567890',
+                  'financial_institution_routing_number' => '123456789'
+                }
+              )
             )
-          )
+          end
         end
       end
     end
@@ -575,8 +670,8 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
         )
       end
 
-      it 'returns a 500 if no attachment data is given' do
-        expect(subject).to validate(:post, '/v0/upload_supporting_evidence', 500, '')
+      it 'returns a 400 if no attachment data is given' do
+        expect(subject).to validate(:post, '/v0/upload_supporting_evidence', 400, '')
       end
     end
 
@@ -1010,6 +1105,16 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
     end
 
     describe 'gibct' do
+      describe 'yellow_ribbon_programs' do
+        describe 'index' do
+          it 'supports showing a list of yellow_ribbon_programs' do
+            VCR.use_cassette('gi_client/gets_yellow_ribbon_programs_search_results') do
+              expect(subject).to validate(:get, '/v0/gi/yellow_ribbon_programs', 200)
+            end
+          end
+        end
+      end
+
       describe 'institutions' do
         describe 'autocomplete' do
           it 'supports autocomplete of institution names' do

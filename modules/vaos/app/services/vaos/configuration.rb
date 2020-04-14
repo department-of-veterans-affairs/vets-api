@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require_relative './middleware/response/errors'
+require_relative './middleware/vaos_logging'
 
 module VAOS
   class Configuration < Common::Client::Configuration::REST
@@ -12,6 +13,15 @@ module VAOS
 
     def service_name
       'VAOS'
+    end
+
+    def rsa_key
+      @key ||= OpenSSL::PKey::RSA.new(File.read(Settings.va_mobile.key_path))
+    end
+
+    # overriding the default error threshold from 50 to 90
+    def breakers_error_threshold
+      90
     end
 
     def connection
@@ -29,6 +39,7 @@ module VAOS
         conn.response :snakecase
         conn.response :json, content_type: /\bjson$/
         conn.response :vaos_errors
+        conn.use :vaos_logging
         conn.adapter Faraday.default_adapter
       end
     end
