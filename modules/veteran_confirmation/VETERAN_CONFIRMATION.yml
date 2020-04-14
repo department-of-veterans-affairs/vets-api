@@ -69,6 +69,14 @@ servers:
       version:
         default: v0
 paths:
+  /health:
+    get:
+      tags:
+        - Health Check
+      summary: Health check endpoint to confirm application is up and running
+      responses:
+        '200':
+          description: Health check passed
   /status:
     post:
       tags:
