@@ -203,6 +203,11 @@ RSpec.describe V1::SessionsController, type: :controller do
         end
       end
 
+      it 'redirect user to home page when no SAMLRequestTracker exists' do
+        allow(SAML::User).to receive(:new).and_return(saml_user)
+        expect(post(:saml_callback)).to redirect_to('http://127.0.0.1:3001/auth/login/callback')
+      end
+
       it 'redirect user to external site' do
         SAMLRequestTracker.create(
           uuid: login_uuid,
