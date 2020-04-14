@@ -89,7 +89,7 @@ gem 'rack-attack'
 gem 'rack-cors', require: 'rack/cors'
 gem 'rails-session_cookie'
 gem 'rails_semantic_logger', '~> 4.4'
-gem 'redis', '~> 3.3'
+gem 'redis', '~> 3.3' # don't go past redis 3 until we are ready for an upgrade
 gem 'redis-namespace'
 gem 'request_store'
 gem 'restforce'
@@ -101,7 +101,7 @@ gem 'sentry-raven', '2.9.0' # don't change gem version unless sentry server is a
 gem 'shrine'
 gem 'sidekiq-instrument'
 gem 'staccato'
-gem 'statsd-instrument', '~> 2.6.0'
+gem 'statsd-instrument', '~> 2.6.0' # versions beyond 2.6 deprecate config and change logging messages
 gem 'swagger-blocks'
 gem 'typhoeus'
 gem 'upsert'
@@ -165,7 +165,7 @@ group :development, :test do
   gem 'rubocop-rails'
   gem 'rubocop-rspec'
   gem 'rubocop-thread_safety'
-  gem 'sidekiq', '~> 5.0'
+  gem 'sidekiq', '~> 5.0' # sidekiq 6 series requires redis 4+
   gem 'timecop'
   gem 'webmock'
   gem 'yard'
