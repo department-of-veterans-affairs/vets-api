@@ -36,20 +36,12 @@ Are you enrolled in an undergraduate STEM degree program?: <%= yesno(@applicant.
 Do you have a STEM undergraduate degree and are now pursuing a
 teaching certification?: <%= yesno(@applicant.isPursuingTeachingCert) %>
 
-Type of Education or Training: <%= @applicant.educationType&.titleize %>
-Education or Career Goal: <%= @applicant.educationObjective %>
-
 
                        ACTIVE DUTY SERVICE INFORMATION
                        -------------------------------
 
 Are you currently on active duty or do you anticipate you will
 be going on active duty?: <%= yesno(@applicant.isActiveDuty) %>
-
-Date Entered   Date Separated     Service Component
-<% @applicant&.toursOfDuty&.each do |tour| -%>
-<%= to_date(tour.dateRange&.from) %>     <%= to_date(tour.dateRange&.to) %>         <%= tour.serviceBranch %>
-<% end %>
 
 
           ENTITLEMENT TO AND USAGE OF ADDITIONAL TYPES OF ASSISTANCE
@@ -58,20 +50,6 @@ Date Entered   Date Separated     Service Component
 For Active Duty Claimants Only. Are you receiving or do you anticipate receiving any money (including but not limited to Federal Tuition Assistance) from the Armed Forces or Public Health Service for the course for which you have applied to the VA for Education Benefits?  If you receive such benefits during any part of your training, check 'Yes.' Note:  If you are only applying for Tuition Assistance Top-Up, check 'No' to this item.    <%= yesno(@applicant.nonVaAssistance) %>
 
 For Civilian Employees of the U.S. Federal Government Only. Are you receiving or do you anticipate receiving any money from your agency (including but not limited to the Government Employees Training Act) for the same period for which you have applied to the VA for Education Benefits? If you will receive such benefits during any part of your training, check Yes.    <%= yesno(@applicant.civilianBenefitsAssistance) %>
-
-
-                        MARITAL AND DEPENDENCY STATUS
-           (For Applicants with Military Service Before Jan 1, 1977)
-           ---------------------------------------------------------
-
-
-<% if @applicant.serviceBefore1977 -%>
-Married: <%= yesno(@applicant.serviceBefore1977.married) %>
-Has Dependents: <%= yesno(@applicant.serviceBefore1977.haveDependents) %>
-Parent Dependent: <%= yesno(@applicant.serviceBefore1977.parentDependent) %>
-<% else -%>
-N/A
-<% end -%>
 
 
       Certification and Signature of Applicant
