@@ -6,7 +6,6 @@
   },
   "veteranSocialSecurityNumber": "111223333",
   "preferredContactMethod": "email",
-  "reasonForChange": "reason for change",
   "vaFileNumber": "c12345678",
   "homePhone": "5551110000",
   "mobilePhone": "5551110001",
@@ -20,8 +19,6 @@
   "civilianBenefitsAssistance": true,
   "email": "test@sample.com",
   "benefit": "chapter33",
-  "educationType": "tuitionTopUp",
-  "educationObjective": "bachelor's degree",
   "bankAccountChange": "startUpdate",
   "bankAccount": {
     "accountNumber": "88888888888",
@@ -31,7 +28,6 @@
   },
   "nonVaAssistance": true,
   "remarks": "remarks",
-  "programName": "program name",
   "isEdithNourseRogersScholarship": true,
   "privacyAgreementAccepted": true
 }
