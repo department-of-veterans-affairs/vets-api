@@ -9,7 +9,7 @@ department-of-veterans-affairs/va.gov-team#0000
 ## Things to know about this PR
 <!--
 * Are there additions to a `settings.yml` file? Do they vary by environment?
-* Is there a feature flag? What is it
+* Is there a feature flag? What is it?
 * Is there some Sentry logging that was added? What alerts are relevant?
 * Are there any Prometheus metrics being collected? What Grafana dashboard were they added do?
 * Are there Swagger docs that were updated?
