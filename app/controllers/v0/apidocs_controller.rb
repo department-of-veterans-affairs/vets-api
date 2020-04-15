@@ -144,7 +144,6 @@ module V0
       Swagger::Requests::Messages::TriageTeams,
       Swagger::Requests::Notifications,
       Swagger::Requests::PensionClaims,
-      Swagger::Requests::PerformanceMonitoring,
       Swagger::Requests::Preferences,
       Swagger::Requests::Post911GiBillStatuses,
       Swagger::Requests::PPIU,
