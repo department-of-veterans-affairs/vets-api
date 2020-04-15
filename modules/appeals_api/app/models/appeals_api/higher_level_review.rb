@@ -5,7 +5,7 @@ module AppealsApi
     attr_encrypted(:form_data, key: Settings.db_encryption_key, marshal: true, marshaler: JsonMarshal::Marshaller)
     attr_encrypted(:auth_headers, key: Settings.db_encryption_key, marshal: true, marshaler: JsonMarshal::Marshaller)
 
-    enum status: { pending: 0, submitted: 1, established: 2, errored: 3 }
+    enum status: { pending: 0, processing: 1, submitted: 2, established: 3, errored: 4 }
 
     def receipt_date
       Date.parse(
