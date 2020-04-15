@@ -18,15 +18,28 @@ describe Vet360::Models::ValidationAddress do
 
   describe '#build_from_address_suggestion' do
     let(:address_suggestion_hash) do
-      { 'address' =>
-        { 'address_line1' => '898 Broadway W',
+      {
+        'address' => {
+          'address_line1' => '898 Broadway W',
           'city' => 'Vancouver',
           'international_postal_code' => 'V5Z 1J8',
           'county' => {},
           'state_province' => { 'name' => 'British Columbia', 'code' => 'BC' },
-          'country' => { 'name' => 'Canada', 'code' => 'CAN', 'fips_code' => 'CA', 'iso2_code' => 'CA', 'iso3_code' => 'CAN' } },
-        'geocode' => { 'calc_date' => '2020-04-10T17:29:41Z', 'location_precision' => 10.0, 'latitude' => 49.2635, 'longitude' => -123.13873 },
-        'address_meta_data' => { 'confidence_score' => 97.76, 'address_type' => 'International', 'validation_key' => -1_941_145_206 } }
+          'country' => {
+            'name' => 'Canada', 'code' => 'CAN',
+            'fips_code' => 'CA', 'iso2_code' => 'CA', 'iso3_code' => 'CAN'
+          }
+        },
+        'geocode' => {
+          'calc_date' => '2020-04-10T17:29:41Z',
+          'location_precision' => 10.0, 'latitude' => 49.2635,
+          'longitude' => -123.13873
+        },
+        'address_meta_data' => {
+          'confidence_score' => 97.76, 'address_type' => 'International',
+          'validation_key' => -1_941_145_206
+        }
+      }
     end
 
     it 'correctly parses international addresses' do
