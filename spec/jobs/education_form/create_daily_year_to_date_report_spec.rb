@@ -58,12 +58,10 @@ RSpec.describe EducationForm::CreateDailyYearToDateReport, type: :aws_helpers do
       end
 
       describe '#create_csv_array' do
-        if Flipper.enabled?(:edu_benefits_stem_scholarship, @current_user)
-          it 'makes the right csv array' do
-            expect(subject.create_csv_array).to eq(
-              get_education_form_fixture('create_csv_array')
-            )
-          end
+        it 'makes the right csv array' do
+          expect(subject.create_csv_array).to eq(
+            get_education_form_fixture('create_csv_array')
+          )
         end
       end
 
@@ -88,12 +86,10 @@ RSpec.describe EducationForm::CreateDailyYearToDateReport, type: :aws_helpers do
             context "for the current #{range_type}" do
               let(:range_type) { range_type }
 
-              unless Flipper.enabled?(:edu_benefits_stem_scholarship, @current_user)
-                verify_status_numbers(
-                  status,
-                  get_education_form_fixture("ytd_#{range_type}_#{status}")
-                )
-              end
+              verify_status_numbers(
+                status,
+                get_education_form_fixture("ytd_#{range_type}_#{status}")
+              )
             end
           end
         end
