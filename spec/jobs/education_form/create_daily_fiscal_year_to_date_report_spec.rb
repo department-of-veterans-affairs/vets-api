@@ -57,6 +57,7 @@ RSpec.describe EducationForm::CreateDailyFiscalYearToDateReport, type: :aws_help
   context 'with some sample submissions', run_at: '2017-01-04 03:00:00 EDT' do
     before do
       create_list(:education_benefits_submission, 2, status: :processed, created_at: date)
+
       create(
         :education_benefits_submission,
         status: :processed,
@@ -72,11 +73,9 @@ RSpec.describe EducationForm::CreateDailyFiscalYearToDateReport, type: :aws_help
       create(:education_benefits_submission, created_at: date - 26.hours, status: 'processed')
 
       create(:education_benefits_submission, created_at: date, status: 'submitted')
-
       %w[1995 1990e 5490 1990n 5495].each do |form_type|
         create(:education_benefits_submission, form_type: form_type, created_at: date)
       end
-
       create(:education_benefits_submission, form_type: '0993', created_at: date, region: :western)
       create(:education_benefits_submission, form_type: '0994',
                                              created_at: date, region: :eastern, vettec: true, chapter33: false)
