@@ -52,7 +52,7 @@ describe Vet360::Models::ValidationAddress do
           country_name: 'Canada',
           country_code_iso3: 'CAN',
           international_postal_code: 'V5Z 1J8',
-          province: 'BC' }
+          province: 'British Columbia' }
       )
     end
   end
