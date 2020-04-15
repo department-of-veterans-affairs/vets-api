@@ -92,11 +92,37 @@ RSpec.describe Lighthouse::Facilities::Client do
     end
   end
 
+  context 'with a bad API key' do
+    it 'returns a 401 error' do
+      VCR.use_cassette('/lighthouse/facilities_401', match_requests_on: %i[path query]) do
+        expect { Lighthouse::Facilities::Client.new('bad_key').get_by_id('vha_358') }
+          .to raise_error do |e|
+          expect(e).to be_a(Common::Exceptions::BackendServiceException)
+          expect(e.status_code).to eq(401)
+          expect(e.errors.first[:detail]).to eq('Invalid authentication credentials')
+          expect(e.errors.first[:code]).to eq('LIGHTHOUSE_FACILITIES401')
+        end
+      end
+    end
+  end
+
   describe '#get_by_id' do
     it 'returns a facility' do
       VCR.use_cassette('/lighthouse/facilities', match_requests_on: %i[path query]) do
         r = Lighthouse::Facilities::Client.new(Settings.lighthouse.api_key).get_by_id('vha_358')
         expect(r).to have_attributes(vha_358_attributes)
+      end
+    end
+
+    it 'returns a 401 error' do
+      VCR.use_cassette('/lighthouse/facilities', record: :new_episodes, match_requests_on: %i[path query]) do
+        expect { Lighthouse::Facilities::Client.new(Settings.lighthouse.facilities.api_key).get_by_id('bha_358') }
+          .to raise_error do |e|
+          expect(e).to be_a(Common::Exceptions::BackendServiceException)
+          expect(e.status_code).to eq(404)
+          expect(e.errors.first[:detail]).to eq('Record not found')
+          expect(e.errors.first[:code]).to eq('LIGHTHOUSE_FACILITIES404')
+        end
       end
     end
   end
@@ -107,6 +133,18 @@ RSpec.describe Lighthouse::Facilities::Client do
         r = Lighthouse::Facilities::Client.new(Settings.lighthouse.api_key).get_facilities(params)
         expect(r.length).to be 8
         expect(r[0]).to have_attributes(vha_358_attributes)
+      end
+    end
+
+    it 'returns an error message for a bad param' do
+      VCR.use_cassette('/lighthouse/facilities', record: :new_episodes, match_requests_on: %i[path query]) do
+        expect { Lighthouse::Facilities::Client.new(Settings.lighthouse.facilities.api_key).get_facilities({ taco: true }) }
+          .to raise_error do |e|
+          expect(e).to be_a(Common::Exceptions::BackendServiceException)
+          expect(e.status_code).to eq(400)
+          expect(e.errors.first[:detail]).to eq('Bad Request')
+          expect(e.errors.first[:code]).to eq('LIGHTHOUSE_FACILITIES400')
+        end
       end
     end
   end

@@ -2,6 +2,7 @@
 
 require 'common/client/configuration/rest'
 require 'common/client/middleware/response/raise_error'
+require 'lighthouse/facilities/middleware/errors'
 
 module Lighthouse
   module Facilities
@@ -11,7 +12,8 @@ module Lighthouse
       end
 
       def service_name
-        'LighthouseFacilities'
+        'Lighthouse_Facilities'
+      end
       end
 
       def connection
@@ -19,11 +21,8 @@ module Lighthouse
           conn.use :breakers
           conn.use :instrumentation, name: 'lighthouse.facilities.request.faraday'
 
-          # Uncomment this if you want curl command equivalent or response output to log
-          # conn.request(:curl, ::Logger.new(STDOUT), :warn) unless Rails.env.production?
-          # conn.response(:logger, ::Logger.new(STDOUT), bodies: true) unless Rails.env.production?
-
           conn.response :raise_error, error_prefix: service_name
+          conn.response :lighthouse_facilities_errors
 
           conn.adapter Faraday.default_adapter
         end
