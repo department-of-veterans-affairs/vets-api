@@ -17,11 +17,12 @@ class AppealsApi::V1::DecisionReview::HigherLevelReviewsController < AppealsApi:
   )['paths']['/higher_level_reviews']['post']['parameters'].map { |parameter| parameter['name'] }
 
   def create
-    AppealsApi::HigherLevelReview.create!(
+    higher_level_review = AppealsApi::HigherLevelReview.create!(
       auth_headers: create_headers,
       form_data: @json_body
     )
-    render json: { data: { success: true } }
+    AppealsApi::HigherLevelReviewPdfSubmitJob.perform_async(higher_level_review.id)
+    render json: higher_level_review, serializer: AppealsApi::HigherLevelReviewSerializer
   end
 
   def validate

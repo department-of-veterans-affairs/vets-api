@@ -6,14 +6,14 @@ module V0
     skip_before_action(:authenticate)
 
     def create
-      claim = service.submit_claim!(nil, claim_params)
-      render json: claim, serializer: SavedClaimSerializer
+      submission = service.submit_claim!(claim_params)
+      render json: submission, serializer: ::Form1010cg::SubmissionSerializer
     end
 
     private
 
     def service
-      CaregiversAssistanceClaimsService.new
+      @service ||= ::Form1010cg::Service.new
     end
 
     def claim_params
