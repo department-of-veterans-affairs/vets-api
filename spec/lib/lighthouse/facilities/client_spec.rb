@@ -49,23 +49,23 @@ RSpec.describe Lighthouse::Facilities::Client do
       },
       services: { 'health' => %w[Audiology Cardiology Dermatology EmergencyCare Gastroenterology
                                  MentalHealthCare Ophthalmology Orthopedics PrimaryCare SpecialtyCare],
-                  'last_updated' => '2020-03-30', 'other' => [] },
+                  'last_updated' => '2020-04-06', 'other' => [] },
       feedback: {
         'effective_date' => '2019-06-20',
         'health' => { 'specialty_care_routine' => 0.9100000262260437 }
       },
       access: {
-        'effective_date' => '2020-03-30',
+        'effective_date' => '2020-04-06',
         'health' => [
-          { 'established' => 25.0, 'new' => 139.0, 'service' => 'Audiology' },
-          { 'established' => 34.944444, 'new' => 66.0, 'service' => 'Cardiology' },
-          { 'established' => 2.583333, 'new' => 103.5, 'service' => 'Dermatology' },
-          { 'established' => nil, 'new' => 104.0, 'service' => 'Gastroenterology' },
-          { 'established' => 26.101351, 'new' => 103.333333, 'service' => 'MentalHealthCare' },
-          { 'established' => 12.864864, 'new' => 137.0, 'service' => 'Ophthalmology' },
-          { 'established' => 21.325, 'new' => 136.9, 'service' => 'Orthopedics' },
-          { 'established' => 16.7266, 'new' => 21.566666, 'service' => 'PrimaryCare' },
-          { 'established' => 22.189427, 'new' => 70.949367, 'service' => 'SpecialtyCare' }
+          { 'established' => 14.352941, 'new' => 158.0, 'service' => 'Audiology' },
+          { 'established' => 34.034482, 'new' => 66.75, 'service' => 'Cardiology' },
+          { 'established' => 3.4, 'new' => 123.5, 'service' => 'Dermatology' },
+          { 'established' => nil, 'new' => 208.0, 'service' => 'Gastroenterology' },
+          { 'established' => 24.228571, 'new' => 134.222222, 'service' => 'MentalHealthCare' },
+          { 'established' => 10.111111, 'new' => 154.6, 'service' => 'Ophthalmology' },
+          { 'established' => 25.17647, 'new' => 122.0, 'service' => 'Orthopedics' },
+          { 'established' => 18.927083, 'new' => 28.8125, 'service' => 'PrimaryCare' },
+          { 'established' => 19.22807, 'new' => 75.317073, 'service' => 'SpecialtyCare' }
         ]
       },
       mobile: false,
@@ -78,16 +78,16 @@ RSpec.describe Lighthouse::Facilities::Client do
   end
 
   it 'is an Facilities::Client object' do
-    facilities_client = described_class.new(Settings.lighthouse.api_key)
+    facilities_client = described_class.new('fake_key')
     expect(facilities_client).to be_an(Lighthouse::Facilities::Client)
-    expect(facilities_client).to have_attributes(headers: { 'apikey' => Settings.lighthouse.api_key })
+    expect(facilities_client).to have_attributes(headers: { 'apikey' => 'fake_key' })
   end
 
   context 'with an http timeout' do
     it 'logs an error and raise GatewayTimeout' do
       allow_any_instance_of(Faraday::Connection).to receive(:get).and_raise(Faraday::TimeoutError)
       expect do
-        Lighthouse::Facilities::Client.new(Settings.lighthouse.api_key).get_facilities(params)
+        Lighthouse::Facilities::Client.new('fake_key').get_facilities(params)
       end.to raise_error(Common::Exceptions::GatewayTimeout)
     end
   end
@@ -109,14 +109,14 @@ RSpec.describe Lighthouse::Facilities::Client do
   describe '#get_by_id' do
     it 'returns a facility' do
       VCR.use_cassette('/lighthouse/facilities', match_requests_on: %i[path query]) do
-        r = Lighthouse::Facilities::Client.new(Settings.lighthouse.api_key).get_by_id('vha_358')
+        r = Lighthouse::Facilities::Client.new('fake_key').get_by_id('vha_358')
         expect(r).to have_attributes(vha_358_attributes)
       end
     end
 
     it 'returns a 401 error' do
-      VCR.use_cassette('/lighthouse/facilities', record: :new_episodes, match_requests_on: %i[path query]) do
-        expect { Lighthouse::Facilities::Client.new(Settings.lighthouse.facilities.api_key).get_by_id('bha_358') }
+      VCR.use_cassette('/lighthouse/facilities', match_requests_on: %i[path query]) do
+        expect { Lighthouse::Facilities::Client.new('fake_key').get_by_id('bha_358') }
           .to raise_error do |e|
           expect(e).to be_a(Common::Exceptions::BackendServiceException)
           expect(e.status_code).to eq(404)
@@ -129,16 +129,16 @@ RSpec.describe Lighthouse::Facilities::Client do
 
   describe '#get_facilities' do
     it 'returns matching facilities' do
-      VCR.use_cassette('/lighthouse/facilities', record: :new_episodes, match_requests_on: %i[path query]) do
-        r = Lighthouse::Facilities::Client.new(Settings.lighthouse.api_key).get_facilities(params)
+      VCR.use_cassette('/lighthouse/facilities', match_requests_on: %i[path query]) do
+        r = Lighthouse::Facilities::Client.new('fake_key').get_facilities(params)
         expect(r.length).to be 8
         expect(r[0]).to have_attributes(vha_358_attributes)
       end
     end
 
     it 'returns an error message for a bad param' do
-      VCR.use_cassette('/lighthouse/facilities', record: :new_episodes, match_requests_on: %i[path query]) do
-        expect { Lighthouse::Facilities::Client.new(Settings.lighthouse.facilities.api_key).get_facilities({ taco: true }) }
+      VCR.use_cassette('/lighthouse/facilities', match_requests_on: %i[path query]) do
+        expect { Lighthouse::Facilities::Client.new('fake_key').get_facilities({ taco: true }) }
           .to raise_error do |e|
           expect(e).to be_a(Common::Exceptions::BackendServiceException)
           expect(e.status_code).to eq(400)

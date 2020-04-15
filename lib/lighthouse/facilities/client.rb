@@ -17,12 +17,12 @@ module Lighthouse
       end
 
       def get_by_id(id)
-        response = perform(:get, "/va_facilities/v0/facilities/#{id}", nil, headers)
+        response = perform(:get, "/services/va_facilities/v0/facilities/#{id}", nil, headers)
         Lighthouse::Facilities::Response.new(response.body, response.status).new_facility
       end
 
       def get_facilities(params)
-        response = perform(:get, '/va_facilities/v0/facilities', params, headers)
+        response = perform(:get, '/services/va_facilities/v0/facilities', params, headers)
         Lighthouse::Facilities::Response.new(response.body, response.status).get_facilities_list
       end
     end
