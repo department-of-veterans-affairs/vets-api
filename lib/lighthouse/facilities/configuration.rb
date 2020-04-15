@@ -14,7 +14,6 @@ module Lighthouse
       def service_name
         'Lighthouse_Facilities'
       end
-      end
 
       def connection
         Faraday.new(base_path, headers: base_request_headers, request: request_options) do |conn|

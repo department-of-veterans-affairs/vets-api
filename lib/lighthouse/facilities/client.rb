@@ -29,7 +29,7 @@ module Lighthouse
 
       ##
       # Request a list of facilities matching the params provided
-      # @param params [Hash] a hash of parameter objects that must include bbox, ids, or lat and long 
+      # @param params [Hash] a hash of parameter objects that must include bbox, ids, or lat and long
       #   see https://developer.va.gov/explore/facilities/docs/facilities for more options
       # @example  client.get_facilities(bbox: [60.99, 10.54, 180.00, 20.55])
       # @example  client.get_facilities(ids: 'vha_358,vba_358')
