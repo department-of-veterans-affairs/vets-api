@@ -4,15 +4,37 @@ require 'rails_helper'
 
 describe AppealsApi::V1::DecisionReview::HigherLevelReviewsController, type: :request do
   describe '#create' do
-    it 'create an HLR through Caseflow successfully' do
-      data = File.read(Rails.root.join('modules', 'appeals_api', 'spec', 'fixtures', 'valid_200996.json'))
+    it 'create an HLR and persist the data' do
+      body = File.read(Rails.root.join('modules', 'appeals_api', 'spec', 'fixtures', 'valid_200996.json'))
+      headers = JSON.parse(
+        File.read(
+          Rails.root.join('modules', 'appeals_api', 'spec', 'fixtures', 'higher_level_review_create_headers.json')
+        )
+      )
       post(
-        '/services/appeals/v1/decision_review/higher_level_reviews/validate',
-        params: data
+        '/services/appeals/v1/decision_review/higher_level_reviews',
+        params: body,
+        headers: headers
       )
       parsed = JSON.parse(response.body)
-      expect(parsed['data']['attributes']['status']).to eq('valid')
-      expect(parsed['data']['type']).to eq('appeals_api_higher_level_review_validation')
+      expect(parsed['data']['type']).to eq('higher_level_review')
+      expect(parsed['data']['attributes']['status']).to eq('pending')
+    end
+
+    it 'create the job to build the PDF' do
+      body = File.read(Rails.root.join('modules', 'appeals_api', 'spec', 'fixtures', 'valid_200996.json'))
+      headers = JSON.parse(
+        File.read(
+          Rails.root.join('modules', 'appeals_api', 'spec', 'fixtures', 'higher_level_review_create_headers.json')
+        )
+      )
+      expect do
+        post(
+          '/services/appeals/v1/decision_review/higher_level_reviews',
+          params: body,
+          headers: headers
+        )
+      end .to change(AppealsApi::HigherLevelReviewPdfSubmitJob.jobs, :size).by(1)
     end
   end
 
@@ -22,11 +44,12 @@ describe AppealsApi::V1::DecisionReview::HigherLevelReviewsController, type: :re
     it 'returns a response when valid' do
       data = File.read(Rails.root.join('modules', 'appeals_api', 'spec', 'fixtures', 'valid_200996.json'))
       post(
-        '/services/appeals/v1/decision_review/higher_level_reviews',
+        '/services/appeals/v1/decision_review/higher_level_reviews/validate',
         params: data
       )
       parsed = JSON.parse(response.body)
-      expect(parsed['data']['success']).to eq(true)
+      expect(parsed['data']['attributes']['status']).to eq('valid')
+      expect(parsed['data']['type']).to eq('appeals_api_higher_level_review_validation')
     end
 
     it 'returns a response when invalid' do

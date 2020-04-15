@@ -12,9 +12,17 @@ class AppealsApi::V1::DecisionReview::HigherLevelReviewsController < AppealsApi:
   before_action :validate_json_schema, only: %i[create validate]
 
   FORM_NUMBER = '200996'
+  CREATE_HEADERS = YAML.safe_load(
+    File.read(AppealsApi::Engine.root.join('app/swagger/v1/decision_reviews.yaml'))
+  )['paths']['/higher_level_reviews']['post']['parameters'].map { |parameter| parameter['name'] }
 
   def create
-    render json: { data: { success: true } }
+    higher_level_review = AppealsApi::HigherLevelReview.create!(
+      auth_headers: create_headers,
+      form_data: @json_body
+    )
+    AppealsApi::HigherLevelReviewPdfSubmitJob.perform_async(higher_level_review.id)
+    render json: higher_level_review, serializer: AppealsApi::HigherLevelReviewSerializer
   end
 
   def validate
@@ -42,5 +50,11 @@ class AppealsApi::V1::DecisionReview::HigherLevelReviewsController < AppealsApi:
         }
       }
     }
+  end
+
+  def create_headers
+    CREATE_HEADERS.reduce({}) do |hash, key|
+      hash.merge({ key => request.headers[key] })
+    end
   end
 end
