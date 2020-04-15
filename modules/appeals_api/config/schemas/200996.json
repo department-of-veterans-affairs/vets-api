@@ -32,12 +32,6 @@
       "type": "string",
       "pattern": "[0-9]{4}-[0-9]{2}-[0-9]{2}"
     },
-    "currentDate": {
-      "allOf": [
-        { "$ref": "#/definitions/date" },
-        { "$comment": "if field is absent, the current date will be used" }
-      ]
-    },
 
 
     "data": {
@@ -60,7 +54,6 @@
             "sameOffice":         { "type": "boolean" },
             "benefitType":        { "$ref": "#/definitions/benefitType" },
             "veteran":            { "$ref": "#/definitions/veteran" },
-            "receiptDate":        { "$ref": "#/definitions/currentDate" }
           },
           "additionalProperties": false,
           "required": [
@@ -78,7 +71,6 @@
             "sameOffice":         { "type": "boolean" },
             "benefitType":        { "$ref": "#/definitions/benefitType" },
             "veteran":            { "$ref": "#/definitions/veteran" },
-            "receiptDate":        { "$ref": "#/definitions/currentDate" },
             "informalConferenceTimes": { "$ref": "#/definitions/informalConferenceTimes" },
             "informalConferenceRep":   { "$ref": "#/definitions/informalConferenceRep" }
           },
