@@ -14,13 +14,15 @@ module Common
     REQ_CLASS_INSTANCE_VARS = %i[redis_namespace redis_namespace_key].freeze
 
     class << self
-      attr_accessor :redis_namespace, :redis_namespace_ttl, :redis_namespace_key
+      attr_accessor :redis_namespace, :redis_namespace_ttl, :redis_namespace_key, :other_redis
     end
 
     def self.redis_store(namespace)
-      @redis_namespace = Redis::Namespace.new(namespace, redis: Redis.current)
+      @redis_namespace = Redis::Namespace.new(namespace, redis: VetsApiRedis.current)
+      @other_redis     = Redis::Namespace.new(namespace, redis: VetsApiRedis.other_redis)
     end
     delegate :redis_namespace, to: 'self.class'
+    delegate :other_redis, to: 'self.class'
 
     def self.redis_ttl(ttl)
       @redis_namespace_ttl = ttl
@@ -53,6 +55,7 @@ module Common
         object
       else
         redis_namespace.del(redis_key)
+        other_redis.del(redis_key)
         nil
       end
     end
@@ -88,7 +91,10 @@ module Common
       return false unless valid?
 
       redis_namespace.set(attributes[redis_namespace_key], Oj.dump(attributes))
+      other_redis.set(attributes[redis_namespace_key], Oj.dump(attributes))
+
       expire(redis_namespace_ttl) if defined? redis_namespace_ttl
+
       @persisted = true
     end
 
@@ -110,6 +116,7 @@ module Common
     # See also: ActiveRecord::Persistence#destroy
     def destroy
       count = redis_namespace.del(attributes[redis_namespace_key])
+      other_redis.del(attributes[redis_namespace_key])
       @destroyed = true
       freeze
       count
@@ -126,6 +133,7 @@ module Common
 
     def expire(ttl)
       redis_namespace.expire(attributes[redis_namespace_key], ttl)
+      other_redis.expire(attributes[redis_namespace_key], ttl)
     end
 
     def persisted?
