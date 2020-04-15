@@ -11,7 +11,7 @@ department-of-veterans-affairs/va.gov-team#0000
 * Are there additions to a `settings.yml` file? Do they vary by environment?
 * Is there a feature flag? What is it
 * Is there some sentry logging that was added? What alerts are relevant?
-* Are there any prometheus metrics being collected? What dashboard were they added do?
+* Are there any Prometheus metrics being collected? What Grafana dashboard were they added do?
 * Are there Swagger docs that were updated?
 * Is there any PII concerns or questions?
 -->
