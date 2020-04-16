@@ -1,10 +1,23 @@
 <h1>Unsuccessful Submissions <%= 'Summary' if @date_to.monday? %> </h1>
 <hr />
-<h3>From <%= @date_from %> -- <%= @date_to %> </h3>
-<h4> Unsuccessful count: <%= @unsuccessful_submissions.count %>
-<%= render partial: 'submission_table', locals: {submissions: @unsuccessful_submissions } %>
+<h2>From <%= @date_from %> -- <%= @date_to %> </h2>
+
+<h3> Per Consumer Sumission Counts </h3>
+
+# <% @consumer_totals.each do |name, totals| %> 
+#     <h3><%= name %></h3>
+#     <% totals.each do |status, number| %>
+#         <div class="span12">
+#             <h4><%= status %></h4>
+#             <strong><%= number %></strong>
+#         </div>
+#     <% end %>
+# <% end %> 
+
+<h3> Stuck Submissions Count: <%= @stuck_submissions.count %></h3>
+<%= render partial: 'submission_table', locals: {submissions: @stuck_submissions} unless @stuck_submissions.count.zero? %>
 
 <hr>
 
-<h4> Stuck Submissions Count: <%= @stuck_submissions.count %>
-<%= render partial: 'submission_table', locals: {submissions: @stuck_submissions} unless @stuck_submissions.count.zero? %>
+<h3> Unsuccessful count: <%= @unsuccessful_submissions.count %></h3>
+<%= render partial: 'submission_table', locals: {submissions: @unsuccessful_submissions } %>
