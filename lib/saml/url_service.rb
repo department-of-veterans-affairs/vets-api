@@ -35,10 +35,14 @@ module SAML
       @saml_settings = saml_settings
       @loa3_context = loa3_context
 
+      if params[:action] == 'saml_callback' and params[:RelayState].present?
+        @type = JSON.parse(params[:RelayState])['type']
+      end
+      @query_params = {}
+      @tracker = initialize_tracker(params, previous_saml_uuid: previous_saml_uuid)
+
       Raven.extra_context(params: params)
       Raven.user_context(session: session, user: user)
-      initialize_query_params(params)
-      initialize_tracker(params, previous_saml_uuid: previous_saml_uuid)
     end
     # rubocop:enable Metrics/ParameterLists
 
@@ -139,15 +143,6 @@ module SAML
     end
 
     private
-
-    def initialize_query_params(params)
-      @query_params = {}
-
-      if params[:action] == 'saml_callback'
-        @type = JSON.parse(params[:RelayState])['type'] if params[:RelayState].present?
-      end
-    end
-
     # Builds the urls to trigger various SSO policies: mhv, dslogon, idme, mfa, or verify flows.
     # link_authn_context is the new proposed authn_context
     def build_sso_url(link_authn_context)
@@ -197,7 +192,7 @@ module SAML
       redirect = previous&.payload_attr(:redirect) || Settings.ssoe.redirects[params[:application]]
       # if created_at is set to nil (meaning no previous tracker to use), it
       # will be initialized to the current time when it is saved
-      @tracker = SAMLRequestTracker.new(
+      SAMLRequestTracker.new(
         payload: redirect ? { redirect: redirect } : {},
         created_at: previous&.created_at
       )
