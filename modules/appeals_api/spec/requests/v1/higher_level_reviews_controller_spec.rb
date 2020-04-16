@@ -4,7 +4,7 @@ require 'rails_helper'
 
 describe AppealsApi::V1::DecisionReview::HigherLevelReviewsController, type: :request do
   describe '#create' do
-    it 'create an HLR through Caseflow successfully' do
+    it 'create an HLR and persist the data' do
       body = File.read(Rails.root.join('modules', 'appeals_api', 'spec', 'fixtures', 'valid_200996.json'))
       headers = JSON.parse(
         File.read(
@@ -17,7 +17,24 @@ describe AppealsApi::V1::DecisionReview::HigherLevelReviewsController, type: :re
         headers: headers
       )
       parsed = JSON.parse(response.body)
-      expect(parsed['data']['success']).to eq(true)
+      expect(parsed['data']['type']).to eq('higher_level_review')
+      expect(parsed['data']['attributes']['status']).to eq('pending')
+    end
+
+    it 'create the job to build the PDF' do
+      body = File.read(Rails.root.join('modules', 'appeals_api', 'spec', 'fixtures', 'valid_200996.json'))
+      headers = JSON.parse(
+        File.read(
+          Rails.root.join('modules', 'appeals_api', 'spec', 'fixtures', 'higher_level_review_create_headers.json')
+        )
+      )
+      expect do
+        post(
+          '/services/appeals/v1/decision_review/higher_level_reviews',
+          params: body,
+          headers: headers
+        )
+      end .to change(AppealsApi::HigherLevelReviewPdfSubmitJob.jobs, :size).by(1)
     end
   end
 
