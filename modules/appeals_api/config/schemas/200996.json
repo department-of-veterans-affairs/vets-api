@@ -175,6 +175,7 @@
             "city":         { "$ref": "#/definitions/nonBlankStringMaxLength100" },
             "stateCode":    { "$ref": "#/definitions/nonBlankStringMaxLength2" },
             "zipCode":      { "type": "string", "pattern": "^[0-9]{5}$" },
+            "zipCodeLast4": { "type": "string", "pattern": "^[0-9]{4}$" },
             "countryName":  { "type": "string" },
             "addressPou":   { "type": "string", "enum": [ "RESIDENCE/CHOICE", "CORRESPONDENCE" ] }
           },

@@ -63,6 +63,12 @@ sidekiq_admin_panel: false
 salesforce-gibft:
   url: 'https://va--rdtcddev.cs33.my.salesforce.com/'
 
+salesforce-carma:
+  url: 'https://fake-carma.salesforce.com'
+  consumer_key: 12345ABC.QQ_1234BBfake
+  signing_key_path: 'spec/fixtures/carma/privatekey.pem' # A dummy private key used for test suite
+  username: fake-user@va.gov.carmafake
+
 salesforce:
   env: dev
   signing_key_path: 'spec/fixtures/vic/private.key'
@@ -460,6 +466,7 @@ flipper:
     - ryan.thurlwell@va.gov
     - travis.hilton@oddball.io
     - zurbergram@gmail.com
+    - regarr@gmail.com # Robin Garrison - AdHoc
 
 bgs:
   application: ~

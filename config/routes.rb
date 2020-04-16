@@ -70,7 +70,7 @@ Rails.application.routes.draw do
     resource :hca_attachments, only: :create
 
     # Excluding this feature until external service (CARMA) is connected
-    resources :caregivers_assistance_claims, only: :create if Rails.env.test?
+    resources :caregivers_assistance_claims, only: :create
 
     resources :dependents_applications, only: %i[create show] do
       collection do
@@ -211,8 +211,6 @@ Rails.application.routes.draw do
         get 'states', to: 'addresses#states'
       end
     end
-
-    resources :performance_monitorings, only: :create
 
     namespace :profile do
       resource :alternate_phone, only: %i[show create]
