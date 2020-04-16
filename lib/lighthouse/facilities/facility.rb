@@ -5,26 +5,26 @@ require 'common/models/base'
 module Lighthouse
   module Facilities
     class Facility < Common::Base
-      attribute :id, String
-      attribute :type, String
-      attribute :name, String
-      attribute :facility_type, String
+      attribute :access, Object
+      attribute :active_status, String
+      attribute :address, Object
       attribute :classification, String
-      attribute :website, String
+      attribute :facility_type, String
+      attribute :facility_type_prefix, String
+      attribute :feedback, Object
+      attribute :hours, Object
+      attribute :id, String
       attribute :lat, Float
       attribute :long, Float
-      attribute :address, Object
-      attribute :phone, Object
-      attribute :hours, Object
-      attribute :services, Object
-      attribute :feedback, Object
-      attribute :access, Object
       attribute :mobile, Boolean
-      attribute :active_status, String
-      attribute :visn, String
+      attribute :name, String
       attribute :operating_status, Object
-      attribute :facility_type_prefix, String
+      attribute :phone, Object
+      attribute :services, Object
+      attribute :type, String
       attribute :unique_id, String
+      attribute :visn, String
+      attribute :website, String
 
       def initialize(fac)
         fac['attributes'].each_key do |key|
