@@ -4,15 +4,15 @@
 
 <h3> Per Consumer Sumission Counts </h3>
 
-# <% @consumer_totals.each do |name, totals| %> 
-#     <h3><%= name %></h3>
-#     <% totals.each do |status, number| %>
-#         <div class="span12">
-#             <h4><%= status %></h4>
-#             <strong><%= number %></strong>
-#         </div>
-#     <% end %>
-# <% end %> 
+<% @consumer_totals.each do |name, totals| %> 
+    <h3><%= name %></h3>
+    <% totals.each do |status, number| %>
+        <div class="span12">
+            <h4><%= status %></h4>
+            <strong><%= number %></strong>
+        </div>
+    <% end %>
+<% end %> 
 
 <h3> Stuck Submissions Count: <%= @stuck_submissions.count %></h3>
 <%= render partial: 'submission_table', locals: {submissions: @stuck_submissions} unless @stuck_submissions.count.zero? %>
