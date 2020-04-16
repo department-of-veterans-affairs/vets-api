@@ -22,6 +22,14 @@ describe Vet360::ContactInformation::Service, skip_vet360: true do
           expect(response.person).to be_a(Vet360::Models::Person)
         end
       end
+
+      it 'supports international provinces' do
+        VCR.use_cassette('vet360/contact_information/person_intl_addr', VCR::MATCH_EVERYTHING) do
+          response = subject.get_person
+
+          expect(response.person.addresses[0].province).to eq('province')
+        end
+      end
     end
 
     context 'when not successful' do

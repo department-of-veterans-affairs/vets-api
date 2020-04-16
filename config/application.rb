@@ -56,6 +56,7 @@ module VetsAPI
                         X-RateLimit-Remaining
                         X-RateLimit-Reset
                         X-Session-Expiration
+                        X-CSRF-Token
                       ]
       end
     end

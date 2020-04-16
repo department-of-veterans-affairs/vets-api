@@ -117,7 +117,7 @@ ihub:
 # Settings for Medical Devices Ordering Tool
 mdot:
   prefill: true
-  url: https://dlc-fake.fake.com
+  url: https://dlc-dummy.herokuapp.com
   api_key: abcd1234abcd1234abcd1234abcd1234abcd1234
   mock: false
   enabled: false
@@ -196,18 +196,11 @@ mvi_hca:
 hca:
   prefill: true
   endpoint: https://test-foo.vets.gov
-  cert_path: /fake/client/cert/path
-  key_path: /fake/client/key/path
   timeout: 30
   ee:
     endpoint: 'http://example.com'
     user: "HCASvcUsr"
     pass: "password"
-  ca:
-    - 'VA Internal Root CA.pem'
-    - 'VA Internal Subordinate CA 1.pem'
-    - 'VA-Internal-S2-ICA1-v1.pem'
-    - 'VA-Internal-S2-RCA1-v1.pem'
 
 # Settings for the facility locator
 locators:
@@ -449,6 +442,7 @@ flipper:
   admin_user_emails:
     - alastair@adhocteam.us
     - anna@adhoc.team
+    - eric.buckley@adhocteam.us
     - erik@adhocteam.us
     - jbalboni@gmail.com
     - jeff@adhocteam.us
