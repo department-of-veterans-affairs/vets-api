@@ -15,6 +15,10 @@ module AppealsApi
       )
     end
 
+    def central_mail_status
+      CentralMail::Service.new.status(id)
+    end
+
     private
 
     def form_data_receipt_date

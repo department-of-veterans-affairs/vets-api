@@ -18,7 +18,13 @@ module AppealsApi
     def upload_to_central_mail(higher_level_review, pdf_path)
       body = {
         'metadata': {
-          guid: higher_level_review.id
+          'veteranFirstName': higher_level_review.auth_headers['first_name'],
+          'veteranLastName': higher_level_review.auth_headers['last_name'],
+          'source': higher_level_review.auth_headers['consumer_name'],
+          'uuid': higher_level_review.id,
+          'hashV': Digest::SHA256.file(pdf_path).hexdigest,
+          'numberPages': PdfInfo::Metadata.read(pdf_path).pages,
+          'docType': '20-0996'
         },
         'document': to_faraday_upload(pdf_path)
       }
