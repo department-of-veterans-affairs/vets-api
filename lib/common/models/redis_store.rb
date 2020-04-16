@@ -85,6 +85,7 @@ module Common
 
     def self.delete(redis_key = nil)
       redis_namespace.del(redis_key)
+      other_redis.del(redis_key)
     end
 
     def save
