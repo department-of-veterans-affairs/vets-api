@@ -24,7 +24,7 @@ GIT
 
 GIT
   remote: https://github.com/department-of-veterans-affairs/lighthouse-bgs.git
-  revision: 8539edad43870ce77a122a0a13ec793ff1508f4b
+  revision: e81cbc0e1b55a0dda1ccb2cb2cb3a36b16f1d643
   branch: master
   specs:
     lighthouse_bgs (0.11.0)
