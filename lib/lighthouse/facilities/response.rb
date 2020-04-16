@@ -7,20 +7,13 @@ module Lighthouse
     class Response < Common::Base
       attribute :body, String
       attribute :status, Integer
-      attribute :parsed_json, String
       attribute :data, Object
 
       def initialize(body, status)
         super()
         self.body = body
         self.status = status
-
-        self.parsed_json = parse_json
-        self.data = parsed_json['data']
-      end
-
-      def parse_json
-        JSON.parse(body)
+        self.data = JSON.parse(body)['data']
       end
 
       def get_facilities_list
