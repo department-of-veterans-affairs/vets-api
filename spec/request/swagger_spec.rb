@@ -1608,28 +1608,6 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
       end
     end
 
-    describe 'performance monitoring' do
-      it 'supports posting performance monitoring data' do
-        whitelisted_path = Benchmark::Whitelist::WHITELIST.first
-        body = {
-          data: {
-            page_id: whitelisted_path,
-            metrics: [
-              { metric: 'totalPageLoad', duration: 1234.56 },
-              { metric: 'firstContentfulPaint', duration: 123.45 }
-            ]
-          }.to_json
-        }
-
-        expect(subject).to validate(
-          :post,
-          '/v0/performance_monitorings',
-          200,
-          headers.merge('_data' => body.as_json)
-        )
-      end
-    end
-
     describe 'preferences' do
       let(:preference) { create(:preference) }
       let(:route) { '/v0/user/preferences/choices' }

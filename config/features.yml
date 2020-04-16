@@ -75,3 +75,7 @@ features:
     actor_type: user
     description: >
       Enable 508 and usability enhancements for the Comparison Tool Profile Page Estimate Your Benefits section benefits estimator panel.
+  form526_original_claims:
+    actor_type: user
+    description: >
+      Allows veterans to access form526 as an original claims user. Owned by va-benefits-memorial-1 team.
