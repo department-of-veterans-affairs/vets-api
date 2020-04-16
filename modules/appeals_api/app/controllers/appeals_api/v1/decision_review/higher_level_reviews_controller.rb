@@ -12,13 +12,13 @@ class AppealsApi::V1::DecisionReview::HigherLevelReviewsController < AppealsApi:
   before_action :validate_json_schema, only: %i[create validate]
 
   FORM_NUMBER = '200996'
-  CREATE_HEADERS = YAML.safe_load(
+  HEADERS = YAML.safe_load(
     File.read(AppealsApi::Engine.root.join('app/swagger/v1/decision_reviews.yaml'))
   )['paths']['/higher_level_reviews']['post']['parameters'].map { |parameter| parameter['name'] }
 
   def create
     AppealsApi::HigherLevelReview.create!(
-      auth_headers: create_headers,
+      auth_headers: headers,
       form_data: @json_body
     )
     render json: { data: { success: true } }
@@ -35,6 +35,7 @@ class AppealsApi::V1::DecisionReview::HigherLevelReviewsController < AppealsApi:
   private
 
   def validate_json_schema
+    AppealsApi::FormSchemas.new.validate!("#{self.class::FORM_NUMBER}_headers", headers)
     AppealsApi::FormSchemas.new.validate!(self.class::FORM_NUMBER, @json_body)
   rescue JsonSchema::JsonApiMissingAttribute => e
     render json: e.to_json_api, status: e.code
@@ -51,8 +52,8 @@ class AppealsApi::V1::DecisionReview::HigherLevelReviewsController < AppealsApi:
     }
   end
 
-  def create_headers
-    CREATE_HEADERS.reduce({}) do |hash, key|
+  def headers
+    HEADERS.reduce({}) do |hash, key|
       hash.merge({ key => request.headers[key] })
     end
   end
