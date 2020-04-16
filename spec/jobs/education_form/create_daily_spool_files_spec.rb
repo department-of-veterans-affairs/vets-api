@@ -102,16 +102,6 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, type: :model, form: :educat
       end
     end
 
-    context 'with a 10203 form' do
-      let(:application_1606) { create(:va10203_full_form).education_benefits_claim }
-
-      it 'tracks the 10203 form' do
-        expect(subject).to receive(:track_form_type).with('22-10203', 999)
-        result = subject.format_application(application_1606, rpo: 999)
-        expect(result).to be_a(EducationForm::Forms::VA10203)
-      end
-    end
-
     context 'result tests' do
       subject { described_class.new.format_application(application_1606).text }
 
