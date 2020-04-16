@@ -57,7 +57,7 @@ the `vets-api` directory, run `./bin/setup-osx && source ~/.bash_profile && cd
 9. Install [pdftk](https://www.pdflabs.com/tools/pdftk-the-pdf-toolkit/pdftk_server-2.02-mac_osx-10.11-setup.pkg)
 10. Install gem dependencies: `cd vets-api; bundle install`
 
-   - More information about installing *with* Sidekiq Enterprise as well as our credentials are on the internal system here: https://github.com/department-of-veterans-affairs/vets-api#authentication-required-for-enterprisecontribsyscom
+   - More information about installing *with* Sidekiq Enterprise as well as our credentials are on the internal system here: https://github.com/department-of-veterans-affairs/vets.gov-team/blob/master/Products/Platform/Vets-API/Sidekiq%20Enterprise%20Setup.md
 
 11. Install overcommit `overcommit --install --sign`
 12. Create dev database: `bundle exec rake db:setup`
