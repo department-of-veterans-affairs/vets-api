@@ -12,14 +12,24 @@ RSpec.describe VBADocuments::ReportUnsuccessfulSubmissions, type: :job do
         Timecop.freeze
         to = Time.zone.now
         from = to.monday? ? 7.days.ago : 1.day.ago
+        consumers = VBADocuments::UploadSubmission.where(created_at: from..to).pluck(:consumer_name).uniq
         expect(VBADocuments::UnsuccessfulReportMailer).to receive(:build).once.with(
-          VBADocuments::UploadSubmission.where(
-            created_at: from..to,
-            status: %w[error expired]
-          ),
+          consumers.map do |name|
+            counts = VBADocuments::UploadSubmission.where(created_at: @from..@to, consumer_name: name).group(:status).count
+            totals = counts.sum { |_k, v| v }
+            {
+              name => counts.merge(totals: totals,
+                                            error_rate: "#{(100.0 / totals * counts['error']).round}%",
+                                            expired_rate: "#{(100.0 / totals * counts['expired']).round}%")
+            }
+          end,
           VBADocuments::UploadSubmission.where(
             created_at: from..to,
             status: 'uploaded'
+          ),
+          VBADocuments::UploadSubmission.where(
+            created_at: from..to,
+            status: %w[error expired]
           ),
           from,
           to
