@@ -13,7 +13,7 @@ module EducationForm
       daily_processed: 0
     }.freeze
 
-    FORM_TYPE_HEADERS = EducationBenefitsClaim::FORM_TYPES_EXCLUDES_10203.map do |form_header|
+    FORM_TYPE_HEADERS = EducationBenefitsClaim::FORM_HEADERS.map do |form_header|
       [form_header, '', '']
     end.flatten.freeze
 
