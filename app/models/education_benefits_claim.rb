@@ -2,7 +2,9 @@
 
 require 'attr_encrypted'
 class EducationBenefitsClaim < ApplicationRecord
-  FORM_TYPES = %w[1990 1995 1990e 5490 5495 1990n 0993 0994 1995s].freeze
+  FORM_TYPES = %w[1990 1995 1990e 5490 5495 1990n 0993 0994 1995s 10203].freeze
+  FORM_TYPES_EXCLUDES_10203 = %w[1990 1995 1990e 5490 5495 1990n 0993 0994 1995s 10203].freeze
+
   FORM_HEADERS = [
     '22-1990', '22-1995', '22-1990e', '22-5490', '22-5495', '22-1990n', '22-0993', '22-0994', '22-1995 STEM'
   ].freeze

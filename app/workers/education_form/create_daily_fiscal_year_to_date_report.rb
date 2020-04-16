@@ -62,7 +62,7 @@ module EducationForm
       submissions = {}
       application_types = EducationBenefitsClaim::APPLICATION_TYPES
 
-      EducationBenefitsClaim::FORM_TYPES.each do |form_type|
+      EducationBenefitsClaim::FORM_TYPES_EXCLUDES_10203.each do |form_type|
         form_submissions = {}
 
         EducationFacility::REGIONS.each do |region|
