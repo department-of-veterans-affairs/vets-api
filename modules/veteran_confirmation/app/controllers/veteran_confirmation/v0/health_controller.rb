@@ -9,7 +9,7 @@ module VeteranConfirmation
 
       def index
         render json: {
-          UP: 'true'
+          UP: true
         }
       end
     end
