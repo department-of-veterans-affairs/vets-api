@@ -241,6 +241,14 @@ components:
         attributes:
           type: object
           properties:
+            first_name:
+              type: string
+              description: Veteran first name
+              example: "Abraham"
+            last_name:
+              type: string
+              description: Veteran last name
+              example: "Lincoln"
             start_date:
               type: string
               format: date
@@ -267,7 +275,7 @@ components:
                  - ME (Enlisted)
                  - MO (Officer)
                  - MW (Warrant Officer)
-                 
+
                 Pay Grade Code is a value between 01 and 10.
                 Pay Plan Code is concatenated with Pay Grade Code to determine the full Pay Grade value, with the leading character (M or C) stripped from Pay Plan Code.
               example: "W01"

@@ -63,6 +63,12 @@ sidekiq_admin_panel: false
 salesforce-gibft:
   url: 'https://va--rdtcddev.cs33.my.salesforce.com/'
 
+salesforce-carma:
+  url: 'https://fake-carma.salesforce.com'
+  consumer_key: 12345ABC.QQ_1234BBfake
+  signing_key_path: 'spec/fixtures/carma/privatekey.pem' # A dummy private key used for test suite
+  username: fake-user@va.gov.carmafake
+
 salesforce:
   env: dev
   signing_key_path: 'spec/fixtures/vic/private.key'
@@ -196,18 +202,11 @@ mvi_hca:
 hca:
   prefill: true
   endpoint: https://test-foo.vets.gov
-  cert_path: /fake/client/cert/path
-  key_path: /fake/client/key/path
   timeout: 30
   ee:
     endpoint: 'http://example.com'
     user: "HCASvcUsr"
     pass: "password"
-  ca:
-    - 'VA Internal Root CA.pem'
-    - 'VA Internal Subordinate CA 1.pem'
-    - 'VA-Internal-S2-ICA1-v1.pem'
-    - 'VA-Internal-S2-RCA1-v1.pem'
 
 # Settings for the facility locator
 locators:
@@ -467,6 +466,7 @@ flipper:
     - ryan.thurlwell@va.gov
     - travis.hilton@oddball.io
     - zurbergram@gmail.com
+    - regarr@gmail.com # Robin Garrison - AdHoc
 
 bgs:
   application: ~
