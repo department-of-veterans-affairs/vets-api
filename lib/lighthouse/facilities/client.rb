@@ -8,13 +8,7 @@ module Lighthouse
     # Documentation located at:
     # https://developer.va.gov/explore/facilities/docs/facilities
     class Client < Common::Client::Base
-      attr_accessor :headers
-
       configuration Lighthouse::Facilities::Configuration
-
-      def initialize(api_key)
-        self.headers = { 'apikey' => api_key }
-      end
 
       ##
       # Request a single facility
@@ -23,7 +17,7 @@ module Lighthouse
       # @return [Lighthouse::Facilities::Facility]
       #
       def get_by_id(id)
-        response = perform(:get, "/services/va_facilities/v0/facilities/#{id}", nil, headers)
+        response = perform(:get, "/services/va_facilities/v0/facilities/#{id}", nil)
         Lighthouse::Facilities::Response.new(response.body, response.status).new_facility
       end
 
@@ -37,7 +31,7 @@ module Lighthouse
       # @return [Array<Lighthouse::Facilities::Facility>]
       #
       def get_facilities(params)
-        response = perform(:get, '/services/va_facilities/v0/facilities', params, headers)
+        response = perform(:get, '/services/va_facilities/v0/facilities', params)
         Lighthouse::Facilities::Response.new(response.body, response.status).get_facilities_list
       end
     end

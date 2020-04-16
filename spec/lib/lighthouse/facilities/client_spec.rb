@@ -78,16 +78,15 @@ RSpec.describe Lighthouse::Facilities::Client do
   end
 
   it 'is an Facilities::Client object' do
-    facilities_client = described_class.new('fake_key')
+    facilities_client = described_class.new
     expect(facilities_client).to be_an(Lighthouse::Facilities::Client)
-    expect(facilities_client).to have_attributes(headers: { 'apikey' => 'fake_key' })
   end
 
   context 'with an http timeout' do
     it 'logs an error and raise GatewayTimeout' do
       allow_any_instance_of(Faraday::Connection).to receive(:get).and_raise(Faraday::TimeoutError)
       expect do
-        Lighthouse::Facilities::Client.new('fake_key').get_facilities(params)
+        Lighthouse::Facilities::Client.new.get_facilities(params)
       end.to raise_error(Common::Exceptions::GatewayTimeout)
     end
   end
@@ -95,7 +94,7 @@ RSpec.describe Lighthouse::Facilities::Client do
   context 'with a bad API key' do
     it 'returns a 401 error' do
       VCR.use_cassette('/lighthouse/facilities_401', match_requests_on: %i[path query]) do
-        expect { Lighthouse::Facilities::Client.new('bad_key').get_by_id('vha_358') }
+        expect { Lighthouse::Facilities::Client.new.get_by_id('vha_358') }
           .to raise_error do |e|
           expect(e).to be_a(Common::Exceptions::BackendServiceException)
           expect(e.status_code).to eq(401)
@@ -109,14 +108,14 @@ RSpec.describe Lighthouse::Facilities::Client do
   describe '#get_by_id' do
     it 'returns a facility' do
       VCR.use_cassette('/lighthouse/facilities', match_requests_on: %i[path query]) do
-        r = Lighthouse::Facilities::Client.new('fake_key').get_by_id('vha_358')
+        r = Lighthouse::Facilities::Client.new.get_by_id('vha_358')
         expect(r).to have_attributes(vha_358_attributes)
       end
     end
 
-    it 'returns a 401 error' do
+    it 'returns a 404 error' do
       VCR.use_cassette('/lighthouse/facilities', match_requests_on: %i[path query]) do
-        expect { Lighthouse::Facilities::Client.new('fake_key').get_by_id('bha_358') }
+        expect { Lighthouse::Facilities::Client.new.get_by_id('bha_358') }
           .to raise_error do |e|
           expect(e).to be_a(Common::Exceptions::BackendServiceException)
           expect(e.status_code).to eq(404)
@@ -130,7 +129,7 @@ RSpec.describe Lighthouse::Facilities::Client do
   describe '#get_facilities' do
     it 'returns matching facilities' do
       VCR.use_cassette('/lighthouse/facilities', match_requests_on: %i[path query]) do
-        r = Lighthouse::Facilities::Client.new('fake_key').get_facilities(params)
+        r = Lighthouse::Facilities::Client.new.get_facilities(params)
         expect(r.length).to be 8
         expect(r[0]).to have_attributes(vha_358_attributes)
       end
@@ -138,7 +137,7 @@ RSpec.describe Lighthouse::Facilities::Client do
 
     it 'returns an error message for a bad param' do
       VCR.use_cassette('/lighthouse/facilities', match_requests_on: %i[path query]) do
-        expect { Lighthouse::Facilities::Client.new('fake_key').get_facilities({ taco: true }) }
+        expect { Lighthouse::Facilities::Client.new.get_facilities({ taco: true }) }
           .to raise_error do |e|
           expect(e).to be_a(Common::Exceptions::BackendServiceException)
           expect(e.status_code).to eq(400)

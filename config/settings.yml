@@ -486,6 +486,7 @@ lighthouse:
   api_key: fake_key
   facilities:
     url: https://dev-api.va.gov
+    api_key: fake_key
 
 forms:
   url: https://dev-api.va.gov/services/va_forms/v0/

@@ -15,6 +15,10 @@ module Lighthouse
         'Lighthouse_Facilities'
       end
 
+      def self.base_request_headers
+        super.merge('apiKey' => Settings.lighthouse.facilities.api_key)
+      end
+
       def connection
         Faraday.new(base_path, headers: base_request_headers, request: request_options) do |conn|
           conn.use :breakers
