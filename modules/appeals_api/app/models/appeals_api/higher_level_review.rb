@@ -15,22 +15,30 @@ module AppealsApi
     SERVICE_NUMBER_MAX_LENGTH = 9
     INSURANCE_POLICY_NUMBER_MAX_LENGTH = 18
 
-    validate :veteran_phone_is_not_too_long
-    # header validations: (form_data is mostly validated with modules/appeals_api/config/schemas/200996.json)
-    validate :ssn_present
-    validate :first_name_present
-    validate :last_name_present
-    validate :birth_date_present
-    validate :ssn_is_9_digits
-    validate :first_name_is_not_too_long
-    validate :middle_initial_is_correct_length
-    validate :last_name_is_not_too_long
-    validate :birth_date_is_a_date
-    validate :birth_date_is_in_the_past
-    validate :file_number_is_not_too_long
-    validate :service_number_is_not_too_long
-    validate :insurance_policy_number_is_not_too_long
-    validate :contestable_issue_dates_are_valid_dates
+    # beyond json schema validations:
+    # (form_data is mostly validated with modules/appeals_api/config/schemas/200996.json)
+    validate(
+      :veteran_phone_is_not_too_long,
+      :informal_conference_rep_name_and_phone_is_not_too_long,
+      :contestable_issue_dates_are_valid_dates
+    )
+
+    # header validations:
+    validate(
+      :ssn_present,
+      :first_name_present,
+      :last_name_present,
+      :birth_date_present,
+      :ssn_is_9_digits,
+      :first_name_is_not_too_long,
+      :middle_initial_is_correct_length,
+      :last_name_is_not_too_long,
+      :birth_date_is_a_date,
+      :birth_date_is_in_the_past,
+      :file_number_is_not_too_long,
+      :service_number_is_not_too_long,
+      :insurance_policy_number_is_not_too_long
+    )
 
     def country
       form_data&.dig('data', 'attributes', 'veteran', 'address', 'countryCodeISO2') || 'US'
