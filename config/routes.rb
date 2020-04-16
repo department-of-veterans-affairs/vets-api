@@ -288,6 +288,8 @@ Rails.application.routes.draw do
         defaults: { feature: feature }
       )
     end
+
+    resources :coronavirus_chatbot, only: :create
   end
 
   namespace :v1, defaults: { format: 'json' } do
