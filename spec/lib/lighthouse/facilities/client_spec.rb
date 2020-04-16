@@ -79,10 +79,6 @@ RSpec.describe Lighthouse::Facilities::Client do
     }
   end
 
-  it 'is an Facilities::Client object' do
-    expect(facilities_client).to be_an(Lighthouse::Facilities::Client)
-  end
-
   context 'with an http timeout' do
     it 'logs an error and raise GatewayTimeout' do
       allow_any_instance_of(Faraday::Connection).to receive(:get).and_raise(Faraday::TimeoutError)
