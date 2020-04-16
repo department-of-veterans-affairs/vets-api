@@ -134,28 +134,25 @@ module V0
       end
     end
 
-    def success_stat_tags(saml_response, *tags)
-      [
+    def login_stats_success(saml_response, user_session_form = nil)
+      tracker = url_service(user_session_form&.saml_uuid).tracker
+      tags = [
         "loa:#{@current_user.loa[:current]}",
         "idp:#{@current_user.identity.sign_in[:service_name]}",
         "context:#{saml_response.authn_context}",
         VERSION_TAG
-      ] + tags
+      ]
+      StatsD.increment(STATSD_LOGIN_NEW_USER_KEY, tags: [VERSION_TAG]) if request_type == 'signup'
+      StatsD.increment(STATSD_LOGIN_SHARED_COOKIE, tags: tags) if cookies.key?(Settings.sso.cookie_name)
+      StatsD.increment(STATSD_LOGIN_STATUS, tags: tags + ['status:success'])
+      StatsD.measure(STATSD_LOGIN_LATENCY, tracker.age, tags: tags)
+      callback_stats(:success, saml_response)
     end
 
     def login_stats(status, saml_response, user_session_form = nil)
-      tracker = url_service(user_session_form&.saml_uuid).tracker
       case status
       when :success
-        StatsD.increment(STATSD_LOGIN_NEW_USER_KEY, tags: [VERSION_TAG]) if request_type == 'signup'
-        # track users who have a shared sso cookie
-        if cookies.key?(Settings.sso.cookie_name)
-          StatsD.increment(STATSD_LOGIN_SHARED_COOKIE, tags: success_stat_tags(saml_response))
-        end
-        StatsD.increment(STATSD_LOGIN_STATUS,
-                         tags: success_stat_tags(saml_response, 'status:success'))
-        StatsD.measure(STATSD_LOGIN_LATENCY, tracker.age, tags: success_stat_tags(saml_response))
-        callback_stats(:success, saml_response)
+        login_stats_success(saml_response, user_session_form)
       when :failure
         StatsD.increment(STATSD_LOGIN_STATUS,
                          tags: ['status:failure',
