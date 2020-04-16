@@ -13,9 +13,10 @@ module VBADocuments
       valerie.hase@va.gov
     ].freeze
 
-    def build(unsuccessful_submissions, stuck_submissions, date_from, date_to)
-      @unsuccessful_submissions = unsuccessful_submissions
+    def build(consumer_totals, stuck_submissions, unsuccessful_submissions, date_from, date_to)
+      @consumer_totals = consumer_totals
       @stuck_submissions = stuck_submissions
+      @unsuccessful_submissions = unsuccessful_submissions
       @date_from = date_from
       @date_to = date_to
 
