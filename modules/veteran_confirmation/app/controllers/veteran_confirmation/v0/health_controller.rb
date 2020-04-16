@@ -5,7 +5,7 @@ module VeteranConfirmation
     # HealthController returns a JSON payload confirmation that the Veteran Confirmation application is
     # properly up and running.
     class HealthController < ApplicationController
-      skip_before_action(:authenticate)
+      skip_before_action(:authenticate, raise: false)
 
       def index
         render json: {
