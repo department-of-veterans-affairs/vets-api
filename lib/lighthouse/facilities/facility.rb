@@ -27,6 +27,7 @@ module Lighthouse
       attribute :website, String
 
       def initialize(fac)
+        super(fac)
         fac['attributes'].each_key do |key|
           self[key] = fac['attributes'][key] if attributes.include?(key.to_sym)
         end

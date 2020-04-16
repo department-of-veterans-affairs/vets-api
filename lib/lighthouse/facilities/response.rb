@@ -11,6 +11,7 @@ module Lighthouse
       attribute :data, Object
 
       def initialize(body, status)
+        super()
         self.body = body
         self.status = status
 
