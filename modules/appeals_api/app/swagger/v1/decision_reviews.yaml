@@ -391,25 +391,17 @@ components:
         - type
         - attributes
     HlrCreateDataAttributes:
+      description: >-
+        If informal conference requested (`informalConference: true`),
+        availability must be specified (`informalConferenceTimes`).
+        Explanation of abbreviated benefit types:
+          `pension`: Pension / Survivor's Benefits,
+          `voc_rehab`: Vocational Rehabilitation and Employment,
+          `vha`: Veterans Health Administration,
+          `nca`: National Cemetery Administration
       oneOf:
         - type: object
-          properties:
-            informalConference:
-              type: boolean
-              enum: [false]
-            sameOffice:
-              type: boolean
-            benefitType:
-              $ref: '#/components/schemas/BenefitType'
-            veteran:
-              $ref: '#/components/schemas/Veteran'
-          additionalProperties: false
-          required:
-            - informalConference
-            - sameOffice
-            - benefitType
-            - veteran
-        - type: object
+          description: informal conference requested
           properties:
             informalConference:
               type: boolean
@@ -419,7 +411,7 @@ components:
             benefitType:
               $ref: '#/components/schemas/BenefitType'
             veteran:
-              $ref: '#/components/schemas/Veteran'
+              $ref: '#/components/schemas/HlrCreateVeteran'
             informalConferenceTimes:
               $ref: '#/components/schemas/HlrCreateInformalConferenceTimes'
             informalConferenceRep:
@@ -431,6 +423,24 @@ components:
             - benefitType
             - veteran
             - informalConferenceTimes
+        - type: object
+          description: informal conference _not_ being requested
+          properties:
+            informalConference:
+              type: boolean
+              enum: [false]
+            sameOffice:
+              type: boolean
+            benefitType:
+              $ref: '#/components/schemas/BenefitType'
+            veteran:
+              $ref: '#/components/schemas/HlrCreateVeteran'
+          additionalProperties: false
+          required:
+            - informalConference
+            - sameOffice
+            - benefitType
+            - veteran
     BenefitType:
       type: string
       enum:
@@ -511,7 +521,7 @@ components:
         - cityName
         - stateCode
         - zipCode5
-    Veteran:
+    HlrCreateVeteran:
       type: object
       properties:
         address:
