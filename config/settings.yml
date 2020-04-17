@@ -511,3 +511,9 @@ vet_verification:
 github_stats:
   username: github-stats-rake
   token: fake_token
+
+# Settings for the coronavirus chatbot tokens
+coronavirus_chatbot:
+  app_secret: fake_secret
+  directline_uri: northamerica.directline.botframework.com
+  webchat_secret: fake_secret
