@@ -87,6 +87,5 @@ module AppealsApi
     private
 
     attr_reader :hlr
-
   end
 end
