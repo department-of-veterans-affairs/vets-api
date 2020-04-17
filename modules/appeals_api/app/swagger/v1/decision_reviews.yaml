@@ -340,14 +340,22 @@ components:
     NonBlankString:
       type: string
       pattern: '\S'
-    NonBlankStringMaxLength100:
+    NonBlankStringMaxLength140:
       allOf:
         - $ref: '#/components/schemas/NonBlankString'
-        - maxLength: 100
-    NonBlankStringMaxLength10:
+        - maxLength: 140
+    NonBlankStringMaxLength30:
       allOf:
         - $ref: '#/components/schemas/NonBlankString'
-        - maxLength: 10
+        - maxLength: 30
+    NonBlankStringMaxLength18:
+      allOf:
+        - $ref: '#/components/schemas/NonBlankString'
+        - maxLength: 18
+    NonBlankStringMaxLength5:
+      allOf:
+        - $ref: '#/components/schemas/NonBlankString'
+        - maxLength: 5
     NonBlankStringMaxLength2:
       allOf:
         - $ref: '#/components/schemas/NonBlankString'
@@ -358,11 +366,7 @@ components:
         - maxLength: 1
     Date:
       type: string
-      pattern: '[0-9]{4}-[0-9]{2}-[0-9]{2}'
-    CurrentDate:
-      allOf:
-        - $ref: '#/components/schemas/Date'
-        - description: 'if field is absent, the current date will be used'
+      pattern: '^[0-9]{4}-[0-9]{2}-[0-9]{2}$'
     HlrCreate:
       type: object
       properties:
@@ -387,17 +391,25 @@ components:
         - type
         - attributes
     HlrCreateDataAttributes:
-      description: >-
-        If informal conference requested (`informalConference: true`),
-        availability must be specified (`informalConferenceTimes`).
-        Explanation of abbreviated benefit types:
-          `pension`: Pension / Survivor's Benefits,
-          `voc_rehab`: Vocational Rehabilitation and Employment,
-          `vha`: Veterans Health Administration,
-          `nca`: National Cemetery Administration
       oneOf:
         - type: object
-          description: informal conference requested
+          properties:
+            informalConference:
+              type: boolean
+              enum: [false]
+            sameOffice:
+              type: boolean
+            benefitType:
+              $ref: '#/components/schemas/BenefitType'
+            veteran:
+              $ref: '#/components/schemas/Veteran'
+          additionalProperties: false
+          required:
+            - informalConference
+            - sameOffice
+            - benefitType
+            - veteran
+        - type: object
           properties:
             informalConference:
               type: boolean
@@ -407,9 +419,7 @@ components:
             benefitType:
               $ref: '#/components/schemas/BenefitType'
             veteran:
-              $ref: '#/components/schemas/HlrCreateVeteran'
-            receiptDate:
-              $ref: '#/components/schemas/CurrentDate'
+              $ref: '#/components/schemas/Veteran'
             informalConferenceTimes:
               $ref: '#/components/schemas/HlrCreateInformalConferenceTimes'
             informalConferenceRep:
@@ -421,26 +431,6 @@ components:
             - benefitType
             - veteran
             - informalConferenceTimes
-        - type: object
-          description: informal conference _not_ being requested
-          properties:
-            informalConference:
-              type: boolean
-              enum: [false]
-            sameOffice:
-              type: boolean
-            benefitType:
-              $ref: '#/components/schemas/BenefitType'
-            veteran:
-              $ref: '#/components/schemas/HlrCreateVeteran'
-            receiptDate:
-              $ref: '#/components/schemas/CurrentDate'
-          additionalProperties: false
-          required:
-            - informalConference
-            - sameOffice
-            - benefitType
-            - veteran
     BenefitType:
       type: string
       enum:
@@ -462,7 +452,6 @@ components:
       uniqueItems: true
     HlrCreateInformalConferenceTime:
       type: string
-      description: time ranges in Eastern Time
       enum:
         - 800-1000 ET
         - 1000-1230 ET
@@ -482,111 +471,57 @@ components:
     Phone:
       type: object
       properties:
-        isInternational:
-          type: boolean
         countryCode:
-          $ref: '#/components/schemas/NonBlankString'
+          type: string
+          pattern: '^[0-9]+$'
+        areaCode:
+          type: string
+          pattern: '[2-9][0-9]{2}'
         phoneNumber:
           type: string
           pattern: '^[0-9]{1,14}$'
-        areaCode:
+        phoneNumberExt:
           type: string
-          pattern: '^[0-9]{3}$'
-        extension:
-          $ref: '#/components/schemas/NonBlankStringMaxLength10'
-        phoneType:
-          type: string
-          enum:
-            - MOBILE
-            - HOME
-            - WORK
-            - FAX
-            - TEMPORARY
-      additionalProperties: false
+          pattern: '^[a-zA-Z0-9]{1,10}$'
       required:
-        - isInternational
-        - countryCode
-        - phoneNumber
         - areaCode
-        - phoneType
+        - phoneNumber
     Address:
-      oneOf:
-        - type: object
-          properties:
-            addressType:
-              type: string
-              enum:
-                - DOMESTIC
-                - OVERSEAS MILITARY
-            addressLine1:
-              $ref: '#/components/schemas/NonBlankStringMaxLength100'
-            addressLine2:
-              $ref: '#/components/schemas/NonBlankStringMaxLength100'
-            addressLine3:
-              $ref: '#/components/schemas/NonBlankStringMaxLength100'
-            city:
-              $ref: '#/components/schemas/NonBlankStringMaxLength100'
-            stateCode:
-              $ref: '#/components/schemas/NonBlankStringMaxLength2'
-            zipCode:
-              type: string
-              pattern: '^[0-9]{5}$'
-            countryName:
-              type: string
-            addressPou:
-              type: string
-              enum:
-                - RESIDENCE/CHOICE
-                - CORRESPONDENCE
-          additionalProperties: false
-          required:
-            - addressType
-            - addressLine1
-            - city
-            - stateCode
-            - zipCode
-            - countryName
-            - addressPou
-        - type: object
-          properties:
-            addressType:
-              type: string
-              enum: [INTERNATIONAL]
-            addressLine1:
-              $ref: '#/components/schemas/NonBlankStringMaxLength100'
-            addressLine2:
-              $ref: '#/components/schemas/NonBlankStringMaxLength100'
-            addressLine3:
-              $ref: '#/components/schemas/NonBlankStringMaxLength100'
-            city:
-              $ref: '#/components/schemas/NonBlankStringMaxLength100'
-            internationalPostalCode:
-              type: string
-            countryName:
-              type: string
-            addressPou:
-              type: string
-              enum:
-                - RESIDENCE/CHOICE
-                - CORRESPONDENCE
-          additionalProperties: false
-          required:
-            - addressType
-            - addressLine1
-            - city
-            - internationalPostalCode
-            - countryName
-            - addressPou
-    HlrCreateVeteran:
+      type: object
+      properties:
+        addressLine1:
+          $ref: '#/components/schemas/NonBlankStringMaxLength30'
+        addressLine2:
+          $ref: '#/components/schemas/NonBlankStringMaxLength5'
+        cityName:
+          $ref: '#/components/schemas/NonBlankStringMaxLength18'
+        stateCode:
+          $ref: '#/components/schemas/NonBlankStringMaxLength2'
+        countryCodeISO2:
+          type: string
+          pattern: '^[a-zA-Z]{2}$'
+        zipCode5:
+          type: string
+          pattern: '^[0-9]{5}$'
+        zipCode4:
+          type: string
+          pattern: '^[0-9]{4}$'
+      required:
+        - addressLine1
+        - cityName
+        - stateCode
+        - zipCode5
+    Veteran:
       type: object
       properties:
         address:
           $ref: '#/components/schemas/Address'
         phone:
           $ref: '#/components/schemas/Phone'
-        emailAddress:
+        emailAddressText:
           type: string
-          pattern: '.@.'
+          pattern: .@.
+          maxLength: 44
       additionalProperties: false
       required:
         - address
@@ -595,6 +530,7 @@ components:
       items:
         $ref: '#/components/schemas/HlrCreateContestableIssue'
       minItems: 1
+      maxItems: 6
       uniqueItems: true
     HlrCreateContestableIssue:
       type: object
@@ -612,7 +548,7 @@ components:
       type: object
       properties:
         issue:
-          $ref: '#/components/schemas/NonBlankString'
+          $ref: '#/components/schemas/NonBlankStringMaxLength140'
         decisionDate:
           $ref: '#/components/schemas/Date'
         decisionIssueId:
@@ -689,88 +625,6 @@ components:
     HlrCreateAllFieldsUsed:
       value:
         data:
-          type: HigherLevelReview
-          attributes:
-            informalConference: true
-            sameOffice: true
-            benefitType: nca
-            veteran:
-              address:
-                addressType: DOMESTIC
-                addressLine1: 401 Kansas Avenue
-                addressLine2: 'Unit #724'
-                addressLine3: c/o Amelia Earhart
-                city: Atchison
-                stateCode: KS
-                zipCode: '66002'
-                countryName: United States
-                addressPou: RESIDENCE/CHOICE
-              phone:
-                isInternational: false
-                countryCode: '1'
-                areaCode: '555'
-                phoneNumber: '8001111'
-                extension: '2'
-                phoneType: HOME
-              emailAddress: josie@example.com
-            receiptDate: '2020-02-02'
-            informalConferenceTimes:
-              - 1230-1400 ET
-              - 1400-1630 ET
-            informalConferenceRep:
-              name: Helen Holly
-              phone:
-                isInternational: false
-                countryCode: '1'
-                areaCode: '555'
-                phoneNumber: '8001111'
-                extension: '2'
-                phoneType: HOME
-        included:
-          - type: ContestableIssue
-            attributes:
-              issue: tinnitus
-              decisionDate: '1900-01-01'
-              decisionIssueId: 1
-              ratingIssueId: '2'
-              ratingDecisionIssueId: '3'
-          - type: ContestableIssue
-            attributes:
-              issue: left knee
-              decisionDate: '1900-01-02'
-              decisionIssueId: 4
-              ratingIssueId: '5'
-          - type: ContestableIssue
-            attributes:
-              issue: right knee
-              decisionDate: '1900-01-03'
-              ratingIssueId: '6'
-              ratingDecisionIssueId: '7'
-          - type: ContestableIssue
-            attributes:
-              issue: PTSD
-              decisionDate: '1900-01-04'
-              decisionIssueId: 8
-              ratingDecisionIssueId: '9'
-          - type: ContestableIssue
-            attributes:
-              issue: Traumatic Brain Injury
-              decisionDate: '1900-01-05'
-              decisionIssueId: 10
-          - type: ContestableIssue
-            attributes:
-              issue: right shoulder
-              decisionDate: '1900-01-06'
-              ratingIssueId: '11'
-          - type: ContestableIssue
-            attributes:
-              issue: left shoulder
-              decisionDate: '1900-01-07'
-              ratingDecisionIssueId: '12'
-          - type: ContestableIssue
-            attributes:
-              issue: left shoulder
-              decisionDate: '1920-12-01'
     HlrCreateMinimumFieldsUsed:
       value:
         data:
@@ -781,11 +635,10 @@ components:
             benefitType: nca
             veteran:
               address:
-                addressType: DOMESTIC
                 addressLine1: 401 Kansas Avenue
-                city: Atchison
+                cityName: Atchison
                 stateCode: KS
-                zipCode: '66002'
+                zipCode5: '66002'
                 countryName: United States
                 addressPou: RESIDENCE/CHOICE
         included:
@@ -825,24 +678,24 @@ components:
               "pattern": "[^ \\f\\n\\r\\t\\v\\u00a0\\u1680\\u2000-\\u200a\\u2028\\u2029\\u202f\\u205f\\u3000\\ufeff]",
               "$comment": "The pattern used ensures that a string has at least one non-whitespace character. The pattern comes from JavaScript's \\s character class. \"\\s Matches a single white space character, including space, tab, form feed, line feed, and other Unicode spaces. Equivalent to [ \\f\\n\\r\\t\\v\\u00a0\\u1680\\u2000-\\u200a\\u2028\\u2029\\u202f\\u205f\\u3000\\ufeff].\": https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Regular_Expressions/Character_Classes  We are using simple character classes at JSON Schema's recommendation: https://tools.ietf.org/html/draft-handrews-json-schema-validation-01#section-4.3"
             },
-            "nonBlankStringMaxLength100": {
-              "allOf": [ { "$ref": "#/definitions/nonBlankString" }, { "maxLength": 100 } ]
+            "nonBlankStringMaxLength140": {
+              "allOf": [ { "$ref": "#/definitions/nonBlankString" }, { "maxLength": 140 } ]
             },
-            "nonBlankStringMaxLength10": {
-              "allOf": [ { "$ref": "#/definitions/nonBlankString" }, { "maxLength": 10 } ]
+            "nonBlankStringMaxLength30": {
+              "allOf": [ { "$ref": "#/definitions/nonBlankString" }, { "maxLength": 30 } ]
+            },
+            "nonBlankStringMaxLength18": {
+              "allOf": [ { "$ref": "#/definitions/nonBlankString" }, { "maxLength": 18 } ]
+            },
+            "nonBlankStringMaxLength5": {
+              "allOf": [ { "$ref": "#/definitions/nonBlankString" }, { "maxLength": 5 } ]
             },
             "nonBlankStringMaxLength2": {
               "allOf": [ { "$ref": "#/definitions/nonBlankString" }, { "maxLength": 2 } ]
             },
             "date": {
               "type": "string",
-              "pattern": "[0-9]{4}-[0-9]{2}-[0-9]{2}"
-            },
-            "currentDate": {
-              "allOf": [
-                { "$ref": "#/definitions/date" },
-                { "$comment": "if field is absent, the current date will be used" }
-              ]
+              "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$"
             },
 
 
@@ -866,7 +719,6 @@ components:
                     "sameOffice":         { "type": "boolean" },
                     "benefitType":        { "$ref": "#/definitions/benefitType" },
                     "veteran":            { "$ref": "#/definitions/veteran" },
-                    "receiptDate":        { "$ref": "#/definitions/currentDate" }
                   },
                   "additionalProperties": false,
                   "required": [
@@ -884,7 +736,6 @@ components:
                     "sameOffice":         { "type": "boolean" },
                     "benefitType":        { "$ref": "#/definitions/benefitType" },
                     "veteran":            { "$ref": "#/definitions/veteran" },
-                    "receiptDate":        { "$ref": "#/definitions/currentDate" },
                     "informalConferenceTimes": { "$ref": "#/definitions/informalConferenceTimes" },
                     "informalConferenceRep":   { "$ref": "#/definitions/informalConferenceRep" }
                   },
@@ -950,76 +801,37 @@ components:
 
 
             "phone": {
-              "$comment": "source: VA Profile API - POST /v0/profile/telephones",
+              "$comment": "the phone fields must not exceed 20 chars, when concatenated",
               "type": "object",
               "properties": {
-                "isInternational": { "type": "boolean" },
-                "countryCode":     { "$ref": "#/definitions/nonBlankString" },
+                "countryCode":     { "type": "string", "pattern": "^[0-9]+$" },
+                "areaCode":        { "type": "string", "pattern": "[2-9][0-9]{2}" },
                 "phoneNumber":     { "type": "string", "pattern": "^[0-9]{1,14}$" },
-                "areaCode":        { "type": "string", "pattern": "^[0-9]{3}$" },
-                "extension":       { "$ref": "#/definitions/nonBlankStringMaxLength10" },
-                "phoneType":       { "type": "string", "enum": [ "MOBILE", "HOME", "WORK", "FAX", "TEMPORARY" ] }
+                "phoneNumberExt":  { "type": "string", "pattern": "^[a-zA-Z0-9]{1,10}$" }
               },
-              "additionalProperties": false,
               "required": [
-                "isInternational",
-                "countryCode",
-                "phoneNumber",
                 "areaCode",
-                "phoneType"
+                "phoneNumber"
               ]
             },
 
 
             "address": {
-              "$comment": "source: VA Profile API - POST /v0/profile/addresses",
-              "oneOf": [
-                {
-                  "type": "object",
-                  "properties": {
-                    "addressType":  { "type": "string", "enum": [ "DOMESTIC", "OVERSEAS MILITARY" ] },
-                    "addressLine1": { "$ref": "#/definitions/nonBlankStringMaxLength100" },
-                    "addressLine2": { "$ref": "#/definitions/nonBlankStringMaxLength100" },
-                    "addressLine3": { "$ref": "#/definitions/nonBlankStringMaxLength100" },
-                    "city":         { "$ref": "#/definitions/nonBlankStringMaxLength100" },
-                    "stateCode":    { "$ref": "#/definitions/nonBlankStringMaxLength2" },
-                    "zipCode":      { "type": "string", "pattern": "^[0-9]{5}$" },
-                    "countryName":  { "type": "string" },
-                    "addressPou":   { "type": "string", "enum": [ "RESIDENCE/CHOICE", "CORRESPONDENCE" ] }
-                  },
-                  "additionalProperties": false,
-                  "required": [
-                    "addressType",
-                    "addressLine1",
-                    "city",
-                    "stateCode",
-                    "zipCode",
-                    "countryName",
-                    "addressPou"
-                  ]
-                },
-                {
-                  "type": "object",
-                  "properties": {
-                    "addressType":             { "const": "INTERNATIONAL" },
-                    "addressLine1":            { "$ref": "#/definitions/nonBlankStringMaxLength100" },
-                    "addressLine2":            { "$ref": "#/definitions/nonBlankStringMaxLength100" },
-                    "addressLine3":            { "$ref": "#/definitions/nonBlankStringMaxLength100" },
-                    "city":                    { "$ref": "#/definitions/nonBlankStringMaxLength100" },
-                    "internationalPostalCode": { "type": "string" },
-                    "countryName":             { "type": "string" },
-                    "addressPou":              { "type": "string", "enum": [ "RESIDENCE/CHOICE", "CORRESPONDENCE" ] }
-                  },
-                  "additionalProperties": false,
-                  "required": [
-                    "addressType",
-                    "addressLine1",
-                    "city",
-                    "internationalPostalCode",
-                    "countryName",
-                    "addressPou"
-                  ]
-                }
+              "type": "object",
+              "properties": {
+                "addressLine1":     { "$ref": "#/definitions/nonBlankStringMaxLength30" },
+                "addressLine2":     { "$ref": "#/definitions/nonBlankStringMaxLength5" },
+                "cityName":         { "$ref": "#/definitions/nonBlankStringMaxLength18" },
+                "stateCode":        { "$ref": "#/definitions/nonBlankStringMaxLength2" },
+                "countryCodeISO2":  { "type": "string", "pattern": "^[a-zA-Z]{2}$" },
+                "zipCode5":         { "type": "string", "pattern": "^[0-9]{5}$" },
+                "zipCode4":         { "type": "string", "pattern": "^[0-9]{4}$" }
+              },
+              "required": [
+                "addressLine1",
+                "cityName",
+                "stateCode",
+                "zipCode5"
               ]
             },
 
@@ -1029,9 +841,10 @@ components:
               "properties": {
                 "address":      { "$ref": "#/definitions/address" },
                 "phone":        { "$ref": "#/definitions/phone" },
-                "emailAddress": {
+                "emailAddressText": {
                   "type": "string",
                   "pattern": ".@.",
+                  "maxLength": 44,
                   "$comment": "TODO: use draft 7 feature [format: idn-email] or [format: email] over pattern (when there is broader support)"
                 }
               },
@@ -1044,6 +857,7 @@ components:
               "type": "array",
               "items": { "$ref": "#/definitions/contestableIssue" },
               "minItems": 1,
+              "maxItems": 6,
               "uniqueItems": true
             },
 
@@ -1062,7 +876,7 @@ components:
             "contestableIssueAttributes": {
               "type": "object",
               "properties": {
-                "issue":                 { "$ref": "#/definitions/nonBlankString" },
+                "issue":                 { "$ref": "#/definitions/nonBlankStringMaxLength140" },
                 "decisionDate":          { "$ref": "#/definitions/date" },
                 "decisionIssueId":       { "type": "integer" },
                 "ratingIssueId":         { "type": "string" },

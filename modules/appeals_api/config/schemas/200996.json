@@ -147,7 +147,6 @@
         "phoneNumber":     { "type": "string", "pattern": "^[0-9]{1,14}$" },
         "phoneNumberExt":  { "type": "string", "pattern": "^[a-zA-Z0-9]{1,10}$" }
       },
-      "additionalProperties": false,
       "required": [
         "areaCode",
         "phoneNumber"
@@ -170,8 +169,7 @@
         "addressLine1",
         "cityName",
         "stateCode",
-        "zipCode5",
-        "zipCode4"
+        "zipCode5"
       ]
     },
 
