@@ -3,12 +3,12 @@
 module VAOS
   class MessagesController < VAOS::BaseController
     def index
-      render json: MessagesSerializer.new(messages[:data], meta: messages[:meta])
+      render json: VAOS::MessagesSerializer.new(messages[:data], meta: messages[:meta])
     end
 
     def create
       response = messages_service.post_message(appointment_request_id, post_params)
-      render json: MessagesSerializer.new(response[:data], meta: response[:meta])
+      render json: VAOS::MessagesSerializer.new(response[:data], meta: response[:meta])
     end
 
     private
