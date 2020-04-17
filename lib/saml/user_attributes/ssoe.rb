@@ -11,6 +11,7 @@ module SAML
                                    uuid idme_uuid sec_id mhv_icn mhv_correlation_id mhv_account_type
                                    dslogon_edipi loa sign_in multifactor].freeze
       IDME_GCID_REGEX = /^(?<idme>\w+)\^PN\^200VIDM\^USDVA\^A$/.freeze
+      INBOUND_AUTHN_CONTEXT = 'urn:oasis:names:tc:SAML:2.0:ac:classes:Password'
 
       attr_reader :attributes, :authn_context, :warnings
 
@@ -149,9 +150,12 @@ module SAML
       end
 
       def sign_in
-        SAML::User::AUTHN_CONTEXTS.fetch(@authn_context)
-                                  .fetch(:sign_in)
-                                  .merge(account_type: account_type)
+        if @authn_context == INBOUND_AUTHN_CONTEXT
+          sign_in = { service_name: safe_attr('va_eauth_csid').downcase }
+        else
+          sign_in = SAML::User::AUTHN_CONTEXTS.fetch(@authn_context).fetch(:sign_in)
+        end
+        sign_in.merge(account_type: account_type)
       end
 
       def to_hash
