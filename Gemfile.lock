@@ -24,10 +24,10 @@ GIT
 
 GIT
   remote: https://github.com/department-of-veterans-affairs/lighthouse-bgs.git
-  revision: 08bdfbbb286814a617b069dfabbf00d30f63daac
+  revision: a149a1734c1bf6e241ac5818f36aa5a3e1fef727
   branch: master
   specs:
-    lighthouse_bgs (0.9.0)
+    lighthouse_bgs (0.12.1)
       httpclient
       nokogiri (>= 1.8.5)
       savon (~> 2.12)
