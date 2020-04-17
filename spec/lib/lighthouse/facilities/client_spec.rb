@@ -124,11 +124,20 @@ RSpec.describe Lighthouse::Facilities::Client do
   end
 
   describe '#get_facilities' do
-    it 'returns matching facilities' do
+    it 'returns matching facilities for bbox request' do
       VCR.use_cassette('/lighthouse/facilities', match_requests_on: %i[path query]) do
         r = facilities_client.get_facilities(params)
         expect(r.length).to be 8
         expect(r[0]).to have_attributes(vha_358_attributes)
+      end
+    end
+
+    it 'returns matching facilities for lat and long request with distance' do
+      VCR.use_cassette('/lighthouse/facilities', match_requests_on: %i[path query]) do
+        r = facilities_client.get_facilities(lat: 13.54, long: 121.00)
+        expect(r.length).to be 10
+        expect(r[0]).to have_attributes(vha_358_attributes)
+        expect(r[0].distance).to eq(69.38)
       end
     end
 
