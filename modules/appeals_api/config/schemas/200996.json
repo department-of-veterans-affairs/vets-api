@@ -166,7 +166,6 @@
         "zipCode5":         { "type": "string", "pattern": "^[0-9]{5}$" },
         "zipCode4":         { "type": "string", "pattern": "^[0-9]{4}$" }
       },
-      "additionalProperties": false,
       "required": [
         "addressLine1",
         "cityName",
