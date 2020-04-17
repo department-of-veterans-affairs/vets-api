@@ -3,30 +3,61 @@
 class AppealsApi::HigherLevelReview::Phone
   MAX_LENGTH = 20
 
-  attr_reader :country_code, :area_code, :number, :extension
-
   def initialize(phone_hash)
     phone_hash ||= {}
-    @country_code = phone_hash['countryCode'].presence
-    @area_code = phone_hash['areaCode'].presence
-    @number = phone_hash['phoneNumber'].presence
-    @extension = phone_hash['phoneNumberExt'].presence
+    @country_code = phone_hash['countryCode'].presence&.strip
+    @area_code = phone_hash['areaCode'].presence&.strip
+    @phone_number = phone_hash['phoneNumber'].presence&.strip
+    @phone_number_ext = phone_hash['phoneNumberExt'].presence&.strip
   end
 
   def to_s
     return '' if blank?
 
-    cc = country_code && "+#{country_code} "
-    ext = extension && " ext #{extension}"
+    number = country_string + number_string
+    ext = ext_string(MAX_LENGTH - number.length)
 
-    "#{cc}#{area_code}#{number}#{ext}"
+    number + ext
   end
 
   def too_long?
     to_s.length > MAX_LENGTH
   end
 
+  private
+
+  attr_reader :country_code, :area_code, :phone_number, :phone_number_ext
+
   def blank?
-    [country_code, area_code, number, extension].all? :blank?
+    [country_code, area_code, phone_number, phone_number_ext].all? :blank?
+  end
+
+  def country_string
+    return '' if !country_code || country_code.to_s == '1'
+
+    "+#{country_code}-"
+  end
+
+  def number_string
+    full_number = "#{area_code}#{phone_number}"
+
+    return full_number unless full_number.length == 10
+
+    [
+      full_number.slice(0, 3),
+      full_number.slice(3, 3),
+      full_number.slice(6, 4)
+    ].join('-')
+  end
+
+  # tries to make a extension string that is <= max_length
+  def ext_string(max_length)
+    return '' unless phone_number_ext
+
+    max_prefix_length = max_length - phone_number_ext.length
+
+    [' ext ', ' ext', ' ex', ' x'].find(-> { 'x' }) do |prefix|
+      prefix.length <= max_prefix_length
+    end + phone_number_ext
   end
 end

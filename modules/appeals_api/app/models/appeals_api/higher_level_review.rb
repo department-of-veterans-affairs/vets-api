@@ -7,13 +7,13 @@ module AppealsApi
 
     enum status: { pending: 0, processing: 1, submitted: 2, established: 3, errored: 4 }
 
-    INFORMAL_CONFERENCE_REP_NAME_AND_PHONE_MAX_LENGTH = 100
+    INFORMAL_CONFERENCE_REP_NAME_AND_PHONE_NUMBER_MAX_LENGTH = 100
 
     # beyond json schema validations:
     # (form_data is mostly validated with modules/appeals_api/config/schemas/200996.json)
     validate(
       :veteran_phone_is_not_too_long,
-      :informal_conference_rep_name_and_phone_is_not_too_long,
+      :informal_conference_rep_name_and_phone_number_is_not_too_long,
       :birth_date_is_a_date,
       :birth_date_is_in_the_past,
       :contestable_issue_dates_are_valid_dates
@@ -99,8 +99,8 @@ module AppealsApi
     end
 
     # 10. TELEPHONE NUMBER
-    def veteran_phone
-      AppealsApi::HigherLevelReview::Phone.new veteran&.dig('phone')
+    def veteran_phone_number
+      veteran_phone.to_s
     end
 
     # 11. E-MAIL ADDRESS
@@ -127,7 +127,7 @@ module AppealsApi
       data_attributes&.dig('informalConferenceTimes')
     end
 
-    def informal_conference_rep_name_and_phone
+    def informal_conference_rep_name_and_phone_number
       "#{informal_conference_rep_name} #{informal_conference_rep_phone}"
     end
 
@@ -165,6 +165,10 @@ module AppealsApi
       birth_date_is_a_date? && birth_date < Time.zone.today
     end
 
+    def veteran_phone
+      AppealsApi::HigherLevelReview::Phone.new veteran&.dig('phone')
+    end
+
     def informal_conference_rep
       data_attributes&.dig('informalConferenceRep')
     end
@@ -174,11 +178,12 @@ module AppealsApi
     end
 
     def informal_conference_rep_phone
-      AppealsApi::HigherLevelReview::Phone.new(informal_conference_rep&.dig('phone'))
+      AppealsApi::HigherLevelReview::Phone.new informal_conference_rep&.dig('phone')
     end
 
-    def informal_conference_rep_name_and_phone_is_too_long?
-      informal_conference_rep_name_and_phone.length > INFORMAL_CONFERENCE_REP_NAME_AND_PHONE_MAX_LENGTH
+    def informal_conference_rep_name_and_phone_number_is_too_long?
+      informal_conference_rep_name_and_phone_number.length >
+        INFORMAL_CONFERENCE_REP_NAME_AND_PHONE_NUMBER_MAX_LENGTH
     end
 
     # treat blank headers as nil
@@ -196,15 +201,15 @@ module AppealsApi
     end
 
     # validation
-    def informal_conference_rep_name_and_phone_is_not_too_long
-      return unless informal_conference_rep_name_and_phone_is_too_long?
+    def informal_conference_rep_name_and_phone_number_is_not_too_long
+      return unless informal_conference_rep_name_and_phone_number_is_too_long?
 
       errors.add(
         :base,
         [
           'Informal conference rep will not fit on form',
-          "(#{INFORMAL_CONFERENCE_REP_NAME_AND_PHONE_MAX_LENGTH} char limit):",
-          informal_conference_rep_name_and_phone
+          "(#{INFORMAL_CONFERENCE_REP_NAME_AND_PHONE_NUMBER_MAX_LENGTH} char limit):",
+          informal_conference_rep_name_and_phone_number
         ].join(' ')
       )
     end

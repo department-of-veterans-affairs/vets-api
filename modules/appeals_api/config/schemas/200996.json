@@ -171,7 +171,6 @@
         "addressLine1",
         "cityName",
         "stateCode",
-        "countryCodeISO2",
         "zipCode5",
         "zipCode4"
       ]
