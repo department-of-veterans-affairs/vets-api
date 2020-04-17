@@ -106,9 +106,6 @@ module VBADocuments
         parts[att].rewind
         body["attachment#{i + 1}"] = to_faraday_upload(parts[att], "attachment#{i + 1}.pdf")
       end
-      puts '-UPLOAD PROCESSOR SPEC'
-      puts body.inspect
-      puts '-UPLOAD PROCESSOR SPEC'
       CentralMail::Service.new.upload(body)
     end
 
