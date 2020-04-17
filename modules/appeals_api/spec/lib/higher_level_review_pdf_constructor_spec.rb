@@ -11,19 +11,6 @@ describe AppealsApi::HigherLevelReviewPdfConstructor do
   end
   let(:higher_level_review) { create_higher_level_review }
 
-  it 'builds the veteran from the hlr data headers' do
-    higher_level_review
-    constructor = AppealsApi::HigherLevelReviewPdfConstructor.new(higher_level_review.id)
-    expect(constructor.veteran.first_name).to eq('Heather')
-    expect(constructor.veteran.middle_name).to eq('H')
-    expect(constructor.veteran.last_name).to eq('Header')
-    expect(constructor.veteran.ssn).to eq('123456789')
-    expect(constructor.veteran.birth_date).to eq('1969-12-31')
-    expect(constructor.veteran.va_file_number).to eq('2468')
-    expect(constructor.veteran.service_number).to eq('1357')
-    expect(constructor.veteran.insurance_policy_number).to eq('9876543210')
-  end
-
   it 'builds the pdf options' do
     higher_level_review
     constructor = AppealsApi::HigherLevelReviewPdfConstructor.new(higher_level_review.id)
