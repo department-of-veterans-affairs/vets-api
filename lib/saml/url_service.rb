@@ -35,7 +35,7 @@ module SAML
       @saml_settings = saml_settings
       @loa3_context = loa3_context
 
-      if params[:action] == 'saml_callback' and params[:RelayState].present?
+      if (params[:action] == 'saml_callback') && params[:RelayState].present?
         @type = JSON.parse(params[:RelayState])['type']
       end
       @query_params = {}
@@ -143,6 +143,7 @@ module SAML
     end
 
     private
+
     # Builds the urls to trigger various SSO policies: mhv, dslogon, idme, mfa, or verify flows.
     # link_authn_context is the new proposed authn_context
     def build_sso_url(link_authn_context)
