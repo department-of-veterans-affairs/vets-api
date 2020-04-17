@@ -212,8 +212,6 @@ Rails.application.routes.draw do
       end
     end
 
-    resources :performance_monitorings, only: :create
-
     namespace :profile do
       resource :alternate_phone, only: %i[show create]
       resource :email, only: %i[show create]
@@ -287,6 +285,10 @@ Rails.application.routes.draw do
         only: %i[show create destroy],
         defaults: { feature: feature }
       )
+    end
+
+    namespace :coronavirus_chatbot do
+      resource :tokens, only: :create
     end
   end
 

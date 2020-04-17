@@ -34,22 +34,34 @@ module Vet360
       #   address validation API response
       def self.build_from_address_suggestion(address_suggestion_hash)
         address_hash = address_suggestion_hash['address']
-
-        # add international_postal_code and province for future international support
-        new(
+        address_type = address_suggestion_hash['address_meta_data']['address_type'].upcase
+        attributes = {
           address_line1: address_hash['address_line1'],
           address_line2: address_hash['address_line2'],
           address_line3: address_hash['address_line3'],
-          address_type: address_suggestion_hash['address_meta_data']['address_type'].upcase,
+          address_type: address_type,
           city: address_hash['city'],
           country_name: address_hash['country']['name'],
-          country_code_iso3: address_hash['country']['iso3_code'],
-          county_code: address_hash.dig('county', 'county_fips_code'),
-          county_name: address_hash.dig('county', 'name'),
-          state_code: address_hash['state_province']['code'],
-          zip_code: address_hash['zip_code5'],
-          zip_code_suffix: address_hash['zip_code4']
-        )
+          country_code_iso3: address_hash['country']['iso3_code']
+        }.merge(regional_attributes(address_type, address_hash))
+
+        new(attributes)
+      end
+
+      def self.regional_attributes(address_type, address_hash)
+        if address_type == INTERNATIONAL
+          {
+            province: address_hash['state_province']['name'],
+            international_postal_code: address_hash['international_postal_code']
+          }
+        else
+          {
+            state_code: address_hash['state_province']['code'],
+            county_code: address_hash.dig('county', 'county_fips_code'),
+            county_name: address_hash.dig('county', 'name'),
+            zip_code: address_hash['zip_code5'], zip_code_suffix: address_hash['zip_code4']
+          }
+        end
       end
     end
   end
