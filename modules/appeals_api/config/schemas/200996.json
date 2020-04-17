@@ -56,7 +56,7 @@
             "informalConference": { "const": false },
             "sameOffice":         { "type": "boolean" },
             "benefitType":        { "$ref": "#/definitions/benefitType" },
-            "veteran":            { "$ref": "#/definitions/veteran" },
+            "veteran":            { "$ref": "#/definitions/veteran" }
           },
           "additionalProperties": false,
           "required": [

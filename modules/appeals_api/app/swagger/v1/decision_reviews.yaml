@@ -702,15 +702,6 @@ components:
               issue: right shoulder
               decisionDate: '1900-01-06'
               ratingIssueId: '11'
-          - type: ContestableIssue
-            attributes:
-              issue: left shoulder
-              decisionDate: '1900-01-07'
-              ratingDecisionIssueId: '12'
-          - type: ContestableIssue
-            attributes:
-              issue: left shoulder
-              decisionDate: '1920-12-01'
     HlrCreateMinimumFieldsUsed:
       value:
         data:

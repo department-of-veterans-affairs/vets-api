@@ -36,7 +36,7 @@ class AppealsApi::V1::DecisionReview::HigherLevelReviewsController < AppealsApi:
   private
 
   def validate_json_schema
-    AppealsApi::FormSchemas.new.validate!("#{self.class::FORM_NUMBER}_headers", headers)
+    AppealsApi::FormSchemas.new.validate!("#{self.class::FORM_NUMBER}_HEADERS", headers)
     AppealsApi::FormSchemas.new.validate!(self.class::FORM_NUMBER, @json_body)
   rescue JsonSchema::JsonApiMissingAttribute => e
     render json: e.to_json_api, status: e.code
