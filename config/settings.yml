@@ -507,7 +507,8 @@ github_stats:
   username: github-stats-rake
   token: fake_token
 
+# Settings for the coronavirus chatbot tokens
 coronavirus_chatbot:
-  directline_uri: northamerica.directline.botframework.com
   app_secret: a_secret
+  directline_uri: northamerica.directline.botframework.com
   webchat_secret: another_secret

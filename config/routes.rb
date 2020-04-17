@@ -289,7 +289,9 @@ Rails.application.routes.draw do
       )
     end
 
-    resources :coronavirus_chatbot, only: :create
+    namespace :coronavirus_chatbot do
+      resource :tokens, only: :create
+    end
   end
 
   namespace :v1, defaults: { format: 'json' } do

@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe V0::CoronavirusChatbotController, type: :controller do
+RSpec.describe V0::CoronavirusChatbot::TokensController, type: :controller do
   describe '#create' do
     let(:locale) { 'en-US' }
 
