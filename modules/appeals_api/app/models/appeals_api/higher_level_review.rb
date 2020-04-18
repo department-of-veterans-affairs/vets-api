@@ -2,6 +2,18 @@
 
 module AppealsApi
   class HigherLevelReview < ApplicationRecord
+    class << self
+      def date_from_string(string)
+        string.match(/\d{4}-\d{2}-\d{2}/) && Date.parse(string)
+      rescue ArgumentError
+        nil
+      end
+
+      def past?(date)
+        date < Time.zone.today
+      end
+    end
+
     attr_encrypted(:form_data, key: Settings.db_encryption_key, marshal: true, marshaler: JsonMarshal::Marshaller)
     attr_encrypted(:auth_headers, key: Settings.db_encryption_key, marshal: true, marshaler: JsonMarshal::Marshaller)
 
@@ -150,19 +162,12 @@ module AppealsApi
       veteran&.dig('address')
     end
 
+    def birth_date_string
+      header 'X-VA-Birth-Date'
+    end
+
     def birth_date
-      Date.parse header 'X-VA-Birth-Date'
-    end
-
-    def birth_date_is_a_date?
-      birth_date
-      true
-    rescue
-      false
-    end
-
-    def birth_date_is_in_the_past?
-      birth_date_is_a_date? && birth_date < Time.zone.today
+      self.class.date_from_string birth_date_string
     end
 
     def veteran_phone
@@ -181,54 +186,44 @@ module AppealsApi
       AppealsApi::HigherLevelReview::Phone.new informal_conference_rep&.dig('phone')
     end
 
-    def informal_conference_rep_name_and_phone_number_is_too_long?
-      informal_conference_rep_name_and_phone_number.length >
-        INFORMAL_CONFERENCE_REP_NAME_AND_PHONE_NUMBER_MAX_LENGTH
-    end
-
     # treat blank headers as nil
     def header(key)
-      val = auth_headers&.dig(key)
-      val.blank? ? nil : val.to_s
+      auth_headers&.dig(key)&.presence&.to_s
     end
 
     # validation
     def veteran_phone_is_not_too_long
-      return unless veteran_phone.too_long?
-
-      limit = "#{AppealsApi::HigherLevelReview::Phone::MAX_LENGTH} char limit"
-      errors.add(:base, "Veteran phone number will not fit on form (#{limit}): #{veteran_phone}")
+      add_error(veteran_phone.too_long_error_message) if veteran_phone.too_long?
     end
 
     # validation
     def informal_conference_rep_name_and_phone_number_is_not_too_long
       return unless informal_conference_rep_name_and_phone_number_is_too_long?
 
-      errors.add(
-        :base,
-        [
-          'Informal conference rep will not fit on form',
-          "(#{INFORMAL_CONFERENCE_REP_NAME_AND_PHONE_NUMBER_MAX_LENGTH} char limit):",
-          informal_conference_rep_name_and_phone_number
-        ].join(' ')
-      )
+      add_error_informal_conference_rep_will_not_fit_on_form
+    end
+
+    def informal_conference_rep_name_and_phone_number_is_too_long?
+      informal_conference_rep_name_and_phone_number.length >
+        INFORMAL_CONFERENCE_REP_NAME_AND_PHONE_NUMBER_MAX_LENGTH
+    end
+
+    def add_error_informal_conference_rep_will_not_fit_on_form
+      add_error [
+        'Informal conference rep will not fit on form',
+        "(#{INFORMAL_CONFERENCE_REP_NAME_AND_PHONE_NUMBER_MAX_LENGTH} char limit):",
+        informal_conference_rep_name_and_phone_number
+      ].join(' ')
     end
 
     # validation (header)
     def birth_date_is_a_date
-      return if birth_date_is_a_date?
-
-      errors.add(
-        :base,
-        "Veteran birth date isn't a date: #{header 'X-VA-Birth-Date'}"
-      )
+      add_error("Veteran birth date isn't a date: #{birth_date_string}") unless birth_date
     end
 
     # validation (header)
     def birth_date_is_in_the_past
-      return if birth_date_is_in_the_past?
-
-      errors.add(:base, "Veteran birth date isn't in the past: #{header 'X-VA-Birth-Date'}")
+      add_error("Veteran birth date isn't in the past: #{birth_date}") unless self.class.past? birth_date
     end
 
     # validation
@@ -236,22 +231,30 @@ module AppealsApi
       return unless contestable_issues
 
       contestable_issues.each_with_index do |contestable_issue, index|
-        decision_date_string = contestable_issue&.dig('attributes', 'decisionDate')
-        begin
-          decision_date = Date.parse decision_date_string
-          unless decision_date < Time.zone.today
-            errors.add(
-              :base,
-              "included[#{index}].attributes.decisionDate isn't in the past: #{decision_date_string}"
-            )
-          end
-        rescue
-          errors.add(
-            :base,
-            "included[#{index}].attributes.decisionDate isn't a valid date: #{decision_date_string}"
-          )
+        string = contestable_issue&.dig('attributes', 'decisionDate')
+        date = self.class.date_from_string(string)
+        unless date
+          add_error_decision_date_string_could_not_be_parsed(string, index)
+          next
         end
+        add_error_decision_date_is_not_in_the_past(date, index) unless self.class.past? date
       end
+    end
+
+    def add_error_decision_date_string_could_not_be_parsed(decision_date_string, issue_index)
+      add_decision_date_error "isn't a valid date: #{decision_date_string}", issue_index
+    end
+
+    def add_error_decision_date_is_not_in_the_past(decision_date, issue_index)
+      add_decision_date_error "isn't in the past: #{decision_date}", issue_index
+    end
+
+    def add_decision_date_error(string, issue_index)
+      add_error "included[#{issue_index}].attributes.decisionDate #{string}"
+    end
+
+    def add_error(message)
+      errors.add(:base, message)
     end
   end
 end
