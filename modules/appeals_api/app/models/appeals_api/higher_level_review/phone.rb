@@ -4,11 +4,11 @@ class AppealsApi::HigherLevelReview::Phone
   MAX_LENGTH = 20
 
   def initialize(phone_hash)
-    phone_hash ||= {}
-    @country_code = phone_hash['countryCode'].presence&.strip
-    @area_code = phone_hash['areaCode'].presence&.strip
-    @phone_number = phone_hash['phoneNumber'].presence&.strip
-    @phone_number_ext = phone_hash['phoneNumberExt'].presence&.strip
+    phone_hash = (phone_hash || {}).symbolize_keys
+    @country_code = phone_hash[:countryCode].presence&.strip
+    @area_code = phone_hash[:areaCode].presence&.strip
+    @phone_number = phone_hash[:phoneNumber].presence&.strip
+    @phone_number_ext = phone_hash[:phoneNumberExt].presence&.strip
   end
 
   def to_s

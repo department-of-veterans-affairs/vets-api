@@ -3,134 +3,112 @@
 require 'rails_helper'
 
 describe AppealsApi::HigherLevelReview::Phone do
-  let(:phone) { described_class.new hash.as_json }
+  def phone(country, area, number, ext)
+    described_class.new(
+      countryCode: country,
+      areaCode: area,
+      phoneNumber: number,
+      phoneNumberExt: ext
+    )
+  end
 
-  let(:international_country_code) { '9' }
-  let(:us_country_code) { '1' }
-  let(:area_code) { '800' }
-  let(:phone_number) { '5551234' }
-  let(:long_phone_number) { '12345678901234' }
-  let(:phone_number_ext) { '987' }
-
-  # 123-123-1234 ext 987
-  # +9-123-123-1234 x987
+  def phone_with_ext(ext)
+    phone('6', '888', '5554444', ext)
+  end
 
   describe 'to_s' do
-    subject { phone.to_s }
-
-    context 'non-international' do
-      context 'with country code' do
-        let(:hash) do
-          {
-            countryCode: us_country_code,
-            areaCode: area_code,
-            phoneNumber: phone_number
-          }
-        end
-
-        it 'is properly formatted (leaves out country code)' do
-          expect(subject).to eq "#{area_code}-#{phone_number[0..2]}-#{phone_number[3..]}"
-        end
-
-        it('is not too long') { expect(phone.too_long?).to be false }
-      end
-
-      context 'no country code' do
-        let(:hash) do
-          {
-            areaCode: area_code,
-            phoneNumber: phone_number
-          }
-        end
-
-        it 'is properly formatted (leaves out country code)' do
-          expect(subject).to eq "#{area_code}-#{phone_number[0..2]}-#{phone_number[3..]}"
-        end
-
-        it('is not too long') { expect(phone.too_long?).to be false }
-      end
+    it 'does not print the country code for a US number' do
+      expect(phone('1', '888', '5554444', '9').to_s).to eq '888-555-4444 ext 9'
     end
 
-    context 'non-international, with extension' do
-      let(:hash) do
-        {
-          countryCode: us_country_code,
-          areaCode: area_code,
-          phoneNumber: phone_number,
-          phoneNumberExt: phone_number_ext
-        }
-      end
-
-      it 'is properly formatted (normal extension prefix)' do
-        expect(subject).to eq "#{area_code}-#{phone_number[0..2]}-#{phone_number[3..]} ext #{phone_number_ext}"
-      end
-
-      it('is not too long') { expect(phone.too_long?).to be false }
+    it 'assumes US when no country code given' do
+      expect(phone(nil, '888', '5554444', '9').to_s).to eq '888-555-4444 ext 9'
     end
 
-    context 'international' do
-      let(:hash) do
-        {
-          countryCode: international_country_code,
-          areaCode: area_code,
-          phoneNumber: phone_number
-        }
-      end
-
-      it 'is properly formatted' do
-        expect(subject).to eq(
-          "+#{international_country_code}-#{area_code}" \
-          "-#{phone_number[0..2]}-#{phone_number[3..]}"
-        )
-      end
-
-      it('is not too long') { expect(phone.too_long?).to be false }
+    it 'shrinks extension to stay within 20 characters (notice missing space)' do
+      phone = phone_with_ext('9')
+      expect(phone.to_s).to eq '+6-888-555-4444 ext9'
+      expect(phone.too_long?).to be false
     end
 
-    context 'international, with extension' do
-      let(:hash) do
-        {
-          countryCode: international_country_code,
-          areaCode: area_code,
-          phoneNumber: phone_number,
-          phoneNumberExt: phone_number_ext
-        }
-      end
+    it 'shrinks extension more' do
+      phone = phone_with_ext('99')
+      expect(phone.to_s).to eq '+6-888-555-4444 ex99'
+      expect(phone.too_long?).to be false
+    end
 
-      it 'is properly formatted (uses short extension prefix)' do
-        expect(subject).to eq(
-          "+#{international_country_code}-#{area_code}" \
-          "-#{phone_number[0..2]}-#{phone_number[3..]} x#{phone_number_ext}"
-        )
-      end
+    it 'keeps on shrinking extension' do
+      phone = phone_with_ext('999')
+      expect(phone.to_s).to eq '+6-888-555-4444 x999'
+      expect(phone.too_long?).to be false
+    end
 
-      it('is not too long') { expect(phone.too_long?).to be false }
+    it 'maximum extension shrinkage' do
+      phone = phone_with_ext('9999')
+      expect(phone.to_s).to eq '+6-888-555-4444x9999'
+      expect(phone.too_long?).to be false
+    end
 
-      context 'longer phone_number_ext' do
-        let(:phone_number_ext) { '9876' }
+    it 'no longer within char limit' do
+      phone = phone_with_ext('99999')
+      expect(phone.to_s).to eq '+6-888-555-4444x99999'
+      expect(phone.too_long?).to be true
+    end
 
-        it 'is properly formatted (uses short extension prefix)' do
-          expect(subject).to eq(
-            "+#{international_country_code}-#{area_code}" \
-            "-#{phone_number[0..2]}-#{phone_number[3..]}x#{phone_number_ext}"
-          )
-        end
+    it 'is not too long' do
+      p = phone('1', '888', '5554444', '9999999')
+      expect(p.to_s).to eq '888-555-4444x9999999'
+      expect(p.too_long?).to be false
+    end
 
-        it('is not too long') { expect(phone.too_long?).to be false }
-      end
+    it 'is too long' do
+      p = phone(nil, '888', '5554444', '99999999')
+      expect(p.to_s).to eq '888-555-4444x99999999'
+      expect(p.too_long?).to be true
+    end
 
-      context 'even longer phone_number_ext (phone number too long)' do
-        let(:phone_number_ext) { '98765' }
+    it 'uses less formatting when phone number (areaCode + phoneNumber) is more than ten digits' do
+      p = phone(nil, '888', '33333333', nil)
+      expect(p.to_s).to eq '88833333333'
+      expect(p.too_long?).to be false
+    end
 
-        it 'is properly formatted (uses short extension prefix)' do
-          expect(subject).to eq(
-            "+#{international_country_code}-#{area_code}" \
-            "-#{phone_number[0..2]}-#{phone_number[3..]}x#{phone_number_ext}"
-          )
-        end
+    it 'uses less formatting when phone number is less than ten digits' do
+      p = phone('99', '888', '33', 'ZeBrA2')
+      expect(p.to_s).to eq '+99-88833 ext ZeBrA2'
+      expect(p.too_long?).to be false
+    end
 
-        it('is not too long') { expect(phone.too_long?).to be true }
-      end
+    it 'returns empty string when fields are blank' do
+      expect(phone(nil, '', '    ', nil).to_s).to eq ''
+    end
+
+    it 'returns empty string when initialized with nil' do
+      expect(described_class.new(nil).to_s).to eq ''
+    end
+
+    it 'returns empty string when initialized with {}' do
+      expect(described_class.new({}).to_s).to eq ''
+    end
+  end
+
+  describe '#too_long?' do
+    it 'is too long' do
+      expect(phone('1', '888', '5554444', '999999999').too_long?).to be true
+    end
+
+    it 'is not too long' do
+      expect(phone(nil, '888', '5554444', nil).too_long?).to be false
+    end
+  end
+
+  describe '#too_long_error_message' do
+    it 'has error message when phone number is too long' do
+      expect(phone('1', '888', '5554444', '999999999').too_long_error_message).to be_a String
+    end
+
+    it 'has no error message when phone number is not too long' do
+      expect(phone(nil, '888', '5554444', nil).too_long_error_message).to be nil
     end
   end
 end
