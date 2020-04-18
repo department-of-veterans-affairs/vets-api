@@ -13,8 +13,10 @@ RSpec.describe AppealsApi::HigherLevelReviewPdfSubmitJob, type: :job do
   end
 
   let(:auth_headers) do
-    File.read(
-      Rails.root.join('modules', 'appeals_api', 'spec', 'fixtures', 'higher_level_review_create_headers.json')
+    JSON.parse(
+      File.read(
+        Rails.root.join('modules', 'appeals_api', 'spec', 'fixtures', 'valid_200996_headers.json')
+      )
     )
   end
 

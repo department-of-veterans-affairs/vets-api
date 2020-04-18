@@ -30,7 +30,7 @@ module AppealsApi
         "F[0].#subform[2].VeteransMiddleInitial1[0]": hlr.middle_initial,
         "F[0].#subform[2].VeteransLastName[0]": hlr.last_name,
         "F[0].#subform[2].SocialSecurityNumber_FirstThreeNumbers[0]": hlr.ssn.first(3),
-        "F[0].#subform[2].SocialSecurityNumber_SecondTwoNumbers[0]": hlr.ssn[2..3],
+        "F[0].#subform[2].SocialSecurityNumber_SecondTwoNumbers[0]": hlr.ssn[3..4],
         "F[0].#subform[2].SocialSecurityNumber_LastFourNumbers[0]": hlr.ssn.last(4),
         "F[0].#subform[2].DOBmonth[0]": hlr.birth_mm,
         "F[0].#subform[2].DOBday[0]": hlr.birth_dd,
@@ -38,7 +38,6 @@ module AppealsApi
         "F[0].#subform[2].VAFileNumber[0]": hlr.file_number,
         "F[0].#subform[2].VeteransServiceNumber[0]": hlr.service_number,
         "F[0].#subform[2].InsurancePolicyNumber[0]": hlr.insurance_policy_number,
-
         "F[0].#subform[2].CurrentMailingAddress_NumberAndStreet[0]": hlr.number_and_street,
         "F[0].#subform[2].CurrentMailingAddress_ApartmentOrUnitNumber[0]": hlr.apt_unit_number,
         "F[0].#subform[2].CurrentMailingAddress_City[0]": hlr.city,
@@ -46,6 +45,8 @@ module AppealsApi
         "F[0].#subform[2].CurrentMailingAddress_Country[0]": hlr.country_code,
         "F[0].#subform[2].CurrentMailingAddress_ZIPOrPostalCode_FirstFiveNumbers[0]": hlr.zip_code_5,
         "F[0].#subform[2].CurrentMailingAddress_ZIPOrPostalCode_LastFourNumbers[0]": hlr.zip_code_4,
+        "F[0].#subform[2].TELEPHONE[0]": hlr.veteran_phone_number,
+        "F[0].#subform[2].EMAIL[0]": hlr.email,
         "F[0].#subform[2].BenefitType[0]": hlr.benefit_type == 'nca' ? 9 : 'Off',
         "F[0].#subform[2].BenefitType[1]": hlr.benefit_type == 'vha' ? 6 : 'Off',
         "F[0].#subform[2].BenefitType[2]": hlr.benefit_type == 'education' ? 5 : 'Off',
@@ -67,14 +68,14 @@ module AppealsApi
         next if index >= 6
 
         if index.zero?
-          options["F[0].#subform[3].SPECIFICISSUE#{index + 1}[1]"] = issue['attributes']['issue']
-          options['F[0].#subform[3].DateofDecision[5]'] = issue['attributes']['decisionDate']
+          options[:"F[0].#subform[3].SPECIFICISSUE#{index + 1}[1]"] = issue['attributes']['issue']
+          options[:'F[0].#subform[3].DateofDecision[5]'] = issue['attributes']['decisionDate']
         elsif index == 1
-          options["F[0].#subform[3].SPECIFICISSUE#{index}[0]"] = issue['attributes']['issue']
-          options["F[0].#subform[3].DateofDecision[#{index - 1}]"] = issue['attributes']['decisionDate']
+          options[:"F[0].#subform[3].SPECIFICISSUE#{index}[0]"] = issue['attributes']['issue']
+          options[:"F[0].#subform[3].DateofDecision[#{index - 1}]"] = issue['attributes']['decisionDate']
         else
-          options["F[0].#subform[3].SPECIFICISSUE#{index + 1}[0]"] = issue['attributes']['issue']
-          options["F[0].#subform[3].DateofDecision[#{index - 1}]"] = issue['attributes']['decisionDate']
+          options[:"F[0].#subform[3].SPECIFICISSUE#{index + 1}[0]"] = issue['attributes']['issue']
+          options[:"F[0].#subform[3].DateofDecision[#{index - 1}]"] = issue['attributes']['decisionDate']
         end
       end
       options
