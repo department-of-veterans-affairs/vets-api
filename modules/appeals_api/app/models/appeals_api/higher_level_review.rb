@@ -21,8 +21,8 @@ module AppealsApi
 
     INFORMAL_CONFERENCE_REP_NAME_AND_PHONE_NUMBER_MAX_LENGTH = 100
 
-    # beyond json schema validations:
-    # (form_data is mostly validated with modules/appeals_api/config/schemas/200996.json)
+    # the controller applies the JSON Schemas in modules/appeals_api/config/schemas/
+    # further validations:
     validate(
       :veteran_phone_is_not_too_long,
       :informal_conference_rep_name_and_phone_number_is_not_too_long,
@@ -33,26 +33,25 @@ module AppealsApi
 
     # 1. VETERAN'S NAME
     def first_name
-      # whitespace first name OK
-      auth_headers&.dig 'X-VA-First-Name'
+      header_field_as_string 'X-VA-First-Name'
     end
 
     def middle_initial
-      header 'X-VA-Middle-Initial'
+      header_field_as_string 'X-VA-Middle-Initial'
     end
 
     def last_name
-      header 'X-VA-Last-Name'
+      header_field_as_string 'X-VA-Last-Name'
     end
 
     # 2. VETERAN'S SOCIAL SECURITY NUMBER
     def ssn
-      header 'X-VA-SSN'
+      header_field_as_string 'X-VA-SSN'
     end
 
     # 3. VA FILE NUMBER
     def file_number
-      header 'X-VA-File-Number'
+      header_field_as_string 'X-VA-File-Number'
     end
 
     # 4. VETERAN'S DATE OF BIRTH
@@ -70,12 +69,12 @@ module AppealsApi
 
     # 5. VETERAN'S SERVICE NUMBER
     def service_number
-      header 'X-VA-Service-Number'
+      header_field_as_string 'X-VA-Service-Number'
     end
 
     # 6. INSURANCE POLICY NUMBER
     def insurance_policy_number
-      header 'X-VA-Insurance-Policy-Number'
+      header_field_as_string 'X-VA-Insurance-Policy-Number'
     end
 
     # 7. CLAIMANT'S NAME
@@ -83,31 +82,31 @@ module AppealsApi
 
     # 9. CURRENT MAILING ADDRESS
     def number_and_street
-      address&.dig('addressLine1')
+      address_field_as_string 'addressLine1'
     end
 
     def apt_unit_number
-      address&.dig('addressLine2')
+      address_field_as_string 'addressLine2'
     end
 
     def city
-      address&.dig('cityName')
+      address_field_as_string 'cityName'
     end
 
     def state_code
-      address&.dig('stateCode')
+      address_field_as_string 'stateCode'
     end
 
     def country_code
-      address&.dig('countryCodeISO2') || 'US'
+      address_field_as_string 'countryCodeISO2' || 'US'
     end
 
     def zip_code_5
-      address&.dig('zipCode5')
+      address_field_as_string 'zipCode5'
     end
 
     def zip_code_4
-      address&.dig('zipCode4')
+      address_field_as_string 'zipCode4'
     end
 
     # 10. TELEPHONE NUMBER
@@ -117,12 +116,12 @@ module AppealsApi
 
     # 11. E-MAIL ADDRESS
     def email
-      veteran&.dig('emailAddressText')
+      veteran&.dig('emailAddressText').to_s.strip
     end
 
     # 12. BENEFIT TYPE
     def benefit_type
-      data_attributes&.dig('benefitType')
+      data_attributes&.dig('benefitType').to_s.strip
     end
 
     # 13. IF YOU WOULD LIKE THE SAME OFFICE...
@@ -158,12 +157,12 @@ module AppealsApi
       data_attributes&.dig('veteran')
     end
 
-    def address
-      veteran&.dig('address')
+    def address_field_as_string(key)
+      veteran&.dig('address', key).to_s.strip
     end
 
     def birth_date_string
-      header 'X-VA-Birth-Date'
+      header_field_as_string 'X-VA-Birth-Date'
     end
 
     def birth_date
@@ -186,9 +185,8 @@ module AppealsApi
       AppealsApi::HigherLevelReview::Phone.new informal_conference_rep&.dig('phone')
     end
 
-    # treat blank headers as nil
-    def header(key)
-      auth_headers&.dig(key)&.presence&.to_s
+    def header_field_as_string(key)
+      auth_headers&.dig(key).to_s.strip
     end
 
     # validation
@@ -230,15 +228,18 @@ module AppealsApi
     def contestable_issue_dates_are_valid_dates
       return unless contestable_issues
 
-      contestable_issues.each_with_index do |contestable_issue, index|
-        string = contestable_issue&.dig('attributes', 'decisionDate')
-        date = self.class.date_from_string(string)
-        unless date
-          add_error_decision_date_string_could_not_be_parsed(string, index)
-          next
-        end
-        add_error_decision_date_is_not_in_the_past(date, index) unless self.class.past? date
+      contestable_issues.each_with_index do |ci, index|
+        decision_date_is_valid(ci&.dig('attributes', 'decisionDate').to_s, index)
       end
+    end
+
+    def decision_date_is_valid(string, issue_index)
+      date = self.class.date_from_string(string)
+      unless date
+        add_error_decision_date_string_could_not_be_parsed(string, issue_index)
+        return
+      end
+      add_error_decision_date_is_not_in_the_past(date, issue_index) unless self.class.past? date
     end
 
     def add_error_decision_date_string_could_not_be_parsed(decision_date_string, issue_index)
