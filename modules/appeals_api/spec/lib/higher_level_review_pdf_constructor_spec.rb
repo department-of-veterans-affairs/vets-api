@@ -4,31 +4,13 @@ require 'rails_helper'
 require 'appeals_api/higher_level_review_pdf_constructor'
 
 describe AppealsApi::HigherLevelReviewPdfConstructor do
-  let(:higher_level_review) { create_higher_level_review }
-
-  def read_json(filename)
-    JSON.parse(File.read(Rails.root.join('modules', 'appeals_api', 'spec', 'fixtures', filename)))
-  end
-
-  before(:all) do
-    @data = read_json 'valid_200996.json'
-    @headers = read_json 'valid_200996_headers.json'
-  end
-
   it 'builds the pdf options' do
-    higher_level_review
+    higher_level_review = create(:higher_level_review)
     constructor = AppealsApi::HigherLevelReviewPdfConstructor.new(higher_level_review.id)
     expect(constructor.pdf_options).to eq(valid_pdf_options)
   end
 
   private
-
-  def create_higher_level_review
-    higher_level_review = create(:higher_level_review)
-    higher_level_review.auth_headers = @headers
-    higher_level_review.save
-    higher_level_review
-  end
 
   # rubocop:disable Metrics/MethodLength
   def valid_pdf_options
