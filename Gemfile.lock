@@ -46,6 +46,7 @@ PATH
   specs:
     appeals_api (0.0.1)
       rails (~> 5.2.3)
+      sidekiq
 
 PATH
   remote: modules/claims_api

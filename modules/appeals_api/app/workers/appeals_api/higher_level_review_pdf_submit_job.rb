@@ -7,6 +7,7 @@ require 'appeals_api/upload_error'
 module AppealsApi
   class HigherLevelReviewPdfSubmitJob
     include Sidekiq::Worker
+
     RETRIES = 3
     META_PART_NAME = 'metadata'
     DOC_PART_NAME = 'content'
@@ -25,6 +26,7 @@ module AppealsApi
       @retries = retries
       pdf_constructor = AppealsApi::HigherLevelReviewPdfConstructor.new(higher_level_review_id)
       pdf_path = pdf_constructor.fill_pdf
+      puts pdf_path
       # set status to processing until the central mail upload
       HigherLevelReview.update(higher_level_review_id, status: 'processing')
       # send to central mail
@@ -55,7 +57,7 @@ module AppealsApi
 
     def retry_errors(e, uploaded_object)
       if e.code == 'DOC201' && @retries <= RETRIES
-        UploadProcessor.perform_in(30.minutes, uploaded_object.id, @retries + 1)
+        self.class.new.perform_at(30.minutes.from_now, uploaded_object.id, @retries + 1)
       else
         uploaded_object.update(status: 'error', code: e.code, detail: e.detail)
       end
