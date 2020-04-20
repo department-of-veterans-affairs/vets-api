@@ -17,13 +17,6 @@ Layout/EmptyLineAfterGuardClause:
   Exclude:
     - 'lib/common/models/collection.rb'
 
-# Offense count: 2
-# Cop supports --auto-correct.
-Layout/SpaceAroundMethodCallOperator:
-  Exclude:
-    - 'lib/saml/user_attributes/ssoe.rb'
-    - 'modules/appeals_api/spec/requests/v1/higher_level_reviews_controller_spec.rb'
-
 # Offense count: 1
 Lint/StructNewOverride:
   Exclude:
@@ -87,29 +80,6 @@ Rails/UniqueValidationWithoutIndex:
     - 'modules/claims_api/app/models/claims_api/auto_established_claim.rb'
     - 'modules/claims_api/app/models/claims_api/power_of_attorney.rb'
     - 'modules/va_forms/app/models/va_forms/form.rb'
-
-# Offense count: 2
-# Cop supports --auto-correct.
-Style/HashEachMethods:
-  Exclude:
-    - 'lib/common/client/middleware/response/facility_parser.rb'
-    - 'lib/common/hash_helpers.rb'
-
-# Offense count: 3
-# Cop supports --auto-correct.
-Style/HashTransformKeys:
-  Exclude:
-    - 'lib/evss/pciu/request_body.rb'
-    - 'lib/evss/ppiu/service.rb'
-    - 'lib/vsopdf/vso_appointment_form.rb'
-
-# Offense count: 3
-# Cop supports --auto-correct.
-Style/HashTransformValues:
-  Exclude:
-    - 'lib/common/client/middleware/response/facility_parser.rb'
-    - 'spec/request/authentication/standard_authentication.rb'
-    - 'spec/support/url_service_helpers.rb'
 
 # Offense count: 7
 ThreadSafety/ClassAndModuleAttributes:
