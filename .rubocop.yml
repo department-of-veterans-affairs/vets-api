@@ -331,7 +331,7 @@ Rails/FilePath:
   EnforcedStyle: arguments
 
 Lint/RaiseException:
-  Enabled: false
+  Enabled: true
 
 Lint/StructNewOverride:
   Enabled: false
