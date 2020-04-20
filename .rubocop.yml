@@ -346,7 +346,7 @@ Style/HashTransformValues:
   Enabled: false
 
 Layout/SpaceAroundMethodCallOperator:
-  Enabled: false
+  Enabled: true
 
 Style/ExponentialNotation:
   Enabled: true
