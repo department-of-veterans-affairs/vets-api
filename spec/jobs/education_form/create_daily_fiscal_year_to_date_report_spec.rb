@@ -56,6 +56,7 @@ RSpec.describe EducationForm::CreateDailyFiscalYearToDateReport, type: :aws_help
 
   context 'with some sample submissions', run_at: '2017-01-04 03:00:00 EDT' do
     before do
+      Flipper.enable('edu_benefits_stem_scholarship')
       create_list(:education_benefits_submission, 2, status: :processed, created_at: date)
 
       create(
