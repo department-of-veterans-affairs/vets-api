@@ -14,9 +14,11 @@ class AppealsApi::V1::DecisionReview::HigherLevelReviewsController < AppealsApi:
 
   FORM_NUMBER = '200996'
   MODEL_ERROR_STATUS = 422
-  HEADERS = YAML.safe_load(
-    File.read(AppealsApi::Engine.root.join('app/swagger/v1/decision_reviews.yaml'))
-  )['paths']['/higher_level_reviews']['post']['parameters'].map { |parameter| parameter['name'] }
+  HEADERS = JSON.parse(
+    File.read(
+      AppealsApi::Engine.root.join('config/schemas/200996_headers.json')
+    )
+  )['properties'].keys
 
   def create
     @higher_level_review.save
