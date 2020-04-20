@@ -7,6 +7,15 @@ class VAFacilitySerializer < ActiveModel::Serializer
     "#{object.facility_type_prefix}_#{object.unique_id}"
   end
 
+
+  def operating_notes
+    nil
+  end
+
+  def operating_status
+    nil
+  end
+
   attributes  :access,
               :address,
               :classification,
@@ -16,9 +25,10 @@ class VAFacilitySerializer < ActiveModel::Serializer
               :lat,
               :long,
               :name,
+              :operating_status,
               :phone,
               :services,
               :unique_id,
-              :website,
-              :visn
+              :visn,
+              :website
 end
