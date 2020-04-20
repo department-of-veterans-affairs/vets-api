@@ -75,12 +75,12 @@ module ClaimsApi
         def find_claim
           @claim = ClaimsApi::AutoEstablishedClaim.get_by_id_or_evss_id(params[:id])
 
-          return if @claim
-
-          render(
-            json: {errors: [{status: 404, details: "Claim not found: #{params[:id]}"}]},
-            status: :not_found
-          )
+          unless @claim
+            render(
+              json: { errors: [{ status: 404, details: "Claim not found: #{params[:id]}" }] },
+              status: :not_found
+            )
+          end
         end
       end
     end
