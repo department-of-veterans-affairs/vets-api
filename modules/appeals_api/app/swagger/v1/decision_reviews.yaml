@@ -24,56 +24,14 @@ paths:
       tags:
         - Higher-Level Reviews
       parameters:
-        - name: X-VA-SSN
-          in: header
-          required: true
-          description: veteran's SSN
-          schema:
-            type: string
-            pattern: '^\d{9}$'
-        - name: X-VA-First-Name
-          in: header
-          required: true
-          description: veteran's first name
-          schema:         # if vet only has 1 legal name,
-            type: string  # first-name can be whitespace and last-name can hold name
-        - name: X-VA-Middle-Initial
-          in: header
-          required: false
-          description: veteran's middle initial
-          schema:
-            $ref: '#/components/schemas/NonBlankStringMaxLength1'
-        - name: X-VA-Last-Name
-          in: header
-          required: true
-          description: veteran's last name
-          schema:
-            $ref: '#/components/schemas/NonBlankString'
-        - name: X-VA-Birth-Date
-          in: header
-          required: true
-          description: veteran's birth date
-          schema:
-            type: string
-            format: date
-        - name: X-VA-File-Number
-          in: header
-          required: false
-          description: veteran's file number
-          schema:
-            $ref: '#/components/schemas/NonBlankString'
-        - name: X-VA-Service-Number
-          in: header
-          required: false
-          description: veteran's service number
-          schema:
-            $ref: '#/components/schemas/NonBlankString'
-        - name: X-VA-Insurance-Policy-Number
-          in: header
-          required: false
-          description: veteran's insurance policy number
-          schema:
-            $ref: '#/components/schemas/NonBlankString'
+        - $ref: '#/components/parameters/Ssn'
+        - $ref: '#/components/parameters/FirstName'
+        - $ref: '#/components/parameters/MiddleInitial'
+        - $ref: '#/components/parameters/LastName'
+        - $ref: '#/components/parameters/BirthDate'
+        - $ref: '#/components/parameters/FileNumber'
+        - $ref: '#/components/parameters/ServiceNumber'
+        - $ref: '#/components/parameters/InsurancePolicyNumber'
       summary: Create a Higher-Level Review
       description: >-
         Submits a Decision Review request of type *Higher-Level Review*.
@@ -130,6 +88,15 @@ paths:
     post:
       tags:
         - Higher-Level Reviews
+      parameters:
+        - $ref: '#/components/parameters/Ssn'
+        - $ref: '#/components/parameters/FirstName'
+        - $ref: '#/components/parameters/MiddleInitial'
+        - $ref: '#/components/parameters/LastName'
+        - $ref: '#/components/parameters/BirthDate'
+        - $ref: '#/components/parameters/FileNumber'
+        - $ref: '#/components/parameters/ServiceNumber'
+        - $ref: '#/components/parameters/InsurancePolicyNumber'
       summary: Validate a POST /higher_level_reviews request body (dry run)
       description: >-
         Validate a `POST /higher_level_reviews` request body against the JSON Schema.
@@ -179,12 +146,7 @@ paths:
       tags:
         - Issues
       parameters:
-        - name: X-VA-SSN
-          in: header
-          required: true
-          description: The SSN of the veteran.
-          schema:
-            type : string
+        - $ref: '#/components/parameters/Ssn'
         - name: X-VA-Receipt-Date
           in: header
           required: true
@@ -327,6 +289,66 @@ paths:
                       code: unknown_error
                       title: "Unknown error"
 components:
+  parameters:
+    Ssn:
+      name: X-VA-SSN
+      in: header
+      required: true
+      description: veteran's SSN
+      schema:
+        type: string
+        pattern: '^\d{9}$'
+    FirstName:
+      name: X-VA-First-Name
+      in: header
+      required: true
+      description: veteran's first name
+      schema:         # if vet only has 1 legal name,
+        type: string  # first-name can be whitespace and last-name can hold name
+        maxLength: 12
+    MiddleInitial:
+      name: X-VA-Middle-Initial
+      in: header
+      required: false
+      description: veteran's middle initial
+      schema:
+        $ref: '#/components/schemas/NonBlankStringMaxLength1'
+    LastName:
+      name: X-VA-Last-Name
+      in: header
+      required: true
+      description: veteran's last name
+      schema:
+        $ref: '#/components/schemas/NonBlankStringMaxLength18'
+    BirthDate:
+      name: X-VA-Birth-Date
+      in: header
+      required: true
+      description: veteran's birth date
+      schema:
+        type: string
+        format: date
+    FileNumber:
+      name: X-VA-File-Number
+      in: header
+      required: false
+      description: veteran's file number
+      schema:
+        $ref: '#/components/schemas/NonBlankStringMaxLength9'
+    ServiceNumber:
+      name: X-VA-Service-Number
+      in: header
+      required: false
+      description: veteran's service number
+      schema:
+        $ref: '#/components/schemas/NonBlankStringMaxLength9'
+    InsurancePolicyNumber:
+      name: X-VA-Insurance-Policy-Number
+      in: header
+      required: false
+      description: veteran's insurance policy number
+      schema:
+        $ref: '#/components/schemas/NonBlankStringMaxLength18'
   schemas:
     ErrorWithTitleAndDetail:
       type: array
@@ -352,6 +374,10 @@ components:
       allOf:
         - $ref: '#/components/schemas/NonBlankString'
         - maxLength: 18
+    NonBlankStringMaxLength9:
+      allOf:
+        - $ref: '#/components/schemas/NonBlankString'
+        - maxLength: 9
     NonBlankStringMaxLength5:
       allOf:
         - $ref: '#/components/schemas/NonBlankString'
@@ -364,9 +390,6 @@ components:
       allOf:
         - $ref: '#/components/schemas/NonBlankString'
         - maxLength: 1
-    Date:
-      type: string
-      pattern: '^[0-9]{4}-[0-9]{2}-[0-9]{2}$'
     HlrCreate:
       type: object
       properties:
@@ -561,7 +584,8 @@ components:
         issue:
           $ref: '#/components/schemas/NonBlankStringMaxLength140'
         decisionDate:
-          $ref: '#/components/schemas/Date'
+          type: string
+          format: date
         decisionIssueId:
           type: integer
         ratingIssueId:
@@ -795,7 +819,7 @@ components:
                     "informalConference": { "const": false },
                     "sameOffice":         { "type": "boolean" },
                     "benefitType":        { "$ref": "#/definitions/benefitType" },
-                    "veteran":            { "$ref": "#/definitions/veteran" },
+                    "veteran":            { "$ref": "#/definitions/veteran" }
                   },
                   "additionalProperties": false,
                   "required": [
