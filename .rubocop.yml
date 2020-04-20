@@ -330,6 +330,7 @@ RSpec/SubjectStub:
 Rails/FilePath:
   EnforcedStyle: arguments
 
+# Added in v0.81
 Lint/RaiseException:
   Enabled: true
 
@@ -345,6 +346,7 @@ Style/HashTransformKeys:
 Style/HashTransformValues:
   Enabled: true
 
+# Added in v0.82
 Layout/SpaceAroundMethodCallOperator:
   Enabled: true
 
