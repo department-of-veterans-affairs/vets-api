@@ -76,14 +76,16 @@ http_interactions:
             "city": "Kansas City",
             "state": "MO",
             "country": "USA",
-            "postal_code": "64117"
+            "postal_code": "64117",
+            "is_military_base": false
           },
           "temporary_address": {
             "street": "201 Example Street",
             "city": "Galveston",
             "state": "TX",
             "country": "USA",
-            "postal_code": "77550"
+            "postal_code": "77550",
+            "is_military_base": false
           },
           "supplies": [
             {
