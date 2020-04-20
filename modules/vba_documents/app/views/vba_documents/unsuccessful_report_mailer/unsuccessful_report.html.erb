@@ -6,13 +6,13 @@
 
 <% @consumer_totals.each do |name, totals| %> 
     <h3><%= name %></h3>
-    # <% totals.each do |status, number| %>
-    #     <div class="span12">
-    #         <h4><%= status %></h4>
-    #         <strong><%= number %></strong>
-    #     </div>
-    # <% end %>
-<% end %> 
+    <% totals.each do |status, number| %>
+        <div class="span12">
+            <h4><%= status %></h4>
+            <strong><%= number %></strong>
+        </div>
+    <% end if totals %>
+<% end if @consumer_totals %> 
 
 <h3> Stuck Submissions Count: <%= @stuck_submissions.count %></h3>
 <%= render partial: 'submission_table', locals: {submissions: @stuck_submissions} unless @stuck_submissions.count.zero? %>
