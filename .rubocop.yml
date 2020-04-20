@@ -340,10 +340,10 @@ Style/HashEachMethods:
   Enabled: true
 
 Style/HashTransformKeys:
-  Enabled: false
+  Enabled: true
 
 Style/HashTransformValues:
-  Enabled: false
+  Enabled: true
 
 Layout/SpaceAroundMethodCallOperator:
   Enabled: true
