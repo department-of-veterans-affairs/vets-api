@@ -20,14 +20,14 @@ module VBADocuments
       VBADocuments::UploadSubmission.where(
         created_at: @from..@to,
         status: %w[error expired]
-      )
+      ).order(:consumer_name)
     end
 
     def stuck
       VBADocuments::UploadSubmission.where(
         created_at: @from..@to,
         status: 'uploaded'
-      )
+      ).order(:consumer_name)
     end
 
     def totals
