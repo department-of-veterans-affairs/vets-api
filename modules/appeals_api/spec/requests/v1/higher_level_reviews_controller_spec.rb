@@ -15,6 +15,7 @@ describe AppealsApi::V1::DecisionReview::HigherLevelReviewsController, type: :re
     @data = fixture 'valid_200996.json'
     @invalid_data = fixture 'invalid_200996.json'
     @headers = JSON.parse fixture 'valid_200996_headers.json'
+    @invalid_headers = JSON.parse fixture 'invalid_200996_headers.json'
   end
 
   let(:parsed) { JSON.parse(response.body) }
@@ -32,6 +33,12 @@ describe AppealsApi::V1::DecisionReview::HigherLevelReviewsController, type: :re
       expect { post(path, params: @data, headers: @headers) }.to(
         change(AppealsApi::HigherLevelReviewPdfSubmitJob.jobs, :size).by(1)
       )
+    end
+
+    it 'invalid headers return an error' do
+      post(path, params: @data, headers: @invalid_headers)
+      expect(response.status).to eq(422)
+      expect(parsed['errors'][0]['detail']).to eq('Veteran birth date isn\'t in the past: 3000-12-31')
     end
   end
 

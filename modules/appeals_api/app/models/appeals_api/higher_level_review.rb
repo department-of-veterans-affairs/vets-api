@@ -216,11 +216,13 @@ module AppealsApi
 
     # validation (header)
     def birth_date_is_a_date
-      add_error("Veteran birth date isn't a date: #{birth_date_string}") unless birth_date
+      add_error("Veteran birth date isn't a date: #{birth_date_string.inspect}") unless birth_date
     end
 
     # validation (header)
     def birth_date_is_in_the_past
+      return unless birth_date
+
       add_error("Veteran birth date isn't in the past: #{birth_date}") unless self.class.past? birth_date
     end
 
@@ -243,7 +245,7 @@ module AppealsApi
     end
 
     def add_error_decision_date_string_could_not_be_parsed(decision_date_string, issue_index)
-      add_decision_date_error "isn't a valid date: #{decision_date_string}", issue_index
+      add_decision_date_error "isn't a valid date: #{decision_date_string.inspect}", issue_index
     end
 
     def add_error_decision_date_is_not_in_the_past(decision_date, issue_index)
