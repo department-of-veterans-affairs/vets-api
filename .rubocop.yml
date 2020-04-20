@@ -337,7 +337,7 @@ Lint/StructNewOverride:
   Enabled: true
 
 Style/HashEachMethods:
-  Enabled: false
+  Enabled: true
 
 Style/HashTransformKeys:
   Enabled: false
