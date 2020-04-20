@@ -64,6 +64,10 @@ class FormIdentityInformation
   def hyphenated_ssn
     StringHelpers.hyphenated_ssn(ssn)
   end
+
+  def ssn_last_four
+    ssn.last(4)
+  end
 end
 
 class FormContactInformation

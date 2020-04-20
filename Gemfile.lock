@@ -24,20 +24,20 @@ GIT
 
 GIT
   remote: https://github.com/department-of-veterans-affairs/lighthouse-bgs.git
-  revision: 08bdfbbb286814a617b069dfabbf00d30f63daac
+  revision: a149a1734c1bf6e241ac5818f36aa5a3e1fef727
   branch: master
   specs:
-    lighthouse_bgs (0.9.0)
+    lighthouse_bgs (0.12.1)
       httpclient
       nokogiri (>= 1.8.5)
       savon (~> 2.12)
 
 GIT
   remote: https://github.com/department-of-veterans-affairs/vets-json-schema
-  revision: 448c1990dae9aa3485753987ed8cdcd88b9faaa6
+  revision: 9b5769e3bb45c511faef521003fee451724d6b18
   branch: master
   specs:
-    vets_json_schema (3.144.2)
+    vets_json_schema (3.145.0)
       multi_json (~> 1.0)
       script_utils (= 0.0.4)
 
@@ -659,7 +659,7 @@ GEM
       rake (>= 10.0)
     semantic_logger (4.5.0)
       concurrent-ruby (~> 1.0)
-    sentry-raven (2.9.0)
+    sentry-raven (2.13.0)
       faraday (>= 0.7.6, < 1.0)
     shellany (0.0.1)
     shrine (2.19.3)
@@ -874,7 +874,7 @@ DEPENDENCIES
   rubyzip (>= 1.3.0)
   savon
   seedbank
-  sentry-raven (= 2.9.0)
+  sentry-raven
   shrine
   shrine-memory
   sidekiq (~> 4.2)
