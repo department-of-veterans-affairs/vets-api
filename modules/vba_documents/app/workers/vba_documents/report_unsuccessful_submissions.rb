@@ -36,8 +36,8 @@ module VBADocuments
         totals = counts.sum { |_k, v| v }
         {
           name => counts.merge(totals: totals,
-                                        error_rate: "#{(100.0 / totals * counts['error']).round}%",
-                                        expired_rate: "#{(100.0 / totals * counts['expired']).round}%")
+                               error_rate: "#{(100.0 / totals * counts['error']).round}%",
+                               expired_rate: "#{(100.0 / totals * counts['expired']).round}%")
         }
       end
     end

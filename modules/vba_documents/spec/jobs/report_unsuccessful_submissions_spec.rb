@@ -15,12 +15,12 @@ RSpec.describe VBADocuments::ReportUnsuccessfulSubmissions, type: :job do
         consumers = VBADocuments::UploadSubmission.where(created_at: from..to).pluck(:consumer_name).uniq
         expect(VBADocuments::UnsuccessfulReportMailer).to receive(:build).once.with(
           consumers.map do |name|
-            counts = VBADocuments::UploadSubmission.where(created_at: @from..@to, consumer_name: name).group(:status).count
-            totals = counts.sum { |_k, v| v }
+            c = VBADocuments::UploadSubmission.where(created_at: @from..@to, consumer_name: name).group(:status).count
+            totals = c.sum { |_k, v| v }
             {
-              name => counts.merge(totals: totals,
-                                            error_rate: "#{(100.0 / totals * counts['error']).round}%",
-                                            expired_rate: "#{(100.0 / totals * counts['expired']).round}%")
+              name => c.merge(totals: totals,
+                              error_rate: "#{(100.0 / totals * c['error']).round}%",
+                              expired_rate: "#{(100.0 / totals * c['expired']).round}%")
             }
           end,
           VBADocuments::UploadSubmission.where(
