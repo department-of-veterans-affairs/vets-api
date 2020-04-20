@@ -28,11 +28,12 @@ module VBADocuments
         'unsuccessful_report.html.erb'
       )
       template = File.read(path)
+      body = ERB.new(template).result(binding)
 
       mail(
         to: RECIPIENTS,
         subject: 'Benefits Intake Unsuccessful Submission Report',
-        body: ERB.new(template).result(binding)
+        body: body
       )
     end
   end
