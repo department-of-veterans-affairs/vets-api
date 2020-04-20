@@ -10,7 +10,7 @@ class AppealsApi::V1::DecisionReview::HigherLevelReviewsController < AppealsApi:
   skip_before_action(:authenticate)
   before_action :validate_json_format, if: -> { request.post? }
   before_action :validate_json_schema, only: %i[create validate]
-  append_before_action :new_higher_level_review, only: %i[create validate]
+  before_action :new_higher_level_review, only: %i[create validate]
 
   FORM_NUMBER = '200996'
   MODEL_ERROR_STATUS = 422
@@ -37,10 +37,18 @@ class AppealsApi::V1::DecisionReview::HigherLevelReviewsController < AppealsApi:
   private
 
   def validate_json_schema
-    AppealsApi::FormSchemas.new.validate!("#{self.class::FORM_NUMBER}_HEADERS", headers)
-    AppealsApi::FormSchemas.new.validate!(self.class::FORM_NUMBER, @json_body)
+    validate_json_schema_for_headers
+    validate_json_schema_for_body
   rescue JsonSchema::JsonApiMissingAttribute => e
     render json: e.to_json_api, status: e.code
+  end
+
+  def validate_json_schema_for_headers
+    AppealsApi::FormSchemas.new.validate!("#{self.class::FORM_NUMBER}_HEADERS", headers)
+  end
+
+  def validate_json_schema_for_body
+    AppealsApi::FormSchemas.new.validate!(self.class::FORM_NUMBER, @json_body)
   end
 
   def validation_success
