@@ -334,7 +334,7 @@ Lint/RaiseException:
   Enabled: true
 
 Lint/StructNewOverride:
-  Enabled: false
+  Enabled: true
 
 Style/HashEachMethods:
   Enabled: false
