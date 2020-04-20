@@ -3,14 +3,14 @@
 require 'rails_helper'
 require AppealsApi::Engine.root.join('spec', 'spec_helper.rb')
 
-describe 'VA Form 20-0996 JSON Schema', type: :request do
+describe 'VA Form 20-0996 JSON Schema *for headers*', type: :request do
   include SchemaHelpers
   include FixtureHelpers
 
-  let(:json_schema) { read_schema '200996.json' }
+  let(:json_schema) { read_schema '200996_headers.json' }
 
   let(:errors) { validator.validate(json).to_a }
-  let(:json) { fixture_as_json 'valid_200996.json' }
+  let(:json) { fixture_as_json 'valid_200996_headers.json' }
   let(:validator) { JSONSchemer.schema(json_schema) }
 
   it('JSON is valid') { expect(json_schema).to be_a Hash }

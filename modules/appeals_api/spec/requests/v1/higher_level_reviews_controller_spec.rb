@@ -1,21 +1,20 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require AppealsApi::Engine.root.join('spec', 'spec_helper.rb')
 
 describe AppealsApi::V1::DecisionReview::HigherLevelReviewsController, type: :request do
-  def fixture(filename)
-    File.read(Rails.root.join('modules', 'appeals_api', 'spec', 'fixtures', filename))
-  end
+  include FixtureHelpers
 
   def base_path(path)
     "/services/appeals/v1/decision_review/#{path}"
   end
 
   before(:all) do
-    @data = fixture 'valid_200996.json'
-    @invalid_data = fixture 'invalid_200996.json'
-    @headers = JSON.parse fixture 'valid_200996_headers.json'
-    @invalid_headers = JSON.parse fixture 'invalid_200996_headers.json'
+    @data = fixture_to_s 'valid_200996.json'
+    @invalid_data = fixture_to_s 'invalid_200996.json'
+    @headers = fixture_as_json 'valid_200996_headers.json'
+    @invalid_headers = fixture_as_json 'invalid_200996_headers.json'
   end
 
   let(:parsed) { JSON.parse(response.body) }

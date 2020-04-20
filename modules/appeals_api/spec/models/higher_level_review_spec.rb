@@ -1,17 +1,14 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require AppealsApi::Engine.root.join('spec', 'spec_helper.rb')
 
 describe AppealsApi::HigherLevelReview, type: :model do
+  include FixtureHelpers
+
   let(:higher_level_review) { create :higher_level_review }
-
-  let(:auth_headers) do
-    JSON.parse File.read "#{::Rails.root}/modules/appeals_api/spec/fixtures/valid_200996_headers.json"
-  end
-
-  let(:form_data) do
-    JSON.parse File.read "#{::Rails.root}/modules/appeals_api/spec/fixtures/valid_200996.json"
-  end
+  let(:auth_headers) { fixture_as_json 'valid_200996_headers.json' }
+  let(:form_data) { fixture_as_json 'valid_200996.json' }
 
   describe '#first_name' do
     subject { higher_level_review.first_name }
