@@ -26,7 +26,6 @@ module AppealsApi
       @retries = retries
       pdf_constructor = AppealsApi::HigherLevelReviewPdfConstructor.new(higher_level_review_id)
       pdf_path = pdf_constructor.fill_pdf
-      puts pdf_path
       # set status to processing until the central mail upload
       HigherLevelReview.update(higher_level_review_id, status: 'processing')
       # send to central mail

@@ -36,6 +36,5 @@ module AppealsApi
 
       StatsD.increment STATSD_UPLOAD_FAIL_KEY, tags: ["status:#{code}"]
     end
-
   end
 end

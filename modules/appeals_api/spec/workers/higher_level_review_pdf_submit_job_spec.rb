@@ -19,47 +19,46 @@ RSpec.describe AppealsApi::HigherLevelReviewPdfSubmitJob, type: :job do
   let(:faraday_response) { instance_double('Faraday::Response') }
   let(:valid_doc) { File.read(Rails.root.join('modules', 'appeals_api', 'spec', 'fixtures', 'valid_200996.json')) }
 
-    it 'uploads a valid payload' do
-      allow(CentralMail::Service).to receive(:new) { client_stub }
-      allow(faraday_response).to receive(:status).and_return(200)
-      allow(faraday_response).to receive(:body).and_return('')
-      allow(faraday_response).to receive(:success?).and_return(true)
-      capture_body = nil
-      expect(client_stub).to receive(:upload) { |arg|
-        capture_body = arg
-        faraday_response
-      }
-      described_class.new.perform(higher_level_review.id)
-      expect(capture_body).to be_a(Hash)
-      expect(capture_body).to have_key('metadata')
-      expect(capture_body).to have_key('document')
-      metadata = capture_body['metadata']
-      expect(metadata['uuid']).to eq(higher_level_review.id)
-      updated = AppealsApi::HigherLevelReview.find(higher_level_review.id)
-      expect(updated.status).to eq('submitted')
-    end
+  it 'uploads a valid payload' do
+    allow(CentralMail::Service).to receive(:new) { client_stub }
+    allow(faraday_response).to receive(:status).and_return(200)
+    allow(faraday_response).to receive(:body).and_return('')
+    allow(faraday_response).to receive(:success?).and_return(true)
+    capture_body = nil
+    expect(client_stub).to receive(:upload) { |arg|
+      capture_body = arg
+      faraday_response
+    }
+    described_class.new.perform(higher_level_review.id)
+    expect(capture_body).to be_a(Hash)
+    expect(capture_body).to have_key('metadata')
+    expect(capture_body).to have_key('document')
+    metadata = capture_body['metadata']
+    expect(metadata['uuid']).to eq(higher_level_review.id)
+    updated = AppealsApi::HigherLevelReview.find(higher_level_review.id)
+    expect(updated.status).to eq('submitted')
+  end
 
-    it 'sets error status for downstream server error' do
-      allow(CentralMail::Service).to receive(:new) { client_stub }
-      allow(faraday_response).to receive(:status).and_return(422)
-      allow(faraday_response).to receive(:body).and_return('')
-      allow(faraday_response).to receive(:success?).and_return(false)
-      capture_body = nil
-      expect(client_stub).to receive(:upload) { |arg|
-        capture_body = arg
-        faraday_response
-      }
-      described_class.new.perform(higher_level_review.id)
-      expect(capture_body).to be_a(Hash)
-      expect(capture_body).to have_key('metadata')
-      expect(capture_body).to have_key('document')
-      metadata = capture_body['metadata']
-      expect(metadata['uuid']).to eq(higher_level_review.id)
-      updated = AppealsApi::HigherLevelReview.find(higher_level_review.id)
-      expect(updated.status).to eq('error')
-      expect(updated.code).to eq('DOC104')
-    end
-
+  it 'sets error status for downstream server error' do
+    allow(CentralMail::Service).to receive(:new) { client_stub }
+    allow(faraday_response).to receive(:status).and_return(422)
+    allow(faraday_response).to receive(:body).and_return('')
+    allow(faraday_response).to receive(:success?).and_return(false)
+    capture_body = nil
+    expect(client_stub).to receive(:upload) { |arg|
+      capture_body = arg
+      faraday_response
+    }
+    described_class.new.perform(higher_level_review.id)
+    expect(capture_body).to be_a(Hash)
+    expect(capture_body).to have_key('metadata')
+    expect(capture_body).to have_key('document')
+    metadata = capture_body['metadata']
+    expect(metadata['uuid']).to eq(higher_level_review.id)
+    updated = AppealsApi::HigherLevelReview.find(higher_level_review.id)
+    expect(updated.status).to eq('error')
+    expect(updated.code).to eq('DOC104')
+  end
 
   context 'with a downstream error' do
     before do
@@ -77,6 +76,7 @@ RSpec.describe AppealsApi::HigherLevelReviewPdfSubmitJob, type: :job do
       Timecop.return
     end
   end
+
   private
 
   def create_higher_level_review
@@ -86,4 +86,3 @@ RSpec.describe AppealsApi::HigherLevelReviewPdfSubmitJob, type: :job do
     higher_level_review
   end
 end
-
