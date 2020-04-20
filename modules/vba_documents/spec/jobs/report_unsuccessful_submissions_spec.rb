@@ -26,11 +26,11 @@ RSpec.describe VBADocuments::ReportUnsuccessfulSubmissions, type: :job do
           VBADocuments::UploadSubmission.where(
             created_at: from..to,
             status: 'uploaded'
-          ),
+          ).order(:consumer_name),
           VBADocuments::UploadSubmission.where(
             created_at: from..to,
             status: %w[error expired]
-          ),
+          ).order(:consumer_name),
           from,
           to
         ).and_return(double.tap do |mailer|
