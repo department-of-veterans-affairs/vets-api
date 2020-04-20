@@ -14,8 +14,9 @@ module BGS
     end
 
     def create
-      add_children if @payload['childrenToAdd']
-      report_deaths if @payload['deaths']
+      # add_children if @payload['childrenToAdd']
+      # report_deaths if @payload['deaths']
+      # add_spouse if @payload['veteranMarriageHistory']
 
       @dependents
     end
@@ -23,13 +24,12 @@ module BGS
     private
 
     def add_children
-      @payload['childrenToAdd'].map do |child_info|
+      @payload['childrenToAdd'].each do |child_info|
         format_child_info(child_info)
 
         participant = create_participant(@proc_id)
         person = create_person(@proc_id, participant[:vnp_ptcpnt_id], child_info)
         address = create_address(@proc_id, participant[:vnp_ptcpnt_id], child_info['childAddressInfo']['childAddress'])
-
         @dependents << serialize_result(
           participant,
           person,
@@ -58,6 +58,22 @@ module BGS
       end
     end
 
+    def add_spouse
+      @payload['veteranMarriageHistory'].each do |marriage_info|
+        participant = create_participant(@proc_id)
+        person = create_person(@proc_id, participant[:vnp_ptcpnt_id], marriage_info)
+        address = create_address(@proc_id, participant[:vnp_ptcpnt_id], marriage_info['currentSpouseAddress'])
+
+        @dependents << serialize_result(
+          participant,
+          person,
+          address,
+          'Spouse',
+          'Spouse'
+        )
+      end
+    end
+    # TODO: turn optional stuff into a hash
     def serialize_result(participant, person, address, participant_relationship_type, family_relationship_type)
       ::ValueObjects::VnpPersonAddressPhone.new(
         vnp_proc_id: @proc_id,
@@ -82,7 +98,9 @@ module BGS
         address_city: address[:city_nm],
         address_zip_code: address[:zip_prefix_nbr],
         email_address: nil, # Doesn't exist for child
-        death_date: person[:death_dt]
+        death_date: person[:death_dt],
+        begin_date: begin_date,
+        end_date: end_date,
       )
     end
 
@@ -95,8 +113,20 @@ module BGS
       child_info['placeOfBirthCity'] = child_info['childPlaceOfBirth']['city']
       child_info['placeOfBirthState'] = child_info['childPlaceOfBirth']['state']
       child_info['death_date'] = nil # Doing this to get past Struct attribute
+    end
 
-      child_info.delete('childPlaceOfBirth')
+    def format_spouse_info(spouse_info)
+      spouse_info['first'] = spouse_info['spouseInformation']['spouseFullName']['first']
+      spouse_info['middle'] = spouse_info['spouseInformation']['spouseFullName']['middle']
+      spouse_info['last'] = spouse_info['spouseInformation']['spouseFullName']['last']
+      spouse_info['suffix'] = spouse_info['spouseInformation']['spouseFullName']['suffix']
+      spouse_info['ssn'] = spouse_info['spouseSSN']
+      spouse_info['birthDate'] = spouse_info['spouseDOB']
+
+      if spouse_info['isSpouseVeteran'] == 'true'
+        spouse_info['vaFileNumber'] = spouse_info['spouseVAFileNumber']
+        spouse_info['serviceNumber'] = spouse_info['spouseServiceNumber']
+      end
     end
 
     def format_death_info(death_info)
@@ -108,8 +138,6 @@ module BGS
       death_info['middle'] = death_info['fullName']['middle']
       death_info['last'] = death_info['fullName']['last']
       death_info['death_date'] = death_info['deceasedDateOfDeath']
-
-      death_info.delete('fullName')
     end
 
     def relationship_type(info)

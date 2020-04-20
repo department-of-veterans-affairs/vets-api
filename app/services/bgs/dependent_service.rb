@@ -14,17 +14,18 @@ module BGS
         )
     end
 
-    def modify_dependents
+    def modify_dependents(params)
       delete_me_root = Rails.root.to_s
-      delete_me_payload_file = File.read("#{delete_me_root}/app/services/bgs/possible_payload.json")
-      payload = JSON.parse(delete_me_payload_file)
+      # delete_me_payload_file = File.read("#{delete_me_root}/app/services/bgs/possible_payload.json")
+      # payload = JSON.parse(delete_me_payload_file)
+      payload = params.to_h
 
       proc_id = create_proc_id_and_form
       veteran = VnpVeteran.new(proc_id: proc_id, payload: payload, user: @user).create
       dependents = Dependents.new(proc_id: proc_id, veteran: veteran, payload: payload, user: @user).create
-      relationships = VnpRelationships.new(proc_id: proc_id, veteran: veteran, dependents: dependents, user: @user).create
+      VnpRelationships.new(proc_id: proc_id, veteran: veteran, dependents: dependents, user: @user).create
 
-      # ####-We’ll only do this for form number 674
+      ####-We’ll only do this for form number 674
       # create_child_school_student(proc_id, dependents)
 
       vnp_benefit_claim = VnpBenefitClaim.new(proc_id: proc_id, veteran: veteran, user: @user)

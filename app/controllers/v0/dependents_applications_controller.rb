@@ -3,7 +3,7 @@
 module V0
   class DependentsApplicationsController < ApplicationController
     def create
-      bgsResponse = bgs_dependent_service.modify_dependents
+      bgsResponse = bgs_dependent_service.modify_dependents(dependent_params)
       render json: bgsResponse
     end
 
@@ -24,6 +24,25 @@ module V0
 
     def bgs_dependent_service
       @bgs_dependent_service ||= BGS::DependentService.new(current_user)
+    end
+
+    def dependent_params
+      params.permit(
+        :add_child,
+        :add_spouse,
+        :report_divorce,
+        :report_death,
+        :report_stepchild_not_in_household,
+        :report_marriage_of_child_under18,
+        :report_child18_or_older_is_not_attending_school,
+        :report674,
+        :privacy_agreement_accepted,
+        children_to_add: [],
+        veteran_address: {},
+        veteran_information: {},
+        more_veteran_information: {},
+        dependents_application: {}
+      )
     end
   end
 end

@@ -71,10 +71,10 @@ module BGS
         middle_nm: payload['middle'],
         last_nm: payload['last'],
         suffix_nm: payload['suffix'],
-        brthdy_dt: payload['birthDate'],
+        brthdy_dt: payload['birth_date'],
         # birth_state_cd: payload['placeOfBirthCity'], We are getting a state name instead of code. BGS wants state code
-        birth_city_nm: payload['placeOfBirthState'],
-        file_nbr: payload['vaFileNumber'], # It's throwing an error about the file number and ssn being different. Changing data
+        birth_city_nm: payload['place_of_birth_state'],
+        file_nbr: payload['va_file_number'], # It's throwing an error about the file number and ssn being different. Changing data
         ssn_nbr: payload['ssn'],
         death_dt: payload['death_date'],
         ssn: @user.ssn # Just here to make mocks work
@@ -93,15 +93,15 @@ module BGS
         vnp_proc_id: proc_id,
         ptcpnt_addrs_type_nm: 'Mailing', # What are the available types? Working on reporting deaths, could that be one?
         shared_addrs_ind: 'N',
-        addrs_one_txt: payload['addressLine1'],
-        addrs_two_txt: payload['addressLine2'],
-        addrs_three_txt: payload['addressLine3'],
+        addrs_one_txt: payload['address_line1'],
+        addrs_two_txt: payload['address_line2'],
+        addrs_three_txt: payload['address_line3'],
         city_nm: payload['city'],
         # cntry_nm: payload['countryName'], This needs to be 'USA' not 'United States'
-        postal_cd: payload['stateCode'],
-        zip_prefix_nbr: payload['zipCode'],
-        prvnc_nm: payload['stateCode'],
-        email_addrs_txt: payload['emailAddress'],
+        postal_cd: payload['state_code'],
+        zip_prefix_nbr: payload['zip_code'],
+        prvnc_nm: payload['state_code'],
+        email_addrs_txt: payload['email_address'],
         ssn: @user.ssn # Just here to make mocks work
       )
     end
@@ -111,7 +111,7 @@ module BGS
         vnp_proc_id: proc_id,
         vnp_ptcpnt_id: participant_id,
         phone_type_nm: 'Nighttime',
-        phone_nbr: payload['phoneNumber'],
+        phone_nbr: payload['phone_number'],
         efctv_dt: Time.current.iso8601,
         jrn_dt: Time.current.iso8601,
         jrn_lctn_id: Settings.bgs.client_station_id,
@@ -134,6 +134,8 @@ module BGS
         jrn_status_type_cd: "U",
         jrn_user_id: Settings.bgs.client_username,
         family_rlnshp_type_nm: dependent.family_relationship_type_name,
+        begin_dt: dependent.begin_dt,
+        end_dt: dependent.end_dt,
         ssn: @user.ssn # Just here to make mocks work
       )
     end

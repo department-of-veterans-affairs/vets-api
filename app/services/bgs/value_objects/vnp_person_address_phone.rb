@@ -29,5 +29,7 @@ module ValueObjects
     attribute :address_zip_code, Types::String.optional
     attribute :email_address, Types::String.optional
     attribute :death_date, Types::DateTime.optional
+    attribute :begin_date, Types::DateTime.optional
+    attribute :end_date, Types::DateTime.optional
   end
 end

@@ -7,7 +7,7 @@ module BGS
       @proc_id = proc_id
       @veteran_info = formatted_params(payload)
 
-      super(user) # is this cool? Might be smelly. Might indicate a new class/object 🤔
+       super(user) # is this cool? Might be smelly. Might indicate a new class/object 🤔
     end
 
     def create
@@ -39,7 +39,9 @@ module BGS
         address_city: address[:city_nm],
         address_zip_code: address[:zip_prefix_nbr],
         email_address: address[:email_addrs_txt],
-        death_date: nil
+        death_date: nil, # Setting to nil to satisfy struct
+        begin_date: nil, # Setting to nil to satisfy struct
+        end_date: nil # Setting to nil to satisfy struct
       )
     end
 
@@ -47,9 +49,9 @@ module BGS
 
     def formatted_params(payload)
       [
-        *payload['veteranInformation'],
-        *payload['moreVeteranInformation'],
-        *payload['veteranAddress']
+        *payload['veteran_information'],
+        *payload['more_veteran_information'],
+        *payload['veteran_address']
       ].to_h
     end
   end
