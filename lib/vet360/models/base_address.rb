@@ -51,12 +51,16 @@ module Vet360
       validates(:zip_code, length: { maximum: 5 })
 
       validates(
-        :address_line1,
-        :address_line2,
-        :address_line3,
         :city,
         :province,
         length: { maximum: 100 }
+      )
+
+      validates(
+        :address_line1,
+        :address_line2,
+        :address_line3,
+        length: { maximum: 35 }
       )
 
       validates(
