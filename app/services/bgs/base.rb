@@ -173,7 +173,7 @@ module BGS
         claimant_ssn: veteran.ssn_number,
         benefit_claim_type: "1", # this is intentionally hard coded
         payee: "00", # intentionally left hard-coded
-        end_product: "608", # not sure what this is, it has to be unique tried this: vnp_benefit_claim[:vnp_bnft_claim_id] I just add one everytime I run this code
+        end_product: "609", # not sure what this is, it has to be unique tried this: vnp_benefit_claim[:vnp_bnft_claim_id] I just add one everytime I run this code
         end_product_code: vnp_benefit_claim.vnp_benefit_claim_type_code,
         first_name: veteran.first_name, # Might want to use the payload value
         last_name: veteran.last_name, # Might want to use the payload value

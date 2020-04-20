@@ -14,8 +14,8 @@ module BGS
     end
 
     def create
-      # add_children if @payload['childrenToAdd']
-      # report_deaths if @payload['deaths']
+      add_children if @payload['children_to_add']
+      report_deaths if @payload['deaths']
       # add_spouse if @payload['veteranMarriageHistory']
 
       @dependents
