@@ -22,24 +22,24 @@ module CARMA
 
           self.veteran = args[:veteran] || {}
           self.primary_caregiver = args[:primary_caregiver] || {}
-          self.secondary_caregiver_one = args[:secondary_caregiver_one] if args[:secondary_caregiver_one]
-          self.secondary_caregiver_two = args[:secondary_caregiver_two] if args[:secondary_caregiver_two]
+          self.secondary_caregiver_one = args[:secondary_caregiver_one] unless args[:secondary_caregiver_one].nil?
+          self.secondary_caregiver_two = args[:secondary_caregiver_two] unless args[:secondary_caregiver_two].nil?
         end
 
-        def veteran=(args = {})
-          @veteran = Metadata::Veteran.new(args)
+        def veteran=(veteran_data_hash)
+          @veteran = Metadata::Veteran.new(veteran_data_hash)
         end
 
-        def primary_caregiver=(args = {})
-          @primary_caregiver = Metadata::Caregiver.new(args)
+        def primary_caregiver=(pc_metadata_hash)
+          @primary_caregiver = Metadata::Caregiver.new(pc_metadata_hash)
         end
 
-        def secondary_caregiver_one=(args = {})
-          @secondary_caregiver_one = Metadata::Caregiver.new(args)
+        def secondary_caregiver_one=(sc_one_metadata_hash)
+          @secondary_caregiver_one = Metadata::Caregiver.new(sc_one_metadata_hash)
         end
 
-        def secondary_caregiver_two=(args = {})
-          @secondary_caregiver_two = Metadata::Caregiver.new(args)
+        def secondary_caregiver_two=(sc_two_metadata_hash)
+          @secondary_caregiver_two = Metadata::Caregiver.new(sc_two_metadata_hash)
         end
       end
     end

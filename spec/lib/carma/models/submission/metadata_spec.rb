@@ -111,59 +111,63 @@ RSpec.describe CARMA::Models::Submission::Metadata, type: :model do
   end
 
   describe '#to_request_payload' do
-    it 'can receive :to_request_payload' do
-      example_1 = described_class.new claim_id: 123
+    describe 'can receive :to_request_payload' do
+      it 'with a minimal data set' do
+        subject = described_class.new claim_id: 123
 
-      expect(example_1.to_request_payload).to eq(
-        {
-          'claimId' => 123,
-          'veteran' => {
-            'icn' => nil,
-            'isVeteran' => nil
-          },
-          'primaryCaregiver' => {
-            'icn' => nil
-          },
-          'secondaryCaregiverOne' => nil,
-          'secondaryCaregiverTwo' => nil
-        }
-      )
-
-      example_2 = described_class.new(
-        claim_id: 123,
-        veteran: {
-          icn: 'VET1234',
-          is_veteran: true
-        },
-        primary_caregiver: {
-          icn: 'PC1234'
-        },
-        secondary_caregiver_one: {
-          icn: 'SCO1234'
-        },
-        secondary_caregiver_two: {
-          icn: 'SCT1234'
-        }
-      )
-
-      expect(example_2.to_request_payload).to eq(
-        {
-          'claimId' => 123,
-          'veteran' => {
-            'icn' => 'VET1234',
-            'isVeteran' => true
-          },
-          'primaryCaregiver' => {
-            'icn' => 'PC1234'
-          },
-          'secondaryCaregiverOne' => {
-            'icn' => 'SCO1234'
-          },
-          'secondaryCaregiverTwo' => {
-            'icn' => 'SCT1234'
+        expect(subject.to_request_payload).to eq(
+          {
+            'claimId' => 123,
+            'veteran' => {
+              'icn' => nil,
+              'isVeteran' => nil
+            },
+            'primaryCaregiver' => {
+              'icn' => nil
+            },
+            'secondaryCaregiverOne' => nil,
+            'secondaryCaregiverTwo' => nil
           }
-        }
-      )
+        )
+      end
+
+      it 'with a maximum data set' do
+        subject = described_class.new(
+          claim_id: 123,
+          veteran: {
+            icn: 'VET1234',
+            is_veteran: true
+          },
+          primary_caregiver: {
+            icn: 'PC1234'
+          },
+          secondary_caregiver_one: {
+            icn: 'SCO1234'
+          },
+          secondary_caregiver_two: {
+            icn: 'SCT1234'
+          }
+        )
+
+        expect(subject.to_request_payload).to eq(
+          {
+            'claimId' => 123,
+            'veteran' => {
+              'icn' => 'VET1234',
+              'isVeteran' => true
+            },
+            'primaryCaregiver' => {
+              'icn' => 'PC1234'
+            },
+            'secondaryCaregiverOne' => {
+              'icn' => 'SCO1234'
+            },
+            'secondaryCaregiverTwo' => {
+              'icn' => 'SCT1234'
+            }
+          }
+        )
+      end
     end
   end
 end
