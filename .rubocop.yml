@@ -345,8 +345,8 @@ Style/HashTransformKeys:
 Style/HashTransformValues:
   Enabled: false
 
-Layout/SpaceAroundMethodCallOperator
+Layout/SpaceAroundMethodCallOperator:
   Enabled: false
 
-Style/ExponentialNotation
+Style/ExponentialNotation:
   Enabled: true
