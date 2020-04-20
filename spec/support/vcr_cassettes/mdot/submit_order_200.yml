@@ -6,7 +6,7 @@ http_interactions:
     body:
       encoding: UTF-8
       string: '{"use_permanent_address":true,"use_temporary_address":false,"additional_requests":"","order":[{"product_id":"1"},{"product_id":"4"}],"permanent_address":{"street":"101
-        Example Street","street2":"Apt 2","city":"Kansas City","state":"MO","country":"USA","postal_code":"64117"}}'
+        Example Street","street2":"Apt 2","city":"Kansas City","state":"MO","country":"USA","postal_code":"64117","is_military_address":false}}'
     headers:
       Accept:
       - application/json
