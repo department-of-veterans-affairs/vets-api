@@ -34,7 +34,6 @@ class UserIdentity < Common::RedisStore
   attribute :authenticated_by_ssoe, Boolean
 
   validates :uuid, presence: true
-  validates :email, presence: true
   validates :loa, presence: true
   validate  :loa_highest_present
 

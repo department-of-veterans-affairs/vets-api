@@ -3,6 +3,8 @@
 module BGS
   class DependentService
     def get_dependents(current_user)
+      return [] unless current_user.email
+
       service = LighthouseBGS::Services.new(
         external_uid: current_user.icn,
         external_key: current_user.email
