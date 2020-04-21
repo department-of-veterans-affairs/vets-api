@@ -8,6 +8,8 @@ module VeteranVerification
     include Virtus.model
 
     attribute :id, String
+    attribute :first_name, String
+    attribute :last_name, String
     attribute :branch_of_service, String
     attribute :end_date, Date
     attribute :deployments, Array
@@ -37,6 +39,8 @@ module VeteranVerification
       emis.service_episodes_by_date.map do |episode|
         ServiceHistoryEpisode.new(
           id: episode_identifier(episode, user),
+          first_name: user.first_name,
+          last_name: user.last_name,
           branch_of_service: emis.build_service_branch(episode),
           end_date: episode.end_date,
           deployments: deployments(emis, episode),

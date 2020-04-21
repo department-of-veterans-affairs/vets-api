@@ -16,24 +16,24 @@
       "pattern": "[^ \\f\\n\\r\\t\\v\\u00a0\\u1680\\u2000-\\u200a\\u2028\\u2029\\u202f\\u205f\\u3000\\ufeff]",
       "$comment": "The pattern used ensures that a string has at least one non-whitespace character. The pattern comes from JavaScript's \\s character class. \"\\s Matches a single white space character, including space, tab, form feed, line feed, and other Unicode spaces. Equivalent to [ \\f\\n\\r\\t\\v\\u00a0\\u1680\\u2000-\\u200a\\u2028\\u2029\\u202f\\u205f\\u3000\\ufeff].\": https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Regular_Expressions/Character_Classes  We are using simple character classes at JSON Schema's recommendation: https://tools.ietf.org/html/draft-handrews-json-schema-validation-01#section-4.3"
     },
-    "nonBlankStringMaxLength100": {
-      "allOf": [ { "$ref": "#/definitions/nonBlankString" }, { "maxLength": 100 } ]
+    "nonBlankStringMaxLength140": {
+      "allOf": [ { "$ref": "#/definitions/nonBlankString" }, { "maxLength": 140 } ]
     },
-    "nonBlankStringMaxLength10": {
-      "allOf": [ { "$ref": "#/definitions/nonBlankString" }, { "maxLength": 10 } ]
+    "nonBlankStringMaxLength30": {
+      "allOf": [ { "$ref": "#/definitions/nonBlankString" }, { "maxLength": 30 } ]
+    },
+    "nonBlankStringMaxLength18": {
+      "allOf": [ { "$ref": "#/definitions/nonBlankString" }, { "maxLength": 18 } ]
+    },
+    "nonBlankStringMaxLength5": {
+      "allOf": [ { "$ref": "#/definitions/nonBlankString" }, { "maxLength": 5 } ]
     },
     "nonBlankStringMaxLength2": {
       "allOf": [ { "$ref": "#/definitions/nonBlankString" }, { "maxLength": 2 } ]
     },
     "date": {
       "type": "string",
-      "pattern": "[0-9]{4}-[0-9]{2}-[0-9]{2}"
-    },
-    "currentDate": {
-      "allOf": [
-        { "$ref": "#/definitions/date" },
-        { "$comment": "if field is absent, the current date will be used" }
-      ]
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$"
     },
 
 
@@ -56,8 +56,7 @@
             "informalConference": { "const": false },
             "sameOffice":         { "type": "boolean" },
             "benefitType":        { "$ref": "#/definitions/benefitType" },
-            "veteran":            { "$ref": "#/definitions/veteran" },
-            "receiptDate":        { "$ref": "#/definitions/currentDate" }
+            "veteran":            { "$ref": "#/definitions/veteran" }
           },
           "additionalProperties": false,
           "required": [
@@ -75,7 +74,6 @@
             "sameOffice":         { "type": "boolean" },
             "benefitType":        { "$ref": "#/definitions/benefitType" },
             "veteran":            { "$ref": "#/definitions/veteran" },
-            "receiptDate":        { "$ref": "#/definitions/currentDate" },
             "informalConferenceTimes": { "$ref": "#/definitions/informalConferenceTimes" },
             "informalConferenceRep":   { "$ref": "#/definitions/informalConferenceRep" }
           },
@@ -141,76 +139,37 @@
 
 
     "phone": {
-      "$comment": "source: VA Profile API - POST /v0/profile/telephones",
+      "$comment": "the phone fields must not exceed 20 chars, when concatenated",
       "type": "object",
       "properties": {
-        "isInternational": { "type": "boolean" },
-        "countryCode":     { "$ref": "#/definitions/nonBlankString" },
+        "countryCode":     { "type": "string", "pattern": "^[0-9]+$" },
+        "areaCode":        { "type": "string", "pattern": "[2-9][0-9]{2}" },
         "phoneNumber":     { "type": "string", "pattern": "^[0-9]{1,14}$" },
-        "areaCode":        { "type": "string", "pattern": "^[0-9]{3}$" },
-        "extension":       { "$ref": "#/definitions/nonBlankStringMaxLength10" },
-        "phoneType":       { "type": "string", "enum": [ "MOBILE", "HOME", "WORK", "FAX", "TEMPORARY" ] }
+        "phoneNumberExt":  { "type": "string", "pattern": "^[a-zA-Z0-9]{1,10}$" }
       },
-      "additionalProperties": false,
       "required": [
-        "isInternational",
-        "countryCode",
-        "phoneNumber",
         "areaCode",
-        "phoneType"
+        "phoneNumber"
       ]
     },
 
 
     "address": {
-      "$comment": "source: VA Profile API - POST /v0/profile/addresses",
-      "oneOf": [
-        {
-          "type": "object",
-          "properties": {
-            "addressType":  { "type": "string", "enum": [ "DOMESTIC", "OVERSEAS MILITARY" ] },
-            "addressLine1": { "$ref": "#/definitions/nonBlankStringMaxLength100" },
-            "addressLine2": { "$ref": "#/definitions/nonBlankStringMaxLength100" },
-            "addressLine3": { "$ref": "#/definitions/nonBlankStringMaxLength100" },
-            "city":         { "$ref": "#/definitions/nonBlankStringMaxLength100" },
-            "stateCode":    { "$ref": "#/definitions/nonBlankStringMaxLength2" },
-            "zipCode":      { "type": "string", "pattern": "^[0-9]{5}$" },
-            "countryName":  { "type": "string" },
-            "addressPou":   { "type": "string", "enum": [ "RESIDENCE/CHOICE", "CORRESPONDENCE" ] }
-          },
-          "additionalProperties": false,
-          "required": [
-            "addressType",
-            "addressLine1",
-            "city",
-            "stateCode",
-            "zipCode",
-            "countryName",
-            "addressPou"
-          ]
-        },
-        {
-          "type": "object",
-          "properties": {
-            "addressType":             { "const": "INTERNATIONAL" },
-            "addressLine1":            { "$ref": "#/definitions/nonBlankStringMaxLength100" },
-            "addressLine2":            { "$ref": "#/definitions/nonBlankStringMaxLength100" },
-            "addressLine3":            { "$ref": "#/definitions/nonBlankStringMaxLength100" },
-            "city":                    { "$ref": "#/definitions/nonBlankStringMaxLength100" },
-            "internationalPostalCode": { "type": "string" },
-            "countryName":             { "type": "string" },
-            "addressPou":              { "type": "string", "enum": [ "RESIDENCE/CHOICE", "CORRESPONDENCE" ] }
-          },
-          "additionalProperties": false,
-          "required": [
-            "addressType",
-            "addressLine1",
-            "city",
-            "internationalPostalCode",
-            "countryName",
-            "addressPou"
-          ]
-        }
+      "type": "object",
+      "properties": {
+        "addressLine1":     { "$ref": "#/definitions/nonBlankStringMaxLength30" },
+        "addressLine2":     { "$ref": "#/definitions/nonBlankStringMaxLength5" },
+        "cityName":         { "$ref": "#/definitions/nonBlankStringMaxLength18" },
+        "stateCode":        { "$ref": "#/definitions/nonBlankStringMaxLength2" },
+        "countryCodeISO2":  { "type": "string", "pattern": "^[a-zA-Z]{2}$" },
+        "zipCode5":         { "type": "string", "pattern": "^[0-9]{5}$" },
+        "zipCode4":         { "type": "string", "pattern": "^[0-9]{4}$" }
+      },
+      "required": [
+        "addressLine1",
+        "cityName",
+        "stateCode",
+        "zipCode5"
       ]
     },
 
@@ -220,9 +179,10 @@
       "properties": {
         "address":      { "$ref": "#/definitions/address" },
         "phone":        { "$ref": "#/definitions/phone" },
-        "emailAddress": {
+        "emailAddressText": {
           "type": "string",
           "pattern": ".@.",
+          "maxLength": 44,
           "$comment": "TODO: use draft 7 feature [format: idn-email] or [format: email] over pattern (when there is broader support)"
         }
       },
@@ -235,6 +195,7 @@
       "type": "array",
       "items": { "$ref": "#/definitions/contestableIssue" },
       "minItems": 1,
+      "maxItems": 6,
       "uniqueItems": true
     },
 
@@ -253,7 +214,7 @@
     "contestableIssueAttributes": {
       "type": "object",
       "properties": {
-        "issue":                 { "$ref": "#/definitions/nonBlankString" },
+        "issue":                 { "$ref": "#/definitions/nonBlankStringMaxLength140" },
         "decisionDate":          { "$ref": "#/definitions/date" },
         "decisionIssueId":       { "type": "integer" },
         "ratingIssueId":         { "type": "string" },

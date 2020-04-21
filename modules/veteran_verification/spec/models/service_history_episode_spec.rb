@@ -11,6 +11,8 @@ describe VeteranVerification::ServiceHistoryEpisode, skip_emis: true do
         VCR.use_cassette('emis/get_military_service_episodes_v2/valid') do
           result = described_class.for_user(user)
           expect(result.length).to eq(1)
+          expect(result[0][:first_name]).to eq('abraham')
+          expect(result[0][:last_name]).to eq('lincoln')
           expect(result[0][:branch_of_service]).to eq('Army National Guard')
           expect(result[0][:pay_grade]).to eq('W04')
           expect(result[0][:deployments][0][:location]).to eq('AX1')
