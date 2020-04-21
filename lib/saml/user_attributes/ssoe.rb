@@ -150,11 +150,11 @@ module SAML
       end
 
       def sign_in
-        if @authn_context == INBOUND_AUTHN_CONTEXT
-          sign_in = { service_name: safe_attr('va_eauth_csid').downcase }
-        else
-          sign_in = SAML::User::AUTHN_CONTEXTS.fetch(@authn_context).fetch(:sign_in)
-        end
+        sign_in = if @authn_context == INBOUND_AUTHN_CONTEXT
+                    { service_name: safe_attr('va_eauth_csid').downcase }
+                  else
+                    SAML::User::AUTHN_CONTEXTS.fetch(@authn_context).fetch(:sign_in)
+                  end
         sign_in.merge(account_type: account_type)
       end
 
