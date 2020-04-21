@@ -5,10 +5,36 @@ require 'rails_helper'
 RSpec.describe VBADocuments::UnsuccessfulReportMailer, type: [:mailer] do
   let(:error_upload) { FactoryBot.create(:upload_submission, :status_error) }
   let(:uploaded_upload) { FactoryBot.create(:upload_submission, :status_uploaded) }
+  let(:totals) do
+    [
+      {
+        'vetraspec' => {
+          'error' => 1,
+          'expired' => 1,
+          'pending' => 4,
+          'uploaded' => 1,
+          :totals => 7,
+          :error_rate => '14%',
+          :expired_rate => '14%'
+        }
+      },
+      {
+        'vetpro' => {
+          'error' => 2,
+          'expired' => 1,
+          'pending' => 2,
+          'uploaded' => 2,
+          :totals => 7,
+          :error_rate => '29%',
+          :expired_rate => '14%'
+        }
+      }
+    ]
+  end
 
   describe '#build' do
     subject do
-      described_class.build([error_upload], [uploaded_upload], 7.days.ago, Time.zone.now).deliver_now
+      described_class.build(totals, [error_upload], [uploaded_upload], 7.days.ago, Time.zone.now).deliver_now
     end
 
     it 'sends the email' do
