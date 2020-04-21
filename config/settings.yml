@@ -453,7 +453,9 @@ flipper:
     - jbalboni@gmail.com
     - jeff@adhocteam.us
     - johnny@oddball.io
+    - johnpaul.ashenfelter@oddball.io
     - kam@adhocteam.us
+    - kabrown@thoughtworks.com
     - kenneth.gary@va.gov
     - lauren.alexanderson@va.gov
     - mark.greenburg@adhocteam.us
@@ -461,9 +463,11 @@ flipper:
     - narin@adhocteam.us
     - osanchez@governmentcio.com
     - patrick@adhocteam.us
+    - patrick.bateman@va.gov
     - rian.fowler@adhoc.team
     - rianfowler@outlook.com
     - ryan.thurlwell@va.gov
+    - shaun.hubbard@thoughtworks.com
     - travis.hilton@oddball.io
     - zurbergram@gmail.com
     - regarr@gmail.com # Robin Garrison - AdHoc
@@ -485,6 +489,9 @@ va_mobile:
 
 lighthouse:
   api_key: fake_key
+  facilities:
+    url: https://sandbox-api.va.gov
+    api_key: fake_key
 
 forms:
   url: https://dev-api.va.gov/services/va_forms/v0/
@@ -507,3 +514,9 @@ vet_verification:
 github_stats:
   username: github-stats-rake
   token: fake_token
+
+# Settings for the coronavirus chatbot tokens
+coronavirus_chatbot:
+  app_secret: fake_secret
+  directline_uri: northamerica.directline.botframework.com
+  webchat_secret: fake_secret

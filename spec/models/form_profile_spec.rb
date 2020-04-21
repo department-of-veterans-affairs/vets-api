@@ -466,6 +466,7 @@ RSpec.describe FormProfile, type: :model do
         'country' => 'USA',
         'postalCode' => '77550'
       },
+      'ssnLastFour' => user.ssn.last(4),
       'gender' => user.gender,
       'email' => user.pciu_email,
       'dateOfBirth' => user.birth_date,
