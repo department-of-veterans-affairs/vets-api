@@ -27,8 +27,6 @@ class YearToDateReportMailer < ApplicationMailer
       Lucas.Tickner@va.gov
       kyle.pietrosanto@va.gov
       robert.shinners@va.gov
-      daniel.shawkey@va.gov
-      shawkey_daniel@bah.com
       daveandshay@att.net
       johnny@oddball.io
       John.Holton2@va.gov
@@ -38,6 +36,8 @@ class YearToDateReportMailer < ApplicationMailer
   STAGING_RECIPIENTS = {
     to: %w[
       lihan@adhocteam.us
+      Delli-Gatti_Michael@bah.com
+      sonntag_adam@bah.com
     ]
   }.freeze
 
