@@ -45,11 +45,7 @@ module AppealsApi
     end
 
     def full_name
-      [
-        first_name,
-        middle_initial.blank? ? nil : "#{middle_initial}.",
-        last_name
-      ].map(&:presence).compact.join(' ')
+      "#{first_name} #{middle_initial} #{last_name}".squeeze(' ').strip
     end
 
     # 2. VETERAN'S SOCIAL SECURITY NUMBER

@@ -36,13 +36,21 @@ describe AppealsApi::HigherLevelReview, type: :model do
 
     it 'matches header' do
       expect(subject).to eq(
-        "#{auth_headers['X-VA-First-Name']} #{auth_headers['X-VA-Middle-Initial']}." \
+        "#{auth_headers['X-VA-First-Name']} #{auth_headers['X-VA-Middle-Initial']}" \
         " #{auth_headers['X-VA-Last-Name']}"
       )
     end
 
     context 'not all name fields used' do
       let(:higher_level_review) { described_class.new(form_data: form_data, auth_headers: auth_headers) }
+
+      context 'only last name' do
+        let(:auth_headers) { default_auth_headers.except('X-VA-Middle-Initial').merge('X-VA-First-Name' => ' ') }
+
+        it 'just last name with no extra spaces' do
+          expect(subject).to eq auth_headers['X-VA-Last-Name']
+        end
+      end
 
       context 'no middle initial' do
         context 'blank' do
@@ -59,14 +67,6 @@ describe AppealsApi::HigherLevelReview, type: :model do
           it 'one space between first and last name' do
             expect(subject).to eq "#{auth_headers['X-VA-First-Name']} #{auth_headers['X-VA-Last-Name']}"
           end
-        end
-      end
-
-      context 'only last name' do
-        let(:auth_headers) { default_auth_headers.except('X-VA-Middle-Initial').merge('X-VA-First-Name' => ' ') }
-
-        it 'just last name with no extra spaces' do
-          expect(subject).to eq auth_headers['X-VA-Last-Name']
         end
       end
     end
