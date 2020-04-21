@@ -50,10 +50,10 @@ describe MVI::Service do
       let(:user) { build(:user_with_no_ids) }
 
       let(:mvi_codes) do
-        [
-          { codeSystemName: 'MVI', code: '111985523^PI^200BRLS^USVBA', displayName: 'IEN' },
-          { codeSystemName: 'MVI', code: '32397028^PI^200CORP^USVBA', displayName: 'IEN' }
-        ]
+        {
+          birls_id: '111985523',
+          participant_id: '32397028'
+        }
       end
 
       it 'runs a proxy add for birls and corp ids' do
@@ -77,11 +77,11 @@ describe MVI::Service do
       let(:user) { build(:user, :loa3) }
 
       let(:mvi_codes) do
-        [
-          { codeSystemName: 'MVI', code: '796104437^PI^200BRLS^USVBA', displayName: 'IEN' },
-          { codeSystemName: 'MVI', code: '13367440^PI^200CORP^USVBA', displayName: 'IEN' },
-          { codeSystem: '2.16.840.1.113883.4.349', code: 'WRN206', displayName: 'Existing Key Identifier' }
-        ]
+        {
+          birls_id: '796104437',
+          participant_id: '13367440',
+          other: [{ codeSystem: '2.16.840.1.113883.4.349', code: 'WRN206', displayName: 'Existing Key Identifier' }]
+        }
       end
 
       it 'runs a proxy add for birls and corp ids' do
@@ -585,6 +585,41 @@ describe MVI::Service do
         response = subject.find_profile(user)
 
         server_error_504_expectations_for(response)
+      end
+    end
+  end
+
+  describe '.add_person monitoring' do
+    context 'with a successful request' do
+      let(:user) { build(:user_with_no_ids) }
+
+      it 'increments add_person total' do
+        allow(StatsD).to receive(:increment)
+        VCR.use_cassette('mvi/add_person/add_person_success') do
+          subject.add_person(user)
+        end
+        expect(StatsD).to have_received(:increment).with('api.mvi.add_person.total')
+      end
+    end
+
+    context 'with an unsuccessful request' do
+      it 'increments add_person fail and total', :aggregate_failures do
+        allow_any_instance_of(Faraday::Connection).to receive(:post).and_raise(Faraday::TimeoutError)
+        expect(StatsD).to receive(:increment).once.with(
+          'api.mvi.add_person.fail', tags: ['error:Common::Exceptions::GatewayTimeout']
+        )
+        expect(StatsD).to receive(:increment).once.with('api.mvi.add_person.total')
+        response = subject.add_person(user)
+
+        exception = response.error.errors.first
+
+        expect(response.class).to eq MVI::Responses::AddPersonResponse
+        expect(response.status).to eq server_error
+        expect(response.mvi_codes).to be_nil
+        expect(exception.title).to eq 'Gateway timeout'
+        expect(exception.code).to eq 'MVI_504'
+        expect(exception.status).to eq '504'
+        expect(exception.source).to eq MVI::Service
       end
     end
   end

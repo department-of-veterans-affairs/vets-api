@@ -21,23 +21,36 @@ describe MVI::Responses::AddParser do
     end
 
     describe '#parse' do
-      let(:codes) do
-        [
-          {
-            codeSystemName: 'MVI',
-            code: '111985523^PI^200BRLS^USVBA',
-            displayName: 'IEN'
-          },
-          {
-            codeSystemName: 'MVI',
-            code: '32397028^PI^200CORP^USVBA',
-            displayName: 'IEN'
-          }
-        ]
-      end
+      let(:codes) { { birls_id: '111985523', participant_id: '32397028' } }
 
       it 'returns a MviProfile with the parsed attributes' do
         expect(parser.parse).to have_deep_attributes(codes)
+      end
+    end
+
+    describe '#parse_ids' do
+      context 'when given a list of attributes' do
+        let(:attributes) do
+          [
+            { codeSystemName: 'MVI', code: '111985523^PI^200BRLS^USVBA', displayName: 'IEN' },
+            { codeSystemName: 'MVI', code: '32397028^PI^200CORP^USVBA', displayName: 'IEN' },
+            { codeSystemName: 'MVI', code: 'WRN206', displayName: 'test error' }
+          ]
+        end
+
+        let(:parsed_ids) do
+          {
+            other: [
+              { codeSystemName: 'MVI', code: 'WRN206', displayName: 'test error' }
+            ],
+            birls_id: '111985523',
+            participant_id: '32397028'
+          }
+        end
+
+        it 'parses the ids correctly' do
+          expect(parser.send(:parse_ids, attributes)).to eq parsed_ids
+        end
       end
     end
   end

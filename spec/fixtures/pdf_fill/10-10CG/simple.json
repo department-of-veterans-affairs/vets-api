@@ -1,0 +1,38 @@
+{
+  "veteran": {
+    "fullName": {
+        "first": "Joan",
+        "last": "Jerde"
+    },
+    "ssnOrTin": "789787893",
+    "dateOfBirth": "1990-07-03",
+    "gender": "F",
+    "address": {
+        "street": "111 2nd St S",
+        "city": "Seattle",
+        "country": "USA",
+        "state": "WA",
+        "postalCode": "98101"
+    },
+    "plannedClinic": "740"
+  },
+  "primaryCaregiver":  {
+    "fullName": {
+        "first": "Rosamond",
+        "last": "Jerde"
+    },
+    "ssnOrTin": "202901412",
+    "dateOfBirth": "1978-07-03",
+    "gender": "M",
+    "address": {
+        "street": "111 2nd St S",
+        "city": "Seattle",
+        "country": "USA",
+        "state": "WA",
+        "postalCode": "98101"
+    },
+    "vetRelationship": "Spouse",
+    "medicaidEnrolled": false,
+    "medicareEnrolled": true
+  }
+}
