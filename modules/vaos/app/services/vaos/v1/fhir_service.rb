@@ -7,8 +7,8 @@ module VAOS::V1
   class FHIRService < VAOS::BaseService
     STATSD_KEY_PREFIX = 'api.vaos.fhir'
 
-    def make_request(http_method, path, params = nil)
-      perform(http_method, path, params, headers)
+    def perform(http_method, path, params = nil)
+      super(http_method, path, params, headers)
     end
 
     private

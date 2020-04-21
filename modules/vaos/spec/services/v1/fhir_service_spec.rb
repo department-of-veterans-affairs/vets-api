@@ -12,7 +12,7 @@ describe VAOS::V1::FHIRService do
   describe '#make_request' do
     context 'with an invalid http method' do
       it 'raises a no method error' do
-        expect { subject.make_request(:let, 'Organization/353830') }.to raise_error(
+        expect { subject.perform(:let, 'Organization/353830') }.to raise_error(
           NoMethodError
         )
       end
@@ -21,7 +21,7 @@ describe VAOS::V1::FHIRService do
     context 'when VAMF returns a 404' do
       it 'raises a backend exception with key VAOS_404' do
         VCR.use_cassette('vaos/fhir/404', match_requests_on: %i[method uri]) do
-          expect { subject.make_request(:get, 'MissingResource') }.to raise_error(
+          expect { subject.perform(:get, 'MissingResource') }.to raise_error(
             Common::Exceptions::BackendServiceException
           ) { |e| expect(e.key).to eq('VAOS_404') }
         end
@@ -31,7 +31,7 @@ describe VAOS::V1::FHIRService do
     context 'with valid args' do
       it 'returns the JSON response body from the VAMF response' do
         VCR.use_cassette('vaos/fhir/get_organization', match_requests_on: %i[method uri]) do
-          response = subject.make_request(:get, 'Organization/353830')
+          response = subject.perform(:get, 'Organization/353830')
           expect(JSON.parse(response.body)).to eq(
             {
               'resourceType' => 'Organization',
