@@ -547,5 +547,110 @@ RSpec.describe SAML::User do
         )
       end
     end
+
+    context 'DSLogon premium inbound user' do
+      let(:authn_context) { SAML::UserAttributes::SSOe::INBOUND_AUTHN_CONTEXT }
+      let(:highest_attained_loa) { '3' }
+      let(:multifactor) { true }
+      let(:saml_attributes) do
+        build(:ssoe_inbound_dslogon_level2,
+              va_eauth_multifactor: ['True'])
+      end
+
+      it 'has various important attributes' do
+        expect(subject.to_hash).to eq(
+          birth_date: '19461020',
+          authn_context: authn_context,
+          dslogon_edipi: '1606997570',
+          first_name: 'SOFIA',
+          last_name: 'MCKIBBENS',
+          middle_name: nil,
+          gender: 'F',
+          ssn: '101174874',
+          zip: '82009',
+          mhv_icn: '1012779219V964737',
+          mhv_correlation_id: nil,
+          mhv_account_type: nil,
+          uuid: '85ba80dba1b93ed3bf080b2989cde313',
+          email: nil,
+          idme_uuid: nil,
+          loa: { current: 3, highest: 3 },
+          sign_in: { service_name: 'dslogon', account_type: '2' },
+          sec_id: '1012779219',
+          multifactor: multifactor,
+          authenticated_by_ssoe: true
+        )
+      end
+    end
+
+    context 'MHV premium inbound user' do
+      let(:authn_context) { SAML::UserAttributes::SSOe::INBOUND_AUTHN_CONTEXT }
+      let(:highest_attained_loa) { '3' }
+      let(:multifactor) { true }
+      let(:saml_attributes) do
+        build(:ssoe_inbound_mhv_premium,
+              va_eauth_multifactor: ['True'])
+      end
+
+      it 'has various important attributes' do
+        expect(subject.to_hash).to eq(
+          birth_date: '19820523',
+          authn_context: authn_context,
+          dslogon_edipi: nil,
+          first_name: 'ZACK',
+          last_name: 'DAYTMHV',
+          middle_name: nil,
+          gender: 'M',
+          ssn: '666872589',
+          zip: nil,
+          mhv_icn: '1013062086V794840',
+          mhv_correlation_id: '15093546',
+          mhv_account_type: 'Premium',
+          uuid: '53f065475a794e14a32d707bfd9b215f',
+          email: 'mhvzack@mhv.va.gov',
+          idme_uuid: '53f065475a794e14a32d707bfd9b215f',
+          loa: { current: 3, highest: 3 },
+          sign_in: { service_name: 'myhealthevet', account_type: 'Premium' },
+          sec_id: '1013062086',
+          multifactor: multifactor,
+          authenticated_by_ssoe: true
+        )
+      end
+    end
+
+    context 'IDME LOA3 inbound user' do
+      let(:authn_context) { LOA::IDME_LOA3 }
+      let(:highest_attained_loa) { '3' }
+      let(:multifactor) { true }
+      let(:saml_attributes) do
+        build(:ssoe_inbound_idme_loa3,
+              va_eauth_multifactor: ['True'])
+      end
+
+      it 'has various important attributes' do
+        expect(subject.to_hash).to eq(
+          birth_date: '19690407',
+          authn_context: authn_context,
+          dslogon_edipi: '1320002060',
+          first_name: 'JERRY',
+          last_name: 'GPKTESTNINE',
+          middle_name: nil,
+          gender: 'M',
+          ssn: '666271152',
+          zip: nil,
+          mhv_icn: '1012827134V054550',
+          mhv_correlation_id: '10894456',
+          mhv_account_type: nil,
+          uuid: '54e78de6140d473f87960f211be49c08',
+          email: 'vets.gov.user+262@gmail.com',
+          idme_uuid: '54e78de6140d473f87960f211be49c08',
+          loa: { current: 3, highest: 3 },
+          sign_in: { service_name: 'idme', account_type: 'N/A' },
+          sec_id: '1012827134',
+          multifactor: multifactor,
+          authenticated_by_ssoe: true
+        )
+      end
+    end
   end
 end

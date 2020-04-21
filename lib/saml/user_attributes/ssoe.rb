@@ -54,7 +54,9 @@ module SAML
       end
 
       def email
-        safe_attr('va_eauth_emailaddress')
+        val = safe_attr('va_eauth_emailaddress')
+        val ||= safe_attr('va_eauth_commonname')
+        (val =~ URI::MailTo::EMAIL_REGEXP).nil? ? nil : val
       end
 
       ### Identifiers
@@ -73,7 +75,7 @@ module SAML
       end
 
       def idme_uuid
-        return safe_attr('va_eauth_uid') if safe_attr('va_eauth_csid') == 'idme'
+        return safe_attr('va_eauth_uid') if csid == 'idme'
 
         # the gcIds are a pipe-delimited concatenation of the MVI correlation IDs
         # (minus the weird "base/extension" cruft)
@@ -97,7 +99,15 @@ module SAML
       end
 
       def mhv_account_type
-        safe_attr('va_eauth_mhvassurance')
+        val = safe_attr('va_eauth_mhvassurance')
+        val ||= safe_attr('va_eauth_credentialassurancelevel') if csid == 'mhv'
+        # FIXME: for inbound SSOe what number indicates Advanced/Basic?
+        (val == '2') ? 'Premium' : val
+      end
+
+      def dslogon_account_type
+        val = safe_attr('va_eauth_dslogonassurance')
+        val ||= safe_attr('va_eauth_credentialassurancelevel') if csid == 'dslogon'
       end
 
       def dslogon_edipi
@@ -117,12 +127,12 @@ module SAML
       end
 
       def mhv_loa_highest
-        mhv_assurance = safe_attr('va_eauth_mhvassurance')
+        mhv_assurance = mhv_account_type
         SAML::UserAttributes::MHV::PREMIUM_LOAS.include?(mhv_assurance) ? 3 : nil
       end
 
       def dslogon_loa_highest
-        dslogon_assurance = safe_attr('va_eauth_dslogonassurance')
+        dslogon_assurance = dslogon_account_type
         SAML:: UserAttributes::DSLogon::PREMIUM_LOAS.include?(dslogon_assurance) ? 3 : nil
       end
 
@@ -140,7 +150,7 @@ module SAML
 
       def account_type
         result = mhv_account_type
-        result ||= safe_attr('va_eauth_dslogonassurance')
+        result ||= dslogon_account_type
         result ||= 'N/A'
         result
       end
@@ -151,7 +161,7 @@ module SAML
 
       def sign_in
         sign_in = if @authn_context == INBOUND_AUTHN_CONTEXT
-                    { service_name: safe_attr('va_eauth_csid').downcase }
+                    { service_name: (csid == 'mhv') ? 'myhealthevet' : csid }
                   else
                     SAML::User::AUTHN_CONTEXTS.fetch(@authn_context).fetch(:sign_in)
                   end
@@ -177,6 +187,10 @@ module SAML
         uuid = safe_attr('va_eauth_mhvuuid')
         ien = safe_attr('va_eauth_mhvien')
         uuid.present? && ien.present? && uuid != ien
+      end
+
+      def csid
+        safe_attr('va_eauth_csid').downcase
       end
     end
   end
