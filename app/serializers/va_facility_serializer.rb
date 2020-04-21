@@ -7,13 +7,12 @@ class VAFacilitySerializer < ActiveModel::Serializer
     "#{object.facility_type_prefix}_#{object.unique_id}"
   end
 
-
-  def operating_notes
-    nil
-  end
-
   def operating_status
-    nil
+    if Flipper.enabled?(:facility_locator_pull_operating_status_from_lighthouse)
+      Lighthouse::Facilities::Client.new.get_by_id(id)&.operating_status
+    else
+      nil
+    end
   end
 
   attributes  :access,

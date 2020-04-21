@@ -2,8 +2,19 @@
 
 require 'rails_helper'
 
-RSpec.describe 'VA GIS Integration', type: :request, team: :facilities do
+vcr_options = {
+  cassette_name: '/lighthouse/facilities',
+  match_requests_on: %i[path query],
+  allow_playback_repeats: true,
+  record: :none
+}
+
+RSpec.describe 'VA GIS Integration', type: :request, team: :facilities, vcr: vcr_options do
   include SchemaMatchers
+
+  before do
+    Flipper.enable(:facility_locator_pull_operating_status_from_lighthouse, true)
+  end
 
   BASE_QUERY_PATH = '/v0/facilities/va?'
   PDX_BBOX = 'bbox[]=-122.786758&bbox[]=45.451913&bbox[]=-122.440689&bbox[]=45.64'
