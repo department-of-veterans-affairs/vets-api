@@ -8,6 +8,7 @@ module CentralMail
     SUBMIT_DOC_PART_NAME = 'document'
     REQUIRED_KEYS = %w[veteranFirstName veteranLastName fileNumber zipCode].freeze
     FILE_NUMBER_REGEX = /^\d{8,9}$/.freeze
+    MAX_PART_SIZE = 100_000_000 # 100MB
     INVALID_ZIP_CODE_ERROR_REGEX = /Invalid zipCode/.freeze
     MISSING_ZIP_CODE_ERROR_REGEX = /Missing zipCode/.freeze
     NON_FAILING_ERROR_REGEX = /Document already uploaded with uuid/.freeze
@@ -16,12 +17,18 @@ module CentralMail
     MISSING_ZIP_CODE_ERROR_MSG = 'Missing ZIP Code. ZIP Code must be 5 digits, ' \
       'or 9 digits in XXXXX-XXXX format. Specify \'00000\' for non-US addresses.'
 
-    def log_submission(title, metadata)
-      Rails.logger.info(title,
+    def log_submission(uploaded_object, metadata)
+      page_total = metadata.select { |k, _| k.to_s.start_with?('numberPages') }.reduce(0) { |sum, (_, v)| sum + v }
+      pdf_total = metadata.select { |k, _| k.to_s.start_with?('numberPages') }.count
+      title = uploaded_object.class.to_s.split("::").first
+      Rails.logger.info("#{title}: Submission success",
                         'uuid' => metadata['uuid'],
                         'source' => metadata['source'],
                         'docType' => metadata['docType'],
-                        'pageCount' => metadata['numberPages'])
+                        'consumer_id' => uploaded_object.consumer_id,
+                        'consumer_username' => uploaded_object.consumer_name,
+                        'pageCount' => page_total,
+                        'pdfCount' => pdf_total)
     end
 
     def retry_errors(e, uploaded_object)
@@ -35,16 +42,19 @@ module CentralMail
 
     def log_error(e, uploaded_object)
       Rails.logger.info("#{uploaded_object.class.to_s.gsub('::', ' ')}: Submission failure",
-                        'source' => uploaded_object.auth_headers['consumer_name'],
+                        'source' => uploaded_object.consumer_name,
+                        'consumer_id' => uploaded_object.consumer_id,
+                        'consumer_username' => uploaded_object.consumer_name,
                         'uuid' => uploaded_object.id,
                         'code' => e.code,
                         'detail' => e.detail)
     end
 
-    def to_faraday_upload(file_path)
+    def to_faraday_upload(file_path, filename)
       Faraday::UploadIO.new(
         file_path,
-        Mime[:pdf].to_s
+        Mime[:pdf].to_s,
+        filename
       )
     end
 

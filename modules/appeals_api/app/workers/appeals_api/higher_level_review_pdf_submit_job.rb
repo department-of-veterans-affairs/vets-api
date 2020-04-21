@@ -31,11 +31,11 @@ module AppealsApi
       }
       body = {
         'metadata' => metadata,
-        'document' => to_faraday_upload(pdf_path)
+        'document' => to_faraday_upload(pdf_path, '200996-document.pdf')
       }
       response = CentralMail::Service.new.upload(body)
       process_response(response, higher_level_review)
-      log_submission('AppealsApi: Submission success', metadata)
+      log_submission(higher_level_review, metadata)
     rescue AppealsApi::UploadError => e
       retry_errors(e, higher_level_review)
     end
