@@ -34,11 +34,15 @@ module VBADocuments
       @consumers.map do |name|
         counts = VBADocuments::UploadSubmission.where(created_at: @from..@to, consumer_name: name).group(:status).count
         totals = counts.sum { |_k, v| v }
-        {
-          name => counts.merge(totals: totals,
-                               error_rate: "#{(100.0 / totals * counts['error']).round}%",
-                               expired_rate: "#{(100.0 / totals * counts['expired']).round}%")
-        }
+        error_rate = counts['error'] ? (100.0 / totals * counts['error']).round : 0
+        expired_rate = counts['expired'] ? (100.0 / totals * counts['expired']).round : 0
+        if totals.positive?
+          {
+            name => counts.merge(totals: totals,
+                                 error_rate: "#{error_rate}%",
+                                 expired_rate: "#{expired_rate}%")
+          }
+        end
       end
     end
   end
