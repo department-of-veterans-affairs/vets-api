@@ -20,6 +20,10 @@ module AppealsApi
       output_path
     end
 
+    # rubocop:disable Metrics/MethodLength
+    # rubocop:disable Metrics/AbcSize
+    # rubocop:disable Metrics/CyclomaticComplexity
+    # rubocop:disable Metrics/PerceivedComplexity
     def pdf_options
       options = {
         "F[0].#subform[2].VeteransFirstName[0]": hlr.first_name,
@@ -78,6 +82,10 @@ module AppealsApi
       end
       options
     end
+    # rubocop:enable Metrics/MethodLength
+    # rubocop:enable Metrics/AbcSize
+    # rubocop:enable Metrics/CyclomaticComplexity
+    # rubocop:enable Metrics/PerceivedComplexity
 
     private
 
