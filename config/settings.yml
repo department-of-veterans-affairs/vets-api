@@ -359,6 +359,11 @@ redis:
   host: localhost
   port: 6379
 
+# temporary for migration
+redis_secondary:
+  host: localhost
+  port: 6378
+
 # Settings for GovDelivery (email delivery)
 govdelivery:
   staging_service: true

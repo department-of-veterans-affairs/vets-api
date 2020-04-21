@@ -17,6 +17,27 @@ describe Common::RedisStore do
     end
   end
 
+  context 'when a secondary redis host is defined' do
+    with_settings(Settings.redis_secondary, host: 'localhost') do
+      with_settings(Settings.redis_secondary, port: '6380') do
+        it 'has a configured redis namespace instance' do
+          expect(klass.other_redis).to be_kind_of(Redis::Namespace)
+          expect(klass.other_redis.namespace).to eq('my_namespace')
+        end
+
+        describe '#save' do
+          it 'saves serialized class to the secondary redis' do
+            expect(VetsApiRedis.other_redis).to receive(:set).once.with(
+              'my_namespace:e66fd7b7-94e0-4748-8063-283f55efb0ea',
+              '{":uuid":"e66fd7b7-94e0-4748-8063-283f55efb0ea",":email":"foo@bar.com"}'
+            )
+            subject.save
+          end
+        end
+      end
+    end
+  end
+
   describe 'configuration' do
     it 'has a configured redis namespace instance' do
       expect(klass.redis_namespace).to be_kind_of(Redis::Namespace)
@@ -62,7 +83,7 @@ describe Common::RedisStore do
 
   describe '#save' do
     it 'saves serialized class to redis with the correct namespace' do
-      expect_any_instance_of(Redis).to receive(:set).once.with(
+      expect(VetsApiRedis.current).to receive(:set).once.with(
         'my_namespace:e66fd7b7-94e0-4748-8063-283f55efb0ea',
         '{":uuid":"e66fd7b7-94e0-4748-8063-283f55efb0ea",":email":"foo@bar.com"}'
       )
@@ -92,7 +113,7 @@ describe Common::RedisStore do
 
   describe '#destroy' do
     it 'removes itself from redis with the correct namespace' do
-      expect_any_instance_of(Redis).to receive(:del).once.with(
+      expect(VetsApiRedis.current).to receive(:del).once.with(
         'my_namespace:e66fd7b7-94e0-4748-8063-283f55efb0ea'
       )
       subject.destroy

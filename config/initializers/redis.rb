@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 class VetsApiRedis < Redis
   class << self
     attr_accessor :other_redis
