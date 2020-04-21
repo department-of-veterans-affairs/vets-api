@@ -52,6 +52,8 @@ describe AppealsApi::HigherLevelReviewPdfConstructor do
       'F[0].#subform[2].TIME1230TO2PM[0]': 1,
       'F[0].#subform[2].TIME2TO430PM[0]': 1,
       'F[0].#subform[2].REPRESENTATIVENAMEANDTELEPHONENUMBER[0]': 'Helen Holly +6-555-800-1111 ext2',
+      'F[0].#subform[3].SIGNATUREOFVETERANORCLAIMANT[0]': 'Jane Z. Doe',
+      'F[0].#subform[3].DateSigned[0]': Time.zone.now.strftime('%m/%d/%Y'),
       'F[0].#subform[3].SPECIFICISSUE1[1]': 'tinnitus',
       'F[0].#subform[3].DateofDecision[5]': '1900-01-01',
       'F[0].#subform[3].SPECIFICISSUE1[0]': 'left knee',

@@ -44,6 +44,14 @@ module AppealsApi
       header_field_as_string 'X-VA-Last-Name'
     end
 
+    def full_name
+      [
+        first_name,
+        middle_initial.blank? ? nil : "#{middle_initial}.",
+        last_name
+      ].map(&:presence).compact.join(' ')
+    end
+
     # 2. VETERAN'S SOCIAL SECURITY NUMBER
     def ssn
       header_field_as_string 'X-VA-SSN'

@@ -20,10 +20,6 @@ module AppealsApi
       output_path
     end
 
-    # rubocop:disable Metrics/MethodLength
-    # rubocop:disable Metrics/AbcSize
-    # rubocop:disable Metrics/CyclomaticComplexity
-    # rubocop:disable Metrics/PerceivedComplexity
     def pdf_options
       options = {
         "F[0].#subform[2].VeteransFirstName[0]": hlr.first_name,
@@ -62,7 +58,9 @@ module AppealsApi
         "F[0].#subform[2].TIME10TO1230PM[0]": hlr.informal_conference_times.include?('1000-1230 ET') ? 1 : 'Off',
         "F[0].#subform[2].TIME1230TO2PM[0]": hlr.informal_conference_times.include?('1230-1400 ET') ? 1 : 'Off',
         "F[0].#subform[2].TIME2TO430PM[0]": hlr.informal_conference_times.include?('1400-1630 ET') ? 1 : 'Off',
-        "F[0].#subform[2].REPRESENTATIVENAMEANDTELEPHONENUMBER[0]": hlr.informal_conference_rep_name_and_phone_number
+        "F[0].#subform[2].REPRESENTATIVENAMEANDTELEPHONENUMBER[0]": hlr.informal_conference_rep_name_and_phone_number,
+        "F[0].#subform[3].SIGNATUREOFVETERANORCLAIMANT[0]": hlr.full_name,
+        "F[0].#subform[3].DateSigned[0]": Time.zone.now.strftime('%m/%d/%Y')
       }
       hlr.contestable_issues.each_with_index do |issue, index|
         next if index >= 6
@@ -80,10 +78,6 @@ module AppealsApi
       end
       options
     end
-    # rubocop:enable Metrics/MethodLength
-    # rubocop:enable Metrics/AbcSize
-    # rubocop:enable Metrics/CyclomaticComplexity
-    # rubocop:enable Metrics/PerceivedComplexity
 
     private
 
