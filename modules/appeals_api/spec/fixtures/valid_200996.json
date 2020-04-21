@@ -7,27 +7,22 @@
       "benefitType": "nca",
       "veteran": {
         "address": {
-          "addressType": "DOMESTIC",
           "addressLine1": "401 Kansas Avenue",
-          "addressLine2": "Unit #724",
-          "addressLine3": "c/o Amelia Earhart",
-          "city": "Atchison",
+          "addressLine2": "Apt 7",
+          "cityName": "Atchison",
           "stateCode": "KS",
-          "zipCode": "66002",
-          "countryName": "United States",
-          "addressPou": "RESIDENCE/CHOICE"
+          "countryCodeISO2": "NL",
+          "zipCode5": "66002",
+          "zipCode4": "2410"
         },
         "phone": {
-          "isInternational": false,
-          "countryCode": "1",
+          "countryCode": "34",
           "areaCode": "555",
           "phoneNumber": "8001111",
-          "extension": "2",
-          "phoneType": "HOME"
+          "phoneNumberExt": "2"
         },
-        "emailAddress": "josie@example.com"
+        "emailAddressText": "josie@example.com"
       },
-      "receiptDate": "2020-02-02",
       "informalConferenceTimes": [
         "1230-1400 ET",
         "1400-1630 ET"
@@ -35,12 +30,10 @@
       "informalConferenceRep": {
         "name": "Helen Holly",
         "phone": {
-          "isInternational": false,
-          "countryCode": "1",
+          "countryCode": "6",
           "areaCode": "555",
           "phoneNumber": "8001111",
-          "extension": "2",
-          "phoneType": "HOME"
+          "phoneNumberExt": "2"
         }
       }
     }
@@ -97,21 +90,6 @@
         "issue": "right shoulder",
         "decisionDate": "1900-01-06",
         "ratingIssueId": "11"
-      }
-    },
-    {
-      "type": "ContestableIssue",
-      "attributes": {
-        "issue": "left shoulder",
-        "decisionDate": "1900-01-07",
-        "ratingDecisionIssueId": "12"
-      }
-    },
-    {
-      "type": "ContestableIssue",
-      "attributes": {
-        "issue": "left shoulder",
-        "decisionDate": "1920-12-01"
       }
     }
   ]

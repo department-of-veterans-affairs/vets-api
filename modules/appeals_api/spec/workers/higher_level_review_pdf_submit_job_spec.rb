@@ -1,13 +1,14 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require 'sidekiq/testing'
+
+Sidekiq::Testing.fake!
 
 RSpec.describe AppealsApi::HigherLevelReviewPdfSubmitJob, type: :job do
   subject { described_class }
 
-  before do
-    Sidekiq::Worker.clear_all
-  end
+  before { Sidekiq::Worker.clear_all }
 
   let(:auth_headers) do
     File.read(
