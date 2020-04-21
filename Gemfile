@@ -106,7 +106,7 @@ gem 'swagger-blocks'
 gem 'typhoeus'
 gem 'upsert'
 gem 'utf8-cleaner'
-gem 'vets_json_schema', git: 'https://github.com/department-of-veterans-affairs/vets-json-schema', branch: 'master'
+gem 'vets_json_schema', git: 'https://github.com/department-of-veterans-affairs/vets-json-schema', ref: '4046437da2ee333c490ff7860b053062faccd65a'
 gem 'virtus'
 gem 'will_paginate'
 gem 'zero_downtime_migrations'
@@ -174,9 +174,11 @@ end
 group :production do
   # sidekiq enterprise requires a license key to download but is only required in production.
   # for local dev environments, regular sidekiq works fine
-  unless (Bundler::Settings.new['enterprise.contribsys.com'].nil? ||
-          Bundler::Settings.new['enterprise.contribsys.com']&.empty?) &&
-         ENV.fetch('BUNDLE_ENTERPRISE__CONTRIBSYS__COM', '').empty?
+  if (Bundler::Settings.new(Bundler.app_config_path)['enterprise.contribsys.com'].nil? ||
+      Bundler::Settings.new(Bundler.app_config_path)['enterprise.contribsys.com']&.empty?) &&
+     ENV.fetch('BUNDLE_ENTERPRISE__CONTRIBSYS__COM', '').empty?
+    Bundler.ui.warn 'No credentials found to install Sidekiq Enterprise. This is fine for local development but you may not check in this Gemfile.lock with any Sidekiq gems removed. The README file in this directory contains more information.'
+  else
     source 'https://enterprise.contribsys.com/' do
       gem 'sidekiq-ent'
       gem 'sidekiq-pro'

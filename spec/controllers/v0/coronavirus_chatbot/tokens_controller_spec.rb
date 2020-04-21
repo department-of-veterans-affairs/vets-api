@@ -18,8 +18,10 @@ RSpec.describe V0::CoronavirusChatbot::TokensController, type: :controller do
         'v3BMCk6fJqHW53h7X0rIyRXlDS6CymY6qypQwkh1RQGgVR62C7X_RdVp1JQdSynYuecxc9un3adY-lEwku-AbLhWv-fxRT9Onxb-nQf-6RtL' \
         'OAaWNfhzBR3lmCABHiTyuILsg-qP-b3kagfWQuNd10Sw3eK3NuXzDjFns6Bpv9mZz6-pshYgwXkJJlTNb8Qzw'
       end
+      let(:directline_uri) { Settings.coronavirus_chatbot.directline_uri }
 
       before do
+        expect(directline_uri).not_to be_nil
         allow(SecureRandom).to receive(:hex).and_return(user_id)
       end
 
@@ -33,12 +35,12 @@ RSpec.describe V0::CoronavirusChatbot::TokensController, type: :controller do
 
         expect(token_data['userId']).to eq user_id
         expect(token_data['locale']).to eq locale
-        expect(token_data['directLineURI']).to eq Settings.coronavirus_chatbot.directLine_uri
+        expect(token_data['directLineURI']).to eq directline_uri
         expect(token_data['connectorToken']).to eq recorded_token
       end
     end
 
-    context 'when external service is healthy' do
+    context 'when external service is not healthy' do
       it 'returns service not available status' do
         VCR.use_cassette('coronavirus_chatbot/chat_bot/unhealthy') do
           post :create, params: { locale: locale }

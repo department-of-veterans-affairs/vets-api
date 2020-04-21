@@ -588,6 +588,41 @@ describe MVI::Service do
       end
     end
   end
+
+  describe '.add_person monitoring' do
+    context 'with a successful request' do
+      let(:user) { build(:user_with_no_ids) }
+
+      it 'increments add_person total' do
+        allow(StatsD).to receive(:increment)
+        VCR.use_cassette('mvi/add_person/add_person_success') do
+          subject.add_person(user)
+        end
+        expect(StatsD).to have_received(:increment).with('api.mvi.add_person.total')
+      end
+    end
+
+    context 'with an unsuccessful request' do
+      it 'increments add_person fail and total', :aggregate_failures do
+        allow_any_instance_of(Faraday::Connection).to receive(:post).and_raise(Faraday::TimeoutError)
+        expect(StatsD).to receive(:increment).once.with(
+          'api.mvi.add_person.fail', tags: ['error:Common::Exceptions::GatewayTimeout']
+        )
+        expect(StatsD).to receive(:increment).once.with('api.mvi.add_person.total')
+        response = subject.add_person(user)
+
+        exception = response.error.errors.first
+
+        expect(response.class).to eq MVI::Responses::AddPersonResponse
+        expect(response.status).to eq server_error
+        expect(response.mvi_codes).to be_nil
+        expect(exception.title).to eq 'Gateway timeout'
+        expect(exception.code).to eq 'MVI_504'
+        expect(exception.status).to eq '504'
+        expect(exception.source).to eq MVI::Service
+      end
+    end
+  end
 end
 
 def server_error_502_expectations_for(response)
