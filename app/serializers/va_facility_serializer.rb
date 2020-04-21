@@ -10,8 +10,6 @@ class VAFacilitySerializer < ActiveModel::Serializer
   def operating_status
     if Flipper.enabled?(:facility_locator_pull_operating_status_from_lighthouse)
       Lighthouse::Facilities::Client.new.get_by_id(id)&.operating_status
-    else
-      nil
     end
   end
 
