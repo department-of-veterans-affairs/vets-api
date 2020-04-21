@@ -1659,6 +1659,23 @@ en:
         code: VET360_PERM101
         detail: Permission ID must be null
         status: 400
+      LIGHTHOUSE_FACILITIES400:
+        <<: *external_defaults
+        title: Bad Request
+        detail: Bad Request
+        code: LIGHTHOUSE_FACILITIES400
+        status: 400
+      LIGHTHOUSE_FACILITIES401:
+        <<: *external_defaults
+        title: Invalid authentication credentials
+        detail: Invalid authentication credentials
+        code: LIGHTHOUSE_FACILITIES401
+        status: 401
+      LIGHTHOUSE_FACILITIES404:
+        title: Record not found
+        detail: Record not found
+        code: LIGHTHOUSE_FACILITIES404
+        status: 404
 
   decision_review:
     exceptions:

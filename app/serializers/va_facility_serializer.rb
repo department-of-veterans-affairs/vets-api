@@ -7,6 +7,18 @@ class VAFacilitySerializer < ActiveModel::Serializer
     "#{object.facility_type_prefix}_#{object.unique_id}"
   end
 
-  attributes :unique_id, :name, :facility_type, :classification, :website, :lat, :long,
-             :address, :phone, :hours, :services, :feedback, :access
+  attributes  :access,
+              :address,
+              :classification,
+              :facility_type,
+              :feedback,
+              :hours,
+              :lat,
+              :long,
+              :name,
+              :phone,
+              :services,
+              :unique_id,
+              :website,
+              :visn
 end
