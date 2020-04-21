@@ -15,6 +15,10 @@ module AppealsApi
       )
     end
 
+    def consumer_name
+      auth_headers['X-VA-Consumer-Username']
+    end
+
     def central_mail_status
       CentralMail::Service.new.status(id)
     end

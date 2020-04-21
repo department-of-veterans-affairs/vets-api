@@ -55,6 +55,16 @@ module AppealsApi
       output_path
     end
 
+    def stamp_pdf(pdf_path)
+      stamped_path1 = CentralMail::DatestampPdf.new(pdf_path).run(text: 'API.VA.GOV', x: 5, y: 5)
+      CentralMail::DatestampPdf.new(stamped_path1).run(
+        text: "Submitted by #{@higher_level_review.consumer_name} via api.va.gov",
+        x: 429,
+        y: 770,
+        text_only: true
+      )
+    end
+
     # rubocop:disable Metrics/MethodLength
     # rubocop:disable Metrics/AbcSize
     # rubocop:disable Metrics/CyclomaticComplexity
@@ -96,7 +106,9 @@ module AppealsApi
         "F[0].#subform[2].TIME10TO1230PM[0]": @veteran.conference_times.include?('1000-1230 ET') ? 1 : 'Off',
         "F[0].#subform[2].TIME1230TO2PM[0]": @veteran.conference_times.include?('1230-1400 ET') ? 1 : 'Off',
         "F[0].#subform[2].TIME2TO430PM[0]": @veteran.conference_times.include?('1400-1630 ET') ? 1 : 'Off',
-        "F[0].#subform[2].REPRESENTATIVENAMEANDTELEPHONENUMBER[0]": @veteran.rep_contact_info
+        "F[0].#subform[2].REPRESENTATIVENAMEANDTELEPHONENUMBER[0]": @veteran.rep_contact_info,
+        "F[0].#subform[3].SIGNATUREOFVETERANORCLAIMANT[0]": "#{@veteran.first_name} #{@veteran.last_name}",
+        "F[0].#subform[3].DateSigned[0]": Time.zone.now.strftime("%m/%d/%Y")
       }
       @veteran.issues.each_with_index do |issue, index|
         next if index >= 6

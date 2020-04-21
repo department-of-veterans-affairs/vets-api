@@ -25,9 +25,11 @@ describe AppealsApi::HigherLevelReviewPdfConstructor do
   end
 
   it 'builds the pdf options' do
-    higher_level_review
-    constructor = AppealsApi::HigherLevelReviewPdfConstructor.new(higher_level_review.id)
-    expect(constructor.pdf_options).to eq(valid_pdf_options)
+    Timecop.freeze(Date.new(2020, 04, 20)) do
+      higher_level_review
+      constructor = AppealsApi::HigherLevelReviewPdfConstructor.new(higher_level_review.id)
+      expect(constructor.pdf_options).to eq(valid_pdf_options)
+    end
   end
 
   private
@@ -53,6 +55,8 @@ describe AppealsApi::HigherLevelReviewPdfConstructor do
       :"F[0].#subform[2].DOByear[0]" => '1969',
       :"F[0].#subform[2].VAFileNumber[0]" => '2468',
       :"F[0].#subform[2].VeteransServiceNumber[0]" => '1357',
+      :"F[0].#subform[3].DateSigned[0]" => "04/20/2020",
+      :"F[0].#subform[3].SIGNATUREOFVETERANORCLAIMANT[0]" => "Heather Header",
       :"F[0].#subform[2].InsurancePolicyNumber[0]" => '9876543210',
       :"F[0].#subform[2].CurrentMailingAddress_NumberAndStreet[0]" => '401 Kansas Avenue',
       :"F[0].#subform[2].CurrentMailingAddress_ApartmentOrUnitNumber[0]" => 'Unit #724',
