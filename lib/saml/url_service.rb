@@ -109,7 +109,7 @@ module SAML
         when 'dslogon', 'dslogon_multifactor'
           'dslogon_loa3'
         when SAML::UserAttributes::SSOe::INBOUND_AUTHN_CONTEXT
-          "#{@current_user.identity.sign_in[:service_name]}_loa3"
+          "#{@user.identity.sign_in[:service_name]}_loa3"
         end
 
       build_sso_url(link_authn_context)
@@ -126,7 +126,7 @@ module SAML
         when 'dslogon', 'dslogon_loa3'
           'dslogon_multifactor'
         when SAML::UserAttributes::SSOe::INBOUND_AUTHN_CONTEXT
-          "#{@current_user.identity.sign_in[:service_name]}_multifactor"
+          "#{@user.identity.sign_in[:service_name]}_multifactor"
         end
       build_sso_url(link_authn_context)
     end
