@@ -77,6 +77,7 @@ module BGS
         file_nbr: payload['va_file_number'], # It's throwing an error about the file number and ssn being different. Changing data
         ssn_nbr: payload['ssn'],
         death_dt: payload['death_date'],
+        ever_maried_ind: payload['ever_maried_ind'],
         ssn: @user.ssn # Just here to make mocks work
       )
     end
@@ -134,8 +135,13 @@ module BGS
         jrn_status_type_cd: "U",
         jrn_user_id: Settings.bgs.client_username,
         family_rlnshp_type_nm: dependent.family_relationship_type_name,
-        begin_dt: dependent.begin_dt,
-        end_dt: dependent.end_dt,
+        begin_dt: dependent.begin_date,
+        end_dt: dependent.end_date,
+        marage_state_cd: 'CA', # dependent.marriage_state, this has to be 2 digit code
+        marage_city_nm: dependent.marriage_city,
+        marage_trmntn_state_cd: 'CA', # dependent.divorce_state this needs to be 2 digit code
+        marage_trmntn_city_nm: dependent.divorce_city,
+        marage_trmntn_type_cd: 'Divorce', # dependent.marriage_termination_type_cd, only can have "Death", "Divorce", or "Other"
         ssn: @user.ssn # Just here to make mocks work
       )
     end
@@ -173,7 +179,7 @@ module BGS
         claimant_ssn: veteran.ssn_number,
         benefit_claim_type: "1", # this is intentionally hard coded
         payee: "00", # intentionally left hard-coded
-        end_product: "609", # not sure what this is, it has to be unique tried this: vnp_benefit_claim[:vnp_bnft_claim_id] I just add one everytime I run this code
+        end_product: "687", # not sure what this is, it has to be unique tried this: vnp_benefit_claim[:vnp_bnft_claim_id] I just add one everytime I run this code
         end_product_code: vnp_benefit_claim.vnp_benefit_claim_type_code,
         first_name: veteran.first_name, # Might want to use the payload value
         last_name: veteran.last_name, # Might want to use the payload value

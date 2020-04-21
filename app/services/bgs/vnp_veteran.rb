@@ -7,7 +7,7 @@ module BGS
       @proc_id = proc_id
       @veteran_info = formatted_params(payload)
 
-       super(user) # is this cool? Might be smelly. Might indicate a new class/object 🤔
+      super(user) # is this cool? Might be smelly. Might indicate a new class/object 🤔
     end
 
     def create
@@ -41,7 +41,13 @@ module BGS
         email_address: address[:email_addrs_txt],
         death_date: nil, # Setting to nil to satisfy struct
         begin_date: nil, # Setting to nil to satisfy struct
-        end_date: nil # Setting to nil to satisfy struct
+        end_date: nil, # Setting to nil to satisfy struct
+        ever_married_indicator: nil, # Setting to nil to satisfy struct
+        marriage_state: nil, # Setting to nil to satisfy struct
+        marriage_city: nil, # Setting to nil to satisfy struct
+        divorce_state: nil, # Setting to nil to satisfy struct
+        divorce_city: nil, # Setting to nil to satisfy struct
+        marriage_termination_type_cd: nil # Setting to nil to satisfy struct
       )
     end
 

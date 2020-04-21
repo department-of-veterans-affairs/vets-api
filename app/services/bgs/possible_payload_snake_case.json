@@ -1,0 +1,332 @@
+{
+  "veteran_address": {
+    "view:livesOnMilitaryBase": false,
+    "view:livesOnMilitaryBaseInfo": {},
+    "country_name": "United States",
+    "address_line1": "1019 Robin Cir",
+    "address_line2": "NA",
+    "address_line3": "NA",
+    "city": "Arroyo Grande",
+    "state_code": "CA",
+    "zip_code": "93420"
+  },
+  "veteran_information": {
+    "first": "Adam",
+    "middle": "billy",
+    "last": "Huberws",
+    "suffix": "Jr.",
+    "ssn": "370947141",
+    "va_file_number": "370947141",
+    "service_number": "12345678",
+    "birth_date": "1982-02-04"
+  },
+  "more_veteran_information": {
+    "phone_number": "2146866521",
+    "email_address": "cohnjesse@gmail.xom"
+  },
+  "child_marriage": {
+    "married_child_name": {
+      "first": "James",
+      "middle": "Quandry",
+      "last": "Beanstalk",
+      "suffix": "Sr."
+    },
+    "date_child_married": "1977-02-02"
+  },
+  "report_divorce": {
+    "former_spouse_name": {
+      "first": "Ron",
+      "middle": "Walter",
+      "last": "Swanson"
+    },
+    "date_of_divorce": "2001-02-03",
+    "location_of_divorce": {
+      "state": "Michigan (MI)",
+      "city": "Clawson"
+    },
+    "is_marriage_annulled_or_void": true,
+    "explanation_of_annullment_or_void": "Some stuff about the marriage being declared void."
+  },
+  "deaths": [
+    {
+      "deceased_date_of_death": "2011-02-03",
+      "deceased_location_of_death": {
+        "state": "California",
+        "city": "Aomplea"
+      },
+      "full_name": {
+        "first": "John",
+        "middle": "Henry",
+        "last": "Doe",
+        "suffix": "Sr."
+      },
+      "dependent_type": "CHILD",
+      "child_status": {
+        "child_under18": true
+      }
+    },
+    {
+      "deceased_date_of_death": "2012-03-03",
+      "deceased_location_of_death": {
+        "state": "California",
+        "city": "Clawson"
+      },
+      "full_name": {
+        "first": "Sally",
+        "middle": "Bertram",
+        "last": "Struthers",
+        "suffix": "Jr."
+      },
+      "dependent_type": "SPOUSE"
+    },
+    {
+      "deceased_date_of_death": "2009-03-04",
+      "deceased_location_of_death": {
+        "state": "Michigan",
+        "city": "Ann Arbor"
+      },
+      "full_name": {
+        "first": "Rob",
+        "middle": "Bertram",
+        "last": "Stark",
+        "suffix": "II"
+      },
+      "dependent_type": "DEPENDENT_PARENT"
+    }
+  ],
+  "veteran_was_married_before": true,
+  "veteran_marriage_history": [
+    {
+      "marriage_start_date": "2007-04-03",
+      "marriage_start_location": {
+        "state": "Arkansas",
+        "city": "Rock Island"
+      },
+      "reason_marriage_ended": "OTHER",
+      "reason_marriage_ended_other": "Some other reason",
+      "marriage_end_date": "2009-05-05",
+      "marriage_end_location": {
+        "state": "Illinois",
+        "city": "Rock Island"
+      },
+      "former_spouse_name": {
+        "first": "Sansa",
+        "middle": "Bigfoot",
+        "last": "Stark",
+        "suffix": "III"
+      }
+    }
+  ],
+  "spouse_was_married_before": true,
+  "spouse_marriage_history": [
+    {
+      "marriage_start_date": "2008-03-03",
+      "marriage_start_location": {
+        "state": "Illinois",
+        "city": "Rock Island"
+      },
+      "reason_marriage_ended": "OTHER",
+      "reason_marriage_ended_other": "Some other reason",
+      "marriage_end_date": "2010-03-04",
+      "marriage_end_location": {
+        "state": "Illinois",
+        "city": "Rock Island"
+      },
+      "former_spouse_name": {
+        "first": "Clovis",
+        "middle": "Nigel",
+        "last": "The Cat",
+        "suffix": "Sr."
+      }
+    }
+  ],
+  "spouse_does_live_with_veteran": false,
+  "current_spouse_reason_for_separation": "Somthing happened",
+  "current_spouse_address": {
+    "country_name": "United States",
+    "address_line1": "2037 29th St",
+    "city": "Rock Island",
+    "state_code": "IL",
+    "zip_code": "61201"
+  },
+  "current_marriage_details": {
+    "date_of_marriage": "2014-03-04",
+    "location_of_marriage": {
+      "state": "California",
+      "city": "Slawson"
+    },
+    "marriage_type": "OTHER",
+    "marriage_type_other": "Some Other type",
+    "view:marriageTypeInformation": {}
+  },
+  "spouse_information": {
+    "spouse_full_name": {
+      "first": "Jenny",
+      "middle": "Lauren",
+      "last": "McCarthy",
+      "suffix": "Sr."
+    },
+    "spouse_ssn": "323454323",
+    "spouse_dob": "1981-04-04",
+    "is_spouse_veteran": true,
+    "spouse_va_file_number": "00000000",
+    "spouse_service_number": "11111111"
+  },
+  "step_children": [
+    {
+      "still_supporting_stepchild": true,
+      "stepchild_living_expenses_paid": "More than half",
+      "who_does_the_stepchild_live_with": {
+        "first": "Adam",
+        "middle": "Steven",
+        "last": "Huberws"
+      },
+      "stepchild_address": {
+        "country_name": "United States",
+        "address_line1": "412 Crooks Road",
+        "address_line2": "another thing",
+        "address_line3": "some other thing",
+        "city": "Clawson",
+        "state_code": "AL",
+        "zip_code": "48017"
+      },
+      "first": "Billy",
+      "middle": "Bob",
+      "last": "Thorton",
+      "suffix": "II"
+    }
+  ],
+  "child_no_longer_at_school_name": {
+    "first": "Billy",
+    "middle": "Yohan",
+    "last": "Johnson",
+    "suffix": "Sr."
+  },
+  "date_child_left_school": "2019-03-03",
+  "children_to_add": [
+    {
+      "does_child_live_with_you": false,
+      "child_address_info": {
+        "person_child_lives_with": {
+          "first": "Bill",
+          "middle": "Oliver",
+          "last": "Bradsky"
+        },
+        "child_address": {
+          "country_name": "United States",
+          "address_line1": "1019 Robin Cir",
+          "address_line2": "NA",
+          "address_line3": "NA",
+          "city": "Arroyo Grande",
+          "state_code": "CA",
+          "zip_code": "93420"
+        }
+      },
+      "child_place_of_birth": {
+        "state": "California",
+        "city": "Slawson"
+      },
+      "child_status": {
+        "biological": true
+      },
+      "view:childStatusInformation": {},
+      "child_previously_married": "Yes",
+      "child_previous_marriage_details": {
+        "date_marriage_ended": "2018-03-04",
+        "reason_marriage_ended": "Other",
+        "other_reason_marriage_ended": "Some other reason"
+      },
+      "first": "John",
+      "middle": "oliver",
+      "last": "Hamm",
+      "suffix": "Sr.",
+      "ssn": "370947142",
+      "birth_date": "2009-03-03"
+    }
+  ],
+  "student_does_have_networth": true,
+  "networth_information": {
+    "savings": "3455",
+    "securities": "3234",
+    "real_estate": "5623",
+    "other_assets": "4566",
+    "remarks": "Some remarks about the student\"s net worth"
+  },
+  "student_does_earn_income": true,
+  "student_earnings_from_school_year": {
+    "earnings_from_all_employment": "12000",
+    "annual_social_security_payments": "3453",
+    "other_annuities_income": "30595",
+    "all_other_income": "5596"
+  },
+  "student_will_earn_income_next_year": true,
+  "student_expected_earnings_next_year": {
+    "earnings_from_all_employment": "12000",
+    "annual_social_security_payments": "3940",
+    "other_annuities_income": "3989",
+    "all_other_income": "984"
+  },
+  "student_did_attend_school_last_term": true,
+  "last_term_school_information": {
+    "school_name": "Another amazing school",
+    "school_address": {
+      "country_name": "United States",
+      "address_line1": "2037 29th St",
+      "city": "Rock Island",
+      "state_code": "AR",
+      "zip_code": "61201"
+    },
+    "date_term_began": "2016-03-04",
+    "date_term_ended": "2017-04-05",
+    "classes_per_week": 4,
+    "hours_per_week": 40
+  },
+  "term_dates": {
+    "official_school_start_date": "2019-03-03",
+    "expected_student_start_date": "2019-02-03",
+    "expected_graduation_date": "2020-06-02"
+  },
+  "program_information": {
+    "student_is_enrolled_full_time": false,
+    "course_of_study": "An amazing program",
+    "classes_per_week": 4,
+    "hours_per_week": 37
+  },
+  "school_information": {
+    "school_name": "My Great School",
+    "training_program": "Something amazing",
+    "school_address": {
+      "country_name": "United States",
+      "address_line1": "2037 29th St",
+      "address_line2": "another line",
+      "address_line3": "Yet another line",
+      "city": "Rock Island",
+      "state_code": "AR",
+      "zip_code": "61201"
+    }
+  },
+  "student_address": {
+    "view:livesOnMilitaryBaseInfo": {},
+    "country_name": "United States",
+    "address_line1": "1019 Robin Cir",
+    "address_line2": "NA",
+    "address_line3": "NA",
+    "city": "Arroyo Grande",
+    "state_code": "CA",
+    "zip_code": "93420"
+  },
+  "student_was_married": true,
+  "marriage_date": "2015-03-04",
+  "tuition_is_paid_by_gov_agency": true,
+  "agency_name": "Some Agency",
+  "date_payments_began": "2019-02-03",
+  "view:674Information": {},
+  "student_full_name": {
+    "first": "Ernie",
+    "middle": "bubkis",
+    "last": "McCracken",
+    "suffix": "II"
+  },
+  "student_ssn": "370947141",
+  "student_dob": "2001-03-03"
+}
