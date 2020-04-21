@@ -34,8 +34,6 @@ RSpec/ContextMethod:
     - 'spec/request/address_request_spec.rb'
     - 'spec/request/evss_claims_async_spec.rb'
     - 'spec/services/users/profile_spec.rb'
-    - 'spec/jobs/education_form/forms/va10203_spec.rb'
-
 
 # Offense count: 66
 # Cop supports --auto-correct.
