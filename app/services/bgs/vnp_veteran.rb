@@ -54,10 +54,13 @@ module BGS
     private
 
     def formatted_params(payload)
+      marriage_status = payload['current_marriage_details']['marriage_type_code']
       [
         *payload['veteran_information'],
         *payload['more_veteran_information'],
-        *payload['veteran_address']
+        *payload['veteran_address'],
+        ['vet_ind', 'Y'],
+        ['martl_status_type_cd', marriage_status]
       ].to_h
     end
   end

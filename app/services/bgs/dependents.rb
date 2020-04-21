@@ -72,10 +72,11 @@ module BGS
         address,
         'Spouse',
         'Spouse',
-        @payload['current_marriage_details']['date_of_marriage'],
-        nil,
-        @payload['current_marriage_details']['location_of_marriage']['state'],
-        @payload['current_marriage_details']['location_of_marriage']['city']
+        {
+          begin_date: @payload['current_marriage_details']['date_of_marriage'],
+          marriage_state: @payload['current_marriage_details']['location_of_marriage']['state'],
+          marriage_city: @payload['current_marriage_details']['location_of_marriage']['city']
+        }
       )
     end
 
@@ -90,15 +91,13 @@ module BGS
         participant,
         person,
         address,
-        nil,
-        nil,
-        nil,
-        nil,
-        nil,
-        nil,
-        divorce_info['divorce_state'],
-        divorce_info['divorce_city'],
-        divorce_info['marriage_termination_type_cd']
+        'Spouse',
+        'Spouse',
+        {
+          divorce_state: divorce_info['divorce_state'],
+          divorce_city: divorce_info['divorce_city'],
+          marriage_termination_type_cd: divorce_info['marriage_termination_type_cd']
+        }
       )
     end
 
@@ -109,13 +108,7 @@ module BGS
       address,
       participant_relationship_type,
       family_relationship_type,
-      begin_date = nil,
-      end_date = nil,
-      marriage_city = nil,
-      marriage_state = nil,
-      divorce_state = nil,
-      divorce_city = nil,
-      marriage_termination_type_cd = nil
+      optional_fields = {}
     )
 
       ::ValueObjects::VnpPersonAddressPhone.new(
@@ -133,23 +126,23 @@ module BGS
         birth_city_name: person[:birth_city_nm],
         file_number: person[:file_nbr],
         ssn_number: person[:ssn_nbr],
-        phone_number: nil, # Doesn't exist for child
         address_line_one: address[:addrs_one_txt],
         address_line_two: address[:addrs_two_txt],
         address_line_three: address[:addrs_three_txt],
         address_state_code: address[:postal_cd],
         address_city: address[:city_nm],
         address_zip_code: address[:zip_prefix_nbr],
-        email_address: nil, # Doesn't exist for dependent
         death_date: person[:death_dt],
-        begin_date: begin_date,
-        end_date: end_date,
-        ever_married_indicator: person['ever_maried_ind'],
-        marriage_state: marriage_state,
-        marriage_city: marriage_city,
-        divorce_state: divorce_state,
-        divorce_city: divorce_city,
-        marriage_termination_type_cd: marriage_termination_type_cd
+        ever_married_indicator: person[:ever_maried_ind],
+        phone_number: optional_fields[:phone_number],
+        email_address: optional_fields[:email_address],
+        begin_date: optional_fields[:begin_date],
+        end_date: optional_fields[:end_date],
+        marriage_state: optional_fields[:marriage_state],
+        marriage_city: optional_fields[:marriage_city],
+        divorce_state: optional_fields[:divorce_state],
+        divorce_city: optional_fields[:divorce_city],
+        marriage_termination_type_cd: optional_fields[:marriage_termination_type_cd]
       )
     end
 
@@ -173,6 +166,7 @@ module BGS
       death_info['middle'] = death_info['full_name']['middle']
       death_info['last'] = death_info['full_name']['last']
       death_info['death_date'] = death_info['deceased_date_of_death']
+      death_info['vet_ind'] = 'N'
     end
 
     def format_marriage_info
@@ -180,8 +174,10 @@ module BGS
       marriage_info['ssn'] = @payload['spouse_information']['spouse_ssn']
       marriage_info['brthdy_dt'] = @payload['spouse_information']['spouse_dob']
       marriage_info['ever_maried_ind'] = 'Y'
+      marriage_info['vet_ind'] = 'N'
 
       if @payload['spouse_information']['is_spouse_veteran'] == true
+        marriage_info['vet_ind'] = 'Y'
         marriage_info['va_file_number'] = @payload['spouse_information']['spouse_va_file_number']
         marriage_info['service_number'] = @payload['spouse_information']['spouse_service_number']
       end
@@ -194,6 +190,9 @@ module BGS
       report_divorce_info['divorce_state'] = @payload['report_divorce']['location_of_divorce']['state']
       report_divorce_info['divorce_city'] = @payload['report_divorce']['location_of_divorce']['city']
       report_divorce_info['marriage_termination_type_cd'] = @payload['report_divorce']['explanation_of_annullment_or_void']
+      report_divorce_info['vet_ind'] = 'N'
+
+      report_divorce_info
     end
 
     def relationship_type(info)

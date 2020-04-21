@@ -78,6 +78,7 @@ module BGS
         ssn_nbr: payload['ssn'],
         death_dt: payload['death_date'],
         ever_maried_ind: payload['ever_maried_ind'],
+        vet_ind: payload['vet_ind'],
         ssn: @user.ssn # Just here to make mocks work
       )
     end
@@ -179,7 +180,7 @@ module BGS
         claimant_ssn: veteran.ssn_number,
         benefit_claim_type: "1", # this is intentionally hard coded
         payee: "00", # intentionally left hard-coded
-        end_product: "687", # not sure what this is, it has to be unique tried this: vnp_benefit_claim[:vnp_bnft_claim_id] I just add one everytime I run this code
+        end_product: "693", # not sure what this is, it has to be unique tried this: vnp_benefit_claim[:vnp_bnft_claim_id] I just add one everytime I run this code
         end_product_code: vnp_benefit_claim.vnp_benefit_claim_type_code,
         first_name: veteran.first_name, # Might want to use the payload value
         last_name: veteran.last_name, # Might want to use the payload value
