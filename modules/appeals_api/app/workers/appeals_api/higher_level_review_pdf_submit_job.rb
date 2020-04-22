@@ -13,8 +13,9 @@ module AppealsApi
       @retries = retries
       pdf_constructor = AppealsApi::HigherLevelReviewPdfConstructor.new(higher_level_review_id)
       pdf_path = pdf_constructor.fill_pdf
-      stamped_pdf = pdf_constructor.stamp_pdf(pdf_path)
-      HigherLevelReview.update(higher_level_review_id, status: 'processing')
+      higher_level_review = HigherLevelReview.find higher_level_review_id
+      higher_level_review.update status: 'processing'
+      stamped_pdf = pdf_constructor.stamp_pdf(pdf_path, higher_level_review.consumer_name)
       upload_to_central_mail(higher_level_review_id, stamped_pdf)
     end
 
