@@ -32,7 +32,7 @@ module CARMA
       def submit!
         raise 'This submission has already been submitted to CARMA' if submitted?
 
-        response = client.create_submission_stub(to_request_payload)
+        response = client.create_submission(to_request_payload)
 
         @carma_case_id = response['data']['carmacase']['id']
         @submitted_at = response['data']['carmacase']['createdAt']
