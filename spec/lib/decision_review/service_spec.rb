@@ -199,7 +199,7 @@ describe DecisionReview::Service do
   end
 
   describe '#get_contestable_issues' do
-    context 'with a valid constestable issues request' do
+    context 'with a valid contestable issues request' do
       it 'returns a contestable issues response object' do
         VCR.use_cassette('decision_review/200_contestable_issues') do
           response = subject.get_contestable_issues(user)
