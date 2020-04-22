@@ -114,48 +114,6 @@ describe AppealsApi::HigherLevelReview, type: :model do
     it('matches header') { is_expected.to eq auth_headers['X-VA-Insurance-Policy-Number'] }
   end
 
-  describe '#number_and_street' do
-    subject { higher_level_review.number_and_street }
-
-    it('matches json') { is_expected.to eq form_data['data']['attributes']['veteran']['address']['addressLine1'] }
-  end
-
-  describe '#apt_unit_number' do
-    subject { higher_level_review.apt_unit_number }
-
-    it('matches json') { is_expected.to eq form_data['data']['attributes']['veteran']['address']['addressLine2'] }
-  end
-
-  describe '#city' do
-    subject { higher_level_review.city }
-
-    it('matches json') { is_expected.to eq form_data['data']['attributes']['veteran']['address']['cityName'] }
-  end
-
-  describe '#state_code' do
-    subject { higher_level_review.state_code }
-
-    it('matches json') { is_expected.to eq form_data['data']['attributes']['veteran']['address']['stateCode'] }
-  end
-
-  describe '#country_code' do
-    subject { higher_level_review.country_code }
-
-    it('matches json') { is_expected.to eq form_data['data']['attributes']['veteran']['address']['countryCodeISO2'] }
-  end
-
-  describe '#zip_code_5' do
-    subject { higher_level_review.zip_code_5 }
-
-    it('matches json') { is_expected.to eq form_data['data']['attributes']['veteran']['address']['zipCode5'] }
-  end
-
-  describe '#zip_code_4' do
-    subject { higher_level_review.zip_code_4 }
-
-    it('matches json') { is_expected.to eq form_data['data']['attributes']['veteran']['address']['zipCode4'] }
-  end
-
   describe '#veteran_phone_number' do
     subject { higher_level_review.veteran_phone_number }
 

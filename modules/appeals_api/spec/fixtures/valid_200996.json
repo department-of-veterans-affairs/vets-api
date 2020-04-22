@@ -6,15 +6,6 @@
       "sameOffice": true,
       "benefitType": "nca",
       "veteran": {
-        "address": {
-          "addressLine1": "401 Kansas Avenue",
-          "addressLine2": "Apt 7",
-          "cityName": "Atchison",
-          "stateCode": "KS",
-          "countryCodeISO2": "NL",
-          "zipCode5": "66002",
-          "zipCode4": "2410"
-        },
         "phone": {
           "countryCode": "34",
           "areaCode": "555",
@@ -89,7 +80,6 @@
       "attributes": {
         "issue": "right shoulder",
         "decisionDate": "1900-01-06",
-        "ratingIssueId": "11"
       }
     }
   ]
