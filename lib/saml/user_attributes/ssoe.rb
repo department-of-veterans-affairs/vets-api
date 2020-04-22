@@ -102,12 +102,13 @@ module SAML
         val = safe_attr('va_eauth_mhvassurance')
         val ||= safe_attr('va_eauth_credentialassurancelevel') if csid == 'mhv'
         # FIXME: for inbound SSOe what number indicates Advanced/Basic?
-        (val == '2') ? 'Premium' : val
+        val == '2' ? 'Premium' : val
       end
 
       def dslogon_account_type
         val = safe_attr('va_eauth_dslogonassurance')
         val ||= safe_attr('va_eauth_credentialassurancelevel') if csid == 'dslogon'
+        val
       end
 
       def dslogon_edipi
@@ -161,7 +162,7 @@ module SAML
 
       def sign_in
         sign_in = if @authn_context == INBOUND_AUTHN_CONTEXT
-                    { service_name: (csid == 'mhv') ? 'myhealthevet' : csid }
+                    { service_name: csid == 'mhv' ? 'myhealthevet' : csid }
                   else
                     SAML::User::AUTHN_CONTEXTS.fetch(@authn_context).fetch(:sign_in)
                   end
@@ -190,7 +191,7 @@ module SAML
       end
 
       def csid
-        safe_attr('va_eauth_csid').downcase
+        safe_attr('va_eauth_csid')&.downcase
       end
     end
   end
