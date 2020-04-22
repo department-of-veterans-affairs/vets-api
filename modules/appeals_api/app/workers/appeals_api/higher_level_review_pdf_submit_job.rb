@@ -47,6 +47,5 @@ module AppealsApi
         map_downstream_error(response.status, response.body, AppealsApi::UploadError)
       end
     end
-
   end
 end

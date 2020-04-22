@@ -20,7 +20,7 @@ module CentralMail
     def log_submission(uploaded_object, metadata)
       page_total = metadata.select { |k, _| k.to_s.start_with?('numberPages') }.reduce(0) { |sum, (_, v)| sum + v }
       pdf_total = metadata.select { |k, _| k.to_s.start_with?('numberPages') }.count
-      title = uploaded_object.class.to_s.split("::").first
+      title = uploaded_object.class.to_s.split('::').first
       Rails.logger.info("#{title}: Submission success",
                         'uuid' => metadata['uuid'],
                         'source' => metadata['source'],
@@ -71,9 +71,8 @@ module CentralMail
       # Defined values: 500
       elsif status.between?(500, 599)
         raise error_class.new(code: 'DOC201',
-                                          detail: "Downstream status: #{status} - #{body}")
+                              detail: "Downstream status: #{status} - #{body}")
       end
     end
-
   end
 end
