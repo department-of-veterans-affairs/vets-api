@@ -38,4 +38,3 @@ module CentralMail
     end
   end
 end
-
