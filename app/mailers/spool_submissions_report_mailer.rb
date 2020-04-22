@@ -9,8 +9,6 @@ class SpoolSubmissionsReportMailer < ApplicationMailer
     lihan@adhocteam.us
     Ricardo.DaSilva@va.gov
     shay.norton@va.gov
-    daniel.shawkey@va.gov
-    shawkey_daniel@bah.com
     daveandshay@att.net
     johnny@oddball.io
     John.Holton2@va.gov
@@ -23,9 +21,13 @@ class SpoolSubmissionsReportMailer < ApplicationMailer
 
   STAGING_RECIPIENTS = %w[
     lihan@adhocteam.us
+    Delli-Gatti_Michael@bah.com
+    sonntag_adam@bah.com
   ].freeze
 
   STAGING_STEM_RECIPIENTS = %w[
+    Delli-Gatti_Michael@bah.com
+    sonntag_adam@bah.com
   ].freeze
 
   def add_stem_recipients
