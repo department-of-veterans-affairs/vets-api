@@ -22,8 +22,8 @@ describe Common::RedisStore do
       expect(klass.redis_namespace).to be_kind_of(Redis::Namespace)
       expect(klass.redis_namespace.namespace).to eq('my_namespace')
 
-      expect(klass.other_redis).to be_kind_of(Redis::Namespace)
-      expect(klass.other_redis.namespace).to eq('my_namespace')
+      expect(klass.secondary_redis).to be_kind_of(Redis::Namespace)
+      expect(klass.secondary_redis.namespace).to eq('my_namespace')
     end
   end
 
@@ -69,7 +69,7 @@ describe Common::RedisStore do
       expected_val = '{":uuid":"e66fd7b7-94e0-4748-8063-283f55efb0ea",":email":"foo@bar.com"}'
 
       expect(VetsApiRedis.current).to receive(:set).once.with(expected_key, expected_val)
-      expect(VetsApiRedis.other_redis).to receive(:set).once.with(expected_key, expected_val)
+      expect(VetsApiRedis.secondary_redis).to receive(:set).once.with(expected_key, expected_val)
       subject.save
     end
   end
@@ -84,7 +84,7 @@ describe Common::RedisStore do
       expect(subject.redis_namespace.get(subject.uuid)).to eq(
         '{":uuid":"e66fd7b7-94e0-4748-8063-283f55efb0ea",":email":"foo@barred.com"}'
       )
-      expect(subject.other_redis.get(subject.uuid)).to eq(
+      expect(subject.secondary_redis.get(subject.uuid)).to eq(
         '{":uuid":"e66fd7b7-94e0-4748-8063-283f55efb0ea",":email":"foo@barred.com"}'
       )
     end
@@ -94,10 +94,10 @@ describe Common::RedisStore do
     it 'updates the redis ttl of the model instance' do
       subject.save
       expect(subject.ttl).to eq(60)
-      expect(subject.other_redis.ttl(subject.uuid)).to eq(60)
+      expect(subject.secondary_redis.ttl(subject.uuid)).to eq(60)
       subject.expire(100)
       expect(subject.ttl).to eq(100)
-      expect(subject.other_redis.ttl(subject.uuid)).to eq(100)
+      expect(subject.secondary_redis.ttl(subject.uuid)).to eq(100)
     end
   end
 
@@ -106,7 +106,7 @@ describe Common::RedisStore do
       expected_redis_key = 'my_namespace:e66fd7b7-94e0-4748-8063-283f55efb0ea'
 
       expect(VetsApiRedis.current).to receive(:del).once.with(expected_redis_key)
-      expect(VetsApiRedis.other_redis).to receive(:del).once.with(expected_redis_key)
+      expect(VetsApiRedis.secondary_redis).to receive(:del).once.with(expected_redis_key)
       subject.destroy
     end
 
