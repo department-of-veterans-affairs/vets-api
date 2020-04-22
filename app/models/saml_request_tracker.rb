@@ -12,8 +12,8 @@ require 'common/models/redis_store'
 # redirect url value so that when a matching SAML response comes back from SSOe
 # we know where to redirect the newly authenticated user.
 class SAMLRequestTracker < Common::RedisStore
-  redis_store REDIS_CONFIG['saml_request_tracker']['namespace']
-  redis_ttl REDIS_CONFIG['saml_request_tracker']['each_ttl']
+  redis_store REDIS_CONFIG[:saml_request_tracker][:namespace]
+  redis_ttl REDIS_CONFIG[:saml_request_tracker][:each_ttl]
   redis_key :uuid
 
   attribute :uuid

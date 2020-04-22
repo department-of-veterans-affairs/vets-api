@@ -9,7 +9,7 @@ Rails.logger = Logger.new(STDOUT)
 
 # For Rx/SM
 REDIS_CONFIG = Rails.application.config_for(:redis).freeze
-Redis.current = Redis.new(REDIS_CONFIG['redis'])
+Redis.current = Redis.new(REDIS_CONFIG[:redis])
 
 class ConnectivityError < StandardError; end
 

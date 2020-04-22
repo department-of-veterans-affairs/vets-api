@@ -2,7 +2,7 @@
 
 class Rack::Attack
   REDIS_CONFIG = Rails.application.config_for(:redis).freeze
-  Rack::Attack.cache.store = Rack::Attack::StoreProxy::RedisStoreProxy.new(Redis.new(REDIS_CONFIG['redis']))
+  Rack::Attack.cache.store = Rack::Attack::StoreProxy::RedisStoreProxy.new(Redis.new(REDIS_CONFIG[:redis]))
 
   throttle('example/ip', limit: 1, period: 5.minutes) do |req|
     req.ip if req.path == '/v0/limited'
