@@ -29,7 +29,7 @@ require 'evss/letters/service'
 
 # Read the redis config, create a connection and a namespace for breakers
 redis_config = Rails.application.config_for(:redis).freeze
-redis = Redis.new(redis_config['redis'])
+redis = Redis.new(redis_config[:redis])
 redis_namespace = Redis::Namespace.new('breakers', redis: redis)
 
 services = [

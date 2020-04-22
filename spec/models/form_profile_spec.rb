@@ -501,7 +501,8 @@ RSpec.describe FormProfile, type: :model do
           'lastOrderDate' => '2020-01-01',
           'nextAvailabilityDate' => '2020-09-01',
           'quantity' => 60,
-          'size' => ''
+          'size' => '',
+          'prescribedDate' => '2019-12-25'
         },
         {
           'deviceName' => '',

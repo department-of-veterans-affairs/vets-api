@@ -11,7 +11,7 @@ module HCA
       rescue VALIDATION_ERROR
         PersonalInformationLog.create!(data: { form: form }, error_class: VALIDATION_ERROR.to_s)
 
-        @health_care_application.update_attributes!(
+        @health_care_application.update!(
           state: 'failed',
           form: form.to_json,
           google_analytics_client_id: google_analytics_client_id
