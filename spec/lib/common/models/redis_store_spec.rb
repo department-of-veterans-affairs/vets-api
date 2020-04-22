@@ -68,8 +68,8 @@ describe Common::RedisStore do
       expected_key = 'my_namespace:e66fd7b7-94e0-4748-8063-283f55efb0ea'
       expected_val = '{":uuid":"e66fd7b7-94e0-4748-8063-283f55efb0ea",":email":"foo@bar.com"}'
 
-      expect(VetsApiRedis.current).to receive(:set).once.with(expected_key, expected_val)
-      expect(VetsApiRedis.secondary_redis).to receive(:set).once.with(expected_key, expected_val)
+      expect(Redis.current).to receive(:set).once.with(expected_key, expected_val)
+      expect(SECONDARY_REDIS).to receive(:set).once.with(expected_key, expected_val)
       subject.save
     end
   end
@@ -105,8 +105,8 @@ describe Common::RedisStore do
     it 'removes itself from redis with the correct namespace' do
       expected_redis_key = 'my_namespace:e66fd7b7-94e0-4748-8063-283f55efb0ea'
 
-      expect(VetsApiRedis.current).to receive(:del).once.with(expected_redis_key)
-      expect(VetsApiRedis.secondary_redis).to receive(:del).once.with(expected_redis_key)
+      expect(Redis.current).to receive(:del).once.with(expected_redis_key)
+      expect(SECONDARY_REDIS).to receive(:del).once.with(expected_redis_key)
       subject.destroy
     end
 

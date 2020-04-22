@@ -1,14 +1,8 @@
 # frozen_string_literal: true
 
-class VetsApiRedis < Redis
-  class << self
-    attr_accessor :secondary
-  end
-end
-
 # environment specific redis host and port (see: config/redis.yml)
 REDIS_CONFIG = Rails.application.config_for(:redis).freeze
 # set the current global instance of Redis based on environment specific config
-VetsApiRedis.current = Redis.new(REDIS_CONFIG['redis'])
+Redis.current = Redis.new(REDIS_CONFIG['redis'])
 
-VetsApiRedis.secondary = Redis.new(host: Settings.redis_secondary.host, port: Settings.redis_secondary.port)
+SECONDARY_REDIS = Redis.new(host: Settings.redis_secondary.host, port: Settings.redis_secondary.port)

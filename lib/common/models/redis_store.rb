@@ -18,8 +18,8 @@ module Common
     end
 
     def self.redis_store(namespace)
-      @redis_namespace = Redis::Namespace.new(namespace, redis: VetsApiRedis.current)
-      @secondary_redis = Redis::Namespace.new(namespace, redis: VetsApiRedis.secondary)
+      @redis_namespace = Redis::Namespace.new(namespace, redis: Redis.current)
+      @secondary_redis = Redis::Namespace.new(namespace, redis: SECONDARY_REDIS)
     end
     delegate :redis_namespace, to: 'self.class'
     delegate :secondary_redis, to: 'self.class'
