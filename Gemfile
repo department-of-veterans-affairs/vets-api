@@ -185,3 +185,5 @@ group :production do
     end
   end
 end
+
+gem "ddtrace", "~> 0.34.2"

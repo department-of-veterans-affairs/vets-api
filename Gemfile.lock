@@ -283,6 +283,8 @@ GEM
     date_validator (0.9.0)
       activemodel
       activesupport
+    ddtrace (0.34.2)
+      msgpack
     deep_merge (1.2.1)
     descendants_tracker (0.0.4)
       thread_safe (~> 0.3, >= 0.3.1)
@@ -473,6 +475,7 @@ GEM
     mini_mime (1.0.2)
     mini_portile2 (2.4.0)
     minitest (5.14.0)
+    msgpack (1.3.3)
     multi_json (1.14.1)
     multipart-post (2.1.1)
     nap (1.1.0)
@@ -808,6 +811,7 @@ DEPENDENCIES
   danger
   database_cleaner
   date_validator
+  ddtrace (~> 0.34.2)
   dry-struct
   dry-types
   factory_bot_rails (> 5)
