@@ -361,8 +361,8 @@ redis:
 
 # temporary for migration
 redis_secondary:
-  host: localhost
-  port: 6378
+  host: fake_second_redis_host
+  port: -1
 
 # Settings for GovDelivery (email delivery)
 govdelivery:

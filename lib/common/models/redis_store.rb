@@ -19,7 +19,9 @@ module Common
 
     def self.redis_store(namespace)
       @redis_namespace = Redis::Namespace.new(namespace, redis: VetsApiRedis.current)
-      @other_redis     = Redis::Namespace.new(namespace, redis: VetsApiRedis.other_redis)
+      unless VetsApiRedis.other_redis.nil?
+        @other_redis = Redis::Namespace.new(namespace, redis: VetsApiRedis.other_redis)
+      end
     end
     delegate :redis_namespace, to: 'self.class'
     delegate :other_redis, to: 'self.class'
@@ -84,8 +86,8 @@ module Common
     end
 
     def self.delete(redis_key = nil)
-      redis_namespace.del(redis_key)
       other_redis.del(redis_key)
+      redis_namespace.del(redis_key)
     end
 
     def save
@@ -116,7 +118,7 @@ module Common
     # See also: ActiveRecord::Persistence#destroy
     def destroy
       count = redis_namespace.del(attributes[redis_namespace_key])
-      other_redis.del(attributes[redis_namespace_key])
+      other_redis&.del(attributes[redis_namespace_key])
       @destroyed = true
       freeze
       count
