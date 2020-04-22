@@ -20,7 +20,7 @@ module AppealsApi
     DOC201 = 'Upload server error. Request will be retried when upstream service is available.'
     DOC202 = 'Error during processing by downstream system'
 
-    STATSD_UPLOAD_FAIL_KEY = 'api.vba.document_upload.fail'
+    STATSD_UPLOAD_FAIL_KEY = 'api.appeals.higher_level_review_upload.fail'
 
     def initialize(message = nil, code: nil, detail: nil)
       if message.nil?
