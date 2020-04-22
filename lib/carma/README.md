@@ -33,7 +33,12 @@ submission = CARMA::Models::Submission.from_claim(claim)
 vet_icn = get_icn_for(submission.data[:veteran])
 vet_verified = verify_veteran(vet_icn)
 
-submission.metadata = build_metadata_hash
+submission.metadata = {
+	veteran: {
+		icn: vet_icn,
+		is_veteran: vet_verified
+	}
+}
 
 submission.submit!
 submission.submit_attachments_async if submission.attachments.any?
