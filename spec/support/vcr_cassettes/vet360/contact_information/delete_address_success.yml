@@ -5,7 +5,8 @@ http_interactions:
     uri: https://int.vet360.va.gov/contact-information-hub/cuf/contact-information/v1/addresses
     body:
       encoding: UTF-8
-      string: '{"bio":{"addressId":42,"addressLine1":"1493 Martin Luther King Rd","addressLine2":null,"addressLine3":null,"addressPOU":"RESIDENCE/CHOICE","addressType":"DOMESTIC","cityName":"Fulton","countryCodeISO2":null,"countryCodeISO3":"USA","countryName":"USA","county":{"countyCode":null,"countyName":null},"intPostalCode":null,"provinceName":null,"stateCode":"MS","zipCode5":"38843","zipCode4":null,"originatingSourceSystem":"VETSGOV","sourceSystemUser":"64762895576664260","sourceDate":"2018-06-06T15:35:55.000Z","vet360Id":"123456789","effectiveStartDate":"2018-06-06T15:35:55.000Z","effectiveEndDate":"2018-06-06T15:35:55.000Z"}}'
+      string: '{"bio":{"addressId":138225,"addressLine1":"4041 Victoria Way","addressLine2":null,"addressLine3":null,"addressPOU":"CORRESPONDENCE","addressType":"DOMESTIC","cityName":"Lexington","countryCodeISO2":null,"countryCodeISO3":"USA","countryName":null,"county":{"countyCode":"21067","countyName":"Fayette
+        County"},"intPostalCode":null,"provinceName":null,"stateCode":"KY","zipCode5":"40515","zipCode4":"4655","originatingSourceSystem":"VETSGOV","sourceSystemUser":"1234","sourceDate":"2020-02-13T20:47:45.000Z","vet360Id":"1","effectiveStartDate":"2020-02-13T20:47:45.000Z","effectiveEndDate":"2020-02-13T20:47:45.000Z"}}'
     headers:
       Accept:
       - application/json
@@ -23,28 +24,31 @@ http_interactions:
       message: ''
     headers:
       Date:
-      - Thu, 26 Apr 2018 20:08:06 GMT
+      - Thu, 13 Feb 2020 20:47:45 GMT
       Expires:
       - '0'
+      Vet360txauditid:
+      - 12224647-5751-45c6-b1f8-38c88ddea1d5
+      X-Frame-Options:
+      - DENY
+      Pragma:
+      - no-cache
       X-Content-Type-Options:
+      - nosniff
       - nosniff
       X-Xss-Protection:
       - 1; mode=block
-      X-Frame-Options:
-      - DENY
       Cache-Control:
       - no-cache, no-store, max-age=0, must-revalidate
-      Pragma:
-      - no-cache
       X-Ua-Compatible:
       - IE-edge,chrome=1
       Content-Type:
       - application/json;charset=UTF-8
-      Transfer-Encoding:
-      - chunked
+      Content-Length:
+      - '72'
     body:
       encoding: UTF-8
-      string: '{"txAuditId":"2c8c1b3b-1b1c-416c-bc91-a9fb4f79291f","status":"RECEIVED"}'
-    http_version:
-  recorded_at: Thu, 26 Apr 2018 20:08:06 GMT
-recorded_with: VCR 3.0.3
+      string: '{"txAuditId":"858cfdf3-1892-4f23-b6ac-1c207c341edf","status":"RECEIVED"}'
+    http_version: 
+  recorded_at: Thu, 13 Feb 2020 20:47:45 GMT
+recorded_with: VCR 5.0.0

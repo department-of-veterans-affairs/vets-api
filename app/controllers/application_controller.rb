@@ -58,7 +58,9 @@ class ApplicationController < ActionController::API
   attr_reader :current_user
 
   def set_csrf_header
-    response.set_header('X-CSRF-Token', form_authenticity_token)
+    token = form_authenticity_token
+    response.set_header('X-CSRF-Token', token)
+    Rails.logger.info('CSRF response token', csrf_token: token)
   end
 
   # returns a Bad Request if the incoming host header is unsafe.

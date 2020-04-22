@@ -1,5 +1,11 @@
 # frozen_string_literal: true
 
-Spring.watch 'config/application.yml'
-Spring.watch 'config/settings.yml'
-Spring.watch 'config/settings.local.yml'
+Spring.watch(
+  '.ruby-version',
+  '.rbenv-vars',
+  'tmp/restart.txt',
+  'tmp/caching-dev.txt',
+  'config/application.yml',
+  'config/settings.yml',
+  'config/settings.local.yml'
+)

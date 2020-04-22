@@ -31,32 +31,43 @@ module Swagger
         property :type, type: :string, example: 'va_facilities'
 
         property :attributes, type: :object do
-          property :unique_id, type: :string, example: '999'
-          property :name, type: :string, example: 'Example VAMC'
-          property :facility_type, type: :string, example: 'va_health_facility'
-          property :classification, type: %i[string null], example: 'VA Medical Center'
-          property :website, type: %i[string null], example: 'http://www.example.com'
-          property :lat, type: :number, format: :float, example: -122.5
-          property :long, type: :number, format: :float, example: 45.5
+          property :access do
+            key :'$ref', :FacilityAccess
+          end
           property :address do
             key :'$ref', :FacilityAddresses
           end
-          property :phone do
-            key :'$ref', :FacilityPhones
+          property :classification, type: %i[string null], example: 'VA Medical Center'
+          property :facility_type, type: :string, example: 'va_health_facility'
+          property :feedback do
+            key :'$ref', :FacilityFeedback
           end
           property :hours do
             key :'$ref', :FacilityHours
           end
+          property :lat, type: :number, format: :float, example: -122.5
+          property :long, type: :number, format: :float, example: 45.5
+          property :operating_status do
+            key :'$ref', :FacilityOperatingStatus
+          end
+          property :name, type: :string, example: 'Example VAMC'
+          property :phone do
+            key :'$ref', :FacilityPhones
+          end
           property :services do
             key :'$ref', :FacilityServices
           end
-          property :feedback do
-            key :'$ref', :FacilityFeedback
-          end
-          property :access do
-            key :'$ref', :FacilityAccess
-          end
+          property :unique_id, type: :string, example: '999'
+          property :website, type: %i[string null], example: 'http://www.example.com'
         end
+      end
+
+      swagger_schema :FacilityOperatingStatus do
+        key :type, :object
+        key :description, 'Current status of facility operations.'
+
+        property :code, type: :string, example: 'NORMAL'
+        property :additional_info, type: :string
       end
 
       swagger_schema :FacilityAddresses do

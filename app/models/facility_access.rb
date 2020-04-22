@@ -1,10 +1,9 @@
 # frozen_string_literal: true
 
 require 'common/models/redis_store'
-
 class FacilitySatisfaction < Common::RedisStore
-  redis_store REDIS_CONFIG['facility_access_satisfaction']['namespace']
-  redis_ttl REDIS_CONFIG['facility_access_satisfaction']['each_ttl']
+  redis_store REDIS_CONFIG[:facility_access_satisfaction][:namespace]
+  redis_ttl REDIS_CONFIG[:facility_access_satisfaction][:each_ttl]
   redis_key :station_number
 
   attribute :station_number
@@ -16,8 +15,8 @@ class FacilitySatisfaction < Common::RedisStore
 end
 
 class FacilityWaitTime < Common::RedisStore
-  redis_store REDIS_CONFIG['facility_access_wait_time']['namespace']
-  redis_ttl REDIS_CONFIG['facility_access_wait_time']['each_ttl']
+  redis_store REDIS_CONFIG[:facility_access_wait_time][:namespace]
+  redis_ttl REDIS_CONFIG[:facility_access_wait_time][:each_ttl]
   redis_key :station_number
 
   attribute :station_number

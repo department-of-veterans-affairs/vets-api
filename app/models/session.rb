@@ -6,8 +6,8 @@ require 'sentry_logging'
 class Session < Common::RedisStore
   include SentryLogging
 
-  redis_store REDIS_CONFIG['session_store']['namespace']
-  redis_ttl REDIS_CONFIG['session_store']['each_ttl']
+  redis_store REDIS_CONFIG[:session_store][:namespace]
+  redis_ttl REDIS_CONFIG[:session_store][:each_ttl]
   redis_key :token
 
   DEFAULT_TOKEN_LENGTH = 40

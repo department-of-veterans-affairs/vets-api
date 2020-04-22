@@ -2,6 +2,9 @@
   <div class="vads-l-col">
     <table class="vads-u-margin-top--0">
       <caption class="vads-u-font-size--xl">Features</caption>
+      <% if RequestStore.store[:flipper_user_email_for_log].blank? &&  !Rails.env.development? %>
+        <a href ="<%= SAML::URLService::VIRTUAL_HOST_MAPPINGS.dig(request.base_url, :base_redirect) %>">Sign in</a> with an identity-verified admin account to edit feagure toggles.
+      <% end %>
       <thead>
         <tr>
           <th>Status</th>
@@ -35,9 +38,5 @@
         <% end %>
       </tbody>
     </table>
-
-    <% if RequestStore.store[:flipper_user_email_for_log].blank? &&  !Rails.env.development? %>
-      <a href ="<%= SAML::URLService::VIRTUAL_HOST_MAPPINGS.dig(request.base_url, :base_redirect) %>">Sign in</a> with an identity-verified admin account to edit feagure toggles.
-    <% end %>
   </div>
 </div>
