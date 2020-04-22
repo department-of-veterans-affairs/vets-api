@@ -138,7 +138,7 @@ RSpec.describe Session, type: :model do
       end
 
       it 'returns nil if session was not found' do
-        expect(described_class.find('non-existant-token')).to be_nil
+        expect(described_class.find('non-existent-token')).to be_nil
       end
 
       it 'does not change the created_at timestamp' do
