@@ -21,10 +21,8 @@ module CARMA
           client.post(
             '/services/apexrest/carma/v1/1010-cg-submissions',
             payload,
-            {
-              'Content-Type': 'application/json',
-              'Sforce-Auto-Assign': 'FALSE'
-            }
+            'Content-Type': 'application/json',
+            'Sforce-Auto-Assign': 'FALSE'
           ).body
         end
 
