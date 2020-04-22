@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
-# require_relative './json_schema/json_api_missing_attribute'
+require_relative './json_api_missing_attribute.rb'
+require_relative './missing_schema.rb'
 
 module JsonSchema
   class FormSchemas
@@ -10,6 +11,12 @@ module JsonSchema
 
     def schemas
       @schemas ||= get_schemas
+    end
+
+    def schema(form)
+      return schemas[form] if schemas.key? form
+
+      raise JsonSchema::MissingSchema.new(form, schemas.keys)
     end
 
     def get_schemas
@@ -24,7 +31,7 @@ module JsonSchema
     end
 
     def validate!(form, payload)
-      schema_validator = JSONSchemer.schema(schemas[form], insert_property_defaults: true)
+      schema_validator = JSONSchemer.schema(schema(form), insert_property_defaults: true)
       # there is currently a bug in the gem
       # that it runs the logic based validations
       # before inserting defaults

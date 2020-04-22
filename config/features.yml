@@ -11,11 +11,22 @@ features:
     actor_type: user
     description: >
       Allows for showing a special COVID19 alert on the My VA Dashboard
+  covid19_faq_chatbot_link:
+    actor_type: user
+    description: >
+      Shows the link to the Covid 19 chatbot on va.gov/coronavirus-veteran-frequently-asked-questions/.
+  facility_locator_show_covid19_chatbot_link:
+    actor_type: user
+    description: >
+      Shows the link to the Covid 19 chatbot in the Facility Locator app.
   facility_locator_show_community_cares:
     actor_type: user
     description: >
       On https://www.va.gov/find-locations/ enable veterans to search for Community care by showing that option in the "Search for" box.
       This toggle is owned by Rian
+  facility_locator_pull_operating_status_from_lighthouse:
+    actor_type: user
+    description: A fast and dirty way to get the operating status from lighthouse
   facility_locator_ppms_location_query:
     actor_type: user
     description: Use the Lat/Long instead of an address
