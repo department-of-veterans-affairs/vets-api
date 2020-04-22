@@ -14,7 +14,7 @@ module AppealsApi
       pdf_constructor = AppealsApi::HigherLevelReviewPdfConstructor.new(higher_level_review_id)
       pdf_path = pdf_constructor.fill_pdf
       higher_level_review = HigherLevelReview.find higher_level_review_id
-      higher_level_review.update status: 'processing'
+      higher_level_review.processing!
       stamped_pdf = pdf_constructor.stamp_pdf(pdf_path, higher_level_review.consumer_name)
       upload_to_central_mail(higher_level_review_id, stamped_pdf)
     end
@@ -43,7 +43,7 @@ module AppealsApi
 
     def process_response(response, higher_level_review)
       if response.success? || response.body.match?(NON_FAILING_ERROR_REGEX)
-        higher_level_review.update(status: 'submitted')
+        higher_level_review.submitted!
       else
         map_downstream_error(response.status, response.body, AppealsApi::UploadError)
       end

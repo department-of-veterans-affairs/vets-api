@@ -18,8 +18,10 @@ module CentralMail
       'or 9 digits in XXXXX-XXXX format. Specify \'00000\' for non-US addresses.'
 
     def log_submission(uploaded_object, metadata)
-      page_total = metadata.select { |k, _| k.to_s.start_with?('numberPages') }.reduce(0) { |sum, (_, v)| sum + v }
-      pdf_total = metadata.select { |k, _| k.to_s.start_with?('numberPages') }.count
+      number_pages = metadata.select { |k, _| k.to_s.start_with?('numberPages') }
+      page_total = number_pages.reduce(0) { |sum, (_, v)| sum + v }
+      pdf_total = number_pages.count
+
       title = uploaded_object.class.to_s.split('::').first
       Rails.logger.info("#{title}: Submission success",
                         'uuid' => metadata['uuid'],
