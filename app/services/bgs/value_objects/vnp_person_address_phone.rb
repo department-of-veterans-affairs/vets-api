@@ -37,5 +37,6 @@ module ValueObjects
     attribute :divorce_state, Types::String.optional
     attribute :divorce_city, Types::String.optional
     attribute :marriage_termination_type_cd, Types::String.optional
+    attribute :benefit_claim_type_end_product, Types::String.optional
   end
 end

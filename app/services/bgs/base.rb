@@ -112,7 +112,7 @@ module BGS
       service.vnp_ptcpnt_phone.vnp_ptcpnt_phone_create(
         vnp_proc_id: proc_id,
         vnp_ptcpnt_id: participant_id,
-        phone_type_nm: 'Nighttime',
+        phone_type_nm: 'Nighttime', # We should probably change this to be dynamic
         phone_nbr: payload['phone_number'],
         efctv_dt: Time.current.iso8601,
         jrn_dt: Time.current.iso8601,
@@ -160,7 +160,7 @@ module BGS
         status_type_cd: "PEND", # not sure what this is marking it pending since we're creating it now
         svc_type_cd: "CP", # not sure what this is all records that I scanned had 'CP' here
         pgm_type_cd: "COMP", # This is either 'COMP' or 'CPL' from what I scanned
-        bnft_claim_type_cd: "130PDA", # Cannot be null using 686c code provided does not work bc it is past the 12 character limit
+        bnft_claim_type_cd: "130DPNEBNADJ", # This has been changed to this value in light of finding the find_benefit_claim_type_increment call 4/22
         ptcpnt_clmant_id: veteran.vnp_participant_id,
         claim_jrsdtn_lctn_id: "347", # Not required but cannot be null all records seem to be in the 300's and the same as the below
         intake_jrsdtn_lctn_id: "347", # Not required but cannot be null all records seem to be in the 300's
@@ -169,6 +169,14 @@ module BGS
         ssn: @user.ssn # Just here to make the mocks work
       )
     end
+
+    # def find_benefit_claim_type_increment
+    #   service.data.find_benefit_claim_type_increment(
+    #     ptcpnt_id: @user.participant_id,
+    #     bnft_claim_type_cd: '130DPNEBNADJ',
+    #     pgm_type_cd: 'CPL',
+    #   )
+    # end
 
     # 'end_product' needs to be unique; end_product_code seems to be the claimTypeCode
     # HEY we were using 796149080 as file_number and ssn to make it work. Changed it to get the mock response working
@@ -180,7 +188,7 @@ module BGS
         claimant_ssn: veteran.ssn_number,
         benefit_claim_type: "1", # this is intentionally hard coded
         payee: "00", # intentionally left hard-coded
-        end_product: "693", # not sure what this is, it has to be unique tried this: vnp_benefit_claim[:vnp_bnft_claim_id] I just add one everytime I run this code
+        end_product: '694', # veteran.benefit_claim_type_end_product, # not sure what this is, it has to be unique tried this: vnp_benefit_claim[:vnp_bnft_claim_id] I just add one everytime I run this code
         end_product_code: vnp_benefit_claim.vnp_benefit_claim_type_code,
         first_name: veteran.first_name, # Might want to use the payload value
         last_name: veteran.last_name, # Might want to use the payload value
@@ -193,7 +201,7 @@ module BGS
         email_address: veteran.email_address,
         country: 'USA', # We need the country code for this payload is sending the whole country name
         disposition: "M", # intentionally left hard-coded
-        section_unit_no: "555", # "VA office code". Not sure how reliable this is. Could throw undefined method for nil error super easy. Maybe we'll get it from the FE
+        section_unit_no: "555", # "VA office code". Tried location id's from user object, failed. Maybe we'll get it from the FE
         folder_with_claim: "N", # intentionally left hard-coded
         end_product_name: "endProductNameTest", # not sure what this is
         pre_discharge_indicator: "N", # intentionally left hard-coded

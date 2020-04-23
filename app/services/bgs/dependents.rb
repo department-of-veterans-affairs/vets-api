@@ -15,9 +15,9 @@ module BGS
 
     def create
       add_children if @payload['children_to_add']
-      report_deaths if @payload['deaths']
-      add_spouse if @payload['spouse_information']
-      report_divorce if @payload['report_divorce']
+      # report_deaths if @payload['deaths']
+      # add_spouse if @payload['spouse_information']
+      # report_divorce if @payload['report_divorce']
 
       @dependents
     end
@@ -142,7 +142,8 @@ module BGS
         marriage_city: optional_fields[:marriage_city],
         divorce_state: optional_fields[:divorce_state],
         divorce_city: optional_fields[:divorce_city],
-        marriage_termination_type_cd: optional_fields[:marriage_termination_type_cd]
+        marriage_termination_type_cd: optional_fields[:marriage_termination_type_cd],
+        benefit_claim_type_end_product: nil # this is only for the veteran
       )
     end
 

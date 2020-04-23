@@ -25,8 +25,8 @@ module BGS
       dependents = Dependents.new(proc_id: proc_id, veteran: veteran, payload: payload, user: @user).create
       VnpRelationships.new(proc_id: proc_id, veteran: veteran, dependents: dependents, user: @user).create
 
-      # # ####-We’ll only do this for form number 674
-      # # create_child_school_student(proc_id, dependents)
+      # # # ####-We’ll only do this for form number 674
+      # # # create_child_school_student(proc_id, dependents)
 
       vnp_benefit_claim = VnpBenefitClaim.new(proc_id: proc_id, veteran: veteran, user: @user)
       vnp_benefit_claim_record = vnp_benefit_claim.create

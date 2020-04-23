@@ -12,6 +12,7 @@ module BGS
 
     def create
       participant = create_participant(@proc_id)
+      # claim_type_end_product = find_benefit_claim_type_increment
       person = create_person(@proc_id, participant[:vnp_ptcpnt_id], @veteran_info)
       phone = create_phone(@proc_id, participant[:vnp_ptcpnt_id], @veteran_info)
       address = create_address(@proc_id, participant[:vnp_ptcpnt_id], @veteran_info)
@@ -39,15 +40,16 @@ module BGS
         address_city: address[:city_nm],
         address_zip_code: address[:zip_prefix_nbr],
         email_address: address[:email_addrs_txt],
-        death_date: nil, # Setting to nil to satisfy struct
-        begin_date: nil, # Setting to nil to satisfy struct
-        end_date: nil, # Setting to nil to satisfy struct
-        ever_married_indicator: nil, # Setting to nil to satisfy struct
-        marriage_state: nil, # Setting to nil to satisfy struct
-        marriage_city: nil, # Setting to nil to satisfy struct
-        divorce_state: nil, # Setting to nil to satisfy struct
-        divorce_city: nil, # Setting to nil to satisfy struct
-        marriage_termination_type_cd: nil # Setting to nil to satisfy struct
+        benefit_claim_type_end_product: '', # Temporarily empty until we figure out the increment call
+        death_date: nil, # Setting to nil to satisfy struct these are dependent values
+        begin_date: nil, # Setting to nil to satisfy struct these are dependent values
+        end_date: nil, # Setting to nil to satisfy struct these are dependent values
+        ever_married_indicator: nil, # Setting to nil to satisfy struct these are dependent values
+        marriage_state: nil, # Setting to nil to satisfy struct these are dependent values
+        marriage_city: nil, # Setting to nil to satisfy struct these are dependent values
+        divorce_state: nil, # Setting to nil to satisfy struct these are dependent values
+        divorce_city: nil, # Setting to nil to satisfy struct these are dependent values
+        marriage_termination_type_cd: nil # Setting to nil to satisfy struct these are dependent values
       )
     end
 
