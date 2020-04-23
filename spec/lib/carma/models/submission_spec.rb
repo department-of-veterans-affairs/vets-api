@@ -128,14 +128,6 @@ RSpec.describe CARMA::Models::Submission, type: :model do
         expect(submission.submitted_at).to eq(nil)
         expect(submission.submitted?).to eq(false)
 
-        # expected_req_payload = {
-        #   'data' => submission.data,
-        #   'metadata' => {
-        #     # Note the camelCased property keys
-        #     'claimId' => nil
-        #   }
-        # }
-
         expected_res_body = {
           'data' => {
             'carmacase' => {
