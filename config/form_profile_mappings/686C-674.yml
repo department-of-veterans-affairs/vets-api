@@ -1,3 +1,4 @@
 veteranInformation:
   veteranInformation:
     fullName: [identity_information, full_name]
+    ssn: [identity_information, ssn]

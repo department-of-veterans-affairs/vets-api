@@ -81,7 +81,8 @@ RSpec.describe FormProfile, type: :model do
             "first"=>"Abraham",
             "last"=>"Lincoln",
             "suffix"=>"Jr."
-          }
+          },
+          "ssn" => user.ssn
         }
       }
     }
