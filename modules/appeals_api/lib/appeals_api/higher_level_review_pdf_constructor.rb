@@ -20,6 +20,16 @@ module AppealsApi
       output_path
     end
 
+    def stamp_pdf(pdf_path, consumer_name)
+      bottom_stamped_path = CentralMail::DatestampPdf.new(pdf_path).run(text: 'API.VA.GOV', x: 5, y: 5)
+      CentralMail::DatestampPdf.new(bottom_stamped_path).run(
+        text: "Submitted by #{consumer_name} via api.va.gov",
+        x: 429,
+        y: 770,
+        text_only: true
+      )
+    end
+
     # rubocop:disable Metrics/MethodLength
     # rubocop:disable Metrics/AbcSize
     # rubocop:disable Metrics/CyclomaticComplexity
