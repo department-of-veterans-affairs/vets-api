@@ -16,7 +16,7 @@ RSpec.describe 'Caregivers Assistance Claims', type: :request do
   let(:get_schema) { -> { VetsJsonSchema::SCHEMAS['10-10CG'].clone } }
 
   shared_examples_for 'any invalid submission' do
-    it 'requires a namcespace of caregivers_assistance_claim' do
+    it 'requires a namespace of caregivers_assistance_claim' do
       body = {}
       post endpoint, params: body, headers: headers
 
