@@ -11,7 +11,7 @@ module Common
       when Array
         val.map { |v| deep_transform_parameters!(v, &block) }
       when Hash, ActionController::Parameters
-        val.each_key do |k, v = val[k]|
+        val.keys.each do |k, v = val[k]|
           val.delete(k)
           val[yield(k)] = deep_transform_parameters!(v, &block)
         end

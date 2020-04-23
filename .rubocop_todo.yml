@@ -22,6 +22,12 @@ Lint/StructNewOverride:
   Exclude:
     - 'spec/request/authentication/standard_authentication.rb'
 
+# Offense count: 1
+# Cop supports --auto-correct.
+Style/HashEachMethods:
+  Exclude:
+    - 'lib/common/hash_helpers.rb'
+
 # Offense count: 28
 # Cop supports --auto-correct.
 RSpec/ContextMethod:
