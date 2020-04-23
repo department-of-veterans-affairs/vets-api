@@ -18,6 +18,21 @@ class V0::Facilities::VaController < FacilitiesController
   end
 
   def facilities
+    if Flipper.enabled?(:facility_locator_lighthouse_api)
+      api_facilities
+    else
+      ar_facilities
+    end
+  end
+
+  def api_facilities
+    resource = api.get_facilities(params)
+    render json: resource,
+           each_serializer: Lighthouse::Facilities::FacilitySerializer,
+           meta: metadata(resource)
+  end
+
+  def ar_facilities
     resource = BaseFacility.query(params).paginate(page: params[:page], per_page: BaseFacility.per_page)
     render json: resource,
            each_serializer: VAFacilitySerializer,
@@ -25,6 +40,21 @@ class V0::Facilities::VaController < FacilitiesController
   end
 
   def show
+    if Flipper.enabled?(:facility_locator_lighthouse_api)
+      api_show
+    else
+      ar_show
+    end
+  end
+
+  def api_show
+    results = api.get_by_id(params[:id])
+    raise Common::Exceptions::RecordNotFound, params[:id] if results.nil?
+
+    render json: results, serializer: Lighthouse::Facilities::FacilitySerializer
+  end
+
+  def ar_show
     results = BaseFacility.find_facility_by_id(params[:id])
     raise Common::Exceptions::RecordNotFound, params[:id] if results.nil?
 
@@ -60,6 +90,10 @@ class V0::Facilities::VaController < FacilitiesController
   end
 
   private
+
+  def api
+    Lighthouse::Facilities::Client.new
+  end
 
   def validate_types_name_part
     raise Common::Exceptions::ParameterMissing, 'name_part' if params[:name_part].blank?

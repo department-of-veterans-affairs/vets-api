@@ -24,6 +24,9 @@ features:
     description: >
       On https://www.va.gov/find-locations/ enable veterans to search for Community care by showing that option in the "Search for" box.
       This toggle is owned by Rian
+  facility_locator_lighthouse_api:
+    actor_type: user
+    description: Use the Lighthouse api instead of the database
   facility_locator_pull_operating_status_from_lighthouse:
     actor_type: user
     description: A fast and dirty way to get the operating status from lighthouse
