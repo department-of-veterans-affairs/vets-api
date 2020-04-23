@@ -77,7 +77,7 @@ RSpec.describe FormProfile, type: :model do
     {
       "veteranInformation" => {
         "veteranInformation" => {
-          "veteranFullName" => {
+          "fullName" => {
             "first"=>"Abraham",
             "last"=>"Lincoln",
             "suffix"=>"Jr."
