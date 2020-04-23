@@ -86,6 +86,8 @@ module AppealsApi
 
     # 9. CURRENT MAILING ADDRESS
     def number_and_street
+      return 'Use address on file.' if address_blank?
+
       address_field_as_string 'addressLine1'
     end
 
@@ -262,6 +264,15 @@ module AppealsApi
 
     def add_error(message)
       errors.add(:base, message)
+    end
+
+    def address_present?
+      address = veteran&.dig 'address'
+      address.is_a?(Hash) && address.values.any?(:present?)
+    end
+
+    def address_blank?
+      !address_present?
     end
   end
 end

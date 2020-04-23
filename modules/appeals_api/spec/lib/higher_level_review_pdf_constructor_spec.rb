@@ -27,7 +27,7 @@ describe AppealsApi::HigherLevelReviewPdfConstructor do
       'F[0].#subform[2].VAFileNumber[0]': '987654321',
       'F[0].#subform[2].VeteransServiceNumber[0]': '876543210',
       'F[0].#subform[2].InsurancePolicyNumber[0]': '987654321123456789',
-      'F[0].#subform[2].CurrentMailingAddress_NumberAndStreet[0]': '',
+      'F[0].#subform[2].CurrentMailingAddress_NumberAndStreet[0]': 'Use address on file.',
       'F[0].#subform[2].CurrentMailingAddress_ApartmentOrUnitNumber[0]': '',
       'F[0].#subform[2].CurrentMailingAddress_City[0]': '',
       'F[0].#subform[2].CurrentMailingAddress_StateOrProvince[0]': '',
