@@ -118,7 +118,7 @@ describe AppealsApi::HigherLevelReview, type: :model do
     subject { higher_level_review.number_and_street }
 
     it('instructs to use address on file (because there\'s no address)') do
-      expect(subject).to eq 'Use address on file.'
+      expect(subject).to eq described_class::NO_ADDRESS_PROVIDED_SENTENCE
     end
   end
 

@@ -20,6 +20,7 @@ module AppealsApi
     enum status: { pending: 0, processing: 1, submitted: 2, established: 3, errored: 4 }
 
     INFORMAL_CONFERENCE_REP_NAME_AND_PHONE_NUMBER_MAX_LENGTH = 100
+    NO_ADDRESS_PROVIDED_SENTENCE = 'USE ADDRESS ON FILE'
 
     # the controller applies the JSON Schemas in modules/appeals_api/config/schemas/
     # further validations:
@@ -86,7 +87,7 @@ module AppealsApi
 
     # 9. CURRENT MAILING ADDRESS
     def number_and_street
-      return 'Use address on file.' if address_blank?
+      return NO_ADDRESS_PROVIDED_SENTENCE if address_blank?
 
       address_field_as_string 'addressLine1'
     end
