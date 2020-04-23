@@ -5,6 +5,7 @@ require 'config_helper'
 Rails.application.configure do
   # Specify environment specific hostname and protocol
   config.hostname = Settings.hostname
+  config.hosts = Settings.virtual_hosts
   config.protocol = 'http'
   routes.default_url_options = { host: config.hostname, protocol: config.protocol }
   # Settings specified here will take precedence over those in config/application.rb.

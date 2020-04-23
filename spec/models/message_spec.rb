@@ -96,12 +96,12 @@ RSpec.describe Message do
         let(:draft_with_message) { build(:message_draft, :with_message) }
         let(:draft) { build(:message_draft) }
 
-        it 'drafts must not be tied to a mesage' do
+        it 'drafts must not be tied to a message' do
           draft_with_message.valid?
           expect(draft_with_message).not_to be_valid
         end
 
-        it 'reply drafts must be tied to a mesage' do
+        it 'reply drafts must be tied to a message' do
           expect(draft.as_reply).not_to be_valid
         end
 

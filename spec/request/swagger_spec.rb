@@ -452,7 +452,7 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
         end
       end
 
-      context 'unsucessful calls' do
+      context 'unsuccessful calls' do
         it 'returns error on showing a prescription with bad id' do
           VCR.use_cassette('rx_client/prescriptions/gets_a_single_prescription') do
             expect(subject).to validate(:get, '/v0/prescriptions/{id}', 404, headers.merge('id' => '1'))
