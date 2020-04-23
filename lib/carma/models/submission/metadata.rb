@@ -35,11 +35,19 @@ module CARMA
         end
 
         def secondary_caregiver_one=(sc_one_metadata_hash)
-          @secondary_caregiver_one = Metadata::Caregiver.new(sc_one_metadata_hash) unless sc_one_metadata_hash.nil?
+          @secondary_caregiver_one =  if sc_one_metadata_hash.nil?
+                                        nil
+                                      else
+                                        Metadata::Caregiver.new(sc_one_metadata_hash)
+                                      end
         end
 
         def secondary_caregiver_two=(sc_two_metadata_hash)
-          @secondary_caregiver_two = Metadata::Caregiver.new(sc_two_metadata_hash) unless sc_two_metadata_hash.nil?
+          @secondary_caregiver_two =  if sc_two_metadata_hash.nil?
+                                        nil
+                                      else
+                                        Metadata::Caregiver.new(sc_two_metadata_hash)
+                                      end
         end
       end
     end
