@@ -11,6 +11,7 @@ class AppealsApi::V1::DecisionReview::HigherLevelReviewsController < AppealsApi:
   before_action :validate_json_format, if: -> { request.post? }
   before_action :validate_json_schema, only: %i[create validate]
   before_action :new_higher_level_review, only: %i[create validate]
+  before_action :find_higher_level_review, only: %i[show]
 
   FORM_NUMBER = '200996'
   MODEL_ERROR_STATUS = 422
@@ -32,6 +33,10 @@ class AppealsApi::V1::DecisionReview::HigherLevelReviewsController < AppealsApi:
 
   def schema
     render json: { data: [AppealsApi::FormSchemas.new.schemas[self.class::FORM_NUMBER]] }
+  end
+
+  def show
+    render json: @higher_level_review
   end
 
   private
@@ -86,5 +91,23 @@ class AppealsApi::V1::DecisionReview::HigherLevelReviewsController < AppealsApi:
     end
 
     { errors: errors }
+  end
+
+  def find_higher_level_review
+    @id = params[:id]
+    @higher_level_review = AppealsApi::HigherLevelReview.find(@id)
+  rescue ActiveRecord::RecordNotFound
+    render_higher_level_review_not_found
+  end
+
+  def render_higher_level_review_not_found
+    render(
+      status: :not_found,
+      json: {
+        errors: [
+          { status: 404, detail: "HigherLevelReview with uuid #{@id.inspect} not found." }
+        ]
+      }
+    )
   end
 end

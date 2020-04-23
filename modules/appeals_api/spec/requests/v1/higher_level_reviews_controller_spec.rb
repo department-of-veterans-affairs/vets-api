@@ -71,4 +71,24 @@ describe AppealsApi::V1::DecisionReview::HigherLevelReviewsController, type: :re
       expect(response.status).to eq(200)
     end
   end
+
+  describe '#show' do
+    let(:path) { base_path 'higher_level_reviews/' }
+
+    it 'returns a higher_level_review with all of its data' do
+      uuid = create(:higher_level_review).id
+      get("#{path}#{uuid}")
+      expect(response.status).to eq(200)
+      expect(parsed.dig('data', 'attributes', 'form_data')).to be_a Hash
+    end
+
+    it 'returns an error when given a bad uuid' do
+      uuid = 0
+      get("#{path}#{uuid}")
+      pp parsed
+      expect(response.status).to eq(404)
+      expect(parsed['errors']).to be_an Array
+      expect(parsed['errors']).not_to be_empty
+    end
+  end
 end
