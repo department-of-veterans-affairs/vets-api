@@ -36,6 +36,11 @@ RSpec.describe CARMA::Models::Submission::Metadata, type: :model do
       expect(subject.secondary_caregiver_one).to be_instance_of(described_class::Caregiver)
       expect(subject.secondary_caregiver_one.icn).to eq('ABCD1234')
     end
+
+    it 'is can be set to nil' do
+      subject.secondary_caregiver_one = nil
+      expect(subject.secondary_caregiver_one).to eq(nil)
+    end
   end
 
   describe '#secondary_caregiver_two' do
@@ -44,6 +49,11 @@ RSpec.describe CARMA::Models::Submission::Metadata, type: :model do
 
       expect(subject.secondary_caregiver_two).to be_instance_of(described_class::Caregiver)
       expect(subject.secondary_caregiver_two.icn).to eq('ABCD1234')
+    end
+
+    it 'is can be set to nil' do
+      subject.secondary_caregiver_two = nil
+      expect(subject.secondary_caregiver_two).to eq(nil)
     end
   end
 

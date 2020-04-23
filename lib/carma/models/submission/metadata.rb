@@ -22,8 +22,8 @@ module CARMA
 
           self.veteran = args[:veteran] || {}
           self.primary_caregiver = args[:primary_caregiver] || {}
-          self.secondary_caregiver_one = args[:secondary_caregiver_one] unless args[:secondary_caregiver_one].nil?
-          self.secondary_caregiver_two = args[:secondary_caregiver_two] unless args[:secondary_caregiver_two].nil?
+          self.secondary_caregiver_one = args[:secondary_caregiver_one]
+          self.secondary_caregiver_two = args[:secondary_caregiver_two]
         end
 
         def veteran=(veteran_data_hash)
@@ -35,11 +35,11 @@ module CARMA
         end
 
         def secondary_caregiver_one=(sc_one_metadata_hash)
-          @secondary_caregiver_one = Metadata::Caregiver.new(sc_one_metadata_hash)
+          @secondary_caregiver_one = Metadata::Caregiver.new(sc_one_metadata_hash) unless sc_one_metadata_hash.nil?
         end
 
         def secondary_caregiver_two=(sc_two_metadata_hash)
-          @secondary_caregiver_two = Metadata::Caregiver.new(sc_two_metadata_hash)
+          @secondary_caregiver_two = Metadata::Caregiver.new(sc_two_metadata_hash) unless sc_two_metadata_hash.nil?
         end
       end
     end
