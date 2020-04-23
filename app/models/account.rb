@@ -28,8 +28,8 @@ class Account < ApplicationRecord
   # Required for configuring mixed in ActiveRecordCacheAside module.
   # Redis settings for ttl and namespacing reside in config/redis.yml
   #
-  redis REDIS_CONFIG['user_account_details']['namespace']
-  redis_ttl REDIS_CONFIG['user_account_details']['each_ttl']
+  redis REDIS_CONFIG[:user_account_details][:namespace]
+  redis_ttl REDIS_CONFIG[:user_account_details][:each_ttl]
 
   scope :idme_uuid_match, ->(v) { where(idme_uuid: v).where.not(idme_uuid: nil) }
   scope :sec_id_match, ->(v) { where(sec_id: v).where.not(sec_id: nil) }

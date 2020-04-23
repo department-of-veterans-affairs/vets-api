@@ -159,7 +159,7 @@ RSpec.describe CARMA::Models::Submission, type: :model do
   end
 
   describe '::from_claim' do
-    it 'transfroms a CaregiversAssistanceClaim to a new CARMA::Model::Submission' do
+    it 'transforms a CaregiversAssistanceClaim to a new CARMA::Model::Submission' do
       claim = build(:caregivers_assistance_claim)
 
       submission = described_class.from_claim(claim)

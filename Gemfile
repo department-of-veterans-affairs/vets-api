@@ -19,16 +19,16 @@ gem 'veteran_verification', path: 'modules/veteran_verification'
 # Anchored versions, do not change
 gem 'puma', '~> 4.3.2'
 gem 'puma-plugin-statsd', '~> 0.1.0'
-gem 'rails', '~> 5.2.4'
+gem 'rails', '~> 6.0.2'
 
 # Gems with special version/repo needs
-gem 'active_model_serializers', '0.10.4' # breaking changed in 0.10.5 relating to .to_json
+gem 'active_model_serializers', git: 'https://github.com/department-of-veterans-affairs/active_model_serializers', branch: 'master'
 gem 'carrierwave', '~> 0.11' # TODO: explanation
 gem 'sidekiq-scheduler', '~> 3.0' # TODO: explanation
 
 gem 'aasm'
 gem 'activerecord-import'
-gem 'activerecord-postgis-adapter', '~> 5.2.2'
+gem 'activerecord-postgis-adapter', '~> 6.0.0'
 gem 'addressable'
 gem 'attr_encrypted', '3.1.0'
 gem 'aws-sdk-s3', '~> 1'
@@ -106,7 +106,7 @@ gem 'swagger-blocks'
 gem 'typhoeus'
 gem 'upsert'
 gem 'utf8-cleaner'
-gem 'vets_json_schema', git: 'https://github.com/department-of-veterans-affairs/vets-json-schema', branch: 'master'
+gem 'vets_json_schema', git: 'https://github.com/department-of-veterans-affairs/vets-json-schema', ref: '4046437da2ee333c490ff7860b053062faccd65a'
 gem 'virtus'
 gem 'will_paginate'
 gem 'zero_downtime_migrations'
@@ -127,7 +127,7 @@ group :development do
 end
 
 group :test do
-  gem 'apivore'
+  gem 'apivore', git: 'https://github.com/department-of-veterans-affairs/apivore', branch: 'master'
   gem 'awrence'
   gem 'faker'
   gem 'faker-medical'
@@ -174,9 +174,11 @@ end
 group :production do
   # sidekiq enterprise requires a license key to download but is only required in production.
   # for local dev environments, regular sidekiq works fine
-  unless (Bundler::Settings.new['enterprise.contribsys.com'].nil? ||
-          Bundler::Settings.new['enterprise.contribsys.com']&.empty?) &&
-         ENV.fetch('BUNDLE_ENTERPRISE__CONTRIBSYS__COM', '').empty?
+  if (Bundler::Settings.new(Bundler.app_config_path)['enterprise.contribsys.com'].nil? ||
+      Bundler::Settings.new(Bundler.app_config_path)['enterprise.contribsys.com']&.empty?) &&
+     ENV.fetch('BUNDLE_ENTERPRISE__CONTRIBSYS__COM', '').empty?
+    Bundler.ui.warn 'No credentials found to install Sidekiq Enterprise. This is fine for local development but you may not check in this Gemfile.lock with any Sidekiq gems removed. The README file in this directory contains more information.'
+  else
     source 'https://enterprise.contribsys.com/' do
       gem 'sidekiq-ent'
       gem 'sidekiq-pro'

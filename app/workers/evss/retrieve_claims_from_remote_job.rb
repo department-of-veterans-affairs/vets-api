@@ -30,7 +30,7 @@ module EVSS
 
     def create_or_update_claim(raw_claim)
       claim = claims_scope.where(evss_id: raw_claim['id']).first_or_initialize(data: {})
-      claim.update_attributes(list_data: raw_claim)
+      claim.update(list_data: raw_claim)
     end
 
     def claims_scope

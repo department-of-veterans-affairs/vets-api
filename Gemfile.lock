@@ -1,4 +1,28 @@
 GIT
+  remote: https://github.com/department-of-veterans-affairs/active_model_serializers
+  revision: 19015caa80227e5ae5d62179129edcaa43fb3d9d
+  branch: master
+  specs:
+    active_model_serializers (0.10.4.vsp)
+      actionpack (>= 4.1)
+      activemodel (>= 4.1)
+      case_transform (>= 0.2)
+      jsonapi (= 0.1.1.beta6)
+
+GIT
+  remote: https://github.com/department-of-veterans-affairs/apivore
+  revision: b5b6c9803334f9ddc1c11e4f201fdc9f6353ef59
+  branch: master
+  specs:
+    apivore (1.6.2.vsp)
+      actionpack (>= 4)
+      hashie (~> 3.3)
+      json-schema (~> 2.5)
+      rspec (~> 3)
+      rspec-expectations (~> 3.1)
+      rspec-mocks (~> 3.1)
+
+GIT
   remote: https://github.com/department-of-veterans-affairs/betamocks
   revision: df8f8e600863fe35b1d0bab01372f65a75d50937
   branch: master
@@ -24,20 +48,20 @@ GIT
 
 GIT
   remote: https://github.com/department-of-veterans-affairs/lighthouse-bgs.git
-  revision: e81cbc0e1b55a0dda1ccb2cb2cb3a36b16f1d643
+  revision: a149a1734c1bf6e241ac5818f36aa5a3e1fef727
   branch: master
   specs:
-    lighthouse_bgs (0.11.0)
+    lighthouse_bgs (0.12.1)
       httpclient
       nokogiri (>= 1.8.5)
       savon (~> 2.12)
 
 GIT
   remote: https://github.com/department-of-veterans-affairs/vets-json-schema
-  revision: 448c1990dae9aa3485753987ed8cdcd88b9faaa6
-  branch: master
+  revision: 4046437da2ee333c490ff7860b053062faccd65a
+  ref: 4046437da2ee333c490ff7860b053062faccd65a
   specs:
-    vets_json_schema (3.144.2)
+    vets_json_schema (4.0.0)
       multi_json (~> 1.0)
       script_utils (= 0.0.4)
 
@@ -45,25 +69,22 @@ PATH
   remote: modules/appeals_api
   specs:
     appeals_api (0.0.1)
-      rails (~> 5.2.3)
+      sidekiq
 
 PATH
   remote: modules/claims_api
   specs:
     claims_api (0.0.1)
-      rails (~> 5.2.3)
 
 PATH
   remote: modules/openid_auth
   specs:
     openid_auth (0.0.1)
-      rails (~> 5.2.3)
 
 PATH
   remote: modules/va_facilities
   specs:
     va_facilities (0.0.1)
-      rails (~> 5.2.3)
 
 PATH
   remote: modules/va_forms
@@ -72,40 +93,34 @@ PATH
       faraday
       nokogiri
       paper_trail
-      rails (~> 5.2.3)
       sidekiq
 
 PATH
   remote: modules/vaos
   specs:
     vaos (0.1.0)
-      rails (~> 5.2.3)
 
 PATH
   remote: modules/vba_documents
   specs:
     vba_documents (0.0.1)
       aws-sdk-s3 (~> 1)
-      rails (~> 5.2.3)
       sidekiq
 
 PATH
   remote: modules/veteran_confirmation
   specs:
     veteran_confirmation (0.0.1)
-      rails (~> 5.2.3)
 
 PATH
   remote: modules/veteran_verification
   specs:
     veteran_verification (0.0.1)
-      rails (~> 5.2.3)
 
 PATH
   remote: modules/veteran
   specs:
     veteran (0.0.1)
-      rails (~> 5.2.3)
 
 GEM
   remote: https://rubygems.org/
@@ -114,57 +129,66 @@ GEM
     Ascii85 (1.0.3)
     aasm (5.0.6)
       concurrent-ruby (~> 1.0)
-    actioncable (5.2.4.2)
-      actionpack (= 5.2.4.2)
+    actioncable (6.0.2.2)
+      actionpack (= 6.0.2.2)
       nio4r (~> 2.0)
       websocket-driver (>= 0.6.1)
-    actionmailer (5.2.4.2)
-      actionpack (= 5.2.4.2)
-      actionview (= 5.2.4.2)
-      activejob (= 5.2.4.2)
+    actionmailbox (6.0.2.2)
+      actionpack (= 6.0.2.2)
+      activejob (= 6.0.2.2)
+      activerecord (= 6.0.2.2)
+      activestorage (= 6.0.2.2)
+      activesupport (= 6.0.2.2)
+      mail (>= 2.7.1)
+    actionmailer (6.0.2.2)
+      actionpack (= 6.0.2.2)
+      actionview (= 6.0.2.2)
+      activejob (= 6.0.2.2)
       mail (~> 2.5, >= 2.5.4)
       rails-dom-testing (~> 2.0)
-    actionpack (5.2.4.2)
-      actionview (= 5.2.4.2)
-      activesupport (= 5.2.4.2)
+    actionpack (6.0.2.2)
+      actionview (= 6.0.2.2)
+      activesupport (= 6.0.2.2)
       rack (~> 2.0, >= 2.0.8)
       rack-test (>= 0.6.3)
       rails-dom-testing (~> 2.0)
-      rails-html-sanitizer (~> 1.0, >= 1.0.2)
-    actionview (5.2.4.2)
-      activesupport (= 5.2.4.2)
+      rails-html-sanitizer (~> 1.0, >= 1.2.0)
+    actiontext (6.0.2.2)
+      actionpack (= 6.0.2.2)
+      activerecord (= 6.0.2.2)
+      activestorage (= 6.0.2.2)
+      activesupport (= 6.0.2.2)
+      nokogiri (>= 1.8.5)
+    actionview (6.0.2.2)
+      activesupport (= 6.0.2.2)
       builder (~> 3.1)
       erubi (~> 1.4)
       rails-dom-testing (~> 2.0)
-      rails-html-sanitizer (~> 1.0, >= 1.0.3)
-    active_model_serializers (0.10.4)
-      actionpack (>= 4.1, < 6)
-      activemodel (>= 4.1, < 6)
-      case_transform (>= 0.2)
-      jsonapi (= 0.1.1.beta6)
-    activejob (5.2.4.2)
-      activesupport (= 5.2.4.2)
+      rails-html-sanitizer (~> 1.1, >= 1.2.0)
+    activejob (6.0.2.2)
+      activesupport (= 6.0.2.2)
       globalid (>= 0.3.6)
-    activemodel (5.2.4.2)
-      activesupport (= 5.2.4.2)
-    activerecord (5.2.4.2)
-      activemodel (= 5.2.4.2)
-      activesupport (= 5.2.4.2)
-      arel (>= 9.0)
+    activemodel (6.0.2.2)
+      activesupport (= 6.0.2.2)
+    activerecord (6.0.2.2)
+      activemodel (= 6.0.2.2)
+      activesupport (= 6.0.2.2)
     activerecord-import (1.0.4)
       activerecord (>= 3.2)
-    activerecord-postgis-adapter (5.2.2)
-      activerecord (~> 5.1)
+    activerecord-postgis-adapter (6.0.0)
+      activerecord (~> 6.0)
       rgeo-activerecord (~> 6.0)
-    activestorage (5.2.4.2)
-      actionpack (= 5.2.4.2)
-      activerecord (= 5.2.4.2)
+    activestorage (6.0.2.2)
+      actionpack (= 6.0.2.2)
+      activejob (= 6.0.2.2)
+      activerecord (= 6.0.2.2)
       marcel (~> 0.3.1)
-    activesupport (5.2.4.2)
+    activesupport (6.0.2.2)
       concurrent-ruby (~> 1.0, >= 1.0.2)
       i18n (>= 0.7, < 2)
       minitest (~> 5.1)
       tzinfo (~> 1.1)
+      zeitwerk (~> 2.2)
     addressable (2.7.0)
       public_suffix (>= 2.0.2, < 5.0)
     adler32 (0.0.2)
@@ -172,14 +196,6 @@ GEM
     akami (1.3.1)
       gyoku (>= 0.4.0)
       nokogiri
-    apivore (1.6.2)
-      actionpack (>= 4, < 6)
-      hashie (~> 3.3)
-      json-schema (~> 2.5)
-      rspec (~> 3)
-      rspec-expectations (~> 3.1)
-      rspec-mocks (~> 3.1)
-    arel (9.0.0)
     ast (2.4.0)
     attr_encrypted (3.1.0)
       encryptor (~> 3.0.0)
@@ -215,7 +231,7 @@ GEM
     bundler-audit (0.6.1)
       bundler (>= 1.2.0, < 3)
       thor (~> 0.18)
-    byebug (11.1.1)
+    byebug (11.1.2)
     carrierwave (0.11.2)
       activemodel (>= 3.2.0)
       activesupport (>= 3.2.0)
@@ -538,18 +554,20 @@ GEM
       rack (>= 1.0, < 3)
     rack-vcr (0.1.5)
       vcr (>= 2.9)
-    rails (5.2.4.2)
-      actioncable (= 5.2.4.2)
-      actionmailer (= 5.2.4.2)
-      actionpack (= 5.2.4.2)
-      actionview (= 5.2.4.2)
-      activejob (= 5.2.4.2)
-      activemodel (= 5.2.4.2)
-      activerecord (= 5.2.4.2)
-      activestorage (= 5.2.4.2)
-      activesupport (= 5.2.4.2)
+    rails (6.0.2.2)
+      actioncable (= 6.0.2.2)
+      actionmailbox (= 6.0.2.2)
+      actionmailer (= 6.0.2.2)
+      actionpack (= 6.0.2.2)
+      actiontext (= 6.0.2.2)
+      actionview (= 6.0.2.2)
+      activejob (= 6.0.2.2)
+      activemodel (= 6.0.2.2)
+      activerecord (= 6.0.2.2)
+      activestorage (= 6.0.2.2)
+      activesupport (= 6.0.2.2)
       bundler (>= 1.3.0)
-      railties (= 5.2.4.2)
+      railties (= 6.0.2.2)
       sprockets-rails (>= 2.0.0)
     rails-dom-testing (2.0.3)
       activesupport (>= 4.2.0)
@@ -561,12 +579,12 @@ GEM
     rails_semantic_logger (4.4.0)
       rails (>= 3.2)
       semantic_logger (~> 4.4)
-    railties (5.2.4.2)
-      actionpack (= 5.2.4.2)
-      activesupport (= 5.2.4.2)
+    railties (6.0.2.2)
+      actionpack (= 6.0.2.2)
+      activesupport (= 6.0.2.2)
       method_source
       rake (>= 0.8.7)
-      thor (>= 0.19.0, < 2.0)
+      thor (>= 0.20.3, < 2.0)
     rainbow (3.0.0)
     rake (13.0.1)
     rb-fsevent (0.10.3)
@@ -586,8 +604,8 @@ GEM
       json (>= 1.7.5)
     rexml (3.2.4)
     rgeo (2.0.1)
-    rgeo-activerecord (6.1.0)
-      activerecord (~> 5.0)
+    rgeo-activerecord (6.2.1)
+      activerecord (>= 5.0)
       rgeo (>= 1.0.0)
     rgeo-geojson (2.1.1)
       rgeo (>= 1.0.0)
@@ -679,7 +697,7 @@ GEM
     sidekiq-instrument (0.3.0)
       sidekiq (>= 4.2, < 6)
       statsd-instrument (~> 2.0, >= 2.0.4)
-    sidekiq-pro (3.7.0)
+    sidekiq-pro (3.7.1)
       sidekiq (>= 4.1.5)
     sidekiq-scheduler (3.0.1)
       e2mmap
@@ -756,6 +774,7 @@ GEM
     xmlmapper (0.7.3)
       nokogiri (~> 1.5)
     yard (0.9.24)
+    zeitwerk (2.3.0)
     zero_downtime_migrations (0.0.7)
       activerecord
 
@@ -764,11 +783,11 @@ PLATFORMS
 
 DEPENDENCIES
   aasm
-  active_model_serializers (= 0.10.4)
+  active_model_serializers!
   activerecord-import
-  activerecord-postgis-adapter (~> 5.2.2)
+  activerecord-postgis-adapter (~> 6.0.0)
   addressable
-  apivore
+  apivore!
   appeals_api!
   attr_encrypted (= 3.1.0)
   awesome_print (~> 1.8)
@@ -853,7 +872,7 @@ DEPENDENCIES
   rack-cors
   rack-test
   rack-vcr
-  rails (~> 5.2.4)
+  rails (~> 6.0.2)
   rails-session_cookie
   rails_semantic_logger (~> 4.4)
   rainbow
