@@ -897,7 +897,6 @@ RSpec.describe FormProfile, type: :model do
         end
 
         %w[
-          VIC
           22-1990
           22-1990N
           22-1990E
