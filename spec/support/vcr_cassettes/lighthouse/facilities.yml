@@ -1,0 +1,2335 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: https://dev-api.va.gov/services/va_facilities/v0/facilities/vha_358
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Apikey:
+      - "<LIGHTHOUSE_API_KEY>"
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: ''
+    headers:
+      Date:
+      - Tue, 14 Apr 2020 18:58:03 GMT
+      Content-Type:
+      - application/json
+      Connection:
+      - keep-alive
+      Access-Control-Allow-Origin:
+      - "*"
+      Strict-Transport-Security:
+      - max-age=15724800; includeSubDomains
+      - max-age=31536000; includeSubDomains; preload
+      Vary:
+      - Accept-Encoding
+      Via:
+      - kong/1.2.2
+      X-Kong-Proxy-Latency:
+      - '2'
+      X-Kong-Upstream-Latency:
+      - '314'
+      X-Ratelimit-Limit-Minute:
+      - '60'
+      X-Ratelimit-Remaining-Minute:
+      - '59'
+      Cache-Control:
+      - ''
+      - no-cache, no-store
+      Pragma:
+      - no-cache
+      Set-Cookie:
+      - TS016f4012=01c8917e488d7f89479af2229355dabf8b48687a2b30f1820815fb09123ff7c94611c79361a9bf002cfa4e77b978e1fc4950e72b9d;
+        Max-Age=900; Path=/
+      Transfer-Encoding:
+      - chunked
+    body:
+      encoding: ASCII-8BIT
+      string: '{"data":{"id":"vha_358","type":"va_facilities","attributes":{"name":"Manila
+        VA Clinic","facility_type":"va_health_facility","classification":"Other Outpatient
+        Services (OOS)","website":null,"lat":14.544080000000065,"long":120.99139000000002,"address":{"mailing":{},"physical":{"zip":"01302","city":"Pasay
+        City","state":"PH","address_1":"1501 Roxas Boulevard","address_2":"NOX3 Seafront
+        Compound","address_3":null}},"phone":{"fax":"632-310-5962","main":"632-550-3888","pharmacy":"632-550-3888
+        x5029","after_hours":"000-000-0000","patient_advocate":"632-550-3888 x3716","enrollment_coordinator":"632-550-3888
+        x3780"},"hours":{"monday":"730AM-430PM","tuesday":"730AM-430PM","wednesday":"730AM-430PM","thursday":"730AM-430PM","friday":"730AM-430PM","saturday":"Closed","sunday":"Closed"},"services":{"other":[],"health":["Audiology","Cardiology","Dermatology","EmergencyCare","Gastroenterology","MentalHealthCare","Ophthalmology","Orthopedics","PrimaryCare","SpecialtyCare"],"last_updated":"2020-04-06"},"satisfaction":{"health":{"specialty_care_routine":0.9100000262260437},"effective_date":"2019-06-20"},"wait_times":{"health":[{"service":"Audiology","new":158.0,"established":14.352941},{"service":"Cardiology","new":66.75,"established":34.034482},{"service":"Dermatology","new":123.5,"established":3.4},{"service":"Gastroenterology","new":208.0,"established":null},{"service":"MentalHealthCare","new":134.222222,"established":24.228571},{"service":"Ophthalmology","new":154.6,"established":10.111111},{"service":"Orthopedics","new":122.0,"established":25.17647},{"service":"PrimaryCare","new":28.8125,"established":18.927083},{"service":"SpecialtyCare","new":75.317073,"established":19.22807}],"effective_date":"2020-04-06"},"mobile":false,"active_status":"A","operating_status":{"code":"NORMAL"},"visn":"21"}}}'
+    http_version: null
+  recorded_at: Tue, 14 Apr 2020 18:58:03 GMT
+- request:
+    method: get
+    uri: https://dev-api.va.gov/services/va_facilities/v0/facilities/bha_358
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Apikey:
+      - "<LIGHTHOUSE_API_KEY>"
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 404
+      message: ''
+    headers:
+      Date:
+      - Tue, 14 Apr 2020 19:00:03 GMT
+      Content-Type:
+      - application/json
+      Content-Length:
+      - '130'
+      Connection:
+      - keep-alive
+      Access-Control-Allow-Origin:
+      - "*"
+      Strict-Transport-Security:
+      - max-age=15724800; includeSubDomains
+      - max-age=31536000; includeSubDomains; preload
+      Vary:
+      - Accept-Encoding
+      Via:
+      - kong/1.2.2
+      X-Kong-Proxy-Latency:
+      - '35'
+      X-Kong-Upstream-Latency:
+      - '326'
+      X-Ratelimit-Limit-Minute:
+      - '60'
+      X-Ratelimit-Remaining-Minute:
+      - '59'
+      Cache-Control:
+      - ''
+      Set-Cookie:
+      - TS016f4012=0119a2687f8323e3dc0424f42b4fb67de2e9c889061a50c6e77487ecb78948c6405ee101fae610e9e9060f534f9433888004474a8a;
+        Max-Age=900; Path=/
+    body:
+      encoding: ASCII-8BIT
+      string: '{"errors":[{"title":"Record not found","detail":"The record identified
+        by bha_358 could not be found","code":"404","status":"404"}]}'
+    http_version: null
+  recorded_at: Tue, 14 Apr 2020 19:00:03 GMT
+- request:
+    method: get
+    uri: https://dev-api.va.gov/va_facilities/v0/facilities?taco=true
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Apikey:
+      - "<LIGHTHOUSE_API_KEY>"
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 404
+      message: Not Found
+    headers:
+      Date:
+      - Wed, 15 Apr 2020 13:10:12 GMT
+      Content-Type:
+      - application/json; charset=utf-8
+      Connection:
+      - keep-alive
+      Vary:
+      - Origin
+      X-Git-Sha:
+      - ''
+      X-Github-Repository:
+      - https://github.com/department-of-veterans-affairs/vets-api
+      X-Request-Id:
+      - aab4bc46-2f73-4536-a68a-a8aa76924e25
+      X-Runtime:
+      - '0.004648'
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubDomains; preload
+      Set-Cookie:
+      - TS016f4012=01c8917e4838ce0226d422c82bcd5b3041e27b790c12cd728f009ac221655ef39852592f5515c03a04d24c0b53575c6b2a3714a204;
+        Max-Age=900; Path=/
+      Transfer-Encoding:
+      - chunked
+    body:
+      encoding: ASCII-8BIT
+      string: '{"errors":[{"title":"Not found","detail":"There are no routes matching
+        your request: va_facilities/v0/facilities","code":"411","status":"404"}]}'
+    http_version: null
+  recorded_at: Wed, 15 Apr 2020 13:10:13 GMT
+- request:
+    method: get
+    uri: https://dev-api.va.gov/services/va_facilities/v0/facilities?taco=true
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Apikey:
+      - "<LIGHTHOUSE_API_KEY>"
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 400
+      message: ''
+    headers:
+      Date:
+      - Wed, 15 Apr 2020 13:13:53 GMT
+      Content-Type:
+      - application/json
+      Content-Length:
+      - '216'
+      Connection:
+      - keep-alive
+      Access-Control-Allow-Origin:
+      - "*"
+      Strict-Transport-Security:
+      - max-age=15724800; includeSubDomains
+      - max-age=31536000; includeSubDomains; preload
+      Via:
+      - kong/1.2.2
+      X-Kong-Proxy-Latency:
+      - '0'
+      X-Kong-Upstream-Latency:
+      - '318'
+      X-Ratelimit-Limit-Minute:
+      - '60'
+      X-Ratelimit-Remaining-Minute:
+      - '59'
+      Cache-Control:
+      - ''
+      Set-Cookie:
+      - TS016f4012=01c8917e489e7ea1e3750af5554ec52aef1c99ee6996f9339d64ff252991fb36b4b0116537508a5c0448e7ef1756012d430bceacc2;
+        Max-Age=900; Path=/
+    body:
+      encoding: UTF-8
+      string: '{"errors":[{"title":"Missing parameter","detail":"Parameter conditions
+        \"bbox[]\" OR \"ids\" OR \"lat, long\" OR \"state\" OR \"zip\" not met for
+        actual request parameters: taco={true}","code":"108","status":"400"}]}'
+    http_version: null
+  recorded_at: Wed, 15 Apr 2020 13:13:54 GMT
+- request:
+    method: get
+    uri: https://dev-api.va.gov/services/va_facilities/v0/facilities?bbox%5B%5D=10.54&bbox%5B%5D=180.0&bbox%5B%5D=20.55&bbox%5B%5D=60.99
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Apikey:
+      - "<LIGHTHOUSE_API_KEY>"
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: ''
+    headers:
+      Date:
+      - Wed, 15 Apr 2020 13:28:01 GMT
+      Content-Type:
+      - application/json
+      Connection:
+      - keep-alive
+      Access-Control-Allow-Origin:
+      - "*"
+      Strict-Transport-Security:
+      - max-age=15724800; includeSubDomains
+      - max-age=31536000; includeSubDomains; preload
+      Vary:
+      - Accept-Encoding
+      Via:
+      - kong/1.2.2
+      X-Kong-Proxy-Latency:
+      - '0'
+      X-Kong-Upstream-Latency:
+      - '338'
+      X-Ratelimit-Limit-Minute:
+      - '60'
+      X-Ratelimit-Remaining-Minute:
+      - '59'
+      Cache-Control:
+      - ''
+      - no-cache, no-store
+      Pragma:
+      - no-cache
+      Set-Cookie:
+      - TS016f4012=0119a2687ff95e47874308e24184ea1077b70a467140f953e3b1a23cf3ba428e7c44098d311dadddd4f2836d31ed55bf017b9a3076;
+        Max-Age=900; Path=/
+      Transfer-Encoding:
+      - chunked
+    body:
+      encoding: ASCII-8BIT
+      string: '{"data":[{"id":"vha_358","type":"va_facilities","attributes":{"name":"Manila
+        VA Clinic","facility_type":"va_health_facility","classification":"Other Outpatient
+        Services (OOS)","website":null,"lat":14.544080000000065,"long":120.99139000000002,"address":{"mailing":{},"physical":{"zip":"01302","city":"Pasay
+        City","state":"PH","address_1":"1501 Roxas Boulevard","address_2":"NOX3 Seafront
+        Compound","address_3":null}},"phone":{"fax":"632-310-5962","main":"632-550-3888","pharmacy":"632-550-3888
+        x5029","after_hours":"000-000-0000","patient_advocate":"632-550-3888 x3716","enrollment_coordinator":"632-550-3888
+        x3780"},"hours":{"friday":"730AM-430PM","monday":"730AM-430PM","sunday":"Closed","tuesday":"730AM-430PM","saturday":"Closed","thursday":"730AM-430PM","wednesday":"730AM-430PM"},"services":{"other":[],"health":["Audiology","Cardiology","Dermatology","EmergencyCare","Gastroenterology","MentalHealthCare","Ophthalmology","Orthopedics","PrimaryCare","SpecialtyCare"],"last_updated":"2020-04-06"},"satisfaction":{"health":{"specialty_care_routine":0.9100000262260437},"effective_date":"2019-06-20"},"wait_times":{"health":[{"service":"Audiology","new":158.0,"established":14.352941},{"service":"Cardiology","new":66.75,"established":34.034482},{"service":"Dermatology","new":123.5,"established":3.4},{"service":"Gastroenterology","new":208.0,"established":null},{"service":"MentalHealthCare","new":134.222222,"established":24.228571},{"service":"Ophthalmology","new":154.6,"established":10.111111},{"service":"Orthopedics","new":122.0,"established":25.17647},{"service":"PrimaryCare","new":28.8125,"established":18.927083},{"service":"SpecialtyCare","new":75.317073,"established":19.22807}],"effective_date":"2020-04-06"},"mobile":false,"active_status":"A","operating_status":{"code":"NORMAL"},"visn":"21"}},{"id":"vba_358","type":"va_facilities","attributes":{"name":"Manila
+        Regional Benefit Office","facility_type":"va_benefits_facility","classification":"Regional
+        Benefit Office","website":"https://www.benefits.va.gov/manila","lat":14.544103880000023,"long":120.99219180000011,"address":{"mailing":{},"physical":{"zip":"01302","city":"Pasay
+        City","state":"PH","address_1":"1501 Roxas Boulevard","address_2":null,"address_3":null}},"phone":{"fax":"011-632-550-3944","main":"1-800-827-1000"},"hours":{"friday":"8:00AM-4:00PM","monday":"8:00AM-4:00PM","sunday":"Closed","tuesday":"8:00AM-4:00PM","saturday":"Closed","thursday":"8:00AM-4:00PM","wednesday":"8:00AM-4:00PM"},"services":{"benefits":["ApplyingForBenefits","BurialClaimAssistance","DisabilityClaimAssistance","eBenefitsRegistrationAssistance","EducationAndCareerCounseling","EducationClaimAssistance","FamilyMemberClaimAssistance","HomelessAssistance","UpdatingDirectDepositInformation","VocationalRehabilitationAndEmploymentAssistance","Pensions"]},"satisfaction":{},"wait_times":{},"mobile":null,"active_status":null,"operating_status":{"code":"NORMAL"},"visn":null}},{"id":"nca_s1139","type":"va_facilities","attributes":{"name":"Guam
+        Veterans Cemetery","facility_type":"va_cemetery","classification":"State Cemetery","website":null,"lat":13.4579839832273,"long":144.691046476364,"address":{"mailing":{},"physical":{"zip":"96910","city":"Agatna
+        Heights","state":"GU","address_1":"490 Chalan Palayso"}},"phone":{"fax":"671-475-8396","main":"671-475-8388"},"hours":{"friday":"Sunrise
+        - Sunset","monday":"Sunrise - Sunset","sunday":"Sunrise - Sunset","tuesday":"Sunrise
+        - Sunset","saturday":"Sunrise - Sunset","thursday":"Sunrise - Sunset","wednesday":"Sunrise
+        - Sunset"},"services":{},"satisfaction":{},"wait_times":{},"mobile":null,"active_status":null,"operating_status":{"code":"NORMAL"},"visn":null}},{"id":"vha_459GE","type":"va_facilities","attributes":{"name":"Guam
+        VA Clinic","facility_type":"va_health_facility","classification":"Multi-Specialty
+        CBOC","website":"https://www.hawaii.va.gov/locations/Agana_Heights_Guam.asp","lat":13.471907570000042,"long":144.74036330000001,"address":{"mailing":{},"physical":{"zip":"96910-6427","city":"Agana
+        Heights","state":"GU","address_1":"498 Chalan Palasyo","address_2":null,"address_3":null}},"phone":{"fax":"671-475-5855","main":"671-475-5760","pharmacy":"800-465-8387","after_hours":"800-214-1306","patient_advocate":"808-433-0126","mental_health_clinic":"808-433-0660","enrollment_coordinator":"808-433-7600"},"hours":{"friday":"730AM-400PM","monday":"730AM-400PM","sunday":"Closed","tuesday":"730AM-400PM","saturday":"Closed","thursday":"730AM-400PM","wednesday":"730AM-400PM"},"services":{"other":[],"health":["Dermatology","Gastroenterology","MentalHealthCare","Podiatry","PrimaryCare","SpecialtyCare"],"last_updated":"2020-04-06"},"satisfaction":{"health":{"primary_care_urgent":0.550000011920929,"primary_care_routine":0.5899999737739563},"effective_date":"2019-06-20"},"wait_times":{"health":[{"service":"Dermatology","new":21.0,"established":null},{"service":"Gastroenterology","new":2.0,"established":75.826086},{"service":"MentalHealthCare","new":7.666666,"established":4.92},{"service":"PrimaryCare","new":29.68421,"established":2.821989},{"service":"SpecialtyCare","new":11.5,"established":56.135135}],"effective_date":"2020-04-06"},"mobile":false,"active_status":"A","operating_status":{"code":"NORMAL"},"visn":"21"}},{"id":"vc_0648V","type":"va_facilities","attributes":{"name":"Guam
+        Vet Center","facility_type":"vet_center","classification":null,"website":null,"lat":13.475680000000068,"long":144.75083000000006,"address":{"mailing":{},"physical":{"zip":"96910","city":"Maite","state":"GU","address_1":"400
+        Route 8","address_2":"Suite 301","address_3":null}},"phone":{"main":"671-472-7161"},"hours":{"friday":"800AM-800PM","monday":"800AM-800PM","sunday":"Closed","tuesday":"800AM-430PM","saturday":"Closed","thursday":"800AM-430PM","wednesday":"800AM-430PM"},"services":{},"satisfaction":{},"wait_times":{},"mobile":null,"active_status":null,"operating_status":{"code":"NORMAL"},"visn":null}},{"id":"vba_459h","type":"va_facilities","attributes":{"name":"Guam
+        Benefit Office","facility_type":"va_benefits_facility","classification":"Outbased","website":null,"lat":13.487934190000033,"long":144.79828440000006,"address":{"mailing":{},"physical":{"zip":"96913","city":"Tamuning","state":"GU","address_1":"770
+        East Sunset Blvd.","address_2":"Suite 165","address_3":null}},"phone":{"fax":"671-648-0096","main":"671-648-0090"},"hours":{"friday":"8:00AM-4:00PM","monday":"8:00AM-4:00PM","sunday":"Closed","tuesday":"8:00AM-4:00PM","saturday":"Closed","thursday":"8:00AM-4:00PM","wednesday":"8:00AM-4:00PM"},"services":{"benefits":["ApplyingForBenefits","BurialClaimAssistance","DisabilityClaimAssistance","eBenefitsRegistrationAssistance","EducationAndCareerCounseling","EducationClaimAssistance","FamilyMemberClaimAssistance","HomelessAssistance","PreDischargeClaimAssistance","TransitionAssistance","UpdatingDirectDepositInformation","VocationalRehabilitationAndEmploymentAssistance"]},"satisfaction":{},"wait_times":{},"mobile":null,"active_status":null,"operating_status":{"code":"NORMAL"},"visn":null}},{"id":"vha_459GH","type":"va_facilities","attributes":{"name":"Saipan
+        VA Clinic","facility_type":"va_health_facility","classification":"Other Outpatient
+        Services (OOS)","website":"https://www.hawaii.va.gov/locations/saipan.asp","lat":15.21679400000005,"long":145.72938500000009,"address":{"mailing":{},"physical":{"zip":"96950-9998","city":"Saipan","state":"MP","address_1":"Marina
+        Heights Business Park - Garapan","address_2":"Medical Associates of the Pacific","address_3":"MH-II
+        Building Suite 100 and 206"}},"phone":{"fax":"670-322-0038","main":"670-322-0035","pharmacy":"800-465-8387","after_hours":"800-214-1306","patient_advocate":"670-322-0035","enrollment_coordinator":"808-433-7600"},"hours":{"friday":"Closed","monday":"Closed","sunday":"Closed","tuesday":"830AM-400PM","saturday":"Closed","thursday":"830AM-400PM","wednesday":"Closed"},"services":{"other":[],"health":["Gastroenterology","MentalHealthCare","Podiatry","PrimaryCare","SpecialtyCare"],"last_updated":"2020-04-06"},"satisfaction":{"health":{},"effective_date":null},"wait_times":{"health":[{"service":"Gastroenterology","new":null,"established":0.0},{"service":"MentalHealthCare","new":null,"established":8.25},{"service":"PrimaryCare","new":9.0,"established":0.060606},{"service":"SpecialtyCare","new":null,"established":0.0}],"effective_date":"2020-04-06"},"mobile":false,"active_status":"A","operating_status":{"code":"NORMAL"},"visn":"21"}},{"id":"nca_s1140","type":"va_facilities","attributes":{"name":"CNMI
+        Veterans Cemetery","facility_type":"va_cemetery","classification":"State Cemetery","website":null,"lat":15.2860893875671,"long":145.810772180557,"address":{"mailing":{},"physical":{"zip":"96950","city":"Saipan","state":"MP","address_1":"P.O.
+        Box 503416"}},"phone":{"fax":null,"main":"670-664-2650"},"hours":{"friday":"Sunrise
+        - Sunset","monday":"Sunrise - Sunset","sunday":"Sunrise - Sunset","tuesday":"Sunrise
+        - Sunset","saturday":"Sunrise - Sunset","thursday":"Sunrise - Sunset","wednesday":"Sunrise
+        - Sunset"},"services":{},"satisfaction":{},"wait_times":{},"mobile":null,"active_status":null,"operating_status":{"code":"NORMAL"},"visn":null}}],"links":{"self":"https://sandbox-api.va.gov/services/va_facilities/v0/facilities?bbox%5B%5D=60.99&bbox%5B%5D=10.54&bbox%5B%5D=180.0&bbox%5B%5D=20.55&page=1&per_page=10","first":"https://sandbox-api.va.gov/services/va_facilities/v0/facilities?bbox%5B%5D=60.99&bbox%5B%5D=10.54&bbox%5B%5D=180.0&bbox%5B%5D=20.55&page=1&per_page=10","prev":null,"next":null,"last":"https://sandbox-api.va.gov/services/va_facilities/v0/facilities?bbox%5B%5D=60.99&bbox%5B%5D=10.54&bbox%5B%5D=180.0&bbox%5B%5D=20.55&page=1&per_page=10"},"meta":{"pagination":{"current_page":1,"per_page":10,"total_pages":1,"total_entries":8},"distances":[]}}'
+    http_version: null
+  recorded_at: Wed, 15 Apr 2020 13:28:02 GMT
+- request:
+    method: get
+    uri: https://sandbox-api.va.gov/services/va_facilities/v0/facilities?lat=13.54&long=121.0
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Apikey:
+      - ta1aGrN8CNI7ftatfbCyKnC5y9gI9xCJ
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: ''
+    headers:
+      Date:
+      - Fri, 17 Apr 2020 13:49:20 GMT
+      Content-Type:
+      - application/json
+      Connection:
+      - keep-alive
+      Access-Control-Allow-Origin:
+      - "*"
+      Strict-Transport-Security:
+      - max-age=15724800; includeSubDomains
+      - max-age=31536000; includeSubDomains; preload
+      Vary:
+      - Accept-Encoding
+      Via:
+      - kong/1.2.2
+      X-Kong-Proxy-Latency:
+      - '2'
+      X-Kong-Upstream-Latency:
+      - '113'
+      X-Ratelimit-Limit-Minute:
+      - '60'
+      X-Ratelimit-Remaining-Minute:
+      - '59'
+      Cache-Control:
+      - ''
+      - no-cache, no-store
+      Pragma:
+      - no-cache
+      Set-Cookie:
+      - TS016f4012=01c8917e48f18db7ee1ac42a298621aadcb9f15ab1861417a73516e138d0f474c926e9b9a9f8a57d5cbc71aaa5efa0dd87d578c63d;
+        Max-Age=900; Path=/
+      Transfer-Encoding:
+      - chunked
+    body:
+      encoding: ASCII-8BIT
+      string: '{"data":[{"id":"vha_358","type":"va_facilities","attributes":{"name":"Manila
+        VA Clinic","facility_type":"va_health_facility","classification":"Other Outpatient
+        Services (OOS)","website":null,"lat":14.544080000000065,"long":120.99139000000002,"address":{"mailing":{},"physical":{"zip":"01302","city":"Pasay
+        City","state":"PH","address_1":"1501 Roxas Boulevard","address_2":"NOX3 Seafront
+        Compound","address_3":null}},"phone":{"fax":"632-310-5962","main":"632-550-3888","pharmacy":"632-550-3888
+        x5029","after_hours":"000-000-0000","patient_advocate":"632-550-3888 x3716","enrollment_coordinator":"632-550-3888
+        x3780"},"hours":{"friday":"730AM-430PM","monday":"730AM-430PM","sunday":"Closed","tuesday":"730AM-430PM","saturday":"Closed","thursday":"730AM-430PM","wednesday":"730AM-430PM"},"services":{"other":[],"health":["Audiology","Cardiology","Dermatology","EmergencyCare","Gastroenterology","MentalHealthCare","Ophthalmology","Orthopedics","PrimaryCare","SpecialtyCare"],"last_updated":"2020-04-06"},"satisfaction":{"health":{"specialty_care_routine":0.9100000262260437},"effective_date":"2019-06-20"},"wait_times":{"health":[{"service":"Audiology","new":158.0,"established":14.352941},{"service":"Cardiology","new":66.75,"established":34.034482},{"service":"Dermatology","new":123.5,"established":3.4},{"service":"Gastroenterology","new":208.0,"established":null},{"service":"MentalHealthCare","new":134.222222,"established":24.228571},{"service":"Ophthalmology","new":154.6,"established":10.111111},{"service":"Orthopedics","new":122.0,"established":25.17647},{"service":"PrimaryCare","new":28.8125,"established":18.927083},{"service":"SpecialtyCare","new":75.317073,"established":19.22807}],"effective_date":"2020-04-06"},"mobile":false,"active_status":"A","operating_status":{"code":"NORMAL"},"visn":"21"}},{"id":"vba_358","type":"va_facilities","attributes":{"name":"Manila
+        Regional Benefit Office","facility_type":"va_benefits_facility","classification":"Regional
+        Benefit Office","website":"https://www.benefits.va.gov/manila","lat":14.544103880000023,"long":120.99219180000011,"address":{"mailing":{},"physical":{"zip":"01302","city":"Pasay
+        City","state":"PH","address_1":"1501 Roxas Boulevard","address_2":null,"address_3":null}},"phone":{"fax":"011-632-550-3944","main":"1-800-827-1000"},"hours":{"friday":"8:00AM-4:00PM","monday":"8:00AM-4:00PM","sunday":"Closed","tuesday":"8:00AM-4:00PM","saturday":"Closed","thursday":"8:00AM-4:00PM","wednesday":"8:00AM-4:00PM"},"services":{"benefits":["ApplyingForBenefits","BurialClaimAssistance","DisabilityClaimAssistance","eBenefitsRegistrationAssistance","EducationAndCareerCounseling","EducationClaimAssistance","FamilyMemberClaimAssistance","HomelessAssistance","UpdatingDirectDepositInformation","VocationalRehabilitationAndEmploymentAssistance","Pensions"]},"satisfaction":{},"wait_times":{},"mobile":null,"active_status":null,"operating_status":{"code":"NORMAL"},"visn":null}},{"id":"nca_s1139","type":"va_facilities","attributes":{"name":"Guam
+        Veterans Cemetery","facility_type":"va_cemetery","classification":"State Cemetery","website":null,"lat":13.4579839832273,"long":144.691046476364,"address":{"mailing":{},"physical":{"zip":"96910","city":"Agatna
+        Heights","state":"GU","address_1":"490 Chalan Palayso"}},"phone":{"fax":"671-475-8396","main":"671-475-8388"},"hours":{"friday":"Sunrise
+        - Sunset","monday":"Sunrise - Sunset","sunday":"Sunrise - Sunset","tuesday":"Sunrise
+        - Sunset","saturday":"Sunrise - Sunset","thursday":"Sunrise - Sunset","wednesday":"Sunrise
+        - Sunset"},"services":{},"satisfaction":{},"wait_times":{},"mobile":null,"active_status":null,"operating_status":{"code":"NORMAL"},"visn":null}},{"id":"vha_459GE","type":"va_facilities","attributes":{"name":"Guam
+        VA Clinic","facility_type":"va_health_facility","classification":"Multi-Specialty
+        CBOC","website":"https://www.hawaii.va.gov/locations/Agana_Heights_Guam.asp","lat":13.471907570000042,"long":144.74036330000001,"address":{"mailing":{},"physical":{"zip":"96910-6427","city":"Agana
+        Heights","state":"GU","address_1":"498 Chalan Palasyo","address_2":null,"address_3":null}},"phone":{"fax":"671-475-5855","main":"671-475-5760","pharmacy":"800-465-8387","after_hours":"800-214-1306","patient_advocate":"808-433-0126","mental_health_clinic":"808-433-0660","enrollment_coordinator":"808-433-7600"},"hours":{"friday":"730AM-400PM","monday":"730AM-400PM","sunday":"Closed","tuesday":"730AM-400PM","saturday":"Closed","thursday":"730AM-400PM","wednesday":"730AM-400PM"},"services":{"other":[],"health":["Dermatology","Gastroenterology","MentalHealthCare","Podiatry","PrimaryCare","SpecialtyCare"],"last_updated":"2020-04-06"},"satisfaction":{"health":{"primary_care_urgent":0.550000011920929,"primary_care_routine":0.5899999737739563},"effective_date":"2019-06-20"},"wait_times":{"health":[{"service":"Dermatology","new":21.0,"established":null},{"service":"Gastroenterology","new":2.0,"established":75.826086},{"service":"MentalHealthCare","new":7.666666,"established":4.92},{"service":"PrimaryCare","new":29.68421,"established":2.821989},{"service":"SpecialtyCare","new":11.5,"established":56.135135}],"effective_date":"2020-04-06"},"mobile":false,"active_status":"A","operating_status":{"code":"NORMAL"},"visn":"21"}},{"id":"vc_0648V","type":"va_facilities","attributes":{"name":"Guam
+        Vet Center","facility_type":"vet_center","classification":null,"website":null,"lat":13.475680000000068,"long":144.75083000000006,"address":{"mailing":{},"physical":{"zip":"96910","city":"Maite","state":"GU","address_1":"400
+        Route 8","address_2":"Suite 301","address_3":null}},"phone":{"main":"671-472-7161"},"hours":{"friday":"800AM-800PM","monday":"800AM-800PM","sunday":"Closed","tuesday":"800AM-430PM","saturday":"Closed","thursday":"800AM-430PM","wednesday":"800AM-430PM"},"services":{},"satisfaction":{},"wait_times":{},"mobile":null,"active_status":null,"operating_status":{"code":"NORMAL"},"visn":null}},{"id":"vba_459h","type":"va_facilities","attributes":{"name":"Guam
+        Benefit Office","facility_type":"va_benefits_facility","classification":"Outbased","website":null,"lat":13.487934190000033,"long":144.79828440000006,"address":{"mailing":{},"physical":{"zip":"96913","city":"Tamuning","state":"GU","address_1":"770
+        East Sunset Blvd.","address_2":"Suite 165","address_3":null}},"phone":{"fax":"671-648-0096","main":"671-648-0090"},"hours":{"friday":"8:00AM-4:00PM","monday":"8:00AM-4:00PM","sunday":"Closed","tuesday":"8:00AM-4:00PM","saturday":"Closed","thursday":"8:00AM-4:00PM","wednesday":"8:00AM-4:00PM"},"services":{"benefits":["ApplyingForBenefits","BurialClaimAssistance","DisabilityClaimAssistance","eBenefitsRegistrationAssistance","EducationAndCareerCounseling","EducationClaimAssistance","FamilyMemberClaimAssistance","HomelessAssistance","PreDischargeClaimAssistance","TransitionAssistance","UpdatingDirectDepositInformation","VocationalRehabilitationAndEmploymentAssistance"]},"satisfaction":{},"wait_times":{},"mobile":null,"active_status":null,"operating_status":{"code":"NORMAL"},"visn":null}},{"id":"vha_459GH","type":"va_facilities","attributes":{"name":"Saipan
+        VA Clinic","facility_type":"va_health_facility","classification":"Other Outpatient
+        Services (OOS)","website":"https://www.hawaii.va.gov/locations/saipan.asp","lat":15.21679400000005,"long":145.72938500000009,"address":{"mailing":{},"physical":{"zip":"96950-9998","city":"Saipan","state":"MP","address_1":"Marina
+        Heights Business Park - Garapan","address_2":"Medical Associates of the Pacific","address_3":"MH-II
+        Building Suite 100 and 206"}},"phone":{"fax":"670-322-0038","main":"670-322-0035","pharmacy":"800-465-8387","after_hours":"800-214-1306","patient_advocate":"670-322-0035","enrollment_coordinator":"808-433-7600"},"hours":{"friday":"Closed","monday":"Closed","sunday":"Closed","tuesday":"830AM-400PM","saturday":"Closed","thursday":"830AM-400PM","wednesday":"Closed"},"services":{"other":[],"health":["Gastroenterology","MentalHealthCare","Podiatry","PrimaryCare","SpecialtyCare"],"last_updated":"2020-04-06"},"satisfaction":{"health":{},"effective_date":null},"wait_times":{"health":[{"service":"Gastroenterology","new":null,"established":0.0},{"service":"MentalHealthCare","new":null,"established":8.25},{"service":"PrimaryCare","new":9.0,"established":0.060606},{"service":"SpecialtyCare","new":null,"established":0.0}],"effective_date":"2020-04-06"},"mobile":false,"active_status":"A","operating_status":{"code":"NORMAL"},"visn":"21"}},{"id":"nca_s1140","type":"va_facilities","attributes":{"name":"CNMI
+        Veterans Cemetery","facility_type":"va_cemetery","classification":"State Cemetery","website":null,"lat":15.2860893875671,"long":145.810772180557,"address":{"mailing":{},"physical":{"zip":"96950","city":"Saipan","state":"MP","address_1":"P.O.
+        Box 503416"}},"phone":{"fax":null,"main":"670-664-2650"},"hours":{"friday":"Sunrise
+        - Sunset","monday":"Sunrise - Sunset","sunday":"Sunrise - Sunset","tuesday":"Sunrise
+        - Sunset","saturday":"Sunrise - Sunset","thursday":"Sunrise - Sunset","wednesday":"Sunrise
+        - Sunset"},"services":{},"satisfaction":{},"wait_times":{},"mobile":null,"active_status":null,"operating_status":{"code":"NORMAL"},"visn":null}},{"id":"vc_0616V","type":"va_facilities","attributes":{"name":"American
+        Samoa Vet Center","facility_type":"vet_center","classification":null,"website":null,"lat":-14.332094999999981,"long":-170.73099099999996,"address":{"mailing":{},"physical":{"zip":"96799","city":"Pago
+        Pago","state":"AS","address_1":"Ottoville Road","address_2":"Equator Building","address_3":null}},"phone":{"main":"684-699-3760"},"hours":{"friday":"800AM-430PM","monday":"800AM-430PM","sunday":"Closed","tuesday":"800AM-430PM","saturday":"Closed","thursday":"800AM-430PM","wednesday":"800AM-430PM"},"services":{},"satisfaction":{},"wait_times":{},"mobile":null,"active_status":null,"operating_status":{"code":"NORMAL"},"visn":null}},{"id":"vha_459GF","type":"va_facilities","attributes":{"name":"Faleomavaega
+        Eni Fa''aua''a Hunkin VA Clinic","facility_type":"va_health_facility","classification":"Primary
+        Care CBOC","website":"https://www.hawaii.va.gov/locations/Pago_Pago_American_Samoa.asp","lat":-14.328209999999956,"long":-170.71861499999997,"address":{"mailing":{},"physical":{"zip":"96799","city":"Pago
+        Pago","state":"AS","address_1":"Fiatele Teo Army Reserve Building","address_2":null,"address_3":null}},"phone":{"fax":"684-699-9147","main":"684-699-3730","pharmacy":"684-699-3730","after_hours":"808-433-7864","patient_advocate":"808-433-0126","mental_health_clinic":"808-433-0660","enrollment_coordinator":"808-433-7600"},"hours":{"friday":"730AM-400PM","monday":"730AM-400PM","sunday":"Closed","tuesday":"730AM-400PM","saturday":"Closed","thursday":"730AM-400PM","wednesday":"730AM-400PM"},"services":{"other":[],"health":["Dermatology","Gastroenterology","MentalHealthCare","Optometry","PrimaryCare","SpecialtyCare"],"last_updated":"2020-04-06"},"satisfaction":{"health":{"primary_care_routine":0.5899999737739563},"effective_date":"2019-06-20"},"wait_times":{"health":[{"service":"Dermatology","new":0.333333,"established":null},{"service":"Gastroenterology","new":2.0,"established":13.5},{"service":"MentalHealthCare","new":1.333333,"established":3.36},{"service":"Optometry","new":23.615384,"established":28.928571},{"service":"PrimaryCare","new":null,"established":4.247933},{"service":"SpecialtyCare","new":12.119047,"established":11.584415}],"effective_date":"2020-04-06"},"mobile":false,"active_status":"A","operating_status":{"code":"NORMAL"},"visn":"21"}}],"links":{"self":"https://sandbox-api.va.gov/services/va_facilities/v0/facilities?lat=13.54&long=121.0&page=1&per_page=10","first":"https://sandbox-api.va.gov/services/va_facilities/v0/facilities?lat=13.54&long=121.0&page=1&per_page=10","prev":null,"next":"https://sandbox-api.va.gov/services/va_facilities/v0/facilities?lat=13.54&long=121.0&page=2&per_page=10","last":"https://sandbox-api.va.gov/services/va_facilities/v0/facilities?lat=13.54&long=121.0&page=212&per_page=10"},"meta":{"pagination":{"current_page":1,"per_page":10,"total_pages":212,"total_entries":2113},"distances":[{"id":"vha_358","distance":69.38},{"id":"vba_358","distance":69.38},{"id":"nca_s1139","distance":1591.07},{"id":"vha_459GE","distance":1594.33},{"id":"vc_0648V","distance":1595.02},{"id":"vba_459h","distance":1598.16},{"id":"vha_459GH","distance":1658.31},{"id":"nca_s1140","distance":1663.81},{"id":"vc_0616V","distance":5050.37},{"id":"vha_459GF","distance":5051.07}]}}'
+    http_version: null
+  recorded_at: Fri, 17 Apr 2020 13:49:20 GMT
+- request:
+    method: get
+    uri: https://dev-api.va.gov/services/va_facilities/v0/facilities/vha_648A4
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Apikey:
+      - "<LIGHTHOUSE_API_KEY>"
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: ''
+    headers:
+      Date:
+      - Tue, 21 Apr 2020 15:47:45 GMT
+      Content-Type:
+      - application/json
+      Connection:
+      - keep-alive
+      Access-Control-Allow-Origin:
+      - "*"
+      Strict-Transport-Security:
+      - max-age=15724800; includeSubDomains
+      - max-age=31536000; includeSubDomains; preload
+      Vary:
+      - Accept-Encoding
+      Via:
+      - kong/1.2.2
+      X-Kong-Proxy-Latency:
+      - '2'
+      X-Kong-Upstream-Latency:
+      - '322'
+      X-Ratelimit-Limit-Minute:
+      - '60'
+      X-Ratelimit-Remaining-Minute:
+      - '59'
+      Cache-Control:
+      - ''
+      - no-cache, no-store
+      Pragma:
+      - no-cache
+      Set-Cookie:
+      - TS016f4012=0119a2687f265327198b9e396df5496eff219b062c8a996172b754f1c96590c9c3178aab90c658e602662946f1ee669c7e136f9c9f;
+        Max-Age=900; Path=/
+      Transfer-Encoding:
+      - chunked
+    body:
+      encoding: ASCII-8BIT
+      string: '{"data":{"id":"vha_648A4","type":"va_facilities","attributes":{"name":"Portland
+        VA Medical Center-Vancouver","facility_type":"va_health_facility","classification":"VA
+        Medical Center (VAMC)","website":"https://www.portland.va.gov/locations/vancouver.asp","lat":45.63942553000004,"long":-122.65533567999995,"address":{"mailing":{},"physical":{"zip":"98661-3753","city":"Vancouver","state":"WA","address_1":"1601
+        East 4th Plain Boulevard","address_2":null,"address_3":null}},"phone":{"fax":"360-690-0864","main":"360-759-1901","pharmacy":"503-273-5183","after_hours":"360-696-4061","patient_advocate":"503-273-5308","mental_health_clinic":"503-273-5187","enrollment_coordinator":"503-273-5069"},"hours":{"monday":"730AM-430PM","tuesday":"730AM-630PM","wednesday":"730AM-430PM","thursday":"730AM-430PM","friday":"730AM-430PM","saturday":"Closed","sunday":"Closed"},"services":{"other":[],"health":["Audiology","DentalServices","Dermatology","EmergencyCare","MentalHealthCare","Nutrition","Ophthalmology","Optometry","Podiatry","PrimaryCare","SpecialtyCare"],"last_updated":"2020-04-13"},"satisfaction":{"health":{"primary_care_urgent":0.85000002384185791,"primary_care_routine":0.88999998569488525},"effective_date":"2019-06-20"},"wait_times":{"health":[{"service":"Audiology","new":5.5,"established":null},{"service":"Dermatology","new":4.25,"established":10.0},{"service":"MentalHealthCare","new":13.714285,"established":2.497297},{"service":"Ophthalmology","new":null,"established":0.764705},{"service":"Optometry","new":0.8,"established":1.347826},{"service":"PrimaryCare","new":5.12,"established":1.289215},{"service":"SpecialtyCare","new":4.76,"established":3.416666}],"effective_date":"2020-04-13"},"mobile":false,"active_status":"A","operating_status":{"code":"NORMAL"},"visn":"20"}}}'
+    http_version: null
+  recorded_at: Tue, 21 Apr 2020 15:47:46 GMT
+- request:
+    method: get
+    uri: https://dev-api.va.gov/services/va_facilities/v0/facilities/nca_888
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Apikey:
+      - "<LIGHTHOUSE_API_KEY>"
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: ''
+    headers:
+      Date:
+      - Tue, 21 Apr 2020 15:48:21 GMT
+      Content-Type:
+      - application/json
+      Content-Length:
+      - '650'
+      Connection:
+      - keep-alive
+      Access-Control-Allow-Origin:
+      - "*"
+      Strict-Transport-Security:
+      - max-age=15724800; includeSubDomains
+      - max-age=31536000; includeSubDomains; preload
+      Vary:
+      - Accept-Encoding
+      Via:
+      - kong/1.2.2
+      X-Kong-Proxy-Latency:
+      - '1'
+      X-Kong-Upstream-Latency:
+      - '334'
+      X-Ratelimit-Limit-Minute:
+      - '60'
+      X-Ratelimit-Remaining-Minute:
+      - '59'
+      Cache-Control:
+      - ''
+      - no-cache, no-store
+      Pragma:
+      - no-cache
+      Set-Cookie:
+      - TS016f4012=0119a2687fb6a1837a9e1c022008ec40317214964bb663c2d271fc313507740de77445b6fe68ece2bca89c81f7ea1dfc97ae71ed01;
+        Max-Age=900; Path=/
+    body:
+      encoding: ASCII-8BIT
+      string: '{"data":{"id":"nca_888","type":"va_facilities","attributes":{"name":"Ft.
+        Logan","facility_type":"va_cemetery","classification":"National Cemetery","website":"https://www.cem.va.gov/cems/nchp/ftlogan.asp","lat":39.645574000000067,"long":-105.05285939999999,"address":{"mailing":{"zip":"80236","city":"Denver","state":"CO","address_1":"4400
+        W Kenyon Ave","address_2":null,"address_3":null},"physical":{"zip":"80236","city":"Denver","state":"CO","address_1":"4400
+        W Kenyon Ave","address_2":null,"address_3":null}},"phone":{"fax":"303-781-9378","main":null},"hours":{"monday":"Sunrise
+        - Sunset","tuesday":"Sunrise - Sunset","wednesday":"Sunrise - Sunset","thursday":"Sunrise
+        - Sunset","friday":"Sunrise - Sunset","saturday":"Sunrise - Sunset","sunday":"Sunrise
+        - Sunset"},"services":{},"satisfaction":{},"wait_times":{},"mobile":null,"active_status":null,"operating_status":{"code":"NORMAL"},"visn":null}}}'
+    http_version: null
+  recorded_at: Tue, 21 Apr 2020 15:48:21 GMT
+- request:
+    method: get
+    uri: https://dev-api.va.gov/services/va_facilities/v0/facilities/vba_314c
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Apikey:
+      - "<LIGHTHOUSE_API_KEY>"
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: ''
+    headers:
+      Date:
+      - Tue, 21 Apr 2020 15:48:22 GMT
+      Content-Type:
+      - application/json
+      Connection:
+      - keep-alive
+      Access-Control-Allow-Origin:
+      - "*"
+      Strict-Transport-Security:
+      - max-age=15724800; includeSubDomains
+      - max-age=31536000; includeSubDomains; preload
+      Vary:
+      - Accept-Encoding
+      Via:
+      - kong/1.2.2
+      X-Kong-Proxy-Latency:
+      - '1'
+      X-Kong-Upstream-Latency:
+      - '322'
+      X-Ratelimit-Limit-Minute:
+      - '60'
+      X-Ratelimit-Remaining-Minute:
+      - '58'
+      Cache-Control:
+      - ''
+      - no-cache, no-store
+      Pragma:
+      - no-cache
+      Set-Cookie:
+      - TS016f4012=0119a2687fd9a701a8ec15927601927c5814c9573d872b846bbd2edcb91a98d2247d84b66828120cb7ee19fe1dfd88050d583215bb;
+        Max-Age=900; Path=/
+      Transfer-Encoding:
+      - chunked
+    body:
+      encoding: ASCII-8BIT
+      string: '{"data":{"id":"vba_314c","type":"va_facilities","attributes":{"name":"VetSuccss
+        on Campus at Norfolk State University","facility_type":"va_benefits_facility","classification":"Outbased","website":null,"lat":36.847657500000025,"long":-76.269505119999963,"address":{"mailing":{},"physical":{"zip":"23504","city":"Norfolk","state":"VA","address_1":"700
+        Park Avenue","address_2":null,"address_3":null}},"phone":{"fax":"757-823-2078","main":"757-823-8551"},"hours":{"monday":"Closed","tuesday":"Closed","wednesday":"7:00AM-4:30PM","thursday":"7:00AM-4:30PM","friday":"Closed","saturday":"Closed","sunday":"Closed"},"services":{"benefits":["ApplyingForBenefits","EducationAndCareerCounseling","HomelessAssistance","TransitionAssistance","VocationalRehabilitationAndEmploymentAssistance"]},"satisfaction":{},"wait_times":{},"mobile":null,"active_status":null,"operating_status":{"code":"NORMAL"},"visn":null}}}'
+    http_version: null
+  recorded_at: Tue, 21 Apr 2020 15:48:22 GMT
+- request:
+    method: get
+    uri: https://dev-api.va.gov/services/va_facilities/v0/facilities/vc_0543V
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Apikey:
+      - "<LIGHTHOUSE_API_KEY>"
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: ''
+    headers:
+      Date:
+      - Tue, 21 Apr 2020 15:48:33 GMT
+      Content-Type:
+      - application/json
+      Content-Length:
+      - '485'
+      Connection:
+      - keep-alive
+      Access-Control-Allow-Origin:
+      - "*"
+      Strict-Transport-Security:
+      - max-age=15724800; includeSubDomains
+      - max-age=31536000; includeSubDomains; preload
+      Vary:
+      - Accept-Encoding
+      Via:
+      - kong/1.2.2
+      X-Kong-Proxy-Latency:
+      - '1'
+      X-Kong-Upstream-Latency:
+      - '316'
+      X-Ratelimit-Limit-Minute:
+      - '60'
+      X-Ratelimit-Remaining-Minute:
+      - '57'
+      Cache-Control:
+      - ''
+      - no-cache, no-store
+      Pragma:
+      - no-cache
+      Set-Cookie:
+      - TS016f4012=01c8917e48c047cee361a04706b74af22246ece397570dde1f5aa6e5c616ce3f6e3e69b669683eb0083f35bba3ab2f7610ff7ec5e0;
+        Max-Age=900; Path=/
+    body:
+      encoding: ASCII-8BIT
+      string: '{"data":{"id":"vc_0543V","type":"va_facilities","attributes":{"name":"Fort
+        Collins Vet Center","facility_type":"vet_center","classification":null,"website":null,"lat":40.552718430000027,"long":-105.08768014999998,"address":{"mailing":{},"physical":{"zip":"80526","city":"Fort
+        Collins","state":"CO","address_1":"702 West Drake Road","address_2":"Building
+        C","address_3":null}},"phone":{"main":"970-221-5176"},"hours":{"monday":"700AM-530PM","tuesday":"700AM-800PM","wednesday":"700AM-800PM","thursday":"700AM-800PM","friday":"700AM-530PM","saturday":"800AM-1200PM","sunday":"Closed"},"services":{},"satisfaction":{},"wait_times":{},"mobile":null,"active_status":null,"operating_status":{"code":"NORMAL"},"visn":null}}}'
+    http_version: null
+  recorded_at: Tue, 21 Apr 2020 15:48:33 GMT
+- request:
+    method: get
+    uri: https://dev-api.va.gov/services/va_facilities/v0/facilities/vba_348e
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Apikey:
+      - "<LIGHTHOUSE_API_KEY>"
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: ''
+    headers:
+      Date:
+      - Tue, 21 Apr 2020 15:48:43 GMT
+      Content-Type:
+      - application/json
+      Content-Length:
+      - '747'
+      Connection:
+      - keep-alive
+      Access-Control-Allow-Origin:
+      - "*"
+      Strict-Transport-Security:
+      - max-age=15724800; includeSubDomains
+      - max-age=31536000; includeSubDomains; preload
+      Vary:
+      - Accept-Encoding
+      Via:
+      - kong/1.2.2
+      X-Kong-Proxy-Latency:
+      - '2'
+      X-Kong-Upstream-Latency:
+      - '324'
+      X-Ratelimit-Limit-Minute:
+      - '60'
+      X-Ratelimit-Remaining-Minute:
+      - '56'
+      Cache-Control:
+      - ''
+      - no-cache, no-store
+      Pragma:
+      - no-cache
+      Set-Cookie:
+      - TS016f4012=01c8917e4808c9b5a324c0c48d728279288aacfc7d792cc9d345ab8cd601dd2bcca64562586c09da0ba30ae31488ebab905443a3b3;
+        Max-Age=900; Path=/
+    body:
+      encoding: ASCII-8BIT
+      string: '{"data":{"id":"vba_348e","type":"va_facilities","attributes":{"name":"VetSuccess
+        on Campus at Portland Community College Cascade Campus","facility_type":"va_benefits_facility","classification":"Vetsuccess
+        On Campus","website":null,"lat":45.562737150000032,"long":-122.66764959999995,"address":{"mailing":{},"physical":{"zip":"97217","city":"Portland","state":"OR","address_1":"75
+        N. Killingsworth St.","address_2":null,"address_3":null}},"phone":{"fax":null,"main":"503-412-4577"},"hours":{"monday":"8:00AM-4:30PM","tuesday":"8:00AM-4:30PM","wednesday":"8:00AM-4:30PM","thursday":"8:00AM-4:30PM","friday":"8:00AM-4:30PM","saturday":"Closed","sunday":"Closed"},"services":{"benefits":["ApplyingForBenefits","EducationAndCareerCounseling","TransitionAssistance","VocationalRehabilitationAndEmploymentAssistance"]},"satisfaction":{},"wait_times":{},"mobile":null,"active_status":null,"operating_status":{"code":"NORMAL"},"visn":null}}}'
+    http_version: null
+  recorded_at: Tue, 21 Apr 2020 15:48:44 GMT
+- request:
+    method: get
+    uri: https://dev-api.va.gov/services/va_facilities/v0/facilities/vha_648GI
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Apikey:
+      - "<LIGHTHOUSE_API_KEY>"
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: ''
+    headers:
+      Date:
+      - Tue, 21 Apr 2020 15:48:45 GMT
+      Content-Type:
+      - application/json
+      Connection:
+      - keep-alive
+      Access-Control-Allow-Origin:
+      - "*"
+      Strict-Transport-Security:
+      - max-age=15724800; includeSubDomains
+      - max-age=31536000; includeSubDomains; preload
+      Vary:
+      - Accept-Encoding
+      Via:
+      - kong/1.2.2
+      X-Kong-Proxy-Latency:
+      - '1'
+      X-Kong-Upstream-Latency:
+      - '317'
+      X-Ratelimit-Limit-Minute:
+      - '60'
+      X-Ratelimit-Remaining-Minute:
+      - '55'
+      Cache-Control:
+      - ''
+      - no-cache, no-store
+      Pragma:
+      - no-cache
+      Set-Cookie:
+      - TS016f4012=01c8917e48e569ed4774a4bea6a37d8850144349daae07e5e36f6c5246eac1e83a9f0dda158502e1611946ecc704f8d2019bc7d2cb;
+        Max-Age=900; Path=/
+      Transfer-Encoding:
+      - chunked
+    body:
+      encoding: ASCII-8BIT
+      string: '{"data":{"id":"vha_648GI","type":"va_facilities","attributes":{"name":"Portland
+        VA Clinic","facility_type":"va_health_facility","classification":"Primary
+        Care CBOC","website":"https://www.portland.va.gov/locations/crrc.asp","lat":45.520173040000032,"long":-122.67221793999994,"address":{"mailing":{},"physical":{"zip":"97204-3432","city":"Portland","state":"OR","address_1":"308
+        Southwest 1st Avenue","address_2":"Community Resource & Referral Center","address_3":"Lawrence
+        Building, Suite 155"}},"phone":{"fax":"503-808-1900","main":"503-808-1256","pharmacy":"503-273-5183","after_hours":"800-273-8255","patient_advocate":"503-273-5308","enrollment_coordinator":"503-273-5069"},"hours":{"monday":"800AM-430PM","tuesday":"800AM-430PM","wednesday":"800AM-430PM","thursday":"1000AM-300PM","friday":"800AM-430PM","saturday":"Closed","sunday":"Closed"},"services":{"other":[],"health":["EmergencyCare","PrimaryCare","UrgentCare"],"last_updated":"2020-04-13"},"satisfaction":{"health":{"primary_care_routine":0.87000000476837158},"effective_date":"2019-06-20"},"wait_times":{"health":[{"service":"PrimaryCare","new":19.285714,"established":4.14}],"effective_date":"2020-04-13"},"mobile":false,"active_status":"A","operating_status":{"code":"NORMAL"},"visn":"20"}}}'
+    http_version: null
+  recorded_at: Tue, 21 Apr 2020 15:48:45 GMT
+- request:
+    method: get
+    uri: https://dev-api.va.gov/services/va_facilities/v0/facilities/vba_348
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Apikey:
+      - "<LIGHTHOUSE_API_KEY>"
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: ''
+    headers:
+      Date:
+      - Tue, 21 Apr 2020 15:48:46 GMT
+      Content-Type:
+      - application/json
+      Connection:
+      - keep-alive
+      Access-Control-Allow-Origin:
+      - "*"
+      Strict-Transport-Security:
+      - max-age=15724800; includeSubDomains
+      - max-age=31536000; includeSubDomains; preload
+      Vary:
+      - Accept-Encoding
+      Via:
+      - kong/1.2.2
+      X-Kong-Proxy-Latency:
+      - '0'
+      X-Kong-Upstream-Latency:
+      - '320'
+      X-Ratelimit-Limit-Minute:
+      - '60'
+      X-Ratelimit-Remaining-Minute:
+      - '54'
+      Cache-Control:
+      - ''
+      - no-cache, no-store
+      Pragma:
+      - no-cache
+      Set-Cookie:
+      - TS016f4012=01c8917e48a4ac111ec72ee54c45f0472a68f1b5a216c190d9595c2b497f24bca79dd6bed02a4f267db89a17fbf068baa1e1c341de;
+        Max-Age=900; Path=/
+      Transfer-Encoding:
+      - chunked
+    body:
+      encoding: ASCII-8BIT
+      string: '{"data":{"id":"vba_348","type":"va_facilities","attributes":{"name":"Portland
+        Regional Benefit Office","facility_type":"va_benefits_facility","classification":"Regional
+        Benefit Office","website":"https://www.benefits.va.gov/portland","lat":45.515162290000035,"long":-122.67551729999997,"address":{"mailing":{},"physical":{"zip":"97204","city":"Portland","state":"OR","address_1":"100
+        SW Main Street","address_2":"Floor 2","address_3":null}},"phone":{"fax":"503-412-4733","main":"1-800-827-1000"},"hours":{"monday":"8:00AM-4:00PM","tuesday":"8:00AM-4:00PM","wednesday":"8:00AM-4:00PM","thursday":"8:00AM-4:00PM","friday":"8:00AM-4:00PM","saturday":"Closed","sunday":"Closed"},"services":{"benefits":["ApplyingForBenefits","DisabilityClaimAssistance","eBenefitsRegistrationAssistance","HomelessAssistance","TransitionAssistance","UpdatingDirectDepositInformation","VocationalRehabilitationAndEmploymentAssistance"]},"satisfaction":{},"wait_times":{},"mobile":null,"active_status":null,"operating_status":{"code":"NORMAL"},"visn":null}}}'
+    http_version: null
+  recorded_at: Tue, 21 Apr 2020 15:48:46 GMT
+- request:
+    method: get
+    uri: https://dev-api.va.gov/services/va_facilities/v0/facilities/vba_348a
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Apikey:
+      - "<LIGHTHOUSE_API_KEY>"
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: ''
+    headers:
+      Date:
+      - Tue, 21 Apr 2020 15:48:47 GMT
+      Content-Type:
+      - application/json
+      Connection:
+      - keep-alive
+      Access-Control-Allow-Origin:
+      - "*"
+      Strict-Transport-Security:
+      - max-age=15724800; includeSubDomains
+      - max-age=31536000; includeSubDomains; preload
+      Vary:
+      - Accept-Encoding
+      Via:
+      - kong/1.2.2
+      X-Kong-Proxy-Latency:
+      - '1'
+      X-Kong-Upstream-Latency:
+      - '324'
+      X-Ratelimit-Limit-Minute:
+      - '60'
+      X-Ratelimit-Remaining-Minute:
+      - '53'
+      Cache-Control:
+      - ''
+      - no-cache, no-store
+      Pragma:
+      - no-cache
+      Set-Cookie:
+      - TS016f4012=01c8917e48c45c9c754b7128bd09b98342c7dac81cbf7526c3497d8a9810b097a0b20b4bda92689bae907472a14a53d038829f8e3c;
+        Max-Age=900; Path=/
+      Transfer-Encoding:
+      - chunked
+    body:
+      encoding: ASCII-8BIT
+      string: '{"data":{"id":"vba_348a","type":"va_facilities","attributes":{"name":"Portland
+        Vocational Rehabilitation and Employment Office","facility_type":"va_benefits_facility","classification":"Voc
+        Rehab And Employment","website":null,"lat":45.515162290000035,"long":-122.67551729999997,"address":{"mailing":{},"physical":{"zip":"97204","city":"Portland","state":"OR","address_1":"100
+        SW Main St","address_2":"Floor 2","address_3":null}},"phone":{"fax":"503-412-4740","main":"503-412-4577"},"hours":{"monday":"8:00AM-4:00PM","tuesday":"8:00AM-4:00PM","wednesday":"8:00AM-4:00PM","thursday":"8:00AM-4:00PM","friday":"8:00AM-4:00PM","saturday":"Closed","sunday":"Closed"},"services":{"benefits":["EducationAndCareerCounseling","TransitionAssistance","VocationalRehabilitationAndEmploymentAssistance"]},"satisfaction":{},"wait_times":{},"mobile":null,"active_status":null,"operating_status":{"code":"NORMAL"},"visn":null}}}'
+    http_version: null
+  recorded_at: Tue, 21 Apr 2020 15:48:47 GMT
+- request:
+    method: get
+    uri: https://dev-api.va.gov/services/va_facilities/v0/facilities/vc_0617V
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Apikey:
+      - "<LIGHTHOUSE_API_KEY>"
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: ''
+    headers:
+      Date:
+      - Tue, 21 Apr 2020 15:48:48 GMT
+      Content-Type:
+      - application/json
+      Content-Length:
+      - '599'
+      Connection:
+      - keep-alive
+      Access-Control-Allow-Origin:
+      - "*"
+      Strict-Transport-Security:
+      - max-age=15724800; includeSubDomains
+      - max-age=31536000; includeSubDomains; preload
+      Vary:
+      - Accept-Encoding
+      Via:
+      - kong/1.2.2
+      X-Kong-Proxy-Latency:
+      - '0'
+      X-Kong-Upstream-Latency:
+      - '322'
+      X-Ratelimit-Limit-Minute:
+      - '60'
+      X-Ratelimit-Remaining-Minute:
+      - '52'
+      Cache-Control:
+      - ''
+      - no-cache, no-store
+      Pragma:
+      - no-cache
+      Set-Cookie:
+      - TS016f4012=01c8917e4839db839ba4f5db1a046e00eb237e091f57432c5ceb03fe9e043ac80081b75baa57ccc0fae0408ef9deabf2a1091c9c25;
+        Max-Age=900; Path=/
+    body:
+      encoding: ASCII-8BIT
+      string: '{"data":{"id":"vc_0617V","type":"va_facilities","attributes":{"name":"Portland
+        Vet Center","facility_type":"vet_center","classification":null,"website":null,"lat":45.533762390000049,"long":-122.53767270999998,"address":{"mailing":{},"physical":{"zip":"97230","city":"Portland","state":"OR","address_1":"1505
+        NE 122nd Avenue","address_2":null,"address_3":null}},"phone":{"main":"503-688-5361"},"hours":{"monday":"800AM-430PM","tuesday":"800AM-730PM","wednesday":"800AM-430PM","thursday":"800AM-800PM","friday":"800AM-430PM","saturday":"Closed","sunday":"Closed"},"services":{},"satisfaction":{},"wait_times":{},"mobile":null,"active_status":null,"operating_status":{"code":"NORMAL"},"visn":null}}}'
+    http_version: null
+  recorded_at: Tue, 21 Apr 2020 15:48:48 GMT
+- request:
+    method: get
+    uri: https://dev-api.va.gov/services/va_facilities/v0/facilities/vba_348d
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Apikey:
+      - "<LIGHTHOUSE_API_KEY>"
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: ''
+    headers:
+      Date:
+      - Tue, 21 Apr 2020 15:48:49 GMT
+      Content-Type:
+      - application/json
+      Connection:
+      - keep-alive
+      Access-Control-Allow-Origin:
+      - "*"
+      Strict-Transport-Security:
+      - max-age=15724800; includeSubDomains
+      - max-age=31536000; includeSubDomains; preload
+      Vary:
+      - Accept-Encoding
+      Via:
+      - kong/1.2.2
+      X-Kong-Proxy-Latency:
+      - '2'
+      X-Kong-Upstream-Latency:
+      - '320'
+      X-Ratelimit-Limit-Minute:
+      - '60'
+      X-Ratelimit-Remaining-Minute:
+      - '51'
+      Cache-Control:
+      - ''
+      - no-cache, no-store
+      Pragma:
+      - no-cache
+      Set-Cookie:
+      - TS016f4012=01c8917e48a08b083a40323075b46aefb662ab9383d8d7756b948a9263ac24f1ce1b75ec9fe9082a8ecac31d0a8a583bab2e5b9ba1;
+        Max-Age=900; Path=/
+      Transfer-Encoding:
+      - chunked
+    body:
+      encoding: ASCII-8BIT
+      string: '{"data":{"id":"vba_348d","type":"va_facilities","attributes":{"name":"VetSuccess
+        on Campus at Portland State University","facility_type":"va_benefits_facility","classification":"Vetsuccess
+        On Campus","website":null,"lat":45.511442720000048,"long":-122.68447749999996,"address":{"mailing":{},"physical":{"zip":"97204","city":"Portland","state":"OR","address_1":"724
+        SW Harrison","address_2":null,"address_3":null}},"phone":{"fax":null,"main":"503-412-4577"},"hours":{"monday":"8:00AM-4:30PM","tuesday":"8:00AM-4:30PM","wednesday":"8:00AM-4:30PM","thursday":"8:00AM-4:30PM","friday":"8:00AM-4:30PM","saturday":"Closed","sunday":"Closed"},"services":{"benefits":["ApplyingForBenefits","EducationAndCareerCounseling","TransitionAssistance","VocationalRehabilitationAndEmploymentAssistance"]},"satisfaction":{},"wait_times":{},"mobile":null,"active_status":null,"operating_status":{"code":"NORMAL"},"visn":null}}}'
+    http_version: null
+  recorded_at: Tue, 21 Apr 2020 15:48:49 GMT
+- request:
+    method: get
+    uri: https://dev-api.va.gov/services/va_facilities/v0/facilities/vha_648
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Apikey:
+      - "<LIGHTHOUSE_API_KEY>"
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: ''
+    headers:
+      Date:
+      - Tue, 21 Apr 2020 15:48:50 GMT
+      Content-Type:
+      - application/json
+      Connection:
+      - keep-alive
+      Access-Control-Allow-Origin:
+      - "*"
+      Strict-Transport-Security:
+      - max-age=15724800; includeSubDomains
+      - max-age=31536000; includeSubDomains; preload
+      Vary:
+      - Accept-Encoding
+      Via:
+      - kong/1.2.2
+      X-Kong-Proxy-Latency:
+      - '1'
+      X-Kong-Upstream-Latency:
+      - '373'
+      X-Ratelimit-Limit-Minute:
+      - '60'
+      X-Ratelimit-Remaining-Minute:
+      - '50'
+      Cache-Control:
+      - ''
+      - no-cache, no-store
+      Pragma:
+      - no-cache
+      Set-Cookie:
+      - TS016f4012=01c8917e48b1e714c9d457501cc0001e95a65c10eda2d15a6a851b038c968d1294bf55cb50842f85ef38991175744a5c5ec06475ec;
+        Max-Age=900; Path=/
+      Transfer-Encoding:
+      - chunked
+    body:
+      encoding: ASCII-8BIT
+      string: '{"data":{"id":"vha_648","type":"va_facilities","attributes":{"name":"Portland
+        VA Medical Center","facility_type":"va_health_facility","classification":"VA
+        Medical Center (VAMC)","website":"https://www.portland.va.gov/locations/directions.asp","lat":45.49746145000006,"long":-122.68287207999998,"address":{"mailing":{},"physical":{"zip":"97239-2964","city":"Portland","state":"OR","address_1":"3710
+        Southwest US Veterans Hospital Road","address_2":null,"address_3":null}},"phone":{"fax":"503-273-5319","main":"503-721-1498","pharmacy":"503-273-5183","after_hours":"503-220-8262","patient_advocate":"503-273-5308","mental_health_clinic":"503-273-5187","enrollment_coordinator":"503-273-5069"},"hours":{"monday":"24/7","tuesday":"24/7","wednesday":"24/7","thursday":"24/7","friday":"24/7","saturday":"24/7","sunday":"24/7"},"services":{"other":[],"health":["Audiology","Cardiology","DentalServices","Dermatology","EmergencyCare","Gastroenterology","Gynecology","MentalHealthCare","Nutrition","Ophthalmology","Optometry","Orthopedics","Podiatry","PrimaryCare","SpecialtyCare","UrgentCare","Urology","WomensHealth"],"last_updated":"2020-04-13"},"satisfaction":{"health":{"primary_care_routine":0.82999998331069946,"specialty_care_urgent":0.82999998331069946,"specialty_care_routine":0.9100000262260437},"effective_date":"2019-06-20"},"wait_times":{"health":[{"service":"Audiology","new":0.5,"established":12.5},{"service":"Cardiology","new":13.5,"established":15.141304},{"service":"Dermatology","new":9.025,"established":7.203389},{"service":"Gastroenterology","new":null,"established":53.0},{"service":"Gynecology","new":3.166666,"established":3.68421},{"service":"MentalHealthCare","new":12.350877,"established":0.335798},{"service":"Ophthalmology","new":5.333333,"established":3.707006},{"service":"Optometry","new":40.0,"established":11.0},{"service":"Orthopedics","new":5.4,"established":3.0},{"service":"PrimaryCare","new":8.611111,"established":11.69178},{"service":"SpecialtyCare","new":10.6006,"established":5.083276},{"service":"Urology","new":7.066666,"established":4.347826},{"service":"WomensHealth","new":4.25,"established":3.833333}],"effective_date":"2020-04-13"},"mobile":false,"active_status":"A","operating_status":{"code":"NORMAL"},"visn":"20"}}}'
+    http_version: null
+  recorded_at: Tue, 21 Apr 2020 15:48:50 GMT
+- request:
+    method: get
+    uri: https://dev-api.va.gov/services/va_facilities/v0/facilities/vba_348h
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Apikey:
+      - "<LIGHTHOUSE_API_KEY>"
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: ''
+    headers:
+      Date:
+      - Tue, 21 Apr 2020 15:48:51 GMT
+      Content-Type:
+      - application/json
+      Content-Length:
+      - '751'
+      Connection:
+      - keep-alive
+      Access-Control-Allow-Origin:
+      - "*"
+      Strict-Transport-Security:
+      - max-age=15724800; includeSubDomains
+      - max-age=31536000; includeSubDomains; preload
+      Vary:
+      - Accept-Encoding
+      Via:
+      - kong/1.2.2
+      X-Kong-Proxy-Latency:
+      - '1'
+      X-Kong-Upstream-Latency:
+      - '321'
+      X-Ratelimit-Limit-Minute:
+      - '60'
+      X-Ratelimit-Remaining-Minute:
+      - '49'
+      Cache-Control:
+      - ''
+      - no-cache, no-store
+      Pragma:
+      - no-cache
+      Set-Cookie:
+      - TS016f4012=01c8917e48006987f6f1269042f690d78b812c86e9344b3e9469a76c36159cf783dc7835af9caed944b24c4a249cb5205b0c01ad5a;
+        Max-Age=900; Path=/
+    body:
+      encoding: ASCII-8BIT
+      string: '{"data":{"id":"vba_348h","type":"va_facilities","attributes":{"name":"Vancouver
+        Vocational Rehabilitation and Employment Office","facility_type":"va_benefits_facility","classification":"Voc
+        Rehab And Employment","website":null,"lat":45.639416260000075,"long":-122.65528739999996,"address":{"mailing":{},"physical":{"zip":"98661","city":"Vancouver","state":"WA","address_1":"1601
+        E Fourth Pain Blvd","address_2":"V3CH31, Bldg 18","address_3":null}},"phone":{"fax":"360-759-1679","main":"503-412-4577"},"hours":{"monday":"8:00AM-4:30PM","tuesday":"8:00AM-4:30PM","wednesday":"8:00AM-4:30PM","thursday":"8:00AM-4:30PM","friday":"8:00AM-4:30PM","saturday":"Closed","sunday":"Closed"},"services":{"benefits":["EducationAndCareerCounseling","TransitionAssistance","VocationalRehabilitationAndEmploymentAssistance"]},"satisfaction":{},"wait_times":{},"mobile":null,"active_status":null,"operating_status":{"code":"NORMAL"},"visn":null}}}'
+    http_version: null
+  recorded_at: Tue, 21 Apr 2020 15:48:51 GMT
+- request:
+    method: get
+    uri: https://dev-api.va.gov/services/va_facilities/v0/facilities/nca_907
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Apikey:
+      - "<LIGHTHOUSE_API_KEY>"
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: ''
+    headers:
+      Date:
+      - Tue, 21 Apr 2020 15:48:52 GMT
+      Content-Type:
+      - application/json
+      Content-Length:
+      - '663'
+      Connection:
+      - keep-alive
+      Access-Control-Allow-Origin:
+      - "*"
+      Strict-Transport-Security:
+      - max-age=15724800; includeSubDomains
+      - max-age=31536000; includeSubDomains; preload
+      Vary:
+      - Accept-Encoding
+      Via:
+      - kong/1.2.2
+      X-Kong-Proxy-Latency:
+      - '1'
+      X-Kong-Upstream-Latency:
+      - '312'
+      X-Ratelimit-Limit-Minute:
+      - '60'
+      X-Ratelimit-Remaining-Minute:
+      - '48'
+      Cache-Control:
+      - ''
+      - no-cache, no-store
+      Pragma:
+      - no-cache
+      Set-Cookie:
+      - TS016f4012=01c8917e482a1b198bcd36cbbe67b7f2e483da408141cd27276e1688038e272d77722b15e17869637104184e5fbe5ec233b43e93c5;
+        Max-Age=900; Path=/
+    body:
+      encoding: ASCII-8BIT
+      string: '{"data":{"id":"nca_907","type":"va_facilities","attributes":{"name":"Willamette","facility_type":"va_cemetery","classification":"National
+        Cemetery","website":"https://www.cem.va.gov/cems/nchp/willamette.asp","lat":45.456838600000026,"long":-122.54084469999998,"address":{"mailing":{"zip":"97086-6937","city":"Portland","state":"OR","address_1":"11800
+        SE Mt Scott Blvd","address_2":null,"address_3":null},"physical":{"zip":"97086-6937","city":"Portland","state":"OR","address_1":"11800
+        SE Mt Scott Blvd","address_2":null,"address_3":null}},"phone":{"fax":"503-273-5251","main":null},"hours":{"monday":"7:00am
+        - 5:00pm","tuesday":"7:00am - 5:00pm","wednesday":"7:00am - 5:00pm","thursday":"7:00am
+        - 5:00pm","friday":"7:00am - 5:00pm","saturday":"7:00am - 5:00pm","sunday":"7:00am
+        - 5:00pm"},"services":{},"satisfaction":{},"wait_times":{},"mobile":null,"active_status":null,"operating_status":{"code":"NORMAL"},"visn":null}}}'
+    http_version: null
+  recorded_at: Tue, 21 Apr 2020 15:48:52 GMT
+- request:
+    method: get
+    uri: https://dev-api.va.gov/services/va_facilities/v0/facilities/nca_824
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Apikey:
+      - "<LIGHTHOUSE_API_KEY>"
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: ''
+    headers:
+      Date:
+      - Tue, 21 Apr 2020 15:48:53 GMT
+      Content-Type:
+      - application/json
+      Connection:
+      - keep-alive
+      Access-Control-Allow-Origin:
+      - "*"
+      Strict-Transport-Security:
+      - max-age=15724800; includeSubDomains
+      - max-age=31536000; includeSubDomains; preload
+      Vary:
+      - Accept-Encoding
+      Via:
+      - kong/1.2.2
+      X-Kong-Proxy-Latency:
+      - '1'
+      X-Kong-Upstream-Latency:
+      - '316'
+      X-Ratelimit-Limit-Minute:
+      - '60'
+      X-Ratelimit-Remaining-Minute:
+      - '47'
+      Cache-Control:
+      - ''
+      - no-cache, no-store
+      Pragma:
+      - no-cache
+      Set-Cookie:
+      - TS016f4012=01c8917e481c67d3a7617a7bc0a21293b969c500d9cbe46d0524a52707f7e20e5649e62a7995acb91fb00c9f63420594012165e050;
+        Max-Age=900; Path=/
+      Transfer-Encoding:
+      - chunked
+    body:
+      encoding: ASCII-8BIT
+      string: '{"data":{"id":"nca_824","type":"va_facilities","attributes":{"name":"Woodlawn","facility_type":"va_cemetery","classification":"National
+        Cemetery","website":"https://www.cem.va.gov/cems/nchp/woodlawn.asp","lat":42.111095600000056,"long":-76.826563099999987,"address":{"mailing":{"zip":"14810","city":"Bath","state":"NY","address_1":"VA
+        Medical Center","address_2":null,"address_3":null},"physical":{"zip":"14901","city":"Elmira","state":"NY","address_1":"1825
+        Davis St","address_2":null,"address_3":null}},"phone":{"fax":"607-732-1769","main":null},"hours":{"monday":"Sunrise
+        - Sunset","tuesday":"Sunrise - Sunset","wednesday":"Sunrise - Sunset","thursday":"Sunrise
+        - Sunset","friday":"Sunrise - Sunset","saturday":"Sunrise - Sunset","sunday":"Sunrise
+        - Sunset"},"services":{},"satisfaction":{},"wait_times":{},"mobile":null,"active_status":null,"operating_status":{"code":"NORMAL"},"visn":null}}}'
+    http_version: null
+  recorded_at: Tue, 21 Apr 2020 15:48:54 GMT
+- request:
+    method: get
+    uri: https://dev-api.va.gov/services/va_facilities/v0/facilities/nca_088
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Apikey:
+      - "<LIGHTHOUSE_API_KEY>"
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: ''
+    headers:
+      Date:
+      - Tue, 21 Apr 2020 15:48:55 GMT
+      Content-Type:
+      - application/json
+      Content-Length:
+      - '661'
+      Connection:
+      - keep-alive
+      Access-Control-Allow-Origin:
+      - "*"
+      Strict-Transport-Security:
+      - max-age=15724800; includeSubDomains
+      - max-age=31536000; includeSubDomains; preload
+      Vary:
+      - Accept-Encoding
+      Via:
+      - kong/1.2.2
+      X-Kong-Proxy-Latency:
+      - '0'
+      X-Kong-Upstream-Latency:
+      - '323'
+      X-Ratelimit-Limit-Minute:
+      - '60'
+      X-Ratelimit-Remaining-Minute:
+      - '46'
+      Cache-Control:
+      - ''
+      - no-cache, no-store
+      Pragma:
+      - no-cache
+      Set-Cookie:
+      - TS016f4012=01c8917e4875e295704b9d64c89cdf02be547d5b44ca56b505f532093665f723f778136ebce606b58f5a577df789a0698fc0ff1634;
+        Max-Age=900; Path=/
+    body:
+      encoding: ASCII-8BIT
+      string: '{"data":{"id":"nca_088","type":"va_facilities","attributes":{"name":"Albany
+        Rural","facility_type":"va_cemetery","classification":"Rural","website":"https://www.cem.va.gov/cems/lots/albany_rural.asp","lat":42.703844900000036,"long":-73.723564999999951,"address":{"mailing":{"zip":"12871-1721","city":"Schuylerville","state":"NY","address_1":"200
+        Duell Road","address_2":null,"address_3":null},"physical":{"zip":"12204","city":"Albany","state":"NY","address_1":"Cemetery
+        Avenue","address_2":null,"address_3":null}},"phone":{"fax":"5184630787","main":null},"hours":{"monday":"Sunrise
+        - Sundown","tuesday":"Sunrise - Sundown","wednesday":"Sunrise - Sundown","thursday":"Sunrise
+        - Sundown","friday":"Sunrise - Sundown","saturday":"Sunrise - Sundown","sunday":"Sunrise
+        - Sundown"},"services":{},"satisfaction":{},"wait_times":{},"mobile":null,"active_status":null,"operating_status":{"code":"NORMAL"},"visn":null}}}'
+    http_version: null
+  recorded_at: Tue, 21 Apr 2020 15:48:55 GMT
+- request:
+    method: get
+    uri: https://dev-api.va.gov/services/va_facilities/v0/facilities/nca_808
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Apikey:
+      - "<LIGHTHOUSE_API_KEY>"
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: ''
+    headers:
+      Date:
+      - Tue, 21 Apr 2020 15:48:56 GMT
+      Content-Type:
+      - application/json
+      Content-Length:
+      - '651'
+      Connection:
+      - keep-alive
+      Access-Control-Allow-Origin:
+      - "*"
+      Strict-Transport-Security:
+      - max-age=15724800; includeSubDomains
+      - max-age=31536000; includeSubDomains; preload
+      Vary:
+      - Accept-Encoding
+      Via:
+      - kong/1.2.2
+      X-Kong-Proxy-Latency:
+      - '1'
+      X-Kong-Upstream-Latency:
+      - '317'
+      X-Ratelimit-Limit-Minute:
+      - '60'
+      X-Ratelimit-Remaining-Minute:
+      - '45'
+      Cache-Control:
+      - ''
+      - no-cache, no-store
+      Pragma:
+      - no-cache
+      Set-Cookie:
+      - TS016f4012=01c8917e488c6b1723f2af6364cd55bbc8fe815ed29ead9d4444ffcbfa4647d04b93bde4c3e2afddd167b62e488b0e0d69134f4ad1;
+        Max-Age=900; Path=/
+    body:
+      encoding: ASCII-8BIT
+      string: '{"data":{"id":"nca_808","type":"va_facilities","attributes":{"name":"Cypress
+        Hills","facility_type":"va_cemetery","classification":"National Cemetery","website":"https://www.cem.va.gov/cems/nchp/cypresshills.asp","lat":40.685954500000037,"long":-73.88123319999994,"address":{"mailing":{"zip":"11208","city":"Farmingdale","state":"NY","address_1":"2040
+        Wellwood Ave","address_2":null,"address_3":null},"physical":{"zip":"11208","city":"Brooklyn","state":"NY","address_1":"625
+        Jamaica Ave","address_2":null,"address_3":null}},"phone":{"fax":"631-694-5422","main":null},"hours":{"monday":"8:00am
+        - 4:30pm","tuesday":"8:00am - 4:30pm","wednesday":"8:00am - 4:30pm","thursday":"8:00am
+        - 4:30pm","friday":"8:00am - 4:30pm","saturday":"8:00am - 4:30pm","sunday":"8:00am
+        - 4:30pm"},"services":{},"satisfaction":{},"wait_times":{},"mobile":null,"active_status":null,"operating_status":{"code":"NORMAL"},"visn":null}}}'
+    http_version: null
+  recorded_at: Tue, 21 Apr 2020 15:48:56 GMT
+- request:
+    method: get
+    uri: https://dev-api.va.gov/services/va_facilities/v0/facilities/nca_803
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Apikey:
+      - "<LIGHTHOUSE_API_KEY>"
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: ''
+    headers:
+      Date:
+      - Tue, 21 Apr 2020 15:48:57 GMT
+      Content-Type:
+      - application/json
+      Connection:
+      - keep-alive
+      Access-Control-Allow-Origin:
+      - "*"
+      Strict-Transport-Security:
+      - max-age=15724800; includeSubDomains
+      - max-age=31536000; includeSubDomains; preload
+      Vary:
+      - Accept-Encoding
+      Via:
+      - kong/1.2.2
+      X-Kong-Proxy-Latency:
+      - '1'
+      X-Kong-Upstream-Latency:
+      - '316'
+      X-Ratelimit-Limit-Minute:
+      - '60'
+      X-Ratelimit-Remaining-Minute:
+      - '44'
+      Cache-Control:
+      - ''
+      - no-cache, no-store
+      Pragma:
+      - no-cache
+      Set-Cookie:
+      - TS016f4012=01c8917e4893c27c77df9f33fc48998d90d360d3738535dd74d4a8aa9d35f441a9182acd84c9c298aecc3b9b5372dfc3d2b3b1550a;
+        Max-Age=900; Path=/
+      Transfer-Encoding:
+      - chunked
+    body:
+      encoding: ASCII-8BIT
+      string: '{"data":{"id":"nca_803","type":"va_facilities","attributes":{"name":"Bath","facility_type":"va_cemetery","classification":"National
+        Cemetery","website":"https://www.cem.va.gov/cems/nchp/bath.asp","lat":42.347251500000027,"long":-77.350304199999982,"address":{"mailing":{"zip":"14810","city":"Bath","state":"NY","address_1":"VA
+        Medical Center","address_2":null,"address_3":null},"physical":{"zip":"14810","city":"Bath","state":"NY","address_1":"VA
+        Medical Center","address_2":null,"address_3":null}},"phone":{"fax":"607-664-4761","main":null},"hours":{"monday":"Sunrise
+        - Sunset","tuesday":"Sunrise - Sunset","wednesday":"Sunrise - Sunset","thursday":"Sunrise
+        - Sunset","friday":"Sunrise - Sunset","saturday":"Sunrise - Sunset","sunday":"Sunrise
+        - Sunset"},"services":{},"satisfaction":{},"wait_times":{},"mobile":null,"active_status":null,"operating_status":{"code":"NORMAL"},"visn":null}}}'
+    http_version: null
+  recorded_at: Tue, 21 Apr 2020 15:48:57 GMT
+- request:
+    method: get
+    uri: https://dev-api.va.gov/services/va_facilities/v0/facilities/nca_917
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Apikey:
+      - "<LIGHTHOUSE_API_KEY>"
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: ''
+    headers:
+      Date:
+      - Tue, 21 Apr 2020 15:48:58 GMT
+      Content-Type:
+      - application/json
+      Content-Length:
+      - '672'
+      Connection:
+      - keep-alive
+      Access-Control-Allow-Origin:
+      - "*"
+      Strict-Transport-Security:
+      - max-age=15724800; includeSubDomains
+      - max-age=31536000; includeSubDomains; preload
+      Vary:
+      - Accept-Encoding
+      Via:
+      - kong/1.2.2
+      X-Kong-Proxy-Latency:
+      - '0'
+      X-Kong-Upstream-Latency:
+      - '313'
+      X-Ratelimit-Limit-Minute:
+      - '60'
+      X-Ratelimit-Remaining-Minute:
+      - '43'
+      Cache-Control:
+      - ''
+      - no-cache, no-store
+      Pragma:
+      - no-cache
+      Set-Cookie:
+      - TS016f4012=01c8917e4863b1e1d2ed278d6f0bf52925c2c50f8204b5f5225b54eec12daa12f9115491aeee6dfd0989f809f6e966824bdcfac31f;
+        Max-Age=900; Path=/
+    body:
+      encoding: ASCII-8BIT
+      string: '{"data":{"id":"nca_917","type":"va_facilities","attributes":{"name":"Gerald
+        B.H. Solomon Saratoga","facility_type":"va_cemetery","classification":"National
+        Cemetery","website":"https://www.cem.va.gov/cems/nchp/geraldbhsolomonsaratoga.asp","lat":43.026389900000027,"long":-73.617079899999965,"address":{"mailing":{"zip":"12871-1721","city":"Schuylerville","state":"NY","address_1":"200
+        Duell Rd","address_2":null,"address_3":null},"physical":{"zip":"12871-1721","city":"Schuylerville","state":"NY","address_1":"200
+        Duell Rd","address_2":null,"address_3":null}},"phone":{"fax":"518-583-6975","main":null},"hours":{"monday":"Sunrise
+        - Sunset","tuesday":"Sunrise - Sunset","wednesday":"Sunrise - Sunset","thursday":"Sunrise
+        - Sunset","friday":"Sunrise - Sunset","saturday":"Sunrise - Sunset","sunday":"Sunrise
+        - Sunset"},"services":{},"satisfaction":{},"wait_times":{},"mobile":null,"active_status":null,"operating_status":{"code":"NORMAL"},"visn":null}}}'
+    http_version: null
+  recorded_at: Tue, 21 Apr 2020 15:48:58 GMT
+- request:
+    method: get
+    uri: https://dev-api.va.gov/services/va_facilities/v0/facilities/nca_815
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Apikey:
+      - "<LIGHTHOUSE_API_KEY>"
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: ''
+    headers:
+      Date:
+      - Tue, 21 Apr 2020 15:48:59 GMT
+      Content-Type:
+      - application/json
+      Content-Length:
+      - '651'
+      Connection:
+      - keep-alive
+      Access-Control-Allow-Origin:
+      - "*"
+      Strict-Transport-Security:
+      - max-age=15724800; includeSubDomains
+      - max-age=31536000; includeSubDomains; preload
+      Vary:
+      - Accept-Encoding
+      Via:
+      - kong/1.2.2
+      X-Kong-Proxy-Latency:
+      - '0'
+      X-Kong-Upstream-Latency:
+      - '314'
+      X-Ratelimit-Limit-Minute:
+      - '60'
+      X-Ratelimit-Remaining-Minute:
+      - '42'
+      Cache-Control:
+      - ''
+      - no-cache, no-store
+      Pragma:
+      - no-cache
+      Set-Cookie:
+      - TS016f4012=01c8917e48759fb5b4db15298f9ad024c39ee97945c8e756da40cbdbb7fcabe2d9c8d7095460832455f100202ef363c4aae7fc8843;
+        Max-Age=900; Path=/
+    body:
+      encoding: ASCII-8BIT
+      string: '{"data":{"id":"nca_815","type":"va_facilities","attributes":{"name":"Long
+        Island","facility_type":"va_cemetery","classification":"National Cemetery","website":"https://www.cem.va.gov/cems/nchp/longisland.asp","lat":40.750563700000043,"long":-73.401496399999985,"address":{"mailing":{"zip":"11735-1211","city":"Farmingdale","state":"NY","address_1":"2040
+        Wellwood Ave","address_2":null,"address_3":null},"physical":{"zip":"11735-1211","city":"Farmingdale","state":"NY","address_1":"2040
+        Wellwood Ave","address_2":null,"address_3":null}},"phone":{"fax":"631-694-5422","main":null},"hours":{"monday":"7:30am
+        - 5:00pm","tuesday":"7:30am - 5:00pm","wednesday":"7:30am - 5:00pm","thursday":"7:30am
+        - 5:00pm","friday":"7:30am - 5:00pm","saturday":"7:30am - 5:00pm","sunday":"7:30am
+        - 5:00pm"},"services":{},"satisfaction":{},"wait_times":{},"mobile":null,"active_status":null,"operating_status":{"code":"NORMAL"},"visn":null}}}'
+    http_version: null
+  recorded_at: Tue, 21 Apr 2020 15:48:59 GMT
+- request:
+    method: get
+    uri: https://dev-api.va.gov/services/va_facilities/v0/facilities/vba_310e
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Apikey:
+      - "<LIGHTHOUSE_API_KEY>"
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: ''
+    headers:
+      Date:
+      - Tue, 21 Apr 2020 15:49:00 GMT
+      Content-Type:
+      - application/json
+      Content-Length:
+      - '706'
+      Connection:
+      - keep-alive
+      Access-Control-Allow-Origin:
+      - "*"
+      Strict-Transport-Security:
+      - max-age=15724800; includeSubDomains
+      - max-age=31536000; includeSubDomains; preload
+      Vary:
+      - Accept-Encoding
+      Via:
+      - kong/1.2.2
+      X-Kong-Proxy-Latency:
+      - '2'
+      X-Kong-Upstream-Latency:
+      - '317'
+      X-Ratelimit-Limit-Minute:
+      - '60'
+      X-Ratelimit-Remaining-Minute:
+      - '41'
+      Cache-Control:
+      - ''
+      - no-cache, no-store
+      Pragma:
+      - no-cache
+      Set-Cookie:
+      - TS016f4012=01c8917e48b3eb0bdeb17958ff91e23ae4b17848a1b906519ca259d00366baacbe46dd2ec4eb192ce78cacc511af508359919a2c40;
+        Max-Age=900; Path=/
+    body:
+      encoding: ASCII-8BIT
+      string: '{"data":{"id":"vba_310e","type":"va_facilities","attributes":{"name":"Wilkes
+        Barre VA Medical Center Vocational Rehabilitation and Employment Services
+        Office","facility_type":"va_benefits_facility","classification":"Voc Rehab
+        And Employment","website":null,"lat":41.247549610000078,"long":-75.841135479999934,"address":{"mailing":{},"physical":{"zip":"18702","city":"Wilkes
+        Barre","state":"PA","address_1":"1123 East End Blvd","address_2":"Bldg 35","address_3":null}},"phone":{"fax":"570-821-2510","main":"570-821-2501"},"hours":{"monday":"By
+        Appointment Only","tuesday":"By Appointment Only","wednesday":"By Appointment
+        Only","thursday":"By Appointment Only","friday":"By Appointment Only","saturday":"Closed","sunday":"Closed"},"services":{"benefits":["VocationalRehabilitationAndEmploymentAssistance"]},"satisfaction":{},"wait_times":{},"mobile":null,"active_status":null,"operating_status":{"code":"NORMAL"},"visn":null}}}'
+    http_version: null
+  recorded_at: Tue, 21 Apr 2020 15:49:00 GMT
+- request:
+    method: get
+    uri: https://dev-api.va.gov/services/va_facilities/v0/facilities/vba_306f
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Apikey:
+      - "<LIGHTHOUSE_API_KEY>"
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: ''
+    headers:
+      Date:
+      - Tue, 21 Apr 2020 15:49:01 GMT
+      Content-Type:
+      - application/json
+      Connection:
+      - keep-alive
+      Access-Control-Allow-Origin:
+      - "*"
+      Strict-Transport-Security:
+      - max-age=15724800; includeSubDomains
+      - max-age=31536000; includeSubDomains; preload
+      Vary:
+      - Accept-Encoding
+      Via:
+      - kong/1.2.2
+      X-Kong-Proxy-Latency:
+      - '1'
+      X-Kong-Upstream-Latency:
+      - '313'
+      X-Ratelimit-Limit-Minute:
+      - '60'
+      X-Ratelimit-Remaining-Minute:
+      - '59'
+      Cache-Control:
+      - ''
+      - no-cache, no-store
+      Pragma:
+      - no-cache
+      Set-Cookie:
+      - TS016f4012=01c8917e4843918c4331e65f7cb08f50f08ffa35d348246c48e939b16e4cad78ddf20d74db7d395580e89b43dd0184a080be0bed15;
+        Max-Age=900; Path=/
+      Transfer-Encoding:
+      - chunked
+    body:
+      encoding: ASCII-8BIT
+      string: '{"data":{"id":"vba_306f","type":"va_facilities","attributes":{"name":"New
+        York Regional Office at Castle Point VAMC","facility_type":"va_benefits_facility","classification":"Outbased","website":null,"lat":41.540456550000044,"long":-73.96222124999997,"address":{"mailing":{},"physical":{"zip":"12590","city":"Wappingers
+        Falls","state":"NY","address_1":"41 Castle Point Rd","address_2":null,"address_3":null}},"phone":{"fax":null,"main":"845-831-2000
+        Ext. 5097"},"hours":{"monday":"Closed","tuesday":"9:00AM-2:00PM","wednesday":"Closed","thursday":"Closed","friday":"Closed","saturday":"Closed","sunday":"Closed"},"services":{"benefits":["ApplyingForBenefits","BurialClaimAssistance","DisabilityClaimAssistance","eBenefitsRegistrationAssistance","FamilyMemberClaimAssistance","UpdatingDirectDepositInformation"]},"satisfaction":{},"wait_times":{},"mobile":null,"active_status":null,"operating_status":{"code":"NORMAL"},"visn":null}}}'
+    http_version: null
+  recorded_at: Tue, 21 Apr 2020 15:49:01 GMT
+- request:
+    method: get
+    uri: https://dev-api.va.gov/services/va_facilities/v0/facilities/vba_306a
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Apikey:
+      - "<LIGHTHOUSE_API_KEY>"
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: ''
+    headers:
+      Date:
+      - Tue, 21 Apr 2020 15:49:02 GMT
+      Content-Type:
+      - application/json
+      Connection:
+      - keep-alive
+      Access-Control-Allow-Origin:
+      - "*"
+      Strict-Transport-Security:
+      - max-age=15724800; includeSubDomains
+      - max-age=31536000; includeSubDomains; preload
+      Vary:
+      - Accept-Encoding
+      Via:
+      - kong/1.2.2
+      X-Kong-Proxy-Latency:
+      - '2'
+      X-Kong-Upstream-Latency:
+      - '319'
+      X-Ratelimit-Limit-Minute:
+      - '60'
+      X-Ratelimit-Remaining-Minute:
+      - '58'
+      Cache-Control:
+      - ''
+      - no-cache, no-store
+      Pragma:
+      - no-cache
+      Set-Cookie:
+      - TS016f4012=01c8917e4819427d62be97d1c8a1155b4ec4a97b7aba6a7d1bb2484a9a0d92520e8436f1ffb8223236284e1026fea02d24f67b49da;
+        Max-Age=900; Path=/
+      Transfer-Encoding:
+      - chunked
+    body:
+      encoding: ASCII-8BIT
+      string: '{"data":{"id":"vba_306a","type":"va_facilities","attributes":{"name":"New
+        York Regional Office at Montrose VAMC","facility_type":"va_benefits_facility","classification":"Outbased","website":null,"lat":41.245177880000028,"long":-73.926430399999958,"address":{"mailing":{},"physical":{"zip":"10548","city":"Montrose","state":"NY","address_1":"2094
+        Albany Post Road","address_2":"Bldg. 14, Room 144","address_3":null}},"phone":{"fax":"914-788-4861","main":"1-800-827-1000"},"hours":{"monday":"8:30AM-4:00PM","tuesday":"8:30AM-4:00PM","wednesday":"8:30AM-4:00PM","thursday":"8:30AM-4:00PM","friday":"8:30AM-4:00PM","saturday":"Closed","sunday":"Closed"},"services":{"benefits":["EducationAndCareerCounseling","VocationalRehabilitationAndEmploymentAssistance"]},"satisfaction":{},"wait_times":{},"mobile":null,"active_status":null,"operating_status":{"code":"NORMAL"},"visn":null}}}'
+    http_version: null
+  recorded_at: Tue, 21 Apr 2020 15:49:02 GMT
+- request:
+    method: get
+    uri: https://dev-api.va.gov/services/va_facilities/v0/facilities/vba_306d
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Apikey:
+      - "<LIGHTHOUSE_API_KEY>"
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: ''
+    headers:
+      Date:
+      - Tue, 21 Apr 2020 15:49:03 GMT
+      Content-Type:
+      - application/json
+      Connection:
+      - keep-alive
+      Access-Control-Allow-Origin:
+      - "*"
+      Strict-Transport-Security:
+      - max-age=15724800; includeSubDomains
+      - max-age=31536000; includeSubDomains; preload
+      Vary:
+      - Accept-Encoding
+      Via:
+      - kong/1.2.2
+      X-Kong-Proxy-Latency:
+      - '1'
+      X-Kong-Upstream-Latency:
+      - '323'
+      X-Ratelimit-Limit-Minute:
+      - '60'
+      X-Ratelimit-Remaining-Minute:
+      - '57'
+      Cache-Control:
+      - ''
+      - no-cache, no-store
+      Pragma:
+      - no-cache
+      Set-Cookie:
+      - TS016f4012=01c8917e48ff14f691e1bc29e9525d92ce24d98de812eb6b19c71972f30a1828c487b97c6d8ed10a57808533559ccf27aa9e11c28a;
+        Max-Age=900; Path=/
+      Transfer-Encoding:
+      - chunked
+    body:
+      encoding: ASCII-8BIT
+      string: '{"data":{"id":"vba_306d","type":"va_facilities","attributes":{"name":"New
+        York Regional Office IDES at Montrose VAMC","facility_type":"va_benefits_facility","classification":null,"website":null,"lat":41.245177880000028,"long":-73.926430399999958,"address":{"mailing":{},"physical":{"zip":"10548","city":"Montrose","state":"NY","address_1":"2094
+        Albany Post Road","address_2":"Building 14","address_3":null}},"phone":{"fax":"914-788-4861","main":"914-737-4400
+        Ext. 3617"},"hours":{"monday":"7:30AM-4:00PM","tuesday":"7:30AM-4:00PM","wednesday":"7:30AM-4:00PM","thursday":"7:30AM-4:00PM","friday":"7:30AM-4:00PM","saturday":"Closed","sunday":"Closed"},"services":{"benefits":["IntegratedDisabilityEvaluationSystemAssistance","PreDischargeClaimAssistance"]},"satisfaction":{},"wait_times":{},"mobile":null,"active_status":null,"operating_status":{"code":"NORMAL"},"visn":null}}}'
+    http_version: null
+  recorded_at: Tue, 21 Apr 2020 15:49:03 GMT
+- request:
+    method: get
+    uri: https://dev-api.va.gov/services/va_facilities/v0/facilities/vba_306g
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Apikey:
+      - "<LIGHTHOUSE_API_KEY>"
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: ''
+    headers:
+      Date:
+      - Tue, 21 Apr 2020 15:49:04 GMT
+      Content-Type:
+      - application/json
+      Content-Length:
+      - '763'
+      Connection:
+      - keep-alive
+      Access-Control-Allow-Origin:
+      - "*"
+      Strict-Transport-Security:
+      - max-age=15724800; includeSubDomains
+      - max-age=31536000; includeSubDomains; preload
+      Vary:
+      - Accept-Encoding
+      Via:
+      - kong/1.2.2
+      X-Kong-Proxy-Latency:
+      - '0'
+      X-Kong-Upstream-Latency:
+      - '486'
+      X-Ratelimit-Limit-Minute:
+      - '60'
+      X-Ratelimit-Remaining-Minute:
+      - '56'
+      Cache-Control:
+      - ''
+      - no-cache, no-store
+      Pragma:
+      - no-cache
+      Set-Cookie:
+      - TS016f4012=01c8917e48f4474ef78988f21424fbd7bcc725398db0a9513dc81f26ec709f4e89acd0b6a999c42ef587fc61644d6aff0f83f1b69c;
+        Max-Age=900; Path=/
+    body:
+      encoding: ASCII-8BIT
+      string: '{"data":{"id":"vba_306g","type":"va_facilities","attributes":{"name":"New
+        York Regional Office Outbased at Montrose VAMC","facility_type":"va_benefits_facility","classification":"Outbased","website":null,"lat":41.245177880000028,"long":-73.926430399999958,"address":{"mailing":{},"physical":{"zip":"10548","city":"Montrose","state":"NY","address_1":"2094
+        Albany Post Road","address_2":"Building 1, Room 19A","address_3":null}},"phone":{"fax":null,"main":"914-737-4400
+        Ext. 2212"},"hours":{"monday":"Closed","tuesday":"9:00AM-3:00PM","wednesday":"Closed","thursday":"Closed","friday":"Closed","saturday":"Closed","sunday":"Closed"},"services":{"benefits":["ApplyingForBenefits","BurialClaimAssistance","DisabilityClaimAssistance","eBenefitsRegistrationAssistance","FamilyMemberClaimAssistance","UpdatingDirectDepositInformation"]},"satisfaction":{},"wait_times":{},"mobile":null,"active_status":null,"operating_status":{"code":"NORMAL"},"visn":null}}}'
+    http_version: null
+  recorded_at: Tue, 21 Apr 2020 15:49:04 GMT
+- request:
+    method: get
+    uri: https://dev-api.va.gov/services/va_facilities/v0/facilities/vba_309
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Apikey:
+      - "<LIGHTHOUSE_API_KEY>"
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: ''
+    headers:
+      Date:
+      - Tue, 21 Apr 2020 15:49:05 GMT
+      Content-Type:
+      - application/json
+      Connection:
+      - keep-alive
+      Access-Control-Allow-Origin:
+      - "*"
+      Strict-Transport-Security:
+      - max-age=15724800; includeSubDomains
+      - max-age=31536000; includeSubDomains; preload
+      Vary:
+      - Accept-Encoding
+      Via:
+      - kong/1.2.2
+      X-Kong-Proxy-Latency:
+      - '1'
+      X-Kong-Upstream-Latency:
+      - '319'
+      X-Ratelimit-Limit-Minute:
+      - '60'
+      X-Ratelimit-Remaining-Minute:
+      - '55'
+      Cache-Control:
+      - ''
+      - no-cache, no-store
+      Pragma:
+      - no-cache
+      Set-Cookie:
+      - TS016f4012=01c8917e4815838bd97c6dac00dd1b7e24ffc10542779c5987b45e9e48a07ab22c6754a09c6cb13c5782a0c4d700dbd3cb0944e69c;
+        Max-Age=900; Path=/
+      Transfer-Encoding:
+      - chunked
+    body:
+      encoding: ASCII-8BIT
+      string: '{"data":{"id":"vba_309","type":"va_facilities","attributes":{"name":"Newark
+        Regional Benefit Office","facility_type":"va_benefits_facility","classification":"Regional
+        Benefit Office","website":"https://www.benefits.va.gov/newark","lat":40.742663360000051,"long":-74.17077895999995,"address":{"mailing":{},"physical":{"zip":"07102","city":"Newark","state":"NJ","address_1":"20
+        Washington Place","address_2":null,"address_3":null}},"phone":{"fax":"973-297-3361","main":"1-800-827-1000"},"hours":{"monday":"8:30AM-4:30PM","tuesday":"8:30AM-4:30PM","wednesday":"8:30AM-4:30PM","thursday":"8:30AM-4:30PM","friday":"8:30AM-4:30PM","saturday":"Closed","sunday":"Closed"},"services":{"benefits":["ApplyingForBenefits","BurialClaimAssistance","DisabilityClaimAssistance","eBenefitsRegistrationAssistance","EducationAndCareerCounseling","EducationClaimAssistance","FamilyMemberClaimAssistance","HomelessAssistance","TransitionAssistance","UpdatingDirectDepositInformation","VocationalRehabilitationAndEmploymentAssistance"]},"satisfaction":{},"wait_times":{},"mobile":null,"active_status":null,"operating_status":{"code":"NORMAL"},"visn":null}}}'
+    http_version: null
+  recorded_at: Tue, 21 Apr 2020 15:49:05 GMT
+- request:
+    method: get
+    uri: https://dev-api.va.gov/services/va_facilities/v0/facilities/vba_306
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Apikey:
+      - "<LIGHTHOUSE_API_KEY>"
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: ''
+    headers:
+      Date:
+      - Tue, 21 Apr 2020 15:49:06 GMT
+      Content-Type:
+      - application/json
+      Content-Length:
+      - '703'
+      Connection:
+      - keep-alive
+      Access-Control-Allow-Origin:
+      - "*"
+      Strict-Transport-Security:
+      - max-age=15724800; includeSubDomains
+      - max-age=31536000; includeSubDomains; preload
+      Vary:
+      - Accept-Encoding
+      Via:
+      - kong/1.2.2
+      X-Kong-Proxy-Latency:
+      - '1'
+      X-Kong-Upstream-Latency:
+      - '322'
+      X-Ratelimit-Limit-Minute:
+      - '60'
+      X-Ratelimit-Remaining-Minute:
+      - '54'
+      Cache-Control:
+      - ''
+      - no-cache, no-store
+      Pragma:
+      - no-cache
+      Set-Cookie:
+      - TS016f4012=01c8917e482f0f533c836bc1ad640cb9521e78f1e57c6a873e52ca23474cf3507e01b798fad71047e2b8b6268c2c14f878755380de;
+        Max-Age=900; Path=/
+    body:
+      encoding: ASCII-8BIT
+      string: '{"data":{"id":"vba_306","type":"va_facilities","attributes":{"name":"New
+        York Regional Benefit Office","facility_type":"va_benefits_facility","classification":"Regional
+        Benefit Office","website":"https://www.benefits.va.gov/newyork","lat":40.728392880000058,"long":-74.006219899999962,"address":{"mailing":{},"physical":{"zip":"10014","city":"New
+        York","state":"NY","address_1":"245 W Houston Street","address_2":null,"address_3":null}},"phone":{"fax":"212-807-4024","main":"1-800-827-1000"},"hours":{"monday":"8:30AM-4:00PM","tuesday":"8:30AM-4:00PM","wednesday":"8:30AM-4:00PM","thursday":"8:30AM-4:00PM","friday":"8:30AM-4:00PM","saturday":"Closed","sunday":"Closed"},"services":{"benefits":["ApplyingForBenefits","DisabilityClaimAssistance","eBenefitsRegistrationAssistance","FamilyMemberClaimAssistance","HomelessAssistance","UpdatingDirectDepositInformation","VocationalRehabilitationAndEmploymentAssistance"]},"satisfaction":{},"wait_times":{},"mobile":null,"active_status":null,"operating_status":{"code":"NORMAL"},"visn":null}}}'
+    http_version: null
+  recorded_at: Tue, 21 Apr 2020 15:49:06 GMT
+- request:
+    method: get
+    uri: https://dev-api.va.gov/services/va_facilities/v0/facilities/vba_306b
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Apikey:
+      - "<LIGHTHOUSE_API_KEY>"
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: ''
+    headers:
+      Date:
+      - Tue, 21 Apr 2020 15:49:12 GMT
+      Content-Type:
+      - application/json
+      Connection:
+      - keep-alive
+      Access-Control-Allow-Origin:
+      - "*"
+      Strict-Transport-Security:
+      - max-age=15724800; includeSubDomains
+      - max-age=31536000; includeSubDomains; preload
+      Vary:
+      - Accept-Encoding
+      Via:
+      - kong/1.2.2
+      X-Kong-Proxy-Latency:
+      - '1'
+      X-Kong-Upstream-Latency:
+      - '319'
+      X-Ratelimit-Limit-Minute:
+      - '60'
+      X-Ratelimit-Remaining-Minute:
+      - '53'
+      Cache-Control:
+      - ''
+      - no-cache, no-store
+      Pragma:
+      - no-cache
+      Set-Cookie:
+      - TS016f4012=01c8917e48a974e03ac510cf953fcdd8b4d3f813c5829cf2362eb9c4b25de1b68347e7de57846ab0eec5ef642a0765f39e0117bc11;
+        Max-Age=900; Path=/
+      Transfer-Encoding:
+      - chunked
+    body:
+      encoding: ASCII-8BIT
+      string: '{"data":{"id":"vba_306b","type":"va_facilities","attributes":{"name":"New
+        York Regional Office at Albany VAMC Hicksville","facility_type":"va_benefits_facility","classification":"Outbased","website":null,"lat":42.651408840000045,"long":-73.776232849999985,"address":{"mailing":{},"physical":{"zip":"12208","city":"Albany","state":"NY","address_1":"113
+        Holland Avenue","address_2":"Room C308","address_3":null}},"phone":{"fax":"518-626-5695","main":"518-626-5692"},"hours":{"monday":"8:30AM-4:00PM","tuesday":"8:30AM-4:00PM","wednesday":"8:30AM-4:00PM","thursday":"8:30AM-4:00PM","friday":"8:30AM-4:00PM","saturday":"Closed","sunday":"Closed"},"services":{"benefits":["EducationAndCareerCounseling","VocationalRehabilitationAndEmploymentAssistance"]},"satisfaction":{},"wait_times":{},"mobile":null,"active_status":null,"operating_status":{"code":"NORMAL"},"visn":null}}}'
+    http_version: null
+  recorded_at: Tue, 21 Apr 2020 15:49:12 GMT
+- request:
+    method: get
+    uri: https://dev-api.va.gov/services/va_facilities/v0/facilities/vba_306e
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Apikey:
+      - "<LIGHTHOUSE_API_KEY>"
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: ''
+    headers:
+      Date:
+      - Tue, 21 Apr 2020 15:49:13 GMT
+      Content-Type:
+      - application/json
+      Connection:
+      - keep-alive
+      Access-Control-Allow-Origin:
+      - "*"
+      Strict-Transport-Security:
+      - max-age=15724800; includeSubDomains
+      - max-age=31536000; includeSubDomains; preload
+      Vary:
+      - Accept-Encoding
+      Via:
+      - kong/1.2.2
+      X-Kong-Proxy-Latency:
+      - '1'
+      X-Kong-Upstream-Latency:
+      - '318'
+      X-Ratelimit-Limit-Minute:
+      - '60'
+      X-Ratelimit-Remaining-Minute:
+      - '52'
+      Cache-Control:
+      - ''
+      - no-cache, no-store
+      Pragma:
+      - no-cache
+      Set-Cookie:
+      - TS016f4012=0119a2687fbae08382c39c1beb3c30b3feae5b06dcb41249b393c3aebcdfeefeb27fdc542078af64e467996e7ab4bea4c7c1f0790f;
+        Max-Age=900; Path=/
+      Transfer-Encoding:
+      - chunked
+    body:
+      encoding: ASCII-8BIT
+      string: '{"data":{"id":"vba_306e","type":"va_facilities","attributes":{"name":"New
+        York Regional Office at Albany VAMC","facility_type":"va_benefits_facility","classification":"Outbased","website":null,"lat":42.651408840000045,"long":-73.776232849999985,"address":{"mailing":{},"physical":{"zip":"12208","city":"Albany","state":"NY","address_1":"113
+        Holland Avenue","address_2":null,"address_3":null}},"phone":{"fax":"518-626-5695","main":"518-626-5524"},"hours":{"monday":"7:30AM-4:00PM","tuesday":"7:30AM-4:00PM","wednesday":"7:30AM-4:00PM","thursday":"7:30AM-4:00PM","friday":"7:30AM-4:00PM","saturday":"Closed","sunday":"Closed"},"services":{"benefits":["ApplyingForBenefits","BurialClaimAssistance","DisabilityClaimAssistance","eBenefitsRegistrationAssistance","FamilyMemberClaimAssistance","UpdatingDirectDepositInformation"]},"satisfaction":{},"wait_times":{},"mobile":null,"active_status":null,"operating_status":{"code":"NORMAL"},"visn":null}}}'
+    http_version: null
+  recorded_at: Tue, 21 Apr 2020 15:49:14 GMT
+- request:
+    method: get
+    uri: https://dev-api.va.gov/services/va_facilities/v0/facilities/vba_306h
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Apikey:
+      - "<LIGHTHOUSE_API_KEY>"
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: ''
+    headers:
+      Date:
+      - Tue, 21 Apr 2020 15:49:14 GMT
+      Content-Type:
+      - application/json
+      Content-Length:
+      - '761'
+      Connection:
+      - keep-alive
+      Access-Control-Allow-Origin:
+      - "*"
+      Strict-Transport-Security:
+      - max-age=15724800; includeSubDomains
+      - max-age=31536000; includeSubDomains; preload
+      Vary:
+      - Accept-Encoding
+      Via:
+      - kong/1.2.2
+      X-Kong-Proxy-Latency:
+      - '1'
+      X-Kong-Upstream-Latency:
+      - '316'
+      X-Ratelimit-Limit-Minute:
+      - '60'
+      X-Ratelimit-Remaining-Minute:
+      - '51'
+      Cache-Control:
+      - ''
+      - no-cache, no-store
+      Pragma:
+      - no-cache
+      Set-Cookie:
+      - TS016f4012=0119a2687f3b8950e343e7556af44e699a18138b08f530c6e592bdfe4466b8bbda3dbee7afb4442394d5a469a9e00bc5286bba9a6e;
+        Max-Age=900; Path=/
+    body:
+      encoding: ASCII-8BIT
+      string: '{"data":{"id":"vba_306h","type":"va_facilities","attributes":{"name":"New
+        York Regional Office Outbased at Manhattan VAMC, Office 1","facility_type":"va_benefits_facility","classification":"Outbased","website":null,"lat":40.737090390000049,"long":-73.976947259999974,"address":{"mailing":{},"physical":{"zip":"10010","city":"New
+        York","state":"NY","address_1":"423 East 23rd Street","address_2":"2nd Floor,
+        Room 2207N","address_3":null}},"phone":{"fax":null,"main":"212-686-7500 Ext.
+        3189"},"hours":{"monday":"9:00AM-5:30PM","tuesday":"Closed","wednesday":"Closed","thursday":"9:00AM-5:30PM","friday":"Closed","saturday":"Closed","sunday":"Closed"},"services":{"benefits":["ApplyingForBenefits","BurialClaimAssistance","DisabilityClaimAssistance","eBenefitsRegistrationAssistance","FamilyMemberClaimAssistance","UpdatingDirectDepositInformation"]},"satisfaction":{},"wait_times":{},"mobile":null,"active_status":null,"operating_status":{"code":"NORMAL"},"visn":null}}}'
+    http_version: null
+  recorded_at: Tue, 21 Apr 2020 15:49:15 GMT
+- request:
+    method: get
+    uri: https://dev-api.va.gov/services/va_facilities/v0/facilities/vba_306i
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Apikey:
+      - "<LIGHTHOUSE_API_KEY>"
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: ''
+    headers:
+      Date:
+      - Tue, 21 Apr 2020 15:49:16 GMT
+      Content-Type:
+      - application/json
+      Connection:
+      - keep-alive
+      Access-Control-Allow-Origin:
+      - "*"
+      Strict-Transport-Security:
+      - max-age=15724800; includeSubDomains
+      - max-age=31536000; includeSubDomains; preload
+      Vary:
+      - Accept-Encoding
+      Via:
+      - kong/1.2.2
+      X-Kong-Proxy-Latency:
+      - '1'
+      X-Kong-Upstream-Latency:
+      - '316'
+      X-Ratelimit-Limit-Minute:
+      - '60'
+      X-Ratelimit-Remaining-Minute:
+      - '50'
+      Cache-Control:
+      - ''
+      - no-cache, no-store
+      Pragma:
+      - no-cache
+      Set-Cookie:
+      - TS016f4012=0119a2687f25101206f5167184666002f015cd64636ad6ccb27f13b5de5440cb319393d460f719c77d6411ac2ce42f100c2c5f5c78;
+        Max-Age=900; Path=/
+      Transfer-Encoding:
+      - chunked
+    body:
+      encoding: ASCII-8BIT
+      string: '{"data":{"id":"vba_306i","type":"va_facilities","attributes":{"name":"New
+        York Regional Office Outbased at Manhattan VAMC, Office 2","facility_type":"va_benefits_facility","classification":"Outbased","website":null,"lat":40.737090390000049,"long":-73.976947259999974,"address":{"mailing":{},"physical":{"zip":"10010","city":"New
+        York","state":"NY","address_1":"423 East 23rd Street","address_2":"Floor 15(s),
+        Room 15108AS","address_3":null}},"phone":{"fax":null,"main":"212-868-7500"},"hours":{"monday":"8:45AM-4:45PM","tuesday":"Closed","wednesday":"Closed","thursday":"Closed","friday":"Closed","saturday":"Closed","sunday":"Closed"},"services":{"benefits":["ApplyingForBenefits","BurialClaimAssistance","DisabilityClaimAssistance","eBenefitsRegistrationAssistance","FamilyMemberClaimAssistance","HomelessAssistance","UpdatingDirectDepositInformation"]},"satisfaction":{},"wait_times":{},"mobile":null,"active_status":null,"operating_status":{"code":"NORMAL"},"visn":null}}}'
+    http_version: null
+  recorded_at: Tue, 21 Apr 2020 15:49:16 GMT
+recorded_with: VCR 5.1.0

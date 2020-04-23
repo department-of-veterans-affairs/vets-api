@@ -19,7 +19,7 @@ module V0
       def token_payload
         {
           locale: params[:locale],
-          directLineURI: Settings.coronavirus_chatbot.directLine_uri,
+          directLineURI: Settings.coronavirus_chatbot.directline_uri,
           connectorToken: fetch_connector_token,
           userId: chat_bot_user_id
         }
