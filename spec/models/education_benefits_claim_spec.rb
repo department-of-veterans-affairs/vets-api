@@ -4,10 +4,11 @@ require 'rails_helper'
 
 RSpec.describe EducationBenefitsClaim, type: :model do
   let(:education_benefits_claim) do
+    Flipper.enable('edu_benefits_stem_scholarship')
     create(:va1990).education_benefits_claim
   end
 
-  %w[1990 1995 1990e 5490 5495 1990n 0993 0994 1995s].each do |form_type|
+  %w[1990 1995 1990e 5490 5495 1990n 0993 0994 10203].each do |form_type|
     method = "is_#{form_type}?"
 
     describe "##{method}" do
@@ -47,7 +48,7 @@ RSpec.describe EducationBenefitsClaim, type: :model do
 
   describe '#update_education_benefits_submission_status' do
     subject do
-      education_benefits_claim.update_attributes!(processed_at: Time.zone.now)
+      education_benefits_claim.update!(processed_at: Time.zone.now)
       education_benefits_claim
     end
 
@@ -206,8 +207,25 @@ RSpec.describe EducationBenefitsClaim, type: :model do
       end
     end
 
+    context 'with a form type of 10203' do
+      subject do
+        create(:va10203)
+      end
+
+      it 'creates a submission' do
+        subject
+
+        expect(associated_submission).to eq(
+          submission_attributes.merge(
+            'form_type' => '10203',
+            'transfer_of_entitlement' => true
+          )
+        )
+      end
+    end
+
     it 'does not create a submission after save if it was already submitted' do
-      subject.education_benefits_claim.update_attributes!(processed_at: Time.zone.now)
+      subject.education_benefits_claim.update!(processed_at: Time.zone.now)
       expect(EducationBenefitsSubmission.count).to eq(1)
     end
   end

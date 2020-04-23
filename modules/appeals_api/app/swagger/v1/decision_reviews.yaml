@@ -24,56 +24,14 @@ paths:
       tags:
         - Higher-Level Reviews
       parameters:
-        - name: X-VA-SSN
-          in: header
-          required: true
-          description: veteran's SSN
-          schema:
-            type: string
-            pattern: '^\d{9}$'
-        - name: X-VA-First-Name
-          in: header
-          required: true
-          description: veteran's first name
-          schema:         # if vet only has 1 legal name,
-            type: string  # first-name can be whitespace and last-name can hold name
-        - name: X-VA-Middle-Initial
-          in: header
-          required: false
-          description: veteran's middle initial
-          schema:
-            $ref: '#/components/schemas/NonBlankStringMaxLength1'
-        - name: X-VA-Last-Name
-          in: header
-          required: true
-          description: veteran's last name
-          schema:
-            $ref: '#/components/schemas/NonBlankString'
-        - name: X-VA-Birth-Date
-          in: header
-          required: true
-          description: veteran's birth date
-          schema:
-            type: string
-            format: date
-        - name: X-VA-File-Number
-          in: header
-          required: false
-          description: veteran's file number
-          schema:
-            $ref: '#/components/schemas/NonBlankString'
-        - name: X-VA-Service-Number
-          in: header
-          required: false
-          description: veteran's service number
-          schema:
-            $ref: '#/components/schemas/NonBlankString'
-        - name: X-VA-Insurance-Policy-Number
-          in: header
-          required: false
-          description: veteran's insurance policy number
-          schema:
-            $ref: '#/components/schemas/NonBlankString'
+        - $ref: '#/components/parameters/Ssn'
+        - $ref: '#/components/parameters/FirstName'
+        - $ref: '#/components/parameters/MiddleInitial'
+        - $ref: '#/components/parameters/LastName'
+        - $ref: '#/components/parameters/BirthDate'
+        - $ref: '#/components/parameters/FileNumber'
+        - $ref: '#/components/parameters/ServiceNumber'
+        - $ref: '#/components/parameters/InsurancePolicyNumber'
       summary: Create a Higher-Level Review
       description: >-
         Submits a Decision Review request of type *Higher-Level Review*.
@@ -130,6 +88,15 @@ paths:
     post:
       tags:
         - Higher-Level Reviews
+      parameters:
+        - $ref: '#/components/parameters/Ssn'
+        - $ref: '#/components/parameters/FirstName'
+        - $ref: '#/components/parameters/MiddleInitial'
+        - $ref: '#/components/parameters/LastName'
+        - $ref: '#/components/parameters/BirthDate'
+        - $ref: '#/components/parameters/FileNumber'
+        - $ref: '#/components/parameters/ServiceNumber'
+        - $ref: '#/components/parameters/InsurancePolicyNumber'
       summary: Validate a POST /higher_level_reviews request body (dry run)
       description: >-
         Validate a `POST /higher_level_reviews` request body against the JSON Schema.
@@ -179,12 +146,7 @@ paths:
       tags:
         - Issues
       parameters:
-        - name: X-VA-SSN
-          in: header
-          required: true
-          description: The SSN of the veteran.
-          schema:
-            type : string
+        - $ref: '#/components/parameters/Ssn'
         - name: X-VA-Receipt-Date
           in: header
           required: true
@@ -327,6 +289,66 @@ paths:
                       code: unknown_error
                       title: "Unknown error"
 components:
+  parameters:
+    Ssn:
+      name: X-VA-SSN
+      in: header
+      required: true
+      description: veteran's SSN
+      schema:
+        type: string
+        pattern: '^\d{9}$'
+    FirstName:
+      name: X-VA-First-Name
+      in: header
+      required: true
+      description: veteran's first name
+      schema:         # if vet only has 1 legal name,
+        type: string  # first-name can be whitespace and last-name can hold name
+        maxLength: 12
+    MiddleInitial:
+      name: X-VA-Middle-Initial
+      in: header
+      required: false
+      description: veteran's middle initial
+      schema:
+        $ref: '#/components/schemas/NonBlankStringMaxLength1'
+    LastName:
+      name: X-VA-Last-Name
+      in: header
+      required: true
+      description: veteran's last name
+      schema:
+        $ref: '#/components/schemas/NonBlankStringMaxLength18'
+    BirthDate:
+      name: X-VA-Birth-Date
+      in: header
+      required: true
+      description: veteran's birth date
+      schema:
+        type: string
+        format: date
+    FileNumber:
+      name: X-VA-File-Number
+      in: header
+      required: false
+      description: veteran's file number
+      schema:
+        $ref: '#/components/schemas/NonBlankStringMaxLength9'
+    ServiceNumber:
+      name: X-VA-Service-Number
+      in: header
+      required: false
+      description: veteran's service number
+      schema:
+        $ref: '#/components/schemas/NonBlankStringMaxLength9'
+    InsurancePolicyNumber:
+      name: X-VA-Insurance-Policy-Number
+      in: header
+      required: false
+      description: veteran's insurance policy number
+      schema:
+        $ref: '#/components/schemas/NonBlankStringMaxLength18'
   schemas:
     ErrorWithTitleAndDetail:
       type: array
@@ -340,14 +362,26 @@ components:
     NonBlankString:
       type: string
       pattern: '\S'
-    NonBlankStringMaxLength100:
+    NonBlankStringMaxLength140:
       allOf:
         - $ref: '#/components/schemas/NonBlankString'
-        - maxLength: 100
-    NonBlankStringMaxLength10:
+        - maxLength: 140
+    NonBlankStringMaxLength30:
       allOf:
         - $ref: '#/components/schemas/NonBlankString'
-        - maxLength: 10
+        - maxLength: 30
+    NonBlankStringMaxLength18:
+      allOf:
+        - $ref: '#/components/schemas/NonBlankString'
+        - maxLength: 18
+    NonBlankStringMaxLength9:
+      allOf:
+        - $ref: '#/components/schemas/NonBlankString'
+        - maxLength: 9
+    NonBlankStringMaxLength5:
+      allOf:
+        - $ref: '#/components/schemas/NonBlankString'
+        - maxLength: 5
     NonBlankStringMaxLength2:
       allOf:
         - $ref: '#/components/schemas/NonBlankString'
@@ -356,13 +390,6 @@ components:
       allOf:
         - $ref: '#/components/schemas/NonBlankString'
         - maxLength: 1
-    Date:
-      type: string
-      pattern: '[0-9]{4}-[0-9]{2}-[0-9]{2}'
-    CurrentDate:
-      allOf:
-        - $ref: '#/components/schemas/Date'
-        - description: 'if field is absent, the current date will be used'
     HlrCreate:
       type: object
       properties:
@@ -408,8 +435,6 @@ components:
               $ref: '#/components/schemas/BenefitType'
             veteran:
               $ref: '#/components/schemas/HlrCreateVeteran'
-            receiptDate:
-              $ref: '#/components/schemas/CurrentDate'
             informalConferenceTimes:
               $ref: '#/components/schemas/HlrCreateInformalConferenceTimes'
             informalConferenceRep:
@@ -433,8 +458,6 @@ components:
               $ref: '#/components/schemas/BenefitType'
             veteran:
               $ref: '#/components/schemas/HlrCreateVeteran'
-            receiptDate:
-              $ref: '#/components/schemas/CurrentDate'
           additionalProperties: false
           required:
             - informalConference
@@ -482,101 +505,46 @@ components:
     Phone:
       type: object
       properties:
-        isInternational:
-          type: boolean
         countryCode:
-          $ref: '#/components/schemas/NonBlankString'
+          type: string
+          pattern: '^[0-9]+$'
+        areaCode:
+          type: string
+          pattern: '[2-9][0-9]{2}'
         phoneNumber:
           type: string
           pattern: '^[0-9]{1,14}$'
-        areaCode:
+        phoneNumberExt:
           type: string
-          pattern: '^[0-9]{3}$'
-        extension:
-          $ref: '#/components/schemas/NonBlankStringMaxLength10'
-        phoneType:
-          type: string
-          enum:
-            - MOBILE
-            - HOME
-            - WORK
-            - FAX
-            - TEMPORARY
-      additionalProperties: false
+          pattern: '^[a-zA-Z0-9]{1,10}$'
       required:
-        - isInternational
-        - countryCode
-        - phoneNumber
         - areaCode
-        - phoneType
+        - phoneNumber
     Address:
-      oneOf:
-        - type: object
-          properties:
-            addressType:
-              type: string
-              enum:
-                - DOMESTIC
-                - OVERSEAS MILITARY
-            addressLine1:
-              $ref: '#/components/schemas/NonBlankStringMaxLength100'
-            addressLine2:
-              $ref: '#/components/schemas/NonBlankStringMaxLength100'
-            addressLine3:
-              $ref: '#/components/schemas/NonBlankStringMaxLength100'
-            city:
-              $ref: '#/components/schemas/NonBlankStringMaxLength100'
-            stateCode:
-              $ref: '#/components/schemas/NonBlankStringMaxLength2'
-            zipCode:
-              type: string
-              pattern: '^[0-9]{5}$'
-            countryName:
-              type: string
-            addressPou:
-              type: string
-              enum:
-                - RESIDENCE/CHOICE
-                - CORRESPONDENCE
-          additionalProperties: false
-          required:
-            - addressType
-            - addressLine1
-            - city
-            - stateCode
-            - zipCode
-            - countryName
-            - addressPou
-        - type: object
-          properties:
-            addressType:
-              type: string
-              enum: [INTERNATIONAL]
-            addressLine1:
-              $ref: '#/components/schemas/NonBlankStringMaxLength100'
-            addressLine2:
-              $ref: '#/components/schemas/NonBlankStringMaxLength100'
-            addressLine3:
-              $ref: '#/components/schemas/NonBlankStringMaxLength100'
-            city:
-              $ref: '#/components/schemas/NonBlankStringMaxLength100'
-            internationalPostalCode:
-              type: string
-            countryName:
-              type: string
-            addressPou:
-              type: string
-              enum:
-                - RESIDENCE/CHOICE
-                - CORRESPONDENCE
-          additionalProperties: false
-          required:
-            - addressType
-            - addressLine1
-            - city
-            - internationalPostalCode
-            - countryName
-            - addressPou
+      type: object
+      properties:
+        addressLine1:
+          $ref: '#/components/schemas/NonBlankStringMaxLength30'
+        addressLine2:
+          $ref: '#/components/schemas/NonBlankStringMaxLength5'
+        cityName:
+          $ref: '#/components/schemas/NonBlankStringMaxLength18'
+        stateCode:
+          $ref: '#/components/schemas/NonBlankStringMaxLength2'
+        countryCodeISO2:
+          type: string
+          pattern: '^[a-zA-Z]{2}$'
+        zipCode5:
+          type: string
+          pattern: '^[0-9]{5}$'
+        zipCode4:
+          type: string
+          pattern: '^[0-9]{4}$'
+      required:
+        - addressLine1
+        - cityName
+        - stateCode
+        - zipCode5
     HlrCreateVeteran:
       type: object
       properties:
@@ -584,9 +552,10 @@ components:
           $ref: '#/components/schemas/Address'
         phone:
           $ref: '#/components/schemas/Phone'
-        emailAddress:
+        emailAddressText:
           type: string
           pattern: '.@.'
+          maxLength: 44
       additionalProperties: false
       required:
         - address
@@ -595,6 +564,7 @@ components:
       items:
         $ref: '#/components/schemas/HlrCreateContestableIssue'
       minItems: 1
+      maxItems: 6
       uniqueItems: true
     HlrCreateContestableIssue:
       type: object
@@ -612,9 +582,10 @@ components:
       type: object
       properties:
         issue:
-          $ref: '#/components/schemas/NonBlankString'
+          $ref: '#/components/schemas/NonBlankStringMaxLength140'
         decisionDate:
-          $ref: '#/components/schemas/Date'
+          type: string
+          format: date
         decisionIssueId:
           type: integer
         ratingIssueId:
@@ -696,36 +667,29 @@ components:
             benefitType: nca
             veteran:
               address:
-                addressType: DOMESTIC
                 addressLine1: 401 Kansas Avenue
-                addressLine2: 'Unit #724'
-                addressLine3: c/o Amelia Earhart
-                city: Atchison
+                addressLine2: Apt 7
+                cityName: Atchison
                 stateCode: KS
-                zipCode: '66002'
-                countryName: United States
-                addressPou: RESIDENCE/CHOICE
+                countryCodeISO2: NL
+                zipCode5: '66002'
+                zipCode4: '2410'
               phone:
-                isInternational: false
-                countryCode: '1'
+                countryCode: '34'
                 areaCode: '555'
                 phoneNumber: '8001111'
-                extension: '2'
-                phoneType: HOME
-              emailAddress: josie@example.com
-            receiptDate: '2020-02-02'
+                phoneNumberExt: '2'
+              emailAddressText: josie@example.com
             informalConferenceTimes:
               - 1230-1400 ET
               - 1400-1630 ET
             informalConferenceRep:
               name: Helen Holly
               phone:
-                isInternational: false
-                countryCode: '1'
+                countryCode: '6'
                 areaCode: '555'
                 phoneNumber: '8001111'
-                extension: '2'
-                phoneType: HOME
+                phoneNumberExt: '2'
         included:
           - type: ContestableIssue
             attributes:
@@ -762,15 +726,6 @@ components:
               issue: right shoulder
               decisionDate: '1900-01-06'
               ratingIssueId: '11'
-          - type: ContestableIssue
-            attributes:
-              issue: left shoulder
-              decisionDate: '1900-01-07'
-              ratingDecisionIssueId: '12'
-          - type: ContestableIssue
-            attributes:
-              issue: left shoulder
-              decisionDate: '1920-12-01'
     HlrCreateMinimumFieldsUsed:
       value:
         data:
@@ -781,11 +736,10 @@ components:
             benefitType: nca
             veteran:
               address:
-                addressType: DOMESTIC
                 addressLine1: 401 Kansas Avenue
-                city: Atchison
+                cityName: Atchison
                 stateCode: KS
-                zipCode: '66002'
+                zipCode5: '66002'
                 countryName: United States
                 addressPou: RESIDENCE/CHOICE
         included:
@@ -825,24 +779,24 @@ components:
               "pattern": "[^ \\f\\n\\r\\t\\v\\u00a0\\u1680\\u2000-\\u200a\\u2028\\u2029\\u202f\\u205f\\u3000\\ufeff]",
               "$comment": "The pattern used ensures that a string has at least one non-whitespace character. The pattern comes from JavaScript's \\s character class. \"\\s Matches a single white space character, including space, tab, form feed, line feed, and other Unicode spaces. Equivalent to [ \\f\\n\\r\\t\\v\\u00a0\\u1680\\u2000-\\u200a\\u2028\\u2029\\u202f\\u205f\\u3000\\ufeff].\": https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Regular_Expressions/Character_Classes  We are using simple character classes at JSON Schema's recommendation: https://tools.ietf.org/html/draft-handrews-json-schema-validation-01#section-4.3"
             },
-            "nonBlankStringMaxLength100": {
-              "allOf": [ { "$ref": "#/definitions/nonBlankString" }, { "maxLength": 100 } ]
+            "nonBlankStringMaxLength140": {
+              "allOf": [ { "$ref": "#/definitions/nonBlankString" }, { "maxLength": 140 } ]
             },
-            "nonBlankStringMaxLength10": {
-              "allOf": [ { "$ref": "#/definitions/nonBlankString" }, { "maxLength": 10 } ]
+            "nonBlankStringMaxLength30": {
+              "allOf": [ { "$ref": "#/definitions/nonBlankString" }, { "maxLength": 30 } ]
+            },
+            "nonBlankStringMaxLength18": {
+              "allOf": [ { "$ref": "#/definitions/nonBlankString" }, { "maxLength": 18 } ]
+            },
+            "nonBlankStringMaxLength5": {
+              "allOf": [ { "$ref": "#/definitions/nonBlankString" }, { "maxLength": 5 } ]
             },
             "nonBlankStringMaxLength2": {
               "allOf": [ { "$ref": "#/definitions/nonBlankString" }, { "maxLength": 2 } ]
             },
             "date": {
               "type": "string",
-              "pattern": "[0-9]{4}-[0-9]{2}-[0-9]{2}"
-            },
-            "currentDate": {
-              "allOf": [
-                { "$ref": "#/definitions/date" },
-                { "$comment": "if field is absent, the current date will be used" }
-              ]
+              "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$"
             },
 
 
@@ -865,8 +819,7 @@ components:
                     "informalConference": { "const": false },
                     "sameOffice":         { "type": "boolean" },
                     "benefitType":        { "$ref": "#/definitions/benefitType" },
-                    "veteran":            { "$ref": "#/definitions/veteran" },
-                    "receiptDate":        { "$ref": "#/definitions/currentDate" }
+                    "veteran":            { "$ref": "#/definitions/veteran" }
                   },
                   "additionalProperties": false,
                   "required": [
@@ -884,7 +837,6 @@ components:
                     "sameOffice":         { "type": "boolean" },
                     "benefitType":        { "$ref": "#/definitions/benefitType" },
                     "veteran":            { "$ref": "#/definitions/veteran" },
-                    "receiptDate":        { "$ref": "#/definitions/currentDate" },
                     "informalConferenceTimes": { "$ref": "#/definitions/informalConferenceTimes" },
                     "informalConferenceRep":   { "$ref": "#/definitions/informalConferenceRep" }
                   },
@@ -950,76 +902,37 @@ components:
 
 
             "phone": {
-              "$comment": "source: VA Profile API - POST /v0/profile/telephones",
+              "$comment": "the phone fields must not exceed 20 chars, when concatenated",
               "type": "object",
               "properties": {
-                "isInternational": { "type": "boolean" },
-                "countryCode":     { "$ref": "#/definitions/nonBlankString" },
+                "countryCode":     { "type": "string", "pattern": "^[0-9]+$" },
+                "areaCode":        { "type": "string", "pattern": "[2-9][0-9]{2}" },
                 "phoneNumber":     { "type": "string", "pattern": "^[0-9]{1,14}$" },
-                "areaCode":        { "type": "string", "pattern": "^[0-9]{3}$" },
-                "extension":       { "$ref": "#/definitions/nonBlankStringMaxLength10" },
-                "phoneType":       { "type": "string", "enum": [ "MOBILE", "HOME", "WORK", "FAX", "TEMPORARY" ] }
+                "phoneNumberExt":  { "type": "string", "pattern": "^[a-zA-Z0-9]{1,10}$" }
               },
-              "additionalProperties": false,
               "required": [
-                "isInternational",
-                "countryCode",
-                "phoneNumber",
                 "areaCode",
-                "phoneType"
+                "phoneNumber"
               ]
             },
 
 
             "address": {
-              "$comment": "source: VA Profile API - POST /v0/profile/addresses",
-              "oneOf": [
-                {
-                  "type": "object",
-                  "properties": {
-                    "addressType":  { "type": "string", "enum": [ "DOMESTIC", "OVERSEAS MILITARY" ] },
-                    "addressLine1": { "$ref": "#/definitions/nonBlankStringMaxLength100" },
-                    "addressLine2": { "$ref": "#/definitions/nonBlankStringMaxLength100" },
-                    "addressLine3": { "$ref": "#/definitions/nonBlankStringMaxLength100" },
-                    "city":         { "$ref": "#/definitions/nonBlankStringMaxLength100" },
-                    "stateCode":    { "$ref": "#/definitions/nonBlankStringMaxLength2" },
-                    "zipCode":      { "type": "string", "pattern": "^[0-9]{5}$" },
-                    "countryName":  { "type": "string" },
-                    "addressPou":   { "type": "string", "enum": [ "RESIDENCE/CHOICE", "CORRESPONDENCE" ] }
-                  },
-                  "additionalProperties": false,
-                  "required": [
-                    "addressType",
-                    "addressLine1",
-                    "city",
-                    "stateCode",
-                    "zipCode",
-                    "countryName",
-                    "addressPou"
-                  ]
-                },
-                {
-                  "type": "object",
-                  "properties": {
-                    "addressType":             { "const": "INTERNATIONAL" },
-                    "addressLine1":            { "$ref": "#/definitions/nonBlankStringMaxLength100" },
-                    "addressLine2":            { "$ref": "#/definitions/nonBlankStringMaxLength100" },
-                    "addressLine3":            { "$ref": "#/definitions/nonBlankStringMaxLength100" },
-                    "city":                    { "$ref": "#/definitions/nonBlankStringMaxLength100" },
-                    "internationalPostalCode": { "type": "string" },
-                    "countryName":             { "type": "string" },
-                    "addressPou":              { "type": "string", "enum": [ "RESIDENCE/CHOICE", "CORRESPONDENCE" ] }
-                  },
-                  "additionalProperties": false,
-                  "required": [
-                    "addressType",
-                    "addressLine1",
-                    "city",
-                    "internationalPostalCode",
-                    "countryName",
-                    "addressPou"
-                  ]
-                }
+              "type": "object",
+              "properties": {
+                "addressLine1":     { "$ref": "#/definitions/nonBlankStringMaxLength30" },
+                "addressLine2":     { "$ref": "#/definitions/nonBlankStringMaxLength5" },
+                "cityName":         { "$ref": "#/definitions/nonBlankStringMaxLength18" },
+                "stateCode":        { "$ref": "#/definitions/nonBlankStringMaxLength2" },
+                "countryCodeISO2":  { "type": "string", "pattern": "^[a-zA-Z]{2}$" },
+                "zipCode5":         { "type": "string", "pattern": "^[0-9]{5}$" },
+                "zipCode4":         { "type": "string", "pattern": "^[0-9]{4}$" }
+              },
+              "required": [
+                "addressLine1",
+                "cityName",
+                "stateCode",
+                "zipCode5"
               ]
             },
 
@@ -1029,9 +942,10 @@ components:
               "properties": {
                 "address":      { "$ref": "#/definitions/address" },
                 "phone":        { "$ref": "#/definitions/phone" },
-                "emailAddress": {
+                "emailAddressText": {
                   "type": "string",
                   "pattern": ".@.",
+                  "maxLength": 44,
                   "$comment": "TODO: use draft 7 feature [format: idn-email] or [format: email] over pattern (when there is broader support)"
                 }
               },
@@ -1044,6 +958,7 @@ components:
               "type": "array",
               "items": { "$ref": "#/definitions/contestableIssue" },
               "minItems": 1,
+              "maxItems": 6,
               "uniqueItems": true
             },
 
@@ -1062,7 +977,7 @@ components:
             "contestableIssueAttributes": {
               "type": "object",
               "properties": {
-                "issue":                 { "$ref": "#/definitions/nonBlankString" },
+                "issue":                 { "$ref": "#/definitions/nonBlankStringMaxLength140" },
                 "decisionDate":          { "$ref": "#/definitions/date" },
                 "decisionIssueId":       { "type": "integer" },
                 "ratingIssueId":         { "type": "string" },

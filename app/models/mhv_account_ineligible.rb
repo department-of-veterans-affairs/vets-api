@@ -17,8 +17,8 @@ require 'common/models/redis_store'
 #    @return [String]
 #
 class MHVAccountIneligible < Common::RedisStore
-  redis_store REDIS_CONFIG['mhv_account_ineligible']['namespace']
-  redis_ttl REDIS_CONFIG['mhv_account_ineligible']['each_ttl']
+  redis_store REDIS_CONFIG[:mhv_account_ineligible][:namespace]
+  redis_ttl REDIS_CONFIG[:mhv_account_ineligible][:each_ttl]
   redis_key :tracker_id
 
   attribute :uuid

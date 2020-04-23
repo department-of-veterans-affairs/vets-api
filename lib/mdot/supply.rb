@@ -13,5 +13,6 @@ module MDOT
     attribute :next_availability_date, Date
     attribute :quantity, Integer
     attribute :size, String
+    attribute :prescribed_date, Date
   end
 end
