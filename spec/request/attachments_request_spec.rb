@@ -56,7 +56,7 @@ RSpec.describe 'Message Attachments Integration', type: :request do
 
         expect(response).to be_successful
         expect(response.headers['Content-Disposition'])
-          .to eq('attachment; filename="noise300x200.png"')
+          .to eq("attachment; filename=\"noise300x200.png\"; filename*=UTF-8''noise300x200.png")
         expect(response.headers['Content-Transfer-Encoding']).to eq('binary')
         expect(response.headers['Content-Type']).to eq('image/png')
         expect(response.body).to be_a(String)
