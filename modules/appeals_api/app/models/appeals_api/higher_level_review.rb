@@ -12,18 +12,6 @@ module AppealsApi
       def past?(date)
         date < Time.zone.today
       end
-
-      def new_dummy
-        fixture = lambda do |suffix|
-          JSON.parse(
-            File.read(
-              Rails.root.join('modules', 'appeals_api', 'spec', 'fixtures', "valid_200996#{suffix}.json")
-            )
-          )
-        end
-
-        new form_data: fixture.call(''), auth_headers: fixture.call('_headers')
-      end
     end
 
     attr_encrypted(:form_data, key: Settings.db_encryption_key, marshal: true, marshaler: JsonMarshal::Marshaller)
