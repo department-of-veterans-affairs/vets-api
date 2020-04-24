@@ -9,14 +9,22 @@ describe VAOS::V1::FHIRService do
 
   before { allow_any_instance_of(VAOS::UserService).to receive(:session).and_return('stubbed_token') }
 
-  describe '#make_request' do
+  describe '#read' do
     context 'when VAMF returns a 404' do
       it 'raises a backend exception with key VAOS_404' do
         VCR.use_cassette('vaos/fhir/404', match_requests_on: %i[method uri]) do
-          expect { subject.read(:Organization, '999999') }.to raise_error(
+          expect { subject.read(:Organization, 999999) }.to raise_error(
             Common::Exceptions::BackendServiceException
           ) { |e| expect(e.key).to eq('VAOS_404') }
         end
+      end
+    end
+
+    context 'with an invalid resource type' do
+      it 'raises an invalid field value exception' do
+        expect { subject.read(:House, 353830) }.to raise_error(
+          Common::Exceptions::InvalidFieldValue
+        ) { |e| expect(e.errors.first.detail).to eq('"House" is not a valid value for "resource_type"') }
       end
     end
 
@@ -24,33 +32,7 @@ describe VAOS::V1::FHIRService do
       it 'returns the JSON response body from the VAMF response' do
         VCR.use_cassette('vaos/fhir/get_organization', match_requests_on: %i[method uri]) do
           response = subject.read(:Organization, 353830)
-          expect(JSON.parse(response.body)).to eq(
-            {
-              'resourceType' => 'Organization',
-              'id' => '353830',
-              'text' => {
-                'status' => 'generated',
-                'div' => '<div xmlns="http://www.w3.org/1999/xhtml"><!--    <div class="hapiHeaderText" ' \
-                  'th:narrative="${resource.name}"></div>-->' \
-                  '<table class="hapiPropertyTable"><tbody><tr><td>Identifier</td><td>580</td></tr><tr>' \
-                  '<td>Address</td><td><span>2002 Holcombe Blvd. ' \
-                  '</span><br/><span>Houston </span><span>TX </span></td></tr></tbody></table></div>'
-              },
-              'identifier' => [
-                { 'system' => 'urn:oid:2.16.840.1.113883.6.233', 'value' => '580' }
-              ],
-              'active' => true,
-              'name' => 'HOUSTON VAMC',
-              'address' => [
-                {
-                  'line' => ['2002 Holcombe Blvd.'],
-                  'city' => 'Houston',
-                  'state' => 'TX',
-                  'postalCode' => '77030-4298'
-                }
-              ]
-            }
-          )
+          expect(response.body).to eq()
         end
       end
     end
