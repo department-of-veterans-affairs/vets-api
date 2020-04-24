@@ -24,7 +24,7 @@ class AppealsApi::V1::DecisionReview::HigherLevelReviewsController < AppealsApi:
   def create
     @higher_level_review.save
     AppealsApi::HigherLevelReviewPdfSubmitJob.perform_async(@higher_level_review.id)
-    render json: @higher_level_review, serializer: AppealsApi::HigherLevelReviewSerializer
+    render_higher_level_review
   end
 
   def validate
@@ -36,7 +36,7 @@ class AppealsApi::V1::DecisionReview::HigherLevelReviewsController < AppealsApi:
   end
 
   def show
-    render json: @higher_level_review
+    render_higher_level_review
   end
 
   private
@@ -109,5 +109,9 @@ class AppealsApi::V1::DecisionReview::HigherLevelReviewsController < AppealsApi:
         ]
       }
     )
+  end
+
+  def render_higher_level_review
+    render json: AppealsApi::HigherLevelReviewSerializer.new(@higher_level_review).serialized_json
   end
 end

@@ -85,7 +85,6 @@ describe AppealsApi::V1::DecisionReview::HigherLevelReviewsController, type: :re
     it 'returns an error when given a bad uuid' do
       uuid = 0
       get("#{path}#{uuid}")
-      pp parsed
       expect(response.status).to eq(404)
       expect(parsed['errors']).to be_an Array
       expect(parsed['errors']).not_to be_empty

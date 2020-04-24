@@ -1,12 +1,8 @@
 # frozen_string_literal: true
 
-module AppealsApi
-  class HigherLevelReviewSerializer < ActiveModel::Serializer
-    attribute :status
-    attribute :updated_at
-    attribute :created_at
-    attribute :auth_headers
-    attribute :form_data
-    type :higher_level_review
-  end
+class AppealsApi::HigherLevelReviewSerializer
+  include FastJsonapi::ObjectSerializer
+
+  set_type 'HigherLevelReview'
+  attributes :status, :updated_at, :created_at, :auth_headers, :form_data
 end
