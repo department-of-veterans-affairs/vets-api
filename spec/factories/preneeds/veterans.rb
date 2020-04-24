@@ -5,6 +5,7 @@ FactoryBot.define do
     date_of_birth { '2001-01-31' }
     date_of_death { '2001-01-31' }
     gender { 'Male' }
+    ethnicity {'hispanicOrLatino'}
     is_deceased { 'unsure' }
     marital_status { 'Married' }
     military_service_number { '123456789' }
