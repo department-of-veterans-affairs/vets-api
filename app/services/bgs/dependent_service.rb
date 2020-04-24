@@ -19,9 +19,6 @@ module BGS
       # delete_me_payload_file = File.read("#{delete_me_root}/app/services/bgs/possible_payload_snake_case.json")
       # payload = JSON.parse(delete_me_payload_file)
 
-      # Todo we should probably move the param serialization in dependents to here 🤔
-      payload = params.to_h
-
       proc_id = create_proc_id_and_form
       veteran = VnpVeteran.new(proc_id: proc_id, payload: payload, user: @user).create
       dependents = Dependents.new(proc_id: proc_id, veteran: veteran, payload: payload, user: @user).create

@@ -3,8 +3,9 @@
 module V0
   class DependentsApplicationsController < ApplicationController
     def create
-      bgsResponse = bgs_dependent_service.modify_dependents(dependent_params)
-      render json: bgsResponse
+      params_hash = dependent_params.to_h
+      bgs_response = bgs_dependent_service.modify_dependents(params_hash)
+      render json: bgs_response
     end
 
     def show
