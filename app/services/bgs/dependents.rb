@@ -137,11 +137,12 @@ module BGS
         email_address: optional_fields[:email_address],
         begin_date: optional_fields[:begin_date],
         end_date: optional_fields[:end_date],
+        event_date: optional_fields[:event_date],
         marriage_state: optional_fields[:marriage_state],
         marriage_city: optional_fields[:marriage_city],
         divorce_state: optional_fields[:divorce_state],
         divorce_city: optional_fields[:divorce_city],
-        marriage_termination_type_cd: optional_fields[:marriage_termination_type_cd],
+        marriage_termination_type_code: optional_fields[:marriage_termination_type_cd],
         benefit_claim_type_end_product: nil # this is only for the veteran
       )
     end
@@ -189,7 +190,8 @@ module BGS
       report_divorce_info = @payload['report_divorce']['former_spouse_name']
       report_divorce_info['divorce_state'] = @payload['report_divorce']['location_of_divorce']['state']
       report_divorce_info['divorce_city'] = @payload['report_divorce']['location_of_divorce']['city']
-      report_divorce_info['marriage_termination_type_cd'] = @payload['report_divorce']['explanation_of_annullment_or_void']
+      report_divorce_info['marriage_termination_type_code'] = @payload['report_divorce']['explanation_of_annullment_or_void']
+      report_divorce_info['event_dt'] = @payload['report_divorce']['date_of_divorce']
       report_divorce_info['vet_ind'] = 'N'
 
       report_divorce_info

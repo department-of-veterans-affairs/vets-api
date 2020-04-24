@@ -136,13 +136,14 @@ module BGS
         jrn_status_type_cd: "U",
         jrn_user_id: Settings.bgs.client_username,
         family_rlnshp_type_nm: dependent.family_relationship_type_name,
+        event_dt: dependent.event_date,
         begin_dt: dependent.begin_date,
         end_dt: dependent.end_date,
-        marage_state_cd: 'CA', # dependent.marriage_state, this has to be 2 digit code
+        marage_state_cd: dependent.marriage_state, # FE is sending us a full state name. We need code for this
         marage_city_nm: dependent.marriage_city,
-        marage_trmntn_state_cd: 'CA', # dependent.divorce_state this needs to be 2 digit code
+        marage_trmntn_state_cd: dependent.divorce_state, # dependent.divorce_state this needs to be 2 digit code
         marage_trmntn_city_nm: dependent.divorce_city,
-        marage_trmntn_type_cd: 'Divorce', # dependent.marriage_termination_type_cd, only can have "Death", "Divorce", or "Other"
+        marage_trmntn_type_cd: dependent.marriage_termination_type_code, # dependent.marriage_termination_type_cd, only can have "Death", "Divorce", or "Other"
         ssn: @user.ssn # Just here to make mocks work
       )
     end

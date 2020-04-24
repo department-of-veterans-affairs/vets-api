@@ -44,12 +44,13 @@ module BGS
         death_date: nil, # Setting to nil to satisfy struct these are dependent values
         begin_date: nil, # Setting to nil to satisfy struct these are dependent values
         end_date: nil, # Setting to nil to satisfy struct these are dependent values
+        event_date: nil,
         ever_married_indicator: nil, # Setting to nil to satisfy struct these are dependent values
         marriage_state: nil, # Setting to nil to satisfy struct these are dependent values
         marriage_city: nil, # Setting to nil to satisfy struct these are dependent values
         divorce_state: nil, # Setting to nil to satisfy struct these are dependent values
         divorce_city: nil, # Setting to nil to satisfy struct these are dependent values
-        marriage_termination_type_cd: nil # Setting to nil to satisfy struct these are dependent values
+        marriage_termination_type_code: nil # Setting to nil to satisfy struct these are dependent values
       )
     end
 

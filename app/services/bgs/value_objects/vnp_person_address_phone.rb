@@ -31,12 +31,13 @@ module ValueObjects
     attribute :death_date, Types::DateTime.optional
     attribute :begin_date, Types::String.optional
     attribute :end_date, Types::DateTime.optional
+    attribute :event_date, Types::DateTime.optional
     attribute :ever_married_indicator, Types::String.optional
     attribute :marriage_state, Types::String.optional
     attribute :marriage_city, Types::String.optional
     attribute :divorce_state, Types::String.optional
     attribute :divorce_city, Types::String.optional
-    attribute :marriage_termination_type_cd, Types::String.optional
+    attribute :marriage_termination_type_code, Types::String.optional
     attribute :benefit_claim_type_end_product, Types::String.optional
   end
 end
