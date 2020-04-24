@@ -1,4 +1,5 @@
-# this code goes in your config.ru
+# Run sidekiq-admin: `bundle exec rackup sidekiq-admin.ru -p 9292 -s puma`
+
 require 'sidekiq'
 require 'sidekiq-pro'
 require 'sidekiq-scheduler/web'
