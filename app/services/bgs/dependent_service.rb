@@ -18,6 +18,7 @@ module BGS
       delete_me_root = Rails.root.to_s
       delete_me_payload_file = File.read("#{delete_me_root}/app/services/bgs/possible_payload_snake_case.json")
       payload = JSON.parse(delete_me_payload_file)
+
       # payload = params.to_h
 
       proc_id = create_proc_id_and_form

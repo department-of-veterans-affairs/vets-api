@@ -12,7 +12,7 @@ module BGS
 
     def create
       participant = create_participant(@proc_id)
-      # claim_type_end_product = find_benefit_claim_type_increment
+      # claim_type_end_product = find_benefit_claim_type_increment # we will be using this once we figure it out
       person = create_person(@proc_id, participant[:vnp_ptcpnt_id], @veteran_info)
       phone = create_phone(@proc_id, participant[:vnp_ptcpnt_id], @veteran_info)
       address = create_address(@proc_id, participant[:vnp_ptcpnt_id], @veteran_info)
@@ -56,7 +56,7 @@ module BGS
     private
 
     def formatted_params(payload)
-      marriage_status = payload['current_marriage_details']['marriage_type_code']
+      marriage_status = payload['current_marriage_details']['marriage_type']
       [
         *payload['veteran_information'],
         *payload['more_veteran_information'],

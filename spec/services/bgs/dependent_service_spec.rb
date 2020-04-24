@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'rails_helper'
 RSpec.describe BGS::DependentService do
   let(:user) { FactoryBot.create(:user, :loa3) }

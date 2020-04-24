@@ -104,7 +104,7 @@ RSpec.describe BGS::Base do
     it 'returns a proc_form' do
       VCR.use_cassette('bgs/base/create_proc_form') do
         response = bgs_base.create_proc_form(proc_id)
-        binding.pry
+
         expect(response).to have_key(:comp_id)
       end
     end
@@ -124,7 +124,7 @@ RSpec.describe BGS::Base do
     it 'creates a participant and returns a vnp_particpant_id' do
       VCR.use_cassette('bgs/base/create_participant') do
         response = bgs_base.create_participant(proc_id)
-        binding.pry
+
         expect(response).to have_key(:vnp_ptcpnt_id)
       end
     end
@@ -200,7 +200,7 @@ RSpec.describe BGS::Base do
     it 'creates a benefit claim and returns a vnp_bnft_claim_id' do
       VCR.use_cassette('bgs/base/create_benefit_claim') do
         response = bgs_base.create_benefit_claim(proc_id, person_address_phone_object)
-        binding.pry
+
         expect(response).to have_key(:vnp_bnft_claim_id)
       end
     end
