@@ -24,7 +24,7 @@ RSpec.describe 'EVSS Claims management', type: :request do
   end
 
   context '#index (all user claims) is polled' do
-    it 'returns empty result, kicks off job, retuns full result when job is completed' do
+    it 'returns empty result, kicks off job, returns full result when job is completed' do
       # initial request
       sign_in_as(evss_user)
       get '/v0/evss_claims_async'
