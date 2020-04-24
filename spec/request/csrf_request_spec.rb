@@ -4,7 +4,7 @@ require 'rails_helper'
 
 RSpec.describe 'CSRF scenarios', type: :request do
   # ActionController::Base.allow_forgery_protection = false in the 'test' environment
-  # We explicity enable it for this spec
+  # We explicitly enable it for this spec
   before(:all) do
     Settings.sentry.dsn = 'truthy'
     @original_val = ActionController::Base.allow_forgery_protection

@@ -3,32 +3,163 @@
 require 'rails_helper'
 
 RSpec.describe CARMA::Models::Submission, type: :model do
-  describe '#new' do
-    it 'accepts arguments' do
-      expected = {
-        carma_case_id: 'aB935000000A9GoCAK',
-        submitted_at: DateTime.now.iso8601,
-        data: { my: 'data' },
-        claim_id: 3
-      }
+  describe '#carma_case_id' do
+    it 'is accessible' do
+      value = 'aB935000000A9GoCAK'
 
-      submission = described_class.new(
-        carma_case_id: expected[:carma_case_id],
-        submitted_at: expected[:submitted_at],
-        data: expected[:data],
-        metadata: { claim_id: expected[:claim_id] }
-      )
-
-      expect(submission.carma_case_id).to eq(expected[:carma_case_id])
-      expect(submission.submitted_at).to eq(expected[:submitted_at])
-      expect(submission.data).to eq(expected[:data])
-      expect(submission.metadata).to be_instance_of(described_class::Metadata)
-      expect(submission.metadata.claim_id).to eq(expected[:claim_id])
+      subject.carma_case_id = value
+      expect(subject.carma_case_id).to eq(value)
     end
   end
 
-  describe '#from_claim' do
-    it 'transfroms a CaregiversAssistanceClaim to a new CARMA::Model::Submission' do
+  describe '#submitted_at' do
+    it 'is accessible' do
+      value = DateTime.now.iso8601
+
+      subject.submitted_at = value
+      expect(subject.submitted_at).to eq(value)
+    end
+  end
+
+  describe '#submitted?' do
+    it 'returns true if :carma_case_id is set' do
+      subject.carma_case_id = 'aB935000000A9GoCAK'
+      expect(subject.submitted?).to eq(true)
+    end
+
+    it 'returns true if :submitted_at is set' do
+      subject.submitted_at = DateTime.now.iso8601
+      expect(subject.submitted?).to eq(true)
+    end
+
+    it 'returns false if :carma_case_id and :submitted_at are falsy' do
+      expect(subject.submitted?).to eq(false)
+    end
+  end
+
+  describe '#data' do
+    it 'is accessible' do
+      value = { 'my' => 'data' }
+
+      subject.data = value
+      expect(subject.data).to eq(value)
+    end
+  end
+
+  describe '#metadata' do
+    it 'is accessible' do
+      subject.metadata = {
+        claim_id: 123,
+        veteran: {
+          icn: 'VET1234',
+          is_veteran: true
+        },
+        primary_caregiver: {
+          icn: 'PC1234'
+        },
+        secondary_caregiver_one: {
+          icn: 'SCO1234'
+        },
+        secondary_caregiver_two: {
+          icn: 'SCT1234'
+        }
+      }
+
+      # metadata
+      expect(subject.metadata).to be_instance_of(described_class::Metadata)
+      expect(subject.metadata.claim_id).to eq(123)
+      # metadata.veteran
+      expect(subject.metadata.veteran).to be_instance_of(described_class::Metadata::Veteran)
+      expect(subject.metadata.veteran.icn).to eq('VET1234')
+      expect(subject.metadata.veteran.is_veteran).to eq(true)
+      # metadata.primary_caregiver
+      expect(subject.metadata.primary_caregiver).to be_instance_of(described_class::Metadata::Caregiver)
+      expect(subject.metadata.primary_caregiver.icn).to eq('PC1234')
+      # metadata.secondary_caregiver_one
+      expect(subject.metadata.secondary_caregiver_one).to be_instance_of(described_class::Metadata::Caregiver)
+      expect(subject.metadata.secondary_caregiver_one.icn).to eq('SCO1234')
+      # metadata.secondary_caregiver_two
+      expect(subject.metadata.secondary_caregiver_two).to be_instance_of(described_class::Metadata::Caregiver)
+      expect(subject.metadata.secondary_caregiver_two.icn).to eq('SCT1234')
+    end
+  end
+
+  describe '::new' do
+    it 'initializes with defaults' do
+      expect(subject.carma_case_id).to eq(nil)
+      expect(subject.submitted_at).to eq(nil)
+      expect(subject.data).to eq(nil)
+      # metadata
+      expect(subject.metadata).to be_instance_of(described_class::Metadata)
+      expect(subject.metadata.claim_id).to eq(nil)
+      # metadata.veteran
+      expect(subject.metadata.veteran).to be_instance_of(described_class::Metadata::Veteran)
+      expect(subject.metadata.veteran.icn).to eq(nil)
+      expect(subject.metadata.veteran.is_veteran).to eq(nil)
+      # metadata.primary_caregiver
+      expect(subject.metadata.primary_caregiver).to be_instance_of(described_class::Metadata::Caregiver)
+      expect(subject.metadata.primary_caregiver.icn).to eq(nil)
+      # metadata.secondary_caregiver_one
+      expect(subject.metadata.secondary_caregiver_one).to eq(nil)
+      # metadata.secondary_caregiver_two
+      expect(subject.metadata.secondary_caregiver_two).to eq(nil)
+    end
+
+    it 'accepts :carma_case_id, :submitted_at, :data, and :metadata' do
+      expected = {
+        carma_case_id: 'aB935000000A9GoCAK',
+        submitted_at: DateTime.now.iso8601,
+        data: {
+          'my' => 'data'
+        }
+      }
+
+      subject = described_class.new(
+        carma_case_id: expected[:carma_case_id],
+        submitted_at: expected[:submitted_at],
+        data: expected[:data],
+        metadata: {
+          claim_id: 123,
+          veteran: {
+            icn: 'VET1234',
+            is_veteran: true
+          },
+          primary_caregiver: {
+            icn: 'PC1234'
+          },
+          secondary_caregiver_one: {
+            icn: 'SCO1234'
+          },
+          secondary_caregiver_two: {
+            icn: 'SCT1234'
+          }
+        }
+      )
+
+      expect(subject.carma_case_id).to eq(expected[:carma_case_id])
+      expect(subject.submitted_at).to eq(expected[:submitted_at])
+      expect(subject.data).to eq(expected[:data])
+      # metadata
+      expect(subject.metadata).to be_instance_of(described_class::Metadata)
+      expect(subject.metadata.claim_id).to eq(123)
+      # metadata.veteran
+      expect(subject.metadata.veteran).to be_instance_of(described_class::Metadata::Veteran)
+      expect(subject.metadata.veteran.icn).to eq('VET1234')
+      expect(subject.metadata.veteran.is_veteran).to eq(true)
+      # metadata.primary_caregiver
+      expect(subject.metadata.primary_caregiver).to be_instance_of(described_class::Metadata::Caregiver)
+      expect(subject.metadata.primary_caregiver.icn).to eq('PC1234')
+      # metadata.secondary_caregiver_one
+      expect(subject.metadata.secondary_caregiver_one).to be_instance_of(described_class::Metadata::Caregiver)
+      expect(subject.metadata.secondary_caregiver_one.icn).to eq('SCO1234')
+      # metadata.secondary_caregiver_two
+      expect(subject.metadata.secondary_caregiver_two).to be_instance_of(described_class::Metadata::Caregiver)
+      expect(subject.metadata.secondary_caregiver_two.icn).to eq('SCT1234')
+    end
+  end
+
+  describe '::from_claim' do
+    it 'transforms a CaregiversAssistanceClaim to a new CARMA::Model::Submission' do
       claim = build(:caregivers_assistance_claim)
 
       submission = described_class.from_claim(claim)
@@ -57,25 +188,6 @@ RSpec.describe CARMA::Models::Submission, type: :model do
     end
   end
 
-  describe '#metadata=' do
-    it 'uses the Metadata class' do
-      submission = described_class.new
-      submission.metadata = { claim_id: 100 }
-      expect(submission.metadata).to be_instance_of(described_class::Metadata)
-      expect(submission.metadata.claim_id).to eq(100)
-    end
-
-    it 'returns true if :submitted_at is set' do
-      submission = described_class.new(submitted_at: DateTime.now.iso8601)
-      expect(submission.submitted?).to eq(true)
-    end
-
-    it 'returns false if :carma_case_id and :submitted_at are falsy' do
-      submission = described_class.new
-      expect(submission.submitted?).to eq(false)
-    end
-  end
-
   describe '::request_payload_keys' do
     it 'inherits fron Base' do
       expect(described_class.ancestors).to include(CARMA::Models::Base)
@@ -88,42 +200,89 @@ RSpec.describe CARMA::Models::Submission, type: :model do
 
   describe '#to_request_payload' do
     it 'can receive :to_request_payload' do
-      metadata = described_class.new data: { my: 'data' }, metadata: { claim_id: 1234 }
-      expect(metadata.to_request_payload).to eq(
-        {
-          'data' => { my: 'data' },
-          'metadata' => { 'claimId' => 1234 }
+      subject = described_class.new(
+        data: {
+          'my' => 'data'
+        },
+        metadata: {
+          claim_id: 123,
+          veteran: {
+            icn: 'VET1234',
+            is_veteran: true
+          },
+          primary_caregiver: {
+            icn: 'PC1234'
+          },
+          secondary_caregiver_one: {
+            icn: 'SCO1234'
+          },
+          secondary_caregiver_two: {
+            icn: 'SCT1234'
+          }
         }
       )
-    end
-  end
 
-  describe '#submitted?' do
-    it 'returns true if :carma_case_id is set' do
-      submission = described_class.new(carma_case_id: 'aB935000000A9GoCAK')
-      expect(submission.submitted?).to eq(true)
-    end
-
-    it 'returns true if :submitted_at is set' do
-      submission = described_class.new(submitted_at: DateTime.now.iso8601)
-      expect(submission.submitted?).to eq(true)
-    end
-
-    it 'returns false if :carma_case_id and :submitted_at are falsy' do
-      submission = described_class.new
-      expect(submission.submitted?).to eq(false)
+      expect(subject.to_request_payload).to eq(
+        {
+          'data' => {
+            'my' => 'data'
+          },
+          'metadata' => {
+            'claimId' => 123,
+            'veteran' => {
+              'icn' => 'VET1234',
+              'isVeteran' => true
+            },
+            'primaryCaregiver' => {
+              'icn' => 'PC1234'
+            },
+            'secondaryCaregiverOne' => {
+              'icn' => 'SCO1234'
+            },
+            'secondaryCaregiverTwo' => {
+              'icn' => 'SCT1234'
+            }
+          }
+        }
+      )
     end
   end
 
   describe '#submit!' do
     let(:submission) do
       CARMA::Models::Submission.from_claim(
-        build(:caregivers_assistance_claim)
+        build(:caregivers_assistance_claim),
+        {
+          veteran: {
+            icn: 'VET1234',
+            is_veteran: true
+          },
+          primary_caregiver: {
+            icn: 'PC1234'
+          },
+          secondary_caregiver_one: {
+            icn: 'SCO1234'
+          },
+          secondary_caregiver_two: {
+            icn: 'SCT1234'
+          }
+        }
       )
     end
 
+    context 'when already submitted' do
+      it 'raises an exception' do
+        submission.submitted_at = DateTime.now.iso8601
+        submission.carma_case_id = 'aB935000000A9GoCAK'
+
+        expect_any_instance_of(CARMA::Client::Client).not_to receive(:create_submission_stub)
+
+        expect { submission.submit! }.to raise_error('This submission has already been submitted to CARMA')
+      end
+    end
+
     context 'when submission is valid' do
-      it 'submits the data and metadata to CARMA, and updates :carma_case_id and :submitted_at' do
+      it 'submits to CARMA, and updates :carma_case_id and :submitted_at' do
         expect(submission.carma_case_id).to eq(nil)
         expect(submission.submitted_at).to eq(nil)
         expect(submission.submitted?).to eq(false)
@@ -132,7 +291,20 @@ RSpec.describe CARMA::Models::Submission, type: :model do
           'data' => submission.data,
           'metadata' => {
             # Note the camelCased property keys
-            'claimId' => nil
+            'claimId' => nil,
+            'veteran' => {
+              'icn' => 'VET1234',
+              'isVeteran' => true
+            },
+            'primaryCaregiver' => {
+              'icn' => 'PC1234'
+            },
+            'secondaryCaregiverOne' => {
+              'icn' => 'SCO1234'
+            },
+            'secondaryCaregiverTwo' => {
+              'icn' => 'SCT1234'
+            }
           }
         }
 
@@ -154,17 +326,6 @@ RSpec.describe CARMA::Models::Submission, type: :model do
         expect(submission.carma_case_id).to eq(expected_res_body['data']['carmacase']['id'])
         expect(submission.submitted_at).to eq(expected_res_body['data']['carmacase']['createdAt'])
         expect(submission.submitted?).to eq(true)
-      end
-    end
-
-    context 'when already submitted' do
-      it 'raises an exception' do
-        submission.submitted_at = DateTime.now.iso8601
-        submission.carma_case_id = 'aB935000000A9GoCAK'
-
-        expect_any_instance_of(CARMA::Client::Client).not_to receive(:create_submission_stub)
-
-        expect { submission.submit! }.to raise_error('This submission has already been submitted to CARMA')
       end
     end
   end

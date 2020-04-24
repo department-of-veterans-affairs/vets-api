@@ -445,7 +445,6 @@ components:
             - informalConference
             - sameOffice
             - benefitType
-            - veteran
             - informalConferenceTimes
         - type: object
           description: informal conference _not_ being requested
@@ -464,7 +463,6 @@ components:
             - informalConference
             - sameOffice
             - benefitType
-            - veteran
     BenefitType:
       type: string
       enum:
@@ -521,36 +519,9 @@ components:
       required:
         - areaCode
         - phoneNumber
-    Address:
-      type: object
-      properties:
-        addressLine1:
-          $ref: '#/components/schemas/NonBlankStringMaxLength30'
-        addressLine2:
-          $ref: '#/components/schemas/NonBlankStringMaxLength5'
-        cityName:
-          $ref: '#/components/schemas/NonBlankStringMaxLength18'
-        stateCode:
-          $ref: '#/components/schemas/NonBlankStringMaxLength2'
-        countryCodeISO2:
-          type: string
-          pattern: '^[a-zA-Z]{2}$'
-        zipCode5:
-          type: string
-          pattern: '^[0-9]{5}$'
-        zipCode4:
-          type: string
-          pattern: '^[0-9]{4}$'
-      required:
-        - addressLine1
-        - cityName
-        - stateCode
-        - zipCode5
     HlrCreateVeteran:
       type: object
       properties:
-        address:
-          $ref: '#/components/schemas/Address'
         phone:
           $ref: '#/components/schemas/Phone'
         emailAddressText:
@@ -558,8 +529,6 @@ components:
           pattern: '.@.'
           maxLength: 44
       additionalProperties: false
-      required:
-        - address
     HlrCreateIncluded:
       type: array
       items:
@@ -839,73 +808,92 @@ components:
                     ratingIssueId: '11'
     HlrCreateAllFieldsUsed:
       value:
-        data:
-          type: HigherLevelReview
-          attributes:
-            informalConference: true
-            sameOffice: true
-            benefitType: nca
-            veteran:
-              address:
-                addressLine1: 401 Kansas Avenue
-                addressLine2: Apt 7
-                cityName: Atchison
-                stateCode: KS
-                countryCodeISO2: NL
-                zipCode5: '66002'
-                zipCode4: '2410'
-              phone:
-                countryCode: '34'
-                areaCode: '555'
-                phoneNumber: '8001111'
-                phoneNumberExt: '2'
-              emailAddressText: josie@example.com
-            informalConferenceTimes:
-              - 1230-1400 ET
-              - 1400-1630 ET
-            informalConferenceRep:
-              name: Helen Holly
-              phone:
-                countryCode: '6'
-                areaCode: '555'
-                phoneNumber: '8001111'
-                phoneNumberExt: '2'
-        included:
-          - type: ContestableIssue
-            attributes:
-              issue: tinnitus
-              decisionDate: '1900-01-01'
-              decisionIssueId: 1
-              ratingIssueId: '2'
-              ratingDecisionIssueId: '3'
-          - type: ContestableIssue
-            attributes:
-              issue: left knee
-              decisionDate: '1900-01-02'
-              decisionIssueId: 4
-              ratingIssueId: '5'
-          - type: ContestableIssue
-            attributes:
-              issue: right knee
-              decisionDate: '1900-01-03'
-              ratingIssueId: '6'
-              ratingDecisionIssueId: '7'
-          - type: ContestableIssue
-            attributes:
-              issue: PTSD
-              decisionDate: '1900-01-04'
-              decisionIssueId: 8
-              ratingDecisionIssueId: '9'
-          - type: ContestableIssue
-            attributes:
-              issue: Traumatic Brain Injury
-              decisionDate: '1900-01-05'
-              decisionIssueId: 10
-          - type: ContestableIssue
-            attributes:
-              issue: right shoulder
-              decisionDate: '1900-01-06'
-              ratingIssueId: '11'
+        {
+          "data": {
+            "type": "HigherLevelReview",
+            "attributes": {
+              "informalConference": true,
+              "sameOffice": true,
+              "benefitType": "nca",
+              "veteran": {
+                "phone": {
+                  "countryCode": "34",
+                  "areaCode": "555",
+                  "phoneNumber": "8001111",
+                  "phoneNumberExt": "2"
+                },
+                "emailAddressText": "josie@example.com"
+              },
+              "informalConferenceTimes": [
+                "1230-1400 ET",
+                "1400-1630 ET"
+              ],
+              "informalConferenceRep": {
+                "name": "Helen Holly",
+                "phone": {
+                  "countryCode": "6",
+                  "areaCode": "555",
+                  "phoneNumber": "8001111",
+                  "phoneNumberExt": "2"
+                }
+              }
+            }
+          },
+          "included": [
+            {
+              "type": "ContestableIssue",
+              "attributes": {
+                "issue": "tinnitus",
+                "decisionDate": "1900-01-01",
+                "decisionIssueId": 1,
+                "ratingIssueId": "2",
+                "ratingDecisionIssueId": "3"
+              }
+            },
+            {
+              "type": "ContestableIssue",
+              "attributes": {
+                "issue": "left knee",
+                "decisionDate": "1900-01-02",
+                "decisionIssueId": 4,
+                "ratingIssueId": "5"
+              }
+            },
+            {
+              "type": "ContestableIssue",
+              "attributes": {
+                "issue": "right knee",
+                "decisionDate": "1900-01-03",
+                "ratingIssueId": "6",
+                "ratingDecisionIssueId": "7"
+              }
+            },
+            {
+              "type": "ContestableIssue",
+              "attributes": {
+                "issue": "PTSD",
+                "decisionDate": "1900-01-04",
+                "decisionIssueId": 8,
+                "ratingDecisionIssueId": "9"
+              }
+            },
+            {
+              "type": "ContestableIssue",
+              "attributes": {
+                "issue": "Traumatic Brain Injury",
+                "decisionDate": "1900-01-05",
+                "decisionIssueId": 10
+              }
+            },
+            {
+              "type": "ContestableIssue",
+              "attributes": {
+                "issue": "right shoulder",
+                "decisionDate": "1900-01-06",
+              }
+            }
+          ]
+        }
     HlrCreateMinimumFieldsUsed:
       value:
         data:
@@ -914,14 +902,6 @@ components:
             informalConference: false
             sameOffice: true
             benefitType: nca
-            veteran:
-              address:
-                addressLine1: 401 Kansas Avenue
-                cityName: Atchison
-                stateCode: KS
-                zipCode5: '66002'
-                countryName: United States
-                addressPou: RESIDENCE/CHOICE
         included:
           - type: ContestableIssue
             attributes:
@@ -1014,8 +994,7 @@ components:
                   "required": [
                     "informalConference",
                     "sameOffice",
-                    "benefitType",
-                    "veteran"
+                    "benefitType"
                   ]
                 },
                 {
@@ -1034,7 +1013,6 @@ components:
                     "informalConference",
                     "sameOffice",
                     "benefitType",
-                    "veteran",
                     "informalConferenceTimes"
                   ]
                 }
@@ -1106,30 +1084,9 @@ components:
             },
 
 
-            "address": {
-              "type": "object",
-              "properties": {
-                "addressLine1":     { "$ref": "#/definitions/nonBlankStringMaxLength30" },
-                "addressLine2":     { "$ref": "#/definitions/nonBlankStringMaxLength5" },
-                "cityName":         { "$ref": "#/definitions/nonBlankStringMaxLength18" },
-                "stateCode":        { "$ref": "#/definitions/nonBlankStringMaxLength2" },
-                "countryCodeISO2":  { "type": "string", "pattern": "^[a-zA-Z]{2}$" },
-                "zipCode5":         { "type": "string", "pattern": "^[0-9]{5}$" },
-                "zipCode4":         { "type": "string", "pattern": "^[0-9]{4}$" }
-              },
-              "required": [
-                "addressLine1",
-                "cityName",
-                "stateCode",
-                "zipCode5"
-              ]
-            },
-
-
             "veteran": {
               "type": "object",
               "properties": {
-                "address":      { "$ref": "#/definitions/address" },
                 "phone":        { "$ref": "#/definitions/phone" },
                 "emailAddressText": {
                   "type": "string",
@@ -1138,8 +1095,7 @@ components:
                   "$comment": "TODO: use draft 7 feature [format: idn-email] or [format: email] over pattern (when there is broader support)"
                 }
               },
-              "additionalProperties": false,
-              "required": [ "address" ]
+              "additionalProperties": false
             },
 
 
