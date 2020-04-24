@@ -33,12 +33,13 @@ RSpec.describe BGS::BenefitClaim do
       death_date: nil,
       begin_date: nil,
       end_date: nil,
+      event_date: nil,
       ever_married_indicator: 'N',
       marriage_state: '',
       marriage_city: 'Tampa',
       divorce_state: nil,
       divorce_city: nil,
-      marriage_termination_type_cd: nil,
+      marriage_termination_type_code: nil,
       benefit_claim_type_end_product: '681',
     )
   end

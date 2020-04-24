@@ -29,7 +29,6 @@ module BGS
     end
 
     def update(benefit_claim, vnp_benefit_claim_record)
-      binding.pry
       vnp_bnft_claim_update(benefit_claim, vnp_benefit_claim_record)
     end
   end

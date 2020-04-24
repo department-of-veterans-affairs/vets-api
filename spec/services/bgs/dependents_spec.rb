@@ -170,12 +170,13 @@ RSpec.describe BGS::Dependents do
       death_date: nil,
       begin_date: nil,
       end_date: nil,
+      event_date: nil,
       ever_married_indicator: 'N',
       marriage_state: '',
       marriage_city: 'Tampa',
       divorce_state: nil,
       divorce_city: nil,
-      marriage_termination_type_cd: nil,
+      marriage_termination_type_code: nil,
       benefit_claim_type_end_product: '681',
     )
   end
@@ -250,12 +251,13 @@ RSpec.describe BGS::Dependents do
             veteran: person_address_phone_object,
             user: user
           ).create
+
           # ToDo this expectation will change when we get the new data keys from the FE
           expect(dependents).to include(
                                   an_object_having_attributes(
                                     divorce_state: "Michigan (MI)",
                                     divorce_city: "Clawson",
-                                    marriage_termination_type_cd: "Some stuff about the marriage being declared void."
+                                    marriage_termination_type_code: "Some stuff about the marriage being declared void."
                                   )
                                 )
         end

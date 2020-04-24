@@ -15,11 +15,12 @@ module BGS
     end
 
     def modify_dependents(params = nil)
-      delete_me_root = Rails.root.to_s
-      delete_me_payload_file = File.read("#{delete_me_root}/app/services/bgs/possible_payload_snake_case.json")
-      payload = JSON.parse(delete_me_payload_file)
+      # delete_me_root = Rails.root.to_s
+      # delete_me_payload_file = File.read("#{delete_me_root}/app/services/bgs/possible_payload_snake_case.json")
+      # payload = JSON.parse(delete_me_payload_file)
 
-      # payload = params.to_h
+      # Todo we should probably move the param serialization in dependents to here 🤔
+      payload = params.to_h
 
       proc_id = create_proc_id_and_form
       veteran = VnpVeteran.new(proc_id: proc_id, payload: payload, user: @user).create

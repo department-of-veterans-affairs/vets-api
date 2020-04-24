@@ -96,7 +96,7 @@ module BGS
         {
           divorce_state: divorce_info['divorce_state'],
           divorce_city: divorce_info['divorce_city'],
-          marriage_termination_type_cd: divorce_info['marriage_termination_type_cd']
+          marriage_termination_type_cd: divorce_info['marriage_termination_type_code']
         }
       )
     end

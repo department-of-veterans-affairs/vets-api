@@ -3,7 +3,7 @@
 require 'rails_helper'
 RSpec.describe BGS::DependentService do
   let(:user) { FactoryBot.create(:user, :loa3) }
-  it 'provides the url when it knows about a station id and facility type' do
+  xit 'provides the url when it knows about a station id and facility type' do
     VCR.use_cassette('bgs/modify_dependents') do
       service = BGS::DependentService.new(user)
       service.modify_dependents
