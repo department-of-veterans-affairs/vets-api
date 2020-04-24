@@ -30,6 +30,7 @@ RSpec.describe BGS::Base do
       address_line_two: '',
       address_line_three: '',
       address_state_code: 'FL',
+      address_country: 'USA',
       address_city: 'Tampa',
       address_zip_code: '22145',
       email_address: 'foo@foo.com',
