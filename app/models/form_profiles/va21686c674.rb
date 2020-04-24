@@ -18,7 +18,7 @@ class FormProfiles::VA21686c674 < FormProfile
   attribute :form_address
 
   def prefill(user)
-    @contact_information = Vet360Redis::ContactInformation.for_user(user)
+    @user = user
     prefill_form_address
 
     super
@@ -36,7 +36,7 @@ class FormProfiles::VA21686c674 < FormProfile
   private
 
   def prefill_form_address
-    mailing_address = @contact_information.mailing_address
+    mailing_address = Vet360Redis::ContactInformation.for_user(@user).mailing_address
     return if mailing_address.blank?
 
     @form_address = FormAddress.new(
