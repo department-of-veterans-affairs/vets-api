@@ -84,6 +84,15 @@ RSpec.describe FormProfile, type: :model do
           },
           "ssn" => user.ssn,
           "birthDate"=>user.birth_date
+        },
+        "veteranAddress" => {
+          "veteranAddress" => {
+            "addressLine1"=>"140 Rock Creek Rd",
+            "city"=>"Washington",
+            "countryName"=>"USA",
+            "stateCode"=>"DC",
+            "zipCode"=>"20011"
+          }
         }
       }
     }
