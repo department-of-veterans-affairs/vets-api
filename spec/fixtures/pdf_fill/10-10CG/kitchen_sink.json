@@ -1,0 +1,103 @@
+{
+  "veteran": {
+    "fullName": {
+        "first": "Rosamond",
+        "last": "Jerde",
+        "middle": "A",
+        "suffix": "IV"
+    },
+    "ssnOrTin": "789787893",
+    "dateOfBirth": "1990-07-03",
+    "gender": "M",
+    "address": {
+        "street": "111 2nd St S",
+        "street2": "#501",
+        "city": "Seattle",
+        "country": "USA",
+        "state": "WA",
+        "postalCode": "98101"
+    },
+    "primaryPhoneNumber": "8887775544",
+    "alternativePhoneNumber": "8887775544",
+    "email": "veteranEmail@email.com",
+    "plannedClinic": "740",
+    "lastTreatmentFacility": {
+        "name": "My Hospital",
+        "type": "hospital"
+    }
+  },
+  "primaryCaregiver":  {
+    "fullName": {
+        "first": "Joan",
+        "last": "Jerde",
+        "middle": "Bednar",
+        "suffix": "Jr."
+    },
+    "ssnOrTin": "202901412",
+    "dateOfBirth": "1978-07-03",
+    "gender": "F",
+    "address": {
+        "street": "111 2nd St S",
+        "street2": "#501",
+        "city": "Seattle",
+        "country": "USA",
+        "state": "WA",
+        "postalCode": "98101"
+    },
+    "primaryPhoneNumber": "1112929933",
+    "alternativePhoneNumber": "9990239330",
+    "email": "primaryCaregiverEmail@email.com",
+    "vetRelationship": "Spouse",
+    "medicaidEnrolled": false,
+    "medicareEnrolled": true,
+    "champvaEnrolled": false,
+    "tricareEnrolled": true,
+    "otherHealthInsuranceName": "MyHealth Global"
+  },
+  "secondaryOneCaregiver":  {
+    "fullName": {
+        "first": "Pauline",
+        "last": "Moen",
+        "middle": "Amber",
+        "suffix": "II"
+    },
+    "ssnOrTin": "994328445",
+    "dateOfBirth": "1981-03-29",
+    "gender": "F",
+    "address": {
+        "street": "1022 East Dedraburgh",
+        "street2": "Unit 101",
+        "city": "Seattle",
+        "country": "USA",
+        "state": "WA",
+        "postalCode": "98101"
+    },
+    "primaryPhoneNumber": "1118293993",
+    "alternativePhoneNumber": "0002938484",
+    "email": "secondaryOneCaregiverEmail@email.com",
+    "vetRelationship": "Daughter"
+  },
+  "secondaryTwoCaregiver":  {
+    "fullName": {
+        "first": "Derrick",
+        "last": "Jaskolski",
+        "middle": "J.",
+        "suffix": "II"
+    },
+    "ssnOrTin": "091449494",
+    "dateOfBirth": "1980-09-06",
+    "gender": "M",
+    "address": {
+        "street": "1946 Bahringer Way",
+        "street2": "A",
+        "city": "Seattle",
+        "country": "USA",
+        "state": "WA",
+        "postalCode": "98101"
+    },
+    "primaryPhoneNumber": "8784844999",
+    "alternativePhoneNumber": "8788894300",
+    "email": "secondaryTwoCaregiverEmail@email.com",
+    "vetRelationship": "Friend/Neighbor"
+  }
+}

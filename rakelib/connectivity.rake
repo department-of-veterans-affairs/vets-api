@@ -7,10 +7,6 @@
 # Allows running on development machines
 Rails.logger = Logger.new(STDOUT)
 
-# For Rx/SM
-REDIS_CONFIG = Rails.application.config_for(:redis).freeze
-Redis.current = Redis.new(REDIS_CONFIG['redis'])
-
 class ConnectivityError < StandardError; end
 
 # Convenience function that runs a connectivity example and prints out
