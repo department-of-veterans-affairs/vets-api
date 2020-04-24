@@ -2,7 +2,7 @@
 
 module BGS
   class Dependents < Base
-    CHILD_STATUS = {'child_under18' => 'Other', 'step_child' => 'Stepchild', 'adopted' => 'Adopted Child', 'disabled' => 'Other', 'child_over18_in_school' => 'Other'}
+    CHILD_STATUS = {'child_under18' => 'Other', 'step_child' => 'Stepchild', 'biological' => 'Biological', 'adopted' => 'Adopted Child', 'disabled' => 'Other', 'child_over18_in_school' => 'Other'}
 
     def initialize(proc_id:, veteran:, payload:, user:)
       @proc_id = proc_id
@@ -101,7 +101,6 @@ module BGS
       )
     end
 
-    # TODO: maybe turn optional stuff into a hash
     def serialize_result(
       participant,
       person,
