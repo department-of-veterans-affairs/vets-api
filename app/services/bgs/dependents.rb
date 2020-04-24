@@ -82,7 +82,6 @@ module BGS
 
     def report_divorce
       divorce_info = format_divorce_info
-
       participant = create_participant(@proc_id)
       person = create_person(@proc_id, participant[:vnp_ptcpnt_id], divorce_info)
       address = create_address(@proc_id, participant[:vnp_ptcpnt_id], @payload['report_divorce']['location_of_divorce'])
@@ -128,6 +127,7 @@ module BGS
         address_line_one: address[:addrs_one_txt],
         address_line_two: address[:addrs_two_txt],
         address_line_three: address[:addrs_three_txt],
+        address_country: address[:cntry_nm],
         address_state_code: address[:postal_cd],
         address_city: address[:city_nm],
         address_zip_code: address[:zip_prefix_nbr],

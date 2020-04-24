@@ -25,6 +25,7 @@ module ValueObjects
     attribute :address_line_two, Types::String.optional
     attribute :address_line_three, Types::String.optional
     attribute :address_state_code, Types::String.optional
+    attribute :address_country, Types::String.optional
     attribute :address_city, Types::String.optional
     attribute :address_zip_code, Types::String.optional
     attribute :email_address, Types::String.optional

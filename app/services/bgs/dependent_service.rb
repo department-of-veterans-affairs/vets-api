@@ -14,7 +14,7 @@ module BGS
         )
     end
 
-    def modify_dependents(params = nil)
+    def modify_dependents(payload)
       # delete_me_root = Rails.root.to_s
       # delete_me_payload_file = File.read("#{delete_me_root}/app/services/bgs/possible_payload_snake_case.json")
       # payload = JSON.parse(delete_me_payload_file)

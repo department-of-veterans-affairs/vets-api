@@ -99,7 +99,7 @@ module BGS
         addrs_two_txt: payload['address_line2'],
         addrs_three_txt: payload['address_line3'],
         city_nm: payload['city'],
-        # cntry_nm: payload['countryName'], This needs to be 'USA' not 'United States'
+        cntry_nm: payload['country_name'],
         postal_cd: payload['state_code'],
         zip_prefix_nbr: payload['zip_code'],
         prvnc_nm: payload['state_code'],
@@ -112,7 +112,7 @@ module BGS
       service.vnp_ptcpnt_phone.vnp_ptcpnt_phone_create(
         vnp_proc_id: proc_id,
         vnp_ptcpnt_id: participant_id,
-        phone_type_nm: 'Nighttime', # We should probably change this to be dynamic
+        phone_type_nm: payload['phone_type_name'], # We should probably change this to be dynamic
         phone_nbr: payload['phone_number'],
         efctv_dt: Time.current.iso8601,
         jrn_dt: Time.current.iso8601,
@@ -189,7 +189,7 @@ module BGS
         claimant_ssn: veteran.ssn_number,
         benefit_claim_type: "1", # this is intentionally hard coded
         payee: "00", # intentionally left hard-coded
-        end_product: '695', # veteran.benefit_claim_type_end_product, # not sure what this is, it has to be unique tried this: vnp_benefit_claim[:vnp_bnft_claim_id] I just add one everytime I run this code
+        end_product: '696', # veteran.benefit_claim_type_end_product, # not sure what this is, it has to be unique tried this: vnp_benefit_claim[:vnp_bnft_claim_id] I just add one everytime I run this code
         end_product_code: vnp_benefit_claim.vnp_benefit_claim_type_code,
         first_name: veteran.first_name, # Might want to use the payload value
         last_name: veteran.last_name, # Might want to use the payload value
@@ -200,7 +200,7 @@ module BGS
         state: veteran.address_state_code,
         postal_code: veteran.address_zip_code,
         email_address: veteran.email_address,
-        country: 'USA', # We need the country code for this payload is sending the whole country name
+        country: veteran.address_country, # We need the country code for this payload is sending the whole country name
         disposition: "M", # intentionally left hard-coded
         section_unit_no: "555", # "VA office code". Tried location id's from user object, failed. Maybe we'll get it from the FE
         folder_with_claim: "N", # intentionally left hard-coded

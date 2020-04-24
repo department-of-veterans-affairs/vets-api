@@ -2,7 +2,7 @@
   "veteran_address": {
     "view:livesOnMilitaryBase": false,
     "view:livesOnMilitaryBaseInfo": {},
-    "country_name": "United States",
+    "country_name": "USA",
     "address_line1": "1019 Robin Cir",
     "address_line2": "NA",
     "address_line3": "NA",
@@ -22,6 +22,7 @@
   },
   "more_veteran_information": {
     "phone_number": "2146866521",
+    "phone_type_name": "Daytime",
     "email_address": "cohnjesse@gmail.xom"
   },
   "child_marriage": {
@@ -41,11 +42,11 @@
     },
     "date_of_divorce": "2001-02-03",
     "location_of_divorce": {
-      "state": "Michigan (MI)",
+      "state": "MI",
       "city": "Clawson"
     },
     "is_marriage_annulled_or_void": true,
-    "explanation_of_annullment_or_void": "Some stuff about the marriage being declared void."
+    "explanation_of_annullment_or_void": "Divorce"
   },
   "deaths": [
     {
@@ -99,14 +100,14 @@
     {
       "marriage_start_date": "2007-04-03",
       "marriage_start_location": {
-        "state": "Arkansas",
+        "state": "AK",
         "city": "Rock Island"
       },
       "reason_marriage_ended": "OTHER",
       "reason_marriage_ended_other": "Some other reason",
       "marriage_end_date": "2009-05-05",
       "marriage_end_location": {
-        "state": "Illinois",
+        "state": "IL",
         "city": "Rock Island"
       },
       "former_spouse_name": {
@@ -122,14 +123,14 @@
     {
       "marriage_start_date": "2008-03-03",
       "marriage_start_location": {
-        "state": "Illinois",
+        "state": "IL",
         "city": "Rock Island"
       },
-      "reason_marriage_ended": "OTHER",
+      "reason_marriage_ended": "Death",
       "reason_marriage_ended_other": "Some other reason",
       "marriage_end_date": "2010-03-04",
       "marriage_end_location": {
-        "state": "Illinois",
+        "state": "IL",
         "city": "Rock Island"
       },
       "former_spouse_name": {
@@ -143,7 +144,7 @@
   "spouse_does_live_with_veteran": false,
   "current_spouse_reason_for_separation": "Somthing happened",
   "current_spouse_address": {
-    "country_name": "United States",
+    "country_name": "USA",
     "address_line1": "2037 29th St",
     "city": "Rock Island",
     "state_code": "IL",
@@ -152,7 +153,7 @@
   "current_marriage_details": {
     "date_of_marriage": "2014-03-04",
     "location_of_marriage": {
-      "state": "California",
+      "state": "CA",
       "city": "Slawson"
     },
     "marriage_type": "OTHER",
@@ -182,7 +183,7 @@
         "last": "Huberws"
       },
       "stepchild_address": {
-        "country_name": "United States",
+        "country_name": "USA",
         "address_line1": "412 Crooks Road",
         "address_line2": "another thing",
         "address_line3": "some other thing",
@@ -213,7 +214,7 @@
           "last": "Bradsky"
         },
         "child_address": {
-          "country_name": "United States",
+          "country_name": "USA",
           "address_line1": "1019 Robin Cir",
           "address_line2": "NA",
           "address_line3": "NA",
@@ -233,7 +234,7 @@
       "child_previously_married": "Yes",
       "child_previous_marriage_details": {
         "date_marriage_ended": "2018-03-04",
-        "reason_marriage_ended": "Other",
+        "reason_marriage_ended": "Death",
         "other_reason_marriage_ended": "Some other reason"
       },
       "first": "John",
@@ -270,7 +271,7 @@
   "last_term_school_information": {
     "school_name": "Another amazing school",
     "school_address": {
-      "country_name": "United States",
+      "country_name": "USA",
       "address_line1": "2037 29th St",
       "city": "Rock Island",
       "state_code": "AR",
@@ -296,7 +297,7 @@
     "school_name": "My Great School",
     "training_program": "Something amazing",
     "school_address": {
-      "country_name": "United States",
+      "country_name": "USA",
       "address_line1": "2037 29th St",
       "address_line2": "another line",
       "address_line3": "Yet another line",
@@ -307,7 +308,7 @@
   },
   "student_address": {
     "view:livesOnMilitaryBaseInfo": {},
-    "country_name": "United States",
+    "country_name": "USA",
     "address_line1": "1019 Robin Cir",
     "address_line2": "NA",
     "address_line3": "NA",

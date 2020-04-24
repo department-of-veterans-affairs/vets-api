@@ -10,8 +10,7 @@ RSpec.describe BGS::DependentService do
   end
 
   it 'provides the url when it knows about a station id and facility type' do
-    VCR.use_cassette('bgs/modify_dependents') do
-      binding.pry
+    VCR.use_cassette('bgs/dependent_service/modify_dependents') do
       service = BGS::DependentService.new(user)
       service.modify_dependents(params)
     end
