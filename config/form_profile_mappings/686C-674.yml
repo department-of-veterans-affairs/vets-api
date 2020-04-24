@@ -6,3 +6,4 @@ veteranInformation:
   veteranAddress:
     veteranAddress: [form_address]
     phoneNumber: [contact_information, us_phone]
+    emailAddress: [contact_information, email]

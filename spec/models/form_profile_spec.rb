@@ -93,7 +93,8 @@ RSpec.describe FormProfile, type: :model do
             "stateCode"=>"DC",
             "zipCode"=>"20011"
           },
-          "phoneNumber"=>"4445551212"
+          "phoneNumber"=>"4445551212",
+          "emailAddress"=>"test2@test1.net"
         }
       }
     }
