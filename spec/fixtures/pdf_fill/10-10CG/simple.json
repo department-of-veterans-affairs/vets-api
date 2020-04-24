@@ -10,13 +10,12 @@
     "address": {
         "street": "111 2nd St S",
         "city": "Seattle",
-        "country": "USA",
         "state": "WA",
         "postalCode": "98101"
     },
     "plannedClinic": "740"
   },
-  "primaryCaregiver":  {
+  "primaryCaregiver": {
     "fullName": {
         "first": "Rosamond",
         "last": "Jerde"
@@ -27,12 +26,13 @@
     "address": {
         "street": "111 2nd St S",
         "city": "Seattle",
-        "country": "USA",
         "state": "WA",
         "postalCode": "98101"
     },
     "vetRelationship": "Spouse",
     "medicaidEnrolled": false,
-    "medicareEnrolled": true
+    "medicareEnrolled": true,
+    "champvaEnrolled": false,
+    "tricareEnrolled": false
   }
 }

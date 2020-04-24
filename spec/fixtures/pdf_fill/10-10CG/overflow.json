@@ -3,8 +3,7 @@
         "fullName": {
             "last": " AAAAAAAAA AAAAAAAAA AAAAAAAAA",
             "first": " BBBBBBBBB BBBBBBBBB BBBBBBBBB",
-            "middle": " CCCCCCCCC CCCCCCCCC CCCCCCCCC",
-            "suffix": "Sr."
+            "middle": " CCCCCCCCC CCCCCCCCC CCCCCCCCC"
         },
         "ssnOrTin": "789787893",
         "dateOfBirth": "1990-07-03",
@@ -13,7 +12,6 @@
             "street": " DDDDDDDDDD DDDDDDDDDD DDDDDDDDDD DDDDDDDDDD",
             "street2": " DDDDDDDDDD DDDDDDDDDD DDDDDDDDDD DDDDDDDDDD",
             "city": " EEEEEEEEE EEEEEEEEE EEEEEEEEE",
-            "country": "USA",
             "state": "WA",
             "postalCode": "98101-1234"
         },
@@ -26,12 +24,11 @@
             "type": "clinic"
         }
     },
-    "primaryCaregiver":  {
+    "primaryCaregiver": {
         "fullName": {
             "last": " HHHHHHHHH HHHHHHHHH HHHHHHHHH",
             "first": " IIIIIIIII IIIIIIIII IIIIIIIII",
-            "middle": " JJJJJJJJJ JJJJJJJJJ JJJJJJJJJ",
-            "suffix": "Sr."
+            "middle": " JJJJJJJJJ JJJJJJJJJ JJJJJJJJJ"
         },
         "ssnOrTin": "202901412",
         "dateOfBirth": "1978-07-03",
@@ -40,7 +37,6 @@
             "street": " KKKKKKKKK KKKKKKKKK KKKKKKKKK KKKKKKKKK",
             "street2": " KKKKKKKKK KKKKKKKKK KKKKKKKKK KKKKKKKKK",
             "city": " LLLLLLLLL LLLLLLLLL LLLLLLLLL",
-            "country": "USA",
             "state": "WA",
             "postalCode": "98101-1234"
         },
@@ -54,12 +50,11 @@
         "tricareEnrolled": false,
         "otherHealthInsuranceName": " NNNNNNNNN NNNNNNNNN NNNNNNNNN NNNNNNNNN NNNNNNNNN"
     },
-    "secondaryOneCaregiver":  {
+    "secondaryCaregiverOne": {
         "fullName": {
             "last": " OOOOOOOOO OOOOOOOOO OOOOOOOOO",
             "first": " PPPPPPPPP PPPPPPPPP PPPPPPPPP",
-            "middle": " QQQQQQQQQ QQQQQQQQQ QQQQQQQQQ",
-            "suffix": "II"
+            "middle": " QQQQQQQQQ QQQQQQQQQ QQQQQQQQQ"
         },
         "ssnOrTin": "994328445",
         "dateOfBirth": "1981-03-29",
@@ -68,7 +63,6 @@
             "street": " RRRRRRRRR RRRRRRRRR RRRRRRRRR RRRRRRRRR",
             "street2": " RRRRRRRRR RRRRRRRRR RRRRRRRRR RRRRRRRRR",
             "city": " SSSSSSSSS SSSSSSSSS SSSSSSSSS",
-            "country": "USA",
             "state": "WA",
             "postalCode": "98101"
         },
@@ -77,21 +71,19 @@
         "email": "TTTTTTTTT-TTTTTTTTT-TTTTTTTTT-TTTTTTTTT@TT.TTT",
         "vetRelationship": "Daughter"
     },
-    "secondaryTwoCaregiver":  {
+    "secondaryCaregiverTwo": {
         "fullName": {
             "last": " UUUUUUUUU UUUUUUUUU UUUUUUUUU",
             "first": " VVVVVVVVV VVVVVVVVV VVVVVVVVV",
-            "middle": " WWWWWWWWW WWWWWWWWW WWWWWWWWW",
-            "suffix": "II"
+            "middle": " WWWWWWWWW WWWWWWWWW WWWWWWWWW"
         },
         "ssnOrTin": "091449494",
         "dateOfBirth": "1980-09-06",
-        "gender": "M",
+        "gender": "U",
         "address": {
             "street": " XXXXXXXXX XXXXXXXXX XXXXXXXXX XXXXXXXXX",
             "street2": " XXXXXXXXX XXXXXXXXX XXXXXXXXX XXXXXXXXX",
             "city": " YYYYYYYYY YYYYYYYYY YYYYYYYYY",
-            "country": "USA",
             "state": "WA",
             "postalCode": "98101"
         },
