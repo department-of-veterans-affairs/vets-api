@@ -75,26 +75,26 @@ RSpec.describe FormProfile, type: :model do
 
   let(:v686_c_674_expected) do
     {
-      "veteranInformation" => {
-        "veteranInformation" => {
-          "fullName" => {
-            "first"=>"Abraham",
-            "last"=>"Lincoln",
-            "suffix"=>"Jr."
+      'veteranInformation' => {
+        'veteranInformation' => {
+          'fullName' => {
+            'first' => 'Abraham',
+            'last' => 'Lincoln',
+            'suffix' => 'Jr.'
           },
-          "ssn" => user.ssn,
-          "birthDate"=>user.birth_date
+          'ssn' => user.ssn,
+          'birthDate' => user.birth_date
         },
-        "veteranAddress" => {
-          "veteranAddress" => {
-            "addressLine1"=>"140 Rock Creek Rd",
-            "city"=>"Washington",
-            "countryName"=>"USA",
-            "stateCode"=>"DC",
-            "zipCode"=>"20011"
+        'veteranAddress' => {
+          'veteranAddress' => {
+            'addressLine1' => '140 Rock Creek Rd',
+            'city' => 'Washington',
+            'countryName' => 'USA',
+            'stateCode' => 'DC',
+            'zipCode' => '20011'
           },
-          "phoneNumber"=>"4445551212",
-          "emailAddress"=>"test2@test1.net"
+          'phoneNumber' => '4445551212',
+          'emailAddress' => 'test2@test1.net'
         }
       }
     }
