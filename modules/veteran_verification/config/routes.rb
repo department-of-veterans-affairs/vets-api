@@ -6,6 +6,7 @@ VeteranVerification::Engine.routes.draw do
   namespace :v0 do
     resources :service_history, only: [:index]
     resources :disability_rating, only: [:index]
+    resources :total_disability_rating, only: [:index]
     resources :keys, only: [:index]
     resources :health, only: [:index]
     get 'status', to: 'veteran_status#index'
