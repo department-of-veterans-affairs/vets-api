@@ -2,7 +2,7 @@
 http_interactions:
   - request:
       method: get
-      uri: https://veteran.apps.va.gov/vsp/v1/MissingResource
+      uri: https://veteran.apps.va.gov/vsp/v1/Organization/999999
       body:
         encoding: US-ASCII
         string: ''

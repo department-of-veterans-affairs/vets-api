@@ -6,9 +6,11 @@ require 'common/exceptions/external/backend_service_exception'
 module VAOS::V1
   class FHIRService < VAOS::BaseService
     STATSD_KEY_PREFIX = 'api.vaos.fhir'
+    RESOURCES = %i(Appointment HealthcareService Location Organization Patient Schedule Slot)
 
-    def perform(http_method, path, params = nil)
-      super(http_method, path, params, headers)
+    def read(resource, id, params = nil)
+      raise ArgumentError, "#{resource} is not a valid resource" unless RESOURCES.include? resource
+      perform(:get, "#{resource}/#{id}", params, headers)
     end
 
     private
@@ -18,7 +20,7 @@ module VAOS::V1
     end
 
     def headers
-      super.merge!('Content-Type' => 'application/json+fhir')
+      super.merge('Content-Type' => 'application/json+fhir')
     end
   end
 end
