@@ -29,7 +29,7 @@ class FormProfiles::VA21686c674 < FormProfile
       version: 0,
       prefill: true,
       # TODO get correct returnUrl
-      returnUrl: '/claimant-information'
+      returnUrl: '/veteran-information'
     }
   end
 
