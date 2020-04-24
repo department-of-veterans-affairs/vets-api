@@ -5,3 +5,4 @@ veteranInformation:
     birthDate: [identity_information, date_of_birth]
   veteranAddress:
     veteranAddress: [form_address]
+    phoneNumber: [contact_information, us_phone]

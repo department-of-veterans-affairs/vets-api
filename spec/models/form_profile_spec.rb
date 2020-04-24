@@ -92,7 +92,8 @@ RSpec.describe FormProfile, type: :model do
             "countryName"=>"USA",
             "stateCode"=>"DC",
             "zipCode"=>"20011"
-          }
+          },
+          "phoneNumber"=>"4445551212"
         }
       }
     }
