@@ -54,9 +54,7 @@ module SAML
       end
 
       def email
-        val = safe_attr('va_eauth_emailaddress')
-        val ||= safe_attr('va_eauth_commonname')
-        (val =~ URI::MailTo::EMAIL_REGEXP).nil? ? nil : val
+        safe_attr('va_eauth_emailaddress')
       end
 
       ### Identifiers
@@ -99,10 +97,7 @@ module SAML
       end
 
       def mhv_account_type
-        val = safe_attr('va_eauth_mhvassurance')
-        val ||= safe_attr('va_eauth_credentialassurancelevel') if csid == 'mhv'
-        # FIXME: for inbound SSOe what number indicates Advanced/Basic?
-        val == '2' ? 'Premium' : val
+        safe_attr('va_eauth_mhvassurance')
       end
 
       def dslogon_account_type
