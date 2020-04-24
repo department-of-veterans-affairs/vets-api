@@ -38,6 +38,7 @@ module Preneeds
     attribute :date_of_birth, String
     attribute :date_of_death, String
     attribute :gender, String
+    attribute :ethnicity, String
     attribute :is_deceased, String
     attribute :marital_status, String
     attribute :military_service_number, String
@@ -56,7 +57,7 @@ module Preneeds
     def as_eoas
       hash = {
         address: address&.as_eoas, currentName: current_name.as_eoas, dateOfBirth: date_of_birth,
-        dateOfDeath: date_of_death, gender: gender, isDeceased: is_deceased,
+        dateOfDeath: date_of_death, gender: gender, ethnicity: ethnicity, isDeceased: is_deceased,
         maritalStatus: marital_status, militaryServiceNumber: military_service_number,
         placeOfBirth: place_of_birth, serviceName: service_name.as_eoas,
         serviceRecords: service_records.map(&:as_eoas), ssn: ssn, vaClaimNumber: va_claim_number,
@@ -74,7 +75,7 @@ module Preneeds
     #
     def self.permitted_params
       [
-        :date_of_birth, :date_of_death, :gender, :is_deceased, :marital_status,
+        :date_of_birth, :date_of_death, :gender, :ethnicity, :is_deceased, :marital_status,
         :military_service_number, :place_of_birth, :ssn, :va_claim_number, :military_status,
         address: Preneeds::Address.permitted_params,
         current_name: Preneeds::FullName.permitted_params,
