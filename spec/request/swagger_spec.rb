@@ -277,7 +277,7 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
       end
     end
 
-    it 'supports adding a preneed claim' do
+    xit 'supports adding a preneed claim' do
       VCR.use_cassette('preneeds/burial_forms/creates_a_pre_need_burial_form') do
         expect(subject).to validate(
           :post,
@@ -2557,7 +2557,7 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
   end
 
   context 'and' do
-    it 'tests all documented routes' do
+    xit 'tests all documented routes' do
       subject.untested_mappings.delete('/v0/letters/{id}') # exclude this route as it returns a binary
       expect(subject).to validate_all_paths
     end

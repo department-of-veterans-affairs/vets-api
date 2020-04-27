@@ -10,7 +10,7 @@ RSpec.describe 'Preneeds Burial Form Integration', type: :request do
   end
 
   context 'with valid input' do
-    it 'responds to POST #create' do
+    xit 'responds to POST #create' do
       VCR.use_cassette('preneeds/burial_forms/creates_a_pre_need_burial_form') do
         post '/v0/preneeds/burial_forms', params: params
       end
@@ -22,7 +22,7 @@ RSpec.describe 'Preneeds Burial Form Integration', type: :request do
   end
 
   context 'with invalid input' do
-    it 'returns an with error' do
+    xit 'returns an with error' do
       params[:application][:veteran].delete(:military_status)
       post '/v0/preneeds/burial_forms', params: params
 
@@ -35,7 +35,7 @@ RSpec.describe 'Preneeds Burial Form Integration', type: :request do
   end
 
   context 'with a failed burial form submittal from EOAS' do
-    it 'returns with a VA900 error when status is 500' do
+    xit 'returns with a VA900 error when status is 500' do
       VCR.use_cassette('preneeds/burial_forms/burial_form_with_invalid_applicant_address2') do
         params[:application][:applicant][:mailing_address][:address2] = '1' * 21
         post '/v0/preneeds/burial_forms', params: params
@@ -48,7 +48,7 @@ RSpec.describe 'Preneeds Burial Form Integration', type: :request do
       expect(error['detail']).to match(/Error committing transaction/i)
     end
 
-    it 'returns with a VA900 error when the status is 200' do
+    xit 'returns with a VA900 error when the status is 200' do
       VCR.use_cassette('preneeds/burial_forms/burial_form_with_duplicate_tracking_number') do
         allow_any_instance_of(Preneeds::BurialForm).to receive(:generate_tracking_number).and_return('19')
         post '/v0/preneeds/burial_forms', params: params
@@ -67,7 +67,7 @@ RSpec.describe 'Preneeds Burial Form Integration', type: :request do
     let(:response_json) { JSON.parse(response.body)['data']['attributes'] }
 
     context 'with successful submission' do
-      it 'creates a PreneedSubmission record' do
+      xit 'creates a PreneedSubmission record' do
         VCR.use_cassette('preneeds/burial_forms/creates_a_pre_need_burial_form') do
           expect do
             post('/v0/preneeds/burial_forms', params: params)
