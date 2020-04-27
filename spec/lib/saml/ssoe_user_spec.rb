@@ -575,7 +575,7 @@ RSpec.describe SAML::User do
           email: nil,
           idme_uuid: nil,
           loa: { current: 3, highest: 3 },
-          sign_in: { service_name: 'dslogon', account_type: '2' },
+          sign_in: { service_name: 'dslogon', account_type: 'N/A' },
           sec_id: '1012779219',
           multifactor: multifactor,
           authenticated_by_ssoe: true
@@ -609,7 +609,7 @@ RSpec.describe SAML::User do
           uuid: '53f065475a794e14a32d707bfd9b215f',
           email: nil,
           idme_uuid: '53f065475a794e14a32d707bfd9b215f',
-          loa: { current: 3, highest: 1 },
+          loa: { current: 3, highest: 3 },
           sign_in: { service_name: 'myhealthevet', account_type: 'N/A' },
           sec_id: '1013062086',
           multifactor: multifactor,

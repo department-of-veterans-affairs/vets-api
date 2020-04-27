@@ -101,9 +101,7 @@ module SAML
       end
 
       def dslogon_account_type
-        val = safe_attr('va_eauth_dslogonassurance')
-        val ||= safe_attr('va_eauth_credentialassurancelevel') if csid == 'dslogon'
-        val
+        safe_attr('va_eauth_dslogonassurance')
       end
 
       def dslogon_edipi
@@ -128,13 +126,8 @@ module SAML
       end
 
       def dslogon_loa_highest
-<<<<<<< HEAD
         dslogon_assurance = dslogon_account_type
-        SAML:: UserAttributes::DSLogon::PREMIUM_LOAS.include?(dslogon_assurance) ? 3 : nil
-=======
-        dslogon_assurance = safe_attr('va_eauth_dslogonassurance')
         SAML::UserAttributes::DSLogon::PREMIUM_LOAS.include?(dslogon_assurance) ? 3 : nil
->>>>>>> master
       end
 
       # This is the ID.me highest level of assurance attained
@@ -157,7 +150,7 @@ module SAML
       end
 
       def loa
-        { current: loa_current, highest: loa_highest }
+        { current: loa_current, highest: [loa_current, loa_highest].max }
       end
 
       def sign_in
