@@ -200,6 +200,7 @@ Rails.application.routes.draw do
     namespace :vic do
       resources :profile_photo_attachments, only: %i[create show]
       resources :supporting_documentation_attachments, only: :create
+      resources :vic_submissions, only: %i[create show]
     end
 
     resources :gi_bill_feedbacks, only: %i[create show]
