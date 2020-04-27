@@ -30,10 +30,10 @@ claim = CaregiversAssistanceClaim.new
 
 submission = CARMA::Models::Submission.from_claim(claim)
 submission.metadata = {
-	veteran: {
-		icn: get_icn_for(submission.data[:veteran]),
-		is_veteran: verify_veteran(vet_icn)
-	}
+  veteran: {
+    icn: get_icn_for(submission.data[:veteran]),
+    is_veteran: verify_veteran(vet_icn)
+  }
 }
 
 submission.submit!
