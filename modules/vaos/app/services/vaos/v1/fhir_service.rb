@@ -38,7 +38,7 @@ module VAOS
       private
 
       def config
-        VAOS::V1::FHIRConfigu # ration.instance
+        VAOS::V1::FHIRConfiguration.instance
       end
 
       def headers
