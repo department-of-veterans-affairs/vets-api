@@ -316,7 +316,7 @@ Rails.application.routes.draw do
     mount VeteranConfirmation::Engine, at: '/veteran_confirmation'
   end
 
-  mount VAOS::Engine, at: '/'
+  mount VAOS::Engine, at: '/vaos'
 
   if Rails.env.development? || Settings.sidekiq_admin_panel
     require 'sidekiq/web'

@@ -7,7 +7,7 @@ module VAOS
 
       def index
         response = systems_service.get_facility_visits(system_id, facility_id, type_of_care_id, schedule_type)
-        render json: VAOS::FacilityVisitSerializer.new(response)
+        render json: VAOS::V0::FacilityVisitSerializer.new(response)
       end
 
       private

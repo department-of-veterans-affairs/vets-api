@@ -1,4 +1,3 @@
-# from spec/routing/session_routing_spec.rb
 # frozen_string_literal: true
 
 require 'rails_helper'

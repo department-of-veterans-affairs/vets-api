@@ -1,28 +1,30 @@
 # frozen_string_literal: true
 
-module VAOS::V0
-  class LimitsController < VAOS::V0::BaseController
-    def index
-      response = systems_service.get_facility_limits(
-        facility_id,
-        type_of_care_id
-      )
+module VAOS
+  module V0
+    class LimitsController < VAOS::V0::BaseController
+      def index
+        response = systems_service.get_facility_limits(
+          facility_id,
+          type_of_care_id
+        )
 
-      render json: VAOS::LimitSerializer.new(response)
-    end
+        render json: VAOS::V0::LimitSerializer.new(response)
+      end
 
-    private
+      private
 
-    def systems_service
-      VAOS::SystemsService.new(current_user)
-    end
+      def systems_service
+        VAOS::SystemsService.new(current_user)
+      end
 
-    def facility_id
-      params.require(:facility_id)
-    end
+      def facility_id
+        params.require(:facility_id)
+      end
 
-    def type_of_care_id
-      params.require(:type_of_care_id)
+      def type_of_care_id
+        params.require(:type_of_care_id)
+      end
     end
   end
 end
