@@ -51,7 +51,7 @@ module CentralMail
     end
 
     def update_submission(state)
-      @claim.central_mail_submission.update_attributes!(state: state)
+      @claim.central_mail_submission.update!(state: state)
     end
 
     def to_faraday_upload(file_path)
