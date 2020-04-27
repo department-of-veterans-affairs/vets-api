@@ -211,5 +211,15 @@ RSpec.describe 'Disability Claims ', type: :request do
         expect(auto_claim.supporting_documents.count).to eq(count + 1)
       end
     end
+
+    it 'bad claim ID returns 404' do
+      bad_id = 0
+      with_okta_user(scopes) do |auth_header|
+        allow_any_instance_of(ClaimsApi::SupportingDocumentUploader).to receive(:store!)
+        post("/services/claims/v1/forms/526/#{bad_id}/attachments",
+             params: params, headers: headers.merge(auth_header))
+        expect(response.status).to eq(404)
+      end
+    end
   end
 end
