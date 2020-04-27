@@ -92,8 +92,8 @@ development: &defaults
   va_mobile_session:
     namespace: va-mobile-session
     each_ttl: 855
-  login_redirect_application:
-    namespace: login-redirect-application
+  saml_request_tracker:
+    namespace: saml_request_tracker
     each_ttl: 3600 # 1 hour
 
 test:
