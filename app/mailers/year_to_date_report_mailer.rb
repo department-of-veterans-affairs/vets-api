@@ -16,7 +16,6 @@ class YearToDateReportMailer < ApplicationMailer
       John.McNeal@va.gov
       Anne.kainic@va.gov
       ian@adhocteam.us
-      Darla.VanNieukerk@va.gov
       Brandon.Scott2@va.gov
       224C.VBAVACO@va.gov
       peter.chou1@va.gov

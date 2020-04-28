@@ -49,7 +49,6 @@ RSpec.describe SpoolSubmissionsReportMailer, type: %i[mailer aws_helpers] do
         expect(mail.to).to eq(
           %w[
             dana.kuykendall@va.gov
-            Darla.VanNieukerk@va.gov
             Jennifer.Waltz2@va.gov
             lihan@adhocteam.us
             Ricardo.DaSilva@va.gov
@@ -110,7 +109,6 @@ RSpec.describe SpoolSubmissionsReportMailer, type: %i[mailer aws_helpers] do
         expect(mail.to).to eq(
           %w[
             dana.kuykendall@va.gov
-            Darla.VanNieukerk@va.gov
             Jennifer.Waltz2@va.gov
             lihan@adhocteam.us
             Ricardo.DaSilva@va.gov
