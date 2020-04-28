@@ -48,10 +48,10 @@ GIT
 
 GIT
   remote: https://github.com/department-of-veterans-affairs/lighthouse-bgs.git
-  revision: a149a1734c1bf6e241ac5818f36aa5a3e1fef727
+  revision: 3a9cf80e0d542e9869de8c1a8cd7e4d0eac11864
   branch: master
   specs:
-    lighthouse_bgs (0.12.1)
+    lighthouse_bgs (0.13.0)
       httpclient
       nokogiri (>= 1.8.5)
       savon (~> 2.12)
@@ -510,7 +510,7 @@ GEM
       activerecord (>= 4.2)
       request_store (~> 1.1)
     parallel (1.19.1)
-    parser (2.7.1.0)
+    parser (2.7.1.1)
       ast (~> 2.4.0)
     pdf-core (0.7.0)
     pdf-forms (1.2.0)
@@ -635,7 +635,7 @@ GEM
     rspec-support (3.9.2)
     rspec_junit_formatter (0.4.1)
       rspec-core (>= 2, < 4, != 2.12.0)
-    rubocop (0.81.0)
+    rubocop (0.82.0)
       jaro_winkler (~> 1.5.1)
       parallel (~> 1.10)
       parser (>= 2.7.0.1)
