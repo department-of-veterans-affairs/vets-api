@@ -9,10 +9,15 @@ module VeteranVerification
       include ActionController::MimeResponds
 
       def index
-        rating = rating_service.get_rating(@current_user)
+        disabilities_response = rating_service.get_rating(@current_user)
+        #print disabilities_response
+        serialized = ActiveModelSerializers::SerializableResource.new(
+            disabilities_response,
+            each_serializer: VeteranVerification::TotalDisabilityRatingSerializer
+        )
 
         respond_to do |format|
-          format.json { render json: rating.to_json }
+          format.json { render json: serialized.to_json }
         end
       end
 
