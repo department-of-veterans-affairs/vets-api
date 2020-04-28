@@ -31,10 +31,6 @@ module VAOS
         perform(:get, "#{resource_type}/#{id}", nil, headers)
       end
 
-      # TODO: #create http://hl7.org/fhir/dstu2/http.html#create
-      # TODO: #update http://hl7.org/fhir/dstu2/http.html#update
-      # TODO: #delete http://hl7.org/fhir/dstu2/http.html#delete
-
       private
 
       def config
