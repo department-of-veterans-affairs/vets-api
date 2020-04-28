@@ -32,7 +32,6 @@ module CARMA
       def submit!
         raise 'This submission has already been submitted to CARMA' if submitted?
 
-        # Use stub on production until a Prod CARMA instance is connected
         response = client.create_submission(to_request_payload)
 
         @carma_case_id = response['data']['carmacase']['id']
