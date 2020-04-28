@@ -27,7 +27,6 @@ class YearToDateReportMailer < ApplicationMailer
       Lucas.Tickner@va.gov
       kyle.pietrosanto@va.gov
       robert.shinners@va.gov
-      daveandshay@att.net
       johnny@oddball.io
       John.Holton2@va.gov
     ]

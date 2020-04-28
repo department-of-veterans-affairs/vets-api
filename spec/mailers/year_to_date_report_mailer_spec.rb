@@ -68,7 +68,6 @@ RSpec.describe YearToDateReportMailer, type: %i[mailer aws_helpers] do
             Lucas.Tickner@va.gov
             kyle.pietrosanto@va.gov
             robert.shinners@va.gov
-            daveandshay@att.net
             johnny@oddball.io
             John.Holton2@va.gov
           ]

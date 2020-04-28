@@ -54,7 +54,6 @@ RSpec.describe SpoolSubmissionsReportMailer, type: %i[mailer aws_helpers] do
             lihan@adhocteam.us
             Ricardo.DaSilva@va.gov
             shay.norton@va.gov
-            daveandshay@att.net
             johnny@oddball.io
             John.Holton2@va.gov
           ]
@@ -116,7 +115,6 @@ RSpec.describe SpoolSubmissionsReportMailer, type: %i[mailer aws_helpers] do
             lihan@adhocteam.us
             Ricardo.DaSilva@va.gov
             shay.norton@va.gov
-            daveandshay@att.net
             johnny@oddball.io
             John.Holton2@va.gov
             kyle.pietrosanto@va.gov
