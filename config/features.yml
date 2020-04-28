@@ -90,3 +90,7 @@ features:
     actor_type: user
     description: >
       Allows veterans to access form526 as an original claims user. Owned by va-benefits-memorial-1 team.
+  ssoe_ebenefits_links:
+    actor_type: user
+    description: >
+      Enable eBenefits links to be proxied through eauth.va.gov, this allows users with SSOe sessions to stay logged in.

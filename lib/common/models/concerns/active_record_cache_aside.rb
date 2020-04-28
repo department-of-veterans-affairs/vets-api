@@ -17,8 +17,6 @@ module Common
   module ActiveRecordCacheAside
     extend ActiveSupport::Concern
 
-    REDIS_CONFIG = Rails.application.config_for(:redis).freeze
-
     included do
       unless self < ActiveRecord::Base
         raise ArgumentError, 'Class composing Common::ActiveRecordCacheAside must be an ActiveRecord'
