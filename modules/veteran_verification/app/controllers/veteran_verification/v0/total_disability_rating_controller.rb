@@ -10,7 +10,6 @@ module VeteranVerification
 
       def index
         disabilities_response = rating_service.get_rating(@current_user)
-        #print disabilities_response
         serialized = ActiveModelSerializers::SerializableResource.new(
             disabilities_response,
             each_serializer: VeteranVerification::TotalDisabilityRatingSerializer

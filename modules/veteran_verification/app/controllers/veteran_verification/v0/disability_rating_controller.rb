@@ -17,7 +17,7 @@ module VeteranVerification
         disabilities_response = service.get_rated_disabilities
         serialized = ActiveModelSerializers::SerializableResource.new(
           disabilities_response.rated_disabilities,
-          each_serializer: VeteranVerification::DisabilityRatingSerializer
+          serializer: VeteranVerification::DisabilityRatingSerializer
         )
 
         respond_to do |format|

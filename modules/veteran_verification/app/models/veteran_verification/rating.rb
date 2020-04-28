@@ -3,10 +3,11 @@
 require 'common/models/base'
 
 module VeteranVerification
-    class DisabilityRatingRecord
+    class Rating
       include Virtus.model
 
-      attribute :service_connected_combined_degree, Integer
+      attribute :decision
+      attribute :end_date
+      attribute :rating_percentage
     end
 end
-
