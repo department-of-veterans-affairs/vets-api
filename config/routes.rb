@@ -319,6 +319,7 @@ Rails.application.routes.draw do
   mount VAOS::Engine, at: '/vaos'
 
   # TEMPORARILY SUPPORT THE BELOW REWRITE RULES
+  # rubocop:disable Layout/LineLength
   get '/v0/vaos/appointments', controller: 'vaos/v0/appointments', action: 'index', defaults: { format: :json }
   post '/v0/vaos/appointments', controller: 'vaos/v0/appointments', action: 'create', defaults: { format: :json }
   put '/v0/vaos/appointments/cancel', controller: 'vaos/v0/appointments', defaults: { format: :json }
@@ -341,6 +342,7 @@ Rails.application.routes.draw do
   get '/v0/vaos/facilities/:facility_id/visits/:schedule_type', to: 'vaos/v0/visits#index', defaults: { format: :json }
   get '/v0/vaos/preferences', to: 'vaos/v0/preferences#show', defaults: { format: :json }
   put '/v0/vaos/preferences', to: 'vaos/v0/preferences#update', defaults: { format: :json }
+  # rubocop:enable Layout/LineLength
   # TEMPORARILY SUPPORT THE ABOVE REWRITE RULES
 
   if Rails.env.development? || Settings.sidekiq_admin_panel
