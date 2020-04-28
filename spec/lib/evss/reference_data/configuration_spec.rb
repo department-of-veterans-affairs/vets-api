@@ -11,7 +11,7 @@ describe EVSS::ReferenceData::Configuration do
 
   describe '#mock_enabled?' do
     it 'has a mock_enabled? method that returns a boolean' do
-      expect(Appeals::Configuration.instance.mock_enabled?).to be_in([true, false])
+      expect(Caseflow::Configuration.instance.mock_enabled?).to be_in([true, false])
     end
   end
 end

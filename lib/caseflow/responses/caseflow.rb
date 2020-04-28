@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
-module Appeals
+module Caseflow
   module Responses
     ##
-    # Model for a appeals' responses. Body is passed straight through from appeals
+    # Model for a caseflow' responses. Body is passed straight through from caseflow
     # with a validation check that it matches the expected schema.
     #
     # @param body [String] The original body from the service.
@@ -14,7 +14,7 @@ module Appeals
     # @!attribute status
     #   @return [Integer] The HTTP status code.
     #
-    class Appeals < Common::Base
+    class Caseflow < Common::Base
       attribute :body, String
       attribute :status, Integer
 
@@ -26,7 +26,7 @@ module Appeals
       private
 
       def json_format_is_valid?(body)
-        schema_path = Rails.root.join('lib', 'appeals', 'schema', 'appeals.json').to_s
+        schema_path = Rails.root.join('lib', 'caseflow', 'schema', 'appeals.json').to_s
         JSON::Validator.validate!(schema_path, body, strict: false)
       end
     end
