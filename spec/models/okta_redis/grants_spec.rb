@@ -22,7 +22,7 @@ describe OktaRedis::Grants, skip_emis: true do
   end
 
   describe 'delete_grants' do
-    it 'returns true for successfull deletion' do
+    it 'returns true for successful deletion' do
       with_okta_configured do
         VCR.use_cassette('okta/delete_grants') do
           ids = [subject.all.first['id']]

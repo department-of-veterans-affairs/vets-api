@@ -224,7 +224,7 @@ RSpec.describe 'Fetching user data', type: :request do
         .and not_trigger_statsd_increment('api.external_http_request.MVI.success')
       expect(MVI::Configuration.instance.breakers_service.latest_outage.ended?).to eq(false)
       Timecop.freeze(now)
-      # sufficient time has elasped that new requests are made, resulting in succses
+      # sufficient time has elapsed that new requests are made, resulting in success
       sign_in_as(new_user)
       expect { get v0_user_url, params: nil }
         .to trigger_statsd_increment('api.external_http_request.MVI.success', times: 1, value: 1)

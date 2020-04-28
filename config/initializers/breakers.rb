@@ -28,9 +28,7 @@ require 'evss/documents_service'
 require 'evss/letters/service'
 
 # Read the redis config, create a connection and a namespace for breakers
-redis_config = Rails.application.config_for(:redis).freeze
-redis = Redis.new(redis_config[:redis])
-redis_namespace = Redis::Namespace.new('breakers', redis: redis)
+redis_namespace = Redis::Namespace.new('breakers', redis: Redis.current)
 
 services = [
   Caseflow::Configuration.instance.breakers_service,

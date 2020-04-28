@@ -67,7 +67,7 @@ module Common
             def make_phone_mappings
               phone_mapping = complex_mapping('phone')
 
-              phone_mapping.keys.each do |phone_type|
+              phone_mapping.each_key do |phone_type|
                 full_phone = phone_mapping[phone_type]
                 phone_mapping[phone_type] = remove_blank_extensions(full_phone) if full_phone.present?
               end
@@ -145,8 +145,8 @@ module Common
 
               return {} unless item
 
-              item.each_with_object({}) do |(key, value), hash|
-                hash[key] = value.respond_to?(:call) ? value.call(attrs) : strip(attrs[value])
+              item.transform_values do |value|
+                value.respond_to?(:call) ? value.call(attrs) : strip(attrs[value])
               end
             end
 
