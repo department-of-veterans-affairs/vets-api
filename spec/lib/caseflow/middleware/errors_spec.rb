@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'caseflow/middleware/errors'
 
 describe Caseflow::Middleware::Errors do
   it 'handles errors' do
