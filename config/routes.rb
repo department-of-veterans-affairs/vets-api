@@ -318,6 +318,31 @@ Rails.application.routes.draw do
 
   mount VAOS::Engine, at: '/vaos'
 
+  # TEMPORARILY SUPPORT THE BELOW REWRITE RULES
+  get '/v0/vaos/appointments', controller: 'vaos/v0/appointments', action: 'index', defaults: { format: :json }
+  post '/v0/vaos/appointments', controller: 'vaos/v0/appointments', action: 'create', defaults: { format: :json }
+  put '/v0/vaos/appointments/cancel', controller: 'vaos/v0/appointments', defaults: { format: :json }
+  get '/v0/vaos/appointment_requests', controller: 'vaos/v0/appointment_requests', action: 'index', defaults: { format: :json }
+  post '/v0/vaos/appointment_requests', controller: 'vaos/v0/appointment_requests', action: 'create', defaults: { format: :json }
+  put '/v0/vaos/appointment_requests', controller: 'vaos/v0/appointment_requests', action: 'update', defaults: { format: :json }
+  get '/v0/vaos/appointment_requests/:appointment_request_id/messages', controller: 'vaos/v0/messages', action: 'index', defaults: { format: :json }
+  post '/v0/vaos/appointment_requests/:appointment_request_id/messages', controller: 'vaos/v0/messages', action: 'create', defaults: { format: :json }
+  get '/v0/vaos/community_care/eligibility/:service_type', to: 'vaos/v0/cc_eligibility#show', defaults: { format: :json }
+  get '/v0/vaos/community_care/supported_sites', to: 'vaos/v0/cc_supported_sites#index', defaults: { format: :json }
+  get '/v0/vaos/systems', to: 'vaos/v0/systems#index', defaults: { format: :json }
+  get '/v0/vaos/systems/direct_scheduling_facilities', to: 'vaos/v0/direct_scheduling_facilities#index', defaults: { format: :json }
+  get '/v0/vaos/systems/pact', to: 'vaos/v0/pact#index', defaults: { format: :json }
+  get '/v0/vaos/systems/clinic_institutions', to: 'vaos/v0/clinic_institutions#index', defaults: { format: :json }
+  get '/v0/vaos/facilities', to: 'vaos/v0/facilities#index', defaults: { format: :json }
+  get '/v0/vaos/facilities/:facility_id/clinics', to: 'vaos/v0/clinics#index', defaults: { format: :json }
+  get '/v0/vaos/facilities/:facility_id/cancel_reasons', to: 'vaos/v0/cancel_reasons#index', defaults: { format: :json }
+  get '/v0/vaos/facilities/:facility_id/available_appointments', to: 'vaos/v0/available_appointments#index', defaults: { format: :json }
+  get '/v0/vaos/facilities/:facility_id/limits', to: 'vaos/v0/limits#index', defaults: { format: :json }
+  get '/v0/vaos/facilities/:facility_id/visits/:schedule_type', to: 'vaos/v0/visits#index', defaults: { format: :json }
+  get '/v0/vaos/preferences', to: 'vaos/v0/preferences#show', defaults: { format: :json }
+  put '/v0/vaos/preferences', to: 'vaos/v0/preferences#update', defaults: { format: :json }
+  # TEMPORARILY SUPPORT THE ABOVE REWRITE RULES
+
   if Rails.env.development? || Settings.sidekiq_admin_panel
     require 'sidekiq/web'
     require 'sidekiq-scheduler/web'
