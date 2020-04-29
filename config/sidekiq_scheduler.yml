@@ -27,10 +27,6 @@ DeleteOldPiiLogsJob:
   cron: "20 2 * * * America/New_York"
   description: "Clear out old personal information logs"
 
-VIC::DeleteOldUploads:
-  cron: "00 2 * * * America/New_York"
-  description: "Clear out VIC file uploads older than 2 months"
-
 CentralMail::DeleteOldClaims:
   cron: "30 2 * * * America/New_York"
   class: CentralMail::DeleteOldClaims
