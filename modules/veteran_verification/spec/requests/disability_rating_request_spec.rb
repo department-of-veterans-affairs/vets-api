@@ -16,7 +16,7 @@ RSpec.describe 'Disability Rating API endpoint', type: :request do
       'uid' => '00u1zlqhuo3yLa2Xs2p7',
       'scp' => %w[profile email openid disability_rating.read],
       'sub' => 'ae9ff5f4e4b741389904087d94cd19b2'
-     }, {
+    }, {
       'kid' => '1Z0tNc4Hxs_n7ySgwb6YT8JgWpq0wezqupEg136FZHU',
       'alg' => 'RS256'
     }]
