@@ -1,5 +1,5 @@
-class Lighthouse::Facilities::FacilitySerializer
-  include FastJsonapi::ObjectSerializer
+class Lighthouse::Facilities::FacilitySerializer < ActiveModel::Serializer
+  type 'facilities'
 
   attributes  :access,
               :address,
@@ -10,10 +10,10 @@ class Lighthouse::Facilities::FacilitySerializer
               :lat,
               :long,
               :name,
-              :operating_notes,
               :operating_status,
               :phone,
               :services,
               :unique_id,
+              :visn,
               :website
 end
