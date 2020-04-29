@@ -94,6 +94,7 @@ class FormProfile
     evss: ['21-526EZ'],
     hca: ['1010ez'],
     pension_burial: %w[21P-530 21P-527EZ],
+    dependents: ['686C-674'],
     decision_review: ['20-0996'],
     mdot: ['MDOT']
   }.freeze
@@ -130,7 +131,7 @@ class FormProfile
   attribute :military_information, FormMilitaryInformation
 
   def self.prefill_enabled_forms
-    forms = %w[21-686C 686C-674 40-10007]
+    forms = %w[21-686C 40-10007]
     ALL_FORMS.each { |type, form_list| forms += form_list if Settings[type].prefill }
     forms
   end
