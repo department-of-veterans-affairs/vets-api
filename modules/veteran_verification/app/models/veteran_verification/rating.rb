@@ -4,10 +4,11 @@ require 'common/models/base'
 
 module VeteranVerification
     class Rating
+      include ActiveModel::Serialization
       include Virtus.model
 
-      attribute :decision
-      attribute :end_date
-      attribute :rating_percentage
+      attribute :decision, String
+      attribute :effective_date, Date
+      attribute :rating_percentage, String
     end
 end

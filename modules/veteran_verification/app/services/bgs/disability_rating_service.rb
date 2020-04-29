@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module BGS
-  class TotalDisabilityRatingService
+  class DisabilityRatingService
     def get_rating(current_user)
       service = LighthouseBGS::Services.new(
           external_uid: current_user.icn,
