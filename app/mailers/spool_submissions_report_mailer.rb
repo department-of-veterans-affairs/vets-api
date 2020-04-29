@@ -4,12 +4,10 @@ class SpoolSubmissionsReportMailer < ApplicationMailer
   REPORT_TEXT = 'Spool submissions report'
   RECIPIENTS = %w[
     dana.kuykendall@va.gov
-    Darla.VanNieukerk@va.gov
     Jennifer.Waltz2@va.gov
     lihan@adhocteam.us
     Ricardo.DaSilva@va.gov
     shay.norton@va.gov
-    daveandshay@att.net
     johnny@oddball.io
     John.Holton2@va.gov
   ].freeze

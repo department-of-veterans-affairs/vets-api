@@ -80,7 +80,7 @@ RSpec.describe 'Caregivers Assistance Claims', type: :request do
     context 'when unauthenticated' do
       it_behaves_like 'any invalid submission'
 
-      timestamp = Date.parse('2020-03-09T06:48:59-04:00')
+      timestamp = DateTime.parse('2020-03-09T06:48:59-04:00')
 
       it 'can submit a valid submission', run_at: timestamp.iso8601 do
         form_data = build_valid_form_submission.call

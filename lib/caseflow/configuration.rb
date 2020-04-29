@@ -1,34 +1,34 @@
 # frozen_string_literal: true
 
-require 'appeals/middleware/errors'
+require 'caseflow/middleware/errors'
 require 'common/client/configuration/rest'
 require 'common/client/middleware/response/raise_error'
 
-module Appeals
+module Caseflow
   ##
-  # HTTP client configuration for the {Appeals::Service},
+  # HTTP client configuration for the {Caseflow::Service},
   # sets the base path, a default timeout, and a service name for breakers and metrics.
   #
   class Configuration < Common::Client::Configuration::REST
     ##
-    # @return [String] The auth token for the appeals service.
+    # @return [String] The auth token for the caseflow service.
     #
     def app_token
-      Settings.appeals.app_token
+      Settings.caseflow.app_token
     end
 
     ##
-    # @return [String] Base path for appeals URLs.
+    # @return [String] Base path for caseflow URLs.
     #
     def base_path
-      Settings.appeals.host
+      Settings.caseflow.host
     end
 
     ##
     # @return [String] Service name to use in breakers and metrics.
     #
     def service_name
-      'AppealsStatus'
+      'CaseflowStatus'
     end
 
     ##
@@ -42,7 +42,7 @@ module Appeals
         faraday.request :json
 
         faraday.response :raise_error, error_prefix: service_name
-        faraday.response :appeals_errors
+        faraday.response :caseflow_errors
         faraday.response :betamocks if mock_enabled?
         faraday.response :json
         faraday.adapter Faraday.default_adapter
@@ -53,7 +53,7 @@ module Appeals
     # @return [Boolean] Should the service use mock data in lower environments.
     #
     def mock_enabled?
-      [true, 'true'].include?(Settings.appeals.mock)
+      [true, 'true'].include?(Settings.caseflow.mock)
     end
   end
 end

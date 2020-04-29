@@ -9,7 +9,7 @@ module AppealsApi
 
       def index
         log_request
-        appeals_response = Appeals::Service.new.get_appeals(
+        appeals_response = Caseflow::Service.new.get_appeals(
           target_veteran,
           'Consumer' => consumer,
           'VA-User' => requesting_va_user
@@ -21,7 +21,7 @@ module AppealsApi
       end
 
       def healthcheck
-        render json: Appeals::Service.new.healthcheck.body
+        render json: Caseflow::Service.new.healthcheck.body
       end
 
       private
