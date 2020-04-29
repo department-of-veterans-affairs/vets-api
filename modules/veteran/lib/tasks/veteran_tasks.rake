@@ -17,49 +17,13 @@ namespace :veteran do
     Veteran::Service::Organization.create(poa: '095', name: '095 - ITALIAN AMERICAN WAR VETERANS OF THE US, INC.')
     Veteran::Service::Organization.create(poa: '1NY', name: '1NY - SAMANTHA Y WARSHAUER')
     Veteran::Service::Representative.create(
-      poa: '1NY',
-      first_name: 'Hector',
-      last_name: 'Allen',
-      email: 'vets.gov.user+0@gmail.com'
-    )
-    Veteran::Service::Representative.create(
-      poa: '074',
-      first_name: 'Greg',
-      last_name: 'Anderson',
-      email: 'vets.gov.user+1@gmail.com'
-    )
-    Veteran::Service::Representative.create(
-      poa: '083',
-      first_name: 'Andrea',
-      last_name: 'Mitchel',
-      email: 'vets.gov.user+2@gmail.com'
-    )
-    Veteran::Service::Representative.create(
-      poa: '095',
-      first_name: 'Kenneth',
-      last_name: 'Andrew',
-      email: 'vets.gov.user+3@gmail.com'
-    )
-    Veteran::Service::Representative.create(
-      poa: '074',
-      first_name: 'Alfred',
-      last_name: 'Armstrong',
-      email: 'vets.gov.user+4@gmail.com'
-    )
-    Veteran::Service::Representative.create(
-      poa: '083',
-      first_name: 'Frank',
-      last_name: 'Lee',
-      email: 'vets.gov.user+5@gmail.com'
-    )
-    Veteran::Service::Representative.create(
-      poa: '083',
+      poa_codes: %w[A1Q 095 074 083 1NY],
       first_name: 'Tamara',
       last_name: 'Ellis',
       email: 'va.api.user+idme.001@gmail.com'
     )
     Veteran::Service::Representative.create(
-      poa: '2NY',
+      poa_codes: %w[A1Q 095 074 083 1NY],
       first_name: 'John',
       last_name: 'Doe',
       email: 'va.api.user+idme.007@gmail.com'

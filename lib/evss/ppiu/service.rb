@@ -64,9 +64,9 @@ module EVSS
           'requests' => [
             {
               'paymentType' => 'CNP',
-              'paymentAccount' => Hash[
-                pay_info.as_json.map { |k, v| [k.camelize(:lower), v] }
-              ]
+              'paymentAccount' =>
+                pay_info.as_json.transform_keys { |k| k.camelize(:lower) }
+
             }
           ]
         }.to_json

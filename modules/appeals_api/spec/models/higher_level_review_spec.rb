@@ -117,43 +117,49 @@ describe AppealsApi::HigherLevelReview, type: :model do
   describe '#number_and_street' do
     subject { higher_level_review.number_and_street }
 
-    it('matches json') { is_expected.to eq form_data['data']['attributes']['veteran']['address']['addressLine1'] }
+    it('instructs to use address on file (because there\'s no address)') do
+      expect(subject).to eq described_class::NO_ADDRESS_PROVIDED_SENTENCE
+    end
   end
 
   describe '#apt_unit_number' do
     subject { higher_level_review.apt_unit_number }
 
-    it('matches json') { is_expected.to eq form_data['data']['attributes']['veteran']['address']['addressLine2'] }
+    it('matches json') do
+      expect(subject).to eq form_data.dig('data', 'attributes', 'veteran', 'address', 'addressLine2').to_s
+    end
   end
 
   describe '#city' do
     subject { higher_level_review.city }
 
-    it('matches json') { is_expected.to eq form_data['data']['attributes']['veteran']['address']['cityName'] }
+    it('matches json') { is_expected.to eq form_data.dig('data', 'attributes', 'veteran', 'address', 'cityName').to_s }
   end
 
   describe '#state_code' do
     subject { higher_level_review.state_code }
 
-    it('matches json') { is_expected.to eq form_data['data']['attributes']['veteran']['address']['stateCode'] }
+    it('matches json') { is_expected.to eq form_data.dig('data', 'attributes', 'veteran', 'address', 'stateCode').to_s }
   end
 
   describe '#country_code' do
     subject { higher_level_review.country_code }
 
-    it('matches json') { is_expected.to eq form_data['data']['attributes']['veteran']['address']['countryCodeISO2'] }
+    it('matches json') do
+      expect(subject).to eq form_data.dig('data', 'attributes', 'veteran', 'address', 'countryCodeISO2').to_s
+    end
   end
 
   describe '#zip_code_5' do
     subject { higher_level_review.zip_code_5 }
 
-    it('matches json') { is_expected.to eq form_data['data']['attributes']['veteran']['address']['zipCode5'] }
+    it('matches json') { is_expected.to eq form_data.dig('data', 'attributes', 'veteran', 'address', 'zipCode5').to_s }
   end
 
   describe '#zip_code_4' do
     subject { higher_level_review.zip_code_4 }
 
-    it('matches json') { is_expected.to eq form_data['data']['attributes']['veteran']['address']['zipCode4'] }
+    it('matches json') { is_expected.to eq form_data.dig('data', 'attributes', 'veteran', 'address', 'zipCode4').to_s }
   end
 
   describe '#veteran_phone_number' do
