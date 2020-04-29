@@ -8,11 +8,13 @@ module VeteranVerification
     class DisabilityRatingController < ApplicationController
       include ActionController::MimeResponds
 
+      before_action { permit_scopes %w[disability_rating.read] }
+
       def index
         disabilities_response = rating_service.get_rating(@current_user)
         serialized = ActiveModelSerializers::SerializableResource.new(
-            disabilities_response,
-            each_serializer: VeteranVerification::DisabilityRatingSerializer
+          disabilities_response,
+          each_serializer: VeteranVerification::DisabilityRatingSerializer
         )
 
         respond_to do |format|

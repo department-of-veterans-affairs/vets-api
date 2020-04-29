@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 
-
 module VeteranVerification
   class DisabilityRatingSerializer < ActiveModel::Serializer
     include ActiveModel::Serialization
