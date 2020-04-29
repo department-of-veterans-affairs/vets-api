@@ -6,7 +6,7 @@ class AppealsApi::V1::DecisionReview::ContestableIssuesController < AppealsApi::
   EXPECTED_HEADERS = %w[X-VA-SSN X-VA-Receipt-Date].freeze
 
   def index
-    render_response(Appeals::Service.new.get_contestable_issues(headers))
+    render_response(Caseflow::Service.new.get_contestable_issues(headers))
   end
 
   def headers
