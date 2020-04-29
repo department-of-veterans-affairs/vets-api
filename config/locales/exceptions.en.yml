@@ -348,40 +348,40 @@ en:
         code: 'AUTHTOKEN_502'
         detail: Auth service responded with something other than the necessary information
         status: 502
-      APPEALSSTATUS401:
+      CASEFLOWSTATUS401:
         <<: *external_defaults
         title: 'Bad Gateway'
-        code: 'APPEALSSTATUS401'
+        code: 'CASEFLOWSTATUS401'
         detail: 'Received a not authorized response from the upstream server'
         status: 502
-      APPEALSSTATUS403:
+      CASEFLOWSTATUS403:
         <<: *external_defaults
         title: 'Forbiden'
-        code: 'APPEALSSTATUS403'
+        code: 'CASEFLOWSTATUS403'
         detail: 'You do not have access to the requested resource'
         status: 403
-      APPEALSSTATUS404:
+      CASEFLOWSTATUS404:
         <<: *external_defaults
         title: 'Not found'
-        code: 'APPEALSSTATUS404'
+        code: 'CASEFLOWSTATUS404'
         detail: 'Appeals data for a veteran with that SSN was not found'
         status: 404
-      APPEALSSTATUS422:
+      CASEFLOWSTATUS422:
         <<: *external_defaults
         title: 'Unprocessable entity'
-        code: 'APPEALSSTATUS422'
+        code: 'CASEFLOWSTATUS422'
         detail: 'One or more unprocessable properties or validation errors'
         status: 422
-      APPEALSSTATUS500:
+      CASEFLOWSTATUS500:
         <<: *external_defaults
         title: 'Bad Gateway'
-        code: 'APPEALSSTATUS500'
+        code: 'CASEFLOWSTATUS500'
         detail: 'Received a 500 response from the upstream server'
         status: 502
-      APPEALSSTATUS502:
+      CASEFLOWSTATUS502:
         <<: *external_defaults
         title: 'Bad Gateway'
-        code: 'APPEALSSTATUS502'
+        code: 'CASEFLOWSTATUS502'
         detail: 'Received an invalid response from the upstream server'
         status: 502
       GI404:

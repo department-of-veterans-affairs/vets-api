@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-module Appeals
+module Caseflow
   module Middleware
     ##
     # Maps Faraday env status and add a source to the body hash.
@@ -10,7 +10,7 @@ module Appeals
     class Errors < Faraday::Response::Middleware
       ##
       # The response on complete callback. Adds code and source keys to the env body hash
-      # if there's a non succesful response.
+      # if there's a non successful response.
       #
       # @return [Hash, nil]
       #
@@ -24,4 +24,4 @@ module Appeals
   end
 end
 
-Faraday::Response.register_middleware appeals_errors: Appeals::Middleware::Errors
+Faraday::Response.register_middleware caseflow_errors: Caseflow::Middleware::Errors

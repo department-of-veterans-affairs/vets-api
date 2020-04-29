@@ -438,8 +438,8 @@
       :uid_locator: '<v11:eMISunitInformationRequest>\s*<v12:edipiORicn>\s*<v13:edipiORicnValue>(\d+)'
 
 # Appeals
-- :name: 'Appeals'
-  :base_uri: <%= "#{URI(Settings.appeals.host).host}:#{URI(Settings.appeals.host).port}" %>
+- :name: 'Caseflow'
+  :base_uri: <%= "#{URI(Settings.caseflow.host).host}:#{URI(Settings.caseflow.host).port}" %>
   :endpoints:
   - :method: :get
     :path: "/api/v2/appeals"

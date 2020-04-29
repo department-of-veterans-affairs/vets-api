@@ -122,7 +122,7 @@ module SAML
 
       def dslogon_loa_highest
         dslogon_assurance = safe_attr('va_eauth_dslogonassurance')
-        SAML:: UserAttributes::DSLogon::PREMIUM_LOAS.include?(dslogon_assurance) ? 3 : nil
+        SAML::UserAttributes::DSLogon::PREMIUM_LOAS.include?(dslogon_assurance) ? 3 : nil
       end
 
       # This is the ID.me highest level of assurance attained
