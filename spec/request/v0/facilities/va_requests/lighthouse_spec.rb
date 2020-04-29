@@ -9,6 +9,34 @@ vcr_options = {
   record: :new_episodes
 }
 
+RSpec.shared_examples 'has Pagination metadata and links' do
+  it 'is expected to include pagination metadata' do
+    is_expected.to include(
+      meta: {
+        pagination: {
+          current_page: a_kind_of(Integer),
+          per_page: a_kind_of(Integer),
+          total_entries: a_kind_of(Integer),
+          total_pages: a_kind_of(Integer)
+        }
+      }
+    )
+  end
+
+  it 'is expected to include pagination links' do
+    binding.pry
+    is_expected.to include(
+      links: {
+        self: a_kind_of(String),
+        first: a_kind_of(String),
+        prev: nil,
+        next: nil,
+        last: a_kind_of(String)
+      }
+    )
+  end
+end
+
 RSpec.describe 'VA Facilities Locator - Lighthouse', type: :request, team: :facilities, vcr: vcr_options do
   include SchemaMatchers
 
@@ -18,41 +46,21 @@ RSpec.describe 'VA Facilities Locator - Lighthouse', type: :request, team: :faci
   end
 
   describe 'GET #index' do
-    subject! { get '/v0/facilities/va', params: params; JSON.parse(response.body).with_indifferent_access }
+    before
+      get get '/v0/facilities/va', params: params
+    end
+    subject! { JSON.parse(response.body) }
 
-    context 'only bbox' do
+    context 'bbox' do
       let(:params) {
         { 
           bbox: [ -122.786758, 45.451913, -122.440689, 45.64 ]
         }
       }
   
+      it_behaves_like 'has Pagination metadata and links'
+
       it { expect(response).to be_successful }
-
-      it {
-        is_expected.to include(
-          meta: {
-            pagination: {
-              current_page: 1,
-              per_page: 10,
-              total_entries: 10,
-              total_pages: 1
-            }
-          }
-        )
-      }
-
-      it {
-        is_expected.to include(
-          links: {
-            self: 'http://www.example.com/v0/facilities/va?bbox%5B%5D=-122.786758&bbox%5B%5D=45.451913&bbox%5B%5D=-122.440689&bbox%5B%5D=45.64',
-            first: 'http://www.example.com/v0/facilities/va?bbox%5B%5D=-122.786758&bbox%5B%5D=45.451913&bbox%5B%5D=-122.440689&bbox%5B%5D=45.64&page=1&per_page=10',
-            prev: nil,
-            next: nil,
-            last: 'http://www.example.com/v0/facilities/va?bbox%5B%5D=-122.786758&bbox%5B%5D=45.451913&bbox%5B%5D=-122.440689&bbox%5B%5D=45.64&page=1&per_page=10'
-          }
-        )
-      }
   
       it do
         expect(JSON.parse(response.body)['data'].collect {|x| x['id']}).to match(
@@ -74,30 +82,7 @@ RSpec.describe 'VA Facilities Locator - Lighthouse', type: :request, team: :faci
   
       it { expect(response).to be_successful }
       
-      it {
-        is_expected.to include(
-          meta: {
-            pagination: {
-              current_page: 1,
-              per_page: 10,
-              total_entries: 4,
-              total_pages: 1
-            }
-          }
-        )
-      }
-
-      it {
-        is_expected.to include(
-          links: {
-            self: 'http://www.example.com/v0/facilities/va?bbox%5B%5D=-122.786758&bbox%5B%5D=45.451913&bbox%5B%5D=-122.440689&bbox%5B%5D=45.64&type=health',
-            first: 'http://www.example.com/v0/facilities/va?bbox%5B%5D=-122.786758&bbox%5B%5D=45.451913&bbox%5B%5D=-122.440689&bbox%5B%5D=45.64&page=1&per_page=10&type=health',
-            prev: nil,
-            next: nil,
-            last: 'http://www.example.com/v0/facilities/va?bbox%5B%5D=-122.786758&bbox%5B%5D=45.451913&bbox%5B%5D=-122.440689&bbox%5B%5D=45.64&page=1&per_page=10&type=health'
-          }
-        )
-      }
+      it_behaves_like 'has Pagination metadata and links'
   
       it do
         expect(JSON.parse(response.body)['data'].collect {|x| x['id']}).to match(
