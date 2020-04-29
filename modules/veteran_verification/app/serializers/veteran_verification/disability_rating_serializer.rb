@@ -18,13 +18,16 @@ module VeteranVerification
     end
 
     def ratings
-      object[:disability_rating_record][:ratings].map do |rating|
-        Rating.new(
-          decision: rating[:disability_decision_type_name],
-          effective_date: rating[:begin_date],
-          rating_percentage: rating[:diagnostic_percent]
-        )
+      ratings = object[:disability_rating_record][:ratings].map do |rating|
+        if (rating[:disability_decision_type_name].eql? "Service Connected")
+          Rating.new(
+            decision: rating[:disability_decision_type_name],
+            effective_date: rating[:begin_date],
+            rating_percentage: rating[:diagnostic_percent]
+          )
+        end
       end
+      ratings.compact
     end
   end
 end
