@@ -324,6 +324,7 @@ Rails.application.routes.draw do
   put '/v0/vaos/appointments/cancel', to: 'vaos/v0/appointments#cancel', defaults: { format: :json }
   get '/v0/vaos/appointment_requests', to: 'vaos/v0/appointment_requests#index', defaults: { format: :json }
   put '/v0/vaos/appointment_requests/:id', to: 'vaos/v0/appointment_requests#update', defaults: { format: :json }
+  patch '/v0/vaos/appointment_requests/:id', to: 'vaos/v0/appointment_requests#update', defaults: { format: :json }
   post '/v0/vaos/appointment_requests', to: 'vaos/v0/appointment_requests#create', defaults: { format: :json }
   get '/v0/vaos/appointment_requests/:appointment_request_id/messages', to: 'vaos/v0/messages#index', defaults: { format: :json }
   post '/v0/vaos/appointment_requests/:appointment_request_id/messages', to: 'vaos/v0/messages#create', defaults: { format: :json }
@@ -354,5 +355,5 @@ Rails.application.routes.draw do
   mount Flipper::UI.app(Flipper.instance) => '/flipper', constraints: Flipper::AdminUserConstraint.new
 
   # This globs all unmatched routes and routes them as routing errors
-  #match '*path', to: 'application#routing_error', via: %i[get post put patch delete]
+  match '*path', to: 'application#routing_error', via: %i[get post put patch delete]
 end
