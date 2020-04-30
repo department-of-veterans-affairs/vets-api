@@ -3,6 +3,30 @@
 require 'rails_helper'
 
 RSpec.describe 'routes for Session', type: :routing do
+  it 'routes to the appointments index' do
+    expect(get('/v0/vaos/appointments')).to route_to(
+      format: :json,
+      controller: 'vaos/v0/appointments',
+      action: 'index'
+    )
+  end
+
+  it 'routes to the appointments create' do
+    expect(post('/v0/vaos/appointments')).to route_to(
+      format: :json,
+      controller: 'vaos/v0/appointments',
+      action: 'create'
+    )
+  end
+
+  it 'routes to the appointments cancel' do
+    expect(put('/v0/vaos/appointments/cancel')).to route_to(
+      format: :json,
+      controller: 'vaos/v0/appointments',
+      action: 'cancel'
+    )
+  end
+
   it 'routes to the appointment requests index' do
     expect(get('/v0/vaos/appointment_requests')).to route_to(
       format: :json,
@@ -11,10 +35,53 @@ RSpec.describe 'routes for Session', type: :routing do
     )
   end
 
-  it 'routes to the appointments index' do
-    expect(get('/v0/vaos/appointments')).to route_to(
+  it 'routes to the appointment requests create' do
+    expect(post('/v0/vaos/appointment_requests')).to route_to(
       format: :json,
-      controller: 'vaos/v0/appointments',
+      controller: 'vaos/v0/appointments_requests',
+      action: 'create'
+    )
+  end
+
+  it 'routes to the appointment requests update (cancel)' do
+    expect(put('/v0/vaos/appointments_requests')).to route_to(
+      format: :json,
+      controller: 'vaos/v0/appointment_requests',
+      action: 'update'
+    )
+  end
+
+  it 'routes to the appointment requests messages index' do
+    expect(get('/v0/vaos/appointments_requests/123/messages')).to route_to(
+      format: :json,
+      controller: 'vaos/v0/messages',
+      action: 'index',
+      appointment_request_id: '123'
+    )
+  end
+
+  it 'routes to the appointment requests messages create' do
+    expect(post('/v0/vaos/appointments_requests/123/messages')).to route_to(
+      format: :json,
+      controller: 'vaos/v0/messages',
+      action: 'create',
+      appointment_request_id: '123'
+    )
+  end
+
+  it 'routes to the community care eligibilty endpoint' do
+    expect(get('/v0/vaos/community_care/eligibility/PrimaryCare')).to route_to(
+      format: :json,
+      controller: 'vaos/v0/cc_eligibility',
+      action: 'show',
+      service_type: 'PrimaryCare'
+    )
+  end
+
+  it 'routes to the community care supported_sites endpoint' do
+    expect(get('/v0/vaos/community_care/supported_sites')).to route_to(
+      format: :json,
+      controller: 'vaos/v0/cc_supported_sites',
       action: 'index'
     )
   end
@@ -54,6 +121,32 @@ RSpec.describe 'routes for Session', type: :routing do
     )
   end
 
+  it 'routes to the facilities index action' do
+    expect(get('/v0/vaos/facilities')).to route_to(
+      format: :json,
+      controller: 'vaos/v0/facilities',
+      action: 'index'
+    )
+  end
+
+  it 'routes to the facility clinics index' do
+    expect(get('/v0/vaos/facilities/123/clinics')).to route_to(
+      format: :json,
+      controller: 'vaos/v0/clinics',
+      action: 'index',
+      facility_id: '123'
+    )
+  end
+
+  it 'routes to the facility cancel_reasons index' do
+    expect(get('/v0/vaos/facilities/123/cancel_reasons')).to route_to(
+      format: :json,
+      controller: 'vaos/v0/cancel_reasons',
+      action: 'index',
+      facility_id: '123'
+    )
+  end
+
   it 'routes to the facility available appointments index' do
     expect(get('/v0/vaos/facilities/123/available_appointments')).to route_to(
       format: :json,
@@ -63,7 +156,16 @@ RSpec.describe 'routes for Session', type: :routing do
     )
   end
 
-  it 'routes to the pact endpoint' do
+  it 'routes to the facility limits index' do
+    expect(get('/v0/vaos/facilities/123/limits')).to route_to(
+      format: :json,
+      controller: 'vaos/v0/limits',
+      action: 'index',
+      facility_id: '123'
+    )
+  end
+
+  it 'routes to the facility visits (pact) index' do
     expect(get('/v0/vaos/facilities/688/visits/direct')).to route_to(
       format: :json,
       controller: 'vaos/v0/visits',
@@ -73,12 +175,19 @@ RSpec.describe 'routes for Session', type: :routing do
     )
   end
 
-  it 'routes to the community care eligibilty endpoint' do
-    expect(get('/v0/vaos/community_care/eligibility/PrimaryCare')).to route_to(
+  it 'routes to the preferences show action' do
+    expect(get('/v0/vaos/preferences')).to route_to(
       format: :json,
-      controller: 'vaos/v0/cc_eligibility',
-      action: 'show',
-      service_type: 'PrimaryCare'
+      controller: 'vaos/v0/preferences',
+      action: 'show'
+    )
+  end
+
+  it 'routes to the preferences update action' do
+    expect(put('/v0/vaos/preferences')).to route_to(
+      format: :json,
+      controller: 'vaos/v0/preferences',
+      action: 'update'
     )
   end
 end
