@@ -27,29 +27,29 @@ module VeteranVerification
 
     def self.raise_error!
       raise Common::Exceptions::BackendServiceException.new(
-          'BGS_RTNGSRVC502',
-          source: self.class.to_s
-      )
+        'BGS_RTNGSRVC502',
+        source: self.class.to_s
+        )
     end
 
     def self.disability_ratings(response)
       DisabilityRating.new(
-          id: 0,
-          overall_disability_rating: response[:disability_rating_record][:service_connected_combined_degree],
-          ratings: ratings(response),
-          )
+        id: 0,
+        overall_disability_rating: response[:disability_rating_record][:service_connected_combined_degree],
+        ratings: ratings(response),
+        )
     end
 
     def self.ratings(response)
       ratings = response[:disability_rating_record][:ratings].map do |rating|
         {
-            decision: rating[:disability_decision_type_name],
-            effective_date: rating[:begin_date],
-            rating_percentage: rating[:diagnostic_percent]
+          decision: rating[:disability_decision_type_name],
+          effective_date: rating[:begin_date],
+          rating_percentage: rating[:diagnostic_percent]
         }
       end
       filtered_ratings = ratings.select do |rating|
-        (rating[:decision].eql? "Service Connected")
+        (rating[:decision].eql? 'Service Connected')
       end
       filtered_ratings.compact
     end
