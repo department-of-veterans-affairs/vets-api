@@ -81,12 +81,4 @@ RSpec.describe 'routes for Session', type: :routing do
       service_type: 'PrimaryCare'
     )
   end
-
-  it 'routes to the systems index' do
-    expect(get('/v0/vaos/systems')).to route_to(
-      format: :json,
-      controller: 'vaos/v0/systems',
-      action: 'index'
-    )
-  end
 end
