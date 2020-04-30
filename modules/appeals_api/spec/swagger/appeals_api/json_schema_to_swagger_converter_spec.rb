@@ -17,6 +17,7 @@ describe AppealsApi::JsonSchemaToSwaggerConverter do
       "required": %w[aardvark bat],
       "definitions": {
         "cat": {
+          "$comment": 'feline',
           "type": 'object',
           "properties": {
             "elephant": { "type": 'string' },
@@ -48,33 +49,27 @@ describe AppealsApi::JsonSchemaToSwaggerConverter do
   let(:swagger) do
     {
       "requestBody": {
+        "required": true,
         "content": {
           "application/json": {
             "schema": {
-              "$ref": '#/components/schemas/Hello'
+              "type": 'object',
+              "properties": {
+                "aardvark": {
+                  "$ref": '#/components/schemas/HelloCat'
+                },
+                "bat": {
+                  "$ref": '#/components/schemas/HelloDog'
+                }
+              },
+              "additionalProperties": false,
+              "required": %w[aardvark bat]
             }
           }
-        },
-        "required": true
+        }
       },
       "components": {
         "schemas": {
-          "Hello": {
-            "type": 'object',
-            "properties": {
-              "aardvark": {
-                "$ref": '#/components/schemas/HelloCat'
-              },
-              "bat": {
-                "$ref": '#/components/schemas/HelloDog'
-              }
-            },
-            "additionalProperties": false,
-            "required": %w[
-              aardvark
-              bat
-            ]
-          },
           "HelloCat": {
             "type": 'object',
             "properties": {

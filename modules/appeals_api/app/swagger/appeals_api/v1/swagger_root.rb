@@ -45,7 +45,7 @@ module AppealsApi::V1::SwaggerRoot
         ).merge(
           AppealsApi::JsonSchemaToSwaggerConverter.new(
             headers_json_schema, prefix: 'HlrCreateParameter'
-          ).to_swagger['components']['schemas'].except('HlrCreateParameter')
+          ).to_swagger['components']['schemas']
         ).merge(
           {
             Uuid: { type: :string, pattern: '^[0-9a-fA-F]{8}(-[0-9a-fA-F]{4}){3}-[0-9a-fA-F]{12}$' },

@@ -3,7 +3,10 @@
 require_relative './json_schema_reference_string.rb'
 require_relative './json_schema_definition_name.rb'
 
-# switches reference to Swagger-style, and removes $comment fields
+# does very little translation. only does:
+#   recursively switches references to Swagger-style
+#   recursively removes $comment fields
+
 module AppealsApi
   class JsonSchemaToSwaggerConverter
     TOP_LEVEL_SCHEMA_PROPERTIES = %w[type properties additionalProperties required].freeze
@@ -40,18 +43,10 @@ module AppealsApi
         requestBody: {
           required: true,
           content: {
-            'application/json': {
-              schema: {
-                '$ref': swagger_style_reference('#/definitions/')
-              }
-            }
+            'application/json': { schema: fix_refs(top_level_schema) }
           }
         },
-        components: {
-          schemas: {
-            swagger_style_schema_name('') => fix_refs(top_level_schema)
-          }
-        }
+        components: { schemas: { } }
       }.as_json
     end
 
