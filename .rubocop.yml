@@ -15,6 +15,7 @@ AllCops:
     - '**/*.rake'
     - '**/*.rb'
   Exclude:
+    - 'bin/*'
     - db/schema.rb
     - db/seeds.rb
     - db/migrate/*.rb
