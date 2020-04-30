@@ -11,22 +11,18 @@ module VeteranVerification
       before_action { permit_scopes %w[disability_rating.read] }
 
       def index
-        disabilities_response = rating_service.get_rating(@current_user)
+        response = DisabilityRating.for_user(@current_user)
         serialized = ActiveModelSerializers::SerializableResource.new(
-          disabilities_response,
-          each_serializer: VeteranVerification::DisabilityRatingSerializer
+            response,
+            each_serializer: VeteranVerification::DisabilityRatingSerializer
         )
 
         respond_to do |format|
           format.json { render json: serialized.to_json }
+          format.jwt { render body: NOTARY.sign(serialized.serializable_hash) }
         end
       end
 
-      private
-
-      def rating_service
-        BGS::DisabilityRatingService.new
-      end
     end
   end
 end
