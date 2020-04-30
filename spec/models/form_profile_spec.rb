@@ -501,7 +501,8 @@ RSpec.describe FormProfile, type: :model do
           'lastOrderDate' => '2020-01-01',
           'nextAvailabilityDate' => '2020-09-01',
           'quantity' => 60,
-          'size' => ''
+          'size' => '',
+          'prescribedDate' => '2019-12-25'
         },
         {
           'deviceName' => '',
@@ -748,7 +749,6 @@ RSpec.describe FormProfile, type: :model do
 
         schema_data = prefilled_data.deep_dup
 
-        schema_data.except!('verified', 'serviceBranches') if schema_form_id == 'VIC'
         errors = JSON::Validator.fully_validate(
           schema,
           schema_data.deep_transform_keys { |key| key.camelize(:lower) },
@@ -896,7 +896,6 @@ RSpec.describe FormProfile, type: :model do
         end
 
         %w[
-          VIC
           22-1990
           22-1990N
           22-1990E

@@ -21,7 +21,7 @@ RSpec.describe CentralMail::DatestampPdf do
       Common::FileHelpers.delete_file_if_exists(@file_path)
     end
 
-    context 'with a succesful pdf stamp' do
+    context 'with a successful pdf stamp' do
       def assert_pdf_stamp(file, stamp)
         pdf_reader = PDF::Reader.new(file)
         expect(pdf_reader.pages[0].text).to eq(stamp)

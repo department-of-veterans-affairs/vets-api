@@ -92,7 +92,7 @@ module PdfFill
             date: 'form1[0].#subform[3].Date[3]'
           }
         },
-        secondaryOneCaregiver: {
+        secondaryCaregiverOne: {
           name: {
             first: 'form1[0].#subform[3].TextField3[26]',
             middle: 'form1[0].#subform[3].TextField3[27]',
@@ -120,7 +120,7 @@ module PdfFill
             date: 'form1[0].#subform[3].Date[4]'
           }
         },
-        secondaryTwoCaregiver: {
+        secondaryCaregiverTwo: {
           name: {
             first: 'form1[0].#subform[4].TextField3[38]',
             middle: 'form1[0].#subform[4].TextField3[39]',
@@ -168,6 +168,9 @@ module PdfFill
               },
               'female' => {
                 key: PDF_INPUT_LOCATIONS.veteran[:gender][:female]
+              },
+              'unknown' => {
+                key: PDF_INPUT_LOCATIONS.veteran[:gender][:unknown]
               }
             },
             'lastTreatmentFacility' => {
@@ -247,6 +250,9 @@ module PdfFill
               },
               'female' => {
                 key: PDF_INPUT_LOCATIONS.primaryCaregiver[:gender][:female]
+              },
+              'unknown' => {
+                key: PDF_INPUT_LOCATIONS.primaryCaregiver[:gender][:unknown]
               }
             },
             'signature' => {
@@ -259,10 +265,10 @@ module PdfFill
               }
             }
           },
-          'secondaryOneCaregiver' => {
+          'secondaryCaregiverOne' => {
             'address' => {
               'street' => {
-                key: PDF_INPUT_LOCATIONS.secondaryOneCaregiver[:address][:street],
+                key: PDF_INPUT_LOCATIONS.secondaryCaregiverOne[:address][:street],
                 limit: 80,
                 question_num: 48,
                 question_text: 'SECONDARY FAMILY CAREGIVER (1) > Address > Street'
@@ -270,26 +276,29 @@ module PdfFill
             },
             'gender' => {
               'male' => {
-                key: PDF_INPUT_LOCATIONS.secondaryOneCaregiver[:gender][:male]
+                key: PDF_INPUT_LOCATIONS.secondaryCaregiverOne[:gender][:male]
               },
               'female' => {
-                key: PDF_INPUT_LOCATIONS.secondaryOneCaregiver[:gender][:female]
+                key: PDF_INPUT_LOCATIONS.secondaryCaregiverOne[:gender][:female]
+              },
+              'unknown' => {
+                key: PDF_INPUT_LOCATIONS.secondaryCaregiverOne[:gender][:unknown]
               }
             },
             'signature' => {
               'name' => {
-                key: PDF_INPUT_LOCATIONS.secondaryOneCaregiver[:signature][:name]
+                key: PDF_INPUT_LOCATIONS.secondaryCaregiverOne[:signature][:name]
               },
               'date' => {
-                key: PDF_INPUT_LOCATIONS.secondaryOneCaregiver[:signature][:date],
+                key: PDF_INPUT_LOCATIONS.secondaryCaregiverOne[:signature][:date],
                 format: 'date'
               }
             }
           },
-          'secondaryTwoCaregiver' => {
+          'secondaryCaregiverTwo' => {
             'address' => {
               'street' => {
-                key: PDF_INPUT_LOCATIONS.secondaryTwoCaregiver[:address][:street],
+                key: PDF_INPUT_LOCATIONS.secondaryCaregiverTwo[:address][:street],
                 limit: 80,
                 question_num: 65,
                 question_text: 'SECONDARY FAMILY CAREGIVER (2) > Address > Street'
@@ -297,18 +306,21 @@ module PdfFill
             },
             'gender' => {
               'male' => {
-                key: PDF_INPUT_LOCATIONS.secondaryTwoCaregiver[:gender][:male]
+                key: PDF_INPUT_LOCATIONS.secondaryCaregiverTwo[:gender][:male]
               },
               'female' => {
-                key: PDF_INPUT_LOCATIONS.secondaryTwoCaregiver[:gender][:female]
+                key: PDF_INPUT_LOCATIONS.secondaryCaregiverTwo[:gender][:female]
+              },
+              'unknown' => {
+                key: PDF_INPUT_LOCATIONS.secondaryCaregiverTwo[:gender][:unknown]
               }
             },
             'signature' => {
               'name' => {
-                key: PDF_INPUT_LOCATIONS.secondaryTwoCaregiver[:signature][:name]
+                key: PDF_INPUT_LOCATIONS.secondaryCaregiverTwo[:signature][:name]
               },
               'date' => {
-                key: PDF_INPUT_LOCATIONS.secondaryTwoCaregiver[:signature][:date],
+                key: PDF_INPUT_LOCATIONS.secondaryCaregiverTwo[:signature][:date],
                 format: 'date'
               }
             }
@@ -457,132 +469,132 @@ module PdfFill
             question_text: 'PRIMARY FAMILY CAREGIVER > Other Health Insurance > Name'
           }
         },
-        'secondaryOneCaregiver' => {
+        'secondaryCaregiverOne' => {
           'fullName' => {
             'last' => {
-              key: PDF_INPUT_LOCATIONS.secondaryOneCaregiver[:name][:last],
+              key: PDF_INPUT_LOCATIONS.secondaryCaregiverOne[:name][:last],
               limit: 29,
               question_num: 42,
               question_text: 'SECONDARY FAMILY CAREGIVER (1) > Last Name'
             },
             'first' => {
-              key: PDF_INPUT_LOCATIONS.secondaryOneCaregiver[:name][:first],
+              key: PDF_INPUT_LOCATIONS.secondaryCaregiverOne[:name][:first],
               limit: 29,
               question_num: 43,
               question_text: 'SECONDARY FAMILY CAREGIVER (1) > First Name'
             },
             'middle' => {
-              key: PDF_INPUT_LOCATIONS.secondaryOneCaregiver[:name][:middle],
+              key: PDF_INPUT_LOCATIONS.secondaryCaregiverOne[:name][:middle],
               limit: 29,
               question_num: 44,
               question_text: 'SECONDARY FAMILY CAREGIVER (1) > Middle Name'
             }
           },
           'ssnOrTin' => {
-            key: PDF_INPUT_LOCATIONS.secondaryOneCaregiver[:ssn]
+            key: PDF_INPUT_LOCATIONS.secondaryCaregiverOne[:ssn]
           },
           'dateOfBirth' => {
-            key: PDF_INPUT_LOCATIONS.secondaryOneCaregiver[:dob],
+            key: PDF_INPUT_LOCATIONS.secondaryCaregiverOne[:dob],
             format: 'date'
           },
           'address' => {
             'city' => {
-              key: PDF_INPUT_LOCATIONS.secondaryOneCaregiver[:address][:city],
+              key: PDF_INPUT_LOCATIONS.secondaryCaregiverOne[:address][:city],
               limit: 29,
               question_num: 49,
               question_text: 'SECONDARY FAMILY CAREGIVER (1) > Address > City'
             },
             'state' => {
-              key: PDF_INPUT_LOCATIONS.secondaryOneCaregiver[:address][:state],
+              key: PDF_INPUT_LOCATIONS.secondaryCaregiverOne[:address][:state],
               limit: 29,
               question_num: 50,
               question_text: 'SECONDARY FAMILY CAREGIVER (1) > Address > State'
             },
             'postalCode' => {
-              key: PDF_INPUT_LOCATIONS.secondaryOneCaregiver[:address][:zip],
+              key: PDF_INPUT_LOCATIONS.secondaryCaregiverOne[:address][:zip],
               limit: 29,
               question_num: 51,
               question_text: 'SECONDARY FAMILY CAREGIVER (1) > Address > Zip Code'
             }
           },
           'primaryPhoneNumber' => {
-            key: PDF_INPUT_LOCATIONS.secondaryOneCaregiver[:primary_phone]
+            key: PDF_INPUT_LOCATIONS.secondaryCaregiverOne[:primary_phone]
           },
           'alternativePhoneNumber' => {
-            key: PDF_INPUT_LOCATIONS.secondaryOneCaregiver[:alternative_phone]
+            key: PDF_INPUT_LOCATIONS.secondaryCaregiverOne[:alternative_phone]
           },
           'email' => {
-            key: PDF_INPUT_LOCATIONS.secondaryOneCaregiver[:email],
+            key: PDF_INPUT_LOCATIONS.secondaryCaregiverOne[:email],
             limit: 45,
             question_num: 54,
             question_text: 'SECONDARY FAMILY CAREGIVER (1) > Email'
           },
           'vetRelationship' => {
-            key: PDF_INPUT_LOCATIONS.secondaryOneCaregiver[:vet_relationship]
+            key: PDF_INPUT_LOCATIONS.secondaryCaregiverOne[:vet_relationship]
           }
         },
-        'secondaryTwoCaregiver' => {
+        'secondaryCaregiverTwo' => {
           'fullName' => {
             'last' => {
-              key: PDF_INPUT_LOCATIONS.secondaryTwoCaregiver[:name][:last],
+              key: PDF_INPUT_LOCATIONS.secondaryCaregiverTwo[:name][:last],
               limit: 29,
               question_num: 59,
               question_text: 'SECONDARY FAMILY CAREGIVER (2) > Last Name'
             },
             'first' => {
-              key: PDF_INPUT_LOCATIONS.secondaryTwoCaregiver[:name][:first],
+              key: PDF_INPUT_LOCATIONS.secondaryCaregiverTwo[:name][:first],
               limit: 29,
               question_num: 60,
               question_text: 'SECONDARY FAMILY CAREGIVER (2) > First Name'
             },
             'middle' => {
-              key: PDF_INPUT_LOCATIONS.secondaryTwoCaregiver[:name][:middle],
+              key: PDF_INPUT_LOCATIONS.secondaryCaregiverTwo[:name][:middle],
               limit: 29,
               question_num: 61,
               question_text: 'SECONDARY FAMILY CAREGIVER (2) > Middle Name'
             }
           },
           'ssnOrTin' => {
-            key: PDF_INPUT_LOCATIONS.secondaryTwoCaregiver[:ssn]
+            key: PDF_INPUT_LOCATIONS.secondaryCaregiverTwo[:ssn]
           },
           'dateOfBirth' => {
-            key: PDF_INPUT_LOCATIONS.secondaryTwoCaregiver[:dob],
+            key: PDF_INPUT_LOCATIONS.secondaryCaregiverTwo[:dob],
             format: 'date'
           },
           'address' => {
             'city' => {
-              key: PDF_INPUT_LOCATIONS.secondaryTwoCaregiver[:address][:city],
+              key: PDF_INPUT_LOCATIONS.secondaryCaregiverTwo[:address][:city],
               limit: 29,
               question_num: 66,
               question_text: 'SECONDARY FAMILY CAREGIVER (2) > Address > City'
             },
             'state' => {
-              key: PDF_INPUT_LOCATIONS.secondaryTwoCaregiver[:address][:state],
+              key: PDF_INPUT_LOCATIONS.secondaryCaregiverTwo[:address][:state],
               limit: 29,
               question_num: 67,
               question_text: 'SECONDARY FAMILY CAREGIVER (2) > Address > State'
             },
             'postalCode' => {
-              key: PDF_INPUT_LOCATIONS.secondaryTwoCaregiver[:address][:zip],
+              key: PDF_INPUT_LOCATIONS.secondaryCaregiverTwo[:address][:zip],
               limit: 29,
               question_num: 68,
               question_text: 'SECONDARY FAMILY CAREGIVER (2) > Address > Zip'
             }
           },
           'primaryPhoneNumber' => {
-            key: PDF_INPUT_LOCATIONS.secondaryTwoCaregiver[:primary_phone]
+            key: PDF_INPUT_LOCATIONS.secondaryCaregiverTwo[:primary_phone]
           },
           'alternativePhoneNumber' => {
-            key: PDF_INPUT_LOCATIONS.secondaryTwoCaregiver[:alternative_phone]
+            key: PDF_INPUT_LOCATIONS.secondaryCaregiverTwo[:alternative_phone]
           },
           'email' => {
-            key: PDF_INPUT_LOCATIONS.secondaryTwoCaregiver[:email],
+            key: PDF_INPUT_LOCATIONS.secondaryCaregiverTwo[:email],
             limit: 45,
             question_num: 71,
             question_text: 'SECONDARY FAMILY CAREGIVER (2) > Email'
           },
           'vetRelationship' => {
-            key: PDF_INPUT_LOCATIONS.secondaryTwoCaregiver[:vet_relationship]
+            key: PDF_INPUT_LOCATIONS.secondaryCaregiverTwo[:vet_relationship]
           }
         }
       }.freeze
@@ -591,8 +603,8 @@ module PdfFill
         @form_data['helpers'] = {
           'veteran' => {},
           'primaryCaregiver' => {},
-          'secondaryOneCaregiver' => {},
-          'secondaryTwoCaregiver' => {}
+          'secondaryCaregiverOne' => {},
+          'secondaryCaregiverTwo' => {}
         }
 
         merge_address_helpers
@@ -619,7 +631,8 @@ module PdfFill
         subjects.each do |subject|
           @form_data['helpers'][subject]['gender'] = {
             'male' => @form_data.dig(subject, 'gender') == 'M' ? '1' : 'Off',
-            'female' => @form_data.dig(subject, 'gender') == 'F' ? '2' : 'Off'
+            'female' => @form_data.dig(subject, 'gender') == 'F' ? '2' : 'Off',
+            'unknown' => @form_data.dig(subject, 'gender') == 'U' ? '3' : 'Off'
           }
         end
       end
@@ -634,7 +647,7 @@ module PdfFill
       end
 
       def subjects
-        %w[veteran primaryCaregiver secondaryOneCaregiver secondaryTwoCaregiver]
+        %w[veteran primaryCaregiver secondaryCaregiverOne secondaryCaregiverTwo]
       end
 
       def merge_primary_caregiver_enrollment_helpers
