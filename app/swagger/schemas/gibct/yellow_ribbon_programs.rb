@@ -14,8 +14,8 @@ module Swagger
               key :type, :object
               key :required, %i[id type attributes]
 
-              property :id, type: :string, example: '12345'
-              property :type, type: :string, enum: ['yellow_ribbon_programs']
+              property :id, type: :string, example: '1226343'
+              property :type, type: :string, enum: ['yellow_ribbon_programs'], example: 'yellow_ribbon_programs'
               property :attributes do
                 key :required, %i[city
                                   contribution_amount
