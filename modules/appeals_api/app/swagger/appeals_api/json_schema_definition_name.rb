@@ -15,7 +15,7 @@ class AppealsApi::JsonSchemaDefinitionName
   def definition_name
     return nil if @definition_name.blank?
 
-    @definition_name[0].capitalize + @definition_name[1..]
+    "#{@definition_name[0].upcase}#{@definition_name[1..]}"
   end
 
   attr_reader :prefix
