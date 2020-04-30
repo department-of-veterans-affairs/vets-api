@@ -18,7 +18,7 @@ module Swagger
                       required: false,
                       type: :string
 
-            parameter description: 'Filter results to only include Yellow Ribbon Programs that have unlimited contribution amounts.',
+            parameter description: 'Filter results to only include unlimited contribution amounts.',
                       enum: ['unlimited'],
                       in: :query,
                       name: :contribution_amount,
@@ -31,7 +31,7 @@ module Swagger
                       required: false,
                       type: :string
 
-            parameter description: 'Filter results to only include Yellow Ribbon Programs that have unlimited eligible students.',
+            parameter description: 'Filter results to only include unlimited eligible students.',
                       enum: ['unlimited'],
                       in: :query,
                       name: :number_of_students,
@@ -57,14 +57,14 @@ module Swagger
                       type: :string
 
             parameter description: 'Sort results by a Yellow Ribbon Program attribute.',
-                      enum: ['city', 'contribution_amount', 'country', 'number_of_students', 'institution', 'state'],
+                      enum: %w[city contribution_amount country number_of_students institution state],
                       in: :query,
                       name: :sort_by,
                       required: false,
                       type: :string
 
             parameter description: 'Sorts results either ascending or descending.',
-                      enum: ['desc', 'asc'],
+                      enum: %w[desc asc],
                       in: :query,
                       name: :sort_direction,
                       required: false,
