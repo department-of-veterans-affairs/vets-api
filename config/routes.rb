@@ -330,9 +330,9 @@ Rails.application.routes.draw do
   get '/v0/vaos/community_care/eligibility/:service_type', to: 'vaos/v0/cc_eligibility#show', defaults: { format: :json }
   get '/v0/vaos/community_care/supported_sites', to: 'vaos/v0/cc_supported_sites#index', defaults: { format: :json }
   get '/v0/vaos/systems', to: 'vaos/v0/systems#index', defaults: { format: :json }
-  get '/v0/vaos/systems/direct_scheduling_facilities', to: 'vaos/v0/direct_scheduling_facilities#index', defaults: { format: :json }
-  get '/v0/vaos/systems/pact', to: 'vaos/v0/pact#index', defaults: { format: :json }
-  get '/v0/vaos/systems/clinic_institutions', to: 'vaos/v0/clinic_institutions#index', defaults: { format: :json }
+  get '/v0/vaos/systems/:system_id/direct_scheduling_facilities', to: 'vaos/v0/direct_scheduling_facilities#index', defaults: { format: :json }
+  get '/v0/vaos/systems/:system_id/pact', to: 'vaos/v0/pact#index', defaults: { format: :json }
+  get '/v0/vaos/systems/:system_id/clinic_institutions', to: 'vaos/v0/clinic_institutions#index', defaults: { format: :json }
   get '/v0/vaos/facilities', to: 'vaos/v0/facilities#index', defaults: { format: :json }
   get '/v0/vaos/facilities/:facility_id/clinics', to: 'vaos/v0/clinics#index', defaults: { format: :json }
   get '/v0/vaos/facilities/:facility_id/cancel_reasons', to: 'vaos/v0/cancel_reasons#index', defaults: { format: :json }
