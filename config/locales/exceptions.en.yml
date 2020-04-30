@@ -522,6 +522,12 @@ en:
         code: 'VAOS_403'
         detail: 'This user is forbidden from performing requests on the upstream server'
         status: 403
+      VAOS_404:
+        <<: *external_defaults
+        title: Not Found
+        code: 'VAOS_404'
+        detail: 'The resource could not be found'
+        status: 404
       VAOS_502:
         <<: *external_defaults
         title: Bad Gateway
@@ -1920,7 +1926,7 @@ en:
         detail: 'Error on data from external service'
         code: 134
         status: 502
-  
+
   mdot:
     exceptions:
       default_exception:

@@ -144,16 +144,18 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
     end
 
     it 'supports adding an caregiver\'s assistance claim' do
-      expect(subject).to validate(
-        :post,
-        '/v0/caregivers_assistance_claims',
-        200,
-        '_data' => {
-          'caregivers_assistance_claim' => {
-            'form' => build(:caregivers_assistance_claim).form
+      VCR.use_cassette('carma/submissions/create/201') do
+        expect(subject).to validate(
+          :post,
+          '/v0/caregivers_assistance_claims',
+          200,
+          '_data' => {
+            'caregivers_assistance_claim' => {
+              'form' => build(:caregivers_assistance_claim).form
+            }
           }
-        }
-      )
+        )
+      end
 
       expect(subject).to validate(
         :post,

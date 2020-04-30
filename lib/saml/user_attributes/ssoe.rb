@@ -11,6 +11,7 @@ module SAML
                                    uuid idme_uuid sec_id mhv_icn mhv_correlation_id mhv_account_type
                                    dslogon_edipi loa sign_in multifactor].freeze
       IDME_GCID_REGEX = /^(?<idme>\w+)\^PN\^200VIDM\^USDVA\^A$/.freeze
+      INBOUND_AUTHN_CONTEXT = 'urn:oasis:names:tc:SAML:2.0:ac:classes:Password'
 
       attr_reader :attributes, :authn_context, :warnings
 
@@ -72,7 +73,7 @@ module SAML
       end
 
       def idme_uuid
-        return safe_attr('va_eauth_uid') if safe_attr('va_eauth_csid') == 'idme'
+        return safe_attr('va_eauth_uid') if csid == 'idme'
 
         # the gcIds are a pipe-delimited concatenation of the MVI correlation IDs
         # (minus the weird "base/extension" cruft)
@@ -99,6 +100,10 @@ module SAML
         safe_attr('va_eauth_mhvassurance')
       end
 
+      def dslogon_account_type
+        safe_attr('va_eauth_dslogonassurance')
+      end
+
       def dslogon_edipi
         safe_attr('va_eauth_dodedipnid')
       end
@@ -116,12 +121,12 @@ module SAML
       end
 
       def mhv_loa_highest
-        mhv_assurance = safe_attr('va_eauth_mhvassurance')
+        mhv_assurance = mhv_account_type
         SAML::UserAttributes::MHV::PREMIUM_LOAS.include?(mhv_assurance) ? 3 : nil
       end
 
       def dslogon_loa_highest
-        dslogon_assurance = safe_attr('va_eauth_dslogonassurance')
+        dslogon_assurance = dslogon_account_type
         SAML::UserAttributes::DSLogon::PREMIUM_LOAS.include?(dslogon_assurance) ? 3 : nil
       end
 
@@ -139,19 +144,22 @@ module SAML
 
       def account_type
         result = mhv_account_type
-        result ||= safe_attr('va_eauth_dslogonassurance')
+        result ||= dslogon_account_type
         result ||= 'N/A'
         result
       end
 
       def loa
-        { current: loa_current, highest: loa_highest }
+        { current: loa_current, highest: [loa_current, loa_highest].max }
       end
 
       def sign_in
-        SAML::User::AUTHN_CONTEXTS.fetch(@authn_context)
-                                  .fetch(:sign_in)
-                                  .merge(account_type: account_type)
+        sign_in = if @authn_context == INBOUND_AUTHN_CONTEXT
+                    { service_name: csid == 'mhv' ? 'myhealthevet' : csid }
+                  else
+                    SAML::User::AUTHN_CONTEXTS.fetch(@authn_context).fetch(:sign_in)
+                  end
+        sign_in.merge(account_type: account_type)
       end
 
       def to_hash
@@ -173,6 +181,10 @@ module SAML
         uuid = safe_attr('va_eauth_mhvuuid')
         ien = safe_attr('va_eauth_mhvien')
         uuid.present? && ien.present? && uuid != ien
+      end
+
+      def csid
+        safe_attr('va_eauth_csid')&.downcase
       end
     end
   end
