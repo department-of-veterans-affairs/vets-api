@@ -40,7 +40,7 @@
     "data": {
       "type": "object",
       "properties": {
-        "type":       { "const": "HigherLevelReview" },
+        "type":       { "type": "string", "enum": ["HigherLevelReview"] },
         "attributes": { "$ref": "#/definitions/dataAttributes" }
       },
       "additionalProperties": false,
@@ -53,7 +53,7 @@
         {
           "type": "object",
           "properties": {
-            "informalConference": { "const": false },
+            "informalConference": { "type": "boolean", "enum": [false] },
             "sameOffice":         { "type": "boolean" },
             "benefitType":        { "$ref": "#/definitions/benefitType" },
             "veteran":            { "$ref": "#/definitions/veteran" }
@@ -69,7 +69,7 @@
           "$comment": "if informalConference requested, desired times must be included (rep is optional)",
           "type": "object",
           "properties": {
-            "informalConference": { "const": true },
+            "informalConference": { "type": "boolean", "enum": [true] },
             "sameOffice":         { "type": "boolean" },
             "benefitType":        { "$ref": "#/definitions/benefitType" },
             "veteran":            { "$ref": "#/definitions/veteran" },
@@ -115,7 +115,7 @@
 
     "informalConferenceTime": {
       "type": "string",
-      "#comment": "time ranges in Eastern Time",
+      "$comment": "time ranges in Eastern Time",
       "enum": [
         "800-1000 ET",
         "1000-1230 ET",
@@ -179,7 +179,7 @@
     "contestableIssue": {
       "type": "object",
       "properties": {
-        "type":       { "const": "ContestableIssue" },
+        "type":       { "type": "string", "enum": ["ContestableIssue"] },
         "attributes": { "$ref": "#/definitions/contestableIssueAttributes" }
       },
       "additionalProperties": false,
