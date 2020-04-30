@@ -12,7 +12,7 @@ RSpec.describe 'prescriptions', type: :request do
 
   let(:va_patient) { true }
   let(:current_user) do
-    build(:user, :mhv, authn_context: LOA::IDME_LOA3_VETS, va_patient: va_patient, mhv_account_type: mhv_account_type)
+    build(:user, :mhv, authn_context: LOA::IDME_LOA3_VETS, va_patient: va_patient, mhv_account_type: mhv_account_type, sign_in: { service_name: 'idme' })
   end
 
   before do
