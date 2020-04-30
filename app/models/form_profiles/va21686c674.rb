@@ -28,8 +28,7 @@ class FormProfiles::VA21686c674 < FormProfile
     {
       version: 0,
       prefill: true,
-      # TODO: get correct returnUrl
-      returnUrl: '/veteran-information'
+      returnUrl: '/686-options-selection'
     }
   end
 
