@@ -29,15 +29,15 @@ module VeteranVerification
       raise Common::Exceptions::BackendServiceException.new(
         'BGS_RTNGSRVC502',
         source: self.class.to_s
-        )
+      )
     end
 
     def self.disability_ratings(response)
       DisabilityRating.new(
         id: 0,
         overall_disability_rating: response[:disability_rating_record][:service_connected_combined_degree],
-        ratings: ratings(response),
-        )
+        ratings: ratings(response)
+      )
     end
 
     def self.ratings(response)
