@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class Lighthouse::Facilities::FacilitySerializer < ActiveModel::Serializer
   type 'va_facilities'
 
@@ -7,9 +9,9 @@ class Lighthouse::Facilities::FacilitySerializer < ActiveModel::Serializer
         service = key_value['service'].downcase
         case service
         when /primarycare/
-          hash['primary_care'] = key_value.slice('new','established')      
+          hash['primary_care'] = key_value.slice('new', 'established')
         else
-          hash[service] = key_value.slice('new','established')              
+          hash[service] = key_value.slice('new', 'established')
         end
       end
       health['effective_date'] = object.access['effective_date']
@@ -34,7 +36,7 @@ class Lighthouse::Facilities::FacilitySerializer < ActiveModel::Serializer
   def services
     if object.services['health']
       {
-        'health': object.services['health'].collect {|x| {'sl1' => [x], 'sl2' => []} },
+        'health': object.services['health'].collect { |x| { 'sl1' => [x], 'sl2' => [] } },
         'last_updated': object.services['last_updated']
       }
     else

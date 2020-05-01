@@ -13,6 +13,7 @@ class V0::Facilities::VaController < FacilitiesController
   # @param services - Optional specialty services filter
   def index
     return provider_locator if params[:type] == 'cc_provider'
+
     facilities
   end
 
