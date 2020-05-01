@@ -35,7 +35,7 @@ module VAOS
         when StandardError
           [{
             severity: 'error',
-            code: 500,
+            code: '500',
             details: issue.message
           }]
         else

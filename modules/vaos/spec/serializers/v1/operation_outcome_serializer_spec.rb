@@ -16,5 +16,17 @@ describe VAOS::V1::OperationOutcomeSerializer do
         )
       end
     end
+
+    context 'with a resource of Organization and an unexpected error (vets-api 500)' do
+      let(:resource_type) { :Organization }
+      let(:issue) { NoMethodError.new("undefined method 'to_ary' for \"hello\":String") }
+      let(:operation_outcome) { VAOS::V1::OperationOutcome.new(resource_type, issue) }
+
+      it 'serializes the error in FHIR DSTU 2 format' do
+        expect(VAOS::V1::OperationOutcomeSerializer.new(operation_outcome).serialized_json).to eq(
+          read_fixture_file('operation_outcome_system_exception.json')
+        )
+      end
+    end
   end
 end
