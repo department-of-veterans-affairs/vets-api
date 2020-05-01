@@ -90,7 +90,7 @@ RSpec.describe 'VA Facilities Locator - Lighthouse', type: :request, team: :faci
       )
 
       expect do
-        get '/v0/facilities/va', params: {bbox: [-122.786758, 45.451913, -122.440689, 45.64]}
+        get '/v0/facilities/va', params: { bbox: [-122.786758, 45.451913, -122.440689, 45.64] }
       end.to instrument('lighthouse.facilities.request.faraday')
     end
 
