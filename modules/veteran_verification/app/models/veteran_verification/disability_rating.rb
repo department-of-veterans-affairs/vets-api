@@ -17,19 +17,7 @@ module VeteranVerification
 
     def self.for_user(user)
       response = rating_service.get_rating(user)
-      handle_errors!(response)
       disability_ratings(response)
-    end
-
-    def self.handle_errors!(response)
-      raise_error! unless response[:disability_rating_record][:ratings].is_a?(Array)
-    end
-
-    def self.raise_error!
-      raise Common::Exceptions::BackendServiceException.new(
-        'BGS_RTNGSRVC502',
-        source: self.class.to_s
-      )
     end
 
     def self.disability_ratings(response)
@@ -41,6 +29,10 @@ module VeteranVerification
     end
 
     def self.ratings(response)
+      unless response[:disability_rating_record][:ratings].class.eql? Array
+        ratings = [response[:disability_rating_record][:ratings]]
+        response[:disability_rating_record][:ratings] = ratings
+      end
       ratings = response[:disability_rating_record][:ratings].map do |rating|
         {
           decision: rating[:disability_decision_type_name],
