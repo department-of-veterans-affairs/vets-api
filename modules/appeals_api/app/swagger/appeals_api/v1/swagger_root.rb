@@ -31,10 +31,10 @@ module AppealsApi::V1::SwaggerRoot
     non_blank_string = { nonBlankString: { type: :string, pattern: '\\S' } }.as_json
 
     schemas = {
-      Uuid: { type: :string, pattern: '^[0-9a-fA-F]{8}(-[0-9a-fA-F]{4}){3}-[0-9a-fA-F]{12}$' },
-      TimeStamp: { type: :string, pattern: '\d{4}(-\d{2}){2}T\d{2}(:\d{2}){2}\.\d{3}Z' },
-      HlrStatus: { type: :string, enum: AppealsApi::HigherLevelReview.statuses.keys },
-      ErrorWithTitleAndDetail: {
+      uuid: { type: :string, pattern: '^[0-9a-fA-F]{8}(-[0-9a-fA-F]{4}){3}-[0-9a-fA-F]{12}$' },
+      timeStamp: { type: :string, pattern: '\d{4}(-\d{2}){2}T\d{2}(:\d{2}){2}\.\d{3}Z' },
+      hlrStatus: { type: :string, enum: AppealsApi::HigherLevelReview.statuses.keys },
+      errorWithTitleAndDetail: {
         type: :array,
         items: {
           type: :object,

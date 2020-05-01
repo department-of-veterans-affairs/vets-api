@@ -14,26 +14,17 @@
                 "items": {
                   "type": "object",
                   "properties": {
-                    "type": {
-                      "type": "string",
-                      "enum": [
-                        "malformed"
-                      ]
-                    },
+                    "type": { "type": "string", "enum": [ "malformed" ] },
                     "detail": {
                       "type": "string",
-                      "enum": [
-                        "The payload body isn't valid JSON:API format"
-                      ]
+                      "enum": [ "The payload body isn't valid JSON:API format" ]
                     },
                     "links": {
                       "type": "object",
                       "properties": {
                         "about": {
                           "type": "string",
-                          "enum": [
-                            "https://jsonapi.org/format/"
-                          ]
+                          "enum": [ "https://jsonapi.org/format/" ]
                         }
                       }
                     }
@@ -51,15 +42,9 @@
                 "items": {
                   "type": "object",
                   "properties": {
-                    "status": {
-                      "type": "integer"
-                    },
-                    "detail": {
-                      "type": "string"
-                    },
-                    "sources": {
-                      "type": "string"
-                    }
+                    "status": { "type": "integer" },
+                    "detail": { "type": "string" },
+                    "sources": { "type": "string" }
                   }
                 }
               }
@@ -74,9 +59,7 @@
               {
                 "type": "malformed",
                 "detail": "The payload body isn't valid JSON:API format",
-                "links": {
-                  "about": "https://jsonapi.org/format/"
-                }
+                "links": { "about": "https://jsonapi.org/format/" }
               }
             ]
           }

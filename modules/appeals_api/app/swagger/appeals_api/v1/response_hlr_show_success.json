@@ -5,9 +5,7 @@
       "schema": {
         "type": "object",
         "properties": {
-          "id": {
-            "$ref": "#/components/schemas/Uuid"
-          },
+          "id": { "$ref": "#/components/schemas/uuid" },
           "type": {
             "type": "string",
             "enum": [
@@ -17,46 +15,24 @@
           "attributes": {
             "type": "object",
             "properties": {
-              "status": {
-                "$ref": "#/components/schemas/HlrStatus"
-              },
-              "updated_at": {
-                "$ref": "#/components/schemas/TimeStamp"
-              },
-              "created_at": {
-                "$ref": "#/components/schemas/TimeStamp"
-              },
+              "status": { "$ref": "#/components/schemas/hlrStatus" },
+              "updated_at": { "$ref": "#/components/schemas/timeStamp" },
+              "created_at": { "$ref": "#/components/schemas/timeStamp" },
               "auth_headers": {
                 "type": "object",
                 "properties": {
-                  "X-VA-SSN": {
-                    "$ref": "#/components/schemas/HlrCreateParameterSsn"
-                  },
-                  "X-VA-First-Name": {
-                    "$ref": "#/components/schemas/HlrCreateParameterFirstName"
-                  },
-                  "X-VA-Middle-Initial": {
-                    "$ref": "#/components/schemas/HlrCreateParameterMiddleInitial"
-                  },
-                  "X-VA-Last-Name": {
-                    "$ref": "#/components/schemas/HlrCreateParameterLastName"
-                  },
-                  "X-VA-Birth-Date": {
-                    "$ref": "#/components/schemas/HlrCreateParameterBirthDate"
-                  },
-                  "X-VA-File-Number": {
-                    "$ref": "#/components/schemas/HlrCreateParameterFileNumber"
-                  },
-                  "X-VA-Service-Number": {
-                    "$ref": "#/components/schemas/HlrCreateParameterServiceNumber"
-                  },
-                  "X-VA-Insurance-Policy-Number": {
-                    "$ref": "#/components/schemas/HlrCreateParameterInsurancePolicyNumber"
-                  }
+                  "X-VA-SSN": { "$ref": "#/components/schemas/X-VA-SSN" },
+                  "X-VA-First-Name": { "$ref": "#/components/schemas/X-VA-First-Name" },
+                  "X-VA-Middle-Initial": { "$ref": "#/components/schemas/X-VA-Middle-Initial" },
+                  "X-VA-Last-Name": { "$ref": "#/components/schemas/X-VA-Last-Name" },
+                  "X-VA-Birth-Date": { "$ref": "#/components/schemas/X-VA-Birth-Date" },
+                  "X-VA-File-Number": { "$ref": "#/components/schemas/X-VA-File-Number" },
+                  "X-VA-Service-Number": { "$ref": "#/components/schemas/X-VA-Service-Number" },
+                  "X-VA-Insurance-Policy-Number": { "$ref": "#/components/schemas/X-VA-Insurance-Policy-Number" }
                 }
               },
               "form_data": {
-                "$ref": "#/components/schemas/HlrCreate"
+                "$ref": "#/components/schemas/hlrCreate"
               }
             }
           }
