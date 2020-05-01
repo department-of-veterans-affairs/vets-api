@@ -14,7 +14,7 @@ describe AppealsApi::HigherLevelReviewSerializer do
     expect(rendered_hash).to eq(
       {
         data: {
-          type: hlr.class.table_name,
+          type: hlr.class.table_name.singularize,
           id: hlr.id,
           attributes: {
             status: hlr.status,
