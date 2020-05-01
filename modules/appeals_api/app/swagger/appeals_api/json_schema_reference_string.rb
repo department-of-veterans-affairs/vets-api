@@ -1,34 +1,46 @@
 # frozen_string_literal: true
 
-require_relative './json_schema_definition_name.rb'
-
 module AppealsApi
   class JsonSchemaReferenceString
+    JSON_SCHEMA_DEF_PATH = '#/definitions'
+    JSON_SCHEMA_DEF_PATH_WITH_TRAILING_SLASH = "#{JSON_SCHEMA_DEF_PATH}/"
+    JSON_SCHEMA_DEF_PATH_WITH_TRAILING_SLASH_LENGTH = JSON_SCHEMA_DEF_PATH_WITH_TRAILING_SLASH.length
+
+    SWAGGER_DEF_PATH = '#/components/schemas'
+    SWAGGER_DEF_PATH_WITH_TRAILING_SLASH = "#{SWAGGER_DEF_PATH}/"
+
     def initialize(ref_string)
-      @ref_string = ref_string
+      @ref_string = ref_string.to_s
     end
 
     def to_swagger
-      "#/components/schemas/#{definition_name}"
+      raise ArgumentError, "Invalid ref_string: #{ref_string}" unless valid?
+
+      return "#{SWAGGER_DEF_PATH}/#{definition_name}" if definition_name
+
+      SWAGGER_DEF_PATH
     end
 
     def valid?
-      ref_string.is_a?(String) &&
-      (nodes.length == 2 || nodes.length == 3) &&
-        nodes.first == '#' &&
-        nodes.second == 'definitions'
+      json_schema_definition_path_exactly? ||
+        json_schema_definition_path_followed_by_a_string_without_slashes?
     end
 
     private
 
     attr_reader :ref_string
 
-    def definition_name
-      JsonSchemaDefinitionName.new(nodes.third).to_swagger
+    def json_schema_definition_path_exactly?
+      ref_string == JSON_SCHEMA_DEF_PATH
     end
 
-    def nodes
-      @nodes ||= ref_string.split('/')
+    def json_schema_definition_path_followed_by_a_string_without_slashes?
+      ref_string.start_with?(JSON_SCHEMA_DEF_PATH_WITH_TRAILING_SLASH) &&
+        definition_name.exclude?('/')
+    end
+
+    def definition_name
+      ref_string[JSON_SCHEMA_DEF_PATH_WITH_TRAILING_SLASH_LENGTH..]
     end
   end
 end
