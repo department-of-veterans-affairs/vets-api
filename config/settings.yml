@@ -358,6 +358,7 @@ claims_api:
 redis:
   host: localhost
   port: 6379
+  duplicate_to_secondary: true
 
 # Settings for GovDelivery (email delivery)
 govdelivery:
