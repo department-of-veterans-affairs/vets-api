@@ -606,7 +606,7 @@ components:
                 $ref: '#/components/schemas/Uuid'
               type:
                 type: string
-                enum: [HigherLevelReview]
+                enum: [appeals_api_higher_level_review]
               attributes:
                 type: object
                 properties:
@@ -616,25 +616,6 @@ components:
                     $ref: '#/components/schemas/TimeStamp'
                   created_at:
                     $ref: '#/components/schemas/TimeStamp'
-                  auth_headers:
-                    type: object
-                    properties:
-                      X-VA-SSN:
-                        $ref: '#/components/schemas/Ssn'
-                      X-VA-First-Name:
-                        $ref: '#/components/schemas/FirstName'
-                      X-VA-Middle-Initial:
-                        $ref: '#/components/schemas/MiddleInitial'
-                      X-VA-Last-Name:
-                        $ref: '#/components/schemas/LastName'
-                      X-VA-Birth-Date:
-                        $ref: '#/components/schemas/BirthDate'
-                      X-VA-File-Number:
-                        $ref: '#/components/schemas/FileNumber'
-                      X-VA-Service-Number:
-                        $ref: '#/components/schemas/ServiceNumber'
-                      X-VA-Insurance-Policy-Number:
-                        $ref: '#/components/schemas/InsurancePolicyNumber'
                   form_data:
                     $ref: '#/components/schemas/HlrCreate'
           examples:
@@ -729,15 +710,6 @@ components:
             status: processed
             updated_at: '2020-04-23T21:06:12.531Z'
             created_at: '2020-04-23T21:06:12.531Z'
-            auth_headers:
-              X-VA-SSN: 123456789
-              X-VA-First-Name: Jane
-              X-VA-Middle-Initial: Z
-              X-VA-Last-Name: Doe
-              X-VA-Birth-Date: '1969-12-31'
-              X-VA-File-Number: 987654321
-              X-VA-Service-Number: 876543210
-              X-VA-Insurance-Policy-Number: 987654321123456789
             form_data:
               data:
                 type: HigherLevelReview
