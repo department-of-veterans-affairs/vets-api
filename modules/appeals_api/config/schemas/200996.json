@@ -62,8 +62,7 @@
           "required": [
             "informalConference",
             "sameOffice",
-            "benefitType",
-            "veteran"
+            "benefitType"
           ]
         },
         {
@@ -82,7 +81,6 @@
             "informalConference",
             "sameOffice",
             "benefitType",
-            "veteran",
             "informalConferenceTimes"
           ]
         }
@@ -154,30 +152,9 @@
     },
 
 
-    "address": {
-      "type": "object",
-      "properties": {
-        "addressLine1":     { "$ref": "#/definitions/nonBlankStringMaxLength30" },
-        "addressLine2":     { "$ref": "#/definitions/nonBlankStringMaxLength5" },
-        "cityName":         { "$ref": "#/definitions/nonBlankStringMaxLength18" },
-        "stateCode":        { "$ref": "#/definitions/nonBlankStringMaxLength2" },
-        "countryCodeISO2":  { "type": "string", "pattern": "^[a-zA-Z]{2}$" },
-        "zipCode5":         { "type": "string", "pattern": "^[0-9]{5}$" },
-        "zipCode4":         { "type": "string", "pattern": "^[0-9]{4}$" }
-      },
-      "required": [
-        "addressLine1",
-        "cityName",
-        "stateCode",
-        "zipCode5"
-      ]
-    },
-
-
     "veteran": {
       "type": "object",
       "properties": {
-        "address":      { "$ref": "#/definitions/address" },
         "phone":        { "$ref": "#/definitions/phone" },
         "emailAddressText": {
           "type": "string",
@@ -186,8 +163,7 @@
           "$comment": "TODO: use draft 7 feature [format: idn-email] or [format: email] over pattern (when there is broader support)"
         }
       },
-      "additionalProperties": false,
-      "required": [ "address" ]
+      "additionalProperties": false
     },
 
 

@@ -7,6 +7,7 @@ module Vet360
 
       VALID_ALPHA_REGEX = /[a-zA-Z ]+/.freeze
       VALID_NUMERIC_REGEX = /[0-9]+/.freeze
+      ADDRESS_FIELD_LIMIT = 35
 
       RESIDENCE      = 'RESIDENCE/CHOICE'
       CORRESPONDENCE = 'CORRESPONDENCE'
@@ -51,12 +52,16 @@ module Vet360
       validates(:zip_code, length: { maximum: 5 })
 
       validates(
-        :address_line1,
-        :address_line2,
-        :address_line3,
         :city,
         :province,
         length: { maximum: 100 }
+      )
+
+      validates(
+        :address_line1,
+        :address_line2,
+        :address_line3,
+        length: { maximum: ADDRESS_FIELD_LIMIT }
       )
 
       validates(

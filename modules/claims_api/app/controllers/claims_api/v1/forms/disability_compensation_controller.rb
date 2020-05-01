@@ -19,6 +19,7 @@ module ClaimsApi
         before_action :validate_initial_claim, only: %i[submit_form_526 validate_form_526]
         before_action :validate_documents_content_type, only: %i[upload_supporting_documents]
         before_action :validate_documents_page_size, only: %i[upload_supporting_documents]
+        before_action :find_claim, only: %i[upload_supporting_documents]
         skip_before_action :validate_json_format, only: %i[upload_supporting_documents]
 
         def submit_form_526
@@ -36,15 +37,14 @@ module ClaimsApi
         end
 
         def upload_supporting_documents
-          claim = ClaimsApi::AutoEstablishedClaim.get_by_id_or_evss_id(params[:id])
           documents.each do |document|
-            claim_document = claim.supporting_documents.build
+            claim_document = @claim.supporting_documents.build
             claim_document.set_file_data!(document, params[:doc_type], params[:description])
             claim_document.save!
             ClaimsApi::ClaimUploader.perform_async(claim_document.id)
           end
 
-          render json: claim, serializer: ClaimsApi::ClaimDetailSerializer
+          render json: @claim, serializer: ClaimsApi::ClaimDetailSerializer
         end
 
         def validate_form_526
@@ -69,6 +69,17 @@ module ClaimsApi
               ]
             }
             render json: error, status: :unprocessable_entity
+          end
+        end
+
+        def find_claim
+          @claim = ClaimsApi::AutoEstablishedClaim.get_by_id_or_evss_id(params[:id])
+
+          unless @claim
+            render(
+              json: { errors: [{ status: 404, details: "Claim not found: #{params[:id]}" }] },
+              status: :not_found
+            )
           end
         end
       end
