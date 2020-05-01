@@ -20,10 +20,11 @@ module Lighthouse
         parsed_body = JSON.parse(body)
         self.data = parsed_body['data']
         self.meta = parsed_body['meta']
-
-        self.current_page = meta['pagination']['current_page']
-        self.per_page = meta['pagination']['per_page']
-        self.total_entries = meta['pagination']['total_entries']
+        if meta
+          self.current_page = meta['pagination']['current_page']
+          self.per_page = meta['pagination']['per_page']
+          self.total_entries = meta['pagination']['total_entries']
+        end
       end
 
       def facilities
