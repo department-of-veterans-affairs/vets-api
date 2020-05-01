@@ -112,6 +112,6 @@ class AppealsApi::V1::DecisionReview::HigherLevelReviewsController < AppealsApi:
   end
 
   def render_higher_level_review
-    render json: AppealsApi::HigherLevelReviewSerializer.new(@higher_level_review).serialized_json
+    render json: @higher_level_review, serializer: AppealsApi::HigherLevelReviewSerializer
   end
 end
