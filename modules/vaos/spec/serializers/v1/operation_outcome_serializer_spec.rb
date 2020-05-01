@@ -5,10 +5,12 @@ require_relative '../../support/fixture_helper'
 
 describe VAOS::V1::OperationOutcomeSerializer do
   describe 'json serialization' do
+    let(:resource_type) { :Organization }
+    let(:id) { '987654' }
+
     context 'with a resource of Organization and a backend service exception' do
-      let(:resource_type) { :Organization }
       let(:issue) { Common::Exceptions::BackendServiceException.new('VAOS_502', source: 'Klass') }
-      let(:operation_outcome) { VAOS::V1::OperationOutcome.new(resource_type, issue) }
+      let(:operation_outcome) { VAOS::V1::OperationOutcome.new(resource_type: resource_type, id: id, issue: issue) }
 
       it 'serializes the error in FHIR DSTU 2 format' do
         expect(VAOS::V1::OperationOutcomeSerializer.new(operation_outcome).serialized_json).to eq(
@@ -18,13 +20,28 @@ describe VAOS::V1::OperationOutcomeSerializer do
     end
 
     context 'with a resource of Organization and an unexpected error (vets-api 500)' do
-      let(:resource_type) { :Organization }
       let(:issue) { NoMethodError.new("undefined method 'to_ary' for \"hello\":String") }
-      let(:operation_outcome) { VAOS::V1::OperationOutcome.new(resource_type, issue) }
+      let(:operation_outcome) { VAOS::V1::OperationOutcome.new(resource_type: resource_type, id: id, issue: issue) }
 
       it 'serializes the error in FHIR DSTU 2 format' do
         expect(VAOS::V1::OperationOutcomeSerializer.new(operation_outcome).serialized_json).to eq(
           read_fixture_file('operation_outcome_system_exception.json')
+        )
+      end
+    end
+
+    context 'with an informational message' do
+      let(:issue) do
+        {
+          detail: 'Additional information may be found in the conformance doc'
+        }
+      end
+
+      let(:operation_outcome) { VAOS::V1::OperationOutcome.new(resource_type: resource_type, issue: issue) }
+
+      it 'serializes the error in FHIR DSTU 2 format' do
+        expect(VAOS::V1::OperationOutcomeSerializer.new(operation_outcome).serialized_json).to eq(
+          read_fixture_file('operation_outcome_information.json')
         )
       end
     end

@@ -9,9 +9,15 @@ module VAOS
       end
 
       def serializable_hash
+        issue = serialize_issue(@operation_outcome.issue)
         {
           resourceType: @operation_outcome.resource_type,
-          issue: serialize_issue(@operation_outcome.issue)
+          id: @operation_outcome.id,
+          text: {
+            status: 'generated',
+            div: "<div xmlns=\"http://www.w3.org/1999/xhtml\"><p>#{issue.first[:details]}</p></div>"
+          },
+          issue: issue
         }
       end
 
@@ -24,31 +30,44 @@ module VAOS
       def serialize_issue(issue)
         case issue
         when Common::Exceptions::BaseError
-          issue.errors.map do |error|
-            {
-              severity: 'error',
-              code: error.code,
-              details: error.detail,
-              diagnostics: error.source
-            }
-          end
+          serialize_base_error(issue)
         when StandardError
-          [{
-            severity: 'error',
-            code: '500',
-            details: issue.message
-          }]
+          serialize_standard_error(issue)
         else
-          [
-            {
-              severity: 'information',
-              code: 'suppressed',
-              details: issue
-            }
-          ]
+          # it's unlikely we'll use informational outcomes (not an ok response nor an error)
+          # but it's part of the FHIR spec to allow it
+          serialize_information(issue)
         end
+      end
+
+      def serialize_base_error(issue)
+        issue.errors.map do |error|
+          {
+            severity: 'error',
+            code: error.code,
+            details: error.detail,
+            diagnostics: error.source
+          }
+        end
+      end
+
+      def serialize_standard_error(issue)
+        [{
+          severity: 'error',
+          code: '500',
+          details: issue.message
+        }]
+      end
+
+      def serialize_information(issue)
+        [
+          {
+            severity: 'information',
+            code: 'suppressed',
+            details: issue[:detail]
+          }
+        ]
       end
     end
   end
 end
-
