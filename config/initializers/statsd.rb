@@ -136,3 +136,8 @@ ActiveSupport::Notifications.subscribe('facilities.ppms.request.faraday') do |_,
                 end
   StatsD.measure(measurement, duration, tags: ['facilities.ppms']) if measurement
 end
+ActiveSupport::Notifications.subscribe('lighthouse.facilities.request.faraday') do |_, start_time, end_time, _, payload|
+  duration = end_time - start_time
+
+  StatsD.measure('facilities.lighthouse', duration, tags: ['facilities.lighthouse'])
+end

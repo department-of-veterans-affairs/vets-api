@@ -78,6 +78,22 @@ RSpec.describe 'VA Facilities Locator - Lighthouse', type: :request, team: :faci
       expect(response).to have_http_status(:bad_request)
     end
 
+    it "sends a 'lighthouse.facilities.request.faraday' notification to any subscribers listening" do
+      allow(StatsD).to receive(:measure)
+
+      expect(StatsD).to receive(:measure).with(
+        'facilities.lighthouse',
+        kind_of(Numeric),
+        hash_including(
+          tags: ['facilities.lighthouse']
+        )
+      )
+
+      expect do
+        get '/v0/facilities/va', params: {bbox: [-122.786758, 45.451913, -122.440689, 45.64]}
+      end.to instrument('lighthouse.facilities.request.faraday')
+    end
+
     it_behaves_like 'paginated request from params with expected IDs',
                     {
                       bbox: [-122.786758, 45.451913, -122.440689, 45.64]
@@ -133,7 +149,7 @@ RSpec.describe 'VA Facilities Locator - Lighthouse', type: :request, team: :faci
 
     it { expect(response).to be_successful }
 
-    it {
+    it do
       expect(subject).to match(
         {
           data: {
@@ -252,6 +268,6 @@ RSpec.describe 'VA Facilities Locator - Lighthouse', type: :request, team: :faci
           }
         }
       )
-    }
+    end
   end
 end
