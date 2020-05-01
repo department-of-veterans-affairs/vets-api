@@ -1,9 +1,0 @@
-{
-  "definitions": {
-    "nonBlankString": { "pattern": "\\S" },
-    "dataAttributes": {
-      "description": "If informal conference requested (`informalConference: true`), availability must be specified (`informalConferenceTimes`). Explanation of abbreviated benefit types: `pension`: Pension / Survivor's Benefits, `voc_rehab`: Vocational Rehabilitation and Employment, `vha`: Veterans Health Administration, `nca`: National Cemetery Administration"
-    },
-    "informalConferenceTime": { "description": "time ranges in Eastern Time" }
-  }
-}
