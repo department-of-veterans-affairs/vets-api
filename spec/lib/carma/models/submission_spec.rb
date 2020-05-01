@@ -287,27 +287,6 @@ RSpec.describe CARMA::Models::Submission, type: :model do
         expect(submission.submitted_at).to eq(nil)
         expect(submission.submitted?).to eq(false)
 
-        expected_req_payload = {
-          'data' => submission.data,
-          'metadata' => {
-            # Note the camelCased property keys
-            'claimId' => nil,
-            'veteran' => {
-              'icn' => 'VET1234',
-              'isVeteran' => true
-            },
-            'primaryCaregiver' => {
-              'icn' => 'PC1234'
-            },
-            'secondaryCaregiverOne' => {
-              'icn' => 'SCO1234'
-            },
-            'secondaryCaregiverTwo' => {
-              'icn' => 'SCT1234'
-            }
-          }
-        }
-
         expected_res_body = {
           'data' => {
             'carmacase' => {
@@ -317,11 +296,9 @@ RSpec.describe CARMA::Models::Submission, type: :model do
           }
         }
 
-        expect_any_instance_of(CARMA::Client::Client).to receive(:create_submission_stub)
-          .with(expected_req_payload)
-          .and_return(expected_res_body)
-
-        submission.submit!
+        VCR.use_cassette 'carma/submissions/create/201' do
+          submission.submit!
+        end
 
         expect(submission.carma_case_id).to eq(expected_res_body['data']['carmacase']['id'])
         expect(submission.submitted_at).to eq(expected_res_body['data']['carmacase']['createdAt'])

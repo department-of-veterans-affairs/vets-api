@@ -306,7 +306,7 @@ emis:
     soap_namespaces:
       xmlns:v11: http://viers.va.gov/cdi/eMIS/RequestResponse/VetStatus/v1
 
-appeals:
+caseflow:
   mock: true
   app_token: PUBLICDEMO123
   host: https://dsva-appeals-certification-dev-1895622301.us-gov-west-1.elb.amazonaws.com
@@ -448,6 +448,7 @@ flipper:
   admin_user_emails:
     - alastair@adhocteam.us
     - anna@adhoc.team
+    - dan.hinze@adhocteam.us
     - eric.buckley@adhocteam.us
     - erik@adhocteam.us
     - jbalboni@gmail.com
