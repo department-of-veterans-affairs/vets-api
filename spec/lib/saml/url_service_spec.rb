@@ -320,6 +320,16 @@ RSpec.describe SAML::URLService do
               .to be_an_idme_saml_url('https://api.idmelabs.com/saml/SingleSignOnService?SAMLRequest=')
               .with_relay_state('originating_request_id' => '123', 'type' => 'verify')
           end
+
+          it 'has sign in url: with (ssoe inbound authn_context)' do
+            allow(user).to receive(:authn_context).and_return('urn:oasis:names:tc:SAML:2.0:ac:classes:Password')
+            allow(user.identity).to receive(:sign_in).and_return({ service_name: 'dslogon' })
+            expect_any_instance_of(OneLogin::RubySaml::Settings)
+              .to receive(:authn_context=).with('dslogon_loa3')
+            expect(subject.verify_url)
+              .to be_an_idme_saml_url('https://api.idmelabs.com/saml/SingleSignOnService?SAMLRequest=')
+              .with_relay_state('originating_request_id' => '123', 'type' => 'verify')
+          end
         end
 
         context 'mfa_url' do
@@ -363,6 +373,16 @@ RSpec.describe SAML::URLService do
             allow(user).to receive(:authn_context).and_return('dslogon_loa3')
             expect_any_instance_of(OneLogin::RubySaml::Settings)
               .to receive(:authn_context=).with('dslogon_multifactor')
+            expect(subject.mfa_url)
+              .to be_an_idme_saml_url('https://api.idmelabs.com/saml/SingleSignOnService?SAMLRequest=')
+              .with_relay_state('originating_request_id' => '123', 'type' => 'mfa')
+          end
+
+          it 'has mfa url: with (ssoe inbound authn_context)' do
+            allow(user).to receive(:authn_context).and_return('urn:oasis:names:tc:SAML:2.0:ac:classes:Password')
+            allow(user.identity).to receive(:sign_in).and_return({ service_name: 'myhealthevet' })
+            expect_any_instance_of(OneLogin::RubySaml::Settings)
+              .to receive(:authn_context=).with('myhealthevet_multifactor')
             expect(subject.mfa_url)
               .to be_an_idme_saml_url('https://api.idmelabs.com/saml/SingleSignOnService?SAMLRequest=')
               .with_relay_state('originating_request_id' => '123', 'type' => 'mfa')

@@ -17,7 +17,7 @@ RSpec.describe 'vaos community care eligibility', type: :request do
       let(:current_user) { build(:user, :loa1) }
 
       it 'does not have access' do
-        get "/v0/vaos/community_care/eligibility/#{service_type}"
+        get "/vaos/v0/community_care/eligibility/#{service_type}"
         expect(response).to have_http_status(:forbidden)
         expect(JSON.parse(response.body)['errors'].first['detail'])
           .to eq('You do not have access to online scheduling')
@@ -30,7 +30,7 @@ RSpec.describe 'vaos community care eligibility', type: :request do
       context 'with flipper disabled' do
         it 'does not have access' do
           Flipper.disable('va_online_scheduling')
-          get "/v0/vaos/community_care/eligibility/#{service_type}"
+          get "/vaos/v0/community_care/eligibility/#{service_type}"
           expect(response).to have_http_status(:forbidden)
           expect(JSON.parse(response.body)['errors'].first['detail'])
             .to eq('You do not have access to online scheduling')
@@ -39,7 +39,7 @@ RSpec.describe 'vaos community care eligibility', type: :request do
 
       it 'has access and returns eligibility true', :skip_mvi do
         VCR.use_cassette('vaos/cc_eligibility/get_eligibility_true', match_requests_on: %i[method uri]) do
-          get "/v0/vaos/community_care/eligibility/#{service_type}"
+          get "/vaos/v0/community_care/eligibility/#{service_type}"
 
           expect(response).to have_http_status(:success)
           expect(response.body).to be_a(String)
@@ -52,7 +52,7 @@ RSpec.describe 'vaos community care eligibility', type: :request do
 
         it 'returns a validation error', :skip_mvi do
           VCR.use_cassette('vaos/cc_eligibility/get_eligibility_400', match_requests_on: %i[method uri]) do
-            get "/v0/vaos/community_care/eligibility/#{service_type}"
+            get "/vaos/v0/community_care/eligibility/#{service_type}"
 
             expect(response).to have_http_status(:bad_request)
             expect(response.body).to be_a(String)
