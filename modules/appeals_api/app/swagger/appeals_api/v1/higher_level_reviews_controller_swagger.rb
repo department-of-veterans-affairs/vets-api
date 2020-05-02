@@ -1,3 +1,4 @@
+# coding: utf-8
 # frozen_string_literal: true
 
 module AppealsApi
@@ -76,7 +77,7 @@ module AppealsApi
             key :in, 'path'
             key :required, true
             key :description, 'Higher-Level Review UUID'
-            schema { key :'$ref', :Uuid }
+            schema { key :'$ref', :uuid }
           end
           key :responses, { '200': response_hlr_show_success, '404': response_hlr_show_not_found }
         end
