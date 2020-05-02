@@ -51,25 +51,22 @@ paths:
                 $ref: '#/components/examples/HlrCreateMinimumFieldsUsed'
       responses:
         '200':
-          description: Success
-          content:
-            application/vnd.api+json:
-              schema:
-                type: object
-                properties:
-                  data:
-                    type: object
-                    properties:
-                      success:
-                        type: boolean
-                        enum: [true]
-              examples:
-                success:
-                  value:
-                    data:
-                      success: true
+          $ref: '#/components/responses/HlrShow'
         '422':
           $ref: '#/components/responses/HlrCreate422'
+  /higher_level_reviews/{uuid}:
+    get:
+      tags:
+        - Higher-Level Reviews
+      parameters:
+        - $ref: '#/components/parameters/Uuid'
+      summary: Show a Higher-Level Review
+      description: Returns all of the data associated with a specific Higher-Level Review
+      responses:
+        '200':
+          $ref: '#/components/responses/HlrShow'
+        '404':
+          $ref: '#/components/responses/HlrNotFound'
   /higher_level_reviews/schema:
     get:
       tags:
@@ -296,59 +293,63 @@ components:
       required: true
       description: veteran's SSN
       schema:
-        type: string
-        pattern: '^\d{9}$'
+        $ref: '#/components/schemas/Ssn'
     FirstName:
       name: X-VA-First-Name
       in: header
       required: true
       description: veteran's first name
-      schema:         # if vet only has 1 legal name,
-        type: string  # first-name can be whitespace and last-name can hold name
-        maxLength: 12
+      schema:
+        $ref: '#/components/schemas/FirstName'
     MiddleInitial:
       name: X-VA-Middle-Initial
       in: header
       required: false
       description: veteran's middle initial
       schema:
-        $ref: '#/components/schemas/NonBlankStringMaxLength1'
+        $ref: '#/components/schemas/MiddleInitial'
     LastName:
       name: X-VA-Last-Name
       in: header
       required: true
       description: veteran's last name
       schema:
-        $ref: '#/components/schemas/NonBlankStringMaxLength18'
+        $ref: '#/components/schemas/LastName'
     BirthDate:
       name: X-VA-Birth-Date
       in: header
       required: true
       description: veteran's birth date
       schema:
-        type: string
-        format: date
+        $ref: '#/components/schemas/BirthDate'
     FileNumber:
       name: X-VA-File-Number
       in: header
       required: false
       description: veteran's file number
       schema:
-        $ref: '#/components/schemas/NonBlankStringMaxLength9'
+        $ref: '#/components/schemas/FileNumber'
     ServiceNumber:
       name: X-VA-Service-Number
       in: header
       required: false
       description: veteran's service number
       schema:
-        $ref: '#/components/schemas/NonBlankStringMaxLength9'
+        $ref: '#/components/schemas/ServiceNumber'
     InsurancePolicyNumber:
       name: X-VA-Insurance-Policy-Number
       in: header
       required: false
       description: veteran's insurance policy number
       schema:
-        $ref: '#/components/schemas/NonBlankStringMaxLength18'
+        $ref: '#/components/schemas/InsurancePolicyNumber'
+    Uuid:
+      name: uuid
+      in: path
+      required: true
+      description: Higher-Level Review UUID
+      schema:
+        $ref: '#/components/schemas/Uuid'
   schemas:
     ErrorWithTitleAndDetail:
       type: array
@@ -565,7 +566,81 @@ components:
       required:
         - issue
         - decisionDate
+    Ssn:
+      type: string
+      pattern: '^\d{9}$'
+    FirstName:
+      type: string  # if vet only has 1 legal name,
+      maxLength: 12 # first-name can be whitespace and last-name can hold name
+    MiddleInitial:
+      $ref: '#/components/schemas/NonBlankStringMaxLength1'
+    LastName:
+      $ref: '#/components/schemas/NonBlankStringMaxLength18'
+    BirthDate:
+      type: string
+      format: date
+    FileNumber:
+      $ref: '#/components/schemas/NonBlankStringMaxLength9'
+    ServiceNumber:
+      $ref: '#/components/schemas/NonBlankStringMaxLength9'
+    InsurancePolicyNumber:
+      $ref: '#/components/schemas/NonBlankStringMaxLength18'
+    Uuid:
+      type : string
+      pattern: '^[0-9a-fA-F]{8}(-[0-9a-fA-F]{4}){3}-[0-9a-fA-F]{12}$'
+    TimeStamp:
+      type: string
+      pattern: '\d{4}(-\d{2}){2}T\d{2}(:\d{2}){2}\.\d{3}Z'
+    HlrStatus:
+      type: string
+      enum: [pending, processing, submitted, established, errored]
   responses:
+    HlrShow:
+      description: Info about a single Higher-Level Review
+      content:
+        application/vnd.api+json:
+          schema:
+            type: object
+            properties:
+              id:
+                $ref: '#/components/schemas/Uuid'
+              type:
+                type: string
+                enum: [appeals_api_higher_level_review]
+              attributes:
+                type: object
+                properties:
+                  status:
+                    $ref: '#/components/schemas/HlrStatus'
+                  updated_at:
+                    $ref: '#/components/schemas/TimeStamp'
+                  created_at:
+                    $ref: '#/components/schemas/TimeStamp'
+                  form_data:
+                    $ref: '#/components/schemas/HlrCreate'
+          examples:
+            HlrFound:
+              $ref: '#/components/examples/HlrShow'
+    HlrNotFound:
+      description: Higher-Level Review not found
+      content:
+        application/vnd.api+json:
+          schema:
+            type: object
+            properties:
+              errors:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    status:
+                      type: integer
+                      enum: [404]
+                    detail:
+                      type: string
+          examples:
+            HlrNotFound:
+              $ref: '#/components/examples/HlrNotFound'
     HlrCreate422:
       description: Error
       content:
@@ -626,6 +701,75 @@ components:
                 ]
               }
   examples:
+    HlrShow:
+      value:
+        data:
+          id: 1234567a-89b0-123c-d456-789e01234f56
+          type: HigherLevelReview
+          attributes:
+            status: processed
+            updated_at: '2020-04-23T21:06:12.531Z'
+            created_at: '2020-04-23T21:06:12.531Z'
+            form_data:
+              data:
+                type: HigherLevelReview
+                attributes:
+                  informalConference: true
+                  sameOffice: true
+                  benefitType: nca
+                  veteran:
+                    phone:
+                      countryCode: '34'
+                      areaCode: '555'
+                      phoneNumber: '8001111'
+                      phoneNumberExt: '2'
+                    emailAddressText: josie@example.com
+                  informalConferenceTimes:
+                    - 1230-1400 ET
+                    - 1400-1630 ET
+                  informalConferenceRep:
+                    name: Helen Holly
+                    phone:
+                      countryCode: '6'
+                      areaCode: '555'
+                      phoneNumber: '8001111'
+                      phoneNumberExt: '2'
+              included:
+                - type: ContestableIssue
+                  attributes:
+                    issue: tinnitus
+                    decisionDate: '1900-01-01'
+                    decisionIssueId: 1
+                    ratingIssueId: '2'
+                    ratingDecisionIssueId: '3'
+                - type: ContestableIssue
+                  attributes:
+                    issue: left knee
+                    decisionDate: '1900-01-02'
+                    decisionIssueId: 4
+                    ratingIssueId: '5'
+                - type: ContestableIssue
+                  attributes:
+                    issue: right knee
+                    decisionDate: '1900-01-03'
+                    ratingIssueId: '6'
+                    ratingDecisionIssueId: '7'
+                - type: ContestableIssue
+                  attributes:
+                    issue: PTSD
+                    decisionDate: '1900-01-04'
+                    decisionIssueId: 8
+                    ratingDecisionIssueId: '9'
+                - type: ContestableIssue
+                  attributes:
+                    issue: Traumatic Brain Injury
+                    decisionDate: '1900-01-05'
+                    decisionIssueId: 10
+                - type: ContestableIssue
+                  attributes:
+                    issue: right shoulder
+                    decisionDate: '1900-01-06'
+                    ratingIssueId: '11'
     HlrCreateAllFieldsUsed:
       value:
         {
@@ -736,6 +880,15 @@ components:
             "links": {
               "about": "https://jsonapi.org/format/"
             }
+          }
+        ]
+      }
+    HlrNotFound:
+      value: {
+        "errors": [
+          {
+            "status": 404,
+            "detail": "HigherLevelReview with uuid nil not found."
           }
         ]
       }
