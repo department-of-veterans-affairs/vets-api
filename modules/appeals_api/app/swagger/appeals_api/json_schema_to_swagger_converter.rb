@@ -122,24 +122,17 @@ module AppealsApi
 
     def to_swagger
       {
-        requestBody: {
-          required: true,
-          content: {
-            'application/json': {
-              schema: {
-                '$ref': JsonSchemaReferenceString.new(json_schema['$ref']).to_swagger
-              }
-            }
-          }
-        },
-        components: {
-          schemas: self.class.fix_refs_and_remove_comments(json_schema['definitions'])
-        }
+        requestBody: { required: true, content: { 'application/json': { schema: top_swagger_ref } } },
+        components: { schemas: self.class.fix_refs_and_remove_comments(json_schema['definitions']) }
       }.as_json
     end
 
     private
 
     attr_reader :json_schema
+
+    def top_swagger_ref
+      { '$ref': JsonSchemaReferenceString.new(json_schema['$ref']).to_swagger }
+    end
   end
 end

@@ -2,12 +2,11 @@
 
 module AppealsApi
   class JsonSchemaReferenceString
-    JSON_SCHEMA_DEF_PATH = '#/definitions'
-    JSON_SCHEMA_DEF_PATH_WITH_TRAILING_SLASH = "#{JSON_SCHEMA_DEF_PATH}/"
-    JSON_SCHEMA_DEF_PATH_WITH_TRAILING_SLASH_LENGTH = JSON_SCHEMA_DEF_PATH_WITH_TRAILING_SLASH.length
+    JSON_SCHEMA_DEF_PATH_WITH_TRAILING_SLASH_LENGTH = (
+      JSON_SCHEMA_DEF_PATH_WITH_TRAILING_SLASH = (JSON_SCHEMA_DEF_PATH = '#/definitions') + '/'
+    ).length
 
     SWAGGER_DEF_PATH = '#/components/schemas'
-    SWAGGER_DEF_PATH_WITH_TRAILING_SLASH = "#{SWAGGER_DEF_PATH}/"
 
     def initialize(ref_string)
       @ref_string = ref_string.to_s
