@@ -72,7 +72,7 @@ class AppealsApi::V1::HigherLevelReviewsControllerSwagger
       key :tags, HLR_TAG
       key :parameters, hlr_create_parameters
       key :requestBody, hlr_create_request_body
-      key :responses, { '200': response_hlr_show_success, '422': response_hlr_create_error }
+      key :responses, '200': response_hlr_show_success, '422': response_hlr_create_error
     end
   end
 
@@ -84,7 +84,7 @@ class AppealsApi::V1::HigherLevelReviewsControllerSwagger
       parameter name: 'uuid', 'in': 'path', required: true, description: 'Higher-Level Review UUID' do
         schema { key :'$ref', :uuid }
       end
-      key :responses, { '200': response_hlr_show_success, '404': response_hlr_show_not_found }
+      key :responses, '200': response_hlr_show_success, '404': response_hlr_show_not_found
     end
   end
 
@@ -97,7 +97,7 @@ class AppealsApi::V1::HigherLevelReviewsControllerSwagger
       response '200' do
         key :description, 'the JSON Schema for POST /higher_level_reviews'
         examples = { default: { value: hlr_create_json_schema_unparsed } }
-        key :content, { 'application/json': { examples: examples } }
+        key :content, 'application/json': { examples: examples }
       end
     end
   end
@@ -116,7 +116,7 @@ class AppealsApi::V1::HigherLevelReviewsControllerSwagger
       example = { data: { type: :appeals_api_higher_level_review_validation, attributes: { status: :valid } } }
       schema = { type: OBJ, properties: { data: { type: OBJ, properties: { type: type, attributes: attrs } } } }
       content = { 'application/json': { schema: schema, examples: { valid: { value: { data: example } } } } }
-      key :responses, { '200': { description: 'Valid', content: content }, '422': response_hlr_create_error }
+      key :responses, '200': { description: 'Valid', content: content }, '422': response_hlr_create_error
     end
   end
 end
