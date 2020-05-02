@@ -3,20 +3,15 @@
 module AppealsApi::V1::SwaggerRoot
   include Swagger::Blocks
 
-  swagger_root do
-    read_json_schema = lambda do |filename|
-      JSON.parse(File.read(AppealsApi::Engine.root.join('config', 'schemas', filename)))
-    end
+  read_file = ->(path) { File.read(AppealsApi::Engine.root.join(*path)) }
+  read_file_from_same_dir = ->(filename) { read_file.call(['app', 'swagger', 'appeals_api', 'v1', filename]) }
+  read_json_schema = ->(filename) { JSON.parse read_file[['config', 'schemas', filename]] }
 
-    key :openapi, '3.0.0'
-    info do
-      key :version, '1.0.0'
-      key :title, 'Decision Reviews'
-      key :description, AppealsApi::Engine.root.join('app', 'swagger', 'appeals_api', 'v1', 'api_description.md')
-    end
-    server do
+  swagger_root openapi: '3.0.0' do
+    info title: 'Decision Reviews', version: '1.0.0', description: read_file_from_same_dir['api_description.md']
+
+    server description: 'VA.gov API sandbox environment' do
       key :url, 'https://sandbox-api.va.gov/services/appeals/{version}/decision_review'
-      key :description, 'VA.gov API sandbox environment'
       variable(:version) { key :default, 'v1' }
     end
 
@@ -36,13 +31,7 @@ module AppealsApi::V1::SwaggerRoot
       hlrStatus: { type: :string, enum: AppealsApi::HigherLevelReview.statuses.keys },
       errorWithTitleAndDetail: {
         type: :array,
-        items: {
-          type: :object,
-          properties: {
-            title: { type: :string },
-            detail: { type: :string }
-          }
-        }
+        items: { type: :object, properties: { title: { type: :string }, detail: { type: :string } } }
       }
     }.merge(hlr_create_header_schemas).merge(hlr_create_schemas).merge(non_blank_string)
 
