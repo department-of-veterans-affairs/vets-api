@@ -1,11 +1,9 @@
-{
-  "description": "Error",
+{"description": "Error",
   "content": {
     "application/vnd.api+json": {
       "schema": {
         "oneOf": [
-          {
-            "type": "object",
+          {"type": "object",
             "properties": {
               "errors": {
                 "type": "array",
@@ -15,26 +13,14 @@
                   "type": "object",
                   "properties": {
                     "type": { "type": "string", "enum": [ "malformed" ] },
-                    "detail": {
-                      "type": "string",
-                      "enum": [ "The payload body isn't valid JSON:API format" ]
-                    },
+                    "detail": { "type": "string", "enum": [ "The payload body isn't valid JSON:API format" ] },
                     "links": {
                       "type": "object",
                       "properties": {
                         "about": {
                           "type": "string",
-                          "enum": [ "https://jsonapi.org/format/" ]
-                        }
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          },
-          {
-            "type": "object",
+                          "enum": [ "https://jsonapi.org/format/" ]}}}}}}}},
+          {"type": "object",
             "properties": {
               "errors": {
                 "type": "array",
@@ -44,43 +30,20 @@
                   "properties": {
                     "status": { "type": "integer" },
                     "detail": { "type": "string" },
-                    "sources": { "type": "string" }
-                  }
-                }
-              }
-            }
-          }
-        ]
-      },
+                    "sources": { "type": "string" }}}}}}]},
       "examples": {
         "payloadIsNotJson": {
           "value": {
             "errors": [
-              {
-                "type": "malformed",
+              {"type": "malformed",
                 "detail": "The payload body isn't valid JSON:API format",
-                "links": { "about": "https://jsonapi.org/format/" }
-              }
-            ]
-          }
-        },
+                "links": { "about": "https://jsonapi.org/format/" }}]}},
         "violatesJsonSchema": {
           "value": {
             "errors": [
-              {
-                "status": 422,
+              {"status": 422,
                 "detail": "The property /data/attributes did not contain the required key benefitType",
-                "sources": "/data/included"
-              },
-              {
-                "status": 422,
+                "sources": "/data/included"},
+              {"status": 422,
                 "detail": "The property /data/attributes/veteran did not match the following requirements ...",
-                "sources": "/data/attributes/veteran"
-              }
-            ]
-          }
-        }
-      }
-    }
-  }
-}
+                "sources": "/data/attributes/veteran"}]}}}}}}

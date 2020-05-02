@@ -1,5 +1,4 @@
-{
-  "description": "Higher-Level Review not found",
+{"description": "Higher-Level Review not found",
   "content": {
     "application/json": {
       "schema": {
@@ -11,24 +10,8 @@
               "type": "object",
               "properties": {
                 "status": { "type": "integer", "enum": [ 404 ] },
-                "detail": { "type": "string" }
-              }
-            }
-          }
-        }
-      },
+                "detail": { "type": "string" }}}}}},
       "examples": {
         "HlrNotFound": {
           "value": {
-            "errors": [
-              {
-                "status": 404,
-                "detail": "HigherLevelReview with uuid nil not found."
-              }
-            ]
-          }
-        }
-      }
-    }
-  }
-}
+            "errors": [ { "status": 404, "detail": "HigherLevelReview with uuid nil not found." } ]}}}}}}

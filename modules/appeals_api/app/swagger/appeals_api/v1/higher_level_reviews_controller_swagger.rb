@@ -10,9 +10,35 @@ class AppealsApi::V1::HigherLevelReviewsControllerSwagger
   read_json = ->(path) { JSON.parse(read_file.call(path)) }
   read_json_from_same_dir = ->(filename) { read_json.call(['app', 'swagger', 'appeals_api', 'v1', filename]) }
 
-  response_hlr_show_success = read_json_from_same_dir['response_hlr_show_success.json']
   response_hlr_show_not_found = read_json_from_same_dir['response_hlr_show_not_found.json']
   response_hlr_create_error = read_json_from_same_dir['response_hlr_create_error.json']
+
+  example_all_fields_used = read_json[['spec', 'fixtures', 'valid_200996.json']]
+
+  response_hlr_show_success = lambda do
+    properties = {
+      status: { '$ref': '#/components/schemas/hlrStatus' },
+      updated_at: { '$ref': '#/components/schemas/timeStamp' },
+      created_at: { '$ref': '#/components/schemas/timeStamp' },
+      form_data: { '$ref': '#/components/schemas/hlrCreate' }
+    }
+    schema = {
+      type: OBJ,
+      properties: {
+        id: { '$ref': '#/components/schemas/uuid' },
+        type: { type: :string, enum: [:appeals_api_higher_level_reviews] },
+        attributes: { type: OBJ, properties: properties }
+      }
+    }
+    time = '2020-04-23T21:06:12.531Z'
+    attrs = { status: :processed, updated_at: time, created_at: time, form_data: example_all_fields_used }
+    example = { data: { id: '1234567a-89b0-123c-d456-789e01234f56', type: :HigherLevelReview, attributes: attrs } }
+
+    {
+      description: 'Info about a single Higher-Level Review',
+      content: { 'application/json': { schema: schema, examples: { 'HlrFound': { value: example } } } }
+    }
+  end.call
 
   headers_json_schema = read_json[['config', 'schemas', '200996_headers.json']]
   headers_swagger = AppealsApi::JsonSchemaToSwaggerConverter.new(headers_json_schema).to_swagger
@@ -33,7 +59,7 @@ class AppealsApi::V1::HigherLevelReviewsControllerSwagger
     JSON.parse(hlr_create_json_schema_unparsed)
   ).to_swagger['requestBody']
   hlr_create_request_body['content']['application/json']['examples'] = {
-    'all fields used': { value: read_json[['spec', 'fixtures', 'valid_200996.json']] },
+    'all fields used': { value: example_all_fields_used },
     'minimum fields used': { value: read_json[['spec', 'fixtures', 'valid_200996_minimum.json']] }
   }
 
