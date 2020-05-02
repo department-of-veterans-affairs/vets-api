@@ -34,7 +34,7 @@ module AppealsApi
             key :in, 'header'
             key :required, true
             key :description, 'veteran\'s ssn'
-            schema { key :'$ref', :HlrCreateParameterSsn }
+            schema { key :'$ref', 'X-VA-SSN' }
           end
           parameter do
             key :name, 'X-VA-Receipt-Date'
