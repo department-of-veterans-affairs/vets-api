@@ -1,6 +1,6 @@
 development: &defaults
   redis:
-    url: <%= Settings.redis_app_data.url %>
+    url: <%= Settings.redis.app_data.url %>
   # DO NOT CHANGE BELOW TTL (We have agreement with MHV on this for SSO)
   session_store:
     namespace: vets-api-session
