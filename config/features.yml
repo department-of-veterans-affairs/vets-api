@@ -90,6 +90,10 @@ features:
     actor_type: user
     description: >
       Allows veterans to access form526 as an original claims user. Owned by va-benefits-memorial-1 team.
+  va_view_dependents_access:
+    actor_type: user
+    description: >
+      Allows us to gate the View/ Modify dependents content in a progressive rollout
   ssoe_ebenefits_links:
     actor_type: user
     description: >
