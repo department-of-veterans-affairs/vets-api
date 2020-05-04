@@ -19,3 +19,6 @@ unless Rails.env.production?
     t.verbose = false
   end
 end
+
+require 'pact/tasks'
+task :default => 'pact:verify'

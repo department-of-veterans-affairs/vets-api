@@ -14,14 +14,14 @@ Pact.service_provider 'VA.gov API' do
   # This example points to a local file, however, on a real project with a continuous
   # integration box, you would use a [Pact Broker](https://github.com/pact-foundation/pact_broker) or publish your pacts as artifacts,
   # and point the pact_uri to the pact published by the last successful build.
-  # honours_pact_with 'VA.gov' do
-  #   pact_uri 'tmp/va.gov-va.gov_api.json'
-  # end
+  honours_pact_with 'HCA Post' do
+    pact_uri 'tmp/hca-va.gov_api.json'
+  end
 
   app_version provider_version
   publish_verification_results true
 
-  honours_pacts_from_pact_broker do
-    pact_broker_base_url 'http://host.docker.internal:9292'
-  end
+  # honours_pacts_from_pact_broker do
+  #   pact_broker_base_url 'http://host.docker.internal:9292'
+  # end
 end
