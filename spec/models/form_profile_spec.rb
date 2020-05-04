@@ -372,6 +372,27 @@ RSpec.describe FormProfile, type: :model do
     }
   end
 
+  let(:v22_10203_expected) do
+    {
+      'veteranAddress' => {
+        'street' => street_check[:street],
+        'street2' => street_check[:street2],
+        'city' => user.va_profile[:address][:city],
+        'state' => user.va_profile[:address][:state],
+        'country' => user.va_profile[:address][:country],
+        'postal_code' => user.va_profile[:address][:postal_code][0..4]
+      },
+      'veteranFullName' => {
+        'first' => user.first_name&.capitalize,
+        'last' => user.last_name&.capitalize,
+        'suffix' => user.va_profile[:suffix]
+      },
+      'homePhone' => us_phone,
+      'veteranSocialSecurityNumber' => user.ssn,
+      'email' => user.pciu_email
+    }
+  end
+
   let(:v22_5490_expected) do
     {
       'toursOfDuty' => [
@@ -466,6 +487,7 @@ RSpec.describe FormProfile, type: :model do
         'country' => 'USA',
         'postalCode' => '77550'
       },
+      'ssnLastFour' => user.ssn.last(4),
       'gender' => user.gender,
       'email' => user.pciu_email,
       'dateOfBirth' => user.birth_date,
@@ -479,7 +501,8 @@ RSpec.describe FormProfile, type: :model do
           'lastOrderDate' => '2020-01-01',
           'nextAvailabilityDate' => '2020-09-01',
           'quantity' => 60,
-          'size' => ''
+          'size' => '',
+          'prescribedDate' => '2019-12-25'
         },
         {
           'deviceName' => '',
@@ -726,7 +749,6 @@ RSpec.describe FormProfile, type: :model do
 
         schema_data = prefilled_data.deep_dup
 
-        schema_data.except!('verified', 'serviceBranches') if schema_form_id == 'VIC'
         errors = JSON::Validator.fully_validate(
           schema,
           schema_data.deep_transform_keys { |key| key.camelize(:lower) },
@@ -874,7 +896,6 @@ RSpec.describe FormProfile, type: :model do
         end
 
         %w[
-          VIC
           22-1990
           22-1990N
           22-1990E
@@ -886,6 +907,7 @@ RSpec.describe FormProfile, type: :model do
           1010ez
           22-0993
           FEEDBACK-TOOL
+          22-10203
         ].each do |form_id|
           it "returns prefilled #{form_id}" do
             expect_prefilled(form_id)

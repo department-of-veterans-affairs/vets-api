@@ -64,6 +64,10 @@ class FormIdentityInformation
   def hyphenated_ssn
     StringHelpers.hyphenated_ssn(ssn)
   end
+
+  def ssn_last_four
+    ssn.last(4)
+  end
 end
 
 class FormContactInformation
@@ -86,11 +90,10 @@ class FormProfile
 
   ALL_FORMS = {
     edu: %w[22-1990 22-1990N 22-1990E 22-1995 22-1995S 22-5490
-            22-5495 22-0993 22-0994 FEEDBACK-TOOL],
+            22-5495 22-0993 22-0994 FEEDBACK-TOOL 22-10203],
     evss: ['21-526EZ'],
     hca: ['1010ez'],
     pension_burial: %w[21P-530 21P-527EZ],
-    vic: ['VIC'],
     decision_review: ['20-0996'],
     mdot: ['MDOT']
   }.freeze
@@ -108,13 +111,13 @@ class FormProfile
     '22-5495' => ::FormProfiles::VA5495,
     '21P-530' => ::FormProfiles::VA21p530,
     '21-686C' => ::FormProfiles::VA21686c,
-    'VIC' => ::FormProfiles::VIC,
     '40-10007' => ::FormProfiles::VA4010007,
     '21P-527EZ' => ::FormProfiles::VA21p527ez,
     '22-0993' => ::FormProfiles::VA0993,
     '22-0994' => ::FormProfiles::VA0994,
     'FEEDBACK-TOOL' => ::FormProfiles::FeedbackTool,
-    'MDOT' => ::FormProfiles::MDOT
+    'MDOT' => ::FormProfiles::MDOT,
+    '22-10203' => ::FormProfiles::VA10203
   }.freeze
 
   APT_REGEX = /\S\s+((apt|apartment|unit|ste|suite).+)/i.freeze

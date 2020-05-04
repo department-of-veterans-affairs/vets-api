@@ -70,7 +70,7 @@ Rails.application.routes.draw do
     resource :hca_attachments, only: :create
 
     # Excluding this feature until external service (CARMA) is connected
-    resources :caregivers_assistance_claims, only: :create if Rails.env.test?
+    resources :caregivers_assistance_claims, only: :create unless Rails.env.production?
 
     resources :dependents_applications, only: %i[create show] do
       collection do
@@ -182,6 +182,10 @@ Rails.application.routes.draw do
       resource :announcement_subscription, only: [:create], controller: 'id_card_announcement_subscription'
     end
 
+    namespace :mdot do
+      resources :supplies, only: %i[create]
+    end
+
     namespace :preneeds do
       resources :cemeteries, only: :index, defaults: { format: :json }
       resources :states, only: :index, defaults: { format: :json }
@@ -196,24 +200,16 @@ Rails.application.routes.draw do
     namespace :vic do
       resources :profile_photo_attachments, only: %i[create show]
       resources :supporting_documentation_attachments, only: :create
-      resources :vic_submissions, only: %i[create show]
     end
 
     resources :gi_bill_feedbacks, only: %i[create show]
 
     resource :address, only: %i[show update] do
       collection do
-        if Settings.evss&.reference_data_service&.enabled
-          get 'countries', to: 'addresses#rds_countries'
-          get 'states', to: 'addresses#rds_states'
-        else
-          get 'countries', to: 'addresses#countries'
-          get 'states', to: 'addresses#states'
-        end
+        get 'countries', to: 'addresses#countries'
+        get 'states', to: 'addresses#states'
       end
     end
-
-    resources :performance_monitorings, only: :create
 
     namespace :profile do
       resource :alternate_phone, only: %i[show create]
@@ -289,6 +285,10 @@ Rails.application.routes.draw do
         defaults: { feature: feature }
       )
     end
+
+    namespace :coronavirus_chatbot do
+      resource :tokens, only: :create
+    end
   end
 
   namespace :v1, defaults: { format: 'json' } do
@@ -315,7 +315,36 @@ Rails.application.routes.draw do
     mount VeteranConfirmation::Engine, at: '/veteran_confirmation'
   end
 
-  mount VAOS::Engine, at: '/v0/vaos'
+  mount VAOS::Engine, at: '/vaos'
+
+  # TEMPORARILY SUPPORT THE BELOW REWRITE RULES
+  # rubocop:disable Layout/LineLength
+  get '/v0/vaos/appointments', to: 'vaos/v0/appointments#index', defaults: { format: :json }
+  post '/v0/vaos/appointments', to: 'vaos/v0/appointments#create', defaults: { format: :json }
+  put '/v0/vaos/appointments/cancel', to: 'vaos/v0/appointments#cancel', defaults: { format: :json }
+  get '/v0/vaos/appointment_requests', to: 'vaos/v0/appointment_requests#index', defaults: { format: :json }
+  put '/v0/vaos/appointment_requests/:id', to: 'vaos/v0/appointment_requests#update', defaults: { format: :json }
+  patch '/v0/vaos/appointment_requests/:id', to: 'vaos/v0/appointment_requests#update', defaults: { format: :json }
+  post '/v0/vaos/appointment_requests', to: 'vaos/v0/appointment_requests#create', defaults: { format: :json }
+  get '/v0/vaos/appointment_requests/:appointment_request_id/messages', to: 'vaos/v0/messages#index', defaults: { format: :json }
+  post '/v0/vaos/appointment_requests/:appointment_request_id/messages', to: 'vaos/v0/messages#create', defaults: { format: :json }
+  get '/v0/vaos/community_care/eligibility/:service_type', to: 'vaos/v0/cc_eligibility#show', defaults: { format: :json }
+  get '/v0/vaos/community_care/supported_sites', to: 'vaos/v0/cc_supported_sites#index', defaults: { format: :json }
+  get '/v0/vaos/systems', to: 'vaos/v0/systems#index', defaults: { format: :json }
+  get '/v0/vaos/systems/:system_id/direct_scheduling_facilities', to: 'vaos/v0/direct_scheduling_facilities#index', defaults: { format: :json }
+  get '/v0/vaos/systems/:system_id/pact', to: 'vaos/v0/pact#index', defaults: { format: :json }
+  get '/v0/vaos/systems/:system_id/clinic_institutions', to: 'vaos/v0/clinic_institutions#index', defaults: { format: :json }
+  get '/v0/vaos/facilities', to: 'vaos/v0/facilities#index', defaults: { format: :json }
+  get '/v0/vaos/facilities/:facility_id/clinics', to: 'vaos/v0/clinics#index', defaults: { format: :json }
+  get '/v0/vaos/facilities/:facility_id/cancel_reasons', to: 'vaos/v0/cancel_reasons#index', defaults: { format: :json }
+  get '/v0/vaos/facilities/:facility_id/available_appointments', to: 'vaos/v0/available_appointments#index', defaults: { format: :json }
+  get '/v0/vaos/facilities/:facility_id/limits', to: 'vaos/v0/limits#index', defaults: { format: :json }
+  get '/v0/vaos/facilities/:facility_id/visits/:schedule_type', to: 'vaos/v0/visits#index', defaults: { format: :json }
+  get '/v0/vaos/preferences', to: 'vaos/v0/preferences#show', defaults: { format: :json }
+  put '/v0/vaos/preferences', to: 'vaos/v0/preferences#update', defaults: { format: :json }
+  patch '/v0/vaos/preferences', to: 'vaos/v0/preferences#update', defaults: { format: :json }
+  # rubocop:enable Layout/LineLength
+  # TEMPORARILY SUPPORT THE ABOVE REWRITE RULES
 
   if Rails.env.development? || Settings.sidekiq_admin_panel
     require 'sidekiq/web'

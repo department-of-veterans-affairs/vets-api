@@ -5,7 +5,7 @@ require 'rails_helper'
 describe AppealsApi::V1::DecisionReview::ContestableIssuesController, type: :request do
   describe '#index' do
     it 'GETs contestable_issues from Caseflow successfully' do
-      VCR.use_cassette('appeals/contestable_issues') do
+      VCR.use_cassette('caseflow/contestable_issues') do
         get(
           '/services/appeals/v1/decision_review/contestable_issues',
           headers: {
