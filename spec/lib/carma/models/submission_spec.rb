@@ -293,12 +293,6 @@ RSpec.describe CARMA::Models::Submission, type: :model do
         expect(Flipper).to receive(:enabled?).with(:stub_carma_responses).and_return(false)
         expect_any_instance_of(CARMA::Client::Client).not_to receive(:create_submission_stub)
 
-        expect_any_instance_of(CARMA::Client::Client).to receive(
-          :create_submission
-        ).and_return(
-          expected_carma_body
-        )
-
         expect(submission.carma_case_id).to eq(nil)
         expect(submission.submitted_at).to eq(nil)
         expect(submission.submitted?).to eq(false)
