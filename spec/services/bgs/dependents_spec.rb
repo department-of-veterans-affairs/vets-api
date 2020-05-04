@@ -8,196 +8,66 @@ RSpec.describe BGS::Dependents do
   let(:proc_id) { '3828033' }
   let(:participant_id) { '146189' }
   let(:payload) do
-    {
-      'children_to_add' => [
-        {
-          'does_child_live_with_you' => false,
-          'child_address_info' => {
-            'person_child_lives_with' => {
-              'first' => 'Bill',
-              'middle' => 'Oliver',
-              'last' => 'Bradsky'
-            },
-            'child_address' => {
-              'country_name' => 'United States',
-              'address_line1' => '1019 Robin Cir',
-              'address_line2' => 'NA',
-              'address_line3' => 'NA',
-              'city' => 'Arroyo Grande',
-              'state_code' => 'CA',
-              'zip_code' => '93420'
-            }
-          },
-          'child_place_of_birth' => {
-            'state' => 'California',
-            'city' => 'Slawson'
-          },
-          'child_status' => {
-            'biological' => true
-          },
-          'view:childStatusInformation' => {},
-          'child_previously_married' => 'Yes',
-          'child_previous_marriage_details' => {
-            'date_marriage_ended' => '2018-03-04',
-            'reason_marriage_ended' => 'Other',
-            'other_reason_marriage_ended' => 'Some other reason'
-          },
-          'first' => 'John',
-          'middle' => 'oliver',
-          'last' => 'Hamm',
-          'suffix' => 'Sr.',
-          'ssn' => '370947142',
-          'birth_date' => '2009-03-03'
-        }
-      ],
-      'deaths' => [
-        {
-          'deceased_date_of_death' => '2011-02-03',
-          'deceased_location_of_death' => {
-            'state' => 'California',
-            'city' => 'Aomplea'
-          },
-          'full_name' => {
-            'first' => 'John',
-            'middle' => 'Henry',
-            'last' => 'Doe',
-            'suffix' => 'Sr.'
-          },
-          'dependent_type' => 'CHILD',
-          'child_status' => {
-            'child_under18' => true
-          }
-        },
-        {
-          'deceased_date_of_death' => '2012-03-03',
-          'deceased_location_of_death' => {
-            'state' => 'California',
-            'city' => 'Clawson'
-          },
-          'full_name' => {
-            'first' => 'Sally',
-            'middle' => 'Bertram',
-            'last' => 'Struthers',
-            'suffix' => 'Jr.'
-          },
-          'dependent_type' => 'SPOUSE'
-        },
-        {
-          'deceased_date_of_death' => '2009-03-04',
-          'deceased_location_of_death' => {
-            'state' => 'Michigan',
-            'city' => 'Ann Arbor'
-          },
-          'full_name' => {
-            'first' => 'Rob',
-            'middle' => 'Bertram',
-            'last' => 'Stark',
-            'suffix' => 'II'
-          },
-          'dependent_type' => 'DEPENDENT_PARENT'
-        }
-      ],
-      'spouse_information' => {
-        'spouse_full_name' => {
-          'first' => 'Jenny',
-          'middle' => 'Lauren',
-          'last' => 'McCarthy',
-          'suffix' => 'Sr.'
-        },
-        'spouse_ssn' => '323454323',
-        'spouse_dob' => '1981-04-04',
-        'is_spouse_veteran' => true,
-        'spouse_va_file_number' => '00000000',
-        'spouse_service_number' => '11111111'
-      },
-      'current_spouse_address' => {
-        'country_name' => 'United States',
-        'address_line1' => '2037 29th St',
-        'city' => 'Rock Island',
-        'state_code' => 'IL',
-        'zip_code' => '61201'
-      },
-      'current_marriage_details' => {
-        'date_of_marriage' => '2014-03-04',
-        'location_of_marriage' => {
-          'state' => 'California',
-          'city' => 'Slawson'
-        },
-        'marriage_type' => 'OTHER',
-        'marriage_type_other' => 'Some Other type',
-        'view:marriageTypeInformation' => {}
-      },
-      'report_divorce' => {
-        'former_spouse_name' => {
-          'first' => 'Ron',
-          'middle' => 'Walter',
-          'last' => 'Swanson'
-        },
-        'date_of_divorce' => '2001-02-03',
-        'location_of_divorce' => {
-          'state' => 'Michigan (MI)',
-          'city' => 'Clawson'
-        },
-        'is_marriage_annulled_or_void' => true,
-        'explanation_of_annullment_or_void' => 'Some stuff about the marriage being declared void.'
-      }
-    }
-  end
-  let(:person_address_phone_object) do
-    ValueObjects::VnpPersonAddressPhone.new(
-      vnp_proc_id: proc_id,
-      vnp_participant_id: participant_id,
-      first_name: 'Veteran first name',
-      middle_name: 'Veteran middle name',
-      last_name: 'Veteran last name',
-      vnp_participant_address_id: '113372',
-      participant_relationship_type_name: 'Spouse',
-      family_relationship_type_name: 'Spouse',
-      suffix_name: 'Jr',
-      birth_date: '08/08/1988',
-      birth_state_code: 'FL',
-      birth_city_name: 'Tampa',
-      file_number: '2345678',
-      ssn_number: '112347',
-      phone_number: '5555555555',
-      address_line_one: '123 Mainstreet',
-      address_line_two: '',
-      address_line_three: '',
-      address_state_code: 'FL',
-      address_country: 'USA',
-      address_city: 'Tampa',
-      address_zip_code: '22145',
-      email_address: 'foo@foo.com',
-      death_date: nil,
-      begin_date: nil,
-      end_date: nil,
-      event_date: nil,
-      ever_married_indicator: 'N',
-      marriage_state: '',
-      marriage_city: 'Tampa',
-      divorce_state: nil,
-      divorce_city: nil,
-      marriage_termination_type_code: nil,
-      benefit_claim_type_end_product: '681',
-    )
+    root = Rails.root.to_s
+    f = File.read("#{root}/spec/services/bgs/support/final_payload.rb")
+    JSON.parse(f)
   end
 
   describe '#create' do
     context 'adding children' do
-      it 'returns an array of VnpPersonAddressPhone objects' do
+      it 'returns an object for biological child that does not live with veteran' do
         VCR.use_cassette('bgs/dependents/create') do
           dependents = BGS::Dependents.new(
             proc_id: proc_id,
             payload: payload,
-            veteran: person_address_phone_object,
             user: user
           ).create
 
           expect(dependents).to include(
                                   an_object_having_attributes(
+                                    first_name: 'John',
+                                    middle_name: 'oliver',
+                                    last_name: 'Hamm',
+                                    birth_city_name: 'Slawson',
+                                    birth_state_code: 'CA',
+                                    birth_date: DateTime.new(2009, 3, 3, 0, 0, 0, '-0600'),
+                                    ssn_number: '370947142',
                                     participant_relationship_type_name: "Child",
-                                    address_line_one: "1019 Robin Cir",
+                                    address_line_one: "1100 Robin Cir",
+                                    address_city: 'Los Angelas',
+                                    address_state_code: 'CA',
+                                    address_zip_code: '90210',
                                     family_relationship_type_name: 'Biological'
+                                  )
+                                )
+        end
+      end
+
+      it 'returns an object for adopted child that does live with veteran' do
+        veteran_address_info = payload['dependents_application']['veteran_contact_information']['veteran_address']
+        VCR.use_cassette('bgs/dependents/create') do
+          dependents = BGS::Dependents.new(
+            proc_id: proc_id,
+            payload: payload,
+            user: user
+          ).create
+
+          expect(dependents).to include(
+                                  an_object_having_attributes(
+                                    first_name: 'Adopted first name',
+                                    middle_name: 'adopted middle name',
+                                    last_name: 'adopted last name',
+                                    birth_city_name: 'Slawson',
+                                    birth_state_code: 'CA',
+                                    birth_date: DateTime.new(2010, 3, 3, 0, 0, 0, '-0600'),
+                                    ssn_number: '370947143',
+                                    participant_relationship_type_name: "Child",
+                                    address_country: veteran_address_info['country_name'],
+                                    address_line_one: veteran_address_info['address_line1'],
+                                    address_state_code: veteran_address_info['state_code'],
+                                    address_city: veteran_address_info['city'],
+                                    address_zip_code: veteran_address_info['zip_code'],
+                                    family_relationship_type_name: 'Adopted Child'
                                   )
                                 )
         end
@@ -205,18 +75,17 @@ RSpec.describe BGS::Dependents do
     end
 
     context 'reporting a death' do
-      it 'returns an array of VnpPersonAddressPhone objects' do
+      it 'returns an object with a death date' do
         VCR.use_cassette('bgs/dependents/create') do
           dependents = BGS::Dependents.new(
             proc_id: proc_id,
             payload: payload,
-            veteran: person_address_phone_object,
             user: user
           ).create
 
           expect(dependents).to include(
                                   an_object_having_attributes(
-                                    death_date: DateTime.new(2011,2,3,0,0,0, '-0600'),
+                                    death_date: DateTime.new(2011, 2, 3, 0, 0, 0, '-0600'),
                                   )
                                 )
         end
@@ -224,49 +93,179 @@ RSpec.describe BGS::Dependents do
     end
 
     context 'adding a spouse' do
-      it 'returns an array of VnpPersonAddressPhone objects' do
-        VCR.use_cassette('bgs/dependents/create') do
+      it 'returns object for spouse who lives with veteran' do
+        payload['spouse_does_live_with_veteran'] = true
+
+        VCR.use_cassette('bgs/dependents/create/spouse/lives_with_veteran') do
           dependents = BGS::Dependents.new(
             proc_id: proc_id,
             payload: payload,
-            veteran: person_address_phone_object,
             user: user
           ).create
 
           expect(dependents).to include(
                                   an_object_having_attributes(
-                                    marriage_state: 'California',
-                                    marriage_city: 'Slawson'
+                                    first_name: 'Jenny',
+                                    middle_name: 'Lauren',
+                                    last_name: 'McCarthy',
+                                    suffix_name: 'Sr.',
+                                    marriage_state: 'CA',
+                                    marriage_city: 'Slawson',
+                                    birth_date: DateTime.new(1981, 4, 4, 0, 0, 0, '-0600'),
+                                    ssn_number: '323454323',
+                                    participant_relationship_type_name: 'Spouse',
+                                    family_relationship_type_name: 'Spouse',
+                                    address_country: payload['dependents_application']['veteran_contact_information']['veteran_address']['country_name'],
+                                    address_line_one: payload['dependents_application']['veteran_contact_information']['veteran_address']['address_line1'],
+                                    address_state_code: payload['dependents_application']['veteran_contact_information']['veteran_address']['state_code'],
+                                    address_city: payload['dependents_application']['veteran_contact_information']['veteran_address']['city'],
+                                    address_zip_code: payload['dependents_application']['veteran_contact_information']['veteran_address']['zip_code']
                                   )
                                 )
         end
       end
-    end
 
-    context 'reporting a divorce' do
-      it 'returns an array of VnpPersonAddressPhone objects' do
+      it 'returns object for spouse who has different address (separated)' do
         VCR.use_cassette('bgs/dependents/create') do
           dependents = BGS::Dependents.new(
             proc_id: proc_id,
             payload: payload,
-            veteran: person_address_phone_object,
+            user: user
+          ).create
+
+          expect(dependents).to include(
+                                  an_object_having_attributes(
+                                    first_name: 'Jenny',
+                                    middle_name: 'Lauren',
+                                    last_name: 'McCarthy',
+                                    suffix_name: 'Sr.',
+                                    marriage_state: 'CA',
+                                    marriage_city: 'Slawson',
+                                    birth_date: DateTime.new(1981, 4, 4, 0, 0, 0, '-0600'),
+                                    ssn_number: '323454323',
+                                    address_country: 'USA',
+                                    participant_relationship_type_name: 'Spouse',
+                                    family_relationship_type_name: 'Estranged Spouse',
+                                    address_state_code: 'IL',
+                                    address_city: 'Rock Island',
+                                    address_line_one: '2037 29th St',
+                                    address_zip_code: '61201'
+                                  )
+                                )
+        end
+      end
+
+      it 'marks spouse as veteran' do
+        VCR.use_cassette('bgs/dependents/create/spouse/is_veteran') do
+          payload['add_child'] = false
+          payload['report_death'] = false
+          payload['report_divorce'] = false
+          payload['report_stepchild_not_in_household'] = false
+          payload['report_marriage_of_child_under18'] = false
+          payload['report_child18_or_older_is_not_attending_school'] = false
+          spouse_vet_hash = {'first' => 'Jenny', 'middle' => 'Lauren', 'last' => 'McCarthy', 'suffix' => 'Sr.', 'ssn' => '323454323', 'birth_date' => '1981-04-04', 'ever_maried_ind' => 'Y', "vet_ind" => "Y", "va_file_number" => "00000000", "service_number" => "11111111"}
+
+          expect_any_instance_of(BGS::Base).to receive(:create_person)
+                                                 .with(proc_id, '146952', spouse_vet_hash)
+                                                 .and_call_original
+
+          BGS::Dependents.new(
+            proc_id: proc_id,
+            payload: payload,
+            user: user
+          ).create
+        end
+      end
+    end
+
+    xcontext 'reporting a divorce' do
+      it 'returns an object with divorce data' do
+        VCR.use_cassette('bgs/dependents/create') do
+          dependents = BGS::Dependents.new(
+            proc_id: proc_id,
+            payload: payload,
             user: user
           ).create
 
           # ToDo this expectation will change when we get the new data keys from the FE
           expect(dependents).to include(
                                   an_object_having_attributes(
-                                    divorce_state: "Michigan (MI)",
-                                    divorce_city: "Clawson",
-                                    marriage_termination_type_code: "Some stuff about the marriage being declared void."
+                                    divorce_state: 'MI',
+                                    divorce_city: 'Clawson',
+                                    marriage_termination_type_code: "Divorce"
                                   )
                                 )
         end
       end
     end
 
-    context 'report marriage of a child under 18'
-    context 'report step-child is no longer part of household'
-    context 'report child has stopped attending school'
+    context 'reporting stepchild no longer part of household' do
+      it 'returns an object that represents a stepchild getting half of their expenses paid' do
+        VCR.use_cassette('bgs/dependents/create') do
+          dependents = BGS::Dependents.new(
+            proc_id: proc_id,
+            payload: payload,
+            user: user
+          ).create
+
+          expect(dependents).to include(
+                                  an_object_having_attributes(
+                                    address_line_one: '412 Crooks Road',
+                                    address_state_code: 'AL',
+                                    address_city: 'Clawson',
+                                    participant_relationship_type_name: 'Child',
+                                    family_relationship_type_name: 'Stepchild',
+                                    living_expenses_paid_amount: 'Half'
+                                  )
+                                )
+        end
+      end
+    end
+
+    context 'report marriage of a child under 18' do
+      it 'returns an object that represents a married child under 18' do
+        VCR.use_cassette('bgs/dependents/create') do
+          dependents = BGS::Dependents.new(
+            proc_id: proc_id,
+            payload: payload,
+            user: user
+          ).create
+
+          expect(dependents).to include(
+                                  an_object_having_attributes(
+                                    first_name: 'James',
+                                    middle_name: 'Quandry',
+                                    last_name: 'Beanstalk',
+                                    participant_relationship_type_name: 'Child',
+                                    family_relationship_type_name: 'Other',
+                                    event_date: '1977-02-01'
+                                  )
+                                )
+        end
+      end
+    end
+
+    context 'report child 18 or older has stopped attending school' do
+      it 'returns an object that represents a married child under 18' do
+        VCR.use_cassette('bgs/dependents/create') do
+          dependents = BGS::Dependents.new(
+            proc_id: proc_id,
+            payload: payload,
+            user: user
+          ).create
+
+          expect(dependents).to include(
+                                  an_object_having_attributes(
+                                    first_name: 'Billy',
+                                    middle_name: 'Yohan',
+                                    last_name: 'Johnson',
+                                    participant_relationship_type_name: 'Child',
+                                    family_relationship_type_name: 'Other',
+                                    event_date: '2019-03-03'
+                                  )
+                                )
+        end
+      end
+    end
   end
 end

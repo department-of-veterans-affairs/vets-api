@@ -42,6 +42,7 @@ RSpec.describe BGS::VnpRelationships do
       divorce_city: nil,
       marriage_termination_type_code: nil,
       benefit_claim_type_end_product: '681',
+      living_expenses_paid_amount: nil
     )
   end
 
@@ -62,7 +63,8 @@ RSpec.describe BGS::VnpRelationships do
                             marriage_city: nil,
                             divorce_state: nil,
                             divorce_city: nil,
-                            marriage_termination_type_code: nil
+                            marriage_termination_type_code: nil,
+                            living_expenses_paid_amount: nil
                           )
 
           dependent_array = [child]
@@ -87,7 +89,8 @@ RSpec.describe BGS::VnpRelationships do
                               marriage_city: nil,
                               divorce_state: 'FL',
                               divorce_city: 'Tampa',
-                              marriage_termination_type_code: 'Divorce'
+                              marriage_termination_type_code: 'Divorce',
+                              living_expenses_paid_amount: nil
                             )
 
           dependent_array = [divorce]
@@ -120,7 +123,8 @@ RSpec.describe BGS::VnpRelationships do
                             marriage_city: nil,
                             divorce_state: nil,
                             divorce_city: nil,
-                            marriage_termination_type_code: 'Death'
+                            marriage_termination_type_code: 'Death',
+                            living_expenses_paid_amount: nil
                           )
 
           dependent_array = [death]
@@ -149,7 +153,8 @@ RSpec.describe BGS::VnpRelationships do
                              marriage_city: 'Tampa',
                              divorce_state: nil,
                              divorce_city: nil,
-                             marriage_termination_type_code: nil
+                             marriage_termination_type_code: nil,
+                             living_expenses_paid_amount: nil
                            )
 
           dependent_array = [spouse]
