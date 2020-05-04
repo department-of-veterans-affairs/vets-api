@@ -16,7 +16,6 @@ module VeteranVerification
           response,
           each_serializer: VeteranVerification::DisabilityRatingSerializer
         )
-
         respond_to do |format|
           format.json { render json: serialized.to_json }
           format.jwt { render body: NOTARY.sign(serialized.serializable_hash) }

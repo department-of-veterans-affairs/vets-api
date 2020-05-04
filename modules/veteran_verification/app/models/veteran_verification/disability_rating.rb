@@ -29,7 +29,7 @@ module VeteranVerification
     end
 
     def self.ratings(response)
-      unless response[:disability_rating_record][:ratings].class.eql? Array
+      if response[:disability_rating_record][:ratings].class.eql? Hash
         ratings = [response[:disability_rating_record][:ratings]]
         response[:disability_rating_record][:ratings] = ratings
       end
