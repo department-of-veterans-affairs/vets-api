@@ -37,7 +37,7 @@ RSpec.describe Form1010cg::Service do
       :find_profile_by_attributes_only
     ).and_return(mvi_lookup_1, mvi_lookup_2)
 
-    submission = subject.submit_claim!(user, claim_data)
+    submission = subject.submit_claim!(claim_data)
 
     expect(submission).to be_an_instance_of(Form1010cg::Submission)
     expect(submission.carma_case_id).to eq(expected[:carma_case_id])
