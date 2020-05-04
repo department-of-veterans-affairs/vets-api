@@ -23,7 +23,7 @@ module V0
     end
 
     def service_unavailable
-      render status: :service_unavailable
+      render nothing: true, status: :service_unavailable, as: :json
     end
   end
 end

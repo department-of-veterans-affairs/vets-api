@@ -59,6 +59,7 @@ RSpec.describe V0::CaregiversAssistanceClaimsController, type: :controller do
           post :create, params: { caregivers_assistance_claim: { form: '{ "my": "data" }' } }
 
           expect(response).to have_http_status(:service_unavailable)
+          expect(response.body).to eq(' ')
         end
       end
 
