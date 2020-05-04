@@ -26,7 +26,7 @@ describe VeteranVerification::DisabilityRating do
       end
     end
 
-    it 'returns overall rating and one rating' do
+    it 'record has no ratings' do
       VCR.use_cassette('bgs/rating_web_service/rating_data_no_ratings') do
         result = described_class.for_user(user)
         expect(result[:overall_disability_rating]).to eq('100')
