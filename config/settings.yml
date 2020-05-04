@@ -353,7 +353,7 @@ claims_api:
   disability_claims_mock_override: false
   schema_dir: config/schemas
 
-redis_url: 'redis://localhost:6378'
+redis_url: 'redis://localhost:6379'
 
 # Settings for GovDelivery (email delivery)
 govdelivery:
