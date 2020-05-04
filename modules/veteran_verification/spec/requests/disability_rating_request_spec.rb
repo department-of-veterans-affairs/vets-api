@@ -45,33 +45,33 @@ RSpec.describe 'Disability Rating API endpoint', type: :request do
   end
 
   context 'with request for a jws' do
-  it 'returns a jwt with the claims in the payload' do
-    with_okta_configured do
-      VCR.use_cassette('bgs/rating_web_service/rating_data') do
-        get '/services/veteran_verification/v0/disability_rating', params: nil, headers: {
-          'Authorization' => "Bearer #{token}",
-          'Accept' => 'application/jwt'
-        }
+    it 'returns a jwt with the claims in the payload' do
+      with_okta_configured do
+        VCR.use_cassette('bgs/rating_web_service/rating_data') do
+          get '/services/veteran_verification/v0/disability_rating', params: nil, headers: {
+            'Authorization' => "Bearer #{token}",
+            'Accept' => 'application/jwt'
+          }
 
-        expect(response).to have_http_status(:ok)
-        expect(response.body).to be_a(String)
+          expect(response).to have_http_status(:ok)
+          expect(response.body).to be_a(String)
 
-        key_file = File.read("#{VeteranVerification::Engine.root}/spec/fixtures/verification_test.pem")
-        rsa_public = OpenSSL::PKey::RSA.new(key_file)
+          key_file = File.read("#{VeteranVerification::Engine.root}/spec/fixtures/verification_test.pem")
+          rsa_public = OpenSSL::PKey::RSA.new(key_file)
 
-        # JWT is mocked above because it is used by the implementation code.
-        # Unfortunately, we also want to use the same module to verify the
-        # response coming back in the tests, so we reset the mock here.
-        # Otherwise, it just returns the fake JWT hash.
-        RSpec::Mocks.space.proxy_for(JWT).reset
+          # JWT is mocked above because it is used by the implementation code.
+          # Unfortunately, we also want to use the same module to verify the
+          # response coming back in the tests, so we reset the mock here.
+          # Otherwise, it just returns the fake JWT hash.
+          RSpec::Mocks.space.proxy_for(JWT).reset
 
-        claims = JWT.decode(response.body, rsa_public, true, algorithm: 'RS256').first
+          claims = JWT.decode(response.body, rsa_public, true, algorithm: 'RS256').first
 
-        expect(claims['data']['type']).to eq('disability_ratings')
+          expect(claims['data']['type']).to eq('disability_ratings')
+        end
       end
     end
   end
-end
 
   context 'with error bgs response' do
     it 'returns all the current user disability ratings and overall service connected combined degree' do
