@@ -8,23 +8,10 @@ module Form1010cg
     #
     # More information about CARMA can be found in lib/carma/README.md
 
-    include ActiveModel::Validations
-    include Virtus.model(nullify_blank: true)
+    attr_accessor :carma_case_id # The id of the CARMA Case created from this form submission
+    attr_accessor :submitted_at # The timestamp of when the submission was accepted in CARMA
 
-    attribute :carma_case_id, String # The id of the CARMA Case created from this form submission
-    attribute :submitted_at, DateTime # The timestamp of when the submission was accepted in CARMA
-    # Associate via ActiveRecord once we create the table and convert this to an active record model
-    attribute :claim, SavedClaim::CaregiversAssistanceClaim
-
-    def id
-      nil
-    end
-
-    def persisted?
-      false
-    end
-
-    def initialize(args = [])
+    def initialize(args = {})
       args.each { |key, value| send("#{key}=", value) }
     end
   end

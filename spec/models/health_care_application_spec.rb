@@ -196,6 +196,15 @@ RSpec.describe HealthCareApplication, type: :model do
       end
     end
 
+    def self.expect_job_submission(job)
+      it "submits using the #{job}" do
+        expect(job).to receive(:perform_async)
+
+        expect(health_care_application.process!).to eq(health_care_application)
+        expect(health_care_application.id.present?).to eq(true)
+      end
+    end
+
     context 'with no email' do
       before do
         new_form = JSON.parse(health_care_application.form)
@@ -204,46 +213,35 @@ RSpec.describe HealthCareApplication, type: :model do
         health_care_application.instance_variable_set(:@parsed_form, nil)
       end
 
-      it 'sumbits sync' do
-        result = { formSubmissionId: '123' }
-        expect_any_instance_of(HCA::Service).to receive(
-          :submit_form
-        ).with(health_care_application.send(:parsed_form)).and_return(
-          result
-        )
-        expect(health_care_application.process!).to eq(result)
+      context 'with async_compatible not set' do
+        it 'submits sync' do
+          result = { formSubmissionId: '123' }
+          expect_any_instance_of(HCA::Service).to receive(
+            :submit_form
+          ).with(health_care_application.send(:parsed_form)).and_return(
+            result
+          )
+          expect(health_care_application.process!).to eq(result)
+        end
+      end
+
+      context 'with async_compatible set' do
+        before { health_care_application.async_compatible = true }
+
+        expect_job_submission(HCA::AnonSubmissionJob)
       end
     end
 
     context 'with an email' do
-      context 'with async_compatible not set' do
-        it 'submits sync', run_at: '2017-01-31' do
-          VCR.use_cassette('hca/submit_anon', match_requests_on: [:body]) do
-            result = health_care_application.process!
-            expect(result).to eq(
-              success: true, formSubmissionId: 40_124_668_140, timestamp: '2016-05-25T04:59:39.345-05:00'
-            )
-          end
-        end
-      end
+      expect_job_submission(HCA::SubmissionJob)
+    end
+  end
 
-      context 'with async compatible flag set' do
-        it 'saves the record and submit async' do
-          health_care_application.async_compatible = true
-          expect(HCA::SubmissionJob).to receive(:perform_async)
-
-          expect(health_care_application.process!).to eq(health_care_application)
-          expect(health_care_application.id.present?).to eq(true)
-        end
-      end
-
-      context 'when state changes to "failed"' do
-        it 'sends a failure email to the email address provided on the form' do
-          expect(health_care_application).to receive(:send_failure_mail).and_call_original
-          expect(HCASubmissionFailureMailer).to receive(:build).and_call_original
-          health_care_application.update_attributes!(state: 'failed')
-        end
-      end
+  context 'when state changes to "failed"' do
+    it 'sends a failure email to the email address provided on the form' do
+      expect(health_care_application).to receive(:send_failure_mail).and_call_original
+      expect(HCASubmissionFailureMailer).to receive(:build).and_call_original
+      health_care_application.update!(state: 'failed')
     end
   end
 

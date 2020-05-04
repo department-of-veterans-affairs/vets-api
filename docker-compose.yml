@@ -1,7 +1,7 @@
 version: '3.4'
 services:
   redis:
-    image: redis:3.2-alpine
+    image: redis:5.0-alpine
   postgres:
     image: mdillon/postgis:11-alpine
     environment:
@@ -16,7 +16,6 @@ services:
       context: .
       target: development
       args:
-        exclude_sidekiq_ent: "${EXCLUDE_SIDEKIQ_ENTERPRISE:-false}"
         sidekiq_license: "${BUNDLE_ENTERPRISE__CONTRIBSYS__COM}"
         userid: "${VETS_API_USER_ID}"
     image: "vets-api:${DOCKER_IMAGE:-latest}"

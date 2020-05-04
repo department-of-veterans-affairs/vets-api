@@ -15,7 +15,7 @@ RSpec.describe 'preferences', type: :request do
     let(:user) { FactoryBot.create(:user, :loa1) }
 
     it 'returns a forbidden error' do
-      get '/v0/vaos/preferences'
+      get '/vaos/v0/preferences'
       expect(response).to have_http_status(:forbidden)
       expect(JSON.parse(response.body)['errors'].first['detail'])
         .to eq('You do not have access to online scheduling')
@@ -28,7 +28,7 @@ RSpec.describe 'preferences', type: :request do
     context 'with a valid GET preferences request' do
       it 'returns a 200 with the correct schema' do
         VCR.use_cassette('vaos/preferences/get_preferences', match_requests_on: %i[method uri]) do
-          get '/v0/vaos/preferences'
+          get '/vaos/v0/preferences'
 
           expect(response).to have_http_status(:ok)
           expect(response.body).to be_a(String)
@@ -51,7 +51,7 @@ RSpec.describe 'preferences', type: :request do
 
       it 'returns a 200 with correct schema' do
         VCR.use_cassette('vaos/preferences/put_preferences', match_requests_on: %i[method uri]) do
-          put '/v0/vaos/preferences', params: request_body
+          put '/vaos/v0/preferences', params: request_body
 
           expect(response).to have_http_status(:ok)
           expect(response.body).to be_a(String)

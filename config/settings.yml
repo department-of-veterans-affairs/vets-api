@@ -37,6 +37,10 @@ sso:
   cookie_secure: false
   cookie_domain: localhost
 
+ssoe:
+  redirects:
+    myvahealth: https://ehrm-va-test.patientportal.us.healtheintent.com/
+
 binaries:
   # you can specify a full path in settings.local.yml if necessary
   pdfinfo: pdfinfo
@@ -119,7 +123,7 @@ ihub:
 # Settings for Medical Devices Ordering Tool
 mdot:
   prefill: true
-  url: https://dlc-fake.fake.com
+  url: https://dlc-dummy.herokuapp.com
   api_key: abcd1234abcd1234abcd1234abcd1234abcd1234
   mock: false
   enabled: false
@@ -198,17 +202,11 @@ mvi_hca:
 hca:
   prefill: true
   endpoint: https://test-foo.vets.gov
-  cert_path: /fake/client/cert/path
-  key_path: /fake/client/key/path
+  timeout: 30
   ee:
     endpoint: 'http://example.com'
     user: "HCASvcUsr"
     pass: "password"
-  ca:
-    - 'VA Internal Root CA.pem'
-    - 'VA Internal Subordinate CA 1.pem'
-    - 'VA-Internal-S2-ICA1-v1.pem'
-    - 'VA-Internal-S2-RCA1-v1.pem'
 
 # Settings for the facility locator
 locators:
@@ -308,10 +306,11 @@ emis:
     soap_namespaces:
       xmlns:v11: http://viers.va.gov/cdi/eMIS/RequestResponse/VetStatus/v1
 
-appeals:
+caseflow:
   mock: true
   app_token: PUBLICDEMO123
   host: https://dsva-appeals-certification-dev-1895622301.us-gov-west-1.elb.amazonaws.com
+  schema_dir: config/schemas
 
 vic:
   url: https://some.fakesite.com
@@ -449,23 +448,36 @@ flipper:
   admin_user_emails:
     - alastair@adhocteam.us
     - anna@adhoc.team
+    - dan.hinze@adhocteam.us
+    - Delli-Gatti_Michael@bah.com
+    - devinmccurdy@gmail.com
+    - eric.buckley@adhocteam.us
     - erik@adhocteam.us
     - jbalboni@gmail.com
     - jeff@adhocteam.us
     - johnny@oddball.io
+    - johnpaul.ashenfelter@oddball.io
     - kam@adhocteam.us
+    - kabrown@thoughtworks.com
     - kenneth.gary@va.gov
     - lauren.alexanderson@va.gov
     - mark.greenburg@adhocteam.us
     - n.ratana@gmail.com
     - narin@adhocteam.us
     - osanchez@governmentcio.com
+    - patrick@adhocteam.us
+    - patrick.bateman@va.gov
+    - regarr@gmail.com # Robin Garrison - AdHoc
     - rian.fowler@adhoc.team
     - rianfowler@outlook.com
+    - roth_matthew@bah.com
     - ryan.thurlwell@va.gov
+    - shaun.hubbard@thoughtworks.com
+    - Shawkey_Daniel@bah.com
+    - sonntag_adam@bah.com
     - travis.hilton@oddball.io
     - zurbergram@gmail.com
-
+    
 bgs:
   application: ~
   client_station_id: ~
@@ -483,6 +495,9 @@ va_mobile:
 
 lighthouse:
   api_key: fake_key
+  facilities:
+    url: https://sandbox-api.va.gov
+    api_key: fake_key
 
 forms:
   url: https://dev-api.va.gov/services/va_forms/v0/
@@ -491,7 +506,6 @@ forms:
 vbms:
   url: "https://internal-dsva-vagov-dev-fwdproxy-1893365470.us-gov-west-1.elb.amazonaws.com:4449"
   saml: "vetsapi.client.vbms.aide.oit.va.gov.saml-token.xml"
-  keypass: "{{ lookup('credstash', 'vbms.dev.key_password') }}"
   ca_cert: VBMS-Client-Signing-CA.crt
   cert: vetsapi.client.vbms.aide.oit.va.gov.crt
   client_keyfile: vetsapi.client.vbms.aide.oit.va.gov.p12
@@ -505,3 +519,9 @@ vet_verification:
 github_stats:
   username: github-stats-rake
   token: fake_token
+
+# Settings for the coronavirus chatbot tokens
+coronavirus_chatbot:
+  app_secret: fake_secret
+  directline_uri: northamerica.directline.botframework.com
+  webchat_secret: fake_secret

@@ -7,61 +7,62 @@ module Swagger
         include Swagger::Blocks
 
         swagger_path '/v0/mdot/supplies' do
-          operation :get do
-            extend Swagger::Responses::AuthenticationError
+          operation :post do
+            key :description, 'Create a MDOT supply order'
+            key :operationId, 'addMdotOrder'
+            key :tags, %w[mdot]
 
-            key :description, 'returns a list of medical devices and supplies available for reorder for the veteran'
-            key :operationId, 'getSupplies'
-            key :tags, %w[supplies]
+            extend Swagger::Responses::AuthenticationError
+            parameter :authorization
+
+            key :produces, ['application/json']
+            key :consumes, ['application/json']
+
+            parameter do
+              key :name, :order_input
+              key :in, :body
+              key :description, 'Order input'
+              key :required, true
+
+              schema do
+                key :type, :object
+                key :required, [:order]
+
+                property :use_permanent_address, type: :boolean
+                property :use_temporary_address, type: :boolean
+                property :additional_requests, type: :string
+
+                property :permanent_address do
+                  key :type, :object
+
+                  property :street, type: :string
+                  property :street2, type: :string
+                  property :city, type: :string
+                  property :state, type: :string
+                  property :country, type: :string
+                  property :postal_code, type: :string
+                end
+
+                property :order do
+                  key :type, :array
+
+                  items do
+                    key :type, :object
+
+                    property :product_id, type: :string
+                  end
+                end
+              end
+            end
 
             response 200 do
-              key :description, '200 passes the response from the upstream DLC API'
+              key :description, 'mdot order response'
+
               schema do
-                key :'$ref', :Supplies
-              end
-            end
+                key :required, %i[status order_id]
 
-            response 404 do
-              key :description, 'Not found: medical devices and supplies not found for user'
-              schema do
-                key :'$ref', :Errors
-              end
-            end
-
-            response 502 do
-              key :description, 'Bad Gateway: the upstream DLC API returned an invalid response (500+)'
-              schema do
-                key :'$ref', :Errors
-              end
-            end
-          end
-
-          operation :post do
-            extend Swagger::Responses::ValidationError
-            extend Swagger::Responses::AuthenticationError
-
-            key :tags, %w[supplies]
-            key :description, 'submits a new order for medical devices and supplies to the DLC'
-            key :operationId, 'postSupplies'
-
-            response 202 do
-              key :description, 'Accepted response from the DLC'
-              schema do
-                key :'$ref', :SuppliesAccepted
-              end
-            end
-
-            response 404 do
-              key :description, 'Not found: medical devices and supplies not found for user'
-              schema do
-                key :'$ref', :Errors
-              end
-            end
-
-            response 502 do
-              key :description, 'Bad Gateway: the upstream DLC API returned an invalid response (500+)'
-              schema do
-                key :'$ref', :Errors
+                property :status, type: :string
+                property :order_id, type: :string
               end
             end
           end

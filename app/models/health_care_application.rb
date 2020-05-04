@@ -15,7 +15,7 @@ class HealthCareApplication < ApplicationRecord
   validates(:form_submission_id_string, :timestamp, presence: true, if: :success?)
 
   after_save(:send_failure_mail, if: proc do |hca|
-    hca.saved_change_to_attribute?(:state) && hca.failed? && hca.parsed_form&.dig('email')
+    hca.saved_change_to_attribute?(:state) && hca.failed? && hca.form.present? && hca.parsed_form.dig('email')
   end)
 
   def self.get_user_identifier(user)
@@ -54,16 +54,11 @@ class HealthCareApplication < ApplicationRecord
   def process!
     raise(Common::Exceptions::ValidationErrors, self) unless valid?
 
-    if parsed_form['email'].present? && async_compatible
-      save!
-      HCA::SubmissionJob.perform_async(
-        self.class.get_user_identifier(user),
-        parsed_form,
-        id,
-        google_analytics_client_id
-      )
+    has_email = parsed_form['email'].present?
 
-      self
+    if has_email || async_compatible
+      save!
+      submit_async(has_email)
     else
       submit_sync
     end
@@ -138,7 +133,7 @@ class HealthCareApplication < ApplicationRecord
   end
 
   def set_result_on_success!(result)
-    update_attributes!(
+    update!(
       state: 'success',
       # this is a string because it overflowed the postgres integer limit in one of the tests
       form_submission_id_string: result[:formSubmissionId].to_s,
@@ -151,6 +146,20 @@ class HealthCareApplication < ApplicationRecord
   end
 
   private
+
+  def submit_async(has_email)
+    submission_job = 'SubmissionJob'
+    submission_job = "Anon#{submission_job}" unless has_email
+
+    "HCA::#{submission_job}".constantize.perform_async(
+      self.class.get_user_identifier(user),
+      parsed_form,
+      id,
+      google_analytics_client_id
+    )
+
+    self
+  end
 
   def send_failure_mail
     HCASubmissionFailureMailer.build(parsed_form['email'], google_analytics_client_id).deliver_now

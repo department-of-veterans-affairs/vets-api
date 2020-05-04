@@ -6,7 +6,7 @@ module V0
     skip_before_action(:authenticate)
 
     def create
-      submission = service.submit_claim!(nil, claim_params)
+      submission = service.submit_claim!(claim_params)
       render json: submission, serializer: ::Form1010cg::SubmissionSerializer
     end
 

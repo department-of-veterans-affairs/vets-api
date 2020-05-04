@@ -10,22 +10,26 @@ module Common
   module CacheAside
     extend ActiveSupport::Concern
 
-    REDIS_CONFIG = Rails.application.config_for(:redis).freeze
-
     included do
       unless self < Common::RedisStore
         raise ArgumentError, 'Class composing Common::CacheAside must be a Common::RedisStore'
       end
 
       def self.redis_config_key(key)
-        redis_store REDIS_CONFIG[key.to_s]['namespace']
-        redis_ttl REDIS_CONFIG[key.to_s]['each_ttl']
+        redis_store REDIS_CONFIG[key][:namespace]
+        redis_ttl REDIS_CONFIG[key][:each_ttl]
         redis_key :uuid
       end
       attribute :uuid
       attribute :response
     end
 
+    # get method
+    def cached?(key:)
+      self.class.find(key) ? true : false
+    end
+
+    # get or create method
     def do_cached_with(key:)
       cached = self.class.find(key)
       if cached
@@ -36,10 +40,12 @@ module Common
       response = yield
       raise NoMethodError, 'The response class being cached must implement #cache?' unless response.respond_to?(:cache?)
 
+      # if not cached, add to cache
       cache(key, response) if response.cache?
       response
     end
 
+    # create method
     def cache(key, response)
       set_attributes(key, response)
       save

@@ -144,16 +144,18 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
     end
 
     it 'supports adding an caregiver\'s assistance claim' do
-      expect(subject).to validate(
-        :post,
-        '/v0/caregivers_assistance_claims',
-        200,
-        '_data' => {
-          'caregivers_assistance_claim' => {
-            'form' => build(:caregivers_assistance_claim).form
+      VCR.use_cassette('carma/submissions/create/201') do
+        expect(subject).to validate(
+          :post,
+          '/v0/caregivers_assistance_claims',
+          200,
+          '_data' => {
+            'caregivers_assistance_claim' => {
+              'form' => build(:caregivers_assistance_claim).form
+            }
           }
-        }
-      )
+        )
+      end
 
       expect(subject).to validate(
         :post,
@@ -222,6 +224,59 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
       end
     end
 
+    context 'MDOT tests' do
+      let(:user_details) do
+        {
+          first_name: 'Greg',
+          last_name: 'Anderson',
+          middle_name: 'A',
+          birth_date: '1991-04-05',
+          ssn: '000550237'
+        }
+      end
+
+      let(:user) { build(:user, :loa3, user_details) }
+      let(:headers) do
+        {
+          '_headers' => {
+            'Cookie' => sign_in(user, nil, true),
+            'accept' => 'application/json',
+            'content-type' => 'application/json'
+          }
+        }
+      end
+
+      let(:body) do
+        {
+          'permanent_address' => {
+            'street' => '101 Example Street',
+            'street2' => 'Apt 2',
+            'city' => 'Kansas City',
+            'state' => 'MO',
+            'country' => 'USA',
+            'postal_code' => '64117'
+          },
+          'use_permanent_address' => true,
+          'use_temporary_address' => false,
+          'order' => [{ 'product_id' => '1' }, { 'product_id' => '4' }],
+          'additional_requests' => ''
+        }
+      end
+
+      it 'supports creating a MDOT order' do
+        expect(subject).to validate(:post, '/v0/mdot/supplies', 401)
+
+        VCR.use_cassette('mdot/submit_order', VCR::MATCH_EVERYTHING) do
+          expect(subject).to validate(
+            :post,
+            '/v0/mdot/supplies',
+            200,
+            headers.merge('_data' => body.to_json)
+          )
+        end
+      end
+    end
+
     it 'supports adding a preneed claim' do
       VCR.use_cassette('preneeds/burial_forms/creates_a_pre_need_burial_form') do
         expect(subject).to validate(
@@ -249,9 +304,12 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
     context 'HCA tests' do
       let(:login_required) { Notification::LOGIN_REQUIRED }
       let(:test_veteran) do
-        File.read(
+        json_string = File.read(
           Rails.root.join('spec', 'fixtures', 'hca', 'veteran.json')
         )
+        json = JSON.parse(json_string)
+        json.delete('email')
+        json.to_json
       end
 
       it 'supports getting the hca enrollment status' do
@@ -301,6 +359,19 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
             }
           }
         )
+      end
+
+      it 'supports getting a health care application state' do
+        expect(subject).to validate(
+          :get,
+          '/v0/health_care_applications/{id}',
+          200,
+          'id' => create(:health_care_application).id
+        )
+      end
+
+      it 'returns a 400 if no attachment data is given' do
+        expect(subject).to validate(:post, '/v0/hca_attachments', 400, '')
       end
 
       it 'supports submitting a health care application', run_at: '2017-01-31' do
@@ -383,7 +454,7 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
         end
       end
 
-      context 'unsucessful calls' do
+      context 'unsuccessful calls' do
         it 'returns error on showing a prescription with bad id' do
           VCR.use_cassette('rx_client/prescriptions/gets_a_single_prescription') do
             expect(subject).to validate(:get, '/v0/prescriptions/{id}', 404, headers.merge('id' => '1'))
@@ -601,8 +672,8 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
         )
       end
 
-      it 'returns a 500 if no attachment data is given' do
-        expect(subject).to validate(:post, '/v0/upload_supporting_evidence', 500, '')
+      it 'returns a 400 if no attachment data is given' do
+        expect(subject).to validate(:post, '/v0/upload_supporting_evidence', 400, '')
       end
     end
 
@@ -1036,6 +1107,16 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
     end
 
     describe 'gibct' do
+      describe 'yellow_ribbon_programs' do
+        describe 'index' do
+          it 'supports showing a list of yellow_ribbon_programs' do
+            VCR.use_cassette('gi_client/gets_yellow_ribbon_programs_search_results') do
+              expect(subject).to validate(:get, '/v0/gi/yellow_ribbon_programs', 200)
+            end
+          end
+        end
+      end
+
       describe 'institutions' do
         describe 'autocomplete' do
           it 'supports autocomplete of institution names' do
@@ -1324,8 +1405,10 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
         end
 
         it 'supports getting a single facility' do
-          create :vha_648A4
-          expect(subject).to validate(:get, '/v0/facilities/va/{id}', 200, 'id' => 'vha_648A4')
+          VCR.use_cassette('/lighthouse/facilities', match_requests_on: %i[path query]) do
+            create :vha_648A4
+            expect(subject).to validate(:get, '/v0/facilities/va/{id}', 200, 'id' => 'vha_648A4')
+          end
         end
 
         it '404s on non-existent facility' do
@@ -1385,31 +1468,31 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
       end
 
       it 'documents appeals 200' do
-        VCR.use_cassette('/appeals/appeals') do
+        VCR.use_cassette('/caseflow/appeals') do
           expect(subject).to validate(:get, '/v0/appeals', 200, headers)
         end
       end
 
       it 'documents appeals 403' do
-        VCR.use_cassette('/appeals/forbidden') do
+        VCR.use_cassette('/caseflow/forbidden') do
           expect(subject).to validate(:get, '/v0/appeals', 403, headers)
         end
       end
 
       it 'documents appeals 404' do
-        VCR.use_cassette('/appeals/not_found') do
+        VCR.use_cassette('/caseflow/not_found') do
           expect(subject).to validate(:get, '/v0/appeals', 404, headers)
         end
       end
 
       it 'documents appeals 422' do
-        VCR.use_cassette('/appeals/invalid_ssn') do
+        VCR.use_cassette('/caseflow/invalid_ssn') do
           expect(subject).to validate(:get, '/v0/appeals', 422, headers)
         end
       end
 
       it 'documents appeals 502' do
-        VCR.use_cassette('/appeals/server_error') do
+        VCR.use_cassette('/caseflow/server_error') do
           expect(subject).to validate(:get, '/v0/appeals', 502, headers)
         end
       end
@@ -1491,32 +1574,6 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
       end
     end
 
-    describe 'supplies' do
-      let(:route) { '/v0/mdot/supplies' }
-
-      context 'not signed in' do
-        it 'returns a 401' do
-          %i[get post].each { |method| expect(subject).to validate(method, route, 401) }
-        end
-      end
-
-      [200, 404, 502].each do |status_code|
-        it "documents GET /v0/mdot/supplies #{status_code} response" do
-          VCR.use_cassette("mdot/get_supplies_#{status_code}") do
-            expect(subject).to validate(:get, route, status_code, headers)
-          end
-        end
-      end
-
-      [202, 422, 404, 502].each do |status_code|
-        it "documents POST /v0/mdot/supplies #{status_code}" do
-          VCR.use_cassette("mdot/post_supplies_#{status_code}") do
-            expect(subject).to validate(:post, route, status_code, headers)
-          end
-        end
-      end
-    end
-
     describe 'appointments' do
       before do
         allow_any_instance_of(User).to receive(:icn).and_return('1234')
@@ -1552,28 +1609,6 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
         it 'returns a 502 with error details' do
           expect(subject).to validate(:get, '/v0/appointments', 502, headers)
         end
-      end
-    end
-
-    describe 'performance monitoring' do
-      it 'supports posting performance monitoring data' do
-        whitelisted_path = Benchmark::Whitelist::WHITELIST.first
-        body = {
-          data: {
-            page_id: whitelisted_path,
-            metrics: [
-              { metric: 'totalPageLoad', duration: 1234.56 },
-              { metric: 'firstContentfulPaint', duration: 123.45 }
-            ]
-          }.to_json
-        }
-
-        expect(subject).to validate(
-          :post,
-          '/v0/performance_monitorings',
-          200,
-          headers.merge('_data' => body.as_json)
-        )
       end
     end
 

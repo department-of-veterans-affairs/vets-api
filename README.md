@@ -21,10 +21,10 @@ To start, fetch this code:
 touch config/certs/vetsgov-localhost.crt
 touch config/certs/vetsgov-localhost.key
 ```
-   
+
 1. Disable signed authentication requests:
 
-   
+
 ```yaml
 # settings.local.yml
 saml:
@@ -33,32 +33,25 @@ saml:
 
 [For more info on crypto & authentication, including how to enable crypto for localhost authentication](/docs/setup/authentication_with_idme.md)
 
- 
+
 ## Running the app
 
 A Makefile provides shortcuts for interacting with the docker images. To run vets-api and its redis and postgres
 dependencies run the following command from within the repo you cloned in the above steps.
 
-### Authentication required for enterprise.contribsys.com
+### Sidekiq Enterprise
 
-```
-Authentication is required for enterprise.contribsys.com.
-Please supply credentials for this source. You can do this by running:
- bundle config enterprise.contribsys.com username:password
-ERROR: Service 'vets-api' failed to build: The command '/bin/bash --login -c bundle install -j4' returned a non-zero code: 17
-make: *** [db] Error 1
-```
+Sidekiq Enterprise is used for worker rate limiting and additional reliability.
+Sidekiq Enterprise requires a license be configured on your development machine.
+If you do not have license configured, Sidekiq Enterprise will simply not be installed during gem installation.
 
-Sidekiq Enterprise is used for worker rate limiting and additional reliability. Most
-developers can bypass the installation of Sidekiq Enterprise with
+Unless you are sure you need a Sidekiq Enterprise feature, you are probably fine without configuring the license and running Sidekiq Enterprise.
+Normal Sidekiq will still be installed and run.
 
-- `$ EXCLUDE_SIDEKIQ_ENTERPRISE=true make rebuild`
-
-VA.gov Team Engineers should follow instructions [here](https://github.com/department-of-veterans-affairs/vets.gov-team/blob/master/Products/Platform/Vets-API/Sidekiq%20Enterprise%20Setup.md) to install the enterprise license on their systems.
+If you do need Sidekiq Enterprise, VA.gov Team Engineers can follow instructions [here](https://github.com/department-of-veterans-affairs/vets.gov-team/blob/master/Products/Platform/Vets-API/Sidekiq%20Enterprise%20Setup.md) to install the enterprise license on their systems.
 
 **DO NOT commit Gemfile modifications that result from local builds without sidekiq enterprise if you do not have it enabled on your development system**
 
-Once you have the `EXCLUDE_SIDEKIQ_ENTERPRISE` set you can run the application with:
 ```
 make up
 ```
@@ -82,7 +75,7 @@ but the following tasks have been aliased to speed development:
 - `make ci` - Run all build steps performed in CI.
 
 ### Running a rails interactive console
-- `make console` - Is an alias for `rails console`, which runs an IRB like REPL in which all of the API's classes and 
+- `make console` - Is an alias for `rails console`, which runs an IRB like REPL in which all of the API's classes and
 environmental variables have been loaded.
 
 ### Running a bash shell
@@ -118,8 +111,8 @@ This is also where you will place any other customizations, such as API tokens
 or certificate paths.
 
 Config settings that vary in value depending on the deployment environment will also need
-to be set appropriately for each environment in the relevant 
-[devops (Private Repo)](https://github.com/department-of-veterans-affairs/devops/blob/master/ansible/deployment/config/vets-api) configurations (dev-, staging-, and prod-settings.local.yml.j2). 
+to be set appropriately for each environment in the relevant
+[devops (Private Repo)](https://github.com/department-of-veterans-affairs/devops/blob/master/ansible/deployment/config/vets-api) configurations (dev-, staging-, and prod-settings.local.yml.j2).
 
 Some examples of configuration that will need to be added to these files are:
 
@@ -179,6 +172,14 @@ camelCase keys in your JSON request body and you will get back data with
 camelCase keys in the response body. If the header is not provided then the
 server will expect snake_case keys in the request body and output snake_case in
 the response.
+
+## Versions
+
+The version of Ruby and gem dependencies (including Rails) used are defined in the included [Gemfile](https://github.com/department-of-veterans-affairs/vets-api/blob/master/Gemfile). The currently used versions of gems are maintained with Bundler and stored in the [Gemfile.lock](https://github.com/department-of-veterans-affairs/vets-api/blob/master/Gemfile.lock).
+
+#### Version Policy
+
+The goal is to have vets-api use supported versions of gems and Ruby, which is often the latest.  However the versions are generally updated as need or availability arise.  If you need a newer version of a gem, please submit a pull-request marked as `draft` with just the gem updated and passing tests.
 
 ## How to contribute
 

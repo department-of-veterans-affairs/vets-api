@@ -2,7 +2,7 @@
 
 source 'https://rubygems.org'
 
-ruby '2.6.5'
+ruby '2.6.6'
 
 # Modules
 gem 'appeals_api', path: 'modules/appeals_api'
@@ -19,16 +19,16 @@ gem 'veteran_verification', path: 'modules/veteran_verification'
 # Anchored versions, do not change
 gem 'puma', '~> 4.3.2'
 gem 'puma-plugin-statsd', '~> 0.1.0'
-gem 'rails', '~> 5.2.4'
+gem 'rails', '~> 6.0.2'
 
 # Gems with special version/repo needs
-gem 'active_model_serializers', '0.10.4' # breaking changed in 0.10.5 relating to .to_json
+gem 'active_model_serializers', git: 'https://github.com/department-of-veterans-affairs/active_model_serializers', branch: 'master'
 gem 'carrierwave', '~> 0.11' # TODO: explanation
 gem 'sidekiq-scheduler', '~> 3.0' # TODO: explanation
 
 gem 'aasm'
 gem 'activerecord-import'
-gem 'activerecord-postgis-adapter', '~> 5.2.2'
+gem 'activerecord-postgis-adapter', '~> 6.0.0'
 gem 'addressable'
 gem 'attr_encrypted', '3.1.0'
 gem 'aws-sdk-s3', '~> 1'
@@ -47,10 +47,10 @@ gem 'faraday_middleware'
 gem 'fast_jsonapi'
 gem 'fastimage'
 gem 'figaro'
-gem 'flipper', '~> 0.17.2'
-gem 'flipper-active_record', '~> 0.17.1'
-gem 'flipper-active_support_cache_store', '~> 0.17.1'
-gem 'flipper-ui', '~> 0.17.1'
+gem 'flipper'
+gem 'flipper-active_record'
+gem 'flipper-active_support_cache_store'
+gem 'flipper-ui'
 gem 'foreman'
 gem 'govdelivery-tms', '2.8.4', require: 'govdelivery/tms/mail/delivery_method'
 gem 'gyoku'
@@ -59,6 +59,7 @@ gem 'httpclient'
 gem 'ice_nine'
 gem 'iconv'
 gem 'iso_country_codes'
+gem 'json', '>= 2.3.0'
 gem 'json-schema'
 gem 'json_schemer'
 gem 'jsonapi-parser'
@@ -96,7 +97,7 @@ gem 'rgeo-geojson'
 gem 'ruby-saml'
 gem 'rubyzip', '>= 1.3.0'
 gem 'savon'
-gem 'sentry-raven', '2.9.0' # don't change gem version unless sentry server is also upgraded
+gem 'sentry-raven'
 gem 'shrine'
 gem 'sidekiq-instrument'
 gem 'staccato'
@@ -126,7 +127,7 @@ group :development do
 end
 
 group :test do
-  gem 'apivore'
+  gem 'apivore', git: 'https://github.com/department-of-veterans-affairs/apivore', branch: 'master'
   gem 'awrence'
   gem 'faker'
   gem 'faker-medical'
@@ -158,6 +159,7 @@ group :development, :test do
   gem 'rack-test', require: 'rack/test'
   gem 'rack-vcr'
   gem 'rainbow' # Used to colorize output for rake tasks
+  gem 'rspec-instrumentation-matcher'
   gem 'rspec-rails', '~> 3.5'
   gem 'rubocop', require: false
   gem 'rubocop-rails'
@@ -172,7 +174,11 @@ end
 group :production do
   # sidekiq enterprise requires a license key to download but is only required in production.
   # for local dev environments, regular sidekiq works fine
-  unless ENV['EXCLUDE_SIDEKIQ_ENTERPRISE'] == 'true'
+  if (Bundler::Settings.new(Bundler.app_config_path)['enterprise.contribsys.com'].nil? ||
+      Bundler::Settings.new(Bundler.app_config_path)['enterprise.contribsys.com']&.empty?) &&
+     ENV.fetch('BUNDLE_ENTERPRISE__CONTRIBSYS__COM', '').empty?
+    Bundler.ui.warn 'No credentials found to install Sidekiq Enterprise. This is fine for local development but you may not check in this Gemfile.lock with any Sidekiq gems removed. The README file in this directory contains more information.'
+  else
     source 'https://enterprise.contribsys.com/' do
       gem 'sidekiq-ent'
       gem 'sidekiq-pro'

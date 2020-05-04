@@ -61,6 +61,11 @@ module Common
       find(redis_key) || new(Hash[@redis_namespace_key, redis_key])
     end
 
+    def self.pop(redis_key = nil)
+      object = find(redis_key)
+      delete(redis_key) && object if object
+    end
+
     def self.exists?(redis_key = nil)
       redis_namespace.exists(redis_key)
     end
@@ -87,7 +92,7 @@ module Common
       @persisted = true
     end
 
-    def update_attributes!(attributes_hash)
+    def update!(attributes_hash)
       self.attributes = attributes_hash
       save!
     end

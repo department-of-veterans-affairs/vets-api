@@ -17,10 +17,12 @@ module SAML
     LOGIN_REDIRECT_PARTIAL = '/auth/login/callback'
     LOGOUT_REDIRECT_PARTIAL = '/logout/'
 
-    attr_reader :saml_settings, :session, :user, :authn_context, :type, :query_params
+    attr_reader :saml_settings, :session, :user, :authn_context, :type, :query_params, :tracker
 
-    def initialize(saml_settings, session: nil, user: nil, params: {}, loa3_context: LOA::IDME_LOA3_VETS)
-      unless %w[new saml_callback saml_logout_callback].include?(params[:action])
+    # rubocop:disable Metrics/ParameterLists
+    def initialize(saml_settings, session: nil, user: nil, params: {},
+                   loa3_context: LOA::IDME_LOA3_VETS, previous_saml_uuid: nil)
+      unless %w[new saml_callback saml_logout_callback ssoe_slo_callback].include?(params[:action])
         raise Common::Exceptions::RoutingError, params[:path]
       end
 
@@ -33,20 +35,27 @@ module SAML
       @saml_settings = saml_settings
       @loa3_context = loa3_context
 
+      if (params[:action] == 'saml_callback') && params[:RelayState].present?
+        @type = JSON.parse(params[:RelayState])['type']
+      end
+      @query_params = {}
+      @tracker = initialize_tracker(params, previous_saml_uuid: previous_saml_uuid)
+
       Raven.extra_context(params: params)
       Raven.user_context(session: session, user: user)
-      initialize_query_params(params)
     end
+    # rubocop:enable Metrics/ParameterLists
 
     # REDIRECT_URLS
     def base_redirect_url
       VIRTUAL_HOST_MAPPINGS[current_host][:base_redirect]
     end
 
-    # TODO: SSOe does not currently support upleveling due to missing AuthN attribute support
     # rubocop:disable Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
     def login_redirect_url(auth: 'success', code: nil)
       return verify_url if auth == 'success' && user.loa[:current] < user.loa[:highest]
+
+      return @tracker&.payload_attr(:redirect) if @tracker&.payload_attr(:redirect)
 
       @query_params[:type] = type if type
       @query_params[:auth] = auth if auth == 'fail'
@@ -99,6 +108,8 @@ module SAML
           'myhealthevet_loa3'
         when 'dslogon', 'dslogon_multifactor'
           'dslogon_loa3'
+        when SAML::UserAttributes::SSOe::INBOUND_AUTHN_CONTEXT
+          "#{@user.identity.sign_in[:service_name]}_loa3"
         end
 
       build_sso_url(link_authn_context)
@@ -114,6 +125,8 @@ module SAML
           'myhealthevet_multifactor'
         when 'dslogon', 'dslogon_loa3'
           'dslogon_multifactor'
+        when SAML::UserAttributes::SSOe::INBOUND_AUTHN_CONTEXT
+          "#{@user.identity.sign_in[:service_name]}_multifactor"
         end
       build_sso_url(link_authn_context)
     end
@@ -135,14 +148,6 @@ module SAML
 
     private
 
-    def initialize_query_params(params)
-      @query_params = {}
-
-      if params[:action] == 'saml_callback'
-        @type = JSON.parse(params[:RelayState])['type'] if params[:RelayState].present?
-      end
-    end
-
     # Builds the urls to trigger various SSO policies: mhv, dslogon, idme, mfa, or verify flows.
     # link_authn_context is the new proposed authn_context
     def build_sso_url(link_authn_context)
@@ -150,6 +155,7 @@ module SAML
       new_url_settings = url_settings
       new_url_settings.authn_context = link_authn_context
       saml_auth_request = OneLogin::RubySaml::Authrequest.new
+      save_saml_request_tracker(saml_auth_request.uuid)
       saml_auth_request.create(new_url_settings, query_params)
     end
 
@@ -181,6 +187,25 @@ module SAML
       else
         url
       end
+    end
+
+    # Initialize a new SAMLRequestTracker, if a valid previous SAML UUID is
+    # given, copy over the redirect and created_at timestamp.  This is useful
+    # for a user that has to go through the upleveling process.
+    def initialize_tracker(params, previous_saml_uuid: nil)
+      previous = previous_saml_uuid && SAMLRequestTracker.find(previous_saml_uuid)
+      redirect = previous&.payload_attr(:redirect) || Settings.ssoe.redirects[params[:application]]
+      # if created_at is set to nil (meaning no previous tracker to use), it
+      # will be initialized to the current time when it is saved
+      SAMLRequestTracker.new(
+        payload: redirect ? { redirect: redirect } : {},
+        created_at: previous&.created_at
+      )
+    end
+
+    def save_saml_request_tracker(uuid)
+      @tracker.uuid = uuid
+      @tracker.save
     end
   end
 end

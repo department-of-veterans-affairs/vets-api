@@ -17,8 +17,8 @@ class User < Common::RedisStore
   # Defined per issue #6042
   ID_CARD_ALLOWED_STATUSES = %w[V1 V3 V6].freeze
 
-  redis_store REDIS_CONFIG['user_b_store']['namespace']
-  redis_ttl REDIS_CONFIG['user_b_store']['each_ttl']
+  redis_store REDIS_CONFIG[:user_b_store][:namespace]
+  redis_ttl REDIS_CONFIG[:user_b_store][:each_ttl]
   redis_key :uuid
 
   validates :uuid, presence: true
@@ -114,6 +114,7 @@ class User < Common::RedisStore
   delegate :multifactor, to: :identity, allow_nil: true
   delegate :authn_context, to: :identity, allow_nil: true
   delegate :mhv_icn, to: :identity, allow_nil: true
+  delegate :idme_uuid, to: :identity, allow_nil: true
   delegate :dslogon_edipi, to: :identity, allow_nil: true
   delegate :authenticated_by_ssoe, to: :identity, allow_nil: true
 
@@ -134,7 +135,7 @@ class User < Common::RedisStore
   end
 
   def sec_id
-    va_profile&.sec_id
+    identity.sec_id || va_profile&.sec_id
   end
 
   def va_profile
@@ -181,12 +182,16 @@ class User < Common::RedisStore
     loa1? || loa2? || loa3?
   end
 
-  # User's profile contains a list of VHA facility-specific identifiers.
-  # Facilities in the defined range are treating facilities, indicating
-  # that the user is a VA patient.
+  # True if the user has 1 or more treatment facilities, false otherwise
   def va_patient?
+    va_treatment_facility_ids.length.positive?
+  end
+
+  # User's profile contains a list of VHA facility-specific identifiers.
+  # Facilities in the defined range are treating facilities
+  def va_treatment_facility_ids
     facilities = va_profile&.vha_facility_ids
-    facilities.to_a.any? do |f|
+    facilities.to_a.select do |f|
       Settings.mhv.facility_range.any? { |range| f.to_i.between?(*range) } ||
         Settings.mhv.facility_specific.include?(f)
     end

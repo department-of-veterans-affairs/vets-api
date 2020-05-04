@@ -2,11 +2,11 @@
 
 module VAOS
   class SessionStore < Common::RedisStore
-    redis_store REDIS_CONFIG['va_mobile_session']['namespace']
-    redis_ttl REDIS_CONFIG['va_mobile_session']['each_ttl']
-    redis_key :user_uuid
+    redis_store REDIS_CONFIG[:va_mobile_session][:namespace]
+    redis_ttl REDIS_CONFIG[:va_mobile_session][:each_ttl]
+    redis_key :account_uuid
 
-    attribute :user_uuid, String
+    attribute :account_uuid, String
     attribute :token, String
   end
 end

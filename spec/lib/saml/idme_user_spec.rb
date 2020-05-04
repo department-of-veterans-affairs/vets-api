@@ -10,21 +10,22 @@ RSpec.describe SAML::User do
     subject { described_class.new(saml_response) }
 
     let(:authn_context) { LOA::IDME_LOA1_VETS }
-    let(:account_type)  { 'N/A' }
     let(:highest_attained_loa) { '1' }
+    let(:saml_attributes) { build(:idme_loa1) }
+    let(:existing_saml_attributes) { nil }
 
     let(:saml_response) do
       build_saml_response(
         authn_context: authn_context,
-        account_type: account_type,
         level_of_assurance: [highest_attained_loa],
-        multifactor: [false]
+        attributes: saml_attributes,
+        existing_attributes: existing_saml_attributes
       )
     end
 
     context 'handles invalid authn_contexts' do
       context 'no decrypted document' do
-        it 'has various important attributes' do
+        it 'raises expected error' do
           allow(saml_response).to receive(:decrypted_document).and_return(nil)
           expect(Raven).to receive(:extra_context).once.with(
             saml_attributes: {
@@ -44,8 +45,9 @@ RSpec.describe SAML::User do
 
       context 'authn_context equal to something unknown' do
         let(:authn_context) { 'unknown_authn_context' }
+        let(:saml_attributes) { nil }
 
-        it 'has various important attributes' do
+        it 'raises expected error' do
           expect(Raven).to receive(:extra_context).once.with(
             saml_attributes: nil,
             saml_response: Base64.encode64(document_partial(authn_context).to_s)
@@ -61,8 +63,9 @@ RSpec.describe SAML::User do
 
       context 'authn_context equal to nil' do
         let(:authn_context) { nil }
+        let(:saml_attributes) { nil }
 
-        it 'has various important attributes' do
+        it 'raises expected error' do
           expect(Raven).to receive(:extra_context).once.with(
             saml_attributes: nil,
             saml_response: Base64.encode64(document_partial(authn_context).to_s)
@@ -82,6 +85,7 @@ RSpec.describe SAML::User do
         expect(subject.to_hash).to eq(
           uuid: '0e1bb5723d7c4f0686f46ca4505642ad',
           email: 'kam+tristanmhv@adhocteam.us',
+          idme_uuid: '0e1bb5723d7c4f0686f46ca4505642ad',
           first_name: nil,
           middle_name: nil,
           last_name: nil,
@@ -91,6 +95,7 @@ RSpec.describe SAML::User do
           zip: nil,
           loa: { current: 1, highest: 1 },
           sign_in: { service_name: 'idme', account_type: 'N/A' },
+          sec_id: nil,
           multifactor: false,
           authn_context: LOA::IDME_LOA1_VETS,
           authenticated_by_ssoe: false
@@ -103,13 +108,17 @@ RSpec.describe SAML::User do
 
       context 'multifactor' do
         let(:authn_context) { 'multifactor' }
+        let(:saml_attributes) { build(:idme_loa1, multifactor: [true]) }
+        let(:existing_saml_attributes) { build(:idme_loa1, multifactor: [false]) }
 
         it 'has various important attributes' do
           expect(subject.to_hash).to eq(
             uuid: '0e1bb5723d7c4f0686f46ca4505642ad',
             email: 'kam+tristanmhv@adhocteam.us',
+            idme_uuid: '0e1bb5723d7c4f0686f46ca4505642ad',
             loa: { current: 1, highest: 1 },
             sign_in: { service_name: 'idme', account_type: 'N/A' },
+            sec_id: nil,
             birth_date: nil,
             first_name: nil,
             last_name: nil,
@@ -128,7 +137,8 @@ RSpec.describe SAML::User do
         end
 
         context 'without an already persisted UserIdentity' do
-          let(:build_saml_response_with_existing_user_identity?) { false }
+          let(:saml_attributes) { build(:idme_loa1, multifactor: [true]) }
+          let(:existing_saml_attributes) { nil }
 
           it 'still returns attributes defaulting LOA to 1' do
             expect_any_instance_of(SAML::User).to receive(:log_message_to_sentry).with(
@@ -140,8 +150,10 @@ RSpec.describe SAML::User do
             expect(subject.to_hash).to eq(
               uuid: '0e1bb5723d7c4f0686f46ca4505642ad',
               email: 'kam+tristanmhv@adhocteam.us',
+              idme_uuid: '0e1bb5723d7c4f0686f46ca4505642ad',
               loa: { current: 1, highest: 1 },
               sign_in: { service_name: 'idme', account_type: 'N/A' },
+              sec_id: nil,
               birth_date: nil,
               first_name: nil,
               last_name: nil,
@@ -160,11 +172,13 @@ RSpec.describe SAML::User do
 
     context 'LOA1 previously verified' do
       let(:highest_attained_loa) { '3' }
+      let(:saml_attributes) { build(:idme_loa1, multifactor: [false], level_of_assurance: ['3']) }
 
       it 'has various important attributes' do
         expect(subject.to_hash).to eq(
           uuid: '0e1bb5723d7c4f0686f46ca4505642ad',
           email: 'kam+tristanmhv@adhocteam.us',
+          idme_uuid: '0e1bb5723d7c4f0686f46ca4505642ad',
           first_name: nil,
           middle_name: nil,
           last_name: nil,
@@ -174,6 +188,7 @@ RSpec.describe SAML::User do
           zip: nil,
           loa: { current: 1, highest: 3 },
           sign_in: { service_name: 'idme', account_type: 'N/A' },
+          sec_id: nil,
           multifactor: false,
           authn_context: LOA::IDME_LOA1_VETS,
           authenticated_by_ssoe: false
@@ -186,13 +201,16 @@ RSpec.describe SAML::User do
 
       context 'multifactor' do
         let(:authn_context) { 'multifactor' }
+        let(:saml_attributes) { build(:idme_loa1, multifactor: [true], level_of_assurance: ['3']) }
 
         it 'has various important attributes' do
           expect(subject.to_hash).to eq(
             uuid: '0e1bb5723d7c4f0686f46ca4505642ad',
             email: 'kam+tristanmhv@adhocteam.us',
+            idme_uuid: '0e1bb5723d7c4f0686f46ca4505642ad',
             loa: { current: 1, highest: 3 },
             sign_in: { service_name: 'idme', account_type: 'N/A' },
+            sec_id: nil,
             birth_date: nil,
             first_name: nil,
             last_name: nil,
@@ -215,11 +233,13 @@ RSpec.describe SAML::User do
     context 'LOA3 user' do
       let(:authn_context) { LOA::IDME_LOA3_VETS }
       let(:highest_attained_loa) { '3' }
+      let(:saml_attributes) { build(:idme_loa3, multifactor: [true]) }
 
       it 'has various important attributes' do
         expect(subject.to_hash).to eq(
           uuid: '0e1bb5723d7c4f0686f46ca4505642ad',
           email: 'kam+tristanmhv@adhocteam.us',
+          idme_uuid: '0e1bb5723d7c4f0686f46ca4505642ad',
           first_name: 'Tristan',
           middle_name: '',
           last_name: 'MHV',
@@ -229,6 +249,7 @@ RSpec.describe SAML::User do
           zip: nil,
           loa: { current: 3, highest: 3 },
           sign_in: { service_name: 'idme', account_type: 'N/A' },
+          sec_id: nil,
           multifactor: true,
           authn_context: LOA::IDME_LOA3_VETS,
           authenticated_by_ssoe: false

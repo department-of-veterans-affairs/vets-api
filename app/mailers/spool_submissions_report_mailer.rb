@@ -4,11 +4,12 @@ class SpoolSubmissionsReportMailer < ApplicationMailer
   REPORT_TEXT = 'Spool submissions report'
   RECIPIENTS = %w[
     dana.kuykendall@va.gov
-    Darla.VanNieukerk@va.gov
     Jennifer.Waltz2@va.gov
     lihan@adhocteam.us
     Ricardo.DaSilva@va.gov
     shay.norton@va.gov
+    johnny@oddball.io
+    John.Holton2@va.gov
   ].freeze
 
   STEM_RECIPIENTS = %w[
@@ -18,9 +19,13 @@ class SpoolSubmissionsReportMailer < ApplicationMailer
 
   STAGING_RECIPIENTS = %w[
     lihan@adhocteam.us
+    Delli-Gatti_Michael@bah.com
+    sonntag_adam@bah.com
   ].freeze
 
   STAGING_STEM_RECIPIENTS = %w[
+    Delli-Gatti_Michael@bah.com
+    sonntag_adam@bah.com
   ].freeze
 
   def add_stem_recipients

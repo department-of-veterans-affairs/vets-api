@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'rails_helper'
+
 describe AppealsApi::Docs::V1::DocsController, type: :request do
   describe '#decision_reviews' do
     let(:decision_reviews_docs) { '/services/appeals/docs/v1/decision_reviews' }
@@ -23,36 +25,6 @@ describe AppealsApi::Docs::V1::DocsController, type: :request do
 
       it 'supports POST' do
         expect(hlr_doc).to include('post')
-      end
-    end
-
-    describe '/intake_statuses/{uuid} documentation' do
-      before do
-        get decision_reviews_docs
-      end
-
-      let(:hlr_intake_status_doc) do
-        json = JSON.parse(response.body)
-        json['paths']['/intake_statuses/{uuid}']
-      end
-
-      it 'supports GET' do
-        expect(hlr_intake_status_doc).to include('get')
-      end
-    end
-
-    describe '/higher_level_reviews/{uuid} documentation' do
-      before do
-        get decision_reviews_docs
-      end
-
-      let(:hlr_intake_status_doc) do
-        json = JSON.parse(response.body)
-        json['paths']['/higher_level_reviews/{uuid}']
-      end
-
-      it 'supports GET' do
-        expect(hlr_intake_status_doc).to include('get')
       end
     end
 

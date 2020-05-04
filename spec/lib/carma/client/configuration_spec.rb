@@ -3,16 +3,24 @@
 require 'rails_helper'
 
 RSpec.describe CARMA::Client::Configuration, type: :model do
-  describe 'configuration' do
-    it 'sets SALESFORCE_INSTANCE_URL' do
-      expect(described_class::SALESFORCE_INSTANCE_URL).to be(Settings['salesforce-carma'].url)
-    end
-  end
+  let(:subject) { CARMA::Client::Configuration.instance }
+  let(:app_config_url) { Settings['salesforce-carma'].url }
 
-  describe '#service_name' do
-    xit 'is set to CARMA' do
-      # TODO: cannot call #new on Config object...
-      expect(subject.service_name).to be('CARMA')
+  describe 'configuration' do
+    it 'is decedent of Salesforce::Configuration' do
+      expect(described_class.ancestors).to include(Salesforce::Configuration)
+    end
+
+    it 'sets SALESFORCE_INSTANCE_URL' do
+      expect(described_class::SALESFORCE_INSTANCE_URL).to eq(app_config_url)
+    end
+
+    it 'sets #service_name' do
+      expect(subject.service_name).to eq('CARMA')
+    end
+
+    it 'sets #base_url' do
+      expect(subject.base_path).to eq(app_config_url + '/services/oauth2/token')
     end
   end
 end

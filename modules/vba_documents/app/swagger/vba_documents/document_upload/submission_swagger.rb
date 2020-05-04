@@ -40,7 +40,7 @@ module VbaDocuments
                 key :description, 'Location to which to PUT document Payload'
                 key :type, :string
                 key :format, :uri
-                key :example, 'https://dev-api.va.gov/services_content/idpath
+                key :example, 'https://sandbox-api.va.gov/services_content/idpath
       '
               end
             end

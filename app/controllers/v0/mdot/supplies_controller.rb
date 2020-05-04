@@ -3,22 +3,31 @@
 module V0
   module MDOT
     class SuppliesController < ApplicationController
-      before_action { authorize :mdot, :access? }
-
-      def index
-        supplies = client.get_supplies
-        render json: supplies.body
-      end
-
       def create
-        response = client.submit_order(request.raw_post)
-        render status: response.status, json: response.body
+        render(json: client.submit_order(supply_params))
       end
 
       private
 
+      def supply_params
+        params.permit(
+          :use_permanent_address,
+          :use_temporary_address,
+          :additional_requests,
+          order: [:product_id],
+          permanent_address: %i[
+            street
+            street2
+            city
+            state
+            country
+            postal_code
+          ]
+        ).to_hash
+      end
+
       def client
-        ::MDOT::Client.new(@current_user)
+        @client ||= ::MDOT::Client.new(current_user)
       end
     end
   end

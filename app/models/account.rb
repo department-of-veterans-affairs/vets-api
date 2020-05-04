@@ -28,8 +28,11 @@ class Account < ApplicationRecord
   # Required for configuring mixed in ActiveRecordCacheAside module.
   # Redis settings for ttl and namespacing reside in config/redis.yml
   #
-  redis REDIS_CONFIG['user_account_details']['namespace']
-  redis_ttl REDIS_CONFIG['user_account_details']['each_ttl']
+  redis REDIS_CONFIG[:user_account_details][:namespace]
+  redis_ttl REDIS_CONFIG[:user_account_details][:each_ttl]
+
+  scope :idme_uuid_match, ->(v) { where(idme_uuid: v).where.not(idme_uuid: nil) }
+  scope :sec_id_match, ->(v) { where(sec_id: v).where.not(sec_id: nil) }
 
   # Returns the one Account record for the passed in user.
   #
@@ -42,9 +45,7 @@ class Account < ApplicationRecord
   def self.cache_or_create_by!(user)
     return unless user.uuid || user.sec_id
 
-    # if possible use the idme uuid for the key, fallback to using the sec id otherwise
-    key = get_key(user)
-    acct = do_cached_with(key: key) do
+    acct = do_cached_with(key: get_key(user)) do
       create_if_needed!(user)
     end
     # Account.sec_id was added months after this class was built, thus
@@ -54,21 +55,9 @@ class Account < ApplicationRecord
   end
 
   def self.create_if_needed!(user)
-    attrs = account_attrs_from_user(user)
-
-    accts = where(idme_uuid: attrs[:idme_uuid])
-            .where.not(idme_uuid: nil)
-            .or(
-              where(sec_id: attrs[:sec_id])
-              .where.not(sec_id: nil)
-            )
-
-    if accts.length > 1
-      data = accts.map(&:attributes)
-      log_message_to_sentry('multiple Account records with matching ids', 'warning', data)
-    end
-
-    accts.length.positive? ? accts[0] : create(**attrs)
+    accts = idme_uuid_match(user.idme_uuid).or(sec_id_match(user.sec_id))
+    accts = sort_with_idme_uuid_priority(accts, user)
+    accts.length.positive? ? accts[0] : create(**account_attrs_from_user(user))
   end
 
   def self.update_if_needed!(account, user)
@@ -92,7 +81,12 @@ class Account < ApplicationRecord
   # @return [Hash]
   #
   def self.account_attrs_from_user(user)
-    { idme_uuid: user.uuid, edipi: user.edipi, icn: user.icn, sec_id: user.sec_id }
+    {
+      idme_uuid: user.idme_uuid,
+      sec_id: user.sec_id,
+      edipi: user.edipi,
+      icn: user.icn
+    }
   end
 
   # Determines if the associated Account record is cacheable. Required
@@ -108,7 +102,23 @@ class Account < ApplicationRecord
     user.uuid || "sec:#{user.sec_id}"
   end
 
-  private_class_method :account_attrs_from_user, :get_key
+  # Sort the given list of Accounts so the ones with matching ID.me UUID values
+  # come first in the array, this will provide users with a more consistent
+  # experience in the case they have multiple credentials to login with
+  # https://github.com/department-of-veterans-affairs/va.gov-team/issues/6702
+  #
+  # @return [Array]
+  #
+  def self.sort_with_idme_uuid_priority(accts, user)
+    if accts.length > 1
+      data = accts.map { |a| "Account:#{a.id}" }
+      log_message_to_sentry('multiple Account records with matching ids', 'warning', data)
+      accts = accts.sort_by { |a| a.idme_uuid == user.idme_uuid ? 0 : 1 }
+    end
+    accts
+  end
+
+  private_class_method :account_attrs_from_user, :get_key, :sort_with_idme_uuid_priority
 
   private
 
