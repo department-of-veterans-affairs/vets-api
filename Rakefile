@@ -18,7 +18,6 @@ unless Rails.env.production?
     t.pattern = Dir.glob(['spec/**/*_spec.rb', 'modules/*/spec/**/*_spec.rb'])
     t.verbose = false
   end
-end
 
-require 'pact/tasks'
-task default: 'pact:verify'
+  task default: 'pact:verify'
+end

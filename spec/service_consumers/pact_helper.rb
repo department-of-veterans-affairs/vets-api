@@ -4,6 +4,9 @@ require 'pact/provider/rspec'
 
 require 'service_consumers/provider_states'
 
+# ensure pacts run in test
+ENV['RAILS_ENV'] ||= 'test'
+
 # Ensure your provider application version enables you to trace back to an exact
 # state of your provider codebase.
 # The easiest way to do this is to include the build number (or a SHA) in your version.
