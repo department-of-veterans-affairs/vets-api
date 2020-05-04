@@ -21,4 +21,4 @@ unless Rails.env.production?
 end
 
 require 'pact/tasks'
-task :default => 'pact:verify'
+task default: 'pact:verify'
