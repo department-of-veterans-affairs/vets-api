@@ -27,7 +27,7 @@ class RedisDuplicator < Redis
   end
 end
 
-Redis.current = if Settings.has_key?(:redis_secondary)
+Redis.current = if Settings.key?(:redis_secondary)
                   secondary_redis = Redis.new(host: Settings.redis_secondary.host, port: Settings.redis_secondary.port)
                   RedisDuplicator.new(secondary_redis, REDIS_CONFIG[:redis])
                 else
