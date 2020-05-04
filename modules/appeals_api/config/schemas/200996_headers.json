@@ -23,21 +23,57 @@
         "X-VA-Birth-Date"
       ]
     },
-    "X-VA-SSN": { "type": "string", "pattern": "^[0-9]{9}$", "description": "veteran's SSN" },
-    "X-VA-First-Name": {
-      "description": "veteran's first name",
-      "$comment": "can be whitespace, to accomodate those with 1 legal name",
-      "type": "string",
-      "maxLength": 12
+    "X-VA-SSN": {
+      "allOf": [
+        { "description": "veteran's SSN" },
+        { "type": "string", "pattern": "^[0-9]{9}$" }
+      ]
     },
-    "X-VA-Middle-Initial": { "$ref": "#/definitions/nonBlankStringMaxLength1", "description": "veteran's middle initial" },
-    "X-VA-Last-Name": { "$ref": "#/definitions/nonBlankStringMaxLength18", "description": "veteran's last name" },
-    "X-VA-Birth-Date": { "$ref": "#/definitions/date", "description": "veteran's birth date" },
-    "X-VA-File-Number": { "$ref": "#/definitions/nonBlankStringMaxLength9", "description": "veteran's file number" },
-    "X-VA-Service-Number": { "$ref": "#/definitions/nonBlankStringMaxLength9", "description": "veteran's service number" },
+    "X-VA-First-Name": {
+      "allOf": [
+        { "description": "veteran's first name" },
+        {
+          "type": "string",
+          "maxLength": 12,
+          "$comment": "can be whitespace, to accomodate those with 1 legal name"
+        }
+      ]
+    },
+    "X-VA-Middle-Initial": {
+      "allOf": [
+        { "description": "veteran's middle initial" },
+        { "$ref": "#/definitions/nonBlankStringMaxLength1" }
+      ]
+    },
+    "X-VA-Last-Name": {
+      "allOf": [
+        { "description": "veteran's last name" },
+        { "$ref": "#/definitions/nonBlankStringMaxLength18" }
+      ]
+    },
+    "X-VA-Birth-Date": {
+      "allOf": [
+        { "description": "veteran's birth date" },
+        {"$ref": "#/definitions/date" }
+      ]
+    },
+    "X-VA-File-Number": {
+      "allOf": [
+        { "description": "veteran's file number" },
+        { "$ref": "#/definitions/nonBlankStringMaxLength9" }
+      ]
+    },
+    "X-VA-Service-Number": {
+      "allOf": [
+        {"description": "veteran's service number"},
+        {"$ref": "#/definitions/nonBlankStringMaxLength9"}
+      ]
+    },
     "X-VA-Insurance-Policy-Number": {
-      "$ref": "#/definitions/nonBlankStringMaxLength18",
-      "description": "veteran's insurance policy number"
+      "allOf": [
+        { "description": "veteran's insurance policy number" },
+        { "$ref": "#/definitions/nonBlankStringMaxLength18" }
+      ]
     },
     "nonBlankString": {
       "type": "string",

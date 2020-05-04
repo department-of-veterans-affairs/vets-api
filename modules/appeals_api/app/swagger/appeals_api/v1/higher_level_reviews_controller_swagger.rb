@@ -22,17 +22,18 @@ class AppealsApi::V1::HigherLevelReviewsControllerSwagger
       created_at: { '$ref': '#/components/schemas/timeStamp' },
       form_data: { '$ref': '#/components/schemas/hlrCreate' }
     }
+    type = :appeals_api_higher_level_review
     schema = {
       type: OBJ,
       properties: {
         id: { '$ref': '#/components/schemas/uuid' },
-        type: { type: :string, enum: [:appeals_api_higher_level_reviews] },
+        type: { type: :string, enum: [type] },
         attributes: { type: OBJ, properties: properties }
       }
     }
     time = '2020-04-23T21:06:12.531Z'
     attrs = { status: :processed, updated_at: time, created_at: time, form_data: example_all_fields_used }
-    example = { data: { id: '1234567a-89b0-123c-d456-789e01234f56', type: :HigherLevelReview, attributes: attrs } }
+    example = { data: { id: '1234567a-89b0-123c-d456-789e01234f56', type: type, attributes: attrs } }
 
     {
       description: 'Info about a single Higher-Level Review',
@@ -48,7 +49,7 @@ class AppealsApi::V1::HigherLevelReviewsControllerSwagger
     {
       name: header,
       'in': 'header',
-      description: header_schemas[header]['description'],
+      description: header_schemas[header]['allOf'][0]['description'],
       required: header_schemas['hlrCreateParameters']['required'].include?(header),
       schema: { '$ref': "#/components/schemas/#{header}" }
     }
