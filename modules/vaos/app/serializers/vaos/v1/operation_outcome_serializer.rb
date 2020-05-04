@@ -45,7 +45,9 @@ module VAOS
           {
             severity: 'error',
             code: error.code,
-            details: error.detail,
+            details: {
+              text: error.detail
+            },
             diagnostics: error.source
           }
         end
@@ -64,7 +66,9 @@ module VAOS
           {
             severity: 'information',
             code: 'suppressed',
-            details: issue[:detail]
+            details: {
+              text: issue[:detail]
+            }
           }
         ]
       end
