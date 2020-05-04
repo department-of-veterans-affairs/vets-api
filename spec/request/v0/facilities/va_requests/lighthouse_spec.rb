@@ -123,7 +123,7 @@ RSpec.describe 'VA Facilities Locator - Lighthouse', type: :request, team: :faci
                       type: 'benefits',
                       services: ['DisabilityClaimAssistance']
                     },
-                    ['vba_348']
+                    %w[vba_348e vba_348 vba_348a vba_348d vba_348h]
 
     it_behaves_like 'paginated request from params with expected IDs',
                     {

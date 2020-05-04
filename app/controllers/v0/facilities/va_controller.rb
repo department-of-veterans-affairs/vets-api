@@ -26,7 +26,7 @@ class V0::Facilities::VaController < FacilitiesController
   end
 
   def api_facilities
-    resource = api.get_facilities(params)
+    resource = api.get_facilities(lighthouse_params)
     render json: resource,
            each_serializer: Lighthouse::Facilities::FacilitySerializer,
            meta: metadata(resource)
@@ -93,6 +93,10 @@ class V0::Facilities::VaController < FacilitiesController
 
   def api
     Lighthouse::Facilities::Client.new
+  end
+
+  def lighthouse_params
+    params.permit :lat, :long, :page, :per_page, :services, :type, :zip, bbox: []
   end
 
   def validate_types_name_part

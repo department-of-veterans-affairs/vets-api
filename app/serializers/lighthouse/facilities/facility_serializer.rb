@@ -44,6 +44,10 @@ class Lighthouse::Facilities::FacilitySerializer < ActiveModel::Serializer
     end
   end
 
+  def phone
+    object.phone.compact
+  end
+
   attributes  :access,
               :address,
               :classification,
