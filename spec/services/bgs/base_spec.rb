@@ -308,6 +308,16 @@ RSpec.describe BGS::Base do
     end
   end
 
+  describe '#increment_claim_type' do
+    it 'gets the next increment for benefit claim type' do
+      VCR.use_cassette('bgs/base/increment_claim_type') do
+        response = bgs_base.find_benefit_claim_type_increment
+
+        expect(response).to eq('130')
+      end
+    end
+  end
+
   xdescribe '#insert_benefit_claim' do
     it 'creates a benefit claim and returns a benefit_claim_record' do
       VCR.use_cassette('bgs/base/insert_benefit_claim') do
