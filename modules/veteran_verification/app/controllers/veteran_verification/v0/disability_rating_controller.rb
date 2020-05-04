@@ -8,6 +8,8 @@ module VeteranVerification
     class DisabilityRatingController < ApplicationController
       include ActionController::MimeResponds
 
+      NOTARY = VeteranVerification::Notary.new(Settings.vet_verification.key_path)
+
       before_action { permit_scopes %w[disability_rating.read] }
 
       def index

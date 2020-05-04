@@ -4,32 +4,39 @@
   },
   "properties": {
     "data": {
-      "items": {
-        "properties": {
-          "attributes": {
-            "type": "object",
-            "properties": {
-              "decision": {
-                "type": "string"
-              },
-              "rating_percentage": {
-                "type": "number"
-              },
-              "effective_date": {
-                "type": "string"
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string"
+        },
+        "attributes": {
+          "type": "object",
+          "properties": {
+            "overall_disability_rating": {
+              "type": "string"
+            },
+            "ratings": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "decision": {
+                    "type": "string"
+                  },
+                  "rating_percentage": {
+                    "type": "string"
+                  },
+                  "effective_date": {
+                    "type": "string"
+                  }
+                }
               }
             }
-          },
-          "id": {
-            "type": "string"
-          },
-          "type": {
-            "type": "string"
           }
-        },
-        "type": "object"
-      },
-      "type": "array"
+        }
+      }
     }
   }
 }
