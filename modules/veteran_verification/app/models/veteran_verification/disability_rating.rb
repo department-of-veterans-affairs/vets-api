@@ -17,7 +17,19 @@ module VeteranVerification
 
     def self.for_user(user)
       response = rating_service.get_rating(user)
+      handle_errors!(response)
       disability_ratings(response)
+    end
+
+    def self.handle_errors!(response)
+      raise_error! unless response[:disability_rating_record].class.eql? Hash
+    end
+
+    def self.raise_error!
+      raise Common::Exceptions::BackendServiceException.new(
+        'BGS_RTG_502',
+        source: self.class.to_s
+      )
     end
 
     def self.disability_ratings(response)
@@ -32,6 +44,8 @@ module VeteranVerification
       if response[:disability_rating_record][:ratings].class.eql? Hash
         ratings = [response[:disability_rating_record][:ratings]]
         response[:disability_rating_record][:ratings] = ratings
+      elsif response[:disability_rating_record][:ratings].class.eql? NilClass
+        response[:disability_rating_record][:ratings] = []
       end
       ratings = response[:disability_rating_record][:ratings].map do |rating|
         {
