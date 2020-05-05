@@ -114,8 +114,8 @@ paths:
             application/jwt:
               schema:
                 $ref: '#/components/schemas/DisabilityRatingToken'
-        '404':
-          description: No disability ratings found
+        '502':
+          description: BGS service responded with something other than the expected disability rating response.
   /service_history:
     get:
       tags:
@@ -177,10 +177,25 @@ components:
           type: string
           example: 'document_upload'
         attributes:
-          $ref: '#/components/schemas/RatingAttributes'
-    RatingAttributes:
+          $ref: '#/components/schemas/DisabilityRatingAttributes'
+    DisabilityRatingAttributes:
       description: |
         Body of the disability rating response
+      required:
+        - overall_diasbility_rating
+        - ratings
+      properties:
+        overall_disability_rating:
+          description: Overall severity rating determined by VA calculation of each service related conditions. Used to help determine disability compensation (pay) and related benefits.
+          type: integer
+          example: 100
+        ratings:
+          description: list of service connected disabilty ratings
+          type: array
+          items:
+            $ref: '#/components/schemas/Ratings'
+    Ratings:
+      description: list of service connected disability ratings
       required:
         - decision
         - effective_date

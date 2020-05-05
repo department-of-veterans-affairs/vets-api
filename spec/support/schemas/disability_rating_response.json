@@ -15,7 +15,7 @@
           "type": "object",
           "properties": {
             "overall_disability_rating": {
-              "type": "string"
+              "type": "integer"
             },
             "ratings": {
               "type": "array",
@@ -26,7 +26,7 @@
                     "type": "string"
                   },
                   "rating_percentage": {
-                    "type": "string"
+                    "type": "integer"
                   },
                   "effective_date": {
                     "type": "string"
