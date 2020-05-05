@@ -14,7 +14,6 @@ module VAOS
     #   operation_outcome = VAOS::V1::OperationOutcome.new(resource_type: resource_type, id: id, issue: issue)
     #   VAOS::V1::OperationOutcomeSerializer.new(operation_outcome).serialized_json
     class OperationOutcomeSerializer
-
       # Creates a new serializer instance
       # @param operation_outcome VAOS::V1::OperationOutcome an instance of a outcome model
       # @return VAOS::V1::OperationOutcomeSerializer the instance
