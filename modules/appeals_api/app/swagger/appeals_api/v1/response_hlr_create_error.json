@@ -1,0 +1,49 @@
+{"description": "Error",
+  "content": {
+    "application/vnd.api+json": {
+      "schema": {
+        "oneOf": [
+          {"type": "object",
+            "properties": {
+              "errors": {
+                "type": "array",
+                "minItems": 1,
+                "maxItems": 1,
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "type": { "type": "string", "enum": [ "malformed" ] },
+                    "detail": { "type": "string", "enum": [ "The payload body isn't valid JSON:API format" ] },
+                    "links": {
+                      "type": "object",
+                      "properties": {
+                        "about": {
+                          "type": "string",
+                          "enum": [ "https://jsonapi.org/format/" ]}}}}}}}},
+          {"type": "object",
+            "properties": {
+              "errors": {
+                "type": "array",
+                "minItems": 1,
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "status": { "type": "integer" },
+                    "detail": { "type": "string" },
+                    "sources": { "type": "string" }}}}}}]},
+      "examples": {
+        "payloadIsNotJson": {
+          "value": {
+            "errors": [
+              {"type": "malformed",
+                "detail": "The payload body isn't valid JSON:API format",
+                "links": { "about": "https://jsonapi.org/format/" }}]}},
+        "violatesJsonSchema": {
+          "value": {
+            "errors": [
+              {"status": 422,
+                "detail": "The property /data/attributes did not contain the required key benefitType",
+                "sources": "/data/included"},
+              {"status": 422,
+                "detail": "The property /data/attributes/veteran did not match the following requirements ...",
+                "sources": "/data/attributes/veteran"}]}}}}}}

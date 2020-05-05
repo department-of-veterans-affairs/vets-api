@@ -1,13 +1,7 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
   "description": "JSON Schema for VA Form 20-0996",
-  "type": "object",
-  "properties": {
-    "data":     { "$ref": "#/definitions/data" },
-    "included": { "$ref": "#/definitions/included" }
-  },
-  "additionalProperties": false,
-  "required": ["data", "included"],
+  "$ref": "#/definitions/hlrCreate",
   "definitions": {
 
 
@@ -19,44 +13,44 @@
     "nonBlankStringMaxLength140": {
       "allOf": [ { "$ref": "#/definitions/nonBlankString" }, { "maxLength": 140 } ]
     },
-    "nonBlankStringMaxLength30": {
-      "allOf": [ { "$ref": "#/definitions/nonBlankString" }, { "maxLength": 30 } ]
-    },
-    "nonBlankStringMaxLength18": {
-      "allOf": [ { "$ref": "#/definitions/nonBlankString" }, { "maxLength": 18 } ]
-    },
-    "nonBlankStringMaxLength5": {
-      "allOf": [ { "$ref": "#/definitions/nonBlankString" }, { "maxLength": 5 } ]
-    },
-    "nonBlankStringMaxLength2": {
-      "allOf": [ { "$ref": "#/definitions/nonBlankString" }, { "maxLength": 2 } ]
-    },
     "date": {
       "type": "string",
       "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$"
     },
 
 
-    "data": {
+    "hlrCreate": {
       "type": "object",
       "properties": {
-        "type":       { "const": "HigherLevelReview" },
-        "attributes": { "$ref": "#/definitions/dataAttributes" }
+        "data":     { "$ref": "#/definitions/hlrCreateData" },
+        "included": { "$ref": "#/definitions/hlrCreateIncluded" }
+      },
+      "additionalProperties": false,
+      "required": ["data", "included"]
+    },
+
+
+    "hlrCreateData": {
+      "type": "object",
+      "properties": {
+        "type":       { "type": "string", "enum": ["HigherLevelReview"] },
+        "attributes": { "$ref": "#/definitions/hlrCreateDataAttributes" }
       },
       "additionalProperties": false,
       "required": [ "type", "attributes" ]
     },
 
 
-    "dataAttributes": {
+    "hlrCreateDataAttributes": {
+      "description": "If informal conference requested (`informalConference: true`), availability must be specified (`informalConferenceTimes`). Explanation of abbreviated benefit types: `pension`: Pension / Survivor's Benefits, `voc_rehab`: Vocational Rehabilitation and Employment, `vha`: Veterans Health Administration, `nca`: National Cemetery Administration",
       "oneOf": [
         {
           "type": "object",
           "properties": {
-            "informalConference": { "const": false },
+            "informalConference": { "type": "boolean", "enum": [false] },
             "sameOffice":         { "type": "boolean" },
-            "benefitType":        { "$ref": "#/definitions/benefitType" },
-            "veteran":            { "$ref": "#/definitions/veteran" }
+            "benefitType":        { "$ref": "#/definitions/hlrCreateBenefitType" },
+            "veteran":            { "$ref": "#/definitions/hlrCreateVeteran" }
           },
           "additionalProperties": false,
           "required": [
@@ -69,12 +63,12 @@
           "$comment": "if informalConference requested, desired times must be included (rep is optional)",
           "type": "object",
           "properties": {
-            "informalConference": { "const": true },
+            "informalConference": { "type": "boolean", "enum": [true] },
             "sameOffice":         { "type": "boolean" },
-            "benefitType":        { "$ref": "#/definitions/benefitType" },
-            "veteran":            { "$ref": "#/definitions/veteran" },
-            "informalConferenceTimes": { "$ref": "#/definitions/informalConferenceTimes" },
-            "informalConferenceRep":   { "$ref": "#/definitions/informalConferenceRep" }
+            "benefitType":        { "$ref": "#/definitions/hlrCreateBenefitType" },
+            "veteran":            { "$ref": "#/definitions/hlrCreateVeteran" },
+            "informalConferenceTimes": { "$ref": "#/definitions/hlrCreateInformalConferenceTimes" },
+            "informalConferenceRep":   { "$ref": "#/definitions/hlrCreateInformalConferenceRep" }
           },
           "additionalProperties": false,
           "required": [
@@ -88,7 +82,7 @@
     },
 
 
-    "benefitType": {
+    "hlrCreateBenefitType": {
       "type": "string",
       "enum": [
         "compensation",
@@ -104,18 +98,18 @@
     },
 
 
-    "informalConferenceTimes": {
+    "hlrCreateInformalConferenceTimes": {
       "type": "array",
-      "items": { "$ref": "#/definitions/informalConferenceTime" },
+      "items": { "$ref": "#/definitions/hlrCreateInformalConferenceTime" },
       "minItems": 1,
       "maxItems": 2,
       "uniqueItems": true
     },
 
 
-    "informalConferenceTime": {
+    "hlrCreateInformalConferenceTime": {
       "type": "string",
-      "#comment": "time ranges in Eastern Time",
+      "description": "time ranges in Eastern Time",
       "enum": [
         "800-1000 ET",
         "1000-1230 ET",
@@ -125,18 +119,18 @@
     },
 
 
-    "informalConferenceRep": {
+    "hlrCreateInformalConferenceRep": {
       "type": "object",
       "properties": {
         "name":  { "$ref": "#/definitions/nonBlankString" },
-        "phone": { "$ref": "#/definitions/phone" }
+        "phone": { "$ref": "#/definitions/hlrCreatePhone" }
       },
       "additionalProperties": false,
       "required": [ "name", "phone" ]
     },
 
 
-    "phone": {
+    "hlrCreatePhone": {
       "$comment": "the phone fields must not exceed 20 chars, when concatenated",
       "type": "object",
       "properties": {
@@ -152,10 +146,10 @@
     },
 
 
-    "veteran": {
+    "hlrCreateVeteran": {
       "type": "object",
       "properties": {
-        "phone":        { "$ref": "#/definitions/phone" },
+        "phone":        { "$ref": "#/definitions/hlrCreatePhone" },
         "emailAddressText": {
           "type": "string",
           "pattern": ".@.",
@@ -167,27 +161,27 @@
     },
 
 
-    "included": {
+    "hlrCreateIncluded": {
       "type": "array",
-      "items": { "$ref": "#/definitions/contestableIssue" },
+      "items": { "$ref": "#/definitions/hlrCreateContestableIssue" },
       "minItems": 1,
       "maxItems": 6,
       "uniqueItems": true
     },
 
 
-    "contestableIssue": {
+    "hlrCreateContestableIssue": {
       "type": "object",
       "properties": {
-        "type":       { "const": "ContestableIssue" },
-        "attributes": { "$ref": "#/definitions/contestableIssueAttributes" }
+        "type":       { "type": "string", "enum": ["ContestableIssue"] },
+        "attributes": { "$ref": "#/definitions/hlrCreateContestableIssueAttributes" }
       },
       "additionalProperties": false,
       "required": [ "type", "attributes" ]
     },
 
 
-    "contestableIssueAttributes": {
+    "hlrCreateContestableIssueAttributes": {
       "type": "object",
       "properties": {
         "issue":                 { "$ref": "#/definitions/nonBlankStringMaxLength140" },
