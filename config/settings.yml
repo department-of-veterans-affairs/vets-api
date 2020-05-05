@@ -83,6 +83,8 @@ edu:
     user: ~
     port: ~
 
+dependents:
+  prefill: true
 
 pension_burial:
   prefill: true
