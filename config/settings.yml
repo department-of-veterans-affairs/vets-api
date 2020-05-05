@@ -376,6 +376,9 @@ redis:
   sidekiq:
     url: redis://localhost:6379
 
+redis_sidekiq:
+  url: redis://localhost:6379
+
 # Settings for GovDelivery (email delivery)
 govdelivery:
   staging_service: true
