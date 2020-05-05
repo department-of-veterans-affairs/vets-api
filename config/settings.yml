@@ -355,11 +355,14 @@ claims_api:
   disability_claims_mock_override: false
   schema_dir: config/schemas
 
-# Settings for Redis
-# TODO(knkski): Move all redis settings here?
 redis:
   host: localhost
   port: 6379
+  app_data:
+    url: redis://localhost:6379
+    # secondary_url: redis://localhost:6378
+  sidekiq:
+    url: redis://localhost:6379
 
 # Settings for GovDelivery (email delivery)
 govdelivery:
