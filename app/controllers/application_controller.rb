@@ -30,10 +30,6 @@ class ApplicationController < ActionController::API
     deprecated: 'Deprecated Version'
   }.freeze
 
-  EXCEPTION_MAP = {
-
-  }.freeze
-
   prepend_before_action :block_unknown_hosts, :set_app_info_headers
   # Also see AuthenticationAndSSOConcerns for more before filters
   skip_before_action :authenticate, only: %i[cors_preflight routing_error]
@@ -77,6 +73,7 @@ class ApplicationController < ActionController::API
     SKIP_SENTRY_EXCEPTION_TYPES
   end
 
+  # rubocop:disable Metrics/BlockLength
   rescue_from 'Exception' do |exception|
     # report the original 'cause' of the exception when present
     if skip_sentry_exception_types.include?(exception.class)
@@ -96,7 +93,26 @@ class ApplicationController < ActionController::API
       end
     end
 
-    va_exception = map_exception(exception)
+    va_exception =
+      case exception
+      when Pundit::NotAuthorizedError
+        Common::Exceptions::Forbidden.new(detail: 'User does not have access to the requested resource')
+      when Common::Exceptions::TokenValidationError
+        Common::Exceptions::Unauthorized.new(detail: exception.detail)
+      when ActionController::ParameterMissing
+        Common::Exceptions::ParameterMissing.new(exception.param)
+      when ActionController::UnknownFormat
+        Common::Exceptions::UnknownFormat.new
+      when Common::Exceptions::BaseError
+        exception
+      when Breakers::OutageException
+        Common::Exceptions::ServiceOutage.new(exception.outage)
+      when Common::Client::Errors::ClientError
+        # SSLError, ConnectionFailed, SerializationError, etc
+        Common::Exceptions::ServiceOutage.new(nil, detail: 'Backend Service Outage')
+      else
+        Common::Exceptions::InternalServerError.new(exception)
+      end
 
     unless skip_sentry_exception_types.include?(exception.class)
       va_exception_info = { va_exception_errors: va_exception.errors.map(&:to_hash) }
@@ -106,30 +122,7 @@ class ApplicationController < ActionController::API
     headers['WWW-Authenticate'] = 'Token realm="Application"' if va_exception.is_a?(Common::Exceptions::Unauthorized)
     render_errors(va_exception)
   end
-
-  # rubocop:disable Metrics/CyclomaticComplexity
-  def map_exception(exception)
-    case exception
-    when Pundit::NotAuthorizedError
-      Common::Exceptions::Forbidden.new(detail: 'User does not have access to the requested resource')
-    when Common::Exceptions::TokenValidationError
-      Common::Exceptions::Unauthorized.new(detail: exception.detail)
-    when ActionController::ParameterMissing
-      Common::Exceptions::ParameterMissing.new(exception.param)
-    when ActionController::UnknownFormat
-      Common::Exceptions::UnknownFormat.new
-    when Common::Exceptions::BaseError
-      exception
-    when Breakers::OutageException
-      Common::Exceptions::ServiceOutage.new(exception.outage)
-    when Common::Client::Errors::ClientError
-      # SSLError, ConnectionFailed, SerializationError, etc
-      Common::Exceptions::ServiceOutage.new(nil, detail: 'Backend Service Outage')
-    else
-      Common::Exceptions::InternalServerError.new(exception)
-    end
-  end
-  # rubocop:enable Metrics/CyclomaticComplexity
+  # rubocop:enable Metrics/BlockLength
 
   def render_errors(va_exception)
     render json: { errors: va_exception.errors }, status: va_exception.status_code
