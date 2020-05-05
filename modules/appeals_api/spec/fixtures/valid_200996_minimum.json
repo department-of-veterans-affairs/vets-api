@@ -1,0 +1,19 @@
+{
+  "data": {
+    "type": "HigherLevelReview",
+    "attributes": {
+      "informalConference": false,
+      "sameOffice": true,
+      "benefitType": "nca"
+    }
+  },
+  "included": [
+    {
+      "type": "ContestableIssue",
+      "attributes": {
+        "issue": "left shoulder",
+        "decisionDate": "1920-12-01"
+      }
+    }
+  ]
+}
