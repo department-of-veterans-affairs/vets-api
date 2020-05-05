@@ -2,7 +2,7 @@ development: &defaults
   redis:
     url: <%= Settings.redis.app_data.url %>
   sidekiq:
-    url: <%= Settings.redis_sidekiq.url %>
+    url: <%= Settings.redis.sidekiq.url %>
   # DO NOT CHANGE BELOW TTL (We have agreement with MHV on this for SSO)
   session_store:
     namespace: vets-api-session
