@@ -17,30 +17,47 @@ RSpec.describe Form1010cg::Service do
   end
 
   it 'will return a Form1010cg::submission' do
-    claim_data = { form: build_valid_claim_data.call }
-    expected = { carma_case_id: 'aB935000000A9GoCAK', submitted_at: DateTime.new }
+    claim_data        = { form: build_valid_claim_data.call }
+    carma_submission  = double
+    mvi_lookup_1      = double(status: 'OK', profile: double(icn: 'ICN_1'))
+    mvi_lookup_2      = double(status: 'OK', profile: double(icn: 'ICN_2'))
+    mvi_lookup_3      = double(status: 'OK', profile: double(icn: 'ICN_3'))
 
-    carma_submission = double
-
-    expect(CARMA::Models::Submission).to receive(:from_claim).and_return(carma_submission)
-    expect(carma_submission).to receive(:submit!) {
-      expect(carma_submission).to receive(:carma_case_id).and_return(expected[:carma_case_id])
-      expect(carma_submission).to receive(:submitted_at).and_return(expected[:submitted_at])
+    expected = {
+      metadata_argument: {
+        veteran: {
+          icn: mvi_lookup_1.profile.icn
+        },
+        primaryCaregiver: {
+          icn: mvi_lookup_2.profile.icn
+        },
+        secondaryCaregiverOne: {
+          icn: mvi_lookup_3.profile.icn
+        }
+      },
+      results: {
+        carma_case_id: 'aB935000000A9GoCAK',
+        submitted_at: DateTime.new
+      }
     }
 
-    mvi_lookup_1 = double(status: 'OK', profile: double(icn: '999V1000'))
-    mvi_lookup_2 = double(status: 'OK', profile: double(icn: '333V2000'))
+    expect(CARMA::Models::Submission).to receive(:from_claim).and_return(carma_submission)
+    expect(carma_submission).to receive(:metadata=).with(expected[:metadata_argument])
+    expect(carma_submission).to receive(:submit!) {
+      expect(carma_submission).to receive(:carma_case_id).and_return(expected[:results][:carma_case_id])
+      expect(carma_submission).to receive(:submitted_at).and_return(expected[:results][:submitted_at])
+    }
 
     expect_any_instance_of(
       MVI::Service
     ).to receive(
-      :find_profile_by_attributes_only
-    ).and_return(mvi_lookup_1, mvi_lookup_2)
+      :find_profile
+    ).and_return(mvi_lookup_1, mvi_lookup_2, mvi_lookup_3)
 
     submission = subject.submit_claim!(claim_data)
 
     expect(submission).to be_an_instance_of(Form1010cg::Submission)
-    expect(submission.carma_case_id).to eq(expected[:carma_case_id])
-    expect(submission.submitted_at).to eq(expected[:submitted_at])
+    expect(submission.carma_case_id).to eq(expected[:results][:carma_case_id])
+    expect(submission.submitted_at).to eq(expected[:results][:submitted_at])
   end
 end

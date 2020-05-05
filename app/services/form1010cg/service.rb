@@ -37,8 +37,8 @@ module Form1010cg
       mvi_searches.each do |mvi_search|
         next if form_data[mvi_search.namespace].nil? && mvi_search.optional?
 
-        attributes = build_mvi_profile_search(form_data, mvi_search.namespace)
-        response = mvi.find_profile_by_attributes_only(attributes)
+        identity = build_user_identity form_data, mvi_search.namespace
+        response = mvi.find_profile identity
 
         metadata[mvi_search.namespace.to_sym] = { icn: response&.profile&.icn } if response.status == 'OK'
 
@@ -57,17 +57,26 @@ module Form1010cg
       metadata
     end
 
-    def build_mvi_profile_search(parsed_form_data, namespace)
+    # MVI requires a valid UserIdentity to run a profile search on. This UserIdentity should not be persisted.
+    def build_user_identity(parsed_form_data, namespace)
       data = parsed_form_data[namespace]
 
-      OpenStruct.new(
+      attributes = {
         first_name: data['fullName']['first'],
         middle_name: data['fullName']['middle'],
         last_name: data['fullName']['last'],
         birth_date: data['dateOfBirth'],
-        gender: data['gender'],
-        ssn: data['ssnOrTin']
-      )
+        gender: data['gender'] == 'U' ? nil : data['gender'],
+        ssn: data['ssnOrTin'],
+        email: data['email'],
+        uuid: SecureRandom.uuid,
+        loa: {
+          current: LOA::THREE,
+          highest: LOA::THREE
+        }
+      }
+
+      UserIdentity.new attributes
     end
 
     def mvi_searches
