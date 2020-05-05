@@ -25,7 +25,7 @@ describe BipClaims::Configuration do
       end
     end
 
-    context 'when Settings.appeals.mock is false' do
+    context 'when Settings.caseflow.mock is false' do
       before { Settings.bip.claims.mock = 'false' }
 
       it 'returns false' do

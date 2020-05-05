@@ -76,14 +76,16 @@ http_interactions:
             "city": "Kansas City",
             "state": "MO",
             "country": "USA",
-            "postal_code": "64117"
+            "postal_code": "64117",
+            "is_military_base": false
           },
           "temporary_address": {
             "street": "201 Example Street",
             "city": "Galveston",
             "state": "TX",
             "country": "USA",
-            "postal_code": "77550"
+            "postal_code": "77550",
+            "is_military_base": false
           },
           "supplies": [
             {
@@ -93,15 +95,17 @@ http_interactions:
               "product_group": "hearing aid batteries",
               "product_id": "1",
               "product_name": "ZA1239",
-              "quantity": 60
+              "quantity": 60,
+              "prescribed_date": "2019-12-25"
             }, 
             {
               "available_for_reorder": true,
               "last_order_date": "2019-06-30",
               "next_availability_date": "2019-12-15",
               "product_group": "hearing aid accessories",
-              "product_id": "3", "productName": "DOME", 
-              "quantity": 10, 
+              "product_id": "3",
+              "productName": "DOME",
+              "quantity": 10,
               "size": "6mm"
             },
             {
@@ -111,7 +115,8 @@ http_interactions:
               "product_group": "hearing aid accessories",
               "product_id": "4",
               "product_name": "DOME",
-              "quantity": 10, "size": "7mm"
+              "quantity": 10,
+              "size": "7mm"
             }, 
             {
               "available_for_reorder": true,

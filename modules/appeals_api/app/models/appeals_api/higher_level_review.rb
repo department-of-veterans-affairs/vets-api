@@ -17,9 +17,10 @@ module AppealsApi
     attr_encrypted(:form_data, key: Settings.db_encryption_key, marshal: true, marshaler: JsonMarshal::Marshaller)
     attr_encrypted(:auth_headers, key: Settings.db_encryption_key, marshal: true, marshaler: JsonMarshal::Marshaller)
 
-    enum status: { pending: 0, processing: 1, submitted: 2, established: 3, errored: 4 }
+    enum status: { pending: 0, processing: 1, submitted: 2, established: 3, error: 4 }
 
     INFORMAL_CONFERENCE_REP_NAME_AND_PHONE_NUMBER_MAX_LENGTH = 100
+    NO_ADDRESS_PROVIDED_SENTENCE = 'USE ADDRESS ON FILE'
 
     # the controller applies the JSON Schemas in modules/appeals_api/config/schemas/
     # further validations:
@@ -86,6 +87,8 @@ module AppealsApi
 
     # 9. CURRENT MAILING ADDRESS
     def number_and_street
+      return NO_ADDRESS_PROVIDED_SENTENCE if address_blank?
+
       address_field_as_string 'addressLine1'
     end
 
@@ -149,6 +152,18 @@ module AppealsApi
     # 15. YOU MUST INDICATE BELOW EACH ISSUE...
     def contestable_issues
       form_data&.dig('included')
+    end
+
+    def consumer_name
+      auth_headers['X-Consumer-Username']
+    end
+
+    def consumer_id
+      auth_headers['X-Consumer-ID']
+    end
+
+    def central_mail_status
+      CentralMail::Service.new.status(id)
     end
 
     private
@@ -262,6 +277,15 @@ module AppealsApi
 
     def add_error(message)
       errors.add(:base, message)
+    end
+
+    def address_present?
+      address = veteran&.dig 'address'
+      address.is_a?(Hash) && address.values.any?(&:present?)
+    end
+
+    def address_blank?
+      !address_present?
     end
   end
 end

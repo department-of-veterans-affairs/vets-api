@@ -188,7 +188,8 @@ RSpec.describe 'Disability Claims ', type: :request do
   describe '#upload_documents' do
     let(:auto_claim) { create(:auto_established_claim) }
     let(:params) do
-      { 'attachment': Rack::Test::UploadedFile.new("#{::Rails.root}/modules/claims_api/spec/fixtures/extras.pdf") }
+      { 'attachment1': Rack::Test::UploadedFile.new("#{::Rails.root}/modules/claims_api/spec/fixtures/extras.pdf"),
+        'attachment2': Rack::Test::UploadedFile.new("#{::Rails.root}/modules/claims_api/spec/fixtures/extras.pdf") }
     end
 
     it 'upload 526 form through PUT' do
@@ -208,7 +209,17 @@ RSpec.describe 'Disability Claims ', type: :request do
         post("/services/claims/v1/forms/526/#{auto_claim.id}/attachments",
              params: params, headers: headers.merge(auth_header))
         auto_claim.reload
-        expect(auto_claim.supporting_documents.count).to eq(count + 1)
+        expect(auto_claim.supporting_documents.count).to eq(count + 2)
+      end
+    end
+
+    it 'bad claim ID returns 404' do
+      bad_id = 0
+      with_okta_user(scopes) do |auth_header|
+        allow_any_instance_of(ClaimsApi::SupportingDocumentUploader).to receive(:store!)
+        post("/services/claims/v1/forms/526/#{bad_id}/attachments",
+             params: params, headers: headers.merge(auth_header))
+        expect(response.status).to eq(404)
       end
     end
   end

@@ -65,6 +65,8 @@ http_interactions:
       - Faraday v0.17.0
       Content-Type:
       - application/json
+      Sforce-auto-assign:
+      - "FALSE"
       Authorization:
       - OAuth <CARMA_ACCESS_TOKEN>
       Accept-Encoding:

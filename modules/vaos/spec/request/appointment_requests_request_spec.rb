@@ -10,12 +10,12 @@ RSpec.describe 'vaos appointment requests', type: :request do
     allow_any_instance_of(VAOS::UserService).to receive(:session).and_return('stubbed_token')
   end
 
-  describe 'GET /v0/vaos/appointment_requests' do
+  describe 'GET /vaos/v0/appointment_requests' do
     context 'loa1 user with flipper enabled' do
       let(:current_user) { build(:user, :loa1) }
 
       it 'does not have access' do
-        get '/v0/vaos/appointment_requests'
+        get '/vaos/v0/appointment_requests'
         expect(response).to have_http_status(:forbidden)
         expect(JSON.parse(response.body)['errors'].first['detail'])
           .to eq('You do not have access to online scheduling')
@@ -31,7 +31,7 @@ RSpec.describe 'vaos appointment requests', type: :request do
       context 'with flipper disabled' do
         it 'does not have access' do
           Flipper.disable('va_online_scheduling')
-          get '/v0/vaos/appointment_requests'
+          get '/vaos/v0/appointment_requests'
           expect(response).to have_http_status(:forbidden)
           expect(JSON.parse(response.body)['errors'].first['detail'])
             .to eq('You do not have access to online scheduling')
@@ -40,7 +40,7 @@ RSpec.describe 'vaos appointment requests', type: :request do
 
       context 'without a start_date' do
         it 'has a parameter missing exception' do
-          get '/v0/vaos/appointment_requests', params: params.except(:start_date)
+          get '/vaos/v0/appointment_requests', params: params.except(:start_date)
           expect(response).to have_http_status(:bad_request)
           expect(response.body).to be_a(String)
           expect(JSON.parse(response.body)['errors'].first['detail'])
@@ -50,7 +50,7 @@ RSpec.describe 'vaos appointment requests', type: :request do
 
       context 'without an end_date' do
         it 'has a parameter missing exception' do
-          get '/v0/vaos/appointment_requests', params: params.except(:end_date)
+          get '/vaos/v0/appointment_requests', params: params.except(:end_date)
           expect(response).to have_http_status(:bad_request)
           expect(response.body).to be_a(String)
           expect(JSON.parse(response.body)['errors'].first['detail'])
@@ -60,7 +60,7 @@ RSpec.describe 'vaos appointment requests', type: :request do
 
       context 'with an invalid start_date' do
         it 'has an invalid field type exception' do
-          get '/v0/vaos/appointment_requests', params: params.merge(start_date: 'invalid')
+          get '/vaos/v0/appointment_requests', params: params.merge(start_date: 'invalid')
           expect(response).to have_http_status(:bad_request)
           expect(response.body).to be_a(String)
           expect(JSON.parse(response.body)['errors'].first['detail'])
@@ -70,7 +70,7 @@ RSpec.describe 'vaos appointment requests', type: :request do
 
       context 'with an invalid end_date' do
         it 'has an invalid field type exception' do
-          get '/v0/vaos/appointment_requests', params: params.merge(end_date: 'invalid')
+          get '/vaos/v0/appointment_requests', params: params.merge(end_date: 'invalid')
           expect(response).to have_http_status(:bad_request)
           expect(response.body).to be_a(String)
           expect(JSON.parse(response.body)['errors'].first['detail'])
@@ -80,7 +80,7 @@ RSpec.describe 'vaos appointment requests', type: :request do
 
       it 'has access and returns va appointments' do
         VCR.use_cassette('vaos/appointment_requests/get_requests_with_params', match_requests_on: %i[method uri]) do
-          get '/v0/vaos/appointment_requests', params: params
+          get '/vaos/v0/appointment_requests', params: params
           expect(response).to have_http_status(:success)
           expect(response.body).to be_a(String)
           expect(response).to match_response_schema('vaos/appointment_requests')
@@ -89,13 +89,13 @@ RSpec.describe 'vaos appointment requests', type: :request do
     end
   end
 
-  describe 'POST /v0/vaos/appointment_requests', skip_mvi: true do
+  describe 'POST /vaos/v0/appointment_requests', skip_mvi: true do
     let(:current_user) { build(:user, :vaos) }
     let(:params) { build(:appointment_request_form, :creation, user: current_user).params }
 
     it 'creates a new appointment request' do
       VCR.use_cassette('vaos/appointment_requests/post_request', match_requests_on: %i[method uri]) do
-        post '/v0/vaos/appointment_requests', params: params
+        post '/vaos/v0/appointment_requests', params: params
         expect(response).to have_http_status(:created)
         expect(response.body).to be_a(String)
         expect(json_body_for(response)).to match_schema('vaos/appointment_request')
@@ -107,7 +107,7 @@ RSpec.describe 'vaos appointment requests', type: :request do
 
       it 'creates a new appointment request' do
         VCR.use_cassette('vaos/appointment_requests/post_request_CC', match_requests_on: %i[method uri]) do
-          post '/v0/vaos/appointment_requests', params: params
+          post '/vaos/v0/appointment_requests', params: params
 
           expect(response).to have_http_status(:created)
           expect(response.body).to be_a(String)
@@ -117,7 +117,7 @@ RSpec.describe 'vaos appointment requests', type: :request do
     end
   end
 
-  describe 'PUT /v0/vaos/appointment_requests/:id', skip_mvi: true do
+  describe 'PUT /vaos/v0/appointment_requests/:id', skip_mvi: true do
     let(:current_user) { build(:user, :vaos) }
     let(:id) { '8a4886886e4c8e22016e92be77cb00f9' }
     let(:date) { Time.zone.parse('2019-11-22 10:53:05 +0000') }
@@ -142,7 +142,7 @@ RSpec.describe 'vaos appointment requests', type: :request do
 
     it 'cancels an appointment request' do
       VCR.use_cassette('vaos/appointment_requests/put_request', match_requests_on: %i[method uri]) do
-        put "/v0/vaos/appointment_requests/#{id}", params: params
+        put "/vaos/v0/appointment_requests/#{id}", params: params
         expect(response).to have_http_status(:success)
         expect(response.body).to be_a(String)
         expect(json_body_for(response)).to match_schema('vaos/appointment_request')

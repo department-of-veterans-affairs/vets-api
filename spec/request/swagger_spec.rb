@@ -144,16 +144,18 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
     end
 
     it 'supports adding an caregiver\'s assistance claim' do
-      expect(subject).to validate(
-        :post,
-        '/v0/caregivers_assistance_claims',
-        200,
-        '_data' => {
-          'caregivers_assistance_claim' => {
-            'form' => build(:caregivers_assistance_claim).form
+      VCR.use_cassette('carma/submissions/create/201') do
+        expect(subject).to validate(
+          :post,
+          '/v0/caregivers_assistance_claims',
+          200,
+          '_data' => {
+            'caregivers_assistance_claim' => {
+              'form' => build(:caregivers_assistance_claim).form
+            }
           }
-        }
-      )
+        )
+      end
 
       expect(subject).to validate(
         :post,
@@ -452,7 +454,7 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
         end
       end
 
-      context 'unsucessful calls' do
+      context 'unsuccessful calls' do
         it 'returns error on showing a prescription with bad id' do
           VCR.use_cassette('rx_client/prescriptions/gets_a_single_prescription') do
             expect(subject).to validate(:get, '/v0/prescriptions/{id}', 404, headers.merge('id' => '1'))
@@ -1403,8 +1405,10 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
         end
 
         it 'supports getting a single facility' do
-          create :vha_648A4
-          expect(subject).to validate(:get, '/v0/facilities/va/{id}', 200, 'id' => 'vha_648A4')
+          VCR.use_cassette('/lighthouse/facilities', match_requests_on: %i[path query]) do
+            create :vha_648A4
+            expect(subject).to validate(:get, '/v0/facilities/va/{id}', 200, 'id' => 'vha_648A4')
+          end
         end
 
         it '404s on non-existent facility' do
@@ -1464,31 +1468,31 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
       end
 
       it 'documents appeals 200' do
-        VCR.use_cassette('/appeals/appeals') do
+        VCR.use_cassette('/caseflow/appeals') do
           expect(subject).to validate(:get, '/v0/appeals', 200, headers)
         end
       end
 
       it 'documents appeals 403' do
-        VCR.use_cassette('/appeals/forbidden') do
+        VCR.use_cassette('/caseflow/forbidden') do
           expect(subject).to validate(:get, '/v0/appeals', 403, headers)
         end
       end
 
       it 'documents appeals 404' do
-        VCR.use_cassette('/appeals/not_found') do
+        VCR.use_cassette('/caseflow/not_found') do
           expect(subject).to validate(:get, '/v0/appeals', 404, headers)
         end
       end
 
       it 'documents appeals 422' do
-        VCR.use_cassette('/appeals/invalid_ssn') do
+        VCR.use_cassette('/caseflow/invalid_ssn') do
           expect(subject).to validate(:get, '/v0/appeals', 422, headers)
         end
       end
 
       it 'documents appeals 502' do
-        VCR.use_cassette('/appeals/server_error') do
+        VCR.use_cassette('/caseflow/server_error') do
           expect(subject).to validate(:get, '/v0/appeals', 502, headers)
         end
       end
