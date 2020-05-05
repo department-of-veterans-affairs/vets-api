@@ -111,7 +111,7 @@ vet360:
     timeout: 30
     mock: false
   address_validation:
-    hostname: 'dev-api.va.gov'
+    hostname: 'sandbox-api.va.gov'
     api_key: '<AV_KEY>'
 
 # Settings for IHub
@@ -133,7 +133,7 @@ mdot:
 # Settings for Decision Reviews
 decision_review:
   prefill: true
-  url: https://dev-api.va.gov/services/appeals/v3/decision_review
+  url: https://sandbox-api.va.gov/services/appeals/v3/decision_review
   api_key: abcd1234abcd1234abcd1234abcd1234abcd1234
   mock: false
 
@@ -505,7 +505,7 @@ lighthouse:
     api_key: fake_key
 
 forms:
-  url: https://dev-api.va.gov/services/va_forms/v0/
+  url: https://sandbox-api.va.gov/services/va_forms/v0/
   mock: false
 
 vbms:
