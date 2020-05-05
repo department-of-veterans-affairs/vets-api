@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'common/models/base'
+require 'date'
 
 module VeteranVerification
   class DisabilityRating
@@ -8,7 +9,7 @@ module VeteranVerification
     include Virtus.model
 
     attribute :id, String
-    attribute :overall_disability_rating, String
+    attribute :overall_disability_rating, Integer
     attribute :ratings, Array
 
     def self.rating_service
@@ -50,8 +51,8 @@ module VeteranVerification
       ratings = response[:disability_rating_record][:ratings].map do |rating|
         {
           decision: rating[:disability_decision_type_name],
-          effective_date: rating[:begin_date],
-          rating_percentage: rating[:diagnostic_percent]
+          effective_date: (DateTime.strptime(rating[:begin_date], '%m%d%Y') unless rating[:begin_date].nil?),
+          rating_percentage: rating[:diagnostic_percent].to_i
         }
       end
       filtered_ratings = ratings.select do |rating|
