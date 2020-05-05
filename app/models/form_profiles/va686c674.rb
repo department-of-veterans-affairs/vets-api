@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class FormProfiles::VA21686c674 < FormProfile
+class FormProfiles::VA686c674 < FormProfile
   class FormAddress
     include Virtus.model
 
