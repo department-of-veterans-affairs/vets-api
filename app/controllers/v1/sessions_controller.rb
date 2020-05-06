@@ -55,6 +55,10 @@ module V1
         redirect_to url_service.login_redirect_url(auth: 'fail', code: auth_error_code(saml_response.error_code))
         callback_stats(:failure, saml_response, saml_response.error_instrumentation_code)
       end
+    rescue SAML::UserAttributeError => e
+      log_message_to_sentry(e.message, {}, {}, :warning)
+      redirect_to url_service.login_redirect_url(auth: 'fail', code: e.code)
+      callback_stats(:failure, saml_response, e.tag)
     rescue => e
       log_exception_to_sentry(e, {}, {}, :error)
       redirect_to url_service.login_redirect_url(auth: 'fail', code: '007') unless performed?

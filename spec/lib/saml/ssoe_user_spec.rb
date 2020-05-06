@@ -414,8 +414,171 @@ RSpec.describe SAML::User do
         it 'does not validate' do
           expect { subject.validate! }.to raise_error { |error|
             expect(error).to be_a(SAML::UserAttributeError)
-            expect(error.message).to eq('MHV Identifier mismatch')
+            expect(error.message).to eq('User attributes contain multiple distinct MHV ID values')
           }
+        end
+      end
+
+      context 'with mismatching ICNs' do
+        let(:saml_attributes) do
+          build(:ssoe_idme_mhv_loa3,
+                va_eauth_mhvicn: ['111111111V666666'],
+                va_eauth_icn: ['22222222V888888'])
+        end
+
+        it 'does not validate' do
+          expect { subject.validate! }.to raise_error { |error|
+            expect(error).to be_a(SAML::UserAttributeError)
+            expect(error.message).to
+            eq('MHV credential ICN does not match MPI record')
+          }
+        end
+      end
+
+      context 'with multi-value mhvien' do
+        let(:saml_attributes) do
+          build(:ssoe_idme_mhv_loa3,
+                va_eauth_mhvuuid: [uuid],
+                va_eauth_mhvien: [ien])
+        end
+
+        context 'with matching values' do
+          let(:uuid) { 'NOT_FOUND' }
+          let(:ien) { '888777,888777' }
+
+          it 'de-duplicates values' do
+            expect(subject.to_hash).to include(
+              mhv_correlation_id: '888777'
+            )
+          end
+
+          it 'validates' do
+            expect { subject.validate! }.not_to raise_error
+          end
+        end
+
+        context 'with uuid only' do
+          let(:uuid) { '888777' }
+          let(:ien) { 'NOT_FOUND' }
+
+          it 'de-duplicates values' do
+            expect(subject.to_hash).to include(
+              mhv_correlation_id: '888777'
+            )
+          end
+
+          it 'validates' do
+            expect { subject.validate! }.not_to raise_error
+          end
+        end
+
+        context 'with no mhv ids' do
+          let(:uuid) { 'NOT_FOUND' }
+          let(:ien) { 'NOT_FOUND' }
+
+          it 'de-duplicates values' do
+            expect(subject.to_hash).to include(
+              mhv_correlation_id: nil
+            )
+          end
+
+          it 'validates' do
+            expect { subject.validate! }.not_to raise_error
+          end
+        end
+
+        context 'with matching mhvien and mhvuuid' do
+          let(:uuid) { '888777' }
+          let(:ien) { '888777,888777' }
+
+          it 'de-duplicates values' do
+            expect(subject.to_hash).to include(
+              mhv_correlation_id: '888777'
+            )
+          end
+
+          it 'validates' do
+            expect { subject.validate! }.not_to raise_error
+          end
+        end
+
+        context 'with mis-matching mhvien and mhvuuid' do
+          let(:uuid) { '888777' }
+          let(:ien) { '888777,999888' }
+
+          let(:saml_attributes) do
+            build(:ssoe_idme_mhv_loa3,
+                  va_eauth_mhvuuid: ['888777'],
+                  va_eauth_mhvien: ['999888,888777'])
+          end
+
+          it 'does not validate' do
+            expect { subject.validate! }.to raise_error { |error|
+                                              expect(error).to be_a(SAML::UserAttributeError)
+                                              expect(error.message).to
+                                              eq('User attributes contain multiple distinct MHV ID values')
+                                            }
+          end
+        end
+
+        context 'with mis-matching mhvien values' do
+          let(:uuid) { 'NOT_FOUND' }
+          let(:ien) { '999888,888777' }
+
+          it 'does not validate' do
+            expect { subject.validate! }.to raise_error { |error|
+                                              expect(error).to be_a(SAML::UserAttributeError)
+                                              expect(error.message).to
+                                              eq('User attributes contain multiple distinct MHV ID values')
+                                            }
+          end
+        end
+      end
+    end
+
+    context 'with multi-value edipi' do
+      let(:saml_attributes) do
+        build(:ssoe_idme_mhv_loa3,
+              va_eauth_dodedipnid: [edipi])
+      end
+
+      context 'with different values' do
+        let(:edipi) { '0123456789,0000000054' }
+
+        it 'does not validate' do
+          expect { subject.validate! }.to raise_error { |error|
+                                            expect(error).to be_a(SAML::UserAttributeError)
+                                            expect(error.message).to
+                                            eq('User attributes contain multiple distinct EDIPI values')
+                                          }
+        end
+      end
+
+      context 'with matching values' do
+        let(:edipi) { '0123456789,0123456789' }
+
+        it 'de-duplicates values' do
+          expect(subject.to_hash).to include(
+            dslogon_edipi: '0123456789'
+          )
+        end
+
+        it 'validates' do
+          expect { subject.validate! }.not_to raise_error
+        end
+      end
+
+      context 'with empty value' do
+        let(:edipi) { 'NOT_FOUND' }
+
+        it 'de-duplicates values' do
+          expect(subject.to_hash).to include(
+            dslogon_edipi: nil
+          )
+        end
+
+        it 'validates' do
+          expect { subject.validate! }.not_to raise_error
         end
       end
     end
