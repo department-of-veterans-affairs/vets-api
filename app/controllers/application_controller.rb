@@ -120,13 +120,9 @@ class ApplicationController < ActionController::API
     end
 
     headers['WWW-Authenticate'] = 'Token realm="Application"' if va_exception.is_a?(Common::Exceptions::Unauthorized)
-    render_errors(va_exception)
-  end
-  # rubocop:enable Metrics/BlockLength
-
-  def render_errors(va_exception)
     render json: { errors: va_exception.errors }, status: va_exception.status_code
   end
+  # rubocop:enable Metrics/BlockLength
 
   def set_tags_and_extra_context
     RequestStore.store['request_id'] = request.uuid
