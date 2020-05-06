@@ -31,12 +31,7 @@ describe VAOS::V1::OperationOutcomeSerializer do
     end
 
     context 'with an informational message' do
-      let(:issue) do
-        {
-          detail: 'Additional information may be found in the conformance doc'
-        }
-      end
-
+      let(:issue) { { detail: 'Additional information may be found in the conformance doc' } }
       let(:operation_outcome) { VAOS::V1::OperationOutcome.new(resource_type: resource_type, issue: issue) }
 
       it 'serializes the error in FHIR DSTU 2 format' do
