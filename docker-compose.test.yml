@@ -1,7 +1,5 @@
 version: '3.4'
 services:
-  redis:
-    image: redis:5.0-alpine
   postgres:
     image: mdillon/postgis:11-alpine
     environment:
@@ -37,9 +35,7 @@ services:
       DANGER_GITHUB_API_TOKEN: "${DANGER_GITHUB_API_TOKEN}"
     depends_on:
       - postgres
-      - redis
     links:
       - postgres
-      - redis
 volumes:
   test_bundle:
