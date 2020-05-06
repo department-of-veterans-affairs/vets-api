@@ -6,7 +6,9 @@ module V0
     skip_before_action(:authenticate)
 
     def create
-      submission = service.submit_claim!(claim_params)
+      return service_unavailable unless Flipper.enabled?(:allow_online_10_10cg_submissions)
+
+      submission = service.submit_claim!(form: form_submission)
       render json: submission, serializer: ::Form1010cg::SubmissionSerializer
     end
 
@@ -16,8 +18,12 @@ module V0
       @service ||= ::Form1010cg::Service.new
     end
 
-    def claim_params
-      params.require(:caregivers_assistance_claim).permit(:form)
+    def form_submission
+      params.require(:caregivers_assistance_claim).require(:form)
+    end
+
+    def service_unavailable
+      render nothing: true, status: :service_unavailable, as: :json
     end
   end
 end

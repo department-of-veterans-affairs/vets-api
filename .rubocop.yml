@@ -15,6 +15,7 @@ AllCops:
     - '**/*.rake'
     - '**/*.rb'
   Exclude:
+    - 'bin/*'
     - db/schema.rb
     - db/seeds.rb
     - db/migrate/*.rb
@@ -109,6 +110,7 @@ Metrics/BlockLength:
     - 'app/controllers/v0/apidocs_controller.rb'
     - 'modules/*/spec/**/*.rb'
     - 'modules/*/app/swagger/**/*.rb'
+    - 'modules/*/config/routes.rb'
 
 # Don't worry about ambiguous blocks in RSpec
 # Official recommendation from rubocop team is to disable this rule for specs.
@@ -330,17 +332,25 @@ RSpec/SubjectStub:
 Rails/FilePath:
   EnforcedStyle: arguments
 
+# Added in v0.81
 Lint/RaiseException:
-  Enabled: false
+  Enabled: true
 
 Lint/StructNewOverride:
-  Enabled: false
+  Enabled: true
 
 Style/HashEachMethods:
-  Enabled: false
+  Enabled: true
 
 Style/HashTransformKeys:
-  Enabled: false
+  Enabled: true
 
 Style/HashTransformValues:
-  Enabled: false
+  Enabled: true
+
+# Added in v0.82
+Layout/SpaceAroundMethodCallOperator:
+  Enabled: true
+
+Style/ExponentialNotation:
+  Enabled: true

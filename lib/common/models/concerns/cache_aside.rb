@@ -10,8 +10,6 @@ module Common
   module CacheAside
     extend ActiveSupport::Concern
 
-    REDIS_CONFIG = Rails.application.config_for(:redis).freeze
-
     included do
       unless self < Common::RedisStore
         raise ArgumentError, 'Class composing Common::CacheAside must be a Common::RedisStore'

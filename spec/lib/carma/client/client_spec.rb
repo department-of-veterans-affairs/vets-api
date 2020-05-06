@@ -28,7 +28,8 @@ RSpec.describe CARMA::Client::Client, type: :model do
         .with(
           '/services/apexrest/carma/v1/1010-cg-submissions',
           payload,
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
+          'Sforce-Auto-Assign': 'FALSE'
         )
         .and_return(response_double)
       expect(response_double).to receive(:body).and_return(:response_token)

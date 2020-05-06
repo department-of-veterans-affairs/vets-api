@@ -16,7 +16,6 @@ class YearToDateReportMailer < ApplicationMailer
       John.McNeal@va.gov
       Anne.kainic@va.gov
       ian@adhocteam.us
-      Darla.VanNieukerk@va.gov
       Brandon.Scott2@va.gov
       224C.VBAVACO@va.gov
       peter.chou1@va.gov
@@ -27,9 +26,6 @@ class YearToDateReportMailer < ApplicationMailer
       Lucas.Tickner@va.gov
       kyle.pietrosanto@va.gov
       robert.shinners@va.gov
-      daveandshay@att.net
-      johnny@oddball.io
-      John.Holton2@va.gov
     ]
   }.freeze
 

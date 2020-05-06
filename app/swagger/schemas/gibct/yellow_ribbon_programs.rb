@@ -14,8 +14,8 @@ module Swagger
               key :type, :object
               key :required, %i[id type attributes]
 
-              property :id, type: :string, example: '12345'
-              property :type, type: :string, enum: ['yellow_ribbon_programs']
+              property :id, type: :string, example: '1226343'
+              property :type, type: :string, enum: ['yellow_ribbon_programs'], example: 'yellow_ribbon_programs'
               property :attributes do
                 key :required, %i[city
                                   contribution_amount
@@ -30,10 +30,10 @@ module Swagger
                                   state
                                   street_address]
 
-                property :city, type: %i[null string], example: 'Chicago',
+                property :city, type: %i[null string], example: 'Abilene',
                                 description: 'The city name where the Yellow Ribbon Program is located.'
 
-                property :contribution_amount, type: %i[null string], example: '10000.0',
+                property :contribution_amount, type: %i[null string], example: '99999.0',
                                                description: 'The contribution amount in dollars.'
 
                 property :country, type: %i[null string], example: 'USA',
@@ -45,25 +45,25 @@ module Swagger
                 property :division_professional_school, type: %i[null string], example: 'All',
                                                         description: 'The majors/minors of the Yellow Ribbon Program.'
 
-                property :facility_code, type: %i[null string], example: '12345',
+                property :facility_code, type: %i[null string], example: '31000143',
                                          description: 'The faciliy code of the Yellow Ribbon Program.'
 
-                property :institution_id, type: %i[null integer], example: 12_345,
+                property :institution_id, type: %i[null integer], example: 20_405_111,
                                           description: 'The instutition ID the Yellow Ribbon Program belongs to.'
 
-                property :insturl, type: %i[null string], example: 'https://example.com',
+                property :insturl, type: %i[null string], example: 'www.acu.edu',
                                    description: 'The URL for the Yellow Ribbon Program\'s instutition.'
 
-                property :name_of_institution, type: %i[null string], example: 'colorado university',
+                property :name_of_institution, type: %i[null string], example: 'ABILENE CHRISTIAN UNIVERSITY',
                                                description: 'The name of the school.'
 
-                property :number_of_students, type: %i[null integer], example: 320,
+                property :number_of_students, type: %i[null integer], example: 99_999,
                                               description: 'The number of students that can receive the benefit.'
 
-                property :state, type: %i[null string], example: 'IL',
+                property :state, type: %i[null string], example: 'TX',
                                  description: 'The provincial state where the Yellow Ribbon Program is located.'
 
-                property :street_address, type: %i[null string], example: '1234 Street',
+                property :street_address, type: %i[null string], example: '1600 Campus Court',
                                           description: 'The street address where the Yellow Ribbon Program is located.'
               end
             end
