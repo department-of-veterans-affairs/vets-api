@@ -50,7 +50,7 @@ module ClaimsApi
       params.slice(*document_keys).values.map do |document|
         if document.is_a?(String) && document.include?(';base64,')
           decoded_data = Base64.decode64(document).force_encoding('UTF-8')
-          filename = "temp_upload_#{Time.zone.now.to_i}.pdf"
+          filename = "temp_upload_#{Time.zone.now.to_i}"
           temp_file = Tempfile.new(filename)
           temp_file.write(decoded_data)
           ActionDispatch::Http::UploadedFile.new( filename: filename,
