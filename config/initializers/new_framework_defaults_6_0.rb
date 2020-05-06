@@ -19,4 +19,3 @@
 
 # Change the return value of `ActionDispatch::Response#content_type` to Content-Type header without modification.
 # Rails.application.config.action_dispatch.return_only_media_type_on_content_type = false
-
