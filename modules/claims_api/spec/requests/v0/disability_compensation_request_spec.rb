@@ -149,7 +149,8 @@ RSpec.describe 'Disability Claims ', type: :request do
     let(:auto_claim) { create(:auto_established_claim) }
     let(:params) do
       { 'attachment1': Rack::Test::UploadedFile.new("#{::Rails.root}/modules/claims_api/spec/fixtures/extras.pdf"),
-        'attachment2': Rack::Test::UploadedFile.new("#{::Rails.root}/modules/claims_api/spec/fixtures/extras.pdf") }
+        'attachment2': Rack::Test::UploadedFile.new("#{::Rails.root}/modules/claims_api/spec/fixtures/extras.pdf"),
+        'attachment3': File.read("#{::Rails.root}/modules/claims_api/spec/fixtures/base64pdf") }
     end
 
     it 'upload 526 form through PUT' do
@@ -163,6 +164,7 @@ RSpec.describe 'Disability Claims ', type: :request do
       allow_any_instance_of(ClaimsApi::SupportingDocumentUploader).to receive(:store!)
       count = auto_claim.supporting_documents.count
       post "/services/claims/v0/forms/526/#{auto_claim.id}/attachments", params: params, headers: headers
+      puts response.body
       auto_claim.reload
       expect(auto_claim.supporting_documents.count).to eq(count + 2)
     end
