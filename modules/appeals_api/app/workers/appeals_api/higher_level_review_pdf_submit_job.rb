@@ -11,12 +11,16 @@ module AppealsApi
 
     def perform(higher_level_review_id, retries = 0)
       @retries = retries
+      stamped_pdf = generate_pdf(higher_level_review_id)
+      upload_to_central_mail(higher_level_review_id, stamped_pdf)
+    end
+
+    def generate_pdf(higher_level_review_id)
       pdf_constructor = AppealsApi::HigherLevelReviewPdfConstructor.new(higher_level_review_id)
       pdf_path = pdf_constructor.fill_pdf
       higher_level_review = HigherLevelReview.find higher_level_review_id
       higher_level_review.processing!
-      stamped_pdf = pdf_constructor.stamp_pdf(pdf_path, higher_level_review.consumer_name)
-      upload_to_central_mail(higher_level_review_id, stamped_pdf)
+      pdf_constructor.stamp_pdf(pdf_path, higher_level_review.consumer_name)
     end
 
     def upload_to_central_mail(higher_level_review_id, pdf_path)

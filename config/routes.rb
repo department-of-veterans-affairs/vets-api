@@ -69,8 +69,7 @@ Rails.application.routes.draw do
 
     resource :hca_attachments, only: :create
 
-    # Excluding this feature until external service (CARMA) is connected
-    resources :caregivers_assistance_claims, only: :create unless Rails.env.production?
+    resources :caregivers_assistance_claims, only: :create
 
     resources :dependents_applications, only: %i[create show] do
       collection do
@@ -319,14 +318,15 @@ Rails.application.routes.draw do
 
   # TEMPORARILY SUPPORT THE BELOW REWRITE RULES
   # rubocop:disable Layout/LineLength
-  get '/v0/vaos/appointments', controller: 'vaos/v0/appointments', action: 'index', defaults: { format: :json }
-  post '/v0/vaos/appointments', controller: 'vaos/v0/appointments', action: 'create', defaults: { format: :json }
-  put '/v0/vaos/appointments/cancel', controller: 'vaos/v0/appointments', defaults: { format: :json }
-  get '/v0/vaos/appointment_requests', controller: 'vaos/v0/appointment_requests', action: 'index', defaults: { format: :json }
-  post '/v0/vaos/appointment_requests', controller: 'vaos/v0/appointment_requests', action: 'create', defaults: { format: :json }
-  put '/v0/vaos/appointment_requests', controller: 'vaos/v0/appointment_requests', action: 'update', defaults: { format: :json }
-  get '/v0/vaos/appointment_requests/:appointment_request_id/messages', controller: 'vaos/v0/messages', action: 'index', defaults: { format: :json }
-  post '/v0/vaos/appointment_requests/:appointment_request_id/messages', controller: 'vaos/v0/messages', action: 'create', defaults: { format: :json }
+  get '/v0/vaos/appointments', to: 'vaos/v0/appointments#index', defaults: { format: :json }
+  post '/v0/vaos/appointments', to: 'vaos/v0/appointments#create', defaults: { format: :json }
+  put '/v0/vaos/appointments/cancel', to: 'vaos/v0/appointments#cancel', defaults: { format: :json }
+  get '/v0/vaos/appointment_requests', to: 'vaos/v0/appointment_requests#index', defaults: { format: :json }
+  put '/v0/vaos/appointment_requests/:id', to: 'vaos/v0/appointment_requests#update', defaults: { format: :json }
+  patch '/v0/vaos/appointment_requests/:id', to: 'vaos/v0/appointment_requests#update', defaults: { format: :json }
+  post '/v0/vaos/appointment_requests', to: 'vaos/v0/appointment_requests#create', defaults: { format: :json }
+  get '/v0/vaos/appointment_requests/:appointment_request_id/messages', to: 'vaos/v0/messages#index', defaults: { format: :json }
+  post '/v0/vaos/appointment_requests/:appointment_request_id/messages', to: 'vaos/v0/messages#create', defaults: { format: :json }
   get '/v0/vaos/community_care/eligibility/:service_type', to: 'vaos/v0/cc_eligibility#show', defaults: { format: :json }
   get '/v0/vaos/community_care/supported_sites', to: 'vaos/v0/cc_supported_sites#index', defaults: { format: :json }
   get '/v0/vaos/systems', to: 'vaos/v0/systems#index', defaults: { format: :json }
@@ -341,6 +341,7 @@ Rails.application.routes.draw do
   get '/v0/vaos/facilities/:facility_id/visits/:schedule_type', to: 'vaos/v0/visits#index', defaults: { format: :json }
   get '/v0/vaos/preferences', to: 'vaos/v0/preferences#show', defaults: { format: :json }
   put '/v0/vaos/preferences', to: 'vaos/v0/preferences#update', defaults: { format: :json }
+  patch '/v0/vaos/preferences', to: 'vaos/v0/preferences#update', defaults: { format: :json }
   # rubocop:enable Layout/LineLength
   # TEMPORARILY SUPPORT THE ABOVE REWRITE RULES
 
