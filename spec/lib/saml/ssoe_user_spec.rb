@@ -429,8 +429,7 @@ RSpec.describe SAML::User do
         it 'does not validate' do
           expect { subject.validate! }.to raise_error { |error|
             expect(error).to be_a(SAML::UserAttributeError)
-            expect(error.message).to
-            eq('MHV credential ICN does not match MPI record')
+            expect(error.message).to eq('MHV credential ICN does not match MPI record')
           }
         end
       end
@@ -513,11 +512,11 @@ RSpec.describe SAML::User do
           end
 
           it 'does not validate' do
-            expect { subject.validate! }.to raise_error { |error|
-                                              expect(error).to be_a(SAML::UserAttributeError)
-                                              expect(error.message).to
-                                              eq('User attributes contain multiple distinct MHV ID values')
-                                            }
+            expect { subject.validate! }
+              .to raise_error { |error|
+                    expect(error).to be_a(SAML::UserAttributeError)
+                    expect(error.message).to eq('User attributes contain multiple distinct MHV ID values')
+                  }
           end
         end
 
@@ -526,11 +525,11 @@ RSpec.describe SAML::User do
           let(:ien) { '999888,888777' }
 
           it 'does not validate' do
-            expect { subject.validate! }.to raise_error { |error|
-                                              expect(error).to be_a(SAML::UserAttributeError)
-                                              expect(error.message).to
-                                              eq('User attributes contain multiple distinct MHV ID values')
-                                            }
+            expect { subject.validate! }
+              .to raise_error { |error|
+                    expect(error).to be_a(SAML::UserAttributeError)
+                    expect(error.message).to eq('User attributes contain multiple distinct MHV ID values')
+                  }
           end
         end
       end
@@ -546,11 +545,11 @@ RSpec.describe SAML::User do
         let(:edipi) { '0123456789,0000000054' }
 
         it 'does not validate' do
-          expect { subject.validate! }.to raise_error { |error|
-                                            expect(error).to be_a(SAML::UserAttributeError)
-                                            expect(error.message).to
-                                            eq('User attributes contain multiple distinct EDIPI values')
-                                          }
+          expect { subject.validate! }
+            .to raise_error { |error|
+                  expect(error).to be_a(SAML::UserAttributeError)
+                  expect(error.message).to eq('User attributes contain multiple distinct EDIPI values')
+                }
         end
       end
 
