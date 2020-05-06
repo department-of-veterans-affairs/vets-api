@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri: https://internal-dsva-vagov-dev-fwdproxy-1893365470.us-gov-west-1.elb.amazonaws.com:4447/RatingServiceBean/RatingService?WSDL
+    uri: https://localhost:4447/RatingServiceBean/RatingService?WSDL
     body:
       encoding: US-ASCII
       string: ''
@@ -21,7 +21,7 @@ http_interactions:
       message: OK
     headers:
       Date:
-      - Fri, 17 Apr 2020 13:50:35 GMT
+      - Wed, 06 May 2020 13:59:05 GMT
       Server:
       - Apache
       X-Frame-Options:
@@ -100,10 +100,10 @@ http_interactions:
         </service>
         </definitions>
     http_version: null
-  recorded_at: Fri, 17 Apr 2020 13:50:35 GMT
+  recorded_at: Wed, 06 May 2020 13:59:06 GMT
 - request:
     method: post
-    uri: http:/RatingServiceBean/RatingWebService
+    uri: https://localhost:4447/RatingServiceBean/RatingService
     body:
       encoding: UTF-8
       string: |-
@@ -112,10 +112,10 @@ http_interactions:
             <wsse:Username>VAgovAPI</wsse:Username>
           </wsse:UsernameToken>
           <vaws:VaServiceHeaders xmlns:vaws="http://vbawebservices.vba.va.gov/vawss">
-            <vaws:CLIENT_MACHINE>192.168.4.22</vaws:CLIENT_MACHINE>
+            <vaws:CLIENT_MACHINE>10.0.2.15</vaws:CLIENT_MACHINE>
             <vaws:STN_ID>281</vaws:STN_ID>
             <vaws:applicationName>VAgovAPI</vaws:applicationName>
-            <vaws:ExternalUid>33384014967043002</vaws:ExternalUid>
+            <vaws:ExternalUid>96014958860400540</vaws:ExternalUid>
             <vaws:ExternalKey>abraham.lincoln@vets.gov</vaws:ExternalKey>
           </vaws:VaServiceHeaders>
         </wsse:Security>
@@ -128,7 +128,7 @@ http_interactions:
       Content-Type:
       - text/xml;charset=UTF-8
       Content-Length:
-      - '998'
+      - '995'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -140,27 +140,25 @@ http_interactions:
       code: 200
       message: OK
     headers:
-      Server:
-      - nginx/1.17.3
       Date:
-      - Fri, 17 Apr 2020 13:50:36 GMT
-      Content-Type:
-      - text/xml; charset=utf-8
-      Content-Length:
-      - '9625'
-      Connection:
-      - keep-alive
+      - Wed, 06 May 2020 13:59:06 GMT
+      Server:
+      - Apache
       X-Frame-Options:
       - SAMEORIGIN
       X-Oracle-Dms-Ecid:
-      - 0c174b19-2934-47c4-aeb5-7cfc585f6804-00000b6f
+      - 8d103b50-b9da-40c3-ac2f-0e051413bb46-000000bd
       X-Oracle-Dms-Rid:
       - '0'
+      Transfer-Encoding:
+      - chunked
+      Content-Type:
+      - text/xml; charset=utf-8
     body:
       encoding: UTF-8
       string: <?xml version='1.0' encoding='UTF-8'?><S:Envelope xmlns:env="http://schemas.xmlsoap.org/soap/envelope/"
         xmlns:S="http://schemas.xmlsoap.org/soap/envelope/"><env:Header><work:WorkContext
-        xmlns:work="http://oracle.com/weblogic/soap/workarea/">rO0ABXdUAB13ZWJsb2dpYy5hcHAuQ29ycG9yYXRlRGF0YUVBUgAAANYAAAAjd2VibG9naWMud29ya2FyZWEuU3RyaW5nV29ya0NvbnRleHQABjMuMS4xMAAA</work:WorkContext></env:Header><S:Body><ns0:findRatingDataResponse
+        xmlns:work="http://oracle.com/weblogic/soap/workarea/">rO0ABXdUAB13ZWJsb2dpYy5hcHAuQ29ycG9yYXRlRGF0YUVBUgAAANYAAAAjd2VibG9naWMud29ya2FyZWEuU3RyaW5nV29ya0NvbnRleHQABjMuMS4xMwAA</work:WorkContext></env:Header><S:Body><ns0:findRatingDataResponse
         xmlns:ns0="http://services.share.benefits.vba.va.gov/"><return><deathRatingRecord><numberOfRecords>0</numberOfRecords><returnCode>SHAR
         9999</returnCode><returnMessage>Records found</returnMessage></deathRatingRecord><disabilityRatingRecord><combinedDegreeEffectiveDate>01012019</combinedDegreeEffectiveDate><legalEffectiveDate>12312018</legalEffectiveDate><nonServiceConnectedCombinedDegree>100</nonServiceConnectedCombinedDegree><numberOfRecords>1</numberOfRecords><promulgationDate>01022019</promulgationDate><ratings><beginDate>01012005</beginDate><bilateralTypeName></bilateralTypeName><combatIndicator>N</combatIndicator><diagnosticPercent>100</diagnosticPercent><diagnosticText>Hearing
         Loss</diagnosticText><diagnosticTypeCode>6100</diagnosticTypeCode><diagnosticTypeName>6100-Hearing
@@ -174,5 +172,5 @@ http_interactions:
         to special monthly compensation under 38 U.S.C. 1114, subsection (k) and 38
         CFR 3.350(a) on</smcParagraphText></smcParagraphRatings></specialMonthlyCompensationRatingRecord></return></ns0:findRatingDataResponse></S:Body></S:Envelope>
     http_version: null
-  recorded_at: Fri, 17 Apr 2020 13:50:36 GMT
+  recorded_at: Wed, 06 May 2020 13:59:07 GMT
 recorded_with: VCR 5.1.0
