@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: post
-    uri: https://dev-api.va.gov/services/address_validation/v2/candidate
+    uri: https://sandbox-api.va.gov/services/address_validation/v2/candidate
     body:
       encoding: UTF-8
       string: '{"requestAddress":{"addressLine1":"sdfdsfsdf","city":"Sparks Glencoe","requestCountry":{"countryCode":"USA"},"addressPOU":"RESIDENCE/CHOICE","stateProvince":{"code":"MD"},"zipCode5":"21152"}}'
@@ -82,6 +82,6 @@ http_interactions:
         Glencoe","zipCode5":"21152"},"geocode":{"calcDate":"2020-01-23T03:15:48+00:00","latitude":39.5412,"longitude":-76.6676},"addressMetaData":{"confidenceScore":0.0,"addressType":"Domestic","deliveryPointValidation":"MISSING_ZIP","validationKey":1499210293},"messages":[{"code":"ADDRVAL112","key":"AddressCouldNotBeFound","severity":"WARN","text":"The
         Address could not be found"},{"code":"ADDR306","key":"lowConfidenceScore","severity":"WARN","text":"Vet360
         Validation Failed: Confidence Score less than 80"}]}]}'
-    http_version: 
+    http_version:
   recorded_at: Thu, 23 Jan 2020 03:15:48 GMT
 recorded_with: VCR 5.0.0
