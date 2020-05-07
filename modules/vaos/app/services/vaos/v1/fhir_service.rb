@@ -31,6 +31,14 @@ module VAOS
         perform(:get, "#{resource_type}/#{id}", nil, headers)
       end
 
+      def search(resource_type, params)
+        unless RESOURCES.include?(resource_type)
+          raise Common::Exceptions::InvalidFieldValue.new('resource_type', resource_type)
+        end
+
+        perform(:get, "#{resource_type}, params, headers)
+      end
+
       private
 
       def config
