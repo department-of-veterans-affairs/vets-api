@@ -59,7 +59,7 @@ class User < Common::RedisStore
   end
 
   def first_name
-    identity.first_name || (mhv_icn.present? ? mvi&.profile&.given_names&.first : nil)
+    identity.first_name.presence || mvi&.profile&.given_names&.first
   end
 
   def full_name_normalized
@@ -76,7 +76,7 @@ class User < Common::RedisStore
   end
 
   def middle_name
-    identity.middle_name.presence || mvi&.profile&.given_names.to_a[1..-1]&.join(' ').presence
+    identity.middle_name || (mhv_icn.present? ? mvi&.profile&.given_names.to_a[1..-1]&.join(' ').presence : nil)
   end
 
   def last_name
