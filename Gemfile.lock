@@ -353,8 +353,8 @@ GEM
       i18n (>= 1.6, < 2)
     faker-medical (0.5.2)
       faker
-    fakeredis (0.7.0)
-      redis (>= 3.2, < 5.0)
+    fakeredis (0.8.0)
+      redis (~> 4.1)
     faraday (0.17.0)
       multipart-post (>= 1.2, < 3)
     faraday-http-cache (2.0.0)
