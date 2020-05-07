@@ -168,6 +168,7 @@ RSpec.describe 'VA Facilities Locator - Lighthouse', type: :request, team: :faci
                   effective_date: '2020-04-13'
                 }
               },
+              active_status: 'A',
               address: {
                 mailing: {},
                 physical: {
@@ -199,6 +200,7 @@ RSpec.describe 'VA Facilities Locator - Lighthouse', type: :request, team: :faci
               },
               lat: 45.63942553000004,
               long: -122.65533567999995,
+              mobile: false,
               name: 'Portland VA Medical Center-Vancouver',
               operating_status: {
                 code: 'NORMAL'
