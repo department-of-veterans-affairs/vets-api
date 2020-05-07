@@ -30,7 +30,7 @@ module MDOT
         next_availability_date = supply.next_availability_date.to_date
 
         if eligibility.attributes.key?(group)
-          eligibility.attributes = { group => supply.next_availability_date <= Date.today}
+          eligibility.attributes = { group => supply.next_availability_date <= Date.today }
         end
       end
 
