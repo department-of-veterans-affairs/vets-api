@@ -281,7 +281,7 @@ module AppealsApi
 
     def address_present?
       address = veteran&.dig 'address'
-      address.is_a?(Hash) && address.values.any?(:present?)
+      address.is_a?(Hash) && address.values.any?(&:present?)
     end
 
     def address_blank?

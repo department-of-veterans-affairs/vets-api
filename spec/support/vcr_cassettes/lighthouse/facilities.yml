@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri: https://dev-api.va.gov/services/va_facilities/v0/facilities/vha_358
+    uri: https://sandbox-api.va.gov/services/va_facilities/v0/facilities/vha_358
     body:
       encoding: US-ASCII
       string: ''
@@ -68,7 +68,7 @@ http_interactions:
   recorded_at: Tue, 14 Apr 2020 18:58:03 GMT
 - request:
     method: get
-    uri: https://dev-api.va.gov/services/va_facilities/v0/facilities/bha_358
+    uri: https://sandbox-api.va.gov/services/va_facilities/v0/facilities/bha_358
     body:
       encoding: US-ASCII
       string: ''
@@ -177,7 +177,7 @@ http_interactions:
   recorded_at: Wed, 15 Apr 2020 13:10:13 GMT
 - request:
     method: get
-    uri: https://dev-api.va.gov/services/va_facilities/v0/facilities?taco=true
+    uri: https://sandbox-api.va.gov/services/va_facilities/v0/facilities?taco=true
     body:
       encoding: US-ASCII
       string: ''
@@ -234,7 +234,7 @@ http_interactions:
   recorded_at: Wed, 15 Apr 2020 13:13:54 GMT
 - request:
     method: get
-    uri: https://dev-api.va.gov/services/va_facilities/v0/facilities?bbox%5B%5D=10.54&bbox%5B%5D=180.0&bbox%5B%5D=20.55&bbox%5B%5D=60.99
+    uri: https://sandbox-api.va.gov/services/va_facilities/v0/facilities?bbox%5B%5D=10.54&bbox%5B%5D=180.0&bbox%5B%5D=20.55&bbox%5B%5D=60.99
     body:
       encoding: US-ASCII
       string: ''
@@ -419,7 +419,7 @@ http_interactions:
   recorded_at: Fri, 17 Apr 2020 13:49:20 GMT
 - request:
     method: get
-    uri: https://dev-api.va.gov/services/va_facilities/v0/facilities/vha_648A4
+    uri: https://sandbox-api.va.gov/services/va_facilities/v0/facilities/vha_648A4
     body:
       encoding: US-ASCII
       string: ''
@@ -482,7 +482,7 @@ http_interactions:
   recorded_at: Tue, 21 Apr 2020 15:47:46 GMT
 - request:
     method: get
-    uri: https://dev-api.va.gov/services/va_facilities/v0/facilities/nca_888
+    uri: https://sandbox-api.va.gov/services/va_facilities/v0/facilities/nca_888
     body:
       encoding: US-ASCII
       string: ''
@@ -548,7 +548,7 @@ http_interactions:
   recorded_at: Tue, 21 Apr 2020 15:48:21 GMT
 - request:
     method: get
-    uri: https://dev-api.va.gov/services/va_facilities/v0/facilities/vba_314c
+    uri: https://sandbox-api.va.gov/services/va_facilities/v0/facilities/vba_314c
     body:
       encoding: US-ASCII
       string: ''
@@ -610,7 +610,7 @@ http_interactions:
   recorded_at: Tue, 21 Apr 2020 15:48:22 GMT
 - request:
     method: get
-    uri: https://dev-api.va.gov/services/va_facilities/v0/facilities/vc_0543V
+    uri: https://sandbox-api.va.gov/services/va_facilities/v0/facilities/vc_0543V
     body:
       encoding: US-ASCII
       string: ''
@@ -673,7 +673,7 @@ http_interactions:
   recorded_at: Tue, 21 Apr 2020 15:48:33 GMT
 - request:
     method: get
-    uri: https://dev-api.va.gov/services/va_facilities/v0/facilities/vba_348e
+    uri: https://sandbox-api.va.gov/services/va_facilities/v0/facilities/vba_348e
     body:
       encoding: US-ASCII
       string: ''
@@ -736,7 +736,7 @@ http_interactions:
   recorded_at: Tue, 21 Apr 2020 15:48:44 GMT
 - request:
     method: get
-    uri: https://dev-api.va.gov/services/va_facilities/v0/facilities/vha_648GI
+    uri: https://sandbox-api.va.gov/services/va_facilities/v0/facilities/vha_648GI
     body:
       encoding: US-ASCII
       string: ''
@@ -800,7 +800,7 @@ http_interactions:
   recorded_at: Tue, 21 Apr 2020 15:48:45 GMT
 - request:
     method: get
-    uri: https://dev-api.va.gov/services/va_facilities/v0/facilities/vba_348
+    uri: https://sandbox-api.va.gov/services/va_facilities/v0/facilities/vba_348
     body:
       encoding: US-ASCII
       string: ''
@@ -863,7 +863,7 @@ http_interactions:
   recorded_at: Tue, 21 Apr 2020 15:48:46 GMT
 - request:
     method: get
-    uri: https://dev-api.va.gov/services/va_facilities/v0/facilities/vba_348a
+    uri: https://sandbox-api.va.gov/services/va_facilities/v0/facilities/vba_348a
     body:
       encoding: US-ASCII
       string: ''
@@ -926,7 +926,7 @@ http_interactions:
   recorded_at: Tue, 21 Apr 2020 15:48:47 GMT
 - request:
     method: get
-    uri: https://dev-api.va.gov/services/va_facilities/v0/facilities/vc_0617V
+    uri: https://sandbox-api.va.gov/services/va_facilities/v0/facilities/vc_0617V
     body:
       encoding: US-ASCII
       string: ''
@@ -988,7 +988,7 @@ http_interactions:
   recorded_at: Tue, 21 Apr 2020 15:48:48 GMT
 - request:
     method: get
-    uri: https://dev-api.va.gov/services/va_facilities/v0/facilities/vba_348d
+    uri: https://sandbox-api.va.gov/services/va_facilities/v0/facilities/vba_348d
     body:
       encoding: US-ASCII
       string: ''
@@ -1051,7 +1051,7 @@ http_interactions:
   recorded_at: Tue, 21 Apr 2020 15:48:49 GMT
 - request:
     method: get
-    uri: https://dev-api.va.gov/services/va_facilities/v0/facilities/vha_648
+    uri: https://sandbox-api.va.gov/services/va_facilities/v0/facilities/vha_648
     body:
       encoding: US-ASCII
       string: ''
@@ -1114,7 +1114,7 @@ http_interactions:
   recorded_at: Tue, 21 Apr 2020 15:48:50 GMT
 - request:
     method: get
-    uri: https://dev-api.va.gov/services/va_facilities/v0/facilities/vba_348h
+    uri: https://sandbox-api.va.gov/services/va_facilities/v0/facilities/vba_348h
     body:
       encoding: US-ASCII
       string: ''
@@ -1177,7 +1177,7 @@ http_interactions:
   recorded_at: Tue, 21 Apr 2020 15:48:51 GMT
 - request:
     method: get
-    uri: https://dev-api.va.gov/services/va_facilities/v0/facilities/nca_907
+    uri: https://sandbox-api.va.gov/services/va_facilities/v0/facilities/nca_907
     body:
       encoding: US-ASCII
       string: ''
@@ -1243,7 +1243,7 @@ http_interactions:
   recorded_at: Tue, 21 Apr 2020 15:48:52 GMT
 - request:
     method: get
-    uri: https://dev-api.va.gov/services/va_facilities/v0/facilities/nca_824
+    uri: https://sandbox-api.va.gov/services/va_facilities/v0/facilities/nca_824
     body:
       encoding: US-ASCII
       string: ''
@@ -1309,7 +1309,7 @@ http_interactions:
   recorded_at: Tue, 21 Apr 2020 15:48:54 GMT
 - request:
     method: get
-    uri: https://dev-api.va.gov/services/va_facilities/v0/facilities/nca_088
+    uri: https://sandbox-api.va.gov/services/va_facilities/v0/facilities/nca_088
     body:
       encoding: US-ASCII
       string: ''
@@ -1375,7 +1375,7 @@ http_interactions:
   recorded_at: Tue, 21 Apr 2020 15:48:55 GMT
 - request:
     method: get
-    uri: https://dev-api.va.gov/services/va_facilities/v0/facilities/nca_808
+    uri: https://sandbox-api.va.gov/services/va_facilities/v0/facilities/nca_808
     body:
       encoding: US-ASCII
       string: ''
@@ -1441,7 +1441,7 @@ http_interactions:
   recorded_at: Tue, 21 Apr 2020 15:48:56 GMT
 - request:
     method: get
-    uri: https://dev-api.va.gov/services/va_facilities/v0/facilities/nca_803
+    uri: https://sandbox-api.va.gov/services/va_facilities/v0/facilities/nca_803
     body:
       encoding: US-ASCII
       string: ''
@@ -1507,7 +1507,7 @@ http_interactions:
   recorded_at: Tue, 21 Apr 2020 15:48:57 GMT
 - request:
     method: get
-    uri: https://dev-api.va.gov/services/va_facilities/v0/facilities/nca_917
+    uri: https://sandbox-api.va.gov/services/va_facilities/v0/facilities/nca_917
     body:
       encoding: US-ASCII
       string: ''
@@ -1574,7 +1574,7 @@ http_interactions:
   recorded_at: Tue, 21 Apr 2020 15:48:58 GMT
 - request:
     method: get
-    uri: https://dev-api.va.gov/services/va_facilities/v0/facilities/nca_815
+    uri: https://sandbox-api.va.gov/services/va_facilities/v0/facilities/nca_815
     body:
       encoding: US-ASCII
       string: ''
@@ -1640,7 +1640,7 @@ http_interactions:
   recorded_at: Tue, 21 Apr 2020 15:48:59 GMT
 - request:
     method: get
-    uri: https://dev-api.va.gov/services/va_facilities/v0/facilities/vba_310e
+    uri: https://sandbox-api.va.gov/services/va_facilities/v0/facilities/vba_310e
     body:
       encoding: US-ASCII
       string: ''
@@ -1706,7 +1706,7 @@ http_interactions:
   recorded_at: Tue, 21 Apr 2020 15:49:00 GMT
 - request:
     method: get
-    uri: https://dev-api.va.gov/services/va_facilities/v0/facilities/vba_306f
+    uri: https://sandbox-api.va.gov/services/va_facilities/v0/facilities/vba_306f
     body:
       encoding: US-ASCII
       string: ''
@@ -1769,7 +1769,7 @@ http_interactions:
   recorded_at: Tue, 21 Apr 2020 15:49:01 GMT
 - request:
     method: get
-    uri: https://dev-api.va.gov/services/va_facilities/v0/facilities/vba_306a
+    uri: https://sandbox-api.va.gov/services/va_facilities/v0/facilities/vba_306a
     body:
       encoding: US-ASCII
       string: ''
@@ -1831,7 +1831,7 @@ http_interactions:
   recorded_at: Tue, 21 Apr 2020 15:49:02 GMT
 - request:
     method: get
-    uri: https://dev-api.va.gov/services/va_facilities/v0/facilities/vba_306d
+    uri: https://sandbox-api.va.gov/services/va_facilities/v0/facilities/vba_306d
     body:
       encoding: US-ASCII
       string: ''
@@ -1894,7 +1894,7 @@ http_interactions:
   recorded_at: Tue, 21 Apr 2020 15:49:03 GMT
 - request:
     method: get
-    uri: https://dev-api.va.gov/services/va_facilities/v0/facilities/vba_306g
+    uri: https://sandbox-api.va.gov/services/va_facilities/v0/facilities/vba_306g
     body:
       encoding: US-ASCII
       string: ''
@@ -1957,7 +1957,7 @@ http_interactions:
   recorded_at: Tue, 21 Apr 2020 15:49:04 GMT
 - request:
     method: get
-    uri: https://dev-api.va.gov/services/va_facilities/v0/facilities/vba_309
+    uri: https://sandbox-api.va.gov/services/va_facilities/v0/facilities/vba_309
     body:
       encoding: US-ASCII
       string: ''
@@ -2020,7 +2020,7 @@ http_interactions:
   recorded_at: Tue, 21 Apr 2020 15:49:05 GMT
 - request:
     method: get
-    uri: https://dev-api.va.gov/services/va_facilities/v0/facilities/vba_306
+    uri: https://sandbox-api.va.gov/services/va_facilities/v0/facilities/vba_306
     body:
       encoding: US-ASCII
       string: ''
@@ -2083,7 +2083,7 @@ http_interactions:
   recorded_at: Tue, 21 Apr 2020 15:49:06 GMT
 - request:
     method: get
-    uri: https://dev-api.va.gov/services/va_facilities/v0/facilities/vba_306b
+    uri: https://sandbox-api.va.gov/services/va_facilities/v0/facilities/vba_306b
     body:
       encoding: US-ASCII
       string: ''
@@ -2145,7 +2145,7 @@ http_interactions:
   recorded_at: Tue, 21 Apr 2020 15:49:12 GMT
 - request:
     method: get
-    uri: https://dev-api.va.gov/services/va_facilities/v0/facilities/vba_306e
+    uri: https://sandbox-api.va.gov/services/va_facilities/v0/facilities/vba_306e
     body:
       encoding: US-ASCII
       string: ''
@@ -2207,7 +2207,7 @@ http_interactions:
   recorded_at: Tue, 21 Apr 2020 15:49:14 GMT
 - request:
     method: get
-    uri: https://dev-api.va.gov/services/va_facilities/v0/facilities/vba_306h
+    uri: https://sandbox-api.va.gov/services/va_facilities/v0/facilities/vba_306h
     body:
       encoding: US-ASCII
       string: ''
@@ -2271,7 +2271,7 @@ http_interactions:
   recorded_at: Tue, 21 Apr 2020 15:49:15 GMT
 - request:
     method: get
-    uri: https://dev-api.va.gov/services/va_facilities/v0/facilities/vba_306i
+    uri: https://sandbox-api.va.gov/services/va_facilities/v0/facilities/vba_306i
     body:
       encoding: US-ASCII
       string: ''

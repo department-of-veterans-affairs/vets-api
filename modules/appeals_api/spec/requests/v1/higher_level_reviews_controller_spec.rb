@@ -24,7 +24,7 @@ describe AppealsApi::V1::DecisionReview::HigherLevelReviewsController, type: :re
 
     it 'create an HLR and persist the data' do
       post(path, params: @data, headers: @headers)
-      expect(parsed['data']['type']).to eq('higher_level_review')
+      expect(parsed['data']['type']).to eq('appeals_api_higher_level_reviews')
       expect(parsed['data']['attributes']['status']).to eq('pending')
     end
 
@@ -69,6 +69,25 @@ describe AppealsApi::V1::DecisionReview::HigherLevelReviewsController, type: :re
     it 'renders the json schema' do
       get path
       expect(response.status).to eq(200)
+    end
+  end
+
+  describe '#show' do
+    let(:path) { base_path 'higher_level_reviews/' }
+
+    it 'returns a higher_level_review with all of its data' do
+      uuid = create(:higher_level_review).id
+      get("#{path}#{uuid}")
+      expect(response.status).to eq(200)
+      expect(parsed.dig('data', 'attributes', 'form_data')).to be_a Hash
+    end
+
+    it 'returns an error when given a bad uuid' do
+      uuid = 0
+      get("#{path}#{uuid}")
+      expect(response.status).to eq(404)
+      expect(parsed['errors']).to be_an Array
+      expect(parsed['errors']).not_to be_empty
     end
   end
 end

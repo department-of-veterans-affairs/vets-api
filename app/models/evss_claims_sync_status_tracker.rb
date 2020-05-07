@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
 class EVSSClaimsSyncStatusTracker < Common::RedisStore
-  redis_store REDIS_CONFIG['evss_claims_store']['namespace']
-  redis_ttl REDIS_CONFIG['evss_claims_store']['each_ttl']
+  redis_store REDIS_CONFIG[:evss_claims_store][:namespace]
+  redis_ttl REDIS_CONFIG[:evss_claims_store][:each_ttl]
   redis_key :user_uuid
 
   attribute :user_uuid, String
