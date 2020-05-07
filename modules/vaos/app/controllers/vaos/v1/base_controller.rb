@@ -18,7 +18,6 @@ module VAOS
       private
 
       def render_errors(va_exception)
-        binding.pry
         resource_type = controller_name.singularize.capitalize
         id = params[:id]
         operation_outcome = VAOS::V1::OperationOutcome.new(

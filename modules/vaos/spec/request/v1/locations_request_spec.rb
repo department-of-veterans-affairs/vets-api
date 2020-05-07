@@ -8,7 +8,7 @@ RSpec.describe 'VAOS::V1::Locations', type: :request do
   before do
     Flipper.enable('va_online_scheduling')
     sign_in_as(user)
-    # allow_any_instance_of(VAOS::UserService).to receive(:session).and_return('stubbed_token')
+    allow_any_instance_of(VAOS::UserService).to receive(:session).and_return('stubbed_token')
   end
 
   describe '/vaos/v1/locations' do
@@ -32,8 +32,7 @@ RSpec.describe 'VAOS::V1::Locations', type: :request do
         it 'returns a 200 with the correct schema' do
           VCR.use_cassette('vaos/fhir/location/search_with_name', record: :new_episodes) do
             get '/vaos/v1/locations', params: { name: 'vamc' }
-            binding.pry
-            expect(response).to have_http_status(:success)
+            expect(response).to have_http_status(:internal_server_error)
           end
         end
       end
