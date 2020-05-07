@@ -23,7 +23,7 @@ class SavedClaim::CaregiversAssistanceClaim < SavedClaim
   end
 
   def form_subjects
-    parsed_form.keys
+    form.nil? ? [] : parsed_form.keys
   end
 
   %i[
@@ -35,7 +35,7 @@ class SavedClaim::CaregiversAssistanceClaim < SavedClaim
     namespace = method_name.to_s.camelize(:lower).sub('Data', '')
 
     define_method method_name do
-      parsed_form[namespace]
+      parsed_form[namespace] unless form.nil?
     end
   end
 end
