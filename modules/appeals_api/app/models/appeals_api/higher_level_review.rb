@@ -10,7 +10,7 @@ module AppealsApi
 
         response = CentralMail::Service.new.status(higher_level_reviews.pluck(:id))
         unless response.success?
-          log_bad_centrail_mail_response(response)
+          log_bad_central_mail_response(response)
           raise Common::Exceptions::BadGateway
         end
 
