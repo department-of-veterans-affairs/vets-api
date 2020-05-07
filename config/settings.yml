@@ -83,6 +83,8 @@ edu:
     user: ~
     port: ~
 
+dependents:
+  prefill: true
 
 pension_burial:
   prefill: true
@@ -109,7 +111,7 @@ vet360:
     timeout: 30
     mock: false
   address_validation:
-    hostname: 'dev-api.va.gov'
+    hostname: 'sandbox-api.va.gov'
     api_key: '<AV_KEY>'
 
 # Settings for IHub
@@ -131,7 +133,7 @@ mdot:
 # Settings for Decision Reviews
 decision_review:
   prefill: true
-  url: https://dev-api.va.gov/services/appeals/v3/decision_review
+  url: https://sandbox-api.va.gov/services/appeals/v3/decision_review
   api_key: abcd1234abcd1234abcd1234abcd1234abcd1234
   mock: false
 
@@ -353,11 +355,14 @@ claims_api:
   disability_claims_mock_override: false
   schema_dir: config/schemas
 
-# Settings for Redis
-# TODO(knkski): Move all redis settings here?
 redis:
   host: localhost
   port: 6379
+  app_data:
+    url: redis://localhost:6379
+    # secondary_url: redis://localhost:6378
+  sidekiq:
+    url: redis://localhost:6379
 
 # Settings for GovDelivery (email delivery)
 govdelivery:
@@ -460,6 +465,7 @@ flipper:
     - kam@adhocteam.us
     - kabrown@thoughtworks.com
     - kenneth.gary@va.gov
+    - kmircovich@governmentcio.com
     - lauren.alexanderson@va.gov
     - mark.greenburg@adhocteam.us
     - n.ratana@gmail.com
@@ -500,7 +506,7 @@ lighthouse:
     api_key: fake_key
 
 forms:
-  url: https://dev-api.va.gov/services/va_forms/v0/
+  url: https://sandbox-api.va.gov/services/va_forms/v0/
   mock: false
 
 vbms:

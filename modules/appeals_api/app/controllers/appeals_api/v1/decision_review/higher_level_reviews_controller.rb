@@ -19,7 +19,7 @@ class AppealsApi::V1::DecisionReview::HigherLevelReviewsController < AppealsApi:
     File.read(
       AppealsApi::Engine.root.join('config/schemas/200996_headers.json')
     )
-  )['properties'].keys
+  )['definitions']['hlrCreateParameters']['properties'].keys
 
   def create
     @higher_level_review.save
