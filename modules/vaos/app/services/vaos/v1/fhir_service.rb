@@ -36,7 +36,7 @@ module VAOS
           raise Common::Exceptions::InvalidFieldValue.new('resource_type', resource_type)
         end
 
-        perform(:get, "#{resource_type}, params, headers)
+        perform(:get, resource_type, params, headers)
       end
 
       private

@@ -18,6 +18,7 @@ module VAOS
       private
 
       def render_errors(va_exception)
+        binding.pry
         resource_type = controller_name.singularize.capitalize
         id = params[:id]
         operation_outcome = VAOS::V1::OperationOutcome.new(
@@ -29,10 +30,10 @@ module VAOS
         serializer = VAOS::V1::OperationOutcomeSerializer.new(operation_outcome)
         render json: serializer.serialized_json, status: va_exception.status_code
       end
-    end
 
-    def fhir_service
-      VAOS::V1::FHIRService.new(current_user)
+      def fhir_service
+        VAOS::V1::FHIRService.new(current_user)
+      end
     end
   end
 end
