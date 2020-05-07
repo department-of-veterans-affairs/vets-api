@@ -2,7 +2,48 @@
 
 module AppealsApi
   class HigherLevelReview < ApplicationRecord
+    include SentryLogging
+
     class << self
+      def refresh_statuses!(higher_level_reviews)
+        return if higher_level_reviews.empty?
+
+        response = CentralMail::Service.new.status(higher_level_reviews.pluck(:id))
+
+        unless response.success?
+          log_bad_centrail_mail_response(response)
+          raise Common::Exceptions::BadGateway
+        end
+
+        central_mail_status_objects = parse_central_mail_response(response).select { |s| s.id.present? }
+
+        ActiveRecord::Base.transaction do
+          central_mail_status_objects.each do |obj|
+            higher_level_reviews.find { |h| h.id == obj.id }
+                                .update_status_using_central_mail_status!(obj.status, obj.error_message)
+          end
+        end
+      end
+
+      private
+
+      def parse_central_mail_response(response)
+        JSON.parse(response.body).map do |(hash)|
+          Struct.new(:id, :status, :error_message).new(*hash.values_at('uuid', 'status', 'errorMessage'))
+        end
+      end
+
+      def log_bad_central_mail_response(response)
+        log_message_to_sentry(
+          'Error getting status from Central Mail API',
+          :warning, status: response.status, body: response.body
+        )
+      end
+
+      def log_unknown_central_mail_status(status)
+        log_message_to_sentry('Unknown status value from Central Mail API', :warning, status: status)
+      end
+
       def date_from_string(string)
         string.match(/\d{4}-\d{2}-\d{2}/) && Date.parse(string)
       rescue ArgumentError
@@ -17,10 +58,23 @@ module AppealsApi
     attr_encrypted(:form_data, key: Settings.db_encryption_key, marshal: true, marshaler: JsonMarshal::Marshaller)
     attr_encrypted(:auth_headers, key: Settings.db_encryption_key, marshal: true, marshaler: JsonMarshal::Marshaller)
 
-    enum status: { pending: 0, processing: 1, submitted: 2, established: 3, error: 4 }
+    enum status: {
+      pending: 0,
+      submitted: 1,
+      processing: 2,
+      error: 3,
+      uploaded: 4,
+      received: 5,
+      success: 6,
+      vbms: 7,
+      expired: 8
+    }
+
+    scope :received_or_processing, -> { where(status: %w[received processing]) }
 
     INFORMAL_CONFERENCE_REP_NAME_AND_PHONE_NUMBER_MAX_LENGTH = 100
     NO_ADDRESS_PROVIDED_SENTENCE = 'USE ADDRESS ON FILE'
+
 
     # the controller applies the JSON Schemas in modules/appeals_api/config/schemas/
     # further validations:
@@ -154,6 +208,8 @@ module AppealsApi
       form_data&.dig('included')
     end
 
+    ###########
+
     def consumer_name
       auth_headers['X-Consumer-Username']
     end
@@ -164,6 +220,20 @@ module AppealsApi
 
     def central_mail_status
       CentralMail::Service.new.status(id)
+    end
+
+    def update_status_using_central_mail_status!(status, error_message)
+      update! case status
+              when 'Received' then { status: 'received' } # TODO
+              when 'In Process', 'Processing Success' then { status: 'processing' }
+              when 'Success' then { status: 'success' } # TODO
+              when 'VBMS Complete' then { status: 'vbms' } # TODO
+              when 'Error', 'Processing Error'
+                { status: 'error', code: 'DOC202', detail: "Downstream status: #{error_message}" }
+              else
+                self.class.log_unknown_central_mail_status(status)
+                raise Common::Exceptions::BadGateway, detail: 'Unknown processing status'
+              end
     end
 
     private
