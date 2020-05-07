@@ -3,14 +3,21 @@
 # This service manages the interactions between CaregiversAssistanceClaim, CARMA, and Form1010cg::Submission.
 module Form1010cg
   class Service
-    def submit_claim!(claim_data)
-      claim = SavedClaim::CaregiversAssistanceClaim.new(claim_data)
+    attr_reader :claim
+
+    NOT_FOUND = 'NOT_FOUND'
+
+    def initialize(claim)
       claim.valid? || raise(Common::Exceptions::ValidationErrors, claim)
 
-      carma_submission = CARMA::Models::Submission.from_claim(claim)
-      carma_submission.metadata = fetch_and_build_metadata(claim)
+      @claim = claim
+      @cached_icns = {}
+    end
 
-      carma_submission.submit!
+    def process_claim!
+      assert_veteran_status
+
+      carma_submission = CARMA::Models::Submission.from_claim(claim, build_metadata).submit!
 
       Form1010cg::Submission.new(
         carma_case_id: carma_submission.carma_case_id,
@@ -18,61 +25,46 @@ module Form1010cg
       )
     end
 
-    def fetch_and_build_metadata(claim)
-      form_data = claim.parsed_form
-      metadata = {}
+    def assert_veteran_status
+      raise_unprocessable if icn_for('veteran') == NOT_FOUND
+    end
 
-      # Add find the ICN for each person on the form
-      mvi_searches.each do |mvi_search|
-        icn_present_in_metadata = metadata.dig(mvi_search.namespace.to_sym, :icn).present?
-        form_subject_present = form_data[mvi_search.namespace].present?
+    def build_metadata
+      claim.form_subjects.each_with_object({}) do |namespace, acc|
+        icn = icn_for(namespace)
+        acc[namespace.to_sym] = {
+          icn: icn == 'NOT_FOUND' ? nil : icn
+        }
+      end
+    end
 
-        next if !form_subject_present && mvi_search.optional?
-        next if icn_present_in_metadata
+    def icn_for(namespace)
+      cached_icn = @cached_icns[namespace]
+      return cached_icn unless cached_icn.nil?
 
-        response = search_mvi_for(mvi_search, form_data, !icn_present_in_metadata)
-
-        metadata[mvi_search.namespace.to_sym] = { icn: response&.profile&.icn } if response&.status == 'OK'
+      begin
+        response = mvi_service.find_profile(build_user_identity_for(namespace))
+      rescue MVI::Errors::RecordNotFound
+        return @cached_icns[namespace] = NOT_FOUND
       end
 
-      metadata
+      @cached_icns[namespace] = response&.profile&.icn if response&.status == 'OK'
     end
 
     private
 
-    def search_mvi_for(mvi_search, form_data, raise_if_not_found)
-      identity = build_user_identity form_data, mvi_search.namespace
-
-      begin
-        response = mvi.find_profile identity
-      rescue MVI::Errors::RecordNotFound
-        raise_unprocessable(claim) if mvi_search.assertIcnPresence? && raise_if_not_found
-      end
-
-      response
-    end
-
-    def raise_unprocessable(claim)
-      claim.errors.add(
-        :base,
-        "#{mvi_search.namespace}NotFound".snakecase.to_sym,
-        message: "#{mvi_search.namespace.titleize} could not be found in the VA's system"
-      )
-
+    def raise_unprocessable
+      message = 'Unable to process submission digitally'
+      claim.errors.add(:base, message, message: message)
       raise(Common::Exceptions::ValidationErrors, claim)
     end
 
-    def form_schema_id
-      SavedClaim::CaregiversAssistanceClaim::FORM
+    def mvi_service
+      @mvi_service ||= MVI::Service.new
     end
 
-    def mvi
-      @mvi ||= MVI::Service.new
-    end
-
-    # MVI::Service requires a valid UserIdentity to run a profile search on. This UserIdentity should not be persisted.
-    def build_user_identity(parsed_form_data, namespace)
-      data = parsed_form_data[namespace]
+    def build_user_identity_for(namespace)
+      data = claim.parsed_form[namespace]
 
       attributes = {
         first_name: data['fullName']['first'],
@@ -90,15 +82,6 @@ module Form1010cg
       }
 
       UserIdentity.new attributes
-    end
-
-    def mvi_searches
-      [
-        OpenStruct.new(namespace: 'veteran', optional?: false, assertIcnPresence?: true),
-        OpenStruct.new(namespace: 'primaryCaregiver', optional?: false),
-        OpenStruct.new(namespace: 'secondaryCaregiverOne', optional?: true),
-        OpenStruct.new(namespace: 'secondaryCaregiverTwo', optional?: true)
-      ]
     end
   end
 end

@@ -21,4 +21,21 @@ class SavedClaim::CaregiversAssistanceClaim < SavedClaim
   def regional_office
     []
   end
+
+  def form_subjects
+    parsed_form.keys
+  end
+
+  %i[
+    veteran_data
+    primary_caregiver_data
+    secondary_caregiver_one_data
+    secondary_caregiver_two_data
+  ].each do |method_name|
+    namespace = method_name.to_s.camelize(:lower).sub('Data', '')
+
+    define_method method_name do
+      parsed_form[namespace]
+    end
+  end
 end
