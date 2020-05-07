@@ -1404,7 +1404,7 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
           record: :new_episodes
         }
 
-        context 'Lighthouse', vcr: vcr_options do
+        context 'Using the Lighthouse API', vcr: vcr_options do
           before do
             Flipper.enable(:facility_locator_lighthouse_api, true)
           end
@@ -1424,7 +1424,7 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
           end
         end
 
-        context 'Active Record' do
+        context 'Using Active Record' do
           before do
             Flipper.enable(:facility_locator_lighthouse_api, false)
           end

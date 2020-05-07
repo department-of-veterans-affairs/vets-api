@@ -28,7 +28,7 @@ class V0::Facilities::VaController < FacilitiesController
   def api_facilities
     resource = api.get_facilities(lighthouse_params)
     render json: resource,
-           each_serializer: Lighthouse::Facilities::FacilitySerializer,
+           each_serializer: Lighthouse::Facilities::LegacySerializer,
            meta: metadata(resource)
   end
 
@@ -51,7 +51,7 @@ class V0::Facilities::VaController < FacilitiesController
     results = api.get_by_id(params[:id])
     raise Common::Exceptions::RecordNotFound, params[:id] if results.nil?
 
-    render json: results, serializer: Lighthouse::Facilities::FacilitySerializer
+    render json: results, serializer: Lighthouse::Facilities::LegacySerializer
   end
 
   def ar_show

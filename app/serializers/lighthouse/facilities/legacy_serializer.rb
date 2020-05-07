@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class Lighthouse::Facilities::FacilitySerializer < ActiveModel::Serializer
+class Lighthouse::Facilities::LegacySerializer < ActiveModel::Serializer
   type 'va_facilities'
 
   def access
@@ -49,6 +49,7 @@ class Lighthouse::Facilities::FacilitySerializer < ActiveModel::Serializer
   end
 
   attributes  :access,
+              :active_status,
               :address,
               :classification,
               :facility_type,
@@ -56,6 +57,7 @@ class Lighthouse::Facilities::FacilitySerializer < ActiveModel::Serializer
               :hours,
               :lat,
               :long,
+              :mobile,
               :name,
               :operating_status,
               :phone,
