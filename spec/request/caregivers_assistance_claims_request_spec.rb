@@ -90,7 +90,9 @@ RSpec.describe 'Caregivers Assistance Claims', type: :request do
         VCR.use_cassette 'carma/submissions/create/201' do
           VCR.use_cassette 'mvi/find_candidate/valid' do
             VCR.use_cassette 'mvi/find_candidate/valid_icn_ni_only' do
-              post endpoint, params: body, headers: headers
+              VCR.use_cassette 'mvi/find_candidate/valid_no_gender' do
+                post endpoint, params: body, headers: headers
+              end
             end
           end
         end

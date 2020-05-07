@@ -18,46 +18,59 @@ module Form1010cg
       )
     end
 
-    private
-
-    # Destroy this form it has previously been stored in-progress by this user_context
-    def form_schema_id
-      SavedClaim::CaregiversAssistanceClaim::FORM
-    end
-
-    def mvi
-      @mvi ||=  MVI::Service.new
-    end
-
     def fetch_and_build_metadata(claim)
       form_data = claim.parsed_form
       metadata = {}
 
       # Add find the ICN for each person on the form
       mvi_searches.each do |mvi_search|
-        next if form_data[mvi_search.namespace].nil? && mvi_search.optional?
+        icn_present_in_metadata = metadata.dig(mvi_search.namespace.to_sym, :icn).present?
+        form_subject_present = form_data[mvi_search.namespace].present?
 
-        identity = build_user_identity form_data, mvi_search.namespace
-        response = mvi.find_profile identity
+        next if !form_subject_present && mvi_search.optional?
+        next if icn_present_in_metadata
 
-        metadata[mvi_search.namespace.to_sym] = { icn: response&.profile&.icn } if response.status == 'OK'
+        response = search_mvi_for(mvi_search, form_data, !icn_present_in_metadata)
 
-        # If person cannot be found in MVI, raise a Common::Exceptions::ValidationErrors
-        if mvi_search.assertIcnPresence? && metadata[mvi_search.namespace.to_sym][:icn].nil?
-          claim.errors.add(
-            :base,
-            "#{mvi_search.namespace}NotFound".snakecase.to_sym,
-            message: "#{mvi_search.namespace.titleize} could not be found in the VA's system"
-          )
-
-          raise(Common::Exceptions::ValidationErrors, claim)
-        end
+        metadata[mvi_search.namespace.to_sym] = { icn: response&.profile&.icn } if response&.status == 'OK'
       end
 
       metadata
     end
 
-    # MVI requires a valid UserIdentity to run a profile search on. This UserIdentity should not be persisted.
+    private
+
+    def search_mvi_for(mvi_search, form_data, raise_if_not_found)
+      identity = build_user_identity form_data, mvi_search.namespace
+
+      begin
+        response = mvi.find_profile identity
+      rescue MVI::Errors::RecordNotFound
+        raise_unprocessable(claim) if mvi_search.assertIcnPresence? && raise_if_not_found
+      end
+
+      response
+    end
+
+    def raise_unprocessable(claim)
+      claim.errors.add(
+        :base,
+        "#{mvi_search.namespace}NotFound".snakecase.to_sym,
+        message: "#{mvi_search.namespace.titleize} could not be found in the VA's system"
+      )
+
+      raise(Common::Exceptions::ValidationErrors, claim)
+    end
+
+    def form_schema_id
+      SavedClaim::CaregiversAssistanceClaim::FORM
+    end
+
+    def mvi
+      @mvi ||= MVI::Service.new
+    end
+
+    # MVI::Service requires a valid UserIdentity to run a profile search on. This UserIdentity should not be persisted.
     def build_user_identity(parsed_form_data, namespace)
       data = parsed_form_data[namespace]
 
@@ -68,7 +81,7 @@ module Form1010cg
         birth_date: data['dateOfBirth'],
         gender: data['gender'] == 'U' ? nil : data['gender'],
         ssn: data['ssnOrTin'],
-        email: data['email'],
+        email: data['email'] || 'no-email@example.com',
         uuid: SecureRandom.uuid,
         loa: {
           current: LOA::THREE,
