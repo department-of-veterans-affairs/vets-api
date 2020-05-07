@@ -592,7 +592,7 @@ GEM
     rb-inotify (0.10.1)
       ffi (~> 1.0)
     rchardet (1.8.0)
-    redis (3.3.5)
+    redis (4.1.4)
     redis-namespace (1.7.0)
       redis (>= 3.0.4)
     regexp_parser (1.6.0)
@@ -879,7 +879,7 @@ DEPENDENCIES
   rails-session_cookie
   rails_semantic_logger (~> 4.4)
   rainbow
-  redis (~> 3.3)
+  redis
   redis-namespace
   request_store
   restforce

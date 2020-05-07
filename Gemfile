@@ -89,7 +89,7 @@ gem 'rack-attack'
 gem 'rack-cors', require: 'rack/cors'
 gem 'rails-session_cookie'
 gem 'rails_semantic_logger', '~> 4.4'
-gem 'redis', '~> 3.3' # don't go past redis 3 until we are ready for an upgrade
+gem 'redis'
 gem 'redis-namespace'
 gem 'request_store'
 gem 'restforce'
