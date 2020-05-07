@@ -4,7 +4,7 @@ module MDOT
   class Eligibility
     include Virtus.model
 
-    attribute :batteries, Boolean
-    attribute :accessories, Boolean
+    attribute :batteries, Boolean, default: false
+    attribute :accessories, Boolean, default: false
   end
 end

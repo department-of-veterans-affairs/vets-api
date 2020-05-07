@@ -23,14 +23,14 @@ module MDOT
     end
 
     def determine_eligibility
-      eligibility = { batteries: false, accessories: false }
+      eligibility = MDOT::Eligibility.new
 
       supplies.each do |supply|
         group = supply.product_group.split.last.to_sym
         next_availability_date = supply.next_availability_date.to_date
 
-        if eligibility.key?(group)
-          eligibility[group] = supply.next_availability_date <= Date.today
+        if eligibility.attributes.key?(group)
+          eligibility.attributes = { group => supply.next_availability_date <= Date.today}
         end
       end
 
