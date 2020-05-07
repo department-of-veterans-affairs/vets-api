@@ -177,6 +177,7 @@ class FormProfile
 
     form = form_id == '1010EZ' ? '1010ez' : form_id
     form_data = generate_prefill(mappings) if FormProfile.prefill_enabled_forms.include?(form)
+    puts form_data
 
     { form_data: form_data, metadata: metadata }
   end

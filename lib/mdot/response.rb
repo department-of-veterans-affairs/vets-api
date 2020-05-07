@@ -9,6 +9,7 @@ module MDOT
     attribute :permanent_address, MDOT::Address
     attribute :temporary_address, MDOT::Address
     attribute :supplies, Array[MDOT::Supply]
+    attribute :eligibility, MDOT::Eligibility
 
     def initialize(args)
       validate_response_against_schema(args[:schema], args[:response])
@@ -17,7 +18,23 @@ module MDOT
       self.permanent_address = @parsed_body['permanent_address']
       self.temporary_address = @parsed_body['temporary_address']
       self.supplies = @parsed_body['supplies']
+      self.eligibility = determine_eligibility
       @status = args[:response][:status]
+    end
+
+    def determine_eligibility
+      eligibility = { batteries: false, accessories: false }
+
+      supplies.each do |supply|
+        group = supply.product_group.split.last.to_sym
+        next_availability_date = supply.next_availability_date.to_date
+
+        if eligibility.key?(group)
+          eligibility[group] = supply.next_availability_date <= Date.today
+        end
+      end
+
+      eligibility
     end
 
     def ok?
