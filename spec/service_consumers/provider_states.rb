@@ -22,3 +22,15 @@ Pact.provider_states_for 'HCA' do
     end
   end
 end
+
+Pact.provider_states_for 'Search' do
+  provider_state 'multiple matching results exist' do
+    set_up do
+    end
+
+    tear_down do
+      # Any tear down steps to clean up the provider state
+    end
+  end
+
+end
