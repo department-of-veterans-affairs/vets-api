@@ -9,14 +9,12 @@ module AppealsApi
         return if higher_level_reviews.empty?
 
         response = CentralMail::Service.new.status(higher_level_reviews.pluck(:id))
-
         unless response.success?
           log_bad_centrail_mail_response(response)
           raise Common::Exceptions::BadGateway
         end
 
         central_mail_status_objects = parse_central_mail_response(response).select { |s| s.id.present? }
-
         ActiveRecord::Base.transaction do
           central_mail_status_objects.each do |obj|
             higher_level_reviews.find { |h| h.id == obj.id }
@@ -59,22 +57,13 @@ module AppealsApi
     attr_encrypted(:auth_headers, key: Settings.db_encryption_key, marshal: true, marshaler: JsonMarshal::Marshaller)
 
     enum status: {
-      pending: 0,
-      submitted: 1,
-      processing: 2,
-      error: 3,
-      uploaded: 4,
-      received: 5,
-      success: 6,
-      vbms: 7,
-      expired: 8
+      pending: 0, submitted: 1, processing: 2, error: 3, uploaded: 4, received: 5, success: 6, vbms: 7, expired: 8
     }
 
     scope :received_or_processing, -> { where(status: %w[received processing]) }
 
     INFORMAL_CONFERENCE_REP_NAME_AND_PHONE_NUMBER_MAX_LENGTH = 100
     NO_ADDRESS_PROVIDED_SENTENCE = 'USE ADDRESS ON FILE'
-
 
     # the controller applies the JSON Schemas in modules/appeals_api/config/schemas/
     # further validations:
