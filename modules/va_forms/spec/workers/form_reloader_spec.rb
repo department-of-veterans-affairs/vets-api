@@ -55,6 +55,10 @@ RSpec.describe VaForms::FormReloader, type: :job do
       expect(final_url).to eq('https://www.va.gov/vaforms/medical/pdf/vha10-10171-fill.pdf')
     end
 
+    it 'marks missing forms as invalid' do
+      # Todo
+    end
+
     describe 'date parsing checks' do
       it 'parses date when month day year' do
         date_string = '7/30/2018'

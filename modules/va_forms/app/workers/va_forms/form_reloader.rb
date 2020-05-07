@@ -22,6 +22,7 @@ module VaForms
       missing_forms = VaForms::Form.where.not(form_name: processed_form_names)
       # rubocop:disable Rails/SkipsModelValidations
       missing_forms.update_all(valid_pdf: false)
+      # rubocop:enable Rails/SkipsModelValidations
     end
 
     def load_page(current_page: 0)
