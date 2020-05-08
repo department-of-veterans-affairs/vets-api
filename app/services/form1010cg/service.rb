@@ -38,17 +38,17 @@ module Form1010cg
       end
     end
 
-    def icn_for(namespace)
-      cached_icn = @cached_icns[namespace]
+    def icn_for(form_subject)
+      cached_icn = @cached_icns[form_subject]
       return cached_icn unless cached_icn.nil?
 
       begin
-        response = mvi_service.find_profile(build_user_identity_for(namespace))
+        response = mvi_service.find_profile(build_user_identity_for(form_subject))
       rescue MVI::Errors::RecordNotFound
-        return @cached_icns[namespace] = NOT_FOUND
+        return @cached_icns[form_subject] = NOT_FOUND
       end
 
-      @cached_icns[namespace] = response&.profile&.icn if response&.status == 'OK'
+      @cached_icns[form_subject] = response&.profile&.icn if response&.status == 'OK'
     end
 
     private
@@ -63,8 +63,8 @@ module Form1010cg
       @mvi_service ||= MVI::Service.new
     end
 
-    def build_user_identity_for(namespace)
-      data = claim.parsed_form[namespace]
+    def build_user_identity_for(form_subject)
+      data = claim.parsed_form[form_subject]
 
       attributes = {
         first_name: data['fullName']['first'],
