@@ -9,7 +9,8 @@ class IdCardAttributes
     id_attributes
   end
 
-  ## Return dict of traits in canonical order
+  # Return dict of traits in canonical order
+  # rubocop:disable Metrics/CyclomaticComplexity
   def traits
     {
       'edipi' => @user.edipi,
@@ -26,6 +27,7 @@ class IdCardAttributes
       'dischargetype' => discharge_types
     }
   end
+  # rubocop:enable Metrics/CyclomaticComplexity
 
   private
 
