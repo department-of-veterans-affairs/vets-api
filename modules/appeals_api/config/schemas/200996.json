@@ -56,7 +56,8 @@
           "required": [
             "informalConference",
             "sameOffice",
-            "benefitType"
+            "benefitType",
+            "veteran"
           ]
         },
         {
@@ -75,6 +76,7 @@
             "informalConference",
             "sameOffice",
             "benefitType",
+            "veteran",
             "informalConferenceTimes"
           ]
         }
@@ -149,7 +151,8 @@
     "hlrCreateVeteran": {
       "type": "object",
       "properties": {
-        "phone":        { "$ref": "#/definitions/hlrCreatePhone" },
+        "address": { "$ref": "#/definitions/hlrCreateAddress" },
+        "phone":   { "$ref": "#/definitions/hlrCreatePhone" },
         "emailAddressText": {
           "type": "string",
           "pattern": ".@.",
@@ -157,7 +160,16 @@
           "$comment": "TODO: use draft 7 feature [format: idn-email] or [format: email] over pattern (when there is broader support)"
         }
       },
-      "additionalProperties": false
+      "additionalProperties": false,
+      "required": [ "address" ]
+    },
+
+
+    "hlrCreateAddress": {
+      "type": "object",
+      "properties": { "zipCode5": { "type": "string", "pattern": "^[0-9]{5}$" } },
+      "additionalProperties": false,
+      "required": [ "zipCode5" ]
     },
 
 

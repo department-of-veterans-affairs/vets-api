@@ -6,6 +6,7 @@
       "sameOffice": true,
       "benefitType": "nca",
       "veteran": {
+        "address": { "zipCode5": "66002" },
         "phone": {
           "countryCode": "34",
           "areaCode": "555",
