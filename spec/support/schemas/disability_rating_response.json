@@ -14,10 +14,10 @@
         "attributes": {
           "type": "object",
           "properties": {
-            "overall_disability_rating": {
+            "combined_disability_rating": {
               "type": "integer"
             },
-            "ratings": {
+            "individual_ratings": {
               "type": "array",
               "items": {
                 "type": "object",

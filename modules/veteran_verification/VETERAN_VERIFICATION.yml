@@ -182,19 +182,19 @@ components:
       description: |
         Body of the disability rating response
       required:
-        - overall_diasbility_rating
-        - ratings
+        - combined_disability_rating
+        - individual_ratings
       properties:
-        overall_disability_rating:
+        combined_disability_rating:
           description: Overall severity rating determined by VA calculation of each service related conditions. Used to help determine disability compensation (pay) and related benefits.
           type: integer
           example: 100
-        ratings:
-          description: list of service connected disabilty ratings
+        individual_ratings:
+          description: list of individual service connected disabilty ratings
           type: array
           items:
-            $ref: '#/components/schemas/Ratings'
-    Ratings:
+            $ref: '#/components/schemas/individual_ratings'
+    individual_ratings:
       description: list of service connected disability ratings
       required:
         - decision

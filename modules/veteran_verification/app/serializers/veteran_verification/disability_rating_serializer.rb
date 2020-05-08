@@ -2,7 +2,7 @@
 
 module VeteranVerification
   class DisabilityRatingSerializer < ActiveModel::Serializer
-    attributes :overall_disability_rating, :ratings
+    attributes :combined_disability_rating, :individual_ratings
     type 'disability_ratings'
   end
 end

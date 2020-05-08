@@ -9,8 +9,8 @@ module VeteranVerification
     include Virtus.model
 
     attribute :id, String
-    attribute :overall_disability_rating, Integer
-    attribute :ratings, Array
+    attribute :combined_disability_rating, Integer
+    attribute :individual_ratings, Array
 
     def self.rating_service
       BGS::DisabilityRatingService.new
@@ -36,12 +36,12 @@ module VeteranVerification
     def self.disability_ratings(response)
       DisabilityRating.new(
         id: 0,
-        overall_disability_rating: response[:disability_rating_record][:service_connected_combined_degree],
-        ratings: ratings(response)
+        combined_disability_rating: response[:disability_rating_record][:service_connected_combined_degree],
+        individual_ratings: individual_ratings(response)
       )
     end
 
-    def self.ratings(response)
+    def self.individual_ratings(response)
       if response[:disability_rating_record][:ratings].class.eql? Hash
         ratings = [response[:disability_rating_record][:ratings]]
         response[:disability_rating_record][:ratings] = ratings
