@@ -11,7 +11,7 @@ describe Cookies do
 
   describe '#api_session_header' do
     # much of this code comes from here: https://stackoverflow.com/a/51579296
-    def decrypt_session_cookie(cookie)
+    def decrypt_session_cookie_5_2(cookie)
       salt = Rails.application.config.action_dispatch.authenticated_encrypted_cookie_salt
       encrypted_cookie_cipher = 'aes-256-gcm'
 
@@ -23,6 +23,31 @@ describe Cookies do
       # Make sure this matches the vets-api config: Rails.application.config.action_dispatch.cookies_serializer
       encryptor = ActiveSupport::MessageEncryptor.new(secret, cipher: encrypted_cookie_cipher, serializer: nil)
       encryptor.decrypt_and_verify(CGI.unescape(cookie))
+    end
+
+    # much of this code comes from here: https://gist.github.com/wildjcrt/6359713fa770d277927051fdeb30ebbf
+    def decrypt_session_cookie_6_0(cookie)
+      config = Rails.application.config
+      salt   = config.action_dispatch.authenticated_encrypted_cookie_salt
+      encrypted_cookie_cipher = config.action_dispatch.encrypted_cookie_cipher || 'aes-256-gcm'
+
+      # serializer = ActiveSupport::MessageEncryptor::NullSerializer # use this line if you don't know your serializer
+      serializer = ActionDispatch::Cookies::JsonSerializer
+
+      key_generator = ActiveSupport::KeyGenerator.new(Rails.application.secret_key_base, iterations: 1000)
+      key_len = ActiveSupport::MessageEncryptor.key_len(encrypted_cookie_cipher)
+      secret = key_generator.generate_key(salt, key_len)
+      encryptor = ActiveSupport::MessageEncryptor.new(secret, cipher: encrypted_cookie_cipher, serializer: serializer)
+
+      session_key = config.session_options[:key].freeze
+      byebug
+      encryptor.decrypt_and_verify(CGI::unescape(cookie), purpose: "cookie.api_session")
+    end
+
+    def decrypt_session_cookie(cookie)
+      # WIP 5_2 version fails because of new purpose for cookies.
+      # need to review how they are created, potentially
+      decrypt_session_cookie_5_2(cookie)
     end
 
     let(:api_session_header) { subject.api_session_header }
