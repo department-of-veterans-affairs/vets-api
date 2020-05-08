@@ -31,7 +31,7 @@ RSpec.describe VaForms::FormReloader, type: :job do
         VCR.use_cassette('va_forms/forms-missing-26-8736a') do
           form_reloader.load_page(current_page: 0)
           # Confirm that a model in the va_forms/forms cassette but not the second cassette has valid_pdf = false
-          missing_form = VaForms::Form.where(form_name: '26-8736a')
+          missing_form = VaForms::Form.find(form_name: '26-8736a')
           expect(missing_form.valid_pdf).to eq(false)
         end
       end
