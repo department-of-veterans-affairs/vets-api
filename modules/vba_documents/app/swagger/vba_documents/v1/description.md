@@ -64,9 +64,11 @@ The `updated_at` field indicates the last time the status for a given GUID was u
 
 Base64 is an encoding scheme that converts binary data into text format, so that encoded textual data can be easily transported over networks uncorrupted and without data loss. 
 
-Base64 can be used to encode binary multipart/form-data it in its entirety, in order to bypass certain false positives encountered as the VA firewall scans for attack signatures. If your PDF file uploads are failing, causing your GUIDs to expire before a PDF is received, you might consider encoding the entire payload in base64.
+Base64 can be used to encode binary multipart/form-data it in its entirety, in order to bypass certain false positives encountered as the VA firewall scans for attack signatures. If your PDF file uploads are failing, causing your GUIDs to expire before a PDF is received, you might consider <ins>encoding the entire payload</ins> in base64.
 
-After encoding your payload, you'll be required to preface your base64 string with `data:application/pdf;base64,` in order to allow our system to distinguish the file type. Your final string payload would look something like `data:application/pdf;base64,(encryption string)==` and close with the standard == marker.
+Note that the whole payload must be encoded, not individual parts/attachments.
+
+After encoding your payload, you'll be required to preface your base64 string with `data:multipart/form-data;base64,` in order to allow our system to distinguish the file type. Your final string payload would look something like `data:multipart/form-data;base64,(encryption string)==` and close with the standard == marker.  Note that the multipart boundaries i.e. -----WebKitFormBoundaryVfOwzCyvug0JmWYo and ending ------WebKitFormBoundaryVfOwzCyvug0JmWYo- must also be included.
 
 ## Reference
 Raw Open API Spec: https://api.va.gov/services/vba_documents/docs/v1/api
