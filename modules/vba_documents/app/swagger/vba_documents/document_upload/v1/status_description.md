@@ -1,5 +1,5 @@
 Document upload status. Note that until a document status of
-“received”, “processing”, or “success” is returned, a client
+“received”, “processing”, “success”, or "vbms" is returned, a client
 cannot consider the document as received by VA. In particular a
 status of “uploaded” means that the document package has been
 transmitted, but possibly not validated. Any errors with the
