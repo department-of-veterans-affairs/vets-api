@@ -80,7 +80,7 @@ RSpec.describe SAML::User do
           sign_in: { service_name: 'idme', account_type: 'N/A' },
           sec_id: nil,
           authenticated_by_ssoe: true,
-          common_name: nil,
+          common_name: nil
         )
       end
 
@@ -296,7 +296,7 @@ RSpec.describe SAML::User do
           sec_id: '1012853550',
           multifactor: multifactor,
           authenticated_by_ssoe: true,
-          common_name: 'k+tristan@example.com',
+          common_name: 'k+tristan@example.com'
         )
       end
     end
