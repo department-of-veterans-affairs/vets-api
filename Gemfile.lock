@@ -917,7 +917,7 @@ DEPENDENCIES
   spring
   spring-commands-rspec
   staccato
-  statsd-instrument
+  statsd-instrument (~> 2.6.0)
   super_diff
   swagger-blocks
   timecop
