@@ -8,12 +8,12 @@ module AppealsApi
 
     SWAGGER_DEF_PATH = '#/components/schemas'
 
-    def initialize(ref_string)
-      @ref_string = ref_string.to_s
+    def initialize(ref)
+      @ref_string = (@ref = ref).to_s
     end
 
     def to_swagger
-      raise ArgumentError, "Invalid ref_string: #{ref_string}" unless valid?
+      raise ArgumentError, "Invalid reference: #{ref.inspect}" unless valid?
 
       return "#{SWAGGER_DEF_PATH}/#{definition_name}" if definition_name
 
@@ -27,7 +27,7 @@ module AppealsApi
 
     private
 
-    attr_reader :ref_string
+    attr_reader :ref, :ref_string
 
     def json_schema_definition_path_exactly?
       ref_string == JSON_SCHEMA_DEF_PATH

@@ -93,17 +93,33 @@ require_relative './json_schema_reference_string.rb'
 module AppealsApi
   class JsonSchemaToSwaggerConverter
     class << self
-      def fix_refs_and_remove_comments(value)
+      # recursively change $ref fields to swagger-style
+      def refs_to_swagger(value)
+        case value
+        when Hash
+          value.reduce({}) do |new_hash, (k, v)|
+            next new_hash.merge(k => JsonSchemaReferenceString.new(v).to_swagger) if k == '$ref'
+
+            new_hash.merge(k => refs_to_swagger(v))
+          end
+        when Array
+          value.map { |v| refs_to_swagger(v) }
+        else
+          value
+        end
+      end
+
+      # recursively exclude $comment fields
+      def remove_comments(value)
         case value
         when Hash
           value.reduce({}) do |new_hash, (k, v)|
             next new_hash if k == '$comment'
-            next new_hash.merge(k => JsonSchemaReferenceString.new(v).to_swagger) if ref?(k, v)
 
-            new_hash.merge(k => fix_refs_and_remove_comments(v))
+            new_hash.merge(k => remove_comments(v))
           end
         when Array
-          value.map { |v| fix_refs_and_remove_comments(v) }
+          value.map { |v| remove_comments(v) }
         else
           value
         end
@@ -122,8 +138,8 @@ module AppealsApi
 
     def to_swagger
       {
-        requestBody: { required: true, content: { 'application/json': { schema: top_swagger_ref } } },
-        components: { schemas: self.class.fix_refs_and_remove_comments(json_schema['definitions']) }
+        requestBody: { required: true, content: { 'application/json': { schema: { '$ref': top_ref_to_swagger } } } },
+        components: { schemas: json_schema_definitions_to_swagger }
       }.as_json
     end
 
@@ -131,8 +147,12 @@ module AppealsApi
 
     attr_reader :json_schema
 
-    def top_swagger_ref
-      { '$ref': JsonSchemaReferenceString.new(json_schema['$ref']).to_swagger }
+    def top_ref_to_swagger
+      JsonSchemaReferenceString.new(json_schema['$ref']).to_swagger
+    end
+
+    def json_schema_definitions_to_swagger
+      self.class.remove_comments self.class.refs_to_swagger json_schema['definitions']
     end
   end
 end
