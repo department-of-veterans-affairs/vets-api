@@ -23,6 +23,20 @@ RSpec.describe VaForms::FormReloader, type: :job do
       end
     end
 
+    it 'marks missing forms as invalid' do
+      VCR.use_cassette('va_forms/forms') do
+        allow_any_instance_of(VaForms::FormReloader).to receive(:get_sha256) { SecureRandom.hex(12) }
+        form_reloader.load_page(current_page: 0)
+        # Load a new cassette that is missing a form from the va_forms/forms cassette
+        VCR.use_cassette('va_forms/forms-missing-26-8736a') do
+          form_reloader.load_page(current_page: 0)
+          # Confirm that a model in the va_forms/forms cassette but not the second cassette has valid_pdf = false
+          missing_form = VaForms::Form.where(form_name: '26-8736a')
+          expect(missing_form.valid_pdf).to eq(false)
+        end
+      end
+    end
+
     it 'gets the sha256 when contents are a Tempfile' do
       VCR.use_cassette('va_forms/tempfile') do
         url = 'http://www.vba.va.gov/pubs/forms/26-8599.pdf'
@@ -53,10 +67,6 @@ RSpec.describe VaForms::FormReloader, type: :job do
       test_url = './medical/pdf/vha10-10171-fill.pdf'
       final_url = VaForms::FormReloader.new.get_full_url(test_url)
       expect(final_url).to eq('https://www.va.gov/vaforms/medical/pdf/vha10-10171-fill.pdf')
-    end
-
-    it 'marks missing forms as invalid' do
-      # Todo
     end
 
     describe 'date parsing checks' do
