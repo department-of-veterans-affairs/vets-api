@@ -56,7 +56,7 @@ module V1
         callback_stats(:failure, saml_response, saml_response.error_instrumentation_code)
       end
     rescue SAML::UserAttributeError => e
-      log_message_to_sentry(e.message, {}, {}, :warning)
+      log_message_to_sentry(e.message, :warning)
       redirect_to url_service.login_redirect_url(auth: 'fail', code: e.code)
       callback_stats(:failure, saml_response, e.tag)
     rescue => e
