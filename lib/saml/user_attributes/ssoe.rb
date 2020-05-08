@@ -163,7 +163,7 @@ module SAML
       end
 
       def to_hash
-        Hash[SERIALIZABLE_ATTRIBUTES.map { |k| [k, send(k)] }]
+        SERIALIZABLE_ATTRIBUTES.index_with { |k| send(k) }
       end
 
       # Raise any fatal exceptions due to validation issues
