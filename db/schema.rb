@@ -34,7 +34,7 @@ ActiveRecord::Schema.define(version: 2020_04_17_130928) do
   end
 
   create_table "appeals_api_higher_level_reviews", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
-    t.integer "status", default: 0
+    t.string "status", default: "pending", null: false
     t.string "encrypted_form_data"
     t.string "encrypted_form_data_iv"
     t.string "encrypted_auth_headers"

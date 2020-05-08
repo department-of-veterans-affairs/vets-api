@@ -45,11 +45,8 @@ module AppealsApi
         end
       end
 
-      def log_bad_central_mail_response(response)
-        log_message_to_sentry(
-          'Error getting status from Central Mail API',
-          :warning, status: response.status, body: response.body
-        )
+      def log_bad_central_mail_response(resp)
+        log_message_to_sentry('Error getting status from Central Mail', :warning, status: resp.status, body: resp.body)
       end
     end
 
@@ -61,7 +58,6 @@ module AppealsApi
 
     CENTRAL_MAIL_STATUS_TO_HLR_ATTRIBUTES = lambda do
       hash = Hash.new { |_, _| raise ArgumentError, 'Unknown Central Mail status' }
-
       hash['Received'] = { status: 'received' }
       hash['In Process'] = { status: 'processing' }
       hash['Processing Success'] = hash['In Process']
@@ -220,8 +216,6 @@ module AppealsApi
     def contestable_issues
       form_data&.dig('included')
     end
-
-    ###########
 
     def consumer_name
       auth_headers['X-Consumer-Username']
