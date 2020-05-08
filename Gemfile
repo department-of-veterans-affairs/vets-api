@@ -137,6 +137,7 @@ group :test do
   gem 'rubocop-junit-formatter'
   gem 'shrine-memory'
   gem 'simplecov', require: false
+  gem 'super_diff'
   gem 'vcr'
   gem 'webrick'
 end
