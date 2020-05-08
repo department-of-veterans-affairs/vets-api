@@ -72,7 +72,9 @@ module Users
         multifactor: user.multifactor,
         verified: user.loa3?,
         sign_in: user.identity.sign_in,
-        authn_context: user.authn_context
+        authn_context: user.authn_context,
+        va_patient: user.va_patient?,
+        mhv_account_state: user.mhv_account_state
       }
     end
 
