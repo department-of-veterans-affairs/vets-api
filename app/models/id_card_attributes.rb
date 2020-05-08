@@ -19,7 +19,7 @@ class IdCardAttributes
       'city' => @user.va_profile&.address&.city || '',
       'state' => @user.va_profile&.address&.state || '',
       'zip' => @user.va_profile&.address&.postal_code || '',
-      'email' => @user.email,
+      'email' => @user.email || '',
       'phone' => @user.va_profile&.home_phone || '',
       'title38status' => title38_status_code,
       'branchofservice' => branches_of_service,
