@@ -25,7 +25,7 @@ Rails.application.config.action_dispatch.return_only_media_type_on_content_type 
 Rails.application.config.active_job.return_false_on_aborted_enqueue = true
 
 #### active_storage is not included in our app, so these defaults can't be used at all
-#### i've commented them out with 4 number signs to signal they can't be added and are okay to be the default
+#### i've commented them out with 4 number signs to signal they can't be added but would be okay to be the default
 
 # Send Active Storage analysis and purge jobs to dedicated queues.
 #### Rails.application.config.active_storage.queues.analysis = :active_storage_analysis
