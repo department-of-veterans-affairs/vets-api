@@ -17,6 +17,7 @@ class UserIdentity < Common::RedisStore
   attribute :first_name
   attribute :middle_name
   attribute :last_name
+  attribute :common_name
   attribute :gender
   attribute :birth_date
   attribute :zip
@@ -34,7 +35,6 @@ class UserIdentity < Common::RedisStore
   attribute :authenticated_by_ssoe, Boolean
 
   validates :uuid, presence: true
-  validates :email, presence: true
   validates :loa, presence: true
   validate  :loa_highest_present
 
