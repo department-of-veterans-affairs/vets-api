@@ -1389,7 +1389,7 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
       end
     end
 
-    describe 'facility locator tests' do
+    describe 'facility locator tests', team: :facilities do
       context 'successful calls' do
         let(:provider) { FactoryBot.build(:provider, :from_provider_info) }
         let(:provider_services_response) do
@@ -1403,10 +1403,49 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
           }
         end
 
-        it 'supports getting a list of facilities' do
-          VCR.use_cassette('facilities/va/pdx_bbox') do
-            expect(subject).to validate(:get, '/v0/facilities/va', 200,
-                                        'bbox' => ['-122.440689', '45.451913', '-122.78675', '45.64'])
+        vcr_options = {
+          cassette_name: '/lighthouse/facilities',
+          match_requests_on: %i[path query],
+          allow_playback_repeats: true,
+          record: :new_episodes
+        }
+
+        context 'Using the Lighthouse API', vcr: vcr_options do
+          before do
+            Flipper.enable(:facility_locator_lighthouse_api, true)
+          end
+
+          it 'supports getting a list of facilities' do
+            expect(subject).to validate(
+              :get,
+              '/v0/facilities/va', 200,
+              {
+                '_query_string' => { bbox: ['-122.440689', '45.451913', '-122.78675', '45.64'] }.to_query
+              }
+            )
+          end
+
+          it '404s on non-existent facility' do
+            expect(subject).to validate(:get, '/v0/facilities/va/{id}', 404, 'id' => 'nca_9999999')
+          end
+        end
+
+        context 'Using Active Record' do
+          before do
+            Flipper.enable(:facility_locator_lighthouse_api, false)
+          end
+
+          it 'supports getting a list of facilities' do
+            VCR.use_cassette('facilities/va/pdx_bbox') do
+              expect(subject).to validate(:get, '/v0/facilities/va', 200,
+                                          'bbox' => ['-122.440689', '45.451913', '-122.78675', '45.64'])
+            end
+          end
+
+          it '404s on non-existent facility' do
+            VCR.use_cassette('facilities/va/nonexistent_cemetery') do
+              expect(subject).to validate(:get, '/v0/facilities/va/{id}', 404, 'id' => 'nca_9999999')
+            end
           end
         end
 
@@ -1414,12 +1453,6 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
           VCR.use_cassette('/lighthouse/facilities', match_requests_on: %i[path query]) do
             create :vha_648A4
             expect(subject).to validate(:get, '/v0/facilities/va/{id}', 200, 'id' => 'vha_648A4')
-          end
-        end
-
-        it '404s on non-existent facility' do
-          VCR.use_cassette('facilities/va/nonexistent_cemetery') do
-            expect(subject).to validate(:get, '/v0/facilities/va/{id}', 404, 'id' => 'nca_9999999')
           end
         end
 
