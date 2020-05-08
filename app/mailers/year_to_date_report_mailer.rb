@@ -26,6 +26,7 @@ class YearToDateReportMailer < ApplicationMailer
       Lucas.Tickner@va.gov
       kyle.pietrosanto@va.gov
       robert.shinners@va.gov
+      kathleen.dalfonso@va.gov
     ]
   }.freeze
 

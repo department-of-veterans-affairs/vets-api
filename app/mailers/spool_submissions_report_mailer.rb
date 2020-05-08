@@ -8,6 +8,7 @@ class SpoolSubmissionsReportMailer < ApplicationMailer
     lihan@adhocteam.us
     Ricardo.DaSilva@va.gov
     shay.norton@va.gov
+    kathleen.dalfonso@va.gov
   ].freeze
 
   STEM_RECIPIENTS = %w[

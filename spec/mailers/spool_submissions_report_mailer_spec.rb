@@ -53,6 +53,7 @@ RSpec.describe SpoolSubmissionsReportMailer, type: %i[mailer aws_helpers] do
             lihan@adhocteam.us
             Ricardo.DaSilva@va.gov
             shay.norton@va.gov
+            kathleen.dalfonso@va.gov
           ]
         )
       end
