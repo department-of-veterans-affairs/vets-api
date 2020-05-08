@@ -30,10 +30,10 @@ module Form1010cg
     end
 
     def build_metadata
-      claim.form_subjects.each_with_object({}) do |namespace, acc|
-        icn = icn_for(namespace)
-        acc[namespace.to_sym] = {
-          icn: icn == 'NOT_FOUND' ? nil : icn
+      claim.form_subjects.each_with_object({}) do |form_subject, metadata|
+        icn = icn_for(form_subject)
+        metadata[form_subject.to_sym] = {
+          icn: icn == NOT_FOUND ? nil : icn
         }
       end
     end

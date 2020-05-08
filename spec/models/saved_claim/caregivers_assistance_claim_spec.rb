@@ -21,16 +21,17 @@ RSpec.describe SavedClaim::CaregiversAssistanceClaim do
         }
       }
 
-      # Required properties for specific form_subjects
+      # Required properties for :primaryCaregiver
       if form_subject == :primaryCaregiver
-        data['vetRelationship'] = %w[Father Mother Son Daughter].sample
-        data['medicaidEnrolled'] = [true, false].sample
-        data['medicareEnrolled'] = [true, false].sample
-        data['tricareEnrolled'] = [true, false].sample
-        data['champvaEnrolled'] = [true, false].sample
+        data['vetRelationship'] = 'Daughter'
+        data['medicaidEnrolled'] = true
+        data['medicareEnrolled'] = false
+        data['tricareEnrolled'] = false
+        data['champvaEnrolled'] = false
       end
 
-      data['plannedClinic'] = %w[740 568A4 550].sample if form_subject == :veteran
+      # Required property for :veteran
+      data['plannedClinic'] = '568A4' if form_subject == :veteran
 
       mutations&.call data
 

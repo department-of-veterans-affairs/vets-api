@@ -26,16 +26,19 @@ class SavedClaim::CaregiversAssistanceClaim < SavedClaim
     form.nil? ? [] : parsed_form.keys
   end
 
-  %i[
-    veteran_data
-    primary_caregiver_data
-    secondary_caregiver_one_data
-    secondary_caregiver_two_data
-  ].each do |method_name|
-    namespace = method_name.to_s.camelize(:lower).sub('Data', '')
+  def veteran_data
+    parsed_form['veteran'] unless form.nil?
+  end
 
-    define_method method_name do
-      parsed_form[namespace] unless form.nil?
-    end
+  def primary_caregiver_data
+    parsed_form['primaryCaregiver'] unless form.nil?
+  end
+
+  def secondary_caregiver_one_data
+    parsed_form['secondaryCaregiverOne'] unless form.nil?
+  end
+
+  def secondary_caregiver_two_data
+    parsed_form['secondaryCaregiverTwo'] unless form.nil?
   end
 end
