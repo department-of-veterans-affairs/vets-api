@@ -11,6 +11,5 @@ change to “error”.
 * `received` - Indicates document package has been received upstream of the API, but is not yet in processing. <ins>Date of Receipt is set when this status is achieved.</ins> (This is also the final status in the sandbox environment unless further progress is simulated.)
 * `processing` - Indicates VBA Intake, Conversion and Mail Handling Services (ICMHS) is processing the document package.
 * `success` - Indicates document package has been received by Digital Mail Handling System (DHMS, aka the Centralized Mail portal).
-* `vbms` - Final status. Indicates document package has been received by Veterans Benefits Management System (VBMS).
 * `error` - Indicates that there was an error. See the `code` and `message` for further information.
 * `expired` - Indicates that the submission was not successfully uploaded via PUT request within the 15-minute window after the POST request. We recommend coding to retry unsuccessful uploads using the same GUID within 15 minutes in case of connection issues.
