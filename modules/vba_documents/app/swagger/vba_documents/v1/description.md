@@ -23,6 +23,8 @@ The date and time documents are submitted to the Benefits Intake API is used as 
 
 A status of `received` means that the document package has been transmitted, but possibly not validated. Any errors with the document package (unreadable PDF, etc) may cause the status to change to `error`.
 
+Please note that in the sandbox environment, the final status of a submission is `received` and submissions do not actually progress to Central Mail / VBMS. Progress beyond the `received` status can be simulated for testing - see Status Simulation below.
+
 If the document status is `error`, VA has not received the submission and cannot honor the submission date as the date of receipt.
 
 ### Authorization
@@ -31,7 +33,7 @@ API requests are authorized by means of a symmetric API token, provided in an HT
 ### Upload Operation
 Allows a client to upload a document package (form + attachments + metadata).
 
-1. Client Request: POST https://sandbox-api.va.gov/services/vba_documents/v0/
+1. Client Request: POST https://sandbox-api.va.gov/services/vba_documents/v1/
     * No request body or parameters required
 
 2. Service Response: A JSON API object with the following attributes:
@@ -47,7 +49,9 @@ Allows a client to upload a document package (form + attachments + metadata).
     * Additionally, the response includes an ETag header containing an MD5 hash of the submitted payload. This can be compared to the submitted payload to ensure data integrity of the upload.
 
 ### Status Simulation
-Given the downstream connections of this API, we allow **(IN SANDBOX ENVIRONMENT ONLY)** passing in a header `Status-Override` on the `/uploads/{id}` endpoint that will allow you to change the status of your submission to simulate the various scenarios. The available statuses are `pending`, `uploaded`, `received`, `processing`, `success`, `vbms`, and `error`. The meaning of the various statuses is listed below in Models under DocumentUploadStatusAttributes.
+In the sandbox environment, the final status of a submission is `received`. Test submissions do not progress to Central Mail / VBMS. In sandbox, we allow passing in a `Status-Override` header on the `/uploads/{id}` endpoint so that you can change the status of your submission to simulate the various scenarios. 
+
+The available statuses are `pending`, `uploaded`, `received`, `processing`, `success`, `vbms`, and `error`. The meaning of the various statuses is listed below in Models under DocumentUploadStatusAttributes.
 
 ### Status Caching
 Due to current system limitations, data for the `/uploads/report` endpoint is cached for one hour.
