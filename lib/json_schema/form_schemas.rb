@@ -13,6 +13,7 @@ module JsonSchema
       @schemas ||= get_schemas
     end
 
+    # safe access (over schemas[]). throws error when trying to access non-existent schema
     def schema(form)
       return schemas[form] if schemas.key? form
 
@@ -22,7 +23,7 @@ module JsonSchema
     def get_schemas
       return_val = {}
 
-      Dir.glob(File.join(base_dir, '/*')).each do |schema|
+      Dir.glob(File.join(base_dir, '/*.json')).each do |schema|
         schema_name = File.basename(schema, '.json').upcase
         return_val[schema_name] = MultiJson.load(File.read(schema))
       end

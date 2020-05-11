@@ -13,6 +13,7 @@ module VAOS
     #         def index...
     #
     class BaseController < VAOS::V0::BaseController
+
       private
 
       def fhir_service
@@ -27,8 +28,9 @@ module VAOS
           id: id,
           issue: va_exception
         )
+
         serializer = VAOS::V1::OperationOutcomeSerializer.new(operation_outcome)
-        render json: serializer.serialized_json, status: va_exception.status_code
+        render json: serializer.serialized_json
       end
     end
   end

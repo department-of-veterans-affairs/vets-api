@@ -12,7 +12,8 @@
           "phoneNumber": "8001111",
           "phoneNumberExt": "2"
         },
-        "emailAddressText": "josie@example.com"
+        "emailAddressText": "josie@example.com",
+        "timezone": "America/Chicago"
       },
       "informalConferenceTimes": [
         "1230-1400 ET",

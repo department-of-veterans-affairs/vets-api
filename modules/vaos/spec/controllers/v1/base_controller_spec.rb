@@ -45,7 +45,7 @@ RSpec.describe VAOS::V1::BaseController, type: :controller do
         ],
         'resourceType' => 'Base',
         'text' => {
-          'div' => '<div xmlns="http://www.w3.org/1999/xhtml"><p>{:text=>"' /
+          'div' => '<div xmlns="http://www.w3.org/1999/xhtml"><p>{:text=>"' \
                    "The record identified by #{id} could not be found\"}</p></div>",
           'status' => 'generated'
         }
@@ -71,7 +71,7 @@ RSpec.describe VAOS::V1::BaseController, type: :controller do
         ],
         'resourceType' => 'Base',
         'text' => {
-          'div' => '<div xmlns="http://www.w3.org/1999/xhtml"><p>{:text=>"' /
+          'div' => '<div xmlns="http://www.w3.org/1999/xhtml"><p>{:text=>"' \
                    'Received an an invalid response from the upstream server"}</p></div>',
           'status' => 'generated'
         }
