@@ -20,9 +20,11 @@ module VaForms
     def mark_stale_forms
       processed_form_names = @processed_forms.map { |f| f['form_name'] }
       missing_forms = VaForms::Form.where.not(form_name: processed_form_names)
-      # rubocop:disable Rails/SkipsModelValidations
-      missing_forms.update_all(valid_pdf: false)
-      # rubocop:enable Rails/SkipsModelValidations
+      missing_forms.find_each do |form|
+        form.update(valid_pdf: false)
+      rescue
+        Rails.logger.warn "VA Forms failed to mark form as invalid: #{form.form_name}"
+      end
     end
 
     def load_page(current_page: 0)
