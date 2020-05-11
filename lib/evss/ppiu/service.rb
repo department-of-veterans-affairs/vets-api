@@ -58,7 +58,8 @@ module EVSS
       end
 
       def right_error_type?(error)
-        (error.is_a?(Common::Client::Errors::ClientError) && error.status != 403) || error.is_a?(EVSS::ErrorMiddleware::EVSSError)
+        (error.is_a?(Common::Client::Errors::ClientError) && error.status != 403) ||
+          error.is_a?(EVSS::ErrorMiddleware::EVSSError)
       end
 
       def request_body(pay_info)
