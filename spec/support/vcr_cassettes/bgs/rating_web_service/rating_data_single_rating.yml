@@ -21,7 +21,7 @@ http_interactions:
       message: OK
     headers:
       Date:
-      - Wed, 06 May 2020 13:57:18 GMT
+      - Wed, 06 May 2020 13:59:05 GMT
       Server:
       - Apache
       X-Frame-Options:
@@ -100,10 +100,10 @@ http_interactions:
         </service>
         </definitions>
     http_version: null
-  recorded_at: Wed, 06 May 2020 13:57:19 GMT
+  recorded_at: Wed, 06 May 2020 13:59:06 GMT
 - request:
     method: post
-    uri: https://internal-dsva-vagov-dev-fwdproxy-1893365470.us-gov-west-1.elb.amazonaws.com:4447/RatingServiceBean/RatingService?WSDL
+    uri: https://internal-dsva-vagov-dev-fwdproxy-1893365470.us-gov-west-1.elb.amazonaws.com:4447/RatingServiceBean/RatingService
     body:
       encoding: UTF-8
       string: |-
@@ -115,11 +115,11 @@ http_interactions:
             <vaws:CLIENT_MACHINE>10.0.2.15</vaws:CLIENT_MACHINE>
             <vaws:STN_ID>281</vaws:STN_ID>
             <vaws:applicationName>VAgovAPI</vaws:applicationName>
-            <vaws:ExternalUid>53746376863068071</vaws:ExternalUid>
+            <vaws:ExternalUid>96014958860400540</vaws:ExternalUid>
             <vaws:ExternalKey>abraham.lincoln@vets.gov</vaws:ExternalKey>
           </vaws:VaServiceHeaders>
         </wsse:Security>
-        </env:Header><env:Body><tns:findRatingData><fileNumber>796111863</fileNumber></tns:findRatingData></env:Body></env:Envelope>
+        </env:Header><env:Body><tns:findRatingData><fileNumber>796104437</fileNumber></tns:findRatingData></env:Body></env:Envelope>
     headers:
       Host:
       - ".vba.va.gov"
@@ -137,15 +137,19 @@ http_interactions:
       - Ruby
   response:
     status:
-      code: 500
-      message: Internal Server Error
+      code: 200
+      message: OK
     headers:
       Date:
-      - Wed, 06 May 2020 13:57:19 GMT
+      - Wed, 06 May 2020 13:59:06 GMT
       Server:
       - Apache
       X-Frame-Options:
       - SAMEORIGIN
+      X-Oracle-Dms-Ecid:
+      - 8d103b50-b9da-40c3-ac2f-0e051413bb46-000000bd
+      X-Oracle-Dms-Rid:
+      - '0'
       Transfer-Encoding:
       - chunked
       Content-Type:
@@ -154,11 +158,19 @@ http_interactions:
       encoding: UTF-8
       string: <?xml version='1.0' encoding='UTF-8'?><S:Envelope xmlns:env="http://schemas.xmlsoap.org/soap/envelope/"
         xmlns:S="http://schemas.xmlsoap.org/soap/envelope/"><env:Header><work:WorkContext
-        xmlns:work="http://oracle.com/weblogic/soap/workarea/">rO0ABXdUAB13ZWJsb2dpYy5hcHAuQ29ycG9yYXRlRGF0YUVBUgAAANYAAAAjd2VibG9naWMud29ya2FyZWEuU3RyaW5nV29ya0NvbnRleHQABjMuMS4xMwAA</work:WorkContext></env:Header><S:Body><ns0:Fault
-        xmlns:ns0="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ns1="http://www.w3.org/2003/05/soap-envelope"><faultcode>ns0:Server</faultcode><faultstring>No
-        record found for file number 796111863</faultstring><detail><ns0:ShareException
-        xmlns:ns0="http://services.share.benefits.vba.va.gov/"><message>No record
-        found for file number 796111863</message></ns0:ShareException></detail></ns0:Fault></S:Body></S:Envelope>
+        xmlns:work="http://oracle.com/weblogic/soap/workarea/">rO0ABXdUAB13ZWJsb2dpYy5hcHAuQ29ycG9yYXRlRGF0YUVBUgAAANYAAAAjd2VibG9naWMud29ya2FyZWEuU3RyaW5nV29ya0NvbnRleHQABjMuMS4xMwAA</work:WorkContext></env:Header><S:Body><ns0:findRatingDataResponse
+        xmlns:ns0="http://services.share.benefits.vba.va.gov/"><return><deathRatingRecord><numberOfRecords>0</numberOfRecords><returnCode>SHAR
+        9999</returnCode><returnMessage>Records found</returnMessage></deathRatingRecord><disabilityRatingRecord><combinedDegreeEffectiveDate>01012019</combinedDegreeEffectiveDate><legalEffectiveDate>12312018</legalEffectiveDate><nonServiceConnectedCombinedDegree>100</nonServiceConnectedCombinedDegree><numberOfRecords>1</numberOfRecords><promulgationDate>01022019</promulgationDate><ratings><beginDate>01012005</beginDate><bilateralTypeName></bilateralTypeName><combatIndicator>N</combatIndicator><diagnosticPercent>100</diagnosticPercent><diagnosticText>Hearing
+        Loss</diagnosticText><diagnosticTypeCode>6100</diagnosticTypeCode><diagnosticTypeName>6100-Hearing
+        loss</diagnosticTypeName><disabilityDate>12212018</disabilityDate><disabilityDecisionTypeCode>SVCCONNCTED</disabilityDecisionTypeCode><disabilityDecisionTypeName>Service
+        Connected</disabilityDecisionTypeName><disabilityID>1128271</disabilityID><endDate></endDate><futureExamDate></futureExamDate><hyphenatedDiagnosticTypeCode></hyphenatedDiagnosticTypeCode><hyphenatedDiagnosticTypeName></hyphenatedDiagnosticTypeName><hyphenatedRelatedDisabilityTypeName></hyphenatedRelatedDisabilityTypeName><lastExamDate></lastExamDate><majorIndicator>N</majorIndicator><militaryServicePeriodTypeName>Peacetime</militaryServicePeriodTypeName><paragraphTypeName></paragraphTypeName><previousServicePercent></previousServicePercent><relatedDisabilityTypeName></relatedDisabilityTypeName><supplementalDecisionTypeName></supplementalDecisionTypeName><withholdingPercent></withholdingPercent><withholdingTypeName></withholdingTypeName></ratings><returnCode>SHAR
+        9999</returnCode><returnMessage>Records found</returnMessage><serviceConnectedCombinedDegree>100</serviceConnectedCombinedDegree></disabilityRatingRecord><familyMemberRatingRecord><numberOfRecords>0</numberOfRecords><returnCode>SHAR
+        9999</returnCode><returnMessage>Records found</returnMessage></familyMemberRatingRecord><otherRatingRecord><numberOfRecords>1</numberOfRecords><ratings><beginDate>01012005</beginDate><decisionTypeName>Ancillary</decisionTypeName><disabilityTypeName>Basic
+        Eligibility under 38 USC Ch 35</disabilityTypeName><endDate></endDate><ratingDate>12212018</ratingDate><supplementalDecisionTypeName></supplementalDecisionTypeName></ratings><returnCode>SHAR
+        9999</returnCode><returnMessage>Records found</returnMessage></otherRatingRecord><specialMonthlyCompensationRatingRecord><numberOfSMCParagraphRecords>1</numberOfSMCParagraphRecords><numberOfSMCRecords>0</numberOfSMCRecords><returnCode>SHAR
+        9999</returnCode><returnMessage>Records found</returnMessage><smcParagraphRatings><profileDate>12212018</profileDate><ratingID>134247</ratingID><smcParagraphKeyTypeName>K-1</smcParagraphKeyTypeName><smcParagraphText>Entitled
+        to special monthly compensation under 38 U.S.C. 1114, subsection (k) and 38
+        CFR 3.350(a) on</smcParagraphText></smcParagraphRatings></specialMonthlyCompensationRatingRecord></return></ns0:findRatingDataResponse></S:Body></S:Envelope>
     http_version: null
-  recorded_at: Wed, 06 May 2020 13:57:19 GMT
+  recorded_at: Wed, 06 May 2020 13:59:07 GMT
 recorded_with: VCR 5.1.0
