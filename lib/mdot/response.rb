@@ -12,12 +12,14 @@ module MDOT
 
     def initialize(args)
       validate_response_against_schema(args[:schema], args[:response])
-      @body = args[:response].body
+      @response = args[:response]
+      @body = @response.body
       @parsed_body = @body.is_a?(String) ? JSON.parse(@body) : @body
       self.permanent_address = @parsed_body['permanent_address']
       self.temporary_address = @parsed_body['temporary_address']
       self.supplies = @parsed_body['supplies']
       @status = args[:response][:status]
+      set_mdot_cookie
     end
 
     def ok?
@@ -33,6 +35,10 @@ module MDOT
     def validate_response_against_schema(schema, response)
       schema_path = Rails.root.join('lib', 'mdot', 'schemas', "#{schema}.json").to_s
       JSON::Validator.validate!(schema_path, response.body, strict: false)
+    end
+
+    def set_mdot_cookie
+      cookies[:mdot_token] = @response.headers['va_api_key']
     end
   end
 end
