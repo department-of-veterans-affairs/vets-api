@@ -12,8 +12,8 @@ describe VAOS::V1::FHIRService do
   describe '#read' do
     context 'when VAMF returns a 404' do
       it 'raises a backend exception with key VAOS_404' do
-        VCR.use_cassette('vaos/fhir/404', match_requests_on: %i[method uri]) do
-          expect { subject.read(:Organization, 999_999) }.to raise_error(
+        VCR.use_cassette('vaos/fhir/read_organization_404', match_requests_on: %i[method uri]) do
+          expect { subject.read(:Organization, 353_000) }.to raise_error(
             Common::Exceptions::BackendServiceException
           ) { |e| expect(e.key).to eq('VAOS_404') }
         end
@@ -38,8 +38,8 @@ describe VAOS::V1::FHIRService do
       end
 
       it 'returns the JSON response body from the VAMF response' do
-        VCR.use_cassette('vaos/fhir/get_organization', match_requests_on: %i[method uri]) do
-          response = subject.read(:Organization, 353_830)
+        VCR.use_cassette('vaos/fhir/read_organization_200', match_requests_on: %i[method uri]) do
+          response = subject.read(:Organization, 353830)
           expect(response.body).to eq(expected_body)
         end
       end
