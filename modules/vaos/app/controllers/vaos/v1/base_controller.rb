@@ -13,6 +13,7 @@ module VAOS
     #         def index...
     #
     class BaseController < VAOS::V0::BaseController
+      before_action :authorize
 
       private
 
@@ -30,7 +31,7 @@ module VAOS
         )
 
         serializer = VAOS::V1::OperationOutcomeSerializer.new(operation_outcome)
-        render json: serializer.serialized_json
+        render json: serializer.serialized_json, status: va_exception.status_code
       end
     end
   end
