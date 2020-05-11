@@ -39,7 +39,7 @@ describe VAOS::V1::FHIRService do
 
       it 'returns the JSON response body from the VAMF response' do
         VCR.use_cassette('vaos/fhir/read_organization_200', match_requests_on: %i[method uri]) do
-          response = subject.read(:Organization, 353830)
+          response = subject.read(:Organization, 353_830)
           expect(response.body).to eq(expected_body)
         end
       end
