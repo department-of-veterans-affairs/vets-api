@@ -106,7 +106,7 @@ describe AppealsApi::JsonSchemaToSwaggerConverter do
     end
   end
 
-  describe '.fix_refs_and_remove_comments' do
+  context 'recursive methods' do
     let(:input) do
       {
         a: 1,
@@ -120,20 +120,45 @@ describe AppealsApi::JsonSchemaToSwaggerConverter do
       }.as_json
     end
 
-    let(:output) do
-      {
-        a: 1,
-        '$ref': '#/components/schemas',
-        b: [
-          'cat',
-          { '$ref': '#/components/schemas/dog' },
-          [[[{ c: { d: { '$ref': '#/components/schemas/' } } }]]]
-        ]
-      }.as_json
+    describe '.refs_to_swagger' do
+      it 'swaggerizes references' do
+        expect(described_class.refs_to_swagger(input)).to eq(
+          {
+            a: 1,
+            '$ref': '#/components/schemas',
+            '$comment': { '$ref': '#/components/schemas/hippo' },
+            b: [
+              'cat',
+              { '$ref': '#/components/schemas/dog' },
+              [[[{ c: { d: { '$comment': 'Hi', '$ref': '#/components/schemas/' } } }]]]
+            ]
+          }.as_json
+        )
+      end
+
+      it 'throws an error if given an invalid ref' do
+        expect do
+          described_class.refs_to_swagger input.merge(c: { '$ref' => '#/definitions/body/data' })
+        end.to raise_error ArgumentError
+      end
     end
 
-    it 'swaggerizes references and removes comments' do
-      expect(described_class.fix_refs_and_remove_comments(input)).to eq output
+    describe '.remove_comments' do
+      let(:output) do
+        {
+          a: 1,
+          '$ref': '#/definitions',
+          b: [
+            'cat',
+            { '$ref': '#/definitions/dog' },
+            [[[{ c: { d: { '$ref': '#/definitions/' } } }]]]
+          ]
+        }.as_json
+      end
+
+      it 'removes comments' do
+        expect(described_class.remove_comments(input)).to eq output
+      end
     end
   end
 end

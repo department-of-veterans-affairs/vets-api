@@ -32,7 +32,9 @@ class AppealsApi::V1::DecisionReview::HigherLevelReviewsController < AppealsApi:
   end
 
   def schema
-    render json: { data: [AppealsApi::FormSchemas.new.schemas[self.class::FORM_NUMBER]] }
+    render json: AppealsApi::JsonSchemaToSwaggerConverter.remove_comments(
+      AppealsApi::FormSchemas.new.schema(self.class::FORM_NUMBER)
+    )
   end
 
   def show

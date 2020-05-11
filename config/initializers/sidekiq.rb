@@ -15,7 +15,6 @@ Sidekiq.configure_server do |config|
   end
 
   config.server_middleware do |chain|
-    chain.remove Sidekiq::Middleware::Server::Logging
     chain.add Sidekiq::SemanticLogging
     chain.add Sidekiq::Instrument::ServerMiddleware
     chain.add Sidekiq::ErrorTag
