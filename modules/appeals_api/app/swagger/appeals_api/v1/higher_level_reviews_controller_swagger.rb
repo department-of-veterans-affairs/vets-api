@@ -55,9 +55,9 @@ class AppealsApi::V1::HigherLevelReviewsControllerSwagger
     }
   end
 
-  hlr_create_json_schema_unparsed = read_file[['config', 'schemas', '200996.json']]
+  hlr_create_json_schema = read_json[['config', 'schemas', '200996.json']]
   hlr_create_request_body = AppealsApi::JsonSchemaToSwaggerConverter.new(
-    JSON.parse(hlr_create_json_schema_unparsed)
+    hlr_create_json_schema
   ).to_swagger['requestBody']
   hlr_create_request_body['content']['application/json']['examples'] = {
     'all fields used': { value: example_all_fields_used },
@@ -94,8 +94,8 @@ class AppealsApi::V1::HigherLevelReviewsControllerSwagger
       key :description, desc
       response '200' do
         key :description, 'the JSON Schema for POST /higher_level_reviews'
-        examples = { default: { value: hlr_create_json_schema_unparsed } }
-        key :content, 'application/json': { examples: examples }
+        schema = JSON.pretty_generate AppealsApi::JsonSchemaToSwaggerConverter.remove_comments(hlr_create_json_schema)
+        key :content, 'application/json': { examples: { default: { value: schema } } }
       end
     end
   end

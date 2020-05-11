@@ -48,7 +48,7 @@ If you do not have license configured, Sidekiq Enterprise will simply not be ins
 Unless you are sure you need a Sidekiq Enterprise feature, you are probably fine without configuring the license and running Sidekiq Enterprise.
 Normal Sidekiq will still be installed and run.
 
-If you do need Sidekiq Enterprise, VA.gov Team Engineers can follow instructions [here](https://github.com/department-of-veterans-affairs/vets.gov-team/blob/master/Products/Platform/Vets-API/Sidekiq%20Enterprise%20Setup.md) to install the enterprise license on their systems.
+If you do need Sidekiq Enterprise, VA.gov Team Engineers can follow instructions [here](https://github.com/department-of-veterans-affairs/va.gov-team-sensitive/blob/master/platform/engineering/sidekiq-enterprise-setup.md) to install the enterprise license on their systems.
 
 **DO NOT commit Gemfile modifications that result from local builds without sidekiq enterprise if you do not have it enabled on your development system**
 
