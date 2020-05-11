@@ -28,10 +28,23 @@ module VAOS
           raise Common::Exceptions::InvalidFieldValue.new('resource_type', resource_type)
         end
 
-        perform(:get, "#{resource_type}/#{id}", nil, headers)
+        perform(:get, "#{resource_type}/#{id}", nil)
       end
 
       private
+
+      def perform(method, path, params)
+        StatsD.increment("#{action_statsd_key(path)}.total")
+        super(method, path, params, headers)
+      rescue => e
+        StatsD.increment("#{action_statsd_key(path)}.failure")
+        raise e
+      end
+
+      def action_statsd_key(path)
+        caller = caller_locations(2, 1)[0].label
+        "#{STATSD_KEY_PREFIX}.#{caller}.#{path.split('/').first.downcase}"
+      end
 
       def config
         VAOS::V1::FHIRConfiguration.instance

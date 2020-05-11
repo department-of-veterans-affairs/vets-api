@@ -32,7 +32,7 @@ describe VAOS::V1::FHIRService do
       let(:expected_body) do
         YAML.load_file(
           Rails.root.join(
-            'spec', 'support', 'vcr_cassettes', 'vaos', 'fhir', 'get_organization.yml'
+            'spec', 'support', 'vcr_cassettes', 'vaos', 'fhir', 'read_organization_200.yml'
           )
         )['http_interactions'].first.dig('response', 'body', 'string')
       end

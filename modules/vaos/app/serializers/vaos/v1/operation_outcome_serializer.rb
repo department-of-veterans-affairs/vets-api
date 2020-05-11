@@ -66,7 +66,7 @@ module VAOS
             details: {
               text: error.detail
             },
-            diagnostics: error.source
+            diagnostics: error.source.to_s
           }
         end
       end
