@@ -5,10 +5,10 @@ class SpoolSubmissionsReportMailer < ApplicationMailer
   RECIPIENTS = %w[
     dana.kuykendall@va.gov
     Jennifer.Waltz2@va.gov
+    kathleen.dalfonso@va.gov
     lihan@adhocteam.us
     Ricardo.DaSilva@va.gov
     shay.norton@va.gov
-    kathleen.dalfonso@va.gov
   ].freeze
 
   STEM_RECIPIENTS = %w[
