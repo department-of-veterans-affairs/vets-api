@@ -224,6 +224,16 @@ describe AppealsApi::HigherLevelReview, type: :model do
     it('matches json') { is_expected.to eq form_data['included'] }
   end
 
+  describe '#date_signed' do
+    subject { higher_level_review.date_signed }
+
+    it('matches json') do
+      expect(subject).to eq(
+        Time.now.in_time_zone(form_data['data']['attributes']['veteran']['timezone']).strftime('%m/%d/%Y')
+      )
+    end
+  end
+
   context 'validations' do
     let(:higher_level_review) { described_class.new(form_data: form_data, auth_headers: auth_headers) }
 
