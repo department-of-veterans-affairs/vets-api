@@ -80,7 +80,7 @@ module AppealsApi
         "F[0].#subform[2].TIME2TO430PM[0]": hlr.informal_conference_times.include?('1400-1630 ET') ? 1 : 'Off',
         "F[0].#subform[2].REPRESENTATIVENAMEANDTELEPHONENUMBER[0]": hlr.informal_conference_rep_name_and_phone_number,
         "F[0].#subform[3].SIGNATUREOFVETERANORCLAIMANT[0]": hlr.full_name,
-        "F[0].#subform[3].DateSigned[0]": Time.zone.now.strftime('%m/%d/%Y')
+        "F[0].#subform[3].DateSigned[0]": hlr.date_signed
       }
       hlr.contestable_issues.each_with_index do |issue, index|
         next if index >= 6
