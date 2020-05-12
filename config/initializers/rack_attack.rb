@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 class Rack::Attack
-  Rack::Attack.cache.store = Rack::Attack::StoreProxy::RedisStoreProxy.new(Redis.current)
+  Rack::Attack.cache.store = Rack::Attack::StoreProxy::RedisStoreProxy.new(Redis.new(REDIS_CONFIG[:redis]))
 
   throttle('example/ip', limit: 1, period: 5.minutes) do |req|
     req.ip if req.path == '/v0/limited'
