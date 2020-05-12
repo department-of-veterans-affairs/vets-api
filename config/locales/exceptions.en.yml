@@ -414,6 +414,12 @@ en:
         code: 'EVSS504'
         detail: 'The server, while acting as a gateway or proxy, did not receive a timely response from an upstream server it needed to access in order to complete the request'
         status: 504
+      BGS_RTG_502:
+        <<: *external_defaults
+        title: Unexpected response body
+        code: 'BGS502'
+        detail: BGS service responded with something other than the expected disability rating response.
+        status: 502
       EMIS_HIST502:
         <<: *external_defaults
         title: Unexpected response body

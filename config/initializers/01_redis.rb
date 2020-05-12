@@ -3,7 +3,6 @@
 # environment specific redis host and port (see: config/redis.yml)
 REDIS_CONFIG = Rails.application.config_for(:redis).freeze
 # set the current global instance of Redis based on environment specific config
-# This is raising deprecation warnings because a ActiveSupport::OrderedOptions won't support string keys in Rails 6.1
 
 class RedisDuplicator < Redis
   def initialize(secondary_redis, options = {})
@@ -29,7 +28,7 @@ end
 
 Redis.current = if Settings.redis.app_data.key?(:secondary_url)
                   secondary_redis = Redis.new(url: Settings.redis.app_data.url)
-                  RedisDuplicator.new(secondary_redis, REDIS_CONFIG[:redis])
+                  RedisDuplicator.new(secondary_redis, REDIS_CONFIG[:redis].to_hash)
                 else
-                  Redis.new(REDIS_CONFIG[:redis])
+                  Redis.new(REDIS_CONFIG[:redis].to_hash)
                 end

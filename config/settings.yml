@@ -136,6 +136,7 @@ decision_review:
   url: https://sandbox-api.va.gov/services/appeals/v3/decision_review
   api_key: abcd1234abcd1234abcd1234abcd1234abcd1234
   mock: false
+  schema_dir: config/schemas
 
 # Settings for EVSS
 evss:
@@ -312,7 +313,6 @@ caseflow:
   mock: true
   app_token: PUBLICDEMO123
   host: https://dsva-appeals-certification-dev-1895622301.us-gov-west-1.elb.amazonaws.com
-  schema_dir: config/schemas
 
 vic:
   url: https://some.fakesite.com
@@ -454,7 +454,7 @@ flipper:
     - alastair@adhocteam.us
     - anna@adhoc.team
     - dan.hinze@adhocteam.us
-    - Delli-Gatti_Michael@bah.com
+    - delli-gatti_michael@bah.com
     - devinmccurdy@gmail.com
     - eric.buckley@adhocteam.us
     - erik@adhocteam.us
@@ -465,6 +465,7 @@ flipper:
     - kam@adhocteam.us
     - kabrown@thoughtworks.com
     - kenneth.gary@va.gov
+    - kmircovich@governmentcio.com
     - lauren.alexanderson@va.gov
     - mark.greenburg@adhocteam.us
     - n.ratana@gmail.com
@@ -478,7 +479,7 @@ flipper:
     - roth_matthew@bah.com
     - ryan.thurlwell@va.gov
     - shaun.hubbard@thoughtworks.com
-    - Shawkey_Daniel@bah.com
+    - shawkey_daniel@bah.com
     - sonntag_adam@bah.com
     - travis.hilton@oddball.io
     - zurbergram@gmail.com
