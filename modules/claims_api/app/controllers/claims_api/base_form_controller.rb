@@ -57,18 +57,15 @@ module ClaimsApi
     end
 
     def decode_document(document)
-      match = document.match(/\;base64\,(.+?)$/)
-      if match
-        base64 = match.captures.first
-        decoded_data = Base64.decode64(base64)
-        filename = "temp_upload_#{Time.zone.now.to_i}.pdf"
-        temp_file = Tempfile.new(filename, encoding: 'ASCII-8BIT')
-        temp_file.write(decoded_data)
-        temp_file.close
-        ActionDispatch::Http::UploadedFile.new(filename: filename,
-                                               type: 'application/pdf',
-                                               tempfile: temp_file)
-      end
+      base64 = document.split(',').last
+      decoded_data = Base64.decode64(base64)
+      filename = "temp_upload_#{Time.zone.now.to_i}.pdf"
+      temp_file = Tempfile.new(filename, encoding: 'ASCII-8BIT')
+      temp_file.write(decoded_data)
+      temp_file.close
+      ActionDispatch::Http::UploadedFile.new(filename: filename,
+                                             type: 'application/pdf',
+                                             tempfile: temp_file)
     end
   end
 end
