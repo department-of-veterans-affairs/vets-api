@@ -25,7 +25,13 @@ module VAOS
           id: id,
           issue: va_exception
         )
-        render json: VAOS::V1::OperationOutcomeSerializer.new(operation_outcome).serialized_json
+
+        serializer = VAOS::V1::OperationOutcomeSerializer.new(operation_outcome)
+        render json: serializer.serialized_json, status: va_exception.status_code
+      end
+
+      def fhir_service
+        VAOS::V1::FHIRService.new(current_user)
       end
     end
   end
