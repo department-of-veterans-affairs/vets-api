@@ -44,7 +44,7 @@ module Form1010cg
       )
     end
 
-    # Will raise an error unless the veteran specified on the claim's data, (1) can be found in MVI, (2) has an ICN,
+    # Will raise an error unless the veteran specified on the claim's data (1) can be found in MVI, (2) has an ICN,
     # and (3) has been confirmed as a legitimate veteran (via eMIS).
     #
     # @return [nil]
@@ -56,7 +56,6 @@ module Form1010cg
     # Returns a metadata hash:
     #
     # {
-    #   claim_id: Integer | nil,
     #   veteran: {
     #     is_veteran: true | false | nil,
     #     icn: String | nil
@@ -82,10 +81,8 @@ module Form1010cg
       metadata
     end
 
-    # Will search MVI for the provided form subject and return the matching profile's ICN or `NOT_FOUND`.
-    # Submitting a 10-10cg where the veteran specified on the form, is not a veteran, should result in a client error.
-    #
-    # The result will be cached and subsequent calls will return the cached value, preventing additional api request.
+    # Will search MVI for the provided form subject and return (1) the matching profile's ICN or (2) `NOT_FOUND`.
+    # The result will be cached and subsequent calls will return the cached value, preventing additional api requests.
     #
     # @param form_subject [String] The key in the claim's data that contains this person's info (ex: "veteran")
     # @return [String | NOT_FOUND] Returns `true` if the form subject is a veteran and NOT_CONFIRMED otherwise.
@@ -103,12 +100,10 @@ module Form1010cg
     end
 
     # Will search eMIS for the provided form subject and return `true` if the subject is a verteran.
-    # Submitting a 10-10cg where the veteran specified on the form, is not a veteran, should result in a client error.
-    #
-    # The result will be cached and subsequent calls will return the cached value, preventing additional api request.
+    # The result will be cached and subsequent calls will return the cached value, preventing additional api requests.
     #
     # @param form_subject [String] The key in the claim's data that contains this person's info (ex: "veteran")
-    # @return [true | NOT_CONFIRMED] Returns `true` if the form subject is a veteran and NOT_CONFIRMED otherwise.
+    # @return [true | NOT_CONFIRMED] Returns `true` if the form subject is a veteran and `NOT_CONFIRMED` otherwise.
     def is_veteran(form_subject) # rubocop:disable Naming/PredicateName
       cached_veteran_status = @cache[:veteran_statuses][form_subject]
       return cached_veteran_status unless cached_veteran_status.nil?
