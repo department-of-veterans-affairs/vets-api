@@ -60,8 +60,8 @@ module ClaimsApi
             :description,
             <<~X
               Submit [form 526](https://www.vba.va.gov/pubs/forms/VBA-21-526EZ-ARE.pdf).
-              Takes in JSON, returns UUID for submission. Asynchronously auto-establishes claim and generates a PDF for Central Mail.
-              Can accept document binaries as part of a multi-part payload (as `attachment1`, `attachment2`, etc.).
+              Takes in JSON, returns UUID for submission. Asynchronously auto-establishes claim and generates a PDF for VBMS.
+              Can accept document binary PDF or base64 string as part of a multi-part payload (as `attachment1`, `attachment2`, etc.).
               **If you are filing an original claim, and the filer is not the veteran** (the oauth token is not the veteran’s), see [PUT /forms/526/{id}](#operations-Disability-upload526Attachment).
             X
           )
@@ -168,7 +168,7 @@ module ClaimsApi
               Use this endpoint in conjunction with the [POST](#operations-Disability-post526Claim) endpoint to file an original claim when the filer is _not_ the veteran (the oauth token is not the veteran’s).
               In most cases, if the veteran is not the filer on the original claim, a scanned copy of form 526, signed in ink by the veteran, is required.
               **`Step 1:`** use [POST /forms/526/{id}](#operations-Disability-post526Claim) but set `"autoCestPDFGenerationDisabled": true` (this disables automatic PDF generation).
-              **`Step 2:`** use PUT to attach scan of form 526 and any additional supporting documents.
+              **`Step 2:`** use PUT to attach scan of form 526 in binary PDF or base64 string.
             X
           )
           key :operationId, 'upload526Attachment'
@@ -236,17 +236,10 @@ module ClaimsApi
           end
 
           parameter do
-            key :name, 'attachment1'
+            key :name, 'attachment'
             key :in, :formData
             key :type, :file
-            key :description, 'Attachment contents. Must be provided in PDF format and less than 11 in x 11 in'
-          end
-
-          parameter do
-            key :name, 'attachment2'
-            key :in, :formData
-            key :type, :file
-            key :description, 'Attachment contents. Must be provided in PDF format and less than 11 in x 11 in'
+            key :description, 'Attachment contents. Must be provided in binary PDF or base64 string format and less than 11 in x 11 in'
           end
 
           response 200 do
@@ -410,7 +403,7 @@ module ClaimsApi
       swagger_path '/forms/526/{id}/attachments' do
         operation :post do
           key :summary, 'Upload documents in support of a 526 claim'
-          key :description, 'Accpets document binaries as part of a multipart payload. Accepts N number of attachments, via attachment1 .. attachmentN'
+          key :description, 'Accpets document binary PDF or base64 string as part of a multipart payload. Accepts N number of attachments, via attachment1 .. attachmentN'
           key :operationId, 'upload526Attachments'
           key :produces, [
             'application/json'
@@ -479,14 +472,14 @@ module ClaimsApi
             key :name, 'attachment1'
             key :in, :formData
             key :type, :file
-            key :description, 'Attachment contents. Must be provided in PDF format and less than 11 in x 11 in'
+            key :description, 'Attachment contents. Must be provided in binary PDF or base64 string format and less than 11 in x 11 in'
           end
 
           parameter do
             key :name, 'attachment2'
             key :in, :formData
             key :type, :file
-            key :description, 'Attachment contents. Must be provided in PDF format and less than 11 in x 11 in'
+            key :description, 'Attachment contents. Must be provided in binary PDF or base64 string format and less than 11 in x 11 in'
           end
 
           response 200 do
