@@ -6,14 +6,33 @@ module Form1010cg
     attr_reader :claim
 
     NOT_FOUND = 'NOT_FOUND'
+    NOT_CONFIRMED = 'NOT_CONFIRMED'
 
     def initialize(claim)
+      # This service makes assumptions on what data is present on the claim
+      # Make sure the claim is valid, so we can be assured the required data is present.
       claim.valid? || raise(Common::Exceptions::ValidationErrors, claim)
 
+      # The CaregiversAssistanceClaim we are processing with this service
       @claim = claim
-      @cached_icns = {}
+
+      # Store for the search results we will run on MVI and eMIS
+      @cache = {
+        # [form_subject]: String          - The person's ICN
+        # [form_subject]: NOT_FOUND       - This person could not be found in MVI
+        # [form_subject]: nil             - An MVI search has not been conducted for this person
+        icns: {},
+        # [form_subject]: true            - This person is a veteran
+        # [form_subject]: false           - This person is not a veteran
+        # [form_subject]: NOT_CONFIRMED   - This person's veteran status cannot be confirmed
+        # [form_subject]: nil             - An eMIS search has not been conducted for this person
+        veteran_statuses: {}
+      }
     end
 
+    # Will submit the claim to CARMA.
+    #
+    # @return [Form1010cg::Submission]
     def process_claim!
       assert_veteran_status
 
@@ -25,34 +44,90 @@ module Form1010cg
       )
     end
 
+    # Will raise an error unless the veteran specified on the claim's data, (1) can be found in MVI, (2) has an ICN,
+    # and (3) has been confirmed as a legitimate veteran (via eMIS).
+    #
+    # @return [nil]
     def assert_veteran_status
       raise_unprocessable if icn_for('veteran') == NOT_FOUND
+      raise_unprocessable unless is_veteran('veteran') == true
     end
 
+    # Returns a metadata hash:
+    #
+    # {
+    #   claim_id: Integer | nil,
+    #   veteran: {
+    #     is_veteran: true | false | nil,
+    #     icn: String | nil
+    #   },
+    #   primaryCaregiver: { icn: String | nil },
+    #   secondaryCaregiverOne?: { icn: String | nil },
+    #   secondaryCaregiverTwo?: { icn: String | nil }
+    # }
     def build_metadata
-      claim.form_subjects.each_with_object({}) do |form_subject, metadata|
+      # Set the ICN's for each form_subject on the metadata hash
+      metadata = claim.form_subjects.each_with_object({}) do |form_subject, obj|
         icn = icn_for(form_subject)
-        metadata[form_subject.to_sym] = {
+
+        obj[form_subject.to_sym] = {
           icn: icn == NOT_FOUND ? nil : icn
         }
       end
+
+      # Set the veteran status on the :veteran namespace of metadata
+      veteran_status = is_veteran('veteran')
+      metadata[:veteran][:is_veteran] = veteran_status == NOT_CONFIRMED ? nil : veteran_status
+
+      metadata
     end
 
+    # Will search MVI for the provided form subject and return the matching profile's ICN or `NOT_FOUND`.
+    # Submitting a 10-10cg where the veteran specified on the form, is not a veteran, should result in a client error.
+    #
+    # The result will be cached and subsequent calls will return the cached value, preventing additional api request.
+    #
+    # @param form_subject [String] The key in the claim's data that contains this person's info (ex: "veteran")
+    # @return [String | NOT_FOUND] Returns `true` if the form subject is a veteran and NOT_CONFIRMED otherwise.
     def icn_for(form_subject)
-      cached_icn = @cached_icns[form_subject]
+      cached_icn = @cache[:icns][form_subject]
       return cached_icn unless cached_icn.nil?
 
       begin
         response = mvi_service.find_profile(build_user_identity_for(form_subject))
       rescue MVI::Errors::RecordNotFound
-        return @cached_icns[form_subject] = NOT_FOUND
+        return @cache[:icns][form_subject] = NOT_FOUND
       end
 
-      @cached_icns[form_subject] = response&.profile&.icn if response&.status == 'OK'
+      @cache[:icns][form_subject] = response&.profile&.icn if response&.status == 'OK'
+    end
+
+    # Will search eMIS for the provided form subject and return `true` if the subject is a verteran.
+    # Submitting a 10-10cg where the veteran specified on the form, is not a veteran, should result in a client error.
+    #
+    # The result will be cached and subsequent calls will return the cached value, preventing additional api request.
+    #
+    # @param form_subject [String] The key in the claim's data that contains this person's info (ex: "veteran")
+    # @return [true | NOT_CONFIRMED] Returns `true` if the form subject is a veteran and NOT_CONFIRMED otherwise.
+    def is_veteran(form_subject) # rubocop:disable Naming/PredicateName
+      cached_veteran_status = @cache[:veteran_statuses][form_subject]
+      return cached_veteran_status unless cached_veteran_status.nil?
+
+      icn = icn_for(form_subject)
+      return @cache[:veteran_statuses][form_subject] = NOT_CONFIRMED if icn == NOT_FOUND
+
+      response = EMIS::VeteranStatusService.new.get_veteran_status(icn: icn)
+      raise response.error if response.error?
+
+      is_veteran = response&.items&.first&.title38_status_code == 'V1'
+
+      @cache[:veteran_statuses][form_subject] = is_veteran || NOT_CONFIRMED
     end
 
     private
 
+    # The claim cannot be processed under certain conditions (see #assert_veteran_status).
+    # If those conditions are not met, raise this client error.
     def raise_unprocessable
       message = 'Unable to process submission digitally'
       claim.errors.add(:base, message, message: message)
@@ -63,6 +138,11 @@ module Form1010cg
       @mvi_service ||= MVI::Service.new
     end
 
+    # MVI::Service requires a valid UserIdentity to run a search, but only reads the user's attributes.
+    # This method will build a valid UserIdentity, so MVI::Service can pluck the name, ssn, dob, and gender.
+    #
+    # @param form_subject [String] The key in the claim's data that contains this person's info (ex: "veteran")
+    # @return [UserIdentity] A valid UserIdentity for the given form_subject
     def build_user_identity_for(form_subject)
       data = claim.parsed_form[form_subject]
 
