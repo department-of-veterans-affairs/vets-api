@@ -73,6 +73,33 @@ RSpec.describe FormProfile, type: :model do
     }
   end
 
+  let(:v686_c_674_expected) do
+    {
+      'veteranInformation' => {
+        'veteranInformation' => {
+          'fullName' => {
+            'first' => 'Abraham',
+            'last' => 'Lincoln',
+            'suffix' => 'Jr.'
+          },
+          'ssn' => user.ssn,
+          'birthDate' => user.birth_date
+        },
+        'veteranAddress' => {
+          'veteranAddress' => {
+            'addressLine1' => '140 Rock Creek Rd',
+            'city' => 'Washington',
+            'countryName' => 'USA',
+            'stateCode' => 'DC',
+            'zipCode' => '20011'
+          },
+          'phoneNumber' => '4445551212',
+          'emailAddress' => 'test2@test1.net'
+        }
+      }
+    }
+  end
+
   let(:v21_686_c_expected) do
     {
       'veteranFullName' => {
@@ -749,7 +776,6 @@ RSpec.describe FormProfile, type: :model do
 
         schema_data = prefilled_data.deep_dup
 
-        schema_data.except!('verified', 'serviceBranches') if schema_form_id == 'VIC'
         errors = JSON::Validator.fully_validate(
           schema,
           schema_data.deep_transform_keys { |key| key.camelize(:lower) },
@@ -897,7 +923,6 @@ RSpec.describe FormProfile, type: :model do
         end
 
         %w[
-          VIC
           22-1990
           22-1990N
           22-1990E
@@ -910,6 +935,7 @@ RSpec.describe FormProfile, type: :model do
           22-0993
           FEEDBACK-TOOL
           22-10203
+          686C-674
         ].each do |form_id|
           it "returns prefilled #{form_id}" do
             expect_prefilled(form_id)

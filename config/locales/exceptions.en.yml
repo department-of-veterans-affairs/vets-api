@@ -348,40 +348,40 @@ en:
         code: 'AUTHTOKEN_502'
         detail: Auth service responded with something other than the necessary information
         status: 502
-      APPEALSSTATUS401:
+      CASEFLOWSTATUS401:
         <<: *external_defaults
         title: 'Bad Gateway'
-        code: 'APPEALSSTATUS401'
+        code: 'CASEFLOWSTATUS401'
         detail: 'Received a not authorized response from the upstream server'
         status: 502
-      APPEALSSTATUS403:
+      CASEFLOWSTATUS403:
         <<: *external_defaults
         title: 'Forbiden'
-        code: 'APPEALSSTATUS403'
+        code: 'CASEFLOWSTATUS403'
         detail: 'You do not have access to the requested resource'
         status: 403
-      APPEALSSTATUS404:
+      CASEFLOWSTATUS404:
         <<: *external_defaults
         title: 'Not found'
-        code: 'APPEALSSTATUS404'
+        code: 'CASEFLOWSTATUS404'
         detail: 'Appeals data for a veteran with that SSN was not found'
         status: 404
-      APPEALSSTATUS422:
+      CASEFLOWSTATUS422:
         <<: *external_defaults
         title: 'Unprocessable entity'
-        code: 'APPEALSSTATUS422'
+        code: 'CASEFLOWSTATUS422'
         detail: 'One or more unprocessable properties or validation errors'
         status: 422
-      APPEALSSTATUS500:
+      CASEFLOWSTATUS500:
         <<: *external_defaults
         title: 'Bad Gateway'
-        code: 'APPEALSSTATUS500'
+        code: 'CASEFLOWSTATUS500'
         detail: 'Received a 500 response from the upstream server'
         status: 502
-      APPEALSSTATUS502:
+      CASEFLOWSTATUS502:
         <<: *external_defaults
         title: 'Bad Gateway'
-        code: 'APPEALSSTATUS502'
+        code: 'CASEFLOWSTATUS502'
         detail: 'Received an invalid response from the upstream server'
         status: 502
       GI404:
@@ -414,6 +414,12 @@ en:
         code: 'EVSS504'
         detail: 'The server, while acting as a gateway or proxy, did not receive a timely response from an upstream server it needed to access in order to complete the request'
         status: 504
+      BGS_RTG_502:
+        <<: *external_defaults
+        title: Unexpected response body
+        code: 'BGS502'
+        detail: BGS service responded with something other than the expected disability rating response.
+        status: 502
       EMIS_HIST502:
         <<: *external_defaults
         title: Unexpected response body
@@ -522,6 +528,12 @@ en:
         code: 'VAOS_403'
         detail: 'This user is forbidden from performing requests on the upstream server'
         status: 403
+      VAOS_404:
+        <<: *external_defaults
+        title: Not Found
+        code: 'VAOS_404'
+        detail: 'The resource could not be found'
+        status: 404
       VAOS_502:
         <<: *external_defaults
         title: Bad Gateway
@@ -1920,7 +1932,7 @@ en:
         detail: 'Error on data from external service'
         code: 134
         status: 502
-  
+
   mdot:
     exceptions:
       default_exception:

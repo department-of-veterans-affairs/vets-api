@@ -16,7 +16,7 @@ RSpec.describe 'Caregivers Assistance Claims', type: :request do
   let(:get_schema) { -> { VetsJsonSchema::SCHEMAS['10-10CG'].clone } }
 
   shared_examples_for 'any invalid submission' do
-    it 'requires a namcespace of caregivers_assistance_claim' do
+    it 'requires a namespace of caregivers_assistance_claim' do
       body = {}
       post endpoint, params: body, headers: headers
 
@@ -80,15 +80,21 @@ RSpec.describe 'Caregivers Assistance Claims', type: :request do
     context 'when unauthenticated' do
       it_behaves_like 'any invalid submission'
 
-      timestamp = Date.parse('2020-03-09T06:48:59-04:00')
+      timestamp = DateTime.parse('2020-03-09T06:48:59-04:00')
 
       it 'can submit a valid submission', run_at: timestamp.iso8601 do
         form_data = build_valid_form_submission.call
 
         body = { caregivers_assistance_claim: { form: form_data.to_json } }.to_json
 
-        VCR.use_cassette 'carma/submissions/create/201' do
-          post endpoint, params: body, headers: headers
+        VCR.use_cassette 'mvi/find_candidate/valid' do
+          VCR.use_cassette 'mvi/find_candidate/valid_icn_ni_only' do
+            VCR.use_cassette 'mvi/find_candidate/valid_no_gender' do
+              VCR.use_cassette 'carma/submissions/create/201' do
+                post endpoint, params: body, headers: headers
+              end
+            end
+          end
         end
 
         expect(response.code).to eq('200')

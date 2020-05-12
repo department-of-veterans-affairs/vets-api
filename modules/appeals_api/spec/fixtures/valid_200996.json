@@ -6,22 +6,14 @@
       "sameOffice": true,
       "benefitType": "nca",
       "veteran": {
-        "address": {
-          "addressLine1": "401 Kansas Avenue",
-          "addressLine2": "Apt 7",
-          "cityName": "Atchison",
-          "stateCode": "KS",
-          "countryCodeISO2": "NL",
-          "zipCode5": "66002",
-          "zipCode4": "2410"
-        },
         "phone": {
           "countryCode": "34",
           "areaCode": "555",
           "phoneNumber": "8001111",
           "phoneNumberExt": "2"
         },
-        "emailAddressText": "josie@example.com"
+        "emailAddressText": "josie@example.com",
+        "timezone": "America/Chicago"
       },
       "informalConferenceTimes": [
         "1230-1400 ET",
@@ -88,8 +80,7 @@
       "type": "ContestableIssue",
       "attributes": {
         "issue": "right shoulder",
-        "decisionDate": "1900-01-06",
-        "ratingIssueId": "11"
+        "decisionDate": "1900-01-06"
       }
     }
   ]

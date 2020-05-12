@@ -4,10 +4,15 @@ require 'rails_helper'
 
 RSpec.describe SAMLRequestTracker, type: :model do
   describe '#save' do
-    it 'sets created_at when missing' do
-      Timecop.freeze(Time.zone.parse('2020-01-01T08:00:00Z'))
-      tracker = SAMLRequestTracker.create(uuid: 1, payload: {})
-      expect(tracker.created_at).to eq(1_577_865_600)
+    context 'with a datetime of 2020-01-01T08:00:00Z' do
+      before { Timecop.freeze(Time.zone.parse('2020-01-01T08:00:00Z')) }
+
+      after { Timecop.return }
+
+      it 'sets created_at when missing' do
+        tracker = SAMLRequestTracker.create(uuid: 1, payload: {})
+        expect(tracker.created_at).to eq(1_577_865_600)
+      end
     end
 
     it 'leaves created_at untouched when already set' do
@@ -39,16 +44,23 @@ RSpec.describe SAMLRequestTracker, type: :model do
   end
 
   describe '#age' do
-    it '0 when not set' do
-      tracker = SAMLRequestTracker.new
-      expect(tracker.age).to eq(0)
+    context 'when age is not set' do
+      it 'returns 0' do
+        tracker = SAMLRequestTracker.new
+        expect(tracker.age).to eq(0)
+      end
     end
 
-    it 'correct age when set' do
-      Timecop.freeze(Time.zone.parse('2020-01-01T08:00:00Z'))
-      tracker = SAMLRequestTracker.create(uuid: 1, payload: {})
-      Timecop.freeze(Time.zone.parse('2020-01-01T08:03:00Z'))
-      expect(tracker.age).to eq(180)
+    context 'when age is set' do
+      before { Timecop.freeze(Time.zone.parse('2020-01-01T08:00:00Z')) }
+
+      after { Timecop.return }
+
+      it 'returns the set age' do
+        tracker = SAMLRequestTracker.create(uuid: 1, payload: {})
+        Timecop.freeze(Time.zone.parse('2020-01-01T08:03:00Z'))
+        expect(tracker.age).to eq(180)
+      end
     end
   end
 end

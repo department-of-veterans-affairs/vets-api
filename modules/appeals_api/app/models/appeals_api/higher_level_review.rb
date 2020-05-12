@@ -20,6 +20,7 @@ module AppealsApi
     enum status: { pending: 0, processing: 1, submitted: 2, established: 3, error: 4 }
 
     INFORMAL_CONFERENCE_REP_NAME_AND_PHONE_NUMBER_MAX_LENGTH = 100
+    NO_ADDRESS_PROVIDED_SENTENCE = 'USE ADDRESS ON FILE'
 
     # the controller applies the JSON Schemas in modules/appeals_api/config/schemas/
     # further validations:
@@ -86,6 +87,8 @@ module AppealsApi
 
     # 9. CURRENT MAILING ADDRESS
     def number_and_street
+      return NO_ADDRESS_PROVIDED_SENTENCE if address_blank?
+
       address_field_as_string 'addressLine1'
     end
 
@@ -151,6 +154,11 @@ module AppealsApi
       form_data&.dig('included')
     end
 
+    # 16B. DATE SIGNED
+    def date_signed
+      veterans_local_time.strftime('%m/%d/%Y')
+    end
+
     def consumer_name
       auth_headers['X-Consumer-Username']
     end
@@ -199,6 +207,14 @@ module AppealsApi
 
     def informal_conference_rep_phone
       AppealsApi::HigherLevelReview::Phone.new informal_conference_rep&.dig('phone')
+    end
+
+    def veterans_local_time
+      veterans_timezone ? Time.now.in_time_zone(veterans_timezone) : Time.now.utc
+    end
+
+    def veterans_timezone
+      veteran&.dig('timezone').presence&.strip
     end
 
     def header_field_as_string(key)
@@ -274,6 +290,15 @@ module AppealsApi
 
     def add_error(message)
       errors.add(:base, message)
+    end
+
+    def address_present?
+      address = veteran&.dig 'address'
+      address.is_a?(Hash) && address.values.any?(&:present?)
+    end
+
+    def address_blank?
+      !address_present?
     end
   end
 end

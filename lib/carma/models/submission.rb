@@ -13,7 +13,7 @@ module CARMA
       #
       # @param claim [CaregiversAssistanceClaim] A validated CaregiversAssistanceClaim
       # @param metadata [Hash] Additional data that can be submitted along with the claim's form data
-      # @return [CARMA::Models::Submission] A persisted instance of Account
+      # @return [CARMA::Models::Submission] A CARMA Submission model object
       #
       def self.from_claim(claim, metadata = {})
         new(
@@ -32,7 +32,11 @@ module CARMA
       def submit!
         raise 'This submission has already been submitted to CARMA' if submitted?
 
-        response = client.create_submission_stub(to_request_payload)
+        response =  if Flipper.enabled?(:stub_carma_responses)
+                      client.create_submission_stub(to_request_payload)
+                    else
+                      client.create_submission(to_request_payload)
+                    end
 
         @carma_case_id = response['data']['carmacase']['id']
         @submitted_at = response['data']['carmacase']['createdAt']
@@ -44,8 +48,8 @@ module CARMA
         @submitted_at.present? || @carma_case_id.present?
       end
 
-      def metadata=(args = {})
-        @metadata = Metadata.new(args)
+      def metadata=(metadata_hash)
+        @metadata = Metadata.new(metadata_hash)
       end
 
       private

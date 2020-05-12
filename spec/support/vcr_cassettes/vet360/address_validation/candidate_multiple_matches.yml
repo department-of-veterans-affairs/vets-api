@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: post
-    uri: https://dev-api.va.gov/services/address_validation/v2/candidate
+    uri: https://sandbox-api.va.gov/services/address_validation/v2/candidate
     body:
       encoding: UTF-8
       string: '{"requestAddress":{"addressLine1":"37 1st st","city":"Brooklyn","requestCountry":{"countryCode":"USA"},"addressPOU":"RESIDENCE/CHOICE","stateProvince":{"code":"NY"},"zipCode5":"11249"}}'
@@ -82,6 +82,6 @@ http_interactions:
         N 1st St","city":"Brooklyn","zipCode5":"11249","zipCode4":"3939"},"geocode":{"calcDate":"2020-01-23T03:15:47+00:00","locationPrecision":31.0,"latitude":40.717029,"longitude":-73.964956},"addressMetaData":{"confidenceScore":100.0,"addressType":"Domestic","deliveryPointValidation":"UNDELIVERABLE","validationKey":-646932106}},{"address":{"county":{"name":"Kings","countyFipsCode":"36047"},"stateProvince":{"name":"New
         York","code":"NY"},"country":{"name":"United States","code":"USA","fipsCode":"US","iso2Code":"US","iso3Code":"USA"},"addressLine1":"37
         S 1st St","city":"Brooklyn","zipCode5":"11249","zipCode4":"4101"},"geocode":{"calcDate":"2020-01-23T03:15:47+00:00","locationPrecision":31.0,"latitude":40.715367,"longitude":-73.965369},"addressMetaData":{"confidenceScore":100.0,"addressType":"Domestic","deliveryPointValidation":"CONFIRMED","residentialDeliveryIndicator":"MIXED","validationKey":-646932106}}]}'
-    http_version: 
+    http_version:
   recorded_at: Thu, 23 Jan 2020 03:15:47 GMT
 recorded_with: VCR 5.0.0

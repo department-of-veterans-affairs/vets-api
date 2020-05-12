@@ -51,7 +51,7 @@ RSpec.describe 'Flipper UI', type: :request do
     end
   end
 
-  context 'when unauthenticted' do
+  context 'when unauthenticated' do
     it 'feature route is read only' do
       get '/flipper/features', params: nil
       assert_response :success

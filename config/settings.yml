@@ -83,6 +83,8 @@ edu:
     user: ~
     port: ~
 
+dependents:
+  prefill: true
 
 pension_burial:
   prefill: true
@@ -109,7 +111,7 @@ vet360:
     timeout: 30
     mock: false
   address_validation:
-    hostname: 'dev-api.va.gov'
+    hostname: 'sandbox-api.va.gov'
     api_key: '<AV_KEY>'
 
 # Settings for IHub
@@ -131,9 +133,10 @@ mdot:
 # Settings for Decision Reviews
 decision_review:
   prefill: true
-  url: https://dev-api.va.gov/services/appeals/v3/decision_review
+  url: https://sandbox-api.va.gov/services/appeals/v3/decision_review
   api_key: abcd1234abcd1234abcd1234abcd1234abcd1234
   mock: false
+  schema_dir: config/schemas
 
 # Settings for EVSS
 evss:
@@ -306,11 +309,10 @@ emis:
     soap_namespaces:
       xmlns:v11: http://viers.va.gov/cdi/eMIS/RequestResponse/VetStatus/v1
 
-appeals:
+caseflow:
   mock: true
   app_token: PUBLICDEMO123
   host: https://dsva-appeals-certification-dev-1895622301.us-gov-west-1.elb.amazonaws.com
-  schema_dir: config/schemas
 
 vic:
   url: https://some.fakesite.com
@@ -353,11 +355,14 @@ claims_api:
   disability_claims_mock_override: false
   schema_dir: config/schemas
 
-# Settings for Redis
-# TODO(knkski): Move all redis settings here?
 redis:
   host: localhost
   port: 6379
+  app_data:
+    url: redis://localhost:6379
+    # secondary_url: redis://localhost:6378
+  sidekiq:
+    url: redis://localhost:6379
 
 # Settings for GovDelivery (email delivery)
 govdelivery:
@@ -448,6 +453,9 @@ flipper:
   admin_user_emails:
     - alastair@adhocteam.us
     - anna@adhoc.team
+    - dan.hinze@adhocteam.us
+    - delli-gatti_michael@bah.com
+    - devinmccurdy@gmail.com
     - eric.buckley@adhocteam.us
     - erik@adhocteam.us
     - jbalboni@gmail.com
@@ -457,6 +465,7 @@ flipper:
     - kam@adhocteam.us
     - kabrown@thoughtworks.com
     - kenneth.gary@va.gov
+    - kmircovich@governmentcio.com
     - lauren.alexanderson@va.gov
     - mark.greenburg@adhocteam.us
     - n.ratana@gmail.com
@@ -464,14 +473,17 @@ flipper:
     - osanchez@governmentcio.com
     - patrick@adhocteam.us
     - patrick.bateman@va.gov
+    - regarr@gmail.com # Robin Garrison - AdHoc
     - rian.fowler@adhoc.team
     - rianfowler@outlook.com
+    - roth_matthew@bah.com
     - ryan.thurlwell@va.gov
     - shaun.hubbard@thoughtworks.com
+    - shawkey_daniel@bah.com
+    - sonntag_adam@bah.com
     - travis.hilton@oddball.io
     - zurbergram@gmail.com
-    - regarr@gmail.com # Robin Garrison - AdHoc
-
+    
 bgs:
   application: ~
   client_station_id: ~
@@ -494,13 +506,12 @@ lighthouse:
     api_key: fake_key
 
 forms:
-  url: https://dev-api.va.gov/services/va_forms/v0/
+  url: https://sandbox-api.va.gov/services/va_forms/v0/
   mock: false
 
 vbms:
   url: "https://internal-dsva-vagov-dev-fwdproxy-1893365470.us-gov-west-1.elb.amazonaws.com:4449"
   saml: "vetsapi.client.vbms.aide.oit.va.gov.saml-token.xml"
-  keypass: "{{ lookup('credstash', 'vbms.dev.key_password') }}"
   ca_cert: VBMS-Client-Signing-CA.crt
   cert: vetsapi.client.vbms.aide.oit.va.gov.crt
   client_keyfile: vetsapi.client.vbms.aide.oit.va.gov.p12

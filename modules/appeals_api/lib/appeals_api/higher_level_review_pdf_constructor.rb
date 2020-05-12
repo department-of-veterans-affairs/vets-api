@@ -21,7 +21,13 @@ module AppealsApi
     end
 
     def stamp_pdf(pdf_path, consumer_name)
-      bottom_stamped_path = CentralMail::DatestampPdf.new(pdf_path).run(text: 'API.VA.GOV', x: 5, y: 5)
+      stamper = CentralMail::DatestampPdf.new(pdf_path)
+      bottom_stamped_path = stamper.run(
+        text: "API.VA.GOV #{Time.zone.now.utc.strftime('%Y-%m-%d %H:%M%Z')}",
+        x: 5,
+        y: 5,
+        text_only: true
+      )
       CentralMail::DatestampPdf.new(bottom_stamped_path).run(
         text: "Submitted by #{consumer_name} via api.va.gov",
         x: 429,
@@ -74,7 +80,7 @@ module AppealsApi
         "F[0].#subform[2].TIME2TO430PM[0]": hlr.informal_conference_times.include?('1400-1630 ET') ? 1 : 'Off',
         "F[0].#subform[2].REPRESENTATIVENAMEANDTELEPHONENUMBER[0]": hlr.informal_conference_rep_name_and_phone_number,
         "F[0].#subform[3].SIGNATUREOFVETERANORCLAIMANT[0]": hlr.full_name,
-        "F[0].#subform[3].DateSigned[0]": Time.zone.now.strftime('%m/%d/%Y')
+        "F[0].#subform[3].DateSigned[0]": hlr.date_signed
       }
       hlr.contestable_issues.each_with_index do |issue, index|
         next if index >= 6

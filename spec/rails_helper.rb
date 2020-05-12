@@ -19,6 +19,7 @@ require 'support/aws_helpers'
 require 'support/vcr_multipart_matcher_helper'
 require 'support/request_helper'
 require 'support/uploader_helpers'
+require 'super_diff/rspec-rails'
 require 'common/exceptions'
 require './spec/support/default_configuration_helper'
 
