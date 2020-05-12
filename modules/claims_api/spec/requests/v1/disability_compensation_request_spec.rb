@@ -211,7 +211,6 @@ RSpec.describe 'Disability Claims ', type: :request do
         allow_any_instance_of(ClaimsApi::SupportingDocumentUploader).to receive(:store!)
         put("/services/claims/v1/forms/526/#{auto_claim.id}",
             params: base64_params, headers: headers.merge(auth_header))
-        puts response.body
         auto_claim.reload
         expect(auto_claim.file_data).to be_truthy
       end
@@ -234,7 +233,6 @@ RSpec.describe 'Disability Claims ', type: :request do
         count = auto_claim.supporting_documents.count
         post("/services/claims/v1/forms/526/#{auto_claim.id}/attachments",
              params: base64_params, headers: headers.merge(auth_header))
-        puts response.body
         auto_claim.reload
         expect(auto_claim.supporting_documents.count).to eq(count + 2)
       end

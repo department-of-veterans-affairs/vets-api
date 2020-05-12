@@ -166,7 +166,6 @@ RSpec.describe 'Disability Claims ', type: :request do
     it 'upload 526 base64 form through PUT' do
       allow_any_instance_of(ClaimsApi::SupportingDocumentUploader).to receive(:store!)
       put "/services/claims/v0/forms/526/#{auto_claim.id}", params: base64_params, headers: headers
-      puts response.body
       auto_claim.reload
       expect(auto_claim.file_data).to be_truthy
     end
@@ -183,7 +182,6 @@ RSpec.describe 'Disability Claims ', type: :request do
       allow_any_instance_of(ClaimsApi::SupportingDocumentUploader).to receive(:store!)
       count = auto_claim.supporting_documents.count
       post "/services/claims/v0/forms/526/#{auto_claim.id}/attachments", params: base64_params, headers: headers
-      puts response.body
       auto_claim.reload
       expect(auto_claim.supporting_documents.count).to eq(count + 2)
     end
