@@ -8,15 +8,17 @@ module V0
     def create
       return service_unavailable unless Flipper.enabled?(:allow_online_10_10cg_submissions)
 
-      submission = service.submit_claim!(form: form_submission)
-      render json: submission, serializer: ::Form1010cg::SubmissionSerializer
+      claim = SavedClaim::CaregiversAssistanceClaim.new(form: form_submission)
+
+      if claim.valid?
+        submission = ::Form1010cg::Service.new(claim).process_claim!
+        render json: submission, serializer: ::Form1010cg::SubmissionSerializer
+      else
+        raise(Common::Exceptions::ValidationErrors, claim)
+      end
     end
 
     private
-
-    def service
-      @service ||= ::Form1010cg::Service.new
-    end
 
     def form_submission
       params.require(:caregivers_assistance_claim).require(:form)

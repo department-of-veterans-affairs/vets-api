@@ -105,6 +105,7 @@ describe MVI::Messages::AddPersonMessage do
       end
 
       it 'throws an argument error' do
+        user.va_profile.ssn = nil
         expect do
           xml
         end.to raise_error(ArgumentError, 'User missing attributes')

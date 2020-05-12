@@ -59,7 +59,7 @@ class User < Common::RedisStore
   end
 
   def first_name
-    identity.first_name || (mhv_icn.present? ? mvi&.profile&.given_names&.first : nil)
+    identity.first_name.presence || mvi&.profile&.given_names&.first
   end
 
   def full_name_normalized
@@ -80,23 +80,23 @@ class User < Common::RedisStore
   end
 
   def last_name
-    identity.last_name || (mhv_icn.present? ? mvi&.profile&.family_name : nil)
+    identity.last_name.presence || mvi&.profile&.family_name
   end
 
   def gender
-    identity.gender || (mhv_icn.present? ? mvi&.profile&.gender : nil)
+    identity.gender.presence || mvi&.profile&.gender
   end
 
   def birth_date
-    identity.birth_date || (mhv_icn.present? ? mvi&.profile&.birth_date : nil)
+    identity.birth_date.presence || mvi&.profile&.birth_date
   end
 
   def zip
-    identity.zip || (mhv_icn.present? ? mvi&.profile&.address&.postal_code : nil)
+    identity.zip.presence || mvi&.profile&.address&.postal_code
   end
 
   def ssn
-    identity.ssn || (mhv_icn.present? ? mvi&.profile&.ssn : nil)
+    identity.ssn.presence || mvi&.profile&.ssn
   end
 
   def mhv_correlation_id
