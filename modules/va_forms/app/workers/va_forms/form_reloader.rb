@@ -21,10 +21,7 @@ module VaForms
       processed_form_names = @processed_forms.map { |f| f['form_name'] }
       missing_forms = VaForms::Form.where.not(form_name: processed_form_names)
       missing_forms.find_each do |form|
-        form.update(valid_pdf: false)
-      rescue
-        Rails.logger.warn "VA Forms failed to mark form as invalid: #{form.form_name}"
-      end
+      form.update(valid_pdf: false)
     end
 
     def load_page(current_page: 0)
