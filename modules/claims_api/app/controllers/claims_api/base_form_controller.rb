@@ -48,15 +48,22 @@ module ClaimsApi
     def documents
       document_keys = params.keys.select { |key| key.include? 'attachment' }
       params.slice(*document_keys).values.map do |document|
-        if document.is_a?(String) && document.include?(';base64,')
-          decoded_data = Base64.decode64(document).force_encoding('UTF-8')
-          filename = "temp_upload_#{Time.zone.now.to_i}"
-          temp_file = Tempfile.new(filename)
-          temp_file.write(decoded_data)
-          ActionDispatch::Http::UploadedFile.new( filename: filename,
-                                                  type: 'application/pdf',
-                                                  tempfile: temp_file )
+        if document.is_a?(String) && match = document.match(/\;base64\,(.+?)$/)
+          base64 = match.captures.first
+          # base64.gsub!('\\r', "\r")
+          # base64.gsub!('\\n', "\n")
+          base64.gsub("\u0000", '')
+          decoded_data = Base64.decode64(base64)
+          filename = "temp_upload_#{Time.zone.now.to_i}.pdf"
+          temp_file = Tempfile.new(decoded_data, encoding: 'ascii-8bit')
+          # temp_file.write(decoded_data)
+          new_document = ActionDispatch::Http::UploadedFile.new( filename: filename,
+                                                                 type: 'application/pdf',
+                                                                 tempfile: temp_file )
+          puts new_document.inspect
+          new_document
         else
+          puts document.inspect
           document
         end
       end.compact
