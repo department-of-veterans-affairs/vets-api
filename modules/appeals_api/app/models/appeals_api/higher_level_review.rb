@@ -215,6 +215,11 @@ module AppealsApi
       form_data&.dig('included')
     end
 
+    # 16B. DATE SIGNED
+    def date_signed
+      veterans_local_time.strftime('%m/%d/%Y')
+    end
+
     def consumer_name
       auth_headers['X-Consumer-Username']
     end
@@ -278,6 +283,14 @@ module AppealsApi
 
     def informal_conference_rep_phone
       AppealsApi::HigherLevelReview::Phone.new informal_conference_rep&.dig('phone')
+    end
+
+    def veterans_local_time
+      veterans_timezone ? Time.now.in_time_zone(veterans_timezone) : Time.now.utc
+    end
+
+    def veterans_timezone
+      veteran&.dig('timezone').presence&.strip
     end
 
     def header_field_as_string(key)
