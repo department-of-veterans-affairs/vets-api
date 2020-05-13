@@ -14,12 +14,8 @@ http_interactions:
       - application/json
       User-Agent:
       - Vets.gov Agent
-      Va-Api-Key:
-      - "<MDOT_KEY>"
-      Va-Veteran-Id:
-      - '0237'
-      Va-Veteran-Birth-Date:
-      - '1991-04-05'
+      VA_API_KEY:
+      - abcd1234abcd1234abcd1234
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
   response:
