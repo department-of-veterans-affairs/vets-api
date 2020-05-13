@@ -7,7 +7,7 @@ require:
   - rubocop-rspec
 
 AllCops:
-  TargetRailsVersion: 5.2
+  TargetRailsVersion: 6.0
   Include:
     - '**/Gemfile'
     - '**/config.ru'

@@ -604,8 +604,8 @@ module HCA
       }
       data = prepend_namespace(data)
       # This *must* be a symbol. It's a special flag for the Goyuko library.
-      data[:attributes!] = data.keys.each_with_object({}) do |attribute, memo|
-        memo[attribute] = { 'xmlns:eeSummary' => 'http://jaxws.webservices.esr.med.va.gov/schemas' }
+      data[:attributes!] = data.keys.index_with do |_attribute|
+        { 'xmlns:eeSummary' => 'http://jaxws.webservices.esr.med.va.gov/schemas' }
       end
       data
     end
