@@ -7,7 +7,7 @@ module SAML
   module UserAttributes
     class SSOe
       include SentryLogging
-      SERIALIZABLE_ATTRIBUTES = %i[email first_name middle_name last_name zip gender ssn birth_date
+      SERIALIZABLE_ATTRIBUTES = %i[email first_name middle_name last_name common_name zip gender ssn birth_date
                                    uuid idme_uuid sec_id mhv_icn mhv_correlation_id mhv_account_type
                                    dslogon_edipi loa sign_in multifactor].freeze
       IDME_GCID_REGEX = /^(?<idme>\w+)\^PN\^200VIDM\^USDVA\^A$/.freeze
@@ -32,6 +32,10 @@ module SAML
 
       def last_name
         safe_attr('va_eauth_lastname')
+      end
+
+      def common_name
+        safe_attr('va_eauth_commonname')
       end
 
       def zip
@@ -163,7 +167,7 @@ module SAML
       end
 
       def to_hash
-        Hash[SERIALIZABLE_ATTRIBUTES.map { |k| [k, send(k)] }]
+        SERIALIZABLE_ATTRIBUTES.index_with { |k| send(k) }
       end
 
       # Raise any fatal exceptions due to validation issues

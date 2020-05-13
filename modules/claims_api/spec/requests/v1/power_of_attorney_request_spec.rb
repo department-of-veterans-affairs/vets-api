@@ -104,16 +104,31 @@ RSpec.describe 'Power of Attorney ', type: :request do
 
     describe '#upload_power_of_attorney_document' do
       let(:power_of_attorney) { create(:power_of_attorney_without_doc) }
-      let(:params) do
+      let(:binary_params) do
         { 'attachment': Rack::Test::UploadedFile.new("#{::Rails.root}/modules/claims_api/spec/fixtures/extras.pdf") }
       end
+      let(:base64_params) do
+        { 'attachment': File.read("#{::Rails.root}/modules/claims_api/spec/fixtures/base64pdf") }
+      end
 
-      it 'increases the supporting document count' do
+      it 'submit binary and change the document status' do
         with_okta_user(scopes) do |auth_header|
           allow_any_instance_of(ClaimsApi::PowerOfAttorneyUploader).to receive(:store!)
           expect(power_of_attorney.file_data).to be_nil
           put("/services/claims/v1/forms/2122/#{power_of_attorney.id}",
-              params: params, headers: headers.merge(auth_header))
+              params: binary_params, headers: headers.merge(auth_header))
+          power_of_attorney.reload
+          expect(power_of_attorney.file_data).not_to be_nil
+          expect(power_of_attorney.status).to eq('submitted')
+        end
+      end
+
+      it 'submit base64 and change the document status' do
+        with_okta_user(scopes) do |auth_header|
+          allow_any_instance_of(ClaimsApi::PowerOfAttorneyUploader).to receive(:store!)
+          expect(power_of_attorney.file_data).to be_nil
+          put("/services/claims/v1/forms/2122/#{power_of_attorney.id}",
+              params: base64_params, headers: headers.merge(auth_header))
           power_of_attorney.reload
           expect(power_of_attorney.file_data).not_to be_nil
           expect(power_of_attorney.status).to eq('submitted')
