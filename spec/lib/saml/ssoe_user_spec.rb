@@ -79,7 +79,8 @@ RSpec.describe SAML::User do
           loa: { current: 1, highest: 1 },
           sign_in: { service_name: 'idme', account_type: 'N/A' },
           sec_id: nil,
-          authenticated_by_ssoe: true
+          authenticated_by_ssoe: true,
+          common_name: nil
         )
       end
 
@@ -112,7 +113,8 @@ RSpec.describe SAML::User do
           loa: { current: 1, highest: 3 },
           sign_in: { service_name: 'idme', account_type: 'N/A' },
           sec_id: nil,
-          authenticated_by_ssoe: true
+          authenticated_by_ssoe: true,
+          common_name: nil
         )
       end
 
@@ -146,7 +148,8 @@ RSpec.describe SAML::User do
           loa: { current: 3, highest: 3 },
           sign_in: { service_name: 'idme', account_type: 'N/A' },
           sec_id: '1008830476',
-          authenticated_by_ssoe: true
+          authenticated_by_ssoe: true,
+          common_name: 'vets.gov.user+262@example.com'
         )
       end
 
@@ -182,7 +185,8 @@ RSpec.describe SAML::User do
           sign_in: { service_name: 'myhealthevet', account_type: 'Advanced' },
           sec_id: nil,
           multifactor: multifactor,
-          authenticated_by_ssoe: true
+          authenticated_by_ssoe: true,
+          common_name: nil
         )
       end
 
@@ -220,7 +224,8 @@ RSpec.describe SAML::User do
           sign_in: { service_name: 'myhealthevet', account_type: 'Advanced' },
           sec_id: '1013183292',
           multifactor: multifactor,
-          authenticated_by_ssoe: true
+          authenticated_by_ssoe: true,
+          common_name: 'alexmac_0@example.com'
         )
       end
     end
@@ -253,7 +258,8 @@ RSpec.describe SAML::User do
           sign_in: { service_name: 'myhealthevet', account_type: 'Basic' },
           sec_id: nil,
           multifactor: true,
-          authenticated_by_ssoe: true
+          authenticated_by_ssoe: true,
+          common_name: nil
         )
       end
 
@@ -289,7 +295,8 @@ RSpec.describe SAML::User do
           sign_in: { service_name: 'myhealthevet', account_type: 'Premium' },
           sec_id: '1012853550',
           multifactor: multifactor,
-          authenticated_by_ssoe: true
+          authenticated_by_ssoe: true,
+          common_name: 'k+tristan@example.com'
         )
       end
     end
@@ -326,7 +333,8 @@ RSpec.describe SAML::User do
           sign_in: { service_name: 'myhealthevet', account_type: 'Premium' },
           sec_id: '1012853550',
           multifactor: multifactor,
-          authenticated_by_ssoe: true
+          authenticated_by_ssoe: true,
+          common_name: 'k+tristan@example.com'
         )
       end
     end
@@ -470,7 +478,8 @@ RSpec.describe SAML::User do
           sign_in: { service_name: 'dslogon', account_type: '2' },
           sec_id: '1013173963',
           multifactor: false,
-          authenticated_by_ssoe: true
+          authenticated_by_ssoe: true,
+          common_name: 'iam.tester@example.com'
         )
       end
 
@@ -507,7 +516,8 @@ RSpec.describe SAML::User do
           sign_in: { service_name: 'dslogon', account_type: '2' },
           sec_id: '0000028007',
           multifactor: multifactor,
-          authenticated_by_ssoe: true
+          authenticated_by_ssoe: true,
+          common_name: 'dslogon10923109@gmail.com'
         )
       end
     end
@@ -543,7 +553,8 @@ RSpec.describe SAML::User do
           sign_in: { service_name: 'dslogon', account_type: '2' },
           sec_id: '0000028007',
           multifactor: multifactor,
-          authenticated_by_ssoe: true
+          authenticated_by_ssoe: true,
+          common_name: 'dslogon10923109@gmail.com'
         )
       end
     end
@@ -578,7 +589,8 @@ RSpec.describe SAML::User do
           sign_in: { service_name: 'dslogon', account_type: 'N/A' },
           sec_id: '1012779219',
           multifactor: multifactor,
-          authenticated_by_ssoe: true
+          authenticated_by_ssoe: true,
+          common_name: 'SOFIA MCKIBBENS'
         )
       end
     end
@@ -613,7 +625,8 @@ RSpec.describe SAML::User do
           sign_in: { service_name: 'myhealthevet', account_type: 'N/A' },
           sec_id: '1013062086',
           multifactor: multifactor,
-          authenticated_by_ssoe: true
+          authenticated_by_ssoe: true,
+          common_name: 'mhvzack@mhv.va.gov'
         )
       end
     end
@@ -648,7 +661,8 @@ RSpec.describe SAML::User do
           sign_in: { service_name: 'idme', account_type: 'N/A' },
           sec_id: '1012827134',
           multifactor: multifactor,
-          authenticated_by_ssoe: true
+          authenticated_by_ssoe: true,
+          common_name: 'vets.gov.user+262@gmail.com'
         )
       end
     end
