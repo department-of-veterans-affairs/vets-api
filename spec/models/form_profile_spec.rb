@@ -518,6 +518,9 @@ RSpec.describe FormProfile, type: :model do
       'gender' => user.gender,
       'email' => user.pciu_email,
       'dateOfBirth' => user.birth_date,
+      'eligibility' => {
+        'accessories' => true
+      },
       'supplies' => [
         {
           'deviceName' => 'OMEGAX d3241',
@@ -526,7 +529,7 @@ RSpec.describe FormProfile, type: :model do
           'productId' => '1',
           'availableForReorder' => false,
           'lastOrderDate' => '2020-01-01',
-          'nextAvailabilityDate' => '2020-09-01',
+          'nextAvailabilityDate' => '2099-09-01',
           'quantity' => 60,
           'size' => '',
           'prescribedDate' => '2019-12-25'
