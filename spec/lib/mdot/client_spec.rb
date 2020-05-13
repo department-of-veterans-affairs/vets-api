@@ -24,7 +24,6 @@ describe MDOT::Client do
           response = subject.get_supplies
           expect(response).to be_ok
           expect(response).to be_an MDOT::Response
-          expect(cookies[:mdot_token]).to eq 'abcd1234abcd1234abcd1234'
         end
       end
     end

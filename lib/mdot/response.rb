@@ -36,9 +36,5 @@ module MDOT
       schema_path = Rails.root.join('lib', 'mdot', 'schemas', "#{schema}.json").to_s
       JSON::Validator.validate!(schema_path, response.body, strict: false)
     end
-
-    def set_mdot_cookie
-      cookies[:mdot_token] = @response.headers['va_api_key']
-    end
   end
 end

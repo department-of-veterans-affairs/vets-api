@@ -51,7 +51,7 @@ module MDOT
     #
     def submit_order(request_body)
       with_monitoring_and_error_handling do
-        perform(:post, @supplies, request_body, submission_headers).body
+        perform(:post, @supplies, request_body).body
       end
     end
 
@@ -65,10 +65,6 @@ module MDOT
         VA_VETERAN_BIRTH_DATE: @user.birth_date,
         VA_ICN: @user.icn
       }
-    end
-
-    def submission_headers
-      { VA_API_KEY: cookies[:mdot_token] }
     end
 
     def with_monitoring_and_error_handling
