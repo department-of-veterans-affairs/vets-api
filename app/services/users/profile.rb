@@ -72,9 +72,7 @@ module Users
         multifactor: user.multifactor,
         verified: user.loa3?,
         sign_in: user.identity.sign_in,
-        authn_context: user.authn_context,
-        va_patient: user.va_patient?,
-        mhv_account_state: user.mhv_account_state
+        authn_context: user.authn_context
       }
     end
 
@@ -109,7 +107,9 @@ module Users
           gender: user.va_profile.gender,
           given_names: user.va_profile.given_names,
           is_cerner_patient: !user.va_profile.cerner_id.nil?,
-          facilities: user.va_treatment_facility_ids.map { |id| facility(id) }
+          facilities: user.va_treatment_facility_ids.map { |id| facility(id) },
+          va_patient: user.va_patient?,
+          mhv_account_state: user.mhv_account_state
         }
       else
         scaffold.errors << Users::ExceptionHandler.new(user.va_profile_error, 'MVI').serialize_error
