@@ -5,7 +5,7 @@ module VaForms
     type :va_form
 
     attributes :form_name, :url, :title, :first_issued_on,
-               :last_revision_on, :pages, :sha256, :versions
+               :last_revision_on, :pages, :sha256, :versions, :valid_pdf
 
     def id
       object.form_name
