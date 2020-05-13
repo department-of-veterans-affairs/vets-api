@@ -27,8 +27,9 @@
             "first_issued_on": { "type": ["string", "null"] },
             "last_revision_on": { "type": ["string", "null"] },
             "pages": { "type": "integer" },
+            "valid_pdf": { "type": "boolean" },
             "sha256": { "type": "string" },
-            "versions": { 
+            "versions": {
               "type": "array",
               "items": {
                 "sha256": { "type": "string" },
