@@ -3496,4 +3496,176 @@ http_interactions:
         by nca_9999999 could not be found","code":"404","status":"404"}]}'
     http_version: null
   recorded_at: Mon, 04 May 2020 16:18:41 GMT
+- request:
+    method: get
+    uri: https://sandbox-api.va.gov/services/va_facilities/v0/facilities?bbox%5B%5D=-122.440689&bbox%5B%5D=-122.786758&bbox%5B%5D=45.451913&bbox%5B%5D=45.64&services%5B%5D=DisabilityClaimAssistance&type=benefits
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Apikey:
+      - "<LIGHTHOUSE_API_KEY>"
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: ''
+    headers:
+      Date:
+      - Wed, 13 May 2020 21:20:38 GMT
+      Content-Type:
+      - application/json
+      Content-Length:
+      - '1157'
+      Connection:
+      - keep-alive
+      Access-Control-Allow-Origin:
+      - "*"
+      Strict-Transport-Security:
+      - max-age=15724800; includeSubDomains
+      - max-age=31536000; includeSubDomains; preload
+      Vary:
+      - Accept-Encoding
+      Via:
+      - kong/1.2.2
+      X-Kong-Proxy-Latency:
+      - '1'
+      X-Kong-Upstream-Latency:
+      - '107'
+      X-Ratelimit-Limit-Minute:
+      - '60'
+      X-Ratelimit-Remaining-Minute:
+      - '59'
+      Cache-Control:
+      - ''
+      - no-cache, no-store
+      Pragma:
+      - no-cache
+      Set-Cookie:
+      - TS016f4012=01c16e2d81f43bd2a9b4d22a6f270eb00c34029f674823ea8c823b8913ea24ab0c00e82316c91d66386e2e39f1acf4f421a0d80e72;
+        Max-Age=900; Path=/
+    body:
+      encoding: ASCII-8BIT
+      string: '{"data":[{"id":"vba_348","type":"va_facilities","attributes":{"name":"Portland
+        Regional Benefit Office","facility_type":"va_benefits_facility","classification":"Regional
+        Benefit Office","website":"https://www.benefits.va.gov/portland","lat":45.515162290000035,"long":-122.67551729999997,"address":{"mailing":{},"physical":{"zip":"97204","city":"Portland","state":"OR","address_1":"100
+        SW Main Street","address_2":"Floor 2","address_3":null}},"phone":{"fax":"503-412-4733","main":"1-800-827-1000"},"hours":{"friday":"8:00AM-4:00PM","monday":"8:00AM-4:00PM","sunday":"Closed","tuesday":"8:00AM-4:00PM","saturday":"Closed","thursday":"8:00AM-4:00PM","wednesday":"8:00AM-4:00PM"},"services":{"benefits":["ApplyingForBenefits","DisabilityClaimAssistance","eBenefitsRegistrationAssistance","HomelessAssistance","TransitionAssistance","UpdatingDirectDepositInformation","VocationalRehabilitationAndEmploymentAssistance"]},"satisfaction":{},"wait_times":{},"mobile":null,"active_status":"T","operating_status":{"code":"CLOSED","additional_info":"We''re
+        not open for in-person service at this time. Our staff are still available
+        by phone and by our online customer service tool."},"visn":null}}],"links":{"self":"https://sandbox-api.va.gov/services/va_facilities/v0/facilities?bbox%5B%5D=-122.786758&bbox%5B%5D=45.451913&bbox%5B%5D=-122.440689&bbox%5B%5D=45.64&services%5B%5D=DisabilityClaimAssistance&type=benefits&page=1&per_page=10","first":"https://sandbox-api.va.gov/services/va_facilities/v0/facilities?bbox%5B%5D=-122.786758&bbox%5B%5D=45.451913&bbox%5B%5D=-122.440689&bbox%5B%5D=45.64&services%5B%5D=DisabilityClaimAssistance&type=benefits&page=1&per_page=10","prev":null,"next":null,"last":"https://sandbox-api.va.gov/services/va_facilities/v0/facilities?bbox%5B%5D=-122.786758&bbox%5B%5D=45.451913&bbox%5B%5D=-122.440689&bbox%5B%5D=45.64&services%5B%5D=DisabilityClaimAssistance&type=benefits&page=1&per_page=10"},"meta":{"pagination":{"current_page":1,"per_page":10,"total_pages":1,"total_entries":1},"distances":[]}}'
+    http_version: null
+  recorded_at: Wed, 13 May 2020 21:20:39 GMT
+- request:
+    method: get
+    uri: https://sandbox-api.va.gov/services/va_facilities/v0/facilities?ids=vha_442,vha_552,vha_552GB,vha_442GC,vha_442GB,vha_552GA,vha_552GD
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Apikey:
+      - "<LIGHTHOUSE_API_KEY>"
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: ''
+    headers:
+      Date:
+      - Wed, 13 May 2020 21:20:43 GMT
+      Content-Type:
+      - application/json
+      Connection:
+      - keep-alive
+      Access-Control-Allow-Origin:
+      - "*"
+      Strict-Transport-Security:
+      - max-age=15724800; includeSubDomains
+      - max-age=31536000; includeSubDomains; preload
+      Vary:
+      - Accept-Encoding
+      Via:
+      - kong/1.2.2
+      X-Kong-Proxy-Latency:
+      - '10'
+      X-Kong-Upstream-Latency:
+      - '106'
+      X-Ratelimit-Limit-Minute:
+      - '60'
+      X-Ratelimit-Remaining-Minute:
+      - '58'
+      Cache-Control:
+      - ''
+      - no-cache, no-store
+      Pragma:
+      - no-cache
+      Set-Cookie:
+      - TS016f4012=01c16e2d8190f8de6a0878b283b119b3e591857327bbf0deb0173a781b7e24d03e5241af610f3505ac67da64e9f583557497c974a0;
+        Max-Age=900; Path=/
+      Transfer-Encoding:
+      - chunked
+    body:
+      encoding: ASCII-8BIT
+      string: '{"data":[{"id":"vha_442","type":"va_facilities","attributes":{"name":"Cheyenne
+        VA Medical Center","facility_type":"va_health_facility","classification":"VA
+        Medical Center (VAMC)","website":"https://www.cheyenne.va.gov/locations/directions.asp","lat":41.145728000000076,"long":-104.78959489999994,"address":{"mailing":{},"physical":{"zip":"82001-5356","city":"Cheyenne","state":"WY","address_1":"2360
+        East Pershing Boulevard","address_2":null,"address_3":null}},"phone":{"fax":"307-778-7381","main":"307-778-7550","pharmacy":"866-420-6337","after_hours":"307-778-7550","patient_advocate":"307-778-7550
+        x7517","mental_health_clinic":"307-778-7349","enrollment_coordinator":"307-778-7550
+        x7579"},"hours":{"friday":"24/7","monday":"24/7","sunday":"24/7","tuesday":"24/7","saturday":"24/7","thursday":"24/7","wednesday":"24/7"},"services":{"other":[],"health":["Audiology","Cardiology","DentalServices","EmergencyCare","Gastroenterology","Gynecology","MentalHealthCare","Nutrition","Ophthalmology","Optometry","Orthopedics","Podiatry","PrimaryCare","SpecialtyCare","UrgentCare","WomensHealth"],"last_updated":"2020-05-04"},"satisfaction":{"health":{"primary_care_urgent":0.68000000715255737,"primary_care_routine":0.81000000238418579,"specialty_care_urgent":0.68000000715255737,"specialty_care_routine":0.85000002384185791},"effective_date":"2019-06-20"},"wait_times":{"health":[{"service":"Audiology","new":0.0,"established":1.0},{"service":"Cardiology","new":6.111111,"established":2.833333},{"service":"Gastroenterology","new":32.75,"established":6.925},{"service":"Gynecology","new":null,"established":0.0},{"service":"MentalHealthCare","new":4.0,"established":3.227722},{"service":"Ophthalmology","new":3.5,"established":0.5},{"service":"Optometry","new":2.666666,"established":3.111111},{"service":"Orthopedics","new":21.0,"established":3.117647},{"service":"PrimaryCare","new":20.5,"established":0.495145},{"service":"SpecialtyCare","new":8.653594,"established":2.774703},{"service":"WomensHealth","new":null,"established":0.0}],"effective_date":"2020-05-04"},"mobile":false,"active_status":"A","operating_status":{"code":"NORMAL"},"visn":"19"}},{"id":"vha_552","type":"va_facilities","attributes":{"name":"Dayton
+        VA Medical Center","facility_type":"va_health_facility","classification":"VA
+        Medical Center (VAMC)","website":"https://www.dayton.va.gov/locations/directions.asp","lat":39.749395250000077,"long":-84.253244299999949,"address":{"mailing":{},"physical":{"zip":"45428-9000","city":"Dayton","state":"OH","address_1":"4100
+        West Third Street","address_2":null,"address_3":null}},"phone":{"fax":"937-262-2179","main":"937-268-6511","pharmacy":"800-368-8262
+        x5325","after_hours":"888-838-6446","patient_advocate":"800-368-8262 x2164","mental_health_clinic":"937-262-2186","enrollment_coordinator":"800-368-8262
+        x3450"},"hours":{"friday":"24/7","monday":"24/7","sunday":"24/7","tuesday":"24/7","saturday":"24/7","thursday":"24/7","wednesday":"24/7"},"services":{"other":[],"health":["Audiology","Cardiology","DentalServices","Dermatology","Gastroenterology","Gynecology","MentalHealthCare","Nutrition","Ophthalmology","Optometry","Orthopedics","Podiatry","PrimaryCare","SpecialtyCare","Urology","WomensHealth"],"last_updated":"2020-05-04"},"satisfaction":{"health":{"primary_care_urgent":0.72000002861022949,"primary_care_routine":0.85000002384185791,"specialty_care_urgent":0.70999997854232788,"specialty_care_routine":0.88999998569488525},"effective_date":"2019-06-20"},"wait_times":{"health":[{"service":"Audiology","new":4.5,"established":2.943661},{"service":"Cardiology","new":22.058823,"established":3.921348},{"service":"Dermatology","new":null,"established":0.0},{"service":"Gastroenterology","new":47.0,"established":26.0},{"service":"Gynecology","new":6.555555,"established":1.361904},{"service":"MentalHealthCare","new":5.45,"established":1.890132},{"service":"Ophthalmology","new":null,"established":0.695652},{"service":"Optometry","new":0.666666,"established":4.04},{"service":"Orthopedics","new":2.545454,"established":1.108108},{"service":"PrimaryCare","new":4.113636,"established":0.823024},{"service":"SpecialtyCare","new":6.71923,"established":2.467039},{"service":"Urology","new":1.0,"established":1.0},{"service":"WomensHealth","new":3.75,"established":1.388349}],"effective_date":"2020-05-04"},"mobile":false,"active_status":"A","operating_status":{"code":"NORMAL"},"visn":"10"}},{"id":"vha_552GB","type":"va_facilities","attributes":{"name":"Lima
+        VA Clinic","facility_type":"va_health_facility","classification":"Primary
+        Care CBOC","website":"https://www.dayton.va.gov/locations/Lima_cboc.asp","lat":40.742000000000075,"long":-84.115199999999959,"address":{"mailing":{},"physical":{"zip":"45801-2967","city":"Lima","state":"OH","address_1":"750
+        West High Street","address_2":null,"address_3":"Suite 350"}},"phone":{"fax":"419-222-9504","main":"419-222-5788","pharmacy":"800-368-8262
+        x5325","after_hours":"937-268-6511 x1904","patient_advocate":"800-368-8262
+        x2164","mental_health_clinic":"937-262-2186 x 6820","enrollment_coordinator":"800-368-8262
+        x3450"},"hours":{"friday":"800AM-430PM","monday":"800AM-430PM","sunday":"Closed","tuesday":"800AM-430PM","saturday":"Closed","thursday":"800AM-430PM","wednesday":"800AM-430PM"},"services":{"other":[],"health":["MentalHealthCare","Nutrition","PrimaryCare","SpecialtyCare"],"last_updated":"2020-05-04"},"satisfaction":{"health":{"primary_care_urgent":0.95999997854232788,"primary_care_routine":0.93999999761581421},"effective_date":"2019-06-20"},"wait_times":{"health":[{"service":"MentalHealthCare","new":null,"established":0.0},{"service":"PrimaryCare","new":4.0,"established":0.037037},{"service":"SpecialtyCare","new":null,"established":0.489361}],"effective_date":"2020-05-04"},"mobile":false,"active_status":"A","operating_status":{"code":"LIMITED","additional_info":"CBOCs
+        under the operation of the Dayton VA will temporarily move to virtual care
+        only. Veterans who have questions about routine medical care, pharmacy refills,
+        or to speak to a medical provider, please call your local CBOC."},"visn":"10"}},{"id":"vha_442GC","type":"va_facilities","attributes":{"name":"Fort
+        Collins VA Clinic","facility_type":"va_health_facility","classification":"Multi-Specialty
+        CBOC","website":"https://www.cheyenne.va.gov/locations/Fort_Collins_VA_CBOC.asp","lat":40.554413120000049,"long":-105.08653908999997,"address":{"mailing":{},"physical":{"zip":"80526-8108","city":"Fort
+        Collins","state":"CO","address_1":"2509 Research Boulevard","address_2":null,"address_3":null}},"phone":{"fax":"970-407-7440","main":"970-224-1550","pharmacy":"866-420-6337","after_hours":"307-778-7550","patient_advocate":"307-778-7550
+        x7517","mental_health_clinic":"307-778-7349","enrollment_coordinator":"307-778-7550
+        x7579"},"hours":{"friday":"730AM-445PM","monday":"730AM-445PM","sunday":"Closed","tuesday":"730AM-445PM","saturday":"Closed","thursday":"730AM-445PM","wednesday":"730AM-445PM"},"services":{"other":[],"health":["Audiology","EmergencyCare","MentalHealthCare","PrimaryCare","SpecialtyCare"],"last_updated":"2020-05-04"},"satisfaction":{"health":{"primary_care_urgent":0.62000000476837158,"primary_care_routine":0.800000011920929},"effective_date":"2019-06-20"},"wait_times":{"health":[{"service":"Audiology","new":null,"established":6.5},{"service":"MentalHealthCare","new":3.9375,"established":4.8},{"service":"PrimaryCare","new":null,"established":0.23913},{"service":"SpecialtyCare","new":5.5,"established":6.5}],"effective_date":"2020-05-04"},"mobile":false,"active_status":"A","operating_status":{"code":"NORMAL"},"visn":"19"}},{"id":"vha_442GB","type":"va_facilities","attributes":{"name":"Sidney
+        VA Clinic","facility_type":"va_health_facility","classification":"Other Outpatient
+        Services (OOS)","website":"https://www.cheyenne.va.gov/locations/Sidney_VA_MSOC.asp","lat":41.142469170000027,"long":-102.97668644999999,"address":{"mailing":{},"physical":{"zip":"69162-2001","city":"Sidney","state":"NE","address_1":"1116
+        10th Avenue","address_2":null,"address_3":null}},"phone":{"fax":"308-254-7803","main":"308-254-6085","pharmacy":"866-420-6337","after_hours":"307-778-7550","patient_advocate":"307-778-7550
+        x7517","enrollment_coordinator":"307-778-7550 x7579"},"hours":{"friday":"800AM-430PM","monday":"800AM-430PM","sunday":"Closed","tuesday":"800AM-430PM","saturday":"Closed","thursday":"800AM-430PM","wednesday":"800AM-430PM"},"services":{"other":[],"health":["Audiology","EmergencyCare","MentalHealthCare","PrimaryCare","SpecialtyCare"],"last_updated":"2020-05-04"},"satisfaction":{"health":{"primary_care_routine":0.95999997854232788},"effective_date":"2019-06-20"},"wait_times":{"health":[{"service":"Audiology","new":null,"established":0.0},{"service":"MentalHealthCare","new":null,"established":0.0},{"service":"PrimaryCare","new":null,"established":3.6},{"service":"SpecialtyCare","new":null,"established":0.0}],"effective_date":"2020-05-04"},"mobile":false,"active_status":"A","operating_status":{"code":"LIMITED","additional_info":"Must
+        Call prior to arrival due to COVID-19"},"visn":"19"}},{"id":"vha_552GA","type":"va_facilities","attributes":{"name":"Middletown
+        VA Clinic","facility_type":"va_health_facility","classification":"Multi-Specialty
+        CBOC","website":"https://www.dayton.va.gov/locations/midtwn_cboc.asp","lat":39.506034180000029,"long":-84.316476419999958,"address":{"mailing":{},"physical":{"zip":"45005-5211","city":"Middletown","state":"OH","address_1":"4337
+        North Union Road","address_2":null,"address_3":null}},"phone":{"fax":"513-423-3309","main":"513-423-8387","pharmacy":"800-368-8262
+        x5325","after_hours":"937-268-6511 x1904","patient_advocate":"800-368-8262
+        x2164","mental_health_clinic":"513-423-8387 x 6109","enrollment_coordinator":"800-368-8262
+        x3450"},"hours":{"friday":"800AM-430PM","monday":"800AM-430PM","sunday":"Closed","tuesday":"800AM-430PM","saturday":"Closed","thursday":"800AM-430PM","wednesday":"800AM-430PM"},"services":{"other":[],"health":["MentalHealthCare","Podiatry","PrimaryCare","SpecialtyCare"],"last_updated":"2020-05-04"},"satisfaction":{"health":{"primary_care_urgent":0.9100000262260437,"primary_care_routine":0.949999988079071},"effective_date":"2019-06-20"},"wait_times":{"health":[{"service":"MentalHealthCare","new":21.5,"established":4.216216},{"service":"PrimaryCare","new":6.25,"established":2.671232},{"service":"SpecialtyCare","new":null,"established":0.0}],"effective_date":"2020-05-04"},"mobile":false,"active_status":"A","operating_status":{"code":"LIMITED","additional_info":"CBOCs
+        under the operation of the Dayton VA will temporarily move to virtual care
+        only. Veterans who have questions about routine medical care, pharmacy refills,
+        or to speak to a medical provider, please call your local CBOC."},"visn":"10"}},{"id":"vha_552GD","type":"va_facilities","attributes":{"name":"Springfield
+        VA Clinic","facility_type":"va_health_facility","classification":"Multi-Specialty
+        CBOC","website":"https://www.dayton.va.gov/locations/spgfld_cboc.asp","lat":39.943800000000067,"long":-83.804699999999968,"address":{"mailing":{},"physical":{"zip":"45503-2624","city":"Springfield","state":"OH","address_1":"1620
+        North Limestone Street","address_2":null,"address_3":null}},"phone":{"fax":"937-328-3387","main":"937-328-3385","pharmacy":"800-368-8262
+        x5325","after_hours":"937-268-6511 x1904","patient_advocate":"800-368-8262
+        x2164","mental_health_clinic":"937-262-2186 x 2321","enrollment_coordinator":"800-368-8262
+        x3450"},"hours":{"friday":"800AM-430PM","monday":"800AM-430PM","sunday":"Closed","tuesday":"800AM-430PM","saturday":"Closed","thursday":"800AM-430PM","wednesday":"800AM-430PM"},"services":{"other":[],"health":["MentalHealthCare","Podiatry","PrimaryCare","SpecialtyCare"],"last_updated":"2020-05-04"},"satisfaction":{"health":{"primary_care_urgent":0.75999999046325684,"primary_care_routine":0.85000002384185791},"effective_date":"2019-06-20"},"wait_times":{"health":[{"service":"MentalHealthCare","new":0.0,"established":15.666666},{"service":"PrimaryCare","new":8.0,"established":0.194444},{"service":"SpecialtyCare","new":0.333333,"established":0.0}],"effective_date":"2020-05-04"},"mobile":false,"active_status":"A","operating_status":{"code":"LIMITED","additional_info":"CBOCs
+        under the operation of the Dayton VA will temporarily move to virtual care
+        only. Veterans who have questions about routine medical care, pharmacy refills,
+        or to speak to a medical provider, please call your local CBOC."},"visn":"10"}}],"links":{"self":"https://sandbox-api.va.gov/services/va_facilities/v0/facilities?ids=vha_442%2Cvha_552%2Cvha_552GB%2Cvha_442GC%2Cvha_442GB%2Cvha_552GA%2Cvha_552GD&page=1&per_page=10","first":"https://sandbox-api.va.gov/services/va_facilities/v0/facilities?ids=vha_442%2Cvha_552%2Cvha_552GB%2Cvha_442GC%2Cvha_442GB%2Cvha_552GA%2Cvha_552GD&page=1&per_page=10","prev":null,"next":null,"last":"https://sandbox-api.va.gov/services/va_facilities/v0/facilities?ids=vha_442%2Cvha_552%2Cvha_552GB%2Cvha_442GC%2Cvha_442GB%2Cvha_552GA%2Cvha_552GD&page=1&per_page=10"},"meta":{"pagination":{"current_page":1,"per_page":10,"total_pages":1,"total_entries":7},"distances":[]}}'
+    http_version: null
+  recorded_at: Wed, 13 May 2020 21:20:44 GMT
 recorded_with: VCR 5.1.0

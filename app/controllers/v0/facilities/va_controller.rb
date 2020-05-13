@@ -96,7 +96,18 @@ class V0::Facilities::VaController < FacilitiesController
   end
 
   def lighthouse_params
-    params.permit :lat, :long, :page, :per_page, :services, :type, :zip, bbox: []
+    params.permit(
+      :ids,
+      :lat,
+      :long,
+      :page,
+      :per_page,
+      :state,
+      :type,
+      :zip,
+      bbox: [],
+      services: []
+    )
   end
 
   def validate_types_name_part

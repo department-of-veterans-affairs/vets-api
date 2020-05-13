@@ -123,7 +123,7 @@ RSpec.describe 'VA Facilities Locator - Lighthouse', type: :request, team: :faci
                       type: 'benefits',
                       services: ['DisabilityClaimAssistance']
                     },
-                    %w[vba_348e vba_348 vba_348a vba_348d vba_348h]
+                    %w[vba_348]
 
     it_behaves_like 'paginated request from params with expected IDs',
                     {
@@ -140,6 +140,12 @@ RSpec.describe 'VA Facilities Locator - Lighthouse', type: :request, team: :faci
                       zip: 85_297
                     },
                     ['vha_644BY']
+
+    it_behaves_like 'paginated request from params with expected IDs',
+                    {
+                      ids: 'vha_442,vha_552,vha_552GB,vha_442GC,vha_442GB,vha_552GA,vha_552GD'
+                    },
+                    %w[vha_442 vha_552 vha_552GB vha_442GC vha_442GB vha_552GA vha_552GD]
   end
 
   describe 'GET #show' do
