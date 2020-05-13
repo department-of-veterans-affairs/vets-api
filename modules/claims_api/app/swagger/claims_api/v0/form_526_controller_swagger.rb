@@ -249,7 +249,7 @@ module ClaimsApi
             key :name, 'attachment'
             key :in, :formData
             key :type, :file
-            key :description, 'Attachment contents. Must be provided in PDF format and less than 11 in x 11 in'
+            key :description, 'Attachment contents. Must be provided in binary PDF or base64 string format and less than 11 in x 11 in'
           end
 
           response 200 do
@@ -428,7 +428,7 @@ module ClaimsApi
       swagger_path '/forms/526/{id}/attachments' do
         operation :post do
           key :summary, 'Upload documents in support of a 526 claim'
-          key :description, 'Accpets document binaries as part of a multipart payload. Accepts N number of attachments, via attachment1 .. attachmentN'
+          key :description, 'Accpets document binary PDF or base64 string as part of a multipart payload. Accepts N number of attachments, via attachment1 .. attachmentN'
           key :operationId, 'upload526Attachments'
           key :produces, [
             'application/json'
@@ -506,14 +506,14 @@ module ClaimsApi
             key :name, 'attachment1'
             key :in, :formData
             key :type, :file
-            key :description, 'Attachment contents. Must be provided in PDF format and less than 11 in x 11 in'
+            key :description, 'Attachment contents. Must be provided in binary PDF or base64 string format and less than 11 in x 11 in'
           end
 
           parameter do
             key :name, 'attachment2'
             key :in, :formData
             key :type, :file
-            key :description, 'Attachment contents. Must be provided in PDF format and less than 11 in x 11 in'
+            key :description, 'Attachment contents. Must be provided in binary PDF or base64 string format and less than 11 in x 11 in'
           end
 
           response 200 do

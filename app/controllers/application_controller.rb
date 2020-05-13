@@ -13,7 +13,7 @@ class ApplicationController < ActionController::API
   include Pundit
   include ActionController::RequestForgeryProtection
 
-  protect_from_forgery with: LoggingForgeryStrategy, if: -> { ActionController::Base.allow_forgery_protection }
+  protect_from_forgery with: :exception, if: -> { ActionController::Base.allow_forgery_protection }
   after_action :set_csrf_header, if: -> { ActionController::Base.allow_forgery_protection }
 
   SKIP_SENTRY_EXCEPTION_TYPES = [

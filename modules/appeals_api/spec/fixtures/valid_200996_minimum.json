@@ -4,7 +4,8 @@
     "attributes": {
       "informalConference": false,
       "sameOffice": true,
-      "benefitType": "nca"
+      "benefitType": "nca",
+      "veteran": { "address": { "zipCode5": "66002" } }
     }
   },
   "included": [

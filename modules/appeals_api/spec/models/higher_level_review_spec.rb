@@ -117,8 +117,8 @@ describe AppealsApi::HigherLevelReview, type: :model do
   describe '#number_and_street' do
     subject { higher_level_review.number_and_street }
 
-    it('instructs to use address on file (because there\'s no address)') do
-      expect(subject).to eq described_class::NO_ADDRESS_PROVIDED_SENTENCE
+    it('matches json') do
+      expect(subject).to eq form_data.dig('data', 'attributes', 'veteran', 'address', 'addressLine1').to_s
     end
   end
 

@@ -94,7 +94,7 @@ features:
     description: >
       Enable eBenefits links to be proxied through eauth.va.gov, this allows users with SSOe sessions to stay logged in.
   ssoe_inbound:
-    actor_type: user
+    actor_type: cookie_id
     description: >
       Enables automatic establishment/disconnection of vets-api session based on a user's SSOe session status
   allow_online_10_10cg_submissions:
