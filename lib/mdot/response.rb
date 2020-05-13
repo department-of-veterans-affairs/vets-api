@@ -19,7 +19,6 @@ module MDOT
       self.temporary_address = @parsed_body['temporary_address']
       self.supplies = @parsed_body['supplies']
       @status = args[:response][:status]
-      set_mdot_cookie
     end
 
     def ok?
