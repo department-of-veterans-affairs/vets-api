@@ -195,15 +195,15 @@ module MVI
       MVI::Messages::FindProfileMessageEdipi.new(user.dslogon_edipi).to_xml
     end
 
-    def message_user_attributes(user)
-      given_names = [user.first_name]
-      given_names.push user.middle_name unless user.middle_name.nil?
+    def message_user_attributes(user_identity)
+      given_names = [user_identity.first_name]
+      given_names.push user_identity.middle_name unless user_identity.middle_name.nil?
       profile = {
         given_names: given_names,
-        last_name: user.last_name,
-        birth_date: user.birth_date,
-        ssn: user.ssn,
-        gender: user.gender
+        last_name: user_identity.last_name,
+        birth_date: user_identity.birth_date,
+        ssn: user_identity.ssn,
+        gender: user_identity.gender
       }
       MVI::Messages::FindProfileMessage.new(profile).to_xml
     end
