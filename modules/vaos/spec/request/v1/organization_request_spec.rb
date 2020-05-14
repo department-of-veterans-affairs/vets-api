@@ -19,7 +19,6 @@ RSpec.describe 'Organization', type: :request do
       expect(response).to have_http_status(:forbidden)
       expect(JSON.parse(response.body)['issue'].first.dig('details', 'text'))
         .to eq('You do not have access to online scheduling')
-      expect(response).to match_response_schema('vaos/fhir/operation_outcome')
     end
   end
 
@@ -34,7 +33,6 @@ RSpec.describe 'Organization', type: :request do
               .to trigger_statsd_increment('api.vaos.fhir.read.organization.total', times: 1, value: 1)
 
             expect(response).to have_http_status(:ok)
-            expect(response).to match_response_schema('vaos/fhir/organization')
           end
         end
       end
@@ -46,7 +44,6 @@ RSpec.describe 'Organization', type: :request do
 
             expect(response).to have_http_status(:not_found)
             expect(JSON.parse(response.body)['issue'].first['code']).to eq('VAOS_404')
-            expect(response).to match_response_schema('vaos/fhir/operation_outcome')
           end
         end
       end
@@ -58,7 +55,6 @@ RSpec.describe 'Organization', type: :request do
 
             expect(response).to have_http_status(:bad_gateway)
             expect(JSON.parse(response.body)['issue'].first['code']).to eq('VAOS_502')
-            expect(response).to match_response_schema('vaos/fhir/operation_outcome')
           end
         end
       end
