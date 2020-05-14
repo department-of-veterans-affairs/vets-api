@@ -6,7 +6,7 @@ module VAOS
   module V1
     class FHIRConfiguration < VAOS::Configuration
       def base_path
-        "#{Settings.va_mobile.url}vsp/v1/"
+        "#{Settings.va_mobile.url}/vsp/v1/"
       end
 
       def service_name
