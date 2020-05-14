@@ -51,7 +51,6 @@ module VAOS
       end
 
       def headers
-        # TODO: confirm it's not 'application/json'
         super.merge('Content-Type' => 'application/json+fhir')
       end
     end

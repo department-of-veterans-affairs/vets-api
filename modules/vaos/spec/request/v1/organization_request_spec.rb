@@ -27,12 +27,21 @@ RSpec.describe 'Organization', type: :request do
 
     describe 'GET /vaos/v0/organization/:id' do
       context 'with a valid read Organization response' do
-        it 'returns a 200 with the correct schema' do
+        let(:expected_body) do
+          YAML.load_file(
+            Rails.root.join(
+              'spec', 'support', 'vcr_cassettes', 'vaos', 'fhir', 'read_organization_200.yml'
+            )
+          )['http_interactions'].first.dig('response', 'body', 'string')
+        end
+
+        it 'returns a 200 and passes through the body' do
           VCR.use_cassette('vaos/fhir/read_organization_200', match_requests_on: %i[method uri]) do
             expect { get '/vaos/v1/organization/353830' }
               .to trigger_statsd_increment('api.vaos.fhir.read.organization.total', times: 1, value: 1)
 
             expect(response).to have_http_status(:ok)
+            expect(response.body).to eq(expected_body)
           end
         end
       end
