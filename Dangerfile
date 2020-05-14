@@ -61,7 +61,10 @@ if !db_files.empty? && !app_files.empty?
 
     </details>
 
-    Database migrations do not run automatically with vets-api deployments. As such, application code must always be backwards compatible with the DB, both before and after migrations have been run. [See here for more guidance on safe db migrations](https://github.com/ankane/strong_migrations#checks). 
+    Database migrations do not run automatically with vets-api deployments. Application code must always be backwards compatible with the DB, both before and after migrations have been run. For more info: 
+
+    - [guidance on safe db migrations](https://github.com/ankane/strong_migrations#checks)
+    - [`vets-api` deployment process](https://github.com/department-of-veterans-affairs/va.gov-team/blob/master/platform/engineering/deployment.md)
 
   HTML
 
@@ -70,3 +73,4 @@ if !db_files.empty? && !app_files.empty?
 
   fail(msg)
 end
+
