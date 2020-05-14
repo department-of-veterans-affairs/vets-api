@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-describe MDOT::Client do
+describe MDOT::Client, type: :mdot_helpers do
   subject { described_class.new(user) }
 
   let(:user_details) do
@@ -70,7 +70,7 @@ describe MDOT::Client do
     context 'with a valid supplies order' do
       it 'returns a successful response' do
         VCR.use_cassette('mdot/submit_order', VCR::MATCH_EVERYTHING) do
-          MDOT::Helpers.set_token_for(user)
+          set_mdot_token_for(user)
           res = subject.submit_order(valid_order)
           expect(res['status']).to eq('success')
           expect(res['order_id']).to match(/[a-z0-9-]+/)

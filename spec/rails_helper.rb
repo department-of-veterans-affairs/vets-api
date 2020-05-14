@@ -124,6 +124,11 @@ RSpec.configure do |config|
   config.include(AwsHelpers, type: :aws_helpers)
   config.include(UploaderHelpers, uploader_helpers: true)
 
+  %i[controller mdot_helpers request].each do |type|
+    config.include(MDOTHelpers, type: type)
+  end
+
+
   # Adding support for url_helper
   config.include Rails.application.routes.url_helpers
 
