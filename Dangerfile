@@ -59,7 +59,8 @@ if !db_files.empty? && !app_files.empty?
 
     </details>
 
-    It is recommended to make db changes in their own PR since migrations do not run automatically with vets-api deployments. Application code must always be backwards compatible with the DB, both before and after migrations have been run.
+    Database migrations do not run automatically with vets-api deployments. As such, application code must always be backwards compatible with the DB, both before and after migrations have been run. [See here for more guidance on safe db migrations](https://github.com/ankane/strong_migrations#checks). 
+
   HTML
 
   # resolves exception... encode': "\xE2" on US-ASCII (Encoding::InvalidByteSequenceError)
