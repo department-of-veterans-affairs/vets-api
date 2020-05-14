@@ -128,7 +128,6 @@ RSpec.configure do |config|
     config.include(MDOTHelpers, type: type)
   end
 
-
   # Adding support for url_helper
   config.include Rails.application.routes.url_helpers
 
