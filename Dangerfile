@@ -32,9 +32,9 @@ if lines_of_code > MAX_PR_SIZE
 
     ```
 
-    Big PRs are difficult to review and often become stale. Consider breaking this PR up into smaller ones.
-
     </details>
+
+    Big PRs are difficult to review and often become stale. Consider breaking this PR up into smaller ones.
 
   HTML
   warn(msg)
