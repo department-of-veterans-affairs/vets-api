@@ -26,7 +26,7 @@ if lines_of_code > MAX_PR_SIZE
     _We exclude the following files when considering PR size:_
 
     ```
-    ["Gemfile.lock", ".json", "spec/fixtures/", ".txt", "spec/support/vcr_cassettes/", "app/swagger"]
+    #{EXCLUSIONS}
 
     ```
 
