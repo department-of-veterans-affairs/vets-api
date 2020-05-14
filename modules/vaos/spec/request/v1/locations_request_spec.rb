@@ -28,11 +28,20 @@ RSpec.describe 'VAOS::V1::Locations', type: :request do
     context 'with a loa3 user' do
       let(:user) { build(:user, :vaos) }
 
-      context 'with a single valid facility code' do
-        it 'returns a 200 with the correct schema' do
-          VCR.use_cassette('vaos/fhir/location/search_with_name', record: :new_episodes) do
-            get '/vaos/v1/locations', params: { name: 'vamc' }
-            expect(response).to have_http_status(:internal_server_error)
+      context 'with a location id' do
+        it 'returns a 200 returning Location resource corresponding to that id' do
+          VCR.use_cassette('vaos/fhir/location/read_by_id', record: :new_episodes) do
+            get '/vaos/v1/locations/353030'
+            expect(response).to have_http_status(:success)
+          end
+        end
+      end
+
+      context 'with a location search query by name' do
+        it 'returns a 200 returning Location resources corresponding to that name and including organization' do
+          VCR.use_cassette('vaos/fhir/location/search_by_name', record: :new_episodes) do
+            get '/vaos/v1/locations?location.name=Iowa%20City%20VA%20Mobile%20Clinic&_include=Location%3Aorganization'
+            expect(response).to have_http_status(:success)
           end
         end
       end

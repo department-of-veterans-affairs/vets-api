@@ -27,6 +27,6 @@ VAOS::Engine.routes.draw do
   end
 
   namespace :v1, defaults: { format: :json } do
-    resources :locations, only: %i[index]
+    resources :locations, only: %i[index show]
   end
 end
