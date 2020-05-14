@@ -13,7 +13,7 @@ if lines_of_code > MAX_PR_SIZE
   msg = <<~HTML
     You changed `#{lines_of_code}` LoC. This exceeds our desired maximum of `#{MAX_PR_SIZE}`. Big PRs are difficult to review and often become stale. Consider breaking this PR up into smaller ones.
 
-    <details><summary>Calculation Summary</summary>
+    <details><summary>File Summary</summary>
 
     #### Included Files
 
@@ -23,10 +23,17 @@ if lines_of_code > MAX_PR_SIZE
 
     - #{excluded_changed_files.collect { |key, val| "#{key} (+#{val[:insertions]}/-#{val[:deletions]} )" }.join("\n- ")}
 
+    _We exclude the following files when considering PR size:_
+
+    ```
+    ["Gemfile.lock", ".json", "spec/fixtures/", ".txt", "spec/support/vcr_cassettes/", "app/swagger"]
+
+    ```
+
     </details>
 
+    aaa
   HTML
-  msg.scrub!('_')
   warn(msg)
 end
 
@@ -39,7 +46,7 @@ if !db_files.empty? && !app_files.empty?
   msg = <<~HTML
     Modified files in `db/` and `app/` inside the same PR!
 
-    <details><summary>Calculation Summary</summary>
+    <details><summary>File Summary</summary>
 
     #### db file(s)
 
