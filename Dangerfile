@@ -13,11 +13,14 @@ if lines_of_code > MAX_PR_SIZE
   msg = <<~HTML
     You changed `#{lines_of_code}` LoC. This exceeds our desired maximum of `#{MAX_PR_SIZE}`. Big PRs are difficult to review and often become stale. Consider breaking this PR up into smaller ones.
 
+    <details>
+      <summary>Calculation Summary</summary>
     **Calculation Summary**
     - #{filtered_changed_files.collect { |key, val| "#{key} (+#{val[:insertions]}/-#{val[:deletions]} )" }.join("\n- ")}
 
     **Exclusions**
     - #{excluded_changed_files.collect { |key, val| "#{key} (+#{val[:insertions]}/-#{val[:deletions]} )" }.join("\n- ")}
+    </details>
   HTML
   warn(msg)
 end

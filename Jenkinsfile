@@ -37,36 +37,36 @@ pipeline {
       }
     }
 
-    stage('Setup Testing DB') {
-      steps {
-        sh 'env=$RAILS_ENV make db'
-      }
-    }
+    // stage('Setup Testing DB') {
+    //   steps {
+    //     sh 'env=$RAILS_ENV make db'
+    //   }
+    // }
 
-    stage('Lint') {
-      steps {
-        sh 'env=$RAILS_ENV make lint'
-      }
-    }
+    // stage('Lint') {
+    //   steps {
+    //     sh 'env=$RAILS_ENV make lint'
+    //   }
+    // }
 
-    stage('Security Scan') {
-      steps {
-        sh 'env=$RAILS_ENV make security'
-      }
-    }
+    // stage('Security Scan') {
+    //   steps {
+    //     sh 'env=$RAILS_ENV make security'
+    //   }
+    // }
 
-    stage('Run tests') {
-      steps {
-        sh 'env=$RAILS_ENV make spec'
-      }
-      post {
-        success {
-          archiveArtifacts artifacts: "coverage/**"
-          publishHTML(target: [reportDir: 'coverage', reportFiles: 'index.html', reportName: 'Coverage', keepAll: true])
-          junit 'log/*.xml'
-        }
-      }
-    }
+    // stage('Run tests') {
+    //   steps {
+    //     sh 'env=$RAILS_ENV make spec'
+    //   }
+    //   post {
+    //     success {
+    //       archiveArtifacts artifacts: "coverage/**"
+    //       publishHTML(target: [reportDir: 'coverage', reportFiles: 'index.html', reportName: 'Coverage', keepAll: true])
+    //       junit 'log/*.xml'
+    //     }
+    //   }
+    // }
 
     stage('Run Danger Bot') {
       steps {
