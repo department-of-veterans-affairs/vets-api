@@ -24,6 +24,7 @@ if lines_of_code > MAX_PR_SIZE
     - #{excluded_changed_files.collect { |key, val| "#{key} (+#{val[:insertions]}/-#{val[:deletions]} )" }.join("\n- ")}
 
     </details>
+
   HTML
   msg.scrub!('_')
   warn(msg)
@@ -56,5 +57,5 @@ if !db_files.empty? && !app_files.empty?
   # resolves exception... encode': "\xE2" on US-ASCII (Encoding::InvalidByteSequenceError)
   msg.scrub!('_')
 
-  warn(msg)
+  fail(msg)
 end
