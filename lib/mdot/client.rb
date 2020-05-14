@@ -39,7 +39,8 @@ module MDOT
 
         MDOT::Response.new(
           response: raw_response,
-          schema: :supplies
+          schema: :supplies,
+          uuid: @user.uuid
         )
       end
     end
@@ -64,6 +65,12 @@ module MDOT
         VA_VETERAN_ID: @user.ssn.last(4),
         VA_VETERAN_BIRTH_DATE: @user.birth_date,
         VA_ICN: @user.icn
+      }
+    end
+
+    def submission_headers
+      {
+        VA_API_KEY: MDOT::Token.find(@user.uuid)
       }
     end
 
