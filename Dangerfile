@@ -11,7 +11,7 @@ lines_of_code = filtered_changed_files.sum { |_file, changes| (changes[:insertio
 
 if lines_of_code > MAX_PR_SIZE
   msg = <<~HTML
-    You changed `#{lines_of_code}` LoC. This exceeds our desired maximum of `#{MAX_PR_SIZE}`. Big PRs are difficult to review and often become stale. Consider breaking this PR up into smaller ones.
+    You changed `#{lines_of_code}` LoC. This exceeds our desired maximum of `#{MAX_PR_SIZE}`.
 
     <details><summary>File Summary</summary>
 
@@ -31,6 +31,8 @@ if lines_of_code > MAX_PR_SIZE
     #{EXCLUSIONS}
 
     ```
+
+    Big PRs are difficult to review and often become stale. Consider breaking this PR up into smaller ones.
 
     </details>
 
