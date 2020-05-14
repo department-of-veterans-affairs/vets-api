@@ -32,7 +32,7 @@ if lines_of_code > MAX_PR_SIZE
 
     </details>
 
-    aaa
+    foo
   HTML
   warn(msg)
 end
