@@ -23,7 +23,9 @@ if lines_of_code > MAX_PR_SIZE
 
     - #{excluded_changed_files.collect { |key, val| "#{key} (+#{val[:insertions]}/-#{val[:deletions]} )" }.join("\n- ")}
 
-    _We exclude the following files when considering PR size:_
+    #### 
+
+    _Note: We exclude the following files when considering PR size_
 
     ```
     #{EXCLUSIONS}
@@ -32,7 +34,6 @@ if lines_of_code > MAX_PR_SIZE
 
     </details>
 
-    foo
   HTML
   warn(msg)
 end
