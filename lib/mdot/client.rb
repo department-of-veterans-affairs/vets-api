@@ -52,7 +52,7 @@ module MDOT
     #
     def submit_order(request_body)
       with_monitoring_and_error_handling do
-        perform(:post, @supplies, request_body).body
+        perform(:post, @supplies, request_body, submission_headers).body
       end
     end
 
