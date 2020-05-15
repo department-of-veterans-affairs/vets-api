@@ -96,6 +96,7 @@ Sidekiq::Testing.server_middleware do |chain|
   chain.add Sidekiq::SemanticLogging
   chain.add Sidekiq::ErrorTag
 end
+require 'sidekiq/api'
 
 require 'shrine/storage/memory'
 
