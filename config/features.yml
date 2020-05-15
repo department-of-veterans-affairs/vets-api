@@ -11,14 +11,6 @@ features:
     actor_type: user
     description: >
       Allows for showing a special COVID19 alert on the My VA Dashboard
-  covid19_faq_chatbot_link:
-    actor_type: user
-    description: >
-      Shows the link to the Covid 19 chatbot on va.gov/coronavirus-veteran-frequently-asked-questions/.
-  facility_locator_show_covid19_chatbot_link:
-    actor_type: user
-    description: >
-      Shows the link to the Covid 19 chatbot in the Facility Locator app.
   facility_locator_show_community_cares:
     actor_type: user
     description: >
@@ -102,7 +94,7 @@ features:
     description: >
       Enable eBenefits links to be proxied through eauth.va.gov, this allows users with SSOe sessions to stay logged in.
   ssoe_inbound:
-    actor_type: user
+    actor_type: cookie_id
     description: >
       Enables automatic establishment/disconnection of vets-api session based on a user's SSOe session status
   allow_online_10_10cg_submissions:
