@@ -488,7 +488,7 @@ flipper:
     - sonntag_adam@bah.com
     - travis.hilton@oddball.io
     - zurbergram@gmail.com
-    
+
 bgs:
   application: ~
   client_station_id: ~
@@ -499,7 +499,7 @@ bgs:
   ssl_verify_mode: 'peer'
 
 va_mobile:
-  url: 'https://veteran.apps.va.gov/'
+  url: 'https://veteran.apps.va.gov'
   mock: false
   key_path: /fake/client/key/path
   timeout: 15
