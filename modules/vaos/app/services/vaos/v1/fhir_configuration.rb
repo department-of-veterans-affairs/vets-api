@@ -17,6 +17,11 @@ module VAOS
         Faraday.new(base_path, headers: base_request_headers, request: request_options) do |conn|
           conn.use :breakers
 
+          if ENV['VAOS_DEBUG'] && !Rails.env.production?
+            conn.request(:curl, ::Logger.new(STDOUT), :warn)
+            conn.response(:logger, ::Logger.new(STDOUT), bodies: true)
+          end
+
           conn.response :betamocks if mock_enabled?
           conn.response :vaos_errors
           conn.use :vaos_logging
