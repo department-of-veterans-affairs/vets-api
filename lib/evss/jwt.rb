@@ -30,7 +30,6 @@ module EVSS
 
         # custom claims
         assuranceLevel: @user.loa[:current],
-        email: @user.email,
         firstName: @user.first_name,
         middleName: @user.middle_name,
         lastName: @user.last_name,
@@ -39,7 +38,8 @@ module EVSS
         prefix: '', # TODO: i thought we had these in mvi...
         suffix: '',
         correlationIds: @user.mvi&.profile&.full_mvi_ids
-      }
+        # only include the email address if its not nil
+      }.merge({ email: @user.email }.compact)
     end
   end
 end

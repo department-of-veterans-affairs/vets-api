@@ -689,6 +689,87 @@ RSpec.describe V1::SessionsController, type: :controller do
         end
       end
 
+      context 'when MHV user attribute validation fails' do
+        let(:saml_attributes) do
+          build(:ssoe_idme_mhv_loa3,
+                va_eauth_mhvuuid: ['999888'],
+                va_eauth_mhvien: ['888777'])
+        end
+        let(:saml_response) do
+          build_saml_response(
+            authn_context: 'myhealthevet',
+            level_of_assurance: ['3'],
+            attributes: saml_attributes,
+            existing_attributes: nil,
+            issuer: 'https://int.eauth.va.gov/FIM/sps/saml20fedCSP/saml20'
+          )
+        end
+        let(:saml_user) { SAML::User.new(saml_response) }
+
+        before { allow(SAML::User).to receive(:new).and_return(saml_user) }
+
+        it 'logs a generic user validation error', :aggregate_failures do
+          expect(controller).to receive(:log_message_to_sentry)
+          expect(post(:saml_callback)).to redirect_to('http://127.0.0.1:3001/auth/login/callback?auth=fail&code=101')
+
+          expect(response).to have_http_status(:found)
+          expect(cookies['vagov_session_dev']).to be_nil
+        end
+      end
+
+      context 'when EDIPI user attribute validation fails' do
+        let(:saml_attributes) do
+          build(:ssoe_idme_mhv_loa3,
+                va_eauth_dodedipnid: ['0123456789,1111111111'])
+        end
+        let(:saml_response) do
+          build_saml_response(
+            authn_context: 'myhealthevet',
+            level_of_assurance: ['3'],
+            attributes: saml_attributes,
+            existing_attributes: nil,
+            issuer: 'https://int.eauth.va.gov/FIM/sps/saml20fedCSP/saml20'
+          )
+        end
+        let(:saml_user) { SAML::User.new(saml_response) }
+
+        before { allow(SAML::User).to receive(:new).and_return(saml_user) }
+
+        it 'redirects to the auth failed endpoint with a specific code', :aggregate_failures do
+          expect(controller).to receive(:log_message_to_sentry)
+          expect(post(:saml_callback)).to redirect_to('http://127.0.0.1:3001/auth/login/callback?auth=fail&code=102')
+          expect(response).to have_http_status(:found)
+          expect(cookies['vagov_session_dev']).to be_nil
+        end
+      end
+
+      context 'when ICN user attribute validation fails' do
+        let(:saml_attributes) do
+          build(:ssoe_idme_mhv_loa3,
+                va_eauth_mhvicn: ['11111111V222222'],
+                va_eauth_icn: ['222222222V333333'])
+        end
+        let(:saml_response) do
+          build_saml_response(
+            authn_context: 'myhealthevet',
+            level_of_assurance: ['3'],
+            attributes: saml_attributes,
+            existing_attributes: nil,
+            issuer: 'https://int.eauth.va.gov/FIM/sps/saml20fedCSP/saml20'
+          )
+        end
+        let(:saml_user) { SAML::User.new(saml_response) }
+
+        before { allow(SAML::User).to receive(:new).and_return(saml_user) }
+
+        it 'logs a generic user validation error', :aggregate_failures do
+          expect(controller).to receive(:log_message_to_sentry)
+          expect(post(:saml_callback)).to redirect_to('http://127.0.0.1:3001/auth/login/callback?auth=fail&code=103')
+          expect(response).to have_http_status(:found)
+          expect(cookies['vagov_session_dev']).to be_nil
+        end
+      end
+
       context 'when creating a user account' do
         context 'and the current user does not yet have an Account record' do
           before do
