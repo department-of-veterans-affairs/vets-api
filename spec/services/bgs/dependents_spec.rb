@@ -6,7 +6,6 @@ require 'bgs/value_objects/vnp_person_address_phone'
 RSpec.describe BGS::Dependents do
   let(:user) { FactoryBot.create(:user, :loa3) }
   let(:proc_id) { '3828033' }
-  let(:participant_id) { '146189' }
   let(:payload) do
     root = Rails.root.to_s
     f = File.read("#{root}/spec/services/bgs/support/final_payload.rb")
@@ -37,7 +36,8 @@ RSpec.describe BGS::Dependents do
                                     address_city: 'Los Angelas',
                                     address_state_code: 'CA',
                                     address_zip_code: '90210',
-                                    family_relationship_type_name: 'Biological'
+                                    family_relationship_type_name: 'Biological',
+                                    ever_married_indicator: 'Y'
                                   )
                                 )
         end
@@ -82,10 +82,14 @@ RSpec.describe BGS::Dependents do
             payload: payload,
             user: user
           ).create
-
+binding.pry
           expect(dependents).to include(
                                   an_object_having_attributes(
                                     death_date: DateTime.new(2011, 2, 3, 0, 0, 0, '-0600'),
+                                    first_name: 'John',
+                                    middle_name: 'Henry',
+                                    last_name: 'Doe',
+                                    suffix_name: 'Sr.'
                                   )
                                 )
         end
@@ -207,7 +211,7 @@ RSpec.describe BGS::Dependents do
             payload: payload,
             user: user
           ).create
-
+          binding.pry
           expect(dependents).to include(
                                   an_object_having_attributes(
                                     address_line_one: '412 Crooks Road',
@@ -262,6 +266,29 @@ RSpec.describe BGS::Dependents do
                                     participant_relationship_type_name: 'Child',
                                     family_relationship_type_name: 'Other',
                                     event_date: '2019-03-03'
+                                  )
+                                )
+        end
+      end
+    end
+
+    context 'report 674' do
+      it 'returns an object that represents child over 18 attending school' do
+        VCR.use_cassette('bgs/dependents/create') do
+          dependents = BGS::Dependents.new(
+            proc_id: proc_id,
+            payload: payload,
+            user: user
+          ).create
+
+          expect(dependents).to include(
+                                  an_object_having_attributes(
+                                    first_name: 'Ernie',
+                                    middle_name: 'bubkis',
+                                    last_name: 'McCracken',
+                                    participant_relationship_type_name: 'Child',
+                                    family_relationship_type_name: 'Other',
+                                    birth_date: DateTime.new(2001, 3, 3, 0, 0, 0, '-0600')
                                   )
                                 )
         end

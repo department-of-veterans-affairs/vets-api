@@ -41,5 +41,6 @@ module ValueObjects
     attribute :marriage_termination_type_code, Types::String.optional
     attribute :benefit_claim_type_end_product, Types::String.optional
     attribute :living_expenses_paid_amount, Types::String.optional
+    attribute :type, Types::String
   end
 end

@@ -41,6 +41,7 @@ module BGS
         address_city: address[:city_nm],
         address_zip_code: address[:zip_prefix_nbr],
         email_address: address[:email_addrs_txt],
+        type: 'veteran',
         living_expenses_paid_amount: nil,
         benefit_claim_type_end_product: '', # Temporarily empty until we figure out the increment call
         death_date: nil, # Setting to nil to satisfy struct these are dependent values

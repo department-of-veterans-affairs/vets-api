@@ -73,18 +73,20 @@ module BGS
         last_nm: payload['last'],
         suffix_nm: payload['suffix'],
         brthdy_dt: payload['birth_date'],
-        birth_state_cd: payload['place_of_birth_state'], # We are getting a state name instead of code. BGS wants state code
+        birth_state_cd: payload['place_of_birth_state'],
         birth_city_nm: payload['place_of_birth_city'],
-        file_nbr: payload['va_file_number'], # It's throwing an error about the file number and ssn being different. Changing data
+        file_nbr: payload['va_file_number'],
         ssn_nbr: payload['ssn'],
         death_dt: payload['death_date'],
-        ever_maried_ind: payload['ever_maried_ind'],
+        ever_maried_ind: payload['ever_married_ind'],
         vet_ind: payload['vet_ind'],
+        martl_status_type_cd: payload['martl_status_type_cdk'],
         ssn: @user.ssn # Just here to make mocks work
       )
     end
 
     def create_address(proc_id, participant_id, payload)
+      binding.pry
       service.vnp_ptcpnt_addrs.vnp_ptcpnt_addrs_create(
         jrn_dt: Time.current.iso8601,
         jrn_lctn_id: Settings.bgs.client_station_id,
@@ -150,7 +152,7 @@ module BGS
       )
     end
 
-    def create_child_school(proc_id, payload)
+    def create_child_school(proc_id, participant_id, payload)
       service.vnp_child_school.child_school_create(
         vnp_proc_id: proc_id,
         jrn_dt: Time.current.iso8601,
@@ -158,35 +160,39 @@ module BGS
         jrn_obj_id: Settings.bgs.application,
         jrn_status_type_cd: "U",
         jrn_user_id: Settings.bgs.client_username,
-        vnp_ptcpnt_id: payload['vnp_ptcpnt_id'],
-        gradtn_dt: payload['current_term_dates']['expected_graduation_date'],
-        last_term_start_dt: payload['last_term_school_information']['term_begin'],
-        last_term_end_dt: payload['last_term_school_information']['date_term_ended'],
-        prev_hours_per_wk_num: payload['last_term_school_information']['hours_per_week'],
-        prev_sessns_per_wk_num: payload['last_term_school_information']['classes_per_week'],
-        prev_school_nm: payload['last_term_school_information']['name'],
-        prev_school_cntry_nm: payload['last_term_school_information']['address']['country_name'],
-        prev_school_addrs_one_txt: payload['last_term_school_information']['address']['address_line1'],
-        prev_school_addrs_two_txt: payload['last_term_school_information']['address']['address_line2'],
-        prev_school_addrs_three_txt: payload['last_term_school_information']['address']['address_line3'],
-        prev_school_city_nm: payload['last_term_school_information']['address']['city'],
-        prev_school_addrs_zip_nbr: payload['last_term_school_information']['address']['zip_code'],
-        curnt_school_nm: payload['school_information']['name'],
-        curnt_school_addrs_one_txt: payload['school_information']['address']['address_line1'],
-        curnt_school_addrs_two_txt: payload['school_information']['address']['address_line2'],
-        curnt_school_addrs_three_txt: payload['school_information']['address']['address_line3'],
-        curnt_school_addrs_zip_nbr: payload['school_information']['address']['zip_code'],
-        curnt_school_city_nm: payload['school_information']['address']['city'],
-        curnt_school_cntry_nm: payload['school_information']['address']['country_name'],
-        curnt_sessns_per_wk_num: payload['program_information']['classes_per_week'],
-        curnt_hours_per_wk_num: payload['program_information']['hours_per_week'],
-        school_term_start_dt: payload['current_term_dates']['official_school_start_date'],
-        school_term_start_dt: payload['current_term_dates']['expected_student_start_date'],
+        vnp_ptcpnt_id: participant_id,
+        gradtn_dt: payload.dig('current_term_dates', 'expected_graduation_date'),
+        last_term_start_dt: payload.dig('last_term_school_information', 'term_begin'),
+        last_term_end_dt: payload.dig('last_term_school_information', 'date_term_ended'),
+        prev_hours_per_wk_num: payload.dig('last_term_school_information', 'hours_per_week'),
+        prev_sessns_per_wk_num: payload.dig('last_term_school_information', 'classes_per_week'),
+        prev_school_nm: payload.dig('last_term_school_information', 'name'),
+        prev_school_cntry_nm: payload.dig('last_term_school_information', 'address', 'country_name'),
+        prev_school_addrs_one_txt: payload.dig('last_term_school_information', 'address', 'address_line1'),
+        prev_school_addrs_two_txt: payload.dig('last_term_school_information', 'address', 'address_line2'),
+        prev_school_addrs_three_txt: payload.dig('last_term_school_information', 'address', 'address_line3'),
+        prev_school_city_nm: payload.dig('last_term_school_information', 'address', 'city'),
+        prev_school_postal_cd: payload.dig('last_term_school_information', 'address', 'state_code'),
+        prev_school_addrs_zip_nbr: payload.dig('last_term_school_information', 'address', 'zip_code'),
+        curnt_school_nm: payload.dig('school_information', 'name'),
+        course_name_txt: payload.dig('program_information', 'course_of_study'),
+        curnt_school_addrs_one_txt: payload.dig('school_information', 'address', 'address_line1'),
+        curnt_school_addrs_two_txt: payload.dig('school_information', 'address', 'address_line2'),
+        curnt_school_addrs_three_txt: payload.dig('school_information', 'address', 'address_line3'),
+        curnt_school_postal_cd: payload.dig('school_information', 'address', 'state_code'),
+        curnt_school_city_nm: payload.dig('school_information', 'address', 'city'),
+        curnt_school_addrs_zip_nbr: payload.dig('school_information', 'address', 'zip_code'),
+        curnt_school_cntry_nm: payload.dig('school_information', 'address', 'country_name'),
+        curnt_sessns_per_wk_num: payload.dig('program_information', 'classes_per_week'),
+        curnt_hours_per_wk_num: payload.dig('program_information', 'hours_per_week'),
+        school_actual_expctd_start_dt: payload.dig('current_term_dates', 'official_school_start_date'),
+        school_term_start_dt: payload.dig('current_term_dates', 'expected_student_start_date'),
         ssn: @user.ssn # Just here to make the mocks work
       )
     end
 
-    def create_child_student(proc_id, payload)
+    def create_child_student(proc_id, participant_id, payload)
+      gov_paid_tuition = payload.dig('student_address_marriage_tuition', 'tuition_is_paid_by_gov_agency') == true ? 'Y' : 'N'
       service.vnp_child_student.child_student_create(
         vnp_proc_id: proc_id,
         jrn_dt: Time.current.iso8601,
@@ -194,23 +200,24 @@ module BGS
         jrn_obj_id: Settings.bgs.application,
         jrn_status_type_cd: "U",
         jrn_user_id: Settings.bgs.client_username,
-        vnp_ptcpnt_id: payload['vnp_ptcpnt_id'],
-        saving_amt: payload['student_networth_information']['savings'],
-        real_estate_amt: payload['student_networth_information']['real_estate'],
-        other_asset_amt: payload['student_networth_information']['other_assets'],
-        rmks: payload['student_networth_information']['remarks'],
-        marage_dt: payload['student_address_marriage_tuition']['marriage_date'],
-        agency_paying_tuitn_nm: payload['student_address_marriage_tuition']['agency_name'],
-        govt_paid_tuitn_ind: payload['student_address_marriage_tuition']['tuition_is_paid_by_gov_agency'],
-        govt_paid_tuitn_start_dt: payload['student_address_marriage_tuition']['date_payments_began'],
-        term_year_emplmt_income_amt: payload['student_earnings_from_school_year']['earnings_from_all_employment'],
-        term_year_other_income_amt: payload['student_earnings_from_school_year']['all_other_income'],
-        term_year_ssa_income_amt: payload['student_earnings_from_school_year']['annual_social_security_payments'],
-        term_year_annty_income_amt: payload['student_earnings_from_school_year']['other_annuities_income'],
-        next_year_annty_income_amt: payload['student_expected_earnings_next_year']['other_annuities_income'],
-        next_year_emplmt_income_amt: payload['student_expected_earnings_next_year']['earnings_from_all_employment'],
-        next_year_other_income_amt: payload['student_expected_earnings_next_year']['all_other_income'],
-        next_year_ssa_income_amt: payload['student_expected_earnings_next_year']['annual_social_security_payments'],
+        vnp_ptcpnt_id: participant_id,
+        saving_amt: payload.dig('student_networth_information', 'savings'),
+        real_estate_amt: payload.dig('student_networth_information', 'real_estate'),
+        other_asset_amt: payload.dig('student_networth_information', 'other_assets'),
+        rmks: payload.dig('student_networth_information', 'remarks'),
+        marage_dt: payload.dig('student_address_marriage_tuition', 'marriage_date'),
+        agency_paying_tuitn_nm: payload.dig('student_address_marriage_tuition', 'agency_name'),
+        stock_bond_amt: payload.dig('student_networth_information', 'securities'),
+        govt_paid_tuitn_ind: gov_paid_tuition,
+        govt_paid_tuitn_start_dt: payload.dig('student_address_marriage_tuition', 'date_payments_began'),
+        term_year_emplmt_income_amt: payload.dig('student_earnings_from_school_year', 'earnings_from_all_employment'),
+        term_year_other_income_amt: payload.dig('student_earnings_from_school_year', 'all_other_income'),
+        term_year_ssa_income_amt: payload.dig('student_earnings_from_school_year', 'annual_social_security_payments'),
+        term_year_annty_income_amt: payload.dig('student_earnings_from_school_year', 'other_annuities_income'),
+        next_year_annty_income_amt: payload.dig('student_expected_earnings_next_year', 'other_annuities_income'),
+        next_year_emplmt_income_amt: payload.dig('student_expected_earnings_next_year', 'earnings_from_all_employment'),
+        next_year_other_income_amt: payload.dig('student_expected_earnings_next_year', 'all_other_income'),
+        next_year_ssa_income_amt: payload.dig('student_expected_earnings_next_year', 'annual_social_security_payments'),
         ssn: @user.ssn # Just here to make the mocks work
       )
     end

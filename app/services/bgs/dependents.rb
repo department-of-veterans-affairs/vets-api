@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+require 'bgs/value_objects/vnp_person_address_phone'
 
 module BGS
   class Dependents < Base
@@ -14,14 +15,14 @@ module BGS
     end
 
     def create
-      add_children if @payload['add_child']
-      report_deaths if @payload['report_death']
-      add_spouse if @payload['add_spouse']
+      # add_children if @payload['add_child']
+      # report_deaths if @payload['report_death']
+      # add_spouse if @payload['add_spouse']
       # report_divorce if @payload['report_divorce']
-      report_stepchild if @payload['report_stepchild_not_in_household']
-      report_child_marriage if @payload['report_marriage_of_child_under18']
-      report_child18_or_older_is_not_attending_school if @payload['report_child18_or_older_is_not_attending_school']
-      # report_674 if @payload['report674']
+      # report_stepchild if @payload['report_stepchild_not_in_household']
+      # report_child_marriage if @payload['report_marriage_of_child_under18']
+      # report_child18_or_older_is_not_attending_school if @payload['report_child18_or_older_is_not_attending_school']
+      report_674 if @payload['report674']
 
       @dependents
     end
@@ -32,7 +33,6 @@ module BGS
       @dependents_application['children_to_add'].each do |child_info|
         format_child_info(child_info)
         child_address = child_info["does_child_live_with_you"] == true ? @dependents_application['veteran_contact_information']['veteran_address'] : child_info['child_address_info']['address']
-
         participant = create_participant(@proc_id)
         person = create_person(@proc_id, participant[:vnp_ptcpnt_id], child_info)
         address = create_address(@proc_id, participant[:vnp_ptcpnt_id], child_address)
@@ -42,24 +42,30 @@ module BGS
           address,
           child_info['participant_relationship_type'],
           child_info['family_relationship_type'],
-          {marriage_termination_type_code: child_info['reason_marriage_ended']}
+          {
+            marriage_termination_type_code: child_info['reason_marriage_ended'],
+            type: 'child'
+          }
         )
       end
     end
 
     def report_deaths
-      @dependents_application['deaths'].map do |death_info|
-        format_death_info(death_info)
+      @dependents_application['deaths'].each do |death_info|
+        formatted_death_info = format_death_info(death_info)
+        death_info['location']['state_code'] = death_info['location'].delete('state')
+
         participant = create_participant(@proc_id)
-        person = create_person(@proc_id, participant[:vnp_ptcpnt_id], death_info)
+        person = create_person(@proc_id, participant[:vnp_ptcpnt_id], formatted_death_info)
         address = create_address(@proc_id, participant[:vnp_ptcpnt_id], death_info['location'])
 
         @dependents << serialize_result(
           participant,
           person,
           address,
-          death_info['participant_relationship_type'],
-          death_info['family_relationship_type']
+          formatted_death_info['participant_relationship_type'],
+          formatted_death_info['family_relationship_type'],
+          {type: 'death'}
         )
       end
     end
@@ -68,11 +74,11 @@ module BGS
       marriage_info = format_marriage_info
       family_relationship_type = @payload["spouse_does_live_with_veteran"] == true ? 'Spouse' : 'Estranged Spouse'
 
-      spouse_address = family_relationship_type == 'Spouse' ?  @dependents_application['veteran_contact_information']['veteran_address'] : @dependents_application['does_live_with_spouse']['address']
+      spouse_address = family_relationship_type == 'Spouse' ? @dependents_application['veteran_contact_information']['veteran_address'] : @dependents_application['does_live_with_spouse']['address']
       participant = create_participant(@proc_id)
       person = create_person(@proc_id, participant[:vnp_ptcpnt_id], marriage_info)
       address = create_address(@proc_id, participant[:vnp_ptcpnt_id], spouse_address)
-
+      binding.pry
       @dependents << serialize_result(
         participant,
         person,
@@ -82,7 +88,8 @@ module BGS
         {
           begin_date: @dependents_application['current_marriage_information']['date'],
           marriage_state: @dependents_application['current_marriage_information']['location']['state'],
-          marriage_city: @dependents_application['current_marriage_information']['location']['city']
+          marriage_city: @dependents_application['current_marriage_information']['location']['city'],
+          type: 'spouse'
         }
       )
     end
@@ -121,7 +128,10 @@ module BGS
           address,
           step_child_formatted['participant_relationship_type'],
           step_child_formatted['family_relationship_type'],
-          {living_expenses_paid: step_child_formatted['living_expenses_paid']}
+          {
+            living_expenses_paid: step_child_formatted['living_expenses_paid'],
+            'type': 'stepchild'
+          }
         )
       end
     end
@@ -138,7 +148,10 @@ module BGS
         {},
         'Child',
         'Other',
-        {'event_date': child_marriage_info['event_date'] }
+        {
+          'begin_dt': child_marriage_info['event_date'],
+          'type': 'child_marriage'
+        }
       )
     end
 
@@ -154,8 +167,42 @@ module BGS
         {},
         'Child',
         'Other',
-        {'event_date': child_not_attending_school_info['event_date']}
+        {
+          'event_date': child_not_attending_school_info['event_date'],
+          'type': 'not_attending_school'
+        }
       )
+    end
+
+    def report_674
+      formatted_674_info = format_674_info
+      student_address = @dependents_application['student_address_marriage_tuition']['address']
+      participant = create_participant(@proc_id)
+      person = create_person(@proc_id, participant[:vnp_ptcpnt_id], formatted_674_info)
+      address = create_address(@proc_id, participant[:vnp_ptcpnt_id], student_address)
+
+      @dependents << serialize_result(
+        participant,
+        person,
+        address,
+        'Child',
+        'Other',
+        {
+          'type': '674'
+        }
+      )
+    end
+
+    def format_674_info
+      name_and_ssn = @dependents_application['student_name_and_ssn']
+      marriage_tuition = @dependents_application['student_address_marriage_tuition']
+
+      [
+        *name_and_ssn['full_name'],
+        ['ssn', name_and_ssn['ssn']],
+        ['birth_date', name_and_ssn['birth_date']],
+        ['ever_married_ind', marriage_tuition['was_married'] == true ? 'Y' : 'N']
+      ].to_h
     end
 
     def format_child_not_attending_school_info
@@ -195,33 +242,35 @@ module BGS
       child_info['place_of_birth_city'] = child_info['place_of_birth']['city']
       child_info['death_date'] = nil # Doing this to get past Struct attribute
       child_info['reason_marriage_ended'] = child_info.dig('previous_marriage_details', 'reason_marriage_ended')
-      child_info['ever_married_ind'] = child_info['previous_marriage_details'] == true ? 'Y' : 'N'
+      child_info['ever_married_ind'] = child_info['previously_married'] == 'Yes' ? 'Y' : 'N'
     end
 
     def format_death_info(death_info)
       relationship_types = relationship_type(death_info)
-      death_info['family_relationship_type'] = relationship_types[:family]
-      death_info['participant_relationship_type'] = relationship_types[:participant]
-      death_info['first'] = death_info['full_name']['first']
-      death_info['middle'] = death_info['full_name']['middle']
-      death_info['last'] = death_info['full_name']['last']
-      death_info['death_date'] = death_info['date']
-      death_info['vet_ind'] = 'N'
+      [
+        *death_info.dig('full_name'),
+        ['family_relationship_type', relationship_types[:family]],
+        ['participant_relationship_type', relationship_types[:participant]],
+        ['death_date', death_info['date']],
+        ['vet_ind', 'N']
+      ].to_h
     end
 
     def format_marriage_info
       spouse_information = @dependents_application['spouse_information']
+      lives_with_veteran = @dependents_application['does_live_with_spouse']['spouse_does_live_with_veteran']
 
       marriage_info = spouse_information['full_name']
       marriage_info['ssn'] = spouse_information['ssn']
       marriage_info['birth_date'] = spouse_information['birth_date']
-      marriage_info['ever_maried_ind'] = 'Y'
+      marriage_info['ever_married_ind'] = 'Y'
+      marriage_info['martl_status_type_cd'] = lives_with_veteran ? 'Married' : 'Separated'
       marriage_info['vet_ind'] = 'N'
 
       if spouse_information['is_veteran'] == true
         marriage_info['vet_ind'] = 'Y'
         marriage_info['va_file_number'] = spouse_information['va_file_number']
-        marriage_info['service_number'] = spouse_information['service_number']
+        # marriage_info['service_number'] = spouse_information['service_number'] not sure where this is supposed to go
       end
 
       marriage_info
@@ -234,6 +283,7 @@ module BGS
       report_divorce_info['marriage_termination_type_code'] = @payload['report_divorce']['explanation_of_annullment_or_void']
       report_divorce_info['event_dt'] = @payload['report_divorce']['date_of_divorce']
       report_divorce_info['vet_ind'] = 'N'
+      report_divorce_info['type'] = 'divorce'
 
       report_divorce_info
     end
@@ -300,8 +350,9 @@ module BGS
         marriage_city: optional_fields[:marriage_city],
         divorce_state: optional_fields[:divorce_state],
         divorce_city: optional_fields[:divorce_city],
-        marriage_termination_type_code: optional_fields[:marriage_termination_type_cd],
+        marriage_termination_type_code: optional_fields[:marriage_termination_type_code],
         living_expenses_paid_amount: optional_fields[:living_expenses_paid],
+        type: optional_fields[:type],
         benefit_claim_type_end_product: nil # this is only for the veteran
       )
     end

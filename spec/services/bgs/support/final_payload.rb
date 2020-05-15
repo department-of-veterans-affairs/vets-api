@@ -150,7 +150,6 @@
     "deaths": [
       {
         "date": "2011-02-03",
-        "location": {
           "state": "CA",
           "city": "Aomplea"
         },
