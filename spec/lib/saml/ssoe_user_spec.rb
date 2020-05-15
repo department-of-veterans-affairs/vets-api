@@ -79,7 +79,8 @@ RSpec.describe SAML::User do
           loa: { current: 1, highest: 1 },
           sign_in: { service_name: 'idme', account_type: 'N/A' },
           sec_id: nil,
-          authenticated_by_ssoe: true
+          authenticated_by_ssoe: true,
+          common_name: nil
         )
       end
 
@@ -112,7 +113,8 @@ RSpec.describe SAML::User do
           loa: { current: 1, highest: 3 },
           sign_in: { service_name: 'idme', account_type: 'N/A' },
           sec_id: nil,
-          authenticated_by_ssoe: true
+          authenticated_by_ssoe: true,
+          common_name: nil
         )
       end
 
@@ -146,7 +148,8 @@ RSpec.describe SAML::User do
           loa: { current: 3, highest: 3 },
           sign_in: { service_name: 'idme', account_type: 'N/A' },
           sec_id: '1008830476',
-          authenticated_by_ssoe: true
+          authenticated_by_ssoe: true,
+          common_name: 'vets.gov.user+262@example.com'
         )
       end
 
@@ -182,7 +185,8 @@ RSpec.describe SAML::User do
           sign_in: { service_name: 'myhealthevet', account_type: 'Advanced' },
           sec_id: nil,
           multifactor: multifactor,
-          authenticated_by_ssoe: true
+          authenticated_by_ssoe: true,
+          common_name: nil
         )
       end
 
@@ -220,7 +224,8 @@ RSpec.describe SAML::User do
           sign_in: { service_name: 'myhealthevet', account_type: 'Advanced' },
           sec_id: '1013183292',
           multifactor: multifactor,
-          authenticated_by_ssoe: true
+          authenticated_by_ssoe: true,
+          common_name: 'alexmac_0@example.com'
         )
       end
     end
@@ -253,7 +258,8 @@ RSpec.describe SAML::User do
           sign_in: { service_name: 'myhealthevet', account_type: 'Basic' },
           sec_id: nil,
           multifactor: true,
-          authenticated_by_ssoe: true
+          authenticated_by_ssoe: true,
+          common_name: nil
         )
       end
 
@@ -289,7 +295,8 @@ RSpec.describe SAML::User do
           sign_in: { service_name: 'myhealthevet', account_type: 'Premium' },
           sec_id: '1012853550',
           multifactor: multifactor,
-          authenticated_by_ssoe: true
+          authenticated_by_ssoe: true,
+          common_name: 'k+tristan@example.com'
         )
       end
     end
@@ -326,7 +333,8 @@ RSpec.describe SAML::User do
           sign_in: { service_name: 'myhealthevet', account_type: 'Premium' },
           sec_id: '1012853550',
           multifactor: multifactor,
-          authenticated_by_ssoe: true
+          authenticated_by_ssoe: true,
+          common_name: 'k+tristan@example.com'
         )
       end
     end
@@ -406,8 +414,170 @@ RSpec.describe SAML::User do
         it 'does not validate' do
           expect { subject.validate! }.to raise_error { |error|
             expect(error).to be_a(SAML::UserAttributeError)
-            expect(error.message).to eq('MHV Identifier mismatch')
+            expect(error.message).to eq('User attributes contain multiple distinct MHV ID values')
           }
+        end
+      end
+
+      context 'with mismatching ICNs' do
+        let(:saml_attributes) do
+          build(:ssoe_idme_mhv_loa3,
+                va_eauth_mhvicn: ['111111111V666666'],
+                va_eauth_icn: ['22222222V888888'])
+        end
+
+        it 'does not validate' do
+          expect { subject.validate! }.to raise_error { |error|
+            expect(error).to be_a(SAML::UserAttributeError)
+            expect(error.message).to eq('MHV credential ICN does not match MPI record')
+          }
+        end
+      end
+
+      context 'with multi-value mhvien' do
+        let(:saml_attributes) do
+          build(:ssoe_idme_mhv_loa3,
+                va_eauth_mhvuuid: [uuid],
+                va_eauth_mhvien: [ien])
+        end
+
+        context 'with matching values' do
+          let(:uuid) { 'NOT_FOUND' }
+          let(:ien) { '888777,888777' }
+
+          it 'de-duplicates values' do
+            expect(subject.to_hash).to include(
+              mhv_correlation_id: '888777'
+            )
+          end
+
+          it 'validates' do
+            expect { subject.validate! }.not_to raise_error
+          end
+        end
+
+        context 'with uuid only' do
+          let(:uuid) { '888777' }
+          let(:ien) { 'NOT_FOUND' }
+
+          it 'de-duplicates values' do
+            expect(subject.to_hash).to include(
+              mhv_correlation_id: '888777'
+            )
+          end
+
+          it 'validates' do
+            expect { subject.validate! }.not_to raise_error
+          end
+        end
+
+        context 'with no mhv ids' do
+          let(:uuid) { 'NOT_FOUND' }
+          let(:ien) { 'NOT_FOUND' }
+
+          it 'de-duplicates values' do
+            expect(subject.to_hash).to include(
+              mhv_correlation_id: nil
+            )
+          end
+
+          it 'validates' do
+            expect { subject.validate! }.not_to raise_error
+          end
+        end
+
+        context 'with matching mhvien and mhvuuid' do
+          let(:uuid) { '888777' }
+          let(:ien) { '888777,888777' }
+
+          it 'de-duplicates values' do
+            expect(subject.to_hash).to include(
+              mhv_correlation_id: '888777'
+            )
+          end
+
+          it 'validates' do
+            expect { subject.validate! }.not_to raise_error
+          end
+        end
+
+        context 'with mis-matching mhvien and mhvuuid' do
+          let(:uuid) { '888777' }
+          let(:ien) { '888777,999888' }
+
+          let(:saml_attributes) do
+            build(:ssoe_idme_mhv_loa3,
+                  va_eauth_mhvuuid: ['888777'],
+                  va_eauth_mhvien: ['999888,888777'])
+          end
+
+          it 'does not validate' do
+            expect { subject.validate! }
+              .to raise_error { |error|
+                    expect(error).to be_a(SAML::UserAttributeError)
+                    expect(error.message).to eq('User attributes contain multiple distinct MHV ID values')
+                  }
+          end
+        end
+
+        context 'with mis-matching mhvien values' do
+          let(:uuid) { 'NOT_FOUND' }
+          let(:ien) { '999888,888777' }
+
+          it 'does not validate' do
+            expect { subject.validate! }
+              .to raise_error { |error|
+                    expect(error).to be_a(SAML::UserAttributeError)
+                    expect(error.message).to eq('User attributes contain multiple distinct MHV ID values')
+                  }
+          end
+        end
+      end
+    end
+
+    context 'with multi-value edipi' do
+      let(:saml_attributes) do
+        build(:ssoe_idme_mhv_loa3,
+              va_eauth_dodedipnid: [edipi])
+      end
+
+      context 'with different values' do
+        let(:edipi) { '0123456789,0000000054' }
+
+        it 'does not validate' do
+          expect { subject.validate! }
+            .to raise_error { |error|
+                  expect(error).to be_a(SAML::UserAttributeError)
+                  expect(error.message).to eq('User attributes contain multiple distinct EDIPI values')
+                }
+        end
+      end
+
+      context 'with matching values' do
+        let(:edipi) { '0123456789,0123456789' }
+
+        it 'de-duplicates values' do
+          expect(subject.to_hash).to include(
+            dslogon_edipi: '0123456789'
+          )
+        end
+
+        it 'validates' do
+          expect { subject.validate! }.not_to raise_error
+        end
+      end
+
+      context 'with empty value' do
+        let(:edipi) { 'NOT_FOUND' }
+
+        it 'de-duplicates values' do
+          expect(subject.to_hash).to include(
+            dslogon_edipi: nil
+          )
+        end
+
+        it 'validates' do
+          expect { subject.validate! }.not_to raise_error
         end
       end
     end
@@ -470,7 +640,8 @@ RSpec.describe SAML::User do
           sign_in: { service_name: 'dslogon', account_type: '2' },
           sec_id: '1013173963',
           multifactor: false,
-          authenticated_by_ssoe: true
+          authenticated_by_ssoe: true,
+          common_name: 'iam.tester@example.com'
         )
       end
 
@@ -507,7 +678,8 @@ RSpec.describe SAML::User do
           sign_in: { service_name: 'dslogon', account_type: '2' },
           sec_id: '0000028007',
           multifactor: multifactor,
-          authenticated_by_ssoe: true
+          authenticated_by_ssoe: true,
+          common_name: 'dslogon10923109@gmail.com'
         )
       end
     end
@@ -543,7 +715,8 @@ RSpec.describe SAML::User do
           sign_in: { service_name: 'dslogon', account_type: '2' },
           sec_id: '0000028007',
           multifactor: multifactor,
-          authenticated_by_ssoe: true
+          authenticated_by_ssoe: true,
+          common_name: 'dslogon10923109@gmail.com'
         )
       end
     end
@@ -578,7 +751,8 @@ RSpec.describe SAML::User do
           sign_in: { service_name: 'dslogon', account_type: 'N/A' },
           sec_id: '1012779219',
           multifactor: multifactor,
-          authenticated_by_ssoe: true
+          authenticated_by_ssoe: true,
+          common_name: 'SOFIA MCKIBBENS'
         )
       end
     end
@@ -613,7 +787,8 @@ RSpec.describe SAML::User do
           sign_in: { service_name: 'myhealthevet', account_type: 'N/A' },
           sec_id: '1013062086',
           multifactor: multifactor,
-          authenticated_by_ssoe: true
+          authenticated_by_ssoe: true,
+          common_name: 'mhvzack@mhv.va.gov'
         )
       end
     end
@@ -648,7 +823,8 @@ RSpec.describe SAML::User do
           sign_in: { service_name: 'idme', account_type: 'N/A' },
           sec_id: '1012827134',
           multifactor: multifactor,
-          authenticated_by_ssoe: true
+          authenticated_by_ssoe: true,
+          common_name: 'vets.gov.user+262@gmail.com'
         )
       end
     end

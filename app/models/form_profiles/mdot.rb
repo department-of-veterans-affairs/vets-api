@@ -10,6 +10,7 @@ module MDOT
   class FormSupplyInformation
     include Virtus.model
     attribute :available, Array[MDOT::Supply]
+    attribute :eligibility, MDOT::Eligibility
   end
 end
 
@@ -43,7 +44,8 @@ class FormProfiles::MDOT < FormProfile
 
   def initialize_mdot_supplies(response)
     MDOT::FormSupplyInformation.new(
-      available: response&.supplies
+      available: response&.supplies,
+      eligibility: response&.eligibility
     )
   end
 end

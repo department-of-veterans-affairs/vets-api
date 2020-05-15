@@ -91,7 +91,7 @@ http_interactions:
             {
               "device_name": "OMEGAX d3241",
               "last_order_date": "2020-01-01",
-              "next_availability_date": "2020-09-01",
+              "next_availability_date": "2099-09-01",
               "product_group": "hearing aid batteries",
               "product_id": "1",
               "product_name": "ZA1239",

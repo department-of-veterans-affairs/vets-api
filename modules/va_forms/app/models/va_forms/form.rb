@@ -8,6 +8,7 @@ module VaForms
     validates :form_name, presence: true, uniqueness: true
     validates :url, presence: true
     validates :sha256, presence: true
+    validates :valid_pdf, inclusion: { in: [true, false] }
 
     before_save :set_revision
 
