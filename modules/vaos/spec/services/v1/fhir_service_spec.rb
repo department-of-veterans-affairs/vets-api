@@ -46,11 +46,9 @@ describe VAOS::V1::FHIRService do
     end
 
     context 'when vaos debugging is enabled' do
-      before { ENV['VAOS_DEBUG'] = 'true' }
-
-      after { ENV['VAOS_DEBUG'] = 'false' }
-
       it 'logs the request in curl format' do
+        allow(ENV).to receive(:[]).and_call_original
+        allow(ENV).to receive(:[]).with('VAOS_DEBUG').and_return('true')
         VCR.use_cassette('vaos/fhir/read_organization_200', match_requests_on: %i[method uri]) do
           silence do
             expect_any_instance_of(::Logger).to receive(:warn).once
