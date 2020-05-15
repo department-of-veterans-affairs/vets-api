@@ -4,7 +4,7 @@ Sidekiq::Enterprise.unique! if Rails.env.production?
 
 # these are modified from https://github.com/enova/sidekiq-instrument/tree/v0.3.0/lib/sidekiq/instrument/middleware
 # sidekiq-instrument is no longer supported, so we are building in that logic
-module SharedSidekiqInstrumentation
+module SidekiqStatsInstrumentation
   class ClientMiddleware
     def call(worker_class, job, queue, redis_pool)
       klass = Object.const_get(worker_class)
@@ -45,12 +45,12 @@ Sidekiq.configure_server do |config|
 
   config.server_middleware do |chain|
     chain.add Sidekiq::SemanticLogging
-    chain.add SharedSidekiqInstrumentation::ServerMiddleware
+    chain.add SidekiqStatsInstrumentation::ServerMiddleware
     chain.add Sidekiq::ErrorTag
   end
 
   config.client_middleware do |chain|
-    chain.add SharedSidekiqInstrumentation::ClientMiddleware
+    chain.add SidekiqStatsInstrumentation::ClientMiddleware
   end
 end
 
@@ -58,7 +58,7 @@ Sidekiq.configure_client do |config|
   config.redis = REDIS_CONFIG[:redis]
 
   config.client_middleware do |chain|
-    chain.add SharedSidekiqInstrumentation::ClientMiddleware
+    chain.add SidekiqStatsInstrumentation::ClientMiddleware
     chain.add Sidekiq::SetRequestId
     chain.add Sidekiq::SetRequestAttributes
   end
