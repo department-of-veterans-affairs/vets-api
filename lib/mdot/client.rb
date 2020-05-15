@@ -70,7 +70,7 @@ module MDOT
 
     def submission_headers
       {
-        VA_API_KEY: MDOT::Token.find(@user.uuid)
+        VA_API_KEY: MDOT::Token.find(@user.uuid).token
       }
     end
 
