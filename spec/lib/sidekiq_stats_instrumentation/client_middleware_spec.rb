@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 
 RSpec.describe SidekiqStatsInstrumentation::ClientMiddleware do
@@ -25,9 +27,9 @@ RSpec.describe SidekiqStatsInstrumentation::ClientMiddleware do
     end
 
     it 'increments the enqueue counter' do
-      expect {
+      expect do
         MyWorker.perform_async
-      }.to trigger_statsd_increment('shared.sidekiq.default.MyWorker.enqueue')
+      end.to trigger_statsd_increment('shared.sidekiq.default.MyWorker.enqueue')
     end
   end
 end
