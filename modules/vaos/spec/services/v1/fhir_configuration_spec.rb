@@ -13,6 +13,7 @@ describe VAOS::V1::FHIRConfiguration do
 
   describe '#connection' do
     it 'returns a connection' do
+      binding.pry
       expect(subject.connection).not_to be_nil
     end
   end
