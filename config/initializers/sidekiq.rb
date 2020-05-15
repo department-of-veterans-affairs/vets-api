@@ -2,35 +2,6 @@
 
 Sidekiq::Enterprise.unique! if Rails.env.production?
 
-# these are modified from https://github.com/enova/sidekiq-instrument/tree/v0.3.0/lib/sidekiq/instrument/middleware
-# sidekiq-instrument is no longer supported, so we are building in that logic
-module SidekiqStatsInstrumentation
-  class ClientMiddleware
-    def call(worker_class, job, queue, redis_pool)
-      klass = Object.const_get(worker_class)
-      # worker = klass.new
-      queue_name = klass.get_sidekiq_options['queue']
-      worker_name = klass.name.gsub('::', '_')
-      StatsD.increment "shared.sidekiq.#{queue_name}.#{worker_name}.enqueue"
-
-      yield
-    end
-  end
-
-  class ServerMiddleware
-    def call(worker, job, queue, &block)
-      queue_name = worker.class.get_sidekiq_options['queue']
-      worker_name = worker.class.name.gsub('::', '_')
-      StatsD.increment "shared.sidekiq.#{queue_name}.#{worker_name}.dequeue"
-
-      StatsD.measure("shared.sidekiq.#{queue_name}.#{worker_name}.runtime", &block)
-    rescue StandardError => e
-      StatsD.increment("shared.sidekiq.#{queue_name}.#{worker_name}.error")
-      raise e
-    end
-  end
-end
-
 Sidekiq.configure_server do |config|
   config.redis = REDIS_CONFIG[:redis]
   # super_fetch! is only available in sidekiq-pro and will cause
