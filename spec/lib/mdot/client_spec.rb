@@ -89,6 +89,7 @@ describe MDOT::Client, type: :mdot_helpers do
           expect(StatsD).to receive(:increment).once.with(
             'api.mdot.submit_order.total'
           )
+          set_mdot_token_for(user)
           expect { subject.submit_order(valid_order) }.to raise_error(MDOT::ServiceException)
         end
       end
@@ -103,6 +104,7 @@ describe MDOT::Client, type: :mdot_helpers do
             ]
           )
           expect(StatsD).to receive(:increment).once.with('api.mdot.submit_order.total')
+          set_mdot_token_for(user)
           expect { subject.submit_order({}) }.to raise_error(MDOT::ServiceException)
         end
       end

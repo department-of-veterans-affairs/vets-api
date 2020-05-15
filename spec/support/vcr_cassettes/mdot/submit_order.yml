@@ -14,7 +14,7 @@ http_interactions:
       - application/json
       User-Agent:
       - Vets.gov Agent
-      VA_API_KEY:
+      Va-Api-Key:
       - abcd1234abcd1234abcd1234
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
