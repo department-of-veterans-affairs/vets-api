@@ -22,6 +22,10 @@ RSpec.describe SidekiqStatsInstrumentation::ServerMiddleware do
       end
     end
 
+    around do |example|
+      Sidekiq::Testing.inline!(&example)
+    end
+
     it 'increments dequeue counter' do
       expect do
         MyWorker.perform_async
