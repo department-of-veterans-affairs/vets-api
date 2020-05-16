@@ -4,8 +4,7 @@ module VAOS
   module V1
     class LocationsController < VAOS::V1::BaseController
       def index
-        binding.pry
-        fhir_service.search(:Location, search_params)
+        fhir_service.search(:Location, query_string)
       end
 
       def show
@@ -14,8 +13,8 @@ module VAOS
 
       private
 
-      def search_params
-        params.permit(:name, :identifier, :organization)
+      def query_string
+        request.fullpath.split('?').last
       end
     end
   end

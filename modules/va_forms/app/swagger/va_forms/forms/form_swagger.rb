@@ -57,6 +57,12 @@ module VaForms
               key :example, 3
             end
 
+            property :valid_pdf do
+              key :description, 'A flag indicating whether the form url was confirmed as a valid download'
+              key :type, :boolean
+              key :example, 3
+            end
+
             property :sha256 do
               key :description, 'A sha256 hash of the form contents'
               key :type, :string

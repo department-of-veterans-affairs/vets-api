@@ -25,6 +25,7 @@ FactoryBot.define do
       search_token { nil }
       icn_with_aaid { nil }
       authenticated_by_ssoe { false }
+      common_name { nil }
 
       sign_in do
         {
@@ -57,7 +58,8 @@ FactoryBot.define do
                              mhv_correlation_id: t.mhv_correlation_id,
                              mhv_account_type: t.mhv_account_type,
                              dslogon_edipi: t.dslogon_edipi,
-                             sign_in: t.sign_in)
+                             sign_in: t.sign_in,
+                             common_name: t.common_name)
       user.instance_variable_set(:@identity, user_identity)
     end
 

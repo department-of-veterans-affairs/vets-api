@@ -17,6 +17,10 @@ module VAOS
 
       private
 
+      def fhir_service
+        VAOS::V1::FHIRService.new(current_user)
+      end
+
       def render_errors(va_exception)
         resource_type = controller_name.singularize.capitalize
         id = params[:id]

@@ -46,7 +46,6 @@ gem 'faraday'
 gem 'faraday_middleware'
 gem 'fast_jsonapi'
 gem 'fastimage'
-gem 'figaro'
 gem 'flipper'
 gem 'flipper-active_record'
 gem 'flipper-active_support_cache_store'
@@ -161,7 +160,7 @@ group :development, :test do
   gem 'rack-vcr'
   gem 'rainbow' # Used to colorize output for rake tasks
   gem 'rspec-instrumentation-matcher'
-  gem 'rspec-rails', '~> 3.5'
+  gem 'rspec-rails'
   gem 'rubocop', require: false
   gem 'rubocop-rails'
   gem 'rubocop-rspec'

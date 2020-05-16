@@ -37,7 +37,7 @@ module V0
         raise EVSS::GiBillStatus::ExternalServiceUnavailable
       when EVSS::GiBillStatus::GiBillStatusResponse::KNOWN_ERRORS[:vet_not_found]
         log_vet_not_found(@current_user, response.timestamp)
-        raise Common::Exceptions::RecordNotFound, @current_user.email
+        raise Common::Exceptions::RecordNotFound, @current_user.common_name
       when EVSS::GiBillStatus::GiBillStatusResponse::KNOWN_ERRORS[:invalid_auth]
         # 403
         raise Common::Exceptions::UnexpectedForbidden, detail: 'Missing correlation id'
