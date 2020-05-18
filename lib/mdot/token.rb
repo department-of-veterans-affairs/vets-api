@@ -6,6 +6,8 @@ module MDOT
     redis_ttl REDIS_CONFIG[:mdot][:each_ttl]
     redis_key :uuid
 
+    validates :uuid, presence: true
+
     attribute :uuid
     attribute :token
   end
