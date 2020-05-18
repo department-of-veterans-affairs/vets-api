@@ -31,14 +31,6 @@ module VAOS
         perform(:get, "#{resource_type}/#{id}", nil)
       end
 
-      def search(resource_type, query_string)
-        unless RESOURCES.include?(resource_type)
-          raise Common::Exceptions::InvalidFieldValue.new('resource_type', resource_type)
-        end
-
-        perform(:get, "#{resource_type}?#{query_string}", nil)
-      end
-
       private
 
       def perform(method, path, params)

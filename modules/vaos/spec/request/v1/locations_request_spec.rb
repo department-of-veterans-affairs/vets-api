@@ -36,15 +36,6 @@ RSpec.describe 'VAOS::V1::Location', type: :request do
           end
         end
       end
-
-      context 'with a location search query by name' do
-        it 'returns a 200 returning Location resources corresponding to that name and including organization' do
-          VCR.use_cassette('vaos/fhir/location/search_by_name', record: :new_episodes) do
-            get '/vaos/v1/Location?location.name=Iowa&_include=Location.organization'
-            expect(response).to have_http_status(:success)
-          end
-        end
-      end
     end
   end
 end
