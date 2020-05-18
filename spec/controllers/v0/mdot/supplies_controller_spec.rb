@@ -39,6 +39,7 @@ RSpec.describe V0::MDOT::SuppliesController, type: :controller do
 
     it 'submits the req to the mdot client' do
       VCR.use_cassette('mdot/submit_order', VCR::MATCH_EVERYTHING) do
+        set_mdot_token_for(user)
         post(:create, body: body.to_json, as: :json)
 
         res = JSON.parse(response.body)

@@ -13,12 +13,10 @@ http_interactions:
       - application/json
       User-Agent:
       - Vets.gov Agent
-      Apikey:
-      - abcd1234abcd1234abcd1234abcd1234abcd1234
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      VeteranId:
-      - 000555555
+      Va-Api-Key:
+      - abcd1234abcd1234abcd1234
   response:
     status:
       code: 400
