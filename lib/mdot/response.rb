@@ -51,7 +51,7 @@ module MDOT
     private
 
     def update_token
-      token_params = Hash[REDIS_CONFIG[:mdot][:namespace], redis_key]
+      token_params = Hash[REDIS_CONFIG[:mdot][:namespace], @uuid]
       token = MDOT::Token.new(token_params)
       token.update(token: @token)
     end
