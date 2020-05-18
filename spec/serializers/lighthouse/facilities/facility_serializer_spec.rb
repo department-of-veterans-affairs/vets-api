@@ -2,11 +2,12 @@
 
 require 'rails_helper'
 
-RSpec.describe Lighthouse::Facilities::LegacySerializer, type: :serializer, team: :facilities do
-  subject { serialize(facility, serializer_class: described_class) }
+RSpec.describe Lighthouse::Facilities::FacilitySerializer, type: :serializer, team: :facilities do
+  # subject { serialize(facility, serializer_class: described_class) }
+  subject { described_class.new(facility)}
 
   let(:facility) { build :lighthouse_facility }
-  let(:data) { JSON.parse(subject)['data'] }
+  let(:data) { subject.serializable_hash.with_indifferent_access['data'] }
   let(:attributes) { data['attributes'] }
 
   it 'includes id' do
@@ -90,12 +91,12 @@ RSpec.describe Lighthouse::Facilities::LegacySerializer, type: :serializer, team
   it 'includes feedback' do
     expected_satisfaction = {
       'health' => {
-        'primary_care_routine' => be_within(0.5).of(0.5),
-        'primary_care_urgent' => be_within(0.5).of(0.5)
+        'primary_care_urgent' => a_kind_of(Float),
+        'primary_care_routine' => a_kind_of(Float)
       },
-      'effective_date' => a_kind_of(String)
+      'effective_date' => a_kind_of(Date)
     }
-    expect(data['attributes']['feedback']).to include(expected_satisfaction)
+    expect(data['attributes']['feedback']).to match(expected_satisfaction)
   end
 
   it 'includes wait times' do
@@ -109,7 +110,7 @@ RSpec.describe Lighthouse::Facilities::LegacySerializer, type: :serializer, team
         { 'service' => 'PrimaryCare',      'new' => a_kind_of(Float), 'established' => a_kind_of(Float) },
         { 'service' => 'SpecialtyCare',    'new' => a_kind_of(Float), 'established' => a_kind_of(Float) }
       ],
-      'effective_date' => a_kind_of(String)
+      'effective_date' => a_kind_of(Date)
     }
     expect(data['attributes']['access']).to include(expected_wait_times)
   end

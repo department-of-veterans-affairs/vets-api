@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'common/models/base'
+require 'will_paginate/array'
 
 module Lighthouse
   module Facilities
