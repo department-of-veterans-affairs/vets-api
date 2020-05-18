@@ -86,17 +86,7 @@
 
     "hlrCreateBenefitType": {
       "type": "string",
-      "enum": [
-        "compensation",
-        "pension",
-        "fiduciary",
-        "insurance",
-        "education",
-        "voc_rehab",
-        "loan_guaranty",
-        "vha",
-        "nca"
-      ]
+      "enum": [ "compensation" ]
     },
 
 
