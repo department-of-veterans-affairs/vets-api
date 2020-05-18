@@ -696,9 +696,6 @@ GEM
       einhorn (= 0.7.4)
       sidekiq (>= 5.2.3)
       sidekiq-pro (>= 4.0.4)
-    sidekiq-instrument (0.3.0)
-      sidekiq (>= 4.2, < 6)
-      statsd-instrument (~> 2.0, >= 2.0.4)
     sidekiq-pro (5.0.0)
       concurrent-ruby (>= 1.0.5)
       sidekiq (>= 5.2.7)
@@ -905,7 +902,6 @@ DEPENDENCIES
   shrine-memory
   sidekiq (~> 5.0)
   sidekiq-ent!
-  sidekiq-instrument
   sidekiq-pro!
   sidekiq-scheduler (~> 3.0)
   simplecov
