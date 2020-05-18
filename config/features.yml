@@ -64,7 +64,7 @@ features:
   va_online_scheduling_vsp_appointment_list:
     actor_type: user
     description: >
-      Enables the use of VSP for VA appointment data on list page
+      Enables the use of VSP for VA appointment data and cancellation on list page
   va_online_scheduling_vsp_appointment_new:
     actor_type: user
     description: >
@@ -80,7 +80,7 @@ features:
   va_online_scheduling_vsp_request_list:
     actor_type: user
     description: >
-      Enables the use of VSP for request data on list page
+      Enables the use of VSP for request data and cancellation on list page
   va_online_scheduling_vsp_request_new:
     actor_type: user
     description: >
