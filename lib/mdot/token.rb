@@ -9,7 +9,7 @@ module MDOT
     attribute :uuid
     attribute :token
 
-    def self.build(redis_key)
+    def build(redis_key)
       new(Hash[@redis_namespace_key, redis_key])
     end
   end

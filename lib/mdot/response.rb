@@ -51,7 +51,7 @@ module MDOT
     private
 
     def update_token
-      token = MDOT::Token.build(@uuid)
+      token = MDOT::Token.new.build(@uuid)
       token.update(token: @token)
     end
 
