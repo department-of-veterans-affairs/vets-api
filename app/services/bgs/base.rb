@@ -231,15 +231,17 @@ module BGS
     #     jrn_status_type_cd: "U",
     #     jrn_user_id: Settings.bgs.client_username,
     #     # not sure what this is. Is this just passed in bc this will be created when we fire this call?
-    #     status_type_cd: "PEND", # not sure what this is marking it pending since we're creating it now
-    #     svc_type_cd: "CP", # not sure what this is all records that I scanned had 'CP' here
-    #     pgm_type_cd: "COMP", # This is either 'COMP' or 'CPL' from what I scanned
+    #     status_type_cd: "CURR", # this is hard-coded in EVSS
+    #     svc_type_cd: "CP", # this is hard-coded in EVSS
+    #     pgm_type_cd: "COMP", # this is hard-coded in EVSS
     #     bnft_claim_type_cd: "130DPNEBNADJ", # This has been changed to this value in light of finding the find_benefit_claim_type_increment call 4/22
     #     ptcpnt_clmant_id: veteran.vnp_participant_id,
-    #     claim_jrsdtn_lctn_id: "347", # Not required but cannot be null all records seem to be in the 300's and the same as the below
-    #     intake_jrsdtn_lctn_id: "347", # Not required but cannot be null all records seem to be in the 300's
+    #     claim_jrsdtn_lctn_id: "335", # Not required but cannot be null all records seem to be in the 300's and the same as the below, default is 335
+    #     intake_jrsdtn_lctn_id: "335", # Not required but cannot be null all records seem to be in the 300's, default is 335
     #     ptcpnt_mail_addrs_id: veteran.vnp_participant_address_id,
     #     vnp_ptcpnt_vet_id: veteran.vnp_participant_id,
+    #     atchms_ind: "N", # this needs to be set to Y/N if documents are added/attached
+    #     end_prdct_type_cd: "130DPNEBNADJ",
     #     ssn: @user.ssn # Just here to make the mocks work
     #   )
     # end
@@ -251,6 +253,8 @@ module BGS
         pgm_type_cd: 'CPL',
         ssn: @user.ssn # Just here to make the mocks work
       )
+      #  need to catch the following exception
+      #  "exception": "(ns0:Server) StandardDataWebServiceBean-->findBenefitClaimTypeIncrement-->Maximum number of EPs reached for this bnftClaimTypeCd"
     end
 
     # 'end_product' needs to be unique; end_product_code seems to be the claimTypeCode
@@ -264,7 +268,7 @@ module BGS
     #     claimant_ssn: veteran.ssn_number,
     #     benefit_claim_type: "1", # this is intentionally hard coded
     #     payee: "00", # intentionally left hard-coded
-    #     end_product: '133', # veteran.benefit_claim_type_end_product, # not sure what this is, it has to be unique tried this: vnp_benefit_claim[:vnp_bnft_claim_id] I just add one everytime I run this code
+    #     end_product: veteran.benefit_claim_type_end_product, # must be unique
     #     end_product_code: vnp_benefit_claim.vnp_benefit_claim_type_code,
     #     first_name: veteran.first_name, # Might want to use the payload value
     #     last_name: veteran.last_name, # Might want to use the payload value
