@@ -25,4 +25,8 @@ VAOS::Engine.routes.draw do
     resource :preferences, only: %i[show update]
     get 'apidocs', to: 'apidocs#index'
   end
+
+  namespace :v1, defaults: { format: :json } do
+    resources :organization, only: %i[show]
+  end
 end
