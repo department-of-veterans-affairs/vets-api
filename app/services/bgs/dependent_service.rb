@@ -26,7 +26,7 @@ module BGS
       veteran = VnpVeteran.new(proc_id: proc_id, payload: payload, user: @user).create
       dependents = Dependents.new(proc_id: proc_id, payload: payload, user: @user).create
       # VnpRelationships.new(proc_id: proc_id, veteran: veteran, dependents: dependents, user: @user).create
-      binding.pry
+
       # if payload['report674']
       #   StudentSchool.new(proc_id: proc_id, vnp_participant_id: dependent.vnp_participant_id, payload: payload, user: @user).create
       # end

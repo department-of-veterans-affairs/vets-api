@@ -82,7 +82,7 @@ RSpec.describe BGS::Dependents do
             payload: payload,
             user: user
           ).create
-binding.pry
+
           expect(dependents).to include(
                                   an_object_having_attributes(
                                     death_date: DateTime.new(2011, 2, 3, 0, 0, 0, '-0600'),
@@ -161,16 +161,29 @@ binding.pry
 
       it 'marks spouse as veteran' do
         VCR.use_cassette('bgs/dependents/create/spouse/is_veteran') do
+          payload['report674'] = false
           payload['add_child'] = false
           payload['report_death'] = false
           payload['report_divorce'] = false
           payload['report_stepchild_not_in_household'] = false
           payload['report_marriage_of_child_under18'] = false
           payload['report_child18_or_older_is_not_attending_school'] = false
-          spouse_vet_hash = {'first' => 'Jenny', 'middle' => 'Lauren', 'last' => 'McCarthy', 'suffix' => 'Sr.', 'ssn' => '323454323', 'birth_date' => '1981-04-04', 'ever_maried_ind' => 'Y', "vet_ind" => "Y", "va_file_number" => "00000000", "service_number" => "11111111"}
+
+          spouse_vet_hash = {
+            'first' => 'Jenny',
+            'middle' => 'Lauren',
+            'last' => 'McCarthy',
+            'suffix' => 'Sr.',
+            'ssn' => '323454323',
+            'birth_date' => '1981-04-04',
+            'ever_married_ind' => 'Y',
+            "vet_ind" => "Y",
+            "va_file_number" => "00000000",
+            "martl_status_type_cd" => "Separated"
+          }
 
           expect_any_instance_of(BGS::Base).to receive(:create_person)
-                                                 .with(proc_id, '146952', spouse_vet_hash)
+                                                 .with(proc_id, '147706', spouse_vet_hash)
                                                  .and_call_original
 
           BGS::Dependents.new(
@@ -211,7 +224,7 @@ binding.pry
             payload: payload,
             user: user
           ).create
-          binding.pry
+
           expect(dependents).to include(
                                   an_object_having_attributes(
                                     address_line_one: '412 Crooks Road',
@@ -227,7 +240,7 @@ binding.pry
     end
 
     context 'report marriage of a child under 18' do
-      it 'returns an object that represents a married child under 18' do
+      it 'returns an object that represents a  married child under 18' do
         VCR.use_cassette('bgs/dependents/create') do
           dependents = BGS::Dependents.new(
             proc_id: proc_id,

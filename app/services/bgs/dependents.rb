@@ -15,13 +15,13 @@ module BGS
     end
 
     def create
-      # add_children if @payload['add_child']
-      # report_deaths if @payload['report_death']
-      # add_spouse if @payload['add_spouse']
+      add_children if @payload['add_child']
+      report_deaths if @payload['report_death']
+      add_spouse if @payload['add_spouse']
       # report_divorce if @payload['report_divorce']
-      # report_stepchild if @payload['report_stepchild_not_in_household']
-      # report_child_marriage if @payload['report_marriage_of_child_under18']
-      # report_child18_or_older_is_not_attending_school if @payload['report_child18_or_older_is_not_attending_school']
+      report_stepchild if @payload['report_stepchild_not_in_household']
+      report_child_marriage if @payload['report_marriage_of_child_under18']
+      report_child18_or_older_is_not_attending_school if @payload['report_child18_or_older_is_not_attending_school']
       report_674 if @payload['report674']
 
       @dependents
@@ -78,7 +78,7 @@ module BGS
       participant = create_participant(@proc_id)
       person = create_person(@proc_id, participant[:vnp_ptcpnt_id], marriage_info)
       address = create_address(@proc_id, participant[:vnp_ptcpnt_id], spouse_address)
-      binding.pry
+
       @dependents << serialize_result(
         participant,
         person,
@@ -149,7 +149,7 @@ module BGS
         'Child',
         'Other',
         {
-          'begin_dt': child_marriage_info['event_date'],
+          'event_date': child_marriage_info['event_date'],
           'type': 'child_marriage'
         }
       )

@@ -80,13 +80,12 @@ module BGS
         death_dt: payload['death_date'],
         ever_maried_ind: payload['ever_married_ind'],
         vet_ind: payload['vet_ind'],
-        martl_status_type_cd: payload['martl_status_type_cdk'],
+        martl_status_type_cd: payload['martl_status_type_cd'],
         ssn: @user.ssn # Just here to make mocks work
       )
     end
 
     def create_address(proc_id, participant_id, payload)
-      binding.pry
       service.vnp_ptcpnt_addrs.vnp_ptcpnt_addrs_create(
         jrn_dt: Time.current.iso8601,
         jrn_lctn_id: Settings.bgs.client_station_id,
@@ -286,7 +285,6 @@ module BGS
     #   )
     #
     # rescue StandardError => e
-    #   binding.pry
     # end
 
     # def vnp_bnft_claim_update(benefit_claim_record, vnp_benefit_claim_record)

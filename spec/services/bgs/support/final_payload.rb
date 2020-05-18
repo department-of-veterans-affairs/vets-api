@@ -45,19 +45,19 @@
     },
     "student_did_attend_school_last_term": true,
     "last_term_school_information": {
-        "name": "Another Amazing School",
-        "address": {
-          "country_name": "USA",
-          "address_line1": "2037 29th St",
-          "city": "Rock Island",
-          "state_code": "AR",
-          "zip_code": "61201"
-        },
-        "term_begin": "2016-03-04",
-        "date_term_ended": "2017-04-05",
-        "classes_per_week": 4,
-        "hours_per_week": 40
+      "name": "Another Amazing School",
+      "address": {
+        "country_name": "USA",
+        "address_line1": "2037 29th St",
+        "city": "Rock Island",
+        "state_code": "AR",
+        "zip_code": "61201"
       },
+      "term_begin": "2016-03-04",
+      "date_term_ended": "2017-04-05",
+      "classes_per_week": 4,
+      "hours_per_week": 40
+    },
     "current_term_dates": {
       "official_school_start_date": "2019-03-03",
       "expected_student_start_date": "2019-03-05",
@@ -150,6 +150,7 @@
     "deaths": [
       {
         "date": "2011-02-03",
+        "location": {
           "state": "CA",
           "city": "Aomplea"
         },
@@ -199,129 +200,129 @@
     "spouse_was_married_before": true,
     "spouse_marriage_history": [
       {
-        "start_date": "2008-03-03",
-        "start_location": {"state": "IL", "city": "Rock Island"},
-        "reason_marriage_ended": "DEATH",
-        "end_date": "2010-03-04",
-        "end_location": {"state": "IL", "city": "Rock Island"},
-        "full_name": {
-          "first": "Clovis",
-          "middle": "Nigel",
-          "last": "The Cat",
-          "suffix": "Sr."
-        }
-      }
-    ],
-    "does_live_with_spouse": {
-      "spouse_does_live_with_veteran": false,
-      "current_spouse_reason_for_separation": "Other",
+      "start_date": "2008-03-03",
+    "start_location": {"state": "IL", "city": "Rock Island"},
+    "reason_marriage_ended": "DEATH",
+    "end_date": "2010-03-04",
+    "end_location": {"state": "IL", "city": "Rock Island"},
+    "full_name": {
+      "first": "Clovis",
+      "middle": "Nigel",
+      "last": "The Cat",
+      "suffix": "Sr."
+    }
+  }
+],
+  "does_live_with_spouse": {
+  "spouse_does_live_with_veteran": false,
+  "current_spouse_reason_for_separation": "Other",
+  "address": {
+    "country_name": "USA",
+    "address_line1": "2037 29th St",
+    "city": "Rock Island",
+    "state_code": "IL",
+    "zip_code": "61201"
+  }
+},
+  "current_marriage_information": {
+  "date": "2014-03-04",
+  "location": {
+    "state": "CA",
+    "city": "Slawson"
+  },
+  "type": "OTHER",
+  "type_other": "Some Other type"
+},
+  "spouse_information": {
+  "full_name": {
+    "first": "Jenny",
+    "middle": "Lauren",
+    "last": "McCarthy",
+    "suffix": "Sr."
+  },
+  "ssn": "323454323",
+  "birth_date": "1981-04-04",
+  "is_veteran": true,
+  "va_file_number": "00000000",
+  "service_number": "11111111"
+},
+  "children_to_add": [
+  {
+    "does_child_live_with_you": false,
+    "child_address_info": {
+      "person_child_lives_with": {
+        "first": "Bill",
+        "middle": "Oliver",
+        "last": "Bradsky"},
       "address": {
         "country_name": "USA",
-        "address_line1": "2037 29th St",
-        "city": "Rock Island",
-        "state_code": "IL",
-        "zip_code": "61201"
+        "address_line1": "1100 Robin Cir",
+        "city": "Los Angelas",
+        "state_code": "CA", "zip_code": "90210"
       }
     },
-    "current_marriage_information": {
-      "date": "2014-03-04",
-      "location": {
-        "state": "CA",
-        "city": "Slawson"
-      },
-      "type": "OTHER",
-      "type_other": "Some Other type"
+    "place_of_birth": {"state": "CA", "city": "Slawson"},
+    "child_status": {"biological": true},
+    "previously_married": "Yes",
+    "previous_marriage_details": {
+      "date_marriage_ended": "2018-03-04",
+      "reason_marriage_ended": "Death"
     },
-    "spouse_information": {
-      "full_name": {
-        "first": "Jenny",
-        "middle": "Lauren",
-        "last": "McCarthy",
-        "suffix": "Sr."
-      },
-      "ssn": "323454323",
-      "birth_date": "1981-04-04",
-      "is_veteran": true,
-      "va_file_number": "00000000",
-      "service_number": "11111111"
+    "full_name": {
+      "first": "John",
+      "middle": "oliver",
+      "last": "Hamm",
+      "suffix": "Sr."
     },
-    "children_to_add": [
-      {
-        "does_child_live_with_you": false,
-        "child_address_info": {
-          "person_child_lives_with": {
-            "first": "Bill",
-            "middle": "Oliver",
-            "last": "Bradsky"},
-          "address": {
-            "country_name": "USA",
-            "address_line1": "1100 Robin Cir",
-            "city": "Los Angelas",
-            "state_code": "CA", "zip_code": "90210"
-          }
-        },
-        "place_of_birth": {"state": "CA", "city": "Slawson"},
-        "child_status": {"biological": true},
-        "previously_married": "Yes",
-        "previous_marriage_details": {
-          "date_marriage_ended": "2018-03-04",
-          "reason_marriage_ended": "Death"
-        },
-        "full_name": {
-          "first": "John",
-          "middle": "oliver",
-          "last": "Hamm",
-          "suffix": "Sr."
-        },
-        "ssn": "370947142",
-        "birth_date": "2009-03-03"
-      },
-      {
-        "does_child_live_with_you": true,
-        "place_of_birth": {"state": "CA", "city": "Slawson"},
-        "child_status": {"adopted": true},
-        "previously_married": "No",
-        "full_name": {
-          "first": "Adopted first name",
-          "middle": "adopted middle name",
-          "last": "adopted last name",
-          "suffix": "Sr."
-        },
-        "ssn": "370947143",
-        "birth_date": "2010-03-03"
-      }
-    ],
-    "veteran_contact_information": {
-      "veteran_address": {
-        "country_name": "USA",
-        "address_line1": "8200 DOBY LN",
-        "city": "PASADENA",
-        "state_code": "CA",
-        "zip_code": "21122"
-      },
-      "phone_number": "1112223333",
-      "email_address": "vets.gov.user+228@gmail.com"
+    "ssn": "370947142",
+    "birth_date": "2009-03-03"
+  },
+  {
+    "does_child_live_with_you": true,
+    "place_of_birth": {"state": "CA", "city": "Slawson"},
+    "child_status": {"adopted": true},
+    "previously_married": "No",
+    "full_name": {
+      "first": "Adopted first name",
+      "middle": "adopted middle name",
+      "last": "adopted last name",
+      "suffix": "Sr."
     },
-    "veteran_information": {
-      "full_name": {
-        "first": "Adam",
-        "middle": "billy",
-        "last": "Huberws",
-        "suffix": "Jr."
-      },
-      "ssn": "796104437",
-      "va_file_number": "796104437",
-      "service_number": "12345678",
-      "birth_date": "1950-10-04"
-    },
-    "add_child": true,
-    "add_spouse": true,
-    "report_divorce": true,
-    "report_death": true,
-    "report_stepchild_not_in_household": true,
-    "report_marriage_of_child_under18": true,
-    "report_child18_or_older_is_not_attending_school": true,
-    "report674": true,
-    "privacy_agreement_accepted": true
+    "ssn": "370947143",
+    "birth_date": "2010-03-03"
   }
+],
+  "veteran_contact_information": {
+  "veteran_address": {
+    "country_name": "USA",
+    "address_line1": "8200 DOBY LN",
+    "city": "PASADENA",
+    "state_code": "CA",
+    "zip_code": "21122"
+  },
+  "phone_number": "1112223333",
+  "email_address": "vets.gov.user+228@gmail.com"
+},
+  "veteran_information": {
+  "full_name": {
+    "first": "Adam",
+    "middle": "billy",
+    "last": "Huberws",
+    "suffix": "Jr."
+  },
+  "ssn": "796104437",
+  "va_file_number": "796104437",
+  "service_number": "12345678",
+  "birth_date": "1950-10-04"
+},
+  "add_child": true,
+"add_spouse": true,
+"report_divorce": true,
+"report_death": true,
+"report_stepchild_not_in_household": true,
+"report_marriage_of_child_under18": true,
+"report_child18_or_older_is_not_attending_school": true,
+"report674": true,
+"privacy_agreement_accepted": true
+}
 }
