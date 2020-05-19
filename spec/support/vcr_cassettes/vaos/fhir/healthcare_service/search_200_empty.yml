@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri: https://internal-dsva-vagov-staging-fwdproxy-1821450725.us-gov-west-1.elb.amazonaws.com:4463/vsp/v1/HealthcareService?organization.identifier=123
+    uri: https://veteran.apps.va.gov/vsp/v1/HealthcareService?organization.identifier=123
     body:
       encoding: US-ASCII
       string: ''

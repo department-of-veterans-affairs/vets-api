@@ -4,7 +4,8 @@ module VAOS
   module V1
     class HealthcareServicesController < VAOS::V1::BaseController
       def index
-        fhir_service.search(:HealthcareService, query_string)
+        response = fhir_service.search(:HealthcareService, query_string)
+        render json: response.body
       end
 
       private
