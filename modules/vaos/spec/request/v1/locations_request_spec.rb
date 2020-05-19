@@ -28,7 +28,7 @@ RSpec.describe 'VAOS::V1::Location', type: :request do
     context 'with a loa3 user' do
       let(:user) { build(:user, :vaos) }
 
-    context 'FHIR Location Resource by ID'
+      context 'FHIR Location Resource by ID'
       context 'a valid response' do
         let(:expected_body) do
           YAML.load_file(
