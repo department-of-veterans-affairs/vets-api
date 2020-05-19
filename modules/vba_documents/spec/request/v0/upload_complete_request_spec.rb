@@ -4,6 +4,7 @@ require 'rails_helper'
 
 RSpec.describe 'VBA Document SNS upload complete notification', type: :request do
   context 'with a subscriptionconfirmation message type' do
+    # rubocop:disable Layout/LineLength
     let(:headers) do
       {
         'x-amz-sns-message-type' => 'SubscriptionConfirmation',
@@ -89,6 +90,7 @@ RSpec.describe 'VBA Document SNS upload complete notification', type: :request d
 
   context 'with a notification message type' do
     let(:upload) { FactoryBot.create(:upload_submission) }
+    # rubocop:disable Layout/LineLength
     let(:headers) do
       {
         'x-amz-sns-message-type' => 'Notification',
@@ -118,9 +120,10 @@ RSpec.describe 'VBA Document SNS upload complete notification', type: :request d
       }.to_json
     end
 
+    # rubocop:enable Layout/LineLength
+
     context 'verified message' do
       it 'queues a processor working on the uploaded object-key' do
-        # rubocop:enable Layout/LineLength
         with_settings(Settings.vba_documents.sns,
                       'topic_arns' => ['arn:aws:sns:us-west-2:123456789012:MyTopic'],
                       'region' => 'us-gov-west-1') do
@@ -173,6 +176,7 @@ RSpec.describe 'VBA Document SNS upload complete notification', type: :request d
   end
 
   context 'with any other message type' do
+    # rubocop:disable Layout/LineLength
     let(:headers) do
       {
         'x-amz-sns-message-type' => 'OtherMessageType',
@@ -200,6 +204,8 @@ RSpec.describe 'VBA Document SNS upload complete notification', type: :request d
         'SigningCertURL' => 'https://sns.us-west-2.amazonaws.com/SimpleNotificationService-f3ecfb7224c7233fe7bb5f59f96de52f.pem'
       }.to_json
     end
+
+    # rubocop:enable Layout/LineLength
 
     it 'responds with a parameter missing error' do
       with_settings(Settings.vba_documents.sns,
