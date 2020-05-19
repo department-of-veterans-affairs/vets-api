@@ -111,6 +111,20 @@ RSpec.describe 'Fetching user data', type: :request do
       end
     end
 
+    context 'for non VA patient' do
+      let(:mhv_user) { build(:user, :mhv, va_patient: false) }
+
+      before do
+        sign_in_as(mhv_user)
+        get v0_user_url, params: nil
+      end
+
+      it 'returns patient status correctly' do
+        va_profile = JSON.parse(response.body)['data']['attributes']['va_profile']
+        expect(va_profile['va_patient']).to be false
+      end
+    end
+
     context 'with an error from a 503 raised by Vet360::ContactInformation::Service#get_person', skip_vet360: true do
       before do
         exception  = 'the server responded with status 503'
