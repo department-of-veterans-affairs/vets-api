@@ -2,8 +2,9 @@
 
 module VAOS
   module V1
-    class HealthcareServiceController < VAOS::V1::BaseController
+    class HealthcareServicesController < VAOS::V1::BaseController
       def index
+        binding.pry
         fhir_service.search(:HealthcareService, search_params)
       end
 
