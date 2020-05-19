@@ -40,7 +40,9 @@ RSpec.describe 'VAOS::V1::Location', type: :request do
 
         it 'returns a 200 returning Location resource corresponding to id' do
           VCR.use_cassette('vaos/fhir/location/read_by_id_200', match_requests_on: %i[method uri]) do
-            get '/vaos/v1/Location/393833'
+            expect { get '/vaos/v1/Location/393833' }
+              .to trigger_statsd_increment('api.vaos.fhir.read.location.total', times: 1, value: 1)
+
             expect(response).to have_http_status(:success)
             expect(response.body).to eq(expected_body)
           end
