@@ -134,7 +134,7 @@ group :test do
   gem 'rspec_junit_formatter'
   gem 'rubocop-junit-formatter'
   gem 'shrine-memory'
-  gem 'simplecov', require: false
+  gem 'simplecov', '< 0.18', require: false
   gem 'super_diff'
   gem 'vcr'
   gem 'webrick'
