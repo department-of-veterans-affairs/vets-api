@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class Lighthouse::Facilities::FacilitySerializer
   include FastJsonapi::ObjectSerializer
 
@@ -8,7 +10,7 @@ class Lighthouse::Facilities::FacilitySerializer
               :facility_type,
               :feedback,
               :hours,
-              :id, 
+              :id,
               :lat,
               :long,
               :mobile,

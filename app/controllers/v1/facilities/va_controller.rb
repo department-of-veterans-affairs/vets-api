@@ -1,12 +1,13 @@
-class V1::Facilities::VaController < FacilitiesController
+# frozen_string_literal: true
 
+class V1::Facilities::VaController < FacilitiesController
   # Index supports the following query parameters:
   # @param bbox - Bounding box in form "xmin,ymin,xmax,ymax" in Lat/Long coordinates
   # @param type - Optional facility type, values = all (default), health, benefits, cemetery
   # @param services - Optional specialty services filter
   def index
     api_results = api.get_facilities(lighthouse_params)
-    
+
     render_collection(serializer, api_results)
   end
 
@@ -44,5 +45,4 @@ class V1::Facilities::VaController < FacilitiesController
   def resource_path(options)
     v1_facilities_va_index_url(options)
   end
-
 end

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 
 RSpec.shared_examples 'paginated request from params with expected IDs' do |request_params, ids|
@@ -16,6 +18,7 @@ RSpec.shared_examples 'paginated request from params with expected IDs' do |requ
 
     context 'pagination metadata' do
       subject { parsed_body[:meta][:pagination] }
+
       it { is_expected.to have_key('current_page') }
       it { is_expected.to have_key('prev_page') }
       it { is_expected.to have_key('next_page') }
@@ -27,15 +30,18 @@ RSpec.shared_examples 'paginated request from params with expected IDs' do |requ
       next_page = parsed_body[:meta][:pagination][:next_page]
       last_page = parsed_body[:meta][:pagination][:total_pages]
 
-      prev_link = prev_page ? "http://www.example.com/v1/facilities/va?#{params.merge({ page: prev_page, per_page: 10 }).to_query}" : nil
-      next_link = next_page ? "http://www.example.com/v1/facilities/va?#{params.merge({ page: next_page, per_page: 10 }).to_query}" : nil
+      prev_params = params.merge({ page: prev_page, per_page: 10 }).to_query
+      next_params = params.merge({ page: next_page, per_page: 10 }).to_query
+
+      prev_link = prev_page ? "http://www.example.com/v1/facilities/va?#{prev_params}" : nil
+      next_link = next_page ? "http://www.example.com/v1/facilities/va?#{next_params}" : nil
 
       expect(parsed_body[:links]).to match(
-        self:  "http://www.example.com/v1/facilities/va?#{params.merge({ page: 1, per_page: 10 }).to_query}",
+        self: "http://www.example.com/v1/facilities/va?#{params.merge({ page: 1, per_page: 10 }).to_query}",
         first: "http://www.example.com/v1/facilities/va?#{params.merge({ per_page: 10 }).to_query}",
-        prev:   prev_link,
-        next:   next_link,
-        last:   "http://www.example.com/v1/facilities/va?#{params.merge({ page: last_page, per_page: 10 }).to_query}"
+        prev: prev_link,
+        next: next_link,
+        last: "http://www.example.com/v1/facilities/va?#{params.merge({ page: last_page, per_page: 10 }).to_query}"
       )
     end
   end
@@ -48,11 +54,10 @@ vcr_options = {
   record: :new_episodes
 }
 
-RSpec.describe "V1::Facilities::Va", type: :request, team: :facilities, vcr: vcr_options do
+RSpec.describe 'V1::Facilities::Va', type: :request, team: :facilities, vcr: vcr_options do
   include SchemaMatchers
 
   subject(:parsed_body) { JSON.parse(response.body).with_indifferent_access }
-
 
   describe 'GET #index' do
     it 'returns 400 for invalid type parameter' do
@@ -161,13 +166,13 @@ RSpec.describe "V1::Facilities::Va", type: :request, team: :facilities, vcr: vcr
             attributes: {
               access: {
                 health: [
-                  {service: 'Audiology',        new: 5.5,       established: nil },
-                  {service: 'Dermatology',      new: 4.25,      established: 10.0 },
-                  {service: 'MentalHealthCare', new: 13.714285, established: 2.497297 },
-                  {service: 'Ophthalmology',    new: nil,       established: 0.764705 },
-                  {service: 'Optometry',        new: 0.8,       established: 1.347826 },
-                  {service: 'PrimaryCare',      new: 5.12,      established: 1.289215 },
-                  {service: 'SpecialtyCare',    new: 4.76,      established: 3.416666 }
+                  { service: 'Audiology',        new: 5.5,       established: nil },
+                  { service: 'Dermatology',      new: 4.25,      established: 10.0 },
+                  { service: 'MentalHealthCare', new: 13.714285, established: 2.497297 },
+                  { service: 'Ophthalmology',    new: nil,       established: 0.764705 },
+                  { service: 'Optometry',        new: 0.8,       established: 1.347826 },
+                  { service: 'PrimaryCare',      new: 5.12,      established: 1.289215 },
+                  { service: 'SpecialtyCare',    new: 4.76,      established: 3.416666 }
                 ],
                 effective_date: '2020-04-13'
               },
@@ -220,18 +225,18 @@ RSpec.describe "V1::Facilities::Va", type: :request, team: :facilities, vcr: vcr
               },
               services: {
                 other: [],
-                health: [
-                  'Audiology',
-                  'DentalServices',
-                  'Dermatology',
-                  'EmergencyCare',
-                  'MentalHealthCare',
-                  'Nutrition',
-                  'Ophthalmology',
-                  'Optometry',
-                  'Podiatry',
-                  'PrimaryCare',
-                  'SpecialtyCare'
+                health: %w[
+                  Audiology
+                  DentalServices
+                  Dermatology
+                  EmergencyCare
+                  MentalHealthCare
+                  Nutrition
+                  Ophthalmology
+                  Optometry
+                  Podiatry
+                  PrimaryCare
+                  SpecialtyCare
                 ],
                 last_updated: '2020-04-13'
               },
@@ -243,7 +248,5 @@ RSpec.describe "V1::Facilities::Va", type: :request, team: :facilities, vcr: vcr
         }
       )
     end
-    
   end
-  
 end

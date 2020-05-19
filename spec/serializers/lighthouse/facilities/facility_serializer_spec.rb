@@ -4,7 +4,7 @@ require 'rails_helper'
 
 RSpec.describe Lighthouse::Facilities::FacilitySerializer, type: :serializer, team: :facilities do
   # subject { serialize(facility, serializer_class: described_class) }
-  subject { described_class.new(facility)}
+  subject { described_class.new(facility) }
 
   let(:facility) { build :lighthouse_facility }
   let(:data) { subject.serializable_hash.with_indifferent_access['data'] }

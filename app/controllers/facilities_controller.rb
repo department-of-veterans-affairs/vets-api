@@ -15,28 +15,26 @@ class FacilitiesController < ApplicationController
 
   private
 
-  def render_json(serializer, obj, options={})
-    if obj.class.name == 'ActiveRecord::Relation'
-      return render_collection(serializer, obj, options)
-    end
+  def render_json(serializer, obj, options = {})
+    return render_collection(serializer, obj, options) if obj.class.name == 'ActiveRecord::Relation'
 
     render_record(serializer, obj, options)
   end
-  
-  def render_collection(serializer, collection, options={})
+
+  def render_collection(serializer, collection, options = {})
     options = meta_pagination(collection, options)
     render_record(serializer, collection, options)
   end
 
-  def render_record(serializer, record, options={})
+  def render_record(serializer, record, options = {})
     render json: serializer.new(record, options)
   end
 
-  def meta_pagination(paginated_obj, options={})
-    options[:meta] = {} unless options.has_key?(:meta)
+  def meta_pagination(paginated_obj, options = {})
+    options[:meta] = {} unless options.key?(:meta)
     meta_options = options[:meta].merge(generate_pagination(paginated_obj))
     options[:meta] = meta_options
-    options[:links] = {} unless options.has_key?(:links)
+    options[:links] = {} unless options.key?(:links)
     link_options = options[:links].merge(generate_links(paginated_obj))
     options[:links] = link_options
     options
@@ -53,6 +51,22 @@ class FacilitiesController < ApplicationController
     }
   end
 
+  def generate_previus_page_link(paginated_obj)
+    if paginated_obj.previous_page
+      links[:prev] = resource_path(
+        lighthouse_params.merge(page: paginated_obj.previous_page, per_page: paginated_obj.per_page)
+      )
+    end
+  end
+
+  def generate_next_page_link(paginated_obj)
+    if paginated_obj.next_page
+      links[:next] = resource_path(
+        lighthouse_params.merge(page: paginated_obj.next_page, per_page: paginated_obj.per_page)
+      )
+    end
+  end
+
   def generate_links(paginated_obj)
     links = {
       self: resource_path(
@@ -61,27 +75,14 @@ class FacilitiesController < ApplicationController
       first: resource_path(
         lighthouse_params.merge(per_page: paginated_obj.per_page)
       ),
-      prev: nil,
-      next: nil,
+      prev: generate_previus_page_link(paginated_obj),
+      next: generate_next_page_link(paginated_obj),
       last: resource_path(
         lighthouse_params.merge(page: paginated_obj.total_pages, per_page: paginated_obj.per_page)
       )
     }
- 
-    if paginated_obj.previous_page
-      links[:prev] = resource_path(
-        lighthouse_params.merge(page: paginated_obj.previous_page, per_page: paginated_obj.per_page)
-      )
-    end
 
-    if paginated_obj.next_page
-      links[:next] = resource_path(
-        lighthouse_params.merge(page: paginated_obj.next_page, per_page: paginated_obj.per_page)
-      )
-    end
-
-    #Slicing the hash to fix the order
+    # Slicing the hash to fix the order
     links.slice(:self, :first, :prev, :next, :last)
   end
-
 end
