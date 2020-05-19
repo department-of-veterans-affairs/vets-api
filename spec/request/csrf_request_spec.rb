@@ -78,14 +78,14 @@ RSpec.describe 'CSRF scenarios', type: :request do
       context 'v0' do
         it 'does not raise an error' do
           post(auth_saml_callback_path)
-          expect(response.body).not_to match(/ActionController::InvalidAuthenticityToken/)
+          expect(response.body).not_to match(/Invalid Authenticity Token/)
         end
       end
 
       context 'v1' do
         it 'does not raise an error' do
           post(v1_sessions_callback_path)
-          expect(response.body).not_to match(/ActionController::InvalidAuthenticityToken/)
+          expect(response.body).not_to match(/Invalid Authenticity Token/)
         end
       end
     end
@@ -109,7 +109,7 @@ RSpec.describe 'CSRF scenarios', type: :request do
     it 'skips CSRF validation' do
       post path, params: data, headers: headers
       expect(response.status).to eq(200)
-      expect(response.body).not_to match(/ActionController::InvalidAuthenticityToken/)
+      expect(response.body).not_to match(/Invalid Authenticity Token/)
     end
   end
 end
