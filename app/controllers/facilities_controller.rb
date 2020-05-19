@@ -53,7 +53,7 @@ class FacilitiesController < ApplicationController
 
   def generate_previous_page_link(paginated_obj)
     if paginated_obj.previous_page
-      links[:prev] = resource_path(
+      resource_path(
         lighthouse_params.merge(page: paginated_obj.previous_page, per_page: paginated_obj.per_page)
       )
     end
@@ -61,7 +61,7 @@ class FacilitiesController < ApplicationController
 
   def generate_next_page_link(paginated_obj)
     if paginated_obj.next_page
-      links[:next] = resource_path(
+      resource_path(
         lighthouse_params.merge(page: paginated_obj.next_page, per_page: paginated_obj.per_page)
       )
     end
