@@ -72,7 +72,7 @@ module Form1010cg
         }
       end
 
-      # Set the veteran status on the :veteran namespace of metadata
+      # Set veteran status on the :veteran namespace of metadata
       veteran_status = is_veteran('veteran')
       metadata[:veteran][:is_veteran] = veteran_status == NOT_CONFIRMED ? nil : veteran_status
 
