@@ -816,7 +816,7 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
                   'from' => '2018-01-01',
                   'to' => '2018-02-XX'
                 },
-                'treatmentCenterName' => 'Super Hospital \'&\' "More" (#2.0) _,!?',
+                'treatmentCenterName' => 'Super _,!?Hospital \'&\' "More" (#2.0)',
                 'treatmentCenterAddress' => {
                   'country' => 'USA',
                   'city' => 'Portland',
