@@ -61,6 +61,56 @@ RSpec.describe 'Fetching user data', type: :request do
       expect(va_profile['facilities']).to match_array([{ 'facility_id' => '358', 'is_cerner' => false }])
     end
 
+    it 'returns patient status' do
+      va_profile = JSON.parse(response.body)['data']['attributes']['va_profile']
+      expect(va_profile['va_patient']).to be true
+    end
+
+    it 'returns mhv account state info' do
+      va_profile = JSON.parse(response.body)['data']['attributes']['va_profile']
+      expect(va_profile['mhv_account_state']).to eq('OK')
+    end
+
+    context 'with deactivated MHV account' do
+      let(:mvi_profile) do
+        build(:mvi_profile,
+              mhv_ids: %w[12345 67890],
+              active_mhv_ids: ['12345'])
+      end
+      let(:mhv_user) { build(:user, :mhv) }
+
+      before do
+        stub_mvi(mvi_profile)
+        sign_in_as(mhv_user)
+        get v0_user_url, params: nil
+      end
+
+      it 'returns deactivated mhv account state info' do
+        va_profile = JSON.parse(response.body)['data']['attributes']['va_profile']
+        expect(va_profile['mhv_account_state']).to eq('DEACTIVATED')
+      end
+    end
+
+    context 'with multiple MHV accounts' do
+      let(:mvi_profile) do
+        build(:mvi_profile,
+              mhv_ids: %w[12345 67890],
+              active_mhv_ids: %w[12345 67890])
+      end
+      let(:mhv_user) { build(:user, :mhv) }
+
+      before do
+        stub_mvi(mvi_profile)
+        sign_in_as(mhv_user)
+        get v0_user_url, params: nil
+      end
+
+      it 'returns multiple mhv account state' do
+        va_profile = JSON.parse(response.body)['data']['attributes']['va_profile']
+        expect(va_profile['mhv_account_state']).to eq('MULTIPLE')
+      end
+    end
+
     context 'with an error from a 503 raised by Vet360::ContactInformation::Service#get_person', skip_vet360: true do
       before do
         exception  = 'the server responded with status 503'
