@@ -10,7 +10,7 @@ RSpec.shared_examples 'paginated request from params with expected IDs' do |requ
       get '/v1/facilities/va', params: params
     end
 
-    # it { expect(response).to be_successful }
+    it { expect(response).to be_successful }
 
     it "is expected to contain ids: #{ids}" do
       expect(parsed_body['data'].collect { |x| x['id'] }).to match(ids)
