@@ -2,7 +2,7 @@
 http_interactions:
   - request:
       method: get
-      uri: https://veteran.apps.va.gov/vsp/v1/Organization/999999
+      uri: https://veteran.apps.va.gov/vsp/v1/Organization/353830
       body:
         encoding: US-ASCII
         string: ''
@@ -17,15 +17,15 @@ http_interactions:
           - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
     response:
       status:
-        code: 404
-        message: Not Found
+        code: 200
+        message: OK
       headers:
         Date:
-          - Mon, 20 Apr 2020 21:56:16 GMT
+          - Fri, 17 Apr 2020 17:14:20 GMT
         Content-Type:
           - application/json+fhir;charset=UTF-8
         Content-Length:
-          - '0'
+          - '767'
         Connection:
           - close
         X-B3-Parentspanid:
@@ -33,7 +33,7 @@ http_interactions:
         X-Vamf-Version:
           - 1.9.0
         X-B3-Traceid:
-          - 2a70cda390d221e4
+          - cd0d5b66756bd28a
         Access-Control-Allow-Headers:
           - x-vamf-jwt
         X-Vamf-Build:
@@ -45,7 +45,7 @@ http_interactions:
         Access-Control-Allow-Origin:
           - "*"
         X-B3-Spanid:
-          - 8af655d6a59cece3
+          - ba71845219536caf
         Access-Control-Allow-Methods:
           - GET,OPTIONS
         Access-Control-Max-Age:
@@ -58,7 +58,33 @@ http_interactions:
           - vamftimeoutv1=1567617431; path=/
       body:
         encoding: UTF-8
-        string: ''
+        string: |-
+          {
+            "resourceType": "Organization",
+            "id": "353830",
+            "text": {
+              "status": "generated",
+              "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\"><!--    <div class=\"hapiHeaderText\" th:narrative=\"${resource.name}\"></div>--><table class=\"hapiPropertyTable\"><tbody><tr><td>Identifier</td><td>580</td></tr><tr><td>Address</td><td><span>2002 Holcombe Blvd. </span><br/><span>Houston </span><span>TX </span></td></tr></tbody></table></div>"
+            },
+            "identifier": [
+              {
+                "system": "urn:oid:2.16.840.1.113883.6.233",
+                "value": "580"
+              }
+            ],
+            "active": true,
+            "name": "HOUSTON VAMC",
+            "address": [
+              {
+                "line": [
+                  "2002 Holcombe Blvd."
+                ],
+                "city": "Houston",
+                "state": "TX",
+                "postalCode": "77030-4298"
+              }
+            ]
+          }
         http_version:
-    recorded_at: Mon, 20 Apr 2020 21:56:16 GMT
+    recorded_at: Fri, 17 Apr 2020 17:14:20 GMT
 recorded_with: VCR 3.0.3

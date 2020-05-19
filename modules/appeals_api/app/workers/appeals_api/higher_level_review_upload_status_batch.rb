@@ -9,7 +9,7 @@ module AppealsApi
     sidekiq_options 'retry': true, unique_until: :success
 
     def perform
-      return unless Settings.decision_review.higher_level_review_updater_enabled
+      return unless enabled? && higher_level_review_ids.present?
 
       Sidekiq::Batch.new.jobs do
         higher_level_review_ids.each_slice(slice_size) do |ids|
@@ -26,6 +26,10 @@ module AppealsApi
 
     def slice_size
       (higher_level_review_ids.length / 5.0).ceil
+    end
+
+    def enabled?
+      Settings.decision_review.higher_level_review_updater_enabled
     end
   end
 end

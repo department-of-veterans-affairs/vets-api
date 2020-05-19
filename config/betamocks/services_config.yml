@@ -15,7 +15,7 @@
     :file_path: "mdot/supplies/create"
     :cache_multiple_responses:
       :uid_location: header
-      :uid_locator: 'va_veteran_id'
+      :uid_locator: 'va_api_key'
 
 - :name: 'MHV_Rx'
   :base_uri: <%= "#{URI(Settings.mhv.rx.host).host}:#{URI(Settings.mhv.rx.host).port}" %>
