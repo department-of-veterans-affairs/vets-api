@@ -30,7 +30,7 @@ module VAOS
       end
 
       def search(params)
-        perform(:get, @resource_type, params)
+        perform(:get, @resource_type.to_s, params)
       end
 
       private
