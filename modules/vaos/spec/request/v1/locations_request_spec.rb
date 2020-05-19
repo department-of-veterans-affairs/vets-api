@@ -16,7 +16,7 @@ RSpec.describe 'VAOS::V1::Location', type: :request do
       let(:user) { FactoryBot.create(:user, :loa1) }
 
       it 'returns a forbidden error' do
-        get '/vaos/v1/Location'
+        get '/vaos/v1/Location/393833'
         expect(response).to have_http_status(:forbidden)
         error_object = JSON.parse(response.body)
         expect(error_object['resourceType']).to eq('Location')
@@ -28,11 +28,32 @@ RSpec.describe 'VAOS::V1::Location', type: :request do
     context 'with a loa3 user' do
       let(:user) { build(:user, :vaos) }
 
-      context 'with a location id' do
-        it 'returns a 200 returning Location resource corresponding to that id' do
-          VCR.use_cassette('vaos/fhir/location/read_by_id', record: :new_episodes) do
+    context 'FHIR Location Resource by ID'
+      context 'a valid response' do
+        let(:expected_body) do
+          YAML.load_file(
+            Rails.root.join(
+              'spec', 'support', 'vcr_cassettes', 'vaos', 'fhir', 'location', 'read_by_id_200.yml'
+            )
+          )['http_interactions'].first.dig('response', 'body', 'string')
+        end
+        
+        it 'returns a 200 returning Location resource corresponding to id' do
+          VCR.use_cassette('vaos/fhir/location/read_by_id_200', match_requests_on: %i[method uri]) do
             get '/vaos/v1/Location/393833'
             expect(response).to have_http_status(:success)
+            expect(response.body).to eq(expected_body)
+          end
+        end
+      end
+
+      context 'with a 404 response' do
+        it 'returns a 404 operation outcome' do
+          VCR.use_cassette('vaos/fhir/location/read_by_id_404', record: :new_episodes) do
+            get '/vaos/v1/Location/353000'
+
+            expect(response).to have_http_status(:not_found)
+            expect(JSON.parse(response.body)['issue'].first['code']).to eq('VAOS_404')
           end
         end
       end
