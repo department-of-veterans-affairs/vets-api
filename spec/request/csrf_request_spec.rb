@@ -41,8 +41,8 @@ RSpec.describe 'CSRF scenarios', type: :request do
         context 'without a CSRF token present' do
           it 'raises an exception' do
             send(verb, '/csrf_test')
-            expect(response.status).to eq 500
-            expect(response.body).to match(/ActionController::InvalidAuthenticityToken/)
+            expect(response.status).to eq 403
+            expect(response.body).to match(/Invalid Authenticity Token/)
           end
         end
 
