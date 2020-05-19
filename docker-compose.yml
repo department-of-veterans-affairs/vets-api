@@ -2,6 +2,8 @@ version: '3.4'
 services:
   redis:
     image: redis:5.0-alpine
+    ports:
+      - "63790:6379"
   postgres:
     image: mdillon/postgis:11-alpine
     environment:

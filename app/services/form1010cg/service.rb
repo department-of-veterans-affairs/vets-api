@@ -44,13 +44,11 @@ module Form1010cg
       )
     end
 
-    # Will raise an error unless the veteran specified on the claim's data (1) can be found in MVI, (2) has an ICN,
-    # and (3) has been confirmed as a legitimate veteran (via eMIS).
+    # Will raise an error unless the veteran specified on the claim's data can be found in MVI
     #
     # @return [nil]
     def assert_veteran_status
       raise_unprocessable if icn_for('veteran') == NOT_FOUND
-      raise_unprocessable unless is_veteran('veteran') == true
     end
 
     # Returns a metadata hash:
@@ -75,8 +73,8 @@ module Form1010cg
       end
 
       # Set the veteran status on the :veteran namespace of metadata
-      veteran_status = is_veteran('veteran')
-      metadata[:veteran][:is_veteran] = veteran_status == NOT_CONFIRMED ? nil : veteran_status
+      # Set as nil so CARMA knows we did not run a veteran verification on the veteran form subject
+      metadata[:veteran][:is_veteran] = nil
 
       metadata
     end

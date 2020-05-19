@@ -13,11 +13,9 @@ http_interactions:
       - application/json
       User-Agent:
       - Vets.gov Agent
-      Apikey:
-      - abcd1234abcd1234abcd1234abcd1234abcd1234
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      VeteranId:
+      Va_Veteran_Id:
       - 000555555
   response:
     status:
@@ -66,6 +64,8 @@ http_interactions:
         Max-Age=900; Path=/
       Transfer-Encoding:
       - chunked
+      VA_API_KEY:
+      - abcd1234abcd1234abcd1234
     body:
       encoding: ASCII-8BIT
       string: |-
