@@ -73,8 +73,8 @@ module Form1010cg
       end
 
       # Set the veteran status on the :veteran namespace of metadata
-      # Set as nil so CARMA knows we did not run a veteran verification on the veteran form subject
-      metadata[:veteran][:is_veteran] = nil
+      veteran_status = is_veteran('veteran')
+      metadata[:veteran][:is_veteran] = veteran_status == NOT_CONFIRMED ? nil : veteran_status
 
       metadata
     end
