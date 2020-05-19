@@ -154,8 +154,8 @@ RSpec.describe Form1010cg::Service do
 
       expect_any_instance_of(MVI::Service).to receive(:find_profile).with(
         :user_identity
-      ).and_raise(
-        MVI::Errors::RecordNotFound
+      ).and_return(
+        double(status: 'NOT_FOUND', error: double)
       )
 
       result = subject.icn_for('veteran')
@@ -228,8 +228,8 @@ RSpec.describe Form1010cg::Service do
 
       expect_any_instance_of(MVI::Service).to receive(:find_profile).with(
         :pc_user_identity
-      ).and_raise(
-        MVI::Errors::RecordNotFound
+      ).and_return(
+        double(status: 'NOT_FOUND', error: double)
       )
 
       3.times do

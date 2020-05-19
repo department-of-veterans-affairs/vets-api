@@ -88,13 +88,18 @@ module Form1010cg
       cached_icn = @cache[:icns][form_subject]
       return cached_icn unless cached_icn.nil?
 
-      begin
-        response = mvi_service.find_profile(build_user_identity_for(form_subject))
-      rescue MVI::Errors::RecordNotFound
+      response = mvi_service.find_profile(build_user_identity_for(form_subject))
+
+      case response.status
+      when 'OK'
+        return @cache[:icns][form_subject] = response.profile.icn
+      when 'NOT_FOUND'
         return @cache[:icns][form_subject] = NOT_FOUND
       end
 
-      @cache[:icns][form_subject] = response&.profile&.icn if response&.status == 'OK'
+      raise response.error if response.error
+
+      @cache[:icns][form_subject] = NOT_FOUND
     end
 
     # Will search eMIS for the provided form subject and return `true` if the subject is a verteran.
