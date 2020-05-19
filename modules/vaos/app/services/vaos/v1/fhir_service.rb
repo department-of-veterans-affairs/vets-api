@@ -36,7 +36,7 @@ module VAOS
           raise Common::Exceptions::InvalidFieldValue.new('resource_type', resource_type)
         end
 
-        perform(:get, "#{resource_type}?#{query_string}", nil, headers)
+        perform(:get, "#{resource_type}?#{query_string}", nil)
       end
 
       private
@@ -51,9 +51,8 @@ module VAOS
 
       def action_statsd_key(path)
         caller = caller_locations(2, 1)[0].label
-        binding.pry
-        resource = path.split('/').first.split('?').first
-        "#{STATSD_KEY_PREFIX}.#{caller}.#{resource.downcase}"
+        resource = path.split('/').first.split('?').first.snakecase
+        "#{STATSD_KEY_PREFIX}.#{caller}.#{resource}"
       end
 
       def config
