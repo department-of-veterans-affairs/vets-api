@@ -19,7 +19,6 @@ module VaForms
 
     def mark_stale_forms
       processed_form_names = @processed_forms.map { |f| f['form_name'] }
-      puts processed_form_names
       missing_forms = VaForms::Form.where.not(form_name: processed_form_names)
       missing_forms.find_each do |form|
         form.update(valid_pdf: false)
@@ -27,6 +26,7 @@ module VaForms
     end
 
     def load_page(current_page: 0)
+      param = {}
       unless current_page.zero?
         params = {
           id: 'form2',
