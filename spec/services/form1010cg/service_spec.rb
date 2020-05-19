@@ -538,12 +538,12 @@ RSpec.describe Form1010cg::Service do
         expect(subject).to receive(:icn_for).with(form_subject).and_return(return_value)
       end
 
-      expect(subject).to receive(:is_veteran).with('veteran').and_return(true)
+      expect(subject).not_to receive(:is_veteran)
 
       expect(subject.build_metadata).to eq(
         veteran: {
           icn: :ICN_0,
-          is_veteran: true
+          is_veteran: nil
         },
         primaryCaregiver: {
           icn: :ICN_1
@@ -570,39 +570,9 @@ RSpec.describe Form1010cg::Service do
       end
     end
 
-    it 'will raise error if veteran\'s status can not be confirmed' do
+    it 'will not raise error if veteran\'s icn is found' do
       expect(subject).to receive(:icn_for).with('veteran').and_return(:ICN_123)
-      expect(subject).to receive(:is_veteran).with('veteran').and_return('NOT_CONFIRMED')
-
-      expect { subject.assert_veteran_status }.to raise_error do |e|
-        expect(e).to be_a(Common::Exceptions::ValidationErrors)
-        expect(e.errors.size).to eq(1)
-        expect(e.errors[0].code).to eq('100')
-        expect(e.errors[0].source[:pointer]).to eq('data/attributes/base')
-        expect(e.errors[0].detail).to eq('base - Unable to process submission digitally')
-        expect(e.errors[0].status).to eq('422')
-        expect(e.errors[0].title).to eq('Unable to process submission digitally')
-      end
-    end
-
-    it 'will raise an error if the veteran status is confirmed as false' do
-      expect(subject).to receive(:icn_for).with('veteran').and_return(:ICN_123)
-      expect(subject).to receive(:is_veteran).with('veteran').and_return(false)
-
-      expect { subject.assert_veteran_status }.to raise_error do |e|
-        expect(e).to be_a(Common::Exceptions::ValidationErrors)
-        expect(e.errors.size).to eq(1)
-        expect(e.errors[0].code).to eq('100')
-        expect(e.errors[0].source[:pointer]).to eq('data/attributes/base')
-        expect(e.errors[0].detail).to eq('base - Unable to process submission digitally')
-        expect(e.errors[0].status).to eq('422')
-        expect(e.errors[0].title).to eq('Unable to process submission digitally')
-      end
-    end
-
-    it 'will not raise error if veteran\'s icn is found and their veteran status is confirmed' do
-      expect(subject).to receive(:icn_for).with('veteran').and_return(:ICN_123)
-      expect(subject).to receive(:is_veteran).with('veteran').and_return(true)
+      expect(subject).not_to receive(:is_veteran)
 
       expect(subject.assert_veteran_status).to eq(nil)
     end
