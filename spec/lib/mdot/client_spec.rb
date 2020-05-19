@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-describe MDOT::Client do
+describe MDOT::Client, type: :mdot_helpers do
   subject { described_class.new(user) }
 
   let(:user_details) do
@@ -70,6 +70,7 @@ describe MDOT::Client do
     context 'with a valid supplies order' do
       it 'returns a successful response' do
         VCR.use_cassette('mdot/submit_order', VCR::MATCH_EVERYTHING) do
+          set_mdot_token_for(user)
           res = subject.submit_order(valid_order)
           expect(res['status']).to eq('success')
           expect(res['order_id']).to match(/[a-z0-9-]+/)
@@ -88,6 +89,7 @@ describe MDOT::Client do
           expect(StatsD).to receive(:increment).once.with(
             'api.mdot.submit_order.total'
           )
+          set_mdot_token_for(user)
           expect { subject.submit_order(valid_order) }.to raise_error(MDOT::ServiceException)
         end
       end
@@ -102,6 +104,7 @@ describe MDOT::Client do
             ]
           )
           expect(StatsD).to receive(:increment).once.with('api.mdot.submit_order.total')
+          set_mdot_token_for(user)
           expect { subject.submit_order({}) }.to raise_error(MDOT::ServiceException)
         end
       end

@@ -97,7 +97,7 @@ module SAML
       end
 
       def mhv_correlation_id
-        safe_attr('va_eauth_mhvuuid') || safe_attr('va_eauth_mhvien')
+        safe_attr('va_eauth_mhvuuid') || safe_attr('va_eauth_mhvien')&.split(',')&.first
       end
 
       def mhv_account_type
@@ -109,7 +109,7 @@ module SAML
       end
 
       def dslogon_edipi
-        safe_attr('va_eauth_dodedipnid')
+        safe_attr('va_eauth_dodedipnid')&.split(',')&.first
       end
 
       # va_eauth_credentialassurancelevel is supposed to roll up the
@@ -172,7 +172,9 @@ module SAML
 
       # Raise any fatal exceptions due to validation issues
       def validate!
-        raise SAML::UserAttributeError, 'MHV Identifier mismatch' if mhv_id_mismatch?
+        raise SAML::UserAttributeError, SAML::UserAttributeError::MULTIPLE_MHV_IDS if mhv_id_mismatch?
+        raise SAML::UserAttributeError, SAML::UserAttributeError::MULTIPLE_EDIPIS if edipi_mismatch?
+        raise SAML::UserAttributeError, SAML::UserAttributeError::MHV_ICN_MISMATCH if mhv_icn_mismatch?
       end
 
       private
@@ -181,10 +183,23 @@ module SAML
         @attributes[key] == 'NOT_FOUND' ? nil : @attributes[key]
       end
 
+      # Gather all available MHV IDs, de-duplicate, and see if n > 1
       def mhv_id_mismatch?
         uuid = safe_attr('va_eauth_mhvuuid')
-        ien = safe_attr('va_eauth_mhvien')
-        uuid.present? && ien.present? && uuid != ien
+        iens = safe_attr('va_eauth_mhvien')&.split(',') || []
+        iens.append(uuid).reject(&:nil?).uniq.size > 1
+      end
+
+      # Gather all available EDIPIs, de-duplicate, and see if n > 1
+      def edipi_mismatch?
+        edipis = safe_attr('va_eauth_dodedipnid')&.split(',') || []
+        edipis.reject(&:nil?).uniq.size > 1
+      end
+
+      def mhv_icn_mismatch?
+        mhvicn_val = safe_attr('va_eauth_mhvicn')
+        icn_val = safe_attr('va_eauth_icn')
+        icn_val.present? && mhvicn_val.present? && icn_val != mhvicn_val
       end
 
       def csid
