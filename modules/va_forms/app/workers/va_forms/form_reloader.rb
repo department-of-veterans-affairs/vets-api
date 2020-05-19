@@ -13,7 +13,7 @@ module VaForms
     end
 
     def perform
-      load_page(current_page: -1)
+      load_page(current_page: 0)
       mark_stale_forms
     end
 
@@ -32,6 +32,7 @@ module VaForms
         name: 'form2',
         'CurrentPage' => current_page,
         'Next10' => 'Next25 >'
+      }
       page = Faraday.new(url: BASE_URL).post(
         '/vaforms/search_action.asp',
         params
