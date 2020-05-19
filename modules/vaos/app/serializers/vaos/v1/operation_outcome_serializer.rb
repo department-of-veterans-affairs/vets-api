@@ -17,6 +17,7 @@ module VAOS
       # Creates a new serializer instance
       # @param operation_outcome VAOS::V1::OperationOutcome an instance of a outcome model
       # @return VAOS::V1::OperationOutcomeSerializer the instance
+
       def initialize(operation_outcome)
         @operation_outcome = operation_outcome
       end
@@ -65,7 +66,7 @@ module VAOS
             details: {
               text: error.detail
             },
-            diagnostics: error.source
+            diagnostics: error.source.is_a?(Class) ? error.source.to_s : error.source
           }
         end
       end
