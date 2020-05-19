@@ -3,7 +3,7 @@
 class EVSSClaimDocumentUploader < CarrierWave::Uploader::Base
   include CarrierWave::MiniMagick
   include ValidateFileSize
-  include SetAwsConfig
+  include SetAWSConfig
 
   MAX_FILE_SIZE = 25.megabytes
 

@@ -3,7 +3,7 @@
 class SupportingDocumentationAttachmentUploader < CarrierWave::Uploader::Base
   PROCESSING_CLASS = VIC::ProcessingUploader
   include ValidateFileSize
-  include SetAwsConfig
+  include SetAWSConfig
   include AsyncProcessing
   include LogMetrics
 
