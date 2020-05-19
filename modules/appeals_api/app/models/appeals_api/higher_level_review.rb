@@ -94,7 +94,7 @@ module AppealsApi
       :birth_date_is_a_date,
       :birth_date_is_in_the_past,
       :contestable_issue_dates_are_valid_dates,
-      if: Proc.new{|a| a.form_data.present? }
+      if: proc { |a| a.form_data.present? }
     )
 
     # 1. VETERAN'S NAME

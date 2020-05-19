@@ -350,7 +350,6 @@ describe AppealsApi::HigherLevelReview, type: :model do
   end
 
   describe 'removing persisted data' do
-
     it 'removed the persisted data when success status reached' do
       received_hlr = FactoryBot.create(:higher_level_review, :status_received)
       received_hlr.status = 'success'
@@ -367,6 +366,5 @@ describe AppealsApi::HigherLevelReview, type: :model do
       received_hlr.reload
       expect(received_hlr.form_data).to be_nil
     end
-
   end
 end
