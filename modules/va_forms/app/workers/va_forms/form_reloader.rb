@@ -26,7 +26,7 @@ module VaForms
     end
 
     def load_page(current_page: 0)
-      param = {}
+      params = {}
       unless current_page.zero?
         params = {
           id: 'form2',
