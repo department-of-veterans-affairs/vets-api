@@ -4,14 +4,13 @@ module VAOS
   module V1
     class HealthcareServicesController < VAOS::V1::BaseController
       def index
-        binding.pry
-        fhir_service.search(:HealthcareService, search_params)
+        fhir_service.search(:HealthcareService, query_string)
       end
 
       private
 
-      def search_params
-        params.permit(:identifier, :location, :organization, :servicecategory)
+      def query_string
+        request.fullpath.split('?').last
       end
     end
   end
