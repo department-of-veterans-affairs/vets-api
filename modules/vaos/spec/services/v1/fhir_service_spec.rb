@@ -59,7 +59,7 @@ describe VAOS::V1::FHIRService do
     end
   end
 
-  #describe '#search' do
+  # describe '#search' do
   #  context 'when VAMF returns a 404' do
   #    it 'raises a backend exception with key VAOS_404' do
   #      VCR.use_cassette('vaos/fhir/search_organization_404', match_requests_on: %i[method uri]) do
@@ -86,5 +86,5 @@ describe VAOS::V1::FHIRService do
   #      end
   #    end
   #  end
-  #end
+  # end
 end
