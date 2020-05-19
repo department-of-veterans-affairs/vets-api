@@ -26,13 +26,14 @@ module VaForms
     end
 
     def load_page(current_page: 0)
-      current_page += 1
-      params = {
-        id: 'form2',
-        name: 'form2',
-        'CurrentPage' => current_page,
-        'Next10' => 'Next25 >'
-      }
+      unless current_page == 0
+        params = {
+          id: 'form2',
+          name: 'form2',
+          'CurrentPage' => current_page,
+          'Next10' => 'Next25 >'
+        }
+      end
       page = Faraday.new(url: BASE_URL).post(
         '/vaforms/search_action.asp',
         params
@@ -41,6 +42,7 @@ module VaForms
       next_button = doc.css('input[name=Next10]')
       last_page = next_button.first.attributes['disabled'].present?
       parse_page(doc)
+      current_page += 1
       load_page(current_page: current_page) unless last_page
     end
 
