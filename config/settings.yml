@@ -132,10 +132,9 @@ mdot:
 
 # Settings for Decision Reviews
 decision_review:
-  prefill: true
-  url: https://sandbox-api.va.gov/services/appeals/v3/decision_review
-  api_key: abcd1234abcd1234abcd1234abcd1234abcd1234
   mock: false
+  url: https://sandbox-api.va.gov/services/appeals/v1/decision_review
+  prefill: true
   higher_level_review_updater_enabled: true
   schema_dir: config/schemas
 
