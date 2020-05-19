@@ -55,6 +55,7 @@ module AppealsApi
 
     STATUSES = %w[pending submitted processing error uploaded received success vbms expired].freeze
     validates :status, inclusion: { 'in': STATUSES }
+    after_save :clean_persisted_data
 
     CENTRAL_MAIL_STATUS_TO_HLR_ATTRIBUTES = lambda do
       hash = Hash.new { |_, _| raise ArgumentError, 'Unknown Central Mail status' }
@@ -92,7 +93,8 @@ module AppealsApi
       :informal_conference_rep_name_and_phone_number_is_not_too_long,
       :birth_date_is_a_date,
       :birth_date_is_in_the_past,
-      :contestable_issue_dates_are_valid_dates
+      :contestable_issue_dates_are_valid_dates,
+      if: Proc.new{|a| a.form_data.present? }
     )
 
     # 1. VETERAN'S NAME
@@ -245,6 +247,14 @@ module AppealsApi
       end
 
       update! attributes
+    end
+
+    def clean_persisted_data
+      if saved_change_to_status?(to: 'success') || saved_change_to_status?(to: 'error')
+        self.auth_headers = nil
+        self.form_data = nil
+        save
+      end
     end
 
     private
