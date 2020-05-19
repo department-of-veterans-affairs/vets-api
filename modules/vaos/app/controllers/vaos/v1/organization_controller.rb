@@ -4,7 +4,7 @@ module VAOS
   module V1
     class OrganizationController < VAOS::V1::BaseController
       def show
-        response = fhir_service.read(:Organization, params[:id])
+        response = fhir_service.read(params[:id])
         render json: response.body
       end
     end

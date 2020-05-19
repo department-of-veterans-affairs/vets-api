@@ -18,7 +18,7 @@ module VAOS
       private
 
       def fhir_service
-        VAOS::V1::FHIRService.new(current_user)
+        VAOS::V1::FHIRService.new(current_user, controller_name.capitalize.to_sym)
       end
 
       def render_errors(va_exception)

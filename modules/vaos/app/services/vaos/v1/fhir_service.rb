@@ -16,19 +16,21 @@ module VAOS
       STATSD_KEY_PREFIX = 'api.vaos.fhir'
       RESOURCES = %i[Appointment HealthcareService Location Organization Patient Schedule Slot].freeze
 
-      # The read interaction accesses the current contents of a resource.
-      # The interaction is performed by an HTTP GET command.
-      # http://hl7.org/fhir/dstu2/http.html#read
-      #
-      # @param resource_type Symbol the type of resource to read
-      # @id id Integer the id of the resource
-      #
-      def read(resource_type, id)
+      def initialize(user, resource_type)
         unless RESOURCES.include?(resource_type)
           raise Common::Exceptions::InvalidFieldValue.new('resource_type', resource_type)
         end
 
-        perform(:get, "#{resource_type}/#{id}", nil)
+        @resource_type = resource_type
+        super(user)
+      end
+
+      def read(id)
+        perform(:get, "#{@resource_type}/#{id}", nil)
+      end
+
+      def search(params)
+        perform(:get, @resource_type, params)
       end
 
       private
