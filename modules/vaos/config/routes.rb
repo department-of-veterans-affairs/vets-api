@@ -29,6 +29,6 @@ VAOS::Engine.routes.draw do
   namespace :v1, defaults: { format: :json } do
     get '/Location/:id', to: 'locations#show'
     get '/Organization/:id', to: 'organizations#show'
-    get '/HealtcareService', to: 'healthcare_services#index'
+    get '/HealthcareService', to: 'healthcare_services#index'
   end
 end

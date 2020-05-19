@@ -28,11 +28,47 @@ RSpec.describe 'VAOS::V1::HeathcareService', type: :request do
     context 'with a loa3 user' do
       let(:user) { build(:user, :vaos) }
 
-      context 'with a single valid facility code' do
-        it 'returns a 200 with the correct schema' do
-          VCR.use_cassette('vaos/fhir/healthcare_service/search_with_name', record: :new_episodes) do
-            get '/vaos/v1/HealthcareService', params: { organization: 'vamc' }
-            expect(response).to have_http_status(:internal_server_error)
+      context 'FHIR HealthcareService Resource search' do
+        context 'returns a valid response with many results' do
+          let(:expected_body) do
+            YAML.load_file(
+              Rails.root.join(
+                'spec', 'support', 'vcr_cassettes', 'vaos', 'fhir', 'healthcare_service', 'search_200.yml'
+              )
+            )['http_interactions'].first.dig('response', 'body', 'string')
+          end
+
+          let(:query_string) { '?organization.identifier=983&_include=HealthcareService:location' }
+
+          it 'returns a 200' do
+            VCR.use_cassette('vaos/fhir/healthcare_service/search_200', match_requests_on: %i[method uri]) do
+              expect { get "/vaos/v1/HealthcareService#{query_string}" }
+                .to trigger_statsd_increment('api.vaos.fhir.search.healthcare_service.total', times: 1, value: 1)
+
+              expect(response).to have_http_status(:success)
+              expect(response.body).to eq(expected_body)
+            end
+          end
+        end
+
+        context 'returns a valid response with zero reesults' do
+          let(:expected_body) do
+            YAML.load_file(
+              Rails.root.join(
+                'spec', 'support', 'vcr_cassettes', 'vaos', 'fhir', 'healthcare_service', 'search_200_empty.yml'
+              )
+            )['http_interactions'].first.dig('response', 'body', 'string')
+          end
+
+          let(:query_string) { '?organization.identifier=123' }
+
+          it 'returns a 200' do
+            VCR.use_cassette('vaos/fhir/healthcare_service/search_200_empty', match_requests_on: %i[method uri]) do
+              get "/vaos/v1/HealthcareService#{query_string}"
+
+              expect(response).to have_http_status(:success)
+              expect(response.body).to eq(expected_body)
+            end
           end
         end
       end
