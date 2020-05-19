@@ -296,7 +296,7 @@ Rails.application.routes.draw do
       post :saml_slo_callback, to: 'sessions#saml_slo_callback'
     end
 
-    scope :facilities, module: 'facilities' do
+    namespace :facilities, module: 'facilities' do
       resources :va, only: %i[index show]
     end
   end

@@ -8,6 +8,7 @@ class Lighthouse::Facilities::FacilitySerializer
               :facility_type,
               :feedback,
               :hours,
+              :id, 
               :lat,
               :long,
               :mobile,

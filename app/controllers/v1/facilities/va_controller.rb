@@ -5,18 +5,15 @@ class V1::Facilities::VaController < FacilitiesController
   # @param type - Optional facility type, values = all (default), health, benefits, cemetery
   # @param services - Optional specialty services filter
   def index
-    resource = api.get_facilities(lighthouse_params)
-
-    render json: resource,
-           each_serializer: Lighthouse::Facilities::FacilitySerializer,
-           meta: metadata(resource)
+    api_results = api.get_facilities(lighthouse_params)
+    
+    render_collection(serializer, api_results)
   end
 
   def show
-    results = api.get_by_id(params[:id])
-    raise Common::Exceptions::RecordNotFound, params[:id] if results.nil?
+    api_result = api.get_by_id(params[:id])
 
-    render json: results, serializer: Lighthouse::Facilities::FacilitySerializer
+    render_json(serializer, api_result)
   end
 
   private
@@ -26,25 +23,26 @@ class V1::Facilities::VaController < FacilitiesController
   end
 
   def lighthouse_params
-    params.permit 
-      :lat, 
+    params.permit(
+      :ids,
+      :lat,
       :long,
-      :page, 
+      :page,
       :per_page,
-      :services,
+      :state,
       :type,
-      :zip, 
-      bbox: []
+      :zip,
+      bbox: [],
+      services: []
+    )
   end
 
-  def metadata(resource)
-    { 
-      pagination: {
-        current_page: resource.current_page,
-        per_page: resource.per_page,
-        total_pages: resource.total_pages,
-        total_entries: resource.total_entries 
-      }
-    }
+  def serializer
+    Lighthouse::Facilities::FacilitySerializer
   end
+
+  def resource_path(options)
+    v1_facilities_va_index_url(options)
+  end
+
 end
