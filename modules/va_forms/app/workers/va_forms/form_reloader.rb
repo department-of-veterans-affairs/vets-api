@@ -19,6 +19,7 @@ module VaForms
 
     def mark_stale_forms
       processed_form_names = @processed_forms.map { |f| f['form_name'] }
+      puts processed_form_names
       missing_forms = VaForms::Form.where.not(form_name: processed_form_names)
       missing_forms.find_each do |form|
         form.update(valid_pdf: false)
@@ -26,7 +27,7 @@ module VaForms
     end
 
     def load_page(current_page: 0)
-      unless current_page == 0
+      unless current_page.zero?
         params = {
           id: 'form2',
           name: 'form2',
@@ -75,8 +76,8 @@ module VaForms
       form.pages = line.css('td:nth-child(5)').text
       form_url = url.starts_with?('http') ? url.gsub('http:', 'https:') : get_full_url(url)
       form.url = Addressable::URI.parse(form_url).normalize.to_s
-      form = update_sha256(form)
-      form.save if current_sha256 != form.sha256
+      # form = update_sha256(form)
+      # form.save if current_sha256 != form.sha256
     end
 
     def parse_date(date_string)
