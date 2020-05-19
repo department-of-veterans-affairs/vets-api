@@ -37,7 +37,7 @@ RSpec.describe 'VAOS::V1::Location', type: :request do
             )
           )['http_interactions'].first.dig('response', 'body', 'string')
         end
-        
+
         it 'returns a 200 returning Location resource corresponding to id' do
           VCR.use_cassette('vaos/fhir/location/read_by_id_200', match_requests_on: %i[method uri]) do
             get '/vaos/v1/Location/393833'
@@ -49,7 +49,7 @@ RSpec.describe 'VAOS::V1::Location', type: :request do
 
       context 'with a 404 response' do
         it 'returns a 404 operation outcome' do
-          VCR.use_cassette('vaos/fhir/location/read_by_id_404', record: :new_episodes) do
+          VCR.use_cassette('vaos/fhir/location/read_by_id_404', match_requests_on: %i[method uri]) do
             get '/vaos/v1/Location/353000'
 
             expect(response).to have_http_status(:not_found)
