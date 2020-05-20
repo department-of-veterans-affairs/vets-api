@@ -9,6 +9,12 @@ describe VAOS::V1::FHIRService do
 
   before { allow_any_instance_of(VAOS::UserService).to receive(:session).and_return('stubbed_token') }
 
+  VCR.configure do |c|
+    c.before_record do |i|
+      i.response.body.force_encoding('UTF-8')
+    end
+  end
+
   context 'with an invalid resource type' do
     it 'raises an invalid field value exception' do
       expect { VAOS::V1::FHIRService.new(user, :House) }.to raise_error(
@@ -62,7 +68,7 @@ describe VAOS::V1::FHIRService do
   describe '#search' do
     context 'when VAMF returns a 500' do
       xit 'raises a backend exception with key VAOS_502' do
-        VCR.use_cassette('vaos/fhir/search_organization_500', match_requests_on: %i[method uri], decode_compressed_response: true) do
+        VCR.use_cassette('vaos/fhir/search_organization_500', match_requests_on: %i[method uri]) do
           expect { subject.search({ 'identifier' => '353000' }) }.to raise_error(
             Common::Exceptions::BackendServiceException
           ) { |e| expect(e.key).to eq('VAOS_502') }
@@ -80,7 +86,7 @@ describe VAOS::V1::FHIRService do
       end
 
       xit 'returns the JSON response body from the VAMF response' do
-        VCR.use_cassette('vaos/fhir/search_organization_200', match_requests_on: %i[method uri], decode_compressed_response: true) do
+        VCR.use_cassette('vaos/fhir/search_organization_200', match_requests_on: %i[method uri]) do
           response = subject.search({ 'identifier' => '983,984' })
           expect(response.body).to eq(expected_body)
         end
