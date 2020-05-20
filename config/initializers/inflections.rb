@@ -15,9 +15,8 @@ ActiveSupport::Inflector.inflections do |inflect|
   inflect.acronym 'PagerDuty'
   inflect.acronym 'PPIU'
   inflect.acronym 'SSOe'
-  inflect.acronym 'VA' # REVIEW is this covered by VA*?
-  inflect.acronym 'VA*'
-  inflect.acronym 'VAOS' # REVIEW is this covered by VA*?
+  inflect.acronym 'VA'
+  inflect.acronym 'VAOS'
   inflect.acronym 'VBA'
   inflect.acronym 'VIC'
   inflect.acronym 'VC'
