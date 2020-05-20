@@ -114,14 +114,12 @@ module Form1010cg
       icn = icn_for(form_subject)
       return @cache[:veteran_statuses][form_subject] = NOT_CONFIRMED if icn == NOT_FOUND
 
-      # binding.pry
-      # response = EMIS::VeteranStatusService.new.get_veteran_status(icn: icn)
-      # raise response.error, "for icn #{icn}" if response.error?
+      response = EMIS::VeteranStatusService.new.get_veteran_status(icn: icn)
+      raise response.error if response.error?
 
-      # is_veteran = response&.items&.first&.title38_status_code == 'V1'
+      is_veteran = response&.items&.first&.title38_status_code == 'V1'
 
-      # @cache[:veteran_statuses][form_subject] = is_veteran || NOT_CONFIRMED
-      @cache[:veteran_statuses][form_subject] = NOT_CONFIRMED
+      @cache[:veteran_statuses][form_subject] = is_veteran || NOT_CONFIRMED
     end
 
     private
