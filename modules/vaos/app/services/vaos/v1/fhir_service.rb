@@ -9,8 +9,8 @@ module VAOS
     # FHIR (DSTU 2) based REST service http://hl7.org/fhir/dstu2/http.html
     #
     # @example Create a service and fetch an Organization resource by id
-    #   service = VAOS::V1::FHIRService.new(user)
-    #   response = service.read(:Organization, 987654)
+    #   service = VAOS::V1::FHIRService.new(user, :Organization)
+    #   response = service.read(987654)
     #
     class FHIRService < VAOS::BaseService
       STATSD_KEY_PREFIX = 'api.vaos.fhir'
@@ -25,10 +25,22 @@ module VAOS
         super(user)
       end
 
+      # The read interaction accesses the current contents of a resource.
+      # The interaction is performed by an HTTP GET command.
+      # http://hl7.org/fhir/dstu2/http.html#read
+      #
+      # @id id Integer the id of the resource
+      #
       def read(id)
         perform(:get, "#{@resource_type}/#{id}")
       end
 
+      # This interaction searches a set of resources based on some filter criteria.
+      # The interaction can be performed by several different HTTP commands.
+      # http://hl7.org/fhir/dstu2/http.html#search
+      #
+      # @query_string String the query to run on the resource
+      #
       def search(query_string)
         perform(:get, "#{@resource_type}?#{query_string}")
       end
