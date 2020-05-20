@@ -387,7 +387,7 @@ module EVSS
             'endDate' => approximate_date(treatment['treatmentDateRange']['to']),
             'treatedDisabilityNames' => treatment['treatedDisabilityNames'],
             'center' => {
-              'name' => treatment['treatmentCenterName'].gsub(/[^a-zA-Z0-9 .()#&'"-]+/) { '' }.strip.to_s
+              'name' => treatment['treatmentCenterName'].gsub(/[^a-zA-Z0-9 .()#&'"-]+/, '').strip.to_s
             }.merge(treatment['treatmentCenterAddress'])
           }.compact
         end
