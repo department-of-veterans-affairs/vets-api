@@ -2,20 +2,12 @@
 
 require 'rails_helper'
 
-vcr_options = {
-  cassette_name: '/lighthouse/facilities',
-  match_requests_on: %i[path query],
-  allow_playback_repeats: true,
-  record: :new_episodes
-}
-
 RSpec.shared_examples 'paginated request from params with expected IDs' do |request_params, ids|
   let(:params) { request_params }
-  let(:paginated_params) { params.merge({ page: 1, per_page: 10 }) }
 
   context request_params do
     before do
-      get '/v0/facilities/va', params: params
+      get '/v1/facilities/va', params: params
     end
 
     it { expect(response).to be_successful }
@@ -24,57 +16,67 @@ RSpec.shared_examples 'paginated request from params with expected IDs' do |requ
       expect(parsed_body['data'].collect { |x| x['id'] }).to match(ids)
     end
 
-    it 'is expected to include pagination metadata' do
-      expect(parsed_body[:meta]).to match(
-        pagination: {
-          current_page: a_kind_of(Integer),
-          per_page: a_kind_of(Integer),
-          total_entries: a_kind_of(Integer),
-          total_pages: a_kind_of(Integer)
-        }
-      )
+    context 'pagination metadata' do
+      subject { parsed_body[:meta][:pagination] }
+
+      it { is_expected.to have_key('current_page') }
+      it { is_expected.to have_key('prev_page') }
+      it { is_expected.to have_key('next_page') }
+      it { is_expected.to have_key('total_pages') }
     end
 
     it 'is expected to include pagination links' do
+      prev_page = parsed_body[:meta][:pagination][:prev_page]
+      next_page = parsed_body[:meta][:pagination][:next_page]
+      last_page = parsed_body[:meta][:pagination][:total_pages]
+
+      prev_params = params.merge({ page: prev_page, per_page: 10 }).to_query
+      next_params = params.merge({ page: next_page, per_page: 10 }).to_query
+
+      prev_link = prev_page ? "http://www.example.com/v1/facilities/va?#{prev_params}" : nil
+      next_link = next_page ? "http://www.example.com/v1/facilities/va?#{next_params}" : nil
+
       expect(parsed_body[:links]).to match(
-        self: "http://www.example.com/v0/facilities/va?#{params.to_query}",
-        first: "http://www.example.com/v0/facilities/va?#{paginated_params.to_query}",
-        prev: nil,
-        next: nil,
-        last: "http://www.example.com/v0/facilities/va?#{paginated_params.to_query}"
+        self: "http://www.example.com/v1/facilities/va?#{params.merge({ page: 1, per_page: 10 }).to_query}",
+        first: "http://www.example.com/v1/facilities/va?#{params.merge({ per_page: 10 }).to_query}",
+        prev: prev_link,
+        next: next_link,
+        last: "http://www.example.com/v1/facilities/va?#{params.merge({ page: last_page, per_page: 10 }).to_query}"
       )
     end
   end
 end
 
-RSpec.describe 'VA Facilities Locator - Lighthouse', type: :request, team: :facilities, vcr: vcr_options do
+vcr_options = {
+  cassette_name: '/lighthouse/facilities',
+  match_requests_on: %i[path query],
+  allow_playback_repeats: true,
+  record: :new_episodes
+}
+
+RSpec.describe 'V1::Facilities::Va', type: :request, team: :facilities, vcr: vcr_options do
   include SchemaMatchers
 
   subject(:parsed_body) { JSON.parse(response.body).with_indifferent_access }
 
-  before do
-    Flipper.enable(:facility_locator_pull_operating_status_from_lighthouse, false)
-    Flipper.enable(:facility_locator_lighthouse_api, true)
-  end
-
   describe 'GET #index' do
     it 'returns 400 for invalid type parameter' do
-      get '/v0/facilities/va', params: { type: 'bogus' }
+      get '/v1/facilities/va', params: { type: 'bogus' }
       expect(response).to have_http_status(:bad_request)
     end
 
     it 'returns 400 for query with services but no type' do
-      get '/v0/facilities/va', params: { services: 'EyeCare' }
+      get '/v1/facilities/va', params: { services: 'EyeCare' }
       expect(response).to have_http_status(:bad_request)
     end
 
     it 'returns 400 for health query with unknown service' do
-      get '/v0/facilities/va', params: { type: 'health', services: ['OilChange'] }
+      get '/v1/facilities/va', params: { type: 'health', services: ['OilChange'] }
       expect(response).to have_http_status(:bad_request)
     end
 
     it 'returns 400 for benefits query with unknown service' do
-      get '/v0/facilities/va', params: { type: 'benefits', services: ['Haircut'] }
+      get '/v1/facilities/va', params: { type: 'benefits', services: ['Haircut'] }
       expect(response).to have_http_status(:bad_request)
     end
 
@@ -90,7 +92,7 @@ RSpec.describe 'VA Facilities Locator - Lighthouse', type: :request, team: :faci
       )
 
       expect do
-        get '/v0/facilities/va', params: { bbox: [-122.786758, 45.451913, -122.440689, 45.64] }
+        get '/v1/facilities/va', params: { bbox: [-122.786758, 45.451913, -122.440689, 45.64] }
       end.to instrument('lighthouse.facilities.request.faraday')
     end
 
@@ -123,7 +125,7 @@ RSpec.describe 'VA Facilities Locator - Lighthouse', type: :request, team: :faci
                       type: 'benefits',
                       services: ['DisabilityClaimAssistance']
                     },
-                    %w[vba_348e vba_348 vba_348a vba_348d vba_348h]
+                    %w[vba_348]
 
     it_behaves_like 'paginated request from params with expected IDs',
                     {
@@ -140,11 +142,17 @@ RSpec.describe 'VA Facilities Locator - Lighthouse', type: :request, team: :faci
                       zip: 85_297
                     },
                     ['vha_644BY']
+
+    it_behaves_like 'paginated request from params with expected IDs',
+                    {
+                      ids: 'vha_442,vha_552,vha_552GB,vha_442GC,vha_442GB,vha_552GA,vha_552GD'
+                    },
+                    %w[vha_442 vha_552 vha_552GB vha_442GC vha_442GB vha_552GA vha_552GD]
   end
 
   describe 'GET #show' do
     before do
-      get '/v0/facilities/va/vha_648A4'
+      get '/v1/facilities/va/vha_648A4'
     end
 
     it { expect(response).to be_successful }
@@ -154,19 +162,19 @@ RSpec.describe 'VA Facilities Locator - Lighthouse', type: :request, team: :faci
         {
           data: {
             id: 'vha_648A4',
-            type: 'va_facilities',
+            type: 'facility',
             attributes: {
               access: {
-                health: {
-                  audiology: { new: 5.5, established: nil },
-                  dermatology: { new: 4.25, established: 10.0 },
-                  mentalhealthcare: { new: 13.714285, established: 2.497297 },
-                  ophthalmology: { new: nil, established: 0.764705 },
-                  optometry: { new: 0.8, established: 1.347826 },
-                  primary_care: { new: 5.12, established: 1.289215 },
-                  specialtycare: { new: 4.76, established: 3.416666 },
-                  effective_date: '2020-04-13'
-                }
+                health: [
+                  { service: 'Audiology',        new: 5.5,       established: nil },
+                  { service: 'Dermatology',      new: 4.25,      established: 10.0 },
+                  { service: 'MentalHealthCare', new: 13.714285, established: 2.497297 },
+                  { service: 'Ophthalmology',    new: nil,       established: 0.764705 },
+                  { service: 'Optometry',        new: 0.8,       established: 1.347826 },
+                  { service: 'PrimaryCare',      new: 5.12,      established: 1.289215 },
+                  { service: 'SpecialtyCare',    new: 4.76,      established: 3.416666 }
+                ],
+                effective_date: '2020-04-13'
               },
               active_status: 'A',
               address: {
@@ -184,10 +192,10 @@ RSpec.describe 'VA Facilities Locator - Lighthouse', type: :request, team: :faci
               facility_type: 'va_health_facility',
               feedback: {
                 health: {
-                  effective_date: '2019-06-20',
                   primary_care_urgent: 0.8500000238418579,
                   primary_care_routine: 0.8899999856948853
-                }
+                },
+                effective_date: '2019-06-20'
               },
               hours: {
                 monday: '730AM-430PM',
@@ -198,6 +206,7 @@ RSpec.describe 'VA Facilities Locator - Lighthouse', type: :request, team: :faci
                 saturday: 'Closed',
                 sunday: 'Closed'
               },
+              id: 'vha_648A4',
               lat: 45.63942553000004,
               long: -122.65533567999995,
               mobile: false,
@@ -215,51 +224,19 @@ RSpec.describe 'VA Facilities Locator - Lighthouse', type: :request, team: :faci
                 enrollment_coordinator: '503-273-5069'
               },
               services: {
-                health: [
-                  {
-                    sl1: ['Audiology'],
-                    sl2: []
-                  },
-                  {
-                    sl1: ['DentalServices'],
-                    sl2: []
-                  },
-                  {
-                    sl1: ['Dermatology'],
-                    sl2: []
-                  },
-                  {
-                    sl1: ['EmergencyCare'],
-                    sl2: []
-                  },
-                  {
-                    sl1: ['MentalHealthCare'],
-                    sl2: []
-                  },
-                  {
-                    sl1: ['Nutrition'],
-                    sl2: []
-                  },
-                  {
-                    sl1: ['Ophthalmology'],
-                    sl2: []
-                  },
-                  {
-                    sl1: ['Optometry'],
-                    sl2: []
-                  },
-                  {
-                    sl1: ['Podiatry'],
-                    sl2: []
-                  },
-                  {
-                    sl1: ['PrimaryCare'],
-                    sl2: []
-                  },
-                  {
-                    sl1: ['SpecialtyCare'],
-                    sl2: []
-                  }
+                other: [],
+                health: %w[
+                  Audiology
+                  DentalServices
+                  Dermatology
+                  EmergencyCare
+                  MentalHealthCare
+                  Nutrition
+                  Ophthalmology
+                  Optometry
+                  Podiatry
+                  PrimaryCare
+                  SpecialtyCare
                 ],
                 last_updated: '2020-04-13'
               },
