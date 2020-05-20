@@ -53,11 +53,12 @@ module SAML
 
     # rubocop:disable Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
     def login_redirect_url(auth: 'success', code: nil)
-      return verify_url if auth == 'success' && user.loa[:current] < user.loa[:highest]
+      if auth == 'success'
+        return verify_url if user.loa[:current] < user.loa[:highest]
 
-      return @tracker&.payload_attr(:redirect) if @tracker&.payload_attr(:redirect)
-      redirect_target = build_tracked_url
-      return redirect_target if redirect_target.present?
+        redirect_target = build_tracked_url
+        return redirect_target if redirect_target.present?
+      end
 
       @query_params[:type] = type if type
       @query_params[:auth] = auth if auth == 'fail'
@@ -73,11 +74,12 @@ module SAML
 
     def build_tracked_url
       return nil unless @tracker&.payload_attr(:redirect)
+
       prefix = @tracker&.payload_attr(:redirect)
-      prefix = result.delete_suffix('/')
+      prefix = prefix.delete_suffix('/')
       suffix = @tracker&.payload_attr(:to) || ''
-      suffix = suffix.delete_prefix('/').gsub('\r\n','')
-      return [prefix,suffix].join('/')
+      suffix = suffix.delete_prefix('/').gsub('\r\n', '')
+      [prefix, suffix].join('/')
     end
 
     def logout_redirect_url
@@ -210,7 +212,7 @@ module SAML
       # if created_at is set to nil (meaning no previous tracker to use), it
       # will be initialized to the current time when it is saved
       SAMLRequestTracker.new(
-        payload: redirect ? { redirect: redirect, to: to} : {},
+        payload: redirect ? { redirect: redirect, to: to } : {},
         created_at: previous&.created_at
       )
     end
