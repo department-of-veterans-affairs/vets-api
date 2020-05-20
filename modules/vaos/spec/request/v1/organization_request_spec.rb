@@ -83,7 +83,7 @@ RSpec.describe 'Organization', type: :request do
 
         it 'returns a 200' do
           VCR.use_cassette('vaos/fhir/search_organization_200.yml', match_requests_on: %i[method uri]) do
-            #expect { get "/vaos/v1/Organization#{query_string}" }
+            # expect { get "/vaos/v1/Organization#{query_string}" }
             #  .to trigger_statsd_increment('api.vaos.fhir.search.healthcare_service.total', times: 1, value: 1)
             get "/vaos/v1/Organization#{query_string}"
             expect(response.body).to be_a(String)
