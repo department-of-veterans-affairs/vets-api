@@ -79,39 +79,34 @@ RSpec.describe 'Organization', type: :request do
           )['http_interactions'].first.dig('response', 'body', 'string')
         end
 
-        let(:query_string) { '?identifier=983,984' }
-
         it 'returns a 200' do
-          VCR.use_cassette('vaos/fhir/search_organization_200.yml', match_requests_on: %i[method uri]) do
-            # expect { get "/vaos/v1/Organization#{query_string}" }
-            #  .to trigger_statsd_increment('api.vaos.fhir.search.healthcare_service.total', times: 1, value: 1)
-            get "/vaos/v1/Organization#{query_string}"
+          VCR.use_cassette('vaos/fhir/search_organization_200', match_requests_on: %i[method uri]) do
+            get "/vaos/v1/Organization?identifier=983,984"
+
+            expect(response).to have_http_status(:ok)
+            expect(response.body).to eq(expected_body)
+          end
+        end
+      end
+
+      context 'when records are not found' do
+        it 'returns a 404' do
+          VCR.use_cassette('vaos/fhir/search_organization_404', match_requests_on: %i[method uri]) do
+            get "/vaos/v1/Organization?identifier=101"
+
             expect(response).to have_http_status(:not_found)
             expect(JSON.parse(response.body)['issue'].first['code']).to eq('VAOS_404')
           end
         end
       end
 
-      context 'when records are not found' do
-        let(:query_string) { '?identifier=101' }
-
-        xit 'returns a 404' do
-          VCR.use_cassette('vaos/fhir/search_organization_404.yml', match_requests_on: %i[method uri]) do
-            get "/vaos/v1/Organization#{query_string}"
-
-            expect(response).to have_http_status(:not_found)
-          end
-        end
-      end
-
       context 'when a backend service exception occurs' do
-        let(:query_string) { '?identifier=983,101' }
-
-        xit 'returns a 502' do
-          VCR.use_cassette('vaos/fhir/search_organization_404.yml', match_requests_on: %i[method uri]) do
-            get "/vaos/v1/Organization#{query_string}"
+        it 'returns a 502' do
+          VCR.use_cassette('vaos/fhir/search_organization_500', match_requests_on: %i[method uri]) do
+            get "/vaos/v1/Organization?identifier=983,101"
 
             expect(response).to have_http_status(:bad_gateway)
+            expect(JSON.parse(response.body)['issue'].first['code']).to eq('VAOS_502')
           end
         end
       end

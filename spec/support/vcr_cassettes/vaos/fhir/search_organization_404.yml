@@ -2,7 +2,7 @@
 http_interactions:
   - request:
       method: get
-      uri: https://veteran.apps.va.gov/vsp/v1/Organization?identifier%5B%5D=983&identifier%5B%5D=984
+      uri: https://veteran.apps.va.gov/vsp/v1/Organization?identifier=101
       body:
         encoding: US-ASCII
         string: ''
