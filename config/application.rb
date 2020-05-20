@@ -42,6 +42,7 @@ module VetsAPI
     # This prevents rails from escaping html like & in links when working with JSON
     config.active_support.escape_html_entities_in_json = false
 
+    # REVIEW do we need these?!  What do they do in zeitwerk-world?
     paths_name = Rails.env.development? ? 'autoload' : 'eager_load'
     config.public_send("#{paths_name}_paths") << Rails.root.join('lib')
     config.eager_load_paths << Rails.root.join('app')
