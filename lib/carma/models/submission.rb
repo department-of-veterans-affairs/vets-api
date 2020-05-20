@@ -11,12 +11,12 @@ module CARMA
 
       def clear_veteran_icn(data)
         # The values metadata.veteran.icn and metadata.veteran.isVeteran are used together
-        # to create the proper Person type in CARMA
+        # to create the proper Person type in CARMA.
         #
         # CARMA requires metadata.veteran.icn to be null if metadata.veteran.isVeteran is false
-        # If metadata.veteran.isVeteran is true, an icn must be present
+        # If metadata.veteran.isVeteran is true, an icn must be present.
         #
-        # This is only the case for metadata.veteran and not other metadata namespaces
+        # This is only the case for metadata.veteran and not other metadata namespaces.
         data['metadata']['veteran']['icn'] = nil unless data['metadata']['veteran']['isVeteran'] == true
         data
       end
