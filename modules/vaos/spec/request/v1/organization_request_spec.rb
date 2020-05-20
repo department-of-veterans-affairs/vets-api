@@ -81,7 +81,7 @@ RSpec.describe 'Organization', type: :request do
 
         it 'returns a 200' do
           VCR.use_cassette('vaos/fhir/search_organization_200', match_requests_on: %i[method uri]) do
-            get "/vaos/v1/Organization?identifier=983,984"
+            get '/vaos/v1/Organization?identifier=983,984'
 
             expect(response).to have_http_status(:ok)
             expect(response.body).to eq(expected_body)
@@ -92,7 +92,7 @@ RSpec.describe 'Organization', type: :request do
       context 'when records are not found' do
         it 'returns a 404' do
           VCR.use_cassette('vaos/fhir/search_organization_404', match_requests_on: %i[method uri]) do
-            get "/vaos/v1/Organization?identifier=101"
+            get '/vaos/v1/Organization?identifier=101'
 
             expect(response).to have_http_status(:not_found)
             expect(JSON.parse(response.body)['issue'].first['code']).to eq('VAOS_404')
@@ -103,7 +103,7 @@ RSpec.describe 'Organization', type: :request do
       context 'when a backend service exception occurs' do
         it 'returns a 502' do
           VCR.use_cassette('vaos/fhir/search_organization_500', match_requests_on: %i[method uri]) do
-            get "/vaos/v1/Organization?identifier=983,101"
+            get '/vaos/v1/Organization?identifier=983,101'
 
             expect(response).to have_http_status(:bad_gateway)
             expect(JSON.parse(response.body)['issue'].first['code']).to eq('VAOS_502')
