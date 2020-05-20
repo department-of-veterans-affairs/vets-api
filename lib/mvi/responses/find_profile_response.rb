@@ -15,8 +15,8 @@ module MVI
       # @return [String] The status of the response
       attribute :status, String
 
-      # @return [MVI::Models::MviProfile] The parsed MVI profile
-      attribute :profile, MVI::Models::MviProfile
+      # @return [MVI::Models::MVIProfile] The parsed MVI profile
+      attribute :profile, MVI::Models::MVIProfile
 
       # @return [Common::Exceptions::BackendServiceException] The rescued exception
       attribute :error, Common::Exceptions::BackendServiceException
@@ -46,7 +46,7 @@ module MVI
       # Builds a response with a ok status and a parsed response
       #
       # @param response [Ox::Element] ox element returned from the soap service middleware
-      # @return [MVI::Responses::FindProfileResponse] response with a parsed MviProfile
+      # @return [MVI::Responses::FindProfileResponse] response with a parsed MVIProfile
       def self.with_parsed_response(response)
         profile_parser = ProfileParser.new(response)
         profile = profile_parser.parse

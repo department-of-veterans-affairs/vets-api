@@ -21,7 +21,7 @@ module V0
       #   }
       #
       def show
-        response = Mvi.for_user(@current_user).profile
+        response = MVI.for_user(@current_user).profile
 
         handle_errors!(response)
 

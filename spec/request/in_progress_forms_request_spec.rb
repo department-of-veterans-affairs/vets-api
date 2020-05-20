@@ -250,7 +250,7 @@ RSpec.describe V0::InProgressFormsController, type: :request do
 
           it 'call to add user to MVI is skipped' do
             expect(in_progress_form.form_id).not_to eq('21-526EZ') # check test set up
-            expect_any_instance_of(Mvi).not_to receive(:mvi_add_person)
+            expect_any_instance_of(MVI).not_to receive(:mvi_add_person)
             get v0_in_progress_form_url(in_progress_form.form_id), params: nil
           end
         end
@@ -264,7 +264,7 @@ RSpec.describe V0::InProgressFormsController, type: :request do
               VCR.use_cassette('mvi/find_candidate/orch_search_with_attributes') do
                 expect(in_progress_form.form_id).to eq('21-526EZ') # check test set up
                 # expect success to be achieved by calling mvi_add_person
-                expect_any_instance_of(Mvi).to receive(:mvi_add_person).once.and_call_original
+                expect_any_instance_of(MVI).to receive(:mvi_add_person).once.and_call_original
                 get v0_in_progress_form_url(in_progress_form.form_id), params: nil # call show endpoint
                 expect(response.status).to eq(200)
               end

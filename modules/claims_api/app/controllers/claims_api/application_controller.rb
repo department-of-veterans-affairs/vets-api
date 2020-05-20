@@ -7,7 +7,7 @@ require_dependency 'claims_api/concerns/json_format_validation'
 
 module ClaimsApi
   class ApplicationController < ::OpenidApplicationController
-    include ClaimsApi::MviVerification
+    include ClaimsApi::MVIVerification
     include ClaimsApi::HeaderValidation
     include ClaimsApi::JsonFormatValidation
 

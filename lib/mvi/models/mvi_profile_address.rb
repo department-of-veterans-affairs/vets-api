@@ -2,7 +2,7 @@
 
 module MVI
   module Models
-    class MviProfileAddress
+    class MVIProfileAddress
       include Virtus.model
 
       attribute :street, String

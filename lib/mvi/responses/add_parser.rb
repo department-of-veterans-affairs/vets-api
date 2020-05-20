@@ -4,7 +4,7 @@ require 'sentry_logging'
 
 module MVI
   module Responses
-    # Parses a MVI response and returns a MviProfile
+    # Parses a MVI response and returns a MVIProfile
     class AddParser
       include SentryLogging
 
