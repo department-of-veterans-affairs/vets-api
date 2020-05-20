@@ -280,7 +280,7 @@ RSpec.describe CARMA::Models::Submission, type: :model do
     end
 
     context 'when Flipper enabled' do
-      it 'submits to CARMA, and updates :carma_case_id and :submitted_at' do
+      xit 'submits to CARMA, and updates :carma_case_id and :submitted_at' do
         expected_carma_body = {
           'data' => {
             'carmacase' => {
@@ -308,7 +308,7 @@ RSpec.describe CARMA::Models::Submission, type: :model do
     end
 
     context 'when Flipper disabled' do
-      it 'returns a hardcoded CARMA response, and updates :carma_case_id and :submitted_at' do
+      xit 'returns a hardcoded CARMA response, and updates :carma_case_id and :submitted_at' do
         expected_carma_body = {
           'data' => {
             'carmacase' => {
