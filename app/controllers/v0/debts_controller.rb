@@ -1,6 +1,17 @@
 module V0
   class DebtsController < ApplicationController
     def index
+      render(
+        json: service.get_letters(
+          params[:file_number] || current_user.ssn
+        )
+      )
+    end
+
+    private
+
+    def service
+      Debts::Service.new
     end
   end
 end
