@@ -1,4 +1,10 @@
-# Vets API [![Build Status](http://dev.va.gov/jenkins/buildStatus/icon?job=testing/vets-api/master)](http://jenkins.vfs.va.gov/job/builds/job/vets-api/) [![Yard Docs](http://img.shields.io/badge/yard-docs-blue.svg)](https://www.rubydoc.info/github/department-of-veterans-affairs/vets-api) [![Maintainability](https://api.codeclimate.com/v1/badges/8576e1b71f64d9bcd3cb/maintainability)](https://codeclimate.com/github/department-of-veterans-affairs/vets-api/maintainability) [![Test Coverage](https://api.codeclimate.com/v1/badges/8576e1b71f64d9bcd3cb/test_coverage)](https://codeclimate.com/github/department-of-veterans-affairs/vets-api/test_coverage) [![License: CC0-1.0](https://img.shields.io/badge/License-CC0%201.0-lightgrey.svg)](LICENSE.md)
+# Vets API
+
+[![Build Status](http://jenkins.vfs.va.gov/buildStatus/icon?job=testing/vets-api/master)](http://jenkins.vfs.va.gov/job/builds/job/vets-api/)
+[![Yard Docs](http://img.shields.io/badge/yard-docs-blue.svg)](https://www.rubydoc.info/github/department-of-veterans-affairs/vets-api)
+[![Maintainability](https://api.codeclimate.com/v1/badges/8576e1b71f64d9bcd3cb/maintainability)](https://codeclimate.com/github/department-of-veterans-affairs/vets-api/maintainability)
+[![Test Coverage](https://api.codeclimate.com/v1/badges/8576e1b71f64d9bcd3cb/test_coverage)](https://codeclimate.com/github/department-of-veterans-affairs/vets-api/test_coverage)
+[![License: CC0-1.0](https://img.shields.io/badge/License-CC0%201.0-lightgrey.svg)](LICENSE.md)
 
 This project provides common APIs for applications that live on VA.gov (formerly vets.gov APIs).
 
@@ -16,23 +22,18 @@ To start, fetch this code:
 1. Setup key & cert for localhost authentication to ID.me:
    - Create a folder in your vets-api directory: `mkdir config/certs`
    - Create an empty key and cert:
-
-```
-touch config/certs/vetsgov-localhost.crt
-touch config/certs/vetsgov-localhost.key
-```
-
+   ```bash
+   touch config/certs/vetsgov-localhost.crt
+   touch config/certs/vetsgov-localhost.key
+   ```
 1. Disable signed authentication requests:
-
-
-```yaml
-# settings.local.yml
-saml:
-  authn_requests_signed: false
-```
+   ```yaml
+   # settings.local.yml
+   saml:
+     authn_requests_signed: false
+   ```
 
 [For more info on crypto & authentication, including how to enable crypto for localhost authentication](/docs/setup/authentication_with_idme.md)
-
 
 ## Running the app
 
@@ -65,6 +66,7 @@ The [Makefile](https://github.com/department-of-veterans-affairs/vets-api/blob/m
 but the following tasks have been aliased to speed development:
 
 ### Running tests
+
 - `make spec` - Run the entire test suite via the docker image (alias for `rspec spec`). Test coverage statistics are in `coverage/index.html` or in [CodeClimate](https://codeclimate.com/github/department-of-veterans-affairs/vets-api/code)
 - `make guard` - Run the guard test server that reruns your tests after files are saved. Useful for TDD!
 
@@ -75,11 +77,13 @@ but the following tasks have been aliased to speed development:
 - `make ci` - Run all build steps performed in CI.
 
 ### Running a rails interactive console
+
 - `make console` - Is an alias for `rails console`, which runs an IRB like REPL in which all of the API's classes and
-environmental variables have been loaded.
+  environmental variables have been loaded.
 
 ### Running a bash shell
-To emulate a local install's workflow where you can run `rspec`, `rake`, or `rails` commands 
+
+To emulate a local install's workflow where you can run `rspec`, `rake`, or `rails` commands
 directly within the vets-api docker instance you can use the `make bash` command.
 
 ```bash
@@ -116,13 +120,14 @@ to be set appropriately for each environment in the relevant
 
 Some examples of configuration that will need to be added to these files are:
 
-* API keys/tokens
-* 3rd party service hostnames, ports, and certificates/keys.
-* Betamocks settings
+- API keys/tokens
+- 3rd party service hostnames, ports, and certificates/keys.
+- Betamocks settings
 
 ### Optional application configuration
 
 The following features require additional configuration, click for details.
+
 - [Authentication with ID.me](/docs/setup/authentication_with_idme.md)
 - [EVSS](/docs/setup/evss.md)
 - [Facilities Locator](/docs/setup/facilities_locator.md)
@@ -139,7 +144,7 @@ features, and will run the unit tests successfully.
 
 #### `make up` fails with a message about missing gems
 
-```
+```bash
 Could not find %SOME_GEM_v0.0.1% in any of the sources
 Run `bundle install` to install missing gems.
 ```
@@ -179,7 +184,7 @@ The version of Ruby and gem dependencies (including Rails) used are defined in t
 
 #### Version Policy
 
-The goal is to have vets-api use supported versions of gems and Ruby, which is often the latest.  However the versions are generally updated as need or availability arise.  If you need a newer version of a gem, please submit a pull-request marked as `draft` with just the gem updated and passing tests.
+The goal is to have vets-api use supported versions of gems and Ruby, which is often the latest. However the versions are generally updated as need or availability arise. If you need a newer version of a gem, please submit a pull-request marked as `draft` with just the gem updated and passing tests.
 
 ## How to contribute
 
@@ -192,11 +197,11 @@ filing an issue add the following:
 
 - Title: Sentence that summarizes the bug concisely
 - Comment:
-    - The environment you experienced the bug (browser, browser version, kind of
-      account any extensions enabled)
-    - The exact steps you took that triggered the bug. Steps 1, 2, 3, etc.
-    - The expected outcome
-    - The actual outcome (include screen shot or error logs)
+  - The environment you experienced the bug (browser, browser version, kind of
+    account any extensions enabled)
+  - The exact steps you took that triggered the bug. Steps 1, 2, 3, etc.
+  - The expected outcome
+  - The actual outcome (include screen shot or error logs)
 - Label: Apply the label `bug`
 
 For security related bugs unfit for public viewing, email us feedback@va.gov

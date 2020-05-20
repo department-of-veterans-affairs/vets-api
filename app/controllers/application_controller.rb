@@ -97,6 +97,8 @@ class ApplicationController < ActionController::API
       case exception
       when Pundit::NotAuthorizedError
         Common::Exceptions::Forbidden.new(detail: 'User does not have access to the requested resource')
+      when ActionController::InvalidAuthenticityToken
+        Common::Exceptions::Forbidden.new(detail: 'Invalid Authenticity Token')
       when Common::Exceptions::TokenValidationError
         Common::Exceptions::Unauthorized.new(detail: exception.detail)
       when ActionController::ParameterMissing
