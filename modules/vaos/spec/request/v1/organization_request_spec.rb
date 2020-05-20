@@ -86,7 +86,8 @@ RSpec.describe 'Organization', type: :request do
             # expect { get "/vaos/v1/Organization#{query_string}" }
             #  .to trigger_statsd_increment('api.vaos.fhir.search.healthcare_service.total', times: 1, value: 1)
             get "/vaos/v1/Organization#{query_string}"
-            expect(response.body).to be_a(String)
+            expect(response).to have_http_status(:not_found)
+            expect(JSON.parse(response.body)['issue'].first['code']).to eq('VAOS_404')
           end
         end
       end
