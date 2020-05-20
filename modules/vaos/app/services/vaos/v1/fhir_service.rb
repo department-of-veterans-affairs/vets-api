@@ -26,18 +26,18 @@ module VAOS
       end
 
       def read(id)
-        perform(:get, "#{@resource_type}/#{id}", nil)
+        perform(:get, "#{@resource_type}/#{id}")
       end
 
-      def search(params)
-        perform(:get, @resource_type.to_s, params)
+      def search(query_string)
+        perform(:get, "#{@resource_type}?#{query_string}")
       end
 
       private
 
-      def perform(method, path, params)
+      def perform(method, path)
         StatsD.increment("#{action_statsd_key(path)}.total")
-        super(method, path, params, headers)
+        super(method, path, nil, headers)
       rescue => e
         StatsD.increment("#{action_statsd_key(path)}.failure")
         raise e

@@ -2,7 +2,12 @@
 
 module VAOS
   module V1
-    class OrganizationController < VAOS::V1::BaseController
+    class OrganizationsController < VAOS::V1::BaseController
+      def index
+        response = fhir_service.search(query_string)
+        render json: response.body
+      end
+
       def show
         response = fhir_service.read(params[:id])
         render json: response.body
