@@ -15,6 +15,7 @@ module VAOS
 
       private
 
+      # TODO move to base controller
       def fhir_service
         VAOS::V1::FHIRService.new(current_user, controller_name.singularize.capitalize.to_sym)
       end
