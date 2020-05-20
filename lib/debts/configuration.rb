@@ -19,10 +19,10 @@ module Debts
 
     def connection
       @connection = Faraday.new(base_path, headers: base_request_headers, request: request_options) do |f|
-        faraday.use     :breakers
+        f.use     :breakers
 
         f.request :json
-        faraday.adapter Faraday.default_adapter
+        f.adapter Faraday.default_adapter
         f.response :json
       end
     end
