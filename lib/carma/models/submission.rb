@@ -7,6 +7,19 @@ module CARMA
       attr_accessor :data, :carma_case_id, :submitted_at
 
       request_payload_key :data, :metadata
+      after_to_request_payload :clear_veteran_icn
+
+      def clear_veteran_icn(data)
+        # The values metadata.veteran.icn and metadata.veteran.isVeteran work together
+        # to create the proper Person type in CARMA
+        #
+        # Carma requires metadata.veteran.icn to be null if metadata.veteran.isVeteran is false
+        # If metadata.veteran.isVeteran is true, an icn must be present
+        # This is only the case for metadata.veteran and not other metadata namespaces
+        data['metadata']['veteran']['icn'] = nil unless data['metadata']['veteran']['isVeteran'] == true
+
+        data
+      end
 
       # Returns a new CARMA::Models::Submission built from a CaregiversAssistanceClaim.
       #
@@ -37,6 +50,7 @@ module CARMA
         #             else
         #               client.create_submission(to_request_payload)
         #             end
+
         response = client.create_submission(to_request_payload)
 
         @carma_case_id = response['data']['carmacase']['id']
