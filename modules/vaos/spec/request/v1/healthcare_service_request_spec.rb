@@ -51,7 +51,7 @@ RSpec.describe 'VAOS::V1::HeathcareService', type: :request do
           end
         end
 
-        context 'returns a valid response with zero reesults' do
+        context 'returns a valid response with zero results' do
           let(:expected_body) do
             YAML.load_file(
               Rails.root.join(
