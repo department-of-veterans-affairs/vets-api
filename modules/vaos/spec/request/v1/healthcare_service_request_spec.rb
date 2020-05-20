@@ -25,7 +25,7 @@ RSpec.describe 'VAOS::V1::HeathcareService', type: :request do
       end
     end
 
-    context 'with a loa3 user' do
+    describe 'with a loa3 user' do
       let(:user) { build(:user, :vaos) }
 
       context 'FHIR HealthcareService Resource search' do
