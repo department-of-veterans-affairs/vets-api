@@ -12,7 +12,7 @@ module BB
   # Core class responsible for BB API interface operations
   #
   class Client < Common::Client::Base
-    include Common::Client::MHVSessionBasedClient
+    include Common::Client::Concerns::MHVSessionBasedClient
     include Common::Client::StreamingClient
     include SentryLogging
 

@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Common
-  module Client
+  module Client::Concerns
     ##
     # Module mixin for overriding session logic when making MHV client connections
     #

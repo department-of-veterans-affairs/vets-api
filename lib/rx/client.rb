@@ -11,7 +11,7 @@ module Rx
   # Core class responsible for Rx API interface operations
   #
   class Client < Common::Client::Base
-    include Common::Client::MHVSessionBasedClient
+    include Common::Client::Concerns::MHVSessionBasedClient
 
     configuration Rx::Configuration
     client_session Rx::ClientSession
