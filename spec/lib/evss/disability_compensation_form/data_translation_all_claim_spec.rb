@@ -816,7 +816,7 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
                   'from' => '2018-01-01',
                   'to' => '2018-02-XX'
                 },
-                'treatmentCenterName' => 'Super Hospital',
+                'treatmentCenterName' => 'Super _,!?Hospital \'&\' "More" (#2.0)',
                 'treatmentCenterAddress' => {
                   'country' => 'USA',
                   'city' => 'Portland',
@@ -829,7 +829,7 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
         }
       end
 
-      it 'translates the data correctly' do
+      it 'translates the data correctly, including regex evaluation of center name' do
         expect(subject.send(:translate_treatments)).to eq 'treatments' => [
           {
             'startDate' => {
@@ -843,7 +843,7 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
             },
             'treatedDisabilityNames' => %w[PTSD PTSD2 PTSD3],
             'center' => {
-              'name' => 'Super Hospital',
+              'name' => 'Super Hospital \'&\' "More" (#2.0)',
               'country' => 'USA',
               'city' => 'Portland',
               'state' => 'OR'
