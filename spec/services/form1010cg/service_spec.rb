@@ -342,7 +342,7 @@ RSpec.describe Form1010cg::Service do
   end
 
   describe '#is_veteran' do
-    it 'returns "NOT_CONFIRMED" if the icn for the for the subject is "NOT_FOUND"' do
+    xit 'returns "NOT_CONFIRMED" if the icn for the for the subject is "NOT_FOUND"' do
       subject = described_class.new(
         build(
           :caregivers_assistance_claim,
@@ -361,7 +361,7 @@ RSpec.describe Form1010cg::Service do
 
     describe 'searches eMIS and' do
       context 'when title38_status_code is "V1"' do
-        it 'returns true' do
+        xit 'returns true' do
           subject = described_class.new(
             build(
               :caregivers_assistance_claim,
@@ -394,7 +394,7 @@ RSpec.describe Form1010cg::Service do
       end
 
       context 'when title38_status_code is not "V1"' do
-        it 'returns "NOT_CONFIRMED"' do
+        xit 'returns "NOT_CONFIRMED"' do
           subject = described_class.new(
             build(
               :caregivers_assistance_claim,
@@ -427,7 +427,7 @@ RSpec.describe Form1010cg::Service do
       end
 
       context 'when title38_status_code is not present' do
-        it 'returns "NOT_CONFIRMED"' do
+        xit 'returns "NOT_CONFIRMED"' do
           subject = described_class.new(
             build(
               :caregivers_assistance_claim,
@@ -456,7 +456,7 @@ RSpec.describe Form1010cg::Service do
       end
 
       context 'when the search fails' do
-        it 'raises the error found in the MVI response' do
+        xit 'raises the error found in the MVI response' do
           subject = described_class.new(
             build(
               :caregivers_assistance_claim,
@@ -487,7 +487,7 @@ RSpec.describe Form1010cg::Service do
       end
     end
 
-    it 'returns a cached responses when called more than once for a given subject' do
+    xit 'returns a cached responses when called more than once for a given subject' do
       subject = described_class.new(
         build(
           :caregivers_assistance_claim,
