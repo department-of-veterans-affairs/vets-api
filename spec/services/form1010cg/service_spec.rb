@@ -110,12 +110,12 @@ RSpec.describe Form1010cg::Service do
       expect_any_instance_of(MVI::Service).to receive(:find_profile).with(
         :user_identity
       ).and_return(
-        double(status: 'OK', profile: double(icn: :ICN_123))
+        double(status: 'OK', profile: double(icn: 'ICN_123V5678'))
       )
 
       result = subject.icn_for('veteran')
 
-      expect(result).to eq(:ICN_123)
+      expect(result).to eq('ICN_123')
     end
 
     it 'sets returns "NOT_FOUND" when profile not found in MVI' do
@@ -217,7 +217,7 @@ RSpec.describe Form1010cg::Service do
       expect_any_instance_of(MVI::Service).to receive(:find_profile).with(
         :veteran_user_identity
       ).and_return(
-        double(status: 'OK', profile: double(icn: :CACHED_VALUE))
+        double(status: 'OK', profile: double(icn: 'CACHED_RESULT'))
       )
 
       expect(UserIdentity).to receive(:new).with(
@@ -233,7 +233,7 @@ RSpec.describe Form1010cg::Service do
       )
 
       3.times do
-        expect(subject.icn_for('veteran')).to eq(:CACHED_VALUE)
+        expect(subject.icn_for('veteran')).to eq('CACHED_RESULT')
       end
 
       3.times do
@@ -281,12 +281,12 @@ RSpec.describe Form1010cg::Service do
         expect_any_instance_of(MVI::Service).to receive(:find_profile).with(
           :user_identity
         ).and_return(
-          double(status: 'OK', profile: double(icn: :ICN_123))
+          double(status: 'OK', profile: double(icn: 'ICN_123'))
         )
 
         result = subject.icn_for('veteran')
 
-        expect(result).to eq(:ICN_123)
+        expect(result).to eq('ICN_123')
       end
     end
 
@@ -331,12 +331,12 @@ RSpec.describe Form1010cg::Service do
         expect_any_instance_of(MVI::Service).to receive(:find_profile).with(
           :user_identity
         ).and_return(
-          double(status: 'OK', profile: double(icn: :ICN_123))
+          double(status: 'OK', profile: double(icn: 'ICN_123'))
         )
 
         result = subject.icn_for('veteran')
 
-        expect(result).to eq(:ICN_123)
+        expect(result).to eq('ICN_123')
       end
     end
   end
