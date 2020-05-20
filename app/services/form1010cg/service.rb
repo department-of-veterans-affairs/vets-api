@@ -23,6 +23,7 @@ module Form1010cg
         icns: {},
         # [form_subject]: true            - This person is a veteran
         # [form_subject]: false           - This person's veteran status cannot be confirmed
+        # [form_subject]: nil             - An eMIS search has not been conducted for this person
         veteran_statuses: {}
       }
     end
