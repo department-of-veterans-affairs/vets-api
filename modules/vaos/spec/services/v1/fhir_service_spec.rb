@@ -3,7 +3,7 @@
 require 'rails_helper'
 
 describe VAOS::V1::FHIRService do
-  subject { VAOS::V1::FHIRService.new(user, :Organization) }
+  subject { VAOS::V1::FHIRService.new(resource_type: :Organization, user: user) }
 
   let(:user) { build(:user, :vaos) }
 
@@ -17,7 +17,7 @@ describe VAOS::V1::FHIRService do
 
   context 'with an invalid resource type' do
     it 'raises an invalid field value exception' do
-      expect { VAOS::V1::FHIRService.new(user, :House) }.to raise_error(
+      expect { VAOS::V1::FHIRService.new(resource_type: :House, user: user) }.to raise_error(
         Common::Exceptions::InvalidFieldValue
       ) { |e| expect(e.errors.first.detail).to eq('"House" is not a valid value for "resource_type"') }
     end

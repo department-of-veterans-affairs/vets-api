@@ -27,7 +27,7 @@ http_interactions:
       message: OK
     headers:
       Date:
-        - Fri, 17 Apr 2020 17:14:20 GMT
+        - Wed, 20 May 2020 12:38:40 GMT
       Content-Type:
         - application/json+fhir;charset=UTF-8
       Content-Length:

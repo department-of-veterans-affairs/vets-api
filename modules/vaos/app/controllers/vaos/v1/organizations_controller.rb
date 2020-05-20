@@ -4,7 +4,7 @@ module VAOS
   module V1
     class OrganizationsController < VAOS::V1::BaseController
       def index
-        response = fhir_service.search(query_string)
+        response = fhir_service.search(request.query_string)
         render json: response.body
       end
 

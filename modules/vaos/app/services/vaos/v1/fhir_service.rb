@@ -16,13 +16,13 @@ module VAOS
       STATSD_KEY_PREFIX = 'api.vaos.fhir'
       RESOURCES = %i[Appointment HealthcareService Location Organization Patient Schedule Slot].freeze
 
-      def initialize(user, resource_type)
+      def initialize(resource_type:, user: nil)
         unless RESOURCES.include?(resource_type)
           raise Common::Exceptions::InvalidFieldValue.new('resource_type', resource_type)
         end
 
         @resource_type = resource_type
-        super(user)
+        super(user) unless user.nil?
       end
 
       # The read interaction accesses the current contents of a resource.
@@ -42,7 +42,7 @@ module VAOS
       # @query_string String the query to run on the resource
       #
       def search(query_string)
-        perform(:get, "#{@resource_type}?#{query_string}")
+        query_string.blank? ? perform(:get, @resource_type.to_s) : perform(:get, "#{@resource_type}?#{query_string}")
       end
 
       private

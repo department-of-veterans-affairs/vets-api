@@ -70,7 +70,7 @@ RSpec.describe 'Organization', type: :request do
     end
 
     describe 'GET /vaos/v1/Organization?queries' do
-      context 'when records are found' do
+      context 'when records are found via identifier' do
         let(:expected_body) do
           YAML.load_file(
             Rails.root.join(
@@ -82,6 +82,25 @@ RSpec.describe 'Organization', type: :request do
         it 'returns a 200' do
           VCR.use_cassette('vaos/fhir/search_organization_200', match_requests_on: %i[method uri]) do
             get '/vaos/v1/Organization?identifier=983,984'
+
+            expect(response).to have_http_status(:ok)
+            expect(response.body).to eq(expected_body)
+          end
+        end
+      end
+
+      context 'with a no query string' do
+        let(:expected_body) do
+          YAML.load_file(
+            Rails.root.join(
+              'spec', 'support', 'vcr_cassettes', 'vaos', 'fhir', 'search_organization_200_no_query_string.yml'
+            )
+          )['http_interactions'].first.dig('response', 'body', 'string')
+        end
+
+        it 'returns a 200' do
+          VCR.use_cassette('vaos/fhir/search_organization_200_no_query_string', match_requests_on: %i[method uri]) do
+            get '/vaos/v1/Organization'
 
             expect(response).to have_http_status(:ok)
             expect(response.body).to eq(expected_body)
