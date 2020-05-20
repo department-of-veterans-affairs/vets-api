@@ -4,11 +4,15 @@ module EVSS
   class ErrorMiddleware < Faraday::Response::Middleware
     class EVSSError < StandardError
       attr_reader :details
-      def initialize(message = nil, details = nil)
+      attr_reader :body
+
+      def initialize(message = nil, details = nil, body = nil)
         super(message)
         @details = details
+        @body = body
       end
     end
+
     class EVSSBackendServiceError < Common::Exceptions::BackendServiceException; end
 
     def handle_xml_body(env)
@@ -28,10 +32,9 @@ module EVSS
           handle_xml_body(env)
         else
           resp = env.body
-          raise EVSSError.new(resp['messages'], resp['messages']) if resp['success'] == false
 
-          if resp['messages']&.find { |m| m['severity'] =~ /fatal|error/i }
-            raise EVSSError.new(resp['messages'], resp['messages'])
+          if resp['success'] == false || resp['messages']&.find { |m| m['severity'] =~ /fatal|error/i }
+            raise EVSSError.new(resp['messages'], resp['messages'], resp)
           end
         end
       when 503, 504

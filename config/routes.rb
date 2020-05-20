@@ -69,8 +69,7 @@ Rails.application.routes.draw do
 
     resource :hca_attachments, only: :create
 
-    # Excluding this feature until external service (CARMA) is connected
-    resources :caregivers_assistance_claims, only: :create if Rails.env.test?
+    resources :caregivers_assistance_claims, only: :create
 
     resources :dependents_applications, only: %i[create show] do
       collection do
@@ -200,7 +199,6 @@ Rails.application.routes.draw do
     namespace :vic do
       resources :profile_photo_attachments, only: %i[create show]
       resources :supporting_documentation_attachments, only: :create
-      resources :vic_submissions, only: %i[create show]
     end
 
     resources :gi_bill_feedbacks, only: %i[create show]
@@ -211,8 +209,6 @@ Rails.application.routes.draw do
         get 'states', to: 'addresses#states'
       end
     end
-
-    resources :performance_monitorings, only: :create
 
     namespace :profile do
       resource :alternate_phone, only: %i[show create]
@@ -288,6 +284,10 @@ Rails.application.routes.draw do
         defaults: { feature: feature }
       )
     end
+
+    namespace :coronavirus_chatbot do
+      resource :tokens, only: :create
+    end
   end
 
   namespace :v1, defaults: { format: 'json' } do
@@ -314,7 +314,7 @@ Rails.application.routes.draw do
     mount VeteranConfirmation::Engine, at: '/veteran_confirmation'
   end
 
-  mount VAOS::Engine, at: '/v0/vaos'
+  mount VAOS::Engine, at: '/vaos'
 
   if Rails.env.development? || Settings.sidekiq_admin_panel
     require 'sidekiq/web'

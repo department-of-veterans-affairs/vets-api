@@ -15,7 +15,7 @@
     :file_path: "mdot/supplies/create"
     :cache_multiple_responses:
       :uid_location: header
-      :uid_locator: 'va_veteran_id'
+      :uid_locator: 'va_api_key'
 
 - :name: 'MHV_Rx'
   :base_uri: <%= "#{URI(Settings.mhv.rx.host).host}:#{URI(Settings.mhv.rx.host).port}" %>
@@ -438,8 +438,8 @@
       :uid_locator: '<v11:eMISunitInformationRequest>\s*<v12:edipiORicn>\s*<v13:edipiORicnValue>(\d+)'
 
 # Appeals
-- :name: 'Appeals'
-  :base_uri: <%= "#{URI(Settings.appeals.host).host}:#{URI(Settings.appeals.host).port}" %>
+- :name: 'Caseflow'
+  :base_uri: <%= "#{URI(Settings.caseflow.host).host}:#{URI(Settings.caseflow.host).port}" %>
   :endpoints:
   - :method: :get
     :path: "/api/v2/appeals"

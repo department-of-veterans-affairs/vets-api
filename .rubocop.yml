@@ -5,9 +5,10 @@ inherit_from: .rubocop_todo.yml
 require:
   - rubocop-rails
   - rubocop-rspec
+  - rubocop-thread_safety
 
 AllCops:
-  TargetRailsVersion: 5.2
+  TargetRailsVersion: 6.0
   Include:
     - '**/Gemfile'
     - '**/config.ru'
@@ -15,6 +16,7 @@ AllCops:
     - '**/*.rake'
     - '**/*.rb'
   Exclude:
+    - 'bin/*'
     - db/schema.rb
     - db/seeds.rb
     - db/migrate/*.rb
@@ -109,6 +111,7 @@ Metrics/BlockLength:
     - 'app/controllers/v0/apidocs_controller.rb'
     - 'modules/*/spec/**/*.rb'
     - 'modules/*/app/swagger/**/*.rb'
+    - 'modules/*/config/routes.rb'
 
 # Don't worry about ambiguous blocks in RSpec
 # Official recommendation from rubocop team is to disable this rule for specs.
@@ -330,17 +333,32 @@ RSpec/SubjectStub:
 Rails/FilePath:
   EnforcedStyle: arguments
 
+# Added in v0.81
 Lint/RaiseException:
-  Enabled: false
+  Enabled: true
 
 Lint/StructNewOverride:
-  Enabled: false
+  Enabled: true
 
 Style/HashEachMethods:
-  Enabled: false
+  Enabled: true
 
 Style/HashTransformKeys:
-  Enabled: false
+  Enabled: true
 
 Style/HashTransformValues:
-  Enabled: false
+  Enabled: true
+
+# Added in v0.82
+Layout/SpaceAroundMethodCallOperator:
+  Enabled: true
+
+Style/ExponentialNotation:
+  Enabled: true
+
+# Added in v0.83
+Layout/EmptyLinesAroundAttributeAccessor:
+  Enabled: true
+
+Style/SlicingWithRange:
+  Enabled: true

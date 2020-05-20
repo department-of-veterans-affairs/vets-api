@@ -5,6 +5,7 @@ module Swagger
     module Vet360
       class Address
         include Swagger::Blocks
+        ADDRESS_FIELD_LIMIT = ::Vet360::Models::BaseAddress::ADDRESS_FIELD_LIMIT
 
         swagger_schema :Vet360AddressSuggestion do
           key :type, :object
@@ -17,9 +18,9 @@ module Swagger
           property :address_line1,
                    type: :string,
                    example: '1493 Martin Luther King Rd',
-                   maxLength: 100
-          property :address_line2, type: :string, maxLength: 100
-          property :address_line3, type: :string, maxLength: 100
+                   maxLength: ADDRESS_FIELD_LIMIT
+          property :address_line2, type: :string, maxLength: ADDRESS_FIELD_LIMIT
+          property :address_line3, type: :string, maxLength: ADDRESS_FIELD_LIMIT
           property :address_pou,
                    type: :string,
                    enum: ::Vet360::Models::Address::ADDRESS_POUS,
@@ -63,6 +64,12 @@ module Swagger
         ].each do |schema|
           swagger_schema schema do
             property :validation_key, type: :integer
+            property :address_line1,
+                     type: :string,
+                     example: '1493 Martin Luther King Rd',
+                     maxLength: ADDRESS_FIELD_LIMIT
+            property :address_line2, type: :string, maxLength: ADDRESS_FIELD_LIMIT
+            property :address_line3, type: :string, maxLength: ADDRESS_FIELD_LIMIT
           end
         end
 
@@ -76,12 +83,6 @@ module Swagger
             state_code
             zip_code
           ]
-          property :address_line1,
-                   type: :string,
-                   example: '1493 Martin Luther King Rd',
-                   maxLength: 100
-          property :address_line2, type: :string, maxLength: 100
-          property :address_line3, type: :string, maxLength: 100
           property :address_pou,
                    type: :string,
                    enum: ::Vet360::Models::Address::ADDRESS_POUS,
@@ -120,12 +121,6 @@ module Swagger
             zip_code
           ]
           property :id, type: :integer, example: 1
-          property :address_line1,
-                   type: :string,
-                   example: '1493 Martin Luther King Rd',
-                   maxLength: 100
-          property :address_line2, type: :string, maxLength: 100
-          property :address_line3, type: :string, maxLength: 100
           property :address_pou,
                    type: :string,
                    enum: ::Vet360::Models::Address::ADDRESS_POUS,
@@ -161,12 +156,6 @@ module Swagger
             city
             country_name
           ]
-          property :address_line1,
-                   type: :string,
-                   example: '1493 Martin Luther King Rd',
-                   maxLength: 100
-          property :address_line2, type: :string, maxLength: 100
-          property :address_line3, type: :string, maxLength: 100
           property :address_pou,
                    type: :string,
                    enum: ::Vet360::Models::Address::ADDRESS_POUS,
@@ -194,12 +183,6 @@ module Swagger
             country_name
           ]
           property :id, type: :integer, example: 1
-          property :address_line1,
-                   type: :string,
-                   example: '1493 Martin Luther King Rd',
-                   maxLength: 100
-          property :address_line2, type: :string, maxLength: 100
-          property :address_line3, type: :string, maxLength: 100
           property :address_pou,
                    type: :string,
                    enum: ::Vet360::Models::Address::ADDRESS_POUS,
@@ -226,12 +209,6 @@ module Swagger
             state_code
             zip_code
           ]
-          property :address_line1,
-                   type: :string,
-                   example: '1493 Martin Luther King Rd',
-                   maxLength: 100
-          property :address_line2, type: :string, maxLength: 100
-          property :address_line3, type: :string, maxLength: 100
           property :address_pou,
                    type: :string,
                    enum: ::Vet360::Models::Address::ADDRESS_POUS,
@@ -270,12 +247,6 @@ module Swagger
             zip_code
           ]
           property :id, type: :integer, example: 1
-          property :address_line1,
-                   type: :string,
-                   example: '1493 Martin Luther King Rd',
-                   maxLength: 100
-          property :address_line2, type: :string, maxLength: 100
-          property :address_line3, type: :string, maxLength: 100
           property :address_pou,
                    type: :string,
                    enum: ::Vet360::Models::Address::ADDRESS_POUS,

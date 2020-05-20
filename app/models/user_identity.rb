@@ -7,8 +7,8 @@ require 'saml/user'
 # Stores attributes used to identify a user. Serves as a set of inputs to an MVI lookup. Also serves
 # as the receiver of identity attributes received from alternative sources during the SSO flow.
 class UserIdentity < Common::RedisStore
-  redis_store REDIS_CONFIG['user_identity_store']['namespace']
-  redis_ttl REDIS_CONFIG['user_identity_store']['each_ttl']
+  redis_store REDIS_CONFIG[:user_identity_store][:namespace]
+  redis_ttl REDIS_CONFIG[:user_identity_store][:each_ttl]
   redis_key :uuid
 
   # identity attributes
@@ -17,6 +17,7 @@ class UserIdentity < Common::RedisStore
   attribute :first_name
   attribute :middle_name
   attribute :last_name
+  attribute :common_name
   attribute :gender
   attribute :birth_date
   attribute :zip
@@ -34,7 +35,6 @@ class UserIdentity < Common::RedisStore
   attribute :authenticated_by_ssoe, Boolean
 
   validates :uuid, presence: true
-  validates :email, presence: true
   validates :loa, presence: true
   validate  :loa_highest_present
 

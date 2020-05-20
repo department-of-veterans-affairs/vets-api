@@ -11,12 +11,12 @@ RSpec.describe 'facilities', type: :request do
     allow_any_instance_of(VAOS::UserService).to receive(:session).and_return('stubbed_token')
   end
 
-  describe '/v0/vaos/facilities' do
+  describe '/vaos/v0/facilities' do
     context 'with a loa1 user' do
       let(:user) { FactoryBot.create(:user, :loa1) }
 
       it 'returns a forbidden error' do
-        get '/v0/vaos/facilities'
+        get '/vaos/v0/facilities'
         expect(response).to have_http_status(:forbidden)
         expect(JSON.parse(response.body)['errors'].first['detail'])
           .to eq('You do not have access to online scheduling')
@@ -29,7 +29,7 @@ RSpec.describe 'facilities', type: :request do
       context 'with a single valid facility code' do
         it 'returns a 200 with the correct schema' do
           VCR.use_cassette('vaos/systems/get_facilities', match_requests_on: %i[method uri]) do
-            get '/v0/vaos/facilities', params: { facility_codes: 688 }
+            get '/vaos/v0/facilities', params: { facility_codes: 688 }
 
             expect(response).to have_http_status(:ok)
             expect(response).to match_response_schema('vaos/facilities')
@@ -40,7 +40,7 @@ RSpec.describe 'facilities', type: :request do
       context 'with a multiple valid facility codes' do
         it 'returns a 200 with the correct schema' do
           VCR.use_cassette('vaos/systems/get_facilities_multiple') do
-            get '/v0/vaos/facilities', params: { facility_codes: [983, 984] }
+            get '/vaos/v0/facilities', params: { facility_codes: [983, 984] }
 
             expect(response).to have_http_status(:ok)
             expect(response).to match_response_schema('vaos/facilities')
@@ -53,7 +53,7 @@ RSpec.describe 'facilities', type: :request do
 
         it 'returns a 400 with missing param info' do
           VCR.use_cassette('vaos/systems/get_facilities', match_requests_on: %i[method uri]) do
-            get '/v0/vaos/facilities'
+            get '/vaos/v0/facilities'
 
             expect(response).to have_http_status(:bad_request)
             expect(json['errors'].first['detail']).to eq('The required parameter "facility_codes", is missing')
@@ -63,12 +63,12 @@ RSpec.describe 'facilities', type: :request do
     end
   end
 
-  describe '/v0/vaos/facility/:id/clinics' do
+  describe '/vaos/v0/facility/:id/clinics' do
     context 'with a loa1 user' do
       let(:user) { FactoryBot.create(:user, :loa1) }
 
       it 'returns a forbidden error' do
-        get '/v0/vaos/facilities/984/clinics', params: { type_of_care_id: '323', system_id: '984GA' }
+        get '/vaos/v0/facilities/984/clinics', params: { type_of_care_id: '323', system_id: '984GA' }
         expect(response).to have_http_status(:forbidden)
         expect(JSON.parse(response.body)['errors'].first['detail'])
           .to eq('You do not have access to online scheduling')
@@ -81,7 +81,7 @@ RSpec.describe 'facilities', type: :request do
       context 'with a valid GET response' do
         it 'returns a 200 with the correct schema' do
           VCR.use_cassette('vaos/systems/get_facility_clinics', match_requests_on: %i[method uri]) do
-            get '/v0/vaos/facilities/983/clinics', params: { type_of_care_id: '323', system_id: '983' }
+            get '/vaos/v0/facilities/983/clinics', params: { type_of_care_id: '323', system_id: '983' }
 
             expect(response).to have_http_status(:ok)
             expect(response).to match_response_schema('vaos/facility_clinics')
@@ -94,7 +94,7 @@ RSpec.describe 'facilities', type: :request do
 
         it 'returns a 400 with missing param type_of_care_id' do
           VCR.use_cassette('vaos/systems/get_facility_clinics', match_requests_on: %i[method uri]) do
-            get '/v0/vaos/facilities/984/clinics', params: { system_id: '984GA' }
+            get '/vaos/v0/facilities/984/clinics', params: { system_id: '984GA' }
 
             expect(response).to have_http_status(:bad_request)
             expect(json['errors'].first['detail']).to eq('The required parameter "type_of_care_id", is missing')
@@ -103,7 +103,7 @@ RSpec.describe 'facilities', type: :request do
 
         it 'returns a 400 with missing param system_id' do
           VCR.use_cassette('vaos/systems/get_facility_clinics', match_requests_on: %i[method uri]) do
-            get '/v0/vaos/facilities/984/clinics', params: { type_of_care_id: '323' }
+            get '/vaos/v0/facilities/984/clinics', params: { type_of_care_id: '323' }
 
             expect(response).to have_http_status(:bad_request)
             expect(json['errors'].first['detail']).to eq('The required parameter "system_id", is missing')
@@ -113,12 +113,12 @@ RSpec.describe 'facilities', type: :request do
     end
   end
 
-  describe '/v0/vaos/facilities/:id/cancel_reasons' do
+  describe '/vaos/v0/facilities/:id/cancel_reasons' do
     context 'with a loa1 user' do
       let(:user) { FactoryBot.create(:user, :loa1) }
 
       it 'returns a forbidden error' do
-        get '/v0/vaos/facilities/984/cancel_reasons'
+        get '/vaos/v0/facilities/984/cancel_reasons'
         expect(response).to have_http_status(:forbidden)
         expect(JSON.parse(response.body)['errors'].first['detail'])
           .to eq('You do not have access to online scheduling')
@@ -131,7 +131,7 @@ RSpec.describe 'facilities', type: :request do
       context 'with a valid GET response' do
         it 'returns a 200 with the correct schema' do
           VCR.use_cassette('vaos/systems/get_cancel_reasons', match_requests_on: %i[method uri]) do
-            get '/v0/vaos/facilities/984/cancel_reasons'
+            get '/vaos/v0/facilities/984/cancel_reasons'
 
             expect(response).to have_http_status(:ok)
             expect(response).to match_response_schema('vaos/facility_cancel_reasons')
@@ -141,7 +141,7 @@ RSpec.describe 'facilities', type: :request do
     end
   end
 
-  describe '/v0/vaos/facilities/:id/available_appointments' do
+  describe '/vaos/v0/facilities/:id/available_appointments' do
     let(:facility_id) { '688' }
     let(:start_date) { DateTime.new(2019, 11, 22).to_s }
     let(:end_date) { DateTime.new(2020, 2, 19).to_s }
@@ -153,7 +153,7 @@ RSpec.describe 'facilities', type: :request do
       let(:user) { FactoryBot.create(:user, :loa1) }
 
       it 'returns a forbidden error' do
-        get "/v0/vaos/facilities/#{facility_id}/cancel_reasons", params: {
+        get "/vaos/v0/facilities/#{facility_id}/cancel_reasons", params: {
           start_date: start_date,
           end_date: end_date,
           clinic_ids: clinic_ids
@@ -171,7 +171,7 @@ RSpec.describe 'facilities', type: :request do
       context 'with a valid GET response' do
         it 'returns a 200 with the correct schema' do
           VCR.use_cassette('vaos/systems/get_facility_available_appointments', match_requests_on: %i[method uri]) do
-            get "/v0/vaos/facilities/#{facility_id}/available_appointments", params: {
+            get "/vaos/v0/facilities/#{facility_id}/available_appointments", params: {
               start_date: start_date,
               end_date: end_date,
               clinic_ids: clinic_ids
@@ -186,7 +186,7 @@ RSpec.describe 'facilities', type: :request do
       context 'when start_date is missing' do
         it 'returns a 400 with missing param start_date' do
           VCR.use_cassette('vaos/systems/get_facility_clinics', match_requests_on: %i[method uri]) do
-            get "/v0/vaos/facilities/#{facility_id}/available_appointments", params: {
+            get "/vaos/v0/facilities/#{facility_id}/available_appointments", params: {
               end_date: end_date,
               clinic_ids: clinic_ids
             }
@@ -200,7 +200,7 @@ RSpec.describe 'facilities', type: :request do
       context 'when end_date is missing' do
         it 'returns a 400 with missing param end_date' do
           VCR.use_cassette('vaos/systems/get_facility_clinics', match_requests_on: %i[method uri]) do
-            get "/v0/vaos/facilities/#{facility_id}/available_appointments", params: {
+            get "/vaos/v0/facilities/#{facility_id}/available_appointments", params: {
               start_date: start_date,
               clinic_ids: clinic_ids
             }
@@ -214,7 +214,7 @@ RSpec.describe 'facilities', type: :request do
       context 'when clinic_ids is missing' do
         it 'returns a 400 with missing param clinic_ids' do
           VCR.use_cassette('vaos/systems/get_facility_clinics', match_requests_on: %i[method uri]) do
-            get "/v0/vaos/facilities/#{facility_id}/available_appointments", params: {
+            get "/vaos/v0/facilities/#{facility_id}/available_appointments", params: {
               start_date: start_date,
               end_date: end_date
             }
@@ -230,7 +230,7 @@ RSpec.describe 'facilities', type: :request do
 
         it 'returns a 400 with invalid date format' do
           VCR.use_cassette('vaos/systems/get_facility_clinics', match_requests_on: %i[method uri]) do
-            get "/v0/vaos/facilities/#{facility_id}/available_appointments", params: {
+            get "/vaos/v0/facilities/#{facility_id}/available_appointments", params: {
               start_date: start_date,
               end_date: end_date,
               clinic_ids: clinic_ids
@@ -249,7 +249,7 @@ RSpec.describe 'facilities', type: :request do
 
         it 'returns a 400 with invalid date format' do
           VCR.use_cassette('vaos/systems/get_facility_clinics', match_requests_on: %i[method uri]) do
-            get "/v0/vaos/facilities/#{facility_id}/available_appointments", params: {
+            get "/vaos/v0/facilities/#{facility_id}/available_appointments", params: {
               start_date: start_date,
               end_date: end_date,
               clinic_ids: clinic_ids
@@ -265,13 +265,13 @@ RSpec.describe 'facilities', type: :request do
     end
   end
 
-  describe 'GET /v0/vaos/facilities/:facility_id/limits' do
+  describe 'GET /vaos/v0/facilities/:facility_id/limits' do
     let(:user) { build(:user, :mhv) }
 
     context 'with a valid GET facility limits response' do
       it 'returns a 200 with the correct schema' do
         VCR.use_cassette('vaos/systems/get_facility_limits', match_requests_on: %i[method uri]) do
-          get '/v0/vaos/facilities/688/limits', params: { type_of_care_id: '323' }
+          get '/vaos/v0/facilities/688/limits', params: { type_of_care_id: '323' }
 
           expect(response).to have_http_status(:ok)
           expect(response.body).to be_a(String)
@@ -283,7 +283,7 @@ RSpec.describe 'facilities', type: :request do
     context 'when type_of_care_id is missing' do
       it 'returns an error message with the missing param' do
         VCR.use_cassette('vaos/systems/get_facility_limits', match_requests_on: %i[method uri]) do
-          get '/v0/vaos/facilities/688/limits'
+          get '/vaos/v0/facilities/688/limits'
 
           expect(response).to have_http_status(:bad_request)
           expect(JSON.parse(response.body)['errors'].first['detail'])
@@ -293,13 +293,13 @@ RSpec.describe 'facilities', type: :request do
     end
   end
 
-  describe 'GET /v0/vaos/facilities/:facility_id/visits/:schedule_type' do
+  describe 'GET /vaos/v0/facilities/:facility_id/visits/:schedule_type' do
     let(:user) { build(:user, :mhv) }
 
     context 'with a valid GET facility visits response' do
       it 'returns a 200 with the correct schema' do
         VCR.use_cassette('vaos/systems/get_facility_visits', match_requests_on: %i[method uri]) do
-          get '/v0/vaos/facilities/688/visits/direct', params: { system_id: '688', type_of_care_id: '323' }
+          get '/vaos/v0/facilities/688/visits/direct', params: { system_id: '688', type_of_care_id: '323' }
 
           expect(response).to have_http_status(:ok)
           expect(response.body).to be_a(String)
@@ -311,7 +311,7 @@ RSpec.describe 'facilities', type: :request do
     context 'when schedule_type is invalid' do
       it 'returns an error message with the invalid param' do
         VCR.use_cassette('vaos/systems/get_facility_visits', match_requests_on: %i[method uri]) do
-          get '/v0/vaos/facilities/688/visits/foo', params: { system_id: '688', type_of_care_id: '323' }
+          get '/vaos/v0/facilities/688/visits/foo', params: { system_id: '688', type_of_care_id: '323' }
 
           expect(response).to have_http_status(:bad_request)
           expect(JSON.parse(response.body)['errors'].first['detail'])
@@ -323,7 +323,7 @@ RSpec.describe 'facilities', type: :request do
     context 'when system_id is missing' do
       it 'returns an error message with the missing param' do
         VCR.use_cassette('vaos/systems/get_facility_visits', match_requests_on: %i[method uri]) do
-          get '/v0/vaos/facilities/688/visits/foo', params: { type_of_care_id: '323' }
+          get '/vaos/v0/facilities/688/visits/foo', params: { type_of_care_id: '323' }
 
           expect(response).to have_http_status(:bad_request)
           expect(JSON.parse(response.body)['errors'].first['detail'])
@@ -335,7 +335,7 @@ RSpec.describe 'facilities', type: :request do
     context 'when type_of_care_id is missing' do
       it 'returns an error message with the missing param' do
         VCR.use_cassette('vaos/systems/get_facility_visits', match_requests_on: %i[method uri]) do
-          get '/v0/vaos/facilities/688/visits/foo', params: { system_id: '688' }
+          get '/vaos/v0/facilities/688/visits/foo', params: { system_id: '688' }
 
           expect(response).to have_http_status(:bad_request)
           expect(JSON.parse(response.body)['errors'].first['detail'])

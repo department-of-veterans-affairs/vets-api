@@ -27,10 +27,6 @@ DeleteOldPiiLogsJob:
   cron: "20 2 * * * America/New_York"
   description: "Clear out old personal information logs"
 
-VIC::DeleteOldUploads:
-  cron: "00 2 * * * America/New_York"
-  description: "Clear out VIC file uploads older than 2 months"
-
 CentralMail::DeleteOldClaims:
   cron: "30 2 * * * America/New_York"
   class: CentralMail::DeleteOldClaims
@@ -133,6 +129,11 @@ VBADocuments::ReportUnsuccessfulSubmissions:
   cron: "0 0 * * MON-FRI America/New_York"
   class: VBADocuments::ReportUnsuccessfulSubmissions
   description: "Weekly report of unsuccessful submissions"
+
+AppealsApi::HigherLevelReviewUploadStatusBatch:
+  every: "60m"
+  class: AppealsApi::HigherLevelReviewUploadStatusBatch
+  description: "Update HigherLevelReview statuses with their Central Mail status"
 
 TransactionalEmailAnalyticsJob:
   cron: "0 1 * * * America/New_York"

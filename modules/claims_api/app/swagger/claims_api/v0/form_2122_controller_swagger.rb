@@ -249,7 +249,7 @@ module ClaimsApi
             key :name, 'attachment'
             key :in, :formData
             key :type, :file
-            key :description, 'Attachment contents. Must be provided in PDF format and less than 11 in x 11 in'
+            key :description, 'Attachment contents. Must be provided in binary PDF or base64 string format and less than 11 in x 11 in'
           end
 
           response 200 do

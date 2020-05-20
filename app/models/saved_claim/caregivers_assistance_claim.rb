@@ -21,4 +21,24 @@ class SavedClaim::CaregiversAssistanceClaim < SavedClaim
   def regional_office
     []
   end
+
+  def form_subjects
+    form.nil? ? [] : parsed_form.keys
+  end
+
+  def veteran_data
+    parsed_form['veteran'] unless form.nil?
+  end
+
+  def primary_caregiver_data
+    parsed_form['primaryCaregiver'] unless form.nil?
+  end
+
+  def secondary_caregiver_one_data
+    parsed_form['secondaryCaregiverOne'] unless form.nil?
+  end
+
+  def secondary_caregiver_two_data
+    parsed_form['secondaryCaregiverTwo'] unless form.nil?
+  end
 end

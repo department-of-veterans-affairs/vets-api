@@ -16,7 +16,7 @@ RSpec.describe 'Caregivers Assistance Claims', type: :request do
   let(:get_schema) { -> { VetsJsonSchema::SCHEMAS['10-10CG'].clone } }
 
   shared_examples_for 'any invalid submission' do
-    it 'requires a namcespace of caregivers_assistance_claim' do
+    it 'requires a namespace of caregivers_assistance_claim' do
       body = {}
       post endpoint, params: body, headers: headers
 
@@ -80,25 +80,31 @@ RSpec.describe 'Caregivers Assistance Claims', type: :request do
     context 'when unauthenticated' do
       it_behaves_like 'any invalid submission'
 
-      it 'can submit a valid submission' do
+      timestamp = DateTime.parse('2020-03-09T06:48:59-04:00')
+
+      it 'can submit a valid submission', run_at: timestamp.iso8601 do
         form_data = build_valid_form_submission.call
 
         body = { caregivers_assistance_claim: { form: form_data.to_json } }.to_json
-        post endpoint, params: body, headers: headers
+
+        VCR.use_cassette 'mvi/find_candidate/valid' do
+          VCR.use_cassette 'mvi/find_candidate/valid_icn_ni_only' do
+            VCR.use_cassette 'mvi/find_candidate/valid_no_gender' do
+              VCR.use_cassette 'carma/submissions/create/201' do
+                post endpoint, params: body, headers: headers
+              end
+            end
+          end
+        end
 
         expect(response.code).to eq('200')
 
         res_body = JSON.parse(response.body)
 
         expect(res_body['data']).to be_present
-        expect(res_body['data']['id'].to_i).to be > 0
-        expect(res_body['data']['type']).to eq 'saved_claim_caregivers_assistance_claims'
-        expect(res_body['data']['attributes']['regionalOffice']).to eq([])
-        expect(res_body['data']['attributes']['submittedAt']).to be_present
-        expect(res_body['data']['attributes']['submittedAt'].to_date).to eq(DateTime.now.to_date)
+        expect(res_body['data']['type']).to eq 'form1010cg_submissions'
+        expect(DateTime.parse(res_body['data']['attributes']['submittedAt'])).to eq timestamp
         expect(res_body['data']['attributes']['confirmationNumber']).to be_present
-        expect(res_body['data']['attributes']['guid']).to be_present
-        expect(res_body['data']['attributes']['form']).to eq('10-10CG')
       end
     end
   end
