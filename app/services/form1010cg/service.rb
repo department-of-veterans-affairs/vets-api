@@ -92,7 +92,7 @@ module Form1010cg
 
       case response.status
       when 'OK'
-        return @cache[:icns][form_subject] = response.profile.icn
+        return @cache[:icns][form_subject] = response.profile.icn.split('V').first
       when 'NOT_FOUND'
         return @cache[:icns][form_subject] = NOT_FOUND
       end
