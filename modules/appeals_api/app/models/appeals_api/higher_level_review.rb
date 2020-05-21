@@ -223,11 +223,11 @@ module AppealsApi
     end
 
     def consumer_name
-      auth_headers['X-Consumer-Username']
+      auth_headers&.dig('X-Consumer-Username')
     end
 
     def consumer_id
-      auth_headers['X-Consumer-ID']
+      auth_headers&.dig('X-Consumer-ID')
     end
 
     def central_mail_status
