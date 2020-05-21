@@ -176,7 +176,6 @@ class MVI::Service < Common::Client::Base
     MVI::Messages::AddPersonMessage.new(user).to_xml if user.icn_with_aaid.present?
   end
 
-  # rubocop:disable Layout/LineLength
   def create_profile_message(user_identity)
     return message_icn(user_identity) if user_identity.mhv_icn.present? # from SAML::UserAttributes::MHV::BasicLOA3User
     return message_edipi(user_identity) if user_identity.dslogon_edipi.present? && Settings.mvi.edipi_search
@@ -184,7 +183,6 @@ class MVI::Service < Common::Client::Base
 
     message_user_attributes(user_identity)
   end
-  # rubocop:enable Layout/LineLength
 
   def message_icn(user)
     MVI::Messages::FindProfileMessageIcn.new(user.mhv_icn).to_xml

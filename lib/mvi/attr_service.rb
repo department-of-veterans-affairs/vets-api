@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class MVI:: AttrService < Service
+class MVI::AttrService < Service
   configuration MVI::AttrConfiguration
 
   private
