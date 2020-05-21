@@ -10,9 +10,9 @@ RSpec.describe 'Fetching user data', type: :request do
     let(:mhv_user) { build(:user, :mhv) }
 
     before do
-      allow_any_instance_of(MhvAccountTypeService).to receive(:mhv_account_type).and_return('Premium')
-      mhv_account = double('MhvAccount', creatable?: false, upgradable?: false, account_state: 'upgraded')
-      allow(MhvAccount).to receive(:find_or_initialize_by).and_return(mhv_account)
+      allow_any_instance_of(MHVAccountTypeService).to receive(:mhv_account_type).and_return('Premium')
+      mhv_account = double('MHVAccount', creatable?: false, upgradable?: false, account_state: 'upgraded')
+      allow(MHVAccount).to receive(:find_or_initialize_by).and_return(mhv_account)
       allow(mhv_account).to receive(:user_uuid).and_return(mhv_user.uuid)
       allow(mhv_account).to receive(:terms_and_conditions_accepted?).and_return(true)
       allow(mhv_account).to receive(:needs_terms_acceptance?).and_return(false)

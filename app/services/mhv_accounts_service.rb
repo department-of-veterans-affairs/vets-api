@@ -6,10 +6,10 @@ require 'sentry_logging'
 ##
 # Models MHV Account creation and upgrade logic processes
 #
-# @param mhv_account [MhvAccount] the user's MhvAccount object from DB
+# @param mhv_account [MHVAccount] the user's MHVAccount object from DB
 # @param user [User] the user's User object from Redis cache
 #
-class MhvAccountsService
+class MHVAccountsService
   include SentryLogging
 
   STATSD_ACCOUNT_EXISTED_KEY = 'mhv.account.existed'

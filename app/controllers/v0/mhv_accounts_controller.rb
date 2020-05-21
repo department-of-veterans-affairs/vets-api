@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module V0
-  class MhvAccountsController < ApplicationController
+  class MHVAccountsController < ApplicationController
     CREATE_ERROR = 'You are not eligible for creating an MHV account'
     UPGRADE_ERROR = 'You are not eligible for upgrading an MHV account'
     include ActionController::Serialization
@@ -35,12 +35,12 @@ module V0
     end
 
     def mhv_accounts_service
-      @mhv_accounts_service ||= MhvAccountsService.new(mhv_account, current_user)
+      @mhv_accounts_service ||= MHVAccountsService.new(mhv_account, current_user)
     end
 
     def render_account(status: :ok)
       render json: mhv_account,
-             serializer: MhvAccountSerializer,
+             serializer: MHVAccountSerializer,
              status: status
     end
   end
