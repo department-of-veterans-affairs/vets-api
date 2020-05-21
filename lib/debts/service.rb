@@ -5,7 +5,7 @@ module Debts
     configuration Debts::Configuration
 
     def get_letters(body)
-      request(:post, 'letterdetails/get', body).body
+      GetLettersResponse.new(request(:post, 'letterdetails/get', body).body)
     end
   end
 end
