@@ -7,7 +7,7 @@ RSpec.describe Debts::Service do
     it 'should fetch the veterans debt letters data' do
       VCR.use_cassette(
           'debts/get_letters',
-          record: :once
+          VCR::MATCH_EVERYTHING
         ) do
         described_class.new.get_letters(fileNumber: '000000009')
       end
