@@ -2,9 +2,9 @@
   "$schema": "http://json-schema.org/draft-04/schema#",
   "description": "",
   "type": "object",
-  "required": ["permanentAddress", "supplies"],
+  "required": ["permanent_address", "supplies"],
   "properties": {
-    "permanentAddress": {
+    "permanent_address": {
       "type": "object",
       "street": {
         "type": "string"
@@ -21,14 +21,14 @@
       "country": {
         "type": "string"
       },
-      "postalCode": {
+      "postal_code": {
         "type": "string"
       },
-      "isMilitaryBase": {
+      "is_military_base": {
         "type": "boolean"
       }
     },
-    "temporaryAddress": {
+    "temporary_address": {
       "type": ["object", "null"],
       "street": {
         "type": "string"
@@ -45,10 +45,10 @@
       "country": {
         "type": "string"
       },
-      "postalCode": {
+      "postal_code": {
         "type": "string"
       },
-      "isMilitaryBase": {
+      "is_military_base": {
         "type": "boolean"
       }
     },
@@ -57,27 +57,27 @@
       "uniqueItems": true,
       "items": {
         "type": "object",
-        "required": ["productId"],
+        "required": ["product_id"],
         "properties": {
-          "deviceName": {
+          "device_name": {
             "type": ["string", "null"]
           },
-          "productName": {
+          "product_name": {
             "type": "string"
           },
-          "productGroup": {
+          "product_group": {
             "type": "string"
           },
-          "productId": {
+          "product_id": {
             "type": "string"
           },
-          "availableForReorder": {
+          "available_for_reorder": {
             "type": "boolean"
           },
-          "lastOrderDate": {
+          "last_order_date": {
             "type": "string"
           },
-          "nextAvailabilityDate": {
+          "next_availability_date": {
             "type": "string"
           },
           "quantity": {
@@ -86,7 +86,7 @@
           "size": {
             "type": ["string", "null"]
           },
-          "prescribedDate": {
+          "prescribed_date": {
             "type": ["string", "null"]
           }
         }

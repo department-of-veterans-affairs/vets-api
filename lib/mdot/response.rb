@@ -58,6 +58,7 @@ module MDOT
 
     def validate_response_against_schema(schema, response)
       schema_path = Rails.root.join('lib', 'mdot', 'schemas', "#{schema}.json").to_s
+      byebug
       JSON::Validator.validate!(schema_path, response.body, strict: false)
     end
   end
