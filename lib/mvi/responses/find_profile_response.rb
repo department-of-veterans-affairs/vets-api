@@ -1,9 +1,7 @@
 # frozen_string_literal: true
 
-require_relative 'profile_parser'
 require 'common/models/redis_store'
 require 'common/client/concerns/service_status'
-require 'mvi/models/mvi_profile'
 
 module MVI::Responses
   # Cacheable response from MVI's find profile endpoint (prpa_in201306_uv02).
