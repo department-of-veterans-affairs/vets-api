@@ -137,13 +137,13 @@ RSpec.describe VBADocuments::UploadProcessor, type: :job do
 
     it 'sets error status for parsable JSON metadata but not an object' do
       allow(VBADocuments::MultipartParser).to receive(:parse) {
-        { 'metadata' => [], 'content' => valid_doc }
+        { 'metadata' => [valid_metadata].to_json, 'content' => valid_doc }
       }
       described_class.new.perform(upload.guid)
       updated = VBADocuments::UploadSubmission.find_by(guid: upload.guid)
       expect(updated.status).to eq('error')
       expect(updated.code).to eq('DOC102')
-      expect(updated.detail).to eq('Incorrect content-type for metdata part')
+      expect(updated.detail).to eq('Invalid JSON object')
     end
 
     it 'sets error status for too-short fileNumber metadata' do
