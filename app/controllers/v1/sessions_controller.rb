@@ -4,6 +4,7 @@ require 'base64'
 require 'saml/url_service'
 require 'saml/responses/login'
 require 'saml/responses/logout'
+require 'saml/ssoe_settings_service'
 
 module V1
   class SessionsController < ApplicationController
