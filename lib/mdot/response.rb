@@ -18,8 +18,8 @@ module MDOT
       @token = @response.response_headers['VA_API_KEY']
       @body = @response.body
       @parsed_body = @body.is_a?(String) ? JSON.parse(@body) : @body
-      self.permanent_address = @parsed_body['permanentAddress']
-      self.temporary_address = @parsed_body['temporaryAddress']
+      self.permanent_address = @parsed_body['permanent_address']
+      self.temporary_address = @parsed_body['temporary_address']
       self.supplies = @parsed_body['supplies']
       self.eligibility = determine_eligibility
       @status = args[:response][:status]
