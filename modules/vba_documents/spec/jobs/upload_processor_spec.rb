@@ -135,7 +135,7 @@ RSpec.describe VBADocuments::UploadProcessor, type: :job do
 
     it 'sets error status for parsable JSON metadata but not an object' do
       allow(VBADocuments::MultipartParser).to receive(:parse) {
-        { 'metadata' => [valid_doc], 'content' => valid_doc }
+        { 'metadata' => [], 'content' => valid_doc }
       }
       described_class.new.perform(upload.guid)
       updated = VBADocuments::UploadSubmission.find_by(guid: upload.guid)
