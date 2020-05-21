@@ -107,9 +107,9 @@ module VBADocuments
         raise VBADocuments::UploadError.new(code: 'DOC102',
                                             detail: 'Non-numeric or invalid-length fileNumber')
       end
-    rescue JSON::ParserError
+    rescue JSON::ParserError, NoMethodError
       raise VBADocuments::UploadError.new(code: 'DOC102',
-                                          detail: 'Invalid JSON content')
+                                          detail: 'Invalid JSON object')
     end
 
     def perfect_metadata(parts, timestamp)
