@@ -33,7 +33,7 @@ RSpec.describe V0::VsoAppointmentsController, type: :controller do
       expect(response).to have_http_status(:bad_request)
     end
 
-    it 'accepts a basic example' do
+    fit 'accepts a basic example' do
       VCR.use_cassette('vso_appointments/upload') do
         # fill in everything with junk by default
         payload = {}
@@ -55,6 +55,7 @@ RSpec.describe V0::VsoAppointmentsController, type: :controller do
         )
 
         post :create, params: payload
+        binding.pry
         expect(response).to have_http_status(:ok)
       end
     end
