@@ -5,9 +5,6 @@
 
 require_relative 'config/application'
 
-# Load rake support files
-Dir[Rails.root.join('lib', 'tasks', 'support', '**', '*.rb')].sort.each { |f| require f }
-
 Rails.application.load_tasks
 
 unless Rails.env.production?
