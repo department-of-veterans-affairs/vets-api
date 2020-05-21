@@ -2,15 +2,15 @@
 
 module Debts
   class Configuration < Common::Client::Configuration::REST
-    def service_name
-      'Debts'
-    end
-
     def self.base_request_headers
       super.merge(
         'client_id' => Settings.debts.client_id,
         'client_secret' => Settings.debts.client_secret
       )
+    end
+
+    def service_name
+      'Debts'
     end
 
     def base_path
