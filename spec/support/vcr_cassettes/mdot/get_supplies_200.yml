@@ -79,7 +79,7 @@ http_interactions:
             "postalCode": "64117",
             "isMilitaryBase": false
           },
-          "temporary_address": {
+          "temporaryAddress": {
             "street": "201 Example Street",
             "city": "Galveston",
             "state": "TX",
