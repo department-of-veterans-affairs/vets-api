@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Debts
   class Service < Common::Client::Base
     configuration Debts::Configuration

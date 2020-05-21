@@ -4,11 +4,11 @@ require 'rails_helper'
 
 RSpec.describe Debts::Service do
   describe '#get_letters' do
-    it 'should fetch the veterans debt letters data' do
+    it 'fetches the veterans debt letters data' do
       VCR.use_cassette(
-          'debts/get_letters',
-          VCR::MATCH_EVERYTHING
-        ) do
+        'debts/get_letters',
+        VCR::MATCH_EVERYTHING
+      ) do
         res = described_class.new.get_letters(fileNumber: '000000009')
         expect(res[0]['fileNumber']).to eq('000000009')
       end
