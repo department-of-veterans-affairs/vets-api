@@ -13,8 +13,6 @@ http_interactions:
       - application/json
       User-Agent:
       - Vets.gov Agent
-      Apikey:
-      - abcd1234abcd1234abcd1234abcd1234abcd1234
       Veteranid:
       - '111223333'
       Receiptdate:
