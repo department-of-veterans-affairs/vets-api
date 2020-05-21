@@ -154,8 +154,8 @@ RSpec.describe Form1010cg::Service do
 
       expect_any_instance_of(MVI::Service).to receive(:find_profile).with(
         :user_identity
-      ).and_raise(
-        MVI::Errors::RecordNotFound
+      ).and_return(
+        double(status: 'NOT_FOUND', error: double)
       )
 
       result = subject.icn_for('veteran')
@@ -228,8 +228,8 @@ RSpec.describe Form1010cg::Service do
 
       expect_any_instance_of(MVI::Service).to receive(:find_profile).with(
         :pc_user_identity
-      ).and_raise(
-        MVI::Errors::RecordNotFound
+      ).and_return(
+        double(status: 'NOT_FOUND', error: double)
       )
 
       3.times do
@@ -342,7 +342,7 @@ RSpec.describe Form1010cg::Service do
   end
 
   describe '#is_veteran' do
-    it 'returns "NOT_CONFIRMED" if the icn for the for the subject is "NOT_FOUND"' do
+    it 'returns false if the icn for the for the subject is "NOT_FOUND"' do
       subject = described_class.new(
         build(
           :caregivers_assistance_claim,
@@ -356,7 +356,7 @@ RSpec.describe Form1010cg::Service do
       expect(subject).to receive(:icn_for).with('veteran').and_return('NOT_FOUND')
       expect_any_instance_of(EMIS::VeteranStatusService).not_to receive(:get_veteran_status)
 
-      expect(subject.is_veteran('veteran')).to eq('NOT_CONFIRMED')
+      expect(subject.is_veteran('veteran')).to eq(false)
     end
 
     describe 'searches eMIS and' do
@@ -394,7 +394,7 @@ RSpec.describe Form1010cg::Service do
       end
 
       context 'when title38_status_code is not "V1"' do
-        it 'returns "NOT_CONFIRMED"' do
+        it 'returns false' do
           subject = described_class.new(
             build(
               :caregivers_assistance_claim,
@@ -422,12 +422,12 @@ RSpec.describe Form1010cg::Service do
             emis_response
           )
 
-          expect(subject.is_veteran('veteran')).to eq('NOT_CONFIRMED')
+          expect(subject.is_veteran('veteran')).to eq(false)
         end
       end
 
       context 'when title38_status_code is not present' do
-        it 'returns "NOT_CONFIRMED"' do
+        it 'returns false' do
           subject = described_class.new(
             build(
               :caregivers_assistance_claim,
@@ -451,7 +451,7 @@ RSpec.describe Form1010cg::Service do
             emis_response
           )
 
-          expect(subject.is_veteran('veteran')).to eq('NOT_CONFIRMED')
+          expect(subject.is_veteran('veteran')).to eq(false)
         end
       end
 
@@ -526,7 +526,7 @@ RSpec.describe Form1010cg::Service do
 
       3.times do
         expect(subject.is_veteran('veteran')).to eq(true)
-        expect(subject.is_veteran('primaryCaregiver')).to eq('NOT_CONFIRMED')
+        expect(subject.is_veteran('primaryCaregiver')).to eq(false)
       end
     end
   end
@@ -543,7 +543,7 @@ RSpec.describe Form1010cg::Service do
       expect(subject.build_metadata).to eq(
         veteran: {
           icn: :ICN_0,
-          is_veteran: nil
+          is_veteran: false
         },
         primaryCaregiver: {
           icn: :ICN_1
