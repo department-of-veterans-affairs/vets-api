@@ -131,8 +131,6 @@ RSpec.describe 'Fetching user data', type: :request do
       end
     end
 
-
-
     context 'for non VA patient' do
       let(:mhv_user) { build(:user, :mhv, va_patient: false) }
 
