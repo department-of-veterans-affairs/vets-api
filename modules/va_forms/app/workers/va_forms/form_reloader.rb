@@ -26,9 +26,8 @@ module VaForms
     end
 
     def load_page(current_page: 0)
-      current_page += 1
       params = {}
-      unless current_page == 1
+      unless current_page.zero?
         params = {
           id: 'form2',
           name: 'form2',
@@ -44,6 +43,7 @@ module VaForms
       next_button = doc.css('input[name=Next10]')
       last_page = next_button.first.attributes['disabled'].present?
       parse_page(doc)
+      current_page += 1
       load_page(current_page: current_page) unless last_page
     end
 

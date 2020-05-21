@@ -7,6 +7,14 @@
 #  or `cookie_id` of you wish to use the Google Analytics id as the unique identifier.
 
 features:
+  pre_entry_covid19_screener:
+    actor_type: user
+    description: >
+      Toggle for the entire pre-entry covid 19 self-screener available at
+      /covid19screener and to be used by visitors to VHA facilities in lieu
+      of manual screening with a VHA employee.
+      This toggle is owned by Patrick B. and the rest of the CTO Health Products
+      team.
   dashboard_show_covid19_alert:
     actor_type: user
     description: >
@@ -16,9 +24,6 @@ features:
     description: >
       On https://www.va.gov/find-locations/ enable veterans to search for Community care by showing that option in the "Search for" box.
       This toggle is owned by Rian
-  facility_locator_lighthouse_api:
-    actor_type: user
-    description: Use the Lighthouse api instead of the database
   facility_locator_pull_operating_status_from_lighthouse:
     actor_type: user
     description: A fast and dirty way to get the operating status from lighthouse
@@ -61,6 +66,30 @@ features:
     actor_type: user
     description: >
       Allows veterans to see past appointments
+  va_online_scheduling_vsp_appointment_list:
+    actor_type: user
+    description: >
+      Enables the use of VSP for VA appointment data and cancellation on list page
+  va_online_scheduling_vsp_appointment_new:
+    actor_type: user
+    description: >
+      Enables the use of VSP for creating a new VA appointment
+  va_online_scheduling_ccsp_appointment_list:
+    actor_type: user
+    description: >
+      Enables the use of CCSP for Community Care appointment data on list page
+  va_online_scheduling_ccsp_request_new:
+    actor_type: user
+    description: >
+      Enables the use of CCSP for making a new Community Care appointment request
+  va_online_scheduling_vsp_request_list:
+    actor_type: user
+    description: >
+      Enables the use of VSP for request data and cancellation on list page
+  va_online_scheduling_vsp_request_new:
+    actor_type: user
+    description: >
+      Enables the use of VSP for making a new VA appointment request
   va_global_downtime_notification:
     actor_type: user
     description: >

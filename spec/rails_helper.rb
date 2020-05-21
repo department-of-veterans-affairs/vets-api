@@ -16,6 +16,7 @@ require 'support/validation_helpers'
 require 'support/model_helpers'
 require 'support/authenticated_session_helper'
 require 'support/aws_helpers'
+require 'support/mdot_helpers'
 require 'support/vcr_multipart_matcher_helper'
 require 'support/request_helper'
 require 'support/uploader_helpers'
@@ -95,7 +96,6 @@ require 'sidekiq/testing'
 Sidekiq::Testing.fake!
 Sidekiq::Testing.server_middleware do |chain|
   chain.add Sidekiq::SemanticLogging
-  # chain.add Sidekiq::Instrument::ServerMiddleware
   chain.add Sidekiq::ErrorTag
 end
 
@@ -123,6 +123,10 @@ RSpec.configure do |config|
   config.include(SAML, type: :controller)
   config.include(AwsHelpers, type: :aws_helpers)
   config.include(UploaderHelpers, uploader_helpers: true)
+
+  %i[controller mdot_helpers request].each do |type|
+    config.include(MDOTHelpers, type: type)
+  end
 
   # Adding support for url_helper
   config.include Rails.application.routes.url_helpers
