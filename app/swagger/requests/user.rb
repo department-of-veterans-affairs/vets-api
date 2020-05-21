@@ -99,6 +99,8 @@ module Swagger
                       key :type, :string
                     end
                   end
+                  property :va_patient, type: :boolean
+                  property :mhv_account_state, type: :string, enum: %w[OK DEACTIVATED MULTIPLE NONE], example: 'OK'
                 end
                 property :veteran_status, type: :object do
                   key :required, [:status]
