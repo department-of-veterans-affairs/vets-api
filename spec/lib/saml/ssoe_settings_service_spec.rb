@@ -19,3 +19,4 @@ RSpec.describe SAML::SSOeSettingsService do
     end
   end
 end
+# rubocop:enable RSpec/FilePath
