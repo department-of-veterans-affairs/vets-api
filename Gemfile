@@ -98,7 +98,6 @@ gem 'rubyzip', '>= 1.3.0'
 gem 'savon'
 gem 'sentry-raven'
 gem 'shrine'
-gem 'sidekiq-instrument'
 gem 'staccato'
 gem 'statsd-instrument', '~> 2.6.0' # versions beyond 2.6 deprecate config and change logging messages
 gem 'swagger-blocks'
@@ -135,7 +134,9 @@ group :test do
   gem 'rspec_junit_formatter'
   gem 'rubocop-junit-formatter'
   gem 'shrine-memory'
-  gem 'simplecov', require: false
+  # < 0.18 required due to bug with reporting to CodeClimate
+  # https://github.com/codeclimate/test-reporter/issues/418
+  gem 'simplecov', '< 0.18', require: false
   gem 'super_diff'
   gem 'vcr'
   gem 'webrick'

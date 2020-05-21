@@ -95,7 +95,6 @@ require 'sidekiq/testing'
 Sidekiq::Testing.fake!
 Sidekiq::Testing.server_middleware do |chain|
   chain.add Sidekiq::SemanticLogging
-  # chain.add Sidekiq::Instrument::ServerMiddleware
   chain.add Sidekiq::ErrorTag
 end
 
