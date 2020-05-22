@@ -90,7 +90,9 @@ RSpec.describe V1::SessionsController, type: :controller do
 
               expect { get(:new, params: { type: type, clientId: '123123' }) }
                 .to trigger_statsd_increment(described_class::STATSD_SSO_NEW_KEY,
-                                             tags: ["context:#{type}", 'forceauthn:false', 'version:v1'], **once)
+                                             tags: ["context:#{type}", 'version:v1'], **once)
+                .and not_trigger_statsd_increment(described_class::STATSD_SSO_NEW_FORCEAUTH,
+                                             tags: ["context:#{type}", 'version:v1'])
 
               expect(response).to have_http_status(:found)
               expect(response.location)
@@ -108,7 +110,9 @@ RSpec.describe V1::SessionsController, type: :controller do
 
               expect { get(:new, params: { type: type, clientId: '123123', force: true }) }
                 .to trigger_statsd_increment(described_class::STATSD_SSO_NEW_KEY,
-                                             tags: ["context:#{type}", 'forceauthn:true', 'version:v1'], **once)
+                                             tags: ["context:#{type}", 'version:v1'], **once)
+                .and trigger_statsd_increment(described_class::STATSD_SSO_NEW_FORCEAUTH,
+                                             tags: ["context:#{type}", 'version:v1'], **once)
 
               expect(response).to have_http_status(:found)
               expect(response.location)
@@ -122,7 +126,7 @@ RSpec.describe V1::SessionsController, type: :controller do
             it 'persists redirect application' do
               expect { get(:new, params: { type: type, clientId: '123123', application: 'myvahealth' }) }
                 .to trigger_statsd_increment(described_class::STATSD_SSO_NEW_KEY,
-                                             tags: ["context:#{type}", 'forceauthn:false', 'version:v1'], **once)
+                                             tags: ["context:#{type}", 'version:v1'], **once)
 
               expect(response).to have_http_status(:found)
               expect(response.location)
@@ -137,7 +141,7 @@ RSpec.describe V1::SessionsController, type: :controller do
             it 'ignores invalid redirect application' do
               expect { get(:new, params: { type: type, clientId: '123123', application: 'unknown' }) }
                 .to trigger_statsd_increment(described_class::STATSD_SSO_NEW_KEY,
-                                             tags: ["context:#{type}", 'forceauthn:false', 'version:v1'], **once)
+                                             tags: ["context:#{type}", 'version:v1'], **once)
 
               expect(response).to have_http_status(:found)
               expect(response.location)
@@ -154,7 +158,7 @@ RSpec.describe V1::SessionsController, type: :controller do
           it 'redirects' do
             expect { get(:new, params: { type: :signup, client_id: '123123' }) }
               .to trigger_statsd_increment(described_class::STATSD_SSO_NEW_KEY,
-                                           tags: ['context:signup', 'forceauthn:false', 'version:v1'], **once)
+                                           tags: ['context:signup', 'version:v1'], **once)
             expect(response).to have_http_status(:found)
             expect(response.location)
               .to be_an_idme_saml_url('https://pint.eauth.va.gov/isam/sps/saml20idp/saml20/login?SAMLRequest=')
@@ -265,7 +269,7 @@ RSpec.describe V1::SessionsController, type: :controller do
             it 'redirects' do
               expect { get(:new, params: { type: type }) }
                 .to trigger_statsd_increment(described_class::STATSD_SSO_NEW_KEY,
-                                             tags: ["context:#{type}", 'forceauthn:false', 'version:v1'], **once)
+                                             tags: ["context:#{type}", 'version:v1'], **once)
               expect(response).to have_http_status(:found)
               expect(cookies['vagov_session_dev']).not_to be_nil unless type.in?(%w[mhv dslogon idme slo])
             end
@@ -356,7 +360,7 @@ RSpec.describe V1::SessionsController, type: :controller do
             .to trigger_statsd_increment(described_class::STATSD_SSO_CALLBACK_KEY, tags: callback_tags, **once)
             .and trigger_statsd_increment(described_class::STATSD_SSO_CALLBACK_TOTAL_KEY, **once)
             .and trigger_statsd_increment(described_class::STATSD_LOGIN_SHARED_COOKIE,
-                                          tags: ['loa:3', 'idp:idme', "context:#{LOA::IDME_LOA3}", 'version:v1'],
+                                          tags: ["context:#{LOA::IDME_LOA3}", 'version:v1'],
                                           **once)
 
           expect(response.location).to start_with('http://127.0.0.1:3001/auth/login/callback')
@@ -406,7 +410,7 @@ RSpec.describe V1::SessionsController, type: :controller do
                                          tags: ['status:success', 'context:multifactor', 'version:v1'], **once)
             .and trigger_statsd_increment(described_class::STATSD_SSO_CALLBACK_TOTAL_KEY, **once)
             .and trigger_statsd_increment(described_class::STATSD_LOGIN_SHARED_COOKIE,
-                                          tags: ['loa:1', 'idp:idme', 'context:multifactor', 'version:v1'], **once)
+                                          tags: ['context:multifactor', 'version:v1'], **once)
 
           expect(cookies['vagov_session_dev']).not_to be_nil
           expect(JSON.parse(decrypter.decrypt(cookies['vagov_session_dev'])))
@@ -632,7 +636,7 @@ RSpec.describe V1::SessionsController, type: :controller do
             .to trigger_statsd_increment(described_class::STATSD_SSO_CALLBACK_KEY, tags: callback_tags, **once)
             .and trigger_statsd_increment(described_class::STATSD_SSO_CALLBACK_TOTAL_KEY, **once)
             .and trigger_statsd_increment(described_class::STATSD_LOGIN_SHARED_COOKIE,
-                                          tags: ['loa:3', 'idp:myhealthevet', 'context:myhealthevet', 'version:v1'],
+                                          tags: ['context:myhealthevet', 'version:v1'],
                                           **once)
           expect(response.location).to start_with('http://127.0.0.1:3001/auth/login/callback')
           expect(cookies['vagov_session_dev']).not_to be_nil
