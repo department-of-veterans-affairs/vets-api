@@ -92,7 +92,7 @@ RSpec.describe V1::SessionsController, type: :controller do
                 .to trigger_statsd_increment(described_class::STATSD_SSO_NEW_KEY,
                                              tags: ["context:#{type}", 'version:v1'], **once)
                 .and not_trigger_statsd_increment(described_class::STATSD_SSO_NEW_FORCEAUTH,
-                                             tags: ["context:#{type}", 'version:v1'])
+                                                  tags: ["context:#{type}", 'version:v1'])
 
               expect(response).to have_http_status(:found)
               expect(response.location)
@@ -112,7 +112,7 @@ RSpec.describe V1::SessionsController, type: :controller do
                 .to trigger_statsd_increment(described_class::STATSD_SSO_NEW_KEY,
                                              tags: ["context:#{type}", 'version:v1'], **once)
                 .and trigger_statsd_increment(described_class::STATSD_SSO_NEW_FORCEAUTH,
-                                             tags: ["context:#{type}", 'version:v1'], **once)
+                                              tags: ["context:#{type}", 'version:v1'], **once)
 
               expect(response).to have_http_status(:found)
               expect(response.location)
