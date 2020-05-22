@@ -36,7 +36,8 @@ RSpec.describe 'Appointment', type: :request do
         end
 
         let(:query_string) do
-          "patient:Patient.identifier=1012845331V153043&date=ge2020-05-01T07:00:00Z&date=lt2020-08-31T17:00:00Z&_include=Appointment:location"
+          'patient:Patient.identifier=1012845331V153043&date=ge2020-05-01T07:00:00Z' /
+            '&date=lt2020-08-31T17:00:00Z&_include=Appointment:location'
         end
 
         it 'returns a 200' do
