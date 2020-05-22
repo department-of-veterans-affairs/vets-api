@@ -6,6 +6,7 @@ ActiveSupport::Inflector.inflections do |inflect|
   inflect.acronym 'BB'
   inflect.acronym 'BGS'
   inflect.acronym 'CC'
+  inflect.acronym 'CARMA'
   inflect.acronym 'DOD'
   inflect.acronym 'EMIS'
   inflect.acronym 'EVSS'
