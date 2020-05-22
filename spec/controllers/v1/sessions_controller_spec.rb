@@ -83,7 +83,7 @@ RSpec.describe V1::SessionsController, type: :controller do
       context 'routes not requiring auth' do
         %w[mhv dslogon idme].each do |type|
           context "routes /sessions/#{type}/new to SessionsController#new with type: #{type}" do
-            it 'redirects without a forceAuthn' do
+            it 'redirects' do
               expect(SAML::SSOeSettingsService)
                 .to receive(:saml_settings)
                 .with(force_authn: false)
@@ -92,6 +92,8 @@ RSpec.describe V1::SessionsController, type: :controller do
                 .to trigger_statsd_increment(described_class::STATSD_SSO_NEW_KEY,
                                              tags: ["context:#{type}", 'version:v1'], **once)
                 .and not_trigger_statsd_increment(described_class::STATSD_SSO_NEW_FORCEAUTH,
+                                                  tags: ["context:#{type}", 'version:v1'])
+                .and not_trigger_statsd_increment(described_class::STATSD_SSO_NEW_INBOUND,
                                                   tags: ["context:#{type}", 'version:v1'])
 
               expect(response).to have_http_status(:found)
@@ -112,6 +114,26 @@ RSpec.describe V1::SessionsController, type: :controller do
                 .to trigger_statsd_increment(described_class::STATSD_SSO_NEW_KEY,
                                              tags: ["context:#{type}", 'version:v1'], **once)
                 .and trigger_statsd_increment(described_class::STATSD_SSO_NEW_FORCEAUTH,
+                                              tags: ["context:#{type}", 'version:v1'], **once)
+
+              expect(response).to have_http_status(:found)
+              expect(response.location)
+                .to be_an_idme_saml_url('https://pint.eauth.va.gov/isam/sps/saml20idp/saml20/login?SAMLRequest=')
+                .with_relay_state('originating_request_id' => nil, 'type' => type)
+                .with_params('clientId' => '123123')
+              expect(SAMLRequestTracker.keys.length).to eq(1)
+              expect(SAMLRequestTracker.find(SAMLRequestTracker.keys[0]).payload).to eq({})
+            end
+
+            it 'redirects for an inbound ssoe' do
+              expect(SAML::SSOeSettingsService)
+                .to receive(:saml_settings)
+                .with(force_authn: false)
+
+              expect { get(:new, params: { type: type, clientId: '123123', inbound: true }) }
+                .to trigger_statsd_increment(described_class::STATSD_SSO_NEW_KEY,
+                                             tags: ["context:#{type}", 'version:v1'], **once)
+                .and trigger_statsd_increment(described_class::STATSD_SSO_NEW_INBOUND,
                                               tags: ["context:#{type}", 'version:v1'], **once)
 
               expect(response).to have_http_status(:found)
