@@ -3,7 +3,7 @@
 require_relative 'find_profile_message_helpers'
 
 module MVI::Messages
-  class FindProfileMessageIcn
+  class FindProfileMessageICN
     include FindProfileMessageHelpers
     attr_reader :icn
 

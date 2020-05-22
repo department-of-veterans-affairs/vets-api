@@ -3,7 +3,7 @@
 require 'rails_helper'
 require 'mvi/messages/find_profile_message'
 
-describe MVI::Messages::FindProfileMessageIcn do
+describe MVI::Messages::FindProfileMessageICN do
   describe '.to_xml' do
     context 'with icn' do
       let(:icn) { 'fake-icn-number' }

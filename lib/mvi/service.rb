@@ -185,7 +185,7 @@ class MVI::Service < Common::Client::Base
   end
 
   def message_icn(user)
-    MVI::Messages::FindProfileMessageIcn.new(user.mhv_icn).to_xml
+    MVI::Messages::FindProfileMessageICN.new(user.mhv_icn).to_xml
   end
 
   def message_edipi(user)

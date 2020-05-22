@@ -185,7 +185,7 @@ describe MVI::Service do
 
   describe '.find_profile with icn', run_at: 'Wed, 21 Feb 2018 20:19:01 GMT' do
     before do
-      expect(MVI::Messages::FindProfileMessageIcn).to receive(:new).once.and_call_original
+      expect(MVI::Messages::FindProfileMessageICN).to receive(:new).once.and_call_original
     end
 
     context 'valid requests' do
