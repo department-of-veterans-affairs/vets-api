@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-MhvPrescriptionsPolicy = Struct.new(:user, :mhv_prescriptions) do
+MHVPrescriptionsPolicy = Struct.new(:user, :mhv_prescriptions) do
   RX_ACCOUNT_TYPES = %w[Premium Advanced].freeze
 
   # NOTE: This check for va_patient, might break functionality for mhv-sign-in users,
