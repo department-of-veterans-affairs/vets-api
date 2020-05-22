@@ -19,6 +19,7 @@ ActiveSupport::Inflector.inflections do |inflect|
   inflect.acronym 'PagerDuty'
   inflect.acronym 'PCIU'
   inflect.acronym 'PPIU'
+  inflect.acronym 'PSSG'
   inflect.acronym 'SAML'
   inflect.acronym 'SM'
   inflect.acronym 'SSO'
