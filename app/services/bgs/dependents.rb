@@ -317,44 +317,60 @@ module BGS
       optional_fields = {}
     )
 
-      ::ValueObjects::VnpPersonAddressPhone.new(
-        vnp_proc_id: @proc_id,
-        vnp_participant_id: participant[:vnp_ptcpnt_id],
-        vnp_participant_address_id: address[:vnp_ptcpnt_addrs_id],
-        participant_relationship_type_name: participant_relationship_type,
-        family_relationship_type_name: family_relationship_type,
-        first_name: person[:first_nm],
-        middle_name: person[:middle_nm],
-        last_name: person[:last_nm],
-        suffix_name: person[:suffix_nm],
-        birth_date: person[:brthdy_dt],
-        birth_state_code: person[:birth_state_cd],
-        birth_city_name: person[:birth_city_nm],
-        file_number: person[:file_nbr],
-        ssn_number: person[:ssn_nbr],
-        address_line_one: address[:addrs_one_txt],
-        address_line_two: address[:addrs_two_txt],
-        address_line_three: address[:addrs_three_txt],
-        address_country: address[:cntry_nm],
-        address_state_code: address[:postal_cd],
-        address_city: address[:city_nm],
-        address_zip_code: address[:zip_prefix_nbr],
-        death_date: person[:death_dt],
-        ever_married_indicator: person[:ever_maried_ind],
-        phone_number: optional_fields[:phone_number],
-        email_address: optional_fields[:email_address],
-        begin_date: optional_fields[:begin_date],
-        end_date: optional_fields[:end_date],
-        event_date: optional_fields[:event_date],
-        marriage_state: optional_fields[:marriage_state],
-        marriage_city: optional_fields[:marriage_city],
-        divorce_state: optional_fields[:divorce_state],
-        divorce_city: optional_fields[:divorce_city],
-        marriage_termination_type_code: optional_fields[:marriage_termination_type_code],
-        living_expenses_paid_amount: optional_fields[:living_expenses_paid],
-        type: optional_fields[:type],
-        benefit_claim_type_end_product: nil # this is only for the veteran
-      )
+      {
+        vnp_participant_id: participant[:vnp_ptcpnt_id], # Both
+        participant_relationship_type_name: participant_relationship_type, # dependent only
+        family_relationship_type_name: family_relationship_type, # dependent only
+        begin_date: optional_fields[:begin_date], # dependent only
+        end_date: optional_fields[:end_date], # dependent only
+        event_date: optional_fields[:event_date], # dependent only
+        marriage_state: optional_fields[:marriage_state], # dependent only
+        marriage_city: optional_fields[:marriage_city], # dependent only
+        divorce_state: optional_fields[:divorce_state], # dependent only
+        divorce_city: optional_fields[:divorce_city], # dependent only
+        marriage_termination_type_code: optional_fields[:marriage_termination_type_code], # dependent only
+        living_expenses_paid_amount: optional_fields[:living_expenses_paid], # dependent only
+        type: optional_fields[:type] # both
+      }
     end
+
+    ::ValueObjects::VnpPersonAddressPhone.new(
+      # vnp_proc_id: @proc_id,
+      vnp_participant_id: participant[:vnp_ptcpnt_id], # Both
+      # first_name: person[:first_nm], vet only
+      # last_name: person[:last_nm], vet only
+      # vnp_participant_address_id: address[:vnp_ptcpnt_addrs_id], @ veteran only
+      participant_relationship_type_name: participant_relationship_type, # veteran only
+      family_relationship_type_name: family_relationship_type, # veteran only
+      # suffix_name: person[:suffix_nm], not needed
+      # middle_name: person[:middle_nm], not needed
+      # birth_date: person[:brthdy_dt],
+      # birth_state_code: person[:birth_state_cd],
+      # birth_city_name: person[:birth_city_nm],
+      # file_number: person[:file_nbr], veteran only
+      # ssn_number: person[:ssn_nbr], # veteran only
+      # address_line_one: address[:addrs_one_txt], # veteran only
+      # address_line_two: address[:addrs_two_txt], # veteran only
+      # address_line_three: address[:addrs_three_txt], # veteran only
+      # address_country: address[:cntry_nm], # veteran only
+      # address_state_code: address[:postal_cd], # veteran only
+      # address_city: address[:city_nm], # veteran only
+      # address_zip_code: address[:zip_prefix_nbr], # veteran only
+      # death_date: person[:death_dt], # not needed
+      # ever_married_indicator: person[:ever_maried_ind], # not needed
+      # phone_number: optional_fields[:phone_number], not needed
+      # email_address: optional_fields[:email_address],
+      begin_date: optional_fields[:begin_date], # dependent only
+      end_date: optional_fields[:end_date], # dependent only
+      event_date: optional_fields[:event_date], # dependent only
+      marriage_state: optional_fields[:marriage_state], # dependent only
+      marriage_city: optional_fields[:marriage_city], # dependent only
+      divorce_state: optional_fields[:divorce_state], # dependent only
+      divorce_city: optional_fields[:divorce_city], # dependent only
+      marriage_termination_type_code: optional_fields[:marriage_termination_type_code], # dependent only
+      living_expenses_paid_amount: optional_fields[:living_expenses_paid], # dependent only
+      type: optional_fields[:type], # we need this
+      benefit_claim_type_end_product: nil # this is only for the veteran
+    )
   end
 end

@@ -24,7 +24,8 @@ module BGS
 
       proc_id = create_proc_id_and_form
       veteran = VnpVeteran.new(proc_id: proc_id, payload: payload, user: @user).create
-      dependents = Dependents.new(proc_id: proc_id, payload: payload, user: @user).create
+      binding.pry
+      # dependents = Dependents.new(proc_id: proc_id, payload: payload, user: @user).create
       # VnpRelationships.new(proc_id: proc_id, veteran: veteran, dependents: dependents, user: @user).create
 
       # if payload['report674']

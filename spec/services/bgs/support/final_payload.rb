@@ -185,7 +185,7 @@
       {
         "start_date": "2007-04-03",
         "start_location": {"state": "AK", "city": "Rock Island"},
-        "reason_marriage_ended": "OTHER",
+        "reason_marriage_ended": "Other",
         "reason_marriage_ended_other": "Some other reason",
         "end_date": "2009-05-05",
         "end_location": {"state": "IL", "city": "Rock Island"},
@@ -230,7 +230,7 @@
     "state": "CA",
     "city": "Slawson"
   },
-  "type": "OTHER",
+  "type": "Other",
   "type_other": "Some Other type"
 },
   "spouse_information": {

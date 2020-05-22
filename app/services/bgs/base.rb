@@ -261,7 +261,7 @@ module BGS
     # HEY we were using 796149080 as file_number and ssn to make it work. Changed it to get the mock response working
     # We get "index for PL/SQL table out of range for host" when we try to use the user's ssn in file_number
     # def insert_benefit_claim(vnp_benefit_claim, veteran)
-    #   service.benefit_claim_web.insert_benefit_claim(
+    #   service.claims.insert_benefit_claim(
     #     file_number: veteran.ssn_number, # 796149080 This is not working with file number in the payload or the ssn value getting annot insert NULL into ("CORPPROD"."PERSON"."LAST_NM")
     #     ssn: veteran.ssn_number, # this is actually needed for the service call Might want to use the payload value
     #     ptcpnt_id_claimant: @user.participant_id,
