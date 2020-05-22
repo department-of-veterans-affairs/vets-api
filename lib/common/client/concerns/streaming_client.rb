@@ -21,7 +21,7 @@ module Common::Client::Concerns
           end
         end
       rescue Timeout::Error, Errno::EINVAL, Errno::ECONNRESET, EOFError,
-              Net::HTTPBadResponse, Net::HTTPHeaderSyntaxError, Net::ProtocolError => e
+             Net::HTTPBadResponse, Net::HTTPHeaderSyntaxError, Net::ProtocolError => e
         raise Common::Client::Errors::ClientError, "Streaming request failed: #{e.message}"
       end
     end
