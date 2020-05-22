@@ -11,7 +11,6 @@ class RedisDuplicator < Redis
   end
 
   def set(key, value, options = {})
-    byebug
     @secondary_redis.set(key, value, options)
     super
   end
