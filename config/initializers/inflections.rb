@@ -2,6 +2,7 @@
 
 ActiveSupport::Inflector.inflections do |inflect|
   inflect.acronym 'AWS'
+  inflect.acronym 'AAID'
   inflect.acronym 'BB'
   inflect.acronym 'BGS'
   inflect.acronym 'CC'
@@ -11,6 +12,7 @@ ActiveSupport::Inflector.inflections do |inflect|
   inflect.acronym 'GIDS'
   inflect.acronym 'GI'
   inflect.acronym 'HCA'
+  inflect.acronym 'ICN'
   inflect.acronym 'IHub'
   inflect.acronym 'MDOT'
   inflect.acronym 'MHV'
@@ -19,6 +21,7 @@ ActiveSupport::Inflector.inflections do |inflect|
   inflect.acronym 'PagerDuty'
   inflect.acronym 'PCIU'
   inflect.acronym 'PPIU'
+  inflect.acronym 'PPMS'
   inflect.acronym 'PSSG'
   inflect.acronym 'SAML'
   inflect.acronym 'SM'
