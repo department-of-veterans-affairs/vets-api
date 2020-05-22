@@ -2,7 +2,7 @@
 
 module Users
   class ExceptionHandler
-    include Common::Client::ServiceStatus
+    include Common::Client::Concerns::ServiceStatus
 
     attr_reader :error, :service
 

@@ -17,7 +17,7 @@ module MDOT
   #
 
   class Client < Common::Client::Base
-    include Common::Client::Monitoring
+    include Common::Client::Concerns::Monitoring
 
     configuration MDOT::Configuration
 

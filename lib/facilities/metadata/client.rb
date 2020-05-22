@@ -3,7 +3,7 @@
 module Facilities
   module Metadata
     class Client < Common::Client::Base
-      include Common::Client::Monitoring
+      include Common::Client::Concerns::Monitoring
       configuration Facilities::Metadata::Configuration
 
       STATSD_KEY_PREFIX = 'api.facilities_metadata'

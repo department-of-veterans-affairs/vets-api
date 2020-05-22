@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-module Common::Client
+module Common::Client::Concerns
   module Monitoring
     extend ActiveSupport::Concern
 
