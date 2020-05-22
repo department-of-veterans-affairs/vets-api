@@ -100,7 +100,14 @@ module Swagger
                     end
                   end
                   property :va_patient, type: :boolean
-                  property :mhv_account_state, type: :string, enum: %w[OK DEACTIVATED MULTIPLE NONE], example: 'OK'
+                  property :mhv_account_state,
+                           type: :string,
+                           enum: %w[OK DEACTIVATED MULTIPLE NONE],
+                           example: 'OK',
+                           description: 'DEACTIVATED: user has MHV ids that are not active; '\
+                                        'NONE: user has no active MHV ids; '\
+                                        'MULTIPLE: user has multiple active MHV ids; '\
+                                        'OK: user has one MHV id and its active'
                 end
                 property :veteran_status, type: :object do
                   key :required, [:status]
