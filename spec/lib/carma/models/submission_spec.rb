@@ -246,6 +246,56 @@ RSpec.describe CARMA::Models::Submission, type: :model do
         }
       )
     end
+
+    context 'when metadata.veteran.is_veteran is false' do
+      it 'will set metadata.veteran.icn to nil' do
+        subject = described_class.new(
+          data: {
+            'my' => 'data'
+          },
+          metadata: {
+            claim_id: 123,
+            veteran: {
+              icn: 'VET1234',
+              is_veteran: false
+            },
+            primary_caregiver: {
+              icn: 'PC1234'
+            },
+            secondary_caregiver_one: {
+              icn: 'SCO1234'
+            },
+            secondary_caregiver_two: {
+              icn: 'SCT1234'
+            }
+          }
+        )
+
+        expect(subject.to_request_payload).to eq(
+          {
+            'data' => {
+              'my' => 'data'
+            },
+            'metadata' => {
+              'claimId' => 123,
+              'veteran' => {
+                'icn' => nil,
+                'isVeteran' => false
+              },
+              'primaryCaregiver' => {
+                'icn' => 'PC1234'
+              },
+              'secondaryCaregiverOne' => {
+                'icn' => 'SCO1234'
+              },
+              'secondaryCaregiverTwo' => {
+                'icn' => 'SCT1234'
+              }
+            }
+          }
+        )
+      end
+    end
   end
 
   describe '#submit!' do
