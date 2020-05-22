@@ -80,7 +80,7 @@ This installs rbenv and other homebrew libraries for this project. If you only w
      cache_dir: ../vets-api-mockdata
    ```
 
-#### Ubuntu 20.04 LTS
+#### Alternative (Ubuntu 20.04 LTS)
 
 1. Install Ruby 2.6.6
    - It is suggested that you use a Ruby version manager such as
@@ -164,10 +164,10 @@ This installs rbenv and other homebrew libraries for this project. If you only w
    - From the `vets-api` directory, run `./bin/install-ubuntu-packages`
 1. Edit `/etc/ImageMagick-6/policy.xml` and remove the lines below the comment `<!-- disable ghostscript format types -->`
    - This may not be necessary. The default policy was updated to [fix a variety of vulnerabilities](https://usn.ubuntu.com/3785-1/) as of October, 2018.
-1. Install Ruby 2.4.5
+1. Install Ruby 2.6.6
    - It is suggested that you use a Ruby version manager such as
      [rbenv](https://github.com/rbenv/rbenv#installation) and
-     [install Ruby 2.4.5](https://github.com/rbenv/rbenv#installing-ruby-versions).
+     [install Ruby 2.6.6](https://github.com/rbenv/rbenv#installing-ruby-versions).
    - _NOTE_: rbenv will also provide additional installation instructions in the
      console output. Make sure to follow those too.
 1. Install Bundler to manage dependencies
