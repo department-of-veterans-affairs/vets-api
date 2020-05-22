@@ -2,7 +2,7 @@
 
 require 'common/exceptions/external/unprocessable_entity'
 
-class MVI::OrchSearchService < Service
+class MVI::OrchSearchService < MVI::Service
   configuration MVI::Configuration
 
   private
