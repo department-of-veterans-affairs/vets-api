@@ -114,7 +114,7 @@ module MVI::Responses
         sec_id: parsed_mvi_ids[:sec_id],
         birls_id: sanitize_birls_id(parsed_mvi_ids[:birls_id]),
         vet360_id: parsed_mvi_ids[:vet360_id],
-        historical_icns: MVI::Responses::HistoricalIcnParser.new(@original_body).get_icns,
+        historical_icns: MVI::Responses::HistoricalICNParser.new(@original_body).get_icns,
         icn_with_aaid: parsed_mvi_ids[:icn_with_aaid],
         search_token: locate_element(@original_body, 'id').attributes[:extension],
         cerner_id: parsed_mvi_ids[:cerner_id],

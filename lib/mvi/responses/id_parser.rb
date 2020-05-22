@@ -20,7 +20,7 @@ module MVI::Responses
     #
     # An ICN following the PERMANENT_ICN_REGEX pattern will always be present.
     # ICNs with ID statuses other than 'P' will never be present.
-    # Those are located at another path. See Responses::HistoricalIcnParser
+    # Those are located at another path. See Responses::HistoricalICNParser
     # Other correlation IDs are likely but not guaranteed to exist.
     # Correlation IDs can have any of the ID Statuses listed below.
     #

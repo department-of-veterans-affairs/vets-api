@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module MVI::Responses
-  class HistoricalIcnParser
+  class HistoricalICNParser
     HISTORICAL_ICN_XPATH = [
       ProfileParser::SUBJECT_XPATH,
       'registrationEvent',
