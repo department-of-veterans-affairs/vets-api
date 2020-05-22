@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'facilities/bulk_json_client'
 
 RSpec.describe Facilities::VHAFacility do
   before { BaseFacility.validate_on_load = false }
