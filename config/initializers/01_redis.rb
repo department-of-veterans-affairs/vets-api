@@ -11,6 +11,7 @@ class RedisDuplicator < Redis
   end
 
   def set(key, value, options = {})
+    byebug
     @secondary_redis.set(key, value, options)
     super
   end
@@ -27,7 +28,7 @@ class RedisDuplicator < Redis
 end
 
 Redis.current = if Settings.redis.app_data.key?(:secondary_url)
-                  secondary_redis = Redis.new(url: Settings.redis.app_data.url)
+                  secondary_redis = Redis.new(url: Settings.redis.app_data.secondary_url)
                   RedisDuplicator.new(secondary_redis, REDIS_CONFIG[:redis].to_hash)
                 else
                   Redis.new(REDIS_CONFIG[:redis].to_hash)
