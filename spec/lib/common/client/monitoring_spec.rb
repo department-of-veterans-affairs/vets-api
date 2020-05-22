@@ -2,13 +2,13 @@
 
 require 'rails_helper'
 
-RSpec.describe Common::Client::Monitoring, type: :model do
+RSpec.describe Common::Client::Concerns::Monitoring, type: :model do
   module Specs
     module Common
       module Client
         class MonitoringTestService < ::Common::Client::Base
           STATSD_KEY_PREFIX = 'fooservice'
-          include ::Common::Client::Monitoring
+          include ::Common::Client::Concerns::Monitoring
           configuration DefaultConfiguration
 
           def request(*args)
