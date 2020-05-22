@@ -80,6 +80,84 @@ This installs rbenv and other homebrew libraries for this project. If you only w
      cache_dir: ../vets-api-mockdata
    ```
 
+#### Ubuntu 20.04 LTS
+
+1. Install Ruby 2.6.6
+   - It is suggested that you use a Ruby version manager such as
+     [rbenv](https://github.com/rbenv/rbenv#basic-github-checkout) and
+     [install Ruby 2.6.6](https://github.com/rbenv/rbenv#installing-ruby-versions).
+   - _NOTE_: rbenv will also provide additional installation instructions in the
+     console output. Make sure to follow those too.
+   - `rbenv install 2.6.6` may require you to install dependencies, follow the instructions in the console output.
+1. Install Bundler to manage dependencies
+   - `gem install bundler`
+1. Install Postgres and enable on startup
+   ```bash
+   sudo apt install -b postgresql postgresql-contrib libpq-dev
+   sudo systemctl start postgresql@12-main
+
+   sudo -i -u postgres
+   createuser --superuser bam
+   exit
+   ```
+1. Install PostGIS
+   ```bash
+   sudo apt install -y postgis postgresql-12-postgis-3
+   sudo -i -u postgres
+
+   createuser postgis_test
+   createdb postgis_db -O postgis_test
+   psql -d postgis_db
+
+   CREATE EXTENSION postgis;
+   SELECT PostGIS_version();
+   \q
+   ```
+1. Install Redis
+   ```bash
+   sudo apt install -y redis-server
+   sudo sed -i 's/^supervised no/supervised systemd/' /etc/redis/redis.conf
+   sudo systemctl restart redis.service
+   sudo systemctl status redis # ctrl+c to exit
+   ```
+1. Install ImageMagick
+   - `sudo apt install -y imagemagick`
+1. Install Poppler
+   - `sudo apt install -y poppler-utils
+1. Install ClamAV
+   - `sudo apt install -y clamav`
+1. Install pdftk
+   - `sudo apt install -y pdftk`
+1. Install gem dependencies:
+   - `cd vets-api; bundle install`
+   - More information about installing _with_ Sidekiq Enterprise as well as our credentials are on the internal system here: https://github.com/department-of-veterans-affairs/vets.gov-team/blob/master/Products/Platform/Vets-API/Sidekiq%20Enterprise%20Setup.md
+1. Install overcommit `overcommit --install --sign`
+1. Go to the file `config/settings/development.yml` in your local vets-api. Toggle commenting so that the native method is uncommented only.
+   ```yaml
+   cache_dir: ../vets-api-mockdata # via rails; e.g. bundle exec rails s or bundle exec rails c
+   # cache_dir: /cache # via docker; e.g. make up or make console
+   ```
+1. Make sure you have the [vets-api-mockdata](https://github.com/department-of-veterans-affairs/vets-api-mockdata) repo locally installed, preferably in a parallel directory to `vets-api`.
+1. Create a `config/settings.local.yml` file for your local configuration overrides. Add this key pointing to your `vets-api-mockdata` directory.
+   ```yaml
+   betamocks:
+     cache_dir: ../vets-api-mockdata
+   ```
+1. Setup key & cert for localhost authentication to ID.me:
+   ```bash
+   mkdir config/certs
+   touch config/certs/vetsgov-localhost.crt
+   touch config/certs/vetsgov-localhost.key
+   ```
+1. Disable signed authentication requests:
+   ```yaml
+   # settings.local.yml
+   saml:
+     authn_requests_signed: false
+   ```
+1. Create dev database: `bundle exec rake db:setup`
+1. Startup server: `bundle exec rails s`
+
 #### Alternative (Ubuntu 18.04 LTS)
 
 1. Install Postgres, PostGIS, Redis, ImageMagick, Poppler, ClamAV, etc
