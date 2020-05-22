@@ -145,7 +145,7 @@ module V0
       Swagger::Requests::Notifications,
       Swagger::Requests::PensionClaims,
       Swagger::Requests::Preferences,
-      Swagger::Requests::Post911GiBillStatuses,
+      Swagger::Requests::Post911GIBillStatuses,
       Swagger::Requests::PPIU,
       Swagger::Requests::PreneedsClaims,
       Swagger::Requests::Prescriptions::Prescriptions,
