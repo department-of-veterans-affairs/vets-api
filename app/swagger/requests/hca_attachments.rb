@@ -2,7 +2,7 @@
 
 module Swagger
   module Requests
-    class HcaAttachments
+    class HCAAttachments
       include Swagger::Blocks
 
       swagger_path '/v0/hca_attachments' do
