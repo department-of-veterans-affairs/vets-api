@@ -17,7 +17,7 @@ gem 'veteran_confirmation', path: 'modules/veteran_confirmation'
 gem 'veteran_verification', path: 'modules/veteran_verification'
 
 # Anchored versions, do not change
-gem 'puma', '~> 4.3.2'
+gem 'puma', '~> 4.3.5'
 gem 'puma-plugin-statsd', '~> 0.1.0'
 gem 'rails', '~> 6.0.2'
 
@@ -134,7 +134,9 @@ group :test do
   gem 'rspec_junit_formatter'
   gem 'rubocop-junit-formatter'
   gem 'shrine-memory'
-  gem 'simplecov', require: false
+  # < 0.18 required due to bug with reporting to CodeClimate
+  # https://github.com/codeclimate/test-reporter/issues/418
+  gem 'simplecov', '< 0.18', require: false
   gem 'super_diff'
   gem 'vcr'
   gem 'webrick'
