@@ -19,6 +19,7 @@ ActiveSupport::Inflector.inflections do |inflect|
   inflect.acronym 'PCIU'
   inflect.acronym 'PPIU'
   inflect.acronym 'SAML'
+  inflect.acronym 'SM'
   inflect.acronym 'SSOe'
   inflect.acronym 'VA'
   inflect.acronym 'VAOS'
