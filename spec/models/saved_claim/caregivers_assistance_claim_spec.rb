@@ -3,45 +3,15 @@
 require 'rails_helper'
 
 RSpec.describe SavedClaim::CaregiversAssistanceClaim do
-  let(:build_claim_data_for) do
-    lambda do |form_subject, &mutations|
-      data = {
-        'fullName' => {
-          'first' => Faker::Name.first_name,
-          'last' => Faker::Name.last_name
-        },
-        'ssnOrTin' => Faker::IDNumber.valid.remove('-'),
-        'dateOfBirth' => Faker::Date.between(from: 100.years.ago, to: 18.years.ago).to_s,
-        'gender' => %w[M F].sample,
-        'address' => {
-          'street' => Faker::Address.street_address,
-          'city' => Faker::Address.city,
-          'state' => Faker::Address.state_abbr,
-          'postalCode' => Faker::Address.postcode
-        }
-      }
-
-      # Required properties for :primaryCaregiver
-      if form_subject == :primaryCaregiver
-        data['vetRelationship'] = 'Daughter'
-        data['medicaidEnrolled'] = true
-        data['medicareEnrolled'] = false
-        data['tricareEnrolled'] = false
-        data['champvaEnrolled'] = false
-      end
-
-      # Required property for :veteran
-      data['plannedClinic'] = '568A4' if form_subject == :veteran
-
-      mutations&.call data
-
-      data
-    end
-  end
-
   describe '#to_pdf' do
-    it 'raises a NotImplementedError' do
-      expect { subject.to_pdf }.to raise_error(NotImplementedError)
+    it 'converts form to pdf' do
+      claim = build(:caregivers_assistance_claim)
+      expected_file_path = 'tmp/pdfs/my_claim.pdf'
+
+      expect(PdfFill::Filler).to receive(:fill_form).with(claim).once.and_return(expected_file_path)
+
+      result = claim.to_pdf
+      expect(result).to eq(expected_file_path)
     end
   end
 

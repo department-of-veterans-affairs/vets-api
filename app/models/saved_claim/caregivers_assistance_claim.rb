@@ -8,11 +8,6 @@ class SavedClaim::CaregiversAssistanceClaim < SavedClaim
     raise NotImplementedError, 'Not Implemented for Form 10-10CG'
   end
 
-  def to_pdf
-    # Inherited from SavedClaim. Disabling until it's implemented for 10-10CG (requires code in PDFFill::Filler)
-    raise NotImplementedError, 'Not Implemented for Form 10-10CG'
-  end
-
   # SavedClaims require regional_office to be defined, CaregiversAssistanceClaim has no purpose for it.
   #
   # CaregiversAssistanceClaims are not processed regional VA offices.
