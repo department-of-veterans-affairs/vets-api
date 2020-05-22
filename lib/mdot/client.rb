@@ -39,7 +39,8 @@ module MDOT
 
         MDOT::Response.new(
           response: raw_response,
-          schema: :supplies
+          schema: :supplies,
+          uuid: @user.uuid
         )
       end
     end
@@ -51,7 +52,7 @@ module MDOT
     #
     def submit_order(request_body)
       with_monitoring_and_error_handling do
-        perform(:post, @supplies, request_body, headers).body
+        perform(:post, @supplies, request_body, submission_headers).body
       end
     end
 
@@ -59,8 +60,17 @@ module MDOT
 
     def headers
       {
+        VA_VETERAN_FIRST_NAME: @user.first_name,
+        VA_VETERAN_LAST_NAME: @user.last_name,
         VA_VETERAN_ID: @user.ssn.last(4),
-        VA_VETERAN_BIRTH_DATE: @user.birth_date
+        VA_VETERAN_BIRTH_DATE: @user.birth_date,
+        VA_ICN: @user.icn
+      }
+    end
+
+    def submission_headers
+      {
+        VA_API_KEY: MDOT::Token.find(@user.uuid).token
       }
     end
 

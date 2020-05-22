@@ -6,7 +6,6 @@ module Form1010cg
     attr_reader :claim
 
     NOT_FOUND = 'NOT_FOUND'
-    NOT_CONFIRMED = 'NOT_CONFIRMED'
 
     def initialize(claim)
       # This service makes assumptions on what data is present on the claim
@@ -23,8 +22,7 @@ module Form1010cg
         # [form_subject]: nil             - An MVI search has not been conducted for this person
         icns: {},
         # [form_subject]: true            - This person is a veteran
-        # [form_subject]: false           - This person is not a veteran
-        # [form_subject]: NOT_CONFIRMED   - This person's veteran status cannot be confirmed
+        # [form_subject]: false           - This person's veteran status cannot be confirmed
         # [form_subject]: nil             - An eMIS search has not been conducted for this person
         veteran_statuses: {}
       }
@@ -44,13 +42,11 @@ module Form1010cg
       )
     end
 
-    # Will raise an error unless the veteran specified on the claim's data (1) can be found in MVI, (2) has an ICN,
-    # and (3) has been confirmed as a legitimate veteran (via eMIS).
+    # Will raise an error unless the veteran specified on the claim's data can be found in MVI
     #
     # @return [nil]
     def assert_veteran_status
       raise_unprocessable if icn_for('veteran') == NOT_FOUND
-      raise_unprocessable unless is_veteran('veteran') == true
     end
 
     # Returns a metadata hash:
@@ -75,8 +71,7 @@ module Form1010cg
       end
 
       # Set the veteran status on the :veteran namespace of metadata
-      veteran_status = is_veteran('veteran')
-      metadata[:veteran][:is_veteran] = veteran_status == NOT_CONFIRMED ? nil : veteran_status
+      metadata[:veteran][:is_veteran] = false
 
       metadata
     end
@@ -85,38 +80,43 @@ module Form1010cg
     # The result will be cached and subsequent calls will return the cached value, preventing additional api requests.
     #
     # @param form_subject [String] The key in the claim's data that contains this person's info (ex: "veteran")
-    # @return [String | NOT_FOUND] Returns `true` if the form subject is a veteran and NOT_CONFIRMED otherwise.
+    # @return [String | NOT_FOUND] Returns the icn of the form subject if found, and NOT_FOUND otherwise.
     def icn_for(form_subject)
       cached_icn = @cache[:icns][form_subject]
       return cached_icn unless cached_icn.nil?
 
-      begin
-        response = mvi_service.find_profile(build_user_identity_for(form_subject))
-      rescue MVI::Errors::RecordNotFound
+      response = mvi_service.find_profile(build_user_identity_for(form_subject))
+
+      case response.status
+      when 'OK'
+        return @cache[:icns][form_subject] = response.profile.icn
+      when 'NOT_FOUND'
         return @cache[:icns][form_subject] = NOT_FOUND
       end
 
-      @cache[:icns][form_subject] = response&.profile&.icn if response&.status == 'OK'
+      raise response.error if response.error
+
+      @cache[:icns][form_subject] = NOT_FOUND
     end
 
     # Will search eMIS for the provided form subject and return `true` if the subject is a verteran.
     # The result will be cached and subsequent calls will return the cached value, preventing additional api requests.
     #
     # @param form_subject [String] The key in the claim's data that contains this person's info (ex: "veteran")
-    # @return [true | NOT_CONFIRMED] Returns `true` if the form subject is a veteran and `NOT_CONFIRMED` otherwise.
+    # @return [true | false] Returns `true` if the form subject is a veteran and false otherwise.
     def is_veteran(form_subject) # rubocop:disable Naming/PredicateName
       cached_veteran_status = @cache[:veteran_statuses][form_subject]
       return cached_veteran_status unless cached_veteran_status.nil?
 
       icn = icn_for(form_subject)
-      return @cache[:veteran_statuses][form_subject] = NOT_CONFIRMED if icn == NOT_FOUND
+      return @cache[:veteran_statuses][form_subject] = false if icn == NOT_FOUND
 
       response = EMIS::VeteranStatusService.new.get_veteran_status(icn: icn)
       raise response.error if response.error?
 
       is_veteran = response&.items&.first&.title38_status_code == 'V1'
 
-      @cache[:veteran_statuses][form_subject] = is_veteran || NOT_CONFIRMED
+      @cache[:veteran_statuses][form_subject] = is_veteran || false
     end
 
     private

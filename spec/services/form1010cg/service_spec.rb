@@ -154,8 +154,8 @@ RSpec.describe Form1010cg::Service do
 
       expect_any_instance_of(MVI::Service).to receive(:find_profile).with(
         :user_identity
-      ).and_raise(
-        MVI::Errors::RecordNotFound
+      ).and_return(
+        double(status: 'NOT_FOUND', error: double)
       )
 
       result = subject.icn_for('veteran')
@@ -228,8 +228,8 @@ RSpec.describe Form1010cg::Service do
 
       expect_any_instance_of(MVI::Service).to receive(:find_profile).with(
         :pc_user_identity
-      ).and_raise(
-        MVI::Errors::RecordNotFound
+      ).and_return(
+        double(status: 'NOT_FOUND', error: double)
       )
 
       3.times do
@@ -342,7 +342,7 @@ RSpec.describe Form1010cg::Service do
   end
 
   describe '#is_veteran' do
-    it 'returns "NOT_CONFIRMED" if the icn for the for the subject is "NOT_FOUND"' do
+    it 'returns false if the icn for the for the subject is "NOT_FOUND"' do
       subject = described_class.new(
         build(
           :caregivers_assistance_claim,
@@ -356,7 +356,7 @@ RSpec.describe Form1010cg::Service do
       expect(subject).to receive(:icn_for).with('veteran').and_return('NOT_FOUND')
       expect_any_instance_of(EMIS::VeteranStatusService).not_to receive(:get_veteran_status)
 
-      expect(subject.is_veteran('veteran')).to eq('NOT_CONFIRMED')
+      expect(subject.is_veteran('veteran')).to eq(false)
     end
 
     describe 'searches eMIS and' do
@@ -394,7 +394,7 @@ RSpec.describe Form1010cg::Service do
       end
 
       context 'when title38_status_code is not "V1"' do
-        it 'returns "NOT_CONFIRMED"' do
+        it 'returns false' do
           subject = described_class.new(
             build(
               :caregivers_assistance_claim,
@@ -422,12 +422,12 @@ RSpec.describe Form1010cg::Service do
             emis_response
           )
 
-          expect(subject.is_veteran('veteran')).to eq('NOT_CONFIRMED')
+          expect(subject.is_veteran('veteran')).to eq(false)
         end
       end
 
       context 'when title38_status_code is not present' do
-        it 'returns "NOT_CONFIRMED"' do
+        it 'returns false' do
           subject = described_class.new(
             build(
               :caregivers_assistance_claim,
@@ -451,7 +451,7 @@ RSpec.describe Form1010cg::Service do
             emis_response
           )
 
-          expect(subject.is_veteran('veteran')).to eq('NOT_CONFIRMED')
+          expect(subject.is_veteran('veteran')).to eq(false)
         end
       end
 
@@ -526,7 +526,7 @@ RSpec.describe Form1010cg::Service do
 
       3.times do
         expect(subject.is_veteran('veteran')).to eq(true)
-        expect(subject.is_veteran('primaryCaregiver')).to eq('NOT_CONFIRMED')
+        expect(subject.is_veteran('primaryCaregiver')).to eq(false)
       end
     end
   end
@@ -538,12 +538,12 @@ RSpec.describe Form1010cg::Service do
         expect(subject).to receive(:icn_for).with(form_subject).and_return(return_value)
       end
 
-      expect(subject).to receive(:is_veteran).with('veteran').and_return(true)
+      expect(subject).not_to receive(:is_veteran)
 
       expect(subject.build_metadata).to eq(
         veteran: {
           icn: :ICN_0,
-          is_veteran: true
+          is_veteran: false
         },
         primaryCaregiver: {
           icn: :ICN_1
@@ -570,39 +570,9 @@ RSpec.describe Form1010cg::Service do
       end
     end
 
-    it 'will raise error if veteran\'s status can not be confirmed' do
+    it 'will not raise error if veteran\'s icn is found' do
       expect(subject).to receive(:icn_for).with('veteran').and_return(:ICN_123)
-      expect(subject).to receive(:is_veteran).with('veteran').and_return('NOT_CONFIRMED')
-
-      expect { subject.assert_veteran_status }.to raise_error do |e|
-        expect(e).to be_a(Common::Exceptions::ValidationErrors)
-        expect(e.errors.size).to eq(1)
-        expect(e.errors[0].code).to eq('100')
-        expect(e.errors[0].source[:pointer]).to eq('data/attributes/base')
-        expect(e.errors[0].detail).to eq('base - Unable to process submission digitally')
-        expect(e.errors[0].status).to eq('422')
-        expect(e.errors[0].title).to eq('Unable to process submission digitally')
-      end
-    end
-
-    it 'will raise an error if the veteran status is confirmed as false' do
-      expect(subject).to receive(:icn_for).with('veteran').and_return(:ICN_123)
-      expect(subject).to receive(:is_veteran).with('veteran').and_return(false)
-
-      expect { subject.assert_veteran_status }.to raise_error do |e|
-        expect(e).to be_a(Common::Exceptions::ValidationErrors)
-        expect(e.errors.size).to eq(1)
-        expect(e.errors[0].code).to eq('100')
-        expect(e.errors[0].source[:pointer]).to eq('data/attributes/base')
-        expect(e.errors[0].detail).to eq('base - Unable to process submission digitally')
-        expect(e.errors[0].status).to eq('422')
-        expect(e.errors[0].title).to eq('Unable to process submission digitally')
-      end
-    end
-
-    it 'will not raise error if veteran\'s icn is found and their veteran status is confirmed' do
-      expect(subject).to receive(:icn_for).with('veteran').and_return(:ICN_123)
-      expect(subject).to receive(:is_veteran).with('veteran').and_return(true)
+      expect(subject).not_to receive(:is_veteran)
 
       expect(subject.assert_veteran_status).to eq(nil)
     end

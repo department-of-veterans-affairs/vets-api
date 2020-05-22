@@ -320,30 +320,32 @@ vic:
   signing_key_path: /fake/signing/key/path
   prefill: true
   s3:
-    aws_access_key_id: 'aws_access_key_id'
-    aws_secret_access_key: 'aws_secret_access_key'
-    region: 'region'
-    bucket: 'bucket'
+    aws_access_key_id: "aws_access_key_id"
+    aws_secret_access_key: "aws_secret_access_key"
+    region: "region"
+    bucket: "bucket"
 
 # Settings for (preneeds) burials.
 preneeds:
   host: http://some.fakesite.com
-  wsdl: 'config/preneeds/wsdl/preneeds.wsdl'
+  wsdl: "config/preneeds/wsdl/preneeds.wsdl"
 
 # Settings for VBA Document upload service module
 vba_documents:
   unsuccessful_report_enabled: false
   location:
-    prefix:  http://some.fakesite.com/path
+    prefix: http://some.fakesite.com/path
     replacement: http://another.fakesite.com/rewrittenpath
   s3:
     enabled: false
-    aws_access_key_id: 'aws_access_key_id'
-    aws_secret_access_key: 'aws_secret_access_key'
-    region: 'region'
-    bucket: 'bucket'
+    aws_access_key_id: "aws_access_key_id"
+    aws_secret_access_key: "aws_secret_access_key"
+    region: "region"
+    bucket: "bucket"
   sns:
-    topic_arn: ~
+    topic_arns:
+      - vetsgov-arn
+      - vagov-arn
 
 #Settings for Claims Api Module
 claims_api:
@@ -447,13 +449,14 @@ search:
   url: https://search.usa.gov/api/v2
 
 bing:
-  base_api_url: 'https://dev.virtualearth.net/REST/v1'
+  base_api_url: "https://dev.virtualearth.net/REST/v1"
   key: fake_key
 
 flipper:
   admin_user_emails:
     - alastair@adhocteam.us
     - anna@adhoc.team
+    - bill.ryan@adhocteam.us
     - dan.hinze@adhocteam.us
     - delli-gatti_michael@bah.com
     - devinmccurdy@gmail.com
@@ -463,17 +466,20 @@ flipper:
     - jeff@adhocteam.us
     - johnny@oddball.io
     - johnpaul.ashenfelter@oddball.io
-    - kam@adhocteam.us
     - kabrown@thoughtworks.com
+    - kam@adhocteam.us
+    - keifer@oddball.io
     - kenneth.gary@va.gov
     - kmircovich@governmentcio.com
     - lauren.alexanderson@va.gov
+    - lindsey.hattamer@oddball.io
     - mark.greenburg@adhocteam.us
     - n.ratana@gmail.com
     - narin@adhocteam.us
     - osanchez@governmentcio.com
     - patrick@adhocteam.us
     - patrick.bateman@va.gov
+    - philip.becker@oddball.io
     - regarr@gmail.com # Robin Garrison - AdHoc
     - rian.fowler@adhoc.team
     - rianfowler@outlook.com
@@ -484,7 +490,7 @@ flipper:
     - sonntag_adam@bah.com
     - travis.hilton@oddball.io
     - zurbergram@gmail.com
-    
+
 bgs:
   application: ~
   client_station_id: ~
@@ -495,7 +501,7 @@ bgs:
   ssl_verify_mode: 'peer'
 
 va_mobile:
-  url: 'https://veteran.apps.va.gov/'
+  url: 'https://veteran.apps.va.gov'
   mock: false
   key_path: /fake/client/key/path
   timeout: 15

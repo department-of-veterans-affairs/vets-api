@@ -59,7 +59,7 @@ class User < Common::RedisStore
   end
 
   def first_name
-    identity.first_name.presence || mvi&.profile&.given_names&.first
+    identity.first_name || (mhv_icn.present? ? mvi&.profile&.given_names&.first : nil)
   end
 
   def full_name_normalized
@@ -80,23 +80,23 @@ class User < Common::RedisStore
   end
 
   def last_name
-    identity.last_name.presence || mvi&.profile&.family_name
+    identity.last_name || (mhv_icn.present? ? mvi&.profile&.family_name : nil)
   end
 
   def gender
-    identity.gender.presence || mvi&.profile&.gender
+    identity.gender || (mhv_icn.present? ? mvi&.profile&.gender : nil)
   end
 
   def birth_date
-    identity.birth_date.presence || mvi&.profile&.birth_date
+    identity.birth_date || (mhv_icn.present? ? mvi&.profile&.birth_date : nil)
   end
 
   def zip
-    identity.zip.presence || mvi&.profile&.address&.postal_code
+    identity.zip || (mhv_icn.present? ? mvi&.profile&.address&.postal_code : nil)
   end
 
   def ssn
-    identity.ssn.presence || mvi&.profile&.ssn
+    identity.ssn || (mhv_icn.present? ? mvi&.profile&.ssn : nil)
   end
 
   def mhv_correlation_id
@@ -105,6 +105,14 @@ class User < Common::RedisStore
 
   def mhv_account_type
     identity.mhv_account_type || MhvAccountTypeService.new(self).mhv_account_type
+  end
+
+  def mhv_account_state
+    return 'DEACTIVATED' if (va_profile.mhv_ids.to_a - va_profile.active_mhv_ids.to_a).any?
+    return 'MULTIPLE' if va_profile.active_mhv_ids.to_a.size > 1
+    return 'NONE' if mhv_correlation_id.blank?
+
+    'OK'
   end
 
   def loa
