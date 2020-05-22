@@ -7,11 +7,7 @@ RSpec.describe 'address', type: :request do
 
   before(:all) { @cached_enabled_val = Settings.evss.reference_data_service.enabled }
 
-  after(:all) do
-    # leave the routes in the expected state for future specs
-    Settings.evss.reference_data_service.enabled = @cached_enabled_val
-    Rails.application.reload_routes!
-  end
+  after(:all) { Settings.evss.reference_data_service.enabled = @cached_enabled_val }
 
   let(:headers) { { 'Content-Type' => 'application/json', 'Accept' => 'application/json' } }
 
@@ -22,7 +18,6 @@ RSpec.describe 'address', type: :request do
   context '#reference_data_service.enabled=false' do
     before do
       Settings.evss.reference_data_service.enabled = false
-      Rails.application.reload_routes!
     end
 
     describe 'GET /v0/address' do
@@ -146,7 +141,6 @@ RSpec.describe 'address', type: :request do
   context '#reference_data_service.enabled=true' do
     before do
       Settings.evss.reference_data_service.enabled = true
-      Rails.application.reload_routes!
     end
 
     describe 'GET /v0/address/countries' do

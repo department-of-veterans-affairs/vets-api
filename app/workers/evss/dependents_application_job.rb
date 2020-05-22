@@ -18,7 +18,7 @@ module EVSS
 
       service.validate(merged_form).tap do |res|
         if res['errors'].present?
-          return dependents_application.update_attributes!(
+          return dependents_application.update!(
             state: 'failed',
             response: res.to_json
           )
@@ -30,12 +30,12 @@ module EVSS
 
       cached_info.delete
 
-      dependents_application.update_attributes!(
+      dependents_application.update!(
         state: 'success',
         response: res.to_json
       )
     rescue
-      dependents_application.update_attributes!(
+      dependents_application.update!(
         state: 'failed'
       )
       raise

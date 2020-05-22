@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'appeals/configuration'
+require 'caseflow/configuration'
 require 'breakers/statsd_plugin'
 require 'bb/configuration'
 require 'emis/military_information_configuration'
@@ -28,12 +28,11 @@ require 'evss/documents_service'
 require 'evss/letters/service'
 
 # Read the redis config, create a connection and a namespace for breakers
-redis_config = Rails.application.config_for(:redis).freeze
-redis = Redis.new(redis_config['redis'])
-redis_namespace = Redis::Namespace.new('breakers', redis: redis)
+redis_namespace = Redis::Namespace.new('breakers', redis: Redis.new(REDIS_CONFIG[:redis]))
 
 services = [
-  Appeals::Configuration.instance.breakers_service,
+  Debts::Configuration.instance.breakers_service,
+  Caseflow::Configuration.instance.breakers_service,
   Rx::Configuration.instance.breakers_service,
   BB::Configuration.instance.breakers_service,
   EMIS::MilitaryInformationConfiguration.instance.breakers_service,

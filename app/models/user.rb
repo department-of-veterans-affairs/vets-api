@@ -17,8 +17,8 @@ class User < Common::RedisStore
   # Defined per issue #6042
   ID_CARD_ALLOWED_STATUSES = %w[V1 V3 V6].freeze
 
-  redis_store REDIS_CONFIG['user_b_store']['namespace']
-  redis_ttl REDIS_CONFIG['user_b_store']['each_ttl']
+  redis_store REDIS_CONFIG[:user_b_store][:namespace]
+  redis_ttl REDIS_CONFIG[:user_b_store][:each_ttl]
   redis_key :uuid
 
   validates :uuid, presence: true
@@ -107,6 +107,14 @@ class User < Common::RedisStore
     identity.mhv_account_type || MhvAccountTypeService.new(self).mhv_account_type
   end
 
+  def mhv_account_state
+    return 'DEACTIVATED' if (va_profile.mhv_ids.to_a - va_profile.active_mhv_ids.to_a).any?
+    return 'MULTIPLE' if va_profile.active_mhv_ids.to_a.size > 1
+    return 'NONE' if mhv_correlation_id.blank?
+
+    'OK'
+  end
+
   def loa
     identity&.loa || {}
   end
@@ -117,6 +125,7 @@ class User < Common::RedisStore
   delegate :idme_uuid, to: :identity, allow_nil: true
   delegate :dslogon_edipi, to: :identity, allow_nil: true
   delegate :authenticated_by_ssoe, to: :identity, allow_nil: true
+  delegate :common_name, to: :identity, allow_nil: true
 
   # mvi attributes
   delegate :birls_id, to: :mvi

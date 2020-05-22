@@ -97,7 +97,8 @@ RSpec.describe V1::SessionsController, type: :controller do
                 .to be_an_idme_saml_url('https://pint.eauth.va.gov/isam/sps/saml20idp/saml20/login?SAMLRequest=')
                 .with_relay_state('originating_request_id' => nil, 'type' => type)
                 .with_params('clientId' => '123123')
-              expect(LoginRedirectApplication.keys.length).to eq(0)
+              expect(SAMLRequestTracker.keys.length).to eq(1)
+              expect(SAMLRequestTracker.find(SAMLRequestTracker.keys[0]).payload).to eq({})
             end
 
             it 'redirects with a forceAuthn' do
@@ -114,7 +115,8 @@ RSpec.describe V1::SessionsController, type: :controller do
                 .to be_an_idme_saml_url('https://pint.eauth.va.gov/isam/sps/saml20idp/saml20/login?SAMLRequest=')
                 .with_relay_state('originating_request_id' => nil, 'type' => type)
                 .with_params('clientId' => '123123')
-              expect(LoginRedirectApplication.keys.length).to eq(0)
+              expect(SAMLRequestTracker.keys.length).to eq(1)
+              expect(SAMLRequestTracker.find(SAMLRequestTracker.keys[0]).payload).to eq({})
             end
 
             it 'persists redirect application' do
@@ -127,7 +129,9 @@ RSpec.describe V1::SessionsController, type: :controller do
                 .to be_an_idme_saml_url('https://pint.eauth.va.gov/isam/sps/saml20idp/saml20/login?SAMLRequest=')
                 .with_relay_state('originating_request_id' => nil, 'type' => type)
                 .with_params('clientId' => '123123')
-              expect(LoginRedirectApplication.keys.length).to eq(1)
+              expect(SAMLRequestTracker.keys.length).to eq(1)
+              expect(SAMLRequestTracker.find(SAMLRequestTracker.keys[0]).payload)
+                .to eq({ redirect: 'https://ehrm-va-test.patientportal.us.healtheintent.com/' })
             end
 
             it 'ignores invalid redirect application' do
@@ -140,7 +144,8 @@ RSpec.describe V1::SessionsController, type: :controller do
                 .to be_an_idme_saml_url('https://pint.eauth.va.gov/isam/sps/saml20idp/saml20/login?SAMLRequest=')
                 .with_relay_state('originating_request_id' => nil, 'type' => type)
                 .with_params('clientId' => '123123')
-              expect(LoginRedirectApplication.keys.length).to eq(0)
+              expect(SAMLRequestTracker.keys.length).to eq(1)
+              expect(SAMLRequestTracker.find(SAMLRequestTracker.keys[0]).payload).to eq({})
             end
           end
         end
@@ -198,9 +203,15 @@ RSpec.describe V1::SessionsController, type: :controller do
         end
       end
 
+      it 'redirect user to home page when no SAMLRequestTracker exists' do
+        allow(SAML::User).to receive(:new).and_return(saml_user)
+        expect(post(:saml_callback)).to redirect_to('http://127.0.0.1:3001/auth/login/callback')
+      end
+
       it 'redirect user to external site' do
-        LoginRedirectApplication.create(
-          uuid: login_uuid, redirect_application: Settings.ssoe.redirects['myvahealth']
+        SAMLRequestTracker.create(
+          uuid: login_uuid,
+          payload: { redirect: Settings.ssoe.redirects['myvahealth'] }
         )
         allow(SAML::User).to receive(:new).and_return(saml_user)
         expect(post(:saml_callback)).to redirect_to(Settings.ssoe.redirects['myvahealth'])
@@ -345,7 +356,8 @@ RSpec.describe V1::SessionsController, type: :controller do
             .to trigger_statsd_increment(described_class::STATSD_SSO_CALLBACK_KEY, tags: callback_tags, **once)
             .and trigger_statsd_increment(described_class::STATSD_SSO_CALLBACK_TOTAL_KEY, **once)
             .and trigger_statsd_increment(described_class::STATSD_LOGIN_SHARED_COOKIE,
-                                          tags: ['loa:3', 'idp:idme', 'version:v1'], **once)
+                                          tags: ['loa:3', 'idp:idme', "context:#{LOA::IDME_LOA3}", 'version:v1'],
+                                          **once)
 
           expect(response.location).to start_with('http://127.0.0.1:3001/auth/login/callback')
 
@@ -394,7 +406,7 @@ RSpec.describe V1::SessionsController, type: :controller do
                                          tags: ['status:success', 'context:multifactor', 'version:v1'], **once)
             .and trigger_statsd_increment(described_class::STATSD_SSO_CALLBACK_TOTAL_KEY, **once)
             .and trigger_statsd_increment(described_class::STATSD_LOGIN_SHARED_COOKIE,
-                                          tags: ['loa:1', 'idp:idme', 'version:v1'], **once)
+                                          tags: ['loa:1', 'idp:idme', 'context:multifactor', 'version:v1'], **once)
 
           expect(cookies['vagov_session_dev']).not_to be_nil
           expect(JSON.parse(decrypter.decrypt(cookies['vagov_session_dev'])))
@@ -620,7 +632,8 @@ RSpec.describe V1::SessionsController, type: :controller do
             .to trigger_statsd_increment(described_class::STATSD_SSO_CALLBACK_KEY, tags: callback_tags, **once)
             .and trigger_statsd_increment(described_class::STATSD_SSO_CALLBACK_TOTAL_KEY, **once)
             .and trigger_statsd_increment(described_class::STATSD_LOGIN_SHARED_COOKIE,
-                                          tags: ['loa:3', 'idp:myhealthevet', 'version:v1'], **once)
+                                          tags: ['loa:3', 'idp:myhealthevet', 'context:myhealthevet', 'version:v1'],
+                                          **once)
           expect(response.location).to start_with('http://127.0.0.1:3001/auth/login/callback')
           expect(cookies['vagov_session_dev']).not_to be_nil
           MVI::Configuration.instance.breakers_service.end_forced_outage!
@@ -673,6 +686,87 @@ RSpec.describe V1::SessionsController, type: :controller do
             .to trigger_statsd_increment(described_class::STATSD_SSO_CALLBACK_KEY, tags: callback_tags, **once)
             .and trigger_statsd_increment(described_class::STATSD_SSO_CALLBACK_FAILED_KEY, tags: failed_tags, **once)
             .and trigger_statsd_increment(described_class::STATSD_SSO_CALLBACK_TOTAL_KEY, **once)
+        end
+      end
+
+      context 'when MHV user attribute validation fails' do
+        let(:saml_attributes) do
+          build(:ssoe_idme_mhv_loa3,
+                va_eauth_mhvuuid: ['999888'],
+                va_eauth_mhvien: ['888777'])
+        end
+        let(:saml_response) do
+          build_saml_response(
+            authn_context: 'myhealthevet',
+            level_of_assurance: ['3'],
+            attributes: saml_attributes,
+            existing_attributes: nil,
+            issuer: 'https://int.eauth.va.gov/FIM/sps/saml20fedCSP/saml20'
+          )
+        end
+        let(:saml_user) { SAML::User.new(saml_response) }
+
+        before { allow(SAML::User).to receive(:new).and_return(saml_user) }
+
+        it 'logs a generic user validation error', :aggregate_failures do
+          expect(controller).to receive(:log_message_to_sentry)
+          expect(post(:saml_callback)).to redirect_to('http://127.0.0.1:3001/auth/login/callback?auth=fail&code=101')
+
+          expect(response).to have_http_status(:found)
+          expect(cookies['vagov_session_dev']).to be_nil
+        end
+      end
+
+      context 'when EDIPI user attribute validation fails' do
+        let(:saml_attributes) do
+          build(:ssoe_idme_mhv_loa3,
+                va_eauth_dodedipnid: ['0123456789,1111111111'])
+        end
+        let(:saml_response) do
+          build_saml_response(
+            authn_context: 'myhealthevet',
+            level_of_assurance: ['3'],
+            attributes: saml_attributes,
+            existing_attributes: nil,
+            issuer: 'https://int.eauth.va.gov/FIM/sps/saml20fedCSP/saml20'
+          )
+        end
+        let(:saml_user) { SAML::User.new(saml_response) }
+
+        before { allow(SAML::User).to receive(:new).and_return(saml_user) }
+
+        it 'redirects to the auth failed endpoint with a specific code', :aggregate_failures do
+          expect(controller).to receive(:log_message_to_sentry)
+          expect(post(:saml_callback)).to redirect_to('http://127.0.0.1:3001/auth/login/callback?auth=fail&code=102')
+          expect(response).to have_http_status(:found)
+          expect(cookies['vagov_session_dev']).to be_nil
+        end
+      end
+
+      context 'when ICN user attribute validation fails' do
+        let(:saml_attributes) do
+          build(:ssoe_idme_mhv_loa3,
+                va_eauth_mhvicn: ['11111111V222222'],
+                va_eauth_icn: ['222222222V333333'])
+        end
+        let(:saml_response) do
+          build_saml_response(
+            authn_context: 'myhealthevet',
+            level_of_assurance: ['3'],
+            attributes: saml_attributes,
+            existing_attributes: nil,
+            issuer: 'https://int.eauth.va.gov/FIM/sps/saml20fedCSP/saml20'
+          )
+        end
+        let(:saml_user) { SAML::User.new(saml_response) }
+
+        before { allow(SAML::User).to receive(:new).and_return(saml_user) }
+
+        it 'logs a generic user validation error', :aggregate_failures do
+          expect(controller).to receive(:log_message_to_sentry)
+          expect(post(:saml_callback)).to redirect_to('http://127.0.0.1:3001/auth/login/callback?auth=fail&code=103')
+          expect(response).to have_http_status(:found)
+          expect(cookies['vagov_session_dev']).to be_nil
         end
       end
 

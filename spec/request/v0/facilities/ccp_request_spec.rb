@@ -3,10 +3,16 @@
 require 'rails_helper'
 
 RSpec.describe 'Community Care Providers', type: :request, team: :facilities do
+  before do
+    Flipper.enable(:facility_locator_ppms_location_query, false)
+  end
+
   around do |example|
-    VCR.use_cassette('facilities/va/ppms', match_requests_on: %i[path query], allow_playback_repeats: true) do
-      example.run
-    end
+    VCR.insert_cassette('facilities/va/ppms', match_requests_on: %i[path query], allow_playback_repeats: true)
+    VCR.insert_cassette('facilities/va/ppms_new_query', match_requests_on: %i[path query], allow_playback_repeats: true)
+    example.run
+    VCR.eject_cassette('facilities/va/ppms_new_query')
+    VCR.eject_cassette('facilities/va/ppms')
   end
 
   describe '#index' do

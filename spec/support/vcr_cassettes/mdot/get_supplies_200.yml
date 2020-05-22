@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri: https://dlc-fake.fake.com/supplies
+    uri: https://dlc-dummy.herokuapp.com/supplies
     body:
       encoding: US-ASCII
       string: ''
@@ -13,11 +13,9 @@ http_interactions:
       - application/json
       User-Agent:
       - Vets.gov Agent
-      Apikey:
-      - abcd1234abcd1234abcd1234abcd1234abcd1234
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      VeteranId:
+      Va_Veteran_Id:
       - 000555555
   response:
     status:
@@ -66,6 +64,8 @@ http_interactions:
         Max-Age=900; Path=/
       Transfer-Encoding:
       - chunked
+      VA_API_KEY:
+      - abcd1234abcd1234abcd1234
     body:
       encoding: ASCII-8BIT
       string: |-
@@ -76,32 +76,36 @@ http_interactions:
             "city": "Kansas City",
             "state": "MO",
             "country": "USA",
-            "postal_code": "64117"
+            "postal_code": "64117",
+            "is_military_base": false
           },
           "temporary_address": {
             "street": "201 Example Street",
             "city": "Galveston",
             "state": "TX",
             "country": "USA",
-            "postal_code": "77550"
+            "postal_code": "77550",
+            "is_military_base": false
           },
           "supplies": [
             {
               "device_name": "OMEGAX d3241",
               "last_order_date": "2020-01-01",
-              "next_availability_date": "2020-09-01",
+              "next_availability_date": "2099-09-01",
               "product_group": "hearing aid batteries",
               "product_id": "1",
               "product_name": "ZA1239",
-              "quantity": 60
+              "quantity": 60,
+              "prescribed_date": "2019-12-25"
             }, 
             {
               "available_for_reorder": true,
               "last_order_date": "2019-06-30",
               "next_availability_date": "2019-12-15",
               "product_group": "hearing aid accessories",
-              "product_id": "3", "productName": "DOME", 
-              "quantity": 10, 
+              "product_id": "3",
+              "productName": "DOME",
+              "quantity": 10,
               "size": "6mm"
             },
             {
@@ -111,7 +115,8 @@ http_interactions:
               "product_group": "hearing aid accessories",
               "product_id": "4",
               "product_name": "DOME",
-              "quantity": 10, "size": "7mm"
+              "quantity": 10,
+              "size": "7mm"
             }, 
             {
               "available_for_reorder": true,

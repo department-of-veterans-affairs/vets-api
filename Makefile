@@ -20,7 +20,7 @@ SECURITY     := "bin/rails security"
 
 .PHONY: default
 default: ci
-	
+
 .PHONY: ci
 ci:
 	@$(BASH_TEST) "bin/rails db:setup db:migrate ci"
@@ -36,7 +36,7 @@ ifeq ($(ENV_ARG), dev)
 else
 	$(COMPOSE_TEST) build
 endif
-	
+
 
 .PHONY: db
 db:
@@ -44,7 +44,7 @@ ifeq ($(ENV_ARG), dev)
 	@$(BASH_DEV) $(DB)
 else
 	@$(BASH_TEST) $(DB)
-endif	
+endif
 
 
 .PHONY: lint
@@ -53,7 +53,7 @@ ifeq ($(ENV_ARG), dev)
 	@$(BASH_DEV) $(LINT)
 else
 	@$(BASH_TEST) $(LINT)
-endif	
+endif
 
 .PHONY: console
 console:
@@ -73,7 +73,7 @@ ifeq ($(ENV_ARG), dev)
 	@$(COMPOSE_DEV) $(DOWN)
 else
 	@$(COMPOSE_TEST) $(DOWN)
-endif	
+endif
 
 .PHONY: guard
 guard:
@@ -106,7 +106,7 @@ ifeq ($(ENV_ARG), dev)
 else
 	@$(BASH_TEST) "bin/rails spec:with_codeclimate_coverage"
 endif
-	
+
 .PHONY: up
 up: db
 	@$(BASH_DEV) "rm -f tmp/pids/server.pid && foreman start -m all=1,clamd=0,freshclam=0"

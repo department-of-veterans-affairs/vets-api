@@ -4,7 +4,7 @@ require 'rails_helper'
 
 RSpec.describe 'CSRF scenarios', type: :request do
   # ActionController::Base.allow_forgery_protection = false in the 'test' environment
-  # We explicity enable it for this spec
+  # We explicitly enable it for this spec
   before(:all) do
     Settings.sentry.dsn = 'truthy'
     @original_val = ActionController::Base.allow_forgery_protection
@@ -40,9 +40,9 @@ RSpec.describe 'CSRF scenarios', type: :request do
       context "for #{verb.upcase} requests" do
         context 'without a CSRF token present' do
           it 'raises an exception' do
-            expect(Raven).to receive(:capture_message).with('Request susceptible to CSRF', level: 'info')
             send(verb, '/csrf_test')
-            # expect(response.status).to eq 500
+            expect(response.status).to eq 403
+            expect(response.body).to match(/Invalid Authenticity Token/)
           end
         end
 
@@ -58,7 +58,6 @@ RSpec.describe 'CSRF scenarios', type: :request do
     context 'for GET requests' do
       context 'without a CSRF token present' do
         it 'succeeds' do
-          expect(Raven).not_to receive(:capture_message)
           get '/csrf_test'
           expect(response.status).to eq 200
         end
@@ -66,7 +65,6 @@ RSpec.describe 'CSRF scenarios', type: :request do
 
       context 'with a CSRF token present' do
         it 'succeeds' do
-          expect(Raven).not_to receive(:capture_message)
           get '/csrf_test', headers: { 'X-CSRF-Token' => @token }
           expect(response.status).to eq 200
         end
@@ -79,17 +77,15 @@ RSpec.describe 'CSRF scenarios', type: :request do
     context 'without a CSRF token' do
       context 'v0' do
         it 'does not raise an error' do
-          expect(Raven).not_to receive(:capture_message).with('Request susceptible to CSRF', level: 'info')
           post(auth_saml_callback_path)
-          # expect(response.body).not_to match(/ActionController::InvalidAuthenticityToken/)
+          expect(response.body).not_to match(/Invalid Authenticity Token/)
         end
       end
 
       context 'v1' do
         it 'does not raise an error' do
-          expect(Raven).not_to receive(:capture_message).with('Request susceptible to CSRF', level: 'info')
           post(v1_sessions_callback_path)
-          # expect(response.body).not_to match(/ActionController::InvalidAuthenticityToken/)
+          expect(response.body).not_to match(/Invalid Authenticity Token/)
         end
       end
     end
@@ -113,8 +109,7 @@ RSpec.describe 'CSRF scenarios', type: :request do
     it 'skips CSRF validation' do
       post path, params: data, headers: headers
       expect(response.status).to eq(200)
-      expect(Raven).not_to receive(:capture_message).with('Request susceptible to CSRF', level: 'info')
-      # expect(response.body).not_to match(/ActionController::InvalidAuthenticityToken/)
+      expect(response.body).not_to match(/Invalid Authenticity Token/)
     end
   end
 end

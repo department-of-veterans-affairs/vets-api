@@ -7,7 +7,7 @@ class AppealsBaseController < ApplicationController
   private
 
   def appeals_service
-    Appeals::Service.new
+    Caseflow::Service.new
   end
 
   def decision_review_service

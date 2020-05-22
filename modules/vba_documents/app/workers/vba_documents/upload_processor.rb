@@ -9,21 +9,7 @@ require 'vba_documents/upload_error'
 module VBADocuments
   class UploadProcessor
     include Sidekiq::Worker
-
-    RETRIES = 3
-    META_PART_NAME = 'metadata'
-    DOC_PART_NAME = 'content'
-    SUBMIT_DOC_PART_NAME = 'document'
-    REQUIRED_KEYS = %w[veteranFirstName veteranLastName fileNumber zipCode].freeze
-    FILE_NUMBER_REGEX = /^\d{8,9}$/.freeze
-    MAX_PART_SIZE = 100_000_000 # 100MB
-    INVALID_ZIP_CODE_ERROR_REGEX = /Invalid zipCode/.freeze
-    MISSING_ZIP_CODE_ERROR_REGEX = /Missing zipCode/.freeze
-    NON_FAILING_ERROR_REGEX = /Document already uploaded with uuid/.freeze
-    INVALID_ZIP_CODE_ERROR_MSG = 'Invalid ZIP Code. ZIP Code must be 5 digits, ' \
-      'or 9 digits in XXXXX-XXXX format. Specify \'00000\' for non-US addresses.'
-    MISSING_ZIP_CODE_ERROR_MSG = 'Missing ZIP Code. ZIP Code must be 5 digits, ' \
-      'or 9 digits in XXXXX-XXXX format. Specify \'00000\' for non-US addresses.'
+    include CentralMail::Utilities
 
     def perform(guid, retries = 0)
       @retries = retries
@@ -46,45 +32,13 @@ module VBADocuments
         metadata = perfect_metadata(parts, timestamp)
         response = submit(metadata, parts)
         process_response(response)
-        log_submission(metadata)
+        log_submission(@upload, metadata)
       rescue VBADocuments::UploadError => e
-        retry_errors(e)
+        retry_errors(e, @upload)
       ensure
         tempfile.close
         close_part_files(parts) if parts.present?
       end
-    end
-
-    def retry_errors(e)
-      if e.code == 'DOC201' && @retries <= RETRIES
-        UploadProcessor.perform_in(30.minutes, @upload.guid, @retries + 1)
-      else
-        @upload.update(status: 'error', code: e.code, detail: e.detail)
-      end
-      log_error(e)
-    end
-
-    def log_error(e)
-      Rails.logger.info('VBADocuments: Submission failure',
-                        'consumer_id' => @upload.consumer_id,
-                        'consumer_username' => @upload.consumer_name,
-                        'source' => @upload.consumer_name,
-                        'uuid' => @upload.guid,
-                        'code' => e.code,
-                        'detail' => e.detail)
-    end
-
-    def log_submission(metadata)
-      page_total = metadata.select { |k, _| k.to_s.start_with?('numberPages') }.reduce(0) { |sum, (_, v)| sum + v }
-      pdf_total = metadata.select { |k, _| k.to_s.start_with?('numberPages') }.count
-      Rails.logger.info('VBADocuments: Submission success',
-                        'uuid' => metadata['uuid'],
-                        'source' => @upload.consumer_name,
-                        'consumer_id' => @upload.consumer_id,
-                        'consumer_username' => @upload.consumer_name,
-                        'docType' => metadata['docType'],
-                        'pageCount' => page_total,
-                        'pdfCount' => pdf_total)
     end
 
     def close_part_files(parts)
@@ -109,36 +63,11 @@ module VBADocuments
       CentralMail::Service.new.upload(body)
     end
 
-    def to_faraday_upload(file_io, filename)
-      Faraday::UploadIO.new(
-        file_io,
-        Mime[:pdf].to_s,
-        filename
-      )
-    end
-
     def process_response(response)
       if response.success? || response.body.match?(NON_FAILING_ERROR_REGEX)
         @upload.update(status: 'received')
       else
-        map_downstream_error(response.status, response.body)
-      end
-    end
-
-    def map_downstream_error(status, body)
-      if status.between?(400, 499)
-        detail = if body.match?(INVALID_ZIP_CODE_ERROR_REGEX)
-                   INVALID_ZIP_CODE_ERROR_MSG
-                 elsif body.match?(MISSING_ZIP_CODE_ERROR_REGEX)
-                   MISSING_ZIP_CODE_ERROR_MSG
-                 else
-                   body
-                 end
-        raise VBADocuments::UploadError.new(code: 'DOC104', detail: "Downstream status: #{status} - #{detail}")
-      # Defined values: 500
-      elsif status.between?(500, 599)
-        raise VBADocuments::UploadError.new(code: 'DOC201',
-                                            detail: "Downstream status: #{status} - #{body}")
+        map_downstream_error(response.status, response.body, VBADocuments::UploadError)
       end
     end
 
@@ -164,23 +93,22 @@ module VBADocuments
 
     def validate_metadata(metadata_input)
       metadata = JSON.parse(metadata_input)
+      raise VBADocuments::UploadError.new(code: 'DOC102', detail: 'Invalid JSON object') unless metadata.is_a?(Hash)
+
       missing_keys = REQUIRED_KEYS - metadata.keys
       if missing_keys.present?
-        raise VBADocuments::UploadError.new(code: 'DOC102',
-                                            detail: "Missing required keys: #{missing_keys.join(',')}")
+        raise VBADocuments::UploadError.new(code: 'DOC102', detail: "Missing required keys: #{missing_keys.join(',')}")
       end
-      non_string_vals = REQUIRED_KEYS.reject { |k| metadata[k].is_a? String }
-      if non_string_vals.present?
-        raise VBADocuments::UploadError.new(code: 'DOC102',
-                                            detail: "Non-string values for keys: #{non_string_vals.join(',')}")
+
+      rejected = REQUIRED_KEYS.reject { |k| metadata[k].is_a? String }
+      if rejected.present?
+        raise VBADocuments::UploadError.new(code: 'DOC102', detail: "Non-string values for keys: #{rejected.join(',')}")
       end
       if (FILE_NUMBER_REGEX =~ metadata['fileNumber']).nil?
-        raise VBADocuments::UploadError.new(code: 'DOC102',
-                                            detail: 'Non-numeric or invalid-length fileNumber')
+        raise VBADocuments::UploadError.new(code: 'DOC102', detail: 'Non-numeric or invalid-length fileNumber')
       end
     rescue JSON::ParserError
-      raise VBADocuments::UploadError.new(code: 'DOC102',
-                                          detail: 'Invalid JSON content')
+      raise VBADocuments::UploadError.new(code: 'DOC102', detail: 'Invalid JSON object')
     end
 
     def perfect_metadata(parts, timestamp)

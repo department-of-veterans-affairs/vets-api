@@ -28,7 +28,7 @@ module EVSS
       def request_headers(additional_headers)
         {
           'ssn' => @user.ssn,
-          'Authorization' => "Token token=#{Settings.appeals.app_token}",
+          'Authorization' => "Token token=#{Settings.caseflow.app_token}",
           'Content-Type' => 'application/json'
         }.merge(additional_headers)
       end

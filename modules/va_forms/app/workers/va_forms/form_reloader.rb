@@ -8,14 +8,26 @@ module VaForms
 
     BASE_URL = 'https://www.va.gov'
 
+    def initialize
+      @processed_forms = []
+    end
+
     def perform
       load_page(current_page: 0)
+      mark_stale_forms
+    end
+
+    def mark_stale_forms
+      processed_form_names = @processed_forms.map { |f| f['form_name'] }
+      missing_forms = VaForms::Form.where.not(form_name: processed_form_names)
+      missing_forms.find_each do |form|
+        form.update(valid_pdf: false)
+      end
     end
 
     def load_page(current_page: 0)
-      current_page += 1
       params = {}
-      unless current_page == 1
+      unless current_page.zero?
         params = {
           id: 'form2',
           name: 'form2',
@@ -31,6 +43,7 @@ module VaForms
       next_button = doc.css('input[name=Next10]')
       last_page = next_button.first.attributes['disabled'].present?
       parse_page(doc)
+      current_page += 1
       load_page(current_page: current_page) unless last_page
     end
 
@@ -55,6 +68,7 @@ module VaForms
     def parse_form_row(line, url)
       form_name = line.css('a').first.text
       form = VaForms::Form.find_or_initialize_by form_name: form_name
+      @processed_forms.push(form)
       current_sha256 = form.sha256
       form.title = line.css('font').text
       revision_string = line.css('td:nth-child(4)').text
