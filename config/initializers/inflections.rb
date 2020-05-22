@@ -24,6 +24,7 @@ ActiveSupport::Inflector.inflections do |inflect|
   inflect.acronym 'PPMS'
   inflect.acronym 'PSSG'
   inflect.acronym 'SAML'
+  inflect.acronym 'SFTP'
   inflect.acronym 'SM'
   inflect.acronym 'SSO'
   inflect.acronym 'SSOe'
