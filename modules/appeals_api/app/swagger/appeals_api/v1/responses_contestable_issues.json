@@ -12,7 +12,7 @@
                 "description": "A contestable issue (to contest this, you include it as a RequestIssue when creating a HigherLevelReview, SupplementalClaim, or Appeal)",
                 "properties": {
                   "type": { "type": "string", "enum": [ "contestableIssue" ] },
-                  "id": { "type": "string" },
+                  "id": { "type": "string", "nullable": true },
                   "attributes": {
                     "type": "object",
                     "properties": {
