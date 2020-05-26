@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
 module Common
-  module Exceptions
+  module Exceptions::Internal
     # Invalid Pagination Params - if page or per_page params are invalid
-    class InvalidPaginationParams < BaseError
+    class InvalidPaginationParams < Common::Exceptions::BaseError
       attr_reader :pagination_params
 
       def initialize(pagination_params, options = {})

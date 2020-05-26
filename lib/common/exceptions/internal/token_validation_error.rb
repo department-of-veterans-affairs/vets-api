@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
 module Common
-  module Exceptions
+  module Exceptions::Internal
     # Validation Error - an ActiveModel having validation errors, can be sent to this exception
-    class TokenValidationError < BaseError
+    class TokenValidationError < Common::Exceptions::BaseError
       attr_reader :detail
 
       def initialize(options = {})

@@ -51,12 +51,12 @@ module BB
     # @note These PDFs take time to generate, hence why this separate call just to generate.
     #   It should be quick enough that download report can be called more or less right after
     # @param params [Hash] an object containing a date range and array of data classes
-    # @raise [Common::Exceptions::ValidationErrors] if there are validation errors
+    # @raise [Common::Exceptions::Internal::ValidationErrors] if there are validation errors
     # @return [Hash] an object containing the body of the response
     #
     def post_generate(params)
       form = BB::GenerateReportRequestForm.new(self, params)
-      raise Common::Exceptions::ValidationErrors, form unless form.valid?
+      raise Common::Exceptions::Internal::ValidationErrors, form unless form.valid?
 
       perform(:post, 'bluebutton/generate', form.params, token_headers).body
     end

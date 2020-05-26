@@ -36,7 +36,7 @@ describe EVSS::PCIUAddress::Service do
       it 'returns a users mailing address' do
         VCR.use_cassette('evss/pciu_address/update_invalid') do
           expect { subject.update_address(update_address) }.to raise_error(
-            Common::Exceptions::BackendServiceException
+            Common::Exceptions::External::BackendServiceException
           )
         end
       end

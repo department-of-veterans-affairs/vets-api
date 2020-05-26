@@ -30,7 +30,7 @@ describe Common::Client::Middleware::Response do
   it 'raises client response error' do
     expect { gi_client.get('not-found') }
       .to raise_error do |error|
-        expect(error).to be_a(Common::Exceptions::BackendServiceException)
+        expect(error).to be_a(Common::Exceptions::External::BackendServiceException)
         expect(error.errors.first[:title]).to eq('Record not found')
         expect(error.errors.first[:detail]).to eq('Record with the specified code was not found')
         expect(error.errors.first[:code]).to eq('GI404')

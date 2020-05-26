@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-describe Common::Exceptions::InternalServerError do
+describe Common::Exceptions::Internal::InternalServerError do
   context 'with no exception provided' do
     it do
       expect { described_class.new }

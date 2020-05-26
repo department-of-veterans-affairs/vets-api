@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
 module Common
-  module Exceptions
+  module Exceptions::Internal
     # Invalid Resource - if a requested route does not exist
-    class InvalidResource < BaseError
+    class InvalidResource < Common::Exceptions::BaseError
       attr_reader :resource
 
       def initialize(resource, options = {})

@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-describe Common::Exceptions::RecordNotFound do
+describe Common::Exceptions::Internal::RecordNotFound do
   context 'with no resource provided' do
     it do
       expect { described_class.new }

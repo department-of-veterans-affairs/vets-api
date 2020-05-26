@@ -32,7 +32,7 @@ describe VAOS::MessagesService do
     it 'handles 500 errors appropriately' do
       VCR.use_cassette('vaos/messages/get_messages_500', match_requests_on: %i[method uri]) do
         expect { subject.get_messages(request_id) }.to raise_error(
-          Common::Exceptions::BackendServiceException
+          Common::Exceptions::External::BackendServiceException
         )
       end
     end
@@ -60,7 +60,7 @@ describe VAOS::MessagesService do
       it 'interprets a 204 response as an error' do
         VCR.use_cassette('vaos/messages/post_message_error', match_requests_on: %i[method uri]) do
           expect { subject.post_message(appointment_request_id, request_body) }.to raise_error(
-            Common::Exceptions::BackendServiceException
+            Common::Exceptions::External::BackendServiceException
           )
         end
       end
@@ -72,7 +72,7 @@ describe VAOS::MessagesService do
       it 'interprets a 400 error' do
         VCR.use_cassette('vaos/messages/post_message_error_400', match_requests_on: %i[method uri]) do
           expect { subject.post_message(appointment_request_id, request_body) }.to raise_error(
-            Common::Exceptions::BackendServiceException
+            Common::Exceptions::External::BackendServiceException
           )
         end
       end

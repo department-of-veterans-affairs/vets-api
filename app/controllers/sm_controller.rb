@@ -17,6 +17,6 @@ class SMController < ApplicationController
   end
 
   def raise_access_denied
-    raise Common::Exceptions::Forbidden, detail: 'You do not have access to messaging'
+    raise Common::Exceptions::Internal::Forbidden, detail: 'You do not have access to messaging'
   end
 end

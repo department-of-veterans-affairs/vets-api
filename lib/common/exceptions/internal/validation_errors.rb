@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
 module Common
-  module Exceptions
+  module Exceptions::Internal
     # Validation Error - an ActiveModel having validation errors, can be sent to this exception
-    class ValidationErrors < BaseError
+    class ValidationErrors < Common::Exceptions::BaseError
       attr_reader :resource
 
       def initialize(resource)

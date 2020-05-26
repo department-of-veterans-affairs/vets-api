@@ -32,7 +32,7 @@ describe Common::Client::Middleware::Response do
               ':code=>"CASEFLOWSTATUS404", :source=>"A veteran with that SSN was not found in our systems."}'
     expect { appeals_client.get('not-found') }
       .to raise_error do |error|
-        expect(error).to be_a(Common::Exceptions::BackendServiceException)
+        expect(error).to be_a(Common::Exceptions::External::BackendServiceException)
         expect(error.message).to eq(message)
         expect(error.errors.first[:detail]).to eq('Appeals data for a veteran with that SSN was not found')
         expect(error.errors.first[:code]).to eq('CASEFLOWSTATUS404')

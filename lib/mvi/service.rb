@@ -51,7 +51,7 @@ class MVI::Service < Common::Client::Base
   rescue Faraday::ConnectionFailed => e
     log_console_and_sentry("MVI add_person connection failed: #{e.message}", :warn)
     mvi_add_exception_response_for('MVI_504', e)
-  rescue Common::Client::Errors::ClientError, Common::Exceptions::GatewayTimeout => e
+  rescue Common::Client::Errors::ClientError, Common::Exceptions::External::GatewayTimeout => e
     log_console_and_sentry("MVI add_person error: #{e.message}", :warn)
     mvi_add_exception_response_for('MVI_504', e)
   rescue MVI::Errors::Base => e
@@ -84,7 +84,7 @@ class MVI::Service < Common::Client::Base
   rescue Faraday::ConnectionFailed => e
     log_console_and_sentry("MVI find_profile connection failed: #{e.message}", :warn)
     mvi_profile_exception_response_for('MVI_504', e)
-  rescue Common::Client::Errors::ClientError, Common::Exceptions::GatewayTimeout => e
+  rescue Common::Client::Errors::ClientError, Common::Exceptions::External::GatewayTimeout => e
     log_console_and_sentry("MVI find_profile error: #{e.message}", :warn)
     mvi_profile_exception_response_for('MVI_504', e)
   rescue MVI::Errors::Base => e
@@ -132,7 +132,7 @@ class MVI::Service < Common::Client::Base
   end
 
   def build_exception(key, error)
-    Common::Exceptions::BackendServiceException.new(
+    Common::Exceptions::External::BackendServiceException.new(
       key,
       { source: self.class },
       error.try(:status),
@@ -171,7 +171,7 @@ class MVI::Service < Common::Client::Base
   end
 
   def create_add_message(user)
-    raise Common::Exceptions::ValidationErrors, user unless user.valid?
+    raise Common::Exceptions::Internal::ValidationErrors, user unless user.valid?
 
     MVI::Messages::AddPersonMessage.new(user).to_xml if user.icn_with_aaid.present?
   end
@@ -179,7 +179,7 @@ class MVI::Service < Common::Client::Base
   def create_profile_message(user_identity)
     return message_icn(user_identity) if user_identity.mhv_icn.present? # from SAML::UserAttributes::MHV::BasicLOA3User
     return message_edipi(user_identity) if user_identity.dslogon_edipi.present? && Settings.mvi.edipi_search
-    raise Common::Exceptions::ValidationErrors, user_identity unless user_identity.valid?
+    raise Common::Exceptions::Internal::ValidationErrors, user_identity unless user_identity.valid?
 
     message_user_attributes(user_identity)
   end

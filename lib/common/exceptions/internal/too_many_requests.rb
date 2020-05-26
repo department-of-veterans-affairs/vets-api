@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
 module Common
-  module Exceptions
-    class TooManyRequests < BaseError
+  module Exceptions::Internal
+    class TooManyRequests < Common::Exceptions::BaseError
       def errors
         Array(SerializableError.new(i18n_interpolated))
       end

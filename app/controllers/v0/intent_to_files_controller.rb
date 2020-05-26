@@ -30,7 +30,7 @@ module V0
     private
 
     def validate_type_param
-      raise Common::Exceptions::InvalidFieldValue.new('type', params[:type]) unless
+      raise Common::Exceptions::Internal::InvalidFieldValue.new('type', params[:type]) unless
         TYPES.include?(params[:type])
     end
 

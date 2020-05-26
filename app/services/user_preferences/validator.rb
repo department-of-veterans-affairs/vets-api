@@ -25,10 +25,10 @@ module UserPreferences
     # Validates the initialized requested_user_preferences for the presence
     # of all of the required attributes.
     #
-    # Raises a Common::Exceptions::ParameterMissing should any validation not succeed.
+    # Raises a Common::Exceptions::Internal::ParameterMissing should any validation not succeed.
     #
     # @return [Array<Hash>] On success, returns the original requested_user_preferences
-    # @return [Common::Exceptions::ParameterMissing] On failure, raises an exception
+    # @return [Common::Exceptions::Internal::ParameterMissing] On failure, raises an exception
     #
     def of_presence!
       requested_user_preferences.each do |requested|
@@ -65,7 +65,7 @@ module UserPreferences
     end
 
     def raise_missing_parameter!(parameter)
-      raise Common::Exceptions::ParameterMissing.new(parameter), parameter
+      raise Common::Exceptions::Internal::ParameterMissing.new(parameter), parameter
     end
   end
 end

@@ -29,7 +29,7 @@ describe PagerDuty::ExternalServices::Service do
       it 'raises an exception', :aggregate_failures do
         VCR.use_cassette('pagerduty/external_services/get_services_invalid_status', VCR::MATCH_EVERYTHING) do
           expect { subject.get_services }.to raise_error do |e|
-            expect(e.class).to eq Common::Exceptions::ValidationErrors
+            expect(e.class).to eq Common::Exceptions::Internal::ValidationErrors
             expect(e.status_code).to eq 422
             expect(e.message).to include 'Validation error'
           end

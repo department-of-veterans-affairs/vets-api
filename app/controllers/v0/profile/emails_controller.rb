@@ -21,7 +21,7 @@ module V0
 
           render json: response, serializer: EmailSerializer
         else
-          raise Common::Exceptions::ValidationErrors, email_address
+          raise Common::Exceptions::Internal::ValidationErrors, email_address
         end
       end
 

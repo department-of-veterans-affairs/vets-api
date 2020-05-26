@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-describe Common::Exceptions::InvalidPaginationParams do
+describe Common::Exceptions::Internal::InvalidPaginationParams do
   context 'with no pagination params provided' do
     it do
       expect { described_class.new }

@@ -20,7 +20,7 @@ describe VAOS::AppointmentService do
       it 'returns a 400 Bad Request' do
         VCR.use_cassette('vaos/appointments/post_appointment_400', match_requests_on: %i[method uri]) do
           expect { subject.post_appointment(request_body) }
-            .to raise_error(Common::Exceptions::BackendServiceException) do |error|
+            .to raise_error(Common::Exceptions::External::BackendServiceException) do |error|
               expect(error.status_code).to eq(400)
             end
         end
@@ -35,7 +35,7 @@ describe VAOS::AppointmentService do
       it 'returns a 400 Bad Request for 409 conlicts as well' do
         VCR.use_cassette('vaos/appointments/post_appointment_409', match_requests_on: %i[method uri]) do
           expect { subject.post_appointment(request_body) }
-            .to raise_error(Common::Exceptions::BackendServiceException) do |error|
+            .to raise_error(Common::Exceptions::External::BackendServiceException) do |error|
               expect(error.status_code).to eq(400)
             end
         end
@@ -73,7 +73,7 @@ describe VAOS::AppointmentService do
       it 'returns the bad request with detail in errors' do
         VCR.use_cassette('vaos/appointments/put_cancel_appointment_400', match_requests_on: %i[method uri]) do
           expect { subject.put_cancel_appointment(request_body) }.to raise_error(
-            Common::Exceptions::BackendServiceException
+            Common::Exceptions::External::BackendServiceException
           )
         end
       end
@@ -117,7 +117,7 @@ describe VAOS::AppointmentService do
       it 'raises a backend exception' do
         VCR.use_cassette('vaos/appointments/get_appointments_500', match_requests_on: %i[method uri]) do
           expect { subject.get_appointments(type, start_date, end_date) }.to raise_error(
-            Common::Exceptions::BackendServiceException
+            Common::Exceptions::External::BackendServiceException
           )
         end
       end
@@ -149,7 +149,7 @@ describe VAOS::AppointmentService do
       it 'raises a backend exception' do
         VCR.use_cassette('vaos/appointments/get_cc_appointments_500', match_requests_on: %i[method uri]) do
           expect { subject.get_appointments(type, start_date, end_date) }.to raise_error(
-            Common::Exceptions::BackendServiceException
+            Common::Exceptions::External::BackendServiceException
           )
         end
       end

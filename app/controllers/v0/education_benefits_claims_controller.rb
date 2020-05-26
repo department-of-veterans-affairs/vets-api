@@ -9,7 +9,7 @@ module V0
 
       unless claim.save
         StatsD.increment("#{stats_key}.failure")
-        raise Common::Exceptions::ValidationErrors, claim
+        raise Common::Exceptions::Internal::ValidationErrors, claim
       end
 
       StatsD.increment("#{stats_key}.success")

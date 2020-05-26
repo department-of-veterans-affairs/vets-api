@@ -40,7 +40,7 @@ module Vet360
         save_error_details(error)
         raise_invalid_body(error, self.class) unless error.body.is_a?(Hash)
 
-        raise Common::Exceptions::BackendServiceException.new(
+        raise Common::Exceptions::External::BackendServiceException.new(
           'VET360_AV_ERROR',
           detail: error.body
         )

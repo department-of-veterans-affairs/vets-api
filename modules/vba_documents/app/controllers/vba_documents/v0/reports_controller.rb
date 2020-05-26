@@ -26,9 +26,9 @@ module VBADocuments
       end
 
       def validate_params
-        raise Common::Exceptions::ParameterMissing, ID_PARAM if params[ID_PARAM].nil?
-        raise Common::Exceptions::InvalidFieldValue.new(ID_PARAM, params[ID_PARAM]) unless params[ID_PARAM].is_a?(Array)
-        raise Common::Exceptions::InvalidFieldValue.new(ID_PARAM, params[ID_PARAM]) if
+        raise Common::Exceptions::Internal::ParameterMissing, ID_PARAM if params[ID_PARAM].nil?
+        raise Common::Exceptions::Internal::InvalidFieldValue.new(ID_PARAM, params[ID_PARAM]) unless params[ID_PARAM].is_a?(Array)
+        raise Common::Exceptions::Internal::InvalidFieldValue.new(ID_PARAM, params[ID_PARAM]) if
           params[ID_PARAM].size > MAX_REPORT_SIZE
       end
     end

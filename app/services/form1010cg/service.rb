@@ -10,7 +10,7 @@ module Form1010cg
     def initialize(claim)
       # This service makes assumptions on what data is present on the claim
       # Make sure the claim is valid, so we can be assured the required data is present.
-      claim.valid? || raise(Common::Exceptions::ValidationErrors, claim)
+      claim.valid? || raise(Common::Exceptions::Internal::ValidationErrors, claim)
 
       # The CaregiversAssistanceClaim we are processing with this service
       @claim = claim
@@ -126,7 +126,7 @@ module Form1010cg
     def raise_unprocessable
       message = 'Unable to process submission digitally'
       claim.errors.add(:base, message, message: message)
-      raise(Common::Exceptions::ValidationErrors, claim)
+      raise(Common::Exceptions::Internal::ValidationErrors, claim)
     end
 
     def mvi_service

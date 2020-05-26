@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-describe Common::Exceptions::InvalidSortCriteria do
+describe Common::Exceptions::Internal::InvalidSortCriteria do
   context 'with no attributes provided' do
     it do
       expect { described_class.new }

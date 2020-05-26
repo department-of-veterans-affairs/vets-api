@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
 module Common
-  module Exceptions
+  module Exceptions::Internal
     # Routing Error - if route is invalid
-    class UnknownFormat < BaseError
+    class UnknownFormat < Common::Exceptions::BaseError
       attr_reader :format
 
       def initialize(format = nil)

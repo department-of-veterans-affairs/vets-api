@@ -48,10 +48,10 @@ module VAOS
       end
 
       def validate_params
-        raise Common::Exceptions::ParameterMissing, 'type' if type.blank?
-        raise Common::Exceptions::InvalidFieldValue.new('type', type) unless %w[va cc].include?(type)
-        raise Common::Exceptions::ParameterMissing, 'start_date' if params[:start_date].blank?
-        raise Common::Exceptions::ParameterMissing, 'end_date' if params[:end_date].blank?
+        raise Common::Exceptions::Internal::ParameterMissing, 'type' if type.blank?
+        raise Common::Exceptions::Internal::InvalidFieldValue.new('type', type) unless %w[va cc].include?(type)
+        raise Common::Exceptions::Internal::ParameterMissing, 'start_date' if params[:start_date].blank?
+        raise Common::Exceptions::Internal::ParameterMissing, 'end_date' if params[:end_date].blank?
       end
 
       def type
@@ -61,13 +61,13 @@ module VAOS
       def start_date
         DateTime.parse(params[:start_date]).in_time_zone
       rescue ArgumentError
-        raise Common::Exceptions::InvalidFieldValue.new('start_date', params[:start_date])
+        raise Common::Exceptions::Internal::InvalidFieldValue.new('start_date', params[:start_date])
       end
 
       def end_date
         DateTime.parse(params[:end_date]).in_time_zone
       rescue ArgumentError
-        raise Common::Exceptions::InvalidFieldValue.new('end_date', params[:end_date])
+        raise Common::Exceptions::Internal::InvalidFieldValue.new('end_date', params[:end_date])
       end
     end
   end

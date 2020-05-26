@@ -43,7 +43,7 @@ module V0
 
         if validation_errors.present?
           Raven.tags_context(validation: 'preneeds')
-          raise Common::Exceptions::SchemaValidationErrors, validation_errors
+          raise Common::Exceptions::Internal::SchemaValidationErrors, validation_errors
         end
       end
     end

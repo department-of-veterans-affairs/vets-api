@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
 module Common
-  module Exceptions
+  module Exceptions::Internal
     # Parameter Missing - required parameter was not provided
-    class ParametersMissing < BaseError
+    class ParametersMissing < Common::Exceptions::BaseError
       attr_reader :params
 
       def initialize(params)

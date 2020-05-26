@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
 module Common
-  module Exceptions
+  module Exceptions::Internal
     # Message Authenticity Error - When a message with a signature cannot be verified
-    class MessageAuthenticityError < BaseError
+    class MessageAuthenticityError < Common::Exceptions::BaseError
       def initialize(options = {})
         @raw_post = options[:raw_post]
         @signature = options[:signature]

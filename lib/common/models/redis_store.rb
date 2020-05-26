@@ -98,7 +98,7 @@ module Common
     end
 
     def save!
-      raise Common::Exceptions::ValidationErrors, self unless save
+      raise Common::Exceptions::Internal::ValidationErrors, self unless save
     end
 
     def update(attributes_hash)

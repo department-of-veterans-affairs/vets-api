@@ -37,12 +37,12 @@ describe EVSS::PowerOfAttorneyVerifier do
     )
     expect do
       EVSS::PowerOfAttorneyVerifier.new(user).verify(identity)
-    end.to raise_error(Common::Exceptions::Unauthorized)
+    end.to raise_error(Common::Exceptions::Internal::Unauthorized)
   end
 
   it 'raises an exception if representative not found' do
     expect do
       EVSS::PowerOfAttorneyVerifier.new(user).verify(identity)
-    end.to raise_error(Common::Exceptions::Unauthorized)
+    end.to raise_error(Common::Exceptions::Internal::Unauthorized)
   end
 end

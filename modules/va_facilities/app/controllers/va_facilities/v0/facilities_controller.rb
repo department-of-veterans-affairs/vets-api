@@ -50,7 +50,7 @@ module VaFacilities
 
       def show
         results = BaseFacility.find_facility_by_id(params[:id])
-        raise Common::Exceptions::RecordNotFound, params[:id] if results.nil?
+        raise Common::Exceptions::Internal::RecordNotFound, params[:id] if results.nil?
 
         respond_to do |format|
           format.json do
@@ -84,7 +84,7 @@ module VaFacilities
       def verify_float(param)
         Float(params[param])
       rescue ArgumentError
-        raise Common::Exceptions::InvalidFieldValue.new(param.to_s, params[param])
+        raise Common::Exceptions::Internal::InvalidFieldValue.new(param.to_s, params[param])
       end
 
       def metadata(resource)

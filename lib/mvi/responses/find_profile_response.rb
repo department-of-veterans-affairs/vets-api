@@ -16,8 +16,8 @@ module MVI::Responses
     # @return [MVI::Models::MVIProfile] The parsed MVI profile
     attribute :profile, MVI::Models::MVIProfile
 
-    # @return [Common::Exceptions::BackendServiceException] The rescued exception
-    attribute :error, Common::Exceptions::BackendServiceException
+    # @return [Common::Exceptions::External::BackendServiceException] The rescued exception
+    attribute :error, Common::Exceptions::External::BackendServiceException
 
     # Builds a response with a server error status and a nil profile
     #

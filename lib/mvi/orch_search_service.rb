@@ -15,7 +15,7 @@ class MVI::OrchSearchService < MVI::Service
 
   def create_profile_message(user)
     unless user.valid? && user.edipi.present?
-      raise Common::Exceptions::UnprocessableEntity.new(
+      raise Common::Exceptions::External::UnprocessableEntity.new(
         detail: 'User is invalid or missing edipi',
         source: 'OrchSearchService'
       )

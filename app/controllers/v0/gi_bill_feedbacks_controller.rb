@@ -16,7 +16,7 @@ module V0
       unless gi_bill_feedback.save
         Raven.tags_context(validation: 'gibft')
 
-        raise Common::Exceptions::ValidationErrors, gi_bill_feedback
+        raise Common::Exceptions::Internal::ValidationErrors, gi_bill_feedback
       end
 
       clear_saved_form(GIBillFeedback::FORM_ID)

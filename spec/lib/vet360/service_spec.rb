@@ -29,7 +29,7 @@ describe Vet360::Service do
             p "Failing code: #{code}" if e.errors.first.code != "VET360_#{code}"
 
             expect(e.errors.first.code).to eq("VET360_#{code}")
-            expect(e).to be_a(Common::Exceptions::BackendServiceException)
+            expect(e).to be_a(Common::Exceptions::External::BackendServiceException)
           end
         end
       end
@@ -42,14 +42,14 @@ describe Vet360::Service do
         expect(Raven).to receive(:extra_context)
 
         expect { subject.send('handle_error', error) }.to raise_error do |e|
-          expect(e).to be_a(Common::Exceptions::BackendServiceException)
+          expect(e).to be_a(Common::Exceptions::External::BackendServiceException)
         end
       end
 
       it 'raises a VET360_502 backend exception', :aggregate_failures do
         expect { subject.send('handle_error', error) }.to raise_error do |e|
           expect(e.errors.first.code).to eq('VET360_502')
-          expect(e).to be_a(Common::Exceptions::BackendServiceException)
+          expect(e).to be_a(Common::Exceptions::External::BackendServiceException)
         end
       end
     end
@@ -62,7 +62,7 @@ describe Vet360::Service do
         expect { subject.send('handle_error', error) }.to raise_error do |e|
           expect(e.errors.first.code).to eq('VET360_502')
           expect(e.original_body).to eq(invalid_body)
-          expect(e).to be_a(Common::Exceptions::BackendServiceException)
+          expect(e).to be_a(Common::Exceptions::External::BackendServiceException)
         end
       end
     end
@@ -113,7 +113,7 @@ describe Vet360::Service do
 
         expect(Vet360::Stats).to receive(:increment_exception).with(error_key)
         expect { subject.send('raise_backend_exception', error_key, 'test') }.to raise_error(
-          Common::Exceptions::BackendServiceException
+          Common::Exceptions::External::BackendServiceException
         )
       end
     end
@@ -126,7 +126,7 @@ describe Vet360::Service do
 
         expect(Vet360::Stats).to receive(:increment_exception).with(error_key)
         expect { subject.send('raise_invalid_body', nil, 'test') }.to raise_error(
-          Common::Exceptions::BackendServiceException
+          Common::Exceptions::External::BackendServiceException
         )
       end
     end

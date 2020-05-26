@@ -16,7 +16,7 @@ module VAOS
     validates :appointment_time, :facility_id, :cancel_code, presence: true
 
     def params
-      raise Common::Exceptions::ValidationErrors, self unless valid?
+      raise Common::Exceptions::Internal::ValidationErrors, self unless valid?
 
       attributes
     end

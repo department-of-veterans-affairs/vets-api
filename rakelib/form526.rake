@@ -140,7 +140,7 @@ namespace :form526 do
         next if j.error_class.blank?
 
         # Check if its an EVSS error and parse, otherwise store the entire message
-        messages = if j.error_message.include?('=>') && j.error_class != 'Common::Exceptions::BackendServiceException'
+        messages = if j.error_message.include?('=>') && j.error_class != 'Common::Exceptions::External::BackendServiceException'
                      j.error_message.scan(MSGS_REGEX)
                    else
                      [[j.error_message]]

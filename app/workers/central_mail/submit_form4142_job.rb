@@ -12,7 +12,7 @@ module CentralMail
 
     sidekiq_options retry: RETRY
 
-    class CentralMailResponseError < Common::Exceptions::BackendServiceException
+    class CentralMailResponseError < Common::Exceptions::External::BackendServiceException
     end
 
     # This callback cannot be tested due to the limitations of `Sidekiq::Testing.fake!`

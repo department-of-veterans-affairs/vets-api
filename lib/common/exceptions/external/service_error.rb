@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
 module Common
-  module Exceptions
-    class ServiceError < BaseError
+  module Exceptions::External
+    class ServiceError < Common::Exceptions::BaseError
       attr_writer :source
 
       def initialize(options = {})

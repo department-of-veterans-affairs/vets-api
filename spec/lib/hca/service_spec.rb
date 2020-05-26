@@ -111,7 +111,7 @@ describe HCA::Service do
           end
         )
         expect { service.send(:request, :post, '', OpenStruct.new(body: nil)) }.to raise_error(
-          Common::Exceptions::GatewayTimeout
+          Common::Exceptions::External::GatewayTimeout
         )
       end
     end

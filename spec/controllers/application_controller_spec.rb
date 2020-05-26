@@ -18,11 +18,11 @@ RSpec.describe ApplicationController, type: :controller do
     end
 
     def record_not_found
-      raise Common::Exceptions::RecordNotFound, 'some_id'
+      raise Common::Exceptions::Internal::RecordNotFound, 'some_id'
     end
 
     def other_error
-      raise Common::Exceptions::BackendServiceException, 'RX139'
+      raise Common::Exceptions::External::BackendServiceException, 'RX139'
     end
 
     def client_connection_failed

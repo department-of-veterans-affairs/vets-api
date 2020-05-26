@@ -2,7 +2,7 @@
 
 module EVSS
   module DisabilityCompensationForm
-    class GatewayTimeout < Common::Exceptions::GatewayTimeout
+    class GatewayTimeout < Common::Exceptions::External::GatewayTimeout
     end
   end
 end

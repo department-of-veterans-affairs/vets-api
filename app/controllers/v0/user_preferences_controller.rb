@@ -34,14 +34,14 @@ module V0
 
     def destroy_user_preferences!
       code = params[:code]
-      raise Common::Exceptions::RecordNotFound, code if Preference.find_by(code: code).blank?
+      raise Common::Exceptions::Internal::RecordNotFound, code if Preference.find_by(code: code).blank?
 
       UserPreference.for_preference_and_account(@account.id, code).each(&:destroy!)
     rescue ActiveRecord::RecordNotDestroyed => e
       err = "When destroying UserPreference records for Account #{@account.id} with "\
             "Preference code '#{code}', experienced ActiveRecord::RecordNotDestroyed "\
             "with this error: #{e}"
-      raise Common::Exceptions::UnprocessableEntity.new(detail: err, source: 'UserPreferencesController')
+      raise Common::Exceptions::External::UnprocessableEntity.new(detail: err, source: 'UserPreferencesController')
     end
 
     def user_preference_params

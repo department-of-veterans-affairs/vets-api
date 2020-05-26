@@ -149,7 +149,7 @@ RSpec.describe HealthCareApplication, type: :model do
       it 'raises a validation error' do
         expect do
           described_class.user_attributes(nil)
-        end.to raise_error(Common::Exceptions::ValidationErrors)
+        end.to raise_error(Common::Exceptions::Internal::ValidationErrors)
       end
     end
   end
@@ -192,7 +192,7 @@ RSpec.describe HealthCareApplication, type: :model do
       it 'raises a validation error' do
         expect do
           described_class.new(form: {}.to_json).process!
-        end.to raise_error(Common::Exceptions::ValidationErrors)
+        end.to raise_error(Common::Exceptions::Internal::ValidationErrors)
       end
     end
 

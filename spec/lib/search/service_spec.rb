@@ -43,7 +43,7 @@ describe Search::Service do
       it 'raises an exception', :aggregate_failures do
         VCR.use_cassette('search/empty_query', VCR::MATCH_EVERYTHING) do
           expect { subject.results }.to raise_error do |e|
-            expect(e).to be_a(Common::Exceptions::BackendServiceException)
+            expect(e).to be_a(Common::Exceptions::External::BackendServiceException)
             expect(e.status_code).to eq(400)
             expect(e.errors.first.code).to eq('SEARCH_400')
           end
@@ -57,7 +57,7 @@ describe Search::Service do
           allow_any_instance_of(described_class).to receive(:access_key).and_return('INVALIDKEY')
 
           expect { subject.results }.to raise_error do |e|
-            expect(e).to be_a(Common::Exceptions::BackendServiceException)
+            expect(e).to be_a(Common::Exceptions::External::BackendServiceException)
             expect(e.status_code).to eq(400)
             expect(e.errors.first.code).to eq('SEARCH_400')
           end
@@ -71,7 +71,7 @@ describe Search::Service do
           allow_any_instance_of(described_class).to receive(:affiliate).and_return('INVALID')
 
           expect { subject.results }.to raise_error do |e|
-            expect(e).to be_a(Common::Exceptions::BackendServiceException)
+            expect(e).to be_a(Common::Exceptions::External::BackendServiceException)
             expect(e.status_code).to eq(400)
             expect(e.errors.first.code).to eq('SEARCH_400')
           end
@@ -83,7 +83,7 @@ describe Search::Service do
       it 'raises an exception', :aggregate_failures do
         VCR.use_cassette('search/exceeds_rate_limit', VCR::MATCH_EVERYTHING) do
           expect { subject.results }.to raise_error do |e|
-            expect(e).to be_a(Common::Exceptions::BackendServiceException)
+            expect(e).to be_a(Common::Exceptions::External::BackendServiceException)
             expect(e.status_code).to eq(429)
             expect(e.errors.first.code).to eq('SEARCH_429')
           end
@@ -104,7 +104,7 @@ describe Search::Service do
         VCR.use_cassette('search/exceeds_rate_limit', VCR::MATCH_EVERYTHING) do
           expect_any_instance_of(described_class).not_to receive(:log_message_to_sentry)
 
-          expect { subject.results }.to raise_error(Common::Exceptions::BackendServiceException)
+          expect { subject.results }.to raise_error(Common::Exceptions::External::BackendServiceException)
         end
       end
     end

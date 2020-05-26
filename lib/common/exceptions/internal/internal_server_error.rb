@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
 module Common
-  module Exceptions
+  module Exceptions::Internal
     # Internal Server Error - all exceptions not readily accounted fall into this tier
-    class InternalServerError < BaseError
+    class InternalServerError < Common::Exceptions::BaseError
       attr_reader :exception
 
       def initialize(exception)

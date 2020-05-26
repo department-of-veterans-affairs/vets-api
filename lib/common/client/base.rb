@@ -55,7 +55,7 @@ module Common
       end
 
       def raise_backend_exception(key, source, error = nil)
-        raise Common::Exceptions::BackendServiceException.new(
+        raise Common::Exceptions::External::BackendServiceException.new(
           key,
           { source: source.to_s },
           error&.status,
@@ -104,14 +104,14 @@ module Common
           request.headers.update(headers)
           options.each { |option, value| request.options.send("#{option}=", value) }
         end.env
-      rescue Common::Exceptions::BackendServiceException => e
+      rescue Common::Exceptions::External::BackendServiceException => e
         # convert BackendServiceException into a more meaningful exception title for Sentry
         raise config.service_exception.new(
           e.key, e.response_values, e.original_status, e.original_body
         )
       rescue Timeout::Error, Faraday::TimeoutError => e
         Raven.extra_context(service_name: config.service_name, url: config.base_path)
-        raise Common::Exceptions::GatewayTimeout, e.class.name
+        raise Common::Exceptions::External::GatewayTimeout, e.class.name
       rescue Faraday::ClientError => e
         error_class = case e
                       when Faraday::ParsingError

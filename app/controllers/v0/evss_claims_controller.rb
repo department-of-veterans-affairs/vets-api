@@ -18,7 +18,7 @@ module V0
       claim = EVSSClaim.for_user(current_user).find_by(evss_id: params[:id])
       unless claim
         Raven.tags_context(team: 'benefits-memorial-1') # tag sentry logs with team name
-        raise Common::Exceptions::RecordNotFound, params[:id]
+        raise Common::Exceptions::Internal::RecordNotFound, params[:id]
       end
 
       claim, synchronized = service.update_from_remote(claim)
@@ -30,7 +30,7 @@ module V0
       claim = EVSSClaim.for_user(current_user).find_by(evss_id: params[:id])
       unless claim
         Raven.tags_context(team: 'benefits-memorial-1') # tag sentry logs with team name
-        raise Common::Exceptions::RecordNotFound, params[:id]
+        raise Common::Exceptions::Internal::RecordNotFound, params[:id]
       end
 
       jid = service.request_decision(claim)
@@ -41,7 +41,7 @@ module V0
     private
 
     def skip_sentry_exception_types
-      super + [Common::Exceptions::BackendServiceException]
+      super + [Common::Exceptions::External::BackendServiceException]
     end
 
     def service

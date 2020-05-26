@@ -34,7 +34,7 @@ module OpenidAuth
       end
 
       def check_required_headers
-        raise Common::Exceptions::ParameterMissing, 'x-va-level-of-assurance' if missing_loa
+        raise Common::Exceptions::Internal::ParameterMissing, 'x-va-level-of-assurance' if missing_loa
       end
 
       def missing_loa
@@ -43,7 +43,7 @@ module OpenidAuth
 
       def check_level_of_assurance(user_attributes)
         has_loa = !user_attributes[:level_of_assurance].nil?
-        raise Common::Exceptions::ParameterMissing, 'level_of_assurance' unless has_loa
+        raise Common::Exceptions::Internal::ParameterMissing, 'level_of_assurance' unless has_loa
       end
 
       def build_identity_from_attributes(user_attributes)

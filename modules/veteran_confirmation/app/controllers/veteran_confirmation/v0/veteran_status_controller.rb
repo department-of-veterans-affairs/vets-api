@@ -33,11 +33,11 @@ module VeteranConfirmation
       end
 
       def validate_no_query_params
-        raise Common::Exceptions::NoQueryParamsAllowed if request.post? && request.query_string.present?
+        raise Common::Exceptions::Internal::NoQueryParamsAllowed if request.post? && request.query_string.present?
       end
 
       def validate_ssn_format
-        raise Common::Exceptions::InvalidFieldValue.new('ssn', 'the provided') unless valid_ssn?(params['ssn'])
+        raise Common::Exceptions::Internal::InvalidFieldValue.new('ssn', 'the provided') unless valid_ssn?(params['ssn'])
 
         params['ssn'] = params['ssn'].gsub('-', '')
       end
@@ -54,9 +54,9 @@ module VeteranConfirmation
           params['gender'] = params['gender'].upcase
           gender_options = %w[M F]
           no_matching_option = !gender_options.include?(params['gender'])
-          raise Common::Exceptions::InvalidFieldValue.new('gender', original_attr) if no_matching_option
+          raise Common::Exceptions::Internal::InvalidFieldValue.new('gender', original_attr) if no_matching_option
         else
-          raise Common::Exceptions::InvalidFieldValue.new('gender', params['gender'])
+          raise Common::Exceptions::Internal::InvalidFieldValue.new('gender', params['gender'])
         end
       end
 
@@ -71,7 +71,7 @@ module VeteranConfirmation
       def vali_date
         params['birth_date'] = Date.iso8601(params['birth_date']).strftime('%Y%m%d')
       rescue ArgumentError
-        raise Common::Exceptions::InvalidFieldValue.new('birth_date', params['birth_date'])
+        raise Common::Exceptions::Internal::InvalidFieldValue.new('birth_date', params['birth_date'])
       end
     end
   end

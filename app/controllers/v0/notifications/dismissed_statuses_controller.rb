@@ -22,7 +22,7 @@ module V0
         if notification.save
           render json: notification, serializer: DismissedStatusSerializer
         else
-          raise Common::Exceptions::ValidationErrors.new(notification), 'Validation errors present'
+          raise Common::Exceptions::Internal::ValidationErrors.new(notification), 'Validation errors present'
         end
       end
 
@@ -30,7 +30,7 @@ module V0
         if @notification
           render json: @notification, serializer: DismissedStatusSerializer
         else
-          raise Common::Exceptions::RecordNotFound.new(subject), 'No matching record found for that user'
+          raise Common::Exceptions::Internal::RecordNotFound.new(subject), 'No matching record found for that user'
         end
       end
 
@@ -38,7 +38,7 @@ module V0
         if @notification.update(dismissed_statuses_params.merge(read_at: Time.current))
           render json: @notification, serializer: DismissedStatusSerializer
         else
-          raise Common::Exceptions::ValidationErrors.new(@notification), 'Validation errors present'
+          raise Common::Exceptions::Internal::ValidationErrors.new(@notification), 'Validation errors present'
         end
       end
 

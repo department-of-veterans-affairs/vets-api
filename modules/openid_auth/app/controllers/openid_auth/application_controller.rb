@@ -5,8 +5,8 @@ module OpenidAuth
     skip_before_action :set_tags_and_extra_content, raise: false
 
     def validate_user
-      raise Common::Exceptions::RecordNotFound, @current_user.uuid if @current_user.va_profile_status == 'NOT_FOUND'
-      raise Common::Exceptions::BadGateway if @current_user.va_profile_status == 'SERVER_ERROR'
+      raise Common::Exceptions::Internal::RecordNotFound, @current_user.uuid if @current_user.va_profile_status == 'NOT_FOUND'
+      raise Common::Exceptions::External::BadGateway if @current_user.va_profile_status == 'SERVER_ERROR'
 
       obscure_token = Session.obscure_token(token.to_s)
       Rails.logger.info("Logged in user with id #{@session.uuid}, token #{obscure_token}")

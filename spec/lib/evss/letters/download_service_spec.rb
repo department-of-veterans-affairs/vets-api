@@ -32,23 +32,23 @@ describe EVSS::Letters::DownloadService do
 
           it 'logs increment download fail' do
             expect(StatsD).to receive(:increment).once.with(
-              'api.evss.download_letter.fail', tags: ['error:Common::Exceptions::GatewayTimeout']
+              'api.evss.download_letter.fail', tags: ['error:Common::Exceptions::External::GatewayTimeout']
             )
             expect(StatsD).to receive(:increment).once.with('api.evss.download_letter.total')
             expect do
               subject.download_letter(EVSS::Letters::Letter::LETTER_TYPES.first)
-            end.to raise_error(Common::Exceptions::GatewayTimeout)
+            end.to raise_error(Common::Exceptions::External::GatewayTimeout)
           end
         end
 
         context 'when an BackendServiceException occurs' do
           it 'tests that a backend service exception is raised' do
             allow_any_instance_of(described_class).to(
-              receive(:download_letter).and_raise(Common::Exceptions::BackendServiceException)
+              receive(:download_letter).and_raise(Common::Exceptions::External::BackendServiceException)
             )
             expect do
               subject.download_letter(EVSS::Letters::Letter::LETTER_TYPES.first)
-            end.to raise_error(Common::Exceptions::BackendServiceException)
+            end.to raise_error(Common::Exceptions::External::BackendServiceException)
           end
         end
       end

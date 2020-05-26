@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-describe Common::Exceptions::Unauthorized do
+describe Common::Exceptions::Internal::Unauthorized do
   subject { described_class.new }
 
   it 'implements #errors which returns an array' do

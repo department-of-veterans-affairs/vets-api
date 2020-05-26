@@ -7,13 +7,13 @@ class TransactionalEmailAnalyticsJob
 
   def initialize
     unless FeatureFlipper.send_email?
-      raise Common::Exceptions::ParameterMissing.new(
+      raise Common::Exceptions::Internal::ParameterMissing.new(
         'GovDelivery token or server',
         detail: 'It should be configured in settings.yml'
       )
     end
     if Settings.google_analytics_tracking_id.blank?
-      raise Common::Exceptions::ParameterMissing.new(
+      raise Common::Exceptions::Internal::ParameterMissing.new(
         'Google Analytics tracking ID',
         detail: 'It should be configured in settings.yml'
       )

@@ -21,7 +21,7 @@ def stub_mvi_not_found
 end
 
 def not_found_exception
-  Common::Exceptions::BackendServiceException.new(
+  Common::Exceptions::External::BackendServiceException.new(
     'MVI_404',
     { source: 'MVI::Service' },
     404,
@@ -30,7 +30,7 @@ def not_found_exception
 end
 
 def server_error_exception
-  Common::Exceptions::BackendServiceException.new(
+  Common::Exceptions::External::BackendServiceException.new(
     'MVI_503',
     { source: 'MVI::Service' },
     503,

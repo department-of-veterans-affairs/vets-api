@@ -36,7 +36,7 @@ module Vet360
     end
 
     def validate!(record)
-      raise Common::Exceptions::ValidationErrors, record unless record.valid?
+      raise Common::Exceptions::Internal::ValidationErrors, record unless record.valid?
     end
 
     def service

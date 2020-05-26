@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
 module Common
-  module Exceptions
+  module Exceptions::Internal
     # Parameter Missing - required parameter was not provided
-    class NotASafeHostError < BaseError
+    class NotASafeHostError < Common::Exceptions::BaseError
       attr_reader :host
 
       def initialize(host)

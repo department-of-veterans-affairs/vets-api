@@ -4,7 +4,7 @@ module V0
   class TriageTeamsController < SMController
     def index
       resource = client.get_triage_teams
-      raise Common::Exceptions::InternalServerError if resource.blank?
+      raise Common::Exceptions::Internal::InternalServerError if resource.blank?
 
       resource = resource.sort(params[:sort])
 

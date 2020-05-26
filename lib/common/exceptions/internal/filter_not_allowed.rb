@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
 module Common
-  module Exceptions
-    class FilterNotAllowed < BaseError
+  module Exceptions::Internal
+    class FilterNotAllowed < Common::Exceptions::BaseError
       attr_reader :filter
 
       def initialize(filter)

@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
 module Common
-  module Exceptions
+  module Exceptions::Internal
     # InvalidFieldValue - field value is invalid
-    class InvalidFieldValue < BaseError
+    class InvalidFieldValue < Common::Exceptions::BaseError
       attr_reader :field, :value
 
       def initialize(field, value)

@@ -10,7 +10,7 @@ class FacilitiesController < ApplicationController
       params[:bbox].each { |x| Float(x) }
     end
   rescue ArgumentError
-    raise Common::Exceptions::InvalidFieldValue.new('bbox', params[:bbox])
+    raise Common::Exceptions::Internal::InvalidFieldValue.new('bbox', params[:bbox])
   end
 
   private

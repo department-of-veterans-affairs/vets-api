@@ -35,7 +35,7 @@ module Users
     private
 
     def validate!(user)
-      raise Common::Exceptions::ParameterMissing.new('user'), 'user' unless user&.class == User
+      raise Common::Exceptions::Internal::ParameterMissing.new('user'), 'user' unless user&.class == User
 
       user
     end

@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
 module Common
-  module Exceptions
+  module Exceptions::Internal
     # Record Not Found - if no record exists having id, or resource having id does not belong to requester
-    class RecordNotFound < BaseError
+    class RecordNotFound < Common::Exceptions::BaseError
       attr_reader :id
 
       def initialize(id)

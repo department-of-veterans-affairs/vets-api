@@ -16,14 +16,14 @@ RSpec.describe TransactionalEmailAnalyticsJob, type: :job do
     context 'GovDelivery token is missing from settings' do
       it 'raises an error' do
         allow(FeatureFlipper).to receive(:send_email?).and_return(false)
-        expect { subject.perform }.to raise_error(Common::Exceptions::ParameterMissing)
+        expect { subject.perform }.to raise_error(Common::Exceptions::Internal::ParameterMissing)
       end
     end
 
     context 'Google Analytics tracking ID is missing from settings' do
       it 'raises an error' do
         Settings.google_analytics_tracking_id = nil
-        expect { subject.perform }.to raise_error(Common::Exceptions::ParameterMissing)
+        expect { subject.perform }.to raise_error(Common::Exceptions::Internal::ParameterMissing)
       end
     end
 

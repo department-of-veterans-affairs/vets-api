@@ -23,7 +23,7 @@ module SAML
     def initialize(saml_settings, session: nil, user: nil, params: {},
                    loa3_context: LOA::IDME_LOA3_VETS, previous_saml_uuid: nil)
       unless %w[new saml_callback saml_logout_callback ssoe_slo_callback].include?(params[:action])
-        raise Common::Exceptions::RoutingError, params[:path]
+        raise Common::Exceptions::Internal::RoutingError, params[:path]
       end
 
       if session.present?

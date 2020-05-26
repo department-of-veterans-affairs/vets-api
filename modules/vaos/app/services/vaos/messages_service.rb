@@ -33,7 +33,7 @@ module VAOS
 
     def handle_error(response)
       key = response.status == 204 ? 'VAOS_204' : nil
-      raise Common::Exceptions::BackendServiceException.new(key, {}, response.status, response.body)
+      raise Common::Exceptions::External::BackendServiceException.new(key, {}, response.status, response.body)
     end
 
     def deserialize(json_hash)

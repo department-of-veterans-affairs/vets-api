@@ -209,7 +209,7 @@ RSpec.describe SAML::URLService do
           let(:params) { { action: 'saml_slo_callback' } }
 
           it 'raises an exception' do
-            expect { subject }.to raise_error(Common::Exceptions::RoutingError)
+            expect { subject }.to raise_error(Common::Exceptions::Internal::RoutingError)
           end
         end
       end
@@ -443,7 +443,7 @@ RSpec.describe SAML::URLService do
           let(:params) { { action: 'saml_slo_callback' } }
 
           it 'raises an exception' do
-            expect { subject }.to raise_error(Common::Exceptions::RoutingError)
+            expect { subject }.to raise_error(Common::Exceptions::Internal::RoutingError)
           end
         end
       end

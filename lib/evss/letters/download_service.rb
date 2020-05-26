@@ -36,7 +36,7 @@ module EVSS
           when 200
             response.body
           when 404
-            raise Common::Exceptions::RecordNotFound, type
+            raise Common::Exceptions::Internal::RecordNotFound, type
           else
             Raven.extra_context(
               url: config.base_path,

@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-describe Common::Exceptions::InvalidField do
+describe Common::Exceptions::Internal::InvalidField do
   context 'with no field provided' do
     it do
       expect { described_class.new }

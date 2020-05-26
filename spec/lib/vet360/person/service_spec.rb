@@ -61,7 +61,7 @@ describe Vet360::Person::Service, skip_vet360: true do
       it 'raises an exception', :aggregate_failures do
         VCR.use_cassette('vet360/person/init_vet360_id_status_400', VCR::MATCH_EVERYTHING) do
           expect { subject.init_vet360_id }.to raise_error do |e|
-            expect(e).to be_a(Common::Exceptions::BackendServiceException)
+            expect(e).to be_a(Common::Exceptions::External::BackendServiceException)
             expect(e.status_code).to eq(400)
             expect(e.errors.first.code).to eq('VET360_PERS101')
           end

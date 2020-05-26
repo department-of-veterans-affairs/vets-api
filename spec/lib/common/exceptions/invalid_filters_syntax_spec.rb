@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-describe Common::Exceptions::InvalidFiltersSyntax do
+describe Common::Exceptions::Internal::InvalidFiltersSyntax do
   context 'with no filters provided' do
     it do
       expect { described_class.new }

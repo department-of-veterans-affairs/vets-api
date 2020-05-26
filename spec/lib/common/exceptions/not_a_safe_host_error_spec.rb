@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-describe Common::Exceptions::NotASafeHostError do
+describe Common::Exceptions::Internal::NotASafeHostError do
   context 'with no attributes provided' do
     it do
       expect { described_class.new }

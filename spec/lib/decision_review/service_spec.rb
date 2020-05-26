@@ -116,10 +116,10 @@ describe DecisionReview::Service do
 
       it 'logs an error and raise GatewayTimeout exception' do
         expect(StatsD).to receive(:increment).once.with(
-          'api.decision_review.post_higher_level_reviews.fail', tags: ['error:Common::Exceptions::GatewayTimeout']
+          'api.decision_review.post_higher_level_reviews.fail', tags: ['error:Common::Exceptions::External::GatewayTimeout']
         )
         expect(StatsD).to receive(:increment).once.with('api.decision_review.post_higher_level_reviews.total')
-        expect { subject.post_higher_level_reviews({}) }.to raise_error(Common::Exceptions::GatewayTimeout)
+        expect { subject.post_higher_level_reviews({}) }.to raise_error(Common::Exceptions::External::GatewayTimeout)
       end
     end
 
@@ -132,7 +132,7 @@ describe DecisionReview::Service do
             ]
           )
           expect(StatsD).to receive(:increment).once.with('api.decision_review.post_higher_level_reviews.total')
-          expect { subject.post_higher_level_reviews({}) }.to raise_error(Common::Exceptions::Forbidden)
+          expect { subject.post_higher_level_reviews({}) }.to raise_error(Common::Exceptions::Internal::Forbidden)
         end
       end
     end

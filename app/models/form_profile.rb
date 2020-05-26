@@ -285,7 +285,7 @@ class FormProfile
 
   def extract_pciu_data(user, method)
     user&.send(method)
-  rescue Common::Exceptions::Forbidden, Common::Exceptions::BackendServiceException
+  rescue Common::Exceptions::Internal::Forbidden, Common::Exceptions::External::BackendServiceException
     ''
   end
 

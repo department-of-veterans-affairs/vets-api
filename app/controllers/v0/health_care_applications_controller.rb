@@ -38,7 +38,7 @@ module V0
           )
         end
 
-      raise Common::Exceptions::RecordNotFound, nil if icn.blank?
+      raise Common::Exceptions::Internal::RecordNotFound, nil if icn.blank?
 
       render(json: HealthCareApplication.enrollment_status(icn, loa3))
     end
@@ -50,7 +50,7 @@ module V0
     private
 
     def skip_sentry_exception_types
-      super + [Common::Exceptions::BackendServiceException]
+      super + [Common::Exceptions::External::BackendServiceException]
     end
   end
 end

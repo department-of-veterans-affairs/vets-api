@@ -34,7 +34,7 @@ describe VAOS::SystemsService do
             'api.vaos.get_systems.total', times: 1, value: 1
           ).and trigger_statsd_increment(
             'api.vaos.get_systems.fail', times: 1, value: 1
-          ).and raise_error(Common::Exceptions::BackendServiceException)
+          ).and raise_error(Common::Exceptions::External::BackendServiceException)
         end
       end
     end
@@ -44,7 +44,7 @@ describe VAOS::SystemsService do
         VCR.use_cassette('vaos/systems/get_systems_403', match_requests_on: %i[method uri]) do
           expect { subject.get_systems }.to trigger_statsd_increment(
             'api.vaos.get_systems.fail', times: 1, value: 1
-          ).and raise_error(Common::Exceptions::BackendServiceException)
+          ).and raise_error(Common::Exceptions::External::BackendServiceException)
         end
       end
     end
@@ -64,7 +64,7 @@ describe VAOS::SystemsService do
       it 'raises a backend exception' do
         VCR.use_cassette('vaos/systems/get_facilities_500', match_requests_on: %i[method uri]) do
           expect { subject.get_facilities('688') }.to raise_error(
-            Common::Exceptions::BackendServiceException
+            Common::Exceptions::External::BackendServiceException
           )
         end
       end
@@ -85,7 +85,7 @@ describe VAOS::SystemsService do
       it 'raises a backend exception' do
         VCR.use_cassette('vaos/systems/get_facility_clinics_500', match_requests_on: %i[method uri]) do
           expect { subject.get_facility_clinics('984GA', '323', '984') }.to raise_error(
-            Common::Exceptions::BackendServiceException
+            Common::Exceptions::External::BackendServiceException
           )
         end
       end
@@ -106,7 +106,7 @@ describe VAOS::SystemsService do
       it 'raises a backend exception' do
         VCR.use_cassette('vaos/systems/get_cancel_reasons_500', match_requests_on: %i[method uri]) do
           expect { subject.get_cancel_reasons('984') }.to raise_error(
-            Common::Exceptions::BackendServiceException
+            Common::Exceptions::External::BackendServiceException
           )
         end
       end
@@ -135,7 +135,7 @@ describe VAOS::SystemsService do
       it 'raises a backend exception' do
         VCR.use_cassette('vaos/systems/get_facility_appointments', match_requests_on: %i[method uri]) do
           expect { subject.get_cancel_reasons('984') }.to raise_error(
-            Common::Exceptions::BackendServiceException
+            Common::Exceptions::External::BackendServiceException
           )
         end
       end
@@ -176,7 +176,7 @@ describe VAOS::SystemsService do
       it 'raises a backend exception' do
         VCR.use_cassette('vaos/systems/get_system_facilities_500', match_requests_on: %i[method uri]) do
           expect { subject.get_system_facilities('688', '688', '323') }.to raise_error(
-            Common::Exceptions::BackendServiceException
+            Common::Exceptions::External::BackendServiceException
           )
         end
       end
@@ -198,7 +198,7 @@ describe VAOS::SystemsService do
       it 'raises a backend exception' do
         VCR.use_cassette('vaos/systems/get_facility_limits_500', match_requests_on: %i[method uri]) do
           expect { subject.get_facility_limits('688', '323') }.to raise_error(
-            Common::Exceptions::BackendServiceException
+            Common::Exceptions::External::BackendServiceException
           )
         end
       end
@@ -230,7 +230,7 @@ describe VAOS::SystemsService do
       it 'raises a backend exception' do
         VCR.use_cassette('vaos/systems/get_system_pact_500', match_requests_on: %i[method uri]) do
           expect { subject.get_system_pact('688') }.to raise_error(
-            Common::Exceptions::BackendServiceException
+            Common::Exceptions::External::BackendServiceException
           )
         end
       end
@@ -262,7 +262,7 @@ describe VAOS::SystemsService do
       it 'raises a backend exception' do
         VCR.use_cassette('vaos/systems/get_system_pact_500', match_requests_on: %i[method uri]) do
           expect { subject.get_system_pact('688') }.to raise_error(
-            Common::Exceptions::BackendServiceException
+            Common::Exceptions::External::BackendServiceException
           )
         end
       end
@@ -272,7 +272,7 @@ describe VAOS::SystemsService do
       it 'raises a backend exception' do
         VCR.use_cassette('vaos/systems/get_facility_visits_500', match_requests_on: %i[method uri]) do
           expect { subject.get_facility_visits('688', '688', '323', 'direct') }.to raise_error(
-            Common::Exceptions::BackendServiceException
+            Common::Exceptions::External::BackendServiceException
           )
         end
       end

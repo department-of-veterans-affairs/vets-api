@@ -27,7 +27,7 @@ module VeteranVerification
     end
 
     def self.raise_error!
-      raise Common::Exceptions::BackendServiceException.new(
+      raise Common::Exceptions::External::BackendServiceException.new(
         'BGS_RTG_502',
         source: self.class.to_s
       )

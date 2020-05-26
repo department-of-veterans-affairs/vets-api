@@ -34,13 +34,13 @@ module VAOS
       def start_date
         DateTime.parse(appt_params[:start_date]).in_time_zone
       rescue ArgumentError
-        raise Common::Exceptions::InvalidFieldValue.new('start_date', params[:start_date])
+        raise Common::Exceptions::Internal::InvalidFieldValue.new('start_date', params[:start_date])
       end
 
       def end_date
         DateTime.parse(appt_params[:end_date]).in_time_zone
       rescue ArgumentError
-        raise Common::Exceptions::InvalidFieldValue.new('end_date', params[:end_date])
+        raise Common::Exceptions::Internal::InvalidFieldValue.new('end_date', params[:end_date])
       end
 
       def clinic_ids

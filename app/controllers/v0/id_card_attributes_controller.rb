@@ -19,13 +19,13 @@ module V0
     private
 
     def skip_sentry_exception_types
-      super + [Common::Exceptions::Forbidden, ::VIC::IDCardAttributeError]
+      super + [Common::Exceptions::Internal::Forbidden, ::VIC::IDCardAttributeError]
     end
 
     def authorize
       # TODO: Clean up this method, particularly around need to blanket rescue from
       # VeteranStatus method
-      raise Common::Exceptions::Forbidden, detail: 'You do not have access to ID card attributes' unless
+      raise Common::Exceptions::Internal::Forbidden, detail: 'You do not have access to ID card attributes' unless
         current_user.loa3?
       raise ::VIC::IDCardAttributeError, ::VIC::IDCardAttributeError::VIC002 if current_user.edipi.blank?
 

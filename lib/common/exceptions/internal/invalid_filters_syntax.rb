@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
 module Common
-  module Exceptions
+  module Exceptions::Internal
     # InvalidFiltersSyntax - filter keys are invalid
-    class InvalidFiltersSyntax < BaseError
+    class InvalidFiltersSyntax < Common::Exceptions::BaseError
       attr_reader :filters
 
       def initialize(filters, options = {})

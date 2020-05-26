@@ -61,11 +61,11 @@ describe 'mhv account creation' do
 
   it 'does not create an account if one already exists', :vcr do
     expect { client.post_register(user_params) }
-      .to raise_error(Common::Exceptions::BackendServiceException)
+      .to raise_error(Common::Exceptions::External::BackendServiceException)
   end
 
   it 'does not upgrade an account if one already exists', :vcr do
     expect { client.post_upgrade(upgrade_params) }
-      .to raise_error(Common::Exceptions::BackendServiceException)
+      .to raise_error(Common::Exceptions::External::BackendServiceException)
   end
 end

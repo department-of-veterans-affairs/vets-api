@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-describe Common::Exceptions::UnknownFormat do
+describe Common::Exceptions::Internal::UnknownFormat do
   subject { described_class.new('application/foobar') }
 
   it 'implements #errors which returns an array' do

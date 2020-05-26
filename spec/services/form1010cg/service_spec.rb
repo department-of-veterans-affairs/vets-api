@@ -53,7 +53,7 @@ RSpec.describe Form1010cg::Service do
 
     it 'raises error if claim is invalid' do
       expect { described_class.new(SavedClaim::CaregiversAssistanceClaim.new(form: '{}')) }.to raise_error do |e|
-        expect(e).to be_a(Common::Exceptions::ValidationErrors)
+        expect(e).to be_a(Common::Exceptions::Internal::ValidationErrors)
         expect(e.errors.size).to eq(2)
         expect(e.errors[0].code).to eq('100')
         expect(e.errors[0].detail).to include("did not contain a required property of 'veteran'")
@@ -560,7 +560,7 @@ RSpec.describe Form1010cg::Service do
     it 'will raise error if veteran\'s icn can not be found' do
       expect(subject).to receive(:icn_for).with('veteran').and_return('NOT_FOUND')
       expect { subject.assert_veteran_status }.to raise_error do |e|
-        expect(e).to be_a(Common::Exceptions::ValidationErrors)
+        expect(e).to be_a(Common::Exceptions::Internal::ValidationErrors)
         expect(e.errors.size).to eq(1)
         expect(e.errors[0].code).to eq('100')
         expect(e.errors[0].source[:pointer]).to eq('data/attributes/base')
@@ -583,7 +583,7 @@ RSpec.describe Form1010cg::Service do
       expect(subject).to receive(:icn_for).with('veteran').and_return('NOT_FOUND')
 
       expect { subject.process_claim! }.to raise_error do |e|
-        expect(e).to be_a(Common::Exceptions::ValidationErrors)
+        expect(e).to be_a(Common::Exceptions::Internal::ValidationErrors)
         expect(e.errors.size).to eq(1)
         expect(e.errors[0].code).to eq('100')
         expect(e.errors[0].source[:pointer]).to eq('data/attributes/base')

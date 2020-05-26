@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
 module Common
-  module Exceptions
+  module Exceptions::Internal
     # Forbidden - We may eventually want different variations on this with distinct MinorCodes
-    class Forbidden < BaseError
+    class Forbidden < Common::Exceptions::BaseError
       def initialize(options = {})
         @detail = options[:detail]
         @source = options[:source]

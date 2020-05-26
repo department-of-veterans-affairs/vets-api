@@ -87,30 +87,30 @@ describe EVSS::PCIU::Service do
     end
 
     context 'with a 500 response' do
-      it 'raises a Common::Exceptions::BackendServiceException error' do
+      it 'raises a Common::Exceptions::External::BackendServiceException error' do
         VCR.use_cassette('evss/pciu/post_primary_phone_status_500') do
           expect { subject.post_primary_phone(phone) }.to raise_error(
-            Common::Exceptions::BackendServiceException
+            Common::Exceptions::External::BackendServiceException
           )
         end
       end
     end
 
     context 'with a 403 response' do
-      it 'raises a Common::Exceptions::Forbidden error' do
+      it 'raises a Common::Exceptions::Internal::Forbidden error' do
         VCR.use_cassette('evss/pciu/post_primary_phone_status_403') do
           expect { subject.post_primary_phone(phone) }.to raise_error(
-            Common::Exceptions::Forbidden
+            Common::Exceptions::Internal::Forbidden
           )
         end
       end
     end
 
     context 'with a 400 response' do
-      it 'raises a Common::Exceptions::BackendServiceException error' do
+      it 'raises a Common::Exceptions::External::BackendServiceException error' do
         VCR.use_cassette('evss/pciu/post_primary_phone_status_400') do
           expect { subject.post_primary_phone(phone) }.to raise_error(
-            Common::Exceptions::BackendServiceException
+            Common::Exceptions::External::BackendServiceException
           )
         end
       end
@@ -139,30 +139,30 @@ describe EVSS::PCIU::Service do
     end
 
     context 'with a 500 response' do
-      it 'raises a Common::Exceptions::BackendServiceException error' do
+      it 'raises a Common::Exceptions::External::BackendServiceException error' do
         VCR.use_cassette('evss/pciu/post_alternate_phone_status_500') do
           expect { subject.post_alternate_phone(phone) }.to raise_error(
-            Common::Exceptions::BackendServiceException
+            Common::Exceptions::External::BackendServiceException
           )
         end
       end
     end
 
     context 'with a 403 response' do
-      it 'raises a Common::Exceptions::Forbidden error' do
+      it 'raises a Common::Exceptions::Internal::Forbidden error' do
         VCR.use_cassette('evss/pciu/post_alternate_phone_status_403') do
           expect { subject.post_alternate_phone(phone) }.to raise_error(
-            Common::Exceptions::Forbidden
+            Common::Exceptions::Internal::Forbidden
           )
         end
       end
     end
 
     context 'with a 400 response' do
-      it 'raises a Common::Exceptions::BackendServiceException error' do
+      it 'raises a Common::Exceptions::External::BackendServiceException error' do
         VCR.use_cassette('evss/pciu/post_alternate_phone_status_400') do
           expect { subject.post_alternate_phone(phone) }.to raise_error(
-            Common::Exceptions::BackendServiceException
+            Common::Exceptions::External::BackendServiceException
           )
         end
       end
@@ -191,30 +191,30 @@ describe EVSS::PCIU::Service do
     end
 
     context 'with a 500 response' do
-      it 'raises a Common::Exceptions::BackendServiceException error' do
+      it 'raises a Common::Exceptions::External::BackendServiceException error' do
         VCR.use_cassette('evss/pciu/post_email_address_status_500') do
           expect { subject.post_email_address(email_address) }.to raise_error(
-            Common::Exceptions::BackendServiceException
+            Common::Exceptions::External::BackendServiceException
           )
         end
       end
     end
 
     context 'with a 403 response' do
-      it 'raises a Common::Exceptions::Forbidden error' do
+      it 'raises a Common::Exceptions::Internal::Forbidden error' do
         VCR.use_cassette('evss/pciu/post_email_address_status_403') do
           expect { subject.post_email_address(email_address) }.to raise_error(
-            Common::Exceptions::Forbidden
+            Common::Exceptions::Internal::Forbidden
           )
         end
       end
     end
 
     context 'with a 400 response' do
-      it 'raises a Common::Exceptions::BackendServiceException error' do
+      it 'raises a Common::Exceptions::External::BackendServiceException error' do
         VCR.use_cassette('evss/pciu/post_email_address_status_400') do
           expect { subject.post_email_address(email_address) }.to raise_error(
-            Common::Exceptions::BackendServiceException
+            Common::Exceptions::External::BackendServiceException
           )
         end
       end

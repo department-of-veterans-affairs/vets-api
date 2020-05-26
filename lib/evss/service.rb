@@ -68,7 +68,7 @@ module EVSS
         raise_backend_exception('EVSS502', self.class)
       when Common::Client::Errors::ClientError
         Raven.extra_context(body: error.body)
-        raise Common::Exceptions::Forbidden if error.status == 403
+        raise Common::Exceptions::Internal::Forbidden if error.status == 403
 
         raise_backend_exception('EVSS400', self.class, error) if error.status == 400
         raise_backend_exception('EVSS502', self.class, error)

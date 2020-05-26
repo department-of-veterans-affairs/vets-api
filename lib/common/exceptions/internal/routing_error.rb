@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
 module Common
-  module Exceptions
+  module Exceptions::Internal
     # Routing Error - if route is invalid
-    class RoutingError < BaseError
+    class RoutingError < Common::Exceptions::BaseError
       attr_reader :path
 
       def initialize(path = nil)
