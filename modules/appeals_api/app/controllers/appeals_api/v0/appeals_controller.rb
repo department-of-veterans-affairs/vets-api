@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require_dependency 'appeals_api/application_controller'
-
 module AppealsApi
   module V0
     class AppealsController < ApplicationController
