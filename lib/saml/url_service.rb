@@ -55,7 +55,13 @@ module SAML
     def login_redirect_url(auth: 'success', code: nil)
       return verify_url if auth == 'success' && user.loa[:current] < user.loa[:highest]
 
+      # if the original auth request specified a redirect, use that
       return @tracker&.payload_attr(:redirect) if @tracker&.payload_attr(:redirect)
+
+      # if the original auth request specified inbound ssoe and authentication
+      # failed, set 'force-needed' so the FE can silently fail authentication and NOT
+      # show the user an error page
+      auth = 'force-needed' if auth != 'success' and @tracker&.payload_attr(:inbound_ssoe)
 
       @query_params[:type] = type if type
       @query_params[:auth] = auth if auth != 'success'
