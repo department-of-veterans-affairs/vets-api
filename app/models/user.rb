@@ -107,6 +107,14 @@ class User < Common::RedisStore
     identity.mhv_account_type || MHVAccountTypeService.new(self).mhv_account_type
   end
 
+  def mhv_account_state
+    return 'DEACTIVATED' if (va_profile.mhv_ids.to_a - va_profile.active_mhv_ids.to_a).any?
+    return 'MULTIPLE' if va_profile.active_mhv_ids.to_a.size > 1
+    return 'NONE' if mhv_correlation_id.blank?
+
+    'OK'
+  end
+
   def loa
     identity&.loa || {}
   end

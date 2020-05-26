@@ -124,7 +124,6 @@ PATH
 
 GEM
   remote: https://rubygems.org/
-  remote: https://enterprise.contribsys.com/
   specs:
     Ascii85 (1.0.3)
     aasm (5.0.6)
@@ -337,7 +336,6 @@ GEM
     e2mmap (0.1.0)
     ecma-re-validator (0.2.0)
       regexp_parser (~> 1.2)
-    einhorn (0.7.4)
     encryptor (3.0.0)
     equalizer (0.0.11)
     erubi (1.9.0)
@@ -537,7 +535,7 @@ GEM
       byebug (~> 11.0)
       pry (~> 0.13.0)
     public_suffix (4.0.5)
-    puma (4.3.3)
+    puma (4.3.5)
       nio4r (~> 2.0)
     puma-plugin-statsd (0.1.0)
       json
@@ -692,13 +690,6 @@ GEM
       rack (< 2.1.0)
       rack-protection (>= 1.5.0)
       redis (>= 3.3.5, < 5)
-    sidekiq-ent (1.8.1)
-      einhorn (= 0.7.4)
-      sidekiq (>= 5.2.3)
-      sidekiq-pro (>= 4.0.4)
-    sidekiq-pro (5.0.0)
-      concurrent-ruby (>= 1.0.5)
-      sidekiq (>= 5.2.7)
     sidekiq-scheduler (3.0.1)
       e2mmap
       redis (>= 3, < 5)
@@ -706,10 +697,11 @@ GEM
       sidekiq (>= 3)
       thwait
       tilt (>= 1.4.0)
-    simplecov (0.18.5)
+    simplecov (0.17.1)
       docile (~> 1.1)
-      simplecov-html (~> 0.11)
-    simplecov-html (0.12.2)
+      json (>= 1.8, < 3)
+      simplecov-html (~> 0.10.0)
+    simplecov-html (0.10.2)
     socksify (1.7.1)
     spring (2.1.0)
     spring-commands-rspec (1.0.4)
@@ -868,7 +860,7 @@ DEPENDENCIES
   pg
   prawn
   pry-byebug
-  puma (~> 4.3.2)
+  puma (~> 4.3.5)
   puma-plugin-statsd (~> 0.1.0)
   pundit
   rack
@@ -901,10 +893,8 @@ DEPENDENCIES
   shrine
   shrine-memory
   sidekiq (~> 5.0)
-  sidekiq-ent!
-  sidekiq-pro!
   sidekiq-scheduler (~> 3.0)
-  simplecov
+  simplecov (< 0.18)
   socksify
   spring
   spring-commands-rspec
