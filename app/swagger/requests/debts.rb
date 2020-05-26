@@ -14,23 +14,20 @@ module Swagger
           response 200 do
             key :description, 'Successful debts lookup'
             schema do
-              key :required, %i[data]
-              property :data, type: :array do
-                items do
-                  property :file_number, type: :string
-                  property :payee_number, type: :string
-                  property :person_entitled, type: :string
-                  property :deduction_code, type: :string
-                  property :benefit_type, type: :string
-                  property :amount_overpaid, type: :string
-                  property :amount_withheld, type: :string
-                  property :debt_history, type: :array do
-                    items do
-                      property :date, type: :string
-                      property :letter_code, type: :string
-                      property :status, type: :string
-                      property :description, type: :string
-                    end
+              items do
+                property :file_number, type: :string
+                property :payee_number, type: :string
+                property :person_entitled, type: :string
+                property :deduction_code, type: :string
+                property :benefit_type, type: :string
+                property :amount_overpaid, type: :string
+                property :amount_withheld, type: :string
+                property :debt_history, type: :array do
+                  items do
+                    property :date, type: :string
+                    property :letter_code, type: :string
+                    property :status, type: :string
+                    property :description, type: :string
                   end
                 end
               end
