@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'claims_api/unsynchronized_evss_claims_service'
+require 'claims_api/unsynchronized_evss_claim_service'
 
 RSpec.describe ClaimsApi::UnsynchronizedEVSSClaimService, type: :model do
   let(:user) { FactoryBot.create(:user, :loa3) }
