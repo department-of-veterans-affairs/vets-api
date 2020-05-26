@@ -10,7 +10,7 @@ module Common
       end
 
       def errors
-        Array(SerializableError.new(i18n_interpolated(detail: { filter: @filter })))
+        Array(Common::Exceptions::SerializableError.new(i18n_interpolated(detail: { filter: @filter })))
       end
     end
   end

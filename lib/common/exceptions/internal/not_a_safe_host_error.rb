@@ -11,7 +11,7 @@ module Common
       end
 
       def errors
-        Array(SerializableError.new(i18n_interpolated(detail: { host: @host })))
+        Array(Common::Exceptions::SerializableError.new(i18n_interpolated(detail: { host: @host })))
       end
     end
   end

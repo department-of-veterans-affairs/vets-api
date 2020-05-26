@@ -12,7 +12,7 @@ module Common
       end
 
       def errors
-        Array(SerializableError.new(i18n_interpolated(detail: { field: @field, value: @value })))
+        Array(Common::Exceptions::SerializableError.new(i18n_interpolated(detail: { field: @field, value: @value })))
       end
     end
   end

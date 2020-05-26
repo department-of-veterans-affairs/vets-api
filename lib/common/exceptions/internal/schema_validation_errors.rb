@@ -10,7 +10,7 @@ module Common
 
       def errors
         @resource.map do |error|
-          SerializableError.new(
+          Common::Exceptions::SerializableError.new(
             i18n_data.merge(
               detail: error
             )

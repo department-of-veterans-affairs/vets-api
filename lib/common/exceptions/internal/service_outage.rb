@@ -10,7 +10,7 @@ module Common
       end
 
       def errors
-        Array(SerializableError.new(i18n_data.merge(detail: @detail)))
+        Array(Common::Exceptions::SerializableError.new(i18n_data.merge(detail: @detail)))
       end
     end
   end

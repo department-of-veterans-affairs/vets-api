@@ -13,7 +13,7 @@ module Common
       def errors
         @params.map do |param|
           detail = i18n_field(:detail, param: param)
-          SerializableError.new(i18n_data.merge(detail: detail))
+          Common::Exceptions::SerializableError.new(i18n_data.merge(detail: detail))
         end
       end
     end

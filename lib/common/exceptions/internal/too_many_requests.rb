@@ -4,7 +4,7 @@ module Common
   module Exceptions::Internal
     class TooManyRequests < Common::Exceptions::BaseError
       def errors
-        Array(SerializableError.new(i18n_interpolated))
+        Array(Common::Exceptions::SerializableError.new(i18n_interpolated))
       end
 
       def i18n_key
