@@ -931,7 +931,7 @@ RSpec.describe FormProfile, type: :model do
             allow(user).to receive(:vet360_id).and_return(nil)
           end
 
-          it 'should omit address fields in 686c-674 form' do
+          it 'omits address fields in 686c-674 form' do
             prefilled_data = described_class.for('686C-674').prefill(user)[:form_data]
             v686_c_674_expected['veteranInformation']['veteranAddress'].delete('veteranAddress')
             expect(prefilled_data).to eq(v686_c_674_expected)
