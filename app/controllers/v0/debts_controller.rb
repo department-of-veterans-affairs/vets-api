@@ -4,14 +4,14 @@ module V0
   class DebtsController < ApplicationController
     def index
       render json: {
-        data: service.get_debt_letter_details
+        data: service.get_letters(fileNumber: @current_user.ssn).to_json
       }
     end
 
     private
 
     def service
-      DMC::Service.new(@current_user)
+      Debts::Service.new
     end
   end
 end
