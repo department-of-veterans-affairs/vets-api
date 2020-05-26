@@ -34,15 +34,17 @@ module MDOT
     # @return [Faraday::Response] Faraday response instance.
     #
     def get_supplies
-      with_monitoring_and_error_handling do
+      #with_monitoring_and_error_handling do
         raw_response = perform(:get, @supplies, nil, headers)
 
-        MDOT::Response.new(
-          response: raw_response,
-          schema: :supplies,
-          uuid: @user.uuid
-        )
-      end
+        puts "1"
+
+        # MDOT::Response.new(
+        #   response: raw_response,
+        #   schema: :supplies,
+        #   uuid: @user.uuid
+        # )
+      #end
     end
 
     ##
