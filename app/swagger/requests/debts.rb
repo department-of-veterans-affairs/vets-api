@@ -36,13 +36,6 @@ module Swagger
               end
             end
           end
-
-          response 404 do
-            key :description, 'Unable to find any associated debts for the veteran'
-            schema do
-              key :'$ref', :Errors
-            end
-          end
         end
       end
     end
