@@ -3,7 +3,7 @@
 module V0
   class DebtsController < ApplicationController
     def index
-      render json: JSON.parse(service.get_letters(fileNumber: @current_user.ssn).to_json)
+      render json: service.get_letters(fileNumber: @current_user.ssn
     end
 
     private
