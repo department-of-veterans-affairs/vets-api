@@ -1038,6 +1038,25 @@ module Swagger
           response 204, description: "the connected application's grant have been deleted"
         end
       end
+
+      swagger_path '/v0/profile/va_file_number' do
+        operation :get do
+          extend Swagger::Responses::AuthenticationError
+
+          key :description, 'GET VA file number from BGS'
+          key :operationId, 'getVaFileNumber'
+          key :tags, ['profile']
+
+          parameter :authorization
+
+          response 200 do
+            key :description, 'Response is OK'
+            schema do
+              key :'$ref', :VaFileNumber
+            end
+          end
+        end
+      end
     end
   end
 end

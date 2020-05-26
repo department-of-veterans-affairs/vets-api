@@ -10,6 +10,6 @@ class Lighthouse::People::VaFileNumberSerializer < ActiveModel::Serializer
   end
 
   def va_file_number
-    return object[:file_nbr] if object
+    object[:file_nbr]
   end
 end
