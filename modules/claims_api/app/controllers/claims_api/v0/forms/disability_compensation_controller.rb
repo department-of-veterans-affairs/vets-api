@@ -51,7 +51,7 @@ module ClaimsApi
         private
 
         def source_name
-          request.headers['X-Consumer-Username']
+          "Lighthouse-#{request.headers['X-Consumer-Username']}"
         end
       end
     end
