@@ -31,11 +31,7 @@ module V1
       type = params[:type]
       raise Common::Exceptions::RoutingError, params[:path] unless REDIRECT_URLS.include?(type)
 
-      tags = ["context:#{type}", VERSION_TAG]
-      StatsD.increment(STATSD_SSO_NEW_KEY, tags: tags)
-      StatsD.increment(STATSD_SSO_NEW_FORCEAUTH, tags: tags) if force_authn?
-      StatsD.increment(STATSD_SSO_NEW_INBOUND, tags: tags) if inbound_ssoe?
-
+      new_stats(type)
       url = redirect_url(type)
 
       if type == 'slo'
@@ -184,6 +180,13 @@ module V1
       StatsD.increment(STATSD_LOGIN_STATUS, tags: tags + ['status:success'])
       StatsD.measure(STATSD_LOGIN_LATENCY, tracker.age, tags: tags)
       callback_stats(:success, saml_response)
+    end
+
+    def new_stats(type)
+      tags = ["context:#{type}", VERSION_TAG]
+      StatsD.increment(STATSD_SSO_NEW_KEY, tags: tags)
+      StatsD.increment(STATSD_SSO_NEW_FORCEAUTH, tags: tags) if force_authn?
+      StatsD.increment(STATSD_SSO_NEW_INBOUND, tags: tags) if inbound_ssoe?
     end
 
     def login_stats(status, saml_response, user_session_form = nil)
