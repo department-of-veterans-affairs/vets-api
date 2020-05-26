@@ -33,14 +33,10 @@ module V1
 
       StatsD.increment(STATSD_SSO_NEW_KEY,
                        tags: ["context:#{type}", VERSION_TAG])
-      if force_authn?
-        StatsD.increment(STATSD_SSO_NEW_FORCEAUTH,
-                         tags: ["context:#{type}", VERSION_TAG])
-      end
-      if inbound_ssoe?
-        StatsD.increment(STATSD_SSO_NEW_INBOUND,
-                         tags: ["context:#{type}", VERSION_TAG])
-      end
+      StatsD.increment(STATSD_SSO_NEW_FORCEAUTH,
+                       tags: ["context:#{type}", VERSION_TAG]) if force_authn?
+      StatsD.increment(STATSD_SSO_NEW_INBOUND,
+                       tags: ["context:#{type}", VERSION_TAG]) if inbound_ssoe?
       url = redirect_url(type)
 
       if type == 'slo'
