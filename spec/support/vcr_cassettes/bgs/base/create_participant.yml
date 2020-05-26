@@ -21,7 +21,7 @@ http_interactions:
       message: OK
     headers:
       Date:
-      - Thu, 23 Apr 2020 00:07:12 GMT
+      - Tue, 26 May 2020 15:56:16 GMT
       Server:
       - Apache
       X-Frame-Options:
@@ -39,14 +39,20 @@ http_interactions:
         <xsd:import namespace="http://ptcpntService.services.vonapp.vba.va.gov/" schemaLocation="http://linktestbepbenefits.vba.va.gov:80/VnpPtcpntWebServiceBean/VnpPtcpntService?xsd=1"/>
         </xsd:schema>
         </types>
+        <message name="vnpPtcpntFindByPrimaryKey">
+        <part name="parameters" element="tns:vnpPtcpntFindByPrimaryKey"/>
+        </message>
+        <message name="vnpPtcpntFindByPrimaryKeyResponse">
+        <part name="parameters" element="tns:vnpPtcpntFindByPrimaryKeyResponse"/>
+        </message>
+        <message name="MessageFaultException">
+        <part name="fault" element="tns:MessageFaultException"/>
+        </message>
         <message name="vnpPtcpntUpdate">
         <part name="parameters" element="tns:vnpPtcpntUpdate"/>
         </message>
         <message name="vnpPtcpntUpdateResponse">
         <part name="parameters" element="tns:vnpPtcpntUpdateResponse"/>
-        </message>
-        <message name="MessageFaultException">
-        <part name="fault" element="tns:MessageFaultException"/>
         </message>
         <message name="vnpPtcpntCreate">
         <part name="parameters" element="tns:vnpPtcpntCreate"/>
@@ -60,12 +66,6 @@ http_interactions:
         <message name="vnpPtcpntRemoveResponse">
         <part name="parameters" element="tns:vnpPtcpntRemoveResponse"/>
         </message>
-        <message name="vnpPtcpntFindByPrimaryKey">
-        <part name="parameters" element="tns:vnpPtcpntFindByPrimaryKey"/>
-        </message>
-        <message name="vnpPtcpntFindByPrimaryKeyResponse">
-        <part name="parameters" element="tns:vnpPtcpntFindByPrimaryKeyResponse"/>
-        </message>
         <message name="findAllAsArray">
         <part name="parameters" element="tns:findAllAsArray"/>
         </message>
@@ -73,6 +73,11 @@ http_interactions:
         <part name="parameters" element="tns:findAllAsArrayResponse"/>
         </message>
         <portType name="VnpPtcpntService">
+        <operation name="vnpPtcpntFindByPrimaryKey">
+        <input message="tns:vnpPtcpntFindByPrimaryKey"/>
+        <output message="tns:vnpPtcpntFindByPrimaryKeyResponse"/>
+        <fault message="tns:MessageFaultException" name="MessageFaultException"/>
+        </operation>
         <operation name="vnpPtcpntUpdate">
         <input message="tns:vnpPtcpntUpdate"/>
         <output message="tns:vnpPtcpntUpdateResponse"/>
@@ -88,11 +93,6 @@ http_interactions:
         <output message="tns:vnpPtcpntRemoveResponse"/>
         <fault message="tns:MessageFaultException" name="MessageFaultException"/>
         </operation>
-        <operation name="vnpPtcpntFindByPrimaryKey">
-        <input message="tns:vnpPtcpntFindByPrimaryKey"/>
-        <output message="tns:vnpPtcpntFindByPrimaryKeyResponse"/>
-        <fault message="tns:MessageFaultException" name="MessageFaultException"/>
-        </operation>
         <operation name="findAllAsArray">
         <input message="tns:findAllAsArray"/>
         <output message="tns:findAllAsArrayResponse"/>
@@ -101,6 +101,18 @@ http_interactions:
         </portType>
         <binding name="VnpPtcpntServicePortBinding" type="tns:VnpPtcpntService">
         <soap:binding transport="http://schemas.xmlsoap.org/soap/http" style="document"/>
+        <operation name="vnpPtcpntFindByPrimaryKey">
+        <soap:operation soapAction=""/>
+        <input>
+        <soap:body use="literal"/>
+        </input>
+        <output>
+        <soap:body use="literal"/>
+        </output>
+        <fault name="MessageFaultException">
+        <soap:fault name="MessageFaultException" use="literal"/>
+        </fault>
+        </operation>
         <operation name="vnpPtcpntUpdate">
         <soap:operation soapAction=""/>
         <input>
@@ -126,18 +138,6 @@ http_interactions:
         </fault>
         </operation>
         <operation name="vnpPtcpntRemove">
-        <soap:operation soapAction=""/>
-        <input>
-        <soap:body use="literal"/>
-        </input>
-        <output>
-        <soap:body use="literal"/>
-        </output>
-        <fault name="MessageFaultException">
-        <soap:fault name="MessageFaultException" use="literal"/>
-        </fault>
-        </operation>
-        <operation name="vnpPtcpntFindByPrimaryKey">
         <soap:operation soapAction=""/>
         <input>
         <soap:body use="literal"/>
@@ -169,7 +169,7 @@ http_interactions:
         </service>
         </definitions>
     http_version: null
-  recorded_at: Thu, 23 Apr 2020 00:07:12 GMT
+  recorded_at: Tue, 26 May 2020 15:56:17 GMT
 - request:
     method: post
     uri: http://linktestbepbenefits.vba.va.gov/VnpPtcpntWebServiceBean/VnpPtcpntService
@@ -181,14 +181,14 @@ http_interactions:
             <wsse:Username>VAgovAPI</wsse:Username>
           </wsse:UsernameToken>
           <vaws:VaServiceHeaders xmlns:vaws="http://vbawebservices.vba.va.gov/vawss">
-            <vaws:CLIENT_MACHINE>10.0.0.147</vaws:CLIENT_MACHINE>
+            <vaws:CLIENT_MACHINE>192.168.1.239</vaws:CLIENT_MACHINE>
             <vaws:STN_ID>281</vaws:STN_ID>
             <vaws:applicationName>VAgovAPI</vaws:applicationName>
-            <vaws:ExternalUid>58859066071384793</vaws:ExternalUid>
+            <vaws:ExternalUid>42038941470572932</vaws:ExternalUid>
             <vaws:ExternalKey>abraham.lincoln@vets.gov</vaws:ExternalKey>
           </vaws:VaServiceHeaders>
         </wsse:Security>
-        </env:Header><env:Body><tns:vnpPtcpntCreate><arg0><vnpPtcpntId xsi:nil="true"/><vnpProcId>3828033</vnpProcId><fraudInd xsi:nil="true"/><jrnDt>2020-04-23T00:07:11Z</jrnDt><jrnLctnId>281</jrnLctnId><jrnObjId>VAgovAPI</jrnObjId><jrnStatusTypeCd>I</jrnStatusTypeCd><jrnUserId>VAgovAPI</jrnUserId><legacyPoaCd xsi:nil="true"/><miscVendorInd xsi:nil="true"/><ptcpntShortNm xsi:nil="true"/><ptcpntTypeNm>Person</ptcpntTypeNm><taxIdfctnNbr xsi:nil="true"/><tinWaiverReasonTypeCd xsi:nil="true"/><ptcpntFkPtcpntId xsi:nil="true"/><corpPtcpntId xsi:nil="true"/></arg0></tns:vnpPtcpntCreate></env:Body></env:Envelope>
+        </env:Header><env:Body><tns:vnpPtcpntCreate><arg0><vnpPtcpntId xsi:nil="true"/><vnpProcId>3828728</vnpProcId><fraudInd xsi:nil="true"/><jrnDt>2020-05-26T15:56:16Z</jrnDt><jrnLctnId>281</jrnLctnId><jrnObjId>VAgovAPI</jrnObjId><jrnStatusTypeCd>I</jrnStatusTypeCd><jrnUserId>VAgovAPI</jrnUserId><legacyPoaCd xsi:nil="true"/><miscVendorInd xsi:nil="true"/><ptcpntShortNm xsi:nil="true"/><ptcpntTypeNm>Person</ptcpntTypeNm><taxIdfctnNbr xsi:nil="true"/><tinWaiverReasonTypeCd xsi:nil="true"/><ptcpntFkPtcpntId xsi:nil="true"/><corpPtcpntId xsi:nil="true"/></arg0></tns:vnpPtcpntCreate></env:Body></env:Envelope>
     headers:
       Host:
       - ".vba.va.gov"
@@ -197,7 +197,7 @@ http_interactions:
       Content-Type:
       - text/xml;charset=UTF-8
       Content-Length:
-      - '1484'
+      - '1487'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -212,7 +212,7 @@ http_interactions:
       Server:
       - nginx/1.17.9
       Date:
-      - Thu, 23 Apr 2020 00:07:13 GMT
+      - Tue, 26 May 2020 15:56:17 GMT
       Content-Type:
       - text/xml; charset=utf-8
       Content-Length:
@@ -225,7 +225,7 @@ http_interactions:
       encoding: UTF-8
       string: <?xml version='1.0' encoding='UTF-8'?><S:Envelope xmlns:S="http://schemas.xmlsoap.org/soap/envelope/"><S:Header><work:WorkContext
         xmlns:work="http://oracle.com/weblogic/soap/workarea/">rO0ABXdKABR3ZWJsb2dpYy5hcHAudm5wLWVhcgAAANYAAAAjd2VibG9naWMud29ya2FyZWEuU3RyaW5nV29ya0NvbnRleHQABTIuMC44AAA=</work:WorkContext></S:Header><S:Body><ns2:vnpPtcpntCreateResponse
-        xmlns:ns2="http://ptcpntService.services.vonapp.vba.va.gov/"><return><vnpPtcpntId>146189</vnpPtcpntId><vnpProcId>3828033</vnpProcId><fraudInd></fraudInd><jrnDt>2020-04-23T00:07:11Z</jrnDt><jrnLctnId>281</jrnLctnId><jrnObjId>VAgovAPI</jrnObjId><jrnStatusTypeCd>I</jrnStatusTypeCd><jrnUserId>VAgovAPI</jrnUserId><legacyPoaCd></legacyPoaCd><miscVendorInd></miscVendorInd><ptcpntShortNm></ptcpntShortNm><ptcpntTypeNm>Person</ptcpntTypeNm><taxIdfctnNbr></taxIdfctnNbr><tinWaiverReasonTypeCd></tinWaiverReasonTypeCd></return></ns2:vnpPtcpntCreateResponse></S:Body></S:Envelope>
+        xmlns:ns2="http://ptcpntService.services.vonapp.vba.va.gov/"><return><vnpPtcpntId>147891</vnpPtcpntId><vnpProcId>3828728</vnpProcId><fraudInd></fraudInd><jrnDt>2020-05-26T15:56:16Z</jrnDt><jrnLctnId>281</jrnLctnId><jrnObjId>VAgovAPI</jrnObjId><jrnStatusTypeCd>I</jrnStatusTypeCd><jrnUserId>VAgovAPI</jrnUserId><legacyPoaCd></legacyPoaCd><miscVendorInd></miscVendorInd><ptcpntShortNm></ptcpntShortNm><ptcpntTypeNm>Person</ptcpntTypeNm><taxIdfctnNbr></taxIdfctnNbr><tinWaiverReasonTypeCd></tinWaiverReasonTypeCd></return></ns2:vnpPtcpntCreateResponse></S:Body></S:Envelope>
     http_version: null
-  recorded_at: Thu, 23 Apr 2020 00:07:13 GMT
+  recorded_at: Tue, 26 May 2020 15:56:17 GMT
 recorded_with: VCR 5.1.0

@@ -21,7 +21,7 @@ http_interactions:
       message: OK
     headers:
       Date:
-      - Mon, 04 May 2020 13:28:34 GMT
+      - Tue, 26 May 2020 16:31:49 GMT
       Server:
       - Apache
       X-Frame-Options:
@@ -39,20 +39,14 @@ http_interactions:
         <xsd:import namespace="http://childSchoolService.services.vonapp.vba.va.gov/" schemaLocation="http://linktestbepbenefits.vba.va.gov:80/VnpChildSchoolWebServiceBean/VnpChildSchoolService?xsd=1"/>
         </xsd:schema>
         </types>
-        <message name="vnpChildSchoolFindByPrimaryKey">
-        <part name="parameters" element="tns:vnpChildSchoolFindByPrimaryKey"/>
-        </message>
-        <message name="vnpChildSchoolFindByPrimaryKeyResponse">
-        <part name="parameters" element="tns:vnpChildSchoolFindByPrimaryKeyResponse"/>
-        </message>
-        <message name="MessageFaultException">
-        <part name="fault" element="tns:MessageFaultException"/>
-        </message>
         <message name="findAllAsArray">
         <part name="parameters" element="tns:findAllAsArray"/>
         </message>
         <message name="findAllAsArrayResponse">
         <part name="parameters" element="tns:findAllAsArrayResponse"/>
+        </message>
+        <message name="MessageFaultException">
+        <part name="fault" element="tns:MessageFaultException"/>
         </message>
         <message name="vnpChildSchoolUpdate">
         <part name="parameters" element="tns:vnpChildSchoolUpdate"/>
@@ -72,12 +66,13 @@ http_interactions:
         <message name="vnpChildSchoolRemoveResponse">
         <part name="parameters" element="tns:vnpChildSchoolRemoveResponse"/>
         </message>
+        <message name="vnpChildSchoolFindByPrimaryKey">
+        <part name="parameters" element="tns:vnpChildSchoolFindByPrimaryKey"/>
+        </message>
+        <message name="vnpChildSchoolFindByPrimaryKeyResponse">
+        <part name="parameters" element="tns:vnpChildSchoolFindByPrimaryKeyResponse"/>
+        </message>
         <portType name="VnpChildSchoolService">
-        <operation name="vnpChildSchoolFindByPrimaryKey">
-        <input message="tns:vnpChildSchoolFindByPrimaryKey"/>
-        <output message="tns:vnpChildSchoolFindByPrimaryKeyResponse"/>
-        <fault message="tns:MessageFaultException" name="MessageFaultException"/>
-        </operation>
         <operation name="findAllAsArray">
         <input message="tns:findAllAsArray"/>
         <output message="tns:findAllAsArrayResponse"/>
@@ -98,21 +93,14 @@ http_interactions:
         <output message="tns:vnpChildSchoolRemoveResponse"/>
         <fault message="tns:MessageFaultException" name="MessageFaultException"/>
         </operation>
+        <operation name="vnpChildSchoolFindByPrimaryKey">
+        <input message="tns:vnpChildSchoolFindByPrimaryKey"/>
+        <output message="tns:vnpChildSchoolFindByPrimaryKeyResponse"/>
+        <fault message="tns:MessageFaultException" name="MessageFaultException"/>
+        </operation>
         </portType>
         <binding name="VnpChildSchoolServicePortBinding" type="tns:VnpChildSchoolService">
         <soap:binding transport="http://schemas.xmlsoap.org/soap/http" style="document"/>
-        <operation name="vnpChildSchoolFindByPrimaryKey">
-        <soap:operation soapAction=""/>
-        <input>
-        <soap:body use="literal"/>
-        </input>
-        <output>
-        <soap:body use="literal"/>
-        </output>
-        <fault name="MessageFaultException">
-        <soap:fault name="MessageFaultException" use="literal"/>
-        </fault>
-        </operation>
         <operation name="findAllAsArray">
         <soap:operation soapAction=""/>
         <input>
@@ -161,6 +149,18 @@ http_interactions:
         <soap:fault name="MessageFaultException" use="literal"/>
         </fault>
         </operation>
+        <operation name="vnpChildSchoolFindByPrimaryKey">
+        <soap:operation soapAction=""/>
+        <input>
+        <soap:body use="literal"/>
+        </input>
+        <output>
+        <soap:body use="literal"/>
+        </output>
+        <fault name="MessageFaultException">
+        <soap:fault name="MessageFaultException" use="literal"/>
+        </fault>
+        </operation>
         </binding>
         <service name="VnpChildSchoolService">
         <port name="VnpChildSchoolServicePort" binding="tns:VnpChildSchoolServicePortBinding">
@@ -169,7 +169,7 @@ http_interactions:
         </service>
         </definitions>
     http_version: null
-  recorded_at: Mon, 04 May 2020 13:28:35 GMT
+  recorded_at: Tue, 26 May 2020 16:31:49 GMT
 - request:
     method: post
     uri: http://linktestbepbenefits.vba.va.gov/VnpChildSchoolWebServiceBean/VnpChildSchoolService
@@ -181,14 +181,14 @@ http_interactions:
             <wsse:Username>VAgovAPI</wsse:Username>
           </wsse:UsernameToken>
           <vaws:VaServiceHeaders xmlns:vaws="http://vbawebservices.vba.va.gov/vawss">
-            <vaws:CLIENT_MACHINE>192.168.1.43</vaws:CLIENT_MACHINE>
+            <vaws:CLIENT_MACHINE>192.168.1.239</vaws:CLIENT_MACHINE>
             <vaws:STN_ID>281</vaws:STN_ID>
             <vaws:applicationName>VAgovAPI</vaws:applicationName>
-            <vaws:ExternalUid>43487620461178058</vaws:ExternalUid>
+            <vaws:ExternalUid>61872395313085494</vaws:ExternalUid>
             <vaws:ExternalKey>abraham.lincoln@vets.gov</vaws:ExternalKey>
           </vaws:VaServiceHeaders>
         </wsse:Security>
-        </env:Header><env:Body><tns:vnpChildSchoolCreate><arg0><vnpChildSchoolId xsi:nil="true"/><courseNameTxt xsi:nil="true"/><curntHoursPerWkNum>37</curntHoursPerWkNum><curntSchoolAddrsOneTxt>2037 29th St</curntSchoolAddrsOneTxt><curntSchoolAddrsTwoTxt>another line</curntSchoolAddrsTwoTxt><curntSchoolAddrsThreeTxt>Yet another line</curntSchoolAddrsThreeTxt><curntSchoolAddrsZipNbr>61201</curntSchoolAddrsZipNbr><curntSchoolNm>My Great School</curntSchoolNm><curntSchoolPostalCd xsi:nil="true"/><curntSessnsPerWkNum>4</curntSessnsPerWkNum><currentEduInstnPtcpntId xsi:nil="true"/><fullTimeStudntTypeCd xsi:nil="true"/><gradtnDt>2023-03-03</gradtnDt><jrnDt>2020-05-04T13:28:34Z</jrnDt><jrnLctnId>281</jrnLctnId><jrnObjId>VAgovAPI</jrnObjId><jrnStatusTypeCd>U</jrnStatusTypeCd><jrnUserId>VAgovAPI</jrnUserId><lastTermEndDt>2017-04-05</lastTermEndDt><lastTermEnrlmtInd xsi:nil="true"/><lastTermStartDt>2016-03-04</lastTermStartDt><partTimeSchoolSubjctTxt xsi:nil="true"/><prevHoursPerWkNum>40</prevHoursPerWkNum><prevSchoolAddrsOneTxt>2037 29th St</prevSchoolAddrsOneTxt><prevSchoolAddrsTwoTxt xsi:nil="true"/><prevSchoolAddrsThreeTxt xsi:nil="true"/><prevSchoolAddrsZipNbr>61201</prevSchoolAddrsZipNbr><prevSchoolNm>Another Amazing School</prevSchoolNm><prevSchoolPostalCd xsi:nil="true"/><prevSessnsPerWkNum>4</prevSessnsPerWkNum><rmks xsi:nil="true"/><schoolActualExpctdStartDt xsi:nil="true"/><schoolTermStartDt>2019-03-05</schoolTermStartDt><vnpPtcpntId>146189</vnpPtcpntId><vnpProcId>3828033</vnpProcId><prevEduInstnPtcpntId xsi:nil="true"/><prevSchoolCityNm>Rock Island</prevSchoolCityNm><prevSchoolCntryNm>USA</prevSchoolCntryNm><curntSchoolCityNm>Rock Island</curntSchoolCityNm><curntSchoolCntryNm>USA</curntSchoolCntryNm><prevMltyPostalTypCd xsi:nil="true"/><prevMltyPostOfficeTypCd xsi:nil="true"/><prevFrgnPostalCd xsi:nil="true"/><curntMltyPostalTypCd xsi:nil="true"/><curntMltyPostOfficeTypCd xsi:nil="true"/><curntForgnPostalCd xsi:nil="true"/></arg0></tns:vnpChildSchoolCreate></env:Body></env:Envelope>
+        </env:Header><env:Body><tns:vnpChildSchoolCreate><arg0><vnpChildSchoolId xsi:nil="true"/><courseNameTxt>An amazing program</courseNameTxt><curntHoursPerWkNum>37</curntHoursPerWkNum><curntSchoolAddrsOneTxt>2037 29th St</curntSchoolAddrsOneTxt><curntSchoolAddrsTwoTxt>another line</curntSchoolAddrsTwoTxt><curntSchoolAddrsThreeTxt>Yet another line</curntSchoolAddrsThreeTxt><curntSchoolAddrsZipNbr>61201</curntSchoolAddrsZipNbr><curntSchoolNm>My Great School</curntSchoolNm><curntSchoolPostalCd>AR</curntSchoolPostalCd><curntSessnsPerWkNum>4</curntSessnsPerWkNum><currentEduInstnPtcpntId xsi:nil="true"/><fullTimeStudntTypeCd xsi:nil="true"/><gradtnDt>2023-03-03</gradtnDt><jrnDt>2020-05-26T16:31:48Z</jrnDt><jrnLctnId>281</jrnLctnId><jrnObjId>VAgovAPI</jrnObjId><jrnStatusTypeCd>U</jrnStatusTypeCd><jrnUserId>VAgovAPI</jrnUserId><lastTermEndDt>2017-04-05</lastTermEndDt><lastTermEnrlmtInd xsi:nil="true"/><lastTermStartDt>2016-03-04</lastTermStartDt><partTimeSchoolSubjctTxt xsi:nil="true"/><prevHoursPerWkNum>40</prevHoursPerWkNum><prevSchoolAddrsOneTxt>2037 29th St</prevSchoolAddrsOneTxt><prevSchoolAddrsTwoTxt xsi:nil="true"/><prevSchoolAddrsThreeTxt xsi:nil="true"/><prevSchoolAddrsZipNbr>61201</prevSchoolAddrsZipNbr><prevSchoolNm>Another Amazing School</prevSchoolNm><prevSchoolPostalCd>AR</prevSchoolPostalCd><prevSessnsPerWkNum>4</prevSessnsPerWkNum><rmks xsi:nil="true"/><schoolActualExpctdStartDt>2019-03-03</schoolActualExpctdStartDt><schoolTermStartDt>2019-03-05</schoolTermStartDt><vnpPtcpntId>147891</vnpPtcpntId><vnpProcId>3828728</vnpProcId><prevEduInstnPtcpntId xsi:nil="true"/><prevSchoolCityNm>Rock Island</prevSchoolCityNm><prevSchoolCntryNm>USA</prevSchoolCntryNm><curntSchoolCityNm>Rock Island</curntSchoolCityNm><curntSchoolCntryNm>USA</curntSchoolCntryNm><prevMltyPostalTypCd xsi:nil="true"/><prevMltyPostOfficeTypCd xsi:nil="true"/><prevFrgnPostalCd xsi:nil="true"/><curntMltyPostalTypCd xsi:nil="true"/><curntMltyPostOfficeTypCd xsi:nil="true"/><curntForgnPostalCd xsi:nil="true"/></arg0></tns:vnpChildSchoolCreate></env:Body></env:Envelope>
     headers:
       Host:
       - ".vba.va.gov"
@@ -197,7 +197,7 @@ http_interactions:
       Content-Type:
       - text/xml;charset=UTF-8
       Content-Length:
-      - '2897'
+      - '2953'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -212,11 +212,11 @@ http_interactions:
       Server:
       - nginx/1.17.9
       Date:
-      - Mon, 04 May 2020 13:28:35 GMT
+      - Tue, 26 May 2020 16:31:50 GMT
       Content-Type:
       - text/xml; charset=utf-8
       Content-Length:
-      - '2431'
+      - '2533'
       Connection:
       - keep-alive
       X-Frame-Options:
@@ -225,14 +225,15 @@ http_interactions:
       encoding: UTF-8
       string: <?xml version='1.0' encoding='UTF-8'?><S:Envelope xmlns:S="http://schemas.xmlsoap.org/soap/envelope/"><S:Header><work:WorkContext
         xmlns:work="http://oracle.com/weblogic/soap/workarea/">rO0ABXdKABR3ZWJsb2dpYy5hcHAudm5wLWVhcgAAANYAAAAjd2VibG9naWMud29ya2FyZWEuU3RyaW5nV29ya0NvbnRleHQABTIuMC44AAA=</work:WorkContext></S:Header><S:Body><ns2:vnpChildSchoolCreateResponse
-        xmlns:ns2="http://childSchoolService.services.vonapp.vba.va.gov/"><return><vnpChildSchoolId>21901</vnpChildSchoolId><courseNameTxt></courseNameTxt><curntHoursPerWkNum>37</curntHoursPerWkNum><curntSchoolAddrsOneTxt>2037
+        xmlns:ns2="http://childSchoolService.services.vonapp.vba.va.gov/"><return><vnpChildSchoolId>22220</vnpChildSchoolId><courseNameTxt>An
+        amazing program</courseNameTxt><curntHoursPerWkNum>37</curntHoursPerWkNum><curntSchoolAddrsOneTxt>2037
         29th St</curntSchoolAddrsOneTxt><curntSchoolAddrsThreeTxt>Yet another line</curntSchoolAddrsThreeTxt><curntSchoolAddrsTwoTxt>another
         line</curntSchoolAddrsTwoTxt><curntSchoolAddrsZipNbr>61201</curntSchoolAddrsZipNbr><curntSchoolNm>My
-        Great School</curntSchoolNm><curntSchoolPostalCd></curntSchoolPostalCd><curntSessnsPerWkNum>4</curntSessnsPerWkNum><fullTimeStudntTypeCd></fullTimeStudntTypeCd><gradtnDt>2023-03-03T00:00:00-06:00</gradtnDt><jrnDt>2020-05-04T13:28:34Z</jrnDt><jrnLctnId>281</jrnLctnId><jrnObjId>VAgovAPI</jrnObjId><jrnStatusTypeCd>U</jrnStatusTypeCd><jrnUserId>VAgovAPI</jrnUserId><lastTermEndDt>2017-04-05T00:00:00-05:00</lastTermEndDt><lastTermEnrlmtInd></lastTermEnrlmtInd><lastTermStartDt>2016-03-04T00:00:00-06:00</lastTermStartDt><partTimeSchoolSubjctTxt></partTimeSchoolSubjctTxt><prevHoursPerWkNum>40</prevHoursPerWkNum><prevSchoolAddrsOneTxt>2037
+        Great School</curntSchoolNm><curntSchoolPostalCd>AR</curntSchoolPostalCd><curntSessnsPerWkNum>4</curntSessnsPerWkNum><fullTimeStudntTypeCd></fullTimeStudntTypeCd><gradtnDt>2023-03-03T00:00:00-06:00</gradtnDt><jrnDt>2020-05-26T16:31:48Z</jrnDt><jrnLctnId>281</jrnLctnId><jrnObjId>VAgovAPI</jrnObjId><jrnStatusTypeCd>U</jrnStatusTypeCd><jrnUserId>VAgovAPI</jrnUserId><lastTermEndDt>2017-04-05T00:00:00-05:00</lastTermEndDt><lastTermEnrlmtInd></lastTermEnrlmtInd><lastTermStartDt>2016-03-04T00:00:00-06:00</lastTermStartDt><partTimeSchoolSubjctTxt></partTimeSchoolSubjctTxt><prevHoursPerWkNum>40</prevHoursPerWkNum><prevSchoolAddrsOneTxt>2037
         29th St</prevSchoolAddrsOneTxt><prevSchoolAddrsThreeTxt></prevSchoolAddrsThreeTxt><prevSchoolAddrsTwoTxt></prevSchoolAddrsTwoTxt><prevSchoolAddrsZipNbr>61201</prevSchoolAddrsZipNbr><prevSchoolNm>Another
-        Amazing School</prevSchoolNm><prevSchoolPostalCd></prevSchoolPostalCd><prevSessnsPerWkNum>4</prevSessnsPerWkNum><rmks></rmks><schoolTermStartDt>2019-03-05T00:00:00-06:00</schoolTermStartDt><vnpPtcpntId>146189</vnpPtcpntId><vnpProcId>3828033</vnpProcId><prevSchoolCityNm>Rock
+        Amazing School</prevSchoolNm><prevSchoolPostalCd>AR</prevSchoolPostalCd><prevSessnsPerWkNum>4</prevSessnsPerWkNum><rmks></rmks><schoolActualExpctdStartDt>2019-03-03T00:00:00-06:00</schoolActualExpctdStartDt><schoolTermStartDt>2019-03-05T00:00:00-06:00</schoolTermStartDt><vnpPtcpntId>147891</vnpPtcpntId><vnpProcId>3828728</vnpProcId><prevSchoolCityNm>Rock
         Island</prevSchoolCityNm><prevSchoolCntryNm>USA</prevSchoolCntryNm><curntSchoolCityNm>Rock
         Island</curntSchoolCityNm><curntSchoolCntryNm>USA</curntSchoolCntryNm><prevMltyPostalTypCd></prevMltyPostalTypCd><prevMltyPostOfficeTypCd></prevMltyPostOfficeTypCd><prevFrgnPostalCd></prevFrgnPostalCd><curntMltyPostalTypCd></curntMltyPostalTypCd><curntMltyPostOfficeTypCd></curntMltyPostOfficeTypCd><curntForgnPostalCd></curntForgnPostalCd></return></ns2:vnpChildSchoolCreateResponse></S:Body></S:Envelope>
     http_version: null
-  recorded_at: Mon, 04 May 2020 13:28:35 GMT
+  recorded_at: Tue, 26 May 2020 16:31:50 GMT
 recorded_with: VCR 5.1.0

@@ -21,7 +21,7 @@ http_interactions:
       message: OK
     headers:
       Date:
-      - Thu, 23 Apr 2020 00:41:08 GMT
+      - Tue, 26 May 2020 16:01:44 GMT
       Server:
       - Apache
       X-Frame-Options:
@@ -169,7 +169,7 @@ http_interactions:
         </service>
         </definitions>
     http_version: null
-  recorded_at: Thu, 23 Apr 2020 00:41:08 GMT
+  recorded_at: Tue, 26 May 2020 16:01:44 GMT
 - request:
     method: post
     uri: http://linktestbepbenefits.vba.va.gov/VnpPtcpntPhoneWebServiceBean/VnpPtcpntPhoneService
@@ -181,14 +181,14 @@ http_interactions:
             <wsse:Username>VAgovAPI</wsse:Username>
           </wsse:UsernameToken>
           <vaws:VaServiceHeaders xmlns:vaws="http://vbawebservices.vba.va.gov/vawss">
-            <vaws:CLIENT_MACHINE>10.0.0.147</vaws:CLIENT_MACHINE>
+            <vaws:CLIENT_MACHINE>192.168.1.239</vaws:CLIENT_MACHINE>
             <vaws:STN_ID>281</vaws:STN_ID>
             <vaws:applicationName>VAgovAPI</vaws:applicationName>
-            <vaws:ExternalUid>76930593167944976</vaws:ExternalUid>
+            <vaws:ExternalUid>45704509033182159</vaws:ExternalUid>
             <vaws:ExternalKey>abraham.lincoln@vets.gov</vaws:ExternalKey>
           </vaws:VaServiceHeaders>
         </wsse:Security>
-        </env:Header><env:Body><tns:vnpPtcpntPhoneCreate><arg0><vnpPtcpntPhoneId xsi:nil="true"/><vnpProcId>3828033</vnpProcId><vnpPtcpntId>146189</vnpPtcpntId><phoneTypeNm>Nighttime</phoneTypeNm><phoneNbr>5555555555</phoneNbr><efctvDt>2020-04-23T00:41:07Z</efctvDt><endDt xsi:nil="true"/><areaNbr xsi:nil="true"/><cntryNbr xsi:nil="true"/><frgnPhoneRfrncTxt xsi:nil="true"/><extnsnNbr xsi:nil="true"/><jrnDt>2020-04-23T00:41:07Z</jrnDt><jrnLctnId>281</jrnLctnId><jrnUserId>VAgovAPI</jrnUserId><jrnStatusTypeCd>U</jrnStatusTypeCd><jrnObjId>VAgovAPI</jrnObjId></arg0></tns:vnpPtcpntPhoneCreate></env:Body></env:Envelope>
+        </env:Header><env:Body><tns:vnpPtcpntPhoneCreate><arg0><vnpPtcpntPhoneId xsi:nil="true"/><vnpProcId>3828728</vnpProcId><vnpPtcpntId>147891</vnpPtcpntId><phoneTypeNm>Daytime</phoneTypeNm><phoneNbr>5555555555</phoneNbr><efctvDt>2020-05-26T16:01:43Z</efctvDt><endDt xsi:nil="true"/><areaNbr xsi:nil="true"/><cntryNbr xsi:nil="true"/><frgnPhoneRfrncTxt xsi:nil="true"/><extnsnNbr xsi:nil="true"/><jrnDt>2020-05-26T16:01:43Z</jrnDt><jrnLctnId>281</jrnLctnId><jrnUserId>VAgovAPI</jrnUserId><jrnStatusTypeCd>U</jrnStatusTypeCd><jrnObjId>VAgovAPI</jrnObjId></arg0></tns:vnpPtcpntPhoneCreate></env:Body></env:Envelope>
     headers:
       Host:
       - ".vba.va.gov"
@@ -197,7 +197,7 @@ http_interactions:
       Content-Type:
       - text/xml;charset=UTF-8
       Content-Length:
-      - '1494'
+      - '1495'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -212,11 +212,11 @@ http_interactions:
       Server:
       - nginx/1.17.9
       Date:
-      - Thu, 23 Apr 2020 00:41:09 GMT
+      - Tue, 26 May 2020 16:01:45 GMT
       Content-Type:
       - text/xml; charset=utf-8
       Content-Length:
-      - '975'
+      - '973'
       Connection:
       - keep-alive
       X-Frame-Options:
@@ -225,7 +225,7 @@ http_interactions:
       encoding: UTF-8
       string: <?xml version='1.0' encoding='UTF-8'?><S:Envelope xmlns:S="http://schemas.xmlsoap.org/soap/envelope/"><S:Header><work:WorkContext
         xmlns:work="http://oracle.com/weblogic/soap/workarea/">rO0ABXdKABR3ZWJsb2dpYy5hcHAudm5wLWVhcgAAANYAAAAjd2VibG9naWMud29ya2FyZWEuU3RyaW5nV29ya0NvbnRleHQABTIuMC44AAA=</work:WorkContext></S:Header><S:Body><ns2:vnpPtcpntPhoneCreateResponse
-        xmlns:ns2="http://ptcpntPhoneService.services.vonapp.vba.va.gov/"><return><vnpPtcpntPhoneId>75601</vnpPtcpntPhoneId><vnpProcId>3828033</vnpProcId><vnpPtcpntId>146189</vnpPtcpntId><phoneTypeNm>Nighttime</phoneTypeNm><phoneNbr>5555555555</phoneNbr><efctvDt>2020-04-23T00:41:07Z</efctvDt><areaNbr></areaNbr><cntryNbr></cntryNbr><frgnPhoneRfrncTxt></frgnPhoneRfrncTxt><extnsnNbr></extnsnNbr><jrnDt>2020-04-23T00:41:07Z</jrnDt><jrnLctnId>281</jrnLctnId><jrnUserId>VAgovAPI</jrnUserId><jrnStatusTypeCd>U</jrnStatusTypeCd><jrnObjId>VAgovAPI</jrnObjId></return></ns2:vnpPtcpntPhoneCreateResponse></S:Body></S:Envelope>
+        xmlns:ns2="http://ptcpntPhoneService.services.vonapp.vba.va.gov/"><return><vnpPtcpntPhoneId>76281</vnpPtcpntPhoneId><vnpProcId>3828728</vnpProcId><vnpPtcpntId>147891</vnpPtcpntId><phoneTypeNm>Daytime</phoneTypeNm><phoneNbr>5555555555</phoneNbr><efctvDt>2020-05-26T16:01:43Z</efctvDt><areaNbr></areaNbr><cntryNbr></cntryNbr><frgnPhoneRfrncTxt></frgnPhoneRfrncTxt><extnsnNbr></extnsnNbr><jrnDt>2020-05-26T16:01:43Z</jrnDt><jrnLctnId>281</jrnLctnId><jrnUserId>VAgovAPI</jrnUserId><jrnStatusTypeCd>U</jrnStatusTypeCd><jrnObjId>VAgovAPI</jrnObjId></return></ns2:vnpPtcpntPhoneCreateResponse></S:Body></S:Envelope>
     http_version: null
-  recorded_at: Thu, 23 Apr 2020 00:41:09 GMT
+  recorded_at: Tue, 26 May 2020 16:01:45 GMT
 recorded_with: VCR 5.1.0

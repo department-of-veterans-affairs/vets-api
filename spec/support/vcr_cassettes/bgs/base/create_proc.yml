@@ -21,7 +21,7 @@ http_interactions:
       message: OK
     headers:
       Date:
-      - Wed, 22 Apr 2020 23:57:37 GMT
+      - Tue, 26 May 2020 15:49:44 GMT
       Server:
       - Apache
       X-Frame-Options:
@@ -60,17 +60,17 @@ http_interactions:
         <message name="vnpProcRemoveResponse">
         <part name="parameters" element="tns:vnpProcRemoveResponse"/>
         </message>
-        <message name="vnpProcFindByPrimaryKey">
-        <part name="parameters" element="tns:vnpProcFindByPrimaryKey"/>
-        </message>
-        <message name="vnpProcFindByPrimaryKeyResponse">
-        <part name="parameters" element="tns:vnpProcFindByPrimaryKeyResponse"/>
-        </message>
         <message name="findAllAsArray">
         <part name="parameters" element="tns:findAllAsArray"/>
         </message>
         <message name="findAllAsArrayResponse">
         <part name="parameters" element="tns:findAllAsArrayResponse"/>
+        </message>
+        <message name="vnpProcFindByPrimaryKey">
+        <part name="parameters" element="tns:vnpProcFindByPrimaryKey"/>
+        </message>
+        <message name="vnpProcFindByPrimaryKeyResponse">
+        <part name="parameters" element="tns:vnpProcFindByPrimaryKeyResponse"/>
         </message>
         <portType name="VnpProcServiceV2">
         <operation name="vnpProcUpdate">
@@ -88,14 +88,14 @@ http_interactions:
         <output message="tns:vnpProcRemoveResponse"/>
         <fault message="tns:MessageFaultException" name="MessageFaultException"/>
         </operation>
-        <operation name="vnpProcFindByPrimaryKey">
-        <input message="tns:vnpProcFindByPrimaryKey"/>
-        <output message="tns:vnpProcFindByPrimaryKeyResponse"/>
-        <fault message="tns:MessageFaultException" name="MessageFaultException"/>
-        </operation>
         <operation name="findAllAsArray">
         <input message="tns:findAllAsArray"/>
         <output message="tns:findAllAsArrayResponse"/>
+        <fault message="tns:MessageFaultException" name="MessageFaultException"/>
+        </operation>
+        <operation name="vnpProcFindByPrimaryKey">
+        <input message="tns:vnpProcFindByPrimaryKey"/>
+        <output message="tns:vnpProcFindByPrimaryKeyResponse"/>
         <fault message="tns:MessageFaultException" name="MessageFaultException"/>
         </operation>
         </portType>
@@ -137,7 +137,7 @@ http_interactions:
         <soap:fault name="MessageFaultException" use="literal"/>
         </fault>
         </operation>
-        <operation name="vnpProcFindByPrimaryKey">
+        <operation name="findAllAsArray">
         <soap:operation soapAction=""/>
         <input>
         <soap:body use="literal"/>
@@ -149,7 +149,7 @@ http_interactions:
         <soap:fault name="MessageFaultException" use="literal"/>
         </fault>
         </operation>
-        <operation name="findAllAsArray">
+        <operation name="vnpProcFindByPrimaryKey">
         <soap:operation soapAction=""/>
         <input>
         <soap:body use="literal"/>
@@ -169,7 +169,7 @@ http_interactions:
         </service>
         </definitions>
     http_version: null
-  recorded_at: Wed, 22 Apr 2020 23:57:37 GMT
+  recorded_at: Tue, 26 May 2020 15:49:44 GMT
 - request:
     method: post
     uri: http://linktestbepbenefits.vba.va.gov/VnpProcWebServiceBeanV2/VnpProcServiceV2
@@ -181,14 +181,14 @@ http_interactions:
             <wsse:Username>VAgovAPI</wsse:Username>
           </wsse:UsernameToken>
           <vaws:VaServiceHeaders xmlns:vaws="http://vbawebservices.vba.va.gov/vawss">
-            <vaws:CLIENT_MACHINE>10.0.0.147</vaws:CLIENT_MACHINE>
+            <vaws:CLIENT_MACHINE>192.168.1.239</vaws:CLIENT_MACHINE>
             <vaws:STN_ID>281</vaws:STN_ID>
             <vaws:applicationName>VAgovAPI</vaws:applicationName>
-            <vaws:ExternalUid>94553017132895740</vaws:ExternalUid>
+            <vaws:ExternalUid>57032208033644470</vaws:ExternalUid>
             <vaws:ExternalKey>abraham.lincoln@vets.gov</vaws:ExternalKey>
           </vaws:VaServiceHeaders>
         </wsse:Security>
-        </env:Header><env:Body><tns:vnpProcCreate><arg0><vnpProcId xsi:nil="true"/><vnpProcTypeCd>DEPCHG</vnpProcTypeCd><vnpProcStateTypeCd xsi:nil="true"/><creatdDt xsi:nil="true"/><lastModifdDt xsi:nil="true"/><jrnDt>2020-04-22T23:57:36Z</jrnDt><jrnLctnId>281</jrnLctnId><jrnStatusTypeCd>U</jrnStatusTypeCd><jrnUserId>VAgovAPI</jrnUserId><jrnObjId>VAgovAPI</jrnObjId><submtdDt xsi:nil="true"/><applcnFormExprtnDt xsi:nil="true"/></arg0></tns:vnpProcCreate></env:Body></env:Envelope>
+        </env:Header><env:Body><tns:vnpProcCreate><arg0><vnpProcId xsi:nil="true"/><vnpProcTypeCd>DEPCHG</vnpProcTypeCd><vnpProcStateTypeCd xsi:nil="true"/><creatdDt xsi:nil="true"/><lastModifdDt xsi:nil="true"/><jrnDt>2020-05-26T15:49:43Z</jrnDt><jrnLctnId>281</jrnLctnId><jrnStatusTypeCd>U</jrnStatusTypeCd><jrnUserId>VAgovAPI</jrnUserId><jrnObjId>VAgovAPI</jrnObjId><submtdDt xsi:nil="true"/><applcnFormExprtnDt xsi:nil="true"/></arg0></tns:vnpProcCreate></env:Body></env:Envelope>
     headers:
       Host:
       - ".vba.va.gov"
@@ -197,7 +197,7 @@ http_interactions:
       Content-Type:
       - text/xml;charset=UTF-8
       Content-Length:
-      - '1355'
+      - '1358'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -212,7 +212,7 @@ http_interactions:
       Server:
       - nginx/1.17.9
       Date:
-      - Wed, 22 Apr 2020 23:57:38 GMT
+      - Tue, 26 May 2020 15:49:45 GMT
       Content-Type:
       - text/xml; charset=utf-8
       Content-Length:
@@ -225,7 +225,7 @@ http_interactions:
       encoding: UTF-8
       string: <?xml version='1.0' encoding='UTF-8'?><S:Envelope xmlns:S="http://schemas.xmlsoap.org/soap/envelope/"><S:Header><work:WorkContext
         xmlns:work="http://oracle.com/weblogic/soap/workarea/">rO0ABXdKABR3ZWJsb2dpYy5hcHAudm5wLWVhcgAAANYAAAAjd2VibG9naWMud29ya2FyZWEuU3RyaW5nV29ya0NvbnRleHQABTIuMC44AAA=</work:WorkContext></S:Header><S:Body><ns2:vnpProcCreateResponse
-        xmlns:ns2="http://procService.services.v2.vonapp.vba.va.gov/"><return><vnpProcId>3828044</vnpProcId><vnpProcTypeCd>DEPCHG</vnpProcTypeCd><vnpProcStateTypeCd></vnpProcStateTypeCd><jrnDt>2020-04-22T23:57:36Z</jrnDt><jrnLctnId>281</jrnLctnId><jrnStatusTypeCd>U</jrnStatusTypeCd><jrnUserId>VAgovAPI</jrnUserId><jrnObjId>VAgovAPI</jrnObjId></return></ns2:vnpProcCreateResponse></S:Body></S:Envelope>
+        xmlns:ns2="http://procService.services.v2.vonapp.vba.va.gov/"><return><vnpProcId>3828728</vnpProcId><vnpProcTypeCd>DEPCHG</vnpProcTypeCd><vnpProcStateTypeCd></vnpProcStateTypeCd><jrnDt>2020-05-26T15:49:43Z</jrnDt><jrnLctnId>281</jrnLctnId><jrnStatusTypeCd>U</jrnStatusTypeCd><jrnUserId>VAgovAPI</jrnUserId><jrnObjId>VAgovAPI</jrnObjId></return></ns2:vnpProcCreateResponse></S:Body></S:Envelope>
     http_version: null
-  recorded_at: Wed, 22 Apr 2020 23:57:38 GMT
+  recorded_at: Tue, 26 May 2020 15:49:45 GMT
 recorded_with: VCR 5.1.0

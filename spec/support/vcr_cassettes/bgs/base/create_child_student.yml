@@ -21,7 +21,7 @@ http_interactions:
       message: OK
     headers:
       Date:
-      - Mon, 04 May 2020 15:26:17 GMT
+      - Tue, 26 May 2020 16:33:30 GMT
       Server:
       - Apache
       X-Frame-Options:
@@ -39,32 +39,14 @@ http_interactions:
         <xsd:import namespace="http://childStudentService.services.vonapp.vba.va.gov/" schemaLocation="http://linktestbepbenefits.vba.va.gov:80/VnpChildStudentWebServiceBean/VnpChildStudentService?xsd=1"/>
         </xsd:schema>
         </types>
-        <message name="vnpChildStudentUpdate">
-        <part name="parameters" element="tns:vnpChildStudentUpdate"/>
-        </message>
-        <message name="vnpChildStudentUpdateResponse">
-        <part name="parameters" element="tns:vnpChildStudentUpdateResponse"/>
-        </message>
-        <message name="MessageFaultException">
-        <part name="fault" element="tns:MessageFaultException"/>
-        </message>
-        <message name="vnpChildStudentCreate">
-        <part name="parameters" element="tns:vnpChildStudentCreate"/>
-        </message>
-        <message name="vnpChildStudentCreateResponse">
-        <part name="parameters" element="tns:vnpChildStudentCreateResponse"/>
-        </message>
-        <message name="vnpChildStudentRemove">
-        <part name="parameters" element="tns:vnpChildStudentRemove"/>
-        </message>
-        <message name="vnpChildStudentRemoveResponse">
-        <part name="parameters" element="tns:vnpChildStudentRemoveResponse"/>
-        </message>
         <message name="findAllAsVnpChildStudntArray">
         <part name="parameters" element="tns:findAllAsVnpChildStudntArray"/>
         </message>
         <message name="findAllAsVnpChildStudntArrayResponse">
         <part name="parameters" element="tns:findAllAsVnpChildStudntArrayResponse"/>
+        </message>
+        <message name="MessageFaultException">
+        <part name="fault" element="tns:MessageFaultException"/>
         </message>
         <message name="vnpChildStudentFindByPrimaryKey">
         <part name="parameters" element="tns:vnpChildStudentFindByPrimaryKey"/>
@@ -72,22 +54,25 @@ http_interactions:
         <message name="vnpChildStudentFindByPrimaryKeyResponse">
         <part name="parameters" element="tns:vnpChildStudentFindByPrimaryKeyResponse"/>
         </message>
+        <message name="vnpChildStudentCreate">
+        <part name="parameters" element="tns:vnpChildStudentCreate"/>
+        </message>
+        <message name="vnpChildStudentCreateResponse">
+        <part name="parameters" element="tns:vnpChildStudentCreateResponse"/>
+        </message>
+        <message name="vnpChildStudentUpdate">
+        <part name="parameters" element="tns:vnpChildStudentUpdate"/>
+        </message>
+        <message name="vnpChildStudentUpdateResponse">
+        <part name="parameters" element="tns:vnpChildStudentUpdateResponse"/>
+        </message>
+        <message name="vnpChildStudentRemove">
+        <part name="parameters" element="tns:vnpChildStudentRemove"/>
+        </message>
+        <message name="vnpChildStudentRemoveResponse">
+        <part name="parameters" element="tns:vnpChildStudentRemoveResponse"/>
+        </message>
         <portType name="VnpChildStudentService">
-        <operation name="vnpChildStudentUpdate">
-        <input message="tns:vnpChildStudentUpdate"/>
-        <output message="tns:vnpChildStudentUpdateResponse"/>
-        <fault message="tns:MessageFaultException" name="MessageFaultException"/>
-        </operation>
-        <operation name="vnpChildStudentCreate">
-        <input message="tns:vnpChildStudentCreate"/>
-        <output message="tns:vnpChildStudentCreateResponse"/>
-        <fault message="tns:MessageFaultException" name="MessageFaultException"/>
-        </operation>
-        <operation name="vnpChildStudentRemove">
-        <input message="tns:vnpChildStudentRemove"/>
-        <output message="tns:vnpChildStudentRemoveResponse"/>
-        <fault message="tns:MessageFaultException" name="MessageFaultException"/>
-        </operation>
         <operation name="findAllAsVnpChildStudntArray">
         <input message="tns:findAllAsVnpChildStudntArray"/>
         <output message="tns:findAllAsVnpChildStudntArrayResponse"/>
@@ -98,10 +83,37 @@ http_interactions:
         <output message="tns:vnpChildStudentFindByPrimaryKeyResponse"/>
         <fault message="tns:MessageFaultException" name="MessageFaultException"/>
         </operation>
+        <operation name="vnpChildStudentCreate">
+        <input message="tns:vnpChildStudentCreate"/>
+        <output message="tns:vnpChildStudentCreateResponse"/>
+        <fault message="tns:MessageFaultException" name="MessageFaultException"/>
+        </operation>
+        <operation name="vnpChildStudentUpdate">
+        <input message="tns:vnpChildStudentUpdate"/>
+        <output message="tns:vnpChildStudentUpdateResponse"/>
+        <fault message="tns:MessageFaultException" name="MessageFaultException"/>
+        </operation>
+        <operation name="vnpChildStudentRemove">
+        <input message="tns:vnpChildStudentRemove"/>
+        <output message="tns:vnpChildStudentRemoveResponse"/>
+        <fault message="tns:MessageFaultException" name="MessageFaultException"/>
+        </operation>
         </portType>
         <binding name="VnpChildStudentServicePortBinding" type="tns:VnpChildStudentService">
         <soap:binding transport="http://schemas.xmlsoap.org/soap/http" style="document"/>
-        <operation name="vnpChildStudentUpdate">
+        <operation name="findAllAsVnpChildStudntArray">
+        <soap:operation soapAction=""/>
+        <input>
+        <soap:body use="literal"/>
+        </input>
+        <output>
+        <soap:body use="literal"/>
+        </output>
+        <fault name="MessageFaultException">
+        <soap:fault name="MessageFaultException" use="literal"/>
+        </fault>
+        </operation>
+        <operation name="vnpChildStudentFindByPrimaryKey">
         <soap:operation soapAction=""/>
         <input>
         <soap:body use="literal"/>
@@ -125,31 +137,19 @@ http_interactions:
         <soap:fault name="MessageFaultException" use="literal"/>
         </fault>
         </operation>
+        <operation name="vnpChildStudentUpdate">
+        <soap:operation soapAction=""/>
+        <input>
+        <soap:body use="literal"/>
+        </input>
+        <output>
+        <soap:body use="literal"/>
+        </output>
+        <fault name="MessageFaultException">
+        <soap:fault name="MessageFaultException" use="literal"/>
+        </fault>
+        </operation>
         <operation name="vnpChildStudentRemove">
-        <soap:operation soapAction=""/>
-        <input>
-        <soap:body use="literal"/>
-        </input>
-        <output>
-        <soap:body use="literal"/>
-        </output>
-        <fault name="MessageFaultException">
-        <soap:fault name="MessageFaultException" use="literal"/>
-        </fault>
-        </operation>
-        <operation name="findAllAsVnpChildStudntArray">
-        <soap:operation soapAction=""/>
-        <input>
-        <soap:body use="literal"/>
-        </input>
-        <output>
-        <soap:body use="literal"/>
-        </output>
-        <fault name="MessageFaultException">
-        <soap:fault name="MessageFaultException" use="literal"/>
-        </fault>
-        </operation>
-        <operation name="vnpChildStudentFindByPrimaryKey">
         <soap:operation soapAction=""/>
         <input>
         <soap:body use="literal"/>
@@ -169,7 +169,7 @@ http_interactions:
         </service>
         </definitions>
     http_version: null
-  recorded_at: Mon, 04 May 2020 15:26:17 GMT
+  recorded_at: Tue, 26 May 2020 16:33:31 GMT
 - request:
     method: post
     uri: http://linktestbepbenefits.vba.va.gov/VnpChildStudentWebServiceBean/VnpChildStudentService
@@ -181,14 +181,14 @@ http_interactions:
             <wsse:Username>VAgovAPI</wsse:Username>
           </wsse:UsernameToken>
           <vaws:VaServiceHeaders xmlns:vaws="http://vbawebservices.vba.va.gov/vawss">
-            <vaws:CLIENT_MACHINE>192.168.1.43</vaws:CLIENT_MACHINE>
+            <vaws:CLIENT_MACHINE>192.168.1.239</vaws:CLIENT_MACHINE>
             <vaws:STN_ID>281</vaws:STN_ID>
             <vaws:applicationName>VAgovAPI</vaws:applicationName>
-            <vaws:ExternalUid>28058329464918143</vaws:ExternalUid>
+            <vaws:ExternalUid>72234314545591162</vaws:ExternalUid>
             <vaws:ExternalKey>abraham.lincoln@vets.gov</vaws:ExternalKey>
           </vaws:VaServiceHeaders>
         </wsse:Security>
-        </env:Header><env:Body><tns:vnpChildStudentCreate><arg0><vnpProcId>3828033</vnpProcId><vnpPtcpntId>146189</vnpPtcpntId><jrnDt>2020-05-04T15:26:16Z</jrnDt><jrnLctnId>281</jrnLctnId><jrnObjId>VAgovAPI</jrnObjId><jrnStatusTypeCd>U</jrnStatusTypeCd><jrnUserId>VAgovAPI</jrnUserId><agencyPayingTuitnNm>Some Agency</agencyPayingTuitnNm><govtPaidTuitnInd>Y</govtPaidTuitnInd><govtPaidTuitnStartDt>2019-02-03</govtPaidTuitnStartDt><marageDt>2015-03-04</marageDt><nextYearAnntyIncomeAmt>3989</nextYearAnntyIncomeAmt><nextYearEmplmtIncomeAmt>12000</nextYearEmplmtIncomeAmt><nextYearOtherIncomeAmt>984</nextYearOtherIncomeAmt><nextYearSsaIncomeAmt>3940</nextYearSsaIncomeAmt><otherAssetAmt>4566</otherAssetAmt><realEstateAmt>5623</realEstateAmt><rmks>Some remarks about the student&#39;s net worth</rmks><savingAmt>3455</savingAmt><stockBondAmt xsi:nil="true"/><termYearAnntyIncomeAmt>30595</termYearAnntyIncomeAmt><termYearEmplmtIncomeAmt>12000</termYearEmplmtIncomeAmt><termYearOtherIncomeAmt>5596</termYearOtherIncomeAmt><termYearSsaIncomeAmt>3453</termYearSsaIncomeAmt></arg0></tns:vnpChildStudentCreate></env:Body></env:Envelope>
+        </env:Header><env:Body><tns:vnpChildStudentCreate><arg0><vnpProcId>3828728</vnpProcId><vnpPtcpntId>147891</vnpPtcpntId><jrnDt>2020-05-26T16:33:30Z</jrnDt><jrnLctnId>281</jrnLctnId><jrnObjId>VAgovAPI</jrnObjId><jrnStatusTypeCd>U</jrnStatusTypeCd><jrnUserId>VAgovAPI</jrnUserId><agencyPayingTuitnNm>Some Agency</agencyPayingTuitnNm><govtPaidTuitnInd>N</govtPaidTuitnInd><govtPaidTuitnStartDt>2019-02-03</govtPaidTuitnStartDt><marageDt>2015-03-04</marageDt><nextYearAnntyIncomeAmt>3989</nextYearAnntyIncomeAmt><nextYearEmplmtIncomeAmt>12000</nextYearEmplmtIncomeAmt><nextYearOtherIncomeAmt>984</nextYearOtherIncomeAmt><nextYearSsaIncomeAmt>3940</nextYearSsaIncomeAmt><otherAssetAmt>4566</otherAssetAmt><realEstateAmt>5623</realEstateAmt><rmks>Some remarks about the student&#39;s net worth</rmks><savingAmt>3455</savingAmt><stockBondAmt>3234</stockBondAmt><termYearAnntyIncomeAmt>30595</termYearAnntyIncomeAmt><termYearEmplmtIncomeAmt>12000</termYearEmplmtIncomeAmt><termYearOtherIncomeAmt>5596</termYearOtherIncomeAmt><termYearSsaIncomeAmt>3453</termYearSsaIncomeAmt></arg0></tns:vnpChildStudentCreate></env:Body></env:Envelope>
     headers:
       Host:
       - ".vba.va.gov"
@@ -197,7 +197,7 @@ http_interactions:
       Content-Type:
       - text/xml;charset=UTF-8
       Content-Length:
-      - '2009'
+      - '2013'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -212,11 +212,11 @@ http_interactions:
       Server:
       - nginx/1.17.9
       Date:
-      - Mon, 04 May 2020 15:26:18 GMT
+      - Tue, 26 May 2020 16:33:31 GMT
       Content-Type:
       - text/xml; charset=utf-8
       Content-Length:
-      - '1510'
+      - '1543'
       Connection:
       - keep-alive
       X-Frame-Options:
@@ -225,9 +225,9 @@ http_interactions:
       encoding: UTF-8
       string: <?xml version='1.0' encoding='UTF-8'?><S:Envelope xmlns:S="http://schemas.xmlsoap.org/soap/envelope/"><S:Header><work:WorkContext
         xmlns:work="http://oracle.com/weblogic/soap/workarea/">rO0ABXdKABR3ZWJsb2dpYy5hcHAudm5wLWVhcgAAANYAAAAjd2VibG9naWMud29ya2FyZWEuU3RyaW5nV29ya0NvbnRleHQABTIuMC44AAA=</work:WorkContext></S:Header><S:Body><ns2:vnpChildStudentCreateResponse
-        xmlns:ns2="http://childStudentService.services.vonapp.vba.va.gov/"><return><vnpPtcpntId>146189</vnpPtcpntId><agencyPayingTuitnNm>Some
-        Agency</agencyPayingTuitnNm><govtPaidTuitnInd>Y</govtPaidTuitnInd><govtPaidTuitnStartDt>2019-02-03T00:00:00-06:00</govtPaidTuitnStartDt><jrnDt>2020-05-04T15:26:16Z</jrnDt><jrnLctnId>281</jrnLctnId><jrnObjId>VAgovAPI</jrnObjId><jrnStatusTypeCd>U</jrnStatusTypeCd><jrnUserId>VAgovAPI</jrnUserId><marageDt>2015-03-04T00:00:00-06:00</marageDt><nextYearAnntyIncomeAmt>3989</nextYearAnntyIncomeAmt><nextYearEmplmtIncomeAmt>12000</nextYearEmplmtIncomeAmt><nextYearOtherIncomeAmt>984</nextYearOtherIncomeAmt><nextYearSsaIncomeAmt>3940</nextYearSsaIncomeAmt><otherAssetAmt>4566</otherAssetAmt><realEstateAmt>5623</realEstateAmt><rmks>Some
-        remarks about the student's net worth</rmks><savingAmt>3455</savingAmt><termYearAnntyIncomeAmt>30595</termYearAnntyIncomeAmt><termYearEmplmtIncomeAmt>12000</termYearEmplmtIncomeAmt><termYearOtherIncomeAmt>5596</termYearOtherIncomeAmt><termYearSsaIncomeAmt>3453</termYearSsaIncomeAmt><vnpProcId>3828033</vnpProcId></return></ns2:vnpChildStudentCreateResponse></S:Body></S:Envelope>
+        xmlns:ns2="http://childStudentService.services.vonapp.vba.va.gov/"><return><vnpPtcpntId>147891</vnpPtcpntId><agencyPayingTuitnNm>Some
+        Agency</agencyPayingTuitnNm><govtPaidTuitnInd>N</govtPaidTuitnInd><govtPaidTuitnStartDt>2019-02-03T00:00:00-06:00</govtPaidTuitnStartDt><jrnDt>2020-05-26T16:33:30Z</jrnDt><jrnLctnId>281</jrnLctnId><jrnObjId>VAgovAPI</jrnObjId><jrnStatusTypeCd>U</jrnStatusTypeCd><jrnUserId>VAgovAPI</jrnUserId><marageDt>2015-03-04T00:00:00-06:00</marageDt><nextYearAnntyIncomeAmt>3989</nextYearAnntyIncomeAmt><nextYearEmplmtIncomeAmt>12000</nextYearEmplmtIncomeAmt><nextYearOtherIncomeAmt>984</nextYearOtherIncomeAmt><nextYearSsaIncomeAmt>3940</nextYearSsaIncomeAmt><otherAssetAmt>4566</otherAssetAmt><realEstateAmt>5623</realEstateAmt><rmks>Some
+        remarks about the student's net worth</rmks><savingAmt>3455</savingAmt><stockBondAmt>3234</stockBondAmt><termYearAnntyIncomeAmt>30595</termYearAnntyIncomeAmt><termYearEmplmtIncomeAmt>12000</termYearEmplmtIncomeAmt><termYearOtherIncomeAmt>5596</termYearOtherIncomeAmt><termYearSsaIncomeAmt>3453</termYearSsaIncomeAmt><vnpProcId>3828728</vnpProcId></return></ns2:vnpChildStudentCreateResponse></S:Body></S:Envelope>
     http_version: null
-  recorded_at: Mon, 04 May 2020 15:26:18 GMT
+  recorded_at: Tue, 26 May 2020 16:33:31 GMT
 recorded_with: VCR 5.1.0

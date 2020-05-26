@@ -130,23 +130,23 @@ module BGS
       service.vnp_ptcpnt_rlnshp.vnp_ptcpnt_rlnshp_create(
         vnp_proc_id: proc_id,
         vnp_ptcpnt_id_a: veteran_participant_id,
-        vnp_ptcpnt_id_b: dependent.vnp_participant_id,
-        ptcpnt_rlnshp_type_nm: dependent.participant_relationship_type_name,
+        vnp_ptcpnt_id_b: dependent[:vnp_participant_id],
+        ptcpnt_rlnshp_type_nm: dependent[:participant_relationship_type_name],
         jrn_dt: Time.current.iso8601,
         jrn_lctn_id: Settings.bgs.client_station_id,
         jrn_obj_id: Settings.bgs.application,
         jrn_status_type_cd: "U",
         jrn_user_id: Settings.bgs.client_username,
-        family_rlnshp_type_nm: dependent.family_relationship_type_name,
-        event_dt: dependent.event_date,
-        begin_dt: dependent.begin_date,
-        end_dt: dependent.end_date,
-        marage_state_cd: dependent.marriage_state, # FE is sending us a full state name. We need code for this
-        marage_city_nm: dependent.marriage_city,
-        marage_trmntn_state_cd: dependent.divorce_state, # dependent.divorce_state this needs to be 2 digit code
-        marage_trmntn_city_nm: dependent.divorce_city,
-        marage_trmntn_type_cd: dependent.marriage_termination_type_code, # dependent.marriage_termination_type_cd, only can have "Death", "Divorce", or "Other"
-        mthly_support_from_vet_amt: dependent.living_expenses_paid_amount,
+        family_rlnshp_type_nm: dependent[:family_relationship_type_name],
+        event_dt: dependent[:event_date],
+        begin_dt: dependent[:begin_date],
+        end_dt: dependent[:end_date],
+        marage_state_cd: dependent[:marriage_state], # FE is sending us a full state name. We need code for this
+        marage_city_nm: dependent[:marriage_city],
+        marage_trmntn_state_cd: dependent[:divorce_state], # dependent.divorce_state this needs to be 2 digit code
+        marage_trmntn_city_nm: dependent[:divorce_city],
+        marage_trmntn_type_cd: dependent[:marriage_termination_type_code], # dependent.marriage_termination_type_cd, only can have "Death", "Divorce", or "Other"
+        mthly_support_from_vet_amt: dependent[:living_expenses_paid_amount],
         ssn: @user.ssn # Just here to make mocks work
       )
     end
@@ -221,30 +221,29 @@ module BGS
       )
     end
 
-    # def create_benefit_claim(proc_id, veteran)
-    #   service.vnp_bnft_claim.vnp_bnft_claim_create(
-    #     vnp_proc_id: proc_id,
-    #     claim_rcvd_dt: Time.current.iso8601,
-    #     jrn_dt: Time.current.iso8601,
-    #     jrn_lctn_id: Settings.bgs.client_station_id,
-    #     jrn_obj_id: Settings.bgs.application,
-    #     jrn_status_type_cd: "U",
-    #     jrn_user_id: Settings.bgs.client_username,
-    #     # not sure what this is. Is this just passed in bc this will be created when we fire this call?
-    #     status_type_cd: "CURR", # this is hard-coded in EVSS
-    #     svc_type_cd: "CP", # this is hard-coded in EVSS
-    #     pgm_type_cd: "COMP", # this is hard-coded in EVSS
-    #     bnft_claim_type_cd: "130DPNEBNADJ", # This has been changed to this value in light of finding the find_benefit_claim_type_increment call 4/22
-    #     ptcpnt_clmant_id: veteran.vnp_participant_id,
-    #     claim_jrsdtn_lctn_id: "335", # Not required but cannot be null all records seem to be in the 300's and the same as the below, default is 335
-    #     intake_jrsdtn_lctn_id: "335", # Not required but cannot be null all records seem to be in the 300's, default is 335
-    #     ptcpnt_mail_addrs_id: veteran.vnp_participant_address_id,
-    #     vnp_ptcpnt_vet_id: veteran.vnp_participant_id,
-    #     atchms_ind: "N", # this needs to be set to Y/N if documents are added/attached
-    #     end_prdct_type_cd: "130DPNEBNADJ",
-    #     ssn: @user.ssn # Just here to make the mocks work
-    #   )
-    # end
+    def create_benefit_claim(proc_id, veteran)
+      service.vnp_bnft_claim.vnp_bnft_claim_create(
+        vnp_proc_id: proc_id,
+        claim_rcvd_dt: Time.current.iso8601,
+        jrn_dt: Time.current.iso8601,
+        jrn_lctn_id: Settings.bgs.client_station_id,
+        jrn_obj_id: Settings.bgs.application,
+        jrn_status_type_cd: "U",
+        jrn_user_id: Settings.bgs.client_username,
+        # not sure what this is. Is this just passed in bc this will be created when we fire this call?
+        status_type_cd: "CURR", # this is hard-coded in EVSS
+        svc_type_cd: "CP", # this is hard-coded in EVSS
+        pgm_type_cd: "COMP", # this is hard-coded in EVSS
+        bnft_claim_type_cd: "130DPNEBNADJ", # This has been changed to this value in light of finding the find_benefit_claim_type_increment call 4/22
+        ptcpnt_clmant_id: veteran[:vnp_participant_id],
+        claim_jrsdtn_lctn_id: "335", # Not required but cannot be null all records seem to be in the 300's and the same as the below, default is 335
+        intake_jrsdtn_lctn_id: "335", # Not required but cannot be null all records seem to be in the 300's, default is 335
+        ptcpnt_mail_addrs_id: veteran[:vnp_participant_address_id],
+        vnp_ptcpnt_vet_id: veteran[:vnp_participant_id],
+        atchms_ind: "N", # this needs to be set to Y/N if documents are added/attached
+        ssn: @user.ssn # Just here to make the mocks work
+      )
+    end
 
     def find_benefit_claim_type_increment
       service.data.find_benefit_claim_type_increment(
@@ -260,58 +259,56 @@ module BGS
     # 'end_product' needs to be unique; end_product_code seems to be the claimTypeCode
     # HEY we were using 796149080 as file_number and ssn to make it work. Changed it to get the mock response working
     # We get "index for PL/SQL table out of range for host" when we try to use the user's ssn in file_number
-    # def insert_benefit_claim(vnp_benefit_claim, veteran)
-    #   service.claims.insert_benefit_claim(
-    #     file_number: veteran.ssn_number, # 796149080 This is not working with file number in the payload or the ssn value getting annot insert NULL into ("CORPPROD"."PERSON"."LAST_NM")
-    #     ssn: veteran.ssn_number, # this is actually needed for the service call Might want to use the payload value
-    #     ptcpnt_id_claimant: @user.participant_id,
-    #     claimant_ssn: veteran.ssn_number,
-    #     benefit_claim_type: "1", # this is intentionally hard coded
-    #     payee: "00", # intentionally left hard-coded
-    #     end_product: veteran.benefit_claim_type_end_product, # must be unique
-    #     end_product_code: vnp_benefit_claim.vnp_benefit_claim_type_code,
-    #     first_name: veteran.first_name, # Might want to use the payload value
-    #     last_name: veteran.last_name, # Might want to use the payload value
-    #     address_line1: veteran.address_line_one,
-    #     address_line2: veteran.address_line_two,
-    #     address_line3: veteran.address_line_three,
-    #     city: veteran.address_city,
-    #     state: veteran.address_state_code,
-    #     postal_code: veteran.address_zip_code,
-    #     email_address: veteran.email_address,
-    #     country: veteran.address_country, # We need the country code for this payload is sending the whole country name
-    #     disposition: "M", # intentionally left hard-coded
-    #     section_unit_no: "335", # "VA office code". Tried location id's from user object, failed. Maybe we'll get it from the FE
-    #     folder_with_claim: "N", # intentionally left hard-coded
-    #     end_product_name: '130 - Automated Dependency 686c', # not sure what this is
-    #     pre_discharge_indicator: "N", # intentionally left hard-coded
-    #     date_of_claim: Time.current.strftime("%m/%d/%Y"),
-    #   )
-    #
-    # rescue StandardError => e
-    # end
+    def insert_benefit_claim(vnp_benefit_claim, veteran)
+      service.claims.insert_benefit_claim(
+        file_number: veteran[:file_number], # 796149080 This is not working with file number in the payload or the ssn value getting annot insert NULL into ("CORPPROD"."PERSON"."LAST_NM")
+        ssn: veteran[:ssn_number], # this is actually needed for the service call Might want to use the payload value
+        ptcpnt_id_claimant: @user.participant_id,
+        claimant_ssn: veteran[:ssn_number],
+        benefit_claim_type: "1", # this is intentionally hard coded
+        payee: "00", # intentionally left hard-coded
+        end_product: veteran[:benefit_claim_type_end_product], # must be unique
+        end_product_code: vnp_benefit_claim[:vnp_benefit_claim_type_code],
+        first_name: veteran[:first_name], # Might want to use the payload value
+        last_name: veteran[:last_name], # Might want to use the payload value
+        address_line1: veteran[:address_line_one],
+        address_line2: veteran[:address_line_two],
+        address_line3: veteran[:address_line_three],
+        city: veteran[:address_city],
+        state: veteran[:address_state_code],
+        postal_code: veteran[:address_zip_code],
+        email_address: veteran[:email_address],
+        country: veteran[:address_country], # We need the country code for this payload is sending the whole country name
+        disposition: "M", # intentionally left hard-coded
+        section_unit_no: "335", # "VA office code". Tried location id's from user object, failed. Maybe we'll get it from the FE
+        folder_with_claim: "N", # intentionally left hard-coded
+        end_product_name: '130 - Automated Dependency 686c', # not sure what this is
+        pre_discharge_indicator: "N", # intentionally left hard-coded
+        date_of_claim: Time.current.strftime("%m/%d/%Y"),
+      )
+    end
 
-    # def vnp_bnft_claim_update(benefit_claim_record, vnp_benefit_claim_record)
-    #   service.vnp_bnft_claim.vnp_bnft_claim_update(
-    #     vnp_proc_id: vnp_benefit_claim_record.vnp_proc_id,
-    #     vnp_bnft_claim_id: vnp_benefit_claim_record.vnp_benefit_claim_id,
-    #     bnft_claim_type_cd: benefit_claim_record.claim_type_code,
-    #     claim_rcvd_dt: Time.current.iso8601,
-    #     jrn_dt: Time.current.iso8601,
-    #     jrn_lctn_id: Settings.bgs.client_station_id,
-    #     jrn_obj_id: Settings.bgs.application,
-    #     jrn_status_type_cd: "U",
-    #     jrn_user_id: Settings.bgs.client_username,
-    #     bnft_claim_id: benefit_claim_record.benefit_claim_id,
-    #     intake_jrsdtn_lctn_id: vnp_benefit_claim_record.intake_jrsdtn_lctn_id,
-    #     claim_jrsdtn_lctn_id: vnp_benefit_claim_record.claim_jrsdtn_lctn_id,
-    #     pgm_type_cd: benefit_claim_record.program_type_code,
-    #     ptcpnt_clmant_id: vnp_benefit_claim_record.participant_claimant_id,
-    #     status_type_cd: benefit_claim_record.status_type_code,
-    #     svc_type_cd: benefit_claim_record.service_type_code,
-    #     ssn: @user.ssn # Just here to make mocks work
-    #   )
-    # end
+    def vnp_bnft_claim_update(benefit_claim_record, vnp_benefit_claim_record)
+      service.vnp_bnft_claim.vnp_bnft_claim_update(
+        vnp_proc_id: vnp_benefit_claim_record[:vnp_proc_id],
+        vnp_bnft_claim_id: vnp_benefit_claim_record[:vnp_benefit_claim_id],
+        bnft_claim_type_cd: benefit_claim_record[:claim_type_code],
+        claim_rcvd_dt: Time.current.iso8601,
+        jrn_dt: Time.current.iso8601,
+        jrn_lctn_id: Settings.bgs.client_station_id,
+        jrn_obj_id: Settings.bgs.application,
+        jrn_status_type_cd: "U",
+        jrn_user_id: Settings.bgs.client_username,
+        bnft_claim_id: benefit_claim_record[:benefit_claim_id],
+        intake_jrsdtn_lctn_id: vnp_benefit_claim_record[:intake_jrsdtn_lctn_id],
+        claim_jrsdtn_lctn_id: vnp_benefit_claim_record[:claim_jrsdtn_lctn_id],
+        pgm_type_cd: benefit_claim_record[:program_type_code],
+        ptcpnt_clmant_id: vnp_benefit_claim_record[:participant_claimant_id],
+        status_type_cd: benefit_claim_record[:status_type_code],
+        svc_type_cd: benefit_claim_record[:service_type_code],
+        ssn: @user.ssn # Just here to make mocks work
+      )
+    end
 
     def service
       @service ||= LighthouseBGS::Services.new(

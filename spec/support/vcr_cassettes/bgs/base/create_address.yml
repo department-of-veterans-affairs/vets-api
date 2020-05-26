@@ -21,7 +21,7 @@ http_interactions:
       message: OK
     headers:
       Date:
-      - Thu, 23 Apr 2020 00:31:55 GMT
+      - Tue, 26 May 2020 16:01:05 GMT
       Server:
       - Apache
       X-Frame-Options:
@@ -39,11 +39,11 @@ http_interactions:
         <xsd:import namespace="http://ptcpntAddrsService.services.vonapp.vba.va.gov/" schemaLocation="http://linktestbepbenefits.vba.va.gov:80/VnpPtcpntAddrsWebServiceBean/VnpPtcpntAddrsService?xsd=1"/>
         </xsd:schema>
         </types>
-        <message name="vnpPtcpntAddrsUpdate">
-        <part name="parameters" element="tns:vnpPtcpntAddrsUpdate"/>
+        <message name="vnpPtcpntAddrsFindByPrimaryKey">
+        <part name="parameters" element="tns:vnpPtcpntAddrsFindByPrimaryKey"/>
         </message>
-        <message name="vnpPtcpntAddrsUpdateResponse">
-        <part name="parameters" element="tns:vnpPtcpntAddrsUpdateResponse"/>
+        <message name="vnpPtcpntAddrsFindByPrimaryKeyResponse">
+        <part name="parameters" element="tns:vnpPtcpntAddrsFindByPrimaryKeyResponse"/>
         </message>
         <message name="MessageFaultException">
         <part name="fault" element="tns:MessageFaultException"/>
@@ -60,22 +60,22 @@ http_interactions:
         <message name="vnpPtcpntAddrsRemoveResponse">
         <part name="parameters" element="tns:vnpPtcpntAddrsRemoveResponse"/>
         </message>
-        <message name="vnpPtcpntAddrsFindByPrimaryKey">
-        <part name="parameters" element="tns:vnpPtcpntAddrsFindByPrimaryKey"/>
-        </message>
-        <message name="vnpPtcpntAddrsFindByPrimaryKeyResponse">
-        <part name="parameters" element="tns:vnpPtcpntAddrsFindByPrimaryKeyResponse"/>
-        </message>
         <message name="findAllAsArray">
         <part name="parameters" element="tns:findAllAsArray"/>
         </message>
         <message name="findAllAsArrayResponse">
         <part name="parameters" element="tns:findAllAsArrayResponse"/>
         </message>
+        <message name="vnpPtcpntAddrsUpdate">
+        <part name="parameters" element="tns:vnpPtcpntAddrsUpdate"/>
+        </message>
+        <message name="vnpPtcpntAddrsUpdateResponse">
+        <part name="parameters" element="tns:vnpPtcpntAddrsUpdateResponse"/>
+        </message>
         <portType name="VnpPtcpntAddrsService">
-        <operation name="vnpPtcpntAddrsUpdate">
-        <input message="tns:vnpPtcpntAddrsUpdate"/>
-        <output message="tns:vnpPtcpntAddrsUpdateResponse"/>
+        <operation name="vnpPtcpntAddrsFindByPrimaryKey">
+        <input message="tns:vnpPtcpntAddrsFindByPrimaryKey"/>
+        <output message="tns:vnpPtcpntAddrsFindByPrimaryKeyResponse"/>
         <fault message="tns:MessageFaultException" name="MessageFaultException"/>
         </operation>
         <operation name="vnpPtcpntAddrsCreate">
@@ -88,20 +88,20 @@ http_interactions:
         <output message="tns:vnpPtcpntAddrsRemoveResponse"/>
         <fault message="tns:MessageFaultException" name="MessageFaultException"/>
         </operation>
-        <operation name="vnpPtcpntAddrsFindByPrimaryKey">
-        <input message="tns:vnpPtcpntAddrsFindByPrimaryKey"/>
-        <output message="tns:vnpPtcpntAddrsFindByPrimaryKeyResponse"/>
-        <fault message="tns:MessageFaultException" name="MessageFaultException"/>
-        </operation>
         <operation name="findAllAsArray">
         <input message="tns:findAllAsArray"/>
         <output message="tns:findAllAsArrayResponse"/>
         <fault message="tns:MessageFaultException" name="MessageFaultException"/>
         </operation>
+        <operation name="vnpPtcpntAddrsUpdate">
+        <input message="tns:vnpPtcpntAddrsUpdate"/>
+        <output message="tns:vnpPtcpntAddrsUpdateResponse"/>
+        <fault message="tns:MessageFaultException" name="MessageFaultException"/>
+        </operation>
         </portType>
         <binding name="VnpPtcpntAddrsServicePortBinding" type="tns:VnpPtcpntAddrsService">
         <soap:binding transport="http://schemas.xmlsoap.org/soap/http" style="document"/>
-        <operation name="vnpPtcpntAddrsUpdate">
+        <operation name="vnpPtcpntAddrsFindByPrimaryKey">
         <soap:operation soapAction=""/>
         <input>
         <soap:body use="literal"/>
@@ -137,7 +137,7 @@ http_interactions:
         <soap:fault name="MessageFaultException" use="literal"/>
         </fault>
         </operation>
-        <operation name="vnpPtcpntAddrsFindByPrimaryKey">
+        <operation name="findAllAsArray">
         <soap:operation soapAction=""/>
         <input>
         <soap:body use="literal"/>
@@ -149,7 +149,7 @@ http_interactions:
         <soap:fault name="MessageFaultException" use="literal"/>
         </fault>
         </operation>
-        <operation name="findAllAsArray">
+        <operation name="vnpPtcpntAddrsUpdate">
         <soap:operation soapAction=""/>
         <input>
         <soap:body use="literal"/>
@@ -169,7 +169,7 @@ http_interactions:
         </service>
         </definitions>
     http_version: null
-  recorded_at: Thu, 23 Apr 2020 00:31:56 GMT
+  recorded_at: Tue, 26 May 2020 16:01:05 GMT
 - request:
     method: post
     uri: http://linktestbepbenefits.vba.va.gov/VnpPtcpntAddrsWebServiceBean/VnpPtcpntAddrsService
@@ -181,14 +181,14 @@ http_interactions:
             <wsse:Username>VAgovAPI</wsse:Username>
           </wsse:UsernameToken>
           <vaws:VaServiceHeaders xmlns:vaws="http://vbawebservices.vba.va.gov/vawss">
-            <vaws:CLIENT_MACHINE>10.0.0.147</vaws:CLIENT_MACHINE>
+            <vaws:CLIENT_MACHINE>192.168.1.239</vaws:CLIENT_MACHINE>
             <vaws:STN_ID>281</vaws:STN_ID>
             <vaws:applicationName>VAgovAPI</vaws:applicationName>
-            <vaws:ExternalUid>32272314161090874</vaws:ExternalUid>
+            <vaws:ExternalUid>75690685359082857</vaws:ExternalUid>
             <vaws:ExternalKey>abraham.lincoln@vets.gov</vaws:ExternalKey>
           </vaws:VaServiceHeaders>
         </wsse:Security>
-        </env:Header><env:Body><tns:vnpPtcpntAddrsCreate><arg0><efctvDt>2020-04-23T00:31:55Z</efctvDt><vnpPtcpntId>146189</vnpPtcpntId><vnpProcId>3828033</vnpProcId><addrsOneTxt>123 mainstreet rd.</addrsOneTxt><addrsThreeTxt xsi:nil="true"/><addrsTwoTxt xsi:nil="true"/><badAddrsInd xsi:nil="true"/><cityNm>Tampa</cityNm><cntryNm xsi:nil="true"/><countyNm xsi:nil="true"/><eftWaiverTypeNm xsi:nil="true"/><emailAddrsTxt>foo@foo.com</emailAddrsTxt><endDt xsi:nil="true"/><fmsAddrsCodeTxt xsi:nil="true"/><frgnPostalCd xsi:nil="true"/><group1VerifdTypeCd xsi:nil="true"/><jrnDt>2020-04-23T00:31:55Z</jrnDt><jrnLctnId>281</jrnLctnId><jrnObjId>VAgovAPI</jrnObjId><jrnStatusTypeCd>U</jrnStatusTypeCd><jrnUserId>VAgovAPI</jrnUserId><lctnNm xsi:nil="true"/><mltyPostalTypeCd xsi:nil="true"/><mltyPostOfficeTypeCd xsi:nil="true"/><postalCd>FL</postalCd><prvncNm>FL</prvncNm><ptcpntAddrsTypeNm>Mailing</ptcpntAddrsTypeNm><sharedAddrsInd>N</sharedAddrsInd><trsuryAddrsFiveTxt xsi:nil="true"/><trsuryAddrsFourTxt xsi:nil="true"/><trsuryAddrsOneTxt xsi:nil="true"/><trsuryAddrsSixTxt xsi:nil="true"/><trsuryAddrsThreeTxt xsi:nil="true"/><trsuryAddrsTwoTxt xsi:nil="true"/><trsurySeqNbr xsi:nil="true"/><trtryNm xsi:nil="true"/><zipFirstSuffixNbr xsi:nil="true"/><zipPrefixNbr>11234</zipPrefixNbr><zipSecondSuffixNbr xsi:nil="true"/></arg0></tns:vnpPtcpntAddrsCreate></env:Body></env:Envelope>
+        </env:Header><env:Body><tns:vnpPtcpntAddrsCreate><arg0><efctvDt>2020-05-26T16:01:04Z</efctvDt><vnpPtcpntId>147891</vnpPtcpntId><vnpProcId>3828728</vnpProcId><addrsOneTxt>123 mainstreet rd.</addrsOneTxt><addrsThreeTxt xsi:nil="true"/><addrsTwoTxt xsi:nil="true"/><badAddrsInd xsi:nil="true"/><cityNm>Tampa</cityNm><cntryNm xsi:nil="true"/><countyNm xsi:nil="true"/><eftWaiverTypeNm xsi:nil="true"/><emailAddrsTxt>foo@foo.com</emailAddrsTxt><endDt xsi:nil="true"/><fmsAddrsCodeTxt xsi:nil="true"/><frgnPostalCd xsi:nil="true"/><group1VerifdTypeCd xsi:nil="true"/><jrnDt>2020-05-26T16:01:04Z</jrnDt><jrnLctnId>281</jrnLctnId><jrnObjId>VAgovAPI</jrnObjId><jrnStatusTypeCd>U</jrnStatusTypeCd><jrnUserId>VAgovAPI</jrnUserId><lctnNm xsi:nil="true"/><mltyPostalTypeCd xsi:nil="true"/><mltyPostOfficeTypeCd xsi:nil="true"/><postalCd>FL</postalCd><prvncNm>FL</prvncNm><ptcpntAddrsTypeNm>Mailing</ptcpntAddrsTypeNm><sharedAddrsInd>N</sharedAddrsInd><trsuryAddrsFiveTxt xsi:nil="true"/><trsuryAddrsFourTxt xsi:nil="true"/><trsuryAddrsOneTxt xsi:nil="true"/><trsuryAddrsSixTxt xsi:nil="true"/><trsuryAddrsThreeTxt xsi:nil="true"/><trsuryAddrsTwoTxt xsi:nil="true"/><trsurySeqNbr xsi:nil="true"/><trtryNm xsi:nil="true"/><zipFirstSuffixNbr xsi:nil="true"/><zipPrefixNbr>11234</zipPrefixNbr><zipSecondSuffixNbr xsi:nil="true"/></arg0></tns:vnpPtcpntAddrsCreate></env:Body></env:Envelope>
     headers:
       Host:
       - ".vba.va.gov"
@@ -197,7 +197,7 @@ http_interactions:
       Content-Type:
       - text/xml;charset=UTF-8
       Content-Length:
-      - '2255'
+      - '2258'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -212,7 +212,7 @@ http_interactions:
       Server:
       - nginx/1.17.9
       Date:
-      - Thu, 23 Apr 2020 00:31:57 GMT
+      - Tue, 26 May 2020 16:01:06 GMT
       Content-Type:
       - text/xml; charset=utf-8
       Content-Length:
@@ -225,8 +225,8 @@ http_interactions:
       encoding: UTF-8
       string: <?xml version='1.0' encoding='UTF-8'?><S:Envelope xmlns:S="http://schemas.xmlsoap.org/soap/envelope/"><S:Header><work:WorkContext
         xmlns:work="http://oracle.com/weblogic/soap/workarea/">rO0ABXdKABR3ZWJsb2dpYy5hcHAudm5wLWVhcgAAANYAAAAjd2VibG9naWMud29ya2FyZWEuU3RyaW5nV29ya0NvbnRleHQABTIuMC44AAA=</work:WorkContext></S:Header><S:Body><ns2:vnpPtcpntAddrsCreateResponse
-        xmlns:ns2="http://ptcpntAddrsService.services.vonapp.vba.va.gov/"><return><vnpPtcpntAddrsId>113372</vnpPtcpntAddrsId><efctvDt>2020-04-23T00:31:55Z</efctvDt><vnpPtcpntId>146189</vnpPtcpntId><vnpProcId>3828033</vnpProcId><addrsOneTxt>123
-        mainstreet rd.</addrsOneTxt><addrsThreeTxt></addrsThreeTxt><addrsTwoTxt></addrsTwoTxt><badAddrsInd></badAddrsInd><cityNm>Tampa</cityNm><cntryNm></cntryNm><countyNm></countyNm><eftWaiverTypeNm></eftWaiverTypeNm><emailAddrsTxt>foo@foo.com</emailAddrsTxt><fmsAddrsCodeTxt></fmsAddrsCodeTxt><frgnPostalCd></frgnPostalCd><group1VerifdTypeCd></group1VerifdTypeCd><jrnDt>2020-04-23T00:31:55Z</jrnDt><jrnLctnId>281</jrnLctnId><jrnObjId>VAgovAPI</jrnObjId><jrnStatusTypeCd>U</jrnStatusTypeCd><jrnUserId>VAgovAPI</jrnUserId><lctnNm></lctnNm><mltyPostalTypeCd></mltyPostalTypeCd><mltyPostOfficeTypeCd></mltyPostOfficeTypeCd><postalCd>FL</postalCd><prvncNm>FL</prvncNm><ptcpntAddrsTypeNm>Mailing</ptcpntAddrsTypeNm><sharedAddrsInd>N</sharedAddrsInd><trsuryAddrsFiveTxt></trsuryAddrsFiveTxt><trsuryAddrsFourTxt></trsuryAddrsFourTxt><trsuryAddrsOneTxt></trsuryAddrsOneTxt><trsuryAddrsSixTxt></trsuryAddrsSixTxt><trsuryAddrsThreeTxt></trsuryAddrsThreeTxt><trsuryAddrsTwoTxt></trsuryAddrsTwoTxt><trsurySeqNbr>0</trsurySeqNbr><trtryNm></trtryNm><zipFirstSuffixNbr></zipFirstSuffixNbr><zipPrefixNbr>11234</zipPrefixNbr><zipSecondSuffixNbr></zipSecondSuffixNbr></return></ns2:vnpPtcpntAddrsCreateResponse></S:Body></S:Envelope>
+        xmlns:ns2="http://ptcpntAddrsService.services.vonapp.vba.va.gov/"><return><vnpPtcpntAddrsId>114959</vnpPtcpntAddrsId><efctvDt>2020-05-26T16:01:04Z</efctvDt><vnpPtcpntId>147891</vnpPtcpntId><vnpProcId>3828728</vnpProcId><addrsOneTxt>123
+        mainstreet rd.</addrsOneTxt><addrsThreeTxt></addrsThreeTxt><addrsTwoTxt></addrsTwoTxt><badAddrsInd></badAddrsInd><cityNm>Tampa</cityNm><cntryNm></cntryNm><countyNm></countyNm><eftWaiverTypeNm></eftWaiverTypeNm><emailAddrsTxt>foo@foo.com</emailAddrsTxt><fmsAddrsCodeTxt></fmsAddrsCodeTxt><frgnPostalCd></frgnPostalCd><group1VerifdTypeCd></group1VerifdTypeCd><jrnDt>2020-05-26T16:01:04Z</jrnDt><jrnLctnId>281</jrnLctnId><jrnObjId>VAgovAPI</jrnObjId><jrnStatusTypeCd>U</jrnStatusTypeCd><jrnUserId>VAgovAPI</jrnUserId><lctnNm></lctnNm><mltyPostalTypeCd></mltyPostalTypeCd><mltyPostOfficeTypeCd></mltyPostOfficeTypeCd><postalCd>FL</postalCd><prvncNm>FL</prvncNm><ptcpntAddrsTypeNm>Mailing</ptcpntAddrsTypeNm><sharedAddrsInd>N</sharedAddrsInd><trsuryAddrsFiveTxt></trsuryAddrsFiveTxt><trsuryAddrsFourTxt></trsuryAddrsFourTxt><trsuryAddrsOneTxt></trsuryAddrsOneTxt><trsuryAddrsSixTxt></trsuryAddrsSixTxt><trsuryAddrsThreeTxt></trsuryAddrsThreeTxt><trsuryAddrsTwoTxt></trsuryAddrsTwoTxt><trsurySeqNbr>0</trsurySeqNbr><trtryNm></trtryNm><zipFirstSuffixNbr></zipFirstSuffixNbr><zipPrefixNbr>11234</zipPrefixNbr><zipSecondSuffixNbr></zipSecondSuffixNbr></return></ns2:vnpPtcpntAddrsCreateResponse></S:Body></S:Envelope>
     http_version: null
-  recorded_at: Thu, 23 Apr 2020 00:31:57 GMT
+  recorded_at: Tue, 26 May 2020 16:01:06 GMT
 recorded_with: VCR 5.1.0

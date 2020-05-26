@@ -21,7 +21,7 @@ http_interactions:
       message: OK
     headers:
       Date:
-      - Wed, 22 Apr 2020 23:57:39 GMT
+      - Tue, 26 May 2020 15:54:13 GMT
       Server:
       - Apache
       X-Frame-Options:
@@ -39,26 +39,14 @@ http_interactions:
         <xsd:import namespace="http://procFormService.services.vonapp.vba.va.gov/" schemaLocation="http://linktestbepbenefits.vba.va.gov:80/VnpProcFormWebServiceBean/VnpProcFormService?xsd=1"/>
         </xsd:schema>
         </types>
-        <message name="vnpProcFormRemove">
-        <part name="parameters" element="tns:vnpProcFormRemove"/>
-        </message>
-        <message name="vnpProcFormRemoveResponse">
-        <part name="parameters" element="tns:vnpProcFormRemoveResponse"/>
-        </message>
-        <message name="MessageFaultException">
-        <part name="fault" element="tns:MessageFaultException"/>
-        </message>
-        <message name="vnpProcFormCreate">
-        <part name="parameters" element="tns:vnpProcFormCreate"/>
-        </message>
-        <message name="vnpProcFormCreateResponse">
-        <part name="parameters" element="tns:vnpProcFormCreateResponse"/>
-        </message>
         <message name="vnpProcFormFindByPrimaryKey">
         <part name="parameters" element="tns:vnpProcFormFindByPrimaryKey"/>
         </message>
         <message name="vnpProcFormFindByPrimaryKeyResponse">
         <part name="parameters" element="tns:vnpProcFormFindByPrimaryKeyResponse"/>
+        </message>
+        <message name="MessageFaultException">
+        <part name="fault" element="tns:MessageFaultException"/>
         </message>
         <message name="findAllAsArray">
         <part name="parameters" element="tns:findAllAsArray"/>
@@ -66,17 +54,19 @@ http_interactions:
         <message name="findAllAsArrayResponse">
         <part name="parameters" element="tns:findAllAsArrayResponse"/>
         </message>
+        <message name="vnpProcFormRemove">
+        <part name="parameters" element="tns:vnpProcFormRemove"/>
+        </message>
+        <message name="vnpProcFormRemoveResponse">
+        <part name="parameters" element="tns:vnpProcFormRemoveResponse"/>
+        </message>
+        <message name="vnpProcFormCreate">
+        <part name="parameters" element="tns:vnpProcFormCreate"/>
+        </message>
+        <message name="vnpProcFormCreateResponse">
+        <part name="parameters" element="tns:vnpProcFormCreateResponse"/>
+        </message>
         <portType name="VnpProcFormService">
-        <operation name="vnpProcFormRemove">
-        <input message="tns:vnpProcFormRemove"/>
-        <output message="tns:vnpProcFormRemoveResponse"/>
-        <fault message="tns:MessageFaultException" name="MessageFaultException"/>
-        </operation>
-        <operation name="vnpProcFormCreate">
-        <input message="tns:vnpProcFormCreate"/>
-        <output message="tns:vnpProcFormCreateResponse"/>
-        <fault message="tns:MessageFaultException" name="MessageFaultException"/>
-        </operation>
         <operation name="vnpProcFormFindByPrimaryKey">
         <input message="tns:vnpProcFormFindByPrimaryKey"/>
         <output message="tns:vnpProcFormFindByPrimaryKeyResponse"/>
@@ -87,33 +77,19 @@ http_interactions:
         <output message="tns:findAllAsArrayResponse"/>
         <fault message="tns:MessageFaultException" name="MessageFaultException"/>
         </operation>
+        <operation name="vnpProcFormRemove">
+        <input message="tns:vnpProcFormRemove"/>
+        <output message="tns:vnpProcFormRemoveResponse"/>
+        <fault message="tns:MessageFaultException" name="MessageFaultException"/>
+        </operation>
+        <operation name="vnpProcFormCreate">
+        <input message="tns:vnpProcFormCreate"/>
+        <output message="tns:vnpProcFormCreateResponse"/>
+        <fault message="tns:MessageFaultException" name="MessageFaultException"/>
+        </operation>
         </portType>
         <binding name="VnpProcFormServicePortBinding" type="tns:VnpProcFormService">
         <soap:binding transport="http://schemas.xmlsoap.org/soap/http" style="document"/>
-        <operation name="vnpProcFormRemove">
-        <soap:operation soapAction=""/>
-        <input>
-        <soap:body use="literal"/>
-        </input>
-        <output>
-        <soap:body use="literal"/>
-        </output>
-        <fault name="MessageFaultException">
-        <soap:fault name="MessageFaultException" use="literal"/>
-        </fault>
-        </operation>
-        <operation name="vnpProcFormCreate">
-        <soap:operation soapAction=""/>
-        <input>
-        <soap:body use="literal"/>
-        </input>
-        <output>
-        <soap:body use="literal"/>
-        </output>
-        <fault name="MessageFaultException">
-        <soap:fault name="MessageFaultException" use="literal"/>
-        </fault>
-        </operation>
         <operation name="vnpProcFormFindByPrimaryKey">
         <soap:operation soapAction=""/>
         <input>
@@ -127,6 +103,30 @@ http_interactions:
         </fault>
         </operation>
         <operation name="findAllAsArray">
+        <soap:operation soapAction=""/>
+        <input>
+        <soap:body use="literal"/>
+        </input>
+        <output>
+        <soap:body use="literal"/>
+        </output>
+        <fault name="MessageFaultException">
+        <soap:fault name="MessageFaultException" use="literal"/>
+        </fault>
+        </operation>
+        <operation name="vnpProcFormRemove">
+        <soap:operation soapAction=""/>
+        <input>
+        <soap:body use="literal"/>
+        </input>
+        <output>
+        <soap:body use="literal"/>
+        </output>
+        <fault name="MessageFaultException">
+        <soap:fault name="MessageFaultException" use="literal"/>
+        </fault>
+        </operation>
+        <operation name="vnpProcFormCreate">
         <soap:operation soapAction=""/>
         <input>
         <soap:body use="literal"/>
@@ -146,7 +146,7 @@ http_interactions:
         </service>
         </definitions>
     http_version: null
-  recorded_at: Wed, 22 Apr 2020 23:57:40 GMT
+  recorded_at: Tue, 26 May 2020 15:54:14 GMT
 - request:
     method: post
     uri: http://linktestbepbenefits.vba.va.gov/VnpProcFormWebServiceBean/VnpProcFormService
@@ -158,14 +158,14 @@ http_interactions:
             <wsse:Username>VAgovAPI</wsse:Username>
           </wsse:UsernameToken>
           <vaws:VaServiceHeaders xmlns:vaws="http://vbawebservices.vba.va.gov/vawss">
-            <vaws:CLIENT_MACHINE>10.0.0.147</vaws:CLIENT_MACHINE>
+            <vaws:CLIENT_MACHINE>192.168.1.239</vaws:CLIENT_MACHINE>
             <vaws:STN_ID>281</vaws:STN_ID>
             <vaws:applicationName>VAgovAPI</vaws:applicationName>
-            <vaws:ExternalUid>19540205050376081</vaws:ExternalUid>
+            <vaws:ExternalUid>26964654685619222</vaws:ExternalUid>
             <vaws:ExternalKey>abraham.lincoln@vets.gov</vaws:ExternalKey>
           </vaws:VaServiceHeaders>
         </wsse:Security>
-        </env:Header><env:Body><tns:vnpProcFormCreate><arg0><compId><vnpProcId>3828033</vnpProcId><formTypeCd>21-686c</formTypeCd></compId><jrnDt>2020-04-22T23:57:39Z</jrnDt><jrnLctnId>281</jrnLctnId><jrnObjId>VAgovAPI</jrnObjId><jrnStatusTypeCd>U</jrnStatusTypeCd><jrnUserId>VAgovAPI</jrnUserId></arg0></tns:vnpProcFormCreate></env:Body></env:Envelope>
+        </env:Header><env:Body><tns:vnpProcFormCreate><arg0><compId><vnpProcId>3828728</vnpProcId><formTypeCd>21-686c</formTypeCd></compId><jrnDt>2020-05-26T15:54:13Z</jrnDt><jrnLctnId>281</jrnLctnId><jrnObjId>VAgovAPI</jrnObjId><jrnStatusTypeCd>U</jrnStatusTypeCd><jrnUserId>VAgovAPI</jrnUserId></arg0></tns:vnpProcFormCreate></env:Body></env:Envelope>
     headers:
       Host:
       - ".vba.va.gov"
@@ -174,7 +174,7 @@ http_interactions:
       Content-Type:
       - text/xml;charset=UTF-8
       Content-Length:
-      - '1225'
+      - '1228'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -189,7 +189,7 @@ http_interactions:
       Server:
       - nginx/1.17.9
       Date:
-      - Wed, 22 Apr 2020 23:57:40 GMT
+      - Tue, 26 May 2020 15:54:15 GMT
       Content-Type:
       - text/xml; charset=utf-8
       Content-Length:
@@ -202,7 +202,7 @@ http_interactions:
       encoding: UTF-8
       string: <?xml version='1.0' encoding='UTF-8'?><S:Envelope xmlns:S="http://schemas.xmlsoap.org/soap/envelope/"><S:Header><work:WorkContext
         xmlns:work="http://oracle.com/weblogic/soap/workarea/">rO0ABXdKABR3ZWJsb2dpYy5hcHAudm5wLWVhcgAAANYAAAAjd2VibG9naWMud29ya2FyZWEuU3RyaW5nV29ya0NvbnRleHQABTIuMC44AAA=</work:WorkContext></S:Header><S:Body><ns2:vnpProcFormCreateResponse
-        xmlns:ns2="http://procFormService.services.vonapp.vba.va.gov/"><return><compId><vnpProcId>3828033</vnpProcId><formTypeCd>21-686c</formTypeCd></compId><jrnDt>2020-04-22T18:57:39-05:00</jrnDt><jrnLctnId>281</jrnLctnId><jrnObjId>VAgovAPI</jrnObjId><jrnStatusTypeCd>U</jrnStatusTypeCd><jrnUserId>VAgovAPI</jrnUserId></return></ns2:vnpProcFormCreateResponse></S:Body></S:Envelope>
+        xmlns:ns2="http://procFormService.services.vonapp.vba.va.gov/"><return><compId><vnpProcId>3828728</vnpProcId><formTypeCd>21-686c</formTypeCd></compId><jrnDt>2020-05-26T10:54:13-05:00</jrnDt><jrnLctnId>281</jrnLctnId><jrnObjId>VAgovAPI</jrnObjId><jrnStatusTypeCd>U</jrnStatusTypeCd><jrnUserId>VAgovAPI</jrnUserId></return></ns2:vnpProcFormCreateResponse></S:Body></S:Envelope>
     http_version: null
-  recorded_at: Wed, 22 Apr 2020 23:57:40 GMT
+  recorded_at: Tue, 26 May 2020 15:54:15 GMT
 recorded_with: VCR 5.1.0

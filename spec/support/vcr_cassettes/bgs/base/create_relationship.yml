@@ -21,7 +21,7 @@ http_interactions:
       message: OK
     headers:
       Date:
-      - Thu, 23 Apr 2020 01:26:20 GMT
+      - Tue, 26 May 2020 16:17:19 GMT
       Server:
       - Apache
       X-Frame-Options:
@@ -60,17 +60,17 @@ http_interactions:
         <message name="vnpPtcpntRlnshpRemoveResponse">
         <part name="parameters" element="tns:vnpPtcpntRlnshpRemoveResponse"/>
         </message>
-        <message name="vnpPtcpntRlnshpFindByPrimaryKey">
-        <part name="parameters" element="tns:vnpPtcpntRlnshpFindByPrimaryKey"/>
-        </message>
-        <message name="vnpPtcpntRlnshpFindByPrimaryKeyResponse">
-        <part name="parameters" element="tns:vnpPtcpntRlnshpFindByPrimaryKeyResponse"/>
-        </message>
         <message name="findAllAsArray">
         <part name="parameters" element="tns:findAllAsArray"/>
         </message>
         <message name="findAllAsArrayResponse">
         <part name="parameters" element="tns:findAllAsArrayResponse"/>
+        </message>
+        <message name="vnpPtcpntRlnshpFindByPrimaryKey">
+        <part name="parameters" element="tns:vnpPtcpntRlnshpFindByPrimaryKey"/>
+        </message>
+        <message name="vnpPtcpntRlnshpFindByPrimaryKeyResponse">
+        <part name="parameters" element="tns:vnpPtcpntRlnshpFindByPrimaryKeyResponse"/>
         </message>
         <portType name="VnpPtcpntRlnshpService">
         <operation name="vnpPtcpntRlnshpUpdate">
@@ -88,14 +88,14 @@ http_interactions:
         <output message="tns:vnpPtcpntRlnshpRemoveResponse"/>
         <fault message="tns:MessageFaultException" name="MessageFaultException"/>
         </operation>
-        <operation name="vnpPtcpntRlnshpFindByPrimaryKey">
-        <input message="tns:vnpPtcpntRlnshpFindByPrimaryKey"/>
-        <output message="tns:vnpPtcpntRlnshpFindByPrimaryKeyResponse"/>
-        <fault message="tns:MessageFaultException" name="MessageFaultException"/>
-        </operation>
         <operation name="findAllAsArray">
         <input message="tns:findAllAsArray"/>
         <output message="tns:findAllAsArrayResponse"/>
+        <fault message="tns:MessageFaultException" name="MessageFaultException"/>
+        </operation>
+        <operation name="vnpPtcpntRlnshpFindByPrimaryKey">
+        <input message="tns:vnpPtcpntRlnshpFindByPrimaryKey"/>
+        <output message="tns:vnpPtcpntRlnshpFindByPrimaryKeyResponse"/>
         <fault message="tns:MessageFaultException" name="MessageFaultException"/>
         </operation>
         </portType>
@@ -137,7 +137,7 @@ http_interactions:
         <soap:fault name="MessageFaultException" use="literal"/>
         </fault>
         </operation>
-        <operation name="vnpPtcpntRlnshpFindByPrimaryKey">
+        <operation name="findAllAsArray">
         <soap:operation soapAction=""/>
         <input>
         <soap:body use="literal"/>
@@ -149,7 +149,7 @@ http_interactions:
         <soap:fault name="MessageFaultException" use="literal"/>
         </fault>
         </operation>
-        <operation name="findAllAsArray">
+        <operation name="vnpPtcpntRlnshpFindByPrimaryKey">
         <soap:operation soapAction=""/>
         <input>
         <soap:body use="literal"/>
@@ -169,7 +169,7 @@ http_interactions:
         </service>
         </definitions>
     http_version: null
-  recorded_at: Thu, 23 Apr 2020 01:26:20 GMT
+  recorded_at: Tue, 26 May 2020 16:17:20 GMT
 - request:
     method: post
     uri: http://linktestbepbenefits.vba.va.gov/VnpPtcpntRlnshpWebServiceBean/VnpPtcpntRlnshpService
@@ -181,14 +181,14 @@ http_interactions:
             <wsse:Username>VAgovAPI</wsse:Username>
           </wsse:UsernameToken>
           <vaws:VaServiceHeaders xmlns:vaws="http://vbawebservices.vba.va.gov/vawss">
-            <vaws:CLIENT_MACHINE>10.0.0.147</vaws:CLIENT_MACHINE>
+            <vaws:CLIENT_MACHINE>192.168.1.239</vaws:CLIENT_MACHINE>
             <vaws:STN_ID>281</vaws:STN_ID>
             <vaws:applicationName>VAgovAPI</vaws:applicationName>
-            <vaws:ExternalUid>61998538945932585</vaws:ExternalUid>
+            <vaws:ExternalUid>19271627073525420</vaws:ExternalUid>
             <vaws:ExternalKey>abraham.lincoln@vets.gov</vaws:ExternalKey>
           </vaws:VaServiceHeaders>
         </wsse:Security>
-        </env:Header><env:Body><tns:vnpPtcpntRlnshpCreate><arg0><vnpPtcpntRlnshpId xsi:nil="true"/><beginDt xsi:nil="true"/><childPrevlyMarriedInd xsi:nil="true"/><endDt xsi:nil="true"/><eventDt xsi:nil="true"/><familyRlnshpTypeNm>Spouse</familyRlnshpTypeNm><fidAttntnTxt xsi:nil="true"/><hlthcrPrvdrRlseInd xsi:nil="true"/><jrnDt>2020-04-23T01:26:19Z</jrnDt><jrnLctnId>281</jrnLctnId><jrnObjId>VAgovAPI</jrnObjId><jrnStatusTypeCd>U</jrnStatusTypeCd><jrnUserId>VAgovAPI</jrnUserId><livesWithRelatdPersonInd xsi:nil="true"/><marageCityNm>Tampa</marageCityNm><marageCntryNm xsi:nil="true"/><marageStateCd>CA</marageStateCd><marageTrmntnCityNm xsi:nil="true"/><marageTrmntnCntryNm xsi:nil="true"/><marageTrmntnStateCd>CA</marageTrmntnStateCd><marageTrmntnTypeCd>Divorce</marageTrmntnTypeCd><mthlySupportFromVetAmt xsi:nil="true"/><proofDepncyInd xsi:nil="true"/><prptnlPhraseTypeNm xsi:nil="true"/><ptcpntRlnshpTypeNm>Spouse</ptcpntRlnshpTypeNm><rateTypeNm xsi:nil="true"/><reviewDt xsi:nil="true"/><statusTypeCd xsi:nil="true"/><tempCustdnInd xsi:nil="true"/><poaRepNm xsi:nil="true"/><poaRepTitleTxt xsi:nil="true"/><poaSigntrVrfctnDt xsi:nil="true"/><poaRepTypeCd xsi:nil="true"/><poaAgencyNm xsi:nil="true"/><vnpProcId>3828033</vnpProcId><vnpPtcpntIdA>146189</vnpPtcpntIdA><vnpPtcpntIdB>146189</vnpPtcpntIdB></arg0></tns:vnpPtcpntRlnshpCreate></env:Body></env:Envelope>
+        </env:Header><env:Body><tns:vnpPtcpntRlnshpCreate><arg0><vnpPtcpntRlnshpId xsi:nil="true"/><beginDt xsi:nil="true"/><childPrevlyMarriedInd xsi:nil="true"/><endDt xsi:nil="true"/><eventDt xsi:nil="true"/><familyRlnshpTypeNm>Spouse</familyRlnshpTypeNm><fidAttntnTxt xsi:nil="true"/><hlthcrPrvdrRlseInd xsi:nil="true"/><jrnDt>2020-05-26T16:17:19Z</jrnDt><jrnLctnId>281</jrnLctnId><jrnObjId>VAgovAPI</jrnObjId><jrnStatusTypeCd>U</jrnStatusTypeCd><jrnUserId>VAgovAPI</jrnUserId><livesWithRelatdPersonInd xsi:nil="true"/><marageCityNm>Tampa</marageCityNm><marageCntryNm xsi:nil="true"/><marageStateCd></marageStateCd><marageTrmntnCityNm xsi:nil="true"/><marageTrmntnCntryNm xsi:nil="true"/><marageTrmntnStateCd xsi:nil="true"/><marageTrmntnTypeCd xsi:nil="true"/><mthlySupportFromVetAmt xsi:nil="true"/><proofDepncyInd xsi:nil="true"/><prptnlPhraseTypeNm xsi:nil="true"/><ptcpntRlnshpTypeNm>Spouse</ptcpntRlnshpTypeNm><rateTypeNm xsi:nil="true"/><reviewDt xsi:nil="true"/><statusTypeCd xsi:nil="true"/><tempCustdnInd xsi:nil="true"/><poaRepNm xsi:nil="true"/><poaRepTitleTxt xsi:nil="true"/><poaSigntrVrfctnDt xsi:nil="true"/><poaRepTypeCd xsi:nil="true"/><poaAgencyNm xsi:nil="true"/><vnpProcId>3828728</vnpProcId><vnpPtcpntIdA>147891</vnpPtcpntIdA><vnpPtcpntIdB>147891</vnpPtcpntIdB></arg0></tns:vnpPtcpntRlnshpCreate></env:Body></env:Envelope>
     headers:
       Host:
       - ".vba.va.gov"
@@ -197,7 +197,7 @@ http_interactions:
       Content-Type:
       - text/xml;charset=UTF-8
       Content-Length:
-      - '2246'
+      - '2227'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -212,11 +212,11 @@ http_interactions:
       Server:
       - nginx/1.17.9
       Date:
-      - Thu, 23 Apr 2020 01:26:21 GMT
+      - Tue, 26 May 2020 16:17:21 GMT
       Content-Type:
       - text/xml; charset=utf-8
       Content-Length:
-      - '1617'
+      - '1606'
       Connection:
       - keep-alive
       X-Frame-Options:
@@ -225,7 +225,7 @@ http_interactions:
       encoding: UTF-8
       string: <?xml version='1.0' encoding='UTF-8'?><S:Envelope xmlns:S="http://schemas.xmlsoap.org/soap/envelope/"><S:Header><work:WorkContext
         xmlns:work="http://oracle.com/weblogic/soap/workarea/">rO0ABXdKABR3ZWJsb2dpYy5hcHAudm5wLWVhcgAAANYAAAAjd2VibG9naWMud29ya2FyZWEuU3RyaW5nV29ya0NvbnRleHQABTIuMC44AAA=</work:WorkContext></S:Header><S:Body><ns2:vnpPtcpntRlnshpCreateResponse
-        xmlns:ns2="http://ptcpntRlnshpService.services.vonapp.vba.va.gov/"><return><vnpPtcpntRlnshpId>76387</vnpPtcpntRlnshpId><childPrevlyMarriedInd></childPrevlyMarriedInd><familyRlnshpTypeNm>Spouse</familyRlnshpTypeNm><fidAttntnTxt></fidAttntnTxt><hlthcrPrvdrRlseInd></hlthcrPrvdrRlseInd><jrnDt>2020-04-23T01:26:19Z</jrnDt><jrnLctnId>281</jrnLctnId><jrnObjId>VAgovAPI</jrnObjId><jrnStatusTypeCd>U</jrnStatusTypeCd><jrnUserId>VAgovAPI</jrnUserId><livesWithRelatdPersonInd></livesWithRelatdPersonInd><marageCityNm>Tampa</marageCityNm><marageCntryNm></marageCntryNm><marageStateCd>CA</marageStateCd><marageTrmntnCityNm></marageTrmntnCityNm><marageTrmntnCntryNm></marageTrmntnCntryNm><marageTrmntnStateCd>CA</marageTrmntnStateCd><marageTrmntnTypeCd>Divorce</marageTrmntnTypeCd><proofDepncyInd></proofDepncyInd><prptnlPhraseTypeNm></prptnlPhraseTypeNm><ptcpntRlnshpTypeNm>Spouse</ptcpntRlnshpTypeNm><rateTypeNm></rateTypeNm><statusTypeCd></statusTypeCd><tempCustdnInd></tempCustdnInd><poaRepNm></poaRepNm><poaRepTitleTxt></poaRepTitleTxt><poaRepTypeCd></poaRepTypeCd><poaAgencyNm></poaAgencyNm><vnpProcId>3828033</vnpProcId><vnpPtcpntIdA>146189</vnpPtcpntIdA><vnpPtcpntIdB>146189</vnpPtcpntIdB></return></ns2:vnpPtcpntRlnshpCreateResponse></S:Body></S:Envelope>
+        xmlns:ns2="http://ptcpntRlnshpService.services.vonapp.vba.va.gov/"><return><vnpPtcpntRlnshpId>77500</vnpPtcpntRlnshpId><childPrevlyMarriedInd></childPrevlyMarriedInd><familyRlnshpTypeNm>Spouse</familyRlnshpTypeNm><fidAttntnTxt></fidAttntnTxt><hlthcrPrvdrRlseInd></hlthcrPrvdrRlseInd><jrnDt>2020-05-26T16:17:19Z</jrnDt><jrnLctnId>281</jrnLctnId><jrnObjId>VAgovAPI</jrnObjId><jrnStatusTypeCd>U</jrnStatusTypeCd><jrnUserId>VAgovAPI</jrnUserId><livesWithRelatdPersonInd></livesWithRelatdPersonInd><marageCityNm>Tampa</marageCityNm><marageCntryNm></marageCntryNm><marageStateCd></marageStateCd><marageTrmntnCityNm></marageTrmntnCityNm><marageTrmntnCntryNm></marageTrmntnCntryNm><marageTrmntnStateCd></marageTrmntnStateCd><marageTrmntnTypeCd></marageTrmntnTypeCd><proofDepncyInd></proofDepncyInd><prptnlPhraseTypeNm></prptnlPhraseTypeNm><ptcpntRlnshpTypeNm>Spouse</ptcpntRlnshpTypeNm><rateTypeNm></rateTypeNm><statusTypeCd></statusTypeCd><tempCustdnInd></tempCustdnInd><poaRepNm></poaRepNm><poaRepTitleTxt></poaRepTitleTxt><poaRepTypeCd></poaRepTypeCd><poaAgencyNm></poaAgencyNm><vnpProcId>3828728</vnpProcId><vnpPtcpntIdA>147891</vnpPtcpntIdA><vnpPtcpntIdB>147891</vnpPtcpntIdB></return></ns2:vnpPtcpntRlnshpCreateResponse></S:Body></S:Envelope>
     http_version: null
-  recorded_at: Thu, 23 Apr 2020 01:26:21 GMT
+  recorded_at: Tue, 26 May 2020 16:17:21 GMT
 recorded_with: VCR 5.1.0
