@@ -195,10 +195,11 @@ module SAML
     def initialize_tracker(params, previous_saml_uuid: nil)
       previous = previous_saml_uuid && SAMLRequestTracker.find(previous_saml_uuid)
       redirect = previous&.payload_attr(:redirect) || Settings.ssoe.redirects[params[:application]]
+      inbound = params[:inbound] || nil
       # if created_at is set to nil (meaning no previous tracker to use), it
       # will be initialized to the current time when it is saved
       SAMLRequestTracker.new(
-        payload: redirect ? { redirect: redirect } : {},
+        payload: { redirect: redirect, inbound_ssoe: inbound }.compact,
         created_at: previous&.created_at
       )
     end

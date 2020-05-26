@@ -57,7 +57,6 @@ module V1
       end
     rescue SAML::UserAttributeError => e
       log_message_to_sentry(e.message, :warning)
-      auth = e.tag == :idme_uuid_missing ? 'force-needed' : 'fail'
       redirect_to url_service.login_redirect_url(auth: auth, code: e.code)
       callback_stats(:failure, saml_response, e.tag)
     rescue => e
@@ -100,6 +99,10 @@ module V1
 
     def force_authn?
       params[:force]&.downcase == 'true'
+    end
+
+    def inbound_ssoe?
+      params[:inbound]&.downcase == 'true'
     end
 
     def saml_settings(options = {})
