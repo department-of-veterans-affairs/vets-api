@@ -24,7 +24,7 @@ module Common
       end
 
       def errors
-        Array(Common::Exceptions::Common::Exceptions::SerializableError.new(i18n_data.merge(render_overides)))
+        Array(Common::Exceptions::SerializableError.new(i18n_data.merge(render_overides)))
       end
 
       # VA900 is characterized as a generic type of exception. See exceptions.en.yml for what JSON will render
