@@ -10,7 +10,11 @@ module BGS
         external_key: external_key
       )
 
-      service.people.find_person_by_ptcpnt_id(current_user.participant_id)
+      response = service.people.find_person_by_ptcpnt_id(current_user.participant_id)
+
+      return {} if response.nil?
+
+      response
     end
   end
 end
