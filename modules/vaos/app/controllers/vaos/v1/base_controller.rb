@@ -19,7 +19,7 @@ module VAOS
 
       def fhir_service
         VAOS::V1::FHIRService.new(
-          resource_type: controller_name.singularize.capitalize.to_sym,
+          resource_type: controller_name.capitalize.camelize.singularize.to_sym,
           user: current_user
         )
       end
