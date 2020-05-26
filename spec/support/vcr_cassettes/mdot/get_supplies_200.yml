@@ -93,7 +93,7 @@ http_interactions:
               "lastOrderDate": "2020-01-01",
               "nextAvailabilityDate": "2099-09-01",
               "productGroup": "hearing aid batteries",
-              "productId": "1",
+              "productId": 1,
               "productName": "ZA1239",
               "quantity": 60,
               "prescribedDate": "2019-12-25"
@@ -103,7 +103,7 @@ http_interactions:
               "lastOrderDate": "2019-06-30",
               "nextAvailabilityDate": "2019-12-15",
               "productGroup": "hearing aid accessories",
-              "productId": "3",
+              "productId": 3,
               "productName": "DOME",
               "quantity": 10,
               "size": "6mm"
@@ -113,7 +113,7 @@ http_interactions:
               "lastOrderDate": "2019-06-30",
               "nextAvailabilityDate": "2019-12-15",
               "productGroup": "hearing aid accessories",
-              "productId": "4",
+              "productId": 4,
               "productName": "DOME",
               "quantity": 10,
               "size": "7mm"
@@ -123,7 +123,7 @@ http_interactions:
               "lastOrderDate": "2019-06-30",
               "nextAvailabilityDate": "2019-12-15",
               "productGroup": "hearing aid accessories",
-              "productId": "5",
+              "productId": 5,
               "productName": "WaxBuster Single Unit",
               "quantity": 10
             }
