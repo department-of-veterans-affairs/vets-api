@@ -30,5 +30,6 @@ VAOS::Engine.routes.draw do
     get '/Organization', to: 'organizations#index'
     get '/Organization/:id', to: 'organizations#show'
     get '/Location/:id', to: 'locations#show'
+    get '/HealthcareService', to: 'healthcare_services#index'
   end
 end
