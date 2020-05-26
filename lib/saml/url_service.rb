@@ -58,7 +58,7 @@ module SAML
       return @tracker&.payload_attr(:redirect) if @tracker&.payload_attr(:redirect)
 
       @query_params[:type] = type if type
-      @query_params[:auth] = auth if auth == 'fail'
+      @query_params[:auth] = auth if auth != 'success'
       @query_params[:code] = code if code
 
       if Settings.saml.relay.present?
