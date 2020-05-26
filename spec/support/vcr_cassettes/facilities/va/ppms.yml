@@ -2,7 +2,7 @@
   http_interactions:
   - request:
       method: get
-      uri: https://np.dws.ppms.va.gov/v1.0/ProviderLocator?address=%27South%20Gilbert%20Road,%20Chandler,%20Arizona%2085286,%20United%20States%27&radius=80.50410703808843&driveTime=10000&specialtycode1=%27213E00000X%27&specialtycode2=null&specialtycode3=null&specialtycode4=null&network=0&gender=0&primarycare=0&acceptingnewpatients=0&maxResults=11
+      uri: https://np.dws.ppms.va.gov/v1.0/ProviderLocator?address=%27South%20Gilbert%20Road,%20Chandler,%20Arizona%2085286,%20United%20States%27&radius=81&driveTime=10000&specialtycode1=%27213E00000X%27&specialtycode2=null&specialtycode3=null&specialtycode4=null&network=0&gender=0&primarycare=0&acceptingnewpatients=0&maxResults=11
       body:
         encoding: US-ASCII
         string: ''
@@ -55,7 +55,7 @@
     recorded_at: Thu, 16 Jan 2020 20:16:26 GMT
   - request:
       method: get
-      uri: https://np.dws.ppms.va.gov/v1.0/ProviderLocator?address=%27South%20Gilbert%20Road,%20Chandler,%20Arizona%2085286,%20United%20States%27&radius=80.50410703808843&driveTime=10000&specialtycode1=%273336C0003X%27&specialtycode2=null&specialtycode3=null&specialtycode4=null&network=0&gender=0&primarycare=0&acceptingnewpatients=0&maxResults=11
+      uri: https://np.dws.ppms.va.gov/v1.0/ProviderLocator?address=%27South%20Gilbert%20Road,%20Chandler,%20Arizona%2085286,%20United%20States%27&radius=81&driveTime=10000&specialtycode1=%273336C0003X%27&specialtycode2=null&specialtycode3=null&specialtycode4=null&network=0&gender=0&primarycare=0&acceptingnewpatients=0&maxResults=11
       body:
         encoding: US-ASCII
         string: ''
@@ -319,7 +319,7 @@
     recorded_at: Thu, 16 Jan 2020 20:16:20 GMT
   - request:
       method: get
-      uri: https://np.dws.ppms.va.gov/v1.0/PlaceOfServiceLocator?address='South%20Gilbert%20Road,%20Chandler,%20Arizona%2085286,%20United%20States'&driveTime=10000&maxResults=11&network=0&posCodes=17&radius=80.50410703808843
+      uri: https://np.dws.ppms.va.gov/v1.0/PlaceOfServiceLocator?address='South%20Gilbert%20Road,%20Chandler,%20Arizona%2085286,%20United%20States'&driveTime=10000&maxResults=11&network=0&posCodes=17&radius=81
       body:
         encoding: US-ASCII
         string: ''
@@ -392,7 +392,7 @@
     recorded_at: Thu, 16 Jan 2020 20:16:23 GMT
   - request:
       method: get
-      uri: https://np.dws.ppms.va.gov/v1.0/PlaceOfServiceLocator?address='South%20Gilbert%20Road,%20Chandler,%20Arizona%2085286,%20United%20States'&driveTime=10000&maxResults=11&network=0&posCodes=20&radius=80.50410703808843
+      uri: https://np.dws.ppms.va.gov/v1.0/PlaceOfServiceLocator?address='South%20Gilbert%20Road,%20Chandler,%20Arizona%2085286,%20United%20States'&driveTime=10000&maxResults=11&network=0&posCodes=20&radius=81
       body:
         encoding: US-ASCII
         string: ''
