@@ -33,7 +33,7 @@ class Aes256CbcEncryptor
   end
 
   def cipher(type)
-    cipher = OpenSSL::Cipher::AES.new(256, :CBC)
+    cipher = OpenSSL::Cipher.new('AES-256-CBC')
     cipher.send(type)
     cipher.key = @secret
     cipher.iv = @iv
