@@ -35,7 +35,7 @@
               "type": "object",
               "properties": {
                 "debtId": {
-                  "type": "string"
+                  "type": "integer"
                 },
                 "date": {
                   "type": "string"
