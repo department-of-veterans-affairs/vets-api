@@ -14,7 +14,7 @@ module Common
       end
 
       def errors
-        Array(SerializableError.new(i18n_data.merge(@error_messages)))
+        Array(Common::Exceptions::SerializableError.new(i18n_data.merge(@error_messages)))
       end
 
       def status_code
