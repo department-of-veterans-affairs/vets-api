@@ -11,29 +11,32 @@ module AppealsApi
 
     def perform(higher_level_review_id, retries = 0)
       @retries = retries
+      stamped_pdf = generate_pdf(higher_level_review_id)
+      upload_to_central_mail(higher_level_review_id, stamped_pdf)
+    end
+
+    def generate_pdf(higher_level_review_id)
       pdf_constructor = AppealsApi::HigherLevelReviewPdfConstructor.new(higher_level_review_id)
       pdf_path = pdf_constructor.fill_pdf
       higher_level_review = HigherLevelReview.find higher_level_review_id
-      higher_level_review.processing!
-      stamped_pdf = pdf_constructor.stamp_pdf(pdf_path, higher_level_review.consumer_name)
-      upload_to_central_mail(higher_level_review_id, stamped_pdf)
+      higher_level_review.update!(status: 'processing')
+      pdf_constructor.stamp_pdf(pdf_path, higher_level_review.consumer_name)
     end
 
     def upload_to_central_mail(higher_level_review_id, pdf_path)
       higher_level_review = AppealsApi::HigherLevelReview.find higher_level_review_id
       metadata = {
-        'veteranFirstName' => higher_level_review.auth_headers['first_name'],
-        'veteranLastName' => higher_level_review.auth_headers['last_name'],
-        'source' => higher_level_review.auth_headers['consumer_name'],
+        'veteranFirstName' => higher_level_review.first_name,
+        'veteranLastName' => higher_level_review.last_name,
+        'fileNumber' => higher_level_review.file_number.presence || higher_level_review.ssn,
+        'zipCode' => higher_level_review.zip_code_5,
+        'source' => higher_level_review.consumer_name,
         'uuid' => higher_level_review.id,
         'hashV' => Digest::SHA256.file(pdf_path).hexdigest,
         'numberPages' => PdfInfo::Metadata.read(pdf_path).pages,
         'docType' => '20-0996'
       }
-      body = {
-        'metadata' => metadata,
-        'document' => to_faraday_upload(pdf_path, '200996-document.pdf')
-      }
+      body = { 'metadata' => metadata, 'document' => to_faraday_upload(pdf_path, '200996-document.pdf') }
       response = CentralMail::Service.new.upload(body)
       process_response(response, higher_level_review)
       log_submission(higher_level_review, metadata)
@@ -43,7 +46,7 @@ module AppealsApi
 
     def process_response(response, higher_level_review)
       if response.success? || response.body.match?(NON_FAILING_ERROR_REGEX)
-        higher_level_review.submitted!
+        higher_level_review.update!(status: 'submitted')
       else
         map_downstream_error(response.status, response.body, AppealsApi::UploadError)
       end

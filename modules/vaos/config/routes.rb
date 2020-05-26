@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 VAOS::Engine.routes.draw do
-  defaults format: :json do
+  namespace :v0, defaults: { format: :json } do
     resources :appointments, only: %i[index create] do
       put 'cancel', on: :collection
     end
@@ -24,5 +24,12 @@ VAOS::Engine.routes.draw do
     end
     resource :preferences, only: %i[show update]
     get 'apidocs', to: 'apidocs#index'
+  end
+
+  namespace :v1, defaults: { format: :json } do
+    get '/Organization', to: 'organizations#index'
+    get '/Organization/:id', to: 'organizations#show'
+    get '/Location/:id', to: 'locations#show'
+    get '/HealthcareService', to: 'healthcare_services#index'
   end
 end

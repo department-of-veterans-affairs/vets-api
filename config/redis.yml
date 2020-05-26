@@ -1,7 +1,6 @@
 development: &defaults
   redis:
-    host: <%= Settings.redis.host %>
-    port: <%= Settings.redis.port %>
+    url: <%= Settings.redis.app_data.url %>
   # DO NOT CHANGE BELOW TTL (We have agreement with MHV on this for SSO)
   session_store:
     namespace: vets-api-session
@@ -34,6 +33,9 @@ development: &defaults
   sm_store:
     namespace: sm-service
     each_ttl: 1200
+  mdot:
+    namespace: mdot
+    each_ttl: 1800
   mvi_profile_response:
     namespace: mvi-profile-response
     each_ttl: 86400

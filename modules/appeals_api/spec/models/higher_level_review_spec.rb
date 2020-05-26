@@ -117,8 +117,8 @@ describe AppealsApi::HigherLevelReview, type: :model do
   describe '#number_and_street' do
     subject { higher_level_review.number_and_street }
 
-    it('instructs to use address on file (because there\'s no address)') do
-      expect(subject).to eq described_class::NO_ADDRESS_PROVIDED_SENTENCE
+    it('matches json') do
+      expect(subject).to eq form_data.dig('data', 'attributes', 'veteran', 'address', 'addressLine1').to_s
     end
   end
 
@@ -222,6 +222,16 @@ describe AppealsApi::HigherLevelReview, type: :model do
     subject { higher_level_review.contestable_issues }
 
     it('matches json') { is_expected.to eq form_data['included'] }
+  end
+
+  describe '#date_signed' do
+    subject { higher_level_review.date_signed }
+
+    it('matches json') do
+      expect(subject).to eq(
+        Time.now.in_time_zone(form_data['data']['attributes']['veteran']['timezone']).strftime('%m/%d/%Y')
+      )
+    end
   end
 
   context 'validations' do
@@ -336,6 +346,25 @@ describe AppealsApi::HigherLevelReview, type: :model do
         expect(higher_level_review.errors.to_a.first).to include 'decisionDate'
         expect(higher_level_review.errors.to_a.second).to include 'decisionDate'
       end
+    end
+  end
+
+  describe 'removing persisted data' do
+    it 'removed the persisted data when success status reached' do
+      received_hlr = FactoryBot.create(:higher_level_review, :status_received)
+      received_hlr.status = 'success'
+      received_hlr.save
+      received_hlr.reload
+      expect(received_hlr.form_data).to be_nil
+      expect(received_hlr.auth_headers).to be_nil
+    end
+
+    it 'removed the persisted data when error status reached' do
+      received_hlr = FactoryBot.create(:higher_level_review, :status_received)
+      received_hlr.status = 'error'
+      received_hlr.save
+      received_hlr.reload
+      expect(received_hlr.form_data).to be_nil
     end
   end
 end

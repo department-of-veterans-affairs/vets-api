@@ -1,44 +1,28 @@
 # frozen_string_literal: true
 
+require 'rails_helper'
+
 describe AppealsApi::Docs::V1::DocsController, type: :request do
   describe '#decision_reviews' do
-    let(:decision_reviews_docs) { '/services/appeals/docs/v1/decision_reviews' }
+    before { get '/services/appeals/docs/v1/decision_reviews' }
+
+    let(:json) { JSON.parse(response.body) }
 
     it 'successfully returns openapi spec' do
-      get decision_reviews_docs
       expect(response).to have_http_status(:ok)
-      json = JSON.parse(response.body)
       expect(json['openapi']).to eq('3.0.0')
     end
 
-    describe '/higher_level_reviews documentation' do
-      before do
-        get decision_reviews_docs
-      end
-
-      let(:hlr_doc) do
-        json = JSON.parse(response.body)
-        json['paths']['/higher_level_reviews']
-      end
-
-      it 'supports POST' do
-        expect(hlr_doc).to include('post')
-      end
+    it('/higher_level_reviews supports POST') do
+      expect(json['paths']['/higher_level_reviews']).to include('post')
     end
 
-    describe '/contestable_issues documentation' do
-      before do
-        get decision_reviews_docs
-      end
+    it '/contestable_issues supports GET' do
+      expect(json['paths']['/contestable_issues']).to include('get')
+    end
 
-      let(:contestable_issues_doc) do
-        json = JSON.parse(response.body)
-        json['paths']['/contestable_issues']
-      end
-
-      it 'supports GET' do
-        expect(contestable_issues_doc).to include('get')
-      end
+    it 'HLR statuses match model (if this test fails, has there been a version change?)' do
+      expect(json['components']['schemas']['hlrStatus']['enum']).to eq AppealsApi::HigherLevelReview::STATUSES
     end
   end
 end

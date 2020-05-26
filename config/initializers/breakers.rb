@@ -28,9 +28,10 @@ require 'evss/documents_service'
 require 'evss/letters/service'
 
 # Read the redis config, create a connection and a namespace for breakers
-redis_namespace = Redis::Namespace.new('breakers', redis: Redis.current)
+redis_namespace = Redis::Namespace.new('breakers', redis: Redis.new(REDIS_CONFIG[:redis]))
 
 services = [
+  Debts::Configuration.instance.breakers_service,
   Caseflow::Configuration.instance.breakers_service,
   Rx::Configuration.instance.breakers_service,
   BB::Configuration.instance.breakers_service,

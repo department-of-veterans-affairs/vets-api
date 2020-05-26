@@ -7,18 +7,18 @@
 #  or `cookie_id` of you wish to use the Google Analytics id as the unique identifier.
 
 features:
+  pre_entry_covid19_screener:
+    actor_type: user
+    description: >
+      Toggle for the entire pre-entry covid 19 self-screener available at
+      /covid19screener and to be used by visitors to VHA facilities in lieu
+      of manual screening with a VHA employee.
+      This toggle is owned by Patrick B. and the rest of the CTO Health Products
+      team.
   dashboard_show_covid19_alert:
     actor_type: user
     description: >
       Allows for showing a special COVID19 alert on the My VA Dashboard
-  covid19_faq_chatbot_link:
-    actor_type: user
-    description: >
-      Shows the link to the Covid 19 chatbot on va.gov/coronavirus-veteran-frequently-asked-questions/.
-  facility_locator_show_covid19_chatbot_link:
-    actor_type: user
-    description: >
-      Shows the link to the Covid 19 chatbot in the Facility Locator app.
   facility_locator_show_community_cares:
     actor_type: user
     description: >
@@ -66,6 +66,30 @@ features:
     actor_type: user
     description: >
       Allows veterans to see past appointments
+  va_online_scheduling_vsp_appointment_list:
+    actor_type: user
+    description: >
+      Enables the use of VSP for VA appointment data and cancellation on list page
+  va_online_scheduling_vsp_appointment_new:
+    actor_type: user
+    description: >
+      Enables the use of VSP for creating a new VA appointment
+  va_online_scheduling_ccsp_appointment_list:
+    actor_type: user
+    description: >
+      Enables the use of CCSP for Community Care appointment data on list page
+  va_online_scheduling_ccsp_request_new:
+    actor_type: user
+    description: >
+      Enables the use of CCSP for making a new Community Care appointment request
+  va_online_scheduling_vsp_request_list:
+    actor_type: user
+    description: >
+      Enables the use of VSP for request data and cancellation on list page
+  va_online_scheduling_vsp_request_new:
+    actor_type: user
+    description: >
+      Enables the use of VSP for making a new VA appointment request
   va_global_downtime_notification:
     actor_type: user
     description: >
@@ -90,11 +114,23 @@ features:
     actor_type: user
     description: >
       Allows veterans to access form526 as an original claims user. Owned by va-benefits-memorial-1 team.
+  va_view_dependents_access:
+    actor_type: user
+    description: >
+      Allows us to gate the View/ Modify dependents content in a progressive rollout
   ssoe_ebenefits_links:
     actor_type: user
     description: >
       Enable eBenefits links to be proxied through eauth.va.gov, this allows users with SSOe sessions to stay logged in.
   ssoe_inbound:
-    actor_type: user
+    actor_type: cookie_id
     description: >
       Enables automatic establishment/disconnection of vets-api session based on a user's SSOe session status
+  allow_online_10_10cg_submissions:
+    actor_type: user
+    description: >
+      Allows (unauthenticated) users to submit a 10-10CG through VA.gov. This feature is also known as a Caregivers Assistance Claim.
+  stub_carma_responses:
+    actor_type: user
+    description: >
+      All 10-10CG submissions (Caregivers Assistance Claims) will not hit CARMA and instead return a dubmmy response.

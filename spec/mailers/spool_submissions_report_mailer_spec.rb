@@ -50,11 +50,10 @@ RSpec.describe SpoolSubmissionsReportMailer, type: %i[mailer aws_helpers] do
           %w[
             dana.kuykendall@va.gov
             Jennifer.Waltz2@va.gov
+            kathleen.dalfonso@va.gov
             lihan@adhocteam.us
             Ricardo.DaSilva@va.gov
             shay.norton@va.gov
-            johnny@oddball.io
-            John.Holton2@va.gov
           ]
         )
       end
@@ -110,11 +109,10 @@ RSpec.describe SpoolSubmissionsReportMailer, type: %i[mailer aws_helpers] do
           %w[
             dana.kuykendall@va.gov
             Jennifer.Waltz2@va.gov
+            kathleen.dalfonso@va.gov
             lihan@adhocteam.us
             Ricardo.DaSilva@va.gov
             shay.norton@va.gov
-            johnny@oddball.io
-            John.Holton2@va.gov
             kyle.pietrosanto@va.gov
             robert.shinners@va.gov
           ]

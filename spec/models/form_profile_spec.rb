@@ -73,6 +73,33 @@ RSpec.describe FormProfile, type: :model do
     }
   end
 
+  let(:v686_c_674_expected) do
+    {
+      'veteranInformation' => {
+        'veteranInformation' => {
+          'fullName' => {
+            'first' => 'Abraham',
+            'last' => 'Lincoln',
+            'suffix' => 'Jr.'
+          },
+          'ssn' => user.ssn,
+          'birthDate' => user.birth_date
+        },
+        'veteranAddress' => {
+          'veteranAddress' => {
+            'addressLine1' => '140 Rock Creek Rd',
+            'city' => 'Washington',
+            'countryName' => 'USA',
+            'stateCode' => 'DC',
+            'zipCode' => '20011'
+          },
+          'phoneNumber' => '4445551212',
+          'emailAddress' => 'test2@test1.net'
+        }
+      }
+    }
+  end
+
   let(:v21_686_c_expected) do
     {
       'veteranFullName' => {
@@ -491,6 +518,9 @@ RSpec.describe FormProfile, type: :model do
       'gender' => user.gender,
       'email' => user.pciu_email,
       'dateOfBirth' => user.birth_date,
+      'eligibility' => {
+        'accessories' => true
+      },
       'supplies' => [
         {
           'deviceName' => 'OMEGAX d3241',
@@ -499,7 +529,7 @@ RSpec.describe FormProfile, type: :model do
           'productId' => '1',
           'availableForReorder' => false,
           'lastOrderDate' => '2020-01-01',
-          'nextAvailabilityDate' => '2020-09-01',
+          'nextAvailabilityDate' => '2099-09-01',
           'quantity' => 60,
           'size' => '',
           'prescribedDate' => '2019-12-25'
@@ -664,7 +694,8 @@ RSpec.describe FormProfile, type: :model do
             'stateOrProvinceCode' => user.va_profile[:address][:state],
             'zipPostalCode' => user.va_profile[:address][:postal_code][0..4],
             'phoneNumber' => us_phone,
-            'emailAddress' => user.pciu_email
+            'emailAddress' => user.pciu_email,
+            'ssnLastFour' => user.ssn.last(4)
           }
         }
       }
@@ -908,6 +939,7 @@ RSpec.describe FormProfile, type: :model do
           22-0993
           FEEDBACK-TOOL
           22-10203
+          686C-674
         ].each do |form_id|
           it "returns prefilled #{form_id}" do
             expect_prefilled(form_id)

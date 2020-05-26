@@ -11,6 +11,7 @@ class AppealsApi::V1::DecisionReview::HigherLevelReviewsController < AppealsApi:
   before_action :validate_json_format, if: -> { request.post? }
   before_action :validate_json_schema, only: %i[create validate]
   before_action :new_higher_level_review, only: %i[create validate]
+  before_action :find_higher_level_review, only: %i[show]
 
   FORM_NUMBER = '200996'
   MODEL_ERROR_STATUS = 422
@@ -18,12 +19,12 @@ class AppealsApi::V1::DecisionReview::HigherLevelReviewsController < AppealsApi:
     File.read(
       AppealsApi::Engine.root.join('config/schemas/200996_headers.json')
     )
-  )['properties'].keys
+  )['definitions']['hlrCreateParameters']['properties'].keys
 
   def create
     @higher_level_review.save
     AppealsApi::HigherLevelReviewPdfSubmitJob.perform_async(@higher_level_review.id)
-    render json: @higher_level_review, serializer: AppealsApi::HigherLevelReviewSerializer
+    render_higher_level_review
   end
 
   def validate
@@ -31,7 +32,13 @@ class AppealsApi::V1::DecisionReview::HigherLevelReviewsController < AppealsApi:
   end
 
   def schema
-    render json: { data: [AppealsApi::FormSchemas.new.schemas[self.class::FORM_NUMBER]] }
+    render json: AppealsApi::JsonSchemaToSwaggerConverter.remove_comments(
+      AppealsApi::FormSchemas.new.schema(self.class::FORM_NUMBER)
+    )
+  end
+
+  def show
+    render_higher_level_review
   end
 
   private
@@ -86,5 +93,27 @@ class AppealsApi::V1::DecisionReview::HigherLevelReviewsController < AppealsApi:
     end
 
     { errors: errors }
+  end
+
+  def find_higher_level_review
+    @id = params[:id]
+    @higher_level_review = AppealsApi::HigherLevelReview.find(@id)
+  rescue ActiveRecord::RecordNotFound
+    render_higher_level_review_not_found
+  end
+
+  def render_higher_level_review_not_found
+    render(
+      status: :not_found,
+      json: {
+        errors: [
+          { status: 404, detail: "HigherLevelReview with uuid #{@id.inspect} not found." }
+        ]
+      }
+    )
+  end
+
+  def render_higher_level_review
+    render json: @higher_level_review, serializer: AppealsApi::HigherLevelReviewSerializer
   end
 end

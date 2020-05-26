@@ -70,8 +70,7 @@ Rails.application.routes.draw do
 
     resource :hca_attachments, only: :create
 
-    # Excluding this feature until external service (CARMA) is connected
-    resources :caregivers_assistance_claims, only: :create unless Rails.env.production?
+    resources :caregivers_assistance_claims, only: :create
 
     resources :dependents_applications, only: %i[create show] do
       collection do
@@ -297,6 +296,10 @@ Rails.application.routes.draw do
       post :saml_callback, to: 'sessions#saml_callback'
       post :saml_slo_callback, to: 'sessions#saml_slo_callback'
     end
+
+    namespace :facilities, module: 'facilities' do
+      resources :va, only: %i[index show]
+    end
   end
 
   root 'v0/example#index', module: 'v0'
@@ -316,7 +319,7 @@ Rails.application.routes.draw do
     mount VeteranConfirmation::Engine, at: '/veteran_confirmation'
   end
 
-  mount VAOS::Engine, at: '/v0/vaos'
+  mount VAOS::Engine, at: '/vaos'
 
   if Rails.env.development? || Settings.sidekiq_admin_panel
     require 'sidekiq/web'
