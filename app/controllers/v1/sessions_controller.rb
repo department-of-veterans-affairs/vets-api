@@ -31,12 +31,11 @@ module V1
       type = params[:type]
       raise Common::Exceptions::RoutingError, params[:path] unless REDIRECT_URLS.include?(type)
 
-      StatsD.increment(STATSD_SSO_NEW_KEY,
-                       tags: ["context:#{type}", VERSION_TAG])
-      StatsD.increment(STATSD_SSO_NEW_FORCEAUTH,
-                       tags: ["context:#{type}", VERSION_TAG]) if force_authn?
-      StatsD.increment(STATSD_SSO_NEW_INBOUND,
-                       tags: ["context:#{type}", VERSION_TAG]) if inbound_ssoe?
+      tags = ["context:#{type}", VERSION_TAG]
+      StatsD.increment(STATSD_SSO_NEW_KEY, tags: tags)
+      StatsD.increment(STATSD_SSO_NEW_FORCEAUTH, tags: tags) if force_authn?
+      StatsD.increment(STATSD_SSO_NEW_INBOUND, tags: tags) if inbound_ssoe?
+
       url = redirect_url(type)
 
       if type == 'slo'
