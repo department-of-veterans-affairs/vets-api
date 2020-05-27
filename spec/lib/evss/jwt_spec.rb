@@ -3,7 +3,7 @@
 require 'rails_helper'
 require 'evss/jwt'
 
-describe EVSS::Jwt do
+describe EVSS::JWT do
   subject(:decrypted_token) do
     JWT.decode(
       described_class.new(current_user).encode,

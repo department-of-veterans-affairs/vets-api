@@ -36,7 +36,7 @@ module EVSS
       # overrides EVSS::Service#headers_for_user
       def headers_for_user(user)
         {
-          Authorization: "Bearer #{EVSS::Jwt.new(user).encode}"
+          Authorization: "Bearer #{EVSS::JWT.new(user).encode}"
         }
       end
     end
