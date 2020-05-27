@@ -10,7 +10,7 @@ module AppealsApi
 
     def fill_pdf
       pdftk = PdfForms.new(Settings.binaries.pdftk)
-      temp_path = "/tmp/#{hlr.id}.pdf"
+      temp_path = "/tmp/#{hlr.id}"
       output_path = temp_path + '-final.pdf'
       pdftk.fill_form(
         "#{PDF_TEMPLATE}/200996.pdf",
@@ -40,11 +40,6 @@ module AppealsApi
         text text
       end
       output_path
-    end
-
-    def count_pdf_pages(pdf_file_path)
-      pdf = Prawn::Document.new(template: pdf_file_path)
-      pdf.page_count
     end
 
     def stamp_pdf(pdf_path, consumer_name)
