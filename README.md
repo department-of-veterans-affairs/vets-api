@@ -135,6 +135,8 @@ features, and will run the unit tests successfully.
 
 ### Troubleshooting
 
+As a general technique, if you're running `vets-api` in Docker and run into a problem, doing a `make rebuild` is a good first step to fix configuration, gem, and other various code problems.
+
 #### `make up` fails with a message about missing gems
 
 ```bash
