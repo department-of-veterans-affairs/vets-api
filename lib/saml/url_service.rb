@@ -196,7 +196,6 @@ module SAML
       default = Settings.ssoe.redirects[params[:application]]
       return default unless default && params[:to]
 
-      Rails.logger.info("PV: redirect to param is #{params[:to]}")
       prefix = default.delete_suffix('/')
       suffix = params[:to].delete_prefix('/').gsub("\r\n", '')
       [prefix, suffix].join('/')
