@@ -13,6 +13,7 @@ module AppealsApi
       @retries = retries
       stamped_pdf = generate_pdf(higher_level_review_id)
       upload_to_central_mail(higher_level_review_id, stamped_pdf)
+      File.delete(stamped_pdf) if File.exist?(stamped_pdf)
     end
 
     def generate_pdf(higher_level_review_id)
