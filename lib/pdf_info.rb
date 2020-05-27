@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-module PdfInfo
+module PDFInfo
   class MetadataReadError < RuntimeError
     def initialize(status, stdout)
       super "pdfinfo exited with status #{status} and message #{stdout}"
@@ -31,7 +31,7 @@ module PdfInfo
       @internal_hash ||= parse_result
       @internal_hash[key]
     rescue => e
-      raise PdfInfo::MetadataReadError.new(-1, e.message)
+      raise PDFInfo::MetadataReadError.new(-1, e.message)
     end
 
     def encrypted?
@@ -67,7 +67,7 @@ module PdfInfo
     end
 
     def init_error
-      raise PdfInfo::MetadataReadError.new(@exit_status.exitstatus, @stdout.join('\n'))
+      raise PDFInfo::MetadataReadError.new(@exit_status.exitstatus, @stdout.join('\n'))
     end
 
     def force_utf8_encoding(str)

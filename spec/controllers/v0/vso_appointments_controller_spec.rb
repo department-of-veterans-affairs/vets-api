@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe V0::VsoAppointmentsController, type: :controller do
+RSpec.describe V0::VSOAppointmentsController, type: :controller do
   context 'before login' do
     it 'rejects a post' do
       post :create, params: { 'beep': 'boop' }
@@ -24,7 +24,7 @@ RSpec.describe V0::VsoAppointmentsController, type: :controller do
 
     it 'balks at a bunch of garbage values' do
       payload = {}
-      VsoAppointment.attribute_set.each { |attr| payload[attr.name.to_s] = 'beep' }
+      VSOAppointment.attribute_set.each { |attr| payload[attr.name.to_s] = 'beep' }
       %w[claimant_full_name veteran_full_name claimant_address].each do |attr|
         payload.delete(attr)
       end
@@ -37,7 +37,7 @@ RSpec.describe V0::VsoAppointmentsController, type: :controller do
       VCR.use_cassette('vso_appointments/upload') do
         # fill in everything with junk by default
         payload = {}
-        VsoAppointment.attribute_set.each { |attr| payload[attr.name.to_s] = 'beep' }
+        VSOAppointment.attribute_set.each { |attr| payload[attr.name.to_s] = 'beep' }
 
         # This will actually accept camel case, but /shrug
         payload = payload.merge(

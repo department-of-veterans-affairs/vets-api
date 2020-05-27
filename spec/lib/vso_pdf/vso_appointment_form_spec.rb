@@ -2,35 +2,34 @@
 
 require 'pdf_forms'
 require 'rails_helper'
-require 'vsopdf/vso_appointment_form'
 
-describe VsoAppointmentForm do
+describe VSOPDF::VSOAppointmentForm do
   include SchemaMatchers
 
-  form = VsoAppointmentForm.new(VsoAppointment.new(
-                                  veteran_full_name: {
-                                    first: 'Graham',
-                                    last: 'Test'
-                                  },
-                                  claimant_address: {
-                                    street: '123 Fake St',
-                                    street2: 'apt #1',
-                                    city: 'Philadelphia',
-                                    country: 'USA',
-                                    state: 'PA',
-                                    postal_code: '19119'
-                                  },
-                                  appointment_date: '2018-01-02',
-                                  insurance_number: '12345',
-                                  va_file_number: '111223333',
-                                  claimant_evening_phone: '555-1212',
-                                  organization_name: 'some org',
-                                  organization_representative_name: 'John Smith',
-                                  organization_representative_title: 'Director of weird field names',
-                                  disclosure_exception_hiv: true
-                                ))
+  form = described_class.new(VSOAppointment.new(
+                               veteran_full_name: {
+                                 first: 'Graham',
+                                 last: 'Test'
+                               },
+                               claimant_address: {
+                                 street: '123 Fake St',
+                                 street2: 'apt #1',
+                                 city: 'Philadelphia',
+                                 country: 'USA',
+                                 state: 'PA',
+                                 postal_code: '19119'
+                               },
+                               appointment_date: '2018-01-02',
+                               insurance_number: '12345',
+                               va_file_number: '111223333',
+                               claimant_evening_phone: '555-1212',
+                               organization_name: 'some org',
+                               organization_representative_name: 'John Smith',
+                               organization_representative_title: 'Director of weird field names',
+                               disclosure_exception_hiv: true
+                             ))
 
-  it 'translates a VsoAppointment object' do
+  it 'translates a VSOAppointment object' do
     # Spot check the arg translation
     args = form.to_pdf_args
 
@@ -53,7 +52,7 @@ describe VsoAppointmentForm do
   end
 
   it 'generates central mail metadata' do
-    meta = form.get_metadata 'lib/vsopdf/VBA-21-22-ARE.pdf'
+    meta = form.get_metadata 'lib/vso_pdf/VBA-21-22-ARE.pdf'
     expect(meta[:numberAttachments]).to eq 0
     expect(meta[:veteranFirstName]).to eq 'Graham'
     expect(meta[:veteranLastName]).to eq 'Test'

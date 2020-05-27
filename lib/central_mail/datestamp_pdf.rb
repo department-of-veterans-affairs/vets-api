@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module CentralMail
-  class DatestampPdf
+  class DatestampPDF
     def initialize(file_path, append_to_stamp: nil)
       @file_path = file_path
       @append_to_stamp = append_to_stamp
@@ -31,7 +31,7 @@ module CentralMail
 
     def stamp(file_path, stamp_path)
       out_path = "#{Common::FileHelpers.random_file_path}.pdf"
-      PdfFill::Filler::PDF_FORMS.stamp(file_path, stamp_path, out_path)
+      PDFFill::Filler::PDF_FORMS.stamp(file_path, stamp_path, out_path)
       File.delete(file_path)
       out_path
     rescue

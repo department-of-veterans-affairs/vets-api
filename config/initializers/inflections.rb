@@ -23,6 +23,7 @@ ActiveSupport::Inflector.inflections do |inflect|
   inflect.acronym 'NCA'
   inflect.acronym 'PagerDuty'
   inflect.acronym 'PCIU'
+  inflect.acronym 'PDF'
   inflect.acronym 'PPIU'
   inflect.acronym 'PPMS'
   inflect.acronym 'PSSG'
@@ -38,5 +39,6 @@ ActiveSupport::Inflector.inflections do |inflect|
   inflect.acronym 'VIC'
   inflect.acronym 'VC'
   inflect.acronym 'VHA'
+  inflect.acronym 'VSO'
   inflect.uncountable 'terms_and_conditions'
 end

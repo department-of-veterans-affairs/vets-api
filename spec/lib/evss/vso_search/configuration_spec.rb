@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-describe EVSS::VsoSearch::Configuration do
+describe EVSS::VSOSearch::Configuration do
   describe '#base_path' do
     it 'has a base path' do
       version = Settings.evss.versions.common
@@ -13,7 +13,7 @@ describe EVSS::VsoSearch::Configuration do
 
   describe '#service_name' do
     it 'has the expected service name' do
-      expect(described_class.instance.service_name).to eq('EVSS/VsoSearch')
+      expect(described_class.instance.service_name).to eq('EVSS/VSOSearch')
     end
   end
 

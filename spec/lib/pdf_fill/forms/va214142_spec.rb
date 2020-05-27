@@ -4,10 +4,10 @@ require 'rails_helper'
 require 'pdf_fill/hash_converter'
 
 def basic_class
-  PdfFill::Forms::Va214142.new({})
+  PDFFill::Forms::Va214142.new({})
 end
 
-describe PdfFill::Forms::Va214142 do
+describe PDFFill::Forms::Va214142 do
   let(:form_data) do
     {}
   end

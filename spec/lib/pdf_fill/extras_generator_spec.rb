@@ -3,7 +3,7 @@
 require 'rails_helper'
 require 'pdf_fill/extras_generator'
 
-describe PdfFill::ExtrasGenerator do
+describe PDFFill::ExtrasGenerator do
   subject do
     described_class.new
   end

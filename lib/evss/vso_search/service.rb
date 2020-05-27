@@ -1,15 +1,15 @@
 # frozen_string_literal: true
 
 module EVSS
-  module VsoSearch
+  module VSOSearch
     ##
     # Proxy Service for VSO search
     #
     # @example Create a service and fetching current info for a user
-    #   vso_search_response = VsoSearch::Service.new.get_current_info
+    #   vso_search_response = VSOSearch::Service.new.get_current_info
     #
     class Service < EVSS::Service
-      configuration EVSS::VsoSearch::Configuration
+      configuration EVSS::VSOSearch::Configuration
 
       ##
       # Returns current info for a user by their SSN
