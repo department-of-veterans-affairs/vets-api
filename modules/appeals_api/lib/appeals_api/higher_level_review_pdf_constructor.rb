@@ -10,13 +10,41 @@ module AppealsApi
 
     def fill_pdf
       pdftk = PdfForms.new(Settings.binaries.pdftk)
-      output_path = "/tmp/#{hlr.id}.pdf"
+      temp_path = "/tmp/#{hlr.id}"
+      output_path = temp_path + '.pdf'
       pdftk.fill_form(
         "#{PDF_TEMPLATE}/200996.pdf",
-        output_path,
+        temp_path,
         pdf_options,
         flatten: true
       )
+      merge_page(temp_path, output_path)
+    end
+
+    def merge_page(temp_path, output_path)
+      if pdf_options[:additional_page]
+        pdf_file_paths = [temp_path]
+        Prawn::Document.generate(output_path, { skip_page_creation: true }) do |pdf|
+          pdf_file_paths.each do |pdf_file|
+            if File.exist?(pdf_file)
+              pdf_temp_nb_pages = Prawn::Document.new(template: pdf_file).page_count
+              (1..pdf_temp_nb_pages).each do |i|
+                pdf.start_new_page(template: pdf_file, template_page: i)
+              end
+            end
+          end
+        end
+      else
+        output_path = temp_path
+      end
+      output_path
+    end
+
+    def add_page
+      output_path = "/tmp/#{hlr.id}-additional_page.pdf"
+      Prawn::Document.generate output_path do
+        text(pdf_options[:additional_page])
+      end
       output_path
     end
 
@@ -41,6 +69,8 @@ module AppealsApi
     # rubocop:disable Metrics/CyclomaticComplexity
     # rubocop:disable Metrics/PerceivedComplexity
     def pdf_options
+      return @pdf_options if @pdf_options
+
       options = {
         "F[0].#subform[2].VeteransFirstName[0]": hlr.first_name,
         "F[0].#subform[2].VeteransMiddleInitial1[0]": hlr.middle_initial,
@@ -83,20 +113,23 @@ module AppealsApi
         "F[0].#subform[3].DateSigned[0]": hlr.date_signed
       }
       hlr.contestable_issues.each_with_index do |issue, index|
-        next if index >= 6
-
-        if index.zero?
-          options[:"F[0].#subform[3].SPECIFICISSUE#{index + 1}[1]"] = issue['attributes']['issue']
-          options[:'F[0].#subform[3].DateofDecision[5]'] = issue['attributes']['decisionDate']
-        elsif index == 1
-          options[:"F[0].#subform[3].SPECIFICISSUE#{index}[0]"] = issue['attributes']['issue']
-          options[:"F[0].#subform[3].DateofDecision[#{index - 1}]"] = issue['attributes']['decisionDate']
+        if index < 6
+          if index.zero?
+            options[:"F[0].#subform[3].SPECIFICISSUE#{index + 1}[1]"] = issue['attributes']['issue']
+            options[:'F[0].#subform[3].DateofDecision[5]'] = issue['attributes']['decisionDate']
+          elsif index == 1
+            options[:"F[0].#subform[3].SPECIFICISSUE#{index}[0]"] = issue['attributes']['issue']
+            options[:"F[0].#subform[3].DateofDecision[#{index - 1}]"] = issue['attributes']['decisionDate']
+          else
+            options[:"F[0].#subform[3].SPECIFICISSUE#{index + 1}[0]"] = issue['attributes']['issue']
+            options[:"F[0].#subform[3].DateofDecision[#{index - 1}]"] = issue['attributes']['decisionDate']
+          end
         else
-          options[:"F[0].#subform[3].SPECIFICISSUE#{index + 1}[0]"] = issue['attributes']['issue']
-          options[:"F[0].#subform[3].DateofDecision[#{index - 1}]"] = issue['attributes']['decisionDate']
+          text = "Issue: #{issue['attributes']['issue']} - Decision Date: #{issue['attributes']['decisionDate']}"
+          options[:additional_page] = "#{text}\n#{options[:additional_page]}"
         end
       end
-      options
+      @pdf_options = options
     end
     # rubocop:enable Metrics/MethodLength
     # rubocop:enable Metrics/AbcSize

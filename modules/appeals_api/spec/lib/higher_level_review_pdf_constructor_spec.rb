@@ -10,6 +10,12 @@ describe AppealsApi::HigherLevelReviewPdfConstructor do
     expect(constructor.pdf_options).to eq(valid_pdf_options)
   end
 
+  it 'builds the extra pdf options' do
+    higher_level_review = create(:extra_higher_level_review)
+    constructor = AppealsApi::HigherLevelReviewPdfConstructor.new(higher_level_review.id)
+    expect(constructor.pdf_options).to eq(valid_pdf_options)
+  end
+
   private
 
   # rubocop:disable Metrics/MethodLength
