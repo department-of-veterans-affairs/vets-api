@@ -157,7 +157,7 @@ following command:
 
 Jenkins deploys `vets-api` upon each merge to `master`:
 
-http://jenkins.vfs.va.gov/job/department-of-veterans-affairs/job/vets-api/job/master/
+http://jenkins.vfs.va.gov/job/testing/job/vets-api/job/master/
 
 Each deploy is available here:
 
