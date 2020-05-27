@@ -10,7 +10,7 @@ module AppealsApi
 
     def fill_pdf
       pdftk = PdfForms.new(Settings.binaries.pdftk)
-      temp_path = "/tmp/#{hlr.id}"
+      temp_path = "#{Rails.root}/tmp/#{hlr.id}"
       output_path = temp_path + '-final.pdf'
       pdftk.fill_form(
         "#{PDF_TEMPLATE}/200996.pdf",
@@ -25,7 +25,7 @@ module AppealsApi
       new_path = if pdf_options[:additional_page]
                    pdf = CombinePDF.new
                    pdf << CombinePDF.load(temp_path)
-                   pdf << CombinePDF.load(add_page(pdf_options[:additional_page]))
+                   pdf << CombinePDF.load(add_page(pdf_options[:additional_page], temp_path))
                    pdf.save(output_path)
                    output_path
                  else
@@ -35,7 +35,7 @@ module AppealsApi
     end
 
     def add_page(text)
-      output_path = "/tmp/#{hlr.id}-additional_page.pdf"
+      output_path = temp_path + '-additional_page.pdf'
       Prawn::Document.generate output_path do
         text text
       end
