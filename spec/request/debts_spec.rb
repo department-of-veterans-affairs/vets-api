@@ -24,7 +24,7 @@ RSpec.describe 'Debts API Endpoint', type: :request do
   describe 'GET /v0/debts' do
     context 'with a veteran who has debts' do
       it 'returns a 200 with the array of debts' do
-        VCR.use_cassette('debts/get_letters') do
+        VCR.use_cassette('debts/get_letters', VCR::MATCH_EVERYTHING) do
           get '/v0/debts'
           expect(response).to have_http_status(:ok)
           expect(response).to match_response_schema('debts')
@@ -35,7 +35,7 @@ RSpec.describe 'Debts API Endpoint', type: :request do
 
   context 'with a veteran with empty ssn' do
     it 'returns an error' do
-      VCR.use_cassette('debts/get_letters_error', :record => :all) do
+      VCR.use_cassette('debts/get_letters_error', VCR::MATCH_EVERYTHING) do
         get '/v0/debts'
         expect(response).to have_http_status(:error)
       end
