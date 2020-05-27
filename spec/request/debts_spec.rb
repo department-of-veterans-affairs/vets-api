@@ -37,7 +37,7 @@ RSpec.describe 'Debts API Endpoint', type: :request do
     it 'returns an error' do
       VCR.use_cassette('debts/get_letters_empty_ssn', VCR::MATCH_EVERYTHING) do
         get '/v0/debts'
-        expect(response).to have_http_status(:bad_request)
+        expect(response).to have_http_status(:internal_server_error)
       end
     end
   end
