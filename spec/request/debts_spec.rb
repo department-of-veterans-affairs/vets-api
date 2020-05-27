@@ -5,9 +5,9 @@ require 'rails_helper'
 RSpec.describe 'Debts API Endpoint', type: :request do
   include SchemaMatchers
 
-  describe 'GET /debts' do
-    let(:user_with_ssn) { create(:user, :loa3, ssn: '000000009') }
-    let(:user_without_ssn) { create(:user, :loa3, ssn: '')}
+  describe 'GET /v0/debts' do
+    let(:user_with_ssn) { FactoryBot.create(:user, :loa3, ssn: '000000009') }
+    let(:user_without_ssn) { FactoryBot.create(:user, :loa3, ssn: '')}
   
     context 'with a veteran who has debts' do
       it 'returns a 200 with the array of debts' do
