@@ -21,17 +21,13 @@ module AppealsApi
       merge_page(temp_path, output_path)
     end
 
-    def merge_page(temp_path, _output_path)
+    def merge_page(temp_path, output_path)
       new_path = if pdf_options[:additional_page]
-                   add_page(pdf_options[:additional_page])
-                 # new_path = add_page(pdf_options[:additional_page])
-                 # Prawn::Document.generate(output_path, :template => temp_path) do |pdf|
-                 # pdf.go_to_page(pdf.page_count)
-                 # template_page_count = count_pdf_pages(temp_path)
-                 # (1..template_page_count).each do |template_page_number|
-                 #   pdf.start_new_page(:template => temp_path, :template_page => template_page_number)
-                 # end
-                 # end
+                   pdf = CombinePDF.new
+                   pdf << CombinePDF.load(temp_path)
+                   pdf << CombinePDF.load(add_page(pdf_options[:additional_page]))
+                   pdf.save(output_path)
+                   output_path
                  else
                    temp_path
                  end
