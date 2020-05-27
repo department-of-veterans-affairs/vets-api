@@ -34,7 +34,7 @@ module AppealsApi
       new_path
     end
 
-    def add_page(text)
+    def add_page(text, temp_path)
       output_path = temp_path + '-additional_page.pdf'
       Prawn::Document.generate output_path do
         text text
