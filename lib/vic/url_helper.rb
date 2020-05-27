@@ -6,14 +6,14 @@ require 'oj'
 require 'openssl'
 
 module VIC
-  class URLHelper
+  class UrlHelper
     class << self
       def generate(id_attributes)
         params = id_attributes.traits
         params['timestamp'] = Time.now.utc.iso8601
 
         canonical_string = Oj.dump(params)
-        params['signature'] = URLHelper.sign(canonical_string)
+        params['signature'] = UrlHelper.sign(canonical_string)
         {
           'url' => Settings.vic.url,
           'traits' => params
@@ -22,7 +22,7 @@ module VIC
 
       def sign(canonical_string)
         digest = OpenSSL::Digest::SHA256.new
-        Base64.urlsafe_encode64(URLHelper.signing_key.sign(digest, canonical_string))
+        Base64.urlsafe_encode64(UrlHelper.signing_key.sign(digest, canonical_string))
       end
 
       def signing_key
