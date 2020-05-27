@@ -24,7 +24,6 @@ To start, fetch this code:
    - `cd vets-api; bundle install`
    - More information about installing _with_ Sidekiq Enterprise as well as our credentials are on the internal system [here](https://github.com/department-of-veterans-affairs/vets.gov-team/blob/master/Products/Platform/Vets-API/Sidekiq%20Enterprise%20Setup.md)
 1. Install overcommit `overcommit --install --sign`
-1.  Create the development database: `bundle exec rake db:setup`
 1. Make sure you have the [vets-api-mockdata](https://github.com/department-of-veterans-affairs/vets-api-mockdata) repo locally installed, preferably in a parallel directory to `vets-api`.
 1.  Go to the file `config/settings/development.yml` and make sure the `cache-dir` points to the local installation of `vets-api-mockdata` from the previous step.
    ```yaml
@@ -48,6 +47,8 @@ To start, fetch this code:
    saml:
      authn_requests_signed: false
    ```
+1. Run `bin/setup` to setup the database and start the server.
+
 
 ## Platform Specific Notes
 
