@@ -13,5 +13,15 @@ RSpec.describe Debts::Service do
         expect(JSON.parse(res.to_json)[0]['fileNumber']).to eq('000000009')
       end
     end
+
+    it 'fetches the veterans debt letters data' do
+      VCR.use_cassette(
+        'debts/get_letters_empty_ssn',
+        VCR::MATCH_EVERYTHING
+      ) do
+        res = described_class.new.get_letters(fileNumber: '')
+        expect(JSON.parse(res.to_json)[0]['fileNumber']).to eq('')
+      end
+    end
   end
 end
