@@ -10,8 +10,8 @@ module AppealsApi
 
     def fill_pdf
       pdftk = PdfForms.new(Settings.binaries.pdftk)
-      temp_path = "/tmp/#{hlr.id}"
-      output_path = temp_path + '.pdf'
+      temp_path = "/tmp/#{hlr.id}.pdf"
+      output_path = temp_path + '-final.pdf'
       pdftk.fill_form(
         "#{PDF_TEMPLATE}/200996.pdf",
         temp_path,
@@ -23,15 +23,11 @@ module AppealsApi
 
     def merge_page(temp_path, output_path)
       if pdf_options[:additional_page]
-        pdf_file_paths = [temp_path]
-        Prawn::Document.generate(output_path, { skip_page_creation: true }) do |pdf|
-          pdf_file_paths.each do |pdf_file|
-            if File.exist?(pdf_file)
-              pdf_temp_nb_pages = Prawn::Document.new(template: pdf_file).page_count
-              (1..pdf_temp_nb_pages).each do |i|
-                pdf.start_new_page(template: pdf_file, template_page: i)
-              end
-            end
+        # new_path = add_page(pdf_options[:additional_page])
+        Prawn::Document.generate(output_path) do |pdf|
+          pdf_temp_nb_pages = Prawn::Document.new(template: temp_path).page_count
+          (1..pdf_temp_nb_pages).each do |i|
+            pdf.start_new_page(template: temp_path, template_page: i)
           end
         end
       else
@@ -40,10 +36,10 @@ module AppealsApi
       output_path
     end
 
-    def add_page
+    def add_page(text)
       output_path = "/tmp/#{hlr.id}-additional_page.pdf"
       Prawn::Document.generate output_path do
-        text(pdf_options[:additional_page])
+        text text
       end
       output_path
     end
