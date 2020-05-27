@@ -15,7 +15,7 @@ RSpec.describe Debts::Service do
         end
       end
     end
-    
+
     context 'without a valid ssn' do
       it 'returns a bad request error' do
         VCR.use_cassette(
