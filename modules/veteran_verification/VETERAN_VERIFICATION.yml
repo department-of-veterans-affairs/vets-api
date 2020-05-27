@@ -175,7 +175,7 @@ components:
         type:
           description: JSON API type specification
           type: string
-          example: 'document_upload'
+          example: 'disability-rating'
         attributes:
           $ref: '#/components/schemas/DisabilityRatingAttributes'
     DisabilityRatingAttributes:

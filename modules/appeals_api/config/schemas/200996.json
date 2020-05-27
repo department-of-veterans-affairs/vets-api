@@ -86,17 +86,7 @@
 
     "hlrCreateBenefitType": {
       "type": "string",
-      "enum": [
-        "compensation",
-        "pension",
-        "fiduciary",
-        "insurance",
-        "education",
-        "voc_rehab",
-        "loan_guaranty",
-        "vha",
-        "nca"
-      ]
+      "enum": [ "compensation" ]
     },
 
 
@@ -137,7 +127,7 @@
       "type": "object",
       "properties": {
         "countryCode":     { "type": "string", "pattern": "^[0-9]+$" },
-        "areaCode":        { "type": "string", "pattern": "[2-9][0-9]{2}" },
+        "areaCode":        { "type": "string", "pattern": "^[2-9][0-9]{2}$" },
         "phoneNumber":     { "type": "string", "pattern": "^[0-9]{1,14}$" },
         "phoneNumberExt":  { "type": "string", "pattern": "^[a-zA-Z0-9]{1,10}$" }
       },
