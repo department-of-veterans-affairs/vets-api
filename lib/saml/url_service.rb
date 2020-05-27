@@ -56,7 +56,7 @@ module SAML
       if auth == 'success'
         return verify_url if user.loa[:current] < user.loa[:highest]
 
-        redirect_target = build_tracked_url
+        redirect_target = @tracker&.payload_attr(:redirect)
         return redirect_target if redirect_target.present?
       end
 
@@ -71,16 +71,6 @@ module SAML
       end
     end
     # rubocop:enable Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
-
-    def build_tracked_url
-      return nil unless @tracker&.payload_attr(:redirect)
-
-      prefix = @tracker&.payload_attr(:redirect)
-      prefix = prefix.delete_suffix('/')
-      suffix = @tracker&.payload_attr(:to) || ''
-      suffix = suffix.delete_prefix('/').gsub('\r\n', '')
-      [prefix, suffix].join('/')
-    end
 
     def logout_redirect_url
       "#{base_redirect_url}#{LOGOUT_REDIRECT_PARTIAL}"
@@ -202,17 +192,26 @@ module SAML
       end
     end
 
+    def build_redirect(params)
+      default = Settings.ssoe.redirects[params[:application]]
+      return default unless default && params[:to]
+
+      Rails.logger.info("PV: redirect to param is #{params[:to]}")
+      prefix = default.delete_suffix('/')
+      suffix = params[:to].delete_prefix('/').gsub("\r\n", '')
+      [prefix, suffix].join('/')
+    end
+
     # Initialize a new SAMLRequestTracker, if a valid previous SAML UUID is
     # given, copy over the redirect and created_at timestamp.  This is useful
     # for a user that has to go through the upleveling process.
     def initialize_tracker(params, previous_saml_uuid: nil)
       previous = previous_saml_uuid && SAMLRequestTracker.find(previous_saml_uuid)
-      redirect = previous&.payload_attr(:redirect) || Settings.ssoe.redirects[params[:application]]
-      to = previous&.payload_attr(:to) || params[:to]
+      redirect = previous&.payload_attr(:redirect) || build_redirect(params)
       # if created_at is set to nil (meaning no previous tracker to use), it
       # will be initialized to the current time when it is saved
       SAMLRequestTracker.new(
-        payload: redirect ? { redirect: redirect, to: to } : {},
+        payload: redirect ? { redirect: redirect } : {},
         created_at: previous&.created_at
       )
     end
