@@ -101,10 +101,6 @@ module V1
       params[:force]&.downcase == 'true'
     end
 
-    def inbound_ssoe?
-      params[:inbound]&.downcase == 'true'
-    end
-
     def saml_settings(options = {})
       # add a forceAuthn value to the saml settings based on the initial options or
       # the "force" value in the query params
