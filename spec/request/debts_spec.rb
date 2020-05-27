@@ -20,4 +20,15 @@ RSpec.describe 'Debts API Endpoint', type: :request do
       end
     end
   end
+
+  context 'with a veteran with empty ssn' do
+    let(:user) { create(:user, :loa3, ssn: '')}
+
+    it 'returns an error' do
+      VCR.use_cassette('debts/get_letters_error', :record => :all) do
+        get '/v0/debts'
+        expect(response).to have_http_status(:error)
+      end
+    end
+  end
 end
