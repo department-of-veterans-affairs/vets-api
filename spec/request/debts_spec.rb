@@ -35,9 +35,9 @@ RSpec.describe 'Debts API Endpoint', type: :request do
 
   context 'with a veteran with empty ssn' do
     it 'returns an error' do
-      VCR.use_cassette('debts/get_letters_error', VCR::MATCH_EVERYTHING) do
+      VCR.use_cassette('debts/get_letters_empty_ssn', VCR::MATCH_EVERYTHING) do
         get '/v0/debts'
-        expect(response).to have_http_status(:error)
+        expect(response).to have_http_status(:bad_request)
       end
     end
   end

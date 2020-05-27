@@ -20,7 +20,7 @@ RSpec.describe Debts::Service do
         VCR::MATCH_EVERYTHING
       ) do
         res = described_class.new.get_letters(fileNumber: '')
-        expect(JSON.parse(res.to_json)[0]['fileNumber']).to eq('')
+        expect(JSON.parse(res.to_json)['message']).to eq('Bad request')
       end
     end
   end
