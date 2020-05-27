@@ -38,7 +38,7 @@ To start, fetch this code:
 
     [If you *do* need Sidekiq Enterprise, you can follow instructions [here](https://github.com/department-of-veterans-affairs/va.gov-team-sensitive/blob/master/platform/engineering/sidekiq-enterprise-setup.md) to install the enterprise license on their systems.
 
-  **DO NOT commit local Gemfile modifications that remove the `sidekiq-ent` and `sidekiq-pro` gems.
+  **DO NOT commit local Gemfile modifications that remove the `sidekiq-ent` and `sidekiq-pro` gems.**
 
 ## Running the app
 
