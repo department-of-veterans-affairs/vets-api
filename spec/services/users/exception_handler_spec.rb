@@ -12,7 +12,8 @@ RSpec.describe Users::ExceptionHandler do
   describe '.initialize' do
     context 'when initialized without a nil error' do
       it 'raises an exception' do
-        expect { Users::ExceptionHandler.new(nil, service) }.to raise_error(Common::Exceptions::Internal::ParameterMissing)
+        expect { Users::ExceptionHandler.new(nil, service) }
+          .to raise_error(Common::Exceptions::Internal::ParameterMissing)
       end
     end
   end

@@ -157,7 +157,9 @@ module Common
     rescue => e
       raise e if e.is_a?(Common::Exceptions::BaseError)
 
-      raise Common::Exceptions::Internal::InvalidFiltersSyntax.new(nil, detail: 'The syntax for your filters is invalid')
+      raise Common::Exceptions::Internal::InvalidFiltersSyntax.new(
+        nil, detail: 'The syntax for your filters is invalid'
+      )
     end
 
     def paginator(page, per_page)

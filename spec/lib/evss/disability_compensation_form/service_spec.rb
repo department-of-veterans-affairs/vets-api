@@ -68,7 +68,8 @@ describe EVSS::DisabilityCompensationForm::Service do
           'api.evss.submit_form526.fail', tags: ['error:Common::Exceptions::External::GatewayTimeout']
         )
         expect(StatsD).to receive(:increment).once.with('api.evss.submit_form526.total')
-        expect { subject.submit_form526(valid_form_content) }.to raise_error(Common::Exceptions::External::GatewayTimeout)
+        expect { subject.submit_form526(valid_form_content) }
+          .to raise_error(Common::Exceptions::External::GatewayTimeout)
       end
     end
   end

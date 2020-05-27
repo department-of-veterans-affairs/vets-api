@@ -82,7 +82,7 @@ end
 
 class FormProfile
   include Virtus.model
-  include SentryLogging
+  # include SentryLogging
 
   EMIS_PREFILL_KEY = 'emis_prefill'
 

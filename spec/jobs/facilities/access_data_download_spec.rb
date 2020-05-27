@@ -68,7 +68,8 @@ RSpec.describe Facilities::AccessDataDownload, type: :job do
       it 'bails on backend error' do
         expect(sat_client_stub).to receive(:download).and_raise(Common::Exceptions::External::BackendServiceException)
         expect(wait_client_stub).to receive(:download).and_return(wait_time_data)
-        expect(Raven).to receive(:capture_exception).with(Common::Exceptions::External::BackendServiceException, level: 'error')
+        expect(Raven).to receive(:capture_exception)
+          .with(Common::Exceptions::External::BackendServiceException, level: 'error')
 
         described_class.new.perform
       end
@@ -103,7 +104,8 @@ RSpec.describe Facilities::AccessDataDownload, type: :job do
       it 'bails on backend error' do
         expect(sat_client_stub).to receive(:download).and_return(satisfaction_data)
         expect(wait_client_stub).to receive(:download).and_raise(Common::Exceptions::External::BackendServiceException)
-        expect(Raven).to receive(:capture_exception).with(Common::Exceptions::External::BackendServiceException, level: 'error')
+        expect(Raven).to receive(:capture_exception)
+          .with(Common::Exceptions::External::BackendServiceException, level: 'error')
 
         described_class.new.perform
       end

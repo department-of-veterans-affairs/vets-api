@@ -68,7 +68,10 @@ module Common
           if current_module.const_defined?('ServiceException')
             current_module.const_get('ServiceException')
           else
-            current_module.const_set('ServiceException', Class.new(Common::Exceptions::External::BackendServiceException))
+            current_module.const_set(
+              'ServiceException',
+              Class.new(Common::Exceptions::External::BackendServiceException)
+            )
           end
         end
 

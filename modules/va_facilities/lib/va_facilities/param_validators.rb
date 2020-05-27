@@ -79,7 +79,7 @@ module VaFacilities
     def validate_a_param_exists(require_one_param)
       if none_required_params_exists?(require_one_param, params)
         raise Common::Exceptions::Internal::ParameterMissing.new(require_one_param.first.to_s,
-                                                       detail: MISSING_FACILITIES_PARAMS_ERR)
+                                                                 detail: MISSING_FACILITIES_PARAMS_ERR)
       end
     end
 
@@ -110,9 +110,11 @@ module VaFacilities
         if ambiguous?(address_difference, lat_lng_difference, address_params, lat_lng_params)
           raise Common::Exceptions::Internal::AmbiguousRequest.new(detail: AMBIGUOUS_PARAMS_ERR)
         elsif address_difference != address_params
-          raise Common::Exceptions::Internal::ParameterMissing.new(address_difference.to_s, detail: MISSING_NEARBY_PARAMS_ERR)
+          raise Common::Exceptions::Internal::ParameterMissing.new(address_difference.to_s,
+                                                                   detail: MISSING_NEARBY_PARAMS_ERR)
         elsif lat_lng_difference != lat_lng_params
-          raise Common::Exceptions::Internal::ParameterMissing.new(lat_lng_difference.to_s, detail: MISSING_NEARBY_PARAMS_ERR)
+          raise Common::Exceptions::Internal::ParameterMissing.new(lat_lng_difference.to_s,
+                                                                   detail: MISSING_NEARBY_PARAMS_ERR)
         end
       end
     end
