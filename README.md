@@ -26,32 +26,25 @@ To start, fetch this code:
    touch config/certs/vetsgov-localhost.crt
    touch config/certs/vetsgov-localhost.key
    ```
-2. Disable signed authentication requests:
+1. Disable signed authentication requests:
    ```yaml
    # settings.local.yml
    saml:
      authn_requests_signed: false
    ```
+    [For more info on crypto & authentication, including how to enable crypto for localhost authentication](/docs/setup/authentication_with_idme.md)
 
-[For more info on crypto & authentication, including how to enable crypto for localhost authentication](/docs/setup/authentication_with_idme.md)
+2. Sidekiq Enterprise is used for worker rate limiting and additional reliability in production and requires a license be configured on your development machine. If you do not have a license configured, the open source version of Sidekiq will be installed instead. This is not an issue unless you are specifically developing features that need Sidekiq Enterprise.
+
+    [If you *do* need Sidekiq Enterprise, you can follow instructions [here](https://github.com/department-of-veterans-affairs/va.gov-team-sensitive/blob/master/platform/engineering/sidekiq-enterprise-setup.md) to install the enterprise license on their systems.
+
+  **DO NOT commit local Gemfile modifications that remove the `sidekiq-ent` and `sidekiq-pro` gems.
 
 ## Running the app
 
 A Makefile provides shortcuts for interacting with the docker images. To run vets-api and its redis and postgres
 dependencies run the following command from within the repo you cloned in the above steps.
 
-### Sidekiq Enterprise
-
-Sidekiq Enterprise is used for worker rate limiting and additional reliability.
-Sidekiq Enterprise requires a license be configured on your development machine.
-If you do not have license configured, Sidekiq Enterprise will simply not be installed during gem installation.
-
-Unless you are sure you need a Sidekiq Enterprise feature, you are probably fine without configuring the license and running Sidekiq Enterprise.
-Normal Sidekiq will still be installed and run.
-
-If you do need Sidekiq Enterprise, VA.gov Team Engineers can follow instructions [here](https://github.com/department-of-veterans-affairs/va.gov-team-sensitive/blob/master/platform/engineering/sidekiq-enterprise-setup.md) to install the enterprise license on their systems.
-
-**DO NOT commit Gemfile modifications that result from local builds without sidekiq enterprise if you do not have it enabled on your development system**
 
 ```
 make up
