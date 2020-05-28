@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri: https://sandbox-api.va.gov/services/appeals/v3/decision_review/intake_statuses/1234567890
+    uri: https://sandbox-api.va.gov/services/appeals/v1/decision_review/intake_statuses/1234567890
     body:
       encoding: UTF-8
       string: ''
@@ -46,7 +46,7 @@ http_interactions:
       Transfer-Encoding:
       - chunked
       Location:
-      - https://sandbox-api.va.gov/services/appeals/v3/decision_review/higher_level_reviews/1234567890
+      - https://sandbox-api.va.gov/services/appeals/v1/decision_review/higher_level_reviews/1234567890
     body:
       encoding: ASCII-8BIT
       string: '{"data":{"type":"HigherLevelReview","id":"944f2578-8eca-4f43-9570-69d0807367ef","attributes":{"status":"processed"}}}'
