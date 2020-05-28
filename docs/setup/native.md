@@ -91,11 +91,14 @@ All of the OSX instructions assume `homebrew` is your [package manager](https://
 
 1. Install Postgres and enable on startup
    ```bash
-   sudo apt install -b postgresql postgresql-contrib libpq-dev
-   sudo systemctl start postgresql@12-main
+   wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | sudo apt-key add -
+   echo "deb http://apt.postgresql.org/pub/repos/apt/ focal"-pgdg main | sudo tee  /etc/apt/sources.list.d/pgdg.list
+   sudo apt update
+   sudo apt install postgresql-11
+   sudo systemctl start postgresql
 
    sudo -i -u postgres
-   createuser --superuser bam
+   createuser --superuser YOURNAME
    exit
    ```
 1. Install PostGIS
