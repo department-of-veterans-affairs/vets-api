@@ -3,7 +3,6 @@
 module Facilities
   class VBAFacility < BaseFacility
     class << self
-
       def pull_source_data
         metadata = Facilities::Metadata::Client.new.get_metadata(arcgis_type)
         max_record_count = metadata['maxRecordCount']
