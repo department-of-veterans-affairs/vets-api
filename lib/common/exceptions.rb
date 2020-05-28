@@ -4,4 +4,4 @@ module Common::Exceptions
 end
 
 # require each exception file
-Dir["lib/common/exceptions/**/*.rb"].each { |file| require file.gsub('lib/', '') }
+Dir['lib/common/exceptions/**/*.rb'].each { |file| require file.gsub('lib/', '') }

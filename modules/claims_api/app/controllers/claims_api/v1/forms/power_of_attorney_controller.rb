@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 
-
 module ClaimsApi
   module V1
     module Forms
