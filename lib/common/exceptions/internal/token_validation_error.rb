@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'common/exceptions/base_error'
-require 'common/exceptions/serializeable_error'
+require 'common/exceptions/serializable_error'
 
 module Common
   module Exceptions::Internal
