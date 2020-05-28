@@ -2,7 +2,6 @@
 
 require 'json_schema/json_api_missing_attribute'
 require 'appeals_api/form_schemas'
-require_dependency 'appeals_api/concerns/json_format_validation'
 
 class AppealsApi::V1::DecisionReview::HigherLevelReviewsController < AppealsApi::ApplicationController
   include AppealsApi::JsonFormatValidation
