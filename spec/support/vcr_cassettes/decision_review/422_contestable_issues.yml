@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri: https://sandbox-api.va.gov/services/appeals/v3/decision_review/contestable_issues
+    uri: https://sandbox-api.va.gov/services/appeals/v1/decision_review/contestable_issues
     body:
       encoding: US-ASCII
       string: ''
