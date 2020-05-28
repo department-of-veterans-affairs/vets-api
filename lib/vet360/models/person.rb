@@ -1,6 +1,10 @@
 # frozen_string_literal: true
 
+require 'vet360/models/address'
+require 'vet360/models/base'
 require 'vet360/models/email'
+require 'vet360/models/telephone'
+require 'vet360/models/permission'
 
 module Vet360
   module Models
