@@ -103,7 +103,7 @@ All of the OSX instructions assume `homebrew` is your [package manager](https://
    ```
 1. Install PostGIS
    ```bash
-   sudo apt install -y postgis postgresql-12-postgis-3
+   sudo apt install -y postgresql-11-postgis-2.5
    sudo -i -u postgres
 
    createuser postgis_test
