@@ -3,6 +3,7 @@
 require 'common/models/redis_store'
 require 'common/client/concerns/service_status'
 require 'mvi/responses/profile_parser'
+require 'mvi/models/mvi_profile'
 
 module MVI::Responses
   # Cacheable response from MVI's find profile endpoint (prpa_in201306_uv02).
