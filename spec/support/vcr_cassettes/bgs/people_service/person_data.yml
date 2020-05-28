@@ -21,7 +21,7 @@ http_interactions:
       message: OK
     headers:
       Date:
-      - Sat, 23 May 2020 14:53:31 GMT
+      - Thu, 28 May 2020 18:35:53 GMT
       Server:
       - Apache
       X-Frame-Options:
@@ -652,7 +652,7 @@ http_interactions:
         </service>
         </definitions>
     http_version: null
-  recorded_at: Sat, 23 May 2020 14:53:32 GMT
+  recorded_at: Thu, 28 May 2020 18:35:54 GMT
 - request:
     method: post
     uri: https://localhost:4447/PersonWebServiceBean/PersonWebService
@@ -664,10 +664,10 @@ http_interactions:
             <wsse:Username>VAgovAPI</wsse:Username>
           </wsse:UsernameToken>
           <vaws:VaServiceHeaders xmlns:vaws="http://vbawebservices.vba.va.gov/vawss">
-            <vaws:CLIENT_MACHINE>192.168.1.239</vaws:CLIENT_MACHINE>
+            <vaws:CLIENT_MACHINE>172.20.10.11</vaws:CLIENT_MACHINE>
             <vaws:STN_ID>281</vaws:STN_ID>
             <vaws:applicationName>VAgovAPI</vaws:applicationName>
-            <vaws:ExternalUid>61662727413341270</vaws:ExternalUid>
+            <vaws:ExternalUid>45262912386319753</vaws:ExternalUid>
             <vaws:ExternalKey>abraham.lincoln@vets.gov</vaws:ExternalKey>
           </vaws:VaServiceHeaders>
         </wsse:Security>
@@ -680,7 +680,7 @@ http_interactions:
       Content-Type:
       - text/xml;charset=UTF-8
       Content-Length:
-      - '1007'
+      - '1006'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -693,7 +693,7 @@ http_interactions:
       message: OK
     headers:
       Date:
-      - Sat, 23 May 2020 14:53:32 GMT
+      - Thu, 28 May 2020 18:35:55 GMT
       Server:
       - Apache
       X-Frame-Options:
@@ -710,5 +710,5 @@ http_interactions:
         xmlns:ns0="http://person.services.vetsnet.vba.va.gov/"><PersonDTO><brthdyDt>1986-05-06T00:00:00-05:00</brthdyDt><deathDtEnterdDt>2019-06-06T00:00:00-05:00</deathDtEnterdDt><deathDtUpdatdDt>2019-06-06T00:00:00-05:00</deathDtUpdatdDt><deathHistInd>Y</deathHistInd><deathNotfcnSourceTypeCd>CORP</deathNotfcnSourceTypeCd><emailAddr>vets.gov.user+36@gmail.com</emailAddr><empInd>N</empInd><fileNbr>796043735</fileNbr><firstNm>WESLEY</firstNm><firstNmKey>-1</firstNmKey><genderCd>M</genderCd><insFileNbr></insFileNbr><jrnDt>2020-05-20T09:54:07-05:00</jrnDt><jrnExtnlApplcnNm>eBenefits                    </jrnExtnlApplcnNm><jrnExtnlKeyTxt>dslogon.1007697216                     </jrnExtnlKeyTxt><jrnExtnlUserId>dslogon.1007697216                     </jrnExtnlUserId><jrnLctnId>281</jrnLctnId><jrnObjId>EBENEFITS  -
         CEST</jrnObjId><jrnPersonId>216613384</jrnPersonId><jrnStatusTypeCd>U</jrnStatusTypeCd><jrnUserId>VAEBENEFITS</jrnUserId><lastNm>FORD</lastNm><lastNmKey>-1</lastNmKey><middleNm>WATSON</middleNm><middleNmKey>-1</middleNmKey><mltyPersonInd>Y</mltyPersonInd><potntlDngrsInd>N</potntlDngrsInd><ptcpntDTO><blockAutoEnrlmtCd>U</blockAutoEnrlmtCd><blockCaddInd>U</blockCaddInd><ptcpntId>600061742</ptcpntId><ptcpntTypeNm>Person</ptcpntTypeNm></ptcpntDTO><ptcpntId>600061742</ptcpntId><serousEmplmtHndcapInd>N</serousEmplmtHndcapInd><ssnNbr>796043735</ssnNbr><ssnVrfctnStatusTypeCd>0</ssnVrfctnStatusTypeCd><stationOfJurisdiction>499</stationOfJurisdiction><termnlDigitNbr>35</termnlDigitNbr><vetInd>Y</vetInd></PersonDTO></ns0:findPersonByPtcpntIdResponse></S:Body></S:Envelope>
     http_version: null
-  recorded_at: Sat, 23 May 2020 14:53:32 GMT
+  recorded_at: Thu, 28 May 2020 18:35:55 GMT
 recorded_with: VCR 5.1.0
