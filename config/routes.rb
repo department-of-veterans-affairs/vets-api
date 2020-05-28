@@ -23,6 +23,7 @@ Rails.application.routes.draw do
     resources :in_progress_forms, only: %i[index show update destroy]
     resource :claim_documents, only: [:create]
     resource :claim_attachments, only: [:create], controller: :claim_documents
+    resources :debts, only: :index
 
     resource :form526_opt_in, only: :create
 
