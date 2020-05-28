@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'saml/user'
+
 host = Settings.statsd.host
 port = Settings.statsd.port
 
