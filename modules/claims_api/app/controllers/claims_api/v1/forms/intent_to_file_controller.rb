@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require_dependency 'claims_api/intent_to_file_serializer'
-require_dependency 'claims_api/concerns/poa_verification'
 
 module ClaimsApi
   module V1

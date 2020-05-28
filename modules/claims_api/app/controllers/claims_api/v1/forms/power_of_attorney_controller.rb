@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require_dependency 'claims_api/concerns/poa_verification'
-require_dependency 'claims_api/concerns/document_validations'
 
 module ClaimsApi
   module V1
