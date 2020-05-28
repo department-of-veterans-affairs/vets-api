@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'vet360/models/validation_address'
+
 FactoryBot.define do
   factory :vet360_validation_address, class: 'Vet360::Models::ValidationAddress' do
     address_pou { Vet360::Models::Address::RESIDENCE }
