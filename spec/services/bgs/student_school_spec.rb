@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'bgs/value_objects/vnp_person_address_phone'
 
 RSpec.describe BGS::StudentSchool do
   let(:user) { FactoryBot.create(:user, :loa3) }

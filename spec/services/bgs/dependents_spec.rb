@@ -1,20 +1,19 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'bgs/value_objects/vnp_person_address_phone'
 
 RSpec.describe BGS::Dependents do
   let(:user) { FactoryBot.create(:user, :loa3) }
   let(:proc_id) { '3828033' }
   let(:payload) do
     root = Rails.root.to_s
-    f = File.read("#{root}/spec/services/bgs/support/final_payload.rb")
+    f = File.read("#{root}/spec/services/bgs/support/final_payload.json")
     JSON.parse(f)
   end
 
   describe '#create' do
     context 'adding children' do
-      it 'returns an object for biological child that does not live with veteran' do
+      it 'returns a hash for biological child that does not live with veteran' do
         VCR.use_cassette('bgs/dependents/create') do
           dependents = BGS::Dependents.new(
             proc_id: proc_id,
@@ -23,29 +22,25 @@ RSpec.describe BGS::Dependents do
           ).create
 
           expect(dependents).to include(
-                                  an_object_having_attributes(
-                                    first_name: 'John',
-                                    middle_name: 'oliver',
-                                    last_name: 'Hamm',
-                                    birth_city_name: 'Slawson',
-                                    birth_state_code: 'CA',
-                                    birth_date: DateTime.new(2009, 3, 3, 0, 0, 0, '-0600'),
-                                    ssn_number: '370947142',
-                                    participant_relationship_type_name: "Child",
-                                    address_line_one: "1100 Robin Cir",
-                                    address_city: 'Los Angelas',
-                                    address_state_code: 'CA',
-                                    address_zip_code: '90210',
+                                  a_hash_including(
                                     family_relationship_type_name: 'Biological',
-                                    ever_married_indicator: 'Y'
+                                    participant_relationship_type_name: 'Child',
+                                    type: 'child'
                                   )
                                 )
         end
       end
 
-      it 'returns an object for adopted child that does live with veteran' do
+      it 'returns a hash for adopted child that does live with veteran' do
         veteran_address_info = payload['dependents_application']['veteran_contact_information']['veteran_address']
         VCR.use_cassette('bgs/dependents/create') do
+          expect_any_instance_of(BGS::Base).to receive(:create_address)
+                                                 .with(anything, anything, anything)
+                                                 .and_call_original
+          expect_any_instance_of(BGS::Base).to receive(:create_address)
+                                                 .with(anything, anything, veteran_address_info)
+                                                 .and_call_original
+
           dependents = BGS::Dependents.new(
             proc_id: proc_id,
             payload: payload,
@@ -53,21 +48,10 @@ RSpec.describe BGS::Dependents do
           ).create
 
           expect(dependents).to include(
-                                  an_object_having_attributes(
-                                    first_name: 'Adopted first name',
-                                    middle_name: 'adopted middle name',
-                                    last_name: 'adopted last name',
-                                    birth_city_name: 'Slawson',
-                                    birth_state_code: 'CA',
-                                    birth_date: DateTime.new(2010, 3, 3, 0, 0, 0, '-0600'),
-                                    ssn_number: '370947143',
-                                    participant_relationship_type_name: "Child",
-                                    address_country: veteran_address_info['country_name'],
-                                    address_line_one: veteran_address_info['address_line1'],
-                                    address_state_code: veteran_address_info['state_code'],
-                                    address_city: veteran_address_info['city'],
-                                    address_zip_code: veteran_address_info['zip_code'],
-                                    family_relationship_type_name: 'Adopted Child'
+                                  a_hash_including(
+                                    family_relationship_type_name: 'Adopted Child',
+                                    participant_relationship_type_name: 'Child',
+                                    type: 'child'
                                   )
                                 )
         end
@@ -75,7 +59,7 @@ RSpec.describe BGS::Dependents do
     end
 
     context 'reporting a death' do
-      it 'returns an object with a death date' do
+      it 'returns a hash with a child type death' do
         VCR.use_cassette('bgs/dependents/create') do
           dependents = BGS::Dependents.new(
             proc_id: proc_id,
@@ -84,12 +68,10 @@ RSpec.describe BGS::Dependents do
           ).create
 
           expect(dependents).to include(
-                                  an_object_having_attributes(
-                                    death_date: DateTime.new(2011, 2, 3, 0, 0, 0, '-0600'),
-                                    first_name: 'John',
-                                    middle_name: 'Henry',
-                                    last_name: 'Doe',
-                                    suffix_name: 'Sr.'
+                                  a_hash_including(
+                                    family_relationship_type_name: 'Child',
+                                    participant_relationship_type_name: 'Child',
+                                    type: 'death'
                                   )
                                 )
         end
@@ -107,29 +89,20 @@ RSpec.describe BGS::Dependents do
             user: user
           ).create
 
-          expect(dependents).to include(
-                                  an_object_having_attributes(
-                                    first_name: 'Jenny',
-                                    middle_name: 'Lauren',
-                                    last_name: 'McCarthy',
-                                    suffix_name: 'Sr.',
-                                    marriage_state: 'CA',
-                                    marriage_city: 'Slawson',
-                                    birth_date: DateTime.new(1981, 4, 4, 0, 0, 0, '-0600'),
-                                    ssn_number: '323454323',
-                                    participant_relationship_type_name: 'Spouse',
+          expect(dependents).to  include(
+                                  a_hash_including(
                                     family_relationship_type_name: 'Spouse',
-                                    address_country: payload['dependents_application']['veteran_contact_information']['veteran_address']['country_name'],
-                                    address_line_one: payload['dependents_application']['veteran_contact_information']['veteran_address']['address_line1'],
-                                    address_state_code: payload['dependents_application']['veteran_contact_information']['veteran_address']['state_code'],
-                                    address_city: payload['dependents_application']['veteran_contact_information']['veteran_address']['city'],
-                                    address_zip_code: payload['dependents_application']['veteran_contact_information']['veteran_address']['zip_code']
+                                    participant_relationship_type_name: 'Spouse',
+                                    marriage_city: 'Slawson',
+                                    marriage_state: 'CA',
+                                    type: 'spouse',
+                                    begin_date: '2014-03-04'
                                   )
                                 )
         end
       end
 
-      it 'returns object for spouse who has different address (separated)' do
+      it 'returns hash for spouse who has different address (separated)' do
         VCR.use_cassette('bgs/dependents/create') do
           dependents = BGS::Dependents.new(
             proc_id: proc_id,
@@ -138,22 +111,13 @@ RSpec.describe BGS::Dependents do
           ).create
 
           expect(dependents).to include(
-                                  an_object_having_attributes(
-                                    first_name: 'Jenny',
-                                    middle_name: 'Lauren',
-                                    last_name: 'McCarthy',
-                                    suffix_name: 'Sr.',
-                                    marriage_state: 'CA',
-                                    marriage_city: 'Slawson',
-                                    birth_date: DateTime.new(1981, 4, 4, 0, 0, 0, '-0600'),
-                                    ssn_number: '323454323',
-                                    address_country: 'USA',
-                                    participant_relationship_type_name: 'Spouse',
+                                  a_hash_including(
                                     family_relationship_type_name: 'Estranged Spouse',
-                                    address_state_code: 'IL',
-                                    address_city: 'Rock Island',
-                                    address_line_one: '2037 29th St',
-                                    address_zip_code: '61201'
+                                    participant_relationship_type_name: 'Spouse',
+                                    marriage_city: 'Slawson',
+                                    marriage_state: 'CA',
+                                    type: 'spouse',
+                                    begin_date: '2014-03-04'
                                   )
                                 )
         end
@@ -226,12 +190,9 @@ RSpec.describe BGS::Dependents do
           ).create
 
           expect(dependents).to include(
-                                  an_object_having_attributes(
-                                    address_line_one: '412 Crooks Road',
-                                    address_state_code: 'AL',
-                                    address_city: 'Clawson',
-                                    participant_relationship_type_name: 'Child',
+                                  a_hash_including(
                                     family_relationship_type_name: 'Stepchild',
+                                    participant_relationship_type_name: 'Child',
                                     living_expenses_paid_amount: 'Half'
                                   )
                                 )
@@ -240,7 +201,7 @@ RSpec.describe BGS::Dependents do
     end
 
     context 'report marriage of a child under 18' do
-      it 'returns an object that represents a  married child under 18' do
+      it 'returns a hash that represents a married child under 18' do
         VCR.use_cassette('bgs/dependents/create') do
           dependents = BGS::Dependents.new(
             proc_id: proc_id,
@@ -249,13 +210,11 @@ RSpec.describe BGS::Dependents do
           ).create
 
           expect(dependents).to include(
-                                  an_object_having_attributes(
-                                    first_name: 'James',
-                                    middle_name: 'Quandry',
-                                    last_name: 'Beanstalk',
-                                    participant_relationship_type_name: 'Child',
+                                  a_hash_including(
+                                    event_date: '1977-02-01',
                                     family_relationship_type_name: 'Other',
-                                    event_date: '1977-02-01'
+                                    participant_relationship_type_name: 'Child',
+                                    type: 'child_marriage'
                                   )
                                 )
         end
@@ -272,13 +231,11 @@ RSpec.describe BGS::Dependents do
           ).create
 
           expect(dependents).to include(
-                                  an_object_having_attributes(
-                                    first_name: 'Billy',
-                                    middle_name: 'Yohan',
-                                    last_name: 'Johnson',
+                                  a_hash_including(
                                     participant_relationship_type_name: 'Child',
                                     family_relationship_type_name: 'Other',
-                                    event_date: '2019-03-03'
+                                    event_date: '2019-03-03',
+                                    type: 'not_attending_school'
                                   )
                                 )
         end
@@ -286,7 +243,7 @@ RSpec.describe BGS::Dependents do
     end
 
     context 'report 674' do
-      it 'returns an object that represents child over 18 attending school' do
+      it 'returns a hash that represents child over 18 attending school' do
         VCR.use_cassette('bgs/dependents/create') do
           dependents = BGS::Dependents.new(
             proc_id: proc_id,
@@ -295,13 +252,10 @@ RSpec.describe BGS::Dependents do
           ).create
 
           expect(dependents).to include(
-                                  an_object_having_attributes(
-                                    first_name: 'Ernie',
-                                    middle_name: 'bubkis',
-                                    last_name: 'McCracken',
+                                  a_hash_including(
+                                    type: '674',
                                     participant_relationship_type_name: 'Child',
-                                    family_relationship_type_name: 'Other',
-                                    birth_date: DateTime.new(2001, 3, 3, 0, 0, 0, '-0600')
+                                    family_relationship_type_name: 'Other'
                                   )
                                 )
         end

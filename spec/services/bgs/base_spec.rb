@@ -1,8 +1,5 @@
 # frozen_string_literal: true
 require 'rails_helper'
-require 'bgs/value_objects/vnp_person_address_phone'
-require 'bgs/value_objects/vnp_benefit_claim'
-require 'bgs/value_objects/benefit_claim'
 
 RSpec.describe BGS::Base do
   let(:user) { FactoryBot.create(:user, :loa3) }
@@ -25,8 +22,24 @@ RSpec.describe BGS::Base do
       living_expenses_paid_amount: nil
     }
   end
-
-  let(:vnp_benefit_claim_object) do
+  let(:vet_hash) do
+    {
+      vnp_participant_id: '146232',
+      vnp_participant_address_id: '113372',
+      file_number: '796149080',
+      ssn_number: '796149080',
+      benefit_claim_type_end_product: '130',
+      first_name: 'John',
+      last_name: 'Doe',
+      address_line_one: '123 Mainstreet',
+      address_city: 'Jensen Beach',
+      address_state_code: 'FL',
+      address_zip_code: '33456',
+      email_address: 'vet@googlevet.com',
+      address_country: 'USA'
+    }
+  end
+  let(:vnp_benefit_claim_hash) do
     {
       vnp_proc_id: proc_id,
       vnp_benefit_claim_id: '424267',
@@ -42,41 +55,21 @@ RSpec.describe BGS::Base do
       vnp_participant_vet_id: '146232'
     }
   end
-
-  let(:benefit_claim_object) do
-    ValueObjects::BenefitClaim.new(
-      benefit_claim_id: '600187033',
-      corp_benefit_claim_id: '600187033',
-      corp_claim_id: '373417',
-      corp_location_id: '322',
-      benefit_claim_return_label: 'BNFT_CLAIM',
-      claim_receive_date: '04/23/2020',
-      claim_station_of_jurisdiction: '281',
+  let(:benefit_claim_hash) do
+    {
       claim_type_code: '130DPNEBNADJ',
-      claim_type_name: 'eBenefits Dependency Adjustment',
-      claimant_first_name: 'VETERAN FIRST NAME',
-      claimant_last_name: 'VETERAN LAST NAME',
-      claimant_person_or_organization_indicator: 'P',
-      corp_claim_return_label: 'CP_CLAIM',
-      end_product_type_code: '683',
-      mailing_address_id: '15373485',
-      participant_claimant_id: '600048743',
-      participant_vet_id: '600048743',
-      payee_type_code: '00',
+      benefit_claim_id: '600187033',
       program_type_code: 'CPL',
-      return_code: 'SHAR 9999',
-      service_type_code: 'CP',
       status_type_code: 'PEND',
-      vet_first_name: 'VETERAN FIRST NAME',
-      vet_last_name: 'VETERAN LAST NAME'
-    )
+      service_type_code: 'CP'
+    }
   end
 
   describe '#create_proc' do
     it 'returns a proc record hash' do
       VCR.use_cassette('bgs/base/create_proc') do
         response = bgs_base.create_proc
-        binding.pry
+
         expect(response).to have_key(:vnp_proc_id)
       end
     end
@@ -270,21 +263,16 @@ RSpec.describe BGS::Base do
         }
         response = bgs_base.create_child_student(proc_id, participant_id, payload)
 
-        expect(response).to include(:vnp_ptcpnt_id, :agency_paying_tuitn_nm)
+        expect(response).to include(:vnp_ptcpnt_id, :agency_paying_tuitn_nm, :saving_amt, :next_year_ssa_income_amt)
       end
     end
   end
 
   describe '#create_benefit_claim' do
     it 'creates a benefit claim and returns a vnp_bnft_claim_id' do
-      vet_hash = {
-        vnp_participant_id: '146232',
-        vnp_participant_address_id: '113372',
-      }
-
       VCR.use_cassette('bgs/base/create_benefit_claim') do
         response = bgs_base.create_benefit_claim(proc_id, vet_hash)
-        binding.pry
+
         expect(response).to have_key(:vnp_bnft_claim_id)
       end
     end
@@ -302,21 +290,8 @@ RSpec.describe BGS::Base do
 
   xdescribe '#insert_benefit_claim' do
     it 'creates a benefit claim and returns a benefit_claim_record' do
-      vet_hash = {
-        file_number: '796149080',
-        ssn_number: '796149080',
-        benefit_claim_type_end_product: 'stuffstuffstuff',
-        first_name: 'stuffstufff',
-        last_name: 'stuffstuffstuff',
-        address_line_one: '123 Mainstreet',
-        address_city: 'Jensen Beach',
-        address_state_code: 'FL',
-        address_zip_code: '33456',
-        email_address: 'vet@googlevet.com',
-        address_country: 'USA'
-      }
       VCR.use_cassette('bgs/base/insert_benefit_claim') do
-        response = bgs_base.insert_benefit_claim(vnp_benefit_claim_object, person_address_phone_object)
+        response = bgs_base.insert_benefit_claim(vnp_benefit_claim_hash, vet_hash)
 
         expect(response).to have_key(:benefit_claim_record)
       end
@@ -326,7 +301,7 @@ RSpec.describe BGS::Base do
   xdescribe '#vnp_bnft_claim_update' do
     it 'creates a benefit claim and returns a vnp_bnft_claim_id' do
       VCR.use_cassette('bgs/base/vnp_bnft_claim_update') do
-        response = bgs_base.vnp_bnft_claim_update(benefit_claim_object, vnp_benefit_claim_object)
+        response = bgs_base.vnp_bnft_claim_update(benefit_claim_hash, vnp_benefit_claim_hash)
 
         expect(response).to have_key(:vnp_bnft_claim_id)
       end

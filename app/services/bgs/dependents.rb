@@ -1,5 +1,4 @@
 # frozen_string_literal: true
-require 'bgs/value_objects/vnp_person_address_phone'
 
 module BGS
   class Dependents < Base
@@ -16,13 +15,13 @@ module BGS
 
     def create
       add_children if @payload['add_child']
-      report_deaths if @payload['report_death']
-      add_spouse if @payload['add_spouse']
-      # report_divorce if @payload['report_divorce']
-      report_stepchild if @payload['report_stepchild_not_in_household']
-      report_child_marriage if @payload['report_marriage_of_child_under18']
-      report_child18_or_older_is_not_attending_school if @payload['report_child18_or_older_is_not_attending_school']
-      report_674 if @payload['report674']
+      # report_deaths if @payload['report_death']
+      # add_spouse if @payload['add_spouse']
+      # # report_divorce if @payload['report_divorce']
+      # report_stepchild if @payload['report_stepchild_not_in_household']
+      # report_child_marriage if @payload['report_marriage_of_child_under18']
+      # report_child18_or_older_is_not_attending_school if @payload['report_child18_or_older_is_not_attending_school']
+      # report_674 if @payload['report674']
 
       @dependents
     end
@@ -34,12 +33,11 @@ module BGS
         format_child_info(child_info)
         child_address = child_info["does_child_live_with_you"] == true ? @dependents_application['veteran_contact_information']['veteran_address'] : child_info['child_address_info']['address']
         participant = create_participant(@proc_id)
-        person = create_person(@proc_id, participant[:vnp_ptcpnt_id], child_info)
-        address = create_address(@proc_id, participant[:vnp_ptcpnt_id], child_address)
+        create_person(@proc_id, participant[:vnp_ptcpnt_id], child_info)
+        create_address(@proc_id, participant[:vnp_ptcpnt_id], child_address)
+
         @dependents << serialize_result(
           participant,
-          person,
-          address,
           child_info['participant_relationship_type'],
           child_info['family_relationship_type'],
           {
@@ -56,13 +54,11 @@ module BGS
         death_info['location']['state_code'] = death_info['location'].delete('state')
 
         participant = create_participant(@proc_id)
-        person = create_person(@proc_id, participant[:vnp_ptcpnt_id], formatted_death_info)
-        address = create_address(@proc_id, participant[:vnp_ptcpnt_id], death_info['location'])
+        create_person(@proc_id, participant[:vnp_ptcpnt_id], formatted_death_info)
+        create_address(@proc_id, participant[:vnp_ptcpnt_id], death_info['location'])
 
         @dependents << serialize_result(
           participant,
-          person,
-          address,
           formatted_death_info['participant_relationship_type'],
           formatted_death_info['family_relationship_type'],
           {type: 'death'}
@@ -76,13 +72,11 @@ module BGS
 
       spouse_address = family_relationship_type == 'Spouse' ? @dependents_application['veteran_contact_information']['veteran_address'] : @dependents_application['does_live_with_spouse']['address']
       participant = create_participant(@proc_id)
-      person = create_person(@proc_id, participant[:vnp_ptcpnt_id], marriage_info)
-      address = create_address(@proc_id, participant[:vnp_ptcpnt_id], spouse_address)
+      create_person(@proc_id, participant[:vnp_ptcpnt_id], marriage_info)
+      create_address(@proc_id, participant[:vnp_ptcpnt_id], spouse_address)
 
       @dependents << serialize_result(
         participant,
-        person,
-        address,
         'Spouse',
         family_relationship_type,
         {
@@ -97,13 +91,11 @@ module BGS
     def report_divorce
       divorce_info = format_divorce_info
       participant = create_participant(@proc_id)
-      person = create_person(@proc_id, participant[:vnp_ptcpnt_id], divorce_info)
-      address = create_address(@proc_id, participant[:vnp_ptcpnt_id], @payload['report_divorce']['location_of_divorce'])
+      create_person(@proc_id, participant[:vnp_ptcpnt_id], divorce_info)
+      create_address(@proc_id, participant[:vnp_ptcpnt_id], @payload['report_divorce']['location_of_divorce'])
 
       @dependents << serialize_result(
         participant,
-        person,
-        address,
         'Spouse',
         'Spouse',
         {
@@ -119,13 +111,11 @@ module BGS
         # not using this at the moment, don't know what to do with it: "who_does_the_stepchild_live_with"=>{"first"=>"Adam", "middle"=>"Steven", "last"=>"Huberws"}
         step_child_formatted = format_stepchild_info(stepchild_info)
         participant = create_participant(@proc_id)
-        person = create_person(@proc_id, participant[:vnp_ptcpnt_id], step_child_formatted)
-        address = create_address(@proc_id, participant[:vnp_ptcpnt_id], stepchild_info['address'])
+        create_person(@proc_id, participant[:vnp_ptcpnt_id], step_child_formatted)
+        create_address(@proc_id, participant[:vnp_ptcpnt_id], stepchild_info['address'])
 
         @dependents << serialize_result(
           participant,
-          person,
-          address,
           step_child_formatted['participant_relationship_type'],
           step_child_formatted['family_relationship_type'],
           {
@@ -140,12 +130,10 @@ module BGS
       # What do we do about family relationship type? We don't ask the question on the form
       child_marriage_info = format_child_marriage_info
       participant = create_participant(@proc_id)
-      person = create_person(@proc_id, participant[:vnp_ptcpnt_id], child_marriage_info)
+      create_person(@proc_id, participant[:vnp_ptcpnt_id], child_marriage_info)
 
       @dependents << serialize_result(
         participant,
-        person,
-        {},
         'Child',
         'Other',
         {
@@ -159,12 +147,10 @@ module BGS
       # What do we do about family relationship type? We don't ask the question on the form
       child_not_attending_school_info = format_child_not_attending_school_info
       participant = create_participant(@proc_id)
-      person = create_person(@proc_id, participant[:vnp_ptcpnt_id], child_not_attending_school_info)
+      create_person(@proc_id, participant[:vnp_ptcpnt_id], child_not_attending_school_info)
 
       @dependents << serialize_result(
         participant,
-        person,
-        {},
         'Child',
         'Other',
         {
@@ -178,13 +164,11 @@ module BGS
       formatted_674_info = format_674_info
       student_address = @dependents_application['student_address_marriage_tuition']['address']
       participant = create_participant(@proc_id)
-      person = create_person(@proc_id, participant[:vnp_ptcpnt_id], formatted_674_info)
-      address = create_address(@proc_id, participant[:vnp_ptcpnt_id], student_address)
+      create_person(@proc_id, participant[:vnp_ptcpnt_id], formatted_674_info)
+      create_address(@proc_id, participant[:vnp_ptcpnt_id], student_address)
 
       @dependents << serialize_result(
         participant,
-        person,
-        address,
         'Child',
         'Other',
         {
@@ -310,8 +294,6 @@ module BGS
 
     def serialize_result(
       participant,
-      person,
-      address,
       participant_relationship_type,
       family_relationship_type,
       optional_fields = {}
