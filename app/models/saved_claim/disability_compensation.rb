@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'evss/disability_compensation_form/data_translation_all_claim'
+
 class SavedClaim::DisabilityCompensation < SavedClaim
   alias_attribute :submission, :disability_compensation_submission
 
