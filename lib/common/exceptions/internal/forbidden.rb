@@ -1,5 +1,8 @@
 # frozen_string_literal: true
 
+require 'common/exceptions/base_error'
+require 'common/exceptions/serializeable_error'
+
 module Common
   module Exceptions::Internal
     # Forbidden - We may eventually want different variations on this with distinct MinorCodes
