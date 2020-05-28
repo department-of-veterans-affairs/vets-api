@@ -46,7 +46,7 @@ FLIPPER_FEATURE_CONFIG['features'].each_key do |feature|
 
   unless Flipper.exist?(feature)
     Flipper.add(feature)
-    # default features to enabled for development and test only
+    # default features to be disabled in development
     Flipper.enable(feature) if Rails.env.test? || feature_config.dig('environments', Rails.env)
   end
 rescue
