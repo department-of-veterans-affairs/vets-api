@@ -1,5 +1,11 @@
 # frozen_string_literal: true
 
+require 'mdot/address'
+require 'mdot/eligibility'
+require 'mdot/supply'
+
+# REVIEW: this has multiple class and module definitions
+
 module MDOT
   class FormAddressInformation
     include Virtus.model
