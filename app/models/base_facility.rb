@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'facilities/client'
-require_relative './facilities_query/facilities_query'
 
 class BaseFacility < ApplicationRecord
   self.inheritance_column = 'facility_type'
