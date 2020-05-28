@@ -1,6 +1,8 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 
-RSpec.describe Facilities::WebsiteUrlService do
+RSpec.describe BGS::PeopleService do
   let(:user) { FactoryBot.create(:evss_user, :loa3) }
 
   describe '#find_person_by_ptcpnt_id' do
