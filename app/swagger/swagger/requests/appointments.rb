@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'ihub/models/appointment'
+
 module Swagger
   module Requests
     class Appointments
