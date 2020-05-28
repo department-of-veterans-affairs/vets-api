@@ -26,6 +26,10 @@ require 'evss/claims_service'
 require 'evss/common_service'
 require 'evss/documents_service'
 require 'evss/letters/service'
+require 'debts/configuration'
+require 'evss/pciu_address/configuration'
+require 'evss/dependents/configuration'
+require 'gibft/configuration'
 
 # Read the redis config, create a connection and a namespace for breakers
 redis_namespace = Redis::Namespace.new('breakers', redis: Redis.new(REDIS_CONFIG[:redis]))
