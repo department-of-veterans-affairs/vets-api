@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'common/exceptions/internal/forbidden'
+
 module Common
   module Exceptions::Internal
     # Forbidden is excluded from Sentry logging. This exception is a duplicate
