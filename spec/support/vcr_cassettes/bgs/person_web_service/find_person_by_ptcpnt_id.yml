@@ -655,7 +655,7 @@ http_interactions:
   recorded_at: Thu, 28 May 2020 23:04:39 GMT
 - request:
     method: post
-    uri: https://localhost:4447/PersonWebServiceBean/PersonWebService
+    uri: https://internal-dsva-vagov-dev-fwdproxy-1893365470.us-gov-west-1.elb.amazonaws.com:4447/PersonWebServiceBean/PersonWebService
     body:
       encoding: UTF-8
       string: |-
