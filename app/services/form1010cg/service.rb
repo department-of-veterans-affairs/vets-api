@@ -3,14 +3,19 @@
 # This service manages the interactions between CaregiversAssistanceClaim, CARMA, and Form1010cg::Submission.
 module Form1010cg
   class Service
-    attr_reader :claim
+    attr_reader :claim # SavedClaim::CaregiversAssistanceClaim
+    attr_reader :carma_submission # CARMA::Models::Submission
+    attr_reader :submission # Form1010cg::Submission
 
     NOT_FOUND = 'NOT_FOUND'
 
     def initialize(claim)
       # This service makes assumptions on what data is present on the claim
       # Make sure the claim is valid, so we can be assured the required data is present.
-      claim.valid? || raise(Common::Exceptions::ValidationErrors, claim)
+      # claim.valid? || raise(Common::Exceptions::ValidationErrors, claim)
+
+      # Make sure the claim is persisted because we'll need it's ID for post processing work and logging
+      claim.persisted? || raise('Claim must be persisted')
 
       # The CaregiversAssistanceClaim we are processing with this service
       @claim = claim
@@ -34,12 +39,26 @@ module Form1010cg
     def process_claim!
       assert_veteran_status
 
-      carma_submission = CARMA::Models::Submission.from_claim(claim, build_metadata).submit!
+      @carma_submission = CARMA::Models::Submission.from_claim(claim, build_metadata).submit!
 
-      Form1010cg::Submission.new(
+      @submission = Form1010cg::Submission.new(
         carma_case_id: carma_submission.carma_case_id,
-        submitted_at: carma_submission.submitted_at
+        submitted_at: carma_submission.submitted_at,
+        saved_claim: claim
       )
+    end
+
+    def queue_post_submission_processing
+      # Save the claim
+      @submission.save!
+
+      # Attach the PDF version of the submission to the related CARMA Case
+      send_pdf_attachment
+    end
+
+    def send_pdf_attachment
+      attachment = CARMA::Models::Attachment.new claim.to_pdf
+      attachment.submit # || Rails.logger.error "Failed to submit PDF version of claim id=#{@claim.id} to CARMA"
     end
 
     # Will raise an error unless the veteran specified on the claim's data can be found in MVI

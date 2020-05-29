@@ -11,6 +11,7 @@ module V0
       claim = SavedClaim::CaregiversAssistanceClaim.new(form: form_submission)
 
       if claim.valid?
+        claim.save!
         submission = ::Form1010cg::Service.new(claim).process_claim!
         render json: submission, serializer: ::Form1010cg::SubmissionSerializer
       else

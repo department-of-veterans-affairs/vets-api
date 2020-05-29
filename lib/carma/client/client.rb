@@ -43,6 +43,20 @@ module CARMA
           }
         }
       end
+
+      def create_attachment(payload)
+        client = get_client
+
+        response_body = with_monitoring do
+          client.post(
+            '/services/data/v47.0/sobjects/ContentVersion',
+            payload,
+            'Content-Type': 'application/json'
+          ).body
+        end
+
+        response_body
+      end
     end
   end
 end
