@@ -1,4 +1,5 @@
 require 'pdf_fill/extras_generator'
+require 'pdf_fill/form_value'
 
 # frozen_string_literal: true
 module PDFFill
