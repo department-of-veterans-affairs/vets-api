@@ -55,7 +55,7 @@ RSpec.describe 'VAOS::V1::Patient', type: :request do
           end
         end
       end
- 
+
       # cassettes need to be created
       context 'when there is an internal FHIR server error' do
         xit 'turns a 502 operation outcome' do
