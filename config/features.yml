@@ -1,107 +1,159 @@
 ---
 # Add a new feture toggle here to ensure that it is initialized in all environments.
-# Features are defaulted to enabled in development and test environments and disabled in all others.
+#
+# Features are enabled by default in development and test environments, and disabled by default in production.
+# Set a given environment to 'true' or 'false' in `default_enabled_environments` to override this behavior.
+#
 # The description should contain any relevant information for an admin who may toggle the feature.
 #
 # The actor_type should be either `user` for features you want to be "sticky" for a logged in user (default)
 #  or `cookie_id` of you wish to use the Google Analytics id as the unique identifier.
-
 features:
   dashboard_show_covid19_alert:
     actor_type: user
+    default_enabled_environments:
+      development: true
     description: >
       Allows for showing a special COVID19 alert on the My VA Dashboard
   facility_locator_show_community_cares:
     actor_type: user
+    default_enabled_environments:
+      development: true
     description: >
       On https://www.va.gov/find-locations/ enable veterans to search for Community care by showing that option in the "Search for" box.
       This toggle is owned by Rian
   facility_locator_lighthouse_api:
     actor_type: user
+    default_enabled_environments:
+      development: true
     description: Use the Lighthouse api instead of the database
   facility_locator_pull_operating_status_from_lighthouse:
     actor_type: user
+    default_enabled_environments:
+      development: true
     description: A fast and dirty way to get the operating status from lighthouse
   facility_locator_ppms_location_query:
     actor_type: user
+    default_enabled_environments:
+      development: true
     description: Use the Lat/Long instead of an address
   profile_schema_forms:
     actor_type: user
+    default_enabled_environments:
+      development: true
     description: >
       Enables SchemaForm-based contact info edit forms on the VA.gov Veteran profile page
   profile_show_receive_text_notifications:
     actor_type: user
+    default_enabled_environments:
+      development: true
     description: >
       https://www.va.gov/profile/ show Receive Text Notifications
   profile_show_profile_2.0:
     actor_type: user
+    default_enabled_environments:
+      development: true
     description: >
       Enables Profile 2.0
   va_online_scheduling:
     actor_type: user
+    default_enabled_environments:
+      development: true
     description: >
       Allows veterans to view their VA and Community Care appointments
   va_online_scheduling_cancel:
     actor_type: user
+    default_enabled_environments:
+      development: true
     description: >
       Allows veterans to cancel VA appointments
   va_online_scheduling_requests:
     actor_type: user
+    default_enabled_environments:
+      development: true
     description: >
       Allows veterans to submit requests for VA appointments
   va_online_scheduling_community_care:
     actor_type: user
+    default_enabled_environments:
+      development: true
     description: >
       Allows veterans to submit requests for Community Care appointments
   va_online_scheduling_direct:
     actor_type: user
+    default_enabled_environments:
+      development: true
     description: >
       Allows veterans to directly schedule VA appointments
   va_online_scheduling_past:
     actor_type: user
+    default_enabled_environments:
+      development: true
     description: >
       Allows veterans to see past appointments
   va_global_downtime_notification:
     actor_type: user
+    default_enabled_environments:
+      development: true
     description: >
       Enables global downtime notification- do not use in production
   ssoe:
     actor_type: cookie_id
+    default_enabled_environments:
+      development: true
     description: >
       Enables ssoe, as opposed to saml authentication wrapped by id.me
   edu_benefits_stem_scholarship:
     actor_type: user
+    default_enabled_environments:
+      development: true
     description: >
       Enables STEM scholarship functionality
   edu_section_103:
     actor_type: user
+    default_enabled_environments:
+      development: true
     description: >
       Enables section 103 content
   gibct_estimate_your_benefits:
     actor_type: user
+    default_enabled_environments:
+      development: true
     description: >
       Enable 508 and usability enhancements for the Comparison Tool Profile Page Estimate Your Benefits section benefits estimator panel.
   form526_original_claims:
     actor_type: user
+    default_enabled_environments:
+      development: true
     description: >
       Allows veterans to access form526 as an original claims user. Owned by va-benefits-memorial-1 team.
   va_view_dependents_access:
     actor_type: user
+    default_enabled_environments:
+      development: true
     description: >
       Allows us to gate the View/ Modify dependents content in a progressive rollout
   ssoe_ebenefits_links:
     actor_type: user
+    default_enabled_environments:
+      development: true
     description: >
       Enable eBenefits links to be proxied through eauth.va.gov, this allows users with SSOe sessions to stay logged in.
   ssoe_inbound:
     actor_type: cookie_id
+    default_enabled_environments:
+      development: true
     description: >
       Enables automatic establishment/disconnection of vets-api session based on a user's SSOe session status
   allow_online_10_10cg_submissions:
     actor_type: user
+    default_enabled_environments:
+      development: true
     description: >
       Allows (unauthenticated) users to submit a 10-10CG through VA.gov. This feature is also known as a Caregivers Assistance Claim.
   stub_carma_responses:
     actor_type: user
+    default_enabled_environments:
+      development: true
     description: >
       All 10-10CG submissions (Caregivers Assistance Claims) will not hit CARMA and instead return a dubmmy response.
