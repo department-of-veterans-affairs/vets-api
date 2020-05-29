@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require_dependency 'claims_api/concerns/file_data'
-
 module ClaimsApi
   class PowerOfAttorney < ApplicationRecord
     include FileData

@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require_dependency 'claims_api/application_controller'
-
 module ClaimsApi
   module V0
     class ClaimsController < ApplicationController

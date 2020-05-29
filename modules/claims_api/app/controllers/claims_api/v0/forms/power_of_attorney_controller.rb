@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 
-require_dependency 'claims_api/base_form_controller'
 require 'jsonapi/parser'
 
 module ClaimsApi
