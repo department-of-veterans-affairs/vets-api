@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 
-require 'pdf_forms'
 require 'tempfile'
 require 'securerandom'
 

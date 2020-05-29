@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
-require 'pdf_forms'
 require 'rails_helper'
+require 'vso_pdf/vso_appointment_form'
 
 describe VSOPDF::VSOAppointmentForm do
   include SchemaMatchers
