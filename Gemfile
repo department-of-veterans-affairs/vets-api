@@ -172,7 +172,6 @@ group :development, :test do
   gem 'yard'
 end
 
-
 # sidekiq enterprise requires a license key to download. In many cases, basic sidekiq is enough for local development
 if (Bundler::Settings.new(Bundler.app_config_path)['enterprise.contribsys.com'].nil? ||
     Bundler::Settings.new(Bundler.app_config_path)['enterprise.contribsys.com']&.empty?) &&
@@ -184,4 +183,3 @@ else
     gem 'sidekiq-pro'
   end
 end
-
