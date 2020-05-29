@@ -2,6 +2,8 @@
 
 require 'rails_helper'
 
+require 'vet360/reference_data/service'
+
 describe Vet360::ReferenceData::Service, skip_vet360: true do
   subject { described_class.new }
 
