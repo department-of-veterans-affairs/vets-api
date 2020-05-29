@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require_dependency 'claims_api/unsynchronized_evss_claims_service'
+
 module ClaimsApi
   class ApplicationController < ::OpenidApplicationController
     include ClaimsApi::MVIVerification

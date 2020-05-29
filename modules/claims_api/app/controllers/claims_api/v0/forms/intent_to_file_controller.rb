@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require_dependency 'claims_api/base_form_controller'
-
 module ClaimsApi
   module V0
     module Forms
