@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require 'evss/ppiu/service'
 
 describe EVSS::PPIU::Service do
   subject { described_class.new(user) }
