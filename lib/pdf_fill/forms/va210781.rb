@@ -2,6 +2,10 @@
 
 # rubocop:disable Metrics/ClassLength
 
+require 'pdf_fill/hash_converter'
+require 'pdf_fill/forms/form_base'
+require 'pdf_fill/forms/common_ptsd'
+
 module PDFFill
   module Forms
     class Va210781 < FormBase

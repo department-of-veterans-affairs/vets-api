@@ -1,7 +1,11 @@
 # frozen_string_literal: true
 
-# rubocop:disable Metrics/ClassLength
+require 'pdf_fill/hash_converter'
+require 'pdf_fill/forms/form_base'
+require 'pdf_fill/forms/form_helper'
+require 'string_helpers'
 
+# rubocop:disable Metrics/ClassLength
 module PDFFill
   module Forms
     class Va21p527ez < FormBase
