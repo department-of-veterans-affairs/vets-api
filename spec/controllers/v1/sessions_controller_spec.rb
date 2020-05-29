@@ -142,7 +142,7 @@ RSpec.describe V1::SessionsController, type: :controller do
                 .with_relay_state('originating_request_id' => nil, 'type' => type)
                 .with_params('clientId' => '123123')
               expect(SAMLRequestTracker.keys.length).to eq(1)
-              expect(SAMLRequestTracker.find(SAMLRequestTracker.keys[0]).payload).to eq({})
+              expect(SAMLRequestTracker.find(SAMLRequestTracker.keys[0]).payload).to eq({ inbound_ssoe: 'true' })
             end
 
             it 'persists redirect application' do
