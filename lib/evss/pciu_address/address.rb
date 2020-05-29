@@ -43,6 +43,7 @@ module EVSS
       validates :address_three, pciu_address_line: true, length: { maximum: 35 }
       validates :type, inclusion: { in: ADDRESS_TYPES.values }
 
+      # TODO: these depend on this class, so it's circular.  Move these to module level
       def self.build_address(attrs)
         case attrs['type']
         when ADDRESS_TYPES[:domestic]

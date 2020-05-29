@@ -1,5 +1,8 @@
 # frozen_string_literal: true
 
+require_relative 'configuration'
+require_relative 'address_response'
+
 module EVSS
   module PCIUAddress
     ##
