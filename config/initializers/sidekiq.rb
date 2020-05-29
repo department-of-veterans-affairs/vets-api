@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
-Sidekiq::Enterprise.unique! if Rails.env.production?
+require 'sidekiq-pro' if Gem.loaded_specs.key?('sidekiq-pro')
+require 'sidekiq-ent' if Gem.loaded_specs.key?('sidekiq-ent')
+Sidekiq::Enterprise.unique! if defined?(Sidekiq::Enterprise)
 
 Sidekiq.configure_server do |config|
   config.redis = REDIS_CONFIG[:redis]
