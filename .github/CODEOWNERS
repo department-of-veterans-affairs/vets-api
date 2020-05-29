@@ -4,3 +4,7 @@
 # review when someone opens a pull request.
 
 *       @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/va-api-engineers
+
+# Experiment for isolating VFS teams
+modules/vaos/                        @department-of-veterans-affairs/vfs-vaos
+spec/support/*/vaos/                 @department-of-veterans-affairs/vfs-vaos

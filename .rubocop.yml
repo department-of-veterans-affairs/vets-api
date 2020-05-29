@@ -364,3 +364,7 @@ Layout/EmptyLinesAroundAttributeAccessor:
 
 Style/SlicingWithRange:
   Enabled: true
+
+# Added in v0.84
+Lint/DeprecatedOpenSSLConstant:
+  Enabled: true

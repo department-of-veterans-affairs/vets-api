@@ -1,0 +1,54 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "description": "",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "properties": {
+      "fileNumber": {
+        "type": "string"
+      },
+      "payeeNumber": {
+        "type": "string"
+      },
+      "personEntitled": {
+        "type": "string"
+      },
+      "deductionCode": {
+        "type": "string"
+      },
+      "benefitType": {
+        "type": "string"
+      },
+      "amountOverpaid": {
+        "type": "number"
+      },
+      "amountWithheld": {
+        "type": "number"
+      },
+      "debtHistory": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "debtId": {
+              "type": "integer"
+            },
+            "date": {
+              "type": "string"
+            },
+            "letterCode": {
+              "type": "string"
+            },
+            "status": {
+              "type": "string"
+            },
+            "description": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    }
+  }
+}
