@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'common/client/base'
+require 'mvi/responses/id_parser'
 require 'vet360/contact_information/transaction_response'
 
 module Vet360

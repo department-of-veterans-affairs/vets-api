@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require 'vet360/person/service'
 
 describe Vet360::Person::Service, skip_vet360: true do
   before { Timecop.freeze('2018-04-09T17:52:03Z') }
