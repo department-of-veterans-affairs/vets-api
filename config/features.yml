@@ -12,7 +12,6 @@ features:
   dashboard_show_covid19_alert:
     actor_type: user
     default_enabled_environments:
-      development: true
     description: >
       Allows for showing a special COVID19 alert on the My VA Dashboard
   facility_locator_show_community_cares:
@@ -35,7 +34,7 @@ features:
   facility_locator_ppms_location_query:
     actor_type: user
     default_enabled_environments:
-      development: true
+      development: false
     description: Use the Lat/Long instead of an address
   profile_schema_forms:
     actor_type: user
@@ -52,7 +51,7 @@ features:
   profile_show_profile_2.0:
     actor_type: user
     default_enabled_environments:
-      development: true
+      development: false
     description: >
       Enables Profile 2.0
   va_online_scheduling:
@@ -76,31 +75,31 @@ features:
   va_online_scheduling_community_care:
     actor_type: user
     default_enabled_environments:
-      development: true
+      development: false
     description: >
       Allows veterans to submit requests for Community Care appointments
   va_online_scheduling_direct:
     actor_type: user
     default_enabled_environments:
-      development: true
+      development: false
     description: >
       Allows veterans to directly schedule VA appointments
   va_online_scheduling_past:
     actor_type: user
     default_enabled_environments:
-      development: true
+      development: false
     description: >
       Allows veterans to see past appointments
   va_global_downtime_notification:
     actor_type: user
     default_enabled_environments:
-      development: true
+      development: false
     description: >
       Enables global downtime notification- do not use in production
   ssoe:
     actor_type: cookie_id
     default_enabled_environments:
-      development: true
+      development: false
     description: >
       Enables ssoe, as opposed to saml authentication wrapped by id.me
   edu_benefits_stem_scholarship:
@@ -112,13 +111,13 @@ features:
   edu_section_103:
     actor_type: user
     default_enabled_environments:
-      development: true
+      development: false
     description: >
       Enables section 103 content
   gibct_estimate_your_benefits:
     actor_type: user
     default_enabled_environments:
-      development: true
+      development: false
     description: >
       Enable 508 and usability enhancements for the Comparison Tool Profile Page Estimate Your Benefits section benefits estimator panel.
   form526_original_claims:
@@ -130,25 +129,25 @@ features:
   va_view_dependents_access:
     actor_type: user
     default_enabled_environments:
-      development: true
+      development: false
     description: >
       Allows us to gate the View/ Modify dependents content in a progressive rollout
   ssoe_ebenefits_links:
     actor_type: user
     default_enabled_environments:
-      development: true
+      development: false
     description: >
       Enable eBenefits links to be proxied through eauth.va.gov, this allows users with SSOe sessions to stay logged in.
   ssoe_inbound:
     actor_type: cookie_id
     default_enabled_environments:
-      development: true
+      development: false
     description: >
       Enables automatic establishment/disconnection of vets-api session based on a user's SSOe session status
   allow_online_10_10cg_submissions:
     actor_type: user
     default_enabled_environments:
-      development: true
+      development: false
     description: >
       Allows (unauthenticated) users to submit a 10-10CG through VA.gov. This feature is also known as a Caregivers Assistance Claim.
   stub_carma_responses:
