@@ -7,7 +7,7 @@ require 'support/matchers'
 require 'support/spool_helpers'
 require 'support/fixture_helpers'
 require 'support/spec_temp_files'
-require 'support/sidekiq/batch'
+require 'support/sidekiq/batch' unless defined?(Sidekiq::Pro)
 require 'support/silence_stream'
 require 'support/stub_emis'
 require 'support/stub_evss_pciu'
