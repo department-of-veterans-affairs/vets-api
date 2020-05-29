@@ -381,6 +381,8 @@ module EVSS
       def translate_treatments
         return {} if input_form['vaTreatmentFacilities'].blank?
 
+        # treatmentCenterName clean up is an approximation of evss regex
+        # validation ([a-zA-Z0-9"\/&\(\)\-'.#]([a-zA-Z0-9(\)\-'.# ])?)+$
         treatments = input_form['vaTreatmentFacilities'].map do |treatment|
           {
             'startDate' => approximate_date(treatment['treatmentDateRange']['from']),
