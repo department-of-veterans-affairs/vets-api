@@ -2595,6 +2595,15 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
         end
       end
     end
+
+    describe 'dependents applications' do
+      it 'supports getting dependent information' do
+        expect(subject).to validate(:get, '/v0/profile/va_file_number', 401)
+        VCR.use_cassette('bgs/person_web_service/find_person_by_ptcpnt_id') do
+          expect(subject).to validate(:get, '/v0/profile/va_file_number', 200, headers)
+        end
+      end
+    end
   end
 
   context 'and' do
