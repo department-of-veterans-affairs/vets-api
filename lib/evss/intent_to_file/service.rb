@@ -1,7 +1,12 @@
 # frozen_string_literal: true
 
-require 'common/client/base'
 require 'common/client/concerns/monitoring'
+require 'common/client/errors'
+require 'evss/service'
+require_relative 'configuration'
+require_relative 'intent_to_file_response'
+require_relative 'intent_to_files_response'
+require_relative 'service_exception'
 
 module EVSS
   module IntentToFile
