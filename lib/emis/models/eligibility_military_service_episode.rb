@@ -5,7 +5,6 @@ require_relative 'eligibility_deployment'
 
 module EMIS
   module Models
-
     # EMIS Eligibility Military Service Episode data
     #
     # @!attribute begin_date

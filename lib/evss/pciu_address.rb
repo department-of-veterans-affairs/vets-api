@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require_relative 'pciu_address/address'
 require_relative 'pciu_address/military_address'
 require_relative 'pciu_address/international_address'
