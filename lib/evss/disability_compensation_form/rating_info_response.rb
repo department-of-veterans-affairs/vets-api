@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'evss/response'
-require 'evss/disability_compensation_form/rating_info'
+require_relative 'rating_info'
 
 module EVSS
   module DisabilityCompensationForm
