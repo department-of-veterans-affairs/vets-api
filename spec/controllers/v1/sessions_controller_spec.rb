@@ -142,7 +142,7 @@ RSpec.describe V1::SessionsController, type: :controller do
                 .with_relay_state('originating_request_id' => nil, 'type' => type)
                 .with_params('clientId' => '123123')
               expect(SAMLRequestTracker.keys.length).to eq(1)
-              expect(SAMLRequestTracker.find(SAMLRequestTracker.keys[0]).payload).to eq({})
+              expect(SAMLRequestTracker.find(SAMLRequestTracker.keys[0]).payload).to eq({ inbound_ssoe: 'true' })
             end
 
             it 'persists redirect application' do
@@ -158,6 +158,63 @@ RSpec.describe V1::SessionsController, type: :controller do
               expect(SAMLRequestTracker.keys.length).to eq(1)
               expect(SAMLRequestTracker.find(SAMLRequestTracker.keys[0]).payload)
                 .to eq({ redirect: 'https://ehrm-va-test.patientportal.us.healtheintent.com/' })
+            end
+
+            it 'adds to parameter to application redirect' do
+              expect do
+                get(:new, params: { type: type, clientId: '123123',
+                                    application: 'myvahealth', to: '/session-api/realm/realm_uuid' })
+              end
+                .to trigger_statsd_increment(described_class::STATSD_SSO_NEW_KEY,
+                                             tags: ["context:#{type}", 'version:v1'], **once)
+
+              expect(response).to have_http_status(:found)
+              expect(response.location)
+                .to be_an_idme_saml_url('https://pint.eauth.va.gov/isam/sps/saml20idp/saml20/login?SAMLRequest=')
+                .with_relay_state('originating_request_id' => nil, 'type' => type)
+                .with_params('clientId' => '123123')
+              expect(SAMLRequestTracker.keys.length).to eq(1)
+              expect(SAMLRequestTracker.find(SAMLRequestTracker.keys[0]).payload)
+                .to eq({ redirect: 'https://ehrm-va-test.patientportal.us.healtheintent.com'\
+                        + '/session-api/realm/realm_uuid' })
+            end
+
+            it 'allows nested to parameter' do
+              expect do
+                get(:new, params: { type: type, clientId: '123123',
+                                    application: 'myvahealth',
+                                    to: '/session-api/realm/realm_uuid?to=https://ehrm.example.com' })
+              end
+                .to trigger_statsd_increment(described_class::STATSD_SSO_NEW_KEY,
+                                             tags: ["context:#{type}", 'version:v1'], **once)
+
+              expect(response).to have_http_status(:found)
+              expect(response.location)
+                .to be_an_idme_saml_url('https://pint.eauth.va.gov/isam/sps/saml20idp/saml20/login?SAMLRequest=')
+                .with_relay_state('originating_request_id' => nil, 'type' => type)
+                .with_params('clientId' => '123123')
+              expect(SAMLRequestTracker.keys.length).to eq(1)
+              expect(SAMLRequestTracker.find(SAMLRequestTracker.keys[0]).payload)
+                .to eq({ redirect: 'https://ehrm-va-test.patientportal.us.healtheintent.com'\
+                        + '/session-api/realm/realm_uuid?to=https://ehrm.example.com' })
+            end
+
+            it 'strips CRLF characters from to parameter' do
+              expect do
+                get(:new, params: { type: type, clientId: '123123',
+                                    application: 'myvahealth', to: CGI.unescape('/foo/bar%0D%0ASplitHeader') })
+              end
+                .to trigger_statsd_increment(described_class::STATSD_SSO_NEW_KEY,
+                                             tags: ["context:#{type}", 'version:v1'], **once)
+
+              expect(response).to have_http_status(:found)
+              expect(response.location)
+                .to be_an_idme_saml_url('https://pint.eauth.va.gov/isam/sps/saml20idp/saml20/login?SAMLRequest=')
+                .with_relay_state('originating_request_id' => nil, 'type' => type)
+                .with_params('clientId' => '123123')
+              expect(SAMLRequestTracker.keys.length).to eq(1)
+              expect(SAMLRequestTracker.find(SAMLRequestTracker.keys[0]).payload)
+                .to eq({ redirect: 'https://ehrm-va-test.patientportal.us.healtheintent.com/foo/barSplitHeader' })
             end
 
             it 'ignores invalid redirect application' do

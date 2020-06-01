@@ -545,10 +545,10 @@ RSpec.describe Form1010cg::Service do
           icn: :ICN_0,
           is_veteran: false
         },
-        primaryCaregiver: {
+        primary_caregiver: {
           icn: :ICN_1
         },
-        secondaryCaregiverOne: {
+        secondary_caregiver_one: {
           # Note that NOT_FOUND is converted to nil
           icn: nil
         }
