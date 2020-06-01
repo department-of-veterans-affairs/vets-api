@@ -9,7 +9,7 @@ RSpec.describe 'VAOS::V1::Patient', type: :request do
     allow_any_instance_of(VAOS::UserService).to receive(:session).and_return('stubbed_token')
   end
 
-  context 'with a loa1 user' do
+  context 'with loa1 user' do
     let(:user) { FactoryBot.create(:user, :loa1) }
 
     it 'returns a forbidden error' do
@@ -20,7 +20,7 @@ RSpec.describe 'VAOS::V1::Patient', type: :request do
     end
   end
 
-  context 'with a loa3 user' do
+  context 'with loa3 user' do
     let(:user) { FactoryBot.create(:user, :loa1) }
 
     describe 'GET /vaos/v1/Patient?queries' do
