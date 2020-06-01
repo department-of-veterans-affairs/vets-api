@@ -1,6 +1,9 @@
 # frozen_string_literal: true
 
 require 'evss/jwt'
+require 'evss/pciu_address/countries_response'
+require 'evss/pciu_address/states_response'
+require_relative 'configuration'
 
 module EVSS
   module ReferenceData
