@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require 'evss/pciu_address'
 
 describe EVSS::PCIUAddress do
   describe '.build_address' do
