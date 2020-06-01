@@ -1,15 +1,20 @@
 # frozen_string_literal: true
 
+require 'securerandom'
 require 'rails_helper'
 require 'saml/url_service'
 require 'support/url_service_helpers'
 
 RSpec.describe SAML::URLService do
   context 'using loa/3/vets context' do
-    subject { described_class.new(saml_settings, session: session, user: user, params: params) }
+    subject do
+      described_class.new(saml_settings, session: session, user: user,
+                                         params: params, previous_saml_uuid: previous_saml_uuid)
+    end
 
     let(:user) { build(:user) }
     let(:session) { Session.create(uuid: user.uuid, token: 'abracadabra') }
+    let(:previous_saml_uuid) { nil }
 
     around do |example|
       User.create(user)
@@ -201,6 +206,37 @@ RSpec.describe SAML::URLService do
             it 'has a logout redirect url' do
               expect(subject.logout_redirect_url)
                 .to eq(values[:base_redirect] + SAML::URLService::LOGOUT_REDIRECT_PARTIAL)
+            end
+          end
+
+          context 'for a user with a custom redirect parameter' do
+            let(:user) { build(:user, :loa3) }
+            let(:previous_saml_uuid) do
+              SAMLRequestTracker.create(
+                uuid: SecureRandom.uuid,
+                payload: { redirect: 'https://custom.com/' }
+              ).uuid
+            end
+
+            it 'has a custom redirect url' do
+              expect(subject.login_redirect_url).to eq('https://custom.com/')
+            end
+          end
+
+          context 'for a user authenticating with inbound ssoe' do
+            let(:user) { build(:user, :loa3) }
+            let(:params) { { action: 'saml_callback', RelayState: '{"type":"idme"}', inbound: 'true' } }
+
+            it 'is successful' do
+              expect(subject.login_redirect_url)
+                .to eq(values[:base_redirect] + SAML::URLService::LOGIN_REDIRECT_PARTIAL + '?type=idme')
+            end
+
+            it 'is a failure' do
+              expect(subject.login_redirect_url(auth: 'fail', code: '001'))
+                .to eq(values[:base_redirect] +
+                       SAML::URLService::LOGIN_REDIRECT_PARTIAL +
+                       '?auth=force-needed&code=001&type=idme')
             end
           end
         end

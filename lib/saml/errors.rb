@@ -11,6 +11,9 @@ module SAML
     MHV_ICN_MISMATCH = { code: '103',
                          tag: :mhv_icn_mismatch,
                          message: 'MHV credential ICN does not match MPI record' }.freeze
+    IDME_UUID_MISSING = { code: '104',
+                          tag: :idme_uuid_missing,
+                          message: 'User attributes is missing an ID.me UUID' }.freeze
 
     attr_reader :code, :tag
 
