@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require 'evss/dependents/service'
 
 describe EVSS::Dependents::Service do
   let(:user) { create(:evss_user) }
