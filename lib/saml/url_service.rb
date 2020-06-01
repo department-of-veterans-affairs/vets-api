@@ -53,10 +53,13 @@ module SAML
 
     # rubocop:disable Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
     def login_redirect_url(auth: 'success', code: nil)
-      return verify_url if auth == 'success' && user.loa[:current] < user.loa[:highest]
+      if auth == 'success'
+        return verify_url if user.loa[:current] < user.loa[:highest]
 
-      # if the original auth request specified a redirect, use that
-      return @tracker&.payload_attr(:redirect) if @tracker&.payload_attr(:redirect)
+        # if the original auth request specified a redirect, use that
+        redirect_target = @tracker&.payload_attr(:redirect)
+        return redirect_target if redirect_target.present?
+      end
 
       # if the original auth request specified inbound ssoe and authentication
       # failed, set 'force-needed' so the FE can silently fail authentication and NOT
@@ -195,12 +198,21 @@ module SAML
       end
     end
 
+    def build_redirect(params)
+      default = Settings.ssoe.redirects[params[:application]]
+      return default unless default && params[:to]
+
+      prefix = default.delete_suffix('/')
+      suffix = params[:to].delete_prefix('/').gsub("\r\n", '')
+      [prefix, suffix].join('/')
+    end
+
     # Initialize a new SAMLRequestTracker, if a valid previous SAML UUID is
     # given, copy over the redirect and created_at timestamp.  This is useful
     # for a user that has to go through the upleveling process.
     def initialize_tracker(params, previous_saml_uuid: nil)
       previous = previous_saml_uuid && SAMLRequestTracker.find(previous_saml_uuid)
-      redirect = previous&.payload_attr(:redirect) || Settings.ssoe.redirects[params[:application]]
+      redirect = previous&.payload_attr(:redirect) || build_redirect(params)
       inbound = params[:inbound] || nil
       # if created_at is set to nil (meaning no previous tracker to use), it
       # will be initialized to the current time when it is saved
