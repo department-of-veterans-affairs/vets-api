@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'evss/base_service'
+require 'evss/disability_compensation_form/rating_info_response'
 
 module EVSS
   class CommonService < BaseService
