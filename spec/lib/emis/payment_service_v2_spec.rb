@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'emis/payment_service'
+require 'emis/payment_service_v2'
 
 describe EMIS::PaymentServiceV2 do
   describe 'get_pay_grade_history' do
