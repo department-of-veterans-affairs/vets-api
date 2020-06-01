@@ -56,12 +56,18 @@ module SAML
       if auth == 'success'
         return verify_url if user.loa[:current] < user.loa[:highest]
 
+        # if the original auth request specified a redirect, use that
         redirect_target = @tracker&.payload_attr(:redirect)
         return redirect_target if redirect_target.present?
       end
 
+      # if the original auth request specified inbound ssoe and authentication
+      # failed, set 'force-needed' so the FE can silently fail authentication and NOT
+      # show the user an error page
+      auth = 'force-needed' if (auth != 'success') && @tracker&.payload_attr(:inbound_ssoe)
+
       @query_params[:type] = type if type
-      @query_params[:auth] = auth if auth == 'fail'
+      @query_params[:auth] = auth if auth != 'success'
       @query_params[:code] = code if code
 
       if Settings.saml.relay.present?
@@ -207,10 +213,11 @@ module SAML
     def initialize_tracker(params, previous_saml_uuid: nil)
       previous = previous_saml_uuid && SAMLRequestTracker.find(previous_saml_uuid)
       redirect = previous&.payload_attr(:redirect) || build_redirect(params)
+      inbound = params[:inbound] || nil
       # if created_at is set to nil (meaning no previous tracker to use), it
       # will be initialized to the current time when it is saved
       SAMLRequestTracker.new(
-        payload: redirect ? { redirect: redirect } : {},
+        payload: { redirect: redirect, inbound_ssoe: inbound }.compact,
         created_at: previous&.created_at
       )
     end
