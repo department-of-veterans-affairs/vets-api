@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'evss/response'
+require 'evss/pciu_address'
 require 'evss/pciu_address/address'
 require 'evss/pciu_address/control_information'
 
@@ -31,7 +32,7 @@ module EVSS
       end
 
       def address=(attrs)
-        super EVSS::PCIUAddress::Address.build_address(attrs)
+        super EVSS::PCIUAddress.build_address(attrs)
       end
     end
   end
