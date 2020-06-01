@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require 'evss/letters/service'
 
 describe EVSS::Letters::Service do
   describe '.find_by_user' do
