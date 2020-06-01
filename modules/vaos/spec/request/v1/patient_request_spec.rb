@@ -21,7 +21,7 @@ RSpec.describe 'VAOS::V1::Patient', type: :request do
   end
 
   context 'with loa3 user' do
-    let(:user) { FactoryBot.create(:user, :loa1) }
+    let(:user) { FactoryBot.create(:user, :loa3) }
 
     describe 'GET /vaos/v1/Patient?queries' do
       context 'when records are found via identifier' do
