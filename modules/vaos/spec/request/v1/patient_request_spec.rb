@@ -44,7 +44,7 @@ RSpec.describe 'VAOS::V1::Patient', type: :request do
         end
       end
 
-      # TODO: cassettes need to be created
+      # TODO: cassettes  need to be created
       context 'when records are not found' do
         it 'returns a 404 operation outcome' do
           VCR.use_cassette('vaos/fhir/patient/read_404', record: :new_episodes) do
