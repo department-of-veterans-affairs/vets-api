@@ -794,6 +794,12 @@ RSpec.describe FormProfile, type: :model do
 
     context 'with a user that can prefill mdot' do
       before do
+        user.first_name = "Greg"
+        user.last_name = 'Anderson',
+        user.middle_name = 'A',
+        user.birth_date = '1933-04-05',
+        user.ssn = '796121200',
+        user.icn = '1012666182V203559'
         expect(user).to receive(:authorize).with(:mdot, :access?).and_return(true).at_least(:once)
         expect(user.authorize(:mdot, :access?)).to eq(true)
       end
