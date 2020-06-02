@@ -116,7 +116,7 @@ en:
         <<: *defaults
         title: Not found
         detail: "There are no routes matching your request: %{path}"
-        code: 411
+        code: 404
         status: 404
       unknown_format:
         <<: *defaults
