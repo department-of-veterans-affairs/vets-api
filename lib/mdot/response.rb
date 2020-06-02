@@ -30,7 +30,7 @@ module MDOT
       eligibility = MDOT::Eligibility.new
 
       supplies.each do |supply|
-        group = supply.product_group.split.last.to_sym
+        group = supply.product_group.split.last.downcase.to_sym
 
         if eligibility.attributes.key?(group)
           eligibility.attributes = { group => supply.next_availability_date <= Time.zone.today }
