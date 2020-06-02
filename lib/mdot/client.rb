@@ -118,6 +118,7 @@ module MDOT
     def handle_client_error(error)
       save_error_details(error)
       code = error.body['errors'].first.dig('code')
+      puts code
       raise_backend_exception(
         MDOT::ExceptionKey.new("MDOT_#{code}"),
         self.class,
