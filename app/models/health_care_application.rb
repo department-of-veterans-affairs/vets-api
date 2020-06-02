@@ -1,5 +1,10 @@
 # frozen_string_literal: true
 
+require 'hca/service'
+require 'hca/user_attributes'
+require 'hca/enrollment_eligibility/service'
+require 'hca/enrollment_eligibility/status_matcher'
+
 class HealthCareApplication < ApplicationRecord
   include TempFormValidation
   include SentryLogging
