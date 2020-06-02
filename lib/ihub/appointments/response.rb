@@ -2,6 +2,7 @@
 
 require 'common/client/concerns/service_status'
 require 'common/models/base'
+require 'ihub/models/appointment'
 
 module IHub
   module Appointments
