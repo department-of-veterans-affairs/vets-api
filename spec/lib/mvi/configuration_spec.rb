@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'mvi/service'
+require 'mvi/configuration'
 
 describe MVI::Configuration do
   describe '.ssl_options' do
