@@ -1,8 +1,9 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require 'carma/models/metadata'
 
-RSpec.describe CARMA::Models::Submission::Metadata, type: :model do
+RSpec.describe CARMA::Models::Metadata, type: :model do
   describe '#claim_id' do
     it 'is accessible' do
       subject.claim_id = 123
@@ -14,7 +15,7 @@ RSpec.describe CARMA::Models::Submission::Metadata, type: :model do
     it 'is accessible' do
       subject.veteran = { icn: 'ABCD1234', is_veteran: true }
 
-      expect(subject.veteran).to be_instance_of(described_class::Veteran)
+      expect(subject.veteran).to be_instance_of(CARMA::Models::Veteran)
       expect(subject.veteran.icn).to eq('ABCD1234')
       expect(subject.veteran.is_veteran).to eq(true)
     end
@@ -24,7 +25,7 @@ RSpec.describe CARMA::Models::Submission::Metadata, type: :model do
     it 'is accessible' do
       subject.primary_caregiver = { icn: 'ABCD1234' }
 
-      expect(subject.primary_caregiver).to be_instance_of(described_class::Caregiver)
+      expect(subject.primary_caregiver).to be_instance_of(CARMA::Models::Caregiver)
       expect(subject.primary_caregiver.icn).to eq('ABCD1234')
     end
   end
@@ -33,7 +34,7 @@ RSpec.describe CARMA::Models::Submission::Metadata, type: :model do
     it 'is accessible' do
       subject.secondary_caregiver_one = { icn: 'ABCD1234' }
 
-      expect(subject.secondary_caregiver_one).to be_instance_of(described_class::Caregiver)
+      expect(subject.secondary_caregiver_one).to be_instance_of(CARMA::Models::Caregiver)
       expect(subject.secondary_caregiver_one.icn).to eq('ABCD1234')
     end
 
@@ -47,7 +48,7 @@ RSpec.describe CARMA::Models::Submission::Metadata, type: :model do
     it 'is accessible' do
       subject.secondary_caregiver_two = { icn: 'ABCD1234' }
 
-      expect(subject.secondary_caregiver_two).to be_instance_of(described_class::Caregiver)
+      expect(subject.secondary_caregiver_two).to be_instance_of(CARMA::Models::Caregiver)
       expect(subject.secondary_caregiver_two.icn).to eq('ABCD1234')
     end
 
@@ -59,13 +60,13 @@ RSpec.describe CARMA::Models::Submission::Metadata, type: :model do
 
   describe '::new' do
     it 'initializes with defaults' do
-      # Should default to empty described_class::Veteran
-      expect(subject.veteran).to be_instance_of(described_class::Veteran)
+      # Should default to empty CARMA::Models::Veteran
+      expect(subject.veteran).to be_instance_of(CARMA::Models::Veteran)
       expect(subject.veteran.icn).to eq(nil)
       expect(subject.veteran.is_veteran).to eq(nil)
 
-      # Should default to empty described_class::Caregiver
-      expect(subject.primary_caregiver).to be_instance_of(described_class::Caregiver)
+      # Should default to empty CARMA::Models::Caregiver
+      expect(subject.primary_caregiver).to be_instance_of(CARMA::Models::Caregiver)
       expect(subject.primary_caregiver.icn).to eq(nil)
 
       # Should default to nil
