@@ -1,5 +1,8 @@
 # frozen_string_literal: true
 
+require_relative 'service'
+require_relative 'attr_configuration'
+
 class MVI::AttrService < MVI::Service
   configuration MVI::AttrConfiguration
 
