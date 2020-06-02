@@ -86,9 +86,13 @@
     "claimant": {
       "type": "object",
       "required": [
+        "firstName",
+        "middleInitial",
+        "lastName",
         "address",
         "phone",
-        "email"
+        "email",
+        "relationship"
       ],
       "properties": {
         "firstName":     { "type": "string" },
@@ -97,7 +101,7 @@
         "address":       { "$ref": "#/definitions/mailingAddress" },
         "phone":         { "$ref": "#/definitions/phone" },
         "email":         { "$ref": "#/definitions/email" },
-        "reelationship": { "type": "string" }
+        "relationship":  { "type": "string" }
       }
     },
     "service_organization": {
@@ -113,6 +117,22 @@
         "email":           { "$ref": "#/definitions/email" },
         "appointmentDate": { "$ref": "#/definitions/date" }
       }
-    }
+    },
+    "recordConsent": { "type": "boolean" },
+    "consentLimits": {
+      "type": "array",
+      "items": [
+        {
+          "type": "string",
+          "enum": [
+            "DRUG ABUSE",
+            "ALCOHOLISM",
+            "HIV",
+            "SICKLE CELL"
+          ]
+        }
+      ]
+    },
+    "consentAddressChange": { "type": "boolean" }
   }
 }
