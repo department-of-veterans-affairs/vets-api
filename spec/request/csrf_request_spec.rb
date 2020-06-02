@@ -112,4 +112,12 @@ RSpec.describe 'CSRF scenarios', type: :request do
       expect(response.body).not_to match(/Invalid Authenticity Token/)
     end
   end
+
+  describe 'unknown route' do
+    it 'skips CSRF validation' do
+      post '/non_existent_route'
+      expect(response.status).to eq(404)
+      expect(response.body).to match(/There are no routes matching your request/)
+    end
+  end
 end
