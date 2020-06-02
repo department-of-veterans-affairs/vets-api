@@ -27,10 +27,6 @@ module EVSS
         # TODO: create mock data
         false
       end
-
-      def self.breakers_service
-        BaseService.create_breakers_service(name: service_name, url: base_path)
-      end
     end
   end
 end
