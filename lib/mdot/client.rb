@@ -3,10 +3,11 @@
 require 'common/client/base'
 require 'common/client/concerns/monitoring'
 require 'common/exceptions/external/gateway_timeout'
-require 'mdot/configuration'
-require 'mdot/response'
-require 'mdot/exceptions/key'
-require 'mdot/exceptions/service_exception'
+require_relative 'configuration'
+require_relative 'response'
+require_relative 'token'
+require_relative 'exceptions/key'
+require_relative 'exceptions/service_exception'
 
 module MDOT
   ##
@@ -95,7 +96,7 @@ module MDOT
     end
 
     def raise_backend_exception(key, source, error = nil)
-      exception = MDOT::ServiceException.new(
+      exception = MDOT::Exceptions::ServiceException.new(
         key,
         { source: source.to_s },
         error&.status,
@@ -110,7 +111,7 @@ module MDOT
         url: config.base_path
       )
       raise_backend_exception(
-        MDOT::ExceptionKey.new('MDOT_502'),
+        MDOT::Exceptions::Key.new('MDOT_502'),
         self.class
       )
     end
@@ -119,7 +120,7 @@ module MDOT
       save_error_details(error)
       code = error.body['errors'].first.dig('code')
       raise_backend_exception(
-        MDOT::ExceptionKey.new("MDOT_#{code}"),
+        MDOT::Exceptions::Key.new("MDOT_#{code}"),
         self.class,
         error
       )

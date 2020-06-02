@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 require 'common/models/base'
+require_relative 'eligibility'
+require_relative 'token'
 
 module MDOT
   class Response < Common::Base

@@ -2,7 +2,7 @@
 
 require 'common/exceptions/external/backend_service_exception'
 
-module MDOT
+module MDOT::Exceptions
   class ServiceException < Common::Exceptions::External::BackendServiceException
     include SentryLogging
 
