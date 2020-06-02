@@ -1,9 +1,11 @@
 # frozen_string_literal: true
 
+require_relative 'id_parser'
+
 module MVI::Responses
   class HistoricalICNParser
     HISTORICAL_ICN_XPATH = [
-      ProfileParser::SUBJECT_XPATH,
+      'controlActProcess/subject', # matches ProfileParser::SUBJECT_XPATH
       'registrationEvent',
       'replacementOf',
       'priorRegistration',
