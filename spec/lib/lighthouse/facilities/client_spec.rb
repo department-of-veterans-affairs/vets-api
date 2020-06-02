@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require 'lighthouse/facilities/client'
 
 RSpec.describe Lighthouse::Facilities::Client do
   let(:facilities_client) { Lighthouse::Facilities::Client.new }
