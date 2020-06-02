@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module BGS
   class StudentSchool < Base
     def initialize(proc_id:, vnp_participant_id:, payload:, user:)
@@ -9,6 +11,7 @@ module BGS
     end
 
     def create
+      binding.pry
       child_school = create_child_school(
         @proc_id,
         @vnp_participant_id,

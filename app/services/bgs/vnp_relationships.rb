@@ -7,12 +7,20 @@ module BGS
       @dependents = dependents
       @veteran = veteran
 
+
       super(user) # is this cool? Might be smelly. Might indicate a new class/object 🤔
     end
 
     def create
-      @dependents.map do |dependent|
-        create_relationship(@proc_id, @veteran.vnp_participant_id, dependent)
+      spouse_marriages, vet_dependents = @dependents.partition { |dependent| dependent[:type] == 'spouse_former_marriage' }
+      spouse = @dependents.select { |dependent| dependent[:type] == 'spouse' }
+
+      spouse_marriages.each do |dependent|
+        create_relationship(@proc_id, spouse[:vnp_participant_id], dependent)
+      end
+
+      vet_dependents.each do |dependent|
+        create_relationship(@proc_id, @veteran[:vnp_participant_id], dependent)
       end
     end
   end

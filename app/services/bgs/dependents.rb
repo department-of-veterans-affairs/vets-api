@@ -22,6 +22,8 @@ module BGS
       # report_child_marriage if @payload['report_marriage_of_child_under18']
       # report_child18_or_older_is_not_attending_school if @payload['report_child18_or_older_is_not_attending_school']
       # report_674 if @payload['report674']
+      # report_veteran_marriage_history if @payload['veteran_marriage_history']
+      # report_spouse_marriage_history if @payload['spouse_marriage_history']
 
       @dependents
     end
@@ -34,7 +36,7 @@ module BGS
         child_address = child_info["does_child_live_with_you"] == true ? @dependents_application['veteran_contact_information']['veteran_address'] : child_info['child_address_info']['address']
         participant = create_participant(@proc_id)
         create_person(@proc_id, participant[:vnp_ptcpnt_id], child_info)
-        create_address(@proc_id, participant[:vnp_ptcpnt_id], child_address)
+        generate_address(participant[:vnp_ptcpnt_id], child_address)
 
         @dependents << serialize_result(
           participant,
@@ -55,7 +57,9 @@ module BGS
 
         participant = create_participant(@proc_id)
         create_person(@proc_id, participant[:vnp_ptcpnt_id], formatted_death_info)
-        create_address(@proc_id, participant[:vnp_ptcpnt_id], death_info['location'])
+        # I think we need the death_location instead of creating an address
+        # There is no support in the API for death location
+        # create_address(@proc_id, participant[:vnp_ptcpnt_id], death_info['location'])
 
         @dependents << serialize_result(
           participant,
@@ -73,7 +77,7 @@ module BGS
       spouse_address = family_relationship_type == 'Spouse' ? @dependents_application['veteran_contact_information']['veteran_address'] : @dependents_application['does_live_with_spouse']['address']
       participant = create_participant(@proc_id)
       create_person(@proc_id, participant[:vnp_ptcpnt_id], marriage_info)
-      create_address(@proc_id, participant[:vnp_ptcpnt_id], spouse_address)
+      generate_address(participant[:vnp_ptcpnt_id], spouse_address)
 
       @dependents << serialize_result(
         participant,
@@ -92,7 +96,6 @@ module BGS
       divorce_info = format_divorce_info
       participant = create_participant(@proc_id)
       create_person(@proc_id, participant[:vnp_ptcpnt_id], divorce_info)
-      create_address(@proc_id, participant[:vnp_ptcpnt_id], @payload['report_divorce']['location_of_divorce'])
 
       @dependents << serialize_result(
         participant,
@@ -112,7 +115,7 @@ module BGS
         step_child_formatted = format_stepchild_info(stepchild_info)
         participant = create_participant(@proc_id)
         create_person(@proc_id, participant[:vnp_ptcpnt_id], step_child_formatted)
-        create_address(@proc_id, participant[:vnp_ptcpnt_id], stepchild_info['address'])
+        generate_address(participant[:vnp_ptcpnt_id], stepchild_info['address'])
 
         @dependents << serialize_result(
           participant,
@@ -165,7 +168,7 @@ module BGS
       student_address = @dependents_application['student_address_marriage_tuition']['address']
       participant = create_participant(@proc_id)
       create_person(@proc_id, participant[:vnp_ptcpnt_id], formatted_674_info)
-      create_address(@proc_id, participant[:vnp_ptcpnt_id], student_address)
+      generate_address(participant[:vnp_ptcpnt_id], student_address)
 
       @dependents << serialize_result(
         participant,
@@ -175,6 +178,64 @@ module BGS
           'type': '674'
         }
       )
+    end
+
+    def generate_address(participant_id, address)
+      if address['view:lives_on_military_base'] == true
+        address['military_postal_code'] = address.delete('state_code')
+        address['military_post_office_type_code'] = address.delete('city')
+
+        create_address(@proc_id, participant_id, address)
+      else
+        create_address(@proc_id, participant_id, address)
+      end
+    end
+
+    def report_veteran_marriage_history
+      @dependents_application['veteran_marriage_history'].each do |former_spouse|
+        marriage_info = format_former_marriage_info(former_spouse)
+        participant = create_participant(@proc_id)
+        create_person(@proc_id, participant[:vnp_ptcpnt_id], marriage_info)
+
+        @dependents << serialize_result(
+          participant,
+          'Spouse',
+          'Ex-Spouse',
+          {
+            'type': 'veteran_former_marriage'
+          }
+        )
+      end
+    end
+
+    def report_spouse_marriage_history
+      @dependents_application['spouse_marriage_history'].each do |former_spouse|
+        marriage_info = format_former_marriage_info(former_spouse)
+        participant = create_participant(@proc_id)
+        create_person(@proc_id, participant[:vnp_ptcpnt_id], marriage_info)
+
+        @dependents << serialize_result(
+          participant,
+          'Spouse',
+          'Ex-Spouse',
+          {
+            'type': 'spouse_former_marriage'
+          }
+        )
+      end
+    end
+
+    def format_former_marriage_info(former_spouse_payload)
+      [
+        *former_spouse_payload.dig('full_name'),
+        ['start_date', former_spouse_payload['start_date']],
+        ['end_date', former_spouse_payload['end_date']],
+        ['marriage_state', former_spouse_payload.dig('start_location', 'state')],
+        ['marriage_city', former_spouse_payload.dig('start_location', 'city')],
+        ['divorce_state', former_spouse_payload.dig('start_location', 'state')],
+        ['divorce_city', former_spouse_payload.dig('start_location', 'city')],
+        ['marriage_termination_type_code', former_spouse_payload['reason_marriage_ended_other']]
+      ].to_h
     end
 
     def format_674_info
@@ -315,44 +376,5 @@ module BGS
         type: optional_fields[:type] # both
       }
     end
-
-    # ::ValueObjects::VnpPersonAddressPhone.new(
-    #   # vnp_proc_id: @proc_id,
-    #   vnp_participant_id: participant[:vnp_ptcpnt_id], # Both
-    #   # first_name: person[:first_nm], vet only
-    #   # last_name: person[:last_nm], vet only
-    #   # vnp_participant_address_id: address[:vnp_ptcpnt_addrs_id], @ veteran only
-    #   participant_relationship_type_name: participant_relationship_type, # veteran only
-    #   family_relationship_type_name: family_relationship_type, # veteran only
-    #   # suffix_name: person[:suffix_nm], not needed
-    #   # middle_name: person[:middle_nm], not needed
-    #   # birth_date: person[:brthdy_dt],
-    #   # birth_state_code: person[:birth_state_cd],
-    #   # birth_city_name: person[:birth_city_nm],
-    #   # file_number: person[:file_nbr], veteran only
-    #   # ssn_number: person[:ssn_nbr], # veteran only
-    #   # address_line_one: address[:addrs_one_txt], # veteran only
-    #   # address_line_two: address[:addrs_two_txt], # veteran only
-    #   # address_line_three: address[:addrs_three_txt], # veteran only
-    #   # address_country: address[:cntry_nm], # veteran only
-    #   # address_state_code: address[:postal_cd], # veteran only
-    #   # address_city: address[:city_nm], # veteran only
-    #   # address_zip_code: address[:zip_prefix_nbr], # veteran only
-    #   # death_date: person[:death_dt], # not needed
-    #   # ever_married_indicator: person[:ever_maried_ind], # not needed
-    #   # phone_number: optional_fields[:phone_number], not needed
-    #   # email_address: optional_fields[:email_address],
-    #   begin_date: optional_fields[:begin_date], # dependent only
-    #   end_date: optional_fields[:end_date], # dependent only
-    #   event_date: optional_fields[:event_date], # dependent only
-    #   marriage_state: optional_fields[:marriage_state], # dependent only
-    #   marriage_city: optional_fields[:marriage_city], # dependent only
-    #   divorce_state: optional_fields[:divorce_state], # dependent only
-    #   divorce_city: optional_fields[:divorce_city], # dependent only
-    #   marriage_termination_type_code: optional_fields[:marriage_termination_type_code], # dependent only
-    #   living_expenses_paid_amount: optional_fields[:living_expenses_paid], # dependent only
-    #   type: optional_fields[:type], # we need this
-    #   benefit_claim_type_end_product: nil # this is only for the veteran
-    # )
   end
 end

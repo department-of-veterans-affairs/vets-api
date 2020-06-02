@@ -4,11 +4,11 @@ require 'rails_helper'
 
 RSpec.describe BGS::StudentSchool do
   let(:user) { FactoryBot.create(:user, :loa3) }
-  let(:proc_id) { '3828616' }
-  let(:vnp_participant_id) { '147512' }
+  let(:proc_id) { '3828879' }
+  let(:vnp_participant_id) { '148166' }
   let(:payload) do
     root = Rails.root.to_s
-    f = File.read("#{root}/spec/services/bgs/support/final_payload.rb")
+    f = File.read("#{root}/spec/services/bgs/support/final_payload.json")
     JSON.parse(f)
   end
   let(:child_response) do

@@ -103,6 +103,8 @@ module BGS
         city_nm: payload['city'],
         cntry_nm: payload['country_name'],
         postal_cd: payload['state_code'],
+        mlty_postal_type_cd: payload['military_postal_code'],
+        mlty_post_office_type_cd: payload['military_post_office_type_code'],
         zip_prefix_nbr: payload['zip_code'],
         prvnc_nm: payload['state_code'],
         email_addrs_txt: payload['email_address'],
@@ -152,6 +154,7 @@ module BGS
     end
 
     def create_child_school(proc_id, participant_id, payload)
+      binding.pry
       service.vnp_child_school.child_school_create(
         vnp_proc_id: proc_id,
         jrn_dt: Time.current.iso8601,

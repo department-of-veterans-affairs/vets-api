@@ -1,4 +1,4 @@
-require_relative 'value_objects/benefit_claim'
+# frozen_string_literal: true
 
 module BGS
   class BenefitClaim < Base

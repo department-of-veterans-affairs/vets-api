@@ -19,12 +19,11 @@ module BGS
     def modify_dependents(payload = nil)
       # BGS::SubmitForm686cJob.perform_async(@user, payload) this is for the job
       delete_me_root = Rails.root.to_s
-      delete_me_payload_file = File.read("#{delete_me_root}/spec/services/bgs/support/final_payload.rb")
+      delete_me_payload_file = File.read("#{delete_me_root}/spec/services/bgs/support/final_payload.json")
       payload = JSON.parse(delete_me_payload_file)
 
       proc_id = create_proc_id_and_form
       veteran = VnpVeteran.new(proc_id: proc_id, payload: payload, user: @user).create
-      binding.pry
       # dependents = Dependents.new(proc_id: proc_id, payload: payload, user: @user).create
       # VnpRelationships.new(proc_id: proc_id, veteran: veteran, dependents: dependents, user: @user).create
 

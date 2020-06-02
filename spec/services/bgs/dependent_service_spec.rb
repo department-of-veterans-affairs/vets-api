@@ -6,7 +6,7 @@ RSpec.describe BGS::DependentService do
   let(:dependent_service) { BGS::DependentService.new(user) }
   let(:payload) do
     delete_me_root = Rails.root.to_s
-    delete_me_payload_file = File.read("#{delete_me_root}/spec/services/bgs/support/final_payload.rb")
+    delete_me_payload_file = File.read("#{delete_me_root}/spec/services/bgs/support/final_payload.json")
     JSON.parse(delete_me_payload_file)
   end
 

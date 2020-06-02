@@ -227,23 +227,23 @@ RSpec.describe BGS::Base do
       VCR.use_cassette('bgs/base/create_child_student') do
         payload = {
           "student_networth_information" => {
-            "savings" => "3455", # DONE
+            "savings" => "3455",
             "securities" => "3234",
-            "real_estate" => "5623", # DONE
-            "other_assets" => "4566", # DONE
-            "remarks" => "Some remarks about the student's net worth" # DONE
+            "real_estate" => "5623",
+            "other_assets" => "4566",
+            "remarks" => "Some remarks about the student's net worth"
           },
           "student_earnings_from_school_year" => {
-            "earnings_from_all_employment" => "12000", # DONE
-            "annual_social_security_payments" => "3453", # DONE
-            "other_annuities_income" => "30595", # DONE
-            "all_other_income" => "5596" # DONE
+            "earnings_from_all_employment" => "12000",
+            "annual_social_security_payments" => "3453",
+            "other_annuities_income" => "30595",
+            "all_other_income" => "5596"
           },
           "student_expected_earnings_next_year" => {
-            "earnings_from_all_employment" => "12000", # DONE
-            "annual_social_security_payments" => "3940", # DONE
-            "other_annuities_income" => "3989", # DONE
-            "all_other_income" => "984" # DONE
+            "earnings_from_all_employment" => "12000",
+            "annual_social_security_payments" => "3940",
+            "other_annuities_income" => "3989",
+            "all_other_income" => "984"
           },
           "student_address_marriage_tuition" => {
             "address" => {
@@ -254,10 +254,10 @@ RSpec.describe BGS::Base do
               "zip_code" => "93420"
             },
             "was_married" => true,
-            "marriage_date" => "2015-03-04", # DONE
-            "tuition_is_paid_by_gov_agency" => 'Y', # DONE
-            "agency_name" => "Some Agency", # DONE
-            "date_payments_began" => "2019-02-03" # DONE
+            "marriage_date" => "2015-03-04",
+            "tuition_is_paid_by_gov_agency" => 'Y',
+            "agency_name" => "Some Agency",
+            "date_payments_began" => "2019-02-03"
           },
           "student_will_earn_income_next_year" => true
         }
@@ -288,7 +288,7 @@ RSpec.describe BGS::Base do
     end
   end
 
-  xdescribe '#insert_benefit_claim' do
+  describe '#insert_benefit_claim' do
     it 'creates a benefit claim and returns a benefit_claim_record' do
       VCR.use_cassette('bgs/base/insert_benefit_claim') do
         response = bgs_base.insert_benefit_claim(vnp_benefit_claim_hash, vet_hash)
@@ -298,7 +298,7 @@ RSpec.describe BGS::Base do
     end
   end
 
-  xdescribe '#vnp_bnft_claim_update' do
+  describe '#vnp_bnft_claim_update' do
     it 'creates a benefit claim and returns a vnp_bnft_claim_id' do
       VCR.use_cassette('bgs/base/vnp_bnft_claim_update') do
         response = bgs_base.vnp_bnft_claim_update(benefit_claim_hash, vnp_benefit_claim_hash)

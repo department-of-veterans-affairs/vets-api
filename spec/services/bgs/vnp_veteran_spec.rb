@@ -5,7 +5,7 @@ RSpec.describe BGS::VnpVeteran do
   let(:user) { FactoryBot.create(:user, :loa3) }
   let(:payload) do
     root = Rails.root.to_s
-    f = File.read("#{root}/spec/services/bgs/support/final_payload.rb")
+    f = File.read("#{root}/spec/services/bgs/support/final_payload.json")
     JSON.parse(f)
   end
   let(:current_marriage_details) do

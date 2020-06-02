@@ -5,8 +5,8 @@ module V0
     def create
       # dependents_hash = dependent_params.to_h
       # dependents_hash = params
-      bgs_dependent_service.temp_file_upload
-      # bgs_dependent_service.modify_dependents(nil)
+      # bgs_dependent_service.temp_file_upload
+      bgs_dependent_service.modify_dependents(nil)
       # render json: {test: 'ok'}
     end
 
