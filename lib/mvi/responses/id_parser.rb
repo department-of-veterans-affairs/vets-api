@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require_relative 'icn_with_aaid_parser'
+
 module MVI::Responses
   class IdParser
     VA_ROOT_OID = '2.16.840.1.113883.4.349'

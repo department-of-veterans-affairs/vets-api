@@ -1,6 +1,9 @@
 # frozen_string_literal: true
 
 require 'sentry_logging'
+require 'mvi/models/mvi_profile_address'
+require_relative 'id_parser'
+require_relative 'historical_icn_parser'
 
 module MVI::Responses
   # Parses a MVI response and returns a MVIProfile

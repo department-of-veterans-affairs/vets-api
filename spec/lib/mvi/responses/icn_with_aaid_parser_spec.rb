@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require 'mvi/responses/icn_with_aaid_parser'
 
 describe MVI::Responses::ICNWithAAIDParser do
   describe '#without_id_status' do
