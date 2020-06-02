@@ -1,5 +1,8 @@
 # frozen_string_literal: true
 
+require 'rails_helper'
+require 'sftp_writer/remote'
+
 RSpec.describe SFTPWriter::Remote do
   describe '#close' do
     it 'returns if sftp has not started' do
