@@ -1,5 +1,8 @@
 # frozen_string_literal: true
 
+require 'common/file_helpers'
+require 'pdf_fill/filler'
+
 module CentralMail
   class DatestampPDF
     def initialize(file_path, append_to_stamp: nil)
