@@ -7,8 +7,6 @@ module VAOS
 
       with_monitoring do
         response = perform(:get, get_appointments_base_url(type), params, headers, timeout: 55)
-        # need a binding.pry here to evaluate what is returned.
-        # binding.pry
         {
           data: deserialized_appointments(response.body, type),
           meta: pagination(pagination_params)
