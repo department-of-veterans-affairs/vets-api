@@ -14,6 +14,22 @@
     },
     "poaLastName": {
       "type": "string"
+    },
+    "veteranSignatureImage": {
+        "title": "Signature of the Veteran",
+        "type": "string",
+        "media": {
+          "binaryEncoding": "base64",
+          "type": "image/png"
+        }
+    },
+    "representativeSignatureImage": {
+        "title": "Signature of the representative",
+        "type": "string",
+        "media": {
+          "binaryEncoding": "base64",
+          "type": "image/png"
+        }
     }
   }
 }
