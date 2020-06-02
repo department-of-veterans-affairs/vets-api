@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require 'facilities/drivetime_bands/client'
 
 RSpec.describe Facilities::DrivetimeBands::Client do
   RSpec::Matchers.define :has_offset_and_limit do |offset, limit|

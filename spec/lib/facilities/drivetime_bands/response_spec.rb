@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'facilities/ppms/response'
+require 'facilities/drivetime_bands/response'
 
 describe Facilities::DrivetimeBands::Response do
   let(:response_body) do
