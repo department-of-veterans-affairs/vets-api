@@ -2,6 +2,7 @@
 
 require 'common/models/base'
 require 'common/models/attribute_types/iso8601_time'
+require 'pagerduty/configuration'
 
 module PagerDuty
   module Models

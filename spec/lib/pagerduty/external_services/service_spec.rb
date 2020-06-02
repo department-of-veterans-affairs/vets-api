@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require 'pagerduty/external_services/service'
 
 describe PagerDuty::ExternalServices::Service do
   let(:subject) { described_class.new }
