@@ -12,7 +12,6 @@ module BGS
     def create
       participant = create_participant(@proc_id, nil)
       # claim_type_end_product = find_benefit_claim_type_increment
-      binding.pry
       person = create_person(@proc_id, participant[:vnp_ptcpnt_id], @veteran_info)
       create_phone(@proc_id, participant[:vnp_ptcpnt_id], @veteran_info)
       address = create_address(@proc_id, participant[:vnp_ptcpnt_id], @veteran_info)

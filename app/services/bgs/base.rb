@@ -154,7 +154,6 @@ module BGS
     end
 
     def create_child_school(proc_id, participant_id, payload)
-      binding.pry
       service.vnp_child_school.child_school_create(
         vnp_proc_id: proc_id,
         jrn_dt: Time.current.iso8601,

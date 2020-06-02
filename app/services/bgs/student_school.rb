@@ -11,7 +11,6 @@ module BGS
     end
 
     def create
-      binding.pry
       child_school = create_child_school(
         @proc_id,
         @vnp_participant_id,
