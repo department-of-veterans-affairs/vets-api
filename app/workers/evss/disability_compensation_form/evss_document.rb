@@ -6,7 +6,7 @@ module EVSS
     #
     # @!attribute pdf_path [String] The file path of the PDF
     #
-    class EvssDocument
+    class EVSSDocument
       # @return [String] the contents of the file
       #
       def file_body
