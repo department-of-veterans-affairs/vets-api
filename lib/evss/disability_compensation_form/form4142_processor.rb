@@ -1,5 +1,8 @@
 # frozen_string_literal: true
 
+require 'central_mail/datestamp_pdf'
+require 'pdf_fill/filler'
+
 module EVSS
   module DisabilityCompensationForm
     # A {Form4142Processor} handles the work of generating a stamped PDF

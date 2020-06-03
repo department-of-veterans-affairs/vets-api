@@ -1,5 +1,10 @@
 # frozen_string_literal: true
 
+require 'central_mail/service'
+require 'common/exceptions'
+require 'evss/disability_compensation_form/metrics'
+require 'evss/disability_compensation_form/form4142_processor'
+
 module CentralMail
   class SubmitForm4142Job < EVSS::DisabilityCompensationForm::Job
     STATSD_KEY_PREFIX = 'worker.evss.submit_form4142'
