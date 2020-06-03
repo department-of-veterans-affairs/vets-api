@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'evss/disability_compensation_form/service_increase_only'
+
 module EVSS
   module DisabilityCompensationForm
     class SubmitForm526IncreaseOnly < EVSS::DisabilityCompensationForm::SubmitForm526
