@@ -145,10 +145,12 @@ module V1
         after_login_actions
         redirect_to url_service(user_session_form.saml_uuid).login_redirect_url
         if location.start_with?(url_service.base_redirect_url)
-          # only record success stats if the user is being redirect to the site
+          # only record login stats if the user is being redirect to the site
           # some users will need to be up-leveled and this will be redirected
           # back to the identity provider
           login_stats(:success, saml_response, user_session_form)
+        else
+          callback_stats(:success, saml_response)
         end
       else
         log_message_to_sentry(
