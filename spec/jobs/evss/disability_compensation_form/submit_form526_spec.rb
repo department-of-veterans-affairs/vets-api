@@ -2,6 +2,7 @@
 
 require 'rails_helper'
 require 'sidekiq/testing'
+require 'evss/disability_compensation_auth_headers'
 Sidekiq::Testing.fake!
 
 RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526, type: :job do
