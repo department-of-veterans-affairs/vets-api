@@ -172,6 +172,16 @@ RSpec.configure do |config|
     request.host = Settings.hostname
   end
 
+  config.before(:all) do
+    Sidekiq::Batch = Class.new do
+      def on(_callback, _klass, _options) end
+
+      def jobs
+        yield
+      end
+    end
+  end
+
   config.before do |example|
     stub_mvi unless example.metadata[:skip_mvi]
     stub_emis unless example.metadata[:skip_emis]
