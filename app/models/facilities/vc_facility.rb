@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require 'facilities/client'
 require 'facilities/metadata/client'
 
 module Facilities
