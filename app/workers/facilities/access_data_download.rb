@@ -2,6 +2,8 @@
 
 require 'common/exceptions'
 require 'sentry_logging'
+require 'facilities/access_satisfaction_client'
+require 'facilities/access_wait_time_client'
 
 module Facilities
   class AccessDataError < StandardError
