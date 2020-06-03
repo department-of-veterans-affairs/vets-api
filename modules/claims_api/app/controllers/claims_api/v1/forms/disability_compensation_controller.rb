@@ -55,7 +55,7 @@ module ClaimsApi
 
         def source_name
           user = header_request? ? @current_user : target_veteran
-          "Lighthouse-#{user.first_name} #{user.last_name}"
+          "#{user.first_name} #{user.last_name}"
         end
 
         def validate_initial_claim
