@@ -5,12 +5,12 @@ require 'will_paginate/array'
 require_dependency 'va_facilities/csv_serializer'
 require_dependency 'va_facilities/param_validators'
 
-module VaFacilities
+module VAFacilities
   module V0
     class NearbyController < ApplicationController
       include ActionController::MimeResponds
-      include VaFacilities::PaginationHeaders
-      include VaFacilities::ParamValidators
+      include VAFacilities::PaginationHeaders
+      include VAFacilities::ParamValidators
       skip_before_action(:authenticate)
       before_action :set_default_format
       before_action :set_facility_type
@@ -41,7 +41,7 @@ module VaFacilities
         respond_to do |format|
           format.json do
             render json: bands,
-                   each_serializer: VaFacilities::NearbySerializer,
+                   each_serializer: VAFacilities::NearbySerializer,
                    meta: metadata(bands),
                    links: relationships(bands)
           end

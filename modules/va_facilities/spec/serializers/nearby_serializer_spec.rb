@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe VaFacilities::NearbySerializer, type: :serializer do
+RSpec.describe VAFacilities::NearbySerializer, type: :serializer do
   subject { serialize(ten_min_band, serializer_class: described_class) }
 
   let(:ten_min_band) { create(:ten_mins_648) }
@@ -30,7 +30,7 @@ RSpec.describe VaFacilities::NearbySerializer, type: :serializer do
   end
 
   it 'returns a relationship link to its facility' do
-    fac_path = "#{VaFacilities::NearbySerializer::BASE_PATH}/facilities/vha_#{vha_648.unique_id}"
+    fac_path = "#{VAFacilities::NearbySerializer::BASE_PATH}/facilities/vha_#{vha_648.unique_id}"
     expect(relationships['va_facility']['links']['related']).to eq(fac_path)
   end
 end

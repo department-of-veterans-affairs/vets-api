@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-module VaFacilities
+module VAFacilities
   class NearbySerializer < ActiveModel::Serializer
     BASE_PATH = '/services/va_facilities/v0'
 
