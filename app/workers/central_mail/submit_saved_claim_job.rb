@@ -1,6 +1,9 @@
 # frozen_string_literal: true
 
 require 'pdf_info'
+require 'central_mail/service'
+require 'central_mail/datestamp_pdf'
+require 'pension_burial/tag_sentry'
 
 module CentralMail
   class SubmitSavedClaimJob
