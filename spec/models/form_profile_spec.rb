@@ -540,27 +540,27 @@ RSpec.describe FormProfile, type: :model do
           'lastOrderDate' => '2019-12-01',
           'nextAvailabilityDate' => '2020-05-01',
           'quantity' => 24
-          },
-          {
-            'deviceName' => 'WILLIAMS SOUND CORP./POCKETALKER II',
-            'productName' => 'M312',
-            'productGroup' => 'BATTERIES',
-            'productId' => 2298,
-            'availableForReorder' => false,
-            'lastOrderDate' => '2020-05-06',
-            'nextAvailabilityDate' => '2020-10-06',
-            'quantity' => 12
-          },
-          {
-            'deviceName' => 'SIVANTOS/SIEMENS/007ASP2',
-            'productName' => 'ZA13',
-            'productGroup' => 'BATTERIES',
-            'productId' => 2314,
-            'availableForReorder' => false,
-            'lastOrderDate' => '2020-05-06',
-            'nextAvailabilityDate' => '2020-10-06',
-            'quantity' => 60
-          }
+        },
+        {
+          'deviceName' => 'WILLIAMS SOUND CORP./POCKETALKER II',
+          'productName' => 'M312',
+          'productGroup' => 'BATTERIES',
+          'productId' => 2298,
+          'availableForReorder' => false,
+          'lastOrderDate' => '2020-05-06',
+          'nextAvailabilityDate' => '2020-10-06',
+          'quantity' => 12
+        },
+        {
+          'deviceName' => 'SIVANTOS/SIEMENS/007ASP2',
+          'productName' => 'ZA13',
+          'productGroup' => 'BATTERIES',
+          'productId' => 2314,
+          'availableForReorder' => false,
+          'lastOrderDate' => '2020-05-06',
+          'nextAvailabilityDate' => '2020-10-06',
+          'quantity' => 60
+        }
       ]
     }
   end
