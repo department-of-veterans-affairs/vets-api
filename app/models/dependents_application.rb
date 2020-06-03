@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'string_helpers'
+
 class DependentsApplication < Common::RedisStore
   include RedisForm
 
