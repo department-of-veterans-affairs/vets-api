@@ -10,6 +10,7 @@ module MDOT
     attribute :temporary_address, MDOT::Address
     attribute :supplies, Array[MDOT::Supply]
     attribute :eligibility, MDOT::Eligibility
+    attribute :vet_email, String
 
     def initialize(args)
       validate_response_against_schema(args[:schema], args[:response])
