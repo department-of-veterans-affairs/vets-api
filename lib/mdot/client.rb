@@ -25,7 +25,7 @@ module MDOT
 
     def initialize(current_user)
       @user = current_user
-      @supplies = 'supplies'
+      @supplies = 'suppliez'
     end
 
     ##
