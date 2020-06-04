@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'vic/tag_sentry'
 
 module V0
