@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
-module Common::Exceptions
+module Common
+  module Exceptions
+  end
 end
 
 # require each exception file
