@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri: https://dlc-dummy.herokuapp.com/supplies
+    uri: https://internal-dsva-vagov-staging-fwdproxy-1821450725.us-gov-west-1.elb.amazonaws.com:4466/supplies
     body:
       encoding: US-ASCII
       string: ''

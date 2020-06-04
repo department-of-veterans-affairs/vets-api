@@ -768,7 +768,7 @@ RSpec.describe FormProfile, type: :model do
       new_schema
     end
 
-    def expect_prefilled(form_id, selected_user = user)
+    def expect_prefilled(form_id)
       prefilled_data = Oj.load(described_class.for(form_id).prefill(selected_user).to_json)['form_data']
 
       if form_id == '1010ez'
@@ -793,28 +793,14 @@ RSpec.describe FormProfile, type: :model do
     end
 
     context 'with a user that can prefill mdot' do
-      
-      let(:user_details) do
-        {
-          first_name: 'Greg',
-          last_name: 'Anderson',
-          middle_name: 'A',
-          birth_date: '1933-04-05',
-          ssn: '796121200',
-          icn: '1012666182V203559'
-        }
-      end
-
-      let(:mdt_user) { build(:user, :loa3, user_details) }
-
       before do
-        expect(mdt_user).to receive(:authorize).with(:mdot, :access?).and_return(true).at_least(:once)
-        expect(mdt_user.authorize(:mdot, :access?)).to eq(true)
+        expect(user).to receive(:authorize).with(:mdot, :access?).and_return(true).at_least(:once)
+        expect(user.authorize(:mdot, :access?)).to eq(true)
       end
 
       it 'returns a prefilled MDOT form' do
         VCR.use_cassette('mdot/get_supplies_200') do
-          expect_prefilled('MDOT', mdt_user)
+          expect_prefilled('MDOT')
         end
       end
     end
