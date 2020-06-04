@@ -2,6 +2,7 @@
 
 require 'common/client/base'
 require 'vet360/contact_information/transaction_response'
+require 'vet360/service'
 
 module Vet360
   module ContactInformation
