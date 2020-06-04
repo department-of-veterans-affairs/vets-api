@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'mdot/address'
+require 'mdot/client'
 require 'mdot/eligibility'
 require 'mdot/supply'
 

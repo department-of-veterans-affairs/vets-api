@@ -1,4 +1,6 @@
 # frozen_string_literal: true
+require 'evss/disability_compensation_form/service'
+require 'evss/pciu_address/service'
 
 module VA526ez
   FORM_ID = '21-526EZ'

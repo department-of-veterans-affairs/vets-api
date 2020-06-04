@@ -1,5 +1,8 @@
 # frozen_string_literal: true
 
+require 'string_helpers'
+require 'sentry_logging'
+
 # TODO(AJD): Virtus POROs for now, will become ActiveRecord when the profile is persisted
 class FormFullName
   include Virtus.model
@@ -82,7 +85,7 @@ end
 
 class FormProfile
   include Virtus.model
-  # include SentryLogging
+  include SentryLogging
 
   EMIS_PREFILL_KEY = 'emis_prefill'
 
