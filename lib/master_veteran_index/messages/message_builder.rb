@@ -2,7 +2,7 @@
 
 require 'ox'
 
-module MVI::Messages
+module MasterVeteranIndex::Messages
   module MessageBuilder
     extend ActiveSupport::Concern
 

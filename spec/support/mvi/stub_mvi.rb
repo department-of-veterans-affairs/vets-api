@@ -1,5 +1,10 @@
 # frozen_string_literal: true
 
+require 'common/exceptions'
+require 'master_veteran_index/models/mvi_profile'
+require 'master_veteran_index/responses/find_profile_response'
+require 'master_veteran_index/service'
+
 def stub_mvi(profile = nil)
   profile ||= build(:mvi_profile)
   # don't allow MVI instances to be frozen during specs so that
@@ -7,8 +12,8 @@ def stub_mvi(profile = nil)
   # (avoids WARNING: rspec-mocks was unable to restore the original... message)
   allow_any_instance_of(MVI).to receive(:freeze) { self }
   allow_any_instance_of(MVI).to receive(:response_from_redis_or_service).and_return(
-    MVI::Responses::FindProfileResponse.new(
-      status: MVI::Responses::FindProfileResponse::RESPONSE_STATUS[:ok],
+    MasterVeteranIndex::Responses::FindProfileResponse.new(
+      status: MasterVeteranIndex::Responses::FindProfileResponse::RESPONSE_STATUS[:ok],
       profile: profile
     )
   )
@@ -16,14 +21,14 @@ end
 
 def stub_mvi_not_found
   allow_any_instance_of(MVI).to receive(:response_from_redis_or_service).and_return(
-    MVI::Responses::FindProfileResponse.with_not_found(not_found_exception)
+    MasterVeteranIndex::Responses::FindProfileResponse.with_not_found(not_found_exception)
   )
 end
 
 def not_found_exception
   Common::Exceptions::External::BackendServiceException.new(
     'MVI_404',
-    { source: 'MVI::Service' },
+    { source: 'MasterVeteranIndex::Service' },
     404,
     'some error body'
   )
@@ -32,7 +37,7 @@ end
 def server_error_exception
   Common::Exceptions::External::BackendServiceException.new(
     'MVI_503',
-    { source: 'MVI::Service' },
+    { source: 'MasterVeteranIndex::Service' },
     503,
     'some error body'
   )

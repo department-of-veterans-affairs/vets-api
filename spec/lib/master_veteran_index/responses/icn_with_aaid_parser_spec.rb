@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'mvi/responses/icn_with_aaid_parser'
+require 'master_veteran_index/responses/icn_with_aaid_parser'
 
-describe MVI::Responses::ICNWithAAIDParser do
+describe MasterVeteranIndex::Responses::ICNWithAAIDParser do
   describe '#without_id_status' do
     context 'when initialized with a valid ICN and Assigning Authority ID' do
       context 'with a valid ID status' do
@@ -42,7 +42,7 @@ describe MVI::Responses::ICNWithAAIDParser do
 end
 
 def expect_correct_response_from_without_id_status(full_icn, expected_return_value)
-  results = MVI::Responses::ICNWithAAIDParser.new(full_icn).without_id_status
+  results = MasterVeteranIndex::Responses::ICNWithAAIDParser.new(full_icn).without_id_status
 
   expect(results).to eq expected_return_value
 end

@@ -4,9 +4,9 @@ require 'ox'
 require_relative 'message_builder'
 require_relative 'find_candidate_message_error'
 
-module MVI::Messages
+module MasterVeteranIndex::Messages
   module FindProfileMessageHelpers
-    include MVI::Messages::MessageBuilder
+    include MasterVeteranIndex::Messages::MessageBuilder
     EXTENSION = 'PRPA_IN201305UV02'
 
     def to_xml

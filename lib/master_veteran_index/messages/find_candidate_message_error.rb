@@ -3,7 +3,7 @@
 require 'ox'
 require_relative 'message_builder'
 
-module MVI::Messages
+module MasterVeteranIndex::Messages
   class FindCandidateMessageError < MessageBuilderError
   end
 end

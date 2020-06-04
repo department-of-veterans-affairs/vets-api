@@ -2,15 +2,15 @@
 
 require_relative 'find_profile_message_helpers'
 
-module MVI::Messages
-  # Builds an MVI SOAP XML message.
+module MasterVeteranIndex::Messages
+  # Builds an MasterVeteranIndex SOAP XML message.
   #
   # = Usage
   # Call the .build passing in the candidate's given and family names, birth_date, and ssn.
   #
   # Example:
   #  birth_date = Time.new(1980, 1, 1).utc
-  #  message = MVI::Messages::FindCandidateMessage.new(['John', 'William'], 'Smith', birth_date, '555-44-3333').to_xml
+  #  message = MasterVeteranIndex::Messages::FindCandidateMessage.new(['John', 'William'], 'Smith', birth_date, '555-44-3333').to_xml
   #
   class FindProfileMessage
     include FindProfileMessageHelpers

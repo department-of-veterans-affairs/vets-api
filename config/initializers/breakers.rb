@@ -21,7 +21,7 @@ require 'gi/configuration'
 require 'gibft/configuration'
 require 'hca/configuration'
 require 'mhv_ac/configuration'
-require 'mvi/configuration'
+require 'master_veteran_index/configuration'
 require 'preneeds/configuration'
 require 'rx/configuration'
 require 'sm/configuration'
@@ -57,7 +57,7 @@ services = [
   GI::Configuration.instance.breakers_service,
   HCA::Configuration.instance.breakers_service,
   MHVAC::Configuration.instance.breakers_service,
-  MVI::Configuration.instance.breakers_service,
+  MasterVeteranIndex::Configuration.instance.breakers_service,
   Preneeds::Configuration.instance.breakers_service,
   SM::Configuration.instance.breakers_service,
   Vet360::ContactInformation::Configuration.instance.breakers_service,

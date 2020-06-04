@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'mvi/orch_search_service'
+require 'master_veteran_index/orch_search_service'
 
-describe MVI::OrchSearchService do
+describe MasterVeteranIndex::OrchSearchService do
   let(:user) { build(:user, :loa3, user_hash) }
 
   describe '.find_profile with attributes' do

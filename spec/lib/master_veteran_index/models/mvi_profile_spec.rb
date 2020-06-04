@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-describe MVI::Models::MVIProfile do
+describe MasterVeteranIndex::Models::MVIProfile do
   describe '#mhv_correlation_id' do
     context 'with multiple ids' do
       subject { build(:mvi_profile) }

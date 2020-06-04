@@ -11,7 +11,7 @@ class PersonalInformationSerializer < ActiveModel::Serializer
   end
 
   # Returns the veteran's birth date.  Object is an instance
-  # of the MVI::Models::MVIProfile class.
+  # of the MasterVeteranIndex::Models::MVIProfile class.
   #
   # @return [String] For example, '1949-03-04'
   #

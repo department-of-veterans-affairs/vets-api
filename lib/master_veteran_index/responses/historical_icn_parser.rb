@@ -2,7 +2,7 @@
 
 require_relative 'id_parser'
 
-module MVI::Responses
+module MasterVeteranIndex::Responses
   class HistoricalICNParser
     HISTORICAL_ICN_XPATH = [
       'controlActProcess/subject', # matches ProfileParser::SUBJECT_XPATH

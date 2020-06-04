@@ -1,10 +1,10 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'mvi/messages/message_builder'
+require 'master_veteran_index/messages/message_builder'
 
-describe MVI::Messages::MessageBuilder do
-  let(:dummy_class) { Class.new { extend MVI::Messages::MessageBuilder } }
+describe MasterVeteranIndex::Messages::MessageBuilder do
+  let(:dummy_class) { Class.new { extend MasterVeteranIndex::Messages::MessageBuilder } }
 
   describe '#build_idm' do
     let(:el) { dummy_class.build_idm('PRPA_IN201305UV02') }

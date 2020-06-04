@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-module MVI::Responses
+module MasterVeteranIndex::Responses
   # This class takes a valid ICN with an Assigning Authority ID, and
   # an ID status, and parses it to meet Vet360's icn_with_aaid design constraints.
   #

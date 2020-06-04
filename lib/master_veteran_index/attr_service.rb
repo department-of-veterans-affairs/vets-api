@@ -3,16 +3,18 @@
 require_relative 'service'
 require_relative 'attr_configuration'
 
-class MVI::AttrService < MVI::Service
-  configuration MVI::AttrConfiguration
+module MasterVeteranIndex
+  class AttrService < MasterVeteranIndex::Service
+    configuration MasterVeteranIndex::AttrConfiguration
 
-  private
+    private
 
-  def create_profile_message(user_attributes)
-    message_user_attributes(user_attributes)
-  end
+    def create_profile_message(user_attributes)
+      message_user_attributes(user_attributes)
+    end
 
-  def measure_info(_user_attributes)
-    Rails.logger.measure_info('Performed MVI Query') { yield }
+    def measure_info(_user_attributes)
+      Rails.logger.measure_info('Performed MVI Query') { yield }
+    end
   end
 end

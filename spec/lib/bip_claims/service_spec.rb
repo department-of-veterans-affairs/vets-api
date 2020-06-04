@@ -2,12 +2,12 @@
 
 require 'rails_helper'
 require 'bip_claims/service'
-require 'mvi/attr_service'
+require 'master_veteran_index/attr_service'
 
 RSpec.describe BipClaims::Service do
   let(:service) { described_class.new }
   let(:claim) { build(:burial_claim) }
-  let(:mvi_service) { instance_double(MVI::AttrService) }
+  let(:mvi_service) { instance_double(MasterVeteranIndex::AttrService) }
 
   describe '#veteran_attributes' do
     it 'creates valid Veteran object from form data' do
@@ -27,8 +27,8 @@ RSpec.describe BipClaims::Service do
         .to raise_error(ArgumentError)
     end
 
-    it 'calls MVI::AttrService for veteran lookup' do
-      allow(MVI::AttrService).to receive(:new).and_return(mvi_service)
+    it 'calls MasterVeteranIndex::AttrService for veteran lookup' do
+      allow(MasterVeteranIndex::AttrService).to receive(:new).and_return(mvi_service)
       allow(mvi_service).to receive(:find_profile).and_return(
         OpenStruct.new(profile:
           OpenStruct.new(participant_id: 123))

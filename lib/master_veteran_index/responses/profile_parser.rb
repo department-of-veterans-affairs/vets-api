@@ -1,12 +1,12 @@
 # frozen_string_literal: true
 
 require 'sentry_logging'
-require 'mvi/models/mvi_profile_address'
+require 'master_veteran_index/models/mvi_profile_address'
 require_relative 'id_parser'
 require_relative 'historical_icn_parser'
 
-module MVI::Responses
-  # Parses a MVI response and returns a MVIProfile
+module MasterVeteranIndex::Responses
+  # Parses a MasterVeteranIndex response and returns a MVIProfile
   class ProfileParser
     include SentryLogging
 
@@ -29,7 +29,7 @@ module MVI::Responses
     ACKNOWLEDGEMENT_DETAIL_XPATH = 'acknowledgement/acknowledgementDetail/text'
     MULTIPLE_MATCHES_FOUND = 'Multiple Matches Found'
 
-    # MVI response code options.
+    # MasterVeteranIndex response code options.
     EXTERNAL_RESPONSE_CODES = {
       success: 'AA',
       failure: 'AR',
@@ -45,28 +45,28 @@ module MVI::Responses
       @code = locate_element(@original_body, CODE_XPATH)
     end
 
-    # MVI returns failed or invalid codes if the request is malformed or MVI throws an internal error.
+    # MasterVeteranIndex returns failed or invalid codes if the request is malformed or MasterVeteranIndex throws an internal error.
     #
     # @return [Boolean] has failed or invalid code?
     def failed_or_invalid?
       invalid_request? || failed_request?
     end
 
-    # MVI returns failed if MVI throws an internal error.
+    # MasterVeteranIndex returns failed if MasterVeteranIndex throws an internal error.
     #
     # @return [Boolean] has failed
     def failed_request?
       EXTERNAL_RESPONSE_CODES[:failure] == @code
     end
 
-    # MVI returns invalid request if request is malformed.
+    # MasterVeteranIndex returns invalid request if request is malformed.
     #
     # @return [Boolean] has invalid request
     def invalid_request?
       EXTERNAL_RESPONSE_CODES[:invalid_request] == @code
     end
 
-    # MVI returns multiple match warnings if a query returns more than one match.
+    # MasterVeteranIndex returns multiple match warnings if a query returns more than one match.
     #
     # @return [Boolean] has a multiple match warning?
     def multiple_match?
@@ -96,9 +96,9 @@ module MVI::Responses
     def build_mvi_profile(patient)
       name = parse_name(get_patient_name(patient))
       full_mvi_ids = get_extensions(patient.locate('id'))
-      parsed_mvi_ids = MVI::Responses::IdParser.new.parse(patient.locate('id'))
+      parsed_mvi_ids = MasterVeteranIndex::Responses::IdParser.new.parse(patient.locate('id'))
       log_inactive_mhv_ids(parsed_mvi_ids[:mhv_ids].to_a, parsed_mvi_ids[:active_mhv_ids].to_a)
-      MVI::Models::MVIProfile.new(
+      MasterVeteranIndex::Models::MVIProfile.new(
         given_names: name[:given],
         family_name: name[:family],
         suffix: name[:suffix],
@@ -117,7 +117,7 @@ module MVI::Responses
         sec_id: parsed_mvi_ids[:sec_id],
         birls_id: sanitize_birls_id(parsed_mvi_ids[:birls_id]),
         vet360_id: parsed_mvi_ids[:vet360_id],
-        historical_icns: MVI::Responses::HistoricalICNParser.new(@original_body).get_icns,
+        historical_icns: MasterVeteranIndex::Responses::HistoricalICNParser.new(@original_body).get_icns,
         icn_with_aaid: parsed_mvi_ids[:icn_with_aaid],
         search_token: locate_element(@original_body, 'id').attributes[:extension],
         cerner_id: parsed_mvi_ids[:cerner_id],
@@ -195,7 +195,7 @@ module MVI::Responses
       suffix = name_element.locate('suffix')&.first&.nodes&.first&.capitalize
       { given: given, family: family, suffix: suffix }
     rescue => e
-      Rails.logger.warn "MVI::Response.parse_name failed: #{e.message}"
+      Rails.logger.warn "MasterVeteranIndex::Response.parse_name failed: #{e.message}"
       { given: nil, family: nil }
     end
 
@@ -207,7 +207,7 @@ module MVI::Responses
 
       ssn_element.attributes[:extension]
     rescue => e
-      Rails.logger.warn "MVI::Response.parse_ssn failed: #{e.message}"
+      Rails.logger.warn "MasterVeteranIndex::Response.parse_ssn failed: #{e.message}"
       nil
     end
 
@@ -217,7 +217,7 @@ module MVI::Responses
 
       address_hash = el.nodes.map { |n| { n.value.snakecase.to_sym => n.nodes.first } }.reduce({}, :merge)
       address_hash[:street] = address_hash.delete :street_address_line
-      MVI::Models::MVIProfileAddress.new(address_hash)
+      MasterVeteranIndex::Models::MVIProfileAddress.new(address_hash)
     end
 
     def parse_phone(patient)

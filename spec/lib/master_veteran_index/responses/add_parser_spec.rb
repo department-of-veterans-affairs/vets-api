@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'mvi/responses/add_parser'
+require 'master_veteran_index/responses/add_parser'
 
-describe MVI::Responses::AddParser do
+describe MasterVeteranIndex::Responses::AddParser do
   let(:faraday_response) { instance_double('Faraday::Response') }
   let(:parser) { described_class.new(faraday_response) }
 
@@ -32,16 +32,16 @@ describe MVI::Responses::AddParser do
       context 'when given a list of attributes' do
         let(:attributes) do
           [
-            { codeSystemName: 'MVI', code: '111985523^PI^200BRLS^USVBA', displayName: 'IEN' },
-            { codeSystemName: 'MVI', code: '32397028^PI^200CORP^USVBA', displayName: 'IEN' },
-            { codeSystemName: 'MVI', code: 'WRN206', displayName: 'test error' }
+            { codeSystemName: 'MasterVeteranIndex', code: '111985523^PI^200BRLS^USVBA', displayName: 'IEN' },
+            { codeSystemName: 'MasterVeteranIndex', code: '32397028^PI^200CORP^USVBA', displayName: 'IEN' },
+            { codeSystemName: 'MasterVeteranIndex', code: 'WRN206', displayName: 'test error' }
           ]
         end
 
         let(:parsed_ids) do
           {
             other: [
-              { codeSystemName: 'MVI', code: 'WRN206', displayName: 'test error' }
+              { codeSystemName: 'MasterVeteranIndex', code: 'WRN206', displayName: 'test error' }
             ],
             birls_id: '111985523',
             participant_id: '32397028'

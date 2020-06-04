@@ -1,10 +1,10 @@
 # frozen_string_literal: true
 
-module MVI::Errors
+module MasterVeteranIndex::Errors
   class Base < StandardError; end
-  class RecordNotFound < MVI::Errors::Base; end
+  class RecordNotFound < MasterVeteranIndex::Errors::Base; end
 
-  class ServiceError < MVI::Errors::Base
+  class ServiceError < MasterVeteranIndex::Errors::Base
     attr_reader :body
     def initialize(body = nil)
       @body = body
@@ -12,7 +12,7 @@ module MVI::Errors
     end
   end
 
-  class FailedRequestError < MVI::Errors::ServiceError; end
-  class InvalidRequestError < MVI::Errors::ServiceError; end
-  class DuplicateRecords < MVI::Errors::RecordNotFound; end
+  class FailedRequestError < MasterVeteranIndex::Errors::ServiceError; end
+  class InvalidRequestError < MasterVeteranIndex::Errors::ServiceError; end
+  class DuplicateRecords < MasterVeteranIndex::Errors::RecordNotFound; end
 end

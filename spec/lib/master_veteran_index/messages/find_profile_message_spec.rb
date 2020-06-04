@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'mvi/messages/find_profile_message'
+require 'master_veteran_index/messages/find_profile_message'
 
-describe MVI::Messages::FindProfileMessage do
+describe MasterVeteranIndex::Messages::FindProfileMessage do
   describe '.to_xml' do
     context 'with first, last, birth_date, and ssn from auth provider' do
       let(:xml) do
@@ -95,7 +95,7 @@ describe MVI::Messages::FindProfileMessage do
 
     context 'with nil gender' do
       let(:xml) do
-        MVI::Messages::FindProfileMessage.new(
+        MasterVeteranIndex::Messages::FindProfileMessage.new(
           given_names: %w[John William],
           last_name: 'Smith',
           birth_date: '1980-1-1',
@@ -122,7 +122,7 @@ describe MVI::Messages::FindProfileMessage do
     context 'missing arguments' do
       it 'throws an argument error' do
         expect do
-          MVI::Messages::FindProfileMessage.new(
+          MasterVeteranIndex::Messages::FindProfileMessage.new(
             given_names: %w[John William],
             last_name: 'Smith',
             birth_date: Time.new(1980, 1, 1).utc

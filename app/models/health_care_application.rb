@@ -5,7 +5,7 @@ require 'hca/rate_limited_search'
 require 'hca/user_attributes'
 require 'hca/enrollment_eligibility/service'
 require 'hca/enrollment_eligibility/status_matcher'
-require 'mvi/attr_service'
+require 'master_veteran_index/attr_service'
 
 class HealthCareApplication < ApplicationRecord
   include TempFormValidation
@@ -118,7 +118,7 @@ class HealthCareApplication < ApplicationRecord
 
   def self.user_icn(user_attributes)
     HCA::RateLimitedSearch.create_rate_limited_searches(user_attributes) unless Settings.mvi_hca.skip_rate_limit
-    MVI::AttrService.new.find_profile(user_attributes)&.profile&.icn
+    MasterVeteranIndex::AttrService.new.find_profile(user_attributes)&.profile&.icn
   end
 
   def self.user_attributes(form)

@@ -5,7 +5,7 @@ require 'csv'
 namespace :mvi do
   desc 'Given user attributes, run a find candidate query'
   task find: :environment do
-    require 'mvi/responses/id_parser' # include id_parser in the scope of MVI model loaded from rails
+    require 'master_veteran_index/responses/id_parser' # include id_parser in the scope of MVI model loaded from rails
     unless valid_user_vars
       raise ArgumentError, 'Run the task with all required attributes: bundle exec rake mvi:find first_name="John"
 middle_name="W" last_name="Smith" birth_date="1945-01-25" gender="M" ssn="555443333"'

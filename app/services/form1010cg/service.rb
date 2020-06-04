@@ -130,11 +130,11 @@ module Form1010cg
     end
 
     def mvi_service
-      @mvi_service ||= MVI::Service.new
+      @mvi_service ||= MasterVeteranIndex::Service.new
     end
 
-    # MVI::Service requires a valid UserIdentity to run a search, but only reads the user's attributes.
-    # This method will build a valid UserIdentity, so MVI::Service can pluck the name, ssn, dob, and gender.
+    # MasterVeteranIndex::Service requires a valid UserIdentity to run a search, but only reads the user's attributes.
+    # This method will build a valid UserIdentity, so MasterVeteranIndex::Service can pluck the name, ssn, dob, and gender.
     #
     # @param form_subject [String] The key in the claim's data that contains this person's info (ex: "veteran")
     # @return [UserIdentity] A valid UserIdentity for the given form_subject

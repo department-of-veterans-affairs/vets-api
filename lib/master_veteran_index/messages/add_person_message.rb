@@ -2,13 +2,13 @@
 
 require 'socket'
 
-module MVI::Messages
-  # Builds an MVI SOAP XML message for adding a user.
+module MasterVeteranIndex::Messages
+  # Builds an MasterVeteranIndex SOAP XML message for adding a user.
   #
   # Call with a user object and use `.to_xml` method to create the XML message
   #
   # Example:
-  #  message = MVI::Messages::AddPersonMessage.new(user).to_xml
+  #  message = MasterVeteranIndex::Messages::AddPersonMessage.new(user).to_xml
   #
   class AddPersonMessage
     SCHEMA_FILE_NAME = 'mvi_add_person_template.xml'
