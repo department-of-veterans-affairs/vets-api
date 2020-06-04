@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+require 'mdot/token'
 
 module MDOTHelpers
   def set_mdot_token_for(user, token = 'abcd1234abcd1234abcd1234')
