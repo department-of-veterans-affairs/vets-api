@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 
-require 'rspec/rails'
 require 'fakeredis/rspec'
 require 'support/mvi/stub_mvi'
 require 'support/spec_builders'
