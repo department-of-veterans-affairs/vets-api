@@ -31,7 +31,10 @@ module MDOT
 
       supplies.each do |supply|
         group = supply.product_group.downcase.to_sym
-        eligibility.attributes = { group => supply.available_for_reorder } if eligibility.attributes.key?(group)
+
+        if eligibility.attributes.key?(group) && supply.available_for_reorder
+          eligibility.send("#{group}=", true)
+        end
       end
 
       eligibility
