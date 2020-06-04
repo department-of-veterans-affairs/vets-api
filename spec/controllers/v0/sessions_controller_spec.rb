@@ -467,7 +467,8 @@ RSpec.describe V0::SessionsController, type: :controller do
         it 'sends STATSD callback metrics' do
           expect { post(:saml_callback) }
             .to trigger_statsd_increment(described_class::STATSD_SSO_CALLBACK_KEY,
-                                         tags: ['status:success', "context:#{LOA::IDME_LOA1_VETS}", 'version:v0'], **once)
+                                         tags: ['status:success', "context:#{LOA::IDME_LOA1_VETS}", 'version:v0'],
+                                         **once)
             .and trigger_statsd_increment(described_class::STATSD_SSO_CALLBACK_TOTAL_KEY, **once)
         end
       end
