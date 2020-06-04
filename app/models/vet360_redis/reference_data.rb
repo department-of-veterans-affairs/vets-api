@@ -2,6 +2,7 @@
 
 require 'common/models/redis_store'
 require 'common/models/concerns/cache_aside'
+require 'vet360/reference_data/service'
 
 module Vet360Redis
   # Facade for Vet360::ReferenceData::Service.
