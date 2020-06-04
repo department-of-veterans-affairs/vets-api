@@ -516,7 +516,7 @@ RSpec.describe FormProfile, type: :model do
       },
       'ssnLastFour' => user.ssn.last(4),
       'gender' => user.gender,
-      'email' => user.pciu_email,
+      'vetEmail' => 'veteran@gmail.com',
       'dateOfBirth' => user.birth_date,
       'eligibility' => {
         'accessories' => true,
