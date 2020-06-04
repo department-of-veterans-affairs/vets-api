@@ -3,7 +3,7 @@
   "description": "Form 2122 Schema",
   "type": "object",
   "required": [
-    "service_organization"
+    "serviceOrganization"
   ],
   "definitions": {
     "addressLine": {
@@ -104,7 +104,7 @@
         "relationship":  { "type": "string" }
       }
     },
-    "service_organization": {
+    "serviceOrganization": {
       "type": "object",
       "required": [
         "poaCode"
