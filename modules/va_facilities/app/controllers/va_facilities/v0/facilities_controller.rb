@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'will_paginate/array'
+require 'lighthouse/facilities/client'
 
 require_dependency 'va_facilities/geo_serializer'
 require_dependency 'va_facilities/csv_serializer'
