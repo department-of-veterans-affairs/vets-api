@@ -9,6 +9,8 @@
 #    json-schema validations and perform any storage and attachment processing
 
 # Current subclasses are PensionClaim and BurialClaim.
+require 'pension_burial/tag_sentry'
+require 'common/exceptions/internal/validation_errors'
 
 class ClaimsBaseController < ApplicationController
   skip_before_action(:authenticate)

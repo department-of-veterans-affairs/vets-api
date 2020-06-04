@@ -20,7 +20,7 @@ module V0
       appt = VSOAppointment.new(appt_params)
       raise Common::Exceptions::Internal::ParameterMissing, appt.errors.messages.keys.first.to_s unless appt.valid?
 
-      form = VSOAppointmentForm.new appt
+      form = VSOPDF::VSOAppointmentForm.new appt
       resp = form.send_pdf
 
       if resp.status == 200
