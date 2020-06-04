@@ -22,6 +22,7 @@ module MDOT
       self.permanent_address = @parsed_body['permanent_address']
       self.temporary_address = @parsed_body['temporary_address']
       self.supplies = @parsed_body['supplies']
+      self.vet_email = @parsed_body['vet_email']
       self.eligibility = determine_eligibility
       @status = args[:response][:status]
       update_token
