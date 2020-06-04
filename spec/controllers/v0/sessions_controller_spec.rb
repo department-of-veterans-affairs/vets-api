@@ -463,6 +463,13 @@ RSpec.describe V0::SessionsController, type: :controller do
             )
           Timecop.return
         end
+
+        it 'sends STATSD callback metrics' do
+          expect { post(:saml_callback) }
+            .to trigger_statsd_increment(described_class::STATSD_SSO_CALLBACK_KEY,
+                                         tags: ['status:success', "context:#{LOA::IDME_LOA1_VETS}", 'version:v0'], **once)
+            .and trigger_statsd_increment(described_class::STATSD_SSO_CALLBACK_TOTAL_KEY, **once)
+        end
       end
 
       context 'when user has LOA current 1 and highest nil' do
