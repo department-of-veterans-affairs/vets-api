@@ -297,7 +297,8 @@ RSpec.describe 'Fetching user data', type: :request do
           .and not_trigger_statsd_increment('api.external_http_request.MVI.skipped')
           .and not_trigger_statsd_increment('api.external_http_request.MVI.success')
       end
-      expect(MasterVeteranIndex::Configuration.instance.breakers_service.latest_outage.start_time.to_i).to eq(start_time.to_i)
+      expect(MasterVeteranIndex::Configuration.instance.breakers_service.latest_outage.start_time.to_i)
+        .to eq(start_time.to_i)
 
       # skipped because breakers is active
       stub_mvi_success

@@ -20,15 +20,21 @@ describe MVI, skip_mvi: true do
       profile: mvi_profile
     )
   end
-  let(:profile_response_error) { MasterVeteranIndex::Responses::FindProfileResponse.with_server_error(server_error_exception) }
-  let(:profile_response_not_found) { MasterVeteranIndex::Responses::FindProfileResponse.with_not_found(not_found_exception) }
+  let(:profile_response_error) do
+    MasterVeteranIndex::Responses::FindProfileResponse.with_server_error(server_error_exception)
+  end
+  let(:profile_response_not_found) do
+    MasterVeteranIndex::Responses::FindProfileResponse.with_not_found(not_found_exception)
+  end
   let(:add_response) do
     MasterVeteranIndex::Responses::AddPersonResponse.new(
       status: MasterVeteranIndex::Responses::AddPersonResponse::RESPONSE_STATUS[:ok],
       mvi_codes: mvi_codes
     )
   end
-  let(:add_response_error) { MasterVeteranIndex::Responses::AddPersonResponse.with_server_error(server_error_exception) }
+  let(:add_response_error) do
+    MasterVeteranIndex::Responses::AddPersonResponse.with_server_error(server_error_exception)
+  end
   let(:default_ttl) { REDIS_CONFIG[MasterVeteranIndex::REDIS_CONFIG_KEY.to_s]['each_ttl'] }
   let(:failure_ttl) { REDIS_CONFIG[MasterVeteranIndex::REDIS_CONFIG_KEY.to_s]['failure_ttl'] }
 
@@ -90,7 +96,8 @@ describe MVI, skip_mvi: true do
         expect(mvi.error.class).to eq Common::Exceptions::External::BackendServiceException
       end
       it 'returns a :not_found response and cache it for a shorter time', :aggregate_failures do
-        allow_any_instance_of(MasterVeteranIndex::Service).to receive(:find_profile).and_return(profile_response_not_found)
+        allow_any_instance_of(MasterVeteranIndex::Service)
+          .to receive(:find_profile).and_return(profile_response_not_found)
         expect(mvi).to receive(:save).once
         expect_any_instance_of(MasterVeteranIndex::Service).to receive(:find_profile).once
         expect(mvi.status).to eq('NOT_FOUND')

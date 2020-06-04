@@ -103,7 +103,9 @@ module MasterVeteranIndex
     # rubocop:enable Metrics/MethodLength
 
     def self.service_is_up?
-      last_mvi_outage = Breakers::Outage.find_latest(service: MasterVeteranIndex::Configuration.instance.breakers_service)
+      last_mvi_outage = Breakers::Outage.find_latest(
+        service: MasterVeteranIndex::Configuration.instance.breakers_service
+      )
       last_mvi_outage.blank? || last_mvi_outage.end_time.present?
     end
 
@@ -182,7 +184,10 @@ module MasterVeteranIndex
     end
 
     def create_profile_message(user_identity)
-      return message_icn(user_identity) if user_identity.mhv_icn.present? # from SAML::UserAttributes::MHV::BasicLOA3User
+      if user_identity.mhv_icn.present?
+        # from SAML::UserAttributes::MHV::BasicLOA3User
+        return message_icn(user_identity)
+      end
       return message_edipi(user_identity) if user_identity.dslogon_edipi.present? && Settings.mvi.edipi_search
       raise Common::Exceptions::Internal::ValidationErrors, user_identity unless user_identity.valid?
 

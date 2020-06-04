@@ -11,7 +11,7 @@ module MasterVeteranIndex
     #
     # Example:
     #  birth_date = Time.new(1980, 1, 1).utc
-    #  message = MasterVeteranIndex::Messages::FindCandidateMessage.new(['John', 'William'], 'Smith', birth_date, '555-44-3333').to_xml
+    #  message = FindCandidateMessage.new(['John', 'William'], 'Smith', birth_date, '555-44-3333').to_xml
     #
     class FindProfileMessage
       include FindProfileMessageHelpers

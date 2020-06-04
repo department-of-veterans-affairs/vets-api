@@ -443,7 +443,8 @@ describe MasterVeteranIndex::Service do
 
     context 'when a status of 500 is returned' do
       it 'raises a request failure error', :aggregate_failures do
-        allow_any_instance_of(MasterVeteranIndex::Service).to receive(:create_profile_message).and_return('<nobeuno></nobeuno>')
+        allow_any_instance_of(MasterVeteranIndex::Service)
+          .to receive(:create_profile_message).and_return('<nobeuno></nobeuno>')
         expect(subject).to receive(:log_message_to_sentry).with(
           'MVI find_profile error: SOAP HTTP call failed',
           :warn

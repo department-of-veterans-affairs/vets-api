@@ -7,7 +7,6 @@ require 'master_veteran_index/responses/find_profile_response'
 require 'master_veteran_index/responses/add_person_response'
 require 'master_veteran_index/service'
 
-
 # Facade for MVI. User model delegates MVI correlation id and VA profile (golden record) methods to this class.
 # When a profile is requested from one of the delegates it is returned from either a cached response in Redis
 # or from the MVI SOAP service.
