@@ -769,7 +769,7 @@ RSpec.describe FormProfile, type: :model do
     end
 
     def expect_prefilled(form_id)
-      prefilled_data = Oj.load(described_class.for(form_id).prefill(selected_user).to_json)['form_data']
+      prefilled_data = Oj.load(described_class.for(form_id).prefill(user).to_json)['form_data']
 
       if form_id == '1010ez'
         '10-10EZ'
