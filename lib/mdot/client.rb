@@ -117,7 +117,7 @@ module MDOT
 
     def handle_client_error(error)
       save_error_details(error)
-      code = JSON.parse(error.body)['result'].downcase
+      code = error.body['result'].downcase
 
       raise_backend_exception(
         MDOT::ExceptionKey.new("MDOT_#{code}"),
