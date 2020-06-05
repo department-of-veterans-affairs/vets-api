@@ -11,9 +11,6 @@ module V0
           json: response,
           serializer: Lighthouse::People::VaFileNumberSerializer
         )
-      rescue => e
-        log_exception_to_sentry(e)
-        raise Common::Exceptions::BackendServiceException.new(nil, detail: e.message)
       end
     end
   end

@@ -5,10 +5,6 @@ require 'rails_helper'
 RSpec.describe V0::Profile::VaFileNumbersController, type: :controller do
   let(:user) { create(:evss_user) }
 
-  # before do
-  #   sign_in_as(user)
-  # end
-
   describe '#show' do
     context 'with a valid bgs response' do
       it 'returns a va file number for the logged-in user' do
