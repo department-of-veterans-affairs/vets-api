@@ -1,9 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'sidekiq/testing'
 require 'evss/intent_to_file/response_strategy'
-Sidekiq::Testing.fake!
 
 RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526Cleanup, type: :job do
   subject { described_class }

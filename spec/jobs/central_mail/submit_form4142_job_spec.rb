@@ -1,9 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'sidekiq/testing'
 require 'evss/disability_compensation_auth_headers'
-Sidekiq::Testing.fake!
 
 RSpec.describe CentralMail::SubmitForm4142Job, type: :job do
   subject { described_class }

@@ -1,9 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'sidekiq/testing'
 require 'evss/disability_compensation_form/submit_form526_increase_only'
-Sidekiq::Testing.fake!
 
 RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526IncreaseOnly, type: :job do
   subject { described_class }
