@@ -10,19 +10,26 @@ module BGS
     end
 
     def find_person_by_ptcpnt_id
-      response = service.people.find_person_by_ptcpnt_id(@current_user.participant_id)
+      response = service.people.find_person_by_ptcpnt_id('11111111111')
 
       raise VaFileNumberNotFound if response.nil?
 
       response
-
     rescue VaFileNumberNotFound => e
+      report_no_va_file_user(e)
+
+      {}
+    end
+
+    private
+
+    def report_no_va_file_user(e)
       log_exception_to_sentry(
         e,
         {
           icn: @current_user.icn
         },
-        {team: 'eBenefits'}
+        { team: 'eBenefits' }
       )
 
       PersonalInformationLog.create(
@@ -36,11 +43,7 @@ module BGS
           }
         }
       )
-
-      return {}
     end
-
-    private
 
     def service
       external_key = @current_user.common_name || @current_user.email
