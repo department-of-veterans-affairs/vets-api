@@ -173,13 +173,11 @@ RSpec.configure do |config|
   end
 
   config.before(:all) do
-    unless defined?(Sidekiq::Batch)
-      Sidekiq::Batch = Class.new do
-        def on(_callback, _klass, _options) end
+    Sidekiq::Batch = Class.new do
+      def on(_callback, _klass, _options) end
 
-        def jobs
-          yield
-        end
+      def jobs
+        yield
       end
     end
   end
