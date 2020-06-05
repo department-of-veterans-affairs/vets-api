@@ -24,7 +24,7 @@ RSpec.describe V0::Profile::VaFileNumbersController, type: :controller do
     end
 
     context 'with a user that does not have a va_file_number' do
-      it 'returns a va file number for the logged-in user' do
+      it 'returns null' do
         VCR.use_cassette('bgs/person_web_service/no_result') do
           allow(user).to receive(:participant_id).and_return('11111111111')
           sign_in_as(user)

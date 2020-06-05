@@ -655,7 +655,7 @@ http_interactions:
   recorded_at: Fri, 05 Jun 2020 22:42:48 GMT
 - request:
     method: post
-    uri: https://internal-dsva-vagov-dev-fwdproxy-1893365470.us-gov-west-1.elb.amazonaws.com:4447/PersonWebServiceBean/PersonWebService?WSDL
+    uri: https://internal-dsva-vagov-dev-fwdproxy-1893365470.us-gov-west-1.elb.amazonaws.com:4447/PersonWebServiceBean/PersonWebService
     body:
       encoding: UTF-8
       string: |-
