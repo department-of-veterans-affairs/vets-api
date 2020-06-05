@@ -25,6 +25,6 @@ Pact.service_provider 'VA.gov API' do
   publish_verification_results true
 
   honours_pacts_from_pact_broker do
-    pact_broker_base_url 'http://host.docker.internal:9292'
+    pact_broker_base_url 'https://vagov-pact-broker.herokuapp.com'
   end
 end
