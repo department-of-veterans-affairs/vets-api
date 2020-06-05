@@ -53,5 +53,4 @@ RSpec.describe ClaimsApi::PowerOfAttorney, type: :model do
       end
     end
   end
-
 end
