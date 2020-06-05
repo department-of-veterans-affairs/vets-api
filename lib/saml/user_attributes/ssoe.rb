@@ -173,6 +173,7 @@ module SAML
 
       # Raise any fatal exceptions due to validation issues
       def validate!
+        raise SAML::UserAttributeError, SAML::UserAttributeError::IDME_UUID_MISSING unless idme_uuid
         raise SAML::UserAttributeError, SAML::UserAttributeError::MULTIPLE_MHV_IDS if mhv_id_mismatch?
         raise SAML::UserAttributeError, SAML::UserAttributeError::MULTIPLE_EDIPIS if edipi_mismatch?
         raise SAML::UserAttributeError, SAML::UserAttributeError::MHV_ICN_MISMATCH if mhv_icn_mismatch?

@@ -134,3 +134,7 @@ features:
     actor_type: user
     description: >
       All 10-10CG submissions (Caregivers Assistance Claims) will not hit CARMA and instead return a dubmmy response.
+  gibct_eyb_bottom_sheet:
+    actor_type: user
+    description: >
+      Panel that displays while the user is modifying inputs to give context to their currently estimated benefits until they reach the full your estimated benefits panel.

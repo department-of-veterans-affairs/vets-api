@@ -774,6 +774,20 @@ RSpec.describe SAML::User do
           common_name: 'SOFIA MCKIBBENS'
         )
       end
+
+      context 'with missing ID.me UUID' do
+        let(:saml_attributes) do
+          build(:ssoe_inbound_dslogon_level2,
+                va_eauth_uid: ['NOT_FOUND'])
+        end
+
+        it 'does not validate' do
+          expect { subject.validate! }.to raise_error { |error|
+            expect(error).to be_a(SAML::UserAttributeError)
+            expect(error.message).to eq('User attributes is missing an ID.me UUID')
+          }
+        end
+      end
     end
 
     context 'MHV premium inbound user' do
