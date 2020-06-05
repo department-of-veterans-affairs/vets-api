@@ -136,12 +136,7 @@ module V0
 
     def login_stats_success(saml_response, user_session_form = nil)
       tracker = url_service(user_session_form&.saml_uuid).tracker
-      tags = [
-        "loa:#{@current_user.loa[:current]}",
-        "idp:#{@current_user.identity.sign_in[:service_name]}",
-        "context:#{saml_response.authn_context}",
-        VERSION_TAG
-      ]
+      tags = ["context:#{saml_response.authn_context}", VERSION_TAG]
       StatsD.increment(STATSD_LOGIN_NEW_USER_KEY, tags: [VERSION_TAG]) if request_type == 'signup'
       StatsD.increment(STATSD_LOGIN_SHARED_COOKIE, tags: tags) if cookies.key?(Settings.sso.cookie_name)
       StatsD.increment(STATSD_LOGIN_STATUS, tags: tags + ['status:success'])
@@ -156,9 +151,7 @@ module V0
       when :failure
         StatsD.increment(STATSD_LOGIN_STATUS,
                          tags: ['status:failure',
-                                "idp:#{params[:type]}",
                                 "context:#{saml_response.authn_context}",
-                                "error:#{user_session_form.error_instrumentation_code}",
                                 VERSION_TAG])
         callback_stats(:failure, saml_response, user_session_form.error_instrumentation_code)
       end

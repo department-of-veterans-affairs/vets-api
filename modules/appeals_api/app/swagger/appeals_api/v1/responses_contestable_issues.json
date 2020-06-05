@@ -11,11 +11,12 @@
                 "type": "object",
                 "description": "A contestable issue (to contest this, you include it as a RequestIssue when creating a HigherLevelReview, SupplementalClaim, or Appeal)",
                 "properties": {
-                  "type": { "type": "string", "enum": [ "ContestableIssue" ] },
+                  "type": { "type": "string", "enum": [ "contestableIssue" ] },
+                  "id": { "type": "string", "nullable": true },
                   "attributes": {
                     "type": "object",
                     "properties": {
-                      "ratingIssueId": { "type": "string", "nullable": true, "description": "RatingIssue ID" },
+                      "ratingIssueReferenceId": { "type": "string", "nullable": true, "description": "RatingIssue ID" },
                       "ratingIssueProfileDate": {
                         "type": "string",
                         "nullable": true,
@@ -25,10 +26,10 @@
                         "type": "string",
                         "nullable": true,
                         "description": "RatingIssue diagnostic code"},
-                      "ratingDecisionId": {
+                      "ratingDecisionReferenceId": {
                         "type": "string",
                         "nullable": true,
-                        "description": "The BGS ID for the contested rating decision. This may be populated while ratingIssueId is nil"},
+                        "description": "The BGS ID for the contested rating decision. This may be populated while ratingIssueReferenceId is nil"},
                       "decisionIssueId": {
                         "type": "integer",
                         "nullable": true,
@@ -62,6 +63,14 @@
                               "type": "string",
                               "nullable": true,
                               "format": "date" }}}},
+                      "ratingIssueSubjectText": {
+                        "type": "string",
+                        "nullable": true,
+                        "description": "Short description of RatingIssue" },
+                      "ratingIssuePercentNumber": {
+                        "type": "string",
+                        "nullable": true,
+                        "description": "Numerical rating for RatingIssue" },
                       "isRating": { "type": "boolean", "description": "Whether or not this is a RatingIssue" }}}}}}}}}}},
   "404": {
     "description": "Veteran not found",

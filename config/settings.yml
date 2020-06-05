@@ -3,6 +3,7 @@ virtual_hosts: ["127.0.0.1", "localhost"] # Safe host names
 
 # For CORS requests; separate multiple origins with a comma
 web_origin: http://localhost:3000,http://localhost:3001,http://127.0.0.1:3000,http://127.0.0.1:3001,null
+web_origin_regex: \Ahttps?:\/\/www\.va\.gov\z
 
 # Settings for SAML authentication
 saml:
@@ -138,9 +139,12 @@ mdot:
 # Settings for Decision Reviews
 decision_review:
   prefill: true
-  url: https://sandbox-api.va.gov/services/appeals/v3/decision_review
+  url: https://sandbox-api.va.gov/services/appeals/v1/decision_review
   api_key: abcd1234abcd1234abcd1234abcd1234abcd1234
   mock: false
+
+# Settings for modules/appeals_api
+modules_appeals_api:
   higher_level_review_updater_enabled: true
   schema_dir: config/schemas
 
@@ -467,6 +471,8 @@ flipper:
     - devinmccurdy@gmail.com
     - eric.buckley@adhocteam.us
     - erik@adhocteam.us
+    - grodriguez@governmentcio.com
+    - hughes_dustin@bah.com
     - jbalboni@gmail.com
     - jeff@adhocteam.us
     - johnny@oddball.io
@@ -475,6 +481,7 @@ flipper:
     - kam@adhocteam.us
     - keifer@oddball.io
     - kenneth.gary@va.gov
+    - kenneth.santiago2010@gmail.com
     - kmircovich@governmentcio.com
     - lauren.alexanderson@va.gov
     - lindsey.hattamer@oddball.io
@@ -482,8 +489,8 @@ flipper:
     - n.ratana@gmail.com
     - narin@adhocteam.us
     - osanchez@governmentcio.com
-    - patrick@adhocteam.us
     - patrick.bateman@va.gov
+    - patrick@adhocteam.us
     - philip.becker@oddball.io
     - regarr@gmail.com # Robin Garrison - AdHoc
     - rian.fowler@adhoc.team

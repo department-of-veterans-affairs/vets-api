@@ -10,6 +10,13 @@ describe AppealsApi::HigherLevelReviewPdfConstructor do
     expect(constructor.pdf_options).to eq(valid_pdf_options)
   end
 
+  it 'builds the extra pdf options' do
+    higher_level_review = create(:extra_higher_level_review)
+    constructor = AppealsApi::HigherLevelReviewPdfConstructor.new(higher_level_review.id)
+    options = valid_pdf_options.merge(additional_page: "Issue: sleep apnea - Decision Date: 1900-01-07\n")
+    expect(constructor.pdf_options).to eq(options)
+  end
+
   private
 
   # rubocop:disable Metrics/MethodLength
