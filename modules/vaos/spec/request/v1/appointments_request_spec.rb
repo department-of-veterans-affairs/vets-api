@@ -30,7 +30,7 @@ RSpec.describe 'Appointment', type: :request do
         let(:expected_body) do
           YAML.load_file(
             Rails.root.join(
-              'spec', 'support', 'vcr_cassettes', 'vaos', 'fhir', 'search_appointment_200.yml'
+              'spec', 'support', 'vcr_cassettes', 'vaos', 'fhir', 'appointment/search_200.yml'
             )
           )['http_interactions'].first.dig('response', 'body', 'string')
         end
@@ -41,7 +41,7 @@ RSpec.describe 'Appointment', type: :request do
         end
 
         it 'returns a 200 and passes the body through' do
-          VCR.use_cassette('vaos/fhir/search_appointment_200', match_requests_on: %i[method uri]) do
+          VCR.use_cassette('vaos/fhir/appointment/search_200', match_requests_on: %i[method uri]) do
             get "/vaos/v1/Appointment?#{query_string}"
 
             expect(response).to have_http_status(:ok)
@@ -54,7 +54,7 @@ RSpec.describe 'Appointment', type: :request do
         let(:expected_body) do
           YAML.load_file(
             Rails.root.join(
-              'spec', 'support', 'vcr_cassettes', 'vaos', 'fhir', 'search_appointment_no_records.yml'
+              'spec', 'support', 'vcr_cassettes', 'vaos', 'fhir', 'appointment', 'search_no_records.yml'
             )
           )['http_interactions'].first.dig('response', 'body', 'string')
         end
@@ -65,7 +65,7 @@ RSpec.describe 'Appointment', type: :request do
         end
 
         it 'returns a 200 and passes the body through' do
-          VCR.use_cassette('vaos/fhir/search_appointment_no_records', match_requests_on: %i[method uri]) do
+          VCR.use_cassette('vaos/fhir/appointment/search_no_records', match_requests_on: %i[method uri]) do
             get "/vaos/v1/Appointment?#{query_string}"
 
             expect(response).to have_http_status(:ok)
