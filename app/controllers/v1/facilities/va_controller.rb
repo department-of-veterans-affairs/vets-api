@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'lighthouse/facilities/client'
 
 class V1::Facilities::VAController < FacilitiesController

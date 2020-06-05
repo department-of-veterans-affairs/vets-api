@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'common/exceptions/internal/record_not_found'
 require 'evss/letters/download_service'
 require 'evss/letters/service'
