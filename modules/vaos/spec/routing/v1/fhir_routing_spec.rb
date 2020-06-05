@@ -20,4 +20,15 @@ RSpec.describe 'VAOS FHIR routing configuration', type: :routing do
       id: '123'
     )
   end
+
+  it 'routes to the healthcare_services index' do
+    query_string = '?organization.identifier=983&_include=HealthcareService%3Alocation'
+    expect(get("/vaos/v1/HealthcareService#{query_string}")).to route_to(
+      format: :json,
+      controller: 'vaos/v1/healthcare_services',
+      action: 'index',
+      'organization.identifier' => '983',
+      '_include' => 'HealthcareService:location'
+    )
+  end
 end

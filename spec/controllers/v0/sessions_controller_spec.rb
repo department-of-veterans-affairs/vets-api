@@ -399,7 +399,7 @@ RSpec.describe V0::SessionsController, type: :controller do
                                          tags: ['status:success', 'context:multifactor', 'version:v0'], **once)
             .and trigger_statsd_increment(described_class::STATSD_SSO_CALLBACK_TOTAL_KEY, **once)
             .and trigger_statsd_increment(described_class::STATSD_LOGIN_SHARED_COOKIE,
-                                          tags: ['loa:1', 'idp:idme', 'context:multifactor', 'version:v0'], **once)
+                                          tags: ['context:multifactor', 'version:v0'], **once)
 
           expect(cookies['vagov_session_dev']).not_to be_nil
           expect(JSON.parse(decrypter.decrypt(cookies['vagov_session_dev'])))
@@ -625,7 +625,7 @@ RSpec.describe V0::SessionsController, type: :controller do
             .to trigger_statsd_increment(described_class::STATSD_SSO_CALLBACK_KEY, tags: callback_tags, **once)
             .and trigger_statsd_increment(described_class::STATSD_SSO_CALLBACK_TOTAL_KEY, **once)
             .and trigger_statsd_increment(described_class::STATSD_LOGIN_SHARED_COOKIE,
-                                          tags: ['loa:3', 'idp:myhealthevet', 'context:myhealthevet', 'version:v0'],
+                                          tags: ['context:myhealthevet', 'version:v0'],
                                           **once)
           expect(response.location).to start_with('http://127.0.0.1:3001/auth/login/callback')
           expect(cookies['vagov_session_dev']).not_to be_nil

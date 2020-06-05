@@ -80,6 +80,7 @@ VCR.configure do |c|
   c.filter_sensitive_data('<PD_TOKEN>') { Settings.maintenance.pagerduty_api_token }
   c.filter_sensitive_data('<PENSIONS_TOKEN>') { Settings.central_mail.upload.token }
   c.filter_sensitive_data('<PRENEEDS_HOST>') { Settings.preneeds.host }
+  c.filter_sensitive_data('<DEBTS_TOKEN>') { Settings.debts.client_secret }
   c.before_record do |i|
     %i[response request].each do |env|
       next unless i.send(env).headers.keys.include?('Token')
@@ -172,13 +173,11 @@ RSpec.configure do |config|
   end
 
   config.before(:all) do
-    unless defined?(Sidekiq::Batch)
-      Sidekiq::Batch = Class.new do
-        def on(_callback, _klass, _options) end
+    Sidekiq::Batch = Class.new do
+      def on(_callback, _klass, _options) end
 
-        def jobs
-          yield
-        end
+      def jobs
+        yield
       end
     end
   end
