@@ -12,6 +12,8 @@ module V1
     REDIRECT_URLS = %w[signup mhv dslogon idme mfa verify slo].freeze
 
     STATSD_SSO_NEW_KEY = 'api.auth.new'
+    STATSD_SSO_NEW_FORCEAUTH = 'api.auth.new.forceauth'
+    STATSD_SSO_NEW_INBOUND = 'api.auth.new.inbound'
     STATSD_SSO_CALLBACK_KEY = 'api.auth.saml_callback'
     STATSD_SSO_CALLBACK_TOTAL_KEY = 'api.auth.login_callback.total'
     STATSD_SSO_CALLBACK_FAILED_KEY = 'api.auth.login_callback.failed'
@@ -29,8 +31,7 @@ module V1
       type = params[:type]
       raise Common::Exceptions::RoutingError, params[:path] unless REDIRECT_URLS.include?(type)
 
-      StatsD.increment(STATSD_SSO_NEW_KEY,
-                       tags: ["context:#{type}", "forceauthn:#{force_authn?}", VERSION_TAG])
+      new_stats(type)
       url = redirect_url(type)
 
       if type == 'slo'
@@ -101,6 +102,10 @@ module V1
       params[:force]&.downcase == 'true'
     end
 
+    def inbound_ssoe?
+      params[:inbound]&.downcase == 'true'
+    end
+
     def saml_settings(options = {})
       # add a forceAuthn value to the saml settings based on the initial options or
       # the "force" value in the query params
@@ -168,18 +173,20 @@ module V1
 
     def login_stats_success(saml_response, user_session_form = nil)
       tracker = url_service(user_session_form&.saml_uuid).tracker
-      tags = [
-        "loa:#{@current_user.loa[:current]}",
-        "idp:#{@current_user.identity.sign_in[:service_name]}",
-        "context:#{saml_response.authn_context}",
-        VERSION_TAG
-      ]
+      tags = ["context:#{saml_response.authn_context}", VERSION_TAG]
       StatsD.increment(STATSD_LOGIN_NEW_USER_KEY, tags: [VERSION_TAG]) if request_type == 'signup'
       # track users who have a shared sso cookie
       StatsD.increment(STATSD_LOGIN_SHARED_COOKIE, tags: tags)
       StatsD.increment(STATSD_LOGIN_STATUS, tags: tags + ['status:success'])
       StatsD.measure(STATSD_LOGIN_LATENCY, tracker.age, tags: tags)
       callback_stats(:success, saml_response)
+    end
+
+    def new_stats(type)
+      tags = ["context:#{type}", VERSION_TAG]
+      StatsD.increment(STATSD_SSO_NEW_KEY, tags: tags)
+      StatsD.increment(STATSD_SSO_NEW_FORCEAUTH, tags: tags) if force_authn?
+      StatsD.increment(STATSD_SSO_NEW_INBOUND, tags: tags) if inbound_ssoe?
     end
 
     def login_stats(status, saml_response, user_session_form = nil)
@@ -189,9 +196,7 @@ module V1
       when :failure
         StatsD.increment(STATSD_LOGIN_STATUS,
                          tags: ['status:failure',
-                                "idp:#{params[:type]}",
                                 "context:#{saml_response.authn_context}",
-                                "error:#{user_session_form.error_instrumentation_code}",
                                 VERSION_TAG])
         callback_stats(:failure, saml_response, user_session_form.error_instrumentation_code)
       end

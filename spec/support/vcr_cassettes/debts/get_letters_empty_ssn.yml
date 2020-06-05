@@ -1,0 +1,41 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: https://internal-dsva-vagov-dev-fwdproxy-1893365470.us-gov-west-1.elb.amazonaws.com:4465/api/v1/debtletter/letterdetails/get
+    body:
+      encoding: UTF-8
+      string: '{"fileNumber":""}'
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Client-Id:
+      - 0be3d60e3983438199f192b6e723a6f0
+      Client-Secret:
+      - "<DEBTS_TOKEN>"
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 400
+      message: Bad Request
+    headers:
+      Content-Type:
+      - application/json; charset=UTF-8
+      Content-Length:
+      - '30'
+      Date:
+      - Wed, 27 May 2020 20:04:17 GMT
+    body:
+      encoding: UTF-8
+      string: |-
+        {
+          "message": "Bad request"
+        }
+    http_version: null
+  recorded_at: Wed, 27 May 2020 20:04:16 GMT
+recorded_with: VCR 5.1.0

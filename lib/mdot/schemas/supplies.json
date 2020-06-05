@@ -69,7 +69,7 @@
             "type": "string"
           },
           "product_id": {
-            "type": "string"
+            "type": "integer"
           },
           "available_for_reorder": {
             "type": "boolean"

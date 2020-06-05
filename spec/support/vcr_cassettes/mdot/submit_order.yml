@@ -45,7 +45,7 @@ http_interactions:
       - 1.1 vegur
     body:
       encoding: UTF-8
-      string: '{"status":"success","order_id":"4eb9e4a5-1fd1-4a47-8a45-fe4f28466dde"}'
+      string: '{"status":"success","orderId":"4eb9e4a5-1fd1-4a47-8a45-fe4f28466dde"}'
     http_version: null
   recorded_at: Tue, 31 Mar 2020 14:32:36 GMT
 recorded_with: VCR 5.1.0

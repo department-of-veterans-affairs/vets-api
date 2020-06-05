@@ -47,15 +47,15 @@ class User < Common::RedisStore
   end
 
   def pciu_email
-    pciu.get_email_address.email
+    pciu&.get_email_address&.email
   end
 
   def pciu_primary_phone
-    pciu.get_primary_phone.to_s
+    pciu&.get_primary_phone&.to_s
   end
 
   def pciu_alternate_phone
-    pciu.get_alternate_phone.to_s
+    pciu&.get_alternate_phone&.to_s
   end
 
   def first_name
@@ -326,6 +326,6 @@ class User < Common::RedisStore
   private
 
   def pciu
-    @pciu ||= EVSS::PCIU::Service.new self
+    @pciu ||= EVSS::PCIU::Service.new self if loa3? && edipi.present?
   end
 end
