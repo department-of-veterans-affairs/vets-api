@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require_dependency 'claims_api/intent_to_file_serializer'
+require 'evss/intent_to_file/service'
 
 module ClaimsApi
   module V1
