@@ -5,7 +5,7 @@ module Form1010cg
   class Service
     attr_reader :claim
 
-    NOT_FOUND = %w[NOT_FOUND].first
+    NOT_FOUND = 'NOT_FOUND'
 
     def initialize(claim)
       # This service makes assumptions on what data is present on the claim
@@ -33,9 +33,7 @@ module Form1010cg
     # @return [Form1010cg::Submission]
     def process_claim!
       assert_veteran_status
-
       carma_submission = CARMA::Models::Submission.from_claim(claim, build_metadata).submit!
-
       Form1010cg::Submission.new(
         carma_case_id: carma_submission.carma_case_id,
         submitted_at: carma_submission.submitted_at
