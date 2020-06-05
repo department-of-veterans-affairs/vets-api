@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'fakeredis/rspec'
-require 'support/mvi/stub_mvi'
 require 'support/spec_builders'
 require 'support/matchers'
 require 'support/spool_helpers'
@@ -10,8 +9,6 @@ require 'support/spec_temp_files'
 require 'support/sidekiq/batch'
 require 'support/silence_stream'
 require 'support/stub_emis'
-require 'support/stub_evss_pciu'
-require 'support/vet360/stub_vet360'
 require 'support/okta_users_helpers'
 require 'support/poa_stub'
 require 'pundit/rspec'
