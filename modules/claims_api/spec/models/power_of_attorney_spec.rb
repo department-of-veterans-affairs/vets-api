@@ -54,17 +54,4 @@ RSpec.describe ClaimsApi::PowerOfAttorney, type: :model do
     end
   end
 
-  describe 'signing the pdf' do
-    it 'signs the pdf with the uploaded signature file' do
-      attachment = build(:power_of_attorney)
-      file = Rack::Test::UploadedFile.new(
-        "#{::Rails.root}/modules/claims_api/spec/fixtures/VBA-21-22A-ARE.pdf"
-      )
-
-      attachment.set_file_data!(file, 'docType')
-      attachment.save!
-      attachment.reload
-      attachment.insert_signature
-    end
-  end
 end
