@@ -5,7 +5,7 @@ module Form1010cg
   class Service
     attr_reader :claim
 
-    NOT_FOUND = 'NOT_FOUND'
+    NOT_FOUND = %w[NOT_FOUND].first
 
     def initialize(claim)
       # This service makes assumptions on what data is present on the claim
