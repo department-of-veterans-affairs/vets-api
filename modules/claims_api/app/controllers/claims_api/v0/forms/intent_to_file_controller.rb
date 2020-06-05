@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'evss/intent_to_file/service'
+
 module ClaimsApi
   module V0
     module Forms
