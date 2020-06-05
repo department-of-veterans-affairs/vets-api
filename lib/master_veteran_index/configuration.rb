@@ -26,7 +26,7 @@ module MasterVeteranIndex
     end
 
     def service_name
-      'MasterVeteranIndex'
+      'MVI'
     end
 
     def ssl_options
