@@ -1,4 +1,6 @@
 # frozen_string_literal: true
+require 'caseflow/service'
+require 'decision_review/service'
 
 module AppealsApi
   module V0

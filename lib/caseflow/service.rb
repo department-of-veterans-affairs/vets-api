@@ -1,6 +1,6 @@
 # frozen_string_literal: true
-
 require 'common/client/concerns/monitoring'
+require 'caseflow/responses/caseflow'
 
 module Caseflow
   ##
