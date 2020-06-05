@@ -18,7 +18,7 @@ To start, fetch this code:
 
 `git clone https://github.com/department-of-veterans-affairs/vets-api.git`
 
-1. Install [Docker for Mac](https://docs.docker.com/docker-for-mac/install/). This will configure both `docker` and `docker-compose`.
+1. Install [Docker Engine](https://docs.docker.com/engine/install/) and [Docker Compose](https://docs.docker.com/compose/install/) for your platform. We strongly recommend Docker Desktop for [Mac](https://docs.docker.com/engine/install/) or [Windows](https://docs.docker.com/docker-for-windows/install/) users.
 1. Setup key & cert for localhost authentication to ID.me:
    - Create a folder in your vets-api directory: `mkdir config/certs`
    - Create an empty key and cert:
@@ -32,26 +32,19 @@ To start, fetch this code:
    saml:
      authn_requests_signed: false
    ```
+    [For more info on crypto & authentication, including how to enable crypto for localhost authentication](/docs/setup/authentication_with_idme.md)
 
-[For more info on crypto & authentication, including how to enable crypto for localhost authentication](/docs/setup/authentication_with_idme.md)
+2. Sidekiq Enterprise is used for worker rate limiting and additional reliability in production and requires a license be configured on your development machine. If you do not have a license configured, the open source version of Sidekiq will be installed instead. This is not an issue unless you are specifically developing features that need Sidekiq Enterprise.
+
+    [If you *do* need Sidekiq Enterprise, you can follow instructions [here](https://github.com/department-of-veterans-affairs/va.gov-team-sensitive/blob/master/platform/engineering/sidekiq-enterprise-setup.md) to install the enterprise license on their systems.
+
+  **DO NOT commit local Gemfile modifications that remove the `sidekiq-ent` and `sidekiq-pro` gems.**
 
 ## Running the app
 
 A Makefile provides shortcuts for interacting with the docker images. To run vets-api and its redis and postgres
 dependencies run the following command from within the repo you cloned in the above steps.
 
-### Sidekiq Enterprise
-
-Sidekiq Enterprise is used for worker rate limiting and additional reliability.
-Sidekiq Enterprise requires a license be configured on your development machine.
-If you do not have license configured, Sidekiq Enterprise will simply not be installed during gem installation.
-
-Unless you are sure you need a Sidekiq Enterprise feature, you are probably fine without configuring the license and running Sidekiq Enterprise.
-Normal Sidekiq will still be installed and run.
-
-If you do need Sidekiq Enterprise, VA.gov Team Engineers can follow instructions [here](https://github.com/department-of-veterans-affairs/va.gov-team-sensitive/blob/master/platform/engineering/sidekiq-enterprise-setup.md) to install the enterprise license on their systems.
-
-**DO NOT commit Gemfile modifications that result from local builds without sidekiq enterprise if you do not have it enabled on your development system**
 
 ```
 make up
@@ -142,6 +135,8 @@ features, and will run the unit tests successfully.
 
 ### Troubleshooting
 
+As a general technique, if you're running `vets-api` in Docker and run into a problem, doing a `make rebuild` is a good first step to fix configuration, gem, and other various code problems.
+
 #### `make up` fails with a message about missing gems
 
 ```bash
@@ -162,7 +157,7 @@ following command:
 
 Jenkins deploys `vets-api` upon each merge to `master`:
 
-http://jenkins.vfs.va.gov/job/department-of-veterans-affairs/job/vets-api/job/master/
+http://jenkins.vfs.va.gov/job/testing/job/vets-api/job/master/
 
 Each deploy is available here:
 
@@ -185,52 +180,3 @@ The version of Ruby and gem dependencies (including Rails) used are defined in t
 #### Version Policy
 
 The goal is to have vets-api use supported versions of gems and Ruby, which is often the latest. However the versions are generally updated as need or availability arise. If you need a newer version of a gem, please submit a pull-request marked as `draft` with just the gem updated and passing tests.
-
-## How to contribute
-
-There are many ways to contribute to this project:
-
-**Bugs**
-
-If you spot a bug, let us know! File a GitHub Issue for this project. When
-filing an issue add the following:
-
-- Title: Sentence that summarizes the bug concisely
-- Comment:
-  - The environment you experienced the bug (browser, browser version, kind of
-    account any extensions enabled)
-  - The exact steps you took that triggered the bug. Steps 1, 2, 3, etc.
-  - The expected outcome
-  - The actual outcome (include screen shot or error logs)
-- Label: Apply the label `bug`
-
-For security related bugs unfit for public viewing, email us feedback@va.gov
-
-**Code Submissions**
-
-This project logs all work needed and work being actively worked on via GitHub
-Issues. Submissions related to these are especially appreciated, but patches and
-additions outside of these are also great.
-
-If you are working on something related to an existing GitHub Issue that already
-has an assignee, talk with them first (we don't want to waste your time). If
-there is no assignee, assign yourself (if you have permissions) or post a
-comment stating that you're working on it.
-
-To work on your code submission, follow [GitHub Flow](https://guides.github.com/introduction/flow/):
-
-1. Branch or Fork
-1. Commit changes
-1. Submit Pull Request
-1. Discuss via Pull Request
-1. Pull Request gets approved or denied by core team member
-
-If you're from the community, it may take one to two weeks to review your pull
-request. Teams work in one to two week sprints, so they need time to need add it
-to their time line.
-
-## Contact
-
-If you have a question or comment about this project, file a GitHub Issue with
-your question in the Title, any context in the Comment, and add the `question`
-Label.

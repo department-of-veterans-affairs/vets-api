@@ -23,6 +23,7 @@ Rails.application.routes.draw do
     resources :in_progress_forms, only: %i[index show update destroy]
     resource :claim_documents, only: [:create]
     resource :claim_attachments, only: [:create], controller: :claim_documents
+    resources :debts, only: :index
 
     resource :form526_opt_in, only: :create
 
@@ -323,6 +324,8 @@ Rails.application.routes.draw do
   if Rails.env.development? || Settings.sidekiq_admin_panel
     require 'sidekiq/web'
     require 'sidekiq-scheduler/web'
+    require 'sidekiq/pro/web' if Gem.loaded_specs.key?('sidekiq-pro')
+    require 'sidekiq-ent/web' if Gem.loaded_specs.key?('sidekiq-ent')
     mount Sidekiq::Web, at: '/sidekiq'
   end
 

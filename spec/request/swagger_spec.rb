@@ -279,7 +279,9 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
             :post,
             '/v0/mdot/supplies',
             200,
-            headers.merge('_data' => body.to_json)
+            headers.merge(
+              '_data' => body.to_json
+            )
           )
         end
       end

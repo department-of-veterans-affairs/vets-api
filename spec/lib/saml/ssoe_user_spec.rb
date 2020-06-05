@@ -55,6 +55,25 @@ RSpec.describe SAML::User do
       end
     end
 
+    context 'user with birth date' do
+      let(:saml_attributes) { build(:ssoe_idme_loa3) }
+
+      it 'coerces birth date to ISO 8601 format' do
+        expect(subject.to_hash[:birth_date]).to eq('1969-04-07')
+      end
+    end
+
+    context 'user without birth date' do
+      let(:saml_attributes) do
+        build(:ssoe_idme_loa3,
+              va_eauth_birthDate_v1: ['NOT_FOUND'])
+      end
+
+      it 'returns nil' do
+        expect(subject.to_hash[:birth_date]).to be_nil
+      end
+    end
+
     context 'unproofed IDme LOA1 user' do
       let(:saml_attributes) { build(:ssoe_idme_loa1_unproofed) }
 
@@ -130,7 +149,7 @@ RSpec.describe SAML::User do
       it 'has various important attributes' do
         expect(subject.to_hash).to eq(
           authn_context: authn_context,
-          birth_date: '19690407',
+          birth_date: '1969-04-07',
           first_name: 'JERRY',
           last_name: 'GPKTESTNINE',
           middle_name: nil,
@@ -205,7 +224,7 @@ RSpec.describe SAML::User do
 
       it 'has various important attributes' do
         expect(subject.to_hash).to eq(
-          birth_date: '19881124',
+          birth_date: '1988-11-24',
           authn_context: authn_context,
           dslogon_edipi: nil,
           first_name: 'ALEX',
@@ -276,7 +295,7 @@ RSpec.describe SAML::User do
 
       it 'has various important attributes' do
         expect(subject.to_hash).to eq(
-          birth_date: '19770307',
+          birth_date: '1977-03-07',
           authn_context: authn_context,
           dslogon_edipi: '2107307560',
           first_name: 'TRISTAN',
@@ -314,7 +333,7 @@ RSpec.describe SAML::User do
 
       it 'has various important attributes' do
         expect(subject.to_hash).to eq(
-          birth_date: '19770307',
+          birth_date: '1977-03-07',
           authn_context: authn_context,
           dslogon_edipi: '2107307560',
           first_name: 'TRISTAN',
@@ -621,7 +640,7 @@ RSpec.describe SAML::User do
 
       it 'has various important attributes' do
         expect(subject.to_hash).to eq(
-          birth_date: '19510604',
+          birth_date: '1951-06-04',
           authn_context: authn_context,
           dslogon_edipi: '2106798217',
           first_name: 'BRANDIN',
@@ -659,7 +678,7 @@ RSpec.describe SAML::User do
 
       it 'has various important attributes' do
         expect(subject.to_hash).to eq(
-          birth_date: '19560710',
+          birth_date: '1956-07-10',
           authn_context: authn_context,
           dslogon_edipi: '1005169255',
           first_name: 'JOHNNIE',
@@ -696,7 +715,7 @@ RSpec.describe SAML::User do
 
       it 'has various important attributes' do
         expect(subject.to_hash).to eq(
-          birth_date: '19560710',
+          birth_date: '1956-07-10',
           authn_context: authn_context,
           dslogon_edipi: '1005169255',
           first_name: 'JOHNNIE',
@@ -732,7 +751,7 @@ RSpec.describe SAML::User do
 
       it 'has various important attributes' do
         expect(subject.to_hash).to eq(
-          birth_date: '19461020',
+          birth_date: '1946-10-20',
           authn_context: authn_context,
           dslogon_edipi: '1606997570',
           first_name: 'SOFIA',
@@ -755,6 +774,20 @@ RSpec.describe SAML::User do
           common_name: 'SOFIA MCKIBBENS'
         )
       end
+
+      context 'with missing ID.me UUID' do
+        let(:saml_attributes) do
+          build(:ssoe_inbound_dslogon_level2,
+                va_eauth_uid: ['NOT_FOUND'])
+        end
+
+        it 'does not validate' do
+          expect { subject.validate! }.to raise_error { |error|
+            expect(error).to be_a(SAML::UserAttributeError)
+            expect(error.message).to eq('User attributes is missing an ID.me UUID')
+          }
+        end
+      end
     end
 
     context 'MHV premium inbound user' do
@@ -768,7 +801,7 @@ RSpec.describe SAML::User do
 
       it 'has various important attributes' do
         expect(subject.to_hash).to eq(
-          birth_date: '19820523',
+          birth_date: '1982-05-23',
           authn_context: authn_context,
           dslogon_edipi: nil,
           first_name: 'ZACK',
@@ -804,7 +837,7 @@ RSpec.describe SAML::User do
 
       it 'has various important attributes' do
         expect(subject.to_hash).to eq(
-          birth_date: '19690407',
+          birth_date: '1969-04-07',
           authn_context: authn_context,
           dslogon_edipi: '1320002060',
           first_name: 'JERRY',

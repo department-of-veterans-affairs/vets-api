@@ -15,7 +15,8 @@ RSpec.describe AppealsApi::HigherLevelReviewPdfSubmitJob, type: :job do
       Rails.root.join('modules', 'appeals_api', 'spec', 'fixtures', 'valid_200996_headers.json')
     )
   end
-  let(:higher_level_review) { create_higher_level_review }
+  let(:higher_level_review) { create_higher_level_review(:higher_level_review) }
+  let(:extra_higher_level_review) { create_higher_level_review(:extra_higher_level_review) }
   let(:client_stub) { instance_double('CentralMail::Service') }
   let(:faraday_response) { instance_double('Faraday::Response') }
   let(:valid_doc) { File.read(Rails.root.join('modules', 'appeals_api', 'spec', 'fixtures', 'valid_200996.json')) }
@@ -91,10 +92,23 @@ RSpec.describe AppealsApi::HigherLevelReviewPdfSubmitJob, type: :job do
     end
   end
 
+  context 'pdf extra content verification' do
+    it 'generates the expected pdf' do
+      Timecop.freeze(Time.zone.parse('2020-01-01T08:00:00Z'))
+      path = described_class.new.generate_pdf(extra_higher_level_review.id)
+      expected_path = Rails.root.join('modules', 'appeals_api', 'spec', 'fixtures', 'expected_200996_extra.pdf')
+      generated_pdf_md5 = Digest::MD5.digest(File.read(path))
+      expected_pdf_md5 = Digest::MD5.digest(File.read(expected_path))
+      File.delete(path) if File.exist?(path)
+      expect(generated_pdf_md5).to eq(expected_pdf_md5)
+      Timecop.return
+    end
+  end
+
   private
 
-  def create_higher_level_review
-    higher_level_review = create(:higher_level_review)
+  def create_higher_level_review(type)
+    higher_level_review = create(type)
     higher_level_review.auth_headers = JSON.parse(auth_headers)
     higher_level_review.save
     higher_level_review
