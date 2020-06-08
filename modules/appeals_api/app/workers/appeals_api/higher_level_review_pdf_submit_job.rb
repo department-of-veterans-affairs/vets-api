@@ -4,6 +4,7 @@ require 'sidekiq'
 require 'appeals_api/higher_level_review_pdf_constructor'
 require 'appeals_api/upload_error'
 require 'central_mail/utilities'
+require 'pdf_info'
 
 module AppealsApi
   class HigherLevelReviewPDFSubmitJob
