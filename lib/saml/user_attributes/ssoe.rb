@@ -55,7 +55,11 @@ module SAML
 
       def birth_date
         bd = safe_attr('va_eauth_birthDate_v1')
-        Date.parse(bd).strftime('%Y-%m-%d') if bd.present?
+        begin
+          Date.parse(bd).strftime('%Y-%m-%d') if bd.present?
+        rescue TypeError, ArgumentError
+          nil
+        end
       end
 
       def email
