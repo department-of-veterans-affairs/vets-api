@@ -181,6 +181,16 @@
     :cache_multiple_responses:
       :uid_location: header
       :uid_locator: 'va_eauth_pnid'
+  # EVSS Reference Data
+  - :method: :get
+    :path: "/wss-referencedata-services-web/rest/referencedata/v1/countries"
+    :file_path: "evss/reference_data/countries"
+  - :method: :get
+    :path: "/wss-referencedata-services-web/rest/referencedata/v1/states"
+    :file_path: "evss/reference_data/states"
+  - :method: :get
+    :path: "/wss-referencedata-services-web/rest/referencedata/v1/intakesites"
+    :file_path: "evss/reference_data/intakesites"
 
   # PPIU payment information
   - :method: :get
@@ -359,7 +369,7 @@
     :cache_multiple_responses:
       :uid_location: body
       :uid_locator: '<v11:eMISserviceEpisodeRequest>\s*<v12:edipiORicn>\s*<v13:edipiORicnValue>(\d+)'
-      
+
   - :method: :post
     :path: "/VIERSService/eMIS/v2/MilitaryInformationService"
     :file_path: "emis/v2/deployment"

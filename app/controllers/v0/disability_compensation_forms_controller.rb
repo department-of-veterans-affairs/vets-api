@@ -11,6 +11,11 @@ module V0
              serializer: RatedDisabilitiesSerializer
     end
 
+    def intake_sites
+      response = EVSS::ReferenceData::Service.new(@current_user).get_intake_sites
+      render json: response, each_serializer: EVSS_IntakeSitesSerializer
+    end
+
     def suggested_conditions
       results = DisabilityContention.suggested(params[:name_part])
       render json: results, each_serializer: DisabilityContentionSerializer

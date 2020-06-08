@@ -185,6 +185,7 @@ evss:
   mock_pciu: true
   mock_pciu_address: false
   mock_ppiu: true
+  mock_reference: false
   mock_itf: true
   mock_disabilities_form: true
   mock_common_service: true

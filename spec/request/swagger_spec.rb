@@ -1245,28 +1245,28 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
         expect(subject).to validate(:post, '/v0/letters/{id}', 401, 'id' => 'commissary')
       end
 
-      it 'supports getting EVSS PCIUAddress states' do
+      pending 'supports getting EVSS PCIUAddress states' do
         expect(subject).to validate(:get, '/v0/address/states', 401)
         VCR.use_cassette('evss/pciu_address/states') do
           expect(subject).to validate(:get, '/v0/address/states', 200, headers)
         end
       end
 
-      it 'supports getting EVSS PCIUAddress countries' do
+      pending 'supports getting EVSS PCIUAddress countries' do
         expect(subject).to validate(:get, '/v0/address/countries', 401)
         VCR.use_cassette('evss/pciu_address/countries') do
           expect(subject).to validate(:get, '/v0/address/countries', 200, headers)
         end
       end
 
-      it 'supports getting EVSS PCIUAddress' do
+      pending 'supports getting EVSS PCIUAddress' do
         expect(subject).to validate(:get, '/v0/address', 401)
         VCR.use_cassette('evss/pciu_address/address_domestic') do
           expect(subject).to validate(:get, '/v0/address', 200, headers)
         end
       end
 
-      it 'supports putting EVSS PCIUAddress' do
+      pending 'supports putting EVSS PCIUAddress' do
         expect(subject).to validate(:put, '/v0/address', 401)
         VCR.use_cassette('evss/pciu_address/address_update') do
           expect(subject).to validate(
