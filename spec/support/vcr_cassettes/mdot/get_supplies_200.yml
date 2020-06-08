@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri: https://dlc-dummy.herokuapp.com/supplies
+    uri: https://internal-dsva-vagov-staging-fwdproxy-1821450725.us-gov-west-1.elb.amazonaws.com:4466/supplies
     body:
       encoding: US-ASCII
       string: ''
@@ -13,122 +13,56 @@ http_interactions:
       - application/json
       User-Agent:
       - Vets.gov Agent
+      Va-Veteran-First-Name:
+      - Greg
+      Va-Veteran-Last-Name:
+      - Anderson
+      Va-Veteran-Id:
+      - '0237'
+      Va-Veteran-Birth-Date:
+      - '1991-04-05'
+      Va-Icn:
+      - 11263043841512898
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Va_Veteran_Id:
-      - 000555555
   response:
     status:
       code: 200
-      message: OK
+      message: ''
     headers:
-      Date:
-      - Tue, 11 Feb 2020 17:50:55 GMT
-      Content-Type:
-      - application/json; charset=utf-8
-      Connection:
-      - keep-alive
-      Access-Control-Allow-Origin:
-      - "*"
-      Etag:
-      - W/"d007e863ef32711c2efe07a644667be4"
-      Strict-Transport-Security:
-      - max-age=31536000; includeSubDomains
-      - max-age=31536000; includeSubDomains; preload
-      Via:
-      - kong/1.2.2
+      Vary:
+      - Access-Control-Request-Headers
+      - Access-Control-Request-Method
+      - Origin
+      Vaapikey:
+      - <VAAPIKEY>
       X-Content-Type-Options:
       - nosniff
-      X-Frame-Options:
-      - SAMEORIGIN
-      X-Kong-Proxy-Latency:
-      - '1'
-      X-Kong-Upstream-Latency:
-      - '2490'
-      X-Ratelimit-Limit-Minute:
-      - '60'
-      X-Ratelimit-Remaining-Minute:
-      - '59'
-      X-Request-Id:
-      - a4929381-02cd-4700-9c70-e1be2725f4ba
-      X-Runtime:
-      - '2.169886'
       X-Xss-Protection:
       - 1; mode=block
       Cache-Control:
-      - no-cache, no-store
+      - no-cache, no-store, max-age=0, must-revalidate
       Pragma:
       - no-cache
-      Set-Cookie:
-      - TS016f4012=01c8917e487bbf38c00f14ca80f4784d99a3d50aa7a8d286fc2ec7369620d39329b185854384eb94e09090c3f636c0aa0d4179b75e;
-        Max-Age=900; Path=/
+      Expires:
+      - '0'
+      Strict-Transport-Security:
+      - max-age=31536000 ; includeSubDomains
+      X-Frame-Options:
+      - DENY
+      Content-Type:
+      - application/json
       Transfer-Encoding:
       - chunked
-      VA_API_KEY:
-      - abcd1234abcd1234abcd1234
+      Date:
+      - Wed, 03 Jun 2020 20:50:48 GMT
     body:
-      encoding: ASCII-8BIT
-      string: |-
-        {
-          "permanentAddress": {
-            "street": "101 Example Street",
-            "street2": "Apt 2",
-            "city": "Kansas City",
-            "state": "MO",
-            "country": "USA",
-            "postalCode": "64117",
-            "isMilitaryBase": false
-          },
-          "temporaryAddress": {
-            "street": "201 Example Street",
-            "city": "Galveston",
-            "state": "TX",
-            "country": "USA",
-            "postalCode": "77550",
-            "isMilitaryBase": false
-          },
-          "supplies": [
-            {
-              "deviceName": "OMEGAX d3241",
-              "lastOrderDate": "2020-01-01",
-              "nextAvailabilityDate": "2099-09-01",
-              "productGroup": "hearing aid batteries",
-              "productId": 1,
-              "productName": "ZA1239",
-              "quantity": 60,
-              "prescribedDate": "2019-12-25"
-            }, 
-            {
-              "availableForReorder": true,
-              "lastOrderDate": "2019-06-30",
-              "nextAvailabilityDate": "2019-12-15",
-              "productGroup": "hearing aid accessories",
-              "productId": 3,
-              "productName": "DOME",
-              "quantity": 10,
-              "size": "6mm"
-            },
-            {
-              "availableForReorder": true,
-              "lastOrderDate": "2019-06-30",
-              "nextAvailabilityDate": "2019-12-15",
-              "productGroup": "hearing aid accessories",
-              "productId": 4,
-              "productName": "DOME",
-              "quantity": 10,
-              "size": "7mm"
-            }, 
-            {
-              "availableForReorder": true,
-              "lastOrderDate": "2019-06-30",
-              "nextAvailabilityDate": "2019-12-15",
-              "productGroup": "hearing aid accessories",
-              "productId": 5,
-              "productName": "WaxBuster Single Unit",
-              "quantity": 10
-            }
-          ]
-        }
-    http_version:
-  recorded_at: Tue, 11 Feb 2020 17:50:55 GMT
-recorded_with: VCR 3.0.3
+      encoding: UTF-8
+      string: '{"permanentAddress":{"street":"456 ANYPLACE RD","street2":null,"city":"PENSACOLA","state":"FL","country":"United
+        States","postalCode":"33344"},"temporaryAddress":{"street":"123 SOMEWHERE","street2":"OUT
+        THERE","city":"DENVER","state":"CO","country":"United States","postalCode":"80030"},"vetEmail":"veteran@gmail.com","supplies":[{"deviceName":null,"productName":"ERHK
+        HE11 680 MINI","productGroup":"ACCESSORIES","productId":6584,"availableForReorder":true,"lastOrderDate":"2019-11-22","nextAvailabilityDate":"2020-04-22","quantity":1},{"deviceName":null,"productName":"ZA10","productGroup":"BATTERIES","productId":3315,"availableForReorder":true,"lastOrderDate":"2019-12-01","nextAvailabilityDate":"2020-05-01","quantity":24},{"deviceName":"WILLIAMS
+        SOUND CORP./POCKETALKER II","productName":"M312","productGroup":"BATTERIES","productId":2298,"availableForReorder":false,"lastOrderDate":"2020-05-06","nextAvailabilityDate":"2020-10-06","quantity":12},{"deviceName":"SIVANTOS/SIEMENS/007ASP2","productName":"ZA13","productGroup":"BATTERIES","productId":2314,"availableForReorder":false,"lastOrderDate":"2020-05-06","nextAvailabilityDate":"2020-10-06","quantity":60}]}'
+    http_version: null
+  recorded_at: Wed, 03 Jun 2020 20:50:48 GMT
+recorded_with: VCR 5.1.0

@@ -500,72 +500,66 @@ RSpec.describe FormProfile, type: :model do
         'suffix' => user.va_profile[:suffix]
       },
       'permanentAddress' => {
-        'street' => '101 Example Street',
-        'street2' => 'Apt 2',
-        'city' => 'Kansas City',
-        'state' => 'MO',
-        'country' => 'USA',
-        'postalCode' => '64117'
+        'street' => '456 ANYPLACE RD',
+        'city' => 'PENSACOLA',
+        'state' => 'FL',
+        'country' => 'United States',
+        'postalCode' => '33344'
       },
       'temporaryAddress' => {
-        'street' => '201 Example Street',
-        'city' => 'Galveston',
-        'state' => 'TX',
-        'country' => 'USA',
-        'postalCode' => '77550'
+        'street' => '123 SOMEWHERE',
+        'street2' => 'OUT THERE',
+        'city' => 'DENVER',
+        'state' => 'CO',
+        'country' => 'United States',
+        'postalCode' => '80030'
       },
       'ssnLastFour' => user.ssn.last(4),
       'gender' => user.gender,
-      'email' => user.pciu_email,
+      'vetEmail' => 'veteran@gmail.com',
       'dateOfBirth' => user.birth_date,
       'eligibility' => {
-        'accessories' => true
+        'accessories' => true,
+        'batteries' => true
       },
       'supplies' => [
         {
-          'deviceName' => 'OMEGAX d3241',
-          'productName' => 'ZA1239',
-          'productGroup' => 'hearing aid batteries',
-          'productId' => '1',
+          'productName' => 'ERHK HE11 680 MINI',
+          'productGroup' => 'ACCESSORIES',
+          'productId' => 6584,
+          'availableForReorder' => true,
+          'lastOrderDate' => '2019-11-22',
+          'nextAvailabilityDate' => '2020-04-22',
+          'quantity' => 1
+        },
+        {
+          'productName' => 'ZA10',
+          'productGroup' => 'BATTERIES',
+          'productId' => 3315,
+          'availableForReorder' => true,
+          'lastOrderDate' => '2019-12-01',
+          'nextAvailabilityDate' => '2020-05-01',
+          'quantity' => 24
+        },
+        {
+          'deviceName' => 'WILLIAMS SOUND CORP./POCKETALKER II',
+          'productName' => 'M312',
+          'productGroup' => 'BATTERIES',
+          'productId' => 2298,
           'availableForReorder' => false,
-          'lastOrderDate' => '2020-01-01',
-          'nextAvailabilityDate' => '2099-09-01',
-          'quantity' => 60,
-          'size' => '',
-          'prescribedDate' => '2019-12-25'
+          'lastOrderDate' => '2020-05-06',
+          'nextAvailabilityDate' => '2020-10-06',
+          'quantity' => 12
         },
         {
-          'deviceName' => '',
-          'productName' => 'DOME',
-          'productGroup' => 'hearing aid accessories',
-          'productId' => '3',
-          'availableForReorder' => true,
-          'lastOrderDate' => '2019-06-30',
-          'nextAvailabilityDate' => '2019-12-15',
-          'quantity' => 10,
-          'size' => '6mm'
-        },
-        {
-          'deviceName' => '',
-          'productName' => 'DOME',
-          'productGroup' => 'hearing aid accessories',
-          'productId' => '4',
-          'availableForReorder' => true,
-          'lastOrderDate' => '2019-06-30',
-          'nextAvailabilityDate' => '2019-12-15',
-          'quantity' => 10,
-          'size' => '7mm'
-        },
-        {
-          'deviceName' => '',
-          'productName' => 'WaxBuster Single Unit',
-          'productGroup' => 'hearing aid accessories',
-          'productId' => '5',
-          'available_for_reorder' => true,
-          'lastOrderDate' => '2019-06-30',
-          'nextAvailabilityDate' => '2019-12-15',
-          'quantity' => 10,
-          'size' => ''
+          'deviceName' => 'SIVANTOS/SIEMENS/007ASP2',
+          'productName' => 'ZA13',
+          'productGroup' => 'BATTERIES',
+          'productId' => 2314,
+          'availableForReorder' => false,
+          'lastOrderDate' => '2020-05-06',
+          'nextAvailabilityDate' => '2020-10-06',
+          'quantity' => 60
         }
       ]
     }

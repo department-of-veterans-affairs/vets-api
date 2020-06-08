@@ -131,7 +131,7 @@ ihub:
 # Settings for Medical Devices Ordering Tool
 mdot:
   prefill: true
-  url: https://dlc-dummy.herokuapp.com
+  url: https://internal-dsva-vagov-staging-fwdproxy-1821450725.us-gov-west-1.elb.amazonaws.com:4466
   api_key: abcd1234abcd1234abcd1234abcd1234abcd1234
   mock: false
   enabled: false
