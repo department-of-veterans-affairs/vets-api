@@ -52,6 +52,9 @@
         "type": "boolean"
       }
     },
+    "vetEmail": {
+      "type": "string"
+    },
     "supplies": {
       "type": "array",
       "uniqueItems": true,

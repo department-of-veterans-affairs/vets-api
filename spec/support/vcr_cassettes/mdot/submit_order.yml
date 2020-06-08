@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: post
-    uri: https://dlc-dummy.herokuapp.com/supplies
+    uri: https://internal-dsva-vagov-staging-fwdproxy-1821450725.us-gov-west-1.elb.amazonaws.com:4466/supplies
     body:
       encoding: UTF-8
       string: '{"use_permanent_address":true,"use_temporary_address":false,"additional_requests":"","order":[{"product_id":"1"},{"product_id":"4"}],"permanent_address":{"street":"101
