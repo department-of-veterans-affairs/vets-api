@@ -10,6 +10,7 @@ module MDOT
     attribute :temporary_address, MDOT::Address
     attribute :supplies, Array[MDOT::Supply]
     attribute :eligibility, MDOT::Eligibility
+    attribute :vet_email, String
 
     def initialize(args)
       validate_response_against_schema(args[:schema], args[:response])
@@ -21,6 +22,7 @@ module MDOT
       self.permanent_address = @parsed_body['permanent_address']
       self.temporary_address = @parsed_body['temporary_address']
       self.supplies = @parsed_body['supplies']
+      self.vet_email = @parsed_body['vet_email']
       self.eligibility = determine_eligibility
       @status = args[:response][:status]
       update_token
@@ -30,11 +32,8 @@ module MDOT
       eligibility = MDOT::Eligibility.new
 
       supplies.each do |supply|
-        group = supply.product_group.split.last.to_sym
-
-        if eligibility.attributes.key?(group)
-          eligibility.attributes = { group => supply.next_availability_date <= Time.zone.today }
-        end
+        group = supply.product_group.downcase.to_sym
+        eligibility.send("#{group}=", true) if eligibility.attributes.key?(group) && supply.available_for_reorder
       end
 
       eligibility
