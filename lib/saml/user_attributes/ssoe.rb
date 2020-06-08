@@ -56,7 +56,7 @@ module SAML
       def birth_date
         bd = safe_attr('va_eauth_birthDate_v1')
         begin
-          Date.parse(bd).strftime('%Y-%m-%d') if bd.present?
+          Date.parse(bd).strftime('%Y-%m-%d')
         rescue TypeError, ArgumentError
           nil
         end
