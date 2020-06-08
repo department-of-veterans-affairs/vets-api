@@ -2,6 +2,7 @@
 
 require 'rails_helper'
 require 'claims_api/unsynchronized_evss_claim_service'
+require 'evss/vso_search/service'
 
 RSpec.describe ClaimsApi::UnsynchronizedEVSSClaimService, type: :model do
   let(:user) { FactoryBot.create(:user, :loa3) }
