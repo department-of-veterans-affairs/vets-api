@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require_dependency 'vba_documents/upload_error'
-
 module VBADocuments
   class UploadSubmission < ApplicationRecord
     include SetGuid

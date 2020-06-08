@@ -2,9 +2,6 @@
 
 require 'will_paginate/array'
 
-require_dependency 'va_facilities/csv_serializer'
-require_dependency 'va_facilities/param_validators'
-
 module VAFacilities
   module V0
     class NearbyController < ApplicationController

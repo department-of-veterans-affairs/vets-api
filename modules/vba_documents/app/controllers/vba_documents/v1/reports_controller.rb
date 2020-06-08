@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require_dependency 'vba_documents/application_controller'
-
 module VBADocuments
   module V1
     class ReportsController < ApplicationController

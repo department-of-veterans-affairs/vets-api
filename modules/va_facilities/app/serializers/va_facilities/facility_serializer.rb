@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require_dependency 'va_facilities/api_serialization'
-
 module VAFacilities
   class FacilitySerializer < ActiveModel::Serializer
     include ApiSerialization

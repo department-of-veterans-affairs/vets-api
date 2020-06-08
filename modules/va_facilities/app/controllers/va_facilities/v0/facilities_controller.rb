@@ -2,10 +2,9 @@
 
 require 'will_paginate/array'
 require 'lighthouse/facilities/client'
-
-require_dependency 'va_facilities/geo_serializer'
-require_dependency 'va_facilities/csv_serializer'
-require_dependency 'va_facilities/param_validators'
+require 'va_facilities/api_serialization'
+require 'va_facilities/geo_serializer'
+require 'va_facilities/csv_serializer'
 
 module VAFacilities
   module V0

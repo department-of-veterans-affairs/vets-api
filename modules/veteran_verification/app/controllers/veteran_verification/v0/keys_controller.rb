@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'base64'
-require_dependency 'notary'
 
 module VeteranVerification
   module V0

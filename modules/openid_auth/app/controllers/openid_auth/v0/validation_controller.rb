@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require_dependency 'openid_auth/application_controller'
-
 module OpenidAuth
   module V0
     class ValidationController < ApplicationController

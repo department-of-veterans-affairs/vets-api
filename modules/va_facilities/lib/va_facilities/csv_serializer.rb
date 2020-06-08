@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'csv'
-require_dependency 'va_facilities/api_serialization'
+require_relative 'api_serialization'
 
 module VAFacilities
   class CsvSerializer

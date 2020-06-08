@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'common/exceptions'
+
 # rubocop:disable Metrics/ModuleLength
 module VAFacilities
   module ParamValidators

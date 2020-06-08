@@ -1,8 +1,5 @@
 # frozen_string_literal: true
 
-require_dependency 'vba_documents/application_controller'
-require_dependency 'vba_documents/object_store'
-
 module VBADocuments
   module Internal
     module V0

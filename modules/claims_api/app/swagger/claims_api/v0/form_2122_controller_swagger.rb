@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require_dependency 'claims_api/form_schemas'
-
 module ClaimsApi
   module V0
     class Form2122ControllerSwagger

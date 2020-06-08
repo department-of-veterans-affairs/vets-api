@@ -1,9 +1,5 @@
 # frozen_string_literal: true
 
-require_dependency 'claims_api/v0/form_526_controller_swagger'
-require_dependency 'claims_api/v0/form_0966_controller_swagger'
-require_dependency 'claims_api/v0/form_2122_controller_swagger'
-
 module ClaimsApi
   module Docs
     module V0

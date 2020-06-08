@@ -2,8 +2,7 @@
 
 require 'rails_helper'
 require 'jwt'
-
-require_dependency 'notary'
+require 'notary'
 
 RSpec.describe VeteranVerification::Notary do
   let(:keypair_path) do

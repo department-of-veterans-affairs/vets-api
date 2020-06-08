@@ -1,10 +1,5 @@
 # frozen_string_literal: true
 
-require_dependency 'vba_documents/v0/swagger_root'
-require_dependency 'vba_documents/v0/security_scheme_swagger'
-require_dependency 'vba_documents/document_upload/status_report_swagger'
-require_dependency 'vba_documents/document_upload/status_attributes_swagger'
-
 module VBADocuments
   module Docs
     module V0

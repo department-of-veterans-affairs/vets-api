@@ -1,8 +1,5 @@
 # frozen_string_literal: true
 
-require_dependency 'common/exceptions/internal/parameters_missing'
-require_dependency 'common/exceptions/internal/unauthorized'
-
 module ClaimsApi
   module HeaderValidation
     extend ActiveSupport::Concern
