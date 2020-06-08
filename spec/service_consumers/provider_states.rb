@@ -28,9 +28,3 @@ Pact.provider_states_for 'Search' do
     no_op
   end
 end
-
-Pact.provider_states_for 'Search' do
-  provider_state 'a single matching result exists' do
-    no_op
-  end
-end
