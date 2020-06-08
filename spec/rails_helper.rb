@@ -176,7 +176,7 @@ RSpec.configure do |config|
     request.host = Settings.hostname
   end
 
-  config.before(:all) do
+  config.before(:suite) do
     Sidekiq::Batch = Class.new do
       def on(_callback, _klass, _options) end
 
