@@ -57,7 +57,7 @@ http_interactions:
     body:
       encoding: UTF-8
       string: '{"timestamp":"2020-06-04T18:00:35.014+0000","message":"Failed to login
-        with credentials: \nName  : BARRETT,BRAD\nLast 4: 3749","details":"uri=/supplies","result":"Invalid"}'
+        with credentials: \nName  : DANIELS,WILLIAM\nLast 4: 7196","details":"uri=/supplies","result":"Invalid"}'
     http_version: null
   recorded_at: Thu, 04 Jun 2020 18:00:34 GMT
 recorded_with: VCR 5.1.0
