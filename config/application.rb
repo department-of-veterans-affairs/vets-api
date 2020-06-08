@@ -1,9 +1,9 @@
 # frozen_string_literal: true
-
 require_relative 'boot'
 
 require 'rails'
 # Pick the frameworks you want:
+
 require 'active_model/railtie'
 # require "active_job/railtie"
 require 'active_record/railtie'
@@ -70,5 +70,7 @@ module VetsAPI
                                    key: 'api_session',
                                    secure: Settings.session_cookie.secure,
                                    http_only: true
+
+    Rails.autoloaders.main.ignore(Rails.root.join('app', 'workers', 'education_form', 'templates', '1990-disclosure'))
   end
 end
