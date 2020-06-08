@@ -11,7 +11,7 @@ module BGS
 
     def find_person_by_ptcpnt_id
       response = service.people.find_person_by_ptcpnt_id(@current_user.participant_id)
-      binding.pry
+
       raise VaFileNumberNotFound if response.nil?
 
       response
