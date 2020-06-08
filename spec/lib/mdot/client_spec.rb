@@ -47,6 +47,46 @@ describe MDOT::Client, type: :mdot_helpers do
         end
       end
     end
+
+    context 'with a deceased veteran' do
+      it 'returns a 403' do
+        VCR.use_cassette('mdot/get_supplies_403') do
+          expect(StatsD).to receive(:increment).once.with(
+            'api.mdot.get_supplies.fail', tags: [
+              'error:Common::Client::Errors::ClientError', 'status:403'
+            ]
+          )
+          expect(StatsD).to receive(:increment).once.with(
+            'api.mdot.get_supplies.total'
+          )
+          expect { subject.get_supplies }.to raise_error(
+            MDOT::ServiceException
+          ) do |e|
+            expect(e.message).to match(/MDOT_deceased/)
+          end
+        end
+      end
+    end
+
+    context 'with a veteran not in dlc database' do
+      it 'returns a 422' do
+        VCR.use_cassette('mdot/get_supplies_422') do
+          expect(StatsD).to receive(:increment).once.with(
+            'api.mdot.get_supplies.fail', tags: [
+              'error:Common::Client::Errors::ClientError', 'status:422'
+            ]
+          )
+          expect(StatsD).to receive(:increment).once.with(
+            'api.mdot.get_supplies.total'
+          )
+          expect { subject.get_supplies }.to raise_error(
+            MDOT::ServiceException
+          ) do |e|
+            expect(e.message).to match(/MDOT_invalid/)
+          end
+        end
+      end
+    end
   end
 
   describe '#submit_order' do
