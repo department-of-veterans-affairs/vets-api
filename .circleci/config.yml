@@ -36,6 +36,9 @@
             name: Setup test database
             command: bundle exec rake db:create db:schema:load
         - run:
+            name: Verify stable pacts. For now treat pact-search as the stable branch. How to get the specific tag here?
+            command: bundle exec rake pact:verify
+        - run:
             name: Audit bundled gems for CVE issues
             command: bundle exec bundle-audit check --update
         - run:
@@ -47,9 +50,6 @@
         - run:
             name: Run all RSpec specs
             command: bundle exec rspec --pattern spec/**/*_spec.rb --pattern modules/*/spec/**/*_spec.rb --format progress --format RspecJunitFormatter -o ./rspec/rspec.xml --format html --out ./ci/rspec.html 
-        - run:
-            name: Verify stable pacts. For now treat pact-search as the stable branch. How to get the specific tag here?
-            command: bundle exec rake pact:verify
         - store_test_results:
             path: ./rspec
         - store_artifacts:
