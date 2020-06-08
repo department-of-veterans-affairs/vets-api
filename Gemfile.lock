@@ -937,6 +937,7 @@ DEPENDENCIES
   web-console
   webmock
   webrick
+  websocket-extensions (>= 0.1.5)
   will_paginate
   yard
   zero_downtime_migrations
