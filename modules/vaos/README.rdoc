@@ -1,4 +1,4 @@
-= Vaos
+= VAOS
 Rails engine module for the VAOS (VAMF) integration.
 
 == Installation

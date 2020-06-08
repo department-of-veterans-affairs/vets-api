@@ -3,7 +3,7 @@
 require 'rails_helper'
 require_relative '../../support/fixture_helper'
 
-describe VAOS::Middleware::VaosLogging do
+describe VAOS::Middleware::VAOSLogging do
   subject(:client) do
     Faraday.new do |conn|
       conn.use :vaos_logging
