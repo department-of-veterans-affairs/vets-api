@@ -7,11 +7,11 @@ mvi:
   url: http://www.example.com/
   mock: false
 
-betamocks:
-  enabled: true
-  recording: false
-  cache_dir: ../vets-api-mockdata
-  services_config: config/betamocks/services_config.yml  
+# betamocks:
+#   enabled: true
+#   recording: false
+#   cache_dir: /cache
+#   services_config: config/betamocks/services_config.yml
 
 locators:
   providers_enabled: true
@@ -68,7 +68,7 @@ account:
 search:
   access_key: TESTKEY
   affiliate: va
-  mock_search: true
+  # mock_search: true
   url: https://search.usa.gov/api/v2
 
 vba_documents:
