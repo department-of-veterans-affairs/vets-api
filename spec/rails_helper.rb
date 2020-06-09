@@ -59,6 +59,9 @@ module VCR
 end
 
 VCR.configure do |c|
+  c.ignore_request do |request|
+    URI(request.uri) == 'https://vagov-pact-broker.herokuapp.com' # Change to your Pact mock service's uri
+  end
   c.cassette_library_dir = 'spec/support/vcr_cassettes'
   c.hook_into :webmock
   c.configure_rspec_metadata!

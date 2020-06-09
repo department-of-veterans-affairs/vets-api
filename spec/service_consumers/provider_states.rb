@@ -25,6 +25,12 @@ end
 
 Pact.provider_states_for 'Search' do
   provider_state 'multiple matching results exist' do
-    no_op
+    set_up do
+       VCR.use_cassette('search/page_1') do
+       end
+    end
+    
+    tear_down do
+    end
   end
 end
