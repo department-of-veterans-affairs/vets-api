@@ -4,6 +4,15 @@ require 'pact/provider/rspec'
 
 require 'service_consumers/provider_states'
 
+RSpec.configure do |config|
+  config.before(:all) do
+    VCR.insert_cassette('search/page_1')
+  end
+  config.after(:all) do
+    VCR.eject_cassette
+  end
+end
+
 # ensure pacts run in test
 ENV['RAILS_ENV'] ||= 'test'
 
