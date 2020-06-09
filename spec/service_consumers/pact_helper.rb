@@ -24,7 +24,7 @@ Pact.service_provider 'VA.gov API' do
   
   RSpec.configure do |config|
     config.before(:each) do
-      puts "!!!!!!!!!"
+      puts "!!!!#{Rails.env}"
       VCR.insert_cassette('search/page_1')
     end
     config.after(:each) do
