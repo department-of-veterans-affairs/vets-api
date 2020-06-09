@@ -22,16 +22,16 @@ Pact.service_provider 'VA.gov API' do
   #   pact_uri 'tmp/hca-va.gov_api.json'
   # end
   
-  RSpec.configure do |config|
-    config.before(:each) do
-      puts "!!!!#{Rails.env}"
-      puts "!!!!!!betamocks:#{Settings.betamocks} search:#{Settings.search}"
-      VCR.insert_cassette('search/page_1')
-    end
-    config.after(:each) do
-      VCR.eject_cassette
-    end
-  end
+  # RSpec.configure do |config|
+  #   config.before(:each) do
+  #     puts "!!!!#{Rails.env}"
+  #     puts "!!!!!!betamocks:#{Settings.betamocks} search:#{Settings.search}"
+  #     VCR.insert_cassette('search/page_1')
+  #   end
+  #   config.after(:each) do
+  #     VCR.eject_cassette
+  #   end
+  # end
 
   app_version provider_version
   publish_verification_results true
