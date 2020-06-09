@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'will_paginate/array'
+require 'va_facilities/param_validators'
 
 module VAFacilities
   module V0
