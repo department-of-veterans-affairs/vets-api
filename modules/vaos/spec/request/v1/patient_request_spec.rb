@@ -34,7 +34,7 @@ RSpec.describe 'VAOS::V1::Patient', type: :request do
         end
 
         # TODO: cassettes need to be created
-        it 'returns a 200' do
+        xit 'returns a 200' do
           VCR.use_cassette('vaos/fhir/patient/search_200', record: :new_episodes) do
             get '/vaos/v1/Patient?identifier=identifier-value'
 
@@ -46,7 +46,7 @@ RSpec.describe 'VAOS::V1::Patient', type: :request do
 
       # TODO: cassettes  need to be created
       context 'when records are not found' do
-        it 'returns a 404 operation outcome' do
+        xit 'returns a 404 operation outcome' do
           VCR.use_cassette('vaos/fhir/patient/read_404', record: :new_episodes) do
             get '/vaos/v1/Patient?identifier=identifier-value'
 
@@ -58,7 +58,7 @@ RSpec.describe 'VAOS::V1::Patient', type: :request do
 
       # TODO: cassettes need to be created
       context 'when there is an internal FHIR server error' do
-        it 'turns a 502 operation outcome' do
+        xit 'turns a 502 operation outcome' do
           VCR.use_cassette('vaos/fhir/patient/read_500', record: :new_episodes) do
             get '/vaos/v1/Patient/identifier=identifier-value'
 
