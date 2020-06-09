@@ -137,7 +137,7 @@ module V0
       end
     end
 
-    def login_stats_success(saml_response, user_session_form, tracker)
+    def login_stats_success(saml_response, tracker)
       type = tracker.payload_attr(:type)
       tags = ["context:#{type}", VERSION_TAG]
       StatsD.increment(STATSD_LOGIN_NEW_USER_KEY, tags: [VERSION_TAG]) if type == 'signup'
@@ -151,7 +151,7 @@ module V0
       tracker = url_service(user_session_form&.saml_uuid).tracker
       case status
       when :success
-        login_stats_success(saml_response, user_session_form, tracker)
+        login_stats_success(saml_response, tracker)
       when :failure
         tags = ["context:#{tracker.payload_attr(:type)}", VERSION_TAG]
         StatsD.increment(STATSD_LOGIN_STATUS, tags: tags)
