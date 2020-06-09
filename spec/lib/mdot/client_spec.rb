@@ -61,7 +61,7 @@ describe MDOT::Client, type: :mdot_helpers do
             'api.mdot.get_supplies.total'
           )
           expect { subject.get_supplies }.to raise_error(
-            MDOT::ServiceException
+            MDOT::Exceptions::ServiceException
           ) do |e|
             expect(e.message).to match(/MDOT_deceased/)
           end
@@ -81,7 +81,7 @@ describe MDOT::Client, type: :mdot_helpers do
             'api.mdot.get_supplies.total'
           )
           expect { subject.get_supplies }.to raise_error(
-            MDOT::ServiceException
+            MDOT::Exceptions::ServiceException
           ) do |e|
             expect(e.message).to match(/MDOT_invalid/)
           end
