@@ -27,8 +27,7 @@ Pact.provider_states_for 'Search' do
   provider_state 'multiple matching results exist' do
     set_up do
        VCR.use_cassette('search/page_1') do
-         puts "!!!!!!!!!!!!! #{Settings.search.mock_search || false}"
-         puts "!!!!!!!!!!!!! #{Settings.search.access_key}"
+         Settings.search.mock_search = true
        end
     end
     
