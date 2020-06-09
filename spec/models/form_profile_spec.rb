@@ -75,27 +75,25 @@ RSpec.describe FormProfile, type: :model do
 
   let(:v686_c_674_expected) do
     {
-      'veteranInformation' => {
-        'veteranInformation' => {
-          'fullName' => {
-            'first' => 'Abraham',
-            'last' => 'Lincoln',
-            'suffix' => 'Jr.'
-          },
-          'ssn' => user.ssn,
-          'birthDate' => user.birth_date
-        },
+      'veteranContactInformation' => {
         'veteranAddress' => {
-          'veteranAddress' => {
-            'addressLine1' => '140 Rock Creek Rd',
-            'city' => 'Washington',
-            'countryName' => 'USA',
-            'stateCode' => 'DC',
-            'zipCode' => '20011'
-          },
-          'phoneNumber' => '4445551212',
-          'emailAddress' => 'test2@test1.net'
-        }
+          'addressLine1' => '140 Rock Creek Rd',
+          'countryName' => 'USA',
+          'city' => 'Washington',
+          'stateCode' => 'DC',
+          'zipCode' => '20011'
+        },
+        'phoneNumber' => '4445551212',
+        'emailAddress' => 'test2@test1.net'
+      },
+      'veteranInformation' => {
+        'fullName' => {
+          'first' => 'Abraham',
+          'last' => 'Lincoln',
+          'suffix' => 'Jr.'
+        },
+        'ssn' => '796111863',
+        'birthDate' => '1809-02-12'
       }
     }
   end
@@ -677,22 +675,22 @@ RSpec.describe FormProfile, type: :model do
   let(:v20_0996_expected) do
     {
       'data' =>
-      {
-        'attributes' =>
         {
-          'veteran' =>
-          {
-            'addressLine1' => street_check[:street],
-            'addressLine2' => street_check[:street2],
-            'city' => user.va_profile[:address][:city],
-            'stateOrProvinceCode' => user.va_profile[:address][:state],
-            'zipPostalCode' => user.va_profile[:address][:postal_code][0..4],
-            'phoneNumber' => us_phone,
-            'emailAddress' => user.pciu_email,
-            'ssnLastFour' => user.ssn.last(4)
-          }
+          'attributes' =>
+            {
+              'veteran' =>
+                {
+                  'addressLine1' => street_check[:street],
+                  'addressLine2' => street_check[:street2],
+                  'city' => user.va_profile[:address][:city],
+                  'stateOrProvinceCode' => user.va_profile[:address][:state],
+                  'zipPostalCode' => user.va_profile[:address][:postal_code][0..4],
+                  'phoneNumber' => us_phone,
+                  'emailAddress' => user.pciu_email,
+                  'ssnLastFour' => user.ssn.last(4)
+                }
+            }
         }
-      }
     }
   end
 
@@ -782,8 +780,8 @@ RSpec.describe FormProfile, type: :model do
         expect(errors.empty?).to eq(true), "schema errors: #{errors}"
       end
       expect(prefilled_data).to eq(
-        form_profile.send(:clean!, public_send("v#{form_id.underscore}_expected"))
-      )
+                                  form_profile.send(:clean!, public_send("v#{form_id.underscore}_expected"))
+                                )
     end
 
     context 'with a user that can prefill mdot' do
@@ -832,7 +830,7 @@ RSpec.describe FormProfile, type: :model do
         expect(military_information).to receive(:compensable_va_service_connected).and_return(true).twice
         expect(military_information).to receive(:is_va_service_connected).and_return(true).twice
         expect(military_information).to receive(:tours_of_duty).and_return(
-          [{ service_branch: 'Air Force', date_range: { from: '2007-04-01', to: '2016-06-01' } }]
+          [{service_branch: 'Air Force', date_range: {from: '2007-04-01', to: '2016-06-01'}}]
         )
         expect(military_information).to receive(:service_branches).and_return(['F'])
         allow(military_information).to receive(:currently_active_duty_hash).and_return(
@@ -840,16 +838,17 @@ RSpec.describe FormProfile, type: :model do
         )
         expect(user).to receive(:can_access_id_card?).and_return(true)
         expect(military_information).to receive(:service_periods).and_return(
-          [{ service_branch: 'Air Force Reserve', date_range: { from: '2007-04-01', to: '2016-06-01' } }]
+          [{service_branch: 'Air Force Reserve', date_range: {from: '2007-04-01', to: '2016-06-01'}}]
         )
         expect(military_information).to receive(:guard_reserve_service_history).and_return(
-          [{ from: '2007-04-01', to: '2016-06-01' }, { from: '2002-02-14', to: '2007-01-01' }]
+          [{from: '2007-04-01', to: '2016-06-01'}, {from: '2002-02-14', to: '2007-01-01'}]
         )
         expect(military_information).to receive(:latest_guard_reserve_service_period).and_return(
           from: '2007-04-01',
           to: '2016-06-01'
         )
       end
+
       # rubocop:enable Metrics/AbcSize, Metrics/MethodLength
 
       context 'with vets360 prefill on' do
@@ -927,7 +926,7 @@ RSpec.describe FormProfile, type: :model do
 
           it 'omits address fields in 686c-674 form' do
             prefilled_data = described_class.for('686C-674').prefill(user)[:form_data]
-            v686_c_674_expected['veteranInformation']['veteranAddress'].delete('veteranAddress')
+            v686_c_674_expected['veteranContactInformation'].delete('veteranAddress')
             expect(prefilled_data).to eq(v686_c_674_expected)
           end
         end
