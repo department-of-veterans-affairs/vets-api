@@ -8,7 +8,7 @@ RSpec.describe V0::Profile::VaFileNumbersController, type: :controller do
   describe '#show' do
     context 'with a valid bgs response' do
       it 'returns a va file number for the logged-in user' do
-        VCR.use_cassette('bgs/person_web_service/find_person_by_ptcpnt_id') do
+        VCR.use_cassette('bgs/person_web_service/find_person_by_participant_id') do
           sign_in_as(user)
           get(:show)
           expect(response.code).to eq('200')

@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri: https://internal-dsva-vagov-dev-fwdproxy-1893365470.us-gov-west-1.elb.amazonaws.com:4447/PersonWebServiceBean/PersonWebService?WSDL
+    uri: https://localhost:4447/PersonWebServiceBean/PersonWebService?WSDL
     body:
       encoding: US-ASCII
       string: ''
@@ -21,7 +21,7 @@ http_interactions:
       message: OK
     headers:
       Date:
-      - Fri, 05 Jun 2020 21:33:46 GMT
+      - Tue, 09 Jun 2020 22:18:16 GMT
       Server:
       - Apache
       X-Frame-Options:
@@ -39,26 +39,14 @@ http_interactions:
         <xsd:import namespace="http://person.services.vetsnet.vba.va.gov/" schemaLocation="http://linktestbepbenefits.vba.va.gov:80/PersonWebServiceBean/PersonWebService?xsd=1"/>
         </xsd:schema>
         </types>
-        <message name="findDependents">
-        <part name="parameters" element="tns:findDependents"/>
-        </message>
-        <message name="findDependentsResponse">
-        <part name="parameters" element="tns:findDependentsResponse"/>
-        </message>
-        <message name="MessageException">
-        <part name="fault" element="tns:MessageException"/>
-        </message>
-        <message name="updatePerson">
-        <part name="parameters" element="tns:updatePerson"/>
-        </message>
-        <message name="updatePersonResponse">
-        <part name="parameters" element="tns:updatePersonResponse"/>
-        </message>
         <message name="insertPtcpntRlnshp">
         <part name="parameters" element="tns:insertPtcpntRlnshp"/>
         </message>
         <message name="insertPtcpntRlnshpResponse">
         <part name="parameters" element="tns:insertPtcpntRlnshpResponse"/>
+        </message>
+        <message name="MessageException">
+        <part name="fault" element="tns:MessageException"/>
         </message>
         <message name="updatePtcpntRlnshp">
         <part name="parameters" element="tns:updatePtcpntRlnshp"/>
@@ -72,23 +60,17 @@ http_interactions:
         <message name="managePtcpntRlnshpPoaResponse">
         <part name="parameters" element="tns:managePtcpntRlnshpPoaResponse"/>
         </message>
-        <message name="insertPerson">
-        <part name="parameters" element="tns:insertPerson"/>
-        </message>
-        <message name="insertPersonResponse">
-        <part name="parameters" element="tns:insertPersonResponse"/>
-        </message>
         <message name="findPersonBySSN">
         <part name="parameters" element="tns:findPersonBySSN"/>
         </message>
         <message name="findPersonBySSNResponse">
         <part name="parameters" element="tns:findPersonBySSNResponse"/>
         </message>
-        <message name="findPersonByPtcpntId">
-        <part name="parameters" element="tns:findPersonByPtcpntId"/>
+        <message name="findDependents">
+        <part name="parameters" element="tns:findDependents"/>
         </message>
-        <message name="findPersonByPtcpntIdResponse">
-        <part name="parameters" element="tns:findPersonByPtcpntIdResponse"/>
+        <message name="findDependentsResponse">
+        <part name="parameters" element="tns:findDependentsResponse"/>
         </message>
         <message name="findPersonsBySsns">
         <part name="parameters" element="tns:findPersonsBySsns"/>
@@ -96,17 +78,17 @@ http_interactions:
         <message name="findPersonsBySsnsResponse">
         <part name="parameters" element="tns:findPersonsBySsnsResponse"/>
         </message>
-        <message name="findPersonsByFileNumbers">
-        <part name="parameters" element="tns:findPersonsByFileNumbers"/>
-        </message>
-        <message name="findPersonsByFileNumbersResponse">
-        <part name="parameters" element="tns:findPersonsByFileNumbersResponse"/>
-        </message>
         <message name="findPersonsByPtcpntIds">
         <part name="parameters" element="tns:findPersonsByPtcpntIds"/>
         </message>
         <message name="findPersonsByPtcpntIdsResponse">
         <part name="parameters" element="tns:findPersonsByPtcpntIdsResponse"/>
+        </message>
+        <message name="findPersonsByFileNumbers">
+        <part name="parameters" element="tns:findPersonsByFileNumbers"/>
+        </message>
+        <message name="findPersonsByFileNumbersResponse">
+        <part name="parameters" element="tns:findPersonsByFileNumbersResponse"/>
         </message>
         <message name="findPersonByFileNumber">
         <part name="parameters" element="tns:findPersonByFileNumber"/>
@@ -120,23 +102,11 @@ http_interactions:
         <message name="findRelationshipsResponse">
         <part name="parameters" element="tns:findRelationshipsResponse"/>
         </message>
-        <message name="findDependentsByPtcpntId">
-        <part name="parameters" element="tns:findDependentsByPtcpntId"/>
+        <message name="findPersonByPtcpntId">
+        <part name="parameters" element="tns:findPersonByPtcpntId"/>
         </message>
-        <message name="findDependentsByPtcpntIdResponse">
-        <part name="parameters" element="tns:findDependentsByPtcpntIdResponse"/>
-        </message>
-        <message name="findRelationshipsByFileNumberRelationshipType">
-        <part name="parameters" element="tns:findRelationshipsByFileNumberRelationshipType"/>
-        </message>
-        <message name="findRelationshipsByFileNumberRelationshipTypeResponse">
-        <part name="parameters" element="tns:findRelationshipsByFileNumberRelationshipTypeResponse"/>
-        </message>
-        <message name="findRelationshipsByPtcpntIdRelationshipType">
-        <part name="parameters" element="tns:findRelationshipsByPtcpntIdRelationshipType"/>
-        </message>
-        <message name="findRelationshipsByPtcpntIdRelationshipTypeResponse">
-        <part name="parameters" element="tns:findRelationshipsByPtcpntIdRelationshipTypeResponse"/>
+        <message name="findPersonByPtcpntIdResponse">
+        <part name="parameters" element="tns:findPersonByPtcpntIdResponse"/>
         </message>
         <message name="findEmployeeByBnftClaimId">
         <part name="parameters" element="tns:findEmployeeByBnftClaimId"/>
@@ -149,6 +119,24 @@ http_interactions:
         </message>
         <message name="insertPersonWithRelationshipResponse">
         <part name="parameters" element="tns:insertPersonWithRelationshipResponse"/>
+        </message>
+        <message name="updatePerson">
+        <part name="parameters" element="tns:updatePerson"/>
+        </message>
+        <message name="updatePersonResponse">
+        <part name="parameters" element="tns:updatePersonResponse"/>
+        </message>
+        <message name="findRelationshipsByFileNumberRelationshipType">
+        <part name="parameters" element="tns:findRelationshipsByFileNumberRelationshipType"/>
+        </message>
+        <message name="findRelationshipsByFileNumberRelationshipTypeResponse">
+        <part name="parameters" element="tns:findRelationshipsByFileNumberRelationshipTypeResponse"/>
+        </message>
+        <message name="findRelationshipsByPtcpntIdRelationshipType">
+        <part name="parameters" element="tns:findRelationshipsByPtcpntIdRelationshipType"/>
+        </message>
+        <message name="findRelationshipsByPtcpntIdRelationshipTypeResponse">
+        <part name="parameters" element="tns:findRelationshipsByPtcpntIdRelationshipTypeResponse"/>
         </message>
         <message name="findPtcpntIdByPtcpntId">
         <part name="parameters" element="tns:findPtcpntIdByPtcpntId"/>
@@ -198,17 +186,19 @@ http_interactions:
         <message name="findPersonByInsFileNbrResponse">
         <part name="parameters" element="tns:findPersonByInsFileNbrResponse"/>
         </message>
+        <message name="findDependentsByPtcpntId">
+        <part name="parameters" element="tns:findDependentsByPtcpntId"/>
+        </message>
+        <message name="findDependentsByPtcpntIdResponse">
+        <part name="parameters" element="tns:findDependentsByPtcpntIdResponse"/>
+        </message>
+        <message name="insertPerson">
+        <part name="parameters" element="tns:insertPerson"/>
+        </message>
+        <message name="insertPersonResponse">
+        <part name="parameters" element="tns:insertPersonResponse"/>
+        </message>
         <portType name="PersonWebService">
-        <operation name="findDependents">
-        <input wsam:Action="http://person.services.vetsnet.vba.va.gov/PersonWebService/findDependentsRequest" message="tns:findDependents"/>
-        <output wsam:Action="http://person.services.vetsnet.vba.va.gov/PersonWebService/findDependentsResponse" message="tns:findDependentsResponse"/>
-        <fault message="tns:MessageException" name="MessageException" wsam:Action="http://person.services.vetsnet.vba.va.gov/PersonWebService/findDependents/Fault/MessageException"/>
-        </operation>
-        <operation name="updatePerson">
-        <input wsam:Action="http://person.services.vetsnet.vba.va.gov/PersonWebService/updatePersonRequest" message="tns:updatePerson"/>
-        <output wsam:Action="http://person.services.vetsnet.vba.va.gov/PersonWebService/updatePersonResponse" message="tns:updatePersonResponse"/>
-        <fault message="tns:MessageException" name="MessageException" wsam:Action="http://person.services.vetsnet.vba.va.gov/PersonWebService/updatePerson/Fault/MessageException"/>
-        </operation>
         <operation name="insertPtcpntRlnshp">
         <input wsam:Action="http://person.services.vetsnet.vba.va.gov/PersonWebService/insertPtcpntRlnshpRequest" message="tns:insertPtcpntRlnshp"/>
         <output wsam:Action="http://person.services.vetsnet.vba.va.gov/PersonWebService/insertPtcpntRlnshpResponse" message="tns:insertPtcpntRlnshpResponse"/>
@@ -224,35 +214,30 @@ http_interactions:
         <output wsam:Action="http://person.services.vetsnet.vba.va.gov/PersonWebService/managePtcpntRlnshpPoaResponse" message="tns:managePtcpntRlnshpPoaResponse"/>
         <fault message="tns:MessageException" name="MessageException" wsam:Action="http://person.services.vetsnet.vba.va.gov/PersonWebService/managePtcpntRlnshpPoa/Fault/MessageException"/>
         </operation>
-        <operation name="insertPerson">
-        <input wsam:Action="http://person.services.vetsnet.vba.va.gov/PersonWebService/insertPersonRequest" message="tns:insertPerson"/>
-        <output wsam:Action="http://person.services.vetsnet.vba.va.gov/PersonWebService/insertPersonResponse" message="tns:insertPersonResponse"/>
-        <fault message="tns:MessageException" name="MessageException" wsam:Action="http://person.services.vetsnet.vba.va.gov/PersonWebService/insertPerson/Fault/MessageException"/>
-        </operation>
         <operation name="findPersonBySSN">
         <input wsam:Action="http://person.services.vetsnet.vba.va.gov/PersonWebService/findPersonBySSNRequest" message="tns:findPersonBySSN"/>
         <output wsam:Action="http://person.services.vetsnet.vba.va.gov/PersonWebService/findPersonBySSNResponse" message="tns:findPersonBySSNResponse"/>
         <fault message="tns:MessageException" name="MessageException" wsam:Action="http://person.services.vetsnet.vba.va.gov/PersonWebService/findPersonBySSN/Fault/MessageException"/>
         </operation>
-        <operation name="findPersonByPtcpntId">
-        <input wsam:Action="http://person.services.vetsnet.vba.va.gov/PersonWebService/findPersonByPtcpntIdRequest" message="tns:findPersonByPtcpntId"/>
-        <output wsam:Action="http://person.services.vetsnet.vba.va.gov/PersonWebService/findPersonByPtcpntIdResponse" message="tns:findPersonByPtcpntIdResponse"/>
-        <fault message="tns:MessageException" name="MessageException" wsam:Action="http://person.services.vetsnet.vba.va.gov/PersonWebService/findPersonByPtcpntId/Fault/MessageException"/>
+        <operation name="findDependents">
+        <input wsam:Action="http://person.services.vetsnet.vba.va.gov/PersonWebService/findDependentsRequest" message="tns:findDependents"/>
+        <output wsam:Action="http://person.services.vetsnet.vba.va.gov/PersonWebService/findDependentsResponse" message="tns:findDependentsResponse"/>
+        <fault message="tns:MessageException" name="MessageException" wsam:Action="http://person.services.vetsnet.vba.va.gov/PersonWebService/findDependents/Fault/MessageException"/>
         </operation>
         <operation name="findPersonsBySsns">
         <input wsam:Action="http://person.services.vetsnet.vba.va.gov/PersonWebService/findPersonsBySsnsRequest" message="tns:findPersonsBySsns"/>
         <output wsam:Action="http://person.services.vetsnet.vba.va.gov/PersonWebService/findPersonsBySsnsResponse" message="tns:findPersonsBySsnsResponse"/>
         <fault message="tns:MessageException" name="MessageException" wsam:Action="http://person.services.vetsnet.vba.va.gov/PersonWebService/findPersonsBySsns/Fault/MessageException"/>
         </operation>
-        <operation name="findPersonsByFileNumbers">
-        <input wsam:Action="http://person.services.vetsnet.vba.va.gov/PersonWebService/findPersonsByFileNumbersRequest" message="tns:findPersonsByFileNumbers"/>
-        <output wsam:Action="http://person.services.vetsnet.vba.va.gov/PersonWebService/findPersonsByFileNumbersResponse" message="tns:findPersonsByFileNumbersResponse"/>
-        <fault message="tns:MessageException" name="MessageException" wsam:Action="http://person.services.vetsnet.vba.va.gov/PersonWebService/findPersonsByFileNumbers/Fault/MessageException"/>
-        </operation>
         <operation name="findPersonsByPtcpntIds">
         <input wsam:Action="http://person.services.vetsnet.vba.va.gov/PersonWebService/findPersonsByPtcpntIdsRequest" message="tns:findPersonsByPtcpntIds"/>
         <output wsam:Action="http://person.services.vetsnet.vba.va.gov/PersonWebService/findPersonsByPtcpntIdsResponse" message="tns:findPersonsByPtcpntIdsResponse"/>
         <fault message="tns:MessageException" name="MessageException" wsam:Action="http://person.services.vetsnet.vba.va.gov/PersonWebService/findPersonsByPtcpntIds/Fault/MessageException"/>
+        </operation>
+        <operation name="findPersonsByFileNumbers">
+        <input wsam:Action="http://person.services.vetsnet.vba.va.gov/PersonWebService/findPersonsByFileNumbersRequest" message="tns:findPersonsByFileNumbers"/>
+        <output wsam:Action="http://person.services.vetsnet.vba.va.gov/PersonWebService/findPersonsByFileNumbersResponse" message="tns:findPersonsByFileNumbersResponse"/>
+        <fault message="tns:MessageException" name="MessageException" wsam:Action="http://person.services.vetsnet.vba.va.gov/PersonWebService/findPersonsByFileNumbers/Fault/MessageException"/>
         </operation>
         <operation name="findPersonByFileNumber">
         <input wsam:Action="http://person.services.vetsnet.vba.va.gov/PersonWebService/findPersonByFileNumberRequest" message="tns:findPersonByFileNumber"/>
@@ -264,20 +249,10 @@ http_interactions:
         <output wsam:Action="http://person.services.vetsnet.vba.va.gov/PersonWebService/findRelationshipsResponse" message="tns:findRelationshipsResponse"/>
         <fault message="tns:MessageException" name="MessageException" wsam:Action="http://person.services.vetsnet.vba.va.gov/PersonWebService/findRelationships/Fault/MessageException"/>
         </operation>
-        <operation name="findDependentsByPtcpntId">
-        <input wsam:Action="http://person.services.vetsnet.vba.va.gov/PersonWebService/findDependentsByPtcpntIdRequest" message="tns:findDependentsByPtcpntId"/>
-        <output wsam:Action="http://person.services.vetsnet.vba.va.gov/PersonWebService/findDependentsByPtcpntIdResponse" message="tns:findDependentsByPtcpntIdResponse"/>
-        <fault message="tns:MessageException" name="MessageException" wsam:Action="http://person.services.vetsnet.vba.va.gov/PersonWebService/findDependentsByPtcpntId/Fault/MessageException"/>
-        </operation>
-        <operation name="findRelationshipsByFileNumberRelationshipType">
-        <input wsam:Action="http://person.services.vetsnet.vba.va.gov/PersonWebService/findRelationshipsByFileNumberRelationshipTypeRequest" message="tns:findRelationshipsByFileNumberRelationshipType"/>
-        <output wsam:Action="http://person.services.vetsnet.vba.va.gov/PersonWebService/findRelationshipsByFileNumberRelationshipTypeResponse" message="tns:findRelationshipsByFileNumberRelationshipTypeResponse"/>
-        <fault message="tns:MessageException" name="MessageException" wsam:Action="http://person.services.vetsnet.vba.va.gov/PersonWebService/findRelationshipsByFileNumberRelationshipType/Fault/MessageException"/>
-        </operation>
-        <operation name="findRelationshipsByPtcpntIdRelationshipType">
-        <input wsam:Action="http://person.services.vetsnet.vba.va.gov/PersonWebService/findRelationshipsByPtcpntIdRelationshipTypeRequest" message="tns:findRelationshipsByPtcpntIdRelationshipType"/>
-        <output wsam:Action="http://person.services.vetsnet.vba.va.gov/PersonWebService/findRelationshipsByPtcpntIdRelationshipTypeResponse" message="tns:findRelationshipsByPtcpntIdRelationshipTypeResponse"/>
-        <fault message="tns:MessageException" name="MessageException" wsam:Action="http://person.services.vetsnet.vba.va.gov/PersonWebService/findRelationshipsByPtcpntIdRelationshipType/Fault/MessageException"/>
+        <operation name="findPersonByPtcpntId">
+        <input wsam:Action="http://person.services.vetsnet.vba.va.gov/PersonWebService/findPersonByPtcpntIdRequest" message="tns:findPersonByPtcpntId"/>
+        <output wsam:Action="http://person.services.vetsnet.vba.va.gov/PersonWebService/findPersonByPtcpntIdResponse" message="tns:findPersonByPtcpntIdResponse"/>
+        <fault message="tns:MessageException" name="MessageException" wsam:Action="http://person.services.vetsnet.vba.va.gov/PersonWebService/findPersonByPtcpntId/Fault/MessageException"/>
         </operation>
         <operation name="findEmployeeByBnftClaimId">
         <input wsam:Action="http://person.services.vetsnet.vba.va.gov/PersonWebService/findEmployeeByBnftClaimIdRequest" message="tns:findEmployeeByBnftClaimId"/>
@@ -288,6 +263,21 @@ http_interactions:
         <input wsam:Action="http://person.services.vetsnet.vba.va.gov/PersonWebService/insertPersonWithRelationshipRequest" message="tns:insertPersonWithRelationship"/>
         <output wsam:Action="http://person.services.vetsnet.vba.va.gov/PersonWebService/insertPersonWithRelationshipResponse" message="tns:insertPersonWithRelationshipResponse"/>
         <fault message="tns:MessageException" name="MessageException" wsam:Action="http://person.services.vetsnet.vba.va.gov/PersonWebService/insertPersonWithRelationship/Fault/MessageException"/>
+        </operation>
+        <operation name="updatePerson">
+        <input wsam:Action="http://person.services.vetsnet.vba.va.gov/PersonWebService/updatePersonRequest" message="tns:updatePerson"/>
+        <output wsam:Action="http://person.services.vetsnet.vba.va.gov/PersonWebService/updatePersonResponse" message="tns:updatePersonResponse"/>
+        <fault message="tns:MessageException" name="MessageException" wsam:Action="http://person.services.vetsnet.vba.va.gov/PersonWebService/updatePerson/Fault/MessageException"/>
+        </operation>
+        <operation name="findRelationshipsByFileNumberRelationshipType">
+        <input wsam:Action="http://person.services.vetsnet.vba.va.gov/PersonWebService/findRelationshipsByFileNumberRelationshipTypeRequest" message="tns:findRelationshipsByFileNumberRelationshipType"/>
+        <output wsam:Action="http://person.services.vetsnet.vba.va.gov/PersonWebService/findRelationshipsByFileNumberRelationshipTypeResponse" message="tns:findRelationshipsByFileNumberRelationshipTypeResponse"/>
+        <fault message="tns:MessageException" name="MessageException" wsam:Action="http://person.services.vetsnet.vba.va.gov/PersonWebService/findRelationshipsByFileNumberRelationshipType/Fault/MessageException"/>
+        </operation>
+        <operation name="findRelationshipsByPtcpntIdRelationshipType">
+        <input wsam:Action="http://person.services.vetsnet.vba.va.gov/PersonWebService/findRelationshipsByPtcpntIdRelationshipTypeRequest" message="tns:findRelationshipsByPtcpntIdRelationshipType"/>
+        <output wsam:Action="http://person.services.vetsnet.vba.va.gov/PersonWebService/findRelationshipsByPtcpntIdRelationshipTypeResponse" message="tns:findRelationshipsByPtcpntIdRelationshipTypeResponse"/>
+        <fault message="tns:MessageException" name="MessageException" wsam:Action="http://person.services.vetsnet.vba.va.gov/PersonWebService/findRelationshipsByPtcpntIdRelationshipType/Fault/MessageException"/>
         </operation>
         <operation name="findPtcpntIdByPtcpntId">
         <input wsam:Action="http://person.services.vetsnet.vba.va.gov/PersonWebService/findPtcpntIdByPtcpntIdRequest" message="tns:findPtcpntIdByPtcpntId"/>
@@ -329,33 +319,19 @@ http_interactions:
         <output wsam:Action="http://person.services.vetsnet.vba.va.gov/PersonWebService/findPersonByInsFileNbrResponse" message="tns:findPersonByInsFileNbrResponse"/>
         <fault message="tns:MessageException" name="MessageException" wsam:Action="http://person.services.vetsnet.vba.va.gov/PersonWebService/findPersonByInsFileNbr/Fault/MessageException"/>
         </operation>
+        <operation name="findDependentsByPtcpntId">
+        <input wsam:Action="http://person.services.vetsnet.vba.va.gov/PersonWebService/findDependentsByPtcpntIdRequest" message="tns:findDependentsByPtcpntId"/>
+        <output wsam:Action="http://person.services.vetsnet.vba.va.gov/PersonWebService/findDependentsByPtcpntIdResponse" message="tns:findDependentsByPtcpntIdResponse"/>
+        <fault message="tns:MessageException" name="MessageException" wsam:Action="http://person.services.vetsnet.vba.va.gov/PersonWebService/findDependentsByPtcpntId/Fault/MessageException"/>
+        </operation>
+        <operation name="insertPerson">
+        <input wsam:Action="http://person.services.vetsnet.vba.va.gov/PersonWebService/insertPersonRequest" message="tns:insertPerson"/>
+        <output wsam:Action="http://person.services.vetsnet.vba.va.gov/PersonWebService/insertPersonResponse" message="tns:insertPersonResponse"/>
+        <fault message="tns:MessageException" name="MessageException" wsam:Action="http://person.services.vetsnet.vba.va.gov/PersonWebService/insertPerson/Fault/MessageException"/>
+        </operation>
         </portType>
         <binding name="PersonWebServicePortBinding" type="tns:PersonWebService">
         <soap:binding transport="http://schemas.xmlsoap.org/soap/http" style="document"/>
-        <operation name="findDependents">
-        <soap:operation soapAction=""/>
-        <input>
-        <soap:body use="literal"/>
-        </input>
-        <output>
-        <soap:body use="literal"/>
-        </output>
-        <fault name="MessageException">
-        <soap:fault name="MessageException" use="literal"/>
-        </fault>
-        </operation>
-        <operation name="updatePerson">
-        <soap:operation soapAction=""/>
-        <input>
-        <soap:body use="literal"/>
-        </input>
-        <output>
-        <soap:body use="literal"/>
-        </output>
-        <fault name="MessageException">
-        <soap:fault name="MessageException" use="literal"/>
-        </fault>
-        </operation>
         <operation name="insertPtcpntRlnshp">
         <soap:operation soapAction=""/>
         <input>
@@ -392,18 +368,6 @@ http_interactions:
         <soap:fault name="MessageException" use="literal"/>
         </fault>
         </operation>
-        <operation name="insertPerson">
-        <soap:operation soapAction=""/>
-        <input>
-        <soap:body use="literal"/>
-        </input>
-        <output>
-        <soap:body use="literal"/>
-        </output>
-        <fault name="MessageException">
-        <soap:fault name="MessageException" use="literal"/>
-        </fault>
-        </operation>
         <operation name="findPersonBySSN">
         <soap:operation soapAction=""/>
         <input>
@@ -416,7 +380,7 @@ http_interactions:
         <soap:fault name="MessageException" use="literal"/>
         </fault>
         </operation>
-        <operation name="findPersonByPtcpntId">
+        <operation name="findDependents">
         <soap:operation soapAction=""/>
         <input>
         <soap:body use="literal"/>
@@ -440,7 +404,7 @@ http_interactions:
         <soap:fault name="MessageException" use="literal"/>
         </fault>
         </operation>
-        <operation name="findPersonsByFileNumbers">
+        <operation name="findPersonsByPtcpntIds">
         <soap:operation soapAction=""/>
         <input>
         <soap:body use="literal"/>
@@ -452,7 +416,7 @@ http_interactions:
         <soap:fault name="MessageException" use="literal"/>
         </fault>
         </operation>
-        <operation name="findPersonsByPtcpntIds">
+        <operation name="findPersonsByFileNumbers">
         <soap:operation soapAction=""/>
         <input>
         <soap:body use="literal"/>
@@ -488,31 +452,7 @@ http_interactions:
         <soap:fault name="MessageException" use="literal"/>
         </fault>
         </operation>
-        <operation name="findDependentsByPtcpntId">
-        <soap:operation soapAction=""/>
-        <input>
-        <soap:body use="literal"/>
-        </input>
-        <output>
-        <soap:body use="literal"/>
-        </output>
-        <fault name="MessageException">
-        <soap:fault name="MessageException" use="literal"/>
-        </fault>
-        </operation>
-        <operation name="findRelationshipsByFileNumberRelationshipType">
-        <soap:operation soapAction=""/>
-        <input>
-        <soap:body use="literal"/>
-        </input>
-        <output>
-        <soap:body use="literal"/>
-        </output>
-        <fault name="MessageException">
-        <soap:fault name="MessageException" use="literal"/>
-        </fault>
-        </operation>
-        <operation name="findRelationshipsByPtcpntIdRelationshipType">
+        <operation name="findPersonByPtcpntId">
         <soap:operation soapAction=""/>
         <input>
         <soap:body use="literal"/>
@@ -537,6 +477,42 @@ http_interactions:
         </fault>
         </operation>
         <operation name="insertPersonWithRelationship">
+        <soap:operation soapAction=""/>
+        <input>
+        <soap:body use="literal"/>
+        </input>
+        <output>
+        <soap:body use="literal"/>
+        </output>
+        <fault name="MessageException">
+        <soap:fault name="MessageException" use="literal"/>
+        </fault>
+        </operation>
+        <operation name="updatePerson">
+        <soap:operation soapAction=""/>
+        <input>
+        <soap:body use="literal"/>
+        </input>
+        <output>
+        <soap:body use="literal"/>
+        </output>
+        <fault name="MessageException">
+        <soap:fault name="MessageException" use="literal"/>
+        </fault>
+        </operation>
+        <operation name="findRelationshipsByFileNumberRelationshipType">
+        <soap:operation soapAction=""/>
+        <input>
+        <soap:body use="literal"/>
+        </input>
+        <output>
+        <soap:body use="literal"/>
+        </output>
+        <fault name="MessageException">
+        <soap:fault name="MessageException" use="literal"/>
+        </fault>
+        </operation>
+        <operation name="findRelationshipsByPtcpntIdRelationshipType">
         <soap:operation soapAction=""/>
         <input>
         <soap:body use="literal"/>
@@ -644,6 +620,30 @@ http_interactions:
         <soap:fault name="MessageException" use="literal"/>
         </fault>
         </operation>
+        <operation name="findDependentsByPtcpntId">
+        <soap:operation soapAction=""/>
+        <input>
+        <soap:body use="literal"/>
+        </input>
+        <output>
+        <soap:body use="literal"/>
+        </output>
+        <fault name="MessageException">
+        <soap:fault name="MessageException" use="literal"/>
+        </fault>
+        </operation>
+        <operation name="insertPerson">
+        <soap:operation soapAction=""/>
+        <input>
+        <soap:body use="literal"/>
+        </input>
+        <output>
+        <soap:body use="literal"/>
+        </output>
+        <fault name="MessageException">
+        <soap:fault name="MessageException" use="literal"/>
+        </fault>
+        </operation>
         </binding>
         <service name="PersonWebService">
         <port name="PersonWebServicePort" binding="tns:PersonWebServicePortBinding">
@@ -652,10 +652,10 @@ http_interactions:
         </service>
         </definitions>
     http_version: null
-  recorded_at: Fri, 05 Jun 2020 21:33:47 GMT
+  recorded_at: Tue, 09 Jun 2020 22:18:17 GMT
 - request:
     method: post
-    uri: https://internal-dsva-vagov-dev-fwdproxy-1893365470.us-gov-west-1.elb.amazonaws.com:4447/PersonWebServiceBean/PersonWebService
+    uri: https://localhost:4447/PersonWebServiceBean/PersonWebService
     body:
       encoding: UTF-8
       string: |-
@@ -667,7 +667,7 @@ http_interactions:
             <vaws:CLIENT_MACHINE>10.0.0.147</vaws:CLIENT_MACHINE>
             <vaws:STN_ID>281</vaws:STN_ID>
             <vaws:applicationName>VAgovAPI</vaws:applicationName>
-            <vaws:ExternalUid>67106925200285803</vaws:ExternalUid>
+            <vaws:ExternalUid>10256769933756576</vaws:ExternalUid>
             <vaws:ExternalKey>abraham.lincoln@vets.gov</vaws:ExternalKey>
           </vaws:VaServiceHeaders>
         </wsse:Security>
@@ -693,7 +693,7 @@ http_interactions:
       message: OK
     headers:
       Date:
-      - Fri, 05 Jun 2020 21:33:48 GMT
+      - Tue, 09 Jun 2020 22:18:17 GMT
       Server:
       - Apache
       X-Frame-Options:
@@ -709,5 +709,5 @@ http_interactions:
         xmlns:work="http://oracle.com/weblogic/soap/workarea/">rO0ABXdUAB13ZWJsb2dpYy5hcHAuQ29ycG9yYXRlRGF0YUVBUgAAANYAAAAjd2VibG9naWMud29ya2FyZWEuU3RyaW5nV29ya0NvbnRleHQABjMuMS4xMwAA</work:WorkContext></env:Header><S:Body><ns0:findPersonByPtcpntIdResponse
         xmlns:ns0="http://person.services.vetsnet.vba.va.gov/"/></S:Body></S:Envelope>
     http_version: null
-  recorded_at: Fri, 05 Jun 2020 21:33:48 GMT
+  recorded_at: Tue, 09 Jun 2020 22:18:18 GMT
 recorded_with: VCR 5.1.0

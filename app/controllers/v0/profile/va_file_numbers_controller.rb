@@ -5,7 +5,7 @@ module V0
     class VaFileNumbersController < ApplicationController
       def show
         service = BGS::PeopleService.new(current_user)
-        response = service.find_person_by_ptcpnt_id
+        response = service.find_person_by_participant_id
 
         render(
           json: response,
