@@ -1,17 +1,9 @@
 # frozen_string_literal: true
 
 require 'pact/provider/rspec'
-
 require 'service_consumers/provider_states'
-#
-# RSpec.configure do |config|
-#   config.before(:all) do
-#     VCR.insert_cassette('search/page_1')
-#   end
-#   config.after(:all) do
-#     VCR.eject_cassette
-#   end
-# end
+
+
 
 # ensure pacts run in test
 ENV['RAILS_ENV'] ||= 'test'
@@ -29,6 +21,16 @@ Pact.service_provider 'VA.gov API' do
   # honours_pact_with 'HCA Post' do
   #   pact_uri 'tmp/hca-va.gov_api.json'
   # end
+  
+  RSpec.configure do |config|
+    config.before(:each) do
+      puts "!!!!!!!!!"
+      VCR.insert_cassette('search/page_1')
+    end
+    config.after(:each) do
+      VCR.eject_cassette
+    end
+  end
 
   app_version provider_version
   publish_verification_results true
