@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'notary'
+
 module VeteranVerification
   module V0
     class DisabilityRatingController < ApplicationController
