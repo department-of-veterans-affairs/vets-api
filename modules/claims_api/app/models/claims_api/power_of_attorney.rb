@@ -16,6 +16,48 @@ module ClaimsApi
     before_validation :set_md5
     validates :md5, uniqueness: true
 
+    def sign_pdf
+      signature = Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'signature.png')
+      insert_signatures(signature, signature)
+    end
+
+    def convert_base64_data_to_image
+      signature = Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'signature_b64.txt')
+      signature_file = File.read(signature)
+      File.open('tmp/signature_b64.png', 'wb') do |f|
+        f.write(Base64.decode64(signature_file))
+      end
+    end
+
+    def insert_signatures(veteran_signature, representative_signature)
+      pdf_path = Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', '21-22A-1.pdf')
+      stamp_path = Common::FileHelpers.random_file_path
+      Prawn::Document.generate(stamp_path, margin: [0, 0]) do |pdf|
+        pdf.image representative_signature, at: [35, 118], height: 20
+        pdf.image veteran_signature, at: [35, 90], height: 20
+      end
+      `open #{stamp(pdf_path, stamp_path)}`
+    end
+
+    def stamp(file_path, stamp_path)
+      out_path = "#{Common::FileHelpers.random_file_path}.pdf"
+      PdfFill::Filler::PDF_FORMS.stamp(file_path, stamp_path, out_path)
+      File.delete(file_path)
+      out_path
+    rescue
+      Common::FileHelpers.delete_file_if_exists(out_path)
+      raise
+    end
+
+    def fetch_file_path(uploader)
+      if Settings.evss.s3.uploads_enabled
+        temp = URI.parse(uploader.file.url).open
+        temp.path
+      else
+        uploader.file.file
+      end
+    end
+
     def date_request_accepted
       created_at&.to_date.to_s
     end
