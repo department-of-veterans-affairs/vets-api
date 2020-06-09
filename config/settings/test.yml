@@ -62,6 +62,7 @@ account:
 search:
   access_key: TESTKEY
   affiliate: va
+  mock_search: true
   url: https://search.usa.gov/api/v2
 
 vba_documents:
