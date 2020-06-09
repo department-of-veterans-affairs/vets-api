@@ -22,7 +22,8 @@ RSpec.describe Form1010cg::Service do
           'city' => Faker::Address.city,
           'state' => Faker::Address.state_abbr,
           'postalCode' => Faker::Address.postcode
-        }
+        },
+        'primaryPhoneNumber' => Faker::Number.number(digits: 10).to_s
       }
 
       # Required properties for :primaryCaregiver

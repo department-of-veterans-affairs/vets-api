@@ -11,9 +11,11 @@ describe EVSS::ReferenceData::Service do
     context 'with a 200 response' do
       it 'returns a list of countries' do
         VCR.use_cassette('evss/reference_data/countries') do
-          response = subject.get_countries
-          expect(response).to be_ok
-          expect(response.countries[0...10]).to eq(
+          expect do
+            @response = subject.get_countries
+          end.to trigger_statsd_increment('api.external_http_request.EVSS/AWS/ReferenceData.success', times: 1)
+          expect(@response).to be_ok
+          expect(@response.countries[0...10]).to eq(
             %w[Afghanistan Albania Algeria Angola Anguilla Antigua Antigua\ and\ Barbuda Argentina Armenia Australia]
           )
         end
