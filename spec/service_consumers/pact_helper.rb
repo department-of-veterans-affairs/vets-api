@@ -25,6 +25,7 @@ Pact.service_provider 'VA.gov API' do
   RSpec.configure do |config|
     config.before(:each) do
       puts "!!!!#{Rails.env}"
+      puts "!!!!!!betamocks:#{Settings.betamocks} search:#{Settings.search}"
       VCR.insert_cassette('search/page_1')
     end
     config.after(:each) do
