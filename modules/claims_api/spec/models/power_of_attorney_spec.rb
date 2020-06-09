@@ -53,4 +53,15 @@ RSpec.describe ClaimsApi::PowerOfAttorney, type: :model do
       end
     end
   end
+
+  describe 'inserting the signature files' do
+    let(:power_of_attorney) { create(:power_of_attorney) }
+
+    it 'decodes the signature file to an image' do
+      b64_image = File.read('modules/claims_api/spec/fixtures/signature_b64.txt')
+      power_of_attorney.signatures = { veteran: b64_image }
+      power_of_attorney.create_signature_image(:veteran)
+      expect(power_of_attorney.signature_image_paths[:veteran]).to eq('/tmp/veteran_signature.png')
+    end
+  end
 end

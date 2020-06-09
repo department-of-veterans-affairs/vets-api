@@ -53,6 +53,18 @@ module ClaimsApi
       source_data.present? ? source_data['icn'] : Settings.bgs.external_uid
     end
 
+    def signature_image_paths
+      @signature_image_paths ||= {}
+    end
+
+    def create_signature_image(signature_type)
+      path = "/tmp/#{signature_type}_signature.png"
+      File.open(path, 'wb') do |f|
+        f.write(Base64.decode64(form_data[signature_type]))
+      end
+      signature_image_paths[signature_type] = path
+    end
+
     def self.pending?(id)
       query = where(id: id)
       query.exists? ? query.first : false

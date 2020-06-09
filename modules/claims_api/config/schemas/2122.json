@@ -21,21 +21,9 @@
       "maxLength": 61,
       "$comment": "TODO: use draft 7 feature [format: idn-email] or [format: email] over pattern (when there is broader support)"
     },
-    "veteranSignatureImage": {
-        "title": "Signature of the Veteran",
-        "type": "string",
-        "media": {
-          "binaryEncoding": "base64",
-          "type": "image/png"
-        }
-    },
-    "representativeSignatureImage": {
-        "title": "Signature of the representative",
-        "type": "string",
-        "media": {
-          "binaryEncoding": "base64",
-          "type": "image/png"
-        }
+    "signatureImage": {
+        "title": "Signature of the Veteran or their Representative",
+        "type": "string"
     },
     "phone": {
       "$comment": "the phone fields must not exceed 20 chars, when concatenated",
@@ -132,6 +120,17 @@
         "jobTitle":        { "type": "string" },
         "email":           { "$ref": "#/definitions/email" },
         "appointmentDate": { "$ref": "#/definitions/date" }
+      }
+    },
+    "signatures": {
+      "type": "object",
+      "required": [
+        "veteran",
+        "representative"
+      ],
+      "properties": {
+        "veteran": { "$ref": "#/definitions/signatureImage" },
+        "representative": { "$ref": "#/definitions/signatureImage" }
       }
     },
     "recordConsent": { "type": "boolean" },
