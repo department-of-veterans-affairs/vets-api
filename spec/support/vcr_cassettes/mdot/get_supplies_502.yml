@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri: https://dlc-dummy.herokuapp.com/supplies
+    uri: https://internal-dsva-vagov-staging-fwdproxy-1821450725.us-gov-west-1.elb.amazonaws.com:4466/supplies
     body:
       encoding: US-ASCII
       string: ''
@@ -68,14 +68,7 @@ http_interactions:
       - chunked
     body:
       encoding: ASCII-8BIT
-      string: |-
-        {
-          "errors": [{
-            "status": "502",
-            "title": "Bad Gateway",
-            "code": "502"
-          }]
-        }
+      string: '{"timestamp":"2020-06-04T18:00:35.014+0000","message":"502","details":"uri=/supplies","result":"502"}'
     http_version:
   recorded_at: Tue, 11 Feb 2020 17:50:55 GMT
 recorded_with: VCR 3.0.3
