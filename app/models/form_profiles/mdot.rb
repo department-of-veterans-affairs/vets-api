@@ -8,10 +8,11 @@ require 'mdot/supply'
 # REVIEW: this has multiple class and module definitions
 
 module MDOT
-  class FormAddressInformation
+  class FormContactInformation
     include Virtus.model
     attribute :permanent_address, MDOT::Address
     attribute :temporary_address, MDOT::Address
+    attribute :vet_email, String
   end
 
   class FormSupplyInformation
@@ -22,7 +23,7 @@ module MDOT
 end
 
 class FormProfiles::MDOT < FormProfile
-  attribute :mdot_contact_information, MDOT::FormAddressInformation
+  attribute :mdot_contact_information, MDOT::FormContactInformation
   attribute :mdot_supplies, MDOT::FormSupplyInformation
 
   def metadata
@@ -43,9 +44,10 @@ class FormProfiles::MDOT < FormProfile
   private
 
   def initialize_mdot_contact_information(response)
-    MDOT::FormAddressInformation.new(
+    MDOT::FormContactInformation.new(
       permanent_address: response&.permanent_address,
-      temporary_address: response&.temporary_address
+      temporary_address: response&.temporary_address,
+      vet_email: response&.vet_email
     )
   end
 

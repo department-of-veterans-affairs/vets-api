@@ -62,6 +62,7 @@ module MDOT
     def headers
       {
         VA_VETERAN_FIRST_NAME: @user.first_name,
+        VA_VETERAN_MIDDLE_NAME: @user.middle_name,
         VA_VETERAN_LAST_NAME: @user.last_name,
         VA_VETERAN_ID: @user.ssn.last(4),
         VA_VETERAN_BIRTH_DATE: @user.birth_date,
@@ -118,7 +119,8 @@ module MDOT
 
     def handle_client_error(error)
       save_error_details(error)
-      code = error.body['errors'].first.dig('code')
+      code = error.body['result'].downcase
+
       raise_backend_exception(
         MDOT::Exceptions::Key.new("MDOT_#{code}"),
         self.class,
