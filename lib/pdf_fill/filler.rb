@@ -12,7 +12,8 @@ module PdfFill
       '21-0781a' => PdfFill::Forms::Va210781a,
       '21-0781' => PdfFill::Forms::Va210781,
       '21-8940' => PdfFill::Forms::Va218940,
-      '10-10CG' => PdfFill::Forms::Va1010cg
+      '10-10CG' => PdfFill::Forms::Va1010cg,
+      '21-686C' => PdfFill::Forms::Va21686c
     }.freeze
 
     def combine_extras(old_file_path, extras_generator)
@@ -51,6 +52,9 @@ module PdfFill
         form_data: form_class.new(form_data).merge_fields,
         pdftk_keys: form_class::KEY
       )
+      #new_hash["form1[0].#subform[25].#subform[26].#subform[27].CHILDFirstName[28]"] = form_data['dependents_application']['step_children'][0]['full_name']['first']
+      #new_hash["form1[0].#subform[25].#subform[26].#subform[27].CHILDLastName[20]"] = form_data['dependents_application']['step_children'][0]['full_name']['last']
+      #binding.pry
       PDF_FORMS.fill_form(
         "lib/pdf_fill/forms/pdfs/#{form_id}.pdf",
         file_path,
