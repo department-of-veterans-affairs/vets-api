@@ -5,6 +5,7 @@ require 'lighthouse/facilities/client'
 require 'va_facilities/api_serialization'
 require 'va_facilities/geo_serializer'
 require 'va_facilities/csv_serializer'
+require 'va_facilities/param_validators'
 
 module VAFacilities
   module V0
