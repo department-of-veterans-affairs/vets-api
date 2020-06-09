@@ -22,7 +22,8 @@ RSpec.describe Form1010cg::Service do
           'city' => Faker::Address.city,
           'state' => Faker::Address.state_abbr,
           'postalCode' => Faker::Address.postcode
-        }
+        },
+        'primaryPhoneNumber' => Faker::Number.number(digits: 10).to_s
       }
 
       # Required properties for :primaryCaregiver
@@ -545,10 +546,10 @@ RSpec.describe Form1010cg::Service do
           icn: :ICN_0,
           is_veteran: false
         },
-        primaryCaregiver: {
+        primary_caregiver: {
           icn: :ICN_1
         },
-        secondaryCaregiverOne: {
+        secondary_caregiver_one: {
           # Note that NOT_FOUND is converted to nil
           icn: nil
         }

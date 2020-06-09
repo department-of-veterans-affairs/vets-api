@@ -74,6 +74,17 @@ RSpec.describe SAML::User do
       end
     end
 
+    context 'user with partial birth date' do
+      let(:saml_attributes) do
+        build(:ssoe_idme_loa3,
+              va_eauth_birthDate_v1: ['1980'])
+      end
+
+      it 'returns nil' do
+        expect(subject.to_hash[:birth_date]).to be_nil
+      end
+    end
+
     context 'unproofed IDme LOA1 user' do
       let(:saml_attributes) { build(:ssoe_idme_loa1_unproofed) }
 
@@ -773,6 +784,20 @@ RSpec.describe SAML::User do
           authenticated_by_ssoe: true,
           common_name: 'SOFIA MCKIBBENS'
         )
+      end
+
+      context 'with missing ID.me UUID' do
+        let(:saml_attributes) do
+          build(:ssoe_inbound_dslogon_level2,
+                va_eauth_uid: ['NOT_FOUND'])
+        end
+
+        it 'does not validate' do
+          expect { subject.validate! }.to raise_error { |error|
+            expect(error).to be_a(SAML::UserAttributeError)
+            expect(error.message).to eq('User attributes is missing an ID.me UUID')
+          }
+        end
       end
     end
 

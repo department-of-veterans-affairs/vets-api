@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: post
-    uri: https://dlc-dummy.herokuapp.com/supplies
+    uri: https://internal-dsva-vagov-staging-fwdproxy-1821450725.us-gov-west-1.elb.amazonaws.com:4466/supplies
     body:
       encoding: UTF-8
       string: '{"veteranFullName":{"first":"Greg","middle":"A","last":"Anderson"},"veteranAddress":{"street":"101 Example Street","street2":"Apt 2","city":"Kansas City","state":"MO","country":"USA","postalCode":"64117"},"order":[{"productId":"1"},{"productId":"4"}],"additionalRequests":""}'
@@ -60,14 +60,7 @@ http_interactions:
         Max-Age=900; Path=/
     body:
       encoding: UTF-8
-      string: |-
-        {
-          "errors": [{
-            "status": "502",
-            "title": "Bad Gateway",
-            "code": "502"
-          }]
-        }
+      string: '{"timestamp":"2020-06-04T18:00:35.014+0000","message":"502","details":"uri=/supplies","result":"502"}'
     http_version:
   recorded_at: Fri, 22 Nov 2019 22:51:55 GMT
 recorded_with: VCR 3.0.3

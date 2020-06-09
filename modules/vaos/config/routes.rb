@@ -27,10 +27,11 @@ VAOS::Engine.routes.draw do
   end
 
   namespace :v1, defaults: { format: :json } do
+    get '/Appointment/', to: 'appointments#index'
+    get '/HealthcareService', to: 'healthcare_services#index'
+    get '/Location/:id', to: 'locations#show'
     get '/Organization', to: 'organizations#index'
     get '/Organization/:id', to: 'organizations#show'
-    get '/Location/:id', to: 'locations#show'
-    get '/HealthcareService', to: 'healthcare_services#index'
     get '/Patient', to: 'patients#index'
   end
 end
