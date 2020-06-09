@@ -780,8 +780,8 @@ RSpec.describe FormProfile, type: :model do
         expect(errors.empty?).to eq(true), "schema errors: #{errors}"
       end
       expect(prefilled_data).to eq(
-                                  form_profile.send(:clean!, public_send("v#{form_id.underscore}_expected"))
-                                )
+        form_profile.send(:clean!, public_send("v#{form_id.underscore}_expected"))
+      )
     end
 
     context 'with a user that can prefill mdot' do
@@ -830,7 +830,7 @@ RSpec.describe FormProfile, type: :model do
         expect(military_information).to receive(:compensable_va_service_connected).and_return(true).twice
         expect(military_information).to receive(:is_va_service_connected).and_return(true).twice
         expect(military_information).to receive(:tours_of_duty).and_return(
-          [{service_branch: 'Air Force', date_range: {from: '2007-04-01', to: '2016-06-01'}}]
+          [{ service_branch: 'Air Force', date_range: { from: '2007-04-01', to: '2016-06-01' } }]
         )
         expect(military_information).to receive(:service_branches).and_return(['F'])
         allow(military_information).to receive(:currently_active_duty_hash).and_return(
@@ -838,10 +838,10 @@ RSpec.describe FormProfile, type: :model do
         )
         expect(user).to receive(:can_access_id_card?).and_return(true)
         expect(military_information).to receive(:service_periods).and_return(
-          [{service_branch: 'Air Force Reserve', date_range: {from: '2007-04-01', to: '2016-06-01'}}]
+          [{ service_branch: 'Air Force Reserve', date_range: { from: '2007-04-01', to: '2016-06-01' } }]
         )
         expect(military_information).to receive(:guard_reserve_service_history).and_return(
-          [{from: '2007-04-01', to: '2016-06-01'}, {from: '2002-02-14', to: '2007-01-01'}]
+          [{ from: '2007-04-01', to: '2016-06-01' }, { from: '2002-02-14', to: '2007-01-01' }]
         )
         expect(military_information).to receive(:latest_guard_reserve_service_period).and_return(
           from: '2007-04-01',
