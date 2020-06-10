@@ -9,7 +9,6 @@ require 'support/spec_temp_files'
 require 'support/silence_stream'
 require 'support/stub_emis'
 require 'support/okta_users_helpers'
-require 'support/poa_stub'
 require 'pundit/rspec'
 
 # By default run SimpleCov, but allow an environment variable to disable.
@@ -20,6 +19,8 @@ unless ENV['NOCOVERAGE']
     track_files '**/{app,lib}/**/*.rb'
 
     add_filter 'app/controllers/concerns/accountable.rb'
+    add_filter 'app/models/in_progress_disability_compensation_form.rb'
+    add_filter 'app/serializers/appeal_serializer.rb'
     add_filter 'config/initializers/clamscan.rb'
     add_filter 'lib/config_helper.rb'
     add_filter 'lib/feature_flipper.rb'
