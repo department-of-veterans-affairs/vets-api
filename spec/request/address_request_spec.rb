@@ -128,7 +128,7 @@ RSpec.describe 'address', type: :request do
 
     describe 'GET /v0/address/countries' do
       context 'with a 200 response' do
-        pending 'matches the countries schema' do
+        it 'matches the countries schema' do
           VCR.use_cassette('evss/pciu_address/countries') do
             get '/v0/address/countries'
             expect(response).to have_http_status(:ok)
@@ -146,7 +146,7 @@ RSpec.describe 'address', type: :request do
 
     describe 'GET /v0/address/countries' do
       context 'with a 200 response' do
-        pending 'matches the countries schema' do
+        it 'matches the countries schema' do
           VCR.use_cassette('evss/reference_data/countries') do
             get '/v0/address/countries'
             expect(response).to have_http_status(:ok)
@@ -158,26 +158,13 @@ RSpec.describe 'address', type: :request do
 
     describe 'GET /v0/address/states' do
       context 'with a 200 response' do
-        pending 'matches the states schema' do
+        it 'matches the states schema' do
           VCR.use_cassette('evss/reference_data/states') do
             get '/v0/address/states'
             expect(response).to have_http_status(:ok)
             expect(response).to match_response_schema('states')
           end
         end
-      end
-    end
-
-    context 'with a 401 malformed token response', vcr: { cassette_name: 'evss/reference_data/401_malformed' } do
-      before do
-        allow_any_instance_of(EVSS::ReferenceData::Service)
-          .to receive(:headers_for_user)
-          .and_return(Authorization: 'Bearer abcd12345asd')
-      end
-
-      pending 'returns 502' do
-        get '/v0/address/countries'
-        expect(response).to have_http_status(:bad_gateway)
       end
     end
   end

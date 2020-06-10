@@ -173,7 +173,6 @@ module V0
       Swagger::Schemas::ConnectedApplications,
       Swagger::Schemas::Dependents,
       Swagger::Schemas::DismissedStatus,
-      Swagger::Schemas::Form526::RatedDisabilities,
       Swagger::Schemas::Email,
       Swagger::Schemas::Errors,
       Swagger::Schemas::EVSSAuthError,
