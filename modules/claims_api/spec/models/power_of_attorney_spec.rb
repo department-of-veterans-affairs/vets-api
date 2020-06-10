@@ -63,5 +63,20 @@ RSpec.describe ClaimsApi::PowerOfAttorney, type: :model do
       power_of_attorney.create_signature_image(:veteran)
       expect(power_of_attorney.signature_image_paths[:veteran]).to eq('/tmp/veteran_signature.png')
     end
+
+    describe 'with signatures' do
+      before do
+        b64_image = File.read('modules/claims_api/spec/fixtures/signature_b64.txt')
+        power_of_attorney.form_data[:signatures] = {
+          veteran: b64_image,
+          representative: b64_image
+        }
+        power_of_attorney.save
+      end
+
+      it 'adds the signature file to the first page of the document' do
+        power_of_attorney.sign_pdf(:page_1)
+      end
+    end
   end
 end
