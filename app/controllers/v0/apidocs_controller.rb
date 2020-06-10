@@ -183,6 +183,7 @@ module V0
       Swagger::Schemas::Form526::Form4142,
       Swagger::Schemas::Form526::Form526SubmitV2,
       Swagger::Schemas::Form526::Form8940,
+      Swagger::Schemas::Form526::IntakeSites,
       Swagger::Schemas::Form526::JobStatus,
       Swagger::Schemas::Form526::RatedDisabilities,
       Swagger::Schemas::Form526::SubmitDisabilityForm,

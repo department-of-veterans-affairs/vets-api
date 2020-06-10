@@ -144,6 +144,25 @@ module Swagger
           end
         end
       end
+
+      swagger_path '/v0/disability_compensation_form/intake_sites' do
+        operation :get do
+          extend Swagger::Responses::AuthenticationError
+
+          key :description, 'Get the intake sites'
+          key :operationId, 'getIntakeSites'
+          key :tags, %w[form_526]
+
+          parameter :authorization
+
+          response 200 do
+            key :description, 'Response is OK'
+            schema do
+              key :'$ref', :IntakeSites
+            end
+          end
+        end
+      end
     end
   end
 end

@@ -13,7 +13,7 @@ module V0
 
     def intake_sites
       response = EVSS::ReferenceData::Service.new(@current_user).get_intake_sites
-      render json: response, each_serializer: EVSS_IntakeSitesSerializer
+      render json: response, each_serializer: EVSSIntakeSitesSerializer
     end
 
     def suggested_conditions
