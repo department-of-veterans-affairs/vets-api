@@ -52,15 +52,14 @@ module V1
       saml_response = SAML::Responses::Login.new(params[:SAMLResponse], settings: saml_settings)
       if saml_response.valid?
         user_login(saml_response)
+        callback_stats(:success, saml_response)
       else
-        log_error(saml_response)
-        redirect_to url_service.login_redirect_url(auth: 'fail', code: auth_error_code(saml_response.error_code))
-        callback_stats(:failure, saml_response, saml_response.error_instrumentation_code)
+        saml_error(saml_response)
       end
-    rescue SAML::UserAttributeError => e
-      log_message_to_sentry(e.message, :warning)
+    rescue SAML::SAMLError => e
+      log_message_to_sentry(e.message, e.level, e.context)
       redirect_to url_service.login_redirect_url(auth: 'fail', code: e.code)
-      callback_stats(:failure, saml_response, e.tag)
+      callback_stats(:failure, saml_response, e.tag || e.code)
     rescue => e
       log_exception_to_sentry(e, {}, {}, :error)
       redirect_to url_service.login_redirect_url(auth: 'fail', code: '007') unless performed?
@@ -114,12 +113,10 @@ module V1
       SAML::SSOeSettingsService.saml_settings(options)
     end
 
-    def auth_error_code(code)
-      if code == '005' && validate_session
-        UserSessionForm::ERRORS[:saml_replay_valid_session][:code]
-      else
-        code
-      end
+    def saml_error(response)
+      code = response.error_code
+      code = UserSessionForm::ERRORS[:saml_replay_valid_session][:code] if code == '005' && validate_session
+      raise SAML::FormError(response, code)
     end
 
     def authenticate
@@ -130,12 +127,6 @@ module V1
       else
         reset_session
       end
-    end
-
-    def log_error(saml_response)
-      log_message_to_sentry(saml_response.errors_message,
-                            saml_response.errors_hash[:level],
-                            saml_error_context: saml_response.errors_context)
     end
 
     def user_login(saml_response)
@@ -150,15 +141,10 @@ module V1
           # some users will need to be up-leveled and this will be redirected
           # back to the identity provider
           login_stats(:success, saml_response, user_session_form)
-        else
-          callback_stats(:success, saml_response)
         end
       else
-        log_message_to_sentry(
-          user_session_form.errors_message, user_session_form.errors_hash[:level], user_session_form.errors_context
-        )
-        redirect_to url_service.login_redirect_url(auth: 'fail', code: user_session_form.error_code)
         login_stats(:failure, saml_response, user_session_form)
+        raise SAML::FormError(user_session_form)
       end
     end
 
@@ -174,17 +160,6 @@ module V1
       end
     end
 
-    def login_stats_success(saml_response, tracker)
-      type = tracker.payload_attr(:type)
-      tags = ["context:#{type}", VERSION_TAG]
-      StatsD.increment(STATSD_LOGIN_NEW_USER_KEY, tags: [VERSION_TAG]) if type == 'signup'
-      # track users who have a shared sso cookie
-      StatsD.increment(STATSD_LOGIN_SHARED_COOKIE, tags: tags)
-      StatsD.increment(STATSD_LOGIN_STATUS_SUCCESS, tags: tags)
-      StatsD.measure(STATSD_LOGIN_LATENCY, tracker.age, tags: tags)
-      callback_stats(:success, saml_response)
-    end
-
     def new_stats(type)
       tags = ["context:#{type}", VERSION_TAG]
       StatsD.increment(STATSD_SSO_NEW_KEY, tags: tags)
@@ -192,15 +167,20 @@ module V1
       StatsD.increment(STATSD_SSO_NEW_INBOUND, tags: tags) if inbound_ssoe?
     end
 
-    def login_stats(status, saml_response, user_session_form)
+    def login_stats(status, _saml_response, user_session_form)
       tracker = url_service(user_session_form&.saml_uuid).tracker
+      type = tracker.payload_attr(:type)
       case status
       when :success
-        login_stats_success(saml_response, tracker)
+        tags = ["context:#{type}", VERSION_TAG]
+        StatsD.increment(STATSD_LOGIN_NEW_USER_KEY, tags: [VERSION_TAG]) if type == 'signup'
+        # track users who have a shared sso cookie
+        StatsD.increment(STATSD_LOGIN_SHARED_COOKIE, tags: tags)
+        StatsD.increment(STATSD_LOGIN_STATUS_SUCCESS, tags: tags)
+        StatsD.measure(STATSD_LOGIN_LATENCY, tracker.age, tags: tags)
       when :failure
-        tags = ["context:#{tracker.payload_attr(:type)}", VERSION_TAG]
+        tags = ["context:#{type}", VERSION_TAG]
         StatsD.increment(STATSD_LOGIN_STATUS_FAILURE, tags: tags)
-        callback_stats(:failure, saml_response, user_session_form.error_instrumentation_code)
       end
     end
 
