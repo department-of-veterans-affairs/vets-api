@@ -154,7 +154,7 @@ module V0
         login_stats_success(saml_response, tracker)
       when :failure
         tags = ["context:#{tracker.payload_attr(:type)}", VERSION_TAG]
-        StatsD.increment(STATSD_LOGIN_STATUS, tags: tags)
+        StatsD.increment(STATSD_LOGIN_STATUS_FAILURE, tags: tags)
         callback_stats(:failure, saml_response, user_session_form.error_instrumentation_code)
       end
     end
