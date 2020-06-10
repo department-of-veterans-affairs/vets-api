@@ -41,6 +41,10 @@ RSpec.describe V0::CoronavirusChatbot::TokensController, type: :controller do
     end
 
     context 'when external service is not healthy' do
+      before do
+        expect(controller).to receive(:log_exception_to_sentry)
+      end
+
       it 'returns service not available status' do
         VCR.use_cassette('coronavirus_chatbot/chat_bot/unhealthy') do
           post :create, params: { locale: locale }
