@@ -19,6 +19,7 @@
         "status": { "type": "string" },
         "appointment_type": { "type": "string" },
         "visit_type": { "type": "string" },
+        "reason_for_visit": { "type": ["string", null] },
         "facility": {
           "type": "object",
           "properties": {

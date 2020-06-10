@@ -58,10 +58,10 @@ GIT
 
 GIT
   remote: https://github.com/department-of-veterans-affairs/vets-json-schema
-  revision: 523f96cb8e406e91db69098bb5d2baa9195447bc
+  revision: 5c229c93e0549b82c78970dcdd184f2f8918c18e
   branch: master
   specs:
-    vets_json_schema (5.1.0)
+    vets_json_schema (6.0.2)
       multi_json (~> 1.0)
       script_utils (= 0.0.4)
 
@@ -773,7 +773,7 @@ GEM
     webrick (1.6.0)
     websocket-driver (0.7.1)
       websocket-extensions (>= 0.1.0)
-    websocket-extensions (0.1.4)
+    websocket-extensions (0.1.5)
     will_paginate (3.1.0)
     xmldsig (0.3.2)
       nokogiri
@@ -937,6 +937,7 @@ DEPENDENCIES
   web-console
   webmock
   webrick
+  websocket-extensions (>= 0.1.5)
   will_paginate
   yard
   zero_downtime_migrations
