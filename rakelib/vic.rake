@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require './rakelib/support/vic_load_test'
+require 'vic/service'
 
 namespace :vic do
   task test_connection: :environment do

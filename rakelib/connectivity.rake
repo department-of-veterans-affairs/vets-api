@@ -1,5 +1,12 @@
 # frozen_string_literal: true
 
+require 'gi/client'
+require 'hca/service'
+require 'hca/service'
+require 'rx/client_session'
+require 'rx/client'
+require 'sm/client'
+
 # Checks backend connectivity to the various VA machines. Run with
 # `RAILS_ENV=production bundle exec rake connectivity:all`
 # Also does sanity check to ensure that logs directory is writeable
