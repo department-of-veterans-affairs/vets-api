@@ -575,7 +575,8 @@ module EVSS
 
       def application_create_date
         # Application create date is the date the user began their application
-        @acd ||= InProgressForm.where(form_id: VA526ez::FORM_ID, user_uuid: @user.uuid)
+        # TODO AEC
+        @acd ||= InProgressForm.where(form_id: FormProfiles::VA526ez::FORM_ID, user_uuid: @user.uuid)
                                .first.created_at
       end
 

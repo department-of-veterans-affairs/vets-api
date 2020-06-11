@@ -16,7 +16,8 @@ describe EVSS::DisabilityCompensationForm::DataTranslation do
 
   describe '#translate' do
     before do
-      create(:in_progress_form, form_id: VA526ez::FORM_ID, user_uuid: user.uuid)
+      # TODO: AEC
+      create(:in_progress_form, form_id: FormProfiles::VA526ez::FORM_ID, user_uuid: user.uuid)
     end
 
     it 'returns correctly formatted json to send to EVSS' do

@@ -4,7 +4,7 @@ module EVSS
   module DisabilityCompensationForm
     class SubmitForm526Cleanup < Job
       include Sidekiq::Worker
-
+      # TODO: AEC
       FORM_ID = '21-526EZ'
       STATSD_KEY_PREFIX = 'worker.evss.submit_form526_cleanup'
 

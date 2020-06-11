@@ -50,6 +50,7 @@ module RedisForm
 
   def form_matches_schema
     if form.present?
+      # TODO: AEC
       errors[:form].concat(JSON::Validator.fully_validate(VetsJsonSchema::SCHEMAS[self.class::FORM_ID], parsed_form))
     end
   end
