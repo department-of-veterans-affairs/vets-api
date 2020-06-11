@@ -5,7 +5,7 @@ module Swagger
     module Form526
       class SeparationLocations
         include Swagger::Blocks
-        swagger_schema :SeparationLocation do
+        swagger_schema :SeparationLocations do
           key :required, [:separation_locations]
 
           property :separation_locations, type: :array do
