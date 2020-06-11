@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class Lighthouse::People::VaFileNumberSerializer < ActiveModel::Serializer
+class VaFileNumberSerializer < ActiveModel::Serializer
   type :va_file_number
 
   attribute :va_file_number
