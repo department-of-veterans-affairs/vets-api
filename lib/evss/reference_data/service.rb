@@ -29,7 +29,7 @@ module EVSS
         end
       end
 
-      def get_intake_sites
+      def get_separation_locations
         with_monitoring_and_error_handling do
           raw_response = perform(:get, 'intakesites')
           EVSS::ReferenceData::IntakeSitesResponse.new(raw_response.status, raw_response)

@@ -3,12 +3,12 @@
 module Swagger
   module Schemas
     module Form526
-      class IntakeSites
+      class SeparationLocations
         include Swagger::Blocks
-        swagger_schema :IntakeSites do
-          key :required, [:intake_sites]
+        swagger_schema :SeparationLocation do
+          key :required, [:separation_locations]
 
-          property :intake_sites, type: :array do
+          property :separation_locations, type: :array do
             items do
               key :required, %i[code description]
               property :code, type: :string, example: '98283'

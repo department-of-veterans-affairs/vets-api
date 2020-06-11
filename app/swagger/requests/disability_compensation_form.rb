@@ -145,11 +145,11 @@ module Swagger
         end
       end
 
-      swagger_path '/v0/disability_compensation_form/intake_sites' do
+      swagger_path '/v0/disability_compensation_form/separation_locations' do
         operation :get do
           extend Swagger::Responses::AuthenticationError
 
-          key :description, 'Get the intake sites'
+          key :description, 'Get the separation locations from EVSS'
           key :operationId, 'getIntakeSites'
           key :tags, %w[form_526]
 
@@ -158,7 +158,7 @@ module Swagger
           response 200 do
             key :description, 'Response is OK'
             schema do
-              key :'$ref', :IntakeSites
+              key :'$ref', :SeparationLocations
             end
           end
         end

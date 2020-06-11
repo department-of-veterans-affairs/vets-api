@@ -517,10 +517,10 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
         end
       end
 
-      it 'supports getting intake_sites' do
-        expect(subject).to validate(:get, '/v0/disability_compensation_form/intake_sites', 401)
-        VCR.use_cassette('evss/reference_data/get_intake_sites') do
-          expect(subject).to validate(:get, '/v0/disability_compensation_form/intake_sites', 200, headers)
+      it 'supports getting separation_locations' do
+        expect(subject).to validate(:get, '/v0/disability_compensation_form/separation_locations', 401)
+        VCR.use_cassette('evss/reference_data/get_separation_locations') do
+          expect(subject).to validate(:get, '/v0/disability_compensation_form/separation_locations', 200, headers)
         end
       end
 

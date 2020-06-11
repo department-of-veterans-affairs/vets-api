@@ -11,9 +11,9 @@ module V0
              serializer: RatedDisabilitiesSerializer
     end
 
-    def intake_sites
-      response = EVSS::ReferenceData::Service.new(@current_user).get_intake_sites
-      render json: response, each_serializer: EVSSIntakeSitesSerializer
+    def separation_locations
+      response = EVSS::ReferenceData::Service.new(@current_user).get_separation_locations
+      render json: response, each_serializer: EVSSSeparationLocationSerializer
     end
 
     def suggested_conditions

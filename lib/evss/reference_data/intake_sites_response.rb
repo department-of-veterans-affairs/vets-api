@@ -14,11 +14,11 @@ module EVSS
     #   @return [Array[String]] An array of intake sites
     #
     class IntakeSitesResponse < EVSS::Response
-      attribute :intake_sites, Array[Hash]
+      attribute :separation_locations, Array[Hash]
 
       def initialize(status, response = nil)
-        intake_sites = response&.body&.dig('intake_sites')
-        super(status, intake_sites: intake_sites)
+        separation_locations = response&.body&.dig('intake_sites')
+        super(status, separation_locations: separation_locations)
       end
     end
   end
