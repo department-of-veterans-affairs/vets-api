@@ -92,10 +92,10 @@ describe MDOT::Client, type: :mdot_helpers do
   describe '#submit_order' do
     let(:valid_order) do
       {
-        'use_permanent_address' => true,
+        'use_veteran_address' => true,
         'use_temporary_address' => false,
         'additional_requests' => '',
-        'order' => [{ 'product_id' => '1' }, { 'product_id' => '4' }],
+        'order' => [{ 'product_id' => '2499' }],
         'permanent_address' => {
           'street' => '101 Example Street',
           'street2' => 'Apt 2',
@@ -103,7 +103,16 @@ describe MDOT::Client, type: :mdot_helpers do
           'state' => 'MO',
           'country' => 'USA',
           'postal_code' => '64117'
-        }
+        },
+        'temporary_address' => {
+          'street' => '17250 w colfax ave',
+          'street2' => 'a-204',
+          'city' => 'Golden',
+          'state' => 'CO',
+          'country' => 'United States',
+          'postal_code' => '80401'
+        },
+        'vet_email' => 'vet1@va.gov'
       }
     end
 
