@@ -151,25 +151,6 @@ ActiveRecord::Schema.define(version: 2020_05_08_201027) do
     t.uuid "auto_established_claim_id", null: false
   end
 
-  create_table "disability_compensation_job_statuses", id: :serial, force: :cascade do |t|
-    t.integer "disability_compensation_submission_id", null: false
-    t.string "job_id", null: false
-    t.string "job_class", null: false
-    t.string "status", null: false
-    t.string "error_message"
-    t.datetime "updated_at", null: false
-    t.index ["disability_compensation_submission_id"], name: "index_disability_compensation_job_statuses_on_dsc_id"
-    t.index ["job_id"], name: "index_disability_compensation_job_statuses_on_job_id", unique: true
-  end
-
-  create_table "disability_compensation_submissions", id: :serial, force: :cascade do |t|
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.integer "disability_compensation_id"
-    t.integer "va526ez_submit_transaction_id"
-    t.boolean "complete", default: false
-  end
-
   create_table "disability_contentions", id: :serial, force: :cascade do |t|
     t.integer "code", null: false
     t.string "medical_term", null: false
