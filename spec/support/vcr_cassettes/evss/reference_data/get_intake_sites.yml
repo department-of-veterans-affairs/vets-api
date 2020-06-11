@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri: "<EVSS_BASE_URL>/VONAPP2/domain2/wss-referencedata-services-web/rest/referencedata/v1/intakesites"
+    uri: "<EVSS_BASE_URL>/wss-referencedata-services-web/rest/referencedata/v1/intakesites"
     body:
       encoding: US-ASCII
       string: ''

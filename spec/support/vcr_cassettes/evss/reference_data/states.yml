@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri: "<EVSS_BASE_URL>/VONAPP2/domain2/wss-referencedata-services-web/rest/referencedata/v1/states"
+    uri: "<EVSS_BASE_URL>/wss-referencedata-services-web/rest/referencedata/v1/states"
     body:
       encoding: US-ASCII
       string: ''
@@ -74,7 +74,7 @@ http_interactions:
   recorded_at: Tue, 09 Jun 2020 18:36:04 GMT
 - request:
     method: get
-    uri: "<EVSS_BASE_URL>/VONAPP2/domain2/wss-referencedata-services-web/rest/referencedata/v1/states"
+    uri: "<EVSS_BASE_URL>/wss-referencedata-services-web/rest/referencedata/v1/states"
     body:
       encoding: US-ASCII
       string: ''

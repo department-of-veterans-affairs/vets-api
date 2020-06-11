@@ -10,8 +10,7 @@ module EVSS
       # @return [String] Base path for ReferenceData URLs.
       #
       def base_path
-        # TODO: remove "/VONAPP2/domain2" when both pint instances are up
-        "#{Settings.evss.url}/VONAPP2/domain2/wss-referencedata-services-web/rest/referencedata/v1"
+        "#{Settings.evss.url}/wss-referencedata-services-web/rest/referencedata/v1"
       end
 
       ##
