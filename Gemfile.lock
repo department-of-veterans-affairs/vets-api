@@ -752,7 +752,7 @@ GEM
     uri_template (0.7.0)
     utf8-cleaner (0.2.5)
       activesupport
-    vcr (5.1.0)
+    vcr (6.0.0)
     virtus (1.0.5)
       axiom-types (~> 0.1)
       coercible (~> 1.0)
