@@ -47,19 +47,23 @@ module BGS
 
     def create_participant(proc_id, corp_ptcpnt_id = nil)
       service.vnp_ptcpnt.vnp_ptcpnt_create(
-        vnp_proc_id: proc_id,
-        ptcpnt_type_nm: 'Person', # Hard-coded intentionally can't find any other values in all call
-        jrn_dt: Time.current.iso8601,
-        jrn_lctn_id: Settings.bgs.client_station_id,
-        jrn_obj_id: Settings.bgs.application,
-        jrn_status_type_cd: 'I', # Why is this 'I' it's 'U' other places
-        jrn_user_id: Settings.bgs.client_username,
-        corp_ptcpnt_id: corp_ptcpnt_id,
-        ssn: @user.ssn # Just here to make mocks work
+        {
+          vnp_proc_id: proc_id,
+          ptcpnt_type_nm: 'Person', # Hard-coded intentionally can't find any other values in all call
+          jrn_dt: Time.current.iso8601,
+          jrn_lctn_id: Settings.bgs.client_station_id,
+          jrn_obj_id: Settings.bgs.application,
+          jrn_status_type_cd: 'I', # Why is this 'I' it's 'U' other places
+          jrn_user_id: Settings.bgs.client_username,
+          corp_ptcpnt_id: corp_ptcpnt_id,
+          ssn: @user.ssn # Just here to make mocks work
+        }
       )
     end
 
     def create_person(proc_id, participant_id, payload)
+      brth_date = payload['birth_date'] ? Date.parse(payload['birth_date']).to_time.iso8601 : nil
+      death_date = payload['death_date'] ? Date.parse(payload['death_date']).to_time.iso8601 : nil
       service.vnp_person.vnp_person_create(
         vnp_proc_id: proc_id,
         vnp_ptcpnt_id: participant_id,
@@ -72,12 +76,12 @@ module BGS
         middle_nm: payload['middle'],
         last_nm: payload['last'],
         suffix_nm: payload['suffix'],
-        brthdy_dt: payload['birth_date'],
+        brthdy_dt: brth_date,
         birth_state_cd: payload['place_of_birth_state'],
         birth_city_nm: payload['place_of_birth_city'],
         file_nbr: payload['va_file_number'],
         ssn_nbr: payload['ssn'],
-        death_dt: payload['death_date'],
+        death_dt: death_date,
         ever_maried_ind: payload['ever_married_ind'],
         vet_ind: payload['vet_ind'],
         martl_status_type_cd: payload['martl_status_type_cd'],
