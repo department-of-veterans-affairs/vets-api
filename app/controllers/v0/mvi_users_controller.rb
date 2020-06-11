@@ -2,11 +2,11 @@
 
 module V0
   class MviUsersController < ApplicationController
+    before_action { authorize :mvi, :missing_critical_ids? }
 
-    def update
-      # Caller must be using proxy add in order to complete intent to file or disability compensation claim
+    def submit
+      # Caller must be using proxy add in order to complete Intent to File or Disability Compensation forms
       form_id = params[:id]
-
       if [FormProfiles::VA0996::FORM_ID, VA526ez::FORM_ID].exclude?(form_id)
         raise Common::Exceptions::Forbidden.new(
           detail: "Action is prohibited with id parameter #{form_id}",
@@ -14,22 +14,18 @@ module V0
         )
       end
 
-      if @current_user.participant_id.nil?
-        # Add person to MVI if missing participant_id (no matter if birls_id present or absent)
-        add_response = @current_user.mvi.mvi_add_person
-        raise add_response.error unless add_response.ok?
-
-        # What does FE want here, it's a positive response on a post so the response would traditionally
-        # contain the data describing the action result
-        render json: { "message": add_response }
-
-      elsif @current_user.birls_id.nil?
-        # Error if birls_id is empty with known participant_id
+      # Scenario indicates serious problems with user data
+      if @current_user.birls_id.nil? && @current_user.participant_id.present?
         raise Common::Exceptions::UnprocessableEntity.new(
           detail: 'No birls_id while participant_id present',
-          source: 'InProgressFormsController'
+          source: 'MviUsersController'
         )
       end
+
+      # Add user to MVI
+      add_response = @current_user.mvi.mvi_add_person
+      raise add_response.error unless add_response.ok?
+      render json: { "message": add_response }
     end
   end
 end
