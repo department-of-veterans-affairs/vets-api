@@ -20,7 +20,7 @@ module ClaimsApi
       signatures = convert_signatures_to_images
       page_1_path = insert_signatures(1, signatures[:veteran], signatures[:representative])
       page_2_path = insert_signatures(2, signatures[:veteran], signatures[:representative])
-      {page1: page_1_path, page2: page_2_path}
+      { page1: page_1_path, page2: page_2_path }
     end
 
     def convert_signatures_to_images
@@ -41,11 +41,12 @@ module ClaimsApi
     def insert_signatures(page, veteran_signature, representative_signature)
       pdf_path = Rails.root.join('modules', 'claims_api', 'config', 'pdf_templates', "21-22A-#{page}.pdf")
       stamp_path = Common::FileHelpers.random_file_path
+
       Prawn::Document.generate(stamp_path, margin: [0, 0]) do |pdf|
         y_representative_coords = page == 1 ? 118 : 216
         y_veteran_coords = page == 1 ? 90 : 322
-        pdf.image representative_signature, at: [35, y_veteran_coords], height: 20
-        pdf.image veteran_signature, at: [35, y_representative_coords], height: 20
+        pdf.image representative_signature, at: [35, y_representative_coords], height: 20
+        pdf.image veteran_signature, at: [35, y_veteran_coords], height: 20
       end
       stamp(pdf_path, stamp_path)
     end
