@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+# rubocop:disable Metrics/BlockLength
+
 MviPolicy = Struct.new(:user, :mvi) do
   def missing_critical_ids?
     if user.edipi.present? && user.ssn.present? && (user.birls_id.blank? || user.participant_id.blank?)
@@ -35,3 +37,4 @@ MviPolicy = Struct.new(:user, :mvi) do
     true
   end
 end
+# rubocop:enable Metrics/BlockLength

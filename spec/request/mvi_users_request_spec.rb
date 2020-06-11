@@ -3,11 +3,10 @@
 require 'rails_helper'
 require 'support/controller_spec_helper'
 
-RSpec.describe V0::MviUsersController, type: :request do
-
+RSpec.describe 'MVI Users Endpoint', type: :request do
   describe 'PUT #update' do
-
     let(:user) { build(:user_with_no_ids) }
+
     before do
       sign_in_as(user)
     end
@@ -27,6 +26,7 @@ RSpec.describe V0::MviUsersController, type: :request do
       # sad path, missing birls only which means we have big problems
       context('when user is missing birls_id only') do
         let(:user) { build(:user_with_no_birls_id) }
+
         before do
           sign_in_as(user)
         end
@@ -42,6 +42,7 @@ RSpec.describe V0::MviUsersController, type: :request do
       # sad path, user has proper ids, can not proxy add
       context('when user has partipant_id and birls_id') do
         let(:user) { build(:user, :loa3) }
+
         before do
           sign_in_as(user)
         end
@@ -55,6 +56,7 @@ RSpec.describe V0::MviUsersController, type: :request do
       # happy path, make proxy add
       context('when user is missing birls_id and participant_id') do
         let(:user) { build(:user_with_no_ids) }
+
         before do
           sign_in_as(user)
         end
@@ -73,4 +75,3 @@ RSpec.describe V0::MviUsersController, type: :request do
     end
   end
 end
-

@@ -25,6 +25,7 @@ module V0
       # Add user to MVI
       add_response = @current_user.mvi.mvi_add_person
       raise add_response.error unless add_response.ok?
+
       render json: { "message": add_response }
     end
   end
