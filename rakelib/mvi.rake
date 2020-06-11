@@ -120,6 +120,8 @@ middle_name="W" last_name="Smith" birth_date="1945-01-25" gender="M" ssn="555443
 
   desc "Given a ssn update a mocked user's correlation ids"
   task update_ids: :environment do
+    require 'master_veteran_index/responses/id_parser'
+    
     ssn = ENV['ssn']
     raise ArgumentError, 'ssn is required, usage: `rake mvi:update_ids ssn=111223333 icn=abc123`' unless ssn
 
