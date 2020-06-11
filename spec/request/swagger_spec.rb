@@ -255,17 +255,25 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
       let(:body) do
         {
           'permanent_address' => {
-            'street' => '101 Example Street',
-            'street2' => 'Apt 2',
-            'city' => 'Kansas City',
-            'state' => 'MO',
-            'country' => 'USA',
-            'postal_code' => '64117'
+            'street' => '125 SOME RD',
+            'street2' => 'APT 101',
+            'city' => 'DENVER',
+            'state' => 'CO',
+            'country' => 'United States',
+            'postal_code' => '111119999'
           },
-          'use_permanent_address' => true,
+          'temporary_address' => {
+            'street' => '17250 w colfax ave',
+            'street2' => 'a-204',
+            'city' => 'Golden',
+            'state' => 'CO',
+            'country' => 'United States',
+            'postal_code' => '80401'
+          },
+          'vet_email' => 'vet1@va.gov',
+          'use_veteran_address' => true,
           'use_temporary_address' => false,
-          'order' => [{ 'product_id' => '1' }, { 'product_id' => '4' }],
-          'additional_requests' => ''
+          'order' => [{ 'product_id' => '2499' }]
         }
       end
 
