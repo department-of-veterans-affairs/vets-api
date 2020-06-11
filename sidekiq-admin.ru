@@ -1,4 +1,4 @@
-# Run sidekiq-admin: `SIDEKIQ_USERNAME=foo SIDEKIQ_PASSWORD=bar b bundle exec rackup sidekiq-admin.ru -p 9292`
+# Run sidekiq-admin: `SIDEKIQ_USERNAME=foo SIDEKIQ_PASSWORD=bar REDIS_URL=redis://some.elasticache.aws.url bundle exec rackup sidekiq-admin.ru -p 3000 -o 0.0.0.0`
 
 require 'sidekiq'
 require 'sidekiq-pro'
