@@ -20,12 +20,7 @@ module ClaimsApi
       signatures = convert_signatures_to_images
       page_1_path = insert_signatures(1, signatures[:veteran], signatures[:representative])
       page_2_path = insert_signatures(2, signatures[:veteran], signatures[:representative])
-      pdf = CombinePDF.new
-      pdf << CombinePDF.load(page_1_path)
-      pdf << CombinePDF.load(page_2_path)
-      out_path = Common::FileHelpers.random_file_path
-      pdf.save out_path
-      out_path
+      {page1: page_1_path, page2: page_2_path}
     end
 
     def convert_signatures_to_images

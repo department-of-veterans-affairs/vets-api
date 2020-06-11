@@ -42,13 +42,6 @@
     "mailingAddress": {
       "type": "object",
       "required": [
-        "numberAndStreet",
-        "aptUnitNumber",
-        "city",
-        "state",
-        "country",
-        "zipFirstFive",
-        "zipLastFour"
       ],
       "numberAndStreet": {
         "$ref": "#/definitions/addressLine"
@@ -114,12 +107,14 @@
         "poaCode"
       ],
       "properties": {
-        "poaCode":         { "type": "string" },
-        "firstName":       { "type": "string" },
-        "lastName":        { "type": "string" },
-        "jobTitle":        { "type": "string" },
-        "email":           { "$ref": "#/definitions/email" },
-        "appointmentDate": { "$ref": "#/definitions/date" }
+        "poaCode":          { "type": "string" },
+        "organizationName": { "type": "string" },
+        "firstName":        { "type": "string" },
+        "lastName":         { "type": "string" },
+        "jobTitle":         { "type": "string" },
+        "address":         { "$ref": "#/definitions/mailingAddress" },
+        "email":            { "$ref": "#/definitions/email" },
+        "appointmentDate":  { "$ref": "#/definitions/date" }
       }
     },
     "signatures": {
