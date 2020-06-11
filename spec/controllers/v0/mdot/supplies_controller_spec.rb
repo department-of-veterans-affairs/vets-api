@@ -38,7 +38,7 @@ RSpec.describe V0::MDOT::SuppliesController, type: :controller do
           'country' => 'United States',
           'postal_code' => '80401'
         },
-        'vet_email' => 'vet1@va.gov'
+        'vet_email' => 'vet1@va.gov',
         'use_veteran_address' => true,
         'use_temporary_address' => false,
         'order' => [{ 'product_id' => '2499' }]
