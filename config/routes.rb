@@ -44,11 +44,13 @@ Rails.application.routes.draw do
       get 'user_submissions'
     end
 
-    resource :mvi_users, only: [:update]
+    # resource :mvi_users, only: [:update]
+    # put 'mvi_users/:id', to: 'mvi_users#update'
+    # patch 'mvi_users/:id', to: 'mvi_users#update'
 
-    # resource :mvi_users, only: [:update] do
-    #   update :mvi_users/:id, to 'mvi_users#update'
-    # end
+    resource :mvi_users, only: [] do
+      put ':id', to: 'mvi_users#update'
+    end
 
     resource :upload_supporting_evidence, only: :create
 

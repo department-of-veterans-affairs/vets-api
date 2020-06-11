@@ -6,18 +6,22 @@ require 'support/controller_spec_helper'
 RSpec.describe V0::MviUsersController, type: :request do
 
   describe 'PUT #update' do
-    form_id = '21-686C' # a form id that is _invalid_ for this endpoint
+
+    let(:user) { build(:user, :loa3) }
+    before do
+      sign_in_as(user)
+    end
 
     it 'returns 403 for invalid (form) id parameter' do
-      put "/v0/mvi_users/#{form_id}"
+      invalid_form_id = '21-686C'
+      put "/v0/mvi_users/#{invalid_form_id}"
       expect(response).to have_http_status(:forbidden)
       expect(JSON.parse(response.body)['errors'].first['detail'])
-        .to eq("Action is prohibited with id parameter #{form_id}")
+        .to eq("Action is prohibited with id parameter #{invalid_form_id}")
     end
 
     context('when (form) id parameter is valid') do
       form_id = '21-526EZ' # a form id that is _valid_ for this endpoint
-
 
       context('when user is missing birls_id and participant_id') do
         let(:user) { build(:user_with_no_ids) }

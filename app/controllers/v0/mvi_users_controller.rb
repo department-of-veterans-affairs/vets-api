@@ -6,8 +6,9 @@ module V0
     def update
       # Caller must be using proxy add in order to complete intent to file or disability compensation claim
       form_id = params[:id]
-      if [VA0996::FORM_ID, VA526ez::FORM_ID].exclude?(form_id)
-        raise Common::Exceptions::UnprocessableEntity.new(
+
+      if [FormProfiles::VA0996::FORM_ID, VA526ez::FORM_ID].exclude?(form_id)
+        raise Common::Exceptions::Forbidden.new(
           detail: "Action is prohibited with id parameter #{form_id}",
           source: 'MviUsersController'
         )
@@ -23,14 +24,11 @@ module V0
         render json: { "message": add_response }
 
       elsif @current_user.birls_id.nil?
-
         # Error if birls_id is empty with known participant_id
         raise Common::Exceptions::UnprocessableEntity.new(
           detail: 'No birls_id while participant_id present',
           source: 'InProgressFormsController'
         )
-
-      render
       end
     end
   end
