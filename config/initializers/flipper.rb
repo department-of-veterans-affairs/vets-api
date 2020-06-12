@@ -52,6 +52,8 @@ rescue
   nil
 end
 
+Flipper.disable(:form526_confirmation_email) if Rails.env.development? || Rails.env.test?
+
 # Modify Flipper::UI::Action to use custom views if they exist
 # and to add descriptions and types for features.
 Flipper::UI::Action.prepend(FlipperExtensions::ActionPatch)
