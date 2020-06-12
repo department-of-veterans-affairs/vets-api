@@ -142,7 +142,8 @@ RSpec.describe V1::SessionsController, type: :controller do
                 .with_relay_state('originating_request_id' => nil, 'type' => type)
                 .with_params('clientId' => '123123')
               expect(SAMLRequestTracker.keys.length).to eq(1)
-              expect(SAMLRequestTracker.find(SAMLRequestTracker.keys[0]).payload).to eq({ inbound_ssoe: 'true', type: type })
+              expect(SAMLRequestTracker.find(SAMLRequestTracker.keys[0]).payload).to eq({ inbound_ssoe: 'true',
+                                                                                          type: type })
             end
 
             it 'persists redirect application' do
@@ -215,9 +216,9 @@ RSpec.describe V1::SessionsController, type: :controller do
               expect(SAMLRequestTracker.keys.length).to eq(1)
               expect(SAMLRequestTracker.find(SAMLRequestTracker.keys[0]).payload)
                 .to eq({
-                  redirect: 'https://ehrm-va-test.patientportal.us.healtheintent.com/foo/barSplitHeader',
-                  type: type
-                })
+                         redirect: 'https://ehrm-va-test.patientportal.us.healtheintent.com/foo/barSplitHeader',
+                         type: type
+                       })
             end
 
             it 'ignores invalid redirect application' do
@@ -446,7 +447,7 @@ RSpec.describe V1::SessionsController, type: :controller do
             .to trigger_statsd_increment(described_class::STATSD_SSO_CALLBACK_KEY, tags: callback_tags, **once)
             .and trigger_statsd_increment(described_class::STATSD_SSO_CALLBACK_TOTAL_KEY, **once)
             .and trigger_statsd_increment(described_class::STATSD_LOGIN_SHARED_COOKIE,
-                                          tags: ["context:verify", 'version:v1'],
+                                          tags: ['context:verify', 'version:v1'],
                                           **once)
 
           expect(response.location).to start_with('http://127.0.0.1:3001/auth/login/callback')
@@ -663,10 +664,10 @@ RSpec.describe V1::SessionsController, type: :controller do
               'Login Failed! Other SAML Response Error(s)',
               :error,
               extra_context: [{ code: '007',
-                                     tag: :unknown,
-                                     short_message: 'Other SAML Response Error(s)',
-                                     level: :error,
-                                     full_message: 'The status code of the Response was not Success, was Requester =>'\
+                                tag: :unknown,
+                                short_message: 'Other SAML Response Error(s)',
+                                level: :error,
+                                full_message: 'The status code of the Response was not Success, was Requester =>'\
                                   ' NoAuthnContext -> AuthnRequest without an authentication context.' }]
             )
           expect(post(:saml_callback)).to redirect_to('http://127.0.0.1:3001/auth/login/callback?auth=fail&code=007')
@@ -694,15 +695,15 @@ RSpec.describe V1::SessionsController, type: :controller do
               'Login Failed! Subject did not consent to attribute release Multiple SAML Errors',
               :warn,
               extra_context: [{ code: '001',
-                                     tag: :clicked_deny,
-                                     short_message: 'Subject did not consent to attribute release',
-                                     level: :warn,
-                                     full_message: 'Subject did not consent to attribute release' },
-                                   { code: '007',
-                                     tag: :unknown,
-                                     short_message: 'Other SAML Response Error(s)',
-                                     level: :error,
-                                     full_message: 'Other random error' }]
+                                tag: :clicked_deny,
+                                short_message: 'Subject did not consent to attribute release',
+                                level: :warn,
+                                full_message: 'Subject did not consent to attribute release' },
+                              { code: '007',
+                                tag: :unknown,
+                                short_message: 'Other SAML Response Error(s)',
+                                level: :error,
+                                full_message: 'Other random error' }]
             )
           expect(post(:saml_callback)).to redirect_to('http://127.0.0.1:3001/auth/login/callback?auth=fail&code=001')
           expect(response).to have_http_status(:found)

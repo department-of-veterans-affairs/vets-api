@@ -49,7 +49,7 @@ RSpec.describe V0::SessionsController, type: :controller do
       authn_context: authn_context,
       level_of_assurance: ['3'],
       attributes: build(:idme_loa1, level_of_assurance: ['3']),
-      in_response_to: login_uuid,
+      in_response_to: login_uuid
     )
   end
 
