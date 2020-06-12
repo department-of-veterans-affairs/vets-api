@@ -44,9 +44,7 @@ Rails.application.routes.draw do
       get 'user_submissions'
     end
 
-    resource :mvi_users, only: [] do
-      post ':id', to: 'mvi_users#submit'
-    end
+    post '/mvi_users/:id', to: 'mvi_users#submit'
 
     resource :upload_supporting_evidence, only: :create
 

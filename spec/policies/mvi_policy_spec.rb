@@ -76,10 +76,6 @@ describe MviPolicy do
       it 'grants access' do
         expect(subject).to permit(user, :mvi)
       end
-
-      it 'increments the StatsD success counter' do
-        expect { MviPolicy.new(user, :mvi).access_add_person? }.to trigger_statsd_increment('api.mvi.policy.success')
-      end
     end
 
     context 'with a user who is missing only participant or birls id' do
@@ -87,10 +83,6 @@ describe MviPolicy do
 
       it 'grants access' do
         expect(subject).to permit(user, :mvi)
-      end
-
-      it 'increments the StatsD success counter' do
-        expect { MviPolicy.new(user, :mvi).access_add_person? }.to trigger_statsd_increment('api.mvi.policy.success')
       end
     end
 
@@ -100,10 +92,6 @@ describe MviPolicy do
       it 'denies access' do
         expect(subject).not_to permit(user, :mvi)
       end
-
-      it 'increments the StatsD failure counter' do
-        expect { MviPolicy.new(user, :mvi).access_add_person? }.to trigger_statsd_increment('api.mvi.policy.failure')
-      end
     end
 
     context 'with a user who already has the birls and participant ids' do
@@ -111,10 +99,6 @@ describe MviPolicy do
 
       it 'denies access' do
         expect(subject).not_to permit(user, :mvi)
-      end
-
-      it 'increments the StatsD failure counter' do
-        expect { MviPolicy.new(user, :mvi).access_add_person? }.to trigger_statsd_increment('api.mvi.policy.failure')
       end
     end
   end
