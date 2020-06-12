@@ -94,6 +94,7 @@ describe MDOT::Client, type: :mdot_helpers do
       {
         'useVeteranAddress' => true,
         'useTemporaryAddress' => false,
+        'vetEmail' => 'vet1@va.gov',
         'order' => [{ 'productId' => 2499 }],
         'permanentAddress' => {
           'street' => '125 SOME RD',
@@ -110,8 +111,7 @@ describe MDOT::Client, type: :mdot_helpers do
           'state' => 'CO',
           'country' => 'United States',
           'postalCode' => '80401'
-        },
-        'vetEmail' => 'vet1@va.gov'
+        }
       }
     end
 
