@@ -92,27 +92,27 @@ describe MDOT::Client, type: :mdot_helpers do
   describe '#submit_order' do
     let(:valid_order) do
       {
-        'use_veteran_address' => true,
-        'use_temporary_address' => false,
-        'additional_requests' => '',
-        'order' => [{ 'product_id' => '2499' }],
-        'permanent_address' => {
+        'useVeteranAddress' => true,
+        'useTemporaryAddress' => false,
+        'additionalRequests' => '',
+        'order' => [{ 'productId' => '2499' }],
+        'permanentAddress' => {
           'street' => '101 Example Street',
           'street2' => 'Apt 2',
           'city' => 'Kansas City',
           'state' => 'MO',
           'country' => 'USA',
-          'postal_code' => '64117'
+          'postalCode' => '64117'
         },
-        'temporary_address' => {
+        'temporaryAddress' => {
           'street' => '17250 w colfax ave',
           'street2' => 'a-204',
           'city' => 'Golden',
           'state' => 'CO',
           'country' => 'United States',
-          'postal_code' => '80401'
+          'postalCode' => '80401'
         },
-        'vet_email' => 'vet1@va.gov'
+        'vetEmail' => 'vet1@va.gov'
       }
     end
 
