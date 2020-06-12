@@ -16,6 +16,16 @@
         }
       },
       "claimantCertification": true,
+      "homelessness": {
+        "pointOfContact": {
+          "pointOfContactName": "John Doe",
+          "primaryPhone": "555-555-5555"
+        },
+        "currentlyHomeless": {
+          "homelessSituationType": "FLEEING_CURRENT_RESIDENCE",
+          "otherLivingSituation": "other living situations"
+        }
+      },
       "disabilities": [
         {
           "ratedDisabilityId": "1100583",

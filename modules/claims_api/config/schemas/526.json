@@ -289,12 +289,34 @@
             "currentlyHomeless": {
               "type": "object",
               "required": [
-                "homelessSituationType",
                 "otherLivingSituation"
               ],
               "properties": {
                 "homelessSituationType": {
-                  "type": "string"
+                  "type": "string",
+                  "enum": ["FLEEING_CURRENT_RESIDENCE",
+                           "LIVING_IN_A_HOMELESS_SHELTER",
+                           "NOT_CURRENTLY_IN_A_SHELTERED_ENVIRONMENT",
+                           "STAYING_WITH_ANOTHER_PERSON","OTHER"]
+                },
+                "otherLivingSituation": {
+                  "type": "string",
+                  "maxLength": 500
+                }
+              }
+            },
+            "homelessnessRisk": {
+              "type": "object",
+              "required": [
+                "homelessnessRiskSituationType",
+                "otherLivingSituation"
+              ],
+              "properties": {
+                "homelessnessRiskSituationType": {
+                  "type": "string",
+                  "enum": ["HOUSING_WILL_BE_LOST_IN_30_DAYS",
+                           "LEAVING_PUBLICLY_FUNDED_SYSTEM_OF_CARE",
+                           "OTHER"]
                 },
                 "otherLivingSituation": {
                   "type": "string",
