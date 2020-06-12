@@ -4,6 +4,7 @@ require 'rails_helper'
 
 RSpec.describe BGS::PeopleService do
   let(:user) { FactoryBot.create(:evss_user, :loa3) }
+
   describe '#find_person_by_participant_id' do
     it 'returns a person hash given a participant_id' do
       VCR.use_cassette('bgs/people_service/person_data') do
