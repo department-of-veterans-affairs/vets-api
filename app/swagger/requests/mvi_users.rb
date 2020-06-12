@@ -31,7 +31,7 @@ module Swagger
             key :required, true
             key :type, :string
             key :example, '21-0966'
-            key :enum, ['21-0966', '21-526EZ']
+            key :enum, %w[21-0966 21-526EZ]
           end
 
           response 200 do
