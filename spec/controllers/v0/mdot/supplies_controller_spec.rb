@@ -22,6 +22,9 @@ RSpec.describe V0::MDOT::SuppliesController, type: :controller do
   describe '#create' do
     let(:body) do
       {
+        'useVeteranAddress' => true,
+        'useTemporaryAddress' => false,
+        'order' => [{ 'productId' => 2499 }],
         'permanentAddress' => {
           'street' => '125 SOME RD',
           'street2' => 'APT 101',
@@ -38,10 +41,7 @@ RSpec.describe V0::MDOT::SuppliesController, type: :controller do
           'country' => 'United States',
           'postalCode' => '80401'
         },
-        'vetEmail' => 'vet1@va.gov',
-        'useVeteranAddress' => true,
-        'useTemporaryAddress' => false,
-        'order' => [{ 'productId' => '2499' }]
+        'vetEmail' => 'vet1@va.gov'
       }
     end
 
@@ -49,10 +49,9 @@ RSpec.describe V0::MDOT::SuppliesController, type: :controller do
       VCR.use_cassette('mdot/submit_order', VCR::MATCH_EVERYTHING) do
         set_mdot_token_for(user)
         post(:create, body: body.to_json, as: :json)
-
         res = JSON.parse(response.body)
-        expect(res[0]['status']).to eq('Order processed')
-        expect(res['order_id']).to match(/[a-z0-9-]+/)
+        expect(res[0]['status']).to eq('Order Processed')
+        expect(res[0]['order_id']).to be_an(Integer)
       end
     end
   end

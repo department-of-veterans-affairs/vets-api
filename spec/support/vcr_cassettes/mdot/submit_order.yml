@@ -5,7 +5,7 @@ http_interactions:
     uri: https://internal-dsva-vagov-staging-fwdproxy-1821450725.us-gov-west-1.elb.amazonaws.com:4466/supplies
     body:
       encoding: UTF-8
-      string: '{"permanentAddress":{"street":"125 SOME RD","street2":"APT 101","city":"DENVER","state":"CO","country":"United States","postalCode":"111119999"},"temporaryAddress":{"street": "17250 w colfax ave","street2": "a-204","city": "Golden","state": "CO","country": "United States","postalCode": "80401"},"vetEmail":"vet1@va.gov","useVeteranAddress": true,"useTemporaryAddress": false,"order":[{"productId": "2499"}]}'
+      string: '{"useVeteranAddress":true,"useTemporaryAddress":false,"order":[{"productId":2499}],"permanentAddress":{"street":"125 SOME RD","street2":"APT 101","city":"DENVER","state":"CO","country":"United States","postalCode":"111119999"},"temporaryAddress":{"street":"17250 w colfax ave","street2":"a-204","city":"Golden","state":"CO","country":"United States","postalCode":"80401"},"vetEmail":"vet1@va.gov"}'
     headers:
       Accept:
       - application/json
@@ -13,7 +13,7 @@ http_interactions:
       - application/json
       User-Agent:
       - Vets.gov Agent
-      VAAPIKEY:
+      Vaapikey:
       - abcd1234abcd1234abcd1234
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3

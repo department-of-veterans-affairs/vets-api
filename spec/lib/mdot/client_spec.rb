@@ -94,8 +94,7 @@ describe MDOT::Client, type: :mdot_helpers do
       {
         'useVeteranAddress' => true,
         'useTemporaryAddress' => false,
-        'additionalRequests' => '',
-        'order' => [{ 'productId' => '2499' }],
+        'order' => [{ 'productId' => 2499 }],
         'permanentAddress' => {
           'street' => '125 SOME RD',
           'street2' => 'APT 101',
@@ -121,8 +120,8 @@ describe MDOT::Client, type: :mdot_helpers do
         VCR.use_cassette('mdot/submit_order', VCR::MATCH_EVERYTHING) do
           set_mdot_token_for(user)
           res = subject.submit_order(valid_order)
-          expect(res['status']).to eq('success')
-          expect(res['order_id']).to match(/[a-z0-9-]+/)
+          expect(res[0]['status']).to eq('Order Processed')
+          expect(res[0]['order_id']).to be_an(Integer)
         end
       end
     end

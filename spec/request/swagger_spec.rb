@@ -254,6 +254,9 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
 
       let(:body) do
         {
+          'useVeteranAddress' => true,
+          'useTemporaryAddress' => false,
+          'order' => [{ 'productId' => 2499 }],
           'permanentAddress' => {
             'street' => '125 SOME RD',
             'street2' => 'APT 101',
@@ -270,10 +273,7 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
             'country' => 'United States',
             'postalCode' => '80401'
           },
-          'vetEmail' => 'vet1@va.gov',
-          'useVeteranAddress' => true,
-          'useTemporaryAddress' => false,
-          'order' => [{ 'product_id' => '2499' }]
+          'vetEmail' => 'vet1@va.gov'
         }
       end
 
