@@ -492,6 +492,8 @@ GEM
     notiffany (0.1.3)
       nenv (~> 0.1)
       shellany (~> 0.0)
+    notifications-ruby-client (5.1.2)
+      jwt (>= 1.5, < 3)
     octokit (4.18.0)
       faraday (>= 0.9)
       sawyer (~> 0.8.0, >= 0.5.3)
@@ -861,6 +863,7 @@ DEPENDENCIES
   net-sftp
   newrelic_rpm
   nokogiri (~> 1.10)
+  notifications-ruby-client (~> 5.1)
   oj
   olive_branch
   openid_auth!
