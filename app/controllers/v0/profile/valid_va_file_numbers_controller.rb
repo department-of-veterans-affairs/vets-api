@@ -19,6 +19,7 @@ module V0
 
       def valid_va_file_number?(service_response)
         return { file_nbr: true } if service_response[:file_nbr].present?
+
         { file_nbr: false }
       end
     end
