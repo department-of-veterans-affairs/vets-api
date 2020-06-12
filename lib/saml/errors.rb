@@ -29,8 +29,9 @@ module SAML
   end
 
   class FormError < SAMLError
-    def initialize(form:, code: {})
-      @code = code || form.error_instrumentation_code
+    def initialize(form, code={})
+      @code = code || form.error_code
+      @tag = form.error_instrumentation_code
       @level = form.errors_hash[:level]
       @context = form.errors_context
       super(form.errors_message)

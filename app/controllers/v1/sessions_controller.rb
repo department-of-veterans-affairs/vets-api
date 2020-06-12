@@ -2,6 +2,7 @@
 
 require 'base64'
 require 'saml/url_service'
+require 'saml/errors'
 require 'saml/responses/login'
 require 'saml/responses/logout'
 
@@ -50,14 +51,11 @@ module V1
 
     def saml_callback
       saml_response = SAML::Responses::Login.new(params[:SAMLResponse], settings: saml_settings)
-      if saml_response.valid?
-        user_login(saml_response)
-        callback_stats(:success, saml_response)
-      else
-        saml_error(saml_response)
-      end
+      saml_error(saml_response) unless saml_response.valid?
+      user_login(saml_response)
+      callback_stats(:success, saml_response)
     rescue SAML::SAMLError => e
-      log_message_to_sentry(e.message, e.level, e.context)
+      log_message_to_sentry(e.message, e.level, extra_context: e.context)
       redirect_to url_service.login_redirect_url(auth: 'fail', code: e.code)
       callback_stats(:failure, saml_response, e.tag || e.code)
     rescue => e
@@ -113,10 +111,10 @@ module V1
       SAML::SSOeSettingsService.saml_settings(options)
     end
 
-    def saml_error(response)
-      code = response.error_code
+    def saml_error(form)
+      code = form.error_code
       code = UserSessionForm::ERRORS[:saml_replay_valid_session][:code] if code == '005' && validate_session
-      raise SAML::FormError(response, code)
+      raise SAML::FormError.new(form, code)
     end
 
     def authenticate
@@ -131,20 +129,20 @@ module V1
 
     def user_login(saml_response)
       user_session_form = UserSessionForm.new(saml_response)
-      if user_session_form.valid?
-        @current_user, @session_object = user_session_form.persist
-        set_cookies
-        after_login_actions
-        redirect_to url_service(user_session_form.saml_uuid).login_redirect_url
-        if location.start_with?(url_service.base_redirect_url)
-          # only record login stats if the user is being redirect to the site
-          # some users will need to be up-leveled and this will be redirected
-          # back to the identity provider
-          login_stats(:success, saml_response, user_session_form)
-        end
-      else
+      unless user_session_form.valid?
         login_stats(:failure, saml_response, user_session_form)
-        raise SAML::FormError(user_session_form)
+        saml_error(user_session_form)
+      end
+
+      @current_user, @session_object = user_session_form.persist
+      set_cookies
+      after_login_actions
+      redirect_to url_service(user_session_form.saml_uuid).login_redirect_url
+      if location.start_with?(url_service.base_redirect_url)
+        # only record login stats if the user is being redirect to the site
+        # some users will need to be up-leveled and this will be redirected
+        # back to the identity provider
+        login_stats(:success, saml_response, user_session_form)
       end
     end
 
