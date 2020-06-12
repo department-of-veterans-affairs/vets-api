@@ -8,6 +8,8 @@ require 'support/spool_helpers'
 require 'support/fixture_helpers'
 require 'support/spec_temp_files'
 require 'support/silence_stream'
+require 'sidekiq-pro' if Gem.loaded_specs.key?('sidekiq-pro')
+require 'support/sidekiq/batch'
 require 'support/stub_emis'
 require 'support/stub_evss_pciu'
 require 'support/vet360/stub_vet360'
