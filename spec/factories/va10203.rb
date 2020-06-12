@@ -31,7 +31,7 @@ FactoryBot.define do
           accountNumber: '88888888888',
           accountType: 'checking',
           bankName: 'First Bank of JSON',
-          routingNumber: '123456789',
+          routingNumber: '123456789'
         },
         privacyAgreementAccepted: true
       }.to_json
