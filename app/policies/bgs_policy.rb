@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-# rubocop:disable Metrics/BlockLength
-
 BGSPolicy = Struct.new(:user, :bgs) do
   def access?
     if user.icn.present? && user.ssn.present? && user.participant_id.present?
@@ -23,4 +21,3 @@ BGSPolicy = Struct.new(:user, :bgs) do
     false
   end
 end
-# rubocop:enable Metrics/BlockLength
