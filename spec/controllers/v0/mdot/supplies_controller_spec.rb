@@ -22,26 +22,26 @@ RSpec.describe V0::MDOT::SuppliesController, type: :controller do
   describe '#create' do
     let(:body) do
       {
-        'permanent_address' => {
+        'permanentAddress' => {
           'street' => '125 SOME RD',
           'street2' => 'APT 101',
           'city' => 'DENVER',
           'state' => 'CO',
           'country' => 'United States',
-          'postal_code' => '111119999'
+          'postalCode' => '111119999'
         },
-        'temporary_address' => {
+        'temporaryAddress' => {
           'street' => '17250 w colfax ave',
           'street2' => 'a-204',
           'city' => 'Golden',
           'state' => 'CO',
           'country' => 'United States',
-          'postal_code' => '80401'
+          'postalCode' => '80401'
         },
-        'vet_email' => 'vet1@va.gov',
-        'use_veteran_address' => true,
-        'use_temporary_address' => false,
-        'order' => [{ 'product_id' => '2499' }]
+        'vetEmail' => 'vet1@va.gov',
+        'useVeteranAddress' => true,
+        'useTemporaryAddress' => false,
+        'order' => [{ 'productId' => '2499' }]
       }
     end
 

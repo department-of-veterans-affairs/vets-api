@@ -97,12 +97,12 @@ describe MDOT::Client, type: :mdot_helpers do
         'additionalRequests' => '',
         'order' => [{ 'productId' => '2499' }],
         'permanentAddress' => {
-          'street' => '101 Example Street',
-          'street2' => 'Apt 2',
-          'city' => 'Kansas City',
-          'state' => 'MO',
-          'country' => 'USA',
-          'postalCode' => '64117'
+          'street' => '125 SOME RD',
+          'street2' => 'APT 101',
+          'city' => 'DENVER',
+          'state' => 'CO',
+          'country' => 'United States',
+          'postalCode' => '111119999'
         },
         'temporaryAddress' => {
           'street' => '17250 w colfax ave',
