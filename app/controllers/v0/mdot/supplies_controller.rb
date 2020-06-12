@@ -25,9 +25,10 @@ module V0
           :use_veteran_address,
           :use_temporary_address,
           :additional_requests,
+          :vet_email,
           order: [:product_id],
           permanent_address: address_params,
-          temporary_address: address_params
+          temporary_address: address_params,
         ).to_hash
       end
 

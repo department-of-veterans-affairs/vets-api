@@ -51,6 +51,7 @@ module MDOT
     # @return [Faraday::Response] Faraday response instance.
     #
     def submit_order(request_body)
+      request_body.deep_transform_keys! { |key| key.to_s.camelize(:lower) }
       with_monitoring_and_error_handling do
         perform(:post, @supplies, request_body, submission_headers).body
       end
