@@ -25,19 +25,19 @@ RSpec.describe Sentry::Processor::LogAsWarning do
       user: {},
       logentry: {
         params: nil,
-        message: 'Common::Exceptions::GatewayTimeout: Gateway timeout'
+        message: 'Common::Exceptions::External::GatewayTimeout: Gateway timeout'
       },
       exception: {
         values: [
           {
             type: exception,
-            value: 'Common::Exceptions::GatewayTimeout',
+            value: 'Common::Exceptions::External::GatewayTimeout',
             module: 'Common::Exceptions',
             stacktrace: nil
           }
         ]
       },
-      message: 'Common::Exceptions::GatewayTimeout: Gateway timeout'
+      message: 'Common::Exceptions::External::GatewayTimeout: Gateway timeout'
     }
   end
 
@@ -50,7 +50,7 @@ RSpec.describe Sentry::Processor::LogAsWarning do
   let(:exception) { RuntimeError.to_s }
 
   %w[
-    Common::Exceptions::GatewayTimeout
+    Common::Exceptions::External::GatewayTimeout
     EVSS::ErrorMiddleware::EVSSError
     EVSS::DisabilityCompensationForm::GatewayTimeout
   ].each do |error|

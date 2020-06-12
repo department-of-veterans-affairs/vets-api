@@ -154,78 +154,78 @@ describe Vet360Redis::ContactInformation do
     context 'with an error response' do
       before do
         allow_any_instance_of(Vet360::ContactInformation::Service).to receive(:get_person).and_raise(
-          Common::Exceptions::BackendServiceException
+          Common::Exceptions::External::BackendServiceException
         )
       end
 
       describe '#email' do
-        it 'raises a Common::Exceptions::BackendServiceException error' do
+        it 'raises a Common::Exceptions::External::BackendServiceException error' do
           expect { contact_info.email }.to raise_error(
-            Common::Exceptions::BackendServiceException
+            Common::Exceptions::External::BackendServiceException
           )
         end
       end
 
       describe '#residential_address' do
-        it 'raises a Common::Exceptions::BackendServiceException error' do
+        it 'raises a Common::Exceptions::External::BackendServiceException error' do
           expect { contact_info.mailing_address }.to raise_error(
-            Common::Exceptions::BackendServiceException
+            Common::Exceptions::External::BackendServiceException
           )
         end
       end
 
       describe '#mailing_address' do
-        it 'raises a Common::Exceptions::BackendServiceException error' do
+        it 'raises a Common::Exceptions::External::BackendServiceException error' do
           expect { contact_info.mailing_address }.to raise_error(
-            Common::Exceptions::BackendServiceException
+            Common::Exceptions::External::BackendServiceException
           )
         end
       end
 
       describe '#home_phone' do
-        it 'raises a Common::Exceptions::BackendServiceException error' do
+        it 'raises a Common::Exceptions::External::BackendServiceException error' do
           expect { contact_info.home_phone }.to raise_error(
-            Common::Exceptions::BackendServiceException
+            Common::Exceptions::External::BackendServiceException
           )
         end
       end
 
       describe '#mobile_phone' do
-        it 'raises a Common::Exceptions::BackendServiceException error' do
+        it 'raises a Common::Exceptions::External::BackendServiceException error' do
           expect { contact_info.mobile_phone }.to raise_error(
-            Common::Exceptions::BackendServiceException
+            Common::Exceptions::External::BackendServiceException
           )
         end
       end
 
       describe '#work_phone' do
-        it 'raises a Common::Exceptions::BackendServiceException error' do
+        it 'raises a Common::Exceptions::External::BackendServiceException error' do
           expect { contact_info.work_phone }.to raise_error(
-            Common::Exceptions::BackendServiceException
+            Common::Exceptions::External::BackendServiceException
           )
         end
       end
 
       describe '#temporary_phone' do
-        it 'raises a Common::Exceptions::BackendServiceException error' do
+        it 'raises a Common::Exceptions::External::BackendServiceException error' do
           expect { contact_info.temporary_phone }.to raise_error(
-            Common::Exceptions::BackendServiceException
+            Common::Exceptions::External::BackendServiceException
           )
         end
       end
 
       describe '#fax_number' do
-        it 'raises a Common::Exceptions::BackendServiceException error' do
+        it 'raises a Common::Exceptions::External::BackendServiceException error' do
           expect { contact_info.fax_number }.to raise_error(
-            Common::Exceptions::BackendServiceException
+            Common::Exceptions::External::BackendServiceException
           )
         end
       end
 
       describe '#text_permission' do
-        it 'raises a Common::Exceptions::BackendServiceException error' do
+        it 'raises a Common::Exceptions::External::BackendServiceException error' do
           expect { contact_info.text_permission }.to raise_error(
-            Common::Exceptions::BackendServiceException
+            Common::Exceptions::External::BackendServiceException
           )
         end
       end

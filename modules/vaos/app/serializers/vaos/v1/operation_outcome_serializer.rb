@@ -10,7 +10,7 @@ module VAOS
     # This serializer takes errors that intended for JSON API rendering and remaps their fields.
     #
     # @example Serialize a BackendServiceException as an outcome
-    #   issue = Common::Exceptions::BackendServiceException.new('VAOS_502', source: 'Klass')
+    #   issue = Common::Exceptions::External::BackendServiceException.new('VAOS_502', source: 'Klass')
     #   operation_outcome = VAOS::V1::OperationOutcome.new(resource_type: resource_type, id: id, issue: issue)
     #   VAOS::V1::OperationOutcomeSerializer.new(operation_outcome).serialized_json
     class OperationOutcomeSerializer

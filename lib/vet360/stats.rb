@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'vet360/service'
+
 module Vet360
   class Stats
     FINAL_SUCCESS = %w[COMPLETED_SUCCESS COMPLETED_NO_CHANGES_DETECTED].freeze

@@ -1,5 +1,8 @@
 # frozen_string_literal: true
 
+require 'evss/disability_compensation_form/service_exception'
+require 'evss/disability_compensation_form/gateway_timeout'
+
 module EVSS
   module DisabilityCompensationForm
     class SubmitForm526 < Job
@@ -29,7 +32,7 @@ module EVSS
           response = service.submit_form526(submission.form_to_json(Form526Submission::FORM_526))
           response_handler(response)
         end
-      rescue Common::Exceptions::GatewayTimeout => e
+      rescue Common::Exceptions::External::GatewayTimeout => e
         retryable_error_handler(e)
       rescue EVSS::DisabilityCompensationForm::ServiceException => e
         # retry submitting the form for specific upstream errors

@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require 'evss/dependents/retrieved_info'
 
 describe EVSS::Dependents::RetrievedInfo do
   subject { described_class.for_user(user) }

@@ -13,8 +13,8 @@ describe VAOS::CancelForm, type: :model do
       expect(subject.errors.keys).to contain_exactly(:appointment_time, :cancel_code, :facility_id)
     end
 
-    it 'raises a Common::Exceptions::ValidationErrors when trying to fetch coerced params' do
-      expect { subject.params }.to raise_error(Common::Exceptions::ValidationErrors)
+    it 'raises a Common::Exceptions::Internal::ValidationErrors when trying to fetch coerced params' do
+      expect { subject.params }.to raise_error(Common::Exceptions::Internal::ValidationErrors)
     end
   end
 

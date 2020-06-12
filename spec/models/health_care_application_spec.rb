@@ -109,9 +109,9 @@ RSpec.describe HealthCareApplication, type: :model do
 
     context 'when the user is not found' do
       it 'returns nil' do
-        expect_any_instance_of(MVI::Service).to receive(
+        expect_any_instance_of(MasterVeteranIndex::Service).to receive(
           :perform
-        ).and_raise(MVI::Errors::RecordNotFound)
+        ).and_raise(MasterVeteranIndex::Errors::RecordNotFound)
 
         expect(described_class.user_icn(described_class.user_attributes(form))).to eq(nil)
       end
@@ -119,7 +119,7 @@ RSpec.describe HealthCareApplication, type: :model do
 
     context 'when the user is found' do
       it 'returns the icn' do
-        expect_any_instance_of(MVI::Service).to receive(
+        expect_any_instance_of(MasterVeteranIndex::Service).to receive(
           :find_profile
         ).and_return(
           OpenStruct.new(
@@ -149,7 +149,7 @@ RSpec.describe HealthCareApplication, type: :model do
       it 'raises a validation error' do
         expect do
           described_class.user_attributes(nil)
-        end.to raise_error(Common::Exceptions::ValidationErrors)
+        end.to raise_error(Common::Exceptions::Internal::ValidationErrors)
       end
     end
   end
@@ -192,7 +192,7 @@ RSpec.describe HealthCareApplication, type: :model do
       it 'raises a validation error' do
         expect do
           described_class.new(form: {}.to_json).process!
-        end.to raise_error(Common::Exceptions::ValidationErrors)
+        end.to raise_error(Common::Exceptions::Internal::ValidationErrors)
       end
     end
 

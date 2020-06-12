@@ -17,6 +17,6 @@ class RxController < ApplicationController
   end
 
   def raise_access_denied
-    raise Common::Exceptions::Forbidden, detail: 'You do not have access to prescriptions'
+    raise Common::Exceptions::Internal::Forbidden, detail: 'You do not have access to prescriptions'
   end
 end

@@ -1,5 +1,8 @@
 # frozen_string_literal: true
 
+require 'string_helpers'
+require 'sentry_logging'
+
 # TODO(AJD): Virtus POROs for now, will become ActiveRecord when the profile is persisted
 class FormFullName
   include Virtus.model
@@ -285,7 +288,7 @@ class FormProfile
 
   def extract_pciu_data(user, method)
     user&.send(method)
-  rescue Common::Exceptions::Forbidden, Common::Exceptions::BackendServiceException
+  rescue Common::Exceptions::Internal::Forbidden, Common::Exceptions::External::BackendServiceException
     ''
   end
 

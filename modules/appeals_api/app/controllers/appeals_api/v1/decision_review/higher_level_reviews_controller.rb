@@ -2,7 +2,6 @@
 
 require 'json_schema/json_api_missing_attribute'
 require 'appeals_api/form_schemas'
-require_dependency 'appeals_api/concerns/json_format_validation'
 
 class AppealsApi::V1::DecisionReview::HigherLevelReviewsController < AppealsApi::ApplicationController
   include AppealsApi::JsonFormatValidation
@@ -23,7 +22,7 @@ class AppealsApi::V1::DecisionReview::HigherLevelReviewsController < AppealsApi:
 
   def create
     @higher_level_review.save
-    AppealsApi::HigherLevelReviewPdfSubmitJob.perform_async(@higher_level_review.id)
+    AppealsApi::HigherLevelReviewPDFSubmitJob.perform_async(@higher_level_review.id)
     render_higher_level_review
   end
 

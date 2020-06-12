@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'common/client/concerns/monitoring'
+require 'caseflow/responses/caseflow'
 
 module Caseflow
   ##
@@ -11,7 +12,7 @@ module Caseflow
   #
   class Service < Common::Client::Base
     include SentryLogging
-    include Common::Client::Monitoring
+    include Common::Client::Concerns::Monitoring
 
     configuration Caseflow::Configuration
 

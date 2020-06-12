@@ -1,12 +1,15 @@
 # frozen_string_literal: true
 
 require 'common/client/base'
+require 'common/client/concerns/monitoring'
+require 'vet360/contact_information/configuration'
 require 'vet360/contact_information/transaction_response'
+require 'vet360/service'
 
 module Vet360
   module ContactInformation
     class Service < Vet360::Service
-      include Common::Client::Monitoring
+      include Common::Client::Concerns::Monitoring
 
       configuration Vet360::ContactInformation::Configuration
 

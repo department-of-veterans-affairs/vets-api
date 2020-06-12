@@ -15,7 +15,7 @@ module V0
     # GET /v0/backend_statuses/:service
     def show
       @backend_service = params[:service]
-      raise Common::Exceptions::RecordNotFound, @backend_service unless recognized_service?
+      raise Common::Exceptions::Internal::RecordNotFound, @backend_service unless recognized_service?
 
       # get status
       be_status = BackendStatus.new(name: @backend_service)

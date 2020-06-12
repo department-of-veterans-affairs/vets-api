@@ -1,8 +1,5 @@
 # frozen_string_literal: true
 
-require_dependency 'vba_documents/application_controller'
-require_dependency 'vba_documents/object_store'
-
 module VBADocuments
   module Internal
     module V0
@@ -26,7 +23,7 @@ module VBADocuments
               topic_arn: json_params['TopicArn']
             )
           else
-            raise Common::Exceptions::ParameterMissing, 'x-amz-sns-message-type'
+            raise Common::Exceptions::Internal::ParameterMissing, 'x-amz-sns-message-type'
           end
 
           head :no_content
@@ -38,14 +35,14 @@ module VBADocuments
         # we're expecting to get messages from
         def verify_topic_arn
           unless Settings.vba_documents.sns.topic_arns.include? json_params['TopicArn']
-            raise Common::Exceptions::ParameterMissing, 'TopicArn'
+            raise Common::Exceptions::Internal::ParameterMissing, 'TopicArn'
           end
         end
 
         def verify_message
           verifier = Aws::SNS::MessageVerifier.new
           unless verifier.authentic?(read_body)
-            raise Common::Exceptions::MessageAuthenticityError.new(
+            raise Common::Exceptions::Internal::MessageAuthenticityError.new(
               raw_post: read_body,
               signature: json_params['Signature']
             )
@@ -67,7 +64,9 @@ module VBADocuments
         def process_upload(upload_id)
           upload = VBADocuments::UploadSubmission.where(status: 'pending').find_by(guid: upload_id)
           store = VBADocuments::ObjectStore.new
-          raise Common::Exceptions::RecordNotFound, upload_id unless upload && store.bucket.object(upload.guid).exists?
+          unless upload && store.bucket.object(upload.guid).exists?
+            raise Common::Exceptions::Internal::RecordNotFound, upload_id
+          end
 
           Rails.logger.info('VBADocuments: Processing: ' + upload.inspect)
           upload.update(status: 'uploaded')

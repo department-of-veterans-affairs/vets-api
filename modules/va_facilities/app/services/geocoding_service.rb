@@ -33,10 +33,10 @@ class GeocodingService
 
   def handle_bing_errors(response_body, headers)
     if response_body['errors'].present? && response_body['errors'].size.positive?
-      raise Common::Exceptions::BingServiceError, (response_body['errors'].flat_map { |h| h['errorDetails'] })
+      raise Common::Exceptions::External::BingServiceError, (response_body['errors'].flat_map { |h| h['errorDetails'] })
     elsif headers['x-ms-bm-ws-info'].to_i == 1 && empty_resource_set?(response_body)
       # https://docs.microsoft.com/en-us/bingmaps/rest-services/status-codes-and-error-handling
-      raise Common::Exceptions::BingServiceError, 'Bing server overloaded'
+      raise Common::Exceptions::External::BingServiceError, 'Bing server overloaded'
     end
   end
 

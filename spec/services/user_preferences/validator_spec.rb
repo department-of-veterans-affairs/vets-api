@@ -71,7 +71,7 @@ RSpec.describe UserPreferences::Validator do
 
       it 'raises an exception', :aggregate_failures do
         expect { UserPreferences::Validator.new(empty_preference_request).of_presence! }.to raise_error do |error|
-          expect(error).to be_a(Common::Exceptions::ParameterMissing)
+          expect(error).to be_a(Common::Exceptions::Internal::ParameterMissing)
           expect(error.status_code).to eq 400
           expect(error.errors.first.title).to eq 'Missing parameter'
           expect(error.errors.first.detail).to include 'preference#code'
@@ -105,7 +105,7 @@ RSpec.describe UserPreferences::Validator do
 
       it 'raises an exception', :aggregate_failures do
         expect { UserPreferences::Validator.new(empty_preference_request).of_presence! }.to raise_error do |error|
-          expect(error).to be_a(Common::Exceptions::ParameterMissing)
+          expect(error).to be_a(Common::Exceptions::Internal::ParameterMissing)
           expect(error.status_code).to eq 400
           expect(error.errors.first.title).to eq 'Missing parameter'
           expect(error.errors.first.detail).to include 'preference#code'
@@ -135,7 +135,7 @@ RSpec.describe UserPreferences::Validator do
 
       it 'raises an exception', :aggregate_failures do
         expect { UserPreferences::Validator.new(empty_user_preference_request).of_presence! }.to raise_error do |error|
-          expect(error).to be_a(Common::Exceptions::ParameterMissing)
+          expect(error).to be_a(Common::Exceptions::Internal::ParameterMissing)
           expect(error.status_code).to eq 400
           expect(error.errors.first.title).to eq 'Missing parameter'
           expect(error.errors.first.detail).to include 'user_preferences'
@@ -166,7 +166,7 @@ RSpec.describe UserPreferences::Validator do
 
       it 'raises an exception', :aggregate_failures do
         expect { UserPreferences::Validator.new(empty_user_preference_request).of_presence! }.to raise_error do |error|
-          expect(error).to be_a(Common::Exceptions::ParameterMissing)
+          expect(error).to be_a(Common::Exceptions::Internal::ParameterMissing)
           expect(error.status_code).to eq 400
           expect(error.errors.first.title).to eq 'Missing parameter'
           expect(error.errors.first.detail).to include 'user_preferences'
@@ -197,7 +197,7 @@ RSpec.describe UserPreferences::Validator do
 
       it 'raises an exception', :aggregate_failures do
         expect { UserPreferences::Validator.new(empty_user_preference_request).of_presence! }.to raise_error do |error|
-          expect(error).to be_a(Common::Exceptions::ParameterMissing)
+          expect(error).to be_a(Common::Exceptions::Internal::ParameterMissing)
           expect(error.status_code).to eq 400
           expect(error.errors.first.title).to eq 'Missing parameter'
           expect(error.errors.first.detail).to include 'user_preference#code'

@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-MviPolicy = Struct.new(:user, :mvi) do
+MVIPolicy = Struct.new(:user, :mvi) do
   def queryable?
     user.icn.present? || required_attrs_present?(user)
   end

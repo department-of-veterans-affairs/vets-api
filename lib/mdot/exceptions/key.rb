@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
-module MDOT
-  class ExceptionKey
+module MDOT::Exceptions
+  class Key
     attr_reader :key, :i18n_key
 
     def initialize(key)

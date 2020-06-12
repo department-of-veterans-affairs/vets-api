@@ -1,5 +1,5 @@
 # frozen_string_literal: true
 
-class HcaAttachmentSerializer < ActiveModel::Serializer
+class HCAAttachmentSerializer < ActiveModel::Serializer
   attribute :guid
 end

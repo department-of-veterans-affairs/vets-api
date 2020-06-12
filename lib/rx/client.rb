@@ -11,7 +11,7 @@ module Rx
   # Core class responsible for Rx API interface operations
   #
   class Client < Common::Client::Base
-    include Common::Client::MHVSessionBasedClient
+    include Common::Client::Concerns::MHVSessionBasedClient
 
     configuration Rx::Configuration
     client_session Rx::ClientSession
@@ -108,7 +108,7 @@ module Rx
     #
     # @note Don't do this one in parallel since you want it to behave like a single atomic operation.
     # @return [PrescriptionPreference]
-    # @raise [Common::Exceptions::BackendServiceException] if unhandled validation error is encountered in
+    # @raise [Common::Exceptions::External::BackendServiceException] if unhandled validation error is encountered in
     #  email_address, as mapped to RX157 code in config/locales/exceptions.en.yml
     #
     def post_preferences(params)

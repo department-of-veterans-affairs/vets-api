@@ -23,13 +23,13 @@ describe EVSSClaimsSyncStatusTracker do
   context 'without valid arguments' do
     it 'raises exception upon initialization without user uuid' do
       expect { described_class.new({}).get_collection_status }.to(
-        raise_error(Common::Exceptions::InternalServerError)
+        raise_error(Common::Exceptions::Internal::InternalServerError)
       )
     end
 
     it 'raises exception when attempting single record methods without a claim_id' do
       expect { described_class.new(user_uuid: 111).get_single_status }.to(
-        raise_error(Common::Exceptions::InternalServerError)
+        raise_error(Common::Exceptions::Internal::InternalServerError)
       )
     end
   end

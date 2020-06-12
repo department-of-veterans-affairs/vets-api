@@ -21,7 +21,7 @@ module V0
 
           render json: response, serializer: PhoneNumberSerializer
         else
-          raise Common::Exceptions::ValidationErrors, phone
+          raise Common::Exceptions::Internal::ValidationErrors, phone
         end
       end
 

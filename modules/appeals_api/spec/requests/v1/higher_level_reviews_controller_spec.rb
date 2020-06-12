@@ -30,7 +30,7 @@ describe AppealsApi::V1::DecisionReview::HigherLevelReviewsController, type: :re
 
     it 'create the job to build the PDF' do
       expect { post(path, params: @data, headers: @headers) }.to(
-        change(AppealsApi::HigherLevelReviewPdfSubmitJob.jobs, :size).by(1)
+        change(AppealsApi::HigherLevelReviewPDFSubmitJob.jobs, :size).by(1)
       )
     end
 

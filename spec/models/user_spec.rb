@@ -116,7 +116,7 @@ RSpec.describe User, type: :model do
       subject(:loa1_user) { described_class.new(build(:user, loa: { current: 1 })) }
 
       it 'raises an exception' do
-        expect { loa1_user }.to raise_exception(Common::Exceptions::ValidationErrors)
+        expect { loa1_user }.to raise_exception(Common::Exceptions::Internal::ValidationErrors)
       end
     end
   end

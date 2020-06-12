@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require_dependency 'claims_api/form_schemas'
+require 'claims_api/form_schemas'
 
 module ClaimsApi
   module V1

@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require_relative 'payment_configuration_v2'
+
 module EMIS
   # HTTP Client for EMIS Payment Service requests.
   class PaymentServiceV2 < Service

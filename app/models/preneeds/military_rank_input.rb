@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'common/models/base'
+require 'preneeds/xml_date'
 
 module Preneeds
   # Models the input needed to query {Preneeds::Service#get_military_rank_for_branch_of_service}

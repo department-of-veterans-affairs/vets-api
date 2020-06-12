@@ -1,9 +1,12 @@
 # frozen_string_literal: true
 
+require 'common/exceptions/base_error'
+require 'common/exceptions/serializable_error'
+
 module Common
-  module Exceptions
+  module Exceptions::Internal
     # InvalidFieldValue - field value is invalid
-    class InvalidFieldValue < BaseError
+    class InvalidFieldValue < Common::Exceptions::BaseError
       attr_reader :field, :value
 
       def initialize(field, value)
@@ -12,7 +15,7 @@ module Common
       end
 
       def errors
-        Array(SerializableError.new(i18n_interpolated(detail: { field: @field, value: @value })))
+        Array(Common::Exceptions::SerializableError.new(i18n_interpolated(detail: { field: @field, value: @value })))
       end
     end
   end

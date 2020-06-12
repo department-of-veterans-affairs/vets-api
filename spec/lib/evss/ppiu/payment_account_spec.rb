@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require 'evss/ppiu/payment_account'
 
 describe EVSS::PPIU::PaymentAccount do
   describe '.build_payment_account' do

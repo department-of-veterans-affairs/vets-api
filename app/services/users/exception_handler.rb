@@ -2,7 +2,7 @@
 
 module Users
   class ExceptionHandler
-    include Common::Client::ServiceStatus
+    include Common::Client::Concerns::ServiceStatus
 
     attr_reader :error, :service
 
@@ -42,7 +42,7 @@ module Users
     private
 
     def validate!(error)
-      raise Common::Exceptions::ParameterMissing.new('error'), 'error' if error.blank?
+      raise Common::Exceptions::Internal::ParameterMissing.new('error'), 'error' if error.blank?
 
       error
     end

@@ -9,7 +9,7 @@ module V0
       unless claim.save
         StatsD.increment("#{stats_key}.failure")
         Raven.tags_context(team: 'benefits-memorial-1') # tag sentry logs with team name
-        raise Common::Exceptions::ValidationErrors, claim
+        raise Common::Exceptions::Internal::ValidationErrors, claim
       end
 
       # this method also calls claim.process_attachments!

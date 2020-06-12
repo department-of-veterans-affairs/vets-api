@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-module VbaDocuments
+module VBADocuments
   module DocumentUpload
     class SubmissionSwagger
       include Swagger::Blocks

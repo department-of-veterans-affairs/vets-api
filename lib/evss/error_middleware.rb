@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'common/exceptions'
+
 module EVSS
   class ErrorMiddleware < Faraday::Response::Middleware
     class EVSSError < StandardError
@@ -13,7 +15,7 @@ module EVSS
       end
     end
 
-    class EVSSBackendServiceError < Common::Exceptions::BackendServiceException; end
+    class EVSSBackendServiceError < Common::Exceptions::External::BackendServiceException; end
 
     def handle_xml_body(env)
       resp = Hash.from_xml(env.body)

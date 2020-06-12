@@ -3,6 +3,7 @@
 require 'rails_helper'
 require 'support/pagerduty/services/valid'
 require 'support/pagerduty/services/invalid'
+require 'pagerduty/models/service'
 
 describe PagerDuty::Models::Service do
   let(:pagerduty_service) { build :pagerduty_service }
@@ -47,7 +48,7 @@ describe PagerDuty::Models::Service do
     context 'with an invalid service status' do
       it 'raises an error', :aggregate_failures do
         expect { described_class.statuses_for(invalid_status) }.to raise_error do |e|
-          expect(e.class).to eq Common::Exceptions::ValidationErrors
+          expect(e.class).to eq Common::Exceptions::Internal::ValidationErrors
           expect(e.errors.first.detail).to eq 'status - is not included in the list'
         end
       end
@@ -56,7 +57,7 @@ describe PagerDuty::Models::Service do
     context 'with a missing service name' do
       it 'raises an error', :aggregate_failures do
         expect { described_class.statuses_for(nil_name) }.to raise_error do |e|
-          expect(e.class).to eq Common::Exceptions::InvalidFieldValue
+          expect(e.class).to eq Common::Exceptions::Internal::InvalidFieldValue
           expect(e.errors.first.detail).to include 'not a valid value'
         end
       end

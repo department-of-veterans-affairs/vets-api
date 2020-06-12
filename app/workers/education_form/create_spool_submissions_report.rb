@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'reports/uploader'
+
 module EducationForm
   class CreateSpoolSubmissionsReport
     require 'csv'

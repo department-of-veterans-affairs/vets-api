@@ -28,7 +28,7 @@ module V0
 
     def destroy
       form = InProgressForm.form_for_user(params[:id], @current_user)
-      raise Common::Exceptions::RecordNotFound, params[:id] if form.blank?
+      raise Common::Exceptions::Internal::RecordNotFound, params[:id] if form.blank?
 
       form.destroy
       render json: form
@@ -41,7 +41,7 @@ module V0
           add_response = @current_user.mvi.mvi_add_person
           raise add_response.error unless add_response.ok?
         elsif @current_user.birls_id.nil?
-          raise Common::Exceptions::UnprocessableEntity.new(
+          raise Common::Exceptions::External::UnprocessableEntity.new(
             detail: 'No birls_id while participant_id present',
             source: 'InProgressFormsController'
           )

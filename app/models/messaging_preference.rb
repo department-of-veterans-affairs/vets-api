@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 require 'common/models/base'
+require 'evss/pciu/email_address'
+
 # Secure Messaging Notification Preference Model
 class MessagingPreference < Common::Base
   include ActiveModel::Validations
@@ -28,7 +30,7 @@ class MessagingPreference < Common::Base
   )
 
   def mhv_params
-    raise Common::Exceptions::ValidationErrors, self unless valid?
+    raise Common::Exceptions::Internal::ValidationErrors, self unless valid?
 
     { email_address: email_address, notify_me: FREQUENCY_UPDATE_MAP.fetch(frequency) }
   end

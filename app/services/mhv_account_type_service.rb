@@ -8,7 +8,7 @@ require 'sentry_logging'
 #
 # @param user [User] the user object
 #
-class MhvAccountTypeService
+class MHVAccountTypeService
   include SentryLogging
   ELIGIBLE_DATA_CLASS_COUNT_TO_ACCOUNT_LEVEL = {
     32 => 'Premium',
@@ -16,8 +16,8 @@ class MhvAccountTypeService
     16 => 'Basic'
   }.freeze
   DEFAULT_ACCOUNT_LEVEL = 'Unknown'
-  MHV_DOWN_MESSAGE = 'MhvAccountTypeService: could not fetch eligible data classes'
-  UNEXPECTED_DATA_CLASS_COUNT_MESSAGE = 'MhvAccountTypeService: eligible data class mapping inconsistency'
+  MHV_DOWN_MESSAGE = 'MHVAccountTypeService: could not fetch eligible data classes'
+  UNEXPECTED_DATA_CLASS_COUNT_MESSAGE = 'MHVAccountTypeService: eligible data class mapping inconsistency'
 
   def initialize(user)
     @user = user

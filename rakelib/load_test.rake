@@ -20,6 +20,7 @@ namespace :load_test do
   desc 'Load test the HCA Enrollment & Eligibility API'
   task :hca_ee, [:icn] => [:environment] do |_, args|
     require './rakelib/support/vic_load_test'
+    require 'hca/enrollment_eligibility/service'
 
     LoadTest.measure_elapsed do
       10.times do

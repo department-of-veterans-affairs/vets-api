@@ -1,11 +1,14 @@
 # frozen_string_literal: true
 
-# rubocop:disable Metrics/ClassLength
+require 'pdf_fill/hash_converter'
+require 'pdf_fill/forms/form_base'
+require 'string_helpers'
 
-module PdfFill
+# rubocop:disable Metrics/ClassLength
+module PDFFill
   module Forms
     class Va21p527ez < FormBase
-      ITERATOR = PdfFill::HashConverter::ITERATOR
+      ITERATOR = PDFFill::HashConverter::ITERATOR
       INCOME_TYPES_KEY = {
         'bank' => 'CASH/NON-INTEREST BEARING BANK ACCOUNTS',
         'interestBank' => 'INTEREST-BEARING BANK ACCOUNTS',

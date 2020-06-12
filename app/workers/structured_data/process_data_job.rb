@@ -1,5 +1,8 @@
 # frozen_string_literal: true
 
+require 'pension_burial/tag_sentry'
+require 'bip_claims/service'
+
 module StructuredData
   class ProcessDataJob
     include Sidekiq::Worker

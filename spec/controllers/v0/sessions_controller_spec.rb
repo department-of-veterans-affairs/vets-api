@@ -187,7 +187,7 @@ RSpec.describe V0::SessionsController, type: :controller do
 
       before do
         mhv_account = double('mhv_account', ineligible?: false, needs_terms_acceptance?: false, upgraded?: true)
-        allow(MhvAccount).to receive(:find_or_initialize_by).and_return(mhv_account)
+        allow(MHVAccount).to receive(:find_or_initialize_by).and_return(mhv_account)
         allow(OneLogin::RubySaml::Logoutrequest).to receive(:new).and_return(logout_request)
         Session.find(token).to_hash.each { |k, v| session[k] = v }
         cookies['vagov_session_dev'] = 'bar'
@@ -253,7 +253,7 @@ RSpec.describe V0::SessionsController, type: :controller do
         context 'saml_logout_response is success' do
           before do
             mhv_account = double('mhv_account', ineligible?: false, needs_terms_acceptance?: false, upgraded?: true)
-            allow(MhvAccount).to receive(:find_or_initialize_by).and_return(mhv_account)
+            allow(MHVAccount).to receive(:find_or_initialize_by).and_return(mhv_account)
             allow(SingleLogoutRequest).to receive(:find).with('1234').and_return(nil)
             allow(OneLogin::RubySaml::Logoutresponse).to receive(:new).and_return(successful_logout_response)
             Session.find(token).to_hash.each { |k, v| session[k] = v }
@@ -282,7 +282,7 @@ RSpec.describe V0::SessionsController, type: :controller do
       context 'saml_logout_response is success' do
         before do
           mhv_account = double('mhv_account', ineligible?: false, needs_terms_acceptance?: false, upgraded?: true)
-          allow(MhvAccount).to receive(:find_or_initialize_by).and_return(mhv_account)
+          allow(MHVAccount).to receive(:find_or_initialize_by).and_return(mhv_account)
           allow(SingleLogoutRequest).to receive(:find).with('1234').and_call_original
           allow(OneLogin::RubySaml::Logoutresponse).to receive(:new).and_return(successful_logout_response)
           Session.find(token).to_hash.each { |k, v| session[k] = v }
@@ -619,7 +619,7 @@ RSpec.describe V0::SessionsController, type: :controller do
         end
 
         it 'allows user to sign in even if user attributes are not available' do
-          MVI::Configuration.instance.breakers_service.begin_forced_outage!
+          MasterVeteranIndex::Configuration.instance.breakers_service.begin_forced_outage!
           callback_tags = ['status:success', 'context:myhealthevet', 'version:v0']
           expect { post(:saml_callback) }
             .to trigger_statsd_increment(described_class::STATSD_SSO_CALLBACK_KEY, tags: callback_tags, **once)
@@ -629,7 +629,7 @@ RSpec.describe V0::SessionsController, type: :controller do
                                           **once)
           expect(response.location).to start_with('http://127.0.0.1:3001/auth/login/callback')
           expect(cookies['vagov_session_dev']).not_to be_nil
-          MVI::Configuration.instance.breakers_service.end_forced_outage!
+          MasterVeteranIndex::Configuration.instance.breakers_service.end_forced_outage!
         end
       end
 

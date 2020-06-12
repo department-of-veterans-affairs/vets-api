@@ -1,8 +1,5 @@
 # frozen_string_literal: true
 
-require_dependency 'claims_api/application_controller'
-require_dependency 'claims_api/concerns/poa_verification'
-
 module ClaimsApi
   module V1
     class ClaimsController < ApplicationController

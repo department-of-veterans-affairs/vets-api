@@ -12,7 +12,7 @@ FactoryBot.define do
 end
 
 FactoryBot.define do
-  factory :mvi_profile_address, class: 'MVI::Models::MviProfileAddress' do
+  factory :mvi_profile_address, class: 'MasterVeteranIndex::Models::MVIProfileAddress' do
     street { "#{street}, #{street2}" }
     city { Faker::Address.city[0...20] }
     state { Faker::Address.state_abbr }
@@ -36,7 +36,7 @@ FactoryBot.define do
 end
 
 FactoryBot.define do
-  factory :mvi_profile, class: 'MVI::Models::MviProfile' do
+  factory :mvi_profile, class: 'MasterVeteranIndex::Models::MVIProfile' do
     given_names { Array.new(2) { Faker::Name.first_name } }
     family_name { Faker::Name.last_name }
     suffix { Faker::Name.suffix }

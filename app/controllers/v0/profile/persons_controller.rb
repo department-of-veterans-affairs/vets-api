@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'vet360/person/service'
+
 module V0
   module Profile
     class PersonsController < ApplicationController

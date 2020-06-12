@@ -4,7 +4,7 @@ require 'jwt'
 require 'securerandom'
 
 module EVSS
-  class Jwt
+  class JWT
     ISSUER            = Settings.evss.jwt.issuer
     SIGNING_KEY       = Settings.evss.jwt.key
     SIGNING_ALGORITHM = 'HS256'
@@ -15,7 +15,7 @@ module EVSS
     end
 
     def encode
-      JWT.encode(payload, SIGNING_KEY, SIGNING_ALGORITHM, typ: 'JWT')
+      ::JWT.encode(payload, SIGNING_KEY, SIGNING_ALGORITHM, typ: 'JWT')
     end
 
     private

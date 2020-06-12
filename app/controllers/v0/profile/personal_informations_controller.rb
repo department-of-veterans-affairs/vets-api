@@ -21,7 +21,7 @@ module V0
       #   }
       #
       def show
-        response = Mvi.for_user(@current_user).profile
+        response = MVI.for_user(@current_user).profile
 
         handle_errors!(response)
 
@@ -37,7 +37,7 @@ module V0
       end
 
       def raise_error!
-        raise Common::Exceptions::BackendServiceException.new(
+        raise Common::Exceptions::External::BackendServiceException.new(
           'MVI_BD502',
           source: self.class.to_s
         )

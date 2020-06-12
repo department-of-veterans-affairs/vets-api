@@ -2,11 +2,12 @@
 
 require 'common/client/concerns/service_status'
 require 'common/models/base'
+require 'ihub/models/appointment'
 
 module IHub
   module Appointments
     class Response < Common::Base
-      include Common::Client::ServiceStatus
+      include Common::Client::Concerns::ServiceStatus
 
       attribute :status, Integer
       attribute :appointments, Array

@@ -6,7 +6,7 @@ require 'evss/auth_headers'
 module EVSS
   class Service < Common::Client::Base
     attr_reader :transaction_id
-    include Common::Client::Monitoring
+    include Common::Client::Concerns::Monitoring
     STATSD_KEY_PREFIX = 'api.evss'
 
     def initialize(user)
@@ -68,7 +68,7 @@ module EVSS
         raise_backend_exception('EVSS502', self.class)
       when Common::Client::Errors::ClientError
         Raven.extra_context(body: error.body)
-        raise Common::Exceptions::Forbidden if error.status == 403
+        raise Common::Exceptions::Internal::Forbidden if error.status == 403
 
         raise_backend_exception('EVSS400', self.class, error) if error.status == 400
         raise_backend_exception('EVSS502', self.class, error)

@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
-class HcaAttachmentUploader < CarrierWave::Uploader::Base
+class HCAAttachmentUploader < CarrierWave::Uploader::Base
   include ValidateFileSize
-  include SetAwsConfig
+  include SetAWSConfig
   include UploaderVirusScan
   include CarrierWave::MiniMagick
 

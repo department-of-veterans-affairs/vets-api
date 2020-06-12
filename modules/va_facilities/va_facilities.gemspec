@@ -8,7 +8,7 @@ require 'va_facilities/version'
 # Describe your gem and declare its dependencies:
 Gem::Specification.new do |s|
   s.name        = 'va_facilities'
-  s.version     = VaFacilities::VERSION
+  s.version     = VAFacilities::VERSION
   s.authors     = ['Patrick Vinograd']
   s.email       = ['patrick@adhocteam.us']
   s.homepage    = 'https://api.va.gov/services/facilities/docs/v0'

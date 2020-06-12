@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-module PdfFill
+module PDFFill
   class ExtrasGenerator
     def initialize
       @generate_blocks = []

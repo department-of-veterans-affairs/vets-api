@@ -4,7 +4,7 @@ require 'backend_services'
 require 'common/client/concerns/service_status'
 
 class UserSerializer < ActiveModel::Serializer
-  include Common::Client::ServiceStatus
+  include Common::Client::Concerns::ServiceStatus
 
   attributes :services, :account, :profile, :va_profile, :veteran_status,
              :in_progress_forms, :prefills_available, :vet360_contact_information

@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require_relative 'configuration'
+
 module EVSS
   module DisabilityCompensationForm
     class ConfigurationIncreaseOnly < EVSS::DisabilityCompensationForm::Configuration

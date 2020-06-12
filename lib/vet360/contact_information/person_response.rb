@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'vet360/response'
+require 'vet360/models/person'
 
 module Vet360
   module ContactInformation

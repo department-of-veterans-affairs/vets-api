@@ -3,9 +3,11 @@
 require 'sidekiq'
 require 'appeals_api/higher_level_review_pdf_constructor'
 require 'appeals_api/upload_error'
+require 'central_mail/utilities'
+require 'pdf_info'
 
 module AppealsApi
-  class HigherLevelReviewPdfSubmitJob
+  class HigherLevelReviewPDFSubmitJob
     include Sidekiq::Worker
     include CentralMail::Utilities
 
@@ -17,7 +19,7 @@ module AppealsApi
     end
 
     def generate_pdf(higher_level_review_id)
-      pdf_constructor = AppealsApi::HigherLevelReviewPdfConstructor.new(higher_level_review_id)
+      pdf_constructor = AppealsApi::HigherLevelReviewPDFConstructor.new(higher_level_review_id)
       pdf_path = pdf_constructor.fill_pdf
       higher_level_review = HigherLevelReview.find higher_level_review_id
       higher_level_review.update!(status: 'processing')
@@ -34,7 +36,7 @@ module AppealsApi
         'source' => higher_level_review.consumer_name,
         'uuid' => higher_level_review.id,
         'hashV' => Digest::SHA256.file(pdf_path).hexdigest,
-        'numberPages' => PdfInfo::Metadata.read(pdf_path).pages,
+        'numberPages' => PDFInfo::Metadata.read(pdf_path).pages,
         'docType' => '20-0996'
       }
       body = { 'metadata' => metadata, 'document' => to_faraday_upload(pdf_path, '200996-document.pdf') }

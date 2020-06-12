@@ -4,7 +4,7 @@ module HCA
   class SOAPParser < Common::Client::Middleware::Response::SOAPParser
     include SentryLogging
 
-    class ValidationError < Common::Exceptions::BackendServiceException
+    class ValidationError < Common::Exceptions::External::BackendServiceException
       def initialize
         super('HCA422', status: 422)
       end

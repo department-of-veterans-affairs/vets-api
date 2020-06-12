@@ -5,7 +5,7 @@ require 'sidekiq/testing'
 
 Sidekiq::Testing.fake!
 
-RSpec.describe AppealsApi::HigherLevelReviewPdfSubmitJob, type: :job do
+RSpec.describe AppealsApi::HigherLevelReviewPDFSubmitJob, type: :job do
   subject { described_class }
 
   before { Sidekiq::Worker.clear_all }

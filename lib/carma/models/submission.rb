@@ -1,5 +1,9 @@
 # frozen_string_literal: true
 
+require 'carma/client/client'
+require_relative 'base'
+require_relative 'metadata'
+
 module CARMA
   module Models
     class Submission < Base

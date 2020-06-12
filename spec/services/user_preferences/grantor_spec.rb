@@ -162,7 +162,7 @@ RSpec.describe UserPreferences::Grantor do
 
       it 'returns a 404 not found', :aggregate_failures do
         expect { set_user_preferences.execute! }.to raise_error do |error|
-          expect(error).to be_a(Common::Exceptions::RecordNotFound)
+          expect(error).to be_a(Common::Exceptions::Internal::RecordNotFound)
           expect(error.status_code).to eq(404)
           expect(error.message).to eq('Record not found')
           expect(
@@ -186,7 +186,7 @@ RSpec.describe UserPreferences::Grantor do
 
       it 'returns a 404 not found', :aggregate_failures do
         expect { set_user_preferences.execute! }.to raise_error do |error|
-          expect(error).to be_a(Common::Exceptions::RecordNotFound)
+          expect(error).to be_a(Common::Exceptions::Internal::RecordNotFound)
           expect(error.status_code).to eq(404)
           expect(error.message).to eq('Record not found')
           expect(
@@ -205,7 +205,7 @@ RSpec.describe UserPreferences::Grantor do
         )
 
         expect { set_user_preferences.execute! }.to raise_error do |error|
-          expect(error).to be_a(Common::Exceptions::UnprocessableEntity)
+          expect(error).to be_a(Common::Exceptions::External::UnprocessableEntity)
           expect(error.status_code).to eq(422)
           expect(error.errors.first.detail).to include 'ActiveRecord::RecordNotDestroyed'
         end

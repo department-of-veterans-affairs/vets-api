@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require 'carma/client/configuration'
 
 RSpec.describe CARMA::Client::Configuration, type: :model do
   let(:subject) { CARMA::Client::Configuration.instance }

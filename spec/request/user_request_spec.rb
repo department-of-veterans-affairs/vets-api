@@ -10,9 +10,9 @@ RSpec.describe 'Fetching user data', type: :request do
     let(:mhv_user) { build(:user, :mhv) }
 
     before do
-      allow_any_instance_of(MhvAccountTypeService).to receive(:mhv_account_type).and_return('Premium')
-      mhv_account = double('MhvAccount', creatable?: false, upgradable?: false, account_state: 'upgraded')
-      allow(MhvAccount).to receive(:find_or_initialize_by).and_return(mhv_account)
+      allow_any_instance_of(MHVAccountTypeService).to receive(:mhv_account_type).and_return('Premium')
+      mhv_account = double('MHVAccount', creatable?: false, upgradable?: false, account_state: 'upgraded')
+      allow(MHVAccount).to receive(:find_or_initialize_by).and_return(mhv_account)
       allow(mhv_account).to receive(:user_uuid).and_return(mhv_user.uuid)
       allow(mhv_account).to receive(:terms_and_conditions_accepted?).and_return(true)
       allow(mhv_account).to receive(:needs_terms_acceptance?).and_return(false)
@@ -119,7 +119,7 @@ RSpec.describe 'Fetching user data', type: :request do
       let(:mhv_user) { build(:user, :mhv) }
 
       before do
-        allow_any_instance_of(MVI::Models::MviProfile).to receive(:active_mhv_ids).and_return(nil)
+        allow_any_instance_of(MasterVeteranIndex::Models::MVIProfile).to receive(:active_mhv_ids).and_return(nil)
         stub_mvi(mvi_profile)
         sign_in_as(mhv_user)
         get v0_user_url, params: nil
@@ -297,7 +297,8 @@ RSpec.describe 'Fetching user data', type: :request do
           .and not_trigger_statsd_increment('api.external_http_request.MVI.skipped')
           .and not_trigger_statsd_increment('api.external_http_request.MVI.success')
       end
-      expect(MVI::Configuration.instance.breakers_service.latest_outage.start_time.to_i).to eq(start_time.to_i)
+      expect(MasterVeteranIndex::Configuration.instance.breakers_service.latest_outage.start_time.to_i)
+        .to eq(start_time.to_i)
 
       # skipped because breakers is active
       stub_mvi_success
@@ -306,7 +307,7 @@ RSpec.describe 'Fetching user data', type: :request do
         .to trigger_statsd_increment('api.external_http_request.MVI.skipped', times: 1, value: 1)
         .and not_trigger_statsd_increment('api.external_http_request.MVI.failed')
         .and not_trigger_statsd_increment('api.external_http_request.MVI.success')
-      expect(MVI::Configuration.instance.breakers_service.latest_outage.ended?).to eq(false)
+      expect(MasterVeteranIndex::Configuration.instance.breakers_service.latest_outage.ended?).to eq(false)
       Timecop.freeze(now)
       # sufficient time has elapsed that new requests are made, resulting in success
       sign_in_as(new_user)
@@ -315,7 +316,7 @@ RSpec.describe 'Fetching user data', type: :request do
         .and not_trigger_statsd_increment('api.external_http_request.MVI.skipped')
         .and not_trigger_statsd_increment('api.external_http_request.MVI.failed')
       expect(response.status).to eq(200)
-      expect(MVI::Configuration.instance.breakers_service.latest_outage.ended?).to eq(true)
+      expect(MasterVeteranIndex::Configuration.instance.breakers_service.latest_outage.ended?).to eq(true)
       Timecop.return
     end
   end

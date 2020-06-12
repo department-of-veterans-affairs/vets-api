@@ -6,10 +6,10 @@ require 'sentry_logging'
 ##
 # Models MHV Account creation and upgrade logic processes
 #
-# @param mhv_account [MhvAccount] the user's MhvAccount object from DB
+# @param mhv_account [MHVAccount] the user's MHVAccount object from DB
 # @param user [User] the user's User object from Redis cache
 #
-class MhvAccountsService
+class MHVAccountsService
   include SentryLogging
 
   STATSD_ACCOUNT_EXISTED_KEY = 'mhv.account.existed'
@@ -131,7 +131,7 @@ class MhvAccountsService
 
   def log_warning(type:, exception:, extra: {})
     message = type == :upgrade ? 'MHV Upgrade Failed!' : 'MHV Create Failed!'
-    extra_content = if exception.is_a?(Common::Exceptions::BackendServiceException)
+    extra_content = if exception.is_a?(Common::Exceptions::External::BackendServiceException)
                       extra.merge(exception_type: 'BackendServiceException', body: exception.original_body)
                     else
                       extra.merge(exception_type: exception.message)

@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require 'evss/aws_configuration'
 
 describe EVSS::AWSConfiguration do
   describe '#mock_enabled?' do

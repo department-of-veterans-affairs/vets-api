@@ -1,5 +1,8 @@
 # frozen_string_literal: true
 
+require 'evss/service'
+require_relative 'configuration'
+
 module EVSS
   module Dependents
     ##

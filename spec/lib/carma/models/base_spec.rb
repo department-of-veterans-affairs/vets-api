@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require 'carma/models/base'
 
 RSpec.describe CARMA::Models::Base, type: :model do
   describe '::request_payload_key' do

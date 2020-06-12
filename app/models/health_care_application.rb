@@ -1,5 +1,12 @@
 # frozen_string_literal: true
 
+require 'hca/service'
+require 'hca/rate_limited_search'
+require 'hca/user_attributes'
+require 'hca/enrollment_eligibility/service'
+require 'hca/enrollment_eligibility/status_matcher'
+require 'master_veteran_index/attr_service'
+
 class HealthCareApplication < ApplicationRecord
   include TempFormValidation
   include SentryLogging
@@ -41,7 +48,7 @@ class HealthCareApplication < ApplicationRecord
              rescue Common::Client::Errors::ClientError => e
                log_exception_to_sentry(e)
 
-               raise Common::Exceptions::BackendServiceException.new(
+               raise Common::Exceptions::External::BackendServiceException.new(
                  nil, detail: e.message
                )
     end
@@ -52,7 +59,7 @@ class HealthCareApplication < ApplicationRecord
   end
 
   def process!
-    raise(Common::Exceptions::ValidationErrors, self) unless valid?
+    raise(Common::Exceptions::Internal::ValidationErrors, self) unless valid?
 
     has_email = parsed_form['email'].present?
 
@@ -111,7 +118,7 @@ class HealthCareApplication < ApplicationRecord
 
   def self.user_icn(user_attributes)
     HCA::RateLimitedSearch.create_rate_limited_searches(user_attributes) unless Settings.mvi_hca.skip_rate_limit
-    MVI::AttrService.new.find_profile(user_attributes)&.profile&.icn
+    MasterVeteranIndex::AttrService.new.find_profile(user_attributes)&.profile&.icn
   end
 
   def self.user_attributes(form)
@@ -127,7 +134,7 @@ class HealthCareApplication < ApplicationRecord
       gender: form['gender']
     )
 
-    raise Common::Exceptions::ValidationErrors, return_val unless return_val.valid?
+    raise Common::Exceptions::Internal::ValidationErrors, return_val unless return_val.valid?
 
     return_val
   end

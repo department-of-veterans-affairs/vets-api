@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'common/models/concerns/cache_aside'
+require 'gi/client'
 
 # Facade for GIDS.
 class GIDSRedis < Common::RedisStore
@@ -37,6 +38,6 @@ class GIDSRedis < Common::RedisStore
   end
 
   def gi_service
-    @client ||= ::GI::Client.new
+    @client ||= GI::Client.new
   end
 end

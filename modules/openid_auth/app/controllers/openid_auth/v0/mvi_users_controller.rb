@@ -1,10 +1,8 @@
 # frozen_string_literal: true
 
-require_dependency 'openid_auth/application_controller'
-
 module OpenidAuth
   module V0
-    class MviUsersController < ApplicationController
+    class MVIUsersController < ApplicationController
       skip_before_action :authenticate
       before_action :check_required_headers, only: :show
 
@@ -26,15 +24,15 @@ module OpenidAuth
       private
 
       def process_identity(user_identity)
-        service = MVI::Service.new
+        service = MasterVeteranIndex::Service.new
         mvi_response = service.find_profile(user_identity)
         raise mvi_response.error if mvi_response.error
 
-        render json: mvi_response, serializer: MviLookupSerializer
+        render json: mvi_response, serializer: MVILookupSerializer
       end
 
       def check_required_headers
-        raise Common::Exceptions::ParameterMissing, 'x-va-level-of-assurance' if missing_loa
+        raise Common::Exceptions::Internal::ParameterMissing, 'x-va-level-of-assurance' if missing_loa
       end
 
       def missing_loa
@@ -43,7 +41,7 @@ module OpenidAuth
 
       def check_level_of_assurance(user_attributes)
         has_loa = !user_attributes[:level_of_assurance].nil?
-        raise Common::Exceptions::ParameterMissing, 'level_of_assurance' unless has_loa
+        raise Common::Exceptions::Internal::ParameterMissing, 'level_of_assurance' unless has_loa
       end
 
       def build_identity_from_attributes(user_attributes)

@@ -1,5 +1,12 @@
 # frozen_string_literal: true
 
+require 'sidekiq_stats_instrumentation/client_middleware'
+require 'sidekiq_stats_instrumentation/server_middleware'
+require 'sidekiq/error_tag'
+require 'sidekiq/semantic_logging'
+require 'sidekiq/set_request_id'
+require 'sidekiq/set_request_attributes'
+
 Sidekiq::Enterprise.unique! if Rails.env.production?
 
 Sidekiq.configure_server do |config|

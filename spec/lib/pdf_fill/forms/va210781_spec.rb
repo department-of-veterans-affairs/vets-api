@@ -1,13 +1,13 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'pdf_fill/hash_converter'
+require 'pdf_fill/forms/va210781'
 
 def basic_class
-  PdfFill::Forms::Va210781.new({})
+  PDFFill::Forms::Va210781.new({})
 end
 
-describe PdfFill::Forms::Va210781 do
+describe PDFFill::Forms::Va210781 do
   let(:form_data) do
     {}
   end

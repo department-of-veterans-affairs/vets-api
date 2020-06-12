@@ -11,7 +11,7 @@ module AppealsApi
         response = CentralMail::Service.new.status(higher_level_reviews.pluck(:id))
         unless response.success?
           log_bad_central_mail_response(response)
-          raise Common::Exceptions::BadGateway
+          raise Common::Exceptions::External::BadGateway
         end
 
         central_mail_status_objects = parse_central_mail_response(response).select { |s| s.id.present? }
@@ -239,7 +239,7 @@ module AppealsApi
         attributes = CENTRAL_MAIL_STATUS_TO_HLR_ATTRIBUTES[status] || {}
       rescue ArgumentError
         self.class.log_unknown_central_mail_status(status)
-        raise Common::Exceptions::BadGateway, detail: 'Unknown processing status'
+        raise Common::Exceptions::External::BadGateway, detail: 'Unknown processing status'
       end
 
       if status.in?(CENTRAL_MAIL_ERROR_STATUSES) && error_message

@@ -2,6 +2,7 @@
 
 require 'common/models/base'
 require 'common/models/attribute_types/iso8601_time'
+require 'pagerduty/configuration'
 
 module PagerDuty
   module Models
@@ -63,11 +64,11 @@ module PagerDuty
         end
 
         def name_present!(service)
-          raise Common::Exceptions::InvalidFieldValue.new('name', 'nil') if service['name'].blank?
+          raise Common::Exceptions::Internal::InvalidFieldValue.new('name', 'nil') if service['name'].blank?
         end
 
         def validate!(external_service)
-          raise Common::Exceptions::ValidationErrors, external_service unless external_service.valid?
+          raise Common::Exceptions::Internal::ValidationErrors, external_service unless external_service.valid?
 
           external_service
         end

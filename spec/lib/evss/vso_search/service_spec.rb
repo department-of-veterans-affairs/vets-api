@@ -1,8 +1,9 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require 'evss/vso_search/service'
 
-describe EVSS::VsoSearch::Service do
+describe EVSS::VSOSearch::Service do
   let(:user) { create(:evss_user) }
   let(:service) { described_class.new(user) }
   let(:response) { OpenStruct.new(body: get_fixture('json/veteran_with_poa')) }

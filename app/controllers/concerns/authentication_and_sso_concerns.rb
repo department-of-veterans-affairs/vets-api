@@ -18,7 +18,7 @@ module AuthenticationAndSSOConcerns
   end
 
   def render_unauthorized
-    raise Common::Exceptions::Unauthorized
+    raise Common::Exceptions::Internal::Unauthorized
   end
 
   def validate_session

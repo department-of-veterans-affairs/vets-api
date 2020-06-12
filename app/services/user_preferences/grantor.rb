@@ -105,7 +105,7 @@ module UserPreferences
     def destroy_user_preferences!
       UserPreference.for_preference_and_account(account.id, preference_codes).each(&:destroy!)
     rescue ActiveRecord::RecordNotDestroyed => e
-      raise Common::Exceptions::UnprocessableEntity.new(
+      raise Common::Exceptions::External::UnprocessableEntity.new(
         detail: "When destroying UserPreference records for Account #{account.id} with Preference codes '#{preference_codes}', experienced ActiveRecord::RecordNotDestroyed with this error: #{e}"
       )
     end
@@ -116,14 +116,14 @@ module UserPreferences
       @user_preferences = preferences.dig 'user_preferences'
       @preference       = find_record(preference_records, preference_code)
 
-      raise Common::Exceptions::RecordNotFound, preference_code if preference.blank?
+      raise Common::Exceptions::Internal::RecordNotFound, preference_code if preference.blank?
     end
 
     def assign_user_preference_codes(user_preference)
       choice_code        = user_preference.dig 'code'
       @preference_choice = find_record(preference_choice_records, choice_code)
 
-      raise Common::Exceptions::RecordNotFound, choice_code if preference_choice.blank?
+      raise Common::Exceptions::Internal::RecordNotFound, choice_code if preference_choice.blank?
     end
 
     def find_record(records, code)

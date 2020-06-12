@@ -2,10 +2,6 @@
 
 require 'zip'
 
-require_dependency 'vba_documents/application_controller'
-require_dependency 'vba_documents/upload_error'
-require_dependency 'vba_documents/payload_manager'
-
 module VBADocuments
   module V1
     class UploadsController < ApplicationController
@@ -28,7 +24,7 @@ module VBADocuments
         submission = VBADocuments::UploadSubmission.find_by(guid: params[:id])
 
         if submission.nil?
-          raise Common::Exceptions::RecordNotFound, params[:id]
+          raise Common::Exceptions::Internal::RecordNotFound, params[:id]
         elsif Settings.vba_documents.enable_status_override && request.headers['Status-Override']
           submission.status = request.headers['Status-Override']
           submission.save

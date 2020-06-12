@@ -1,6 +1,9 @@
 # frozen_string_literal: true
 
 require 'evss/jwt'
+require 'evss/pciu_address/countries_response'
+require 'evss/pciu_address/states_response'
+require_relative 'configuration'
 
 module EVSS
   module ReferenceData
@@ -36,7 +39,7 @@ module EVSS
       # overrides EVSS::Service#headers_for_user
       def headers_for_user(user)
         {
-          Authorization: "Bearer #{EVSS::Jwt.new(user).encode}"
+          Authorization: "Bearer #{EVSS::JWT.new(user).encode}"
         }
       end
     end

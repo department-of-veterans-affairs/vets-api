@@ -1,12 +1,15 @@
 # frozen_string_literal: true
 
 require 'common/models/attribute_types/iso8601_time'
+require 'pagerduty/models/service'
+require 'pagerduty/response'
+require 'pagerduty/service'
 
 module PagerDuty
   module ExternalServices
     class Response < PagerDuty::Response
       attribute :reported_at, Common::ISO8601Time
-      attribute :statuses, Array[Service]
+      attribute :statuses, Array[PagerDuty::Service]
 
       validates :reported_at, presence: true
 

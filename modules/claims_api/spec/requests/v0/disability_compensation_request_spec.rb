@@ -128,7 +128,7 @@ RSpec.describe 'Disability Claims ', type: :request do
       end
 
       context 'Timeouts are recorded (investigating)' do
-        [Common::Exceptions::GatewayTimeout, Timeout::Error, Faraday::TimeoutError].each do |error_klass|
+        [Common::Exceptions::External::GatewayTimeout, Timeout::Error, Faraday::TimeoutError].each do |error_klass|
           context error_klass.to_s do
             it 'is logged to PersonalInformationLog' do
               allow_any_instance_of(ClaimsApi::DisabilityCompensation::MockOverrideService)

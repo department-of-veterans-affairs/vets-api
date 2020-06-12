@@ -41,7 +41,7 @@ class EVSSClaimsSyncStatusTracker < Common::RedisStore
 
   def collection_key
     unless user_uuid
-      raise Common::Exceptions::InternalServerError, ArgumentError.new(
+      raise Common::Exceptions::Internal::InternalServerError, ArgumentError.new(
         'EVSSClaimsRedisHelper#collection_key was called without having set a user uuid'
       )
     end
@@ -54,7 +54,7 @@ class EVSSClaimsSyncStatusTracker < Common::RedisStore
     arr << 'user_uuid' unless user_uuid
 
     unless arr.empty?
-      raise Common::Exceptions::InternalServerError, ArgumentError.new(
+      raise Common::Exceptions::Internal::InternalServerError, ArgumentError.new(
         "EVSSClaimsRedisHelper#single_record_key was called without having set a #{arr.join(', ')}"
       )
     end

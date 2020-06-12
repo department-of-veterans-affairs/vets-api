@@ -7,7 +7,7 @@ module V0
     def create
       params.require :file
       claim = EVSSClaim.for_user(current_user).find_by(evss_id: params[:evss_claim_id])
-      raise Common::Exceptions::RecordNotFound, params[:evss_claim_id] unless claim
+      raise Common::Exceptions::Internal::RecordNotFound, params[:evss_claim_id] unless claim
 
       document_data = EVSSClaimDocument.new(
         evss_claim_id: claim.evss_id,
@@ -17,7 +17,7 @@ module V0
         tracked_item_id: params[:tracked_item_id],
         document_type: params[:document_type]
       )
-      raise Common::Exceptions::ValidationErrors, document_data unless document_data.valid?
+      raise Common::Exceptions::Internal::ValidationErrors, document_data unless document_data.valid?
 
       jid = service.upload_document(document_data)
       render_job_id(jid)

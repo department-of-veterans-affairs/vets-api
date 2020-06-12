@@ -2,9 +2,8 @@
 
 require 'rails_helper'
 require_relative '../../support/vba_document_fixtures'
-
-require_dependency 'vba_documents/object_store'
-require_dependency 'vba_documents/multipart_parser'
+require 'vba_documents/payload_manager'
+require 'vba_documents/object_store'
 
 RSpec.describe 'VBA Document Uploads Endpoint', type: :request do
   include VBADocuments::Fixtures

@@ -1,18 +1,14 @@
 # frozen_string_literal: true
 
 require 'will_paginate/array'
+require 'va_facilities/param_validators'
 
-require_dependency 'va_facilities/application_controller'
-require_dependency 'va_facilities/pagination_headers'
-require_dependency 'va_facilities/csv_serializer'
-require_dependency 'va_facilities/param_validators'
-
-module VaFacilities
+module VAFacilities
   module V0
     class NearbyController < ApplicationController
       include ActionController::MimeResponds
-      include VaFacilities::PaginationHeaders
-      include VaFacilities::ParamValidators
+      include VAFacilities::PaginationHeaders
+      include VAFacilities::ParamValidators
       skip_before_action(:authenticate)
       before_action :set_default_format
       before_action :set_facility_type
@@ -43,7 +39,7 @@ module VaFacilities
         respond_to do |format|
           format.json do
             render json: bands,
-                   each_serializer: VaFacilities::NearbySerializer,
+                   each_serializer: VAFacilities::NearbySerializer,
                    meta: metadata(bands),
                    links: relationships(bands)
           end
@@ -85,7 +81,7 @@ module VaFacilities
       end
 
       def temp_validate_type_and_services_known
-        raise Common::Exceptions::InvalidFieldValue.new('type', params[:type]) unless
+        raise Common::Exceptions::Internal::InvalidFieldValue.new('type', params[:type]) unless
         BaseFacility::TYPES.include?(params[:type])
 
         # These services are temporarily allowed while we wait to transition to a new srouce for services.
@@ -96,7 +92,7 @@ module VaFacilities
 
         unknown = params[:services].to_a - facility_klass.service_list - temporary_service_exceptions
 
-        raise Common::Exceptions::InvalidFieldValue.new('services', unknown) unless unknown.empty?
+        raise Common::Exceptions::Internal::InvalidFieldValue.new('services', unknown) unless unknown.empty?
       end
 
       def get_lat_lng(params)

@@ -78,7 +78,7 @@ describe VAOS::UserService do
       it 'raises a client error' do
         VCR.use_cassette('vaos/users/post_session_400') do
           expect { subject.session }.to raise_error(
-            Common::Exceptions::BackendServiceException
+            Common::Exceptions::External::BackendServiceException
           )
         end
       end
@@ -88,7 +88,7 @@ describe VAOS::UserService do
       it 'raises a client error' do
         VCR.use_cassette('vaos/users/post_session_403') do
           expect { subject.session }.to raise_error(
-            Common::Exceptions::BackendServiceException
+            Common::Exceptions::External::BackendServiceException
           )
         end
       end
@@ -98,7 +98,7 @@ describe VAOS::UserService do
       it 'raises a client error' do
         VCR.use_cassette('vaos/users/post_session_blank_body') do
           expect { subject.session }.to raise_error(
-            Common::Exceptions::BackendServiceException
+            Common::Exceptions::External::BackendServiceException
           )
         end
       end

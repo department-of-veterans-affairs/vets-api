@@ -154,7 +154,7 @@ describe VBADocuments::UploadSubmission, type: :model do
       expect(faraday_response).to receive(:success?).and_return(false)
       expect(faraday_response).to receive(:status).and_return(401)
       expect(faraday_response).to receive(:body).at_least(:once).and_return('Unauthorized')
-      expect { upload_received.refresh_status! }.to raise_error(Common::Exceptions::BadGateway)
+      expect { upload_received.refresh_status! }.to raise_error(Common::Exceptions::External::BadGateway)
       updated = VBADocuments::UploadSubmission.find_by(guid: upload_received.guid)
       expect(updated.status).to eq('received')
     end
@@ -164,7 +164,7 @@ describe VBADocuments::UploadSubmission, type: :model do
       expect(faraday_response).to receive(:success?).and_return(false)
       expect(faraday_response).to receive(:status).and_return(401)
       expect(faraday_response).to receive(:body).at_least(:once).and_return('Document already uploaded with uuid')
-      expect { upload_received.refresh_status! }.to raise_error(Common::Exceptions::BadGateway)
+      expect { upload_received.refresh_status! }.to raise_error(Common::Exceptions::External::BadGateway)
       updated = VBADocuments::UploadSubmission.find_by(guid: upload_received.guid)
       expect(updated.status).to eq('received')
     end
@@ -173,7 +173,7 @@ describe VBADocuments::UploadSubmission, type: :model do
       expect(client_stub).to receive(:status).and_return(faraday_response)
       expect(faraday_response).to receive(:success?).and_return(true)
       expect(faraday_response).to receive(:body).at_least(:once).and_return(nonsense_body)
-      expect { upload_received.refresh_status! }.to raise_error(Common::Exceptions::BadGateway)
+      expect { upload_received.refresh_status! }.to raise_error(Common::Exceptions::External::BadGateway)
       updated = VBADocuments::UploadSubmission.find_by(guid: upload_received.guid)
       expect(updated.status).to eq('received')
     end

@@ -13,7 +13,7 @@ class PersistentAttachment < ApplicationRecord
   delegate :original_filename, :size, to: :file
 
   def to_pdf
-    Common::ConvertToPdf.new(file).run
+    Common::ConvertToPDF.new(file).run
   end
 
   private

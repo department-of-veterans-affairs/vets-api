@@ -1,6 +1,9 @@
 # frozen_string_literal: true
 
 require 'pdf_info'
+require 'central_mail/service'
+require 'central_mail/datestamp_pdf'
+require 'pension_burial/tag_sentry'
 
 module CentralMail
   class SubmitSavedClaimJob
@@ -63,8 +66,8 @@ module CentralMail
 
     def process_record(record)
       pdf_path = record.to_pdf
-      stamped_path1 = CentralMail::DatestampPdf.new(pdf_path).run(text: 'VA.GOV', x: 5, y: 5)
-      CentralMail::DatestampPdf.new(stamped_path1).run(
+      stamped_path1 = CentralMail::DatestampPDF.new(pdf_path).run(text: 'VA.GOV', x: 5, y: 5)
+      CentralMail::DatestampPDF.new(stamped_path1).run(
         text: 'FDC Reviewed - va.gov Submission',
         x: 429,
         y: 770,
@@ -75,7 +78,7 @@ module CentralMail
     def get_hash_and_pages(file_path)
       {
         hash: Digest::SHA256.file(file_path).hexdigest,
-        pages: PdfInfo::Metadata.read(file_path).pages
+        pages: PDFInfo::Metadata.read(file_path).pages
       }
     end
 

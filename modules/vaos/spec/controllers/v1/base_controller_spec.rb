@@ -11,11 +11,11 @@ RSpec.describe VAOS::V1::BaseController, type: :controller do
     skip_before_action :authorize
 
     def record_not_found
-      raise Common::Exceptions::RecordNotFound, '987654'
+      raise Common::Exceptions::Internal::RecordNotFound, '987654'
     end
 
     def service_error
-      raise Common::Exceptions::BackendServiceException.new('VAOS_502', { source: 'Klass' })
+      raise Common::Exceptions::External::BackendServiceException.new('VAOS_502', { source: 'Klass' })
     end
   end
 

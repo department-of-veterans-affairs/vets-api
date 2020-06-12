@@ -2,7 +2,9 @@
 
 # rubocop:disable Metrics/ClassLength
 
-module PdfFill
+require 'pdf_fill/forms/form_base'
+
+module PDFFill
   module Forms
     class Va1010cg < FormBase
       PDF_INPUT_LOCATIONS = OpenStruct.new(

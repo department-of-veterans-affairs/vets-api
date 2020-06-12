@@ -18,7 +18,7 @@ module VAOS
 
       def initialize(resource_type:, user: nil)
         unless RESOURCES.include?(resource_type)
-          raise Common::Exceptions::InvalidFieldValue.new('resource_type', resource_type)
+          raise Common::Exceptions::Internal::InvalidFieldValue.new('resource_type', resource_type)
         end
 
         @resource_type = resource_type

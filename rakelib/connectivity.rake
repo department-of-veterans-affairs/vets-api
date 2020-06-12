@@ -60,6 +60,7 @@ namespace :connectivity do
 
   desc 'Check GI'
   task gi: :environment do
+    require 'gi/client'
     check 'GIDS', Settings.gids.url do
       GI::Client.new.get_autocomplete_suggestions(term: 'university')
     end
@@ -67,6 +68,7 @@ namespace :connectivity do
 
   desc 'Check HCA'
   task hca: :environment do
+    require 'hca/service'
     check 'HCA', Settings.hca.endpoint do
       HCA::Service.new.health_check
     end
@@ -112,6 +114,7 @@ namespace :connectivity do
 
   desc 'Check Rx'
   task rx: :environment do
+    require 'rx/client'
     check 'Rx', Settings.mhv.rx.host do
       Rx::Client.new(session: { user_id: '12210827' }).authenticate
     end
@@ -119,6 +122,7 @@ namespace :connectivity do
 
   desc 'Check SM'
   task sm: :environment do
+    require 'sm/client'
     check 'SM', Settings.mhv.sm.host do
       SM::Client.new(session: { user_id: '12210827' }).authenticate
     end

@@ -1,6 +1,9 @@
 # frozen_string_literal: true
 
 # This service manages the interactions between CaregiversAssistanceClaim, CARMA, and Form1010cg::Submission.
+
+require 'carma/models/submission'
+
 module Form1010cg
   class Service
     attr_reader :claim
@@ -10,7 +13,7 @@ module Form1010cg
     def initialize(claim)
       # This service makes assumptions on what data is present on the claim
       # Make sure the claim is valid, so we can be assured the required data is present.
-      claim.valid? || raise(Common::Exceptions::ValidationErrors, claim)
+      claim.valid? || raise(Common::Exceptions::Internal::ValidationErrors, claim)
 
       # The CaregiversAssistanceClaim we are processing with this service
       @claim = claim
@@ -126,15 +129,16 @@ module Form1010cg
     def raise_unprocessable
       message = 'Unable to process submission digitally'
       claim.errors.add(:base, message, message: message)
-      raise(Common::Exceptions::ValidationErrors, claim)
+      raise(Common::Exceptions::Internal::ValidationErrors, claim)
     end
 
     def mvi_service
-      @mvi_service ||= MVI::Service.new
+      @mvi_service ||= MasterVeteranIndex::Service.new
     end
 
-    # MVI::Service requires a valid UserIdentity to run a search, but only reads the user's attributes.
-    # This method will build a valid UserIdentity, so MVI::Service can pluck the name, ssn, dob, and gender.
+    # MasterVeteranIndex::Service requires a valid UserIdentity to run a search, but only reads the user's attributes.
+    # This method will build a valid UserIdentity, so MasterVeteranIndex::Service can pluck the name, ssn, dob,
+    #  and gender.
     #
     # @param form_subject [String] The key in the claim's data that contains this person's info (ex: "veteran")
     # @return [UserIdentity] A valid UserIdentity for the given form_subject

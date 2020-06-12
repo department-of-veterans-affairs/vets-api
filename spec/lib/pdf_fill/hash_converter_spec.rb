@@ -3,7 +3,7 @@
 require 'rails_helper'
 require 'pdf_fill/hash_converter'
 
-describe PdfFill::HashConverter do
+describe PDFFill::HashConverter do
   let(:hash_converter) do
     described_class.new('%m/%d/%Y')
   end
@@ -217,15 +217,15 @@ describe PdfFill::HashConverter do
         },
         toursOfDuty: {
           limit: 10,
-          discharge: { key: "form1[0].#subform[1].EnterCharacterD#{PdfFill::HashConverter::ITERATOR}[0]" },
+          discharge: { key: "form1[0].#subform[1].EnterCharacterD#{PDFFill::HashConverter::ITERATOR}[0]" },
           nestedHash: {
-            dutyType: { key: "form1[0].#subform[1].EnterTypeOfDutyE#{PdfFill::HashConverter::ITERATOR}[0]" },
+            dutyType: { key: "form1[0].#subform[1].EnterTypeOfDutyE#{PDFFill::HashConverter::ITERATOR}[0]" },
             nestedTourDate: {
-              key: "form1[0].#subform[1].NestedTourDate[#{PdfFill::HashConverter::ITERATOR}]",
+              key: "form1[0].#subform[1].NestedTourDate[#{PDFFill::HashConverter::ITERATOR}]",
               format: 'date'
             },
             nestedBoolean: {
-              key: "form1[0].#subform[1].NestedBoolean[#{PdfFill::HashConverter::ITERATOR}]"
+              key: "form1[0].#subform[1].NestedBoolean[#{PDFFill::HashConverter::ITERATOR}]"
             }
           }
         }

@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'common/client/configuration/rest'
+
 module EVSS
   class AWSConfiguration < Common::Client::Configuration::REST
     extend Memoist

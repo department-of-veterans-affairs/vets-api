@@ -1,5 +1,13 @@
 # frozen_string_literal: true
 
+unless Rails.application.config.eager_load
+  # constantize all the mailers so TransactionalEmailMailer.descendants has something
+  # inspired by https://guides.rubyonrails.org/autoloading_and_reloading_constants.html#single-table-inheritance
+  Dir['app/mailers/*.rb']
+    .collect { |mailer| %r{app/mailers/(.*)\.rb}.match(mailer)[1] }
+    .map { |x| x.camelize.constantize }
+end
+
 class TransactionalEmailAnalyticsJob
   include Sidekiq::Worker
 
@@ -7,13 +15,13 @@ class TransactionalEmailAnalyticsJob
 
   def initialize
     unless FeatureFlipper.send_email?
-      raise Common::Exceptions::ParameterMissing.new(
+      raise Common::Exceptions::Internal::ParameterMissing.new(
         'GovDelivery token or server',
         detail: 'It should be configured in settings.yml'
       )
     end
     if Settings.google_analytics_tracking_id.blank?
-      raise Common::Exceptions::ParameterMissing.new(
+      raise Common::Exceptions::Internal::ParameterMissing.new(
         'Google Analytics tracking ID',
         detail: 'It should be configured in settings.yml'
       )

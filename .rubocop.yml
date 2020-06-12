@@ -138,7 +138,7 @@ Style/FormatStringToken:
 
 Lint/BooleanSymbol:
   Exclude:
-    - "app/swagger/schemas/gibct/institutions.rb" #Swagger blocks defines keys as :true, need to keep as is
+    - "app/swagger/swagger/schemas/gibct/institutions.rb" #Swagger blocks defines keys as :true, need to keep as is
 
 # Use `Time` when dealing with current dates and times; it has support for timezones (system/local and utc), whereas `DateTime` only supports offsets from UTC.
 # However, if you need to deal with dates and times in a historical context you'll want to use DateTime to avoid making the same mistakes as UNESCO.
@@ -186,6 +186,8 @@ RSpec/FilePath:
     - 'spec/request/in_progress_forms_request_spec.rb'
     - 'spec/jobs/pagerduty/**/*'
     - 'spec/lib/pagerduty/**/*'
+    # RSpec is struggling with the inflection here for VSO and PDF back-to-back
+    - 'spec/lib/vso_pdf/vso_appointment_form_spec.rb'
 
 # Was determined that using described_class makes the code less readable.
 RSpec/DescribedClass:
@@ -319,7 +321,7 @@ RSpec/SubjectStub:
     - 'spec/lib/common/models/redis_store_spec.rb'
     - 'spec/lib/evss/disability_compensation_form/data_translation_all_claim_spec.rb'
     - 'spec/lib/evss/disability_compensation_form/data_translation_spec.rb'
-    - 'spec/lib/mvi/service_spec.rb'
+    - 'spec/lib/master_veteran_index/service_spec.rb'
     - 'spec/lib/saml/health_status_spec.rb'
     - 'spec/lib/sm/client/folders_spec.rb'
     - 'spec/models/emis_redis/military_information_spec.rb'

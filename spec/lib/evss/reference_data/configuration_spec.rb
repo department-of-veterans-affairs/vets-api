@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require 'evss/reference_data/configuration'
 
 describe EVSS::ReferenceData::Configuration do
   describe '#service_name' do

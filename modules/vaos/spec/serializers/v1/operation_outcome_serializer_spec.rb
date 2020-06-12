@@ -9,7 +9,7 @@ describe VAOS::V1::OperationOutcomeSerializer do
     let(:id) { '987654' }
 
     context 'with a resource of Organization and a backend service exception' do
-      let(:issue) { Common::Exceptions::BackendServiceException.new('VAOS_502', source: 'Klass') }
+      let(:issue) { Common::Exceptions::External::BackendServiceException.new('VAOS_502', source: 'Klass') }
       let(:operation_outcome) { VAOS::V1::OperationOutcome.new(resource_type: resource_type, id: id, issue: issue) }
 
       it 'serializes the error in FHIR DSTU 2 format' do

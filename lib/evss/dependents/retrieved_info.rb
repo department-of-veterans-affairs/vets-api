@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 require 'common/models/concerns/cache_aside'
+require_relative 'retrieve_info_response'
+require_relative 'service'
 
 module EVSS
   module Dependents

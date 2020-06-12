@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require 'evss/pciu/request_body'
 
 describe EVSS::PCIU::RequestBody do
   let(:phone) { build(:phone_number, :nil_effective_date) }

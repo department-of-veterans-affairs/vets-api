@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'pension_burial/tag_sentry'
+
 module V0
   class ClaimDocumentsController < ApplicationController
     skip_before_action(:authenticate)
@@ -9,7 +11,7 @@ module V0
       attachment = klass.new(form_id: form_id)
       # add the file after so that we have a form_id and guid for the uploader to use
       attachment.file = params['file']
-      raise Common::Exceptions::ValidationErrors, attachment unless attachment.valid?
+      raise Common::Exceptions::Internal::ValidationErrors, attachment unless attachment.valid?
 
       attachment.save
       render json: attachment

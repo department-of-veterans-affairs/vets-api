@@ -1,9 +1,10 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require 'pdf_fill/forms/common_ptsd'
 
-describe PdfFill::Forms::CommonPtsd do
-  let(:including_class) { Class.new { include PdfFill::Forms::CommonPtsd } }
+describe PDFFill::Forms::CommonPtsd do
+  let(:including_class) { Class.new { include PDFFill::Forms::CommonPtsd } }
 
   describe '#expand_ssn' do
     it 'expands the ssn correctly' do

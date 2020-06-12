@@ -1,31 +1,35 @@
 # frozen_string_literal: true
 
-require 'caseflow/configuration'
-require 'breakers/statsd_plugin'
 require 'bb/configuration'
+require 'breakers/statsd_plugin'
+require 'caseflow/configuration'
+require 'central_mail/configuration'
+require 'debts/configuration'
 require 'emis/military_information_configuration'
 require 'emis/payment_configuration'
 require 'emis/veteran_status_configuration'
 require 'evss/claims_service'
 require 'evss/common_service'
+require 'evss/dependents/configuration'
 require 'evss/documents_service'
 require 'evss/letters/service'
 require 'evss/gi_bill_status/service'
+require 'evss/pciu_address/configuration'
+require 'evss/reference_data/configuration'
 require 'facilities/bulk_configuration'
+require 'facilities/ppms/configuration'
 require 'gi/configuration'
+require 'gibft/configuration'
 require 'hca/configuration'
 require 'mhv_ac/configuration'
-require 'mvi/configuration'
+require 'master_veteran_index/configuration'
 require 'preneeds/configuration'
 require 'rx/configuration'
 require 'sm/configuration'
 require 'search/configuration'
 require 'okta/configuration'
-
-require 'evss/claims_service'
-require 'evss/common_service'
-require 'evss/documents_service'
-require 'evss/letters/service'
+require 'vet360/contact_information/configuration'
+require 'vic/configuration'
 
 # Read the redis config, create a connection and a namespace for breakers
 # .to_h because hashes from config_for don't support non-symbol keys
@@ -57,7 +61,7 @@ services = [
   GI::Configuration.instance.breakers_service,
   HCA::Configuration.instance.breakers_service,
   MHVAC::Configuration.instance.breakers_service,
-  MVI::Configuration.instance.breakers_service,
+  MasterVeteranIndex::Configuration.instance.breakers_service,
   Preneeds::Configuration.instance.breakers_service,
   SM::Configuration.instance.breakers_service,
   Vet360::ContactInformation::Configuration.instance.breakers_service,

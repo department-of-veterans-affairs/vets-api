@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require 'facility_access'
-
 module Common
   module Client
     module Middleware

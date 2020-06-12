@@ -5,7 +5,7 @@ require 'common/exceptions/external/backend_service_exception'
 module DecisionReview
   # Custom exception that maps Decision Review errors to error details defined in config/locales/exceptions.en.yml
   #
-  class ServiceException < Common::Exceptions::BackendServiceException
+  class ServiceException < Common::Exceptions::External::BackendServiceException
     include SentryLogging
 
     def initialize(key = 'unmapped_service_exception', response_values = {}, original_status = nil, original_body = nil)

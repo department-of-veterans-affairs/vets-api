@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-module VaForms
+module VAForms
   class FormListSerializer < ActiveModel::Serializer
     type :va_form
 

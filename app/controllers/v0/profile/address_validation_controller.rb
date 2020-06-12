@@ -1,11 +1,13 @@
 # frozen_string_literal: true
 
+require 'vet360/address_validation/service'
+
 module V0
   module Profile
     class AddressValidationController < ApplicationController
       def create
         address = Vet360::Models::ValidationAddress.new(address_params)
-        raise Common::Exceptions::ValidationErrors, address unless address.valid?
+        raise Common::Exceptions::Internal::ValidationErrors, address unless address.valid?
 
         render(json: service.address_suggestions(address))
       end

@@ -1,8 +1,11 @@
 # frozen_string_literal: true
 
+require 'common/exceptions/base_error'
+require 'common/exceptions/serializable_error'
+
 module Common
-  module Exceptions
-    class SchemaValidationErrors < BaseError
+  module Exceptions::Internal
+    class SchemaValidationErrors < Common::Exceptions::BaseError
       def initialize(resource)
         @resource = resource
         raise TypeError, 'the resource provided has no errors' if resource.blank?
@@ -10,7 +13,7 @@ module Common
 
       def errors
         @resource.map do |error|
-          SerializableError.new(
+          Common::Exceptions::SerializableError.new(
             i18n_data.merge(
               detail: error
             )

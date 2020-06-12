@@ -2,7 +2,7 @@
 
 module VIC
   class ProcessingUploader < CarrierWave::Uploader::Base
-    include SetAwsConfig
+    include SetAWSConfig
     include ReencodeImages
     include UploaderVirusScan
 

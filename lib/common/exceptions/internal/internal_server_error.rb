@@ -1,9 +1,12 @@
 # frozen_string_literal: true
 
+require 'common/exceptions/base_error'
+require 'common/exceptions/serializable_error'
+
 module Common
-  module Exceptions
+  module Exceptions::Internal
     # Internal Server Error - all exceptions not readily accounted fall into this tier
-    class InternalServerError < BaseError
+    class InternalServerError < Common::Exceptions::BaseError
       attr_reader :exception
 
       def initialize(exception)
@@ -14,7 +17,7 @@ module Common
 
       def errors
         meta = { exception: exception.message, backtrace: exception.backtrace } unless ::Rails.env.production?
-        Array(SerializableError.new(i18n_data.merge(meta: meta)))
+        Array(Common::Exceptions::SerializableError.new(i18n_data.merge(meta: meta)))
       end
     end
   end

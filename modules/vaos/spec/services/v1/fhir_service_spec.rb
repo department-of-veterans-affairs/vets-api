@@ -18,7 +18,7 @@ describe VAOS::V1::FHIRService do
   context 'with an invalid resource type' do
     it 'raises an invalid field value exception' do
       expect { VAOS::V1::FHIRService.new(resource_type: :House, user: user) }.to raise_error(
-        Common::Exceptions::InvalidFieldValue
+        Common::Exceptions::Internal::InvalidFieldValue
       ) { |e| expect(e.errors.first.detail).to eq('"House" is not a valid value for "resource_type"') }
     end
   end
@@ -28,7 +28,7 @@ describe VAOS::V1::FHIRService do
       it 'raises a backend exception with key VAOS_404' do
         VCR.use_cassette('vaos/fhir/read_organization_404', match_requests_on: %i[method uri]) do
           expect { subject.read(353_000) }.to raise_error(
-            Common::Exceptions::BackendServiceException
+            Common::Exceptions::External::BackendServiceException
           ) { |e| expect(e.key).to eq('VAOS_404') }
         end
       end
@@ -70,7 +70,7 @@ describe VAOS::V1::FHIRService do
       xit 'raises a backend exception with key VAOS_502' do
         VCR.use_cassette('vaos/fhir/search_organization_500', match_requests_on: %i[method uri]) do
           expect { subject.search({ 'identifier' => '353000' }) }.to raise_error(
-            Common::Exceptions::BackendServiceException
+            Common::Exceptions::External::BackendServiceException
           ) { |e| expect(e.key).to eq('VAOS_502') }
         end
       end

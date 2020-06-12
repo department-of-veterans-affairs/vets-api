@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require 'evss/disability_compensation_auth_headers'
 
 RSpec.describe CentralMail::SubmitForm4142Job, type: :job do
   subject { described_class }
@@ -52,7 +53,7 @@ RSpec.describe CentralMail::SubmitForm4142Job, type: :job do
 
       it 'raises a gateway timeout error' do
         subject.perform_async(submission.id)
-        expect { described_class.drain }.to raise_error(Common::Exceptions::GatewayTimeout)
+        expect { described_class.drain }.to raise_error(Common::Exceptions::External::GatewayTimeout)
       end
     end
 

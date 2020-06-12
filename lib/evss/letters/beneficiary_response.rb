@@ -1,6 +1,11 @@
 # frozen_string_literal: true
 
 require 'common/client/concerns/service_status'
+require 'evss/response'
+require_relative 'benefit_information'
+require_relative 'benefit_information_dependent'
+require_relative 'benefit_information_veteran'
+require_relative 'military_service'
 
 module EVSS
   module Letters

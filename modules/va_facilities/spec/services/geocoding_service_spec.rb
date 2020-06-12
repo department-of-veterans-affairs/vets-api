@@ -52,7 +52,7 @@ RSpec.describe GeocodingService do
 
       expect do
         subject.query(street_address, city, state, zip)
-      end.to raise_error(Common::Exceptions::BingServiceError)
+      end.to raise_error(Common::Exceptions::External::BingServiceError)
     end
 
     it 'raises an exception if any errors occur' do
@@ -66,7 +66,7 @@ RSpec.describe GeocodingService do
 
       expect do
         subject.query(street_address, city, state, zip)
-      end.to raise_error(Common::Exceptions::BingServiceError)
+      end.to raise_error(Common::Exceptions::External::BingServiceError)
     end
   end
 end

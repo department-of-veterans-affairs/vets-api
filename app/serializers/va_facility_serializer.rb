@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'lighthouse/facilities/client'
+
 class VAFacilitySerializer < ActiveModel::Serializer
   type 'va_facilities'
 

@@ -12,18 +12,18 @@ module VAOS
           when 400, 409
             error_400(env.body)
           when 403
-            raise Common::Exceptions::BackendServiceException.new('VAOS_403', source: self.class)
+            raise Common::Exceptions::External::BackendServiceException.new('VAOS_403', source: self.class)
           when 404
-            raise Common::Exceptions::BackendServiceException.new('VAOS_404', source: self.class)
+            raise Common::Exceptions::External::BackendServiceException.new('VAOS_404', source: self.class)
           when 500..510
-            raise Common::Exceptions::BackendServiceException.new('VAOS_502', source: self.class)
+            raise Common::Exceptions::External::BackendServiceException.new('VAOS_502', source: self.class)
           else
-            raise Common::Exceptions::BackendServiceException.new('VA900', source: self.class)
+            raise Common::Exceptions::External::BackendServiceException.new('VA900', source: self.class)
           end
         end
 
         def error_400(body)
-          raise Common::Exceptions::BackendServiceException.new(
+          raise Common::Exceptions::External::BackendServiceException.new(
             'VAOS_400',
             title: 'Bad Request',
             detail: parse_error(body),

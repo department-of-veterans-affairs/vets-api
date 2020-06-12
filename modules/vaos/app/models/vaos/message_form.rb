@@ -50,7 +50,7 @@ module VAOS
     validates :message_text, length: { minimum: 1, maximum: 100 }
 
     def params
-      raise Common::Exceptions::ValidationErrors, self unless valid?
+      raise Common::Exceptions::Internal::ValidationErrors, self unless valid?
 
       attributes
     end

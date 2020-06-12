@@ -34,7 +34,7 @@ module VAOS
       end
 
       def raise_invalid_schedule_type
-        raise Common::Exceptions::InvalidFieldValue.new('schedule_type', params[:schedule_type])
+        raise Common::Exceptions::Internal::InvalidFieldValue.new('schedule_type', params[:schedule_type])
       end
     end
   end

@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'common/models/base'
+require 'evss/pciu/email_address'
 
 ##
 # Models Prescription notification preference
@@ -27,11 +28,11 @@ class PrescriptionPreference < Common::Base
   ##
   # Build the object for MHV
   #
-  # @raise [Common::Exceptions::ValidationErrors] if invalid attributes
+  # @raise [Common::Exceptions::Internal::ValidationErrors] if invalid attributes
   # @return [Hash]
   #
   def mhv_params
-    raise Common::Exceptions::ValidationErrors, self unless valid?
+    raise Common::Exceptions::Internal::ValidationErrors, self unless valid?
 
     { email_address: email_address, rx_flag: rx_flag }
   end

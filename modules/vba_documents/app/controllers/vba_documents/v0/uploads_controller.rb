@@ -2,10 +2,6 @@
 
 require 'zip'
 
-require_dependency 'vba_documents/application_controller'
-require_dependency 'vba_documents/upload_error'
-require_dependency 'vba_documents/payload_manager'
-
 module VBADocuments
   module V0
     class UploadsController < ApplicationController

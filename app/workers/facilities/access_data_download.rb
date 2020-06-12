@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
-require 'facilities/bulk_json_client'
 require 'common/exceptions'
-require 'facility_access'
 require 'sentry_logging'
+require 'facilities/access_satisfaction_client'
+require 'facilities/access_wait_time_client'
 
 module Facilities
   class AccessDataError < StandardError
@@ -87,7 +87,7 @@ module Facilities
       update_cache(FacilitySatisfaction, facilities)
       logger.info "Updated facility satisfaction cache for #{facilities.size} facilities"
       invalidate_removed(FacilitySatisfaction, facilities.keys)
-    rescue Common::Exceptions::BackendServiceException, Common::Client::Errors::ClientError => e
+    rescue Common::Exceptions::External::BackendServiceException, Common::Client::Errors::ClientError => e
       log_exception_to_sentry(e)
     rescue Facilities::AccessDataError => e
       log_exception_to_sentry(e)
@@ -129,7 +129,7 @@ module Facilities
       update_cache(FacilityWaitTime, facilities)
       logger.info "Updated facility wait time cache for #{facilities.size} facilities"
       invalidate_removed(FacilityWaitTime, facilities.keys)
-    rescue Common::Exceptions::BackendServiceException, Common::Client::Errors::ClientError => e
+    rescue Common::Exceptions::External::BackendServiceException, Common::Client::Errors::ClientError => e
       log_exception_to_sentry(e)
     rescue Facilities::AccessDataError => e
       log_exception_to_sentry(e)

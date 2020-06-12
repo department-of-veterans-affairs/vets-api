@@ -2,7 +2,7 @@
 
 class PreneedAttachmentUploader < CarrierWave::Uploader::Base
   include ValidateFileSize
-  include SetAwsConfig
+  include SetAWSConfig
   include UploaderVirusScan
   include CarrierWave::MiniMagick
 

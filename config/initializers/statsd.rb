@@ -1,5 +1,16 @@
 # frozen_string_literal: true
 
+require 'caseflow/service'
+require 'central_mail/service'
+require 'emis/service'
+require 'gibft/service'
+require 'master_veteran_index/service'
+require 'saml/user'
+require 'stats_d_metric'
+require 'search/service'
+require 'vet360/exceptions/parser'
+require 'vet360/service'
+
 host = Settings.statsd.host
 port = Settings.statsd.port
 
@@ -77,8 +88,8 @@ StatsD.increment("#{Caseflow::Service::STATSD_KEY_PREFIX}.get_appeals.total", 0)
 StatsD.increment("#{Caseflow::Service::STATSD_KEY_PREFIX}.get_appeals.fail", 0)
 
 # init  mvi
-StatsD.increment("#{MVI::Service::STATSD_KEY_PREFIX}.find_profile.total", 0)
-StatsD.increment("#{MVI::Service::STATSD_KEY_PREFIX}.find_profile.fail", 0)
+StatsD.increment("#{MasterVeteranIndex::Service::STATSD_KEY_PREFIX}.find_profile.total", 0)
+StatsD.increment("#{MasterVeteranIndex::Service::STATSD_KEY_PREFIX}.find_profile.fail", 0)
 
 # init Vet360
 Vet360::Exceptions::Parser.instance.known_keys.each do |key|

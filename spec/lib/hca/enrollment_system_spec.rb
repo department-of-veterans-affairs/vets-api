@@ -1239,7 +1239,7 @@ describe HCA::EnrollmentSystem do
       let(:discharge_date) { Time.zone.today + 181.days }
 
       it 'raises an invalid field exception' do
-        expect { subject }.to raise_error(Common::Exceptions::InvalidFieldValue)
+        expect { subject }.to raise_error(Common::Exceptions::Internal::InvalidFieldValue)
       end
     end
   end

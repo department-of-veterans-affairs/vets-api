@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-module SetAwsConfig
+module SetAWSConfig
   def set_aws_config(aws_access_key_id, aws_secret_access_key, region, bucket)
     self.aws_credentials = {
       access_key_id: aws_access_key_id,

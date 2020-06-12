@@ -430,7 +430,7 @@ module HCA
 
     def veteran_to_military_service_info(veteran)
       unless Validations.valid_discharge_date?(veteran['lastDischargeDate'])
-        raise Common::Exceptions::InvalidFieldValue.new('lastDischargeDate', veteran['lastDischargeDate'])
+        raise Common::Exceptions::Internal::InvalidFieldValue.new('lastDischargeDate', veteran['lastDischargeDate'])
       end
 
       {
@@ -727,7 +727,7 @@ module HCA
       request = build_form_for_user(current_user)
 
       veteran['attachments']&.each do |attachment|
-        hca_attachment = HcaAttachment.find_by(guid: attachment['confirmationCode'])
+        hca_attachment = HCAAttachment.find_by(guid: attachment['confirmationCode'])
         request['va:form']['va:attachments'] ||= []
         request['va:form']['va:attachments'] << add_attachment(hca_attachment.get_file, attachment['dd214'])
       end

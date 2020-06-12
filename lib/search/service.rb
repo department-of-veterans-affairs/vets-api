@@ -10,7 +10,7 @@ module Search
   # @see https://search.usa.gov/sites/7378/api_instructions
   #
   class Service < Common::Client::Base
-    include Common::Client::Monitoring
+    include Common::Client::Concerns::Monitoring
 
     STATSD_KEY_PREFIX = 'api.search'
 

@@ -2,7 +2,8 @@
 
 require 'common/client/base'
 require 'common/exceptions/internal/record_not_found'
-require 'common/exceptions/external/gateway_timeout'
+require 'evss/service'
+require_relative 'download_configuration'
 
 module EVSS
   module Letters
@@ -13,7 +14,7 @@ module EVSS
     #   letter_response = EVSS::Letters::DownloadService.new.download_letter("commissary")
     #
     class DownloadService < EVSS::Service
-      include Common::Client::Monitoring
+      include Common::Client::Concerns::Monitoring
 
       configuration EVSS::Letters::DownloadConfiguration
 
@@ -36,7 +37,7 @@ module EVSS
           when 200
             response.body
           when 404
-            raise Common::Exceptions::RecordNotFound, type
+            raise Common::Exceptions::Internal::RecordNotFound, type
           else
             Raven.extra_context(
               url: config.base_path,

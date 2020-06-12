@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require_dependency 'vba_documents/upload_error'
-
 module VBADocuments
   class UploadSubmission < ApplicationRecord
     include SetGuid
@@ -45,7 +43,7 @@ module VBADocuments
                                                 :warning,
                                                 status: response.status,
                                                 body: response.body)
-        raise Common::Exceptions::BadGateway
+        raise Common::Exceptions::External::BadGateway
       end
     end
 
@@ -65,7 +63,7 @@ module VBADocuments
                                 :warning,
                                 status: response.status,
                                 body: response.body)
-          raise Common::Exceptions::BadGateway
+          raise Common::Exceptions::External::BadGateway
         end
       end
     end
@@ -117,7 +115,7 @@ module VBADocuments
         log_message_to_sentry('Unknown status value from Central Mail API',
                               :warning,
                               status: response_object['status'])
-        raise Common::Exceptions::BadGateway, detail: 'Unknown processing status'
+        raise Common::Exceptions::External::BadGateway, detail: 'Unknown processing status'
       end
     end
 

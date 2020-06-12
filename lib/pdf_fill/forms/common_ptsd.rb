@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
-module PdfFill
+require 'pdf_fill/forms/form_helper'
+
+module PDFFill
   module Forms
     module CommonPtsd
       include FormHelper

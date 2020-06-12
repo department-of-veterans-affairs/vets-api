@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'common/models/base'
+require 'pdf_info'
 
 class EVSSClaimDocument < Common::Base
   include ActiveModel::Validations
@@ -83,10 +84,10 @@ class EVSSClaimDocument < Common::Base
   def unencrypted_pdf?
     return unless file_name.match?(/\.pdf$/i)
 
-    metadata = PdfInfo::Metadata.read(file_obj.tempfile)
+    metadata = PDFInfo::Metadata.read(file_obj.tempfile)
     errors.add(:base, 'PDF must not be encrypted') if metadata.encrypted?
     file_obj.tempfile.rewind
-  rescue PdfInfo::MetadataReadError
+  rescue PDFInfo::MetadataReadError
     errors.add(:base, 'PDF is malformed')
   end
 

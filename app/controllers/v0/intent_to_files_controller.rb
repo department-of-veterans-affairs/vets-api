@@ -1,5 +1,8 @@
 # frozen_string_literal: true
 
+require 'evss/intent_to_file/service'
+require 'evss/intent_to_file/response_strategy'
+
 module V0
   class IntentToFilesController < ApplicationController
     before_action { authorize :evss, :access_form526? }
@@ -30,7 +33,7 @@ module V0
     private
 
     def validate_type_param
-      raise Common::Exceptions::InvalidFieldValue.new('type', params[:type]) unless
+      raise Common::Exceptions::Internal::InvalidFieldValue.new('type', params[:type]) unless
         TYPES.include?(params[:type])
     end
 
