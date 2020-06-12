@@ -3,7 +3,7 @@
 # rubocop:disable Metrics/BlockLength
 
 MviPolicy = Struct.new(:user, :mvi) do
-  def missing_critical_ids?
+  def access_add_person?
     if user.edipi.present? && user.ssn.present? && (user.birls_id.blank? || user.participant_id.blank?)
       log_success
     else
