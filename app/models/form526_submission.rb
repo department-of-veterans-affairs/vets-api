@@ -45,8 +45,7 @@ class Form526Submission < ApplicationRecord
   # one (cleanup job) or more ancillary jobs such as uploading supporting evidence or submitting ancillary forms.
   #
   # @param klass [Class] the submit job class to start with
-  #   {EVSS::DisabilityCompensationForm::SubmitForm526IncreaseOnly} or
-  #   {EVSS::DisabilityCompensationForm::SubmitForm526IncreaseOnly}
+  #   {EVSS::DisabilityCompensationForm::SubmitForm526AllClaim}
   #
   # @return [String] the job id of the first job in the batch, i.e the 526 submit job
   #

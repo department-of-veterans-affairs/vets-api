@@ -16,20 +16,6 @@ module V0
       render json: results, each_serializer: DisabilityContentionSerializer
     end
 
-    # Submission path for `form526 increase only`
-    # TODO: This is getting deprecated in favor of `form526 all claims` (defined below)
-    #       and can eventually be removed completely
-    def submit
-      form_content = JSON.parse(request.body.string)
-      saved_claim = SavedClaim::DisabilityCompensation::Form526IncreaseOnly.from_hash(form_content)
-      saved_claim.save ? log_success(saved_claim) : log_failure(saved_claim)
-      submission = create_submission(saved_claim)
-      jid = submission.start(EVSS::DisabilityCompensationForm::SubmitForm526IncreaseOnly)
-
-      render json: { data: { attributes: { job_id: jid } } },
-             status: :ok
-    end
-
     def submit_all_claim
       form_content = JSON.parse(request.body.string)
       saved_claim = SavedClaim::DisabilityCompensation::Form526AllClaim.from_hash(form_content)
@@ -37,6 +23,18 @@ module V0
       submission = create_submission(saved_claim)
 
       jid = submission.start(EVSS::DisabilityCompensationForm::SubmitForm526AllClaim)
+
+      render json: { data: { attributes: { job_id: jid } } },
+             status: :ok
+    end
+
+    def submit_bdd_claim
+      form_content = JSON.parse(request.body.string)
+      saved_claim = SavedClaim::DisabilityCompensation::TODO.from_hash(form_content)
+      saved_claim.save ? log_success(saved_claim) : log_failure(saved_claim)
+      submission = create_submission(saved_claim)
+
+      jid = submission.start(EVSS::DisabilityCompensationForm::SubmitForm526TODO)
 
       render json: { data: { attributes: { job_id: jid } } },
              status: :ok

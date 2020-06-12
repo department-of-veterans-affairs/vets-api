@@ -24,18 +24,6 @@ RSpec.describe Form526Submission do
   describe '#start' do
     before { Sidekiq::Worker.clear_all }
 
-    context 'when it is increase only' do
-      let(:klass) { EVSS::DisabilityCompensationForm::SubmitForm526IncreaseOnly }
-
-      it 'returns a bid' do
-        expect(subject.start(klass)).to be_a(String)
-      end
-
-      it 'queues a increase only job' do
-        expect { subject.start(klass) }.to change(klass.jobs, :size).by(1)
-      end
-    end
-
     context 'when it is all claims' do
       let(:klass) { EVSS::DisabilityCompensationForm::SubmitForm526AllClaim }
 
