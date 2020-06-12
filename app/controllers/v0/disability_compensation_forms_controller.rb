@@ -28,18 +28,6 @@ module V0
              status: :ok
     end
 
-    def submit_bdd_claim
-      form_content = JSON.parse(request.body.string)
-      saved_claim = SavedClaim::DisabilityCompensation::TODO.from_hash(form_content)
-      saved_claim.save ? log_success(saved_claim) : log_failure(saved_claim)
-      submission = create_submission(saved_claim)
-
-      jid = submission.start(EVSS::DisabilityCompensationForm::SubmitForm526TODO)
-
-      render json: { data: { attributes: { job_id: jid } } },
-             status: :ok
-    end
-
     def submission_status
       job_status = Form526JobStatus.where(job_id: params[:job_id]).first
       raise Common::Exceptions::RecordNotFound, params[:job_id] unless job_status
