@@ -1039,12 +1039,12 @@ module Swagger
         end
       end
 
-      swagger_path '/v0/profile/va_file_number' do
+      swagger_path '/v0/profile/valid_va_file_number' do
         operation :get do
           extend Swagger::Responses::AuthenticationError
 
-          key :description, 'GET VA file number from BGS'
-          key :operationId, 'getVaFileNumber'
+          key :description, 'GET returns true false if veteran has a VA file number'
+          key :operationId, 'getValidVaFileNumber'
           key :tags, ['profile']
 
           parameter :authorization
@@ -1052,7 +1052,7 @@ module Swagger
           response 200 do
             key :description, 'Response is OK'
             schema do
-              key :'$ref', :VaFileNumber
+              key :'$ref', :ValidVaFileNumber
             end
           end
         end
