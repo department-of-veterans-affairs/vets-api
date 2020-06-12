@@ -49,6 +49,7 @@ describe VAOS::CCAppointmentRequestForm, type: :model do
         :provider_name,
         :provider_seen_appointment_request,
         :purpose_of_visit,
+        :reason_for_visit,
         :requested_phone_call,
         :second_request,
         :second_request_submitted,
