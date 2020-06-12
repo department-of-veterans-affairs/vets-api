@@ -28,7 +28,7 @@ module V0
           :vet_email,
           order: [:product_id],
           permanent_address: address_params,
-          temporary_address: address_params,
+          temporary_address: address_params
         ).to_hash
       end
 
