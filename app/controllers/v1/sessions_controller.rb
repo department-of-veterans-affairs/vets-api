@@ -51,7 +51,7 @@ module V1
 
     def saml_callback
       saml_response = SAML::Responses::Login.new(params[:SAMLResponse], settings: saml_settings)
-      saml_error(saml_response) unless saml_response.valid?
+      raise_saml_error(saml_response) unless saml_response.valid?
       user_login(saml_response)
       callback_stats(:success, saml_response)
     rescue SAML::SAMLError => e
@@ -111,7 +111,7 @@ module V1
       SAML::SSOeSettingsService.saml_settings(options)
     end
 
-    def saml_error(form)
+    def raise_saml_error(form)
       code = form.error_code
       code = UserSessionForm::ERRORS[:saml_replay_valid_session][:code] if code == '005' && validate_session
       raise SAML::FormError.new(form, code)
@@ -131,7 +131,7 @@ module V1
       user_session_form = UserSessionForm.new(saml_response)
       unless user_session_form.valid?
         login_stats(:failure, saml_response, user_session_form)
-        saml_error(user_session_form)
+        raise_saml_error(user_session_form)
       end
 
       @current_user, @session_object = user_session_form.persist
@@ -168,16 +168,15 @@ module V1
     def login_stats(status, _saml_response, user_session_form)
       tracker = url_service(user_session_form&.saml_uuid).tracker
       type = tracker.payload_attr(:type)
+      tags = ["context:#{type}", VERSION_TAG]
       case status
       when :success
-        tags = ["context:#{type}", VERSION_TAG]
         StatsD.increment(STATSD_LOGIN_NEW_USER_KEY, tags: [VERSION_TAG]) if type == 'signup'
         # track users who have a shared sso cookie
         StatsD.increment(STATSD_LOGIN_SHARED_COOKIE, tags: tags)
         StatsD.increment(STATSD_LOGIN_STATUS_SUCCESS, tags: tags)
         StatsD.measure(STATSD_LOGIN_LATENCY, tracker.age, tags: tags)
       when :failure
-        tags = ["context:#{type}", VERSION_TAG]
         StatsD.increment(STATSD_LOGIN_STATUS_FAILURE, tags: tags)
       end
     end
