@@ -43,27 +43,29 @@
       "type": "object",
       "required": [
       ],
-      "numberAndStreet": {
-        "$ref": "#/definitions/addressLine"
-      },
-      "aptUnitNumber": {
-        "$ref": "integer"
-      },
-      "city": {
-        "type": "string"
-      },
-      "country": {
-        "type": "string"
-      },
-      "zipFirstFive": {
-        "type": "string",
-        "pattern": "^\\d{5}?$"
-      },
-      "zipLastFour": {
-        "type": "string",
-        "pattern": "^\\d{4}?$"
-      },
-      "additionalProperties": false
+      "properties" : {
+        "numberAndStreet": {
+          "$ref": "#/definitions/addressLine"
+        },
+        "aptUnitNumber": {
+          "type": "integer"
+        },
+        "city": {
+          "type": "string"
+        },
+        "country": {
+          "type": "string"
+        },
+        "zipFirstFive": {
+          "type": "string",
+          "pattern": "^\\d{5}?$"
+        },
+        "zipLastFour": {
+          "type": "string",
+          "pattern": "^\\d{4}?$"
+        },
+        "additionalProperties": false
+      }
     }
   },
   "properties": {

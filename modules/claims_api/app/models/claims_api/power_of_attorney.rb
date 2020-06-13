@@ -18,6 +18,7 @@ module ClaimsApi
 
     def sign_pdf
       signatures = convert_signatures_to_images
+      puts signatures.inspect
       page_1_path = insert_signatures(1, signatures[:veteran], signatures[:representative])
       page_2_path = insert_signatures(2, signatures[:veteran], signatures[:representative])
       { page1: page_1_path, page2: page_2_path }
@@ -32,6 +33,8 @@ module ClaimsApi
 
     def convert_base64_data_to_image(signature)
       path = "tmp/#{signature}_signature_b64.png"
+      puts "----#{signature}----"
+      puts form_data.inspect
       File.open(path, 'wb') do |f|
         f.write(Base64.decode64(form_data.dig('signatures', signature)))
       end
