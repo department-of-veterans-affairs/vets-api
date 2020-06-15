@@ -17,6 +17,12 @@ module Debts
       @client = VBMS::Client.from_env_vars(env_name: Settings.vbms.env)
     end
 
+    def get_letter(document_id)
+      @client.send_request(
+        VBMS::Requests::GetDocumentContent.new(document_id)
+      ).content
+    end
+
     def list_letters
       records = @client.send_request(
         VBMS::Requests::FindDocumentVersionReference.new(@file_number)
