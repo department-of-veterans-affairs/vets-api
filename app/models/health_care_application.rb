@@ -111,7 +111,7 @@ class HealthCareApplication < ApplicationRecord
 
   def self.user_icn(user_attributes)
     HCA::RateLimitedSearch.create_rate_limited_searches(user_attributes) unless Settings.mvi_hca.skip_rate_limit
-    MVI::AttrService.new.find_profile(user_attributes)&.profile&.icn
+    MasterVeteranIndex::AttrService.new.find_profile(user_attributes)&.profile&.icn
   end
 
   def self.user_attributes(form)

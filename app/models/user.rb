@@ -2,8 +2,8 @@
 
 require 'common/models/base'
 require 'common/models/redis_store'
-require 'mvi/messages/find_profile_message'
-require 'mvi/service'
+require 'master_veteran_index/messages/find_profile_message'
+require 'master_veteran_index/service'
 require 'evss/common_service'
 require 'evss/auth_headers'
 require 'saml/user'
@@ -302,7 +302,7 @@ class User < Common::RedisStore
   end
 
   def mvi
-    @mvi ||= Mvi.for_user(self)
+    @mvi ||= MVI.for_user(self)
   end
 
   # A user can have served in the military without being a veteran.  For example,

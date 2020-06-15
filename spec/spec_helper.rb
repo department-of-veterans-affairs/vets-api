@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'fakeredis/rspec'
-require 'support/mvi/stub_mvi'
 require 'support/spec_builders'
 require 'support/matchers'
 require 'support/spool_helpers'
