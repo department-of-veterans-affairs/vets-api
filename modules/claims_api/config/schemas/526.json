@@ -252,8 +252,7 @@
         "homelessness": {
           "type": "object",
           "required": [
-            "pointOfContact",
-            "currentlyHomeless"
+            "pointOfContact"
           ],
           "properties": {
             "pointOfContact": {
@@ -289,15 +288,18 @@
             "currentlyHomeless": {
               "type": "object",
               "required": [
+                "homelessSituationType",
                 "otherLivingSituation"
               ],
               "properties": {
                 "homelessSituationType": {
                   "type": "string",
+                  "default": "OTHER",
                   "enum": ["FLEEING_CURRENT_RESIDENCE",
                            "LIVING_IN_A_HOMELESS_SHELTER",
                            "NOT_CURRENTLY_IN_A_SHELTERED_ENVIRONMENT",
-                           "STAYING_WITH_ANOTHER_PERSON","OTHER"]
+                           "STAYING_WITH_ANOTHER_PERSON",
+                           "OTHER"]
                 },
                 "otherLivingSituation": {
                   "type": "string",
@@ -314,6 +316,7 @@
               "properties": {
                 "homelessnessRiskSituationType": {
                   "type": "string",
+                  "default": "OTHER",
                   "enum": ["HOUSING_WILL_BE_LOST_IN_30_DAYS",
                            "LEAVING_PUBLICLY_FUNDED_SYSTEM_OF_CARE",
                            "OTHER"]
