@@ -22,12 +22,14 @@ StatsD.backend = if host.present? && port.present?
                      tags: ["version:#{v}", "context:#{t}"])
     StatsD.increment(V1::SessionsController::STATSD_SSO_NEW_INBOUND, 0,
                      tags: ["version:#{v}", "context:#{t}"])
+    StatsD.increment(V1::SessionsController::STATSD_LOGIN_STATUS_SUCCESS, 0,
+                     tags: ["version:#{v}", "context:#{t}"])
+    StatsD.increment(V1::SessionsController::STATSD_LOGIN_STATUS_FAILURE, 0,
+                     tags: ["version:#{v}", "context:#{t}"])
   end
   %w[success failure].each do |s|
     (SAML::User::AUTHN_CONTEXTS.keys + [SAML::User::UNKNOWN_AUTHN_CONTEXT]).each do |ctx|
       StatsD.increment(V1::SessionsController::STATSD_SSO_CALLBACK_KEY, 0,
-                       tags: ["version:#{v}", "status:#{s}", "context:#{ctx}"])
-      StatsD.increment(V1::SessionsController::STATSD_LOGIN_STATUS, 0,
                        tags: ["version:#{v}", "status:#{s}", "context:#{ctx}"])
       StatsD.increment(V1::SessionsController::STATSD_LOGIN_SHARED_COOKIE, 0,
                        tags: ["version:#{v}", "context:#{ctx}"])
