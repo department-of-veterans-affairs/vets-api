@@ -8,7 +8,7 @@ describe MasterVeteranIndex::Responses::AddParser do
   let(:parser) { described_class.new(faraday_response) }
 
   context 'given a valid response' do
-    let(:body) { Ox.parse(File.read('spec/support/master_veteran_index/add_person_response.xml')) }
+    let(:body) { Ox.parse(File.read('spec/support/mvi/add_person_response.xml')) }
 
     before do
       allow(faraday_response).to receive(:body) { body }

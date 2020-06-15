@@ -104,7 +104,7 @@ describe MasterVeteranIndex::Service do
     context 'invalid requests' do
       it 'responds with a SERVER_ERROR if request is invalid', :aggregate_failures do
         expect(subject).to receive(:log_message_to_sentry).with(
-          'MasterVeteranIndex Invalid Request', :error
+          'MVI Invalid Request', :error
         )
 
         VCR.use_cassette('mvi/add_person/add_person_invalid_request') do
@@ -123,7 +123,7 @@ describe MasterVeteranIndex::Service do
 
       it 'responds with a SERVER_ERROR if the user has duplicate keys in the system', :aggregate_failures do
         expect(subject).to receive(:log_message_to_sentry).with(
-          'MasterVeteranIndex Invalid Request', :error
+          'MVI Invalid Request', :error
         )
 
         VCR.use_cassette('mvi/add_person/add_person_duplicate') do
@@ -147,7 +147,7 @@ describe MasterVeteranIndex::Service do
       it 'raises a service error', :aggregate_failures do
         allow_any_instance_of(Faraday::Connection).to receive(:post).and_raise(Faraday::TimeoutError)
         expect(subject).to receive(:log_console_and_sentry).with(
-          'MasterVeteranIndex add_person error: Gateway timeout',
+          'MVI add_person error: Gateway timeout',
           :warn
         )
         response = subject.add_person(user)

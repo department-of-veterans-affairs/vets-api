@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 require 'common/exceptions/external/unprocessable_entity'
+require_relative 'service'
+require_relative 'configuration'
 
 module MasterVeteranIndex
   class OrchSearchService < MasterVeteranIndex::Service

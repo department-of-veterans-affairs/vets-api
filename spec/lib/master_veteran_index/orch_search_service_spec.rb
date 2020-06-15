@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require 'master_veteran_index/orch_search_service'
 
 describe MasterVeteranIndex::OrchSearchService do
   let(:user) { build(:user, :loa3, user_hash) }
