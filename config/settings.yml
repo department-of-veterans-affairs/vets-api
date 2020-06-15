@@ -550,3 +550,9 @@ coronavirus_chatbot:
   app_secret: fake_secret
   directline_uri: northamerica.directline.botframework.com
   webchat_secret: fake_secret
+
+# Settings for notifications client
+notifications_api:
+  client_url: ''
+  secret_token: ''
+  template_id: ''
