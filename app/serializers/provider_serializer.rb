@@ -4,7 +4,8 @@ class ProviderSerializer < ActiveModel::Serializer
   type 'cc_provider'
 
   def id
-    "ccp_#{object.ProviderIdentifier}"
+    obj_id = object.ProviderHexdigest || object.ProviderIdentifier
+    "ccp_#{obj_id}"
   end
 
   def unique_id

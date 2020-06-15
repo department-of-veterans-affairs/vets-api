@@ -114,6 +114,7 @@ RSpec.describe Facilities::PPMS::Client, team: :facilities do
         expect(r.length).to be 10
         expect(r[0]).to have_attributes(
           ProviderIdentifier: '1629245311',
+          ProviderHexdigest: 'f75f073ca06f6c2b100d2a35817d5dca',
           CareSite: 'MinuteClinic LLC',
           AddressStreet: '2010 S Dobson Rd',
           AddressCity: 'Chandler',
