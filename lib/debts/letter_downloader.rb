@@ -6,7 +6,6 @@ module Debts
     end
 
     def list_letters
-      binding.pry; fail
       res = @client.send_request(
         VBMS::Requests::FindDocumentVersionReference.new(@file_number)
       )
