@@ -663,12 +663,12 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
 
     describe 'MVI Users' do
       # let(:mhv_user) { build(:user_with_no_ids) }  # returns 404, The record for the requested user could not be found
-      # let(:mhv_user) { build(:user, :loa1) }   # returns 403, Forbidden User does not have access to the requested resource
+      # let(:mhv_user) { build(:user, :loa1) }   # returns 403, Forbidden
+      # User does not have access to the requested resource
 
       it 'supports creating mvi user' do
         expect(subject).to validate(:post, '/v0/mvi_users/{id}', 401, 'id' => '21-0966')
         VCR.use_cassette('mvi/add_person/add_person_success') do
-          byebug
           expect(subject).to validate(:post, '/v0/mvi_users/{id}', 200, headers.merge('id' => '21-0966'))
         end
       end
