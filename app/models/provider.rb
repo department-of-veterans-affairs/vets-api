@@ -31,7 +31,7 @@ class Provider < Common::Base
   end
 
   def hexdigest
-    Digest::MD5.hexdigest(attributes.except(:ProviderHexdigest).to_a.join('|'))
+    Digest::SHA256.hexdigest(attributes.except(:ProviderHexdigest).to_a.join('|'))
   end
 
   def set_hexdigest!
