@@ -5,7 +5,7 @@ module Swagger
     class MviUsers
       include Swagger::Blocks
 
-      swagger_path '/v0/mvi_users' do
+      swagger_path '/v0/mvi_users/{id}' do
         operation :post do
           extend Swagger::Responses::AuthenticationError
           extend Swagger::Responses::ForbiddenError
@@ -27,15 +27,16 @@ module Swagger
           parameter do
             key :name, :id
             key :in, :path
-            key :description, 'ID of the form'
+            key :description, 'ID of the form. Allowed values: 21-0966 21-526EZ'
             key :required, true
             key :type, :string
-            key :example, '21-0966'
-            key :enum, %w[21-0966 21-526EZ]
           end
 
           response 200 do
             key :description, 'Success response for MVI Orchestrated Search'
+            schema do
+              key :type, :string
+            end
           end
         end
       end
