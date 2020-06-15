@@ -213,11 +213,12 @@ module SAML
     def initialize_tracker(params, previous_saml_uuid: nil)
       previous = previous_saml_uuid && SAMLRequestTracker.find(previous_saml_uuid)
       redirect = previous&.payload_attr(:redirect) || build_redirect(params)
-      inbound = params[:inbound] || nil
+      inbound = previous&.payload_attr(:inbound) || params[:inbound]
+      type = previous&.payload_attr(:type) || params[:type]
       # if created_at is set to nil (meaning no previous tracker to use), it
       # will be initialized to the current time when it is saved
       SAMLRequestTracker.new(
-        payload: { redirect: redirect, inbound_ssoe: inbound }.compact,
+        payload: { redirect: redirect, inbound_ssoe: inbound, type: type }.compact,
         created_at: previous&.created_at
       )
     end

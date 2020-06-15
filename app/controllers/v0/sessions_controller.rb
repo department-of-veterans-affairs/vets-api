@@ -16,7 +16,8 @@ module V0
     STATSD_SSO_CALLBACK_TOTAL_KEY = 'api.auth.login_callback.total'
     STATSD_SSO_CALLBACK_FAILED_KEY = 'api.auth.login_callback.failed'
     STATSD_LOGIN_NEW_USER_KEY = 'api.auth.new_user'
-    STATSD_LOGIN_STATUS = 'api.auth.login'
+    STATSD_LOGIN_STATUS_SUCCESS = 'api.auth.login.success'
+    STATSD_LOGIN_STATUS_FAILURE = 'api.auth.login.failure'
     STATSD_LOGIN_SHARED_COOKIE = 'api.auth.sso_shared_cookie'
     STATSD_LOGIN_LATENCY = 'api.auth.latency'
 
@@ -108,10 +109,12 @@ module V0
         after_login_actions
         redirect_to url_service(user_session_form.saml_uuid).login_redirect_url
         if location.start_with?(url_service.base_redirect_url)
-          # only record success stats if the user is being redirect to the site
+          # only record login stats if the user is being redirect to the site
           # some users will need to be up-leveled and this will be redirected
           # back to the identity provider
           login_stats(:success, saml_response, user_session_form)
+        else
+          callback_stats(:success, saml_response)
         end
       else
         log_message_to_sentry(
@@ -134,25 +137,24 @@ module V0
       end
     end
 
-    def login_stats_success(saml_response, user_session_form = nil)
-      tracker = url_service(user_session_form&.saml_uuid).tracker
-      tags = ["context:#{saml_response.authn_context}", VERSION_TAG]
-      StatsD.increment(STATSD_LOGIN_NEW_USER_KEY, tags: [VERSION_TAG]) if request_type == 'signup'
+    def login_stats_success(saml_response, tracker)
+      type = tracker.payload_attr(:type)
+      tags = ["context:#{type}", VERSION_TAG]
+      StatsD.increment(STATSD_LOGIN_NEW_USER_KEY, tags: [VERSION_TAG]) if type == 'signup'
       StatsD.increment(STATSD_LOGIN_SHARED_COOKIE, tags: tags) if cookies.key?(Settings.sso.cookie_name)
-      StatsD.increment(STATSD_LOGIN_STATUS, tags: tags + ['status:success'])
+      StatsD.increment(STATSD_LOGIN_STATUS_SUCCESS, tags: tags)
       StatsD.measure(STATSD_LOGIN_LATENCY, tracker.age, tags: tags)
       callback_stats(:success, saml_response)
     end
 
-    def login_stats(status, saml_response, user_session_form = nil)
+    def login_stats(status, saml_response, user_session_form)
+      tracker = url_service(user_session_form&.saml_uuid).tracker
       case status
       when :success
-        login_stats_success(saml_response, user_session_form)
+        login_stats_success(saml_response, tracker)
       when :failure
-        StatsD.increment(STATSD_LOGIN_STATUS,
-                         tags: ['status:failure',
-                                "context:#{saml_response.authn_context}",
-                                VERSION_TAG])
+        tags = ["context:#{tracker.payload_attr(:type)}", VERSION_TAG]
+        StatsD.increment(STATSD_LOGIN_STATUS_FAILURE, tags: tags)
         callback_stats(:failure, saml_response, user_session_form.error_instrumentation_code)
       end
     end
@@ -204,12 +206,6 @@ module V0
 
     def originating_request_id
       JSON.parse(params[:RelayState] || '{}')['originating_request_id']
-    rescue
-      'UNKNOWN'
-    end
-
-    def request_type
-      JSON.parse(params[:RelayState] || '{}')['type']
     rescue
       'UNKNOWN'
     end
