@@ -159,6 +159,15 @@ RSpec.describe Form526Submission do
         end.to change(EVSS::DisabilityCompensationForm::SubmitForm8940.jobs, :size).by(1)
       end
     end
+
+    context 'with form526 submission confirmation email' do
+      it 'returns false when feature is disabled' do
+        Flipper.disable(:form526_confirmation_email)
+        expect do
+          subject.perform_ancillary_jobs
+        end.to change(Form526ConfirmationEmailJob.jobs, :size).by(0)
+      end
+    end
   end
 
   describe '#workflow_complete_handler' do
