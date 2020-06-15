@@ -250,7 +250,7 @@ RSpec.describe V0::InProgressFormsController, type: :request do
 
           it 'call to add user to MVI is skipped' do
             expect(in_progress_form.form_id).not_to eq('21-526EZ') # check test set up
-            expect_any_instance_of(Mvi).not_to receive(:mvi_add_person)
+            expect_any_instance_of(MVI).not_to receive(:mvi_add_person)
             get v0_in_progress_form_url(in_progress_form.form_id), params: nil
           end
         end

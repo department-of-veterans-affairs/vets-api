@@ -104,7 +104,7 @@ describe MasterVeteranIndex::Service do
     context 'invalid requests' do
       it 'responds with a SERVER_ERROR if request is invalid', :aggregate_failures do
         expect(subject).to receive(:log_message_to_sentry).with(
-          'MVI Invalid Request', :error
+          'MasterVeteranIndex Invalid Request', :error
         )
 
         VCR.use_cassette('mvi/add_person/add_person_invalid_request') do
@@ -123,7 +123,7 @@ describe MasterVeteranIndex::Service do
 
       it 'responds with a SERVER_ERROR if the user has duplicate keys in the system', :aggregate_failures do
         expect(subject).to receive(:log_message_to_sentry).with(
-          'MVI Invalid Request', :error
+          'MasterVeteranIndex Invalid Request', :error
         )
 
         VCR.use_cassette('mvi/add_person/add_person_duplicate') do
@@ -142,50 +142,50 @@ describe MasterVeteranIndex::Service do
     end
 
     context 'with an MVI timeout' do
-      let(:base_path) { MVI::Configuration.instance.base_path }
+      let(:base_path) { MasterVeteranIndex::Configuration.instance.base_path }
 
       it 'raises a service error', :aggregate_failures do
         allow_any_instance_of(Faraday::Connection).to receive(:post).and_raise(Faraday::TimeoutError)
         expect(subject).to receive(:log_console_and_sentry).with(
-          'MVI add_person error: Gateway timeout',
+          'MasterVeteranIndex add_person error: Gateway timeout',
           :warn
         )
         response = subject.add_person(user)
 
         exception = response.error.errors.first
 
-        expect(response.class).to eq MVI::Responses::AddPersonResponse
+        expect(response.class).to eq MasterVeteranIndex::Responses::AddPersonResponse
         expect(response.status).to eq server_error
         expect(response.mvi_codes).to be_nil
         expect(exception.title).to eq 'Gateway timeout'
         expect(exception.code).to eq 'MVI_504'
         expect(exception.status).to eq '504'
-        expect(exception.source).to eq MVI::Service
+        expect(exception.source).to eq MasterVeteranIndex::Service
       end
     end
 
     context 'with an ongoing breakers outage' do
       it 'returns the correct thing', :aggregate_failures do
-        MVI::Configuration.instance.breakers_service.begin_forced_outage!
+        MasterVeteranIndex::Configuration.instance.breakers_service.begin_forced_outage!
         expect(Raven).to receive(:extra_context).once
         response = subject.add_person(user)
 
         exception = response.error.errors.first
 
-        expect(response.class).to eq MVI::Responses::AddPersonResponse
+        expect(response.class).to eq MasterVeteranIndex::Responses::AddPersonResponse
         expect(response.status).to eq server_error
         expect(response.mvi_codes).to be_nil
         expect(exception.title).to eq 'Service unavailable'
         expect(exception.code).to eq 'MVI_503'
         expect(exception.status).to eq '503'
-        expect(exception.source).to eq MVI::Service
+        expect(exception.source).to eq MasterVeteranIndex::Service
       end
     end
   end
 
   describe '.find_profile with icn', run_at: 'Wed, 21 Feb 2018 20:19:01 GMT' do
     before do
-      expect(MVI::Messages::FindProfileMessageIcn).to receive(:new).once.and_call_original
+      expect(MasterVeteranIndex::Messages::FindProfileMessageIcn).to receive(:new).once.and_call_original
     end
 
     context 'valid requests' do
@@ -309,7 +309,7 @@ describe MasterVeteranIndex::Service do
     end
 
     before do
-      expect(MVI::Messages::FindProfileMessageEdipi).to receive(:new).once.and_call_original
+      expect(MasterVeteranIndex::Messages::FindProfileMessageEdipi).to receive(:new).once.and_call_original
     end
 
     context 'valid requests' do
@@ -338,7 +338,7 @@ describe MasterVeteranIndex::Service do
   describe '.find_profile without icn' do
     context 'valid request' do
       before do
-        expect(MVI::Messages::FindProfileMessage).to receive(:new).once.and_call_original
+        expect(MasterVeteranIndex::Messages::FindProfileMessage).to receive(:new).once.and_call_original
       end
 
       it 'calls the find_profile endpoint with a find candidate message' do
@@ -402,7 +402,7 @@ describe MasterVeteranIndex::Service do
     context 'when a MVI invalid request response is returned' do
       it 'raises a invalid request error', :aggregate_failures do
         invalid_xml = File.read('spec/support/mvi/find_candidate_invalid_request.xml')
-        allow_any_instance_of(MVI::Service).to receive(:create_profile_message).and_return(invalid_xml)
+        allow_any_instance_of(MasterVeteranIndex::Service).to receive(:create_profile_message).and_return(invalid_xml)
         expect(subject).to receive(:log_message_to_sentry).with(
           'MVI Invalid Request', :error
         )
@@ -427,7 +427,7 @@ describe MasterVeteranIndex::Service do
     end
 
     context 'with an MVI timeout' do
-      let(:base_path) { MVI::Configuration.instance.base_path }
+      let(:base_path) { MasterVeteranIndex::Configuration.instance.base_path }
 
       it 'raises a service error', :aggregate_failures do
         allow_any_instance_of(Faraday::Connection).to receive(:post).and_raise(Faraday::TimeoutError)
@@ -443,7 +443,7 @@ describe MasterVeteranIndex::Service do
 
     context 'when a status of 500 is returned' do
       it 'raises a request failure error', :aggregate_failures do
-        allow_any_instance_of(MVI::Service).to receive(:create_profile_message).and_return('<nobeuno></nobeuno>')
+        allow_any_instance_of(MasterVeteranIndex::Service).to receive(:create_profile_message).and_return('<nobeuno></nobeuno>')
         expect(subject).to receive(:log_message_to_sentry).with(
           'MVI find_profile error: SOAP HTTP call failed',
           :warn
@@ -457,7 +457,7 @@ describe MasterVeteranIndex::Service do
 
     context 'when no subject is returned in the response body' do
       before do
-        expect(MVI::Messages::FindProfileMessage).to receive(:new).once.and_call_original
+        expect(MasterVeteranIndex::Messages::FindProfileMessage).to receive(:new).once.and_call_original
       end
 
       let(:user_hash) do
@@ -504,7 +504,7 @@ describe MasterVeteranIndex::Service do
 
       context 'with an ongoing breakers outage' do
         it 'returns the correct thing', :aggregate_failures do
-          MVI::Configuration.instance.breakers_service.begin_forced_outage!
+          MasterVeteranIndex::Configuration.instance.breakers_service.begin_forced_outage!
           expect(Raven).to receive(:extra_context).once
           response = subject.find_profile(user)
 
@@ -515,7 +515,7 @@ describe MasterVeteranIndex::Service do
 
     context 'when MVI returns 500 but VAAFI sends 200' do
       before do
-        expect(MVI::Messages::FindProfileMessage).to receive(:new).once.and_call_original
+        expect(MasterVeteranIndex::Messages::FindProfileMessage).to receive(:new).once.and_call_original
       end
 
       %w[internal_server_error internal_server_error_2].each do |cassette|
@@ -535,10 +535,10 @@ describe MasterVeteranIndex::Service do
 
     context 'when MVI multiple match failure response' do
       before do
-        expect(MVI::Messages::FindProfileMessage).to receive(:new).once.and_call_original
+        expect(MasterVeteranIndex::Messages::FindProfileMessage).to receive(:new).once.and_call_original
       end
 
-      it 'raises MVI::Errors::RecordNotFound', :aggregate_failures do
+      it 'raises MasterVeteranIndex::Errors::RecordNotFound', :aggregate_failures do
         expect(subject).to receive(:log_message_to_sentry).with(
           'MVI Duplicate Record', :warn
         )
@@ -613,13 +613,13 @@ describe MasterVeteranIndex::Service do
 
         exception = response.error.errors.first
 
-        expect(response.class).to eq MVI::Responses::AddPersonResponse
+        expect(response.class).to eq MasterVeteranIndex::Responses::AddPersonResponse
         expect(response.status).to eq server_error
         expect(response.mvi_codes).to be_nil
         expect(exception.title).to eq 'Gateway timeout'
         expect(exception.code).to eq 'MVI_504'
         expect(exception.status).to eq '504'
-        expect(exception.source).to eq MVI::Service
+        expect(exception.source).to eq MasterVeteranIndex::Service
       end
     end
   end
@@ -628,47 +628,47 @@ end
 def server_error_502_expectations_for(response)
   exception = response.error.errors.first
 
-  expect(response.class).to eq MVI::Responses::FindProfileResponse
+  expect(response.class).to eq MasterVeteranIndex::Responses::FindProfileResponse
   expect(response.status).to eq server_error
   expect(response.profile).to be_nil
   expect(exception.title).to eq 'Bad Gateway'
   expect(exception.code).to eq 'MVI_502'
   expect(exception.status).to eq '502'
-  expect(exception.source).to eq MVI::Service
+  expect(exception.source).to eq MasterVeteranIndex::Service
 end
 
 def server_error_503_expectations_for(response)
   exception = response.error.errors.first
 
-  expect(response.class).to eq MVI::Responses::FindProfileResponse
+  expect(response.class).to eq MasterVeteranIndex::Responses::FindProfileResponse
   expect(response.status).to eq server_error
   expect(response.profile).to be_nil
   expect(exception.title).to eq 'Service unavailable'
   expect(exception.code).to eq 'MVI_503'
   expect(exception.status).to eq '503'
-  expect(exception.source).to eq MVI::Service
+  expect(exception.source).to eq MasterVeteranIndex::Service
 end
 
 def server_error_504_expectations_for(response)
   exception = response.error.errors.first
 
-  expect(response.class).to eq MVI::Responses::FindProfileResponse
+  expect(response.class).to eq MasterVeteranIndex::Responses::FindProfileResponse
   expect(response.status).to eq server_error
   expect(response.profile).to be_nil
   expect(exception.title).to eq 'Gateway timeout'
   expect(exception.code).to eq 'MVI_504'
   expect(exception.status).to eq '504'
-  expect(exception.source).to eq MVI::Service
+  expect(exception.source).to eq MasterVeteranIndex::Service
 end
 
 def record_not_found_404_expectations_for(response)
   exception = response.error.errors.first
 
-  expect(response.class).to eq MVI::Responses::FindProfileResponse
+  expect(response.class).to eq MasterVeteranIndex::Responses::FindProfileResponse
   expect(response.status).to eq not_found
   expect(response.profile).to be_nil
   expect(exception.title).to eq 'Record not found'
   expect(exception.code).to eq 'MVI_404'
   expect(exception.status).to eq '404'
-  expect(exception.source).to eq MVI::Service
+  expect(exception.source).to eq MasterVeteranIndex::Service
 end

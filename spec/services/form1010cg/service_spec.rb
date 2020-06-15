@@ -108,7 +108,7 @@ RSpec.describe Form1010cg::Service do
         :user_identity
       )
 
-      expect_any_instance_of(MVI::Service).to receive(:find_profile).with(
+      expect_any_instance_of(MasterVeteranIndex::Service).to receive(:find_profile).with(
         :user_identity
       ).and_return(
         double(status: 'OK', profile: double(icn: :ICN_123))
@@ -153,7 +153,7 @@ RSpec.describe Form1010cg::Service do
         :user_identity
       )
 
-      expect_any_instance_of(MVI::Service).to receive(:find_profile).with(
+      expect_any_instance_of(MasterVeteranIndex::Service).to receive(:find_profile).with(
         :user_identity
       ).and_return(
         double(status: 'NOT_FOUND', error: double)
@@ -215,7 +215,7 @@ RSpec.describe Form1010cg::Service do
         :veteran_user_identity
       )
 
-      expect_any_instance_of(MVI::Service).to receive(:find_profile).with(
+      expect_any_instance_of(MasterVeteranIndex::Service).to receive(:find_profile).with(
         :veteran_user_identity
       ).and_return(
         double(status: 'OK', profile: double(icn: :CACHED_VALUE))
@@ -227,7 +227,7 @@ RSpec.describe Form1010cg::Service do
         :pc_user_identity
       )
 
-      expect_any_instance_of(MVI::Service).to receive(:find_profile).with(
+      expect_any_instance_of(MasterVeteranIndex::Service).to receive(:find_profile).with(
         :pc_user_identity
       ).and_return(
         double(status: 'NOT_FOUND', error: double)
@@ -279,7 +279,7 @@ RSpec.describe Form1010cg::Service do
           :user_identity
         )
 
-        expect_any_instance_of(MVI::Service).to receive(:find_profile).with(
+        expect_any_instance_of(MasterVeteranIndex::Service).to receive(:find_profile).with(
           :user_identity
         ).and_return(
           double(status: 'OK', profile: double(icn: :ICN_123))
@@ -329,7 +329,7 @@ RSpec.describe Form1010cg::Service do
           :user_identity
         )
 
-        expect_any_instance_of(MVI::Service).to receive(:find_profile).with(
+        expect_any_instance_of(MasterVeteranIndex::Service).to receive(:find_profile).with(
           :user_identity
         ).and_return(
           double(status: 'OK', profile: double(icn: :ICN_123))
