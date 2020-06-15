@@ -7,7 +7,7 @@ module V0
     def submit
       # Caller must be using proxy add in order to complete Intent to File or Disability Compensation forms
       form_id = params[:id]
-      if [FormProfiles::VA0996::FORM_ID, VA526ez::FORM_ID].exclude?(form_id)
+      if ['21-0966', VA526ez::FORM_ID].exclude?(form_id)
         raise Common::Exceptions::Forbidden.new(
           detail: "Action is prohibited with id parameter #{form_id}",
           source: 'MviUsersController'
@@ -26,7 +26,7 @@ module V0
       add_response = @current_user.mvi.mvi_add_person
       raise add_response.error unless add_response.ok?
 
-      render json: { "message": add_response }
+      render json: { "message": "Success" }
     end
   end
 end
