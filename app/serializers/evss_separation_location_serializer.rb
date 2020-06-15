@@ -2,8 +2,4 @@
 
 class EVSSSeparationLocationSerializer < ActiveModel::Serializer
   attribute :separation_locations
-
-  def id
-    nil
-  end
 end

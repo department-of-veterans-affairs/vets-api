@@ -161,6 +161,14 @@ module Swagger
               key :'$ref', :SeparationLocations
             end
           end
+
+          response 403 do
+            key :description, 'forbidden user'
+
+            schema do
+              key :'$ref', :Errors
+            end
+          end
         end
       end
     end

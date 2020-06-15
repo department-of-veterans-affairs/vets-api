@@ -517,6 +517,14 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
         end
       end
 
+      context 'with a loa1 user' do
+        let(:mhv_user) { build(:user, :loa1) }
+
+        it 'supports getting separation_locations' do
+          expect(subject).to validate(:get, '/v0/disability_compensation_form/separation_locations', 403, headers)
+        end
+      end
+
       it 'supports getting separation_locations' do
         expect(subject).to validate(:get, '/v0/disability_compensation_form/separation_locations', 401)
         VCR.use_cassette('evss/reference_data/get_intake_sites') do
