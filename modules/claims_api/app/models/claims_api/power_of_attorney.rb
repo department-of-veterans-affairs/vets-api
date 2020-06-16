@@ -18,7 +18,6 @@ module ClaimsApi
 
     def sign_pdf
       signatures = convert_signatures_to_images
-      puts signatures.inspect
       page_1_path = insert_signatures(1, signatures[:veteran], signatures[:representative])
       page_2_path = insert_signatures(2, signatures[:veteran], signatures[:representative])
       { page1: page_1_path, page2: page_2_path }
@@ -32,9 +31,8 @@ module ClaimsApi
     end
 
     def convert_base64_data_to_image(signature)
-      path = "tmp/#{signature}_signature_b64.png"
-      puts "----#{signature}----"
-      puts form_data.inspect
+      path = "tmp/#{signature}_#{id}_signature_b64.png"
+
       File.open(path, 'wb') do |f|
         f.write(Base64.decode64(form_data.dig('signatures', signature)))
       end
@@ -43,7 +41,7 @@ module ClaimsApi
 
     def insert_signatures(page, veteran_signature, representative_signature)
       pdf_path = Rails.root.join('modules', 'claims_api', 'config', 'pdf_templates', "21-22A-#{page}.pdf")
-      stamp_path = Common::FileHelpers.random_file_path
+      stamp_path = "#{::Common::FileHelpers.random_file_path}.pdf"
 
       Prawn::Document.generate(stamp_path, margin: [0, 0]) do |pdf|
         y_representative_coords = page == 1 ? 118 : 216
@@ -51,16 +49,16 @@ module ClaimsApi
         pdf.image representative_signature, at: [35, y_representative_coords], height: 20
         pdf.image veteran_signature, at: [35, y_veteran_coords], height: 20
       end
-      stamp(pdf_path, stamp_path)
+      stamp(pdf_path, stamp_path, delete_source: false)
     end
 
-    def stamp(file_path, stamp_path)
-      out_path = "#{Common::FileHelpers.random_file_path}.pdf"
+    def stamp(file_path, stamp_path, delete_source: true)
+      out_path = "#{::Common::FileHelpers.random_file_path}.pdf"
       PdfFill::Filler::PDF_FORMS.stamp(file_path, stamp_path, out_path)
-      # File.delete(file_path)
+      File.delete(file_path) if delete_source
       out_path
     rescue
-      Common::FileHelpers.delete_file_if_exists(out_path)
+      ::Common::FileHelpers.delete_file_if_exists(out_path)
       raise
     end
 
@@ -115,9 +113,9 @@ module ClaimsApi
     end
 
     def create_signature_image(signature_type)
-      path = "/tmp/#{signature_type}_signature.png"
+      path = "/tmp/#{signature_type}_#{id}_signature.png"
       File.open(path, 'wb') do |f|
-        f.write(Base64.decode64(form_data[signature_type]))
+        f.write(Base64.decode64(form_data.dig('signatures', signature_type)))
       end
       signature_image_paths[signature_type] = path
     end

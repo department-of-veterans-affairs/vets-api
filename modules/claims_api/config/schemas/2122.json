@@ -21,6 +21,17 @@
       "maxLength": 61,
       "$comment": "TODO: use draft 7 feature [format: idn-email] or [format: email] over pattern (when there is broader support)"
     },
+    "serviceBranch": {
+      "type": "string",
+      "enum": [
+        "AIR FORCE",
+        "ARMY",
+        "COAST GUARD",
+        "MARINE CORPS",
+        "NAVY",
+        "OTHER"
+      ]
+    },
     "signatureImage": {
         "title": "Signature of the Veteran or their Representative",
         "type": "string"
@@ -77,9 +88,10 @@
         "email"
       ],
       "properties": {
-        "address": { "$ref": "#/definitions/mailingAddress" },
-        "phone":   { "$ref": "#/definitions/phone" },
-        "email":   { "$ref": "#/definitions/email" }
+        "address":        { "$ref": "#/definitions/mailingAddress" },
+        "phone":          { "$ref": "#/definitions/phone" },
+        "email":          { "$ref": "#/definitions/email" },
+        "serviceBranch":  { "$ref": "#/definitions/serviceBranch" }
       }
     },
     "claimant": {

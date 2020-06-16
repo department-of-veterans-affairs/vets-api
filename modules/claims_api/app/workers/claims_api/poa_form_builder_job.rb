@@ -12,12 +12,11 @@ module ClaimsApi
       pdf_constructor = ClaimsApi::PowerOfAttorneyPdfConstructor.new(power_of_attorney.id)
       page1 = pdf_constructor.fill_pdf(signed_pdf[:page1], 1)
       page2 = pdf_constructor.fill_pdf(signed_pdf[:page2], 2)
-      output_path = "#{power_of_attorney_id}_final.pdf"
+      output_path = "/tmp/#{power_of_attorney_id}_final.pdf"
       pdf = CombinePDF.new
       pdf << CombinePDF.load(page1)
       pdf << CombinePDF.load(page2)
       pdf.save(output_path)
-      `open #{output_path}`
       output_path
     end
   end
