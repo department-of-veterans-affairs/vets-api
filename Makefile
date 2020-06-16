@@ -13,10 +13,11 @@ BASH         := run --rm --service-ports vets-api bash
 BASH_DEV     := $(COMPOSE_DEV) $(BASH) -c
 BASH_TEST    := $(COMPOSE_TEST) $(BASH) --login -c
 SPEC_PATH    := spec/
-DB		     := "bin/rails db:setup db:migrate"
-LINT    	 := "bin/rails lint"
+DB           := "bin/rails db:setup db:migrate"
+LINT         := "bin/rails lint"
 DOWN         := down
 SECURITY     := "bin/rails security"
+PACT         := "bundle exec rake pact:verify"
 
 .PHONY: default
 default: ci
@@ -82,6 +83,14 @@ guard:
 .PHONY: migrate
 migrate:
 	@$(BASH_DEV) "bin/rails db:migrate"
+
+.PHONY: pact
+pact:
+ifeq ($(ENV_ARG), dev)
+	@$(BASH_DEV) $(PACT)
+else
+	@$(BASH_TEST) $(PACT)
+endif
 
 .PHONY: rebuild
 rebuild: down
