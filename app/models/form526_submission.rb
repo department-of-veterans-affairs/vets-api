@@ -113,7 +113,6 @@ class Form526Submission < ApplicationRecord
       submit_form_4142 if form[FORM_4142].present?
       submit_form_0781 if form[FORM_0781].present?
       submit_form_8940 if form[FORM_8940].present?
-      send_form526_confirmation_email if Flipper.enabled?(:form526_confirmation_email, @current_user)
       cleanup
     end
   end
@@ -126,6 +125,10 @@ class Form526Submission < ApplicationRecord
   def workflow_complete_handler(_status, options)
     submission = Form526Submission.find(options['submission_id'])
     if submission.form526_job_statuses.all?(&:success?)
+      workflow_batch = Sidekiq::Batch.new
+      workflow_batch.jobs do
+        send_form526_confirmation_email if Flipper.enabled?(:form526_confirmation_email, @current_user)
+      end
       submission.workflow_complete = true
       submission.save
     end
@@ -151,7 +154,8 @@ class Form526Submission < ApplicationRecord
   end
 
   def send_form526_confirmation_email
-    Form526ConfirmationEmailJob.perform_async(id)
+    email_address = JSON.parse(form_json)['form526']['form526']['veteran']['emailAddress']
+    Form526ConfirmationEmailJob.perform_async(id, email_address)
   end
 
   def cleanup
