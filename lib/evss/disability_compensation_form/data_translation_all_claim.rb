@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'date'
+
 module EVSS
   module DisabilityCompensationForm
     # Transforms a client submission into the format expected by the EVSS 526 service
@@ -45,6 +47,7 @@ module EVSS
         output_form['autoCestPDFGenerationDisabled'] = input_form['autoCestPDFGenerationDisabled'] || false
         output_form['applicationExpirationDate'] = application_expiration_date
         output_form['overflowText'] = overflow_text
+        optput_form['bddQualified'] = bdd_qualified?
         output_form.compact!
 
         output_form.update(translate_banking_info)
@@ -80,6 +83,10 @@ module EVSS
 
         overflow
       end
+
+      ###
+      # Banking info
+      ###
 
       def translate_banking_info
         populated = input_form['bankName'].present? && input_form['bankAccountType'].present? &&
@@ -133,6 +140,10 @@ module EVSS
         }
       end
 
+      ###
+      # Service pay
+      ###
+
       def translate_service_pay
         service_pay = {
           'waiveVABenefitsToRetainTrainingPay' => input_form['waiveTrainingPay'],
@@ -172,6 +183,10 @@ module EVSS
           'serviceBranch' => service_branch(branch)
         }
       end
+
+      ###
+      # Service info
+      ###
 
       def translate_service_info
         {
@@ -220,6 +235,10 @@ module EVSS
         }.compact
       end
 
+      ###
+      # Personal information
+      ###
+
       def translate_names
         return nil if input_form['alternateNames'].blank?
 
@@ -245,6 +264,10 @@ module EVSS
 
         service_branch
       end
+
+      ###
+      # Veteran info
+      ###
 
       def translate_veteran
         {
@@ -378,6 +401,10 @@ module EVSS
         }
       end
 
+      ###
+      # Treatments
+      ###
+
       def translate_treatments
         return {} if input_form['vaTreatmentFacilities'].blank?
 
@@ -413,6 +440,10 @@ module EVSS
         }.compact
       end
 
+      ###
+      # Disabilities
+      ###
+
       def translate_disabilities
         rated_disabilities = input_form['ratedDisabilities'].deep_dup.presence || []
         # New primary disabilities need to be added first before handling secondary
@@ -421,7 +452,7 @@ module EVSS
         primary_disabilities = translate_new_primary_disabilities(rated_disabilities)
         disabilities = translate_new_secondary_disabilities(primary_disabilities)
 
-        # Strip out disabilites with ActionType eq to `None` that do not have any
+        # Strip out disabilities with ActionType eq to `None` that do not have any
         # secondary disabilities to avoid sending extraneous data
         disabilities.delete_if do |disability|
           disability['disabilityActionType'] == 'NONE' && disability['secondaryDisabilities'].blank?
@@ -495,7 +526,7 @@ module EVSS
       # @option input_disability [String] :classificationCode Optional classification code
       # @option input_disability [Array<String>] :specialIssues Optional list of associated special issues
       # @option input_disability [String] :worsenedDescription The disabilities description
-      # @option input_disability [String] :worsenedEffects The disabilites effects
+      # @option input_disability [String] :worsenedEffects The disabilities effects
       # @return [Hash] Transformed disability to match EVSS's validation
       def map_worsened(input_disability)
         {
@@ -558,6 +589,10 @@ module EVSS
         end
       end
 
+      ###
+      # Date calculations
+      ###
+
       def application_expiration_date
         return (rad_date + 1.day + 365.days).iso8601 if greater_rad_date?
         return (application_create_date + 365.days).iso8601 if greater_itf_date?
@@ -580,7 +615,7 @@ module EVSS
       end
 
       def rad_date
-        # retrieve the most recent 'Return from Active Duty' Date
+        # retrieve the most recent 'Release from Active Duty' Date
         return @rd if @rd
 
         service_episodes = @user.military_information.service_episodes_by_date
@@ -595,6 +630,23 @@ module EVSS
         response = service.get_active('compensation')
         @itf = response.intent_to_file
       end
+
+      ###
+      # Benefits Delivery at Discharge (BDD)
+      ###
+
+      def bdd_qualified?
+        # follow up with FE about @user.military_information.service_episodes_by_date
+        if rad_date.blank?
+          return false
+        end
+
+        # do we need any timezone support?
+        days_until_release = rad_date - Date.today
+        90 <= days_until_release && days_until_release <= 180 ? true : false
+      end
+
+
     end
   end
 end
