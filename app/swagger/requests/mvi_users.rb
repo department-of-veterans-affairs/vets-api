@@ -35,7 +35,7 @@ module Swagger
           response 200 do
             key :description, 'Success response for MVI Orchestrated Search'
             schema do
-              key :type, :string
+              property :message, type: :string, example: 'Success'
             end
           end
         end
