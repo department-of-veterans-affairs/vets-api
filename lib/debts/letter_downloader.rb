@@ -26,15 +26,13 @@ module Debts
     end
 
     def list_letters
-      records = @client.send_request(
+      debts_records = @client.send_request(
         VBMS::Requests::FindDocumentVersionReference.new(@file_number)
-      )
-
-      debts_records = records.find_all do |record|
+      ).find_all do |record|
         DEBTS_DOCUMENT_TYPES.include?(record.doc_type)
       end
 
-      debts_records.map! do |debts_record|
+      debts_records.map do |debts_record|
         debts_record.marshal_dump.slice(
           :document_id, :doc_type, :type_description, :received_at
         )
