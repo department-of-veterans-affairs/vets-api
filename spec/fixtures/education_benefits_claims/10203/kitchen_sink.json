@@ -5,10 +5,15 @@
     "last": "last"
   },
   "veteranSocialSecurityNumber": "111223333",
-  "preferredContactMethod": "email",
-  "vaFileNumber": "c12345678",
-  "homePhone": "5551110000",
-  "mobilePhone": "5551110001",
+  "benefit": "chapter33",
+  "isEnrolledStem": true,
+  "isPursuingTeachingCert": true,
+  "benefitLeft": "moreThanSixMonths",
+  "degreeName": "Degree Name",
+  "schoolName": "School Name",
+  "schoolCity": "Test",
+  "schoolState": "TN",
+  "isActiveDuty": true,
   "veteranAddress": {
     "city": "Milwaukee",
     "country": "USA",
@@ -16,18 +21,13 @@
     "state": "WI",
     "street": "123 Main St"
   },
-  "civilianBenefitsAssistance": true,
   "email": "test@sample.com",
-  "benefit": "chapter33",
-  "bankAccountChange": "startUpdate",
+  "mobilePhone": "5551110001",
   "bankAccount": {
     "accountNumber": "88888888888",
     "accountType": "checking",
     "bankName": "First Bank of JSON",
     "routingNumber": "123456789"
   },
-  "nonVaAssistance": true,
-  "remarks": "remarks",
-  "isEdithNourseRogersScholarship": true,
   "privacyAgreementAccepted": true
 }
