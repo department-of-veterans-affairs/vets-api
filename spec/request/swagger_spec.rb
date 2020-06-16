@@ -664,6 +664,7 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
     describe 'MVI Users' do
       context 'when user is correct' do
         let(:mhv_user) { build(:user_with_no_ids) }
+
         it 'fails when invalid form id is passed' do
           expect(subject).to validate(:post, '/v0/mvi_users/{id}', 403, headers.merge('id' => '12-1234'))
         end
@@ -681,6 +682,7 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
       end
       context 'when user is missing birls only' do
         let(:mhv_user) { build(:user_with_no_birls_id) }
+
         it 'fails with 422' do
           expect(subject).to validate(:post, '/v0/mvi_users/{id}', 422, headers.merge('id' => '21-0966'))
         end
