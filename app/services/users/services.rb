@@ -16,7 +16,7 @@ module Users
     #
     # @return [Array<String>] Array of names of services they have access to
     #
-    # rubocop:disable Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
+    # rubocop:disable Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity, Metrics/AbcSize
     def authorizations
       @list << BackendServices::RX if user.authorize :mhv_prescriptions, :access?
       @list << BackendServices::MESSAGING if user.authorize :mhv_messaging, :access?
@@ -33,7 +33,7 @@ module Users
       @list += BetaRegistration.where(user_uuid: user.uuid).pluck(:feature)
       @list
     end
-    # rubocop:enable Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
+    # rubocop:enable Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity, Metrics/AbcSize
 
     private
 
