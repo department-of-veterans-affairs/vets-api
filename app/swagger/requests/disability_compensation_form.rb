@@ -144,6 +144,33 @@ module Swagger
           end
         end
       end
+
+      swagger_path '/v0/disability_compensation_form/separation_locations' do
+        operation :get do
+          extend Swagger::Responses::AuthenticationError
+
+          key :description, 'Get the separation locations from EVSS'
+          key :operationId, 'getIntakeSites'
+          key :tags, %w[form_526]
+
+          parameter :authorization
+
+          response 200 do
+            key :description, 'Response is OK'
+            schema do
+              key :'$ref', :SeparationLocations
+            end
+          end
+
+          response 403 do
+            key :description, 'forbidden user'
+
+            schema do
+              key :'$ref', :Errors
+            end
+          end
+        end
+      end
     end
   end
 end

@@ -254,18 +254,26 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
 
       let(:body) do
         {
-          'permanent_address' => {
-            'street' => '101 Example Street',
-            'street2' => 'Apt 2',
-            'city' => 'Kansas City',
-            'state' => 'MO',
-            'country' => 'USA',
-            'postal_code' => '64117'
-          },
-          'use_permanent_address' => true,
+          'use_veteran_address' => true,
           'use_temporary_address' => false,
-          'order' => [{ 'product_id' => '1' }, { 'product_id' => '4' }],
-          'additional_requests' => ''
+          'order' => [{ 'product_id' => 2499 }],
+          'permanent_address' => {
+            'street' => '125 SOME RD',
+            'street2' => 'APT 101',
+            'city' => 'DENVER',
+            'state' => 'CO',
+            'country' => 'United States',
+            'postal_code' => '111119999'
+          },
+          'temporary_address' => {
+            'street' => '17250 w colfax ave',
+            'street2' => 'a-204',
+            'city' => 'Golden',
+            'state' => 'CO',
+            'country' => 'United States',
+            'postal_code' => '80401'
+          },
+          'vet_email' => 'vet1@va.gov'
         }
       end
 
@@ -514,6 +522,21 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
         expect(subject).to validate(:get, '/v0/disability_compensation_form/rated_disabilities', 401)
         VCR.use_cassette('evss/disability_compensation_form/rated_disabilities') do
           expect(subject).to validate(:get, '/v0/disability_compensation_form/rated_disabilities', 200, headers)
+        end
+      end
+
+      context 'with a loa1 user' do
+        let(:mhv_user) { build(:user, :loa1) }
+
+        it 'supports getting separation_locations' do
+          expect(subject).to validate(:get, '/v0/disability_compensation_form/separation_locations', 403, headers)
+        end
+      end
+
+      it 'supports getting separation_locations' do
+        expect(subject).to validate(:get, '/v0/disability_compensation_form/separation_locations', 401)
+        VCR.use_cassette('evss/reference_data/get_intake_sites') do
+          expect(subject).to validate(:get, '/v0/disability_compensation_form/separation_locations', 200, headers)
         end
       end
 

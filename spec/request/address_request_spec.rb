@@ -10,9 +10,10 @@ RSpec.describe 'address', type: :request do
   after(:all) { Settings.evss.reference_data_service.enabled = @cached_enabled_val }
 
   let(:headers) { { 'Content-Type' => 'application/json', 'Accept' => 'application/json' } }
+  let(:current_user) { create(:evss_user) }
 
   before do
-    sign_in
+    sign_in_as(current_user)
   end
 
   context '#reference_data_service.enabled=false' do
@@ -164,19 +165,6 @@ RSpec.describe 'address', type: :request do
             expect(response).to match_response_schema('states')
           end
         end
-      end
-    end
-
-    context 'with a 401 malformed token response', vcr: { cassette_name: 'evss/reference_data/401_malformed' } do
-      before do
-        allow_any_instance_of(EVSS::ReferenceData::Service)
-          .to receive(:headers_for_user)
-          .and_return(Authorization: 'Bearer abcd12345asd')
-      end
-
-      it 'returns 502' do
-        get '/v0/address/countries'
-        expect(response).to have_http_status(:bad_gateway)
       end
     end
   end
