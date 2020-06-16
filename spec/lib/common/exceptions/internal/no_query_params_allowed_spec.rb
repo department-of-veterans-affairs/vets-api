@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-describe Common::Exceptions::NoQueryParamsAllowed do
+describe Common::Exceptions::Internal::NoQueryParamsAllowed do
   subject { described_class.new }
 
   it 'implements #errors which returns an array' do

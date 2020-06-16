@@ -41,12 +41,12 @@ describe 'sm client' do
 
     it 'does not change anything if email address is invalid', :vcr do
       expect { client.post_preferences(email_address: 'invalid', frequency: 'none') }
-        .to raise_error(Common::Exceptions::ValidationErrors)
+        .to raise_error(Common::Exceptions::Internal::ValidationErrors)
     end
 
     it 'raises a backend service exception when email includes spaces', :vcr do
       expect { client.post_preferences(email_address: 'kamyar karshenas@va.gov', frequency: 'none') }
-        .to raise_error(Common::Exceptions::BackendServiceException)
+        .to raise_error(Common::Exceptions::External::BackendServiceException)
     end
   end
 end

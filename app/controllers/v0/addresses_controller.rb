@@ -21,7 +21,7 @@ module V0
           :military_post_office_type_code, :military_state_code
         )
       )
-      raise Common::Exceptions::ValidationErrors, address unless address.valid?
+      raise Common::Exceptions::Internal::ValidationErrors, address unless address.valid?
 
       response = service.update_address(address)
 

@@ -48,7 +48,7 @@ describe Vet360::ContactInformation::Service, skip_vet360: true do
       it 'raises a BackendServiceException error' do
         VCR.use_cassette('vet360/contact_information/person_status_503', VCR::MATCH_EVERYTHING) do
           expect { subject.get_person }.to raise_error do |e|
-            expect(e).to be_a(Common::Exceptions::BackendServiceException)
+            expect(e).to be_a(Common::Exceptions::External::BackendServiceException)
             expect(e.status_code).to eq(502)
             expect(e.errors.first.code).to eq('VET360_502')
           end
@@ -76,7 +76,7 @@ describe Vet360::ContactInformation::Service, skip_vet360: true do
           email.id = 42
           email.email_address = 'person42@example.com'
           expect { subject.post_email(email) }.to raise_error do |e|
-            expect(e).to be_a(Common::Exceptions::BackendServiceException)
+            expect(e).to be_a(Common::Exceptions::External::BackendServiceException)
             expect(e.status_code).to eq(400)
             expect(e.errors.first.code).to eq('VET360_EMAIL200')
           end
@@ -127,7 +127,7 @@ describe Vet360::ContactInformation::Service, skip_vet360: true do
           address.state_code = 'MS'
           address.zip_code = '38843'
           expect { subject.post_address(address) }.to raise_error do |e|
-            expect(e).to be_a(Common::Exceptions::BackendServiceException)
+            expect(e).to be_a(Common::Exceptions::External::BackendServiceException)
             expect(e.status_code).to eq(400)
             expect(e.errors.first.code).to eq('VET360_ADDR200')
           end
@@ -205,7 +205,7 @@ describe Vet360::ContactInformation::Service, skip_vet360: true do
         VCR.use_cassette('vet360/contact_information/post_telephone_w_id_error', VCR::MATCH_EVERYTHING) do
           telephone.id = 42
           expect { subject.post_telephone(telephone) }.to raise_error do |e|
-            expect(e).to be_a(Common::Exceptions::BackendServiceException)
+            expect(e).to be_a(Common::Exceptions::External::BackendServiceException)
             expect(e.status_code).to eq(400)
             expect(e.errors.first.code).to eq('VET360_PHON124')
           end
@@ -247,7 +247,7 @@ describe Vet360::ContactInformation::Service, skip_vet360: true do
         VCR.use_cassette('vet360/contact_information/post_permission_w_id_error', VCR::MATCH_EVERYTHING) do
           permission.id = 401
           expect { subject.post_permission(permission) }.to raise_error do |e|
-            expect(e).to be_a(Common::Exceptions::BackendServiceException)
+            expect(e).to be_a(Common::Exceptions::External::BackendServiceException)
             expect(e.status_code).to eq(502)
             expect(e.errors.first.code).to eq('VET360_502')
           end
@@ -276,7 +276,7 @@ describe Vet360::ContactInformation::Service, skip_vet360: true do
       it 'returns a status of 404' do
         VCR.use_cassette('vet360/contact_information/telephone_transaction_status_error', VCR::MATCH_EVERYTHING) do
           expect { subject.get_telephone_transaction_status(transaction_id) }.to raise_error do |e|
-            expect(e).to be_a(Common::Exceptions::BackendServiceException)
+            expect(e).to be_a(Common::Exceptions::External::BackendServiceException)
             expect(e.status_code).to eq(400)
             expect(e.errors.first.code).to eq('VET360_CORE103')
           end
@@ -305,7 +305,7 @@ describe Vet360::ContactInformation::Service, skip_vet360: true do
       it 'returns a status of 404' do
         VCR.use_cassette('vet360/contact_information/email_transaction_status_error', VCR::MATCH_EVERYTHING) do
           expect { subject.get_email_transaction_status(transaction_id) }.to raise_error do |e|
-            expect(e).to be_a(Common::Exceptions::BackendServiceException)
+            expect(e).to be_a(Common::Exceptions::External::BackendServiceException)
             expect(e.status_code).to eq(400)
             expect(e.errors.first.code).to eq('VET360_CORE103')
           end
@@ -317,7 +317,7 @@ describe Vet360::ContactInformation::Service, skip_vet360: true do
           expect(Raven).to receive(:tags_context).with(vet360: 'general_client_error')
 
           expect { subject.get_email_transaction_status(transaction_id) }.to raise_error do |e|
-            expect(e).to be_a(Common::Exceptions::BackendServiceException)
+            expect(e).to be_a(Common::Exceptions::External::BackendServiceException)
             expect(e.status_code).to eq(400)
             expect(e.errors.first.code).to eq('VET360_CORE103')
           end
@@ -346,7 +346,7 @@ describe Vet360::ContactInformation::Service, skip_vet360: true do
       it 'returns a status of 404' do
         VCR.use_cassette('vet360/contact_information/address_transaction_status_error', VCR::MATCH_EVERYTHING) do
           expect { subject.get_address_transaction_status(transaction_id) }.to raise_error do |e|
-            expect(e).to be_a(Common::Exceptions::BackendServiceException)
+            expect(e).to be_a(Common::Exceptions::External::BackendServiceException)
             expect(e.status_code).to eq(400)
             expect(e.errors.first.code).to eq('VET360_CORE103')
           end
@@ -410,7 +410,7 @@ describe Vet360::ContactInformation::Service, skip_vet360: true do
       it 'returns a status of 400' do
         VCR.use_cassette('vet360/contact_information/permission_transaction_status_error', VCR::MATCH_EVERYTHING) do
           expect { subject.get_permission_transaction_status(transaction_id) }.to raise_error do |e|
-            expect(e).to be_a(Common::Exceptions::BackendServiceException)
+            expect(e).to be_a(Common::Exceptions::External::BackendServiceException)
             expect(e.status_code).to eq(400)
             expect(e.errors.first.code).to eq('VET360_CORE103')
           end
@@ -477,7 +477,7 @@ describe Vet360::ContactInformation::Service, skip_vet360: true do
       it 'returns a status of 400', :aggregate_failures do
         VCR.use_cassette('vet360/contact_information/person_transaction_status_error', VCR::MATCH_EVERYTHING) do
           expect { subject.get_person_transaction_status(transaction_id) }.to raise_error do |e|
-            expect(e).to be_a(Common::Exceptions::BackendServiceException)
+            expect(e).to be_a(Common::Exceptions::External::BackendServiceException)
             expect(e.status_code).to eq(400)
             expect(e.errors.first.code).to eq('VET360_CORE103')
           end
@@ -489,7 +489,7 @@ describe Vet360::ContactInformation::Service, skip_vet360: true do
           expect(Raven).to receive(:tags_context).with(vet360: 'failed_vet360_id_initializations')
 
           expect { subject.get_person_transaction_status(transaction_id) }.to raise_error do |e|
-            expect(e).to be_a(Common::Exceptions::BackendServiceException)
+            expect(e).to be_a(Common::Exceptions::External::BackendServiceException)
             expect(e.status_code).to eq(400)
             expect(e.errors.first.code).to eq('VET360_CORE103')
           end

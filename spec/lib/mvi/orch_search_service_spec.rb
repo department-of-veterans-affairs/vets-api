@@ -37,7 +37,7 @@ describe MVI::OrchSearchService do
 
       it 'raises an unprocessable entity error' do
         expect { described_class.new.find_profile(user) }.to raise_error do |error|
-          expect(error).to be_a(Common::Exceptions::UnprocessableEntity)
+          expect(error).to be_a(Common::Exceptions::External::UnprocessableEntity)
           expect(error.errors.first.source).to eq('OrchSearchService')
           expect(error.errors.first.detail).to eq('User is invalid or missing edipi')
         end

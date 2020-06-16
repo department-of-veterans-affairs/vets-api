@@ -16,8 +16,8 @@ module MVI
       # @return [Array] The parsed response mvi codes
       attribute :mvi_codes, Array[Hash], coerce: false
 
-      # @return [Common::Exceptions::BackendServiceException] The rescued exception
-      attribute :error, Common::Exceptions::BackendServiceException
+      # @return [Common::Exceptions::External::BackendServiceException] The rescued exception
+      attribute :error, Common::Exceptions::External::BackendServiceException
 
       # Builds a response with a server error status and a nil mvi_codes
       #

@@ -96,11 +96,11 @@ module MHVAC
     # Validates form attributes and wraps each present attribute to create
     # a parameter set for MHV, stripping attribute values of nil.
     #
-    # @raise [Common::Exceptions::ValidationErrors] if there are validation errors
+    # @raise [Common::Exceptions::Internal::ValidationErrors] if there are validation errors
     # @return [Hash] A hash of valid form attributes
     #
     def mhv_params
-      raise Common::Exceptions::ValidationErrors, self unless valid?
+      raise Common::Exceptions::Internal::ValidationErrors, self unless valid?
 
       Hash[attribute_set.map do |attribute|
         value = send(attribute.name)

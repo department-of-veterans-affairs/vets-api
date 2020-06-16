@@ -18,7 +18,7 @@ module V0
 
     def create
       appt = VsoAppointment.new(appt_params)
-      raise Common::Exceptions::ParameterMissing, appt.errors.messages.keys.first.to_s unless appt.valid?
+      raise Common::Exceptions::Internal::ParameterMissing, appt.errors.messages.keys.first.to_s unless appt.valid?
 
       form = VsoAppointmentForm.new appt
       resp = form.send_pdf

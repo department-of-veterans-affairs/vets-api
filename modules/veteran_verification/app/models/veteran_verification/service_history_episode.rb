@@ -29,7 +29,7 @@ module VeteranVerification
     end
 
     def self.raise_error!
-      raise Common::Exceptions::BackendServiceException.new(
+      raise Common::Exceptions::External::BackendServiceException.new(
         'EMIS_HIST502',
         source: self.class.to_s
       )

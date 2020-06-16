@@ -32,7 +32,7 @@ module PagerDuty
       MaintenanceWindow.end_after(Time.zone.now).each do |api_win|
         api_win.delete unless open_ids.include?(api_win.pagerduty_id)
       end
-    rescue Common::Exceptions::BackendServiceException, Common::Client::Errors::ClientError => e
+    rescue Common::Exceptions::External::BackendServiceException, Common::Client::Errors::ClientError => e
       log_exception_to_sentry(e)
     end
   end

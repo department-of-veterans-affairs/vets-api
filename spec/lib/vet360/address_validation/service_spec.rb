@@ -88,7 +88,7 @@ describe Vet360::AddressValidation::Service do
       it 'raises backend service exception' do
         allow_any_instance_of(described_class).to receive(:perform).and_raise(Common::Client::Errors::ClientError)
         expect { described_class.new.candidate(invalid_address) }.to raise_error(
-          Common::Exceptions::BackendServiceException
+          Common::Exceptions::External::BackendServiceException
         )
       end
     end

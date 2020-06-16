@@ -23,12 +23,12 @@ describe Common::Client::Concerns::LogAsWarningHelpers do
   context 'when request raises a 503 backend service exception' do
     it 'sets log_as_warning in raven extra context' do
       expect(service).to receive(:connection).and_raise(
-        Common::Exceptions::BackendServiceException.new(nil, {}, 503)
+        Common::Exceptions::External::BackendServiceException.new(nil, {}, 503)
       )
       expect(Raven).to receive(:extra_context).with(log_as_warning: true)
 
       expect { service.send(:request, :get, nil) }.to raise_error(
-        Common::Exceptions::BackendServiceException
+        Common::Exceptions::External::BackendServiceException
       )
     end
   end
@@ -36,12 +36,12 @@ describe Common::Client::Concerns::LogAsWarningHelpers do
   context 'when request raises a non 503 error' do
     it 'does not set log_as_warning in raven extra context' do
       expect(service).to receive(:connection).and_raise(
-        Common::Exceptions::BackendServiceException.new(nil, {}, 500)
+        Common::Exceptions::External::BackendServiceException.new(nil, {}, 500)
       )
       expect(Raven).not_to receive(:extra_context).with(log_as_warning: true)
 
       expect { service.send(:request, :get, nil) }.to raise_error(
-        Common::Exceptions::BackendServiceException
+        Common::Exceptions::External::BackendServiceException
       )
     end
   end

@@ -142,7 +142,7 @@ module Common
         actual_value = object.send(attribute)
         predicates.all? do |operator, expected_value|
           valid_operation =  type.filterable_attributes[attribute].include?(operator.to_s)
-          raise Common::Exceptions::FilterNotAllowed, "#{operator} for #{attribute}" unless valid_operation
+          raise Common::Exceptions::Internal::FilterNotAllowed, "#{operator} for #{attribute}" unless valid_operation
 
           op = OPERATIONS_MAP.fetch(operator)
           mock_comparator_object.send("#{attribute}=", expected_value)
@@ -157,7 +157,7 @@ module Common
     rescue => e
       raise e if e.is_a?(Common::Exceptions::BaseError)
 
-      raise Common::Exceptions::InvalidFiltersSyntax.new(nil, detail: 'The syntax for your filters is invalid')
+      raise Common::Exceptions::Internal::InvalidFiltersSyntax.new(nil, detail: 'The syntax for your filters is invalid')
     end
 
     def paginator(page, per_page)
@@ -179,7 +179,7 @@ module Common
     def sort_fields(params)
       params = Array.wrap(params)
       not_allowed = params.select { |p| sort_type_allowed?(p) }.join(', ')
-      raise Common::Exceptions::InvalidSortCriteria.new(type.name, not_allowed) unless not_allowed.empty?
+      raise Common::Exceptions::Internal::InvalidSortCriteria.new(type.name, not_allowed) unless not_allowed.empty?
 
       convert_fields_to_ordered_hash(params)
     end
@@ -190,7 +190,7 @@ module Common
 
     def verify_filter_keys!(filter)
       failed_attributes = (filter.keys.map(&:to_s) - type.filterable_attributes.keys).join(', ')
-      raise Common::Exceptions::FilterNotAllowed, failed_attributes unless failed_attributes.empty?
+      raise Common::Exceptions::Internal::FilterNotAllowed, failed_attributes unless failed_attributes.empty?
     end
 
     def convert_fields_to_ordered_hash(fields)

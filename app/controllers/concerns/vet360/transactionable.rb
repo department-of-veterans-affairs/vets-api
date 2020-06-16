@@ -11,7 +11,7 @@ module Vet360
         params[:transaction_id]
       )
 
-      raise Common::Exceptions::RecordNotFound, transaction unless transaction
+      raise Common::Exceptions::Internal::RecordNotFound, transaction unless transaction
 
       render json: transaction, serializer: AsyncTransaction::BaseSerializer
     end

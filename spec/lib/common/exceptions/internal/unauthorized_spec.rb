@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-describe Common::Exceptions::Forbidden do
+describe Common::Exceptions::Internal::Unauthorized do
   subject { described_class.new }
 
   it 'implements #errors which returns an array' do
@@ -11,10 +11,10 @@ describe Common::Exceptions::Forbidden do
 
   it 'the errors object has all relevant keys' do
     expect(subject.errors.first.to_hash)
-      .to eq(title: 'Forbidden',
-             detail: 'Forbidden',
-             code: '403',
-             status: '403')
+      .to eq(title: 'Not authorized',
+             detail: 'Not authorized',
+             code: '401',
+             status: '401')
   end
 
   context 'with optional detail attribute' do
@@ -22,10 +22,10 @@ describe Common::Exceptions::Forbidden do
 
     it 'has unique detail' do
       expect(subject.errors.first.to_hash)
-        .to eq(title: 'Forbidden',
+        .to eq(title: 'Not authorized',
                detail: 'updated detail',
-               code: '403',
-               status: '403')
+               code: '401',
+               status: '401')
     end
   end
 end

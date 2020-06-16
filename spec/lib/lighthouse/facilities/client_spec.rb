@@ -84,7 +84,7 @@ RSpec.describe Lighthouse::Facilities::Client do
       allow_any_instance_of(Faraday::Connection).to receive(:get).and_raise(Faraday::TimeoutError)
       expect do
         facilities_client.get_facilities(params)
-      end.to raise_error(Common::Exceptions::GatewayTimeout)
+      end.to raise_error(Common::Exceptions::External::GatewayTimeout)
     end
   end
 
@@ -93,7 +93,7 @@ RSpec.describe Lighthouse::Facilities::Client do
       VCR.use_cassette('/lighthouse/facilities_401', match_requests_on: %i[path query]) do
         expect { facilities_client.get_by_id('vha_358') }
           .to raise_error do |e|
-          expect(e).to be_a(Common::Exceptions::BackendServiceException)
+          expect(e).to be_a(Common::Exceptions::External::BackendServiceException)
           expect(e.status_code).to eq(401)
           expect(e.errors.first[:detail]).to eq('Invalid authentication credentials')
           expect(e.errors.first[:code]).to eq('LIGHTHOUSE_FACILITIES401')
@@ -114,7 +114,7 @@ RSpec.describe Lighthouse::Facilities::Client do
       VCR.use_cassette('/lighthouse/facilities', match_requests_on: %i[path query]) do
         expect { facilities_client.get_by_id('bha_358') }
           .to raise_error do |e|
-          expect(e).to be_a(Common::Exceptions::BackendServiceException)
+          expect(e).to be_a(Common::Exceptions::External::BackendServiceException)
           expect(e.status_code).to eq(404)
           expect(e.errors.first[:detail]).to eq('Record not found')
           expect(e.errors.first[:code]).to eq('LIGHTHOUSE_FACILITIES404')
@@ -145,7 +145,7 @@ RSpec.describe Lighthouse::Facilities::Client do
       VCR.use_cassette('/lighthouse/facilities', match_requests_on: %i[path query]) do
         expect { facilities_client.get_facilities({ taco: true }) }
           .to raise_error do |e|
-          expect(e).to be_a(Common::Exceptions::BackendServiceException)
+          expect(e).to be_a(Common::Exceptions::External::BackendServiceException)
           expect(e.status_code).to eq(400)
           expect(e.errors.first[:detail]).to eq('Bad Request')
           expect(e.errors.first[:code]).to eq('LIGHTHOUSE_FACILITIES400')

@@ -17,10 +17,10 @@ module EVSS
         veteran_poa_code = current_poa
         unless matches(veteran_poa_code, rep)
           Rails.logger.info("POA code of #{rep.poa_codes.join(', ')} not valid for veteran code #{veteran_poa_code}")
-          raise Common::Exceptions::Unauthorized, detail: "Power of Attorney code doesn't match Veteran's"
+          raise Common::Exceptions::Internal::Unauthorized, detail: "Power of Attorney code doesn't match Veteran's"
         end
       else
-        raise Common::Exceptions::Unauthorized, detail: 'VSO Representative Not Found'
+        raise Common::Exceptions::Internal::Unauthorized, detail: 'VSO Representative Not Found'
       end
     end
 

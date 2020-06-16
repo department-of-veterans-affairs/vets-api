@@ -15,7 +15,7 @@ module V0
         mhv_accounts_service.create
         render_account(status: :created)
       else
-        raise Common::Exceptions::Forbidden, detail: CREATE_ERROR
+        raise Common::Exceptions::Internal::Forbidden, detail: CREATE_ERROR
       end
     end
 
@@ -24,7 +24,7 @@ module V0
         mhv_accounts_service.upgrade
         render_account(status: :accepted)
       else
-        raise Common::Exceptions::Forbidden, detail: UPGRADE_ERROR
+        raise Common::Exceptions::Internal::Forbidden, detail: UPGRADE_ERROR
       end
     end
 

@@ -65,20 +65,20 @@ module VAOS
       end
 
       def validate_params
-        raise Common::Exceptions::ParameterMissing, 'start_date' if params[:start_date].blank?
-        raise Common::Exceptions::ParameterMissing, 'end_date' if params[:end_date].blank?
+        raise Common::Exceptions::Internal::ParameterMissing, 'start_date' if params[:start_date].blank?
+        raise Common::Exceptions::Internal::ParameterMissing, 'end_date' if params[:end_date].blank?
       end
 
       def start_date
         Date.parse(params[:start_date])
       rescue ArgumentError
-        raise Common::Exceptions::InvalidFieldValue.new('start_date', params[:start_date])
+        raise Common::Exceptions::Internal::InvalidFieldValue.new('start_date', params[:start_date])
       end
 
       def end_date
         Date.parse(params[:end_date])
       rescue ArgumentError
-        raise Common::Exceptions::InvalidFieldValue.new('end_date', params[:end_date])
+        raise Common::Exceptions::Internal::InvalidFieldValue.new('end_date', params[:end_date])
       end
     end
   end

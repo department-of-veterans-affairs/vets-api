@@ -4,7 +4,7 @@ class V0::Facilities::CcpController < FacilitiesController
   before_action :validate_id, only: [:show]
 
   def index
-    raise Common::Exceptions::ParameterMissing.new('type', detail: TYPE_SERVICE_ERR) if params[:type].nil?
+    raise Common::Exceptions::Internal::ParameterMissing.new('type', detail: TYPE_SERVICE_ERR) if params[:type].nil?
 
     ppms_results =  case search_params[:type]
                     when 'cc_provider'
@@ -22,7 +22,7 @@ class V0::Facilities::CcpController < FacilitiesController
 
   def show
     result = api.provider_info(params[:id])
-    raise Common::Exceptions::RecordNotFound, params[:id] if result.nil?
+    raise Common::Exceptions::Internal::RecordNotFound, params[:id] if result.nil?
 
     services = api.provider_services(params[:id])
     result.add_provider_service(services[0]) if services.present?
@@ -74,7 +74,7 @@ class V0::Facilities::CcpController < FacilitiesController
     if /^ccp_/.match?(params[:id])
       params[:id] = params[:id].sub(/^ccp_/, '')
     else
-      raise Common::Exceptions::InvalidFieldValue.new('id', params[:id])
+      raise Common::Exceptions::Internal::InvalidFieldValue.new('id', params[:id])
     end
   end
 end

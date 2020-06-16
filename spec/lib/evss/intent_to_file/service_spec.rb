@@ -33,10 +33,10 @@ describe EVSS::IntentToFile::Service do
 
         it 'logs an error and raise GatewayTimeout' do
           expect(StatsD).to receive(:increment).once.with(
-            'api.evss.get_intent_to_file.fail', tags: ['error:Common::Exceptions::GatewayTimeout']
+            'api.evss.get_intent_to_file.fail', tags: ['error:Common::Exceptions::External::GatewayTimeout']
           )
           expect(StatsD).to receive(:increment).once.with('api.evss.get_intent_to_file.total')
-          expect { subject.get_intent_to_file }.to raise_error(Common::Exceptions::GatewayTimeout)
+          expect { subject.get_intent_to_file }.to raise_error(Common::Exceptions::External::GatewayTimeout)
         end
       end
 
@@ -79,10 +79,10 @@ describe EVSS::IntentToFile::Service do
 
         it 'logs an error and raise GatewayTimeout' do
           expect(StatsD).to receive(:increment).once.with(
-            'api.evss.get_active.fail', tags: ['error:Common::Exceptions::GatewayTimeout']
+            'api.evss.get_active.fail', tags: ['error:Common::Exceptions::External::GatewayTimeout']
           )
           expect(StatsD).to receive(:increment).once.with('api.evss.get_active.total')
-          expect { subject.get_active('compensation') }.to raise_error(Common::Exceptions::GatewayTimeout)
+          expect { subject.get_active('compensation') }.to raise_error(Common::Exceptions::External::GatewayTimeout)
         end
       end
 
@@ -125,12 +125,12 @@ describe EVSS::IntentToFile::Service do
 
         it 'logs an error and raise GatewayTimeout' do
           expect(StatsD).to receive(:increment).once.with(
-            'api.evss.create_intent_to_file.fail', tags: ['error:Common::Exceptions::GatewayTimeout']
+            'api.evss.create_intent_to_file.fail', tags: ['error:Common::Exceptions::External::GatewayTimeout']
           )
           expect(StatsD).to receive(:increment).once.with('api.evss.create_intent_to_file.total')
           expect do
             subject.create_intent_to_file('compensation')
-          end.to raise_error(Common::Exceptions::GatewayTimeout)
+          end.to raise_error(Common::Exceptions::External::GatewayTimeout)
         end
       end
 
@@ -169,7 +169,7 @@ describe EVSS::IntentToFile::Service do
 
         it 'contains 403 in meta' do
           VCR.use_cassette('evss/intent_to_file/create_compensation_403') do
-            expect { subject }.to raise_error(Common::Exceptions::Forbidden)
+            expect { subject }.to raise_error(Common::Exceptions::Internal::Forbidden)
           end
         end
       end

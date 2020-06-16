@@ -5,7 +5,7 @@ module Common::Client
     module LogAsWarningHelpers
       def warn_for_service_unavailable
         yield
-      rescue Common::Exceptions::BackendServiceException => e
+      rescue Common::Exceptions::External::BackendServiceException => e
         Raven.extra_context(log_as_warning: true) if e.original_status&.to_i == 503
 
         raise

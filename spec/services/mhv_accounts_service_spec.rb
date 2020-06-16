@@ -98,7 +98,7 @@ RSpec.describe MhvAccountsService do
             # ensure that the value is cached
             expect(common_collection_namespace.exists(edc_cache_key)).to be_truthy
             VCR.use_cassette('mhv_account_creation/account_upgrade_unknown_error') do
-              expect { subject.upgrade }.to raise_error(Common::Exceptions::BackendServiceException)
+              expect { subject.upgrade }.to raise_error(Common::Exceptions::External::BackendServiceException)
                 .and not_trigger_statsd_increment('mhv.account.existed')
                 .and not_trigger_statsd_increment('mhv.account.upgrade.success')
                 .and trigger_statsd_increment('mhv.account.upgrade.failure')

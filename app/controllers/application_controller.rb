@@ -17,9 +17,9 @@ class ApplicationController < ActionController::API
   after_action :set_csrf_header, if: -> { ActionController::Base.allow_forgery_protection }
 
   SKIP_SENTRY_EXCEPTION_TYPES = [
-    Common::Exceptions::Unauthorized,
-    Common::Exceptions::RoutingError,
-    Common::Exceptions::Forbidden,
+    Common::Exceptions::Internal::Unauthorized,
+    Common::Exceptions::Internal::RoutingError,
+    Common::Exceptions::Internal::Forbidden,
     Breakers::OutageException
   ].freeze
 
@@ -41,7 +41,7 @@ class ApplicationController < ActionController::API
   end
 
   def routing_error
-    raise Common::Exceptions::RoutingError, params[:path]
+    raise Common::Exceptions::Internal::RoutingError, params[:path]
   end
 
   def clear_saved_form(form_id)
@@ -51,7 +51,7 @@ class ApplicationController < ActionController::API
   # I'm commenting this out for now, we can put it back in if we encounter it
   # def action_missing(m, *_args)
   #   Rails.logger.error(m)
-  #   raise Common::Exceptions::RoutingError
+  #   raise Common::Exceptions::Internal::RoutingError
   # end
 
   private
@@ -67,7 +67,7 @@ class ApplicationController < ActionController::API
   # returns a Bad Request if the incoming host header is unsafe.
   def block_unknown_hosts
     return if controller_name == 'example'
-    raise Common::Exceptions::NotASafeHostError, request.host unless Settings.virtual_hosts.include?(request.host)
+    raise Common::Exceptions::Internal::NotASafeHostError, request.host unless Settings.virtual_hosts.include?(request.host)
   end
 
   def skip_sentry_exception_types
@@ -81,7 +81,7 @@ class ApplicationController < ActionController::API
       Rails.logger.error "#{exception.message}.", backtrace: exception.backtrace
     else
       extra = exception.respond_to?(:errors) ? { errors: exception.errors.map(&:to_hash) } : {}
-      if exception.is_a?(Common::Exceptions::BackendServiceException)
+      if exception.is_a?(Common::Exceptions::External::BackendServiceException)
         # Add additional user specific context to the logs
         if current_user.present?
           extra[:icn] = current_user.icn
@@ -97,24 +97,24 @@ class ApplicationController < ActionController::API
     va_exception =
       case exception
       when Pundit::NotAuthorizedError
-        Common::Exceptions::Forbidden.new(detail: 'User does not have access to the requested resource')
+        Common::Exceptions::Internal::Forbidden.new(detail: 'User does not have access to the requested resource')
       when ActionController::InvalidAuthenticityToken
-        Common::Exceptions::Forbidden.new(detail: 'Invalid Authenticity Token')
-      when Common::Exceptions::TokenValidationError
-        Common::Exceptions::Unauthorized.new(detail: exception.detail)
+        Common::Exceptions::Internal::Forbidden.new(detail: 'Invalid Authenticity Token')
+      when Common::Exceptions::Internal::TokenValidationError
+        Common::Exceptions::Internal::Unauthorized.new(detail: exception.detail)
       when ActionController::ParameterMissing
-        Common::Exceptions::ParameterMissing.new(exception.param)
+        Common::Exceptions::Internal::ParameterMissing.new(exception.param)
       when ActionController::UnknownFormat
-        Common::Exceptions::UnknownFormat.new
+        Common::Exceptions::Internal::UnknownFormat.new
       when Common::Exceptions::BaseError
         exception
       when Breakers::OutageException
-        Common::Exceptions::ServiceOutage.new(exception.outage)
+        Common::Exceptions::Internal::ServiceOutage.new(exception.outage)
       when Common::Client::Errors::ClientError
         # SSLError, ConnectionFailed, SerializationError, etc
-        Common::Exceptions::ServiceOutage.new(nil, detail: 'Backend Service Outage')
+        Common::Exceptions::Internal::ServiceOutage.new(nil, detail: 'Backend Service Outage')
       else
-        Common::Exceptions::InternalServerError.new(exception)
+        Common::Exceptions::Internal::InternalServerError.new(exception)
       end
 
     unless skip_sentry_exception_types.include?(exception.class)
@@ -122,7 +122,7 @@ class ApplicationController < ActionController::API
       log_exception_to_sentry(exception, extra.merge(va_exception_info))
     end
 
-    headers['WWW-Authenticate'] = 'Token realm="Application"' if va_exception.is_a?(Common::Exceptions::Unauthorized)
+    headers['WWW-Authenticate'] = 'Token realm="Application"' if va_exception.is_a?(Common::Exceptions::Internal::Unauthorized)
     render_errors(va_exception)
   end
   # rubocop:enable Metrics/BlockLength

@@ -6,7 +6,7 @@ module V0
 
     def index
       resource = client.get_folder_messages(params[:folder_id].to_s)
-      raise Common::Exceptions::RecordNotFound, params[:folder_id] if resource.blank?
+      raise Common::Exceptions::Internal::RecordNotFound, params[:folder_id] if resource.blank?
 
       resource = params[:filter].present? ? resource.find_by(filter_params) : resource
       resource = resource.sort(params[:sort])
@@ -22,7 +22,7 @@ module V0
       message_id = params[:id].try(:to_i)
       response = client.get_message(message_id)
 
-      raise Common::Exceptions::RecordNotFound, message_id if response.blank?
+      raise Common::Exceptions::Internal::RecordNotFound, message_id if response.blank?
 
       render json: response,
              serializer: MessageSerializer,
@@ -32,7 +32,7 @@ module V0
 
     def create
       message = Message.new(message_params.merge(upload_params))
-      raise Common::Exceptions::ValidationErrors, message unless message.valid?
+      raise Common::Exceptions::Internal::ValidationErrors, message unless message.valid?
 
       message_params[:id] = message_params.delete(:draft_id) if message_params[:draft_id].present?
       create_message_params = { message: message_params }.merge(upload_params)
@@ -57,7 +57,7 @@ module V0
     def thread
       message_id = params[:id].try(:to_i)
       resource = client.get_message_history(message_id)
-      raise Common::Exceptions::RecordNotFound, message_id if resource.blank?
+      raise Common::Exceptions::Internal::RecordNotFound, message_id if resource.blank?
 
       render json: resource.data,
              serializer: CollectionSerializer,
@@ -67,7 +67,7 @@ module V0
 
     def reply
       message = Message.new(message_params.merge(upload_params)).as_reply
-      raise Common::Exceptions::ValidationErrors, message unless message.valid?
+      raise Common::Exceptions::Internal::ValidationErrors, message unless message.valid?
 
       message_params[:id] = message_params.delete(:draft_id) if message_params[:draft_id].present?
       create_message_params = { message: message_params }.merge(upload_params)

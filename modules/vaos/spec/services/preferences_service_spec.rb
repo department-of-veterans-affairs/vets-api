@@ -50,7 +50,7 @@ describe VAOS::PreferencesService do
 
     context 'with invalid params' do
       it 'returns a validation exception', :skip_mvi do
-        expect { subject.put_preferences({}) }.to raise_error(Common::Exceptions::ValidationErrors)
+        expect { subject.put_preferences({}) }.to raise_error(Common::Exceptions::Internal::ValidationErrors)
       end
     end
   end

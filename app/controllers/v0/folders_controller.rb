@@ -15,7 +15,7 @@ module V0
     def show
       id = params[:id].try(:to_i)
       resource = client.get_folder(id)
-      raise Common::Exceptions::RecordNotFound, id if resource.blank?
+      raise Common::Exceptions::Internal::RecordNotFound, id if resource.blank?
 
       render json: resource,
              serializer: FolderSerializer,
@@ -24,7 +24,7 @@ module V0
 
     def create
       folder = Folder.new(create_folder_params)
-      raise Common::Exceptions::ValidationErrors, folder unless folder.valid?
+      raise Common::Exceptions::Internal::ValidationErrors, folder unless folder.valid?
 
       resource = client.post_create_folder(folder.name)
 

@@ -40,7 +40,7 @@ describe IHub::Appointments::Service do
 
       it 'raises an exception', :aggregate_failures do
         expect { subject.appointments }.to raise_error do |e|
-          expect(e).to be_a(Common::Exceptions::BackendServiceException)
+          expect(e).to be_a(Common::Exceptions::External::BackendServiceException)
           expect(e.status_code).to eq(502)
           expect(e.original_body).to eq 'User has no ICN'
           expect(e.errors.first.code).to eq('IHUB_102')
@@ -56,7 +56,7 @@ describe IHub::Appointments::Service do
       it 'raises an exception', :aggregate_failures do
         VCR.use_cassette('ihub/appointments/error_occurred', VCR::MATCH_EVERYTHING) do
           expect { subject.appointments }.to raise_error do |e|
-            expect(e).to be_a(Common::Exceptions::BackendServiceException)
+            expect(e).to be_a(Common::Exceptions::External::BackendServiceException)
             expect(e.status_code).to eq(400)
             expect(e.original_body['error_message']).to be_present
             expect(e.original_body['debug_info']).to be_present

@@ -5,7 +5,7 @@ module Sentry
     class LogAsWarning < Raven::Processor
       SENTRY_LOG_LEVEL_WARNING = 30
       RELEVANT_EXCEPTIONS = [
-        Common::Exceptions::GatewayTimeout,
+        Common::Exceptions::External::GatewayTimeout,
         EVSS::ErrorMiddleware::EVSSError
       ].freeze
 

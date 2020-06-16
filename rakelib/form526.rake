@@ -150,7 +150,7 @@ namespace :form526 do
 
         # Check if its an EVSS error and parse, otherwise store the entire message
         messages = if job_status.error_message.include?('=>') &&
-                      job_status.error_class != 'Common::Exceptions::BackendServiceException'
+                      job_status.error_class != 'Common::Exceptions::External::BackendServiceException'
                      job_status.error_message.scan(MSGS_REGEX)
                    else
                      [[job_status.error_message]]

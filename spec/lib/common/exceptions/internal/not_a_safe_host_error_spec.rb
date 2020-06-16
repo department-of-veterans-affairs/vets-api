@@ -2,16 +2,16 @@
 
 require 'rails_helper'
 
-describe Common::Exceptions::ParameterMissing do
+describe Common::Exceptions::Internal::NotASafeHostError do
   context 'with no attributes provided' do
     it do
       expect { described_class.new }
-        .to raise_error(ArgumentError, 'wrong number of arguments (given 0, expected 1..2)')
+        .to raise_error(ArgumentError, 'wrong number of arguments (given 0, expected 1)')
     end
   end
 
-  context 'with param provided' do
-    subject { described_class.new('some_parameter') }
+  context 'with host provided' do
+    subject { described_class.new('unsafe_host') }
 
     it 'implements #errors which returns an array' do
       expect(subject.errors).to be_an(Array)
@@ -19,9 +19,9 @@ describe Common::Exceptions::ParameterMissing do
 
     it 'the errors object has all relevant keys' do
       expect(subject.errors.first.to_hash)
-        .to eq(title: 'Missing parameter',
-               detail: 'The required parameter "some_parameter", is missing',
-               code: '108',
+        .to eq(title: 'Bad Request',
+               detail: '"unsafe_host" is not a safe host',
+               code: '110',
                status: '400')
     end
   end

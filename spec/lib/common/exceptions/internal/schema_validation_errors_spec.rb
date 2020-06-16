@@ -2,7 +2,7 @@
 
 require 'common/exceptions'
 
-describe Common::Exceptions::SchemaValidationErrors do
+describe Common::Exceptions::Internal::SchemaValidationErrors do
   context 'with resource that has no errors provided' do
     it do
       expect { described_class.new([]) }

@@ -15,7 +15,7 @@ module OktaRedis
         if user_response.success?
           user_response
         else
-          raise Common::Exceptions::RecordNotFound, @user.uuid
+          raise Common::Exceptions::Internal::RecordNotFound, @user.uuid
         end
       end
     end

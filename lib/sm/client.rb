@@ -48,8 +48,8 @@ module SM
     # @example
     #   client.post_preferences(email_address: 'name@example.com', frequency: 'daily')
     # @return [MessagingPreference]
-    # @raise [Common::Exceptions::ValidationErrors] if the email address is invalid
-    # @raise [Common::Exceptions::BackendServiceException] if unhandled validation error is encountered in
+    # @raise [Common::Exceptions::Internal::ValidationErrors] if the email address is invalid
+    # @raise [Common::Exceptions::External::BackendServiceException] if unhandled validation error is encountered in
     #   email_address, as mapped to SM152 code in config/locales/exceptions.en.yml
     #
     def post_preferences(params)
@@ -132,7 +132,7 @@ module SM
     # Create and update a new message draft
     #
     # @param args [Hash] arguments for the message draft
-    # @raise [Common::Exceptions::ValidationErrors] if the draft is not valid
+    # @raise [Common::Exceptions::Internal::ValidationErrors] if the draft is not valid
     # @return [MessageDraft]
     #
     def post_create_message_draft(args = {})
@@ -148,7 +148,7 @@ module SM
     #
     # @param id [Fixnum] id of the message for which the reply is directed
     # @param args [Hash] arguments for the message draft reply
-    # @raise [Common::Exceptions::ValidationErrors] if the draft reply is not valid
+    # @raise [Common::Exceptions::Internal::ValidationErrors] if the draft reply is not valid
     # @return [MessageDraft]
     #
     def post_create_message_draft_reply(id, args = {})
@@ -205,7 +205,7 @@ module SM
     #
     # @param args [Hash] a hash of message arguments
     # @return [Message]
-    # @raise [Common::Exceptions::ValidationErrors] if message create context is invalid
+    # @raise [Common::Exceptions::Internal::ValidationErrors] if message create context is invalid
     #
     def post_create_message(args = {})
       validate_create_context(args)
@@ -219,7 +219,7 @@ module SM
     #
     # @param args [Hash] a hash of message arguments
     # @return [Message]
-    # @raise [Common::Exceptions::ValidationErrors] if message create context is invalid
+    # @raise [Common::Exceptions::Internal::ValidationErrors] if message create context is invalid
     #
     def post_create_message_with_attachment(args = {})
       validate_create_context(args)
@@ -234,7 +234,7 @@ module SM
     #
     # @param args [Hash] a hash of message arguments
     # @return [Message]
-    # @raise [Common::Exceptions::ValidationErrors] if message reply context is invalid
+    # @raise [Common::Exceptions::Internal::ValidationErrors] if message reply context is invalid
     #
     def post_create_message_reply_with_attachment(id, args = {})
       validate_reply_context(args)
@@ -249,7 +249,7 @@ module SM
     #
     # @param args [Hash] a hash of message arguments
     # @return [Message]
-    # @raise [Common::Exceptions::ValidationErrors] if message reply context is invalid
+    # @raise [Common::Exceptions::Internal::ValidationErrors] if message reply context is invalid
     #
     def post_create_message_reply(id, args = {})
       validate_reply_context(args)
@@ -323,20 +323,20 @@ module SM
     def validate_draft(args)
       draft = MessageDraft.new(args)
       draft.as_reply if args[:id] && reply_draft?(args[:id])
-      raise Common::Exceptions::ValidationErrors, draft unless draft.valid?
+      raise Common::Exceptions::Internal::ValidationErrors, draft unless draft.valid?
     end
 
     def validate_reply_draft(args)
       draft = MessageDraft.new(args).as_reply
       draft.has_message = !args[:id] || reply_draft?(args[:id])
-      raise Common::Exceptions::ValidationErrors, draft unless draft.valid?
+      raise Common::Exceptions::Internal::ValidationErrors, draft unless draft.valid?
     end
 
     def validate_create_context(args)
       if args[:id].present? && reply_draft?(args[:id])
         draft = MessageDraft.new(args.merge(has_message: true)).as_reply
         draft.errors.add(:base, 'attempted to use reply draft in send message')
-        raise Common::Exceptions::ValidationErrors, draft
+        raise Common::Exceptions::Internal::ValidationErrors, draft
       end
     end
 
@@ -344,7 +344,7 @@ module SM
       if args[:id].present? && !reply_draft?(args[:id])
         draft = MessageDraft.new(args)
         draft.errors.add(:base, 'attempted to use plain draft in send reply')
-        raise Common::Exceptions::ValidationErrors, draft
+        raise Common::Exceptions::Internal::ValidationErrors, draft
       end
     end
   end

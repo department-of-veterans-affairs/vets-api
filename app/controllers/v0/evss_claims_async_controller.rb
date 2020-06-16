@@ -19,7 +19,7 @@ module V0
 
       unless claim
         Raven.tags_context(team: 'benefits-memorial-1') # tag sentry logs with team name
-        raise Common::Exceptions::RecordNotFound, params[:id]
+        raise Common::Exceptions::Internal::RecordNotFound, params[:id]
       end
 
       claim, synchronized = service.update_from_remote(claim)

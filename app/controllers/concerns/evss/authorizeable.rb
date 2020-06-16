@@ -6,7 +6,7 @@ module EVSS
 
     def authorize_evss!
       unless EVSSPolicy.new(@current_user, :evss).access?
-        raise Common::Exceptions::Forbidden.new(detail: error_detail, source: 'EVSS')
+        raise Common::Exceptions::Internal::Forbidden.new(detail: error_detail, source: 'EVSS')
       end
     end
 

@@ -29,7 +29,7 @@ module SentryLogging
       Raven.capture_exception(exception.cause.presence || exception, level: level)
     end
 
-    if exception.is_a? Common::Exceptions::BackendServiceException
+    if exception.is_a? Common::Exceptions::External::BackendServiceException
       rails_logger(level, exception.message, exception.errors, exception.backtrace)
     else
       rails_logger(level, "#{exception.message}.")

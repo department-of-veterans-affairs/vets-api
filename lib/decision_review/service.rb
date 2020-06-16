@@ -119,7 +119,7 @@ module DecisionReview
         raise_backend_exception('DR_502', self.class)
       when Common::Client::Errors::ClientError
         save_error_details(error)
-        raise Common::Exceptions::Forbidden if error.status == 403
+        raise Common::Exceptions::Internal::Forbidden if error.status == 403
 
         code = error.body['errors'].first.dig('code')
         raise_backend_exception("DR_#{code}", self.class, error)

@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-describe Common::Exceptions::InvalidResource do
+describe Common::Exceptions::Internal::InvalidResource do
   context 'with no resource provided' do
     it do
       expect { described_class.new }

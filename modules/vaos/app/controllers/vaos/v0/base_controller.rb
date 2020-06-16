@@ -13,11 +13,11 @@ module VAOS
       end
 
       def raise_access_denied
-        raise Common::Exceptions::Forbidden, detail: 'You do not have access to online scheduling'
+        raise Common::Exceptions::Internal::Forbidden, detail: 'You do not have access to online scheduling'
       end
 
       def raise_access_denied_no_icn
-        raise Common::Exceptions::Forbidden, detail: 'No patient ICN found'
+        raise Common::Exceptions::Internal::Forbidden, detail: 'No patient ICN found'
       end
     end
   end

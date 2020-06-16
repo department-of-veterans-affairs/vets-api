@@ -131,7 +131,7 @@ class MhvAccountsService
 
   def log_warning(type:, exception:, extra: {})
     message = type == :upgrade ? 'MHV Upgrade Failed!' : 'MHV Create Failed!'
-    extra_content = if exception.is_a?(Common::Exceptions::BackendServiceException)
+    extra_content = if exception.is_a?(Common::Exceptions::External::BackendServiceException)
                       extra.merge(exception_type: 'BackendServiceException', body: exception.original_body)
                     else
                       extra.merge(exception_type: exception.message)

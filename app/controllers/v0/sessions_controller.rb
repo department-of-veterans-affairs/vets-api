@@ -28,7 +28,7 @@ module V0
     # For more details see SAML::SettingsService and SAML::URLService
     def new
       type = params[:type]
-      raise Common::Exceptions::RoutingError, params[:path] unless REDIRECT_URLS.include?(type)
+      raise Common::Exceptions::Internal::RoutingError, params[:path] unless REDIRECT_URLS.include?(type)
 
       StatsD.increment(STATSD_SSO_NEW_KEY, tags: ["context:#{type}", VERSION_TAG])
       url = url_service.send("#{type}_url")

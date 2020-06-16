@@ -24,7 +24,7 @@ module VAOS
           data: OpenStruct.new(response.body),
           meta: {}
         }
-      rescue Common::Exceptions::BackendServiceException => e
+      rescue Common::Exceptions::External::BackendServiceException => e
         # TODO: Reevaluate the need to log clinic data three months after launch (6/15/20)
         log_clinic_details(:create, params.dig(:clinic, :clinic_id), site_code) if e.key == 'VAOS_400'
         raise e
@@ -39,7 +39,7 @@ module VAOS
       with_monitoring do
         perform(:put, put_appointment_url(site_code), params, headers)
         ''
-      rescue Common::Exceptions::BackendServiceException => e
+      rescue Common::Exceptions::External::BackendServiceException => e
         # TODO: Reevaluate the need to log clinic data three months after launch (6/15/20)
         log_clinic_details(:cancel, params[:clinic_id], site_code) if e.key == 'VAOS_400'
         raise e

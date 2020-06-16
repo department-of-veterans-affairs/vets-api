@@ -26,7 +26,7 @@ class V0::Facilities::VaController < FacilitiesController
 
   def show
     results = BaseFacility.find_facility_by_id(params[:id])
-    raise Common::Exceptions::RecordNotFound, params[:id] if results.nil?
+    raise Common::Exceptions::Internal::RecordNotFound, params[:id] if results.nil?
 
     render json: results, serializer: VAFacilitySerializer
   end
@@ -70,9 +70,9 @@ class V0::Facilities::VaController < FacilitiesController
   end
 
   def validate_types_name_part
-    raise Common::Exceptions::ParameterMissing, 'name_part' if params[:name_part].blank?
-    raise Common::Exceptions::ParameterMissing, 'type' if params[:type].blank?
-    raise Common::Exceptions::InvalidFieldValue.new('type', params[:type]) unless
+    raise Common::Exceptions::Internal::ParameterMissing, 'name_part' if params[:name_part].blank?
+    raise Common::Exceptions::Internal::ParameterMissing, 'type' if params[:type].blank?
+    raise Common::Exceptions::Internal::InvalidFieldValue.new('type', params[:type]) unless
       (params[:type] - BaseFacility::TYPES).empty?
   end
 
@@ -85,17 +85,17 @@ class V0::Facilities::VaController < FacilitiesController
 
   def validate_no_services_without_type
     if params[:type].nil? && !params[:services].nil?
-      raise Common::Exceptions::ParameterMissing.new('type', detail: TYPE_SERVICE_ERR)
+      raise Common::Exceptions::Internal::ParameterMissing.new('type', detail: TYPE_SERVICE_ERR)
     end
   end
 
   def validate_type_and_services_known
     return if params[:type] == 'cc_provider'
-    raise Common::Exceptions::InvalidFieldValue.new('type', params[:type]) unless
+    raise Common::Exceptions::Internal::InvalidFieldValue.new('type', params[:type]) unless
       BaseFacility::TYPES.include?(params[:type])
 
     unknown = params[:services].to_a - facility_klass.service_list
-    raise Common::Exceptions::InvalidFieldValue.new('services', unknown) unless unknown.empty?
+    raise Common::Exceptions::Internal::InvalidFieldValue.new('services', unknown) unless unknown.empty?
   end
 
   def metadata(resource)

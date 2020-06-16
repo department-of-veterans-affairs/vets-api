@@ -13,39 +13,39 @@ module VaFacilities
 
     def validate_zip
       if params[:zip]
-        raise Common::Exceptions::InvalidFieldValue.new('zip', params[:zip]) unless
+        raise Common::Exceptions::Internal::InvalidFieldValue.new('zip', params[:zip]) unless
         params[:zip].match?(/\A\d{5}(-\d{4})?\z/)
 
         zip_plus0 = params[:zip][0...5]
         requested_zip = ZCTA.select { |area| area[0] == zip_plus0 }
-        raise Common::Exceptions::InvalidFieldValue.new('zip', params[:zip]) unless
+        raise Common::Exceptions::Internal::InvalidFieldValue.new('zip', params[:zip]) unless
         requested_zip.any?
       end
     end
 
     def validate_state_code
       if params[:state] && STATE_CODES.exclude?(params[:state].upcase)
-        raise Common::Exceptions::InvalidFieldValue.new('state', params[:state])
+        raise Common::Exceptions::Internal::InvalidFieldValue.new('state', params[:state])
       end
     end
 
     def validate_no_services_without_type
       if params[:type].nil? && params[:services].present?
-        raise Common::Exceptions::ParameterMissing.new('type', detail: TYPE_SERVICE_ERR)
+        raise Common::Exceptions::Internal::ParameterMissing.new('type', detail: TYPE_SERVICE_ERR)
       end
     end
 
     def validate_type_and_services_known
-      raise Common::Exceptions::InvalidFieldValue.new('type', params[:type]) unless
+      raise Common::Exceptions::Internal::InvalidFieldValue.new('type', params[:type]) unless
       BaseFacility::TYPES.include?(params[:type])
 
       unknown = params[:services].to_a - facility_klass.service_list
-      raise Common::Exceptions::InvalidFieldValue.new('services', unknown) unless unknown.empty?
+      raise Common::Exceptions::Internal::InvalidFieldValue.new('services', unknown) unless unknown.empty?
     end
 
     def validate_street_address
       if params[:street_address]
-        raise Common::Exceptions::InvalidFieldValue.new('street_address', params[:street_address]) unless
+        raise Common::Exceptions::Internal::InvalidFieldValue.new('street_address', params[:street_address]) unless
             params[:street_address].match?(/\d/)
       end
     end
@@ -53,19 +53,19 @@ module VaFacilities
     def validate_drive_time
       Integer(params[:drive_time]) if params[:drive_time]
     rescue ArgumentError
-      raise Common::Exceptions::InvalidFieldValue.new('drive_time', params[:drive_time])
+      raise Common::Exceptions::Internal::InvalidFieldValue.new('drive_time', params[:drive_time])
     end
 
     def validate_lat
       Float(params[:lat]) if params[:lat]
     rescue ArgumentError
-      raise Common::Exceptions::InvalidFieldValue.new('lat', params[:lat])
+      raise Common::Exceptions::Internal::InvalidFieldValue.new('lat', params[:lat])
     end
 
     def validate_lng
       Float(params[:lng]) if params[:lng]
     rescue ArgumentError
-      raise Common::Exceptions::InvalidFieldValue.new('lng', params[:lng])
+      raise Common::Exceptions::Internal::InvalidFieldValue.new('lng', params[:lng])
     end
 
     def validate_bbox
@@ -73,12 +73,12 @@ module VaFacilities
 
       params[:bbox]&.each { |x| Float(x) }
     rescue ArgumentError
-      raise Common::Exceptions::InvalidFieldValue.new('bbox', params[:bbox])
+      raise Common::Exceptions::Internal::InvalidFieldValue.new('bbox', params[:bbox])
     end
 
     def validate_a_param_exists(require_one_param)
       if none_required_params_exists?(require_one_param, params)
-        raise Common::Exceptions::ParameterMissing.new(require_one_param.first.to_s,
+        raise Common::Exceptions::Internal::ParameterMissing.new(require_one_param.first.to_s,
                                                        detail: MISSING_FACILITIES_PARAMS_ERR)
       end
     end
@@ -108,11 +108,11 @@ module VaFacilities
 
       unless valid_params?(address_difference, lat_lng_difference)
         if ambiguous?(address_difference, lat_lng_difference, address_params, lat_lng_params)
-          raise Common::Exceptions::AmbiguousRequest.new(detail: AMBIGUOUS_PARAMS_ERR)
+          raise Common::Exceptions::Internal::AmbiguousRequest.new(detail: AMBIGUOUS_PARAMS_ERR)
         elsif address_difference != address_params
-          raise Common::Exceptions::ParameterMissing.new(address_difference.to_s, detail: MISSING_NEARBY_PARAMS_ERR)
+          raise Common::Exceptions::Internal::ParameterMissing.new(address_difference.to_s, detail: MISSING_NEARBY_PARAMS_ERR)
         elsif lat_lng_difference != lat_lng_params
-          raise Common::Exceptions::ParameterMissing.new(lat_lng_difference.to_s, detail: MISSING_NEARBY_PARAMS_ERR)
+          raise Common::Exceptions::Internal::ParameterMissing.new(lat_lng_difference.to_s, detail: MISSING_NEARBY_PARAMS_ERR)
         end
       end
     end

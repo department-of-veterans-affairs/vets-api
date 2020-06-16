@@ -31,7 +31,7 @@ describe VAOS::CCEligibilityService do
       it 'handles 400 error appropriately' do
         VCR.use_cassette('vaos/cc_eligibility/get_eligibility_400', match_requests_on: %i[method uri]) do
           expect { subject.get_eligibility(service_type) }.to raise_error(
-            Common::Exceptions::BackendServiceException
+            Common::Exceptions::External::BackendServiceException
           )
         end
       end

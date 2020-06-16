@@ -31,7 +31,7 @@ RSpec.describe VaFacilities::ParamValidators do
       @dummy_class.params = { zip: 'five' }
       expect do
         @dummy_class.validate_zip
-      end.to raise_error(Common::Exceptions::InvalidFieldValue) { |error|
+      end.to raise_error(Common::Exceptions::Internal::InvalidFieldValue) { |error|
         expect(error.message).to eq 'Invalid field value'
       }
     end
@@ -40,7 +40,7 @@ RSpec.describe VaFacilities::ParamValidators do
       @dummy_class.params = { zip: '75075-23124' }
       expect do
         @dummy_class.validate_zip
-      end.to raise_error(Common::Exceptions::InvalidFieldValue) { |error|
+      end.to raise_error(Common::Exceptions::Internal::InvalidFieldValue) { |error|
         expect(error.message).to eq 'Invalid field value'
       }
     end
@@ -49,7 +49,7 @@ RSpec.describe VaFacilities::ParamValidators do
       @dummy_class.params = { zip: '00001' }
       expect do
         @dummy_class.validate_zip
-      end.to raise_error(Common::Exceptions::InvalidFieldValue) { |error|
+      end.to raise_error(Common::Exceptions::Internal::InvalidFieldValue) { |error|
         expect(error.message).to eq 'Invalid field value'
       }
     end
@@ -70,7 +70,7 @@ RSpec.describe VaFacilities::ParamValidators do
       @dummy_class.params = { state: 'gg' }
       expect do
         @dummy_class.validate_state_code
-      end.to raise_error(Common::Exceptions::InvalidFieldValue) { |error|
+      end.to raise_error(Common::Exceptions::Internal::InvalidFieldValue) { |error|
         expect(error.message).to eq 'Invalid field value'
       }
     end
@@ -96,7 +96,7 @@ RSpec.describe VaFacilities::ParamValidators do
       @dummy_class.params = { type: nil, services: 'service' }
       expect do
         @dummy_class.validate_no_services_without_type
-      end.to raise_error(Common::Exceptions::ParameterMissing) { |error|
+      end.to raise_error(Common::Exceptions::Internal::ParameterMissing) { |error|
         expect(error.message).to eq 'Missing parameter'
       }
     end
@@ -105,7 +105,7 @@ RSpec.describe VaFacilities::ParamValidators do
       @dummy_class.params = { services: 'service' }
       expect do
         @dummy_class.validate_no_services_without_type
-      end.to raise_error(Common::Exceptions::ParameterMissing) { |error|
+      end.to raise_error(Common::Exceptions::Internal::ParameterMissing) { |error|
         expect(error.message).to eq 'Missing parameter'
       }
     end
@@ -126,7 +126,7 @@ RSpec.describe VaFacilities::ParamValidators do
       @dummy_class.params = { type: 'blah', services: ['BurialClaimAssistance'] }
       expect do
         @dummy_class.validate_type_and_services_known
-      end.to raise_error(Common::Exceptions::InvalidFieldValue) { |error|
+      end.to raise_error(Common::Exceptions::Internal::InvalidFieldValue) { |error|
         expect(error.message).to eq 'Invalid field value'
       }
     end
@@ -135,7 +135,7 @@ RSpec.describe VaFacilities::ParamValidators do
       @dummy_class.params = { type: 'benefits', services: ['blah'] }
       expect do
         @dummy_class.validate_type_and_services_known
-      end.to raise_error(Common::Exceptions::InvalidFieldValue) { |error|
+      end.to raise_error(Common::Exceptions::Internal::InvalidFieldValue) { |error|
         expect(error.message).to eq 'Invalid field value'
       }
     end
@@ -144,7 +144,7 @@ RSpec.describe VaFacilities::ParamValidators do
       @dummy_class.params = { type: 'benefits', services: ['MentalHealthCare'] }
       expect do
         @dummy_class.validate_type_and_services_known
-      end.to raise_error(Common::Exceptions::InvalidFieldValue) { |error|
+      end.to raise_error(Common::Exceptions::Internal::InvalidFieldValue) { |error|
         expect(error.message).to eq 'Invalid field value'
       }
     end
@@ -155,7 +155,7 @@ RSpec.describe VaFacilities::ParamValidators do
       @dummy_class.params = { street_address: 'main st' }
       expect do
         @dummy_class.validate_street_address
-      end.to raise_error(Common::Exceptions::InvalidFieldValue) { |error|
+      end.to raise_error(Common::Exceptions::Internal::InvalidFieldValue) { |error|
         expect(error.message).to eq 'Invalid field value'
       }
     end
@@ -196,7 +196,7 @@ RSpec.describe VaFacilities::ParamValidators do
       @dummy_class.params = { drive_time: 'fifty' }
       expect do
         @dummy_class.validate_drive_time
-      end.to raise_error(Common::Exceptions::InvalidFieldValue) { |error|
+      end.to raise_error(Common::Exceptions::Internal::InvalidFieldValue) { |error|
         expect(error.message).to eq 'Invalid field value'
       }
     end
@@ -222,7 +222,7 @@ RSpec.describe VaFacilities::ParamValidators do
       @dummy_class.params = { lat: 'fifty' }
       expect do
         @dummy_class.validate_lat
-      end.to raise_error(Common::Exceptions::InvalidFieldValue) { |error|
+      end.to raise_error(Common::Exceptions::Internal::InvalidFieldValue) { |error|
         expect(error.message).to eq 'Invalid field value'
       }
     end
@@ -248,7 +248,7 @@ RSpec.describe VaFacilities::ParamValidators do
       @dummy_class.params = { lng: 'fifty' }
       expect do
         @dummy_class.validate_lng
-      end.to raise_error(Common::Exceptions::InvalidFieldValue) { |error|
+      end.to raise_error(Common::Exceptions::Internal::InvalidFieldValue) { |error|
         expect(error.message).to eq 'Invalid field value'
       }
     end
@@ -274,7 +274,7 @@ RSpec.describe VaFacilities::ParamValidators do
       @dummy_class.params = { bbox: %w[40.5 fifty 50.234 100.1324] }
       expect do
         @dummy_class.validate_bbox
-      end.to raise_error(Common::Exceptions::InvalidFieldValue) { |error|
+      end.to raise_error(Common::Exceptions::Internal::InvalidFieldValue) { |error|
         expect(error.message).to eq 'Invalid field value'
       }
     end
@@ -283,7 +283,7 @@ RSpec.describe VaFacilities::ParamValidators do
       @dummy_class.params = { bbox: %w[40.5 50.234 50.234 100.1324 1234.23] }
       expect do
         @dummy_class.validate_bbox
-      end.to raise_error(Common::Exceptions::InvalidFieldValue) { |error|
+      end.to raise_error(Common::Exceptions::Internal::InvalidFieldValue) { |error|
         expect(error.message).to eq 'Invalid field value'
       }
     end
@@ -301,7 +301,7 @@ RSpec.describe VaFacilities::ParamValidators do
       @dummy_class.params = { lat: 40.5 }
       expect do
         @dummy_class.validate_a_param_exists(REQUIRE_ONE_PARAM)
-      end.to raise_error(Common::Exceptions::ParameterMissing) { |error|
+      end.to raise_error(Common::Exceptions::Internal::ParameterMissing) { |error|
         expect(error.message).to eq 'Missing parameter'
       }
     end
@@ -310,7 +310,7 @@ RSpec.describe VaFacilities::ParamValidators do
       @dummy_class.params = { long: 40.5 }
       expect do
         @dummy_class.validate_a_param_exists(REQUIRE_ONE_PARAM)
-      end.to raise_error(Common::Exceptions::ParameterMissing) { |error|
+      end.to raise_error(Common::Exceptions::Internal::ParameterMissing) { |error|
         expect(error.message).to eq 'Missing parameter'
       }
     end
@@ -351,7 +351,7 @@ RSpec.describe VaFacilities::ParamValidators do
       @dummy_class.params = {}
       expect do
         @dummy_class.validate_a_param_exists(REQUIRE_ONE_PARAM)
-      end.to raise_error(Common::Exceptions::ParameterMissing) { |error|
+      end.to raise_error(Common::Exceptions::Internal::ParameterMissing) { |error|
         expect(error.message).to eq 'Missing parameter'
       }
     end
@@ -360,7 +360,7 @@ RSpec.describe VaFacilities::ParamValidators do
       @dummy_class.params = { type: 'type' }
       expect do
         @dummy_class.validate_a_param_exists(REQUIRE_ONE_PARAM)
-      end.to raise_error(Common::Exceptions::ParameterMissing) { |error|
+      end.to raise_error(Common::Exceptions::Internal::ParameterMissing) { |error|
         expect(error.message).to eq 'Missing parameter'
       }
     end
@@ -459,7 +459,7 @@ RSpec.describe VaFacilities::ParamValidators do
       }
       expect do
         @dummy_class.validate_required_nearby_params(REQUIRED_PARAMS)
-      end.to raise_error(Common::Exceptions::AmbiguousRequest) { |error|
+      end.to raise_error(Common::Exceptions::Internal::AmbiguousRequest) { |error|
         expect(error.message).to eq 'Ambiguous Request'
         expect(
           error.errors[0].detail[:detail]
@@ -473,7 +473,7 @@ RSpec.describe VaFacilities::ParamValidators do
       }
       expect do
         @dummy_class.validate_required_nearby_params(REQUIRED_PARAMS)
-      end.to raise_error(Common::Exceptions::AmbiguousRequest) { |error|
+      end.to raise_error(Common::Exceptions::Internal::AmbiguousRequest) { |error|
         expect(error.message).to eq 'Ambiguous Request'
       }
     end
@@ -484,7 +484,7 @@ RSpec.describe VaFacilities::ParamValidators do
       }
       expect do
         @dummy_class.validate_required_nearby_params(REQUIRED_PARAMS)
-      end.to raise_error(Common::Exceptions::ParameterMissing) { |error|
+      end.to raise_error(Common::Exceptions::Internal::ParameterMissing) { |error|
         expect(error.message).to eq 'Missing parameter'
       }
     end
@@ -495,7 +495,7 @@ RSpec.describe VaFacilities::ParamValidators do
       }
       expect do
         @dummy_class.validate_required_nearby_params(REQUIRED_PARAMS)
-      end.to raise_error(Common::Exceptions::ParameterMissing) { |error|
+      end.to raise_error(Common::Exceptions::Internal::ParameterMissing) { |error|
         expect(error.message).to eq 'Missing parameter'
       }
     end

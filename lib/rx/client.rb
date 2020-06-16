@@ -108,7 +108,7 @@ module Rx
     #
     # @note Don't do this one in parallel since you want it to behave like a single atomic operation.
     # @return [PrescriptionPreference]
-    # @raise [Common::Exceptions::BackendServiceException] if unhandled validation error is encountered in
+    # @raise [Common::Exceptions::External::BackendServiceException] if unhandled validation error is encountered in
     #  email_address, as mapped to RX157 code in config/locales/exceptions.en.yml
     #
     def post_preferences(params)

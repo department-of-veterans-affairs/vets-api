@@ -14,8 +14,8 @@ describe VAOS::MessageForm, type: :model do
       expect(subject.errors.keys).to contain_exactly(:message_text)
     end
 
-    it 'raises a Common::Exceptions::ValidationErrors when trying to fetch coerced params' do
-      expect { subject.params }.to raise_error(Common::Exceptions::ValidationErrors)
+    it 'raises a Common::Exceptions::Internal::ValidationErrors when trying to fetch coerced params' do
+      expect { subject.params }.to raise_error(Common::Exceptions::Internal::ValidationErrors)
     end
 
     context 'message_text length > 100' do

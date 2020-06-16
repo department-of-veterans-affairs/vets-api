@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-describe Common::Exceptions::ValidationErrors do
+describe Common::Exceptions::Internal::ValidationErrors do
   class FakeModel
     include ActiveModel::Validations
     validates_presence_of :attr_1, :attribute2

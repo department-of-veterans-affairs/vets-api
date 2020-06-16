@@ -97,9 +97,9 @@ class Mvi < Common::RedisStore
 
   # The error experienced when reaching out to the MVI service.
   #
-  # @return [Common::Exceptions::BackendServiceException]
+  # @return [Common::Exceptions::External::BackendServiceException]
   def error
-    return Common::Exceptions::Unauthorized.new(source: self.class) unless user.loa3?
+    return Common::Exceptions::Internal::Unauthorized.new(source: self.class) unless user.loa3?
 
     mvi_response.try(:error)
   end

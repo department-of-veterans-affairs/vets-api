@@ -11,7 +11,7 @@ module Filterable
     if params[:filter].present?
       return true if valid_filters?
 
-      raise Common::Exceptions::InvalidFiltersSyntax, filter_query
+      raise Common::Exceptions::Internal::InvalidFiltersSyntax, filter_query
     end
   end
 

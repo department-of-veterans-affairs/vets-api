@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
 module Common
-  module Exceptions
+  module Exceptions::Internal
     # InvalidSortCriteria - sort criteria is invalid
-    class InvalidSortCriteria < BaseError
+    class InvalidSortCriteria < Common::Exceptions::BaseError
       attr_reader :resource, :sort_criteria
 
       def initialize(resource, sort_criteria)
@@ -12,7 +12,7 @@ module Common
       end
 
       def errors
-        Array(SerializableError.new(i18n_interpolated(detail: { sort_criteria: @sort_criteria, resource: @resource })))
+        Array(Common::Exceptions::SerializableError.new(i18n_interpolated(detail: { sort_criteria: @sort_criteria, resource: @resource })))
       end
     end
   end

@@ -46,7 +46,7 @@ module Vet360
         raise_backend_exception('VET360_502', self.class)
       when Common::Client::Errors::ClientError
         save_error_details(error)
-        raise Common::Exceptions::Forbidden if error.status == 403
+        raise Common::Exceptions::Internal::Forbidden if error.status == 403
 
         raise_invalid_body(error, self.class) unless error.body.is_a?(Hash)
         code = parse_messages(error)&.first.try(:[], 'code')
@@ -94,7 +94,7 @@ module Vet360
     def raise_invalid_body(error, source)
       Vet360::Stats.increment_exception('VET360_502')
 
-      raise Common::Exceptions::BackendServiceException.new(
+      raise Common::Exceptions::External::BackendServiceException.new(
         'VET360_502',
         { source: source.to_s },
         502,

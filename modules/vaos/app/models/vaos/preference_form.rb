@@ -22,7 +22,7 @@ module VAOS
     end
 
     def params
-      raise Common::Exceptions::ValidationErrors, self unless valid?
+      raise Common::Exceptions::Internal::ValidationErrors, self unless valid?
 
       attributes.compact
     end

@@ -59,7 +59,7 @@ describe Common::Client::Middleware::Response do
     message = 'BackendServiceException: {:status=>404, :detail=>"Record Not Found", :code=>"VA900", :source=>"blah"}'
     expect { faraday_client.get('not-found') }
       .to raise_error do |error|
-        expect(error).to be_a(Common::Exceptions::BackendServiceException)
+        expect(error).to be_a(Common::Exceptions::External::BackendServiceException)
         expect(error.message)
           .to eq(message)
         expect(error.errors.first[:detail])
@@ -71,7 +71,7 @@ describe Common::Client::Middleware::Response do
     message = 'BackendServiceException: {:status=>400, :detail=>"server response", :code=>"RX139", :source=>"blah"}'
     expect { faraday_client.get('refill-fail') }
       .to raise_error do |error|
-        expect(error).to be_a(Common::Exceptions::BackendServiceException)
+        expect(error).to be_a(Common::Exceptions::External::BackendServiceException)
         expect(error.message)
           .to eq(message)
         expect(error.errors.first[:detail])
@@ -89,14 +89,14 @@ describe Common::Client::Middleware::Response do
 
     it 'can handle generic html errors' do
       expect { faraday_client.get('mhv-generic-html') }.to raise_error do |error|
-        expect(error).to be_a(Common::Exceptions::BackendServiceException)
+        expect(error).to be_a(Common::Exceptions::External::BackendServiceException)
         expect(error.message).to eq(xml_or_html_response)
       end
     end
 
     it 'can handle generic xml errors' do
       expect { faraday_client.get('mhv-generic-xml') }.to raise_error do |error|
-        expect(error).to be_a(Common::Exceptions::BackendServiceException)
+        expect(error).to be_a(Common::Exceptions::External::BackendServiceException)
         expect(error.message).to eq(xml_or_html_response)
       end
     end

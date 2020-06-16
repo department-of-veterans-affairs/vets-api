@@ -12,7 +12,7 @@ FactoryBot.define do
 
   trait :retryable_error do
     status { 'retryable_error' }
-    error_class { 'Common::Exceptions::GatewayTimeout' }
+    error_class { 'Common::Exceptions::External::GatewayTimeout' }
     error_message { 'Did not receive a timely response from an upstream server' }
   end
 

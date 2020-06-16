@@ -34,11 +34,11 @@ describe EVSS::Letters::Service do
 
         it 'logs an error and raise GatewayTimeout' do
           expect(StatsD).to receive(:increment).once.with(
-            'api.evss.get_letters.fail', tags: ['error:Common::Exceptions::GatewayTimeout']
+            'api.evss.get_letters.fail', tags: ['error:Common::Exceptions::External::GatewayTimeout']
           )
           expect(StatsD).to receive(:increment).once.with('api.evss.get_letters.total')
           expect(Raven).to receive(:tags_context).once.with(team: 'benefits-memorial-1')
-          expect { subject.get_letters }.to raise_error(Common::Exceptions::GatewayTimeout)
+          expect { subject.get_letters }.to raise_error(Common::Exceptions::External::GatewayTimeout)
         end
       end
 
@@ -46,7 +46,7 @@ describe EVSS::Letters::Service do
         it 'raises a BackendServiceException' do
           VCR.use_cassette('evss/letters/letters_unexpected_error') do
             expect(Raven).to receive(:tags_context).once.with(team: 'benefits-memorial-1')
-            expect { subject.get_letters }.to raise_error(Common::Exceptions::BackendServiceException) do |e|
+            expect { subject.get_letters }.to raise_error(Common::Exceptions::External::BackendServiceException) do |e|
               expect(e.message).to match(/EVSS502/)
             end
           end
@@ -79,11 +79,11 @@ describe EVSS::Letters::Service do
 
         it 'logs an error and raise GatewayTimeout' do
           expect(StatsD).to receive(:increment).once.with(
-            'api.evss.get_letter_beneficiary.fail', tags: ['error:Common::Exceptions::GatewayTimeout']
+            'api.evss.get_letter_beneficiary.fail', tags: ['error:Common::Exceptions::External::GatewayTimeout']
           )
           expect(StatsD).to receive(:increment).once.with('api.evss.get_letter_beneficiary.total')
           expect(Raven).to receive(:tags_context).once.with(team: 'benefits-memorial-1')
-          expect { subject.get_letter_beneficiary }.to raise_error(Common::Exceptions::GatewayTimeout)
+          expect { subject.get_letter_beneficiary }.to raise_error(Common::Exceptions::External::GatewayTimeout)
         end
       end
     end

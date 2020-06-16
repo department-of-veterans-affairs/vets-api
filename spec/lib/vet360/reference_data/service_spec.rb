@@ -45,7 +45,7 @@ describe Vet360::ReferenceData::Service, skip_vet360: true do
       context 'when not successful' do
         it 'raises an error' do
           VCR.use_cassette(cassette + '_error', VCR::MATCH_EVERYTHING) do
-            expect { subject.send(message) }.to raise_error(Common::Exceptions::BackendServiceException)
+            expect { subject.send(message) }.to raise_error(Common::Exceptions::External::BackendServiceException)
           end
         end
       end

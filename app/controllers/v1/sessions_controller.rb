@@ -31,7 +31,7 @@ module V1
     # For more details see SAML::SettingsService and SAML::URLService
     def new
       type = params[:type]
-      raise Common::Exceptions::RoutingError, params[:path] unless REDIRECT_URLS.include?(type)
+      raise Common::Exceptions::Internal::RoutingError, params[:path] unless REDIRECT_URLS.include?(type)
 
       new_stats(type)
       url = redirect_url(type)
@@ -91,7 +91,7 @@ module V1
       when 'slo'
         url_service.ssoe_slo_url # due to shared url service implementation
       else
-        raise Common::Exceptions::RoutingError, params[:path]
+        raise Common::Exceptions::Internal::RoutingError, params[:path]
       end
     end
     # rubocop:enable Metrics/CyclomaticComplexity

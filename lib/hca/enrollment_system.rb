@@ -430,7 +430,7 @@ module HCA
 
     def veteran_to_military_service_info(veteran)
       unless Validations.valid_discharge_date?(veteran['lastDischargeDate'])
-        raise Common::Exceptions::InvalidFieldValue.new('lastDischargeDate', veteran['lastDischargeDate'])
+        raise Common::Exceptions::Internal::InvalidFieldValue.new('lastDischargeDate', veteran['lastDischargeDate'])
       end
 
       {

@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-describe Common::Exceptions::InvalidField do
+describe Common::Exceptions::Internal::InvalidFieldValue do
   context 'with no field provided' do
     it do
       expect { described_class.new }
@@ -11,7 +11,7 @@ describe Common::Exceptions::InvalidField do
   end
 
   context 'with field provided' do
-    subject { described_class.new('facility_name', 'Tracking') }
+    subject { described_class.new('facility_name', 'invalid_value') }
 
     it 'implements #errors which returns an array' do
       expect(subject.errors).to be_an(Array)
@@ -19,9 +19,9 @@ describe Common::Exceptions::InvalidField do
 
     it 'the errors object has all relevant keys' do
       expect(subject.errors.first.to_hash)
-        .to eq(title: 'Invalid field',
-               detail: '"facility_name" is not a valid field for "Tracking"',
-               code: '102',
+        .to eq(title: 'Invalid field value',
+               detail: '"invalid_value" is not a valid value for "facility_name"',
+               code: '103',
                status: '400')
     end
   end

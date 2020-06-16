@@ -12,7 +12,7 @@ module V0
       unless dependents_application.save
         Raven.tags_context(validation: 'dependents')
 
-        raise Common::Exceptions::ValidationErrors, dependents_application
+        raise Common::Exceptions::Internal::ValidationErrors, dependents_application
       end
 
       clear_saved_form(DependentsApplication::FORM_ID)
@@ -26,7 +26,7 @@ module V0
       render json: dependents, serializer: DependentsSerializer
     rescue => e
       log_exception_to_sentry(e)
-      raise Common::Exceptions::BackendServiceException.new(nil, detail: e.message)
+      raise Common::Exceptions::External::BackendServiceException.new(nil, detail: e.message)
     end
 
     def disability_rating

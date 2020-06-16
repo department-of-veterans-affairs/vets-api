@@ -58,8 +58,8 @@ RSpec.describe PagerDuty::CacheGlobalDowntime, type: %i[job aws_helpers] do
       end
 
       it 'bails on backend error' do
-        expect(client_stub).to receive(:get_all).and_raise(Common::Exceptions::BackendServiceException)
-        expect(Raven).to receive(:capture_exception).with(Common::Exceptions::BackendServiceException, level: 'error')
+        expect(client_stub).to receive(:get_all).and_raise(Common::Exceptions::External::BackendServiceException)
+        expect(Raven).to receive(:capture_exception).with(Common::Exceptions::External::BackendServiceException, level: 'error')
 
         subject.perform
       end

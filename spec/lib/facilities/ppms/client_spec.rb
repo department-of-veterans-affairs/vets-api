@@ -19,7 +19,7 @@ RSpec.describe Facilities::PPMS::Client, team: :facilities do
       allow_any_instance_of(Faraday::Connection).to receive(:get).and_raise(Faraday::TimeoutError)
       expect do
         Facilities::PPMS::Client.new.provider_locator(params)
-      end.to raise_error(Common::Exceptions::GatewayTimeout)
+      end.to raise_error(Common::Exceptions::External::GatewayTimeout)
     end
   end
 
@@ -27,7 +27,7 @@ RSpec.describe Facilities::PPMS::Client, team: :facilities do
     it 'raises BackendUnhandledException when errors happen' do
       VCR.use_cassette('facilities/va/ppms_500', match_requests_on: %i[path]) do
         expect { Facilities::PPMS::Client.new.provider_locator(params) }
-          .to raise_error(Common::Exceptions::BackendServiceException) do |e|
+          .to raise_error(Common::Exceptions::External::BackendServiceException) do |e|
             expect(e.message).to match(/PPMS_502/)
           end
       end

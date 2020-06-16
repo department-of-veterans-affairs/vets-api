@@ -14,7 +14,7 @@ module V0
         submission = ::Form1010cg::Service.new(claim).process_claim!
         render json: submission, serializer: ::Form1010cg::SubmissionSerializer
       else
-        raise(Common::Exceptions::ValidationErrors, claim)
+        raise(Common::Exceptions::Internal::ValidationErrors, claim)
       end
     end
 

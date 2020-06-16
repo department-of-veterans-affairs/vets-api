@@ -49,7 +49,7 @@ module V0
 
     def submission_status
       job_status = Form526JobStatus.where(job_id: params[:job_id]).first
-      raise Common::Exceptions::RecordNotFound, params[:job_id] unless job_status
+      raise Common::Exceptions::Internal::RecordNotFound, params[:job_id] unless job_status
 
       render json: job_status, serializer: Form526JobStatusSerializer
     end
@@ -82,7 +82,7 @@ module V0
 
     def log_failure(claim)
       StatsD.increment("#{stats_key}.failure")
-      raise Common::Exceptions::ValidationErrors, claim
+      raise Common::Exceptions::Internal::ValidationErrors, claim
     end
 
     def log_success(claim)
@@ -95,7 +95,7 @@ module V0
     end
 
     def validate_name_part
-      raise Common::Exceptions::ParameterMissing, 'name_part' if params[:name_part].blank?
+      raise Common::Exceptions::Internal::ParameterMissing, 'name_part' if params[:name_part].blank?
     end
 
     def service

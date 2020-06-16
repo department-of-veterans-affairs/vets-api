@@ -12,7 +12,7 @@ RSpec.describe Users::ExceptionHandler do
   describe '.initialize' do
     context 'when initialized without a nil error' do
       it 'raises an exception' do
-        expect { Users::ExceptionHandler.new(nil, service) }.to raise_error(Common::Exceptions::ParameterMissing)
+        expect { Users::ExceptionHandler.new(nil, service) }.to raise_error(Common::Exceptions::Internal::ParameterMissing)
       end
     end
   end
@@ -39,8 +39,8 @@ RSpec.describe Users::ExceptionHandler do
       end
     end
 
-    context 'with a Common::Exceptions::GatewayTimeout' do
-      let(:error) { Common::Exceptions::GatewayTimeout.new }
+    context 'with a Common::Exceptions::External::GatewayTimeout' do
+      let(:error) { Common::Exceptions::External::GatewayTimeout.new }
       let(:results) { Users::ExceptionHandler.new(error, service).serialize_error }
 
       it 'returns a serialized version of the error' do
@@ -52,7 +52,7 @@ RSpec.describe Users::ExceptionHandler do
       end
     end
 
-    context 'with a Common::Exceptions::BackendServiceException' do
+    context 'with a Common::Exceptions::External::BackendServiceException' do
       let(:error) { server_error_exception }
       let(:results) { Users::ExceptionHandler.new(error, service).serialize_error }
 

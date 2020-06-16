@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
 module Common
-  module Exceptions
-    class ServiceError < BaseError
+  module Exceptions::External
+    class ServiceError < Common::Exceptions::BaseError
       attr_writer :source
 
       def initialize(options = {})
@@ -11,7 +11,7 @@ module Common
       end
 
       def errors
-        Array(SerializableError.new(i18n_data.merge(detail: @detail, source: @source)))
+        Array(Common::Exceptions::SerializableError.new(i18n_data.merge(detail: @detail, source: @source)))
       end
     end
   end

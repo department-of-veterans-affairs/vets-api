@@ -3,7 +3,7 @@
 require 'common/exceptions/external/backend_service_exception'
 
 module MDOT
-  class ServiceException < Common::Exceptions::BackendServiceException
+  class ServiceException < Common::Exceptions::External::BackendServiceException
     include SentryLogging
 
     def initialize(exception, response_values = {}, original_status = nil, original_body = nil)

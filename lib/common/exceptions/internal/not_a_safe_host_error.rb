@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
 module Common
-  module Exceptions
+  module Exceptions::Internal
     # Parameter Missing - required parameter was not provided
-    class NotASafeHostError < BaseError
+    class NotASafeHostError < Common::Exceptions::BaseError
       attr_reader :host
 
       def initialize(host)
@@ -11,7 +11,7 @@ module Common
       end
 
       def errors
-        Array(SerializableError.new(i18n_interpolated(detail: { host: @host })))
+        Array(Common::Exceptions::SerializableError.new(i18n_interpolated(detail: { host: @host })))
       end
     end
   end

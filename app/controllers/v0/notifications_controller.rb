@@ -20,7 +20,7 @@ module V0
       if notification.save
         render json: notification, serializer: NotificationSerializer
       else
-        raise Common::Exceptions::ValidationErrors.new(notification), 'Validation errors present'
+        raise Common::Exceptions::Internal::ValidationErrors.new(notification), 'Validation errors present'
       end
     end
 
@@ -28,7 +28,7 @@ module V0
       if @notification
         render json: @notification, serializer: NotificationSerializer
       else
-        raise Common::Exceptions::RecordNotFound.new(subject), 'No matching record found for that user'
+        raise Common::Exceptions::Internal::RecordNotFound.new(subject), 'No matching record found for that user'
       end
     end
 
@@ -38,7 +38,7 @@ module V0
       if @notification.update(read_at: read_at)
         render json: @notification, serializer: NotificationSerializer
       else
-        raise Common::Exceptions::ValidationErrors.new(@notification), 'Validation errors present'
+        raise Common::Exceptions::Internal::ValidationErrors.new(@notification), 'Validation errors present'
       end
     end
 

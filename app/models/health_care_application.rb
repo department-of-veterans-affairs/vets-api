@@ -41,7 +41,7 @@ class HealthCareApplication < ApplicationRecord
              rescue Common::Client::Errors::ClientError => e
                log_exception_to_sentry(e)
 
-               raise Common::Exceptions::BackendServiceException.new(
+               raise Common::Exceptions::External::BackendServiceException.new(
                  nil, detail: e.message
                )
     end
@@ -52,7 +52,7 @@ class HealthCareApplication < ApplicationRecord
   end
 
   def process!
-    raise(Common::Exceptions::ValidationErrors, self) unless valid?
+    raise(Common::Exceptions::Internal::ValidationErrors, self) unless valid?
 
     has_email = parsed_form['email'].present?
 
@@ -127,7 +127,7 @@ class HealthCareApplication < ApplicationRecord
       gender: form['gender']
     )
 
-    raise Common::Exceptions::ValidationErrors, return_val unless return_val.valid?
+    raise Common::Exceptions::Internal::ValidationErrors, return_val unless return_val.valid?
 
     return_val
   end

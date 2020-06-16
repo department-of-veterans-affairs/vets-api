@@ -49,10 +49,10 @@ describe EVSS::PPIU::Service do
 
       it 'logs an error and raise GatewayTimeout', :aggregate_failures do
         expect(StatsD).to receive(:increment).once.with(
-          'api.evss.get_payment_information.fail', tags: ['error:Common::Exceptions::GatewayTimeout']
+          'api.evss.get_payment_information.fail', tags: ['error:Common::Exceptions::External::GatewayTimeout']
         )
         expect(StatsD).to receive(:increment).once.with('api.evss.get_payment_information.total')
-        expect { subject.get_payment_information }.to raise_error(Common::Exceptions::GatewayTimeout)
+        expect { subject.get_payment_information }.to raise_error(Common::Exceptions::External::GatewayTimeout)
       end
     end
 
@@ -122,11 +122,11 @@ describe EVSS::PPIU::Service do
 
       it 'logs an error and raise GatewayTimeout', :aggregate_failures do
         expect(StatsD).to receive(:increment).once.with(
-          'api.evss.update_payment_information.fail', tags: ['error:Common::Exceptions::GatewayTimeout']
+          'api.evss.update_payment_information.fail', tags: ['error:Common::Exceptions::External::GatewayTimeout']
         )
         expect(StatsD).to receive(:increment).once.with('api.evss.update_payment_information.total')
         expect { subject.update_payment_information(request_payload) }.to raise_error(
-          Common::Exceptions::GatewayTimeout
+          Common::Exceptions::External::GatewayTimeout
         )
       end
     end

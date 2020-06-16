@@ -110,7 +110,7 @@ module VAOS
     end
 
     def params
-      raise Common::Exceptions::ValidationErrors, self unless valid?
+      raise Common::Exceptions::Internal::ValidationErrors, self unless valid?
 
       params = attributes.compact
       put_request? ? params.merge(patient_identifier: patient_identifier) : params

@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
 module Common
-  module Exceptions
-    class FilterNotAllowed < BaseError
+  module Exceptions::Internal
+    class FilterNotAllowed < Common::Exceptions::BaseError
       attr_reader :filter
 
       def initialize(filter)
@@ -10,7 +10,7 @@ module Common
       end
 
       def errors
-        Array(SerializableError.new(i18n_interpolated(detail: { filter: @filter })))
+        Array(Common::Exceptions::SerializableError.new(i18n_interpolated(detail: { filter: @filter })))
       end
     end
   end

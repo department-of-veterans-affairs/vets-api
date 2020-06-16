@@ -10,7 +10,7 @@ module V0
       if @subscription.valid?
         render json: { status: 'OK' }, status: :accepted
       else
-        raise Common::Exceptions::ValidationErrors, @subscription
+        raise Common::Exceptions::Internal::ValidationErrors, @subscription
       end
     end
 

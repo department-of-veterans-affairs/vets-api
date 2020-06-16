@@ -162,7 +162,7 @@ describe EVSS::GiBillStatus::Service do
         end
 
         it 'raises an exception' do
-          expect { subject.get_gi_bill_status }.to raise_error(Common::Exceptions::GatewayTimeout)
+          expect { subject.get_gi_bill_status }.to raise_error(Common::Exceptions::External::GatewayTimeout)
         end
       end
     end

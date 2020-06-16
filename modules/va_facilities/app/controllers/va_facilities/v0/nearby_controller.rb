@@ -85,7 +85,7 @@ module VaFacilities
       end
 
       def temp_validate_type_and_services_known
-        raise Common::Exceptions::InvalidFieldValue.new('type', params[:type]) unless
+        raise Common::Exceptions::Internal::InvalidFieldValue.new('type', params[:type]) unless
         BaseFacility::TYPES.include?(params[:type])
 
         # These services are temporarily allowed while we wait to transition to a new srouce for services.
@@ -96,7 +96,7 @@ module VaFacilities
 
         unknown = params[:services].to_a - facility_klass.service_list - temporary_service_exceptions
 
-        raise Common::Exceptions::InvalidFieldValue.new('services', unknown) unless unknown.empty?
+        raise Common::Exceptions::Internal::InvalidFieldValue.new('services', unknown) unless unknown.empty?
       end
 
       def get_lat_lng(params)

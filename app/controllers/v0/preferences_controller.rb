@@ -17,7 +17,7 @@ module V0
 
     def set_preference
       @preference = Preference.find_by(code: code)
-      raise Common::Exceptions::RecordNotFound, code if @preference.blank?
+      raise Common::Exceptions::Internal::RecordNotFound, code if @preference.blank?
     end
 
     def preference_params

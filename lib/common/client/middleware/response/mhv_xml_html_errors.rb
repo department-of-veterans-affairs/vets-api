@@ -13,7 +13,7 @@ module Common
           attr_reader :status
 
           ##
-          # @raise [Common::Exceptions::BackendServiceException] if there are parsing errors
+          # @raise [Common::Exceptions::External::BackendServiceException] if there are parsing errors
           # @return [Faraday::Env]
           #
           def on_complete(env)
@@ -25,7 +25,7 @@ module Common
 
             extra_context = { original_status: @status, original_body: @body }
             log_message_to_sentry('Could not parse XML/HTML response from MHV', :warn, extra_context)
-            raise Common::Exceptions::BackendServiceException.new('VA900', response_values, @status, @body)
+            raise Common::Exceptions::External::BackendServiceException.new('VA900', response_values, @status, @body)
           end
 
           private

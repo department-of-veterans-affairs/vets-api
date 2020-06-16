@@ -24,7 +24,7 @@ module VBADocuments
 
       object.get_location
     rescue => e
-      raise Common::Exceptions::InternalServerError, e
+      raise Common::Exceptions::Internal::InternalServerError, e
     end
   end
 end

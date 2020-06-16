@@ -21,7 +21,7 @@ RSpec.describe Users::Profile do
       it 'raises an exception' do
         account = build :account
 
-        expect { Users::Profile.new(account) }.to raise_error(Common::Exceptions::ParameterMissing)
+        expect { Users::Profile.new(account) }.to raise_error(Common::Exceptions::Internal::ParameterMissing)
       end
     end
   end

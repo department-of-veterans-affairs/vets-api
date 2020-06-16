@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
 module Common
-  module Exceptions
+  module Exceptions::Internal
     # Parameter Missing - required parameter was not provided
-    class ParametersMissing < BaseError
+    class ParametersMissing < Common::Exceptions::BaseError
       attr_reader :params
 
       def initialize(params)
@@ -13,7 +13,7 @@ module Common
       def errors
         @params.map do |param|
           detail = i18n_field(:detail, param: param)
-          SerializableError.new(i18n_data.merge(detail: detail))
+          Common::Exceptions::SerializableError.new(i18n_data.merge(detail: detail))
         end
       end
     end
