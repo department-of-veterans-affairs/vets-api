@@ -13,7 +13,7 @@ describe EVSS::ReferenceData::Service do
         VCR.use_cassette('evss/reference_data/countries') do
           expect do
             @response = subject.get_countries
-          end.to trigger_statsd_increment('api.external_http_request.EVSS/AWS/ReferenceData.success', times: 1)
+          end.to trigger_statsd_increment('api.external_http_request.EVSS/ReferenceData.success', times: 1)
           expect(@response).to be_ok
           expect(@response.countries[0...10]).to eq(
             %w[Afghanistan Albania Algeria Angola Anguilla Antigua Antigua\ and\ Barbuda Argentina Armenia Australia]
@@ -31,6 +31,24 @@ describe EVSS::ReferenceData::Service do
           expect(response).to be_ok
           expect(response.states[0...11]).to eq(
             %w[AK AL AR AS AZ CA CO CT DC DE FL]
+          )
+        end
+      end
+    end
+  end
+
+  describe '#get_separation_locations' do
+    context 'with a 200 response' do
+      it 'returns a list of separation_locations' do
+        VCR.use_cassette('evss/reference_data/get_intake_sites') do
+          expect do
+            @response = subject.get_separation_locations
+          end.to trigger_statsd_increment('api.external_http_request.EVSS/ReferenceData.success', times: 1)
+          expect(@response).to be_ok
+          expect(@response.separation_locations[0...3]).to eq(
+            [{ 'code' => '98283', 'description' => 'AF Academy' },
+             { 'code' => '123558', 'description' => 'ANG Hub' },
+             { 'code' => '98282', 'description' => 'Aberdeen Proving Ground' }]
           )
         end
       end
