@@ -9,7 +9,6 @@ module Swagger
         operation :post do
           extend Swagger::Responses::AuthenticationError
           extend Swagger::Responses::ForbiddenError
-          extend Swagger::Responses::InternalServerError
           extend Swagger::Responses::UnprocessableEntityError
 
           key :summary, 'Add user to MVI'
