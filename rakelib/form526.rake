@@ -79,7 +79,7 @@ namespace :form526 do
       printf "%-20s %s\n", header, total
     end
 
-    progress_forms = InProgressForm.where(form_id: '21-526EZ').order(:created_at)
+    progress_forms = InProgressForm.where(form_id: FormProfiles::VA526ez::FORM_ID).order(:created_at)
 
     puts '------------------------------------------------------------'
     print_row('created at:', 'updated at:', 'id:')
@@ -95,6 +95,24 @@ namespace :form526 do
 
     puts '------------------------------------------------------------'
     print_total('Total V1 forms:', total_v1_forms)
+  end
+
+  desc 'Show all bdd forms'
+  task show_bdd: :environment do
+    bdd_in_progress_forms = InProgressForm.where(form_id: FormProfiles::VA526ezbdd::FORM_ID).order(:created_at)
+
+    puts '------------------------------------------------------------'
+    print_row('created at:', 'updated at:', 'id:')
+
+    bdd_in_progress_forms.each do |bdd_in_progress_form|
+      printf "%-24s %-24s %s\n",
+             bdd_in_progress_form.created_at,
+             bdd_in_progress_form.updated_at,
+             bdd_in_progress_form.id
+    end
+
+    puts '------------------------------------------------------------'
+    printf "%-20s %s\n", 'Total bdd forms:', bdd_in_progress_forms.count
   end
 
   desc 'Get an error report within a given date period. [<start date: yyyy-mm-dd>,<end date: yyyy-mm-dd>]'

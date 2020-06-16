@@ -126,6 +126,7 @@ class Form526Submission < ApplicationRecord
     submission = Form526Submission.find(options['submission_id'])
     if submission.form526_job_statuses.all?(&:success?)
       submission.workflow_complete = true
+      # TODO: What tod do when invalid and not saved?
       submission.save
     end
   end
