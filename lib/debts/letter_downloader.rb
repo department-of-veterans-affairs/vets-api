@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Debts
   class LetterDownloader
     DEBTS_DOCUMENT_TYPES = %w[
@@ -10,7 +12,7 @@ module Debts
       1217
       1287
       1334
-    ]
+    ].freeze
 
     def initialize(file_number)
       @file_number = file_number
