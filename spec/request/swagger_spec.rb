@@ -661,6 +661,34 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
       end
     end
 
+    describe 'MVI Users' do
+      context 'when user is correct' do
+        let(:mhv_user) { build(:user_with_no_ids) }
+
+        it 'fails when invalid form id is passed' do
+          expect(subject).to validate(:post, '/v0/mvi_users/{id}', 403, headers.merge('id' => '12-1234'))
+        end
+        it 'when correct form id is passed, it supports creating mvi user' do
+          VCR.use_cassette('mvi/add_person/add_person_success') do
+            VCR.use_cassette('mvi/find_candidate/orch_search_with_attributes') do
+              expect(subject).to validate(:post, '/v0/mvi_users/{id}', 200, headers.merge('id' => '21-0966'))
+            end
+          end
+        end
+      end
+
+      it 'fails when no user information is passed' do
+        expect(subject).to validate(:post, '/v0/mvi_users/{id}', 401, 'id' => '21-0966')
+      end
+      context 'when user is missing birls only' do
+        let(:mhv_user) { build(:user_with_no_birls_id) }
+
+        it 'fails with 422' do
+          expect(subject).to validate(:post, '/v0/mvi_users/{id}', 422, headers.merge('id' => '21-0966'))
+        end
+      end
+    end
+
     describe 'PPIU' do
       it 'supports getting payment information' do
         expect(subject).to validate(:get, '/v0/ppiu/payment_information', 401)
