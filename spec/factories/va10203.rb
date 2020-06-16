@@ -10,7 +10,29 @@ FactoryBot.define do
         },
         veteranSocialSecurityNumber: '111223334',
         benefit: 'transferOfEntitlement',
-        isEdithNourseRogersScholarship: true,
+        isEnrolledStem: true,
+        isPursuingTeachingCert: true,
+        benefitLeft: 'moreThanSixMonths',
+        degreeName: 'Degree Name',
+        schoolName: 'School Name',
+        schoolCity: 'Test',
+        schoolState: 'TN',
+        isActiveDuty: true,
+        veteranAddress: {
+          city: 'Milwaukee',
+          country: 'USA',
+          postalCode: '53130',
+          state: 'WI',
+          street: '123 Main St'
+        },
+        email: 'test@sample.com',
+        mobilePhone: '5551110001',
+        bankAccount: {
+          accountNumber: '88888888888',
+          accountType: 'checking',
+          bankName: 'First Bank of JSON',
+          routingNumber: '123456789'
+        },
         privacyAgreementAccepted: true
       }.to_json
     }
