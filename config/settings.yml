@@ -553,6 +553,7 @@ coronavirus_chatbot:
 
 # Settings for notifications client
 notifications_api:
-  client_url: ''
-  secret_token: ''
-  template_id: ''
+  client_url: fake_client_url
+  secret_token: fake_secret
+  template_id:
+    form526_confirmation_email: fake_template_id

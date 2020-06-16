@@ -63,3 +63,5 @@ dump.rdb
 /.project
 .generators
 .rakeTasks
+
+.talismanrc
