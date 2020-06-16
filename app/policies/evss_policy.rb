@@ -11,14 +11,6 @@ EVSSPolicy = Struct.new(:user, :evss) do
     end
   end
 
-  def access_original_claims?
-    if user.edipi.present? && user.ssn.present? && (user.birls_id.blank? || user.participant_id.blank?)
-      log_success
-    else
-      log_failure
-    end
-  end
-
   def access_form526?
     if user.edipi.present? && user.ssn.present? && user.birls_id.present? && user.participant_id.present?
       log_success
