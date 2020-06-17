@@ -27,7 +27,7 @@ StatsD.backend = if host.present? && port.present?
     StatsD.increment(V1::SessionsController::STATSD_LOGIN_STATUS_FAILURE, 0,
                      tags: ["version:#{v}", "context:#{t}"])
     %w[success failure].each do |s|
-      StatsD.increment(V1::SessionsController::STATSD_LOGIN_STATUS_FAILURE, 0,
+      StatsD.increment(V1::SessionsController::STATSD_LOGIN_INBOUND, 0,
                        tags: ["version:#{v}", "context:#{t}", "status:#{s}"])
     end
   end
