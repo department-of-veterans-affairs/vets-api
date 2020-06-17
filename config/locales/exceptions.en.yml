@@ -1970,7 +1970,7 @@ en:
         title: Veteran Not Found
         detail: The veteran could not be found
         code: MDOT_invalid
-        status: 422
+        status: 404
       MDOT_supplies_not_found:
         <<: *defaults
         title: Supplies Not Found
