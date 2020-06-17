@@ -552,7 +552,7 @@ coronavirus_chatbot:
   webchat_secret: fake_secret
 
 # Settings for notifications client
-notifications_api:
+vanotify:
   client_url: fake_client_url
   secret_token: fake_secret
   template_id:
