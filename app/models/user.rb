@@ -84,7 +84,7 @@ class User < Common::RedisStore
   end
 
   def gender
-    identity.gender || (mhv_icn.present? ? mvi&.profile&.gender : nil)
+    identity.gender.presence || (mhv_icn.present? ? mvi&.profile&.gender : nil)
   end
 
   def birth_date

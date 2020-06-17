@@ -36,9 +36,12 @@ module EVSS
       when 'M'
         'MALE'
       else
+        Raven.extra_context(identity_gender: @user.identity.gender,
+                            mvi_gender: @user.mvi&.profile&.gender)
         raise Common::Exceptions::UnprocessableEntity,
               detail: 'Gender is required & must be "F" or "M"',
-              source: self.class, event_id: Raven.last_event_id
+              source: self.class,
+              event_id: Raven.last_event_id
       end
     end
 
