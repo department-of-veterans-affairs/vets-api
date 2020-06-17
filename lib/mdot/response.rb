@@ -16,7 +16,7 @@ module MDOT
       validate_response_against_schema(args[:schema], args[:response])
       @uuid = args[:uuid]
       @response = args[:response]
-      @token = @response.response_headers['VA_API_KEY']
+      @token = @response.response_headers['VAAPIKEY']
       @body = @response.body
       @parsed_body = @body.is_a?(String) ? JSON.parse(@body) : @body
       self.permanent_address = @parsed_body['permanent_address']
@@ -52,7 +52,7 @@ module MDOT
     def update_token
       token_params = Hash[REDIS_CONFIG[:mdot][:namespace], @uuid]
       token = MDOT::Token.new(token_params)
-      token.update(token: @token)
+      token.update(token: @token, uuid: @uuid)
     end
 
     def validate_response_against_schema(schema, response)

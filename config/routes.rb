@@ -42,7 +42,10 @@ Rails.application.routes.draw do
       post 'submit_all_claim'
       get 'suggested_conditions'
       get 'user_submissions'
+      get 'separation_locations'
     end
+
+    post '/mvi_users/:id', to: 'mvi_users#submit'
 
     resource :upload_supporting_evidence, only: :create
 
