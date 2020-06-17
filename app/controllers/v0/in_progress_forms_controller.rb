@@ -35,7 +35,6 @@ module V0
     end
 
     def proxy_add
-      # TODO: AEC
       if params[:id] == FormProfiles::VA526ez::FORM_ID
         if @current_user.participant_id.nil?
           # Add person to MVI if missing participant_id (no matter if birls_id present or absent)

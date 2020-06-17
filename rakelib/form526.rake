@@ -100,12 +100,12 @@ namespace :form526 do
   desc 'Show all bdd forms'
   task show_bdd: :environment do
     bdd_in_progress_forms = InProgressForm.where(form_id: FormProfiles::VA526ezbdd::FORM_ID).order(:created_at)
-
+    row_format = "%-24s %-24s %s\n"
     puts '------------------------------------------------------------'
-    print_row('created at:', 'updated at:', 'id:')
+    printf(row_format, 'created at:', 'updated at:', 'id:')
 
     bdd_in_progress_forms.each do |bdd_in_progress_form|
-      printf "%-24s %-24s %s\n",
+      printf row_format,
              bdd_in_progress_form.created_at,
              bdd_in_progress_form.updated_at,
              bdd_in_progress_form.id
