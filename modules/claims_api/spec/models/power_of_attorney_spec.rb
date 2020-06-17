@@ -88,6 +88,13 @@ RSpec.describe ClaimsApi::PowerOfAttorney, type: :model do
         expect(generated_pdf_md5).to eq(expected_pdf_md5)
       end
 
+      it 'rescues a bad image' do
+        bad_image_path = Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', '2122', 'page_2_signed.pdf')
+        expect do
+          power_of_attorney.insert_signatures(2, bad_image_path, bad_image_path)
+        end.to raise_error(ClaimsApi::StampSignatureError)
+      end
+
       it 'converts b64 image data to image files' do
         expect(power_of_attorney).to receive(:convert_base64_data_to_image)
           .with('veteran')

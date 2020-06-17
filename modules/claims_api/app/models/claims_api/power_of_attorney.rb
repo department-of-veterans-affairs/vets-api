@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require_dependency 'claims_api/concerns/file_data'
+require_dependency 'claims_api/stamp_signature_error'
 
 module ClaimsApi
   class PowerOfAttorney < ApplicationRecord
@@ -43,13 +44,22 @@ module ClaimsApi
       pdf_path = Rails.root.join('modules', 'claims_api', 'config', 'pdf_templates', "21-22A-#{page}.pdf")
       stamp_path = "#{::Common::FileHelpers.random_file_path}.pdf"
 
+      inserted = []
       Prawn::Document.generate(stamp_path, margin: [0, 0]) do |pdf|
         y_representative_coords = page == 1 ? 118 : 216
         y_veteran_coords = page == 1 ? 90 : 322
         pdf.image representative_signature, at: [35, y_representative_coords], height: 20
+        inserted << 'representative'
         pdf.image veteran_signature, at: [35, y_veteran_coords], height: 20
       end
       stamp(pdf_path, stamp_path, delete_source: false)
+    rescue Prawn::Errors::UnsupportedImageType
+      signature = inserted.empty? ? 'representative' : 'veteran'
+      update signature_errors: ["#{signature} was not a recognized image format"]
+      raise ClaimsApi::StampSignatureError.new(
+        message: "#{signature} could not be inserted",
+        detail: "#{signature} was not a recognized image format"
+      )
     end
 
     def stamp(file_path, stamp_path, delete_source: true)
