@@ -2,9 +2,6 @@
   "$schema": "http://json-schema.org/draft-07/schema#",
   "description": "Form 2122 Schema",
   "type": "object",
-  "required": [
-    "serviceOrganization"
-  ],
   "definitions": {
     "addressLine": {
       "type": "string",
@@ -52,9 +49,8 @@
     },
     "mailingAddress": {
       "type": "object",
-      "required": [
-      ],
-      "properties" : {
+      "additionalProperties": false,
+      "properties": {
         "numberAndStreet": {
           "$ref": "#/definitions/addressLine"
         },
@@ -80,30 +76,11 @@
     }
   },
   "properties": {
-    "veteran": {
+    "data": {
       "type": "object",
       "required": [
-        "address",
-        "phone",
-        "email"
-      ],
-      "properties": {
-        "address":        { "$ref": "#/definitions/mailingAddress" },
-        "phone":          { "$ref": "#/definitions/phone" },
-        "email":          { "$ref": "#/definitions/email" },
-        "serviceBranch":  { "$ref": "#/definitions/serviceBranch" }
-      }
-    },
-    "claimant": {
-      "type": "object",
-      "required": [
-        "firstName",
-        "middleInitial",
-        "lastName",
-        "address",
-        "phone",
-        "email",
-        "relationship"
+        "type",
+        "attributes"
       ],
       "properties": {
         "firstName":     { "type": "string" },
