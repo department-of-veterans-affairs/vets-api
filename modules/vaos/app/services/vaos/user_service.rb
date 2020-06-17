@@ -21,7 +21,9 @@ module VAOS
       url = '/users/v2/session?processRules=true'
       token = VAOS::JWT.new(user).token
       response = perform(:post, url, token, headers)
-      raise Common::Exceptions::External::BackendServiceException.new('VAOS_502', source: self.class) unless body?(response)
+      unless body?(response)
+        raise Common::Exceptions::External::BackendServiceException.new('VAOS_502', source: self.class)
+      end
 
       response.body
     end

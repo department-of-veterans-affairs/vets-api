@@ -11,8 +11,8 @@ module Common
 
       def errors
         Array(Common::Exceptions::SerializableError.new(i18n_data.merge(source: 'AWS SNS Verification', meta: {
-                                                      raw_post: @raw_post, signature: @signature
-                                                    })))
+                                                                          raw_post: @raw_post, signature: @signature
+                                                                        })))
       end
     end
   end

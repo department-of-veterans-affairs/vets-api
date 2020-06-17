@@ -67,7 +67,9 @@ class ApplicationController < ActionController::API
   # returns a Bad Request if the incoming host header is unsafe.
   def block_unknown_hosts
     return if controller_name == 'example'
-    raise Common::Exceptions::Internal::NotASafeHostError, request.host unless Settings.virtual_hosts.include?(request.host)
+    unless Settings.virtual_hosts.include?(request.host)
+      raise Common::Exceptions::Internal::NotASafeHostError, request.host
+    end
   end
 
   def skip_sentry_exception_types
@@ -122,7 +124,9 @@ class ApplicationController < ActionController::API
       log_exception_to_sentry(exception, extra.merge(va_exception_info))
     end
 
-    headers['WWW-Authenticate'] = 'Token realm="Application"' if va_exception.is_a?(Common::Exceptions::Internal::Unauthorized)
+    if va_exception.is_a?(Common::Exceptions::Internal::Unauthorized)
+      headers['WWW-Authenticate'] = 'Token realm="Application"'
+    end
     render_errors(va_exception)
   end
   # rubocop:enable Metrics/BlockLength

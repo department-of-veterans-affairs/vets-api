@@ -37,7 +37,9 @@ module VeteranConfirmation
       end
 
       def validate_ssn_format
-        raise Common::Exceptions::Internal::InvalidFieldValue.new('ssn', 'the provided') unless valid_ssn?(params['ssn'])
+        unless valid_ssn?(params['ssn'])
+          raise Common::Exceptions::Internal::InvalidFieldValue.new('ssn', 'the provided')
+        end
 
         params['ssn'] = params['ssn'].gsub('-', '')
       end
