@@ -177,11 +177,11 @@ module V1
         # track users who have a shared sso cookie
         StatsD.increment(STATSD_LOGIN_SHARED_COOKIE, tags: tags)
         StatsD.increment(STATSD_LOGIN_STATUS_SUCCESS, tags: tags)
-        StatsD.increment(STATSD_LOGIN_INBOUND, tags: tags + ["status:success"]) if inbound
+        StatsD.increment(STATSD_LOGIN_INBOUND, tags: tags + ['status:success']) if inbound
         StatsD.measure(STATSD_LOGIN_LATENCY, tracker.age, tags: tags)
       when :failure
         StatsD.increment(STATSD_LOGIN_STATUS_FAILURE, tags: tags)
-        StatsD.increment(STATSD_LOGIN_INBOUND, tags: tags + ["status:failure"]) if inbound
+        StatsD.increment(STATSD_LOGIN_INBOUND, tags: tags + ['status:failure']) if inbound
       end
     end
 
