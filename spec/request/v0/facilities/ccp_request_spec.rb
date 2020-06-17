@@ -204,7 +204,7 @@ RSpec.describe 'Community Care Providers', type: :request, team: :facilities do
         expect(bod).to include(
           'data' => [
             {
-              'id' => 'ccp_1629245311',
+              'id' => 'ccp_485b3868e513c698740c68ebd32b9ea58184c09a01eecc40182a18f6c1dedfb5',
               'type' => 'cc_provider',
               'attributes' => {
                 'acc_new_patients' => 'false',
@@ -229,7 +229,7 @@ RSpec.describe 'Community Care Providers', type: :request, team: :facilities do
               }
             },
             {
-              'id' => 'ccp_1992993570',
+              'id' => 'ccp_f4972c93ed6cd25488ee42bce175be9aa676bf2131241fe59d35175e9b7fa278',
               'type' => 'cc_provider',
               'attributes' => {
                 'acc_new_patients' => 'false',
@@ -254,7 +254,7 @@ RSpec.describe 'Community Care Providers', type: :request, team: :facilities do
               }
             },
             {
-              'id' => 'ccp_1043371826',
+              'id' => 'ccp_596b1f876d318576c8604121c342f85b4e0a57baa1c689ce462f88eeee8ecc97',
               'type' => 'cc_provider',
               'attributes' => {
                 'acc_new_patients' => 'false',
@@ -279,7 +279,57 @@ RSpec.describe 'Community Care Providers', type: :request, team: :facilities do
               }
             },
             {
-              'id' => 'ccp_1447660816',
+              'id' => 'ccp_1c8a8512f5daf1046e950a6ee2f3af8a350d0f3281f6fd85a60494e11c78fcce',
+              'type' => 'cc_provider',
+              'attributes' => {
+                'acc_new_patients' => 'false',
+                'address' => {
+                  'street' => '1155 W Ocotillo Rd Ste 4',
+                  'city' => 'Chandler',
+                  'state' => 'AZ',
+                  'zip' => '85248'
+                },
+                'caresite_phone' => '4803747400',
+                'email' => nil,
+                'fax' => nil,
+                'gender' => 'NotSpecified',
+                'lat' => 33.246766,
+                'long' => -111.866671,
+                'name' => 'NextCare Urgent Care Ocotillo',
+                'phone' => nil,
+                'pos_codes' => '20',
+                'pref_contact' => nil,
+                'specialty' => [],
+                'unique_id' => '1043371826'
+              }
+            },
+            {
+              'id' => 'ccp_efa5302e3e4a62554562b8a8617d9a67255b8fcb2cb1052e8fe10c859186baff',
+              'type' => 'cc_provider',
+              'attributes' => {
+                'acc_new_patients' => 'false',
+                'address' => {
+                  'street' => '5975 W Chandler Blvd',
+                  'city' => 'Chandler',
+                  'state' => 'AZ',
+                  'zip' => '85226'
+                },
+                'caresite_phone' => '8663892727',
+                'email' => nil,
+                'fax' => nil,
+                'gender' => 'NotSpecified',
+                'lat' => 33.30479,
+                'long' => -111.94499,
+                'name' => 'MinuteClinic LLC',
+                'phone' => nil,
+                'pos_codes' => '17',
+                'pref_contact' => nil,
+                'specialty' => [],
+                'unique_id' => '1629245311'
+              }
+            },
+            {
+              'id' => 'ccp_bb40a8b55b4b30c42d28efa923d8508da71f06a1d9a5eb5d0343ab9a9e998bc8',
               'type' => 'cc_provider',
               'attributes' => {
                 'acc_new_patients' => 'false',
@@ -304,7 +354,57 @@ RSpec.describe 'Community Care Providers', type: :request, team: :facilities do
               }
             },
             {
-              'id' => 'ccp_1871782490',
+              'id' => 'ccp_f4e0d537b1279f239622a3c635bc4a1c9b0cfab9465c3552b366d8fa5c1fe83d',
+              'type' => 'cc_provider',
+              'attributes' => {
+                'acc_new_patients' => 'false',
+                'address' => {
+                  'street' => '785 S Cooper Rd',
+                  'city' => 'Gilbert',
+                  'state' => 'AZ',
+                  'zip' => '85233'
+                },
+                'caresite_phone' => '8559254733',
+                'email' => nil,
+                'fax' => nil,
+                'gender' => 'NotSpecified',
+                'lat' => 33.336045,
+                'long' => -111.806103,
+                'name' => 'Take Care Health Arizona PC',
+                'phone' => nil,
+                'pos_codes' => '17',
+                'pref_contact' => nil,
+                'specialty' => [],
+                'unique_id' => '1992993570'
+              }
+            },
+            {
+              'id' => 'ccp_1376b2f242026ed068af34f4e24531f1eab3a5043c402d84bcde4e69804387c4',
+              'type' => 'cc_provider',
+              'attributes' => {
+                'acc_new_patients' => 'false',
+                'address' => {
+                  'street' => '2995 E Chandler Heights Rd',
+                  'city' => 'Chandler',
+                  'state' => 'AZ',
+                  'zip' => '85249'
+                },
+                'caresite_phone' => '8663892727',
+                'email' => nil,
+                'fax' => nil,
+                'gender' => 'NotSpecified',
+                'lat' => 33.23309,
+                'long' => -111.79016,
+                'name' => 'MinuteClinic LLC',
+                'phone' => nil,
+                'pos_codes' => '17',
+                'pref_contact' => nil,
+                'specialty' => [],
+                'unique_id' => '1629245311'
+              }
+            },
+            {
+              'id' => 'ccp_0b766787f4c9c9e5b40d3b45191f9aef28bfad6b568b1104870a41d2d0ab168f',
               'type' => 'cc_provider',
               'attributes' => {
                 'acc_new_patients' => 'false',
@@ -326,6 +426,31 @@ RSpec.describe 'Community Care Providers', type: :request, team: :facilities do
                 'pref_contact' => nil,
                 'specialty' => [],
                 'unique_id' => '1871782490'
+              }
+            },
+            {
+              'id' => 'ccp_14162e717eb34eb738c02bfc294c66eb99fc98fd7e285aa6a8cc627128eb55d5',
+              'type' => 'cc_provider',
+              'attributes' => {
+                'acc_new_patients' => 'false',
+                'address' => {
+                  'street' => '6343 S Higley Rd',
+                  'city' => 'Gilbert',
+                  'state' => 'AZ',
+                  'zip' => '85298'
+                },
+                'caresite_phone' => '4807482712',
+                'email' => nil,
+                'fax' => nil,
+                'gender' => 'NotSpecified',
+                'lat' => 33.23498,
+                'long' => -111.71979,
+                'name' => 'NextCare Urgent Care Higley',
+                'phone' => nil,
+                'pos_codes' => '20',
+                'pref_contact' => nil,
+                'specialty' => [],
+                'unique_id' => '1043371826'
               }
             }
           ],

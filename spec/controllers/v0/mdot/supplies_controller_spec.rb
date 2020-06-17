@@ -22,18 +22,26 @@ RSpec.describe V0::MDOT::SuppliesController, type: :controller do
   describe '#create' do
     let(:body) do
       {
-        'permanent_address' => {
-          'street' => '101 Example Street',
-          'street2' => 'Apt 2',
-          'city' => 'Kansas City',
-          'state' => 'MO',
-          'country' => 'USA',
-          'postal_code' => '64117'
-        },
-        'use_permanent_address' => true,
+        'use_veteran_address' => true,
         'use_temporary_address' => false,
-        'order' => [{ 'product_id' => '1' }, { 'product_id' => '4' }],
-        'additional_requests' => ''
+        'order' => [{ 'product_id' => 2499 }],
+        'permanent_address' => {
+          'street' => '125 SOME RD',
+          'street2' => 'APT 101',
+          'city' => 'DENVER',
+          'state' => 'CO',
+          'country' => 'United States',
+          'postal_code' => '111119999'
+        },
+        'temporary_address' => {
+          'street' => '17250 w colfax ave',
+          'street2' => 'a-204',
+          'city' => 'Golden',
+          'state' => 'CO',
+          'country' => 'United States',
+          'postal_code' => '80401'
+        },
+        'vet_email' => 'vet1@va.gov'
       }
     end
 
@@ -41,10 +49,9 @@ RSpec.describe V0::MDOT::SuppliesController, type: :controller do
       VCR.use_cassette('mdot/submit_order', VCR::MATCH_EVERYTHING) do
         set_mdot_token_for(user)
         post(:create, body: body.to_json, as: :json)
-
         res = JSON.parse(response.body)
-        expect(res['status']).to eq('success')
-        expect(res['order_id']).to match(/[a-z0-9-]+/)
+        expect(res[0]['status']).to eq('Order Processed')
+        expect(res[0]['order_id']).to be_an(Integer)
       end
     end
   end

@@ -185,6 +185,7 @@ evss:
   mock_pciu: true
   mock_pciu_address: false
   mock_ppiu: true
+  mock_reference: false
   mock_itf: true
   mock_disabilities_form: true
   mock_common_service: true
@@ -194,9 +195,6 @@ evss:
     cert_path: ~
     key_path: ~
     root_ca: ~
-  jwt:
-    issuer: fake_issuer
-    key: fake_key
   reference_data_service:
     enabled: false
   international_postal_codes: 'config/evss/international_postal_codes.json'
@@ -443,10 +441,6 @@ betamocks:
   recording: false
   cache_dir: /cache
   services_config: config/betamocks/services_config.yml
-
-faraday_socks_proxy:
-  enabled: false
-  uri: socks5://localhost:2002
 
 google_analytics_tracking_id: ~
 
