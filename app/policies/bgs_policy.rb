@@ -2,12 +2,17 @@
 
 BGSPolicy = Struct.new(:user, :bgs) do
   def access?
-    if user.icn.present? && user.ssn.present? && user.participant_id.present?
-      StatsD.increment('api.bgs.policy.success') if user.loa3?
-      true
+    accessible = user.icn.present? && user.ssn.present? && user.participant_id.present?
+    increment_statsd_for_loa_user(accessible)
+    accessible
+  end
+
+  def increment_statsd_for_loa_user(accessible)
+    return unless user.loa3?
+    if accessible
+      StatsD.increment('api.bgs.policy.success')
     else
-      StatsD.increment('api.bgs.policy.failure') if user.loa3?
-      false
+      StatsD.increment('api.bgs.policy.failure')
     end
   end
 end
