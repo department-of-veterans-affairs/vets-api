@@ -24,7 +24,7 @@ module Swagger
         end
       end
 
-      swagger_path '/v0/disability_compensation_form/suggested_conditions{params}' do
+      swagger_path '/v0/disability_compensation_form/suggested_conditions{name_part}' do
         operation :get do
           extend Swagger::Responses::AuthenticationError
 
@@ -36,7 +36,7 @@ module Swagger
 
           parameter do
             key :name, :name_part
-            key :description, 'part of a condition name'
+            key :description, 'part of a medical term of lay term for a medical condition'
             key :in, :path
             key :type, :string
             key :required, true
