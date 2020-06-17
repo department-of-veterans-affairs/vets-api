@@ -9,8 +9,7 @@ module VAOS
       token = get_session_token
       session_store = SessionStore.new(account_uuid: user.account_uuid, token: token)
       session_store.save
-      ttl = get_ttl(token)
-      session_store.expire(ttl)
+      session_store.expire(get_ttl(token))
 
       token
     end
