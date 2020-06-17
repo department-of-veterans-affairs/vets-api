@@ -26,8 +26,8 @@ module Swagger
           parameter do
             key :name, :id
             key :in, :path
-            key :description,
-              'ID of the form. Allowed values: "21-0966" (Intent to File), "21-526EZ" (Disability Compensation)'
+            key :description, "ID of the form. Allowed values: '21-0966' (Intent to File),
+              '21-526EZ' (Disability Compensation)"
             key :required, true
             key :type, :string
           end
