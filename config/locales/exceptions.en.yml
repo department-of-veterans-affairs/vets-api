@@ -1977,6 +1977,12 @@ en:
         detail: The medical supplies could not be found
         code: MDOT_supplies_not_found
         status: 404
+      MDOT_supplies_not_selected:
+        <<: *defaults
+        title: Supplies Not Selected
+        detail: No supplies were selected to order
+        code: MDOT_supplies_not_selected
+        status: 422
       MDOT_unprocessable_entity:
         <<: *defaults
         title: Order unable to be processed
