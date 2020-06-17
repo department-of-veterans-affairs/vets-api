@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class HCASubmissionFailureMailer < TransactionalEmailMailer
+class HcaSubmissionFailureMailer < TransactionalEmailMailer
   SUBJECT = "We can't process your health care application"
   GA_CAMPAIGN_NAME = 'hca-failure'
   GA_DOCUMENT_PATH = '/email/health-care/apply/application/introduction'
