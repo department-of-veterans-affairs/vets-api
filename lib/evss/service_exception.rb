@@ -3,7 +3,7 @@
 require 'common/exceptions/base_error'
 
 module EVSS
-  class ServiceException < Common::Exceptions::BaseError
+  class ServiceException Common::Exceptions::External::BackendServiceException
     attr_reader :key, :messages
 
     def initialize(original_body)
