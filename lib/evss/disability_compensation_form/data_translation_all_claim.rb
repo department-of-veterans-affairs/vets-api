@@ -641,8 +641,7 @@ module EVSS
           return false
         end
 
-        # do we need any timezone support?
-        days_until_release = rad_date - Date.today
+        days_until_release = rad_date - Time.now.in_time_zone('Central Time (US & Canada)').to_date
         90 <= days_until_release && days_until_release <= 180 ? true : false
       end
 
