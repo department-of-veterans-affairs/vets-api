@@ -10,7 +10,7 @@ RSpec.describe Form526ConfirmationEmailJob, type: :worker do
     let(:notification_client) { double('Notifications::Client') }
 
     context 'defaults' do
-      before(:each) do
+      before do
         @email_address = 'foo@example.com'
         @email_response = {
           'content': {
