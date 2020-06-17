@@ -62,8 +62,6 @@ module BGS
     end
 
     def create_person(proc_id, participant_id, payload)
-      brth_date = payload['birth_date'] ? Date.parse(payload['birth_date']).to_time.iso8601 : nil
-      death_date = payload['death_date'] ? Date.parse(payload['death_date']).to_time.iso8601 : nil
       service.vnp_person.vnp_person_create(
         vnp_proc_id: proc_id,
         vnp_ptcpnt_id: participant_id,
@@ -76,15 +74,16 @@ module BGS
         middle_nm: payload['middle'],
         last_nm: payload['last'],
         suffix_nm: payload['suffix'],
-        brthdy_dt: brth_date,
+        brthdy_dt: format_date(payload['birth_date']),
         birth_state_cd: payload['place_of_birth_state'],
         birth_city_nm: payload['place_of_birth_city'],
         file_nbr: payload['va_file_number'],
         ssn_nbr: payload['ssn'],
-        death_dt: death_date,
+        death_dt: format_date(payload['death_date']),
         ever_maried_ind: payload['ever_married_ind'],
         vet_ind: payload['vet_ind'],
-        martl_status_type_cd: payload['martl_status_type_cd'],
+        martl_status_type_cd: 'Married',
+        # martl_status_type_cd: payload['martl_status_type_cd'],
         ssn: @user.ssn # Just here to make mocks work
       )
     end
@@ -144,9 +143,9 @@ module BGS
         jrn_status_type_cd: "U",
         jrn_user_id: Settings.bgs.client_username,
         family_rlnshp_type_nm: dependent[:family_relationship_type_name],
-        event_dt: dependent[:event_date],
-        begin_dt: dependent[:begin_date],
-        end_dt: dependent[:end_date],
+        event_dt: format_date(dependent[:event_date]),
+        begin_dt: format_date(dependent[:begin_date]),
+        end_dt: format_date(dependent[:end_date]),
         marage_state_cd: dependent[:marriage_state], # FE is sending us a full state name. We need code for this
         marage_city_nm: dependent[:marriage_city],
         marage_trmntn_state_cd: dependent[:divorce_state], # dependent.divorce_state this needs to be 2 digit code
@@ -166,9 +165,9 @@ module BGS
         jrn_status_type_cd: "U",
         jrn_user_id: Settings.bgs.client_username,
         vnp_ptcpnt_id: participant_id,
-        gradtn_dt: payload.dig('current_term_dates', 'expected_graduation_date'),
-        last_term_start_dt: payload.dig('last_term_school_information', 'term_begin'),
-        last_term_end_dt: payload.dig('last_term_school_information', 'date_term_ended'),
+        gradtn_dt: format_date(payload.dig('current_term_dates', 'expected_graduation_date')),
+        last_term_start_dt: format_date(payload.dig('last_term_school_information', 'term_begin')),
+        last_term_end_dt: format_date(payload.dig('last_term_school_information', 'date_term_ended')),
         prev_hours_per_wk_num: payload.dig('last_term_school_information', 'hours_per_week'),
         prev_sessns_per_wk_num: payload.dig('last_term_school_information', 'classes_per_week'),
         prev_school_nm: payload.dig('last_term_school_information', 'name'),
@@ -191,7 +190,7 @@ module BGS
         curnt_sessns_per_wk_num: payload.dig('program_information', 'classes_per_week'),
         curnt_hours_per_wk_num: payload.dig('program_information', 'hours_per_week'),
         school_actual_expctd_start_dt: payload.dig('current_term_dates', 'official_school_start_date'),
-        school_term_start_dt: payload.dig('current_term_dates', 'expected_student_start_date'),
+        school_term_start_dt: format_date(payload.dig('current_term_dates', 'expected_student_start_date')),
         ssn: @user.ssn # Just here to make the mocks work
       )
     end
@@ -210,11 +209,11 @@ module BGS
         real_estate_amt: payload.dig('student_networth_information', 'real_estate'),
         other_asset_amt: payload.dig('student_networth_information', 'other_assets'),
         rmks: payload.dig('student_networth_information', 'remarks'),
-        marage_dt: payload.dig('student_address_marriage_tuition', 'marriage_date'),
+        marage_dt: format_date(payload.dig('student_address_marriage_tuition', 'marriage_date')),
         agency_paying_tuitn_nm: payload.dig('student_address_marriage_tuition', 'agency_name'),
         stock_bond_amt: payload.dig('student_networth_information', 'securities'),
         govt_paid_tuitn_ind: gov_paid_tuition,
-        govt_paid_tuitn_start_dt: payload.dig('student_address_marriage_tuition', 'date_payments_began'),
+        govt_paid_tuitn_start_dt: format_date(payload.dig('student_address_marriage_tuition', 'date_payments_began')),
         term_year_emplmt_income_amt: payload.dig('student_earnings_from_school_year', 'earnings_from_all_employment'),
         term_year_other_income_amt: payload.dig('student_earnings_from_school_year', 'all_other_income'),
         term_year_ssa_income_amt: payload.dig('student_earnings_from_school_year', 'annual_social_security_payments'),
@@ -266,15 +265,18 @@ module BGS
     # HEY we were using 796149080 as file_number and ssn to make it work. Changed it to get the mock response working
     # We get "index for PL/SQL table out of range for host" when we try to use the user's ssn in file_number
     def insert_benefit_claim(vnp_benefit_claim, veteran)
+		  # <endProductCode>130DPNEBNADJ</endProductCode>
+		  # <endProductName>endProductNameTest</endProductName>
       service.claims.insert_benefit_claim(
-        file_number: veteran[:file_number], # 796149080 This is not working with file number in the payload or the ssn value getting annot insert NULL into ("CORPPROD"."PERSON"."LAST_NM")
-        ssn: veteran[:ssn_number], # this is actually needed for the service call Might want to use the payload value
-        ptcpnt_id_claimant: @user.participant_id,
-        claimant_ssn: veteran[:ssn_number],
+        file_number: @user.ssn, # 796149080 This is not working with file number in the payload or the ssn value getting annot insert NULL into ("CORPPROD"."PERSON"."LAST_NM")
+        ssn: @user.ssn, # this is actually needed for the service call Might want to use the payload value
+        # ptcpnt_id_claimant: @user.participant_id,
+        # claimant_ssn: @user.ssn,
         benefit_claim_type: "1", # this is intentionally hard coded
         payee: "00", # intentionally left hard-coded
         end_product: veteran[:benefit_claim_type_end_product], # must be unique
-        end_product_code: vnp_benefit_claim[:vnp_benefit_claim_type_code],
+        # end_product_code: vnp_benefit_claim[:vnp_benefit_claim_type_code],
+        end_product_code: '130DPNEBNADJ',
         first_name: veteran[:first_name], # Might want to use the payload value
         last_name: veteran[:last_name], # Might want to use the payload value
         address_line1: veteran[:address_line_one],
@@ -286,15 +288,18 @@ module BGS
         email_address: veteran[:email_address],
         country: veteran[:address_country], # We need the country code for this payload is sending the whole country name
         disposition: "M", # intentionally left hard-coded
-        section_unit_no: "335", # "VA office code". Tried location id's from user object, failed. Maybe we'll get it from the FE
+        # section_unit_no: "335", # "VA office code". Tried location id's from user object, failed. Maybe we'll get it from the FE
+        section_unit_no: "555",
         folder_with_claim: "N", # intentionally left hard-coded
-        end_product_name: '130 - Automated Dependency 686c', # not sure what this is
+        # end_product_name: '130 - Automated Dependency 686c', # not sure what this is
+        end_product_name: 'endProductNameTest',
         pre_discharge_indicator: "N", # intentionally left hard-coded
         date_of_claim: Time.current.strftime("%m/%d/%Y"),
       )
     end
 
     def vnp_bnft_claim_update(benefit_claim_record, vnp_benefit_claim_record)
+      binding.pry
       service.vnp_bnft_claim.vnp_bnft_claim_update(
         vnp_proc_id: vnp_benefit_claim_record[:vnp_proc_id],
         vnp_bnft_claim_id: vnp_benefit_claim_record[:vnp_benefit_claim_id],
@@ -311,7 +316,7 @@ module BGS
         pgm_type_cd: benefit_claim_record[:program_type_code],
         ptcpnt_clmant_id: vnp_benefit_claim_record[:participant_claimant_id],
         status_type_cd: benefit_claim_record[:status_type_code],
-        svc_type_cd: benefit_claim_record[:service_type_code],
+        svc_type_cd: 'CP',
         ssn: @user.ssn # Just here to make mocks work
       )
     end
@@ -321,6 +326,14 @@ module BGS
         external_uid: @user.icn,
         external_key: @user.email
       )
+    end
+
+    private
+
+    def format_date(date)
+      return nil if date.nil?
+
+      Date.parse(date).to_time.iso8601
     end
   end
 end

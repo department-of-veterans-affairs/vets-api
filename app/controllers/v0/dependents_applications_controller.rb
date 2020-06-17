@@ -5,7 +5,7 @@ module V0
     def create
       # dependents_hash = dependent_params.to_h
       # dependents_hash = params
-      bgs_dependent_service.modify_dependents(nil)
+      bgs_dependent_service.modify_dependents(dependent_params)
       render json: {status: 'ok'}
     end
 

@@ -4,14 +4,14 @@ module BGS
   class VnpVeteran < Base
     def initialize(proc_id:, payload:, user:)
       @proc_id = proc_id
-      @veteran_info = formatted_params(payload)
+      @veteran_info = formatted_params(payload, user)
 
       super(user) # is this cool? Might be smelly. Might indicate a new class/object 🤔
     end
 
     def create
       participant = create_participant(@proc_id, nil)
-      # claim_type_end_product = find_benefit_claim_type_increment
+      claim_type_end_product = find_benefit_claim_type_increment
       person = create_person(@proc_id, participant[:vnp_ptcpnt_id], @veteran_info)
       create_phone(@proc_id, participant[:vnp_ptcpnt_id], @veteran_info)
       address = create_address(@proc_id, participant[:vnp_ptcpnt_id], @veteran_info)
@@ -38,11 +38,13 @@ module BGS
 
     private
 
-    def formatted_params(payload)
+    def formatted_params(payload, user)
       dependents_application = payload['dependents_application']
       vet_info = [
         *payload['veteran_information'],
-        *payload.dig('veteran_information', 'full_name'),
+        ['first', user.first_name],
+        ['middle', user.middle_name],
+        ['last', user.last_name],
         *dependents_application.dig('veteran_contact_information'),
         *dependents_application.dig('veteran_contact_information', 'veteran_address'),
         ['vet_ind', 'Y']
@@ -52,7 +54,6 @@ module BGS
         vet_info << ['martl_status_type_cd', dependents_application['current_marriage_information']['type']]
       end
 
-      # ?
       vet_info.to_h
     end
   end
