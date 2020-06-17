@@ -75,7 +75,7 @@
         }
       },
       {
-        "start_date": "2000-01-31",
+        "start_date": "2002-01-31",
         "start_location": {"state": "FL", "city": "Miami"},
         "reason_marriage_ended": "OTHER",
         "reason_marriage_ended_other": "Just because",
@@ -86,6 +86,34 @@
           "middle": "Lauren",
           "last": "Williams",
           "suffix": "Jr"
+        }
+      },
+      {
+        "start_date": "1999-12-15",
+        "start_location": {"state": "PA", "city": "Philadelphia"},
+        "reason_marriage_ended": "report_divorce",
+        "reason_marriage_ended_other": "DIVORCE",
+        "end_date": "2001-07-04",
+        "end_location": {"state": "NY", "city": "New York"},
+        "full_name": {
+          "first": "Samantha",
+          "middle": "Grace",
+          "last": "Davis",
+          "suffix": "Sr"
+        }
+      },
+      {
+        "start_date": "1996-06-04",
+        "start_location": {"state": "TX", "city": "Austin"},
+        "reason_marriage_ended": "ANNULMENT",
+        "reason_marriage_ended_other": "Annulled",
+        "end_date": "1998-01-08",
+        "end_location": {"state": "TX", "city": "Houston"},
+        "full_name": {
+          "first": "Susan",
+          "middle": "B",
+          "last": "Anthony",
+          "suffix": "I"
         }
       }
     ],

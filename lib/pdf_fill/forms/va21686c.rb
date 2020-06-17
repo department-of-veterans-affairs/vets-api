@@ -7,6 +7,7 @@ module PdfFill
     class Va21686c < FormBase
       include FormHelper
       ITERATOR = PdfFill::HashConverter::ITERATOR
+
       KEY = {
         'veteran_information' => {
           'full_name' => {
@@ -509,14 +510,14 @@ module PdfFill
               'annulment' => { key: 'form1[0].#subform[18].RadioButtonList[0]' },
               'OTHER' => { key: 'form1[0].#subform[18].RadioButtonList[3]' }
             }, # end of reason marriage ended
-            'reason_marriage_ended_other' => { # XXX this section seems wiggity wack
+            #'reason_marriage_ended_other' => { # XXX this section seems wiggity wack
               #key: "form1[0].#subform[18].CHILDFirstName[%iterator%]",
-              key: "form1[0].#subform[18].CHILDFirstName[1]",
+              #key: "form1[0].#subform[18].CHILDFirstName[1]",
               #limit: 12, #  XXX THIS BREAKS
-              question_num: '14A 3',
-              question_suffix: 'A',
-              question_text: 'INFORMATION NEEDED TO ADD SPOUSE > PREVIOUS MARRIAGE HISTORY > REASON FOR TERMINATION'
-            }, # end of reason of marriage ended other
+              #question_num: '14A 3',
+              #question_suffix: 'A',
+              #question_text: 'INFORMATION NEEDED TO ADD SPOUSE > PREVIOUS MARRIAGE HISTORY > REASON FOR TERMINATION'
+            #}, # end of reason of marriage ended other
             'end_date' => {
               'month' => {
                 key: 'form1[0].#subform[18].DOBmonth[3]',
@@ -1277,7 +1278,38 @@ module PdfFill
           } # end child_stopped_attending_school
           # -----------------  SECTION IX: REMARKS  ----------------- #
 
-        } # end dependents_application
+        }, # end dependents_application
+        #'remarks' => {
+          'remarks_line1' => {
+            key: 'form1[0].#subform[31].#subform[32].#subform[33].Remarks[0]',
+            limit: 35,
+            question_num: 25,
+            question_suffix: 'A',
+            question_text: 'REMARKS'
+          },
+          'remarks_line2' => {
+            key: 'form1[0].#subform[31].#subform[32].#subform[33].Remarks[1]',
+            limit: 35,
+            question_num: 25,
+            question_suffix: 'B',
+            question_text: 'REMARKS'
+          },
+          # @TODO remarks
+        #},
+        'signature' => {
+          key: 'form1[0].#subform[34]'
+        },
+        'signature_date' => {
+          'month' => {
+            key: 'form1[0].#subform[31].#subform[32].#subform[33].DateMM[0]'
+          },
+          'day' => {
+            key: 'form1[0].#subform[31].#subform[32].#subform[33].DateDD[0]'
+          },
+          'year' => {
+            key: 'form1[0].#subform[31].#subform[32].#subform[33].DateYYYY[0]'
+          }
+        } # end signature_date
       }.freeze
 
       def merge_fields
@@ -1293,6 +1325,12 @@ module PdfFill
         merge_death_helpers
         merge_child_marriage_helpers
         merge_child_stopped_attending_school_helpers
+
+        expand_signature(@form_data['veteran_information']['full_name'])
+        @form_data['signature_date'] = split_date(@form_data['signatureDate'])
+
+        @form_data['remarks_line1'] = "REMARKS GO HERE"
+        @form_data['remarks_line2'] = "REMARKS REMARKS REMARKS"
 
         @form_data
       end
@@ -1513,10 +1551,11 @@ module PdfFill
       def expand_living_expenses_paid
         living_expenses_paid = @form_data['dependents_application']['step_children'][0]['living_expenses_paid']
         @form_data['dependents_application']['step_children'][0]['living_expenses_paid'] = {
+          # @TODO populate array
           # @TODO check these values coming from FE
-          'more_than_half' => living_expenses_paid == 'more_than_half' ? 1 : 'Off',
+          'more_than_half' => living_expenses_paid == 'More than half' ? 1 : 'Off',
           'half' => living_expenses_paid == 'Half' ? 1 : 'Off',
-          'less_than_half' => living_expenses_paid == 'less_than_half' ? 1 : 'Off'
+          'less_than_half' => living_expenses_paid == 'Less than half' ? 1 : 'Off'
         }
       end
 
