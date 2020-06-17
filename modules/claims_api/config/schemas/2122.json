@@ -2,9 +2,6 @@
   "$schema": "http://json-schema.org/draft-07/schema#",
   "description": "Form 2122 Schema",
   "type": "object",
-  "required": [
-    "serviceOrganization"
-  ],
   "definitions": {
     "addressLine": {
       "type": "string",
@@ -52,9 +49,8 @@
     },
     "mailingAddress": {
       "type": "object",
-      "required": [
-      ],
-      "properties" : {
+      "additionalProperties": false,
+      "properties": {
         "numberAndStreet": {
           "$ref": "#/definitions/addressLine"
         },
@@ -74,37 +70,18 @@
         "zipLastFour": {
           "type": "string",
           "pattern": "^\\d{4}?$"
-        },
-        "additionalProperties": false
+        }
       }
     }
   },
   "properties": {
-    "veteran": {
+    "data": {
       "type": "object",
       "required": [
-        "address",
-        "phone",
-        "email"
+        "type",
+        "attributes"
       ],
-      "properties": {
-        "address":        { "$ref": "#/definitions/mailingAddress" },
-        "phone":          { "$ref": "#/definitions/phone" },
-        "email":          { "$ref": "#/definitions/email" },
-        "serviceBranch":  { "$ref": "#/definitions/serviceBranch" }
-      }
-    },
-    "claimant": {
-      "type": "object",
-      "required": [
-        "firstName",
-        "middleInitial",
-        "lastName",
-        "address",
-        "phone",
-        "email",
-        "relationship"
-      ],
+      "additionalProperties": false,
       "properties": {
         "firstName":     { "type": "string" },
         "middleInitial": { "type": "string" },
@@ -155,8 +132,7 @@
             "SICKLE CELL"
           ]
         }
-      ]
-    },
-    "consentAddressChange": { "type": "boolean" }
+      }
+    }
   }
 }
