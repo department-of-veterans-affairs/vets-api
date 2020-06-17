@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe HcaSubmissionFailureMailer, type: [:mailer] do
+RSpec.describe HCASubmissionFailureMailer, type: [:mailer] do
   subject do
     described_class.build(email, google_analytics_client_id).deliver_now
   end

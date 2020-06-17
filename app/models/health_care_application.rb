@@ -162,6 +162,6 @@ class HealthCareApplication < ApplicationRecord
   end
 
   def send_failure_mail
-    HcaSubmissionFailureMailer.build(parsed_form['email'], google_analytics_client_id).deliver_now
+    HCASubmissionFailureMailer.build(parsed_form['email'], google_analytics_client_id).deliver_now
   end
 end
