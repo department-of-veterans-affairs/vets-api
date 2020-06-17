@@ -70,8 +70,7 @@
         "zipLastFour": {
           "type": "string",
           "pattern": "^\\d{4}?$"
-        },
-        "additionalProperties": false
+        }
       }
     }
   },
@@ -82,6 +81,7 @@
         "type",
         "attributes"
       ],
+      "additionalProperties": false,
       "properties": {
         "firstName":     { "type": "string" },
         "middleInitial": { "type": "string" },
@@ -132,8 +132,7 @@
             "SICKLE CELL"
           ]
         }
-      ]
-    },
-    "consentAddressChange": { "type": "boolean" }
+      }
+    }
   }
 }
