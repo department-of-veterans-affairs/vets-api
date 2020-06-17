@@ -25,6 +25,7 @@ module Users
       @list << BackendServices::EVSS_CLAIMS if user.authorize :evss, :access?
       @list << BackendServices::FORM526 if user.authorize :evss, :access_form526?
       @list << BackendServices::ORIGINAL_CLAIMS if user.authorize :evss, :access_original_claims?
+      @list << BackendServices::ADD_PERSON if user.authorize :mvi, :access_add_person?
       @list << BackendServices::USER_PROFILE if user.can_access_user_profile?
       @list << BackendServices::APPEALS_STATUS if user.authorize :appeals, :access?
       @list << BackendServices::ID_CARD if user.can_access_id_card?

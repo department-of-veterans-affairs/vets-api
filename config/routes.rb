@@ -45,6 +45,8 @@ Rails.application.routes.draw do
       get 'separation_locations'
     end
 
+    post '/mvi_users/:id', to: 'mvi_users#submit'
+
     resource :upload_supporting_evidence, only: :create
 
     resource :sessions, only: [] do
