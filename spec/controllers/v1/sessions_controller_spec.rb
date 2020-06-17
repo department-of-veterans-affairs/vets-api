@@ -311,8 +311,8 @@ RSpec.describe V1::SessionsController, type: :controller do
         )
         allow(SAML::User).to receive(:new).and_return(saml_user)
         expect { post(:saml_callback) }
-                .to trigger_statsd_increment(described_class::STATSD_LOGIN_INBOUND,
-                                             tags: ["context:mhv", 'version:v1', 'status:success'])
+          .to trigger_statsd_increment(described_class::STATSD_LOGIN_INBOUND,
+                                       tags: ['context:mhv', 'version:v1', 'status:success'])
       end
 
       context 'for a user with semantically invalid SAML attributes' do
