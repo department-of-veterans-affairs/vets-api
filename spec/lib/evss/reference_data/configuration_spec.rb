@@ -5,7 +5,7 @@ require 'rails_helper'
 describe EVSS::ReferenceData::Configuration do
   describe '#service_name' do
     it 'has the expected service name' do
-      expect(described_class.instance.service_name).to eq('EVSS/AWS/ReferenceData')
+      expect(described_class.instance.service_name).to eq('EVSS/ReferenceData')
     end
   end
 
