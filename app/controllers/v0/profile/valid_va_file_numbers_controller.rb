@@ -10,14 +10,14 @@ module V0
         response = service.find_person_by_participant_id
 
         render(
-          json: valid_va_file_number?(response),
+          json: valid_va_file_number_data(response),
           serializer: ValidVaFileNumberSerializer
         )
       end
 
       private
 
-      def valid_va_file_number?(service_response)
+      def valid_va_file_number_data(service_response)
         return { file_nbr: true } if service_response[:file_nbr].present?
 
         { file_nbr: false }
