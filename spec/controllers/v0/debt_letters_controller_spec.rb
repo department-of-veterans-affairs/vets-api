@@ -29,4 +29,20 @@ RSpec.describe V0::DebtLettersController, type: :controller do
       expect(JSON.parse(response.body)).to eq(list_letters_res)
     end
   end
+
+  describe '#show' do
+    let(:document_id) { '{93631483-E9F9-44AA-BB55-3552376400D8}' }
+    let(:content) { File.read('spec/fixtures/pdf_fill/extras.pdf') }
+
+    before do
+      expect(letter_downloader).to receive(:get_letter).with(document_id).and_return(content)
+    end
+
+    it 'sends the letter pdf' do
+      get(:show, params: { id: document_id })
+
+      expect(response.header['Content-Type']).to eq('application/pdf')
+      expect(response.body).to eq(content)
+    end
+  end
 end

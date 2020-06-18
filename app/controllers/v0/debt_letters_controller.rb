@@ -7,6 +7,11 @@ module V0
     end
 
     def show
+      send_data(
+        service.get_letter(params[:id]),
+        type: 'application/pdf',
+        filename: 'letter.pdf'
+      )
     end
 
     private
