@@ -11,9 +11,11 @@ module Common
         @resource = resource
       end
 
+      # rubocop:disable Layout/LineLength
       def errors
         Array(Common::Exceptions::SerializableError.new(i18n_interpolated(detail: { sort_criteria: @sort_criteria, resource: @resource })))
       end
+      # rubocop:enable Layout/LineLength
     end
   end
 end

@@ -64,6 +64,8 @@ module Common
         #
         # @return Common::Exceptions::External::BackendServiceException execption with the class' namespace
         #
+
+        # rubocop:disable Layout/LineLength
         def service_exception
           if current_module.const_defined?('ServiceException')
             current_module.const_get('ServiceException')
@@ -71,6 +73,7 @@ module Common
             current_module.const_set('ServiceException', Class.new(Common::Exceptions::External::BackendServiceException))
           end
         end
+        # rubocop:enable Layout/LineLength
 
         ##
         # Default request options, sets the read and open timeouts.

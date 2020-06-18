@@ -19,7 +19,9 @@ describe EVSS::DisabilityCompensationAuthHeaders do
   end
   # rubocop:enable all
 
+  # rubocop:disable Layout/LineLength
   it 'raises an error if gender is not included' do
     expect { invalid_headers.add_headers(auth_headers) }.to raise_error(Common::Exceptions::External::UnprocessableEntity)
   end
+  # rubocop:enable Layout/LineLength
 end

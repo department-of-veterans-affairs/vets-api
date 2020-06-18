@@ -157,7 +157,9 @@ module Common
     rescue => e
       raise e if e.is_a?(Common::Exceptions::BaseError)
 
+      # rubocop:disable Layout/LineLength
       raise Common::Exceptions::Internal::InvalidFiltersSyntax.new(nil, detail: 'The syntax for your filters is invalid')
+      # rubocop:enable Layout/LineLength
     end
 
     def paginator(page, per_page)

@@ -106,6 +106,7 @@ module VaFacilities
       address_difference = (address_params - param_keys)
       lat_lng_difference = (lat_lng_params - param_keys)
 
+      # rubocop:disable Layout/LineLength
       unless valid_params?(address_difference, lat_lng_difference)
         if ambiguous?(address_difference, lat_lng_difference, address_params, lat_lng_params)
           raise Common::Exceptions::Internal::AmbiguousRequest.new(detail: AMBIGUOUS_PARAMS_ERR)
@@ -115,6 +116,7 @@ module VaFacilities
           raise Common::Exceptions::Internal::ParameterMissing.new(lat_lng_difference.to_s, detail: MISSING_NEARBY_PARAMS_ERR)
         end
       end
+      # rubocop:enable Layout/LineLength
     end
 
     private

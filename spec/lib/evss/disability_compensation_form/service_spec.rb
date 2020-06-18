@@ -63,6 +63,7 @@ describe EVSS::DisabilityCompensationForm::Service do
         allow_any_instance_of(Faraday::Connection).to receive(:post).and_raise(Faraday::TimeoutError)
       end
 
+      # rubocop:disable Layout/LineLength
       it 'logs an error and raise GatewayTimeout' do
         expect(StatsD).to receive(:increment).once.with(
           'api.evss.submit_form526.fail', tags: ['error:Common::Exceptions::External::GatewayTimeout']
@@ -70,6 +71,7 @@ describe EVSS::DisabilityCompensationForm::Service do
         expect(StatsD).to receive(:increment).once.with('api.evss.submit_form526.total')
         expect { subject.submit_form526(valid_form_content) }.to raise_error(Common::Exceptions::External::GatewayTimeout)
       end
+      # rubocop:enable Layout/LineLength
     end
   end
 end

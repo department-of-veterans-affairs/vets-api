@@ -94,6 +94,7 @@ RSpec.describe PagerDuty::PollMaintenanceWindows, type: :job do
       Settings.sentry.dsn = nil
     end
 
+    # rubocop:disable Layout/LineLength
     it 'bails on backend error' do
       expect(client_stub).to receive(:get_all).and_raise(Common::Exceptions::External::BackendServiceException)
       expect(Raven).to receive(:capture_exception).with(Common::Exceptions::External::BackendServiceException, level: 'error')
@@ -107,5 +108,6 @@ RSpec.describe PagerDuty::PollMaintenanceWindows, type: :job do
 
       described_class.new.perform
     end
+    # rubocop:enable Layout/LineLength
   end
 end

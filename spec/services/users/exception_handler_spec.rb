@@ -9,6 +9,7 @@ RSpec.describe Users::ExceptionHandler do
   let(:error_body) { { 'status' => 'some service unavailable status' } }
   let(:service) { 'Vet360' }
 
+  # rubocop:disable Layout/LineLength
   describe '.initialize' do
     context 'when initialized without a nil error' do
       it 'raises an exception' do
@@ -16,6 +17,7 @@ RSpec.describe Users::ExceptionHandler do
       end
     end
   end
+  # rubocop:enable Layout/LineLength
 
   describe '#serialize_error' do
     context 'with a Common::Client::Errors::ClientError' do

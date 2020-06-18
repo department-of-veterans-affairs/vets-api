@@ -109,6 +109,7 @@ describe DecisionReview::Service do
       end
     end
 
+    # rubocop:disable Layout/LineLength
     context 'with an http timeout' do
       before do
         allow_any_instance_of(Faraday::Connection).to receive(:post).and_raise(Faraday::TimeoutError)
@@ -136,6 +137,7 @@ describe DecisionReview::Service do
         end
       end
     end
+    # rubocop:enable Layout/LineLength
   end
 
   describe '#get_higher_level_reviews_intake_status' do

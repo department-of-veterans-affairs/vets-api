@@ -109,10 +109,12 @@ describe 'sm client' do
         expect { client.post_create_message(draft) }.to raise_error(Common::Exceptions::Internal::ValidationErrors)
       end
 
+      # rubocop:disable Layout/LineLength
       it 'cannot send draft as reply', :vcr do
         draft = attributes_for(:message_draft, id: 655_626).slice(:id, :subject, :body, :recipient_id)
         expect { client.post_create_message_reply(631_270, draft) }.to raise_error(Common::Exceptions::Internal::ValidationErrors)
       end
+      # rubocop:enable Layout/LineLength
     end
 
     context 'nested resources' do

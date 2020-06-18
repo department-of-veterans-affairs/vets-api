@@ -65,6 +65,7 @@ RSpec.describe Facilities::AccessDataDownload, type: :job do
         Settings.sentry.dsn = nil
       end
 
+      # rubocop:disable Layout/LineLength
       it 'bails on backend error' do
         expect(sat_client_stub).to receive(:download).and_raise(Common::Exceptions::External::BackendServiceException)
         expect(wait_client_stub).to receive(:download).and_return(wait_time_data)
@@ -89,6 +90,7 @@ RSpec.describe Facilities::AccessDataDownload, type: :job do
 
         described_class.new.perform
       end
+      # rubocop:enable Layout/LineLength
     end
 
     context 'handles wait time errors' do
@@ -100,6 +102,7 @@ RSpec.describe Facilities::AccessDataDownload, type: :job do
         Settings.sentry.dsn = nil
       end
 
+      # rubocop:disable Layout/LineLength
       it 'bails on backend error' do
         expect(sat_client_stub).to receive(:download).and_return(satisfaction_data)
         expect(wait_client_stub).to receive(:download).and_raise(Common::Exceptions::External::BackendServiceException)
@@ -124,6 +127,7 @@ RSpec.describe Facilities::AccessDataDownload, type: :job do
 
         described_class.new.perform
       end
+      # rubocop:enable Layout/LineLength
     end
   end
 end

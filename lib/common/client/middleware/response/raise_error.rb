@@ -25,6 +25,7 @@ module Common
 
           private
 
+          # rubocop:disable Layout/LineLength
           def raise_error!
             if status&.between?(400, 599)
               raise Common::Exceptions::External::BackendServiceException.new(service_i18n_key, response_values, status, body)
@@ -32,6 +33,7 @@ module Common
               raise BackendUnhandledException, "Unhandled Exception - status: #{status}, body: #{body}"
             end
           end
+          # rubocop:enable Layout/LineLength
 
           def service_i18n_key
             if body['code']
