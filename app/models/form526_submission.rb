@@ -125,10 +125,7 @@ class Form526Submission < ApplicationRecord
   def workflow_complete_handler(_status, options)
     submission = Form526Submission.find(options['submission_id'])
     if submission.form526_job_statuses.all?(&:success?)
-      workflow_batch = Sidekiq::Batch.new
-      workflow_batch.jobs do
-        send_form526_confirmation_email if Flipper.enabled?(:form526_confirmation_email, @current_user)
-      end
+      send_form526_confirmation_email if Flipper.enabled?(:form526_confirmation_email, @current_user)
       submission.workflow_complete = true
       submission.save
     end
