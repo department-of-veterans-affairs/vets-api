@@ -99,7 +99,8 @@ module MasterVeteranIndex
     # rubocop:enable Metrics/MethodLength
 
     def self.service_is_up?
-      last_mvi_outage = Breakers::Outage.find_latest(service: MasterVeteranIndex::Configuration.instance.breakers_service)
+      mvi_breakers_service = MasterVeteranIndex::Configuration.instance.breakers_service
+      last_mvi_outage = Breakers::Outage.find_latest(service: mvi_breakers_service)
       last_mvi_outage.blank? || last_mvi_outage.end_time.present?
     end
 

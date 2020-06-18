@@ -134,7 +134,8 @@ module Form1010cg
     end
 
     # MasterVeteranIndex::Service requires a valid UserIdentity to run a search, but only reads the user's attributes.
-    # This method will build a valid UserIdentity, so MasterVeteranIndex::Service can pluck the name, ssn, dob, and gender.
+    # This method will build a valid UserIdentity,
+    # so MasterVeteranIndex::Service can pluck the name, ssn, dob, and gender.
     #
     # @param form_subject [String] The key in the claim's data that contains this person's info (ex: "veteran")
     # @return [UserIdentity] A valid UserIdentity for the given form_subject

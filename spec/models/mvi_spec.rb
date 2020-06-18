@@ -14,17 +14,29 @@ describe MVI, skip_mvi: true do
       participant_id: '32397028'
     }
   end
+
+  let(:person_response_ok) { MasterVeteranIndex::Responses::AddPersonResponse::RESPONSE_STATUS[:ok] }
+
   let(:profile_response) do
     MasterVeteranIndex::Responses::FindProfileResponse.new(
-      status: MasterVeteranIndex::Responses::FindProfileResponse::RESPONSE_STATUS[:ok],
+      status: person_response_ok,
       profile: mvi_profile
     )
   end
-  let(:profile_response_error) { MasterVeteranIndex::Responses::FindProfileResponse.with_server_error(server_error_exception) }
-  let(:profile_response_not_found) { MasterVeteranIndex::Responses::FindProfileResponse.with_not_found(not_found_exception) }
+
+  let(:find_profile_response_const) { MasterVeteranIndex::Responses::FindProfileResponse }
+
+  let(:profile_response_error) do
+    find_profile_response_const.with_server_error(server_error_exception)
+  end
+
+  let(:profile_response_not_found) do
+    find_profile_response_const.with_not_found(not_found_exception)
+  end
+
   let(:add_response) do
     MasterVeteranIndex::Responses::AddPersonResponse.new(
-      status: MasterVeteranIndex::Responses::AddPersonResponse::RESPONSE_STATUS[:ok],
+      status: person_response_ok,
       mvi_codes: mvi_codes
     )
   end

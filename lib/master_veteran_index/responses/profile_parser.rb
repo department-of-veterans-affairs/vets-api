@@ -46,7 +46,8 @@ module MasterVeteranIndex
         @code = locate_element(@original_body, CODE_XPATH)
       end
 
-      # MasterVeteranIndex returns failed or invalid codes if the request is malformed or MasterVeteranIndex throws an internal error.
+      # MasterVeteranIndex returns failed or invalid codes if the request is
+      # malformed or MasterVeteranIndex throws an internal error.
       #
       # @return [Boolean] has failed or invalid code?
       def failed_or_invalid?
