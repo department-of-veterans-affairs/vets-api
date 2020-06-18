@@ -21,6 +21,7 @@ module V1
     STATSD_LOGIN_NEW_USER_KEY = 'api.auth.new_user'
     STATSD_LOGIN_STATUS_SUCCESS = 'api.auth.login.success'
     STATSD_LOGIN_STATUS_FAILURE = 'api.auth.login.failure'
+    STATSD_LOGIN_INBOUND = 'api.auth.login.inbound'
     STATSD_LOGIN_SHARED_COOKIE = 'api.auth.sso_shared_cookie'
     STATSD_LOGIN_LATENCY = 'api.auth.latency'
 
@@ -168,6 +169,7 @@ module V1
     def login_stats(status, _saml_response, user_session_form)
       tracker = url_service(user_session_form&.saml_uuid).tracker
       type = tracker.payload_attr(:type)
+      inbound = tracker.payload_attr(:inbound_ssoe)
       tags = ["context:#{type}", VERSION_TAG]
       case status
       when :success
@@ -175,9 +177,11 @@ module V1
         # track users who have a shared sso cookie
         StatsD.increment(STATSD_LOGIN_SHARED_COOKIE, tags: tags)
         StatsD.increment(STATSD_LOGIN_STATUS_SUCCESS, tags: tags)
+        StatsD.increment(STATSD_LOGIN_INBOUND, tags: tags + ['status:success']) if inbound
         StatsD.measure(STATSD_LOGIN_LATENCY, tracker.age, tags: tags)
       when :failure
         StatsD.increment(STATSD_LOGIN_STATUS_FAILURE, tags: tags)
+        StatsD.increment(STATSD_LOGIN_INBOUND, tags: tags + ['status:failure']) if inbound
       end
     end
 
