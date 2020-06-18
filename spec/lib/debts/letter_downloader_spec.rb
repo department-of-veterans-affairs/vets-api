@@ -4,6 +4,8 @@ require 'rails_helper'
 require Rails.root.join('modules', 'claims_api', 'spec', 'support', 'fake_vbms.rb')
 
 RSpec.describe Debts::LetterDownloader do
+  subject { described_class.new(file_number) }
+
   let(:file_number) { '796330625' }
   let(:vbms_client) { FakeVbms.new }
   let(:request_double) do
@@ -12,8 +14,6 @@ RSpec.describe Debts::LetterDownloader do
 
     request_double
   end
-
-  subject { described_class.new(file_number) }
 
   before do
     allow(VBMS::Client).to receive(:from_env_vars).and_return(vbms_client)
