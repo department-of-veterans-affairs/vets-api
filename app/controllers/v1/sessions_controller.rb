@@ -10,7 +10,7 @@ module V1
   class SessionsController < ApplicationController
     skip_before_action :verify_authenticity_token
 
-    REDIRECT_URLS = %w[signup mhv dslogon idme mfa verify slo].freeze
+    REDIRECT_URLS = %w[signup mhv dslogon idme custom mfa verify slo].freeze
 
     STATSD_SSO_NEW_KEY = 'api.auth.new'
     STATSD_SSO_NEW_FORCEAUTH = 'api.auth.new.forceauth'
@@ -34,8 +34,8 @@ module V1
       type = params[:type]
       raise Common::Exceptions::RoutingError, params[:path] unless REDIRECT_URLS.include?(type)
 
-      new_stats(type)
       url = redirect_url(type)
+      new_stats(type)
 
       if type == 'slo'
         Rails.logger.info("LOGOUT of type #{type}", sso_logging_info)
@@ -85,6 +85,9 @@ module V1
         url_service.dslogon_url
       when 'idme'
         url_service.idme_url
+      when 'custom'
+        raise Common::Exceptions::ParameterMissing.new('authn') unless params[:authn].present?
+        url_service.custom_url params[:authn]
       when 'mfa'
         url_service.mfa_url
       when 'verify'
