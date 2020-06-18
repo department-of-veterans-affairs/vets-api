@@ -7,6 +7,7 @@ module MasterVeteranIndex
 
     class ServiceError < MasterVeteranIndex::Errors::Base
       attr_reader :body
+
       def initialize(body = nil)
         @body = body
         super

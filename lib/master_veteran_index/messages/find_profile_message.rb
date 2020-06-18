@@ -4,7 +4,7 @@ require_relative 'find_profile_message_helpers'
 
 module MasterVeteranIndex
   module Messages
-   # Builds an MasterVeteranIndex SOAP XML message.
+    # Builds an MasterVeteranIndex SOAP XML message.
     #
     # = Usage
     # Call the .build passing in the candidate's given and family names, birth_date, and ssn.
