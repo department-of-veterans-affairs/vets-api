@@ -30,7 +30,11 @@ module EVSS
       FORM4142_OVERFLOW_TEXT = 'VA Form 21-4142/4142a has been completed by the applicant and sent to the ' \
                                'PMR contractor for processing in accordance with M21-1 III.iii.1.D.2.'
 
+      # EVSS validates this date using CST, at some point this may change to EST.
+      EVSS_TZ = 'Central Time (US & Canada)'
+
       def initialize(user, form_content, has_form4142)
+        @form_submission_date = Time.now.in_time_zone(EVSS_TZ).to_date
         @user = user
         @form_content = form_content
         @has_form4142 = has_form4142
@@ -56,7 +60,7 @@ module EVSS
         output_form.update(translate_veteran)
         output_form.update(translate_treatments)
         output_form.update(translate_disabilities)
-
+        output_form.update(translate_bdd)
         @translated_form
       end
 
@@ -615,7 +619,7 @@ module EVSS
       end
 
       def rad_date
-        # retrieve the most recent 'Release from Active Duty' Date
+        # retrieve the most recent Release from Active Duty (RAD) date
         return @rd if @rd
 
         service_episodes = @user.military_information.service_episodes_by_date
@@ -632,20 +636,56 @@ module EVSS
       end
 
       ###
-      # Benefits Delivery at Discharge (BDD)
+      # Translate Benefits Delivery at Discharge (BDD)
       ###
 
-      def bdd_qualified?
-        # follow up with FE about @user.military_information.service_episodes_by_date
-        if rad_date.blank?
-          return false
-        end
-
-        days_until_release = rad_date - Time.now.in_time_zone('Central Time (US & Canada)').to_date
-        90 <= days_until_release && days_until_release <= 180 ? true : false
+      def translate_bdd
+        evss_rad_date
+        return {
+          'bddQualified': bdd_qualified?
+        }
       end
 
+      def evss_rad_date
+        # retrieve the most recent Release from Active Duty (RAD) date
 
+        # FIX ME! How do we get service_episodes from the form input?
+        # option 1: What Silvio did, This seems like it makes a call to EMIS rather than translating the service periods
+        service_episodes = @user.military_information.service_episodes_by_date
+        # option 2: Maybe we need to explicitly call translate_service_periods instead? Something like...
+        service_episodes = translate_service_periods
+
+        # Date calculation has to be based on EVSS validation timezone
+        system_tz = Time.zone.name
+        Time.zone = EVSS_TZ
+        @evss_rd = Time.zone.parse(service_episodes.first&.end_date.to_s).to_date
+
+        # Validation through vets-json-schema should make this impossible. However, this was clearly a use case
+        # at some point https://github.com/department-of-veterans-affairs/vets-api/pull/1567.
+        # If this error isn't thrown after several months we can safely remove it this check.
+        if @evss_rd.blank?
+          raise Common::Exceptions::UnprocessableEntity.new(
+            detail: 'Missing military service end date',
+            source: 'DataTranslationAllClaim'
+          )
+        end
+
+        Time.zone = system_tz # Set back to original timezone
+      end
+
+      def bdd_qualified?
+        # To be bdd_qualified application should be submitted 180-90 days prior to Release from Active Duty (RAD) date.
+        # Applications < 90 days prior to release can be submitted but only with value as false.
+        days_until_release = @evss_rd - @form_submission_date
+
+        if days_until_release > 180
+          raise Common::Exceptions::UnprocessableEntity.new(
+            detail: 'User may not submit BDD more than 180 days prior to RAD date',
+            source: 'DataTranslationAllClaim'
+          )
+        end
+        days_until_release >= 90 ? true : false
+      end
     end
   end
 end
