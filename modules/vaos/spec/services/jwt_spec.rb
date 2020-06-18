@@ -18,7 +18,7 @@ describe VAOS::JWT do
       expect(subject.token).to be_a(String).and match(jwt_regex)
     end
 
-    context 'decoded payload' do
+    context 'with a decoded payload' do
       let(:decoded_payload) { JWT.decode(subject.token, rsa_private.public_key, true, algorithm: 'RS512').first }
 
       it 'includes a sub from MVI' do
@@ -51,6 +51,10 @@ describe VAOS::JWT do
 
       it 'includes a ssn from MVI' do
         expect(decoded_payload['ssn']).to eq('796061976')
+      end
+
+      it 'includes a exp(iration) timestamp' do
+        expect(decoded_payload['exp']).to eq(Time.now.utc.to_i + 900)
       end
 
       it 'includes keys' do

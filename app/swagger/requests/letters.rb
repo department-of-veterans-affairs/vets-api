@@ -52,6 +52,15 @@ module Swagger
           key :tags, %w[benefits_status]
 
           parameter :authorization
+
+          parameter do
+            key :name, :id
+            key :in, :path
+            key :description, 'The type of letter to be downloaded'
+            key :required, true
+            key :type, :string
+          end
+
           parameter do
             key :name, :body
             key :in, :body
