@@ -243,6 +243,26 @@ FactoryBot.define do
       end
     end
 
+    factory :unauthorized_bgs_user, traits: [:loa3] do
+      first_name { 'Charles' }
+      last_name { 'Bronson' }
+      last_signed_in { Time.zone.parse('2017-12-07T00:55:09Z') }
+      ssn { nil }
+
+      after(:build) do
+        stub_mvi(
+          build(
+            :mvi_profile,
+            edipi: '1007697216',
+            birls_id: '796043735',
+            participant_id: nil,
+            icn: nil,
+            birth_date: '1986-05-06T00:00:00+00:00'.to_date.to_s
+          )
+        )
+      end
+    end
+
     factory :blank_gender_user do
       gender { '' }
     end
