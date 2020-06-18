@@ -30,7 +30,7 @@ RSpec.describe Form526ConfirmationEmailJob, type: :worker do
         }
       end
 
-      it 'sends a confirmation email when an email address is provided' do
+      it 'sends a confirmation email' do
         requirements = {
           email_address: @email_address,
           template_id: Settings.vanotify
@@ -42,6 +42,14 @@ RSpec.describe Form526ConfirmationEmailJob, type: :worker do
 
         expect(notification_client).to receive(:send_email).with(requirements)
         subject.perform(123, @email_address)
+      end
+
+      it 'handles errors when sending an email' do
+        allow(Notifications::Client).to receive(:new).and_return(notification_client)
+        allow(notification_client).to receive(:send_email).and_raise(StandardError, 'some error')
+
+        expect { subject.perform(123, @email_address) }.not_to raise_error
+          .and trigger_statsd_increment('worker.form526_confirmation_email.error')
       end
 
       it 'returns one job triggered' do
