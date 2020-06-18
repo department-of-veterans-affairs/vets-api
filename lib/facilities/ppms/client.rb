@@ -49,6 +49,7 @@ module Facilities
           providers.each do |provider|
             provider.posCodes = request_params[:posCodes]
             provider.ProviderType = 'GroupPracticeOrAgency'
+            provider.set_hexdigest!
           end
           new_array.concat(providers)
         end.sort

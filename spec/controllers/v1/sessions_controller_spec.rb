@@ -304,6 +304,17 @@ RSpec.describe V1::SessionsController, type: :controller do
         expect(post(:saml_callback)).to redirect_to(Settings.ssoe.redirects['myvahealth'])
       end
 
+      it 'logs inbound stat when set in the tracker' do
+        SAMLRequestTracker.create(
+          uuid: login_uuid,
+          payload: { inbound_ssoe: 'true', type: 'mhv' }
+        )
+        allow(SAML::User).to receive(:new).and_return(saml_user)
+        expect { post(:saml_callback) }
+          .to trigger_statsd_increment(described_class::STATSD_LOGIN_INBOUND,
+                                       tags: ['context:mhv', 'version:v1', 'status:success'])
+      end
+
       context 'for a user with semantically invalid SAML attributes' do
         let(:invalid_attributes) do
           build(:ssoe_idme_mhv_loa3,
