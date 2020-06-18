@@ -15,6 +15,8 @@ ActiveSupport::Inflector.inflections do |inflect|
   inflect.acronym 'SSOe'
   inflect.acronym 'VAOS'
   inflect.acronym 'VBA'
+  inflect.acronym 'VC'
+  inflect.acronym 'VHA'
   inflect.acronym 'VIC'
   inflect.uncountable 'terms_and_conditions'
 end
