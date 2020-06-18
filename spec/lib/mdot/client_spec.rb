@@ -52,12 +52,12 @@ describe MDOT::Client, type: :mdot_helpers do
       it 'raises a 503' do
         VCR.use_cassette('mdot/get_supplies_503') do
           expect(StatsD).to receive(:increment).once.with(
-            'api.mdot.submit_order.fail', tags: [
+            'api.mdot.get_supplies.fail', tags: [
               'error:Common::Client::Errors::ClientError', 'status:503'
             ]
           )
           expect(StatsD).to receive(:increment).once.with(
-            'api.mdot.submit_order.total'
+            'api.mdot.get_supplies.total'
           )
           expect { subject.get_supplies }.to raise_error(
             MDOT::ServiceException
