@@ -40,7 +40,11 @@ describe MVI, skip_mvi: true do
       mvi_codes: mvi_codes
     )
   end
-  let(:add_response_error) { MasterVeteranIndex::Responses::AddPersonResponse.with_server_error(server_error_exception) }
+
+  let(:add_response_error) do
+    MasterVeteranIndex::Responses::AddPersonResponse.with_server_error(server_error_exception)
+  end
+
   let(:default_ttl) { REDIS_CONFIG[MVI::REDIS_CONFIG_KEY.to_s]['each_ttl'] }
   let(:failure_ttl) { REDIS_CONFIG[MVI::REDIS_CONFIG_KEY.to_s]['failure_ttl'] }
 
@@ -94,7 +98,8 @@ describe MVI, skip_mvi: true do
         expect(mvi.error).to be_nil
       end
       it 'returns an :error response but not cache it', :aggregate_failures do
-        allow_any_instance_of(MasterVeteranIndex::Service).to receive(:find_profile).and_return(profile_response_error)
+        allow_any_instance_of(MasterVeteranIndex::Service)
+          .to receive(:find_profile).and_return(profile_response_error)
         expect(mvi).not_to receive(:save)
         expect_any_instance_of(MasterVeteranIndex::Service).to receive(:find_profile).once
         expect(mvi.status).to eq('SERVER_ERROR')
@@ -102,7 +107,8 @@ describe MVI, skip_mvi: true do
         expect(mvi.error.class).to eq Common::Exceptions::BackendServiceException
       end
       it 'returns a :not_found response and cache it for a shorter time', :aggregate_failures do
-        allow_any_instance_of(MasterVeteranIndex::Service).to receive(:find_profile).and_return(profile_response_not_found)
+        allow_any_instance_of(MasterVeteranIndex::Service)
+          .to receive(:find_profile).and_return(profile_response_not_found)
         expect(mvi).to receive(:save).once
         expect_any_instance_of(MasterVeteranIndex::Service).to receive(:find_profile).once
         expect(mvi.status).to eq('NOT_FOUND')
