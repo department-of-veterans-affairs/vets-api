@@ -2,7 +2,7 @@
 
 module Facilities
   class VHAFacility < BaseFacility
-    has_many :drivetime_bands
+    has_many :drivetime_bands, dependent: :destroy
 
     class << self
       def pull_source_data
