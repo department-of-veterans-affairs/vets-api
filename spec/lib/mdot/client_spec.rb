@@ -170,12 +170,6 @@ describe MDOT::Client, type: :mdot_helpers do
 
     context 'with an malformed order' do
       it 'returns a 422 error' do
-        expect(StatsD).to receive(:increment).once.with(
-          'api.mdot.submit_order.fail', tags: [
-            'error:Common::Client::Errors::ClientError', 'status:422'
-          ]
-        )
-        expect(StatsD).to receive(:increment).once.with('api.mdot.submit_order.total')
         set_mdot_token_for(user)
         expect { subject.submit_order(invalid_order) }.to raise_error(MDOT::ServiceException)
       end
