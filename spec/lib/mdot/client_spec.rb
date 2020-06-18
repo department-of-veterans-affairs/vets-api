@@ -59,8 +59,7 @@ describe MDOT::Client, type: :mdot_helpers do
           expect(StatsD).to receive(:increment).once.with(
             'api.mdot.submit_order.total'
           )
-          set_mdot_token_for(user)
-          expect { subject.submit_order(valid_order) }.to raise_error(
+          expect { subject.get_supplies }.to raise_error(
             MDOT::ServiceException
           ) do |e|
             expect(e.message).to match(/MDOT_service_unavailable/)
