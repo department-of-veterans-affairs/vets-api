@@ -4,7 +4,7 @@ require_dependency 'openid_auth/application_controller'
 
 module OpenidAuth
   module V0
-    class MviUsersController < ApplicationController
+    class MVIUsersController < ApplicationController
       skip_before_action :authenticate
       before_action :check_required_headers, only: :show
 
@@ -30,7 +30,7 @@ module OpenidAuth
         mvi_response = service.find_profile(user_identity)
         raise mvi_response.error if mvi_response.error
 
-        render json: mvi_response, serializer: MviLookupSerializer
+        render json: mvi_response, serializer: MVILookupSerializer
       end
 
       def check_required_headers
