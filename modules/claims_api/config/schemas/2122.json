@@ -30,8 +30,8 @@
       ]
     },
     "signatureImage": {
-        "title": "Signature of the Veteran or their Representative",
-        "type": "string"
+      "title": "Signature of the Veteran or their Representative",
+      "type": "string"
     },
     "phone": {
       "$comment": "the phone fields must not exceed 20 chars, when concatenated",
@@ -41,10 +41,22 @@
         "phoneNumber"
       ],
       "properties": {
-        "countryCode":     { "type": "string", "pattern": "^[0-9]+$" },
-        "areaCode":        { "type": "string", "pattern": "^[2-9][0-9]{2}$" },
-        "phoneNumber":     { "type": "string", "pattern": "^[0-9]{1,14}$" },
-        "phoneNumberExt":  { "type": "string", "pattern": "^[a-zA-Z0-9]{1,10}$" }
+        "countryCode": {
+          "type": "string",
+          "pattern": "^[0-9]+$"
+        },
+        "areaCode": {
+          "type": "string",
+          "pattern": "^[2-9][0-9]{2}$"
+        },
+        "phoneNumber": {
+          "type": "string",
+          "pattern": "^[0-9]{1,14}$"
+        },
+        "phoneNumberExt": {
+          "type": "string",
+          "pattern": "^[a-zA-Z0-9]{1,10}$"
+        }
       }
     },
     "mailingAddress": {
@@ -83,54 +95,141 @@
       ],
       "additionalProperties": false,
       "properties": {
-        "firstName":     { "type": "string" },
-        "middleInitial": { "type": "string" },
-        "lastName":      { "type": "string" },
-        "address":       { "$ref": "#/definitions/mailingAddress" },
-        "phone":         { "$ref": "#/definitions/phone" },
-        "email":         { "$ref": "#/definitions/email" },
-        "relationship":  { "type": "string" }
-      }
-    },
-    "serviceOrganization": {
-      "type": "object",
-      "required": [
-        "poaCode"
-      ],
-      "properties": {
-        "poaCode":          { "type": "string" },
-        "organizationName": { "type": "string" },
-        "firstName":        { "type": "string" },
-        "lastName":         { "type": "string" },
-        "jobTitle":         { "type": "string" },
-        "address":         { "$ref": "#/definitions/mailingAddress" },
-        "email":            { "$ref": "#/definitions/email" },
-        "appointmentDate":  { "$ref": "#/definitions/date" }
-      }
-    },
-    "signatures": {
-      "type": "object",
-      "required": [
-        "veteran",
-        "representative"
-      ],
-      "properties": {
-        "veteran": { "$ref": "#/definitions/signatureImage" },
-        "representative": { "$ref": "#/definitions/signatureImage" }
-      }
-    },
-    "recordConsent": { "type": "boolean" },
-    "consentLimits": {
-      "type": "array",
-      "items": [
-        {
-          "type": "string",
-          "enum": [
-            "DRUG ABUSE",
-            "ALCOHOLISM",
-            "HIV",
-            "SICKLE CELL"
-          ]
+        "type": {
+          "const": "form/2122"
+        },
+        "attributes": {
+          "type": "object",
+          "required": [
+            "serviceOrganization"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "veteran": {
+              "type": "object",
+              "required": [
+                "address",
+                "phone",
+                "email"
+              ],
+              "properties": {
+                "address": {
+                  "$ref": "#/definitions/mailingAddress"
+                },
+                "phone": {
+                  "$ref": "#/definitions/phone"
+                },
+                "email": {
+                  "$ref": "#/definitions/email"
+                },
+                "serviceBranch": {
+                  "$ref": "#/definitions/serviceBranch"
+                }
+              }
+            },
+            "claimant": {
+              "type": "object",
+              "required": [
+                "firstName",
+                "middleInitial",
+                "lastName",
+                "address",
+                "phone",
+                "email",
+                "relationship"
+              ],
+              "properties": {
+                "firstName": {
+                  "type": "string"
+                },
+                "middleInitial": {
+                  "type": "string"
+                },
+                "lastName": {
+                  "type": "string"
+                },
+                "address": {
+                  "$ref": "#/definitions/mailingAddress"
+                },
+                "phone": {
+                  "$ref": "#/definitions/phone"
+                },
+                "email": {
+                  "$ref": "#/definitions/email"
+                },
+                "relationship": {
+                  "type": "string"
+                }
+              }
+            },
+            "serviceOrganization": {
+              "type": "object",
+              "required": [
+                "poaCode"
+              ],
+              "properties": {
+                "poaCode": {
+                  "type": "string"
+                },
+                "organizationName": {
+                  "type": "string"
+                },
+                "firstName": {
+                  "type": "string"
+                },
+                "lastName": {
+                  "type": "string"
+                },
+                "jobTitle": {
+                  "type": "string"
+                },
+                "address": {
+                  "$ref": "#/definitions/mailingAddress"
+                },
+                "email": {
+                  "$ref": "#/definitions/email"
+                },
+                "appointmentDate": {
+                  "$ref": "#/definitions/date"
+                }
+              }
+            },
+            "signatures": {
+              "type": "object",
+              "required": [
+                "veteran",
+                "representative"
+              ],
+              "properties": {
+                "veteran": {
+                  "$ref": "#/definitions/signatureImage"
+                },
+                "representative": {
+                  "$ref": "#/definitions/signatureImage"
+                }
+              }
+            },
+            "recordConsent": {
+              "type": "boolean"
+            },
+            "consentLimits": {
+              "type": "array",
+              "items": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "DRUG ABUSE",
+                    "ALCOHOLISM",
+                    "HIV",
+                    "SICKLE CELL"
+                  ]
+                }
+              ]
+            },
+            "consentAddressChange": {
+              "type": "boolean"
+            }
+          }
         }
       }
     }
