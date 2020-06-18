@@ -26,13 +26,14 @@ module Swagger
           parameter do
             key :name, :id
             key :in, :path
-            key :description, 'ID of the form. Allowed values: 21-0966 21-526EZ'
+            key :description, "ID of the form. Allowed values: '21-0966' (Intent to File),
+              '21-526EZ' (Disability Compensation)"
             key :required, true
             key :type, :string
           end
 
           response 200 do
-            key :description, 'Success response for MVI Orchestrated Search'
+            key :description, 'MVI Orchestrated Search returned a Success response'
             schema do
               property :message, type: :string, example: 'Success'
             end
