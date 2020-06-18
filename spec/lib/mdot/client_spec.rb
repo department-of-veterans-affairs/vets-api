@@ -115,6 +115,31 @@ describe MDOT::Client, type: :mdot_helpers do
       }
     end
 
+    let(:invalid_order) do
+      {
+        'useVeteranAddress' => true,
+        'useTemporaryAddress' => false,
+        'vetEmail' => 'vet1@va.gov',
+        'order' => [],
+        'permanentAddress' => {
+          'street' => '125 SOME RD',
+          'street2' => 'APT 101',
+          'city' => 'DENVER',
+          'state' => 'CO',
+          'country' => 'United States',
+          'postalCode' => '111119999'
+        },
+        'temporaryAddress' => {
+          'street' => '17250 w colfax ave',
+          'street2' => 'a-204',
+          'city' => 'Golden',
+          'state' => 'CO',
+          'country' => 'United States',
+          'postalCode' => '80401'
+        }
+      }
+    end
+
     context 'with a valid supplies order' do
       it 'returns a successful response' do
         VCR.use_cassette('mdot/submit_order', VCR::MATCH_EVERYTHING) do
@@ -144,17 +169,15 @@ describe MDOT::Client, type: :mdot_helpers do
     end
 
     context 'with an malformed order' do
-      it 'returns a 400 error' do
-        VCR.use_cassette('mdot/submit_order_400') do
-          expect(StatsD).to receive(:increment).once.with(
-            'api.mdot.submit_order.fail', tags: [
-              'error:Common::Client::Errors::ClientError', 'status:422'
-            ]
-          )
-          expect(StatsD).to receive(:increment).once.with('api.mdot.submit_order.total')
-          set_mdot_token_for(user)
-          expect { subject.submit_order({}) }.to raise_error(MDOT::ServiceException)
-        end
+      it 'returns a 422 error' do
+        expect(StatsD).to receive(:increment).once.with(
+          'api.mdot.submit_order.fail', tags: [
+            'error:Common::Client::Errors::ClientError', 'status:422'
+          ]
+        )
+        expect(StatsD).to receive(:increment).once.with('api.mdot.submit_order.total')
+        set_mdot_token_for(user)
+        expect { subject.submit_order(invalid_order) }.to raise_error(MDOT::ServiceException)
       end
     end
   end
