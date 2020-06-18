@@ -30,6 +30,9 @@ features:
   facility_locator_ppms_location_query:
     actor_type: user
     description: Use the Lat/Long instead of an address
+  facility_locator_ppms_forced_unique_id:
+    actor_type: user
+    description: Use an hexdigest for the ID on PPMS Place of Service Calls
   facility_locator_fe_use_v1:
     actor_type: user
     description: Have the front end use the V1 api
