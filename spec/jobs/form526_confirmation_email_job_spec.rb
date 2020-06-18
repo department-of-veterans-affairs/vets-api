@@ -50,7 +50,7 @@ RSpec.describe Form526ConfirmationEmailJob, type: :worker do
 
         expect { subject.perform(123, @email_address) }.not_to raise_error
         expect { subject.perform(123, @email_address) }
-            .to trigger_statsd_increment('worker.form526_confirmation_email.error')
+          .to trigger_statsd_increment('worker.form526_confirmation_email.error')
       end
 
       it 'returns one job triggered' do
