@@ -68,4 +68,38 @@ describe MviPolicy do
       end
     end
   end
+
+  permissions :access_add_person? do
+    context 'with a user who is missing birls and participant id' do
+      let(:user) { build(:user_with_no_ids) }
+
+      it 'grants access' do
+        expect(subject).to permit(user, :mvi)
+      end
+    end
+
+    context 'with a user who is missing only participant or birls id' do
+      let(:user) { build(:user_with_no_birls_id) }
+
+      it 'grants access' do
+        expect(subject).to permit(user, :mvi)
+      end
+    end
+
+    context 'with a user who is missing EDIPI' do
+      let(:user) { build(:unauthorized_evss_user, :loa3) }
+
+      it 'denies access' do
+        expect(subject).not_to permit(user, :mvi)
+      end
+    end
+
+    context 'with a user who already has the birls and participant ids' do
+      let(:user) { build(:user, :loa3) }
+
+      it 'denies access' do
+        expect(subject).not_to permit(user, :mvi)
+      end
+    end
+  end
 end
