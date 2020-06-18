@@ -5,6 +5,8 @@ module ClaimsApi
     class Form2122ResponseSwagger
       include Swagger::Blocks
 
+      EXAMPLE_PATH = ClaimsApi::Engine.root.join('app', 'swagger', 'claims_api', 'forms', 'form_2122_example.json')
+
       swagger_component do
         schema :Address do
           property :numberAndStreet do
@@ -136,7 +138,7 @@ module ClaimsApi
           key :description, '2122 Power of Attorney Form submission'
           property :data do
             key :type, :object
-            key :example, type: 'form/21-22', attributes: { poaCode: 'A01', poaFirstName: 'Bob', poaLastName: 'Jones' }
+            key :example, JSON.parse(File.read(EXAMPLE_PATH))
             property :type do
               key :type, :string
               key :example, 'form/21-22'
@@ -212,6 +214,18 @@ module ClaimsApi
               property :claimant do
                 key :type, :object
                 key :'$ref', :Claimant
+              end
+
+              property :signatureFiles do
+                key :type, :object
+                property :veteran do
+                  key :type, :string
+                  key :description, 'Base64 encoded png image of the veterans signature'
+                end
+                property :representative do
+                  key :type, :string
+                  key :description, 'Base64 encoded png image of the representative signature'
+                end
               end
 
               property :recordConsent do
