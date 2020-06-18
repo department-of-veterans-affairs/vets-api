@@ -84,10 +84,6 @@ module MDOT
       }
     end
 
-    def service_unavailable?(error)
-      error.status == '503'
-    end
-
     def with_monitoring_and_error_handling
       with_monitoring(2) do
         yield
@@ -131,7 +127,7 @@ module MDOT
 
     def handle_client_error(error)
       save_error_details(error)
-      code = error&.status != '503' ? error.body['result'].downcase : '503'
+      code = error&.status != 503 ? error.body['result'].downcase : 'service_unavailable'
 
       raise_backend_exception(
         MDOT::ExceptionKey.new("MDOT_#{code}"),
