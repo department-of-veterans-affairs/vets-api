@@ -148,7 +148,7 @@ describe MDOT::Client, type: :mdot_helpers do
         VCR.use_cassette('mdot/submit_order_400') do
           expect(StatsD).to receive(:increment).once.with(
             'api.mdot.submit_order.fail', tags: [
-              'error:Common::Client::Errors::ClientError', 'status:400'
+              'error:Common::Client::Errors::ClientError', 'status:422'
             ]
           )
           expect(StatsD).to receive(:increment).once.with('api.mdot.submit_order.total')
