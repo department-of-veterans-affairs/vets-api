@@ -5,7 +5,7 @@ module Swagger
     module UnprocessableEntityError
       def self.extended(base)
         base.response 422 do
-          key :description, 'Forbidden'
+          key :description, 'Unprocessable Entity'
           schema do
             key :'$ref', :Errors
           end
