@@ -49,7 +49,8 @@ RSpec.describe Form526ConfirmationEmailJob, type: :worker do
         allow(notification_client).to receive(:send_email).and_raise(StandardError, 'some error')
 
         expect { subject.perform(123, @email_address) }.not_to raise_error
-          .and trigger_statsd_increment('worker.form526_confirmation_email.error')
+        expect { subject.perform(123, @email_address) }
+            .to trigger_statsd_increment('worker.form526_confirmation_email.error')
       end
 
       it 'returns one job triggered' do
