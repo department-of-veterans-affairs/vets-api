@@ -48,6 +48,27 @@ describe MDOT::Client, type: :mdot_helpers do
       end
     end
 
+    context 'when the DLC API is unavailable' do
+      it 'raises a 503' do
+        VCR.use_cassette('mdot/get_supplies_503') do
+          expect(StatsD).to receive(:increment).once.with(
+            'api.mdot.submit_order.fail', tags: [
+              'error:Common::Client::Errors::ClientError', 'status:503'
+            ]
+          )
+          expect(StatsD).to receive(:increment).once.with(
+            'api.mdot.submit_order.total'
+          )
+          set_mdot_token_for(user)
+          expect { subject.submit_order(valid_order) }.to raise_error(
+            MDOT::ServiceException
+          ) do |e|
+            expect(e.message).to match(/MDOT_service_unavailable/)
+          end
+        end
+      end
+    end
+
     context 'with a deceased veteran' do
       it 'returns a 403' do
         VCR.use_cassette('mdot/get_supplies_403') do
@@ -171,7 +192,11 @@ describe MDOT::Client, type: :mdot_helpers do
     context 'with an malformed order' do
       it 'returns a 422 error' do
         set_mdot_token_for(user)
-        expect { subject.submit_order(invalid_order) }.to raise_error(MDOT::ServiceException)
+        expect { subject.submit_order(invalid_order) }.to raise_error(
+          MDOT::ServiceException
+        ) do |e|
+          expect(e.message).to match(/MDOT_supplies_not_selected/)
+        end
       end
     end
   end
