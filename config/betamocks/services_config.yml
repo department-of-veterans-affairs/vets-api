@@ -448,6 +448,12 @@
       :uid_location: header
       :uid_locator: ssn
   - :method: :get
+    :path: "/api/v3/decision_review/contestable_issues"
+    :file_path: "modules_appeals_api/contestable_issues"
+    :cache_multiple_responses:
+      :uid_location: header
+      :uid_locator: X-VA-SSN
+  - :method: :get
     :path: "/health-check"
     :file_path: "appeals/health-check"
 
