@@ -55,21 +55,8 @@ RSpec.describe Debts::LetterDownloader do
     end
 
     it 'gets letter ids and descriptions' do
-      expect(letter_downloader.list_letters).to eq(
-        [
-          {
-            document_id: '{93631483-E9F9-44AA-BB55-3552376400D8}',
-            doc_type: '1215',
-            type_description: 'DMC - Debt Increase Letter',
-            received_at: '2020-05-28'
-          },
-          {
-            document_id: '{358692DF-7AE5-43A7-99AB-D5F4F98E3F3A}',
-            doc_type: '1215',
-            type_description: 'DMC - Debt Increase Letter',
-            received_at: '2020-05-28'
-          }
-        ]
+      expect(letter_downloader.list_letters.to_json).to eq(
+        get_fixture('vbms/list_letters').to_json
       )
     end
   end
