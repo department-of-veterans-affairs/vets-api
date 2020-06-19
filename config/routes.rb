@@ -45,6 +45,8 @@ Rails.application.routes.draw do
       get 'separation_locations'
     end
 
+    post '/mvi_users/:id', to: 'mvi_users#submit'
+
     resource :upload_supporting_evidence, only: :create
 
     resource :sessions, only: [] do
@@ -220,6 +222,7 @@ Rails.application.routes.draw do
       resource :primary_phone, only: %i[show create]
       resource :service_history, only: :show
       resources :connected_applications, only: %i[index destroy]
+      resource :valid_va_file_number, only: %i[show]
 
       # Vet360 Routes
       resource :addresses, only: %i[create update destroy]
