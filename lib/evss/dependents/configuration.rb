@@ -28,7 +28,7 @@ module EVSS
       #
       def connection
         @conn ||= Faraday.new(base_path, request: request_options, ssl: ssl_options) do |faraday|
-          set_evss_middlewares(faraday, snakecase: false)
+          set_evss_middlewares(faraday, snakecase: false) #todo check this?
         end
       end
     end
