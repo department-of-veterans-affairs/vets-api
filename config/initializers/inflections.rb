@@ -14,6 +14,7 @@ ActiveSupport::Inflector.inflections do |inflect|
   inflect.acronym 'PagerDuty'
   inflect.acronym 'PPIU'
   inflect.acronym 'SSOe'
+  inflect.acronym 'VAR' # an older term for what is now VAOS
   inflect.acronym 'VAOS'
   inflect.acronym 'VA'
   inflect.acronym 'VBA'
