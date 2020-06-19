@@ -35,8 +35,9 @@ module Swagger
           parameter :authorization
 
           parameter do
-            key :name, :name_part
-            key :description, 'part of a condition name'
+            key :name, :params
+            key :description, 'part of a medical term of lay term for a medical condition;
+              for example "?name_part=anxiety"'
             key :in, :path
             key :type, :string
             key :required, true
@@ -140,6 +141,33 @@ module Swagger
             key :description, 'Response is OK'
             schema do
               key :'$ref', :RatingInfo
+            end
+          end
+        end
+      end
+
+      swagger_path '/v0/disability_compensation_form/separation_locations' do
+        operation :get do
+          extend Swagger::Responses::AuthenticationError
+
+          key :description, 'Get the separation locations from EVSS'
+          key :operationId, 'getIntakeSites'
+          key :tags, %w[form_526]
+
+          parameter :authorization
+
+          response 200 do
+            key :description, 'Response is OK'
+            schema do
+              key :'$ref', :SeparationLocations
+            end
+          end
+
+          response 403 do
+            key :description, 'forbidden user'
+
+            schema do
+              key :'$ref', :Errors
             end
           end
         end

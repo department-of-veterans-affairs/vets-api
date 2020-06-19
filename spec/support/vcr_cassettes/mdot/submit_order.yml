@@ -2,11 +2,10 @@
 http_interactions:
 - request:
     method: post
-    uri: https://dlc-dummy.herokuapp.com/supplies
+    uri: https://internal-dsva-vagov-staging-fwdproxy-1821450725.us-gov-west-1.elb.amazonaws.com:4466/supplies
     body:
       encoding: UTF-8
-      string: '{"use_permanent_address":true,"use_temporary_address":false,"additional_requests":"","order":[{"product_id":"1"},{"product_id":"4"}],"permanent_address":{"street":"101
-        Example Street","street2":"Apt 2","city":"Kansas City","state":"MO","country":"USA","postal_code":"64117"}}'
+      string: '{"useVeteranAddress":true,"useTemporaryAddress":false,"vetEmail":"vet1@va.gov","order":[{"productId":2499}],"permanentAddress":{"street":"125 SOME RD","street2":"APT 101","city":"DENVER","state":"CO","country":"United States","postalCode":"111119999"},"temporaryAddress":{"street":"17250 w colfax ave","street2":"a-204","city":"Golden","state":"CO","country":"United States","postalCode":"80401"}}'
     headers:
       Accept:
       - application/json
@@ -14,7 +13,7 @@ http_interactions:
       - application/json
       User-Agent:
       - Vets.gov Agent
-      Va-Api-Key:
+      Vaapikey:
       - abcd1234abcd1234abcd1234
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -45,7 +44,7 @@ http_interactions:
       - 1.1 vegur
     body:
       encoding: UTF-8
-      string: '{"status":"success","orderId":"4eb9e4a5-1fd1-4a47-8a45-fe4f28466dde"}'
+      string: '[{"status":"Order Processed","orderID":9436}]'
     http_version: null
   recorded_at: Tue, 31 Mar 2020 14:32:36 GMT
 recorded_with: VCR 5.1.0

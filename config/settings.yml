@@ -131,7 +131,7 @@ ihub:
 # Settings for Medical Devices Ordering Tool
 mdot:
   prefill: true
-  url: https://dlc-dummy.herokuapp.com
+  url: https://internal-dsva-vagov-staging-fwdproxy-1821450725.us-gov-west-1.elb.amazonaws.com:4466
   api_key: abcd1234abcd1234abcd1234abcd1234abcd1234
   mock: false
   enabled: false
@@ -185,6 +185,7 @@ evss:
   mock_pciu: true
   mock_pciu_address: false
   mock_ppiu: true
+  mock_reference: false
   mock_itf: true
   mock_disabilities_form: true
   mock_common_service: true
@@ -194,9 +195,6 @@ evss:
     cert_path: ~
     key_path: ~
     root_ca: ~
-  jwt:
-    issuer: fake_issuer
-    key: fake_key
   reference_data_service:
     enabled: false
   international_postal_codes: 'config/evss/international_postal_codes.json'
@@ -444,10 +442,6 @@ betamocks:
   cache_dir: /cache
   services_config: config/betamocks/services_config.yml
 
-faraday_socks_proxy:
-  enabled: false
-  uri: socks5://localhost:2002
-
 google_analytics_tracking_id: ~
 
 # Settings for search
@@ -471,6 +465,7 @@ flipper:
     - devinmccurdy@gmail.com
     - eric.buckley@adhocteam.us
     - erik@adhocteam.us
+    - grodriguez@governmentcio.com
     - hughes_dustin@bah.com
     - jbalboni@gmail.com
     - jeff@adhocteam.us
@@ -480,6 +475,7 @@ flipper:
     - kam@adhocteam.us
     - keifer@oddball.io
     - kenneth.gary@va.gov
+    - kenneth.santiago2010@gmail.com
     - kmircovich@governmentcio.com
     - lauren.alexanderson@va.gov
     - lindsey.hattamer@oddball.io
@@ -487,8 +483,8 @@ flipper:
     - n.ratana@gmail.com
     - narin@adhocteam.us
     - osanchez@governmentcio.com
-    - patrick@adhocteam.us
     - patrick.bateman@va.gov
+    - patrick@adhocteam.us
     - philip.becker@oddball.io
     - regarr@gmail.com # Robin Garrison - AdHoc
     - rian.fowler@adhoc.team

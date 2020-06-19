@@ -16,7 +16,7 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
 
   describe '#translate' do
     before do
-      create(:in_progress_form, form_id: VA526ez::FORM_ID, user_uuid: user.uuid)
+      create(:in_progress_form, form_id: FormProfiles::VA526ez::FORM_ID, user_uuid: user.uuid)
     end
 
     let(:form_content) do
@@ -816,7 +816,7 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
                   'from' => '2018-01-01',
                   'to' => '2018-02-XX'
                 },
-                'treatmentCenterName' => 'Super _,!?Hospital \'&\' "More" (#2.0)',
+                'treatmentCenterName' => 'Super  _,!?Hospital    \'&\' "More" (#2.0)',
                 'treatmentCenterAddress' => {
                   'country' => 'USA',
                   'city' => 'Portland',

@@ -16,6 +16,6 @@ class PersonalInformationSerializer < ActiveModel::Serializer
   # @return [String] For example, '1949-03-04'
   #
   def birth_date
-    object.birth_date.to_date.to_s
+    object.birth_date&.to_date&.to_s
   end
 end

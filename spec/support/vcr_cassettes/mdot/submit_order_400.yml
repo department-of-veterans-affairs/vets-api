@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: post
-    uri: https://dlc-dummy.herokuapp.com/supplies
+    uri: https://internal-dsva-vagov-staging-fwdproxy-1821450725.us-gov-west-1.elb.amazonaws.com:4466/supplies
     body:
       encoding: UTF-8
       string: '{}'
@@ -60,8 +60,7 @@ http_interactions:
         Max-Age=900; Path=/
     body:
       encoding: UTF-8
-      string: '{"errors":[{"status":400,"code":"malformed_request","title":"Malformed
-        request"}]}'
+      string: '{"timestamp":"2020-06-04T18:00:35.014+0000","message":"400","details":"uri=/supplies","result":"400"}'
     http_version:
   recorded_at: Fri, 22 Nov 2019 22:51:55 GMT
 recorded_with: VCR 3.0.3
