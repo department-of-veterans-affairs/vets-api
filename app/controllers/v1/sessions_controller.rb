@@ -32,7 +32,6 @@ module V1
     # For more details see SAML::SettingsService and SAML::URLService
     def new
       type = params[:type]
-      raise Common::Exceptions::RoutingError, params[:path] unless REDIRECT_URLS.include?(type)
 
       url = redirect_url(type)
       new_stats(type)
@@ -74,31 +73,20 @@ module V1
 
     private
 
-    # rubocop:disable Metrics/CyclomaticComplexity
     def redirect_url(type)
+      raise Common::Exceptions::RoutingError, type unless REDIRECT_URLS.include?(type)
+
       case type
-      when 'signup'
-        url_service.signup_url
-      when 'mhv'
-        url_service.mhv_url
-      when 'dslogon'
-        url_service.dslogon_url
-      when 'idme'
-        url_service.idme_url
       when 'custom'
-        raise Common::Exceptions::ParameterMissing.new('authn') unless params[:authn].present?
+        raise Common::Exceptions::ParameterMissing, 'authn' if params[:authn].blank?
+
         url_service.custom_url params[:authn]
-      when 'mfa'
-        url_service.mfa_url
-      when 'verify'
-        url_service.verify_url
       when 'slo'
         url_service.ssoe_slo_url # due to shared url service implementation
       else
-        raise Common::Exceptions::RoutingError, params[:path]
+        url_service.public_send("#{type}_url")
       end
     end
-    # rubocop:enable Metrics/CyclomaticComplexity
 
     def force_authn?
       params[:force]&.downcase == 'true'
