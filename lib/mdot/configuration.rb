@@ -20,7 +20,7 @@ module MDOT
         f.response :betamocks if mock_enabled?
         f.response :snakecase, symbolize: false
         f.response :json
-        f.adapter Faraday.default_adapter # todo adapter last?
+        f.adapter Faraday.default_adapter
 
         # TODO: remove long timeouts after changing to real API
         f.options.timeout = 30
