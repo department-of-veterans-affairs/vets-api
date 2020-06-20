@@ -2,7 +2,6 @@
 
 module ClaimsApi
   class VbmsUploader
-
     def initialize(filepath:, file_number:, doc_type:)
       @filepath = filepath
       @file_number = file_number
