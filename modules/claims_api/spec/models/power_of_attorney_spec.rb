@@ -61,11 +61,16 @@ RSpec.describe ClaimsApi::PowerOfAttorney, type: :model do
       let(:signature_path) { Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'signature.png') }
 
       before do
+        Timecop.freeze(Time.zone.parse('2020-01-01T08:00:00Z'))
         b64_image = File.read('modules/claims_api/spec/fixtures/signature_b64.txt')
         power_of_attorney.form_data['signatures'] = {}
         power_of_attorney.form_data['signatures']['veteran'] = b64_image
         power_of_attorney.form_data['signatures']['representative'] = b64_image
         power_of_attorney.save
+      end
+
+      after do
+        Timecop.return
       end
 
       it 'adds signature to pdf page 1' do

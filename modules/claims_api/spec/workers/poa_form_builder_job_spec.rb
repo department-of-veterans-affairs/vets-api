@@ -72,8 +72,7 @@ RSpec.describe ClaimsApi::PoaFormBuilderJob, type: :job do
     it 'generates the pdf to match example' do
       expect(ClaimsApi::PowerOfAttorneyPdfConstructor).to receive(:new).with(power_of_attorney.id).and_call_original
       expect_any_instance_of(ClaimsApi::PowerOfAttorneyPdfConstructor).to receive(:fill_pdf).twice.and_call_original
-      generated_pdf = subject.new.perform(power_of_attorney.id)
-      File.delete(generated_pdf) if File.exist?(generated_pdf)
+      subject.new.perform(power_of_attorney.id)
     end
   end
 end
