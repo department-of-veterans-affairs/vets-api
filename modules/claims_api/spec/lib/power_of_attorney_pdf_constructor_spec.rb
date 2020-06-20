@@ -7,6 +7,7 @@ describe ClaimsApi::PowerOfAttorneyPdfConstructor do
   let(:power_of_attorney) { create(:power_of_attorney, :with_full_headers) }
 
   before do
+    Timecop.freeze(Time.zone.parse('2020-01-01T08:00:00Z'))
     b64_image = File.read('modules/claims_api/spec/fixtures/signature_b64.txt')
     power_of_attorney.form_data = {
       'signatures': {
@@ -39,15 +40,18 @@ describe ClaimsApi::PowerOfAttorneyPdfConstructor do
     power_of_attorney.save
   end
 
+  after do
+    Timecop.return
+  end
+
   it 'fills page one of the pdf' do
     constructor = ClaimsApi::PowerOfAttorneyPdfConstructor.new(power_of_attorney.id)
     signed_pdf = Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', '2122', 'page_1_signed.pdf')
     expected_pdf = Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', '2122', 'signed_filled_page_1.pdf')
     generated_pdf = constructor.fill_pdf(signed_pdf, 1)
-    generated_pdf_md5 = Digest::MD5.digest(File.read(generated_pdf))
-    expected_pdf_md5 = Digest::MD5.digest(File.read(expected_pdf))
-    File.delete(generated_pdf) if File.exist?(generated_pdf)
-    expect(generated_pdf_md5).to eq(expected_pdf_md5)
+    generated_strings = PDF::Inspector::Text.analyze(generated_pdf).strings
+    expected_strings = PDF::Inspector::Text.analyze(expected_pdf).strings
+    expect(generated_strings).to eq(expected_strings)
   end
 
   it 'fills page two of the pdf' do
@@ -55,9 +59,8 @@ describe ClaimsApi::PowerOfAttorneyPdfConstructor do
     signed_pdf = Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', '2122', 'page_2_signed.pdf')
     expected_pdf = Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', '2122', 'signed_filled_page_2.pdf')
     generated_pdf = constructor.fill_pdf(signed_pdf, 2)
-    generated_pdf_md5 = Digest::MD5.digest(File.read(generated_pdf))
-    expected_pdf_md5 = Digest::MD5.digest(File.read(expected_pdf))
-    File.delete(generated_pdf) if File.exist?(generated_pdf)
-    expect(generated_pdf_md5).to eq(expected_pdf_md5)
+    generated_strings = PDF::Inspector::Text.analyze(generated_pdf).strings
+    expected_strings = PDF::Inspector::Text.analyze(expected_pdf).strings
+    expect(generated_strings).to eq(expected_strings)
   end
 end
