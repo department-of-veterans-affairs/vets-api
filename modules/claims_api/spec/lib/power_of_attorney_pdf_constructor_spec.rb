@@ -2,6 +2,7 @@
 
 require 'rails_helper'
 require 'claims_api/power_of_attorney_pdf_constructor'
+require_relative '../support/pdf_matcher'
 
 describe ClaimsApi::PowerOfAttorneyPdfConstructor do
   let(:power_of_attorney) { create(:power_of_attorney, :with_full_headers) }
@@ -49,9 +50,7 @@ describe ClaimsApi::PowerOfAttorneyPdfConstructor do
     signed_pdf = Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', '2122', 'page_1_signed.pdf')
     expected_pdf = Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', '2122', 'signed_filled_page_1.pdf')
     generated_pdf = constructor.fill_pdf(signed_pdf, 1)
-    generated_strings = PDF::Inspector::Text.analyze(generated_pdf).strings
-    expected_strings = PDF::Inspector::Text.analyze(expected_pdf).strings
-    expect(generated_strings).to eq(expected_strings)
+    expect(generated_pdf).to match_pdf_content_of(expected_pdf)
   end
 
   it 'fills page two of the pdf' do
@@ -59,8 +58,6 @@ describe ClaimsApi::PowerOfAttorneyPdfConstructor do
     signed_pdf = Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', '2122', 'page_2_signed.pdf')
     expected_pdf = Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', '2122', 'signed_filled_page_2.pdf')
     generated_pdf = constructor.fill_pdf(signed_pdf, 2)
-    generated_strings = PDF::Inspector::Text.analyze(generated_pdf).strings
-    expected_strings = PDF::Inspector::Text.analyze(expected_pdf).strings
-    expect(generated_strings).to eq(expected_strings)
+    expect(generated_pdf).to match_pdf_content_of(expected_pdf)
   end
 end
