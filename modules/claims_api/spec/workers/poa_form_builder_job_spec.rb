@@ -70,10 +70,10 @@ RSpec.describe ClaimsApi::PoaFormBuilderJob, type: :job do
 
   describe 'generating the filled and signed pdf' do
     it 'generates the pdf to match example' do
+      # allow_any_instance_of(ClaimsApi::VbmsUploadJob).to receive(:fetch_file_path).and_return('/tmp/path.pdf')
       expect(ClaimsApi::PowerOfAttorneyPdfConstructor).to receive(:new).with(power_of_attorney.id).and_call_original
       expect_any_instance_of(ClaimsApi::PowerOfAttorneyPdfConstructor).to receive(:fill_pdf).twice.and_call_original
-      generated_pdf = subject.new.perform(power_of_attorney.id)
-      File.delete(generated_pdf) if File.exist?(generated_pdf)
+      subject.new.perform(power_of_attorney.id)
     end
   end
 end
