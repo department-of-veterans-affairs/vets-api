@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class SamlController < ApplicationController
+class SAMLController < ApplicationController
   skip_before_action :authenticate, only: [:metadata]
 
   def metadata
