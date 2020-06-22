@@ -1,6 +1,10 @@
 # frozen_string_literal: true
 
 ActiveSupport::Inflector.inflections do |inflect|
+  inflect.acronym 'AAID'
+  inflect.acronym 'BB'
+  inflect.acronym 'BGS'
+  inflect.acronym 'CARMA'
   inflect.acronym 'AWS'
   inflect.acronym 'BGS'
   inflect.acronym 'CC'
