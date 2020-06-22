@@ -13,6 +13,8 @@ ActiveSupport::Inflector.inflections do |inflect|
   inflect.acronym 'MDOT'
   inflect.acronym 'PagerDuty'
   inflect.acronym 'PPIU'
+  inflect.acronym 'PPMS'  
+  inflect.acronym 'PSSG'
   inflect.acronym 'SSOe'
   inflect.acronym 'VAOS'
   inflect.acronym 'VBA'
