@@ -9,7 +9,7 @@ AppealsApi::Engine.routes.draw do
   end
 
   namespace :v1, defaults: { format: 'json' } do
-    namespace :decision_review do
+    namespace :decision_reviews do
       resources :contestable_issues, only: [:index]
       resources :higher_level_reviews, only: %i[create show] do
         collection do
