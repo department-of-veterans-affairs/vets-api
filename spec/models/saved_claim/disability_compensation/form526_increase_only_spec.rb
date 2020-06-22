@@ -6,7 +6,7 @@ RSpec.describe SavedClaim::DisabilityCompensation::Form526IncreaseOnly do
   let(:user) { build(:disabilities_compensation_user) }
 
   before do
-    create(:in_progress_form, form_id: VA526ez::FORM_ID, user_uuid: user.uuid)
+    create(:in_progress_form, form_id: FormProfiles::VA526ez::FORM_ID, user_uuid: user.uuid)
   end
 
   describe '#to_submission_data' do
