@@ -20,6 +20,8 @@ ActiveSupport::Inflector.inflections do |inflect|
   inflect.acronym 'NCA'
   inflect.acronym 'PagerDuty'
   inflect.acronym 'PPIU'
+  inflect.acronym 'PPMS'
+  inflect.acronym 'PSSG'
   inflect.acronym 'SAML'
   inflect.acronym 'SFTP'
   inflect.acronym 'SM'
