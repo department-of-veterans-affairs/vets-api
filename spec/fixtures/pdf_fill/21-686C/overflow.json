@@ -91,7 +91,7 @@
       {
         "start_date": "1999-12-15",
         "start_location": {"state": "PA", "city": "Philadelphia"},
-        "reason_marriage_ended": "report_divorce",
+        "reason_marriage_ended": "DIVORCE",
         "reason_marriage_ended_other": "DIVORCE",
         "end_date": "2001-07-04",
         "end_location": {"state": "NY", "city": "New York"},
@@ -120,15 +120,58 @@
     "spouse_was_married_before": true,
     "spouse_marriage_history": [
       {
-        "start_date": "2008-03-03",
+        "start_date": "2014-03-03",
         "start_location": {"state": "IL", "city": "Rock Island"},
         "reason_marriage_ended": "DEATH",
-        "end_date": "2010-03-04",
+        "reason_marriage_ended_other": "Death",
+        "end_date": "2017-03-04",
         "end_location": {"state": "FL", "city": "Tampa"},
         "full_name": {
-          "first": "Clovis",
-          "middle": "Nigel",
-          "last": "The Cat",
+          "first": "Calvin",
+          "middle": "David",
+          "last": "Brown",
+          "suffix": "Jr."
+        }
+      },
+      {
+        "start_date": "2009-09-06",
+        "start_location": {"state": "TX", "city": "Houston"},
+        "reason_marriage_ended": "DIVORCE",
+        "reason_marriage_ended_other": "Divorce",
+        "end_date": "2012-06-01",
+        "end_location": {"state": "FL", "city": "Miami"},
+        "full_name": {
+          "first": "Christopher",
+          "middle": "Oliver",
+          "last": "Samuels",
+          "suffix": "Sr."
+        }
+      },
+      {
+        "start_date": "2008-03-05",
+        "start_location": {"state": "PA", "city": "Pittsburgh"},
+        "reason_marriage_ended": "ANNULMENT",
+        "reason_marriage_ended_other": "Annulment",
+        "end_date": "2006-05-07",
+        "end_location": {"state": "PA", "city": "Philadelphia"},
+        "full_name": {
+          "first": "Carl",
+          "middle": "Hank",
+          "last": "Williams",
+          "suffix": "Jr."
+        }
+      },
+      {
+        "start_date": "2001-01-01",
+        "start_location": {"state": "VT", "city": "Burlington"},
+        "reason_marriage_ended": "OTHER",
+        "reason_marriage_ended_other": "Other",
+        "end_date": "2005-05-05",
+        "end_location": {"state": "VT", "city": "Bennington"},
+        "full_name": {
+          "first": "Chad",
+          "middle": "Keith",
+          "last": "Davies",
           "suffix": "Sr."
         }
       }
@@ -144,9 +187,10 @@
           "address": {
             "country_name": "US",
             "address_line1": "1100 Robin Cir",
+            "address_line2": "#8C",
             "city": "Los Angeles",
             "state_code": "CA",
-            "zip_code": "90210"
+            "zip_code": "90210-8642"
           }
         },
         "place_of_birth": {"state": "CA", "city": "Slawson"},
@@ -200,6 +244,7 @@
         "full_name":
         {
             "first": "Jane",
+            "middle": "Laura",
             "last": "Smith"
         }
       },
@@ -278,7 +323,8 @@
     },
     "report_divorce": {
       "full_name": {
-          "first": "Jane",
+          "first": "Laura",
+          "middle": "Kelsey",
           "last": "Smith"
       },
       "date": "2019-01-03",

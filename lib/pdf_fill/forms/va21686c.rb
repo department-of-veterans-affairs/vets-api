@@ -434,21 +434,21 @@ module PdfFill
             first_key: 'full_name',
             'full_name' => {
               'first' => {
-                key: "form1[0].#subform[18].CHILDFirstName[%iterator%]",
+                key: 'veteran.previousSpouse.firstName[%iterator%]',
                 limit: 12,
                 question_num: 14,
                 question_suffix: 'A',
                 question_text: 'INFORMATION NEEDED TO ADD SPOUSE > PREVIOUS MARRIAGE HISTORY >  PREVIOUS SPOUSE FIRST NAME'
               }, # end of first name
               'middle' => {
-                key: "form1[0].#subform[18].CHILDMiddleInitial1[%iterator%]",
+                key: 'form1[0].#subform[18].CHILDMiddleInitial1[%iterator%]',
                 limit: 1,
                 question_num: 14,
                 question_suffix: 'B',
                 question_text: 'INFORMATION NEEDED TO ADD SPOUSE > PREVIOUS MARRIAGE HISTORY >  PREVIOUS SPOUSE MIDDLE INITIAL'
               },  # end of middle initial
               'last' => {
-                key: "form1[0].#subform[18].CHILDLastName[%iterator%]",
+                key: 'form1[0].#subform[18].CHILDLastName[%iterator%]',
                 limit: 18,
                 question_num: 14,
                 question_suffix: 'C',
@@ -460,24 +460,21 @@ module PdfFill
             },  # end of end of full name
             'start_date' => {
               'month' => {
-                key: "form1[0].#subform[18].DOBmonth[2]",
-                #key: "form1[0].#subform[18].DOBmonth[%iterator%]",
+                key: 'veteran_marriage_history.start_date.month[%iterator%]',
                 limit: 2,
                 question_num: 14,
                 question_suffix: 'E',
                 question_text: 'INFORMATION NEEDED TO ADD SPOUSE > PREVIOUS MARRIAGE HISTORY > MONTH'
               }, # end of marriage start month
               'day' => {
-                key: "form1[0].#subform[18].DOBday[2]",
-                #key: "form1[0].#subform[18].DOBday[%iterator%]",
+                key: 'veteran_marriage_history.start_date.day[%iterator%]',
                 limit: 2,
                 question_num: 14,
                 question_suffix: 'F',
                 question_text: 'INFORMATION NEEDED TO ADD SPOUSE > PREVIOUS MARRIAGE HISTORY > MONTH'
               }, # end of marriage start day
               'year' => {
-                key: "form1[0].#subform[18].DOByear[2]",
-                #key: "form1[0].#subform[18].DOBday[%iterator%]",
+                key: 'veteran_marriage_history.start_date.year[%iterator%]',
                 limit: 4,
                 question_num: 14,
                 question_suffix: 'G',
@@ -487,16 +484,14 @@ module PdfFill
             #, # end of start_date
             'start_location' => {
               'city' => {
-                #key: "form1[0].#subform[18].CurrentMailingAddress_City[3]",
-                key: "form1[0].#subform[18].CurrentMailingAddress_City[%iterator%]",
+                key: 'veteran.previousMarriage.startCity[%iterator%]',
                 limit: 18,
-                question_num: '14A 2',
+                question_num: 14,
                 question_suffix: 'E',
                 question_text: 'INFORMATION NEEDED TO ADD SPOUSE > PREVIOUS MARRIAGE HISTORY > CITY'
               }, # end of city
               'state' => {
-                #key: "form1[0].#subform[18].CurrentMailingAddress_StateOrProvince[3]",
-                key: "form1[0].#subform[18].CurrentMailingAddress_StateOrProvince[%iterator%]",
+                key: 'veteran_marriage_history.start_location.state[%iterator%]',
                 limit: 2,
                 question_num: '14A 2',
                 question_suffix: 'E',
@@ -504,40 +499,35 @@ module PdfFill
               } # end of state
             }, #end of start_location
             'reason_marriage_ended' => {
-              # @TODO iterator
-              'death' => { key: 'form1[0].#subform[18].RadioButtonList[2]' },
-              'divorce' => { key: 'form1[0].#subform[18].RadioButtonList[1]' },
-              'annulment' => { key: 'form1[0].#subform[18].RadioButtonList[0]' },
-              'OTHER' => { key: 'form1[0].#subform[18].RadioButtonList[3]' }
-            }, # end of reason marriage ended
-            #'reason_marriage_ended_other' => { # XXX this section seems wiggity wack
-              #key: "form1[0].#subform[18].CHILDFirstName[%iterator%]",
-              #key: "form1[0].#subform[18].CHILDFirstName[1]",
-              #limit: 12, #  XXX THIS BREAKS
-              #question_num: '14A 3',
-              #question_suffix: 'A',
-              #question_text: 'INFORMATION NEEDED TO ADD SPOUSE > PREVIOUS MARRIAGE HISTORY > REASON FOR TERMINATION'
-            #}, # end of reason of marriage ended other
+              'death' => { key: 'veteran_marriage_history.reason_marriage_ended.death[%iterator%]' },
+              'divorce' => { key: 'veteran_marriage_history.reason_marriage_ended.divorce[%iterator%]' },
+              'annulment' => { key: 'veteran_marriage_history.reason_marriage_ended.annulment[%iterator%]' },
+              'other' => { key: 'veteran_marriage_history.reason_marriage_ended.other[%iterator%]' }
+            },
+            'reason_marriage_ended_other' => {
+              key: 'veteran_marriage_history.reason_marriage_ended_other[%iterator%]',
+              #limit: 12, # @TODO THIS BREAKS - WHYYY???
+              question_num: 14,
+              question_suffix: 'A',
+              question_text: 'INFORMATION NEEDED TO ADD SPOUSE > PREVIOUS MARRIAGE HISTORY > REASON FOR TERMINATION'
+            },
             'end_date' => {
               'month' => {
-                key: 'form1[0].#subform[18].DOBmonth[3]',
-                #key: 'form1[0].#subform[18].DOBmonth[%iterator%]',
+                key: 'veteran_marriage_history.end_date.month[%iterator%]',
                 limit: 2,
                 question_num: '14A 4',
                 question_suffix: 'A',
                 question_text: 'INFORMATION NEEDED TO ADD SPOUSE > PREVIOUS MARRIAGE HISTORY > TERMINATION MONTH'
               }, # end of termination month
               'day' => {
-                key: 'form1[0].#subform[18].DOBday[3]',
-                #key: 'form1[0].#subform[18].DOBday[%iterator%]',
+                key: 'veteran_marriage_history.end_date.day[%iterator%]',
                 limit: 2,
                 question_num: '14A 4',
                 question_suffix: 'B',
                 question_text: 'INFORMATION NEEDED TO ADD SPOUSE > PREVIOUS MARRIAGE HISTORY >  TERMINATION DAY'
               }, # end of termination day
               'year' => {
-                key: 'form1[0].#subform[18].DOByear[3]',
-                #key: 'form1[0].#subform[18].DOByear[%iterator%]',
+                key: 'veteran_marriage_history.end_date.year[%iterator%]',
                 limit: 4,
                 question_num: '14A 4',
                 question_suffix: 'C',
@@ -546,16 +536,14 @@ module PdfFill
             }, # end of end date
             'end_location' => {
               'city' => {
-                key: "form1[0].#subform[18].CurrentMailingAddress_City[4]",
-                #key: "form1[0].#subform[18].CurrentMailingAddress_City[%iterator%]",
+                key: 'veteran.previousMarriage.terminationCity[%iterator%]',
                 limit: 18,
-                question_num: '14A 4',
+                question_num: 14,
                 question_suffix: 'D',
                 question_text: 'INFORMATION NEEDED TO ADD SPOUSE > PREVIOUS MARRIAGE HISTORY >  TERMINATION CITY'
               }, # end city
               'state' => {
-                key: "form1[0].#subform[18].CurrentMailingAddress_StateOrProvince[4]",
-                #key: "form1[0].#subform[18].CurrentMailingAddress_StateOrProvince[%iterator%]",
+                key: 'veteran.previousMarriage.terminationState[%iterator%]',
                 limit: 2,
                 question_num: '14A 4',
                 question_suffix: 'E',
@@ -568,103 +556,100 @@ module PdfFill
             first_key: 'full_name',
             'full_name' => {
               'first' => {
-                key: "form1[0].#subform[19].#subform[20].CHILDFirstName[8]",
-                #key: "form1[0].#subform[19].#subform[20].CHILDFirstName[%iterator%]",
+                key: 'veteranSpouse.previousSpouse.firstName[%iterator%]',
                 limit: 12,
                 question_num: 15,
                 question_suffix: 'A',
                 question_text: 'INFORMATION NEEDED TO ADD SPOUSE > PREVIOUS MARRIAGE HISTORY >  SPOUSES PREVIOUS SPOUSE FIRST NAME'
-              }, # end of first name
+              },
               'middleInitial' => {
-                key: "form1[0].#subform[19].#subform[20].CHILDMiddleInitial1[4]",
+                key: 'veteranSpouse.previousSpouse.middleInitial[%iterator%]',
                 limit: 1,
                 question_num: 15,
                 question_suffix: 'B',
                 question_text: 'INFORMATION NEEDED TO ADD SPOUSE > PREVIOUS MARRIAGE HISTORY >  SPOUSES PREVIOUS SPOUSE MIDDLE INITIAL'
-              },  # end of middle name
+              },
               'last' => {
-                key: "form1[0].#subform[19].#subform[20].CHILDLastName[4]",
+                key: 'veteranSpouse.previousSpouse.lastName[%iterator%]',
                 limit: 18,
                 question_num: 15,
                 question_suffix: 'C',
                 question_text: 'INFORMATION NEEDED TO ADD SPOUSE > PREVIOUS MARRIAGE HISTORY >  SPOUSES PREVIOUS SPOUSE LAST NAME'
-              }, # end of last name
+              },
               'suffix' => {
-                # XXX not in the form
+                # @TODO not in the form
               } # end of suffix
             }, # end of full name
             'start_date' => {
-              'start_date_month' => {
-                key: "form1[0].#subform[19].#subform[20].DOBmonth[10]",
+              'month' => {
+                key: 'spouse_marriage_history.start_date.month[%iterator%]',
                 limit: 2,
                 question_num: '15A 2',
                 question_suffix: 'A',
                 question_text: 'INFORMATION NEEDED TO ADD SPOUSE > PREVIOUS MARRIAGE HISTORY >  PREVIOUS SPOUSE MARRIAGE DATE MONTH'
-              }, # end of previous spouse marriage month
-              'start_date_day' => {
-                key: "form1[0].#subform[19].#subform[20].DOBday[10]",
+              },
+              'day' => {
+                key: 'spouse_marriage_history.start_date.day[%iterator%]',
                 limit: 2,
                 question_num: '15A 2',
                 question_suffix: 'B',
                 question_text: 'INFORMATION NEEDED TO ADD SPOUSE > PREVIOUS MARRIAGE HISTORY >  PREVIOUS SPOUSE MARRIAGE DATE DAY'
-              }, # end of previous spouse marriage day
-              'start_date_year' => {
-                key: "form1[0].#subform[19].#subform[20].DOByear[10]",
+              },
+              'year' => {
+                key: 'spouse_marriage_history.start_date.year[%iterator%]',
                 limit: 4,
                 question_num: '15A 2',
                 question_suffix: 'C',
                 question_text: 'INFORMATION NEEDED TO ADD SPOUSE > PREVIOUS MARRIAGE HISTORY >  PREVIOUS SPOUSE MARRIAGE DATE YEAR'
-              }, # end of previous spouse marriage year
+              },
             }, # end of start date
             'start_location' => {
               'city' => {
-                key: "form1[0].#subform[19].#subform[20].CurrentMailingAddress_City[10]",
+                key: 'spouse_marriage_history.start_location.city[%iterator%]',
                 limit: 18,
                 question_num: 15,
                 question_suffix: 'D',
                 question_text: 'INFORMATION NEEDED TO ADD SPOUSE > PREVIOUS MARRIAGE HISTORY >  PREVIOUS SPOUSE MARRIAGE LOCATION CITY'
-              }, # end of start location city
+              },
               'state' => {
-                key: "form1[0].#subform[19].#subform[20].CurrentMailingAddress_StateOrProvince[10]",
+                key: 'spouse_marriage_history.start_location.state[%iterator%]',
                 limit: 2,
                 question_num: 15,
                 question_suffix: 'E',
                 question_text: 'INFORMATION NEEDED TO ADD SPOUSE > PREVIOUS MARRIAGE HISTORY >  PREVIOUS SPOUSE MARRIAGE LOCATION STATE'
-              }, # end of start location state
+              },
+              # @TODO country key: 'spouse_marriage_history.start_location.country[%iterator%]'
             }, # end of start location
             'reason_marriage_ended' => {
-              # XXX iterator
-              'death' => { key: 'form1[0].#subform[19].#subform[20].RadioButtonList[19]' },
-              'divorce' => { key: 'form1[0].#subform[19].#subform[20].RadioButtonList[18]' },
-              'annulment' => { key: 'form1[0].#subform[19].#subform[20].RadioButtonList[17]' },
-              'OTHER' => { key: 'form1[0].#subform[19].#subform[20].RadioButtonList[16]' }
-            }, # end of reason marriage ended
+              'death' => { key: 'spouse_marriage_history.reason_marriage_ended.death[%iterator%]' },
+              'divorce' => { key: 'spouse_marriage_history.reason_marriage_ended.divorce[%iterator%]' },
+              'annulment' => { key: 'spouse_marriage_history.reason_marriage_ended.annulment[%iterator%]' },
+              'other' => { key: 'spouse_marriage_history.reason_marriage_ended.other[%iterator%]' }
+            },
             'reason_marriage_ended_other' => {
-              # @TODO iterator, limit
-              #key: "form1[0].#subform[19].#subform[20].CHILDFirstName[9][%iterator%]",
-              key: "form1[0].#subform[19].#subform[20].CHILDFirstName[9]",
-              #limit: 12, #  XXX THIS BREAKS
+              key: 'spouse_marriage_history.reason_marriage_ended_other[%iterator%]',
+              #limit: 12, # @TODO THIS BREAKS - WHYYY???
               question_num: '14A 3',
               question_suffix: 'A',
               question_text: 'INFORMATION NEEDED TO ADD SPOUSE > PREVIOUS MARRIAGE HISTORY > REASON FOR TERMINATION'
-            }, # end of reason of marriage ended other
+            },
             'end_date' => {
-              'end_date_month' => {
-                key: "form1[0].#subform[19].#subform[20].DOBmonth[11]",
+              'month' => {
+                key: 'spouse_marriage_history.end_date.month[%iterator%]',
                 limit: 2,
                 question_num: '15A 4',
                 question_suffix: 'A',
                 question_text: 'INFORMATION NEEDED TO ADD SPOUSE > PREVIOUS MARRIAGE HISTORY >  PREVIOUS SPOUSE MARRIAGE DATE ENDED MONTH'
               }, # end of end date month
-              'end_date_day' => {
-                key: "form1[0].#subform[19].#subform[20].DOBday[11]",
+              'day' => {
+                key: 'spouse_marriage_history.end_date.day[%iterator%]',
                 limit: 2,
                 question_num: '15A 4',
                 question_suffix: 'B',
                 question_text: 'INFORMATION NEEDED TO ADD SPOUSE > PREVIOUS MARRIAGE HISTORY >  PREVIOUS SPOUSE MARRIAGE DATE ENDED DAY'
               }, # end of end date day
-              'end_date_year' => {
-                key: "form1[0].#subform[19].#subform[20].DOByear[11]",
+              'year' => {
+                key: 'spouse_marriage_history.end_date.year[%iterator%]',
                 limit: 4,
                 question_num: '15A 4',
                 question_suffix: 'C',
@@ -673,207 +658,69 @@ module PdfFill
             }, # end of end date
             'end_location' => {
               'city' => {
-                key: "form1[0].#subform[19].#subform[20].CurrentMailingAddress_City[11]",
+                key: 'spouse_marriage_history.end_location.city[%iterator%]',
                 limit: 18,
                 question_num: '15A 4',
                 question_suffix: 'D',
                 question_text: 'INFORMATION NEEDED TO ADD SPOUSE > PREVIOUS MARRIAGE HISTORY >  PREVIOUS SPOUSE MARRIAGE LOCATION CITY'
               },
               'state' => {
-                key: "form1[0].#subform[19].#subform[20].CurrentMailingAddress_StateOrProvince[11]",
+                key: 'spouse_marriage_history.end_location.state[%iterator%]',
                 limit: 2,
                 question_num: '15A 4',
                 question_suffix: 'E',
                 question_text: 'INFORMATION NEEDED TO ADD SPOUSE > PREVIOUS MARRIAGE HISTORY >  PREVIOUS SPOUSE MARRIAGE LOCATION STATE'
-              } # end of state
+              }
+              # @TODO country key: 'spouse_marriage_history.end_location.country[%iterator%]'
             } # end of location
           }, # end spouse_marriage_history
           # -----------------  SECTION III: INFORMATION NEEDED TO ADD CHILD(REN)  ----------------- #
           'children_to_add' => {
             limit: 4,
             first_key: 'full_name',
-            'child_address_info' => {
-              'person_child_lives_with' => {
-                'first' => {
-                  key: "form1[0].#subform[21].#subform[22].CHILDFirstName[17]",
-                  limit: 12,
-                  question_num: '16E',
-                  question_suffix: 'A',
-                  question_text: 'INFORMATION NEEDED TO ADD a CHILD > CHILD DOES NOT LIVE WITH CLAIMANT > FIRST NAME'
-                }, # end of first name
-                'middle' => {
-                  key: "form1[0].#subform[21].#subform[22].CHILDMiddleInitial1[9]",
-                  limit: 1,
-                  question_num: '16E',
-                  question_suffix: 'B',
-                  question_text: 'INFORMATION NEEDED TO ADD a CHILD > CHILD DOES NOT LIVE WITH CLAIMANT > MIDDLE INITIAL'
-                }, # end of middle initial
-                'last' => {
-                  key: "form1[0].#subform[21].#subform[22].CHILDLastName[9]",
-                  limit: 18,
-                  question_num: '16E',
-                  question_suffix: 'C',
-                  question_text: 'INFORMATION NEEDED TO ADD a CHILD > CHILD DOES NOT LIVE WITH CLAIMANT > LAST NAME'
-                } # end of last name
-              }, # end of person child lives with
-              'address' => {
-                'country_name' => {
-                  key: "form1[0].#subform[21].#subform[22].CurrentMailingAddress_Country[18]",
-                  limit: 2,
-                  question_num: '16F',
-                  question_suffix: 'E',
-                  question_text: 'INFORMATION NEEDED TO ADD a CHILD > CHILD DOES NOT LIVE WITH CLAIMANT > COUNTRY'
-                }, # end of country
-                'address_line1' => {
-                  key: "form1[0].#subform[21].#subform[22].CurrentMailingAddress_NumberAndStreet[2]",
-                  limit: 27,
-                  question_num: '16F',
-                  question_suffix: 'A',
-                  question_text: 'INFORMATION NEEDED TO ADD a CHILD > CHILD DOES NOT LIVE WITH CLAIMANT > ADDRESS'
-                }, # end of address line1
-                'city' => {
-                  key: "form1[0].#subform[21].#subform[22].CurrentMailingAddress_City[18]",
-                  limit: 18,
-                  question_num: '16F',
-                  question_suffix: 'C',
-                  question_text: 'INFORMATION NEEDED TO ADD a CHILD > CHILD DOES NOT LIVE WITH CLAIMANT > CITY'
-                }, # end of city
-                'state_code' => {
-                  key: "form1[0].#subform[21].#subform[22].CurrentMailingAddress_StateOrProvince[18]",
-                  limit: 2,
-                  question_num: '16F',
-                  question_suffix: 'D',
-                  question_text: 'INFORMATION NEEDED TO ADD a CHILD > CHILD DOES NOT LIVE WITH CLAIMANT > STATE'
-                }, # end of state code
-                'zip_code' => {
-                  key: "form1[0].#subform[21].#subform[22].CurrentMailingAddress_ZIPOrPostalCode_FirstFiveNumbers[2]",
-                  limit: 5,
-                  question_num: '16F',
-                  question_suffix: 'F',
-                  question_text: 'INFORMATION NEEDED TO ADD a CHILD > CHILD DOES NOT LIVE WITH CLAIMANT > ZIP'
-                } # end of zip code
-                # XXX I think we are missing address line 2 for this; apt number
-              } # end of address
-            }, # end child_address_info
-            'place_of_birth' => {
-              'state' => {
-                key: "form1[0].#subform[21].#subform[22].CurrentMailingAddress_StateOrProvince[19]",
-                limit: 2,
-                question_num: '16D',
-                question_suffix: 'B',
-                question_text: 'INFORMATION NEEDED TO ADD a CHILD > CHILD DOES NOT LIVE WITH CLAIMANT > PLACE OF BIRTH > STATE'
-              }, # end of state
-              'city' => {
-                key: "form1[0].#subform[21].#subform[22].CurrentMailingAddress_City[19]",
-                limit: 18,
-                question_num: '16D',
-                question_suffix: 'A',
-                question_text: 'INFORMATION NEEDED TO ADD a CHILD > CHILD DOES NOT LIVE WITH CLAIMANT > PLACEMENT OF BIRTH > CITY'
-              } # end of city
-            }, # end of place of birth
-            'child_status' => {
-              # XXX
-              'biological' => { key: 'form1[0].#subform[21].#subform[22].RadioButtonList[33]' },
-              'school_age_in_school' => { key: 'form1[0].#subform[21].#subform[22].RadioButtonList[36]' },
-              'adopted' => { key: 'form1[0].#subform[21].#subform[22].RadioButtonList[34]' },
-              'incapable_self_support' => { key: 'form1[0].#subform[21].#subform[22].RadioButtonList[32]' },
-              'child_previously_married' => { key: 'form1[0].#subform[21].#subform[22].RadioButtonList[37]' },
-              'stepchild' => { key: 'form1[0].#subform[21].#subform[22].RadioButtonList[35]' }
-            }, # end of child status
-            'previously_married' => {
-              # XXX
-              # ???
-
-            }, # end of previously married question
-            'previous_marriage_details' => {
-              'date_marriage_ended' => {
-                'month' => {
-                  key: "form1[0].#subform[21].#subform[22].DOBmonth[20]",
-                  limit: 2,
-                  question_num: '16H',
-                  question_suffix: 'A',
-                  question_text: 'INFORMATION NEEDED TO ADD a CHILD > CHILD DOES NOT LIVE WITH CLAIMANT > END DATE OF CHILDS MARRIAGE > MONTH'
-                }, # end of month
-                'day' => {
-                  key: "form1[0].#subform[21].#subform[22].DOBday[20]",
-                  limit: 2,
-                  question_num: '16H',
-                  question_suffix: 'B',
-                  question_text: 'INFORMATION NEEDED TO ADD a CHILD > CHILD DOES NOT LIVE WITH CLAIMANT > END DATE OF CHILDS MARRIAGE > DAY'
-                }, # end of day
-                'year' => {
-                  key: "form1[0].#subform[21].#subform[22].DOByear[20]",
-                  limit: 4,
-                  question_num: '16H',
-                  question_suffix: 'C',
-                  question_text: 'INFORMATION NEEDED TO ADD a CHILD > CHILD DOES NOT LIVE WITH CLAIMANT > END DATE OF CHILDS MARRIAGE > YEAR'
-                } # end of year
-              }, # end of date marriage ended
-              'reason_marriage_ended' => {
-                'declared_void' => { key: 'form1[0].#subform[21].#subform[22].RadioButtonList[40]' },
-                'annulled' => { key: 'form1[0].#subform[21].#subform[22].RadioButtonList[39]' },
-                'OTHER' => { key: 'form1[0].#subform[21].#subform[22].RadioButtonList[38]' }
-              },
-              'reason_marriage_ended_other' => {
-                'reason_marriage_ended_other_line1' => {
-                  key: "form1[0].#subform[21].#subform[22].CurrentMailingAddress_ZIPOrPostalCode_LastFourNumbers[3]",
-                  limit: 8,
-                  question_num: '16H',
-                  question_suffix: 'G', # after buttons?
-                  question_text: 'INFORMATION NEEDED TO ADD a CHILD > CHILD DOES NOT LIVE WITH CLAIMANT > END DATE OF CHILDS MARRIAGE > REASON LINE1'
-                }, # end of marriage end reason line 1
-                'reason_marriage_ended_other_line2' => {
-                  key: "form1[0].#subform[21].#subform[22].CurrentMailingAddress_ZIPOrPostalCode_LastFourNumbers[4]",
-                  limit: 8,
-                  question_num: '16H',
-                  question_suffix: 'H', # after buttons?
-                  question_text: 'INFORMATION NEEDED TO ADD a CHILD > CHILD DOES NOT LIVE WITH CLAIMANT > END DATE OF CHILDS MARRIAGE > REASON LINE2'
-                } # end of marriage end reason line 2
-              } # end of reason_marriage_ended_other
-            }, # end of previous marriage details
-            'full_name' => { # remember, this is for the kid (adopted)
+            'full_name' => {
               'first' => {
-                key: "form1[0].#subform[21].#subform[22].CHILDFirstName[16]",
+                key: 'children_to_add.full_name.first[%iterator%]',
                 limit: 12,
                 question_num: '16A',
                 question_suffix: 'A',
                 question_text: 'INFORMATION NEEDED TO ADD a CHILD > WHEN ADOPTED IS SELECTED > FIRST NAME'
-              }, # end of first name
-              'middle' => {
-                key: "form1[0].#subform[21].#subform[22].CHILDMiddleInitial1[8]",
+              },
+              'middleInitial' => {
+                key: 'children_to_add.full_name.middleInitial[%iterator%]',
                 limit: 1,
                 question_num: '16A',
                 question_suffix: 'B',
                 question_text: 'INFORMATION NEEDED TO ADD a CHILD > WHEN ADOPTED IS SELECTED > MIDDLE INITIAL'
-              }, # end of middle inital
+              },
               'last' => {
-                key: "form1[0].#subform[21].#subform[22].CHILDLastName[8]",
+                key: 'children_to_add.full_name.last[%iterator%]',
                 limit: 18,
                 question_num: '16A',
                 question_suffix: 'B',
                 question_text: 'INFORMATION NEEDED TO ADD a CHILD > WHEN ADOPTED IS SELECTED > LAST NAME'
-              }, # end of last name
-                # 'suffix' => {
-
-               # } # end of suffix
+              },
+              # 'suffix' => {
+              #  @TODO suffix
+              # }
             }, # end of full name
             'ssn' => {
               'first' => {
-                key: "form1[0].#subform[21].#subform[22].ClaimantsSocialSecurityNumber_FirstThreeNumbers[0]",
+                key: 'children_to_add.ssn.first[%iterator%]',
                 limit: 3,
                 question_num: '16B',
                 question_suffix: 'A',
                 question_text: 'INFORMATION NEEDED TO ADD a CHILD > WHEN ADOPTED IS SELECTED > FIRST THREE SSN'
               }, # end of ssn first three
               'second' => {
-                key: "form1[0].#subform[21].#subform[22].ClaimantsSocialSecurityNumber_SecondTwoNumbers[1]",
+                key: 'children_to_add.ssn.second[%iterator%]',
                 limit: 2,
                 question_num: '16B',
                 question_suffix: 'B',
                 question_text: 'INFORMATION NEEDED TO ADD a CHILD > WHEN ADOPTED IS SELECTED > SECOND TWO SSN'
               }, # end of second two
               'third' => {
-                key: "form1[0].#subform[21].#subform[22].ClaimantsSocialSecurityNumber_LastFourNumbers[1]",
+                key: 'children_to_add.ssn.third[%iterator%]',
                 limit: 4,
                 question_num: '16B',
                 question_suffix: 'C',
@@ -882,27 +729,177 @@ module PdfFill
             }, # end of ssn
             'birth_date' => {
               'month' => {
-                key: "form1[0].#subform[21].#subform[22].DOBmonth[18]",
+                key: 'children_to_add.birth_date.month[%iterator%]',
                 limit: 2,
                 question_num: '16C',
                 question_suffix: 'A',
                 question_text: 'INFORMATION NEEDED TO ADD a CHILD > WHEN ADOPTED IS SELECTED > THEIR BIRTHDAY MONTH'
-              }, # end of birth date month
+              },
               'day' => {
-                key: "form1[0].#subform[21].#subform[22].DOBday[18]",
+                key: 'children_to_add.birth_date.day[%iterator%]',
                 limit: 4,
                 question_num: '16C',
                 question_suffix: 'B',
                 question_text: 'INFORMATION NEEDED TO ADD a CHILD > WHEN ADOPTED IS SELECTED > THEIR BIRTHDAY DAY'
-              }, # end of birth date day
+              },
               'year' => {
-                key: "form1[0].#subform[21].#subform[22].DOByear[18]",
+                key: 'children_to_add.birth_date.year[%iterator%]',
                 limit: 4,
                 question_num: '16B',
                 question_suffix: 'C',
                 question_text: 'INFORMATION NEEDED TO ADD a CHILD > WHEN ADOPTED IS SELECTED > THEIR BIRTHDAY YEAR'
-              } # end of birth date year
-            } # end of birth date
+              }
+            }, # birth_date
+            'place_of_birth' => {
+              'city' => {
+                key: 'children_to_add.place_of_birth.city[%iterator%]',
+                limit: 18,
+                question_num: '16D',
+                question_suffix: 'A',
+                question_text: 'INFORMATION NEEDED TO ADD a CHILD > CHILD DOES NOT LIVE WITH CLAIMANT > PLACEMENT OF BIRTH > CITY'
+              },
+              'state' => {
+                key: 'children_to_add.place_of_birth.state[%iterator%]',
+                limit: 2,
+                question_num: '16D',
+                question_suffix: 'B',
+                question_text: 'INFORMATION NEEDED TO ADD a CHILD > CHILD DOES NOT LIVE WITH CLAIMANT > PLACE OF BIRTH > STATE'
+              }
+              # @TODO country
+            }, # end place_of_birth
+            'child_address_info' => {
+              'person_child_lives_with' => {
+                'first' => {
+                  key: 'children_to_add.child_address_info.person_child_lives_with.first[%iterator%]',
+                  limit: 12,
+                  question_num: '16E',
+                  question_suffix: 'A',
+                  question_text: 'INFORMATION NEEDED TO ADD a CHILD > CHILD DOES NOT LIVE WITH CLAIMANT > FIRST NAME'
+                }, # end of first name
+                'middleInitial' => {
+                  key: 'children_to_add.child_address_info.person_child_lives_with.middleInitial[%iterator%]',
+                  limit: 1,
+                  question_num: '16E',
+                  question_suffix: 'B',
+                  question_text: 'INFORMATION NEEDED TO ADD a CHILD > CHILD DOES NOT LIVE WITH CLAIMANT > MIDDLE INITIAL'
+                }, # end of middle initial
+                'last' => {
+                  key: 'children_to_add.child_address_info.person_child_lives_with.last[%iterator%]',
+                  limit: 18,
+                  question_num: '16E',
+                  question_suffix: 'C',
+                  question_text: 'INFORMATION NEEDED TO ADD a CHILD > CHILD DOES NOT LIVE WITH CLAIMANT > LAST NAME'
+                } # end of last name
+              }, # end of person child lives with
+              'address' => {
+                'address_line1' => {
+                  key: 'children_to_add.child_address_info.address.address_line1[%iterator%]',
+                  limit: 27,
+                  question_num: '16F',
+                  question_suffix: 'A',
+                  question_text: 'INFORMATION NEEDED TO ADD a CHILD > CHILD DOES NOT LIVE WITH CLAIMANT > ADDRESS'
+                }, # end of address line1
+                'address_line2' => {
+                  key: 'children_to_add.child_address_info.address.address_line2[%iterator%]',
+                  limit: 5,
+                  question_num: '16F',
+                  question_suffix: 'B',
+                  question_text: 'INFORMATION NEEDED TO ADD a CHILD > CHILD DOES NOT LIVE WITH CLAIMANT > ADDRESS'
+                },
+                'city' => {
+                  key: 'children_to_add.child_address_info.address.city[%iterator%]',
+                  limit: 18,
+                  question_num: '16F',
+                  question_suffix: 'C',
+                  question_text: 'INFORMATION NEEDED TO ADD a CHILD > CHILD DOES NOT LIVE WITH CLAIMANT > CITY'
+                }, # end of city
+                'state_code' => {
+                  key: 'children_to_add.child_address_info.address.state_code[%iterator%]',
+                  limit: 2,
+                  question_num: '16F',
+                  question_suffix: 'D',
+                  question_text: 'INFORMATION NEEDED TO ADD a CHILD > CHILD DOES NOT LIVE WITH CLAIMANT > STATE'
+                },
+                'country_name' => {
+                  key: 'children_to_add.child_address_info.address.country_name[%iterator%]',
+                  limit: 2,
+                  question_num: '16F',
+                  question_suffix: 'E',
+                  question_text: 'INFORMATION NEEDED TO ADD a CHILD > CHILD DOES NOT LIVE WITH CLAIMANT > COUNTRY'
+                },
+                'zip_code' => {
+                  'firstFive' => {
+                    key: 'children_to_add.child_address_info.address.zip_code.first_five[%iterator%]',
+                    limit: 5,
+                    question_num: '16F',
+                    question_suffix: 'F',
+                    question_text: 'INFORMATION NEEDED TO ADD a CHILD > CHILD DOES NOT LIVE WITH CLAIMANT > ZIP'
+                  },
+                  'lastFour' => {
+                    key: 'children_to_add.child_address_info.address.zip_code.last_four[%iterator%]',
+                    limit: 4,
+                    question_num: '16F',
+                    question_suffix: 'G',
+                    question_text: 'INFORMATION NEEDED TO ADD a CHILD > CHILD DOES NOT LIVE WITH CLAIMANT > ZIP'
+                  }
+                }
+              } # end address
+            }, # end child_address_info
+            'child_status' => {
+              'biological' => { key: 'children_to_add.child_status.biological[%iterator%]' },
+              'school_age_in_school' => { key: 'children_to_add.child_status.school_age_in_school[%iterator%]' },
+              'adopted' => { key: 'children_to_add.child_status.adopted[%iterator%]' },
+              'incapable_self_support' => { key: 'children_to_add.child_status.incapable_self_support[%iterator%]' },
+              'child_previously_married' => { key: 'children_to_add.child_status.child_previously_married[%iterator%]' },
+              'stepchild' => { key: 'children_to_add.child_status.stepchild[%iterator%]' }
+            }, # end of child status
+            'previous_marriage_details' => {
+              'date_marriage_ended' => {
+                'month' => {
+                  key: 'children_to_add.previous_marriage_details.date_marriage_ended.month[%iterator%]',
+                  limit: 2,
+                  question_num: '16H',
+                  question_suffix: 'A',
+                  question_text: 'INFORMATION NEEDED TO ADD a CHILD > CHILD DOES NOT LIVE WITH CLAIMANT > END DATE OF CHILDS MARRIAGE > MONTH'
+                }, # end of month
+                'day' => {
+                  key: 'children_to_add.previous_marriage_details.date_marriage_ended.day[%iterator%]',
+                  limit: 2,
+                  question_num: '16H',
+                  question_suffix: 'B',
+                  question_text: 'INFORMATION NEEDED TO ADD a CHILD > CHILD DOES NOT LIVE WITH CLAIMANT > END DATE OF CHILDS MARRIAGE > DAY'
+                }, # end of day
+                'year' => {
+                  key: 'children_to_add.previous_marriage_details.date_marriage_ended.year[%iterator%]',
+                  limit: 4,
+                  question_num: '16H',
+                  question_suffix: 'C',
+                  question_text: 'INFORMATION NEEDED TO ADD a CHILD > CHILD DOES NOT LIVE WITH CLAIMANT > END DATE OF CHILDS MARRIAGE > YEAR'
+                } # end of year
+              }, # end of date marriage ended
+              'reason_marriage_ended' => {
+                'declared_void' => { key: 'children_to_add.previous_marriage_details.reason_marriage_ended.declared_void[%iterator%]' },
+                'annulled' => { key: 'children_to_add.previous_marriage_details.reason_marriage_ended.annulled[%iterator%]' },
+                'other' => { key: 'children_to_add.previous_marriage_details.reason_marriage_ended.other[%iterator%]' }
+              },
+              'reason_marriage_ended_other' => {
+                'reason_marriage_ended_other_line1' => {
+                  key: 'children_to_add.previous_marriage_details.reason_marriage_ended_other.reason_marriage_ended_other_line1[%iterator%]',
+                  limit: 8,
+                  question_num: '16H',
+                  question_suffix: 'G', # after buttons?
+                  question_text: 'INFORMATION NEEDED TO ADD a CHILD > CHILD DOES NOT LIVE WITH CLAIMANT > END DATE OF CHILDS MARRIAGE > REASON LINE1'
+                },
+                'reason_marriage_ended_other_line2' => {
+                  key: 'children_to_add.previous_marriage_details.reason_marriage_ended_other.reason_marriage_ended_other_line2[%iterator%]',
+                  limit: 8,
+                  question_num: '16H',
+                  question_suffix: 'H', # after buttons?
+                  question_text: 'INFORMATION NEEDED TO ADD a CHILD > CHILD DOES NOT LIVE WITH CLAIMANT > END DATE OF CHILDS MARRIAGE > REASON LINE2'
+                }
+              } # end reason_marriage_ended_other
+            } # end previous_marriage_details
+            # @TODO 16I. IF YOU CHECKED "STEPCHILD" IN ITEM 17G, IS STEPCHILD THE BIOLOGICAL CHILD OF YOUR SPOUSE?
           }, # end children_to_add
           # ------------  SECTION IV: VETERAN REPORTING DIVORCE FROM FORMER SPOUSE  ----------------- #
           'report_divorce' => {
@@ -914,7 +911,7 @@ module PdfFill
                 question_suffix: 'A',
                 question_text: 'VETERAN REPORTING DIVORCE FROM FORMER SPOUSE > NAME OF FORMER SPOUSE'
               },
-              'middle' => {
+              'middleInitial' => {
                 key: 'form1[0].#subform[25].#subform[26].#subform[27].FORMERSPOUSEMiddleInitial1[0]',
                 limit: 1,
                 question_num: '20A',
@@ -929,7 +926,7 @@ module PdfFill
                 question_text: 'VETERAN REPORTING DIVORCE FROM FORMER SPOUSE > NAME OF FORMER SPOUSE'
               },
               'suffix' => {
-                # ???  does not exist on pdf
+                # @TODO  does not exist on pdf
               }
             }, # end full_name
             'location' => {
@@ -1393,57 +1390,88 @@ module PdfFill
       end
 
       def merge_previous_marriage_helpers
+        previous_spouses = @form_data['dependents_application']['veteran_marriage_history']
         # extract veteran marriage history dates
-        # @TODO array
-        #KEY['dependents_application']['veteran_marriage_history']['start_date']['month'][:key] = "form1[0].#subform[18].DOBmonth[2]"
-        @form_data['dependents_application']['veteran_marriage_history'][0]['start_date'] =
-          split_date(@form_data['dependents_application']['veteran_marriage_history'][0]['start_date'])
-
-        @form_data['dependents_application']['veteran_marriage_history'][0]['end_date'] =
-          split_date(@form_data['dependents_application']['veteran_marriage_history'][0]['end_date'])
-
-        # this populates start_location city and state
-        # form1[0].#subform[18].CurrentMailingAddress_City[3]
-        # @form_data['dependents_application']['veteran_marriage_history'][2] = @form_data['dependents_application']['veteran_marriage_history'][0]
-        # @form_data['dependents_application']['veteran_marriage_history'][3] = @form_data['dependents_application']['veteran_marriage_history'][1]
+        previous_spouses.each do |spouse|
+          spouse['start_date'] = split_date(spouse['start_date'])
+          spouse['end_date'] = split_date(spouse['end_date'])
+        end
 
         expand_reason_marriage_ended
       end
 
       def merge_spouse_marriage_history_helpers
-        # extract middle initial
-        @form_data['dependents_application']['spouse_marriage_history'][0]['full_name'] = extract_middle_i(@form_data['dependents_application']['spouse_marriage_history'][0], 'full_name')
+        previous_spouses = @form_data['dependents_application']['spouse_marriage_history']
 
-        # extract spouse marriage history dates
-        # @TODO array
-        @form_data['dependents_application']['spouse_marriage_history'][0]['start_date'] = split_date(@form_data['dependents_application']['spouse_marriage_history'][0]['start_date'])
-        @form_data['dependents_application']['spouse_marriage_history'][0]['end_date'] = split_date(@form_data['dependents_application']['spouse_marriage_history'][0]['end_date'])
+        previous_spouses.each do |spouse|
+          # extract middle initial
+          spouse['full_name'] = extract_middle_i(spouse, 'full_name')
+          # extract spouse marriage history dates
+          spouse['start_date'] = split_date(spouse['start_date'])
+          spouse['end_date'] = split_date(spouse['end_date'])
+        end
       end
 
       def merge_child_helpers
-        # extract middle initial
-        @form_data['dependents_application']['children_to_add'][0]['full_name']['middle'] =
-          extract_middle_i(@form_data['dependents_application']['children_to_add'][0], 'full_name')
+        children_to_add = @form_data['dependents_application']['children_to_add']
 
-        # extract birth date
-        @form_data['dependents_application']['children_to_add'][0]['birth_date'] =
-          split_date(@form_data['dependents_application']['children_to_add'][0]['birth_date'])
+        children_to_add.each do |child|
+          # extract middle initial
+          child['full_name'] = extract_middle_i(child, 'full_name')
 
-        # extract ssn
-        ssn = @form_data['dependents_application']['children_to_add'][0]['ssn']
-        @form_data['dependents_application']['children_to_add'][0]['ssn'] = split_ssn(ssn.delete('-')) unless ssn.blank?
+          # extract birth date
+          child['birth_date'] = split_date(child['birth_date'])
 
-        # extract date
-        @form_data['dependents_application']['children_to_add'][0]['previous_marriage_details']['date_marriage_ended'] =
-          split_date(@form_data['dependents_application']['children_to_add'][0]['previous_marriage_details']['date_marriage_ended'])
+          # extract ssn
+          # @TODO is there a better way to do this?
+          ssn = child['ssn']
+          child['ssn'] = split_ssn(ssn.delete('-')) unless ssn.blank?
 
-        expand_child_status
-        expand_reason_child_marriage_ended
+          # extract postal code
+          # @TODO is there a better way to do this?
+          if !child['does_child_live_with_you']
+            child['child_address_info']['address']['postalCode'] = child['child_address_info']['address']['zip_code']
+            child['child_address_info']['address']['zip_code'] = split_postal_code(child['child_address_info']['address'])
+          end
+
+          # expand child status
+          child_status = child['child_status']
+
+          # @TODO child_status = {"biological"=>true}
+          # need to check values from FE why is this one coming in differently than the others?
+          child['child_status'] = {
+            'biological' => child_status['biological'] ? 0 : 'Off',
+            'school_age_in_school' => child_status['school_age_in_school'] ? 0 : 'Off',
+            'adopted' => child_status['adopted'] ? 0 : 'Off',
+            'incapable_self_support' => child_status['incapable_self_support'] ? 0 : 'Off',
+            'child_previously_married' => child_status['child_previously_married'] ? 0 : 'Off',
+            'stepchild' => child_status['stepchild'] ? 0 : 'Off'
+          }
+
+          if child['previously_married'] == 'Yes'
+            # extract date
+            child['previous_marriage_details']['date_marriage_ended'] = split_date(child['previous_marriage_details']['date_marriage_ended'])
+
+            # expand reason child marriage ended
+            reason_marriage_ended = child['previous_marriage_details']['reason_marriage_ended']
+            # @TODO confirm option values coming from FE
+            child['previous_marriage_details']['reason_marriage_ended'] = {
+              'declared_void' => reason_marriage_ended == 'declared_void' ? 0 : 'Off',
+              'annulled' => reason_marriage_ended == 'annulled' ? 0 : 'Off',
+              'other' => reason_marriage_ended == 'OTHER'? 0 : 'Off'
+            }
+          end
+        end
       end
 
       def merge_divorce_helpers
+        divorce = @form_data['dependents_application']['report_divorce']
+
         #extract date
-        @form_data['dependents_application']['report_divorce']['date'] = split_date(@form_data['dependents_application']['report_divorce']['date'])
+        divorce['date'] = split_date(divorce['date'])
+
+        # extract middle initial
+        divorce['full_name'] = extract_middle_i(divorce, 'full_name')
       end
 
       def merge_stepchildren_helpers
@@ -1499,45 +1527,30 @@ module PdfFill
       end
 
       def expand_reason_marriage_ended
-        reason_marriage_ended = @form_data['dependents_application']['veteran_marriage_history'][0]['reason_marriage_ended']
-        # @TODO confirm option values coming from FE
-        @form_data['dependents_application']['veteran_marriage_history'][0]['reason_marriage_ended'] = {
-          'death' => reason_marriage_ended == 'DEATH' ? 1 : 'Off',
-          'divorce' => reason_marriage_ended == 'DIVORCE' ? 1 : 'Off',
-          'annulment' => reason_marriage_ended == 'ANNULMENT'? 1 : 'Off',
-          'OTHER' => reason_marriage_ended == 'OTHER' ? 1 : 'Off'
-        }
+        # @TODO change this loop
+        4.times do |i|
+          break unless @form_data['dependents_application']['veteran_marriage_history'][i]
 
-        reason_marriage_ended = @form_data['dependents_application']['spouse_marriage_history'][0]['reason_marriage_ended']
-        # @TODO confirm option values coming from FE
-        @form_data['dependents_application']['spouse_marriage_history'][0]['reason_marriage_ended'] = {
-          'death' => reason_marriage_ended == 'DEATH' ? 1 : 'Off',
-          'divorce' => reason_marriage_ended == 'DIVORCE' ? 1 : 'Off',
-          'annulment' => reason_marriage_ended == 'ANNULMENT'? 1 : 'Off',
-          'OTHER' => reason_marriage_ended == 'OTHER' ? 1 : 'Off'
-        }
-      end
+          # @TODO reason_marriage_ended = 'report_divorce'???  check values from FE
 
-      def expand_reason_child_marriage_ended
-        reason_marriage_ended = @form_data['dependents_application']['children_to_add'][0]['previous_marriage_details']['reason_marriage_ended']
-        # @TODO confirm option values coming from FE
-        @form_data['dependents_application']['children_to_add'][0]['previous_marriage_details']['reason_marriage_ended'] = {
-          'declared_void' => reason_marriage_ended == 'declared_void' ? 1 : 'Off',
-          'annulled' => reason_marriage_ended == 'annulled' ? 1 : 'Off',
-          'OTHER' => reason_marriage_ended == 'OTHER'? 1 : 'Off'
-        }
-      end
+          reason_marriage_ended = @form_data['dependents_application']['veteran_marriage_history'][i]['reason_marriage_ended']
+          # @TODO confirm option values coming from FE
+          @form_data['dependents_application']['veteran_marriage_history'][i]['reason_marriage_ended'] = {
+            'death' => reason_marriage_ended == 'DEATH' ? 0 : 'Off',
+            'divorce' => reason_marriage_ended == 'DIVORCE' ? 0 : 'Off',
+            'annulment' => reason_marriage_ended == 'ANNULMENT'? 0 : 'Off',
+            'other' => reason_marriage_ended == 'OTHER' ? 0 : 'Off'
+          }
 
-      def expand_child_status
-        child_status = @form_data['dependents_application']['children_to_add'][0]['child_status']
-        @form_data['dependents_application']['children_to_add'][0]['child_status'] = {
-          'biological' => child_status == 'biological' ? 1 : 'Off',
-          'school_age_in_school' => child_status == 'school_age_in_school' ? 1 : 'Off',
-          'adopted' => child_status == 'adopted'? 1 : 'Off',
-          'incapable_self_support' => child_status == 'incapable_self_support' ? 1 : 'Off',
-          'child_previously_married' => child_status == 'child_previously_married'? 1 : 'Off',
-          'stepchild' => child_status == 'stepchild'? 1 : 'Off'
-        }
+          reason_marriage_ended = @form_data['dependents_application']['spouse_marriage_history'][i]['reason_marriage_ended']
+          # @TODO confirm option values coming from FE
+          @form_data['dependents_application']['spouse_marriage_history'][i]['reason_marriage_ended'] = {
+            'death' => reason_marriage_ended == 'DEATH' ? 0 : 'Off',
+            'divorce' => reason_marriage_ended == 'DIVORCE' ? 0 : 'Off',
+            'annulment' => reason_marriage_ended == 'ANNULMENT'? 0 : 'Off',
+            'other' => reason_marriage_ended == 'OTHER' ? 0 : 'Off'
+          }
+        end
       end
 
       def expand_supporting_stepchild
