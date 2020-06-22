@@ -2,11 +2,9 @@
 
 module Facilities
   class VHAFacility < BaseFacility
-    has_many :drivetime_bands
+    has_many :drivetime_bands, dependent: :destroy
 
     class << self
-      attr_writer :validate_on_load
-
       def pull_source_data
         get_all_the_facilities_data.map(&method(:new))
       end
