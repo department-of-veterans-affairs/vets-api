@@ -180,7 +180,13 @@ module EVSS
             'confinements' => translate_confinements,
             'reservesNationalGuardService' => translate_national_guard_service,
             'servedInCombatZone' => input_form['servedInCombatZonePost911'],
-            'alternateNames' => translate_names
+            'alternateNames' => translate_names,
+            'separationLocationName' => input_form.dig('serviceInformation',
+                                                       'separationLocation',
+                                                       'separationLocationName'),
+            'separationLocationCode' => input_form.dig('serviceInformation',
+                                                       'separationLocation',
+                                                       'separationLocationCode')
           }.compact
         }
       end
