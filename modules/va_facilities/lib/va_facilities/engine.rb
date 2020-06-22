@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
-module VaFacilities
+module VAFacilities
   class Engine < ::Rails::Engine
-    isolate_namespace VaFacilities
+    isolate_namespace VAFacilities
 
     rake_tasks do
       Dir[File.join(root.to_s, '/lib/tasks/', '**/*.rake')].each do |file|

@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 # rubocop:disable Metrics/ModuleLength
-module VaFacilities
+module VAFacilities
   module ParamValidators
     TYPE_SERVICE_ERR = 'Filtering by services is not allowed unless a facility type is specified'
     MISSING_FACILITIES_PARAMS_ERR =
