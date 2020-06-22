@@ -3,31 +3,38 @@
 module CARMA
   module Models
     class Attachment < Base
+      DOCUMENT_TYPES = { '10-10CG' => '10-10CG', 'POA' => 'POA' }.freeze
+
       attr_accessor   :carma_case_id,
-                      :title,
+                      :veteran_name,
                       :file_path,
                       :document_type,
-                      :document_date
-
-      DOCUMENT_TYPES = {
-        _10_10cg: '10-10CG',
-        poa: 'POA'
-      }.freeze
+                      :document_date,
+                      :submitted_at
 
       def initialize(args = {})
+        # TODO: We should select a timezone based on the claim's planned facility.
+        timezone = 'Eastern Time (US & Canada)'
+
         @carma_case_id = args[:carma_case_id]
-        @title = args[:title]
+        @veteran_name = args[:veteran_name]
         @file_path = args[:file_path]
         @document_type = args[:document_type]
-        @document_date = args[:document_date]
+
+        # rubocop:disable Rails/Date
+        @document_date = args[:document_date] || Date.today.in_time_zone(timezone).strftime('%m-%d-%Y')
+        # rubocop:enable Rails/Date
+
+        @submitted_at = args[:submitted_at]
       end
 
-      def as_base64
-        Base64.encode64(
-          File.read(
-            file_path
-          )
-        )
+      def title
+        [
+          document_type,
+          veteran_name[:first],
+          veteran_name[:last],
+          document_date
+        ].join('_')
       end
 
       def to_request_payload
@@ -75,7 +82,7 @@ module CARMA
           # value:      Date when the document is uploaded.
           # comments:   Date the file was submitted in the format YYYY-MM-DD
           # examples:   '2020-03-30'
-          'CARMA_Document_Date__c' => document_date.to_s,
+          'CARMA_Document_Date__c' => document_date,
 
           # property:   FirstPublishLocationId
           # value:      The carmacase.id that was returned during a successful application creation.
@@ -91,6 +98,40 @@ module CARMA
           # examples:   'JVBERi0xLjMKJcTl8uXrp<.....rest of the base64 ecoded pdf file content>'
           'VersionData' => as_base64
         }
+      end
+
+      def submitted?
+        @submitted_at.present?
+      end
+
+      def submit!
+        raise 'This attachment has already been submitted to CARMA' if submitted?
+
+        if Flipper.enabled?(:stub_carma_responses)
+          client.create_attachment_stub(to_request_payload)
+        else
+          client.create_attachment(to_request_payload)
+        end
+
+        # @carma_case_id = response['data']['carmacase']['id']
+        # @submitted_at = response['data']['carmacase']['createdAt']
+        @submitted_at = DateTime.now.utc.iso8601
+
+        self
+      end
+
+      private
+
+      def as_base64
+        Base64.encode64(
+          File.read(
+            file_path
+          )
+        )
+      end
+
+      def client
+        @client ||= CARMA::Client::Client.new
       end
     end
   end
