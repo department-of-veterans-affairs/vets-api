@@ -2,7 +2,7 @@
 
 require 'sidekiq'
 
-module VaForms
+module VAForms
   class FormReloader
     include Sidekiq::Worker
     include SentryLogging
