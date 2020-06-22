@@ -2,6 +2,7 @@
 
 ActiveSupport::Inflector.inflections do |inflect|
   inflect.acronym 'AWS'
+  inflect.acronym 'BGS'
   inflect.acronym 'CC'
   inflect.acronym 'DOD'
   inflect.acronym 'EMIS'
@@ -17,5 +18,6 @@ ActiveSupport::Inflector.inflections do |inflect|
   inflect.acronym 'VAOS'
   inflect.acronym 'VBA'
   inflect.acronym 'VIC'
+  inflect.acronym 'VSO'
   inflect.uncountable 'terms_and_conditions'
 end

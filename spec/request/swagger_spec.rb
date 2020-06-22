@@ -503,7 +503,7 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
 
     describe 'disability compensation' do
       before do
-        create(:in_progress_form, form_id: VA526ez::FORM_ID, user_uuid: mhv_user.uuid)
+        create(:in_progress_form, form_id: FormProfiles::VA526ez::FORM_ID, user_uuid: mhv_user.uuid)
       end
 
       let(:form526) do
@@ -657,6 +657,34 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
             200,
             headers.update('type' => 'compensation')
           )
+        end
+      end
+    end
+
+    describe 'MVI Users' do
+      context 'when user is correct' do
+        let(:mhv_user) { build(:user_with_no_ids) }
+
+        it 'fails when invalid form id is passed' do
+          expect(subject).to validate(:post, '/v0/mvi_users/{id}', 403, headers.merge('id' => '12-1234'))
+        end
+        it 'when correct form id is passed, it supports creating mvi user' do
+          VCR.use_cassette('mvi/add_person/add_person_success') do
+            VCR.use_cassette('mvi/find_candidate/orch_search_with_attributes') do
+              expect(subject).to validate(:post, '/v0/mvi_users/{id}', 200, headers.merge('id' => '21-0966'))
+            end
+          end
+        end
+      end
+
+      it 'fails when no user information is passed' do
+        expect(subject).to validate(:post, '/v0/mvi_users/{id}', 401, 'id' => '21-0966')
+      end
+      context 'when user is missing birls only' do
+        let(:mhv_user) { build(:user_with_no_birls_id) }
+
+        it 'fails with 422' do
+          expect(subject).to validate(:post, '/v0/mvi_users/{id}', 422, headers.merge('id' => '21-0966'))
         end
       end
     end
@@ -2617,6 +2645,15 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
         expect(subject).to validate(:get, '/v0/dependents_applications/show', 401)
         VCR.use_cassette('bgs/claimant_web_service/dependents') do
           expect(subject).to validate(:get, '/v0/dependents_applications/show', 200, headers)
+        end
+      end
+    end
+
+    describe 'va file number' do
+      it 'supports checking if a user has a veteran number' do
+        expect(subject).to validate(:get, '/v0/profile/valid_va_file_number', 401)
+        VCR.use_cassette('bgs/person_web_service/find_person_by_participant_id') do
+          expect(subject).to validate(:get, '/v0/profile/valid_va_file_number', 200, headers)
         end
       end
     end

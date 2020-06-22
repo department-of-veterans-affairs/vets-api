@@ -35,8 +35,9 @@ module Swagger
           parameter :authorization
 
           parameter do
-            key :name, :name_part
-            key :description, 'part of a condition name'
+            key :name, :params
+            key :description, 'part of a medical term of lay term for a medical condition;
+              for example "?name_part=anxiety"'
             key :in, :path
             key :type, :string
             key :required, true
