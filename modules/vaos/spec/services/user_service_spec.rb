@@ -37,7 +37,8 @@ describe VAOS::UserService do
       'JdLCJleHAiOjE1OTI1MjM5NDUsImp0aSI6IjEzM2JhZjVkLWZjNjItNGY0ZS04YTkxLWY2YjE2MmQzODk0ZiIsImxvYSI6Mn0.Q0RuJojxa1X' \
       'asQGFrMD4TZJqMGPJL2Y-2S0i_PEzt7ODQXSah4MnJAbT8r48D91yvCBR8x4tMArRaO-1_SpxFKOMT-ysXqcYV-LeZyuewiuNO6c8gfVUwsOs' \
       'SF0FYY2RqV33OHEdSYQu_wMCVf-1mV5nKURQcNtaOH1vw42zruu6JUooEqSUgzLXeMmjrZVMQyeOBVHsNCV-BEIUWyPta1HcnLr-z0hyASS1Z' \
-      'VpEqDzdWOaWmAgVJGj0ctyYZQG-kbLs_t36zkN8XK3HEN1-Gjy2WLGjLLlHQbG3AFHih0pyiM2NsUSJWH0_r_S2wF4h-GtXeIPckS2JfBZ0F5HM1A'
+      'VpEqDzdWOaWmAgVJGj0ctyYZQG-kbLs_t36zkN8XK3HEN1-Gjy2WLGjLLlHQbG3AFHih0pyiM2NsUSJWH0_r_S2wF4h-GtXeIPckS2JfBZ0F5' \
+      'HM1A'
     end
 
     let(:rsa_key) { OpenSSL::PKey::RSA.new(read_fixture_file('open_ssl_rsa_private.pem')) }
