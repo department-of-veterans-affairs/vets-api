@@ -375,7 +375,7 @@ RSpec.describe V1::SessionsController, type: :controller do
     describe 'GET sessions/slo/new' do
       before do
         mhv_account = double('mhv_account', ineligible?: false, needs_terms_acceptance?: false, upgraded?: true)
-        allow(MhvAccount).to receive(:find_or_initialize_by).and_return(mhv_account)
+        allow(MHVAccount).to receive(:find_or_initialize_by).and_return(mhv_account)
         Session.find(token).to_hash.each { |k, v| session[k] = v }
         cookies['vagov_session_dev'] = 'bar'
       end

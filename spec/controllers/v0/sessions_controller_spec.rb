@@ -189,7 +189,7 @@ RSpec.describe V0::SessionsController, type: :controller do
 
       before do
         mhv_account = double('mhv_account', ineligible?: false, needs_terms_acceptance?: false, upgraded?: true)
-        allow(MhvAccount).to receive(:find_or_initialize_by).and_return(mhv_account)
+        allow(MHVAccount).to receive(:find_or_initialize_by).and_return(mhv_account)
         allow(OneLogin::RubySaml::Logoutrequest).to receive(:new).and_return(logout_request)
         Session.find(token).to_hash.each { |k, v| session[k] = v }
         cookies['vagov_session_dev'] = 'bar'
@@ -255,7 +255,7 @@ RSpec.describe V0::SessionsController, type: :controller do
         context 'saml_logout_response is success' do
           before do
             mhv_account = double('mhv_account', ineligible?: false, needs_terms_acceptance?: false, upgraded?: true)
-            allow(MhvAccount).to receive(:find_or_initialize_by).and_return(mhv_account)
+            allow(MHVAccount).to receive(:find_or_initialize_by).and_return(mhv_account)
             allow(SingleLogoutRequest).to receive(:find).with('1234').and_return(nil)
             allow(OneLogin::RubySaml::Logoutresponse).to receive(:new).and_return(successful_logout_response)
             Session.find(token).to_hash.each { |k, v| session[k] = v }
@@ -284,7 +284,7 @@ RSpec.describe V0::SessionsController, type: :controller do
       context 'saml_logout_response is success' do
         before do
           mhv_account = double('mhv_account', ineligible?: false, needs_terms_acceptance?: false, upgraded?: true)
-          allow(MhvAccount).to receive(:find_or_initialize_by).and_return(mhv_account)
+          allow(MHVAccount).to receive(:find_or_initialize_by).and_return(mhv_account)
           allow(SingleLogoutRequest).to receive(:find).with('1234').and_call_original
           allow(OneLogin::RubySaml::Logoutresponse).to receive(:new).and_return(successful_logout_response)
           Session.find(token).to_hash.each { |k, v| session[k] = v }
