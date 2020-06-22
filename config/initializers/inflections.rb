@@ -12,6 +12,8 @@ ActiveSupport::Inflector.inflections do |inflect|
   inflect.acronym 'IHub'
   inflect.acronym 'MDOT'
   inflect.acronym 'PagerDuty'
+  inflect.acronym 'PCIU'
+  inflect.acronym 'PDF'
   inflect.acronym 'PPIU'
   inflect.acronym 'SSOe'
   inflect.acronym 'VAOS'
