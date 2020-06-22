@@ -42,7 +42,10 @@ Rails.application.routes.draw do
       post 'submit_all_claim'
       get 'suggested_conditions'
       get 'user_submissions'
+      get 'separation_locations'
     end
+
+    post '/mvi_users/:id', to: 'mvi_users#submit'
 
     resource :upload_supporting_evidence, only: :create
 
@@ -219,6 +222,7 @@ Rails.application.routes.draw do
       resource :primary_phone, only: %i[show create]
       resource :service_history, only: :show
       resources :connected_applications, only: %i[index destroy]
+      resource :valid_va_file_number, only: %i[show]
 
       # Vet360 Routes
       resource :addresses, only: %i[create update destroy]
@@ -312,9 +316,9 @@ Rails.application.routes.draw do
     mount VBADocuments::Engine, at: '/vba_documents'
     mount AppealsApi::Engine, at: '/appeals'
     mount ClaimsApi::Engine, at: '/claims'
-    mount VaFacilities::Engine, at: '/va_facilities'
+    mount VAFacilities::Engine, at: '/va_facilities'
     mount Veteran::Engine, at: '/veteran'
-    mount VaForms::Engine, at: '/va_forms'
+    mount VAForms::Engine, at: '/va_forms'
     mount VeteranVerification::Engine, at: '/veteran_verification'
     mount VeteranConfirmation::Engine, at: '/veteran_confirmation'
   end

@@ -13,7 +13,7 @@ RSpec.describe 'VA Forms Metadata Endpoint', type: :request do
   context 'healthchecks' do
     context 'V0' do
       it 'returns correct response and status when healthy' do
-        allow(VaForms::Form).to receive(:count).and_return(1)
+        allow(VAForms::Form).to receive(:count).and_return(1)
         get '/services/va_forms/v0/healthcheck'
         parsed_response = JSON.parse(response.body)
         expect(response.status).to eq(200)
