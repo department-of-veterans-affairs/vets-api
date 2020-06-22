@@ -304,6 +304,17 @@ RSpec.describe V1::SessionsController, type: :controller do
         expect(post(:saml_callback)).to redirect_to(Settings.ssoe.redirects['myvahealth'])
       end
 
+      it 'logs inbound stat when set in the tracker' do
+        SAMLRequestTracker.create(
+          uuid: login_uuid,
+          payload: { inbound_ssoe: 'true', type: 'mhv' }
+        )
+        allow(SAML::User).to receive(:new).and_return(saml_user)
+        expect { post(:saml_callback) }
+          .to trigger_statsd_increment(described_class::STATSD_LOGIN_INBOUND,
+                                       tags: ['context:mhv', 'version:v1', 'status:success'])
+      end
+
       context 'for a user with semantically invalid SAML attributes' do
         let(:invalid_attributes) do
           build(:ssoe_idme_mhv_loa3,
@@ -364,7 +375,7 @@ RSpec.describe V1::SessionsController, type: :controller do
     describe 'GET sessions/slo/new' do
       before do
         mhv_account = double('mhv_account', ineligible?: false, needs_terms_acceptance?: false, upgraded?: true)
-        allow(MhvAccount).to receive(:find_or_initialize_by).and_return(mhv_account)
+        allow(MHVAccount).to receive(:find_or_initialize_by).and_return(mhv_account)
         Session.find(token).to_hash.each { |k, v| session[k] = v }
         cookies['vagov_session_dev'] = 'bar'
       end
