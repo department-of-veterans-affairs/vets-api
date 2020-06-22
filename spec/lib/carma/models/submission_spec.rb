@@ -66,20 +66,20 @@ RSpec.describe CARMA::Models::Submission, type: :model do
       }
 
       # metadata
-      expect(subject.metadata).to be_instance_of(described_class::Metadata)
+      expect(subject.metadata).to be_instance_of(CARMA::Models::Metadata)
       expect(subject.metadata.claim_id).to eq(123)
       # metadata.veteran
-      expect(subject.metadata.veteran).to be_instance_of(described_class::Metadata::Veteran)
+      expect(subject.metadata.veteran).to be_instance_of(CARMA::Models::Veteran)
       expect(subject.metadata.veteran.icn).to eq('VET1234')
       expect(subject.metadata.veteran.is_veteran).to eq(true)
       # metadata.primary_caregiver
-      expect(subject.metadata.primary_caregiver).to be_instance_of(described_class::Metadata::Caregiver)
+      expect(subject.metadata.primary_caregiver).to be_instance_of(CARMA::Models::Caregiver)
       expect(subject.metadata.primary_caregiver.icn).to eq('PC1234')
       # metadata.secondary_caregiver_one
-      expect(subject.metadata.secondary_caregiver_one).to be_instance_of(described_class::Metadata::Caregiver)
+      expect(subject.metadata.secondary_caregiver_one).to be_instance_of(CARMA::Models::Caregiver)
       expect(subject.metadata.secondary_caregiver_one.icn).to eq('SCO1234')
       # metadata.secondary_caregiver_two
-      expect(subject.metadata.secondary_caregiver_two).to be_instance_of(described_class::Metadata::Caregiver)
+      expect(subject.metadata.secondary_caregiver_two).to be_instance_of(CARMA::Models::Caregiver)
       expect(subject.metadata.secondary_caregiver_two.icn).to eq('SCT1234')
     end
   end
@@ -90,14 +90,14 @@ RSpec.describe CARMA::Models::Submission, type: :model do
       expect(subject.submitted_at).to eq(nil)
       expect(subject.data).to eq(nil)
       # metadata
-      expect(subject.metadata).to be_instance_of(described_class::Metadata)
+      expect(subject.metadata).to be_instance_of(CARMA::Models::Metadata)
       expect(subject.metadata.claim_id).to eq(nil)
       # metadata.veteran
-      expect(subject.metadata.veteran).to be_instance_of(described_class::Metadata::Veteran)
+      expect(subject.metadata.veteran).to be_instance_of(CARMA::Models::Veteran)
       expect(subject.metadata.veteran.icn).to eq(nil)
       expect(subject.metadata.veteran.is_veteran).to eq(nil)
       # metadata.primary_caregiver
-      expect(subject.metadata.primary_caregiver).to be_instance_of(described_class::Metadata::Caregiver)
+      expect(subject.metadata.primary_caregiver).to be_instance_of(CARMA::Models::Caregiver)
       expect(subject.metadata.primary_caregiver.icn).to eq(nil)
       # metadata.secondary_caregiver_one
       expect(subject.metadata.secondary_caregiver_one).to eq(nil)
@@ -140,20 +140,20 @@ RSpec.describe CARMA::Models::Submission, type: :model do
       expect(subject.submitted_at).to eq(expected[:submitted_at])
       expect(subject.data).to eq(expected[:data])
       # metadata
-      expect(subject.metadata).to be_instance_of(described_class::Metadata)
+      expect(subject.metadata).to be_instance_of(CARMA::Models::Metadata)
       expect(subject.metadata.claim_id).to eq(123)
       # metadata.veteran
-      expect(subject.metadata.veteran).to be_instance_of(described_class::Metadata::Veteran)
+      expect(subject.metadata.veteran).to be_instance_of(CARMA::Models::Veteran)
       expect(subject.metadata.veteran.icn).to eq('VET1234')
       expect(subject.metadata.veteran.is_veteran).to eq(true)
       # metadata.primary_caregiver
-      expect(subject.metadata.primary_caregiver).to be_instance_of(described_class::Metadata::Caregiver)
+      expect(subject.metadata.primary_caregiver).to be_instance_of(CARMA::Models::Caregiver)
       expect(subject.metadata.primary_caregiver.icn).to eq('PC1234')
       # metadata.secondary_caregiver_one
-      expect(subject.metadata.secondary_caregiver_one).to be_instance_of(described_class::Metadata::Caregiver)
+      expect(subject.metadata.secondary_caregiver_one).to be_instance_of(CARMA::Models::Caregiver)
       expect(subject.metadata.secondary_caregiver_one.icn).to eq('SCO1234')
       # metadata.secondary_caregiver_two
-      expect(subject.metadata.secondary_caregiver_two).to be_instance_of(described_class::Metadata::Caregiver)
+      expect(subject.metadata.secondary_caregiver_two).to be_instance_of(CARMA::Models::Caregiver)
       expect(subject.metadata.secondary_caregiver_two.icn).to eq('SCT1234')
     end
   end
@@ -169,7 +169,7 @@ RSpec.describe CARMA::Models::Submission, type: :model do
       expect(submission.carma_case_id).to eq(nil)
       expect(submission.submitted_at).to eq(nil)
 
-      expect(submission.metadata).to be_instance_of(described_class::Metadata)
+      expect(submission.metadata).to be_instance_of(CARMA::Models::Metadata)
       expect(submission.metadata.claim_id).to eq(claim.id)
     end
 
@@ -183,7 +183,7 @@ RSpec.describe CARMA::Models::Submission, type: :model do
       expect(submission.carma_case_id).to eq(nil)
       expect(submission.submitted_at).to eq(nil)
 
-      expect(submission.metadata).to be_instance_of(described_class::Metadata)
+      expect(submission.metadata).to be_instance_of(CARMA::Models::Metadata)
       expect(submission.metadata.claim_id).to eq(claim.id)
     end
   end
