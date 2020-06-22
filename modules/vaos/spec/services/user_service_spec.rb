@@ -131,7 +131,7 @@ describe VAOS::UserService do
     context 'when the session is fetched during the refresh window' do
       it 'calls the refresh endpoint and stores the updated token' do
         VAOS::SessionStore.new(account_uuid: user.account_uuid, token: token).save
-        Timecop.travel(Time.zone.now + 10.minutes)
+        Timecop.travel(Time.zone.now + 13.minutes)
         VCR.use_cassette('vaos/users/get_user_jwts') do
           expect(subject.session).to eq(refresh_token)
         end
