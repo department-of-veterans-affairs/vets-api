@@ -3,7 +3,7 @@ class AddMhvCorrelationIdToMhvAccounts < ActiveRecord::Migration[4.2]
     # accounts can be disabled, new ones could be created
     # it is entirely feasible to have more than one mhv account created by vets.gov
     # if a previously created or upgraded one has since been disabled.
-    # it's also entirely feasible for MHV to recycle existing mhv_correlation_ids
+    # it's also entirely feasible for Mhv to recycle existing mhv_correlation_ids
     # so no uniqueness constraints can exist here.
 
     # first we will drop the index
