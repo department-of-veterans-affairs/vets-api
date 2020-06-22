@@ -64,6 +64,12 @@ module CARMA
       def metadata=(metadata_hash)
         @metadata = Metadata.new(metadata_hash)
       end
+
+      private
+
+      def client
+        @client ||= CARMA::Client::Client.new
+      end
     end
   end
 end

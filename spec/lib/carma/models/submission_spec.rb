@@ -329,7 +329,7 @@ RSpec.describe CARMA::Models::Submission, type: :model do
       end
     end
 
-    context 'when Flipper enabled' do
+    context 'when :stub_carma_responses Flipper is disabled' do
       it 'submits to CARMA, and updates :carma_case_id and :submitted_at' do
         expected_carma_body = {
           'data' => {
@@ -357,7 +357,7 @@ RSpec.describe CARMA::Models::Submission, type: :model do
       end
     end
 
-    context 'when Flipper disabled' do
+    context 'when :stub_carma_responses Flipper is enabled' do
       it 'returns a hardcoded CARMA response, and updates :carma_case_id and :submitted_at' do
         expected_carma_body = {
           'data' => {
@@ -369,10 +369,15 @@ RSpec.describe CARMA::Models::Submission, type: :model do
         }
 
         expect(Flipper).to receive(:enabled?).with(:stub_carma_responses).and_return(true)
+
+        expect(submission).to receive(:to_request_payload).and_return(:REQUEST_PAYLOAD)
+
         expect_any_instance_of(CARMA::Client::Client).not_to receive(:create_submission)
 
         expect_any_instance_of(CARMA::Client::Client).to receive(
           :create_submission_stub
+        ).with(
+          :REQUEST_PAYLOAD
         ).and_return(
           expected_carma_body
         )

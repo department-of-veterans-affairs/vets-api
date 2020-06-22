@@ -28,12 +28,6 @@ module CARMA
       def self.after_to_request_payload(method_sym)
         self.request_payload_after_hook = method_sym
       end
-
-      protected
-
-      def client
-        @client ||= CARMA::Client::Client.new
-      end
     end
   end
 end
