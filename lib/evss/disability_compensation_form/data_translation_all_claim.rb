@@ -180,7 +180,13 @@ module EVSS
             'confinements' => translate_confinements,
             'reservesNationalGuardService' => translate_national_guard_service,
             'servedInCombatZone' => input_form['servedInCombatZonePost911'],
-            'alternateNames' => translate_names
+            'alternateNames' => translate_names,
+            'separationLocationName' => input_form.dig('serviceInformation',
+                                                       'separationLocation',
+                                                       'separationLocationName'),
+            'separationLocationCode' => input_form.dig('serviceInformation',
+                                                       'separationLocation',
+                                                       'separationLocationCode')
           }.compact
         }
       end
@@ -575,7 +581,10 @@ module EVSS
 
       def application_create_date
         # Application create date is the date the user began their application
-        @acd ||= InProgressForm.where(form_id: VA526ez::FORM_ID, user_uuid: @user.uuid)
+        # TODO AEC
+        @acd ||= InProgressForm.where(form_id: [FormProfiles::VA526ez::FORM_ID, FormProfiles::VA526ezbdd::FORM_ID],
+                                      user_uuid: @user.uuid)
+                               .order('updated_at desc')
                                .first.created_at
       end
 

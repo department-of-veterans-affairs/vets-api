@@ -20,6 +20,7 @@ describe EVSS::DisabilityCompensationAuthHeaders do
   # rubocop:enable all
 
   it 'raises an error if gender is not included' do
+    expect(Raven).to receive(:extra_context).with(user_gender: '', mvi_gender: nil)
     expect { invalid_headers.add_headers(auth_headers) }.to raise_error(Common::Exceptions::UnprocessableEntity)
   end
 end

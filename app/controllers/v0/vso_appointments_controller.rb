@@ -3,13 +3,13 @@
 require 'vsopdf/vso_appointment_form'
 
 module V0
-  class VsoAppointmentsController < ApplicationController
+  class VSOAppointmentsController < ApplicationController
     include ActionController::ParamsWrapper
 
-    wrap_parameters VsoAppointment, format: :json
+    wrap_parameters VSOAppointment, format: :json
 
     def appt_params
-      params.permit(VsoAppointment.attribute_set.map(&:name) + [
+      params.permit(VSOAppointment.attribute_set.map(&:name) + [
         veteran_full_name: %i[first middle last suffix],
         claimant_full_name: %i[first middle last suffix],
         claimant_address: %i[street street2 city country state postal_code]
@@ -17,10 +17,10 @@ module V0
     end
 
     def create
-      appt = VsoAppointment.new(appt_params)
+      appt = VSOAppointment.new(appt_params)
       raise Common::Exceptions::ParameterMissing, appt.errors.messages.keys.first.to_s unless appt.valid?
 
-      form = VsoAppointmentForm.new appt
+      form = VSOAppointmentForm.new appt
       resp = form.send_pdf
 
       if resp.status == 200
