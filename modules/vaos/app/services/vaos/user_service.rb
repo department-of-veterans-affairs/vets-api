@@ -13,7 +13,7 @@ module VAOS
     private
 
     def expires_in_two_minutes?(ttl)
-      ttl < 60 * 5
+      ttl < 60 * 2
     end
 
     def save_session(token)
