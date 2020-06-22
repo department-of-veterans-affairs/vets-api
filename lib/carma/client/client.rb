@@ -15,6 +15,7 @@ module CARMA
       SALESFORCE_USERNAME = Settings['salesforce-carma'].username
 
       def create_submission(payload)
+        # TODO: validate payload schema
         client = get_client
 
         response_body = with_monitoring do
@@ -29,10 +30,8 @@ module CARMA
         response_body
       end
 
-      # The CARMA Staging and Prod enviornments will not exist until ~May 2020
-      # So we will not be hitting SALESFORCE_INSTANCE_URL in runtime, to avoid 500 errors. Instead
-      # we'll use stub req/res in order to do user testing on the rest of our submission code.
       def create_submission_stub(_payload)
+        # TODO: validate payload schema
         {
           'message' => 'Application Received',
           'data' => {
@@ -56,6 +55,12 @@ module CARMA
         end
 
         response_body
+      end
+
+      def create_attachment_stub(_payload)
+        {
+          'data' => 'Schema TBD' # TODO: record VCR
+        }
       end
     end
   end
