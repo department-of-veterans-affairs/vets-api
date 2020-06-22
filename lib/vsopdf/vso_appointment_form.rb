@@ -4,7 +4,7 @@ require 'pdf_forms'
 require 'tempfile'
 require 'securerandom'
 
-class VsoAppointmentForm
+class VSOAppointmentForm
   include Common::Client::Monitoring
   STATSD_KEY_PREFIX = 'api.vso_appoinment_form'
 

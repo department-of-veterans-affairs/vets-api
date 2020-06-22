@@ -4,8 +4,9 @@ require 'rails_helper'
 require Rails.root.join('modules', 'claims_api', 'spec', 'support', 'fake_vbms.rb')
 
 RSpec.describe Debts::LetterDownloader do
+  subject { described_class.new(file_number) }
+
   let(:file_number) { '796330625' }
-  let(:letter_downloader) { described_class.new(file_number) }
   let(:vbms_client) { FakeVbms.new }
   let(:request_double) do
     request_double = double
@@ -40,7 +41,7 @@ RSpec.describe Debts::LetterDownloader do
     end
 
     it 'downloads a debt letter' do
-      expect(letter_downloader.get_letter(document_id)).to eq(content)
+      expect(subject.get_letter(document_id)).to eq(content)
     end
   end
 
@@ -55,7 +56,7 @@ RSpec.describe Debts::LetterDownloader do
     end
 
     it 'gets letter ids and descriptions' do
-      expect(letter_downloader.list_letters.to_json).to eq(
+      expect(subject.list_letters.to_json).to eq(
         get_fixture('vbms/list_letters').to_json
       )
     end
