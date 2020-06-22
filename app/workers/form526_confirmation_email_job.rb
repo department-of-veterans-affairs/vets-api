@@ -10,7 +10,7 @@ class Form526ConfirmationEmailJob
 
   def perform(id, email)
     @notify_client ||= Notifications::Client.new(
-      Settings.vanotify.secret_token,
+      Settings.vanotify.api_key,
       Settings.vanotify.client_url
     )
     @notify_client.send_email(
