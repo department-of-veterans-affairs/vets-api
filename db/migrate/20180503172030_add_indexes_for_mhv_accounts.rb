@@ -1,4 +1,4 @@
-class AddIndexesForMHVAccounts < ActiveRecord::Migration[4.2]
+class AddIndexesForMhvAccounts < ActiveRecord::Migration[4.2]
   disable_ddl_transaction!
 
   def change
