@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require 'date'
-
 module EVSS
   module DisabilityCompensationForm
     # Transforms a client submission into the format expected by the EVSS 526 service

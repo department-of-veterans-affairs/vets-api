@@ -1418,9 +1418,7 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
       end
 
       it 'bdd_qualified is true' do
-        VCR.use_cassette('emis/get_military_service_episodes/valid') do
-          expect(subject.send(:translate_bdd)[:bddQualified]).to eq true
-        end
+        expect(subject.send(:translate_bdd)[:bddQualified]).to eq true
       end
     end
 
@@ -1444,9 +1442,7 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
       end
 
       it 'bdd_qualified is false' do
-        VCR.use_cassette('emis/get_military_service_episodes/valid') do
-          expect(subject.send(:translate_bdd)[:bddQualified]).to eq false
-        end
+        expect(subject.send(:translate_bdd)[:bddQualified]).to eq false
       end
     end
   end
