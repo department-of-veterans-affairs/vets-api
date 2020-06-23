@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
 require 'caseflow/configuration'
-require 'breakers/statsd_plugin'
 require 'bb/configuration'
+require 'breakers/statsd_plugin'
 require 'emis/military_information_configuration'
 require 'emis/payment_configuration'
 require 'emis/veteran_status_configuration'
