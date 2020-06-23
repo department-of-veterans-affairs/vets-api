@@ -13,27 +13,27 @@ RSpec.describe VeteranConfirmation::StatusService do
       }
     end
 
-    let(:ok) { MVI::Responses::FindProfileResponse::RESPONSE_STATUS[:ok] }
-    let(:not_found) { MVI::Responses::FindProfileResponse::RESPONSE_STATUS[:not_found] }
-    let(:server_error) { MVI::Responses::FindProfileResponse::RESPONSE_STATUS[:server_error] }
+    let(:ok) { MasterVeteranIndex::Responses::FindProfileResponse::RESPONSE_STATUS[:ok] }
+    let(:not_found) { MasterVeteranIndex::Responses::FindProfileResponse::RESPONSE_STATUS[:not_found] }
+    let(:server_error) { MasterVeteranIndex::Responses::FindProfileResponse::RESPONSE_STATUS[:server_error] }
 
     let(:mvi_profile) do
       profile = MVI::Models::MVIProfile.new
       profile.edipi = '1005490754'
-      response = MVI::Responses::FindProfileResponse.new
+      response = MasterVeteranIndex::Responses::FindProfileResponse.new
       response.profile = profile
       response.status = ok
       response
     end
 
     let(:not_found_mvi_profile) do
-      response = MVI::Responses::FindProfileResponse.new
+      response = MasterVeteranIndex::Responses::FindProfileResponse.new
       response.status = not_found
       response
     end
 
     let(:server_error_mvi_profile) do
-      response = MVI::Responses::FindProfileResponse.new
+      response = MasterVeteranIndex::Responses::FindProfileResponse.new
       response.status = server_error
       response.error = MVI::Errors::ServiceError.new
       response

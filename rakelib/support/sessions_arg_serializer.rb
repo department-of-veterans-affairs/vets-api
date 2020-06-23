@@ -35,7 +35,7 @@ class SessionsArgSerializer < SessionsSerializer
     {
       ":uuid": uuid,
       ":response": {
-        "^o": 'MVI::Responses::FindProfileResponse',
+        "^o": 'MasterVeteranIndex::Responses::FindProfileResponse',
         ":status": 'OK',
         ":profile": {
           "^o": 'MVI::Models::MviProfile',
