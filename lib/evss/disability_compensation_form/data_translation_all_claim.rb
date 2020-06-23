@@ -648,9 +648,7 @@ module EVSS
 
       def translate_bdd
         user_supplied_rad_date
-        {
-          'bddQualified': bdd_qualified?
-        }
+        bdd_qualified?
       end
 
       def user_supplied_rad_date

@@ -1443,7 +1443,7 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
       end
 
       it 'bdd_qualified is true' do
-        expect(subject.send(:translate_bdd)[:bddQualified]).to eq true
+        expect(subject.send(:translate_bdd)).to eq true
       end
     end
 
@@ -1467,7 +1467,7 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
       end
 
       it 'bdd_qualified is false' do
-        expect(subject.send(:translate_bdd)[:bddQualified]).to eq false
+        expect(subject.send(:translate_bdd)).to eq false
       end
     end
   end
