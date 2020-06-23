@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: post
-    uri: https://sandbox-api.va.gov/services/appeals/v1/decision_review/higher_level_reviews
+    uri: https://sandbox-api.va.gov/services/appeals/v1/decision_reviews/higher_level_reviews
     body:
       encoding: UTF-8
       string: '{"data":{"type":"HigherLevelReview","attributes":{"receiptDate":"2019-07-10","informalConference":true,"sameOffice":false,"legacyOptInApproved":true,"benefitType":"compensation"},"relationships":{"veteran":{"data":{"type":"Veteran","id":"00000000"}}}},"included":[{"type":"RequestIssue","attributes":{"decisionIssueId":2}}]}'

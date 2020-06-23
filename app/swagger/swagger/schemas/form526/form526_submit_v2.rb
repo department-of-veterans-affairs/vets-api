@@ -348,6 +348,19 @@ module Swagger
             end
           end
 
+          property :separationLocation, type: :object do
+            items do
+              property :separationLocationCode,
+                       type: :string,
+                       example: '98283'
+              property :separationLocationName,
+                       type: :string,
+                       maxLength: 256,
+                       pattern: %r{^([a-zA-Z0-9\/\-'.#,*()&][a-zA-Z0-9\/\-'.#,*()& ]?)*$},
+                       example: 'AF Academy'
+            end
+          end
+
           property :reservesNationalGuardService, type: :object do
             items do
               key :required, %i[unitName obligationTermOfServiceDateRange]

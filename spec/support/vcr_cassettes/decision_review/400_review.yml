@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: post
-    uri: https://sandbox-api.va.gov/services/appeals/v1/decision_review/higher_level_reviews
+    uri: https://sandbox-api.va.gov/services/appeals/v1/decision_reviews/higher_level_reviews
     body:
       encoding: UTF-8
       string: "{}"

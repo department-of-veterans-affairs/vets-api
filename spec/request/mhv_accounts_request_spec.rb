@@ -42,7 +42,7 @@ RSpec.describe 'Account creation and upgrade', type: :request do
   let(:mhv_ids) { [] }
   let(:vha_facility_ids) { ['450'] }
 
-  let(:terms) { create(:terms_and_conditions, latest: true, name: MhvAccount::TERMS_AND_CONDITIONS_NAME) }
+  let(:terms) { create(:terms_and_conditions, latest: true, name: MHVAccount::TERMS_AND_CONDITIONS_NAME) }
 
   before do
     stub_mvi(mvi_profile)
@@ -81,9 +81,9 @@ RSpec.describe 'Account creation and upgrade', type: :request do
     it_behaves_like 'a successful GET #show', account_state: 'needs_ssn_resolution',
                                               account_level: options&.dig(:account_level)
     it_behaves_like 'a failed POST #create', http_status: :forbidden,
-                                             message: V0::MhvAccountsController::CREATE_ERROR
+                                             message: V0::MHVAccountsController::CREATE_ERROR
     it_behaves_like 'a failed POST #upgrade', http_status: :forbidden,
-                                              message: V0::MhvAccountsController::UPGRADE_ERROR
+                                              message: V0::MHVAccountsController::UPGRADE_ERROR
   end
 
   shared_context 'non va patient' do |options|
@@ -92,9 +92,9 @@ RSpec.describe 'Account creation and upgrade', type: :request do
     it_behaves_like 'a successful GET #show', account_state: 'needs_va_patient',
                                               account_level: options&.dig(:account_level)
     it_behaves_like 'a failed POST #create', http_status: :forbidden,
-                                             message: V0::MhvAccountsController::CREATE_ERROR
+                                             message: V0::MHVAccountsController::CREATE_ERROR
     it_behaves_like 'a failed POST #upgrade', http_status: :forbidden,
-                                              message: V0::MhvAccountsController::UPGRADE_ERROR
+                                              message: V0::MHVAccountsController::UPGRADE_ERROR
   end
 
   shared_examples 'a successful POST #create' do
@@ -150,9 +150,9 @@ RSpec.describe 'Account creation and upgrade', type: :request do
   context 'without T&C acceptance' do
     it_behaves_like 'a successful GET #show', account_state: 'needs_terms_acceptance', account_level: nil
     it_behaves_like 'a failed POST #create', http_status: :forbidden,
-                                             message: V0::MhvAccountsController::CREATE_ERROR
+                                             message: V0::MHVAccountsController::CREATE_ERROR
     it_behaves_like 'a failed POST #upgrade', http_status: :forbidden,
-                                              message: V0::MhvAccountsController::UPGRADE_ERROR
+                                              message: V0::MHVAccountsController::UPGRADE_ERROR
     it_behaves_like 'ssn mismatch'
     it_behaves_like 'non va patient'
   end
@@ -173,7 +173,7 @@ RSpec.describe 'Account creation and upgrade', type: :request do
       it_behaves_like 'a successful GET #show', account_state: 'no_account', account_level: nil
       it_behaves_like 'a successful POST #create'
       it_behaves_like 'a failed POST #upgrade', http_status: :forbidden,
-                                                message: V0::MhvAccountsController::UPGRADE_ERROR
+                                                message: V0::MHVAccountsController::UPGRADE_ERROR
     end
 
     context 'with account' do
@@ -196,7 +196,7 @@ RSpec.describe 'Account creation and upgrade', type: :request do
             it_behaves_like 'non va patient', account_level: type
             it_behaves_like 'a successful POST #upgrade'
             it_behaves_like 'a failed POST #create', http_status: :forbidden,
-                                                     message: V0::MhvAccountsController::CREATE_ERROR
+                                                     message: V0::MHVAccountsController::CREATE_ERROR
           end
         end
 
@@ -212,16 +212,16 @@ RSpec.describe 'Account creation and upgrade', type: :request do
             it_behaves_like 'ssn mismatch', account_level: type
             it_behaves_like 'non va patient', account_level: type
             it_behaves_like 'a failed POST #create', http_status: :forbidden,
-                                                     message: V0::MhvAccountsController::CREATE_ERROR
+                                                     message: V0::MHVAccountsController::CREATE_ERROR
             it_behaves_like 'a failed POST #upgrade', http_status: :forbidden,
-                                                      message: V0::MhvAccountsController::UPGRADE_ERROR
+                                                      message: V0::MHVAccountsController::UPGRADE_ERROR
           end
         end
       end
 
       context 'that is registered' do
         before do
-          MhvAccount.create(user_uuid: user.uuid, mhv_correlation_id: mhv_ids.first,
+          MHVAccount.create(user_uuid: user.uuid, mhv_correlation_id: mhv_ids.first,
                             account_state: 'registered', registered_at: Time.current)
         end
 
@@ -239,12 +239,12 @@ RSpec.describe 'Account creation and upgrade', type: :request do
         it_behaves_like 'non va patient', account_level: 'Advanced'
         it_behaves_like 'a successful POST #upgrade'
         it_behaves_like 'a failed POST #create', http_status: :forbidden,
-                                                 message: V0::MhvAccountsController::CREATE_ERROR
+                                                 message: V0::MHVAccountsController::CREATE_ERROR
       end
 
       context 'that is upgraded' do
         before do
-          MhvAccount.create(user_uuid: user.uuid, mhv_correlation_id: mhv_ids.first,
+          MHVAccount.create(user_uuid: user.uuid, mhv_correlation_id: mhv_ids.first,
                             account_state: 'upgraded', upgraded_at: Time.current)
         end
 
@@ -258,12 +258,12 @@ RSpec.describe 'Account creation and upgrade', type: :request do
         it_behaves_like 'ssn mismatch', account_level: 'Premium'
         it_behaves_like 'non va patient', account_level: 'Premium'
         it_behaves_like 'a failed POST #create', http_status: :forbidden,
-                                                 message: V0::MhvAccountsController::CREATE_ERROR
+                                                 message: V0::MHVAccountsController::CREATE_ERROR
       end
 
       context 'that is upgraded has registered_at but does not have upgraded at' do
         before do
-          MhvAccount.create(user_uuid: user.uuid, mhv_correlation_id: mhv_ids.first,
+          MHVAccount.create(user_uuid: user.uuid, mhv_correlation_id: mhv_ids.first,
                             account_state: 'upgraded', registered_at: Time.current, upgraded_at: nil)
         end
 
@@ -277,9 +277,9 @@ RSpec.describe 'Account creation and upgrade', type: :request do
         it_behaves_like 'ssn mismatch', account_level: 'Premium'
         it_behaves_like 'non va patient', account_level: 'Premium'
         it_behaves_like 'a failed POST #create', http_status: :forbidden,
-                                                 message: V0::MhvAccountsController::CREATE_ERROR
+                                                 message: V0::MHVAccountsController::CREATE_ERROR
         it_behaves_like 'a failed POST #upgrade', http_status: :forbidden,
-                                                  message: V0::MhvAccountsController::UPGRADE_ERROR
+                                                  message: V0::MHVAccountsController::UPGRADE_ERROR
       end
     end
   end
