@@ -3,6 +3,7 @@
 require 'caseflow/configuration'
 require 'bb/configuration'
 require 'breakers/statsd_plugin'
+require 'caseflow/configuration'
 require 'emis/military_information_configuration'
 require 'emis/payment_configuration'
 require 'emis/veteran_status_configuration'
