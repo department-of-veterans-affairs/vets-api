@@ -5,7 +5,7 @@ require 'mhv_ac/client'
 ##
 # Models an MHV Account
 #
-class MhvAccount < ApplicationRecord
+class MHVAccount < ApplicationRecord
   include AASM
   # http://grafana.vetsgov-internal/dashboard/db/mhv-account-creation
   # the following scopes are used for dashboard metrics in grafana and are collected

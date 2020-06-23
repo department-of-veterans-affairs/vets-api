@@ -43,7 +43,7 @@ module Common
       # Creates a session from the request headers
       #
       # @return [Rx::ClientSession] if an Rx (Prescription) client session
-      # @return [Sm::ClientSession] if a SM (Secure Messaging) client session
+      # @return [SM::ClientSession] if a SM (Secure Messaging) client session
       #
       def get_session
         env = get_session_tagged
@@ -60,7 +60,7 @@ module Common
       module ClassMethods
         ##
         # @return [Rx::ClientSession] if an Rx (Prescription) client session
-        # @return [Sm::ClientSession] if a SM (Secure Messaging) client session
+        # @return [SM::ClientSession] if a SM (Secure Messaging) client session
         #
         def client_session(klass = nil)
           @client_session ||= klass

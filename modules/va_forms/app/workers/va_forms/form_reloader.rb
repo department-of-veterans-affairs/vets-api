@@ -2,7 +2,7 @@
 
 require 'sidekiq'
 
-module VaForms
+module VAForms
   class FormReloader
     include Sidekiq::Worker
 
@@ -19,7 +19,7 @@ module VaForms
 
     def mark_stale_forms
       processed_form_names = @processed_forms.map { |f| f['form_name'] }
-      missing_forms = VaForms::Form.where.not(form_name: processed_form_names)
+      missing_forms = VAForms::Form.where.not(form_name: processed_form_names)
       missing_forms.find_each do |form|
         form.update(valid_pdf: false)
       end
@@ -67,7 +67,7 @@ module VaForms
 
     def parse_form_row(line, url)
       form_name = line.css('a').first.text
-      form = VaForms::Form.find_or_initialize_by form_name: form_name
+      form = VAForms::Form.find_or_initialize_by form_name: form_name
       @processed_forms.push(form)
       current_sha256 = form.sha256
       form.title = line.css('font').text

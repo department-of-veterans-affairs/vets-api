@@ -2648,6 +2648,15 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
         end
       end
     end
+
+    describe 'va file number' do
+      it 'supports checking if a user has a veteran number' do
+        expect(subject).to validate(:get, '/v0/profile/valid_va_file_number', 401)
+        VCR.use_cassette('bgs/person_web_service/find_person_by_participant_id') do
+          expect(subject).to validate(:get, '/v0/profile/valid_va_file_number', 200, headers)
+        end
+      end
+    end
   end
 
   context 'and' do
