@@ -339,6 +339,30 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
       end
     end
 
+    context 'when provided service separation location' do
+      let(:form_content) do
+        {
+          'form526' => {
+            'serviceInformation' => {
+              'servicePeriods' => [],
+              'separationLocation' => {
+                'separationLocationCode' => '98283',
+                'separationLocationName' => 'AF Academy'
+              }
+            }
+          }
+        }
+      end
+
+      it 'translates the data correctly' do
+        expect(subject.send(:translate_service_info)).to eq 'serviceInformation' => {
+          'servicePeriods' => [],
+          'separationLocationCode' => '98283',
+          'separationLocationName' => 'AF Academy'
+        }
+      end
+    end
+
     context 'when provided confinements data' do
       let(:form_content) do
         {

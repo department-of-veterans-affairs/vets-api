@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class MhvAccountSerializer < ActiveModel::Serializer
+class MHVAccountSerializer < ActiveModel::Serializer
   attribute :account_level
   attribute :account_state
   attribute :terms_and_conditions_accepted
