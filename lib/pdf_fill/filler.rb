@@ -52,9 +52,7 @@ module PdfFill
         form_data: form_class.new(form_data).merge_fields,
         pdftk_keys: form_class::KEY
       )
-      #new_hash["form1[0].#subform[25].#subform[26].#subform[27].CHILDFirstName[28]"] = form_data['dependents_application']['step_children'][0]['full_name']['first']
-      #new_hash["form1[0].#subform[25].#subform[26].#subform[27].CHILDLastName[20]"] = form_data['dependents_application']['step_children'][0]['full_name']['last']
-      #binding.pry
+
       PDF_FORMS.fill_form(
         "lib/pdf_fill/forms/pdfs/#{form_id}.pdf",
         file_path,
