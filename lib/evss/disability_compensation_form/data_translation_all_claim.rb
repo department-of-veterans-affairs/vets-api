@@ -238,7 +238,7 @@ module EVSS
       end
 
       ###
-      # Personal information
+      # Personal info
       ###
 
       def translate_names
@@ -647,10 +647,8 @@ module EVSS
       def user_supplied_rad_date
         # Retrieve the most recent Release from Active Duty (RAD) date from user supplied service periods
 
-        user_supplied_rad_date = translate_service_periods.sort_by { |episode|
-          episode['activeDutyEndDate']
-        }.reverse[0]['activeDutyEndDate']
-        @user_supplied_rad_date = user_supplied_rad_date.in_time_zone(EVSS_TZ).to_date
+        recent_service_period = translate_service_periods.sort_by { |episode| episode['activeDutyEndDate'] }.reverse[0]
+        @user_supplied_rad_date = recent_service_period['activeDutyEndDate'].in_time_zone(EVSS_TZ).to_date
       end
 
       def bdd_qualified?
