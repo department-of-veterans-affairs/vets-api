@@ -35,7 +35,7 @@ RSpec.describe VeteranConfirmation::StatusService do
     let(:server_error_mvi_profile) do
       response = MasterVeteranIndex::Responses::FindProfileResponse.new
       response.status = server_error
-      response.error = MVI::Errors::ServiceError.new
+      response.error = MasterVeteranIndex::Errors::ServiceError.new
       response
     end
 
@@ -86,7 +86,7 @@ RSpec.describe VeteranConfirmation::StatusService do
 
         expect do
           subject.get_by_attributes(valid_attributes)
-        end.to raise_error(MVI::Errors::ServiceError)
+        end.to raise_error(MasterVeteranIndex::Errors::ServiceError)
       end
 
       it 'does not confirm if a profile is not found in MVI' do
