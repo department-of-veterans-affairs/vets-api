@@ -45,6 +45,9 @@ info:
     ### Sandbox vs. Production Data
     APIs accessed via the Sandbox environment are using the same underlying logic as VA’s production APIs; only the underlying data store is different. 
 
+    ### Master Veteran Index (MVI)
+    The Master Veteran Index confirms a user's identity. In Production, several factors are considered to confirm identity. These include: a user’s first name, last name, date of birth and Social Security number. The MVI is mocked in the Sandbox environment. In this environment, the only factor used to confirm identity is the Social Security number.
+
     ### Rate Limiting 
     We implemented basic rate limiting of 60 requests per minute. If you exceed this quota, your request will return a 429 status code. You may petition for increased rate limits by emailing and requests will be decided on a case by case basis. 
 

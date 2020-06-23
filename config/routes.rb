@@ -23,6 +23,7 @@ Rails.application.routes.draw do
     resources :in_progress_forms, only: %i[index show update destroy]
     resource :claim_documents, only: [:create]
     resource :claim_attachments, only: [:create], controller: :claim_documents
+    resources :debts, only: :index
 
     resource :form526_opt_in, only: :create
 
@@ -41,7 +42,10 @@ Rails.application.routes.draw do
       post 'submit_all_claim'
       get 'suggested_conditions'
       get 'user_submissions'
+      get 'separation_locations'
     end
+
+    post '/mvi_users/:id', to: 'mvi_users#submit'
 
     resource :upload_supporting_evidence, only: :create
 
@@ -218,6 +222,7 @@ Rails.application.routes.draw do
       resource :primary_phone, only: %i[show create]
       resource :service_history, only: :show
       resources :connected_applications, only: %i[index destroy]
+      resource :valid_va_file_number, only: %i[show]
 
       # Vet360 Routes
       resource :addresses, only: %i[create update destroy]
@@ -311,9 +316,9 @@ Rails.application.routes.draw do
     mount VBADocuments::Engine, at: '/vba_documents'
     mount AppealsApi::Engine, at: '/appeals'
     mount ClaimsApi::Engine, at: '/claims'
-    mount VaFacilities::Engine, at: '/va_facilities'
+    mount VAFacilities::Engine, at: '/va_facilities'
     mount Veteran::Engine, at: '/veteran'
-    mount VaForms::Engine, at: '/va_forms'
+    mount VAForms::Engine, at: '/va_forms'
     mount VeteranVerification::Engine, at: '/veteran_verification'
     mount VeteranConfirmation::Engine, at: '/veteran_confirmation'
   end
@@ -323,6 +328,8 @@ Rails.application.routes.draw do
   if Rails.env.development? || Settings.sidekiq_admin_panel
     require 'sidekiq/web'
     require 'sidekiq-scheduler/web'
+    require 'sidekiq/pro/web' if Gem.loaded_specs.key?('sidekiq-pro')
+    require 'sidekiq-ent/web' if Gem.loaded_specs.key?('sidekiq-ent')
     mount Sidekiq::Web, at: '/sidekiq'
   end
 

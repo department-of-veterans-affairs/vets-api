@@ -14,6 +14,7 @@ RSpec.describe 'VA Facilities Locator - PostGIS', type: :request, team: :facilit
 
   before do
     Flipper.enable(:facility_locator_pull_operating_status_from_lighthouse, true)
+    Flipper.enable(:facility_locator_ppms_location_query, false)
   end
 
   BASE_QUERY_PATH = '/v0/facilities/va?'

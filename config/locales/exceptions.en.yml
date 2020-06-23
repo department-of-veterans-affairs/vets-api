@@ -1947,6 +1947,12 @@ en:
         detail: Received an an invalid response from the upstream server
         code: MDOT_502
         status: 502
+      MDOT_service_unavailable:
+        <<: *defaults
+        title: Service Unavailable
+        detail: The DLC API is currently unavailable
+        code: MDOT_service_unavailable
+        status: 503
       MDOT_malformed_request:
         <<: *defaults
         title: Malformed Request
@@ -1959,17 +1965,17 @@ en:
         detail: User is forbidden from accessing this resource
         code: MDOT_forbidden
         status: 403
-      MDOT_deceased_veteran:
+      MDOT_deceased:
         <<: *defaults
         title: Veteran is Deceased
         detail: The veteran is deceased; supplies cannot be ordered
-        code: MDOT_deceased_veteran
+        code: MDOT_deceased
         status: 403
-      MDOT_veteran_not_found:
+      MDOT_invalid:
         <<: *defaults
         title: Veteran Not Found
         detail: The veteran could not be found
-        code: MDOT_veteran_not_found
+        code: MDOT_invalid
         status: 404
       MDOT_supplies_not_found:
         <<: *defaults
@@ -1977,6 +1983,12 @@ en:
         detail: The medical supplies could not be found
         code: MDOT_supplies_not_found
         status: 404
+      MDOT_supplies_not_selected:
+        <<: *defaults
+        title: Supplies Not Selected
+        detail: No supplies were selected to order
+        code: MDOT_supplies_not_selected
+        status: 422
       MDOT_unprocessable_entity:
         <<: *defaults
         title: Order unable to be processed

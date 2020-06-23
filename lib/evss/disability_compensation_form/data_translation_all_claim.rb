@@ -180,7 +180,13 @@ module EVSS
             'confinements' => translate_confinements,
             'reservesNationalGuardService' => translate_national_guard_service,
             'servedInCombatZone' => input_form['servedInCombatZonePost911'],
-            'alternateNames' => translate_names
+            'alternateNames' => translate_names,
+            'separationLocationName' => input_form.dig('serviceInformation',
+                                                       'separationLocation',
+                                                       'separationLocationName'),
+            'separationLocationCode' => input_form.dig('serviceInformation',
+                                                       'separationLocation',
+                                                       'separationLocationCode')
           }.compact
         }
       end
@@ -381,13 +387,15 @@ module EVSS
       def translate_treatments
         return {} if input_form['vaTreatmentFacilities'].blank?
 
+        # treatmentCenterName clean up is an approximation of evss regex
+        # validation ([a-zA-Z0-9"\/&\(\)\-'.#]([a-zA-Z0-9(\)\-'.# ])?)+$
         treatments = input_form['vaTreatmentFacilities'].map do |treatment|
           {
             'startDate' => approximate_date(treatment['treatmentDateRange']['from']),
             'endDate' => approximate_date(treatment['treatmentDateRange']['to']),
             'treatedDisabilityNames' => treatment['treatedDisabilityNames'],
             'center' => {
-              'name' => treatment['treatmentCenterName'].gsub(/[^a-zA-Z0-9 .()#&'"-]+/, '').strip
+              'name' => treatment['treatmentCenterName'].gsub(/[^a-zA-Z0-9 .()#&'"-]+/, '').gsub(/\s\s+/, ' ').strip
             }.merge(treatment['treatmentCenterAddress'])
           }.compact
         end
@@ -573,7 +581,10 @@ module EVSS
 
       def application_create_date
         # Application create date is the date the user began their application
-        @acd ||= InProgressForm.where(form_id: VA526ez::FORM_ID, user_uuid: @user.uuid)
+        # TODO AEC
+        @acd ||= InProgressForm.where(form_id: [FormProfiles::VA526ez::FORM_ID, FormProfiles::VA526ezbdd::FORM_ID],
+                                      user_uuid: @user.uuid)
+                               .order('updated_at desc')
                                .first.created_at
       end
 

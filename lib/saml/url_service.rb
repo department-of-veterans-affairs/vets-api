@@ -53,12 +53,21 @@ module SAML
 
     # rubocop:disable Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
     def login_redirect_url(auth: 'success', code: nil)
-      return verify_url if auth == 'success' && user.loa[:current] < user.loa[:highest]
+      if auth == 'success'
+        return verify_url if user.loa[:current] < user.loa[:highest]
 
-      return @tracker&.payload_attr(:redirect) if @tracker&.payload_attr(:redirect)
+        # if the original auth request specified a redirect, use that
+        redirect_target = @tracker&.payload_attr(:redirect)
+        return redirect_target if redirect_target.present?
+      end
+
+      # if the original auth request specified inbound ssoe and authentication
+      # failed, set 'force-needed' so the FE can silently fail authentication and NOT
+      # show the user an error page
+      auth = 'force-needed' if (auth != 'success') && @tracker&.payload_attr(:inbound_ssoe)
 
       @query_params[:type] = type if type
-      @query_params[:auth] = auth if auth == 'fail'
+      @query_params[:auth] = auth if auth != 'success'
       @query_params[:code] = code if code
 
       if Settings.saml.relay.present?
@@ -189,16 +198,27 @@ module SAML
       end
     end
 
+    def build_redirect(params)
+      default = Settings.ssoe.redirects[params[:application]]
+      return default unless default && params[:to]
+
+      prefix = default.delete_suffix('/')
+      suffix = params[:to].delete_prefix('/').gsub("\r\n", '')
+      [prefix, suffix].join('/')
+    end
+
     # Initialize a new SAMLRequestTracker, if a valid previous SAML UUID is
     # given, copy over the redirect and created_at timestamp.  This is useful
     # for a user that has to go through the upleveling process.
     def initialize_tracker(params, previous_saml_uuid: nil)
       previous = previous_saml_uuid && SAMLRequestTracker.find(previous_saml_uuid)
-      redirect = previous&.payload_attr(:redirect) || Settings.ssoe.redirects[params[:application]]
+      redirect = previous&.payload_attr(:redirect) || build_redirect(params)
+      inbound = previous&.payload_attr(:inbound_ssoe) || params[:inbound]
+      type = previous&.payload_attr(:type) || params[:type]
       # if created_at is set to nil (meaning no previous tracker to use), it
       # will be initialized to the current time when it is saved
       SAMLRequestTracker.new(
-        payload: redirect ? { redirect: redirect } : {},
+        payload: { redirect: redirect, inbound_ssoe: inbound, type: type }.compact,
         created_at: previous&.created_at
       )
     end

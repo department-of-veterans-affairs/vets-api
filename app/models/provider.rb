@@ -21,12 +21,21 @@ class Provider < Common::Base
   attribute :posCodes, String
   attribute :ProviderGender, String
   attribute :ProviderIdentifier, String
+  attribute :ProviderHexdigest, String
   attribute :ProviderName, String
   attribute :ProviderSpecialties, Array
   attribute :ProviderType, String
 
   def <=>(other)
     self.Miles <=> other.Miles
+  end
+
+  def hexdigest
+    Digest::SHA256.hexdigest(attributes.except(:ProviderHexdigest).to_a.join('|'))
+  end
+
+  def set_hexdigest!
+    self.ProviderHexdigest = hexdigest
   end
 
   def self.from_provloc(prov_loc)

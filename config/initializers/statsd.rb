@@ -10,32 +10,39 @@ StatsD.backend = if host.present? && port.present?
                  end
 
 # Initialize session controller metric counters at 0
-
-StatsD.increment(V0::SessionsController::STATSD_SSO_CALLBACK_TOTAL_KEY, 0)
-StatsD.increment(V0::SessionsController::STATSD_LOGIN_NEW_USER_KEY, 0)
-StatsD.increment(V1::SessionsController::STATSD_LOGIN_STATUS, 0)
-StatsD.increment(V1::SessionsController::STATSD_LOGIN_SHARED_COOKIE, 0)
-
-SAML::Responses::Base::ERRORS.merge(UserSessionForm::ERRORS).each_value do |known_error|
-  StatsD.increment(V0::SessionsController::STATSD_SSO_CALLBACK_FAILED_KEY, 0, tags: ["error:#{known_error[:tag]}"])
-end
-
-%w[success failure].each do |s|
-  (SAML::User::AUTHN_CONTEXTS.keys + [SAML::User::UNKNOWN_AUTHN_CONTEXT]).each do |ctx|
-    StatsD.increment(
-      V0::SessionsController::STATSD_SSO_CALLBACK_KEY,
-      0,
-      tags: ["status:#{s}", "context:#{ctx}"]
-    )
+%w[v0 v1].each do |v|
+  StatsD.increment(V1::SessionsController::STATSD_SSO_CALLBACK_TOTAL_KEY, 0,
+                   tags: ["version:#{v}"])
+  StatsD.increment(V1::SessionsController::STATSD_LOGIN_NEW_USER_KEY, 0,
+                   tags: ["version:#{v}"])
+  V1::SessionsController::REDIRECT_URLS.each do |t|
+    StatsD.increment(V1::SessionsController::STATSD_SSO_NEW_KEY, 0,
+                     tags: ["version:#{v}", "context:#{t}"])
+    StatsD.increment(V1::SessionsController::STATSD_SSO_NEW_FORCEAUTH, 0,
+                     tags: ["version:#{v}", "context:#{t}"])
+    StatsD.increment(V1::SessionsController::STATSD_SSO_NEW_INBOUND, 0,
+                     tags: ["version:#{v}", "context:#{t}"])
+    StatsD.increment(V1::SessionsController::STATSD_LOGIN_STATUS_SUCCESS, 0,
+                     tags: ["version:#{v}", "context:#{t}"])
+    StatsD.increment(V1::SessionsController::STATSD_LOGIN_STATUS_FAILURE, 0,
+                     tags: ["version:#{v}", "context:#{t}"])
+    %w[success failure].each do |s|
+      StatsD.increment(V1::SessionsController::STATSD_LOGIN_INBOUND, 0,
+                       tags: ["version:#{v}", "context:#{t}", "status:#{s}"])
+    end
   end
-end
-
-V0::SessionsController::REDIRECT_URLS.each do |ctx|
-  StatsD.increment(
-    V0::SessionsController::STATSD_SSO_NEW_KEY,
-    0,
-    tags: ["context:#{ctx}"]
-  )
+  %w[success failure].each do |s|
+    (SAML::User::AUTHN_CONTEXTS.keys + [SAML::User::UNKNOWN_AUTHN_CONTEXT]).each do |ctx|
+      StatsD.increment(V1::SessionsController::STATSD_SSO_CALLBACK_KEY, 0,
+                       tags: ["version:#{v}", "status:#{s}", "context:#{ctx}"])
+      StatsD.increment(V1::SessionsController::STATSD_LOGIN_SHARED_COOKIE, 0,
+                       tags: ["version:#{v}", "context:#{ctx}"])
+    end
+  end
+  SAML::Responses::Base::ERRORS.merge(UserSessionForm::ERRORS).each_value do |known_error|
+    StatsD.increment(V1::SessionsController::STATSD_SSO_CALLBACK_FAILED_KEY, 0,
+                     tags: ["version:#{v}", "error:#{known_error[:tag]}"])
+  end
 end
 
 # init GiBillStatus stats to 0

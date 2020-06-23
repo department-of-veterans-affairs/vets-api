@@ -100,7 +100,7 @@ module Form1010cg
       metadata = claim.form_subjects.each_with_object({}) do |form_subject, obj|
         icn = icn_for(form_subject)
 
-        obj[form_subject.to_sym] = {
+        obj[form_subject.snakecase.to_sym] = {
           icn: icn == NOT_FOUND ? nil : icn
         }
       end

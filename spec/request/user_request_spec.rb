@@ -10,9 +10,9 @@ RSpec.describe 'Fetching user data', type: :request do
     let(:mhv_user) { build(:user, :mhv) }
 
     before do
-      allow_any_instance_of(MhvAccountTypeService).to receive(:mhv_account_type).and_return('Premium')
-      mhv_account = double('MhvAccount', creatable?: false, upgradable?: false, account_state: 'upgraded')
-      allow(MhvAccount).to receive(:find_or_initialize_by).and_return(mhv_account)
+      allow_any_instance_of(MHVAccountTypeService).to receive(:mhv_account_type).and_return('Premium')
+      mhv_account = double('MHVAccount', creatable?: false, upgradable?: false, account_state: 'upgraded')
+      allow(MHVAccount).to receive(:find_or_initialize_by).and_return(mhv_account)
       allow(mhv_account).to receive(:user_uuid).and_return(mhv_user.uuid)
       allow(mhv_account).to receive(:terms_and_conditions_accepted?).and_return(true)
       allow(mhv_account).to receive(:needs_terms_acceptance?).and_return(false)
@@ -108,6 +108,26 @@ RSpec.describe 'Fetching user data', type: :request do
       it 'returns multiple mhv account state' do
         va_profile = JSON.parse(response.body)['data']['attributes']['va_profile']
         expect(va_profile['mhv_account_state']).to eq('MULTIPLE')
+      end
+    end
+
+    context 'with missing MHV accounts' do
+      let(:mvi_profile) do
+        build(:mvi_profile_response,
+              :missing_attrs)
+      end
+      let(:mhv_user) { build(:user, :mhv) }
+
+      before do
+        allow_any_instance_of(MVI::Models::MviProfile).to receive(:active_mhv_ids).and_return(nil)
+        stub_mvi(mvi_profile)
+        sign_in_as(mhv_user)
+        get v0_user_url, params: nil
+      end
+
+      it 'returns none mhv account state' do
+        va_profile = JSON.parse(response.body)['data']['attributes']['va_profile']
+        expect(va_profile['mhv_account_state']).to eq('NONE')
       end
     end
 

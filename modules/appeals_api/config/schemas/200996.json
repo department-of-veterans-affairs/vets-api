@@ -86,17 +86,7 @@
 
     "hlrCreateBenefitType": {
       "type": "string",
-      "enum": [
-        "compensation",
-        "pension",
-        "fiduciary",
-        "insurance",
-        "education",
-        "voc_rehab",
-        "loan_guaranty",
-        "vha",
-        "nca"
-      ]
+      "enum": [ "compensation" ]
     },
 
 
@@ -183,7 +173,6 @@
       "type": "array",
       "items": { "$ref": "#/definitions/hlrCreateContestableIssue" },
       "minItems": 1,
-      "maxItems": 6,
       "uniqueItems": true
     },
 

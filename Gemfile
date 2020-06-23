@@ -4,6 +4,10 @@ source 'https://rubygems.org'
 
 ruby '2.6.6'
 
+# temp fix for security vulnerability, hopefulle we can remove this line with the next rails patch
+# https://blog.jcoglan.com/2020/06/02/redos-vulnerability-in-websocket-extensions/
+gem 'websocket-extensions', '>= 0.1.5'
+
 # Modules
 gem 'appeals_api', path: 'modules/appeals_api'
 gem 'claims_api', path: 'modules/claims_api'
@@ -17,7 +21,7 @@ gem 'veteran_confirmation', path: 'modules/veteran_confirmation'
 gem 'veteran_verification', path: 'modules/veteran_verification'
 
 # Anchored versions, do not change
-gem 'puma', '~> 4.3.2'
+gem 'puma', '~> 4.3.5'
 gem 'puma-plugin-statsd', '~> 0.1.0'
 gem 'rails', '~> 6.0.2'
 
@@ -37,6 +41,7 @@ gem 'betamocks', git: 'https://github.com/department-of-veterans-affairs/betamoc
 gem 'breakers'
 gem 'carrierwave-aws'
 gem 'clam_scan'
+gem 'combine_pdf'
 gem 'config'
 gem 'connect_vbms', git: 'https://github.com/department-of-veterans-affairs/connect_vbms.git', branch: 'master', require: 'vbms'
 gem 'date_validator'
@@ -113,7 +118,6 @@ group :development do
   gem 'benchmark-ips'
   gem 'guard-rubocop'
   gem 'seedbank'
-  gem 'socksify'
   gem 'spring', platforms: :ruby # Spring speeds up development by keeping your application running in the background
   gem 'spring-commands-rspec'
 
@@ -172,17 +176,14 @@ group :development, :test do
   gem 'yard'
 end
 
-group :production do
-  # sidekiq enterprise requires a license key to download but is only required in production.
-  # for local dev environments, regular sidekiq works fine
-  if (Bundler::Settings.new(Bundler.app_config_path)['enterprise.contribsys.com'].nil? ||
-      Bundler::Settings.new(Bundler.app_config_path)['enterprise.contribsys.com']&.empty?) &&
-     ENV.fetch('BUNDLE_ENTERPRISE__CONTRIBSYS__COM', '').empty?
-    Bundler.ui.warn 'No credentials found to install Sidekiq Enterprise. This is fine for local development but you may not check in this Gemfile.lock with any Sidekiq gems removed. The README file in this directory contains more information.'
-  else
-    source 'https://enterprise.contribsys.com/' do
-      gem 'sidekiq-ent'
-      gem 'sidekiq-pro'
-    end
+# sidekiq enterprise requires a license key to download. In many cases, basic sidekiq is enough for local development
+if (Bundler::Settings.new(Bundler.app_config_path)['enterprise.contribsys.com'].nil? ||
+    Bundler::Settings.new(Bundler.app_config_path)['enterprise.contribsys.com']&.empty?) &&
+   ENV.fetch('BUNDLE_ENTERPRISE__CONTRIBSYS__COM', '').empty?
+  Bundler.ui.warn 'No credentials found to install Sidekiq Enterprise. This is fine for local development but you may not check in this Gemfile.lock with any Sidekiq gems removed. The README file in this directory contains more information.'
+else
+  source 'https://enterprise.contribsys.com/' do
+    gem 'sidekiq-ent'
+    gem 'sidekiq-pro'
   end
 end

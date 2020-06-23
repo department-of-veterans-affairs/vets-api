@@ -57,7 +57,8 @@ module VAOS
 
       def action_statsd_key(path)
         caller = caller_locations(2, 1)[0].label
-        "#{STATSD_KEY_PREFIX}.#{caller}.#{path.split('/').first.downcase}"
+        resource = path.split('/').first.split('?').first.snakecase
+        "#{STATSD_KEY_PREFIX}.#{caller}.#{resource}"
       end
 
       def config
