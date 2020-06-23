@@ -27,7 +27,7 @@ RSpec.describe BipClaims::Service do
         .to raise_error(ArgumentError)
     end
 
-    it 'calls MVI::AttrService for veteran lookup' do
+    it 'calls MasterVeteranIndex::AttrService for veteran lookup' do
       allow(MasterVeteranIndex::AttrService).to receive(:new).and_return(mvi_service)
       allow(mvi_service).to receive(:find_profile).and_return(
         OpenStruct.new(profile:

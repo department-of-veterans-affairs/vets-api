@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module VeteranConfirmation
-  class AttrService < MVI::AttrService
-    configuration MVI::Configuration
+  class AttrService < MasterVeteranIndex::AttrService
+    configuration MasterVeteranIndex::Configuration
   end
 end
