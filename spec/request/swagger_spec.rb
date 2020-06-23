@@ -9,6 +9,7 @@ require 'support/rx_client_helpers'
 require 'bb/client'
 require 'support/bb_client_helpers'
 require 'support/pagerduty/services/spec_setup'
+require 'support/stub_debt_letters'
 
 RSpec.describe 'API doc validations', type: :request do
   context 'json validation' do
@@ -317,6 +318,41 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
           }
         }
       )
+    end
+
+    context 'debts tests' do
+      let(:user) { build(:user, :loa3) }
+      let(:headers) do
+        { '_headers' => { 'Cookie' => sign_in(user, nil, true) } }
+      end
+
+      context 'debt letters index' do
+        stub_debt_letters(:index)
+
+        it 'validates the route' do
+          expect(subject).to validate(
+            :get,
+            '/v0/debt_letters',
+            200,
+            headers
+          )
+        end
+      end
+
+      context 'debt letters show' do
+        stub_debt_letters(:show)
+
+        it 'validates the route' do
+          expect(subject).to validate(
+            :get,
+            "/v0/debt_letters/{id}",
+            200,
+            headers.merge(
+              'id' => URI.encode(document_id)
+            )
+          )
+        end
+      end
     end
 
     context 'HCA tests' do
