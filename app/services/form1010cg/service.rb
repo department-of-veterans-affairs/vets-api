@@ -1,6 +1,9 @@
 # frozen_string_literal: true
 
 # This service manages the interactions between CaregiversAssistanceClaim, CARMA, and Form1010cg::Submission.
+
+require 'carma/models/submission'
+
 module Form1010cg
   class Service
     attr_reader :claim

@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require 'carma/models/submission'
 
 RSpec.describe CARMA::Models::Submission, type: :model do
   describe '#carma_case_id' do
