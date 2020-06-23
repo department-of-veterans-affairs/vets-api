@@ -38,7 +38,7 @@ module ClaimsApi
               errors: [
                 {
                   status: 422,
-                  details: "#{form_type.titelize} claims are not currently supported, but will be in a future version"
+                  details: "#{form_type.titleize} claims are not currently supported, but will be in a future version"
                 }
               ]
             }

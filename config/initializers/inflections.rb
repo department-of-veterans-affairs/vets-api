@@ -20,6 +20,8 @@ ActiveSupport::Inflector.inflections do |inflect|
   inflect.acronym 'MHV'
   inflect.acronym 'NCA'
   inflect.acronym 'PagerDuty'
+  inflect.acronym 'PCIU'
+  inflect.acronym 'PDF'
   inflect.acronym 'PPIU'
   inflect.acronym 'PPMS'
   inflect.acronym 'PSSG'
