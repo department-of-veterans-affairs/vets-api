@@ -11,7 +11,7 @@ module AppealsApi::V1::SwaggerRoot
     info title: 'Decision Reviews', version: '1.0.0', description: read_file_from_same_dir['api_description.md']
 
     server description: 'VA.gov API sandbox environment' do
-      key :url, 'https://sandbox-api.va.gov/services/appeals/{version}/decision_review'
+      key :url, 'https://sandbox-api.va.gov/services/appeals/{version}/decision_reviews'
       variable(:version) { key :default, 'v1' }
     end
 

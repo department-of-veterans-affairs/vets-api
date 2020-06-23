@@ -2,12 +2,12 @@
 
 require 'rails_helper'
 
-describe AppealsApi::V1::DecisionReview::ContestableIssuesController, type: :request do
+describe AppealsApi::V1::DecisionReviews::ContestableIssuesController, type: :request do
   describe '#index' do
     it 'GETs contestable_issues from Caseflow successfully' do
       VCR.use_cassette('caseflow/contestable_issues') do
         get(
-          '/services/appeals/v1/decision_review/contestable_issues',
+          '/services/appeals/v1/decision_reviews/contestable_issues',
           headers: {
             'X-VA-SSN' => '872958715',
             'X-VA-Receipt-Date' => '2019-12-01'
