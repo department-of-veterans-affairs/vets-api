@@ -139,7 +139,7 @@ mdot:
 # Settings for Decision Reviews
 decision_review:
   prefill: true
-  url: https://sandbox-api.va.gov/services/appeals/v1/decision_review
+  url: https://sandbox-api.va.gov/services/appeals/v1/decision_reviews
   api_key: abcd1234abcd1234abcd1234abcd1234abcd1234
   mock: false
 
@@ -481,6 +481,7 @@ flipper:
     - lauren.alexanderson@va.gov
     - lindsey.hattamer@oddball.io
     - mark.greenburg@adhocteam.us
+    - mdewey@governmentcio.com
     - n.ratana@gmail.com
     - narin@adhocteam.us
     - osanchez@governmentcio.com
@@ -496,7 +497,7 @@ flipper:
     - shawkey_daniel@bah.com
     - sonntag_adam@bah.com
     - travis.hilton@oddball.io
-    - zurbergram@gmail.com
+    - zurbergram@gmail.com  
 
 bgs:
   application: ~
