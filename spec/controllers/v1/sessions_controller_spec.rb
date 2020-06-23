@@ -249,7 +249,7 @@ RSpec.describe V1::SessionsController, type: :controller do
               .with_params('clientId' => '123123')
           end
 
-          it 'raises exception on missing parameter' do
+          it 'raises exception when missing authn parameter' do
             expect { get(:new, params: { type: :custom, authn: '', client_id: '123123' }) }
               .not_to trigger_statsd_increment(described_class::STATSD_SSO_NEW_KEY,
                                                tags: ['context:custom', 'version:v1'], **once)
