@@ -36,7 +36,7 @@
         "^o": "MasterVeteranIndex::Responses::FindProfileResponse",
         "status": "OK",
         "profile": {
-          "^o": "MVI::Models::MviProfile",
+          "^o": "MasterVeteranIndex::Models::MviProfile",
           "given_names": [
             "Abraham"
           ],
@@ -46,7 +46,7 @@
           "birth_date": "18090212",
           "ssn": "777000000",
           "address": {
-            "^o": "MVI::Models::MviProfileAddress",
+            "^o": "MasterVeteranIndex::Models::MviProfileAddress",
             "city": "Washington",
             "state": "DC",
             "postal_code": "20011",
@@ -112,7 +112,7 @@
         "^o": "MasterVeteranIndex::Responses::FindProfileResponse",
         "status": "OK",
         "profile": {
-          "^o": "MVI::Models::MviProfile",
+          "^o": "MasterVeteranIndex::Models::MviProfile",
           "given_names": [
             "Abraham",
             "Jebediah"

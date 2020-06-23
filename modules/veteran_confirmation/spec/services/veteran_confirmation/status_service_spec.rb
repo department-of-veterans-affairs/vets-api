@@ -18,7 +18,7 @@ RSpec.describe VeteranConfirmation::StatusService do
     let(:server_error) { MasterVeteranIndex::Responses::FindProfileResponse::RESPONSE_STATUS[:server_error] }
 
     let(:mvi_profile) do
-      profile = MVI::Models::MVIProfile.new
+      profile = MasterVeteranIndex::Models::MVIProfile.new
       profile.edipi = '1005490754'
       response = MasterVeteranIndex::Responses::FindProfileResponse.new
       response.profile = profile

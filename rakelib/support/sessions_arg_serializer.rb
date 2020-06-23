@@ -38,7 +38,7 @@ class SessionsArgSerializer < SessionsSerializer
         "^o": 'MasterVeteranIndex::Responses::FindProfileResponse',
         ":status": 'OK',
         ":profile": {
-          "^o": 'MVI::Models::MviProfile',
+          "^o": 'MasterVeteranIndex::Models::MviProfile',
           "given_names": %w[TEST T],
           "family_name": 'USER',
           "suffix": nil,
@@ -46,7 +46,7 @@ class SessionsArgSerializer < SessionsSerializer
           "birth_date": '19700101',
           "ssn": '123456789',
           "address": {
-            "^o": 'MVI::Models::MviProfileAddress',
+            "^o": 'MasterVeteranIndex::Models::MviProfileAddress',
             "street": '123 Fake Street',
             "city": 'Springfield',
             "state": 'OR',
