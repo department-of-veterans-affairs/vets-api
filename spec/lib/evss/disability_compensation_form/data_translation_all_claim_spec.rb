@@ -16,7 +16,7 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
 
   describe '#translate' do
     before do
-      create(:in_progress_form, form_id: VA526ez::FORM_ID, user_uuid: user.uuid)
+      create(:in_progress_form, form_id: FormProfiles::VA526ez::FORM_ID, user_uuid: user.uuid)
     end
 
     let(:form_content) do
@@ -335,6 +335,30 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
               'activeDutyEndDate' => '1990-01-02'
             }
           ]
+        }
+      end
+    end
+
+    context 'when provided service separation location' do
+      let(:form_content) do
+        {
+          'form526' => {
+            'serviceInformation' => {
+              'servicePeriods' => [],
+              'separationLocation' => {
+                'separationLocationCode' => '98283',
+                'separationLocationName' => 'AF Academy'
+              }
+            }
+          }
+        }
+      end
+
+      it 'translates the data correctly' do
+        expect(subject.send(:translate_service_info)).to eq 'serviceInformation' => {
+          'servicePeriods' => [],
+          'separationLocationCode' => '98283',
+          'separationLocationName' => 'AF Academy'
         }
       end
     end
