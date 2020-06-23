@@ -83,10 +83,10 @@ class EVSSClaimDocument < Common::Base
   def unencrypted_pdf?
     return unless file_name.match?(/\.pdf$/i)
 
-    metadata = PdfInfo::Metadata.read(file_obj.tempfile)
+    metadata = PDFInfo::Metadata.read(file_obj.tempfile)
     errors.add(:base, 'PDF must not be encrypted') if metadata.encrypted?
     file_obj.tempfile.rewind
-  rescue PdfInfo::MetadataReadError
+  rescue PDFInfo::MetadataReadError
     errors.add(:base, 'PDF is malformed')
   end
 

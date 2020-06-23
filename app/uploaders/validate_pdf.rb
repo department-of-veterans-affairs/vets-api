@@ -2,7 +2,7 @@
 
 require 'origami'
 
-module ValidatePdf
+module ValidatePDF
   extend ActiveSupport::Concern
 
   included do
