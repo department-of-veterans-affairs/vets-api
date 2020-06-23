@@ -5,6 +5,7 @@ require_dependency 'vba_documents/multipart_parser'
 require_dependency 'vba_documents/payload_manager'
 require 'vba_documents/object_store'
 require 'vba_documents/upload_error'
+require 'central_mail/utilities'
 
 module VBADocuments
   class UploadProcessor

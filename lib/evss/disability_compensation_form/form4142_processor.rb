@@ -7,6 +7,7 @@ require 'pdf_fill/forms/va210781a'
 require 'pdf_fill/forms/va210781'
 require 'pdf_fill/forms/va218940'
 require 'pdf_fill/forms/va1010cg'
+require 'central_mail/datestamp_pdf'
 
 module EVSS
   module DisabilityCompensationForm

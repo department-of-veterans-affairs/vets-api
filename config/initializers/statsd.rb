@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'caseflow/service'
+require 'central_mail/service'
 
 host = Settings.statsd.host
 port = Settings.statsd.port
