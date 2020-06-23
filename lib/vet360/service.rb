@@ -1,10 +1,11 @@
 # frozen_string_literal: true
 
 require 'common/client/base'
+require_relative 'stats'
 
 module Vet360
   class Service < Common::Client::Base
-    STATSD_KEY_PREFIX = 'api.vet360'
+    STATSD_KEY_PREFIX = Vet360::Stats::STATSD_KEY_PREFIX
 
     def initialize(user)
       @user = user

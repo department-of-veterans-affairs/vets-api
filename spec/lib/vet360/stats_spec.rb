@@ -3,7 +3,7 @@
 require 'rails_helper'
 
 describe Vet360::Stats do
-  let(:statsd_prefix) { Vet360::Service::STATSD_KEY_PREFIX }
+  let(:statsd_prefix) { Vet360::Stats::STATSD_KEY_PREFIX }
 
   describe '.increment' do
     it 'increments the StatsD Vet360 counter' do
