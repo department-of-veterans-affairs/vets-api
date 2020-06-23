@@ -1371,32 +1371,6 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
   describe '#translate_bdd' do
     today = Time.now.in_time_zone('Central Time (US & Canada)').to_date
 
-    context 'when RAD date is missing' do
-      let(:form_content) do
-        {
-          'form526' => {
-            'serviceInformation' => {
-              'servicePeriods' => [
-                {
-                  'dateRange' => {
-                    'from' => '1980-02-05',
-                    'to' => ''
-                  },
-                  'serviceBranch' => 'Air Force'
-                }
-              ]
-            }
-          }
-        }
-      end
-
-      it 'throws 422 error' do
-        VCR.use_cassette('emis/get_military_service_episodes/valid') do
-          expect(subject.send(:translate_bdd)).to raise_error(
-            Common::Exceptions::UnprocessableEntity, 'Missing military service end date')
-        end
-      end
-    end
     context 'when rad date is > 180 away' do
       let(:form_content) do
         {
@@ -1417,10 +1391,10 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
       end
 
       it 'throws 422 error' do
-        VCR.use_cassette('emis/get_military_service_episodes/valid') do
-          expect(subject.send(:translate_bdd)).to raise_error(
-            Common::Exceptions::UnprocessableEntity, 'more than 180 days')
-        end
+        expect(subject.send(:translate_bdd)).to raise_error(
+          Common::Exceptions::UnprocessableEntity,
+          /more than 180 days/
+        )
       end
     end
 
@@ -1449,7 +1423,6 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
         end
       end
     end
-
 
     context 'when rad date is < 90 days away' do
       let(:form_content) do

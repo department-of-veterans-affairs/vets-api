@@ -51,7 +51,7 @@ module EVSS
         output_form['autoCestPDFGenerationDisabled'] = input_form['autoCestPDFGenerationDisabled'] || false
         output_form['applicationExpirationDate'] = application_expiration_date
         output_form['overflowText'] = overflow_text
-        optput_form['bddQualified'] = bdd_qualified?
+        optput_form['bddQualified'] = translate_bdd
         output_form.compact!
 
         output_form.update(translate_banking_info)
@@ -60,7 +60,6 @@ module EVSS
         output_form.update(translate_veteran)
         output_form.update(translate_treatments)
         output_form.update(translate_disabilities)
-        output_form.update(translate_bdd)
         @translated_form
       end
 
@@ -640,43 +639,25 @@ module EVSS
       ###
 
       def translate_bdd
-        evss_rad_date
+        user_supplied_rad_date
         return {
           'bddQualified': bdd_qualified?
         }
       end
 
-      def evss_rad_date
-        # retrieve the most recent Release from Active Duty (RAD) date
+      def user_supplied_rad_date
+        # Retrieve the most recent Release from Active Duty (RAD) date from user supplied service periods
 
-        # FIX ME! How do we get service_episodes from the form input?
-        # option 1: What Silvio did, This seems like it makes a call to EMIS rather than translating the service periods
-        service_episodes = @user.military_information.service_episodes_by_date
-        # option 2: Maybe we need to explicitly call translate_service_periods instead? Something like...
-        service_episodes = translate_service_periods
-
-        # Date calculation has to be based on EVSS validation timezone
-        system_tz = Time.zone.name
-        Time.zone = EVSS_TZ
-        @evss_rd = Time.zone.parse(service_episodes.first&.end_date.to_s).to_date
-
-        # Validation through vets-json-schema should make this impossible. However, this was clearly a use case
-        # at some point https://github.com/department-of-veterans-affairs/vets-api/pull/1567.
-        # If this error isn't thrown after several months we can safely remove it this check.
-        if @evss_rd.blank?
-          raise Common::Exceptions::UnprocessableEntity.new(
-            detail: 'Missing military service end date',
-            source: 'DataTranslationAllClaim'
-          )
-        end
-
-        Time.zone = system_tz # Set back to original timezone
+        user_supplied_rad_date = translate_service_periods.sort_by {
+          |episode| episode['activeDutyEndDate']
+        }.reverse[0]['activeDutyEndDate']
+        @user_supplied_rad_date = user_supplied_rad_date.in_time_zone(EVSS_TZ).to_date
       end
 
       def bdd_qualified?
         # To be bdd_qualified application should be submitted 180-90 days prior to Release from Active Duty (RAD) date.
         # Applications < 90 days prior to release can be submitted but only with value as false.
-        days_until_release = @evss_rd - @form_submission_date
+        days_until_release = @user_supplied_rad_date - @form_submission_date
 
         if days_until_release > 180
           raise Common::Exceptions::UnprocessableEntity.new(
