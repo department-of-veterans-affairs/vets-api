@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require 'decision_review/service'
 
 describe DecisionReview::Service do
   subject { described_class.new }
