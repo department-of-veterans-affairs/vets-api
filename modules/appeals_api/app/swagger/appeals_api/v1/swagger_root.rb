@@ -10,15 +10,13 @@ module AppealsApi::V1::SwaggerRoot
   swagger_root openapi: '3.0.0' do
     info title: 'Decision Reviews', version: '1.0.0', description: read_file_from_same_dir['api_description.md']
 
-    server description: 'VA.gov API sandbox environment' do
-      key :url, 'https://sandbox-api.va.gov/services/appeals/{version}/decision_reviews'
+    url = ->(prefix = '') { "https://#{prefix}api.va.gov/services/appeals/{version}/decision_reviews" }
+
+    server description: 'VA.gov API sandbox environment', url: url['sandbox-'] do
       variable(:version) { key :default, 'v1' }
     end
 
-    server description: 'VA.gov API production environment' do
-      key :url, 'https://api.va.gov/services/appeals/{version}/decision_reviews'
-      variable(:version) { key :default, 'v1' }
-    end
+    server description: 'VA.gov API production environment', url: url[] { variable(:version) { key :default, 'v1' } }
 
     hlr_create_schemas = AppealsApi::JsonSchemaToSwaggerConverter.new(
       read_json_schema['200996.json']
