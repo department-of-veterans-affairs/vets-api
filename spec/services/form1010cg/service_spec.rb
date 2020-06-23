@@ -623,6 +623,52 @@ RSpec.describe Form1010cg::Service do
       expect(result.submitted_at).to eq(expected[:results][:submitted_at])
     end
   end
+
+  describe 'submit_attachment!' do
+    context 'raises error' do
+      it 'when document_type is not valid' do
+        expect do
+          subject.submit_attachment!('BAD-Doc-Type', 'tmp/my_attachment.pdf')
+        end.to raise_error('Invalid document_type')
+      end
+
+      it 'when claim is not submitted' do
+        expect do
+          subject.submit_attachment!('10-10CG', 'tmp/my_attachment.pdf')
+        end.to raise_error('Claim must be submitted')
+      end
+    end
+
+    it 'submits the provided file to CARMA' do
+      claim            = create(:caregivers_assistance_claim)
+      claim.submission = create(:form1010cg_submission, saved_claim_id: claim.id)
+
+      subject = described_class.new(claim)
+
+      document_type = '10-10CG'
+      file_path     = 'tmp/my_file.pdf'
+
+      carma_attachment = double
+
+      expect(CARMA::Models::Attachment).to receive(:new).with(
+        carma_case_id: claim.submission.carma_case_id,
+        veteran_name: {
+          first: claim.veteran_data['fullName']['first'],
+          last: claim.veteran_data['fullName']['last']
+        },
+        file_path: file_path,
+        document_type: document_type
+      ).and_return(
+        carma_attachment
+      )
+
+      expect(carma_attachment).to receive(:submit!).and_return(:ATTACHMENT_RESPONSE)
+
+      expect(
+        subject.submit_attachment!(document_type, file_path)
+      ).to eq(:ATTACHMENT_RESPONSE)
+    end
+  end
 end
 
 # rubocop:enable RSpec/SubjectStub

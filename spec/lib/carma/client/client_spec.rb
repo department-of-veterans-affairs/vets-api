@@ -97,7 +97,7 @@ RSpec.describe CARMA::Client::Client, type: :model do
       response = subject.create_attachment_stub(nil)
 
       # TODO: verify actual response schema
-      expect(response['data']).to eq('TBD')
+      expect(response['data']).to eq('Schema TBD')
     end
   end
 end

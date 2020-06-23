@@ -18,7 +18,8 @@ module Form1010cg
       claim.persisted? || raise('Claim must be persisted')
 
       # The CaregiversAssistanceClaim we are processing with this service
-      @claim = claim
+      @claim       = claim
+      @submission  = claim.submission
 
       # Store for the search results we will run on MVI and eMIS
       @cache = {
@@ -41,24 +42,39 @@ module Form1010cg
 
       @carma_submission = CARMA::Models::Submission.from_claim(claim, build_metadata).submit!
 
-      @submission = Form1010cg::Submission.new(
+      @submission = Form1010cg::Submission.create!(
         carma_case_id: carma_submission.carma_case_id,
         submitted_at: carma_submission.submitted_at,
         saved_claim: claim
       )
+
+      # Form1010cg::AttachmentUploadJob.perform_async(submission.id)
+
+      submission
     end
 
-    def queue_post_submission_processing
-      # Save the claim
-      @submission.save!
+    def submit_attachment!(document_type, local_path)
+      document_types = CARMA::Models::Attachment::DOCUMENT_TYPES
 
-      # Attach the PDF version of the submission to the related CARMA Case
-      send_pdf_attachment
-    end
+      raise 'Invalid document_type'   if document_types[document_type].nil?
+      raise 'Claim must be submitted' unless claim.submitted?
 
-    def send_pdf_attachment
-      attachment = CARMA::Models::Attachment.new claim.to_pdf
-      attachment.submit # || Rails.logger.error "Failed to submit PDF version of claim id=#{@claim.id} to CARMA"
+      attachment = CARMA::Models::Attachment.new(
+        carma_case_id: submission.carma_case_id,
+        veteran_name: {
+          first: claim.veteran_data['fullName']['first'],
+          last: claim.veteran_data['fullName']['last']
+        },
+        file_path: local_path,
+        document_type: document_type
+      )
+
+      response = attachment.submit!
+
+      # TODO: Store the attachment data on the submission
+      # TODO: Delete file after processing? (add arg: delete_after_processing = true)
+
+      response
     end
 
     # Will raise an error unless the veteran specified on the claim's data can be found in MVI
