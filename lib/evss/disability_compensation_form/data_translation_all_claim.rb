@@ -49,7 +49,7 @@ module EVSS
         output_form['autoCestPDFGenerationDisabled'] = input_form['autoCestPDFGenerationDisabled'] || false
         output_form['applicationExpirationDate'] = application_expiration_date
         output_form['overflowText'] = overflow_text
-        output_form['bddQualified'] = translate_bdd
+        output_form['bddQualified'] = bdd_qualified?
         output_form.compact!
 
         output_form.update(translate_banking_info)
@@ -646,22 +646,16 @@ module EVSS
       # Benefits Delivery at Discharge (BDD)
       ###
 
-      def translate_bdd
-        user_supplied_rad_date
-        bdd_qualified?
-      end
-
       def user_supplied_rad_date
         # Retrieve the most recent Release from Active Duty (RAD) date from user supplied service periods
-
         recent_service_period = translate_service_periods.sort_by { |episode| episode['activeDutyEndDate'] }.reverse[0]
-        @user_supplied_rad_date = recent_service_period['activeDutyEndDate'].in_time_zone(EVSS_TZ).to_date
+        recent_service_period['activeDutyEndDate'].in_time_zone(EVSS_TZ).to_date
       end
 
       def bdd_qualified?
         # To be bdd_qualified application should be submitted 180-90 days prior to Release from Active Duty (RAD) date.
         # Applications < 90 days prior to release can be submitted but only with value as false.
-        days_until_release = @user_supplied_rad_date - @form_submission_date
+        days_until_release = user_supplied_rad_date - @form_submission_date
 
         if days_until_release > 180
           raise Common::Exceptions::UnprocessableEntity.new(
