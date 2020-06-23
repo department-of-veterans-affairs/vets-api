@@ -8,11 +8,9 @@ require 'saml/responses/logout'
 
 module V1
   class SessionsController < ApplicationController
-    include ActionController::Rendering
-    include ActionView::Layouts
 
     skip_before_action :verify_authenticity_token
-    before_action :enable_post_view
+    # before_action :enable_post_view
 
     REDIRECT_URLS = %w[signup mhv dslogon idme custom mfa verify slo].freeze
 
@@ -130,9 +128,15 @@ module V1
       end
     end
 
+    # TODO: Replace ActionView::Base with ActionController::Base.renderer
+    # once we figure out how to override the view_paths for that renderer
     def render_login(type, previous_saml_uuid = nil)
       post_params, login_url = login_params(type, previous_saml_uuid)
-      render template: 'sso_post_form', locals: { url: login_url, params: post_params }
+      renderer = ActionView::Base.with_view_paths([Rails.root.join('lib','saml','templates')])
+      result = renderer.render template: 'sso_post_form', 
+        locals: { url: login_url, params: post_params },
+        format: :html
+      render body: result, content_type: "text/html"
     end
 
     # rubocop:disable Metrics/CyclomaticComplexity
@@ -255,10 +259,6 @@ module V1
                                params: params,
                                loa3_context: LOA::IDME_LOA3,
                                previous_saml_uuid: previous_saml_uuid)
-    end
-
-    def enable_post_view
-      prepend_view_path(Rails.root.join('lib', 'saml', 'templates'))
     end
   end
 end
