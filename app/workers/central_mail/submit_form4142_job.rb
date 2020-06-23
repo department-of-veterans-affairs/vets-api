@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'central_mail/service'
+require 'common/exceptions'
 
 module CentralMail
   class SubmitForm4142Job < EVSS::DisabilityCompensationForm::Job

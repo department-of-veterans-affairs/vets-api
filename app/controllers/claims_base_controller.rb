@@ -10,6 +10,8 @@
 
 # Current subclasses are PensionClaim and BurialClaim.
 
+require 'common/exceptions/internal/validation_errors'
+
 class ClaimsBaseController < ApplicationController
   skip_before_action(:authenticate)
 

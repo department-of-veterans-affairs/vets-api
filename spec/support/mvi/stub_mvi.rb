@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'common/exceptions'
+
 def stub_mvi(profile = nil)
   profile ||= build(:mvi_profile)
   # don't allow Mvi instances to be frozen during specs so that
