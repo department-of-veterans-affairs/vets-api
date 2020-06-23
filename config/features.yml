@@ -27,6 +27,9 @@ features:
   facility_locator_pull_operating_status_from_lighthouse:
     actor_type: user
     description: A fast and dirty way to get the operating status from lighthouse
+  facility_locator_ppms_legacy_urgent_care_to_pos_locator:
+    actor_type: user
+    description: force the legacy urgent care path to use the new POS locator
   facility_locator_ppms_location_query:
     actor_type: user
     description: Use the Lat/Long instead of an address
