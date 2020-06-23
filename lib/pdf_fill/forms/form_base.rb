@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-module PdfFill
+module PDFFill
   module Forms
     class FormBase
       def self.date_strftime
@@ -24,7 +24,7 @@ module PdfFill
         address = combine_hash(hash, [name_key, 'combinedAddr'], ', ')
         hash.delete('combinedAddr')
 
-        hash[combined_key] = PdfFill::FormValue.new(address, extras_address)
+        hash[combined_key] = PDFFill::FormValue.new(address, extras_address)
       end
 
       def combine_both_addr(hash, key)
@@ -34,7 +34,7 @@ module PdfFill
         extras_address = combine_full_address_extras(original_addr)
         address = combine_full_address(original_addr)
 
-        hash[key] = PdfFill::FormValue.new(address, extras_address)
+        hash[key] = PDFFill::FormValue.new(address, extras_address)
       end
 
       def combine_previous_names(previous_names)
