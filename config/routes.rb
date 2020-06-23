@@ -24,7 +24,7 @@ Rails.application.routes.draw do
     resource :claim_documents, only: [:create]
     resource :claim_attachments, only: [:create], controller: :claim_documents
     resources :debts, only: :index
-    resources :debt_letters, only: [:index, :show]
+    resources :debt_letters, only: %i[index show]
 
     resource :form526_opt_in, only: :create
 

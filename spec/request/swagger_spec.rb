@@ -345,10 +345,10 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
         it 'validates the route' do
           expect(subject).to validate(
             :get,
-            "/v0/debt_letters/{id}",
+            '/v0/debt_letters/{id}',
             200,
             headers.merge(
-              'id' => URI.encode(document_id)
+              'id' => CGI.escape(document_id)
             )
           )
         end

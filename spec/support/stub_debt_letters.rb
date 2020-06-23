@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 def stub_debt_letters(method)
   let!(:letter_downloader) do
     letter_downloader = double
