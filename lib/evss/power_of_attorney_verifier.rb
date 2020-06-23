@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'common/exceptions/internal/unauthorized'
+
 module EVSS
   class PowerOfAttorneyVerifier
     def initialize(user)

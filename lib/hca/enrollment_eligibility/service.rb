@@ -1,5 +1,8 @@
 # frozen_string_literal: true
 
+require 'common/client/base'
+require 'common/client/concerns/monitoring'
+
 module HCA
   module EnrollmentEligibility
     class Service < Common::Client::Base

@@ -2,6 +2,7 @@
 
 require 'common/client/base'
 require 'common/client/concerns/monitoring'
+require 'common/client/errors'
 
 module EVSS
   module IntentToFile

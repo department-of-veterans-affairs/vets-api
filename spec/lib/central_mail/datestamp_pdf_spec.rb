@@ -2,6 +2,7 @@
 
 require 'rails_helper'
 require 'central_mail/datestamp_pdf'
+require 'common/file_helpers'
 
 RSpec.describe CentralMail::DatestampPDF do
   describe '#run' do

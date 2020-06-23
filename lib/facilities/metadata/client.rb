@@ -1,5 +1,8 @@
 # frozen_string_literal: true
 
+require 'common/client/base'
+require 'common/client/concerns/monitoring'
+
 module Facilities
   module Metadata
     class Client < Common::Client::Base
