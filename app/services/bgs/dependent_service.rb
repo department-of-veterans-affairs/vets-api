@@ -30,16 +30,19 @@ module BGS
 
       VnpRelationships.new(proc_id: proc_id, veteran: veteran, dependents: dependents, user: @user).create
 
-      # if payload['report674']
-      #   StudentSchool.new(proc_id: proc_id, vnp_participant_id: dependent.vnp_participant_id, payload: payload, user: @user).create
-      # end
+      dependents.each do |dependent|
+        if dependent[:type] == '674'
+          StudentSchool.new(proc_id: proc_id, vnp_participant_id: dependent[:vnp_participant_id], payload: hash_payload, user: @user).create
+        end
+      end
+
       vnp_benefit_claim = VnpBenefitClaim.new(proc_id: proc_id, veteran: veteran, user: @user)
       vnp_benefit_claim_record = vnp_benefit_claim.create
 
       benefit_claim_record = BenefitClaim.new(vnp_benefit_claim: vnp_benefit_claim_record, veteran: veteran, user: @user).create
       vnp_benefit_claim.update(benefit_claim_record, vnp_benefit_claim_record)
       update_proc(proc_id)
-      # payload
+
       # {response: 'ok'} this is for the job
     end
 

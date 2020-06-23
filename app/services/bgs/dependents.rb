@@ -14,14 +14,14 @@ module BGS
     end
 
     def create
-      # add_children if @payload['add_child']
+      add_children if @dependents_application.dig("view:selectable686_options", "add_child")
       # report_deaths if @payload['report_death']
-      add_spouse if @payload['add_spouse']
+      add_spouse if @dependents_application.dig('view:selectable686_options', 'add_spouse')
       # # report_divorce if @payload['report_divorce']
       # report_stepchild if @payload['report_stepchild_not_in_household']
       # report_child_marriage if @payload['report_marriage_of_child_under18']
       # report_child18_or_older_is_not_attending_school if @payload['report_child18_or_older_is_not_attending_school']
-      # report_674 if @payload['report674']
+      # report_674 if @dependents_application.dig("view:selectable686_options", "report674") This is good 6/18
       # report_veteran_marriage_history if @payload['veteran_marriage_history']
       # report_spouse_marriage_history if @payload['spouse_marriage_history']
 
@@ -72,11 +72,13 @@ module BGS
 
     def add_spouse
       marriage_info = format_marriage_info
-      family_relationship_type = @payload["spouse_does_live_with_veteran"] == true ? 'Spouse' : 'Estranged Spouse'
+
+      family_relationship_type = @dependents_application.dig('does_live_with_spouse', 'spouse_does_live_with_veteran') == true ? 'Spouse' : 'Estranged Spouse'
 
       spouse_address = family_relationship_type == 'Spouse' ? @dependents_application['veteran_contact_information']['veteran_address'] : @dependents_application['does_live_with_spouse']['address']
       participant = create_participant(@proc_id)
       create_person(@proc_id, participant[:vnp_ptcpnt_id], marriage_info)
+
       generate_address(participant[:vnp_ptcpnt_id], spouse_address)
 
       @dependents << serialize_result(
