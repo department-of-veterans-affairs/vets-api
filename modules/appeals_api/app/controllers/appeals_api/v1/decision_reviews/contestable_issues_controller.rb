@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class AppealsApi::V1::DecisionReview::ContestableIssuesController < AppealsApi::ApplicationController
+class AppealsApi::V1::DecisionReviews::ContestableIssuesController < AppealsApi::ApplicationController
   skip_before_action(:authenticate)
 
   EXPECTED_HEADERS = %w[X-VA-SSN X-VA-Receipt-Date].freeze
