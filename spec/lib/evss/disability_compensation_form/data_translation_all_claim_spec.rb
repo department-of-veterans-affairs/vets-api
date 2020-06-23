@@ -1391,7 +1391,7 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
       end
 
       it 'throws 422 error' do
-        expect{subject.send(:translate_bdd)}.to raise_error(
+        expect { subject.send(:translate_bdd) }.to raise_error(
           Common::Exceptions::UnprocessableEntity
         ) { |e|
           expect(e.errors[0].detail).to match(/more than 180 days/)

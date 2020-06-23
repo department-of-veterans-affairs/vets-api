@@ -638,7 +638,7 @@ module EVSS
 
       def translate_bdd
         user_supplied_rad_date
-        return {
+        {
           'bddQualified': bdd_qualified?
         }
       end
@@ -646,8 +646,8 @@ module EVSS
       def user_supplied_rad_date
         # Retrieve the most recent Release from Active Duty (RAD) date from user supplied service periods
 
-        user_supplied_rad_date = translate_service_periods.sort_by {
-          |episode| episode['activeDutyEndDate']
+        user_supplied_rad_date = translate_service_periods.sort_by { |episode|
+          episode['activeDutyEndDate']
         }.reverse[0]['activeDutyEndDate']
         @user_supplied_rad_date = user_supplied_rad_date.in_time_zone(EVSS_TZ).to_date
       end
@@ -663,7 +663,7 @@ module EVSS
             source: 'DataTranslationAllClaim'
           )
         end
-        days_until_release >= 90 ? true : false
+        days_until_release >= 90
       end
     end
   end
