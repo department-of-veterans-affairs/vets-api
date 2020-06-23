@@ -15,6 +15,11 @@ module AppealsApi::V1::SwaggerRoot
       variable(:version) { key :default, 'v1' }
     end
 
+    server description: 'VA.gov API production environment' do
+      key :url, 'https://api.va.gov/services/appeals/{version}/decision_reviews'
+      variable(:version) { key :default, 'v1' }
+    end
+
     hlr_create_schemas = AppealsApi::JsonSchemaToSwaggerConverter.new(
       read_json_schema['200996.json']
     ).to_swagger['components']['schemas']
