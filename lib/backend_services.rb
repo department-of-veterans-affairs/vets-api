@@ -17,7 +17,6 @@ class BackendServices
   EDUCATION_BENEFITS = 'edu-benefits'
   EVSS_CLAIMS = 'evss-claims'
   FORM526 = 'form526'
-  ORIGINAL_CLAIMS = 'original-claims'
   ADD_PERSON = 'add-person'
   APPEALS_STATUS = 'appeals-status'
   USER_PROFILE = 'user-profile'
