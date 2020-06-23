@@ -58,6 +58,7 @@ module EVSS
         output_form.update(translate_veteran)
         output_form.update(translate_treatments)
         output_form.update(translate_disabilities)
+
         @translated_form
       end
 
@@ -633,7 +634,7 @@ module EVSS
       end
 
       ###
-      # Translate Benefits Delivery at Discharge (BDD)
+      # Benefits Delivery at Discharge (BDD)
       ###
 
       def translate_bdd
