@@ -17,7 +17,7 @@ module SAML
 
     def expect_saml_form_parameters(params, expected_relay_state = nil)
       expect(params['SAMLRequest']).to be_truthy
-      expect(params['RelayState']).to eqexpected_relay_state.to_json if expected_relay_state.present?
+      expect(params['RelayState']).to eq(expected_relay_state.to_json) if expected_relay_state.present?
     end
   end
 end
