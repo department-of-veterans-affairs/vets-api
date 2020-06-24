@@ -132,7 +132,7 @@ class Form526Submission < ApplicationRecord
   end
 
   def send_form526_confirmation_email
-    email_address = JSON.parse(form_json)['form526']['form526']['veteran']['emailAddress']
+    email_address = form['form526']['form526']['veteran']['emailAddress']
     Form526ConfirmationEmailJob.perform_async(id, email_address)
   end
 
