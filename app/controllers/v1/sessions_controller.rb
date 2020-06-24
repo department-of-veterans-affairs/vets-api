@@ -35,7 +35,6 @@ module V1
     def new
       type = params[:type]
 
-      new_stats(type)
 
       if type == 'slo'
         Rails.logger.info("LOGOUT of type #{type}", sso_logging_info)
@@ -45,8 +44,10 @@ module V1
         # clientId must be added at the end or the URL will be invalid for users using various "Do not track"
         # extensions with their browser.
         redirect_to params[:client_id].present? ? url + "&clientId=#{params[:client_id]}" : url
+        new_stats(type)
       else
         render_login(type)
+        new_stats(type)
       end
     end
 
@@ -128,12 +129,11 @@ module V1
       end
     end
 
-    # TODO: Replace ActionView::Base with ActionController::Base.renderer
-    # once we figure out how to override the view_paths for that renderer
     def render_login(type, previous_saml_uuid = nil)
       post_params, login_url = login_params(type, previous_saml_uuid)
-      renderer = ActionView::Base.with_view_paths([Rails.root.join('lib','saml','templates')])
-      result = renderer.render template: 'sso_post_form', 
+      renderer = ActionController::Base.renderer
+      renderer.controller.prepend_view_path(Rails.root.join('lib', 'saml', 'templates'))
+      result = renderer.render template: 'sso_post_form',
         locals: { url: login_url, params: post_params },
         format: :html
       render body: result, content_type: "text/html"
