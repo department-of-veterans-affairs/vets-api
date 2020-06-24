@@ -71,19 +71,42 @@ RSpec.describe 'Disability Claims ', type: :request do
 
       it 'requires homelessness currentlyHomeless subfields' do
         par = json_data
-        par['data']['attributes']['homelessness']['currentlyHomeless']['homelessSituationType'] = 'NOT_A_HOMELESS_TYPE'
+        par['data']['attributes']['veteran']['homelessness'] = {
+          "pointOfContact": {
+            "pointOfContactName": 'John Doe',
+            "primaryPhone": {
+              "areaCode": '555',
+              "phoneNumber": '555-5555'
+            }
+          },
+          "currentlyHomeless": {
+            "homelessSituationType": 'NOT_A_HOMELESS_TYPE',
+            "otherLivingSituation": 'other living situations'
+          }
+        }
         post path, params: par.to_json, headers: headers
         expect(response.status).to eq(422)
-        expect(JSON.parse(response.body)['errors'].size).to eq(5)
+        expect(JSON.parse(response.body)['errors'].size).to eq(1)
       end
 
       it 'requires homelessness homelessnessRisk subfields' do
         par = json_data
-        par['data']['attributes']['homelessness']['homelessnessRisk'] = {}
-        par['data']['attributes']['homelessness']['homelessnessRisk']['homelessnessRiskSituationType'] = 'NOT_RISK_TYPE'
+        par['data']['attributes']['veteran']['homelessness'] = {
+          "pointOfContact": {
+            "pointOfContactName": 'John Doe',
+            "primaryPhone": {
+              "areaCode": '555',
+              "phoneNumber": '555-5555'
+            }
+          },
+          "homelessnessRisk": {
+            "homelessnessRiskSituationType": 'NOT_RISK_TYPE',
+            "otherLivingSituation": 'other living situations'
+          }
+        }
         post path, params: par.to_json, headers: headers
         expect(response.status).to eq(422)
-        expect(JSON.parse(response.body)['errors'].size).to eq(5)
+        expect(JSON.parse(response.body)['errors'].size).to eq(1)
       end
 
       it 'requires disability subfields' do
