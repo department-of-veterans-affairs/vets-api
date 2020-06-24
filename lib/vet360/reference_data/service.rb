@@ -1,6 +1,11 @@
 # frozen_string_literal: true
 
-require 'common/client/base'
+require 'common/client/monitoring'
+require 'vet360/service'
+require_relative 'configuration'
+require_relative 'countries_response'
+require_relative 'states_response'
+require_relative 'zipcodes_response'
 
 module Vet360
   module ReferenceData
