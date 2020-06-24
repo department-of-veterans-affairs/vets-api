@@ -126,7 +126,12 @@ RSpec.describe 'VBA Document Uploads Endpoint', type: :request do
         expect(response.status).to eq(404)
       end
     end
+
     it 'returns a 200 with content-type of zip' do
+      # rubocop:disable all
+      pending 'https://github.com/department-of-veterans-affairs/va.gov-team/issues/7305'
+      fail
+
       objstore = instance_double(VBADocuments::ObjectStore)
       version = instance_double(Aws::S3::ObjectVersion)
       allow(VBADocuments::ObjectStore).to receive(:new).and_return(objstore)
@@ -138,6 +143,7 @@ RSpec.describe 'VBA Document Uploads Endpoint', type: :request do
       get "/services/vba_documents/v1/uploads/#{upload.guid}/download"
       expect(response.status).to eq(200)
       expect(response.headers['Content-Type']).to eq('application/zip')
+      # rubocop:enable all
     end
 
     it '200S even with an invalid doc' do
