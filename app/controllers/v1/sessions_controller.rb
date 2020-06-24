@@ -8,7 +8,6 @@ require 'saml/responses/logout'
 
 module V1
   class SessionsController < ApplicationController
-
     skip_before_action :verify_authenticity_token
     # before_action :enable_post_view
 
@@ -35,20 +34,18 @@ module V1
     def new
       type = params[:type]
 
-
       if type == 'slo'
         Rails.logger.info("LOGOUT of type #{type}", sso_logging_info)
         reset_session
-        url = url_service.ssoe_slo_url 
+        url = url_service.ssoe_slo_url
         # due to shared url service implementation
         # clientId must be added at the end or the URL will be invalid for users using various "Do not track"
         # extensions with their browser.
         redirect_to params[:client_id].present? ? url + "&clientId=#{params[:client_id]}" : url
-        new_stats(type)
       else
         render_login(type)
-        new_stats(type)
       end
+      new_stats(type)
     end
 
     def ssoe_slo_callback
@@ -134,14 +131,15 @@ module V1
       renderer = ActionController::Base.renderer
       renderer.controller.prepend_view_path(Rails.root.join('lib', 'saml', 'templates'))
       result = renderer.render template: 'sso_post_form',
-        locals: { url: login_url, params: post_params },
-        format: :html
-      render body: result, content_type: "text/html"
+                               locals: { url: login_url, params: post_params },
+                               format: :html
+      render body: result, content_type: 'text/html'
     end
 
     # rubocop:disable Metrics/CyclomaticComplexity
     def login_params(type, previous_saml_uuid = nil)
       raise Common::Exceptions::RoutingError, type unless REDIRECT_URLS.include?(type)
+
       helper = url_service(previous_saml_uuid)
       case type
       when 'signup'
@@ -158,6 +156,7 @@ module V1
         helper.verify_url
       when 'custom'
         raise Common::Exceptions::ParameterMissing, 'authn' if params[:authn].blank?
+
         helper.custom_url params[:authn]
       end
     end
