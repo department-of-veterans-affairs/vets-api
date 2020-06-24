@@ -5,7 +5,8 @@ require 'rails_helper'
 describe DecisionReview::Service do
   subject { described_class.new }
 
-  let(:user) { build(:user, :loa3) }
+  let(:ssn_with_mockdata) { '212222112' }
+  let(:user) { build(:user, :loa3, ssn: ssn_with_mockdata) }
 
   describe '#post_higher_level_reviews' do
     context 'with a valid decision review request' do

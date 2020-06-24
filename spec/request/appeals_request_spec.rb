@@ -137,6 +137,9 @@ RSpec.describe 'Appeals Status', type: :request do
 
     describe 'GET /contestable_issues' do
       context 'with a valid request' do
+        let(:ssn_with_mockdata) { '212222112' }
+        let(:user) { build(:user, :loa3, ssn: ssn_with_mockdata) }
+
         it 'returns a valid response' do
           VCR.use_cassette('decision_review/200_contestable_issues') do
             get '/v0/appeals/contestable_issues'
