@@ -10,7 +10,7 @@ module V1
   class SessionsController < ApplicationController
     skip_before_action :verify_authenticity_token
 
-    REDIRECT_URLS = %w[signup mhv dslogon idme mfa verify slo].freeze
+    REDIRECT_URLS = %w[signup mhv dslogon idme custom mfa verify slo].freeze
 
     STATSD_SSO_NEW_KEY = 'api.auth.new'
     STATSD_SSO_NEW_FORCEAUTH = 'api.auth.new.forceauth'
@@ -32,10 +32,9 @@ module V1
     # For more details see SAML::SettingsService and SAML::URLService
     def new
       type = params[:type]
-      raise Common::Exceptions::RoutingError, params[:path] unless REDIRECT_URLS.include?(type)
 
-      new_stats(type)
       url = redirect_url(type)
+      new_stats(type)
 
       if type == 'slo'
         Rails.logger.info("LOGOUT of type #{type}", sso_logging_info)
@@ -76,6 +75,8 @@ module V1
 
     # rubocop:disable Metrics/CyclomaticComplexity
     def redirect_url(type)
+      raise Common::Exceptions::RoutingError, type unless REDIRECT_URLS.include?(type)
+
       case type
       when 'signup'
         url_service.signup_url
@@ -89,10 +90,12 @@ module V1
         url_service.mfa_url
       when 'verify'
         url_service.verify_url
+      when 'custom'
+        raise Common::Exceptions::ParameterMissing, 'authn' if params[:authn].blank?
+
+        url_service.custom_url params[:authn]
       when 'slo'
         url_service.ssoe_slo_url # due to shared url service implementation
-      else
-        raise Common::Exceptions::RoutingError, params[:path]
       end
     end
     # rubocop:enable Metrics/CyclomaticComplexity

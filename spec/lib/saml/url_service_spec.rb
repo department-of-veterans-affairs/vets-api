@@ -295,6 +295,15 @@ RSpec.describe SAML::URLService do
             .with_relay_state('originating_request_id' => '123', 'type' => 'idme')
         end
 
+        it 'has sign in url: custom_url' do
+          allow(user).to receive(:authn_context).and_return('X')
+          expect_any_instance_of(OneLogin::RubySaml::Settings)
+            .to receive(:authn_context=).with('X')
+          expect(subject.custom_url('X'))
+            .to be_an_idme_saml_url('https://api.idmelabs.com/saml/SingleSignOnService?SAMLRequest=')
+            .with_relay_state('originating_request_id' => '123', 'type' => 'custom')
+        end
+
         it 'has sign up url: signup_url' do
           expect(subject.signup_url)
             .to be_an_idme_saml_url('https://api.idmelabs.com/saml/SingleSignOnService?SAMLRequest=')
