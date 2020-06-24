@@ -3,10 +3,10 @@
 require 'rails_helper'
 
 def basic_class
-  PdfFill::Forms::Va218940.new({})
+  PDFFill::Forms::Va218940.new({})
 end
 
-describe PdfFill::Forms::Va218940 do
+describe PDFFill::Forms::Va218940 do
   let(:form_data) do
     {}
   end
