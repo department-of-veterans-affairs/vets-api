@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module SAML
-  # This class is responsible for providing the requests for the various 
+  # This class is responsible for providing the requests for the various
   # SSO and SLO endpoints
   # It provides a similar interface to URLService, but for most endpoints
   # it returns an SSO URL and form request parameters for use in a SAML POST
@@ -149,17 +149,6 @@ module SAML
           "#{@user.identity.sign_in[:service_name]}_multifactor"
         end
       build_sso_url(link_authn_context)
-    end
-
-    # SIGN OFF URLS
-    # This method is not used as SSOe does not support SAML SLO
-    def slo_url
-      @type = 'slo'
-      logout_request = OneLogin::RubySaml::Logoutrequest.new
-      # cache the request for session.token lookup when we receive the response
-      SingleLogoutRequest.create(uuid: logout_request.uuid, token: session.token)
-      Rails.logger.info "New SP SLO having logout_request '#{logout_request.uuid}' for userid '#{session.uuid}'"
-      logout_request.create(url_settings, RelayState: relay_state_params)
     end
 
     # logout URL for SSOe
