@@ -127,7 +127,7 @@ module V1
     end
 
     def render_login(type, previous_saml_uuid = nil)
-      post_params, login_url = login_params(type, previous_saml_uuid)
+      login_url, post_params = login_params(type, previous_saml_uuid)
       renderer = ActionController::Base.renderer
       renderer.controller.prepend_view_path(Rails.root.join('lib', 'saml', 'templates'))
       result = renderer.render template: 'sso_post_form',

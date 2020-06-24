@@ -167,7 +167,7 @@ module SAML
       save_saml_request_tracker(saml_auth_request.uuid)
       post_params = saml_auth_request.create_params(new_url_settings, 'RelayState' => relay_state_params)
       login_url = new_url_settings.idp_sso_target_url
-      [post_params, login_url]
+      [login_url, post_params]
     end
 
     def relay_state_params

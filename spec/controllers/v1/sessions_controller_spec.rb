@@ -257,7 +257,7 @@ RSpec.describe V1::SessionsController, type: :controller do
                                            tags: ['context:signup', 'version:v1'], **once)
             expect(response).to have_http_status(:ok)
             expect_saml_post_form(response.body, 'https://pint.eauth.va.gov/isam/sps/saml20idp/saml20/login',
-                                  'originating_request_id' => nil, 'type' => 'custom')
+                                  'originating_request_id' => nil, 'type' => 'signup')
           end
         end
       end
