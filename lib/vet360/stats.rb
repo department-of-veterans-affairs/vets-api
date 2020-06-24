@@ -2,7 +2,7 @@
 
 module Vet360
   class Stats
-    STATSD_KEY_PREFIX = 'api.vet360'.freeze
+    STATSD_KEY_PREFIX = 'api.vet360'
     FINAL_SUCCESS = %w[COMPLETED_SUCCESS COMPLETED_NO_CHANGES_DETECTED].freeze
     FINAL_FAILURE = %w[REJECTED COMPLETED_FAILURE].freeze
 
