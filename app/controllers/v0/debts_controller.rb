@@ -3,7 +3,11 @@
 module V0
   class DebtsController < ApplicationController
     def index
-      render json: service.get_letters(fileNumber: @current_user.ssn)
+      render json: service.get_debt_details(fileNumber: @current_user.ssn)
+    end
+
+    def show
+      render json: service.get_letter_history()
     end
 
     private
