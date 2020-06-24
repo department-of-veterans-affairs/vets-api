@@ -19,7 +19,10 @@
       "homelessness": {
         "pointOfContact": {
           "pointOfContactName": "John Doe",
-          "primaryPhone": "555-555-5555"
+          "primaryPhone": {
+            "areaCode": "555",
+            "phoneNumber": "555-5555"
+          }
         },
         "currentlyHomeless": {
           "homelessSituationType": "FLEEING_CURRENT_RESIDENCE",
