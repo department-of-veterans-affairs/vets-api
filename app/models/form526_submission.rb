@@ -131,6 +131,11 @@ class Form526Submission < ApplicationRecord
     end
   end
 
+  def send_form526_confirmation_email
+    email_address = JSON.parse(form_json)['form526']['form526']['veteran']['emailAddress']
+    Form526ConfirmationEmailJob.perform_async(id, email_address)
+  end
+
   private
 
   def submit_uploads
@@ -148,11 +153,6 @@ class Form526Submission < ApplicationRecord
 
   def submit_form_8940
     EVSS::DisabilityCompensationForm::SubmitForm8940.perform_async(id)
-  end
-
-  def send_form526_confirmation_email
-    email_address = JSON.parse(form_json)['form526']['form526']['veteran']['emailAddress']
-    Form526ConfirmationEmailJob.perform_async(id, email_address)
   end
 
   def cleanup
