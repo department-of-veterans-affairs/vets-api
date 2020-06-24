@@ -8,7 +8,6 @@ require 'support/saml/form_validation_helpers'
 RSpec.describe V1::SessionsController, type: :controller do
   include SAML::ResponseBuilder
   include SAML::ValidationHelpers
-  include RSpecHtmlMatchers
 
   let(:uuid) { SecureRandom.uuid }
   let(:token) { 'abracadabra-open-sesame' }
@@ -390,11 +389,11 @@ RSpec.describe V1::SessionsController, type: :controller do
           Settings.sso.cookie_enabled = false
         end
 
-        context "routes /sessions/slo/new to SessionsController#new with type: #slo" do
+        context 'routes /sessions/slo/new to SessionsController#new with type: #slo' do
           it 'redirects' do
             expect { get(:new, params: { type: 'slo' }) }
               .to trigger_statsd_increment(described_class::STATSD_SSO_NEW_KEY,
-                                             tags: ['context:slo', 'version:v1'], **once)
+                                           tags: ['context:slo', 'version:v1'], **once)
             expect(response).to have_http_status(:found)
           end
         end
