@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'common/client/monitoring'
+require 'common/client/concerns/monitoring'
 require 'vet360/service'
 require_relative 'configuration'
 require_relative 'countries_response'

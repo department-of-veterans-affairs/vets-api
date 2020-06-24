@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'common/client/base'
-require 'common/client/monitoring'
+require 'common/client/concerns/monitoring'
 require 'vet360/contact_information/transaction_response'
 require 'vet360/service'
 
