@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require 'vet360/stats'
 
 describe Vet360::Stats do
   let(:statsd_prefix) { Vet360::Stats::STATSD_KEY_PREFIX }

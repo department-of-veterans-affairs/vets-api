@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require 'vet360/reference_data/configuration'
 
 describe Vet360::ReferenceData::Configuration do
   describe '#service_name' do
