@@ -1,8 +1,7 @@
 # frozen_string_literal: true
 
 require 'common/client/base'
-require 'common/client/errors/client_error'
-require 'common/client/errors/parsing_error'
+require 'common/client/errors'
 require 'common/exceptions/backend_exception' # TODO: use internal/external
 require 'common/exceptions/forbidden' # TODO: use internal/external
 require_relative 'exceptions/parser'

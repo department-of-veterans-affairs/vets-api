@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'common/client/monitoring'
-require 'common/client/errors/client_error'
+require 'common/client/errors'
 require 'vet360/service'
 require 'vet360/stats'
 require_relative 'configuration'
