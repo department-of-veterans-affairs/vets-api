@@ -1,5 +1,10 @@
 # frozen_string_literal: true
 
+require 'common/client/errors/client_error'
+require 'common/exceptions/backend_service_exception' #TODO use internal/external
+require 'vet360/service'
+require_relative 'configuration'
+
 module Vet360
   module AddressValidation
     # Wrapper for the VA profile address validation/suggestions API
