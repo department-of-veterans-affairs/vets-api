@@ -128,8 +128,8 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, type: :model, form: :educat
         FactoryBot.create(:va0994_full_form)
         # clear out old test files
         FileUtils.rm_rf(Dir.glob(spool_files))
-        # ensure our test data is spread across 3 regions..
-        expect(EducationBenefitsClaim.unprocessed.pluck(:regional_processing_office).uniq.count).to eq(3)
+        # ensure our test data is spread across 2 regions..
+        expect(EducationBenefitsClaim.unprocessed.pluck(:regional_processing_office).uniq.count).to eq(2)
       end
 
       it 'processes the valid messages' do
@@ -186,9 +186,9 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, type: :model, form: :educat
 
       output = subject.group_submissions_by_region(submissions)
 
-      expect(output[:eastern].length).to be(2)
+      expect(output[:eastern].length).to be(3)
       expect(output[:western].length).to be(3)
-      expect(output[:central].length).to be(1)
+      expect(output[:central].length).to be(0)
     end
   end
 
