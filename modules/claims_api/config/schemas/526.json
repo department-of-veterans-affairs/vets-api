@@ -295,11 +295,11 @@
                 "homelessSituationType": {
                   "type": "string",
                   "default": "OTHER",
-                  "enum": ["FLEEING_CURRENT_RESIDENCE",
-                           "LIVING_IN_A_HOMELESS_SHELTER",
-                           "NOT_CURRENTLY_IN_A_SHELTERED_ENVIRONMENT",
-                           "STAYING_WITH_ANOTHER_PERSON",
-                           "OTHER"]
+                  "enum": ["fleeing",
+                           "shelter",
+                           "notShelter",
+                           "anotherPerson",
+                           "other"]
                 },
                 "otherLivingSituation": {
                   "type": "string",
@@ -317,9 +317,9 @@
                 "homelessnessRiskSituationType": {
                   "type": "string",
                   "default": "OTHER",
-                  "enum": ["HOUSING_WILL_BE_LOST_IN_30_DAYS",
-                           "LEAVING_PUBLICLY_FUNDED_SYSTEM_OF_CARE",
-                           "OTHER"]
+                  "enum": ["losingHousing",
+                           "leavingShelter",
+                           "other"]
                 },
                 "otherLivingSituation": {
                   "type": "string",

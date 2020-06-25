@@ -35,7 +35,7 @@
             }
           },
           "currentlyHomeless": {
-            "homelessSituationType": "FLEEING_CURRENT_RESIDENCE",
+            "homelessSituationType": "fleeing",
             "otherLivingSituation": "other living situation"
           }
         }
