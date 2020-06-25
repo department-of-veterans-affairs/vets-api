@@ -61,9 +61,9 @@ RSpec.describe CentralMail::SubmitSavedClaimJob, uploader_helpers: true do
       datestamp_double2 = double
 
       expect(record).to receive(:to_pdf).and_return('path1')
-      expect(CentralMail::DatestampPdf).to receive(:new).with('path1').and_return(datestamp_double1)
+      expect(CentralMail::DatestampPDF).to receive(:new).with('path1').and_return(datestamp_double1)
       expect(datestamp_double1).to receive(:run).with(text: 'VA.GOV', x: 5, y: 5).and_return('path2')
-      expect(CentralMail::DatestampPdf).to receive(:new).with('path2').and_return(datestamp_double2)
+      expect(CentralMail::DatestampPDF).to receive(:new).with('path2').and_return(datestamp_double2)
       expect(datestamp_double2).to receive(:run).with(
         text: 'FDC Reviewed - va.gov Submission',
         x: 429,
@@ -79,7 +79,7 @@ RSpec.describe CentralMail::SubmitSavedClaimJob, uploader_helpers: true do
         expect(Digest::SHA256).to receive(:file).with('path').and_return(
           OpenStruct.new(hexdigest: 'hexdigest')
         )
-        expect(PdfInfo::Metadata).to receive(:read).with('path').and_return(
+        expect(PDFInfo::Metadata).to receive(:read).with('path').and_return(
           OpenStruct.new(pages: 2)
         )
 

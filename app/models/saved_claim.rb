@@ -88,7 +88,7 @@ class SavedClaim < ApplicationRecord
   end
 
   def to_pdf
-    PdfFill::Filler.fill_form(self)
+    PDFFill::Filler.fill_form(self)
   end
 
   private

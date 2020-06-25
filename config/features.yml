@@ -123,6 +123,10 @@ features:
     actor_type: user
     description: >
       Allows veterans to access form526 as an original claims user. Owned by va-benefits-memorial-1 team.
+  form526_confirmation_email:
+    actor_type: user
+    description: >
+      Allows veterans to receive a confirmation email after submitting form526. Owned by va-notify team.
   va_view_dependents_access:
     actor_type: user
     description: >
