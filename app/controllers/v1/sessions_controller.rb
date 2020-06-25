@@ -139,7 +139,8 @@ module V1
     def login_params(type, previous_saml_uuid = nil)
       raise Common::Exceptions::RoutingError, type unless REDIRECT_URLS.include?(type)
 
-      helper = url_service(previous_saml_uuid)
+      force = (type != 'custom')
+      helper = url_service(previous_saml_uuid, force)
       case type
       when 'signup'
         helper.signup_url
@@ -250,8 +251,8 @@ module V1
       'UNKNOWN'
     end
 
-    def url_service(previous_saml_uuid = nil)
-      SAML::PostURLService.new(saml_settings,
+    def url_service(previous_saml_uuid = nil, force_authn = false)
+      SAML::PostURLService.new(saml_settings(force_authn: force_authn),
                                session: @session_object,
                                user: current_user,
                                params: params,
