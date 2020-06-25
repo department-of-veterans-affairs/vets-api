@@ -55,7 +55,7 @@ module ClaimsApi
         end
 
         operation :post do
-          key :summary, 'Accepts 2122 Power of Power of Attorney payload'
+          key :summary, 'Accepts 2122 Power of Attorney payload'
           key :description, 'Accepts JSON payload. Full URL, including query parameters.'
           key :operationId, 'post2122'
           key :tags, [
