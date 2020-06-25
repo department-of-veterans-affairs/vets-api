@@ -16,7 +16,7 @@ module V0
     end
 
     def update
-      address = EVSS::PCIUAddress::Address.build_address(
+      address = EVSS::PCIUAddress.build_address(
         params.permit(
           :type, :address_effective_date,
           :address_one, :address_two, :address_three,
