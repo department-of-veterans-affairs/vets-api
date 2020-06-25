@@ -182,6 +182,7 @@ module PdfFill
               }
             }
           }
+
         }, # end veteran_contact_information
         'dependents_application' => {
           # ------------  SECTION II: INFORMATION NEEDED TO ADD SPOUSE  ------------ #
@@ -359,8 +360,9 @@ module PdfFill
               key: 'form1[0].#subform[17].Other[0]',
               limit: 9,
               question_num: '11F',
-              question_suffix: 'A',
-              question_text: 'INFORMATION NEEDED TO ADD SPOUSE > MARRIAGE TYPE OTHER EXPLANATION'
+              question_suffix: 'A' #,
+              # @ TODO adding question_text here breaks
+              #question_text: 'INFORMATION NEEDED TO ADD SPOUSE > MARRIAGE TYPE OTHER EXPLANATION'
             }
           }, # end current_marriage_information
           'does_live_with_spouse' => {
@@ -440,7 +442,7 @@ module PdfFill
                 question_suffix: 'A',
                 question_text: 'INFORMATION NEEDED TO ADD SPOUSE > PREVIOUS MARRIAGE HISTORY >  PREVIOUS SPOUSE FIRST NAME'
               }, # end of first name
-              'middle' => {
+              'middleInitial' => {
                 key: 'form1[0].#subform[18].CHILDMiddleInitial1[%iterator%]',
                 limit: 1,
                 question_num: 14,
@@ -1051,21 +1053,22 @@ module PdfFill
                 question_num: '21E',
                 question_suffix: 'C',
                 question_text: 'INFORMATION NEEDED TO ADD A STEPCHILD > LIVING WHERE > CITY'
-              }, # end of city
+              },
               'state_code' => {
                 key: 'step_children.address.state_code[%iterator%]',
                 limit: 2,
                 question_num: '21E',
                 question_suffix: 'D',
                 question_text: 'INFORMATION NEEDED TO ADD A STEPCHILD > LIVING WHERE > STATE'
-              }, # end of state_code
+              },
               'country_name' => {
                 key: 'step_children.address.country_name[%iterator%]',
                 limit: 2,
                 question_num: '21E',
-                question_suffix: 'E',
-                question_text: 'INFORMATION NEEDED TO ADD A STEPCHILD > LIVING WHERE > COUNTRY'
-              }, # end of country_name
+                question_suffix: 'E'#,
+                # @ TODO adding question_text here breaks
+                #question_text: 'INFORMATION NEEDED TO ADD A STEPCHILD > LIVING WHERE > COUNTRY'
+              },
               'zip_code' => {
                 'firstFive' => {
                   key: 'step_children.address.zip_code.firstFive[%iterator%]',
@@ -1073,14 +1076,14 @@ module PdfFill
                   question_num: '21E',
                   question_suffix: 'F',
                   question_text: 'INFORMATION NEEDED TO ADD A STEPCHILD > LIVING WHERE > ZIPCODE FIRST FIVE'
-                }, # end of zip first 5
+                },
                 'lastFour' => {
                   key: 'step_children.address.zip_code.lastFour[%iterator%]',
                   limit: 4,
                   question_num: '21E',
                   question_suffix: 'G',
                   question_text: 'INFORMATION NEEDED TO ADD A STEPCHILD > LIVING WHERE > ZIPCODE LAST FOUR'
-                }, # end of last 4
+                },
               } # end of zip_code
             }, # end of address
             # @TODO
@@ -1281,9 +1284,8 @@ module PdfFill
               }
             } # end date_child_left_school
           } # end child_stopped_attending_school
-          # -----------------  SECTION IX: REMARKS  ----------------- #
-
         }, # end dependents_application
+        # -----------------  SECTION IX: REMARKS  ----------------- #
         #'remarks' => {
           'remarks_line1' => {
             key: 'form1[0].#subform[31].#subform[32].#subform[33].Remarks[0]',
@@ -1446,8 +1448,12 @@ module PdfFill
 
       def merge_previous_marriage_helpers
         previous_spouses = @form_data['dependents_application']['veteran_marriage_history']
-        # extract veteran marriage history dates
+
         previous_spouses.each do |spouse|
+          # extract middle initial
+          spouse['full_name'] = extract_middle_i(spouse, 'full_name')
+
+          # extract veteran marriage history dates
           spouse['start_date'] = split_date(spouse['start_date'])
           spouse['end_date'] = split_date(spouse['end_date'])
 
