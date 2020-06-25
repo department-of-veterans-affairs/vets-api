@@ -48,10 +48,10 @@ GIT
 
 GIT
   remote: https://github.com/department-of-veterans-affairs/lighthouse-bgs.git
-  revision: 3a9cf80e0d542e9869de8c1a8cd7e4d0eac11864
-  branch: master
+  revision: 1852603b467c12f3a4f904380cb037a66e116460
+  branch: rename_gem
   specs:
-    lighthouse_bgs (0.13.0)
+    bgs_ext (0.14.0)
       httpclient
       nokogiri (>= 1.8.5)
       savon (~> 2.12)
@@ -807,6 +807,7 @@ DEPENDENCIES
   aws-sdk-sns (~> 1)
   benchmark-ips
   betamocks!
+  bgs_ext!
   brakeman (~> 4.7)
   breakers
   bundler-audit
@@ -853,7 +854,6 @@ DEPENDENCIES
   jsonapi-parser
   jwt
   levenshtein-ffi
-  lighthouse_bgs!
   liquid
   mail (= 2.7.1)
   memoist
