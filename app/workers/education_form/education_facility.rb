@@ -86,7 +86,6 @@ module EducationForm
 
     def self.check_area(address)
       area = address&.state
-      # Flipper.enabled?(:edu_benefits_stem_scholarship)
       case area
       when *EASTERN, *CENTRAL
         :eastern
