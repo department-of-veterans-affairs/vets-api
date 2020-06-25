@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require 'evss/disability_compensation_auth_headers'
 
 RSpec.describe CentralMail::SubmitForm4142Job, type: :job do
   subject { described_class }

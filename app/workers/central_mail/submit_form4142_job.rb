@@ -2,6 +2,8 @@
 
 require 'central_mail/service'
 require 'common/exceptions'
+require 'evss/disability_compensation_form/metrics'
+require 'evss/disability_compensation_form/form4142_processor'
 
 module CentralMail
   class SubmitForm4142Job < EVSS::DisabilityCompensationForm::Job

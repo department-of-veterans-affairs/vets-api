@@ -1,5 +1,8 @@
 # frozen_string_literal: true
 
+require 'evss/intent_to_file/service'
+require 'evss/ppiu/service'
+
 module EVSS
   module DisabilityCompensationForm
     # Transforms a client 526 form submission into the format expected by the EVSS service

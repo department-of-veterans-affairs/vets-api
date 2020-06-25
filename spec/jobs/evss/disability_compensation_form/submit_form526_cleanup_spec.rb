@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require 'evss/intent_to_file/response_strategy'
 
 RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526Cleanup, type: :job do
   subject { described_class }

@@ -11,9 +11,12 @@ require 'emis/payment_configuration'
 require 'emis/veteran_status_configuration'
 require 'evss/claims_service'
 require 'evss/common_service'
+require 'evss/dependents/configuration'
 require 'evss/documents_service'
 require 'evss/letters/service'
 require 'evss/gi_bill_status/service'
+require 'evss/pciu_address/configuration'
+require 'evss/reference_data/configuration'
 require 'facilities/bulk_configuration'
 require 'gi/configuration'
 require 'hca/configuration'
@@ -25,10 +28,6 @@ require 'sm/configuration'
 require 'search/configuration'
 require 'okta/configuration'
 
-require 'evss/claims_service'
-require 'evss/common_service'
-require 'evss/documents_service'
-require 'evss/letters/service'
 
 # Read the redis config, create a connection and a namespace for breakers
 # .to_h because hashes from config_for don't support non-symbol keys

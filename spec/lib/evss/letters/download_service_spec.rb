@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require 'evss/letters/download_service'
+require 'evss/letters/letter'
 
 describe EVSS::Letters::DownloadService do
   describe '.find_by_user' do

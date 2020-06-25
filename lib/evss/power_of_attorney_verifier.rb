@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'common/exceptions/internal/unauthorized'
+require_relative 'auth_headers'
 
 module EVSS
   class PowerOfAttorneyVerifier

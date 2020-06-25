@@ -4,6 +4,11 @@ require 'common/client/base'
 require 'common/exceptions/internal/record_not_found'
 require 'common/exceptions/external/gateway_timeout'
 require 'common/client/concerns/monitoring'
+require 'evss/service'
+require_relative 'configuration'
+require_relative 'beneficiary_response'
+require_relative 'letters_response'
+require_relative 'service_exception'
 
 module EVSS
   module Letters

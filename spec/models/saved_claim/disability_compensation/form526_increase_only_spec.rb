@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require 'evss/disability_compensation_form/submit_form526_increase_only'
 
 RSpec.describe SavedClaim::DisabilityCompensation::Form526IncreaseOnly do
   let(:user) { build(:disabilities_compensation_user) }

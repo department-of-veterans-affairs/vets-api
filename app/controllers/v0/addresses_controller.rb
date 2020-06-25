@@ -1,5 +1,9 @@
 # frozen_string_literal: true
 
+require 'evss/reference_data/service'
+require 'evss/pciu_address/service'
+require 'evss/pciu_address/response_strategy'
+
 module V0
   class AddressesController < ApplicationController
     before_action { authorize :evss, :access? }

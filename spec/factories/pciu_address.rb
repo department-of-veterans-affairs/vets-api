@@ -1,5 +1,10 @@
 # frozen_string_literal: true
 
+require 'evss/pciu_address/address'
+require 'evss/pciu_address/military_address'
+require 'evss/pciu_address/international_address'
+require 'evss/pciu_address/domestic_address'
+
 FactoryBot.define do
   factory :pciu_address, class: 'EVSS::PCIUAddress::Address' do
     type { '' }

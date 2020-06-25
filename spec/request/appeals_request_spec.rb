@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require 'evss/power_of_attorney_verifier'
 
 RSpec.describe 'Appeals Status', type: :request do
   include SchemaMatchers
