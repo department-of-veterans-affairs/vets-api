@@ -12,7 +12,7 @@ module EducationForm
     ].freeze
 
     # We need to keep SOUTHERN because existing records will have
-    # this as a region, and we need to conitnue to show the counts
+    # this as a region, and we need to continue to show the counts
     # in the YTD reports.
     SOUTHERN = %w[].freeze
 
@@ -86,11 +86,10 @@ module EducationForm
 
     def self.check_area(address)
       area = address&.state
+      # Flipper.enabled?(:edu_benefits_stem_scholarship)
       case area
-      when *EASTERN
+      when *EASTERN, *CENTRAL
         :eastern
-      when *CENTRAL
-        :central
       when *WESTERN
         :western
       else
