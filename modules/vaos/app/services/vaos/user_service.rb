@@ -2,51 +2,66 @@
 
 module VAOS
   class UserService < VAOS::BaseService
-    def session
+    def session(user)
       cached = SessionStore.find(user.account_uuid)
-      return save_session(new_session_token) unless cached
-      return save_session(update_session_token(cached.token)) if expires_in_two_minutes?(cached.ttl)
+      return cached.token if cached
 
-      cached.token
+      new_session_token(user)
+    end
+
+    def extend_session(account_uuid)
+      cached = SessionStore.find(account_uuid)
+      ExtendSession.perform_async(account_uuid) if cached && !recently_cached?(cached)
+    end
+
+    def update_session_token(account_uuid)
+      url = '/users/v2/session/jwts'
+      response = perform(:get, url, nil, refresh_headers)
+      new_token = response.body[:jws]
+      Rails.logger.info('VAOS session updated',
+                        {
+                          account_uuid: account_uuid,
+                          new_jti: decoded_token(new_token)['jti'],
+                          active_jti: decoded_token(cached.token)['jti']
+                        })
+      save_session!(account_uuid, new_token)
     end
 
     private
 
-    def expires_in_two_minutes?(ttl)
-      ttl < 60 * 2
+    def recently_cached?(cached)
+      Time.now.utc.to_i - cached.unix_created_at < 15.seconds
     end
 
-    def save_session(token)
-      session_store = SessionStore.new(account_uuid: user.account_uuid, token: token)
+    def save_session!(account_uuid, token)
+      session_store = SessionStore.new(
+        account_uuid: account_uuid,
+        token: token,
+        unix_created_at: Time.now.utc.to_i
+      )
       session_store.save
       session_store.expire(ttl_duration_from_token(token))
       token
     end
 
-    def new_session_token
+    def new_session_token(user)
       url = '/users/v2/session?processRules=true'
       token = VAOS::JWT.new(user).token
       response = perform(:post, url, token, headers)
       raise Common::Exceptions::BackendServiceException.new('VAOS_502', source: self.class) unless body?(response)
 
-      log('created', jti: decoded_token(token)['jti'])
-      response.body
-    end
+      Rails.logger.info('VAOS session created',
+                        { account_uuid: user.account_uuid, jti: decoded_token(token)['jti'] })
 
-    def update_session_token(active_token)
-      url = '/users/v2/session/jwts'
-      response = perform(:get, url, nil, refresh_headers(active_token))
-      new_token = response.body[:jws]
-      log('updated', { new_jti: decoded_token(new_token)['jti'], active_jti: decoded_token(active_token)['jti'] })
-      new_token
+      save_session!(user.account_uuid, response.body)
     end
 
     def headers
       { 'Accept' => 'text/plain', 'Content-Type' => 'text/plain', 'Referer' => referrer }
     end
 
-    def refresh_headers(active_token)
-      { 'Referer' => referrer, 'X-VAMF-JWT' => active_token, 'X-Request-ID' => RequestStore.store['request_id'] }
+    def refresh_headers
+      { 'Referer' => referrer, 'X-VAMF-JWT' => cached.token, 'X-Request-ID' => RequestStore.store['request_id'] }
     end
 
     def ttl_duration_from_token(token)
@@ -60,10 +75,6 @@ module VAOS
 
     def body?(response)
       response&.body && response.body.present?
-    end
-
-    def log(event, details)
-      Rails.logger.info("VAOS session #{event}", details.merge({ user_uuid: @user.uuid }))
     end
   end
 end
