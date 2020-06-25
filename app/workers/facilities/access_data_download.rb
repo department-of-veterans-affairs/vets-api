@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 
-require 'facilities/bulk_json_client'
 require 'common/exceptions'
 require 'facility_access'
 require 'sentry_logging'
