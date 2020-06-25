@@ -14,6 +14,10 @@ module ClaimsApi
             'Claims'
           ]
 
+          security do
+            key :bearer_token, []
+          end
+
           parameter do
             key :name, :id
             key :in, :path
@@ -112,6 +116,10 @@ module ClaimsApi
           key :tags, [
             'Claims'
           ]
+
+          security do
+            key :bearer_token, []
+          end
 
           parameter do
             key :name, 'X-VA-SSN'
