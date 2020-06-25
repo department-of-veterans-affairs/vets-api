@@ -18,6 +18,9 @@ module ClaimsApi
           key :tags, [
             'Power of Attorney'
           ]
+          security do
+            key :bearer_token, []
+          end
 
           response 200 do
             key :description, 'schema response'
@@ -63,7 +66,7 @@ module ClaimsApi
           ]
 
           security do
-            key :apikey, []
+            key :bearer_token, []
           end
 
           parameter do
@@ -163,6 +166,10 @@ module ClaimsApi
             'Power of Attorney'
           ]
 
+          security do
+            key :bearer_token, []
+          end
+
           parameter do
             key :name, :id
             key :in, :path
@@ -261,6 +268,10 @@ module ClaimsApi
             'Power of Attorney'
           ]
 
+          security do
+            key :bearer_token, []
+          end
+
           parameter do
             key :name, 'X-VA-SSN'
             key :in, :header
@@ -344,6 +355,10 @@ module ClaimsApi
           key :tags, [
             'Power of Attorney'
           ]
+
+          security do
+            key :bearer_token, []
+          end
 
           parameter do
             key :name, 'X-VA-SSN'
