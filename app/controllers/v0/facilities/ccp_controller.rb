@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'facilities/ppms/client'
+
 class V0::Facilities::CcpController < FacilitiesController
   before_action :validate_id, only: [:show]
 

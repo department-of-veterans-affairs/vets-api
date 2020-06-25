@@ -4,6 +4,8 @@ require 'facilities/bulk_json_client'
 require 'common/exceptions'
 require 'facility_access'
 require 'sentry_logging'
+require 'facilities/access_satisfaction_client'
+require 'facilities/access_wait_time_client'
 
 module Facilities
   class AccessDataError < StandardError

@@ -1,6 +1,11 @@
 # frozen_string_literal: true
 
 require 'will_paginate/array'
+require 'lighthouse/facilities/client'
+require 'va_facilities/api_serialization'
+require 'va_facilities/geo_serializer'
+require 'va_facilities/csv_serializer'
+require 'va_facilities/param_validators'
 
 require_dependency 'va_facilities/application_controller'
 require_dependency 'va_facilities/pagination_headers'
