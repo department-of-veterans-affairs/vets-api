@@ -3,6 +3,7 @@
 require 'caseflow/service'
 require 'central_mail/service'
 require 'emis/service'
+require 'gibft/service'
 
 host = Settings.statsd.host
 port = Settings.statsd.port
