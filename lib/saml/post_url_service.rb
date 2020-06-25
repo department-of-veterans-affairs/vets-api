@@ -7,7 +7,7 @@ module SAML
   # it returns an SSO URL and form request parameters for use in a SAML POST
   # submission, instead of a self-contained redirect URL.
   class PostURLService < URLService
-   # rubocop:disable Metrics/ParameterLists
+    # rubocop:disable Metrics/ParameterLists
     def initialize(saml_settings, session: nil, user: nil, params: {},
                    loa3_context: LOA::IDME_LOA3_VETS, previous_saml_uuid: nil)
       unless %w[new saml_callback saml_logout_callback ssoe_slo_callback].include?(params[:action])
