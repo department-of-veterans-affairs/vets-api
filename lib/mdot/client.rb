@@ -2,7 +2,7 @@
 
 require 'common/client/base'
 require 'common/client/concerns/monitoring'
-require 'common/exceptions/external/gateway_timeout'
+require 'common/exceptions/gateway_timeout'
 require 'mdot/configuration'
 require 'mdot/response'
 require 'mdot/exceptions/key'
