@@ -19,11 +19,6 @@ module VAOS
       @key ||= OpenSSL::PKey::RSA.new(File.read(Settings.va_mobile.key_path))
     end
 
-    # overriding the default error threshold from 50 to 90
-    def breakers_error_threshold
-      90
-    end
-
     def connection
       Faraday.new(base_path, headers: base_request_headers, request: request_options) do |conn|
         conn.use :breakers
