@@ -228,7 +228,7 @@ RSpec.describe User, type: :model do
         end
 
         it 'fetches edipi from mvi when identity.dslogon_edipi is empty' do
-          expect(user.edipi).to be(user.mvi.edipi)
+          expect(user.edipi).to be(user.mpi.edipi)
         end
 
         it 'fetches edipi from identity.dslogon_edipi when available' do

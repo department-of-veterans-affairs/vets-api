@@ -21,7 +21,7 @@ module V0
       private
 
       def invalidate_mvi_cache
-        mvi_cache = @current_user.mvi
+        mvi_cache = @current_user.mpi
         mvi_cache.mvi_response
         mvi_cache.destroy
       end

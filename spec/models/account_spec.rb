@@ -179,7 +179,7 @@ RSpec.describe Account, type: :model do
 
     it 'writes updates to database AND cache' do
       original_acct = Account.cache_or_create_by! user
-      user.mvi.profile.sec_id = new_secid
+      user.mpi.profile.sec_id = new_secid
       updated_acct = Account.update_if_needed!(original_acct, user_delta)
       expect(updated_acct.sec_id).to eq new_secid
 

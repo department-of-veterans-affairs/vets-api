@@ -45,7 +45,7 @@ describe Mvi, skip_mvi: true do
         allow_any_instance_of(MVI::Service).to receive(:add_person).and_return(add_response)
         expect_any_instance_of(Mvi).to receive(:add_ids).once.and_call_original
         expect_any_instance_of(Mvi).to receive(:cache).once.and_call_original
-        response = user.mvi.mvi_add_person
+        response = user.mpi.mvi_add_person
         expect(response.status).to eq('OK')
       end
     end
@@ -53,7 +53,7 @@ describe Mvi, skip_mvi: true do
     context 'with a failed search' do
       it 'returns the failed search response' do
         allow_any_instance_of(MVI::Service).to receive(:find_profile).and_return(profile_response_error)
-        response = user.mvi.mvi_add_person
+        response = user.mpi.mvi_add_person
         expect_any_instance_of(MVI::Service).not_to receive(:add_person)
         expect(response.status).to eq('SERVER_ERROR')
       end
@@ -65,7 +65,7 @@ describe Mvi, skip_mvi: true do
         allow_any_instance_of(MVI::Service).to receive(:add_person).and_return(add_response_error)
         expect_any_instance_of(Mvi).not_to receive(:add_ids)
         expect_any_instance_of(Mvi).not_to receive(:cache)
-        response = user.mvi.mvi_add_person
+        response = user.mpi.mvi_add_person
         expect(response.status).to eq('SERVER_ERROR')
       end
     end

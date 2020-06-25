@@ -131,25 +131,25 @@ module VAOS
     end
 
     def first_name
-      @user.mvi&.profile&.given_names&.first
+      @user.mpi&.profile&.given_names&.first
     end
 
     def last_name
-      @user.mvi&.profile&.family_name
+      @user.mpi&.profile&.family_name
     end
 
     def dob
-      Date.parse(@user.mvi.profile.birth_date).strftime('%b %d, %Y')
+      Date.parse(@user.mpi.profile.birth_date).strftime('%b %d, %Y')
     rescue
       ''
     end
 
     def edipi
-      @user.mvi&.profile&.edipi
+      @user.mpi&.profile&.edipi
     end
 
     def ssn
-      @user.mvi&.profile&.ssn
+      @user.mpi&.profile&.ssn
     end
   end
 end

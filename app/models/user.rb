@@ -2,7 +2,7 @@
 
 require 'common/models/base'
 require 'common/models/redis_store'
-require 'mvi/messages/find_profile_message'
+require 'mvi/messages/find_profile_message' # TODO update these references
 require 'mvi/service'
 require 'evss/common_service'
 require 'evss/auth_headers'
@@ -59,7 +59,7 @@ class User < Common::RedisStore
   end
 
   def first_name
-    identity.first_name || (mhv_icn.present? ? mvi&.profile&.given_names&.first : nil)
+    identity.first_name || (mhv_icn.present? ? mpi&.profile&.given_names&.first : nil)
   end
 
   def full_name_normalized
@@ -76,31 +76,31 @@ class User < Common::RedisStore
   end
 
   def middle_name
-    identity.middle_name || (mhv_icn.present? ? mvi&.profile&.given_names.to_a[1..-1]&.join(' ').presence : nil)
+    identity.middle_name || (mhv_icn.present? ? mpi&.profile&.given_names.to_a[1..-1]&.join(' ').presence : nil)
   end
 
   def last_name
-    identity.last_name || (mhv_icn.present? ? mvi&.profile&.family_name : nil)
+    identity.last_name || (mhv_icn.present? ? mpi&.profile&.family_name : nil)
   end
 
   def gender
-    identity.gender || (mhv_icn.present? ? mvi&.profile&.gender : nil)
+    identity.gender || (mhv_icn.present? ? mpi&.profile&.gender : nil)
   end
 
   def birth_date
-    identity.birth_date || (mhv_icn.present? ? mvi&.profile&.birth_date : nil)
+    identity.birth_date || (mhv_icn.present? ? mpi&.profile&.birth_date : nil)
   end
 
   def zip
-    identity.zip || (mhv_icn.present? ? mvi&.profile&.address&.postal_code : nil)
+    identity.zip || (mhv_icn.present? ? mpi&.profile&.address&.postal_code : nil)
   end
 
   def ssn
-    identity.ssn || (mhv_icn.present? ? mvi&.profile&.ssn : nil)
+    identity.ssn || (mhv_icn.present? ? mpi&.profile&.ssn : nil)
   end
 
   def mhv_correlation_id
-    identity.mhv_correlation_id || mvi.mhv_correlation_id
+    identity.mhv_correlation_id || mpi.mhv_correlation_id
   end
 
   def mhv_account_type
@@ -127,20 +127,20 @@ class User < Common::RedisStore
   delegate :authenticated_by_ssoe, to: :identity, allow_nil: true
   delegate :common_name, to: :identity, allow_nil: true
 
-  # mvi attributes
-  delegate :birls_id, to: :mvi
-  delegate :icn, to: :mvi
-  delegate :icn_with_aaid, to: :mvi
-  delegate :participant_id, to: :mvi
-  delegate :vet360_id, to: :mvi
-  delegate :search_token, to: :mvi
+  # mpi attributes
+  delegate :birls_id, to: :mpi
+  delegate :icn, to: :mpi
+  delegate :icn_with_aaid, to: :mpi
+  delegate :participant_id, to: :mpi
+  delegate :vet360_id, to: :mpi
+  delegate :search_token, to: :mpi
 
   # emis attributes
   delegate :military_person?, to: :veteran_status
   delegate :veteran?, to: :veteran_status
 
   def edipi
-    loa3? && dslogon_edipi.present? ? dslogon_edipi : mvi&.edipi
+    loa3? && dslogon_edipi.present? ? dslogon_edipi : mpi&.edipi
   end
 
   def sec_id
@@ -148,15 +148,15 @@ class User < Common::RedisStore
   end
 
   def va_profile
-    mvi.profile
+    mpi.profile
   end
 
   def va_profile_status
-    mvi.status
+    mpi.status
   end
 
   def va_profile_error
-    mvi.error
+    mpi.error
   end
 
   # LOA1 no longer just means ID.me LOA1.
@@ -229,7 +229,7 @@ class User < Common::RedisStore
   # Re-caches the MVI response. Use in response to any local changes that
   # have been made.
   def recache
-    mvi.cache(uuid, mvi.mvi_response)
+    mpi.cache(uuid, mpi.mvi_response) # TODO update method name in model
   end
 
   # destroy both UserIdentity and self
@@ -291,7 +291,7 @@ class User < Common::RedisStore
     false
   end
 
-  def can_mvi_proxy_add?
+  def can_mpi_proxy_add?
     personal_info? && edipi.present? && icn_with_aaid.present? && search_token.present?
   rescue # Default to false for any error
     false
@@ -301,8 +301,8 @@ class User < Common::RedisStore
     first_name.present? && last_name.present? && ssn.present? && birth_date.present?
   end
 
-  def mvi
-    @mvi ||= Mvi.for_user(self)
+  def mpi
+    @mpi ||= Mvi.for_user(self)
   end
 
   # A user can have served in the military without being a veteran.  For example,
