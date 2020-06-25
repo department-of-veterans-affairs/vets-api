@@ -148,3 +148,7 @@ features:
     actor_type: user
     description: >
       Panel that displays while the user is modifying inputs to give context to their currently estimated benefits until they reach the full your estimated benefits panel.
+  gibct_search_enhancements:
+    actor_type: user
+    description: >
+      Comparison Tool Search Enhancements to improve usability
