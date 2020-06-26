@@ -237,6 +237,35 @@ RSpec.describe V1::SessionsController, type: :controller do
           end
         end
 
+        context 'routes /sessions/custom/new to SessionController#new' do
+          it 'redirects' do
+            expect { get(:new, params: { type: :custom, authn: 'dslogon', client_id: '123123' }) }
+              .to trigger_statsd_increment(described_class::STATSD_SSO_NEW_KEY,
+                                           tags: ['context:custom', 'version:v1'], **once)
+            expect(response).to have_http_status(:found)
+            expect(response.location)
+              .to be_an_idme_saml_url('https://pint.eauth.va.gov/isam/sps/saml20idp/saml20/login?SAMLRequest=')
+              .with_relay_state('originating_request_id' => nil, 'type' => 'custom')
+              .with_params('clientId' => '123123')
+          end
+
+          it 'raises exception when missing authn parameter' do
+            expect { get(:new, params: { type: :custom, authn: '', client_id: '123123' }) }
+              .not_to trigger_statsd_increment(described_class::STATSD_SSO_NEW_KEY,
+                                               tags: ['context:custom', 'version:v1'], **once)
+            expect(response).to have_http_status(:bad_request)
+            expect(JSON.parse(response.body))
+              .to eq({
+                       'errors' => [{
+                         'title' => 'Missing parameter',
+                         'detail' => 'The required parameter "authn", is missing',
+                         'code' => '108',
+                         'status' => '400'
+                       }]
+                     })
+          end
+        end
+
         context 'routes /sessions/signup/new to SessionsController#new' do
           it 'redirects' do
             expect { get(:new, params: { type: :signup, client_id: '123123' }) }
@@ -375,7 +404,7 @@ RSpec.describe V1::SessionsController, type: :controller do
     describe 'GET sessions/slo/new' do
       before do
         mhv_account = double('mhv_account', ineligible?: false, needs_terms_acceptance?: false, upgraded?: true)
-        allow(MhvAccount).to receive(:find_or_initialize_by).and_return(mhv_account)
+        allow(MHVAccount).to receive(:find_or_initialize_by).and_return(mhv_account)
         Session.find(token).to_hash.each { |k, v| session[k] = v }
         cookies['vagov_session_dev'] = 'bar'
       end

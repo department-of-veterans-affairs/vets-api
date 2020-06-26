@@ -19,6 +19,10 @@ module ClaimsApi
             'Disability'
           ]
 
+          security do
+            key :bearer_token, []
+          end
+
           response 200 do
             key :description, 'schema response'
             content 'application/json' do
@@ -71,7 +75,7 @@ module ClaimsApi
           ]
 
           security do
-            key :apikey, []
+            key :bearer_token, []
           end
 
           parameter do
@@ -179,6 +183,10 @@ module ClaimsApi
             'Disability'
           ]
 
+          security do
+            key :bearer_token, []
+          end
+
           parameter do
             key :name, :id
             key :in, :path
@@ -239,7 +247,8 @@ module ClaimsApi
             key :name, 'attachment'
             key :in, :formData
             key :type, :file
-            key :description, 'Attachment contents. Must be provided in binary PDF or base64 string format and less than 11 in x 11 in'
+            key :example, 'data:application/pdf;base64,JVBERi0xLjYNJeL...VmDQo0NTc2DQolJUVPRg0K'
+            key :description, 'Attachment contents. Must be provided in binary PDF or [base64 string](https://raw.githubusercontent.com/department-of-veterans-affairs/vets-api/master/modules/claims_api/spec/fixtures/base64pdf) format and less than 11 in x 11 in'
           end
 
           response 200 do
@@ -276,6 +285,10 @@ module ClaimsApi
           key :tags, [
             'Disability'
           ]
+
+          security do
+            key :bearer_token, []
+          end
 
           parameter do
             key :name, 'X-VA-SSN'
@@ -412,6 +425,10 @@ module ClaimsApi
             'Disability'
           ]
 
+          security do
+            key :bearer_token, []
+          end
+
           parameter do
             key :name, :id
             key :in, :path
@@ -472,14 +489,16 @@ module ClaimsApi
             key :name, 'attachment1'
             key :in, :formData
             key :type, :file
-            key :description, 'Attachment contents. Must be provided in binary PDF or base64 string format and less than 11 in x 11 in'
+            key :example, 'data:application/pdf;base64,JVBERi0xLjYNJeL...VmDQo0NTc2DQolJUVPRg0K'
+            key :description, 'Attachment contents. Must be provided in binary PDF or [base64 string](https://raw.githubusercontent.com/department-of-veterans-affairs/vets-api/master/modules/claims_api/spec/fixtures/base64pdf) format and less than 11 in x 11 in'
           end
 
           parameter do
             key :name, 'attachment2'
             key :in, :formData
             key :type, :file
-            key :description, 'Attachment contents. Must be provided in binary PDF or base64 string format and less than 11 in x 11 in'
+            key :example, 'data:application/pdf;base64,JVBERi0xLjYNJeL...VmDQo0NTc2DQolJUVPRg0K'
+            key :description, 'Attachment contents. Must be provided in binary PDF or [base64 string](https://raw.githubusercontent.com/department-of-veterans-affairs/vets-api/master/modules/claims_api/spec/fixtures/base64pdf) format and less than 11 in x 11 in'
           end
 
           response 200 do

@@ -139,7 +139,7 @@ mdot:
 # Settings for Decision Reviews
 decision_review:
   prefill: true
-  url: https://sandbox-api.va.gov/services/appeals/v1/decision_review
+  url: https://sandbox-api.va.gov/services/appeals/v1/decision_reviews
   api_key: abcd1234abcd1234abcd1234abcd1234abcd1234
   mock: false
 
@@ -465,6 +465,7 @@ flipper:
     - devinmccurdy@gmail.com
     - eric.buckley@adhocteam.us
     - erik@adhocteam.us
+    - filip.fafara@gmail.com
     - grodriguez@governmentcio.com
     - hughes_dustin@bah.com
     - jbalboni@gmail.com
@@ -479,23 +480,27 @@ flipper:
     - kmircovich@governmentcio.com
     - lauren.alexanderson@va.gov
     - lindsey.hattamer@oddball.io
+    - ltran@thoughtworks.com
+    - marisa.hoenig@thoughtworks.com
     - mark.greenburg@adhocteam.us
+    - mdewey@governmentcio.com
     - n.ratana@gmail.com
     - narin@adhocteam.us
     - osanchez@governmentcio.com
     - patrick.bateman@va.gov
     - patrick@adhocteam.us
+    - pherbert@thoughtworks.com
     - philip.becker@oddball.io
     - regarr@gmail.com # Robin Garrison - AdHoc
     - rian.fowler@adhoc.team
     - rianfowler@outlook.com
     - roth_matthew@bah.com
     - ryan.thurlwell@va.gov
-    - shaun.hubbard@thoughtworks.com
+    - saman.moshafi@thoughtworks.com
     - shawkey_daniel@bah.com
     - sonntag_adam@bah.com
     - travis.hilton@oddball.io
-    - zurbergram@gmail.com
+    - zurbergram@gmail.com  
 
 bgs:
   application: ~
@@ -544,3 +549,10 @@ coronavirus_chatbot:
   app_secret: fake_secret
   directline_uri: northamerica.directline.botframework.com
   webchat_secret: fake_secret
+
+# Settings for notifications client
+vanotify:
+  client_url: fake_client_url
+  api_key: fake_secret
+  template_id:
+    form526_confirmation_email: fake_template_id

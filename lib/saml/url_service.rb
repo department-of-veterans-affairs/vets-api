@@ -98,6 +98,11 @@ module SAML
       build_sso_url(LOA::IDME_LOA1_VETS)
     end
 
+    def custom_url(authn)
+      @type = 'custom'
+      build_sso_url(authn)
+    end
+
     def signup_url
       @type = 'signup'
       @query_params[:op] = 'signup'
