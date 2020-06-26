@@ -3,7 +3,7 @@
 class SupportingEvidenceAttachmentUploader < CarrierWave::Uploader::Base
   include ValidateFileSize
   include SetAwsConfig
-  include ValidatePDF
+  include ValidatePdf
 
   MAX_FILE_SIZE = 25.megabytes
 

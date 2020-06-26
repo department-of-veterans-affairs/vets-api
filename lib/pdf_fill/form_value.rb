@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-module PDFFill
+module PdfFill
   class FormValue
     attr_reader :extras_value
 

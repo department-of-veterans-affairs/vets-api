@@ -34,7 +34,7 @@ module AppealsApi
         'source' => higher_level_review.consumer_name,
         'uuid' => higher_level_review.id,
         'hashV' => Digest::SHA256.file(pdf_path).hexdigest,
-        'numberPages' => PDFInfo::Metadata.read(pdf_path).pages,
+        'numberPages' => PdfInfo::Metadata.read(pdf_path).pages,
         'docType' => '20-0996'
       }
       body = { 'metadata' => metadata, 'document' => to_faraday_upload(pdf_path, '200996-document.pdf') }
