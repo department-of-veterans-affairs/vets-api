@@ -76,7 +76,7 @@ module DecisionReview
     def request_headers(user)
       {
         'x-va-ssn' => user.ssn,
-        'receiptDate' => Time.current.strftime('%Y-%m-%d')
+        'x-va-receipt-date' => Time.current.strftime('%Y-%m-%d')
       }
     end
 
