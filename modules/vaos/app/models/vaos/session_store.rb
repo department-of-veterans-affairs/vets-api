@@ -8,6 +8,5 @@ module VAOS
 
     attribute :account_uuid, String
     attribute :token, String
-    attribute :unix_created_at, Integer
   end
 end

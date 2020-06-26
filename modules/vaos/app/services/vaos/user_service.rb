@@ -3,34 +3,62 @@
 module VAOS
   class UserService < VAOS::BaseService
     def session(user)
-      cached = SessionStore.find(user.account_uuid)
+      cached = cached_by_account_uuid(user.account_uuid)
       return cached.token if cached
 
       new_session_token(user)
     end
 
     def extend_session(account_uuid)
-      cached = SessionStore.find(account_uuid)
-      ExtendSession.perform_async(account_uuid) if cached && !recently_cached?(cached)
+      unless session_creation_locked?(account_uuid)
+        lock_session_creation(account_uuid)
+        ExtendSessionJob.perform_async(account_uuid)
+      end
     end
 
     def update_session_token(account_uuid)
-      url = '/users/v2/session/jwts'
-      response = perform(:get, url, nil, refresh_headers)
-      new_token = response.body[:jws]
-      Rails.logger.info('VAOS session updated',
-                        {
-                          account_uuid: account_uuid,
-                          new_jti: decoded_token(new_token)['jti'],
-                          active_jti: decoded_token(cached.token)['jti']
-                        })
-      save_session!(account_uuid, new_token)
+      cached = cached_by_account_uuid(account_uuid)
+      if cached
+        url = '/users/v2/session/jwts'
+        response = perform(:get, url, nil, refresh_headers)
+        new_token = response.body[:jws]
+        Rails.logger.info('VAOS session updated',
+          {
+            account_uuid: account_uuid,
+            new_jti: decoded_token(new_token)['jti'],
+            active_jti: decoded_token(cached.token)['jti']
+          })
+        save_session!(account_uuid, new_token)
+      else
+        Rails.logger.warn('VAOS no session to update', account_uuid: account_uuid)
+      end
+    rescue => e
+      Rails.logger.error(
+        'VAOS session update failed',
+        {
+          account_uuid: account_uuid,
+          error: e.message
+        })
+      raise e
     end
 
     private
 
-    def recently_cached?(cached)
-      Time.now.utc.to_i - cached.unix_created_at < 15.seconds
+    def cached_by_account_uuid(account_uuid)
+      SessionStore.find(account_uuid)
+    end
+
+    def redis_session_lock
+      @redis ||= Redis::Namespace.new(REDIS_CONFIG[:va_mobile_session_lock][:namespace], redis: Redis.current)
+    end
+
+    def lock_session_creation(account_uuid)
+      redis_session_lock.set(account_uuid, 1)
+      redis_session_lock.expire(account_uuid, REDIS_CONFIG[:va_mobile_session_lock][:each_ttl])
+    end
+
+    def session_creation_locked?(account_uuid)
+      !redis_session_lock.get(account_uuid).nil?
     end
 
     def save_session!(account_uuid, token)
@@ -53,6 +81,7 @@ module VAOS
       Rails.logger.info('VAOS session created',
                         { account_uuid: user.account_uuid, jti: decoded_token(token)['jti'] })
 
+      lock_session_creation(user.account_uuid)
       save_session!(user.account_uuid, response.body)
     end
 
@@ -61,7 +90,7 @@ module VAOS
     end
 
     def refresh_headers
-      { 'Referer' => referrer, 'X-VAMF-JWT' => cached.token, 'X-Request-ID' => RequestStore.store['request_id'] }
+      { 'Referer' => referrer, 'X-VAMF-JWT' => cached_by_account_uuid.token, 'X-Request-ID' => RequestStore.store['request_id'] }
     end
 
     def ttl_duration_from_token(token)

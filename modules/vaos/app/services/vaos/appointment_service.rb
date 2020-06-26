@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module VAOS
-  class AppointmentService < VAOS::BaseService
+  class AppointmentService < VAOS::SessionService
     def get_appointments(type, start_date, end_date, pagination_params = {})
       params = date_params(start_date, end_date).merge(page_params(pagination_params)).merge(other_params).compact
 

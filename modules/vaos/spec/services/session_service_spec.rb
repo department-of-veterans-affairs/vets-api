@@ -2,9 +2,9 @@
 
 require 'rails_helper'
 
-describe VAOS::BaseService do
+describe VAOS::SessionService do
   let(:klass) do
-    Class.new(VAOS::BaseService) do
+    Class.new(VAOS::SessionService) do
       def get_systems
         perform(:get, '/mvi/v1/patients/session/identifiers.json', nil, headers)
       end
@@ -26,6 +26,15 @@ describe VAOS::BaseService do
   before do
     RequestStore['request_id'] = request_id
     allow_any_instance_of(VAOS::UserService).to receive(:session).and_return('stubbed_token')
+  end
+
+  describe 'headers' do
+    it 'includes Referer, X-VAMF-JWT and X-Request-ID headers in each request' do
+      VCR.use_cassette('vaos/systems/get_systems', match_requests_on: %i[method uri]) do
+        response = klass.new(user).get_systems
+        expect(response.request_headers).to eq(expected_request_headers)
+      end
+    end
   end
 
   describe 'headers' do
