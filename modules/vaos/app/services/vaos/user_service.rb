@@ -6,6 +6,7 @@ module VAOS
       cached = SessionStore.find(user.account_uuid)
       return save_session(new_session_token) unless cached
       return save_session(update_session_token(cached.token)) if expires_in_two_minutes?(cached.ttl)
+
       cached.token
     end
 
