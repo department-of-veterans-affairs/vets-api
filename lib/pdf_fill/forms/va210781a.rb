@@ -1,5 +1,9 @@
 # frozen_string_literal: true
 
+require 'pdf_fill/hash_converter'
+require 'pdf_fill/forms/common_ptsd'
+require 'pdf_fill/forms/form_base'
+
 module PDFFill
   module Forms
     class Va210781a < FormBase

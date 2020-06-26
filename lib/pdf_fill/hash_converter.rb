@@ -1,6 +1,8 @@
-require 'pdf_fill/extras_generator'
-
 # frozen_string_literal: true
+
+require 'pdf_fill/extras_generator'
+require 'pdf_fill/form_value'
+
 module PDFFill
   class HashConverter
     ITERATOR = '%iterator%'

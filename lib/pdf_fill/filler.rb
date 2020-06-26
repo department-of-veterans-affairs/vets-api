@@ -1,5 +1,13 @@
 # frozen_string_literal: true
 
+require 'pdf_fill/forms/va21p527ez'
+require 'pdf_fill/forms/va21p530'
+require 'pdf_fill/forms/va214142'
+require 'pdf_fill/forms/va210781a'
+require 'pdf_fill/forms/va210781'
+require 'pdf_fill/forms/va218940'
+require 'pdf_fill/forms/va1010cg'
+
 module PDFFill
   module Filler
     module_function
