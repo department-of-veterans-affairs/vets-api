@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'common/hash_helpers'
+
 module Vet360
   module Models
     # Model for addresses sent and received from the VA profile address validation API

@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'common/exceptions'
+
 module Vet360
   module AddressValidation
     # Wrapper for the VA profile address validation/suggestions API
