@@ -21,7 +21,7 @@ http_interactions:
       message: OK
     headers:
       Date:
-      - Wed, 27 May 2020 13:21:43 GMT
+      - Wed, 24 Jun 2020 21:08:04 GMT
       Server:
       - Apache
       X-Frame-Options:
@@ -169,7 +169,7 @@ http_interactions:
         </service>
         </definitions>
     http_version: null
-  recorded_at: Wed, 27 May 2020 13:21:44 GMT
+  recorded_at: Wed, 24 Jun 2020 21:08:05 GMT
 - request:
     method: post
     uri: http://linktestbepbenefits.vba.va.gov/VnpBnftClaimWebServiceBean/VnpBnftClaimService
@@ -181,14 +181,14 @@ http_interactions:
             <wsse:Username>VAgovAPI</wsse:Username>
           </wsse:UsernameToken>
           <vaws:VaServiceHeaders xmlns:vaws="http://vbawebservices.vba.va.gov/vawss">
-            <vaws:CLIENT_MACHINE>192.168.1.239</vaws:CLIENT_MACHINE>
+            <vaws:CLIENT_MACHINE>10.0.0.147</vaws:CLIENT_MACHINE>
             <vaws:STN_ID>281</vaws:STN_ID>
             <vaws:applicationName>VAgovAPI</vaws:applicationName>
-            <vaws:ExternalUid>94408563768440178</vaws:ExternalUid>
+            <vaws:ExternalUid>43718343580978448</vaws:ExternalUid>
             <vaws:ExternalKey>abraham.lincoln@vets.gov</vaws:ExternalKey>
           </vaws:VaServiceHeaders>
         </wsse:Security>
-        </env:Header><env:Body><tns:vnpBnftClaimCreate><arg0><vnpProcID>3828728</vnpProcID><vnpBnftClaimId xsi:nil="true"/><bnftClaimTypeCd>130DPNEBNADJ</bnftClaimTypeCd><claimRcvdDt>2020-05-27T13:21:43Z</claimRcvdDt><jrnDt>2020-05-27T13:21:43Z</jrnDt><jrnLctnId>281</jrnLctnId><jrnObjId>VAgovAPI</jrnObjId><jrnStatusTypeCd>U</jrnStatusTypeCd><jrnUserId>VAgovAPI</jrnUserId><pgmTypeCd>COMP</pgmTypeCd><ptcpntClmantId>146232</ptcpntClmantId><statusTypeCd>CURR</statusTypeCd><svcTypeCd>CP</svcTypeCd><applcnId xsi:nil="true"/><atchmsInd>N</atchmsInd><claimJrsdtnLctnId>335</claimJrsdtnLctnId><claimSuspnsDt xsi:nil="true"/><endPrdctTypeCd xsi:nil="true"/><infrmlInd xsi:nil="true"/><intakeJrsdtnLctnId>335</intakeJrsdtnLctnId><lastPaidDt xsi:nil="true"/><payeeTypeCd xsi:nil="true"/><ptcpntDpositAcntId xsi:nil="true"/><ptcpntVsrId xsi:nil="true"/><rmksTxt xsi:nil="true"/><ptcpntMailAddrsId>113372</ptcpntMailAddrsId><ptcpntPymtAddrsId xsi:nil="true"/><termnlDigitNbr xsi:nil="true"/><vnpPtcpntVetId>146232</vnpPtcpntVetId><bnftClaimId xsi:nil="true"/></arg0></tns:vnpBnftClaimCreate></env:Body></env:Envelope>
+        </env:Header><env:Body><tns:vnpBnftClaimCreate><arg0><vnpProcID>3829360</vnpProcID><vnpBnftClaimId xsi:nil="true"/><bnftClaimTypeCd>130DPNEBNADJ</bnftClaimTypeCd><claimRcvdDt>2020-06-24T21:08:04Z</claimRcvdDt><jrnDt>2020-06-24T21:08:04Z</jrnDt><jrnLctnId>281</jrnLctnId><jrnObjId>VAgovAPI</jrnObjId><jrnStatusTypeCd>U</jrnStatusTypeCd><jrnUserId>VAgovAPI</jrnUserId><pgmTypeCd>COMP</pgmTypeCd><ptcpntClmantId>146232</ptcpntClmantId><statusTypeCd>CURR</statusTypeCd><svcTypeCd>CP</svcTypeCd><applcnId xsi:nil="true"/><atchmsInd>N</atchmsInd><claimJrsdtnLctnId>335</claimJrsdtnLctnId><claimSuspnsDt xsi:nil="true"/><endPrdctTypeCd xsi:nil="true"/><infrmlInd xsi:nil="true"/><intakeJrsdtnLctnId>335</intakeJrsdtnLctnId><lastPaidDt xsi:nil="true"/><payeeTypeCd xsi:nil="true"/><ptcpntDpositAcntId xsi:nil="true"/><ptcpntVsrId xsi:nil="true"/><rmksTxt xsi:nil="true"/><ptcpntMailAddrsId>113372</ptcpntMailAddrsId><ptcpntPymtAddrsId xsi:nil="true"/><termnlDigitNbr xsi:nil="true"/><vnpPtcpntVetId>146232</vnpPtcpntVetId><bnftClaimId xsi:nil="true"/></arg0></tns:vnpBnftClaimCreate></env:Body></env:Envelope>
     headers:
       Host:
       - ".vba.va.gov"
@@ -197,7 +197,7 @@ http_interactions:
       Content-Type:
       - text/xml;charset=UTF-8
       Content-Length:
-      - '1985'
+      - '1982'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -212,20 +212,21 @@ http_interactions:
       Server:
       - nginx/1.17.9
       Date:
-      - Wed, 27 May 2020 13:21:45 GMT
+      - Wed, 24 Jun 2020 21:08:06 GMT
       Content-Type:
       - text/xml; charset=utf-8
       Content-Length:
-      - '1293'
+      - '1195'
       Connection:
       - keep-alive
       X-Frame-Options:
       - SAMEORIGIN
     body:
       encoding: UTF-8
-      string: <?xml version='1.0' encoding='UTF-8'?><S:Envelope xmlns:S="http://schemas.xmlsoap.org/soap/envelope/"><S:Header><work:WorkContext
-        xmlns:work="http://oracle.com/weblogic/soap/workarea/">rO0ABXdKABR3ZWJsb2dpYy5hcHAudm5wLWVhcgAAANYAAAAjd2VibG9naWMud29ya2FyZWEuU3RyaW5nV29ya0NvbnRleHQABTIuMC44AAA=</work:WorkContext></S:Header><S:Body><ns2:vnpBnftClaimCreateResponse
-        xmlns:ns2="http://bnftClaimService.services.vonapp.vba.va.gov/"><return><vnpBnftClaimId>424819</vnpBnftClaimId><applcnId></applcnId><atchmsInd>N</atchmsInd><bnftClaimTypeCd>130DPNEBNADJ</bnftClaimTypeCd><claimJrsdtnLctnId>335</claimJrsdtnLctnId><claimRcvdDt>2020-05-27T13:21:43Z</claimRcvdDt><endPrdctTypeCd></endPrdctTypeCd><infrmlInd></infrmlInd><intakeJrsdtnLctnId>335</intakeJrsdtnLctnId><jrnDt>2020-05-27T13:21:43Z</jrnDt><jrnLctnId>281</jrnLctnId><jrnObjId>VAgovAPI</jrnObjId><jrnStatusTypeCd>U</jrnStatusTypeCd><jrnUserId>VAgovAPI</jrnUserId><payeeTypeCd></payeeTypeCd><pgmTypeCd>COMP</pgmTypeCd><ptcpntClmantId>146232</ptcpntClmantId><rmksTxt></rmksTxt><statusTypeCd>CURR</statusTypeCd><svcTypeCd>CP</svcTypeCd><ptcpntMailAddrsId>113372</ptcpntMailAddrsId><termnlDigitNbr></termnlDigitNbr><vnpPtcpntVetId>146232</vnpPtcpntVetId><vnpProcID>3828728</vnpProcID></return></ns2:vnpBnftClaimCreateResponse></S:Body></S:Envelope>
+      string: <?xml version='1.0' encoding='UTF-8'?><S:Envelope xmlns:env="http://schemas.xmlsoap.org/soap/envelope/"
+        xmlns:S="http://schemas.xmlsoap.org/soap/envelope/"><env:Header><work:WorkContext
+        xmlns:work="http://oracle.com/weblogic/soap/workarea/">rO0ABXdKABR3ZWJsb2dpYy5hcHAudm5wLWVhcgAAANYAAAAjd2VibG9naWMud29ya2FyZWEuU3RyaW5nV29ya0NvbnRleHQABTIuMC44AAA=</work:WorkContext></env:Header><S:Body><ns0:vnpBnftClaimCreateResponse
+        xmlns:ns0="http://bnftClaimService.services.vonapp.vba.va.gov/"><return><vnpBnftClaimId>425329</vnpBnftClaimId><atchmsInd>N</atchmsInd><bnftClaimTypeCd>130DPNEBNADJ</bnftClaimTypeCd><claimJrsdtnLctnId>335</claimJrsdtnLctnId><claimRcvdDt>2020-06-24T21:08:04Z</claimRcvdDt><intakeJrsdtnLctnId>335</intakeJrsdtnLctnId><jrnDt>2020-06-24T21:08:04Z</jrnDt><jrnLctnId>281</jrnLctnId><jrnObjId>VAgovAPI</jrnObjId><jrnStatusTypeCd>U</jrnStatusTypeCd><jrnUserId>VAgovAPI</jrnUserId><pgmTypeCd>COMP</pgmTypeCd><ptcpntClmantId>146232</ptcpntClmantId><statusTypeCd>CURR</statusTypeCd><svcTypeCd>CP</svcTypeCd><ptcpntMailAddrsId>113372</ptcpntMailAddrsId><vnpPtcpntVetId>146232</vnpPtcpntVetId><vnpProcID>3829360</vnpProcID></return></ns0:vnpBnftClaimCreateResponse></S:Body></S:Envelope>
     http_version: null
-  recorded_at: Wed, 27 May 2020 13:21:45 GMT
+  recorded_at: Wed, 24 Jun 2020 21:08:06 GMT
 recorded_with: VCR 5.1.0

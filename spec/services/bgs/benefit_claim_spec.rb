@@ -1,17 +1,17 @@
 require 'rails_helper'
 
 RSpec.describe BGS::BenefitClaim do
-  let(:user) { FactoryBot.create(:user, :loa3) }
+  let(:user) { FactoryBot.create(:evss_user, :loa3) }
   let(:proc_id) { '3828033' }
   let(:participant_id) { '146189' }
   let(:vet_hash) do
     {
-      file_number: '234567812',
-      vnp_participant_id: participant_id,
-      ssn_number: '112347',
-      benefit_claim_type_end_product: '800',
-      first_name: 'Veteran first name',
-      last_name: 'Veteran last name',
+      file_number: user.ssn,
+      vnp_participant_id: user.participant_id,
+      ssn_number: user.ssn,
+      benefit_claim_type_end_product: '132',
+      first_name: user.first_name,
+      last_name: user.last_name,
       vnp_participant_address_id: '113372',
       phone_number: '5555555555',
       address_line_one: '123 Mainstreet',
@@ -24,7 +24,7 @@ RSpec.describe BGS::BenefitClaim do
   end
 
   describe '#create' do
-    xit 'returns a BenefitClaim hash' do
+    it 'returns a BenefitClaim hash' do
       VCR.use_cassette('bgs/benefit_claim/create') do
         benefit_claim = BGS::BenefitClaim.new(
           vnp_benefit_claim: {vnp_benefit_claim_type_code: '130DPNEBNADJ'},
@@ -33,15 +33,19 @@ RSpec.describe BGS::BenefitClaim do
         ).create
 
         expect(benefit_claim).to include(
-                                   benefit_claim_id: "600187115",
-                                   benefit_claim_return_label: 'BNFT_CLAIM',
-                                   participant_vet_id: "600048743",
-                                   vet_first_name: "VETERAN FIRST NAME"
+                                   {
+                                     benefit_claim_id: "600193921",
+                                     claim_type_code: "130DPNEBNADJ",
+                                     participant_claimant_id: "600061742",
+                                     program_type_code: "CPL",
+                                     service_type_code: "CP",
+                                     status_type_code: "PEND"
+                                   }
                                  )
       end
     end
 
-    xit 'calls BGS::Base#insert_benefit_claim' do
+    it 'calls BGS::Base#insert_benefit_claim' do
       VCR.use_cassette('bgs/benefit_claim/create') do
         expect_any_instance_of(BGS::Base).to receive(:insert_benefit_claim)
                                                .with(

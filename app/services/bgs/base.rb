@@ -1,4 +1,4 @@
-# frozen_string_literal: true
+ # frozen_string_literal: true
 
 module BGS
   class Base
@@ -293,7 +293,7 @@ module BGS
         {
           file_number: @user.ssn, # 796149080 This is not working with file number in the payload or the ssn value getting annot insert NULL into ("CORPPROD"."PERSON"."LAST_NM")
           ssn: @user.ssn, # this is actually needed for the service call Might want to use the payload value
-          # ptcpnt_id_claimant: @user.participant_id,
+          ptcpnt_id_claimant: @user.participant_id,
           # claimant_ssn: @user.ssn,
           benefit_claim_type: "1", # this is intentionally hard coded
           payee: "00", # intentionally left hard-coded

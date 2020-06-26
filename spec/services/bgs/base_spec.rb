@@ -2,10 +2,10 @@
 require 'rails_helper'
 
 RSpec.describe BGS::Base do
-  let(:user) { FactoryBot.create(:user, :loa3) }
+  let(:user) { FactoryBot.create(:evss_user, :loa3) }
   let(:bgs_base) { BGS::Base.new(user) }
-  let(:proc_id) { '3828728' }
-  let(:participant_id) { '147891' }
+  let(:proc_id) { '3829360' }
+  let(:participant_id) { '148886' }
   let(:dependent_hash) do
     {
       vnp_participant_id: participant_id,
@@ -28,7 +28,7 @@ RSpec.describe BGS::Base do
       vnp_participant_address_id: '113372',
       file_number: '796149080',
       ssn_number: '796149080',
-      benefit_claim_type_end_product: '130',
+      benefit_claim_type_end_product: '131',
       first_name: 'John',
       last_name: 'Doe',
       address_line_one: '123 Mainstreet',
@@ -99,7 +99,7 @@ RSpec.describe BGS::Base do
     it 'creates a participant and returns a vnp_particpant_id' do
       VCR.use_cassette('bgs/base/create_participant') do
         response = bgs_base.create_participant(proc_id)
-
+        binding.pry
         expect(response).to have_key(:vnp_ptcpnt_id)
       end
     end
@@ -175,42 +175,42 @@ RSpec.describe BGS::Base do
     it 'creates a child school record' do
       VCR.use_cassette('bgs/base/create_child_school') do
         payload = {
-          "last_term_school_information" => {
-            "name" => "Another Amazing School",
-            "address" => {
-              "country_name" => "USA",
-              "address_line1" => "2037 29th St",
-              "city" => "Rock Island",
-              "state_code" => "AR",
-              "zip_code" => "61201"
+          'last_term_school_information' => {
+            'name' => 'Another Amazing School',
+            'address' => {
+              'country_name' => 'USA',
+              'address_line1' => '2037 29th St',
+              'city' => 'Rock Island',
+              'state_code' => 'AR',
+              'zip_code' => '61201'
             },
-            "term_begin" => "2016-03-04",
-            "date_term_ended" => "2017-04-05", # Done
-            "classes_per_week" => 4,
-            "hours_per_week" => 40
+            'term_begin' => '2016-03-04',
+            'date_term_ended' => '2017-04-05', # Done
+            'classes_per_week' => 4,
+            'hours_per_week' => 40
           },
-          "current_term_dates" => {
-            "official_school_start_date" => "2019-03-03",
-            "expected_student_start_date" => "2019-03-05",
-            "expected_graduation_date" => "2023-03-03"
+          'current_term_dates' => {
+            'official_school_start_date' => '2019-03-03',
+            'expected_student_start_date' => '2019-03-05',
+            'expected_graduation_date' => '2023-03-03'
           },
-          "program_information" => {
-            "student_is_enrolled_full_time" => false,
-            "course_of_study" => "An amazing program",
-            "classes_per_week" => 4,
-            "hours_per_week" => 37
+          'program_information' => {
+            'student_is_enrolled_full_time' => false,
+            'course_of_study' => 'An amazing program',
+            'classes_per_week' => 4,
+            'hours_per_week' => 37
           },
-          "school_information" => {
-            "name" => "My Great School",
-            "training_program" => "Something amazing",
-            "address" => {
-              "country_name" => "USA",
-              "address_line1" => "2037 29th St",
-              "address_line2" => "another line",
-              "address_line3" => "Yet another line",
-              "city" => "Rock Island",
-              "state_code" => "AR",
-              "zip_code" => "61201"
+          'school_information' => {
+            'name' => 'My Great School',
+            'training_program' => 'Something amazing',
+            'address' => {
+              'country_name' => 'USA',
+              'address_line1' => '2037 29th St',
+              'address_line2' => 'another line',
+              'address_line3' => 'Yet another line',
+              'city' => 'Rock Island',
+              'state_code' => 'AR',
+              'zip_code' => '61201'
             }
           },
         }
