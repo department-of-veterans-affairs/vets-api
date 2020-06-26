@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Common
-  class ConvertToPDF
+  class ConvertToPdf
     def initialize(file)
       @file = file
     end

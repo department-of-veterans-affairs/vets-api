@@ -64,13 +64,13 @@ module EVSS
       end
 
       # Invokes Filler ancillary form method to generate PDF document
-      # Then calls method CentralMail::DatestampPDF to stamp the document.
+      # Then calls method CentralMail::DatestampPdf to stamp the document.
       # Its called twice, once to stamp with text "VA.gov YYYY-MM-DD" at the bottom of each page
       # and second time to stamp with text "VA.gov Submission" at the top of each page
       def generate_stamp_pdf(form_content, evss_claim_id, form_id)
-        pdf_path = PDFFill::Filler.fill_ancillary_form(form_content, evss_claim_id, form_id)
-        stamped_path = CentralMail::DatestampPDF.new(pdf_path).run(text: 'VA.gov', x: 5, y: 5)
-        CentralMail::DatestampPDF.new(stamped_path).run(
+        pdf_path = PdfFill::Filler.fill_ancillary_form(form_content, evss_claim_id, form_id)
+        stamped_path = CentralMail::DatestampPdf.new(pdf_path).run(text: 'VA.gov', x: 5, y: 5)
+        CentralMail::DatestampPdf.new(stamped_path).run(
           text: 'VA.gov Submission',
           x: 510,
           y: 775,

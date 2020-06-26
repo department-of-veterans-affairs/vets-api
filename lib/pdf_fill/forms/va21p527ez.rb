@@ -2,10 +2,10 @@
 
 # rubocop:disable Metrics/ClassLength
 
-module PDFFill
+module PdfFill
   module Forms
     class Va21p527ez < FormBase
-      ITERATOR = PDFFill::HashConverter::ITERATOR
+      ITERATOR = PdfFill::HashConverter::ITERATOR
       INCOME_TYPES_KEY = {
         'bank' => 'CASH/NON-INTEREST BEARING BANK ACCOUNTS',
         'interestBank' => 'INTEREST-BEARING BANK ACCOUNTS',
