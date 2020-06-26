@@ -135,7 +135,7 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, type: :model, form: :educat
       it 'processes the valid messages' do
         expect(subject).to receive(:log_exception_to_sentry).once
         expect { subject.perform }.to change { EducationBenefitsClaim.unprocessed.count }.from(4).to(1)
-        expect(Dir[spool_files].count).to eq(3)
+        expect(Dir[spool_files].count).to eq(2)
       end
     end
 
@@ -188,7 +188,6 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, type: :model, form: :educat
 
       expect(output[:eastern].length).to be(3)
       expect(output[:western].length).to be(3)
-      expect(output[:central].length).to be(0)
     end
   end
 
