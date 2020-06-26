@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'evss/pciu/email_address'
+
 module Vet360
   module Models
     class Email < Base
