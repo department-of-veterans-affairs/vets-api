@@ -17,6 +17,7 @@ ActiveSupport::Inflector.inflections do |inflect|
   inflect.acronym 'JWT'
   inflect.acronym 'MDOT'
   inflect.acronym 'MHV'
+  inflect.acronym 'MPI'
   inflect.acronym 'NCA'
   inflect.acronym 'PagerDuty'
   inflect.acronym 'PCIU'
