@@ -3,10 +3,10 @@
 require 'common/client/base'
 require 'common/client/concerns/monitoring'
 require 'common/exceptions/external/gateway_timeout'
-require 'mdot/configuration'
-require 'mdot/response'
-require 'mdot/exceptions/key'
-require 'mdot/exceptions/service_exception'
+require_relative 'configuration'
+require_relative 'response'
+require_relative 'token'
+require_relative 'exceptions/key'
 
 module MDOT
   ##
