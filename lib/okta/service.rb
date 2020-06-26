@@ -2,6 +2,8 @@
 
 require 'common/client/base'
 require 'common/client/concerns/monitoring'
+require_relative 'configuration'
+require_relative 'response'
 
 module Okta
   class Service < Common::Client::Base
