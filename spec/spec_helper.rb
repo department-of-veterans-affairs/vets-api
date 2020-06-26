@@ -43,6 +43,8 @@ unless ENV['NOCOVERAGE']
     add_filter 'lib/bip_claims/configuration.rb'
     add_filter 'version.rb'
 
+    add_filter 'modules/vba_documents/app/controllers/vba_documents/v1/uploads_controller.rb'
+
     add_group 'Policies', 'app/policies'
     add_group 'Serializers', 'app/serializers'
     add_group 'Services', 'app/services'
