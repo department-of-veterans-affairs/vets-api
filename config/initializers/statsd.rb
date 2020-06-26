@@ -7,6 +7,8 @@ require 'gibft/service'
 require 'saml/user'
 require 'stats_d_metric'
 require 'search/service'
+require 'vet360/exceptions/parser'
+require 'vet360/service'
 
 host = Settings.statsd.host
 port = Settings.statsd.port

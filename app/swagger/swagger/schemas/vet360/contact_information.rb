@@ -1,5 +1,9 @@
 # frozen_string_literal: true
 
+require 'vet360/models/address'
+require 'vet360/models/telephone'
+require 'vet360/models/permission'
+
 module Swagger
   module Schemas
     module Vet360

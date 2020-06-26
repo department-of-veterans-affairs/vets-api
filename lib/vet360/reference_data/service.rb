@@ -1,6 +1,11 @@
 # frozen_string_literal: true
 
 require 'common/client/base'
+require 'vet360/service'
+require 'vet360/reference_data/configuration'
+require 'vet360/reference_data/countries_response'
+require 'vet360/reference_data/states_response'
+require 'vet360/reference_data/zipcodes_response'
 
 module Vet360
   module ReferenceData

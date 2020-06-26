@@ -28,6 +28,7 @@ require 'rx/configuration'
 require 'sm/configuration'
 require 'search/configuration'
 require 'okta/configuration'
+require 'vet360/contact_information/configuration'
 
 
 # Read the redis config, create a connection and a namespace for breakers

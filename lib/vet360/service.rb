@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'common/client/base'
+require 'vet360/stats'
 
 module Vet360
   class Service < Common::Client::Base
