@@ -229,7 +229,7 @@ class User < Common::RedisStore
   # Re-caches the MVI response. Use in response to any local changes that
   # have been made.
   def recache
-    mpi.cache(uuid, mpi.mvi_response) # TODO update method name in model
+    mpi.cache(uuid, mpi.mpi_response) # TODO update method name in model
   end
 
   # destroy both UserIdentity and self

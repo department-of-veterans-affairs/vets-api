@@ -56,7 +56,7 @@ FactoryBot.modify do
           status: MVI::Responses::FindProfileResponse::RESPONSE_STATUS[:ok],
           profile: profile
         )
-        mvi.instance_variable_set(:@mvi_response, profile_response)
+        mvi.instance_variable_set(:@mpi_response, profile_response)
         mvi.send(:do_cached_with, key: user.uuid) do
           profile_response
         end

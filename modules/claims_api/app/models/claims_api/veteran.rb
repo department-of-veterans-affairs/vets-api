@@ -46,7 +46,7 @@ module ClaimsApi
     end
 
     def mvi_record?
-      mvi.mvi_response.ok?
+      mvi.mpi_response.ok?
     end
 
     def ssn=(new_ssn)

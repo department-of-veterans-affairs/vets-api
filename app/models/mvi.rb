@@ -83,7 +83,7 @@ class Mvi < Common::RedisStore
   def profile
     return nil unless user.loa3?
 
-    mvi_response&.profile
+    mpi_response&.profile
   end
 
   # The status of the last MVI response or not authorized for for users < LOA 3
@@ -92,7 +92,7 @@ class Mvi < Common::RedisStore
   def status
     return MVI::Responses::FindProfileResponse::RESPONSE_STATUS[:not_authorized] unless user.loa3?
 
-    mvi_response.status
+    mpi_response.status
   end
 
   # The error experienced when reaching out to the MVI service.
@@ -101,12 +101,12 @@ class Mvi < Common::RedisStore
   def error
     return Common::Exceptions::Unauthorized.new(source: self.class) unless user.loa3?
 
-    mvi_response.try(:error)
+    mpi_response.try(:error)
   end
 
   # @return [MVI::Responses::FindProfileResponse] the response returned from MVI
-  def mvi_response
-    @mvi_response ||= response_from_redis_or_service
+  def mpi_response
+    @mpi_response ||= response_from_redis_or_service
   end
 
   # The status of the MVI Add Person call. An Orchestrated MVI Search needs to be made before an MVI add person
@@ -116,7 +116,7 @@ class Mvi < Common::RedisStore
   def mpi_add_person
     search_response = MVI::OrchSearchService.new.find_profile(user)
     if search_response.ok?
-      @mvi_response = search_response
+      @mpi_response = search_response
       add_response = mvi_service.add_person(user)
       add_ids(add_response) if add_response.ok?
     else
@@ -134,7 +134,7 @@ class Mvi < Common::RedisStore
     profile.birls_id = response.mvi_codes[:birls_id].presence
     profile.participant_id = response.mvi_codes[:participant_id].presence
 
-    cache(user.uuid, mvi_response) if mvi_response.cache?
+    cache(user.uuid, mpi_response) if mpi_response.cache?
   end
 
   def response_from_redis_or_service

@@ -45,11 +45,11 @@ module OpenidAuth
           uuid: user_attributes[:idp_uuid]
         )
 
-        mvi_response = MVI::Service.new.find_profile(user_identity)
+        mpi_response = MVI::Service.new.find_profile(user_identity)
 
-        raise mvi_response.error if mvi_response.error # TODO: add error logging
+        raise mpi_response.error if mpi_response.error # TODO: add error logging
 
-        mvi_response[:profile]
+        mpi_response[:profile]
       end
 
       def okta_callback
