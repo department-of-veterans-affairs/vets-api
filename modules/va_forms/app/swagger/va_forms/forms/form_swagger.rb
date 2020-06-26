@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-module VAForms
+module VaForms
   module Forms
     class Form
       include Swagger::Blocks

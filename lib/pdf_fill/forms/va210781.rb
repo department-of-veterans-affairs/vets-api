@@ -2,12 +2,12 @@
 
 # rubocop:disable Metrics/ClassLength
 
-module PDFFill
+module PdfFill
   module Forms
     class Va210781 < FormBase
       include CommonPtsd
 
-      INCIDENT_ITERATOR = PDFFill::HashConverter::ITERATOR
+      INCIDENT_ITERATOR = PdfFill::HashConverter::ITERATOR
 
       KEY = {
         'veteranFullName' => {
@@ -415,7 +415,7 @@ module PDFFill
         incident_overflow.push("Medals Or Citations: \n\n" + incident_medals_citations)
 
         incident_overflow.push("Persons Involved: \n\n" + format_persons_involved(incident))
-        incident['incidentOverflow'] = PDFFill::FormValue.new('', incident_overflow.compact.join("\n\n"))
+        incident['incidentOverflow'] = PdfFill::FormValue.new('', incident_overflow.compact.join("\n\n"))
       end
 
       def format_persons_involved(incident)
