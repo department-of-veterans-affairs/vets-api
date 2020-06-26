@@ -30,7 +30,7 @@ module CARMA
       end
 
       def veteran=(veteran_data_hash)
-        @veteran = Veteran.new(veteran_data_hash)
+        @veteran = CARMA::Models::Veteran.new(veteran_data_hash)
       end
 
       def primary_caregiver=(pc_metadata_hash)

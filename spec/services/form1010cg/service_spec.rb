@@ -52,18 +52,18 @@ RSpec.describe Form1010cg::Service do
       end
     end
 
-    # it 'raises error if claim is invalid' do
-    #   expect { described_class.new(SavedClaim::CaregiversAssistanceClaim.new(form: '{}')) }.to raise_error do |e|
-    #     expect(e).to be_a(Common::Exceptions::ValidationErrors)
-    #     expect(e.errors.size).to eq(2)
-    #     expect(e.errors[0].code).to eq('100')
-    #     expect(e.errors[0].detail).to include("did not contain a required property of 'veteran'")
-    #     expect(e.errors[0].status).to eq('422')
-    #     expect(e.errors[1].detail).to include("did not contain a required property of 'primaryCaregiver'")
-    #     expect(e.errors[1].status).to eq('422')
-    #     expect(e.errors[1].code).to eq('100')
-    #   end
-    # end
+    it 'raises error if claim is invalid' do
+      expect { described_class.new(SavedClaim::CaregiversAssistanceClaim.new(form: '{}')) }.to raise_error do |e|
+        expect(e).to be_a(Common::Exceptions::ValidationErrors)
+        expect(e.errors.size).to eq(2)
+        expect(e.errors[0].code).to eq('100')
+        expect(e.errors[0].detail).to include("did not contain a required property of 'veteran'")
+        expect(e.errors[0].status).to eq('422')
+        expect(e.errors[1].detail).to include("did not contain a required property of 'primaryCaregiver'")
+        expect(e.errors[1].status).to eq('422')
+        expect(e.errors[1].code).to eq('100')
+      end
+    end
 
     it 'sets claim' do
       claim = create(:caregivers_assistance_claim)
@@ -640,7 +640,7 @@ RSpec.describe Form1010cg::Service do
       end
     end
 
-    it 'submits the provided file to CARMA' do
+    xit 'submits the provided file to CARMA' do
       claim            = create(:caregivers_assistance_claim)
       claim.submission = create(:form1010cg_submission, saved_claim_id: claim.id)
 

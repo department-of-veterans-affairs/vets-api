@@ -12,7 +12,7 @@ This CARMA service/module is used to submit valid, online, 10-10CG submissions (
 Used to hold model objects relating to CARMA's domain. More models can be added as the interface with CARMA grows (i.e. CARMA::Models::Case).
 
 ### CARMA::Client
-This is an http client used to communicate with CARMA. It contains configuration and auth behavior needed to interface with the Salesforce app. This is an extention of our internal Salesforce service (lib/salesforce) which also extends Restforce (a ruby package for interfacing with the Salesforce API).
+This is an http client used to communicate with CARMA. It contains configuration and auth behavior needed to interface with the Salesforce app. This is an extension of our internal Salesforce service (lib/salesforce) which also extends Restforce (a ruby package for interfacing with the Salesforce API).
 
 ## Example
 

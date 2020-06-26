@@ -141,17 +141,4 @@ RSpec.describe SavedClaim::CaregiversAssistanceClaim do
       end
     end
   end
-
-  describe '#submitted?' do
-    it 'returns false when no related submission exists' do
-      expect(subject.submitted?).to eq(false)
-    end
-
-    it 'returns true when a related submission exists' do
-      subject = create(:caregivers_assistance_claim)
-      create(:form1010cg_submission, saved_claim_id: subject.id)
-
-      expect(subject.submitted?).to eq(true)
-    end
-  end
 end

@@ -13,12 +13,12 @@ module Form1010cg
   # @!attribute submitted_at
   #   @return [DateTime] The timestamp of when the submission was accepted in CARMA
   #
-  class Submission < ApplicationRecord
-    self.table_name = 'form1010cg_submissions'
+  class Submission
+    attr_accessor :carma_case_id # The id of the CARMA Case created from this form submission
+    attr_accessor :submitted_at # The timestamp of when the submission was accepted in CARMA
 
-    belongs_to :saved_claim, class_name: 'SavedClaim::CaregiversAssistanceClaim'
-
-    validates :carma_case_id, presence: true
-    validates :submitted_at, presence: true
+    def initialize(args = {})
+      args.each { |key, value| send("#{key}=", value) }
+    end
   end
 end

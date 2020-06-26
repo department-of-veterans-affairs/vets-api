@@ -1,12 +1,6 @@
 # frozen_string_literal: true
 
 class SavedClaim::CaregiversAssistanceClaim < SavedClaim
-  has_one :submission,
-          class_name: 'Form1010cg::Submission',
-          foreign_key: 'saved_claim_id',
-          dependent: :destroy,
-          inverse_of: :saved_claim
-
   FORM = '10-10CG'
 
   def process_attachments!
@@ -21,10 +15,6 @@ class SavedClaim::CaregiversAssistanceClaim < SavedClaim
   # This facility is where the end-user's point of contact will be for post-submission processing.
   def regional_office
     []
-  end
-
-  def submitted?
-    submission.present?
   end
 
   def form_subjects

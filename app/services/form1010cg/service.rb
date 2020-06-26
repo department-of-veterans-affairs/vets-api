@@ -12,14 +12,10 @@ module Form1010cg
     def initialize(claim)
       # This service makes assumptions on what data is present on the claim
       # Make sure the claim is valid, so we can be assured the required data is present.
-      # claim.valid? || raise(Common::Exceptions::ValidationErrors, claim)
-
-      # Make sure the claim is persisted because we'll need it's ID for post processing work and logging
-      claim.persisted? || raise('Claim must be persisted')
+      claim.valid? || raise(Common::Exceptions::ValidationErrors, claim)
 
       # The CaregiversAssistanceClaim we are processing with this service
-      @claim       = claim
-      @submission  = claim.submission
+      @claim = claim
 
       # Store for the search results we will run on MVI and eMIS
       @cache = {
@@ -42,22 +38,26 @@ module Form1010cg
 
       @carma_submission = CARMA::Models::Submission.from_claim(claim, build_metadata).submit!
 
-      @submission = Form1010cg::Submission.create!(
+      @submission = Form1010cg::Submission.new(
         carma_case_id: carma_submission.carma_case_id,
-        submitted_at: carma_submission.submitted_at,
-        saved_claim: claim
+        submitted_at: carma_submission.submitted_at
       )
 
-      # Form1010cg::AttachmentUploadJob.perform_async(submission.id)
+      # begin
+      #   submit_attachment!('10-10CG', claim.to_pdf)
+      # rescue => exception
+      #   message = "Failed to upload attachment: ClaimID=#{claim.confirmation_number} Form=#{claim.class::FORM}",
+      #   Rails.logger.error message, backtrace: exception.backtrace
+      # end
 
       submission
     end
 
-    def submit_attachment!(document_type, local_path)
+    def submit_attachment!(document_type, local_path, delete_after_processing = true)
       document_types = CARMA::Models::Attachment::DOCUMENT_TYPES
 
       raise 'Invalid document_type'   if document_types[document_type].nil?
-      raise 'Claim must be submitted' unless claim.submitted?
+      raise 'Claim must be submitted' if submission&.carma_case_id.nil?
 
       attachment = CARMA::Models::Attachment.new(
         carma_case_id: submission.carma_case_id,
@@ -71,8 +71,7 @@ module Form1010cg
 
       response = attachment.submit!
 
-      # TODO: Store the attachment data on the submission
-      # TODO: Delete file after processing? (add arg: delete_after_processing = true)
+      File.delete(local_path) if delete_after_processing
 
       response
     end
