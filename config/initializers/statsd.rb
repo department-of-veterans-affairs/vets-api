@@ -4,6 +4,9 @@ require 'caseflow/service'
 require 'central_mail/service'
 require 'emis/service'
 require 'gibft/service'
+require 'saml/user'
+require 'stats_d_metric'
+require 'search/service'
 
 host = Settings.statsd.host
 port = Settings.statsd.port
