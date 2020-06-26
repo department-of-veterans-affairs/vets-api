@@ -1,11 +1,12 @@
 # frozen_string_literal: true
 
 module SAML
-  # This class is responsible for providing the requests for the various
-  # SSO and SLO endpoints
-  # It provides a similar interface to URLService, but for most endpoints
-  # it returns an SSO URL and form request parameters for use in a SAML POST
-  # submission, instead of a self-contained redirect URL.
+  # This class is responsible for providing the requests for the various SSO and SLO endpoints.
+  # It provides a similar interface to {SAML::URLService}, but for most endpoints it returns an SSO URL and 
+  # form request parameters for use in a SAML POST submission, instead of a self-contained redirect URL.
+  #
+  # @see SAML::URLService
+  #
   class PostURLService < URLService
     # rubocop:disable Metrics/ParameterLists
     def initialize(saml_settings, session: nil, user: nil, params: {},
