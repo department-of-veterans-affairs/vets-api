@@ -25,8 +25,6 @@ ActiveSupport::Inflector.inflections do |inflect|
   inflect.acronym 'SSOe'
   inflect.acronym 'SSO'
   inflect.acronym 'VAOS'
-  inflect.acronym 'VAR' # an older term for what is now VAOS
-  inflect.acronym 'VA'
   inflect.acronym 'VBA'
   inflect.acronym 'VC'
   inflect.acronym 'VHA'
