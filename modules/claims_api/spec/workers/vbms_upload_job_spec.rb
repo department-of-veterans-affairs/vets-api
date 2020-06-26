@@ -2,11 +2,12 @@
 
 require 'rails_helper'
 require 'sidekiq/testing'
+require 'claims_api/vbms_uploader'
 require_relative '../support/fake_vbms'
 
 Sidekiq::Testing.fake!
 
-RSpec.describe ClaimsApi::VbmsUploader, type: :job do
+RSpec.describe ClaimsApi::VbmsUploadJob, type: :job do
   subject { described_class }
 
   before do
@@ -56,6 +57,7 @@ RSpec.describe ClaimsApi::VbmsUploader, type: :job do
         '@new_document_version_ref_id' => '{52300B69-1D6E-43B2-8BEB-67A7C55346A2}',
         '@document_series_ref_id' => '{A57EF6CC-2236-467A-BA4F-1FA1EFD4B374}'
       }.with_indifferent_access)
+      allow_any_instance_of(ClaimsApi::VbmsUploadJob).to receive(:fetch_file_path).and_return('/tmp/path.pdf')
 
       allow_any_instance_of(ClaimsApi::VbmsUploader).to receive(:fetch_upload_token).and_return(token_response)
       allow_any_instance_of(ClaimsApi::VbmsUploader).to receive(:upload_document).and_return(document_response)
