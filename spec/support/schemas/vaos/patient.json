@@ -6,6 +6,7 @@
       "type": "object",
       "properties": {
         "first_name": { "type": "string" },
+        "middle_initial": { "type": "string" },
         "last_name": { "type": "string" }
       }
     },
@@ -13,7 +14,8 @@
       "type": "object",
       "properties": {
         "mobile": { "type": "string" },
-        "preferred_email": { "type": "string" }
+        "preferred_email": { "type": "string" },
+        "time_zone": { "type": "string" }
       }
     },
     "location": {

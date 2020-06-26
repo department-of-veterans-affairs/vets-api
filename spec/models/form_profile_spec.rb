@@ -73,6 +73,31 @@ RSpec.describe FormProfile, type: :model do
     }
   end
 
+  let(:v686_c_674_expected) do
+    {
+      'veteranContactInformation' => {
+        'veteranAddress' => {
+          'addressLine1' => '140 Rock Creek Rd',
+          'countryName' => 'USA',
+          'city' => 'Washington',
+          'stateCode' => 'DC',
+          'zipCode' => '20011'
+        },
+        'phoneNumber' => '4445551212',
+        'emailAddress' => 'test2@test1.net'
+      },
+      'veteranInformation' => {
+        'fullName' => {
+          'first' => 'Abraham',
+          'last' => 'Lincoln',
+          'suffix' => 'Jr.'
+        },
+        'ssn' => '796111863',
+        'birthDate' => '1809-02-12'
+      }
+    }
+  end
+
   let(:v21_686_c_expected) do
     {
       'veteranFullName' => {
@@ -372,6 +397,27 @@ RSpec.describe FormProfile, type: :model do
     }
   end
 
+  let(:v22_10203_expected) do
+    {
+      'veteranAddress' => {
+        'street' => street_check[:street],
+        'street2' => street_check[:street2],
+        'city' => user.va_profile[:address][:city],
+        'state' => user.va_profile[:address][:state],
+        'country' => user.va_profile[:address][:country],
+        'postal_code' => user.va_profile[:address][:postal_code][0..4]
+      },
+      'veteranFullName' => {
+        'first' => user.first_name&.capitalize,
+        'last' => user.last_name&.capitalize,
+        'suffix' => user.va_profile[:suffix]
+      },
+      'homePhone' => us_phone,
+      'veteranSocialSecurityNumber' => user.ssn,
+      'email' => user.pciu_email
+    }
+  end
+
   let(:v22_5490_expected) do
     {
       'toursOfDuty' => [
@@ -446,22 +492,74 @@ RSpec.describe FormProfile, type: :model do
 
   let(:vmdot_expected) do
     {
-      'veteranFullName' => {
+      'fullName' => {
         'first' => user.first_name&.capitalize,
         'last' => user.last_name&.capitalize,
         'suffix' => user.va_profile[:suffix]
       },
-      'gender' => user.gender,
-      'veteranAddress' => {
-        'street' => street_check[:street],
-        'street2' => street_check[:street2],
-        'city' => user.va_profile[:address][:city],
-        'state' => user.va_profile[:address][:state],
-        'country' => user.va_profile[:address][:country],
-        'postalCode' => user.va_profile[:address][:postal_code][0..4]
+      'permanentAddress' => {
+        'street' => '456 ANYPLACE RD',
+        'city' => 'PENSACOLA',
+        'state' => 'FL',
+        'country' => 'United States',
+        'postalCode' => '33344'
       },
-      'email' => user.pciu_email,
-      'dateOfBirth' => user.birth_date
+      'temporaryAddress' => {
+        'street' => '123 SOMEWHERE',
+        'street2' => 'OUT THERE',
+        'city' => 'DENVER',
+        'state' => 'CO',
+        'country' => 'United States',
+        'postalCode' => '80030'
+      },
+      'ssnLastFour' => user.ssn.last(4),
+      'gender' => user.gender,
+      'vetEmail' => 'veteran@gmail.com',
+      'dateOfBirth' => user.birth_date,
+      'eligibility' => {
+        'accessories' => true,
+        'batteries' => true
+      },
+      'supplies' => [
+        {
+          'productName' => 'ERHK HE11 680 MINI',
+          'productGroup' => 'ACCESSORIES',
+          'productId' => 6584,
+          'availableForReorder' => true,
+          'lastOrderDate' => '2019-11-22',
+          'nextAvailabilityDate' => '2020-04-22',
+          'quantity' => 1
+        },
+        {
+          'productName' => 'ZA10',
+          'productGroup' => 'BATTERIES',
+          'productId' => 3315,
+          'availableForReorder' => true,
+          'lastOrderDate' => '2019-12-01',
+          'nextAvailabilityDate' => '2020-05-01',
+          'quantity' => 24
+        },
+        {
+          'deviceName' => 'WILLIAMS SOUND CORP./POCKETALKER II',
+          'productName' => 'M312',
+          'productGroup' => 'BATTERIES',
+          'productId' => 2298,
+          'availableForReorder' => false,
+          'lastOrderDate' => '2020-05-06',
+          'nextAvailabilityDate' => '2020-10-06',
+          'quantity' => 12
+        },
+        {
+          'deviceName' => 'SIVANTOS/SIEMENS/007ASP2',
+          'productName' => 'ZA13',
+          'productGroup' => 'BATTERIES',
+          'productId' => 2314,
+          'availableForReorder' => false,
+          'lastOrderDate' => '2020-05-06',
+          'nextAvailabilityDate' => '2020-10-06',
+          'quantity' => 60
+        }
+      ]
     }
   end
 
@@ -577,21 +675,22 @@ RSpec.describe FormProfile, type: :model do
   let(:v20_0996_expected) do
     {
       'data' =>
-      {
-        'attributes' =>
         {
-          'veteran' =>
-          {
-            'addressLine1' => street_check[:street],
-            'addressLine2' => street_check[:street2],
-            'city' => user.va_profile[:address][:city],
-            'stateOrProvinceCode' => user.va_profile[:address][:state],
-            'zipPostalCode' => user.va_profile[:address][:postal_code][0..4],
-            'phoneNumber' => us_phone,
-            'emailAddress' => user.pciu_email
-          }
+          'attributes' =>
+            {
+              'veteran' =>
+                {
+                  'addressLine1' => street_check[:street],
+                  'addressLine2' => street_check[:street2],
+                  'city' => user.va_profile[:address][:city],
+                  'stateOrProvinceCode' => user.va_profile[:address][:state],
+                  'zipPostalCode' => user.va_profile[:address][:postal_code][0..4],
+                  'phoneNumber' => us_phone,
+                  'emailAddress' => user.pciu_email,
+                  'ssnLastFour' => user.ssn.last(4)
+                }
+            }
         }
-      }
     }
   end
 
@@ -673,7 +772,6 @@ RSpec.describe FormProfile, type: :model do
 
         schema_data = prefilled_data.deep_dup
 
-        schema_data.except!('verified', 'serviceBranches') if schema_form_id == 'VIC'
         errors = JSON::Validator.fully_validate(
           schema,
           schema_data.deep_transform_keys { |key| key.camelize(:lower) },
@@ -684,6 +782,19 @@ RSpec.describe FormProfile, type: :model do
       expect(prefilled_data).to eq(
         form_profile.send(:clean!, public_send("v#{form_id.underscore}_expected"))
       )
+    end
+
+    context 'with a user that can prefill mdot' do
+      before do
+        expect(user).to receive(:authorize).with(:mdot, :access?).and_return(true).at_least(:once)
+        expect(user.authorize(:mdot, :access?)).to eq(true)
+      end
+
+      it 'returns a prefilled MDOT form' do
+        VCR.use_cassette('mdot/get_supplies_200') do
+          expect_prefilled('MDOT')
+        end
+      end
     end
 
     context 'when emis is down', skip_emis: true do
@@ -737,6 +848,7 @@ RSpec.describe FormProfile, type: :model do
           to: '2016-06-01'
         )
       end
+
       # rubocop:enable Metrics/AbcSize, Metrics/MethodLength
 
       context 'with vets360 prefill on' do
@@ -807,8 +919,19 @@ RSpec.describe FormProfile, type: :model do
           can_prefill_emis(true)
         end
 
+        context 'with a user with no vet360_id' do
+          before do
+            allow(user).to receive(:vet360_id).and_return(nil)
+          end
+
+          it 'omits address fields in 686c-674 form' do
+            prefilled_data = described_class.for('686C-674').prefill(user)[:form_data]
+            v686_c_674_expected['veteranContactInformation'].delete('veteranAddress')
+            expect(prefilled_data).to eq(v686_c_674_expected)
+          end
+        end
+
         %w[
-          VIC
           22-1990
           22-1990N
           22-1990E
@@ -820,7 +943,8 @@ RSpec.describe FormProfile, type: :model do
           1010ez
           22-0993
           FEEDBACK-TOOL
-          MDOT
+          22-10203
+          686C-674
         ].each do |form_id|
           it "returns prefilled #{form_id}" do
             expect_prefilled(form_id)

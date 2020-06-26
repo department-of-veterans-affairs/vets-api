@@ -17,8 +17,8 @@ class User < Common::RedisStore
   # Defined per issue #6042
   ID_CARD_ALLOWED_STATUSES = %w[V1 V3 V6].freeze
 
-  redis_store REDIS_CONFIG['user_b_store']['namespace']
-  redis_ttl REDIS_CONFIG['user_b_store']['each_ttl']
+  redis_store REDIS_CONFIG[:user_b_store][:namespace]
+  redis_ttl REDIS_CONFIG[:user_b_store][:each_ttl]
   redis_key :uuid
 
   validates :uuid, presence: true
@@ -47,15 +47,15 @@ class User < Common::RedisStore
   end
 
   def pciu_email
-    pciu.get_email_address.email
+    pciu&.get_email_address&.email
   end
 
   def pciu_primary_phone
-    pciu.get_primary_phone.to_s
+    pciu&.get_primary_phone&.to_s
   end
 
   def pciu_alternate_phone
-    pciu.get_alternate_phone.to_s
+    pciu&.get_alternate_phone&.to_s
   end
 
   def first_name
@@ -104,7 +104,15 @@ class User < Common::RedisStore
   end
 
   def mhv_account_type
-    identity.mhv_account_type || MhvAccountTypeService.new(self).mhv_account_type
+    identity.mhv_account_type || MHVAccountTypeService.new(self).mhv_account_type
+  end
+
+  def mhv_account_state
+    return 'DEACTIVATED' if (va_profile.mhv_ids.to_a - va_profile.active_mhv_ids.to_a).any?
+    return 'MULTIPLE' if va_profile.active_mhv_ids.to_a.size > 1
+    return 'NONE' if mhv_correlation_id.blank?
+
+    'OK'
   end
 
   def loa
@@ -114,8 +122,10 @@ class User < Common::RedisStore
   delegate :multifactor, to: :identity, allow_nil: true
   delegate :authn_context, to: :identity, allow_nil: true
   delegate :mhv_icn, to: :identity, allow_nil: true
+  delegate :idme_uuid, to: :identity, allow_nil: true
   delegate :dslogon_edipi, to: :identity, allow_nil: true
   delegate :authenticated_by_ssoe, to: :identity, allow_nil: true
+  delegate :common_name, to: :identity, allow_nil: true
 
   # mvi attributes
   delegate :birls_id, to: :mvi
@@ -134,7 +144,7 @@ class User < Common::RedisStore
   end
 
   def sec_id
-    va_profile&.sec_id
+    identity.sec_id || va_profile&.sec_id
   end
 
   def va_profile
@@ -181,12 +191,16 @@ class User < Common::RedisStore
     loa1? || loa2? || loa3?
   end
 
-  # User's profile contains a list of VHA facility-specific identifiers.
-  # Facilities in the defined range are treating facilities, indicating
-  # that the user is a VA patient.
+  # True if the user has 1 or more treatment facilities, false otherwise
   def va_patient?
+    va_treatment_facility_ids.length.positive?
+  end
+
+  # User's profile contains a list of VHA facility-specific identifiers.
+  # Facilities in the defined range are treating facilities
+  def va_treatment_facility_ids
     facilities = va_profile&.vha_facility_ids
-    facilities.to_a.any? do |f|
+    facilities.to_a.select do |f|
       Settings.mhv.facility_range.any? { |range| f.to_i.between?(*range) } ||
         Settings.mhv.facility_specific.include?(f)
     end
@@ -204,7 +218,7 @@ class User < Common::RedisStore
   end
 
   def mhv_account
-    @mhv_account ||= MhvAccount.find_or_initialize_by(user_uuid: uuid, mhv_correlation_id: mhv_correlation_id)
+    @mhv_account ||= MHVAccount.find_or_initialize_by(user_uuid: uuid, mhv_correlation_id: mhv_correlation_id)
                                .tap { |m| m.user = self } # MHV account should not re-initialize use
   end
 
@@ -312,6 +326,6 @@ class User < Common::RedisStore
   private
 
   def pciu
-    @pciu ||= EVSS::PCIU::Service.new self
+    @pciu ||= EVSS::PCIU::Service.new self if loa3? && edipi.present?
   end
 end

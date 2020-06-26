@@ -11,13 +11,31 @@ lines_of_code = filtered_changed_files.sum { |_file, changes| (changes[:insertio
 
 if lines_of_code > MAX_PR_SIZE
   msg = <<~HTML
-    You changed `#{lines_of_code}` LoC. This exceeds our desired maximum of `#{MAX_PR_SIZE}`. Big PRs are difficult to review and often become stale. Consider breaking this PR up into smaller ones.
+    You changed `#{lines_of_code}` LoC. This exceeds our desired maximum of `#{MAX_PR_SIZE}`.
 
-    **Calculation Summary**
+    <details><summary>File Summary</summary>
+
+    #### Included Files
+
     - #{filtered_changed_files.collect { |key, val| "#{key} (+#{val[:insertions]}/-#{val[:deletions]} )" }.join("\n- ")}
 
-    **Exclusions**
+    #### Exclusions
+
     - #{excluded_changed_files.collect { |key, val| "#{key} (+#{val[:insertions]}/-#{val[:deletions]} )" }.join("\n- ")}
+
+    #### 
+
+    _Note: We exclude the following files when considering PR size_
+
+    ```
+    #{EXCLUSIONS}
+
+    ```
+
+    </details>
+
+    Big PRs are difficult to review and often become stale. Consider breaking this PR up into smaller ones.
+
   HTML
   warn(msg)
 end
@@ -28,14 +46,31 @@ db_files  = all_touched_files.select { |filepath| filepath.include? "db/" }
 app_files = all_touched_files.select { |filepath| filepath.include? "app/" }
 
 if !db_files.empty? && !app_files.empty?
-  msg = "Modified files in `db/` and `app/` inside the same PR!\n\n**db file(s)**"
-  db_files.each { |file| msg += "\n- #{file}" }
-  msg += "\n\n**app file(s)**"
-  app_files.each { |file| msg += "\n- #{file}" }
-  msg += "\n\nIt is recommended to make db changes in their own PR since migrations do not run automatically with vets-api deployments. Application code must always be backwards compatible with the DB, both before and after migrations have been run."
+  msg = <<~HTML
+    Modified files in `db/` and `app/` inside the same PR!
+
+    <details><summary>File Summary</summary>
+
+    #### db file(s)
+
+    - #{db_files.collect { |filepath| "#{filepath}" }.join("\n- ")} 
+
+    #### app file(s)
+
+    - #{app_files.collect { |filepath| "#{filepath}" }.join("\n- ")} 
+
+    </details>
+
+    Database migrations do not run automatically with vets-api deployments. Application code must always be backwards compatible with the DB, both before and after migrations have been run. For more info: 
+
+    - [guidance on safe db migrations](https://github.com/ankane/strong_migrations#checks)
+    - [`vets-api` deployment process](https://github.com/department-of-veterans-affairs/va.gov-team/blob/master/platform/engineering/deployment.md)
+
+  HTML
 
   # resolves exception... encode': "\xE2" on US-ASCII (Encoding::InvalidByteSequenceError)
   msg.scrub!('_')
 
-  warn(msg)
+  fail(msg)
 end
+

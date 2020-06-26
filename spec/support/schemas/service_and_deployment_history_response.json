@@ -9,6 +9,12 @@
           "attributes": {
             "type": "object",
             "properties": {
+              "first_name": {
+                "type": "string"
+              },
+              "last_name": {
+                "type": "string"
+              },
               "branch_of_service": {
                 "type": "string"
               },
@@ -16,6 +22,12 @@
                 "type": "string"
               },
               "end_date": {
+                "type": "string"
+              },
+              "pay_grade": {
+                "type": "string"
+              },
+              "separation_reason": {
                 "type": "string"
               },
               "discharge_status": {

@@ -22,6 +22,14 @@ describe Vet360::ContactInformation::Service, skip_vet360: true do
           expect(response.person).to be_a(Vet360::Models::Person)
         end
       end
+
+      it 'supports international provinces' do
+        VCR.use_cassette('vet360/contact_information/person_intl_addr', VCR::MATCH_EVERYTHING) do
+          response = subject.get_person
+
+          expect(response.person.addresses[0].province).to eq('province')
+        end
+      end
     end
 
     context 'when not successful' do
@@ -132,16 +140,18 @@ describe Vet360::ContactInformation::Service, skip_vet360: true do
     let(:address) { build(:vet360_address, vet360_id: user.vet360_id, source_system_user: user.icn) }
 
     context 'with a validation key' do
-      let(:address) { build(:vet360_address, :override) }
+      let(:address) do
+        build(:vet360_address, :override, country_name: nil)
+      end
 
-      it 'will override the address error', run_at: '2019-10-28 18:59:37 -0700' do
+      it 'will override the address error', run_at: '2020-02-14T00:19:15.000Z' do
         VCR.use_cassette(
           'vet360/contact_information/put_address_override',
           VCR::MATCH_EVERYTHING
         ) do
           response = subject.put_address(address)
           expect(response.status).to eq(200)
-          expect(response.transaction.id).to eq('1b5b82e7-909d-4ccc-a2db-ad60f1b502cf')
+          expect(response.transaction.id).to eq('7f01230f-56e3-4289-97ed-6168d2d23722')
         end
       end
     end

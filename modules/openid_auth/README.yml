@@ -28,7 +28,7 @@ info:
 
     ## Reference
 
-    Raw Open API Spec: http://dev-api.va.gov/internal/auth/docs/v0/validation
+    Raw Open API Spec: http://sandbox-api.va.gov/internal/auth/docs/v0/validation
 
   termsOfService: ''
   contact:
@@ -37,13 +37,8 @@ tags:
   - name: validated_token
     description: Oauth Validation for internal 3rd Party Services
 servers:
-  - url: https://dev-api.va.gov/internal/auth/{version}
-    description: VA.gov API development environment
-    variables:
-      version:
-        default: v0
-  - url: https://staging-api.va.gov/internal/auth/{version}
-    description: VA.gov API staging environment
+  - url: https://sandbox-api.va.gov/internal/auth/{version}
+    description: VA.gov API sandbox environment
     variables:
       version:
         default: v0

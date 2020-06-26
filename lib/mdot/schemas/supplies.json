@@ -2,9 +2,9 @@
   "$schema": "http://json-schema.org/draft-04/schema#",
   "description": "",
   "type": "object",
-  "required": ["veteran_address", "supplies"],
+  "required": ["permanent_address", "supplies"],
   "properties": {
-    "veteran_address": {
+    "permanent_address": {
       "type": "object",
       "street": {
         "type": "string"
@@ -23,10 +23,13 @@
       },
       "postal_code": {
         "type": "string"
+      },
+      "is_military_base": {
+        "type": "boolean"
       }
     },
-    "veteran_temporary_address": {
-      "type": "object",
+    "temporary_address": {
+      "type": ["object", "null"],
       "street": {
         "type": "string"
       },
@@ -44,7 +47,13 @@
       },
       "postal_code": {
         "type": "string"
+      },
+      "is_military_base": {
+        "type": "boolean"
       }
+    },
+    "vetEmail": {
+      "type": "string"
     },
     "supplies": {
       "type": "array",
@@ -54,7 +63,7 @@
         "required": ["product_id"],
         "properties": {
           "device_name": {
-            "type": "string"
+            "type": ["string", "null"]
           },
           "product_name": {
             "type": "string"
@@ -63,7 +72,7 @@
             "type": "string"
           },
           "product_id": {
-            "type": "string"
+            "type": "integer"
           },
           "available_for_reorder": {
             "type": "boolean"
@@ -78,7 +87,10 @@
             "type": "integer"
           },
           "size": {
-            "type": "string"
+            "type": ["string", "null"]
+          },
+          "prescribed_date": {
+            "type": ["string", "null"]
           }
         }
       }

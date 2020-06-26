@@ -19,6 +19,7 @@ module ClaimsApi
             key :name, 'Creative Commons'
           end
         end
+
         tag do
           key :name, 'Claims'
           key :description, 'Benefits Claims'
@@ -56,16 +57,8 @@ module ClaimsApi
         end
 
         server do
-          key :url, 'https://dev-api.va.gov/services/claims/{version}'
-          key :description, 'VA.gov API development environment'
-          variable :version do
-            key :default, 'v1'
-          end
-        end
-
-        server do
-          key :url, 'https://staging-api.va.gov/services/claims/{version}'
-          key :description, 'VA.gov API staging environment'
+          key :url, 'https://sandbox-api.va.gov/services/claims/{version}'
+          key :description, 'VA.gov API sandbox environment'
           variable :version do
             key :default, 'v1'
           end

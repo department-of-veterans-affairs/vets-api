@@ -54,7 +54,7 @@ RSpec.describe MessageSerializer, type: :serializer do
     expect(attributes['recipient_name']).to eq(message.recipient_name)
   end
 
-  it 'includes a read reciept' do
+  it 'includes a read receipt' do
     expect(attributes['read_receipt']).to eq(message.read_receipt)
   end
 

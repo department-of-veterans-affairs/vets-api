@@ -3,8 +3,15 @@
 class AppealsApi::Docs::V1::DocsController < ApplicationController
   skip_before_action(:authenticate)
 
+  SWAGGER = Swagger::Blocks.build_root_json(
+    [
+      AppealsApi::V1::SwaggerRoot,
+      AppealsApi::V1::HigherLevelReviewsControllerSwagger,
+      AppealsApi::V1::ContestableIssuesControllerSwagger
+    ]
+  ).freeze
+
   def decision_reviews
-    swagger = YAML.safe_load(File.read(AppealsApi::Engine.root.join('app/swagger/v1/decision_reviews.yaml')))
-    render json: swagger
+    render json: SWAGGER
   end
 end

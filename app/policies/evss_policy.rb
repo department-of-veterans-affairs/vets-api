@@ -2,22 +2,22 @@
 
 EVSSPolicy = Struct.new(:user, :evss) do
   def access?
-    evss_attrs? ? log_success : log_failure
+    if user.edipi.present? && user.ssn.present? && user.participant_id.present?
+      log_success
+    else
+      log_failure
+    end
   end
 
   def access_form526?
-    form526_attrs? ? log_success : log_failure
+    if user.edipi.present? && user.ssn.present? && user.birls_id.present? && user.participant_id.present?
+      log_success
+    else
+      log_failure
+    end
   end
 
   private
-
-  def evss_attrs?
-    user.edipi.present? && user.ssn.present? && user.participant_id.present?
-  end
-
-  def form526_attrs?
-    user.birls_id.present? && evss_attrs?
-  end
 
   def log_success
     StatsD.increment('api.evss.policy.success') if user.loa3?

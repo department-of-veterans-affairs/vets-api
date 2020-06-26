@@ -9,6 +9,8 @@ module VBADocuments
 
     IN_FLIGHT_STATUSES = %w[received processing success].freeze
 
+    ALL_STATUSES = IN_FLIGHT_STATUSES + %w[pending uploaded vbms error expired].freeze
+
     scope :in_flight, -> { where(status: IN_FLIGHT_STATUSES) }
 
     after_save :report_errors

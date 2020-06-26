@@ -1,8 +1,6 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'sidekiq/testing'
-Sidekiq::Testing.fake!
 
 RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526IncreaseOnly, type: :job do
   subject { described_class }
@@ -26,7 +24,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526IncreaseOnly, type
              saved_claim_id: saved_claim.id)
     end
 
-    context 'with a successfull submission job' do
+    context 'with a successful submission job' do
       it 'queues a job for submit' do
         expect do
           subject.perform_async(submission.id)

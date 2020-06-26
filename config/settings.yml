@@ -3,6 +3,7 @@ virtual_hosts: ["127.0.0.1", "localhost"] # Safe host names
 
 # For CORS requests; separate multiple origins with a comma
 web_origin: http://localhost:3000,http://localhost:3001,http://127.0.0.1:3000,http://127.0.0.1:3001,null
+web_origin_regex: \Ahttps?:\/\/www\.va\.gov\z
 
 # Settings for SAML authentication
 saml:
@@ -37,6 +38,10 @@ sso:
   cookie_secure: false
   cookie_domain: localhost
 
+ssoe:
+  redirects:
+    myvahealth: https://ehrm-va-test.patientportal.us.healtheintent.com/
+
 binaries:
   # you can specify a full path in settings.local.yml if necessary
   pdfinfo: pdfinfo
@@ -52,12 +57,23 @@ relative_url_root: /
 
 secret_key_base: 8af0fe1e378586520e4324694897eb269bd0fffa1c5be6cc3b4ffb9dbde095d0bef5c7fdab73cd05685d8fe1dd589287d78b38e4de7116fbe14461e414072677
 
+debts:
+  client_id: "0be3d60e3983438199f192b6e723a6f0"
+  client_secret: "secret"
+  url: 'https://internal-dsva-vagov-dev-fwdproxy-1893365470.us-gov-west-1.elb.amazonaws.com:4465'
+
 review_instance_slug: ~
 
 sidekiq_admin_panel: false
 
 salesforce-gibft:
   url: 'https://va--rdtcddev.cs33.my.salesforce.com/'
+
+salesforce-carma:
+  url: 'https://fake-carma.salesforce.com'
+  consumer_key: 12345ABC.QQ_1234BBfake
+  signing_key_path: 'spec/fixtures/carma/privatekey.pem' # A dummy private key used for test suite
+  username: fake-user@va.gov.carmafake
 
 salesforce:
   env: dev
@@ -73,6 +89,8 @@ edu:
     user: ~
     port: ~
 
+dependents:
+  prefill: true
 
 pension_burial:
   prefill: true
@@ -99,7 +117,7 @@ vet360:
     timeout: 30
     mock: false
   address_validation:
-    hostname: 'dev-api.va.gov'
+    hostname: 'sandbox-api.va.gov'
     api_key: '<AV_KEY>'
 
 # Settings for IHub
@@ -113,7 +131,7 @@ ihub:
 # Settings for Medical Devices Ordering Tool
 mdot:
   prefill: true
-  url: https://dlc-fake.fake.com
+  url: https://internal-dsva-vagov-staging-fwdproxy-1821450725.us-gov-west-1.elb.amazonaws.com:4466
   api_key: abcd1234abcd1234abcd1234abcd1234abcd1234
   mock: false
   enabled: false
@@ -121,9 +139,14 @@ mdot:
 # Settings for Decision Reviews
 decision_review:
   prefill: true
-  url: https://dev-api.va.gov/services/appeals/v3/decision_review
+  url: https://sandbox-api.va.gov/services/appeals/v1/decision_reviews
   api_key: abcd1234abcd1234abcd1234abcd1234abcd1234
   mock: false
+
+# Settings for modules/appeals_api
+modules_appeals_api:
+  higher_level_review_updater_enabled: true
+  schema_dir: config/schemas
 
 # Settings for EVSS
 evss:
@@ -162,6 +185,7 @@ evss:
   mock_pciu: true
   mock_pciu_address: false
   mock_ppiu: true
+  mock_reference: false
   mock_itf: true
   mock_disabilities_form: true
   mock_common_service: true
@@ -171,9 +195,6 @@ evss:
     cert_path: ~
     key_path: ~
     root_ca: ~
-  jwt:
-    issuer: fake_issuer
-    key: fake_key
   reference_data_service:
     enabled: false
   international_postal_codes: 'config/evss/international_postal_codes.json'
@@ -192,18 +213,11 @@ mvi_hca:
 hca:
   prefill: true
   endpoint: https://test-foo.vets.gov
-  cert_path: /fake/client/cert/path
-  key_path: /fake/client/key/path
   timeout: 30
   ee:
     endpoint: 'http://example.com'
     user: "HCASvcUsr"
     pass: "password"
-  ca:
-    - 'VA Internal Root CA.pem'
-    - 'VA Internal Subordinate CA 1.pem'
-    - 'VA-Internal-S2-ICA1-v1.pem'
-    - 'VA-Internal-S2-RCA1-v1.pem'
 
 # Settings for the facility locator
 locators:
@@ -303,7 +317,7 @@ emis:
     soap_namespaces:
       xmlns:v11: http://viers.va.gov/cdi/eMIS/RequestResponse/VetStatus/v1
 
-appeals:
+caseflow:
   mock: true
   app_token: PUBLICDEMO123
   host: https://dsva-appeals-certification-dev-1895622301.us-gov-west-1.elb.amazonaws.com
@@ -313,30 +327,32 @@ vic:
   signing_key_path: /fake/signing/key/path
   prefill: true
   s3:
-    aws_access_key_id: 'aws_access_key_id'
-    aws_secret_access_key: 'aws_secret_access_key'
-    region: 'region'
-    bucket: 'bucket'
+    aws_access_key_id: "aws_access_key_id"
+    aws_secret_access_key: "aws_secret_access_key"
+    region: "region"
+    bucket: "bucket"
 
 # Settings for (preneeds) burials.
 preneeds:
   host: http://some.fakesite.com
-  wsdl: 'config/preneeds/wsdl/preneeds.wsdl'
+  wsdl: "config/preneeds/wsdl/preneeds.wsdl"
 
 # Settings for VBA Document upload service module
 vba_documents:
   unsuccessful_report_enabled: false
   location:
-    prefix:  http://some.fakesite.com/path
+    prefix: http://some.fakesite.com/path
     replacement: http://another.fakesite.com/rewrittenpath
   s3:
     enabled: false
-    aws_access_key_id: 'aws_access_key_id'
-    aws_secret_access_key: 'aws_secret_access_key'
-    region: 'region'
-    bucket: 'bucket'
+    aws_access_key_id: "aws_access_key_id"
+    aws_secret_access_key: "aws_secret_access_key"
+    region: "region"
+    bucket: "bucket"
   sns:
-    topic_arn: ~
+    topic_arns:
+      - vetsgov-arn
+      - vagov-arn
 
 #Settings for Claims Api Module
 claims_api:
@@ -349,11 +365,14 @@ claims_api:
   disability_claims_mock_override: false
   schema_dir: config/schemas
 
-# Settings for Redis
-# TODO(knkski): Move all redis settings here?
 redis:
   host: localhost
   port: 6379
+  app_data:
+    url: redis://localhost:6379
+    # secondary_url: redis://localhost:6378
+  sidekiq:
+    url: redis://localhost:6379
 
 # Settings for GovDelivery (email delivery)
 govdelivery:
@@ -423,10 +442,6 @@ betamocks:
   cache_dir: /cache
   services_config: config/betamocks/services_config.yml
 
-faraday_socks_proxy:
-  enabled: false
-  uri: socks5://localhost:2002
-
 google_analytics_tracking_id: ~
 
 # Settings for search
@@ -437,29 +452,55 @@ search:
   url: https://search.usa.gov/api/v2
 
 bing:
-  base_api_url: 'https://dev.virtualearth.net/REST/v1'
+  base_api_url: "https://dev.virtualearth.net/REST/v1"
   key: fake_key
 
 flipper:
   admin_user_emails:
     - alastair@adhocteam.us
     - anna@adhoc.team
+    - bill.ryan@adhocteam.us
+    - dan.hinze@adhocteam.us
+    - delli-gatti_michael@bah.com
+    - devinmccurdy@gmail.com
+    - eric.buckley@adhocteam.us
     - erik@adhocteam.us
+    - filip.fafara@gmail.com
+    - grodriguez@governmentcio.com
+    - hughes_dustin@bah.com
     - jbalboni@gmail.com
     - jeff@adhocteam.us
     - johnny@oddball.io
+    - johnpaul.ashenfelter@oddball.io
+    - kabrown@thoughtworks.com
     - kam@adhocteam.us
+    - keifer@oddball.io
     - kenneth.gary@va.gov
+    - kenneth.santiago2010@gmail.com
+    - kmircovich@governmentcio.com
     - lauren.alexanderson@va.gov
+    - lindsey.hattamer@oddball.io
+    - ltran@thoughtworks.com
+    - marisa.hoenig@thoughtworks.com
     - mark.greenburg@adhocteam.us
+    - mdewey@governmentcio.com
     - n.ratana@gmail.com
     - narin@adhocteam.us
     - osanchez@governmentcio.com
+    - patrick.bateman@va.gov
+    - patrick@adhocteam.us
+    - pherbert@thoughtworks.com
+    - philip.becker@oddball.io
+    - regarr@gmail.com # Robin Garrison - AdHoc
     - rian.fowler@adhoc.team
     - rianfowler@outlook.com
+    - roth_matthew@bah.com
     - ryan.thurlwell@va.gov
+    - saman.moshafi@thoughtworks.com
+    - shawkey_daniel@bah.com
+    - sonntag_adam@bah.com
     - travis.hilton@oddball.io
-    - zurbergram@gmail.com
+    - zurbergram@gmail.com  
 
 bgs:
   application: ~
@@ -471,22 +512,24 @@ bgs:
   ssl_verify_mode: 'peer'
 
 va_mobile:
-  url: 'https://veteran.apps.va.gov/'
+  url: 'https://veteran.apps.va.gov'
   mock: false
   key_path: /fake/client/key/path
   timeout: 15
 
 lighthouse:
   api_key: fake_key
+  facilities:
+    url: https://sandbox-api.va.gov
+    api_key: fake_key
 
 forms:
-  url: https://dev-api.va.gov/services/va_forms/v0/
+  url: https://sandbox-api.va.gov/services/va_forms/v0/
   mock: false
 
 vbms:
   url: "https://internal-dsva-vagov-dev-fwdproxy-1893365470.us-gov-west-1.elb.amazonaws.com:4449"
   saml: "vetsapi.client.vbms.aide.oit.va.gov.saml-token.xml"
-  keypass: "{{ lookup('credstash', 'vbms.dev.key_password') }}"
   ca_cert: VBMS-Client-Signing-CA.crt
   cert: vetsapi.client.vbms.aide.oit.va.gov.crt
   client_keyfile: vetsapi.client.vbms.aide.oit.va.gov.p12
@@ -500,3 +543,16 @@ vet_verification:
 github_stats:
   username: github-stats-rake
   token: fake_token
+
+# Settings for the coronavirus chatbot tokens
+coronavirus_chatbot:
+  app_secret: fake_secret
+  directline_uri: northamerica.directline.botframework.com
+  webchat_secret: fake_secret
+
+# Settings for notifications client
+vanotify:
+  client_url: fake_client_url
+  api_key: fake_secret
+  template_id:
+    form526_confirmation_email: fake_template_id

@@ -7,9 +7,6 @@ describe HCA::Service do
   include SchemaMatchers
 
   let(:service) { described_class.new }
-  let(:cert) { instance_double('OpenSSL::X509::Certificate') }
-  let(:key) { instance_double('OpenSSL::PKey::RSA') }
-  let(:store) { instance_double('OpenSSL::X509::Store') }
   let(:response) do
     double(body: Ox.parse(%(
     <?xml version='1.0' encoding='UTF-8'?>
@@ -138,37 +135,6 @@ describe HCA::Service do
         VCR.use_cassette('hca/health_check_downtime', match_requests_on: [:body]) do
           expect { subject.health_check }.to raise_error(Common::Client::Errors::HTTPError)
         end
-      end
-    end
-  end
-
-  describe '.options' do
-    before do
-      allow(HCA::Configuration.instance).to receive(:ssl_cert) { cert }
-      allow(HCA::Configuration.instance).to receive(:ssl_key) { key }
-      stub_const('HCA::Configuration::CERT_STORE', store)
-      stub_const('HCA::Configuration::ENDPOINT', nil)
-    end
-
-    context 'when there are no SSL options' do
-      it 'onlies return the wsdl' do
-        allow(HCA::Configuration.instance).to receive(:ssl_cert).and_return(nil)
-        allow(HCA::Configuration.instance).to receive(:ssl_key).and_return(nil)
-        expect(HCA::Configuration.instance.ssl_options).to eq(
-          verify: true,
-          cert_store: store
-        )
-      end
-    end
-
-    context 'when there are SSL options' do
-      it 'returns the wsdl, cert and key paths' do
-        expect(HCA::Configuration.instance.ssl_options).to eq(
-          verify: true,
-          cert_store: store,
-          client_cert: cert,
-          client_key: key
-        )
       end
     end
   end

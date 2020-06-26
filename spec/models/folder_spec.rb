@@ -16,7 +16,7 @@ RSpec.describe Folder do
       end
     end
 
-    context 'with name exeeding 50 characters' do
+    context 'with name exceeding 50 characters' do
       let(:params) { { name: 'a' * 51 } }
 
       it 'has errors for length of name exceeding 50' do

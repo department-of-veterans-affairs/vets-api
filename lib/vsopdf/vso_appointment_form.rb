@@ -4,7 +4,7 @@ require 'pdf_forms'
 require 'tempfile'
 require 'securerandom'
 
-class VsoAppointmentForm
+class VSOAppointmentForm
   include Common::Client::Monitoring
   STATSD_KEY_PREFIX = 'api.vso_appoinment_form'
 
@@ -47,7 +47,7 @@ class VsoAppointmentForm
       "alcoholismoralcohoabuse": @appt.disclosure_exception_alcoholism ? 1 : 0,
       "infectionwiththehumanimmunodeficiencyvirushiv": @appt.disclosure_exception_hiv ? 1 : 0,
       "sicklecellanemia": @appt.disclosure_exception_sickle_cell_anemia ? 1 : 0
-    }.map { |k, v| ["F[0].Page_1[0].#{k}[0]", v] }.to_h
+    }.transform_keys { |k| "F[0].Page_1[0].#{k}[0]" }
   end
 
   def generate_pdf

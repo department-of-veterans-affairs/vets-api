@@ -203,7 +203,7 @@ describe 'user_preferences', type: :request do
       end
     end
 
-    context 'when given a non existant code' do
+    context 'when given a nonexistent code' do
       it 'returns a 404 not found', :aggregate_failures do
         delete '/v0/user/preferences/garbagecode/delete_all', headers: headers
 

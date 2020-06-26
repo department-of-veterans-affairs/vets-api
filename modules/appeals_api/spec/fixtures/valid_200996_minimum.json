@@ -1,0 +1,20 @@
+{
+  "data": {
+    "type": "HigherLevelReview",
+    "attributes": {
+      "informalConference": false,
+      "sameOffice": true,
+      "benefitType": "compensation",
+      "veteran": { "address": { "zipCode5": "66002" } }
+    }
+  },
+  "included": [
+    {
+      "type": "ContestableIssue",
+      "attributes": {
+        "issue": "left shoulder",
+        "decisionDate": "1920-12-01"
+      }
+    }
+  ]
+}

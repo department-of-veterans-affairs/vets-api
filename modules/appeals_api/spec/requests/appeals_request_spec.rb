@@ -29,7 +29,7 @@ RSpec.describe 'Claim Appeals API endpoint', type: :request do
     end
 
     it 'returns a successful response' do
-      VCR.use_cassette('appeals/appeals') do
+      VCR.use_cassette('caseflow/appeals') do
         get appeals_endpoint, params: nil, headers: user_headers
         expect(response).to have_http_status(:ok)
         expect(response.body).to be_a(String)
@@ -38,7 +38,7 @@ RSpec.describe 'Claim Appeals API endpoint', type: :request do
     end
 
     it 'logs details about the request' do
-      VCR.use_cassette('appeals/appeals') do
+      VCR.use_cassette('caseflow/appeals') do
         allow(Rails.logger).to receive(:info)
         get appeals_endpoint, params: nil, headers: user_headers
 
@@ -72,7 +72,7 @@ RSpec.describe 'Claim Appeals API endpoint', type: :request do
     end
 
     it 'returns a successful response' do
-      VCR.use_cassette('appeals/appeals_empty') do
+      VCR.use_cassette('caseflow/appeals_empty') do
         get appeals_endpoint, params: nil, headers: user_headers
 
         expect(response).to have_http_status(:ok)
@@ -82,7 +82,7 @@ RSpec.describe 'Claim Appeals API endpoint', type: :request do
     end
 
     it 'logs appropriately' do
-      VCR.use_cassette('appeals/appeals_empty') do
+      VCR.use_cassette('caseflow/appeals_empty') do
         allow(Rails.logger).to receive(:info)
         get appeals_endpoint, params: nil, headers: user_headers
 
@@ -100,7 +100,7 @@ RSpec.describe 'Claim Appeals API endpoint', type: :request do
 
   context 'without the X-VA-User header supplied' do
     it 'returns a successful response' do
-      VCR.use_cassette('appeals/appeals') do
+      VCR.use_cassette('caseflow/appeals') do
         get appeals_endpoint,
             params: nil,
             headers: { 'X-VA-SSN' => '111223333',
@@ -112,7 +112,7 @@ RSpec.describe 'Claim Appeals API endpoint', type: :request do
 
   context 'without the X-VA-SSN header supplied' do
     it 'returns a successful response' do
-      VCR.use_cassette('appeals/appeals') do
+      VCR.use_cassette('caseflow/appeals') do
         get appeals_endpoint,
             params: nil,
             headers: { 'X-Consumer-Username' => 'TestConsumer',
@@ -124,7 +124,7 @@ RSpec.describe 'Claim Appeals API endpoint', type: :request do
 
   context 'when requesting the healthcheck route' do
     it 'returns a successful response' do
-      VCR.use_cassette('appeals/health-check') do
+      VCR.use_cassette('caseflow/health-check') do
         get '/services/appeals/v0/healthcheck'
         expect(response).to have_http_status(:ok)
       end
@@ -133,7 +133,7 @@ RSpec.describe 'Claim Appeals API endpoint', type: :request do
 
   context 'with a not found response' do
     it 'returns a 404 and logs an info level message' do
-      VCR.use_cassette('appeals/not_found') do
+      VCR.use_cassette('caseflow/not_found') do
         get appeals_endpoint,
             params: nil,
             headers: { 'X-VA-SSN' => '111223333',

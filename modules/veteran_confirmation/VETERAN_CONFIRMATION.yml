@@ -18,9 +18,9 @@ info:
     Use [Test User](https://github.com/department-of-veterans-affairs/vets-api-clients/blob/master/test_accounts.md) attributes to populate the request body.
 
     ### 3. Build your app
-    The base URI for the Veteran Confirmation API in the Development environment is:
+    The base URI for the Veteran Confirmation API in the Sandbox environment is:
     
-    https://dev-api.va.gov/services/veteran_confirmation/v0
+    https://sandbox-api.va.gov/services/veteran_confirmation/v0
 
     In this environment, use attributes from the list of [Test Users](https://github.com/department-of-veterans-affairs/vets-api-clients/blob/master/test_accounts.md). Only Test Users can return a `"confirmed"` response.
 
@@ -42,8 +42,11 @@ info:
     * Gender
     
     ## Reference
-    ### Development vs. Production Data
-    APIs accessed via the Development environment are using the same underlying logic as VA’s production APIs; only the underlying data store is different. 
+    ### Sandbox vs. Production Data
+    APIs accessed via the Sandbox environment are using the same underlying logic as VA’s production APIs; only the underlying data store is different. 
+
+    ### Master Veteran Index (MVI)
+    The Master Veteran Index confirms a user's identity. In Production, several factors are considered to confirm identity. These include: a user’s first name, last name, date of birth and Social Security number. The MVI is mocked in the Sandbox environment. In this environment, the only factor used to confirm identity is the Social Security number.
 
     ### Rate Limiting 
     We implemented basic rate limiting of 60 requests per minute. If you exceed this quota, your request will return a 429 status code. You may petition for increased rate limits by emailing and requests will be decided on a case by case basis. 
@@ -58,13 +61,8 @@ tags:
   - name: veteran_confirmation_status
     description: Veteran Confirmation - Veteran Status
 servers:
-  - url: https://dev-api.va.gov/services/veteran_confirmation/{version}
-    description: VA.gov API development environment
-    variables:
-      version:
-        default: v0
-  - url: https://staging-api.va.gov/services/veteran_confirmation/{version}
-    description: VA.gov API staging environment
+  - url: https://sandbox-api.va.gov/services/veteran_confirmation/{version}
+    description: VA.gov API sandbox environment
     variables:
       version:
         default: v0

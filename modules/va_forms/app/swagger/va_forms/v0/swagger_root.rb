@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-module VaForms
+module VAForms
   module V0
     class SwaggerRoot
       include Swagger::Blocks
@@ -9,23 +9,15 @@ module VaForms
         info do
           key :version, '0.0.0'
           key :title, 'VA Forms'
-          key :description, File.read(VaForms::Engine.root.join('app', 'swagger', 'va_forms', 'v0', 'description.md'))
+          key :description, File.read(VAForms::Engine.root.join('app', 'swagger', 'va_forms', 'v0', 'description.md'))
           contact do
             key :name, 'va.gov'
           end
         end
 
         server do
-          key :url, 'https://dev-api.va.gov/services/va_forms/{version}'
-          key :description, 'VA.gov API development environment'
-          variable :version do
-            key :default, 'v0'
-          end
-        end
-
-        server do
-          key :url, 'https://staging-api.va.gov/services/va_forms/{version}'
-          key :description, 'VA.gov API staging environment'
+          key :url, 'https://sandbox-api.va.gov/services/va_forms/{version}'
+          key :description, 'VA.gov API sandbox environment'
           variable :version do
             key :default, 'v0'
           end

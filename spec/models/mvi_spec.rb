@@ -9,10 +9,10 @@ describe Mvi, skip_mvi: true do
   let(:mvi) { Mvi.for_user(user) }
   let(:mvi_profile) { build(:mvi_profile) }
   let(:mvi_codes) do
-    [
-      { codeSystemName: 'MVI', code: '111985523^PI^200BRLS^USVBA', displayName: 'IEN' },
-      { codeSystemName: 'MVI', code: '32397028^PI^200CORP^USVBA', displayName: 'IEN' }
-    ]
+    {
+      birls_id: '111985523',
+      participant_id: '32397028'
+    }
   end
   let(:profile_response) do
     MVI::Responses::FindProfileResponse.new(
@@ -40,10 +40,11 @@ describe Mvi, skip_mvi: true do
 
   describe '#mvi_add_person' do
     context 'with a successful add' do
-      it 'returns the successul response' do
+      it 'returns the successful response' do
         allow_any_instance_of(MVI::Service).to receive(:find_profile).and_return(profile_response)
         allow_any_instance_of(MVI::Service).to receive(:add_person).and_return(add_response)
-        expect_any_instance_of(Mvi).to receive(:destroy).once
+        expect_any_instance_of(Mvi).to receive(:add_ids).once.and_call_original
+        expect_any_instance_of(Mvi).to receive(:cache).once.and_call_original
         response = user.mvi.mvi_add_person
         expect(response.status).to eq('OK')
       end
@@ -62,7 +63,8 @@ describe Mvi, skip_mvi: true do
       it 'returns the failed add response' do
         allow_any_instance_of(MVI::Service).to receive(:find_profile).and_return(profile_response)
         allow_any_instance_of(MVI::Service).to receive(:add_person).and_return(add_response_error)
-        expect_any_instance_of(Mvi).not_to receive(:destroy)
+        expect_any_instance_of(Mvi).not_to receive(:add_ids)
+        expect_any_instance_of(Mvi).not_to receive(:cache)
         response = user.mvi.mvi_add_person
         expect(response.status).to eq('SERVER_ERROR')
       end
@@ -123,7 +125,7 @@ describe Mvi, skip_mvi: true do
   end
 
   describe 'correlation ids' do
-    context 'with a succesful response' do
+    context 'with a successful response' do
       before do
         allow_any_instance_of(MVI::Service).to receive(:find_profile).and_return(profile_response)
       end
@@ -209,6 +211,27 @@ describe Mvi, skip_mvi: true do
           expect(mvi.participant_id).to be_nil
         end
       end
+    end
+  end
+
+  describe '#add_ids' do
+    let(:mvi) { Mvi.for_user(user) }
+    let(:response) do
+      MVI::Responses::AddPersonResponse.new(
+        status: 'OK',
+        mvi_codes: {
+          birls_id: '1234567890',
+          participant_id: '0987654321'
+        }
+      )
+    end
+
+    it 'updates the user profile and updates the cache' do
+      allow_any_instance_of(MVI::Service).to receive(:find_profile).and_return(profile_response)
+      expect_any_instance_of(Mvi).to receive(:cache).twice.and_call_original
+      mvi.send(:add_ids, response)
+      expect(user.participant_id).to eq('0987654321')
+      expect(user.birls_id).to eq('1234567890')
     end
   end
 end

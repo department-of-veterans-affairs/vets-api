@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'common/exceptions/external/unprocessable_entity'
+
 module MVI
   class OrchSearchService < Service
     configuration MVI::Configuration
@@ -13,7 +15,12 @@ module MVI
     end
 
     def create_profile_message(user)
-      raise Common::Exceptions::ValidationErrors, user unless user.valid? && user.edipi.present?
+      unless user.valid? && user.edipi.present?
+        raise Common::Exceptions::UnprocessableEntity.new(
+          detail: 'User is invalid or missing edipi',
+          source: 'OrchSearchService'
+        )
+      end
 
       message_user_attributes(user)
     end

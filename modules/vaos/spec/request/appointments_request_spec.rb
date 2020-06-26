@@ -15,7 +15,7 @@ RSpec.describe 'vaos appointments', type: :request, skip_mvi: true do
 
     describe 'GET appointments' do
       it 'does not have access' do
-        get '/v0/vaos/appointments'
+        get '/vaos/v0/appointments'
         expect(response).to have_http_status(:forbidden)
         expect(JSON.parse(response.body)['errors'].first['detail'])
           .to eq('You do not have access to online scheduling')
@@ -24,7 +24,7 @@ RSpec.describe 'vaos appointments', type: :request, skip_mvi: true do
 
     describe 'POST appointments' do
       it 'does not have access' do
-        post '/v0/vaos/appointments'
+        post '/vaos/v0/appointments'
         expect(response).to have_http_status(:forbidden)
         expect(JSON.parse(response.body)['errors'].first['detail'])
           .to eq('You do not have access to online scheduling')
@@ -33,7 +33,7 @@ RSpec.describe 'vaos appointments', type: :request, skip_mvi: true do
 
     describe 'PUT appointments/cancel' do
       it 'does not have access' do
-        put '/v0/vaos/appointments/cancel'
+        put '/vaos/v0/appointments/cancel'
         expect(response).to have_http_status(:forbidden)
         expect(JSON.parse(response.body)['errors'].first['detail'])
           .to eq('You do not have access to online scheduling')
@@ -45,14 +45,14 @@ RSpec.describe 'vaos appointments', type: :request, skip_mvi: true do
     let(:current_user) { build(:user, :vaos) }
 
     describe 'GET appointments' do
-      let(:start_date) { Time.zone.parse('2019-11-14T07:00:00Z') }
-      let(:end_date) { Time.zone.parse('2020-03-14T08:00:00Z') }
+      let(:start_date) { Time.zone.parse('2020-06-02T07:00:00Z') }
+      let(:end_date) { Time.zone.parse('2020-07-02T08:00:00Z') }
       let(:params) { { type: 'va', start_date: start_date, end_date: end_date } }
 
       context 'with flipper disabled' do
         it 'does not have access' do
           Flipper.disable('va_online_scheduling')
-          get '/v0/vaos/appointments'
+          get '/vaos/v0/appointments'
           expect(response).to have_http_status(:forbidden)
           expect(JSON.parse(response.body)['errors'].first['detail'])
             .to eq('You do not have access to online scheduling')
@@ -65,7 +65,7 @@ RSpec.describe 'vaos appointments', type: :request, skip_mvi: true do
         let(:current_user) { build(:user, :mhv, mhv_icn: nil) }
 
         it 'does not have access' do
-          get '/v0/vaos/appointments'
+          get '/vaos/v0/appointments'
           expect(response).to have_http_status(:forbidden)
           expect(JSON.parse(response.body)['errors'].first['detail'])
             .to eq('No patient ICN found')
@@ -74,7 +74,7 @@ RSpec.describe 'vaos appointments', type: :request, skip_mvi: true do
 
       context 'without a type' do
         it 'has a parameter missing exception' do
-          get '/v0/vaos/appointments', params: params.except(:type)
+          get '/vaos/v0/appointments', params: params.except(:type)
           expect(response).to have_http_status(:bad_request)
           expect(response.body).to be_a(String)
           expect(JSON.parse(response.body)['errors'].first['detail'])
@@ -84,7 +84,7 @@ RSpec.describe 'vaos appointments', type: :request, skip_mvi: true do
 
       context 'without a start_date' do
         it 'has a parameter missing exception' do
-          get '/v0/vaos/appointments', params: params.except(:start_date)
+          get '/vaos/v0/appointments', params: params.except(:start_date)
           expect(response).to have_http_status(:bad_request)
           expect(response.body).to be_a(String)
           expect(JSON.parse(response.body)['errors'].first['detail'])
@@ -94,7 +94,7 @@ RSpec.describe 'vaos appointments', type: :request, skip_mvi: true do
 
       context 'without an end_date' do
         it 'has a parameter missing exception' do
-          get '/v0/vaos/appointments', params: params.except(:end_date)
+          get '/vaos/v0/appointments', params: params.except(:end_date)
           expect(response).to have_http_status(:bad_request)
           expect(response.body).to be_a(String)
           expect(JSON.parse(response.body)['errors'].first['detail'])
@@ -104,7 +104,7 @@ RSpec.describe 'vaos appointments', type: :request, skip_mvi: true do
 
       context 'with an invalid type' do
         it 'has an invalid field type exception' do
-          get '/v0/vaos/appointments', params: params.merge(type: 'invalid')
+          get '/vaos/v0/appointments', params: params.merge(type: 'invalid')
           expect(response).to have_http_status(:bad_request)
           expect(response.body).to be_a(String)
           expect(JSON.parse(response.body)['errors'].first['detail'])
@@ -114,7 +114,7 @@ RSpec.describe 'vaos appointments', type: :request, skip_mvi: true do
 
       context 'with an invalid start_date' do
         it 'has an invalid field type exception' do
-          get '/v0/vaos/appointments', params: params.merge(start_date: 'invalid')
+          get '/vaos/v0/appointments', params: params.merge(start_date: 'invalid')
           expect(response).to have_http_status(:bad_request)
           expect(response.body).to be_a(String)
           expect(JSON.parse(response.body)['errors'].first['detail'])
@@ -124,7 +124,7 @@ RSpec.describe 'vaos appointments', type: :request, skip_mvi: true do
 
       context 'with an invalid end_date' do
         it 'has an invalid field type exception' do
-          get '/v0/vaos/appointments', params: params.merge(end_date: 'invalid')
+          get '/vaos/v0/appointments', params: params.merge(end_date: 'invalid')
           expect(response).to have_http_status(:bad_request)
           expect(response.body).to be_a(String)
           expect(JSON.parse(response.body)['errors'].first['detail'])
@@ -134,17 +134,17 @@ RSpec.describe 'vaos appointments', type: :request, skip_mvi: true do
 
       it 'has access and returns va appointments' do
         VCR.use_cassette('vaos/appointments/get_appointments', match_requests_on: %i[method uri]) do
-          get '/v0/vaos/appointments', params: params
+          get '/vaos/v0/appointments', params: params
 
           expect(response).to have_http_status(:success)
           expect(response.body).to be_a(String)
-          expect(response).to match_response_schema('vaos/va_appointments')
+          expect(response).to match_response_schema('vaos/va_appointments', { strict: false })
         end
       end
 
       it 'has access and returns cc appointments' do
         VCR.use_cassette('vaos/appointments/get_cc_appointments', match_requests_on: %i[method uri]) do
-          get '/v0/vaos/appointments', params: params.merge(type: 'cc')
+          get '/vaos/v0/appointments', params: params.merge(type: 'cc')
           expect(response).to have_http_status(:success)
           expect(response.body).to be_a(String)
           expect(response).to match_response_schema('vaos/cc_appointments')
@@ -154,7 +154,7 @@ RSpec.describe 'vaos appointments', type: :request, skip_mvi: true do
       context 'with no appointments' do
         it 'returns an empty list' do
           VCR.use_cassette('vaos/appointments/get_appointments_empty', match_requests_on: %i[method uri]) do
-            get '/v0/vaos/appointments', params: params
+            get '/vaos/v0/appointments', params: params
             expect(response).to have_http_status(:success)
             expect(JSON.parse(response.body)).to eq(
               'data' => [],
@@ -171,6 +171,16 @@ RSpec.describe 'vaos appointments', type: :request, skip_mvi: true do
           end
         end
       end
+
+      context 'with a response that includes blank providers' do
+        it 'parses the data and does not throw an undefined method error' do
+          VCR.use_cassette('vaos/appointments/get_appointments_map_error', match_requests_on: %i[method uri]) do
+            get '/vaos/v0/appointments', params: params
+            expect(response).to have_http_status(:success)
+            expect(response).to match_response_schema('vaos/va_appointments', { strict: false })
+          end
+        end
+      end
     end
 
     describe 'POST appointments' do
@@ -183,7 +193,7 @@ RSpec.describe 'vaos appointments', type: :request, skip_mvi: true do
       context 'with flipper disabled' do
         it 'does not have access' do
           Flipper.disable('va_online_scheduling')
-          post '/v0/vaos/appointments'
+          post '/vaos/v0/appointments'
 
           expect(response).to have_http_status(:forbidden)
           expect(JSON.parse(response.body)['errors'].first['detail'])
@@ -198,7 +208,7 @@ RSpec.describe 'vaos appointments', type: :request, skip_mvi: true do
 
         it 'returns bad request with detail in errors' do
           VCR.use_cassette('vaos/appointments/post_appointment_409', match_requests_on: %i[method uri]) do
-            post '/v0/vaos/appointments', params: request_body
+            post '/vaos/v0/appointments', params: request_body
 
             expect(response).to have_http_status(:bad_request)
             expect(JSON.parse(response.body)['errors'].first['detail'])
@@ -214,7 +224,14 @@ RSpec.describe 'vaos appointments', type: :request, skip_mvi: true do
 
         it 'returns bad request with detail in errors' do
           VCR.use_cassette('vaos/appointments/post_appointment_400', match_requests_on: %i[method uri]) do
-            post '/v0/vaos/appointments', params: request_body
+            expect(Rails.logger).to receive(:warn).with('VAOS service call failed!', any_args)
+            expect(Rails.logger).to receive(:warn).with(
+              'Clinic does not support VAOS appointment create',
+              clinic_id: request_body[:clinic]['clinic_id'],
+              site_code: request_body[:clinic]['site_code']
+            )
+
+            post '/vaos/v0/appointments', params: request_body
 
             expect(response).to have_http_status(:bad_request)
             expect(JSON.parse(response.body)['errors'].first['detail'])
@@ -230,7 +247,7 @@ RSpec.describe 'vaos appointments', type: :request, skip_mvi: true do
 
         it 'creates the appointment' do
           VCR.use_cassette('vaos/appointments/post_appointment', match_requests_on: %i[method uri]) do
-            post '/v0/vaos/appointments', params: request_body
+            post '/vaos/v0/appointments', params: request_body
 
             expect(response).to have_http_status(:success)
             expect(response.body).to be_an_instance_of(String).and be_empty
@@ -243,7 +260,7 @@ RSpec.describe 'vaos appointments', type: :request, skip_mvi: true do
       context 'with flipper disabled' do
         it 'does not have access' do
           Flipper.disable('va_online_scheduling')
-          put '/v0/vaos/appointments/cancel'
+          put '/vaos/v0/appointments/cancel'
 
           expect(response).to have_http_status(:forbidden)
           expect(JSON.parse(response.body)['errors'].first['detail'])
@@ -253,7 +270,7 @@ RSpec.describe 'vaos appointments', type: :request, skip_mvi: true do
 
       context 'when request body validation fails' do
         it 'returns validation failed' do
-          put '/v0/vaos/appointments/cancel'
+          put '/vaos/v0/appointments/cancel'
 
           expect(response).to have_http_status(:unprocessable_entity)
           expect(JSON.parse(response.body)['errors'].size).to eq(3)
@@ -275,7 +292,13 @@ RSpec.describe 'vaos appointments', type: :request, skip_mvi: true do
 
         it 'returns bad request with detail in errors' do
           VCR.use_cassette('vaos/appointments/put_cancel_appointment_400', match_requests_on: %i[method uri]) do
-            put '/v0/vaos/appointments/cancel', params: request_body
+            expect(Rails.logger).to receive(:warn).with('VAOS service call failed!', any_args)
+            expect(Rails.logger).to receive(:warn).with(
+              'Clinic does not support VAOS appointment cancel',
+              clinic_id: request_body[:clinic_id],
+              site_code: request_body[:facility_id]
+            )
+            put '/vaos/v0/appointments/cancel', params: request_body
 
             expect(response).to have_http_status(:bad_request)
             expect(JSON.parse(response.body)['errors'].first['detail'])
@@ -301,7 +324,7 @@ RSpec.describe 'vaos appointments', type: :request, skip_mvi: true do
 
         it 'cancels the appointment' do
           VCR.use_cassette('vaos/appointments/put_cancel_appointment', match_requests_on: %i[method uri]) do
-            put '/v0/vaos/appointments/cancel', params: request_body
+            put '/vaos/v0/appointments/cancel', params: request_body
 
             expect(response).to have_http_status(:success)
             expect(response.body).to be_an_instance_of(String).and be_empty

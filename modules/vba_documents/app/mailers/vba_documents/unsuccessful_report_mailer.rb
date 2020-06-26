@@ -13,9 +13,10 @@ module VBADocuments
       valerie.hase@va.gov
     ].freeze
 
-    def build(unsuccessful_submissions, stuck_submissions, date_from, date_to)
-      @unsuccessful_submissions = unsuccessful_submissions
+    def build(consumer_totals, stuck_submissions, unsuccessful_submissions, date_from, date_to)
+      @consumer_totals = consumer_totals
       @stuck_submissions = stuck_submissions
+      @unsuccessful_submissions = unsuccessful_submissions
       @date_from = date_from
       @date_to = date_to
 
@@ -27,11 +28,12 @@ module VBADocuments
         'unsuccessful_report.html.erb'
       )
       template = File.read(path)
+      body = ERB.new(template).result(binding)
 
       mail(
         to: RECIPIENTS,
         subject: 'Benefits Intake Unsuccessful Submission Report',
-        body: ERB.new(template).result(binding)
+        body: body
       )
     end
   end

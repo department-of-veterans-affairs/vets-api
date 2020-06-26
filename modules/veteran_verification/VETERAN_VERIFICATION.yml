@@ -12,19 +12,19 @@ info:
 
     ### 1. Get Access Credentials
 
-    Get started by filling out the form on the [Apply for VA Lighthouse Developer Access](/apply) page. 
-    
-    After submitting a request, you will receive your credentials for using the API in the Development environment, which allows you to try it out with mock data before moving to the Production environment.
-    
+    Get started by filling out the form on the [Apply for VA Lighthouse Developer Access](/apply) page.
+
+    After submitting a request, you will receive your credentials for using the API in the Sandbox environment, which allows you to try it out with mock data before moving to the Production environment.
+
     ### 2. Test the  API
-    
+
     In the endpoint documentation below, we've provided a curl command builder for trying out the API before implementation with your app.
 
     ### 3. Build your app
 
-    The base URI for the Veteran Verification API in the Development environment is:
+    The base URI for the Veteran Verification API in the Sandbox environment is:
 
-    https://dev-api.va.gov/services/veteran_verification/v0
+    https://sandbox-api.va.gov/services/veteran_verification/v0
 
     Check out some of our [sample apps](https://github.com/department-of-veterans-affairs/vets-api-clients/tree/master/samples/). Please visit our VA Lighthouse [Support portal](/support) should you need further assistance.
 
@@ -34,37 +34,32 @@ info:
 
     ## Authorization
     This API uses the [OpenID Connect](https://openid.net/specs/openid-connect-core-1_0.html) standard (OAuth 2) to allow the person being confirmed to log in and provide digital consent. API requests are authorized using a Bearer token issued through an OpenID Connect service. The token should be submitted as an Authorization header in the form Bearer <token>.
-    
+
     See our [Authorization Guide](/explore/verification/docs/authorization) for more details
 
     ## JWS Signing
     It is possible to receive responses for certain endpoints in this API in the form of a compact JSON Web Signature (JWS). To receive the signed version of the payload, set the `Accept` header to `application/jwt` for an endpoint supporting that functionality. Instead of a JSON response, a token conforming to [RFC 7515](https://tools.ietf.org/html/rfc7515) and [RFC 7519](https://tools.ietf.org/html/rfc7519) unless errors are encountered, which will return JSON.
-    
+
     To validate the signature of the returned token, capture the `kid` (key id) from the decoded token, call the `/keys` endpoint, and match the `kid` against the same field in the returned keyset to retrieve a public key. The matching public key from the set can be used for verification using the algorithm stated in the `alg` key.
-    
+
     The `/keys` endpoint returns a JWK keyset compliant with [RFC 7517](https://tools.ietf.org/html/rfc7517), plus one additional field called `pem`, which is the pem version of the public key.
 
     ## Reference
-    
-    ### Development vs. Production Data
-    APIs accessed via the Development environment are using the same underlying logic as VA’s production APIs; only the underlying data store is different.
-  
+
+    ### Sandbox vs. Production Data
+    APIs accessed via the Sandbox environment are using the same underlying logic as VA’s production APIs; only the underlying data store is different.
+
     ### Rate Limiting
     We implemented basic rate limiting of 60 requests per minute. If you exceed this quota, your request will return a 429 status code. You may petition for increased rate limits by emailing, and requests will be decided on a case by case basis.
-    
+
     ### Raw Open API Spec
     https://api.va.gov/services/veteran_verification/docs/v0/veteran_verification
   termsOfService: ''
   contact:
     name: VA.gov
 servers:
-  - url: https://dev-api.va.gov/services/veteran_verification/{version}
-    description: VA.gov API development environment
-    variables:
-      version:
-        default: v0
-  - url: https://staging-api.va.gov/services/veteran_verification/{version}
-    description: VA.gov API staging environment
+  - url: https://sandbox-api.va.gov/services/veteran_verification/{version}
+    description: VA.gov API sandbox environment
     variables:
       version:
         default: v0
@@ -96,7 +91,7 @@ paths:
         '403':
           description: Provided Access Token Does not have the required scopes to access.
         '502':
-          description: eMIS failed to respond or responded in a way we cannot handle. 
+          description: eMIS failed to respond or responded in a way we cannot handle.
   /disability_rating:
     get:
       tags:
@@ -119,8 +114,8 @@ paths:
             application/jwt:
               schema:
                 $ref: '#/components/schemas/DisabilityRatingToken'
-        '404':
-          description: No disability ratings found
+        '502':
+          description: BGS service responded with something other than the expected disability rating response.
   /service_history:
     get:
       tags:
@@ -180,12 +175,27 @@ components:
         type:
           description: JSON API type specification
           type: string
-          example: 'document_upload'
+          example: 'disability-rating'
         attributes:
-          $ref: '#/components/schemas/RatingAttributes'
-    RatingAttributes:
+          $ref: '#/components/schemas/DisabilityRatingAttributes'
+    DisabilityRatingAttributes:
       description: |
         Body of the disability rating response
+      required:
+        - combined_disability_rating
+        - individual_ratings
+      properties:
+        combined_disability_rating:
+          description: Overall severity rating determined by VA calculation of each service related conditions. Used to help determine disability compensation (pay) and related benefits.
+          type: integer
+          example: 100
+        individual_ratings:
+          description: list of individual service connected disabilty ratings
+          type: array
+          items:
+            $ref: '#/components/schemas/individual_ratings'
+    individual_ratings:
+      description: list of service connected disability ratings
       required:
         - decision
         - effective_date
@@ -246,6 +256,14 @@ components:
         attributes:
           type: object
           properties:
+            first_name:
+              type: string
+              description: Veteran first name
+              example: "Abraham"
+            last_name:
+              type: string
+              description: Veteran last name
+              example: "Lincoln"
             start_date:
               type: string
               format: date
@@ -260,6 +278,22 @@ components:
               type: string
               description: Branch of military including National Guard or Reserve status
               example: "Air Force"
+            pay_grade:
+              type: string
+              description: |
+                Defines the level of compensation for a position, normalized across military branches
+
+                Possible values include the concatenation of Pay Plan Code and Pay Grade Code.
+                Pay Plan Code is represented as a two-character code, and can be one of five values:
+                 - CC (Commissioned Corps)
+                 - MC (Cadet)
+                 - ME (Enlisted)
+                 - MO (Officer)
+                 - MW (Warrant Officer)
+
+                Pay Grade Code is a value between 01 and 10.
+                Pay Plan Code is concatenated with Pay Grade Code to determine the full Pay Grade value, with the leading character (M or C) stripped from Pay Plan Code.
+              example: "W01"
             discharge_status:
               type: string
               description: |
@@ -278,6 +312,10 @@ components:
                 - uncharacterized
                 - unknown
               example: honorable
+            separation_reason:
+              type: string
+              description: Additional text description for separation reason beyond discharge_status value
+              example: "SUFFICIENT SERVICE FOR RETIREMENT"
             deployments:
               type: array
               items:

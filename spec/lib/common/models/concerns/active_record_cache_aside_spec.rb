@@ -7,7 +7,7 @@ describe Common::ActiveRecordCacheAside do
   let(:user) { build(:user, :loa3) }
   let(:serialized_record) { Marshal.dump(build(:account, idme_uuid: user.uuid)) }
   let(:redis_key) { "user-account-details:#{user.uuid}" }
-  let(:ttl) { REDIS_CONFIG['user_account_details']['each_ttl'] }
+  let(:ttl) { REDIS_CONFIG[:user_account_details][:each_ttl] }
 
   describe '.do_cached_with' do
     context 'when a db record is present in the cache' do

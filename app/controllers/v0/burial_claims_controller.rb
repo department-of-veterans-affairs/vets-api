@@ -8,6 +8,7 @@ module V0
 
       unless claim.save
         StatsD.increment("#{stats_key}.failure")
+        Raven.tags_context(team: 'benefits-memorial-1') # tag sentry logs with team name
         raise Common::Exceptions::ValidationErrors, claim
       end
 
@@ -15,7 +16,7 @@ module V0
       claim.submit_to_structured_data_services!
 
       Rails.logger.info "ClaimID=#{claim.confirmation_number} Form=#{claim.class::FORM}"
-      validate_session
+      load_user
       clear_saved_form(claim.form_id)
       render(json: claim)
     end

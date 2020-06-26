@@ -26,9 +26,5 @@ FactoryBot.define do
         source_id { nil }
       end
     end
-
-    factory :va526ez_submit_transaction, class: AsyncTransaction::EVSS::VA526ezSubmitTransaction do
-      transaction_status { 'submitted' }
-    end
   end
 end

@@ -40,12 +40,6 @@ RSpec.describe EducationForm::CreateSpoolSubmissionsReport, type: :aws_helpers d
         data = subject.create_csv_array
         expect(data[:stem_exists]).to eq(false)
       end
-
-      it 'recognizes 1995s as STEM submission' do
-        create(:education_benefits_claim_1995s, processed_at: time.beginning_of_day)
-        data = subject.create_csv_array
-        expect(data[:stem_exists]).to eq(true)
-      end
     end
 
     describe '#perform' do

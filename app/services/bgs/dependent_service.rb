@@ -23,7 +23,6 @@ module BGS
       # payload = JSON.parse(delete_me_payload_file)
       hash_payload = payload.to_h
 
-
       proc_id = create_proc_id_and_form
       veteran = VnpVeteran.new(proc_id: proc_id, payload: hash_payload, user: @user).create
       dependents = Dependents.new(proc_id: proc_id, payload: hash_payload, user: @user).create

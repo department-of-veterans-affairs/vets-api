@@ -1,12 +1,18 @@
 {
   "$schema" : "http://json-schema.org/draft-04/schema#",
   "type" : "object",
-  "required": ["status", "order_id"],
+  "required": ["useTemporaryAddress", "status", "orderId"],
   "properties": {
+    "useTemporaryAddress": {
+      "type": "boolean"
+    },
     "status": {
       "type": "string"
     },
-    "order_id": {
+    "orderId": {
+      "type": "string"
+    },
+    "additionalRequests": {
       "type": "string"
     }
   }

@@ -10,32 +10,39 @@ StatsD.backend = if host.present? && port.present?
                  end
 
 # Initialize session controller metric counters at 0
-
-StatsD.increment(V0::SessionsController::STATSD_SSO_CALLBACK_TOTAL_KEY, 0)
-StatsD.increment(V0::SessionsController::STATSD_LOGIN_NEW_USER_KEY, 0)
-StatsD.increment(V1::SessionsController::STATSD_LOGIN_STATUS, 0)
-StatsD.increment(V1::SessionsController::STATSD_LOGIN_SHARED_COOKIE, 0)
-
-SAML::Responses::Base::ERRORS.merge(UserSessionForm::ERRORS).each_value do |known_error|
-  StatsD.increment(V0::SessionsController::STATSD_SSO_CALLBACK_FAILED_KEY, 0, tags: ["error:#{known_error[:tag]}"])
-end
-
-%w[success failure].each do |s|
-  (SAML::User::AUTHN_CONTEXTS.keys + [SAML::User::UNKNOWN_AUTHN_CONTEXT]).each do |ctx|
-    StatsD.increment(
-      V0::SessionsController::STATSD_SSO_CALLBACK_KEY,
-      0,
-      tags: ["status:#{s}", "context:#{ctx}"]
-    )
+%w[v0 v1].each do |v|
+  StatsD.increment(V1::SessionsController::STATSD_SSO_CALLBACK_TOTAL_KEY, 0,
+                   tags: ["version:#{v}"])
+  StatsD.increment(V1::SessionsController::STATSD_LOGIN_NEW_USER_KEY, 0,
+                   tags: ["version:#{v}"])
+  V1::SessionsController::REDIRECT_URLS.each do |t|
+    StatsD.increment(V1::SessionsController::STATSD_SSO_NEW_KEY, 0,
+                     tags: ["version:#{v}", "context:#{t}"])
+    StatsD.increment(V1::SessionsController::STATSD_SSO_NEW_FORCEAUTH, 0,
+                     tags: ["version:#{v}", "context:#{t}"])
+    StatsD.increment(V1::SessionsController::STATSD_SSO_NEW_INBOUND, 0,
+                     tags: ["version:#{v}", "context:#{t}"])
+    StatsD.increment(V1::SessionsController::STATSD_LOGIN_STATUS_SUCCESS, 0,
+                     tags: ["version:#{v}", "context:#{t}"])
+    StatsD.increment(V1::SessionsController::STATSD_LOGIN_STATUS_FAILURE, 0,
+                     tags: ["version:#{v}", "context:#{t}"])
+    %w[success failure].each do |s|
+      StatsD.increment(V1::SessionsController::STATSD_LOGIN_INBOUND, 0,
+                       tags: ["version:#{v}", "context:#{t}", "status:#{s}"])
+    end
   end
-end
-
-V0::SessionsController::REDIRECT_URLS.each do |ctx|
-  StatsD.increment(
-    V0::SessionsController::STATSD_SSO_NEW_KEY,
-    0,
-    tags: ["context:#{ctx}"]
-  )
+  %w[success failure].each do |s|
+    (SAML::User::AUTHN_CONTEXTS.keys + [SAML::User::UNKNOWN_AUTHN_CONTEXT]).each do |ctx|
+      StatsD.increment(V1::SessionsController::STATSD_SSO_CALLBACK_KEY, 0,
+                       tags: ["version:#{v}", "status:#{s}", "context:#{ctx}"])
+      StatsD.increment(V1::SessionsController::STATSD_LOGIN_SHARED_COOKIE, 0,
+                       tags: ["version:#{v}", "context:#{ctx}"])
+    end
+  end
+  SAML::Responses::Base::ERRORS.merge(UserSessionForm::ERRORS).each_value do |known_error|
+    StatsD.increment(V1::SessionsController::STATSD_SSO_CALLBACK_FAILED_KEY, 0,
+                     tags: ["version:#{v}", "error:#{known_error[:tag]}"])
+  end
 end
 
 # init GiBillStatus stats to 0
@@ -71,9 +78,9 @@ StatsD.increment("#{EVSS::DisabilityCompensationForm::SubmitForm526::STATSD_KEY_
 StatsD.increment("#{EVSS::DisabilityCompensationForm::SubmitForm526::STATSD_KEY_PREFIX}.non_retryable_error", 0)
 StatsD.increment("#{EVSS::DisabilityCompensationForm::SubmitForm526::STATSD_KEY_PREFIX}.exhausted", 0)
 
-# init appeals
-StatsD.increment("#{Appeals::Service::STATSD_KEY_PREFIX}.get_appeals.total", 0)
-StatsD.increment("#{Appeals::Service::STATSD_KEY_PREFIX}.get_appeals.fail", 0)
+# init caseflow
+StatsD.increment("#{Caseflow::Service::STATSD_KEY_PREFIX}.get_appeals.total", 0)
+StatsD.increment("#{Caseflow::Service::STATSD_KEY_PREFIX}.get_appeals.fail", 0)
 
 # init  mvi
 StatsD.increment("#{MVI::Service::STATSD_KEY_PREFIX}.find_profile.total", 0)
@@ -121,3 +128,23 @@ end
 
 # init Facilities Jobs
 StatsD.increment('shared.sidekiq.default.Facilities_InitializingErrorMetric.error', 0)
+
+ActiveSupport::Notifications.subscribe('facilities.ppms.request.faraday') do |_, start_time, end_time, _, payload|
+  duration = end_time - start_time
+  measurement = case payload[:url].path
+                when /ProviderLocator/
+                  'facilities.ppms.provider_locator'
+                when /PlaceOfServiceLocator/
+                  'facilities.ppms.place_of_service_locator'
+                when %r{Providers\(\d+\)/ProviderServices}
+                  'facilities.ppms.providers.provider_services'
+                when /Providers\(\d+\)/
+                  'facilities.ppms.providers'
+                end
+  StatsD.measure(measurement, duration, tags: ['facilities.ppms']) if measurement
+end
+ActiveSupport::Notifications.subscribe('lighthouse.facilities.request.faraday') do |_, start_time, end_time, _, _|
+  duration = end_time - start_time
+
+  StatsD.measure('facilities.lighthouse', duration, tags: ['facilities.lighthouse'])
+end

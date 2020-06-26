@@ -7,6 +7,8 @@ require 'support/matchers'
 require 'support/spool_helpers'
 require 'support/fixture_helpers'
 require 'support/spec_temp_files'
+require 'support/silence_stream'
+require 'sidekiq-pro' if Gem.loaded_specs.key?('sidekiq-pro')
 require 'support/sidekiq/batch'
 require 'support/stub_emis'
 require 'support/stub_evss_pciu'
@@ -49,7 +51,7 @@ unless ENV['NOCOVERAGE']
     add_group 'AppealsApi', 'modules/appeals_api/'
     add_group 'ClaimsApi', 'modules/claims_api/'
     add_group 'OpenidAuth', 'modules/openid_auth/'
-    add_group 'VaFacilities', 'modules/va_facilities/'
+    add_group 'VAFacilities', 'modules/va_facilities/'
     add_group 'VBADocuments', 'modules/vba_documents/'
     add_group 'Veteran', 'modules/veteran/'
     add_group 'VeteranVerification', 'modules/veteran_verification/'
@@ -132,5 +134,25 @@ RSpec.configure do |config|
     Timecop.freeze(Time.zone.parse(example.metadata[:run_at]))
     example.run
     Timecop.return
+  end
+
+  # enable `allow_forgery_protection` in Lighthouse specs to ensure that the endpoints
+  # in those modules have explicitly skipped the CSRF protection functionality
+  lighthouse_dirs = %r{
+    modules/
+    (appeals_api|claims_api|openid_auth|va_facilities|va_forms|vba_documents|
+      veteran|veteran_confirmation|veteran_verification)/
+  }x
+  config.define_derived_metadata(file_path: lighthouse_dirs) do |metadata|
+    metadata[:enable_csrf_protection] = true
+  end
+
+  config.before(:all, :enable_csrf_protection) do
+    @original_allow_forgery_protection = ActionController::Base.allow_forgery_protection
+    ActionController::Base.allow_forgery_protection = true
+  end
+
+  config.after(:all, :enable_csrf_protection) do
+    ActionController::Base.allow_forgery_protection = @original_allow_forgery_protection
   end
 end

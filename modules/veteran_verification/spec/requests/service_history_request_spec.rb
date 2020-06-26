@@ -14,8 +14,8 @@ RSpec.describe 'Service History API endpoint', type: :request, skip_emis: true d
   context 'with valid emis responses' do
     it 'returns the current users service history with one episode' do
       with_okta_user(scopes) do |auth_header|
-        VCR.use_cassette('emis/get_deployment/valid') do
-          VCR.use_cassette('emis/get_military_service_episodes/valid') do
+        VCR.use_cassette('emis/get_deployment_v2/valid') do
+          VCR.use_cassette('emis/get_military_service_episodes_v2/valid') do
             get '/services/veteran_verification/v0/service_history', params: nil, headers: headers(auth_header)
             expect(response).to have_http_status(:ok)
             expect(response.body).to be_a(String)
@@ -27,8 +27,8 @@ RSpec.describe 'Service History API endpoint', type: :request, skip_emis: true d
 
     it 'returns the current users service history with multiple episodes' do
       with_okta_user(scopes) do |auth_header|
-        VCR.use_cassette('emis/get_deployment/valid') do
-          VCR.use_cassette('emis/get_military_service_episodes/valid_multiple_episodes') do
+        VCR.use_cassette('emis/get_deployment_v2/valid') do
+          VCR.use_cassette('emis/get_military_service_episodes_v2/valid_multiple_episodes') do
             get '/services/veteran_verification/v0/service_history', params: nil, headers: headers(auth_header)
             expect(response).to have_http_status(:ok)
             expect(response.body).to be_a(String)
@@ -42,8 +42,8 @@ RSpec.describe 'Service History API endpoint', type: :request, skip_emis: true d
     context 'with request for a jws' do
       it 'returns a jwt with the claims in the payload' do
         with_okta_user(scopes) do |auth_header|
-          VCR.use_cassette('emis/get_deployment/valid') do
-            VCR.use_cassette('emis/get_military_service_episodes/valid') do
+          VCR.use_cassette('emis/get_deployment_v2/valid') do
+            VCR.use_cassette('emis/get_military_service_episodes_v2/valid') do
               get '/services/veteran_verification/v0/service_history',
                   params: nil,
                   headers: auth_header.merge('Accept' => 'application/jwt')
@@ -71,7 +71,7 @@ RSpec.describe 'Service History API endpoint', type: :request, skip_emis: true d
 
   context 'when emis response is invalid' do
     before do
-      allow(EMISRedis::MilitaryInformation).to receive_message_chain(:for_user, :service_history) { nil }
+      allow(EMISRedis::MilitaryInformationV2).to receive_message_chain(:for_user, :service_history) { nil }
     end
 
     it 'matches the errors schema', :aggregate_failures do

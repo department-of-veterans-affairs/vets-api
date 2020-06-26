@@ -49,12 +49,17 @@ module EVSS
       end
 
       def handle_error(error)
-        if error.is_a?(Common::Client::Errors::ClientError) && error.status != 403 && error.body.is_a?(Hash)
+        if right_error_type?(error) && error.body.is_a?(Hash)
           save_error_details(error)
           raise EVSS::PPIU::ServiceException.new(error.body, @user, @sanitized_req_body)
         else
           super(error)
         end
+      end
+
+      def right_error_type?(error)
+        (error.is_a?(Common::Client::Errors::ClientError) && error.status != 403) ||
+          error.is_a?(EVSS::ErrorMiddleware::EVSSError)
       end
 
       def request_body(pay_info)
@@ -64,9 +69,9 @@ module EVSS
           'requests' => [
             {
               'paymentType' => 'CNP',
-              'paymentAccount' => Hash[
-                pay_info.as_json.map { |k, v| [k.camelize(:lower), v] }
-              ]
+              'paymentAccount' =>
+                pay_info.as_json.transform_keys { |k| k.camelize(:lower) }
+
             }
           ]
         }.to_json

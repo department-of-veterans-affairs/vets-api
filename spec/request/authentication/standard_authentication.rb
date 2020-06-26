@@ -13,7 +13,7 @@ RSpec.describe 'authenticating loa3 user', type: :request, order: :defined do
       req = interaction['request']
       req['uri'] = URI.parse(req['uri'])
       req['recorded_at'] = Time.zone.parse(interaction['recorded_at'].to_s).to_datetime
-      req['headers'] = Hash[req['headers'].map { |k, v| [k, v.first] }]
+      req['headers'] = req['headers'].transform_values(&:first)
       Episode.new(*req.values, interaction['response'])
     end
   end

@@ -5,7 +5,7 @@ module V0
     skip_before_action(:authenticate)
 
     def create
-      validate_session
+      load_user
 
       gi_bill_feedback = GIBillFeedback.new(
         params.require(:gi_bill_feedback).permit(:form).merge(

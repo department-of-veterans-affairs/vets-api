@@ -34,6 +34,17 @@ describe Common::RedisStore do
     end
   end
 
+  describe '.pop' do
+    it 'finds deserialized class in redis and removes' do
+      subject.save
+      found = klass.pop('e66fd7b7-94e0-4748-8063-283f55efb0ea')
+      expect(found).to be_a(klass)
+      expect(found.uuid).to eq('e66fd7b7-94e0-4748-8063-283f55efb0ea')
+      expect(found.email).to eq('foo@bar.com')
+      expect(klass).not_to exist('e66fd7b7-94e0-4748-8063-283f55efb0ea')
+    end
+  end
+
   describe '.exists?' do
     context 'when the model is not saved' do
       it 'returns true if the given key exists' do

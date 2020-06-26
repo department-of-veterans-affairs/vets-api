@@ -125,9 +125,15 @@ class Form526Submission < ApplicationRecord
   def workflow_complete_handler(_status, options)
     submission = Form526Submission.find(options['submission_id'])
     if submission.form526_job_statuses.all?(&:success?)
+      submission.send_form526_confirmation_email if Flipper.enabled?(:form526_confirmation_email, @current_user)
       submission.workflow_complete = true
       submission.save
     end
+  end
+
+  def send_form526_confirmation_email
+    email_address = form['form526']['form526']['veteran']['emailAddress']
+    Form526ConfirmationEmailJob.perform_async(id, email_address)
   end
 
   private

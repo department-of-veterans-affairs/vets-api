@@ -7,7 +7,7 @@ module HCA
     def perform(*args)
       super
     rescue
-      @health_care_application.update_attributes!(state: 'failed')
+      @health_care_application.update!(state: 'failed')
       raise
     end
   end

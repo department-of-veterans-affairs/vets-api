@@ -8,7 +8,7 @@ require 'va_forms/version'
 # Describe your gem and declare its dependencies:
 Gem::Specification.new do |s|
   s.name        = 'va_forms'
-  s.version     = VaForms::VERSION
+  s.version     = VAForms::VERSION
   s.authors     = ['Charley Stran']
   s.email       = ['charley.stran@oddball.io']
   s.homepage    = 'https://api.va.gov/services/va_forms/docs/v0'
@@ -22,7 +22,6 @@ Gem::Specification.new do |s|
   s.add_dependency 'faraday'
   s.add_dependency 'nokogiri'
   s.add_dependency 'paper_trail'
-  s.add_dependency 'rails', '~> 5.2.3'
   s.add_dependency 'sidekiq'
 
   s.add_development_dependency 'factory_bot_rails'

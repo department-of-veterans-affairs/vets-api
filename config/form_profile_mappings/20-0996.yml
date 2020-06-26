@@ -9,3 +9,4 @@ data:
       countryCode: [contact_information, address, countryCode]
       phoneNumber: [contact_information, us_phone]
       emailAddress: [contact_information, email]
+      ssnLastFour: [identity_information, ssn_last_four]

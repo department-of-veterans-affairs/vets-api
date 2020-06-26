@@ -9,15 +9,16 @@ RSpec.describe V0::SessionsController, type: :controller do
 
   let(:uuid) { SecureRandom.uuid }
   let(:token) { 'abracadabra-open-sesame' }
-  let(:loa1_user) { build(:user, :loa1, uuid: uuid) }
-  let(:loa3_user) { build(:user, :loa3, uuid: uuid) }
+  let(:loa1_user) { build(:user, :loa1, uuid: uuid, idme_uuid: uuid) }
+  let(:loa3_user) { build(:user, :loa3, uuid: uuid, idme_uuid: uuid) }
   let(:saml_user_attributes) { loa3_user.attributes.merge(loa3_user.identity.attributes) }
   let(:user_attributes) { double('user_attributes', saml_user_attributes) }
   let(:saml_user) do
     instance_double('SAML::User',
                     changing_multifactor?: false,
                     user_attributes: user_attributes,
-                    to_hash: saml_user_attributes)
+                    to_hash: saml_user_attributes,
+                    validate!: nil)
   end
 
   let(:request_host)        { '127.0.0.1:3000' }
@@ -40,14 +41,15 @@ RSpec.describe V0::SessionsController, type: :controller do
     )
   end
 
+  let(:login_uuid) { '5678' }
   let(:decrypter) { Aes256CbcEncryptor.new(Settings.sso.cookie_key, Settings.sso.cookie_iv) }
   let(:authn_context) { LOA::IDME_LOA1_VETS }
   let(:valid_saml_response) do
     build_saml_response(
       authn_context: authn_context,
-      account_type: 'N/A',
       level_of_assurance: ['3'],
-      attributes: build(:idme_loa1, level_of_assurance: ['3'])
+      attributes: build(:idme_loa1, level_of_assurance: ['3']),
+      in_response_to: login_uuid
     )
   end
 
@@ -83,7 +85,8 @@ RSpec.describe V0::SessionsController, type: :controller do
           context "routes /sessions/#{type}/new to SessionsController#new with type: #{type}" do
             it 'redirects' do
               expect { get(:new, params: { type: type, clientId: '123123' }) }
-                .to trigger_statsd_increment(described_class::STATSD_SSO_NEW_KEY, tags: ["context:#{type}"], **once)
+                .to trigger_statsd_increment(described_class::STATSD_SSO_NEW_KEY,
+                                             tags: ["context:#{type}", 'version:v0'], **once)
 
               expect(response).to have_http_status(:found)
               expect(response.location)
@@ -97,7 +100,8 @@ RSpec.describe V0::SessionsController, type: :controller do
         context 'routes /sessions/signup/new to SessionsController#new' do
           it 'redirects' do
             expect { get(:new, params: { type: :signup, client_id: '123123' }) }
-              .to trigger_statsd_increment(described_class::STATSD_SSO_NEW_KEY, tags: ['context:signup'], **once)
+              .to trigger_statsd_increment(described_class::STATSD_SSO_NEW_KEY,
+                                           tags: ['context:signup', 'version:v0'], **once)
             expect(response).to have_http_status(:found)
             expect(response.location)
               .to be_an_idme_saml_url('https://api.idmelabs.com/saml/SingleSignOnService?SAMLRequest=')
@@ -170,7 +174,8 @@ RSpec.describe V0::SessionsController, type: :controller do
           context "routes /sessions/#{type}/new to SessionsController#new with type: #{type}" do
             it 'redirects' do
               expect { get(:new, params: { type: type }) }
-                .to trigger_statsd_increment(described_class::STATSD_SSO_NEW_KEY, tags: ["context:#{type}"], **once)
+                .to trigger_statsd_increment(described_class::STATSD_SSO_NEW_KEY,
+                                             tags: ["context:#{type}", 'version:v0'], **once)
               expect(response).to have_http_status(:found)
               expect(cookies['vagov_session_dev']).not_to be_nil unless type.in?(%w[mhv dslogon idme slo])
             end
@@ -184,7 +189,7 @@ RSpec.describe V0::SessionsController, type: :controller do
 
       before do
         mhv_account = double('mhv_account', ineligible?: false, needs_terms_acceptance?: false, upgraded?: true)
-        allow(MhvAccount).to receive(:find_or_initialize_by).and_return(mhv_account)
+        allow(MHVAccount).to receive(:find_or_initialize_by).and_return(mhv_account)
         allow(OneLogin::RubySaml::Logoutrequest).to receive(:new).and_return(logout_request)
         Session.find(token).to_hash.each { |k, v| session[k] = v }
         cookies['vagov_session_dev'] = 'bar'
@@ -250,7 +255,7 @@ RSpec.describe V0::SessionsController, type: :controller do
         context 'saml_logout_response is success' do
           before do
             mhv_account = double('mhv_account', ineligible?: false, needs_terms_acceptance?: false, upgraded?: true)
-            allow(MhvAccount).to receive(:find_or_initialize_by).and_return(mhv_account)
+            allow(MHVAccount).to receive(:find_or_initialize_by).and_return(mhv_account)
             allow(SingleLogoutRequest).to receive(:find).with('1234').and_return(nil)
             allow(OneLogin::RubySaml::Logoutresponse).to receive(:new).and_return(successful_logout_response)
             Session.find(token).to_hash.each { |k, v| session[k] = v }
@@ -279,7 +284,7 @@ RSpec.describe V0::SessionsController, type: :controller do
       context 'saml_logout_response is success' do
         before do
           mhv_account = double('mhv_account', ineligible?: false, needs_terms_acceptance?: false, upgraded?: true)
-          allow(MhvAccount).to receive(:find_or_initialize_by).and_return(mhv_account)
+          allow(MHVAccount).to receive(:find_or_initialize_by).and_return(mhv_account)
           allow(SingleLogoutRequest).to receive(:find).with('1234').and_call_original
           allow(OneLogin::RubySaml::Logoutresponse).to receive(:new).and_return(successful_logout_response)
           Session.find(token).to_hash.each { |k, v| session[k] = v }
@@ -341,7 +346,7 @@ RSpec.describe V0::SessionsController, type: :controller do
           )
           expect(Raven).to receive(:tags_context).once
 
-          callback_tags = ['status:success', "context:#{LOA::IDME_LOA3_VETS}"]
+          callback_tags = ['status:success', "context:#{LOA::IDME_LOA3_VETS}", 'version:v0']
 
           Timecop.freeze(Time.current)
           cookie_expiration_time = 30.minutes.from_now.iso8601(0)
@@ -390,13 +395,17 @@ RSpec.describe V0::SessionsController, type: :controller do
         it 'has a cookie, but values are nil because loa1 user', :aggregate_failures do
           Timecop.freeze(Time.current)
           cookie_expiration_time = 30.minutes.from_now.iso8601(0)
+          SAMLRequestTracker.create(
+            uuid: login_uuid,
+            payload: { type: 'mfa' }
+          )
 
           expect { post(:saml_callback) }
             .to trigger_statsd_increment(described_class::STATSD_SSO_CALLBACK_KEY,
-                                         tags: ['status:success', 'context:multifactor'], **once)
+                                         tags: ['status:success', 'context:multifactor', 'version:v0'], **once)
             .and trigger_statsd_increment(described_class::STATSD_SSO_CALLBACK_TOTAL_KEY, **once)
             .and trigger_statsd_increment(described_class::STATSD_LOGIN_SHARED_COOKIE,
-                                          tags: ['loa:1', 'idp:idme'], **once)
+                                          tags: ['context:mfa', 'version:v0'], **once)
 
           expect(cookies['vagov_session_dev']).not_to be_nil
           expect(JSON.parse(decrypter.decrypt(cookies['vagov_session_dev'])))
@@ -460,6 +469,14 @@ RSpec.describe V0::SessionsController, type: :controller do
             )
           Timecop.return
         end
+
+        it 'sends STATSD callback metrics' do
+          expect { post(:saml_callback) }
+            .to trigger_statsd_increment(described_class::STATSD_SSO_CALLBACK_KEY,
+                                         tags: ['status:success', "context:#{LOA::IDME_LOA1_VETS}", 'version:v0'],
+                                         **once)
+            .and trigger_statsd_increment(described_class::STATSD_SSO_CALLBACK_TOTAL_KEY, **once)
+        end
       end
 
       context 'when user has LOA current 1 and highest nil' do
@@ -486,8 +503,8 @@ RSpec.describe V0::SessionsController, type: :controller do
 
         it 'increments the failed and total statsd counters' do
           allow(UserSessionForm).to receive(:new).and_raise(NoMethodError)
-          callback_tags = ['status:failure', 'context:unknown']
-          failed_tags = ['error:unknown']
+          callback_tags = ['status:failure', 'context:unknown', 'version:v0']
+          failed_tags = ['error:unknown', 'version:v0']
 
           expect { post(:saml_callback) }
             .to trigger_statsd_increment(described_class::STATSD_SSO_CALLBACK_KEY, tags: callback_tags, **once)
@@ -532,8 +549,8 @@ RSpec.describe V0::SessionsController, type: :controller do
         end
 
         it 'increments the failed and total statsd counters' do
-          callback_tags = ['status:failure', 'context:unknown']
-          failed_tags = ['error:auth_too_early']
+          callback_tags = ['status:failure', 'context:unknown', 'version:v0']
+          failed_tags = ['error:auth_too_early', 'version:v0']
 
           expect { post(:saml_callback) }
             .to trigger_statsd_increment(described_class::STATSD_SSO_CALLBACK_KEY, tags: callback_tags, **once)
@@ -563,8 +580,8 @@ RSpec.describe V0::SessionsController, type: :controller do
         end
 
         it 'increments the failed and total statsd counters' do
-          callback_tags = ['status:failure', 'context:unknown']
-          failed_tags = ['error:unknown']
+          callback_tags = ['status:failure', 'context:unknown', 'version:v0']
+          failed_tags = ['error:unknown', 'version:v0']
 
           expect { post(:saml_callback) }
             .to trigger_statsd_increment(described_class::STATSD_SSO_CALLBACK_KEY, tags: callback_tags, **once)
@@ -598,8 +615,8 @@ RSpec.describe V0::SessionsController, type: :controller do
         end
 
         it 'increments the failed and total statsd counters' do
-          callback_tags = ['status:failure', 'context:unknown']
-          failed_tags = ['error:clicked_deny']
+          callback_tags = ['status:failure', 'context:unknown', 'version:v0']
+          failed_tags = ['error:clicked_deny', 'version:v0']
 
           expect { post(:saml_callback) }
             .to trigger_statsd_increment(described_class::STATSD_SSO_CALLBACK_KEY, tags: callback_tags, **once)
@@ -616,13 +633,18 @@ RSpec.describe V0::SessionsController, type: :controller do
         end
 
         it 'allows user to sign in even if user attributes are not available' do
+          SAMLRequestTracker.create(
+            uuid: login_uuid,
+            payload: { type: 'mhv' }
+          )
           MVI::Configuration.instance.breakers_service.begin_forced_outage!
-          callback_tags = ['status:success', 'context:myhealthevet']
+          callback_tags = ['status:success', 'context:myhealthevet', 'version:v0']
           expect { post(:saml_callback) }
             .to trigger_statsd_increment(described_class::STATSD_SSO_CALLBACK_KEY, tags: callback_tags, **once)
             .and trigger_statsd_increment(described_class::STATSD_SSO_CALLBACK_TOTAL_KEY, **once)
             .and trigger_statsd_increment(described_class::STATSD_LOGIN_SHARED_COOKIE,
-                                          tags: ['loa:3', 'idp:myhealthevet'], **once)
+                                          tags: ['context:mhv', 'version:v0'],
+                                          **once)
           expect(response.location).to start_with('http://127.0.0.1:3001/auth/login/callback')
           expect(cookies['vagov_session_dev']).not_to be_nil
           MVI::Configuration.instance.breakers_service.end_forced_outage!
@@ -668,8 +690,8 @@ RSpec.describe V0::SessionsController, type: :controller do
         end
 
         it 'increments the failed and total statsd counters' do
-          callback_tags = ['status:failure', "context:#{LOA::IDME_LOA1_VETS}"]
-          failed_tags = ['error:validations_failed']
+          callback_tags = ['status:failure', "context:#{LOA::IDME_LOA1_VETS}", 'version:v0']
+          failed_tags = ['error:validations_failed', 'version:v0']
 
           expect { post(:saml_callback) }
             .to trigger_statsd_increment(described_class::STATSD_SSO_CALLBACK_KEY, tags: callback_tags, **once)

@@ -27,10 +27,6 @@ DeleteOldPiiLogsJob:
   cron: "20 2 * * * America/New_York"
   description: "Clear out old personal information logs"
 
-VIC::DeleteOldUploads:
-  cron: "00 2 * * * America/New_York"
-  description: "Clear out VIC file uploads older than 2 months"
-
 CentralMail::DeleteOldClaims:
   cron: "30 2 * * * America/New_York"
   class: CentralMail::DeleteOldClaims
@@ -134,6 +130,11 @@ VBADocuments::ReportUnsuccessfulSubmissions:
   class: VBADocuments::ReportUnsuccessfulSubmissions
   description: "Weekly report of unsuccessful submissions"
 
+AppealsApi::HigherLevelReviewUploadStatusBatch:
+  every: "60m"
+  class: AppealsApi::HigherLevelReviewUploadStatusBatch
+  description: "Update HigherLevelReview statuses with their Central Mail status"
+
 TransactionalEmailAnalyticsJob:
   cron: "0 1 * * * America/New_York"
   description: "posts Transactional email (HCA Failure and Direct Deposit Update) sends and failures to Google Analytics"
@@ -150,7 +151,7 @@ ExternalServicesStatusJob:
   every: '1m'
   description: "Checks the current status of all external services through PagerDuty's API"
 
-VaForms::FetchLatest:
+VAForms::FetchLatest:
   cron: "0 0 * * * America/New_York"
-  class: VaForms::FormReloader
+  class: VAForms::FormReloader
   description: "Fetches latest VA Forms"

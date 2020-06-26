@@ -40,7 +40,7 @@ describe EVSSPolicy do
       end
 
       it 'increments the StatsD success counter' do
-        expect { EVSSPolicy.new(user, :evss).access? }.to trigger_statsd_increment('api.evss.policy.success')
+        expect { EVSSPolicy.new(user, :evss).access_form526? }.to trigger_statsd_increment('api.evss.policy.success')
       end
     end
 
@@ -52,7 +52,7 @@ describe EVSSPolicy do
       end
 
       it 'increments the StatsD failure counter' do
-        expect { EVSSPolicy.new(user, :evss).access? }.to trigger_statsd_increment('api.evss.policy.failure')
+        expect { EVSSPolicy.new(user, :evss).access_form526? }.to trigger_statsd_increment('api.evss.policy.failure')
       end
     end
   end

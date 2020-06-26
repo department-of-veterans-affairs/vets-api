@@ -20,12 +20,12 @@ module EVSS
           raise Common::Exceptions::Unauthorized, detail: "Power of Attorney code doesn't match Veteran's"
         end
       else
-        raise Common::Exceptions::Unauthorized, detail: 'VSO Representitive Not Found'
+        raise Common::Exceptions::Unauthorized, detail: 'VSO Representative Not Found'
       end
     end
 
-    def matches(veteran_poa_code, representitive)
-      representitive.poa_codes.include?(veteran_poa_code)
+    def matches(veteran_poa_code, representative)
+      representative.poa_codes.include?(veteran_poa_code)
     end
 
     def auth_headers

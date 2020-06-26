@@ -15,7 +15,7 @@ RSpec.describe 'supported_sites', type: :request do
     let(:user) { FactoryBot.create(:user, :loa1) }
 
     it 'returns a forbidden error' do
-      get '/v0/vaos/community_care/supported_sites'
+      get '/vaos/v0/community_care/supported_sites'
       expect(response).to have_http_status(:forbidden)
       expect(JSON.parse(response.body)['errors'].first['detail'])
         .to eq('You do not have access to online scheduling')
@@ -28,7 +28,7 @@ RSpec.describe 'supported_sites', type: :request do
     context 'with a valid GET supported_sites request' do
       it 'returns a 200 with the correct schema' do
         VCR.use_cassette('vaos/cc_supported_sites/get_one_site', match_requests_on: %i[method uri]) do
-          get '/v0/vaos/community_care/supported_sites', params: { site_codes: [983, 984] }
+          get '/vaos/v0/community_care/supported_sites', params: { site_codes: [983, 984] }
           expect(response).to have_http_status(:ok)
           expect(response.body).to be_a(String)
           expect(response).to match_response_schema('vaos/cc_supported_sites')
@@ -38,7 +38,7 @@ RSpec.describe 'supported_sites', type: :request do
 
     context 'with a invalid GET supported_sites request' do
       it 'returns an exception' do
-        get '/v0/vaos/community_care/supported_sites'
+        get '/vaos/v0/community_care/supported_sites'
         expect(response).to have_http_status(:bad_request)
         expect(JSON.parse(response.body)['errors'].first['detail'])
           .to eq('The required parameter "site_codes", is missing')

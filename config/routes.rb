@@ -12,7 +12,6 @@ Rails.application.routes.draw do
       constraints: ->(request) { V0::SessionsController::REDIRECT_URLS.include?(request.path_parameters[:type]) }
 
   get '/v1/sessions/metadata', to: 'v1/sessions#metadata'
-  get '/v1/sessions/logout', to: 'v1/sessions#saml_logout_callback'
   post '/v1/sessions/callback', to: 'v1/sessions#saml_callback', module: 'v1'
   get '/v1/sessions/:type/new',
       to: 'v1/sessions#new',
@@ -24,6 +23,7 @@ Rails.application.routes.draw do
     resources :in_progress_forms, only: %i[index show update destroy]
     resource :claim_documents, only: [:create]
     resource :claim_attachments, only: [:create], controller: :claim_documents
+    resources :debts, only: :index
 
     resource :form526_opt_in, only: :create
 
@@ -42,7 +42,10 @@ Rails.application.routes.draw do
       post 'submit_all_claim'
       get 'suggested_conditions'
       get 'user_submissions'
+      get 'separation_locations'
     end
+
+    post '/mvi_users/:id', to: 'mvi_users#submit'
 
     resource :upload_supporting_evidence, only: :create
 
@@ -70,8 +73,7 @@ Rails.application.routes.draw do
 
     resource :hca_attachments, only: :create
 
-    # Excluding this feature until external service (CARMA) is connected
-    resources :caregivers_assistance_claims, only: :create if Rails.env.test?
+    resources :caregivers_assistance_claims, only: :create
 
     resources :dependents_applications, only: %i[create show] do
       collection do
@@ -183,6 +185,10 @@ Rails.application.routes.draw do
       resource :announcement_subscription, only: [:create], controller: 'id_card_announcement_subscription'
     end
 
+    namespace :mdot do
+      resources :supplies, only: %i[create]
+    end
+
     namespace :preneeds do
       resources :cemeteries, only: :index, defaults: { format: :json }
       resources :states, only: :index, defaults: { format: :json }
@@ -197,28 +203,16 @@ Rails.application.routes.draw do
     namespace :vic do
       resources :profile_photo_attachments, only: %i[create show]
       resources :supporting_documentation_attachments, only: :create
-      resources :vic_submissions, only: %i[create show]
     end
 
     resources :gi_bill_feedbacks, only: %i[create show]
 
     resource :address, only: %i[show update] do
       collection do
-        if Settings.evss&.reference_data_service&.enabled
-          get 'countries', to: 'addresses#rds_countries'
-          get 'states', to: 'addresses#rds_states'
-        else
-          get 'countries', to: 'addresses#countries'
-          get 'states', to: 'addresses#states'
-        end
+        get 'countries', to: 'addresses#countries'
+        get 'states', to: 'addresses#states'
       end
     end
-
-    namespace :mdot do
-      resources :supplies, only: %i[index create]
-    end
-
-    resources :performance_monitorings, only: :create
 
     namespace :profile do
       resource :alternate_phone, only: %i[show create]
@@ -228,6 +222,7 @@ Rails.application.routes.draw do
       resource :primary_phone, only: %i[show create]
       resource :service_history, only: :show
       resources :connected_applications, only: %i[index destroy]
+      resource :valid_va_file_number, only: %i[show]
 
       # Vet360 Routes
       resource :addresses, only: %i[create update destroy]
@@ -294,12 +289,20 @@ Rails.application.routes.draw do
         defaults: { feature: feature }
       )
     end
+
+    namespace :coronavirus_chatbot do
+      resource :tokens, only: :create
+    end
   end
 
   namespace :v1, defaults: { format: 'json' } do
     resource :sessions, only: [] do
       post :saml_callback, to: 'sessions#saml_callback'
       post :saml_slo_callback, to: 'sessions#saml_slo_callback'
+    end
+
+    namespace :facilities, module: 'facilities' do
+      resources :va, only: %i[index show]
     end
   end
 
@@ -313,18 +316,20 @@ Rails.application.routes.draw do
     mount VBADocuments::Engine, at: '/vba_documents'
     mount AppealsApi::Engine, at: '/appeals'
     mount ClaimsApi::Engine, at: '/claims'
-    mount VaFacilities::Engine, at: '/va_facilities'
+    mount VAFacilities::Engine, at: '/va_facilities'
     mount Veteran::Engine, at: '/veteran'
-    mount VaForms::Engine, at: '/va_forms'
+    mount VAForms::Engine, at: '/va_forms'
     mount VeteranVerification::Engine, at: '/veteran_verification'
     mount VeteranConfirmation::Engine, at: '/veteran_confirmation'
   end
 
-  mount VAOS::Engine, at: '/v0/vaos'
+  mount VAOS::Engine, at: '/vaos'
 
   if Rails.env.development? || Settings.sidekiq_admin_panel
     require 'sidekiq/web'
     require 'sidekiq-scheduler/web'
+    require 'sidekiq/pro/web' if Gem.loaded_specs.key?('sidekiq-pro')
+    require 'sidekiq-ent/web' if Gem.loaded_specs.key?('sidekiq-ent')
     mount Sidekiq::Web, at: '/sidekiq'
   end
 

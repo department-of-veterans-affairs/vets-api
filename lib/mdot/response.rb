@@ -4,13 +4,39 @@ require 'common/models/base'
 
 module MDOT
   class Response < Common::Base
-    attr_reader :body, :status
+    attr_reader :status
+
+    attribute :permanent_address, MDOT::Address
+    attribute :temporary_address, MDOT::Address
+    attribute :supplies, Array[MDOT::Supply]
+    attribute :eligibility, MDOT::Eligibility
+    attribute :vet_email, String
 
     def initialize(args)
+      validate_response_against_schema(args[:schema], args[:response])
+      @uuid = args[:uuid]
       @response = args[:response]
-      @status = @response.status
-      @schema = validate_schema(args[:schema])
-      @body = @response.body if json_format_is_valid?(@response.body, @schema)
+      @token = @response.response_headers['VAAPIKEY']
+      @body = @response.body
+      @parsed_body = @body.is_a?(String) ? JSON.parse(@body) : @body
+      self.permanent_address = @parsed_body['permanent_address']
+      self.temporary_address = @parsed_body['temporary_address']
+      self.supplies = @parsed_body['supplies']
+      self.vet_email = @parsed_body['vet_email']
+      self.eligibility = determine_eligibility
+      @status = args[:response][:status]
+      update_token
+    end
+
+    def determine_eligibility
+      eligibility = MDOT::Eligibility.new
+
+      supplies.each do |supply|
+        group = supply.product_group.downcase.to_sym
+        eligibility.send("#{group}=", true) if eligibility.attributes.key?(group) && supply.available_for_reorder
+      end
+
+      eligibility
     end
 
     def ok?
@@ -23,16 +49,15 @@ module MDOT
 
     private
 
-    def validate_schema(schema)
-      %i[supplies submit].each do |valid_schema|
-        return schema.to_s if schema == valid_schema
-      end
-      nil
+    def update_token
+      token_params = Hash[REDIS_CONFIG[:mdot][:namespace], @uuid]
+      token = MDOT::Token.new(token_params)
+      token.update(token: @token, uuid: @uuid)
     end
 
-    def json_format_is_valid?(body, schema_name)
-      schema_path = Rails.root.join('lib', 'mdot', 'schemas', "#{schema_name}.json").to_s
-      JSON::Validator.validate!(schema_path, body, strict: false)
+    def validate_response_against_schema(schema, response)
+      schema_path = Rails.root.join('lib', 'mdot', 'schemas', "#{schema}.json").to_s
+      JSON::Validator.validate!(schema_path, response.body, strict: false)
     end
   end
 end

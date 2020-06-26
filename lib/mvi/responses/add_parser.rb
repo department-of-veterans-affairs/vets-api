@@ -56,10 +56,33 @@ module MVI
         raw_codes = locate_elements(@original_body, ACKNOWLEDGEMENT_DETAIL_CODE_XPATH)
         return [] unless raw_codes
 
-        raw_codes.map(&:attributes)
+        attributes = raw_codes.map(&:attributes)
+        parse_ids(attributes)
       end
 
       private
+
+      def parse_ids(attributes)
+        codes = { other: [] }
+        attributes.each do |attribute|
+          case attribute[:code]
+          when /BRLS/
+            codes[:birls_id] = sanitize_ids(attribute[:code])
+          when /CORP/
+            codes[:participant_id] = sanitize_ids(attribute[:code])
+          else
+            codes[:other].append(attribute)
+          end
+        end
+        codes.delete(:other) if codes[:other].empty?
+        codes
+      end
+
+      def sanitize_ids(raw_id)
+        return if raw_id.nil?
+
+        raw_id.match(/^\d+/)&.to_s
+      end
 
       def locate_element(el, path)
         locate_elements(el, path)&.first

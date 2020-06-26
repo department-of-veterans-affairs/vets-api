@@ -7,16 +7,14 @@ desc 'shortcut to run all linting tools, at the same time.'
 task lint: :environment do
   require 'rainbow'
 
-  opts = '-r rubocop-thread_safety '
-
-  opts += if ENV['CI']
-            "-r rubocop/formatter/junit_formatter.rb \
+  opts = if ENV['CI']
+           "-r rubocop/formatter/junit_formatter.rb \
             --format RuboCop::Formatter::JUnitFormatter --out log/rubocop.xml \
             --format clang \
             --parallel"
-          else
-            '--display-cop-names --auto-correct'
-          end
+         else
+           '--display-cop-names --auto-correct'
+         end
 
   puts 'running rubocop...'
   rubocop_result = ShellCommand.run("rubocop #{opts} --color")

@@ -7,7 +7,7 @@ module V0
     skip_before_action(:authenticate)
 
     def create
-      validate_session
+      load_user
 
       health_care_application = HealthCareApplication.new(params.permit(:form))
       health_care_application.async_compatible = params[:async_all]
@@ -26,7 +26,7 @@ module V0
     end
 
     def enrollment_status
-      validate_session
+      load_user
       loa3 = current_user&.loa3?
 
       icn =

@@ -5,9 +5,10 @@ inherit_from: .rubocop_todo.yml
 require:
   - rubocop-rails
   - rubocop-rspec
+  - rubocop-thread_safety
 
 AllCops:
-  TargetRailsVersion: 5.2
+  TargetRailsVersion: 6.0
   Include:
     - '**/Gemfile'
     - '**/config.ru'
@@ -15,6 +16,7 @@ AllCops:
     - '**/*.rake'
     - '**/*.rb'
   Exclude:
+    - 'bin/*'
     - db/schema.rb
     - db/seeds.rb
     - db/migrate/*.rb
@@ -109,6 +111,7 @@ Metrics/BlockLength:
     - 'app/controllers/v0/apidocs_controller.rb'
     - 'modules/*/spec/**/*.rb'
     - 'modules/*/app/swagger/**/*.rb'
+    - 'modules/*/config/routes.rb'
 
 # Don't worry about ambiguous blocks in RSpec
 # Official recommendation from rubocop team is to disable this rule for specs.
@@ -135,7 +138,7 @@ Style/FormatStringToken:
 
 Lint/BooleanSymbol:
   Exclude:
-    - "app/swagger/schemas/gibct/institutions.rb" #Swagger blocks defines keys as :true, need to keep as is
+    - "app/swagger/swagger/schemas/gibct/institutions.rb" #Swagger blocks defines keys as :true, need to keep as is
 
 # Use `Time` when dealing with current dates and times; it has support for timezones (system/local and utc), whereas `DateTime` only supports offsets from UTC.
 # However, if you need to deal with dates and times in a historical context you'll want to use DateTime to avoid making the same mistakes as UNESCO.
@@ -320,6 +323,7 @@ RSpec/SubjectStub:
     - 'spec/lib/saml/health_status_spec.rb'
     - 'spec/lib/sm/client/folders_spec.rb'
     - 'spec/models/emis_redis/military_information_spec.rb'
+    - 'spec/models/emis_redis/military_information_v2_spec.rb'
     - 'spec/models/session_spec.rb'
     - 'spec/services/evss_claim_service_spec.rb'
     - 'spec/services/mhv_accounts_service_spec.rb'
@@ -328,3 +332,37 @@ RSpec/SubjectStub:
 # the default style recently changed, but it's not worth changing
 Rails/FilePath:
   EnforcedStyle: arguments
+
+# Added in v0.81
+Lint/RaiseException:
+  Enabled: true
+
+Lint/StructNewOverride:
+  Enabled: true
+
+Style/HashEachMethods:
+  Enabled: true
+
+Style/HashTransformKeys:
+  Enabled: true
+
+Style/HashTransformValues:
+  Enabled: true
+
+# Added in v0.82
+Layout/SpaceAroundMethodCallOperator:
+  Enabled: true
+
+Style/ExponentialNotation:
+  Enabled: true
+
+# Added in v0.83
+Layout/EmptyLinesAroundAttributeAccessor:
+  Enabled: true
+
+Style/SlicingWithRange:
+  Enabled: true
+
+# Added in v0.84
+Lint/DeprecatedOpenSSLConstant:
+  Enabled: true

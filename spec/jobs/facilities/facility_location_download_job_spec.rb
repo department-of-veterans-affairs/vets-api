@@ -21,7 +21,7 @@ RSpec.describe Facilities::FacilityLocationDownloadJob, type: :job do
       VCR.use_cassette('facilities/va/nca_facilities', allow_playback_repeats: true) do
         Facilities::FacilityLocationDownloadJob.new.perform('nca')
         facility = Facilities::NCAFacility.first
-        facility.update_attributes(name: 'FIRST')
+        facility.update(name: 'FIRST')
         Facilities::FacilityLocationDownloadJob.new.perform('nca')
         reloaded_facility = Facilities::NCAFacility.find facility.id
         expect(facility.name).to eq(reloaded_facility.name)
@@ -32,7 +32,7 @@ RSpec.describe Facilities::FacilityLocationDownloadJob, type: :job do
       VCR.use_cassette('facilities/va/nca_facilities', allow_playback_repeats: true) do
         Facilities::FacilityLocationDownloadJob.new.perform('nca')
         facility = Facilities::NCAFacility.first
-        facility.update_attributes(name: 'FIRST', fingerprint: 'changed')
+        facility.update(name: 'FIRST', fingerprint: 'changed')
         Facilities::FacilityLocationDownloadJob.new.perform('nca')
         reloaded_facility = Facilities::NCAFacility.find facility.id
         expect(facility.name).not_to eq(reloaded_facility.name)

@@ -8,7 +8,7 @@ require 'va_facilities/version'
 # Describe your gem and declare its dependencies:
 Gem::Specification.new do |s|
   s.name        = 'va_facilities'
-  s.version     = VaFacilities::VERSION
+  s.version     = VAFacilities::VERSION
   s.authors     = ['Patrick Vinograd']
   s.email       = ['patrick@adhocteam.us']
   s.homepage    = 'https://api.va.gov/services/facilities/docs/v0'
@@ -18,8 +18,6 @@ Gem::Specification.new do |s|
 
   s.files = Dir['{app,config,db,lib}/**/*', 'Rakefile']
   s.test_files = Dir['spec/**/*']
-
-  s.add_dependency 'rails', '~> 5.2.3'
 
   s.add_development_dependency 'rspec-rails'
 end

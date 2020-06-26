@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri: https://dev-api.va.gov/services/appeals/v3/decision_review/contestable_issues
+    uri: https://sandbox-api.va.gov/services/appeals/v1/decision_reviews/contestable_issues
     body:
       encoding: US-ASCII
       string: ''
@@ -46,6 +46,6 @@ http_interactions:
     body:
       encoding: ASCII-8BIT
       string: '{"data":[{"type":"ContestableIssue","attributes":{"ratingIssueId":"string","ratingIssueProfileDate":"2019-12-15","ratingIssueDiagnosticCode":"string","ratingDecisionId":"string","decisionIssueId":0,"approxDecisionDate":"2019-12-15","description":"string","rampClaimId":"string","titleOfActiveReview":"string","sourceReviewType":"string","timely":true,"latestIssuesInChain":[{"id":"string","approxDecisionDate":"2019-12-15"}],"isRating":true}}]}'
-    http_version: 
+    http_version:
   recorded_at: Tue, 14 Jan 2020 19:53:13 GMT
 recorded_with: VCR 5.0.0

@@ -20,13 +20,8 @@ tags:
     description: Get an ICN for an MVI user
 
 servers:
-  - url: https://dev-api.va.gov/internal/auth/{version}/mvi-user
-    description: VA.gov API development environment
-    variables:
-      version:
-        default: v0
-  - url: https://staging-api.va.gov/internal/auth/{version}/mvi-user
-    description: VA.gov API staging environment
+  - url: https://sandbox-api.va.gov/internal/auth/{version}/mvi-user
+    description: VA.gov API sandbox environment
     variables:
       version:
         default: v0

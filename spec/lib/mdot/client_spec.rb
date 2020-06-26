@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-describe MDOT::Client do
+describe MDOT::Client, type: :mdot_helpers do
   subject { described_class.new(user) }
 
   let(:user_details) do
@@ -10,8 +10,8 @@ describe MDOT::Client do
       first_name: 'Greg',
       last_name: 'Anderson',
       middle_name: 'A',
-      birth_date: '1949-03-04',
-      ssn: '000555555'
+      birth_date: '1991-04-05',
+      ssn: '000550237'
     }
   end
 
@@ -47,42 +47,126 @@ describe MDOT::Client do
         end
       end
     end
+
+    context 'when the DLC API is unavailable' do
+      it 'raises a 503' do
+        VCR.use_cassette('mdot/get_supplies_503') do
+          expect(StatsD).to receive(:increment).once.with(
+            'api.mdot.get_supplies.fail', tags: [
+              'error:Common::Client::Errors::ClientError', 'status:503'
+            ]
+          )
+          expect(StatsD).to receive(:increment).once.with(
+            'api.mdot.get_supplies.total'
+          )
+          expect { subject.get_supplies }.to raise_error(
+            MDOT::ServiceException
+          ) do |e|
+            expect(e.message).to match(/MDOT_service_unavailable/)
+          end
+        end
+      end
+    end
+
+    context 'with a deceased veteran' do
+      it 'returns a 403' do
+        VCR.use_cassette('mdot/get_supplies_403') do
+          expect(StatsD).to receive(:increment).once.with(
+            'api.mdot.get_supplies.fail', tags: [
+              'error:Common::Client::Errors::ClientError', 'status:403'
+            ]
+          )
+          expect(StatsD).to receive(:increment).once.with(
+            'api.mdot.get_supplies.total'
+          )
+          expect { subject.get_supplies }.to raise_error(
+            MDOT::ServiceException
+          ) do |e|
+            expect(e.message).to match(/MDOT_deceased/)
+          end
+        end
+      end
+    end
+
+    context 'with a veteran not in dlc database' do
+      it 'returns a 422' do
+        VCR.use_cassette('mdot/get_supplies_422') do
+          expect(StatsD).to receive(:increment).once.with(
+            'api.mdot.get_supplies.fail', tags: [
+              'error:Common::Client::Errors::ClientError', 'status:422'
+            ]
+          )
+          expect(StatsD).to receive(:increment).once.with(
+            'api.mdot.get_supplies.total'
+          )
+          expect { subject.get_supplies }.to raise_error(
+            MDOT::ServiceException
+          ) do |e|
+            expect(e.message).to match(/MDOT_invalid/)
+          end
+        end
+      end
+    end
   end
 
   describe '#submit_order' do
     let(:valid_order) do
       {
-        veteranFullName: {
-          first: 'Greg',
-          middle: 'A',
-          last: 'Anderson'
+        'useVeteranAddress' => true,
+        'useTemporaryAddress' => false,
+        'vetEmail' => 'vet1@va.gov',
+        'order' => [{ 'productId' => 2499 }],
+        'permanentAddress' => {
+          'street' => '125 SOME RD',
+          'street2' => 'APT 101',
+          'city' => 'DENVER',
+          'state' => 'CO',
+          'country' => 'United States',
+          'postalCode' => '111119999'
         },
-        veteranAddress: {
-          street: '101 Example Street',
-          street2: 'Apt 2',
-          city: 'Kansas City',
-          state: 'MO',
-          country: 'USA',
-          postalCode: '64117'
+        'temporaryAddress' => {
+          'street' => '17250 w colfax ave',
+          'street2' => 'a-204',
+          'city' => 'Golden',
+          'state' => 'CO',
+          'country' => 'United States',
+          'postalCode' => '80401'
+        }
+      }
+    end
+
+    let(:invalid_order) do
+      {
+        'useVeteranAddress' => true,
+        'useTemporaryAddress' => false,
+        'vetEmail' => 'vet1@va.gov',
+        'order' => [],
+        'permanentAddress' => {
+          'street' => '125 SOME RD',
+          'street2' => 'APT 101',
+          'city' => 'DENVER',
+          'state' => 'CO',
+          'country' => 'United States',
+          'postalCode' => '111119999'
         },
-        order: [
-          {
-            productId: 1
-          },
-          {
-            productId: 4
-          }
-        ],
-        additionalRequests: ''
-      }.to_json
+        'temporaryAddress' => {
+          'street' => '17250 w colfax ave',
+          'street2' => 'a-204',
+          'city' => 'Golden',
+          'state' => 'CO',
+          'country' => 'United States',
+          'postalCode' => '80401'
+        }
+      }
     end
 
     context 'with a valid supplies order' do
       it 'returns a successful response' do
-        VCR.use_cassette('mdot/submit_order_202') do
-          response = subject.submit_order(valid_order)
-          expect(response).to be_accepted
-          expect(response).to be_an MDOT::Response
+        VCR.use_cassette('mdot/submit_order', VCR::MATCH_EVERYTHING) do
+          set_mdot_token_for(user)
+          res = subject.submit_order(valid_order)
+          expect(res[0]['status']).to eq('Order Processed')
+          expect(res[0]['order_id']).to be_an(Integer)
         end
       end
     end
@@ -98,21 +182,19 @@ describe MDOT::Client do
           expect(StatsD).to receive(:increment).once.with(
             'api.mdot.submit_order.total'
           )
+          set_mdot_token_for(user)
           expect { subject.submit_order(valid_order) }.to raise_error(MDOT::ServiceException)
         end
       end
     end
 
     context 'with an malformed order' do
-      it 'returns a 400 error' do
-        VCR.use_cassette('mdot/submit_order_400') do
-          expect(StatsD).to receive(:increment).once.with(
-            'api.mdot.submit_order.fail', tags: [
-              'error:Common::Client::Errors::ClientError', 'status:400'
-            ]
-          )
-          expect(StatsD).to receive(:increment).once.with('api.mdot.submit_order.total')
-          expect { subject.submit_order({}) }.to raise_error(MDOT::ServiceException)
+      it 'returns a 422 error' do
+        set_mdot_token_for(user)
+        expect { subject.submit_order(invalid_order) }.to raise_error(
+          MDOT::ServiceException
+        ) do |e|
+          expect(e.message).to match(/MDOT_supplies_not_selected/)
         end
       end
     end

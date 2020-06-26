@@ -30,7 +30,7 @@ API requests are authorized by means of a symmetric API token, provided in an HT
 ### Upload Operation
 Allows a client to upload a document package (form + attachments + metadata).
 
-1. Client Request: POST https://dev-api.va.gov/services/vba_documents/v0/
+1. Client Request: POST https://sandbox-api.va.gov/services/vba_documents/v0/
     * No request body or parameters required
 
 2. Service Response: A JSON API object with the following attributes:
@@ -46,7 +46,7 @@ Allows a client to upload a document package (form + attachments + metadata).
     * Additionally, the response includes an ETag header containing an MD5 hash of the submitted payload. This can be compared to the submitted payload to ensure data integrity of the upload.
 
 ### Status Simulation
-Given the downstream connections of this API, we allow **(IN DEVELOPER ENVIRONMENT ONLY)** passing in a header `Status-Override` on the `/uploads/{id}` endpoint that will allow you to change the status of your submission to simulate the various scenarios. The available statuses are `pending`, `uploaded`, `received`, `processing`, `success`, and `error`. The meaning of the various statuses is listed below in Models under DocumentUploadStatusAttributes.
+Given the downstream connections of this API, we allow **(IN SANDBOX ENVIRONMENT ONLY)** passing in a header `Status-Override` on the `/uploads/{id}` endpoint that will allow you to change the status of your submission to simulate the various scenarios. The available statuses are `pending`, `uploaded`, `received`, `processing`, `success`, and `error`. The meaning of the various statuses is listed below in Models under DocumentUploadStatusAttributes.
 
 ### Status Caching
 Due to current system limitations, data for the `/uploads/report` endpoint is cached for one hour.

@@ -19,22 +19,17 @@ module ClaimsApi
         skip_before_action :validate_json_format, only: %i[upload_supporting_documents]
 
         def submit_form_526
-          service_object = service(auth_headers)
           auto_claim = ClaimsApi::AutoEstablishedClaim.create(
             status: ClaimsApi::AutoEstablishedClaim::PENDING,
             auth_headers: auth_headers,
             form_data: form_attributes,
-            source: request.headers['X-Consumer-Username']
+            source: source_name
           )
           auto_claim = ClaimsApi::AutoEstablishedClaim.find_by(md5: auto_claim.md5) unless auto_claim.id
-          service_object.validate_form526(auto_claim.to_internal)
 
           ClaimsApi::ClaimEstablisher.perform_async(auto_claim.id)
 
           render json: auto_claim, serializer: ClaimsApi::AutoEstablishedClaimSerializer
-        rescue EVSS::ErrorMiddleware::EVSSError => e
-          track_526_validation_errors(e.details)
-          render json: { errors: format_errors(e.details) }, status: :unprocessable_entity
         end
 
         def upload_supporting_documents
@@ -51,6 +46,12 @@ module ClaimsApi
 
         def validate_form_526
           super
+        end
+
+        private
+
+        def source_name
+          request.headers['X-Consumer-Username']
         end
       end
     end

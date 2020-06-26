@@ -2,15 +2,15 @@
 # of editing this file, please use the migrations feature of Active Record to
 # incrementally modify your database, and then regenerate this schema definition.
 #
-# Note that this schema.rb definition is the authoritative source for your
-# database schema. If you need to create the application database on another
-# system, you should be using db:schema:load, not running all the migrations
-# from scratch. The latter is a flawed and unsustainable approach (the more migrations
-# you'll amass, the slower it'll run and the greater likelihood for issues).
+# This file is the source Rails uses to define your schema when running `rails
+# db:schema:load`. When creating a new database, `rails db:schema:load` tends to
+# be faster and is potentially less error prone than running all of your
+# migrations from scratch. Old migrations may fail to apply correctly if those
+# migrations use external dependencies or application code.
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2020_02_24_143703) do
+ActiveRecord::Schema.define(version: 2020_05_08_201027) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
@@ -31,6 +31,18 @@ ActiveRecord::Schema.define(version: 2020_02_24_143703) do
     t.index ["idme_uuid"], name: "index_accounts_on_idme_uuid", unique: true
     t.index ["sec_id"], name: "index_accounts_on_sec_id"
     t.index ["uuid"], name: "index_accounts_on_uuid", unique: true
+  end
+
+  create_table "appeals_api_higher_level_reviews", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.string "status", default: "pending", null: false
+    t.string "encrypted_form_data"
+    t.string "encrypted_form_data_iv"
+    t.string "encrypted_auth_headers"
+    t.string "encrypted_auth_headers_iv"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.string "code"
+    t.string "detail"
   end
 
   create_table "async_transactions", id: :serial, force: :cascade do |t|
@@ -137,25 +149,6 @@ ActiveRecord::Schema.define(version: 2020_02_24_143703) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.uuid "auto_established_claim_id", null: false
-  end
-
-  create_table "disability_compensation_job_statuses", id: :serial, force: :cascade do |t|
-    t.integer "disability_compensation_submission_id", null: false
-    t.string "job_id", null: false
-    t.string "job_class", null: false
-    t.string "status", null: false
-    t.string "error_message"
-    t.datetime "updated_at", null: false
-    t.index ["disability_compensation_submission_id"], name: "index_disability_compensation_job_statuses_on_dsc_id"
-    t.index ["job_id"], name: "index_disability_compensation_job_statuses_on_job_id", unique: true
-  end
-
-  create_table "disability_compensation_submissions", id: :serial, force: :cascade do |t|
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.integer "disability_compensation_id"
-    t.integer "va526ez_submit_transaction_id"
-    t.boolean "complete", default: false
   end
 
   create_table "disability_contentions", id: :serial, force: :cascade do |t|

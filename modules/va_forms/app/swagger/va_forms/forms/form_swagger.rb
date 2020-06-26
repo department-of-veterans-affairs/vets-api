@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-module VaForms
+module VAForms
   module Forms
     class Form
       include Swagger::Blocks
@@ -54,6 +54,12 @@ module VaForms
             property :pages do
               key :description, 'Number of pages contained in the form'
               key :type, :integer
+              key :example, 3
+            end
+
+            property :valid_pdf do
+              key :description, 'A flag indicating whether the form url was confirmed as a valid download'
+              key :type, :boolean
               key :example, 3
             end
 
