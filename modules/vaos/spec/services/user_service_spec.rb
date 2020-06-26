@@ -5,7 +5,7 @@ require_relative '../support/fixture_helper'
 
 describe VAOS::UserService do
   let(:user) { build(:user, :vaos, :accountable) }
-  let(:subject) { described_class.new(user) }
+  let(:subject) { described_class.new }
 
   describe '#session' do
     let(:token) do
@@ -51,13 +51,13 @@ describe VAOS::UserService do
 
     after { Timecop.return }
 
-    context 'when a new session is needed' do
+    describe '#session' do
       let(:response) { double('response', body: token) }
 
       context 'with a 200 response' do
         it 'returns the session token' do
           VCR.use_cassette('vaos/users/post_session') do
-            session_token = subject.session
+            session_token = subject.session(user)
             expect(session_token).to be_a(String)
           end
         end
@@ -65,13 +65,13 @@ describe VAOS::UserService do
         it 'makes a call out to the the VAOS user service once' do
           VCR.use_cassette('vaos/users/post_session') do
             expect(subject).to receive(:perform).once.and_return(response)
-            subject.session
+            subject.session(user)
           end
         end
 
         it 'sets the cached token ttl to expire five seconds before the VAMF token expires' do
           VCR.use_cassette('vaos/users/post_session') do
-            subject.session
+            subject.session(user)
             expect(Redis.current.ttl("va-mobile-session:#{user.account_uuid}")).to eq(895)
           end
         end
@@ -80,7 +80,7 @@ describe VAOS::UserService do
       context 'with a 400 response' do
         it 'raises a client error' do
           VCR.use_cassette('vaos/users/post_session_400') do
-            expect { subject.session }.to raise_error(
+            expect { subject.session(user) }.to raise_error(
               Common::Exceptions::BackendServiceException
             )
           end
@@ -90,7 +90,7 @@ describe VAOS::UserService do
       context 'with a 403 response' do
         it 'raises a client error' do
           VCR.use_cassette('vaos/users/post_session_403') do
-            expect { subject.session }.to raise_error(
+            expect { subject.session(user) }.to raise_error(
               Common::Exceptions::BackendServiceException
             )
           end
@@ -100,40 +100,48 @@ describe VAOS::UserService do
       context 'with a blank response' do
         it 'raises a client error' do
           VCR.use_cassette('vaos/users/post_session_blank_body') do
-            expect { subject.session }.to raise_error(
+            expect { subject.session(user) }.to raise_error(
               Common::Exceptions::BackendServiceException
             )
           end
         end
       end
+    end
 
-      context 'when the session is fetched after it has expired' do
-        it 'calls perform to request a new token' do
-          VAOS::SessionStore.new(user_uuid: user.uuid, token: token).save
-          Timecop.travel(Time.zone.now + 15.minutes)
-          VCR.use_cassette('vaos/users/post_session') do
-            expect(subject).to receive(:perform).once.and_return(response)
-            subject.session
+    describe '#extend_session' do
+      before do
+        VCR.use_cassette('vaos/users/post_session') do
+          subject.session(user)
+        end
+      end
+
+      context 'with one call inside the original lock (< 60s)' do
+        it 'does not trigger the extend session job' do
+          VCR.use_cassette('vaos/users/get_user_jwts') do
+            expect(VAOS::ExtendSessionJob).not_to receive(:perform_async).with(user.account_uuid)
+            subject.extend_session(user.account_uuid)
           end
         end
       end
-    end
 
-    context 'when a cached session is fetched before the refresh window' do
-      it 'does not call perform to request a new token' do
-        VAOS::SessionStore.new(account_uuid: user.account_uuid, token: token).save
-        Timecop.travel(Time.zone.now + 7.minutes)
-        expect(subject).not_to receive(:perform)
-        subject.session
+      context 'with one call outside the lock (> 60s)' do
+        it 'triggers the extend session job' do
+          VCR.use_cassette('vaos/users/get_user_jwts') do
+            Timecop.travel(Time.zone.now + 2.minutes)
+            expect(VAOS::ExtendSessionJob).to receive(:perform_async).with(user.account_uuid).once
+            subject.extend_session(user.account_uuid)
+          end
+        end
       end
-    end
 
-    context 'when the session is fetched during the refresh window' do
-      it 'calls the refresh endpoint and stores the updated token' do
-        VAOS::SessionStore.new(account_uuid: user.account_uuid, token: token).save
-        Timecop.travel(Time.zone.now + 10.minutes)
-        VCR.use_cassette('vaos/users/get_user_jwts') do
-          expect(subject.session).to eq(refresh_token)
+      context 'with multiple calls outside the original lock (> 60s)' do
+        it 'triggers the extend session job only once' do
+          VCR.use_cassette('vaos/users/get_user_jwts') do
+            Timecop.travel(Time.zone.now + 2.minutes)
+            expect(VAOS::ExtendSessionJob).to receive(:perform_async).with(user.account_uuid).once
+            subject.extend_session(user.account_uuid)
+            subject.extend_session(user.account_uuid)
+          end
         end
       end
     end
