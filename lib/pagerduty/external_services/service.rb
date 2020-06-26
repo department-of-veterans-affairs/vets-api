@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'common/client/concerns/monitoring'
+
 module PagerDuty
   module ExternalServices
     class Service < PagerDuty::Service
