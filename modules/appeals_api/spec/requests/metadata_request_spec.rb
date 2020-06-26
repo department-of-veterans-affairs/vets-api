@@ -5,7 +5,6 @@ require 'appeals_api/health_checker'
 
 RSpec.describe 'Appeals Metadata Endpoint', type: :request do
   context 'healthchecks' do
-
     context 'v0' do
       it 'returns correct response and status when healthy' do
         allow(AppealsApi::HealthChecker).to receive(:services_are_healthy?).and_return(true)
