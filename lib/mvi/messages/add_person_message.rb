@@ -12,7 +12,7 @@ module MVI
     #  message = MVI::Messages::AddPersonMessage.new(user).to_xml
     #
     class AddPersonMessage
-      SCHEMA_FILE_NAME = 'mvi_add_person_template.xml'
+      SCHEMA_FILE_NAME = 'mvi_add_person_template.xml' # TODO: rename this to mpi
 
       def initialize(user)
         raise ArgumentError, 'User missing attributes' unless user.can_mpi_proxy_add?

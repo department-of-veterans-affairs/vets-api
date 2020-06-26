@@ -113,7 +113,7 @@ class Mvi < Common::RedisStore
   # call is made. The response is recached afterwards so the new ids can be accessed on the next call.
   #
   # @return [MVI::Responses::AddPersonResponse] the response returned from MVI Add Person call
-  def mvi_add_person
+  def mpi_add_person
     search_response = MVI::OrchSearchService.new.find_profile(user)
     if search_response.ok?
       @mvi_response = search_response
