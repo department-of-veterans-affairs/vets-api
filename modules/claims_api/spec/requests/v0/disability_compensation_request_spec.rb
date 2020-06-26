@@ -33,8 +33,8 @@ RSpec.describe 'Disability Claims ', type: :request do
       expect(parsed['data']['attributes']['status']).to eq('pending')
     end
 
-    it 'returns a unsuccessful response without mvi' do
-      allow_any_instance_of(ClaimsApi::Veteran).to receive(:mvi_record?).and_return(false)
+    it 'returns a unsuccessful response without mpi' do
+      allow_any_instance_of(ClaimsApi::Veteran).to receive(:mpi_record?).and_return(false)
       post path, params: data, headers: headers
       expect(response.status).to eq(404)
     end

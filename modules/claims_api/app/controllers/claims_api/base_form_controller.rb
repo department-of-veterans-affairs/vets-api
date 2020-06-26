@@ -7,7 +7,7 @@ module ClaimsApi
   class BaseFormController < ClaimsApi::ApplicationController
     # schema endpoint should be wide open
     skip_before_action :authenticate, only: %i[schema]
-    skip_before_action :verify_mvi, only: %i[schema]
+    skip_before_action :verify_mpi, only: %i[schema]
 
     def schema
       render json: { data: [ClaimsApi::FormSchemas.new.schemas[self.class::FORM_NUMBER]] }

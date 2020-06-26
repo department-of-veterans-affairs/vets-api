@@ -23,8 +23,8 @@ module ClaimsApi
     attribute :va_profile, OpenStruct
     attribute :last_signed_in, Time
 
-    delegate :birls_id, to: :mvi, allow_nil: true
-    delegate :participant_id, to: :mvi, allow_nil: true
+    delegate :birls_id, to: :mpi, allow_nil: true
+    delegate :participant_id, to: :mpi, allow_nil: true
 
     alias dslogon_edipi edipi
 
@@ -41,12 +41,12 @@ module ClaimsApi
       loa[:current] == 3
     end
 
-    def mvi
-      @mvi ||= Mvi.for_user(self)
+    def mpi
+      @mpi ||= Mvi.for_user(self)
     end
 
-    def mvi_record?
-      mvi.mpi_response.ok?
+    def mpi_record?
+      mpi.mpi_response.ok?
     end
 
     def ssn=(new_ssn)

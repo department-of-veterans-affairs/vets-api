@@ -131,9 +131,9 @@ module ClaimsApi
                     highest: header('X-VA-LOA').try(:to_i)
                   }
                 end
-      vet.mvi_record?
-      vet.gender = header('X-VA-Gender') || vet.mvi.profile&.gender if with_gender
-      vet.edipi = header('X-VA-EDIPI') || vet.mvi.profile&.edipi
+      vet.mpi_record?
+      vet.gender = header('X-VA-Gender') || vet.mpi.profile&.gender if with_gender
+      vet.edipi = header('X-VA-EDIPI') || vet.mpi.profile&.edipi
       vet
     end
   end
