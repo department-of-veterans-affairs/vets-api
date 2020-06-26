@@ -5,7 +5,7 @@ require 'rails_helper'
 RSpec.describe PersonalInformationSerializer, type: :serializer do
   subject { serialize(mvi_profile, serializer_class: described_class) }
 
-  let(:mvi_profile) { Mvi.for_user(create(:user, :loa3)).profile }
+  let(:mvi_profile) { MPIData.for_user(create(:user, :loa3)).profile }
   let(:attributes) { JSON.parse(subject)['data']['attributes'] }
 
   context 'when birth_date is nil' do

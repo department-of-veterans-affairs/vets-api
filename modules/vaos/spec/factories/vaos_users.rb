@@ -51,16 +51,16 @@ FactoryBot.modify do
           birth_date: '19530401',
           ssn: '796061976'
         )
-        mvi = Mvi.for_user(user)
+        mpi = MPIData.for_user(user)
         profile_response = MVI::Responses::FindProfileResponse.new(
           status: MVI::Responses::FindProfileResponse::RESPONSE_STATUS[:ok],
           profile: profile
         )
-        mvi.instance_variable_set(:@mpi_response, profile_response)
-        mvi.send(:do_cached_with, key: user.uuid) do
+        mpi.instance_variable_set(:@mpi_response, profile_response)
+        mpi.send(:do_cached_with, key: user.uuid) do
           profile_response
         end
-        user.instance_variable_set(:@mvi, mvi)
+        user.instance_variable_set(:@mpi, mpi)
       end
     end
   end
