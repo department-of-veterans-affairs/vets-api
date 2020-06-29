@@ -84,6 +84,7 @@ module EducationForm
       check_area(address)
     end
 
+    # rubocop:disable Metrics/CyclomaticComplexity
     def self.check_area(address)
       area = address&.state
       if Flipper.enabled?(:route_st_louis_rpo_to_buffalo_rpo)
@@ -108,6 +109,7 @@ module EducationForm
         end
       end
     end
+    # rubocop:enable Metrics/CyclomaticComplexity
 
     def self.education_program(record)
       record.educationProgram || record.school
