@@ -25,7 +25,7 @@ Layout/EmptyLinesAroundAttributeAccessor:
   Exclude:
     - 'lib/evss/service.rb'
     - 'lib/json_schema/json_api_missing_attribute.rb'
-    - 'lib/mvi/errors/errors.rb'
+    - 'lib/mpi/errors/errors.rb'
     - 'lib/okta/user_profile.rb'
     - 'spec/controllers/application_controller_spec.rb'
     - 'spec/validators/folder_name_convention_validator_spec.rb'
