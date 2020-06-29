@@ -2,7 +2,7 @@
 
 module V0
   module Profile
-    class ValidVAFileNumbersController < ApplicationController
+    class ValidVaFileNumbersController < ApplicationController
       before_action { authorize :bgs, :access? }
 
       def show

@@ -1,11 +1,11 @@
 # frozen_string_literal: true
 
-module PDFFill
+module PdfFill
   module Forms
     class Va214142 < FormBase
       include FormHelper
 
-      PROVIDER_ITERATOR = PDFFill::HashConverter::ITERATOR
+      PROVIDER_ITERATOR = PdfFill::HashConverter::ITERATOR
       KEY = {
         'veteranFullName' => {
           'first' => {
@@ -329,9 +329,9 @@ module PDFFill
       def expand_provider_extras(providers)
         providers.each do |provider|
           name_address_extras = combine_name_addr_extras(provider, 'providerFacilityName', 'providerFacilityAddress')
-          provider['nameAndAddressOfProvider'] = PDFFill::FormValue.new('', name_address_extras)
+          provider['nameAndAddressOfProvider'] = PdfFill::FormValue.new('', name_address_extras)
           dates_extras = combine_date_ranges(provider['treatmentDateRange'])
-          provider['combinedTreatmentDates'] = PDFFill::FormValue.new('', dates_extras)
+          provider['combinedTreatmentDates'] = PdfFill::FormValue.new('', dates_extras)
         end
       end
 
