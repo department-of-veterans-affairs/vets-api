@@ -4,7 +4,7 @@
 
 require 'common/exceptions'
 
-module VAFacilities
+module VaFacilities
   module ParamValidators
     TYPE_SERVICE_ERR = 'Filtering by services is not allowed unless a facility type is specified'
     MISSING_FACILITIES_PARAMS_ERR =

@@ -2,7 +2,7 @@
 
 require 'pdf_fill/forms/form_helper'
 
-module PDFFill
+module PdfFill
   module Forms
     module CommonPtsd
       include FormHelper

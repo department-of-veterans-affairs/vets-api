@@ -33,16 +33,18 @@ module V1
     def new
       type = params[:type]
 
-      url = redirect_url(type)
-      new_stats(type)
-
       if type == 'slo'
         Rails.logger.info("LOGOUT of type #{type}", sso_logging_info)
         reset_session
+        url = url_service.ssoe_slo_url
+        # due to shared url service implementation
+        # clientId must be added at the end or the URL will be invalid for users using various "Do not track"
+        # extensions with their browser.
+        redirect_to params[:client_id].present? ? url + "&clientId=#{params[:client_id]}" : url
+      else
+        render_login(type)
       end
-      # clientId must be added at the end or the URL will be invalid for users using various "Do not track"
-      # extensions with their browser.
-      redirect_to params[:client_id].present? ? url + "&clientId=#{params[:client_id]}" : url
+      new_stats(type)
     end
 
     def ssoe_slo_callback
@@ -72,33 +74,6 @@ module V1
     end
 
     private
-
-    # rubocop:disable Metrics/CyclomaticComplexity
-    def redirect_url(type)
-      raise Common::Exceptions::RoutingError, type unless REDIRECT_URLS.include?(type)
-
-      case type
-      when 'signup'
-        url_service.signup_url
-      when 'mhv'
-        url_service.mhv_url
-      when 'dslogon'
-        url_service.dslogon_url
-      when 'idme'
-        url_service.idme_url
-      when 'mfa'
-        url_service.mfa_url
-      when 'verify'
-        url_service.verify_url
-      when 'custom'
-        raise Common::Exceptions::ParameterMissing, 'authn' if params[:authn].blank?
-
-        url_service.custom_url params[:authn]
-      when 'slo'
-        url_service.ssoe_slo_url # due to shared url service implementation
-      end
-    end
-    # rubocop:enable Metrics/CyclomaticComplexity
 
     def force_authn?
       params[:force]&.downcase == 'true'
@@ -141,14 +116,51 @@ module V1
       @current_user, @session_object = user_session_form.persist
       set_cookies
       after_login_actions
-      redirect_to url_service(user_session_form.saml_uuid).login_redirect_url
-      if location.start_with?(url_service.base_redirect_url)
-        # only record login stats if the user is being redirect to the site
-        # some users will need to be up-leveled and this will be redirected
-        # back to the identity provider
+      helper = url_service(user_session_form.saml_uuid)
+      if helper.should_uplevel?
+        render_login('verify')
+      else
+        redirect_to helper.login_redirect_url
         login_stats(:success, saml_response, user_session_form)
       end
     end
+
+    def render_login(type, previous_saml_uuid = nil)
+      login_url, post_params = login_params(type, previous_saml_uuid)
+      renderer = ActionController::Base.renderer
+      renderer.controller.prepend_view_path(Rails.root.join('lib', 'saml', 'templates'))
+      result = renderer.render template: 'sso_post_form',
+                               locals: { url: login_url, params: post_params },
+                               format: :html
+      render body: result, content_type: 'text/html'
+    end
+
+    # rubocop:disable Metrics/CyclomaticComplexity
+    def login_params(type, previous_saml_uuid = nil)
+      raise Common::Exceptions::RoutingError, type unless REDIRECT_URLS.include?(type)
+
+      force = (type != 'custom')
+      helper = url_service(previous_saml_uuid, force)
+      case type
+      when 'signup'
+        helper.signup_url
+      when 'mhv'
+        helper.mhv_url
+      when 'dslogon'
+        helper.dslogon_url
+      when 'idme'
+        helper.idme_url
+      when 'mfa'
+        helper.mfa_url
+      when 'verify'
+        helper.verify_url
+      when 'custom'
+        raise Common::Exceptions::ParameterMissing, 'authn' if params[:authn].blank?
+
+        helper.custom_url params[:authn]
+      end
+    end
+    # rubocop:enable Metrics/CyclomaticComplexity
 
     def user_logout(saml_response)
       logout_request = SingleLogoutRequest.find(saml_response&.in_response_to)
@@ -239,13 +251,13 @@ module V1
       'UNKNOWN'
     end
 
-    def url_service(previous_saml_uuid = nil)
-      SAML::URLService.new(saml_settings,
-                           session: @session_object,
-                           user: current_user,
-                           params: params,
-                           loa3_context: LOA::IDME_LOA3,
-                           previous_saml_uuid: previous_saml_uuid)
+    def url_service(previous_saml_uuid = nil, force_authn = false)
+      SAML::PostURLService.new(saml_settings(force_authn: force_authn),
+                               session: @session_object,
+                               user: current_user,
+                               params: params,
+                               loa3_context: LOA::IDME_LOA3,
+                               previous_saml_uuid: previous_saml_uuid)
     end
   end
 end

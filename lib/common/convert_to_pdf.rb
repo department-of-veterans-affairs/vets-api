@@ -3,7 +3,7 @@
 require 'common/file_helpers'
 
 module Common
-  class ConvertToPDF
+  class ConvertToPdf
     def initialize(file)
       @file = file
     end
