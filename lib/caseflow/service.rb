@@ -11,7 +11,7 @@ module Caseflow
   #
   class Service < Common::Client::Base
     include SentryLogging
-    include Common::Client::Monitoring
+    include Common::Client::Concerns::Monitoring
 
     configuration Caseflow::Configuration
 

@@ -5,7 +5,7 @@ require 'common/client/base'
 module Vet360
   module ReferenceData
     class Service < Vet360::Service
-      include Common::Client::Monitoring
+      include Common::Client::Concerns::Monitoring
 
       configuration Vet360::ReferenceData::Configuration
 

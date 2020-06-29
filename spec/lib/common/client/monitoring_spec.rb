@@ -2,13 +2,13 @@
 
 require 'rails_helper'
 
-RSpec.describe Common::Client::Monitoring, type: :model do
+RSpec.describe Common::Client::Concerns::Monitoring, type: :model do
   module Specs
     module Common
       module Client
         class MonitoringTestService < ::Common::Client::Base
           STATSD_KEY_PREFIX = 'fooservice'
-          include ::Common::Client::Monitoring
+          include ::Common::Client::Concerns::Monitoring
           configuration DefaultConfiguration
 
           def request(*args)
@@ -19,7 +19,7 @@ RSpec.describe Common::Client::Monitoring, type: :model do
     end
   end
 
-  let(:service) { Specs::Common::Client::MonitoringTestService.new }
+  let(:service) { Specs::Common::Client::Concerns::MonitoringTestService.new }
   let(:total_key) { service.class.const_get('STATSD_KEY_PREFIX') + '.request.total' }
   let(:fail_key) { service.class.const_get('STATSD_KEY_PREFIX') + '.request.fail' }
 
