@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require 'mdot/client'
 
 describe MDOT::Client, type: :mdot_helpers do
   subject { described_class.new(user) }
