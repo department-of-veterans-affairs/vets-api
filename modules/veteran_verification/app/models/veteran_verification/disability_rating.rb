@@ -35,7 +35,6 @@ module VeteranVerification
     end
 
     def self.disability_ratings(response)
-
       DisabilityRating.new(
         id: 0,
         combined_disability_rating: response[:disability_rating_record][:service_connected_combined_degree],
