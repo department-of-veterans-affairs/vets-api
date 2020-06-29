@@ -14,7 +14,7 @@ module ClaimsApi
       end
 
       def valid_page_size?(file)
-        size_in_inches = PDFInfo::Metadata.read(file.path).page_size_inches
+        size_in_inches = PdfInfo::Metadata.read(file.path).page_size_inches
         size_in_inches[:height] <= 11 && size_in_inches[:width] <= 11
       end
 

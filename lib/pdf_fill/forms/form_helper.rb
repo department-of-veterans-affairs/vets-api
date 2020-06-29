@@ -2,7 +2,7 @@
 
 require 'date'
 
-module PDFFill
+module PdfFill
   module Forms
     module FormHelper
       def split_ssn(veteran_social_security_number)
