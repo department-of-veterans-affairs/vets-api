@@ -105,7 +105,7 @@ module MDOT
     end
 
     def raise_backend_exception(key, source, error = nil)
-      exception = MDOT::ServiceException.new(
+      exception = MDOT::Exceptions::ServiceException.new(
         key,
         { source: source.to_s },
         error&.status,
