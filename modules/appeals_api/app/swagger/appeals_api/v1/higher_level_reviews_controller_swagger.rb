@@ -73,6 +73,9 @@ class AppealsApi::V1::HigherLevelReviewsControllerSwagger
       key :parameters, hlr_create_parameters
       key :requestBody, hlr_create_request_body
       key :responses, '200': response_hlr_show_success, '422': response_hlr_create_error
+      security do
+        key :apikey, []
+      end
     end
   end
 
@@ -84,6 +87,9 @@ class AppealsApi::V1::HigherLevelReviewsControllerSwagger
         schema { key :'$ref', :uuid }
       end
       key :responses, '200': response_hlr_show_success, '404': response_hlr_show_not_found
+      security do
+        key :apikey, []
+      end
     end
   end
 
@@ -96,6 +102,9 @@ class AppealsApi::V1::HigherLevelReviewsControllerSwagger
         key :description, 'the JSON Schema for POST /higher_level_reviews'
         schema = JSON.pretty_generate AppealsApi::JsonSchemaToSwaggerConverter.remove_comments(hlr_create_json_schema)
         key :content, 'application/json': { examples: { default: { value: schema } } }
+      end
+      security do
+        key :apikey, []
       end
     end
   end
@@ -114,6 +123,9 @@ class AppealsApi::V1::HigherLevelReviewsControllerSwagger
       schema = { type: OBJ, properties: { data: { type: OBJ, properties: { type: type, attributes: attrs } } } }
       content = { 'application/json': { schema: schema, examples: { valid: { value: { data: example } } } } }
       key :responses, '200': { description: 'Valid', content: content }, '422': response_hlr_create_error
+      security do
+        key :apikey, []
+      end
     end
   end
 end
