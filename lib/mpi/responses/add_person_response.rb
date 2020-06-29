@@ -3,7 +3,7 @@
 require_relative 'add_parser'
 require 'common/client/concerns/service_status'
 
-module MVI
+module MPI
   module Responses
     # Cacheable response from MVI's add person endpoint (prpa_in201301_uv02).
     class AddPersonResponse

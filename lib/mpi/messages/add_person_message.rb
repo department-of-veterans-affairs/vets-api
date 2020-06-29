@@ -2,7 +2,7 @@
 
 require 'socket'
 
-module MVI
+module MPI
   module Messages
     # Builds an MVI SOAP XML message for adding a user.
     #

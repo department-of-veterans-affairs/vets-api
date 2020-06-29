@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-module MVI
+module MPI
   module Responses
     class IdParser
       VA_ROOT_OID = '2.16.840.1.113883.4.349'

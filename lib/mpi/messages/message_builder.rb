@@ -2,7 +2,7 @@
 
 require 'ox'
 
-module MVI
+module MPI
   module Messages
     module MessageBuilder
       extend ActiveSupport::Concern

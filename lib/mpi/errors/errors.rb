@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-module MVI
+module MPI
   module Errors
     class Base < StandardError; end
     class RecordNotFound < MVI::Errors::Base; end

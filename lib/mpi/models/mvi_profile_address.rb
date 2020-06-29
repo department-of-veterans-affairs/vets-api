@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-module MVI
+module MPI
   module Models
     class MviProfileAddress
       include Virtus.model

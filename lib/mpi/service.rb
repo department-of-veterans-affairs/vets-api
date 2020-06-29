@@ -9,7 +9,7 @@ require 'common/client/middleware/response/soap_parser'
 require 'mvi/errors/errors'
 require 'sentry_logging'
 
-module MVI
+module MPI
   # Wrapper for the MVI (Master Veteran Index) Service. vets.gov has access
   # to three MVI endpoints:
   # * PRPA_IN201301UV02 (TODO(AJD): Add Person)

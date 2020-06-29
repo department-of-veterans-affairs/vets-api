@@ -2,7 +2,7 @@
 
 require_relative 'find_profile_message_helpers'
 
-module MVI
+module MPI
   module Messages
     class FindProfileMessageIcn
       include FindProfileMessageHelpers

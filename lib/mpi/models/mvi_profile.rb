@@ -2,7 +2,7 @@
 
 require 'common/models/attribute_types/date_time_string'
 
-module MVI
+module MPI
   module Models
     class MviProfile
       include Virtus.model

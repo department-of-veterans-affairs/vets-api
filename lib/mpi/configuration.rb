@@ -3,7 +3,7 @@
 require 'common/client/configuration/soap'
 require 'common/client/middleware/logging'
 
-module MVI
+module MPI
   class Configuration < Common::Client::Configuration::SOAP
     def self.open_timeout
       Settings.mvi.open_timeout
