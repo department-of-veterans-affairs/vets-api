@@ -3,7 +3,7 @@
 require_relative 'profile_parser'
 require 'common/models/redis_store'
 require 'common/client/concerns/service_status'
-require 'mvi/models/mvi_profile'
+require 'mpi/models/mvi_profile'
 
 module MPI
   module Responses
@@ -15,15 +15,15 @@ module MPI
       # @return [String] The status of the response
       attribute :status, String
 
-      # @return [MVI::Models::MviProfile] The parsed MVI profile
-      attribute :profile, MVI::Models::MviProfile
+      # @return [MPI::Models::MviProfile] The parsed MVI profile
+      attribute :profile, MPI::Models::MviProfile
 
       # @return [Common::Exceptions::BackendServiceException] The rescued exception
       attribute :error, Common::Exceptions::BackendServiceException
 
       # Builds a response with a server error status and a nil profile
       #
-      # @return [MVI::Responses::FindProfileResponse] the response
+      # @return [MPI::Responses::FindProfileResponse] the response
       def self.with_server_error(exception = nil)
         FindProfileResponse.new(
           status: FindProfileResponse::RESPONSE_STATUS[:server_error],
@@ -34,7 +34,7 @@ module MPI
 
       # Builds a response with a not found status and a nil profile
       #
-      # @return [MVI::Responses::FindProfileResponse] the response
+      # @return [MPI::Responses::FindProfileResponse] the response
       def self.with_not_found(exception = nil)
         FindProfileResponse.new(
           status: FindProfileResponse::RESPONSE_STATUS[:not_found],
@@ -46,14 +46,14 @@ module MPI
       # Builds a response with a ok status and a parsed response
       #
       # @param response [Ox::Element] ox element returned from the soap service middleware
-      # @return [MVI::Responses::FindProfileResponse] response with a parsed MviProfile
+      # @return [MPI::Responses::FindProfileResponse] response with a parsed MviProfile
       def self.with_parsed_response(response)
         profile_parser = ProfileParser.new(response)
         profile = profile_parser.parse
-        raise MVI::Errors::DuplicateRecords if profile_parser.multiple_match?
-        raise MVI::Errors::InvalidRequestError if profile_parser.invalid_request?
-        raise MVI::Errors::FailedRequestError if profile_parser.failed_request?
-        raise MVI::Errors::RecordNotFound unless profile
+        raise MPI::Errors::DuplicateRecords if profile_parser.multiple_match?
+        raise MPI::Errors::InvalidRequestError if profile_parser.invalid_request?
+        raise MPI::Errors::FailedRequestError if profile_parser.failed_request?
+        raise MPI::Errors::RecordNotFound unless profile
 
         FindProfileResponse.new(
           status: RESPONSE_STATUS[:ok],

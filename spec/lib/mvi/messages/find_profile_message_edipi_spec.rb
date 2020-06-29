@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'mvi/messages/find_profile_message'
+require 'mpi/messages/find_profile_message'
 
-describe MVI::Messages::FindProfileMessageEdipi do
+describe MPI::Messages::FindProfileMessageEdipi do
   describe '.to_xml' do
     context 'with edipi' do
       let(:edipi) { 'fake-edipi-number' }

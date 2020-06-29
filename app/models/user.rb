@@ -2,8 +2,8 @@
 
 require 'common/models/base'
 require 'common/models/redis_store'
-require 'mvi/messages/find_profile_message' # TODO: update these references
-require 'mvi/service'
+require 'mpi/messages/find_profile_message' # TODO: update these references
+require 'mpi/service'
 require 'evss/common_service'
 require 'evss/auth_headers'
 require 'saml/user'

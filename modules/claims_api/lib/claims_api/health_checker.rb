@@ -14,7 +14,7 @@ module ClaimsApi
     end
 
     def self.mvi_is_healthy?
-      MVI::Service.service_is_up?
+      MPI::Service.service_is_up?
     end
 
     def self.bgs_is_healthy?

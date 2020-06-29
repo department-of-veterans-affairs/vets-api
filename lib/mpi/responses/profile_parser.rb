@@ -94,9 +94,9 @@ module MPI
       def build_mvi_profile(patient)
         name = parse_name(get_patient_name(patient))
         full_mvi_ids = get_extensions(patient.locate('id'))
-        parsed_mvi_ids = MVI::Responses::IdParser.new.parse(patient.locate('id'))
+        parsed_mvi_ids = MPI::Responses::IdParser.new.parse(patient.locate('id'))
         log_inactive_mhv_ids(parsed_mvi_ids[:mhv_ids].to_a, parsed_mvi_ids[:active_mhv_ids].to_a)
-        MVI::Models::MviProfile.new(
+        MPI::Models::MviProfile.new(
           given_names: name[:given],
           family_name: name[:family],
           suffix: name[:suffix],
@@ -115,7 +115,7 @@ module MPI
           sec_id: parsed_mvi_ids[:sec_id],
           birls_id: sanitize_birls_id(parsed_mvi_ids[:birls_id]),
           vet360_id: parsed_mvi_ids[:vet360_id],
-          historical_icns: MVI::Responses::HistoricalIcnParser.new(@original_body).get_icns,
+          historical_icns: MPI::Responses::HistoricalIcnParser.new(@original_body).get_icns,
           icn_with_aaid: parsed_mvi_ids[:icn_with_aaid],
           search_token: locate_element(@original_body, 'id').attributes[:extension],
           cerner_id: parsed_mvi_ids[:cerner_id],
@@ -193,7 +193,7 @@ module MPI
         suffix = name_element.locate('suffix')&.first&.nodes&.first&.capitalize
         { given: given, family: family, suffix: suffix }
       rescue => e
-        Rails.logger.warn "MVI::Response.parse_name failed: #{e.message}"
+        Rails.logger.warn "MPI::Response.parse_name failed: #{e.message}"
         { given: nil, family: nil }
       end
 
@@ -205,7 +205,7 @@ module MPI
 
         ssn_element.attributes[:extension]
       rescue => e
-        Rails.logger.warn "MVI::Response.parse_ssn failed: #{e.message}"
+        Rails.logger.warn "MPI::Response.parse_ssn failed: #{e.message}"
         nil
       end
 
@@ -215,7 +215,7 @@ module MPI
 
         address_hash = el.nodes.map { |n| { n.value.snakecase.to_sym => n.nodes.first } }.reduce({}, :merge)
         address_hash[:street] = address_hash.delete :street_address_line
-        MVI::Models::MviProfileAddress.new(address_hash)
+        MPI::Models::MviProfileAddress.new(address_hash)
       end
 
       def parse_phone(patient)

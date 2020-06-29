@@ -26,7 +26,7 @@ module OpenidAuth
       private
 
       def process_identity(user_identity)
-        service = MVI::Service.new
+        service = MPI::Service.new
         mpi_response = service.find_profile(user_identity)
         raise mpi_response.error if mpi_response.error
 

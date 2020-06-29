@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'csv'
-require 'mvi/responses/id_parser'
+require 'mpi/responses/id_parser'
 
 namespace :mvi do
   desc 'Given user attributes, run a find candidate query'
@@ -157,7 +157,7 @@ middle_name="W" last_name="Smith" birth_date="1945-01-25" gender="M" ssn="555443
       cache_file = File.join(Settings.betamocks.cache_dir, 'mvi', 'profile', "#{k}.yml")
       unless File.exist? cache_file
         puts "user with ssn #{k} not found, generating cache file"
-        profile = MVI::Models::MviProfile.new(v)
+        profile = MPI::Models::MviProfile.new(v)
         create_cache_from_profile(cache_file, profile, template)
       end
     end
@@ -173,13 +173,13 @@ def update_ids(xml, ids)
     'env:Envelope/env:Body/idm:PRPA_IN201306UV02/controlActProcess/subject/registrationEvent/subject1/patient'
   ).first
 
-  current_ids = MVI::Responses::IdParser.new.parse(el.locate('id'))
+  current_ids = MPI::Responses::IdParser.new.parse(el.locate('id'))
   current_ids[:participant_id] = current_ids[:vba_corp_id]
 
   el.nodes.delete_if do |n|
     [
-      MVI::Responses::IdParser::VA_ROOT_OID,
-      MVI::Responses::IdParser::DOD_ROOT_OID
+      MPI::Responses::IdParser::VA_ROOT_OID,
+      MPI::Responses::IdParser::DOD_ROOT_OID
     ].include? n.attributes[:root]
   end
 
@@ -215,8 +215,8 @@ end
 
 def create_root_id(type)
   el = Ox::Element.new('id')
-  edipi_root = MVI::Responses::IdParser::DOD_ROOT_OID
-  correlation_root = MVI::Responses::IdParser::VA_ROOT_OID
+  edipi_root = MPI::Responses::IdParser::DOD_ROOT_OID
+  correlation_root = MPI::Responses::IdParser::VA_ROOT_OID
   el[:root] = type == :edipi ? edipi_root : correlation_root
   el
 end

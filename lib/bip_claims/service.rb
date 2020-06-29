@@ -29,7 +29,7 @@ module BipClaims
     end
 
     def lookup_veteran_from_mvi(claim)
-      veteran = MVI::AttrService.new.find_profile(veteran_attributes(claim))
+      veteran = MPI::AttrService.new.find_profile(veteran_attributes(claim))
       if veteran.profile&.participant_id
         StatsD.increment("#{STATSD_KEY_PREFIX}.mvi_lookup_hit")
         veteran.profile

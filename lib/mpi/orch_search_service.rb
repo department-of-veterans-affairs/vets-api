@@ -4,7 +4,7 @@ require 'common/exceptions/external/unprocessable_entity'
 
 module MPI
   class OrchSearchService < Service
-    configuration MVI::Configuration
+    configuration MPI::Configuration
 
     private
 
@@ -35,7 +35,7 @@ module MPI
         ssn: user.ssn,
         gender: user.gender
       }
-      MVI::Messages::FindProfileMessage.new(
+      MPI::Messages::FindProfileMessage.new(
         profile,
         true,
         user.edipi

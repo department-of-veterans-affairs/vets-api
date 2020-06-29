@@ -3,7 +3,7 @@
 require 'rails_helper'
 require 'ostruct'
 
-describe MVI::Responses::IdParser do
+describe MPI::Responses::IdParser do
   describe '#parse' do
     context 'vba_corp_id' do
       let(:vba_corp_ids) do
@@ -13,7 +13,7 @@ describe MVI::Responses::IdParser do
       end
 
       it 'matches correctly on all valid ID statuses (i.e. P and A)' do
-        expect(MVI::Responses::IdParser.new.parse(vba_corp_ids)[:vba_corp_id]).to eq '12345678'
+        expect(MPI::Responses::IdParser.new.parse(vba_corp_ids)[:vba_corp_id]).to eq '12345678'
       end
     end
 
@@ -38,7 +38,7 @@ describe MVI::Responses::IdParser do
           )
         end
 
-        it 'matches correctly on the MVI::Responses::ProfileParser::ICN_REGEX' do
+        it 'matches correctly on the MPI::Responses::ProfileParser::ICN_REGEX' do
           expect_valid_icn_with_aaid_to_be_returned(
             '12345678901234567^NI^200M^USVHA^P',
             '12345678901234567^NI^200M^USVHA'
@@ -83,34 +83,34 @@ describe MVI::Responses::IdParser do
 end
 
 def ids_in(body)
-  original_body = body.locate(MVI::Responses::ProfileParser::BODY_XPATH)&.first
-  subject = original_body.locate(MVI::Responses::ProfileParser::SUBJECT_XPATH)&.first
-  patient = subject.locate(MVI::Responses::ProfileParser::PATIENT_XPATH)&.first
+  original_body = body.locate(MPI::Responses::ProfileParser::BODY_XPATH)&.first
+  subject = original_body.locate(MPI::Responses::ProfileParser::SUBJECT_XPATH)&.first
+  patient = subject.locate(MPI::Responses::ProfileParser::PATIENT_XPATH)&.first
 
   patient.locate('id')
 end
 
 def correlation_id(extension)
-  OpenStruct.new(attributes: { extension: extension, root: MVI::Responses::IdParser::VA_ROOT_OID })
+  OpenStruct.new(attributes: { extension: extension, root: MPI::Responses::IdParser::VA_ROOT_OID })
 end
 
 def expect_valid_icn_with_aaid_from_parsed_xml(xml_file:, expected_icn_with_aaid:)
   body = Ox.parse(File.read("spec/support/mvi/#{xml_file}.xml"))
-  correlation_ids = MVI::Responses::IdParser.new.parse(ids_in(body))
+  correlation_ids = MPI::Responses::IdParser.new.parse(ids_in(body))
 
   expect(correlation_ids[:icn_with_aaid]).to eq expected_icn_with_aaid
 end
 
 def expect_valid_icn_with_aaid_to_be_returned(icn_with_aaid_with_id_status, valid_icn_with_aaid)
   ids = [correlation_id(non_icn_id), correlation_id(icn_with_aaid_with_id_status)]
-  correlation_ids = MVI::Responses::IdParser.new.parse(ids)
+  correlation_ids = MPI::Responses::IdParser.new.parse(ids)
 
   expect(correlation_ids[:icn_with_aaid]).to eq valid_icn_with_aaid
 end
 
 def expect_invalid_icn_to_return_nil(invalid_icn)
   ids = [correlation_id(non_icn_id), correlation_id(invalid_icn)]
-  correlation_ids = MVI::Responses::IdParser.new.parse(ids)
+  correlation_ids = MPI::Responses::IdParser.new.parse(ids)
 
   expect(correlation_ids[:icn_with_aaid]).to be_nil
 end

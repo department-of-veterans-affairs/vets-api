@@ -7,7 +7,7 @@ require_relative 'find_candidate_message_error'
 module MPI
   module Messages
     module FindProfileMessageHelpers
-      include MVI::Messages::MessageBuilder
+      include MPI::Messages::MessageBuilder
       EXTENSION = 'PRPA_IN201305UV02'
 
       def to_xml

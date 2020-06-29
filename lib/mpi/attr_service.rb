@@ -2,7 +2,7 @@
 
 module MPI
   class AttrService < Service
-    configuration MVI::AttrConfiguration
+    configuration MPI::AttrConfiguration
 
     private
 

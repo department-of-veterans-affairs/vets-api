@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-describe MVI::OrchSearchService do
+describe MPI::OrchSearchService do
   let(:user) { build(:user, :loa3, user_hash) }
 
   describe '.find_profile with attributes' do

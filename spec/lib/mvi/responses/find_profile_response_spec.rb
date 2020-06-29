@@ -1,15 +1,15 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'mvi/responses/find_profile_response'
+require 'mpi/responses/find_profile_response'
 require 'support/mvi/stub_mvi'
 
-describe MVI::Responses::FindProfileResponse do
+describe MPI::Responses::FindProfileResponse do
   let(:faraday_response) { instance_double('Faraday::Response') }
   let(:body) { Ox.parse(File.read('spec/support/mvi/find_candidate_response.xml')) }
-  let(:ok_response) { MVI::Responses::FindProfileResponse.with_parsed_response(faraday_response) }
-  let(:error_response) { MVI::Responses::FindProfileResponse.with_server_error }
-  let(:not_found_response) { MVI::Responses::FindProfileResponse.with_not_found }
+  let(:ok_response) { MPI::Responses::FindProfileResponse.with_parsed_response(faraday_response) }
+  let(:error_response) { MPI::Responses::FindProfileResponse.with_server_error }
+  let(:not_found_response) { MPI::Responses::FindProfileResponse.with_not_found }
 
   before do
     allow(faraday_response).to receive(:body) { body }
@@ -22,7 +22,7 @@ describe MVI::Responses::FindProfileResponse do
     end
 
     it 'optionally sets #error to the passed exception', :aggregate_failures do
-      response  = MVI::Responses::FindProfileResponse.with_server_error(server_error_exception)
+      response  = MPI::Responses::FindProfileResponse.with_server_error(server_error_exception)
       exception = response.error.errors.first
 
       expect(response.error).to be_present
@@ -37,7 +37,7 @@ describe MVI::Responses::FindProfileResponse do
     end
 
     it 'optionally sets #error to the passed exception', :aggregate_failures do
-      response  = MVI::Responses::FindProfileResponse.with_not_found(not_found_exception)
+      response  = MPI::Responses::FindProfileResponse.with_not_found(not_found_exception)
       exception = response.error.errors.first
 
       expect(response.error).to be_present

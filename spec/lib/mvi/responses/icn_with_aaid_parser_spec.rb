@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-describe MVI::Responses::ICNWithAAIDParser do
+describe MPI::Responses::ICNWithAAIDParser do
   describe '#without_id_status' do
     context 'when initialized with a valid ICN and Assigning Authority ID' do
       context 'with a valid ID status' do
@@ -41,7 +41,7 @@ describe MVI::Responses::ICNWithAAIDParser do
 end
 
 def expect_correct_response_from_without_id_status(full_icn, expected_return_value)
-  results = MVI::Responses::ICNWithAAIDParser.new(full_icn).without_id_status
+  results = MPI::Responses::ICNWithAAIDParser.new(full_icn).without_id_status
 
   expect(results).to eq expected_return_value
 end

@@ -52,8 +52,8 @@ FactoryBot.modify do
           ssn: '796061976'
         )
         mpi = MPIData.for_user(user)
-        profile_response = MVI::Responses::FindProfileResponse.new(
-          status: MVI::Responses::FindProfileResponse::RESPONSE_STATUS[:ok],
+        profile_response = MPI::Responses::FindProfileResponse.new(
+          status: MPI::Responses::FindProfileResponse::RESPONSE_STATUS[:ok],
           profile: profile
         )
         mpi.instance_variable_set(:@mpi_response, profile_response)

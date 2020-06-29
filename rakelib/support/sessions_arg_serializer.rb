@@ -35,10 +35,10 @@ class SessionsArgSerializer < SessionsSerializer
     {
       ":uuid": uuid,
       ":response": {
-        "^o": 'MVI::Responses::FindProfileResponse',
+        "^o": 'MPI::Responses::FindProfileResponse',
         ":status": 'OK',
         ":profile": {
-          "^o": 'MVI::Models::MviProfile',
+          "^o": 'MPI::Models::MviProfile',
           "given_names": %w[TEST T],
           "family_name": 'USER',
           "suffix": nil,
@@ -46,7 +46,7 @@ class SessionsArgSerializer < SessionsSerializer
           "birth_date": '19700101',
           "ssn": '123456789',
           "address": {
-            "^o": 'MVI::Models::MviProfileAddress',
+            "^o": 'MPI::Models::MviProfileAddress',
             "street": '123 Fake Street',
             "city": 'Springfield',
             "state": 'OR',
