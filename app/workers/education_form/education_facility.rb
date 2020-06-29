@@ -86,8 +86,7 @@ module EducationForm
     def self.check_area(address)
       area = address&.state
       if Flipper.enabled?(:route_st_louis_rpo_to_buffalo_rpo)
-        case area
-        when *WESTERN
+        if WESTERN.any? { |state| state === area}
           :western
         else
           :eastern
