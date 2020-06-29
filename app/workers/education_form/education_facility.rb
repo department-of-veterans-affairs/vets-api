@@ -86,13 +86,26 @@ module EducationForm
 
     def self.check_area(address)
       area = address&.state
-      case area
-      when *EASTERN, *CENTRAL
-        :eastern
-      when *WESTERN
-        :western
+      if Flipper.enabled?(:route_st_louis_rpo_to_buffalo_rpo)
+        case area
+        when *EASTERN, *CENTRAL
+          :eastern
+        when *WESTERN
+          :western
+        else
+          DEFAULT
+        end
       else
-        DEFAULT
+        case area
+        when *EASTERN
+          :eastern
+        when *CENTRAL
+          :central
+        when *WESTERN
+          :western
+        else
+          DEFAULT
+        end
       end
     end
 
