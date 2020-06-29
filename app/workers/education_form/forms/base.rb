@@ -71,7 +71,7 @@ module EducationForm::Forms
       # use windows-style newlines, that leaves us with a width of 78
       wrapped = word_wrap(parse_with_template_path(@record.form_type), line_width: 78)
       # We can only send ASCII, so make a best-effort at that.
-      transliterated = Iconv.conv("#{code}//IGNORE", "UTF-8", wrapped).first
+      transliterated = Iconv.conv("#{code}//IGNORE", 'utf-8', wrapped).first
       # Trim any lines that end in whitespace, but keep the lines themselves
       transliterated.gsub!(/[ ]+\n/, "\n")
       # The spool file must actually use windows style linebreaks
