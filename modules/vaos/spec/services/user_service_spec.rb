@@ -6,10 +6,10 @@ require_relative '../support/fixture_helper'
 describe VAOS::UserService do
   let(:user) { build(:user, :vaos, :accountable) }
   let(:subject) { described_class.new }
+  let(:rsa_key) { OpenSSL::PKey::RSA.new(read_fixture_file('open_ssl_rsa_private.pem')) }
 
-  describe '#session' do
-    let(:token) do
-      'eyJhbGciOiJSUzUxMiJ9.eyJsYXN0TmFtZSI6Ik1vcmdhbiIsInN1YiI6IjEwMTI4NDU5NDNWOTAwNjgxIiwiYXV0aGVudGljYXRlZCI6dH' \
+  let(:token) do
+    'eyJhbGciOiJSUzUxMiJ9.eyJsYXN0TmFtZSI6Ik1vcmdhbiIsInN1YiI6IjEwMTI4NDU5NDNWOTAwNjgxIiwiYXV0aGVudGljYXRlZCI6dH' \
       'J1ZSwiYXV0aGVudGljYXRpb25BdXRob3JpdHkiOiJnb3YudmEudmFvcyIsImlkVHlwZSI6IklDTiIsImlzcyI6Imdvdi52YS52YW1mLnVzZX' \
       'JzZXJ2aWNlLnYxIiwidmFtZi5hdXRoLnJlc291cmNlcyI6WyJeLiooXC8pP3BhdGllbnRbc10_XC8oSUNOXC8pPzEwMTI4NDU5NDNWOTAwNj' \
       'gxKFwvLiopPyQiLCJeLiooXC8pP3NpdGVbc10_XC8oZGZuLSk_OTg0XC9wYXRpZW50W3NdP1wvNTUyMTYxNzMyXC9hcHBvaW50bWVudHMoXC8' \
@@ -23,10 +23,10 @@ describe VAOS::UserService do
       'f96DCTsL_t6ZRJB72fL4yK-Z5jovGVD8yYX6Fg4j9IJhGN2ibwJwjS6bS4I7quhm_29SjRNtjgPlvM87Lz9xg3KDHjcHBfthOvhcsnvwcsQn' \
       'VKyvyM4ujy7nUqTF8qyJdFflDLC1F3KbY0W5IcJwR1R226Jp7K8tsfmWaZOWWD_1BITQBbdl-0jfgWcdpxpv67WBAkv3Lw9DN5dplOuan5Dq' \
       'N-ZTMun8ub0A'
-    end
+  end
 
-    let(:refresh_token) do
-      'eyJhbGciOiJSUzUxMiJ9.eyJhdXRoZW50aWNhdGVkIjp0cnVlLCJzdWIiOiIxMDEyODQ1MzMxVjE1MzA0MyIsImF1dGhlbnRpY2F0aW9uQXV' \
+  let(:refresh_token) do
+    'eyJhbGciOiJSUzUxMiJ9.eyJhdXRoZW50aWNhdGVkIjp0cnVlLCJzdWIiOiIxMDEyODQ1MzMxVjE1MzA0MyIsImF1dGhlbnRpY2F0aW9uQXV' \
       '0aG9yaXR5IjoiZ292LnZhLnZhb3MiLCJpZFR5cGUiOiJJQ04iLCJpc3MiOiJnb3YudmEudmFtZi51c2Vyc2VydmljZS52MSIsInZhbWYuYXV0' \
       'aC5yZXNvdXJjZXMiOlsiXi4qKFwvKT9zaXRlW3NdP1wvKGRmbi0pPzk4NFwvcGF0aWVudFtzXT9cLzU1MjE2MTA1MFwvYXBwb2ludG1lbnRzK' \
       'FwvLiopPyQiLCJeLiooXC8pP3NpdGVbc10_XC8oZGZuLSk_OTgzXC9wYXRpZW50W3NdP1wvNzIxNjY5MVwvYXBwb2ludG1lbnRzKFwvLiopPy' \
@@ -39,18 +39,17 @@ describe VAOS::UserService do
       'SF0FYY2RqV33OHEdSYQu_wMCVf-1mV5nKURQcNtaOH1vw42zruu6JUooEqSUgzLXeMmjrZVMQyeOBVHsNCV-BEIUWyPta1HcnLr-z0hyASS1Z' \
       'VpEqDzdWOaWmAgVJGj0ctyYZQG-kbLs_t36zkN8XK3HEN1-Gjy2WLGjLLlHQbG3AFHih0pyiM2NsUSJWH0_r_S2wF4h-GtXeIPckS2JfBZ0F5' \
       'HM1A'
-    end
+  end
 
-    let(:rsa_key) { OpenSSL::PKey::RSA.new(read_fixture_file('open_ssl_rsa_private.pem')) }
+  before do
+    allow(VAOS::Configuration.instance).to receive(:rsa_key).and_return(rsa_key)
+    time = Time.utc(2019, 10, 10, 18, 14, 56)
+    Timecop.freeze(time)
+  end
 
-    before do
-      allow(VAOS::Configuration.instance).to receive(:rsa_key).and_return(rsa_key)
-      time = Time.utc(2019, 10, 10, 18, 14, 56)
-      Timecop.freeze(time)
-    end
+  after { Timecop.return }
 
-    after { Timecop.return }
-
+  describe '#session' do
     describe '#session' do
       let(:response) { double('response', body: token) }
 
@@ -141,6 +140,24 @@ describe VAOS::UserService do
             expect(VAOS::ExtendSessionJob).to receive(:perform_async).with(user.account_uuid).once
             subject.extend_session(user.account_uuid)
             subject.extend_session(user.account_uuid)
+          end
+        end
+      end
+    end
+  end
+
+  describe '#update_session_token' do
+    context 'with a cached token' do
+      before do
+        VCR.use_cassette('vaos/users/post_session') do
+          subject.session(user)
+        end
+      end
+
+      context 'with a 200 response' do
+        it 'updates and returns the new session token' do
+          VCR.use_cassette('vaos/users/get_user_jwts') do
+            expect(subject.update_session_token(user.account_uuid)).to eq(refresh_token)
           end
         end
       end

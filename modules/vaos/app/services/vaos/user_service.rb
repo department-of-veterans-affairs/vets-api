@@ -20,7 +20,8 @@ module VAOS
       cached = cached_by_account_uuid(account_uuid)
       if cached
         url = '/users/v2/session/jwts'
-        response = perform(:get, url, nil, refresh_headers)
+        puts :get, url, nil, refresh_headers(account_uuid)
+        response = perform(:get, url, nil, refresh_headers(account_uuid))
         new_token = response.body[:jws]
         Rails.logger.info('VAOS session updated',
                           {
@@ -44,12 +45,12 @@ module VAOS
     end
 
     def redis_session_lock
-      @redis ||= Redis::Namespace.new(REDIS_CONFIG[:va_mobile_session_lock][:namespace], redis: Redis.current)
+      @redis ||= Redis::Namespace.new(REDIS_CONFIG[:va_mobile_session_refresh_lock][:namespace], redis: Redis.current)
     end
 
     def lock_session_creation(account_uuid)
       redis_session_lock.set(account_uuid, 1)
-      redis_session_lock.expire(account_uuid, REDIS_CONFIG[:va_mobile_session_lock][:each_ttl])
+      redis_session_lock.expire(account_uuid, REDIS_CONFIG[:va_mobile_session_refresh_lock][:each_ttl])
     end
 
     def session_creation_locked?(account_uuid)
@@ -84,10 +85,10 @@ module VAOS
       { 'Accept' => 'text/plain', 'Content-Type' => 'text/plain', 'Referer' => referrer }
     end
 
-    def refresh_headers
+    def refresh_headers(account_uuid)
       {
         'Referer' => referrer,
-        'X-VAMF-JWT' => cached_by_account_uuid.token,
+        'X-VAMF-JWT' => cached_by_account_uuid(account_uuid).token,
         'X-Request-ID' => RequestStore.store['request_id']
       }
     end

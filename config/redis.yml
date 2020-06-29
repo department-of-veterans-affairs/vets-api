@@ -94,7 +94,7 @@ development: &defaults
   va_mobile_session:
     namespace: va-mobile-session
     each_ttl: 855
-  va_mobile_session_lock:
+  va_mobile_session_refresh_lock:
     namespace: va-mobile-session-lock
     each_ttl: 60
   saml_request_tracker:

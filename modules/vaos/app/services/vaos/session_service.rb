@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-# frozen_string_literal
-
 module VAOS
   class SessionService < VAOS::BaseService
     attr_accessor :user
