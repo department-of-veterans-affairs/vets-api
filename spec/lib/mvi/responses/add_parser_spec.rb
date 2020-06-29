@@ -23,7 +23,7 @@ describe MPI::Responses::AddParser do
     describe '#parse' do
       let(:codes) { { birls_id: '111985523', participant_id: '32397028' } }
 
-      it 'returns a MviProfile with the parsed attributes' do
+      it 'returns a MpiProfile with the parsed attributes' do
         expect(parser.parse).to have_deep_attributes(codes)
       end
     end

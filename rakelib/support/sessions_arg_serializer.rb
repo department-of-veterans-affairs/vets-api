@@ -38,7 +38,7 @@ class SessionsArgSerializer < SessionsSerializer
         "^o": 'MPI::Responses::FindProfileResponse',
         ":status": 'OK',
         ":profile": {
-          "^o": 'MPI::Models::MviProfile',
+          "^o": 'MPI::Models::MpiProfile',
           "given_names": %w[TEST T],
           "family_name": 'USER',
           "suffix": nil,
@@ -46,7 +46,7 @@ class SessionsArgSerializer < SessionsSerializer
           "birth_date": '19700101',
           "ssn": '123456789',
           "address": {
-            "^o": 'MPI::Models::MviProfileAddress',
+            "^o": 'MPI::Models::MpiProfileAddress',
             "street": '123 Fake Street',
             "city": 'Springfield',
             "state": 'OR',

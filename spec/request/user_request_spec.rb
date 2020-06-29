@@ -119,7 +119,7 @@ RSpec.describe 'Fetching user data', type: :request do
       let(:mhv_user) { build(:user, :mhv) }
 
       before do
-        allow_any_instance_of(MPI::Models::MviProfile).to receive(:active_mhv_ids).and_return(nil)
+        allow_any_instance_of(MPI::Models::MpiProfile).to receive(:active_mhv_ids).and_return(nil)
         stub_mvi(mvi_profile)
         sign_in_as(mhv_user)
         get v0_user_url, params: nil

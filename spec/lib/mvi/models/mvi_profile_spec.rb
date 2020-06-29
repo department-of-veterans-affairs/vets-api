@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-describe MPI::Models::MviProfile do
+describe MPI::Models::MpiProfile do
   describe '#mhv_correlation_id' do
     context 'with multiple ids' do
       subject { build(:mvi_profile) }

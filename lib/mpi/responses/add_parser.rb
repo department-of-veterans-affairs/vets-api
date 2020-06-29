@@ -4,7 +4,7 @@ require 'sentry_logging'
 
 module MPI
   module Responses
-    # Parses a MVI response and returns a MviProfile
+    # Parses a MVI response and returns a MpiProfile
     class AddParser
       include SentryLogging
 

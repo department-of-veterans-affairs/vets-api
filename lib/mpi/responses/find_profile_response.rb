@@ -3,7 +3,7 @@
 require_relative 'profile_parser'
 require 'common/models/redis_store'
 require 'common/client/concerns/service_status'
-require 'mpi/models/mvi_profile'
+require 'mpi/models/mpi_profile'
 
 module MPI
   module Responses
@@ -15,8 +15,8 @@ module MPI
       # @return [String] The status of the response
       attribute :status, String
 
-      # @return [MPI::Models::MviProfile] The parsed MVI profile
-      attribute :profile, MPI::Models::MviProfile
+      # @return [MPI::Models::MpiProfile] The parsed MVI profile
+      attribute :profile, MPI::Models::MpiProfile
 
       # @return [Common::Exceptions::BackendServiceException] The rescued exception
       attribute :error, Common::Exceptions::BackendServiceException
@@ -46,7 +46,7 @@ module MPI
       # Builds a response with a ok status and a parsed response
       #
       # @param response [Ox::Element] ox element returned from the soap service middleware
-      # @return [MPI::Responses::FindProfileResponse] response with a parsed MviProfile
+      # @return [MPI::Responses::FindProfileResponse] response with a parsed MpiProfile
       def self.with_parsed_response(response)
         profile_parser = ProfileParser.new(response)
         profile = profile_parser.parse

@@ -32,7 +32,7 @@ describe MPI::Responses::ProfileParser do
         )
       end
 
-      it 'returns a MviProfile with the parsed attributes' do
+      it 'returns a MpiProfile with the parsed attributes' do
         expect(parser.parse).to have_deep_attributes(mvi_profile)
       end
 

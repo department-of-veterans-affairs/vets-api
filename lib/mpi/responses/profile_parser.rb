@@ -4,7 +4,7 @@ require 'sentry_logging'
 
 module MPI
   module Responses
-    # Parses a MVI response and returns a MviProfile
+    # Parses a MVI response and returns a MpiProfile
     class ProfileParser
       include SentryLogging
 
@@ -74,9 +74,9 @@ module MPI
         acknowledgement_detail.nodes.first == MULTIPLE_MATCHES_FOUND
       end
 
-      # Parse the response and builds an MviProfile.
+      # Parse the response and builds an MpiProfile.
       #
-      # @return [MviProfile] the profile from the parsed response
+      # @return [MpiProfile] the profile from the parsed response
       def parse
         subject = locate_element(@original_body, SUBJECT_XPATH)
         return nil unless subject
@@ -96,7 +96,7 @@ module MPI
         full_mvi_ids = get_extensions(patient.locate('id'))
         parsed_mvi_ids = MPI::Responses::IdParser.new.parse(patient.locate('id'))
         log_inactive_mhv_ids(parsed_mvi_ids[:mhv_ids].to_a, parsed_mvi_ids[:active_mhv_ids].to_a)
-        MPI::Models::MviProfile.new(
+        MPI::Models::MpiProfile.new(
           given_names: name[:given],
           family_name: name[:family],
           suffix: name[:suffix],
@@ -215,7 +215,7 @@ module MPI
 
         address_hash = el.nodes.map { |n| { n.value.snakecase.to_sym => n.nodes.first } }.reduce({}, :merge)
         address_hash[:street] = address_hash.delete :street_address_line
-        MPI::Models::MviProfileAddress.new(address_hash)
+        MPI::Models::MpiProfileAddress.new(address_hash)
       end
 
       def parse_phone(patient)
