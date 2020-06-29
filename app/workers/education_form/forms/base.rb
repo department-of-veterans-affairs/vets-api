@@ -80,7 +80,7 @@ module EducationForm::Forms
       wrapped = wrapped.gsub('’', "'")
       
       # We can only send ASCII, so make a best-effort at that.
-      transliterated = Iconv.iconv('ascii//translit', 'utf-8', wrapped).first
+      transliterated = ActiveSupport::Inflector.transliterate(wrapped, locale: :en)
       # Trim any lines that end in whitespace, but keep the lines themselves
       transliterated.gsub!(/[ ]+\n/, "\n")
       # The spool file must actually use windows style linebreaks
