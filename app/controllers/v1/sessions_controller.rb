@@ -2,6 +2,7 @@
 
 require 'base64'
 require 'saml/url_service'
+require 'saml/errors'
 require 'saml/responses/login'
 require 'saml/responses/logout'
 
@@ -9,14 +10,18 @@ module V1
   class SessionsController < ApplicationController
     skip_before_action :verify_authenticity_token
 
-    REDIRECT_URLS = %w[signup mhv dslogon idme mfa verify slo].freeze
+    REDIRECT_URLS = %w[signup mhv dslogon idme custom mfa verify slo].freeze
 
     STATSD_SSO_NEW_KEY = 'api.auth.new'
+    STATSD_SSO_NEW_FORCEAUTH = 'api.auth.new.forceauth'
+    STATSD_SSO_NEW_INBOUND = 'api.auth.new.inbound'
     STATSD_SSO_CALLBACK_KEY = 'api.auth.saml_callback'
     STATSD_SSO_CALLBACK_TOTAL_KEY = 'api.auth.login_callback.total'
     STATSD_SSO_CALLBACK_FAILED_KEY = 'api.auth.login_callback.failed'
     STATSD_LOGIN_NEW_USER_KEY = 'api.auth.new_user'
-    STATSD_LOGIN_STATUS = 'api.auth.login'
+    STATSD_LOGIN_STATUS_SUCCESS = 'api.auth.login.success'
+    STATSD_LOGIN_STATUS_FAILURE = 'api.auth.login.failure'
+    STATSD_LOGIN_INBOUND = 'api.auth.login.inbound'
     STATSD_LOGIN_SHARED_COOKIE = 'api.auth.sso_shared_cookie'
     STATSD_LOGIN_LATENCY = 'api.auth.latency'
 
@@ -27,11 +32,9 @@ module V1
     # For more details see SAML::SettingsService and SAML::URLService
     def new
       type = params[:type]
-      raise Common::Exceptions::RoutingError, params[:path] unless REDIRECT_URLS.include?(type)
 
-      StatsD.increment(STATSD_SSO_NEW_KEY,
-                       tags: ["context:#{type}", "forceauthn:#{force_authn?}", VERSION_TAG])
       url = redirect_url(type)
+      new_stats(type)
 
       if type == 'slo'
         Rails.logger.info("LOGOUT of type #{type}", sso_logging_info)
@@ -48,17 +51,13 @@ module V1
 
     def saml_callback
       saml_response = SAML::Responses::Login.new(params[:SAMLResponse], settings: saml_settings)
-      if saml_response.valid?
-        user_login(saml_response)
-      else
-        log_error(saml_response)
-        redirect_to url_service.login_redirect_url(auth: 'fail', code: auth_error_code(saml_response.error_code))
-        callback_stats(:failure, saml_response, saml_response.error_instrumentation_code)
-      end
-    rescue SAML::UserAttributeError => e
-      log_message_to_sentry(e.message, :warning)
+      raise_saml_error(saml_response) unless saml_response.valid?
+      user_login(saml_response)
+      callback_stats(:success, saml_response)
+    rescue SAML::SAMLError => e
+      log_message_to_sentry(e.message, e.level, extra_context: e.context)
       redirect_to url_service.login_redirect_url(auth: 'fail', code: e.code)
-      callback_stats(:failure, saml_response, e.tag)
+      callback_stats(:failure, saml_response, e.tag || e.code)
     rescue => e
       log_exception_to_sentry(e, {}, {}, :error)
       redirect_to url_service.login_redirect_url(auth: 'fail', code: '007') unless performed?
@@ -76,6 +75,8 @@ module V1
 
     # rubocop:disable Metrics/CyclomaticComplexity
     def redirect_url(type)
+      raise Common::Exceptions::RoutingError, type unless REDIRECT_URLS.include?(type)
+
       case type
       when 'signup'
         url_service.signup_url
@@ -89,16 +90,22 @@ module V1
         url_service.mfa_url
       when 'verify'
         url_service.verify_url
+      when 'custom'
+        raise Common::Exceptions::ParameterMissing, 'authn' if params[:authn].blank?
+
+        url_service.custom_url params[:authn]
       when 'slo'
         url_service.ssoe_slo_url # due to shared url service implementation
-      else
-        raise Common::Exceptions::RoutingError, params[:path]
       end
     end
     # rubocop:enable Metrics/CyclomaticComplexity
 
     def force_authn?
       params[:force]&.downcase == 'true'
+    end
+
+    def inbound_ssoe?
+      params[:inbound]&.downcase == 'true'
     end
 
     def saml_settings(options = {})
@@ -108,12 +115,10 @@ module V1
       SAML::SSOeSettingsService.saml_settings(options)
     end
 
-    def auth_error_code(code)
-      if code == '005' && validate_session
-        UserSessionForm::ERRORS[:saml_replay_valid_session][:code]
-      else
-        code
-      end
+    def raise_saml_error(form)
+      code = form.error_code
+      code = UserSessionForm::ERRORS[:saml_replay_valid_session][:code] if code == '005' && validate_session
+      raise SAML::FormError.new(form, code)
     end
 
     def authenticate
@@ -126,31 +131,22 @@ module V1
       end
     end
 
-    def log_error(saml_response)
-      log_message_to_sentry(saml_response.errors_message,
-                            saml_response.errors_hash[:level],
-                            saml_error_context: saml_response.errors_context)
-    end
-
     def user_login(saml_response)
       user_session_form = UserSessionForm.new(saml_response)
-      if user_session_form.valid?
-        @current_user, @session_object = user_session_form.persist
-        set_cookies
-        after_login_actions
-        redirect_to url_service(user_session_form.saml_uuid).login_redirect_url
-        if location.start_with?(url_service.base_redirect_url)
-          # only record success stats if the user is being redirect to the site
-          # some users will need to be up-leveled and this will be redirected
-          # back to the identity provider
-          login_stats(:success, saml_response, user_session_form)
-        end
-      else
-        log_message_to_sentry(
-          user_session_form.errors_message, user_session_form.errors_hash[:level], user_session_form.errors_context
-        )
-        redirect_to url_service.login_redirect_url(auth: 'fail', code: user_session_form.error_code)
+      unless user_session_form.valid?
         login_stats(:failure, saml_response, user_session_form)
+        raise_saml_error(user_session_form)
+      end
+
+      @current_user, @session_object = user_session_form.persist
+      set_cookies
+      after_login_actions
+      redirect_to url_service(user_session_form.saml_uuid).login_redirect_url
+      if location.start_with?(url_service.base_redirect_url)
+        # only record login stats if the user is being redirect to the site
+        # some users will need to be up-leveled and this will be redirected
+        # back to the identity provider
+        login_stats(:success, saml_response, user_session_form)
       end
     end
 
@@ -166,34 +162,29 @@ module V1
       end
     end
 
-    def login_stats_success(saml_response, user_session_form = nil)
-      tracker = url_service(user_session_form&.saml_uuid).tracker
-      tags = [
-        "loa:#{@current_user.loa[:current]}",
-        "idp:#{@current_user.identity.sign_in[:service_name]}",
-        "context:#{saml_response.authn_context}",
-        VERSION_TAG
-      ]
-      StatsD.increment(STATSD_LOGIN_NEW_USER_KEY, tags: [VERSION_TAG]) if request_type == 'signup'
-      # track users who have a shared sso cookie
-      StatsD.increment(STATSD_LOGIN_SHARED_COOKIE, tags: tags)
-      StatsD.increment(STATSD_LOGIN_STATUS, tags: tags + ['status:success'])
-      StatsD.measure(STATSD_LOGIN_LATENCY, tracker.age, tags: tags)
-      callback_stats(:success, saml_response)
+    def new_stats(type)
+      tags = ["context:#{type}", VERSION_TAG]
+      StatsD.increment(STATSD_SSO_NEW_KEY, tags: tags)
+      StatsD.increment(STATSD_SSO_NEW_FORCEAUTH, tags: tags) if force_authn?
+      StatsD.increment(STATSD_SSO_NEW_INBOUND, tags: tags) if inbound_ssoe?
     end
 
-    def login_stats(status, saml_response, user_session_form = nil)
+    def login_stats(status, _saml_response, user_session_form)
+      tracker = url_service(user_session_form&.saml_uuid).tracker
+      type = tracker.payload_attr(:type)
+      inbound = tracker.payload_attr(:inbound_ssoe)
+      tags = ["context:#{type}", VERSION_TAG]
       case status
       when :success
-        login_stats_success(saml_response, user_session_form)
+        StatsD.increment(STATSD_LOGIN_NEW_USER_KEY, tags: [VERSION_TAG]) if type == 'signup'
+        # track users who have a shared sso cookie
+        StatsD.increment(STATSD_LOGIN_SHARED_COOKIE, tags: tags)
+        StatsD.increment(STATSD_LOGIN_STATUS_SUCCESS, tags: tags)
+        StatsD.increment(STATSD_LOGIN_INBOUND, tags: tags + ['status:success']) if inbound
+        StatsD.measure(STATSD_LOGIN_LATENCY, tracker.age, tags: tags)
       when :failure
-        StatsD.increment(STATSD_LOGIN_STATUS,
-                         tags: ['status:failure',
-                                "idp:#{params[:type]}",
-                                "context:#{saml_response.authn_context}",
-                                "error:#{user_session_form.error_instrumentation_code}",
-                                VERSION_TAG])
-        callback_stats(:failure, saml_response, user_session_form.error_instrumentation_code)
+        StatsD.increment(STATSD_LOGIN_STATUS_FAILURE, tags: tags)
+        StatsD.increment(STATSD_LOGIN_INBOUND, tags: tags + ['status:failure']) if inbound
       end
     end
 
@@ -244,12 +235,6 @@ module V1
 
     def originating_request_id
       JSON.parse(params[:RelayState] || '{}')['originating_request_id']
-    rescue
-      'UNKNOWN'
-    end
-
-    def request_type
-      JSON.parse(params[:RelayState] || '{}')['type']
     rescue
       'UNKNOWN'
     end

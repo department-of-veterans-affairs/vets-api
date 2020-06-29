@@ -30,6 +30,12 @@ features:
   facility_locator_ppms_location_query:
     actor_type: user
     description: Use the Lat/Long instead of an address
+  facility_locator_ppms_forced_unique_id:
+    actor_type: user
+    description: Use an hexdigest for the ID on PPMS Place of Service Calls
+  facility_locator_fe_use_v1:
+    actor_type: user
+    description: Have the front end use the V1 api
   profile_schema_forms:
     actor_type: user
     description: >
@@ -134,3 +140,7 @@ features:
     actor_type: user
     description: >
       All 10-10CG submissions (Caregivers Assistance Claims) will not hit CARMA and instead return a dubmmy response.
+  gibct_eyb_bottom_sheet:
+    actor_type: user
+    description: >
+      Panel that displays while the user is modifying inputs to give context to their currently estimated benefits until they reach the full your estimated benefits panel.

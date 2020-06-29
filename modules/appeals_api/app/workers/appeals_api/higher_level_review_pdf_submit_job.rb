@@ -13,6 +13,7 @@ module AppealsApi
       @retries = retries
       stamped_pdf = generate_pdf(higher_level_review_id)
       upload_to_central_mail(higher_level_review_id, stamped_pdf)
+      File.delete(stamped_pdf) if File.exist?(stamped_pdf)
     end
 
     def generate_pdf(higher_level_review_id)
@@ -33,7 +34,7 @@ module AppealsApi
         'source' => higher_level_review.consumer_name,
         'uuid' => higher_level_review.id,
         'hashV' => Digest::SHA256.file(pdf_path).hexdigest,
-        'numberPages' => PdfInfo::Metadata.read(pdf_path).pages,
+        'numberPages' => PDFInfo::Metadata.read(pdf_path).pages,
         'docType' => '20-0996'
       }
       body = { 'metadata' => metadata, 'document' => to_faraday_upload(pdf_path, '200996-document.pdf') }

@@ -1,5 +1,6 @@
 {
   "form526": {
+    "standardClaim": true,
     "veteran": {
       "currentlyVAEmployee": false,
       "currentMailingAddress": {
@@ -11,6 +12,19 @@
         "type": "DOMESTIC",
         "zipLastFour": "6789",
         "state": "OR"
+      },
+      "homelessness": {
+        "pointOfContact": {
+          "pointOfContactName": "John Doe",
+          "primaryPhone": {
+            "areaCode": "555",
+            "phoneNumber": "555-5555"
+          }
+        },
+        "currentlyHomeless": {
+          "homelessSituationType": "fleeing",
+          "otherLivingSituation": "other living situations"
+        }
       }
     },
     "applicationExpirationDate": "2015-08-28T19:53:45+00:00",
@@ -23,7 +37,7 @@
         },
         {
           "activeDutyEndDate": "1999-01-01",
-          "serviceBranch": "Air Force Reserve",
+          "serviceBranch": "Air Force Reserves",
           "activeDutyBeginDate": "1990-04-05"
         }
       ]
@@ -38,7 +52,7 @@
           {
             "name": "PTSD personal trauma",
             "disabilityActionType": "SECONDARY",
-            "serviceRelevance": "Caused by a service-connected disability\\nLengthy description"
+            "serviceRelevance": "Caused by a service-connected disability\nLengthy description"
           }
         ]
       }
@@ -47,9 +61,7 @@
     "autoCestPDFGenerationDisabled": false,
     "claimDate": "1999-01-02"
   },
-  "form526_uploads": [
-    
-  ],
+  "form526_uploads": [],
   "form4142": null,
   "form0781": null,
   "form8940": null

@@ -55,7 +55,7 @@ module ClaimsApi
         end
 
         operation :post do
-          key :summary, 'Accepts 2122 Power of Power of Attorney payload'
+          key :summary, 'Accepts 2122 Power of Attorney payload'
           key :description, 'Accepts JSON payload. Full URL, including query parameters.'
           key :operationId, 'post2122'
           key :tags, [
@@ -223,7 +223,8 @@ module ClaimsApi
             key :name, 'attachment'
             key :in, :formData
             key :type, :file
-            key :description, 'Attachment contents. Must be provided in binary PDF or base64 string format and less than 11 in x 11 in'
+            key :example, 'data:application/pdf;base64,JVBERi0xLjYNJeL...VmDQo0NTc2DQolJUVPRg0K'
+            key :description, 'Attachment contents. Must be provided in binary PDF or [base64 string](https://raw.githubusercontent.com/department-of-veterans-affairs/vets-api/master/modules/claims_api/spec/fixtures/base64pdf) format and less than 11 in x 11 in'
           end
 
           response 200 do

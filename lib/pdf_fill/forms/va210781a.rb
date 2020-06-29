@@ -1,11 +1,11 @@
 # frozen_string_literal: true
 
-module PdfFill
+module PDFFill
   module Forms
     class Va210781a < FormBase
       include CommonPtsd
 
-      ITERATOR = PdfFill::HashConverter::ITERATOR
+      ITERATOR = PDFFill::HashConverter::ITERATOR
 
       KEY = {
         'veteranFullName' => {
@@ -274,7 +274,7 @@ module PdfFill
         return if incident_overflow.nil?
 
         incident_overflow.push("Other Sources of Information: \n\n" + format_sources_overflow(incident))
-        incident['incidentOverflow'] = PdfFill::FormValue.new('', incident_overflow.compact.join("\n\n"))
+        incident['incidentOverflow'] = PDFFill::FormValue.new('', incident_overflow.compact.join("\n\n"))
       end
 
       def combine_full_address(address)

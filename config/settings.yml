@@ -3,6 +3,7 @@ virtual_hosts: ["127.0.0.1", "localhost"] # Safe host names
 
 # For CORS requests; separate multiple origins with a comma
 web_origin: http://localhost:3000,http://localhost:3001,http://127.0.0.1:3000,http://127.0.0.1:3001,null
+web_origin_regex: \Ahttps?:\/\/www\.va\.gov\z
 
 # Settings for SAML authentication
 saml:
@@ -130,7 +131,7 @@ ihub:
 # Settings for Medical Devices Ordering Tool
 mdot:
   prefill: true
-  url: https://dlc-dummy.herokuapp.com
+  url: https://internal-dsva-vagov-staging-fwdproxy-1821450725.us-gov-west-1.elb.amazonaws.com:4466
   api_key: abcd1234abcd1234abcd1234abcd1234abcd1234
   mock: false
   enabled: false
@@ -138,9 +139,12 @@ mdot:
 # Settings for Decision Reviews
 decision_review:
   prefill: true
-  url: https://sandbox-api.va.gov/services/appeals/v3/decision_review
+  url: https://sandbox-api.va.gov/services/appeals/v1/decision_reviews
   api_key: abcd1234abcd1234abcd1234abcd1234abcd1234
   mock: false
+
+# Settings for modules/appeals_api
+modules_appeals_api:
   higher_level_review_updater_enabled: true
   schema_dir: config/schemas
 
@@ -181,6 +185,7 @@ evss:
   mock_pciu: true
   mock_pciu_address: false
   mock_ppiu: true
+  mock_reference: false
   mock_itf: true
   mock_disabilities_form: true
   mock_common_service: true
@@ -190,9 +195,6 @@ evss:
     cert_path: ~
     key_path: ~
     root_ca: ~
-  jwt:
-    issuer: fake_issuer
-    key: fake_key
   reference_data_service:
     enabled: false
   international_postal_codes: 'config/evss/international_postal_codes.json'
@@ -440,10 +442,6 @@ betamocks:
   cache_dir: /cache
   services_config: config/betamocks/services_config.yml
 
-faraday_socks_proxy:
-  enabled: false
-  uri: socks5://localhost:2002
-
 google_analytics_tracking_id: ~
 
 # Settings for search
@@ -467,6 +465,9 @@ flipper:
     - devinmccurdy@gmail.com
     - eric.buckley@adhocteam.us
     - erik@adhocteam.us
+    - filip.fafara@gmail.com
+    - grodriguez@governmentcio.com
+    - hughes_dustin@bah.com
     - jbalboni@gmail.com
     - jeff@adhocteam.us
     - johnny@oddball.io
@@ -475,15 +476,17 @@ flipper:
     - kam@adhocteam.us
     - keifer@oddball.io
     - kenneth.gary@va.gov
+    - kenneth.santiago2010@gmail.com
     - kmircovich@governmentcio.com
     - lauren.alexanderson@va.gov
     - lindsey.hattamer@oddball.io
     - mark.greenburg@adhocteam.us
+    - mdewey@governmentcio.com
     - n.ratana@gmail.com
     - narin@adhocteam.us
     - osanchez@governmentcio.com
-    - patrick@adhocteam.us
     - patrick.bateman@va.gov
+    - patrick@adhocteam.us
     - philip.becker@oddball.io
     - regarr@gmail.com # Robin Garrison - AdHoc
     - rian.fowler@adhoc.team
@@ -494,7 +497,7 @@ flipper:
     - shawkey_daniel@bah.com
     - sonntag_adam@bah.com
     - travis.hilton@oddball.io
-    - zurbergram@gmail.com
+    - zurbergram@gmail.com  
 
 bgs:
   application: ~

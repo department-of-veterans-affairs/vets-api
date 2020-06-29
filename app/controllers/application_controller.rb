@@ -33,6 +33,7 @@ class ApplicationController < ActionController::API
   prepend_before_action :block_unknown_hosts, :set_app_info_headers
   # Also see AuthenticationAndSSOConcerns for more before filters
   skip_before_action :authenticate, only: %i[cors_preflight routing_error]
+  skip_before_action :verify_authenticity_token, only: :routing_error
   before_action :set_tags_and_extra_context
 
   def cors_preflight

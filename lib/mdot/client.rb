@@ -51,6 +51,15 @@ module MDOT
     # @return [Faraday::Response] Faraday response instance.
     #
     def submit_order(request_body)
+      request_body.deep_transform_keys! { |key| key.to_s.camelize(:lower) }
+
+      if request_body['order'].empty?
+        raise_backend_exception(
+          MDOT::ExceptionKey.new('MDOT_supplies_not_selected'),
+          self.class
+        )
+      end
+
       with_monitoring_and_error_handling do
         perform(:post, @supplies, request_body, submission_headers).body
       end
@@ -61,6 +70,7 @@ module MDOT
     def headers
       {
         VA_VETERAN_FIRST_NAME: @user.first_name,
+        VA_VETERAN_MIDDLE_NAME: @user.middle_name,
         VA_VETERAN_LAST_NAME: @user.last_name,
         VA_VETERAN_ID: @user.ssn.last(4),
         VA_VETERAN_BIRTH_DATE: @user.birth_date,
@@ -70,7 +80,7 @@ module MDOT
 
     def submission_headers
       {
-        VA_API_KEY: MDOT::Token.find(@user.uuid).token
+        VAAPIKEY: MDOT::Token.find(@user.uuid).token
       }
     end
 
@@ -117,7 +127,8 @@ module MDOT
 
     def handle_client_error(error)
       save_error_details(error)
-      code = error.body['errors'].first.dig('code')
+      code = error&.status != 503 ? error.body['result'].downcase : 'service_unavailable'
+
       raise_backend_exception(
         MDOT::ExceptionKey.new("MDOT_#{code}"),
         self.class,
