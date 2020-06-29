@@ -19,7 +19,7 @@ RSpec.describe Common::Client::Concerns::Monitoring, type: :model do
     end
   end
 
-  let(:service) { Specs::Common::Client::Concerns::MonitoringTestService.new }
+  let(:service) { Specs::Common::Client::MonitoringTestService.new }
   let(:total_key) { service.class.const_get('STATSD_KEY_PREFIX') + '.request.total' }
   let(:fail_key) { service.class.const_get('STATSD_KEY_PREFIX') + '.request.fail' }
 
