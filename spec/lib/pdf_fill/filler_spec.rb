@@ -5,7 +5,7 @@ require 'pdf_fill/filler'
 
 PDF_FORMS = PdfForms.new(Settings.binaries.pdftk)
 
-describe PdfFill::Filler do
+describe PDFFill::Filler do
   include SchemaMatchers
 
   describe '#combine_extras' do

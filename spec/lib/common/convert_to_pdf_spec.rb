@@ -3,7 +3,7 @@
 require 'rails_helper'
 require 'common/convert_to_pdf'
 
-describe Common::ConvertToPdf, uploader_helpers: true do
+describe Common::ConvertToPDF, uploader_helpers: true do
   stub_virus_scan
 
   let(:file) { create(:pension_burial).file }

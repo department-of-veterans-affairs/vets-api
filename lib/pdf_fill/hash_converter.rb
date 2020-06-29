@@ -4,7 +4,7 @@ require 'pdf_fill/extras_generator'
 require 'pdf_fill/form_value'
 
 # frozen_string_literal: true
-module PdfFill
+module PDFFill
   class HashConverter
     ITERATOR = '%iterator%'
     EXTRAS_TEXT = "See add'l info page"
@@ -32,7 +32,7 @@ module PdfFill
         return v.map do |item|
           convert_val_as_string(item)
         end.join(', ')
-      elsif v.is_a?(PdfFill::FormValue)
+      elsif v.is_a?(PDFFill::FormValue)
         return v
       end
 
@@ -68,7 +68,7 @@ module PdfFill
 
       i = nil if key_data[:skip_index]
       v = "$#{v}" if key_data[:dollar]
-      v = v.extras_value if v.is_a?(PdfFill::FormValue)
+      v = v.extras_value if v.is_a?(PDFFill::FormValue)
       @extras_generator.add_text(
         v,
         key_data.slice(:question_num, :question_suffix, :question_text).merge(

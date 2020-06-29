@@ -4,12 +4,12 @@ require 'pdf_fill/hash_converter'
 require 'pdf_fill/forms/form_base'
 require 'pdf_fill/forms/form_helper'
 
-module PdfFill
+module PDFFill
   module Forms
     class Va214142 < FormBase
       include FormHelper
 
-      PROVIDER_ITERATOR = PdfFill::HashConverter::ITERATOR
+      PROVIDER_ITERATOR = PDFFill::HashConverter::ITERATOR
       KEY = {
         'veteranFullName' => {
           'first' => {
@@ -333,9 +333,9 @@ module PdfFill
       def expand_provider_extras(providers)
         providers.each do |provider|
           name_address_extras = combine_name_addr_extras(provider, 'providerFacilityName', 'providerFacilityAddress')
-          provider['nameAndAddressOfProvider'] = PdfFill::FormValue.new('', name_address_extras)
+          provider['nameAndAddressOfProvider'] = PDFFill::FormValue.new('', name_address_extras)
           dates_extras = combine_date_ranges(provider['treatmentDateRange'])
-          provider['combinedTreatmentDates'] = PdfFill::FormValue.new('', dates_extras)
+          provider['combinedTreatmentDates'] = PDFFill::FormValue.new('', dates_extras)
         end
       end
 

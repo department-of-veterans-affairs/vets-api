@@ -4,10 +4,10 @@ require 'rails_helper'
 require 'pdf_fill/forms/va21p527ez'
 
 def basic_class
-  PdfFill::Forms::Va21p527ez.new({})
+  PDFFill::Forms::Va21p527ez.new({})
 end
 
-describe PdfFill::Forms::Va21p527ez do
+describe PDFFill::Forms::Va21p527ez do
   include SchemaMatchers
 
   let(:form_data) do

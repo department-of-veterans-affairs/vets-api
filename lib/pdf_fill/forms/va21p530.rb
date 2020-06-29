@@ -6,12 +6,12 @@ require 'pdf_fill/forms/form_helper'
 require 'string_helpers'
 
 # rubocop:disable Metrics/ClassLength
-module PdfFill
+module PDFFill
   module Forms
     class Va21p530 < FormBase
       include FormHelper
 
-      ITERATOR = PdfFill::HashConverter::ITERATOR
+      ITERATOR = PDFFill::HashConverter::ITERATOR
 
       PLACE_OF_DEATH_KEY = {
         'vaMedicalCenter' => 'VA MEDICAL CENTER',

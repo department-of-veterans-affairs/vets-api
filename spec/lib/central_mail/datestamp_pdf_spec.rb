@@ -4,7 +4,7 @@ require 'rails_helper'
 require 'central_mail/datestamp_pdf'
 require 'common/file_helpers'
 
-RSpec.describe CentralMail::DatestampPdf do
+RSpec.describe CentralMail::DatestampPDF do
   describe '#run' do
     before do
       @file_path = Common::FileHelpers.random_file_path
@@ -66,7 +66,7 @@ RSpec.describe CentralMail::DatestampPdf do
 
       context 'when an error occurs in #stamp' do
         it 'logs and reraise the error and clean up after itself' do
-          allow(PdfFill::Filler::PDF_FORMS).to receive(:stamp).and_raise(error_message)
+          allow(PDFFill::Filler::PDF_FORMS).to receive(:stamp).and_raise(error_message)
           expect(File).to receive(:delete).twice.and_call_original
           expect do
             instance.run(text: 'Received via vets.gov at', x: 10, y: 10)
