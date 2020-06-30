@@ -13,15 +13,12 @@ module V1
     REDIRECT_URLS = %w[signup mhv dslogon idme custom mfa verify slo].freeze
 
     STATSD_SSO_NEW_KEY = 'api.auth.new'
-    STATSD_SSO_NEW_FORCEAUTH = 'api.auth.new.forceauth'
-    STATSD_SSO_NEW_INBOUND = 'api.auth.new.inbound'
     STATSD_SSO_CALLBACK_KEY = 'api.auth.saml_callback'
     STATSD_SSO_CALLBACK_TOTAL_KEY = 'api.auth.login_callback.total'
     STATSD_SSO_CALLBACK_FAILED_KEY = 'api.auth.login_callback.failed'
     STATSD_LOGIN_NEW_USER_KEY = 'api.auth.new_user'
     STATSD_LOGIN_STATUS_SUCCESS = 'api.auth.login.success'
     STATSD_LOGIN_STATUS_FAILURE = 'api.auth.login.failure'
-    STATSD_LOGIN_INBOUND = 'api.auth.login.inbound'
     STATSD_LOGIN_SHARED_COOKIE = 'api.auth.sso_shared_cookie'
     STATSD_LOGIN_LATENCY = 'api.auth.latency'
 
@@ -75,18 +72,10 @@ module V1
 
     private
 
-    def force_authn?
-      params[:force]&.downcase == 'true'
-    end
-
-    def inbound_ssoe?
-      params[:inbound]&.downcase == 'true'
-    end
-
     def saml_settings(options = {})
       # add a forceAuthn value to the saml settings based on the initial options or
-      # the "force" value in the query params
-      options[:force_authn] ||= force_authn?
+      # default to false
+      options[:force_authn] ||= false
       SAML::SSOeSettingsService.saml_settings(options)
     end
 
@@ -177,14 +166,11 @@ module V1
     def new_stats(type)
       tags = ["context:#{type}", VERSION_TAG]
       StatsD.increment(STATSD_SSO_NEW_KEY, tags: tags)
-      StatsD.increment(STATSD_SSO_NEW_FORCEAUTH, tags: tags) if force_authn?
-      StatsD.increment(STATSD_SSO_NEW_INBOUND, tags: tags) if inbound_ssoe?
     end
 
     def login_stats(status, _saml_response, user_session_form)
       tracker = url_service(user_session_form&.saml_uuid).tracker
       type = tracker.payload_attr(:type)
-      inbound = tracker.payload_attr(:inbound_ssoe)
       tags = ["context:#{type}", VERSION_TAG]
       case status
       when :success
@@ -192,11 +178,9 @@ module V1
         # track users who have a shared sso cookie
         StatsD.increment(STATSD_LOGIN_SHARED_COOKIE, tags: tags)
         StatsD.increment(STATSD_LOGIN_STATUS_SUCCESS, tags: tags)
-        StatsD.increment(STATSD_LOGIN_INBOUND, tags: tags + ['status:success']) if inbound
         StatsD.measure(STATSD_LOGIN_LATENCY, tracker.age, tags: tags)
       when :failure
         StatsD.increment(STATSD_LOGIN_STATUS_FAILURE, tags: tags)
-        StatsD.increment(STATSD_LOGIN_INBOUND, tags: tags + ['status:failure']) if inbound
       end
     end
 

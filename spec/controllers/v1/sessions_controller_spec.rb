@@ -93,10 +93,6 @@ RSpec.describe V1::SessionsController, type: :controller do
               expect { get(:new, params: { type: type, clientId: '123123' }) }
                 .to trigger_statsd_increment(described_class::STATSD_SSO_NEW_KEY,
                                              tags: ["context:#{type}", 'version:v1'], **once)
-                .and not_trigger_statsd_increment(described_class::STATSD_SSO_NEW_FORCEAUTH,
-                                                  tags: ["context:#{type}", 'version:v1'])
-                .and not_trigger_statsd_increment(described_class::STATSD_SSO_NEW_INBOUND,
-                                                  tags: ["context:#{type}", 'version:v1'])
 
               expect(response).to have_http_status(:ok)
               expect_saml_post_form(response.body, 'https://pint.eauth.va.gov/isam/sps/saml20idp/saml20/login',
@@ -113,8 +109,6 @@ RSpec.describe V1::SessionsController, type: :controller do
               expect { get(:new, params: { type: type, clientId: '123123', force: true }) }
                 .to trigger_statsd_increment(described_class::STATSD_SSO_NEW_KEY,
                                              tags: ["context:#{type}", 'version:v1'], **once)
-                .and trigger_statsd_increment(described_class::STATSD_SSO_NEW_FORCEAUTH,
-                                              tags: ["context:#{type}", 'version:v1'], **once)
 
               expect(response).to have_http_status(:ok)
               expect_saml_post_form(response.body, 'https://pint.eauth.va.gov/isam/sps/saml20idp/saml20/login',
@@ -131,8 +125,6 @@ RSpec.describe V1::SessionsController, type: :controller do
               expect { get(:new, params: { type: type, clientId: '123123', inbound: true }) }
                 .to trigger_statsd_increment(described_class::STATSD_SSO_NEW_KEY,
                                              tags: ["context:#{type}", 'version:v1'], **once)
-                .and trigger_statsd_increment(described_class::STATSD_SSO_NEW_INBOUND,
-                                              tags: ["context:#{type}", 'version:v1'], **once)
 
               expect(response).to have_http_status(:ok)
               expect_saml_post_form(response.body, 'https://pint.eauth.va.gov/isam/sps/saml20idp/saml20/login',
