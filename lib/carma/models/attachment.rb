@@ -10,22 +10,18 @@ module CARMA
                       :file_path,
                       :document_type,
                       :document_date,
-                      :submitted_at
+                      :id
 
       def initialize(args = {})
         # TODO: We should select a timezone based on the claim's planned facility.
         timezone = 'Eastern Time (US & Canada)'
 
-        @carma_case_id = args[:carma_case_id]
-        @veteran_name = args[:veteran_name]
-        @file_path = args[:file_path]
-        @document_type = args[:document_type]
-
-        # rubocop:disable Rails/Date
-        @document_date = args[:document_date] || Date.today.in_time_zone(timezone).strftime('%m-%d-%Y')
-        # rubocop:enable Rails/Date
-
-        @submitted_at = args[:submitted_at]
+        @carma_case_id  = args[:carma_case_id]
+        @veteran_name   = args[:veteran_name]
+        @file_path      = args[:file_path]
+        @document_type  = args[:document_type]
+        @id             = args[:id]
+        @document_date  = args[:document_date] || Time.now.in_time_zone(timezone).to_d
       end
 
       def title
@@ -33,8 +29,12 @@ module CARMA
           document_type,
           veteran_name[:first],
           veteran_name[:last],
-          document_date
+          document_date.strftime('%m-%d-%Y')
         ].join('_')
+      end
+
+      def reference_id
+        document_type.delete('-')
       end
 
       def to_request_payload
@@ -52,7 +52,7 @@ module CARMA
             # comments:   A string that will be returned in the response that can be correlated
             #             to the salesforce unique id of the created file. This is not persisted in salesforce.
             # examples:   '1010CG' | 'POA'
-            'referenceId' => document_type.delete('-')
+            'referenceId' => reference_id
           },
 
           # property:   Title
@@ -69,20 +69,21 @@ module CARMA
           # value:      Name of the pdf file uploaded with file extension.
           # comments:   The actual file pdf file name.
           # examples:   'filename.pdf'
-          'PathOnClient' => file_path,
+          # 'PathOnClient' => file_path,
+          'PathOnClient' => file_path.split('/').last,
 
           # property:   CARMA_Document_Type__c
           # value:      Static string literal for the type of the document.
           # comments:   Accepted values are '10-10CG' for the online application and 'POA'
           #             for Power of attorney document.
-          # examples:   '1010CG' | 'POA'
+          # examples:   '10-10CG' | 'POA'
           'CARMA_Document_Type__c' => document_type,
 
           # property:   CARMA_Document_Date__c
           # value:      Date when the document is uploaded.
           # comments:   Date the file was submitted in the format YYYY-MM-DD
           # examples:   '2020-03-30'
-          'CARMA_Document_Date__c' => document_date,
+          'CARMA_Document_Date__c' => document_date.strftime('%Y-%m-%d'),
 
           # property:   FirstPublishLocationId
           # value:      The carmacase.id that was returned during a successful application creation.
@@ -100,26 +101,6 @@ module CARMA
         }
       end
 
-      def submitted?
-        @submitted_at.present?
-      end
-
-      def submit!
-        raise 'This attachment has already been submitted to CARMA' if submitted?
-
-        if Flipper.enabled?(:stub_carma_responses)
-          client.create_attachment_stub(to_request_payload)
-        else
-          client.create_attachment(to_request_payload)
-        end
-
-        # @carma_case_id = response['data']['carmacase']['id']
-        # @submitted_at = response['data']['carmacase']['createdAt']
-        @submitted_at = DateTime.now.utc.iso8601
-
-        self
-      end
-
       private
 
       def as_base64
@@ -128,10 +109,6 @@ module CARMA
             file_path
           )
         )
-      end
-
-      def client
-        @client ||= CARMA::Client::Client.new
       end
     end
   end
