@@ -63,29 +63,25 @@ module EducationForm::Forms
       @form = app.open_struct_form
       @text = format unless self.class == Base
     end
-    
+
+    # rubocop:disable Style/AsciiComments
+    # @note
+    #   The input fixtures in {spec/fixtures/education_benefits_claims/**/*.json contain
+    #   Windows-1252 encoding "double right-single-quotation-mark", (’) Unicode %u2019
+    #   but .spl file (expected output) contains ASCII apostrophe ('), code %27.
+    #
+    #   Workaround is to sub the ASCII apostrophe, though other non-UTF-8 chars might break specs
+    #
     # Convert the JSON/OStruct document into the text format that we submit to the backend
+    # rubocop:enable Style/AsciiComments
     def format
       @applicant = @form
       # the spool file has a requirement that lines be 80 bytes (not characters), and since they
       # use windows-style newlines, that leaves us with a width of 78
       wrapped = word_wrap(parse_with_template_path(@record.form_type), line_width: 78)
-      # Input data from spec/fixtures/education_benefits_claims/*.json contains
-      # windows-encoding "double right-single-quotation-mark with unicode %u2019
-      # but .spl file (expected output) is a ascii apostrophe %27
-      #
-      # - try a wholesale .force_encoding('utf-8') (didn't work)
-      # - pull out and force gsub the problem character
-      # - From:
-      # https://www.justinweiss.com/articles/3-steps-to-fix-encoding-problems-in-ruby/
-      # - we can deduce the problem character for existing failures is in the Windows-1252 set
-      # - then we re-encode-and-re-decode
+      wrapped = wrapped.gsub('’', "'")
+
       # We can only send ASCII, so make a best-effort at that.
-      # atransliterated = Iconv.iconv('asci//translit', 'utf-8', wrapped).first
-      # btransliterated = I18n.transliterate(wrapped)
-      # ctransliterated = Stringex::Unidecoder.decode(wrapped)
-      # binding.pry
-      wrapped = wrapped.encode("UTF-8", "Windows-1252")
       transliterated = ActiveSupport::Inflector.transliterate(wrapped, locale: :en)
       # Trim any lines that end in whitespace, but keep the lines themselves
       transliterated.gsub!(/[ ]+\n/, "\n")
