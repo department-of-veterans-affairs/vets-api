@@ -3,25 +3,23 @@
 require 'rails_helper'
 
 RSpec.describe BGS::StudentSchool do
-  let(:user) { FactoryBot.create(:user, :loa3) }
-  let(:proc_id) { '3828879' }
-  let(:vnp_participant_id) { '148166' }
-  let(:payload) do
-    root = Rails.root.to_s
-    f = File.read("#{root}/spec/services/bgs/support/final_payload.json")
-    JSON.parse(f)
+  let(:user) { FactoryBot.create(:evss_user, :loa3) }
+  let(:proc_id) { '3829409' }
+  let(:vnp_participant_id) { '148998' }
+  let(:fixtures_path) { "#{Rails.root.to_s}/spec/fixtures/686c/dependents" }
+  let(:all_flows_payload) do
+    payload = File.read("#{fixtures_path}/all_flows_payload.json")
+    JSON.parse(payload)
   end
   let(:child_response) do
     {
-      :vnp_child_school_id => "22020",
+      :vnp_child_school_id => "22721",
       :course_name_txt => "An amazing program",
       :curnt_hours_per_wk_num => "37",
       :curnt_school_addrs_one_txt => "2037 29th St",
-      :curnt_school_addrs_three_txt => "Yet another line",
-      :curnt_school_addrs_two_txt => "another line",
       :curnt_school_addrs_zip_nbr => "61201",
       :curnt_school_nm => "My Great School",
-      :curnt_school_postal_cd=>nil
+      :curnt_school_postal_cd => 'AR'
     }
   end
   let(:school_response) do
@@ -43,22 +41,23 @@ RSpec.describe BGS::StudentSchool do
       :term_year_ssa_income_amt => "3453"
     }
   end
+
   describe '#create' do
     it 'creates a child school and a child student' do
       VCR.use_cassette('bgs/student_school/create') do
         student_school = BGS::StudentSchool.new(
           proc_id: proc_id,
           vnp_participant_id: vnp_participant_id,
-          payload: payload,
+          payload: all_flows_payload,
           user: user
         ).create
 
         expect(student_school).to match(
-          [
-            a_hash_including(child_response),
-            a_hash_including(school_response),
-          ]
-        )
+                                    [
+                                      a_hash_including(child_response),
+                                      a_hash_including(school_response),
+                                    ]
+                                  )
       end
     end
   end

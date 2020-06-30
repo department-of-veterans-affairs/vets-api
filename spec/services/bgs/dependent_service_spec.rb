@@ -2,24 +2,24 @@
 
 require 'rails_helper'
 RSpec.describe BGS::DependentService do
-  let(:user) { FactoryBot.create(:user, :loa3) }
+  let(:user) { FactoryBot.create(:evss_user, :loa3) }
   let(:dependent_service) { BGS::DependentService.new(user) }
-  let(:payload) do
-    delete_me_root = Rails.root.to_s
-    delete_me_payload_file = File.read("#{delete_me_root}/spec/services/bgs/support/final_payload.json")
-    JSON.parse(delete_me_payload_file)
+  let(:fixtures_path) { "#{Rails.root.to_s}/spec/fixtures/686c/dependents" }
+  let(:all_flows_payload) do
+    payload = File.read("#{fixtures_path}/all_flows_payload.json")
+    JSON.parse(payload)
   end
 
   # TODO may want to return something else
-  xit 'returns a hash with proc information' do
+  it 'returns a hash with proc information' do
     VCR.use_cassette('bgs/dependent_service/modify_dependents') do
-      modify_dependents = dependent_service.modify_dependents(payload)
+      modify_dependents = dependent_service.modify_dependents(all_flows_payload)
 
       expect(modify_dependents).to include(:jrn_dt, :jrn_lctn_id, :jrn_obj_id, :jrn_status_type_cd, :jrn_user_id, :vnp_proc_id)
     end
   end
 
-  xit 'creates a VnpVeteran' do
+  it 'creates a VnpVeteran' do
     VCR.use_cassette('bgs/dependent_service/modify_dependents') do
       expect_any_instance_of(BGS::Base).to receive(:create_proc).and_call_original
       expect_any_instance_of(BGS::Base).to receive(:create_proc_form).and_call_original
@@ -30,7 +30,7 @@ RSpec.describe BGS::DependentService do
       expect_any_instance_of(BGS::BenefitClaim).to receive(:create).and_call_original
       expect_any_instance_of(BGS::VnpBenefitClaim).to receive(:update).and_call_original
 
-      dependent_service.modify_dependents(payload)
+      dependent_service.modify_dependents(all_flows_payload)
     end
   end
 end

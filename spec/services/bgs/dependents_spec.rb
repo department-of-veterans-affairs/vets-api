@@ -3,12 +3,12 @@
 require 'rails_helper'
 
 RSpec.describe BGS::Dependents do
-  let(:user) { FactoryBot.create(:user, :loa3) }
+  let(:user) { FactoryBot.create(:evss_user, :loa3) }
   let(:proc_id) { '3828033' }
-  let(:payload) do
-    root = Rails.root.to_s
-    f = File.read("#{root}/spec/services/bgs/support/final_payload.json")
-    JSON.parse(f)
+  let(:fixtures_path) { "#{Rails.root.to_s}/spec/fixtures/686c/dependents" }
+  let(:all_flows_payload) do
+    payload = File.read("#{fixtures_path}/all_flows_payload.json")
+    JSON.parse(payload)
   end
 
   describe '#create' do
@@ -17,7 +17,7 @@ RSpec.describe BGS::Dependents do
         VCR.use_cassette('bgs/dependents/create') do
           dependents = BGS::Dependents.new(
             proc_id: proc_id,
-            payload: payload,
+            payload: all_flows_payload,
             user: user
           ).create
 
@@ -32,13 +32,12 @@ RSpec.describe BGS::Dependents do
       end
 
       it 'returns a hash for adopted child that does live with veteran' do
-        veteran_address_info = payload['dependents_application']['veteran_contact_information']['veteran_address']
-        VCR.use_cassette('bgs/dependents/create') do
+        veteran_address_info = all_flows_payload.dig('dependents_application', 'veteran_contact_information', 'veteran_address')
+        json = File.read("#{fixtures_path}/children/adopted_child_lives_with_veteran.json")
+        payload = JSON.parse(json)
+        VCR.use_cassette('bgs/dependents/children/apdopted_child_lives_with_veteran') do
           expect_any_instance_of(BGS::Base).to receive(:create_address)
-                                                 .with(anything, anything, anything)
-                                                 .and_call_original
-          expect_any_instance_of(BGS::Base).to receive(:create_address)
-                                                 .with(anything, anything, veteran_address_info)
+                                                 .with(anything, anything, veteran_address_info).at_most(4).times
                                                  .and_call_original
 
           dependents = BGS::Dependents.new(
@@ -63,7 +62,7 @@ RSpec.describe BGS::Dependents do
         VCR.use_cassette('bgs/dependents/create') do
           dependents = BGS::Dependents.new(
             proc_id: proc_id,
-            payload: payload,
+            payload: all_flows_payload,
             user: user
           ).create
 
@@ -79,8 +78,9 @@ RSpec.describe BGS::Dependents do
     end
 
     context 'adding a spouse' do
-      it 'returns object for spouse who lives with veteran' do
-        payload['spouse_does_live_with_veteran'] = true
+      it 'returns hash for spouse who lives with veteran' do
+        json = File.read("#{fixtures_path}/spouse/spouse_lives_with_veteran.json")
+        payload = JSON.parse(json)
 
         VCR.use_cassette('bgs/dependents/create/spouse/lives_with_veteran') do
           dependents = BGS::Dependents.new(
@@ -89,7 +89,7 @@ RSpec.describe BGS::Dependents do
             user: user
           ).create
 
-          expect(dependents).to  include(
+          expect(dependents).to include(
                                   a_hash_including(
                                     family_relationship_type_name: 'Spouse',
                                     participant_relationship_type_name: 'Spouse',
@@ -106,7 +106,7 @@ RSpec.describe BGS::Dependents do
         VCR.use_cassette('bgs/dependents/create') do
           dependents = BGS::Dependents.new(
             proc_id: proc_id,
-            payload: payload,
+            payload: all_flows_payload,
             user: user
           ).create
 
@@ -124,30 +124,24 @@ RSpec.describe BGS::Dependents do
       end
 
       it 'marks spouse as veteran' do
+        json = File.read("#{fixtures_path}/spouse/spouse_is_veteran.json")
+        payload = JSON.parse(json)
+        spouse_vet_hash = {
+          'first' => 'Jenny',
+          'middle' => 'Lauren',
+          'last' => 'McCarthy',
+          'suffix' => 'Sr.',
+          'ssn' => '323454323',
+          'birth_date' => '1981-04-04',
+          'ever_married_ind' => 'Y',
+          "vet_ind" => "Y",
+          "va_file_number" => "00000000",
+          "martl_status_type_cd" => "Married"
+        }
+
         VCR.use_cassette('bgs/dependents/create/spouse/is_veteran') do
-          payload['report674'] = false
-          payload['add_child'] = false
-          payload['report_death'] = false
-          payload['report_divorce'] = false
-          payload['report_stepchild_not_in_household'] = false
-          payload['report_marriage_of_child_under18'] = false
-          payload['report_child18_or_older_is_not_attending_school'] = false
-
-          spouse_vet_hash = {
-            'first' => 'Jenny',
-            'middle' => 'Lauren',
-            'last' => 'McCarthy',
-            'suffix' => 'Sr.',
-            'ssn' => '323454323',
-            'birth_date' => '1981-04-04',
-            'ever_married_ind' => 'Y',
-            "vet_ind" => "Y",
-            "va_file_number" => "00000000",
-            "martl_status_type_cd" => "Separated"
-          }
-
           expect_any_instance_of(BGS::Base).to receive(:create_person)
-                                                 .with(proc_id, '147706', spouse_vet_hash)
+                                                 .with("3828033", "148993", spouse_vet_hash)
                                                  .and_call_original
 
           BGS::Dependents.new(
@@ -160,7 +154,7 @@ RSpec.describe BGS::Dependents do
     end
 
     xcontext 'reporting a divorce' do
-      it 'returns an object with divorce data' do
+      it 'returns an hash with divorce data' do
         VCR.use_cassette('bgs/dependents/create') do
           dependents = BGS::Dependents.new(
             proc_id: proc_id,
@@ -181,11 +175,11 @@ RSpec.describe BGS::Dependents do
     end
 
     context 'reporting stepchild no longer part of household' do
-      it 'returns an object that represents a stepchild getting half of their expenses paid' do
+      it 'returns an hash that represents a stepchild getting half of their expenses paid' do
         VCR.use_cassette('bgs/dependents/create') do
           dependents = BGS::Dependents.new(
             proc_id: proc_id,
-            payload: payload,
+            payload: all_flows_payload,
             user: user
           ).create
 
@@ -193,7 +187,7 @@ RSpec.describe BGS::Dependents do
                                   a_hash_including(
                                     family_relationship_type_name: 'Stepchild',
                                     participant_relationship_type_name: 'Child',
-                                    living_expenses_paid_amount: 'Half'
+                                    living_expenses_paid_amount: '.5'
                                   )
                                 )
         end
@@ -205,7 +199,7 @@ RSpec.describe BGS::Dependents do
         VCR.use_cassette('bgs/dependents/create') do
           dependents = BGS::Dependents.new(
             proc_id: proc_id,
-            payload: payload,
+            payload: all_flows_payload,
             user: user
           ).create
 
@@ -222,11 +216,11 @@ RSpec.describe BGS::Dependents do
     end
 
     context 'report child 18 or older has stopped attending school' do
-      it 'returns an object that represents a married child under 18' do
+      it 'returns an hash that represents a married child under 18' do
         VCR.use_cassette('bgs/dependents/create') do
           dependents = BGS::Dependents.new(
             proc_id: proc_id,
-            payload: payload,
+            payload: all_flows_payload,
             user: user
           ).create
 
@@ -247,7 +241,7 @@ RSpec.describe BGS::Dependents do
         VCR.use_cassette('bgs/dependents/create') do
           dependents = BGS::Dependents.new(
             proc_id: proc_id,
-            payload: payload,
+            payload: all_flows_payload,
             user: user
           ).create
 

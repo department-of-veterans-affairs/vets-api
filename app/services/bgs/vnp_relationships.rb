@@ -13,7 +13,7 @@ module BGS
 
     def create
       spouse_marriages, vet_dependents = @dependents.partition { |dependent| dependent[:type] == 'spouse_former_marriage' }
-      spouse = @dependents.select { |dependent| dependent[:type] == 'spouse' }
+      spouse = @dependents.find { |dependent| dependent[:type] == 'spouse' }
 
       spouse_marriages.each do |dependent|
         create_relationship(@proc_id, spouse[:vnp_participant_id], dependent)

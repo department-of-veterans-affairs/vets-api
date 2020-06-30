@@ -2,11 +2,11 @@
 
 require 'rails_helper'
 RSpec.describe BGS::VnpVeteran do
-  let(:user) { FactoryBot.create(:user, :loa3) }
-  let(:payload) do
-    root = Rails.root.to_s
-    f = File.read("#{root}/spec/services/bgs/support/final_payload.json")
-    JSON.parse(f)
+  let(:user) { FactoryBot.create(:evss_user, :loa3) }
+  let(:fixtures_path) { "#{Rails.root.to_s}/spec/fixtures/686c/dependents" }
+  let(:all_flows_payload) do
+    payload = File.read("#{fixtures_path}/all_flows_payload.json")
+    JSON.parse(payload)
   end
   let(:current_marriage_details) do
     {
@@ -23,41 +23,43 @@ RSpec.describe BGS::VnpVeteran do
     }
   end
   let(:formatted_payload) do # This is here for the mocks since they receive formatted params
-    {"full_name" => {"first" => "Mark", "middle" => "billy", "last" => "Webb", "suffix" => "Jr."},
-     "ssn" => "796104437",
-     "va_file_number" => "796104437",
-     "service_number" => "12345678",
-     "birth_date" => "1950-10-04",
-     "first" => "Mark",
-     "middle" => "billy",
-     "last" => "Webb",
-     "suffix" => "Jr.",
-     "veteran_address" => {"country_name" => "USA", "address_line1" => "8200 DOBY LN", "city" => "PASADENA", "state_code" => "CA", "zip_code" => "21122"},
-     "phone_number" => "1112223333",
-     "email_address" => "vets.gov.user+228@gmail.com",
-     "country_name" => "USA",
-     "address_line1" => "8200 DOBY LN",
-     "city" => "PASADENA",
-     "state_code" => "CA",
-     "zip_code" => "21122",
-     "vet_ind" => "Y",
-     "martl_status_type_cd" => "OTHER"}
+    {
+      "first" => "WESLEY",
+      "middle" => nil,
+      "last" => "FORD",
+      "veteran_address" => {"country_name" => "USA", "address_line1" => "8200 Doby LN", "city" => "Pasadena", "state_code" => "CA", "zip_code" => "21122"},
+      "phone_number" => "1112223333",
+      "email_address" => "foo@foo.com",
+      "country_name" => "USA",
+      "address_line1" => "8200 Doby LN",
+      "city" => "Pasadena",
+      "state_code" => "CA",
+      "zip_code" => "21122",
+      "vet_ind" => "Y",
+      "martl_status_type_cd" => "OTHER"
+    }
   end
 
   describe '#create' do
     context 'married veteran' do
       it 'returns a VnpPersonAddressPhone object' do
         VCR.use_cassette('bgs/vnp_veteran/create') do
-          vnp_veteran = BGS::VnpVeteran.new(proc_id: '3828241', payload: payload, user: user).create
+          vnp_veteran = BGS::VnpVeteran.new(proc_id: '3828241', payload: all_flows_payload, user: user).create
 
-          expect(vnp_veteran).to have_attributes(
-                                   address_city: 'PASADENA',
-                                   participant_relationship_type_name: 'Veteran',
-                                   phone_number: '1112223333',
-                                   first_name: 'Mark',
-                                   ssn_number: '796104437',
-                                   email_address: "vets.gov.user+228@gmail.com",
-                                   file_number: "796104437"
+          expect(vnp_veteran).to eq(
+                                   :vnp_participant_id => "149000",
+                                   :first_name => "WESLEY",
+                                   :last_name => "FORD",
+                                   :vnp_participant_address_id => "115983",
+                                   :address_line_one => "8200 Doby LN",
+                                   :address_line_two => nil,
+                                   :address_line_three => nil,
+                                   :address_country => "USA",
+                                   :address_state_code => "CA",
+                                   :address_city => "Pasadena",
+                                   :address_zip_code => "21122",
+                                   :type => "veteran",
+                                   :benefit_claim_type_end_product => "134"
                                  )
         end
       end
@@ -66,18 +68,18 @@ RSpec.describe BGS::VnpVeteran do
     it 'calls BGS::Base: #create_person, #create_phone, and #create_address' do
       VCR.use_cassette('bgs/vnp_veteran/create') do
         expect_any_instance_of(BGS::Base).to receive(:create_person)
-                                               .with('12345', '146793', formatted_payload)
+                                               .with('12345', '149000', formatted_payload)
                                                .and_call_original
 
         expect_any_instance_of(BGS::Base).to receive(:create_phone)
-                                               .with('12345', '146793', formatted_payload)
+                                               .with('12345', '149000', formatted_payload)
                                                .and_call_original
 
         expect_any_instance_of(BGS::Base).to receive(:create_address)
-                                               .with('12345', '146793', formatted_payload)
+                                               .with('12345', '149000', formatted_payload)
                                                .and_call_original
 
-        BGS::VnpVeteran.new(proc_id: '12345', payload: payload, user: user).create
+        BGS::VnpVeteran.new(proc_id: '12345', payload: all_flows_payload, user: user).create
       end
     end
   end

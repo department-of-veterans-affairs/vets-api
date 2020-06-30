@@ -2,28 +2,35 @@
 
 module BGS
   class Dependents < Base
-    CHILD_STATUS = {'child_under18' => 'Other', 'step_child' => 'Stepchild', 'biological' => 'Biological', 'adopted' => 'Adopted Child', 'disabled' => 'Other', 'child_over18_in_school' => 'Other'}
+    CHILD_STATUS = {
+      'child_under18' => 'Other',
+      'step_child' => 'Stepchild',
+      'biological' => 'Biological',
+      'adopted' => 'Adopted Child',
+      'disabled' => 'Other',
+      'child_over18_in_school' => 'Other'
+    }
 
     def initialize(proc_id:, payload:, user:)
       @proc_id = proc_id
-      @payload = payload
+      @payload = payload.to_h
       @dependents = []
-      @dependents_application = payload['dependents_application']
+      @dependents_application = @payload['dependents_application']
 
       super(user) # is this cool? Might be smelly. Might indicate a new class/object 🤔
     end
 
     def create
-      # add_children if @dependents_application.dig("view:selectable686_options", "add_child")
-      # report_deaths if @payload['report_death']
-      # add_spouse if @dependents_application.dig('view:selectable686_options', 'add_spouse')
-      # # report_divorce if @payload['report_divorce']
-      # report_stepchild if @payload['report_stepchild_not_in_household']
-      # report_child_marriage if @payload['report_marriage_of_child_under18']
-      # report_child18_or_older_is_not_attending_school if @payload['report_child18_or_older_is_not_attending_school']
-      report_674 if @dependents_application.dig("view:selectable686_options", "report674")
-      # report_veteran_marriage_history if @payload['veteran_marriage_history']
-      # report_spouse_marriage_history if @payload['spouse_marriage_history']
+      add_children if @payload['add_child']
+      report_deaths if @payload['report_death']
+      add_spouse if @payload['add_spouse']
+      # report_divorce if @payload['report_divorce']
+      report_stepchild if @payload['report_stepchild_not_in_household']
+      report_child_marriage if @payload['report_marriage_of_child_under18']
+      report_child18_or_older_is_not_attending_school if @payload['report_child18_or_older_is_not_attending_school']
+      report_674 if @payload['report674']
+      report_veteran_marriage_history if @payload['veteran_was_married_before']
+      report_spouse_marriage_history if @payload['spouse_was_married_before']
 
       @dependents
     end
@@ -32,18 +39,21 @@ module BGS
 
     def add_children
       @dependents_application['children_to_add'].each do |child_info|
-        format_child_info(child_info)
-        child_address = child_info["does_child_live_with_you"] == true ? @dependents_application['veteran_contact_information']['veteran_address'] : child_info['child_address_info']['address']
+        formatted_info = format_child_info(child_info)
         participant = create_participant(@proc_id)
-        create_person(@proc_id, participant[:vnp_ptcpnt_id], child_info)
-        generate_address(participant[:vnp_ptcpnt_id], child_address)
+
+        create_person(@proc_id, participant[:vnp_ptcpnt_id], formatted_info)
+        generate_address(
+          participant[:vnp_ptcpnt_id],
+          dependent_address(child_info["does_child_live_with_you"], child_info.dig('child_address_info', 'address'))
+        )
 
         @dependents << serialize_result(
           participant,
-          child_info['participant_relationship_type'],
-          child_info['family_relationship_type'],
+          'Child',
+          formatted_info['family_relationship_type'],
           {
-            marriage_termination_type_code: child_info['reason_marriage_ended'],
+            marriage_termination_type_code: formatted_info['reason_marriage_ended'],
             type: 'child'
           }
         )
@@ -53,6 +63,7 @@ module BGS
     def report_deaths
       @dependents_application['deaths'].each do |death_info|
         formatted_death_info = format_death_info(death_info)
+        relationship_types = relationship_type(death_info)
         death_info['location']['state_code'] = death_info['location'].delete('state')
 
         participant = create_participant(@proc_id)
@@ -63,28 +74,27 @@ module BGS
 
         @dependents << serialize_result(
           participant,
-          formatted_death_info['participant_relationship_type'],
-          formatted_death_info['family_relationship_type'],
+          relationship_types[:participant],
+          relationship_types[:family],
           {type: 'death'}
         )
       end
     end
 
     def add_spouse
-      marriage_info = format_marriage_info
-
-      family_relationship_type = @dependents_application.dig('does_live_with_spouse', 'spouse_does_live_with_veteran') == true ? 'Spouse' : 'Estranged Spouse'
-
-      spouse_address = family_relationship_type == 'Spouse' ? @dependents_application['veteran_contact_information']['veteran_address'] : @dependents_application['does_live_with_spouse']['address']
+      lives_with_vet = @dependents_application.dig('does_live_with_spouse', 'spouse_does_live_with_veteran')
+      marriage_info = format_marriage_info(@dependents_application['spouse_information'], lives_with_vet)
       participant = create_participant(@proc_id)
       create_person(@proc_id, participant[:vnp_ptcpnt_id], marriage_info)
-
-      generate_address(participant[:vnp_ptcpnt_id], spouse_address)
+      generate_address(
+        participant[:vnp_ptcpnt_id],
+        dependent_address(lives_with_vet, @dependents_application.dig('does_live_with_spouse', 'address'))
+      )
 
       @dependents << serialize_result(
         participant,
         'Spouse',
-        family_relationship_type,
+        lives_with_vet ? 'Spouse' : 'Estranged Spouse',
         {
           begin_date: @dependents_application['current_marriage_information']['date'],
           marriage_state: @dependents_application['current_marriage_information']['location']['state'],
@@ -113,7 +123,6 @@ module BGS
 
     def report_stepchild
       @dependents_application['step_children'].each do |stepchild_info|
-        # not using this at the moment, don't know what to do with it: "who_does_the_stepchild_live_with"=>{"first"=>"Adam", "middle"=>"Steven", "last"=>"Huberws"}
         step_child_formatted = format_stepchild_info(stepchild_info)
         participant = create_participant(@proc_id)
         create_person(@proc_id, participant[:vnp_ptcpnt_id], step_child_formatted)
@@ -121,8 +130,8 @@ module BGS
 
         @dependents << serialize_result(
           participant,
-          step_child_formatted['participant_relationship_type'],
-          step_child_formatted['family_relationship_type'],
+          'Child',
+          'Stepchild',
           {
             living_expenses_paid: step_child_formatted['living_expenses_paid'],
             'type': 'stepchild'
@@ -133,7 +142,7 @@ module BGS
 
     def report_child_marriage
       # What do we do about family relationship type? We don't ask the question on the form
-      child_marriage_info = format_child_marriage_info
+      child_marriage_info = format_child_marriage_info(@dependents_application['child_marriage'])
       participant = create_participant(@proc_id)
       create_person(@proc_id, participant[:vnp_ptcpnt_id], child_marriage_info)
 
@@ -150,16 +159,18 @@ module BGS
 
     def report_child18_or_older_is_not_attending_school
       # What do we do about family relationship type? We don't ask the question on the form
-      child_not_attending_school_info = format_child_not_attending_school_info
+      formatted_child_info = format_child_not_attending(
+        @dependents_application['child_stopped_attending_school']
+      )
       participant = create_participant(@proc_id)
-      create_person(@proc_id, participant[:vnp_ptcpnt_id], child_not_attending_school_info)
+      create_person(@proc_id, participant[:vnp_ptcpnt_id], formatted_child_info)
 
       @dependents << serialize_result(
         participant,
         'Child',
         'Other',
         {
-          'event_date': child_not_attending_school_info['event_date'],
+          'event_date': formatted_child_info['event_date'],
           'type': 'not_attending_school'
         }
       )
@@ -176,9 +187,7 @@ module BGS
         participant,
         'Child',
         'Other',
-        {
-          'type': '674'
-        }
+        { 'type': '674' }
       )
     end
 
@@ -203,9 +212,7 @@ module BGS
           participant,
           'Spouse',
           'Ex-Spouse',
-          {
-            'type': 'veteran_former_marriage'
-          }
+          { 'type': 'veteran_former_marriage' }
         )
       end
     end
@@ -220,107 +227,86 @@ module BGS
           participant,
           'Spouse',
           'Ex-Spouse',
-          {
-            'type': 'spouse_former_marriage'
-          }
+          { 'type': 'spouse_former_marriage' }
         )
       end
     end
 
-    def format_former_marriage_info(former_spouse_payload)
-      [
-        *former_spouse_payload.dig('full_name'),
-        ['start_date', former_spouse_payload['start_date']],
-        ['end_date', former_spouse_payload['end_date']],
-        ['marriage_state', former_spouse_payload.dig('start_location', 'state')],
-        ['marriage_city', former_spouse_payload.dig('start_location', 'city')],
-        ['divorce_state', former_spouse_payload.dig('start_location', 'state')],
-        ['divorce_city', former_spouse_payload.dig('start_location', 'city')],
-        ['marriage_termination_type_code', former_spouse_payload['reason_marriage_ended_other']]
-      ].to_h
+    def dependent_address(lives_with_vet, alt_address)
+      return @dependents_application.dig('veteran_contact_information', 'veteran_address') if lives_with_vet
+
+      alt_address
+    end
+
+    def format_former_marriage_info(former_spouse)
+      {
+        'start_date': former_spouse['start_date'],
+        'end_date': former_spouse['end_date'],
+        'marriage_state': former_spouse.dig('start_location', 'state'),
+        'marriage_city': former_spouse.dig('start_location', 'city'),
+        'divorce_state': former_spouse.dig('start_location', 'state'),
+        'divorce_city': former_spouse.dig('start_location', 'city'),
+        'marriage_termination_type_code': former_spouse['reason_marriage_ended_other']
+      }.merge(former_spouse['full_name']).with_indifferent_access
     end
 
     def format_674_info
       name_and_ssn = @dependents_application['student_name_and_ssn']
-      marriage_tuition = @dependents_application['student_address_marriage_tuition']
-
-      [
-        *name_and_ssn['full_name'],
-        ['ssn', name_and_ssn['ssn']],
-        ['birth_date', name_and_ssn['birth_date']],
-        ['ever_married_ind', marriage_tuition['was_married'] == true ? 'Y' : 'N']
-      ].to_h
+      was_married = @dependents_application.dig('student_address_marriage_tuition', 'was_married')
+      {
+        'ssn': name_and_ssn['ssn'],
+        'birth_date': name_and_ssn['birth_date'],
+        'ever_married_ind': was_married == true ? 'Y' : 'N'
+      }.merge(name_and_ssn['full_name']).with_indifferent_access
     end
 
-    def format_child_not_attending_school_info
-      [
-        *@dependents_application['child_stopped_attending_school']['full_name'],
-        ['event_date', @dependents_application['child_stopped_attending_school']['date_child_left_school']]
-      ].to_h
+    def format_child_not_attending(child)
+      {
+        event_date: child['date_child_left_school']
+      }.merge(child['full_name']).with_indifferent_access
     end
 
-    def format_child_marriage_info
-      [
-        *@dependents_application['child_marriage']['full_name'],
-        ['event_date', @dependents_application['child_marriage']['date_married']]
-      ].to_h
+    def format_child_marriage_info(child_marriage)
+      {
+        'event_date': child_marriage['date_married']
+      }.merge(child_marriage['full_name']).with_indifferent_access
     end
 
     def format_stepchild_info(stepchild_info)
-      [
-        *stepchild_info['full_name'],
-        ['living_expenses_paid', stepchild_info['living_expenses_paid']],
-        ['participant_relationship_type', 'Child'],
-        ['family_relationship_type', 'Stepchild'],
-        ['lives_with_relatd_person_ind', 'N']
-      ].to_h
+      {
+        'living_expenses_paid': stepchild_info['living_expenses_paid'],
+        'lives_with_relatd_person_ind': 'N'
+      }.merge(stepchild_info['full_name']).with_indifferent_access
     end
 
     def format_child_info(child_info)
-      child_status = child_info['child_status'].key(true)
-      child_name = [
-        *child_info.dig('full_name')
-      ].to_h
-
-      child_info.merge!(child_name)
-      child_info['participant_relationship_type'] = 'Child'
-      child_info['family_relationship_type'] = CHILD_STATUS[child_status]
-      child_info['place_of_birth_state'] = child_info['place_of_birth']['state']
-      child_info['place_of_birth_city'] = child_info['place_of_birth']['city']
-      child_info['death_date'] = nil # Doing this to get past Struct attribute
-      child_info['reason_marriage_ended'] = child_info.dig('previous_marriage_details', 'reason_marriage_ended')
-      child_info['ever_married_ind'] = child_info['previously_married'] == 'Yes' ? 'Y' : 'N'
+      {
+        'ssn': child_info['ssn'],
+        'family_relationship_type': CHILD_STATUS[child_info['child_status'].key(true)],
+        'place_of_birth_state': child_info.dig('place_of_birth', 'state'),
+        'place_of_birth_city': child_info.dig('place_of_birth', 'city'),
+        'reason_marriage_ended': child_info.dig('previous_marriage_details', 'reason_marriage_ended'),
+        'ever_married_ind': child_info['previously_married'] == 'Yes' ? 'Y' : 'N',
+      }.merge(child_info['full_name']).with_indifferent_access
     end
 
     def format_death_info(death_info)
-      relationship_types = relationship_type(death_info)
-      [
-        *death_info.dig('full_name'),
-        ['family_relationship_type', relationship_types[:family]],
-        ['participant_relationship_type', relationship_types[:participant]],
-        ['death_date', death_info['date']],
-        ['vet_ind', 'N']
-      ].to_h
+      {
+        'death_date': death_info['date'],
+        'vet_ind': 'N'
+      }.merge(death_info['full_name'])
     end
 
-    def format_marriage_info
-      spouse_information = @dependents_application['spouse_information']
-      lives_with_veteran = @dependents_application['does_live_with_spouse']['spouse_does_live_with_veteran']
+    def format_marriage_info(spouse_information, lives_with_vet)
+      marriage_info = {
+        'ssn': spouse_information['ssn'],
+        'birth_date': spouse_information['birth_date'],
+        'ever_married_ind': 'Y',
+        'martl_status_type_cd': lives_with_vet ? 'Married' : 'Separated',
+        'vet_ind': spouse_information['is_veteran'] ? 'Y' : 'N'
+      }.merge(spouse_information['full_name']).with_indifferent_access
 
-      marriage_info = spouse_information['full_name']
-      marriage_info['ssn'] = spouse_information['ssn']
-      marriage_info['birth_date'] = spouse_information['birth_date']
-      marriage_info['ever_married_ind'] = 'Y'
-      marriage_info['martl_status_type_cd'] = lives_with_veteran ? 'Married' : 'Separated'
-      marriage_info['vet_ind'] = 'N'
-
-      if spouse_information['is_veteran'] == true
-        marriage_info['vet_ind'] = 'Y'
-        marriage_info['va_file_number'] = spouse_information['va_file_number']
-        # marriage_info['service_number'] = spouse_information['service_number'] not sure where this is supposed to go
-      end
-
-      marriage_info
+      marriage_info.merge({'va_file_number': spouse_information['va_file_number']}) if spouse_information['is_veteran']
     end
 
     def format_divorce_info
@@ -336,23 +322,14 @@ module BGS
     end
 
     def relationship_type(info)
-      fmly_rel_type = ''
-      ptcpnt_rel_type = ''
-
       if info['dependent_type']
-        fmly_rel_type = info['dependent_type'].capitalize.gsub('_', ' ')
-        ptcpnt_rel_type = info['dependent_type'].capitalize.gsub('_', ' ')
+        return { participant: 'Guardian', family: 'Other' } if info['dependent_type'] == 'DEPENDENT_PARENT'
 
-        if info['dependent_type'] == 'DEPENDENT_PARENT'
-          ptcpnt_rel_type = 'Guardian'
-          fmly_rel_type = 'Other'
-        end
+        return {
+          participant: info['dependent_type'].capitalize.gsub('_', ' '),
+          family: info['dependent_type'].capitalize.gsub('_', ' ')
+        }
       end
-
-      {
-        family: fmly_rel_type,
-        participant: ptcpnt_rel_type
-      }
     end
 
     def serialize_result(

@@ -1,10 +1,10 @@
 module BGS
-  class SubmitForm686cJob < EVSS::DisabilityCompensationForm::Job
+  class SubmitForm686cJob
   #  should we do retries? If so, how many?
   #   ex.
   #   sidekiq_options(retry: 10)
 
-    class BGSError < Common::Exceptions::BackendServiceException; end
+    class SubmitForm86cError < Common::Exceptions::BackendServiceException; end
 
     # Performs async submission to BGS for 686c form
 
@@ -15,9 +15,6 @@ module BGS
       veteran = BGS::VnpVeteran.new(proc_id: proc_id, payload: payload, user: user).create
       dependents = BGS::Dependents.new(proc_id: proc_id, veteran: veteran, payload: payload, user: user).create
       VnpRelationships.new(proc_id: proc_id, veteran: veteran, dependents: dependents, user: user).create
-
-      # # # ####-We’ll only do this for form number 674
-      # # # create_child_school_student(proc_id, dependents)
 
       vnp_benefit_claim = BGS::VnpBenefitClaim.new(proc_id: proc_id, veteran: veteran, user: user)
       vnp_benefit_claim_record = vnp_benefit_claim.create

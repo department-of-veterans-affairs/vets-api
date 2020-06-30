@@ -4,7 +4,8 @@ module BGS
   class VnpVeteran < Base
     def initialize(proc_id:, payload:, user:)
       @proc_id = proc_id
-      @veteran_info = formatted_params(payload, user)
+      @paylaod = payload.to_h
+      @veteran_info = formatted_params(@payload, user)
 
       super(user) # is this cool? Might be smelly. Might indicate a new class/object 🤔
     end
@@ -16,14 +17,13 @@ module BGS
       create_phone(@proc_id, participant[:vnp_ptcpnt_id], @veteran_info)
       address = create_address(@proc_id, participant[:vnp_ptcpnt_id], @veteran_info)
 
-
       {
         vnp_participant_id: participant[:vnp_ptcpnt_id], # dependent and vet
         first_name: person[:first_nm],
         last_name: person[:last_nm],
         vnp_participant_address_id: address[:vnp_ptcpnt_addrs_id],
-        file_number: person[:file_nbr],
-        ssn_number: person[:ssn_nbr],
+        # file_number: person[:file_nbr],
+        # ssn_number: person[:ssn_nbr],
         address_line_one: address[:addrs_one_txt],
         address_line_two: address[:addrs_two_txt], # veteran only
         address_line_three: address[:addrs_three_txt], # veteran only

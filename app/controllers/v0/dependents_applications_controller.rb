@@ -5,6 +5,7 @@ module V0
     def create
       # dependents_hash = dependent_params.to_h
       # dependents_hash = params
+      binding.pry
       bgs_dependent_service.modify_dependents(dependent_params)
       render json: {status: 'ok'}
     end
@@ -32,13 +33,13 @@ module V0
       params.permit(
         :add_child,
         :add_spouse,
-        :child_stopped_attending_school,
+        # :child_stopped_attending_school,
         :child_marriage,
         :current_term_dates,
-        :current_marriage_information,
-        :does_live_with_spouse,
+        # :current_marriage_information,
+        # :does_live_with_spouse,
         :last_term_school_information,
-        :program_information,
+        # :program_information,
         :privacy_agreement_accepted,
         :report674,
         :report_divorce,
@@ -49,8 +50,8 @@ module V0
         :school_information,
         :spouse_marriage_history,
         :spouse_was_married_before,
-        :student_address_marriage_tuition,
-        :student_name_and_ssn,
+        # :student_address_marriage_tuition,
+        # :student_name_and_ssn,
         :student_does_have_networth,
         :student_does_earn_income,
         :student_earnings_from_school_year,
@@ -69,7 +70,13 @@ module V0
         student_networth_information: {},
         veteran_address: {},
         veteran_information: {},
-        veteran_contact_information: {}
+        veteran_contact_information: {},
+        current_term_dates: {},
+        program_information: {},
+        student_name_and_ssn: {},
+        child_stopped_attending_school: {},
+        does_live_with_spouse: {},
+        current_marriage_information: {}
       )
     end
   end

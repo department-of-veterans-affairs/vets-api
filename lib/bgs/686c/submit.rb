@@ -1,21 +1,5 @@
-# frozen_string_literal: true
-
 module BGS
   class DependentService < Base
-    def initialize(user)
-      @user = user
-    end
-
-    # class BGSError < Common::Exceptions::BackendServiceException; end
-
-    def get_dependents
-      service
-        .claimants
-        .find_dependents_by_participant_id(
-          @user.participant_id, @user.ssn
-        )
-    end
-
     def modify_dependents(payload)
       # BGS::SubmitForm686cJob.perform_async(@user, payload) this is for the job
       proc_id = create_proc_id_and_form
@@ -51,4 +35,3 @@ module BGS
     end
   end
 end
-
